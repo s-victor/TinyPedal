@@ -7,6 +7,7 @@
 
 ## Technical support:
     * Xudong Zhang (zxd1997)
+    * DumibirdF
 
 
 ## Testing & Feedback:
