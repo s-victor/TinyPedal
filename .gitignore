@@ -1,0 +1,10 @@
+# ignore list
+
+/dist/TinyPedal/
+
+__pycache__/
+
+Pipfile
+Pipfile.lock
+pylintrc
+*.json

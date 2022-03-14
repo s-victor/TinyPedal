@@ -1,0 +1,32 @@
+TinyPedal relies on following third-party software:
+
+- Python 3, which is distributed under the Python Software Foundation License Version 2.
+  website: https://www.python.org/
+  license: https://docs.python.org/3/license.html
+
+- rF2 Shared Memory Map Plugin by The Iron Wolf, which is distributed under the GNU General Public License version 3.0.
+  website: https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin
+  license: https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin/blob/master/LICENSE
+
+- pyRfactor2SharedMemory by Tony Whitley, which is distributed under the MIT license.
+  website: https://github.com/TonyWhitley/pyRfactor2SharedMemory
+  license: https://github.com/TonyWhitley/pyRfactor2SharedMemory/blob/master/License.txt
+
+- pystray, which is distributed under the GNU Lesser General Public License version 3.
+  website: https://github.com/moses-palmer/pystray
+  license: https://github.com/moses-palmer/pystray/blob/master/COPYING
+           https://github.com/moses-palmer/pystray/blob/master/COPYING.LGPL
+
+- Pillow, which is distributed under the open source HPND License.
+  website: https://github.com/python-pillow/Pillow
+  license: https://github.com/python-pillow/Pillow/blob/main/LICENSE
+
+- six, which is distributed under the MIT license.
+  website: https://github.com/benjaminp/six
+  license: https://github.com/benjaminp/six/blob/master/LICENSE
+
+- psutil, which is distributed under the BSD 3-Clause License.
+  website: https://github.com/giampaolo/psutil
+  license: https://github.com/giampaolo/psutil/blob/master/LICENSE
+
+For licenses and notices of each software, see LICENSE file in "docs\licenses" folder, or visit website.

@@ -1,0 +1,137 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Created with Inkscape (http://www.inkscape.org/) -->
+
+<svg
+   width="256"
+   height="256"
+   viewBox="0 0 25.6 25.6"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
+   sodipodi:docname="tinypedal_icon_source.svg"
+   inkscape:export-filename="tinypedal_icon_source.png"
+   inkscape:export-xdpi="95.787003"
+   inkscape:export-ydpi="95.787003"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <title
+     id="title841">TinyPedal Icon</title>
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.90509668"
+     inkscape:cx="151.91747"
+     inkscape:cy="244.72524"
+     inkscape:document-units="px"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1920"
+     inkscape:window-height="1026"
+     inkscape:window-x="-8"
+     inkscape:window-y="23"
+     inkscape:window-maximized="1"
+     inkscape:pagecheckerboard="0"
+     units="px"
+     scale-x="0.1"
+     inkscape:showpageshadow="false"
+     borderlayer="true"
+     inkscape:snap-global="true"
+     showguides="true"
+     inkscape:guide-bbox="true" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <cc:license
+           rdf:resource="http://creativecommons.org/licenses/by-sa/4.0/" />
+        <dc:creator>
+          <cc:Agent>
+            <dc:title>S.Victor(Xiang)</dc:title>
+          </cc:Agent>
+        </dc:creator>
+        <dc:title>TinyPedal Icon</dc:title>
+      </cc:Work>
+      <cc:License
+         rdf:about="http://creativecommons.org/licenses/by-sa/4.0/">
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Reproduction" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#Distribution" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Notice" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#Attribution" />
+        <cc:permits
+           rdf:resource="http://creativecommons.org/ns#DerivativeWorks" />
+        <cc:requires
+           rdf:resource="http://creativecommons.org/ns#ShareAlike" />
+      </cc:License>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <g
+       id="g49155"
+       transform="matrix(0.06129618,0,0,0.0552306,136.49991,-173.55291)">
+      <g
+         id="g64932"
+         transform="matrix(16.000001,0,0,16.000001,4302.5653,1722.2795)">
+        <path
+           id="path49141"
+           style="font-variation-settings:normal;opacity:0.2;vector-effect:none;fill:#000000;fill-opacity:1;stroke:none;stroke-width:2.21119;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;paint-order:markers stroke fill;stop-color:#000000"
+           d="m -403.62647,105.31173 16.42787,-2.58133 4.96539,3.03911 -3.49199,8.92797 -12.12393,3.02527 -4.14343,-0.62358 -4.63501,-8.36707 z"
+           sodipodi:nodetypes="cccccccc" />
+        <path
+           id="path49143"
+           style="font-variation-settings:normal;vector-effect:none;fill:#ff2b00;fill-opacity:1;stroke:none;stroke-width:2.63918;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;paint-order:markers stroke fill;stop-color:#000000"
+           d="m -405.26839,98.734034 17.30606,-2.505963 5.4735,4.089669 -2.92806,11.45335 -12.59522,5.56521 -3.11984,-0.65463 -6.71398,-14.24582 z"
+           sodipodi:nodetypes="cccccccc" />
+        <path
+           id="path49145"
+           style="font-variation-settings:normal;vector-effect:none;fill:#b71f00;fill-opacity:1;stroke:none;stroke-width:0.05;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000"
+           d="m -382.48878,100.31777 -0.96426,1.59844 -2.33633,8.45567 -2.34921,1.62792 -7.84805,3.71211 -2.03233,1.15918 -2.73291,-0.8 -2.69252,-8.20814 -3.64673,-4.59088 -0.75489,-0.83613 6.71446,14.2457 3.11972,0.65459 12.59493,-5.56514 z"
+           sodipodi:nodetypes="cccccccccccccc" />
+      </g>
+      <g
+         id="g64927"
+         transform="matrix(16.000001,0,0,16.000001,4296.147,1722.2795)">
+        <path
+           style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#b71f00;fill-opacity:1;stroke:none;stroke-width:0.0643223;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"
+           d="m -404.92849,96.301557 1.17257,-1.395074 4.98339,19.658847 5.06486,-0.79364 -0.39477,0.34596 -3.22441,1.20386 -2.11849,0.19126 -0.60439,-0.56423 -2.99466,-5.28559 -2.53759,-6.98787 0.77088,-3.993729 z"
+           id="path49147"
+           sodipodi:nodetypes="cccccccccccc" />
+        <path
+           style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#b71f00;fill-opacity:1;stroke:none;stroke-width:0.05;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;stop-color:#000000;stop-opacity:1"
+           d="m -396.69795,103.35912 c 0.27622,0.0552 11.45622,-0.12379 11.45622,-0.12379 l -0.666,2.70506 -1.32274,2.13901 -8.69408,0.14108 z"
+           id="path49149"
+           sodipodi:nodetypes="cccccc" />
+        <path
+           style="font-variation-settings:normal;opacity:1;vector-effect:none;fill:#ff2b00;fill-opacity:1;stroke:none;stroke-width:2.05831;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1;-inkscape-stroke:none;paint-order:markers stroke fill;stop-color:#000000;stop-opacity:1"
+           d="m -398.77253,114.56533 -1.13108,-1.69643 -1.2395,-2.62138 -3.66799,-11.566169 -1.30422,-7.168023 7.47588,-2.420538 11.99471,1.429104 2.99598,1.504907 -1.59298,11.652459 -2.40905,3.67416 -6.2616,-0.78167 0.32378,3.15381 -0.11907,4.04613 z"
+           id="path49151"
+           sodipodi:nodetypes="cccccccccccccc" />
+        <path
+           style="fill:#ffffff;stroke:none;stroke-width:1.71191px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
+           d="m -404.2183,92.432505 5.02742,-1.211746 11.52727,0.591716 2.23437,1.014447 -0.71012,10.285378 -1.82813,2.84608 -5.48437,-0.8736 -0.559,-3.63511 0.13,-0.73275 2.8184,-0.70443 -0.0813,-2.4234 -4.92587,0.197298 2.13282,14.963112 -1.066,0.56358 -3.58004,0.78901 -0.88888,-1.63429 -3.93558,-14.540417 z"
+           id="path64380" />
+      </g>
+    </g>
+  </g>
+</svg>

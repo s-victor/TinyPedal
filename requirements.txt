@@ -1,0 +1,2 @@
+psutil==5.9.0
+pystray==0.19.2

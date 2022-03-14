@@ -1,0 +1,220 @@
+# Customization Guide
+
+TinyPedal offers a wide range of customization, which is currently available by editing `config.json` file with text editor. This config file will be auto-generated after first launching.
+
+It is not required to quit APP before editing, but any changes will only take effect after restarted APP.
+
+To make changes, editing values on the right side of colon.
+
+Do not modify anything (keys) on the left side of colon, any changes to those keys will cause config file to be reverted back to default setting. To avoid losing setting, make a backup before editing.
+
+If TinyPedal fails to launch after editing config.json, check JSON file for typo error or invalid values; or delete `config.json` to let APP generate a new default file.
+
+
+## Editing Notes
+If a value is surrounded by quotation marks, make sure not to remove those quotation marks, otherwise may cause error.
+
+Any boolean type value (true or false) will only accept: `true`, which can be substituted with `1`. And `false`, which can be substituted with `0`. All words must be in `lowercase`, otherwise will have no effect.
+
+Color value is in web colors format (hexadecimal color codes), which starts with `#` number sign. Various image editors or online tools can generate those color codes.
+
+If a number (default value) does not contain any decimal place, that means it only accepts `integer`. Make sure not to add any decimal place, otherwise error will occur.
+
+
+## Common Setting
+
+    enable
+This checks whether a widget will be loaded at startup. It can also be accessed and changed from tray icon `Widgets` submenu.
+
+    update_delay
+This sets widget refresh rate, value is in milliseconds. A value of `20` means refresh every 20ms, which equals 50fps. Since most data from sharedmemory plugin is capped at 50fps, setting any value less than `10` will not gain any benefit, and could result significant increase of CPU usage.
+
+    position_x, position_y
+Defines widget position on screen. Those values will be auto-saved by app, no need to manually set.
+
+    opacity
+By default, all widgets have a 90% opacity setting, which equals `0.9` value. Lower value adds more transparency to widget.
+
+    bar_gap
+Set gap (screen pixel) between elements in a widget, only accept integer, `1` = 1 pixel.
+
+    font_name
+Mono type font is highly recommended. To set custom font, write `full font name` inside quotation marks. If a font name is invalid, a default fallback font will be used by program.
+
+    font_size
+Set font size, only accept `integer`, do not put any decimal place.
+
+    font_weight
+Acceptable value: `normal` or `bold` .
+
+    font_color
+Those are for font color.
+
+    bkg_color
+Those are for background color.
+
+
+## Overlay
+
+    fixed_position
+
+Check whether widget is locked at startup. This setting can be toggled from tray icon menu.
+
+Valid value: `true`, same as `1`. `false`, same as `0`.
+
+    auto_hide
+Check whether auto hide is enabled. This setting can be toggled from tray icon menu.
+
+Valid value: `true`, same as `1`. `false`, same as `0`.
+
+    hover_color_1, hover_color_2
+Define color of hover cover when mouse cursor is above widget (when not locked).
+
+
+## Pedal
+    bar_length_scale
+Scale pedal bar length, accepts decimal place.
+
+    bar_width_scale
+Scale pedal bar width, accepts decimal place.
+
+    full_pedal_height
+This is the indicator height when pedal reaches 100% travel, value in pixel.
+
+    show_ffb_meter
+This enables Force Feedback meter.
+
+    ffb_clipping_color
+Set Force Feedback clipping color.
+
+
+## Steering
+    bar_length_scale
+Scale steering bar length, accepts decimal place.
+
+    bar_height_scale
+Scale steering bar height, accepts decimal place.
+
+    bar_edge_width
+Set left and right edge boundary width.
+
+    show_scale_mark
+This enables scale marks on steering bar, which is set 90 degrees apart from each other.
+
+
+# Gear
+    layout
+2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
+
+    speed_unit
+3 speed units are available: `0` = KPH, `1` = MPH, `2` = m/s.
+
+    speed_limiter_text
+Set custom pit speed limiter text which shows when speed limiter is engaged. 
+
+    show_rpm_bar
+Show a RPM bar at bottom of gear widget, which moves when RPM reaches range between safe & max RPM.
+
+    rpm_bar_gap
+The gap between RPM bar & gear widget, in pixel.
+
+    rpm_bar_height
+RPM bar height, in pixel.
+
+    rpm_bar_edge_height
+A visible thin edge line, in pixel, set to `0` to hide this line.
+
+    rpm_safe_multiplier
+This value multiplies max RPM value, which sets a relative safe RPM range for RPM color indicator (changes gear widget background color upon reaching this RPM value).
+
+    rpm_warn_multiplier
+This value multiplies max RPM value, which sets a relative near-max RPM range for RPM color indicator.
+
+    bkg_color_rpm_over_rev
+This sets the color for over-rev warning indicator.
+
+
+## Fuel
+    show_caption
+Show short caption description besides each info block.
+
+    bkg_color_low_fuel
+Set low fuel color indicator, which changes widget background color when there is just 2 laps of fuel left.
+
+
+## Wheel (Alignment)
+    bkg_color_bottoming
+Set color indicator when car bottoming.
+
+    rideheight_offset_front, rideheight_offset_rear
+Set front & rear ride height offset, for bottoming color indicator. Value in millimeters, but without decimal place.
+
+    wheelbase
+Set wheelbase in millimeters, for used in rake angle calculation.
+
+    show_caption
+Show short caption description besides each info block.
+
+
+## Temperature
+    layout
+4 layouts are available: `0` = vertical layout, `1` = vertical swapped, `2` = horizontal layout, `3` = horizontal swapped.
+
+
+## Wear
+    layout
+4 layouts are available: `0` = vertical layout, `1` = vertical swapped, `2` = horizontal layout, `3` = horizontal swapped.
+
+    pressure_unit
+2 tyre pressure units: `0` = kPa, `1` = psi.
+
+
+## Relative
+    bar_driver_name_width
+Set column width of drive name, value in chars, such as 18 = 18 chars.
+
+    show_laptime
+Show driver's last laptime.
+
+    show_class
+Show vehicle class categories. Class name & color are fully customizable, by editing `classes.json`.
+
+First, find full class name of a vehicle, this can be done by looking at class section of a mod's VEH file in MAS; or, increase `bar_class_name_width` value to reveal full class name.
+
+Then, replace `WriteMatchedNameHere` with the found class name, and change `ReplaceClassNameHere` text to a desired class short name (better keep name less than 4 chars).
+
+Last, set `color code` for the class, save and restart app.
+
+You can add more classes following the JSON format, make sure that second last bracket doesn't have a comma after. Also note that, app will not verify, nor to edit `classes.json` after it was created, so you will have to make sure everything typed in the file is correct.
+
+    bar_class_name_width
+Set class display width, value is in chars, 4 = 4 chars wide.
+
+
+## Force
+    show_downforce_ratio
+Show front vs rear downforce ratio. 50% means equal downforce; higher than 50% means front has more downforce.
+
+
+## Engine
+    bkg_color_overheat
+Set oil & water overheat color indicator.
+
+    overheat_threshold_oil, overheat_threshold_water
+Set temperature threshold for oil & water overheat color indicator, value in Celsius.
+
+    show_rpm
+Show engine RPM.
+
+    show_turbo
+Show turbo pressure in bar.
+
+
+## Weather
+
+
+## Timing
+
+
+## DRS
+
