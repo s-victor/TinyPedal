@@ -151,6 +151,9 @@ Note: sub-dependencies should be auto-installed alongside related packages.
 `python run.py`  
 (TinyPedal is currently tested and worked with Python 3.8 & 3.9)
 
+Note: if using `Git` tool to clone this repository, run command with `--recursive` to also clone submodule, such as:  
+`git clone --recursive https://github.com/s-victor/TinyPedal.git`
+
 
 ## Build executable
 Executable file can be built with [py2exe](http://www.py2exe.org).
