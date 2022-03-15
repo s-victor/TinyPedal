@@ -80,7 +80,7 @@ Currently supports rFactor 2 and displays simulation info using The Iron Wolf’
 
 All widgets are Customizable, see **Customization** section for details.
 
-Note: some info, such as fuel usage or tyre wear, requires at least 1 or 2 completed laps to be shown correctly.
+Note: some info, such as fuel usage, requires at least 1 or 2 completed laps to be shown correctly.
 
 
 ## Requirements
@@ -110,7 +110,7 @@ Note: if `Auto Hide` function does not correctly hide overlay while in garage sc
 
 ## Performance
 
-On default setting, current version of TinyPedal uses roughly 5% CPU & 20MB system memory on a 3.0Ghz CPU with all widgets enabled.
+On default setting, current version of TinyPedal uses roughly 5% CPU & 20MB system memory on a 3.0Ghz CPU with all widgets enabled. All widgets will stop updating (0% CPU usage) when player is not on track.
 
 In case of unlikely performance issue, turn off less-used widgets is advised (each widget contributes roughly 0.1-0.5% CPU usage alone); or set a higher `update delay` value for specific widget, see **Customization** section for details.
 
@@ -171,7 +171,7 @@ After building completed, you can find executable file in `dist\TinyPedal` folde
 ### Author:
 Xiang (S.Victor)
 
-For full list of contributors to TinyPedal, see [contributors.md](./docs/contributors.md) file.
+For full list of contributors to TinyPedal, see [docs\contributors.md](./docs/contributors.md) file.
 
 ### Special thanks to:  
 The Iron Wolf for the permission to use rF2 Shared Memory Map Plugin in TinyPedal.  
