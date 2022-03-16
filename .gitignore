@@ -4,7 +4,15 @@
 
 __pycache__/
 
+# pipenv stuff
 Pipfile
 Pipfile.lock
+
+# pylint stuff
 pylintrc
+
+# local config file
 *.json
+
+# random test file
+test*.py
