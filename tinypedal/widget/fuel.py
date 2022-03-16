@@ -160,13 +160,15 @@ class Fuel(Widget, MouseEvent):
                 # Time left / last laptime * last lap fuel consumption - total current fuel
                 self.amount_need = (math.ceil(time_left / (self.laptime_last + 0.001) + 0.001)
                                     * self.used_last - amount_curr)
+
+            # Minimum required pitstops to finish race
+            self.pit_required = max(self.amount_need / (capacity + 0.001), 0)
+
+            # Limit display range of amount_need value
             if self.amount_need > 1000:
                 self.amount_need = 999
             elif self.amount_need < -999:
                 self.amount_need = -999
-
-            # Minimum required pitstops to finish race
-            self.pit_required = max(self.amount_need / (capacity + 0.001), 0)
 
             # Low fuel warning
             lowfuel_color = self.color_lowfuel(self.est_runlaps)
