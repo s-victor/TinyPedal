@@ -166,7 +166,7 @@ Show short caption description besides each info block.
 4 layouts are available: `0` = vertical layout, `1` = vertical swapped, `2` = horizontal layout, `3` = horizontal swapped.
 
     pressure_unit
-2 tyre pressure units: `0` = kPa, `1` = psi.
+2 tyre pressure units: `0` = kPa, `1` = psi, `2` = bar.
 
 
 ## Relative

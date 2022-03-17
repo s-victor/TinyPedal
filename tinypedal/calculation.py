@@ -101,8 +101,10 @@ def kpa2psi(tyre_pres, pres_unit):
     """Convert kilopascal to psi"""
     if pres_unit == "0":
         pressure = f"{tyre_pres:03.0f}"  # kPa
-    else:
+    elif pres_unit == "1":
         pressure = f"{tyre_pres * 0.14503774:03.1f}"  # psi
+    else:
+        pressure = f"{tyre_pres * 0.01:03.2f}"  # bar
     return pressure
 
 

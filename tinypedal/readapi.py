@@ -79,10 +79,11 @@ class ReadData:
 
     def timing(self):
         """Timing data"""
+        plr_tele = self.info.playersVehicleTelemetry()
         plr_scor = self.info.playersVehicleScoring()
         rf2_scor = self.info.Rf2Scor.mScoringInfo
 
-        start_curr = plr_scor.mLapStartET  # current lap start time stamp
+        start_curr = plr_tele.mLapStartET  # current lap start time stamp
         laps_total = rf2_scor.mMaxLaps  # total race laps
         laps_left = laps_total - plr_scor.mTotalLaps  # remaining laps
         time_left = rf2_scor.mEndET - rf2_scor.mCurrentET  #session timer (sec)
