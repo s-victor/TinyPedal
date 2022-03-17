@@ -49,7 +49,7 @@ Currently supports rFactor 2 and displays simulation info using The Iron Wolf’
 
 - Tyre Wear & Pressure
     - Show Tyre wear that changes color according to wear.
-    - Show Tyre pressure with 2 different unit display: kPa or psi.
+    - Show Tyre pressure with 3 different unit display: kPa, psi, bar.
     - 4 different layouts.
 
 - Relative
