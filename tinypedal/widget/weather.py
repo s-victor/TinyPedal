@@ -23,7 +23,8 @@ Weather Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.base import cfg, read_data, Widget, MouseEvent
+import tinypedal.readapi as read_data
+from tinypedal.base import cfg, Widget, MouseEvent
 
 
 class Weather(Widget, MouseEvent):

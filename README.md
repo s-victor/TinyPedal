@@ -44,10 +44,10 @@ Currently supports rFactor 2 and displays simulation info using The Iron Wolf’
 - Temperature (tyre & brake)
     - Show average Tyre surface temperature.
     - Show average Brake temperature of front and rear.
-    - Changes color based on heat map.
+    - Changes font color or background color based on heat map.
     - 4 different layouts.
 
-- Tyre Wear & Pressure
+- Wear & Pressure (tyre)
     - Show Tyre wear that changes color according to wear.
     - Show Tyre pressure with 3 different unit display: kPa, psi, bar.
     - 4 different layouts.
@@ -57,9 +57,6 @@ Currently supports rFactor 2 and displays simulation info using The Iron Wolf’
     - Show different text color based on laps ahead or behind you.
     - Show optional driver's last laptime.
     - Show optional vehicle class categories with fully customizable class name and color.
-
-- Timing
-    - Show personal best, last, and current lap time.
 
 - Weather
     - Show surface condition (dry or wet).
@@ -74,6 +71,17 @@ Currently supports rFactor 2 and displays simulation info using The Iron Wolf’
 - Force
     - Show longitudinal & lateral G force with direction indicator.
     - Show downforce ratio (percentage).
+
+- Delta best
+    - Show delta best based personal best laptime.
+    - Show delta bar with customizable range, size and color.
+    - Record, save, and load player's best laptime data automatically.
+    - Best laptime file is saved in deltabest folder, and can be used by other players.
+    - 3 different layouts.
+
+- Timing
+    - Show personal best, last, current, and delta estimated laptime.
+    - 3 different layouts.
 
 - DRS
     - Show DRS color indicator.

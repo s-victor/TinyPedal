@@ -151,3 +151,23 @@ def sec2laptime(seconds):
     """Calculate lap time (min/sec/ms)"""
     laptime = f"{seconds // 60:02.0f}:{divmod(seconds, 60)[1]:06.03f}"
     return laptime
+
+
+def linear_interp(meter, meter1, secs1, meter2, secs2):
+    """Linear interpolation"""
+    secs = secs1 + (meter - meter1) * (secs2 - secs1) / (meter2 - meter1 + 0.0000001)
+    return secs
+
+
+def nearest_dist_index(position, listname):
+    """Use current position to get nearest distance index from deltabest lap data"""
+    index_lower, index_higher = 0, 0
+    for index in range(0, len(listname)):
+        if position < listname[index][0]:
+            index_higher = index
+            break
+    for index in range(index_higher - 1, -1, -1):
+        if position > listname[index][0]:
+            index_lower = index
+            break
+    return index_lower, index_higher

@@ -23,7 +23,8 @@ Steering Widget
 import tkinter as tk
 
 import tinypedal.calculation as calc
-from tinypedal.base import cfg, read_data, Widget, MouseEvent
+import tinypedal.readapi as read_data
+from tinypedal.base import cfg, Widget, MouseEvent
 
 
 class Steering(Widget, MouseEvent):

@@ -24,7 +24,8 @@ import tkinter as tk
 import tkinter.font as tkfont
 
 import tinypedal.calculation as calc
-from tinypedal.base import cfg, read_data, Widget, MouseEvent
+import tinypedal.readapi as read_data
+from tinypedal.base import cfg, Widget, MouseEvent
 
 
 class Temp(Widget, MouseEvent):
@@ -44,23 +45,26 @@ class Temp(Widget, MouseEvent):
 
         # Config style & variable
         text_def = "n/a"
-        bg_color = cfg.temp["bkg_color"]
+        fg_color_tyre = cfg.temp["font_color_tyre"]
+        bg_color_tyre = cfg.temp["bkg_color_tyre"]
+        fg_color_brake = cfg.temp["font_color_brake"]
+        bg_color_brake = cfg.temp["bkg_color_brake"]
         font_temp = tkfont.Font(family=cfg.temp["font_name"],
                                 size=-cfg.temp["font_size"],
                                 weight=cfg.temp["font_weight"])
 
         # Draw label
-        bar_style = {"text":text_def, "bd":0, "height":1, "width":5, "padx":0,
-                     "pady":0, "font":font_temp, "fg":"#000", "bg":bg_color}
+        bar_style = {"text":text_def, "bd":0, "height":1, "width":5,
+                     "padx":0, "pady":0, "font":font_temp}
 
-        self.bar_ttemp_fl = tk.Label(self, bar_style)
-        self.bar_ttemp_fr = tk.Label(self, bar_style)
-        self.bar_ttemp_rl = tk.Label(self, bar_style)
-        self.bar_ttemp_rr = tk.Label(self, bar_style)
-        self.bar_btemp_fl = tk.Label(self, bar_style)
-        self.bar_btemp_fr = tk.Label(self, bar_style)
-        self.bar_btemp_rl = tk.Label(self, bar_style)
-        self.bar_btemp_rr = tk.Label(self, bar_style)
+        self.bar_ttemp_fl = tk.Label(self, bar_style, fg=fg_color_tyre, bg=bg_color_tyre)
+        self.bar_ttemp_fr = tk.Label(self, bar_style, fg=fg_color_tyre, bg=bg_color_tyre)
+        self.bar_ttemp_rl = tk.Label(self, bar_style, fg=fg_color_tyre, bg=bg_color_tyre)
+        self.bar_ttemp_rr = tk.Label(self, bar_style, fg=fg_color_tyre, bg=bg_color_tyre)
+        self.bar_btemp_fl = tk.Label(self, bar_style, fg=fg_color_brake, bg=bg_color_brake)
+        self.bar_btemp_fr = tk.Label(self, bar_style, fg=fg_color_brake, bg=bg_color_brake)
+        self.bar_btemp_rl = tk.Label(self, bar_style, fg=fg_color_brake, bg=bg_color_brake)
+        self.bar_btemp_rr = tk.Label(self, bar_style, fg=fg_color_brake, bg=bg_color_brake)
 
         if cfg.temp["layout"] == "0":
             # Vertical layout, tyre above brake
@@ -126,14 +130,36 @@ class Temp(Widget, MouseEvent):
              ) = [calc.temperature(data) for data in read_data.temp()]
 
             # Temperature update
-            self.bar_ttemp_fl.config(text=f" {ttemp_fl}°", fg=self.color_ttemp(ttemp_fl))
-            self.bar_ttemp_fr.config(text=f" {ttemp_fr}°", fg=self.color_ttemp(ttemp_fr))
-            self.bar_ttemp_rl.config(text=f" {ttemp_rl}°", fg=self.color_ttemp(ttemp_rl))
-            self.bar_ttemp_rr.config(text=f" {ttemp_rr}°", fg=self.color_ttemp(ttemp_rr))
-            self.bar_btemp_fl.config(text=f" {btemp_fl}°", bg=self.color_btemp(btemp_fl))
-            self.bar_btemp_fr.config(text=f" {btemp_fr}°", bg=self.color_btemp(btemp_fr))
-            self.bar_btemp_rl.config(text=f" {btemp_rl}°", bg=self.color_btemp(btemp_rl))
-            self.bar_btemp_rr.config(text=f" {btemp_rr}°", bg=self.color_btemp(btemp_rr))
+            if cfg.temp["color_swap_tyre"] == "0":
+                self.bar_ttemp_fl["fg"] = self.color_ttemp(ttemp_fl)
+                self.bar_ttemp_fr["fg"] = self.color_ttemp(ttemp_fr)
+                self.bar_ttemp_rl["fg"] = self.color_ttemp(ttemp_rl)
+                self.bar_ttemp_rr["fg"] = self.color_ttemp(ttemp_rr)
+            else:
+                self.bar_ttemp_fl["bg"] = self.color_ttemp(ttemp_fl)
+                self.bar_ttemp_fr["bg"] = self.color_ttemp(ttemp_fr)
+                self.bar_ttemp_rl["bg"] = self.color_ttemp(ttemp_rl)
+                self.bar_ttemp_rr["bg"] = self.color_ttemp(ttemp_rr)
+
+            if cfg.temp["color_swap_brake"] == "0":
+                self.bar_btemp_fl["bg"] = self.color_btemp(btemp_fl)
+                self.bar_btemp_fr["bg"] = self.color_btemp(btemp_fr)
+                self.bar_btemp_rl["bg"] = self.color_btemp(btemp_rl)
+                self.bar_btemp_rr["bg"] = self.color_btemp(btemp_rr)
+            else:
+                self.bar_btemp_fl["fg"] = self.color_btemp(btemp_fl)
+                self.bar_btemp_fr["fg"] = self.color_btemp(btemp_fr)
+                self.bar_btemp_rl["fg"] = self.color_btemp(btemp_rl)
+                self.bar_btemp_rr["fg"] = self.color_btemp(btemp_rr)
+
+            self.bar_ttemp_fl.config(text=f" {ttemp_fl}°")
+            self.bar_ttemp_fr.config(text=f" {ttemp_fr}°")
+            self.bar_ttemp_rl.config(text=f" {ttemp_rl}°")
+            self.bar_ttemp_rr.config(text=f" {ttemp_rr}°")
+            self.bar_btemp_fl.config(text=f" {btemp_fl}°")
+            self.bar_btemp_fr.config(text=f" {btemp_fr}°")
+            self.bar_btemp_rl.config(text=f" {btemp_rl}°")
+            self.bar_btemp_rr.config(text=f" {btemp_rr}°")
 
         # Update rate
         self.after(cfg.temp["update_delay"], self.update_temp)

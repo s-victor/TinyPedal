@@ -1,3 +1,35 @@
-1.0.0 (2022-03-14)
--------------------------
-Initial release
+TinyPedal 1.1.0 (2022-03-21)
+----------------------------
+* [New]Delta best widget
+    - Show delta best based on personal best laptime.
+    - Show delta bar with customizable range, size and color.
+    - Record, save, and load player's best laptime data automatically.
+    - Best laptime file is stored in "deltabest" folder, and can be
+      used by other players.
+    - 3 different layouts.
+
+* Core
+    - Add "deltatime" module, which runs in separated thread at 60fps.
+    - Add "delta_timing" switch in config.json.
+    - Add auto-backup function for config.json.
+    - Restructured "readapi" module.
+    - Sort all widgets and references in alphabetical order.
+
+* Timing widget
+    - Add delta estimated laptime.
+    - Add 3 different layouts.
+    - Now reads timing data from deltatime module.
+
+* Temperature widget
+    - Add color swap setting in config.json, which swaps heat map color
+      between font & background color.
+
+* Fuel widget
+    - Now reads mLapStartET from "Telemetry" which has higher accuracy.
+
+* Wear widget
+    - Add unit "bar" for tyre pressure.
+
+TinyPedal 1.0.0 (2022-03-14)
+----------------------------
+* Initial release

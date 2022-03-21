@@ -23,15 +23,18 @@ GUI window, events.
 import tkinter as tk
 from ctypes import windll
 
-from tinypedal.readapi import ReadData
+import tinypedal.readapi as read_data
 from tinypedal.setting import Setting
+from tinypedal.deltatime import DeltaTime
 
-
-# Access shared memory
-read_data = ReadData()
 
 # Load configuration
 cfg = Setting()
+
+# Load delta time info
+delta_time = DeltaTime()
+if cfg.overlay["delta_timing"]:
+    delta_time.start()
 
 
 class Window(tk.Tk):

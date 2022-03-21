@@ -4,11 +4,17 @@ TinyPedal offers a wide range of customization, which is currently available by 
 
 It is not required to quit APP before editing, but any changes will only take effect after restarted APP.
 
-To make changes, editing values on the right side of colon.
+To make changes, editing `values` on the right side of colon.
 
-Do not modify anything (keys) on the left side of colon, any changes to those keys will cause config file to be reverted back to default setting. To avoid losing setting, make a backup before editing.
+Do not modify anything (keys) on the left side of colon, any changes to those keys will cause config file to be reverted back to default setting.
 
 If TinyPedal fails to launch after editing config.json, check JSON file for typo error or invalid values; or delete `config.json` to let APP generate a new default file.
+
+
+## Backup file 
+TinyPedal will automatically create a backup file (with time stamp suffix) if it detects invalid setting (keys), and a new default `config.json` will be generated.
+
+A newer released version may also invalidate some old setting and create backup file this way.
 
 
 ## Editing Notes
@@ -19,6 +25,25 @@ Any boolean type value (true or false) will only accept: `true`, which can be su
 Color value is in web colors format (hexadecimal color codes), which starts with `#` number sign. Various image editors or online tools can generate those color codes.
 
 If a number (default value) does not contain any decimal place, that means it only accepts `integer`. Make sure not to add any decimal place, otherwise error will occur.
+
+
+# Table of Contents
+* [Common Setting](#common-setting)
+* [Overlay](#overlay)
+* [Deltabest](#deltabest)
+* [DRS](#drs)
+* [Engine](#engine)
+* [Force](#force)
+* [Fuel](#fuel)
+* [Gear](#gear)
+* [Pedal](#pedal)
+* [Relative](#relative)
+* [Steering](#steering)
+* [Temperature](#temperature)
+* [Timing](#timing)
+* [Wear](#wear)
+* [Weather](#weather)
+* [Wheel](#wheel)
 
 
 ## Common Setting
@@ -67,39 +92,69 @@ Check whether auto hide is enabled. This setting can be toggled from tray icon m
 
 Valid value: `true`, same as `1`. `false`, same as `0`.
 
+    delta_timing
+Enable delta timing module. This module provides timing data for `Delta best` and `Timing` widgets, which returns value 0 if it is turned off.
+
     hover_color_1, hover_color_2
 Define color of hover cover when mouse cursor is above widget (when not locked).
 
 
-## Pedal
-    bar_length_scale
-Scale pedal bar length, accepts decimal place.
+## Deltabest
+    layout
+2 layouts are available: `0` = delta bar above deltabest text, `1` = delta bar below deltabest text.
 
-    bar_width_scale
-Scale pedal bar width, accepts decimal place.
+    color_swap
+Swap time gain & loss color between font & background color.
 
-    full_pedal_height
-This is the indicator height when pedal reaches 100% travel, value in pixel.
+    show_delta_bar
+Show visualized delta bar.
 
-    show_ffb_meter
-This enables Force Feedback meter.
+    bar_length_scale, bar_height_scale
+Scale delta bar length & height, accepts decimal place.
 
-    ffb_clipping_color
-Set Force Feedback clipping color.
+    bar_display_range
+Set max display range (gain or loss) for delta bar, accepts decimal place.
 
 
-## Steering
-    bar_length_scale
-Scale steering bar length, accepts decimal place.
+## DRS
+    font_color_activated, bkg_color_activated
+Set color when DRS is activated by player.
 
-    bar_height_scale
-Scale steering bar height, accepts decimal place.
+    font_color_allowed, bkg_color_allowed
+Set color when DRS is allowed but not yet activated by player.
 
-    bar_edge_width
-Set left and right edge boundary width.
+    font_color_available, bkg_color_available
+Set color when DRS is available but current disallowed to use.
 
-    show_scale_mark
-This enables scale marks on steering bar, which is set 90 degrees apart from each other.
+    font_color_not_available, bkg_color_not_available
+Set color when DRS is unavailable for current track or car.
+
+
+## Engine
+    bkg_color_overheat
+Set oil & water overheat color indicator.
+
+    overheat_threshold_oil, overheat_threshold_water
+Set temperature threshold for oil & water overheat color indicator, value in Celsius.
+
+    show_rpm
+Show engine RPM.
+
+    show_turbo
+Show turbo pressure in bar.
+
+
+## Force
+    show_downforce_ratio
+Show front vs rear downforce ratio. 50% means equal downforce; higher than 50% means front has more downforce.
+
+
+## Fuel
+    show_caption
+Show short caption description besides each info block.
+
+    bkg_color_low_fuel
+Set low fuel color indicator, which changes widget background color when there is just 2 laps of fuel left.
 
 
 # Gear
@@ -134,39 +189,18 @@ This value multiplies max RPM value, which sets a relative near-max RPM range fo
 This sets the color for over-rev warning indicator.
 
 
-## Fuel
-    show_caption
-Show short caption description besides each info block.
+## Pedal
+    bar_length_scale, bar_width_scale
+Scale pedal bar length & width, accepts decimal place.
 
-    bkg_color_low_fuel
-Set low fuel color indicator, which changes widget background color when there is just 2 laps of fuel left.
+    full_pedal_height
+This is the indicator height when pedal reaches 100% travel, value in pixel.
 
+    show_ffb_meter
+This enables Force Feedback meter.
 
-## Wheel (Alignment)
-    bkg_color_bottoming
-Set color indicator when car bottoming.
-
-    rideheight_offset_front, rideheight_offset_rear
-Set front & rear ride height offset, for bottoming color indicator. Value in millimeters, but without decimal place.
-
-    wheelbase
-Set wheelbase in millimeters, for used in rake angle calculation.
-
-    show_caption
-Show short caption description besides each info block.
-
-
-## Temperature
-    layout
-4 layouts are available: `0` = vertical layout, `1` = vertical swapped, `2` = horizontal layout, `3` = horizontal swapped.
-
-
-## Wear
-    layout
-4 layouts are available: `0` = vertical layout, `1` = vertical swapped, `2` = horizontal layout, `3` = horizontal swapped.
-
-    pressure_unit
-3 tyre pressure units: `0` = kPa, `1` = psi, `2` = bar.
+    ffb_clipping_color
+Set Force Feedback clipping color.
 
 
 ## Relative
@@ -179,7 +213,10 @@ Show driver's last laptime.
     show_class
 Show vehicle class categories. Class name & color are fully customizable, by editing `classes.json`.
 
-First, find full class name of a vehicle, this can be done by looking at class section of a mod's VEH file in MAS; or, increase `bar_class_name_width` value to reveal full class name.
+First, find full class name of a vehicle, this can be done by a few ways:
+* Looking at laptime data file located in `deltabest` folder, see `README.txt` in `deltabest` folder.
+* Looking at class section of a mod's VEH file in MAS
+* Increase `bar_class_name_width` value to reveal full class name.
 
 Then, replace `WriteMatchedNameHere` with the found class name, and change `ReplaceClassNameHere` text to a desired class short name (better keep name less than 4 chars).
 
@@ -191,30 +228,51 @@ You can add more classes following the JSON format, make sure that second last b
 Set class display width, value is in chars, 4 = 4 chars wide.
 
 
-## Force
-    show_downforce_ratio
-Show front vs rear downforce ratio. 50% means equal downforce; higher than 50% means front has more downforce.
+## Steering
+    bar_length_scale, bar_height_scale
+Scale steering bar length & height, accepts decimal place.
+
+    bar_edge_width
+Set left and right edge boundary width.
+
+    show_scale_mark
+This enables scale marks on steering bar, which is set 90 degrees apart from each other.
 
 
-## Engine
-    bkg_color_overheat
-Set oil & water overheat color indicator.
+## Temperature
+    layout
+4 layouts are available: `0` = vertical layout, `1` = vertical swapped, `2` = horizontal layout, `3` = horizontal swapped.
 
-    overheat_threshold_oil, overheat_threshold_water
-Set temperature threshold for oil & water overheat color indicator, value in Celsius.
-
-    show_rpm
-Show engine RPM.
-
-    show_turbo
-Show turbo pressure in bar.
-
-
-## Weather
+    color_swap_tyre, color_swap_brake
+Swap heat map color between font & background color.
 
 
 ## Timing
+    layout
+3 layouts are available: `0` = vertical layout, `1` = double lines horizontal layout, `2` = single line horizontal layout.
 
 
-## DRS
+## Wear
+    layout
+4 layouts are available: `0` = vertical layout, `1` = vertical swapped, `2` = horizontal layout, `3` = horizontal swapped.
 
+    pressure_unit
+3 tyre pressure units: `0` = kPa, `1` = psi, `2` = bar.
+
+
+## Weather
+No special setting.
+
+
+## Wheel
+    bkg_color_bottoming
+Set color indicator when car bottoming.
+
+    rideheight_offset_front, rideheight_offset_rear
+Set front & rear ride height offset, for bottoming color indicator. Value in millimeters, but without decimal place.
+
+    wheelbase
+Set wheelbase in millimeters, for used in rake angle calculation.
+
+    show_caption
+Show short caption description besides each info block.

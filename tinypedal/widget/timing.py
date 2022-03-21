@@ -24,7 +24,8 @@ import tkinter as tk
 import tkinter.font as tkfont
 
 import tinypedal.calculation as calc
-from tinypedal.base import cfg, read_data, Widget, MouseEvent
+import tinypedal.readapi as read_data
+from tinypedal.base import cfg, delta_time, Widget, MouseEvent
 
 
 class Timing(Widget, MouseEvent):
@@ -58,9 +59,25 @@ class Timing(Widget, MouseEvent):
         self.bar_time_curr = tk.Label(self, bar_style, text="C --:--.---",
                                       fg=cfg.timing["font_color_current"],
                                       bg=cfg.timing["bkg_color_current"])
-        self.bar_time_best.grid(row=0, column=0, padx=0, pady=0)
-        self.bar_time_last.grid(row=1, column=0, padx=0, pady=(bar_gap, 0))
-        self.bar_time_curr.grid(row=2, column=0, padx=0, pady=(bar_gap, 0))
+        self.bar_time_est = tk.Label(self, bar_style, text="E --:--.---",
+                                     fg=cfg.timing["font_color_estimated"],
+                                     bg=cfg.timing["bkg_color_estimated"])
+
+        if cfg.timing["layout"] == "0":
+            self.bar_time_best.grid(row=0, column=0, padx=0, pady=0)
+            self.bar_time_last.grid(row=1, column=0, padx=0, pady=(bar_gap, 0))
+            self.bar_time_curr.grid(row=2, column=0, padx=0, pady=(bar_gap, 0))
+            self.bar_time_est.grid(row=3, column=0, padx=0, pady=(bar_gap, 0))
+        elif cfg.timing["layout"] == "1":
+            self.bar_time_best.grid(row=0, column=0, padx=0, pady=0)
+            self.bar_time_last.grid(row=1, column=0, padx=0, pady=(bar_gap, 0))
+            self.bar_time_curr.grid(row=0, column=1, padx=(bar_gap, 0), pady=0)
+            self.bar_time_est.grid(row=1, column=1, padx=(bar_gap, 0), pady=(bar_gap, 0))
+        else:
+            self.bar_time_best.grid(row=0, column=0, padx=0, pady=0)
+            self.bar_time_last.grid(row=0, column=1, padx=(bar_gap, 0), pady=0)
+            self.bar_time_curr.grid(row=0, column=2, padx=(bar_gap, 0), pady=0)
+            self.bar_time_est.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
 
         self.update_timing()
 
@@ -81,16 +98,14 @@ class Timing(Widget, MouseEvent):
         """
         if read_data.state() and cfg.timing["enable"]:
             # Read Timing data
-            (laptime_curr, laptime_last, laptime_best
-             ) = [calc.sec2laptime(data) for data in read_data.laptime()]
+            (laptime_curr, laptime_last, laptime_best, laptime_est, _
+             ) = [calc.sec2laptime(min(data, 5999.999)) for data in delta_time.output()]
 
             # Timing update
             self.bar_time_best.config(text=f"B {laptime_best}")
             self.bar_time_last.config(text=f"L {laptime_last}")
             self.bar_time_curr.config(text=f"C {laptime_curr}")
-
-            # time_left = read_data.timing()[3]
-            # self.bar_time_left.config(text=f"Time {calc.sec2sessiontime(time_left)}")
+            self.bar_time_est.config(text=f"E {laptime_est}")
 
         # Update rate
         self.after(cfg.timing["update_delay"], self.update_timing)

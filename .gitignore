@@ -13,6 +13,7 @@ pylintrc
 
 # local config file
 *.json
+*.csv
 
 # random test file
 test*.py

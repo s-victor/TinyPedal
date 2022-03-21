@@ -56,19 +56,20 @@ class TrayIcon:
 
         # Add widget toggle items
         widget_menu = menu(
-            item("Pedal", wtoggle.pedal, checked=lambda _: cfg.pedal["enable"]),
-            item("Steering", wtoggle.steering, checked=lambda _: cfg.steering["enable"]),
-            item("Gear", wtoggle.gear, checked=lambda _: cfg.gear["enable"]),
-            item("Fuel", wtoggle.fuel, checked=lambda _: cfg.fuel["enable"]),
-            item("Timing", wtoggle.timing, checked=lambda _: cfg.timing["enable"]),
-            item("Relative", wtoggle.relative, checked=lambda _: cfg.relative["enable"]),
-            item("Wheel", wtoggle.wheel, checked=lambda _: cfg.wheel["enable"]),
-            item("Temperature", wtoggle.temp, checked=lambda _: cfg.temp["enable"]),
-            item("Tyre Wear", wtoggle.wear, checked=lambda _: cfg.wear["enable"]),
-            item("Weather", wtoggle.weather, checked=lambda _: cfg.weather["enable"]),
-            item("Force", wtoggle.force, checked=lambda _: cfg.force["enable"]),
-            item("Engine", wtoggle.engine, checked=lambda _: cfg.engine["enable"]),
+            item("Delta best", wtoggle.deltabest, checked=lambda _: cfg.deltabest["enable"]),
             item("DRS", wtoggle.drs, checked=lambda _: cfg.drs["enable"]),
+            item("Engine", wtoggle.engine, checked=lambda _: cfg.engine["enable"]),
+            item("Force", wtoggle.force, checked=lambda _: cfg.force["enable"]),
+            item("Fuel", wtoggle.fuel, checked=lambda _: cfg.fuel["enable"]),
+            item("Gear", wtoggle.gear, checked=lambda _: cfg.gear["enable"]),
+            item("Pedal", wtoggle.pedal, checked=lambda _: cfg.pedal["enable"]),
+            item("Relative", wtoggle.relative, checked=lambda _: cfg.relative["enable"]),
+            item("Steering", wtoggle.steering, checked=lambda _: cfg.steering["enable"]),
+            item("Temperature", wtoggle.temp, checked=lambda _: cfg.temp["enable"]),
+            item("Timing", wtoggle.timing, checked=lambda _: cfg.timing["enable"]),
+            item("Wear", wtoggle.wear, checked=lambda _: cfg.wear["enable"]),
+            item("Weather", wtoggle.weather, checked=lambda _: cfg.weather["enable"]),
+            item("Wheel", wtoggle.wheel, checked=lambda _: cfg.wheel["enable"]),
         )
 
         main_menu = (
@@ -103,175 +104,70 @@ class WidgetToggle:
 
     def __init__(self):
         """Activate widgets at startup"""
-        if cfg.pedal["enable"]:
-            self.widget_pedal = widget.Pedal()
-
-        if cfg.steering["enable"]:
-            self.widget_steering = widget.Steering()
-
-        if cfg.gear["enable"]:
-            self.widget_gear = widget.Gear()
-
-        if cfg.fuel["enable"]:
-            self.widget_fuel = widget.Fuel()
-
-        if cfg.timing["enable"]:
-            self.widget_timing = widget.Timing()
-
-        if cfg.wheel["enable"]:
-            self.widget_wheel = widget.Wheel()
-
-        if cfg.temp["enable"]:
-            self.widget_temp = widget.Temp()
-
-        if cfg.wear["enable"]:
-            self.widget_wear = widget.Wear()
-
-        if cfg.relative["enable"]:
-            self.widget_relative = widget.Relative()
-
-        if cfg.weather["enable"]:
-            self.widget_weather = widget.Weather()
-
-        if cfg.force["enable"]:
-            self.widget_force = widget.Force()
-
-        if cfg.engine["enable"]:
-            self.widget_engine = widget.Engine()
+        if cfg.deltabest["enable"]:
+            self.widget_deltabest = widget.Deltabest()
 
         if cfg.drs["enable"]:
             self.widget_drs = widget.DRS()
 
-    def pedal(self):
-        """Toggle pedal"""
-        cfg.load()
-        if not cfg.pedal["enable"]:
-            self.widget_pedal = widget.Pedal()
-            cfg.pedal["enable"] = True  # set True after widget enabled
-        else:
-            cfg.pedal["enable"] = False  # set False before widget disabled
-            cfg.active_widget_list.remove(self.widget_pedal)
-            self.widget_pedal.destroy()
-        cfg.save()
+        if cfg.engine["enable"]:
+            self.widget_engine = widget.Engine()
 
-    def steering(self):
-        """Toggle steering"""
-        cfg.load()
-        if not cfg.steering["enable"]:
-            self.widget_steering = widget.Steering()
-            cfg.steering["enable"] = True
-        else:
-            cfg.steering["enable"] = False
-            cfg.active_widget_list.remove(self.widget_steering)
-            self.widget_steering.destroy()
-        cfg.save()
-
-    def gear(self):
-        """Toggle gear"""
-        cfg.load()
-        if not cfg.gear["enable"]:
-            self.widget_gear = widget.Gear()
-            cfg.gear["enable"] = True
-        else:
-            cfg.gear["enable"] = False
-            cfg.active_widget_list.remove(self.widget_gear)
-            self.widget_gear.destroy()
-        cfg.save()
-
-    def fuel(self):
-        """Toggle fuel"""
-        cfg.load()
-        if not cfg.fuel["enable"]:
-            self.widget_fuel = widget.Fuel()
-            cfg.fuel["enable"] = True
-        else:
-            cfg.fuel["enable"] = False
-            cfg.active_widget_list.remove(self.widget_fuel)
-            self.widget_fuel.destroy()
-        cfg.save()
-
-    def timing(self):
-        """Toggle timing"""
-        cfg.load()
-        if not cfg.timing["enable"]:
-            self.widget_timing = widget.Timing()
-            cfg.timing["enable"] = True
-        else:
-            cfg.timing["enable"] = False
-            cfg.active_widget_list.remove(self.widget_timing)
-            self.widget_timing.destroy()
-        cfg.save()
-
-    def wheel(self):
-        """Toggle wheel"""
-        cfg.load()
-        if not cfg.wheel["enable"]:
-            self.widget_wheel = widget.Wheel()
-            cfg.wheel["enable"] = True
-        else:
-            cfg.wheel["enable"] = False
-            cfg.active_widget_list.remove(self.widget_wheel)
-            self.widget_wheel.destroy()
-        cfg.save()
-
-    def temp(self):
-        """Toggle temperature"""
-        cfg.load()
-        if not cfg.temp["enable"]:
-            self.widget_temp = widget.Temp()
-            cfg.temp["enable"] = True
-        else:
-            cfg.temp["enable"] = False
-            cfg.active_widget_list.remove(self.widget_temp)
-            self.widget_temp.destroy()
-        cfg.save()
-
-    def wear(self):
-        """Toggle wear"""
-        cfg.load()
-        if not cfg.wear["enable"]:
-            self.widget_wear = widget.Wear()
-            cfg.wear["enable"] = True
-        else:
-            cfg.wear["enable"] = False
-            cfg.active_widget_list.remove(self.widget_wear)
-            self.widget_wear.destroy()
-        cfg.save()
-
-    def relative(self):
-        """Toggle relative"""
-        cfg.load()
-        if not cfg.relative["enable"]:
-            self.widget_relative = widget.Relative()
-            cfg.relative["enable"] = True
-        else:
-            cfg.relative["enable"] = False
-            cfg.active_widget_list.remove(self.widget_relative)
-            self.widget_relative.destroy()
-        cfg.save()
-
-    def weather(self):
-        """Toggle weather"""
-        cfg.load()
-        if not cfg.weather["enable"]:
-            self.widget_weather = widget.Weather()
-            cfg.weather["enable"] = True
-        else:
-            cfg.weather["enable"] = False
-            cfg.active_widget_list.remove(self.widget_weather)
-            self.widget_weather.destroy()
-        cfg.save()
-
-    def force(self):
-        """Toggle force"""
-        cfg.load()
-        if not cfg.force["enable"]:
+        if cfg.force["enable"]:
             self.widget_force = widget.Force()
-            cfg.force["enable"] = True
+
+        if cfg.fuel["enable"]:
+            self.widget_fuel = widget.Fuel()
+
+        if cfg.gear["enable"]:
+            self.widget_gear = widget.Gear()
+
+        if cfg.pedal["enable"]:
+            self.widget_pedal = widget.Pedal()
+
+        if cfg.relative["enable"]:
+            self.widget_relative = widget.Relative()
+
+        if cfg.steering["enable"]:
+            self.widget_steering = widget.Steering()
+
+        if cfg.temp["enable"]:
+            self.widget_temp = widget.Temp()
+
+        if cfg.timing["enable"]:
+            self.widget_timing = widget.Timing()
+
+        if cfg.wear["enable"]:
+            self.widget_wear = widget.Wear()
+
+        if cfg.weather["enable"]:
+            self.widget_weather = widget.Weather()
+
+        if cfg.wheel["enable"]:
+            self.widget_wheel = widget.Wheel()
+
+    def deltabest(self):
+        """Toggle deltabest"""
+        cfg.load()
+        if not cfg.deltabest["enable"]:
+            self.widget_deltabest = widget.Deltabest()
+            cfg.deltabest["enable"] = True
         else:
-            cfg.force["enable"] = False
-            cfg.active_widget_list.remove(self.widget_force)
-            self.widget_force.destroy()
+            cfg.deltabest["enable"] = False
+            cfg.active_widget_list.remove(self.widget_deltabest)
+            self.widget_deltabest.destroy()
+        cfg.save()
+
+    def drs(self):
+        """Toggle DRS"""
+        cfg.load()
+        if not cfg.drs["enable"]:
+            self.widget_drs = widget.DRS()
+            cfg.drs["enable"] = True
+        else:
+            cfg.drs["enable"] = False
+            cfg.active_widget_list.remove(self.widget_drs)
+            self.widget_drs.destroy()
         cfg.save()
 
     def engine(self):
@@ -286,16 +182,136 @@ class WidgetToggle:
             self.widget_engine.destroy()
         cfg.save()
 
-    def drs(self):
-        """Toggle DRS"""
+    def force(self):
+        """Toggle force"""
         cfg.load()
-        if not cfg.drs["enable"]:
-            self.widget_drs = widget.DRS()
-            cfg.drs["enable"] = True
+        if not cfg.force["enable"]:
+            self.widget_force = widget.Force()
+            cfg.force["enable"] = True
         else:
-            cfg.drs["enable"] = False
-            cfg.active_widget_list.remove(self.widget_drs)
-            self.widget_drs.destroy()
+            cfg.force["enable"] = False
+            cfg.active_widget_list.remove(self.widget_force)
+            self.widget_force.destroy()
+        cfg.save()
+
+    def fuel(self):
+        """Toggle fuel"""
+        cfg.load()
+        if not cfg.fuel["enable"]:
+            self.widget_fuel = widget.Fuel()
+            cfg.fuel["enable"] = True
+        else:
+            cfg.fuel["enable"] = False
+            cfg.active_widget_list.remove(self.widget_fuel)
+            self.widget_fuel.destroy()
+        cfg.save()
+
+    def gear(self):
+        """Toggle gear"""
+        cfg.load()
+        if not cfg.gear["enable"]:
+            self.widget_gear = widget.Gear()
+            cfg.gear["enable"] = True
+        else:
+            cfg.gear["enable"] = False
+            cfg.active_widget_list.remove(self.widget_gear)
+            self.widget_gear.destroy()
+        cfg.save()
+
+    def pedal(self):
+        """Toggle pedal"""
+        cfg.load()
+        if not cfg.pedal["enable"]:
+            self.widget_pedal = widget.Pedal()
+            cfg.pedal["enable"] = True  # set True after widget enabled
+        else:
+            cfg.pedal["enable"] = False  # set False before widget disabled
+            cfg.active_widget_list.remove(self.widget_pedal)
+            self.widget_pedal.destroy()
+        cfg.save()
+
+    def relative(self):
+        """Toggle relative"""
+        cfg.load()
+        if not cfg.relative["enable"]:
+            self.widget_relative = widget.Relative()
+            cfg.relative["enable"] = True
+        else:
+            cfg.relative["enable"] = False
+            cfg.active_widget_list.remove(self.widget_relative)
+            self.widget_relative.destroy()
+        cfg.save()
+
+    def steering(self):
+        """Toggle steering"""
+        cfg.load()
+        if not cfg.steering["enable"]:
+            self.widget_steering = widget.Steering()
+            cfg.steering["enable"] = True
+        else:
+            cfg.steering["enable"] = False
+            cfg.active_widget_list.remove(self.widget_steering)
+            self.widget_steering.destroy()
+        cfg.save()
+
+    def temp(self):
+        """Toggle temperature"""
+        cfg.load()
+        if not cfg.temp["enable"]:
+            self.widget_temp = widget.Temp()
+            cfg.temp["enable"] = True
+        else:
+            cfg.temp["enable"] = False
+            cfg.active_widget_list.remove(self.widget_temp)
+            self.widget_temp.destroy()
+        cfg.save()
+
+    def timing(self):
+        """Toggle timing"""
+        cfg.load()
+        if not cfg.timing["enable"]:
+            self.widget_timing = widget.Timing()
+            cfg.timing["enable"] = True
+        else:
+            cfg.timing["enable"] = False
+            cfg.active_widget_list.remove(self.widget_timing)
+            self.widget_timing.destroy()
+        cfg.save()
+
+    def wear(self):
+        """Toggle wear"""
+        cfg.load()
+        if not cfg.wear["enable"]:
+            self.widget_wear = widget.Wear()
+            cfg.wear["enable"] = True
+        else:
+            cfg.wear["enable"] = False
+            cfg.active_widget_list.remove(self.widget_wear)
+            self.widget_wear.destroy()
+        cfg.save()
+
+    def weather(self):
+        """Toggle weather"""
+        cfg.load()
+        if not cfg.weather["enable"]:
+            self.widget_weather = widget.Weather()
+            cfg.weather["enable"] = True
+        else:
+            cfg.weather["enable"] = False
+            cfg.active_widget_list.remove(self.widget_weather)
+            self.widget_weather.destroy()
+        cfg.save()
+
+    def wheel(self):
+        """Toggle wheel"""
+        cfg.load()
+        if not cfg.wheel["enable"]:
+            self.widget_wheel = widget.Wheel()
+            cfg.wheel["enable"] = True
+        else:
+            cfg.wheel["enable"] = False
+            cfg.active_widget_list.remove(self.widget_wheel)
+            self.widget_wheel.destroy()
         cfg.save()
 
 

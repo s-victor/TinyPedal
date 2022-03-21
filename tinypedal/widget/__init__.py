@@ -20,16 +20,17 @@
 Import widget
 """
 
-from .pedal import Pedal
-from .steering import Steering
-from .gear import Gear
-from .fuel import Fuel
-from .timing import Timing
-from .relative import Relative
-from .wheel import Wheel
-from .temp import Temp
-from .wear import Wear
-from .force import Force
+from .deltabest import Deltabest
 from .drs import DRS
 from .engine import Engine
+from .force import Force
+from .fuel import Fuel
+from .gear import Gear
+from .pedal import Pedal
+from .relative import Relative
+from .steering import Steering
+from .temp import Temp
+from .timing import Timing
+from .wear import Wear
 from .weather import Weather
+from .wheel import Wheel
