@@ -77,7 +77,7 @@ Currently supports rFactor 2 and displays simulation info using The Iron Wolf’
     - Show delta bar with customizable range, size and color.
     - Record, save, and load player's best laptime data automatically.
     - Best laptime file is saved in deltabest folder, and can be used by other players.
-    - 3 different layouts.
+    - 2 different layouts.
 
 - Timing
     - Show personal best, last, current, and delta estimated laptime.
