@@ -6,7 +6,7 @@ TinyPedal 1.1.0 (2022-03-21)
     - Record, save, and load player's best laptime data automatically.
     - Best laptime file is stored in "deltabest" folder, and can be
       used by other players.
-    - 3 different layouts.
+    - 2 different layouts.
 
 * Core
     - Add "deltatime" module, which runs in separated thread at 60fps.
