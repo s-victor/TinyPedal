@@ -50,7 +50,9 @@ class DeltaTime:
         """
         recording = False  # set delta recording state
         verified = False  # additional check for conserving resources
+        validating = False  # validate last laptime after cross finish line
         delta_list_curr = []  # distance vs time list, current lap
+        delta_list_last = []  # distance vs time list, last lap, used for verification only
         delta_list_best = []  # distance vs time list, best lap
         delta_best = 0  # delta time compare to best laptime
         start_last = 0  # lap-start-time
@@ -77,15 +79,20 @@ class DeltaTime:
                 start_curr, elapsed_time, speed, track_length, pos_curr = telemetry()
                 laptime_curr = elapsed_time - start_last  # current laptime
 
+                if validating:
+                    if start_curr == start_last and info.playersVehicleScoring().mLastLapTime > 0:
+                        if laptime_last < laptime_best:
+                            laptime_best = laptime_last
+                            delta_list_best = delta_list_last
+                        validating = False
+
                 if start_curr > start_last:  # difference of lap-start-time
                     laptime_last = start_curr - start_last
 
                     if delta_list_curr:  # non-empty list check
                         delta_list_curr.append((track_length, laptime_last))  # set end value
-
-                        if laptime_last < laptime_best:
-                            laptime_best = laptime_last
-                            delta_list_best = delta_list_curr.copy()
+                        delta_list_last = delta_list_curr.copy()
+                        validating = True
 
                     delta_list_curr.clear()  # reset current delta list
                     delta_list_curr.append((0.0, 0.0))  # set start value
@@ -125,13 +132,12 @@ class DeltaTime:
                 if recording:
                     recording = False  # disable delta recording after exit track
                     verified = False  # activate verification when enter track next time
+                    validating = False  # disable laptime validate
                     update_delay = 0.5  # longer delay
+                    delta_list_curr.clear()  # reset current delta list
 
                     if delta_list_best:  # save populated delta best list
                         save_deltabest(combo_name, delta_list_best)
-
-                if delta_list_curr:
-                    delta_list_curr.clear()  # reset current delta list
 
             time.sleep(update_delay)
 

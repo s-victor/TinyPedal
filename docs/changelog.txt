@@ -1,3 +1,14 @@
+TinyPedal 1.1.3 (2022-03-22)
+----------------------------
+* Core
+    - Add laptime validating function for "deltatime" module.
+      Invalid laptime will no longer saved as best laptime.
+      Delta best function now fully works under any track or condition.
+
+* Misc
+    - Fixed a few typo in README.md & previous changelog.
+    - Added missing contributors.md reference to build_py2exe.py.
+
 TinyPedal 1.1.0 (2022-03-21)
 ----------------------------
 * [New]Delta best widget
