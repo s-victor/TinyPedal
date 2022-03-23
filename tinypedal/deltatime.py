@@ -79,13 +79,7 @@ class DeltaTime:
                 start_curr, elapsed_time, speed, track_length, pos_curr = telemetry()
                 laptime_curr = elapsed_time - start_last  # current laptime
 
-                if validating:
-                    if start_curr == start_last and info.playersVehicleScoring().mLastLapTime > 0:
-                        if laptime_last < laptime_best:
-                            laptime_best = laptime_last
-                            delta_list_best = delta_list_last
-                        validating = False
-
+                # Lap start & finish detection
                 if start_curr > start_last:  # difference of lap-start-time
                     laptime_last = start_curr - start_last
 
@@ -100,14 +94,30 @@ class DeltaTime:
                     start_last = start_curr  # reset lap-start-time
                     pos_last = pos_curr  # set pos last
 
-                if recording:  # start recording
-                    if pos_curr != pos_last:  # update pos if pos diff
-                        if  pos_curr > pos_last:  # record if pos is further away
+                # Laptime validating after passing finish line
+                # Negative mLastLapTime value indicates invalid last laptime
+                # Set validating duration for 1 sec, to compensate the 0.2s delay
+                # As Scoring data has a 5fps update hard limit
+                # Must place validating after lap start & finish detection
+                if validating:
+                    if info.playersVehicleScoring().mLastLapTime > 0:
+                        if laptime_last < laptime_best:
+                            laptime_best = laptime_last
+                            delta_list_best = delta_list_last
+                        validating = False
+                    if 1 < laptime_curr < 2:  # switch off validating after 1s
+                        validating = False
+
+                # Recording only from the beginning of a lap
+                if recording:
+                    if pos_curr != pos_last:  # update position if difference found
+                        if  pos_curr > pos_last:  # record if position is further away
                             delta_list_curr.append((pos_curr, laptime_curr))
 
-                        pos_last = pos_curr  # reset last pos
-                        pos_append = pos_last  # reset initial pos for appending
+                        pos_last = pos_curr  # reset last position
+                        pos_append = pos_last  # reset initial position for appending
 
+                # Update time difference & calculate additional traveled distance
                 if elapsed_time != last_time:
                     delta_dist = speed * (elapsed_time - last_time)
                     pos_append += delta_dist
@@ -133,7 +143,7 @@ class DeltaTime:
                     recording = False  # disable delta recording after exit track
                     verified = False  # activate verification when enter track next time
                     validating = False  # disable laptime validate
-                    update_delay = 0.5  # longer delay
+                    update_delay = 0.5  # longer delay while inactive
                     delta_list_curr.clear()  # reset current delta list
 
                     if delta_list_best:  # save populated delta best list
