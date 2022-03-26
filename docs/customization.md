@@ -157,7 +157,7 @@ Show short caption description besides each info block.
 Set low fuel color indicator, which changes widget background color when there is just 2 laps of fuel left.
 
 
-# Gear
+## Gear
     layout
 2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
 

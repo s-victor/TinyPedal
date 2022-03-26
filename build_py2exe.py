@@ -18,7 +18,7 @@ app_setting = [{
 excludes = ["_ssl", "difflib", "email", "pdb", "venv", "http"]
 
 data_files = [("", ["icon.ico", "LICENSE.txt", "README.md"]),
-              ("docs", ["docs/changelog.txt", "docs/customizations.md", "docs/contributors.md"]),
+              ("docs", ["docs/changelog.txt", "docs/customization.md", "docs/contributors.md"]),
               ("docs/licenses", glob("docs/licenses/*")),
               ("deltabest", ["deltabest/README.txt"]),
               ]

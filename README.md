@@ -2,7 +2,7 @@
 
 TinyPedal is an open-source overlay application for racing simulation.
 
-It focuses on light weight, compact, minimalistic visual presentation, while provides important real-time info with detailed customizations.
+It focuses on light weight, compact, minimalistic visual presentation, while provides important real-time info with detailed customization.
 
 Currently supports rFactor 2 and displays simulation info using The Iron Wolf’s [rF2 Shared Memory Map Plugin](https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin) & Tony Whitley’s [pyRfactor2SharedMemory](https://github.com/TonyWhitley/pyRfactor2SharedMemory) Library.
 
@@ -129,7 +129,7 @@ Generally, `update delay` value should not be set under 20ms, as most data from 
 
 TinyPedal offers a wide range of customization, which is currently available by editing `config.json` config file with text editor. This config file will be auto-generated after first launching.
 
-See [docs\customizations.md](./docs/customizations.md) for editing guide.
+See [Customization Guide](https://github.com/s-victor/TinyPedal/wiki) for editing guide.
 
 
 ## Run from source
