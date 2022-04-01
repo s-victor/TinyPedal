@@ -24,6 +24,7 @@ import math
 import tkinter as tk
 import tkinter.font as tkfont
 
+import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
 
@@ -171,13 +172,17 @@ class Fuel(Widget, MouseEvent):
             elif self.amount_need < -999:
                 self.amount_need = -999
 
+            amount_curr_d = calc.conv_fuel(int(amount_curr), cfg.fuel["fuel_unit"])
+            amount_need_d = calc.conv_fuel(self.amount_need, cfg.fuel["fuel_unit"])
+            used_last_d = calc.conv_fuel(self.used_last, cfg.fuel["fuel_unit"])
+
             # Low fuel warning
             lowfuel_color = self.color_lowfuel(self.est_runlaps)
             # Current fuel & total needed fuel
-            self.bar_fuel_1.config(text=str(f"{amount_curr:.2f}"), bg=lowfuel_color)
-            self.bar_fuel_2.config(text=str(f"{self.amount_need:+0.1f}"), bg=lowfuel_color)
+            self.bar_fuel_1.config(text=amount_curr_d, bg=lowfuel_color)
+            self.bar_fuel_2.config(text=amount_need_d, bg=lowfuel_color)
             # Last lap fuel consumption
-            self.bar_fuel_3.config(text=str(f"{self.used_last:.2f}"))
+            self.bar_fuel_3.config(text=used_last_d)
             # Estimated laps & minutes current fuel can last
             self.bar_fuel_4.config(text=str(f"{self.est_runlaps:.1f}"))
             self.bar_fuel_5.config(text=str(f"{self.est_runmins:.1f}"))

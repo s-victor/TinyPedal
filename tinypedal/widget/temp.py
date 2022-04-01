@@ -129,6 +129,17 @@ class Temp(Widget, MouseEvent):
             (ttemp_fl, ttemp_fr, ttemp_rl, ttemp_rr, btemp_fl, btemp_fr, btemp_rl, btemp_rr
              ) = [calc.temperature(data) for data in read_data.temp()]
 
+            # set up display temps
+            ttemp_fl_d = calc.conv_temp(int(ttemp_fl), cfg.temp["temp_unit"])
+            ttemp_fr_d = calc.conv_temp(int(ttemp_fr), cfg.temp["temp_unit"])
+            ttemp_rl_d = calc.conv_temp(int(ttemp_rl), cfg.temp["temp_unit"])
+            ttemp_rr_d = calc.conv_temp(int(ttemp_rr), cfg.temp["temp_unit"])
+
+            btemp_fl_d = calc.conv_temp(int(btemp_fl), cfg.temp["temp_unit"])
+            btemp_fr_d = calc.conv_temp(int(btemp_fr), cfg.temp["temp_unit"])
+            btemp_rl_d = calc.conv_temp(int(btemp_rl), cfg.temp["temp_unit"])
+            btemp_rr_d = calc.conv_temp(int(btemp_rr), cfg.temp["temp_unit"])
+
             # Temperature update
             if cfg.temp["color_swap_tyre"] == "0":
                 self.bar_ttemp_fl["fg"] = self.color_ttemp(ttemp_fl)
@@ -152,14 +163,14 @@ class Temp(Widget, MouseEvent):
                 self.bar_btemp_rl["fg"] = self.color_btemp(btemp_rl)
                 self.bar_btemp_rr["fg"] = self.color_btemp(btemp_rr)
 
-            self.bar_ttemp_fl.config(text=f" {ttemp_fl}°")
-            self.bar_ttemp_fr.config(text=f" {ttemp_fr}°")
-            self.bar_ttemp_rl.config(text=f" {ttemp_rl}°")
-            self.bar_ttemp_rr.config(text=f" {ttemp_rr}°")
-            self.bar_btemp_fl.config(text=f" {btemp_fl}°")
-            self.bar_btemp_fr.config(text=f" {btemp_fr}°")
-            self.bar_btemp_rl.config(text=f" {btemp_rl}°")
-            self.bar_btemp_rr.config(text=f" {btemp_rr}°")
+            self.bar_ttemp_fl.config(text=f" {ttemp_fl_d}°")
+            self.bar_ttemp_fr.config(text=f" {ttemp_fr_d}°")
+            self.bar_ttemp_rl.config(text=f" {ttemp_rl_d}°")
+            self.bar_ttemp_rr.config(text=f" {ttemp_rr_d}°")
+            self.bar_btemp_fl.config(text=f" {btemp_fl_d}°")
+            self.bar_btemp_fr.config(text=f" {btemp_fr_d}°")
+            self.bar_btemp_rl.config(text=f" {btemp_rl_d}°")
+            self.bar_btemp_rr.config(text=f" {btemp_rr_d}°")
 
         # Update rate
         self.after(cfg.temp["update_delay"], self.update_temp)

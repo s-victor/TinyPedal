@@ -61,6 +61,21 @@ def conv_speed(speed, speed_unit):
     speed = f"{speed * multiplier:03.0f}"
     return speed
 
+def conv_temp(temp, temp_unit):
+    """2 different temperature unit conversion"""
+    if temp_unit == "0":
+        temp = f"{temp:02.0f}" # default is C
+    elif temp_unit == "1":
+        temp = f"{temp*(9/5)+32:02.0f}" 
+    return temp
+
+def conv_fuel(fuel, fuel_unit):
+    """2 different fuel unit conversion"""
+    if fuel_unit == "0":
+        fuel = f"{fuel:.2f}" # default is L
+    elif fuel_unit == "1":
+        fuel = f"{fuel * 0.2641729:.2f}"
+    return fuel
 
 def gear(gear_index):
     """Convert gear index to text string"""
