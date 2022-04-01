@@ -159,6 +159,7 @@ Set low fuel color indicator, which changes widget background color when there i
     fuel_unit
 2 unit types are available: `0` = liters, `1` = gallons.
 
+
 ## Gear
     layout
 2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
@@ -250,6 +251,7 @@ Swap heat map color between font & background color.
 
     temp_unit
 2 unit types are available: `0` = Celsius, `1` = Fahrenheit
+
 
 ## Timing
     layout

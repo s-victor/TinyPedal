@@ -131,7 +131,7 @@ class Gear(Widget, MouseEvent):
             # Gear update
             self.bar_gear_bg.config(bg=rpm_color)
             self.bar_gear.config(text=gear, bg=rpm_color)
-            self.bar_gauge.config(text=speed, bg=rpm_color)
+            self.bar_gauge.config(text=f"{speed:03.0f}", bg=rpm_color)
 
             # Pit limiter update
             if pit_limiter:

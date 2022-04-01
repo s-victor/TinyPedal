@@ -3,6 +3,7 @@
 
 ## Development:
     * Xiang (S.Victor)
+    * Erik Jacobs (thoraxe)
 
 
 ## Technical support:

@@ -27,7 +27,8 @@ Currently supports rFactor 2 and displays simulation info using The Iron Wolf’
     - Show optional RPM bar animation ranged from safe RPM to max RPM.
 
 - Fuel
-    - Show current remaining fuel (liter).
+    - Show current remaining fuel.
+    - Available fuel unit: Liters, Gallons.
     - Show estimated total required fuel for finishing race, negative value indicates estimated extra fuel after race ends.
     - Show fuel consumption from last lap.
     - Show estimated laps & minutes that current remaining fuel can last.
@@ -43,7 +44,8 @@ Currently supports rFactor 2 and displays simulation info using The Iron Wolf’
 
 - Temperature (tyre & brake)
     - Show average Tyre surface temperature.
-    - Show average Brake temperature of front and rear.
+    - Show Brake temperature of front and rear.
+    - Available temperature unit: Celsius, Fahrenheit.
     - Changes font color or background color based on heat map.
     - 4 different layouts.
 
@@ -61,6 +63,7 @@ Currently supports rFactor 2 and displays simulation info using The Iron Wolf’
 - Weather
     - Show surface condition (dry or wet).
     - Show Track & Ambient temperature.
+    - Available temperature unit: Celsius, Fahrenheit.
     - Show rain percentage, min, max, average wetness.
 
 - Engine

@@ -58,24 +58,23 @@ def conv_speed(speed, speed_unit):
         multiplier = 2.23693629  # mph
     else:
         multiplier = 1  # meter per sec
-    speed = f"{speed * multiplier:03.0f}"
+    speed = speed * multiplier
     return speed
 
+
 def conv_temp(temp, temp_unit):
-    """2 different temperature unit conversion"""
-    if temp_unit == "0":
-        temp = f"{temp:02.0f}" # default is C
-    elif temp_unit == "1":
-        temp = f"{temp*(9/5)+32:02.0f}" 
+    """2 different temperature unit conversion, default is Celsius"""
+    if temp_unit == "1":
+        temp = temp*(9/5)+32  # Celsius to Fahrenheit
     return temp
 
+
 def conv_fuel(fuel, fuel_unit):
-    """2 different fuel unit conversion"""
-    if fuel_unit == "0":
-        fuel = f"{fuel:.2f}" # default is L
-    elif fuel_unit == "1":
-        fuel = f"{fuel * 0.2641729:.2f}"
+    """2 different fuel unit conversion, default is Liter"""
+    if fuel_unit == "1":
+        fuel = fuel * 0.2641729  # Liter to Gallon
     return fuel
+
 
 def gear(gear_index):
     """Convert gear index to text string"""
@@ -90,13 +89,13 @@ def gear(gear_index):
 
 def rad2deg(radian):
     """Convert radians to degrees"""
-    degree = f"{radian * 57.2957795:+.2f}"
+    degree = radian * 57.2957795
     return degree
 
 
 def meter2millmeter(meter):
     """Convert meter to millimeter"""
-    millimeter = f"{meter * 1000:+.1f}"
+    millimeter = meter * 1000
     return millimeter
 
 
@@ -106,9 +105,9 @@ def rake2angle(rake, wheelbase):
     return degree
 
 
-def temperature(kelvin):
+def kelvin2celsius(kelvin):
     """Convert Kelvin to Celsius"""
-    celsius = f"{max(kelvin - 273.15, 0):03.0f}"
+    celsius = max(kelvin - 273.15, 0)
     return celsius
 
 

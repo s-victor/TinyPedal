@@ -172,17 +172,17 @@ class Fuel(Widget, MouseEvent):
             elif self.amount_need < -999:
                 self.amount_need = -999
 
-            amount_curr_d = calc.conv_fuel(int(amount_curr), cfg.fuel["fuel_unit"])
+            amount_curr_d = calc.conv_fuel(amount_curr, cfg.fuel["fuel_unit"])
             amount_need_d = calc.conv_fuel(self.amount_need, cfg.fuel["fuel_unit"])
             used_last_d = calc.conv_fuel(self.used_last, cfg.fuel["fuel_unit"])
 
             # Low fuel warning
             lowfuel_color = self.color_lowfuel(self.est_runlaps)
             # Current fuel & total needed fuel
-            self.bar_fuel_1.config(text=amount_curr_d, bg=lowfuel_color)
-            self.bar_fuel_2.config(text=amount_need_d, bg=lowfuel_color)
+            self.bar_fuel_1.config(text=f"{amount_curr_d:.2f}", bg=lowfuel_color)
+            self.bar_fuel_2.config(text=f"{amount_need_d:+0.1f}", bg=lowfuel_color)
             # Last lap fuel consumption
-            self.bar_fuel_3.config(text=used_last_d)
+            self.bar_fuel_3.config(text=f"{used_last_d:.2f}")
             # Estimated laps & minutes current fuel can last
             self.bar_fuel_4.config(text=str(f"{self.est_runlaps:.1f}"))
             self.bar_fuel_5.config(text=str(f"{self.est_runmins:.1f}"))

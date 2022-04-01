@@ -97,7 +97,7 @@ class Weather(Widget, MouseEvent):
             else:
                 surface = "Dry"
 
-            temperature = f"{surface} {trk_temp_d}({amb_temp_d})°{temp_unit}"
+            temperature = f"{surface} {trk_temp_d:.1f}({amb_temp_d:.1f})°{temp_unit}"
             raining = f"Rain {rain:.0f}%"
             wetness = f"{min_wet:.0f}% < {max_wet:.0f}% ≈ {avg_wet:.0f}%"
 

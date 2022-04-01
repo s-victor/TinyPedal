@@ -127,18 +127,18 @@ class Temp(Widget, MouseEvent):
         if read_data.state() and cfg.temp["enable"]:
             # Read average tyre & brake temperature data
             (ttemp_fl, ttemp_fr, ttemp_rl, ttemp_rr, btemp_fl, btemp_fr, btemp_rl, btemp_rr
-             ) = [calc.temperature(data) for data in read_data.temp()]
+             ) = [calc.kelvin2celsius(data) for data in read_data.temp()]
 
-            # set up display temps
-            ttemp_fl_d = calc.conv_temp(int(ttemp_fl), cfg.temp["temp_unit"])
-            ttemp_fr_d = calc.conv_temp(int(ttemp_fr), cfg.temp["temp_unit"])
-            ttemp_rl_d = calc.conv_temp(int(ttemp_rl), cfg.temp["temp_unit"])
-            ttemp_rr_d = calc.conv_temp(int(ttemp_rr), cfg.temp["temp_unit"])
+            # Set up display temps
+            ttemp_fl_d = calc.conv_temp(ttemp_fl, cfg.temp["temp_unit"])
+            ttemp_fr_d = calc.conv_temp(ttemp_fr, cfg.temp["temp_unit"])
+            ttemp_rl_d = calc.conv_temp(ttemp_rl, cfg.temp["temp_unit"])
+            ttemp_rr_d = calc.conv_temp(ttemp_rr, cfg.temp["temp_unit"])
 
-            btemp_fl_d = calc.conv_temp(int(btemp_fl), cfg.temp["temp_unit"])
-            btemp_fr_d = calc.conv_temp(int(btemp_fr), cfg.temp["temp_unit"])
-            btemp_rl_d = calc.conv_temp(int(btemp_rl), cfg.temp["temp_unit"])
-            btemp_rr_d = calc.conv_temp(int(btemp_rr), cfg.temp["temp_unit"])
+            btemp_fl_d = calc.conv_temp(btemp_fl, cfg.temp["temp_unit"])
+            btemp_fr_d = calc.conv_temp(btemp_fr, cfg.temp["temp_unit"])
+            btemp_rl_d = calc.conv_temp(btemp_rl, cfg.temp["temp_unit"])
+            btemp_rr_d = calc.conv_temp(btemp_rr, cfg.temp["temp_unit"])
 
             # Temperature update
             if cfg.temp["color_swap_tyre"] == "0":
@@ -163,23 +163,22 @@ class Temp(Widget, MouseEvent):
                 self.bar_btemp_rl["fg"] = self.color_btemp(btemp_rl)
                 self.bar_btemp_rr["fg"] = self.color_btemp(btemp_rr)
 
-            self.bar_ttemp_fl.config(text=f" {ttemp_fl_d}°")
-            self.bar_ttemp_fr.config(text=f" {ttemp_fr_d}°")
-            self.bar_ttemp_rl.config(text=f" {ttemp_rl_d}°")
-            self.bar_ttemp_rr.config(text=f" {ttemp_rr_d}°")
-            self.bar_btemp_fl.config(text=f" {btemp_fl_d}°")
-            self.bar_btemp_fr.config(text=f" {btemp_fr_d}°")
-            self.bar_btemp_rl.config(text=f" {btemp_rl_d}°")
-            self.bar_btemp_rr.config(text=f" {btemp_rr_d}°")
+            self.bar_ttemp_fl.config(text=f" {ttemp_fl_d:02.0f}°")
+            self.bar_ttemp_fr.config(text=f" {ttemp_fr_d:02.0f}°")
+            self.bar_ttemp_rl.config(text=f" {ttemp_rl_d:02.0f}°")
+            self.bar_ttemp_rr.config(text=f" {ttemp_rr_d:02.0f}°")
+            self.bar_btemp_fl.config(text=f" {btemp_fl_d:02.0f}°")
+            self.bar_btemp_fr.config(text=f" {btemp_fr_d:02.0f}°")
+            self.bar_btemp_rl.config(text=f" {btemp_rl_d:02.0f}°")
+            self.bar_btemp_rr.config(text=f" {btemp_rr_d:02.0f}°")
 
         # Update rate
         self.after(cfg.temp["update_delay"], self.update_temp)
 
     # Additional methods
     @staticmethod
-    def color_ttemp(tyre_temp):
+    def color_ttemp(temp):
         """Tyre temperature color"""
-        temp = int(tyre_temp)
         if temp < 40:
             color = "#44F"  # blue
         elif 40 <= temp < 60:
@@ -197,9 +196,8 @@ class Temp(Widget, MouseEvent):
         return color
 
     @staticmethod
-    def color_btemp(brake_temp):
+    def color_btemp(temp):
         """Brake temperature color"""
-        temp = int(brake_temp)
         if temp < 100:
             color = "#44F"  # blue
         elif 100 <= temp < 200:

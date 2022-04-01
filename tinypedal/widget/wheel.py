@@ -130,7 +130,8 @@ class Wheel(Widget, MouseEvent):
         if read_data.state() and cfg.wheel["enable"]:
             # Read camber data
             (camber_fl, camber_fr, camber_rl, camber_rr
-             ) = [calc.rad2deg(data) for data in read_data.camber()]
+             ) = [f"{calc.rad2deg(data):+.2f}" for data in read_data.camber()]
+
             # Camber update
             self.bar_camber_fl.config(text=camber_fl)
             self.bar_camber_fr.config(text=camber_fr)
@@ -139,7 +140,8 @@ class Wheel(Widget, MouseEvent):
 
             # Read toe data
             (toe_fl, toe_fr, toe_rl, toe_rr
-             ) = [calc.rad2deg(data) for data in read_data.toe()]
+             ) = [f"{calc.rad2deg(data):+.2f}" for data in read_data.toe()]
+
             # Toe update
             self.bar_toe_fl.config(text=toe_fl)
             self.bar_toe_fr.config(text=toe_fr)
@@ -149,23 +151,25 @@ class Wheel(Widget, MouseEvent):
             # Read ride height & rake data
             (rideh_fl, rideh_fr, rideh_rl, rideh_rr, rake
              ) = [calc.meter2millmeter(data) for data in read_data.ride_height()]
+
             # Ride height update
-            self.bar_rideh_fl.config(text=rideh_fl,
+            self.bar_rideh_fl.config(text=f"{rideh_fl:+.1f}",
                                      bg=self.color_rideh(
                                         rideh_fl, cfg.wheel["rideheight_offset_front"]))
-            self.bar_rideh_fr.config(text=rideh_fr,
+            self.bar_rideh_fr.config(text=f"{rideh_fr:+.1f}",
                                      bg=self.color_rideh(
                                         rideh_fr, cfg.wheel["rideheight_offset_front"]))
-            self.bar_rideh_rl.config(text=rideh_rl,
+            self.bar_rideh_rl.config(text=f"{rideh_rl:+.1f}",
                                      bg=self.color_rideh(
                                         rideh_rl, cfg.wheel["rideheight_offset_front"]))
-            self.bar_rideh_rr.config(text=rideh_rr,
+            self.bar_rideh_rr.config(text=f"{rideh_rr:+.1f}",
                                      bg=self.color_rideh(
                                         rideh_rr, cfg.wheel["rideheight_offset_front"]))
 
             # Rake update
             rake_angle = calc.rake2angle(rake, cfg.wheel["wheelbase"])
-            self.bar_rake.config(text=rake, bg=self.color_rideh(rake, 0))
+
+            self.bar_rake.config(text=f"{rake:+.1f}", bg=self.color_rideh(rake, 0))
             self.bar_rakeangle.config(text=f" {rake_angle:.2f}°", bg=self.color_rideh(rake, 0))
 
         # Update rate
@@ -175,7 +179,7 @@ class Wheel(Widget, MouseEvent):
     @staticmethod
     def color_rideh(height, offset):
         """Ride height indicator color"""
-        if float(height) > float(offset):
+        if height > offset:
             color = cfg.wheel["bkg_color"]
         else:
             color = cfg.wheel["bkg_color_bottoming"]
