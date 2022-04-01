@@ -23,6 +23,7 @@ Weather Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
+import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
 
@@ -82,12 +83,21 @@ class Weather(Widget, MouseEvent):
             # Read Weather data
             amb_temp, trk_temp, rain, min_wet, max_wet, avg_wet = read_data.weather()
 
+            # set up display units
+            amb_temp_d = calc.conv_temp(amb_temp, cfg.weather["temp_unit"])
+            trk_temp_d = calc.conv_temp(trk_temp, cfg.weather["temp_unit"])
+
+            if cfg.weather["temp_unit"] == "0":
+                temp_unit = "C"
+            elif cfg.weather["temp_unit"] == "1":
+                temp_unit = "F"
+
             if max_wet > 0:
                 surface = "Wet"
             else:
                 surface = "Dry"
 
-            temperature = f"{surface} {trk_temp:02.0f}({amb_temp:02.0f})°C"
+            temperature = f"{surface} {trk_temp_d}({amb_temp_d})°{temp_unit}"
             raining = f"Rain {rain:.0f}%"
             wetness = f"{min_wet:.0f}% < {max_wet:.0f}% ≈ {avg_wet:.0f}%"
 

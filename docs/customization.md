@@ -156,6 +156,8 @@ Show short caption description besides each info block.
     bkg_color_low_fuel
 Set low fuel color indicator, which changes widget background color when there is just 2 laps of fuel left.
 
+    fuel_unit
+2 unit types are available: `0` = liters, `1` = gallons.
 
 ## Gear
     layout
@@ -246,6 +248,8 @@ This enables scale marks on steering bar, which is set 90 degrees apart from eac
     color_swap_tyre, color_swap_brake
 Swap heat map color between font & background color.
 
+    temp_unit
+2 unit types are available: `0` = Celsius, `1` = Fahrenheit
 
 ## Timing
     layout
@@ -261,7 +265,8 @@ Swap heat map color between font & background color.
 
 
 ## Weather
-No special setting.
+    temp_unit
+2 unit types are available: `0` = Celsius, `1` = Fahrenheit
 
 
 ## Wheel
