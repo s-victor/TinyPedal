@@ -27,25 +27,6 @@ Color value is in web colors format (hexadecimal color codes), which starts with
 If a number (default value) does not contain any decimal place, that means it only accepts `integer`. Make sure not to add any decimal place, otherwise error will occur.
 
 
-# Table of Contents
-* [Common Setting](#common-setting)
-* [Overlay](#overlay)
-* [Deltabest](#deltabest)
-* [DRS](#drs)
-* [Engine](#engine)
-* [Force](#force)
-* [Fuel](#fuel)
-* [Gear](#gear)
-* [Pedal](#pedal)
-* [Relative](#relative)
-* [Steering](#steering)
-* [Temperature](#temperature)
-* [Timing](#timing)
-* [Wear](#wear)
-* [Weather](#weather)
-* [Wheel](#wheel)
-
-
 ## Common Setting
 
     enable
@@ -165,7 +146,7 @@ Set low fuel color indicator, which changes widget background color when there i
 2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
 
     speed_unit
-3 speed units are available: `0` = KPH, `1` = MPH, `2` = m/s.
+3 unit types are available: `0` = KPH, `1` = MPH, `2` = m/s.
 
     speed_limiter_text
 Set custom pit speed limiter text which shows when speed limiter is engaged. 
@@ -204,6 +185,14 @@ This enables Force Feedback meter.
 
     ffb_clipping_color
 Set Force Feedback clipping color.
+
+
+## Pressure
+    pressure_unit
+3 unit types are available: `0` = kPa, `1` = psi, `2` = bar.
+
+    show_tyre_load
+This enables Tyre Load display.
 
 
 ## Relative
@@ -261,9 +250,6 @@ Swap heat map color between font & background color.
 ## Wear
     layout
 4 layouts are available: `0` = vertical layout, `1` = vertical swapped, `2` = horizontal layout, `3` = horizontal swapped.
-
-    pressure_unit
-3 tyre pressure units: `0` = kPa, `1` = psi, `2` = bar.
 
 
 ## Weather

@@ -63,6 +63,7 @@ class TrayIcon:
             item("Fuel", wtoggle.fuel, checked=lambda _: cfg.fuel["enable"]),
             item("Gear", wtoggle.gear, checked=lambda _: cfg.gear["enable"]),
             item("Pedal", wtoggle.pedal, checked=lambda _: cfg.pedal["enable"]),
+            item("Pressure", wtoggle.pressure, checked=lambda _: cfg.pressure["enable"]),
             item("Relative", wtoggle.relative, checked=lambda _: cfg.relative["enable"]),
             item("Steering", wtoggle.steering, checked=lambda _: cfg.steering["enable"]),
             item("Temperature", wtoggle.temp, checked=lambda _: cfg.temp["enable"]),
@@ -125,6 +126,9 @@ class WidgetToggle:
         if cfg.pedal["enable"]:
             self.widget_pedal = widget.Pedal()
 
+        if cfg.pressure["enable"]:
+            self.widget_pressure = widget.Pressure()
+
         if cfg.relative["enable"]:
             self.widget_relative = widget.Relative()
 
@@ -151,9 +155,9 @@ class WidgetToggle:
         cfg.load()
         if not cfg.deltabest["enable"]:
             self.widget_deltabest = widget.Deltabest()
-            cfg.deltabest["enable"] = True
+            cfg.deltabest["enable"] = True  # set True after widget enabled
         else:
-            cfg.deltabest["enable"] = False
+            cfg.deltabest["enable"] = False  # set False before widget disabled
             cfg.active_widget_list.remove(self.widget_deltabest)
             self.widget_deltabest.destroy()
         cfg.save()
@@ -223,11 +227,23 @@ class WidgetToggle:
         cfg.load()
         if not cfg.pedal["enable"]:
             self.widget_pedal = widget.Pedal()
-            cfg.pedal["enable"] = True  # set True after widget enabled
+            cfg.pedal["enable"] = True
         else:
-            cfg.pedal["enable"] = False  # set False before widget disabled
+            cfg.pedal["enable"] = False
             cfg.active_widget_list.remove(self.widget_pedal)
             self.widget_pedal.destroy()
+        cfg.save()
+
+    def pressure(self):
+        """Toggle pressure"""
+        cfg.load()
+        if not cfg.pressure["enable"]:
+            self.widget_pressure = widget.Pressure()
+            cfg.pressure["enable"] = True
+        else:
+            cfg.pressure["enable"] = False
+            cfg.active_widget_list.remove(self.widget_pressure)
+            self.widget_pressure.destroy()
         cfg.save()
 
     def relative(self):

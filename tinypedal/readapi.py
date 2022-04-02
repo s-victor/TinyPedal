@@ -159,7 +159,18 @@ def wear():
     return wear_fl, wear_fr, wear_rl, wear_rr
 
 
-def pressure():
+def tyre_load():
+    """Tyre load data"""
+    plr_tele = info.playersVehicleTelemetry()
+
+    load_fl = plr_tele.mWheels[0].mTireLoad
+    load_fr = plr_tele.mWheels[1].mTireLoad
+    load_rl = plr_tele.mWheels[2].mTireLoad
+    load_rr = plr_tele.mWheels[3].mTireLoad
+    return load_fl, load_fr, load_rl, load_rr
+
+
+def tyre_pres():
     """Tyre pressure data"""
     plr_tele = info.playersVehicleTelemetry()
 

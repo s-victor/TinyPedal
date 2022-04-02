@@ -1,3 +1,25 @@
+TinyPedal 1.1.5 (2022-04-02)
+----------------------------
+* [New]Pressure widget
+    - Tyre pressure is now a separated widget that show pressure & load.
+    - Tyre load display can be turned off separately.
+
+* Wear Widget
+    - Show new Tyre wear usage from last lap.
+    - No longer shows Tyre pressure. 
+
+* Core
+    - [New]Add additional unit types (by thoraxe) for Fuel, Temperature, Weather widgets.
+    - Improved laptime validating function for "deltatime" module.
+    - Moved most string formatting from calculation.py to individual widgets,
+      which avoids repetitive string & number conversion.
+    - Updated setting entries & code cleanup
+
+* Misc
+    - Updated README.md, moved Feature section to features.md file.
+    - Updated customization.md with new config options (by thoraxe).
+    - Updated contributors.md with new contributor (thoraxe).
+
 TinyPedal 1.1.3 (2022-03-22)
 ----------------------------
 * Core

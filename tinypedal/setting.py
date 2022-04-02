@@ -93,8 +93,8 @@ class Setting:
             "bkg_color_overheat": "#FF2200",
             "overheat_threshold_oil": 110,
             "overheat_threshold_water": 110,
-            "show_rpm": True,
             "show_turbo": True,
+            "show_rpm": True,
         },
         "force": {
             "enable": True,
@@ -180,6 +180,24 @@ class Setting:
             "show_ffb_meter": True,
             "ffb_color": "#888888",
             "ffb_clipping_color": "#FFAA00",
+        },
+        "pressure": {
+            "enable": True,
+            "update_delay": 50,
+            "position_x": "630",
+            "position_y": "610",
+            "opacity": 0.9,
+            "layout": "0",
+            "pressure_unit": "0",
+            "font_name": "consolas",
+            "font_size": 15,
+            "font_weight": "bold",
+            "bar_gap": 2,
+            "font_color_pressure": "#CCCCCC",
+            "bkg_color_pressure": "#222222",
+            "show_tyre_load": True,
+            "font_color_load": "#CCCCCC",
+            "bkg_color_load": "#222222",
         },
         "relative": {
             "enable": True,
@@ -271,14 +289,12 @@ class Setting:
             "position_y": "610",
             "opacity": 0.9,
             "layout": "0",
-            "pressure_unit": "0",
             "font_name": "consolas",
             "font_size": 15,
             "font_weight": "bold",
-            "font_color_pressure": "#CCCCCC",
+            "font_color": "#CCCCCC",
             "bar_gap": 2,
-            "bkg_color_wear": "#222222",
-            "bkg_color_pressure": "#222222",
+            "bkg_color": "#222222",
         },
         "weather": {
             "enable": True,
@@ -353,6 +369,7 @@ class Setting:
         self.fuel = self.setting["fuel"]
         self.gear = self.setting["gear"]
         self.pedal = self.setting["pedal"]
+        self.pressure = self.setting["pressure"]
         self.relative = self.setting["relative"]
         self.steering = self.setting["steering"]
         self.temp = self.setting["temperature"]

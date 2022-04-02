@@ -27,6 +27,7 @@ from .force import Force
 from .fuel import Fuel
 from .gear import Gear
 from .pedal import Pedal
+from .pressure import Pressure
 from .relative import Relative
 from .steering import Steering
 from .temp import Temp

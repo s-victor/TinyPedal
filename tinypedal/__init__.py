@@ -23,7 +23,7 @@ Init
 from pyRfactor2SharedMemory.sharedMemoryAPI import SimInfoAPI
 
 
-VERSION = "1.1.3"
+VERSION = "1.1.5"
 
 # Load Shared Memory API
 info = SimInfoAPI()

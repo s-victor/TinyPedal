@@ -9,85 +9,8 @@ Currently supports rFactor 2 and displays simulation info using The Iron Wolf’
 `Borderless` or `Windowed Mode` is required. Full-screen mode is not supported.
 
 
-## Available widgets & Features
-- Pedal
-    - Show Pedal input, both Filtered & Unfiltered input side by side, which helps distinguish car specific assists such as TC/ABS/Auto-clutch, etc.
-    - Show optional Force Feedback meter, and clipping indicator.
-
-- Steering
-    - Show Steering input.
-    - Show optional Scale Marks (90 degrees apart).
-
-- Gear
-    - Show Gear in 2 layouts.
-    - Show Speed with 3 different unit display: kph, mph, or m/s.
-    - Show Speed Limiter sign while activated.
-    - Show RPM color indicator with customizable RPM range setting.
-    - Show RPM over-rev color warning.
-    - Show optional RPM bar animation ranged from safe RPM to max RPM.
-
-- Fuel
-    - Show current remaining fuel.
-    - Available fuel unit: Liters, Gallons.
-    - Show estimated total required fuel for finishing race, negative value indicates estimated extra fuel after race ends.
-    - Show fuel consumption from last lap.
-    - Show estimated laps & minutes that current remaining fuel can last.
-    - Show estimated number of required pit stop. Note, any decimal place should be considered for an additional full pit stops (or try save some fuel), as it is not possible to do 0.5 or 0.01 pit stops.
-    - Show optional caption descriptions.
-
-- Wheel (alignment)
-    - Show Camber & Toe in (degree).
-    - Show Ride Height (millimeter).
-    - Show car bottoming indicator with customizable offset.
-    - Show Rake (millimeter) & Rake angle (degree) with negative rake indicator. Wheelbase can be defined in config.
-    - Show optional caption descriptions.
-
-- Temperature (tyre & brake)
-    - Show average Tyre surface temperature.
-    - Show Brake temperature of front and rear.
-    - Available temperature unit: Celsius, Fahrenheit.
-    - Changes font color or background color based on heat map.
-    - 4 different layouts.
-
-- Wear & Pressure (tyre)
-    - Show Tyre wear that changes color according to wear.
-    - Show Tyre pressure with 3 different unit display: kPa, psi, bar.
-    - 4 different layouts.
-
-- Relative
-    - Show driver standings, relative position and time gap.
-    - Show different text color based on laps ahead or behind you.
-    - Show optional driver's last laptime.
-    - Show optional vehicle class categories with fully customizable class name and color.
-
-- Weather
-    - Show surface condition (dry or wet).
-    - Show Track & Ambient temperature.
-    - Available temperature unit: Celsius, Fahrenheit.
-    - Show rain percentage, min, max, average wetness.
-
-- Engine
-    - Show Oil & Water temperature with overheating indicator.
-    - Show Turbo pressure (bar).
-    - Show Engine RPM.
-
-- Force
-    - Show longitudinal & lateral G force with direction indicator.
-    - Show downforce ratio (percentage).
-
-- Delta best
-    - Show delta best based personal best laptime.
-    - Show delta bar with customizable range, size and color.
-    - Record, save, and load player's best laptime data automatically.
-    - Best laptime file is saved in deltabest folder, and can be used by other players.
-    - 2 different layouts.
-
-- Timing
-    - Show personal best, last, current, and delta estimated laptime.
-    - 3 different layouts.
-
-- DRS
-    - Show DRS color indicator.
+## Feature
+See [docs\features.md](./docs/features.md) for complete widgets & feature list.
 
 All widgets are Customizable, see **Customization** section for details.
 
