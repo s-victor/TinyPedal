@@ -1,7 +1,7 @@
 TinyPedal 1.1.5 (2022-04-02)
 ----------------------------
 * [New]Pressure widget
-    - Tyre pressure is now a separated widget that show pressure & load.
+    - Tyre pressure is now a separated widget that shows pressure & load.
     - Tyre load display can be turned off separately.
 
 * Wear Widget

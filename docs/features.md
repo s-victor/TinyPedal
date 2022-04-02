@@ -71,7 +71,7 @@
 - Show downforce ratio (percentage).
 
 ## Delta best
-- Show delta best based personal best laptime.
+- Show delta best based on personal best laptime.
 - Show delta bar with customizable range, size and color.
 - Record, save, and load player's best laptime data automatically.
 - Best laptime file is saved in deltabest folder, and can be used by other players.
