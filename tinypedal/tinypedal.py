@@ -152,7 +152,6 @@ class WidgetToggle:
 
     def deltabest(self):
         """Toggle deltabest"""
-        cfg.load()
         if not cfg.deltabest["enable"]:
             self.widget_deltabest = widget.Deltabest()
             cfg.deltabest["enable"] = True  # set True after widget enabled
@@ -164,7 +163,6 @@ class WidgetToggle:
 
     def drs(self):
         """Toggle DRS"""
-        cfg.load()
         if not cfg.drs["enable"]:
             self.widget_drs = widget.DRS()
             cfg.drs["enable"] = True
@@ -176,7 +174,6 @@ class WidgetToggle:
 
     def engine(self):
         """Toggle engine"""
-        cfg.load()
         if not cfg.engine["enable"]:
             self.widget_engine = widget.Engine()
             cfg.engine["enable"] = True
@@ -188,7 +185,6 @@ class WidgetToggle:
 
     def force(self):
         """Toggle force"""
-        cfg.load()
         if not cfg.force["enable"]:
             self.widget_force = widget.Force()
             cfg.force["enable"] = True
@@ -200,7 +196,6 @@ class WidgetToggle:
 
     def fuel(self):
         """Toggle fuel"""
-        cfg.load()
         if not cfg.fuel["enable"]:
             self.widget_fuel = widget.Fuel()
             cfg.fuel["enable"] = True
@@ -212,7 +207,6 @@ class WidgetToggle:
 
     def gear(self):
         """Toggle gear"""
-        cfg.load()
         if not cfg.gear["enable"]:
             self.widget_gear = widget.Gear()
             cfg.gear["enable"] = True
@@ -224,7 +218,6 @@ class WidgetToggle:
 
     def pedal(self):
         """Toggle pedal"""
-        cfg.load()
         if not cfg.pedal["enable"]:
             self.widget_pedal = widget.Pedal()
             cfg.pedal["enable"] = True
@@ -236,7 +229,6 @@ class WidgetToggle:
 
     def pressure(self):
         """Toggle pressure"""
-        cfg.load()
         if not cfg.pressure["enable"]:
             self.widget_pressure = widget.Pressure()
             cfg.pressure["enable"] = True
@@ -248,7 +240,6 @@ class WidgetToggle:
 
     def relative(self):
         """Toggle relative"""
-        cfg.load()
         if not cfg.relative["enable"]:
             self.widget_relative = widget.Relative()
             cfg.relative["enable"] = True
@@ -260,7 +251,6 @@ class WidgetToggle:
 
     def steering(self):
         """Toggle steering"""
-        cfg.load()
         if not cfg.steering["enable"]:
             self.widget_steering = widget.Steering()
             cfg.steering["enable"] = True
@@ -272,7 +262,6 @@ class WidgetToggle:
 
     def temp(self):
         """Toggle temperature"""
-        cfg.load()
         if not cfg.temp["enable"]:
             self.widget_temp = widget.Temp()
             cfg.temp["enable"] = True
@@ -284,7 +273,6 @@ class WidgetToggle:
 
     def timing(self):
         """Toggle timing"""
-        cfg.load()
         if not cfg.timing["enable"]:
             self.widget_timing = widget.Timing()
             cfg.timing["enable"] = True
@@ -296,7 +284,6 @@ class WidgetToggle:
 
     def wear(self):
         """Toggle wear"""
-        cfg.load()
         if not cfg.wear["enable"]:
             self.widget_wear = widget.Wear()
             cfg.wear["enable"] = True
@@ -308,7 +295,6 @@ class WidgetToggle:
 
     def weather(self):
         """Toggle weather"""
-        cfg.load()
         if not cfg.weather["enable"]:
             self.widget_weather = widget.Weather()
             cfg.weather["enable"] = True
@@ -320,7 +306,6 @@ class WidgetToggle:
 
     def wheel(self):
         """Toggle wheel"""
-        cfg.load()
         if not cfg.wheel["enable"]:
             self.widget_wheel = widget.Wheel()
             cfg.wheel["enable"] = True

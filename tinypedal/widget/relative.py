@@ -177,7 +177,6 @@ class Relative(Widget, MouseEvent):
 
     def save_widget_position(self):
         """Save widget position"""
-        cfg.load()
         cfg.relative["position_x"] = str(self.winfo_x())
         cfg.relative["position_y"] = str(self.winfo_y())
         cfg.save()

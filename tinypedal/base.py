@@ -137,7 +137,6 @@ class OverlayLock:
         Call cfg.load() before modifying config & saving
         to avoid overriding user changes.
         """
-        cfg.load()
         cfg.overlay["fixed_position"] = True
         cfg.save()
 
@@ -146,7 +145,6 @@ class OverlayLock:
 
     def unlock(self):
         """Unlock overlay"""
-        cfg.load()
         cfg.overlay["fixed_position"] = False
         cfg.save()
 
@@ -215,6 +213,5 @@ class OverlayAutoHide:
     @staticmethod
     def toggle(_icon, enabled):
         """Toggle hide state"""
-        cfg.load()
         cfg.overlay["auto_hide"] = not enabled.checked
         cfg.save()

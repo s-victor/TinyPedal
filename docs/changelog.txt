@@ -1,3 +1,17 @@
+TinyPedal 1.1.6 (2022-04-16)
+----------------------------
+* Core
+    - New algorithm for handling setting validating.
+    - Each widget setting is now separately validated.
+    - Invalid & missing setting keys are removed or added individually,
+      which helps for keeping valid widget setting untouched,
+      and will benefit any future updates greatly.
+    - Due to this new validating method, it is now recommended to exit APP
+      before manually saving changes to JSON file.
+
+* Misc
+    - Updated document files to reflect the new changes to setting validating.
+
 TinyPedal 1.1.5 (2022-04-02)
 ----------------------------
 * [New]Pressure widget

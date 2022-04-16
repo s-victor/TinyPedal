@@ -103,9 +103,9 @@ After building completed, you can find executable file in `dist\TinyPedal` folde
 
 ## Credits
 ### Author:
-Xiang (S.Victor)
+TinyPedal is created by Xiang (S.Victor), with helps from other contributors.
 
-For full list of contributors to TinyPedal, see [docs\contributors.md](./docs/contributors.md) file.
+See [docs\contributors.md](./docs/contributors.md) file for full list of contributors.
 
 ### Special thanks to:  
 The Iron Wolf for the permission to use rF2 Shared Memory Map Plugin in TinyPedal.  

@@ -2,19 +2,19 @@
 
 TinyPedal offers a wide range of customization, which is currently available by editing `config.json` file with text editor. This config file will be auto-generated after first launching.
 
-It is not required to quit APP before editing, but any changes will only take effect after restarted APP.
+This APP will auto-save setting when user makes any changes to widget position, or has toggled widget visibility, auto hide, lock overlay from tray icon. Due to this reason, to avoid losing changes, it is recommended to quit APP before editing or saving JSON file. Any changes will only take effect after restarting APP.
 
 To make changes, editing `values` on the right side of colon.
 
-Do not modify anything (keys) on the left side of colon, any changes to those keys will cause config file to be reverted back to default setting.
+Do not modify anything (keys) on the left side of colon, any changes to those keys will be reverted back to default setting by APP.
 
-If TinyPedal fails to launch after editing config.json, check JSON file for typo error or invalid values; or delete `config.json` to let APP generate a new default file.
+If APP fails to launch after editing config.json, check JSON file for typo error or invalid values; or delete `config.json` to let APP generate a new default file.
 
 
 ## Backup file 
-TinyPedal will automatically create a backup file (with time stamp suffix) if it detects invalid setting (keys), and a new default `config.json` will be generated.
+TinyPedal will automatically create a backup file with time stamp suffix if old setting file is invalid, and a new default `config.json` will be generated.
 
-A newer released version may also invalidate some old setting and create backup file this way.
+A newer released version will auto-update old setting and add new setting. It is still recommended to manually create backup file before updating to new version.
 
 
 ## Editing Notes

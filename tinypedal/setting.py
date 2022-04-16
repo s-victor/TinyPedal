@@ -334,63 +334,65 @@ class Setting:
 
     def __init__(self):
         self.active_widget_list = []  # create active widget list
-        self.setting = {}
+        self.setting_user_unsorted = {}
+        self.setting_user = {}
         self.load()
 
     def load(self):
         """Load & validate setting"""
         try:
-            # Load file
+            # Read JSON file
             with open(self.filename, "r", encoding="utf-8") as jsonfile:
-                self.setting = json.load(jsonfile)
-                # Compare root key
-                if self.setting.keys() == self.setting_default.keys():
-                    for key in self.setting_default:
-                        # Compare sub key
-                        if self.setting[key].keys() != self.setting_default[key].keys():
-                            self.backup()
-                            self.restore()
-                            self.save()
-                            break
-                else:
-                    self.backup()
-                    self.restore()
-                    self.save()
+                self.setting_user_unsorted = json.load(jsonfile)
+
+            # Verify setting
+            verify_setting(self.setting_user_unsorted, self.setting_default)
+
+            # Sort setting in alphabetical order
+            for item in sorted(self.setting_user_unsorted):
+                self.setting_user[item] = self.setting_user_unsorted[item]
+
+            # Save setting to JSON file
+            self.save()
         except (FileNotFoundError, json.decoder.JSONDecodeError):
+            self.backup()
             self.restore()
             self.save()
 
         # Assign sub key setting group
-        self.overlay = self.setting["overlay"]
-        self.deltabest = self.setting["deltabest"]
-        self.drs = self.setting["drs"]
-        self.engine = self.setting["engine"]
-        self.force = self.setting["force"]
-        self.fuel = self.setting["fuel"]
-        self.gear = self.setting["gear"]
-        self.pedal = self.setting["pedal"]
-        self.pressure = self.setting["pressure"]
-        self.relative = self.setting["relative"]
-        self.steering = self.setting["steering"]
-        self.temp = self.setting["temperature"]
-        self.timing = self.setting["timing"]
-        self.wear = self.setting["wear"]
-        self.weather = self.setting["weather"]
-        self.wheel = self.setting["wheel"]
+        self.overlay = self.setting_user["overlay"]
+        self.deltabest = self.setting_user["deltabest"]
+        self.drs = self.setting_user["drs"]
+        self.engine = self.setting_user["engine"]
+        self.force = self.setting_user["force"]
+        self.fuel = self.setting_user["fuel"]
+        self.gear = self.setting_user["gear"]
+        self.pedal = self.setting_user["pedal"]
+        self.pressure = self.setting_user["pressure"]
+        self.relative = self.setting_user["relative"]
+        self.steering = self.setting_user["steering"]
+        self.temp = self.setting_user["temperature"]
+        self.timing = self.setting_user["timing"]
+        self.wear = self.setting_user["wear"]
+        self.weather = self.setting_user["weather"]
+        self.wheel = self.setting_user["wheel"]
 
     def save(self):
         """Save setting to file"""
         with open(self.filename, "w", encoding="utf-8") as jsonfile:
-            json.dump(self.setting, jsonfile, indent=4)
+            json.dump(self.setting_user, jsonfile, indent=4)
 
     def restore(self):
         """Restore default setting"""
-        self.setting = self.setting_default.copy()
+        self.setting_user = self.setting_default.copy()
 
     def backup(self):
         """Backup invalid file"""
-        time_stamp = time.strftime("%Y-%m-%d %H-%M-%S", time.localtime())
-        shutil.copy(self.filename, f"config-backup {time_stamp}.json")
+        try:
+            time_stamp = time.strftime("%Y-%m-%d %H-%M-%S", time.localtime())
+            shutil.copy(self.filename, f"config-backup {time_stamp}.json")
+        except FileNotFoundError:
+            pass
 
 
 class VehicleClass:
@@ -430,7 +432,7 @@ class VehicleClass:
         }
 
     def __init__(self):
-        self.classdict = {}
+        self.classdict_user = {}
         self.load()
 
     def load(self):
@@ -438,13 +440,44 @@ class VehicleClass:
         try:
             # Load file
             with open(self.filename, "r", encoding="utf-8") as jsonfile:
-                self.classdict = json.load(jsonfile)
+                self.classdict_user = json.load(jsonfile)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             # create a default copy if not found
-            self.classdict = self.classdict_default.copy()
+            self.classdict_user = self.classdict_default.copy()
             self.save()
 
     def save(self):
         """Save dictionary to file"""
         with open(self.filename, "w", encoding="utf-8") as jsonfile:
-            json.dump(self.classdict, jsonfile, indent=4)
+            json.dump(self.classdict_user, jsonfile, indent=4)
+
+
+def check_invalid_key(target, origin, dict_user):
+    """First step, check & remove invalid key from user list"""
+    for _, key in enumerate(target):  # loop through user key list
+        if key not in origin:  # check each user key in default list
+            dict_user.pop(key)  # remove invalid key
+
+
+def check_missing_key(target, origin, dict_user, dict_def):
+    """Second step, adding missing default key to user list"""
+    for _, key in enumerate(target):  # loop through default key list
+        if key not in origin:  # check each default key in user list
+            dict_user[key] = dict_def[key]  # add missing item to user
+
+
+def check_key(dict_user, dict_def):
+    """Create key-only check list, then validate key"""
+    key_list_def = list(dict_def)
+    key_list_user = list(dict_user)
+    check_invalid_key(key_list_user, key_list_def, dict_user)
+    check_missing_key(key_list_def, key_list_user, dict_user, dict_def)
+
+
+def verify_setting(dict_user, dict_def):
+    """Verify setting"""
+    # Check top-level key
+    check_key(dict_user, dict_def)
+    # Check sub-level key
+    for item in dict_user.keys():  # list each key lists
+        check_key(dict_user[item], dict_def[item])

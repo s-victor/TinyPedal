@@ -86,7 +86,6 @@ class Timing(Widget, MouseEvent):
 
     def save_widget_position(self):
         """Save widget position"""
-        cfg.load()
         cfg.timing["position_x"] = str(self.winfo_x())
         cfg.timing["position_y"] = str(self.winfo_y())
         cfg.save()
