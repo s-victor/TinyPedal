@@ -40,12 +40,14 @@ class Relative(Widget, MouseEvent):
         self.attributes("-alpha", cfg.relative["opacity"])
 
         # Config size & position
-        num_width = 3
-        drv_width = cfg.relative["bar_driver_name_width"]
-        gap_width = 4
+        self.geometry(f"+{cfg.relative['position_x']}+{cfg.relative['position_y']}")
+
         bar_padx = cfg.relative["font_size"] * 0.3
         bar_gap = cfg.relative["bar_gap"]
-        self.geometry(f"+{cfg.relative['position_x']}+{cfg.relative['position_y']}")
+        num_width = 3
+        gap_width = 4
+        self.drv_width = cfg.relative["bar_driver_name_width"]
+        self.cls_width = cfg.relative["bar_class_name_width"]
 
         # Config style & variable
         text_def = ""
@@ -84,13 +86,13 @@ class Relative(Widget, MouseEvent):
 
         # Driver name
         bar_style_n = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
-                       "font":font_relative, "height":1, "width":drv_width,
+                       "font":font_relative, "height":1, "width":self.drv_width,
                        "fg":fg_color, "bg":bg_color_name, "anchor":"w"}
         self.bar_row_1n = tk.Label(self, bar_style_n)
         self.bar_row_2n = tk.Label(self, bar_style_n)
         self.bar_row_3n = tk.Label(self, bar_style_n)
         self.bar_row_4n = tk.Label(self, text=text_def, bd=0, padx=bar_padx, pady=0,
-                                   font=font_relative, height=1, width=drv_width,
+                                   font=font_relative, height=1, width=self.drv_width,
                                    fg=fg_color_plr, bg=bg_color_name_plr, anchor="w")
         self.bar_row_5n = tk.Label(self, bar_style_n)
         self.bar_row_6n = tk.Label(self, bar_style_n)
@@ -104,25 +106,25 @@ class Relative(Widget, MouseEvent):
         self.bar_row_7n.grid(row=6, column=3, padx=0, pady=0)
 
         # Time gap
-        bar_style_d = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
+        bar_style_g = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
                        "font":font_relative, "height":1, "width":gap_width,
                        "fg":fg_color, "bg":bg_color_gap, "anchor":"e"}
-        self.bar_row_1d = tk.Label(self, bar_style_d)
-        self.bar_row_2d = tk.Label(self, bar_style_d)
-        self.bar_row_3d = tk.Label(self, bar_style_d)
-        self.bar_row_4d = tk.Label(self, text=text_def, bd=0, padx=bar_padx, pady=0,
+        self.bar_row_1g = tk.Label(self, bar_style_g)
+        self.bar_row_2g = tk.Label(self, bar_style_g)
+        self.bar_row_3g = tk.Label(self, bar_style_g)
+        self.bar_row_4g = tk.Label(self, text=text_def, bd=0, padx=bar_padx, pady=0,
                                    font=font_relative, height=1, width=gap_width,
                                    fg=fg_color_plr, bg=bg_color_gap_plr, anchor="e")
-        self.bar_row_5d = tk.Label(self, bar_style_d)
-        self.bar_row_6d = tk.Label(self, bar_style_d)
-        self.bar_row_7d = tk.Label(self, bar_style_d)
-        self.bar_row_1d.grid(row=0, column=6, padx=0, pady=(0, bar_gap))
-        self.bar_row_2d.grid(row=1, column=6, padx=0, pady=(0, bar_gap))
-        self.bar_row_3d.grid(row=2, column=6, padx=0, pady=(0, bar_gap))
-        self.bar_row_4d.grid(row=3, column=6, padx=0, pady=(0, bar_gap))
-        self.bar_row_5d.grid(row=4, column=6, padx=0, pady=(0, bar_gap))
-        self.bar_row_6d.grid(row=5, column=6, padx=0, pady=(0, bar_gap))
-        self.bar_row_7d.grid(row=6, column=6, padx=0, pady=0)
+        self.bar_row_5g = tk.Label(self, bar_style_g)
+        self.bar_row_6g = tk.Label(self, bar_style_g)
+        self.bar_row_7g = tk.Label(self, bar_style_g)
+        self.bar_row_1g.grid(row=0, column=6, padx=0, pady=(0, bar_gap))
+        self.bar_row_2g.grid(row=1, column=6, padx=0, pady=(0, bar_gap))
+        self.bar_row_3g.grid(row=2, column=6, padx=0, pady=(0, bar_gap))
+        self.bar_row_4g.grid(row=3, column=6, padx=0, pady=(0, bar_gap))
+        self.bar_row_5g.grid(row=4, column=6, padx=0, pady=(0, bar_gap))
+        self.bar_row_6g.grid(row=5, column=6, padx=0, pady=(0, bar_gap))
+        self.bar_row_7g.grid(row=6, column=6, padx=0, pady=0)
 
         # Vehicle laptime
         if cfg.relative["show_laptime"]:
@@ -153,7 +155,7 @@ class Relative(Widget, MouseEvent):
             bg_color_cls = cfg.relative["bkg_color_class"]
             bar_style_c = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
                            "font":font_relative, "height":1,
-                           "width":cfg.relative["bar_class_name_width"],
+                           "width":self.cls_width,
                            "fg":fg_color_cls, "bg":bg_color_cls}
             self.bar_row_1c = tk.Label(self, bar_style_c)
             self.bar_row_2c = tk.Label(self, bar_style_c)
@@ -200,6 +202,7 @@ class Relative(Widget, MouseEvent):
             v7_plc, v7_drv, v7_lpt, v7_cls, v7_gap, v7_lap = read_data.relative_data(rel_list[6], plr)
 
             # Relative update
+            # Driver place
             self.bar_row_1p.config(text=v1_plc, fg=self.color_lapdiff(v1_lap, v4_lap))
             self.bar_row_2p.config(text=v2_plc, fg=self.color_lapdiff(v2_lap, v4_lap))
             self.bar_row_3p.config(text=v3_plc, fg=self.color_lapdiff(v3_lap, v4_lap))
@@ -208,30 +211,32 @@ class Relative(Widget, MouseEvent):
             self.bar_row_6p.config(text=v6_plc, fg=self.color_lapdiff(v6_lap, v4_lap))
             self.bar_row_7p.config(text=v7_plc, fg=self.color_lapdiff(v7_lap, v4_lap))
 
-            self.bar_row_1n.config(text=v1_drv, fg=self.color_lapdiff(v1_lap, v4_lap))
-            self.bar_row_2n.config(text=v2_drv, fg=self.color_lapdiff(v2_lap, v4_lap))
-            self.bar_row_3n.config(text=v3_drv, fg=self.color_lapdiff(v3_lap, v4_lap))
-            self.bar_row_4n.config(text=v4_drv)
-            self.bar_row_5n.config(text=v5_drv, fg=self.color_lapdiff(v5_lap, v4_lap))
-            self.bar_row_6n.config(text=v6_drv, fg=self.color_lapdiff(v6_lap, v4_lap))
-            self.bar_row_7n.config(text=v7_drv, fg=self.color_lapdiff(v7_lap, v4_lap))
+            # Driver name
+            self.bar_row_1n.config(text=v1_drv[:self.drv_width], fg=self.color_lapdiff(v1_lap, v4_lap))
+            self.bar_row_2n.config(text=v2_drv[:self.drv_width], fg=self.color_lapdiff(v2_lap, v4_lap))
+            self.bar_row_3n.config(text=v3_drv[:self.drv_width], fg=self.color_lapdiff(v3_lap, v4_lap))
+            self.bar_row_4n.config(text=v4_drv[:self.drv_width])
+            self.bar_row_5n.config(text=v5_drv[:self.drv_width], fg=self.color_lapdiff(v5_lap, v4_lap))
+            self.bar_row_6n.config(text=v6_drv[:self.drv_width], fg=self.color_lapdiff(v6_lap, v4_lap))
+            self.bar_row_7n.config(text=v7_drv[:self.drv_width], fg=self.color_lapdiff(v7_lap, v4_lap))
 
-            self.bar_row_1d.config(text=v1_gap, fg=self.color_lapdiff(v1_lap, v4_lap))
-            self.bar_row_2d.config(text=v2_gap, fg=self.color_lapdiff(v2_lap, v4_lap))
-            self.bar_row_3d.config(text=v3_gap, fg=self.color_lapdiff(v3_lap, v4_lap))
-            self.bar_row_4d.config(text=v4_gap)
-            self.bar_row_5d.config(text=v5_gap, fg=self.color_lapdiff(v5_lap, v4_lap))
-            self.bar_row_6d.config(text=v6_gap, fg=self.color_lapdiff(v6_lap, v4_lap))
-            self.bar_row_7d.config(text=v7_gap, fg=self.color_lapdiff(v7_lap, v4_lap))
+            # Time gap
+            self.bar_row_1g.config(text=v1_gap, fg=self.color_lapdiff(v1_lap, v4_lap))
+            self.bar_row_2g.config(text=v2_gap, fg=self.color_lapdiff(v2_lap, v4_lap))
+            self.bar_row_3g.config(text=v3_gap, fg=self.color_lapdiff(v3_lap, v4_lap))
+            self.bar_row_4g.config(text=v4_gap)
+            self.bar_row_5g.config(text=v5_gap, fg=self.color_lapdiff(v5_lap, v4_lap))
+            self.bar_row_6g.config(text=v6_gap, fg=self.color_lapdiff(v6_lap, v4_lap))
+            self.bar_row_7g.config(text=v7_gap, fg=self.color_lapdiff(v7_lap, v4_lap))
 
             if cfg.relative["show_laptime"]:
-                self.bar_row_1t.config(self.set_class(v1_lpt))
-                self.bar_row_2t.config(self.set_class(v2_lpt))
-                self.bar_row_3t.config(self.set_class(v3_lpt))
-                self.bar_row_4t.config(self.set_class(v4_lpt))
-                self.bar_row_5t.config(self.set_class(v5_lpt))
-                self.bar_row_6t.config(self.set_class(v6_lpt))
-                self.bar_row_7t.config(self.set_class(v7_lpt))
+                self.bar_row_1t.config(text=v1_lpt)
+                self.bar_row_2t.config(text=v2_lpt)
+                self.bar_row_3t.config(text=v3_lpt)
+                self.bar_row_4t.config(text=v4_lpt)
+                self.bar_row_5t.config(text=v5_lpt)
+                self.bar_row_6t.config(text=v6_lpt)
+                self.bar_row_7t.config(text=v7_lpt)
 
             if cfg.relative["show_class"]:
                 self.bar_row_1c.config(self.set_class(v1_cls))
@@ -260,7 +265,7 @@ class Relative(Widget, MouseEvent):
     def set_class(self, vehclass):
         """Compare vehicle class name with user defined dictionary"""
         short_name = vehclass
-        class_config = {"text":short_name}
+        class_config = {"text":short_name[:self.cls_width]}
         for key, value in self.vehcls.classdict_user.items():
             # If class name matches user defined class
             if vehclass == key:
