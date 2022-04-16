@@ -133,7 +133,7 @@ def ride_height():
     return rideh_fl, rideh_fr, rideh_rl, rideh_rr, rake
 
 
-def temp():
+def temperature():
     """Temperature data"""
     plr_tele = info.playersVehicleTelemetry()
 

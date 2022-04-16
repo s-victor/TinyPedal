@@ -83,8 +83,8 @@ class Weather(Widget, MouseEvent):
             amb_temp, trk_temp, rain, min_wet, max_wet, avg_wet = read_data.weather()
 
             # set up display units
-            amb_temp_d = calc.conv_temp(amb_temp, cfg.weather["temp_unit"])
-            trk_temp_d = calc.conv_temp(trk_temp, cfg.weather["temp_unit"])
+            amb_temp_d = calc.conv_temperature(amb_temp, cfg.weather["temp_unit"])
+            trk_temp_d = calc.conv_temperature(trk_temp, cfg.weather["temp_unit"])
 
             if cfg.weather["temp_unit"] == "0":
                 temp_unit = "C"

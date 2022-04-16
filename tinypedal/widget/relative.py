@@ -261,7 +261,7 @@ class Relative(Widget, MouseEvent):
         """Compare vehicle class name with user defined dictionary"""
         short_name = vehclass
         class_config = {"text":short_name}
-        for key, value in self.vehcls.classdict.items():
+        for key, value in self.vehcls.classdict_user.items():
             # If class name matches user defined class
             if vehclass == key:
                 # Assign new class name from user defined value

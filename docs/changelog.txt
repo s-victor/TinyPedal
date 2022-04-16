@@ -1,3 +1,11 @@
+TinyPedal 1.1.7 (2022-04-16)
+----------------------------
+* Relative
+    - Fixed a variable name typo from new setting code, which causes vehicle class not shown correctly.
+
+* Core
+    - Renamed various "temp" reference to "temperature" for temperature widget.
+
 TinyPedal 1.1.6 (2022-04-16)
 ----------------------------
 * Core

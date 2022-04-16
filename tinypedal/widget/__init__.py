@@ -30,7 +30,7 @@ from .pedal import Pedal
 from .pressure import Pressure
 from .relative import Relative
 from .steering import Steering
-from .temp import Temp
+from .temperature import Temperature
 from .timing import Timing
 from .wear import Wear
 from .weather import Weather

@@ -66,7 +66,7 @@ class TrayIcon:
             item("Pressure", wtoggle.pressure, checked=lambda _: cfg.pressure["enable"]),
             item("Relative", wtoggle.relative, checked=lambda _: cfg.relative["enable"]),
             item("Steering", wtoggle.steering, checked=lambda _: cfg.steering["enable"]),
-            item("Temperature", wtoggle.temp, checked=lambda _: cfg.temp["enable"]),
+            item("Temperature", wtoggle.temperature, checked=lambda _: cfg.temperature["enable"]),
             item("Timing", wtoggle.timing, checked=lambda _: cfg.timing["enable"]),
             item("Wear", wtoggle.wear, checked=lambda _: cfg.wear["enable"]),
             item("Weather", wtoggle.weather, checked=lambda _: cfg.weather["enable"]),
@@ -135,8 +135,8 @@ class WidgetToggle:
         if cfg.steering["enable"]:
             self.widget_steering = widget.Steering()
 
-        if cfg.temp["enable"]:
-            self.widget_temp = widget.Temp()
+        if cfg.temperature["enable"]:
+            self.widget_temperature = widget.Temperature()
 
         if cfg.timing["enable"]:
             self.widget_timing = widget.Timing()
@@ -260,15 +260,15 @@ class WidgetToggle:
             self.widget_steering.destroy()
         cfg.save()
 
-    def temp(self):
+    def temperature(self):
         """Toggle temperature"""
-        if not cfg.temp["enable"]:
-            self.widget_temp = widget.Temp()
-            cfg.temp["enable"] = True
+        if not cfg.temperature["enable"]:
+            self.widget_temperature = widget.Temperature()
+            cfg.temperature["enable"] = True
         else:
-            cfg.temp["enable"] = False
-            cfg.active_widget_list.remove(self.widget_temp)
-            self.widget_temp.destroy()
+            cfg.temperature["enable"] = False
+            cfg.active_widget_list.remove(self.widget_temperature)
+            self.widget_temperature.destroy()
         cfg.save()
 
     def timing(self):

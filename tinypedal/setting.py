@@ -360,22 +360,25 @@ class Setting:
             self.save()
 
         # Assign sub key setting group
-        self.overlay = self.setting_user["overlay"]
         self.deltabest = self.setting_user["deltabest"]
         self.drs = self.setting_user["drs"]
         self.engine = self.setting_user["engine"]
         self.force = self.setting_user["force"]
         self.fuel = self.setting_user["fuel"]
         self.gear = self.setting_user["gear"]
+        self.overlay = self.setting_user["overlay"]
         self.pedal = self.setting_user["pedal"]
         self.pressure = self.setting_user["pressure"]
         self.relative = self.setting_user["relative"]
         self.steering = self.setting_user["steering"]
-        self.temp = self.setting_user["temperature"]
+        self.temperature = self.setting_user["temperature"]
         self.timing = self.setting_user["timing"]
         self.wear = self.setting_user["wear"]
         self.weather = self.setting_user["weather"]
         self.wheel = self.setting_user["wheel"]
+
+        #for item in self.setting_user:
+        #    setattr(self, item, self.setting_user[str(item)])
 
     def save(self):
         """Save setting to file"""
