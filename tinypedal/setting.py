@@ -347,6 +347,9 @@ class Setting:
     }
 
     def __init__(self):
+        self.widget_list = list(self.setting_default)  # create widget list
+        self.widget_list.remove("overlay")
+
         self.active_widget_list = []  # create active widget list
         self.setting_user_unsorted = {}
         self.setting_user = {}
@@ -374,13 +377,13 @@ class Setting:
             self.save()
 
         # Assign sub key setting group
+        self.overlay = self.setting_user["overlay"]
         self.deltabest = self.setting_user["deltabest"]
         self.drs = self.setting_user["drs"]
         self.engine = self.setting_user["engine"]
         self.force = self.setting_user["force"]
         self.fuel = self.setting_user["fuel"]
         self.gear = self.setting_user["gear"]
-        self.overlay = self.setting_user["overlay"]
         self.pedal = self.setting_user["pedal"]
         self.pressure = self.setting_user["pressure"]
         self.relative = self.setting_user["relative"]

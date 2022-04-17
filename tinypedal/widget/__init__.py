@@ -17,21 +17,5 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Import widget
+Widget
 """
-
-from .deltabest import Deltabest
-from .drs import DRS
-from .engine import Engine
-from .force import Force
-from .fuel import Fuel
-from .gear import Gear
-from .pedal import Pedal
-from .pressure import Pressure
-from .relative import Relative
-from .steering import Steering
-from .temperature import Temperature
-from .timing import Timing
-from .wear import Wear
-from .weather import Weather
-from .wheel import Wheel

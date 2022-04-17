@@ -27,8 +27,8 @@ import tinypedal.readapi as read_data
 from tinypedal.base import cfg, delta_time, Widget, MouseEvent
 
 
-class Deltabest(Widget, MouseEvent):
-    """Draw deltabest widget"""
+class DrawWidget(Widget, MouseEvent):
+    """Draw widget"""
 
     def __init__(self):
         # Assign base setting

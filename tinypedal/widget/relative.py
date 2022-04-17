@@ -28,8 +28,8 @@ from tinypedal.base import cfg, Widget, MouseEvent
 from tinypedal.setting import VehicleClass
 
 
-class Relative(Widget, MouseEvent):
-    """Draw relative widget"""
+class DrawWidget(Widget, MouseEvent):
+    """Draw widget"""
 
     def __init__(self):
         # Assign base setting

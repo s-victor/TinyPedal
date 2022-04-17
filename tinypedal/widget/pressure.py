@@ -28,8 +28,8 @@ import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
 
 
-class Pressure(Widget, MouseEvent):
-    """Draw pressure widget"""
+class DrawWidget(Widget, MouseEvent):
+    """Draw widget"""
 
     def __init__(self):
         # Assign base setting

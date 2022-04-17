@@ -281,7 +281,7 @@ def veh_class_info_list():
     # Set initial unique class name for comparison
     unique_initial_class = unique_veh_class[0]
 
-    # Create vehicle class reference list (vehicle index, position in class, class name)
+    # Create vehicle class reference list (vehicle index, position in class, class name, place)
     for index in range(0, len(sorted_veh_class)):  # loop through sorted vehicle class list
         for unique_idx in range(0, len(unique_veh_class)):  # unique vehicle class range
             if sorted_veh_class[index][0] == unique_veh_class[unique_idx]:
