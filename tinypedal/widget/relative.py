@@ -51,7 +51,7 @@ class Relative(Widget, MouseEvent):
 
         # Config style & variable
         text_def = ""
-        fg_color = "#FFF"
+        fg_color = "#FFF"  # placeholder, font color for place, name, gap changes dynamically
         fg_color_plr = cfg.relative["font_color_player"]
         bg_color_place = cfg.relative["bkg_color_place"]
         bg_color_place_plr = cfg.relative["bkg_color_player_place"]
@@ -59,6 +59,19 @@ class Relative(Widget, MouseEvent):
         bg_color_name_plr = cfg.relative["bkg_color_player_name"]
         bg_color_gap = cfg.relative["bkg_color_gap"]
         bg_color_gap_plr = cfg.relative["bkg_color_player_gap"]
+        fg_color_classplace = cfg.relative["font_color_position_in_class"]
+        bg_color_classplace = cfg.relative["bkg_color_position_in_class"]
+        fg_color_pit = cfg.relative["font_color_pit"]
+        bg_color_pit = cfg.relative["bkg_color_pit"]
+
+        column_plc = cfg.relative["column_index_place"]
+        column_drv = cfg.relative["column_index_driver"]
+        column_lpt = cfg.relative["column_index_laptime"]
+        column_pic = cfg.relative["column_index_position_in_class"]
+        column_cls = cfg.relative["column_index_class"]
+        column_gap = cfg.relative["column_index_gap"]
+        column_pit = cfg.relative["column_index_pit"]
+
         font_relative = tkfont.Font(family=cfg.relative["font_name"],
                                     size=-cfg.relative["font_size"],
                                     weight=cfg.relative["font_weight"])
@@ -66,7 +79,7 @@ class Relative(Widget, MouseEvent):
         # Draw label
         # Driver place number
         bar_style_p = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
-                     "height":1, "width":num_width, "fg":fg_color, "bg":bg_color_place}
+                       "height":1, "width":num_width, "fg":fg_color, "bg":bg_color_place}
         self.bar_row_1p = tk.Label(self, bar_style_p)
         self.bar_row_2p = tk.Label(self, bar_style_p)
         self.bar_row_3p = tk.Label(self, bar_style_p)
@@ -76,13 +89,13 @@ class Relative(Widget, MouseEvent):
         self.bar_row_5p = tk.Label(self, bar_style_p)
         self.bar_row_6p = tk.Label(self, bar_style_p)
         self.bar_row_7p = tk.Label(self, bar_style_p)
-        self.bar_row_1p.grid(row=0, column=1, padx=0, pady=(0, bar_gap))
-        self.bar_row_2p.grid(row=1, column=1, padx=0, pady=(0, bar_gap))
-        self.bar_row_3p.grid(row=2, column=1, padx=0, pady=(0, bar_gap))
-        self.bar_row_4p.grid(row=3, column=1, padx=0, pady=(0, bar_gap))
-        self.bar_row_5p.grid(row=4, column=1, padx=0, pady=(0, bar_gap))
-        self.bar_row_6p.grid(row=5, column=1, padx=0, pady=(0, bar_gap))
-        self.bar_row_7p.grid(row=6, column=1, padx=0, pady=0)
+        self.bar_row_1p.grid(row=0, column=column_plc, padx=0, pady=(0, bar_gap))
+        self.bar_row_2p.grid(row=1, column=column_plc, padx=0, pady=(0, bar_gap))
+        self.bar_row_3p.grid(row=2, column=column_plc, padx=0, pady=(0, bar_gap))
+        self.bar_row_4p.grid(row=3, column=column_plc, padx=0, pady=(0, bar_gap))
+        self.bar_row_5p.grid(row=4, column=column_plc, padx=0, pady=(0, bar_gap))
+        self.bar_row_6p.grid(row=5, column=column_plc, padx=0, pady=(0, bar_gap))
+        self.bar_row_7p.grid(row=6, column=column_plc, padx=0, pady=0)
 
         # Driver name
         bar_style_n = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
@@ -97,13 +110,13 @@ class Relative(Widget, MouseEvent):
         self.bar_row_5n = tk.Label(self, bar_style_n)
         self.bar_row_6n = tk.Label(self, bar_style_n)
         self.bar_row_7n = tk.Label(self, bar_style_n)
-        self.bar_row_1n.grid(row=0, column=3, padx=0, pady=(0, bar_gap))
-        self.bar_row_2n.grid(row=1, column=3, padx=0, pady=(0, bar_gap))
-        self.bar_row_3n.grid(row=2, column=3, padx=0, pady=(0, bar_gap))
-        self.bar_row_4n.grid(row=3, column=3, padx=0, pady=(0, bar_gap))
-        self.bar_row_5n.grid(row=4, column=3, padx=0, pady=(0, bar_gap))
-        self.bar_row_6n.grid(row=5, column=3, padx=0, pady=(0, bar_gap))
-        self.bar_row_7n.grid(row=6, column=3, padx=0, pady=0)
+        self.bar_row_1n.grid(row=0, column=column_drv, padx=0, pady=(0, bar_gap))
+        self.bar_row_2n.grid(row=1, column=column_drv, padx=0, pady=(0, bar_gap))
+        self.bar_row_3n.grid(row=2, column=column_drv, padx=0, pady=(0, bar_gap))
+        self.bar_row_4n.grid(row=3, column=column_drv, padx=0, pady=(0, bar_gap))
+        self.bar_row_5n.grid(row=4, column=column_drv, padx=0, pady=(0, bar_gap))
+        self.bar_row_6n.grid(row=5, column=column_drv, padx=0, pady=(0, bar_gap))
+        self.bar_row_7n.grid(row=6, column=column_drv, padx=0, pady=0)
 
         # Time gap
         bar_style_g = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
@@ -118,13 +131,13 @@ class Relative(Widget, MouseEvent):
         self.bar_row_5g = tk.Label(self, bar_style_g)
         self.bar_row_6g = tk.Label(self, bar_style_g)
         self.bar_row_7g = tk.Label(self, bar_style_g)
-        self.bar_row_1g.grid(row=0, column=6, padx=0, pady=(0, bar_gap))
-        self.bar_row_2g.grid(row=1, column=6, padx=0, pady=(0, bar_gap))
-        self.bar_row_3g.grid(row=2, column=6, padx=0, pady=(0, bar_gap))
-        self.bar_row_4g.grid(row=3, column=6, padx=0, pady=(0, bar_gap))
-        self.bar_row_5g.grid(row=4, column=6, padx=0, pady=(0, bar_gap))
-        self.bar_row_6g.grid(row=5, column=6, padx=0, pady=(0, bar_gap))
-        self.bar_row_7g.grid(row=6, column=6, padx=0, pady=0)
+        self.bar_row_1g.grid(row=0, column=column_gap, padx=0, pady=(0, bar_gap))
+        self.bar_row_2g.grid(row=1, column=column_gap, padx=0, pady=(0, bar_gap))
+        self.bar_row_3g.grid(row=2, column=column_gap, padx=0, pady=(0, bar_gap))
+        self.bar_row_4g.grid(row=3, column=column_gap, padx=0, pady=(0, bar_gap))
+        self.bar_row_5g.grid(row=4, column=column_gap, padx=0, pady=(0, bar_gap))
+        self.bar_row_6g.grid(row=5, column=column_gap, padx=0, pady=(0, bar_gap))
+        self.bar_row_7g.grid(row=6, column=column_gap, padx=0, pady=0)
 
         # Vehicle laptime
         if cfg.relative["show_laptime"]:
@@ -136,17 +149,39 @@ class Relative(Widget, MouseEvent):
             self.bar_row_1t = tk.Label(self, bar_style_t)
             self.bar_row_2t = tk.Label(self, bar_style_t)
             self.bar_row_3t = tk.Label(self, bar_style_t)
-            self.bar_row_4t = tk.Label(self, bar_style_t)
+            self.bar_row_4t = tk.Label(self, text=text_def, bd=0, padx=bar_padx, pady=0,
+                                       font=font_relative, height=1, width=9,
+                                       fg=fg_color_plr, bg=bg_color_name_plr)
             self.bar_row_5t = tk.Label(self, bar_style_t)
             self.bar_row_6t = tk.Label(self, bar_style_t)
             self.bar_row_7t = tk.Label(self, bar_style_t)
-            self.bar_row_1t.grid(row=0, column=4, padx=0, pady=(0, bar_gap))
-            self.bar_row_2t.grid(row=1, column=4, padx=0, pady=(0, bar_gap))
-            self.bar_row_3t.grid(row=2, column=4, padx=0, pady=(0, bar_gap))
-            self.bar_row_4t.grid(row=3, column=4, padx=0, pady=(0, bar_gap))
-            self.bar_row_5t.grid(row=4, column=4, padx=0, pady=(0, bar_gap))
-            self.bar_row_6t.grid(row=5, column=4, padx=0, pady=(0, bar_gap))
-            self.bar_row_7t.grid(row=6, column=4, padx=0, pady=0)
+            self.bar_row_1t.grid(row=0, column=column_lpt, padx=0, pady=(0, bar_gap))
+            self.bar_row_2t.grid(row=1, column=column_lpt, padx=0, pady=(0, bar_gap))
+            self.bar_row_3t.grid(row=2, column=column_lpt, padx=0, pady=(0, bar_gap))
+            self.bar_row_4t.grid(row=3, column=column_lpt, padx=0, pady=(0, bar_gap))
+            self.bar_row_5t.grid(row=4, column=column_lpt, padx=0, pady=(0, bar_gap))
+            self.bar_row_6t.grid(row=5, column=column_lpt, padx=0, pady=(0, bar_gap))
+            self.bar_row_7t.grid(row=6, column=column_lpt, padx=0, pady=0)
+
+        # Vehicle position in class
+        if cfg.relative["show_position_in_class"]:
+            bar_style_i = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
+                           "height":1, "width":num_width,
+                           "fg":fg_color_classplace, "bg":bg_color_classplace}
+            self.bar_row_1i = tk.Label(self, bar_style_i)
+            self.bar_row_2i = tk.Label(self, bar_style_i)
+            self.bar_row_3i = tk.Label(self, bar_style_i)
+            self.bar_row_4i = tk.Label(self, bar_style_i)
+            self.bar_row_5i = tk.Label(self, bar_style_i)
+            self.bar_row_6i = tk.Label(self, bar_style_i)
+            self.bar_row_7i = tk.Label(self, bar_style_i)
+            self.bar_row_1i.grid(row=0, column=column_pic, padx=0, pady=(0, bar_gap))
+            self.bar_row_2i.grid(row=1, column=column_pic, padx=0, pady=(0, bar_gap))
+            self.bar_row_3i.grid(row=2, column=column_pic, padx=0, pady=(0, bar_gap))
+            self.bar_row_4i.grid(row=3, column=column_pic, padx=0, pady=(0, bar_gap))
+            self.bar_row_5i.grid(row=4, column=column_pic, padx=0, pady=(0, bar_gap))
+            self.bar_row_6i.grid(row=5, column=column_pic, padx=0, pady=(0, bar_gap))
+            self.bar_row_7i.grid(row=6, column=column_pic, padx=0, pady=0)
 
         # Vehicle class
         if cfg.relative["show_class"]:
@@ -164,13 +199,33 @@ class Relative(Widget, MouseEvent):
             self.bar_row_5c = tk.Label(self, bar_style_c)
             self.bar_row_6c = tk.Label(self, bar_style_c)
             self.bar_row_7c = tk.Label(self, bar_style_c)
-            self.bar_row_1c.grid(row=0, column=5, padx=0, pady=(0, bar_gap))
-            self.bar_row_2c.grid(row=1, column=5, padx=0, pady=(0, bar_gap))
-            self.bar_row_3c.grid(row=2, column=5, padx=0, pady=(0, bar_gap))
-            self.bar_row_4c.grid(row=3, column=5, padx=0, pady=(0, bar_gap))
-            self.bar_row_5c.grid(row=4, column=5, padx=0, pady=(0, bar_gap))
-            self.bar_row_6c.grid(row=5, column=5, padx=0, pady=(0, bar_gap))
-            self.bar_row_7c.grid(row=6, column=5, padx=0, pady=0)
+            self.bar_row_1c.grid(row=0, column=column_cls, padx=0, pady=(0, bar_gap))
+            self.bar_row_2c.grid(row=1, column=column_cls, padx=0, pady=(0, bar_gap))
+            self.bar_row_3c.grid(row=2, column=column_cls, padx=0, pady=(0, bar_gap))
+            self.bar_row_4c.grid(row=3, column=column_cls, padx=0, pady=(0, bar_gap))
+            self.bar_row_5c.grid(row=4, column=column_cls, padx=0, pady=(0, bar_gap))
+            self.bar_row_6c.grid(row=5, column=column_cls, padx=0, pady=(0, bar_gap))
+            self.bar_row_7c.grid(row=6, column=column_cls, padx=0, pady=0)
+
+        # Vehicle in pit
+        if cfg.relative["show_pit_status"]:
+            bar_style_s = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
+                           "height":1, "width":len(cfg.relative["pit_status_text"])+1,
+                           "fg":fg_color_pit, "bg":bg_color_pit}
+            self.bar_row_1s = tk.Label(self, bar_style_s)
+            self.bar_row_2s = tk.Label(self, bar_style_s)
+            self.bar_row_3s = tk.Label(self, bar_style_s)
+            self.bar_row_4s = tk.Label(self, bar_style_s)
+            self.bar_row_5s = tk.Label(self, bar_style_s)
+            self.bar_row_6s = tk.Label(self, bar_style_s)
+            self.bar_row_7s = tk.Label(self, bar_style_s)
+            self.bar_row_1s.grid(row=0, column=column_pit, padx=0, pady=(0, bar_gap))
+            self.bar_row_2s.grid(row=1, column=column_pit, padx=0, pady=(0, bar_gap))
+            self.bar_row_3s.grid(row=2, column=column_pit, padx=0, pady=(0, bar_gap))
+            self.bar_row_4s.grid(row=3, column=column_pit, padx=0, pady=(0, bar_gap))
+            self.bar_row_5s.grid(row=4, column=column_pit, padx=0, pady=(0, bar_gap))
+            self.bar_row_6s.grid(row=5, column=column_pit, padx=0, pady=(0, bar_gap))
+            self.bar_row_7s.grid(row=6, column=column_pit, padx=0, pady=0)
 
         self.update_relative()
 
@@ -193,13 +248,13 @@ class Relative(Widget, MouseEvent):
             rel_list = read_data.relative_list()
             plr = rel_list[3]
 
-            v1_plc, v1_drv, v1_lpt, v1_cls, v1_gap, v1_lap = read_data.relative_data(rel_list[0], plr)
-            v2_plc, v2_drv, v2_lpt, v2_cls, v2_gap, v2_lap = read_data.relative_data(rel_list[1], plr)
-            v3_plc, v3_drv, v3_lpt, v3_cls, v3_gap, v3_lap = read_data.relative_data(rel_list[2], plr)
-            v4_plc, v4_drv, v4_lpt, v4_cls, v4_gap, v4_lap = read_data.relative_data(plr, plr)
-            v5_plc, v5_drv, v5_lpt, v5_cls, v5_gap, v5_lap = read_data.relative_data(rel_list[4], plr)
-            v6_plc, v6_drv, v6_lpt, v6_cls, v6_gap, v6_lap = read_data.relative_data(rel_list[5], plr)
-            v7_plc, v7_drv, v7_lpt, v7_cls, v7_gap, v7_lap = read_data.relative_data(rel_list[6], plr)
+            v1_plc, v1_drv, v1_lpt, v1_pic, v1_cls, v1_gap, v1_lap, v1_pit = read_data.relative_data(rel_list[0], plr)
+            v2_plc, v2_drv, v2_lpt, v2_pic, v2_cls, v2_gap, v2_lap, v2_pit = read_data.relative_data(rel_list[1], plr)
+            v3_plc, v3_drv, v3_lpt, v3_pic, v3_cls, v3_gap, v3_lap, v3_pit = read_data.relative_data(rel_list[2], plr)
+            v4_plc, v4_drv, v4_lpt, v4_pic, v4_cls, v4_gap, v4_lap, v4_pit = read_data.relative_data(plr, plr)
+            v5_plc, v5_drv, v5_lpt, v5_pic, v5_cls, v5_gap, v5_lap, v5_pit = read_data.relative_data(rel_list[4], plr)
+            v6_plc, v6_drv, v6_lpt, v6_pic, v6_cls, v6_gap, v6_lap, v6_pit = read_data.relative_data(rel_list[5], plr)
+            v7_plc, v7_drv, v7_lpt, v7_pic, v7_cls, v7_gap, v7_lap, v7_pit = read_data.relative_data(rel_list[6], plr)
 
             # Relative update
             # Driver place
@@ -238,6 +293,15 @@ class Relative(Widget, MouseEvent):
                 self.bar_row_6t.config(text=v6_lpt)
                 self.bar_row_7t.config(text=v7_lpt)
 
+            if cfg.relative["show_position_in_class"]:
+                self.bar_row_1i.config(text=v1_pic)
+                self.bar_row_2i.config(text=v2_pic)
+                self.bar_row_3i.config(text=v3_pic)
+                self.bar_row_4i.config(text=v4_pic)
+                self.bar_row_5i.config(text=v5_pic)
+                self.bar_row_6i.config(text=v6_pic)
+                self.bar_row_7i.config(text=v7_pic)
+
             if cfg.relative["show_class"]:
                 self.bar_row_1c.config(self.set_class(v1_cls))
                 self.bar_row_2c.config(self.set_class(v2_cls))
@@ -246,6 +310,15 @@ class Relative(Widget, MouseEvent):
                 self.bar_row_5c.config(self.set_class(v5_cls))
                 self.bar_row_6c.config(self.set_class(v6_cls))
                 self.bar_row_7c.config(self.set_class(v7_cls))
+
+            if cfg.relative["show_pit_status"]:
+                self.bar_row_1s.config(self.set_pitstatus(v1_pit))
+                self.bar_row_2s.config(self.set_pitstatus(v2_pit))
+                self.bar_row_3s.config(self.set_pitstatus(v3_pit))
+                self.bar_row_4s.config(self.set_pitstatus(v4_pit))
+                self.bar_row_5s.config(self.set_pitstatus(v5_pit))
+                self.bar_row_6s.config(self.set_pitstatus(v6_pit))
+                self.bar_row_7s.config(self.set_pitstatus(v7_pit))
 
         # Update rate
         self.after(cfg.relative["update_delay"], self.update_relative)
@@ -261,6 +334,15 @@ class Relative(Widget, MouseEvent):
         else:
             color = cfg.relative["font_color_same_lap"]
         return color
+
+    @staticmethod
+    def set_pitstatus(pits):
+        """Compare lap differences & set color"""
+        if pits > 0:
+            status = {"text":cfg.relative["pit_status_text"], "bg":cfg.relative["bkg_color_pit"]}
+        else:
+            status = {"text":"", "bg":"#000002"}
+        return status
 
     def set_class(self, vehclass):
         """Compare vehicle class name with user defined dictionary"""

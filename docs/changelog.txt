@@ -1,3 +1,21 @@
+TinyPedal 1.1.8 (2022-04-17)
+----------------------------
+* Relative
+    - [New]Show driver's position standing in class.
+    - [New]Show pit status indicator whether driver is currently in pit, with customizable pit status text.
+    - [New]Customizable column info display order.
+    - "bar_driver_name_width" setting now trims out range chars.
+    - Removed unnecessary laptime formatting, added string length slicing
+
+* Core
+    - [New]Add new "veh_class_info_list" algorithm to calculate position in class.
+    - Moved place & class info to "veh_class_info_list".
+    - Various code clean up.
+
+* Misc
+    - Updated customization guide with new configurable setting.
+    - Updated features list.
+
 TinyPedal 1.1.7 (2022-04-16)
 ----------------------------
 * Relative

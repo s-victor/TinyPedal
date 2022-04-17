@@ -197,7 +197,7 @@ This enables Tyre Load display.
 
 ## Relative
     bar_driver_name_width
-Set column width of drive name, value in chars, such as 18 = 18 chars.
+Set drive name display width, value in chars, such as 18 = 18 chars.
 
     show_laptime
 Show driver's last laptime.
@@ -217,7 +217,19 @@ Last, set `color code` for the class, save and restart app.
 You can add more classes following the JSON format, make sure that second last bracket doesn't have a comma after. Also note that, app will not verify, nor to edit `classes.json` after it was created, so you will have to make sure everything typed in the file is correct.
 
     bar_class_name_width
-Set class display width, value is in chars, 4 = 4 chars wide.
+Set class name display width, value is in chars, 4 = 4 chars wide.
+
+    show_position_in_class
+Show driver's position standing in class.
+
+    show_pit_status
+Show indicator whether driver is currently in pit.
+
+    pit_status_text
+Set custom pit status text which shows when driver is in pit. 
+
+    column_index_*
+Set order of each info column. Must keep index number unique to each column, otherwise columns will overlap.
 
 
 ## Steering

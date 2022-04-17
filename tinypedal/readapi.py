@@ -226,14 +226,11 @@ def weather():
 
 def relative_list():
     """Create relative list"""
-    # Get total number of vehicles in session
-    total_veh = info.Rf2Scor.mScoringInfo.mNumVehicles
-
-    # Create vehicle dict based on total vehicles
+    # Create vehicle dict based on total number of vehicles in session
     # Use "vehicle index" as key, "distance position" as value
     # Filter out negative distance value to zero
     veh_dict = {index:max(info.Rf2Scor.mVehicles[index].mLapDist, 0)
-                for index in range(0, total_veh)}
+                for index in range(0, info.Rf2Scor.mScoringInfo.mNumVehicles)}
 
     # Reverse-sort dict by values
     re_veh_dict = dict(sorted(veh_dict.items(), key=lambda item: item[1], reverse=True))
@@ -260,13 +257,55 @@ def relative_list():
     return selected_list
 
 
+def veh_class_info_list():
+    """Create vehicle class info list"""
+    # Vehicle class info
+    unsorted_veh_class = []
+    unique_veh_class = []
+    veh_class_info = []
+    pos_counter = 0  # position in class
+
+    # Create vehicle class list (class name, veh place, veh index)
+    for index in range(0, info.Rf2Scor.mScoringInfo.mNumVehicles):
+        place = info.Rf2Scor.mVehicles[index].mPlace
+        vehclass = Cbytestring2Python(info.Rf2Scor.mVehicles[index].mVehicleClass)
+        unsorted_veh_class.append((vehclass, place, index))
+        unique_veh_class.append(vehclass)
+
+    # Sort & group different vehicle class list
+    sorted_veh_class = sorted(unsorted_veh_class)
+
+    # Create unique vehicle class list
+    unique_veh_class = list(set(unique_veh_class))
+
+    # Set initial unique class name for comparison
+    unique_initial_class = unique_veh_class[0]
+
+    # Create vehicle class reference list (vehicle index, position in class, class name)
+    for index in range(0, len(sorted_veh_class)):  # loop through sorted vehicle class list
+        for unique_idx in range(0, len(unique_veh_class)):  # unique vehicle class range
+            if sorted_veh_class[index][0] == unique_veh_class[unique_idx]:
+                if unique_initial_class == unique_veh_class[unique_idx]:
+                    pos_counter += 1
+                else:
+                    pos_counter = 1  # reset position counter
+                    unique_initial_class = unique_veh_class[unique_idx]  # reset init name
+                veh_class_info.append((sorted_veh_class[index][2],
+                                       pos_counter,
+                                       unique_veh_class[unique_idx],
+                                       sorted_veh_class[index][1]
+                                       ))
+    return sorted(veh_class_info)
+
+
 def relative_data(index, index_player):
     """Relative data"""
     rf2_scor = info.Rf2Scor
+    veh_class_info = veh_class_info_list()
 
     if index >= 0:
         # Driver place position
-        place = f"{rf2_scor.mVehicles[index].mPlace:02d}"
+        place = f"{veh_class_info[index][3]:02d}"
 
         # Driver name
         driver = Cbytestring2Python(rf2_scor.mVehicles[index].mDriverName)
@@ -274,8 +313,9 @@ def relative_data(index, index_player):
         # Lap time
         laptime = calc.sec2laptime(max(rf2_scor.mVehicles[index].mLastLapTime, 0))
 
-        # Vehicle class
-        veh_class = Cbytestring2Python(rf2_scor.mVehicles[index].mVehicleClass)
+        # Vehicle position & class
+        pos_class = f"{veh_class_info[index][1]:02d}"
+        veh_class = veh_class_info[index][2]
 
         # Relative distance position
         track_length = rf2_scor.mScoringInfo.mLapDist  # track length
@@ -310,7 +350,11 @@ def relative_data(index, index_player):
 
         # Number of completed
         num_lap = info.Rf2Tele.mVehicles[index].mLapNumber
+
+        # Driver in pit
+        in_pit = rf2_scor.mVehicles[index].mInPits
     else:
         # Assign empty value to -1 player index
-        place, driver, laptime, veh_class, time_gap, num_lap = "", "", "", "", "", 0
-    return place, driver, laptime, veh_class, time_gap, num_lap
+        (place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit
+         ) = "", "", "", "", "", "", 0, 0
+    return place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit

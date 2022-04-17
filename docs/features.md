@@ -54,6 +54,9 @@
 - Show different text color based on laps ahead or behind you.
 - Show driver's last laptime (optional).
 - Show vehicle class categories (optional) with fully customizable class name and color.
+- Show driver's position standing in class.
+- Show pit status indicator whether driver is currently in pit, with customizable pit status text.
+- Customizable column info display order.
 
 ## Weather
 - Show surface condition (dry or wet).
