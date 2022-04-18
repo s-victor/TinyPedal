@@ -31,6 +31,7 @@ from tinypedal.base import cfg, Widget, MouseEvent
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "weather"
+    cfg = cfg.setting_user[widget_name]
 
     def __init__(self):
         # Assign base setting
@@ -38,19 +39,19 @@ class DrawWidget(Widget, MouseEvent):
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", cfg.weather["opacity"])
+        self.attributes("-alpha", self.cfg["opacity"])
 
         # Config size & position
-        bar_gap = cfg.weather["bar_gap"]
-        self.geometry(f"+{cfg.weather['position_x']}+{cfg.weather['position_y']}")
+        bar_gap = self.cfg["bar_gap"]
+        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
 
         # Config style & variable
         text_def = "n/a"
-        fg_color = cfg.weather["font_color"]
-        bg_color = cfg.weather["bkg_color"]
-        font_weather = tkfont.Font(family=cfg.weather["font_name"],
-                                   size=-cfg.weather["font_size"],
-                                   weight=cfg.weather["font_weight"])
+        fg_color = self.cfg["font_color"]
+        bg_color = self.cfg["bkg_color"]
+        font_weather = tkfont.Font(family=self.cfg["font_name"],
+                                   size=-self.cfg["font_size"],
+                                   weight=self.cfg["font_weight"])
 
         # Draw label
         bar_style  = {"text":text_def, "bd":0, "height":1, "padx":0, "pady":0,
@@ -70,17 +71,17 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and cfg.weather["enable"]:
+        if read_data.state() and self.cfg["enable"]:
             # Read Weather data
             amb_temp, trk_temp, rain, min_wet, max_wet, avg_wet = read_data.weather()
 
             # set up display units
-            amb_temp_d = calc.conv_temperature(amb_temp, cfg.weather["temp_unit"])
-            trk_temp_d = calc.conv_temperature(trk_temp, cfg.weather["temp_unit"])
+            amb_temp_d = calc.conv_temperature(amb_temp, self.cfg["temp_unit"])
+            trk_temp_d = calc.conv_temperature(trk_temp, self.cfg["temp_unit"])
 
-            if cfg.weather["temp_unit"] == "0":
+            if self.cfg["temp_unit"] == "0":
                 temp_unit = "C"
-            elif cfg.weather["temp_unit"] == "1":
+            elif self.cfg["temp_unit"] == "1":
                 temp_unit = "F"
 
             if max_wet > 0:
@@ -98,4 +99,4 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_wetness.config(text=wetness, width=len(wetness)+1)
 
         # Update rate
-        self.after(cfg.weather["update_delay"], self.update_data)
+        self.after(self.cfg["update_delay"], self.update_data)

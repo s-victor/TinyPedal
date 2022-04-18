@@ -30,6 +30,7 @@ from tinypedal.base import cfg, Widget, MouseEvent
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "drs"
+    cfg = cfg.setting_user[widget_name]
 
     def __init__(self):
         # Assign base setting
@@ -37,21 +38,21 @@ class DrawWidget(Widget, MouseEvent):
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", cfg.drs["opacity"])
+        self.attributes("-alpha", self.cfg["opacity"])
 
         # Config size & position
-        self.geometry(f"+{cfg.drs['position_x']}+{cfg.drs['position_y']}")
+        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
 
         # Config style & variable
-        font_drs = tkfont.Font(family=cfg.drs["font_name"],
-                               size=-cfg.drs["font_size"],
-                               weight=cfg.drs["font_weight"])
+        font_drs = tkfont.Font(family=self.cfg["font_name"],
+                               size=-self.cfg["font_size"],
+                               weight=self.cfg["font_weight"])
 
         # Draw label
         self.bar_drs = tk.Label(self, text="DRS", bd=0, height=1, width=4,
                                 padx=0, pady=0, font=font_drs,
-                                fg=cfg.drs["font_color_not_available"],
-                                bg=cfg.drs["bkg_color_not_available"])
+                                fg=self.cfg["font_color_not_available"],
+                                bg=self.cfg["bkg_color_not_available"])
         self.bar_drs.grid(row=0, column=0, padx=0, pady=0)
 
         self.update_data()
@@ -61,24 +62,24 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and cfg.drs["enable"]:
+        if read_data.state() and self.cfg["enable"]:
             # Read DRS data
             drs_on, drs_status = read_data.drs()
 
             # DRS update
             if drs_status == 1:  # blue
-                self.bar_drs.config(fg=cfg.drs["font_color_available"],
-                                    bg=cfg.drs["bkg_color_available"])
+                self.bar_drs.config(fg=self.cfg["font_color_available"],
+                                    bg=self.cfg["bkg_color_available"])
             elif drs_status == 2:
                 if drs_on:  # green
-                    self.bar_drs.config(fg=cfg.drs["font_color_activated"],
-                                        bg=cfg.drs["bkg_color_activated"])
+                    self.bar_drs.config(fg=self.cfg["font_color_activated"],
+                                        bg=self.cfg["bkg_color_activated"])
                 else:  # orange
-                    self.bar_drs.config(fg=cfg.drs["font_color_allowed"],
-                                        bg=cfg.drs["bkg_color_allowed"])
+                    self.bar_drs.config(fg=self.cfg["font_color_allowed"],
+                                        bg=self.cfg["bkg_color_allowed"])
             else:  # grey
-                self.bar_drs.config(fg=cfg.drs["font_color_not_available"],
-                                    bg=cfg.drs["bkg_color_not_available"])
+                self.bar_drs.config(fg=self.cfg["font_color_not_available"],
+                                    bg=self.cfg["bkg_color_not_available"])
 
         # Update rate
-        self.after(cfg.drs["update_delay"], self.update_data)
+        self.after(self.cfg["update_delay"], self.update_data)

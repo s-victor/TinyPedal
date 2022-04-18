@@ -30,6 +30,7 @@ from tinypedal.base import cfg, Widget, MouseEvent
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "steering"
+    cfg = cfg.setting_user[widget_name]
 
     def __init__(self):
         # Assign base setting
@@ -37,13 +38,13 @@ class DrawWidget(Widget, MouseEvent):
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.configure(bg=cfg.steering["bar_edge_color"])
-        self.attributes("-alpha", cfg.steering["opacity"])
+        self.configure(bg=self.cfg["bar_edge_color"])
+        self.attributes("-alpha", self.cfg["opacity"])
 
         # Config size & position
-        self.sbar_length = int(100 * cfg.steering["bar_length_scale"])  # 100 pixel base length
-        self.sbar_height = int(15 * cfg.steering["bar_height_scale"])  # 15 pixel
-        self.geometry(f"+{cfg.steering['position_x']}+{cfg.steering['position_y']}")
+        self.sbar_length = int(100 * self.cfg["bar_length_scale"])  # 100 pixel base length
+        self.sbar_height = int(15 * self.cfg["bar_height_scale"])  # 15 pixel
+        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
 
         # Config style & variable
         self.last_rot_range = 0  # last recorded wheel rotation range
@@ -52,18 +53,18 @@ class DrawWidget(Widget, MouseEvent):
         self.bar_steering = tk.Canvas(self, bd=0, highlightthickness=0,
                                       height=self.sbar_height,
                                       width=self.sbar_length * 2,
-                                      bg=cfg.steering["bkg_color"])
-        self.bar_steering.grid(row=0, column=0, padx=cfg.steering["bar_edge_width"], pady=0)
+                                      bg=self.cfg["bkg_color"])
+        self.bar_steering.grid(row=0, column=0, padx=self.cfg["bar_edge_width"], pady=0)
 
         self.rect_steering_lt = self.bar_steering.create_rectangle(
                               0, 0, self.sbar_length, self.sbar_height,
-                              fill=cfg.steering["steering_color"], outline="")
+                              fill=self.cfg["steering_color"], outline="")
         self.rect_steering_rt = self.bar_steering.create_rectangle(
                               self.sbar_length, 0, self.sbar_length * 2, self.sbar_height,
-                              fill=cfg.steering["steering_color"], outline="")
+                              fill=self.cfg["steering_color"], outline="")
 
-        if cfg.steering["show_scale_mark"]:
-            rect_style = {"fill":cfg.steering["scale_mark_color"], "outline":""}
+        if self.cfg["show_scale_mark"]:
+            rect_style = {"fill":self.cfg["scale_mark_color"], "outline":""}
             self.rect_mark_lt1 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
             self.rect_mark_lt2 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
             self.rect_mark_lt3 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
@@ -87,7 +88,7 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and cfg.steering["enable"]:
+        if read_data.state() and self.cfg["enable"]:
             # Read steering data
             raw_steering, steering_wheel_rot_range = read_data.steering()
             raw_steering = calc.steering_pos(raw_steering, self.sbar_length)
@@ -105,7 +106,7 @@ class DrawWidget(Widget, MouseEvent):
                                          0, raw_steering, self.sbar_height)
 
             # Scale mark update
-            if cfg.steering["show_scale_mark"]:
+            if self.cfg["show_scale_mark"]:
                 if steering_wheel_rot_range != self.last_rot_range:  # recalc if changed
                     self.last_rot_range = steering_wheel_rot_range
 
@@ -124,4 +125,4 @@ class DrawWidget(Widget, MouseEvent):
                     self.create_mark(self.rect_mark_rt5, scale_mark_gap, 5, 0)
 
         # Update rate
-        self.after(cfg.steering["update_delay"], self.update_data)
+        self.after(self.cfg["update_delay"], self.update_data)

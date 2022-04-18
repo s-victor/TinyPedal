@@ -31,6 +31,7 @@ from tinypedal.base import cfg, Widget, MouseEvent
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "force"
+    cfg = cfg.setting_user[widget_name]
 
     def __init__(self):
         # Assign base setting
@@ -38,21 +39,21 @@ class DrawWidget(Widget, MouseEvent):
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", cfg.force["opacity"])
+        self.attributes("-alpha", self.cfg["opacity"])
 
         # Config size & position
-        bar_gap = cfg.force["bar_gap"]
-        self.geometry(f"+{cfg.force['position_x']}+{cfg.force['position_y']}")
+        bar_gap = self.cfg["bar_gap"]
+        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
 
         # Config style & variable
         text_def = "n/a"
-        fg_color_gf = cfg.force["font_color_g_force"]
-        bg_color_gf = cfg.force["bkg_color_g_force"]
-        fg_color_df = cfg.force["font_color_downforce"]
-        bg_color_df = cfg.force["bkg_color_downforce"]
-        font_force = tkfont.Font(family=cfg.force["font_name"],
-                                 size=-cfg.force["font_size"],
-                                 weight=cfg.force["font_weight"])
+        fg_color_gf = self.cfg["font_color_g_force"]
+        bg_color_gf = self.cfg["bkg_color_g_force"]
+        fg_color_df = self.cfg["font_color_downforce"]
+        bg_color_df = self.cfg["bkg_color_downforce"]
+        font_force = tkfont.Font(family=self.cfg["font_name"],
+                                 size=-self.cfg["font_size"],
+                                 weight=self.cfg["font_weight"])
 
         # Draw label
         bar_style = {"text":text_def, "bd":0, "height":1, "width":7,
@@ -62,7 +63,7 @@ class DrawWidget(Widget, MouseEvent):
         self.bar_gforce_lgt.grid(row=0, column=0, padx=0, pady=0)
         self.bar_gforce_lat.grid(row=1, column=0, padx=0, pady=(bar_gap, 0))
 
-        if cfg.force["show_downforce_ratio"]:
+        if self.cfg["show_downforce_ratio"]:
             self.bar_dforce = tk.Label(self, bar_style, fg=fg_color_df, bg=bg_color_df)
             self.bar_dforce.grid(row=2, column=0, padx=0, pady=(bar_gap, 0))
 
@@ -73,7 +74,7 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and cfg.force["enable"]:
+        if read_data.state() and self.cfg["enable"]:
             # Read g-force & downforce data
             gf_lgt, gf_lat, df_ratio = read_data.force()
 
@@ -81,8 +82,8 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_gforce_lgt.config(text=calc.gforce_lgt(gf_lgt) + f" {abs(gf_lgt):.2f}")
             self.bar_gforce_lat.config(text=f"{abs(gf_lat):.2f} " + calc.gforce_lat(gf_lat))
 
-            if cfg.force["show_downforce_ratio"]:
+            if self.cfg["show_downforce_ratio"]:
                 self.bar_dforce.config(text=f"{df_ratio:04.02f}%")
 
         # Update rate
-        self.after(cfg.force["update_delay"], self.update_data)
+        self.after(self.cfg["update_delay"], self.update_data)

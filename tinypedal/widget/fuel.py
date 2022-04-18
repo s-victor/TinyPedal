@@ -32,6 +32,7 @@ from tinypedal.base import cfg, Widget, MouseEvent
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "fuel"
+    cfg = cfg.setting_user[widget_name]
 
     def __init__(self):
         # Assign base setting
@@ -39,22 +40,22 @@ class DrawWidget(Widget, MouseEvent):
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", cfg.fuel["opacity"])
+        self.attributes("-alpha", self.cfg["opacity"])
 
         # Config size & position
-        bar_gap = cfg.fuel["bar_gap"]
-        self.geometry(f"+{cfg.fuel['position_x']}+{cfg.fuel['position_y']}")
+        bar_gap = self.cfg["bar_gap"]
+        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
 
         # Config style & variable
         text_def = "n/a"
-        fg_color_cap = cfg.fuel["font_color_caption"]
-        bg_color_cap = cfg.fuel["bkg_color_caption"]
-        font_fuel = tkfont.Font(family=cfg.fuel["font_name"],
-                                size=-cfg.fuel["font_size"],
-                                weight=cfg.fuel["font_weight"])
-        font_desc = tkfont.Font(family=cfg.fuel["font_name"],
-                                size=-int(cfg.fuel["font_size"] * 0.8),
-                                weight=cfg.fuel["font_weight"])
+        fg_color_cap = self.cfg["font_color_caption"]
+        bg_color_cap = self.cfg["bkg_color_caption"]
+        font_fuel = tkfont.Font(family=self.cfg["font_name"],
+                                size=-self.cfg["font_size"],
+                                weight=self.cfg["font_weight"])
+        font_desc = tkfont.Font(family=self.cfg["font_name"],
+                                size=-int(self.cfg["font_size"] * 0.8),
+                                weight=self.cfg["font_weight"])
 
         self.start_last = 0.0  # last lap start time
         self.laptime_last = 0.0  # last lap time calculated from time stamp difference
@@ -66,7 +67,7 @@ class DrawWidget(Widget, MouseEvent):
         self.pit_required = 0.0  # minimum pit stops to finish race
 
         # Draw label
-        if cfg.fuel["show_caption"]:
+        if self.cfg["show_caption"]:
             bar_style_desc = {"bd":0, "height":1, "padx":0, "pady":0,
                               "font":font_desc, "fg":fg_color_cap, "bg":bg_color_cap}
             self.bar_desc_1 = tk.Label(self, bar_style_desc, text="fuel")
@@ -84,28 +85,28 @@ class DrawWidget(Widget, MouseEvent):
 
         self.bar_fuel_1 = tk.Label(self, text=text_def, font=font_fuel,
                                    height=1, width=7, padx=0, pady=0, bd=0,
-                                   fg=cfg.fuel["font_color_fuel"],
-                                   bg=cfg.fuel["bkg_color_fuel"])
+                                   fg=self.cfg["font_color_fuel"],
+                                   bg=self.cfg["bkg_color_fuel"])
         self.bar_fuel_2 = tk.Label(self, text=text_def, font=font_fuel,
                                    height=1, width=7, padx=0, pady=0, bd=0,
-                                   fg=cfg.fuel["font_color_fuel"],
-                                   bg=cfg.fuel["bkg_color_fuel"])
+                                   fg=self.cfg["font_color_fuel"],
+                                   bg=self.cfg["bkg_color_fuel"])
         self.bar_fuel_3 = tk.Label(self, text=text_def, font=font_fuel,
                                    height=1, width=6, padx=0, pady=0, bd=0,
-                                   fg=cfg.fuel["font_color_consumption"],
-                                   bg=cfg.fuel["bkg_color_consumption"])
+                                   fg=self.cfg["font_color_consumption"],
+                                   bg=self.cfg["bkg_color_consumption"])
         self.bar_fuel_4 = tk.Label(self, text=text_def, font=font_fuel,
                                    height=1, width=7, padx=0, pady=0, bd=0,
-                                   fg=cfg.fuel["font_color_estimate"],
-                                   bg=cfg.fuel["bkg_color_estimate"])
+                                   fg=self.cfg["font_color_estimate"],
+                                   bg=self.cfg["bkg_color_estimate"])
         self.bar_fuel_5 = tk.Label(self, text=text_def, font=font_fuel,
                                    height=1, width=7, padx=0, pady=0, bd=0,
-                                   fg=cfg.fuel["font_color_estimate"],
-                                   bg=cfg.fuel["bkg_color_estimate"])
+                                   fg=self.cfg["font_color_estimate"],
+                                   bg=self.cfg["bkg_color_estimate"])
         self.bar_fuel_6 = tk.Label(self, text=text_def, font=font_fuel,
                                    height=1, width=6, padx=0, pady=0, bd=0,
-                                   fg=cfg.fuel["font_color_pits"],
-                                   bg=cfg.fuel["bkg_color_pits"])
+                                   fg=self.cfg["font_color_pits"],
+                                   bg=self.cfg["bkg_color_pits"])
         self.bar_fuel_1.grid(row=1, column=0, padx=0, pady=0)
         self.bar_fuel_2.grid(row=1, column=1, padx=0, pady=0)
         self.bar_fuel_3.grid(row=1, column=2, padx=0, pady=0)
@@ -120,7 +121,7 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and cfg.fuel["enable"]:
+        if read_data.state() and self.cfg["enable"]:
             # Read fuel data
             amount_curr, capacity = read_data.fuel()
             start_curr, laps_total, laps_left, time_left = read_data.timing()
@@ -163,9 +164,9 @@ class DrawWidget(Widget, MouseEvent):
             elif self.amount_need < -999:
                 self.amount_need = -999
 
-            amount_curr_d = calc.conv_fuel(amount_curr, cfg.fuel["fuel_unit"])
-            amount_need_d = calc.conv_fuel(self.amount_need, cfg.fuel["fuel_unit"])
-            used_last_d = calc.conv_fuel(self.used_last, cfg.fuel["fuel_unit"])
+            amount_curr_d = calc.conv_fuel(amount_curr, self.cfg["fuel_unit"])
+            amount_need_d = calc.conv_fuel(self.amount_need, self.cfg["fuel_unit"])
+            used_last_d = calc.conv_fuel(self.used_last, self.cfg["fuel_unit"])
 
             # Low fuel warning
             lowfuel_color = self.color_lowfuel(self.est_runlaps)
@@ -181,14 +182,13 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_fuel_6.config(text=str(f"{self.pit_required:.2f}"))
 
         # Update rate
-        self.after(cfg.fuel["update_delay"], self.update_data)
+        self.after(self.cfg["update_delay"], self.update_data)
 
     # Additional methods
-    @staticmethod
-    def color_lowfuel(fuel):
+    def color_lowfuel(self, fuel):
         """Low fuel warning color"""
         if fuel > 2:
-            color = cfg.fuel["bkg_color_fuel"]
+            color = self.cfg["bkg_color_fuel"]
         else:
-            color = cfg.fuel["bkg_color_low_fuel"]
+            color = self.cfg["bkg_color_low_fuel"]
         return color

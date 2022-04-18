@@ -31,6 +31,7 @@ from tinypedal.base import cfg, Widget, MouseEvent
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "gear"
+    cfg = cfg.setting_user[widget_name]
 
     def __init__(self):
         # Assign base setting
@@ -38,67 +39,67 @@ class DrawWidget(Widget, MouseEvent):
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", cfg.gear["opacity"])
+        self.attributes("-alpha", self.cfg["opacity"])
 
         # Config size & position
-        self.geometry(f"+{cfg.gear['position_x']}+{cfg.gear['position_y']}")
+        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
 
         # Config style & variable
-        font_gear = tkfont.Font(family=cfg.gear["font_name"],
-                                size=-cfg.gear["font_size"],
-                                weight=cfg.gear["font_weight_gear"])
-        font_gauge = tkfont.Font(family=cfg.gear["font_name"],
-                                 size=-cfg.gear["font_size"],
-                                 weight=cfg.gear["font_weight_gauge"])
-        font_gauge_small = tkfont.Font(family=cfg.gear["font_name"],
-                                       size=-int(cfg.gear["font_size"]*0.35),
-                                       weight=cfg.gear["font_weight_gauge"])
+        font_gear = tkfont.Font(family=self.cfg["font_name"],
+                                size=-self.cfg["font_size"],
+                                weight=self.cfg["font_weight_gear"])
+        font_gauge = tkfont.Font(family=self.cfg["font_name"],
+                                 size=-self.cfg["font_size"],
+                                 weight=self.cfg["font_weight_gauge"])
+        font_gauge_small = tkfont.Font(family=self.cfg["font_name"],
+                                       size=-int(self.cfg["font_size"]*0.35),
+                                       weight=self.cfg["font_weight_gauge"])
 
         # Draw label
         self.bar_gear_bg = tk.Canvas(self, bd=0, highlightthickness=0, height=0, width=0,
-                                     bg=cfg.gear["bkg_color"])
+                                     bg=self.cfg["bkg_color"])
         self.bar_gear_bg.grid(row=0, column=0, columnspan=10, padx=0, pady=0, sticky="wens")
 
         self.bar_gear = tk.Label(self, text="N", bd=0, height=1, width=2,
                                  font=font_gear, padx=0, pady=0,
-                                 fg=cfg.gear["font_color_gear"],
-                                 bg=cfg.gear["bkg_color"])
+                                 fg=self.cfg["font_color_gear"],
+                                 bg=self.cfg["bkg_color"])
 
-        self.bar_limiter = tk.Label(self, text=cfg.gear["speed_limiter_text"], bd=0, height=1,
-                                    width=len(cfg.gear["speed_limiter_text"])+1,
+        self.bar_limiter = tk.Label(self, text=self.cfg["speed_limiter_text"], bd=0, height=1,
+                                    width=len(self.cfg["speed_limiter_text"])+1,
                                     font=font_gear, padx=0, pady=0,
                                     fg="#111111", bg="#FF2200")
         self.bar_limiter.grid(row=0, column=5, padx=0, pady=0, sticky="ns")
 
-        if cfg.gear["layout"] == "0":
+        if self.cfg["layout"] == "0":
             self.bar_gear.grid(row=0, column=0, padx=0, pady=0)
 
             self.bar_gauge = tk.Label(self, text="000", bd=0, height=1, width=4,
                                       font=font_gauge, padx=0, pady=0,
-                                      fg=cfg.gear["font_color_gauge"],
-                                      bg=cfg.gear["bkg_color"])
+                                      fg=self.cfg["font_color_gauge"],
+                                      bg=self.cfg["bkg_color"])
             self.bar_gauge.grid(row=0, column=1, padx=0, pady=0, sticky="ns")
 
             self.rpm_width = self.bar_gear.winfo_reqwidth() + self.bar_gauge.winfo_reqwidth()
         else:
             self.bar_gear.grid(row=0, column=0,
-                               padx=0, pady=(0, int(cfg.gear["font_size"] * 0.45)))
+                               padx=0, pady=(0, int(self.cfg["font_size"] * 0.45)))
 
             self.bar_gauge = tk.Label(self, text="000", bd=0, height=1, width=3,
                                       font=font_gauge_small, padx=0, pady=0,
-                                      fg=cfg.gear["font_color_gauge"],
-                                      bg=cfg.gear["bkg_color"])
+                                      fg=self.cfg["font_color_gauge"],
+                                      bg=self.cfg["bkg_color"])
             self.bar_gauge.grid(row=0, column=0, sticky="wes",
-                                padx=0, pady=(0, int(cfg.gear["font_size"] * 0.15)))
+                                padx=0, pady=(0, int(self.cfg["font_size"] * 0.15)))
 
             self.rpm_width = self.bar_gear.winfo_reqwidth()
 
-        if cfg.gear["show_rpm_bar"]:
+        if self.cfg["show_rpm_bar"]:
             self.bar_rpm = tk.Canvas(self, bd=0, highlightthickness=0,
-                                     height=cfg.gear["rpm_bar_height"], width=self.rpm_width,
-                                     bg=cfg.gear["bkg_color_rpm_bar"])
+                                     height=self.cfg["rpm_bar_height"], width=self.rpm_width,
+                                     bg=self.cfg["bkg_color_rpm_bar"])
             self.bar_rpm.grid(row=1, column=0, columnspan=2,
-                              padx=0, pady=(cfg.gear["rpm_bar_gap"], 0))
+                              padx=0, pady=(self.cfg["rpm_bar_gap"], 0))
             # Used as transparent mask
             self.rect_rpm = self.bar_rpm.create_rectangle(
                             0, 0, 0, 0, fill="#000002", outline="")
@@ -110,13 +111,13 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and cfg.gear["enable"]:
+        if read_data.state() and self.cfg["enable"]:
             # Read gear data
             pit_limiter, gear, speed, rpm, rpm_max = read_data.gear()
             gear = calc.gear(gear)
-            speed = calc.conv_speed(speed, cfg.gear["speed_unit"])
-            rpm_safe = int(rpm_max * cfg.gear["rpm_safe_multiplier"])
-            rpm_warn = int(rpm_max * cfg.gear["rpm_warn_multiplier"])
+            speed = calc.conv_speed(speed, self.cfg["speed_unit"])
+            rpm_safe = int(rpm_max * self.cfg["rpm_safe_multiplier"])
+            rpm_warn = int(rpm_max * self.cfg["rpm_warn_multiplier"])
             rpm_color = self.color_rpm(rpm, rpm_safe, rpm_warn, rpm_max)
 
             # Gear update
@@ -130,7 +131,7 @@ class DrawWidget(Widget, MouseEvent):
             else:
                 self.bar_limiter.grid_remove()  # hide limiter indicator
 
-            if cfg.gear["show_rpm_bar"]:
+            if self.cfg["show_rpm_bar"]:
                 # RPM bar update
                 rpm_range = rpm_max - rpm_safe
                 try:
@@ -138,22 +139,21 @@ class DrawWidget(Widget, MouseEvent):
                 except ZeroDivisionError:
                     rpmscale = 0
                 self.bar_rpm.coords(self.rect_rpm,
-                                    rpmscale, cfg.gear["rpm_bar_edge_height"],
-                                    rpm_range, cfg.gear["rpm_bar_height"])
+                                    rpmscale, self.cfg["rpm_bar_edge_height"],
+                                    rpm_range, self.cfg["rpm_bar_height"])
 
         # Update rate
-        self.after(cfg.gear["update_delay"], self.update_data)
+        self.after(self.cfg["update_delay"], self.update_data)
 
     # Additional methods
-    @staticmethod
-    def color_rpm(rpm, rpm_safe, rpm_warn, rpm_max):
+    def color_rpm(self, rpm, rpm_safe, rpm_warn, rpm_max):
         """RPM indicator color"""
         if rpm < rpm_safe:
-            color = cfg.gear["bkg_color"]
+            color = self.cfg["bkg_color"]
         elif rpm_safe <= rpm < rpm_warn:
-            color = cfg.gear["bkg_color_rpm_safe"]
+            color = self.cfg["bkg_color_rpm_safe"]
         elif rpm_warn <= rpm <= rpm_max:
-            color = cfg.gear["bkg_color_rpm_warn"]
+            color = self.cfg["bkg_color_rpm_warn"]
         else:
-            color = cfg.gear["bkg_color_rpm_over_rev"]
+            color = self.cfg["bkg_color_rpm_over_rev"]
         return color

@@ -31,6 +31,7 @@ from tinypedal.base import cfg, Widget, MouseEvent
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "pressure"
+    cfg = cfg.setting_user[widget_name]
 
     def __init__(self):
         # Assign base setting
@@ -38,21 +39,21 @@ class DrawWidget(Widget, MouseEvent):
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", cfg.pressure["opacity"])
+        self.attributes("-alpha", self.cfg["opacity"])
 
         # Config size & position
-        bar_gap = cfg.pressure["bar_gap"]
-        self.geometry(f"+{cfg.pressure['position_x']}+{cfg.pressure['position_y']}")
+        bar_gap = self.cfg["bar_gap"]
+        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
 
         # Config style & variable
         text_def = "n/a"
-        fg_color_load = cfg.pressure["font_color_load"]
-        fg_color_pres = cfg.pressure["font_color_pressure"]
-        bg_color_load = cfg.pressure["bkg_color_load"]
-        bg_color_pres = cfg.pressure["bkg_color_pressure"]
-        font_pres = tkfont.Font(family=cfg.pressure["font_name"],
-                                size=-cfg.pressure["font_size"],
-                                weight=cfg.pressure["font_weight"])
+        fg_color_load = self.cfg["font_color_load"]
+        fg_color_pres = self.cfg["font_color_pressure"]
+        bg_color_load = self.cfg["bkg_color_load"]
+        bg_color_pres = self.cfg["bkg_color_pressure"]
+        font_pres = tkfont.Font(family=self.cfg["font_name"],
+                                size=-self.cfg["font_size"],
+                                weight=self.cfg["font_weight"])
 
         # Draw label
         bar_style = {"text":text_def, "bd":0, "height":1, "width":5,
@@ -63,13 +64,13 @@ class DrawWidget(Widget, MouseEvent):
         self.bar_pres_rl = tk.Label(self, bar_style, fg=fg_color_pres, bg=bg_color_pres)
         self.bar_pres_rr = tk.Label(self, bar_style, fg=fg_color_pres, bg=bg_color_pres)
 
-        if cfg.pressure["show_tyre_load"]:
+        if self.cfg["show_tyre_load"]:
             self.bar_load_fl = tk.Label(self, bar_style, fg=fg_color_load, bg=bg_color_load)
             self.bar_load_fr = tk.Label(self, bar_style, fg=fg_color_load, bg=bg_color_load)
             self.bar_load_rl = tk.Label(self, bar_style, fg=fg_color_load, bg=bg_color_load)
             self.bar_load_rr = tk.Label(self, bar_style, fg=fg_color_load, bg=bg_color_load)
 
-            if cfg.pressure["layout"] == "0":
+            if self.cfg["layout"] == "0":
                 # Vertical layout, load above pressure
                 self.bar_load_fl.grid(row=0, column=0, padx=0, pady=0)
                 self.bar_load_fr.grid(row=0, column=1, padx=0, pady=0)
@@ -79,7 +80,7 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_pres_fr.grid(row=2, column=1, padx=0, pady=0)
                 self.bar_pres_rl.grid(row=3, column=0, padx=0, pady=0)
                 self.bar_pres_rr.grid(row=3, column=1, padx=0, pady=0)
-            elif cfg.pressure["layout"] == "1":
+            elif self.cfg["layout"] == "1":
                 # Vertical layout, pressure above load
                 self.bar_pres_fl.grid(row=0, column=0, padx=0, pady=0)
                 self.bar_pres_fr.grid(row=0, column=1, padx=0, pady=0)
@@ -89,7 +90,7 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_load_fr.grid(row=2, column=1, padx=0, pady=0)
                 self.bar_load_rl.grid(row=3, column=0, padx=0, pady=0)
                 self.bar_load_rr.grid(row=3, column=1, padx=0, pady=0)
-            elif cfg.pressure["layout"] == "2":
+            elif self.cfg["layout"] == "2":
                 # Horizontal layout, pressure outside of load
                 self.bar_pres_fl.grid(row=0, column=0, padx=(0, bar_gap), pady=0)
                 self.bar_pres_fr.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
@@ -122,14 +123,14 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and cfg.pressure["enable"]:
+        if read_data.state() and self.cfg["enable"]:
             # Read tyre pressure data
             (pres_fl, pres_fr, pres_rl, pres_rr
-             ) = [calc.kpa2psi(data, cfg.pressure["pressure_unit"])
+             ) = [calc.kpa2psi(data, self.cfg["pressure_unit"])
                   for data in read_data.tyre_pres()]
 
             # Tyre load & pressure update
-            if cfg.pressure["show_tyre_load"]:
+            if self.cfg["show_tyre_load"]:
                 # Read tyre load data
                 load_fl, load_fr, load_rl, load_rr = read_data.tyre_load()
 
@@ -144,4 +145,4 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_pres_rr.config(text=pres_rr)
 
         # Update rate
-        self.after(cfg.pressure["update_delay"], self.update_data)
+        self.after(self.cfg["update_delay"], self.update_data)

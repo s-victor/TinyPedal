@@ -31,6 +31,7 @@ from tinypedal.setting import VehicleClass
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "relative"
+    cfg = cfg.setting_user[widget_name]
 
     def __init__(self):
         # Assign base setting
@@ -38,44 +39,44 @@ class DrawWidget(Widget, MouseEvent):
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", cfg.relative["opacity"])
+        self.attributes("-alpha", self.cfg["opacity"])
 
         # Config size & position
-        self.geometry(f"+{cfg.relative['position_x']}+{cfg.relative['position_y']}")
+        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
 
-        bar_padx = cfg.relative["font_size"] * 0.3
-        bar_gap = cfg.relative["bar_gap"]
+        bar_padx = self.cfg["font_size"] * 0.3
+        bar_gap = self.cfg["bar_gap"]
         num_width = 3
         gap_width = 4
-        self.drv_width = cfg.relative["bar_driver_name_width"]
-        self.cls_width = cfg.relative["bar_class_name_width"]
+        self.drv_width = self.cfg["bar_driver_name_width"]
+        self.cls_width = self.cfg["bar_class_name_width"]
 
         # Config style & variable
         text_def = ""
         fg_color = "#FFF"  # placeholder, font color for place, name, gap changes dynamically
-        fg_color_plr = cfg.relative["font_color_player"]
-        bg_color_place = cfg.relative["bkg_color_place"]
-        bg_color_place_plr = cfg.relative["bkg_color_player_place"]
-        bg_color_name = cfg.relative["bkg_color_name"]
-        bg_color_name_plr = cfg.relative["bkg_color_player_name"]
-        bg_color_gap = cfg.relative["bkg_color_gap"]
-        bg_color_gap_plr = cfg.relative["bkg_color_player_gap"]
-        fg_color_classplace = cfg.relative["font_color_position_in_class"]
-        bg_color_classplace = cfg.relative["bkg_color_position_in_class"]
-        fg_color_pit = cfg.relative["font_color_pit"]
-        bg_color_pit = cfg.relative["bkg_color_pit"]
+        fg_color_plr = self.cfg["font_color_player"]
+        bg_color_place = self.cfg["bkg_color_place"]
+        bg_color_place_plr = self.cfg["bkg_color_player_place"]
+        bg_color_name = self.cfg["bkg_color_name"]
+        bg_color_name_plr = self.cfg["bkg_color_player_name"]
+        bg_color_gap = self.cfg["bkg_color_gap"]
+        bg_color_gap_plr = self.cfg["bkg_color_player_gap"]
+        fg_color_classplace = self.cfg["font_color_position_in_class"]
+        bg_color_classplace = self.cfg["bkg_color_position_in_class"]
+        fg_color_pit = self.cfg["font_color_pit"]
+        bg_color_pit = self.cfg["bkg_color_pit"]
 
-        column_plc = cfg.relative["column_index_place"]
-        column_drv = cfg.relative["column_index_driver"]
-        column_lpt = cfg.relative["column_index_laptime"]
-        column_pic = cfg.relative["column_index_position_in_class"]
-        column_cls = cfg.relative["column_index_class"]
-        column_gap = cfg.relative["column_index_gap"]
-        column_pit = cfg.relative["column_index_pit"]
+        column_plc = self.cfg["column_index_place"]
+        column_drv = self.cfg["column_index_driver"]
+        column_lpt = self.cfg["column_index_laptime"]
+        column_pic = self.cfg["column_index_position_in_class"]
+        column_cls = self.cfg["column_index_class"]
+        column_gap = self.cfg["column_index_gap"]
+        column_pit = self.cfg["column_index_pit"]
 
-        font_relative = tkfont.Font(family=cfg.relative["font_name"],
-                                    size=-cfg.relative["font_size"],
-                                    weight=cfg.relative["font_weight"])
+        font_relative = tkfont.Font(family=self.cfg["font_name"],
+                                    size=-self.cfg["font_size"],
+                                    weight=self.cfg["font_weight"])
 
         # Draw label
         # Driver place number
@@ -141,9 +142,9 @@ class DrawWidget(Widget, MouseEvent):
         self.bar_row_7g.grid(row=6, column=column_gap, padx=0, pady=0)
 
         # Vehicle laptime
-        if cfg.relative["show_laptime"]:
-            fg_color_lpt = cfg.relative["font_color_laptime"]
-            bg_color_lpt = cfg.relative["bkg_color_laptime"]
+        if self.cfg["show_laptime"]:
+            fg_color_lpt = self.cfg["font_color_laptime"]
+            bg_color_lpt = self.cfg["bkg_color_laptime"]
             bar_style_t = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
                            "font":font_relative, "height":1, "width":9,
                            "fg":fg_color_lpt, "bg":bg_color_lpt}
@@ -165,7 +166,7 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_row_7t.grid(row=6, column=column_lpt, padx=0, pady=0)
 
         # Vehicle position in class
-        if cfg.relative["show_position_in_class"]:
+        if self.cfg["show_position_in_class"]:
             bar_style_i = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
                            "height":1, "width":num_width,
                            "fg":fg_color_classplace, "bg":bg_color_classplace}
@@ -185,10 +186,10 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_row_7i.grid(row=6, column=column_pic, padx=0, pady=0)
 
         # Vehicle class
-        if cfg.relative["show_class"]:
+        if self.cfg["show_class"]:
             self.vehcls = VehicleClass()  # load VehicleClass config
-            fg_color_cls = cfg.relative["font_color_class"]
-            bg_color_cls = cfg.relative["bkg_color_class"]
+            fg_color_cls = self.cfg["font_color_class"]
+            bg_color_cls = self.cfg["bkg_color_class"]
             bar_style_c = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
                            "font":font_relative, "height":1,
                            "width":self.cls_width,
@@ -209,9 +210,9 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_row_7c.grid(row=6, column=column_cls, padx=0, pady=0)
 
         # Vehicle in pit
-        if cfg.relative["show_pit_status"]:
+        if self.cfg["show_pit_status"]:
             bar_style_s = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
-                           "height":1, "width":len(cfg.relative["pit_status_text"])+1,
+                           "height":1, "width":len(self.cfg["pit_status_text"])+1,
                            "fg":fg_color_pit, "bg":bg_color_pit}
             self.bar_row_1s = tk.Label(self, bar_style_s)
             self.bar_row_2s = tk.Label(self, bar_style_s)
@@ -235,7 +236,7 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and cfg.relative["enable"]:
+        if read_data.state() and self.cfg["enable"]:
             # Read relative data
             rel_list = read_data.relative_list()
             plr = rel_list[3]
@@ -276,7 +277,7 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_row_6g.config(text=v6_gap, fg=self.color_lapdiff(v6_lap, v4_lap))
             self.bar_row_7g.config(text=v7_gap, fg=self.color_lapdiff(v7_lap, v4_lap))
 
-            if cfg.relative["show_laptime"]:
+            if self.cfg["show_laptime"]:
                 self.bar_row_1t.config(text=v1_lpt)
                 self.bar_row_2t.config(text=v2_lpt)
                 self.bar_row_3t.config(text=v3_lpt)
@@ -285,7 +286,7 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_row_6t.config(text=v6_lpt)
                 self.bar_row_7t.config(text=v7_lpt)
 
-            if cfg.relative["show_position_in_class"]:
+            if self.cfg["show_position_in_class"]:
                 self.bar_row_1i.config(text=v1_pic)
                 self.bar_row_2i.config(text=v2_pic)
                 self.bar_row_3i.config(text=v3_pic)
@@ -294,7 +295,7 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_row_6i.config(text=v6_pic)
                 self.bar_row_7i.config(text=v7_pic)
 
-            if cfg.relative["show_class"]:
+            if self.cfg["show_class"]:
                 self.bar_row_1c.config(self.set_class(v1_cls))
                 self.bar_row_2c.config(self.set_class(v2_cls))
                 self.bar_row_3c.config(self.set_class(v3_cls))
@@ -303,7 +304,7 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_row_6c.config(self.set_class(v6_cls))
                 self.bar_row_7c.config(self.set_class(v7_cls))
 
-            if cfg.relative["show_pit_status"]:
+            if self.cfg["show_pit_status"]:
                 self.bar_row_1s.config(self.set_pitstatus(v1_pit))
                 self.bar_row_2s.config(self.set_pitstatus(v2_pit))
                 self.bar_row_3s.config(self.set_pitstatus(v3_pit))
@@ -313,25 +314,23 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_row_7s.config(self.set_pitstatus(v7_pit))
 
         # Update rate
-        self.after(cfg.relative["update_delay"], self.update_data)
+        self.after(self.cfg["update_delay"], self.update_data)
 
     # Additional methods
-    @staticmethod
-    def color_lapdiff(nlap, player_nlap):
+    def color_lapdiff(self, nlap, player_nlap):
         """Compare lap differences & set color"""
         if nlap > player_nlap:
-            color = cfg.relative["font_color_laps_ahead"]
+            color = self.cfg["font_color_laps_ahead"]
         elif nlap < player_nlap:
-            color = cfg.relative["font_color_laps_behind"]
+            color = self.cfg["font_color_laps_behind"]
         else:
-            color = cfg.relative["font_color_same_lap"]
+            color = self.cfg["font_color_same_lap"]
         return color
 
-    @staticmethod
-    def set_pitstatus(pits):
+    def set_pitstatus(self, pits):
         """Compare lap differences & set color"""
         if pits > 0:
-            status = {"text":cfg.relative["pit_status_text"], "bg":cfg.relative["bkg_color_pit"]}
+            status = {"text":self.cfg["pit_status_text"], "bg":self.cfg["bkg_color_pit"]}
         else:
             status = {"text":"", "bg":"#000002"}
         return status

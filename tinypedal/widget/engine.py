@@ -30,6 +30,7 @@ from tinypedal.base import cfg, Widget, MouseEvent
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "engine"
+    cfg = cfg.setting_user[widget_name]
 
     def __init__(self):
         # Assign base setting
@@ -37,19 +38,19 @@ class DrawWidget(Widget, MouseEvent):
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", cfg.engine["opacity"])
+        self.attributes("-alpha", self.cfg["opacity"])
 
         # Config size & position
-        bar_gap = cfg.engine["bar_gap"]
-        self.geometry(f"+{cfg.engine['position_x']}+{cfg.engine['position_y']}")
+        bar_gap = self.cfg["bar_gap"]
+        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
 
         # Config style & variable
         text_def = "n/a"
-        fg_color = cfg.engine["font_color"]
-        bg_color = cfg.engine["bkg_color"]
-        font_engine = tkfont.Font(family=cfg.engine["font_name"],
-                                  size=-cfg.engine["font_size"],
-                                  weight=cfg.engine["font_weight"])
+        fg_color = self.cfg["font_color"]
+        bg_color = self.cfg["bkg_color"]
+        font_engine = tkfont.Font(family=self.cfg["font_name"],
+                                  size=-self.cfg["font_size"],
+                                  weight=self.cfg["font_weight"])
 
         # Draw label
         bar_style  = {"text":text_def, "bd":0, "height":1, "width":9, "padx":0, "pady":0,
@@ -59,11 +60,11 @@ class DrawWidget(Widget, MouseEvent):
         self.bar_oil.grid(row=0, column=0, padx=0, pady=0)
         self.bar_water.grid(row=1, column=0, padx=0, pady=(bar_gap, 0))
 
-        if cfg.engine["show_turbo"]:
+        if self.cfg["show_turbo"]:
             self.bar_turbo = tk.Label(self, bar_style)
             self.bar_turbo.grid(row=2, column=0, padx=0, pady=(bar_gap, 0))
 
-        if cfg.engine["show_rpm"]:
+        if self.cfg["show_rpm"]:
             self.bar_rpm = tk.Label(self, bar_style)
             self.bar_rpm.grid(row=3, column=0, padx=0, pady=(bar_gap, 0))
 
@@ -74,33 +75,32 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and cfg.engine["enable"]:
+        if read_data.state() and self.cfg["enable"]:
             # Read Engine data
             temp_oil, temp_water, e_turbo, e_rpm = read_data.engine()
 
             # Engine update
             self.bar_oil.config(text=f"O {temp_oil:05.01f}°",
                                 bg=self.color_overheat(
-                                    temp_oil, cfg.engine["overheat_threshold_oil"]))
+                                    temp_oil, self.cfg["overheat_threshold_oil"]))
             self.bar_water.config(text=f"W {temp_water:05.01f}°",
                                 bg=self.color_overheat(
-                                    temp_water, cfg.engine["overheat_threshold_water"]))
+                                    temp_water, self.cfg["overheat_threshold_water"]))
 
-            if cfg.engine["show_turbo"]:
+            if self.cfg["show_turbo"]:
                 self.bar_turbo.config(text=f"{e_turbo*0.00001:04.03f}bar")
 
-            if cfg.engine["show_rpm"]:
+            if self.cfg["show_rpm"]:
                 self.bar_rpm.config(text=f"{e_rpm: =05.0f}rpm")
 
         # Update rate
-        self.after(cfg.engine["update_delay"], self.update_data)
+        self.after(self.cfg["update_delay"], self.update_data)
 
     # Additional methods
-    @staticmethod
-    def color_overheat(temperature, threshold):
+    def color_overheat(self, temperature, threshold):
         """Overheat warning color"""
         if temperature < threshold:
-            color = cfg.engine["bkg_color"]
+            color = self.cfg["bkg_color"]
         else:
-            color = cfg.engine["bkg_color_overheat"]
+            color = self.cfg["bkg_color_overheat"]
         return color

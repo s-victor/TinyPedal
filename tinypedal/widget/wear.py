@@ -30,6 +30,7 @@ from tinypedal.base import cfg, Widget, MouseEvent
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "wear"
+    cfg = cfg.setting_user[widget_name]
 
     def __init__(self):
         # Assign base setting
@@ -37,19 +38,19 @@ class DrawWidget(Widget, MouseEvent):
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", cfg.wear["opacity"])
+        self.attributes("-alpha", self.cfg["opacity"])
 
         # Config size & position
-        bar_gap = cfg.wear["bar_gap"]
-        self.geometry(f"+{cfg.wear['position_x']}+{cfg.wear['position_y']}")
+        bar_gap = self.cfg["bar_gap"]
+        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
 
         # Config style & variable
         text_def = "n/a"
-        fg_color = cfg.wear["font_color"]
-        bkg_color = cfg.wear["bkg_color"]
-        font_wear = tkfont.Font(family=cfg.wear["font_name"],
-                                size=-cfg.wear["font_size"],
-                                weight=cfg.wear["font_weight"])
+        fg_color = self.cfg["font_color"]
+        bkg_color = self.cfg["bkg_color"]
+        font_wear = tkfont.Font(family=self.cfg["font_name"],
+                                size=-self.cfg["font_size"],
+                                weight=self.cfg["font_weight"])
 
         self.start_last = 0.0  # last lap start time
         self.wear_fl_last = 0  # remaining tyre wear from last lap
@@ -74,7 +75,7 @@ class DrawWidget(Widget, MouseEvent):
         self.bar_wearlast_rl = tk.Label(self, bar_style, bg=bkg_color)
         self.bar_wearlast_rr = tk.Label(self, bar_style, bg=bkg_color)
 
-        if cfg.wear["layout"] == "0":
+        if self.cfg["layout"] == "0":
             # Vertical layout, wear above last lap wear
             self.bar_wear_fl.grid(row=0, column=0, padx=0, pady=0)
             self.bar_wear_fr.grid(row=0, column=1, padx=0, pady=0)
@@ -84,7 +85,7 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_wearlast_fr.grid(row=2, column=1, padx=0, pady=0)
             self.bar_wearlast_rl.grid(row=3, column=0, padx=0, pady=0)
             self.bar_wearlast_rr.grid(row=3, column=1, padx=0, pady=0)
-        elif cfg.wear["layout"] == "1":
+        elif self.cfg["layout"] == "1":
             # Vertical layout,  last lap wear above wear
             self.bar_wearlast_fl.grid(row=0, column=0, padx=0, pady=0)
             self.bar_wearlast_fr.grid(row=0, column=1, padx=0, pady=0)
@@ -94,7 +95,7 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_wear_fr.grid(row=2, column=1, padx=0, pady=0)
             self.bar_wear_rl.grid(row=3, column=0, padx=0, pady=0)
             self.bar_wear_rr.grid(row=3, column=1, padx=0, pady=0)
-        elif cfg.wear["layout"] == "2":
+        elif self.cfg["layout"] == "2":
             # Horizontal layout, last lap wear outside of wear
             self.bar_wearlast_fl.grid(row=0, column=0, padx=(0, bar_gap), pady=0)
             self.bar_wearlast_fr.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
@@ -122,7 +123,7 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and cfg.wear["enable"]:
+        if read_data.state() and self.cfg["enable"]:
             # Read tyre wear data
             wear_fl, wear_fr, wear_rl, wear_rr = read_data.wear()
             start_curr = read_data.timing()[0]
@@ -156,7 +157,7 @@ class DrawWidget(Widget, MouseEvent):
                                         fg=self.color_wear_last(self.wear_rr_per))
 
         # Update rate
-        self.after(cfg.wear["update_delay"], self.update_data)
+        self.after(self.cfg["update_delay"], self.update_data)
 
     # Additional methods
     @staticmethod
