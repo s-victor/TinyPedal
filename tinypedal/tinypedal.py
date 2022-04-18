@@ -19,19 +19,28 @@
 """
 Main program & tray icon
 """
-import importlib
-
 from PIL import Image
 import pystray
 
 from tinypedal.base import cfg, OverlayLock, OverlayAutoHide
 from tinypedal.about import About
 
-# Import widget module from widget_list
-# from tinypedal.widget import deltabest
-for widget_name in cfg.setting_user:
-    if widget_name != "overlay":
-        globals()[widget_name] = importlib.import_module("tinypedal.widget." + widget_name)
+from tinypedal.widget import (deltabest,
+                              drs,
+                              engine,
+                              force,
+                              fuel,
+                              gear,
+                              pedal,
+                              pressure,
+                              relative,
+                              steering,
+                              temperature,
+                              timing,
+                              wear,
+                              weather,
+                              wheel
+                              )
 
 
 class TrayIcon:
