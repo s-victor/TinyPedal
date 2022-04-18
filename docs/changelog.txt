@@ -1,3 +1,15 @@
+TinyPedal 1.1.9 (2022-04-18)
+----------------------------
+* Relative
+    - Fixed a player index mismatch issue that happens in multilayer session when a player leaves server,
+      which interrupts Relative data calculation and halt APP.
+
+* Core
+    - Improved setting code, removed unnecessary setting groups.
+    - Optimized widget code structure, removed redundant codes, easier to create new widget.
+    - Simplified widget module import method, removed repetitive references.
+    - Improved setting auto-sorting, moved "overlay" setting back to the top of the JSON file.
+
 TinyPedal 1.1.8 (2022-04-17)
 ----------------------------
 * Relative

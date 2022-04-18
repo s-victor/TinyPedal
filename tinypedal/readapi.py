@@ -229,8 +229,9 @@ def relative_list():
     # Create vehicle dict based on total number of vehicles in session
     # Use "vehicle index" as key, "distance position" as value
     # Filter out negative distance value to zero
+    total_veh = max(info.Rf2Scor.mScoringInfo.mNumVehicles, 1)
     veh_dict = {index:max(info.Rf2Scor.mVehicles[index].mLapDist, 0)
-                for index in range(0, info.Rf2Scor.mScoringInfo.mNumVehicles)}
+                for index in range(0, total_veh)}
 
     # Reverse-sort dict by values
     re_veh_dict = dict(sorted(veh_dict.items(), key=lambda item: item[1], reverse=True))
@@ -240,17 +241,18 @@ def relative_list():
 
     # Append with -1 if sorted vehicle list has less than 7 items
     if len(sorted_veh_list) < 7:
-        for index in range(7-len(sorted_veh_list)):
+        for index in range(7 - len(sorted_veh_list)):
             sorted_veh_list.append(-1)
 
     # Double extend list
     sorted_veh_list *= 2
 
     # Locate player vehicle index in list
-    try:
-        plr_num = sorted_veh_list.index(info.playersDriverNum())
-    except TypeError:
-        plr_num = 0
+    plr_index = info.playersDriverNum()
+    if plr_index in sorted_veh_list:
+        plr_num = sorted_veh_list.index(plr_index)
+    else:
+        plr_num = 0  # prevent index not found in list error
 
     # Center selection range on player index from sorted vehicle list
     selected_list = [sorted_veh_list[index] for index in range(plr_num - 3, plr_num + 4)]
@@ -260,13 +262,14 @@ def relative_list():
 def veh_class_info_list():
     """Create vehicle class info list"""
     # Vehicle class info
+    total_veh = max(info.Rf2Scor.mScoringInfo.mNumVehicles, 1)
     unsorted_veh_class = []
     unique_veh_class = []
     veh_class_info = []
     pos_counter = 0  # position in class
 
     # Create vehicle class list (class name, veh place, veh index)
-    for index in range(0, info.Rf2Scor.mScoringInfo.mNumVehicles):
+    for index in range(0, total_veh):
         place = info.Rf2Scor.mVehicles[index].mPlace
         vehclass = Cbytestring2Python(info.Rf2Scor.mVehicles[index].mVehicleClass)
         unsorted_veh_class.append((vehclass, place, index))
@@ -303,7 +306,7 @@ def relative_data(index, index_player):
     rf2_scor = info.Rf2Scor
     veh_class_info = veh_class_info_list()
 
-    if index >= 0:
+    if index >= 0 and index_player == info.playersDriverNum():
         # Driver place position
         place = f"{veh_class_info[index][3]:02d}"
 
