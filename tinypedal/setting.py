@@ -377,9 +377,8 @@ class Setting:
             self.restore()
             self.save()
 
-        # Generate sub key setting groups from user dict
-        for cfg_item in self.setting_user:
-            setattr(self, cfg_item, self.setting_user[str(cfg_item)])
+        # Assign base setting
+        self.overlay = self.setting_user["overlay"]
 
     def save(self):
         """Save setting to file"""
@@ -488,24 +487,9 @@ def verify_setting(dict_user, dict_def):
 
 
 ### old stuff
+# Generate sub key setting groups from user dict
+#for cfg_item in self.setting_user:
+#    setattr(self, cfg_item, self.setting_user[str(cfg_item)])
 
 #self.widget_list = list(self.setting_default)  # create widget list
 #self.widget_list.remove("overlay")
-
-# Assign sub key setting group
-#self.overlay = self.setting_user["overlay"]
-#self.deltabest = self.setting_user["deltabest"]
-#self.drs = self.setting_user["drs"]
-#self.engine = self.setting_user["engine"]
-#self.force = self.setting_user["force"]
-#self.fuel = self.setting_user["fuel"]
-#self.gear = self.setting_user["gear"]
-#self.pedal = self.setting_user["pedal"]
-#self.pressure = self.setting_user["pressure"]
-#self.relative = self.setting_user["relative"]
-#self.steering = self.setting_user["steering"]
-#self.temperature = self.setting_user["temperature"]
-#self.timing = self.setting_user["timing"]
-#self.wear = self.setting_user["wear"]
-#self.weather = self.setting_user["weather"]
-#self.wheel = self.setting_user["wheel"]
