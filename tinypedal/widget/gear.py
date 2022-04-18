@@ -30,13 +30,14 @@ from tinypedal.base import cfg, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "gear"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Gear Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.gear["opacity"])
 
         # Config size & position
@@ -102,22 +103,13 @@ class DrawWidget(Widget, MouseEvent):
             self.rect_rpm = self.bar_rpm.create_rectangle(
                             0, 0, 0, 0, fill="#000002", outline="")
 
-        self.update_gear()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.gear["position_x"] = str(self.winfo_x())
-        cfg.gear["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_gear(self):
-        """Update gear
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.gear["enable"]:
             # Read gear data
             pit_limiter, gear, speed, rpm, rpm_max = read_data.gear()
@@ -150,7 +142,7 @@ class DrawWidget(Widget, MouseEvent):
                                     rpm_range, cfg.gear["rpm_bar_height"])
 
         # Update rate
-        self.after(cfg.gear["update_delay"], self.update_gear)
+        self.after(cfg.gear["update_delay"], self.update_data)
 
     # Additional methods
     @staticmethod

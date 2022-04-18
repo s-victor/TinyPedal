@@ -30,13 +30,14 @@ from tinypedal.base import cfg, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "force"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Force Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.force["opacity"])
 
         # Config size & position
@@ -65,22 +66,13 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_dforce = tk.Label(self, bar_style, fg=fg_color_df, bg=bg_color_df)
             self.bar_dforce.grid(row=2, column=0, padx=0, pady=(bar_gap, 0))
 
-        self.update_force()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.force["position_x"] = str(self.winfo_x())
-        cfg.force["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_force(self):
-        """Update force
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.force["enable"]:
             # Read g-force & downforce data
             gf_lgt, gf_lat, df_ratio = read_data.force()
@@ -93,4 +85,4 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_dforce.config(text=f"{df_ratio:04.02f}%")
 
         # Update rate
-        self.after(cfg.force["update_delay"], self.update_force)
+        self.after(cfg.force["update_delay"], self.update_data)

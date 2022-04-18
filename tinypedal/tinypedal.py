@@ -29,8 +29,9 @@ from tinypedal.about import About
 
 # Import widget module from widget_list
 # from tinypedal.widget import deltabest
-for widget_name in cfg.widget_list:
-    globals()[widget_name] = importlib.import_module("tinypedal.widget." + widget_name)
+for widget_name in cfg.setting_user:
+    if widget_name != "overlay":
+        globals()[widget_name] = importlib.import_module("tinypedal.widget." + widget_name)
 
 
 class TrayIcon:

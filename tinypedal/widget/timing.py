@@ -30,13 +30,14 @@ from tinypedal.base import cfg, delta_time, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "timing"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Timing Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.timing["opacity"])
 
         # Config size & position
@@ -79,22 +80,13 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_time_curr.grid(row=0, column=2, padx=(bar_gap, 0), pady=0)
             self.bar_time_est.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
 
-        self.update_timing()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.timing["position_x"] = str(self.winfo_x())
-        cfg.timing["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_timing(self):
-        """Update timing
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.timing["enable"]:
             # Read Timing data
             (laptime_curr, laptime_last, laptime_best, laptime_est, _
@@ -107,4 +99,4 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_time_est.config(text=f"E {laptime_est}")
 
         # Update rate
-        self.after(cfg.timing["update_delay"], self.update_timing)
+        self.after(cfg.timing["update_delay"], self.update_data)

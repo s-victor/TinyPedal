@@ -29,13 +29,14 @@ from tinypedal.base import cfg, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "drs"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - DRS Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.drs["opacity"])
 
         # Config size & position
@@ -53,22 +54,13 @@ class DrawWidget(Widget, MouseEvent):
                                 bg=cfg.drs["bkg_color_not_available"])
         self.bar_drs.grid(row=0, column=0, padx=0, pady=0)
 
-        self.update_drs()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.drs["position_x"] = str(self.winfo_x())
-        cfg.drs["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_drs(self):
-        """Update DRS
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.drs["enable"]:
             # Read DRS data
             drs_on, drs_status = read_data.drs()
@@ -89,4 +81,4 @@ class DrawWidget(Widget, MouseEvent):
                                     bg=cfg.drs["bkg_color_not_available"])
 
         # Update rate
-        self.after(cfg.drs["update_delay"], self.update_drs)
+        self.after(cfg.drs["update_delay"], self.update_data)

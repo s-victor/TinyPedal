@@ -30,13 +30,14 @@ from tinypedal.base import cfg, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "temperature"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Temperature Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.temperature["opacity"])
 
         # Config size & position
@@ -107,22 +108,13 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_ttemp_rl.grid(row=1, column=1, padx=0, pady=0)
             self.bar_ttemp_rr.grid(row=1, column=2, padx=0, pady=0)
 
-        self.update_temp()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.temperature["position_x"] = str(self.winfo_x())
-        cfg.temperature["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_temp(self):
-        """Update temperature
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.temperature["enable"]:
             # Read average tyre & brake temperature data
             (ttemp_fl, ttemp_fr, ttemp_rl, ttemp_rr, btemp_fl, btemp_fr, btemp_rl, btemp_rr
@@ -172,7 +164,7 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_btemp_rr.config(text=f" {btemp_rr_d:02.0f}°")
 
         # Update rate
-        self.after(cfg.temperature["update_delay"], self.update_temp)
+        self.after(cfg.temperature["update_delay"], self.update_data)
 
     # Additional methods
     @staticmethod

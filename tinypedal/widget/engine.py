@@ -29,13 +29,14 @@ from tinypedal.base import cfg, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "engine"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Engine Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.engine["opacity"])
 
         # Config size & position
@@ -66,22 +67,13 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_rpm = tk.Label(self, bar_style)
             self.bar_rpm.grid(row=3, column=0, padx=0, pady=(bar_gap, 0))
 
-        self.update_engine()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.engine["position_x"] = str(self.winfo_x())
-        cfg.engine["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_engine(self):
-        """Update engine
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.engine["enable"]:
             # Read Engine data
             temp_oil, temp_water, e_turbo, e_rpm = read_data.engine()
@@ -101,7 +93,7 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_rpm.config(text=f"{e_rpm: =05.0f}rpm")
 
         # Update rate
-        self.after(cfg.engine["update_delay"], self.update_engine)
+        self.after(cfg.engine["update_delay"], self.update_data)
 
     # Additional methods
     @staticmethod

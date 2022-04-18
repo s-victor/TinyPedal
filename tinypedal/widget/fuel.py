@@ -31,13 +31,14 @@ from tinypedal.base import cfg, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "fuel"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Fuel Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.fuel["opacity"])
 
         # Config size & position
@@ -112,22 +113,13 @@ class DrawWidget(Widget, MouseEvent):
         self.bar_fuel_5.grid(row=2, column=1, padx=0, pady=(bar_gap, 0))
         self.bar_fuel_6.grid(row=2, column=2, padx=0, pady=(bar_gap, 0))
 
-        self.update_fuel()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.fuel["position_x"] = str(self.winfo_x())
-        cfg.fuel["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_fuel(self):
-        """Update fuel
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.fuel["enable"]:
             # Read fuel data
             amount_curr, capacity = read_data.fuel()
@@ -189,7 +181,7 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_fuel_6.config(text=str(f"{self.pit_required:.2f}"))
 
         # Update rate
-        self.after(cfg.fuel["update_delay"], self.update_fuel)
+        self.after(cfg.fuel["update_delay"], self.update_data)
 
     # Additional methods
     @staticmethod

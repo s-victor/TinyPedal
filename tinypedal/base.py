@@ -107,7 +107,9 @@ class MouseEvent:
 
     def release_mouse(self):
         """Save position on release"""
-        self.save_widget_position()
+        getattr(cfg, str(self.widget_name))["position_x"] = str(self.winfo_x())
+        getattr(cfg, str(self.widget_name))["position_y"] = str(self.winfo_y())
+        cfg.save()
         self.mouse_pressed = 0
 
     def set_offset(self, event):

@@ -29,13 +29,14 @@ from tinypedal.base import cfg, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "steering"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Steering Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.configure(bg=cfg.steering["bar_edge_color"])
         self.attributes("-alpha", cfg.steering["opacity"])
 
@@ -74,7 +75,7 @@ class DrawWidget(Widget, MouseEvent):
             self.rect_mark_rt4 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
             self.rect_mark_rt5 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
 
-        self.update_steering()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
@@ -84,17 +85,8 @@ class DrawWidget(Widget, MouseEvent):
         pos = self.sbar_length + mark_gap * mark_count + mark_offset
         self.bar_steering.coords(mark_label, pos, 0, pos, self.sbar_height)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.steering["position_x"] = str(self.winfo_x())
-        cfg.steering["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_steering(self):
-        """Update steering
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.steering["enable"]:
             # Read steering data
             raw_steering, steering_wheel_rot_range = read_data.steering()
@@ -132,4 +124,4 @@ class DrawWidget(Widget, MouseEvent):
                     self.create_mark(self.rect_mark_rt5, scale_mark_gap, 5, 0)
 
         # Update rate
-        self.after(cfg.steering["update_delay"], self.update_steering)
+        self.after(cfg.steering["update_delay"], self.update_data)

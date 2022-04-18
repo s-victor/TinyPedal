@@ -30,13 +30,14 @@ from tinypedal.base import cfg, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "wheel"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Wheel Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.wheel["opacity"])
 
         # Config size & position
@@ -110,22 +111,13 @@ class DrawWidget(Widget, MouseEvent):
         self.bar_rake.grid(row=10, column=0, padx=0, pady=0)
         self.bar_rakeangle.grid(row=10, column=1, padx=0, pady=0)
 
-        self.update_wheel()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.wheel["position_x"] = str(self.winfo_x())
-        cfg.wheel["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_wheel(self):
-        """Update wheel
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.wheel["enable"]:
             # Read camber data
             (camber_fl, camber_fr, camber_rl, camber_rr
@@ -172,7 +164,7 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_rakeangle.config(text=f" {rake_angle:.2f}°", bg=self.color_rideh(rake, 0))
 
         # Update rate
-        self.after(cfg.wheel["update_delay"], self.update_wheel)
+        self.after(cfg.wheel["update_delay"], self.update_data)
 
     # Additional methods
     @staticmethod

@@ -29,13 +29,14 @@ from tinypedal.base import cfg, delta_time, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "deltabest"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Deltabest Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.deltabest["opacity"])
 
         # Config size & position
@@ -74,22 +75,13 @@ class DrawWidget(Widget, MouseEvent):
         else:
             self.bar_deltabest.grid(row=0, column=0, padx=0, pady=0)
 
-        self.update_deltabest()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.deltabest["position_x"] = str(self.winfo_x())
-        cfg.deltabest["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_deltabest(self):
-        """Update deltabest
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.deltabest["enable"]:
             # Read delta best data
             delta_best = delta_time.output()[4]
@@ -115,7 +107,7 @@ class DrawWidget(Widget, MouseEvent):
                                              self.dbar_length, 0, deltabar, self.dbar_height)
 
         # Update rate
-        self.after(cfg.deltabest["update_delay"], self.update_deltabest)
+        self.after(cfg.deltabest["update_delay"], self.update_data)
 
     @staticmethod
     def deltabar_pos(rng, delta, length):

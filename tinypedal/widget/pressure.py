@@ -30,13 +30,14 @@ from tinypedal.base import cfg, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "pressure"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Tyre Pressure Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.pressure["opacity"])
 
         # Config size & position
@@ -114,22 +115,13 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_pres_rl.grid(row=1, column=0, padx=0, pady=0)
             self.bar_pres_rr.grid(row=1, column=1, padx=0, pady=0)
 
-        self.update_pressure()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.pressure["position_x"] = str(self.winfo_x())
-        cfg.pressure["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_pressure(self):
-        """Update load & pressure
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.pressure["enable"]:
             # Read tyre pressure data
             (pres_fl, pres_fr, pres_rl, pres_rr
@@ -152,4 +144,4 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_pres_rr.config(text=pres_rr)
 
         # Update rate
-        self.after(cfg.pressure["update_delay"], self.update_pressure)
+        self.after(cfg.pressure["update_delay"], self.update_data)

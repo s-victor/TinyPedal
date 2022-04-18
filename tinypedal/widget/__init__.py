@@ -17,5 +17,9 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Widget
+Widget modules
+
+Widget module file name must match key name in setting.py,
+which is used to auto-generate key groups in setting.py,
+and auto-import modules in tinypedal.py.
 """

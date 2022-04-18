@@ -29,13 +29,14 @@ from tinypedal.base import cfg, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "pedal"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Pedal Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.pedal["opacity"])
 
         # Config size & position
@@ -103,22 +104,13 @@ class DrawWidget(Widget, MouseEvent):
                           0, 0, self.pbar_cwidth, cfg.pedal["full_pedal_height"],
                           fill=cfg.pedal["throttle_color"], outline="")
 
-        self.update_pedal()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.pedal["position_x"] = str(self.winfo_x())
-        cfg.pedal["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_pedal(self):
-        """Update pedal
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.pedal["enable"]:
             # Read pedal data
             (throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
@@ -180,4 +172,4 @@ class DrawWidget(Widget, MouseEvent):
                         self.rect_ffb, fill=cfg.pedal["ffb_color"])
 
         # Update rate
-        self.after(cfg.pedal["update_delay"], self.update_pedal)
+        self.after(cfg.pedal["update_delay"], self.update_data)

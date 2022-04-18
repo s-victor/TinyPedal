@@ -30,13 +30,14 @@ from tinypedal.base import cfg, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "weather"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Weather Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.weather["opacity"])
 
         # Config size & position
@@ -62,22 +63,13 @@ class DrawWidget(Widget, MouseEvent):
         self.bar_rain.grid(row=0, column=1, padx=(bar_gap, 0), pady=0)
         self.bar_wetness.grid(row=0, column=2, padx=(bar_gap, 0), pady=0)
 
-        self.update_weather()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.weather["position_x"] = str(self.winfo_x())
-        cfg.weather["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_weather(self):
-        """Update weather
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.weather["enable"]:
             # Read Weather data
             amb_temp, trk_temp, rain, min_wet, max_wet, avg_wet = read_data.weather()
@@ -106,4 +98,4 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_wetness.config(text=wetness, width=len(wetness)+1)
 
         # Update rate
-        self.after(cfg.weather["update_delay"], self.update_weather)
+        self.after(cfg.weather["update_delay"], self.update_data)

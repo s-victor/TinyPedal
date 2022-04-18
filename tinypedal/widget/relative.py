@@ -30,13 +30,14 @@ from tinypedal.setting import VehicleClass
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "relative"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Relative Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.relative["opacity"])
 
         # Config size & position
@@ -227,22 +228,13 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_row_6s.grid(row=5, column=column_pit, padx=0, pady=(0, bar_gap))
             self.bar_row_7s.grid(row=6, column=column_pit, padx=0, pady=0)
 
-        self.update_relative()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.relative["position_x"] = str(self.winfo_x())
-        cfg.relative["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_relative(self):
-        """Update relative
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.relative["enable"]:
             # Read relative data
             rel_list = read_data.relative_list()
@@ -321,7 +313,7 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_row_7s.config(self.set_pitstatus(v7_pit))
 
         # Update rate
-        self.after(cfg.relative["update_delay"], self.update_relative)
+        self.after(cfg.relative["update_delay"], self.update_data)
 
     # Additional methods
     @staticmethod

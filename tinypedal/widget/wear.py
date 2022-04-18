@@ -29,13 +29,14 @@ from tinypedal.base import cfg, Widget, MouseEvent
 
 class DrawWidget(Widget, MouseEvent):
     """Draw widget"""
+    widget_name = "wear"
 
     def __init__(self):
         # Assign base setting
         Widget.__init__(self)
 
         # Config title & background
-        self.title("TinyPedal - Tyre Wear Widget")
+        self.title("TinyPedal - " + self.widget_name.capitalize())
         self.attributes("-alpha", cfg.wear["opacity"])
 
         # Config size & position
@@ -114,22 +115,13 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_wearlast_rl.grid(row=1, column=1, padx=0, pady=0)
             self.bar_wearlast_rr.grid(row=1, column=2, padx=0, pady=0)
 
-        self.update_wear()
+        self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
 
-    def save_widget_position(self):
-        """Save widget position"""
-        cfg.wear["position_x"] = str(self.winfo_x())
-        cfg.wear["position_y"] = str(self.winfo_y())
-        cfg.save()
-
-    def update_wear(self):
-        """Update wear
-
-        Update only when vehicle on track, and widget is enabled.
-        """
+    def update_data(self):
+        """Update when vehicle on track"""
         if read_data.state() and cfg.wear["enable"]:
             # Read tyre wear data
             wear_fl, wear_fr, wear_rl, wear_rr = read_data.wear()
@@ -164,7 +156,7 @@ class DrawWidget(Widget, MouseEvent):
                                         fg=self.color_wear_last(self.wear_rr_per))
 
         # Update rate
-        self.after(cfg.wear["update_delay"], self.update_wear)
+        self.after(cfg.wear["update_delay"], self.update_data)
 
     # Additional methods
     @staticmethod
