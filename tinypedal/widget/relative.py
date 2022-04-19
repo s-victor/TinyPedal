@@ -238,16 +238,16 @@ class DrawWidget(Widget, MouseEvent):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
             # Read relative data
-            rel_list = read_data.relative_list()
+            rel_list, cls_info = read_data.relative_list()
             plr = rel_list[3]
 
-            v1_plc, v1_drv, v1_lpt, v1_pic, v1_cls, v1_gap, v1_lap, v1_pit = read_data.relative_data(rel_list[0], plr)
-            v2_plc, v2_drv, v2_lpt, v2_pic, v2_cls, v2_gap, v2_lap, v2_pit = read_data.relative_data(rel_list[1], plr)
-            v3_plc, v3_drv, v3_lpt, v3_pic, v3_cls, v3_gap, v3_lap, v3_pit = read_data.relative_data(rel_list[2], plr)
-            v4_plc, v4_drv, v4_lpt, v4_pic, v4_cls, v4_gap, v4_lap, v4_pit = read_data.relative_data(plr, plr)
-            v5_plc, v5_drv, v5_lpt, v5_pic, v5_cls, v5_gap, v5_lap, v5_pit = read_data.relative_data(rel_list[4], plr)
-            v6_plc, v6_drv, v6_lpt, v6_pic, v6_cls, v6_gap, v6_lap, v6_pit = read_data.relative_data(rel_list[5], plr)
-            v7_plc, v7_drv, v7_lpt, v7_pic, v7_cls, v7_gap, v7_lap, v7_pit = read_data.relative_data(rel_list[6], plr)
+            v1_plc, v1_drv, v1_lpt, v1_pic, v1_cls, v1_gap, v1_lap, v1_pit = read_data.relative_data(rel_list[0], plr, cls_info)
+            v2_plc, v2_drv, v2_lpt, v2_pic, v2_cls, v2_gap, v2_lap, v2_pit = read_data.relative_data(rel_list[1], plr, cls_info)
+            v3_plc, v3_drv, v3_lpt, v3_pic, v3_cls, v3_gap, v3_lap, v3_pit = read_data.relative_data(rel_list[2], plr, cls_info)
+            v4_plc, v4_drv, v4_lpt, v4_pic, v4_cls, v4_gap, v4_lap, v4_pit = read_data.relative_data(plr, plr, cls_info)
+            v5_plc, v5_drv, v5_lpt, v5_pic, v5_cls, v5_gap, v5_lap, v5_pit = read_data.relative_data(rel_list[4], plr, cls_info)
+            v6_plc, v6_drv, v6_lpt, v6_pic, v6_cls, v6_gap, v6_lap, v6_pit = read_data.relative_data(rel_list[5], plr, cls_info)
+            v7_plc, v7_drv, v7_lpt, v7_pic, v7_cls, v7_gap, v7_lap, v7_pit = read_data.relative_data(rel_list[6], plr, cls_info)
 
             # Relative update
             # Driver place

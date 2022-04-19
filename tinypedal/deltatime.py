@@ -158,11 +158,11 @@ class DeltaTime:
 
 def telemetry():
     """Telemetry data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    start_curr = plr_tele.mLapStartET
-    elapsed_time = plr_tele.mElapsedTime
-    speed = calc.vel2speed(plr_tele.mLocalVel.x, plr_tele.mLocalVel.y, plr_tele.mLocalVel.z)
+    start_curr = info.playersVehicleTelemetry().mLapStartET
+    elapsed_time = info.playersVehicleTelemetry().mElapsedTime
+    speed = calc.vel2speed(info.playersVehicleTelemetry().mLocalVel.x,
+                           info.playersVehicleTelemetry().mLocalVel.y,
+                           info.playersVehicleTelemetry().mLocalVel.z)
     track_length = info.Rf2Scor.mScoringInfo.mLapDist
     pos_curr = min(info.playersVehicleScoring().mLapDist, track_length)
     return start_curr, elapsed_time, speed, track_length, pos_curr

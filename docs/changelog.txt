@@ -1,7 +1,13 @@
+TinyPedal 1.1.10 (2022-04-19)
+----------------------------
+* Core
+    - Fixed shared memory access issue that freezes APP when a player leaves server in multiplayer session.
+    - Improved relative calculation code.
+
 TinyPedal 1.1.9 (2022-04-18)
 ----------------------------
 * Relative
-    - Fixed a player index mismatch issue that happens in multilayer session when a player leaves server,
+    - Fixed a player index mismatch issue that happens in multiplayer session when a player leaves server,
       which interrupts Relative data calculation and halt APP.
 
 * Core

@@ -44,195 +44,218 @@ def state():
 
 def pedal():
     """Pedal data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    throttle = plr_tele.mFilteredThrottle
-    brake = plr_tele.mFilteredBrake
-    clutch = plr_tele.mFilteredClutch
-    raw_throttle = plr_tele.mUnfilteredThrottle
-    raw_brake = plr_tele.mUnfilteredBrake
-    raw_clutch = plr_tele.mUnfilteredClutch
+    throttle = info.playersVehicleTelemetry().mFilteredThrottle
+    brake = info.playersVehicleTelemetry().mFilteredBrake
+    clutch = info.playersVehicleTelemetry().mFilteredClutch
+    raw_throttle = info.playersVehicleTelemetry().mUnfilteredThrottle
+    raw_brake = info.playersVehicleTelemetry().mUnfilteredBrake
+    raw_clutch = info.playersVehicleTelemetry().mUnfilteredClutch
     ffb = info.Rf2Ffb.mForceValue
     return throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
 
 
 def steering():
     """Steering data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    raw_steering = plr_tele.mUnfilteredSteering
-    steering_wheel_rot_range = plr_tele.mPhysicalSteeringWheelRange
+    raw_steering = info.playersVehicleTelemetry().mUnfilteredSteering
+    steering_wheel_rot_range = info.playersVehicleTelemetry().mPhysicalSteeringWheelRange
     return raw_steering, steering_wheel_rot_range
 
 
 def gear():
     """Gear data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    pit_limiter = plr_tele.mSpeedLimiter
-    mgear = plr_tele.mGear
-    speed = calc.vel2speed(plr_tele.mLocalVel.x, plr_tele.mLocalVel.y, plr_tele.mLocalVel.z)
-    rpm = plr_tele.mEngineRPM
-    rpm_max = plr_tele.mEngineMaxRPM
+    pit_limiter = info.playersVehicleTelemetry().mSpeedLimiter
+    mgear = info.playersVehicleTelemetry().mGear
+    speed = calc.vel2speed(info.playersVehicleTelemetry().mLocalVel.x,
+                           info.playersVehicleTelemetry().mLocalVel.y,
+                           info.playersVehicleTelemetry().mLocalVel.z)
+    rpm = info.playersVehicleTelemetry().mEngineRPM
+    rpm_max = info.playersVehicleTelemetry().mEngineMaxRPM
     return pit_limiter, mgear, speed, rpm, rpm_max
 
 
 def timing():
     """Timing data"""
-    plr_tele = info.playersVehicleTelemetry()
-    plr_scor = info.playersVehicleScoring()
-    rf2_scor = info.Rf2Scor.mScoringInfo
-
-    start_curr = plr_tele.mLapStartET  # current lap start time stamp
-    laps_total = rf2_scor.mMaxLaps  # total race laps
-    laps_left = laps_total - plr_scor.mTotalLaps  # remaining laps
-    time_left = rf2_scor.mEndET - rf2_scor.mCurrentET  #session timer (sec)
+    start_curr = info.playersVehicleTelemetry().mLapStartET
+    laps_total = info.Rf2Scor.mScoringInfo.mMaxLaps
+    laps_left = laps_total - info.playersVehicleScoring().mTotalLaps
+    time_left = info.Rf2Scor.mScoringInfo.mEndET - info.Rf2Scor.mScoringInfo.mCurrentET
     return start_curr, laps_total, laps_left, time_left
 
 
 def fuel():
     """Fuel data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    amount_curr = plr_tele.mFuel
-    capacity = plr_tele.mFuelCapacity
+    amount_curr = info.playersVehicleTelemetry().mFuel
+    capacity = info.playersVehicleTelemetry().mFuelCapacity
     return amount_curr, capacity
 
 
 def camber():
     """Camber data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    camber_fl = plr_tele.mWheels[0].mCamber
-    camber_fr = plr_tele.mWheels[1].mCamber
-    camber_rl = plr_tele.mWheels[2].mCamber
-    camber_rr = plr_tele.mWheels[3].mCamber
+    camber_fl = info.playersVehicleTelemetry().mWheels[0].mCamber
+    camber_fr = info.playersVehicleTelemetry().mWheels[1].mCamber
+    camber_rl = info.playersVehicleTelemetry().mWheels[2].mCamber
+    camber_rr = info.playersVehicleTelemetry().mWheels[3].mCamber
     return camber_fl, camber_fr, camber_rl, camber_rr
 
 
 def toe():
     """Toe data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    toe_fl = plr_tele.mWheels[0].mToe
-    toe_fr = -plr_tele.mWheels[1].mToe
-    toe_rl = plr_tele.mWheels[2].mToe
-    toe_rr = -plr_tele.mWheels[3].mToe
+    toe_fl = info.playersVehicleTelemetry().mWheels[0].mToe
+    toe_fr = -info.playersVehicleTelemetry().mWheels[1].mToe
+    toe_rl = info.playersVehicleTelemetry().mWheels[2].mToe
+    toe_rr = -info.playersVehicleTelemetry().mWheels[3].mToe
     return toe_fl, toe_fr, toe_rl, toe_rr
 
 
 def ride_height():
     """Ride height data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    rideh_fl = plr_tele.mWheels[0].mRideHeight
-    rideh_fr = plr_tele.mWheels[1].mRideHeight
-    rideh_rl = plr_tele.mWheels[2].mRideHeight
-    rideh_rr = plr_tele.mWheels[3].mRideHeight
+    rideh_fl = info.playersVehicleTelemetry().mWheels[0].mRideHeight
+    rideh_fr = info.playersVehicleTelemetry().mWheels[1].mRideHeight
+    rideh_rl = info.playersVehicleTelemetry().mWheels[2].mRideHeight
+    rideh_rr = info.playersVehicleTelemetry().mWheels[3].mRideHeight
     rake = (rideh_rr + rideh_rl - rideh_fr - rideh_fl) * 0.5
     return rideh_fl, rideh_fr, rideh_rl, rideh_rr, rake
 
 
 def temperature():
     """Temperature data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    ttemp_fl = sum([plr_tele.mWheels[0].mTemperature[data] for data in range(3)]) / 3
-    ttemp_fr = sum([plr_tele.mWheels[1].mTemperature[data] for data in range(3)]) / 3
-    ttemp_rl = sum([plr_tele.mWheels[2].mTemperature[data] for data in range(3)]) / 3
-    ttemp_rr = sum([plr_tele.mWheels[3].mTemperature[data] for data in range(3)]) / 3
-    btemp_fl = plr_tele.mWheels[0].mBrakeTemp
-    btemp_fr = plr_tele.mWheels[1].mBrakeTemp
-    btemp_rl = plr_tele.mWheels[2].mBrakeTemp
-    btemp_rr = plr_tele.mWheels[3].mBrakeTemp
+    ttemp_fl = sum([info.playersVehicleTelemetry().mWheels[0].mTemperature[data]
+                    for data in range(3)]) / 3
+    ttemp_fr = sum([info.playersVehicleTelemetry().mWheels[1].mTemperature[data]
+                    for data in range(3)]) / 3
+    ttemp_rl = sum([info.playersVehicleTelemetry().mWheels[2].mTemperature[data]
+                    for data in range(3)]) / 3
+    ttemp_rr = sum([info.playersVehicleTelemetry().mWheels[3].mTemperature[data]
+                    for data in range(3)]) / 3
+    btemp_fl = info.playersVehicleTelemetry().mWheels[0].mBrakeTemp
+    btemp_fr = info.playersVehicleTelemetry().mWheels[1].mBrakeTemp
+    btemp_rl = info.playersVehicleTelemetry().mWheels[2].mBrakeTemp
+    btemp_rr = info.playersVehicleTelemetry().mWheels[3].mBrakeTemp
     return ttemp_fl, ttemp_fr, ttemp_rl, ttemp_rr, btemp_fl, btemp_fr, btemp_rl, btemp_rr
 
 
 def wear():
     """Tyre wear data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    wear_fl = plr_tele.mWheels[0].mWear * 100
-    wear_fr = plr_tele.mWheels[1].mWear * 100
-    wear_rl = plr_tele.mWheels[2].mWear * 100
-    wear_rr = plr_tele.mWheels[3].mWear * 100
+    wear_fl = info.playersVehicleTelemetry().mWheels[0].mWear * 100
+    wear_fr = info.playersVehicleTelemetry().mWheels[1].mWear * 100
+    wear_rl = info.playersVehicleTelemetry().mWheels[2].mWear * 100
+    wear_rr = info.playersVehicleTelemetry().mWheels[3].mWear * 100
     return wear_fl, wear_fr, wear_rl, wear_rr
 
 
 def tyre_load():
     """Tyre load data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    load_fl = plr_tele.mWheels[0].mTireLoad
-    load_fr = plr_tele.mWheels[1].mTireLoad
-    load_rl = plr_tele.mWheels[2].mTireLoad
-    load_rr = plr_tele.mWheels[3].mTireLoad
+    load_fl = info.playersVehicleTelemetry().mWheels[0].mTireLoad
+    load_fr = info.playersVehicleTelemetry().mWheels[1].mTireLoad
+    load_rl = info.playersVehicleTelemetry().mWheels[2].mTireLoad
+    load_rr = info.playersVehicleTelemetry().mWheels[3].mTireLoad
     return load_fl, load_fr, load_rl, load_rr
 
 
 def tyre_pres():
     """Tyre pressure data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    pres_fl = plr_tele.mWheels[0].mPressure
-    pres_fr = plr_tele.mWheels[1].mPressure
-    pres_rl = plr_tele.mWheels[2].mPressure
-    pres_rr = plr_tele.mWheels[3].mPressure
+    pres_fl = info.playersVehicleTelemetry().mWheels[0].mPressure
+    pres_fr = info.playersVehicleTelemetry().mWheels[1].mPressure
+    pres_rl = info.playersVehicleTelemetry().mWheels[2].mPressure
+    pres_rr = info.playersVehicleTelemetry().mWheels[3].mPressure
     return pres_fl, pres_fr, pres_rl, pres_rr
 
 
 def force():
     """Force data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    gf_lgt = plr_tele.mLocalAccel.z / 9.8  # long g-force
-    gf_lat = plr_tele.mLocalAccel.x / 9.8  # lat g-force
-    df_ratio = calc.downforce_ratio(plr_tele.mFrontDownforce, plr_tele.mRearDownforce)
+    gf_lgt = info.playersVehicleTelemetry().mLocalAccel.z / 9.8  # long g-force
+    gf_lat = info.playersVehicleTelemetry().mLocalAccel.x / 9.8  # lat g-force
+    df_ratio = calc.downforce_ratio(info.playersVehicleTelemetry().mFrontDownforce,
+                                    info.playersVehicleTelemetry().mRearDownforce)
     return gf_lgt, gf_lat, df_ratio
 
 
 def drs():
     """DRS data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    drs_on = plr_tele.mRearFlapActivated
-    drs_status = plr_tele.mRearFlapLegalStatus
+    drs_on = info.playersVehicleTelemetry().mRearFlapActivated
+    drs_status = info.playersVehicleTelemetry().mRearFlapLegalStatus
     return drs_on, drs_status
 
 
 def engine():
     """Engine data"""
-    plr_tele = info.playersVehicleTelemetry()
-
-    temp_oil = plr_tele.mEngineOilTemp
-    temp_water = plr_tele.mEngineWaterTemp
-    e_turbo = plr_tele.mTurboBoostPressure
-    e_rpm = plr_tele.mEngineRPM
+    temp_oil = info.playersVehicleTelemetry().mEngineOilTemp
+    temp_water = info.playersVehicleTelemetry().mEngineWaterTemp
+    e_turbo = info.playersVehicleTelemetry().mTurboBoostPressure
+    e_rpm = info.playersVehicleTelemetry().mEngineRPM
     return temp_oil, temp_water, e_turbo, e_rpm
 
 
 def weather():
     """Weather data"""
-    rf2_scor = info.Rf2Scor.mScoringInfo
-
-    amb_temp = rf2_scor.mAmbientTemp
-    trk_temp = rf2_scor.mTrackTemp
-    rain = rf2_scor.mRaining * 100
-    min_wet = rf2_scor.mMinPathWetness * 100
-    max_wet = rf2_scor.mMaxPathWetness * 100
-    avg_wet = rf2_scor.mAvgPathWetness * 100
+    amb_temp = info.Rf2Scor.mScoringInfo.mAmbientTemp
+    trk_temp = info.Rf2Scor.mScoringInfo.mTrackTemp
+    rain = info.Rf2Scor.mScoringInfo.mRaining * 100
+    min_wet = info.Rf2Scor.mScoringInfo.mMinPathWetness * 100
+    max_wet = info.Rf2Scor.mScoringInfo.mMaxPathWetness * 100
+    avg_wet = info.Rf2Scor.mScoringInfo.mAvgPathWetness * 100
     return amb_temp, trk_temp, rain, min_wet, max_wet, avg_wet
 
 
-def relative_list():
-    """Create relative list"""
-    # Create vehicle dict based on total number of vehicles in session
-    # Use "vehicle index" as key, "distance position" as value
-    # Filter out negative distance value to zero
-    total_veh = max(info.Rf2Scor.mScoringInfo.mNumVehicles, 1)
-    veh_dict = {index:max(info.Rf2Scor.mVehicles[index].mLapDist, 0)
-                for index in range(0, total_veh)}
+### RELATIVE INFO SECTION ###
 
+def relative_list():
+    """Create relative list with vehicle class info"""
+    # Generate raw data list from all vehicles in current session
+    veh_dict = {}
+    unsorted_veh_class = []
+    unique_veh_class = []
+
+    for index in range(0, max(info.Rf2Scor.mScoringInfo.mNumVehicles, 1)):
+        # Create vehicle dict, use "vehicle index" as key, "distance position" as value
+        # Filter out negative distance value to zero
+        veh_dict.update({index:max(info.Rf2Scor.mVehicles[index].mLapDist, 0)})
+
+        # Create vehicle class list (class name, veh place, veh index)
+        vehclass = Cbytestring2Python(info.Rf2Scor.mVehicles[index].mVehicleClass)
+        place = info.Rf2Scor.mVehicles[index].mPlace
+        unsorted_veh_class.append((vehclass, place, index))
+        unique_veh_class.append(vehclass)
+
+    selected_list = calc_relative_list(veh_dict)
+    veh_class_info = calc_veh_class_list(unsorted_veh_class, unique_veh_class)
+
+    return selected_list, veh_class_info
+
+
+def relative_data(index, index_player, veh_class_info):
+    """Relative data"""
+    if index >= 0:
+        # Driver place position
+        place = f"{veh_class_info[index][3]:02d}"
+
+        # Driver name
+        driver = Cbytestring2Python(info.Rf2Scor.mVehicles[index].mDriverName)
+
+        # Lap time
+        laptime = calc.sec2laptime(max(info.Rf2Scor.mVehicles[index].mLastLapTime, 0))
+
+        # Vehicle position & class
+        pos_class = f"{veh_class_info[index][1]:02d}"
+        veh_class = veh_class_info[index][2]
+
+        # Relative time gap
+        time_gap = calc_relative_time_gap(index, index_player)
+
+        # Number of completed
+        num_lap = info.Rf2Tele.mVehicles[index].mLapNumber
+
+        # Driver in pit
+        in_pit = info.Rf2Scor.mVehicles[index].mInPits
+    else:
+        # Assign empty value to -1 player index
+        (place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit
+         ) = "", "", "", "", "", "", 0, 0
+    return place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit
+
+
+def calc_relative_list(veh_dict):
+    """Calculate relative list"""
     # Reverse-sort dict by values
     re_veh_dict = dict(sorted(veh_dict.items(), key=lambda item: item[1], reverse=True))
 
@@ -241,7 +264,7 @@ def relative_list():
 
     # Append with -1 if sorted vehicle list has less than 7 items
     if len(sorted_veh_list) < 7:
-        for index in range(7 - len(sorted_veh_list)):
+        for _ in range(7 - len(sorted_veh_list)):
             sorted_veh_list.append(-1)
 
     # Double extend list
@@ -259,32 +282,15 @@ def relative_list():
     return selected_list
 
 
-def veh_class_info_list():
-    """Create vehicle class info list"""
-    # Vehicle class info
-    total_veh = max(info.Rf2Scor.mScoringInfo.mNumVehicles, 1)
-    unsorted_veh_class = []
-    unique_veh_class = []
-    veh_class_info = []
-    pos_counter = 0  # position in class
-
-    # Create vehicle class list (class name, veh place, veh index)
-    for index in range(0, total_veh):
-        place = info.Rf2Scor.mVehicles[index].mPlace
-        vehclass = Cbytestring2Python(info.Rf2Scor.mVehicles[index].mVehicleClass)
-        unsorted_veh_class.append((vehclass, place, index))
-        unique_veh_class.append(vehclass)
-
-    # Sort & group different vehicle class list
-    sorted_veh_class = sorted(unsorted_veh_class)
-
-    # Create unique vehicle class list
-    unique_veh_class = list(set(unique_veh_class))
-
-    # Set initial unique class name for comparison
-    unique_initial_class = unique_veh_class[0]
+def calc_veh_class_list(unsorted_veh_class, unique_veh_class):
+    """Calculate vehicle class info list"""
+    sorted_veh_class = sorted(unsorted_veh_class)  # sort & group different vehicle class list
+    unique_veh_class = list(set(unique_veh_class))  # create unique vehicle class list
+    unique_initial_class = unique_veh_class[0]  # set initial unique class name for comparison
 
     # Create vehicle class reference list (vehicle index, position in class, class name, place)
+    veh_class_info = []
+    pos_counter = 0  # position in class
     for index in range(0, len(sorted_veh_class)):  # loop through sorted vehicle class list
         for unique_idx in range(0, len(unique_veh_class)):  # unique vehicle class range
             if sorted_veh_class[index][0] == unique_veh_class[unique_idx]:
@@ -301,63 +307,34 @@ def veh_class_info_list():
     return sorted(veh_class_info)
 
 
-def relative_data(index, index_player):
-    """Relative data"""
-    rf2_scor = info.Rf2Scor
-    veh_class_info = veh_class_info_list()
+def calc_relative_time_gap(index, index_player):
+    """Calculate relative time gap"""
+    # Relative distance position
+    track_length = info.Rf2Scor.mScoringInfo.mLapDist  # track length
+    track_half = track_length * 0.5  # half of track length
+    opv_dist = info.Rf2Scor.mVehicles[index].mLapDist  # opponent player vehicle position
+    plr_dist = info.Rf2Scor.mVehicles[index_player].mLapDist  # player vehicle position
+    rel_dist = abs(opv_dist - plr_dist)  # get relative distance between opponent & player
 
-    if index >= 0 and index_player == info.playersDriverNum():
-        # Driver place position
-        place = f"{veh_class_info[index][3]:02d}"
-
-        # Driver name
-        driver = Cbytestring2Python(rf2_scor.mVehicles[index].mDriverName)
-
-        # Lap time
-        laptime = calc.sec2laptime(max(rf2_scor.mVehicles[index].mLastLapTime, 0))
-
-        # Vehicle position & class
-        pos_class = f"{veh_class_info[index][1]:02d}"
-        veh_class = veh_class_info[index][2]
-
-        # Relative distance position
-        track_length = rf2_scor.mScoringInfo.mLapDist  # track length
-        track_half = track_length * 0.5  # half of track length
-        opv_dist = rf2_scor.mVehicles[index].mLapDist  # opponent player vehicle position
-        plr_dist = rf2_scor.mVehicles[index_player].mLapDist  # player vehicle position
-        rel_dist = abs(opv_dist - plr_dist)  # get relative distance between opponent & player
-
-        # Opponent is ahead of player
-        if opv_dist > plr_dist:
-            # Relative dist is greater than half of track length
-            if rel_dist > track_half:
-                rel_dist = track_length - opv_dist + plr_dist
-        # Opponent is behind player
-        elif opv_dist < plr_dist:
-            if rel_dist > track_half:
-                rel_dist = track_length + opv_dist - plr_dist
-        else:
-            rel_dist = 0
-
-        # Player speed
-        speed = int(calc.vel2speed(
-                    rf2_scor.mVehicles[index_player].mLocalVel.x,
-                    rf2_scor.mVehicles[index_player].mLocalVel.y,
-                    rf2_scor.mVehicles[index_player].mLocalVel.z))
-
-        # Calculate relative time gap
-        try:
-            time_gap = f"{rel_dist / speed:.01f}"
-        except ZeroDivisionError:
-            time_gap = "0.0"
-
-        # Number of completed
-        num_lap = info.Rf2Tele.mVehicles[index].mLapNumber
-
-        # Driver in pit
-        in_pit = rf2_scor.mVehicles[index].mInPits
+    # Opponent is ahead of player
+    if opv_dist > plr_dist:
+        # Relative dist is greater than half of track length
+        if rel_dist > track_half:
+            rel_dist = track_length - opv_dist + plr_dist
+    # Opponent is behind player
+    elif opv_dist < plr_dist:
+        if rel_dist > track_half:
+            rel_dist = track_length + opv_dist - plr_dist
     else:
-        # Assign empty value to -1 player index
-        (place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit
-         ) = "", "", "", "", "", "", 0, 0
-    return place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit
+        rel_dist = 0
+
+    # Time gap = Relative dist / player speed
+    speed = int(calc.vel2speed(
+                info.Rf2Scor.mVehicles[index_player].mLocalVel.x,
+                info.Rf2Scor.mVehicles[index_player].mLocalVel.y,
+                info.Rf2Scor.mVehicles[index_player].mLocalVel.z))
+    try:
+        time_gap = f"{rel_dist / speed:.01f}"
+    except ZeroDivisionError:
+        time_gap = "0.0"
+    return time_gap
