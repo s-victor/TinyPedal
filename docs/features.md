@@ -46,7 +46,7 @@
 
 ## Pressure
 - Show Tyre pressure with 3 different unit display: kPa, psi, bar.
-- Show Tyre load (optional) in Newtons.
+- Show Tyre load (optional) in Newtons or percentage ratio.
 - 4 different layouts.
 
 ## Relative

@@ -196,6 +196,7 @@ class Setting:
             "font_color_pressure": "#CCCCCC",
             "bkg_color_pressure": "#222222",
             "show_tyre_load": True,
+            "show_tyre_load_ratio": True,
             "font_color_load": "#CCCCCC",
             "bkg_color_load": "#222222",
         },

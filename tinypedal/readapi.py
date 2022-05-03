@@ -165,8 +165,8 @@ def force():
     """Force data"""
     gf_lgt = info.playersVehicleTelemetry().mLocalAccel.z / 9.8  # long g-force
     gf_lat = info.playersVehicleTelemetry().mLocalAccel.x / 9.8  # lat g-force
-    df_ratio = calc.downforce_ratio(info.playersVehicleTelemetry().mFrontDownforce,
-                                    info.playersVehicleTelemetry().mRearDownforce)
+    df_ratio = calc.force_ratio(info.playersVehicleTelemetry().mFrontDownforce,
+                                info.playersVehicleTelemetry().mRearDownforce)
     return gf_lgt, gf_lat, df_ratio
 
 
@@ -271,7 +271,7 @@ def calc_relative_list(veh_dict):
     sorted_veh_list *= 2
 
     # Locate player vehicle index in list
-    plr_index = info.playersDriverNum()
+    plr_index = info.players_index
     if plr_index in sorted_veh_list:
         plr_num = sorted_veh_list.index(plr_index)
     else:

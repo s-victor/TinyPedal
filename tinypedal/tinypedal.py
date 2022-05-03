@@ -19,6 +19,7 @@
 """
 Main program & tray icon
 """
+import os
 from tkinter import messagebox
 from PIL import Image
 import pystray
@@ -335,9 +336,12 @@ class WidgetToggle:
 
 def is_tinypedal_running(app_name):
     """Check if is already running"""
-    for app in psutil.process_iter(["name"]):
+    for app in psutil.process_iter(["name", "pid"]):
+        # Compare found APP name
         if app.info["name"] == app_name:
-            return True
+            # Compare with current APP pid
+            if app.info["pid"] != os.getpid():
+                return True
     return None
 
 

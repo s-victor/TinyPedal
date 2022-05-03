@@ -146,9 +146,9 @@ def gforce_lat(g_force):
     return force
 
 
-def downforce_ratio(front, rear):
-    """Calculate downforce ratio from Newtons"""
-    ratio = abs(front / (front + rear + 0.01) * 100)
+def force_ratio(value1, value2):
+    """Calculate force ratio from Newtons"""
+    ratio = abs(value1 / (value1 + value2 + 0.01) * 100)
     return ratio
 
 

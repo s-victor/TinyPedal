@@ -1,11 +1,21 @@
 TinyPedal 1.1.11 (2022-05-03)
 ----------------------------
+* Pressure Widget
+    - [New]Add option to display tyre load percentage ratio between left & right tyres of same axle (default on).
+
 * Core
     - Added APP running status check when starts TinyPedal,
       and shows notify & closes APP to prevent multiple TinyPedal APP from running at same time.
-    - Removed additional player index code that freezes data reading in rare cases.
-    - Removed duplicated calls to playersDriverNum() method.
     - Removed unnecessary method from deltatime module.
+
+* pyRfactor2SharedMemory library
+    - Now constantly updating player index number in a separated thread at 10ms refresh rate,
+      which helps reduce large amount unnecessary repeated function calls.
+    - Removed additional player index code that could freeze data reading in rare cases.
+    - Removed duplicated calls to playersDriverNum() method.
+
+* Misc
+    - Updated customization guide with new configurable setting for Pressure Widget.
 
 TinyPedal 1.1.10 (2022-04-19)
 ----------------------------

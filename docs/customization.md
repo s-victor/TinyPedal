@@ -194,6 +194,9 @@ Set Force Feedback clipping color.
     show_tyre_load
 This enables Tyre Load display.
 
+    show_tyre_load_ratio
+Show tyre load percentage ratio between left & right tyres of same axle. Set `false` to show individual tyre load in Newtons.
+
 
 ## Relative
     bar_driver_name_width

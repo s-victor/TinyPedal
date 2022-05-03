@@ -27,3 +27,6 @@ VERSION = "1.1.11"
 
 # Load Shared Memory API
 info = SimInfoAPI()
+
+# Start player index updating thread
+info.startUpdating()
