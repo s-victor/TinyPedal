@@ -151,10 +151,6 @@ class DeltaTime:
 
             time.sleep(update_delay)
 
-    def output(self):
-        """Output timing data"""
-        return self.output_data
-
 
 def telemetry():
     """Telemetry data"""

@@ -19,8 +19,10 @@
 """
 Main program & tray icon
 """
+from tkinter import messagebox
 from PIL import Image
 import pystray
+import psutil
 
 from tinypedal.base import cfg, OverlayLock, OverlayAutoHide
 from tinypedal.about import About
@@ -331,17 +333,31 @@ class WidgetToggle:
         cfg.save()
 
 
+def is_tinypedal_running(app_name):
+    """Check if is already running"""
+    for app in psutil.process_iter(["name"]):
+        if app.info["name"] == app_name:
+            return True
+    return None
+
+
 def run():
     """Start program"""
     root = About()
 
-    # Start tray icon
-    tray_icon = TrayIcon(root)
-    tray_icon.run()
+    if is_tinypedal_running("tinypedal.exe"):
+        messagebox.showinfo("TinyPedal",
+                            "TinyPedal is already running.\n\n"
+                            "Only one TinyPedal may be run at a time.\n"
+                            "Check system tray for hidden icon.")
+    else:
+        # Start tray icon
+        tray_icon = TrayIcon(root)
+        tray_icon.run()
 
-    # Start tkinter mainloop
-    root.protocol("WM_DELETE_WINDOW", root.withdraw)
-    root.mainloop()
+        # Start tkinter mainloop
+        root.protocol("WM_DELETE_WINDOW", root.withdraw)
+        root.mainloop()
 
 
 if __name__ == "__main__":

@@ -1,3 +1,12 @@
+TinyPedal 1.1.11 (2022-05-03)
+----------------------------
+* Core
+    - Added APP running status check when starts TinyPedal,
+      and shows notify & closes APP to prevent multiple TinyPedal APP from running at same time.
+    - Removed additional player index code that freezes data reading in rare cases.
+    - Removed duplicated calls to playersDriverNum() method.
+    - Removed unnecessary method from deltatime module.
+
 TinyPedal 1.1.10 (2022-04-19)
 ----------------------------
 * Core
@@ -100,7 +109,7 @@ TinyPedal 1.1.0 (2022-03-21)
     - 2 different layouts.
 
 * Core
-    - Add "deltatime" module, which runs in separated thread at 60fps.
+    - Add "deltatime" module, which runs in separated thread at 100fps.
     - Add "delta_timing" switch in config.json.
     - Add auto-backup function for config.json.
     - Restructured "readapi" module.
