@@ -14,6 +14,7 @@
 ## Testing & Feedback:
     * chips
     * derricklu30
+    * DKxiaoming
     * fatboy
     * fartman
     * felixfight
