@@ -16,6 +16,7 @@ TinyPedal 1.1.11 (2022-05-03)
 
 * Misc
     - Updated customization guide with new configurable setting for Pressure Widget.
+    - Add new contributor to contributors.md.
 
 TinyPedal 1.1.10 (2022-04-19)
 ----------------------------
