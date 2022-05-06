@@ -1,3 +1,18 @@
+TinyPedal 1.2.0 (2022-05-06)
+----------------------------
+* [New]Session Widget
+    - Show current system clock time, with customizable time format.
+    - Show session timer, accuracy is limited by 200ms refresh rate of rF2 API.
+    - Show driver's current lap number & max laps (if available), with customizable lap number description text.
+    - Displays warning color if driver is about to exceed max-lap in qualify (or indicates the last lap of a lap-type race).
+      Note: if warning color appears in qualify, it means you have already reached max allowed laps.
+            Do not attempt to across finish line, but ESC immediately to avoid DQ.
+    - Show driver's current place against all drivers in a session.
+
+* Misc
+    - Updated customization guide with new configurable setting for Session Widget.
+    - Updated features.md with Session Widget info.
+
 TinyPedal 1.1.11 (2022-05-03)
 ----------------------------
 * Pressure Widget

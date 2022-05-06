@@ -37,6 +37,7 @@ from tinypedal.widget import (deltabest,
                               pedal,
                               pressure,
                               relative,
+                              session,
                               steering,
                               temperature,
                               timing,
@@ -83,6 +84,7 @@ class TrayIcon:
             item("Pedal", wtoggle.pedal, checked=lambda _: cfg.setting_user["pedal"]["enable"]),
             item("Pressure", wtoggle.pressure, checked=lambda _: cfg.setting_user["pressure"]["enable"]),
             item("Relative", wtoggle.relative, checked=lambda _: cfg.setting_user["relative"]["enable"]),
+            item("Session", wtoggle.session, checked=lambda _: cfg.setting_user["session"]["enable"]),
             item("Steering", wtoggle.steering, checked=lambda _: cfg.setting_user["steering"]["enable"]),
             item("Temperature", wtoggle.temperature, checked=lambda _: cfg.setting_user["temperature"]["enable"]),
             item("Timing", wtoggle.timing, checked=lambda _: cfg.setting_user["timing"]["enable"]),
@@ -149,6 +151,9 @@ class WidgetToggle:
 
         if cfg.setting_user["relative"]["enable"]:
             self.widget_relative = relative.DrawWidget()
+
+        if cfg.setting_user["session"]["enable"]:
+            self.widget_session = session.DrawWidget()
 
         if cfg.setting_user["steering"]["enable"]:
             self.widget_steering = steering.DrawWidget()
@@ -265,6 +270,17 @@ class WidgetToggle:
             cfg.setting_user["relative"]["enable"] = False
             cfg.active_widget_list.remove(self.widget_relative)
             self.widget_relative.destroy()
+        cfg.save()
+
+    def session(self):
+        """Toggle session"""
+        if not cfg.setting_user["session"]["enable"]:
+            self.widget_session = session.DrawWidget()
+            cfg.setting_user["session"]["enable"] = True
+        else:
+            cfg.setting_user["session"]["enable"] = False
+            cfg.active_widget_list.remove(self.widget_session)
+            self.widget_session.destroy()
         cfg.save()
 
     def steering(self):

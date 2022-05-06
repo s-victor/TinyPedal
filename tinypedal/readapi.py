@@ -82,6 +82,18 @@ def timing():
     return start_curr, laps_total, laps_left, time_left
 
 
+def session():
+    """Session data"""
+    time_left = info.Rf2Scor.mScoringInfo.mEndET - info.Rf2Scor.mScoringInfo.mCurrentET
+    lap_total = info.Rf2Scor.mScoringInfo.mMaxLaps
+    lap_num = info.playersVehicleTelemetry().mLapNumber
+    plr_place = info.playersVehicleScoring().mPlace
+    veh_total = info.Rf2Scor.mScoringInfo.mNumVehicles
+    lap_into = min(max(info.playersVehicleScoring().mLapDist * 100
+                       / max(info.Rf2Scor.mScoringInfo.mLapDist, 1), 0), 99)
+    return time_left, lap_total, lap_num, plr_place, veh_total, lap_into
+
+
 def fuel():
     """Fuel data"""
     amount_curr = info.playersVehicleTelemetry().mFuel

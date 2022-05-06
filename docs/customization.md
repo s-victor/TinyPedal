@@ -235,6 +235,26 @@ Set custom pit status text which shows when driver is in pit.
 Set order of each info column. Must keep index number unique to each column, otherwise columns will overlap.
 
 
+## Session
+    show_clock
+Show current system clock time.
+
+    show_lapnumber
+Show your current lap number & max laps (if available).
+
+    show_place
+Show your current place against all drivers in a session.
+
+    clock_format
+Set clock format string. To show seconds, add `%S`, such as `"%H:%M:%S %p"`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
+
+    lapnumber_text
+Set custom lap number description text. Set it to `""` to hide text.
+
+    bkg_color_maxlap_warn
+Set warning color that shows 1 lap before exceeding max-lap in qualify (or indicates the last lap of a lap-type race).
+
+
 ## Steering
     bar_length_scale, bar_height_scale
 Scale steering bar length & height, accepts decimal place.
