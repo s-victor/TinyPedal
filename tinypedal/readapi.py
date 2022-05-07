@@ -218,7 +218,7 @@ def relative_list():
     unsorted_veh_class = []
     unique_veh_class = []
 
-    for index in range(0, max(info.Rf2Scor.mScoringInfo.mNumVehicles, 1)):
+    for index in range(max(info.Rf2Scor.mScoringInfo.mNumVehicles, 1)):
         # Create vehicle dict, use "vehicle index" as key, "distance position" as value
         # Filter out negative distance value to zero
         veh_dict.update({index:max(info.Rf2Scor.mVehicles[index].mLapDist, 0)})
@@ -303,8 +303,8 @@ def calc_veh_class_list(unsorted_veh_class, unique_veh_class):
     # Create vehicle class reference list (vehicle index, position in class, class name, place)
     veh_class_info = []
     pos_counter = 0  # position in class
-    for index in range(0, len(sorted_veh_class)):  # loop through sorted vehicle class list
-        for unique_idx in range(0, len(unique_veh_class)):  # unique vehicle class range
+    for index in range(len(sorted_veh_class)):  # loop through sorted vehicle class list
+        for unique_idx in range(len(unique_veh_class)):  # unique vehicle class range
             if sorted_veh_class[index][0] == unique_veh_class[unique_idx]:
                 if unique_initial_class == unique_veh_class[unique_idx]:
                     pos_counter += 1
