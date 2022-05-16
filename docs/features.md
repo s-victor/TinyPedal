@@ -65,6 +65,14 @@
 - Show Steering input.
 - Show Scale Marks (optional), each with 90 degrees gap.
 
+## Stint
+- Show realtime stint data, as well as last stint data.
+- Show front & rear tire compound index, with customizable letter.
+- Show total driven laps.
+- Show total driven time (min:sec).
+- Show total used fuel (in liters or gallons).
+- Show total tire wear.
+
 ## Temperature
 - Show average Tyre surface temperature.
 - Show Brake temperature of front and rear.

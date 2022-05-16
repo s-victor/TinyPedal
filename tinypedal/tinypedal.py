@@ -39,6 +39,7 @@ from tinypedal.widget import (deltabest,
                               relative,
                               session,
                               steering,
+                              stint,
                               temperature,
                               timing,
                               wear,
@@ -86,6 +87,7 @@ class TrayIcon:
             item("Relative", wtoggle.relative, checked=lambda _: cfg.setting_user["relative"]["enable"]),
             item("Session", wtoggle.session, checked=lambda _: cfg.setting_user["session"]["enable"]),
             item("Steering", wtoggle.steering, checked=lambda _: cfg.setting_user["steering"]["enable"]),
+            item("Stint", wtoggle.stint, checked=lambda _: cfg.setting_user["stint"]["enable"]),
             item("Temperature", wtoggle.temperature, checked=lambda _: cfg.setting_user["temperature"]["enable"]),
             item("Timing", wtoggle.timing, checked=lambda _: cfg.setting_user["timing"]["enable"]),
             item("Wear", wtoggle.wear, checked=lambda _: cfg.setting_user["wear"]["enable"]),
@@ -157,6 +159,9 @@ class WidgetToggle:
 
         if cfg.setting_user["steering"]["enable"]:
             self.widget_steering = steering.DrawWidget()
+
+        if cfg.setting_user["stint"]["enable"]:
+            self.widget_stint = stint.DrawWidget()
 
         if cfg.setting_user["temperature"]["enable"]:
             self.widget_temperature = temperature.DrawWidget()
@@ -292,6 +297,17 @@ class WidgetToggle:
             cfg.setting_user["steering"]["enable"] = False
             cfg.active_widget_list.remove(self.widget_steering)
             self.widget_steering.destroy()
+        cfg.save()
+
+    def stint(self):
+        """Toggle stint"""
+        if not cfg.setting_user["stint"]["enable"]:
+            self.widget_stint = stint.DrawWidget()
+            cfg.setting_user["stint"]["enable"] = True
+        else:
+            cfg.setting_user["stint"]["enable"] = False
+            cfg.active_widget_list.remove(self.widget_stint)
+            self.widget_stint.destroy()
         cfg.save()
 
     def temperature(self):

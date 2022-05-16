@@ -167,6 +167,12 @@ def sec2laptime(seconds):
     return laptime
 
 
+def sec2stinttime(seconds):
+    """Calculate lap time (min/sec/ms)"""
+    stinttime = f"{seconds // 60:02.0f}:{divmod(seconds, 60)[1]:02.0f}"
+    return stinttime
+
+
 def linear_interp(meter, meter1, secs1, meter2, secs2):
     """Linear interpolation"""
     secs = secs1 + (meter - meter1) * (secs2 - secs1) / (meter2 - meter1 + 0.0000001)

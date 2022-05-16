@@ -94,6 +94,20 @@ def session():
     return time_left, lap_total, lap_num, plr_place, veh_total, lap_into
 
 
+def stint():
+    """Stint data"""
+    lap_num = info.playersVehicleTelemetry().mLapNumber
+    wear_avg = 100 - (sum([info.playersVehicleTelemetry().mWheels[data].mWear
+                           for data in range(4)]) * 25)
+    fuel_curr = info.playersVehicleTelemetry().mFuel
+    time_curr = info.Rf2Scor.mScoringInfo.mCurrentET
+    inpits = info.playersVehicleScoring().mInPits
+    ftire_idx = info.playersVehicleTelemetry().mFrontTireCompoundIndex
+    rtire_idx = info.playersVehicleTelemetry().mRearTireCompoundIndex
+    game_phase = info.Rf2Scor.mScoringInfo.mGamePhase
+    return lap_num, wear_avg, fuel_curr, time_curr, inpits, ftire_idx, rtire_idx, game_phase
+
+
 def fuel():
     """Fuel data"""
     amount_curr = info.playersVehicleTelemetry().mFuel

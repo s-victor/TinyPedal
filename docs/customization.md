@@ -266,6 +266,14 @@ Set left and right edge boundary width.
 This enables scale marks on steering bar, which is set 90 degrees apart from each other.
 
 
+## Stint
+    fuel_unit
+2 unit types are available: `0` = liters, `1` = gallons.
+
+    tyre_compound_list
+Set custom tire compound index letter. One letter for one compound index. Note: since most vehicle mods don't share a common tire compound types or list order, it is impossible to have a tyre compound letter list that matches every car.
+
+
 ## Temperature
     layout
 4 layouts are available: `0` = vertical layout, `1` = vertical swapped, `2` = horizontal layout, `3` = horizontal swapped.

@@ -1,3 +1,24 @@
+TinyPedal 1.3.0 (2022-05-16)
+----------------------------
+* [New]Stint Widget
+    - Show realtime stint data, includes:
+      * front & rear tire compound index, with customizable letter.
+      * total driven laps.
+      * total driven time (min:sec).
+      * total used fuel in liters or gallons.
+      * total tire wear.
+    - Show "last stint" data bar that displays last full stint.
+    - Note:
+      * All current stint data resets when player makes a full-serviced pit stop (either refueled or tire changed).
+      * Current stint data will only be transfered and displayed in "last stint data" bar, if player makes a full-serviced pit stop.
+      * ESC & restarting in a session or race will not have stint data transfered to "last stint data".
+        This is to prevent incomplete or useless data from overriding normal last stint data.
+      * Currently, stint data is not saved to external file.
+
+* Misc
+    - Updated customization guide with new configurable setting for Stint Widget.
+    - Updated features.md with Stint Widget info.
+
 TinyPedal 1.2.0 (2022-05-06)
 ----------------------------
 * [New]Session Widget
