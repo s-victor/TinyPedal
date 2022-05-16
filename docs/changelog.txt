@@ -6,7 +6,7 @@ TinyPedal 1.3.0 (2022-05-16)
       * total driven laps.
       * total driven time (min:sec).
       * total used fuel in liters or gallons.
-      * total tire wear.
+      * total average tire wear.
     - Show "last stint" data bar that displays last full stint.
     - Note:
       * All current stint data resets when player makes a full-serviced pit stop (either refueled or tire changed).

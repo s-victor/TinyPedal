@@ -71,7 +71,7 @@
 - Show total driven laps.
 - Show total driven time (min:sec).
 - Show total used fuel (in liters or gallons).
-- Show total tire wear.
+- Show total average tire wear.
 
 ## Temperature
 - Show average Tyre surface temperature.
