@@ -24,6 +24,7 @@ import math
 import tkinter as tk
 import tkinter.font as tkfont
 
+from tinypedal.__init__ import info
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
@@ -122,64 +123,69 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
+            pidx = info.players_index
+
             # Read fuel data
             amount_curr, capacity = read_data.fuel()
             start_curr, laps_total, laps_left, time_left = read_data.timing()
 
-            # Calc last lap fuel consumption
-            if start_curr != self.start_last:  # time stamp difference
-                if start_curr > self.start_last:
-                    # Calc last laptime from lap difference to bypass empty invalid laptime
-                    self.laptime_last = start_curr - self.start_last
-                self.used_last = self.amount_last - amount_curr
-                self.start_last = start_curr  # reset time stamp counter
-                self.amount_last = amount_curr  # reset fuel counter
-            self.used_last = max(self.used_last, 0)
+            # Check isPlayer before update
+            if pidx == info.players_index:
 
-            # Estimate laps current fuel can last
-            try:
-                # Total current fuel / last lap fuel consumption
-                self.est_runlaps = amount_curr / self.used_last
-            except ZeroDivisionError:
-                self.est_runlaps = 0
+                # Calc last lap fuel consumption
+                if start_curr != self.start_last:  # time stamp difference
+                    if start_curr > self.start_last:
+                        # Calc last laptime from lap difference to bypass empty invalid laptime
+                        self.laptime_last = start_curr - self.start_last
+                    self.used_last = self.amount_last - amount_curr
+                    self.start_last = start_curr  # reset time stamp counter
+                    self.amount_last = amount_curr  # reset fuel counter
+                self.used_last = max(self.used_last, 0)
 
-            # Estimate minutes current fuel can last
-            self.est_runmins = self.est_runlaps * self.laptime_last / 60
+                # Estimate laps current fuel can last
+                try:
+                    # Total current fuel / last lap fuel consumption
+                    self.est_runlaps = amount_curr / self.used_last
+                except ZeroDivisionError:
+                    self.est_runlaps = 0
 
-            # Total additional fuel required to finish race
-            if laps_total < 100000:  # detected lap type race
-                # Total laps left * last lap fuel consumption
-                self.amount_need = laps_left * self.used_last - amount_curr
-            else:  # detected time type race
-                # Time left / last laptime * last lap fuel consumption - total current fuel
-                self.amount_need = (math.ceil(time_left / (self.laptime_last + 0.001) + 0.001)
-                                    * self.used_last - amount_curr)
+                # Estimate minutes current fuel can last
+                self.est_runmins = self.est_runlaps * self.laptime_last / 60
 
-            # Minimum required pitstops to finish race
-            self.pit_required = max(self.amount_need / (capacity + 0.001), 0)
+                # Total additional fuel required to finish race
+                if laps_total < 100000:  # detected lap type race
+                    # Total laps left * last lap fuel consumption
+                    self.amount_need = laps_left * self.used_last - amount_curr
+                else:  # detected time type race
+                    # Time left / last laptime * last lap fuel consumption - total current fuel
+                    self.amount_need = (math.ceil(time_left / (self.laptime_last + 0.001) + 0.001)
+                                        * self.used_last - amount_curr)
 
-            # Limit display range of amount_need value
-            if self.amount_need > 1000:
-                self.amount_need = 999
-            elif self.amount_need < -999:
-                self.amount_need = -999
+                # Minimum required pitstops to finish race
+                self.pit_required = max(self.amount_need / (capacity + 0.001), 0)
 
-            amount_curr_d = calc.conv_fuel(amount_curr, self.cfg["fuel_unit"])
-            amount_need_d = calc.conv_fuel(self.amount_need, self.cfg["fuel_unit"])
-            used_last_d = calc.conv_fuel(self.used_last, self.cfg["fuel_unit"])
+                # Limit display range of amount_need value
+                if self.amount_need > 1000:
+                    self.amount_need = 999
+                elif self.amount_need < -999:
+                    self.amount_need = -999
 
-            # Low fuel warning
-            lowfuel_color = self.color_lowfuel(self.est_runlaps)
-            # Current fuel & total needed fuel
-            self.bar_fuel_1.config(text=f"{amount_curr_d:.2f}", bg=lowfuel_color)
-            self.bar_fuel_2.config(text=f"{amount_need_d:+0.1f}", bg=lowfuel_color)
-            # Last lap fuel consumption
-            self.bar_fuel_3.config(text=f"{used_last_d:.2f}")
-            # Estimated laps & minutes current fuel can last
-            self.bar_fuel_4.config(text=str(f"{self.est_runlaps:.1f}"))
-            self.bar_fuel_5.config(text=str(f"{self.est_runmins:.1f}"))
-            # Estimated pit stops
-            self.bar_fuel_6.config(text=str(f"{self.pit_required:.2f}"))
+                amount_curr_d = calc.conv_fuel(amount_curr, self.cfg["fuel_unit"])
+                amount_need_d = calc.conv_fuel(self.amount_need, self.cfg["fuel_unit"])
+                used_last_d = calc.conv_fuel(self.used_last, self.cfg["fuel_unit"])
+
+                # Low fuel warning
+                lowfuel_color = self.color_lowfuel(self.est_runlaps)
+                # Current fuel & total needed fuel
+                self.bar_fuel_1.config(text=f"{amount_curr_d:.2f}", bg=lowfuel_color)
+                self.bar_fuel_2.config(text=f"{amount_need_d:+0.1f}", bg=lowfuel_color)
+                # Last lap fuel consumption
+                self.bar_fuel_3.config(text=f"{used_last_d:.2f}")
+                # Estimated laps & minutes current fuel can last
+                self.bar_fuel_4.config(text=str(f"{self.est_runlaps:.1f}"))
+                self.bar_fuel_5.config(text=str(f"{self.est_runmins:.1f}"))
+                # Estimated pit stops
+                self.bar_fuel_6.config(text=str(f"{self.pit_required:.2f}"))
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

@@ -23,6 +23,7 @@ Stint Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
+from tinypedal.__init__ import info
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
@@ -114,62 +115,67 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
+            pidx = info.players_index
+
             # Read stint data
             (lap_num, wear_avg, fuel_curr, time_curr, inpits, ftire_idx, rtire_idx, game_phase
              ) = read_data.stint()
 
-            fuel_curr = calc.conv_fuel(fuel_curr, self.cfg["fuel_unit"])
-            ftire_cmpd = self.cfg["tyre_compound_list"][ftire_idx:(ftire_idx+1)]
-            rtire_cmpd = self.cfg["tyre_compound_list"][rtire_idx:(rtire_idx+1)]
+            # Check isPlayer before update
+            if pidx == info.players_index:
 
-            stint_lap = max(lap_num - self.start_lap, 0)
-            stint_time = max(time_curr - self.start_time, 0)
-            stint_fuel = max(self.start_fuel - fuel_curr, 0)
-            stint_wear = max(wear_avg - self.start_wear, 0)
-            stint_cmpd = f"{ftire_cmpd}{rtire_cmpd}"
+                fuel_curr = calc.conv_fuel(fuel_curr, self.cfg["fuel_unit"])
+                ftire_cmpd = self.cfg["tyre_compound_list"][ftire_idx:(ftire_idx+1)]
+                rtire_cmpd = self.cfg["tyre_compound_list"][rtire_idx:(rtire_idx+1)]
 
-            if not inpits:
-                self.last_fuel = fuel_curr
-                self.last_wear = stint_wear
-                self.last_cmpd = stint_cmpd
-                self.stint_running = 1
-            else:
-                if self.stint_running:
-                    if (self.last_wear > stint_wear) or (self.last_fuel < fuel_curr):
-                        self.last_stint_lap = stint_lap
-                        self.last_stint_time = stint_time
-                        self.last_stint_fuel = stint_fuel
-                        self.last_stint_wear = self.last_wear
-                        self.last_stint_cmpd = self.last_cmpd
-                        self.stint_running = 0
-                        self.reset_stint = 1
+                stint_lap = max(lap_num - self.start_lap, 0)
+                stint_time = max(time_curr - self.start_time, 0)
+                stint_fuel = max(self.start_fuel - fuel_curr, 0)
+                stint_wear = max(wear_avg - self.start_wear, 0)
+                stint_cmpd = f"{ftire_cmpd}{rtire_cmpd}"
 
-            if self.reset_stint:
-                self.start_lap = lap_num
-                self.start_time = time_curr
-                self.start_fuel = fuel_curr
-                self.start_wear = wear_avg
-                self.reset_stint = 0
+                if not inpits:
+                    self.last_fuel = fuel_curr
+                    self.last_wear = stint_wear
+                    self.last_cmpd = stint_cmpd
+                    self.stint_running = 1
+                else:
+                    if self.stint_running:
+                        if (self.last_wear > stint_wear) or (self.last_fuel < fuel_curr):
+                            self.last_stint_lap = stint_lap
+                            self.last_stint_time = stint_time
+                            self.last_stint_fuel = stint_fuel
+                            self.last_stint_wear = self.last_wear
+                            self.last_stint_cmpd = self.last_cmpd
+                            self.stint_running = 0
+                            self.reset_stint = 1
 
-            if game_phase < 5:  # reset stint stats if session has not started
-                self.reset_stint = 1
+                if self.reset_stint:
+                    self.start_lap = lap_num
+                    self.start_time = time_curr
+                    self.start_fuel = fuel_curr
+                    self.start_wear = wear_avg
+                    self.reset_stint = 0
 
-            if self.cfg["fuel_unit"] == 0:
-                fuel_text = f"{stint_fuel:05.01f}"
-                last_fuel_text = f"{self.last_stint_fuel:05.01f}"
-            else:
-                fuel_text = f"{stint_fuel:05.02f}"
-                last_fuel_text = f"{self.last_stint_fuel:05.02f}"
+                if game_phase < 5:  # reset stint stats if session has not started
+                    self.reset_stint = 1
 
-            self.bar_laps.config(text=f"{stint_cmpd}{stint_lap: =03.0f}")
-            self.bar_time.config(text=calc.sec2stinttime(stint_time))
-            self.bar_fuel.config(text=fuel_text)
-            self.bar_wear.config(text=f"{stint_wear:02.0f}%")
+                if self.cfg["fuel_unit"] == 0:
+                    fuel_text = f"{stint_fuel:05.01f}"
+                    last_fuel_text = f"{self.last_stint_fuel:05.01f}"
+                else:
+                    fuel_text = f"{stint_fuel:05.02f}"
+                    last_fuel_text = f"{self.last_stint_fuel:05.02f}"
 
-            self.bar_last_laps.config(text=f"{self.last_stint_cmpd}{self.last_stint_lap: =03.0f}")
-            self.bar_last_time.config(text=calc.sec2stinttime(self.last_stint_time))
-            self.bar_last_fuel.config(text=last_fuel_text)
-            self.bar_last_wear.config(text=f"{self.last_stint_wear:02.0f}%")
+                self.bar_laps.config(text=f"{stint_cmpd}{stint_lap: =03.0f}")
+                self.bar_time.config(text=calc.sec2stinttime(stint_time))
+                self.bar_fuel.config(text=fuel_text)
+                self.bar_wear.config(text=f"{stint_wear:02.0f}%")
+
+                self.bar_last_laps.config(text=f"{self.last_stint_cmpd}{self.last_stint_lap: =03.0f}")
+                self.bar_last_time.config(text=calc.sec2stinttime(self.last_stint_time))
+                self.bar_last_fuel.config(text=last_fuel_text)
+                self.bar_last_wear.config(text=f"{self.last_stint_wear:02.0f}%")
 
         else:
             self.stint_running = 0

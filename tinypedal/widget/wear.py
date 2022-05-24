@@ -23,6 +23,7 @@ Tyre Wear Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
+from tinypedal.__init__ import info
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
 
@@ -124,37 +125,42 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
+            pidx = info.players_index
+
             # Read tyre wear data
             wear_fl, wear_fr, wear_rl, wear_rr = read_data.wear()
             start_curr = read_data.timing()[0]
 
-            # Calculate last lap tyre wear
-            if start_curr != self.start_last:  # time stamp difference
-                self.wear_fl_per = max(self.wear_fl_last - wear_fl, 0)
-                self.wear_fr_per = max(self.wear_fr_last - wear_fr, 0)
-                self.wear_rl_per = max(self.wear_rl_last - wear_rl, 0)
-                self.wear_rr_per = max(self.wear_rr_last - wear_rr, 0)
-                self.start_last = start_curr  # reset time stamp counter
-                self.wear_fl_last = wear_fl
-                self.wear_fr_last = wear_fr
-                self.wear_rl_last = wear_rl
-                self.wear_rr_last = wear_rr
+            # Check isPlayer before update
+            if pidx == info.players_index:
 
-            # Tyre wear update
-            self.bar_wear_fl.config(text=f"{wear_fl:.1f}", fg=self.color_wear(wear_fl))
-            self.bar_wear_fr.config(text=f"{wear_fr:.1f}", fg=self.color_wear(wear_fr))
-            self.bar_wear_rl.config(text=f"{wear_rl:.1f}", fg=self.color_wear(wear_rl))
-            self.bar_wear_rr.config(text=f"{wear_rr:.1f}", fg=self.color_wear(wear_rr))
+                # Calculate last lap tyre wear
+                if start_curr != self.start_last:  # time stamp difference
+                    self.wear_fl_per = max(self.wear_fl_last - wear_fl, 0)
+                    self.wear_fr_per = max(self.wear_fr_last - wear_fr, 0)
+                    self.wear_rl_per = max(self.wear_rl_last - wear_rl, 0)
+                    self.wear_rr_per = max(self.wear_rr_last - wear_rr, 0)
+                    self.start_last = start_curr  # reset time stamp counter
+                    self.wear_fl_last = wear_fl
+                    self.wear_fr_last = wear_fr
+                    self.wear_rl_last = wear_rl
+                    self.wear_rr_last = wear_rr
 
-            # Last lap tyre wear update
-            self.bar_wearlast_fl.config(text=f"{self.wear_fl_per:.2f}",
-                                        fg=self.color_wear_last(self.wear_fl_per))
-            self.bar_wearlast_fr.config(text=f"{self.wear_fr_per:.2f}",
-                                        fg=self.color_wear_last(self.wear_fr_per))
-            self.bar_wearlast_rl.config(text=f"{self.wear_rl_per:.2f}",
-                                        fg=self.color_wear_last(self.wear_rl_per))
-            self.bar_wearlast_rr.config(text=f"{self.wear_rr_per:.2f}",
-                                        fg=self.color_wear_last(self.wear_rr_per))
+                # Tyre wear update
+                self.bar_wear_fl.config(text=f"{wear_fl:.1f}", fg=self.color_wear(wear_fl))
+                self.bar_wear_fr.config(text=f"{wear_fr:.1f}", fg=self.color_wear(wear_fr))
+                self.bar_wear_rl.config(text=f"{wear_rl:.1f}", fg=self.color_wear(wear_rl))
+                self.bar_wear_rr.config(text=f"{wear_rr:.1f}", fg=self.color_wear(wear_rr))
+
+                # Last lap tyre wear update
+                self.bar_wearlast_fl.config(text=f"{self.wear_fl_per:.2f}",
+                                            fg=self.color_wear_last(self.wear_fl_per))
+                self.bar_wearlast_fr.config(text=f"{self.wear_fr_per:.2f}",
+                                            fg=self.color_wear_last(self.wear_fr_per))
+                self.bar_wearlast_rl.config(text=f"{self.wear_rl_per:.2f}",
+                                            fg=self.color_wear_last(self.wear_rl_per))
+                self.bar_wearlast_rr.config(text=f"{self.wear_rr_per:.2f}",
+                                            fg=self.color_wear_last(self.wear_rr_per))
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

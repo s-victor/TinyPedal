@@ -23,6 +23,7 @@ Weather Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
+from tinypedal.__init__ import info
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
@@ -72,31 +73,36 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
+            pidx = info.players_index
+
             # Read Weather data
             amb_temp, trk_temp, rain, min_wet, max_wet, avg_wet = read_data.weather()
 
-            # set up display units
-            amb_temp_d = calc.conv_temperature(amb_temp, self.cfg["temp_unit"])
-            trk_temp_d = calc.conv_temperature(trk_temp, self.cfg["temp_unit"])
+            # Check isPlayer before update
+            if pidx == info.players_index:
 
-            if self.cfg["temp_unit"] == "0":
-                temp_unit = "C"
-            elif self.cfg["temp_unit"] == "1":
-                temp_unit = "F"
+                # set up display units
+                amb_temp_d = calc.conv_temperature(amb_temp, self.cfg["temp_unit"])
+                trk_temp_d = calc.conv_temperature(trk_temp, self.cfg["temp_unit"])
 
-            if max_wet > 0:
-                surface = "Wet"
-            else:
-                surface = "Dry"
+                if self.cfg["temp_unit"] == "0":
+                    temp_unit = "C"
+                elif self.cfg["temp_unit"] == "1":
+                    temp_unit = "F"
 
-            temperature = f"{surface} {trk_temp_d:.1f}({amb_temp_d:.1f})°{temp_unit}"
-            raining = f"Rain {rain:.0f}%"
-            wetness = f"{min_wet:.0f}% < {max_wet:.0f}% ≈ {avg_wet:.0f}%"
+                if max_wet > 0:
+                    surface = "Wet"
+                else:
+                    surface = "Dry"
 
-            # Weather update
-            self.bar_temp.config(text=temperature, width=len(temperature)+1)
-            self.bar_rain.config(text=raining, width=len(raining)+1)
-            self.bar_wetness.config(text=wetness, width=len(wetness)+1)
+                temperature = f"{surface} {trk_temp_d:.1f}({amb_temp_d:.1f})°{temp_unit}"
+                raining = f"Rain {rain:.0f}%"
+                wetness = f"{min_wet:.0f}% < {max_wet:.0f}% ≈ {avg_wet:.0f}%"
+
+                # Weather update
+                self.bar_temp.config(text=temperature, width=len(temperature)+1)
+                self.bar_rain.config(text=raining, width=len(raining)+1)
+                self.bar_wetness.config(text=wetness, width=len(wetness)+1)
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

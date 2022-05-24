@@ -24,6 +24,7 @@ import time
 import tkinter as tk
 import tkinter.font as tkfont
 
+from tinypedal.__init__ import info
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
@@ -84,31 +85,36 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
+            pidx = info.players_index
+
             # Read session data
             time_left, lap_total, lap_num, plr_place, veh_total, lap_into = read_data.session()
 
-            clock = time.strftime(self.cfg["clock_format"])
+            # Check isPlayer before update
+            if pidx == info.players_index:
 
-            # Check race type
-            if lap_total > 100000:  # none-lap race
-                lap_num_text = f"{self.cfg['lapnumber_text']}{lap_num}.{lap_into:02.0f}"
-            else:
-                lap_num_text = f"{self.cfg['lapnumber_text']}{lap_num}.{lap_into:02.0f}/{lap_total}"
+                clock = time.strftime(self.cfg["clock_format"])
 
-            # Session update
-            self.bar_racelength.config(text=calc.sec2sessiontime(max(time_left, 0)))
-
-            if self.cfg["show_clock"]:
-                self.bar_clock.config(text=f"{clock}", width=len(clock) + 1)
-
-            if self.cfg["show_lapnumber"]:
-                if (lap_num + 1) >= lap_total:
-                    bg_lapnumber = self.cfg["bkg_color_maxlap_warn"]
+                # Check race type
+                if lap_total > 100000:  # none-lap race
+                    lap_num_text = f"{self.cfg['lapnumber_text']}{lap_num}.{lap_into:02.0f}"
                 else:
-                    bg_lapnumber = self.cfg["bkg_color_lapnumber"]
-                self.bar_lapnumber.config(text=lap_num_text,
-                                          width=len(lap_num_text) + 1,
-                                          bg=bg_lapnumber)
+                    lap_num_text = f"{self.cfg['lapnumber_text']}{lap_num}.{lap_into:02.0f}/{lap_total}"
+
+                # Session update
+                self.bar_racelength.config(text=calc.sec2sessiontime(max(time_left, 0)))
+
+                if self.cfg["show_clock"]:
+                    self.bar_clock.config(text=f"{clock}", width=len(clock) + 1)
+
+                if self.cfg["show_lapnumber"]:
+                    if (lap_num + 1) >= lap_total:
+                        bg_lapnumber = self.cfg["bkg_color_maxlap_warn"]
+                    else:
+                        bg_lapnumber = self.cfg["bkg_color_lapnumber"]
+                    self.bar_lapnumber.config(text=lap_num_text,
+                                              width=len(lap_num_text) + 1,
+                                              bg=bg_lapnumber)
 
             if self.cfg["show_place"]:
                 self.bar_place.config(text=f"{plr_place:02.0f}/{veh_total:02.0f}")

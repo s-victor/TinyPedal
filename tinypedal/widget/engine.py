@@ -23,6 +23,7 @@ Engine Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
+from tinypedal.__init__ import info
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
 
@@ -76,22 +77,27 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
+            pidx = info.players_index
+
             # Read Engine data
             temp_oil, temp_water, e_turbo, e_rpm = read_data.engine()
 
-            # Engine update
-            self.bar_oil.config(text=f"O {temp_oil:05.01f}°",
-                                bg=self.color_overheat(
-                                    temp_oil, self.cfg["overheat_threshold_oil"]))
-            self.bar_water.config(text=f"W {temp_water:05.01f}°",
-                                bg=self.color_overheat(
-                                    temp_water, self.cfg["overheat_threshold_water"]))
+            # Check isPlayer before update
+            if pidx == info.players_index:
 
-            if self.cfg["show_turbo"]:
-                self.bar_turbo.config(text=f"{e_turbo*0.00001:04.03f}bar")
+                # Engine update
+                self.bar_oil.config(text=f"O {temp_oil:05.01f}°",
+                                    bg=self.color_overheat(
+                                        temp_oil, self.cfg["overheat_threshold_oil"]))
+                self.bar_water.config(text=f"W {temp_water:05.01f}°",
+                                    bg=self.color_overheat(
+                                        temp_water, self.cfg["overheat_threshold_water"]))
 
-            if self.cfg["show_rpm"]:
-                self.bar_rpm.config(text=f"{e_rpm: =05.0f}rpm")
+                if self.cfg["show_turbo"]:
+                    self.bar_turbo.config(text=f"{e_turbo*0.00001:04.03f}bar")
+
+                if self.cfg["show_rpm"]:
+                    self.bar_rpm.config(text=f"{e_rpm: =05.0f}rpm")
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

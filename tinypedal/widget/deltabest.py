@@ -23,6 +23,7 @@ Deltabest Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
+from tinypedal.__init__ import info
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, delta_time, Widget, MouseEvent
 
@@ -84,28 +85,33 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
+            pidx = info.players_index
+
             # Read delta best data
             delta_best = delta_time.output_data[4]
 
-            # Deltabest update
-            if self.cfg["color_swap"] == "0":
-                self.bar_deltabest["fg"] = self.color_delta(delta_best)
-            else:
-                self.bar_deltabest["bg"] = self.color_delta(delta_best)
-            self.bar_deltabest.config(text=f"{min(max(delta_best, -99.999), 99.999):+.03f}")
+            # Check isPlayer before update
+            if pidx == info.players_index:
 
-            # Delta bar update
-            if self.cfg["show_delta_bar"]:
-                deltabar = self.deltabar_pos(self.cfg["bar_display_range"],
-                                             delta_best, self.dbar_length)
-                if deltabar < self.dbar_length:  # loss
-                    self.bar_deltabar.coords(self.rect_pos_lt,
-                                             deltabar, 0, self.dbar_length, self.dbar_height)
-                    self.bar_deltabar.coords(self.rect_pos_rt, 0, 0, 0, 0)
-                else:  # gain
-                    self.bar_deltabar.coords(self.rect_pos_lt, 0, 0, 0, 0)
-                    self.bar_deltabar.coords(self.rect_pos_rt,
-                                             self.dbar_length, 0, deltabar, self.dbar_height)
+                # Deltabest update
+                if self.cfg["color_swap"] == "0":
+                    self.bar_deltabest["fg"] = self.color_delta(delta_best)
+                else:
+                    self.bar_deltabest["bg"] = self.color_delta(delta_best)
+                self.bar_deltabest.config(text=f"{min(max(delta_best, -99.999), 99.999):+.03f}")
+
+                # Delta bar update
+                if self.cfg["show_delta_bar"]:
+                    deltabar = self.deltabar_pos(self.cfg["bar_display_range"],
+                                                 delta_best, self.dbar_length)
+                    if deltabar < self.dbar_length:  # loss
+                        self.bar_deltabar.coords(self.rect_pos_lt,
+                                                 deltabar, 0, self.dbar_length, self.dbar_height)
+                        self.bar_deltabar.coords(self.rect_pos_rt, 0, 0, 0, 0)
+                    else:  # gain
+                        self.bar_deltabar.coords(self.rect_pos_lt, 0, 0, 0, 0)
+                        self.bar_deltabar.coords(self.rect_pos_rt,
+                                                 self.dbar_length, 0, deltabar, self.dbar_height)
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

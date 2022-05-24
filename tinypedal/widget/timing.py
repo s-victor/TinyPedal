@@ -23,6 +23,7 @@ Timing Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
+from tinypedal.__init__ import info
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, delta_time, Widget, MouseEvent
@@ -89,15 +90,20 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
+            pidx = info.players_index
+
             # Read Timing data
             (laptime_curr, laptime_last, laptime_best, laptime_est, _
              ) = [calc.sec2laptime(min(data, 5999.999)) for data in delta_time.output_data]
 
-            # Timing update
-            self.bar_time_best.config(text=f"B {laptime_best}")
-            self.bar_time_last.config(text=f"L {laptime_last}")
-            self.bar_time_curr.config(text=f"C {laptime_curr}")
-            self.bar_time_est.config(text=f"E {laptime_est}")
+            # Check isPlayer before update
+            if pidx == info.players_index:
+
+                # Timing update
+                self.bar_time_best.config(text=f"B {laptime_best}")
+                self.bar_time_last.config(text=f"L {laptime_last}")
+                self.bar_time_curr.config(text=f"C {laptime_curr}")
+                self.bar_time_est.config(text=f"E {laptime_est}")
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

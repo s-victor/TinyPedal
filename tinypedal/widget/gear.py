@@ -23,6 +23,7 @@ Gear Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
+from tinypedal.__init__ import info
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
@@ -112,35 +113,41 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
+            pidx = info.players_index
+
             # Read gear data
             pit_limiter, gear, speed, rpm, rpm_max = read_data.gear()
-            gear = calc.gear(gear)
-            speed = calc.conv_speed(speed, self.cfg["speed_unit"])
-            rpm_safe = int(rpm_max * self.cfg["rpm_safe_multiplier"])
-            rpm_warn = int(rpm_max * self.cfg["rpm_warn_multiplier"])
-            rpm_color = self.color_rpm(rpm, rpm_safe, rpm_warn, rpm_max)
 
-            # Gear update
-            self.bar_gear_bg.config(bg=rpm_color)
-            self.bar_gear.config(text=gear, bg=rpm_color)
-            self.bar_gauge.config(text=f"{speed:03.0f}", bg=rpm_color)
+            # Check isPlayer before update
+            if pidx == info.players_index:
 
-            # Pit limiter update
-            if pit_limiter:
-                self.bar_limiter.grid()
-            else:
-                self.bar_limiter.grid_remove()  # hide limiter indicator
+                gear = calc.gear(gear)
+                speed = calc.conv_speed(speed, self.cfg["speed_unit"])
+                rpm_safe = int(rpm_max * self.cfg["rpm_safe_multiplier"])
+                rpm_warn = int(rpm_max * self.cfg["rpm_warn_multiplier"])
+                rpm_color = self.color_rpm(rpm, rpm_safe, rpm_warn, rpm_max)
 
-            if self.cfg["show_rpm_bar"]:
-                # RPM bar update
-                rpm_range = rpm_max - rpm_safe
-                try:
-                    rpmscale = max(rpm - rpm_safe, 0) / rpm_range * self.rpm_width
-                except ZeroDivisionError:
-                    rpmscale = 0
-                self.bar_rpm.coords(self.rect_rpm,
-                                    rpmscale, self.cfg["rpm_bar_edge_height"],
-                                    rpm_range, self.cfg["rpm_bar_height"])
+                # Gear update
+                self.bar_gear_bg.config(bg=rpm_color)
+                self.bar_gear.config(text=gear, bg=rpm_color)
+                self.bar_gauge.config(text=f"{speed:03.0f}", bg=rpm_color)
+
+                # Pit limiter update
+                if pit_limiter:
+                    self.bar_limiter.grid()
+                else:
+                    self.bar_limiter.grid_remove()  # hide limiter indicator
+
+                if self.cfg["show_rpm_bar"]:
+                    # RPM bar update
+                    rpm_range = rpm_max - rpm_safe
+                    try:
+                        rpmscale = max(rpm - rpm_safe, 0) / rpm_range * self.rpm_width
+                    except ZeroDivisionError:
+                        rpmscale = 0
+                    self.bar_rpm.coords(self.rect_rpm,
+                                        rpmscale, self.cfg["rpm_bar_edge_height"],
+                                        rpm_range, self.cfg["rpm_bar_height"])
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

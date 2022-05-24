@@ -68,6 +68,8 @@ class DeltaTime:
 
         while True:
             if info.Rf2Ext.mInRealtimeFC:
+                pidx = info.players_index
+
                 # Read combo & best laptime
                 if not verified:
                     verified = True
@@ -76,67 +78,71 @@ class DeltaTime:
                     delta_list_best, laptime_best = load_deltabest(combo_name)
                     start_last = 0  # reset last lap-start-time
 
-                start_curr, elapsed_time, speed, track_length, pos_curr = telemetry()
-                laptime_curr = elapsed_time - start_last  # current laptime
+                start_curr, elapsed_time, lastlap_check, speed, track_length, pos_curr = telemetry()
 
-                # Lap start & finish detection
-                if start_curr > start_last:  # difference of lap-start-time
-                    laptime_last = start_curr - start_last
+                # Check isPlayer before update
+                if pidx == info.players_index:
 
-                    if delta_list_curr:  # non-empty list check
-                        delta_list_curr.append((track_length, laptime_last))  # set end value
-                        delta_list_last = delta_list_curr.copy()
-                        validating = True
+                    laptime_curr = elapsed_time - start_last  # current laptime
 
-                    delta_list_curr.clear()  # reset current delta list
-                    delta_list_curr.append((0.0, 0.0))  # set start value
-                    recording = True  # activate delta recording
-                    start_last = start_curr  # reset lap-start-time
-                    pos_last = pos_curr  # set pos last
+                    # Lap start & finish detection
+                    if start_curr > start_last:  # difference of lap-start-time
+                        laptime_last = start_curr - start_last
 
-                # Laptime validating after passing finish line
-                # Negative mLastLapTime value indicates invalid last laptime
-                # Set validating duration for 1 sec, to compensate the 0.2s delay
-                # As Scoring data has a 5fps update hard limit
-                # Must place validating after lap start & finish detection
-                if validating:
-                    if info.playersVehicleScoring().mLastLapTime > 0:
-                        if laptime_last < laptime_best:
-                            laptime_best = laptime_last
-                            delta_list_best = delta_list_last
-                        validating = False
-                    if 1 < laptime_curr < 2:  # switch off validating after 1s
-                        validating = False
+                        if delta_list_curr:  # non-empty list check
+                            delta_list_curr.append((track_length, laptime_last))  # set end value
+                            delta_list_last = delta_list_curr.copy()
+                            validating = True
 
-                # Recording only from the beginning of a lap
-                if recording:
-                    if pos_curr != pos_last:  # update position if difference found
-                        if  pos_curr > pos_last:  # record if position is further away
-                            delta_list_curr.append((pos_curr, laptime_curr))
+                        delta_list_curr.clear()  # reset current delta list
+                        delta_list_curr.append((0.0, 0.0))  # set start value
+                        recording = True  # activate delta recording
+                        start_last = start_curr  # reset lap-start-time
+                        pos_last = pos_curr  # set pos last
 
-                        pos_last = pos_curr  # reset last position
-                        pos_append = pos_last  # reset initial position for appending
+                    # Laptime validating after passing finish line
+                    # Negative mLastLapTime value indicates invalid last laptime
+                    # Set validating duration for 1 sec, to compensate the 0.2s delay
+                    # As Scoring data has a 5fps update hard limit
+                    # Must place validating after lap start & finish detection
+                    if validating:
+                        if lastlap_check > 0:
+                            if laptime_last < laptime_best:
+                                laptime_best = laptime_last
+                                delta_list_best = delta_list_last
+                            validating = False
+                        if 1 < laptime_curr < 2:  # switch off validating after 1s
+                            validating = False
 
-                # Update time difference & calculate additional traveled distance
-                if elapsed_time != last_time:
-                    delta_dist = speed * (elapsed_time - last_time)
-                    pos_append += delta_dist
-                    last_time = elapsed_time
-                    index_lower, index_higher = calc.nearest_dist_index(
-                                                pos_append, delta_list_best)
-                    try:  # add 20ms error offset due to 50hz refresh rate limit
-                        delta_best = laptime_curr + 0.02 - calc.linear_interp(
-                                            pos_append,
-                                            delta_list_best[index_lower][0],
-                                            delta_list_best[index_lower][1],
-                                            delta_list_best[index_higher][0],
-                                            delta_list_best[index_higher][1])
-                    except IndexError:
-                        delta_best = 0
+                    # Recording only from the beginning of a lap
+                    if recording:
+                        if pos_curr != pos_last:  # update position if difference found
+                            if  pos_curr > pos_last:  # record if position is further away
+                                delta_list_curr.append((pos_curr, laptime_curr))
 
-                laptime_est = laptime_best + delta_best
-                self.output_data = [laptime_curr, laptime_last, laptime_best,
-                                    laptime_est, delta_best]
+                            pos_last = pos_curr  # reset last position
+                            pos_append = pos_last  # reset initial position for appending
+
+                    # Update time difference & calculate additional traveled distance
+                    if elapsed_time != last_time:
+                        delta_dist = speed * (elapsed_time - last_time)
+                        pos_append += delta_dist
+                        last_time = elapsed_time
+                        index_lower, index_higher = calc.nearest_dist_index(
+                                                    pos_append, delta_list_best)
+                        try:  # add 20ms error offset due to 50hz refresh rate limit
+                            delta_best = laptime_curr + 0.02 - calc.linear_interp(
+                                                pos_append,
+                                                delta_list_best[index_lower][0],
+                                                delta_list_best[index_lower][1],
+                                                delta_list_best[index_higher][0],
+                                                delta_list_best[index_higher][1])
+                        except IndexError:
+                            delta_best = 0
+
+                    laptime_est = laptime_best + delta_best
+                    self.output_data = [laptime_curr, laptime_last, laptime_best,
+                                        laptime_est, delta_best]
 
             else:
                 if recording:
@@ -156,12 +162,13 @@ def telemetry():
     """Telemetry data"""
     start_curr = info.playersVehicleTelemetry().mLapStartET
     elapsed_time = info.playersVehicleTelemetry().mElapsedTime
+    lastlap_check = info.playersVehicleScoring().mLastLapTime
     speed = calc.vel2speed(info.playersVehicleTelemetry().mLocalVel.x,
                            info.playersVehicleTelemetry().mLocalVel.y,
                            info.playersVehicleTelemetry().mLocalVel.z)
     track_length = info.Rf2Scor.mScoringInfo.mLapDist
     pos_curr = min(info.playersVehicleScoring().mLapDist, track_length)
-    return start_curr, elapsed_time, speed, track_length, pos_curr
+    return start_curr, elapsed_time, lastlap_check, speed, track_length, pos_curr
 
 
 def combo_check():

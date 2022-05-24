@@ -22,6 +22,7 @@ Pedal Widget
 
 import tkinter as tk
 
+from tinypedal.__init__ import info
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
@@ -113,64 +114,69 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
+            pidx = info.players_index
+
             # Read pedal data
             (throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
              ) = [calc.pedal_pos(data, self.pbar_length, self.cfg["bar_length_scale"])
                   for data in read_data.pedal()]
 
-            self.bar_throttle.coords(self.rect_raw_throttle, 0,
-                                     self.pbar_length, self.pbar_uwidth,
-                                     raw_throttle)
-            self.bar_throttle.coords(self.rect_throttle, self.pbar_uwidth,
-                                     self.pbar_length, self.pbar_cwidth,
-                                     throttle)
-            self.bar_brake.coords(self.rect_raw_brake, 0,
-                                  self.pbar_length, self.pbar_uwidth,
-                                  raw_brake)
-            self.bar_brake.coords(self.rect_brake, self.pbar_uwidth,
-                                  self.pbar_length, self.pbar_cwidth,
-                                  brake)
-            self.bar_clutch.coords(self.rect_raw_clutch, 0,
-                                   self.pbar_length, self.pbar_uwidth,
-                                   raw_clutch)
-            self.bar_clutch.coords(self.rect_clutch, self.pbar_uwidth,
-                                   self.pbar_length, self.pbar_cwidth,
-                                   clutch)
+            # Check isPlayer before update
+            if pidx == info.players_index:
 
-            # Pedal update
-            if raw_throttle <= self.pbar_extend:
-                self.bar_throttle.itemconfig(
-                    self.max_throttle, fill=self.cfg["throttle_color"])
-            else:
-                self.bar_throttle.itemconfig(
-                    self.max_throttle, fill=self.cfg["bkg_color"])
+                self.bar_throttle.coords(self.rect_raw_throttle, 0,
+                                         self.pbar_length, self.pbar_uwidth,
+                                         raw_throttle)
+                self.bar_throttle.coords(self.rect_throttle, self.pbar_uwidth,
+                                         self.pbar_length, self.pbar_cwidth,
+                                         throttle)
+                self.bar_brake.coords(self.rect_raw_brake, 0,
+                                      self.pbar_length, self.pbar_uwidth,
+                                      raw_brake)
+                self.bar_brake.coords(self.rect_brake, self.pbar_uwidth,
+                                      self.pbar_length, self.pbar_cwidth,
+                                      brake)
+                self.bar_clutch.coords(self.rect_raw_clutch, 0,
+                                       self.pbar_length, self.pbar_uwidth,
+                                       raw_clutch)
+                self.bar_clutch.coords(self.rect_clutch, self.pbar_uwidth,
+                                       self.pbar_length, self.pbar_cwidth,
+                                       clutch)
 
-            if raw_brake <= self.pbar_extend:
-                self.bar_brake.itemconfig(
-                    self.max_brake, fill=self.cfg["brake_color"])
-            else:
-                self.bar_brake.itemconfig(
-                    self.max_brake, fill=self.cfg["bkg_color"])
-
-            if raw_clutch <= self.pbar_extend:
-                self.bar_clutch.itemconfig(
-                    self.max_clutch, fill=self.cfg["clutch_color"])
-            else:
-                self.bar_clutch.itemconfig(
-                    self.max_clutch, fill=self.cfg["bkg_color"])
-
-            # Force feedback update
-            if self.cfg["show_ffb_meter"]:
-                if ffb <= self.pbar_extend:
-                    self.bar_ffb.coords(
-                        self.rect_ffb, 0, self.pbar_length, self.pbar_cwidth, 0)
-                    self.bar_ffb.itemconfig(
-                        self.rect_ffb, fill=self.cfg["ffb_clipping_color"])
+                # Pedal update
+                if raw_throttle <= self.pbar_extend:
+                    self.bar_throttle.itemconfig(
+                        self.max_throttle, fill=self.cfg["throttle_color"])
                 else:
-                    self.bar_ffb.coords(
-                        self.rect_ffb, 0, self.pbar_length, self.pbar_cwidth, ffb)
-                    self.bar_ffb.itemconfig(
-                        self.rect_ffb, fill=self.cfg["ffb_color"])
+                    self.bar_throttle.itemconfig(
+                        self.max_throttle, fill=self.cfg["bkg_color"])
+
+                if raw_brake <= self.pbar_extend:
+                    self.bar_brake.itemconfig(
+                        self.max_brake, fill=self.cfg["brake_color"])
+                else:
+                    self.bar_brake.itemconfig(
+                        self.max_brake, fill=self.cfg["bkg_color"])
+
+                if raw_clutch <= self.pbar_extend:
+                    self.bar_clutch.itemconfig(
+                        self.max_clutch, fill=self.cfg["clutch_color"])
+                else:
+                    self.bar_clutch.itemconfig(
+                        self.max_clutch, fill=self.cfg["bkg_color"])
+
+                # Force feedback update
+                if self.cfg["show_ffb_meter"]:
+                    if ffb <= self.pbar_extend:
+                        self.bar_ffb.coords(
+                            self.rect_ffb, 0, self.pbar_length, self.pbar_cwidth, 0)
+                        self.bar_ffb.itemconfig(
+                            self.rect_ffb, fill=self.cfg["ffb_clipping_color"])
+                    else:
+                        self.bar_ffb.coords(
+                            self.rect_ffb, 0, self.pbar_length, self.pbar_cwidth, ffb)
+                        self.bar_ffb.itemconfig(
+                            self.rect_ffb, fill=self.cfg["ffb_color"])
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

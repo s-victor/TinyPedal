@@ -23,6 +23,7 @@ Temperature Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
+from tinypedal.__init__ import info
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
@@ -117,52 +118,57 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
+            pidx = info.players_index
+
             # Read average tyre & brake temperature data
             (ttemp_fl, ttemp_fr, ttemp_rl, ttemp_rr, btemp_fl, btemp_fr, btemp_rl, btemp_rr
              ) = [calc.kelvin2celsius(data) for data in read_data.temperature()]
 
-            # Set up display temps
-            ttemp_fl_d = calc.conv_temperature(ttemp_fl, self.cfg["temp_unit"])
-            ttemp_fr_d = calc.conv_temperature(ttemp_fr, self.cfg["temp_unit"])
-            ttemp_rl_d = calc.conv_temperature(ttemp_rl, self.cfg["temp_unit"])
-            ttemp_rr_d = calc.conv_temperature(ttemp_rr, self.cfg["temp_unit"])
+            # Check isPlayer before update
+            if pidx == info.players_index:
 
-            btemp_fl_d = calc.conv_temperature(btemp_fl, self.cfg["temp_unit"])
-            btemp_fr_d = calc.conv_temperature(btemp_fr, self.cfg["temp_unit"])
-            btemp_rl_d = calc.conv_temperature(btemp_rl, self.cfg["temp_unit"])
-            btemp_rr_d = calc.conv_temperature(btemp_rr, self.cfg["temp_unit"])
+                # Set up display temps
+                ttemp_fl_d = calc.conv_temperature(ttemp_fl, self.cfg["temp_unit"])
+                ttemp_fr_d = calc.conv_temperature(ttemp_fr, self.cfg["temp_unit"])
+                ttemp_rl_d = calc.conv_temperature(ttemp_rl, self.cfg["temp_unit"])
+                ttemp_rr_d = calc.conv_temperature(ttemp_rr, self.cfg["temp_unit"])
 
-            # Temperature update
-            if self.cfg["color_swap_tyre"] == "0":
-                self.bar_ttemp_fl["fg"] = self.color_ttemp(ttemp_fl)
-                self.bar_ttemp_fr["fg"] = self.color_ttemp(ttemp_fr)
-                self.bar_ttemp_rl["fg"] = self.color_ttemp(ttemp_rl)
-                self.bar_ttemp_rr["fg"] = self.color_ttemp(ttemp_rr)
-            else:
-                self.bar_ttemp_fl["bg"] = self.color_ttemp(ttemp_fl)
-                self.bar_ttemp_fr["bg"] = self.color_ttemp(ttemp_fr)
-                self.bar_ttemp_rl["bg"] = self.color_ttemp(ttemp_rl)
-                self.bar_ttemp_rr["bg"] = self.color_ttemp(ttemp_rr)
+                btemp_fl_d = calc.conv_temperature(btemp_fl, self.cfg["temp_unit"])
+                btemp_fr_d = calc.conv_temperature(btemp_fr, self.cfg["temp_unit"])
+                btemp_rl_d = calc.conv_temperature(btemp_rl, self.cfg["temp_unit"])
+                btemp_rr_d = calc.conv_temperature(btemp_rr, self.cfg["temp_unit"])
 
-            if self.cfg["color_swap_brake"] == "0":
-                self.bar_btemp_fl["bg"] = self.color_btemp(btemp_fl)
-                self.bar_btemp_fr["bg"] = self.color_btemp(btemp_fr)
-                self.bar_btemp_rl["bg"] = self.color_btemp(btemp_rl)
-                self.bar_btemp_rr["bg"] = self.color_btemp(btemp_rr)
-            else:
-                self.bar_btemp_fl["fg"] = self.color_btemp(btemp_fl)
-                self.bar_btemp_fr["fg"] = self.color_btemp(btemp_fr)
-                self.bar_btemp_rl["fg"] = self.color_btemp(btemp_rl)
-                self.bar_btemp_rr["fg"] = self.color_btemp(btemp_rr)
+                # Temperature update
+                if self.cfg["color_swap_tyre"] == "0":
+                    self.bar_ttemp_fl["fg"] = self.color_ttemp(ttemp_fl)
+                    self.bar_ttemp_fr["fg"] = self.color_ttemp(ttemp_fr)
+                    self.bar_ttemp_rl["fg"] = self.color_ttemp(ttemp_rl)
+                    self.bar_ttemp_rr["fg"] = self.color_ttemp(ttemp_rr)
+                else:
+                    self.bar_ttemp_fl["bg"] = self.color_ttemp(ttemp_fl)
+                    self.bar_ttemp_fr["bg"] = self.color_ttemp(ttemp_fr)
+                    self.bar_ttemp_rl["bg"] = self.color_ttemp(ttemp_rl)
+                    self.bar_ttemp_rr["bg"] = self.color_ttemp(ttemp_rr)
 
-            self.bar_ttemp_fl.config(text=f" {ttemp_fl_d:02.0f}°")
-            self.bar_ttemp_fr.config(text=f" {ttemp_fr_d:02.0f}°")
-            self.bar_ttemp_rl.config(text=f" {ttemp_rl_d:02.0f}°")
-            self.bar_ttemp_rr.config(text=f" {ttemp_rr_d:02.0f}°")
-            self.bar_btemp_fl.config(text=f" {btemp_fl_d:02.0f}°")
-            self.bar_btemp_fr.config(text=f" {btemp_fr_d:02.0f}°")
-            self.bar_btemp_rl.config(text=f" {btemp_rl_d:02.0f}°")
-            self.bar_btemp_rr.config(text=f" {btemp_rr_d:02.0f}°")
+                if self.cfg["color_swap_brake"] == "0":
+                    self.bar_btemp_fl["bg"] = self.color_btemp(btemp_fl)
+                    self.bar_btemp_fr["bg"] = self.color_btemp(btemp_fr)
+                    self.bar_btemp_rl["bg"] = self.color_btemp(btemp_rl)
+                    self.bar_btemp_rr["bg"] = self.color_btemp(btemp_rr)
+                else:
+                    self.bar_btemp_fl["fg"] = self.color_btemp(btemp_fl)
+                    self.bar_btemp_fr["fg"] = self.color_btemp(btemp_fr)
+                    self.bar_btemp_rl["fg"] = self.color_btemp(btemp_rl)
+                    self.bar_btemp_rr["fg"] = self.color_btemp(btemp_rr)
+
+                self.bar_ttemp_fl.config(text=f" {ttemp_fl_d:02.0f}°")
+                self.bar_ttemp_fr.config(text=f" {ttemp_fr_d:02.0f}°")
+                self.bar_ttemp_rl.config(text=f" {ttemp_rl_d:02.0f}°")
+                self.bar_ttemp_rr.config(text=f" {ttemp_rr_d:02.0f}°")
+                self.bar_btemp_fl.config(text=f" {btemp_fl_d:02.0f}°")
+                self.bar_btemp_fr.config(text=f" {btemp_fr_d:02.0f}°")
+                self.bar_btemp_rl.config(text=f" {btemp_rl_d:02.0f}°")
+                self.bar_btemp_rr.config(text=f" {btemp_rr_d:02.0f}°")
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

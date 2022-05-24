@@ -23,6 +23,7 @@ Force Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
+from tinypedal.__init__ import info
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
@@ -75,15 +76,20 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
+            pidx = info.players_index
+
             # Read g-force & downforce data
             gf_lgt, gf_lat, df_ratio = read_data.force()
 
-            # Force update
-            self.bar_gforce_lgt.config(text=calc.gforce_lgt(gf_lgt) + f" {abs(gf_lgt):.2f}")
-            self.bar_gforce_lat.config(text=f"{abs(gf_lat):.2f} " + calc.gforce_lat(gf_lat))
+            # Check isPlayer before update
+            if pidx == info.players_index:
 
-            if self.cfg["show_downforce_ratio"]:
-                self.bar_dforce.config(text=f"{df_ratio:04.02f}%")
+                # Force update
+                self.bar_gforce_lgt.config(text=calc.gforce_lgt(gf_lgt) + f" {abs(gf_lgt):.2f}")
+                self.bar_gforce_lat.config(text=f"{abs(gf_lat):.2f} " + calc.gforce_lat(gf_lat))
+
+                if self.cfg["show_downforce_ratio"]:
+                    self.bar_dforce.config(text=f"{df_ratio:04.02f}%")
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

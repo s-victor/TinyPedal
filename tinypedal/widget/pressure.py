@@ -23,6 +23,7 @@ Tyre Load & Pressure Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
+from tinypedal.__init__ import info
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import cfg, Widget, MouseEvent
@@ -124,36 +125,41 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
+            pidx = info.players_index
+
             # Read tyre pressure data
             (pres_fl, pres_fr, pres_rl, pres_rr
              ) = [calc.kpa2psi(data, self.cfg["pressure_unit"])
                   for data in read_data.tyre_pres()]
 
-            # Tyre load & pressure update
-            if self.cfg["show_tyre_load"]:
-                # Read tyre load data
-                raw_load_fl, raw_load_fr, raw_load_rl, raw_load_rr = read_data.tyre_load()
+            # Check isPlayer before update
+            if pidx == info.players_index:
 
-                if self.cfg["show_tyre_load_ratio"]:
-                    load_fl = calc.force_ratio(raw_load_fl, raw_load_fr)
-                    load_fr = calc.force_ratio(raw_load_fr, raw_load_fl)
-                    load_rl = calc.force_ratio(raw_load_rl, raw_load_rr)
-                    load_rr = calc.force_ratio(raw_load_rr, raw_load_rl)
+                # Tyre load & pressure update
+                if self.cfg["show_tyre_load"]:
+                    # Read tyre load data
+                    raw_load_fl, raw_load_fr, raw_load_rl, raw_load_rr = read_data.tyre_load()
 
-                    self.bar_load_fl.config(text=f"{load_fl:.1f}")
-                    self.bar_load_fr.config(text=f"{load_fr:.1f}")
-                    self.bar_load_rl.config(text=f"{load_rl:.1f}")
-                    self.bar_load_rr.config(text=f"{load_rr:.1f}")
-                else:
-                    self.bar_load_fl.config(text=f"{raw_load_fl:.0f}")
-                    self.bar_load_fr.config(text=f"{raw_load_fr:.0f}")
-                    self.bar_load_rl.config(text=f"{raw_load_rl:.0f}")
-                    self.bar_load_rr.config(text=f"{raw_load_rr:.0f}")
+                    if self.cfg["show_tyre_load_ratio"]:
+                        load_fl = calc.force_ratio(raw_load_fl, raw_load_fr)
+                        load_fr = calc.force_ratio(raw_load_fr, raw_load_fl)
+                        load_rl = calc.force_ratio(raw_load_rl, raw_load_rr)
+                        load_rr = calc.force_ratio(raw_load_rr, raw_load_rl)
 
-            self.bar_pres_fl.config(text=pres_fl)
-            self.bar_pres_fr.config(text=pres_fr)
-            self.bar_pres_rl.config(text=pres_rl)
-            self.bar_pres_rr.config(text=pres_rr)
+                        self.bar_load_fl.config(text=f"{load_fl:.1f}")
+                        self.bar_load_fr.config(text=f"{load_fr:.1f}")
+                        self.bar_load_rl.config(text=f"{load_rl:.1f}")
+                        self.bar_load_rr.config(text=f"{load_rr:.1f}")
+                    else:
+                        self.bar_load_fl.config(text=f"{raw_load_fl:.0f}")
+                        self.bar_load_fr.config(text=f"{raw_load_fr:.0f}")
+                        self.bar_load_rl.config(text=f"{raw_load_rl:.0f}")
+                        self.bar_load_rr.config(text=f"{raw_load_rr:.0f}")
+
+                self.bar_pres_fl.config(text=pres_fl)
+                self.bar_pres_fr.config(text=pres_fr)
+                self.bar_pres_rl.config(text=pres_rl)
+                self.bar_pres_rr.config(text=pres_rr)
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)
