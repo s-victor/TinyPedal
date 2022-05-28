@@ -107,7 +107,7 @@ class DeltaTime:
                     # Must place validating after lap start & finish detection
                     if validating:
                         if lastlap_check > 0:
-                            if laptime_last < laptime_best:
+                            if laptime_last < laptime_best and abs(lastlap_check - laptime_last) <= 1:
                                 laptime_best = laptime_last
                                 delta_list_best = delta_list_last
                             validating = False
