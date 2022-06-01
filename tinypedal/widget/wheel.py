@@ -23,10 +23,10 @@ Wheel Alignment Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.__init__ import info
+from tinypedal.__init__ import info, cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
-from tinypedal.base import cfg, Widget, MouseEvent
+from tinypedal.base import Widget, MouseEvent
 
 
 class DrawWidget(Widget, MouseEvent):
@@ -136,7 +136,7 @@ class DrawWidget(Widget, MouseEvent):
              ) = [calc.meter2millmeter(data) for data in read_data.ride_height()]
 
             # Check isPlayer before update
-            if pidx == info.players_index:
+            if read_data.is_local_player(pidx):
 
                 # Camber update
                 self.bar_camber_fl.config(text=camber_fl)

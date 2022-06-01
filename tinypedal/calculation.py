@@ -37,9 +37,9 @@ def steering_pos(steering, length):
 
 def scale_mark_gap(degree, rot_range, scale):
     """mark gap(degree) divide half of full steering range (degree) and multiply scale"""
-    try:
+    if rot_range != 0:
         gap = degree / (rot_range / 2) * scale
-    except ZeroDivisionError:
+    else:
         gap = 0
     return gap
 
@@ -150,6 +150,20 @@ def force_ratio(value1, value2):
     """Calculate force ratio from Newtons"""
     ratio = abs(value1 / (value1 + value2 + 0.01) * 100)
     return ratio
+
+
+def oriyaw2deg(value1, value2):
+    """Convert orientation yaw to degree"""
+    degree = 180 - (math.atan2(value1, value2) * 57.2957795)
+    return degree
+
+
+def pos2distance(value1, value2):
+    """Calculate distance from global position difference"""
+    meter = ((value1[0] - value2[0]) ** 2
+              + (value1[1] - value2[1]) ** 2
+              + (value1[2] - value2[2]) **2 ) ** 0.5
+    return meter
 
 
 def sec2sessiontime(seconds):

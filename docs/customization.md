@@ -80,6 +80,23 @@ Enable delta timing module. This module provides timing data for `Delta best` an
 Define color of hover cover when mouse cursor is above widget (when not locked).
 
 
+## Cruise
+    show_elevation
+Show elevation difference in game's coordinate system.
+
+    elevation_unit
+2 unit types are available: `0` = meter, `1` = feet.
+
+    show_odometer
+Show odometer that displays total driven distance of local player. 
+
+    odometer_unit
+2 unit types are available: `0` = kilometer, `1` = mile.
+
+    meters_driven
+This value holds the total distance(meters) that local player has driven. Accept manual editing.
+
+
 ## Deltabest
     layout
 2 layouts are available: `0` = delta bar above deltabest text, `1` = delta bar below deltabest text.
@@ -139,6 +156,9 @@ Set low fuel color indicator, which changes widget background color when there i
 
     fuel_unit
 2 unit types are available: `0` = liters, `1` = gallons.
+
+    fuel_consumption
+This value holds the last recorded fuel consumption of the last lap. Accept manual editing, but will be overridden by any new lap done.
 
 
 ## Gear

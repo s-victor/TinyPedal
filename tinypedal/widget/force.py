@@ -23,10 +23,10 @@ Force Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.__init__ import info
+from tinypedal.__init__ import info, cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
-from tinypedal.base import cfg, Widget, MouseEvent
+from tinypedal.base import Widget, MouseEvent
 
 
 class DrawWidget(Widget, MouseEvent):
@@ -82,7 +82,7 @@ class DrawWidget(Widget, MouseEvent):
             gf_lgt, gf_lat, df_ratio = read_data.force()
 
             # Check isPlayer before update
-            if pidx == info.players_index:
+            if read_data.is_local_player(pidx):
 
                 # Force update
                 self.bar_gforce_lgt.config(text=calc.gforce_lgt(gf_lgt) + f" {abs(gf_lgt):.2f}")

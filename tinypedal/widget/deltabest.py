@@ -23,9 +23,9 @@ Deltabest Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.__init__ import info
+from tinypedal.__init__ import info, cfg
 import tinypedal.readapi as read_data
-from tinypedal.base import cfg, delta_time, Widget, MouseEvent
+from tinypedal.base import delta_time, Widget, MouseEvent
 
 
 class DrawWidget(Widget, MouseEvent):
@@ -91,7 +91,7 @@ class DrawWidget(Widget, MouseEvent):
             delta_best = delta_time.output_data[4]
 
             # Check isPlayer before update
-            if pidx == info.players_index:
+            if read_data.is_local_player(pidx):
 
                 # Deltabest update
                 if self.cfg["color_swap"] == "0":

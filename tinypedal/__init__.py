@@ -21,12 +21,16 @@ Init
 """
 
 from pyRfactor2SharedMemory.sharedMemoryAPI import SimInfoAPI
+from tinypedal.setting import Setting
 
 
-VERSION = "1.3.3"
+VERSION = "1.4.0"
 
 # Load Shared Memory API
 info = SimInfoAPI()
 
 # Start player index updating thread
 info.startUpdating()
+
+# Load configuration
+cfg = Setting()

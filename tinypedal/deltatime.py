@@ -26,7 +26,7 @@ import csv
 
 from pyRfactor2SharedMemory.sharedMemoryAPI import Cbytestring2Python
 
-from tinypedal.__init__ import info
+from tinypedal.__init__ import info, cfg
 import tinypedal.calculation as calc
 
 
@@ -35,14 +35,15 @@ class DeltaTime:
 
     def __init__(self):
         self.output_data = [0,0,0,0,0]
+        self.meters_driven = cfg.setting_user["cruise"]["meters_driven"]
 
     def start(self):
         """Start calculation thread"""
-        delta_thread = threading.Thread(target=self.calculation)
+        delta_thread = threading.Thread(target=self.__calculation)
         delta_thread.setDaemon(True)
         delta_thread.start()
 
-    def calculation(self):
+    def __calculation(self):
         """Delta best & laptime
 
         Run calculation separately.
@@ -51,6 +52,7 @@ class DeltaTime:
         recording = False  # set delta recording state
         verified = False  # additional check for conserving resources
         validating = False  # validate last laptime after cross finish line
+
         delta_list_curr = []  # distance vs time list, current lap
         delta_list_last = []  # distance vs time list, last lap, used for verification only
         delta_list_best = []  # distance vs time list, best lap
@@ -58,6 +60,7 @@ class DeltaTime:
         start_last = 0  # lap-start-time
         pos_last = 0  # last checked player vehicle position
         pos_append = 0  # append last checked position with calc traveled dist
+        gps_last = [0,0,0]  # last global position
         last_time = 0  # last checked elapsed time
         laptime_curr = 0  # current laptime
         laptime_last = 0  # last laptime
@@ -78,10 +81,10 @@ class DeltaTime:
                     delta_list_best, laptime_best = load_deltabest(combo_name)
                     start_last = 0  # reset last lap-start-time
 
-                start_curr, elapsed_time, lastlap_check, speed, track_length, pos_curr = telemetry()
+                start_curr, elapsed_time, lastlap_check, speed, track_length, pos_curr, gps_curr = telemetry()
 
                 # Check isPlayer before update
-                if pidx == info.players_index:
+                if pidx == info.players_index and (0 <= info.playersVehicleScoring().mControl <= 1):
 
                     laptime_curr = elapsed_time - start_last  # current laptime
 
@@ -100,18 +103,17 @@ class DeltaTime:
                         start_last = start_curr  # reset lap-start-time
                         pos_last = pos_curr  # set pos last
 
-                    # Laptime validating after passing finish line
-                    # Negative mLastLapTime value indicates invalid last laptime
-                    # Set validating duration for 1 sec, to compensate the 0.2s delay
-                    # As Scoring data has a 5fps update hard limit
+                    # Laptime validating 1s after passing finish line
+                    # To compensate 5fps refresh rate of Scoring data
                     # Must place validating after lap start & finish detection
+                    # Negative mLastLapTime value indicates invalid last laptime
                     if validating:
-                        if lastlap_check > 0:
-                            if laptime_last < laptime_best and abs(lastlap_check - laptime_last) <= 1:
+                        if 1 < laptime_curr <= 2:
+                            if laptime_last < laptime_best and abs(lastlap_check - laptime_last) < 1:
                                 laptime_best = laptime_last
                                 delta_list_best = delta_list_last
                             validating = False
-                        if 1 < laptime_curr < 2:  # switch off validating after 1s
+                        elif 2 < laptime_curr < 3:  # switch off validating after 2s
                             validating = False
 
                     # Recording only from the beginning of a lap
@@ -144,6 +146,15 @@ class DeltaTime:
                     self.output_data = [laptime_curr, laptime_last, laptime_best,
                                         laptime_est, delta_best]
 
+                    # Record driven distance in meters
+                    if gps_last != gps_curr:
+                        moved_distance = calc.pos2distance(gps_last, gps_curr)
+                        if moved_distance < 15:  # add small amount limit
+                            self.meters_driven += moved_distance
+                            gps_last = gps_curr
+                        else:
+                            gps_last = gps_curr
+
             else:
                 if recording:
                     recording = False  # disable delta recording after exit track
@@ -152,8 +163,13 @@ class DeltaTime:
                     update_delay = 0.5  # longer delay while inactive
                     delta_list_curr.clear()  # reset current delta list
 
-                    if delta_list_best:  # save populated delta best list
+                    # Save delta best data
+                    if delta_list_best:
                         save_deltabest(combo_name, delta_list_best)
+
+                    # Save meters driven data
+                    cfg.setting_user["cruise"]["meters_driven"] = int(self.meters_driven)
+                    cfg.save()
 
             time.sleep(update_delay)
 
@@ -168,7 +184,10 @@ def telemetry():
                            info.playersVehicleTelemetry().mLocalVel.z)
     track_length = info.Rf2Scor.mScoringInfo.mLapDist
     pos_curr = min(info.playersVehicleScoring().mLapDist, track_length)
-    return start_curr, elapsed_time, lastlap_check, speed, track_length, pos_curr
+    gps_curr = [info.playersVehicleTelemetry().mPos.x,
+                info.playersVehicleTelemetry().mPos.y,
+                info.playersVehicleTelemetry().mPos.z]
+    return start_curr, elapsed_time, lastlap_check, speed, track_length, pos_curr, gps_curr
 
 
 def combo_check():

@@ -1,3 +1,23 @@
+TinyPedal 1.4.0 (2022-06-01)
+----------------------------
+* [New]Cruise Widget
+    - Show compass directions with three-figure bearings that matches game's cardinal directions.
+    - Show elevation difference in game's coordinate system, with meter or feet as display unit.
+    - Show odometer that displays total driven distance of local player, with km or mile as display unit.
+
+* Fuel Widget
+    - Now auto-saves & loads last lap fuel consumption.
+
+* Core
+    - Added additional player status check to make sure only valid data gets updated to overlay.
+    - Further improvements to deltabest laptime validation.
+    - Add new function that constantly recording meters driven by player for deltatime module.
+    - Improved module import order.
+
+* Misc
+    - Updated customization guide with new configurable setting for Cruise & Fuel Widget.
+    - Updated features.md with Cruise Widget info.
+
 TinyPedal 1.3.3 (2022-05-28)
 ----------------------------
 * Core

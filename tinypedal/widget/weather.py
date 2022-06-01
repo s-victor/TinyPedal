@@ -23,10 +23,10 @@ Weather Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.__init__ import info
+from tinypedal.__init__ import info, cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
-from tinypedal.base import cfg, Widget, MouseEvent
+from tinypedal.base import Widget, MouseEvent
 
 
 class DrawWidget(Widget, MouseEvent):
@@ -79,7 +79,7 @@ class DrawWidget(Widget, MouseEvent):
             amb_temp, trk_temp, rain, min_wet, max_wet, avg_wet = read_data.weather()
 
             # Check isPlayer before update
-            if pidx == info.players_index:
+            if read_data.is_local_player(pidx):
 
                 # set up display units
                 amb_temp_d = calc.conv_temperature(amb_temp, self.cfg["temp_unit"])

@@ -23,9 +23,9 @@ Tyre Wear Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.__init__ import info
+from tinypedal.__init__ import info, cfg
 import tinypedal.readapi as read_data
-from tinypedal.base import cfg, Widget, MouseEvent
+from tinypedal.base import Widget, MouseEvent
 
 
 class DrawWidget(Widget, MouseEvent):
@@ -132,7 +132,7 @@ class DrawWidget(Widget, MouseEvent):
             start_curr = read_data.timing()[0]
 
             # Check isPlayer before update
-            if pidx == info.players_index:
+            if read_data.is_local_player(pidx):
 
                 # Calculate last lap tyre wear
                 if start_curr != self.start_last:  # time stamp difference

@@ -42,6 +42,21 @@ def state():
     return info.Rf2Ext.mInRealtimeFC
 
 
+def is_local_player(input_pidx):
+    """Check if is local player"""
+    if input_pidx == info.players_index and (0 <= info.playersVehicleScoring().mControl <= 1):
+        return True
+    return False
+
+
+def cruise():
+    """Cruise data"""
+    ori_yaw = calc.oriyaw2deg(info.playersVehicleTelemetry().mOri[2].x,
+                              info.playersVehicleTelemetry().mOri[2].z)
+    pos_y = info.playersVehicleScoring().mPos.y
+    return ori_yaw, pos_y
+
+
 def pedal():
     """Pedal data"""
     throttle = info.playersVehicleTelemetry().mFilteredThrottle
@@ -359,8 +374,8 @@ def calc_relative_time_gap(index, index_player):
                 info.Rf2Scor.mVehicles[index_player].mLocalVel.x,
                 info.Rf2Scor.mVehicles[index_player].mLocalVel.y,
                 info.Rf2Scor.mVehicles[index_player].mLocalVel.z))
-    try:
+    if speed != 0:
         time_gap = f"{rel_dist / speed:.01f}"
-    except ZeroDivisionError:
+    else:
         time_gap = "0.0"
     return time_gap

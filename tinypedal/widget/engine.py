@@ -23,9 +23,9 @@ Engine Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.__init__ import info
+from tinypedal.__init__ import info, cfg
 import tinypedal.readapi as read_data
-from tinypedal.base import cfg, Widget, MouseEvent
+from tinypedal.base import Widget, MouseEvent
 
 
 class DrawWidget(Widget, MouseEvent):
@@ -83,7 +83,7 @@ class DrawWidget(Widget, MouseEvent):
             temp_oil, temp_water, e_turbo, e_rpm = read_data.engine()
 
             # Check isPlayer before update
-            if pidx == info.players_index:
+            if read_data.is_local_player(pidx):
 
                 # Engine update
                 self.bar_oil.config(text=f"O {temp_oil:05.01f}°",

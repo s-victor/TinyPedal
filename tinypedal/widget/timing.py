@@ -23,10 +23,10 @@ Timing Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.__init__ import info
+from tinypedal.__init__ import info, cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
-from tinypedal.base import cfg, delta_time, Widget, MouseEvent
+from tinypedal.base import delta_time, Widget, MouseEvent
 
 
 class DrawWidget(Widget, MouseEvent):
@@ -97,7 +97,7 @@ class DrawWidget(Widget, MouseEvent):
              ) = [calc.sec2laptime(min(data, 5999.999)) for data in delta_time.output_data]
 
             # Check isPlayer before update
-            if pidx == info.players_index:
+            if read_data.is_local_player(pidx):
 
                 # Timing update
                 self.bar_time_best.config(text=f"B {laptime_best}")

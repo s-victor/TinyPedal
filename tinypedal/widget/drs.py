@@ -23,9 +23,9 @@ DRS Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.__init__ import info
+from tinypedal.__init__ import info, cfg
 import tinypedal.readapi as read_data
-from tinypedal.base import cfg, Widget, MouseEvent
+from tinypedal.base import Widget, MouseEvent
 
 
 class DrawWidget(Widget, MouseEvent):
@@ -70,7 +70,7 @@ class DrawWidget(Widget, MouseEvent):
             drs_on, drs_status = read_data.drs()
 
             # Check isPlayer before update
-            if pidx == info.players_index:
+            if read_data.is_local_player(pidx):
 
                 # DRS update
                 if drs_status == 1:  # blue

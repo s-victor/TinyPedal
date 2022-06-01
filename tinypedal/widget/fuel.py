@@ -24,10 +24,10 @@ import math
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.__init__ import info
+from tinypedal.__init__ import info, cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
-from tinypedal.base import cfg, Widget, MouseEvent
+from tinypedal.base import Widget, MouseEvent
 
 
 class DrawWidget(Widget, MouseEvent):
@@ -62,10 +62,11 @@ class DrawWidget(Widget, MouseEvent):
         self.laptime_last = 0.0  # last lap time calculated from time stamp difference
         self.amount_last = 0.0  # total fuel at end of last lap
         self.amount_need = 0.0  # total additional fuel required to finish race
-        self.used_last = 0.0  # last lap fuel consumption
+        self.used_last = self.cfg["fuel_consumption"]  # last lap fuel consumption
         self.est_runlaps = 0.0  # estimate laps current fuel can last
         self.est_runmins = 0.0  # estimate minutes current fuel can last
         self.pit_required = 0.0  # minimum pit stops to finish race
+        self.checked = False
 
         # Draw label
         if self.cfg["show_caption"]:
@@ -125,28 +126,33 @@ class DrawWidget(Widget, MouseEvent):
         if read_data.state() and self.cfg["enable"]:
             pidx = info.players_index
 
+            # Save switch
+            if not self.checked:
+                self.checked = True
+
             # Read fuel data
             amount_curr, capacity = read_data.fuel()
             start_curr, laps_total, laps_left, time_left = read_data.timing()
 
             # Check isPlayer before update
-            if pidx == info.players_index:
+            if read_data.is_local_player(pidx):
 
                 # Calc last lap fuel consumption
                 if start_curr != self.start_last:  # time stamp difference
                     if start_curr > self.start_last:
                         # Calc last laptime from lap difference to bypass empty invalid laptime
                         self.laptime_last = start_curr - self.start_last
-                    self.used_last = self.amount_last - amount_curr
-                    self.start_last = start_curr  # reset time stamp counter
+                        self.used_last = max(self.amount_last - amount_curr, 0)
+                    if self.used_last == 0:
+                        self.used_last = self.cfg["fuel_consumption"]
                     self.amount_last = amount_curr  # reset fuel counter
-                self.used_last = max(self.used_last, 0)
+                    self.start_last = start_curr  # reset time stamp counter
 
                 # Estimate laps current fuel can last
-                try:
+                if self.used_last != 0:
                     # Total current fuel / last lap fuel consumption
                     self.est_runlaps = amount_curr / self.used_last
-                except ZeroDivisionError:
+                else:
                     self.est_runlaps = 0
 
                 # Estimate minutes current fuel can last
@@ -162,16 +168,11 @@ class DrawWidget(Widget, MouseEvent):
                                         * self.used_last - amount_curr)
 
                 # Minimum required pitstops to finish race
-                self.pit_required = max(self.amount_need / (capacity + 0.001), 0)
-
-                # Limit display range of amount_need value
-                if self.amount_need > 1000:
-                    self.amount_need = 999
-                elif self.amount_need < -999:
-                    self.amount_need = -999
+                self.pit_required = min(max(self.amount_need / (capacity + 0.001), 0), 99.99)
 
                 amount_curr_d = calc.conv_fuel(amount_curr, self.cfg["fuel_unit"])
-                amount_need_d = calc.conv_fuel(self.amount_need, self.cfg["fuel_unit"])
+                amount_need_d = calc.conv_fuel(min(max(self.amount_need, -999.9), 999.9),
+                                               self.cfg["fuel_unit"])
                 used_last_d = calc.conv_fuel(self.used_last, self.cfg["fuel_unit"])
 
                 # Low fuel warning
@@ -186,6 +187,12 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_fuel_5.config(text=str(f"{self.est_runmins:.1f}"))
                 # Estimated pit stops
                 self.bar_fuel_6.config(text=str(f"{self.pit_required:.2f}"))
+
+        else:
+            if self.checked:
+                self.checked = False
+                self.cfg["fuel_consumption"] = round(self.used_last, 6)
+                cfg.save()
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

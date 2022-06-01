@@ -24,12 +24,9 @@ import tkinter as tk
 from ctypes import windll
 
 import tinypedal.readapi as read_data
-from tinypedal.setting import Setting
+from tinypedal.__init__ import cfg
 from tinypedal.deltatime import DeltaTime
 
-
-# Load configuration
-cfg = Setting()
 
 # Load delta time info
 delta_time = DeltaTime()

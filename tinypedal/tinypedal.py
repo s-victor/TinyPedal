@@ -28,7 +28,8 @@ import psutil
 from tinypedal.base import cfg, OverlayLock, OverlayAutoHide
 from tinypedal.about import About
 
-from tinypedal.widget import (deltabest,
+from tinypedal.widget import (cruise,
+                              deltabest,
                               drs,
                               engine,
                               force,
@@ -76,6 +77,7 @@ class TrayIcon:
 
         # Add widget toggle items
         widget_menu = menu(
+            item("Cruise", wtoggle.cruise, checked=lambda _: cfg.setting_user["cruise"]["enable"]),
             item("Delta best", wtoggle.deltabest, checked=lambda _: cfg.setting_user["deltabest"]["enable"]),
             item("DRS", wtoggle.drs, checked=lambda _: cfg.setting_user["drs"]["enable"]),
             item("Engine", wtoggle.engine, checked=lambda _: cfg.setting_user["engine"]["enable"]),
@@ -127,6 +129,9 @@ class WidgetToggle:
 
     def __init__(self):
         """Activate widgets at startup"""
+        if cfg.setting_user["cruise"]["enable"]:
+            self.widget_cruise = cruise.DrawWidget()
+
         if cfg.setting_user["deltabest"]["enable"]:
             self.widget_deltabest = deltabest.DrawWidget()
 
@@ -177,6 +182,17 @@ class WidgetToggle:
 
         if cfg.setting_user["wheel"]["enable"]:
             self.widget_wheel = wheel.DrawWidget()
+
+    def cruise(self):
+        """Toggle cruise"""
+        if not cfg.setting_user["cruise"]["enable"]:
+            self.widget_cruise = cruise.DrawWidget()
+            cfg.setting_user["cruise"]["enable"] = True
+        else:
+            cfg.setting_user["cruise"]["enable"] = False
+            cfg.active_widget_list.remove(self.widget_cruise)
+            self.widget_cruise.destroy()
+        cfg.save()
 
     def deltabest(self):
         """Toggle deltabest"""

@@ -1,5 +1,10 @@
 # Available Widgets & Features
 
+## Cruise
+- Show compass directions with three-figure bearings that matches game's cardinal directions.
+- Show elevation difference in game's coordinate system, with meter or feet as display unit.
+- Show odometer that displays total driven distance of local player, with km or mile as display unit.
+
 ## Delta best
 - Show delta best based on personal best laptime.
 - Show delta bar with customizable range, size and color.
@@ -20,8 +25,7 @@
 - Show downforce ratio (percentage).
 
 ## Fuel
-- Show current remaining fuel.
-- Available fuel unit: Liters, Gallons.
+- Show current remaining fuel, with liters or gallons as display unit.
 - Show estimated total required fuel for finishing race, negative value indicates estimated extra fuel after race ends.
 - Show fuel consumption from last lap.
 - Show estimated laps & minutes that current remaining fuel can last.
@@ -30,7 +34,7 @@
 
 ## Gear
 - Show Gear in 2 layouts.
-- Show Speed with 3 different unit display: kph, mph, or m/s.
+- Show Speed, with kph, mph, or m/s as display unit.
 - Show Speed Limiter sign while activated.
 - Show RPM color indicator with customizable RPM range setting.
 - Show RPM over-rev color warning.
@@ -41,7 +45,7 @@
 - Show Force Feedback meter (optional), and clipping indicator.
 
 ## Pressure
-- Show Tyre pressure with 3 different unit display: kPa, psi, bar.
+- Show Tyre pressure, with kPa, psi, or bar as display unit.
 - Show Tyre load (optional) in Newtons or percentage ratio.
 - 4 different layouts.
 

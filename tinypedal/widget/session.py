@@ -24,10 +24,10 @@ import time
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.__init__ import info
+from tinypedal.__init__ import info, cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
-from tinypedal.base import cfg, Widget, MouseEvent
+from tinypedal.base import Widget, MouseEvent
 
 
 class DrawWidget(Widget, MouseEvent):
@@ -91,7 +91,7 @@ class DrawWidget(Widget, MouseEvent):
             time_left, lap_total, lap_num, plr_place, veh_total, lap_into = read_data.session()
 
             # Check isPlayer before update
-            if pidx == info.players_index:
+            if read_data.is_local_player(pidx):
 
                 clock = time.strftime(self.cfg["clock_format"])
 
@@ -116,8 +116,8 @@ class DrawWidget(Widget, MouseEvent):
                                               width=len(lap_num_text) + 1,
                                               bg=bg_lapnumber)
 
-            if self.cfg["show_place"]:
-                self.bar_place.config(text=f"{plr_place:02.0f}/{veh_total:02.0f}")
+                if self.cfg["show_place"]:
+                    self.bar_place.config(text=f"{plr_place:02.0f}/{veh_total:02.0f}")
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

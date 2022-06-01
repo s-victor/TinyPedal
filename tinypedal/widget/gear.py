@@ -23,10 +23,10 @@ Gear Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.__init__ import info
+from tinypedal.__init__ import info, cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
-from tinypedal.base import cfg, Widget, MouseEvent
+from tinypedal.base import Widget, MouseEvent
 
 
 class DrawWidget(Widget, MouseEvent):
@@ -119,7 +119,7 @@ class DrawWidget(Widget, MouseEvent):
             pit_limiter, gear, speed, rpm, rpm_max = read_data.gear()
 
             # Check isPlayer before update
-            if pidx == info.players_index:
+            if read_data.is_local_player(pidx):
 
                 gear = calc.gear(gear)
                 speed = calc.conv_speed(speed, self.cfg["speed_unit"])
@@ -141,9 +141,9 @@ class DrawWidget(Widget, MouseEvent):
                 if self.cfg["show_rpm_bar"]:
                     # RPM bar update
                     rpm_range = rpm_max - rpm_safe
-                    try:
+                    if rpm_range != 0:
                         rpmscale = max(rpm - rpm_safe, 0) / rpm_range * self.rpm_width
-                    except ZeroDivisionError:
+                    else:
                         rpmscale = 0
                     self.bar_rpm.coords(self.rect_rpm,
                                         rpmscale, self.cfg["rpm_bar_edge_height"],
