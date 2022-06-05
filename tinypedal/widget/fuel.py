@@ -124,7 +124,6 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Save switch
             if not self.checked:
@@ -135,7 +134,7 @@ class DrawWidget(Widget, MouseEvent):
             start_curr, laps_total, laps_left, time_left = read_data.timing()
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 # Calc last lap fuel consumption
                 if start_curr != self.start_last:  # time stamp difference

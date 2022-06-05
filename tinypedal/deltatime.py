@@ -71,7 +71,6 @@ class DeltaTime:
 
         while True:
             if info.Rf2Ext.mInRealtimeFC:
-                pidx = info.players_index
 
                 # Read combo & best laptime
                 if not verified:
@@ -84,7 +83,7 @@ class DeltaTime:
                 start_curr, elapsed_time, lastlap_check, speed, track_length, pos_curr, gps_curr = telemetry()
 
                 # Check isPlayer before update
-                if pidx == info.players_index and (0 <= info.playersVehicleScoring().mControl <= 1):
+                if (0 <= info.playersVehicleScoring().mControl <= 1):
 
                     laptime_curr = elapsed_time - start_last  # current laptime
 

@@ -76,13 +76,12 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read g-force & downforce data
             gf_lgt, gf_lat, df_ratio = read_data.force()
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 # Force update
                 self.bar_gforce_lgt.config(text=calc.gforce_lgt(gf_lgt) + f" {abs(gf_lgt):.2f}")

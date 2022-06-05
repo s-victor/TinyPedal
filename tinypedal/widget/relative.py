@@ -238,7 +238,6 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read relative data
             rel_list, cls_info = read_data.relative_list()
@@ -253,7 +252,7 @@ class DrawWidget(Widget, MouseEvent):
             v7_plc, v7_drv, v7_lpt, v7_pic, v7_cls, v7_gap, v7_lap, v7_pit = read_data.relative_data(rel_list[6], plr, cls_info)
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 # Relative update
                 # Driver place

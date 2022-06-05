@@ -77,13 +77,12 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read Engine data
             temp_oil, temp_water, e_turbo, e_rpm = read_data.engine()
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 # Engine update
                 self.bar_oil.config(text=f"O {temp_oil:05.01f}°",

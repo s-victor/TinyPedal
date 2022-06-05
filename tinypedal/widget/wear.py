@@ -125,14 +125,13 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read tyre wear data
             wear_fl, wear_fr, wear_rl, wear_rr = read_data.wear()
             start_curr = read_data.timing()[0]
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 # Calculate last lap tyre wear
                 if start_curr != self.start_last:  # time stamp difference

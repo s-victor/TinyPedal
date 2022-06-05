@@ -121,7 +121,6 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read camber data
             (camber_fl, camber_fr, camber_rl, camber_rr
@@ -136,7 +135,7 @@ class DrawWidget(Widget, MouseEvent):
              ) = [calc.meter2millmeter(data) for data in read_data.ride_height()]
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 # Camber update
                 self.bar_camber_fl.config(text=camber_fl)

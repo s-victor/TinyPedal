@@ -90,14 +90,13 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read Timing data
             (laptime_curr, laptime_last, laptime_best, laptime_est, _
              ) = [calc.sec2laptime(min(data, 5999.999)) for data in delta_time.output_data]
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 # Timing update
                 self.bar_time_best.config(text=f"B {laptime_best}")

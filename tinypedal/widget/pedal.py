@@ -114,7 +114,6 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read pedal data
             (throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
@@ -122,7 +121,7 @@ class DrawWidget(Widget, MouseEvent):
                   for data in read_data.pedal()]
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 self.bar_throttle.coords(self.rect_raw_throttle, 0,
                                          self.pbar_length, self.pbar_uwidth,

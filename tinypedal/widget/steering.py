@@ -90,13 +90,12 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read steering data
             raw_steering, steering_wheel_rot_range = read_data.steering()
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 # Steering update
                 raw_steering = calc.steering_pos(raw_steering, self.sbar_length)

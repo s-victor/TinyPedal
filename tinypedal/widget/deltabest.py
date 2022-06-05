@@ -85,13 +85,12 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read delta best data
             delta_best = delta_time.output_data[4]
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 # Deltabest update
                 if self.cfg["color_swap"] == "0":

@@ -85,13 +85,12 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read session data
             time_left, lap_total, lap_num, plr_place, veh_total, lap_into = read_data.session()
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 clock = time.strftime(self.cfg["clock_format"])
 

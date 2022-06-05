@@ -118,14 +118,13 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read average tyre & brake temperature data
             (ttemp_fl, ttemp_fr, ttemp_rl, ttemp_rr, btemp_fl, btemp_fr, btemp_rl, btemp_rr
              ) = [calc.kelvin2celsius(data) for data in read_data.temperature()]
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 # Set up display temps
                 ttemp_fl_d = calc.conv_temperature(ttemp_fl, self.cfg["temp_unit"])

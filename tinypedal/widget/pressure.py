@@ -125,7 +125,6 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read tyre pressure data
             (pres_fl, pres_fr, pres_rl, pres_rr
@@ -133,7 +132,7 @@ class DrawWidget(Widget, MouseEvent):
                   for data in read_data.tyre_pres()]
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 # Tyre load & pressure update
                 if self.cfg["show_tyre_load"]:

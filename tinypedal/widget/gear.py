@@ -113,13 +113,12 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read gear data
             pit_limiter, gear, speed, rpm, rpm_max = read_data.gear()
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 gear = calc.gear(gear)
                 speed = calc.conv_speed(speed, self.cfg["speed_unit"])

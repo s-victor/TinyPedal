@@ -78,13 +78,12 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read cruise data
             ori_yaw, pos_y = read_data.cruise()
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 # Cruise update
                 self.bar_compass.config(text=f"{ori_yaw:03.0f}°{self.deg2direction(ori_yaw)}")

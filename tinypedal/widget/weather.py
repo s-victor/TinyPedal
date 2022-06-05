@@ -73,13 +73,12 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read Weather data
             amb_temp, trk_temp, rain, min_wet, max_wet, avg_wet = read_data.weather()
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 # set up display units
                 amb_temp_d = calc.conv_temperature(amb_temp, self.cfg["temp_unit"])

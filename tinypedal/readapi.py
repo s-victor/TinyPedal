@@ -42,9 +42,9 @@ def state():
     return info.Rf2Ext.mInRealtimeFC
 
 
-def is_local_player(input_pidx):
+def is_local_player():
     """Check if is local player"""
-    if input_pidx == info.players_index and (0 <= info.playersVehicleScoring().mControl <= 1):
+    if (0 <= info.playersVehicleScoring().mControl <= 1):
         return True
     return False
 

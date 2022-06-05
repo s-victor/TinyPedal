@@ -115,14 +115,13 @@ class DrawWidget(Widget, MouseEvent):
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.cfg["enable"]:
-            pidx = info.players_index
 
             # Read stint data
             (lap_num, wear_avg, fuel_curr, time_curr, inpits, ftire_idx, rtire_idx, game_phase
              ) = read_data.stint()
 
             # Check isPlayer before update
-            if read_data.is_local_player(pidx):
+            if read_data.is_local_player():
 
                 fuel_curr = calc.conv_fuel(fuel_curr, self.cfg["fuel_unit"])
                 ftire_cmpd = self.cfg["tyre_compound_list"][ftire_idx:(ftire_idx+1)]
