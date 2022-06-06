@@ -70,7 +70,7 @@ class DeltaTime:
         update_delay = 0.5  # changeable update delay for conserving resources
 
         while True:
-            if info.Rf2Ext.mInRealtimeFC:
+            if info.playersVehicleTelemetry().mIgnitionStarter != 0:
 
                 # Read combo & best laptime
                 if not verified:

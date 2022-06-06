@@ -39,7 +39,7 @@ import tinypedal.calculation as calc
 
 def state():
     """Check game state"""
-    return info.Rf2Ext.mInRealtimeFC
+    return info.playersVehicleTelemetry().mIgnitionStarter != 0
 
 
 def is_local_player():
