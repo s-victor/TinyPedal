@@ -1,3 +1,22 @@
+TinyPedal 1.5.0 (2022-06-07)
+----------------------------
+* [New]Radar Widget
+    - Show car radar that displays relative position of player's vehicle against up 6 nearby vehicles.
+    - Vehicle changes color if is laps ahead or behind player.
+    - Fully customizable size & scale.
+    - Default refresh rate at 50 fps.
+    - Show center mark.
+
+* Core
+    - Deltatime module is now named realtime_delta, and as delta_module in config.ini file.
+    - Moved all "relative list" code to new realtime_relative module, added relative_module in config.ini file.
+    - Both Relative & Radar widgets now read data from realtime_relative module,
+      and calculation is done in a separated thread at constant 5fps(the limit of API).
+
+* Misc
+    - Updated customization guide with new configurable setting for Radar Widget.
+    - Updated features.md with Radar Widget info.
+
 TinyPedal 1.4.2 (2022-06-06)
 ----------------------------
 * Core

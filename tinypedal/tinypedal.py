@@ -37,6 +37,7 @@ from tinypedal.widget import (cruise,
                               gear,
                               pedal,
                               pressure,
+                              radar,
                               relative,
                               session,
                               steering,
@@ -86,6 +87,7 @@ class TrayIcon:
             item("Gear", wtoggle.gear, checked=lambda _: cfg.setting_user["gear"]["enable"]),
             item("Pedal", wtoggle.pedal, checked=lambda _: cfg.setting_user["pedal"]["enable"]),
             item("Pressure", wtoggle.pressure, checked=lambda _: cfg.setting_user["pressure"]["enable"]),
+            item("Radar", wtoggle.radar, checked=lambda _: cfg.setting_user["radar"]["enable"]),
             item("Relative", wtoggle.relative, checked=lambda _: cfg.setting_user["relative"]["enable"]),
             item("Session", wtoggle.session, checked=lambda _: cfg.setting_user["session"]["enable"]),
             item("Steering", wtoggle.steering, checked=lambda _: cfg.setting_user["steering"]["enable"]),
@@ -155,6 +157,9 @@ class WidgetToggle:
 
         if cfg.setting_user["pressure"]["enable"]:
             self.widget_pressure = pressure.DrawWidget()
+
+        if cfg.setting_user["radar"]["enable"]:
+            self.widget_radar = radar.DrawWidget()
 
         if cfg.setting_user["relative"]["enable"]:
             self.widget_relative = relative.DrawWidget()
@@ -280,6 +285,17 @@ class WidgetToggle:
             cfg.setting_user["pressure"]["enable"] = False
             cfg.active_widget_list.remove(self.widget_pressure)
             self.widget_pressure.destroy()
+        cfg.save()
+
+    def radar(self):
+        """Toggle radar"""
+        if not cfg.setting_user["radar"]["enable"]:
+            self.widget_radar = radar.DrawWidget()
+            cfg.setting_user["radar"]["enable"] = True
+        else:
+            cfg.setting_user["radar"]["enable"] = False
+            cfg.active_widget_list.remove(self.widget_radar)
+            self.widget_radar.destroy()
         cfg.save()
 
     def relative(self):

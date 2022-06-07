@@ -25,13 +25,19 @@ from ctypes import windll
 
 import tinypedal.readapi as read_data
 from tinypedal.__init__ import cfg
-from tinypedal.deltatime import DeltaTime
+from tinypedal.realtime_delta import DeltaTime
+from tinypedal.realtime_relative import RelativeInfo
 
 
-# Load delta time info
+# Load delta module
 delta_time = DeltaTime()
-if cfg.overlay["delta_timing"]:
+if cfg.overlay["delta_module"]:
     delta_time.start()
+
+# Load relative module
+relative_info = RelativeInfo()
+if cfg.overlay["relative_module"]:
+    relative_info.start()
 
 
 class Window(tk.Tk):

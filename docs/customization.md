@@ -57,7 +57,7 @@ Acceptable value: `normal` or `bold` .
 Those are for font color.
 
     bkg_color
-Those are for background color.
+Those are for background color. A value of `"#000002"` makes color fully transparent.
 
 
 ## Overlay
@@ -73,8 +73,11 @@ Check whether auto hide is enabled. This setting can be toggled from tray icon m
 
 Valid value: `true`, same as `1`. `false`, same as `0`.
 
-    delta_timing
-Enable delta timing module. This module provides timing data for `Delta best` and `Timing` widgets, which returns value 0 if it is turned off.
+    delta_module
+Enable delta timing module. This module provides timing data for `Delta best` and `Timing` widgets, which returns value 0 if turned off.
+
+    relative_module
+Enable relative calculation module. This module provides vehicle relative data for `Relative` and `Radar` widgets, which returns nothing if turned off.
 
     hover_color_1, hover_color_2
 Define color of hover cover when mouse cursor is above widget (when not locked).
@@ -218,7 +221,39 @@ This enables Tyre Load display.
 Show tyre load percentage ratio between left & right tyres of same axle. Set `false` to show individual tyre load in Newtons.
 
 
+## Radar
+    area_scale
+Set radar area size multiplier. Higher value extends widget size & visible area. This value does not change vehicle size. Minimum value is limited to `0.5`.
+
+    vehicle_length, vehicle_width
+Set vehicle overall size (length & width), value in meters.
+
+    vehicle_scale
+Set vehicle size scale for displaying, this affects both vehicle size and relative distance between other vehicles (like zoom). Default value is `0.6`, which is 60% of original scale.
+
+    bkg_color
+Set radar background color. Default value is `"#000002"`, which makes background fully transparent.
+
+    player_color
+Set player vehicle color. Default value is `"#000002"`, which makes background fully transparent.
+
+    player_outline_color, player_outline_width
+Set outline color & width of player vehicle.
+
+    opponent_color
+Set opponent vehicle color.
+
+    opponent_color_laps_ahead, opponent_color_laps_behind
+Set color for opponent vehicle that is laps ahead or behind player vehicle.
+
+    show_center_mark
+Show center mark on radar.
+
+
 ## Relative
+    font_color_laps_ahead, font_color_laps_behind
+Set font color for opponent vehicle that is laps ahead or behind player vehicle.
+
     bar_driver_name_width
 Set drive name display width, value in chars, such as 18 = 18 chars.
 

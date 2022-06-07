@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Delta time module
+Delta module
 """
 
 import time
@@ -76,14 +76,15 @@ class DeltaTime:
                 if not verified:
                     verified = True
                     update_delay = 0.01  # shorter delay
-                    combo_name = combo_check()
-                    delta_list_best, laptime_best = load_deltabest(combo_name)
+                    combo_name = self.combo_check()
+                    delta_list_best, laptime_best = self.load_deltabest(combo_name)
                     start_last = 0  # reset last lap-start-time
 
-                start_curr, elapsed_time, lastlap_check, speed, track_length, pos_curr, gps_curr = telemetry()
+                (start_curr, elapsed_time, lastlap_check, speed, track_length, pos_curr, gps_curr
+                 ) = self.telemetry()
 
                 # Check isPlayer before update
-                if (0 <= info.playersVehicleScoring().mControl <= 1):
+                if 0 <= info.playersVehicleScoring().mControl <= 1:
 
                     laptime_curr = elapsed_time - start_last  # current laptime
 
@@ -164,7 +165,7 @@ class DeltaTime:
 
                     # Save delta best data
                     if delta_list_best:
-                        save_deltabest(combo_name, delta_list_best)
+                        self.save_deltabest(combo_name, delta_list_best)
 
                     # Save meters driven data
                     cfg.setting_user["cruise"]["meters_driven"] = int(self.meters_driven)
@@ -172,45 +173,45 @@ class DeltaTime:
 
             time.sleep(update_delay)
 
+    @staticmethod
+    def telemetry():
+        """Telemetry data"""
+        start_curr = info.playersVehicleTelemetry().mLapStartET
+        elapsed_time = info.playersVehicleTelemetry().mElapsedTime
+        lastlap_check = info.playersVehicleScoring().mLastLapTime
+        speed = calc.vel2speed(info.playersVehicleTelemetry().mLocalVel.x,
+                               info.playersVehicleTelemetry().mLocalVel.y,
+                               info.playersVehicleTelemetry().mLocalVel.z)
+        track_length = info.Rf2Scor.mScoringInfo.mLapDist
+        pos_curr = min(info.playersVehicleScoring().mLapDist, track_length)
+        gps_curr = [info.playersVehicleTelemetry().mPos.x,
+                    info.playersVehicleTelemetry().mPos.y,
+                    info.playersVehicleTelemetry().mPos.z]
+        return start_curr, elapsed_time, lastlap_check, speed, track_length, pos_curr, gps_curr
 
-def telemetry():
-    """Telemetry data"""
-    start_curr = info.playersVehicleTelemetry().mLapStartET
-    elapsed_time = info.playersVehicleTelemetry().mElapsedTime
-    lastlap_check = info.playersVehicleScoring().mLastLapTime
-    speed = calc.vel2speed(info.playersVehicleTelemetry().mLocalVel.x,
-                           info.playersVehicleTelemetry().mLocalVel.y,
-                           info.playersVehicleTelemetry().mLocalVel.z)
-    track_length = info.Rf2Scor.mScoringInfo.mLapDist
-    pos_curr = min(info.playersVehicleScoring().mLapDist, track_length)
-    gps_curr = [info.playersVehicleTelemetry().mPos.x,
-                info.playersVehicleTelemetry().mPos.y,
-                info.playersVehicleTelemetry().mPos.z]
-    return start_curr, elapsed_time, lastlap_check, speed, track_length, pos_curr, gps_curr
+    @staticmethod
+    def combo_check():
+        """Track & vehicle combo data"""
+        name_class = Cbytestring2Python(info.playersVehicleScoring().mVehicleClass)
+        name_track = Cbytestring2Python(info.Rf2Scor.mScoringInfo.mTrackName)
+        return f"{name_track} - {name_class}"
 
+    @staticmethod
+    def load_deltabest(combo):
+        """Load delta best & best laptime"""
+        try:
+            with open(f"deltabest/{combo}.csv", newline="", encoding="utf-8") as csvfile:
+                deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
+                bestlist = list(deltaread)
+                bestlap = bestlist[-1][1]  # read best laptime
+        except (FileNotFoundError, IndexError):
+            bestlist = []
+            bestlap = 5999.999
+        return bestlist, bestlap
 
-def combo_check():
-    """Track & vehicle combo data"""
-    name_class = Cbytestring2Python(info.playersVehicleScoring().mVehicleClass)
-    name_track = Cbytestring2Python(info.Rf2Scor.mScoringInfo.mTrackName)
-    return f"{name_track} - {name_class}"
-
-
-def load_deltabest(combo):
-    """Load delta best & best laptime"""
-    try:
-        with open(f"deltabest/{combo}.csv", newline="", encoding="utf-8") as csvfile:
-            deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
-            bestlist = list(deltaread)
-            bestlap = bestlist[-1][1]  # read best laptime
-    except (FileNotFoundError, IndexError):
-        bestlist = []
-        bestlap = 5999.999
-    return bestlist, bestlap
-
-
-def save_deltabest(combo, listname):
-    """Save delta best"""
-    with open(f"deltabest/{combo}.csv", "w", newline="", encoding="utf-8") as csvfile:
-        deltawrite = csv.writer(csvfile)
-        deltawrite.writerows(listname)
+    @staticmethod
+    def save_deltabest(combo, listname):
+        """Save delta best"""
+        with open(f"deltabest/{combo}.csv", "w", newline="", encoding="utf-8") as csvfile:
+            deltawrite = csv.writer(csvfile)
+            deltawrite.writerows(listname)

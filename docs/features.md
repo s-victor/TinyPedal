@@ -49,6 +49,13 @@
 - Show Tyre load (optional) in Newtons or percentage ratio.
 - 4 different layouts.
 
+## Radar
+- Show car radar that displays relative position of player's vehicle against up 6 nearby vehicles.
+- Vehicle changes color if is laps ahead or behind player.
+- Fully customizable size & scale.
+- Default refresh rate at 50 fps.
+- Show center mark.
+
 ## Relative
 - Show driver standings, relative position and time gap.
 - Show different text color based on laps ahead or behind you.

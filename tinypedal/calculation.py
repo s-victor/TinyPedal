@@ -152,10 +152,17 @@ def force_ratio(value1, value2):
     return ratio
 
 
-def oriyaw2deg(value1, value2):
-    """Convert orientation yaw to degree"""
-    degree = 180 - (math.atan2(value1, value2) * 57.2957795)
-    return degree
+def oriyaw2rad(value1, value2):
+    """Convert orientation yaw to radians"""
+    radian = math.atan2(value1, value2)
+    return radian
+
+
+def rotate_pos(ori_rad, value1, value2):
+    """Rotate x y coordinates"""
+    new_pos_x = (math.cos(ori_rad) * value1) - (math.sin(ori_rad) * value2)
+    new_pos_z = (math.cos(ori_rad) * value2) + (math.sin(ori_rad) * value1)
+    return new_pos_x, new_pos_z
 
 
 def pos2distance(value1, value2):
