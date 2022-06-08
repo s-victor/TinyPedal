@@ -1,3 +1,8 @@
+TinyPedal 1.5.1 (2022-06-08)
+----------------------------
+* Radar Widget
+    - Now draw vehicle orientation relative to player vehicle.
+
 TinyPedal 1.5.0 (2022-06-07)
 ----------------------------
 * [New]Radar Widget

@@ -202,14 +202,20 @@ class RelativeInfo:
         return ori_rad
 
     @staticmethod
-    def relative_radar_pos(ori_rad, index):
-        """Relative radar data"""
+    def radar_pos(plr_ori_rad, index):
+        """Calculate vehicle coordinates, lap number, orientation"""
         if index >= 0:
             pos_x = info.Rf2Tele.mVehicles[index].mPos.x * 10
             pos_z = info.Rf2Tele.mVehicles[index].mPos.z * 10
-            new_pos = calc.rotate_pos(ori_rad, pos_x, pos_z)
+
+            new_pos = calc.rotate_pos(plr_ori_rad, pos_x, pos_z)
             num_lap = info.Rf2Tele.mVehicles[index].mLapNumber
+
+            opt_ori_rad = calc.oriyaw2rad(info.Rf2Tele.mVehicles[index].mOri[2].z,
+                                          info.Rf2Tele.mVehicles[index].mOri[2].x)
+            ori_diff = opt_ori_rad - plr_ori_rad  # opponent orientation - player orientation
         else:
             new_pos = (-99999, -99999)
             num_lap = 0
-        return new_pos, num_lap
+            ori_diff = 0
+        return new_pos, num_lap, ori_diff
