@@ -80,7 +80,7 @@ class DeltaTime:
                     delta_list_best, laptime_best = self.load_deltabest(combo_name)
                     start_last = 0  # reset last lap-start-time
 
-                (start_curr, elapsed_time, lastlap_check, speed, track_length, pos_curr, gps_curr
+                (start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr
                  ) = self.telemetry()
 
                 # Check isPlayer before update
@@ -93,7 +93,7 @@ class DeltaTime:
                         laptime_last = start_curr - start_last
 
                         if delta_list_curr:  # non-empty list check
-                            delta_list_curr.append((track_length, laptime_last))  # set end value
+                            delta_list_curr.append((pos_last, laptime_last))  # set end value
                             delta_list_last = delta_list_curr.copy()
                             validating = True
 
@@ -118,7 +118,8 @@ class DeltaTime:
 
                     # Recording only from the beginning of a lap
                     if recording:
-                        if pos_curr != pos_last:  # update position if difference found
+                        # Update position if current dist value is diff & positive
+                        if pos_curr != pos_last and pos_curr >= 0:
                             if  pos_curr > pos_last:  # record if position is further away
                                 delta_list_curr.append((pos_curr, laptime_curr))
 
@@ -182,12 +183,11 @@ class DeltaTime:
         speed = calc.vel2speed(info.playersVehicleTelemetry().mLocalVel.x,
                                info.playersVehicleTelemetry().mLocalVel.y,
                                info.playersVehicleTelemetry().mLocalVel.z)
-        track_length = info.Rf2Scor.mScoringInfo.mLapDist
-        pos_curr = min(info.playersVehicleScoring().mLapDist, track_length)
+        pos_curr = info.playersVehicleScoring().mLapDist
         gps_curr = [info.playersVehicleTelemetry().mPos.x,
                     info.playersVehicleTelemetry().mPos.y,
                     info.playersVehicleTelemetry().mPos.z]
-        return start_curr, elapsed_time, lastlap_check, speed, track_length, pos_curr, gps_curr
+        return start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr
 
     @staticmethod
     def combo_check():

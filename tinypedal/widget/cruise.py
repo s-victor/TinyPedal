@@ -20,6 +20,7 @@
 Cruise Widget
 """
 
+import time
 import tkinter as tk
 import tkinter.font as tkfont
 
@@ -53,22 +54,28 @@ class DrawWidget(Widget, MouseEvent):
         # Draw label
         bar_style = {"bd":0, "height":1, "padx":0, "pady":0, "font":font_cruise}
 
+        if self.cfg["show_track_clock"]:
+            self.bar_trackclock = tk.Label(self, bar_style, text="", width=7,
+                                            fg=self.cfg["font_color_track_clock"],
+                                            bg=self.cfg["bkg_color_track_clock"])
+            self.bar_trackclock.grid(row=0, column=0, padx=(0, bar_gap), pady=0)
+
         self.bar_compass = tk.Label(self, bar_style, text="CRUISE", width=7,
                                     fg=self.cfg["font_color_compass"],
                                     bg=self.cfg["bkg_color_compass"])
-        self.bar_compass.grid(row=0, column=0, padx=0, pady=0)
+        self.bar_compass.grid(row=0, column=1, padx=0, pady=0)
 
         if self.cfg["show_elevation"]:
             self.bar_elevation = tk.Label(self, bar_style, text="", width=7,
                                           fg=self.cfg["font_color_elevation"],
                                           bg=self.cfg["bkg_color_elevation"])
-            self.bar_elevation.grid(row=0, column=1, padx=(bar_gap, 0), pady=0)
+            self.bar_elevation.grid(row=0, column=2, padx=(bar_gap, 0), pady=0)
 
         if self.cfg["show_odometer"]:
             self.bar_odometer = tk.Label(self, bar_style, text="", width=9,
                                          fg=self.cfg["font_color_odometer"],
                                          bg=self.cfg["bkg_color_odometer"])
-            self.bar_odometer.grid(row=0, column=2, padx=(bar_gap, 0), pady=0)
+            self.bar_odometer.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
 
         self.update_data()
 
@@ -80,13 +87,18 @@ class DrawWidget(Widget, MouseEvent):
         if read_data.state() and self.cfg["enable"]:
 
             # Read cruise data
-            ori_yaw, pos_y = read_data.cruise()
+            ori_yaw, pos_y, track_clock = read_data.cruise()
 
             # Check isPlayer before update
             if read_data.is_local_player():
 
                 # Cruise update
                 self.bar_compass.config(text=f"{ori_yaw:03.0f}°{self.deg2direction(ori_yaw)}")
+
+                if self.cfg["show_track_clock"]:
+                    clock_text = time.strftime(self.cfg["track_clock_format"],
+                                               time.gmtime(track_clock))
+                    self.bar_trackclock.config(text=clock_text, width=len(clock_text)+1)
 
                 if self.cfg["show_elevation"]:
                     if self.cfg["elevation_unit"] == "1":

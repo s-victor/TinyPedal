@@ -54,7 +54,27 @@ def cruise():
     ori_yaw = 180 - (calc.oriyaw2rad(info.playersVehicleTelemetry().mOri[2].x,
                                      info.playersVehicleTelemetry().mOri[2].z) * 57.2957795)
     pos_y = info.playersVehicleScoring().mPos.y
-    return ori_yaw, pos_y
+    track_clock = info.Rf2Scor.mScoringInfo.mStartET + info.Rf2Scor.mScoringInfo.mCurrentET
+    return ori_yaw, pos_y, track_clock
+
+
+def instrument():
+    """Instrument data"""
+    start_curr = info.playersVehicleTelemetry().mLapStartET
+    headlights = info.playersVehicleTelemetry().mHeadlights
+    ignition = info.playersVehicleTelemetry().mIgnitionStarter
+    rpm = info.playersVehicleTelemetry().mEngineRPM
+    autoclutch = info.Rf2Ext.mPhysics.mAutoClutch
+    clutch = info.playersVehicleTelemetry().mFilteredClutch
+    brake = info.playersVehicleTelemetry().mFilteredBrake
+    wheel_rot = [info.playersVehicleTelemetry().mWheels[0].mRotation,
+                 info.playersVehicleTelemetry().mWheels[1].mRotation,
+                 info.playersVehicleTelemetry().mWheels[2].mRotation,
+                 info.playersVehicleTelemetry().mWheels[3].mRotation]
+    speed = calc.vel2speed(info.playersVehicleTelemetry().mLocalVel.x,
+                           info.playersVehicleTelemetry().mLocalVel.y,
+                           info.playersVehicleTelemetry().mLocalVel.z)
+    return start_curr, headlights, ignition, rpm, autoclutch, clutch, brake, wheel_rot, speed
 
 
 def pedal():

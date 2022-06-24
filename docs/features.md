@@ -1,6 +1,7 @@
 # Available Widgets & Features
 
 ## Cruise
+- Show current in-game clock time of the circuit.
 - Show compass directions with three-figure bearings that matches game's cardinal directions.
 - Show elevation difference in game's coordinate system, with meter or feet as display unit.
 - Show odometer that displays total driven distance of local player, with km or mile as display unit.
@@ -39,6 +40,21 @@
 - Show RPM color indicator with customizable RPM range setting.
 - Show RPM over-rev color warning.
 - Show RPM bar animation (optional) ranged from safe RPM to max RPM.
+
+## Instrument
+- Show Headlights state.
+  When Headlights on, icon turns white.
+- Show Ignition & Starter state.
+  When Ignition on, icon turns white.
+  When Ignition on while Engine off, icon background turns green (default color).
+- Show Auto-Clutch state.
+  When Auto-Clutch on, icon turns white.
+  When Clutch pressed, icon background turns cyan (default color).
+- Show Wheel Lock state.
+  When Brake pressed and Slip Ratio reaches threshold, icon background flashes red (default color).
+- Show Wheel Slip state.
+  When Slip Ratio reaches threshold, icon background flashes yellow (default color).
+- Include many customizable options.
 
 ## Pedal
 - Show Pedal input, both Filtered & Unfiltered input side by side, which helps distinguish car specific assists such as TC/ABS/Auto-clutch, etc.

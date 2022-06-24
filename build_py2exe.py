@@ -21,6 +21,7 @@ data_files = [("", ["icon.ico", "LICENSE.txt", "README.md"]),
               ("docs", ["docs/changelog.txt", "docs/customization.md", "docs/contributors.md", "docs/features.md"]),
               ("docs/licenses", glob("docs/licenses/*")),
               ("deltabest", ["deltabest/README.txt"]),
+              ("images", ["images/CC-BY-SA-4.0.txt", "images/icon_instrument.png"]),
               ]
 
 options = {

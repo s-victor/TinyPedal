@@ -1,3 +1,35 @@
+TinyPedal 1.6.0 (2022-06-24)
+----------------------------
+* [New]Instrument Widget
+    - Show Headlights state.
+      When Headlights on, icon turns white.
+    - Show Ignition & Starter state.
+      When Ignition on, icon turns white.
+      When Ignition on while Engine off, icon background turns green (default color).
+    - Show Auto-Clutch state.
+      When Auto-Clutch on, icon turns white.
+      When Clutch pressed, icon background turns cyan (default color).
+    - Show Wheel Lock state.
+      When Brake pressed and Slip Ratio reaches threshold, icon background flashes red (default color).
+    - Show Wheel Slip state.
+      When Slip Ratio reaches threshold, icon background flashes yellow (default color).
+    - Include many customizable options.
+    - New instrument icon by Xiang.
+
+* Cruise Widget
+    - [New]Show current in-game clock time of the circuit.
+
+* Core
+    - Fixed an issue where Deltatime module would fail to record deltabest laptime
+      for point to point tracks after certain amount driven distance.
+    - Various optimization.
+    - Updated build_py2exe.py script.
+
+* Misc
+    - Updated customization guide with new configurable setting for Instrument & Cruise Widget.
+    - Updated features.md with Instrument Widget info.
+    - Updated README.md.
+
 TinyPedal 1.5.1 (2022-06-08)
 ----------------------------
 * Radar Widget

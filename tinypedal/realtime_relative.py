@@ -184,11 +184,11 @@ class RelativeInfo:
             rel_dist = 0
 
         # Time gap = Relative dist / player speed
-        speed = int(calc.vel2speed(
+        speed = calc.vel2speed(
                     info.Rf2Scor.mVehicles[index_player].mLocalVel.x,
                     info.Rf2Scor.mVehicles[index_player].mLocalVel.y,
-                    info.Rf2Scor.mVehicles[index_player].mLocalVel.z))
-        if speed != 0:
+                    info.Rf2Scor.mVehicles[index_player].mLocalVel.z)
+        if speed > 0:
             time_gap = f"{rel_dist / speed:.01f}"
         else:
             time_gap = "0.0"

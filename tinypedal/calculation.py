@@ -105,6 +105,23 @@ def rake2angle(rake, wheelbase):
     return degree
 
 
+def slip_ratio(w_rot, w_radius, v_speed):
+    """Calculate slip ratio, speed unit in m/s"""
+    if v_speed > 0.1:
+        percentage = abs((v_speed - abs(w_rot * w_radius)) / v_speed)
+    else:
+        percentage = 0
+    return percentage
+
+
+def max_vs_avg_rotation(w_rot1, w_rot2):
+    """Calculate left and right wheel rotation difference of same axle"""
+    max_rot = min(w_rot1, w_rot2)  # negative value is forward
+    avg_rot = (w_rot1 + w_rot2) / 2
+    difference = abs(max_rot - avg_rot)
+    return difference
+
+
 def kelvin2celsius(kelvin):
     """Convert Kelvin to Celsius"""
     celsius = max(kelvin - 273.15, 0)

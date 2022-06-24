@@ -84,6 +84,12 @@ Define color of hover cover when mouse cursor is above widget (when not locked).
 
 
 ## Cruise
+    show_track_clock
+Show current in-game clock time of the circuit.
+
+    track_clock_format
+Set track clock format string. To show seconds, add `%S`, such as `"%H:%M:%S %p"`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
+
     show_elevation
 Show elevation difference in game's coordinate system.
 
@@ -196,6 +202,29 @@ This value multiplies max RPM value, which sets a relative near-max RPM range fo
 This sets the color for over-rev warning indicator.
 
 
+## Instrument
+    icon_size
+Set size of instrument icon in pixel. Minimum value is auto-limited to `16`.
+
+    layout
+2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
+
+    column_index_*
+Set display order of each icon. Must keep index number unique to each icon, otherwise icons will overlap.
+
+    warning_color_*
+Set warning color for each icon, which shows when conditions are met.
+
+    wheel_lock_threshold
+Set percentage threshold for triggering wheel lock warning under braking. `0.2` means 20% of tyre slip ratio.
+
+    wheel_slip_threshold
+Set percentage threshold for triggering wheel slip warning. `0.1` means 10% of tyre slip ratio.
+
+    wheel_radius_front, wheel_radius_rear
+Set radius for front and rear wheels, which is used to calculate tyre slip ratio. Manual editing is not required, as this value will be automatically calculated based on a special algorithm after player has completed a full lap, and will be auto-saved to `config.json` file.
+
+
 ## Pedal
     bar_length_scale, bar_width_scale
 Scale pedal bar length & width, accepts decimal place.
@@ -223,7 +252,7 @@ Show tyre load percentage ratio between left & right tyres of same axle. Set `fa
 
 ## Radar
     area_scale
-Set radar area size multiplier. Higher value extends widget size & visible area. This value does not change vehicle size. Minimum value is limited to `0.5`.
+Set radar area size multiplier. Higher value extends widget size & visible area. This value does not change vehicle size. Minimum value is auto-limited to `0.5`.
 
     vehicle_length, vehicle_width
 Set vehicle overall size (length & width), value in meters.

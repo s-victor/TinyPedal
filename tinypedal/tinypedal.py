@@ -35,6 +35,7 @@ from tinypedal.widget import (cruise,
                               force,
                               fuel,
                               gear,
+                              instrument,
                               pedal,
                               pressure,
                               radar,
@@ -85,6 +86,7 @@ class TrayIcon:
             item("Force", wtoggle.force, checked=lambda _: cfg.setting_user["force"]["enable"]),
             item("Fuel", wtoggle.fuel, checked=lambda _: cfg.setting_user["fuel"]["enable"]),
             item("Gear", wtoggle.gear, checked=lambda _: cfg.setting_user["gear"]["enable"]),
+            item("Instrument", wtoggle.instrument, checked=lambda _: cfg.setting_user["instrument"]["enable"]),
             item("Pedal", wtoggle.pedal, checked=lambda _: cfg.setting_user["pedal"]["enable"]),
             item("Pressure", wtoggle.pressure, checked=lambda _: cfg.setting_user["pressure"]["enable"]),
             item("Radar", wtoggle.radar, checked=lambda _: cfg.setting_user["radar"]["enable"]),
@@ -151,6 +153,9 @@ class WidgetToggle:
 
         if cfg.setting_user["gear"]["enable"]:
             self.widget_gear = gear.DrawWidget()
+
+        if cfg.setting_user["instrument"]["enable"]:
+            self.widget_instrument = instrument.DrawWidget()
 
         if cfg.setting_user["pedal"]["enable"]:
             self.widget_pedal = pedal.DrawWidget()
@@ -263,6 +268,17 @@ class WidgetToggle:
             cfg.setting_user["gear"]["enable"] = False
             cfg.active_widget_list.remove(self.widget_gear)
             self.widget_gear.destroy()
+        cfg.save()
+
+    def instrument(self):
+        """Toggle instrument"""
+        if not cfg.setting_user["instrument"]["enable"]:
+            self.widget_instrument = instrument.DrawWidget()
+            cfg.setting_user["instrument"]["enable"] = True
+        else:
+            cfg.setting_user["instrument"]["enable"] = False
+            cfg.active_widget_list.remove(self.widget_instrument)
+            self.widget_instrument.destroy()
         cfg.save()
 
     def pedal(self):

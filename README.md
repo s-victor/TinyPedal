@@ -116,6 +116,6 @@ Tony Whitley for pyRfactor2SharedMemory library.
 
 TinyPedal is licensed under the GNU General Public License v3.0 or later. See [LICENSE.txt](./LICENSE.txt) for full text.
 
-TinyPedal icon is licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+TinyPedal icon, as well as image files located in `images` folder, are licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
 Licenses and notices file for third-party software are located in `docs\licenses` folder, see [THIRDPARTYNOTICES.txt](./docs/licenses/THIRDPARTYNOTICES.txt) file for details.

@@ -51,7 +51,7 @@ class About(Window):
         icon_resize = icon_source.resize((54, 54), resample=1)
         icon_image = ImageTk.PhotoImage(icon_resize)
         icon_label = tk.Label(self, image=icon_image, bg=bg_color)
-        icon_label.photo = icon_image
+        icon_label.image = icon_image
         icon_label.grid(row=0, column=0, padx=0, pady=0, sticky="w")
 
         about_title1 = tk.Label(self, text="TinyPedal", font=("Tahoma",16, "normal"),
