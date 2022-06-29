@@ -98,7 +98,6 @@ class DrawWidget(Widget, MouseEvent):
         self.icon_slip = self.bar_slip.create_image(
                          0, self.icon_size, image=icon_image, anchor="s")
 
-
         column_hl = self.cfg["column_index_headlights"]
         column_ig = self.cfg["column_index_ignition"]
         column_cl = self.cfg["column_index_clutch"]
@@ -117,7 +116,6 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_clutch.grid(row=column_cl, column=0, padx=0, pady=(0, self.cfg["bar_gap"]))
             self.bar_lock.grid(row=column_wl, column=0, padx=0, pady=(0, self.cfg["bar_gap"]))
             self.bar_slip.grid(row=column_ws, column=0, padx=0, pady=(0, self.cfg["bar_gap"]))
-
 
         self.update_data()
 
@@ -139,19 +137,7 @@ class DrawWidget(Widget, MouseEvent):
             # Check isPlayer before update
             if read_data.is_local_player():
 
-                # Calc last lap average wheel radius reading
-                if start_curr != self.start_last:  # time stamp difference
-                    if self.list_radius_f:
-                        self.avg_wheel_radius_f = round(sum(self.list_radius_f)
-                                                        / len(self.list_radius_f), 3)
-                        self.list_radius_f = []  # reset list
-                    if self.list_radius_r:
-                        self.avg_wheel_radius_r = round(sum(self.list_radius_r)
-                                                        / len(self.list_radius_r), 3)
-                        self.list_radius_r = []  # reset list
-                    self.start_last = start_curr  # reset time stamp counter
-
-                if speed > 3:
+                if speed > self.cfg["minimum_speed"]:
                     # Get wheel rotation difference
                     diff_rot_f = calc.max_vs_avg_rotation(wheel_rot[0], wheel_rot[1])
                     diff_rot_r = calc.max_vs_avg_rotation(wheel_rot[2], wheel_rot[3])
@@ -160,6 +146,20 @@ class DrawWidget(Widget, MouseEvent):
                         self.list_radius_f.append(abs(speed * 2 / (wheel_rot[0] + wheel_rot[1])))
                     if 0 < diff_rot_r < 0.1:
                         self.list_radius_r.append(abs(speed * 2 / (wheel_rot[2] + wheel_rot[3])))
+
+                # Calc last lap average wheel radius reading
+                if start_curr != self.start_last:  # time stamp difference
+                    list_size_f = len(self.list_radius_f)
+                    list_size_r = len(self.list_radius_r)
+                    if list_size_f > self.cfg["minimum_samples"]:
+                        self.avg_wheel_radius_f = round(sum(self.list_radius_f)
+                                                        / list_size_f, 3)
+                        self.list_radius_f = []  # reset list
+                    if list_size_r > self.cfg["minimum_samples"]:
+                        self.avg_wheel_radius_r = round(sum(self.list_radius_r)
+                                                        / list_size_r, 3)
+                        self.list_radius_r = []  # reset list
+                    self.start_last = start_curr  # reset time stamp counter
 
                 ratiolist = [calc.slip_ratio(wheel_rot[0], self.avg_wheel_radius_f, speed),
                              calc.slip_ratio(wheel_rot[1], self.avg_wheel_radius_f, speed),

@@ -56,6 +56,9 @@ class DrawWidget(Widget, MouseEvent):
                                        size=-int(self.cfg["font_size"]*0.35),
                                        weight=self.cfg["font_weight_gauge"])
 
+        # Set state for drawing optimization
+        self.state_lm = True  # limiter
+
         # Draw label
         self.bar_gear_bg = tk.Canvas(self, bd=0, highlightthickness=0, height=0, width=0,
                                      bg=self.cfg["bkg_color"])
@@ -66,12 +69,7 @@ class DrawWidget(Widget, MouseEvent):
                                  fg=self.cfg["font_color_gear"],
                                  bg=self.cfg["bkg_color"])
 
-        self.bar_limiter = tk.Label(self, text=self.cfg["speed_limiter_text"], bd=0, height=1,
-                                    width=len(self.cfg["speed_limiter_text"])+1,
-                                    font=font_gear, padx=0, pady=0,
-                                    fg="#111111", bg="#FF2200")
-        self.bar_limiter.grid(row=0, column=5, padx=0, pady=0, sticky="ns")
-
+        # Layout
         if self.cfg["layout"] == "0":
             self.bar_gear.grid(row=0, column=0, padx=0, pady=0)
 
@@ -95,6 +93,7 @@ class DrawWidget(Widget, MouseEvent):
 
             self.rpm_width = self.bar_gear.winfo_reqwidth()
 
+        # RPM bar
         if self.cfg["show_rpm_bar"]:
             self.bar_rpm = tk.Canvas(self, bd=0, highlightthickness=0,
                                      height=self.cfg["rpm_bar_height"], width=self.rpm_width,
@@ -104,6 +103,22 @@ class DrawWidget(Widget, MouseEvent):
             # Used as transparent mask
             self.rect_rpm = self.bar_rpm.create_rectangle(
                             0, 0, 0, 0, fill="#000002", outline="")
+
+        # Speed limiter
+        self.bar_limiter = tk.Label(self, text=self.cfg["speed_limiter_text"], bd=0, height=1,
+                                    width=len(self.cfg["speed_limiter_text"])+1,
+                                    font=font_gear, padx=0, pady=0,
+                                    fg="#111111", bg="#FF2200")
+        self.bar_limiter.grid(row=0, column=5, padx=0, pady=0, sticky="ns")
+        self.bar_limiter.grid_remove()  # hide limiter indicator at start
+
+        # Countdown
+        if self.cfg["show_countdown"]:
+            self.bar_countdown = tk.Label(self, text="0.00", bd=0, height=1, width=5,
+                                          font=font_gear, padx=0, pady=0,
+                                          fg="#111111", bg="#FFFFFF")
+            self.bar_countdown.grid(row=0, column=3, padx=0, pady=0, sticky="ns")
+            self.bar_countdown.grid_remove()  # hide countdown indicator at start
 
         self.update_data()
 
@@ -115,7 +130,7 @@ class DrawWidget(Widget, MouseEvent):
         if read_data.state() and self.cfg["enable"]:
 
             # Read gear data
-            pit_limiter, gear, speed, rpm, rpm_max = read_data.gear()
+            pit_limiter, gear, speed, rpm, rpm_max, race_phase = read_data.gear()
 
             # Check isPlayer before update
             if read_data.is_local_player():
@@ -132,13 +147,24 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_gauge.config(text=f"{speed:03.0f}", bg=rpm_color)
 
                 # Pit limiter update
-                if pit_limiter:
+                if pit_limiter and self.state_lm:
                     self.bar_limiter.grid()
-                else:
+                    self.state_lm = False
+                elif not pit_limiter and not self.state_lm:
                     self.bar_limiter.grid_remove()  # hide limiter indicator
+                    self.state_lm = True
 
+                # Countdown update
+                if self.cfg["show_countdown"]:
+                    if race_phase == 4:
+                        start_countdown = read_data.lap_timer()
+                        self.bar_countdown.config(text=f"{max(start_countdown, 0):.02f}")
+                        self.bar_countdown.grid()
+                    elif race_phase != 4:
+                        self.bar_countdown.grid_remove()  # hide countdown indicator at start
+
+                # RPM bar update
                 if self.cfg["show_rpm_bar"]:
-                    # RPM bar update
                     rpm_range = rpm_max - rpm_safe
                     if rpm_range != 0:
                         rpmscale = max(rpm - rpm_safe, 0) / rpm_range * self.rpm_width

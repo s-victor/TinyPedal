@@ -29,7 +29,7 @@ Note: if `Auto Hide` function does not correctly hide overlay while in garage sc
 ## Usage
 1. Make sure The Iron Wolf’s `rF2 Shared Memory Map Plugin` is installed, as described above, and `Borderless` or `Windowed Mode` is activated in game.
 
-2. Download latest TinyPedal version from release page, extract, and run `tinypedal.exe`. Alternatively, you can run TinyPedal from source, see **Run from source** section for details.
+2. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract, and run `tinypedal.exe`. Alternatively, you can run TinyPedal from source, see **Run from source** section for details.
 
 3. A tray icon will appear at system tray. If not shown, check hidden tray icon. `Right Click` on tray icon will bring up context menu.
 
@@ -69,7 +69,7 @@ See [Customization Guide](https://github.com/s-victor/TinyPedal/wiki) for editin
     * six (sub-dependency)
 
 ### Steps:
-1. Download source code from Release page; or click `Code` button at the top of repository and select `Download ZIP`. You can also use `Git` tool to clone this repository.
+1. Download source code from [Releases](https://github.com/s-victor/TinyPedal/releases) page; or click `Code` button at the top of repository and select `Download ZIP`. You can also use `Git` tool to clone this repository.
 
 2. Download this forked version of pyRfactor2SharedMemory source code from:  
 https://github.com/s-victor/pyRfactor2SharedMemory  

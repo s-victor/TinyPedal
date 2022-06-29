@@ -1,3 +1,30 @@
+TinyPedal 1.6.1 (2022-06-29)
+----------------------------
+* Instrument Widget
+    - Add new "minimum_speed" setting in config file, default value is 16.5 (m/s),
+      which is the minimum speed threshold before APP can record wheel radius samples.
+    - Add new "minimum_samples" setting in config file, default value is 400,
+      which is the minimum number of radius samples that required for calculating average wheel radius. 
+    - Both settings significantly increase accuracy of wheel radius reading.
+
+* Gear Widget
+    - [New]Add an optional Race Countdown timer for standing-type start only(includes formation/standing),
+      which only shows during countdown game phase, and has a 20ms(50fps) accuracy.
+    - Add "show_countdown" setting in config, set value to false to disable Race Countdown timer.
+      Note:
+      * Countdown timer is calculated using the formula below,
+        Seconds to start = mLapStartET - mElapsedTime
+      * Both mLapStartET & mElapsedTime values are part of rF2's standard API.
+
+* Wheel Widget
+    - Fixed wrong "rideheight_offset_rear" reference.
+
+* Core
+    - Various optimization.
+
+* Misc
+    - Updated customization guide with new configurable setting for Gear & Instrument Widget.
+
 TinyPedal 1.6.0 (2022-06-24)
 ----------------------------
 * [New]Instrument Widget

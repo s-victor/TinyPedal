@@ -130,8 +130,7 @@ class DrawWidget(Widget, MouseEvent):
                 self.checked = True
 
             # Read fuel data
-            amount_curr, capacity = read_data.fuel()
-            start_curr, laps_total, laps_left, time_left = read_data.timing()
+            start_curr, laps_total, laps_left, time_left, amount_curr, capacity = read_data.fuel()
 
             # Check isPlayer before update
             if read_data.is_local_player():

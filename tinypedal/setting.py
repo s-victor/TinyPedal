@@ -190,6 +190,9 @@ class Setting:
             "bkg_color_rpm_safe": "#FF2200",
             "bkg_color_rpm_warn": "#00FFFF",
             "bkg_color_rpm_over_rev": "#FF00FF",
+            "show_countdown": True,
+            "font_color_countdown": "#222222",
+            "bkg_color_countdown": "#FFFFFF",
         },
         "instrument": {
             "enable": True,
@@ -214,6 +217,8 @@ class Setting:
             "wheel_slip_threshold": 0.1,
             "wheel_radius_front": 0.320,
             "wheel_radius_rear": 0.320,
+            "minimum_speed": 16.5,
+            "minimum_samples": 400,
         },
         "pedal": {
             "enable": True,

@@ -122,12 +122,6 @@ def max_vs_avg_rotation(w_rot1, w_rot2):
     return difference
 
 
-def kelvin2celsius(kelvin):
-    """Convert Kelvin to Celsius"""
-    celsius = max(kelvin - 273.15, 0)
-    return celsius
-
-
 def kpa2psi(tyre_pres, pres_unit):
     """Convert kilopascal to psi"""
     if pres_unit == "0":
@@ -229,3 +223,10 @@ def nearest_dist_index(position, listname):
             index_lower = index
             break
     return index_lower, index_higher
+
+
+# Unused
+def _kelvin2celsius(kelvin):
+    """Convert Kelvin to Celsius"""
+    celsius = max(kelvin - 273.15, 0)
+    return celsius

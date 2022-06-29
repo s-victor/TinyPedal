@@ -201,6 +201,9 @@ This value multiplies max RPM value, which sets a relative near-max RPM range fo
     bkg_color_rpm_over_rev
 This sets the color for over-rev warning indicator.
 
+    show_countdown
+Show Race Countdown timer during countdown game phase for standing-type start only(includes formation/standing).
+
 
 ## Instrument
     icon_size
@@ -223,6 +226,12 @@ Set percentage threshold for triggering wheel slip warning. `0.1` means 10% of t
 
     wheel_radius_front, wheel_radius_rear
 Set radius for front and rear wheels, which is used to calculate tyre slip ratio. Manual editing is not required, as this value will be automatically calculated based on a special algorithm after player has completed a full lap, and will be auto-saved to `config.json` file.
+
+    minimum_speed
+Set minimum speed threshold before APP can record wheel radius samples, default value is `16.5` (m/s),
+
+    minimum_samples
+Set minimum number of radius samples that required for calculating average wheel radius, default value is 400.
 
 
 ## Pedal

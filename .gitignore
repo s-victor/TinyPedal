@@ -17,3 +17,7 @@ pylintrc
 
 # random test file
 test*.py
+
+# random zip file
+*.7z
+*.zip
