@@ -40,6 +40,7 @@
 - Show RPM color indicator with customizable RPM range setting.
 - Show RPM over-rev color warning.
 - Show RPM bar animation (optional) ranged from safe RPM to max RPM.
+- Show Startlights indicator.
 
 ## Instrument
 - Show Headlights state.

@@ -109,11 +109,18 @@ def gear():
     return pit_limiter, mgear, speed, rpm, rpm_max, race_phase
 
 
-def lap_timer():
-    """Lap timer data"""
-    start_curr = info.playersVehicleTelemetry().mLapStartET
-    elapsed_time = info.playersVehicleTelemetry().mElapsedTime
-    return start_curr - elapsed_time
+def lap_timestamp():
+    """lap timestamp data"""
+    lap_start = info.playersVehicleTelemetry().mLapStartET
+    lap_etime = info.playersVehicleTelemetry().mElapsedTime
+    return lap_start - lap_etime
+
+
+def startlights():
+    """Startlights data"""
+    lights_frame = info.Rf2Scor.mScoringInfo.mStartLight
+    lights_number = info.Rf2Scor.mScoringInfo.mNumRedLights + 1
+    return lights_number - lights_frame
 
 
 def session():

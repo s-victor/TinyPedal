@@ -58,6 +58,8 @@ class DrawWidget(Widget, MouseEvent):
 
         # Set state for drawing optimization
         self.state_lm = True  # limiter
+        self.state_cd = False
+        self.state_slight = False
 
         # Draw label
         self.bar_gear_bg = tk.Canvas(self, bd=0, highlightthickness=0, height=0, width=0,
@@ -112,12 +114,22 @@ class DrawWidget(Widget, MouseEvent):
         self.bar_limiter.grid(row=0, column=5, padx=0, pady=0, sticky="ns")
         self.bar_limiter.grid_remove()  # hide limiter indicator at start
 
+        # Start lights
+        if self.cfg["show_startlights"]:
+            self.bar_startlights = tk.Label(self, text="", bd=0, height=1, width=2,
+                                            font=font_gear, padx=0, pady=0,
+                                            fg=self.cfg["font_color_startlights"],
+                                            bg=self.cfg["bkg_color_red_lights"])
+            self.bar_startlights.grid(row=0, column=3, padx=0, pady=0, sticky="ns")
+            self.bar_startlights.grid_remove()  # hide startlights indicator at start
+
         # Countdown
-        if self.cfg["show_countdown"]:
-            self.bar_countdown = tk.Label(self, text="0.00", bd=0, height=1, width=5,
+        if self.cfg["show_start_countdown"] == "THIS_MAY_CREATE_UNFAIR_ADVANTAGES":
+            self.bar_countdown = tk.Label(self, text="-.--", bd=0, height=1, width=5,
                                           font=font_gear, padx=0, pady=0,
-                                          fg="#111111", bg="#FFFFFF")
-            self.bar_countdown.grid(row=0, column=3, padx=0, pady=0, sticky="ns")
+                                          fg=self.cfg["font_color_countdown"],
+                                          bg=self.cfg["bkg_color_countdown"])
+            self.bar_countdown.grid(row=0, column=4, padx=0, pady=0, sticky="ns")
             self.bar_countdown.grid_remove()  # hide countdown indicator at start
 
         self.update_data()
@@ -146,23 +158,6 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_gear.config(text=gear, bg=rpm_color)
                 self.bar_gauge.config(text=f"{speed:03.0f}", bg=rpm_color)
 
-                # Pit limiter update
-                if pit_limiter and self.state_lm:
-                    self.bar_limiter.grid()
-                    self.state_lm = False
-                elif not pit_limiter and not self.state_lm:
-                    self.bar_limiter.grid_remove()  # hide limiter indicator
-                    self.state_lm = True
-
-                # Countdown update
-                if self.cfg["show_countdown"]:
-                    if race_phase == 4:
-                        start_countdown = read_data.lap_timer()
-                        self.bar_countdown.config(text=f"{max(start_countdown, 0):.02f}")
-                        self.bar_countdown.grid()
-                    elif race_phase != 4:
-                        self.bar_countdown.grid_remove()  # hide countdown indicator at start
-
                 # RPM bar update
                 if self.cfg["show_rpm_bar"]:
                     rpm_range = rpm_max - rpm_safe
@@ -173,6 +168,51 @@ class DrawWidget(Widget, MouseEvent):
                     self.bar_rpm.coords(self.rect_rpm,
                                         rpmscale, self.cfg["rpm_bar_edge_height"],
                                         rpm_range, self.cfg["rpm_bar_height"])
+
+                # Pit limiter update
+                if pit_limiter and self.state_lm:
+                    self.bar_limiter.grid()
+                    self.state_lm = False
+                elif not pit_limiter and not self.state_lm:
+                    self.bar_limiter.grid_remove()  # hide limiter indicator
+                    self.state_lm = True
+
+                # Start lights update
+                if self.cfg["show_startlights"]:
+                    if race_phase == 4:
+                        self.bar_startlights.grid()
+                        start_timer = max(read_data.lap_timestamp(), 0)
+
+                        if start_timer == 0:
+                            self.bar_startlights.config(text=self.cfg["green_flag_text"],
+                                                        width=len(self.cfg["green_flag_text"]) + 1,
+                                                        bg=self.cfg["bkg_color_green_flag"])
+                        else:
+                            self.bar_startlights.config(text=self.cfg["red_lights_text"],
+                                                        width=len(self.cfg["red_lights_text"]) + 1,
+                                                        bg=self.cfg["bkg_color_red_lights"])
+                        self.state_slight = True
+                    elif race_phase != 4:
+                        if self.state_slight:
+                            self.bar_startlights.config(text=self.cfg["green_flag_text"],
+                                                        width=len(self.cfg["green_flag_text"]) + 1,
+                                                        bg=self.cfg["bkg_color_green_flag"])
+                            hide_timer = read_data.lap_timestamp()
+                            if -hide_timer >= self.cfg["green_flag_duration"]:
+                                self.bar_startlights.grid_remove()
+                                self.state_slight = False
+
+                # Countdown update
+                if self.cfg["show_start_countdown"] == "THIS_MAY_CREATE_UNFAIR_ADVANTAGES":
+                    if race_phase == 4:
+                        countdown_timer = max(read_data.lap_timestamp(), 0)
+                        self.bar_countdown.config(text=f"{countdown_timer:.02f}")
+                        self.bar_countdown.grid()
+                        self.state_cd = True
+                    elif race_phase != 4:
+                        if self.state_cd:
+                            self.bar_countdown.grid_remove()  # hide countdown indicator at start
+                            self.state_cd = False
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

@@ -75,7 +75,7 @@ class DeltaTime:
                 # Read combo & best laptime
                 if not verified:
                     verified = True
-                    update_delay = 0.01  # shorter delay
+                    update_delay = 0.001  # shorter delay
                     combo_name = self.combo_check()
                     delta_list_best, laptime_best = self.load_deltabest(combo_name)
                     start_last = 0  # reset last lap-start-time
@@ -86,7 +86,7 @@ class DeltaTime:
                 # Check isPlayer before update
                 if 0 <= info.playersVehicleScoring().mControl <= 1:
 
-                    laptime_curr = elapsed_time - start_last  # current laptime
+                    laptime_curr = max(elapsed_time - start_last, 0)  # current laptime
 
                     # Lap start & finish detection
                     if start_curr > start_last:  # difference of lap-start-time

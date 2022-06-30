@@ -1,3 +1,17 @@
+TinyPedal 1.6.2 (2022-06-30)
+----------------------------
+* Gear Widget
+    - [New]Add Startlights display with 20ms(50fps) accuracy, which works the same way as how the game is designed.
+    - Race Countdown timer feature is no longer enabled by default, which now requires a special code to enable it.
+      See customization guide for details.
+    - Fixed missing custom background settings.
+
+* Core
+    - Increased Deltatime module refresh rate from 10ms to 1ms.
+
+* Misc
+    - Updated customization guide with new configurable setting for Gear Widget.
+
 TinyPedal 1.6.1 (2022-06-29)
 ----------------------------
 * Instrument Widget

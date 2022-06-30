@@ -201,8 +201,20 @@ This value multiplies max RPM value, which sets a relative near-max RPM range fo
     bkg_color_rpm_over_rev
 This sets the color for over-rev warning indicator.
 
-    show_countdown
-Show Race Countdown timer during countdown game phase for standing-type start only(includes formation/standing).
+    show_startlights
+Show race start lights indicator during countdown game phase for standing-type start only(includes formation/standing).
+
+    red_lights_text
+Set custom text for red lights. 
+
+    green_flag_text
+Set custom text for green flag. 
+
+    green_flag_duration
+Set display duration(seconds) for green flag text before it disappears. Default is `3`.
+
+    show_start_countdown
+Show race start countdown timer during countdown game phase for standing-type start only(includes formation/standing). CHECK LEAGUE and RACE RULES first before enabling it! This option can potentially create unfair advantages against who doesn't use it! Disabled by Default, set `"THIS_MAY_CREATE_UNFAIR_ADVANTAGES"` to enable. 
 
 
 ## Instrument
@@ -231,7 +243,7 @@ Set radius for front and rear wheels, which is used to calculate tyre slip ratio
 Set minimum speed threshold before APP can record wheel radius samples, default value is `16.5` (m/s),
 
     minimum_samples
-Set minimum number of radius samples that required for calculating average wheel radius, default value is 400.
+Set minimum number of radius samples that required for calculating average wheel radius, default value is `400`.
 
 
 ## Pedal
