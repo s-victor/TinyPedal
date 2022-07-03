@@ -67,10 +67,10 @@ def instrument():
     autoclutch = info.Rf2Ext.mPhysics.mAutoClutch
     clutch = info.playersVehicleTelemetry().mFilteredClutch
     brake = info.playersVehicleTelemetry().mFilteredBrake
-    wheel_rot = [info.playersVehicleTelemetry().mWheels[0].mRotation,
+    wheel_rot = (info.playersVehicleTelemetry().mWheels[0].mRotation,
                  info.playersVehicleTelemetry().mWheels[1].mRotation,
                  info.playersVehicleTelemetry().mWheels[2].mRotation,
-                 info.playersVehicleTelemetry().mWheels[3].mRotation]
+                 info.playersVehicleTelemetry().mWheels[3].mRotation)
     speed = calc.vel2speed(info.playersVehicleTelemetry().mLocalVel.x,
                            info.playersVehicleTelemetry().mLocalVel.y,
                            info.playersVehicleTelemetry().mLocalVel.z)
@@ -162,28 +162,28 @@ def fuel():
 
 def camber():
     """Camber data"""
-    raw_camber = [info.playersVehicleTelemetry().mWheels[0].mCamber,
+    raw_camber = (info.playersVehicleTelemetry().mWheels[0].mCamber,
                   info.playersVehicleTelemetry().mWheels[1].mCamber,
                   info.playersVehicleTelemetry().mWheels[2].mCamber,
-                  info.playersVehicleTelemetry().mWheels[3].mCamber]
+                  info.playersVehicleTelemetry().mWheels[3].mCamber)
     return raw_camber
 
 
 def toe():
     """Toe data"""
-    raw_toe = [info.playersVehicleTelemetry().mWheels[0].mToe,
+    raw_toe = (info.playersVehicleTelemetry().mWheels[0].mToe,
                -info.playersVehicleTelemetry().mWheels[1].mToe,
                info.playersVehicleTelemetry().mWheels[2].mToe,
-               -info.playersVehicleTelemetry().mWheels[3].mToe]
+               -info.playersVehicleTelemetry().mWheels[3].mToe)
     return raw_toe
 
 
 def ride_height():
     """Ride height data"""
-    height = [info.playersVehicleTelemetry().mWheels[0].mRideHeight,
+    height = (info.playersVehicleTelemetry().mWheels[0].mRideHeight,
               info.playersVehicleTelemetry().mWheels[1].mRideHeight,
               info.playersVehicleTelemetry().mWheels[2].mRideHeight,
-              info.playersVehicleTelemetry().mWheels[3].mRideHeight]
+              info.playersVehicleTelemetry().mWheels[3].mRideHeight)
     return height
 
 
@@ -197,38 +197,38 @@ def temperature():
                     for data in range(3)]) / 3 - 273.15
     ttemp_rr = sum([info.playersVehicleTelemetry().mWheels[3].mTemperature[data]
                     for data in range(3)]) / 3 - 273.15
-    btemp_fl = info.playersVehicleTelemetry().mWheels[0].mBrakeTemp - 273.15
-    btemp_fr = info.playersVehicleTelemetry().mWheels[1].mBrakeTemp - 273.15
-    btemp_rl = info.playersVehicleTelemetry().mWheels[2].mBrakeTemp - 273.15
-    btemp_rr = info.playersVehicleTelemetry().mWheels[3].mBrakeTemp - 273.15
-    return [ttemp_fl, ttemp_fr, ttemp_rl, ttemp_rr], [btemp_fl, btemp_fr, btemp_rl, btemp_rr]
+    btemp = (info.playersVehicleTelemetry().mWheels[0].mBrakeTemp - 273.15,
+             info.playersVehicleTelemetry().mWheels[1].mBrakeTemp - 273.15,
+             info.playersVehicleTelemetry().mWheels[2].mBrakeTemp - 273.15,
+             info.playersVehicleTelemetry().mWheels[3].mBrakeTemp - 273.15)
+    return (ttemp_fl, ttemp_fr, ttemp_rl, ttemp_rr), btemp
 
 
 def wear():
     """Tyre wear data"""
     start_curr = info.playersVehicleTelemetry().mLapStartET
-    wear_curr = [info.playersVehicleTelemetry().mWheels[0].mWear * 100,
+    wear_curr = (info.playersVehicleTelemetry().mWheels[0].mWear * 100,
                  info.playersVehicleTelemetry().mWheels[1].mWear * 100,
                  info.playersVehicleTelemetry().mWheels[2].mWear * 100,
-                 info.playersVehicleTelemetry().mWheels[3].mWear * 100]
+                 info.playersVehicleTelemetry().mWheels[3].mWear * 100)
     return start_curr, wear_curr
 
 
 def tyre_load():
     """Tyre load data"""
-    raw_load = [info.playersVehicleTelemetry().mWheels[0].mTireLoad,
+    raw_load = (info.playersVehicleTelemetry().mWheels[0].mTireLoad,
                 info.playersVehicleTelemetry().mWheels[1].mTireLoad,
                 info.playersVehicleTelemetry().mWheels[2].mTireLoad,
-                info.playersVehicleTelemetry().mWheels[3].mTireLoad]
+                info.playersVehicleTelemetry().mWheels[3].mTireLoad)
     return raw_load
 
 
 def tyre_pressure():
     """Tyre pressure data"""
-    pressure = [info.playersVehicleTelemetry().mWheels[0].mPressure,
+    pressure = (info.playersVehicleTelemetry().mWheels[0].mPressure,
                 info.playersVehicleTelemetry().mWheels[1].mPressure,
                 info.playersVehicleTelemetry().mWheels[2].mPressure,
-                info.playersVehicleTelemetry().mWheels[3].mPressure]
+                info.playersVehicleTelemetry().mWheels[3].mPressure)
     return pressure
 
 

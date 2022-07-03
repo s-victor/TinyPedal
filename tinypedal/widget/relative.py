@@ -240,83 +240,87 @@ class DrawWidget(Widget, MouseEvent):
         if read_data.state() and relative_info.relative_list and self.cfg["enable"]:
 
             # Read relative data
-            rel_list, cls_info = relative_info.relative_list
-            plr = rel_list[3]
-
-            v1_plc, v1_drv, v1_lpt, v1_pic, v1_cls, v1_gap, v1_lap, v1_pit = relative_info.relative_data(rel_list[0], plr, cls_info)
-            v2_plc, v2_drv, v2_lpt, v2_pic, v2_cls, v2_gap, v2_lap, v2_pit = relative_info.relative_data(rel_list[1], plr, cls_info)
-            v3_plc, v3_drv, v3_lpt, v3_pic, v3_cls, v3_gap, v3_lap, v3_pit = relative_info.relative_data(rel_list[2], plr, cls_info)
-            v4_plc, v4_drv, v4_lpt, v4_pic, v4_cls, v4_gap, v4_lap, v4_pit = relative_info.relative_data(plr, plr, cls_info)
-            v5_plc, v5_drv, v5_lpt, v5_pic, v5_cls, v5_gap, v5_lap, v5_pit = relative_info.relative_data(rel_list[4], plr, cls_info)
-            v6_plc, v6_drv, v6_lpt, v6_pic, v6_cls, v6_gap, v6_lap, v6_pit = relative_info.relative_data(rel_list[5], plr, cls_info)
-            v7_plc, v7_drv, v7_lpt, v7_pic, v7_cls, v7_gap, v7_lap, v7_pit = relative_info.relative_data(rel_list[6], plr, cls_info)
+            rel_idx, cls_info, plr_idx = relative_info.relative_list
 
             # Check isPlayer before update
             if read_data.is_local_player():
 
+                # 0 place, 1 driver, 2 laptime, 3 pos_class, 4 veh_class, 5 time_gap, 6 num_lap, 7 in_pit
+                veh_a = relative_info.relative_data(rel_idx[0], plr_idx, cls_info)
+                veh_b = relative_info.relative_data(rel_idx[1], plr_idx, cls_info)
+                veh_c = relative_info.relative_data(rel_idx[2], plr_idx, cls_info)
+                veh_d = relative_info.relative_data(plr_idx, plr_idx, cls_info)
+                veh_e = relative_info.relative_data(rel_idx[4], plr_idx, cls_info)
+                veh_f = relative_info.relative_data(rel_idx[5], plr_idx, cls_info)
+                veh_g = relative_info.relative_data(rel_idx[6], plr_idx, cls_info)
+
                 # Relative update
                 # Driver place
-                self.bar_row_1p.config(text=v1_plc, fg=self.color_lapdiff(v1_lap, v4_lap))
-                self.bar_row_2p.config(text=v2_plc, fg=self.color_lapdiff(v2_lap, v4_lap))
-                self.bar_row_3p.config(text=v3_plc, fg=self.color_lapdiff(v3_lap, v4_lap))
-                self.bar_row_4p.config(text=v4_plc)
-                self.bar_row_5p.config(text=v5_plc, fg=self.color_lapdiff(v5_lap, v4_lap))
-                self.bar_row_6p.config(text=v6_plc, fg=self.color_lapdiff(v6_lap, v4_lap))
-                self.bar_row_7p.config(text=v7_plc, fg=self.color_lapdiff(v7_lap, v4_lap))
+                self.bar_row_1p.config(text=veh_a[0], fg=self.color_lapdiff(veh_a[6], veh_d[6]))
+                self.bar_row_2p.config(text=veh_b[0], fg=self.color_lapdiff(veh_b[6], veh_d[6]))
+                self.bar_row_3p.config(text=veh_c[0], fg=self.color_lapdiff(veh_c[6], veh_d[6]))
+                self.bar_row_4p.config(text=veh_d[0])
+                self.bar_row_5p.config(text=veh_e[0], fg=self.color_lapdiff(veh_e[6], veh_d[6]))
+                self.bar_row_6p.config(text=veh_f[0], fg=self.color_lapdiff(veh_f[6], veh_d[6]))
+                self.bar_row_7p.config(text=veh_g[0], fg=self.color_lapdiff(veh_g[6], veh_d[6]))
 
                 # Driver name
-                self.bar_row_1n.config(text=v1_drv[:self.drv_width], fg=self.color_lapdiff(v1_lap, v4_lap))
-                self.bar_row_2n.config(text=v2_drv[:self.drv_width], fg=self.color_lapdiff(v2_lap, v4_lap))
-                self.bar_row_3n.config(text=v3_drv[:self.drv_width], fg=self.color_lapdiff(v3_lap, v4_lap))
-                self.bar_row_4n.config(text=v4_drv[:self.drv_width])
-                self.bar_row_5n.config(text=v5_drv[:self.drv_width], fg=self.color_lapdiff(v5_lap, v4_lap))
-                self.bar_row_6n.config(text=v6_drv[:self.drv_width], fg=self.color_lapdiff(v6_lap, v4_lap))
-                self.bar_row_7n.config(text=v7_drv[:self.drv_width], fg=self.color_lapdiff(v7_lap, v4_lap))
+                self.bar_row_1n.config(text=veh_a[1][:self.drv_width], fg=self.color_lapdiff(veh_a[6], veh_d[6]))
+                self.bar_row_2n.config(text=veh_b[1][:self.drv_width], fg=self.color_lapdiff(veh_b[6], veh_d[6]))
+                self.bar_row_3n.config(text=veh_c[1][:self.drv_width], fg=self.color_lapdiff(veh_c[6], veh_d[6]))
+                self.bar_row_4n.config(text=veh_d[1][:self.drv_width])
+                self.bar_row_5n.config(text=veh_e[1][:self.drv_width], fg=self.color_lapdiff(veh_e[6], veh_d[6]))
+                self.bar_row_6n.config(text=veh_f[1][:self.drv_width], fg=self.color_lapdiff(veh_f[6], veh_d[6]))
+                self.bar_row_7n.config(text=veh_g[1][:self.drv_width], fg=self.color_lapdiff(veh_g[6], veh_d[6]))
+
+                # Vehicle laptime
+                if self.cfg["show_laptime"]:
+                    self.bar_row_1t.config(text=veh_a[2])
+                    self.bar_row_2t.config(text=veh_b[2])
+                    self.bar_row_3t.config(text=veh_c[2])
+                    self.bar_row_4t.config(text=veh_d[2])
+                    self.bar_row_5t.config(text=veh_e[2])
+                    self.bar_row_6t.config(text=veh_f[2])
+                    self.bar_row_7t.config(text=veh_g[2])
+
+                # Vehicle position in class
+                if self.cfg["show_position_in_class"]:
+                    self.bar_row_1i.config(text=veh_a[3])
+                    self.bar_row_2i.config(text=veh_b[3])
+                    self.bar_row_3i.config(text=veh_c[3])
+                    self.bar_row_4i.config(text=veh_d[3])
+                    self.bar_row_5i.config(text=veh_e[3])
+                    self.bar_row_6i.config(text=veh_f[3])
+                    self.bar_row_7i.config(text=veh_g[3])
+
+                # Vehicle class
+                if self.cfg["show_class"]:
+                    self.bar_row_1c.config(self.set_class_style(veh_a[4]))
+                    self.bar_row_2c.config(self.set_class_style(veh_b[4]))
+                    self.bar_row_3c.config(self.set_class_style(veh_c[4]))
+                    self.bar_row_4c.config(self.set_class_style(veh_d[4]))
+                    self.bar_row_5c.config(self.set_class_style(veh_e[4]))
+                    self.bar_row_6c.config(self.set_class_style(veh_f[4]))
+                    self.bar_row_7c.config(self.set_class_style(veh_g[4]))
 
                 # Time gap
-                self.bar_row_1g.config(text=v1_gap, fg=self.color_lapdiff(v1_lap, v4_lap))
-                self.bar_row_2g.config(text=v2_gap, fg=self.color_lapdiff(v2_lap, v4_lap))
-                self.bar_row_3g.config(text=v3_gap, fg=self.color_lapdiff(v3_lap, v4_lap))
-                self.bar_row_4g.config(text=v4_gap)
-                self.bar_row_5g.config(text=v5_gap, fg=self.color_lapdiff(v5_lap, v4_lap))
-                self.bar_row_6g.config(text=v6_gap, fg=self.color_lapdiff(v6_lap, v4_lap))
-                self.bar_row_7g.config(text=v7_gap, fg=self.color_lapdiff(v7_lap, v4_lap))
+                self.bar_row_1g.config(text=veh_a[5], fg=self.color_lapdiff(veh_a[6], veh_d[6]))
+                self.bar_row_2g.config(text=veh_b[5], fg=self.color_lapdiff(veh_b[6], veh_d[6]))
+                self.bar_row_3g.config(text=veh_c[5], fg=self.color_lapdiff(veh_c[6], veh_d[6]))
+                self.bar_row_4g.config(text=veh_d[5])
+                self.bar_row_5g.config(text=veh_e[5], fg=self.color_lapdiff(veh_e[6], veh_d[6]))
+                self.bar_row_6g.config(text=veh_f[5], fg=self.color_lapdiff(veh_f[6], veh_d[6]))
+                self.bar_row_7g.config(text=veh_g[5], fg=self.color_lapdiff(veh_g[6], veh_d[6]))
 
-                if self.cfg["show_laptime"]:
-                    self.bar_row_1t.config(text=v1_lpt)
-                    self.bar_row_2t.config(text=v2_lpt)
-                    self.bar_row_3t.config(text=v3_lpt)
-                    self.bar_row_4t.config(text=v4_lpt)
-                    self.bar_row_5t.config(text=v5_lpt)
-                    self.bar_row_6t.config(text=v6_lpt)
-                    self.bar_row_7t.config(text=v7_lpt)
-
-                if self.cfg["show_position_in_class"]:
-                    self.bar_row_1i.config(text=v1_pic)
-                    self.bar_row_2i.config(text=v2_pic)
-                    self.bar_row_3i.config(text=v3_pic)
-                    self.bar_row_4i.config(text=v4_pic)
-                    self.bar_row_5i.config(text=v5_pic)
-                    self.bar_row_6i.config(text=v6_pic)
-                    self.bar_row_7i.config(text=v7_pic)
-
-                if self.cfg["show_class"]:
-                    self.bar_row_1c.config(self.set_class(v1_cls))
-                    self.bar_row_2c.config(self.set_class(v2_cls))
-                    self.bar_row_3c.config(self.set_class(v3_cls))
-                    self.bar_row_4c.config(self.set_class(v4_cls))
-                    self.bar_row_5c.config(self.set_class(v5_cls))
-                    self.bar_row_6c.config(self.set_class(v6_cls))
-                    self.bar_row_7c.config(self.set_class(v7_cls))
-
+                # Vehicle in pit
                 if self.cfg["show_pit_status"]:
-                    self.bar_row_1s.config(self.set_pitstatus(v1_pit))
-                    self.bar_row_2s.config(self.set_pitstatus(v2_pit))
-                    self.bar_row_3s.config(self.set_pitstatus(v3_pit))
-                    self.bar_row_4s.config(self.set_pitstatus(v4_pit))
-                    self.bar_row_5s.config(self.set_pitstatus(v5_pit))
-                    self.bar_row_6s.config(self.set_pitstatus(v6_pit))
-                    self.bar_row_7s.config(self.set_pitstatus(v7_pit))
+                    self.bar_row_1s.config(self.set_pitstatus(veh_a[7]))
+                    self.bar_row_2s.config(self.set_pitstatus(veh_b[7]))
+                    self.bar_row_3s.config(self.set_pitstatus(veh_c[7]))
+                    self.bar_row_4s.config(self.set_pitstatus(veh_d[7]))
+                    self.bar_row_5s.config(self.set_pitstatus(veh_e[7]))
+                    self.bar_row_6s.config(self.set_pitstatus(veh_f[7]))
+                    self.bar_row_7s.config(self.set_pitstatus(veh_g[7]))
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)
@@ -340,13 +344,13 @@ class DrawWidget(Widget, MouseEvent):
             status = {"text":"", "bg":"#000002"}
         return status
 
-    def set_class(self, vehclass):
+    def set_class_style(self, vehclass_name):
         """Compare vehicle class name with user defined dictionary"""
-        short_name = vehclass
+        short_name = vehclass_name
         class_config = {"text":short_name[:self.cls_width]}
         for key, value in self.vehcls.classdict_user.items():
             # If class name matches user defined class
-            if vehclass == key:
+            if vehclass_name == key:
                 # Assign new class name from user defined value
                 short_name = value
                 for subkey, subvalue in short_name.items():

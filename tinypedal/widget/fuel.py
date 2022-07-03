@@ -27,7 +27,7 @@ import tkinter.font as tkfont
 from tinypedal.__init__ import cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
-from tinypedal.base import Widget, MouseEvent
+from tinypedal.base import delta_time, Widget, MouseEvent
 
 
 class DrawWidget(Widget, MouseEvent):
@@ -59,7 +59,6 @@ class DrawWidget(Widget, MouseEvent):
                                 weight=self.cfg["font_weight"])
 
         self.start_last = 0.0  # last lap start time
-        self.laptime_last = 0.0  # last lap time calculated from time stamp difference
         self.amount_last = 0.0  # total fuel at end of last lap
         self.amount_need = 0.0  # total additional fuel required to finish race
         self.used_last = self.cfg["fuel_consumption"]  # last lap fuel consumption
@@ -132,6 +131,9 @@ class DrawWidget(Widget, MouseEvent):
             # Read fuel data
             start_curr, laps_total, laps_left, time_left, amount_curr, capacity = read_data.fuel()
 
+            # Read last laptime from delta module
+            laptime_last = delta_time.output_data[1]
+
             # Check isPlayer before update
             if read_data.is_local_player():
 
@@ -139,7 +141,6 @@ class DrawWidget(Widget, MouseEvent):
                 if start_curr != self.start_last:  # time stamp difference
                     if start_curr > self.start_last:
                         # Calc last laptime from lap difference to bypass empty invalid laptime
-                        self.laptime_last = start_curr - self.start_last
                         self.used_last = max(self.amount_last - amount_curr, 0)
                     if self.used_last == 0:
                         self.used_last = self.cfg["fuel_consumption"]
@@ -154,7 +155,7 @@ class DrawWidget(Widget, MouseEvent):
                     self.est_runlaps = 0
 
                 # Estimate minutes current fuel can last
-                self.est_runmins = self.est_runlaps * self.laptime_last / 60
+                self.est_runmins = self.est_runlaps * laptime_last / 60
 
                 # Total additional fuel required to finish race
                 if laps_total < 100000:  # detected lap type race
@@ -162,7 +163,7 @@ class DrawWidget(Widget, MouseEvent):
                     self.amount_need = laps_left * self.used_last - amount_curr
                 else:  # detected time type race
                     # Time left / last laptime * last lap fuel consumption - total current fuel
-                    self.amount_need = (math.ceil(time_left / (self.laptime_last + 0.001) + 0.001)
+                    self.amount_need = (math.ceil(time_left / (laptime_last + 0.001) + 0.001)
                                         * self.used_last - amount_curr)
 
                 # Minimum required pitstops to finish race

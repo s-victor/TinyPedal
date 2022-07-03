@@ -434,6 +434,7 @@ class Setting:
             "bkg_color_last": "#222222",
             "bkg_color_current": "#222222",
             "bkg_color_estimated": "#222222",
+            "last_laptime": 60,
         },
         "wear": {
             "enable": True,

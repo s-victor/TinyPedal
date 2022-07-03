@@ -161,11 +161,10 @@ class DrawWidget(Widget, MouseEvent):
                         self.list_radius_r = []  # reset list
                     self.start_last = start_curr  # reset time stamp counter
 
-                ratiolist = [calc.slip_ratio(wheel_rot[0], self.avg_wheel_radius_f, speed),
-                             calc.slip_ratio(wheel_rot[1], self.avg_wheel_radius_f, speed),
-                             calc.slip_ratio(wheel_rot[2], self.avg_wheel_radius_r, speed),
-                             calc.slip_ratio(wheel_rot[3], self.avg_wheel_radius_r, speed)]
-                slipratio = max(ratiolist)
+                slipratio = max(calc.slip_ratio(wheel_rot[0], self.avg_wheel_radius_f, speed),
+                                calc.slip_ratio(wheel_rot[1], self.avg_wheel_radius_f, speed),
+                                calc.slip_ratio(wheel_rot[2], self.avg_wheel_radius_r, speed),
+                                calc.slip_ratio(wheel_rot[3], self.avg_wheel_radius_r, speed))
 
                 # Headlights
                 if headlights == 1 and self.state_hl:

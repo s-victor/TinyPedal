@@ -91,51 +91,51 @@ class DrawWidget(Widget, MouseEvent):
         """Update when vehicle on track"""
         if read_data.state() and relative_info.relative_list and self.cfg["enable"]:
 
-            # Read orientation data
-            ply_ori_rad = relative_info.orientation()
-
             # Read relative list player index
-            rel_list = relative_info.relative_list[0]
+            rel_idx = relative_info.relative_list[0]
+
+            # Read orientation & position data
+            veh_gps = relative_info.vehicle_gps(rel_idx)
 
             # Check isPlayer before update
             if read_data.is_local_player():
 
-                # Read vehicle coordinates, lap number, orientation
-                veh1_pos, veh1_lap, veh1_ori = relative_info.radar_pos(ply_ori_rad, rel_list[0])
-                veh2_pos, veh2_lap, veh2_ori = relative_info.radar_pos(ply_ori_rad, rel_list[1])
-                veh3_pos, veh3_lap, veh3_ori = relative_info.radar_pos(ply_ori_rad, rel_list[2])
-                veh5_pos, veh5_lap, veh5_ori = relative_info.radar_pos(ply_ori_rad, rel_list[4])
-                veh6_pos, veh6_lap, veh6_ori = relative_info.radar_pos(ply_ori_rad, rel_list[5])
-                veh7_pos, veh7_lap, veh7_ori = relative_info.radar_pos(ply_ori_rad, rel_list[6])
-                plr_pos, plr_lap, _ = relative_info.radar_pos(ply_ori_rad, rel_list[3])
+                # Read vehicle position coordinates, lap number, orientation
+                veh_a = relative_info.radar_pos(veh_gps[3], veh_gps[0], rel_idx[0])
+                veh_b = relative_info.radar_pos(veh_gps[3], veh_gps[1], rel_idx[1])
+                veh_c = relative_info.radar_pos(veh_gps[3], veh_gps[2], rel_idx[2])
+                veh_d = relative_info.radar_pos(veh_gps[3], veh_gps[3], rel_idx[3])
+                veh_e = relative_info.radar_pos(veh_gps[3], veh_gps[4], rel_idx[4])
+                veh_f = relative_info.radar_pos(veh_gps[3], veh_gps[5], rel_idx[5])
+                veh_g = relative_info.radar_pos(veh_gps[3], veh_gps[6], rel_idx[6])
 
                 # Set vehicle color
                 self.bar_radar.itemconfig(self.poly_veh1,
-                                          fill=self.color_lapdiff(veh1_lap, plr_lap))
+                                          fill=self.color_lapdiff(veh_a[1], veh_d[1]))
                 self.bar_radar.itemconfig(self.poly_veh2,
-                                          fill=self.color_lapdiff(veh2_lap, plr_lap))
+                                          fill=self.color_lapdiff(veh_b[1], veh_d[1]))
                 self.bar_radar.itemconfig(self.poly_veh3,
-                                          fill=self.color_lapdiff(veh3_lap, plr_lap))
+                                          fill=self.color_lapdiff(veh_c[1], veh_d[1]))
                 self.bar_radar.itemconfig(self.poly_veh5,
-                                          fill=self.color_lapdiff(veh5_lap, plr_lap))
+                                          fill=self.color_lapdiff(veh_e[1], veh_d[1]))
                 self.bar_radar.itemconfig(self.poly_veh6,
-                                          fill=self.color_lapdiff(veh6_lap, plr_lap))
+                                          fill=self.color_lapdiff(veh_f[1], veh_d[1]))
                 self.bar_radar.itemconfig(self.poly_veh7,
-                                          fill=self.color_lapdiff(veh7_lap, plr_lap))
+                                          fill=self.color_lapdiff(veh_g[1], veh_d[1]))
 
                 # Update vehicle position
                 self.bar_radar.coords(self.poly_veh1,
-                                      self.update_veh_pos(plr_pos, veh1_pos, veh1_ori))
+                                      self.update_veh_pos(veh_d[0], veh_a[0], veh_a[2]))
                 self.bar_radar.coords(self.poly_veh2,
-                                      self.update_veh_pos(plr_pos, veh2_pos, veh2_ori))
+                                      self.update_veh_pos(veh_d[0], veh_b[0], veh_b[2]))
                 self.bar_radar.coords(self.poly_veh3,
-                                      self.update_veh_pos(plr_pos, veh3_pos, veh3_ori))
+                                      self.update_veh_pos(veh_d[0], veh_c[0], veh_c[2]))
                 self.bar_radar.coords(self.poly_veh5,
-                                      self.update_veh_pos(plr_pos, veh5_pos, veh5_ori))
+                                      self.update_veh_pos(veh_d[0], veh_e[0], veh_e[2]))
                 self.bar_radar.coords(self.poly_veh6,
-                                      self.update_veh_pos(plr_pos, veh6_pos, veh6_ori))
+                                      self.update_veh_pos(veh_d[0], veh_f[0], veh_f[2]))
                 self.bar_radar.coords(self.poly_veh7,
-                                      self.update_veh_pos(plr_pos, veh7_pos, veh7_ori))
+                                      self.update_veh_pos(veh_d[0], veh_g[0], veh_g[2]))
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

@@ -63,7 +63,7 @@ class DeltaTime:
         gps_last = [0,0,0]  # last global position
         last_time = 0  # last checked elapsed time
         laptime_curr = 0  # current laptime
-        laptime_last = 0  # last laptime
+        laptime_last = cfg.setting_user["timing"]["last_laptime"]  # load last laptime
         laptime_best = 5999.999  # best laptime
         laptime_est = 0  # estimated current laptime
         combo_name = "unknown"  # current car & track combo
@@ -72,16 +72,19 @@ class DeltaTime:
         while True:
             if info.playersVehicleTelemetry().mIgnitionStarter != 0:
 
+                (start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase
+                 ) = self.telemetry()
+
                 # Read combo & best laptime
                 if not verified:
                     verified = True
                     update_delay = 0.001  # shorter delay
                     combo_name = self.combo_check()
                     delta_list_best, laptime_best = self.load_deltabest(combo_name)
-                    start_last = 0  # reset last lap-start-time
+                    start_last = start_curr  # reset lap-start-time
 
-                (start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr
-                 ) = self.telemetry()
+                if game_phase < 5:  # reset stint stats if session has not started
+                    start_last = start_curr  # reset
 
                 # Check isPlayer before update
                 if 0 <= info.playersVehicleScoring().mControl <= 1:
@@ -100,7 +103,7 @@ class DeltaTime:
                         delta_list_curr.clear()  # reset current delta list
                         delta_list_curr.append((0.0, 0.0))  # set start value
                         recording = True  # activate delta recording
-                        start_last = start_curr  # reset lap-start-time
+                        start_last = start_curr  # reset
                         pos_last = pos_curr  # set pos last
 
                     # Laptime validating 1s after passing finish line
@@ -168,8 +171,9 @@ class DeltaTime:
                     if delta_list_best:
                         self.save_deltabest(combo_name, delta_list_best)
 
-                    # Save meters driven data
+                    # Save meters driven & last laptime data
                     cfg.setting_user["cruise"]["meters_driven"] = int(self.meters_driven)
+                    cfg.setting_user["timing"]["last_laptime"] = round(laptime_last, 6)
                     cfg.save()
 
             time.sleep(update_delay)
@@ -184,10 +188,11 @@ class DeltaTime:
                                info.playersVehicleTelemetry().mLocalVel.y,
                                info.playersVehicleTelemetry().mLocalVel.z)
         pos_curr = info.playersVehicleScoring().mLapDist
-        gps_curr = [info.playersVehicleTelemetry().mPos.x,
+        gps_curr = (info.playersVehicleTelemetry().mPos.x,
                     info.playersVehicleTelemetry().mPos.y,
-                    info.playersVehicleTelemetry().mPos.z]
-        return start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr
+                    info.playersVehicleTelemetry().mPos.z)
+        game_phase = info.Rf2Scor.mScoringInfo.mGamePhase
+        return start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase
 
     @staticmethod
     def combo_check():

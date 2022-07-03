@@ -1,3 +1,16 @@
+TinyPedal 1.6.3 (2022-07-03)
+----------------------------
+* Core
+    - Deltatime module now stores last laptime value to "last_laptime" key value in "timing" section of config.json.
+    - Both Fuel & Timing Widget can read this saved last laptime value from Deltatime module & config.json.
+    - Estimated laps & time for a given amount fuel can now be accurately calculated & displayed
+      based on existing saved last laptime without having to do any additional laps.
+    - Fixed a NaN value error that can happen if game crashes.
+    - Optimized data handling for Relative module, Radar Widget, Relative Widget.
+
+* Misc
+    - Updated customization guide with new configurable setting for Timing Widget.
+
 TinyPedal 1.6.2 (2022-06-30)
 ----------------------------
 * Gear Widget

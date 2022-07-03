@@ -394,6 +394,9 @@ Swap heat map color between font & background color.
     layout
 3 layouts are available: `0` = vertical layout, `1` = double lines horizontal layout, `2` = single line horizontal layout.
 
+    last_laptime
+This value holds the last recorded laptime, which will be read by delta module, and used for fuel calculation. Accept manual editing, but will be updated & overridden by any new lap done.
+
 
 ## Wear
     layout
