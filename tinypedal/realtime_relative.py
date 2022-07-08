@@ -93,7 +93,7 @@ class RelativeInfo:
 
     def relative_data(self, index, index_player, veh_class_info):
         """Relative data"""
-        if index >= 0:
+        if index >= 0 and 7 in range(len(veh_class_info[index])):
             # Driver place position
             place = f"{veh_class_info[index][3]:02d}"
 
