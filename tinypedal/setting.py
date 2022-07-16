@@ -59,6 +59,7 @@ class Setting:
             "bkg_color_elevation": "#222222",
             "bkg_color_odometer": "#222222",
             "show_track_clock": True,
+            "track_clock_time_scale": 1,
             "track_clock_format": "%H:%M %p",
             "show_odometer": True,
             "odometer_unit": "0",

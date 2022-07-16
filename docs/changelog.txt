@@ -1,3 +1,15 @@
+TinyPedal 1.6.5 (2022-07-16)
+----------------------------
+* Cruise Widget
+    - [New]Add "track_clock_time_scale" setting in config.json for time scaled session.
+      Default value = 1, which matches "Time Scale: Normal" setting in-game.
+
+* Relative Widget
+    - Empty row now has default background color.
+
+* Misc
+    - Updated customization guide with new configurable setting for Cruise Widget.
+
 TinyPedal 1.6.4 (2022-07-08)
 ----------------------------
 * Core

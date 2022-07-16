@@ -87,7 +87,7 @@ class DrawWidget(Widget, MouseEvent):
         if read_data.state() and self.cfg["enable"]:
 
             # Read cruise data
-            ori_yaw, pos_y, track_clock = read_data.cruise()
+            ori_yaw, pos_y, time_start, time_curr = read_data.cruise()
 
             # Check isPlayer before update
             if read_data.is_local_player():
@@ -96,6 +96,19 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_compass.config(text=f"{ori_yaw:03.0f}°{self.deg2direction(ori_yaw)}")
 
                 if self.cfg["show_track_clock"]:
+
+                    time_curr *= self.cfg["track_clock_time_scale"]
+                    time_offset = time_curr
+
+                    while True:
+                        time_diff = (1440 - time_start) - time_curr + time_offset
+
+                        if time_diff <= -time_start:
+                            time_offset += time_diff
+                        elif time_diff > -time_start:
+                            break
+
+                    track_clock = time_start + time_offset
                     clock_text = time.strftime(self.cfg["track_clock_format"],
                                                time.gmtime(track_clock))
                     self.bar_trackclock.config(text=clock_text, width=len(clock_text)+1)

@@ -346,8 +346,12 @@ class DrawWidget(Widget, MouseEvent):
 
     def set_class_style(self, vehclass_name):
         """Compare vehicle class name with user defined dictionary"""
-        short_name = vehclass_name
-        class_config = {"text":short_name[:self.cls_width]}
+        if vehclass_name == "":
+            class_config = {"text":"", "bg":self.cfg["bkg_color_class"]}
+        else:
+            class_config = {"text":vehclass_name[:self.cls_width],
+                            "bg":self.cfg["bkg_color_class"]}
+
         for key, value in self.vehcls.classdict_user.items():
             # If class name matches user defined class
             if vehclass_name == key:
@@ -357,4 +361,5 @@ class DrawWidget(Widget, MouseEvent):
                     # Assign corresponding background color
                     class_config = {"text":subkey, "bg":subvalue}
                     break
+
         return class_config

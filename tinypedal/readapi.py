@@ -54,8 +54,9 @@ def cruise():
     ori_yaw = 180 - (calc.oriyaw2rad(info.playersVehicleTelemetry().mOri[2].x,
                                      info.playersVehicleTelemetry().mOri[2].z) * 57.2957795)
     pos_y = info.playersVehicleScoring().mPos.y
-    track_clock = info.Rf2Scor.mScoringInfo.mStartET + info.Rf2Scor.mScoringInfo.mCurrentET
-    return ori_yaw, pos_y, track_clock
+    time_start = info.Rf2Scor.mScoringInfo.mStartET
+    time_curr = info.Rf2Scor.mScoringInfo.mCurrentET
+    return ori_yaw, pos_y, time_start, time_curr
 
 
 def instrument():

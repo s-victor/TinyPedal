@@ -87,6 +87,9 @@ Define color of hover cover when mouse cursor is above widget (when not locked).
     show_track_clock
 Show current in-game clock time of the circuit.
 
+    track_clock_time_scale
+Set time multiplier for time-scaled session. Default value is `1`, which matches "Time Scale: Normal" setting in-game.
+
     track_clock_format
 Set track clock format string. To show seconds, add `%S`, such as `"%H:%M:%S %p"`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
 
@@ -211,7 +214,7 @@ Set custom text for red lights.
 Set custom text for green flag. 
 
     green_flag_duration
-Set display duration(seconds) for green flag text before it disappears. Default is `3`.
+Set display duration(seconds) for green flag text before it disappears. Default value is `3`.
 
     show_start_countdown
 Show race start countdown timer during countdown game phase for standing-type start only(includes formation/standing). CHECK LEAGUE and RACE RULES first before enabling it! This option can potentially create unfair advantages against who doesn't use it! Disabled by Default, set `"THIS_MAY_CREATE_UNFAIR_ADVANTAGES"` to enable. 
