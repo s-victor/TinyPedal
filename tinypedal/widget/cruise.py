@@ -97,11 +97,10 @@ class DrawWidget(Widget, MouseEvent):
 
                 if self.cfg["show_track_clock"]:
 
-                    time_curr *= self.cfg["track_clock_time_scale"]
-                    time_offset = time_curr
+                    time_offset = time_curr * self.cfg["track_clock_time_scale"]
 
                     while True:
-                        time_diff = (1440 - time_start) - time_curr + time_offset
+                        time_diff = (1440 - time_start) + time_offset
 
                         if time_diff <= -time_start:
                             time_offset += time_diff
