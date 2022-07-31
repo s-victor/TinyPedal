@@ -55,7 +55,6 @@ class DrawWidget(Widget, MouseEvent):
         bar_style = {"bd":0, "highlightthickness":0, "bg":self.cfg["bkg_color"],
                      "height":self.icon_size, "width":self.icon_size}
 
-        self.start_last = 0  # lap-start-time
         self.list_radius_f = []
         self.list_radius_r = []
         self.avg_wheel_radius_f = self.cfg["wheel_radius_front"]
@@ -131,7 +130,7 @@ class DrawWidget(Widget, MouseEvent):
                 self.checked = True
 
             # Read instrument data
-            (start_curr, headlights, ignition, rpm, autoclutch, clutch, brake, wheel_rot, speed
+            (headlights, ignition, rpm, autoclutch, clutch, brake, wheel_rot, speed
              ) = read_data.instrument()
 
             # Check isPlayer before update
@@ -147,19 +146,18 @@ class DrawWidget(Widget, MouseEvent):
                     if 0 < diff_rot_r < 0.1:
                         self.list_radius_r.append(abs(speed * 2 / (wheel_rot[2] + wheel_rot[3])))
 
-                # Calc last lap average wheel radius reading
-                if start_curr != self.start_last:  # time stamp difference
-                    list_size_f = len(self.list_radius_f)
-                    list_size_r = len(self.list_radius_r)
-                    if list_size_f > self.cfg["minimum_samples"]:
-                        self.avg_wheel_radius_f = round(sum(self.list_radius_f)
-                                                        / list_size_f, 3)
+                    # Calc average wheel radius reading
+                    minimum_samples = max(self.cfg["minimum_samples"], 100)
+
+                    if len(self.list_radius_f) >= minimum_samples:
+                        radius_samples_f = sorted(self.list_radius_f)[int(minimum_samples*0.25):int(minimum_samples*0.75)]
+                        self.avg_wheel_radius_f = round(sum(radius_samples_f) / len(radius_samples_f), 3)
                         self.list_radius_f = []  # reset list
-                    if list_size_r > self.cfg["minimum_samples"]:
-                        self.avg_wheel_radius_r = round(sum(self.list_radius_r)
-                                                        / list_size_r, 3)
-                        self.list_radius_r = []  # reset list
-                    self.start_last = start_curr  # reset time stamp counter
+
+                    if len(self.list_radius_r) >= minimum_samples:
+                        radius_samples_r = sorted(self.list_radius_r)[int(minimum_samples*0.25):int(minimum_samples*0.75)]
+                        self.avg_wheel_radius_r = round(sum(radius_samples_r) / len(radius_samples_r), 3)
+                        self.list_radius_r = []
 
                 slipratio = max(calc.slip_ratio(wheel_rot[0], self.avg_wheel_radius_f, speed),
                                 calc.slip_ratio(wheel_rot[1], self.avg_wheel_radius_f, speed),

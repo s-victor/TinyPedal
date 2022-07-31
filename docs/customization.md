@@ -222,7 +222,7 @@ Show race start countdown timer during countdown game phase for standing-type st
 
 ## Instrument
     icon_size
-Set size of instrument icon in pixel. Minimum value is auto-limited to `16`.
+Set size of instrument icon in pixel. Minimum value is limited to `16`.
 
     layout
 2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
@@ -243,10 +243,10 @@ Set percentage threshold for triggering wheel slip warning. `0.1` means 10% of t
 Set radius for front and rear wheels, which is used to calculate tyre slip ratio. Manual editing is not required, as this value will be automatically calculated based on a special algorithm after player has completed a full lap, and will be auto-saved to `config.json` file.
 
     minimum_speed
-Set minimum speed threshold before APP can record wheel radius samples, default value is `16.5` (m/s),
+Set minimum speed threshold before APP records and calculates wheel radius samples. Default value is `16.5` (m/s),
 
     minimum_samples
-Set minimum number of radius samples that required for calculating average wheel radius, default value is `400`.
+Set minimum number of radius samples that required for calculating average wheel radius. Default value is `400`. Minimum value is limited to `100`.
 
 
 ## Pedal
@@ -276,7 +276,7 @@ Show tyre load percentage ratio between left & right tyres of same axle. Set `fa
 
 ## Radar
     area_scale
-Set radar area size multiplier. Higher value extends widget size & visible area. This value does not change vehicle size. Minimum value is auto-limited to `0.5`.
+Set radar area size multiplier. Higher value extends widget size & visible area. This value does not change vehicle size. Minimum value is limited to `0.5`.
 
     vehicle_length, vehicle_width
 Set vehicle overall size (length & width), value in meters.

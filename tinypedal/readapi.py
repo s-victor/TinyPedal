@@ -61,7 +61,6 @@ def cruise():
 
 def instrument():
     """Instrument data"""
-    start_curr = info.playersVehicleTelemetry().mLapStartET
     headlights = info.playersVehicleTelemetry().mHeadlights
     ignition = info.playersVehicleTelemetry().mIgnitionStarter
     rpm = info.playersVehicleTelemetry().mEngineRPM
@@ -75,7 +74,7 @@ def instrument():
     speed = calc.vel2speed(info.playersVehicleTelemetry().mLocalVel.x,
                            info.playersVehicleTelemetry().mLocalVel.y,
                            info.playersVehicleTelemetry().mLocalVel.z)
-    return start_curr, headlights, ignition, rpm, autoclutch, clutch, brake, wheel_rot, speed
+    return headlights, ignition, rpm, autoclutch, clutch, brake, wheel_rot, speed
 
 
 def pedal():
