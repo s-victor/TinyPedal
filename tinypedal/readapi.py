@@ -143,10 +143,10 @@ def stint():
     fuel_curr = info.playersVehicleTelemetry().mFuel
     time_curr = info.Rf2Scor.mScoringInfo.mCurrentET
     inpits = info.playersVehicleScoring().mInPits
-    ftire_idx = info.playersVehicleTelemetry().mFrontTireCompoundIndex
-    rtire_idx = info.playersVehicleTelemetry().mRearTireCompoundIndex
+    tire_idx = (info.playersVehicleTelemetry().mFrontTireCompoundIndex,
+                info.playersVehicleTelemetry().mRearTireCompoundIndex)
     game_phase = info.Rf2Scor.mScoringInfo.mGamePhase
-    return lap_num, wear_avg, fuel_curr, time_curr, inpits, ftire_idx, rtire_idx, game_phase
+    return lap_num, wear_avg, fuel_curr, time_curr, inpits, tire_idx, game_phase
 
 
 def fuel():

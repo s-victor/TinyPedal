@@ -48,7 +48,7 @@ class DrawWidget(Widget, MouseEvent):
         bar_padx = self.cfg["font_size"] * 0.3
         bar_gap = self.cfg["bar_gap"]
         num_width = 3
-        gap_width = 4
+        gap_width = self.cfg["bar_time_gap_width"]
         self.drv_width = self.cfg["bar_driver_name_width"]
         self.cls_width = self.cfg["bar_class_name_width"]
 
@@ -64,6 +64,8 @@ class DrawWidget(Widget, MouseEvent):
         bg_color_gap_plr = self.cfg["bkg_color_player_gap"]
         fg_color_classplace = self.cfg["font_color_position_in_class"]
         bg_color_classplace = self.cfg["bkg_color_position_in_class"]
+        fg_color_tyrecmp = self.cfg["font_color_tyre_compound"]
+        bg_color_tyrecmp = self.cfg["bkg_color_tyre_compound"]
         fg_color_pit = self.cfg["font_color_pit"]
         bg_color_pit = self.cfg["bkg_color_pit"]
 
@@ -72,8 +74,9 @@ class DrawWidget(Widget, MouseEvent):
         column_lpt = self.cfg["column_index_laptime"]
         column_pic = self.cfg["column_index_position_in_class"]
         column_cls = self.cfg["column_index_class"]
-        column_gap = self.cfg["column_index_gap"]
-        column_pit = self.cfg["column_index_pit"]
+        column_tcp = self.cfg["column_index_tyre_compound"]
+        column_gap = self.cfg["column_index_time_gap"]
+        column_pit = self.cfg["column_index_pit_status"]
 
         font_relative = tkfont.Font(family=self.cfg["font_name"],
                                     size=-self.cfg["font_size"],
@@ -230,6 +233,26 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_row_6s.grid(row=5, column=column_pit, padx=0, pady=(0, bar_gap))
             self.bar_row_7s.grid(row=6, column=column_pit, padx=0, pady=0)
 
+        # Tyre compound index
+        if self.cfg["show_tyre_compound"]:
+            bar_style_m = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
+                           "font":font_relative, "height":1, "width":2,
+                           "fg":fg_color_tyrecmp, "bg":bg_color_tyrecmp}
+            self.bar_row_1m = tk.Label(self, bar_style_m)
+            self.bar_row_2m = tk.Label(self, bar_style_m)
+            self.bar_row_3m = tk.Label(self, bar_style_m)
+            self.bar_row_4m = tk.Label(self, bar_style_m)
+            self.bar_row_5m = tk.Label(self, bar_style_m)
+            self.bar_row_6m = tk.Label(self, bar_style_m)
+            self.bar_row_7m = tk.Label(self, bar_style_m)
+            self.bar_row_1m.grid(row=0, column=column_tcp, padx=0, pady=(0, bar_gap))
+            self.bar_row_2m.grid(row=1, column=column_tcp, padx=0, pady=(0, bar_gap))
+            self.bar_row_3m.grid(row=2, column=column_tcp, padx=0, pady=(0, bar_gap))
+            self.bar_row_4m.grid(row=3, column=column_tcp, padx=0, pady=(0, bar_gap))
+            self.bar_row_5m.grid(row=4, column=column_tcp, padx=0, pady=(0, bar_gap))
+            self.bar_row_6m.grid(row=5, column=column_tcp, padx=0, pady=(0, bar_gap))
+            self.bar_row_7m.grid(row=6, column=column_tcp, padx=0, pady=0)
+
         self.update_data()
 
         # Assign mouse event
@@ -303,6 +326,16 @@ class DrawWidget(Widget, MouseEvent):
                     self.bar_row_6c.config(self.set_class_style(veh_f[4]))
                     self.bar_row_7c.config(self.set_class_style(veh_g[4]))
 
+                # Tyre compound index
+                if self.cfg["show_tyre_compound"]:
+                    self.bar_row_1m.config(text=self.set_tyre_cmp(veh_a[8]))
+                    self.bar_row_2m.config(text=self.set_tyre_cmp(veh_b[8]))
+                    self.bar_row_3m.config(text=self.set_tyre_cmp(veh_c[8]))
+                    self.bar_row_4m.config(text=self.set_tyre_cmp(veh_d[8]))
+                    self.bar_row_5m.config(text=self.set_tyre_cmp(veh_e[8]))
+                    self.bar_row_6m.config(text=self.set_tyre_cmp(veh_f[8]))
+                    self.bar_row_7m.config(text=self.set_tyre_cmp(veh_g[8]))
+
                 # Time gap
                 self.bar_row_1g.config(text=veh_a[5], fg=self.color_lapdiff(veh_a[6], veh_d[6]))
                 self.bar_row_2g.config(text=veh_b[5], fg=self.color_lapdiff(veh_b[6], veh_d[6]))
@@ -335,6 +368,16 @@ class DrawWidget(Widget, MouseEvent):
         else:
             color = self.cfg["font_color_same_lap"]
         return color
+
+    def set_tyre_cmp(self, tc_index):
+        """Substitute tyre compound index with custom chars"""
+        if tc_index:
+            ftire = self.cfg["tyre_compound_list"][tc_index[0]:(tc_index[0]+1)]
+            rtire = self.cfg["tyre_compound_list"][tc_index[1]:(tc_index[1]+1)]
+            tire_cmpd = f"{ftire}{rtire}"
+        else:
+            tire_cmpd = ""
+        return tire_cmpd
 
     def set_pitstatus(self, pits):
         """Compare lap differences & set color"""

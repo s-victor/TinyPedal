@@ -330,6 +330,9 @@ You can add more classes following the JSON format, make sure that second last b
     bar_class_name_width
 Set class name display width, value is in chars, 4 = 4 chars wide.
 
+    bar_time_gap_width
+Set time gap display width, value is in chars, 5 = 5 chars wide.
+
     show_position_in_class
 Show driver's position standing in class.
 
@@ -338,6 +341,12 @@ Show indicator whether driver is currently in pit.
 
     pit_status_text
 Set custom pit status text which shows when driver is in pit. 
+
+    show_tyre_compound
+Show tyre compound index (front/rear).
+
+    tyre_compound_list
+Set custom tire compound index letter. One letter for one compound index. Note: since most vehicle mods don't share a common tire compound types or list order, it is impossible to have a tyre compound letter list that matches every car.
 
     column_index_*
 Set order of each info column. Must keep index number unique to each column, otherwise columns will overlap.

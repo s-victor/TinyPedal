@@ -79,6 +79,7 @@
 - Show driver's last laptime (optional).
 - Show vehicle class categories (optional) with fully customizable class name and color.
 - Show driver's position standing in class.
+- Show tyre compound index, with customizable letter.
 - Show pit status indicator whether driver is currently in pit, with customizable pit status text.
 - Customizable column info display order.
 

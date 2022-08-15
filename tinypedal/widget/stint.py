@@ -117,15 +117,15 @@ class DrawWidget(Widget, MouseEvent):
         if read_data.state() and self.cfg["enable"]:
 
             # Read stint data
-            (lap_num, wear_avg, fuel_curr, time_curr, inpits, ftire_idx, rtire_idx, game_phase
+            (lap_num, wear_avg, fuel_curr, time_curr, inpits, tire_idx, game_phase
              ) = read_data.stint()
 
             # Check isPlayer before update
             if read_data.is_local_player():
 
                 fuel_curr = calc.conv_fuel(fuel_curr, self.cfg["fuel_unit"])
-                ftire_cmpd = self.cfg["tyre_compound_list"][ftire_idx:(ftire_idx+1)]
-                rtire_cmpd = self.cfg["tyre_compound_list"][rtire_idx:(rtire_idx+1)]
+                ftire_cmpd = self.cfg["tyre_compound_list"][tire_idx[0]:(tire_idx[0]+1)]
+                rtire_cmpd = self.cfg["tyre_compound_list"][tire_idx[1]:(tire_idx[1]+1)]
 
                 stint_lap = max(lap_num - self.start_lap, 0)
                 stint_time = max(time_curr - self.start_time, 0)

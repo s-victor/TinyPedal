@@ -1,3 +1,18 @@
+TinyPedal 1.6.7 (2022-08-15)
+----------------------------
+* Relative Widget
+    - [New]Add tyre compound index (front/rear) column with customizable compound letter & color in config.json.
+      Note: due to this addition and changes to column order, it is advised to double check for column_index values
+      set in config.json to avoid column overlapping.
+    - [New]Add "bar_time_gap_width" option in config.json for relative time gap, default value is 5 (char width).
+
+* Core
+    - Improved "Time Gap" calculation in Relative module.
+
+* Misc
+    - Updated customization guide with new configurable setting for Relative Widget.
+    - Updated features list.
+
 TinyPedal 1.6.6 (2022-07-31)
 ----------------------------
 * Instrument Widget
