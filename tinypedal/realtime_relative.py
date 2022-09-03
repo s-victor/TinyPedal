@@ -96,31 +96,36 @@ class RelativeInfo:
 
     def relative_data(self, index, index_player, veh_class_info):
         """Relative data"""
-        if index >= 0 and 9 == len(veh_class_info[index]):  # prevent index out of range
-            # Driver place position
-            place = f"{veh_class_info[index][3]:02d}"
+        if 0 <= index < len(veh_class_info):
+            if len(veh_class_info[index]) == 9:  # prevent index out of range
+                # Driver place position
+                place = f"{veh_class_info[index][3]:02d}"
 
-            # Driver name
-            driver = veh_class_info[index][4]
+                # Driver name
+                driver = veh_class_info[index][4]
 
-            # Lap time
-            laptime = calc.sec2laptime(max(veh_class_info[index][5], 0))
+                # Lap time
+                laptime = calc.sec2laptime(max(veh_class_info[index][5], 0))
 
-            # Vehicle position & class
-            pos_class = f"{veh_class_info[index][1]:02d}"
-            veh_class = veh_class_info[index][2]
+                # Vehicle position & class
+                pos_class = f"{veh_class_info[index][1]:02d}"
+                veh_class = veh_class_info[index][2]
 
-            # Relative time gap
-            time_gap = self.calc_relative_time_gap(index, index_player)
+                # Relative time gap
+                time_gap = self.calc_relative_time_gap(index, index_player)
 
-            # Number of completed
-            num_lap = veh_class_info[index][6]
+                # Number of completed
+                num_lap = veh_class_info[index][6]
 
-            # Driver in pit
-            in_pit = veh_class_info[index][7]
+                # Driver in pit
+                in_pit = veh_class_info[index][7]
 
-            # Tyre compound index
-            tire_idx = veh_class_info[index][8]
+                # Tyre compound index
+                tire_idx = veh_class_info[index][8]
+            else:
+                # Assign empty value to -1 player index
+                (place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit, tire_idx
+                 ) = "", "", "", "", "", "", 0, 0, 0
         else:
             # Assign empty value to -1 player index
             (place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit, tire_idx

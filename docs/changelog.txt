@@ -1,3 +1,8 @@
+TinyPedal 1.6.8 (2022-09-03)
+----------------------------
+* Core
+    - Fixed a "list index out of range" issue in Relative module when client lost connection from server.
+
 TinyPedal 1.6.7 (2022-08-15)
 ----------------------------
 * Relative Widget
