@@ -1,3 +1,8 @@
+TinyPedal 1.6.9 (2022-09-11)
+----------------------------
+* Core
+    - Fixed an empty list issue that can result "list index out of range" in Relative module.
+
 TinyPedal 1.6.8 (2022-09-03)
 ----------------------------
 * Core

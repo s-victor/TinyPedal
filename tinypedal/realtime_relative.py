@@ -57,7 +57,7 @@ class RelativeInfo:
                 unsorted_veh_class = []
                 unique_veh_class = []
 
-                for index in range(max(info.Rf2Scor.mScoringInfo.mNumVehicles, 0)):
+                for index in range(max(info.Rf2Scor.mScoringInfo.mNumVehicles, 1)):
                     # Create vehicle dict, use "vehicle index" as key, "distance position" as value
                     # Filter out negative distance value to zero
                     veh_dict.update({index:info.Rf2Scor.mVehicles[index].mLapDist})
