@@ -225,15 +225,6 @@ def nearest_dist_index(position, listname):
     return index_lower, index_higher
 
 
-def in2zero(value1):
-    """Convert inf & nan to zero"""
-    if math.isnan(value1):  # bypass nan
-        value1 = 0
-    elif math.isinf(value1):  # bypass inf
-        value1 = 0
-    return value1
-
-
 # Unused
 def _kelvin2celsius(kelvin):
     """Convert Kelvin to Celsius"""

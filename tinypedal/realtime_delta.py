@@ -29,6 +29,7 @@ from pyRfactor2SharedMemory.sharedMemoryAPI import Cbytestring2Python
 from tinypedal.__init__ import info, cfg
 import tinypedal.calculation as calc
 
+chknum = info.in2zero
 
 class DeltaTime:
     """Delta time data"""
@@ -70,7 +71,7 @@ class DeltaTime:
         update_delay = 0.5  # changeable update delay for conserving resources
 
         while True:
-            if info.playersVehicleTelemetry().mIgnitionStarter != 0:
+            if chknum(info.playersVehicleTelemetry().mIgnitionStarter) != 0:
 
                 (start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase
                  ) = self.telemetry()
@@ -87,7 +88,7 @@ class DeltaTime:
                     start_last = start_curr  # reset
 
                 # Check isPlayer before update
-                if 0 <= info.playersVehicleScoring().mControl <= 1:
+                if 0 <= chknum(info.playersVehicleScoring().mControl) <= 1:
 
                     laptime_curr = max(elapsed_time - start_last, 0)  # current laptime
 
@@ -116,7 +117,7 @@ class DeltaTime:
                                 laptime_best = laptime_last
                                 delta_list_best = delta_list_last
                             validating = False
-                        elif 2 < laptime_curr < 3:  # switch off validating after 2s
+                        elif 2 < laptime_curr < 8:  # switch off validating after 8s
                             validating = False
 
                     # Recording only from the beginning of a lap
@@ -181,17 +182,17 @@ class DeltaTime:
     @staticmethod
     def telemetry():
         """Telemetry data"""
-        start_curr = info.playersVehicleTelemetry().mLapStartET
-        elapsed_time = info.playersVehicleTelemetry().mElapsedTime
-        lastlap_check = info.playersVehicleScoring().mLastLapTime
-        speed = calc.vel2speed(info.playersVehicleTelemetry().mLocalVel.x,
-                               info.playersVehicleTelemetry().mLocalVel.y,
-                               info.playersVehicleTelemetry().mLocalVel.z)
-        pos_curr = info.playersVehicleScoring().mLapDist
-        gps_curr = (info.playersVehicleTelemetry().mPos.x,
-                    info.playersVehicleTelemetry().mPos.y,
-                    info.playersVehicleTelemetry().mPos.z)
-        game_phase = info.Rf2Scor.mScoringInfo.mGamePhase
+        start_curr = chknum(info.playersVehicleTelemetry().mLapStartET)
+        elapsed_time = chknum(info.playersVehicleTelemetry().mElapsedTime)
+        lastlap_check = chknum(info.playersVehicleScoring().mLastLapTime)
+        speed = calc.vel2speed(chknum(info.playersVehicleTelemetry().mLocalVel.x),
+                               chknum(info.playersVehicleTelemetry().mLocalVel.y),
+                               chknum(info.playersVehicleTelemetry().mLocalVel.z))
+        pos_curr = chknum(info.playersVehicleScoring().mLapDist)
+        gps_curr = (chknum(info.playersVehicleTelemetry().mPos.x),
+                    chknum(info.playersVehicleTelemetry().mPos.y),
+                    chknum(info.playersVehicleTelemetry().mPos.z))
+        game_phase = chknum(info.Rf2Scor.mScoringInfo.mGamePhase)
         return start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase
 
     @staticmethod

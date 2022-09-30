@@ -1,3 +1,12 @@
+TinyPedal 1.6.10 (2022-09-30)
+----------------------------
+* Core
+    - Extended laptime validation period from 2s to 8s in case of game's new cut detection being triggered.
+    - Improved Relative module structure.
+
+* pyRfactor2SharedMemory library
+    - Added numeric validation for every sharedmemory data input to eliminate data reading errors during game crash, freeze or unexpected interruption.
+
 TinyPedal 1.6.9 (2022-09-11)
 ----------------------------
 * Core
