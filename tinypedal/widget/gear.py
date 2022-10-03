@@ -26,7 +26,7 @@ import tkinter.font as tkfont
 from tinypedal.__init__ import cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
-from tinypedal.base import Widget, MouseEvent
+from tinypedal.base import fuel_usage, Widget, MouseEvent
 
 
 class DrawWidget(Widget, MouseEvent):
@@ -55,11 +55,18 @@ class DrawWidget(Widget, MouseEvent):
         font_gauge_small = tkfont.Font(family=self.cfg["font_name"],
                                        size=-int(self.cfg["font_size"]*0.35),
                                        weight=self.cfg["font_weight_gauge"])
+        font_indicator = tkfont.Font(family=self.cfg["font_name"],
+                                     size=-self.cfg["font_size"],
+                                     weight=self.cfg["font_weight_indicator"])
 
         # Set state for drawing optimization
         self.state_lm = True  # limiter
         self.state_cd = False
         self.state_slight = False
+        self.state_blue = True
+        self.state_ys1 = True
+        self.state_ys2 = True
+        self.state_ys3 = True
 
         # Draw label
         self.bar_gear_bg = tk.Canvas(self, bd=0, highlightthickness=0, height=0, width=0,
@@ -109,28 +116,64 @@ class DrawWidget(Widget, MouseEvent):
         # Speed limiter
         self.bar_limiter = tk.Label(self, text=self.cfg["speed_limiter_text"], bd=0, height=1,
                                     width=len(self.cfg["speed_limiter_text"])+1,
-                                    font=font_gear, padx=0, pady=0,
-                                    fg="#111111", bg="#FF2200")
-        self.bar_limiter.grid(row=0, column=5, padx=0, pady=0, sticky="ns")
-        self.bar_limiter.grid_remove()  # hide limiter indicator at start
+                                    font=font_indicator, padx=0, pady=0,
+                                    fg=self.cfg["font_color_speed_limiter"],
+                                    bg=self.cfg["bkg_color_speed_limiter"])
+        self.bar_limiter.grid(row=0, column=4, padx=0, pady=0, sticky="ns")
+        self.bar_limiter.grid_remove()  # hide indicator at start
+
+        # Low fuel warning
+        if self.cfg["show_low_fuel"]:
+            self.bar_lowfuel = tk.Label(self, text="-.--", bd=0, height=1, width=5,
+                                        font=font_indicator, padx=0, pady=0,
+                                        fg=self.cfg["font_color_low_fuel"],
+                                        bg=self.cfg["bkg_color_low_fuel"])
+            self.bar_lowfuel.grid(row=0, column=5, padx=0, pady=0, sticky="ns")
+            self.bar_lowfuel.grid_remove()
 
         # Start lights
         if self.cfg["show_startlights"]:
             self.bar_startlights = tk.Label(self, text="", bd=0, height=1, width=2,
-                                            font=font_gear, padx=0, pady=0,
+                                            font=font_indicator, padx=0, pady=0,
                                             fg=self.cfg["font_color_startlights"],
                                             bg=self.cfg["bkg_color_red_lights"])
-            self.bar_startlights.grid(row=0, column=3, padx=0, pady=0, sticky="ns")
-            self.bar_startlights.grid_remove()  # hide startlights indicator at start
+            self.bar_startlights.grid(row=0, column=6, padx=0, pady=0, sticky="ns")
+            self.bar_startlights.grid_remove()
 
         # Countdown
         if self.cfg["show_start_countdown"] == "THIS_MAY_CREATE_UNFAIR_ADVANTAGES":
             self.bar_countdown = tk.Label(self, text="-.--", bd=0, height=1, width=5,
-                                          font=font_gear, padx=0, pady=0,
+                                          font=font_indicator, padx=0, pady=0,
                                           fg=self.cfg["font_color_countdown"],
                                           bg=self.cfg["bkg_color_countdown"])
-            self.bar_countdown.grid(row=0, column=4, padx=0, pady=0, sticky="ns")
-            self.bar_countdown.grid_remove()  # hide countdown indicator at start
+            self.bar_countdown.grid(row=0, column=7, padx=0, pady=0, sticky="ns")
+            self.bar_countdown.grid_remove()
+
+        # Blue flag
+        if self.cfg["show_blue_flag"]:
+            self.bar_blueflag = tk.Label(self, text=self.cfg["blue_flag_text"], bd=0, height=1,
+                                         width=len(self.cfg["blue_flag_text"])+1,
+                                         font=font_indicator, padx=0, pady=0,
+                                         fg=self.cfg["font_color_blue_flag"],
+                                         bg=self.cfg["bkg_color_blue_flag"])
+            self.bar_blueflag.grid(row=0, column=8, padx=0, pady=0, sticky="ns")
+            self.bar_blueflag.grid_remove()
+
+        # Yellow flag
+        if self.cfg["show_yellow_flag"]:
+            bar_style_y = {"font":font_indicator, "padx":0, "pady":0, "bd":0, "height":1, "width":3,
+                           "fg":self.cfg["font_color_yellow_flag"],
+                           "bg":self.cfg["bkg_color_yellow_flag"]}
+
+            self.bar_yellow_s1 = tk.Label(self, bar_style_y, text="S1")
+            self.bar_yellow_s1.grid(row=0, column=9, padx=0, pady=0, sticky="ns")
+            self.bar_yellow_s1.grid_remove()
+            self.bar_yellow_s2 = tk.Label(self, bar_style_y, text="S2")
+            self.bar_yellow_s2.grid(row=0, column=10, padx=0, pady=0, sticky="ns")
+            self.bar_yellow_s2.grid_remove()
+            self.bar_yellow_s3 = tk.Label(self, bar_style_y, text="S3")
+            self.bar_yellow_s3.grid(row=0, column=11, padx=0, pady=0, sticky="ns")
+            self.bar_yellow_s3.grid_remove()
 
         self.update_data()
 
@@ -142,7 +185,7 @@ class DrawWidget(Widget, MouseEvent):
         if read_data.state() and self.cfg["enable"]:
 
             # Read gear data
-            pit_limiter, gear, speed, rpm, rpm_max, race_phase = read_data.gear()
+            pit_limiter, gear, speed, rpm, rpm_max, race_phase, curr_session = read_data.gear()
 
             # Check isPlayer before update
             if read_data.is_local_player():
@@ -214,6 +257,26 @@ class DrawWidget(Widget, MouseEvent):
                             self.bar_countdown.grid_remove()  # hide countdown indicator at start
                             self.state_cd = False
 
+                # Low fuel update
+                if self.cfg["show_low_fuel"]:
+                    if self.cfg["low_fuel_for_race_only"] and 9 <= curr_session:
+                        self.show_lowfuel()
+                    elif not self.cfg["low_fuel_for_race_only"]:
+                        self.show_lowfuel()
+
+                # Flags update
+                if self.cfg["show_blue_flag"]:
+                    if self.cfg["blue_flag_for_race_only"] and 9 <= curr_session:
+                        self.show_blue()
+                    elif not self.cfg["blue_flag_for_race_only"]:
+                        self.show_blue()
+
+                if self.cfg["show_yellow_flag"]:
+                    if self.cfg["yellow_flag_for_race_only"] and 9 <= curr_session:
+                        self.show_yellow()
+                    elif not self.cfg["yellow_flag_for_race_only"]:
+                        self.show_yellow()
+
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)
 
@@ -229,3 +292,50 @@ class DrawWidget(Widget, MouseEvent):
         else:
             color = self.cfg["bkg_color_rpm_over_rev"]
         return color
+
+    def show_lowfuel(self):
+        """Show low fuel warning"""
+        amount_curr, _, _, est_runlaps, _, _ = fuel_usage.output_data
+
+        if amount_curr <= self.cfg["low_fuel_volume_threshold"] and est_runlaps <= self.cfg["low_fuel_lap_threshold"]:
+            lowfuel_text = f"{amount_curr:.2f}"
+            self.bar_lowfuel.config(text=lowfuel_text, width=len(lowfuel_text) + 1)
+            self.bar_lowfuel.grid()
+        else:
+            self.bar_lowfuel.grid_remove()
+
+    def show_blue(self):
+        """Show blue flag"""
+        blue = read_data.blue_flag()
+
+        if blue == 6 and self.state_blue:
+            self.bar_blueflag.grid()
+            self.state_blue = False
+        elif blue != 6 and not self.state_blue:
+            self.bar_blueflag.grid_remove()
+            self.state_blue = True
+
+    def show_yellow(self):
+        """Show yellow flag"""
+        yellow_s1, yellow_s2, yellow_s3 = read_data.yellow_flag()
+
+        if yellow_s1 == 1 and self.state_ys1:
+            self.bar_yellow_s1.grid()
+            self.state_ys1 = False
+        elif yellow_s1 != 1 and not self.state_ys1:
+            self.bar_yellow_s1.grid_remove()
+            self.state_ys1 = True
+
+        if yellow_s2 == 1 and self.state_ys2:
+            self.bar_yellow_s2.grid()
+            self.state_ys2 = False
+        elif yellow_s2 != 1 and not self.state_ys2:
+            self.bar_yellow_s2.grid_remove()
+            self.state_ys2 = True
+
+        if yellow_s3 == 1 and self.state_ys3:
+            self.bar_yellow_s3.grid()
+            self.state_ys3 = False
+        elif yellow_s3 != 1 and not self.state_ys3:
+            self.bar_yellow_s3.grid_remove()
+            self.state_ys3 = True

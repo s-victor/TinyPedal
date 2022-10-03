@@ -26,6 +26,7 @@ from ctypes import windll
 import tinypedal.readapi as read_data
 from tinypedal.__init__ import cfg
 from tinypedal.realtime_delta import DeltaTime
+from tinypedal.realtime_fuel import FuelUsage
 from tinypedal.realtime_relative import RelativeInfo
 
 
@@ -33,6 +34,11 @@ from tinypedal.realtime_relative import RelativeInfo
 delta_time = DeltaTime()
 if cfg.overlay["delta_module"]:
     delta_time.start()
+
+# Load fuel module
+fuel_usage = FuelUsage()
+if cfg.overlay["fuel_module"]:
+    fuel_usage.start()
 
 # Load relative module
 relative_info = RelativeInfo()

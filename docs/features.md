@@ -41,6 +41,9 @@
 - Show RPM over-rev color warning.
 - Show RPM bar animation (optional) ranged from safe RPM to max RPM.
 - Show Startlights indicator.
+- Show Low Fuel indicator.
+- Show Blue Flag indicator.
+- Show Yellow Flag indicator.
 
 ## Instrument
 - Show Headlights state.

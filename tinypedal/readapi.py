@@ -107,7 +107,22 @@ def gear():
     rpm = chknum(info.playersVehicleTelemetry().mEngineRPM)
     rpm_max = chknum(info.playersVehicleTelemetry().mEngineMaxRPM)
     race_phase = chknum(info.Rf2Scor.mScoringInfo.mGamePhase)
-    return pit_limiter, mgear, speed, rpm, rpm_max, race_phase
+    curr_session = chknum(info.Rf2Scor.mScoringInfo.mSession)
+    return pit_limiter, mgear, speed, rpm, rpm_max, race_phase, curr_session
+
+
+def blue_flag():
+    """Blue flag data"""
+    blue = chknum(info.playersVehicleScoring().mFlag)
+    return blue
+
+
+def yellow_flag():
+    """Yellow flag data"""
+    yellow_s1 = chknum(info.Rf2Scor.mScoringInfo.mSectorFlag[0])
+    yellow_s2 = chknum(info.Rf2Scor.mScoringInfo.mSectorFlag[1])
+    yellow_s3 = chknum(info.Rf2Scor.mScoringInfo.mSectorFlag[2])
+    return yellow_s1, yellow_s2, yellow_s3
 
 
 def lap_timestamp():
@@ -148,17 +163,6 @@ def stint():
                 chknum(info.playersVehicleTelemetry().mRearTireCompoundIndex))
     game_phase = chknum(info.Rf2Scor.mScoringInfo.mGamePhase)
     return lap_num, wear_avg, fuel_curr, time_curr, inpits, tire_idx, game_phase
-
-
-def fuel():
-    """Fuel data"""
-    start_curr = chknum(info.playersVehicleTelemetry().mLapStartET)
-    laps_total = chknum(info.Rf2Scor.mScoringInfo.mMaxLaps)
-    laps_left = laps_total - chknum(info.playersVehicleScoring().mTotalLaps)
-    time_left = chknum(info.Rf2Scor.mScoringInfo.mEndET) - chknum(info.Rf2Scor.mScoringInfo.mCurrentET)
-    amount_curr = chknum(info.playersVehicleTelemetry().mFuel)
-    capacity = chknum(info.playersVehicleTelemetry().mFuelCapacity)
-    return start_curr, laps_total, laps_left, time_left, amount_curr, capacity
 
 
 def camber():

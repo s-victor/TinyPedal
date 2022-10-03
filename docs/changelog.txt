@@ -1,3 +1,23 @@
+TinyPedal 1.7.0 (2022-10-03)
+* [New]Fuel Module
+    - Moved all fuel usage calculation into the new separated "Fuel Module"
+      which runs in a separated thread at a much higher 1000hz refresh rate.
+    - Fuel Widget as well as other Widgets now have access to fuel usage info from this module.
+    - Ignores pit-in & pit-out lap for more accurate fuel usage report for endurance race. 
+
+* Gear Widget
+    - [New]Display low fuel warning beside speed gauge. Default is set to show only for race.
+    - [New]Display blue flag warning with customizable text beside speed gauge. Default is set to show only for race.
+    - [New]Display sector-based yellow flag warning beside speed gauge. Default is set to show only for race.
+    - [New]Added "font_weight_indicator" setting for customizing indicator font weight separately.
+    - [New]Added "font_color_speed_limiter" & "bkg_color_speed_limiter" for speed limiter indicator.
+    - [New]Added large amount customizable options for new indicators,
+      see Gear section in customization guide for details.
+
+* Misc
+    - Updated customization guide with new configurable setting for Gear Widget.
+    - Updated features list.
+
 TinyPedal 1.6.10 (2022-09-30)
 ----------------------------
 * Core

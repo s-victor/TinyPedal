@@ -76,6 +76,9 @@ Valid value: `true`, same as `1`. `false`, same as `0`.
     delta_module
 Enable delta timing module. This module provides timing data for `Delta best` and `Timing` widgets, which returns value 0 if turned off.
 
+    fuel_module
+Enable fuel calculation module. This module provides vehicle fuel usage data for `Fuel` and other widgets, which returns nothing if turned off.
+
     relative_module
 Enable relative calculation module. This module provides vehicle relative data for `Relative` and `Radar` widgets, which returns nothing if turned off.
 
@@ -170,7 +173,7 @@ Set low fuel color indicator, which changes widget background color when there i
 2 unit types are available: `0` = liters, `1` = gallons.
 
     fuel_consumption
-This value holds the last recorded fuel consumption of the last lap. Accept manual editing, but will be overridden by any new lap done.
+This value holds the last recorded fuel consumption of the last lap, unit is liters. Accept manual editing, but will be overridden by any new lap done.
 
 
 ## Gear
@@ -218,6 +221,33 @@ Set display duration(seconds) for green flag text before it disappears. Default 
 
     show_start_countdown
 Show race start countdown timer during countdown game phase for standing-type start only(includes formation/standing). CHECK LEAGUE and RACE RULES first before enabling it! This option can potentially create unfair advantages against who doesn't use it! Disabled by Default, set `"THIS_MAY_CREATE_UNFAIR_ADVANTAGES"` to enable. 
+
+    show_low_fuel
+Show low fuel indicator when fuel level is below certain amount value.
+
+    low_fuel_for_race_only
+Only show low fuel indicator during race session.
+
+    low_fuel_volume_threshold
+Set fuel volume threshold to only show low fuel indicator when total amount of remaining fuel is equal or less than this value. This value takes consideration from 'fuel_unit' setting of Fuel Widget. For example, if `fuel_unit` is set to gallon, then this value should also be set using gallon unit. The purpose of this setting is to limit low fuel warning when racing on lengthy tracks, where fuel tank may only hold for a lap or two. Default value is `20`.
+
+    low_fuel_lap_threshold
+Set amount lap threshold to only show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default value is `2` laps before running out of fuel.
+
+    show_blue_flag
+Show blue flag indicator.
+
+    blue_flag_for_race_only
+Only show blue flag indicator during race session.
+
+    blue_flag_text
+Set custom blue flag text. 
+
+    show_yellow_flag
+Show yellow flag indicator of each affected sector.
+
+    yellow_flag_for_race_only
+Only show yellow flag indicator during race session.
 
 
 ## Instrument

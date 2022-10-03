@@ -35,7 +35,7 @@ class DeltaTime:
     """Delta time data"""
 
     def __init__(self):
-        self.output_data = [0,0,0,0,0]
+        self.output_data = (0,0,0,0,0)
         self.meters_driven = cfg.setting_user["cruise"]["meters_driven"]
 
     def start(self):
@@ -148,8 +148,10 @@ class DeltaTime:
                             delta_best = 0
 
                     laptime_est = laptime_best + delta_best
-                    self.output_data = [laptime_curr, laptime_last, laptime_best,
-                                        laptime_est, delta_best]
+
+                    # Output delta time data
+                    self.output_data = (laptime_curr, laptime_last, laptime_best,
+                                        laptime_est, delta_best)
 
                     # Record driven distance in meters
                     if gps_last != gps_curr:
