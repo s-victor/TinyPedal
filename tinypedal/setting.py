@@ -303,6 +303,8 @@ class Setting:
             "opponent_color_laps_behind": "#00CCFF",
             "show_center_mark": True,
             "center_mark_color": "#888888",
+            "additional_vehicles_front": 4,
+            "additional_vehicles_behind": 4,
         },
         "relative": {
             "enable": True,
@@ -352,6 +354,8 @@ class Setting:
             "column_index_tyre_compound": 7,
             "column_index_time_gap": 8,
             "column_index_pit_status": 9,
+            "additional_players_front": 0,
+            "additional_players_behind": 0,
         },
         "session": {
             "enable": True,

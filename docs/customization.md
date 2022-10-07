@@ -332,6 +332,9 @@ Set color for opponent vehicle that is laps ahead or behind player vehicle.
     show_center_mark
 Show center mark on radar.
 
+    additional_vehicles_front, additional_vehicles_behind
+Set additional visible vehicles. The value is limited to a maximum of 9 additional vehicles for each front & behind setting. Default value is `4`.
+
 
 ## Relative
     font_color_laps_ahead, font_color_laps_behind
@@ -380,6 +383,9 @@ Set custom tire compound index letter. One letter for one compound index. Note: 
 
     column_index_*
 Set order of each info column. Must keep index number unique to each column, otherwise columns will overlap.
+
+    additional_players_front, additional_players_behind
+Set additional players shown on relative list. The value is limited to a maximum of 3 additional players for each front & behind setting. Default value is `0`.
 
 
 ## Session

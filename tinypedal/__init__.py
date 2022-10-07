@@ -24,7 +24,7 @@ from pyRfactor2SharedMemory.sharedMemoryAPI import SimInfoAPI
 from tinypedal.setting import Setting
 
 
-VERSION = "1.7.0"
+VERSION = "1.8.0"
 
 # Load Shared Memory API
 info = SimInfoAPI()

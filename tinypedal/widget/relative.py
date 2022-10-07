@@ -81,69 +81,137 @@ class DrawWidget(Widget, MouseEvent):
         font_relative = tkfont.Font(family=self.cfg["font_name"],
                                     size=-self.cfg["font_size"],
                                     weight=self.cfg["font_weight"])
+        plr_row = 9  # set player row number
+
+        # Max display players
+        self.rel_add_front = min(max(self.cfg["additional_players_front"], 0), 3)
+        self.rel_add_behind = min(max(self.cfg["additional_players_behind"], 0), 3)
 
         # Draw label
         # Driver place number
         bar_style_p = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
                        "height":1, "width":num_width, "fg":fg_color, "bg":bg_color_place}
-        self.bar_row_1p = tk.Label(self, bar_style_p)
-        self.bar_row_2p = tk.Label(self, bar_style_p)
-        self.bar_row_3p = tk.Label(self, bar_style_p)
-        self.bar_row_4p = tk.Label(self, text=text_def, bd=0, padx=0, pady=0,
-                                   font=font_relative, height=1, width=num_width,
-                                   fg=fg_color_plr, bg=bg_color_place_plr)
-        self.bar_row_5p = tk.Label(self, bar_style_p)
-        self.bar_row_6p = tk.Label(self, bar_style_p)
-        self.bar_row_7p = tk.Label(self, bar_style_p)
-        self.bar_row_1p.grid(row=0, column=column_plc, padx=0, pady=(0, bar_gap))
-        self.bar_row_2p.grid(row=1, column=column_plc, padx=0, pady=(0, bar_gap))
-        self.bar_row_3p.grid(row=2, column=column_plc, padx=0, pady=(0, bar_gap))
-        self.bar_row_4p.grid(row=3, column=column_plc, padx=0, pady=(0, bar_gap))
-        self.bar_row_5p.grid(row=4, column=column_plc, padx=0, pady=(0, bar_gap))
-        self.bar_row_6p.grid(row=5, column=column_plc, padx=0, pady=(0, bar_gap))
-        self.bar_row_7p.grid(row=6, column=column_plc, padx=0, pady=0)
+
+        self.row_plrp = tk.Label(self, text=text_def, bd=0, padx=0, pady=0,
+                                 font=font_relative, height=1, width=num_width,
+                                 fg=fg_color_plr, bg=bg_color_place_plr)
+        self.row_plrp.grid(row=plr_row, column=column_plc, padx=0, pady=(0, bar_gap))
+
+        self.row_f_03p = tk.Label(self, bar_style_p)
+        self.row_f_02p = tk.Label(self, bar_style_p)
+        self.row_f_01p = tk.Label(self, bar_style_p)
+        self.row_r_01p = tk.Label(self, bar_style_p)
+        self.row_r_02p = tk.Label(self, bar_style_p)
+        self.row_r_03p = tk.Label(self, bar_style_p)
+        self.row_f_03p.grid(row=plr_row - 3, column=column_plc, padx=0, pady=(0, bar_gap))
+        self.row_f_02p.grid(row=plr_row - 2, column=column_plc, padx=0, pady=(0, bar_gap))
+        self.row_f_01p.grid(row=plr_row - 1, column=column_plc, padx=0, pady=(0, bar_gap))
+        self.row_r_01p.grid(row=plr_row + 1, column=column_plc, padx=0, pady=(0, bar_gap))
+        self.row_r_02p.grid(row=plr_row + 2, column=column_plc, padx=0, pady=(0, bar_gap))
+        self.row_r_03p.grid(row=plr_row + 3, column=column_plc, padx=0, pady=(0, bar_gap))
+
+        if self.rel_add_front > 0:
+            self.row_f_04p = tk.Label(self, bar_style_p)
+            self.row_f_04p.grid(row=plr_row - 4, column=column_plc, padx=0, pady=(0, bar_gap))
+        if self.rel_add_behind > 0:
+            self.row_r_04p = tk.Label(self, bar_style_p)
+            self.row_r_04p.grid(row=plr_row + 4, column=column_plc, padx=0, pady=(0, bar_gap))
+        if self.rel_add_front > 1:
+            self.row_f_05p = tk.Label(self, bar_style_p)
+            self.row_f_05p.grid(row=plr_row - 5, column=column_plc, padx=0, pady=(0, bar_gap))
+        if self.rel_add_behind > 1:
+            self.row_r_05p = tk.Label(self, bar_style_p)
+            self.row_r_05p.grid(row=plr_row + 5, column=column_plc, padx=0, pady=(0, bar_gap))
+        if self.rel_add_front > 2:
+            self.row_f_06p = tk.Label(self, bar_style_p)
+            self.row_f_06p.grid(row=plr_row - 6, column=column_plc, padx=0, pady=(0, bar_gap))
+        if self.rel_add_behind > 2:
+            self.row_r_06p = tk.Label(self, bar_style_p)
+            self.row_r_06p.grid(row=plr_row + 6, column=column_plc, padx=0, pady=(0, bar_gap))
 
         # Driver name
         bar_style_n = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
                        "font":font_relative, "height":1, "width":self.drv_width,
                        "fg":fg_color, "bg":bg_color_name, "anchor":"w"}
-        self.bar_row_1n = tk.Label(self, bar_style_n)
-        self.bar_row_2n = tk.Label(self, bar_style_n)
-        self.bar_row_3n = tk.Label(self, bar_style_n)
-        self.bar_row_4n = tk.Label(self, text=text_def, bd=0, padx=bar_padx, pady=0,
-                                   font=font_relative, height=1, width=self.drv_width,
-                                   fg=fg_color_plr, bg=bg_color_name_plr, anchor="w")
-        self.bar_row_5n = tk.Label(self, bar_style_n)
-        self.bar_row_6n = tk.Label(self, bar_style_n)
-        self.bar_row_7n = tk.Label(self, bar_style_n)
-        self.bar_row_1n.grid(row=0, column=column_drv, padx=0, pady=(0, bar_gap))
-        self.bar_row_2n.grid(row=1, column=column_drv, padx=0, pady=(0, bar_gap))
-        self.bar_row_3n.grid(row=2, column=column_drv, padx=0, pady=(0, bar_gap))
-        self.bar_row_4n.grid(row=3, column=column_drv, padx=0, pady=(0, bar_gap))
-        self.bar_row_5n.grid(row=4, column=column_drv, padx=0, pady=(0, bar_gap))
-        self.bar_row_6n.grid(row=5, column=column_drv, padx=0, pady=(0, bar_gap))
-        self.bar_row_7n.grid(row=6, column=column_drv, padx=0, pady=0)
+
+        self.row_plrn = tk.Label(self, text=text_def, bd=0, padx=bar_padx, pady=0,
+                                 font=font_relative, height=1, width=self.drv_width,
+                                 fg=fg_color_plr, bg=bg_color_name_plr, anchor="w")
+        self.row_plrn.grid(row=plr_row, column=column_drv, padx=0, pady=(0, bar_gap))
+
+        self.row_f_03n = tk.Label(self, bar_style_n)
+        self.row_f_02n = tk.Label(self, bar_style_n)
+        self.row_f_01n = tk.Label(self, bar_style_n)
+        self.row_r_01n = tk.Label(self, bar_style_n)
+        self.row_r_02n = tk.Label(self, bar_style_n)
+        self.row_r_03n = tk.Label(self, bar_style_n)
+        self.row_f_03n.grid(row=plr_row - 3, column=column_drv, padx=0, pady=(0, bar_gap))
+        self.row_f_02n.grid(row=plr_row - 2, column=column_drv, padx=0, pady=(0, bar_gap))
+        self.row_f_01n.grid(row=plr_row - 1, column=column_drv, padx=0, pady=(0, bar_gap))
+        self.row_r_01n.grid(row=plr_row + 1, column=column_drv, padx=0, pady=(0, bar_gap))
+        self.row_r_02n.grid(row=plr_row + 2, column=column_drv, padx=0, pady=(0, bar_gap))
+        self.row_r_03n.grid(row=plr_row + 3, column=column_drv, padx=0, pady=(0, bar_gap))
+
+        if self.rel_add_front > 0:
+            self.row_f_04n = tk.Label(self, bar_style_n)
+            self.row_f_04n.grid(row=plr_row - 4, column=column_drv, padx=0, pady=(0, bar_gap))
+        if self.rel_add_behind > 0:
+            self.row_r_04n = tk.Label(self, bar_style_n)
+            self.row_r_04n.grid(row=plr_row + 4, column=column_drv, padx=0, pady=(0, bar_gap))
+        if self.rel_add_front > 1:
+            self.row_f_05n = tk.Label(self, bar_style_n)
+            self.row_f_05n.grid(row=plr_row - 5, column=column_drv, padx=0, pady=(0, bar_gap))
+        if self.rel_add_behind > 1:
+            self.row_r_05n = tk.Label(self, bar_style_n)
+            self.row_r_05n.grid(row=plr_row + 5, column=column_drv, padx=0, pady=(0, bar_gap))
+        if self.rel_add_front > 2:
+            self.row_f_06n = tk.Label(self, bar_style_n)
+            self.row_f_06n.grid(row=plr_row - 6, column=column_drv, padx=0, pady=(0, bar_gap))
+        if self.rel_add_behind > 2:
+            self.row_r_06n = tk.Label(self, bar_style_n)
+            self.row_r_06n.grid(row=plr_row + 6, column=column_drv, padx=0, pady=(0, bar_gap))
 
         # Time gap
         bar_style_g = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
                        "font":font_relative, "height":1, "width":gap_width,
                        "fg":fg_color, "bg":bg_color_gap, "anchor":"e"}
-        self.bar_row_1g = tk.Label(self, bar_style_g)
-        self.bar_row_2g = tk.Label(self, bar_style_g)
-        self.bar_row_3g = tk.Label(self, bar_style_g)
-        self.bar_row_4g = tk.Label(self, text=text_def, bd=0, padx=bar_padx, pady=0,
-                                   font=font_relative, height=1, width=gap_width,
-                                   fg=fg_color_plr, bg=bg_color_gap_plr, anchor="e")
-        self.bar_row_5g = tk.Label(self, bar_style_g)
-        self.bar_row_6g = tk.Label(self, bar_style_g)
-        self.bar_row_7g = tk.Label(self, bar_style_g)
-        self.bar_row_1g.grid(row=0, column=column_gap, padx=0, pady=(0, bar_gap))
-        self.bar_row_2g.grid(row=1, column=column_gap, padx=0, pady=(0, bar_gap))
-        self.bar_row_3g.grid(row=2, column=column_gap, padx=0, pady=(0, bar_gap))
-        self.bar_row_4g.grid(row=3, column=column_gap, padx=0, pady=(0, bar_gap))
-        self.bar_row_5g.grid(row=4, column=column_gap, padx=0, pady=(0, bar_gap))
-        self.bar_row_6g.grid(row=5, column=column_gap, padx=0, pady=(0, bar_gap))
-        self.bar_row_7g.grid(row=6, column=column_gap, padx=0, pady=0)
+
+        self.row_plrg = tk.Label(self, text=text_def, bd=0, padx=bar_padx, pady=0,
+                                 font=font_relative, height=1, width=gap_width,
+                                 fg=fg_color_plr, bg=bg_color_gap_plr, anchor="e")
+        self.row_plrg.grid(row=plr_row, column=column_gap, padx=0, pady=(0, bar_gap))
+
+        self.row_f_03g = tk.Label(self, bar_style_g)
+        self.row_f_02g = tk.Label(self, bar_style_g)
+        self.row_f_01g = tk.Label(self, bar_style_g)
+        self.row_r_01g = tk.Label(self, bar_style_g)
+        self.row_r_02g = tk.Label(self, bar_style_g)
+        self.row_r_03g = tk.Label(self, bar_style_g)
+        self.row_f_03g.grid(row=plr_row - 3, column=column_gap, padx=0, pady=(0, bar_gap))
+        self.row_f_02g.grid(row=plr_row - 2, column=column_gap, padx=0, pady=(0, bar_gap))
+        self.row_f_01g.grid(row=plr_row - 1, column=column_gap, padx=0, pady=(0, bar_gap))
+        self.row_r_01g.grid(row=plr_row + 1, column=column_gap, padx=0, pady=(0, bar_gap))
+        self.row_r_02g.grid(row=plr_row + 2, column=column_gap, padx=0, pady=(0, bar_gap))
+        self.row_r_03g.grid(row=plr_row + 3, column=column_gap, padx=0, pady=(0, bar_gap))
+
+        if self.rel_add_front > 0:
+            self.row_f_04g = tk.Label(self, bar_style_g)
+            self.row_f_04g.grid(row=plr_row - 4, column=column_gap, padx=0, pady=(0, bar_gap))
+        if self.rel_add_behind > 0:
+            self.row_r_04g = tk.Label(self, bar_style_g)
+            self.row_r_04g.grid(row=plr_row + 4, column=column_gap, padx=0, pady=(0, bar_gap))
+        if self.rel_add_front > 1:
+            self.row_f_05g = tk.Label(self, bar_style_g)
+            self.row_f_05g.grid(row=plr_row - 5, column=column_gap, padx=0, pady=(0, bar_gap))
+        if self.rel_add_behind > 1:
+            self.row_r_05g = tk.Label(self, bar_style_g)
+            self.row_r_05g.grid(row=plr_row + 5, column=column_gap, padx=0, pady=(0, bar_gap))
+        if self.rel_add_front > 2:
+            self.row_f_06g = tk.Label(self, bar_style_g)
+            self.row_f_06g.grid(row=plr_row - 6, column=column_gap, padx=0, pady=(0, bar_gap))
+        if self.rel_add_behind > 2:
+            self.row_r_06g = tk.Label(self, bar_style_g)
+            self.row_r_06g.grid(row=plr_row + 6, column=column_gap, padx=0, pady=(0, bar_gap))
 
         # Vehicle laptime
         if self.cfg["show_laptime"]:
@@ -152,42 +220,84 @@ class DrawWidget(Widget, MouseEvent):
             bar_style_t = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
                            "font":font_relative, "height":1, "width":9,
                            "fg":fg_color_lpt, "bg":bg_color_lpt}
-            self.bar_row_1t = tk.Label(self, bar_style_t)
-            self.bar_row_2t = tk.Label(self, bar_style_t)
-            self.bar_row_3t = tk.Label(self, bar_style_t)
-            self.bar_row_4t = tk.Label(self, text=text_def, bd=0, padx=bar_padx, pady=0,
-                                       font=font_relative, height=1, width=9,
-                                       fg=fg_color_plr, bg=bg_color_name_plr)
-            self.bar_row_5t = tk.Label(self, bar_style_t)
-            self.bar_row_6t = tk.Label(self, bar_style_t)
-            self.bar_row_7t = tk.Label(self, bar_style_t)
-            self.bar_row_1t.grid(row=0, column=column_lpt, padx=0, pady=(0, bar_gap))
-            self.bar_row_2t.grid(row=1, column=column_lpt, padx=0, pady=(0, bar_gap))
-            self.bar_row_3t.grid(row=2, column=column_lpt, padx=0, pady=(0, bar_gap))
-            self.bar_row_4t.grid(row=3, column=column_lpt, padx=0, pady=(0, bar_gap))
-            self.bar_row_5t.grid(row=4, column=column_lpt, padx=0, pady=(0, bar_gap))
-            self.bar_row_6t.grid(row=5, column=column_lpt, padx=0, pady=(0, bar_gap))
-            self.bar_row_7t.grid(row=6, column=column_lpt, padx=0, pady=0)
+
+            self.row_plrt = tk.Label(self, text=text_def, bd=0, padx=bar_padx, pady=0,
+                                     font=font_relative, height=1, width=9,
+                                     fg=fg_color_plr, bg=bg_color_name_plr)
+            self.row_plrt.grid(row=plr_row, column=column_lpt, padx=0, pady=(0, bar_gap))
+
+            self.row_f_03t = tk.Label(self, bar_style_t)
+            self.row_f_02t = tk.Label(self, bar_style_t)
+            self.row_f_01t = tk.Label(self, bar_style_t)
+            self.row_r_01t = tk.Label(self, bar_style_t)
+            self.row_r_02t = tk.Label(self, bar_style_t)
+            self.row_r_03t = tk.Label(self, bar_style_t)
+            self.row_f_03t.grid(row=plr_row - 3, column=column_lpt, padx=0, pady=(0, bar_gap))
+            self.row_f_02t.grid(row=plr_row - 2, column=column_lpt, padx=0, pady=(0, bar_gap))
+            self.row_f_01t.grid(row=plr_row - 1, column=column_lpt, padx=0, pady=(0, bar_gap))
+            self.row_r_01t.grid(row=plr_row + 1, column=column_lpt, padx=0, pady=(0, bar_gap))
+            self.row_r_02t.grid(row=plr_row + 2, column=column_lpt, padx=0, pady=(0, bar_gap))
+            self.row_r_03t.grid(row=plr_row + 3, column=column_lpt, padx=0, pady=(0, bar_gap))
+
+            if self.rel_add_front > 0:
+                self.row_f_04t = tk.Label(self, bar_style_t)
+                self.row_f_04t.grid(row=plr_row - 4, column=column_lpt, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 0:
+                self.row_r_04t = tk.Label(self, bar_style_t)
+                self.row_r_04t.grid(row=plr_row + 4, column=column_lpt, padx=0, pady=(0, bar_gap))
+            if self.rel_add_front > 1:
+                self.row_f_05t = tk.Label(self, bar_style_t)
+                self.row_f_05t.grid(row=plr_row - 5, column=column_lpt, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 1:
+                self.row_r_05t = tk.Label(self, bar_style_t)
+                self.row_r_05t.grid(row=plr_row + 5, column=column_lpt, padx=0, pady=(0, bar_gap))
+            if self.rel_add_front > 2:
+                self.row_f_06t = tk.Label(self, bar_style_t)
+                self.row_f_06t.grid(row=plr_row - 6, column=column_lpt, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 2:
+                self.row_r_06t = tk.Label(self, bar_style_t)
+                self.row_r_06t.grid(row=plr_row + 6, column=column_lpt, padx=0, pady=(0, bar_gap))
 
         # Vehicle position in class
         if self.cfg["show_position_in_class"]:
             bar_style_i = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
                            "height":1, "width":num_width,
                            "fg":fg_color_classplace, "bg":bg_color_classplace}
-            self.bar_row_1i = tk.Label(self, bar_style_i)
-            self.bar_row_2i = tk.Label(self, bar_style_i)
-            self.bar_row_3i = tk.Label(self, bar_style_i)
-            self.bar_row_4i = tk.Label(self, bar_style_i)
-            self.bar_row_5i = tk.Label(self, bar_style_i)
-            self.bar_row_6i = tk.Label(self, bar_style_i)
-            self.bar_row_7i = tk.Label(self, bar_style_i)
-            self.bar_row_1i.grid(row=0, column=column_pic, padx=0, pady=(0, bar_gap))
-            self.bar_row_2i.grid(row=1, column=column_pic, padx=0, pady=(0, bar_gap))
-            self.bar_row_3i.grid(row=2, column=column_pic, padx=0, pady=(0, bar_gap))
-            self.bar_row_4i.grid(row=3, column=column_pic, padx=0, pady=(0, bar_gap))
-            self.bar_row_5i.grid(row=4, column=column_pic, padx=0, pady=(0, bar_gap))
-            self.bar_row_6i.grid(row=5, column=column_pic, padx=0, pady=(0, bar_gap))
-            self.bar_row_7i.grid(row=6, column=column_pic, padx=0, pady=0)
+
+            self.row_plri = tk.Label(self, bar_style_i)
+            self.row_plri.grid(row=plr_row, column=column_pic, padx=0, pady=(0, bar_gap))
+
+            self.row_f_03i = tk.Label(self, bar_style_i)
+            self.row_f_02i = tk.Label(self, bar_style_i)
+            self.row_f_01i = tk.Label(self, bar_style_i)
+            self.row_r_01i = tk.Label(self, bar_style_i)
+            self.row_r_02i = tk.Label(self, bar_style_i)
+            self.row_r_03i = tk.Label(self, bar_style_i)
+            self.row_f_03i.grid(row=plr_row - 3, column=column_pic, padx=0, pady=(0, bar_gap))
+            self.row_f_02i.grid(row=plr_row - 2, column=column_pic, padx=0, pady=(0, bar_gap))
+            self.row_f_01i.grid(row=plr_row - 1, column=column_pic, padx=0, pady=(0, bar_gap))
+            self.row_r_01i.grid(row=plr_row + 1, column=column_pic, padx=0, pady=(0, bar_gap))
+            self.row_r_02i.grid(row=plr_row + 2, column=column_pic, padx=0, pady=(0, bar_gap))
+            self.row_r_03i.grid(row=plr_row + 3, column=column_pic, padx=0, pady=(0, bar_gap))
+
+            if self.rel_add_front > 0:
+                self.row_f_04i = tk.Label(self, bar_style_i)
+                self.row_f_04i.grid(row=plr_row - 4, column=column_pic, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 0:
+                self.row_r_04i = tk.Label(self, bar_style_i)
+                self.row_r_04i.grid(row=plr_row + 4, column=column_pic, padx=0, pady=(0, bar_gap))
+            if self.rel_add_front > 1:
+                self.row_f_05i = tk.Label(self, bar_style_i)
+                self.row_f_05i.grid(row=plr_row - 5, column=column_pic, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 1:
+                self.row_r_05i = tk.Label(self, bar_style_i)
+                self.row_r_05i.grid(row=plr_row + 5, column=column_pic, padx=0, pady=(0, bar_gap))
+            if self.rel_add_front > 2:
+                self.row_f_06i = tk.Label(self, bar_style_i)
+                self.row_f_06i.grid(row=plr_row - 6, column=column_pic, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 2:
+                self.row_r_06i = tk.Label(self, bar_style_i)
+                self.row_r_06i.grid(row=plr_row + 6, column=column_pic, padx=0, pady=(0, bar_gap))
 
         # Vehicle class
         if self.cfg["show_class"]:
@@ -198,60 +308,123 @@ class DrawWidget(Widget, MouseEvent):
                            "font":font_relative, "height":1,
                            "width":self.cls_width,
                            "fg":fg_color_cls, "bg":bg_color_cls}
-            self.bar_row_1c = tk.Label(self, bar_style_c)
-            self.bar_row_2c = tk.Label(self, bar_style_c)
-            self.bar_row_3c = tk.Label(self, bar_style_c)
-            self.bar_row_4c = tk.Label(self, bar_style_c)
-            self.bar_row_5c = tk.Label(self, bar_style_c)
-            self.bar_row_6c = tk.Label(self, bar_style_c)
-            self.bar_row_7c = tk.Label(self, bar_style_c)
-            self.bar_row_1c.grid(row=0, column=column_cls, padx=0, pady=(0, bar_gap))
-            self.bar_row_2c.grid(row=1, column=column_cls, padx=0, pady=(0, bar_gap))
-            self.bar_row_3c.grid(row=2, column=column_cls, padx=0, pady=(0, bar_gap))
-            self.bar_row_4c.grid(row=3, column=column_cls, padx=0, pady=(0, bar_gap))
-            self.bar_row_5c.grid(row=4, column=column_cls, padx=0, pady=(0, bar_gap))
-            self.bar_row_6c.grid(row=5, column=column_cls, padx=0, pady=(0, bar_gap))
-            self.bar_row_7c.grid(row=6, column=column_cls, padx=0, pady=0)
+
+            self.row_plrc = tk.Label(self, bar_style_c)
+            self.row_plrc.grid(row=plr_row, column=column_cls, padx=0, pady=(0, bar_gap))
+
+            self.row_f_03c = tk.Label(self, bar_style_c)
+            self.row_f_02c = tk.Label(self, bar_style_c)
+            self.row_f_01c = tk.Label(self, bar_style_c)
+            self.row_r_01c = tk.Label(self, bar_style_c)
+            self.row_r_02c = tk.Label(self, bar_style_c)
+            self.row_r_03c = tk.Label(self, bar_style_c)
+            self.row_f_03c.grid(row=plr_row - 3, column=column_cls, padx=0, pady=(0, bar_gap))
+            self.row_f_02c.grid(row=plr_row - 2, column=column_cls, padx=0, pady=(0, bar_gap))
+            self.row_f_01c.grid(row=plr_row - 1, column=column_cls, padx=0, pady=(0, bar_gap))
+            self.row_r_01c.grid(row=plr_row + 1, column=column_cls, padx=0, pady=(0, bar_gap))
+            self.row_r_02c.grid(row=plr_row + 2, column=column_cls, padx=0, pady=(0, bar_gap))
+            self.row_r_03c.grid(row=plr_row + 3, column=column_cls, padx=0, pady=(0, bar_gap))
+
+            if self.rel_add_front > 0:
+                self.row_f_04c = tk.Label(self, bar_style_c)
+                self.row_f_04c.grid(row=plr_row - 4, column=column_cls, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 0:
+                self.row_r_04c = tk.Label(self, bar_style_c)
+                self.row_r_04c.grid(row=plr_row + 4, column=column_cls, padx=0, pady=(0, bar_gap))
+            if self.rel_add_front > 1:
+                self.row_f_05c = tk.Label(self, bar_style_c)
+                self.row_f_05c.grid(row=plr_row - 5, column=column_cls, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 1:
+                self.row_r_05c = tk.Label(self, bar_style_c)
+                self.row_r_05c.grid(row=plr_row + 5, column=column_cls, padx=0, pady=(0, bar_gap))
+            if self.rel_add_front > 2:
+                self.row_f_06c = tk.Label(self, bar_style_c)
+                self.row_f_06c.grid(row=plr_row - 6, column=column_cls, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 2:
+                self.row_r_06c = tk.Label(self, bar_style_c)
+                self.row_r_06c.grid(row=plr_row + 6, column=column_cls, padx=0, pady=(0, bar_gap))
 
         # Vehicle in pit
         if self.cfg["show_pit_status"]:
             bar_style_s = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
                            "height":1, "width":len(self.cfg["pit_status_text"])+1,
                            "fg":fg_color_pit, "bg":bg_color_pit}
-            self.bar_row_1s = tk.Label(self, bar_style_s)
-            self.bar_row_2s = tk.Label(self, bar_style_s)
-            self.bar_row_3s = tk.Label(self, bar_style_s)
-            self.bar_row_4s = tk.Label(self, bar_style_s)
-            self.bar_row_5s = tk.Label(self, bar_style_s)
-            self.bar_row_6s = tk.Label(self, bar_style_s)
-            self.bar_row_7s = tk.Label(self, bar_style_s)
-            self.bar_row_1s.grid(row=0, column=column_pit, padx=0, pady=(0, bar_gap))
-            self.bar_row_2s.grid(row=1, column=column_pit, padx=0, pady=(0, bar_gap))
-            self.bar_row_3s.grid(row=2, column=column_pit, padx=0, pady=(0, bar_gap))
-            self.bar_row_4s.grid(row=3, column=column_pit, padx=0, pady=(0, bar_gap))
-            self.bar_row_5s.grid(row=4, column=column_pit, padx=0, pady=(0, bar_gap))
-            self.bar_row_6s.grid(row=5, column=column_pit, padx=0, pady=(0, bar_gap))
-            self.bar_row_7s.grid(row=6, column=column_pit, padx=0, pady=0)
+
+            self.row_plrs = tk.Label(self, bar_style_s)
+            self.row_plrs.grid(row=plr_row, column=column_pit, padx=0, pady=(0, bar_gap))
+
+            self.row_f_03s = tk.Label(self, bar_style_s)
+            self.row_f_02s = tk.Label(self, bar_style_s)
+            self.row_f_01s = tk.Label(self, bar_style_s)
+            self.row_r_01s = tk.Label(self, bar_style_s)
+            self.row_r_02s = tk.Label(self, bar_style_s)
+            self.row_r_03s = tk.Label(self, bar_style_s)
+            self.row_f_03s.grid(row=plr_row - 3, column=column_pit, padx=0, pady=(0, bar_gap))
+            self.row_f_02s.grid(row=plr_row - 2, column=column_pit, padx=0, pady=(0, bar_gap))
+            self.row_f_01s.grid(row=plr_row - 1, column=column_pit, padx=0, pady=(0, bar_gap))
+            self.row_r_01s.grid(row=plr_row + 1, column=column_pit, padx=0, pady=(0, bar_gap))
+            self.row_r_02s.grid(row=plr_row + 2, column=column_pit, padx=0, pady=(0, bar_gap))
+            self.row_r_03s.grid(row=plr_row + 3, column=column_pit, padx=0, pady=(0, bar_gap))
+
+            if self.rel_add_front > 0:
+                self.row_f_04s = tk.Label(self, bar_style_s)
+                self.row_f_04s.grid(row=plr_row - 4, column=column_pit, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 0:
+                self.row_r_04s = tk.Label(self, bar_style_s)
+                self.row_r_04s.grid(row=plr_row + 4, column=column_pit, padx=0, pady=(0, bar_gap))
+            if self.rel_add_front > 1:
+                self.row_f_05s = tk.Label(self, bar_style_s)
+                self.row_f_05s.grid(row=plr_row - 5, column=column_pit, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 1:
+                self.row_r_05s = tk.Label(self, bar_style_s)
+                self.row_r_05s.grid(row=plr_row + 5, column=column_pit, padx=0, pady=(0, bar_gap))
+            if self.rel_add_front > 2:
+                self.row_f_06s = tk.Label(self, bar_style_s)
+                self.row_f_06s.grid(row=plr_row - 6, column=column_pit, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 2:
+                self.row_r_06s = tk.Label(self, bar_style_s)
+                self.row_r_06s.grid(row=plr_row + 6, column=column_pit, padx=0, pady=(0, bar_gap))
 
         # Tyre compound index
         if self.cfg["show_tyre_compound"]:
             bar_style_m = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
                            "font":font_relative, "height":1, "width":2,
                            "fg":fg_color_tyrecmp, "bg":bg_color_tyrecmp}
-            self.bar_row_1m = tk.Label(self, bar_style_m)
-            self.bar_row_2m = tk.Label(self, bar_style_m)
-            self.bar_row_3m = tk.Label(self, bar_style_m)
-            self.bar_row_4m = tk.Label(self, bar_style_m)
-            self.bar_row_5m = tk.Label(self, bar_style_m)
-            self.bar_row_6m = tk.Label(self, bar_style_m)
-            self.bar_row_7m = tk.Label(self, bar_style_m)
-            self.bar_row_1m.grid(row=0, column=column_tcp, padx=0, pady=(0, bar_gap))
-            self.bar_row_2m.grid(row=1, column=column_tcp, padx=0, pady=(0, bar_gap))
-            self.bar_row_3m.grid(row=2, column=column_tcp, padx=0, pady=(0, bar_gap))
-            self.bar_row_4m.grid(row=3, column=column_tcp, padx=0, pady=(0, bar_gap))
-            self.bar_row_5m.grid(row=4, column=column_tcp, padx=0, pady=(0, bar_gap))
-            self.bar_row_6m.grid(row=5, column=column_tcp, padx=0, pady=(0, bar_gap))
-            self.bar_row_7m.grid(row=6, column=column_tcp, padx=0, pady=0)
+
+            self.row_plrm = tk.Label(self, bar_style_m)
+            self.row_plrm.grid(row=plr_row, column=column_tcp, padx=0, pady=(0, bar_gap))
+
+            self.row_f_03m = tk.Label(self, bar_style_m)
+            self.row_f_02m = tk.Label(self, bar_style_m)
+            self.row_f_01m = tk.Label(self, bar_style_m)
+            self.row_r_01m = tk.Label(self, bar_style_m)
+            self.row_r_02m = tk.Label(self, bar_style_m)
+            self.row_r_03m = tk.Label(self, bar_style_m)
+            self.row_f_03m.grid(row=plr_row - 3, column=column_tcp, padx=0, pady=(0, bar_gap))
+            self.row_f_02m.grid(row=plr_row - 2, column=column_tcp, padx=0, pady=(0, bar_gap))
+            self.row_f_01m.grid(row=plr_row - 1, column=column_tcp, padx=0, pady=(0, bar_gap))
+            self.row_r_01m.grid(row=plr_row + 1, column=column_tcp, padx=0, pady=(0, bar_gap))
+            self.row_r_02m.grid(row=plr_row + 2, column=column_tcp, padx=0, pady=(0, bar_gap))
+            self.row_r_03m.grid(row=plr_row + 3, column=column_tcp, padx=0, pady=(0, bar_gap))
+
+            if self.rel_add_front > 0:
+                self.row_f_04m = tk.Label(self, bar_style_m)
+                self.row_f_04m.grid(row=plr_row - 4, column=column_tcp, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 0:
+                self.row_r_04m = tk.Label(self, bar_style_m)
+                self.row_r_04m.grid(row=plr_row + 4, column=column_tcp, padx=0, pady=(0, bar_gap))
+            if self.rel_add_front > 1:
+                self.row_f_05m = tk.Label(self, bar_style_m)
+                self.row_f_05m.grid(row=plr_row - 5, column=column_tcp, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 1:
+                self.row_r_05m = tk.Label(self, bar_style_m)
+                self.row_r_05m.grid(row=plr_row + 5, column=column_tcp, padx=0, pady=(0, bar_gap))
+            if self.rel_add_front > 2:
+                self.row_f_06m = tk.Label(self, bar_style_m)
+                self.row_f_06m.grid(row=plr_row - 6, column=column_tcp, padx=0, pady=(0, bar_gap))
+            if self.rel_add_behind > 2:
+                self.row_r_06m = tk.Label(self, bar_style_m)
+                self.row_r_06m.grid(row=plr_row + 6, column=column_tcp, padx=0, pady=(0, bar_gap))
 
         self.update_data()
 
@@ -264,96 +437,223 @@ class DrawWidget(Widget, MouseEvent):
 
             # Read relative data
             rel_idx, cls_info, plr_idx = relative_info.relative_list
+            veh_center = int(3 + self.rel_add_front)
 
             # Check isPlayer before update
             if read_data.is_local_player():
 
-                # 0 place, 1 driver, 2 laptime, 3 pos_class, 4 veh_class, 5 time_gap, 6 num_lap, 7 in_pit
-                veh_a = relative_info.relative_data(rel_idx[0], plr_idx, cls_info)
-                veh_b = relative_info.relative_data(rel_idx[1], plr_idx, cls_info)
-                veh_c = relative_info.relative_data(rel_idx[2], plr_idx, cls_info)
-                veh_d = relative_info.relative_data(plr_idx, plr_idx, cls_info)
-                veh_e = relative_info.relative_data(rel_idx[4], plr_idx, cls_info)
-                veh_f = relative_info.relative_data(rel_idx[5], plr_idx, cls_info)
-                veh_g = relative_info.relative_data(rel_idx[6], plr_idx, cls_info)
+                # 0 place, 1 driver, 2 laptime, 3 pos_class, 4 veh_f_01lass, 5 time_gap, 6 num_lap, 7 in_pit
+                veh_plr = relative_info.relative_data(plr_idx, plr_idx, cls_info)
+
+                veh_f_03 = relative_info.relative_data(rel_idx[veh_center - 3], plr_idx, cls_info)
+                veh_f_02 = relative_info.relative_data(rel_idx[veh_center - 2], plr_idx, cls_info)
+                veh_f_01 = relative_info.relative_data(rel_idx[veh_center - 1], plr_idx, cls_info)
+                veh_r_01 = relative_info.relative_data(rel_idx[veh_center + 1], plr_idx, cls_info)
+                veh_r_02 = relative_info.relative_data(rel_idx[veh_center + 2], plr_idx, cls_info)
+                veh_r_03 = relative_info.relative_data(rel_idx[veh_center + 3], plr_idx, cls_info)
+
+                if self.rel_add_front > 0:
+                    veh_f_04 = relative_info.relative_data(rel_idx[veh_center - 4], plr_idx, cls_info)
+                if self.rel_add_behind > 0:
+                    veh_r_04 = relative_info.relative_data(rel_idx[veh_center + 4], plr_idx, cls_info)
+                if self.rel_add_front > 1:
+                    veh_f_05 = relative_info.relative_data(rel_idx[veh_center - 5], plr_idx, cls_info)
+                if self.rel_add_behind > 1:
+                    veh_r_05 = relative_info.relative_data(rel_idx[veh_center + 5], plr_idx, cls_info)
+                if self.rel_add_front > 2:
+                    veh_f_06 = relative_info.relative_data(rel_idx[veh_center - 6], plr_idx, cls_info)
+                if self.rel_add_behind > 2:
+                    veh_r_06 = relative_info.relative_data(rel_idx[veh_center + 6], plr_idx, cls_info)
 
                 # Relative update
                 # Driver place
-                self.bar_row_1p.config(text=veh_a[0], fg=self.color_lapdiff(veh_a[6], veh_d[6]))
-                self.bar_row_2p.config(text=veh_b[0], fg=self.color_lapdiff(veh_b[6], veh_d[6]))
-                self.bar_row_3p.config(text=veh_c[0], fg=self.color_lapdiff(veh_c[6], veh_d[6]))
-                self.bar_row_4p.config(text=veh_d[0])
-                self.bar_row_5p.config(text=veh_e[0], fg=self.color_lapdiff(veh_e[6], veh_d[6]))
-                self.bar_row_6p.config(text=veh_f[0], fg=self.color_lapdiff(veh_f[6], veh_d[6]))
-                self.bar_row_7p.config(text=veh_g[0], fg=self.color_lapdiff(veh_g[6], veh_d[6]))
+                self.row_plrp.config(text=veh_plr[0])
+
+                self.row_f_03p.config(text=veh_f_03[0], fg=self.color_lapdiff(veh_f_03[6], veh_plr[6]))
+                self.row_f_02p.config(text=veh_f_02[0], fg=self.color_lapdiff(veh_f_02[6], veh_plr[6]))
+                self.row_f_01p.config(text=veh_f_01[0], fg=self.color_lapdiff(veh_f_01[6], veh_plr[6]))
+                self.row_r_01p.config(text=veh_r_01[0], fg=self.color_lapdiff(veh_r_01[6], veh_plr[6]))
+                self.row_r_02p.config(text=veh_r_02[0], fg=self.color_lapdiff(veh_r_02[6], veh_plr[6]))
+                self.row_r_03p.config(text=veh_r_03[0], fg=self.color_lapdiff(veh_r_03[6], veh_plr[6]))
+
+                if self.rel_add_front > 0:
+                    self.row_f_04p.config(text=veh_f_04[0], fg=self.color_lapdiff(veh_f_04[6], veh_plr[6]))
+                if self.rel_add_behind > 0:
+                    self.row_r_04p.config(text=veh_r_04[0], fg=self.color_lapdiff(veh_r_04[6], veh_plr[6]))
+                if self.rel_add_front > 1:
+                    self.row_f_05p.config(text=veh_f_05[0], fg=self.color_lapdiff(veh_f_05[6], veh_plr[6]))
+                if self.rel_add_behind > 1:
+                    self.row_r_05p.config(text=veh_r_05[0], fg=self.color_lapdiff(veh_r_05[6], veh_plr[6]))
+                if self.rel_add_front > 2:
+                    self.row_f_06p.config(text=veh_f_06[0], fg=self.color_lapdiff(veh_f_06[6], veh_plr[6]))
+                if self.rel_add_behind > 2:
+                    self.row_r_06p.config(text=veh_r_06[0], fg=self.color_lapdiff(veh_r_06[6], veh_plr[6]))
 
                 # Driver name
-                self.bar_row_1n.config(text=veh_a[1][:self.drv_width], fg=self.color_lapdiff(veh_a[6], veh_d[6]))
-                self.bar_row_2n.config(text=veh_b[1][:self.drv_width], fg=self.color_lapdiff(veh_b[6], veh_d[6]))
-                self.bar_row_3n.config(text=veh_c[1][:self.drv_width], fg=self.color_lapdiff(veh_c[6], veh_d[6]))
-                self.bar_row_4n.config(text=veh_d[1][:self.drv_width])
-                self.bar_row_5n.config(text=veh_e[1][:self.drv_width], fg=self.color_lapdiff(veh_e[6], veh_d[6]))
-                self.bar_row_6n.config(text=veh_f[1][:self.drv_width], fg=self.color_lapdiff(veh_f[6], veh_d[6]))
-                self.bar_row_7n.config(text=veh_g[1][:self.drv_width], fg=self.color_lapdiff(veh_g[6], veh_d[6]))
+                self.row_plrn.config(text=veh_plr[1][:self.drv_width])
+
+                self.row_f_03n.config(text=veh_f_03[1][:self.drv_width], fg=self.color_lapdiff(veh_f_03[6], veh_plr[6]))
+                self.row_f_02n.config(text=veh_f_02[1][:self.drv_width], fg=self.color_lapdiff(veh_f_02[6], veh_plr[6]))
+                self.row_f_01n.config(text=veh_f_01[1][:self.drv_width], fg=self.color_lapdiff(veh_f_01[6], veh_plr[6]))
+                self.row_r_01n.config(text=veh_r_01[1][:self.drv_width], fg=self.color_lapdiff(veh_r_01[6], veh_plr[6]))
+                self.row_r_02n.config(text=veh_r_02[1][:self.drv_width], fg=self.color_lapdiff(veh_r_02[6], veh_plr[6]))
+                self.row_r_03n.config(text=veh_r_03[1][:self.drv_width], fg=self.color_lapdiff(veh_r_03[6], veh_plr[6]))
+
+                if self.rel_add_front > 0:
+                    self.row_f_04n.config(text=veh_f_04[1][:self.drv_width], fg=self.color_lapdiff(veh_f_04[6], veh_plr[6]))
+                if self.rel_add_behind > 0:
+                    self.row_r_04n.config(text=veh_r_04[1][:self.drv_width], fg=self.color_lapdiff(veh_r_04[6], veh_plr[6]))
+                if self.rel_add_front > 1:
+                    self.row_f_05n.config(text=veh_f_05[1][:self.drv_width], fg=self.color_lapdiff(veh_f_05[6], veh_plr[6]))
+                if self.rel_add_behind > 1:
+                    self.row_r_05n.config(text=veh_r_05[1][:self.drv_width], fg=self.color_lapdiff(veh_r_05[6], veh_plr[6]))
+                if self.rel_add_front > 2:
+                    self.row_f_06n.config(text=veh_f_06[1][:self.drv_width], fg=self.color_lapdiff(veh_f_06[6], veh_plr[6]))
+                if self.rel_add_behind > 2:
+                    self.row_r_06n.config(text=veh_r_06[1][:self.drv_width], fg=self.color_lapdiff(veh_r_06[6], veh_plr[6]))
 
                 # Vehicle laptime
                 if self.cfg["show_laptime"]:
-                    self.bar_row_1t.config(text=veh_a[2])
-                    self.bar_row_2t.config(text=veh_b[2])
-                    self.bar_row_3t.config(text=veh_c[2])
-                    self.bar_row_4t.config(text=veh_d[2])
-                    self.bar_row_5t.config(text=veh_e[2])
-                    self.bar_row_6t.config(text=veh_f[2])
-                    self.bar_row_7t.config(text=veh_g[2])
+                    self.row_plrt.config(text=veh_plr[2])
+
+                    self.row_f_03t.config(text=veh_f_03[2])
+                    self.row_f_02t.config(text=veh_f_02[2])
+                    self.row_f_01t.config(text=veh_f_01[2])
+                    self.row_r_01t.config(text=veh_r_01[2])
+                    self.row_r_02t.config(text=veh_r_02[2])
+                    self.row_r_03t.config(text=veh_r_03[2])
+
+                    if self.rel_add_front > 0:
+                        self.row_f_04t.config(text=veh_f_04[2])
+                    if self.rel_add_behind > 0:
+                        self.row_r_04t.config(text=veh_r_04[2])
+                    if self.rel_add_front > 1:
+                        self.row_f_05t.config(text=veh_f_05[2])
+                    if self.rel_add_behind > 1:
+                        self.row_r_05t.config(text=veh_r_05[2])
+                    if self.rel_add_front > 2:
+                        self.row_f_06t.config(text=veh_f_06[2])
+                    if self.rel_add_behind > 2:
+                        self.row_r_06t.config(text=veh_r_06[2])
 
                 # Vehicle position in class
                 if self.cfg["show_position_in_class"]:
-                    self.bar_row_1i.config(text=veh_a[3])
-                    self.bar_row_2i.config(text=veh_b[3])
-                    self.bar_row_3i.config(text=veh_c[3])
-                    self.bar_row_4i.config(text=veh_d[3])
-                    self.bar_row_5i.config(text=veh_e[3])
-                    self.bar_row_6i.config(text=veh_f[3])
-                    self.bar_row_7i.config(text=veh_g[3])
+                    self.row_plri.config(text=veh_plr[3])
+
+                    self.row_f_03i.config(text=veh_f_03[3])
+                    self.row_f_02i.config(text=veh_f_02[3])
+                    self.row_f_01i.config(text=veh_f_01[3])
+                    self.row_r_01i.config(text=veh_r_01[3])
+                    self.row_r_02i.config(text=veh_r_02[3])
+                    self.row_r_03i.config(text=veh_r_03[3])
+
+                    if self.rel_add_front > 0:
+                        self.row_f_04i.config(text=veh_f_04[3])
+                    if self.rel_add_behind > 0:
+                        self.row_r_04i.config(text=veh_r_04[3])
+                    if self.rel_add_front > 1:
+                        self.row_f_05i.config(text=veh_f_05[3])
+                    if self.rel_add_behind > 1:
+                        self.row_r_05i.config(text=veh_r_05[3])
+                    if self.rel_add_front > 2:
+                        self.row_f_06i.config(text=veh_f_06[3])
+                    if self.rel_add_behind > 2:
+                        self.row_r_06i.config(text=veh_r_06[3])
 
                 # Vehicle class
                 if self.cfg["show_class"]:
-                    self.bar_row_1c.config(self.set_class_style(veh_a[4]))
-                    self.bar_row_2c.config(self.set_class_style(veh_b[4]))
-                    self.bar_row_3c.config(self.set_class_style(veh_c[4]))
-                    self.bar_row_4c.config(self.set_class_style(veh_d[4]))
-                    self.bar_row_5c.config(self.set_class_style(veh_e[4]))
-                    self.bar_row_6c.config(self.set_class_style(veh_f[4]))
-                    self.bar_row_7c.config(self.set_class_style(veh_g[4]))
+                    self.row_plrc.config(self.set_class_style(veh_plr[4]))
+
+                    self.row_f_03c.config(self.set_class_style(veh_f_03[4]))
+                    self.row_f_02c.config(self.set_class_style(veh_f_02[4]))
+                    self.row_f_01c.config(self.set_class_style(veh_f_01[4]))
+                    self.row_r_01c.config(self.set_class_style(veh_r_01[4]))
+                    self.row_r_02c.config(self.set_class_style(veh_r_02[4]))
+                    self.row_r_03c.config(self.set_class_style(veh_r_03[4]))
+
+                    if self.rel_add_front > 0:
+                        self.row_f_04c.config(self.set_class_style(veh_f_04[4]))
+                    if self.rel_add_behind > 0:
+                        self.row_r_04c.config(self.set_class_style(veh_r_04[4]))
+                    if self.rel_add_front > 1:
+                        self.row_f_05c.config(self.set_class_style(veh_f_05[4]))
+                    if self.rel_add_behind > 1:
+                        self.row_r_05c.config(self.set_class_style(veh_r_05[4]))
+                    if self.rel_add_front > 2:
+                        self.row_f_06c.config(self.set_class_style(veh_f_06[4]))
+                    if self.rel_add_behind > 2:
+                        self.row_r_06c.config(self.set_class_style(veh_r_06[4]))
 
                 # Tyre compound index
                 if self.cfg["show_tyre_compound"]:
-                    self.bar_row_1m.config(text=self.set_tyre_cmp(veh_a[8]))
-                    self.bar_row_2m.config(text=self.set_tyre_cmp(veh_b[8]))
-                    self.bar_row_3m.config(text=self.set_tyre_cmp(veh_c[8]))
-                    self.bar_row_4m.config(text=self.set_tyre_cmp(veh_d[8]))
-                    self.bar_row_5m.config(text=self.set_tyre_cmp(veh_e[8]))
-                    self.bar_row_6m.config(text=self.set_tyre_cmp(veh_f[8]))
-                    self.bar_row_7m.config(text=self.set_tyre_cmp(veh_g[8]))
+                    self.row_plrm.config(text=self.set_tyre_cmp(veh_plr[8]))
+
+                    self.row_f_03m.config(text=self.set_tyre_cmp(veh_f_03[8]))
+                    self.row_f_02m.config(text=self.set_tyre_cmp(veh_f_02[8]))
+                    self.row_f_01m.config(text=self.set_tyre_cmp(veh_f_01[8]))
+                    self.row_r_01m.config(text=self.set_tyre_cmp(veh_r_01[8]))
+                    self.row_r_02m.config(text=self.set_tyre_cmp(veh_r_02[8]))
+                    self.row_r_03m.config(text=self.set_tyre_cmp(veh_r_03[8]))
+
+                    if self.rel_add_front > 0:
+                        self.row_f_04m.config(text=self.set_tyre_cmp(veh_f_04[8]))
+                    if self.rel_add_behind > 0:
+                        self.row_r_04m.config(text=self.set_tyre_cmp(veh_r_04[8]))
+                    if self.rel_add_front > 1:
+                        self.row_f_05m.config(text=self.set_tyre_cmp(veh_f_05[8]))
+                    if self.rel_add_behind > 1:
+                        self.row_r_05m.config(text=self.set_tyre_cmp(veh_r_05[8]))
+                    if self.rel_add_front > 2:
+                        self.row_f_06m.config(text=self.set_tyre_cmp(veh_f_06[8]))
+                    if self.rel_add_behind > 2:
+                        self.row_r_06m.config(text=self.set_tyre_cmp(veh_r_06[8]))
 
                 # Time gap
-                self.bar_row_1g.config(text=veh_a[5], fg=self.color_lapdiff(veh_a[6], veh_d[6]))
-                self.bar_row_2g.config(text=veh_b[5], fg=self.color_lapdiff(veh_b[6], veh_d[6]))
-                self.bar_row_3g.config(text=veh_c[5], fg=self.color_lapdiff(veh_c[6], veh_d[6]))
-                self.bar_row_4g.config(text=veh_d[5])
-                self.bar_row_5g.config(text=veh_e[5], fg=self.color_lapdiff(veh_e[6], veh_d[6]))
-                self.bar_row_6g.config(text=veh_f[5], fg=self.color_lapdiff(veh_f[6], veh_d[6]))
-                self.bar_row_7g.config(text=veh_g[5], fg=self.color_lapdiff(veh_g[6], veh_d[6]))
+                self.row_plrg.config(text=veh_plr[5])
+
+                self.row_f_03g.config(text=veh_f_03[5], fg=self.color_lapdiff(veh_f_03[6], veh_plr[6]))
+                self.row_f_02g.config(text=veh_f_02[5], fg=self.color_lapdiff(veh_f_02[6], veh_plr[6]))
+                self.row_f_01g.config(text=veh_f_01[5], fg=self.color_lapdiff(veh_f_01[6], veh_plr[6]))
+                self.row_r_01g.config(text=veh_r_01[5], fg=self.color_lapdiff(veh_r_01[6], veh_plr[6]))
+                self.row_r_02g.config(text=veh_r_02[5], fg=self.color_lapdiff(veh_r_02[6], veh_plr[6]))
+                self.row_r_03g.config(text=veh_r_03[5], fg=self.color_lapdiff(veh_r_03[6], veh_plr[6]))
+
+                if self.rel_add_front > 0:
+                    self.row_f_04g.config(text=veh_f_04[5], fg=self.color_lapdiff(veh_f_04[6], veh_plr[6]))
+                if self.rel_add_behind > 0:
+                    self.row_r_04g.config(text=veh_r_04[5], fg=self.color_lapdiff(veh_r_04[6], veh_plr[6]))
+                if self.rel_add_front > 1:
+                    self.row_f_05g.config(text=veh_f_05[5], fg=self.color_lapdiff(veh_f_05[6], veh_plr[6]))
+                if self.rel_add_behind > 1:
+                    self.row_r_05g.config(text=veh_r_05[5], fg=self.color_lapdiff(veh_r_05[6], veh_plr[6]))
+                if self.rel_add_front > 2:
+                    self.row_f_06g.config(text=veh_f_06[5], fg=self.color_lapdiff(veh_f_06[6], veh_plr[6]))
+                if self.rel_add_behind > 2:
+                    self.row_r_06g.config(text=veh_r_06[5], fg=self.color_lapdiff(veh_r_06[6], veh_plr[6]))
 
                 # Vehicle in pit
                 if self.cfg["show_pit_status"]:
-                    self.bar_row_1s.config(self.set_pitstatus(veh_a[7]))
-                    self.bar_row_2s.config(self.set_pitstatus(veh_b[7]))
-                    self.bar_row_3s.config(self.set_pitstatus(veh_c[7]))
-                    self.bar_row_4s.config(self.set_pitstatus(veh_d[7]))
-                    self.bar_row_5s.config(self.set_pitstatus(veh_e[7]))
-                    self.bar_row_6s.config(self.set_pitstatus(veh_f[7]))
-                    self.bar_row_7s.config(self.set_pitstatus(veh_g[7]))
+                    self.row_plrs.config(self.set_pitstatus(veh_plr[7]))
+
+                    self.row_f_03s.config(self.set_pitstatus(veh_f_03[7]))
+                    self.row_f_02s.config(self.set_pitstatus(veh_f_02[7]))
+                    self.row_f_01s.config(self.set_pitstatus(veh_f_01[7]))
+                    self.row_r_01s.config(self.set_pitstatus(veh_r_01[7]))
+                    self.row_r_02s.config(self.set_pitstatus(veh_r_02[7]))
+                    self.row_r_03s.config(self.set_pitstatus(veh_r_03[7]))
+
+                    if self.rel_add_front > 0:
+                        self.row_f_04s.config(self.set_pitstatus(veh_f_04[7]))
+                    if self.rel_add_behind > 0:
+                        self.row_r_04s.config(self.set_pitstatus(veh_r_04[7]))
+                    if self.rel_add_front > 1:
+                        self.row_f_05s.config(self.set_pitstatus(veh_f_05[7]))
+                    if self.rel_add_behind > 1:
+                        self.row_r_05s.config(self.set_pitstatus(veh_r_05[7]))
+                    if self.rel_add_front > 2:
+                        self.row_f_06s.config(self.set_pitstatus(veh_f_06[7]))
+                    if self.rel_add_behind > 2:
+                        self.row_r_06s.config(self.set_pitstatus(veh_r_06[7]))
 
         # Update rate
         self.after(self.cfg["update_delay"], self.update_data)

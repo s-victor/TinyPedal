@@ -25,7 +25,7 @@ import threading
 
 from pyRfactor2SharedMemory.sharedMemoryAPI import Cbytestring2Python
 
-from tinypedal.__init__ import info
+from tinypedal.__init__ import info, cfg
 import tinypedal.calculation as calc
 
 chknum = info.in2zero
@@ -36,6 +36,7 @@ class RelativeInfo:
 
     def __init__(self):
         self.relative_list = None
+        self.radar_list = None
 
     def start(self):
         """Start calculation thread"""
@@ -50,6 +51,14 @@ class RelativeInfo:
         """
         update_delay = 0.5  # changeable update delay for conserving resources
 
+        # Load additional relative players
+        rel_add_front = min(max(cfg.setting_user["relative"]["additional_players_front"], 0), 3)
+        rel_add_behind = min(max(cfg.setting_user["relative"]["additional_players_behind"], 0), 3)
+
+        # Load additional radar vehicles
+        radar_add_front = min(max(cfg.setting_user["radar"]["additional_vehicles_front"], 0), 9)
+        radar_add_behind = min(max(cfg.setting_user["radar"]["additional_vehicles_behind"], 0), 9)
+
         while True:
             if chknum(info.playersVehicleTelemetry().mIgnitionStarter) != 0:
                 update_delay = 0.2  # shorter delay
@@ -61,7 +70,6 @@ class RelativeInfo:
 
                 for index in range(max(chknum(info.Rf2Scor.mScoringInfo.mNumVehicles), 1)):
                     # Create vehicle dict, use "vehicle index" as key, "distance position" as value
-                    # Filter out negative distance value to zero
                     veh_dict.update({index:chknum(info.Rf2Scor.mVehicles[index].mLapDist)})
 
                     # Create vehicle class list (class name, veh place, veh index)
@@ -75,10 +83,12 @@ class RelativeInfo:
                     unique_veh_class.append(vehclass)
 
                 plr_index = info.players_index
-                selected_index = self.calc_relative_index(veh_dict, plr_index)
+                selected_index = self.calc_relative_index(veh_dict, plr_index, rel_add_front, rel_add_behind)
                 veh_class_info = self.calc_veh_class_list(unsorted_veh_class, unique_veh_class)
 
                 self.relative_list = (selected_index, veh_class_info, plr_index)
+
+                self.radar_list = self.calc_relative_index(veh_dict, plr_index, radar_add_front, radar_add_behind)
 
             else:
                 update_delay = 0.5  # longer delay while inactive
@@ -121,7 +131,7 @@ class RelativeInfo:
         return place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit, tire_idx
 
     @staticmethod
-    def calc_relative_index(veh_dict, plr_index):
+    def calc_relative_index(veh_dict, plr_index, add_front, add_behind):
         """Calculate relative player index"""
         # Reverse-sort dict by values
         re_veh_dict = dict(sorted(veh_dict.items(), key=lambda item: item[1], reverse=True))
@@ -129,9 +139,11 @@ class RelativeInfo:
         # Extract keys (vehicle index) to create new sorted vehicle list
         sorted_veh_list = list(re_veh_dict.keys())
 
-        # Append with -1 if sorted vehicle list has less than 7 items
-        if len(sorted_veh_list) < 7:
-            for _ in range(7 - len(sorted_veh_list)):
+        # Append with -1 if sorted vehicle list has less than max_veh items
+        max_veh = 7 + add_front + add_behind
+
+        if len(sorted_veh_list) < max_veh:
+            for _ in range(max_veh - len(sorted_veh_list)):
                 sorted_veh_list.append(-1)
 
         # Double extend list
@@ -144,7 +156,7 @@ class RelativeInfo:
             plr_num = 0  # prevent index not found in list error
 
         # Center selection range on player index from sorted vehicle list
-        selected_index = [sorted_veh_list[index] for index in range(plr_num - 3, plr_num + 4)]
+        selected_index = [sorted_veh_list[index] for index in range(int(plr_num - 3 - add_front), int(plr_num + 4 + add_behind))]
         return selected_index
 
     @staticmethod

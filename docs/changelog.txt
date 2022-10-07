@@ -1,4 +1,23 @@
+TinyPedal 1.8.0 (2022-10-07)
+----------------------------
+* Relative Widget
+    - [New]Relative Widget now displays up to 6 additional players (3 front & 3 behind, total 13),
+      which is customizable via new "additional_players_front" & "additional_players_behind" option in config.json.
+      Default is set to show 0 additional players. See customization guide for details.
+
+* Radar Widget
+    - [New]Radar Widget now displays up to 18 additional vehicles (9 front & 9 behind, total 25),
+      which is customizable via new "additional_vehicles_front" & "additional_vehicles_behind" option in config.json.
+      Default is set to show 8 additional vehicles (4 front & 4 behind). See customization guide for details.
+
+* Core
+    - Updated Relative Module to support additional players/vehicles display for Relative Widget & Radar Widget.
+
+* Misc
+    - Updated customization guide with new configurable setting for Relative & Radar Widget.
+
 TinyPedal 1.7.0 (2022-10-03)
+----------------------------
 * [New]Fuel Module
     - Moved all fuel usage calculation into the new separated "Fuel Module"
       which runs in a separated thread at a much higher 1000hz refresh rate.
