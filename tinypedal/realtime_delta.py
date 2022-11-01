@@ -73,22 +73,21 @@ class DeltaTime:
         while True:
             if chknum(info.playersVehicleTelemetry().mIgnitionStarter) != 0:
 
-                (start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase
+                (start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase, state_before, state_after
                  ) = self.telemetry()
 
-                # Read combo & best laptime
-                if not verified:
-                    verified = True
-                    update_delay = 0.001  # shorter delay
-                    combo_name = self.combo_check()
-                    delta_list_best, laptime_best = self.load_deltabest(combo_name)
-                    start_last = start_curr  # reset lap-start-time
-
-                if game_phase < 5:  # reset stint stats if session has not started
-                    start_last = start_curr  # reset
-
                 # Check isPlayer before update
-                if 0 <= chknum(info.playersVehicleScoring().mControl) <= 1:
+                if state_before and state_after:
+                    # Read combo & best laptime
+                    if not verified:
+                        verified = True
+                        update_delay = 0.001  # shorter delay
+                        combo_name = self.combo_check()
+                        delta_list_best, laptime_best = self.load_deltabest(combo_name)
+                        start_last = start_curr  # reset lap-start-time
+
+                    if game_phase < 5:  # reset stint stats if session has not started
+                        start_last = start_curr  # reset
 
                     laptime_curr = max(elapsed_time - start_last, 0)  # current laptime
 
@@ -184,6 +183,8 @@ class DeltaTime:
     @staticmethod
     def telemetry():
         """Telemetry data"""
+        state_before = info.Rf2Scor.mVehicles[info.players_index].mIsPlayer
+
         start_curr = chknum(info.playersVehicleTelemetry().mLapStartET)
         elapsed_time = chknum(info.playersVehicleTelemetry().mElapsedTime)
         lastlap_check = chknum(info.playersVehicleScoring().mLastLapTime)
@@ -195,7 +196,9 @@ class DeltaTime:
                     chknum(info.playersVehicleTelemetry().mPos.y),
                     chknum(info.playersVehicleTelemetry().mPos.z))
         game_phase = chknum(info.Rf2Scor.mScoringInfo.mGamePhase)
-        return start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase
+
+        state_after = info.Rf2Scor.mVehicles[info.players_index].mIsPlayer
+        return start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase, state_before, state_after
 
     @staticmethod
     def combo_check():

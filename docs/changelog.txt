@@ -1,3 +1,12 @@
+TinyPedal 1.8.1 (2022-11-01)
+----------------------------
+* Core
+    - Improved auto-hide function & player status check.
+    - Added additional player data verification for deltabest & fuel modules.
+
+* pyRfactor2SharedMemory library
+    - [New]Added an argument to pass rf2 PID to SimInfo for reading data from dedicated server.
+
 TinyPedal 1.8.0 (2022-10-07)
 ----------------------------
 * Relative Widget

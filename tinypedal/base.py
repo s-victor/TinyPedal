@@ -196,10 +196,7 @@ class OverlayAutoHide:
     def hide(self):
         """Hide overlay"""
         for widget in self.active_list:
-            if widget.state() == "normal":  # check window state
-                widget.withdraw()
-            else:
-                break
+            widget.withdraw()
 
     def show(self):
         """Show/restore overlay"""

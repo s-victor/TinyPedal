@@ -70,11 +70,13 @@ class FuelUsage:
                     update_delay = 0.001  # shorter delay
                     used_last = cfg.setting_user["fuel"]["fuel_consumption"]
 
-                (start_curr, laps_total, laps_left, time_left, amount_curr, capacity, inpits
+                (start_curr, laps_total, laps_left, time_left, amount_curr, capacity, inpits, state_before, state_after
                  ) = self.telemetry()
 
                 # Check isPlayer before update
-                if 0 <= chknum(info.playersVehicleScoring().mControl) <= 1:
+                #if 0 <= chknum(info.playersVehicleScoring().mControl) <= 1:
+                #if info.Rf2Scor.mVehicles[info.players_index].mIsPlayer:
+                if state_before and state_after:
 
                     if inpits == 1:
                         pittinglap = min(pittinglap + inpits, 1)
@@ -133,6 +135,8 @@ class FuelUsage:
     @staticmethod
     def telemetry():
         """Fuel Telemetry data"""
+        state_before = info.Rf2Scor.mVehicles[info.players_index].mIsPlayer
+
         start_curr = chknum(info.playersVehicleTelemetry().mLapStartET)
         laps_total = chknum(info.Rf2Scor.mScoringInfo.mMaxLaps)
         laps_left = laps_total - chknum(info.playersVehicleScoring().mTotalLaps)
@@ -140,4 +144,6 @@ class FuelUsage:
         amount_curr = chknum(info.playersVehicleTelemetry().mFuel)
         capacity = chknum(info.playersVehicleTelemetry().mFuelCapacity)
         inpits = chknum(info.playersVehicleScoring().mInPits)
-        return start_curr, laps_total, laps_left, time_left, amount_curr, capacity, inpits
+
+        state_after = info.Rf2Scor.mVehicles[info.players_index].mIsPlayer
+        return start_curr, laps_total, laps_left, time_left, amount_curr, capacity, inpits, state_before, state_after

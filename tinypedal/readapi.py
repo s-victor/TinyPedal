@@ -45,7 +45,8 @@ def state():
 
 def is_local_player():
     """Check if is local player"""
-    if 0 <= chknum(info.playersVehicleScoring().mControl) <= 1:
+    #if 0 <= chknum(info.playersVehicleScoring().mControl) <= 1:
+    if info.Rf2Scor.mVehicles[info.players_index].mIsPlayer:
         return True
     return False
 

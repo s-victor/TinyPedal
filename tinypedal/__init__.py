@@ -24,10 +24,10 @@ from pyRfactor2SharedMemory.sharedMemoryAPI import SimInfoAPI
 from tinypedal.setting import Setting
 
 
-VERSION = "1.8.0"
+VERSION = "1.8.1"
 
 # Load Shared Memory API
-info = SimInfoAPI()
+info = SimInfoAPI("")
 
 # Start player index updating thread
 info.startUpdating()
