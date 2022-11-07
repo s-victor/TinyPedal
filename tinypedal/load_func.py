@@ -17,5 +17,33 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Init
+Load module & function
 """
+
+from tinypedal.setting import cfg
+from tinypedal.realtime_delta import DeltaTime
+from tinypedal.realtime_fuel import FuelUsage
+from tinypedal.realtime_relative import RelativeInfo
+from tinypedal.overlay_toggle import OverlayLock, OverlayAutoHide
+
+
+# Load delta module
+delta_time = DeltaTime()
+if cfg.overlay["delta_module"]:
+    delta_time.start()
+
+# Load fuel module
+fuel_usage = FuelUsage()
+if cfg.overlay["fuel_module"]:
+    fuel_usage.start()
+
+# Load relative module
+relative_info = RelativeInfo()
+if cfg.overlay["relative_module"]:
+    relative_info.start()
+
+# Load overlay lock
+overlay_lock = OverlayLock()
+
+# Load overlay auto hide
+overlay_hide = OverlayAutoHide(cfg.active_widget_list)

@@ -25,10 +25,9 @@ import threading
 
 from pyRfactor2SharedMemory.sharedMemoryAPI import Cbytestring2Python
 
-from tinypedal.__init__ import info, cfg
+from tinypedal.readapi import info, chknum
+from tinypedal.setting import cfg
 import tinypedal.calculation as calc
-
-chknum = info.in2zero
 
 
 class RelativeInfo:

@@ -21,40 +21,9 @@ GUI window, events.
 """
 
 import tkinter as tk
-from ctypes import windll
 
-import tinypedal.readapi as read_data
-from tinypedal.__init__ import cfg
-from tinypedal.realtime_delta import DeltaTime
-from tinypedal.realtime_fuel import FuelUsage
-from tinypedal.realtime_relative import RelativeInfo
-
-
-# Load delta module
-delta_time = DeltaTime()
-if cfg.overlay["delta_module"]:
-    delta_time.start()
-
-# Load fuel module
-fuel_usage = FuelUsage()
-if cfg.overlay["fuel_module"]:
-    fuel_usage.start()
-
-# Load relative module
-relative_info = RelativeInfo()
-if cfg.overlay["relative_module"]:
-    relative_info.start()
-
-
-class Window(tk.Tk):
-    """Root window
-
-    Hide window at startup.
-    """
-
-    def __init__(self):
-        tk.Tk.__init__(self)
-        self.withdraw()
+from tinypedal.setting import cfg
+from tinypedal.load_func import overlay_lock
 
 
 class Widget(tk.Toplevel):
@@ -79,8 +48,7 @@ class Widget(tk.Toplevel):
         cfg.active_widget_list.append(self)
 
         # Load overlay lock state at startup
-        overlay_lock = OverlayLock(cfg.active_widget_list)
-        overlay_lock.load_state()
+        overlay_lock.load_state(cfg.active_widget_list)
 
 
 class MouseEvent:
@@ -129,97 +97,3 @@ class MouseEvent:
     def update_pos(self, event):
         """Update widget position"""
         self.geometry(f"+{event.x_root - self.mouse_pos[0]}+{event.y_root - self.mouse_pos[1]}")
-
-
-class OverlayLock:
-    """Overlay lock state"""
-
-    GWL_EXSTYLE = -20
-    WS_EX_LAYERED = 0x00080000
-    WS_EX_NOACTIVATE = 0x08000000
-    WS_EX_TRANSPARENT = 0x00000020
-
-    def __init__(self, active_list):
-        self.active_list = active_list
-
-    def lock(self):
-        """Lock overlay
-
-        Call cfg.load() before modifying config & saving
-        to avoid overriding user changes.
-        """
-        cfg.overlay["fixed_position"] = True
-        cfg.save()
-
-        ex_style = self.WS_EX_LAYERED | self.WS_EX_NOACTIVATE | self.WS_EX_TRANSPARENT
-        self.apply(ex_style)
-
-    def unlock(self):
-        """Unlock overlay"""
-        cfg.overlay["fixed_position"] = False
-        cfg.save()
-
-        ex_style = self.WS_EX_LAYERED | self.WS_EX_NOACTIVATE
-        self.apply(ex_style)
-
-    def apply(self, style):
-        """Apply lock
-
-        Find HWND & loop through widget list to apply extended style.
-        """
-        for widget in self.active_list:
-            hwnd = windll.user32.GetParent(widget.winfo_id())
-            windll.user32.SetWindowLongPtrW(hwnd, self.GWL_EXSTYLE, style)
-
-    def toggle(self):
-        """Toggle lock state from tray menu"""
-        if not cfg.overlay["fixed_position"]:
-            self.lock()
-        else:
-            self.unlock()
-
-    def load_state(self):
-        """Load lock state when overlay widget is created"""
-        if cfg.overlay["fixed_position"]:
-            self.lock()
-        else:
-            self.unlock()
-
-
-class OverlayAutoHide:
-    """Auto hide overlay"""
-
-    def __init__(self, active_list, master):
-        self.active_list = active_list
-        self.master = master
-
-    def hide(self):
-        """Hide overlay"""
-        for widget in self.active_list:
-            widget.withdraw()
-
-    def show(self):
-        """Show/restore overlay"""
-        for widget in self.active_list:
-            if widget.state() != "normal":
-                widget.deiconify()
-            else:
-                break
-
-    def activate(self):
-        """Auto hide overlay"""
-        if cfg.overlay["auto_hide"]:
-            if read_data.state():
-                self.show()
-            else:
-                self.hide()
-        else:
-            self.show()
-
-        self.master.after(500, self.activate)
-
-    @staticmethod
-    def toggle(_icon, enabled):
-        """Toggle hide state"""
-        cfg.overlay["auto_hide"] = not enabled.checked
-        cfg.save()

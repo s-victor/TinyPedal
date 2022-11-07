@@ -22,10 +22,11 @@ Radar Widget
 
 import tkinter as tk
 
-from tinypedal.__init__ import cfg
-import tinypedal.readapi as read_data
-from tinypedal.base import relative_info, Widget, MouseEvent
+from tinypedal.setting import cfg
 import tinypedal.calculation as calc
+import tinypedal.readapi as read_data
+from tinypedal.base import Widget, MouseEvent
+from tinypedal.load_func import relative_info
 
 
 class DrawWidget(Widget, MouseEvent):

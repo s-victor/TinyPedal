@@ -23,7 +23,7 @@ Stint Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.__init__ import cfg
+from tinypedal.setting import cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import Widget, MouseEvent

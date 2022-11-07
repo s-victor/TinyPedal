@@ -23,7 +23,7 @@ Instrument Widget
 import tkinter as tk
 from PIL import Image, ImageTk
 
-from tinypedal.__init__ import cfg
+from tinypedal.setting import cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import Widget, MouseEvent

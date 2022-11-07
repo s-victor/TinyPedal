@@ -1,23 +1,27 @@
 # Customization Guide
 
-TinyPedal offers a wide range of customization, which is currently available by editing `config.json` file with text editor. This config file will be auto-generated after first launching.
+TinyPedal offers a wide range of customization, which is currently available by editing `.JSON` setting file with text editor.
 
-This APP will auto-save setting when user makes any changes to widget position, or has toggled widget visibility, auto hide, lock overlay from tray icon. Due to this reason, to avoid losing changes, it is recommended to quit APP before editing or saving JSON file. Any changes will only take effect after restarting APP.
+Starting from version 1.9.0, TinyPedal comes with a new `Preset manager` that let user to load or create setting preset, and these `.JSON` files are located in `TinyPedal\settings` folder. Activated preset name can be viewed from TinyPedal tray icon.
 
+Note: for version older than 1.9.0, `.JSON` files are located in TinyPedal root folder.
+
+TinyPedal will auto-save setting when user makes any changes to widget position, or has toggled widget visibility, auto hide, lock overlay from tray icon. Due to this reason, to avoid losing changes, it is recommended to quit APP before editing or saving JSON file. Any changes will only take effect after restarting APP.
+
+
+## Backup file 
+TinyPedal will automatically create a backup file with time stamp suffix if old setting file is invalid, and a new default `.JSON` will be generated.
+
+A newer released version will auto-update old setting and add new setting after loading. It is still recommended to manually create backups before updating.
+
+
+## Editing Notes
 To make changes, editing `values` on the right side of colon.
 
 Do not modify anything (keys) on the left side of colon, any changes to those keys will be reverted back to default setting by APP.
 
-If APP fails to launch after editing config.json, check JSON file for typo error or invalid values; or delete `config.json` to let APP generate a new default file.
+If APP fails to launch after editing `.JSON`, check for typo error or invalid values; or delete `.JSON` to let APP generate a new default file.
 
-
-## Backup file 
-TinyPedal will automatically create a backup file with time stamp suffix if old setting file is invalid, and a new default `config.json` will be generated.
-
-A newer released version will auto-update old setting and add new setting. It is still recommended to manually create backup file before updating to new version.
-
-
-## Editing Notes
 If a value is surrounded by quotation marks, make sure not to remove those quotation marks, otherwise may cause error.
 
 Any boolean type value (true or false) will only accept: `true`, which can be substituted with `1`. And `false`, which can be substituted with `0`. All words must be in `lowercase`, otherwise will have no effect.
@@ -229,7 +233,7 @@ Show low fuel indicator when fuel level is below certain amount value.
 Only show low fuel indicator during race session.
 
     low_fuel_volume_threshold
-Set fuel volume threshold to only show low fuel indicator when total amount of remaining fuel is equal or less than this value. This value takes consideration from 'fuel_unit' setting of Fuel Widget. For example, if `fuel_unit` is set to gallon, then this value should also be set using gallon unit. The purpose of this setting is to limit low fuel warning when racing on lengthy tracks, where fuel tank may only hold for a lap or two. Default value is `20`.
+Set fuel volume threshold to only show low fuel indicator when total amount of remaining fuel is equal or less than this value. This value takes consideration from `fuel_unit` setting of Fuel Widget. For example, if `fuel_unit` is set to gallon, then this value should also be set using gallon unit. The purpose of this setting is to limit low fuel warning when racing on lengthy tracks, where fuel tank may only hold for a lap or two. Default value is `20`.
 
     low_fuel_lap_threshold
 Set amount lap threshold to only show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default value is `2` laps before running out of fuel.
@@ -270,7 +274,7 @@ Set percentage threshold for triggering wheel lock warning under braking. `0.2` 
 Set percentage threshold for triggering wheel slip warning. `0.1` means 10% of tyre slip ratio.
 
     wheel_radius_front, wheel_radius_rear
-Set radius for front and rear wheels, which is used to calculate tyre slip ratio. Manual editing is not required, as this value will be automatically calculated based on a special algorithm after player has completed a full lap, and will be auto-saved to `config.json` file.
+Set radius for front and rear wheels, which is used to calculate tyre slip ratio. Manual editing is not required, as this value will be automatically calculated based on a special algorithm after player has completed a full lap, and will be auto-saved to `.JSON` file.
 
     minimum_speed
 Set minimum speed threshold before APP records and calculates wheel radius samples. Default value is `16.5` (m/s),

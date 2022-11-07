@@ -23,10 +23,11 @@ Timing Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.__init__ import cfg
+from tinypedal.setting import cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
-from tinypedal.base import delta_time, Widget, MouseEvent
+from tinypedal.base import Widget, MouseEvent
+from tinypedal.load_func import delta_time
 
 
 class DrawWidget(Widget, MouseEvent):

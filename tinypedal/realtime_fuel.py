@@ -17,17 +17,17 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Delta module
+Fuel module
 """
 
 import time
 import threading
 import math
 
-from tinypedal.__init__ import info, cfg
+from tinypedal.readapi import info, chknum
+from tinypedal.setting import cfg
 import tinypedal.calculation as calc
 
-chknum = info.in2zero
 
 class FuelUsage:
     """Fuel usage data"""
@@ -45,7 +45,7 @@ class FuelUsage:
         """Fuel usage
 
         Run calculation separately.
-        Saving & loading delta data only on exit & enter.
+        Saving & loading fuel data only on exit & enter.
         """
         recording = False  # set fuel recording state
         pittinglap = False  # set pitting lap state

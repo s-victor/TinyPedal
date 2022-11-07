@@ -12,10 +12,6 @@ Currently supports rFactor 2 and displays simulation info using The Iron Wolf’
 ## Feature
 See [docs\features.md](./docs/features.md) for complete widgets & feature list.
 
-All widgets are Customizable, see **Customization** section for details.
-
-Note: some info, such as fuel usage, requires at least 1 or 2 completed laps to be shown correctly.
-
 
 ## Requirements
 TinyPedal requires The Iron Wolf’s rF2 Shared Memory Map Plugin, download it from here:  
@@ -23,15 +19,13 @@ https://forum.studio-397.com/index.php?threads/rf2-shared-memory-tools-for-devel
 
 The plugin file `rFactor2SharedMemoryMapPlugin64.dll` should be placed in `rFactor 2\Bin64\Plugins` folder. This plugin also comes with some of the popular rF2 Apps, check `rFactor 2\Bin64\Plugins` folder first to see if it was installed already.
 
-Note: if `Auto Hide` function does not correctly hide overlay while in garage screen (before clicked DRIVE), it's likely caused by an outdated version of `rFactor2SharedMemoryMapPlugin64.dll` that installed by other apps, please download newer version from above link. The oldest Plugin version that known to work with TinyPedal is `09/07/2020 - v3.7.14.2`.
-
 
 ## Usage
 1. Make sure The Iron Wolf’s `rF2 Shared Memory Map Plugin` is installed, as described above, and `Borderless` or `Windowed Mode` is activated in game.
 
 2. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract, and run `tinypedal.exe`. Alternatively, you can run TinyPedal from source, see **Run from source** section for details.
 
-3. A tray icon will appear at system tray. If not shown, check hidden tray icon. `Right Click` on tray icon will bring up context menu.
+3. Select a preset name, and click `Load Preset` button. A tray icon will appear at system tray. If not shown, check hidden tray icon. `Right Click` on tray icon will bring up context menu.
 
 4. Launch `rFactor 2`, overlay will appear once your vehicle is on track, and auto-hide otherwise. You can turn off auto-hide by `Right Click` on tray icon and select `Auto Hide`.
 
@@ -42,20 +36,9 @@ Note: if `Auto Hide` function does not correctly hide overlay while in garage sc
 7. To quit APP, `Right Click` on tray icon and select `Quit`.
 
 
-## Performance
-
-On default setting, current version of TinyPedal uses roughly 5% CPU & 20MB system memory on a 3.0Ghz CPU with all widgets enabled. All widgets will stop updating (0% CPU usage) when player is not on track.
-
-In case of unlikely performance issue, turn off less-used widgets is advised (each widget contributes roughly 0.1-0.5% CPU usage alone); or set a higher `update delay` value for specific widget, see **Customization** section for details.
-
-Generally, `update delay` value should not be set under 20ms, as most data from rF2 shared memory plugin capped at 50 refresh rate according to shared memory plugin documents. Lower `update delay` value will cause significantly increase of CPU usage. 
-
-
 ## Customization
 
-TinyPedal offers a wide range of customization, which is currently available by editing `config.json` config file with text editor. This config file will be auto-generated after first launching.
-
-See [Customization Guide](https://github.com/s-victor/TinyPedal/wiki) for editing guide.
+TinyPedal offers a wide range of customization, see [Customization Guide](https://github.com/s-victor/TinyPedal/wiki) for editing guide.
 
 
 ## Run from source
@@ -96,9 +79,12 @@ To install py2exe, run command:
 `pip3 install py2exe`
 
 To build executable file, run command:  
-`python build_py2exe.py py2exe`
+`python freeze_py2exe.py`
 
 After building completed, you can find executable file in `dist\TinyPedal` folder.
+
+Note: for py2exe version older than `v0.12.0.0`, run following command instead:  
+`python build_py2exe.py py2exe`
 
 
 ## Credits

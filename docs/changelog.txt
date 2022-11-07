@@ -1,3 +1,23 @@
+TinyPedal 1.9.0 (2022-11-07)
+----------------------------
+* [New]Preset manager
+    - Added new "Preset" list window when launching TinyPedal,
+      where user can load exist preset, or create new preset.
+      Preset files are sorted by last modified date.
+    - All JSON preset files are now saved in `TinyPedal\settings` folder.
+      User may manually move all old JSON files into "settings" folder.
+      Note: Preset manager does not provide file delete function (to avoid accidental deletion).
+
+* Core
+    - [New]Tray icon menu now shows current preset name.
+    - [Critical]Fixed an issue that could cause deltabest module to stop updating.
+    - Many improvements.
+
+* Misc
+    - Updated py2exe building script to use new "freeze" (py2exe v0.12 and above).
+    - Updated third-party software libraries.
+    - Updated customization guide with info about the new preset manager.
+
 TinyPedal 1.8.1 (2022-11-01)
 ----------------------------
 * Core

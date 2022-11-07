@@ -26,11 +26,9 @@ import shutil
 
 
 class Setting:
-    """Overlay setting
-
-    Call load() to load last saved setting before assigning changes.
-    """
-    filename = "config.json"
+    """Overlay setting"""
+    filepath = "./settings/"
+    filename = "default.json"
     setting_default = {
         "overlay": {
             "fixed_position": False,
@@ -520,13 +518,13 @@ class Setting:
         self.active_widget_list = []  # create active widget list
         self.setting_user_unsorted = {}
         self.setting_user = {}
-        self.load()
+        self.overlay = {}
 
     def load(self):
         """Load & validate setting"""
         try:
             # Read JSON file
-            with open(self.filename, "r", encoding="utf-8") as jsonfile:
+            with open(f"{self.filepath}{self.filename}", "r", encoding="utf-8") as jsonfile:
                 self.setting_user_unsorted = json.load(jsonfile)
 
             # Verify setting
@@ -544,7 +542,7 @@ class Setting:
             self.save()
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             self.backup()
-            self.restore()
+            self.create()
             self.save()
 
         # Assign base setting
@@ -552,25 +550,26 @@ class Setting:
 
     def save(self):
         """Save setting to file"""
-        with open(self.filename, "w", encoding="utf-8") as jsonfile:
+        with open(f"{self.filepath}{self.filename}", "w", encoding="utf-8") as jsonfile:
             json.dump(self.setting_user, jsonfile, indent=4)
 
-    def restore(self):
-        """Restore default setting"""
+    def create(self):
+        """Create default setting"""
         self.setting_user = self.setting_default.copy()
 
     def backup(self):
         """Backup invalid file"""
         try:
             time_stamp = time.strftime("%Y-%m-%d %H-%M-%S", time.localtime())
-            shutil.copy(self.filename, f"config-backup {time_stamp}.json")
+            shutil.copy(f"{self.filepath}{self.filename}", f"{self.filepath}{self.filename[:-5]}-backup {time_stamp}.json")
         except FileNotFoundError:
             pass
 
 
 class VehicleClass:
     """Vehicle class dictionary"""
-    filename = "classes.json"
+    classfilepath = "./settings/"
+    classfilename = "classes.json"
     classdict_default = {
             "Hypercar": {
                 "HP": "#FF4400"
@@ -612,7 +611,7 @@ class VehicleClass:
         """Load dictionary file"""
         try:
             # Load file
-            with open(self.filename, "r", encoding="utf-8") as jsonfile:
+            with open(f"{self.classfilepath}{self.classfilename}", "r", encoding="utf-8") as jsonfile:
                 self.classdict_user = json.load(jsonfile)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             # create a default copy if not found
@@ -621,7 +620,7 @@ class VehicleClass:
 
     def save(self):
         """Save dictionary to file"""
-        with open(self.filename, "w", encoding="utf-8") as jsonfile:
+        with open(f"{self.classfilepath}{self.classfilename}", "w", encoding="utf-8") as jsonfile:
             json.dump(self.classdict_user, jsonfile, indent=4)
 
 
@@ -656,10 +655,5 @@ def verify_setting(dict_user, dict_def):
         check_key(dict_user[item], dict_def[item])
 
 
-### old stuff
-# Generate sub key setting groups from user dict
-#for cfg_item in self.setting_user:
-#    setattr(self, cfg_item, self.setting_user[str(cfg_item)])
-
-#self.widget_list = list(self.setting_default)  # create widget list
-#self.widget_list.remove("overlay")
+# Assign setting
+cfg = Setting()

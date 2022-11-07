@@ -1,9 +1,8 @@
 """
 py2exe build script
 """
-from distutils.core import setup
+from py2exe import freeze
 from glob import glob
-import py2exe
 
 from tinypedal.about import VERSION
 
@@ -21,24 +20,29 @@ data_files = [("", ["icon.ico", "LICENSE.txt", "README.md"]),
               ("docs", ["docs/changelog.txt", "docs/customization.md", "docs/contributors.md", "docs/features.md"]),
               ("docs/licenses", glob("docs/licenses/*")),
               ("deltabest", ["deltabest/README.txt"]),
+              ("settings", []),
               ("images", ["images/CC-BY-SA-4.0.txt", "images/icon_instrument.png"]),
               ]
 
 options = {
-    "py2exe":{
-        "dist_dir": "dist/TinyPedal",
-        "excludes": excludes,
-        "optimize": 2,
-        "bundle_files": 2,
-        "compressed": 1,
-    }
+    "dist_dir": "dist/TinyPedal",
+    "excludes": excludes,
+    "dll_excludes": ["libcrypto-1_1.dll"],
+    "optimize": 2,
+    "bundle_files": 2,
+    "compressed": 1,
 }
 
-setup(
-    name = "tinypedal",
-    version = VERSION,
-    description = "Open-source overlay application for racing simulation",
-    author = "Xiang",
+app_info = {
+    "version": VERSION,
+    "description": "TinyPedal",
+    "copyright": "Copyright (C) 2022 Xiang",
+    "product_name": "TinyPedal",
+    "product_version": VERSION,
+}
+
+freeze(
+    version_info = app_info,
     windows = app_setting,
     options = options,
     data_files = data_files,

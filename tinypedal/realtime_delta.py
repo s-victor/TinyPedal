@@ -26,17 +26,17 @@ import csv
 
 from pyRfactor2SharedMemory.sharedMemoryAPI import Cbytestring2Python
 
-from tinypedal.__init__ import info, cfg
+from tinypedal.readapi import info, chknum
+from tinypedal.setting import cfg
 import tinypedal.calculation as calc
 
-chknum = info.in2zero
 
 class DeltaTime:
     """Delta time data"""
 
     def __init__(self):
         self.output_data = (0,0,0,0,0)
-        self.meters_driven = cfg.setting_user["cruise"]["meters_driven"]
+        self.meters_driven = 0
 
     def start(self):
         """Start calculation thread"""
@@ -54,6 +54,7 @@ class DeltaTime:
         verified = False  # additional check for conserving resources
         validating = False  # validate last laptime after cross finish line
 
+        self.meters_driven = cfg.setting_user["cruise"]["meters_driven"]
         delta_list_curr = []  # distance vs time list, current lap
         delta_list_last = []  # distance vs time list, last lap, used for verification only
         delta_list_best = []  # distance vs time list, best lap
@@ -76,18 +77,19 @@ class DeltaTime:
                 (start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase, state_before, state_after
                  ) = self.telemetry()
 
+                # Read combo & best laptime
+                if not verified:
+                    verified = True
+                    update_delay = 0.001  # shorter delay
+                    combo_name = self.combo_check()
+                    delta_list_best, laptime_best = self.load_deltabest(combo_name)
+                    start_last = start_curr  # reset lap-start-time
+
+                if game_phase < 5:  # reset stint stats if session has not started
+                    start_last = start_curr  # reset
+
                 # Check isPlayer before update
                 if state_before and state_after:
-                    # Read combo & best laptime
-                    if not verified:
-                        verified = True
-                        update_delay = 0.001  # shorter delay
-                        combo_name = self.combo_check()
-                        delta_list_best, laptime_best = self.load_deltabest(combo_name)
-                        start_last = start_curr  # reset lap-start-time
-
-                    if game_phase < 5:  # reset stint stats if session has not started
-                        start_last = start_curr  # reset
 
                     laptime_curr = max(elapsed_time - start_last, 0)  # current laptime
 
@@ -162,7 +164,7 @@ class DeltaTime:
                             gps_last = gps_curr
 
             else:
-                if recording:
+                if verified:
                     recording = False  # disable delta recording after exit track
                     verified = False  # activate verification when enter track next time
                     validating = False  # disable laptime validate

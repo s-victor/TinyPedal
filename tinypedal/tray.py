@@ -17,16 +17,14 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Main program & tray icon
+Tray icon
 """
-import os
-from tkinter import messagebox
+
 from PIL import Image
 import pystray
-import psutil
 
-from tinypedal.base import cfg, OverlayLock, OverlayAutoHide
-from tinypedal.about import About
+from tinypedal.setting import cfg
+from tinypedal.load_func import overlay_lock, overlay_hide
 
 from tinypedal.widget import (cruise,
                               deltabest,
@@ -60,15 +58,17 @@ class TrayIcon:
     def __init__(self, master):
         self.master = master
 
+        # Preset name
+        loaded_preset = cfg.filename[:-5].upper()
+        if len(loaded_preset) > 16:
+            loaded_preset = f"{loaded_preset[:16]}..."
+
         # Load overlay widget
         wtoggle = WidgetToggle()
 
-        # Load overlay lock state
-        overlay_lock = OverlayLock(cfg.active_widget_list)
-
         # Load overlay auto hide state
-        overlay_hide = OverlayAutoHide(cfg.active_widget_list, master)
-        overlay_hide.activate()
+        if cfg.overlay["auto_hide"]:
+            overlay_hide.start()
 
         # Config tray icon
         name = "TinyPedal"
@@ -102,7 +102,9 @@ class TrayIcon:
         )
 
         main_menu = (
-            item("Lock Overlay", overlay_lock.toggle,
+            item(f"Preset: {loaded_preset}", "", enabled=False),
+            separator,
+            item("Lock Overlay", lambda: overlay_lock.toggle(cfg.active_widget_list),
                  checked=lambda enabled: cfg.overlay["fixed_position"]),
             item("Auto Hide", overlay_hide.toggle,
                  checked=lambda enabled: cfg.overlay["auto_hide"]),
@@ -412,37 +414,3 @@ class WidgetToggle:
             cfg.active_widget_list.remove(self.widget_wheel)
             self.widget_wheel.destroy()
         cfg.save()
-
-
-def is_tinypedal_running(app_name):
-    """Check if is already running"""
-    for app in psutil.process_iter(["name", "pid"]):
-        # Compare found APP name
-        if app.info["name"] == app_name:
-            # Compare with current APP pid
-            if app.info["pid"] != os.getpid():
-                return True
-    return None
-
-
-def run():
-    """Start program"""
-    root = About()
-
-    if is_tinypedal_running("tinypedal.exe"):
-        messagebox.showinfo("TinyPedal",
-                            "TinyPedal is already running.\n\n"
-                            "Only one TinyPedal may be run at a time.\n"
-                            "Check system tray for hidden icon.")
-    else:
-        # Start tray icon
-        tray_icon = TrayIcon(root)
-        tray_icon.run()
-
-        # Start tkinter mainloop
-        root.protocol("WM_DELETE_WINDOW", root.withdraw)
-        root.mainloop()
-
-
-if __name__ == "__main__":
-    run()

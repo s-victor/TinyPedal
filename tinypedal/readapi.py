@@ -31,12 +31,18 @@ Access rF2 shared memory data using:
    https://github.com/s-victor/pyRfactor2SharedMemory
 """
 
-#from pyRfactor2SharedMemory.sharedMemoryAPI import Cbytestring2Python
-
-from tinypedal.__init__ import info
+from pyRfactor2SharedMemory.sharedMemoryAPI import SimInfoAPI
 import tinypedal.calculation as calc
 
+
+# Load Shared Memory API
+info = SimInfoAPI("")
+
+# Start player index updating thread
+info.startUpdating()
+
 chknum = info.in2zero
+
 
 def state():
     """Check game state"""
@@ -46,9 +52,7 @@ def state():
 def is_local_player():
     """Check if is local player"""
     #if 0 <= chknum(info.playersVehicleScoring().mControl) <= 1:
-    if info.Rf2Scor.mVehicles[info.players_index].mIsPlayer:
-        return True
-    return False
+    return info.Rf2Scor.mVehicles[info.players_index].mIsPlayer
 
 
 def cruise():
