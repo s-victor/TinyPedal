@@ -23,44 +23,44 @@ Wheel Alignment Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.setting import cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import Widget, MouseEvent
 
 
-class DrawWidget(Widget, MouseEvent):
+class Draw(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "wheel"
-    cfg = cfg.setting_user[widget_name]
 
-    def __init__(self):
+    def __init__(self, config):
         # Assign base setting
         Widget.__init__(self)
+        self.cfg = config
+        self.wcfg = self.cfg.setting_user[self.widget_name]
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", self.cfg["opacity"])
+        self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position
-        bar_gap = self.cfg["bar_gap"]
-        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
+        bar_gap = self.wcfg["bar_gap"]
+        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
         # Config style & variable
         text_def = "n/a"
-        fg_color = self.cfg["font_color"]
-        bg_color = self.cfg["bkg_color"]
-        fg_color_cap = self.cfg["font_color_caption"]
-        bg_color_cap = self.cfg["bkg_color_caption"]
-        font_wheel = tkfont.Font(family=self.cfg["font_name"],
-                                 size=-self.cfg["font_size"],
-                                 weight=self.cfg["font_weight"])
-        font_desc = tkfont.Font(family=self.cfg["font_name"],
-                                size=-int(self.cfg["font_size"] * 0.8),
-                                weight=self.cfg["font_weight"])
+        fg_color = self.wcfg["font_color"]
+        bg_color = self.wcfg["bkg_color"]
+        fg_color_cap = self.wcfg["font_color_caption"]
+        bg_color_cap = self.wcfg["bkg_color_caption"]
+        font_wheel = tkfont.Font(family=self.wcfg["font_name"],
+                                 size=-self.wcfg["font_size"],
+                                 weight=self.wcfg["font_weight"])
+        font_desc = tkfont.Font(family=self.wcfg["font_name"],
+                                size=-int(self.wcfg["font_size"] * 0.8),
+                                weight=self.wcfg["font_weight"])
 
         # Draw label
-        if self.cfg["show_caption"]:
+        if self.wcfg["show_caption"]:
             bar_style_desc = {"bd":0, "height":1, "padx":0, "pady":0,
                               "font":font_desc, "fg":fg_color_cap, "bg":bg_color_cap}
 
@@ -120,7 +120,7 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.cfg["enable"]:
+        if read_data.state() and self.wcfg["enable"]:
 
             # Read camber data
             camber = [f"{calc.rad2deg(data):+.2f}" for data in read_data.camber()]
@@ -149,32 +149,32 @@ class DrawWidget(Widget, MouseEvent):
                 # Ride height update
                 self.bar_rideh_fl.config(text=f"{ride_height[0]:+.1f}",
                                          bg=self.color_rideh(
-                                            ride_height[0], self.cfg["rideheight_offset_front"]))
+                                            ride_height[0], self.wcfg["rideheight_offset_front"]))
                 self.bar_rideh_fr.config(text=f"{ride_height[1]:+.1f}",
                                          bg=self.color_rideh(
-                                            ride_height[1], self.cfg["rideheight_offset_front"]))
+                                            ride_height[1], self.wcfg["rideheight_offset_front"]))
                 self.bar_rideh_rl.config(text=f"{ride_height[2]:+.1f}",
                                          bg=self.color_rideh(
-                                            ride_height[2], self.cfg["rideheight_offset_rear"]))
+                                            ride_height[2], self.wcfg["rideheight_offset_rear"]))
                 self.bar_rideh_rr.config(text=f"{ride_height[3]:+.1f}",
                                          bg=self.color_rideh(
-                                            ride_height[3], self.cfg["rideheight_offset_rear"]))
+                                            ride_height[3], self.wcfg["rideheight_offset_rear"]))
 
                 # Rake update
                 rake = (ride_height[3] + ride_height[2] - ride_height[1] - ride_height[0]) * 0.5
-                rake_angle = calc.rake2angle(rake, self.cfg["wheelbase"])
+                rake_angle = calc.rake2angle(rake, self.wcfg["wheelbase"])
 
                 self.bar_rake.config(text=f"{rake:+.1f}", bg=self.color_rideh(rake, 0))
                 self.bar_rakeangle.config(text=f" {rake_angle:.2f}°", bg=self.color_rideh(rake, 0))
 
         # Update rate
-        self.after(self.cfg["update_delay"], self.update_data)
+        self.after(self.wcfg["update_delay"], self.update_data)
 
     # Additional methods
     def color_rideh(self, height, offset):
         """Ride height indicator color"""
         if height > offset:
-            color = self.cfg["bkg_color"]
+            color = self.wcfg["bkg_color"]
         else:
-            color = self.cfg["bkg_color_bottoming"]
+            color = self.wcfg["bkg_color_bottoming"]
         return color

@@ -23,57 +23,72 @@ Relative module
 import time
 import threading
 
-from pyRfactor2SharedMemory.sharedMemoryAPI import Cbytestring2Python
-
-from tinypedal.readapi import info, chknum
-from tinypedal.setting import cfg
+from tinypedal.readapi import info, chknm, cs2py, state
 import tinypedal.calculation as calc
 
 
 class RelativeInfo:
     """Relative info"""
 
-    def __init__(self):
+    def __init__(self, config):
+        self.cfg = config
         self.relative_list = None
         self.radar_list = None
+        self.running = False
+        self.stopped = True
 
     def start(self):
         """Start calculation thread"""
+        self.running = True
+        self.stopped = False
         relative_thread = threading.Thread(target=self.__relative)
         relative_thread.setDaemon(True)
         relative_thread.start()
+        print("relative module started")
 
     def __relative(self):
         """Create relative list with vehicle class info
 
         Run calculation separately.
         """
-        update_delay = 0.5  # changeable update delay for conserving resources
+        checked = False
+        update_delay = 0.4  # changeable update delay for conserving resources
 
         # Load additional relative players
-        rel_add_front = min(max(cfg.setting_user["relative"]["additional_players_front"], 0), 3)
-        rel_add_behind = min(max(cfg.setting_user["relative"]["additional_players_behind"], 0), 3)
+        rel_add_front = min(max(self.cfg.setting_user["relative"]["additional_players_front"], 0), 3)
+        rel_add_behind = min(max(self.cfg.setting_user["relative"]["additional_players_behind"], 0), 3)
 
         # Load additional radar vehicles
-        radar_add_front = min(max(cfg.setting_user["radar"]["additional_vehicles_front"], 0), 9)
-        radar_add_behind = min(max(cfg.setting_user["radar"]["additional_vehicles_behind"], 0), 9)
+        radar_add_front = min(max(self.cfg.setting_user["radar"]["additional_vehicles_front"], 0), 9)
+        radar_add_behind = min(max(self.cfg.setting_user["radar"]["additional_vehicles_behind"], 0), 9)
 
         while True:
-            if chknum(info.playersVehicleTelemetry().mIgnitionStarter) != 0:
-                update_delay = 0.2  # shorter delay
+            if not self.running:
+                self.relative_list = None
+                self.radar_list = None
+                self.stopped = True
+                print("relative module closed")
+                break
+
+            # Reset switch
+            if not checked:
+                checked = True
+
+            if state():
+                update_delay = 0.1  # shorter delay
 
                 # Generate raw data list from all vehicles in current session
                 veh_dict = {}
                 unsorted_veh_class = []
                 unique_veh_class = []
 
-                for index in range(max(chknum(info.Rf2Scor.mScoringInfo.mNumVehicles), 1)):
+                for index in range(max(chknm(info.Rf2Tele.mNumVehicles), 1)):
                     # Create vehicle dict, use "vehicle index" as key, "distance position" as value
-                    veh_dict.update({index:chknum(info.Rf2Scor.mVehicles[index].mLapDist)})
+                    veh_dict.update({index:chknm(info.Rf2Scor.mVehicles[index].mLapDist)})
 
                     # Create vehicle class list (class name, veh place, veh index)
-                    vehclass = Cbytestring2Python(info.Rf2Scor.mVehicles[index].mVehicleClass)
-                    place = chknum(info.Rf2Scor.mVehicles[index].mPlace)
+                    vehclass = cs2py(info.Rf2Scor.mVehicles[index].mVehicleClass)
+                    place = chknm(info.Rf2Scor.mVehicles[index].mPlace)
 
                     unsorted_veh_class.append((vehclass,  # 0 vehicle class name
                                                place,     # 1 overall position
@@ -90,7 +105,11 @@ class RelativeInfo:
                 self.radar_list = self.calc_relative_index(veh_dict, plr_index, radar_add_front, radar_add_behind)
 
             else:
-                update_delay = 0.5  # longer delay while inactive
+                if checked:
+                    checked = False
+                    self.relative_list = None
+                    self.radar_list = None
+                    update_delay = 0.4  # longer delay while inactive
 
             time.sleep(update_delay)
 
@@ -106,23 +125,23 @@ class RelativeInfo:
             veh_class = veh_class_info[index][2]
 
             # Driver name
-            driver = Cbytestring2Python(info.Rf2Scor.mVehicles[index].mDriverName)
+            driver = cs2py(info.Rf2Scor.mVehicles[index].mDriverName)
 
             # Lap time
-            laptime = calc.sec2laptime(max(chknum(info.Rf2Scor.mVehicles[index].mLastLapTime), 0))
+            laptime = calc.sec2laptime(max(chknm(info.Rf2Scor.mVehicles[index].mLastLapTime), 0))
 
             # Relative time gap
             time_gap = self.calc_relative_time_gap(index, index_player)
 
             # Number of completed
-            num_lap = chknum(info.Rf2Tele.mVehicles[index].mLapNumber)
+            num_lap = chknm(info.Rf2Tele.mVehicles[index].mLapNumber)
 
             # Driver in pit
-            in_pit = chknum(info.Rf2Scor.mVehicles[index].mInPits)
+            in_pit = chknm(info.Rf2Scor.mVehicles[index].mInPits)
 
             # Tyre compound index
-            tire_idx = (chknum(info.Rf2Tele.mVehicles[index].mFrontTireCompoundIndex),
-                        chknum(info.Rf2Tele.mVehicles[index].mRearTireCompoundIndex))
+            tire_idx = (chknm(info.Rf2Tele.mVehicles[index].mFrontTireCompoundIndex),
+                        chknm(info.Rf2Tele.mVehicles[index].mRearTireCompoundIndex))
         else:
             # Assign empty value to -1 player index
             (place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit, tire_idx
@@ -188,10 +207,10 @@ class RelativeInfo:
     def calc_relative_time_gap(index, index_player):
         """Calculate relative time gap"""
         # Relative distance position
-        track_length = chknum(info.Rf2Scor.mScoringInfo.mLapDist)  # track length
+        track_length = chknm(info.Rf2Scor.mScoringInfo.mLapDist)  # track length
         track_half = track_length * 0.5  # half of track length
-        opv_dist = chknum(info.Rf2Scor.mVehicles[index].mLapDist)  # opponent player vehicle position
-        plr_dist = chknum(info.Rf2Scor.mVehicles[index_player].mLapDist)  # player vehicle position
+        opv_dist = chknm(info.Rf2Scor.mVehicles[index].mLapDist)  # opponent player vehicle position
+        plr_dist = chknm(info.Rf2Scor.mVehicles[index_player].mLapDist)  # player vehicle position
         rel_dist = abs(opv_dist - plr_dist)  # get relative distance between opponent & player
 
         # Opponent is ahead of player
@@ -208,13 +227,13 @@ class RelativeInfo:
 
         # Time gap = Relative dist / player speed
         speed_plr = calc.vel2speed(
-                    chknum(info.Rf2Scor.mVehicles[index_player].mLocalVel.x),
-                    chknum(info.Rf2Scor.mVehicles[index_player].mLocalVel.y),
-                    chknum(info.Rf2Scor.mVehicles[index_player].mLocalVel.z))
+                    chknm(info.Rf2Scor.mVehicles[index_player].mLocalVel.x),
+                    chknm(info.Rf2Scor.mVehicles[index_player].mLocalVel.y),
+                    chknm(info.Rf2Scor.mVehicles[index_player].mLocalVel.z))
         speed_opt = calc.vel2speed(
-                    chknum(info.Rf2Scor.mVehicles[index].mLocalVel.x),
-                    chknum(info.Rf2Scor.mVehicles[index].mLocalVel.y),
-                    chknum(info.Rf2Scor.mVehicles[index].mLocalVel.z))
+                    chknm(info.Rf2Scor.mVehicles[index].mLocalVel.x),
+                    chknm(info.Rf2Scor.mVehicles[index].mLocalVel.y),
+                    chknm(info.Rf2Scor.mVehicles[index].mLocalVel.z))
         speed = max(speed_plr, speed_opt)
         if round(speed, 1) > 0:
             time_gap = f"{abs(rel_dist / speed):.01f}"
@@ -228,11 +247,11 @@ class RelativeInfo:
         veh_gps = []
         for index in index_list:
             # Orientation, pos x z, lap number
-            veh_gps.append((calc.oriyaw2rad(chknum(info.Rf2Tele.mVehicles[index].mOri[2].z),
-                                            chknum(info.Rf2Tele.mVehicles[index].mOri[2].x)),
-                            chknum(info.Rf2Tele.mVehicles[index].mPos.x * 10),
-                            chknum(info.Rf2Tele.mVehicles[index].mPos.z * 10),
-                            chknum(info.Rf2Tele.mVehicles[index].mLapNumber)
+            veh_gps.append((calc.oriyaw2rad(chknm(info.Rf2Tele.mVehicles[index].mOri[2].z),
+                                            chknm(info.Rf2Tele.mVehicles[index].mOri[2].x)),
+                            chknm(info.Rf2Tele.mVehicles[index].mPos.x * 10),
+                            chknm(info.Rf2Tele.mVehicles[index].mPos.z * 10),
+                            chknm(info.Rf2Tele.mVehicles[index].mLapNumber)
                             ))
         return veh_gps
 

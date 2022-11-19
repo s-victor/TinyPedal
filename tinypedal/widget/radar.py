@@ -22,32 +22,32 @@ Radar Widget
 
 import tkinter as tk
 
-from tinypedal.setting import cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import Widget, MouseEvent
-from tinypedal.load_func import relative_info
+from tinypedal.load_func import module
 
 
-class DrawWidget(Widget, MouseEvent):
+class Draw(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "radar"
-    cfg = cfg.setting_user[widget_name]
 
-    def __init__(self):
+    def __init__(self, config):
         # Assign base setting
         Widget.__init__(self)
+        self.cfg = config
+        self.wcfg = self.cfg.setting_user[self.widget_name]
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", self.cfg["opacity"])
+        self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position
-        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
+        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
-        self.base_size = 100 * max(self.cfg["area_scale"], 0.5)
-        self.veh_width = max(int(self.cfg["vehicle_width"] * 5 * self.cfg["vehicle_scale"]), 1)
-        self.veh_length = max(int(self.cfg["vehicle_length"] * 5 * self.cfg["vehicle_scale"]), 2)
+        self.base_size = 100 * max(self.wcfg["area_scale"], 0.5)
+        self.veh_width = max(int(self.wcfg["vehicle_width"] * 5 * self.wcfg["vehicle_scale"]), 1)
+        self.veh_length = max(int(self.wcfg["vehicle_length"] * 5 * self.wcfg["vehicle_scale"]), 2)
 
         # Coordinates for drawing player vehicle
         plr_rect_coord = (self.base_size - self.veh_width,
@@ -59,22 +59,22 @@ class DrawWidget(Widget, MouseEvent):
         self.bar_radar = tk.Canvas(self, bd=0, highlightthickness=0,
                                    height=int(self.base_size * 2),
                                    width=int(self.base_size * 2),
-                                   bg=self.cfg["bkg_color"])
+                                   bg=self.wcfg["bkg_color"])
         self.bar_radar.grid(row=0, column=0, padx=0, pady=0)
 
-        if self.cfg["show_center_mark"]:
+        if self.wcfg["show_center_mark"]:
             self.bar_radar.create_line(self.base_size, 0, self.base_size, self.base_size * 2,
-                                       fill=self.cfg["center_mark_color"], dash=(2, 2))
+                                       fill=self.wcfg["center_mark_color"], dash=(2, 2))
             self.bar_radar.create_line(0, self.base_size, self.base_size * 2, self.base_size,
-                                       fill=self.cfg["center_mark_color"], dash=(2, 2))
+                                       fill=self.wcfg["center_mark_color"], dash=(2, 2))
 
         self.poly_plr = self.bar_radar.create_rectangle(
                         plr_rect_coord,
-                        fill=self.cfg["player_color"],
-                        outline=self.cfg["player_outline_color"],
-                        width=max(self.cfg["player_outline_width"], 0))
+                        fill=self.wcfg["player_color"],
+                        outline=self.wcfg["player_outline_color"],
+                        width=max(self.wcfg["player_outline_width"], 0))
 
-        poly_style = {"fill":self.cfg["opponent_color"], "outline":""}
+        poly_style = {"fill":self.wcfg["opponent_color"], "outline":""}
 
         self.poly_f_01 = self.bar_radar.create_polygon(0, 0, 0, 0, 0, 0, 0, 0, poly_style)
         self.poly_r_01 = self.bar_radar.create_polygon(0, 0, 0, 0, 0, 0, 0, 0, poly_style)
@@ -84,8 +84,8 @@ class DrawWidget(Widget, MouseEvent):
         self.poly_r_03 = self.bar_radar.create_polygon(0, 0, 0, 0, 0, 0, 0, 0, poly_style)
 
         # Max visible vehicles
-        self.radar_add_front = min(max(self.cfg["additional_vehicles_front"], 0), 9)
-        self.radar_add_behind = min(max(self.cfg["additional_vehicles_behind"], 0), 9)
+        self.radar_add_front = min(max(self.wcfg["additional_vehicles_front"], 0), 9)
+        self.radar_add_behind = min(max(self.wcfg["additional_vehicles_behind"], 0), 9)
 
         if self.radar_add_front > 0:
             self.poly_f_04 = self.bar_radar.create_polygon(0, 0, 0, 0, 0, 0, 0, 0, poly_style)
@@ -131,64 +131,64 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and relative_info.relative_list and self.cfg["enable"]:
+        if read_data.state() and module.relative_info.relative_list and self.wcfg["enable"]:
 
             # Read relative list player index
-            rel_idx = relative_info.radar_list
+            rel_idx = module.relative_info.radar_list
 
             # Read orientation & position data
-            veh_gps = relative_info.vehicle_gps(rel_idx)
+            veh_gps = module.relative_info.vehicle_gps(rel_idx)
             veh_center = int(3 + self.radar_add_front)
 
             # Check isPlayer before update
             if read_data.is_local_player():
 
                 # Read vehicle position coordinates, lap number, orientation
-                veh_plr = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center], rel_idx[veh_center])
+                veh_plr = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center], rel_idx[veh_center])
 
-                veh_f_01 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 1], rel_idx[veh_center - 1])
-                veh_r_01 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 1], rel_idx[veh_center + 1])
-                veh_f_02 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 2], rel_idx[veh_center - 2])
-                veh_r_02 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 2], rel_idx[veh_center + 2])
-                veh_f_03 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 3], rel_idx[veh_center - 3])
-                veh_r_03 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 3], rel_idx[veh_center + 3])
+                veh_f_01 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 1], rel_idx[veh_center - 1])
+                veh_r_01 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 1], rel_idx[veh_center + 1])
+                veh_f_02 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 2], rel_idx[veh_center - 2])
+                veh_r_02 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 2], rel_idx[veh_center + 2])
+                veh_f_03 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 3], rel_idx[veh_center - 3])
+                veh_r_03 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 3], rel_idx[veh_center + 3])
 
                 if self.radar_add_front > 0:
-                    veh_f_04 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 4], rel_idx[veh_center - 4])
+                    veh_f_04 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 4], rel_idx[veh_center - 4])
                 if self.radar_add_behind > 0:
-                    veh_r_04 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 4], rel_idx[veh_center + 4])
+                    veh_r_04 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 4], rel_idx[veh_center + 4])
                 if self.radar_add_front > 1:
-                    veh_f_05 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 5], rel_idx[veh_center - 5])
+                    veh_f_05 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 5], rel_idx[veh_center - 5])
                 if self.radar_add_behind > 1:
-                    veh_r_05 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 5], rel_idx[veh_center + 5])
+                    veh_r_05 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 5], rel_idx[veh_center + 5])
                 if self.radar_add_front > 2:
-                    veh_f_06 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 6], rel_idx[veh_center - 6])
+                    veh_f_06 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 6], rel_idx[veh_center - 6])
                 if self.radar_add_behind > 2:
-                    veh_r_06 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 6], rel_idx[veh_center + 6])
+                    veh_r_06 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 6], rel_idx[veh_center + 6])
                 if self.radar_add_front > 3:
-                    veh_f_07 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 7], rel_idx[veh_center - 7])
+                    veh_f_07 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 7], rel_idx[veh_center - 7])
                 if self.radar_add_behind > 3:
-                    veh_r_07 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 7], rel_idx[veh_center + 7])
+                    veh_r_07 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 7], rel_idx[veh_center + 7])
                 if self.radar_add_front > 4:
-                    veh_f_08 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 8], rel_idx[veh_center - 8])
+                    veh_f_08 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 8], rel_idx[veh_center - 8])
                 if self.radar_add_behind > 4:
-                    veh_r_08 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 8], rel_idx[veh_center + 8])
+                    veh_r_08 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 8], rel_idx[veh_center + 8])
                 if self.radar_add_front > 5:
-                    veh_f_09 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 9], rel_idx[veh_center - 9])
+                    veh_f_09 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 9], rel_idx[veh_center - 9])
                 if self.radar_add_behind > 5:
-                    veh_r_09 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 9], rel_idx[veh_center + 9])
+                    veh_r_09 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 9], rel_idx[veh_center + 9])
                 if self.radar_add_front > 6:
-                    veh_f_10 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 10], rel_idx[veh_center - 10])
+                    veh_f_10 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 10], rel_idx[veh_center - 10])
                 if self.radar_add_behind > 6:
-                    veh_r_10 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 10], rel_idx[veh_center + 10])
+                    veh_r_10 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 10], rel_idx[veh_center + 10])
                 if self.radar_add_front > 7:
-                    veh_f_11 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 11], rel_idx[veh_center - 11])
+                    veh_f_11 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 11], rel_idx[veh_center - 11])
                 if self.radar_add_behind > 7:
-                    veh_r_11 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 11], rel_idx[veh_center + 11])
+                    veh_r_11 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 11], rel_idx[veh_center + 11])
                 if self.radar_add_front > 8:
-                    veh_f_12 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 12], rel_idx[veh_center - 12])
+                    veh_f_12 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 12], rel_idx[veh_center - 12])
                 if self.radar_add_behind > 8:
-                    veh_r_12 = relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 12], rel_idx[veh_center + 12])
+                    veh_r_12 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 12], rel_idx[veh_center + 12])
 
                 # Set vehicle color
                 self.bar_radar.itemconfig(self.poly_f_01, fill=self.color_lapdiff(veh_f_01[1], veh_plr[1]))
@@ -281,14 +281,14 @@ class DrawWidget(Widget, MouseEvent):
                     self.bar_radar.coords(self.poly_r_12, self.update_veh_pos(veh_plr[0], veh_r_12[0], veh_r_12[2]))
 
         # Update rate
-        self.after(self.cfg["update_delay"], self.update_data)
+        self.after(self.wcfg["update_delay"], self.update_data)
 
     # Additional methods
     def update_veh_pos(self, pos1, pos2, ori1):
         """Update vehicle coordinates"""
         # Relative distance towards player vehicle
-        pos_x_diff = (pos1[0] - pos2[0]) * self.cfg["vehicle_scale"] + self.base_size
-        pos_y_diff = (pos1[1] - pos2[1]) * self.cfg["vehicle_scale"] + self.base_size
+        pos_x_diff = (pos1[0] - pos2[0]) * self.wcfg["vehicle_scale"] + self.base_size
+        pos_y_diff = (pos1[1] - pos2[1]) * self.wcfg["vehicle_scale"] + self.base_size
 
         # Rotate opponent vehicle coordinates
         coord1 = calc.rotate_pos(ori1, -self.veh_width, -self.veh_length)
@@ -312,9 +312,9 @@ class DrawWidget(Widget, MouseEvent):
     def color_lapdiff(self, nlap, player_nlap):
         """Compare lap differences & set color"""
         if nlap > player_nlap:
-            color = self.cfg["opponent_color_laps_ahead"]
+            color = self.wcfg["opponent_color_laps_ahead"]
         elif nlap < player_nlap:
-            color = self.cfg["opponent_color_laps_behind"]
+            color = self.wcfg["opponent_color_laps_behind"]
         else:
-            color = self.cfg["opponent_color"]
+            color = self.wcfg["opponent_color"]
         return color

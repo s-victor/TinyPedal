@@ -29,7 +29,7 @@ from PIL import Image, ImageTk
 from tinypedal.setting import cfg
 
 
-VERSION = "1.9.0"
+VERSION = "1.9.2"
 
 
 class About(tk.Tk):
@@ -104,16 +104,18 @@ def start_tray(master):
     """Start tray icon"""
     from tinypedal.tray import TrayIcon
     tray_icon = TrayIcon(master)
-    tray_icon.run()
+    tray_icon.start_tray()
+    tray_icon.start_widget()
 
 
 class LoadPreset(tk.Toplevel):
     """Load setting preset window"""
 
-    def __init__(self, root):
+    def __init__(self, root, tray):
         tk.Toplevel.__init__(self)
         self.root = root
-        self.withdraw()
+        self.tray = tray
+        self.attributes("-topmost", 1)
 
         # Base setting
         fg_color = "#222"
@@ -124,7 +126,7 @@ class LoadPreset(tk.Toplevel):
         font_list = ("Tahoma", 12, "normal")
         font_btn = ("Tahoma", 11, "normal")
 
-        self.title(f"TinyPedal v{VERSION}")
+        self.title("Preset Manager")
         self.configure(bg="#EEE")
         self.resizable(False, False)
         self.iconbitmap("icon.ico")
@@ -201,42 +203,28 @@ class LoadPreset(tk.Toplevel):
     @staticmethod
     def load_file_list():
         """Load config file list from app folder"""
-        raw_cfg_list = [(os.path.getmtime(f"{cfg.filepath}{data}"), data[:-5])
-                        for data in os.listdir(cfg.filepath) if data.endswith(".json")]
-        raw_cfg_list.sort(reverse=True)  # sort by file modified date
-
-        if raw_cfg_list:
-            cfg_list = [data[1] for data in raw_cfg_list
-                        if re.search('backup', data[1].lower()) is None  # ignore backup file
-                        and re.search('classes', data[1].lower()) is None  # ignore classes file
-                        ]
-        else:
-            cfg_list = ["default"]
-
+        cfg_list = cfg.load_preset_list()
         cfg_list_var = tk.StringVar()
         cfg_list_var.set(cfg_list)
-
         return cfg_list, cfg_list_var
 
     def loading(self):
         """Load selected preset"""
         if self.preset_box.curselection():  # check whether selected
+            self.tray.close_widget()
+
             selected_index = self.preset_box.curselection()[0]
             cfg.filename = f"{self.preset_list[selected_index]}.json"
-            cfg.load()  # load setting
+            cfg.load()  # load new setting
 
-            start_tray(self.root)
-            self.destroy()  # close window
+            self.tray.close_preset_window(self)  # close window
+            self.tray.start_widget()
         else:
             messagebox.showwarning(
-                "Warning",
-                "No preset selected.\n"
-                "Please select a preset to continue."
+                title="Warning",
+                message="No preset selected.\nPlease select a preset to continue.",
+                parent=self
                 )
-
-    def closing(self):
-        """Close window without select preset"""
-        self.root.quit()
 
     def open_create_window(self):
         """Create new preset window"""
@@ -252,6 +240,7 @@ class CreatePreset(tk.Toplevel):
         self.master = master
         self.preset_list = preset_list
         self.grab_set()
+        self.attributes("-topmost", 1)
 
         # Base setting
         fg_color = "#222"
@@ -291,7 +280,7 @@ class CreatePreset(tk.Toplevel):
                                fg=fg_color, bg=btn_color)
         create_btn.grid(row=0, column=1, padx=0, pady=0)
 
-        # New Config file Entry
+        # Entry box
         valid_input = (self.register(self.is_valid_char), "%P")
 
         self.preset_name = tk.StringVar()
@@ -331,6 +320,7 @@ class CreatePreset(tk.Toplevel):
                 self.destroy()  # close window
             else:
                 messagebox.showwarning(
-                    "Warning",
-                    "Preset already exists."
+                    title="Warning",
+                    message="Preset already exists.",
+                    parent=self
                     )

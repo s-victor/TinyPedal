@@ -24,57 +24,57 @@ import time
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.setting import cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import Widget, MouseEvent
 
 
-class DrawWidget(Widget, MouseEvent):
+class Draw(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "session"
-    cfg = cfg.setting_user[widget_name]
 
-    def __init__(self):
+    def __init__(self, config):
         # Assign base setting
         Widget.__init__(self)
+        self.cfg = config
+        self.wcfg = self.cfg.setting_user[self.widget_name]
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", self.cfg["opacity"])
+        self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position
-        bar_gap = self.cfg["bar_gap"]
-        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
+        bar_gap = self.wcfg["bar_gap"]
+        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
         # Config style & variable
-        font_session = tkfont.Font(family=self.cfg["font_name"],
-                                   size=-self.cfg["font_size"],
-                                   weight=self.cfg["font_weight"])
+        font_session = tkfont.Font(family=self.wcfg["font_name"],
+                                   size=-self.wcfg["font_size"],
+                                   weight=self.wcfg["font_weight"])
 
         # Draw label
         bar_style = {"bd":0, "height":1, "padx":0, "pady":0, "font":font_session}
         self.bar_racelength = tk.Label(self, bar_style, text="RACELENGTH", width=11,
-                                       fg=self.cfg["font_color_racelength"],
-                                       bg=self.cfg["bkg_color_racelength"])
+                                       fg=self.wcfg["font_color_racelength"],
+                                       bg=self.wcfg["bkg_color_racelength"])
         self.bar_racelength.grid(row=0, column=1, padx=(bar_gap, 0), pady=0)
 
-        if self.cfg["show_clock"]:
+        if self.wcfg["show_clock"]:
             self.bar_clock = tk.Label(self, bar_style, text="CLOCK", width=6,
-                                      fg=self.cfg["font_color_clock"],
-                                      bg=self.cfg["bkg_color_clock"])
+                                      fg=self.wcfg["font_color_clock"],
+                                      bg=self.wcfg["bkg_color_clock"])
             self.bar_clock.grid(row=0, column=0, padx=0, pady=0)
 
-        if self.cfg["show_lapnumber"]:
+        if self.wcfg["show_lapnumber"]:
             self.bar_lapnumber = tk.Label(self, bar_style, text="LAPS", width=5,
-                                          fg=self.cfg["font_color_lapnumber"],
-                                          bg=self.cfg["bkg_color_lapnumber"])
+                                          fg=self.wcfg["font_color_lapnumber"],
+                                          bg=self.wcfg["bkg_color_lapnumber"])
             self.bar_lapnumber.grid(row=0, column=2, padx=(bar_gap, 0), pady=0)
 
-        if self.cfg["show_place"]:
+        if self.wcfg["show_place"]:
             self.bar_place = tk.Label(self, bar_style, text="PLACE", width=6,
-                                      fg=self.cfg["font_color_place"],
-                                      bg=self.cfg["bkg_color_place"])
+                                      fg=self.wcfg["font_color_place"],
+                                      bg=self.wcfg["bkg_color_place"])
             self.bar_place.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
 
         self.update_data()
@@ -84,7 +84,7 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.cfg["enable"]:
+        if read_data.state() and self.wcfg["enable"]:
 
             # Read session data
             time_left, lap_total, lap_num, plr_place, veh_total, lap_into = read_data.session()
@@ -92,31 +92,31 @@ class DrawWidget(Widget, MouseEvent):
             # Check isPlayer before update
             if read_data.is_local_player():
 
-                clock = time.strftime(self.cfg["clock_format"])
+                clock = time.strftime(self.wcfg["clock_format"])
 
                 # Check race type
                 if lap_total > 100000:  # none-lap race
-                    lap_num_text = f"{self.cfg['lapnumber_text']}{lap_num}.{lap_into:02.0f}"
+                    lap_num_text = f"{self.wcfg['lapnumber_text']}{lap_num}.{lap_into:02.0f}"
                 else:
-                    lap_num_text = f"{self.cfg['lapnumber_text']}{lap_num}.{lap_into:02.0f}/{lap_total}"
+                    lap_num_text = f"{self.wcfg['lapnumber_text']}{lap_num}.{lap_into:02.0f}/{lap_total}"
 
                 # Session update
                 self.bar_racelength.config(text=calc.sec2sessiontime(max(time_left, 0)))
 
-                if self.cfg["show_clock"]:
+                if self.wcfg["show_clock"]:
                     self.bar_clock.config(text=f"{clock}", width=len(clock) + 1)
 
-                if self.cfg["show_lapnumber"]:
+                if self.wcfg["show_lapnumber"]:
                     if (lap_num + 1) >= lap_total:
-                        bg_lapnumber = self.cfg["bkg_color_maxlap_warn"]
+                        bg_lapnumber = self.wcfg["bkg_color_maxlap_warn"]
                     else:
-                        bg_lapnumber = self.cfg["bkg_color_lapnumber"]
+                        bg_lapnumber = self.wcfg["bkg_color_lapnumber"]
                     self.bar_lapnumber.config(text=lap_num_text,
                                               width=len(lap_num_text) + 1,
                                               bg=bg_lapnumber)
 
-                if self.cfg["show_place"]:
+                if self.wcfg["show_place"]:
                     self.bar_place.config(text=f"{plr_place:02.0f}/{veh_total:02.0f}")
 
         # Update rate
-        self.after(self.cfg["update_delay"], self.update_data)
+        self.after(self.wcfg["update_delay"], self.update_data)

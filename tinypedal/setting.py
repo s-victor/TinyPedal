@@ -20,6 +20,8 @@
 Overlay setting
 """
 
+import os
+import re
 import time
 import json
 import shutil
@@ -474,9 +476,21 @@ class Setting:
             "font_name": "consolas",
             "font_size": 15,
             "font_weight": "bold",
-            "font_color": "#CCCCCC",
+            "font_color_remaining": "#22CC22",
+            "font_color_last_wear": "#CCCCCC",
+            "font_color_lifespan": "#CCCC22",
+            "font_color_warning": "#FF4444",
             "bar_gap": 2,
             "bkg_color": "#222222",
+            "show_realtime_wear": True,
+            "seconds_before_showing_realtime_wear": 10,
+            "show_lifespan": True,
+            "warning_threshold_remaining": 30,
+            "warning_threshold_wear": 3,
+            "warning_threshold_laps": 5,
+            "column_index_remaining": 0,
+            "column_index_last_wear": 1,
+            "column_index_lifespan": 2,
         },
         "weather": {
             "enable": True,
@@ -519,6 +533,21 @@ class Setting:
         self.setting_user_unsorted = {}
         self.setting_user = {}
         self.overlay = {}
+
+    def load_preset_list(self):
+        """Load preset list"""
+        raw_cfg_list = [(os.path.getmtime(f"{self.filepath}{data}"), data[:-5])
+                        for data in os.listdir(self.filepath) if data.endswith(".json")]
+        raw_cfg_list.sort(reverse=True)  # sort by file modified date
+
+        if raw_cfg_list:
+            cfg_list = [data[1] for data in raw_cfg_list
+                        if re.search('backup', data[1].lower()) is None  # ignore backup file
+                        and re.search('classes', data[1].lower()) is None  # ignore classes file
+                        ]
+        else:
+            cfg_list = ["default"]
+        return cfg_list
 
     def load(self):
         """Load & validate setting"""
@@ -657,3 +686,5 @@ def verify_setting(dict_user, dict_def):
 
 # Assign setting
 cfg = Setting()
+cfg.filename = f"{cfg.load_preset_list()[0]}.json"
+cfg.load()

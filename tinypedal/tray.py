@@ -24,29 +24,13 @@ from PIL import Image
 import pystray
 
 from tinypedal.setting import cfg
-from tinypedal.load_func import overlay_lock, overlay_hide
+from tinypedal.about import VERSION, LoadPreset
+from tinypedal.load_func import module
+from tinypedal.readapi import info
+from tinypedal.widget_toggle import WidgetToggle
 
-from tinypedal.widget import (cruise,
-                              deltabest,
-                              drs,
-                              engine,
-                              force,
-                              fuel,
-                              gear,
-                              instrument,
-                              pedal,
-                              pressure,
-                              radar,
-                              relative,
-                              session,
-                              steering,
-                              stint,
-                              temperature,
-                              timing,
-                              wear,
-                              weather,
-                              wheel
-                              )
+
+wtoggle = WidgetToggle()
 
 
 class TrayIcon:
@@ -57,21 +41,10 @@ class TrayIcon:
 
     def __init__(self, master):
         self.master = master
-
-        # Preset name
-        loaded_preset = cfg.filename[:-5].upper()
-        if len(loaded_preset) > 16:
-            loaded_preset = f"{loaded_preset[:16]}..."
-
-        # Load overlay widget
-        wtoggle = WidgetToggle()
-
-        # Load overlay auto hide state
-        if cfg.overlay["auto_hide"]:
-            overlay_hide.start()
+        self.preset_window = False
 
         # Config tray icon
-        name = "TinyPedal"
+        name = f"TinyPedal v{VERSION}"
         image = Image.open("icon.ico")
         menu = pystray.Menu
         item = pystray.MenuItem
@@ -102,315 +75,54 @@ class TrayIcon:
         )
 
         main_menu = (
-            item(f"Preset: {loaded_preset}", "", enabled=False),
+            item("Load Preset", self.open_preset_window),
             separator,
-            item("Lock Overlay", lambda: overlay_lock.toggle(cfg.active_widget_list),
+            item("Lock Overlay", module.overlay_lock.toggle,
                  checked=lambda enabled: cfg.overlay["fixed_position"]),
-            item("Auto Hide", overlay_hide.toggle,
+            item("Auto Hide", module.overlay_hide.toggle,
                  checked=lambda enabled: cfg.overlay["auto_hide"]),
             separator,
             item("Widgets", widget_menu),
             separator,
             item("About", self.master.deiconify),
-            item("Quit", self.quit),
+            item("Quit", self.quit_app),
         )
 
         self.tray = pystray.Icon("icon", icon=image, title=name, menu=main_menu)
 
-    def run(self):
+    def open_preset_window(self):
+        """Open preset window"""
+        if not self.preset_window:
+            preset_manager = LoadPreset(self.master, self)
+            preset_manager.protocol("WM_DELETE_WINDOW", lambda: self.close_preset_window(preset_manager))
+            self.preset_window = True
+
+    def close_preset_window(self, window_name):
+        """Close preset window"""
+        window_name.destroy()
+        self.preset_window = False
+
+    def start_tray(self):
         """Start tray icon"""
         self.tray.run_detached()
 
-    def quit(self):
+    def start_widget(self):
+        """Start widget"""
+        module.start()  # 1 start module
+        wtoggle.start()  # 2 start widget
+        self.tray.update_menu()  # 3 update tray menu
+
+    def close_widget(self):
+        """Close widget"""
+        module.stop()  # 1 stop module
+        wtoggle.close()  # 2 close widget
+
+    def quit_app(self):
         """Quit tray icon
 
         Must quit root window first.
         """
-        self.master.quit()
-        self.tray.stop()
-
-
-class WidgetToggle:
-    """Widget toggle"""
-
-    def __init__(self):
-        """Activate widgets at startup"""
-        if cfg.setting_user["cruise"]["enable"]:
-            self.widget_cruise = cruise.DrawWidget()
-
-        if cfg.setting_user["deltabest"]["enable"]:
-            self.widget_deltabest = deltabest.DrawWidget()
-
-        if cfg.setting_user["drs"]["enable"]:
-            self.widget_drs = drs.DrawWidget()
-
-        if cfg.setting_user["engine"]["enable"]:
-            self.widget_engine = engine.DrawWidget()
-
-        if cfg.setting_user["force"]["enable"]:
-            self.widget_force = force.DrawWidget()
-
-        if cfg.setting_user["fuel"]["enable"]:
-            self.widget_fuel = fuel.DrawWidget()
-
-        if cfg.setting_user["gear"]["enable"]:
-            self.widget_gear = gear.DrawWidget()
-
-        if cfg.setting_user["instrument"]["enable"]:
-            self.widget_instrument = instrument.DrawWidget()
-
-        if cfg.setting_user["pedal"]["enable"]:
-            self.widget_pedal = pedal.DrawWidget()
-
-        if cfg.setting_user["pressure"]["enable"]:
-            self.widget_pressure = pressure.DrawWidget()
-
-        if cfg.setting_user["radar"]["enable"]:
-            self.widget_radar = radar.DrawWidget()
-
-        if cfg.setting_user["relative"]["enable"]:
-            self.widget_relative = relative.DrawWidget()
-
-        if cfg.setting_user["session"]["enable"]:
-            self.widget_session = session.DrawWidget()
-
-        if cfg.setting_user["steering"]["enable"]:
-            self.widget_steering = steering.DrawWidget()
-
-        if cfg.setting_user["stint"]["enable"]:
-            self.widget_stint = stint.DrawWidget()
-
-        if cfg.setting_user["temperature"]["enable"]:
-            self.widget_temperature = temperature.DrawWidget()
-
-        if cfg.setting_user["timing"]["enable"]:
-            self.widget_timing = timing.DrawWidget()
-
-        if cfg.setting_user["wear"]["enable"]:
-            self.widget_wear = wear.DrawWidget()
-
-        if cfg.setting_user["weather"]["enable"]:
-            self.widget_weather = weather.DrawWidget()
-
-        if cfg.setting_user["wheel"]["enable"]:
-            self.widget_wheel = wheel.DrawWidget()
-
-    def cruise(self):
-        """Toggle cruise"""
-        if not cfg.setting_user["cruise"]["enable"]:
-            self.widget_cruise = cruise.DrawWidget()
-            cfg.setting_user["cruise"]["enable"] = True
-        else:
-            cfg.setting_user["cruise"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_cruise)
-            self.widget_cruise.destroy()
-        cfg.save()
-
-    def deltabest(self):
-        """Toggle deltabest"""
-        if not cfg.setting_user["deltabest"]["enable"]:
-            self.widget_deltabest = deltabest.DrawWidget()
-            cfg.setting_user["deltabest"]["enable"] = True  # set True after widget enabled
-        else:
-            cfg.setting_user["deltabest"]["enable"] = False  # set False before widget disabled
-            cfg.active_widget_list.remove(self.widget_deltabest)
-            self.widget_deltabest.destroy()
-        cfg.save()
-
-    def drs(self):
-        """Toggle DRS"""
-        if not cfg.setting_user["drs"]["enable"]:
-            self.widget_drs = drs.DrawWidget()
-            cfg.setting_user["drs"]["enable"] = True
-        else:
-            cfg.setting_user["drs"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_drs)
-            self.widget_drs.destroy()
-        cfg.save()
-
-    def engine(self):
-        """Toggle engine"""
-        if not cfg.setting_user["engine"]["enable"]:
-            self.widget_engine = engine.DrawWidget()
-            cfg.setting_user["engine"]["enable"] = True
-        else:
-            cfg.setting_user["engine"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_engine)
-            self.widget_engine.destroy()
-        cfg.save()
-
-    def force(self):
-        """Toggle force"""
-        if not cfg.setting_user["force"]["enable"]:
-            self.widget_force = force.DrawWidget()
-            cfg.setting_user["force"]["enable"] = True
-        else:
-            cfg.setting_user["force"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_force)
-            self.widget_force.destroy()
-        cfg.save()
-
-    def fuel(self):
-        """Toggle fuel"""
-        if not cfg.setting_user["fuel"]["enable"]:
-            self.widget_fuel = fuel.DrawWidget()
-            cfg.setting_user["fuel"]["enable"] = True
-        else:
-            cfg.setting_user["fuel"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_fuel)
-            self.widget_fuel.destroy()
-        cfg.save()
-
-    def gear(self):
-        """Toggle gear"""
-        if not cfg.setting_user["gear"]["enable"]:
-            self.widget_gear = gear.DrawWidget()
-            cfg.setting_user["gear"]["enable"] = True
-        else:
-            cfg.setting_user["gear"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_gear)
-            self.widget_gear.destroy()
-        cfg.save()
-
-    def instrument(self):
-        """Toggle instrument"""
-        if not cfg.setting_user["instrument"]["enable"]:
-            self.widget_instrument = instrument.DrawWidget()
-            cfg.setting_user["instrument"]["enable"] = True
-        else:
-            cfg.setting_user["instrument"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_instrument)
-            self.widget_instrument.destroy()
-        cfg.save()
-
-    def pedal(self):
-        """Toggle pedal"""
-        if not cfg.setting_user["pedal"]["enable"]:
-            self.widget_pedal = pedal.DrawWidget()
-            cfg.setting_user["pedal"]["enable"] = True
-        else:
-            cfg.setting_user["pedal"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_pedal)
-            self.widget_pedal.destroy()
-        cfg.save()
-
-    def pressure(self):
-        """Toggle pressure"""
-        if not cfg.setting_user["pressure"]["enable"]:
-            self.widget_pressure = pressure.DrawWidget()
-            cfg.setting_user["pressure"]["enable"] = True
-        else:
-            cfg.setting_user["pressure"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_pressure)
-            self.widget_pressure.destroy()
-        cfg.save()
-
-    def radar(self):
-        """Toggle radar"""
-        if not cfg.setting_user["radar"]["enable"]:
-            self.widget_radar = radar.DrawWidget()
-            cfg.setting_user["radar"]["enable"] = True
-        else:
-            cfg.setting_user["radar"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_radar)
-            self.widget_radar.destroy()
-        cfg.save()
-
-    def relative(self):
-        """Toggle relative"""
-        if not cfg.setting_user["relative"]["enable"]:
-            self.widget_relative = relative.DrawWidget()
-            cfg.setting_user["relative"]["enable"] = True
-        else:
-            cfg.setting_user["relative"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_relative)
-            self.widget_relative.destroy()
-        cfg.save()
-
-    def session(self):
-        """Toggle session"""
-        if not cfg.setting_user["session"]["enable"]:
-            self.widget_session = session.DrawWidget()
-            cfg.setting_user["session"]["enable"] = True
-        else:
-            cfg.setting_user["session"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_session)
-            self.widget_session.destroy()
-        cfg.save()
-
-    def steering(self):
-        """Toggle steering"""
-        if not cfg.setting_user["steering"]["enable"]:
-            self.widget_steering = steering.DrawWidget()
-            cfg.setting_user["steering"]["enable"] = True
-        else:
-            cfg.setting_user["steering"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_steering)
-            self.widget_steering.destroy()
-        cfg.save()
-
-    def stint(self):
-        """Toggle stint"""
-        if not cfg.setting_user["stint"]["enable"]:
-            self.widget_stint = stint.DrawWidget()
-            cfg.setting_user["stint"]["enable"] = True
-        else:
-            cfg.setting_user["stint"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_stint)
-            self.widget_stint.destroy()
-        cfg.save()
-
-    def temperature(self):
-        """Toggle temperature"""
-        if not cfg.setting_user["temperature"]["enable"]:
-            self.widget_temperature = temperature.DrawWidget()
-            cfg.setting_user["temperature"]["enable"] = True
-        else:
-            cfg.setting_user["temperature"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_temperature)
-            self.widget_temperature.destroy()
-        cfg.save()
-
-    def timing(self):
-        """Toggle timing"""
-        if not cfg.setting_user["timing"]["enable"]:
-            self.widget_timing = timing.DrawWidget()
-            cfg.setting_user["timing"]["enable"] = True
-        else:
-            cfg.setting_user["timing"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_timing)
-            self.widget_timing.destroy()
-        cfg.save()
-
-    def wear(self):
-        """Toggle wear"""
-        if not cfg.setting_user["wear"]["enable"]:
-            self.widget_wear = wear.DrawWidget()
-            cfg.setting_user["wear"]["enable"] = True
-        else:
-            cfg.setting_user["wear"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_wear)
-            self.widget_wear.destroy()
-        cfg.save()
-
-    def weather(self):
-        """Toggle weather"""
-        if not cfg.setting_user["weather"]["enable"]:
-            self.widget_weather = weather.DrawWidget()
-            cfg.setting_user["weather"]["enable"] = True
-        else:
-            cfg.setting_user["weather"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_weather)
-            self.widget_weather.destroy()
-        cfg.save()
-
-    def wheel(self):
-        """Toggle wheel"""
-        if not cfg.setting_user["wheel"]["enable"]:
-            self.widget_wheel = wheel.DrawWidget()
-            cfg.setting_user["wheel"]["enable"] = True
-        else:
-            cfg.setting_user["wheel"]["enable"] = False
-            cfg.active_widget_list.remove(self.widget_wheel)
-            self.widget_wheel.destroy()
-        cfg.save()
+        self.master.quit()  # close app window
+        module.stop()  # stop module
+        info.close()  # stop sharedmemory mapping
+        self.tray.stop()  # quit tray icon

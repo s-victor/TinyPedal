@@ -117,9 +117,11 @@
 - 3 different layouts.
 
 ## Wear
-- Show Tyre wear that changes color according to wear.
-- Show Tyre wear usage from last lap.
-- 4 different layouts.
+- Show total remaining tyre in percentage that changes color according to wear.
+- Show total tyre wear from last lap.
+- Show realtime tyre wear of current lap.
+- Show estimated tyre lifespan in laps.
+- 2 different layouts with customizable placement order.
 
 ## Weather
 - Show surface condition (dry or wet).

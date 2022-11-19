@@ -24,25 +24,28 @@ import time
 import threading
 import csv
 
-from pyRfactor2SharedMemory.sharedMemoryAPI import Cbytestring2Python
-
-from tinypedal.readapi import info, chknum
-from tinypedal.setting import cfg
+from tinypedal.readapi import info, chknm, cs2py, state, is_local_player
 import tinypedal.calculation as calc
 
 
 class DeltaTime:
     """Delta time data"""
 
-    def __init__(self):
+    def __init__(self, config):
+        self.cfg = config
         self.output_data = (0,0,0,0,0)
         self.meters_driven = 0
+        self.running = False
+        self.stopped = True
 
     def start(self):
         """Start calculation thread"""
+        self.running = True
+        self.stopped = False
         delta_thread = threading.Thread(target=self.__calculation)
         delta_thread.setDaemon(True)
         delta_thread.start()
+        print("delta module started")
 
     def __calculation(self):
         """Delta best & laptime
@@ -54,7 +57,7 @@ class DeltaTime:
         verified = False  # additional check for conserving resources
         validating = False  # validate last laptime after cross finish line
 
-        self.meters_driven = cfg.setting_user["cruise"]["meters_driven"]
+        self.meters_driven = self.cfg.setting_user["cruise"]["meters_driven"]
         delta_list_curr = []  # distance vs time list, current lap
         delta_list_last = []  # distance vs time list, last lap, used for verification only
         delta_list_best = []  # distance vs time list, best lap
@@ -65,22 +68,27 @@ class DeltaTime:
         gps_last = [0,0,0]  # last global position
         last_time = 0  # last checked elapsed time
         laptime_curr = 0  # current laptime
-        laptime_last = cfg.setting_user["timing"]["last_laptime"]  # load last laptime
+        laptime_last = self.cfg.setting_user["timing"]["last_laptime"]  # load last laptime
         laptime_best = 5999.999  # best laptime
         laptime_est = 0  # estimated current laptime
         combo_name = "unknown"  # current car & track combo
-        update_delay = 0.5  # changeable update delay for conserving resources
+        update_delay = 0.4  # changeable update delay for conserving resources
 
         while True:
-            if chknum(info.playersVehicleTelemetry().mIgnitionStarter) != 0:
+            if not self.running:
+                self.stopped = True
+                print("delta module closed")
+                break
 
-                (start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase, state_before, state_after
-                 ) = self.telemetry()
+            if state():
+
+                (start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase
+                 ) = self.delta_telemetry()
 
                 # Read combo & best laptime
                 if not verified:
                     verified = True
-                    update_delay = 0.001  # shorter delay
+                    update_delay = 0.01  # shorter delay
                     combo_name = self.combo_check()
                     delta_list_best, laptime_best = self.load_deltabest(combo_name)
                     start_last = start_curr  # reset lap-start-time
@@ -89,7 +97,7 @@ class DeltaTime:
                     start_last = start_curr  # reset
 
                 # Check isPlayer before update
-                if state_before and state_after:
+                if is_local_player():
 
                     laptime_curr = max(elapsed_time - start_last, 0)  # current laptime
 
@@ -113,12 +121,13 @@ class DeltaTime:
                     # Must place validating after lap start & finish detection
                     # Negative mLastLapTime value indicates invalid last laptime
                     if validating:
-                        if 1 < laptime_curr <= 2:
+                        if 1 < laptime_curr <= 8:
                             if laptime_last < laptime_best and abs(lastlap_check - laptime_last) < 1:
                                 laptime_best = laptime_last
                                 delta_list_best = delta_list_last
-                            validating = False
-                        elif 2 < laptime_curr < 8:  # switch off validating after 8s
+                                self.save_deltabest(combo_name, delta_list_best)
+                                validating = False
+                        elif 8 < laptime_curr < 10:  # switch off validating after 8s
                             validating = False
 
                     # Recording only from the beginning of a lap
@@ -168,45 +177,42 @@ class DeltaTime:
                     recording = False  # disable delta recording after exit track
                     verified = False  # activate verification when enter track next time
                     validating = False  # disable laptime validate
-                    update_delay = 0.5  # longer delay while inactive
+                    update_delay = 0.4  # longer delay while inactive
                     delta_list_curr.clear()  # reset current delta list
 
                     # Save delta best data
-                    if delta_list_best:
-                        self.save_deltabest(combo_name, delta_list_best)
+                    #if delta_list_best:
+                        #self.save_deltabest(combo_name, delta_list_best)
 
                     # Save meters driven & last laptime data
-                    cfg.setting_user["cruise"]["meters_driven"] = int(self.meters_driven)
-                    cfg.setting_user["timing"]["last_laptime"] = round(laptime_last, 6)
-                    cfg.save()
+                    self.cfg.setting_user["cruise"]["meters_driven"] = int(self.meters_driven)
+                    self.cfg.setting_user["timing"]["last_laptime"] = round(laptime_last, 6)
+                    self.cfg.save()
 
             time.sleep(update_delay)
 
     @staticmethod
-    def telemetry():
-        """Telemetry data"""
-        state_before = info.Rf2Scor.mVehicles[info.players_index].mIsPlayer
-
-        start_curr = chknum(info.playersVehicleTelemetry().mLapStartET)
-        elapsed_time = chknum(info.playersVehicleTelemetry().mElapsedTime)
-        lastlap_check = chknum(info.playersVehicleScoring().mLastLapTime)
-        speed = calc.vel2speed(chknum(info.playersVehicleTelemetry().mLocalVel.x),
-                               chknum(info.playersVehicleTelemetry().mLocalVel.y),
-                               chknum(info.playersVehicleTelemetry().mLocalVel.z))
-        pos_curr = chknum(info.playersVehicleScoring().mLapDist)
-        gps_curr = (chknum(info.playersVehicleTelemetry().mPos.x),
-                    chknum(info.playersVehicleTelemetry().mPos.y),
-                    chknum(info.playersVehicleTelemetry().mPos.z))
-        game_phase = chknum(info.Rf2Scor.mScoringInfo.mGamePhase)
-
-        state_after = info.Rf2Scor.mVehicles[info.players_index].mIsPlayer
-        return start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase, state_before, state_after
+    def delta_telemetry():
+        """Delta telemetry data"""
+        start_curr = chknm(info.playersVehicleTelemetry().mLapStartET)
+        elapsed_time = chknm(info.playersVehicleTelemetry().mElapsedTime)
+        lastlap_check = chknm(info.playersVehicleScoring().mLastLapTime)
+        speed = calc.vel2speed(chknm(info.playersVehicleTelemetry().mLocalVel.x),
+                               chknm(info.playersVehicleTelemetry().mLocalVel.y),
+                               chknm(info.playersVehicleTelemetry().mLocalVel.z))
+        pos_curr = chknm(info.playersVehicleScoring().mLapDist)
+        gps_curr = (chknm(info.playersVehicleTelemetry().mPos.x),
+                    chknm(info.playersVehicleTelemetry().mPos.y),
+                    chknm(info.playersVehicleTelemetry().mPos.z))
+        game_phase = chknm(info.Rf2Scor.mScoringInfo.mGamePhase)
+        return (start_curr, elapsed_time, lastlap_check, speed, pos_curr,
+                gps_curr, game_phase)
 
     @staticmethod
     def combo_check():
         """Track & vehicle combo data"""
-        name_class = Cbytestring2Python(info.playersVehicleScoring().mVehicleClass)
-        name_track = Cbytestring2Python(info.Rf2Scor.mScoringInfo.mTrackName)
+        name_class = cs2py(info.playersVehicleScoring().mVehicleClass)
+        name_track = cs2py(info.Rf2Scor.mScoringInfo.mTrackName)
         return f"{name_track} - {name_class}"
 
     @staticmethod

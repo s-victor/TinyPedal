@@ -23,42 +23,42 @@ Instrument Widget
 import tkinter as tk
 from PIL import Image, ImageTk
 
-from tinypedal.setting import cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import Widget, MouseEvent
 
 
-class DrawWidget(Widget, MouseEvent):
+class Draw(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "instrument"
-    cfg = cfg.setting_user[widget_name]
 
-    def __init__(self):
+    def __init__(self, config):
         # Assign base setting
         Widget.__init__(self)
+        self.cfg = config
+        self.wcfg = self.cfg.setting_user[self.widget_name]
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", self.cfg["opacity"])
+        self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position
-        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
+        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
         # Config style & variable
-        self.icon_size = int(max(self.cfg["icon_size"], 16) / 2) * 2
+        self.icon_size = int(max(self.wcfg["icon_size"], 16) / 2) * 2
         icon_source = Image.open("images/icon_instrument.png")
         icon_resize = icon_source.resize((self.icon_size * 2, self.icon_size * 5), resample=1)
         icon_image = ImageTk.PhotoImage(icon_resize)
         self.image = icon_image
 
-        bar_style = {"bd":0, "highlightthickness":0, "bg":self.cfg["bkg_color"],
+        bar_style = {"bd":0, "highlightthickness":0, "bg":self.wcfg["bkg_color"],
                      "height":self.icon_size, "width":self.icon_size}
 
         self.list_radius_f = []
         self.list_radius_r = []
-        self.avg_wheel_radius_f = self.cfg["wheel_radius_front"]
-        self.avg_wheel_radius_r = self.cfg["wheel_radius_rear"]
+        self.avg_wheel_radius_f = self.wcfg["wheel_radius_front"]
+        self.avg_wheel_radius_r = self.wcfg["wheel_radius_rear"]
         self.checked = False
 
         # Set state for drawing optimization
@@ -97,24 +97,24 @@ class DrawWidget(Widget, MouseEvent):
         self.icon_slip = self.bar_slip.create_image(
                          0, self.icon_size, image=icon_image, anchor="s")
 
-        column_hl = self.cfg["column_index_headlights"]
-        column_ig = self.cfg["column_index_ignition"]
-        column_cl = self.cfg["column_index_clutch"]
-        column_wl = self.cfg["column_index_wheel_lock"]
-        column_ws = self.cfg["column_index_wheel_slip"]
+        column_hl = self.wcfg["column_index_headlights"]
+        column_ig = self.wcfg["column_index_ignition"]
+        column_cl = self.wcfg["column_index_clutch"]
+        column_wl = self.wcfg["column_index_wheel_lock"]
+        column_ws = self.wcfg["column_index_wheel_slip"]
 
-        if self.cfg["layout"] == "0":
-            self.bar_headlights.grid(row=0, column=column_hl, padx=(0, self.cfg["bar_gap"]), pady=0)
-            self.bar_ignition.grid(row=0, column=column_ig, padx=(0, self.cfg["bar_gap"]), pady=0)
-            self.bar_clutch.grid(row=0, column=column_cl, padx=(0, self.cfg["bar_gap"]), pady=0)
-            self.bar_lock.grid(row=0, column=column_wl, padx=(0, self.cfg["bar_gap"]), pady=0)
-            self.bar_slip.grid(row=0, column=column_ws, padx=(0, self.cfg["bar_gap"]), pady=0)
+        if self.wcfg["layout"] == "0":
+            self.bar_headlights.grid(row=0, column=column_hl, padx=(0, self.wcfg["bar_gap"]), pady=0)
+            self.bar_ignition.grid(row=0, column=column_ig, padx=(0, self.wcfg["bar_gap"]), pady=0)
+            self.bar_clutch.grid(row=0, column=column_cl, padx=(0, self.wcfg["bar_gap"]), pady=0)
+            self.bar_lock.grid(row=0, column=column_wl, padx=(0, self.wcfg["bar_gap"]), pady=0)
+            self.bar_slip.grid(row=0, column=column_ws, padx=(0, self.wcfg["bar_gap"]), pady=0)
         else:
-            self.bar_headlights.grid(row=column_hl, column=0, padx=0, pady=(0, self.cfg["bar_gap"]))
-            self.bar_ignition.grid(row=column_ig, column=0, padx=0, pady=(0, self.cfg["bar_gap"]))
-            self.bar_clutch.grid(row=column_cl, column=0, padx=0, pady=(0, self.cfg["bar_gap"]))
-            self.bar_lock.grid(row=column_wl, column=0, padx=0, pady=(0, self.cfg["bar_gap"]))
-            self.bar_slip.grid(row=column_ws, column=0, padx=0, pady=(0, self.cfg["bar_gap"]))
+            self.bar_headlights.grid(row=column_hl, column=0, padx=0, pady=(0, self.wcfg["bar_gap"]))
+            self.bar_ignition.grid(row=column_ig, column=0, padx=0, pady=(0, self.wcfg["bar_gap"]))
+            self.bar_clutch.grid(row=column_cl, column=0, padx=0, pady=(0, self.wcfg["bar_gap"]))
+            self.bar_lock.grid(row=column_wl, column=0, padx=0, pady=(0, self.wcfg["bar_gap"]))
+            self.bar_slip.grid(row=column_ws, column=0, padx=0, pady=(0, self.wcfg["bar_gap"]))
 
         self.update_data()
 
@@ -123,7 +123,7 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.cfg["enable"]:
+        if read_data.state() and self.wcfg["enable"]:
 
             # Save switch
             if not self.checked:
@@ -136,7 +136,7 @@ class DrawWidget(Widget, MouseEvent):
             # Check isPlayer before update
             if read_data.is_local_player():
 
-                if speed > self.cfg["minimum_speed"]:
+                if speed > self.wcfg["minimum_speed"]:
                     # Get wheel rotation difference
                     diff_rot_f = calc.max_vs_avg_rotation(wheel_rot[0], wheel_rot[1])
                     diff_rot_r = calc.max_vs_avg_rotation(wheel_rot[2], wheel_rot[3])
@@ -147,7 +147,7 @@ class DrawWidget(Widget, MouseEvent):
                         self.list_radius_r.append(abs(speed * 2 / (wheel_rot[2] + wheel_rot[3])))
 
                     # Calc average wheel radius reading
-                    minimum_samples = max(self.cfg["minimum_samples"], 100)
+                    minimum_samples = max(self.wcfg["minimum_samples"], 100)
 
                     if len(self.list_radius_f) >= minimum_samples:
                         radius_samples_f = sorted(self.list_radius_f)[int(minimum_samples*0.25):int(minimum_samples*0.75)]
@@ -181,10 +181,10 @@ class DrawWidget(Widget, MouseEvent):
                     self.state_ig = True
 
                 if rpm < 10 and self.state_st:
-                    self.bar_ignition.config(bg=self.cfg["warning_color_ignition"])
+                    self.bar_ignition.config(bg=self.wcfg["warning_color_ignition"])
                     self.state_st = False
                 elif rpm > 10 and not self.state_st:
-                    self.bar_ignition.config(bg=self.cfg["bkg_color"])
+                    self.bar_ignition.config(bg=self.wcfg["bkg_color"])
                     self.state_st = True
 
                 # Clutch
@@ -196,30 +196,30 @@ class DrawWidget(Widget, MouseEvent):
                     self.state_cl = True
 
                 if clutch > 0.01 and self.state_ac:
-                    self.bar_clutch.config(bg=self.cfg["warning_color_clutch"])
+                    self.bar_clutch.config(bg=self.wcfg["warning_color_clutch"])
                     self.state_ac = False
                 elif clutch <= 0.01 and not self.state_ac:
-                    self.bar_clutch.config(bg=self.cfg["bkg_color"])
+                    self.bar_clutch.config(bg=self.wcfg["bkg_color"])
                     self.state_ac = True
 
                 # Wheel lock
-                if brake > 0 and slipratio >= self.cfg["wheel_lock_threshold"] and self.state_wl:
+                if brake > 0 and slipratio >= self.wcfg["wheel_lock_threshold"] and self.state_wl:
                     self.bar_lock.coords(self.icon_lock, self.icon_size, self.icon_size * 2)
-                    self.bar_lock.config(bg=self.cfg["warning_color_wheel_lock"])
+                    self.bar_lock.config(bg=self.wcfg["warning_color_wheel_lock"])
                     self.state_wl = False
                 elif not self.state_wl:
                     self.bar_lock.coords(self.icon_lock, 0, self.icon_size * 2)
-                    self.bar_lock.config(bg=self.cfg["bkg_color"])
+                    self.bar_lock.config(bg=self.wcfg["bkg_color"])
                     self.state_wl = True
 
                 # Wheel slip
-                if slipratio >= self.cfg["wheel_slip_threshold"] and self.state_ws:
+                if slipratio >= self.wcfg["wheel_slip_threshold"] and self.state_ws:
                     self.bar_slip.coords(self.icon_slip, self.icon_size, self.icon_size)
-                    self.bar_slip.config(bg=self.cfg["warning_color_wheel_slip"])
+                    self.bar_slip.config(bg=self.wcfg["warning_color_wheel_slip"])
                     self.state_ws = False
                 elif not self.state_ws:
                     self.bar_slip.coords(self.icon_slip, 0, self.icon_size)
-                    self.bar_slip.config(bg=self.cfg["bkg_color"])
+                    self.bar_slip.config(bg=self.wcfg["bkg_color"])
                     self.state_ws = True
 
         else:
@@ -240,14 +240,14 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_lock.coords(self.icon_lock, 0, self.icon_size * 2)
                 self.bar_slip.coords(self.icon_slip, 0, self.icon_size)
 
-                self.bar_ignition.config(bg=self.cfg["bkg_color"])
-                self.bar_clutch.config(bg=self.cfg["bkg_color"])
-                self.bar_lock.config(bg=self.cfg["bkg_color"])
-                self.bar_slip.config(bg=self.cfg["bkg_color"])
+                self.bar_ignition.config(bg=self.wcfg["bkg_color"])
+                self.bar_clutch.config(bg=self.wcfg["bkg_color"])
+                self.bar_lock.config(bg=self.wcfg["bkg_color"])
+                self.bar_slip.config(bg=self.wcfg["bkg_color"])
 
-                self.cfg["wheel_radius_front"] = self.avg_wheel_radius_f
-                self.cfg["wheel_radius_rear"] = self.avg_wheel_radius_r
-                cfg.save()
+                self.wcfg["wheel_radius_front"] = self.avg_wheel_radius_f
+                self.wcfg["wheel_radius_rear"] = self.avg_wheel_radius_r
+                self.cfg.save()
 
         # Update rate
-        self.after(self.cfg["update_delay"], self.update_data)
+        self.after(self.wcfg["update_delay"], self.update_data)

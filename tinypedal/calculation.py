@@ -23,6 +23,16 @@ Calculation function
 import math
 
 
+def in2zero(value):
+    """Convert invalid value to zero"""
+    if isinstance(value, (float, int)):
+        if math.isnan(value) or math.isinf(value):  # bypass nan & inf
+            value = 0
+    else:
+        value = 0
+    return value
+
+
 def pedal_pos(pedal, offset, scale):
     """Convert input range to 100, and multiply scale"""
     position = offset - abs(pedal * 100) * scale

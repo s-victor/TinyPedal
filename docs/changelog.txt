@@ -1,3 +1,36 @@
+TinyPedal 1.9.2 (2022-11-19)
+----------------------------
+* Preset manager
+    - [New]TinyPedal now supports reload & change preset while running.
+    - [New]Added "Load Preset" to tray icon menu.
+    - Preset manager window no longer opened at launch. TinyPedal will always load last used preset at launch.
+    - Due to limitation, active preset name no longer shows on tray icon menu.
+
+* Wear Widget
+    - [New]Added "show_lifespan" option to show estimated tyre lifespan in laps.
+    - [New]Added "show_realtime_wear" option to show current lap tyre wear that constantly updated in realtime.
+    - [New]Added additional "font_color" & "warning_threshold" and many more customization options.
+    - Improved and more accurate tyre wear calculation.
+      Properly calculates tyre wear for pit in & out lap.
+    - Reduced custom layouts to 2 variations, but added new customizable column order.
+
+* Core
+    - Auto-hide function is now based on game's FFB output value for high accuracy and stability.
+    - Added multiple local driver status check method to eliminate data interrupting
+      when other players have joined or disconnected from server.
+    - Fixed incorrect laptime validation duration for deltabest module.
+      Best laptime data is now saved right after validation.
+    - Significantly improved code structure.
+      All threads are now properly closed before exiting.
+
+* pyRfactor2SharedMemory library
+    - Added additional code to properly close shared memory mapping before exiting.
+    - Added number of vehicles difference check.
+    - Increased max player index check to 128.
+
+* Misc
+    - Updated customization guide with new configurable setting for Wear Widget.
+
 TinyPedal 1.9.0 (2022-11-07)
 ----------------------------
 * [New]Preset manager

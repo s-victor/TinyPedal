@@ -2,11 +2,11 @@
 
 TinyPedal offers a wide range of customization, which is currently available by editing `.JSON` setting file with text editor.
 
-Starting from version 1.9.0, TinyPedal comes with a new `Preset manager` that let user to load or create setting preset, and these `.JSON` files are located in `TinyPedal\settings` folder. Activated preset name can be viewed from TinyPedal tray icon.
+Starting from version 1.9.0, TinyPedal comes with a new `Preset Manager` that let user to load or create setting preset. All `.JSON` setting files are located in `TinyPedal\settings` folder. Preset can be switched or created via tray icon menu `Load Preset`, which opens `Preset Manager` window.
 
 Note: for version older than 1.9.0, `.JSON` files are located in TinyPedal root folder.
 
-TinyPedal will auto-save setting when user makes any changes to widget position, or has toggled widget visibility, auto hide, lock overlay from tray icon. Due to this reason, to avoid losing changes, it is recommended to quit APP before editing or saving JSON file. Any changes will only take effect after restarting APP.
+TinyPedal will auto-save setting when user makes any changes to widget position, or has toggled widget visibility, auto hide, lock overlay from tray icon. Due to this reason, to avoid losing changes, it is recommended to quit APP before editing or saving JSON file. Any changes will only take effect after reloading preset or restarting APP.
 
 
 ## Backup file 
@@ -452,7 +452,40 @@ This value holds the last recorded laptime, which will be read by delta module, 
 
 ## Wear
     layout
-4 layouts are available: `0` = vertical layout, `1` = vertical swapped, `2` = horizontal layout, `3` = horizontal swapped.
+2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
+
+    font_color_remaining
+Set font color for total remaining tyre.
+
+    font_color_last_wear
+Set font color for total amount tyre wear of last lap.
+
+    font_color_lifespan
+Set font color for estimated tyre lifespan in laps.
+
+    font_color_warning
+Set warning font color when reaching user defined threshold.
+
+    show_realtime_wear
+Show current lap tyre wear that constantly updated in realtime.
+
+    seconds_before_showing_realtime_wear
+Seconds before realtime tyre wear replacing last lap tyre wear.
+
+    show_lifespan
+Show estimated tyre lifespan in laps.
+
+    warning_threshold_remaining
+Set warning threshold for total remaining tyre in percentage. Default is `30` percent.
+
+    warning_threshold_wear
+Set warning threshold for total amount tyre wear of last lap in percentage. Default is `3` percent.
+
+    warning_threshold_laps
+Set warning threshold for estimated tyre lifespan in laps. Default is `5` laps.
+
+    column_index_*
+Set order of each info column. Must keep index number unique to each column, otherwise columns will overlap.
 
 
 ## Weather

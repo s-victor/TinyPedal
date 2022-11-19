@@ -23,70 +23,70 @@ Relative Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.setting import cfg
 import tinypedal.readapi as read_data
 from tinypedal.base import Widget, MouseEvent
-from tinypedal.load_func import relative_info
+from tinypedal.load_func import module
 from tinypedal.setting import VehicleClass
 
 
-class DrawWidget(Widget, MouseEvent):
+class Draw(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "relative"
-    cfg = cfg.setting_user[widget_name]
 
-    def __init__(self):
+    def __init__(self, config):
         # Assign base setting
         Widget.__init__(self)
+        self.cfg = config
+        self.wcfg = self.cfg.setting_user[self.widget_name]
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", self.cfg["opacity"])
+        self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position
-        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
+        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
-        bar_padx = self.cfg["font_size"] * 0.3
-        bar_gap = self.cfg["bar_gap"]
+        bar_padx = self.wcfg["font_size"] * 0.3
+        bar_gap = self.wcfg["bar_gap"]
         num_width = 3
-        gap_width = self.cfg["bar_time_gap_width"]
-        self.drv_width = self.cfg["bar_driver_name_width"]
-        self.cls_width = self.cfg["bar_class_name_width"]
+        gap_width = self.wcfg["bar_time_gap_width"]
+        self.drv_width = self.wcfg["bar_driver_name_width"]
+        self.cls_width = self.wcfg["bar_class_name_width"]
 
         # Config style & variable
         text_def = ""
         fg_color = "#FFF"  # placeholder, font color for place, name, gap changes dynamically
-        fg_color_plr = self.cfg["font_color_player"]
-        bg_color_place = self.cfg["bkg_color_place"]
-        bg_color_place_plr = self.cfg["bkg_color_player_place"]
-        bg_color_name = self.cfg["bkg_color_name"]
-        bg_color_name_plr = self.cfg["bkg_color_player_name"]
-        bg_color_gap = self.cfg["bkg_color_gap"]
-        bg_color_gap_plr = self.cfg["bkg_color_player_gap"]
-        fg_color_classplace = self.cfg["font_color_position_in_class"]
-        bg_color_classplace = self.cfg["bkg_color_position_in_class"]
-        fg_color_tyrecmp = self.cfg["font_color_tyre_compound"]
-        bg_color_tyrecmp = self.cfg["bkg_color_tyre_compound"]
-        fg_color_pit = self.cfg["font_color_pit"]
-        bg_color_pit = self.cfg["bkg_color_pit"]
+        fg_color_plr = self.wcfg["font_color_player"]
+        bg_color_place = self.wcfg["bkg_color_place"]
+        bg_color_place_plr = self.wcfg["bkg_color_player_place"]
+        bg_color_name = self.wcfg["bkg_color_name"]
+        bg_color_name_plr = self.wcfg["bkg_color_player_name"]
+        bg_color_gap = self.wcfg["bkg_color_gap"]
+        bg_color_gap_plr = self.wcfg["bkg_color_player_gap"]
+        fg_color_classplace = self.wcfg["font_color_position_in_class"]
+        bg_color_classplace = self.wcfg["bkg_color_position_in_class"]
+        fg_color_tyrecmp = self.wcfg["font_color_tyre_compound"]
+        bg_color_tyrecmp = self.wcfg["bkg_color_tyre_compound"]
+        fg_color_pit = self.wcfg["font_color_pit"]
+        bg_color_pit = self.wcfg["bkg_color_pit"]
 
-        column_plc = self.cfg["column_index_place"]
-        column_drv = self.cfg["column_index_driver"]
-        column_lpt = self.cfg["column_index_laptime"]
-        column_pic = self.cfg["column_index_position_in_class"]
-        column_cls = self.cfg["column_index_class"]
-        column_tcp = self.cfg["column_index_tyre_compound"]
-        column_gap = self.cfg["column_index_time_gap"]
-        column_pit = self.cfg["column_index_pit_status"]
+        column_plc = self.wcfg["column_index_place"]
+        column_drv = self.wcfg["column_index_driver"]
+        column_lpt = self.wcfg["column_index_laptime"]
+        column_pic = self.wcfg["column_index_position_in_class"]
+        column_cls = self.wcfg["column_index_class"]
+        column_tcp = self.wcfg["column_index_tyre_compound"]
+        column_gap = self.wcfg["column_index_time_gap"]
+        column_pit = self.wcfg["column_index_pit_status"]
 
-        font_relative = tkfont.Font(family=self.cfg["font_name"],
-                                    size=-self.cfg["font_size"],
-                                    weight=self.cfg["font_weight"])
+        font_relative = tkfont.Font(family=self.wcfg["font_name"],
+                                    size=-self.wcfg["font_size"],
+                                    weight=self.wcfg["font_weight"])
         plr_row = 9  # set player row number
 
         # Max display players
-        self.rel_add_front = min(max(self.cfg["additional_players_front"], 0), 3)
-        self.rel_add_behind = min(max(self.cfg["additional_players_behind"], 0), 3)
+        self.rel_add_front = min(max(self.wcfg["additional_players_front"], 0), 3)
+        self.rel_add_behind = min(max(self.wcfg["additional_players_behind"], 0), 3)
 
         # Draw label
         # Driver place number
@@ -215,9 +215,9 @@ class DrawWidget(Widget, MouseEvent):
             self.row_r_06g.grid(row=plr_row + 6, column=column_gap, padx=0, pady=(0, bar_gap))
 
         # Vehicle laptime
-        if self.cfg["show_laptime"]:
-            fg_color_lpt = self.cfg["font_color_laptime"]
-            bg_color_lpt = self.cfg["bkg_color_laptime"]
+        if self.wcfg["show_laptime"]:
+            fg_color_lpt = self.wcfg["font_color_laptime"]
+            bg_color_lpt = self.wcfg["bkg_color_laptime"]
             bar_style_t = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
                            "font":font_relative, "height":1, "width":9,
                            "fg":fg_color_lpt, "bg":bg_color_lpt}
@@ -260,7 +260,7 @@ class DrawWidget(Widget, MouseEvent):
                 self.row_r_06t.grid(row=plr_row + 6, column=column_lpt, padx=0, pady=(0, bar_gap))
 
         # Vehicle position in class
-        if self.cfg["show_position_in_class"]:
+        if self.wcfg["show_position_in_class"]:
             bar_style_i = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
                            "height":1, "width":num_width,
                            "fg":fg_color_classplace, "bg":bg_color_classplace}
@@ -301,10 +301,10 @@ class DrawWidget(Widget, MouseEvent):
                 self.row_r_06i.grid(row=plr_row + 6, column=column_pic, padx=0, pady=(0, bar_gap))
 
         # Vehicle class
-        if self.cfg["show_class"]:
+        if self.wcfg["show_class"]:
             self.vehcls = VehicleClass()  # load VehicleClass config
-            fg_color_cls = self.cfg["font_color_class"]
-            bg_color_cls = self.cfg["bkg_color_class"]
+            fg_color_cls = self.wcfg["font_color_class"]
+            bg_color_cls = self.wcfg["bkg_color_class"]
             bar_style_c = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
                            "font":font_relative, "height":1,
                            "width":self.cls_width,
@@ -346,9 +346,9 @@ class DrawWidget(Widget, MouseEvent):
                 self.row_r_06c.grid(row=plr_row + 6, column=column_cls, padx=0, pady=(0, bar_gap))
 
         # Vehicle in pit
-        if self.cfg["show_pit_status"]:
+        if self.wcfg["show_pit_status"]:
             bar_style_s = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
-                           "height":1, "width":len(self.cfg["pit_status_text"])+1,
+                           "height":1, "width":len(self.wcfg["pit_status_text"])+1,
                            "fg":fg_color_pit, "bg":bg_color_pit}
 
             self.row_plrs = tk.Label(self, bar_style_s)
@@ -387,7 +387,7 @@ class DrawWidget(Widget, MouseEvent):
                 self.row_r_06s.grid(row=plr_row + 6, column=column_pit, padx=0, pady=(0, bar_gap))
 
         # Tyre compound index
-        if self.cfg["show_tyre_compound"]:
+        if self.wcfg["show_tyre_compound"]:
             bar_style_m = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
                            "font":font_relative, "height":1, "width":2,
                            "fg":fg_color_tyrecmp, "bg":bg_color_tyrecmp}
@@ -434,37 +434,37 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and relative_info.relative_list and self.cfg["enable"]:
+        if read_data.state() and module.relative_info.relative_list and self.wcfg["enable"]:
 
             # Read relative data
-            rel_idx, cls_info, plr_idx = relative_info.relative_list
+            rel_idx, cls_info, plr_idx = module.relative_info.relative_list
             veh_center = int(3 + self.rel_add_front)
 
             # Check isPlayer before update
             if read_data.is_local_player():
 
                 # 0 place, 1 driver, 2 laptime, 3 pos_class, 4 veh_f_01lass, 5 time_gap, 6 num_lap, 7 in_pit
-                veh_plr = relative_info.relative_data(plr_idx, plr_idx, cls_info)
+                veh_plr = module.relative_info.relative_data(plr_idx, plr_idx, cls_info)
 
-                veh_f_03 = relative_info.relative_data(rel_idx[veh_center - 3], plr_idx, cls_info)
-                veh_f_02 = relative_info.relative_data(rel_idx[veh_center - 2], plr_idx, cls_info)
-                veh_f_01 = relative_info.relative_data(rel_idx[veh_center - 1], plr_idx, cls_info)
-                veh_r_01 = relative_info.relative_data(rel_idx[veh_center + 1], plr_idx, cls_info)
-                veh_r_02 = relative_info.relative_data(rel_idx[veh_center + 2], plr_idx, cls_info)
-                veh_r_03 = relative_info.relative_data(rel_idx[veh_center + 3], plr_idx, cls_info)
+                veh_f_03 = module.relative_info.relative_data(rel_idx[veh_center - 3], plr_idx, cls_info)
+                veh_f_02 = module.relative_info.relative_data(rel_idx[veh_center - 2], plr_idx, cls_info)
+                veh_f_01 = module.relative_info.relative_data(rel_idx[veh_center - 1], plr_idx, cls_info)
+                veh_r_01 = module.relative_info.relative_data(rel_idx[veh_center + 1], plr_idx, cls_info)
+                veh_r_02 = module.relative_info.relative_data(rel_idx[veh_center + 2], plr_idx, cls_info)
+                veh_r_03 = module.relative_info.relative_data(rel_idx[veh_center + 3], plr_idx, cls_info)
 
                 if self.rel_add_front > 0:
-                    veh_f_04 = relative_info.relative_data(rel_idx[veh_center - 4], plr_idx, cls_info)
+                    veh_f_04 = module.relative_info.relative_data(rel_idx[veh_center - 4], plr_idx, cls_info)
                 if self.rel_add_behind > 0:
-                    veh_r_04 = relative_info.relative_data(rel_idx[veh_center + 4], plr_idx, cls_info)
+                    veh_r_04 = module.relative_info.relative_data(rel_idx[veh_center + 4], plr_idx, cls_info)
                 if self.rel_add_front > 1:
-                    veh_f_05 = relative_info.relative_data(rel_idx[veh_center - 5], plr_idx, cls_info)
+                    veh_f_05 = module.relative_info.relative_data(rel_idx[veh_center - 5], plr_idx, cls_info)
                 if self.rel_add_behind > 1:
-                    veh_r_05 = relative_info.relative_data(rel_idx[veh_center + 5], plr_idx, cls_info)
+                    veh_r_05 = module.relative_info.relative_data(rel_idx[veh_center + 5], plr_idx, cls_info)
                 if self.rel_add_front > 2:
-                    veh_f_06 = relative_info.relative_data(rel_idx[veh_center - 6], plr_idx, cls_info)
+                    veh_f_06 = module.relative_info.relative_data(rel_idx[veh_center - 6], plr_idx, cls_info)
                 if self.rel_add_behind > 2:
-                    veh_r_06 = relative_info.relative_data(rel_idx[veh_center + 6], plr_idx, cls_info)
+                    veh_r_06 = module.relative_info.relative_data(rel_idx[veh_center + 6], plr_idx, cls_info)
 
                 # Relative update
                 # Driver place
@@ -514,7 +514,7 @@ class DrawWidget(Widget, MouseEvent):
                     self.row_r_06n.config(text=veh_r_06[1][:self.drv_width], fg=self.color_lapdiff(veh_r_06[6], veh_plr[6]))
 
                 # Vehicle laptime
-                if self.cfg["show_laptime"]:
+                if self.wcfg["show_laptime"]:
                     self.row_plrt.config(text=veh_plr[2])
 
                     self.row_f_03t.config(text=veh_f_03[2])
@@ -538,7 +538,7 @@ class DrawWidget(Widget, MouseEvent):
                         self.row_r_06t.config(text=veh_r_06[2])
 
                 # Vehicle position in class
-                if self.cfg["show_position_in_class"]:
+                if self.wcfg["show_position_in_class"]:
                     self.row_plri.config(text=veh_plr[3])
 
                     self.row_f_03i.config(text=veh_f_03[3])
@@ -562,7 +562,7 @@ class DrawWidget(Widget, MouseEvent):
                         self.row_r_06i.config(text=veh_r_06[3])
 
                 # Vehicle class
-                if self.cfg["show_class"]:
+                if self.wcfg["show_class"]:
                     self.row_plrc.config(self.set_class_style(veh_plr[4]))
 
                     self.row_f_03c.config(self.set_class_style(veh_f_03[4]))
@@ -586,7 +586,7 @@ class DrawWidget(Widget, MouseEvent):
                         self.row_r_06c.config(self.set_class_style(veh_r_06[4]))
 
                 # Tyre compound index
-                if self.cfg["show_tyre_compound"]:
+                if self.wcfg["show_tyre_compound"]:
                     self.row_plrm.config(text=self.set_tyre_cmp(veh_plr[8]))
 
                     self.row_f_03m.config(text=self.set_tyre_cmp(veh_f_03[8]))
@@ -633,7 +633,7 @@ class DrawWidget(Widget, MouseEvent):
                     self.row_r_06g.config(text=veh_r_06[5], fg=self.color_lapdiff(veh_r_06[6], veh_plr[6]))
 
                 # Vehicle in pit
-                if self.cfg["show_pit_status"]:
+                if self.wcfg["show_pit_status"]:
                     self.row_plrs.config(self.set_pitstatus(veh_plr[7]))
 
                     self.row_f_03s.config(self.set_pitstatus(veh_f_03[7]))
@@ -657,24 +657,24 @@ class DrawWidget(Widget, MouseEvent):
                         self.row_r_06s.config(self.set_pitstatus(veh_r_06[7]))
 
         # Update rate
-        self.after(self.cfg["update_delay"], self.update_data)
+        self.after(self.wcfg["update_delay"], self.update_data)
 
     # Additional methods
     def color_lapdiff(self, nlap, player_nlap):
         """Compare lap differences & set color"""
         if nlap > player_nlap:
-            color = self.cfg["font_color_laps_ahead"]
+            color = self.wcfg["font_color_laps_ahead"]
         elif nlap < player_nlap:
-            color = self.cfg["font_color_laps_behind"]
+            color = self.wcfg["font_color_laps_behind"]
         else:
-            color = self.cfg["font_color_same_lap"]
+            color = self.wcfg["font_color_same_lap"]
         return color
 
     def set_tyre_cmp(self, tc_index):
         """Substitute tyre compound index with custom chars"""
         if tc_index:
-            ftire = self.cfg["tyre_compound_list"][tc_index[0]:(tc_index[0]+1)]
-            rtire = self.cfg["tyre_compound_list"][tc_index[1]:(tc_index[1]+1)]
+            ftire = self.wcfg["tyre_compound_list"][tc_index[0]:(tc_index[0]+1)]
+            rtire = self.wcfg["tyre_compound_list"][tc_index[1]:(tc_index[1]+1)]
             tire_cmpd = f"{ftire}{rtire}"
         else:
             tire_cmpd = ""
@@ -683,7 +683,7 @@ class DrawWidget(Widget, MouseEvent):
     def set_pitstatus(self, pits):
         """Compare lap differences & set color"""
         if pits > 0:
-            status = {"text":self.cfg["pit_status_text"], "bg":self.cfg["bkg_color_pit"]}
+            status = {"text":self.wcfg["pit_status_text"], "bg":self.wcfg["bkg_color_pit"]}
         else:
             status = {"text":"", "bg":"#000002"}
         return status
@@ -691,10 +691,10 @@ class DrawWidget(Widget, MouseEvent):
     def set_class_style(self, vehclass_name):
         """Compare vehicle class name with user defined dictionary"""
         if vehclass_name == "":
-            class_config = {"text":"", "bg":self.cfg["bkg_color_class"]}
+            class_config = {"text":"", "bg":self.wcfg["bkg_color_class"]}
         else:
             class_config = {"text":vehclass_name[:self.cls_width],
-                            "bg":self.cfg["bkg_color_class"]}
+                            "bg":self.wcfg["bkg_color_class"]}
 
         for key, value in self.vehcls.classdict_user.items():
             # If class name matches user defined class

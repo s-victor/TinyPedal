@@ -24,58 +24,58 @@ import time
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.setting import cfg
 import tinypedal.readapi as read_data
 from tinypedal.base import Widget, MouseEvent
-from tinypedal.load_func import delta_time
+from tinypedal.load_func import module
 
 
-class DrawWidget(Widget, MouseEvent):
+class Draw(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "cruise"
-    cfg = cfg.setting_user[widget_name]
 
-    def __init__(self):
+    def __init__(self, config):
         # Assign base setting
         Widget.__init__(self)
+        self.cfg = config
+        self.wcfg = self.cfg.setting_user[self.widget_name]
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", self.cfg["opacity"])
+        self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position
-        bar_gap = self.cfg["bar_gap"]
-        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
+        bar_gap = self.wcfg["bar_gap"]
+        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
         # Config style & variable
-        font_cruise = tkfont.Font(family=self.cfg["font_name"],
-                                  size=-self.cfg["font_size"],
-                                  weight=self.cfg["font_weight"])
+        font_cruise = tkfont.Font(family=self.wcfg["font_name"],
+                                  size=-self.wcfg["font_size"],
+                                  weight=self.wcfg["font_weight"])
 
         # Draw label
         bar_style = {"bd":0, "height":1, "padx":0, "pady":0, "font":font_cruise}
 
-        if self.cfg["show_track_clock"]:
+        if self.wcfg["show_track_clock"]:
             self.bar_trackclock = tk.Label(self, bar_style, text="", width=7,
-                                            fg=self.cfg["font_color_track_clock"],
-                                            bg=self.cfg["bkg_color_track_clock"])
+                                           fg=self.wcfg["font_color_track_clock"],
+                                           bg=self.wcfg["bkg_color_track_clock"])
             self.bar_trackclock.grid(row=0, column=0, padx=(0, bar_gap), pady=0)
 
         self.bar_compass = tk.Label(self, bar_style, text="CRUISE", width=7,
-                                    fg=self.cfg["font_color_compass"],
-                                    bg=self.cfg["bkg_color_compass"])
+                                    fg=self.wcfg["font_color_compass"],
+                                    bg=self.wcfg["bkg_color_compass"])
         self.bar_compass.grid(row=0, column=1, padx=0, pady=0)
 
-        if self.cfg["show_elevation"]:
+        if self.wcfg["show_elevation"]:
             self.bar_elevation = tk.Label(self, bar_style, text="", width=7,
-                                          fg=self.cfg["font_color_elevation"],
-                                          bg=self.cfg["bkg_color_elevation"])
+                                          fg=self.wcfg["font_color_elevation"],
+                                          bg=self.wcfg["bkg_color_elevation"])
             self.bar_elevation.grid(row=0, column=2, padx=(bar_gap, 0), pady=0)
 
-        if self.cfg["show_odometer"]:
+        if self.wcfg["show_odometer"]:
             self.bar_odometer = tk.Label(self, bar_style, text="", width=9,
-                                         fg=self.cfg["font_color_odometer"],
-                                         bg=self.cfg["bkg_color_odometer"])
+                                         fg=self.wcfg["font_color_odometer"],
+                                         bg=self.wcfg["bkg_color_odometer"])
             self.bar_odometer.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
 
         self.update_data()
@@ -85,7 +85,7 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.cfg["enable"]:
+        if read_data.state() and self.wcfg["enable"]:
 
             # Read cruise data
             ori_yaw, pos_y, time_start, time_curr = read_data.cruise()
@@ -96,9 +96,9 @@ class DrawWidget(Widget, MouseEvent):
                 # Cruise update
                 self.bar_compass.config(text=f"{ori_yaw:03.0f}°{self.deg2direction(ori_yaw)}")
 
-                if self.cfg["show_track_clock"]:
+                if self.wcfg["show_track_clock"]:
 
-                    time_offset = time_curr * self.cfg["track_clock_time_scale"]
+                    time_offset = time_curr * self.wcfg["track_clock_time_scale"]
 
                     while True:
                         time_diff = (1440 - time_start) + time_offset
@@ -109,12 +109,12 @@ class DrawWidget(Widget, MouseEvent):
                             break
 
                     track_clock = time_start + time_offset
-                    clock_text = time.strftime(self.cfg["track_clock_format"],
+                    clock_text = time.strftime(self.wcfg["track_clock_format"],
                                                time.gmtime(track_clock))
                     self.bar_trackclock.config(text=clock_text, width=len(clock_text)+1)
 
-                if self.cfg["show_elevation"]:
-                    if self.cfg["elevation_unit"] == "1":
+                if self.wcfg["show_elevation"]:
+                    if self.wcfg["elevation_unit"] == "1":
                         pos_y *= 3.2808399
                         elev_text = f"↑ {pos_y: =03.0f}ft"
                     else:
@@ -122,10 +122,10 @@ class DrawWidget(Widget, MouseEvent):
 
                     self.bar_elevation.config(text=elev_text, width=len(elev_text)+1)
 
-                if self.cfg["show_odometer"]:
-                    traveled_distance = delta_time.meters_driven * 0.001
+                if self.wcfg["show_odometer"]:
+                    traveled_distance = module.delta_time.meters_driven * 0.001
 
-                    if self.cfg["odometer_unit"] == "1":
+                    if self.wcfg["odometer_unit"] == "1":
                         traveled_distance /= 1.609344
                         dist_text = f"{traveled_distance:06.01f}mi"
                     else:
@@ -134,7 +134,7 @@ class DrawWidget(Widget, MouseEvent):
                     self.bar_odometer.config(text=dist_text, width=len(dist_text)+1)
 
         # Update rate
-        self.after(self.cfg["update_delay"], self.update_data)
+        self.after(self.wcfg["update_delay"], self.update_data)
 
     # Additional methods
     @staticmethod

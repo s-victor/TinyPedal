@@ -23,38 +23,38 @@ Temperature Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.setting import cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import Widget, MouseEvent
 
 
-class DrawWidget(Widget, MouseEvent):
+class Draw(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "temperature"
-    cfg = cfg.setting_user[widget_name]
 
-    def __init__(self):
+    def __init__(self, config):
         # Assign base setting
         Widget.__init__(self)
+        self.cfg = config
+        self.wcfg = self.cfg.setting_user[self.widget_name]
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", self.cfg["opacity"])
+        self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position
-        bar_gap = self.cfg["bar_gap"]
-        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
+        bar_gap = self.wcfg["bar_gap"]
+        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
         # Config style & variable
         text_def = "n/a"
-        fg_color_tyre = self.cfg["font_color_tyre"]
-        bg_color_tyre = self.cfg["bkg_color_tyre"]
-        fg_color_brake = self.cfg["font_color_brake"]
-        bg_color_brake = self.cfg["bkg_color_brake"]
-        font_temp = tkfont.Font(family=self.cfg["font_name"],
-                                size=-self.cfg["font_size"],
-                                weight=self.cfg["font_weight"])
+        fg_color_tyre = self.wcfg["font_color_tyre"]
+        bg_color_tyre = self.wcfg["bkg_color_tyre"]
+        fg_color_brake = self.wcfg["font_color_brake"]
+        bg_color_brake = self.wcfg["bkg_color_brake"]
+        font_temp = tkfont.Font(family=self.wcfg["font_name"],
+                                size=-self.wcfg["font_size"],
+                                weight=self.wcfg["font_weight"])
 
         # Draw label
         bar_style = {"text":text_def, "bd":0, "height":1, "width":5,
@@ -69,7 +69,7 @@ class DrawWidget(Widget, MouseEvent):
         self.bar_btemp_rl = tk.Label(self, bar_style, fg=fg_color_brake, bg=bg_color_brake)
         self.bar_btemp_rr = tk.Label(self, bar_style, fg=fg_color_brake, bg=bg_color_brake)
 
-        if self.cfg["layout"] == "0":
+        if self.wcfg["layout"] == "0":
             # Vertical layout, tyre above brake
             self.bar_ttemp_fl.grid(row=0, column=0, padx=0, pady=0)
             self.bar_ttemp_fr.grid(row=0, column=1, padx=0, pady=0)
@@ -79,7 +79,7 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_btemp_fr.grid(row=2, column=1, padx=0, pady=0)
             self.bar_btemp_rl.grid(row=3, column=0, padx=0, pady=0)
             self.bar_btemp_rr.grid(row=3, column=1, padx=0, pady=0)
-        elif self.cfg["layout"] == "1":
+        elif self.wcfg["layout"] == "1":
             # Vertical layout, brake above tyre
             self.bar_btemp_fl.grid(row=0, column=0, padx=0, pady=0)
             self.bar_btemp_fr.grid(row=0, column=1, padx=0, pady=0)
@@ -89,7 +89,7 @@ class DrawWidget(Widget, MouseEvent):
             self.bar_ttemp_fr.grid(row=2, column=1, padx=0, pady=0)
             self.bar_ttemp_rl.grid(row=3, column=0, padx=0, pady=0)
             self.bar_ttemp_rr.grid(row=3, column=1, padx=0, pady=0)
-        elif self.cfg["layout"] == "2":
+        elif self.wcfg["layout"] == "2":
             # Horizontal layout, tyre outside of brake
             self.bar_ttemp_fl.grid(row=0, column=0, padx=(0, bar_gap), pady=0)
             self.bar_ttemp_fr.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
@@ -117,7 +117,7 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.cfg["enable"]:
+        if read_data.state() and self.wcfg["enable"]:
 
             # Read average tyre & brake temperature data
             ttemp, btemp = read_data.temperature()
@@ -126,13 +126,13 @@ class DrawWidget(Widget, MouseEvent):
             if read_data.is_local_player():
 
                 # Set up display temps
-                ttemp_d = [f" {calc.conv_temperature(data, self.cfg['temp_unit']):02.0f}°"
+                ttemp_d = [f" {calc.conv_temperature(data, self.wcfg['temp_unit']):02.0f}°"
                            for data in ttemp]
-                btemp_d = [f" {calc.conv_temperature(data, self.cfg['temp_unit']):02.0f}°"
+                btemp_d = [f" {calc.conv_temperature(data, self.wcfg['temp_unit']):02.0f}°"
                            for data in btemp]
 
                 # Temperature update
-                if self.cfg["color_swap_tyre"] == "0":
+                if self.wcfg["color_swap_tyre"] == "0":
                     self.bar_ttemp_fl["fg"] = self.color_ttemp(ttemp[0])
                     self.bar_ttemp_fr["fg"] = self.color_ttemp(ttemp[1])
                     self.bar_ttemp_rl["fg"] = self.color_ttemp(ttemp[2])
@@ -143,7 +143,7 @@ class DrawWidget(Widget, MouseEvent):
                     self.bar_ttemp_rl["bg"] = self.color_ttemp(ttemp[2])
                     self.bar_ttemp_rr["bg"] = self.color_ttemp(ttemp[3])
 
-                if self.cfg["color_swap_brake"] == "0":
+                if self.wcfg["color_swap_brake"] == "0":
                     self.bar_btemp_fl["bg"] = self.color_btemp(btemp[0])
                     self.bar_btemp_fr["bg"] = self.color_btemp(btemp[1])
                     self.bar_btemp_rl["bg"] = self.color_btemp(btemp[2])
@@ -165,7 +165,7 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_btemp_rr.config(text=btemp_d[3])
 
         # Update rate
-        self.after(self.cfg["update_delay"], self.update_data)
+        self.after(self.wcfg["update_delay"], self.update_data)
 
     # Additional methods
     @staticmethod

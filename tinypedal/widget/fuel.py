@@ -23,42 +23,42 @@ Fuel Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.setting import cfg
 import tinypedal.readapi as read_data
 from tinypedal.base import Widget, MouseEvent
-from tinypedal.load_func import fuel_usage
+from tinypedal.load_func import module
 
 
-class DrawWidget(Widget, MouseEvent):
+class Draw(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "fuel"
-    cfg = cfg.setting_user[widget_name]
 
-    def __init__(self):
+    def __init__(self, config):
         # Assign base setting
         Widget.__init__(self)
+        self.cfg = config
+        self.wcfg = self.cfg.setting_user[self.widget_name]
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", self.cfg["opacity"])
+        self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position
-        bar_gap = self.cfg["bar_gap"]
-        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
+        bar_gap = self.wcfg["bar_gap"]
+        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
         # Config style & variable
         text_def = "n/a"
-        fg_color_cap = self.cfg["font_color_caption"]
-        bg_color_cap = self.cfg["bkg_color_caption"]
-        font_fuel = tkfont.Font(family=self.cfg["font_name"],
-                                size=-self.cfg["font_size"],
-                                weight=self.cfg["font_weight"])
-        font_desc = tkfont.Font(family=self.cfg["font_name"],
-                                size=-int(self.cfg["font_size"] * 0.8),
-                                weight=self.cfg["font_weight"])
+        fg_color_cap = self.wcfg["font_color_caption"]
+        bg_color_cap = self.wcfg["bkg_color_caption"]
+        font_fuel = tkfont.Font(family=self.wcfg["font_name"],
+                                size=-self.wcfg["font_size"],
+                                weight=self.wcfg["font_weight"])
+        font_desc = tkfont.Font(family=self.wcfg["font_name"],
+                                size=-int(self.wcfg["font_size"] * 0.8),
+                                weight=self.wcfg["font_weight"])
 
         # Draw label
-        if self.cfg["show_caption"]:
+        if self.wcfg["show_caption"]:
             bar_style_desc = {"bd":0, "height":1, "padx":0, "pady":0,
                               "font":font_desc, "fg":fg_color_cap, "bg":bg_color_cap}
             self.bar_desc_1 = tk.Label(self, bar_style_desc, text="fuel")
@@ -76,28 +76,28 @@ class DrawWidget(Widget, MouseEvent):
 
         self.bar_fuel_1 = tk.Label(self, text=text_def, font=font_fuel,
                                    height=1, width=7, padx=0, pady=0, bd=0,
-                                   fg=self.cfg["font_color_fuel"],
-                                   bg=self.cfg["bkg_color_fuel"])
+                                   fg=self.wcfg["font_color_fuel"],
+                                   bg=self.wcfg["bkg_color_fuel"])
         self.bar_fuel_2 = tk.Label(self, text=text_def, font=font_fuel,
                                    height=1, width=7, padx=0, pady=0, bd=0,
-                                   fg=self.cfg["font_color_fuel"],
-                                   bg=self.cfg["bkg_color_fuel"])
+                                   fg=self.wcfg["font_color_fuel"],
+                                   bg=self.wcfg["bkg_color_fuel"])
         self.bar_fuel_3 = tk.Label(self, text=text_def, font=font_fuel,
                                    height=1, width=6, padx=0, pady=0, bd=0,
-                                   fg=self.cfg["font_color_consumption"],
-                                   bg=self.cfg["bkg_color_consumption"])
+                                   fg=self.wcfg["font_color_consumption"],
+                                   bg=self.wcfg["bkg_color_consumption"])
         self.bar_fuel_4 = tk.Label(self, text=text_def, font=font_fuel,
                                    height=1, width=7, padx=0, pady=0, bd=0,
-                                   fg=self.cfg["font_color_estimate"],
-                                   bg=self.cfg["bkg_color_estimate"])
+                                   fg=self.wcfg["font_color_estimate"],
+                                   bg=self.wcfg["bkg_color_estimate"])
         self.bar_fuel_5 = tk.Label(self, text=text_def, font=font_fuel,
                                    height=1, width=7, padx=0, pady=0, bd=0,
-                                   fg=self.cfg["font_color_estimate"],
-                                   bg=self.cfg["bkg_color_estimate"])
+                                   fg=self.wcfg["font_color_estimate"],
+                                   bg=self.wcfg["bkg_color_estimate"])
         self.bar_fuel_6 = tk.Label(self, text=text_def, font=font_fuel,
                                    height=1, width=6, padx=0, pady=0, bd=0,
-                                   fg=self.cfg["font_color_pits"],
-                                   bg=self.cfg["bkg_color_pits"])
+                                   fg=self.wcfg["font_color_pits"],
+                                   bg=self.wcfg["bkg_color_pits"])
         self.bar_fuel_1.grid(row=1, column=0, padx=0, pady=0)
         self.bar_fuel_2.grid(row=1, column=1, padx=0, pady=0)
         self.bar_fuel_3.grid(row=1, column=2, padx=0, pady=0)
@@ -112,11 +112,11 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.cfg["enable"]:
+        if read_data.state() and self.wcfg["enable"]:
 
             # Read fuel data from fuel usage module
             (amount_curr, amount_need, used_last, est_runlaps, est_runmins, pit_required
-             ) = fuel_usage.output_data
+             ) = module.fuel_usage.output_data
 
             # Check isPlayer before update
             if read_data.is_local_player():
@@ -135,13 +135,13 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_fuel_6.config(text=str(f"{pit_required:.2f}"))
 
         # Update rate
-        self.after(self.cfg["update_delay"], self.update_data)
+        self.after(self.wcfg["update_delay"], self.update_data)
 
     # Additional methods
     def color_lowfuel(self, fuel):
         """Low fuel warning color"""
         if fuel > 2:
-            color = self.cfg["bkg_color_fuel"]
+            color = self.wcfg["bkg_color_fuel"]
         else:
-            color = self.cfg["bkg_color_low_fuel"]
+            color = self.wcfg["bkg_color_low_fuel"]
         return color

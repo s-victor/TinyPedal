@@ -22,8 +22,7 @@ GUI window, events.
 
 import tkinter as tk
 
-from tinypedal.setting import cfg
-from tinypedal.load_func import overlay_lock
+from tinypedal.load_func import module
 
 
 class Widget(tk.Toplevel):
@@ -44,17 +43,14 @@ class Widget(tk.Toplevel):
         self.attributes("-topmost", 1, "-transparentcolor", "#000002")
         self.lift()
 
-        # Add to active widget list at startup
-        cfg.active_widget_list.append(self)
-
-        # Load overlay lock state at startup
-        overlay_lock.load_state(cfg.active_widget_list)
-
 
 class MouseEvent:
     """Widget mouse event"""
 
     def __init__(self):
+        self.cfg.active_widget_list.append(self)  # add to active widget list
+        module.overlay_lock.load_state()  # load overlay lock state
+
         self.bind("<Enter>", lambda event: self.hover_enter())
         self.bind("<Leave>", lambda event: self.hover_leave())
         self.bind("<ButtonRelease-1>", lambda event: self.release_mouse())
@@ -66,11 +62,11 @@ class MouseEvent:
 
         # Create hover cover & stripe pattern
         self.hover_bg = tk.Canvas(self, bd=0, highlightthickness=0, cursor="fleur",
-                                 bg=cfg.overlay["hover_color_1"])
+                                  bg=self.cfg.overlay["hover_color_1"])
         for lines in range(50):
             self.hover_bg.create_line(lines*-25 + 1200, -10,
                                       lines*-25 + 200, 990,
-                                      fill=cfg.overlay["hover_color_2"],
+                                      fill=self.cfg.overlay["hover_color_2"],
                                       width=10)
 
     def hover_enter(self):
@@ -84,9 +80,9 @@ class MouseEvent:
 
     def release_mouse(self):
         """Save position on release"""
-        self.cfg["position_x"] = str(self.winfo_x())
-        self.cfg["position_y"] = str(self.winfo_y())
-        cfg.save()
+        self.wcfg["position_x"] = str(self.winfo_x())
+        self.wcfg["position_y"] = str(self.winfo_y())
+        self.cfg.save()
         self.mouse_pressed = 0
 
     def set_offset(self, event):

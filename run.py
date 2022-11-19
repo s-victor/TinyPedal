@@ -23,7 +23,7 @@ Run program
 import os
 from tkinter import messagebox
 import psutil
-from tinypedal.about import About, LoadPreset
+from tinypedal.about import About, start_tray
 
 
 def is_tinypedal_running(app_name):
@@ -49,9 +49,8 @@ def load_tinypedal():
             "Check system tray for hidden icon."
             )
     else:
-        load_preset = LoadPreset(root)
-        load_preset.deiconify()
-        load_preset.protocol("WM_DELETE_WINDOW", load_preset.closing)
+        # Start tray icon
+        start_tray(root)
 
         # Start tkinter mainloop
         root.protocol("WM_DELETE_WINDOW", root.withdraw)

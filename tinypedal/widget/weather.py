@@ -23,36 +23,36 @@ Weather Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-from tinypedal.setting import cfg
 import tinypedal.calculation as calc
 import tinypedal.readapi as read_data
 from tinypedal.base import Widget, MouseEvent
 
 
-class DrawWidget(Widget, MouseEvent):
+class Draw(Widget, MouseEvent):
     """Draw widget"""
     widget_name = "weather"
-    cfg = cfg.setting_user[widget_name]
 
-    def __init__(self):
+    def __init__(self, config):
         # Assign base setting
         Widget.__init__(self)
+        self.cfg = config
+        self.wcfg = self.cfg.setting_user[self.widget_name]
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
-        self.attributes("-alpha", self.cfg["opacity"])
+        self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position
-        bar_gap = self.cfg["bar_gap"]
-        self.geometry(f"+{self.cfg['position_x']}+{self.cfg['position_y']}")
+        bar_gap = self.wcfg["bar_gap"]
+        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
         # Config style & variable
         text_def = "n/a"
-        fg_color = self.cfg["font_color"]
-        bg_color = self.cfg["bkg_color"]
-        font_weather = tkfont.Font(family=self.cfg["font_name"],
-                                   size=-self.cfg["font_size"],
-                                   weight=self.cfg["font_weight"])
+        fg_color = self.wcfg["font_color"]
+        bg_color = self.wcfg["bkg_color"]
+        font_weather = tkfont.Font(family=self.wcfg["font_name"],
+                                   size=-self.wcfg["font_size"],
+                                   weight=self.wcfg["font_weight"])
 
         # Draw label
         bar_style  = {"text":text_def, "bd":0, "height":1, "padx":0, "pady":0,
@@ -72,7 +72,7 @@ class DrawWidget(Widget, MouseEvent):
 
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.cfg["enable"]:
+        if read_data.state() and self.wcfg["enable"]:
 
             # Read Weather data
             amb_temp, trk_temp, rain, min_wet, max_wet, avg_wet = read_data.weather()
@@ -81,12 +81,12 @@ class DrawWidget(Widget, MouseEvent):
             if read_data.is_local_player():
 
                 # set up display units
-                amb_temp_d = calc.conv_temperature(amb_temp, self.cfg["temp_unit"])
-                trk_temp_d = calc.conv_temperature(trk_temp, self.cfg["temp_unit"])
+                amb_temp_d = calc.conv_temperature(amb_temp, self.wcfg["temp_unit"])
+                trk_temp_d = calc.conv_temperature(trk_temp, self.wcfg["temp_unit"])
 
-                if self.cfg["temp_unit"] == "0":
+                if self.wcfg["temp_unit"] == "0":
                     temp_unit = "C"
-                elif self.cfg["temp_unit"] == "1":
+                elif self.wcfg["temp_unit"] == "1":
                     temp_unit = "F"
 
                 if max_wet > 0:
@@ -104,4 +104,4 @@ class DrawWidget(Widget, MouseEvent):
                 self.bar_wetness.config(text=wetness, width=len(wetness)+1)
 
         # Update rate
-        self.after(self.cfg["update_delay"], self.update_data)
+        self.after(self.wcfg["update_delay"], self.update_data)

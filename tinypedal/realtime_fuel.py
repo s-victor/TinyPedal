@@ -24,22 +24,27 @@ import time
 import threading
 import math
 
-from tinypedal.readapi import info, chknum
-from tinypedal.setting import cfg
+from tinypedal.readapi import info, chknm, state, is_local_player
 import tinypedal.calculation as calc
 
 
 class FuelUsage:
     """Fuel usage data"""
 
-    def __init__(self):
+    def __init__(self, config):
+        self.cfg = config
         self.output_data = (0,0,0,0,0,0)
+        self.running = False
+        self.stopped = True
 
     def start(self):
         """Start calculation thread"""
+        self.running = True
+        self.stopped = False
         fuel_thread = threading.Thread(target=self.__calculation)
         fuel_thread.setDaemon(True)
         fuel_thread.start()
+        print("fuel module started")
 
     def __calculation(self):
         """Fuel usage
@@ -56,27 +61,29 @@ class FuelUsage:
         est_runlaps = 0.0  # estimate laps current fuel can last
         est_runmins = 0.0  # estimate minutes current fuel can last
         pit_required = 0.0  # minimum pit stops to finish race
-        laptime_last = cfg.setting_user["timing"]["last_laptime"]  # load last laptime
-        fuel_unit = cfg.setting_user["fuel"]["fuel_unit"]  # load fuel unit setting
-
-        update_delay = 0.5  # changeable update delay for conserving resources
+        laptime_last = self.cfg.setting_user["timing"]["last_laptime"]  # load last laptime
+        fuel_unit = self.cfg.setting_user["fuel"]["fuel_unit"]  # load fuel unit setting
+        update_delay = 0.4  # changeable update delay for conserving resources
 
         while True:
-            if chknum(info.playersVehicleTelemetry().mIgnitionStarter) != 0:
+            if not self.running:
+                self.stopped = True
+                print("fuel module closed")
+                break
+
+            if state():
 
                 # Save switch
                 if not recording:
                     recording = True
-                    update_delay = 0.001  # shorter delay
-                    used_last = cfg.setting_user["fuel"]["fuel_consumption"]
+                    update_delay = 0.01  # shorter delay
+                    used_last = self.cfg.setting_user["fuel"]["fuel_consumption"]
 
-                (start_curr, laps_total, laps_left, time_left, amount_curr, capacity, inpits, state_before, state_after
-                 ) = self.telemetry()
+                (start_curr, laps_total, laps_left, time_left, amount_curr, capacity, inpits
+                 ) = self.fuel_telemetry()
 
                 # Check isPlayer before update
-                #if 0 <= chknum(info.playersVehicleScoring().mControl) <= 1:
-                #if info.Rf2Scor.mVehicles[info.players_index].mIsPlayer:
-                if state_before and state_after:
+                if is_local_player():
 
                     if inpits == 1:
                         pittinglap = min(pittinglap + inpits, 1)
@@ -127,23 +134,21 @@ class FuelUsage:
 
             else:
                 if recording:
-                    cfg.setting_user["fuel"]["fuel_consumption"] = round(used_last, 6)
-                    update_delay = 0.5  # longer delay while inactive
+                    self.cfg.setting_user["fuel"]["fuel_consumption"] = round(used_last, 6)
+                    update_delay = 0.4  # longer delay while inactive
 
             time.sleep(update_delay)
 
     @staticmethod
-    def telemetry():
+    def fuel_telemetry():
         """Fuel Telemetry data"""
-        state_before = info.Rf2Scor.mVehicles[info.players_index].mIsPlayer
-
-        start_curr = chknum(info.playersVehicleTelemetry().mLapStartET)
-        laps_total = chknum(info.Rf2Scor.mScoringInfo.mMaxLaps)
-        laps_left = laps_total - chknum(info.playersVehicleScoring().mTotalLaps)
-        time_left = chknum(info.Rf2Scor.mScoringInfo.mEndET) - chknum(info.Rf2Scor.mScoringInfo.mCurrentET)
-        amount_curr = chknum(info.playersVehicleTelemetry().mFuel)
-        capacity = chknum(info.playersVehicleTelemetry().mFuelCapacity)
-        inpits = chknum(info.playersVehicleScoring().mInPits)
-
-        state_after = info.Rf2Scor.mVehicles[info.players_index].mIsPlayer
-        return start_curr, laps_total, laps_left, time_left, amount_curr, capacity, inpits, state_before, state_after
+        start_curr = chknm(info.playersVehicleTelemetry().mLapStartET)
+        laps_total = chknm(info.Rf2Scor.mScoringInfo.mMaxLaps)
+        laps_left = laps_total - chknm(info.playersVehicleScoring().mTotalLaps)
+        time_left = (chknm(info.Rf2Scor.mScoringInfo.mEndET)
+                     - chknm(info.Rf2Scor.mScoringInfo.mCurrentET))
+        amount_curr = chknm(info.playersVehicleTelemetry().mFuel)
+        capacity = chknm(info.playersVehicleTelemetry().mFuelCapacity)
+        inpits = chknm(info.playersVehicleScoring().mInPits)
+        return (start_curr, laps_total, laps_left, time_left, amount_curr,
+                capacity, inpits)
