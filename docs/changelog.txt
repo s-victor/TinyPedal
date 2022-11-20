@@ -1,3 +1,8 @@
+TinyPedal 1.9.4 (2022-11-20)
+----------------------------
+* pyRfactor2SharedMemory library
+    - Fixed "players_mid" variable that could be referenced before assign.
+
 TinyPedal 1.9.3 (2022-11-20)
 ----------------------------
 * Core
