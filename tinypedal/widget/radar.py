@@ -140,145 +140,143 @@ class Draw(Widget, MouseEvent):
             veh_gps = module.relative_info.vehicle_gps(rel_idx)
             veh_center = int(3 + self.radar_add_front)
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
+            # Start updating
+            # Read vehicle position coordinates, lap number, orientation
+            veh_plr = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center], rel_idx[veh_center])
 
-                # Read vehicle position coordinates, lap number, orientation
-                veh_plr = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center], rel_idx[veh_center])
+            veh_f_01 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 1], rel_idx[veh_center - 1])
+            veh_r_01 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 1], rel_idx[veh_center + 1])
+            veh_f_02 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 2], rel_idx[veh_center - 2])
+            veh_r_02 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 2], rel_idx[veh_center + 2])
+            veh_f_03 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 3], rel_idx[veh_center - 3])
+            veh_r_03 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 3], rel_idx[veh_center + 3])
 
-                veh_f_01 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 1], rel_idx[veh_center - 1])
-                veh_r_01 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 1], rel_idx[veh_center + 1])
-                veh_f_02 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 2], rel_idx[veh_center - 2])
-                veh_r_02 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 2], rel_idx[veh_center + 2])
-                veh_f_03 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 3], rel_idx[veh_center - 3])
-                veh_r_03 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 3], rel_idx[veh_center + 3])
+            if self.radar_add_front > 0:
+                veh_f_04 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 4], rel_idx[veh_center - 4])
+            if self.radar_add_behind > 0:
+                veh_r_04 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 4], rel_idx[veh_center + 4])
+            if self.radar_add_front > 1:
+                veh_f_05 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 5], rel_idx[veh_center - 5])
+            if self.radar_add_behind > 1:
+                veh_r_05 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 5], rel_idx[veh_center + 5])
+            if self.radar_add_front > 2:
+                veh_f_06 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 6], rel_idx[veh_center - 6])
+            if self.radar_add_behind > 2:
+                veh_r_06 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 6], rel_idx[veh_center + 6])
+            if self.radar_add_front > 3:
+                veh_f_07 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 7], rel_idx[veh_center - 7])
+            if self.radar_add_behind > 3:
+                veh_r_07 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 7], rel_idx[veh_center + 7])
+            if self.radar_add_front > 4:
+                veh_f_08 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 8], rel_idx[veh_center - 8])
+            if self.radar_add_behind > 4:
+                veh_r_08 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 8], rel_idx[veh_center + 8])
+            if self.radar_add_front > 5:
+                veh_f_09 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 9], rel_idx[veh_center - 9])
+            if self.radar_add_behind > 5:
+                veh_r_09 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 9], rel_idx[veh_center + 9])
+            if self.radar_add_front > 6:
+                veh_f_10 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 10], rel_idx[veh_center - 10])
+            if self.radar_add_behind > 6:
+                veh_r_10 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 10], rel_idx[veh_center + 10])
+            if self.radar_add_front > 7:
+                veh_f_11 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 11], rel_idx[veh_center - 11])
+            if self.radar_add_behind > 7:
+                veh_r_11 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 11], rel_idx[veh_center + 11])
+            if self.radar_add_front > 8:
+                veh_f_12 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 12], rel_idx[veh_center - 12])
+            if self.radar_add_behind > 8:
+                veh_r_12 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 12], rel_idx[veh_center + 12])
 
-                if self.radar_add_front > 0:
-                    veh_f_04 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 4], rel_idx[veh_center - 4])
-                if self.radar_add_behind > 0:
-                    veh_r_04 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 4], rel_idx[veh_center + 4])
-                if self.radar_add_front > 1:
-                    veh_f_05 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 5], rel_idx[veh_center - 5])
-                if self.radar_add_behind > 1:
-                    veh_r_05 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 5], rel_idx[veh_center + 5])
-                if self.radar_add_front > 2:
-                    veh_f_06 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 6], rel_idx[veh_center - 6])
-                if self.radar_add_behind > 2:
-                    veh_r_06 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 6], rel_idx[veh_center + 6])
-                if self.radar_add_front > 3:
-                    veh_f_07 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 7], rel_idx[veh_center - 7])
-                if self.radar_add_behind > 3:
-                    veh_r_07 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 7], rel_idx[veh_center + 7])
-                if self.radar_add_front > 4:
-                    veh_f_08 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 8], rel_idx[veh_center - 8])
-                if self.radar_add_behind > 4:
-                    veh_r_08 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 8], rel_idx[veh_center + 8])
-                if self.radar_add_front > 5:
-                    veh_f_09 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 9], rel_idx[veh_center - 9])
-                if self.radar_add_behind > 5:
-                    veh_r_09 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 9], rel_idx[veh_center + 9])
-                if self.radar_add_front > 6:
-                    veh_f_10 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 10], rel_idx[veh_center - 10])
-                if self.radar_add_behind > 6:
-                    veh_r_10 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 10], rel_idx[veh_center + 10])
-                if self.radar_add_front > 7:
-                    veh_f_11 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 11], rel_idx[veh_center - 11])
-                if self.radar_add_behind > 7:
-                    veh_r_11 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 11], rel_idx[veh_center + 11])
-                if self.radar_add_front > 8:
-                    veh_f_12 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center - 12], rel_idx[veh_center - 12])
-                if self.radar_add_behind > 8:
-                    veh_r_12 = module.relative_info.radar_pos(veh_gps[veh_center], veh_gps[veh_center + 12], rel_idx[veh_center + 12])
+            # Set vehicle color
+            self.bar_radar.itemconfig(self.poly_f_01, fill=self.color_lapdiff(veh_f_01[1], veh_plr[1]))
+            self.bar_radar.itemconfig(self.poly_r_01, fill=self.color_lapdiff(veh_r_01[1], veh_plr[1]))
+            self.bar_radar.itemconfig(self.poly_f_02, fill=self.color_lapdiff(veh_f_02[1], veh_plr[1]))
+            self.bar_radar.itemconfig(self.poly_r_02, fill=self.color_lapdiff(veh_r_02[1], veh_plr[1]))
+            self.bar_radar.itemconfig(self.poly_f_03, fill=self.color_lapdiff(veh_f_03[1], veh_plr[1]))
+            self.bar_radar.itemconfig(self.poly_r_03, fill=self.color_lapdiff(veh_r_03[1], veh_plr[1]))
 
-                # Set vehicle color
-                self.bar_radar.itemconfig(self.poly_f_01, fill=self.color_lapdiff(veh_f_01[1], veh_plr[1]))
-                self.bar_radar.itemconfig(self.poly_r_01, fill=self.color_lapdiff(veh_r_01[1], veh_plr[1]))
-                self.bar_radar.itemconfig(self.poly_f_02, fill=self.color_lapdiff(veh_f_02[1], veh_plr[1]))
-                self.bar_radar.itemconfig(self.poly_r_02, fill=self.color_lapdiff(veh_r_02[1], veh_plr[1]))
-                self.bar_radar.itemconfig(self.poly_f_03, fill=self.color_lapdiff(veh_f_03[1], veh_plr[1]))
-                self.bar_radar.itemconfig(self.poly_r_03, fill=self.color_lapdiff(veh_r_03[1], veh_plr[1]))
+            if self.radar_add_front > 0:
+                self.bar_radar.itemconfig(self.poly_f_04, fill=self.color_lapdiff(veh_f_04[1], veh_plr[1]))
+            if self.radar_add_behind > 0:
+                self.bar_radar.itemconfig(self.poly_r_04, fill=self.color_lapdiff(veh_r_04[1], veh_plr[1]))
+            if self.radar_add_front > 1:
+                self.bar_radar.itemconfig(self.poly_f_05, fill=self.color_lapdiff(veh_f_05[1], veh_plr[1]))
+            if self.radar_add_behind > 1:
+                self.bar_radar.itemconfig(self.poly_r_05, fill=self.color_lapdiff(veh_r_05[1], veh_plr[1]))
+            if self.radar_add_front > 2:
+                self.bar_radar.itemconfig(self.poly_f_06, fill=self.color_lapdiff(veh_f_06[1], veh_plr[1]))
+            if self.radar_add_behind > 2:
+                self.bar_radar.itemconfig(self.poly_r_06, fill=self.color_lapdiff(veh_r_06[1], veh_plr[1]))
+            if self.radar_add_front > 3:
+                self.bar_radar.itemconfig(self.poly_f_07, fill=self.color_lapdiff(veh_f_07[1], veh_plr[1]))
+            if self.radar_add_behind > 3:
+                self.bar_radar.itemconfig(self.poly_r_07, fill=self.color_lapdiff(veh_r_07[1], veh_plr[1]))
+            if self.radar_add_front > 4:
+                self.bar_radar.itemconfig(self.poly_f_08, fill=self.color_lapdiff(veh_f_08[1], veh_plr[1]))
+            if self.radar_add_behind > 4:
+                self.bar_radar.itemconfig(self.poly_r_08, fill=self.color_lapdiff(veh_r_08[1], veh_plr[1]))
+            if self.radar_add_front > 5:
+                self.bar_radar.itemconfig(self.poly_f_09, fill=self.color_lapdiff(veh_f_09[1], veh_plr[1]))
+            if self.radar_add_behind > 5:
+                self.bar_radar.itemconfig(self.poly_r_09, fill=self.color_lapdiff(veh_r_09[1], veh_plr[1]))
+            if self.radar_add_front > 6:
+                self.bar_radar.itemconfig(self.poly_f_10, fill=self.color_lapdiff(veh_f_10[1], veh_plr[1]))
+            if self.radar_add_behind > 6:
+                self.bar_radar.itemconfig(self.poly_r_10, fill=self.color_lapdiff(veh_r_10[1], veh_plr[1]))
+            if self.radar_add_front > 7:
+                self.bar_radar.itemconfig(self.poly_f_11, fill=self.color_lapdiff(veh_f_11[1], veh_plr[1]))
+            if self.radar_add_behind > 7:
+                self.bar_radar.itemconfig(self.poly_r_11, fill=self.color_lapdiff(veh_r_11[1], veh_plr[1]))
+            if self.radar_add_front > 8:
+                self.bar_radar.itemconfig(self.poly_f_12, fill=self.color_lapdiff(veh_f_12[1], veh_plr[1]))
+            if self.radar_add_behind > 8:
+                self.bar_radar.itemconfig(self.poly_r_12, fill=self.color_lapdiff(veh_r_12[1], veh_plr[1]))
 
-                if self.radar_add_front > 0:
-                    self.bar_radar.itemconfig(self.poly_f_04, fill=self.color_lapdiff(veh_f_04[1], veh_plr[1]))
-                if self.radar_add_behind > 0:
-                    self.bar_radar.itemconfig(self.poly_r_04, fill=self.color_lapdiff(veh_r_04[1], veh_plr[1]))
-                if self.radar_add_front > 1:
-                    self.bar_radar.itemconfig(self.poly_f_05, fill=self.color_lapdiff(veh_f_05[1], veh_plr[1]))
-                if self.radar_add_behind > 1:
-                    self.bar_radar.itemconfig(self.poly_r_05, fill=self.color_lapdiff(veh_r_05[1], veh_plr[1]))
-                if self.radar_add_front > 2:
-                    self.bar_radar.itemconfig(self.poly_f_06, fill=self.color_lapdiff(veh_f_06[1], veh_plr[1]))
-                if self.radar_add_behind > 2:
-                    self.bar_radar.itemconfig(self.poly_r_06, fill=self.color_lapdiff(veh_r_06[1], veh_plr[1]))
-                if self.radar_add_front > 3:
-                    self.bar_radar.itemconfig(self.poly_f_07, fill=self.color_lapdiff(veh_f_07[1], veh_plr[1]))
-                if self.radar_add_behind > 3:
-                    self.bar_radar.itemconfig(self.poly_r_07, fill=self.color_lapdiff(veh_r_07[1], veh_plr[1]))
-                if self.radar_add_front > 4:
-                    self.bar_radar.itemconfig(self.poly_f_08, fill=self.color_lapdiff(veh_f_08[1], veh_plr[1]))
-                if self.radar_add_behind > 4:
-                    self.bar_radar.itemconfig(self.poly_r_08, fill=self.color_lapdiff(veh_r_08[1], veh_plr[1]))
-                if self.radar_add_front > 5:
-                    self.bar_radar.itemconfig(self.poly_f_09, fill=self.color_lapdiff(veh_f_09[1], veh_plr[1]))
-                if self.radar_add_behind > 5:
-                    self.bar_radar.itemconfig(self.poly_r_09, fill=self.color_lapdiff(veh_r_09[1], veh_plr[1]))
-                if self.radar_add_front > 6:
-                    self.bar_radar.itemconfig(self.poly_f_10, fill=self.color_lapdiff(veh_f_10[1], veh_plr[1]))
-                if self.radar_add_behind > 6:
-                    self.bar_radar.itemconfig(self.poly_r_10, fill=self.color_lapdiff(veh_r_10[1], veh_plr[1]))
-                if self.radar_add_front > 7:
-                    self.bar_radar.itemconfig(self.poly_f_11, fill=self.color_lapdiff(veh_f_11[1], veh_plr[1]))
-                if self.radar_add_behind > 7:
-                    self.bar_radar.itemconfig(self.poly_r_11, fill=self.color_lapdiff(veh_r_11[1], veh_plr[1]))
-                if self.radar_add_front > 8:
-                    self.bar_radar.itemconfig(self.poly_f_12, fill=self.color_lapdiff(veh_f_12[1], veh_plr[1]))
-                if self.radar_add_behind > 8:
-                    self.bar_radar.itemconfig(self.poly_r_12, fill=self.color_lapdiff(veh_r_12[1], veh_plr[1]))
+            # Update vehicle position
+            self.bar_radar.coords(self.poly_f_01, self.update_veh_pos(veh_plr[0], veh_f_01[0], veh_f_01[2]))
+            self.bar_radar.coords(self.poly_r_01, self.update_veh_pos(veh_plr[0], veh_r_01[0], veh_r_01[2]))
+            self.bar_radar.coords(self.poly_f_02, self.update_veh_pos(veh_plr[0], veh_f_02[0], veh_f_02[2]))
+            self.bar_radar.coords(self.poly_r_02, self.update_veh_pos(veh_plr[0], veh_r_02[0], veh_r_02[2]))
+            self.bar_radar.coords(self.poly_f_03, self.update_veh_pos(veh_plr[0], veh_f_03[0], veh_f_03[2]))
+            self.bar_radar.coords(self.poly_r_03, self.update_veh_pos(veh_plr[0], veh_r_03[0], veh_r_03[2]))
 
-                # Update vehicle position
-                self.bar_radar.coords(self.poly_f_01, self.update_veh_pos(veh_plr[0], veh_f_01[0], veh_f_01[2]))
-                self.bar_radar.coords(self.poly_r_01, self.update_veh_pos(veh_plr[0], veh_r_01[0], veh_r_01[2]))
-                self.bar_radar.coords(self.poly_f_02, self.update_veh_pos(veh_plr[0], veh_f_02[0], veh_f_02[2]))
-                self.bar_radar.coords(self.poly_r_02, self.update_veh_pos(veh_plr[0], veh_r_02[0], veh_r_02[2]))
-                self.bar_radar.coords(self.poly_f_03, self.update_veh_pos(veh_plr[0], veh_f_03[0], veh_f_03[2]))
-                self.bar_radar.coords(self.poly_r_03, self.update_veh_pos(veh_plr[0], veh_r_03[0], veh_r_03[2]))
-
-                if self.radar_add_front > 0:
-                    self.bar_radar.coords(self.poly_f_04, self.update_veh_pos(veh_plr[0], veh_f_04[0], veh_f_04[2]))
-                if self.radar_add_behind > 0:
-                    self.bar_radar.coords(self.poly_r_04, self.update_veh_pos(veh_plr[0], veh_r_04[0], veh_r_04[2]))
-                if self.radar_add_front > 1:
-                    self.bar_radar.coords(self.poly_f_05, self.update_veh_pos(veh_plr[0], veh_f_05[0], veh_f_05[2]))
-                if self.radar_add_behind > 1:
-                    self.bar_radar.coords(self.poly_r_05, self.update_veh_pos(veh_plr[0], veh_r_05[0], veh_r_05[2]))
-                if self.radar_add_front > 2:
-                    self.bar_radar.coords(self.poly_f_06, self.update_veh_pos(veh_plr[0], veh_f_06[0], veh_f_06[2]))
-                if self.radar_add_behind > 2:
-                    self.bar_radar.coords(self.poly_r_06, self.update_veh_pos(veh_plr[0], veh_r_06[0], veh_r_06[2]))
-                if self.radar_add_front > 3:
-                    self.bar_radar.coords(self.poly_f_07, self.update_veh_pos(veh_plr[0], veh_f_07[0], veh_f_07[2]))
-                if self.radar_add_behind > 3:
-                    self.bar_radar.coords(self.poly_r_07, self.update_veh_pos(veh_plr[0], veh_r_07[0], veh_r_07[2]))
-                if self.radar_add_front > 4:
-                    self.bar_radar.coords(self.poly_f_08, self.update_veh_pos(veh_plr[0], veh_f_08[0], veh_f_08[2]))
-                if self.radar_add_behind > 4:
-                    self.bar_radar.coords(self.poly_r_08, self.update_veh_pos(veh_plr[0], veh_r_08[0], veh_r_08[2]))
-                if self.radar_add_front > 5:
-                    self.bar_radar.coords(self.poly_f_09, self.update_veh_pos(veh_plr[0], veh_f_09[0], veh_f_09[2]))
-                if self.radar_add_behind > 5:
-                    self.bar_radar.coords(self.poly_r_09, self.update_veh_pos(veh_plr[0], veh_r_09[0], veh_r_09[2]))
-                if self.radar_add_front > 6:
-                    self.bar_radar.coords(self.poly_f_10, self.update_veh_pos(veh_plr[0], veh_f_10[0], veh_f_10[2]))
-                if self.radar_add_behind > 6:
-                    self.bar_radar.coords(self.poly_r_10, self.update_veh_pos(veh_plr[0], veh_r_10[0], veh_r_10[2]))
-                if self.radar_add_front > 7:
-                    self.bar_radar.coords(self.poly_f_11, self.update_veh_pos(veh_plr[0], veh_f_11[0], veh_f_11[2]))
-                if self.radar_add_behind > 7:
-                    self.bar_radar.coords(self.poly_r_11, self.update_veh_pos(veh_plr[0], veh_r_11[0], veh_r_11[2]))
-                if self.radar_add_front > 8:
-                    self.bar_radar.coords(self.poly_f_12, self.update_veh_pos(veh_plr[0], veh_f_12[0], veh_f_12[2]))
-                if self.radar_add_behind > 8:
-                    self.bar_radar.coords(self.poly_r_12, self.update_veh_pos(veh_plr[0], veh_r_12[0], veh_r_12[2]))
+            if self.radar_add_front > 0:
+                self.bar_radar.coords(self.poly_f_04, self.update_veh_pos(veh_plr[0], veh_f_04[0], veh_f_04[2]))
+            if self.radar_add_behind > 0:
+                self.bar_radar.coords(self.poly_r_04, self.update_veh_pos(veh_plr[0], veh_r_04[0], veh_r_04[2]))
+            if self.radar_add_front > 1:
+                self.bar_radar.coords(self.poly_f_05, self.update_veh_pos(veh_plr[0], veh_f_05[0], veh_f_05[2]))
+            if self.radar_add_behind > 1:
+                self.bar_radar.coords(self.poly_r_05, self.update_veh_pos(veh_plr[0], veh_r_05[0], veh_r_05[2]))
+            if self.radar_add_front > 2:
+                self.bar_radar.coords(self.poly_f_06, self.update_veh_pos(veh_plr[0], veh_f_06[0], veh_f_06[2]))
+            if self.radar_add_behind > 2:
+                self.bar_radar.coords(self.poly_r_06, self.update_veh_pos(veh_plr[0], veh_r_06[0], veh_r_06[2]))
+            if self.radar_add_front > 3:
+                self.bar_radar.coords(self.poly_f_07, self.update_veh_pos(veh_plr[0], veh_f_07[0], veh_f_07[2]))
+            if self.radar_add_behind > 3:
+                self.bar_radar.coords(self.poly_r_07, self.update_veh_pos(veh_plr[0], veh_r_07[0], veh_r_07[2]))
+            if self.radar_add_front > 4:
+                self.bar_radar.coords(self.poly_f_08, self.update_veh_pos(veh_plr[0], veh_f_08[0], veh_f_08[2]))
+            if self.radar_add_behind > 4:
+                self.bar_radar.coords(self.poly_r_08, self.update_veh_pos(veh_plr[0], veh_r_08[0], veh_r_08[2]))
+            if self.radar_add_front > 5:
+                self.bar_radar.coords(self.poly_f_09, self.update_veh_pos(veh_plr[0], veh_f_09[0], veh_f_09[2]))
+            if self.radar_add_behind > 5:
+                self.bar_radar.coords(self.poly_r_09, self.update_veh_pos(veh_plr[0], veh_r_09[0], veh_r_09[2]))
+            if self.radar_add_front > 6:
+                self.bar_radar.coords(self.poly_f_10, self.update_veh_pos(veh_plr[0], veh_f_10[0], veh_f_10[2]))
+            if self.radar_add_behind > 6:
+                self.bar_radar.coords(self.poly_r_10, self.update_veh_pos(veh_plr[0], veh_r_10[0], veh_r_10[2]))
+            if self.radar_add_front > 7:
+                self.bar_radar.coords(self.poly_f_11, self.update_veh_pos(veh_plr[0], veh_f_11[0], veh_f_11[2]))
+            if self.radar_add_behind > 7:
+                self.bar_radar.coords(self.poly_r_11, self.update_veh_pos(veh_plr[0], veh_r_11[0], veh_r_11[2]))
+            if self.radar_add_front > 8:
+                self.bar_radar.coords(self.poly_f_12, self.update_veh_pos(veh_plr[0], veh_f_12[0], veh_f_12[2]))
+            if self.radar_add_behind > 8:
+                self.bar_radar.coords(self.poly_r_12, self.update_veh_pos(veh_plr[0], veh_r_12[0], veh_r_12[2]))
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

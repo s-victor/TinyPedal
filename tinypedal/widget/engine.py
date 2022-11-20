@@ -81,22 +81,20 @@ class Draw(Widget, MouseEvent):
             # Read Engine data
             temp_oil, temp_water, e_turbo, e_rpm = read_data.engine()
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
+            # Start updating
+            # Engine update
+            self.bar_oil.config(text=f"O {temp_oil:05.01f}°",
+                                bg=self.color_overheat(
+                                    temp_oil, self.wcfg["overheat_threshold_oil"]))
+            self.bar_water.config(text=f"W {temp_water:05.01f}°",
+                                bg=self.color_overheat(
+                                    temp_water, self.wcfg["overheat_threshold_water"]))
 
-                # Engine update
-                self.bar_oil.config(text=f"O {temp_oil:05.01f}°",
-                                    bg=self.color_overheat(
-                                        temp_oil, self.wcfg["overheat_threshold_oil"]))
-                self.bar_water.config(text=f"W {temp_water:05.01f}°",
-                                    bg=self.color_overheat(
-                                        temp_water, self.wcfg["overheat_threshold_water"]))
+            if self.wcfg["show_turbo"]:
+                self.bar_turbo.config(text=f"{e_turbo*0.00001:04.03f}bar")
 
-                if self.wcfg["show_turbo"]:
-                    self.bar_turbo.config(text=f"{e_turbo*0.00001:04.03f}bar")
-
-                if self.wcfg["show_rpm"]:
-                    self.bar_rpm.config(text=f"{e_rpm: =05.0f}rpm")
+            if self.wcfg["show_rpm"]:
+                self.bar_rpm.config(text=f"{e_rpm: =05.0f}rpm")
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

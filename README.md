@@ -25,7 +25,7 @@ The plugin file `rFactor2SharedMemoryMapPlugin64.dll` should be placed in `rFact
 
 2. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract, and run `tinypedal.exe`. Alternatively, you can run TinyPedal from source, see **Run from source** section for details.
 
-3. Select a preset name, and click `Load Preset` button. A tray icon will appear at system tray. If not shown, check hidden tray icon. `Right Click` on tray icon will bring up context menu.
+3. A tray icon will appear at system tray. If not shown, check hidden tray icon. `Right Click` on tray icon will bring up context menu.
 
 4. Launch `rFactor 2`, overlay will appear once your vehicle is on track, and auto-hide otherwise. You can turn off auto-hide by `Right Click` on tray icon and select `Auto Hide`.
 

@@ -1,3 +1,24 @@
+TinyPedal 1.9.3 (2022-11-20)
+----------------------------
+* Core
+    - Auto-hide function is reverted back to previous method,
+      which depends on player's engine ignition status).
+    - Removed all previous driver status check methods,
+      as new changes to pyRfactor2SharedMemory library has fixed the issue
+      that associated with players joining or disconnecting from server.
+    - Now also shows data while "Toggle AI control" enabled.
+
+* pyRfactor2SharedMemory library
+    - All Telemetry & Scoring info is now constantly updated in a separated thread.
+    - Now uses deep copy on Telemetry & Scoring info
+      and verifies mVersionUpdate values to avoid data changes or corruption.
+    - Now finds player's index number against a single Scoring info piece.
+      Previously this was not done on a single info piece,
+      which data could be changed or corrupted while checking.
+    - Now uses player's mID from the verified Scoring info
+      and compares with the mID from Telemetry info to ensure
+      all assigned Telemetry & Scoring info data is correctly synced to local player.
+
 TinyPedal 1.9.2 (2022-11-19)
 ----------------------------
 * Preset manager

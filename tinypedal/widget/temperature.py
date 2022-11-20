@@ -122,47 +122,45 @@ class Draw(Widget, MouseEvent):
             # Read average tyre & brake temperature data
             ttemp, btemp = read_data.temperature()
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
+            # Start updating
+            # Set up display temps
+            ttemp_d = [f" {calc.conv_temperature(data, self.wcfg['temp_unit']):02.0f}°"
+                       for data in ttemp]
+            btemp_d = [f" {calc.conv_temperature(data, self.wcfg['temp_unit']):02.0f}°"
+                       for data in btemp]
 
-                # Set up display temps
-                ttemp_d = [f" {calc.conv_temperature(data, self.wcfg['temp_unit']):02.0f}°"
-                           for data in ttemp]
-                btemp_d = [f" {calc.conv_temperature(data, self.wcfg['temp_unit']):02.0f}°"
-                           for data in btemp]
+            # Temperature update
+            if self.wcfg["color_swap_tyre"] == "0":
+                self.bar_ttemp_fl["fg"] = self.color_ttemp(ttemp[0])
+                self.bar_ttemp_fr["fg"] = self.color_ttemp(ttemp[1])
+                self.bar_ttemp_rl["fg"] = self.color_ttemp(ttemp[2])
+                self.bar_ttemp_rr["fg"] = self.color_ttemp(ttemp[3])
+            else:
+                self.bar_ttemp_fl["bg"] = self.color_ttemp(ttemp[0])
+                self.bar_ttemp_fr["bg"] = self.color_ttemp(ttemp[1])
+                self.bar_ttemp_rl["bg"] = self.color_ttemp(ttemp[2])
+                self.bar_ttemp_rr["bg"] = self.color_ttemp(ttemp[3])
 
-                # Temperature update
-                if self.wcfg["color_swap_tyre"] == "0":
-                    self.bar_ttemp_fl["fg"] = self.color_ttemp(ttemp[0])
-                    self.bar_ttemp_fr["fg"] = self.color_ttemp(ttemp[1])
-                    self.bar_ttemp_rl["fg"] = self.color_ttemp(ttemp[2])
-                    self.bar_ttemp_rr["fg"] = self.color_ttemp(ttemp[3])
-                else:
-                    self.bar_ttemp_fl["bg"] = self.color_ttemp(ttemp[0])
-                    self.bar_ttemp_fr["bg"] = self.color_ttemp(ttemp[1])
-                    self.bar_ttemp_rl["bg"] = self.color_ttemp(ttemp[2])
-                    self.bar_ttemp_rr["bg"] = self.color_ttemp(ttemp[3])
+            if self.wcfg["color_swap_brake"] == "0":
+                self.bar_btemp_fl["bg"] = self.color_btemp(btemp[0])
+                self.bar_btemp_fr["bg"] = self.color_btemp(btemp[1])
+                self.bar_btemp_rl["bg"] = self.color_btemp(btemp[2])
+                self.bar_btemp_rr["bg"] = self.color_btemp(btemp[3])
+            else:
+                self.bar_btemp_fl["fg"] = self.color_btemp(btemp[0])
+                self.bar_btemp_fr["fg"] = self.color_btemp(btemp[1])
+                self.bar_btemp_rl["fg"] = self.color_btemp(btemp[2])
+                self.bar_btemp_rr["fg"] = self.color_btemp(btemp[3])
 
-                if self.wcfg["color_swap_brake"] == "0":
-                    self.bar_btemp_fl["bg"] = self.color_btemp(btemp[0])
-                    self.bar_btemp_fr["bg"] = self.color_btemp(btemp[1])
-                    self.bar_btemp_rl["bg"] = self.color_btemp(btemp[2])
-                    self.bar_btemp_rr["bg"] = self.color_btemp(btemp[3])
-                else:
-                    self.bar_btemp_fl["fg"] = self.color_btemp(btemp[0])
-                    self.bar_btemp_fr["fg"] = self.color_btemp(btemp[1])
-                    self.bar_btemp_rl["fg"] = self.color_btemp(btemp[2])
-                    self.bar_btemp_rr["fg"] = self.color_btemp(btemp[3])
+            self.bar_ttemp_fl.config(text=ttemp_d[0])
+            self.bar_ttemp_fr.config(text=ttemp_d[1])
+            self.bar_ttemp_rl.config(text=ttemp_d[2])
+            self.bar_ttemp_rr.config(text=ttemp_d[3])
 
-                self.bar_ttemp_fl.config(text=ttemp_d[0])
-                self.bar_ttemp_fr.config(text=ttemp_d[1])
-                self.bar_ttemp_rl.config(text=ttemp_d[2])
-                self.bar_ttemp_rr.config(text=ttemp_d[3])
-
-                self.bar_btemp_fl.config(text=btemp_d[0])
-                self.bar_btemp_fr.config(text=btemp_d[1])
-                self.bar_btemp_rl.config(text=btemp_d[2])
-                self.bar_btemp_rr.config(text=btemp_d[3])
+            self.bar_btemp_fl.config(text=btemp_d[0])
+            self.bar_btemp_fr.config(text=btemp_d[1])
+            self.bar_btemp_rl.config(text=btemp_d[2])
+            self.bar_btemp_rr.config(text=btemp_d[3])
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

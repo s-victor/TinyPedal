@@ -46,6 +46,7 @@ class Draw(Widget, MouseEvent):
         bar_gap = self.wcfg["bar_gap"]
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
+        self.checked = False
         self.stint_running = 0  # check whether current stint running
         self.reset_stint = 1  # reset stint stats
 
@@ -116,69 +117,73 @@ class Draw(Widget, MouseEvent):
         """Update when vehicle on track"""
         if read_data.state() and self.wcfg["enable"]:
 
+            # Reset switch
+            if not self.checked:
+                self.checked = True
+
             # Read stint data
             (lap_num, wear_avg, fuel_curr, time_curr, inpits, tire_idx, game_phase
              ) = read_data.stint()
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
+            # Start updating
+            fuel_curr = calc.conv_fuel(fuel_curr, self.wcfg["fuel_unit"])
+            ftire_cmpd = self.wcfg["tyre_compound_list"][tire_idx[0]:(tire_idx[0]+1)]
+            rtire_cmpd = self.wcfg["tyre_compound_list"][tire_idx[1]:(tire_idx[1]+1)]
 
-                fuel_curr = calc.conv_fuel(fuel_curr, self.wcfg["fuel_unit"])
-                ftire_cmpd = self.wcfg["tyre_compound_list"][tire_idx[0]:(tire_idx[0]+1)]
-                rtire_cmpd = self.wcfg["tyre_compound_list"][tire_idx[1]:(tire_idx[1]+1)]
+            stint_lap = max(lap_num - self.start_lap, 0)
+            stint_time = max(time_curr - self.start_time, 0)
+            stint_fuel = max(self.start_fuel - fuel_curr, 0)
+            stint_wear = max(wear_avg - self.start_wear, 0)
+            stint_cmpd = f"{ftire_cmpd}{rtire_cmpd}"
 
-                stint_lap = max(lap_num - self.start_lap, 0)
-                stint_time = max(time_curr - self.start_time, 0)
-                stint_fuel = max(self.start_fuel - fuel_curr, 0)
-                stint_wear = max(wear_avg - self.start_wear, 0)
-                stint_cmpd = f"{ftire_cmpd}{rtire_cmpd}"
+            if not inpits:
+                self.last_fuel = fuel_curr
+                self.last_wear = stint_wear
+                self.last_cmpd = stint_cmpd
+                self.stint_running = 1
+            else:
+                if self.stint_running:
+                    if (self.last_wear > stint_wear) or (self.last_fuel < fuel_curr):
+                        self.last_stint_lap = stint_lap
+                        self.last_stint_time = stint_time
+                        self.last_stint_fuel = stint_fuel
+                        self.last_stint_wear = self.last_wear
+                        self.last_stint_cmpd = self.last_cmpd
+                        self.stint_running = 0
+                        self.reset_stint = 1
 
-                if not inpits:
-                    self.last_fuel = fuel_curr
-                    self.last_wear = stint_wear
-                    self.last_cmpd = stint_cmpd
-                    self.stint_running = 1
-                else:
-                    if self.stint_running:
-                        if (self.last_wear > stint_wear) or (self.last_fuel < fuel_curr):
-                            self.last_stint_lap = stint_lap
-                            self.last_stint_time = stint_time
-                            self.last_stint_fuel = stint_fuel
-                            self.last_stint_wear = self.last_wear
-                            self.last_stint_cmpd = self.last_cmpd
-                            self.stint_running = 0
-                            self.reset_stint = 1
+            if self.reset_stint:
+                self.start_lap = lap_num
+                self.start_time = time_curr
+                self.start_fuel = fuel_curr
+                self.start_wear = wear_avg
+                self.reset_stint = 0
 
-                if self.reset_stint:
-                    self.start_lap = lap_num
-                    self.start_time = time_curr
-                    self.start_fuel = fuel_curr
-                    self.start_wear = wear_avg
-                    self.reset_stint = 0
+            if game_phase < 5:  # reset stint stats if session has not started
+                self.reset_stint = 1
 
-                if game_phase < 5:  # reset stint stats if session has not started
-                    self.reset_stint = 1
+            if self.wcfg["fuel_unit"] == 0:
+                fuel_text = f"{stint_fuel:05.01f}"
+                last_fuel_text = f"{self.last_stint_fuel:05.01f}"
+            else:
+                fuel_text = f"{stint_fuel:05.02f}"
+                last_fuel_text = f"{self.last_stint_fuel:05.02f}"
 
-                if self.wcfg["fuel_unit"] == 0:
-                    fuel_text = f"{stint_fuel:05.01f}"
-                    last_fuel_text = f"{self.last_stint_fuel:05.01f}"
-                else:
-                    fuel_text = f"{stint_fuel:05.02f}"
-                    last_fuel_text = f"{self.last_stint_fuel:05.02f}"
+            self.bar_laps.config(text=f"{stint_cmpd}{stint_lap: =03.0f}")
+            self.bar_time.config(text=calc.sec2stinttime(stint_time))
+            self.bar_fuel.config(text=fuel_text)
+            self.bar_wear.config(text=f"{stint_wear:02.0f}%")
 
-                self.bar_laps.config(text=f"{stint_cmpd}{stint_lap: =03.0f}")
-                self.bar_time.config(text=calc.sec2stinttime(stint_time))
-                self.bar_fuel.config(text=fuel_text)
-                self.bar_wear.config(text=f"{stint_wear:02.0f}%")
-
-                self.bar_last_laps.config(text=f"{self.last_stint_cmpd}{self.last_stint_lap: =03.0f}")
-                self.bar_last_time.config(text=calc.sec2stinttime(self.last_stint_time))
-                self.bar_last_fuel.config(text=last_fuel_text)
-                self.bar_last_wear.config(text=f"{self.last_stint_wear:02.0f}%")
+            self.bar_last_laps.config(text=f"{self.last_stint_cmpd}{self.last_stint_lap: =03.0f}")
+            self.bar_last_time.config(text=calc.sec2stinttime(self.last_stint_time))
+            self.bar_last_fuel.config(text=last_fuel_text)
+            self.bar_last_wear.config(text=f"{self.last_stint_wear:02.0f}%")
 
         else:
-            self.stint_running = 0
-            self.reset_stint = 1
+            if self.checked:
+                self.checked = False
+                self.stint_running = 0
+                self.reset_stint = 1
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

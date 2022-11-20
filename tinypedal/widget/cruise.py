@@ -90,48 +90,46 @@ class Draw(Widget, MouseEvent):
             # Read cruise data
             ori_yaw, pos_y, time_start, time_curr = read_data.cruise()
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
+            # Start updating
+            # Cruise update
+            self.bar_compass.config(text=f"{ori_yaw:03.0f}°{self.deg2direction(ori_yaw)}")
 
-                # Cruise update
-                self.bar_compass.config(text=f"{ori_yaw:03.0f}°{self.deg2direction(ori_yaw)}")
+            if self.wcfg["show_track_clock"]:
 
-                if self.wcfg["show_track_clock"]:
+                time_offset = time_curr * self.wcfg["track_clock_time_scale"]
 
-                    time_offset = time_curr * self.wcfg["track_clock_time_scale"]
+                while True:
+                    time_diff = (1440 - time_start) + time_offset
 
-                    while True:
-                        time_diff = (1440 - time_start) + time_offset
+                    if time_diff <= -time_start:
+                        time_offset += time_diff
+                    elif time_diff > -time_start:
+                        break
 
-                        if time_diff <= -time_start:
-                            time_offset += time_diff
-                        elif time_diff > -time_start:
-                            break
+                track_clock = time_start + time_offset
+                clock_text = time.strftime(self.wcfg["track_clock_format"],
+                                           time.gmtime(track_clock))
+                self.bar_trackclock.config(text=clock_text, width=len(clock_text)+1)
 
-                    track_clock = time_start + time_offset
-                    clock_text = time.strftime(self.wcfg["track_clock_format"],
-                                               time.gmtime(track_clock))
-                    self.bar_trackclock.config(text=clock_text, width=len(clock_text)+1)
+            if self.wcfg["show_elevation"]:
+                if self.wcfg["elevation_unit"] == "1":
+                    pos_y *= 3.2808399
+                    elev_text = f"↑ {pos_y: =03.0f}ft"
+                else:
+                    elev_text = f"↑ {pos_y: =03.0f}m"
 
-                if self.wcfg["show_elevation"]:
-                    if self.wcfg["elevation_unit"] == "1":
-                        pos_y *= 3.2808399
-                        elev_text = f"↑ {pos_y: =03.0f}ft"
-                    else:
-                        elev_text = f"↑ {pos_y: =03.0f}m"
+                self.bar_elevation.config(text=elev_text, width=len(elev_text)+1)
 
-                    self.bar_elevation.config(text=elev_text, width=len(elev_text)+1)
+            if self.wcfg["show_odometer"]:
+                traveled_distance = module.delta_time.meters_driven * 0.001
 
-                if self.wcfg["show_odometer"]:
-                    traveled_distance = module.delta_time.meters_driven * 0.001
+                if self.wcfg["odometer_unit"] == "1":
+                    traveled_distance /= 1.609344
+                    dist_text = f"{traveled_distance:06.01f}mi"
+                else:
+                    dist_text = f"{traveled_distance:06.01f}km"
 
-                    if self.wcfg["odometer_unit"] == "1":
-                        traveled_distance /= 1.609344
-                        dist_text = f"{traveled_distance:06.01f}mi"
-                    else:
-                        dist_text = f"{traveled_distance:06.01f}km"
-
-                    self.bar_odometer.config(text=dist_text, width=len(dist_text)+1)
+                self.bar_odometer.config(text=dist_text, width=len(dist_text)+1)
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

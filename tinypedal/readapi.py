@@ -37,7 +37,7 @@ import tinypedal.calculation as calc
 
 # Load Shared Memory API
 info = SimInfoAPI("")
-info.startUpdating()  # start player index updating thread
+info.startUpdating()  # start Shared Memory updating thread
 
 chknm = calc.in2zero
 cs2py = Cbytestring2Python
@@ -45,15 +45,7 @@ cs2py = Cbytestring2Python
 
 def state():
     """Check whether is driving"""
-    return f"{info.Rf2Ffb.mForceValue}" != "0.0"
-
-
-def is_local_player():
-    """Check if is local player"""
-    idx_a = info.players_index
-    idx_b = info.playerIndexCheck()
-    local = info.Rf2Scor.mVehicles[idx_b].mControl
-    return idx_a == idx_b and local != 2 and info.total_vehicles == info.Rf2Tele.mNumVehicles
+    return info.playersVehicleTelemetry().mIgnitionStarter != 0
 
 
 def cruise():
@@ -61,8 +53,8 @@ def cruise():
     ori_yaw = 180 - (calc.oriyaw2rad(chknm(info.playersVehicleTelemetry().mOri[2].x),
                                      chknm(info.playersVehicleTelemetry().mOri[2].z)) * 57.2957795)
     pos_y = chknm(info.playersVehicleScoring().mPos.y)
-    time_start = chknm(info.Rf2Scor.mScoringInfo.mStartET)
-    time_curr = chknm(info.Rf2Scor.mScoringInfo.mCurrentET)
+    time_start = chknm(info.LastScor.mScoringInfo.mStartET)
+    time_curr = chknm(info.LastScor.mScoringInfo.mCurrentET)
     return ori_yaw, pos_y, time_start, time_curr
 
 
@@ -112,8 +104,8 @@ def gear():
                            chknm(info.playersVehicleTelemetry().mLocalVel.z))
     rpm = chknm(info.playersVehicleTelemetry().mEngineRPM)
     rpm_max = chknm(info.playersVehicleTelemetry().mEngineMaxRPM)
-    race_phase = chknm(info.Rf2Scor.mScoringInfo.mGamePhase)
-    curr_session = chknm(info.Rf2Scor.mScoringInfo.mSession)
+    race_phase = chknm(info.LastScor.mScoringInfo.mGamePhase)
+    curr_session = chknm(info.LastScor.mScoringInfo.mSession)
     return pit_limiter, mgear, speed, rpm, rpm_max, race_phase, curr_session
 
 
@@ -125,9 +117,9 @@ def blue_flag():
 
 def yellow_flag():
     """Yellow flag data"""
-    yellow_s1 = chknm(info.Rf2Scor.mScoringInfo.mSectorFlag[0])
-    yellow_s2 = chknm(info.Rf2Scor.mScoringInfo.mSectorFlag[1])
-    yellow_s3 = chknm(info.Rf2Scor.mScoringInfo.mSectorFlag[2])
+    yellow_s1 = chknm(info.LastScor.mScoringInfo.mSectorFlag[0])
+    yellow_s2 = chknm(info.LastScor.mScoringInfo.mSectorFlag[1])
+    yellow_s3 = chknm(info.LastScor.mScoringInfo.mSectorFlag[2])
     return yellow_s1, yellow_s2, yellow_s3
 
 
@@ -140,20 +132,20 @@ def lap_timestamp():
 
 def startlights():
     """Startlights data"""
-    lights_frame = chknm(info.Rf2Scor.mScoringInfo.mStartLight)
-    lights_number = chknm(info.Rf2Scor.mScoringInfo.mNumRedLights) + 1
+    lights_frame = chknm(info.LastScor.mScoringInfo.mStartLight)
+    lights_number = chknm(info.LastScor.mScoringInfo.mNumRedLights) + 1
     return lights_number - lights_frame
 
 
 def session():
     """Session data"""
-    time_left = chknm(info.Rf2Scor.mScoringInfo.mEndET) - chknm(info.Rf2Scor.mScoringInfo.mCurrentET)
-    lap_total = chknm(info.Rf2Scor.mScoringInfo.mMaxLaps)
+    time_left = chknm(info.LastScor.mScoringInfo.mEndET) - chknm(info.LastScor.mScoringInfo.mCurrentET)
+    lap_total = chknm(info.LastScor.mScoringInfo.mMaxLaps)
     lap_num = chknm(info.playersVehicleTelemetry().mLapNumber)
     plr_place = chknm(info.playersVehicleScoring().mPlace)
-    veh_total = chknm(info.Rf2Tele.mNumVehicles)
+    veh_total = chknm(info.LastTele.mNumVehicles)
     lap_into = min(max(chknm(info.playersVehicleScoring().mLapDist) * 100
-                       / max(chknm(info.Rf2Scor.mScoringInfo.mLapDist), 1), 0), 99)
+                       / max(chknm(info.LastScor.mScoringInfo.mLapDist), 1), 0), 99)
     return time_left, lap_total, lap_num, plr_place, veh_total, lap_into
 
 
@@ -163,11 +155,11 @@ def stint():
     wear_avg = 100 - (sum([chknm(info.playersVehicleTelemetry().mWheels[data].mWear)
                            for data in range(4)]) * 25)
     fuel_curr = chknm(info.playersVehicleTelemetry().mFuel)
-    time_curr = chknm(info.Rf2Scor.mScoringInfo.mCurrentET)
+    time_curr = chknm(info.LastScor.mScoringInfo.mCurrentET)
     inpits = chknm(info.playersVehicleScoring().mInPits)
     tire_idx = (chknm(info.playersVehicleTelemetry().mFrontTireCompoundIndex),
                 chknm(info.playersVehicleTelemetry().mRearTireCompoundIndex))
-    game_phase = chknm(info.Rf2Scor.mScoringInfo.mGamePhase)
+    game_phase = chknm(info.LastScor.mScoringInfo.mGamePhase)
     return lap_num, wear_avg, fuel_curr, time_curr, inpits, tire_idx, game_phase
 
 
@@ -271,10 +263,10 @@ def engine():
 
 def weather():
     """Weather data"""
-    amb_temp = chknm(info.Rf2Scor.mScoringInfo.mAmbientTemp)
-    trk_temp = chknm(info.Rf2Scor.mScoringInfo.mTrackTemp)
-    rain = chknm(info.Rf2Scor.mScoringInfo.mRaining) * 100
-    min_wet = chknm(info.Rf2Scor.mScoringInfo.mMinPathWetness) * 100
-    max_wet = chknm(info.Rf2Scor.mScoringInfo.mMaxPathWetness) * 100
-    avg_wet = chknm(info.Rf2Scor.mScoringInfo.mAvgPathWetness) * 100
+    amb_temp = chknm(info.LastScor.mScoringInfo.mAmbientTemp)
+    trk_temp = chknm(info.LastScor.mScoringInfo.mTrackTemp)
+    rain = chknm(info.LastScor.mScoringInfo.mRaining) * 100
+    min_wet = chknm(info.LastScor.mScoringInfo.mMinPathWetness) * 100
+    max_wet = chknm(info.LastScor.mScoringInfo.mMaxPathWetness) * 100
+    avg_wet = chknm(info.LastScor.mScoringInfo.mAvgPathWetness) * 100
     return amb_temp, trk_temp, rain, min_wet, max_wet, avg_wet

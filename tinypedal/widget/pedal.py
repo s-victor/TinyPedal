@@ -120,62 +120,60 @@ class Draw(Widget, MouseEvent):
              ) = [calc.pedal_pos(data, self.pbar_length, self.wcfg["bar_length_scale"])
                   for data in read_data.pedal()]
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
+            # Start updating
+            self.bar_throttle.coords(self.rect_raw_throttle, 0,
+                                     self.pbar_length, self.pbar_uwidth,
+                                     raw_throttle)
+            self.bar_throttle.coords(self.rect_throttle, self.pbar_uwidth,
+                                     self.pbar_length, self.pbar_cwidth,
+                                     throttle)
+            self.bar_brake.coords(self.rect_raw_brake, 0,
+                                  self.pbar_length, self.pbar_uwidth,
+                                  raw_brake)
+            self.bar_brake.coords(self.rect_brake, self.pbar_uwidth,
+                                  self.pbar_length, self.pbar_cwidth,
+                                  brake)
+            self.bar_clutch.coords(self.rect_raw_clutch, 0,
+                                   self.pbar_length, self.pbar_uwidth,
+                                   raw_clutch)
+            self.bar_clutch.coords(self.rect_clutch, self.pbar_uwidth,
+                                   self.pbar_length, self.pbar_cwidth,
+                                   clutch)
 
-                self.bar_throttle.coords(self.rect_raw_throttle, 0,
-                                         self.pbar_length, self.pbar_uwidth,
-                                         raw_throttle)
-                self.bar_throttle.coords(self.rect_throttle, self.pbar_uwidth,
-                                         self.pbar_length, self.pbar_cwidth,
-                                         throttle)
-                self.bar_brake.coords(self.rect_raw_brake, 0,
-                                      self.pbar_length, self.pbar_uwidth,
-                                      raw_brake)
-                self.bar_brake.coords(self.rect_brake, self.pbar_uwidth,
-                                      self.pbar_length, self.pbar_cwidth,
-                                      brake)
-                self.bar_clutch.coords(self.rect_raw_clutch, 0,
-                                       self.pbar_length, self.pbar_uwidth,
-                                       raw_clutch)
-                self.bar_clutch.coords(self.rect_clutch, self.pbar_uwidth,
-                                       self.pbar_length, self.pbar_cwidth,
-                                       clutch)
+            # Pedal update
+            if raw_throttle <= self.pbar_extend:
+                self.bar_throttle.itemconfig(
+                    self.max_throttle, fill=self.wcfg["throttle_color"])
+            else:
+                self.bar_throttle.itemconfig(
+                    self.max_throttle, fill=self.wcfg["bkg_color"])
 
-                # Pedal update
-                if raw_throttle <= self.pbar_extend:
-                    self.bar_throttle.itemconfig(
-                        self.max_throttle, fill=self.wcfg["throttle_color"])
+            if raw_brake <= self.pbar_extend:
+                self.bar_brake.itemconfig(
+                    self.max_brake, fill=self.wcfg["brake_color"])
+            else:
+                self.bar_brake.itemconfig(
+                    self.max_brake, fill=self.wcfg["bkg_color"])
+
+            if raw_clutch <= self.pbar_extend:
+                self.bar_clutch.itemconfig(
+                    self.max_clutch, fill=self.wcfg["clutch_color"])
+            else:
+                self.bar_clutch.itemconfig(
+                    self.max_clutch, fill=self.wcfg["bkg_color"])
+
+            # Force feedback update
+            if self.wcfg["show_ffb_meter"]:
+                if ffb <= self.pbar_extend:
+                    self.bar_ffb.coords(
+                        self.rect_ffb, 0, self.pbar_length, self.pbar_cwidth, 0)
+                    self.bar_ffb.itemconfig(
+                        self.rect_ffb, fill=self.wcfg["ffb_clipping_color"])
                 else:
-                    self.bar_throttle.itemconfig(
-                        self.max_throttle, fill=self.wcfg["bkg_color"])
-
-                if raw_brake <= self.pbar_extend:
-                    self.bar_brake.itemconfig(
-                        self.max_brake, fill=self.wcfg["brake_color"])
-                else:
-                    self.bar_brake.itemconfig(
-                        self.max_brake, fill=self.wcfg["bkg_color"])
-
-                if raw_clutch <= self.pbar_extend:
-                    self.bar_clutch.itemconfig(
-                        self.max_clutch, fill=self.wcfg["clutch_color"])
-                else:
-                    self.bar_clutch.itemconfig(
-                        self.max_clutch, fill=self.wcfg["bkg_color"])
-
-                # Force feedback update
-                if self.wcfg["show_ffb_meter"]:
-                    if ffb <= self.pbar_extend:
-                        self.bar_ffb.coords(
-                            self.rect_ffb, 0, self.pbar_length, self.pbar_cwidth, 0)
-                        self.bar_ffb.itemconfig(
-                            self.rect_ffb, fill=self.wcfg["ffb_clipping_color"])
-                    else:
-                        self.bar_ffb.coords(
-                            self.rect_ffb, 0, self.pbar_length, self.pbar_cwidth, ffb)
-                        self.bar_ffb.itemconfig(
-                            self.rect_ffb, fill=self.wcfg["ffb_color"])
+                    self.bar_ffb.coords(
+                        self.rect_ffb, 0, self.pbar_length, self.pbar_cwidth, ffb)
+                    self.bar_ffb.itemconfig(
+                        self.rect_ffb, fill=self.wcfg["ffb_color"])
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

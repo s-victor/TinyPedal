@@ -80,15 +80,13 @@ class Draw(Widget, MouseEvent):
             # Read g-force & downforce data
             gf_lgt, gf_lat, df_ratio = read_data.force()
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
+            # Start updating
+            # Force update
+            self.bar_gforce_lgt.config(text=calc.gforce_lgt(gf_lgt) + f" {abs(gf_lgt):.2f}")
+            self.bar_gforce_lat.config(text=f"{abs(gf_lat):.2f} " + calc.gforce_lat(gf_lat))
 
-                # Force update
-                self.bar_gforce_lgt.config(text=calc.gforce_lgt(gf_lgt) + f" {abs(gf_lgt):.2f}")
-                self.bar_gforce_lat.config(text=f"{abs(gf_lat):.2f} " + calc.gforce_lat(gf_lat))
-
-                if self.wcfg["show_downforce_ratio"]:
-                    self.bar_dforce.config(text=f"{df_ratio:04.02f}%")
+            if self.wcfg["show_downforce_ratio"]:
+                self.bar_dforce.config(text=f"{df_ratio:04.02f}%")
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

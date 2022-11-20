@@ -94,41 +94,39 @@ class Draw(Widget, MouseEvent):
             # Read steering data
             raw_steering, steering_wheel_rot_range = read_data.steering()
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
+            # Start updating
+            # Steering update
+            raw_steering = calc.steering_pos(raw_steering, self.sbar_length)
 
-                # Steering update
-                raw_steering = calc.steering_pos(raw_steering, self.sbar_length)
+            if raw_steering <= self.sbar_length:
+                self.bar_steering.coords(self.rect_steering_lt, raw_steering,
+                                         0, self.sbar_length, self.sbar_height)
+                self.bar_steering.coords(self.rect_steering_rt, self.sbar_length,
+                                         0, self.sbar_length + 1, self.sbar_height)
+            else:
+                self.bar_steering.coords(self.rect_steering_lt, self.sbar_length - 1,
+                                         0, self.sbar_length, self.sbar_height)
+                self.bar_steering.coords(self.rect_steering_rt, self.sbar_length,
+                                         0, raw_steering, self.sbar_height)
 
-                if raw_steering <= self.sbar_length:
-                    self.bar_steering.coords(self.rect_steering_lt, raw_steering,
-                                             0, self.sbar_length, self.sbar_height)
-                    self.bar_steering.coords(self.rect_steering_rt, self.sbar_length,
-                                             0, self.sbar_length + 1, self.sbar_height)
-                else:
-                    self.bar_steering.coords(self.rect_steering_lt, self.sbar_length - 1,
-                                             0, self.sbar_length, self.sbar_height)
-                    self.bar_steering.coords(self.rect_steering_rt, self.sbar_length,
-                                             0, raw_steering, self.sbar_height)
+            # Scale mark update
+            if self.wcfg["show_scale_mark"]:
+                if steering_wheel_rot_range != self.last_rot_range:  # recalc if changed
+                    self.last_rot_range = steering_wheel_rot_range
 
-                # Scale mark update
-                if self.wcfg["show_scale_mark"]:
-                    if steering_wheel_rot_range != self.last_rot_range:  # recalc if changed
-                        self.last_rot_range = steering_wheel_rot_range
+                    scale_mark_gap = calc.scale_mark_gap(
+                                   90, steering_wheel_rot_range, self.sbar_length)
 
-                        scale_mark_gap = calc.scale_mark_gap(
-                                       90, steering_wheel_rot_range, self.sbar_length)
-
-                        self.create_mark(self.rect_mark_lt1, -scale_mark_gap, 1, -1)
-                        self.create_mark(self.rect_mark_lt2, -scale_mark_gap, 2, -1)
-                        self.create_mark(self.rect_mark_lt3, -scale_mark_gap, 3, -1)
-                        self.create_mark(self.rect_mark_lt4, -scale_mark_gap, 4, -1)
-                        self.create_mark(self.rect_mark_lt5, -scale_mark_gap, 5, -1)
-                        self.create_mark(self.rect_mark_rt1, scale_mark_gap, 1, 0)
-                        self.create_mark(self.rect_mark_rt2, scale_mark_gap, 2, 0)
-                        self.create_mark(self.rect_mark_rt3, scale_mark_gap, 3, 0)
-                        self.create_mark(self.rect_mark_rt4, scale_mark_gap, 4, 0)
-                        self.create_mark(self.rect_mark_rt5, scale_mark_gap, 5, 0)
+                    self.create_mark(self.rect_mark_lt1, -scale_mark_gap, 1, -1)
+                    self.create_mark(self.rect_mark_lt2, -scale_mark_gap, 2, -1)
+                    self.create_mark(self.rect_mark_lt3, -scale_mark_gap, 3, -1)
+                    self.create_mark(self.rect_mark_lt4, -scale_mark_gap, 4, -1)
+                    self.create_mark(self.rect_mark_lt5, -scale_mark_gap, 5, -1)
+                    self.create_mark(self.rect_mark_rt1, scale_mark_gap, 1, 0)
+                    self.create_mark(self.rect_mark_rt2, scale_mark_gap, 2, 0)
+                    self.create_mark(self.rect_mark_rt3, scale_mark_gap, 3, 0)
+                    self.create_mark(self.rect_mark_rt4, scale_mark_gap, 4, 0)
+                    self.create_mark(self.rect_mark_rt5, scale_mark_gap, 5, 0)
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

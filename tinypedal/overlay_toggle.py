@@ -113,12 +113,7 @@ class OverlayAutoHide:
 
     def __autohide(self):
         """Auto hide overlay"""
-        while True:
-            if not self.running:
-                self.stopped = True
-                print("auto-hide module closed")
-                break
-
+        while self.running:
             if self.cfg.overlay["auto_hide"]:
                 if read_data.state():
                     self.show()
@@ -128,6 +123,10 @@ class OverlayAutoHide:
                 self.show()
 
             time.sleep(0.4)
+
+        else:
+            self.stopped = True
+            print("auto-hide module closed")
 
     def toggle(self):
         """Toggle hide state"""

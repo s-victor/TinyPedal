@@ -440,221 +440,219 @@ class Draw(Widget, MouseEvent):
             rel_idx, cls_info, plr_idx = module.relative_info.relative_list
             veh_center = int(3 + self.rel_add_front)
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
+            # Start updating
+            # 0 place, 1 driver, 2 laptime, 3 pos_class, 4 veh_f_01lass, 5 time_gap, 6 num_lap, 7 in_pit
+            veh_plr = module.relative_info.relative_data(plr_idx, plr_idx, cls_info)
 
-                # 0 place, 1 driver, 2 laptime, 3 pos_class, 4 veh_f_01lass, 5 time_gap, 6 num_lap, 7 in_pit
-                veh_plr = module.relative_info.relative_data(plr_idx, plr_idx, cls_info)
+            veh_f_03 = module.relative_info.relative_data(rel_idx[veh_center - 3], plr_idx, cls_info)
+            veh_f_02 = module.relative_info.relative_data(rel_idx[veh_center - 2], plr_idx, cls_info)
+            veh_f_01 = module.relative_info.relative_data(rel_idx[veh_center - 1], plr_idx, cls_info)
+            veh_r_01 = module.relative_info.relative_data(rel_idx[veh_center + 1], plr_idx, cls_info)
+            veh_r_02 = module.relative_info.relative_data(rel_idx[veh_center + 2], plr_idx, cls_info)
+            veh_r_03 = module.relative_info.relative_data(rel_idx[veh_center + 3], plr_idx, cls_info)
 
-                veh_f_03 = module.relative_info.relative_data(rel_idx[veh_center - 3], plr_idx, cls_info)
-                veh_f_02 = module.relative_info.relative_data(rel_idx[veh_center - 2], plr_idx, cls_info)
-                veh_f_01 = module.relative_info.relative_data(rel_idx[veh_center - 1], plr_idx, cls_info)
-                veh_r_01 = module.relative_info.relative_data(rel_idx[veh_center + 1], plr_idx, cls_info)
-                veh_r_02 = module.relative_info.relative_data(rel_idx[veh_center + 2], plr_idx, cls_info)
-                veh_r_03 = module.relative_info.relative_data(rel_idx[veh_center + 3], plr_idx, cls_info)
+            if self.rel_add_front > 0:
+                veh_f_04 = module.relative_info.relative_data(rel_idx[veh_center - 4], plr_idx, cls_info)
+            if self.rel_add_behind > 0:
+                veh_r_04 = module.relative_info.relative_data(rel_idx[veh_center + 4], plr_idx, cls_info)
+            if self.rel_add_front > 1:
+                veh_f_05 = module.relative_info.relative_data(rel_idx[veh_center - 5], plr_idx, cls_info)
+            if self.rel_add_behind > 1:
+                veh_r_05 = module.relative_info.relative_data(rel_idx[veh_center + 5], plr_idx, cls_info)
+            if self.rel_add_front > 2:
+                veh_f_06 = module.relative_info.relative_data(rel_idx[veh_center - 6], plr_idx, cls_info)
+            if self.rel_add_behind > 2:
+                veh_r_06 = module.relative_info.relative_data(rel_idx[veh_center + 6], plr_idx, cls_info)
 
-                if self.rel_add_front > 0:
-                    veh_f_04 = module.relative_info.relative_data(rel_idx[veh_center - 4], plr_idx, cls_info)
-                if self.rel_add_behind > 0:
-                    veh_r_04 = module.relative_info.relative_data(rel_idx[veh_center + 4], plr_idx, cls_info)
-                if self.rel_add_front > 1:
-                    veh_f_05 = module.relative_info.relative_data(rel_idx[veh_center - 5], plr_idx, cls_info)
-                if self.rel_add_behind > 1:
-                    veh_r_05 = module.relative_info.relative_data(rel_idx[veh_center + 5], plr_idx, cls_info)
-                if self.rel_add_front > 2:
-                    veh_f_06 = module.relative_info.relative_data(rel_idx[veh_center - 6], plr_idx, cls_info)
-                if self.rel_add_behind > 2:
-                    veh_r_06 = module.relative_info.relative_data(rel_idx[veh_center + 6], plr_idx, cls_info)
+            # Relative update
+            # Driver place
+            self.row_plrp.config(text=veh_plr[0])
 
-                # Relative update
-                # Driver place
-                self.row_plrp.config(text=veh_plr[0])
+            self.row_f_03p.config(text=veh_f_03[0], fg=self.color_lapdiff(veh_f_03[6], veh_plr[6]))
+            self.row_f_02p.config(text=veh_f_02[0], fg=self.color_lapdiff(veh_f_02[6], veh_plr[6]))
+            self.row_f_01p.config(text=veh_f_01[0], fg=self.color_lapdiff(veh_f_01[6], veh_plr[6]))
+            self.row_r_01p.config(text=veh_r_01[0], fg=self.color_lapdiff(veh_r_01[6], veh_plr[6]))
+            self.row_r_02p.config(text=veh_r_02[0], fg=self.color_lapdiff(veh_r_02[6], veh_plr[6]))
+            self.row_r_03p.config(text=veh_r_03[0], fg=self.color_lapdiff(veh_r_03[6], veh_plr[6]))
 
-                self.row_f_03p.config(text=veh_f_03[0], fg=self.color_lapdiff(veh_f_03[6], veh_plr[6]))
-                self.row_f_02p.config(text=veh_f_02[0], fg=self.color_lapdiff(veh_f_02[6], veh_plr[6]))
-                self.row_f_01p.config(text=veh_f_01[0], fg=self.color_lapdiff(veh_f_01[6], veh_plr[6]))
-                self.row_r_01p.config(text=veh_r_01[0], fg=self.color_lapdiff(veh_r_01[6], veh_plr[6]))
-                self.row_r_02p.config(text=veh_r_02[0], fg=self.color_lapdiff(veh_r_02[6], veh_plr[6]))
-                self.row_r_03p.config(text=veh_r_03[0], fg=self.color_lapdiff(veh_r_03[6], veh_plr[6]))
+            if self.rel_add_front > 0:
+                self.row_f_04p.config(text=veh_f_04[0], fg=self.color_lapdiff(veh_f_04[6], veh_plr[6]))
+            if self.rel_add_behind > 0:
+                self.row_r_04p.config(text=veh_r_04[0], fg=self.color_lapdiff(veh_r_04[6], veh_plr[6]))
+            if self.rel_add_front > 1:
+                self.row_f_05p.config(text=veh_f_05[0], fg=self.color_lapdiff(veh_f_05[6], veh_plr[6]))
+            if self.rel_add_behind > 1:
+                self.row_r_05p.config(text=veh_r_05[0], fg=self.color_lapdiff(veh_r_05[6], veh_plr[6]))
+            if self.rel_add_front > 2:
+                self.row_f_06p.config(text=veh_f_06[0], fg=self.color_lapdiff(veh_f_06[6], veh_plr[6]))
+            if self.rel_add_behind > 2:
+                self.row_r_06p.config(text=veh_r_06[0], fg=self.color_lapdiff(veh_r_06[6], veh_plr[6]))
 
-                if self.rel_add_front > 0:
-                    self.row_f_04p.config(text=veh_f_04[0], fg=self.color_lapdiff(veh_f_04[6], veh_plr[6]))
-                if self.rel_add_behind > 0:
-                    self.row_r_04p.config(text=veh_r_04[0], fg=self.color_lapdiff(veh_r_04[6], veh_plr[6]))
-                if self.rel_add_front > 1:
-                    self.row_f_05p.config(text=veh_f_05[0], fg=self.color_lapdiff(veh_f_05[6], veh_plr[6]))
-                if self.rel_add_behind > 1:
-                    self.row_r_05p.config(text=veh_r_05[0], fg=self.color_lapdiff(veh_r_05[6], veh_plr[6]))
-                if self.rel_add_front > 2:
-                    self.row_f_06p.config(text=veh_f_06[0], fg=self.color_lapdiff(veh_f_06[6], veh_plr[6]))
-                if self.rel_add_behind > 2:
-                    self.row_r_06p.config(text=veh_r_06[0], fg=self.color_lapdiff(veh_r_06[6], veh_plr[6]))
+            # Driver name
+            self.row_plrn.config(text=veh_plr[1][:self.drv_width])
 
-                # Driver name
-                self.row_plrn.config(text=veh_plr[1][:self.drv_width])
+            self.row_f_03n.config(text=veh_f_03[1][:self.drv_width], fg=self.color_lapdiff(veh_f_03[6], veh_plr[6]))
+            self.row_f_02n.config(text=veh_f_02[1][:self.drv_width], fg=self.color_lapdiff(veh_f_02[6], veh_plr[6]))
+            self.row_f_01n.config(text=veh_f_01[1][:self.drv_width], fg=self.color_lapdiff(veh_f_01[6], veh_plr[6]))
+            self.row_r_01n.config(text=veh_r_01[1][:self.drv_width], fg=self.color_lapdiff(veh_r_01[6], veh_plr[6]))
+            self.row_r_02n.config(text=veh_r_02[1][:self.drv_width], fg=self.color_lapdiff(veh_r_02[6], veh_plr[6]))
+            self.row_r_03n.config(text=veh_r_03[1][:self.drv_width], fg=self.color_lapdiff(veh_r_03[6], veh_plr[6]))
 
-                self.row_f_03n.config(text=veh_f_03[1][:self.drv_width], fg=self.color_lapdiff(veh_f_03[6], veh_plr[6]))
-                self.row_f_02n.config(text=veh_f_02[1][:self.drv_width], fg=self.color_lapdiff(veh_f_02[6], veh_plr[6]))
-                self.row_f_01n.config(text=veh_f_01[1][:self.drv_width], fg=self.color_lapdiff(veh_f_01[6], veh_plr[6]))
-                self.row_r_01n.config(text=veh_r_01[1][:self.drv_width], fg=self.color_lapdiff(veh_r_01[6], veh_plr[6]))
-                self.row_r_02n.config(text=veh_r_02[1][:self.drv_width], fg=self.color_lapdiff(veh_r_02[6], veh_plr[6]))
-                self.row_r_03n.config(text=veh_r_03[1][:self.drv_width], fg=self.color_lapdiff(veh_r_03[6], veh_plr[6]))
+            if self.rel_add_front > 0:
+                self.row_f_04n.config(text=veh_f_04[1][:self.drv_width], fg=self.color_lapdiff(veh_f_04[6], veh_plr[6]))
+            if self.rel_add_behind > 0:
+                self.row_r_04n.config(text=veh_r_04[1][:self.drv_width], fg=self.color_lapdiff(veh_r_04[6], veh_plr[6]))
+            if self.rel_add_front > 1:
+                self.row_f_05n.config(text=veh_f_05[1][:self.drv_width], fg=self.color_lapdiff(veh_f_05[6], veh_plr[6]))
+            if self.rel_add_behind > 1:
+                self.row_r_05n.config(text=veh_r_05[1][:self.drv_width], fg=self.color_lapdiff(veh_r_05[6], veh_plr[6]))
+            if self.rel_add_front > 2:
+                self.row_f_06n.config(text=veh_f_06[1][:self.drv_width], fg=self.color_lapdiff(veh_f_06[6], veh_plr[6]))
+            if self.rel_add_behind > 2:
+                self.row_r_06n.config(text=veh_r_06[1][:self.drv_width], fg=self.color_lapdiff(veh_r_06[6], veh_plr[6]))
 
-                if self.rel_add_front > 0:
-                    self.row_f_04n.config(text=veh_f_04[1][:self.drv_width], fg=self.color_lapdiff(veh_f_04[6], veh_plr[6]))
-                if self.rel_add_behind > 0:
-                    self.row_r_04n.config(text=veh_r_04[1][:self.drv_width], fg=self.color_lapdiff(veh_r_04[6], veh_plr[6]))
-                if self.rel_add_front > 1:
-                    self.row_f_05n.config(text=veh_f_05[1][:self.drv_width], fg=self.color_lapdiff(veh_f_05[6], veh_plr[6]))
-                if self.rel_add_behind > 1:
-                    self.row_r_05n.config(text=veh_r_05[1][:self.drv_width], fg=self.color_lapdiff(veh_r_05[6], veh_plr[6]))
-                if self.rel_add_front > 2:
-                    self.row_f_06n.config(text=veh_f_06[1][:self.drv_width], fg=self.color_lapdiff(veh_f_06[6], veh_plr[6]))
-                if self.rel_add_behind > 2:
-                    self.row_r_06n.config(text=veh_r_06[1][:self.drv_width], fg=self.color_lapdiff(veh_r_06[6], veh_plr[6]))
+            # Vehicle laptime
+            if self.wcfg["show_laptime"]:
+                self.row_plrt.config(text=veh_plr[2])
 
-                # Vehicle laptime
-                if self.wcfg["show_laptime"]:
-                    self.row_plrt.config(text=veh_plr[2])
-
-                    self.row_f_03t.config(text=veh_f_03[2])
-                    self.row_f_02t.config(text=veh_f_02[2])
-                    self.row_f_01t.config(text=veh_f_01[2])
-                    self.row_r_01t.config(text=veh_r_01[2])
-                    self.row_r_02t.config(text=veh_r_02[2])
-                    self.row_r_03t.config(text=veh_r_03[2])
-
-                    if self.rel_add_front > 0:
-                        self.row_f_04t.config(text=veh_f_04[2])
-                    if self.rel_add_behind > 0:
-                        self.row_r_04t.config(text=veh_r_04[2])
-                    if self.rel_add_front > 1:
-                        self.row_f_05t.config(text=veh_f_05[2])
-                    if self.rel_add_behind > 1:
-                        self.row_r_05t.config(text=veh_r_05[2])
-                    if self.rel_add_front > 2:
-                        self.row_f_06t.config(text=veh_f_06[2])
-                    if self.rel_add_behind > 2:
-                        self.row_r_06t.config(text=veh_r_06[2])
-
-                # Vehicle position in class
-                if self.wcfg["show_position_in_class"]:
-                    self.row_plri.config(text=veh_plr[3])
-
-                    self.row_f_03i.config(text=veh_f_03[3])
-                    self.row_f_02i.config(text=veh_f_02[3])
-                    self.row_f_01i.config(text=veh_f_01[3])
-                    self.row_r_01i.config(text=veh_r_01[3])
-                    self.row_r_02i.config(text=veh_r_02[3])
-                    self.row_r_03i.config(text=veh_r_03[3])
-
-                    if self.rel_add_front > 0:
-                        self.row_f_04i.config(text=veh_f_04[3])
-                    if self.rel_add_behind > 0:
-                        self.row_r_04i.config(text=veh_r_04[3])
-                    if self.rel_add_front > 1:
-                        self.row_f_05i.config(text=veh_f_05[3])
-                    if self.rel_add_behind > 1:
-                        self.row_r_05i.config(text=veh_r_05[3])
-                    if self.rel_add_front > 2:
-                        self.row_f_06i.config(text=veh_f_06[3])
-                    if self.rel_add_behind > 2:
-                        self.row_r_06i.config(text=veh_r_06[3])
-
-                # Vehicle class
-                if self.wcfg["show_class"]:
-                    self.row_plrc.config(self.set_class_style(veh_plr[4]))
-
-                    self.row_f_03c.config(self.set_class_style(veh_f_03[4]))
-                    self.row_f_02c.config(self.set_class_style(veh_f_02[4]))
-                    self.row_f_01c.config(self.set_class_style(veh_f_01[4]))
-                    self.row_r_01c.config(self.set_class_style(veh_r_01[4]))
-                    self.row_r_02c.config(self.set_class_style(veh_r_02[4]))
-                    self.row_r_03c.config(self.set_class_style(veh_r_03[4]))
-
-                    if self.rel_add_front > 0:
-                        self.row_f_04c.config(self.set_class_style(veh_f_04[4]))
-                    if self.rel_add_behind > 0:
-                        self.row_r_04c.config(self.set_class_style(veh_r_04[4]))
-                    if self.rel_add_front > 1:
-                        self.row_f_05c.config(self.set_class_style(veh_f_05[4]))
-                    if self.rel_add_behind > 1:
-                        self.row_r_05c.config(self.set_class_style(veh_r_05[4]))
-                    if self.rel_add_front > 2:
-                        self.row_f_06c.config(self.set_class_style(veh_f_06[4]))
-                    if self.rel_add_behind > 2:
-                        self.row_r_06c.config(self.set_class_style(veh_r_06[4]))
-
-                # Tyre compound index
-                if self.wcfg["show_tyre_compound"]:
-                    self.row_plrm.config(text=self.set_tyre_cmp(veh_plr[8]))
-
-                    self.row_f_03m.config(text=self.set_tyre_cmp(veh_f_03[8]))
-                    self.row_f_02m.config(text=self.set_tyre_cmp(veh_f_02[8]))
-                    self.row_f_01m.config(text=self.set_tyre_cmp(veh_f_01[8]))
-                    self.row_r_01m.config(text=self.set_tyre_cmp(veh_r_01[8]))
-                    self.row_r_02m.config(text=self.set_tyre_cmp(veh_r_02[8]))
-                    self.row_r_03m.config(text=self.set_tyre_cmp(veh_r_03[8]))
-
-                    if self.rel_add_front > 0:
-                        self.row_f_04m.config(text=self.set_tyre_cmp(veh_f_04[8]))
-                    if self.rel_add_behind > 0:
-                        self.row_r_04m.config(text=self.set_tyre_cmp(veh_r_04[8]))
-                    if self.rel_add_front > 1:
-                        self.row_f_05m.config(text=self.set_tyre_cmp(veh_f_05[8]))
-                    if self.rel_add_behind > 1:
-                        self.row_r_05m.config(text=self.set_tyre_cmp(veh_r_05[8]))
-                    if self.rel_add_front > 2:
-                        self.row_f_06m.config(text=self.set_tyre_cmp(veh_f_06[8]))
-                    if self.rel_add_behind > 2:
-                        self.row_r_06m.config(text=self.set_tyre_cmp(veh_r_06[8]))
-
-                # Time gap
-                self.row_plrg.config(text=veh_plr[5])
-
-                self.row_f_03g.config(text=veh_f_03[5], fg=self.color_lapdiff(veh_f_03[6], veh_plr[6]))
-                self.row_f_02g.config(text=veh_f_02[5], fg=self.color_lapdiff(veh_f_02[6], veh_plr[6]))
-                self.row_f_01g.config(text=veh_f_01[5], fg=self.color_lapdiff(veh_f_01[6], veh_plr[6]))
-                self.row_r_01g.config(text=veh_r_01[5], fg=self.color_lapdiff(veh_r_01[6], veh_plr[6]))
-                self.row_r_02g.config(text=veh_r_02[5], fg=self.color_lapdiff(veh_r_02[6], veh_plr[6]))
-                self.row_r_03g.config(text=veh_r_03[5], fg=self.color_lapdiff(veh_r_03[6], veh_plr[6]))
+                self.row_f_03t.config(text=veh_f_03[2])
+                self.row_f_02t.config(text=veh_f_02[2])
+                self.row_f_01t.config(text=veh_f_01[2])
+                self.row_r_01t.config(text=veh_r_01[2])
+                self.row_r_02t.config(text=veh_r_02[2])
+                self.row_r_03t.config(text=veh_r_03[2])
 
                 if self.rel_add_front > 0:
-                    self.row_f_04g.config(text=veh_f_04[5], fg=self.color_lapdiff(veh_f_04[6], veh_plr[6]))
+                    self.row_f_04t.config(text=veh_f_04[2])
                 if self.rel_add_behind > 0:
-                    self.row_r_04g.config(text=veh_r_04[5], fg=self.color_lapdiff(veh_r_04[6], veh_plr[6]))
+                    self.row_r_04t.config(text=veh_r_04[2])
                 if self.rel_add_front > 1:
-                    self.row_f_05g.config(text=veh_f_05[5], fg=self.color_lapdiff(veh_f_05[6], veh_plr[6]))
+                    self.row_f_05t.config(text=veh_f_05[2])
                 if self.rel_add_behind > 1:
-                    self.row_r_05g.config(text=veh_r_05[5], fg=self.color_lapdiff(veh_r_05[6], veh_plr[6]))
+                    self.row_r_05t.config(text=veh_r_05[2])
                 if self.rel_add_front > 2:
-                    self.row_f_06g.config(text=veh_f_06[5], fg=self.color_lapdiff(veh_f_06[6], veh_plr[6]))
+                    self.row_f_06t.config(text=veh_f_06[2])
                 if self.rel_add_behind > 2:
-                    self.row_r_06g.config(text=veh_r_06[5], fg=self.color_lapdiff(veh_r_06[6], veh_plr[6]))
+                    self.row_r_06t.config(text=veh_r_06[2])
 
-                # Vehicle in pit
-                if self.wcfg["show_pit_status"]:
-                    self.row_plrs.config(self.set_pitstatus(veh_plr[7]))
+            # Vehicle position in class
+            if self.wcfg["show_position_in_class"]:
+                self.row_plri.config(text=veh_plr[3])
 
-                    self.row_f_03s.config(self.set_pitstatus(veh_f_03[7]))
-                    self.row_f_02s.config(self.set_pitstatus(veh_f_02[7]))
-                    self.row_f_01s.config(self.set_pitstatus(veh_f_01[7]))
-                    self.row_r_01s.config(self.set_pitstatus(veh_r_01[7]))
-                    self.row_r_02s.config(self.set_pitstatus(veh_r_02[7]))
-                    self.row_r_03s.config(self.set_pitstatus(veh_r_03[7]))
+                self.row_f_03i.config(text=veh_f_03[3])
+                self.row_f_02i.config(text=veh_f_02[3])
+                self.row_f_01i.config(text=veh_f_01[3])
+                self.row_r_01i.config(text=veh_r_01[3])
+                self.row_r_02i.config(text=veh_r_02[3])
+                self.row_r_03i.config(text=veh_r_03[3])
 
-                    if self.rel_add_front > 0:
-                        self.row_f_04s.config(self.set_pitstatus(veh_f_04[7]))
-                    if self.rel_add_behind > 0:
-                        self.row_r_04s.config(self.set_pitstatus(veh_r_04[7]))
-                    if self.rel_add_front > 1:
-                        self.row_f_05s.config(self.set_pitstatus(veh_f_05[7]))
-                    if self.rel_add_behind > 1:
-                        self.row_r_05s.config(self.set_pitstatus(veh_r_05[7]))
-                    if self.rel_add_front > 2:
-                        self.row_f_06s.config(self.set_pitstatus(veh_f_06[7]))
-                    if self.rel_add_behind > 2:
-                        self.row_r_06s.config(self.set_pitstatus(veh_r_06[7]))
+                if self.rel_add_front > 0:
+                    self.row_f_04i.config(text=veh_f_04[3])
+                if self.rel_add_behind > 0:
+                    self.row_r_04i.config(text=veh_r_04[3])
+                if self.rel_add_front > 1:
+                    self.row_f_05i.config(text=veh_f_05[3])
+                if self.rel_add_behind > 1:
+                    self.row_r_05i.config(text=veh_r_05[3])
+                if self.rel_add_front > 2:
+                    self.row_f_06i.config(text=veh_f_06[3])
+                if self.rel_add_behind > 2:
+                    self.row_r_06i.config(text=veh_r_06[3])
+
+            # Vehicle class
+            if self.wcfg["show_class"]:
+                self.row_plrc.config(self.set_class_style(veh_plr[4]))
+
+                self.row_f_03c.config(self.set_class_style(veh_f_03[4]))
+                self.row_f_02c.config(self.set_class_style(veh_f_02[4]))
+                self.row_f_01c.config(self.set_class_style(veh_f_01[4]))
+                self.row_r_01c.config(self.set_class_style(veh_r_01[4]))
+                self.row_r_02c.config(self.set_class_style(veh_r_02[4]))
+                self.row_r_03c.config(self.set_class_style(veh_r_03[4]))
+
+                if self.rel_add_front > 0:
+                    self.row_f_04c.config(self.set_class_style(veh_f_04[4]))
+                if self.rel_add_behind > 0:
+                    self.row_r_04c.config(self.set_class_style(veh_r_04[4]))
+                if self.rel_add_front > 1:
+                    self.row_f_05c.config(self.set_class_style(veh_f_05[4]))
+                if self.rel_add_behind > 1:
+                    self.row_r_05c.config(self.set_class_style(veh_r_05[4]))
+                if self.rel_add_front > 2:
+                    self.row_f_06c.config(self.set_class_style(veh_f_06[4]))
+                if self.rel_add_behind > 2:
+                    self.row_r_06c.config(self.set_class_style(veh_r_06[4]))
+
+            # Tyre compound index
+            if self.wcfg["show_tyre_compound"]:
+                self.row_plrm.config(text=self.set_tyre_cmp(veh_plr[8]))
+
+                self.row_f_03m.config(text=self.set_tyre_cmp(veh_f_03[8]))
+                self.row_f_02m.config(text=self.set_tyre_cmp(veh_f_02[8]))
+                self.row_f_01m.config(text=self.set_tyre_cmp(veh_f_01[8]))
+                self.row_r_01m.config(text=self.set_tyre_cmp(veh_r_01[8]))
+                self.row_r_02m.config(text=self.set_tyre_cmp(veh_r_02[8]))
+                self.row_r_03m.config(text=self.set_tyre_cmp(veh_r_03[8]))
+
+                if self.rel_add_front > 0:
+                    self.row_f_04m.config(text=self.set_tyre_cmp(veh_f_04[8]))
+                if self.rel_add_behind > 0:
+                    self.row_r_04m.config(text=self.set_tyre_cmp(veh_r_04[8]))
+                if self.rel_add_front > 1:
+                    self.row_f_05m.config(text=self.set_tyre_cmp(veh_f_05[8]))
+                if self.rel_add_behind > 1:
+                    self.row_r_05m.config(text=self.set_tyre_cmp(veh_r_05[8]))
+                if self.rel_add_front > 2:
+                    self.row_f_06m.config(text=self.set_tyre_cmp(veh_f_06[8]))
+                if self.rel_add_behind > 2:
+                    self.row_r_06m.config(text=self.set_tyre_cmp(veh_r_06[8]))
+
+            # Time gap
+            self.row_plrg.config(text=veh_plr[5])
+
+            self.row_f_03g.config(text=veh_f_03[5], fg=self.color_lapdiff(veh_f_03[6], veh_plr[6]))
+            self.row_f_02g.config(text=veh_f_02[5], fg=self.color_lapdiff(veh_f_02[6], veh_plr[6]))
+            self.row_f_01g.config(text=veh_f_01[5], fg=self.color_lapdiff(veh_f_01[6], veh_plr[6]))
+            self.row_r_01g.config(text=veh_r_01[5], fg=self.color_lapdiff(veh_r_01[6], veh_plr[6]))
+            self.row_r_02g.config(text=veh_r_02[5], fg=self.color_lapdiff(veh_r_02[6], veh_plr[6]))
+            self.row_r_03g.config(text=veh_r_03[5], fg=self.color_lapdiff(veh_r_03[6], veh_plr[6]))
+
+            if self.rel_add_front > 0:
+                self.row_f_04g.config(text=veh_f_04[5], fg=self.color_lapdiff(veh_f_04[6], veh_plr[6]))
+            if self.rel_add_behind > 0:
+                self.row_r_04g.config(text=veh_r_04[5], fg=self.color_lapdiff(veh_r_04[6], veh_plr[6]))
+            if self.rel_add_front > 1:
+                self.row_f_05g.config(text=veh_f_05[5], fg=self.color_lapdiff(veh_f_05[6], veh_plr[6]))
+            if self.rel_add_behind > 1:
+                self.row_r_05g.config(text=veh_r_05[5], fg=self.color_lapdiff(veh_r_05[6], veh_plr[6]))
+            if self.rel_add_front > 2:
+                self.row_f_06g.config(text=veh_f_06[5], fg=self.color_lapdiff(veh_f_06[6], veh_plr[6]))
+            if self.rel_add_behind > 2:
+                self.row_r_06g.config(text=veh_r_06[5], fg=self.color_lapdiff(veh_r_06[6], veh_plr[6]))
+
+            # Vehicle in pit
+            if self.wcfg["show_pit_status"]:
+                self.row_plrs.config(self.set_pitstatus(veh_plr[7]))
+
+                self.row_f_03s.config(self.set_pitstatus(veh_f_03[7]))
+                self.row_f_02s.config(self.set_pitstatus(veh_f_02[7]))
+                self.row_f_01s.config(self.set_pitstatus(veh_f_01[7]))
+                self.row_r_01s.config(self.set_pitstatus(veh_r_01[7]))
+                self.row_r_02s.config(self.set_pitstatus(veh_r_02[7]))
+                self.row_r_03s.config(self.set_pitstatus(veh_r_03[7]))
+
+                if self.rel_add_front > 0:
+                    self.row_f_04s.config(self.set_pitstatus(veh_f_04[7]))
+                if self.rel_add_behind > 0:
+                    self.row_r_04s.config(self.set_pitstatus(veh_r_04[7]))
+                if self.rel_add_front > 1:
+                    self.row_f_05s.config(self.set_pitstatus(veh_f_05[7]))
+                if self.rel_add_behind > 1:
+                    self.row_r_05s.config(self.set_pitstatus(veh_r_05[7]))
+                if self.rel_add_front > 2:
+                    self.row_f_06s.config(self.set_pitstatus(veh_f_06[7]))
+                if self.rel_add_behind > 2:
+                    self.row_r_06s.config(self.set_pitstatus(veh_r_06[7]))
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

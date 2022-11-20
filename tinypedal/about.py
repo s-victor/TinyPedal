@@ -29,7 +29,7 @@ from PIL import Image, ImageTk
 from tinypedal.setting import cfg
 
 
-VERSION = "1.9.2"
+VERSION = "1.9.3"
 
 
 class About(tk.Tk):

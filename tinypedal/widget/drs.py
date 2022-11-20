@@ -68,23 +68,21 @@ class Draw(Widget, MouseEvent):
             # Read DRS data
             drs_on, drs_status = read_data.drs()
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
-
-                # DRS update
-                if drs_status == 1:  # blue
-                    self.bar_drs.config(fg=self.wcfg["font_color_available"],
-                                        bg=self.wcfg["bkg_color_available"])
-                elif drs_status == 2:
-                    if drs_on:  # green
-                        self.bar_drs.config(fg=self.wcfg["font_color_activated"],
-                                            bg=self.wcfg["bkg_color_activated"])
-                    else:  # orange
-                        self.bar_drs.config(fg=self.wcfg["font_color_allowed"],
-                                            bg=self.wcfg["bkg_color_allowed"])
-                else:  # grey
-                    self.bar_drs.config(fg=self.wcfg["font_color_not_available"],
-                                        bg=self.wcfg["bkg_color_not_available"])
+            # Start updating
+            # DRS update
+            if drs_status == 1:  # blue
+                self.bar_drs.config(fg=self.wcfg["font_color_available"],
+                                    bg=self.wcfg["bkg_color_available"])
+            elif drs_status == 2:
+                if drs_on:  # green
+                    self.bar_drs.config(fg=self.wcfg["font_color_activated"],
+                                        bg=self.wcfg["bkg_color_activated"])
+                else:  # orange
+                    self.bar_drs.config(fg=self.wcfg["font_color_allowed"],
+                                        bg=self.wcfg["bkg_color_allowed"])
+            else:  # grey
+                self.bar_drs.config(fg=self.wcfg["font_color_not_available"],
+                                    bg=self.wcfg["bkg_color_not_available"])
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

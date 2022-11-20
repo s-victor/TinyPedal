@@ -90,28 +90,26 @@ class Draw(Widget, MouseEvent):
             # Read delta best data
             delta_best = module.delta_time.output_data[4]
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
+            # Start updating
+            # Deltabest update
+            if self.wcfg["color_swap"] == "0":
+                self.bar_deltabest["fg"] = self.color_delta(delta_best)
+            else:
+                self.bar_deltabest["bg"] = self.color_delta(delta_best)
+            self.bar_deltabest.config(text=f"{min(max(delta_best, -99.999), 99.999):+.03f}")
 
-                # Deltabest update
-                if self.wcfg["color_swap"] == "0":
-                    self.bar_deltabest["fg"] = self.color_delta(delta_best)
-                else:
-                    self.bar_deltabest["bg"] = self.color_delta(delta_best)
-                self.bar_deltabest.config(text=f"{min(max(delta_best, -99.999), 99.999):+.03f}")
-
-                # Delta bar update
-                if self.wcfg["show_delta_bar"]:
-                    deltabar = self.deltabar_pos(self.wcfg["bar_display_range"],
-                                                 delta_best, self.dbar_length)
-                    if deltabar < self.dbar_length:  # loss
-                        self.bar_deltabar.coords(self.rect_pos_lt,
-                                                 deltabar, 0, self.dbar_length, self.dbar_height)
-                        self.bar_deltabar.coords(self.rect_pos_rt, 0, 0, 0, 0)
-                    else:  # gain
-                        self.bar_deltabar.coords(self.rect_pos_lt, 0, 0, 0, 0)
-                        self.bar_deltabar.coords(self.rect_pos_rt,
-                                                 self.dbar_length, 0, deltabar, self.dbar_height)
+            # Delta bar update
+            if self.wcfg["show_delta_bar"]:
+                deltabar = self.deltabar_pos(self.wcfg["bar_display_range"],
+                                             delta_best, self.dbar_length)
+                if deltabar < self.dbar_length:  # loss
+                    self.bar_deltabar.coords(self.rect_pos_lt,
+                                             deltabar, 0, self.dbar_length, self.dbar_height)
+                    self.bar_deltabar.coords(self.rect_pos_rt, 0, 0, 0, 0)
+                else:  # gain
+                    self.bar_deltabar.coords(self.rect_pos_lt, 0, 0, 0, 0)
+                    self.bar_deltabar.coords(self.rect_pos_rt,
+                                             self.dbar_length, 0, deltabar, self.dbar_height)
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

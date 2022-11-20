@@ -124,5 +124,5 @@ class TrayIcon:
         """
         self.master.quit()  # close app window
         module.stop()  # stop module
-        info.close()  # stop sharedmemory mapping
+        info.closeSimInfo()  # stop sharedmemory mapping
         self.tray.stop()  # quit tray icon

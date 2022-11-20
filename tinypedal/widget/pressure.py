@@ -130,34 +130,32 @@ class Draw(Widget, MouseEvent):
             pressure = [calc.kpa2psi(data, self.wcfg["pressure_unit"])
                         for data in read_data.tyre_pressure()]
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
+            # Start updating
+            # Tyre load & pressure update
+            if self.wcfg["show_tyre_load"]:
+                # Read tyre load data
+                raw_load = read_data.tyre_load()
 
-                # Tyre load & pressure update
-                if self.wcfg["show_tyre_load"]:
-                    # Read tyre load data
-                    raw_load = read_data.tyre_load()
+                if self.wcfg["show_tyre_load_ratio"]:
+                    load_ratio = [calc.force_ratio(raw_load[0], raw_load[1]),
+                                  calc.force_ratio(raw_load[1], raw_load[0]),
+                                  calc.force_ratio(raw_load[2], raw_load[3]),
+                                  calc.force_ratio(raw_load[3], raw_load[2])]
 
-                    if self.wcfg["show_tyre_load_ratio"]:
-                        load_ratio = [calc.force_ratio(raw_load[0], raw_load[1]),
-                                      calc.force_ratio(raw_load[1], raw_load[0]),
-                                      calc.force_ratio(raw_load[2], raw_load[3]),
-                                      calc.force_ratio(raw_load[3], raw_load[2])]
+                    self.bar_load_fl.config(text=f"{load_ratio[0]:.1f}")
+                    self.bar_load_fr.config(text=f"{load_ratio[1]:.1f}")
+                    self.bar_load_rl.config(text=f"{load_ratio[2]:.1f}")
+                    self.bar_load_rr.config(text=f"{load_ratio[3]:.1f}")
+                else:
+                    self.bar_load_fl.config(text=f"{raw_load[0]:.0f}")
+                    self.bar_load_fr.config(text=f"{raw_load[1]:.0f}")
+                    self.bar_load_rl.config(text=f"{raw_load[2]:.0f}")
+                    self.bar_load_rr.config(text=f"{raw_load[3]:.0f}")
 
-                        self.bar_load_fl.config(text=f"{load_ratio[0]:.1f}")
-                        self.bar_load_fr.config(text=f"{load_ratio[1]:.1f}")
-                        self.bar_load_rl.config(text=f"{load_ratio[2]:.1f}")
-                        self.bar_load_rr.config(text=f"{load_ratio[3]:.1f}")
-                    else:
-                        self.bar_load_fl.config(text=f"{raw_load[0]:.0f}")
-                        self.bar_load_fr.config(text=f"{raw_load[1]:.0f}")
-                        self.bar_load_rl.config(text=f"{raw_load[2]:.0f}")
-                        self.bar_load_rr.config(text=f"{raw_load[3]:.0f}")
-
-                self.bar_pres_fl.config(text=pressure[0])
-                self.bar_pres_fr.config(text=pressure[1])
-                self.bar_pres_rl.config(text=pressure[2])
-                self.bar_pres_rr.config(text=pressure[3])
+            self.bar_pres_fl.config(text=pressure[0])
+            self.bar_pres_fr.config(text=pressure[1])
+            self.bar_pres_rl.config(text=pressure[2])
+            self.bar_pres_rr.config(text=pressure[3])
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

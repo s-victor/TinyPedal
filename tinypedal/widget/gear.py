@@ -188,95 +188,93 @@ class Draw(Widget, MouseEvent):
             # Read gear data
             pit_limiter, gear, speed, rpm, rpm_max, race_phase, curr_session = read_data.gear()
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
+            # Start updating
+            gear = calc.gear(gear)
+            speed = calc.conv_speed(speed, self.wcfg["speed_unit"])
+            rpm_safe = int(rpm_max * self.wcfg["rpm_safe_multiplier"])
+            rpm_warn = int(rpm_max * self.wcfg["rpm_warn_multiplier"])
+            rpm_color = self.color_rpm(rpm, rpm_safe, rpm_warn, rpm_max)
 
-                gear = calc.gear(gear)
-                speed = calc.conv_speed(speed, self.wcfg["speed_unit"])
-                rpm_safe = int(rpm_max * self.wcfg["rpm_safe_multiplier"])
-                rpm_warn = int(rpm_max * self.wcfg["rpm_warn_multiplier"])
-                rpm_color = self.color_rpm(rpm, rpm_safe, rpm_warn, rpm_max)
+            # Gear update
+            self.bar_gear_bg.config(bg=rpm_color)
+            self.bar_gear.config(text=gear, bg=rpm_color)
+            self.bar_gauge.config(text=f"{speed:03.0f}", bg=rpm_color)
 
-                # Gear update
-                self.bar_gear_bg.config(bg=rpm_color)
-                self.bar_gear.config(text=gear, bg=rpm_color)
-                self.bar_gauge.config(text=f"{speed:03.0f}", bg=rpm_color)
+            # RPM bar update
+            if self.wcfg["show_rpm_bar"]:
+                rpm_range = rpm_max - rpm_safe
+                if rpm_range != 0:
+                    rpmscale = max(rpm - rpm_safe, 0) / rpm_range * self.rpm_width
+                else:
+                    rpmscale = 0
+                self.bar_rpm.coords(self.rect_rpm,
+                                    rpmscale, self.wcfg["rpm_bar_edge_height"],
+                                    rpm_range, self.wcfg["rpm_bar_height"])
 
-                # RPM bar update
-                if self.wcfg["show_rpm_bar"]:
-                    rpm_range = rpm_max - rpm_safe
-                    if rpm_range != 0:
-                        rpmscale = max(rpm - rpm_safe, 0) / rpm_range * self.rpm_width
+            # Pit limiter update
+            if pit_limiter and self.state_lm:
+                self.bar_limiter.grid()
+                self.state_lm = False
+            elif not pit_limiter and not self.state_lm:
+                self.bar_limiter.grid_remove()  # hide limiter indicator
+                self.state_lm = True
+
+            # Start lights update
+            if self.wcfg["show_startlights"]:
+                if race_phase == 4:
+                    self.bar_startlights.grid()
+                    start_timer = max(read_data.lap_timestamp(), 0)
+
+                    if start_timer == 0:
+                        self.bar_startlights.config(text=self.wcfg["green_flag_text"],
+                                                    width=len(self.wcfg["green_flag_text"]) + 1,
+                                                    bg=self.wcfg["bkg_color_green_flag"])
                     else:
-                        rpmscale = 0
-                    self.bar_rpm.coords(self.rect_rpm,
-                                        rpmscale, self.wcfg["rpm_bar_edge_height"],
-                                        rpm_range, self.wcfg["rpm_bar_height"])
+                        self.bar_startlights.config(text=self.wcfg["red_lights_text"],
+                                                    width=len(self.wcfg["red_lights_text"]) + 1,
+                                                    bg=self.wcfg["bkg_color_red_lights"])
+                    self.state_slight = True
+                elif race_phase != 4:
+                    if self.state_slight:
+                        self.bar_startlights.config(text=self.wcfg["green_flag_text"],
+                                                    width=len(self.wcfg["green_flag_text"]) + 1,
+                                                    bg=self.wcfg["bkg_color_green_flag"])
+                        hide_timer = read_data.lap_timestamp()
+                        if -hide_timer >= self.wcfg["green_flag_duration"]:
+                            self.bar_startlights.grid_remove()
+                            self.state_slight = False
 
-                # Pit limiter update
-                if pit_limiter and self.state_lm:
-                    self.bar_limiter.grid()
-                    self.state_lm = False
-                elif not pit_limiter and not self.state_lm:
-                    self.bar_limiter.grid_remove()  # hide limiter indicator
-                    self.state_lm = True
+            # Countdown update
+            if self.wcfg["show_start_countdown"] == "THIS_MAY_CREATE_UNFAIR_ADVANTAGES":
+                if race_phase == 4:
+                    countdown_timer = max(read_data.lap_timestamp(), 0)
+                    self.bar_countdown.config(text=f"{countdown_timer:.02f}")
+                    self.bar_countdown.grid()
+                    self.state_cd = True
+                elif race_phase != 4:
+                    if self.state_cd:
+                        self.bar_countdown.grid_remove()  # hide countdown indicator at start
+                        self.state_cd = False
 
-                # Start lights update
-                if self.wcfg["show_startlights"]:
-                    if race_phase == 4:
-                        self.bar_startlights.grid()
-                        start_timer = max(read_data.lap_timestamp(), 0)
+            # Low fuel update
+            if self.wcfg["show_low_fuel"]:
+                if self.wcfg["low_fuel_for_race_only"] and curr_session > 9:
+                    self.show_lowfuel()
+                elif not self.wcfg["low_fuel_for_race_only"]:
+                    self.show_lowfuel()
 
-                        if start_timer == 0:
-                            self.bar_startlights.config(text=self.wcfg["green_flag_text"],
-                                                        width=len(self.wcfg["green_flag_text"]) + 1,
-                                                        bg=self.wcfg["bkg_color_green_flag"])
-                        else:
-                            self.bar_startlights.config(text=self.wcfg["red_lights_text"],
-                                                        width=len(self.wcfg["red_lights_text"]) + 1,
-                                                        bg=self.wcfg["bkg_color_red_lights"])
-                        self.state_slight = True
-                    elif race_phase != 4:
-                        if self.state_slight:
-                            self.bar_startlights.config(text=self.wcfg["green_flag_text"],
-                                                        width=len(self.wcfg["green_flag_text"]) + 1,
-                                                        bg=self.wcfg["bkg_color_green_flag"])
-                            hide_timer = read_data.lap_timestamp()
-                            if -hide_timer >= self.wcfg["green_flag_duration"]:
-                                self.bar_startlights.grid_remove()
-                                self.state_slight = False
+            # Flags update
+            if self.wcfg["show_blue_flag"]:
+                if self.wcfg["blue_flag_for_race_only"] and curr_session > 9:
+                    self.show_blue()
+                elif not self.wcfg["blue_flag_for_race_only"]:
+                    self.show_blue()
 
-                # Countdown update
-                if self.wcfg["show_start_countdown"] == "THIS_MAY_CREATE_UNFAIR_ADVANTAGES":
-                    if race_phase == 4:
-                        countdown_timer = max(read_data.lap_timestamp(), 0)
-                        self.bar_countdown.config(text=f"{countdown_timer:.02f}")
-                        self.bar_countdown.grid()
-                        self.state_cd = True
-                    elif race_phase != 4:
-                        if self.state_cd:
-                            self.bar_countdown.grid_remove()  # hide countdown indicator at start
-                            self.state_cd = False
-
-                # Low fuel update
-                if self.wcfg["show_low_fuel"]:
-                    if self.wcfg["low_fuel_for_race_only"] and curr_session > 9:
-                        self.show_lowfuel()
-                    elif not self.wcfg["low_fuel_for_race_only"]:
-                        self.show_lowfuel()
-
-                # Flags update
-                if self.wcfg["show_blue_flag"]:
-                    if self.wcfg["blue_flag_for_race_only"] and curr_session > 9:
-                        self.show_blue()
-                    elif not self.wcfg["blue_flag_for_race_only"]:
-                        self.show_blue()
-
-                if self.wcfg["show_yellow_flag"]:
-                    if self.wcfg["yellow_flag_for_race_only"] and curr_session > 9:
-                        self.show_yellow()
-                    elif not self.wcfg["yellow_flag_for_race_only"]:
-                        self.show_yellow()
+            if self.wcfg["show_yellow_flag"]:
+                if self.wcfg["yellow_flag_for_race_only"] and curr_session > 9:
+                    self.show_yellow()
+                elif not self.wcfg["yellow_flag_for_race_only"]:
+                    self.show_yellow()
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

@@ -77,31 +77,29 @@ class Draw(Widget, MouseEvent):
             # Read Weather data
             amb_temp, trk_temp, rain, min_wet, max_wet, avg_wet = read_data.weather()
 
-            # Check isPlayer before update
-            if read_data.is_local_player():
+            # Start updating
+            # set up display units
+            amb_temp_d = calc.conv_temperature(amb_temp, self.wcfg["temp_unit"])
+            trk_temp_d = calc.conv_temperature(trk_temp, self.wcfg["temp_unit"])
 
-                # set up display units
-                amb_temp_d = calc.conv_temperature(amb_temp, self.wcfg["temp_unit"])
-                trk_temp_d = calc.conv_temperature(trk_temp, self.wcfg["temp_unit"])
+            if self.wcfg["temp_unit"] == "0":
+                temp_unit = "C"
+            elif self.wcfg["temp_unit"] == "1":
+                temp_unit = "F"
 
-                if self.wcfg["temp_unit"] == "0":
-                    temp_unit = "C"
-                elif self.wcfg["temp_unit"] == "1":
-                    temp_unit = "F"
+            if max_wet > 0:
+                surface = "Wet"
+            else:
+                surface = "Dry"
 
-                if max_wet > 0:
-                    surface = "Wet"
-                else:
-                    surface = "Dry"
+            temperature = f"{surface} {trk_temp_d:.1f}({amb_temp_d:.1f})°{temp_unit}"
+            raining = f"Rain {rain:.0f}%"
+            wetness = f"{min_wet:.0f}% < {max_wet:.0f}% ≈ {avg_wet:.0f}%"
 
-                temperature = f"{surface} {trk_temp_d:.1f}({amb_temp_d:.1f})°{temp_unit}"
-                raining = f"Rain {rain:.0f}%"
-                wetness = f"{min_wet:.0f}% < {max_wet:.0f}% ≈ {avg_wet:.0f}%"
-
-                # Weather update
-                self.bar_temp.config(text=temperature, width=len(temperature)+1)
-                self.bar_rain.config(text=raining, width=len(raining)+1)
-                self.bar_wetness.config(text=wetness, width=len(wetness)+1)
+            # Weather update
+            self.bar_temp.config(text=temperature, width=len(temperature)+1)
+            self.bar_rain.config(text=raining, width=len(raining)+1)
+            self.bar_wetness.config(text=wetness, width=len(wetness)+1)
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

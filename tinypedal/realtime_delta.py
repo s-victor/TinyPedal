@@ -24,7 +24,7 @@ import time
 import threading
 import csv
 
-from tinypedal.readapi import info, chknm, cs2py, state, is_local_player
+from tinypedal.readapi import info, chknm, cs2py, state
 import tinypedal.calculation as calc
 
 
@@ -74,12 +74,7 @@ class DeltaTime:
         combo_name = "unknown"  # current car & track combo
         update_delay = 0.4  # changeable update delay for conserving resources
 
-        while True:
-            if not self.running:
-                self.stopped = True
-                print("delta module closed")
-                break
-
+        while self.running:
             if state():
 
                 (start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase
@@ -96,81 +91,79 @@ class DeltaTime:
                 if game_phase < 5:  # reset stint stats if session has not started
                     start_last = start_curr  # reset
 
-                # Check isPlayer before update
-                if is_local_player():
+                # Start updating
+                laptime_curr = max(elapsed_time - start_last, 0)  # current laptime
 
-                    laptime_curr = max(elapsed_time - start_last, 0)  # current laptime
+                # Lap start & finish detection
+                if start_curr > start_last:  # difference of lap-start-time
+                    laptime_last = start_curr - start_last
 
-                    # Lap start & finish detection
-                    if start_curr > start_last:  # difference of lap-start-time
-                        laptime_last = start_curr - start_last
+                    if delta_list_curr:  # non-empty list check
+                        delta_list_curr.append((pos_last, laptime_last))  # set end value
+                        delta_list_last = delta_list_curr.copy()
+                        validating = True
 
-                        if delta_list_curr:  # non-empty list check
-                            delta_list_curr.append((pos_last, laptime_last))  # set end value
-                            delta_list_last = delta_list_curr.copy()
-                            validating = True
+                    delta_list_curr.clear()  # reset current delta list
+                    delta_list_curr.append((0.0, 0.0))  # set start value
+                    recording = True  # activate delta recording
+                    start_last = start_curr  # reset
+                    pos_last = pos_curr  # set pos last
 
-                        delta_list_curr.clear()  # reset current delta list
-                        delta_list_curr.append((0.0, 0.0))  # set start value
-                        recording = True  # activate delta recording
-                        start_last = start_curr  # reset
-                        pos_last = pos_curr  # set pos last
-
-                    # Laptime validating 1s after passing finish line
-                    # To compensate 5fps refresh rate of Scoring data
-                    # Must place validating after lap start & finish detection
-                    # Negative mLastLapTime value indicates invalid last laptime
-                    if validating:
-                        if 1 < laptime_curr <= 8:
-                            if laptime_last < laptime_best and abs(lastlap_check - laptime_last) < 1:
-                                laptime_best = laptime_last
-                                delta_list_best = delta_list_last
-                                self.save_deltabest(combo_name, delta_list_best)
-                                validating = False
-                        elif 8 < laptime_curr < 10:  # switch off validating after 8s
+                # Laptime validating 1s after passing finish line
+                # To compensate 5fps refresh rate of Scoring data
+                # Must place validating after lap start & finish detection
+                # Negative mLastLapTime value indicates invalid last laptime
+                if validating:
+                    if 1 < laptime_curr <= 8:
+                        if laptime_last < laptime_best and abs(lastlap_check - laptime_last) < 1:
+                            laptime_best = laptime_last
+                            delta_list_best = delta_list_last
+                            self.save_deltabest(combo_name, delta_list_best)
                             validating = False
+                    elif 8 < laptime_curr < 10:  # switch off validating after 8s
+                        validating = False
 
-                    # Recording only from the beginning of a lap
-                    if recording:
-                        # Update position if current dist value is diff & positive
-                        if pos_curr != pos_last and pos_curr >= 0:
-                            if  pos_curr > pos_last:  # record if position is further away
-                                delta_list_curr.append((pos_curr, laptime_curr))
+                # Recording only from the beginning of a lap
+                if recording:
+                    # Update position if current dist value is diff & positive
+                    if pos_curr != pos_last and pos_curr >= 0:
+                        if  pos_curr > pos_last:  # record if position is further away
+                            delta_list_curr.append((pos_curr, laptime_curr))
 
-                            pos_last = pos_curr  # reset last position
-                            pos_append = pos_last  # reset initial position for appending
+                        pos_last = pos_curr  # reset last position
+                        pos_append = pos_last  # reset initial position for appending
 
-                    # Update time difference & calculate additional traveled distance
-                    if elapsed_time != last_time:
-                        delta_dist = speed * (elapsed_time - last_time)
-                        pos_append += delta_dist
-                        last_time = elapsed_time
-                        index_lower, index_higher = calc.nearest_dist_index(
-                                                    pos_append, delta_list_best)
-                        try:  # add 20ms error offset due to 50hz refresh rate limit
-                            delta_best = laptime_curr + 0.02 - calc.linear_interp(
-                                                pos_append,
-                                                delta_list_best[index_lower][0],
-                                                delta_list_best[index_lower][1],
-                                                delta_list_best[index_higher][0],
-                                                delta_list_best[index_higher][1])
-                        except IndexError:
-                            delta_best = 0
+                # Update time difference & calculate additional traveled distance
+                if elapsed_time != last_time:
+                    delta_dist = speed * (elapsed_time - last_time)
+                    pos_append += delta_dist
+                    last_time = elapsed_time
+                    index_lower, index_higher = calc.nearest_dist_index(
+                                                pos_append, delta_list_best)
+                    try:  # add 20ms error offset due to 50hz refresh rate limit
+                        delta_best = laptime_curr + 0.02 - calc.linear_interp(
+                                            pos_append,
+                                            delta_list_best[index_lower][0],
+                                            delta_list_best[index_lower][1],
+                                            delta_list_best[index_higher][0],
+                                            delta_list_best[index_higher][1])
+                    except IndexError:
+                        delta_best = 0
 
-                    laptime_est = laptime_best + delta_best
+                laptime_est = laptime_best + delta_best
 
-                    # Output delta time data
-                    self.output_data = (laptime_curr, laptime_last, laptime_best,
-                                        laptime_est, delta_best)
+                # Output delta time data
+                self.output_data = (laptime_curr, laptime_last, laptime_best,
+                                    laptime_est, delta_best)
 
-                    # Record driven distance in meters
-                    if gps_last != gps_curr:
-                        moved_distance = calc.pos2distance(gps_last, gps_curr)
-                        if moved_distance < 15:  # add small amount limit
-                            self.meters_driven += moved_distance
-                            gps_last = gps_curr
-                        else:
-                            gps_last = gps_curr
+                # Record driven distance in meters
+                if gps_last != gps_curr:
+                    moved_distance = calc.pos2distance(gps_last, gps_curr)
+                    if moved_distance < 15:  # add small amount limit
+                        self.meters_driven += moved_distance
+                        gps_last = gps_curr
+                    else:
+                        gps_last = gps_curr
 
             else:
                 if verified:
@@ -191,6 +184,10 @@ class DeltaTime:
 
             time.sleep(update_delay)
 
+        else:
+            self.stopped = True
+            print("delta module closed")
+
     @staticmethod
     def delta_telemetry():
         """Delta telemetry data"""
@@ -204,7 +201,7 @@ class DeltaTime:
         gps_curr = (chknm(info.playersVehicleTelemetry().mPos.x),
                     chknm(info.playersVehicleTelemetry().mPos.y),
                     chknm(info.playersVehicleTelemetry().mPos.z))
-        game_phase = chknm(info.Rf2Scor.mScoringInfo.mGamePhase)
+        game_phase = chknm(info.LastScor.mScoringInfo.mGamePhase)
         return (start_curr, elapsed_time, lastlap_check, speed, pos_curr,
                 gps_curr, game_phase)
 
@@ -212,7 +209,7 @@ class DeltaTime:
     def combo_check():
         """Track & vehicle combo data"""
         name_class = cs2py(info.playersVehicleScoring().mVehicleClass)
-        name_track = cs2py(info.Rf2Scor.mScoringInfo.mTrackName)
+        name_track = cs2py(info.LastScor.mScoringInfo.mTrackName)
         return f"{name_track} - {name_class}"
 
     @staticmethod
