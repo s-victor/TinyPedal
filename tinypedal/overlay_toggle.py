@@ -41,16 +41,12 @@ class OverlayLock:
     def lock(self):
         """Lock overlay"""
         self.cfg.overlay["fixed_position"] = True
-        self.cfg.save()
-
         ex_style = self.WS_EX_LAYERED | self.WS_EX_NOACTIVATE | self.WS_EX_TRANSPARENT
         self.apply(ex_style)
 
     def unlock(self):
         """Unlock overlay"""
         self.cfg.overlay["fixed_position"] = False
-        self.cfg.save()
-
         ex_style = self.WS_EX_LAYERED | self.WS_EX_NOACTIVATE
         self.apply(ex_style)
 
@@ -70,6 +66,7 @@ class OverlayLock:
             self.lock()
         else:
             self.unlock()
+        self.cfg.save()
 
     def load_state(self):
         """Load lock state when overlay widget is created"""
@@ -98,29 +95,27 @@ class OverlayAutoHide:
 
     def hide(self):
         """Hide overlay"""
-        if self.cfg.active_widget_list:
-            for widget in self.cfg.active_widget_list:
+        for widget in self.cfg.active_widget_list:
+            if widget.state() == "normal":  # check window state
                 widget.withdraw()
 
     def show(self):
         """Show/restore overlay"""
-        if self.cfg.active_widget_list:
-            for widget in self.cfg.active_widget_list:
-                if widget.state() != "normal":
-                    widget.deiconify()
-                else:
-                    break
+        for widget in self.cfg.active_widget_list:
+            if widget.state() != "normal":
+                widget.deiconify()
 
     def __autohide(self):
         """Auto hide overlay"""
         while self.running:
-            if self.cfg.overlay["auto_hide"]:
-                if read_data.state():
-                    self.show()
+            if self.cfg.active_widget_list:
+                if self.cfg.overlay["auto_hide"]:
+                    if read_data.state():
+                        self.show()
+                    else:
+                        self.hide()
                 else:
-                    self.hide()
-            else:
-                self.show()
+                    self.show()
 
             time.sleep(0.4)
 
@@ -132,10 +127,6 @@ class OverlayAutoHide:
         """Toggle hide state"""
         if not self.cfg.overlay["auto_hide"]:
             self.cfg.overlay["auto_hide"] = True
-            self.cfg.save()
-
-            if not self.running:
-                self.start()
         else:
             self.cfg.overlay["auto_hide"] = False
-            self.cfg.save()
+        self.cfg.save()

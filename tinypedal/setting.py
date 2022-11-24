@@ -164,7 +164,6 @@ class Setting:
             "show_caption": True,
             "font_color_caption": "#CCCCCC",
             "bkg_color_caption": "#777777",
-            "fuel_consumption": 0,
         },
         "gear": {
             "enable": True,
@@ -464,7 +463,6 @@ class Setting:
             "bkg_color_last": "#222222",
             "bkg_color_current": "#222222",
             "bkg_color_estimated": "#222222",
-            "last_laptime": 60,
         },
         "wear": {
             "enable": True,

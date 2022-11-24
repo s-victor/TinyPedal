@@ -1,6 +1,9 @@
-This folder holds best laptime data for deltabest & timing calculation.
+This folder holds:
+Best laptime data for deltabest & timing calculation.
+Fuel consumption & last recorded laptime data for fuel calculation.
 
 Filename format:
-[full track name] - [vehicle class name].csv
+[full track name] - [vehicle class name]
 
-You can use the filename to find vehicle class name for relative classes.json.
+Filename can be used to find vehicle class name for relative classes.json.
+File format is CSV and can be opened with notepad or spreadsheet software.

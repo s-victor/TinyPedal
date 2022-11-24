@@ -176,9 +176,6 @@ Set low fuel color indicator, which changes widget background color when there i
     fuel_unit
 2 unit types are available: `0` = liters, `1` = gallons.
 
-    fuel_consumption
-This value holds the last recorded fuel consumption of the last lap, unit is liters. Accept manual editing, but will be overridden by any new lap done.
-
 
 ## Gear
     layout

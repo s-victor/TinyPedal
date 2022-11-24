@@ -28,7 +28,7 @@
 ## Fuel
 - Show current remaining fuel, with liters or gallons as display unit.
 - Show estimated total required fuel for finishing race, negative value indicates estimated extra fuel after race ends.
-- Show fuel consumption from last lap.
+- Show estimated fuel consumption of current lap, which calculated from delta fuel consumption of last recorded lap.
 - Show estimated laps & minutes that current remaining fuel can last.
 - Show estimated number of required pit stop. Note, any decimal place should be considered for an additional full pit stops (or try save some fuel), as it is not possible to do 0.5 or 0.01 pit stops.
 - Show caption descriptions (optional).

@@ -62,7 +62,7 @@ class Draw(Widget, MouseEvent):
             bar_style_desc = {"bd":0, "height":1, "padx":0, "pady":0,
                               "font":font_desc, "fg":fg_color_cap, "bg":bg_color_cap}
             self.bar_desc_1 = tk.Label(self, bar_style_desc, text="fuel")
-            self.bar_desc_2 = tk.Label(self, bar_style_desc, text="require")
+            self.bar_desc_2 = tk.Label(self, bar_style_desc, text="refuel")
             self.bar_desc_3 = tk.Label(self, bar_style_desc, text="used")
             self.bar_desc_4 = tk.Label(self, bar_style_desc, text="laps")
             self.bar_desc_5 = tk.Label(self, bar_style_desc, text="mins")
@@ -123,14 +123,14 @@ class Draw(Widget, MouseEvent):
             lowfuel_color = self.color_lowfuel(est_runlaps)
             # Current fuel & total needed fuel
             self.bar_fuel_1.config(text=f"{amount_curr:.2f}", bg=lowfuel_color)
-            self.bar_fuel_2.config(text=f"{amount_need:+0.1f}", bg=lowfuel_color)
+            self.bar_fuel_2.config(text=f"{min(max(amount_need, -999.9), 999.9):+0.1f}", bg=lowfuel_color)
             # Last lap fuel consumption
             self.bar_fuel_3.config(text=f"{used_last:.2f}")
             # Estimated laps & minutes current fuel can last
-            self.bar_fuel_4.config(text=str(f"{est_runlaps:.1f}"))
-            self.bar_fuel_5.config(text=str(f"{est_runmins:.1f}"))
+            self.bar_fuel_4.config(text=str(f"{min(est_runlaps, 9999):.1f}"))
+            self.bar_fuel_5.config(text=str(f"{min(est_runmins, 9999):.1f}"))
             # Estimated pit stops
-            self.bar_fuel_6.config(text=str(f"{pit_required:.2f}"))
+            self.bar_fuel_6.config(text=str(f"{min(max(pit_required, 0), 99.99):.2f}"))
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

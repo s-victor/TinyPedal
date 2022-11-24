@@ -24,7 +24,7 @@ import time
 import threading
 import csv
 
-from tinypedal.readapi import info, chknm, cs2py, state
+from tinypedal.readapi import info, chknm, cs2py, state, combo_check
 import tinypedal.calculation as calc
 
 
@@ -68,7 +68,7 @@ class DeltaTime:
         gps_last = [0,0,0]  # last global position
         last_time = 0  # last checked elapsed time
         laptime_curr = 0  # current laptime
-        laptime_last = self.cfg.setting_user["timing"]["last_laptime"]  # load last laptime
+        laptime_last = 0  # last laptime
         laptime_best = 5999.999  # best laptime
         laptime_est = 0  # estimated current laptime
         combo_name = "unknown"  # current car & track combo
@@ -84,7 +84,7 @@ class DeltaTime:
                 if not verified:
                     verified = True
                     update_delay = 0.01  # shorter delay
-                    combo_name = self.combo_check()
+                    combo_name = combo_check()
                     delta_list_best, laptime_best = self.load_deltabest(combo_name)
                     start_last = start_curr  # reset lap-start-time
 
@@ -99,7 +99,7 @@ class DeltaTime:
                     laptime_last = start_curr - start_last
 
                     if delta_list_curr:  # non-empty list check
-                        delta_list_curr.append((pos_last, laptime_last))  # set end value
+                        delta_list_curr.append((pos_last + 10, laptime_last))  # set end value
                         delta_list_last = delta_list_curr.copy()
                         validating = True
 
@@ -127,7 +127,7 @@ class DeltaTime:
                 if recording:
                     # Update position if current dist value is diff & positive
                     if pos_curr != pos_last and pos_curr >= 0:
-                        if  pos_curr > pos_last:  # record if position is further away
+                        if pos_curr > pos_last:  # record if position is further away
                             delta_list_curr.append((pos_curr, laptime_curr))
 
                         pos_last = pos_curr  # reset last position
@@ -179,7 +179,6 @@ class DeltaTime:
 
                     # Save meters driven & last laptime data
                     self.cfg.setting_user["cruise"]["meters_driven"] = int(self.meters_driven)
-                    self.cfg.setting_user["timing"]["last_laptime"] = round(laptime_last, 6)
                     self.cfg.save()
 
             time.sleep(update_delay)
@@ -191,26 +190,19 @@ class DeltaTime:
     @staticmethod
     def delta_telemetry():
         """Delta telemetry data"""
-        start_curr = chknm(info.playersVehicleTelemetry().mLapStartET)
-        elapsed_time = chknm(info.playersVehicleTelemetry().mElapsedTime)
-        lastlap_check = chknm(info.playersVehicleScoring().mLastLapTime)
-        speed = calc.vel2speed(chknm(info.playersVehicleTelemetry().mLocalVel.x),
-                               chknm(info.playersVehicleTelemetry().mLocalVel.y),
-                               chknm(info.playersVehicleTelemetry().mLocalVel.z))
-        pos_curr = chknm(info.playersVehicleScoring().mLapDist)
-        gps_curr = (chknm(info.playersVehicleTelemetry().mPos.x),
-                    chknm(info.playersVehicleTelemetry().mPos.y),
-                    chknm(info.playersVehicleTelemetry().mPos.z))
+        start_curr = chknm(info.syncedVehicleTelemetry().mLapStartET)
+        elapsed_time = chknm(info.syncedVehicleTelemetry().mElapsedTime)
+        lastlap_check = chknm(info.syncedVehicleScoring().mLastLapTime)
+        speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
+                               chknm(info.syncedVehicleTelemetry().mLocalVel.y),
+                               chknm(info.syncedVehicleTelemetry().mLocalVel.z))
+        pos_curr = chknm(info.syncedVehicleScoring().mLapDist)
+        gps_curr = (chknm(info.syncedVehicleTelemetry().mPos.x),
+                    chknm(info.syncedVehicleTelemetry().mPos.y),
+                    chknm(info.syncedVehicleTelemetry().mPos.z))
         game_phase = chknm(info.LastScor.mScoringInfo.mGamePhase)
         return (start_curr, elapsed_time, lastlap_check, speed, pos_curr,
                 gps_curr, game_phase)
-
-    @staticmethod
-    def combo_check():
-        """Track & vehicle combo data"""
-        name_class = cs2py(info.playersVehicleScoring().mVehicleClass)
-        name_track = cs2py(info.LastScor.mScoringInfo.mTrackName)
-        return f"{name_track} - {name_class}"
 
     @staticmethod
     def load_deltabest(combo):

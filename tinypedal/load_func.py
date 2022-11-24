@@ -54,8 +54,7 @@ class LoadModule:
             self.fuel_usage.start()
         if cfg.overlay["relative_module"]:
             self.relative_info.start()
-        if cfg.overlay["auto_hide"]:
-            self.overlay_hide.start()
+        self.overlay_hide.start()
 
     def stop(self):
         """Stop modules"""

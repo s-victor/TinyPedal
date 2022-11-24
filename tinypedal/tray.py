@@ -122,7 +122,8 @@ class TrayIcon:
 
         Must quit root window first.
         """
-        self.master.quit()  # close app window
         module.stop()  # stop module
+        self.master.quit()  # close app window
+        info.stopUpdating()  # stop sharedmemory synced player data updating thread
         info.closeSimInfo()  # stop sharedmemory mapping
         self.tray.stop()  # quit tray icon

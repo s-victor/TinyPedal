@@ -14,6 +14,7 @@ pylintrc
 # local config file
 *.json
 *.csv
+*.fuel
 
 # random test file
 test*.py

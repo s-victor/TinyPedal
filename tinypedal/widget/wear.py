@@ -204,7 +204,7 @@ class Draw(Widget, MouseEvent):
             if self.wear_last[index] < value[index]:
                 self.wear_last[index] = value[index]
             elif self.wear_last[index] > value[index]:
-                self.wear_rlt[index] += max(self.wear_last[index] - value[index], 0)
+                self.wear_rlt[index] += self.wear_last[index] - value[index]
                 self.wear_last[index] = value[index]
 
     def color_wear(self, tyre_wear, threshold):

@@ -1,3 +1,35 @@
+TinyPedal 1.9.5 (2022-11-24)
+----------------------------
+* Fuel Widget
+    - [New]Show "estimated fuel consumption" that is constantly updated and calculated
+      against the new fuel delta consumption data from last recorded lap.
+      The new estimated value replaces the old "last lap fuel usage" value and more accurately reflects
+      how each fuel info changes with driver's input or engine mixture levels, etc.
+    - [New]Fuel consumption & last laptime values are now stored inside new fuel delta consumption file,
+      which corresponds to each matching vehicle-track combo and auto-loads while driving.
+      User can quickly jump back in a previously driven combo with all fuel consumption data available right away.
+
+* Core
+    - [New]Added fuel consumption recording & delta calculation functions to Fuel module.
+    - [New]Fuel delta consumption file is now saved in "TinyPedal\deltabest" folder with *.fuel extension,
+      Note: For accuracy purpose, only the fuel delta consumption data from most recent complete lap
+            will be recorded and used for delta consumption calculation. 
+            This includes full laps that have exceeded track limits, but excludes pitin & pitout laps.
+    - Fixed an error that occurred after toggle auto-hide and reload preset.
+    - Improved auto-hide function.
+    - Improved deltabest recording methods.
+    - Removed "fuel_consumption" value from fuel section of setting file.
+    - Removed "last_laptime" value from timing section of setting file.
+
+* Misc
+    - Updated documents.
+
+* pyRfactor2SharedMemory library
+    - Further improved synced methods for reading local player info.
+    - Separated none-synced methods from player-synced methods to be compatible
+      with apps or functions that uses none-synced methods.
+      Note: TinyPedal now uses player-synced methods for reading shared memory.
+
 TinyPedal 1.9.4 (2022-11-20)
 ----------------------------
 * pyRfactor2SharedMemory library
@@ -7,7 +39,7 @@ TinyPedal 1.9.3 (2022-11-20)
 ----------------------------
 * Core
     - Auto-hide function is reverted back to previous method,
-      which depends on player's engine ignition status).
+      which depends on player's engine ignition status.
     - Removed all previous driver status check methods,
       as new changes to pyRfactor2SharedMemory library has fixed the issue
       that associated with players joining or disconnecting from server.
