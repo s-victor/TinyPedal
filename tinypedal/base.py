@@ -22,7 +22,7 @@ GUI window, events.
 
 import tkinter as tk
 
-from tinypedal.load_func import module
+from .load_func import module
 
 
 class Widget(tk.Toplevel):

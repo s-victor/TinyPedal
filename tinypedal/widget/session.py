@@ -24,9 +24,9 @@ import time
 import tkinter as tk
 import tkinter.font as tkfont
 
-import tinypedal.calculation as calc
-import tinypedal.readapi as read_data
-from tinypedal.base import Widget, MouseEvent
+from .. import calculation as calc
+from .. import readapi as read_data
+from ..base import Widget, MouseEvent
 
 
 class Draw(Widget, MouseEvent):

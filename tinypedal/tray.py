@@ -23,11 +23,11 @@ Tray icon
 from PIL import Image
 import pystray
 
-from tinypedal.setting import cfg
-from tinypedal.about import VERSION, LoadPreset
-from tinypedal.load_func import module
-from tinypedal.readapi import info
-from tinypedal.widget_toggle import WidgetToggle
+from .setting import cfg
+from .about import VERSION, LoadPreset
+from .load_func import module
+from .readapi import info
+from .widget_toggle import WidgetToggle
 
 
 wtoggle = WidgetToggle()

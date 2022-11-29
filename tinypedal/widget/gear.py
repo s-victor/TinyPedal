@@ -23,10 +23,10 @@ Gear Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-import tinypedal.calculation as calc
-import tinypedal.readapi as read_data
-from tinypedal.base import Widget, MouseEvent
-from tinypedal.load_func import module
+from .. import calculation as calc
+from .. import readapi as read_data
+from ..base import Widget, MouseEvent
+from ..load_func import module
 
 
 class Draw(Widget, MouseEvent):

@@ -32,7 +32,8 @@ Access rF2 shared memory data using:
 """
 
 from pyRfactor2SharedMemory.sharedMemoryAPI import SimInfoAPI, Cbytestring2Python
-import tinypedal.calculation as calc
+
+from . import calculation as calc
 
 
 # Load Shared Memory API

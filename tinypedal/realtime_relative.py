@@ -23,8 +23,8 @@ Relative module
 import time
 import threading
 
-from tinypedal.readapi import info, chknm, cs2py, state
-import tinypedal.calculation as calc
+from .readapi import info, chknm, cs2py, state
+from . import calculation as calc
 
 
 class RelativeInfo:

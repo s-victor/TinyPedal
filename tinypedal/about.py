@@ -26,7 +26,8 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-from tinypedal.setting import cfg
+
+from .setting import cfg
 
 
 VERSION = "1.9.5"

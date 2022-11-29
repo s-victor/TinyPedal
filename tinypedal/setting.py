@@ -25,6 +25,7 @@ import re
 import time
 import json
 import shutil
+import copy
 
 
 class Setting:
@@ -528,7 +529,6 @@ class Setting:
 
     def __init__(self):
         self.active_widget_list = []  # create active widget list
-        self.setting_user_unsorted = {}
         self.setting_user = {}
         self.overlay = {}
 
@@ -552,18 +552,18 @@ class Setting:
         try:
             # Read JSON file
             with open(f"{self.filepath}{self.filename}", "r", encoding="utf-8") as jsonfile:
-                self.setting_user_unsorted = json.load(jsonfile)
+                setting_user_unsorted = json.load(jsonfile)
 
             # Verify setting
-            verify_setting(self.setting_user_unsorted, self.setting_default)
+            verify_setting(setting_user_unsorted, self.setting_default)
 
             # Move overlay setting to the top of setting
-            self.setting_user["overlay"] = self.setting_user_unsorted["overlay"]
-            self.setting_user_unsorted.pop("overlay")
+            self.setting_user["overlay"] = setting_user_unsorted["overlay"]
+            setting_user_unsorted.pop("overlay")
 
             # Sort rest of setting in alphabetical order
-            for item in sorted(self.setting_user_unsorted):
-                self.setting_user[item] = self.setting_user_unsorted[item]
+            for item in sorted(setting_user_unsorted):
+                self.setting_user[item] = setting_user_unsorted[item]
 
             # Save setting to JSON file
             self.save()
@@ -582,7 +582,7 @@ class Setting:
 
     def create(self):
         """Create default setting"""
-        self.setting_user = self.setting_default.copy()
+        self.setting_user = copy.deepcopy(self.setting_default)
 
     def backup(self):
         """Backup invalid file"""
@@ -642,7 +642,7 @@ class VehicleClass:
                 self.classdict_user = json.load(jsonfile)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             # create a default copy if not found
-            self.classdict_user = self.classdict_default.copy()
+            self.classdict_user = copy.deepcopy(self.classdict_default)
             self.save()
 
     def save(self):

@@ -25,8 +25,8 @@ import threading
 import csv
 import math
 
-from tinypedal.readapi import info, chknm, cs2py, state, combo_check
-import tinypedal.calculation as calc
+from .readapi import info, chknm, cs2py, state, combo_check
+from . import calculation as calc
 
 
 class FuelUsage:

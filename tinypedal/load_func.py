@@ -22,11 +22,11 @@ Load module & function
 
 import time
 
-from tinypedal.setting import cfg
-from tinypedal.realtime_delta import DeltaTime
-from tinypedal.realtime_fuel import FuelUsage
-from tinypedal.realtime_relative import RelativeInfo
-from tinypedal.overlay_toggle import OverlayLock, OverlayAutoHide
+from .setting import cfg
+from .realtime_delta import DeltaTime
+from .realtime_fuel import FuelUsage
+from .realtime_relative import RelativeInfo
+from .overlay_toggle import OverlayLock, OverlayAutoHide
 
 
 class LoadModule:

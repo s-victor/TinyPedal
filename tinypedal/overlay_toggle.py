@@ -24,7 +24,7 @@ import time
 import threading
 from ctypes import windll
 
-import tinypedal.readapi as read_data
+from . import readapi as read_data
 
 
 class OverlayLock:

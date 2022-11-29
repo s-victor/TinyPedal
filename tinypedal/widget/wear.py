@@ -23,8 +23,8 @@ Tyre Wear Widget
 import tkinter as tk
 import tkinter.font as tkfont
 
-import tinypedal.readapi as read_data
-from tinypedal.base import Widget, MouseEvent
+from .. import readapi as read_data
+from ..base import Widget, MouseEvent
 
 
 class Draw(Widget, MouseEvent):

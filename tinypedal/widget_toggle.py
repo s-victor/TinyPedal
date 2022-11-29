@@ -22,28 +22,28 @@ Widget toggle
 
 import time
 
-from tinypedal.setting import cfg
-from tinypedal.widget import (cruise,
-                              deltabest,
-                              drs,
-                              engine,
-                              force,
-                              fuel,
-                              gear,
-                              instrument,
-                              pedal,
-                              pressure,
-                              radar,
-                              relative,
-                              session,
-                              steering,
-                              stint,
-                              temperature,
-                              timing,
-                              wear,
-                              weather,
-                              wheel
-                              )
+from .setting import cfg
+from .widget import (cruise,
+                     deltabest,
+                     drs,
+                     engine,
+                     force,
+                     fuel,
+                     gear,
+                     instrument,
+                     pedal,
+                     pressure,
+                     radar,
+                     relative,
+                     session,
+                     steering,
+                     stint,
+                     temperature,
+                     timing,
+                     wear,
+                     weather,
+                     wheel
+                     )
 
 
 class WidgetToggle:
