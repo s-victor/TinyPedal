@@ -86,6 +86,17 @@
 - Show pit status indicator whether driver is currently in pit, with customizable pit status text.
 - Customizable column info display order.
 
+## Sectors
+- Show accumulated target sector time, with two available options:
+    * Show theoretical best sector time from best sectors of current session.
+    * Show sector time from personal best laptime of current session.
+- Show accumulated current sector time.
+- Show sector/laptime gap comparing to sector time from personal best laptime of current session.
+- Show theoretical best sector time of each sector on 3 separated sector bars.
+- Show sector time gap against session best sector time on sector bars.
+- Show optional current vehicle speed & session fastest speed.
+- Show optional local driver position standing & current lap number.
+
 ## Session
 - Show current system clock time, with customizable time format.
 - Show session timer, accuracy is limited by 200ms refresh rate of rF2 API.

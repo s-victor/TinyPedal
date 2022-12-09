@@ -1,3 +1,43 @@
+TinyPedal 1.10.0 (2022-12-09)
+-----------------------------
+* [New]Sectors Widget (created by Nibo)
+    - Show accumulated target sector time, with two available options:
+        * Show theoretical best sector time from best sectors of current session.
+        * Show sector time from personal best laptime of current session.
+    - Show accumulated current sector time.
+    - Show sector/laptime gap comparing to sector time from personal best laptime of current session.
+      Default is set to show for 5 seconds after done previous sector.
+      Can be set to always show in config file.
+    - Show theoretical best sector time of each sector on 3 separated sector bars.
+    - Show sector time gap against session best sector time on sector bars.
+    - Auto-freeze previous sector display for 5 seconds after done previous sector.
+      Freeze duration can be customized in config file.
+    - Auto save "best laptime", "best sector time","personal best sector time" of current session
+      in config file when player returns to garage screen, and (re)load when player on track.
+      Note: All the saved data is only valid for current session or car/track combo,
+            and will be reset if current session ends or car/track combo changes,
+            similar to how game handles those data.
+    - Show optional current vehicle speed & session fastest speed.
+    - Show optional local driver position standing & current lap number, similar to Session Widget.
+
+* Gear Widget
+    - Fixed indicators would not hide under certain condition.
+
+* Core
+    - [New]Added Sectors options in setting file.
+    - Improved laptime format method for various widgets.
+
+* pyRfactor2SharedMemory library
+    - Now periodically check & compare shared memory data version.
+    - Auto restart memory mapping if data version stopped updating after a period of time.
+      This helps avoid data freeze issue during various situation,
+      and unexpected lost connection or game crash will no longer cause auto-hide malfunction.
+
+* Misc
+    - Updated customization guide with new configurable setting for Sectors Widget.
+    - Updated feature.md for Sectors Widget.
+    - Updated contributors.md with new contributor (Nibo).
+
 TinyPedal 1.9.5 (2022-11-24)
 ----------------------------
 * Fuel Widget

@@ -64,6 +64,7 @@ class TrayIcon:
             item("Pressure", wtoggle.pressure, checked=lambda _: cfg.setting_user["pressure"]["enable"]),
             item("Radar", wtoggle.radar, checked=lambda _: cfg.setting_user["radar"]["enable"]),
             item("Relative", wtoggle.relative, checked=lambda _: cfg.setting_user["relative"]["enable"]),
+            item("Sectors", wtoggle.sectors, checked=lambda _: cfg.setting_user["sectors"]["enable"]),
             item("Session", wtoggle.session, checked=lambda _: cfg.setting_user["session"]["enable"]),
             item("Steering", wtoggle.steering, checked=lambda _: cfg.setting_user["steering"]["enable"]),
             item("Stint", wtoggle.stint, checked=lambda _: cfg.setting_user["stint"]["enable"]),
@@ -125,5 +126,5 @@ class TrayIcon:
         module.stop()  # stop module
         self.master.quit()  # close app window
         info.stopUpdating()  # stop sharedmemory synced player data updating thread
-        info.closeSimInfo()  # stop sharedmemory mapping
+        info.close()  # stop sharedmemory mapping
         self.tray.stop()  # quit tray icon

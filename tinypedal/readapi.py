@@ -37,7 +37,7 @@ from . import calculation as calc
 
 
 # Load Shared Memory API
-info = SimInfoAPI("")
+info = SimInfoAPI()
 info.startUpdating()  # start Shared Memory updating thread
 
 chknm = calc.in2zero
@@ -46,7 +46,7 @@ cs2py = Cbytestring2Python
 
 def state():
     """Check whether is driving"""
-    return info.players_status != 0
+    return info.syncedVehicleTelemetry().mIgnitionStarter != 0
 
 
 def combo_check():
@@ -71,7 +71,7 @@ def instrument():
     headlights = chknm(info.syncedVehicleTelemetry().mHeadlights)
     ignition = chknm(info.syncedVehicleTelemetry().mIgnitionStarter)
     rpm = chknm(info.syncedVehicleTelemetry().mEngineRPM)
-    autoclutch = chknm(info.Rf2Ext.mPhysics.mAutoClutch)
+    autoclutch = chknm(info.LastExt.mPhysics.mAutoClutch)
     clutch = chknm(info.syncedVehicleTelemetry().mFilteredClutch)
     brake = chknm(info.syncedVehicleTelemetry().mFilteredBrake)
     wheel_rot = (chknm(info.syncedVehicleTelemetry().mWheels[0].mRotation),
@@ -92,7 +92,7 @@ def pedal():
     raw_throttle = chknm(info.syncedVehicleTelemetry().mUnfilteredThrottle)
     raw_brake = chknm(info.syncedVehicleTelemetry().mUnfilteredBrake)
     raw_clutch = chknm(info.syncedVehicleTelemetry().mUnfilteredClutch)
-    ffb = chknm(info.Rf2Ffb.mForceValue)
+    ffb = chknm(info.LastFfb.mForceValue)
     return throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
 
 
@@ -278,3 +278,30 @@ def weather():
     max_wet = chknm(info.LastScor.mScoringInfo.mMaxPathWetness) * 100
     avg_wet = chknm(info.LastScor.mScoringInfo.mAvgPathWetness) * 100
     return amb_temp, trk_temp, rain, min_wet, max_wet, avg_wet
+
+
+def sector():
+    """Sector data"""
+    mSector = chknm(info.syncedVehicleScoring().mSector)
+    mCurSector1 = chknm(info.syncedVehicleScoring().mCurSector1)
+    mCurSector2 = chknm(info.syncedVehicleScoring().mCurSector2)
+    mLastSector2 = chknm(info.syncedVehicleScoring().mLastSector2)
+    mLastLapTime = chknm(info.syncedVehicleScoring().mLastLapTime)
+    mTotalLaps = chknm(info.syncedVehicleScoring().mTotalLaps) + 1
+    mPlace = chknm(info.syncedVehicleScoring().mPlace)
+    mElapsedTime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
+    speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
+                           chknm(info.syncedVehicleTelemetry().mLocalVel.y),
+                           chknm(info.syncedVehicleTelemetry().mLocalVel.z))
+    return (mSector, mCurSector1, mCurSector2, mLastSector2, mLastLapTime,
+            mTotalLaps, mPlace, mElapsedTime, speed)
+
+
+def session_check():
+    """Check session time stamp, type, elapsed time, completed laps"""
+    session_length = chknm(info.LastScor.mScoringInfo.mEndET)
+    session_type = chknm(info.LastScor.mScoringInfo.mSession)
+    session_stamp = f"{session_length:.0f}{session_type:.0f}"
+    session_etime = int(chknm(info.LastScor.mScoringInfo.mCurrentET))
+    session_tlaps = chknm(info.syncedVehicleScoring().mTotalLaps)
+    return session_stamp, session_etime, session_tlaps

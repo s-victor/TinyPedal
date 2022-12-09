@@ -197,7 +197,7 @@ The gap between RPM bar & gear widget, in pixel.
 RPM bar height, in pixel.
 
     rpm_bar_edge_height
-A visible thin edge line, in pixel, set to `0` to hide this line.
+A visible thin edge line, in pixel, set `0` to hide this line.
 
     rpm_safe_multiplier
 This value multiplies max RPM value, which sets a relative safe RPM range for RPM color indicator (changes gear widget background color upon reaching this RPM value).
@@ -389,6 +389,38 @@ Set order of each info column. Must keep index number unique to each column, oth
 Set additional players shown on relative list. The value is limited to a maximum of 3 additional players for each front & behind setting. Default value is `0`.
 
 
+## Sectors
+    layout
+2 layouts are available: `0` = target & current sectors above deltabest sectors, `1` = deltabest sectors above target & current sectors.
+
+    target_time_mode
+Set mode for accumulated target sector time. Set `0` to show theoretical best sector time from session best sectors. Set `1` to show sector time from personal best laptime.
+
+    freeze_duration
+Set auto-freeze duration (seconds) for previous sector time display. Default value is `5` seconds.
+
+    show_best_sector_time
+Show session best sector time of each sector. Set `false` to show sector name instead.
+
+    always_show_laptime_gap
+Set `true` to always show sector/laptime gap bar. Set `false` to show only in freeze duration.
+
+    show_speed
+Show speed and session fastest speed.
+
+    speed_unit
+3 unit types are available: `0` = KPH, `1` = MPH, `2` = m/s.
+
+    speed_highlight_duration
+Set duration (seconds) for highlighting new fastest speed. Default value is `5` seconds.
+
+    show_position_lapnumber
+Show local driver position standing & current lap number.
+
+    last_saved_sector_data
+Store last auto-saved sector data string of current session, not recommended for manual editing.
+
+
 ## Session
     show_clock
 Show current system clock time.
@@ -403,7 +435,7 @@ Show your current place against all drivers in a session.
 Set clock format string. To show seconds, add `%S`, such as `"%H:%M:%S %p"`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
 
     lapnumber_text
-Set custom lap number description text. Set it to `""` to hide text.
+Set custom lap number description text. Set `""` to hide text.
 
     bkg_color_maxlap_warn
 Set warning color that shows 1 lap before exceeding max-lap in qualify (or indicates the last lap of a lap-type race).

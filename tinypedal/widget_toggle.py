@@ -35,6 +35,7 @@ from .widget import (cruise,
                      pressure,
                      radar,
                      relative,
+                     sectors,
                      session,
                      steering,
                      stint,
@@ -109,6 +110,9 @@ class WidgetToggle:
 
         if cfg.setting_user["relative"]["enable"]:
             self.widget_relative = relative.Draw(cfg)
+
+        if cfg.setting_user["sectors"]["enable"]:
+            self.widget_sectors = sectors.Draw(cfg)
 
         if cfg.setting_user["session"]["enable"]:
             self.widget_session = session.Draw(cfg)
@@ -273,6 +277,17 @@ class WidgetToggle:
             cfg.setting_user["relative"]["enable"] = False
             cfg.active_widget_list.remove(self.widget_relative)
             self.widget_relative.destroy()
+        cfg.save()
+
+    def sectors(self):
+        """Toggle sectors"""
+        if not cfg.setting_user["sectors"]["enable"]:
+            self.widget_sectors = sectors.Draw(cfg)
+            cfg.setting_user["sectors"]["enable"] = True
+        else:
+            cfg.setting_user["sectors"]["enable"] = False
+            cfg.active_widget_list.remove(self.widget_sectors)
+            self.widget_sectors.destroy()
         cfg.save()
 
     def session(self):

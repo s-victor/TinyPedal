@@ -205,7 +205,10 @@ def sec2sessiontime(seconds):
 
 def sec2laptime(seconds):
     """Calculate lap time (min/sec/ms)"""
-    laptime = f"{seconds // 60:02.0f}:{divmod(seconds, 60)[1]:06.03f}"
+    if seconds > 60:
+        laptime = f"{seconds // 60:.0f}:{divmod(seconds, 60)[1]:06.03f}"
+    else:
+        laptime = f"{divmod(seconds, 60)[1]:.03f}"
     return laptime
 
 

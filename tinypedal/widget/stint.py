@@ -47,8 +47,8 @@ class Draw(Widget, MouseEvent):
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
         self.checked = False
-        self.stint_running = 0  # check whether current stint running
-        self.reset_stint = 1  # reset stint stats
+        self.stint_running = False  # check whether current stint running
+        self.reset_stint = True  # reset stint stats
 
         self.start_lap = 0
         self.start_time = 0
@@ -140,7 +140,7 @@ class Draw(Widget, MouseEvent):
                 self.last_fuel = fuel_curr
                 self.last_wear = stint_wear
                 self.last_cmpd = stint_cmpd
-                self.stint_running = 1
+                self.stint_running = True
             else:
                 if self.stint_running:
                     if (self.last_wear > stint_wear) or (self.last_fuel < fuel_curr):
@@ -149,18 +149,18 @@ class Draw(Widget, MouseEvent):
                         self.last_stint_fuel = stint_fuel
                         self.last_stint_wear = self.last_wear
                         self.last_stint_cmpd = self.last_cmpd
-                        self.stint_running = 0
-                        self.reset_stint = 1
+                        self.stint_running = False
+                        self.reset_stint = True
 
             if self.reset_stint:
                 self.start_lap = lap_num
                 self.start_time = time_curr
                 self.start_fuel = fuel_curr
                 self.start_wear = wear_avg
-                self.reset_stint = 0
+                self.reset_stint = False
 
             if game_phase < 5:  # reset stint stats if session has not started
-                self.reset_stint = 1
+                self.reset_stint = True
 
             if self.wcfg["fuel_unit"] == 0:
                 fuel_text = f"{stint_fuel:05.01f}"
@@ -182,8 +182,8 @@ class Draw(Widget, MouseEvent):
         else:
             if self.checked:
                 self.checked = False
-                self.stint_running = 0
-                self.reset_stint = 1
+                self.stint_running = False
+                self.reset_stint = True
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

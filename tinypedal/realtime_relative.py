@@ -127,7 +127,8 @@ class RelativeInfo:
             driver = cs2py(info.LastScor.mVehicles[index].mDriverName)
 
             # Lap time
-            laptime = calc.sec2laptime(max(chknm(info.LastScor.mVehicles[index].mLastLapTime), 0))
+            raw_laptime = chknm(info.LastScor.mVehicles[index].mLastLapTime)
+            laptime = calc.sec2laptime(raw_laptime)[:9].rjust(9) if raw_laptime > 0 else "--:--.---"
 
             # Relative time gap
             time_gap = self.calc_relative_time_gap(index, index_player)

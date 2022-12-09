@@ -94,14 +94,27 @@ class Draw(Widget, MouseEvent):
 
             # Read Timing data
             (laptime_curr, laptime_last, laptime_best, laptime_est, _
-             ) = [calc.sec2laptime(min(data, 5999.999)) for data in module.delta_time.output_data]
+             ) = module.delta_time.output_data
 
             # Start updating
+
             # Timing update
-            self.bar_time_best.config(text=f"B {laptime_best}")
-            self.bar_time_last.config(text=f"L {laptime_last}")
-            self.bar_time_curr.config(text=f"C {laptime_curr}")
-            self.bar_time_est.config(text=f"E {laptime_est}")
+            self.bar_time_curr.config(text=f"C{calc.sec2laptime(laptime_curr)[:9].rjust(10)}")
+
+            if laptime_best < 99999:
+                self.bar_time_best.config(text=f"B{calc.sec2laptime(laptime_best)[:9].rjust(10)}")
+            else:
+                self.bar_time_best.config(text="B --:--.---")
+
+            if laptime_est < 99999:
+                self.bar_time_est.config(text=f"E{calc.sec2laptime(laptime_est)[:9].rjust(10)}")
+            else:
+                self.bar_time_est.config(text="E --:--.---")
+
+            if laptime_last > 0:
+                self.bar_time_last.config(text=f"L{calc.sec2laptime(laptime_last)[:9].rjust(10)}")
+            else:
+                self.bar_time_est.config(text="L --:--.---")
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

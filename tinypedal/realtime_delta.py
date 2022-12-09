@@ -69,7 +69,7 @@ class DeltaTime:
         last_time = 0  # last checked elapsed time
         laptime_curr = 0  # current laptime
         laptime_last = 0  # last laptime
-        laptime_best = 5999.999  # best laptime
+        laptime_best = 99999  # best laptime
         laptime_est = 0  # estimated current laptime
         combo_name = "unknown"  # current car & track combo
         update_delay = 0.4  # changeable update delay for conserving resources
@@ -214,7 +214,7 @@ class DeltaTime:
                 bestlap = bestlist[-1][1]  # read best laptime
         except (FileNotFoundError, IndexError):
             bestlist = []
-            bestlap = 5999.999
+            bestlap = 99999
         return bestlist, bestlap
 
     @staticmethod

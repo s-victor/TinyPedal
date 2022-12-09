@@ -4,6 +4,7 @@
 ## Development:
     * Xiang (S.Victor)
     * Erik Jacobs (thoraxe)
+    * Nibo
 
 
 ## Technical support:

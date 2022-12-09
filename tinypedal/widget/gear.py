@@ -61,6 +61,8 @@ class Draw(Widget, MouseEvent):
                                      weight=self.wcfg["font_weight_indicator"])
 
         # Set state for drawing optimization
+        self.checked = False
+
         self.state_lm = True  # limiter
         self.state_cd = False
         self.state_slight = False
@@ -185,6 +187,10 @@ class Draw(Widget, MouseEvent):
         """Update when vehicle on track"""
         if read_data.state() and self.wcfg["enable"]:
 
+            # Switch
+            if not self.checked:
+                self.checked = True
+
             # Read gear data
             pit_limiter, gear, speed, rpm, rpm_max, race_phase, curr_session = read_data.gear()
 
@@ -275,6 +281,33 @@ class Draw(Widget, MouseEvent):
                     self.show_yellow()
                 elif not self.wcfg["yellow_flag_for_race_only"]:
                     self.show_yellow()
+
+        else:
+            if self.checked:
+                self.checked = False
+                # Reset state
+                self.state_lm = True
+                self.state_cd = False
+                self.state_slight = False
+                self.state_blue = True
+                self.state_ys1 = True
+                self.state_ys2 = True
+                self.state_ys3 = True
+
+                # Make sure all indicators are removed on ESC or hiding
+                self.bar_limiter.grid_remove()
+                if self.wcfg["show_startlights"]:
+                    self.bar_startlights.grid_remove()
+                if self.wcfg["show_start_countdown"] == "THIS_MAY_CREATE_UNFAIR_ADVANTAGES":
+                    self.bar_countdown.grid_remove()
+                if self.wcfg["show_low_fuel"]:
+                    self.bar_lowfuel.grid_remove()
+                if self.wcfg["show_blue_flag"]:
+                    self.bar_blueflag.grid_remove()
+                if self.wcfg["show_yellow_flag"]:
+                    self.bar_yellow_s1.grid_remove()
+                    self.bar_yellow_s2.grid_remove()
+                    self.bar_yellow_s3.grid_remove()
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
