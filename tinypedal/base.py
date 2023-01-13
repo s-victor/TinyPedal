@@ -21,6 +21,7 @@ GUI window, events.
 """
 
 import tkinter as tk
+import platform
 
 from .load_func import module
 
@@ -40,7 +41,9 @@ class Widget(tk.Toplevel):
         self.configure(bg="#000002")
         self.resizable(False, False)
         self.overrideredirect(True)
-        self.attributes("-topmost", 1, "-transparentcolor", "#000002")
+        self.attributes("-topmost", 1)
+        if platform.system() == "Windows":
+            self.attributes("-transparentcolor", "#000002")
         self.lift()
 
 
