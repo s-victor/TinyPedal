@@ -1,3 +1,10 @@
+TinyPedal 1.10.1 (2023-01-14)
+-----------------------------
+* Core
+    - Fixed invalid deltabest & fuel data filename that contains special characters,
+      which would cause saving & loading error.
+    - Improved calculation for cruise, pedal, pressure, temperature, wheel widgets.
+
 TinyPedal 1.10.0 (2022-12-09)
 -----------------------------
 * [New]Sectors Widget (created by Nibo)

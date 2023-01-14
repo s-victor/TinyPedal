@@ -109,6 +109,12 @@ def meter2millmeter(meter):
     return millimeter
 
 
+def rake(height_fl, height_fr, height_rl, height_rr):
+    """Calculate rake"""
+    diff = (height_rr + height_rl - height_fr - height_fl) * 0.5
+    return diff
+
+
 def rake2angle(rake, wheelbase):
     """Calculate rake angle based on wheelbase value set in JSON"""
     degree = math.atan(float(rake) / (wheelbase + 0.001) * 57.2957795)

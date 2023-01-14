@@ -31,6 +31,7 @@ Access rF2 shared memory data using:
    https://github.com/s-victor/pyRfactor2SharedMemory
 """
 
+import re
 from pyRfactor2SharedMemory.sharedMemoryAPI import SimInfoAPI, Cbytestring2Python
 
 from . import calculation as calc
@@ -53,7 +54,7 @@ def combo_check():
     """Track & vehicle combo data"""
     name_class = cs2py(info.syncedVehicleScoring().mVehicleClass)
     name_track = cs2py(info.LastScor.mScoringInfo.mTrackName)
-    return f"{name_track} - {name_class}"
+    return re.sub('[\\\\/:*?"<>|]', "", f"{name_track} - {name_class}")
 
 
 def cruise():

@@ -98,13 +98,9 @@ class Draw(Widget, MouseEvent):
 
                 time_offset = time_curr * self.wcfg["track_clock_time_scale"]
 
-                while True:
-                    time_diff = (1440 - time_start) + time_offset
-
-                    if time_diff <= -time_start:
-                        time_offset += time_diff
-                    elif time_diff > -time_start:
-                        break
+                time_diff = (1440 - time_start) + time_offset
+                while time_diff <= -time_start:
+                    time_offset += time_diff
 
                 track_clock = time_start + time_offset
                 clock_text = time.strftime(self.wcfg["track_clock_format"],

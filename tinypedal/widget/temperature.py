@@ -124,10 +124,8 @@ class Draw(Widget, MouseEvent):
 
             # Start updating
             # Set up display temps
-            ttemp_d = [f" {calc.conv_temperature(data, self.wcfg['temp_unit']):02.0f}°"
-                       for data in ttemp]
-            btemp_d = [f" {calc.conv_temperature(data, self.wcfg['temp_unit']):02.0f}°"
-                       for data in btemp]
+            ttemp_d = tuple(map(self.format_temp, ttemp))
+            btemp_d = tuple(map(self.format_temp, btemp))
 
             # Temperature update
             if self.wcfg["color_swap_tyre"] == "0":
@@ -166,6 +164,10 @@ class Draw(Widget, MouseEvent):
         self.after(self.wcfg["update_delay"], self.update_data)
 
     # Additional methods
+    def format_temp(self, temp):
+        """Format temperature"""
+        return f" {calc.conv_temperature(temp, self.wcfg['temp_unit']):02.0f}°"
+
     @staticmethod
     def color_ttemp(temp):
         """Tyre temperature color"""

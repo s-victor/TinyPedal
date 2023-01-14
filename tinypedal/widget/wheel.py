@@ -123,26 +123,26 @@ class Draw(Widget, MouseEvent):
         if read_data.state() and self.wcfg["enable"]:
 
             # Read camber data
-            camber = [f"{calc.rad2deg(data):+.2f}" for data in read_data.camber()]
+            camber = tuple(map(calc.rad2deg, read_data.camber()))
 
             # Read toe data
-            toe = [f"{calc.rad2deg(data):+.2f}" for data in read_data.toe()]
+            toe = tuple(map(calc.rad2deg, read_data.toe()))
 
             # Read ride height & rake data
-            ride_height = [calc.meter2millmeter(data) for data in read_data.ride_height()]
+            ride_height = tuple(map(calc.meter2millmeter, read_data.ride_height()))
 
             # Start updating
             # Camber update
-            self.bar_camber_fl.config(text=camber[0])
-            self.bar_camber_fr.config(text=camber[1])
-            self.bar_camber_rl.config(text=camber[2])
-            self.bar_camber_rr.config(text=camber[3])
+            self.bar_camber_fl.config(text=f"{camber[0]:+.2f}")
+            self.bar_camber_fr.config(text=f"{camber[1]:+.2f}")
+            self.bar_camber_rl.config(text=f"{camber[2]:+.2f}")
+            self.bar_camber_rr.config(text=f"{camber[3]:+.2f}")
 
             # Toe update
-            self.bar_toe_fl.config(text=toe[0])
-            self.bar_toe_fr.config(text=toe[1])
-            self.bar_toe_rl.config(text=toe[2])
-            self.bar_toe_rr.config(text=toe[3])
+            self.bar_toe_fl.config(text=f"{toe[0]:+.2f}")
+            self.bar_toe_fr.config(text=f"{toe[1]:+.2f}")
+            self.bar_toe_rl.config(text=f"{toe[2]:+.2f}")
+            self.bar_toe_rr.config(text=f"{toe[3]:+.2f}")
 
             # Ride height update
             self.bar_rideh_fl.config(text=f"{ride_height[0]:+.1f}",
@@ -159,7 +159,7 @@ class Draw(Widget, MouseEvent):
                                         ride_height[3], self.wcfg["rideheight_offset_rear"]))
 
             # Rake update
-            rake = (ride_height[3] + ride_height[2] - ride_height[1] - ride_height[0]) * 0.5
+            rake = calc.rake(*ride_height)
             rake_angle = calc.rake2angle(rake, self.wcfg["wheelbase"])
 
             self.bar_rake.config(text=f"{rake:+.1f}", bg=self.color_rideh(rake, 0))

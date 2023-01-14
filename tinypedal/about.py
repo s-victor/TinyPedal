@@ -30,7 +30,7 @@ from PIL import Image, ImageTk
 from .setting import cfg
 
 
-VERSION = "1.10.0"
+VERSION = "1.10.1"
 
 
 class About(tk.Tk):

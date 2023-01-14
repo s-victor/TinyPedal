@@ -127,8 +127,7 @@ class Draw(Widget, MouseEvent):
         if read_data.state() and self.wcfg["enable"]:
 
             # Read tyre pressure data
-            pressure = [calc.kpa2psi(data, self.wcfg["pressure_unit"])
-                        for data in read_data.tyre_pressure()]
+            pressure = tuple(map(self.format_pressure, read_data.tyre_pressure()))
 
             # Start updating
             # Tyre load & pressure update
@@ -159,3 +158,8 @@ class Draw(Widget, MouseEvent):
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
+
+    # Additional methods
+    def format_pressure(self, pres):
+        """Format pressure"""
+        return calc.kpa2psi(pres, self.wcfg["pressure_unit"])

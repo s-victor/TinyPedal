@@ -117,8 +117,7 @@ class Draw(Widget, MouseEvent):
 
             # Read pedal data
             (throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
-             ) = [calc.pedal_pos(data, self.pbar_length, self.wcfg["bar_length_scale"])
-                  for data in read_data.pedal()]
+             ) = tuple(map(self.scale_input, read_data.pedal()))
 
             # Start updating
             self.bar_throttle.coords(self.rect_raw_throttle, 0,
@@ -177,3 +176,8 @@ class Draw(Widget, MouseEvent):
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
+
+    # Additional methods
+    def scale_input(self, value):
+        """Scale input"""
+        return calc.pedal_pos(value, self.pbar_length, self.wcfg["bar_length_scale"])
