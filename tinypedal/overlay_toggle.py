@@ -22,10 +22,12 @@ Overlay toggle
 
 import time
 import threading
-from ctypes import windll
+import platform
 
 from . import readapi as read_data
 
+if platform.system() == "Windows":
+    from ctypes import windll
 
 class OverlayLock:
     """Overlay lock state"""
@@ -55,6 +57,10 @@ class OverlayLock:
 
         Find HWND & loop through widget list to apply extended style.
         """
+
+        if platform.system() != "Windows":
+            return
+
         if self.cfg.active_widget_list:
             for widget in self.cfg.active_widget_list:
                 hwnd = windll.user32.GetParent(widget.winfo_id())

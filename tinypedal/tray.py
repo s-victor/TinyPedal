@@ -28,6 +28,9 @@ from .about import VERSION, LoadPreset
 from .load_func import module
 from .readapi import info
 from .widget_toggle import WidgetToggle
+import platform
+import threading
+import signal
 
 
 wtoggle = WidgetToggle()
@@ -91,6 +94,8 @@ class TrayIcon:
 
         self.tray = pystray.Icon("icon", icon=image, title=name, menu=main_menu)
 
+        signal.signal(signal.SIGINT, self.int_signal_handler)
+
     def open_preset_window(self):
         """Open preset window"""
         if not self.preset_window:
@@ -105,7 +110,10 @@ class TrayIcon:
 
     def start_tray(self):
         """Start tray icon"""
-        self.tray.run_detached()
+        if platform.system() == "Windows":
+            self.tray.run_detached()
+        else:
+            threading.Thread(target=self.tray.run).start()
 
     def start_widget(self):
         """Start widget"""
@@ -128,3 +136,6 @@ class TrayIcon:
         info.stopUpdating()  # stop sharedmemory synced player data updating thread
         info.close()  # stop sharedmemory mapping
         self.tray.stop()  # quit tray icon
+
+    def int_signal_handler(self, signal, frame):
+        self.quit_app()

@@ -26,6 +26,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
+import platform
 
 from .setting import cfg
 
@@ -50,7 +51,10 @@ class About(tk.Tk):
         self.title("About")
         self.configure(bg=bg_color, padx=22, pady=12)
         self.resizable(False, False)
-        self.iconbitmap("icon.ico")
+        if platform.system() == "Windows":
+            self.iconbitmap("icon.ico")
+        else:
+            self.iconphoto(True, tk.PhotoImage(file="icon.png"))
 
         # Center window
         wnd_posx = int((self.winfo_screenwidth() / 2) - self.winfo_width())
@@ -130,7 +134,10 @@ class LoadPreset(tk.Toplevel):
         self.title("Preset Manager")
         self.configure(bg="#EEE")
         self.resizable(False, False)
-        self.iconbitmap("icon.ico")
+        if platform.system() == "Windows":
+            self.iconbitmap("icon.ico")
+        else:
+            self.iconphoto(True, tk.PhotoImage(file="icon.png"))
 
         # Center window
         wnd_posx = int((self.winfo_screenwidth() / 2) - self.winfo_width())
