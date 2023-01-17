@@ -5,6 +5,7 @@
     * Xiang (S.Victor)
     * Erik Jacobs (thoraxe)
     * Nibo
+    * Bernat (berarma)
 
 
 ## Technical support:
@@ -12,7 +13,7 @@
     * DumibirdF
 
 
-## Testing & Feedback:
+## Pre-release testing:
     * chips
     * derricklu30
     * DKxiaoming
@@ -27,7 +28,7 @@
     * TinyPedal icon - Xiang (S.Victor)
 
 
-## Thanks to:
+## Special Thanks to:
     * Vytautas Leonavičius (The Iron Wolf)
     * Tony Whitley (Seven Smiles)
 
