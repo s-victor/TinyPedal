@@ -1,3 +1,15 @@
+TinyPedal (WIP)
+-----------------------------
+* Core
+    - Added initial linux platform support (by Bernat).
+    - Added "transparent_color" setting in JSON config file.
+      This setting is meant to be used by linux platform
+      where transparent background color is not supported,
+      and user may customize a substitute color.
+
+* Misc
+    - Updated contributors.md with new contributor (Bernat).
+
 TinyPedal 1.10.1 (2023-01-14)
 -----------------------------
 * Core
