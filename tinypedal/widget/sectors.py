@@ -40,7 +40,7 @@ class Draw(Widget, MouseEvent):
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self)
+        Widget.__init__(self, config, self.widget_name)
         self.cfg = config
         self.wcfg = self.cfg.setting_user[self.widget_name]
 
@@ -61,7 +61,7 @@ class Draw(Widget, MouseEvent):
 
         # Draw label
         bar_style = {"bd":0, "height":1, "padx":0, "pady":0, "font":font_sectors}
-        frame_laptime = tk.Frame(self, bd=0, highlightthickness=0, bg="#000002")
+        frame_laptime = tk.Frame(self, bd=0, highlightthickness=0, bg=self.cfg.overlay["transparent_color"])
 
         # Current position and current lap number
         if self.wcfg["show_position_lapnumber"]:

@@ -35,9 +35,7 @@ class Draw(Widget, MouseEvent):
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self)
-        self.cfg = config
-        self.wcfg = self.cfg.setting_user[self.widget_name]
+        Widget.__init__(self, config, self.widget_name)
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
@@ -683,7 +681,7 @@ class Draw(Widget, MouseEvent):
         if pits > 0:
             status = {"text":self.wcfg["pit_status_text"], "bg":self.wcfg["bkg_color_pit"]}
         else:
-            status = {"text":"", "bg":"#000002"}
+            status = {"text":"", "bg":self.cfg.overlay["transparent_color"]}
         return status
 
     def set_class_style(self, vehclass_name):

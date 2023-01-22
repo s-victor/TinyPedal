@@ -33,9 +33,7 @@ class Draw(Widget, MouseEvent):
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self)
-        self.cfg = config
-        self.wcfg = self.cfg.setting_user[self.widget_name]
+        Widget.__init__(self, config, self.widget_name)
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())

@@ -21,8 +21,8 @@ GUI window, events.
 """
 
 import tkinter as tk
-import platform
 
+from .const import PLATFORM
 from .load_func import module
 
 
@@ -34,16 +34,22 @@ class Widget(tk.Toplevel):
     Use tk.Canvas to draw shape-based widget for better performance.
     """
 
-    def __init__(self):
+    def __init__(self, config, widget_name):
         tk.Toplevel.__init__(self)
 
+        # Load config
+        self.cfg = config
+
+        # Assign widget specific config
+        self.wcfg = self.cfg.setting_user[widget_name]
+
         # Base setting
-        self.configure(bg="#000002")
+        self.configure(bg=self.cfg.overlay["transparent_color"])
         self.resizable(False, False)
         self.overrideredirect(True)
         self.attributes("-topmost", 1)
-        if platform.system() == "Windows":
-            self.attributes("-transparentcolor", "#000002")
+        if PLATFORM == "Windows":
+            self.attributes("-transparentcolor", self.cfg.overlay["transparent_color"])
         self.lift()
 
 

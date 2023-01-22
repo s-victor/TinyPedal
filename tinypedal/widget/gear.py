@@ -35,9 +35,7 @@ class Draw(Widget, MouseEvent):
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self)
-        self.cfg = config
-        self.wcfg = self.cfg.setting_user[self.widget_name]
+        Widget.__init__(self, config, self.widget_name)
 
         # Config title & background
         self.title("TinyPedal - " + self.widget_name.capitalize())
@@ -114,7 +112,7 @@ class Draw(Widget, MouseEvent):
                               padx=0, pady=(self.wcfg["rpm_bar_gap"], 0))
             # Used as transparent mask
             self.rect_rpm = self.bar_rpm.create_rectangle(
-                            0, 0, 0, 0, fill="#000002", outline="")
+                            0, 0, 0, 0, fill=self.cfg.overlay["transparent_color"], outline="")
 
         # Speed limiter
         self.bar_limiter = tk.Label(self, text=self.wcfg["speed_limiter_text"], bd=0, height=1,
