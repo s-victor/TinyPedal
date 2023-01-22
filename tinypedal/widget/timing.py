@@ -28,17 +28,18 @@ from .. import readapi as read_data
 from ..base import Widget, MouseEvent
 from ..load_func import module
 
+WIDGET_NAME = "timing"
+
 
 class Draw(Widget, MouseEvent):
     """Draw widget"""
-    widget_name = "timing"
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self, config, self.widget_name)
+        Widget.__init__(self, config, WIDGET_NAME)
 
         # Config title & background
-        self.title("TinyPedal - " + self.widget_name.capitalize())
+        self.title("TinyPedal - " + WIDGET_NAME.capitalize())
         self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position

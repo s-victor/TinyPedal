@@ -29,23 +29,21 @@ from .. import readapi as read_data
 from ..base import Widget, MouseEvent
 from ..load_func import module
 
-
-# Constants
+WIDGET_NAME = "sectors"
 MAGIC_NUM = 99999  # magic number for default variable not updated by rF2
 
 
 class Draw(Widget, MouseEvent):
     """Draw widget"""
-    widget_name = "sectors"
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self, config, self.widget_name)
+        Widget.__init__(self, config, WIDGET_NAME)
         self.cfg = config
-        self.wcfg = self.cfg.setting_user[self.widget_name]
+        self.wcfg = self.cfg.setting_user[WIDGET_NAME]
 
         # Config title & background
-        self.title("TinyPedal - " + self.widget_name.capitalize())
+        self.title("TinyPedal - " + WIDGET_NAME.capitalize())
         self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position

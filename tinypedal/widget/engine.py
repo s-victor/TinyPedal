@@ -26,17 +26,18 @@ import tkinter.font as tkfont
 from .. import readapi as read_data
 from ..base import Widget, MouseEvent
 
+WIDGET_NAME = "engine"
+
 
 class Draw(Widget, MouseEvent):
     """Draw widget"""
-    widget_name = "engine"
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self, config, self.widget_name)
+        Widget.__init__(self, config, WIDGET_NAME)
 
         # Config title & background
-        self.title("TinyPedal - " + self.widget_name.capitalize())
+        self.title("TinyPedal - " + WIDGET_NAME.capitalize())
         self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position

@@ -27,17 +27,18 @@ from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget, MouseEvent
 
+WIDGET_NAME = "force"
+
 
 class Draw(Widget, MouseEvent):
     """Draw widget"""
-    widget_name = "force"
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self, config, self.widget_name)
+        Widget.__init__(self, config, WIDGET_NAME)
 
         # Config title & background
-        self.title("TinyPedal - " + self.widget_name.capitalize())
+        self.title("TinyPedal - " + WIDGET_NAME.capitalize())
         self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position

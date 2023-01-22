@@ -30,10 +30,10 @@ from .const import VERSION
 from .about import LoadPreset
 from .load_func import module
 from .readapi import info
-from .widget_toggle import WidgetToggle
+from .widget_control import WidgetControl
 
 
-wtoggle = WidgetToggle()
+wctrl = WidgetControl()
 
 
 class TrayIcon:
@@ -55,27 +55,27 @@ class TrayIcon:
 
         # Add widget toggle items
         widget_menu = menu(
-            item("Cruise", wtoggle.cruise, checked=lambda _: cfg.setting_user["cruise"]["enable"]),
-            item("Delta best", wtoggle.deltabest, checked=lambda _: cfg.setting_user["deltabest"]["enable"]),
-            item("DRS", wtoggle.drs, checked=lambda _: cfg.setting_user["drs"]["enable"]),
-            item("Engine", wtoggle.engine, checked=lambda _: cfg.setting_user["engine"]["enable"]),
-            item("Force", wtoggle.force, checked=lambda _: cfg.setting_user["force"]["enable"]),
-            item("Fuel", wtoggle.fuel, checked=lambda _: cfg.setting_user["fuel"]["enable"]),
-            item("Gear", wtoggle.gear, checked=lambda _: cfg.setting_user["gear"]["enable"]),
-            item("Instrument", wtoggle.instrument, checked=lambda _: cfg.setting_user["instrument"]["enable"]),
-            item("Pedal", wtoggle.pedal, checked=lambda _: cfg.setting_user["pedal"]["enable"]),
-            item("Pressure", wtoggle.pressure, checked=lambda _: cfg.setting_user["pressure"]["enable"]),
-            item("Radar", wtoggle.radar, checked=lambda _: cfg.setting_user["radar"]["enable"]),
-            item("Relative", wtoggle.relative, checked=lambda _: cfg.setting_user["relative"]["enable"]),
-            item("Sectors", wtoggle.sectors, checked=lambda _: cfg.setting_user["sectors"]["enable"]),
-            item("Session", wtoggle.session, checked=lambda _: cfg.setting_user["session"]["enable"]),
-            item("Steering", wtoggle.steering, checked=lambda _: cfg.setting_user["steering"]["enable"]),
-            item("Stint", wtoggle.stint, checked=lambda _: cfg.setting_user["stint"]["enable"]),
-            item("Temperature", wtoggle.temperature, checked=lambda _: cfg.setting_user["temperature"]["enable"]),
-            item("Timing", wtoggle.timing, checked=lambda _: cfg.setting_user["timing"]["enable"]),
-            item("Wear", wtoggle.wear, checked=lambda _: cfg.setting_user["wear"]["enable"]),
-            item("Weather", wtoggle.weather, checked=lambda _: cfg.setting_user["weather"]["enable"]),
-            item("Wheel", wtoggle.wheel, checked=lambda _: cfg.setting_user["wheel"]["enable"]),
+            item("Cruise", lambda: wctrl.toggle("cruise"), checked=lambda _: cfg.setting_user["cruise"]["enable"]),
+            item("Delta best", lambda: wctrl.toggle("deltabest"), checked=lambda _: cfg.setting_user["deltabest"]["enable"]),
+            item("DRS", lambda: wctrl.toggle("drs"), checked=lambda _: cfg.setting_user["drs"]["enable"]),
+            item("Engine", lambda: wctrl.toggle("engine"), checked=lambda _: cfg.setting_user["engine"]["enable"]),
+            item("Force", lambda: wctrl.toggle("force"), checked=lambda _: cfg.setting_user["force"]["enable"]),
+            item("Fuel", lambda: wctrl.toggle("fuel"), checked=lambda _: cfg.setting_user["fuel"]["enable"]),
+            item("Gear", lambda: wctrl.toggle("gear"), checked=lambda _: cfg.setting_user["gear"]["enable"]),
+            item("Instrument", lambda: wctrl.toggle("instrument"), checked=lambda _: cfg.setting_user["instrument"]["enable"]),
+            item("Pedal", lambda: wctrl.toggle("pedal"), checked=lambda _: cfg.setting_user["pedal"]["enable"]),
+            item("Pressure", lambda: wctrl.toggle("pressure"), checked=lambda _: cfg.setting_user["pressure"]["enable"]),
+            item("Radar", lambda: wctrl.toggle("radar"), checked=lambda _: cfg.setting_user["radar"]["enable"]),
+            item("Relative", lambda: wctrl.toggle("relative"), checked=lambda _: cfg.setting_user["relative"]["enable"]),
+            item("Sectors", lambda: wctrl.toggle("sectors"), checked=lambda _: cfg.setting_user["sectors"]["enable"]),
+            item("Session", lambda: wctrl.toggle("session"), checked=lambda _: cfg.setting_user["session"]["enable"]),
+            item("Steering", lambda: wctrl.toggle("steering"), checked=lambda _: cfg.setting_user["steering"]["enable"]),
+            item("Stint", lambda: wctrl.toggle("stint"), checked=lambda _: cfg.setting_user["stint"]["enable"]),
+            item("Temperature", lambda: wctrl.toggle("temperature"), checked=lambda _: cfg.setting_user["temperature"]["enable"]),
+            item("Timing", lambda: wctrl.toggle("timing"), checked=lambda _: cfg.setting_user["timing"]["enable"]),
+            item("Wear", lambda: wctrl.toggle("wear"), checked=lambda _: cfg.setting_user["wear"]["enable"]),
+            item("Weather", lambda: wctrl.toggle("weather"), checked=lambda _: cfg.setting_user["weather"]["enable"]),
+            item("Wheel", lambda: wctrl.toggle("wheel"), checked=lambda _: cfg.setting_user["wheel"]["enable"]),
         )
 
         main_menu = (
@@ -116,21 +116,18 @@ class TrayIcon:
     def start_widget(self):
         """Start widget"""
         module.start()  # 1 start module
-        wtoggle.start()  # 2 start widget
+        wctrl.start()  # 2 start widget
         self.tray.update_menu()  # 3 update tray menu
 
     def close_widget(self):
         """Close widget"""
         module.stop()  # 1 stop module
-        wtoggle.close()  # 2 close widget
+        wctrl.close()  # 2 close widget
 
     def quit_app(self):
-        """Quit tray icon
-
-        Must quit root window first.
-        """
+        """Quit tray icon"""
         module.stop()  # stop module
-        self.master.quit()  # close app window
+        self.master.quit()  # must close root window first
         info.stopUpdating()  # stop sharedmemory synced player data updating thread
         info.close()  # stop sharedmemory mapping
         self.tray.stop()  # quit tray icon
