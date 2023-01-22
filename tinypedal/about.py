@@ -26,12 +26,9 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox
 from PIL import Image, ImageTk
-import platform
 
 from .setting import cfg
-
-
-VERSION = "1.10.1"
+from .const import VERSION, PLATFORM
 
 
 class About(tk.Tk):
@@ -51,7 +48,7 @@ class About(tk.Tk):
         self.title("About")
         self.configure(bg=bg_color, padx=22, pady=12)
         self.resizable(False, False)
-        if platform.system() == "Windows":
+        if PLATFORM == "Windows":
             self.iconbitmap("icon.ico")
         else:
             self.iconphoto(True, tk.PhotoImage(file="icon.png"))
@@ -134,7 +131,7 @@ class LoadPreset(tk.Toplevel):
         self.title("Preset Manager")
         self.configure(bg="#EEE")
         self.resizable(False, False)
-        if platform.system() == "Windows":
+        if PLATFORM == "Windows":
             self.iconbitmap("icon.ico")
         else:
             self.iconphoto(True, tk.PhotoImage(file="icon.png"))

@@ -25,12 +25,14 @@ import threading
 import csv
 import math
 
+from .const import PATH_FUEL
 from .readapi import info, chknm, cs2py, state, combo_check
 from . import calculation as calc
 
 
 class FuelUsage:
     """Fuel usage data"""
+    filepath = PATH_FUEL
 
     def __init__(self, config):
         self.cfg = config
@@ -110,7 +112,6 @@ class FuelUsage:
                         used_last = used_curr
                         delta_list_curr.append((pos_last + 10, used_last, laptime_last))  # set end value
                         delta_list_last = delta_list_curr.copy()
-                        self.save_deltafuel(combo_name, delta_list_last)
 
                     delta_list_curr.clear()  # reset current delta list
                     delta_list_curr.append((0.0, 0.0))  # set start value
@@ -193,6 +194,8 @@ class FuelUsage:
                     delta_list_curr.clear()  # reset current delta list
                     used_curr = 0
                     pos_append = 0
+                    if delta_list_last:
+                        self.save_deltafuel(combo_name, delta_list_last)
 
             time.sleep(update_delay)
 
@@ -219,11 +222,10 @@ class FuelUsage:
         return (start_curr, laps_total, laps_left, time_left, amount_curr, capacity,
                 inpits, pos_curr, elapsed_time, speed)
 
-    @staticmethod
-    def load_deltafuel(combo):
+    def load_deltafuel(self, combo):
         """Load last saved fuel consumption data"""
         try:
-            with open(f"deltabest/{combo}.fuel", newline="", encoding="utf-8") as csvfile:
+            with open(f"{self.filepath}{combo}.fuel", newline="", encoding="utf-8") as csvfile:
                 deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 lastlist = list(deltaread)
                 lastfuel = lastlist[-1][1]  # read fuel consumption
@@ -234,9 +236,8 @@ class FuelUsage:
             lastlaptime = 0
         return lastlist, lastfuel, lastlaptime
 
-    @staticmethod
-    def save_deltafuel(combo, listname):
+    def save_deltafuel(self, combo, listname):
         """Save fuel consumption data"""
-        with open(f"deltabest/{combo}.fuel", "w", newline="", encoding="utf-8") as csvfile:
+        with open(f"{self.filepath}{combo}.fuel", "w", newline="", encoding="utf-8") as csvfile:
             deltawrite = csv.writer(csvfile)
             deltawrite.writerows(listname)

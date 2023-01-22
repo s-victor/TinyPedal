@@ -24,12 +24,14 @@ import time
 import threading
 import csv
 
+from .const import PATH_DELTABEST
 from .readapi import info, chknm, cs2py, state, combo_check
 from . import calculation as calc
 
 
 class DeltaTime:
     """Delta time data"""
+    filepath = PATH_DELTABEST
 
     def __init__(self, config):
         self.cfg = config
@@ -204,11 +206,10 @@ class DeltaTime:
         return (start_curr, elapsed_time, lastlap_check, speed, pos_curr,
                 gps_curr, game_phase)
 
-    @staticmethod
-    def load_deltabest(combo):
+    def load_deltabest(self, combo):
         """Load delta best & best laptime"""
         try:
-            with open(f"deltabest/{combo}.csv", newline="", encoding="utf-8") as csvfile:
+            with open(f"{self.filepath}{combo}.csv", newline="", encoding="utf-8") as csvfile:
                 deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 bestlist = list(deltaread)
                 bestlap = bestlist[-1][1]  # read best laptime
@@ -217,9 +218,8 @@ class DeltaTime:
             bestlap = 99999
         return bestlist, bestlap
 
-    @staticmethod
-    def save_deltabest(combo, listname):
+    def save_deltabest(self, combo, listname):
         """Save delta best"""
-        with open(f"deltabest/{combo}.csv", "w", newline="", encoding="utf-8") as csvfile:
+        with open(f"{self.filepath}{combo}.csv", "w", newline="", encoding="utf-8") as csvfile:
             deltawrite = csv.writer(csvfile)
             deltawrite.writerows(listname)

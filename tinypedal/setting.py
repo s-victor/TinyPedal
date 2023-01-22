@@ -27,10 +27,12 @@ import json
 import shutil
 import copy
 
+from .const import PATH_SETTINGS, PATH_CLASSES
+
 
 class Setting:
     """Overlay setting"""
-    filepath = "./settings/"
+    filepath = PATH_SETTINGS
     filename = "default.json"
     setting_default = {
         "overlay": {
@@ -41,6 +43,7 @@ class Setting:
             "fuel_module": True,
             "hover_color_1": "#FFB913",
             "hover_color_2": "#F6AD00",
+            "transparent_color": "#000002",
         },
         "cruise": {
             "enable": True,
@@ -637,8 +640,8 @@ class Setting:
 
 class VehicleClass:
     """Vehicle class dictionary"""
-    classfilepath = "./settings/"
-    classfilename = "classes.json"
+    filepath = PATH_CLASSES
+    filename = "classes.json"
     classdict_default = {
             "Hypercar": {
                 "HP": "#FF4400"
@@ -680,7 +683,7 @@ class VehicleClass:
         """Load dictionary file"""
         try:
             # Load file
-            with open(f"{self.classfilepath}{self.classfilename}", "r", encoding="utf-8") as jsonfile:
+            with open(f"{self.filepath}{self.filename}", "r", encoding="utf-8") as jsonfile:
                 self.classdict_user = json.load(jsonfile)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             # create a default copy if not found
@@ -689,7 +692,7 @@ class VehicleClass:
 
     def save(self):
         """Save dictionary to file"""
-        with open(f"{self.classfilepath}{self.classfilename}", "w", encoding="utf-8") as jsonfile:
+        with open(f"{self.filepath}{self.filename}", "w", encoding="utf-8") as jsonfile:
             json.dump(self.classdict_user, jsonfile, indent=4)
 
 

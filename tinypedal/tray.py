@@ -20,17 +20,17 @@
 Tray icon
 """
 
+import threading
+import signal
 from PIL import Image
 import pystray
 
 from .setting import cfg
-from .about import VERSION, LoadPreset
+from .const import VERSION
+from .about import LoadPreset
 from .load_func import module
 from .readapi import info
 from .widget_toggle import WidgetToggle
-import platform
-import threading
-import signal
 
 
 wtoggle = WidgetToggle()
@@ -110,10 +110,8 @@ class TrayIcon:
 
     def start_tray(self):
         """Start tray icon"""
-        if platform.system() == "Windows":
-            self.tray.run_detached()
-        else:
-            threading.Thread(target=self.tray.run).start()
+        # self.tray.run_detached()
+        threading.Thread(target=self.tray.run).start()
 
     def start_widget(self):
         """Start widget"""
