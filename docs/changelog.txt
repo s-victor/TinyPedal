@@ -1,5 +1,8 @@
 TinyPedal (WIP)
 -----------------------------
+* Sectors Widget
+    - Properly saves current session fastest top speed from valid lap.
+
 * Core
     - Added initial linux platform support (by Bernat).
     - Added "transparent_color" setting in JSON config file.

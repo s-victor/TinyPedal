@@ -157,7 +157,7 @@ class Draw(Widget, MouseEvent):
         self.best_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]           # best sector times
         self.bestlap_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]        # best lap sector times
 
-        self.best_speed = 0                      # top speed
+        self.best_speed = 0                      # fastest session top speed
         self.speed_timer_start = 0               # speed timer start
         self.speed_timer = 0                     # speed timer difference
         self.freeze_timer_start = 0              # sector timer start
@@ -392,6 +392,7 @@ class Draw(Widget, MouseEvent):
                         + "|" + str(self.bestlap_s[0])
                         + "|" + str(self.bestlap_s[1])
                         + "|" + str(self.bestlap_s[2])
+                        + "|" + str(self.best_speed)
                         )
                     self.cfg.save()
 
@@ -481,6 +482,7 @@ class Draw(Widget, MouseEvent):
                 self.best_laptime = saved_data[4]
                 self.best_s = saved_data[5]
                 self.bestlap_s = saved_data[6]
+                self.best_speed = saved_data[7]
 
     @staticmethod
     def parse_save_data(save_data):
@@ -499,7 +501,8 @@ class Draw(Widget, MouseEvent):
                           data[3],                    # session total laps, float
                           data[4],                    # session PB laptime, float
                           [data[5],data[6],data[7]],  # session all time best sector, float
-                          [data[8],data[9],data[10]]   # session PB laptime sector, float
+                          [data[8],data[9],data[10]], # session PB laptime sector, float
+                          data[11]                    # session fastest top speed, float
                           ]
         except (IndexError):  # reset data
             final_list = ["None"]
