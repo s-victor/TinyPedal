@@ -30,8 +30,7 @@ from .const import VERSION
 from .about import LoadPreset
 from .load_func import module
 from .readapi import info
-from .widget_control import WidgetControl
-
+from .widget_control import WIDGET_PACK, WidgetControl
 
 wctrl = WidgetControl()
 
@@ -53,30 +52,16 @@ class TrayIcon:
         item = pystray.MenuItem
         separator = pystray.Menu.SEPARATOR
 
-        # Add widget toggle items
-        widget_menu = menu(
-            item("Cruise", lambda: wctrl.toggle("cruise"), checked=lambda _: cfg.setting_user["cruise"]["enable"]),
-            item("Delta best", lambda: wctrl.toggle("deltabest"), checked=lambda _: cfg.setting_user["deltabest"]["enable"]),
-            item("DRS", lambda: wctrl.toggle("drs"), checked=lambda _: cfg.setting_user["drs"]["enable"]),
-            item("Engine", lambda: wctrl.toggle("engine"), checked=lambda _: cfg.setting_user["engine"]["enable"]),
-            item("Force", lambda: wctrl.toggle("force"), checked=lambda _: cfg.setting_user["force"]["enable"]),
-            item("Fuel", lambda: wctrl.toggle("fuel"), checked=lambda _: cfg.setting_user["fuel"]["enable"]),
-            item("Gear", lambda: wctrl.toggle("gear"), checked=lambda _: cfg.setting_user["gear"]["enable"]),
-            item("Instrument", lambda: wctrl.toggle("instrument"), checked=lambda _: cfg.setting_user["instrument"]["enable"]),
-            item("Pedal", lambda: wctrl.toggle("pedal"), checked=lambda _: cfg.setting_user["pedal"]["enable"]),
-            item("Pressure", lambda: wctrl.toggle("pressure"), checked=lambda _: cfg.setting_user["pressure"]["enable"]),
-            item("Radar", lambda: wctrl.toggle("radar"), checked=lambda _: cfg.setting_user["radar"]["enable"]),
-            item("Relative", lambda: wctrl.toggle("relative"), checked=lambda _: cfg.setting_user["relative"]["enable"]),
-            item("Sectors", lambda: wctrl.toggle("sectors"), checked=lambda _: cfg.setting_user["sectors"]["enable"]),
-            item("Session", lambda: wctrl.toggle("session"), checked=lambda _: cfg.setting_user["session"]["enable"]),
-            item("Steering", lambda: wctrl.toggle("steering"), checked=lambda _: cfg.setting_user["steering"]["enable"]),
-            item("Stint", lambda: wctrl.toggle("stint"), checked=lambda _: cfg.setting_user["stint"]["enable"]),
-            item("Temperature", lambda: wctrl.toggle("temperature"), checked=lambda _: cfg.setting_user["temperature"]["enable"]),
-            item("Timing", lambda: wctrl.toggle("timing"), checked=lambda _: cfg.setting_user["timing"]["enable"]),
-            item("Wear", lambda: wctrl.toggle("wear"), checked=lambda _: cfg.setting_user["wear"]["enable"]),
-            item("Weather", lambda: wctrl.toggle("weather"), checked=lambda _: cfg.setting_user["weather"]["enable"]),
-            item("Wheel", lambda: wctrl.toggle("wheel"), checked=lambda _: cfg.setting_user["wheel"]["enable"]),
-        )
+        # Add widget menu items
+        widget_items = tuple(
+                            item(
+                                obj.WIDGET_NAME.capitalize(),  # widget name
+                                lambda: wctrl.toggle(obj.WIDGET_NAME),  # call widget toggle
+                                checked=lambda _: cfg.setting_user[obj.WIDGET_NAME]["enable"]  # check toggle state
+                                )
+                            for obj in WIDGET_PACK
+                            )
+        widget_menu = menu(*widget_items)
 
         main_menu = (
             item("Load Preset", self.open_preset_window),
