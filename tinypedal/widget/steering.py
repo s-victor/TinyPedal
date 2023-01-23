@@ -36,17 +36,14 @@ class Draw(Widget, MouseEvent):
         # Assign base setting
         Widget.__init__(self, config, WIDGET_NAME)
 
-        # Config title & background
-        self.title("TinyPedal - " + WIDGET_NAME.capitalize())
-        self.configure(bg=self.wcfg["bar_edge_color"])
-        self.attributes("-alpha", self.wcfg["opacity"])
-
         # Config size & position
-        self.sbar_length = int(100 * self.wcfg["bar_length_scale"])  # 100 pixel base length
-        self.sbar_height = int(15 * self.wcfg["bar_height_scale"])  # 15 pixel
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
+        self.sbar_length = int(100 * self.wcfg["bar_length_scale"])  # 100 pixel base length
+        self.sbar_height = int(15 * self.wcfg["bar_height_scale"])  # 15 pixel
+
         # Config style & variable
+        self.configure(bg=self.wcfg["bar_edge_color"])
         self.last_rot_range = 0  # last recorded wheel rotation range
 
         # Draw widget

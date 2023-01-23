@@ -39,12 +39,6 @@ class Draw(Widget, MouseEvent):
     def __init__(self, config):
         # Assign base setting
         Widget.__init__(self, config, WIDGET_NAME)
-        self.cfg = config
-        self.wcfg = self.cfg.setting_user[WIDGET_NAME]
-
-        # Config title & background
-        self.title("TinyPedal - " + WIDGET_NAME.capitalize())
-        self.attributes("-alpha", self.wcfg["opacity"])
 
         # Config size & position
         bar_gap = self.wcfg["bar_gap"]

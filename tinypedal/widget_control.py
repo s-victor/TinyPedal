@@ -86,7 +86,7 @@ class WidgetControl:
             for widgets in cfg.active_widget_list:
                 widgets.destroy()
                 cfg.active_widget_list.remove(widgets)
-            time.sleep(0.1)
+            time.sleep(0.01)
         print("all widgets closed")
 
     def toggle(self, name):

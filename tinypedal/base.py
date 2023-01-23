@@ -44,10 +44,12 @@ class Widget(tk.Toplevel):
         self.wcfg = self.cfg.setting_user[widget_name]
 
         # Base setting
-        self.configure(bg=self.cfg.overlay["transparent_color"])
-        self.resizable(False, False)
-        self.overrideredirect(True)
-        self.attributes("-topmost", 1)
+        self.title("TinyPedal - " + widget_name.capitalize())
+        self.configure(bg=self.cfg.overlay["transparent_color"])  # set transparent background
+        self.resizable(False, False)  # disable resize
+        self.overrideredirect(True)  # remove window frame
+        self.attributes("-alpha", self.wcfg["opacity"])  # set window opacity
+        self.attributes("-topmost", 1)  # set window always on top
         if PLATFORM == "Windows":
             self.attributes("-transparentcolor", self.cfg.overlay["transparent_color"])
         self.lift()

@@ -70,6 +70,6 @@ class LoadModule:
                 self.overlay_hide.stopped
                 )):
                 break
-            time.sleep(0.1)
+            time.sleep(0.01)
 
 module = LoadModule()
