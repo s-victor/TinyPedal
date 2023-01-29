@@ -43,7 +43,8 @@ from .widget import (cruise,
                      timing,
                      wear,
                      weather,
-                     wheel
+                     wheel,
+                     topspeed
                      )
 
 WIDGET_PACK = (
@@ -67,7 +68,8 @@ WIDGET_PACK = (
     timing,
     wear,
     weather,
-    wheel
+    wheel,
+    topspeed
     )
 
 

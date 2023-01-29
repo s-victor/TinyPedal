@@ -569,7 +569,21 @@ class Setting:
             "show_caption": True,
             "font_color_caption": "#CCCCCC",
             "bkg_color_caption": "#777777",
-        },
+        },  
+        "topspeed": {
+			"enable": True,
+			"update_delay": 100,	
+			"position_x": "933",
+			"position_y": "431",
+			"opacity": 0.9,
+			"font_name": "consolas",
+			"font_size": 15,
+			"font_weight": "bold",
+			"bar_gap": 2,
+			"font_color_topspeed": "#FFFFFF",
+			"bkg_color_topspeed": "#222222",
+			"speed_unit": "0",
+    },
     }
 
     def __init__(self):

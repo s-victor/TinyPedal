@@ -306,3 +306,12 @@ def session_check():
     session_etime = int(chknm(info.LastScor.mScoringInfo.mCurrentET))
     session_tlaps = chknm(info.syncedVehicleScoring().mTotalLaps)
     return session_stamp, session_etime, session_tlaps
+
+def topspeed():
+    """Topspeed data"""
+    speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
+                           chknm(info.syncedVehicleTelemetry().mLocalVel.y),
+                           chknm(info.syncedVehicleTelemetry().mLocalVel.z))
+    lap_num = chknm(info.syncedVehicleTelemetry().mLapNumber)
+    return speed, lap_num
+
