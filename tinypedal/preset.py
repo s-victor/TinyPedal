@@ -282,7 +282,6 @@ class CreatePreset(tk.Toplevel):
         self.title("New Preset")
         self.configure(bg="#EEE")
         self.resizable(False, False)
-        self.attributes("-toolwindow", 1)
 
         # Platform specify
         if PLATFORM == "Windows":
