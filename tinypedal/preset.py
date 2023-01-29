@@ -282,8 +282,13 @@ class CreatePreset(tk.Toplevel):
         self.title("New Preset")
         self.configure(bg="#EEE")
         self.resizable(False, False)
-        self.iconbitmap("icon.ico")
         self.attributes("-toolwindow", 1)
+
+        # Platform specify
+        if PLATFORM == "Windows":
+            self.iconbitmap("icon.ico")
+        else:
+            self.iconphoto(True, tk.PhotoImage(file="icon.png"))
 
         # Center window
         wnd_posx = int((self.winfo_screenwidth() / 2) - self.winfo_reqwidth())
