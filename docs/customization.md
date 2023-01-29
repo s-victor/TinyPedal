@@ -6,7 +6,7 @@ Starting from version 1.9.0, TinyPedal comes with a new `Preset Manager` that le
 
 Note: for version older than 1.9.0, `.JSON` files are located in TinyPedal root folder.
 
-TinyPedal will auto-save setting when user makes any changes to widget position, or has toggled widget visibility, auto hide, lock overlay from tray icon. Due to this reason, to avoid losing changes, it is recommended to quit APP before editing or saving JSON file. Any changes will only take effect after reloading preset or restarting APP.
+TinyPedal will auto-save setting when user makes any changes to widget position, or has toggled widget visibility, auto-hide, overlay-lock. Due to this reason, to avoid losing changes, it is recommended to quit APP before editing or saving JSON file. Any changes will only take effect after reloading preset or restarting APP.
 
 
 ## Backup file 
@@ -61,21 +61,16 @@ Acceptable value: `normal` or `bold` .
 Those are for font color.
 
     bkg_color
-Those are for background color. A value of `"#000002"` makes color fully transparent.
+Those are for background color.
 
 
 ## Overlay
 
     fixed_position
-
-Check whether widget is locked at startup. This setting can be toggled from tray icon menu.
-
-Valid value: `true`, same as `1`. `false`, same as `0`.
+Check whether widget is locked at startup. This setting can be toggled from tray icon menu. Valid value: `true`, same as `1`. `false`, same as `0`.
 
     auto_hide
-Check whether auto hide is enabled. This setting can be toggled from tray icon menu.
-
-Valid value: `true`, same as `1`. `false`, same as `0`.
+Check whether auto hide is enabled. This setting can be toggled from tray icon menu. Valid value: `true`, same as `1`. `false`, same as `0`.
 
     delta_module
 Enable delta timing module. This module provides timing data for `Delta best` and `Timing` widgets, which returns value 0 if turned off.
@@ -88,6 +83,9 @@ Enable relative calculation module. This module provides vehicle relative data f
 
     hover_color_1, hover_color_2
 Define color of hover cover when mouse cursor is above widget (when not locked).
+
+    transparent_color
+Define global transparent background color. Default value is `"#000002"`. This setting is meant to be used by none-Windows platform where transparent background color is not supported, and user may customize a substitute color.
 
 
 ## Cruise

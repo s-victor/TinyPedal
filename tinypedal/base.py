@@ -23,7 +23,7 @@ GUI window, events.
 import tkinter as tk
 
 from .const import PLATFORM
-from .load_func import module
+from .module_control import module
 
 
 class Widget(tk.Toplevel):
@@ -56,18 +56,14 @@ class Widget(tk.Toplevel):
 
 
 class MouseEvent:
-    """Widget mouse event"""
+    """Widget mouse event
+
+    Event binding located in overlay_toggle
+    """
 
     def __init__(self):
         self.cfg.active_widget_list.append(self)  # add to active widget list
         module.overlay_lock.load_state()  # load overlay lock state
-
-        self.bind("<Enter>", lambda event: self.hover_enter())
-        self.bind("<Leave>", lambda event: self.hover_leave())
-        self.bind("<ButtonRelease-1>", lambda event: self.release_mouse())
-        self.bind("<ButtonPress-1>", self.set_offset)
-        self.bind("<B1-Motion>", self.update_pos)
-
         self.mouse_pos = (0, 0)
         self.mouse_pressed = 0
 
@@ -80,16 +76,16 @@ class MouseEvent:
                                       fill=self.cfg.overlay["hover_color_2"],
                                       width=10)
 
-    def hover_enter(self):
+    def hover_enter(self, event):
         """Show cover"""
         self.hover_bg.place(x=0, y=0, relwidth=1, relheight=1)
 
-    def hover_leave(self):
+    def hover_leave(self, event):
         """Hide cover if not pressed"""
         if not self.mouse_pressed:
             self.hover_bg.place(x=-9999, y=0)
 
-    def release_mouse(self):
+    def release_mouse(self, event):
         """Save position on release"""
         self.wcfg["position_x"] = str(self.winfo_x())
         self.wcfg["position_y"] = str(self.winfo_y())

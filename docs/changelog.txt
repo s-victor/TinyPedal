@@ -1,17 +1,26 @@
-TinyPedal (WIP)
+TinyPedal 1.10.2 (2023-01-29)
 -----------------------------
+* Preset manager
+    - [New]Add menu bar with same functionality as tray icon menu for all platform,
+      which substitutes tray icon for none-windows platform.
+    - Now handles all underlaying widget & module & APP control. 
+
 * Sectors Widget
     - Properly saves current session fastest top speed from valid lap.
 
-* Core
-    - Added initial linux platform support (by Bernat).
+* Customization
     - Added "transparent_color" setting in JSON config file.
-      This setting is meant to be used by linux platform
+      This setting is meant to be used by none-Windows platform
       where transparent background color is not supported,
       and user may customize a substitute color.
 
+* Core
+    - Added initial cross platform support (by Bernat).
+    - Rewritten & improved code structure to support cross platform.
+
 * Misc
     - Updated contributors.md with new contributor (Bernat).
+    - Updated customization guide with new configurable setting.
 
 TinyPedal 1.10.1 (2023-01-14)
 -----------------------------

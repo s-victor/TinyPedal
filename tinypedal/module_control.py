@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Load module & function
+Module control
 """
 
 import time
@@ -29,8 +29,8 @@ from .realtime_relative import RelativeInfo
 from .overlay_toggle import OverlayLock, OverlayAutoHide
 
 
-class LoadModule:
-    """Load Module"""
+class ModuleControl:
+    """Module control"""
 
     def __init__(self):
         """Widget list"""
@@ -56,20 +56,23 @@ class LoadModule:
             self.relative_info.start()
         self.overlay_hide.start()
 
+    def is_stopped(self):
+        """Check is all module stopped"""
+        return all((
+                    self.delta_time.stopped,
+                    self.fuel_usage.stopped,
+                    self.relative_info.stopped,
+                    self.overlay_hide.stopped
+                    ))
+
     def stop(self):
         """Stop modules"""
         self.delta_time.running = False
         self.fuel_usage.running = False
         self.relative_info.running = False
         self.overlay_hide.running = False
-        while True:
-            if all((
-                self.delta_time.stopped,
-                self.fuel_usage.stopped,
-                self.relative_info.stopped,
-                self.overlay_hide.stopped
-                )):
-                break
+        while not self.is_stopped():
             time.sleep(0.01)
 
-module = LoadModule()
+
+module = ModuleControl()

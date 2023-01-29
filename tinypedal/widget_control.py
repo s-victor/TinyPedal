@@ -78,9 +78,10 @@ class WidgetControl:
         """Start widget"""
         for obj in WIDGET_PACK:
             if cfg.setting_user[obj.WIDGET_NAME]["enable"]:
-                setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
+                setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))  # create widget instance
 
-    def close(self):
+    @staticmethod
+    def close():
         """Close widget"""
         while cfg.active_widget_list:
             for widgets in cfg.active_widget_list:
@@ -94,12 +95,15 @@ class WidgetControl:
         for obj in WIDGET_PACK:
             if name == obj.WIDGET_NAME:
                 if not cfg.setting_user[obj.WIDGET_NAME]["enable"]:
-                    setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
+                    setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))  # create widget instance
                     cfg.setting_user[obj.WIDGET_NAME]["enable"] = True  # set True after widget enabled
                 else:
-                    widget_instance = getattr(self, f"widget_{obj.WIDGET_NAME}")
+                    widget_instance = getattr(self, f"widget_{obj.WIDGET_NAME}")  # get widget instance
                     cfg.setting_user[obj.WIDGET_NAME]["enable"] = False  # set False before widget disabled
-                    cfg.active_widget_list.remove(widget_instance)
-                    widget_instance.destroy()
+                    cfg.active_widget_list.remove(widget_instance)  # remove widget from active list
+                    widget_instance.destroy()  # close widget
                 cfg.save()
                 break
+
+
+wctrl = WidgetControl()

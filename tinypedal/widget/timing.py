@@ -26,7 +26,7 @@ import tkinter.font as tkfont
 from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget, MouseEvent
-from ..load_func import module
+from ..module_control import module
 
 WIDGET_NAME = "timing"
 

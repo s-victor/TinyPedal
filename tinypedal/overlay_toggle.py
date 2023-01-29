@@ -44,24 +44,40 @@ class OverlayLock:
     def lock(self):
         """Lock overlay"""
         self.cfg.overlay["fixed_position"] = True
-        ex_style = self.WS_EX_LAYERED | self.WS_EX_NOACTIVATE | self.WS_EX_TRANSPARENT
-        self.apply(ex_style)
+
+        if PLATFORM == "Windows":
+            ex_style = self.WS_EX_LAYERED | self.WS_EX_NOACTIVATE | self.WS_EX_TRANSPARENT
+            self.apply(ex_style)
+
+        if self.cfg.active_widget_list:
+            for widget in self.cfg.active_widget_list:
+                widget.bind("<Enter>", "")
+                widget.bind("<Leave>", "")
+                widget.bind("<ButtonRelease-1>", "")
+                widget.bind("<ButtonPress-1>", "")
+                widget.bind("<B1-Motion>", "")
 
     def unlock(self):
         """Unlock overlay"""
         self.cfg.overlay["fixed_position"] = False
-        ex_style = self.WS_EX_LAYERED | self.WS_EX_NOACTIVATE
-        self.apply(ex_style)
+
+        if PLATFORM == "Windows":
+            ex_style = self.WS_EX_LAYERED | self.WS_EX_NOACTIVATE
+            self.apply(ex_style)
+
+        if self.cfg.active_widget_list:
+            for widget in self.cfg.active_widget_list:
+                widget.bind("<Enter>", widget.hover_enter)
+                widget.bind("<Leave>", widget.hover_leave)
+                widget.bind("<ButtonRelease-1>", widget.release_mouse)
+                widget.bind("<ButtonPress-1>", widget.set_offset)
+                widget.bind("<B1-Motion>", widget.update_pos)
 
     def apply(self, style):
         """Apply lock
 
         Find HWND & loop through widget list to apply extended style.
         """
-
-        if PLATFORM != "Windows":
-            return
-
         if self.cfg.active_widget_list:
             for widget in self.cfg.active_widget_list:
                 hwnd = windll.user32.GetParent(widget.winfo_id())
