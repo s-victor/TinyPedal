@@ -158,6 +158,7 @@ class LoadPreset(tk.Toplevel):
         signal.signal(signal.SIGINT, self.int_signal_handler)
         module.start()  # 1 start module
         wctrl.start()  # 2 start widget
+        module.overlay_hide.widget_loaded = True
 
         # Platform specify
         if PLATFORM == "Windows":
@@ -218,6 +219,7 @@ class LoadPreset(tk.Toplevel):
             # Close modules & widgets in order
             module.stop()
             wctrl.close()
+            module.overlay_hide.widget_loaded = False
 
             # Load new setting
             selected_index = self.preset_box.curselection()[0]
@@ -227,6 +229,7 @@ class LoadPreset(tk.Toplevel):
             # Start modules & widgets
             module.start()
             wctrl.start()
+            module.overlay_hide.widget_loaded = True
 
             # Refresh menu & preset list
             self.refresh_menu()

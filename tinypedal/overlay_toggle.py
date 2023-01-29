@@ -106,6 +106,7 @@ class OverlayAutoHide:
         self.cfg = config
         self.running = False
         self.stopped = True
+        self.widget_loaded = False  # hide after widgets loaded to avoid position reset
 
     def start(self):
         """Start auto hide thread"""
@@ -131,7 +132,7 @@ class OverlayAutoHide:
     def __autohide(self):
         """Auto hide overlay"""
         while self.running:
-            if self.cfg.active_widget_list:
+            if self.cfg.active_widget_list and self.widget_loaded:
                 if self.cfg.overlay["auto_hide"]:
                     if read_data.state():
                         self.show()

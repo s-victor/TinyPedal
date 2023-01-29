@@ -17,6 +17,8 @@ TinyPedal 1.10.2 (2023-01-29)
 * Core
     - Added initial cross platform support (by Bernat).
     - Rewritten & improved code structure to support cross platform.
+    - Fixed a widget position reset issue that can occur if auto-hide is enabled
+      while launching the APP or reloading a preset.
 
 * Misc
     - Updated contributors.md with new contributor (Bernat).
