@@ -67,11 +67,11 @@ class Draw(Widget, MouseEvent):
 
         # Speed
         if self.wcfg["show_speed"]:
-            self.bar_speed_cur = tk.Label(self, bar_style, text="", width=4,
+            self.bar_speed_cur = tk.Label(self, bar_style, text="", width=6,
                                           fg=self.wcfg["font_color_speed"],
                                           bg=self.wcfg["bkg_color_speed"])
 
-            self.bar_speed_best = tk.Label(self, bar_style, text="", width=4,
+            self.bar_speed_best = tk.Label(self, bar_style, text="", width=6,
                                            fg=self.wcfg["font_color_speed"],
                                            bg=self.wcfg["bkg_color_speed"])
 
@@ -145,6 +145,7 @@ class Draw(Widget, MouseEvent):
 
     def set_defaults(self):
         """Initialize variables"""
+        self.start_last = 0.0                    # last lap start time
         self.last_sector = -1                    # previous recorded sector index value
         self.combo_name = "unknown"              # current car & track combo
         self.session_id = None                   # session identity
@@ -157,7 +158,10 @@ class Draw(Widget, MouseEvent):
         self.best_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]           # best sector times
         self.bestlap_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]        # best lap sector times
 
-        self.best_speed = 0                      # fastest session top speed
+        self.valid_speed = True
+        self.current_best_speed = 0              # fastest current-lap top speed
+        self.session_best_speed = 0              # fastest session top speed
+        self.unverified_best_speed = 0           # unverified fastest session top speed
         self.speed_timer_start = 0               # speed timer start
         self.speed_timer = 0                     # speed timer difference
         self.freeze_timer_start = 0              # sector timer start
@@ -177,7 +181,7 @@ class Draw(Widget, MouseEvent):
 
             # Read Sector data
             (gSector, mCurSector1, mCurSector2, mLastSector2, mLastLapTime,
-             mTotalLaps, mPlace, mElapsedTime, speed) = read_data.sector()
+             mTotalLaps, mPlace, mElapsedTime, speed, start_curr) = read_data.sector()
 
             mSector = (2,0,1)[gSector]  # convert game sector order to 0,1,2 for consistency
 
@@ -192,10 +196,32 @@ class Draw(Widget, MouseEvent):
 
             # Speed update
             if self.wcfg["show_speed"]:
-                # Start timer if speed higher
-                if speed >= self.best_speed:
-                    self.best_speed = speed
-                    self.speed_timer_start = mElapsedTime
+                # Lap start & finish detection
+                if start_curr != self.start_last:  # time stamp difference
+                    self.current_best_speed = speed  # reset current lap fastest speed
+                    self.start_last = start_curr  # reset
+                    self.valid_speed = False
+
+                # Validate fastest speed
+                if not self.valid_speed and laptime_curr > 1:
+                    if mLastLapTime > 0:  # valid last laptime
+                        self.session_best_speed = self.unverified_best_speed
+                    else:  # invalid last laptime
+                        self.unverified_best_speed = self.session_best_speed  # restore session fastest speed
+                        if self.current_best_speed > self.unverified_best_speed:
+                            self.unverified_best_speed = self.current_best_speed
+                    # Update top speed display
+                    best_speed_d = calc.conv_speed(self.unverified_best_speed, self.wcfg["speed_unit"])
+                    self.bar_speed_best.config(text=f"{best_speed_d:.01f}")
+                    self.valid_speed = True
+
+                # Freeze fastest speed
+                if speed > self.current_best_speed:
+                    self.current_best_speed = speed
+
+                if speed > self.unverified_best_speed:
+                    self.unverified_best_speed = speed
+                    self.speed_timer_start = mElapsedTime  # start timer if speed higher
 
                 if self.speed_timer_start:
                     self.speed_timer = mElapsedTime - self.speed_timer_start
@@ -204,15 +230,15 @@ class Draw(Widget, MouseEvent):
                         self.speed_timer_start = 0  # stop timer
                         self.bar_speed_best.config(fg=self.wcfg["font_color_speed"],
                                                    bg=self.wcfg["bkg_color_speed"])
-                    else:  # update top speed when necessary
-                        best_speed_d = calc.conv_speed(self.best_speed, self.wcfg["speed_unit"])
-                        self.bar_speed_best.config(text=f"{best_speed_d:.0f}",
+                    else:  # update top speed display when necessary
+                        best_speed_d = calc.conv_speed(self.unverified_best_speed, self.wcfg["speed_unit"])
+                        self.bar_speed_best.config(text=f"{best_speed_d:.01f}",
                                                    fg=self.wcfg["font_color_speed_highlighted"],
                                                    bg=self.wcfg["bkg_color_speed_highlighted"])
 
-                # Update current speed
-                speed_d = calc.conv_speed(speed, self.wcfg["speed_unit"])
-                self.bar_speed_cur.config(text=f"{speed_d:.0f}")
+                # Update current speed display
+                speed_d = calc.conv_speed(self.current_best_speed, self.wcfg["speed_unit"])
+                self.bar_speed_cur.config(text=f"{speed_d:.01f}")
 
             # Position & lap number update
             if self.wcfg["show_position_lapnumber"]:
@@ -392,7 +418,7 @@ class Draw(Widget, MouseEvent):
                         + "|" + str(self.bestlap_s[0])
                         + "|" + str(self.bestlap_s[1])
                         + "|" + str(self.bestlap_s[2])
-                        + "|" + str(self.best_speed)
+                        + "|" + str(self.session_best_speed)
                         )
                     self.cfg.save()
 
@@ -482,7 +508,7 @@ class Draw(Widget, MouseEvent):
                 self.best_laptime = saved_data[4]
                 self.best_s = saved_data[5]
                 self.bestlap_s = saved_data[6]
-                self.best_speed = saved_data[7]
+                self.unverified_best_speed = self.session_best_speed = saved_data[7]
 
     @staticmethod
     def parse_save_data(save_data):

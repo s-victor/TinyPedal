@@ -1,3 +1,16 @@
+TinyPedal (WIP)
+-----------------------------
+* Sectors Widget
+    - Now freezes and shows current lap fastest speed (thanks to Piervit's suggestion),
+      and auto resets when a new lap begins.
+    - Now validates session fastest speed at beginning of a new lap,
+      and auto restores valid session fastest speed for fastest speed found from invalid lap.
+    - Speed value now shows an additional decimal place for more accurate reading.
+
+* Core
+    - Fixed alpha opacity issue under linux (by Bernat).
+
+
 TinyPedal 1.10.2 (2023-01-29)
 -----------------------------
 * Preset manager

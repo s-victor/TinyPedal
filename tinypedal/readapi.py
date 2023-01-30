@@ -294,8 +294,9 @@ def sector():
     speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.y),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.z))
+    start_curr = chknm(info.syncedVehicleTelemetry().mLapStartET)
     return (mSector, mCurSector1, mCurSector2, mLastSector2, mLastLapTime,
-            mTotalLaps, mPlace, mElapsedTime, speed)
+            mTotalLaps, mPlace, mElapsedTime, speed, start_curr)
 
 
 def session_check():
