@@ -1,5 +1,8 @@
 TinyPedal (WIP)
 -----------------------------
+* Relative Widget
+    - Implemented new lazy GUI update method that reduces Relative Widget CPU usage by 80% more.
+
 * Sectors Widget
     - Now freezes and shows current lap fastest speed (thanks to Piervit's suggestion),
       and auto resets when a new lap begins.
@@ -9,7 +12,6 @@ TinyPedal (WIP)
 
 * Core
     - Fixed alpha opacity issue under linux (by Bernat).
-
 
 TinyPedal 1.10.2 (2023-01-29)
 -----------------------------
