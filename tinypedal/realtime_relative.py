@@ -124,7 +124,8 @@ class RelativeInfo:
             veh_class = veh_class_info[index][2]
 
             # Driver name
-            driver = cs2py(info.LastScor.mVehicles[index].mDriverName)
+            driver = (cs2py(info.LastScor.mVehicles[index].mDriverName),
+                      cs2py(info.LastScor.mVehicles[index].mVehicleName))
 
             # Lap time
             raw_laptime = chknm(info.LastScor.mVehicles[index].mLastLapTime)
@@ -142,11 +143,15 @@ class RelativeInfo:
             # Tyre compound index
             tire_idx = (chknm(info.LastTele.mVehicles[index].mFrontTireCompoundIndex),
                         chknm(info.LastTele.mVehicles[index].mRearTireCompoundIndex))
+
+            # Pitstop count
+            pit_count = chknm(info.LastScor.mVehicles[index].mNumPitstops)
+
         else:
             # Assign empty value to -1 player index
-            (place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit, tire_idx
-             ) = "", "", "", "", "", "", 0, 0, 0
-        return place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit, tire_idx
+            (place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit, tire_idx, pit_count
+             ) = "", ("",""), "", "", "", "", 0, 0, 0, -1
+        return place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit, tire_idx, pit_count
 
     @staticmethod
     def calc_relative_index(veh_dict, plr_index, add_front, add_behind):

@@ -339,6 +339,9 @@ Set additional visible vehicles. The value is limited to a maximum of 9 addition
     font_color_laps_ahead, font_color_laps_behind
 Set font color for opponent vehicle that is laps ahead or behind player vehicle.
 
+    driver_name_mode
+Set driver name display mode. Default value is `0`, which displays driver name. Set to `1` to display vehicle(livery) name instead.
+
     bar_driver_name_width
 Set drive name display width, value in chars, such as 18 = 18 chars.
 
@@ -379,6 +382,9 @@ Show tyre compound index (front/rear).
 
     tyre_compound_list
 Set custom tire compound index letter. One letter for one compound index. Note: since most vehicle mods don't share a common tire compound types or list order, it is impossible to have a tyre compound letter list that matches every car.
+
+    show_pitstop_count
+Show each driver's pitstop count.
 
     column_index_*
 Set order of each info column. Must keep index number unique to each column, otherwise columns will overlap.

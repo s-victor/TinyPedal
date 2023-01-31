@@ -328,11 +328,13 @@ class Setting:
             "bkg_color_player_name": "#CCCCCC",
             "bkg_color_gap": "#222222",
             "bkg_color_player_gap": "#CCCCCC",
-            "bar_driver_name_width": 10,
             "bar_gap": 1,
+            "driver_name_mode": 0,
+            "bar_driver_name_width": 10,
             "show_laptime": True,
             "font_color_laptime": "#AAAAAA",
             "bkg_color_laptime": "#2A2A2A",
+            "bkg_color_player_laptime": "#BBBBBB",
             "show_class": True,
             "bar_class_name_width": 4,
             "font_color_class": "#FFFFFF",
@@ -348,15 +350,21 @@ class Setting:
             "show_tyre_compound": True,
             "font_color_tyre_compound": "#AAAAAA",
             "bkg_color_tyre_compound": "#2A2A2A",
+            "bkg_color_player_tyre_compound": "#CCCCCC",
             "tyre_compound_list": "ABCDEFGH",
+            "show_pitstop_count": True,
+            "font_color_pitstop_count": "#AAAAAA",
+            "bkg_color_pitstop_count": "#333333",
+            "bkg_color_player_pitstop_count": "#BBBBBB",
             "column_index_place": 1,
             "column_index_driver": 2,
             "column_index_laptime": 3,
             "column_index_position_in_class": 4,
             "column_index_class": 5,
             "column_index_tyre_compound": 7,
-            "column_index_time_gap": 8,
-            "column_index_pit_status": 9,
+            "column_index_pitstop_count": 10,
+            "column_index_timegap": 15,
+            "column_index_pitstatus": 20,
             "additional_players_front": 0,
             "additional_players_behind": 0,
         },
@@ -633,7 +641,8 @@ class Setting:
         """Backup invalid file"""
         try:
             time_stamp = time.strftime("%Y-%m-%d %H-%M-%S", time.localtime())
-            shutil.copy(f"{self.filepath}{self.filename}", f"{self.filepath}{self.filename[:-5]}-backup {time_stamp}.json")
+            shutil.copy(f"{self.filepath}{self.filename}",
+                        f"{self.filepath}{self.filename[:-5]}-backup {time_stamp}.json")
         except FileNotFoundError:
             pass
 

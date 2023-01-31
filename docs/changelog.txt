@@ -1,7 +1,12 @@
 TinyPedal (WIP)
 -----------------------------
 * Relative Widget
-    - Implemented new lazy GUI update method that reduces Relative Widget CPU usage by 80% more.
+    - [New]Implemented lazy GUI update method that reduces Relative Widget CPU usage by 80% more.
+    - [New]Added pitstop count display (requested by srlemke),
+      re-arranged column index order to fit pitstop count display.
+    - [New]Added "driver_name_mode" customization options in JSON file,
+      which can be set to display vehicle(livery) name instead of driver name (requested by MMartin).
+    - Added additional customization options.
 
 * Sectors Widget
     - Now freezes and shows current lap fastest speed (thanks to Piervit's suggestion),
@@ -12,6 +17,9 @@ TinyPedal (WIP)
 
 * Core
     - Fixed alpha opacity issue under linux (by Bernat).
+
+* Misc
+    - Updated customization guide with new configurable options.
 
 TinyPedal 1.10.2 (2023-01-29)
 -----------------------------

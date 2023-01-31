@@ -52,12 +52,6 @@ class Draw(Widget, MouseEvent):
         text_def = ""
         fg_color = "#FFF"  # placeholder, font color for place, name, gap changes dynamically
         fg_color_plr = self.wcfg["font_color_player"]
-        bg_color_place = self.wcfg["bkg_color_place"]
-        bg_color_place_plr = self.wcfg["bkg_color_player_place"]
-        bg_color_name = self.wcfg["bkg_color_name"]
-        bg_color_name_plr = self.wcfg["bkg_color_player_name"]
-        bg_color_gap = self.wcfg["bkg_color_gap"]
-        bg_color_gap_plr = self.wcfg["bkg_color_player_gap"]
 
         column_plc = self.wcfg["column_index_place"]
         column_drv = self.wcfg["column_index_driver"]
@@ -65,8 +59,9 @@ class Draw(Widget, MouseEvent):
         column_pic = self.wcfg["column_index_position_in_class"]
         column_cls = self.wcfg["column_index_class"]
         column_tcp = self.wcfg["column_index_tyre_compound"]
-        column_gap = self.wcfg["column_index_time_gap"]
-        column_pit = self.wcfg["column_index_pit_status"]
+        column_psc = self.wcfg["column_index_pitstop_count"]
+        column_gap = self.wcfg["column_index_timegap"]
+        column_pit = self.wcfg["column_index_pitstatus"]
 
         font_relative = tkfont.Font(family=self.wcfg["font_name"],
                                     size=-self.wcfg["font_size"],
@@ -80,11 +75,10 @@ class Draw(Widget, MouseEvent):
         # Draw label
         # Driver place number
         bar_style_plc = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
-                         "height":1, "width":num_width, "fg":fg_color, "bg":bg_color_place}
+                         "height":1, "width":num_width, "fg":fg_color, "bg":self.wcfg['bkg_color_place']}
 
-        self.row_plr_plc = tk.Label(self, text=text_def, bd=0, padx=0, pady=0,
-                                    font=font_relative, height=1, width=num_width,
-                                    fg=fg_color_plr, bg=bg_color_place_plr)
+        self.row_plr_plc = tk.Label(self, bar_style_plc,
+                                    fg=fg_color_plr, bg=self.wcfg["bkg_color_player_place"])
         self.row_plr_plc.grid(row=plr_row, column=column_plc, padx=0, pady=(0, bar_gap))
 
         self.generate_bar("plc", bar_style_plc, plr_row, column_plc, bar_gap)
@@ -92,11 +86,10 @@ class Draw(Widget, MouseEvent):
         # Driver name
         bar_style_drv = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
                          "font":font_relative, "height":1, "width":self.drv_width,
-                         "fg":fg_color, "bg":bg_color_name, "anchor":"w"}
+                         "fg":fg_color, "bg":self.wcfg['bkg_color_name'], "anchor":"w"}
 
-        self.row_plr_drv = tk.Label(self, text=text_def, bd=0, padx=bar_padx, pady=0,
-                                    font=font_relative, height=1, width=self.drv_width,
-                                    fg=fg_color_plr, bg=bg_color_name_plr, anchor="w")
+        self.row_plr_drv = tk.Label(self, bar_style_drv,
+                                    fg=fg_color_plr, bg=self.wcfg["bkg_color_player_name"])
         self.row_plr_drv.grid(row=plr_row, column=column_drv, padx=0, pady=(0, bar_gap))
 
         self.generate_bar("drv", bar_style_drv, plr_row, column_drv, bar_gap)
@@ -104,11 +97,10 @@ class Draw(Widget, MouseEvent):
         # Time gap
         bar_style_gap = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
                          "font":font_relative, "height":1, "width":gap_width,
-                         "fg":fg_color, "bg":bg_color_gap, "anchor":"e"}
+                         "fg":fg_color, "bg":self.wcfg['bkg_color_gap'], "anchor":"e"}
 
-        self.row_plr_gap = tk.Label(self, text=text_def, bd=0, padx=bar_padx, pady=0,
-                                    font=font_relative, height=1, width=gap_width,
-                                    fg=fg_color_plr, bg=bg_color_gap_plr, anchor="e")
+        self.row_plr_gap = tk.Label(self, bar_style_gap,
+                                    fg=fg_color_plr, bg=self.wcfg["bkg_color_player_gap"])
         self.row_plr_gap.grid(row=plr_row, column=column_gap, padx=0, pady=(0, bar_gap))
 
         self.generate_bar("gap", bar_style_gap, plr_row, column_gap, bar_gap)
@@ -120,9 +112,8 @@ class Draw(Widget, MouseEvent):
                              "fg":self.wcfg['font_color_laptime'],
                              "bg":self.wcfg['bkg_color_laptime']}
 
-            self.row_plr_lpt = tk.Label(self, text=text_def, bd=0, padx=bar_padx, pady=0,
-                                        font=font_relative, height=1, width=9,
-                                        fg=fg_color_plr, bg=bg_color_name_plr)
+            self.row_plr_lpt = tk.Label(self, bar_style_lpt,
+                                        fg=fg_color_plr, bg=self.wcfg["bkg_color_player_laptime"])
             self.row_plr_lpt.grid(row=plr_row, column=column_lpt, padx=0, pady=(0, bar_gap))
 
             self.generate_bar("lpt", bar_style_lpt, plr_row, column_lpt, bar_gap)
@@ -171,31 +162,46 @@ class Draw(Widget, MouseEvent):
                              "fg":self.wcfg['font_color_tyre_compound'],
                              "bg":self.wcfg['bkg_color_tyre_compound']}
 
-            self.row_plr_tcp = tk.Label(self, bar_style_tcp)
+            self.row_plr_tcp = tk.Label(self, bar_style_tcp,
+                                        fg=fg_color_plr, bg=self.wcfg["bkg_color_player_tyre_compound"])
             self.row_plr_tcp.grid(row=plr_row, column=column_tcp, padx=0, pady=(0, bar_gap))
 
             self.generate_bar("tcp", bar_style_tcp, plr_row, column_tcp, bar_gap)
 
+        # Pitstop count
+        if self.wcfg["show_pitstop_count"]:
+            bar_style_psc = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0, "font":font_relative,
+                             "height":1, "width":2,
+                             "fg":self.wcfg['font_color_pitstop_count'],
+                             "bg":self.wcfg['bkg_color_pitstop_count']}
+
+            self.row_plr_psc = tk.Label(self, bar_style_psc,
+                                        fg=fg_color_plr, bg=self.wcfg["bkg_color_player_pitstop_count"])
+            self.row_plr_psc.grid(row=plr_row, column=column_psc, padx=0, pady=(0, bar_gap))
+
+            self.generate_bar("psc", bar_style_psc, plr_row, column_psc, bar_gap)
+
         # Last vehicle data
-        self.last_veh_plr = [None]*9
-        self.last_veh_f_03 = [None]*9
-        self.last_veh_f_02 = [None]*9
-        self.last_veh_f_01 = [None]*9
-        self.last_veh_r_01 = [None]*9
-        self.last_veh_r_02 = [None]*9
-        self.last_veh_r_03 = [None]*9
+        data_slots = 10
+        self.last_veh_plr = [None] * data_slots
+        self.last_veh_f_03 = [None] * data_slots
+        self.last_veh_f_02 = [None] * data_slots
+        self.last_veh_f_01 = [None] * data_slots
+        self.last_veh_r_01 = [None] * data_slots
+        self.last_veh_r_02 = [None] * data_slots
+        self.last_veh_r_03 = [None] * data_slots
         if self.rel_add_front > 0:
-            self.last_veh_f_04 = [None]*9
+            self.last_veh_f_04 = [None] * data_slots
         if self.rel_add_behind > 0:
-            self.last_veh_r_04 = [None]*9
+            self.last_veh_r_04 = [None] * data_slots
         if self.rel_add_front > 1:
-            self.last_veh_f_05 = [None]*9
+            self.last_veh_f_05 = [None] * data_slots
         if self.rel_add_behind > 1:
-            self.last_veh_r_05 = [None]*9
+            self.last_veh_r_05 = [None] * data_slots
         if self.rel_add_front > 2:
-            self.last_veh_f_06 = [None]*9
+            self.last_veh_f_06 = [None] * data_slots
         if self.rel_add_behind > 2:
-            self.last_veh_r_06 = [None]*9
+            self.last_veh_r_06 = [None] * data_slots
 
         self.update_data()
 
@@ -446,6 +452,30 @@ class Draw(Widget, MouseEvent):
                 if self.rel_add_behind > 2:
                     self.update_tcp("r_06_tcp", veh_r_06[8], self.last_veh_r_06[8])
 
+            # Pitstop count
+            if self.wcfg["show_pitstop_count"]:
+                self.update_psc("plr_psc", veh_plr[9], self.last_veh_plr[9])
+
+                self.update_psc("f_03_psc", veh_f_03[9], self.last_veh_f_03[9])
+                self.update_psc("f_02_psc", veh_f_02[9], self.last_veh_f_02[9])
+                self.update_psc("f_01_psc", veh_f_01[9], self.last_veh_f_01[9])
+                self.update_psc("r_01_psc", veh_r_01[9], self.last_veh_r_01[9])
+                self.update_psc("r_02_psc", veh_r_02[9], self.last_veh_r_02[9])
+                self.update_psc("r_03_psc", veh_r_03[9], self.last_veh_r_03[9])
+
+                if self.rel_add_front > 0:
+                    self.update_psc("f_04_psc", veh_f_04[9], self.last_veh_f_04[9])
+                if self.rel_add_behind > 0:
+                    self.update_psc("r_04_psc", veh_r_04[9], self.last_veh_r_04[9])
+                if self.rel_add_front > 1:
+                    self.update_psc("f_05_psc", veh_f_05[9], self.last_veh_f_05[9])
+                if self.rel_add_behind > 1:
+                    self.update_psc("r_05_psc", veh_r_05[9], self.last_veh_r_05[9])
+                if self.rel_add_front > 2:
+                    self.update_psc("f_06_psc", veh_f_06[9], self.last_veh_f_06[9])
+                if self.rel_add_behind > 2:
+                    self.update_psc("r_06_psc", veh_r_06[9], self.last_veh_r_06[9])
+
             # Store last vehicle data reading for comparison
             self.last_veh_plr = veh_plr
             self.last_veh_f_03 = veh_f_03
@@ -483,9 +513,11 @@ class Draw(Widget, MouseEvent):
         """Driver name"""
         if curr != last:
             if extra1:
-                getattr(self, f"row_{suffix}").config(text=curr[:self.drv_width], fg=self.color_lapdiff(extra1, extra2))
+                getattr(self, f"row_{suffix}").config(
+                    text=self.set_driver_name(curr)[:self.drv_width], fg=self.color_lapdiff(extra1, extra2))
             else:
-                getattr(self, f"row_{suffix}").config(text=curr[:self.drv_width])
+                getattr(self, f"row_{suffix}").config(
+                    text=self.set_driver_name(curr)[:self.drv_width])
 
     def update_lpt(self, suffix, curr, last):
         """Vehicle laptime & Vehicle position in class"""
@@ -507,6 +539,11 @@ class Draw(Widget, MouseEvent):
         if curr != last:
             getattr(self, f"row_{suffix}").config(text=self.set_tyre_cmp(curr))
 
+    def update_psc(self, suffix, curr, last):
+        """Pitstop count"""
+        if curr != last:
+            getattr(self, f"row_{suffix}").config(text=self.set_pitcount(curr))
+
     # Additional methods
     def color_lapdiff(self, nlap, player_nlap):
         """Compare lap differences & set color"""
@@ -517,6 +554,14 @@ class Draw(Widget, MouseEvent):
         else:
             color = self.wcfg["font_color_same_lap"]
         return color
+
+    def set_driver_name(self, name):
+        """Set driver name"""
+        if self.wcfg["driver_name_mode"] == 0:
+            text = name[0]
+        else:
+            text = name[1]
+        return text
 
     def set_tyre_cmp(self, tc_index):
         """Substitute tyre compound index with custom chars"""
@@ -529,12 +574,23 @@ class Draw(Widget, MouseEvent):
         return tire_cmpd
 
     def set_pitstatus(self, pits):
-        """Compare lap differences & set color"""
+        """Set pit status color"""
         if pits > 0:
             status = {"text":self.wcfg["pit_status_text"], "bg":self.wcfg["bkg_color_pit"]}
         else:
             status = {"text":"", "bg":self.cfg.overlay["transparent_color"]}
         return status
+
+    @staticmethod
+    def set_pitcount(pits):
+        """Set pitstop count test"""
+        if pits < 0:
+            count = ""
+        elif pits == 0:
+            count = "-"
+        else:
+            count = pits
+        return count
 
     def set_class_style(self, vehclass_name):
         """Compare vehicle class name with user defined dictionary"""
