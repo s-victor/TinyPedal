@@ -610,13 +610,8 @@ class Setting:
             # Verify setting
             verify_setting(setting_user_unsorted, self.setting_default)
 
-            # Move overlay setting to the top of setting
-            self.setting_user["overlay"] = setting_user_unsorted["overlay"]
-            setting_user_unsorted.pop("overlay")
-
-            # Sort rest of setting in alphabetical order
-            for item in sorted(setting_user_unsorted):
-                self.setting_user[item] = setting_user_unsorted[item]
+            # Assign verified setting
+            self.setting_user = setting_user_unsorted
 
             # Save setting to JSON file
             self.save()
@@ -719,12 +714,25 @@ def check_missing_key(target, origin, dict_user, dict_def):
             dict_user[key] = dict_def[key]  # add missing item to user
 
 
+def sort_key_order(dict_user, dict_def):
+    """Third step, sort user key order according to default key"""
+    for d_key in dict_def:  # loop through default key
+        for u_key in dict_user:  # loop through user key
+            if u_key == d_key:
+                temp_key = u_key  # store user key
+                temp_value = dict_user[u_key]  # store user value
+                dict_user.pop(u_key)  # delete user key
+                dict_user[temp_key] = temp_value  # append user key at the end
+                break
+
+
 def check_key(dict_user, dict_def):
     """Create key-only check list, then validate key"""
     key_list_def = list(dict_def)
     key_list_user = list(dict_user)
     check_invalid_key(key_list_user, key_list_def, dict_user)
     check_missing_key(key_list_def, key_list_user, dict_user, dict_def)
+    sort_key_order(dict_user, dict_def)
 
 
 def verify_setting(dict_user, dict_def):

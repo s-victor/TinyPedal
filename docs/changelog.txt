@@ -1,3 +1,9 @@
+TinyPedal (WIP)
+-----------------------------
+* Core
+    - [New]Auto sorts all options in JSON file according to default setting template
+      for better readability and consistency.
+
 TinyPedal 1.10.3 (2023-01-31)
 -----------------------------
 * Relative Widget

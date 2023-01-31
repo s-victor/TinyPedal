@@ -78,11 +78,13 @@
 
 ## Relative
 - Show driver standings, relative position and time gap.
+- Show driver name, vehicle name.
 - Show different text color based on laps ahead or behind you.
 - Show driver's last laptime (optional).
 - Show vehicle class categories (optional) with fully customizable class name and color.
 - Show driver's position standing in class.
 - Show tyre compound index, with customizable letter.
+- Show pitstops count.
 - Show pit status indicator whether driver is currently in pit, with customizable pit status text.
 - Customizable column info display order.
 
@@ -94,7 +96,7 @@
 - Show sector/laptime gap comparing to sector time from personal best laptime of current session.
 - Show theoretical best sector time of each sector on 3 separated sector bars.
 - Show sector time gap against session best sector time on sector bars.
-- Show optional current vehicle speed & session fastest speed.
+- Show optional current vehicle fastest speed & session fastest speed.
 - Show optional local driver position standing & current lap number.
 
 ## Session
