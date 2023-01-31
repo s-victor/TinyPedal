@@ -1,4 +1,4 @@
-TinyPedal (WIP)
+TinyPedal 1.10.3 (2023-01-31)
 -----------------------------
 * Relative Widget
     - [New]Implemented lazy GUI update method that reduces Relative Widget CPU usage by 80% more.
