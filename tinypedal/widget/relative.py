@@ -558,9 +558,11 @@ class Draw(Widget, MouseEvent):
     def set_driver_name(self, name):
         """Set driver name"""
         if self.wcfg["driver_name_mode"] == 0:
-            text = name[0]
+            text = name[0]  # driver name
+        elif self.wcfg["driver_name_mode"] == 1:
+            text = name[1]  # vehicle name
         else:
-            text = name[1]
+            text = f"{name[0]} [{name[1]}]"  # combined name
         return text
 
     def set_tyre_cmp(self, tc_index):

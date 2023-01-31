@@ -340,7 +340,7 @@ Set additional visible vehicles. The value is limited to a maximum of 9 addition
 Set font color for opponent vehicle that is laps ahead or behind player vehicle.
 
     driver_name_mode
-Set driver name display mode. Default value is `0`, which displays driver name. Set to `1` to display vehicle(livery) name instead.
+Set driver name display mode. Default value is `0`, which displays driver name. Set to `1` to display vehicle(livery) name. Set to `2` to display both driver name & vehicle name combined.
 
     bar_driver_name_width
 Set drive name display width, value in chars, such as 18 = 18 chars.

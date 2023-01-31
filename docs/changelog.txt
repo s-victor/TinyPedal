@@ -5,7 +5,7 @@ TinyPedal (WIP)
     - [New]Added pitstop count display (requested by srlemke),
       re-arranged column index order to fit pitstop count display.
     - [New]Added "driver_name_mode" customization options in JSON file,
-      which can be set to display vehicle(livery) name instead of driver name (requested by MMartin).
+      which can be set to display either driver name, vehicle(livery) name, or combined (requested by MMartin & srlemke).
     - Added additional customization options.
 
 * Sectors Widget
