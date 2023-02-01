@@ -181,7 +181,7 @@ class Draw(Widget, MouseEvent):
 
             self.generate_bar("psc", bar_style_psc, plr_row, column_psc, bar_gap)
 
-        # Last vehicle data
+        # Last data
         data_slots = 10
         self.last_veh_plr = [None] * data_slots
         self.last_veh_f_03 = [None] * data_slots
@@ -476,7 +476,7 @@ class Draw(Widget, MouseEvent):
                 if self.rel_add_behind > 2:
                     self.update_psc("r_06_psc", veh_r_06[9], self.last_veh_r_06[9])
 
-            # Store last vehicle data reading for comparison
+            # Store last data reading
             self.last_veh_plr = veh_plr
             self.last_veh_f_03 = veh_f_03
             self.last_veh_f_02 = veh_f_02
@@ -500,7 +500,7 @@ class Draw(Widget, MouseEvent):
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
 
-    # Lazy GUI update methods
+    # GUI update methods
     def update_plc(self, suffix, curr, last, extra1=None, extra2=None):
         """Driver place & Time gap"""
         if curr != last:
@@ -562,7 +562,10 @@ class Draw(Widget, MouseEvent):
         elif self.wcfg["driver_name_mode"] == 1:
             text = name[1]  # vehicle name
         else:
-            text = f"{name[0]} [{name[1]}]"  # combined name
+            if name[1] != "":
+                text = f"{name[0]} [{name[1]}]"  # combined name
+            else:
+                text = ""
         return text
 
     def set_tyre_cmp(self, tc_index):
