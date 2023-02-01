@@ -160,6 +160,9 @@ Show turbo pressure in bar.
 
 
 ## Force
+    layout
+2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
+
     show_downforce_ratio
 Show front vs rear downforce ratio. 50% means equal downforce; higher than 50% means front has more downforce.
 

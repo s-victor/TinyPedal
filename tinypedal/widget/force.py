@@ -56,12 +56,29 @@ class Draw(Widget, MouseEvent):
                      "padx":0, "pady":0, "font":font_force}
         self.bar_gforce_lgt = tk.Label(self, bar_style, fg=fg_color_gf, bg=bg_color_gf)
         self.bar_gforce_lat = tk.Label(self, bar_style, fg=fg_color_gf, bg=bg_color_gf)
-        self.bar_gforce_lgt.grid(row=0, column=0, padx=0, pady=0)
-        self.bar_gforce_lat.grid(row=1, column=0, padx=0, pady=(bar_gap, 0))
 
         if self.wcfg["show_downforce_ratio"]:
             self.bar_dforce = tk.Label(self, bar_style, fg=fg_color_df, bg=bg_color_df)
-            self.bar_dforce.grid(row=2, column=0, padx=0, pady=(bar_gap, 0))
+
+        if self.wcfg["layout"] == "0":
+            # Vertical layout
+            self.bar_gforce_lgt.grid(row=0, column=0, padx=0, pady=0)
+            self.bar_gforce_lat.grid(row=1, column=0, padx=0, pady=(bar_gap, 0))
+
+            if self.wcfg["show_downforce_ratio"]:
+                self.bar_dforce.grid(row=2, column=0, padx=0, pady=(bar_gap, 0))
+        else:
+            # Horizontal layout
+            self.bar_gforce_lgt.grid(row=0, column=0, padx=0, pady=0)
+            self.bar_gforce_lat.grid(row=0, column=1, padx=(bar_gap, 0), pady=0)
+
+            if self.wcfg["show_downforce_ratio"]:
+                self.bar_dforce.grid(row=0, column=2, padx=(bar_gap, 0), pady=0)
+
+        # Last data
+        self.last_gf_lgt = 0
+        self.last_gf_lat = 0
+        self.last_df_ratio = 0
 
         self.update_data()
 
@@ -77,11 +94,32 @@ class Draw(Widget, MouseEvent):
 
             # Start updating
             # Force update
-            self.bar_gforce_lgt.config(text=calc.gforce_lgt(gf_lgt) + f" {abs(gf_lgt):.2f}")
-            self.bar_gforce_lat.config(text=f"{abs(gf_lat):.2f} " + calc.gforce_lat(gf_lat))
+            self.update_gf_lgt(gf_lgt, self.last_gf_lgt)
+            self.update_gf_lat(gf_lat, self.last_gf_lat)
 
             if self.wcfg["show_downforce_ratio"]:
-                self.bar_dforce.config(text=f"{df_ratio:04.02f}%")
+                self.update_df_ratio(df_ratio, self.last_df_ratio)
+
+            # Store last data reading
+            self.last_gf_lgt = gf_lgt
+            self.last_gf_lat = gf_lat
+            self.last_df_ratio = df_ratio
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
+
+    # GUI update methods
+    def update_gf_lgt(self, curr, last):
+        """Longitudinal g-force"""
+        if round(curr, 2) != round(last, 2):
+            self.bar_gforce_lgt.config(text=calc.gforce_lgt(curr) + f" {abs(curr):.2f}")
+
+    def update_gf_lat(self, curr, last):
+        """Lateral g-force"""
+        if round(curr, 2) != round(last, 2):
+            self.bar_gforce_lat.config(text=f"{abs(curr):.2f} " + calc.gforce_lat(curr))
+
+    def update_df_ratio(self, curr, last):
+        """Downforce ratio"""
+        if round(curr, 2) != round(last, 2):
+            self.bar_dforce.config(text=f"{curr:04.02f}%")

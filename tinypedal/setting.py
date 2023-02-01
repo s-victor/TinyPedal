@@ -135,6 +135,7 @@ class Setting:
             "position_x": "1035",
             "position_y": "526",
             "opacity": 0.9,
+            "layout": "0",
             "font_name": "consolas",
             "font_size": 15,
             "font_weight": "bold",

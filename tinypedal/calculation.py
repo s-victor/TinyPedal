@@ -151,25 +151,23 @@ def kpa2psi(tyre_pres, pres_unit):
 
 def gforce_lgt(g_force):
     """Add direction sign for longitudinal g-force"""
-    g_force = round(g_force, 1)
-    if g_force > 0:
+    if g_force > 0.1:
         force = "▼"
-    elif g_force == 0.0:
-        force = "●"
-    else:
+    elif g_force < -0.1:
         force = "▲"
+    else:
+        force = "●"
     return force
 
 
 def gforce_lat(g_force):
     """Add direction sign for lateral g-force"""
-    g_force = round(g_force, 1)
-    if g_force > 0:
+    if g_force > 0.1:
         force = "◀"
-    elif g_force == 0.0:
-        force = "●"
-    else:
+    elif g_force < -0.1:
         force = "▶"
+    else:
+        force = "●"
     return force
 
 
