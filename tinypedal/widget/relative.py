@@ -238,6 +238,7 @@ class Draw(Widget, MouseEvent):
             veh_center = int(3 + self.rel_add_front)
 
             # Start updating
+
             # 0 place, 1 driver, 2 laptime, 3 pos_class, 4 veh_f_01lass, 5 time_gap, 6 num_lap, 7 in_pit
             veh_plr = module.relative_info.relative_data(plr_idx, plr_idx, cls_info)
 

@@ -115,9 +115,9 @@ def rake(height_fl, height_fr, height_rl, height_rr):
     return diff
 
 
-def rake2angle(rake, wheelbase):
+def rake2angle(v_rake, wheelbase):
     """Calculate rake angle based on wheelbase value set in JSON"""
-    degree = math.atan(float(rake) / (wheelbase + 0.001) * 57.2957795)
+    degree = math.atan(float(v_rake) / (wheelbase + 0.001) * 57.2957795)
     return degree
 
 

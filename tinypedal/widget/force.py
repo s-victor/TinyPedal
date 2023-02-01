@@ -93,17 +93,19 @@ class Draw(Widget, MouseEvent):
             gf_lgt, gf_lat, df_ratio = read_data.force()
 
             # Start updating
-            # Force update
-            self.update_gf_lgt(gf_lgt, self.last_gf_lgt)
-            self.update_gf_lat(gf_lat, self.last_gf_lat)
 
+            # Longitudinal g-force
+            self.update_gf_lgt(gf_lgt, self.last_gf_lgt)
+            self.last_gf_lgt = gf_lgt
+
+            # Lateral g-force
+            self.update_gf_lat(gf_lat, self.last_gf_lat)
+            self.last_gf_lat = gf_lat
+
+            # Downforce ratio
             if self.wcfg["show_downforce_ratio"]:
                 self.update_df_ratio(df_ratio, self.last_df_ratio)
-
-            # Store last data reading
-            self.last_gf_lgt = gf_lgt
-            self.last_gf_lat = gf_lat
-            self.last_df_ratio = df_ratio
+                self.last_df_ratio = df_ratio
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

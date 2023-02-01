@@ -9,7 +9,7 @@ TinyPedal (WIP)
 * Core
     - [New]Auto sorts all options in JSON file according to default setting template
       for better readability and consistency.
-    - Implemented new GUI update methods for widgets: Deltabest, Force.
+    - Optimized GUI update methods for widgets: Cruise, Deltabest, Force.
 
 TinyPedal 1.10.3 (2023-01-31)
 -----------------------------

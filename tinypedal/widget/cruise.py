@@ -73,6 +73,12 @@ class Draw(Widget, MouseEvent):
                                          bg=self.wcfg["bkg_color_odometer"])
             self.bar_odometer.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
 
+        # Last data
+        self.last_ori_yaw = 0
+        self.last_time_curr = 0
+        self.last_pos_y = 0
+        self.last_traveled_distance = 0
+
         self.update_data()
 
         # Assign mouse event
@@ -86,44 +92,67 @@ class Draw(Widget, MouseEvent):
             ori_yaw, pos_y, time_start, time_curr = read_data.cruise()
 
             # Start updating
-            # Cruise update
-            self.bar_compass.config(text=f"{ori_yaw:03.0f}°{self.deg2direction(ori_yaw)}")
 
+            # Compass
+            self.update_compass(ori_yaw, self.last_ori_yaw)
+            self.last_ori_yaw = ori_yaw
+
+            # Track clock
             if self.wcfg["show_track_clock"]:
+                self.update_trackclock(time_curr, self.last_time_curr, time_start)
+                self.last_time_curr = time_curr
 
-                time_offset = time_curr * self.wcfg["track_clock_time_scale"]
-
-                time_diff = (1440 - time_start) + time_offset
-                while time_diff <= -time_start:
-                    time_offset += time_diff
-
-                track_clock = time_start + time_offset
-                clock_text = time.strftime(self.wcfg["track_clock_format"],
-                                           time.gmtime(track_clock))
-                self.bar_trackclock.config(text=clock_text, width=len(clock_text)+1)
-
+            # Elevation
             if self.wcfg["show_elevation"]:
-                if self.wcfg["elevation_unit"] == "1":
-                    pos_y *= 3.2808399
-                    elev_text = f"↑ {pos_y: =03.0f}ft"
-                else:
-                    elev_text = f"↑ {pos_y: =03.0f}m"
+                self.update_elevation(pos_y, self.last_pos_y)
+                self.last_pos_y = pos_y
 
-                self.bar_elevation.config(text=elev_text, width=len(elev_text)+1)
-
+            # Odometer
             if self.wcfg["show_odometer"]:
-                traveled_distance = module.delta_time.meters_driven * 0.001
-
-                if self.wcfg["odometer_unit"] == "1":
-                    traveled_distance /= 1.609344
-                    dist_text = f"{traveled_distance:06.01f}mi"
-                else:
-                    dist_text = f"{traveled_distance:06.01f}km"
-
-                self.bar_odometer.config(text=dist_text, width=len(dist_text)+1)
+                traveled_distance = module.delta_time.meters_driven
+                self.update_odometer(traveled_distance, self.last_traveled_distance)
+                self.last_traveled_distance = traveled_distance
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
+
+    # GUI update methods
+    def update_compass(self, curr, last):
+        """Compass"""
+        if int(curr) != int(last):
+            self.bar_compass.config(text=f"{curr:03.0f}°{self.deg2direction(curr)}")
+
+    def update_trackclock(self, curr, last, start):
+        """Track clock"""
+        if curr != last:
+            time_offset = curr * self.wcfg["track_clock_time_scale"]
+
+            time_diff = (1440 - start) + time_offset
+            while time_diff <= -start:
+                time_offset += time_diff
+
+            track_clock = start + time_offset
+
+            clock_text = time.strftime(self.wcfg["track_clock_format"], time.gmtime(track_clock))
+            self.bar_trackclock.config(text=clock_text, width=len(clock_text)+1)
+
+    def update_elevation(self, curr, last):
+        """Elevation"""
+        if curr != last:
+            if self.wcfg["elevation_unit"] == "1":
+                elev_text = f"↑ {curr * 3.2808399: =03.0f}ft"
+            else:
+                elev_text = f"↑ {curr: =03.0f}m"
+            self.bar_elevation.config(text=elev_text, width=len(elev_text)+1)
+
+    def update_odometer(self, curr, last):
+        """Odometer"""
+        if curr != last:
+            if self.wcfg["odometer_unit"] == "0":  # kilometer
+                dist_text = f"{curr * 0.001:06.01f}km"
+            else:  # mile
+                dist_text = f"{curr / 1609.344:06.01f}mi"
+            self.bar_odometer.config(text=dist_text, width=len(dist_text)+1)
 
     # Additional methods
     @staticmethod
