@@ -73,6 +73,9 @@ class Draw(Widget, MouseEvent):
         else:
             self.bar_deltabest.grid(row=0, column=0, padx=0, pady=0)
 
+        # Last data
+        self.last_delta_best = 0
+
         self.update_data()
 
         # Assign mouse event
@@ -83,20 +86,31 @@ class Draw(Widget, MouseEvent):
         if read_data.state() and self.wcfg["enable"]:
 
             # Read delta best data
-            delta_best = module.delta_time.output_data[4]
+            delta_best = min(max(module.delta_time.output_data[4], -99.999), 99.999)
 
             # Start updating
             # Deltabest update
+            self.update_deltabest(delta_best, self.last_delta_best)
+
+            # Store last data reading
+            self.last_delta_best = delta_best
+
+        # Update rate
+        self.after(self.wcfg["update_delay"], self.update_data)
+
+    # GUI update methods
+    def update_deltabest(self, curr, last):
+        """Deltabest"""
+        if curr != last:
             if self.wcfg["color_swap"] == "0":
-                self.bar_deltabest["fg"] = self.color_delta(delta_best)
+                self.bar_deltabest.config(text=f"{curr:+.03f}", fg=self.color_delta(curr))
             else:
-                self.bar_deltabest["bg"] = self.color_delta(delta_best)
-            self.bar_deltabest.config(text=f"{min(max(delta_best, -99.999), 99.999):+.03f}")
+                self.bar_deltabest.config(text=f"{curr:+.03f}", bg=self.color_delta(curr))
 
             # Delta bar update
             if self.wcfg["show_delta_bar"]:
                 deltabar = self.deltabar_pos(self.wcfg["bar_display_range"],
-                                             delta_best, self.dbar_length)
+                                             curr, self.dbar_length)
                 if deltabar < self.dbar_length:  # loss
                     self.bar_deltabar.coords(self.rect_pos_lt,
                                              deltabar, 0, self.dbar_length, self.dbar_height)
@@ -106,9 +120,7 @@ class Draw(Widget, MouseEvent):
                     self.bar_deltabar.coords(self.rect_pos_rt,
                                              self.dbar_length, 0, deltabar, self.dbar_height)
 
-        # Update rate
-        self.after(self.wcfg["update_delay"], self.update_data)
-
+    # Additional methods
     @staticmethod
     def deltabar_pos(rng, delta, length):
         """Delta position"""
