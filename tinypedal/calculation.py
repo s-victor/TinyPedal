@@ -149,25 +149,9 @@ def kpa2psi(tyre_pres, pres_unit):
     return pressure
 
 
-def gforce_lgt(g_force):
-    """Add direction sign for longitudinal g-force"""
-    if g_force > 0.1:
-        force = "▼"
-    elif g_force < -0.1:
-        force = "▲"
-    else:
-        force = "●"
-    return force
-
-
-def gforce_lat(g_force):
-    """Add direction sign for lateral g-force"""
-    if g_force > 0.1:
-        force = "◀"
-    elif g_force < -0.1:
-        force = "▶"
-    else:
-        force = "●"
+def gforce(value):
+    """Calculate G force"""
+    force = value / 9.8
     return force
 
 

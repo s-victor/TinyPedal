@@ -59,11 +59,11 @@ def combo_check():
 
 def cruise():
     """Cruise data"""
-    ori_yaw = 180 - (calc.oriyaw2rad(chknm(info.syncedVehicleTelemetry().mOri[2].x),
-                                     chknm(info.syncedVehicleTelemetry().mOri[2].z)) * 57.2957795)
-    pos_y = chknm(info.syncedVehicleScoring().mPos.y)
-    time_start = chknm(info.LastScor.mScoringInfo.mStartET)
-    time_curr = chknm(info.LastScor.mScoringInfo.mCurrentET)
+    ori_yaw = (chknm(info.syncedVehicleTelemetry().mOri[2].x),
+               chknm(info.syncedVehicleTelemetry().mOri[2].z))
+    pos_y = round(chknm(info.syncedVehicleScoring().mPos.y), 1)
+    time_start = int(chknm(info.LastScor.mScoringInfo.mStartET))
+    time_curr = int(chknm(info.LastScor.mScoringInfo.mCurrentET))
     return ori_yaw, pos_y, time_start, time_curr
 
 
@@ -247,11 +247,11 @@ def tyre_pressure():
 
 def force():
     """Force data"""
-    gf_lgt = chknm(info.syncedVehicleTelemetry().mLocalAccel.z) / 9.8  # long g-force
-    gf_lat = chknm(info.syncedVehicleTelemetry().mLocalAccel.x) / 9.8  # lat g-force
-    df_ratio = calc.force_ratio(chknm(info.syncedVehicleTelemetry().mFrontDownforce),
-                                chknm(info.syncedVehicleTelemetry().mRearDownforce))
-    return gf_lgt, gf_lat, df_ratio
+    lgt_accel = chknm(info.syncedVehicleTelemetry().mLocalAccel.z)
+    lat_accel = chknm(info.syncedVehicleTelemetry().mLocalAccel.x)
+    downforce = (chknm(info.syncedVehicleTelemetry().mFrontDownforce),
+                 chknm(info.syncedVehicleTelemetry().mRearDownforce))
+    return lgt_accel, lat_accel, downforce
 
 
 def drs():

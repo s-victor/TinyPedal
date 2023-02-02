@@ -89,21 +89,24 @@ class Draw(Widget, MouseEvent):
         """Update when vehicle on track"""
         if read_data.state() and self.wcfg["enable"]:
 
-            # Read g-force & downforce data
-            gf_lgt, gf_lat, df_ratio = read_data.force()
+            # Read acceleration & downforce data
+            lgt_accel, lat_accel, downforce = read_data.force()
 
             # Start updating
 
             # Longitudinal g-force
+            gf_lgt = round(calc.gforce(lgt_accel), 2)
             self.update_gf_lgt(gf_lgt, self.last_gf_lgt)
             self.last_gf_lgt = gf_lgt
 
             # Lateral g-force
+            gf_lat = round(calc.gforce(lat_accel), 2)
             self.update_gf_lat(gf_lat, self.last_gf_lat)
             self.last_gf_lat = gf_lat
 
             # Downforce ratio
             if self.wcfg["show_downforce_ratio"]:
+                df_ratio = round(calc.force_ratio(*downforce), 2)
                 self.update_df_ratio(df_ratio, self.last_df_ratio)
                 self.last_df_ratio = df_ratio
 
@@ -113,15 +116,38 @@ class Draw(Widget, MouseEvent):
     # GUI update methods
     def update_gf_lgt(self, curr, last):
         """Longitudinal g-force"""
-        if round(curr, 2) != round(last, 2):
-            self.bar_gforce_lgt.config(text=calc.gforce_lgt(curr) + f" {abs(curr):.2f}")
+        if curr != last:
+            self.bar_gforce_lgt.config(text=self.gforce_lgt(curr) + f" {abs(curr):.2f}")
 
     def update_gf_lat(self, curr, last):
         """Lateral g-force"""
-        if round(curr, 2) != round(last, 2):
-            self.bar_gforce_lat.config(text=f"{abs(curr):.2f} " + calc.gforce_lat(curr))
+        if curr != last:
+            self.bar_gforce_lat.config(text=f"{abs(curr):.2f} " + self.gforce_lat(curr))
 
     def update_df_ratio(self, curr, last):
         """Downforce ratio"""
-        if round(curr, 2) != round(last, 2):
+        if curr != last:
             self.bar_dforce.config(text=f"{curr:04.02f}%")
+
+    # Additional methods
+    @staticmethod
+    def gforce_lgt(g_force):
+        """Longitudinal g-force direction symbol"""
+        if g_force > 0.1:
+            text = "▼"
+        elif g_force < -0.1:
+            text = "▲"
+        else:
+            text = "●"
+        return text
+
+    @staticmethod
+    def gforce_lat(g_force):
+        """Lateral g-force direction symbol"""
+        if g_force > 0.1:
+            text = "◀"
+        elif g_force < -0.1:
+            text = "▶"
+        else:
+            text = "●"
+        return text

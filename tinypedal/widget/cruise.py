@@ -24,6 +24,7 @@ import time
 import tkinter as tk
 import tkinter.font as tkfont
 
+from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget, MouseEvent
 from ..module_control import module
@@ -74,7 +75,7 @@ class Draw(Widget, MouseEvent):
             self.bar_odometer.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
 
         # Last data
-        self.last_ori_yaw = 0
+        self.last_dir_degree = 0
         self.last_time_curr = 0
         self.last_pos_y = 0
         self.last_traveled_distance = 0
@@ -94,8 +95,9 @@ class Draw(Widget, MouseEvent):
             # Start updating
 
             # Compass
-            self.update_compass(ori_yaw, self.last_ori_yaw)
-            self.last_ori_yaw = ori_yaw
+            dir_degree = round(180 - calc.rad2deg(calc.oriyaw2rad(*ori_yaw)), 0)
+            self.update_compass(dir_degree, self.last_dir_degree)
+            self.last_dir_degree = dir_degree
 
             # Track clock
             if self.wcfg["show_track_clock"]:
@@ -119,7 +121,7 @@ class Draw(Widget, MouseEvent):
     # GUI update methods
     def update_compass(self, curr, last):
         """Compass"""
-        if int(curr) != int(last):
+        if curr != last:
             self.bar_compass.config(text=f"{curr:03.0f}°{self.deg2direction(curr)}")
 
     def update_trackclock(self, curr, last, start):
@@ -139,10 +141,10 @@ class Draw(Widget, MouseEvent):
     def update_elevation(self, curr, last):
         """Elevation"""
         if curr != last:
-            if self.wcfg["elevation_unit"] == "1":
-                elev_text = f"↑ {curr * 3.2808399: =03.0f}ft"
-            else:
+            if self.wcfg["elevation_unit"] == "0":
                 elev_text = f"↑ {curr: =03.0f}m"
+            else:
+                elev_text = f"↑ {curr * 3.2808399: =03.0f}ft"
             self.bar_elevation.config(text=elev_text, width=len(elev_text)+1)
 
     def update_odometer(self, curr, last):
