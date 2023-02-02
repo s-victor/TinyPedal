@@ -27,7 +27,14 @@ VERSION = "1.10.3"
 PLATFORM = platform.system()
 
 # User data path
-PATH_SETTINGS = "./settings/"
-PATH_CLASSES = "./settings/"
-PATH_DELTABEST = "./deltabest/"
-PATH_FUEL = "./deltabest/"
+if PLATFORM == "Windows":
+    PATH_SETTINGS = "./settings/"
+    PATH_CLASSES = "./settings/"
+    PATH_DELTABEST = "./deltabest/"
+    PATH_FUEL = "./deltabest/"
+else:
+    from xdg import BaseDirectory as BD
+    PATH_SETTINGS = BD.save_config_path("TinyPedal") + "/"
+    PATH_CLASSES = PATH_SETTINGS
+    PATH_DELTABEST = BD.save_data_path("TinyPedal", "deltabest") + "/"
+    PATH_FUEL = PATH_DELTABEST
