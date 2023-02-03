@@ -239,7 +239,9 @@ class Draw(Widget, MouseEvent):
 
             # Start updating
 
-            # 0 place, 1 driver, 2 laptime, 3 pos_class, 4 veh_f_01lass, 5 time_gap, 6 num_lap, 7 in_pit
+            # Data index reference:
+            # 0 place, 1 driver, 2 laptime, 3 pos_class, 4 veh_class,
+            # 5 time_gap, 6 num_lap, 7 in_pit, 8 tire_idx, 9 pit_count
             veh_plr = module.relative_info.relative_data(plr_idx, plr_idx, cls_info)
 
             veh_f_03 = module.relative_info.relative_data(rel_idx[veh_center - 3], plr_idx, cls_info)

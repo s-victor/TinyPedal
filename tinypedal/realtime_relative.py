@@ -116,35 +116,37 @@ class RelativeInfo:
         """Relative data, this function is accessed by relative widget"""
         # Prevent index out of range
         if 0 <= index < len(veh_class_info) and len(veh_class_info[index]) == 4:
-            # Driver place position
+            # 0 Driver place position
             place = f"{veh_class_info[index][3]:02d}"
 
-            # Vehicle position & class
-            pos_class = f"{veh_class_info[index][1]:02d}"
-            veh_class = veh_class_info[index][2]
-
-            # Driver name
+            # 1 Driver name
             driver = (cs2py(info.LastScor.mVehicles[index].mDriverName),
                       cs2py(info.LastScor.mVehicles[index].mVehicleName))
 
-            # Lap time
+            # 2 Lap time
             raw_laptime = chknm(info.LastScor.mVehicles[index].mLastLapTime)
             laptime = calc.sec2laptime(raw_laptime)[:9].rjust(9) if raw_laptime > 0 else "--:--.---"
 
-            # Relative time gap
+            # 3 Vehicle position in class
+            pos_class = f"{veh_class_info[index][1]:02d}"
+
+            # 4 Vehicle class
+            veh_class = veh_class_info[index][2]
+
+            # 5 Time gap
             time_gap = self.calc_relative_time_gap(index, index_player)
 
-            # Number of completed
+            # 6 Completed laps
             num_lap = chknm(info.LastTele.mVehicles[index].mLapNumber)
 
-            # Driver in pit
+            # 7 Is driver in pit
             in_pit = chknm(info.LastScor.mVehicles[index].mInPits)
 
-            # Tyre compound index
+            # 8 Tyre compound index
             tire_idx = (chknm(info.LastTele.mVehicles[index].mFrontTireCompoundIndex),
                         chknm(info.LastTele.mVehicles[index].mRearTireCompoundIndex))
 
-            # Pitstop count
+            # 9 Pitstop count
             pit_count = chknm(info.LastScor.mVehicles[index].mNumPitstops)
 
         else:
