@@ -7,9 +7,11 @@ TinyPedal (WIP)
     - Removed brackets from combined driver name if name is empty.
 
 * Core
-    - [New]Auto sorts all options in JSON file according to default setting template
+    - Auto sorts all options in JSON file according to default setting template
       for better readability and consistency.
     - Optimized GUI update methods for widgets: Cruise, Deltabest, Force.
+    - Use Linux XDG directories for storing user data (by Bernat).
+
 
 TinyPedal 1.10.3 (2023-01-31)
 -----------------------------

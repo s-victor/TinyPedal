@@ -117,12 +117,12 @@ class Draw(Widget, MouseEvent):
     def update_gf_lgt(self, curr, last):
         """Longitudinal g-force"""
         if curr != last:
-            self.bar_gforce_lgt.config(text=self.gforce_lgt(curr) + f" {abs(curr):.2f}")
+            self.bar_gforce_lgt.config(text=f"{self.gforce_lgt(curr)} {abs(curr):.2f}")
 
     def update_gf_lat(self, curr, last):
         """Lateral g-force"""
         if curr != last:
-            self.bar_gforce_lat.config(text=f"{abs(curr):.2f} " + self.gforce_lat(curr))
+            self.bar_gforce_lat.config(text=f"{abs(curr):.2f} {self.gforce_lat(curr)}")
 
     def update_df_ratio(self, curr, last):
         """Downforce ratio"""
