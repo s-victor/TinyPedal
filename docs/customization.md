@@ -406,9 +406,6 @@ Set mode for accumulated target sector time. Set `0` to show theoretical best se
     freeze_duration
 Set auto-freeze duration (seconds) for previous sector time display. Default value is `5` seconds.
 
-    show_best_sector_time
-Show session best sector time of each sector. Set `false` to show sector name instead.
-
     always_show_laptime_gap
 Set `true` to always show sector/laptime gap bar. Set `false` to show only in freeze duration.
 

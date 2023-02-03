@@ -148,7 +148,8 @@ def startlights():
 
 def session():
     """Session data"""
-    time_left = chknm(info.LastScor.mScoringInfo.mEndET) - chknm(info.LastScor.mScoringInfo.mCurrentET)
+    time_left = (chknm(info.LastScor.mScoringInfo.mEndET)
+                 - chknm(info.LastScor.mScoringInfo.mCurrentET))
     lap_total = chknm(info.LastScor.mScoringInfo.mMaxLaps)
     lap_num = chknm(info.syncedVehicleTelemetry().mLapNumber)
     plr_place = chknm(info.syncedVehicleScoring().mPlace)
@@ -282,21 +283,24 @@ def weather():
 
 
 def sector():
-    """Sector data"""
-    mSector = chknm(info.syncedVehicleScoring().mSector)
-    mCurSector1 = chknm(info.syncedVehicleScoring().mCurSector1)
-    mCurSector2 = chknm(info.syncedVehicleScoring().mCurSector2)
-    mLastSector2 = chknm(info.syncedVehicleScoring().mLastSector2)
-    mLastLapTime = chknm(info.syncedVehicleScoring().mLastLapTime)
-    mTotalLaps = chknm(info.syncedVehicleScoring().mTotalLaps) + 1
-    mPlace = chknm(info.syncedVehicleScoring().mPlace)
-    mElapsedTime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
+    """Sector data
+
+    Convert game sector index order to 0,1,2 for consistency.
+    """
+    sector_idx = (2,0,1)[chknm(info.syncedVehicleScoring().mSector)]
+    curr_sector1 = chknm(info.syncedVehicleScoring().mCurSector1)
+    curr_sector2 = chknm(info.syncedVehicleScoring().mCurSector2)
+    last_sector2 = chknm(info.syncedVehicleScoring().mLastSector2)
+    last_laptime = chknm(info.syncedVehicleScoring().mLastLapTime)
+    plr_laps = chknm(info.syncedVehicleScoring().mTotalLaps) + 1
+    plr_place = chknm(info.syncedVehicleScoring().mPlace)
+    lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
     speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.y),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.z))
     start_curr = chknm(info.syncedVehicleTelemetry().mLapStartET)
-    return (mSector, mCurSector1, mCurSector2, mLastSector2, mLastLapTime,
-            mTotalLaps, mPlace, mElapsedTime, speed, start_curr)
+    return (sector_idx, curr_sector1, curr_sector2, last_sector2, last_laptime,
+            plr_laps, plr_place, lap_etime, speed, start_curr)
 
 
 def session_check():

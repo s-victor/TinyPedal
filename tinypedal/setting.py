@@ -386,7 +386,6 @@ class Setting:
             "bkg_color_target_time": "#222222",
             "font_color_current_time": "#FFFFFF",
             "bkg_color_current_time": "#222222",
-            "show_best_sector_time": True,
             "font_color_sector": "#AAAAAA",
             "font_color_sector_highlighted": "#FFFFFF",
             "bkg_color_sector": "#222222",

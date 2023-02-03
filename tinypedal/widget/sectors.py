@@ -53,7 +53,8 @@ class Draw(Widget, MouseEvent):
 
         # Draw label
         bar_style = {"bd":0, "height":1, "padx":0, "pady":0, "font":font_sectors}
-        frame_laptime = tk.Frame(self, bd=0, highlightthickness=0, bg=self.cfg.overlay["transparent_color"])
+        frame_laptime = tk.Frame(self, bd=0, highlightthickness=0,
+                                 bg=self.cfg.overlay["transparent_color"])
 
         # Current position and current lap number
         if self.wcfg["show_position_lapnumber"]:
@@ -61,13 +62,13 @@ class Draw(Widget, MouseEvent):
                                          fg=self.wcfg["font_color_position"],
                                          bg=self.wcfg["bkg_color_position"])
 
-            self.bar_lap = tk.Label(self, bar_style, text="L  ", width=4,
+            self.bar_laps = tk.Label(self, bar_style, text="L  ", width=4,
                                     fg=self.wcfg["font_color_lapnumber"],
                                     bg=self.wcfg["bkg_color_lapnumber"])
 
         # Speed
         if self.wcfg["show_speed"]:
-            self.bar_speed_cur = tk.Label(self, bar_style, text="", width=6,
+            self.bar_speed_curr = tk.Label(self, bar_style, text="", width=6,
                                           fg=self.wcfg["font_color_speed"],
                                           bg=self.wcfg["bkg_color_speed"])
 
@@ -76,12 +77,14 @@ class Draw(Widget, MouseEvent):
                                            bg=self.wcfg["bkg_color_speed"])
 
         # Target time
-        self.bar_time_target = tk.Label(frame_laptime, bar_style, text="", width=12,
+        self.bar_time_target = tk.Label(frame_laptime, bar_style,
+                                        text="  --:--.---", width=12,
                                         fg=self.wcfg["font_color_target_time"],
                                         bg=self.wcfg["bkg_color_target_time"])
 
         # Current time
-        self.bar_time_curr = tk.Label(frame_laptime, bar_style, text="", width=12,
+        self.bar_time_curr = tk.Label(frame_laptime, bar_style,
+                                      text="  --:--.---", width=12,
                                       fg=self.wcfg["font_color_current_time"],
                                       bg=self.wcfg["bkg_color_current_time"])
 
@@ -125,18 +128,24 @@ class Draw(Widget, MouseEvent):
             self.bar_time_gap.grid(row=1, column=5, padx=(bar_gap,0), pady=(0,bar_gap))
 
         if self.wcfg["show_speed"]:
-            self.bar_speed_cur.grid(row=0, column=0, padx=(0,bar_gap), pady=(0,bar_gap))
+            self.bar_speed_curr.grid(row=0, column=0, padx=(0,bar_gap), pady=(0,bar_gap))
             self.bar_speed_best.grid(row=1, column=0, padx=(0,bar_gap), pady=(0,bar_gap))
 
         if self.wcfg["show_position_lapnumber"]:
             self.bar_position.grid(row=0, column=1, padx=(0,bar_gap), pady=(0,bar_gap))
-            self.bar_lap.grid(row=1, column=1, padx=(0,bar_gap), pady=(0,bar_gap))
+            self.bar_laps.grid(row=1, column=1, padx=(0,bar_gap), pady=(0,bar_gap))
 
         if not self.wcfg["always_show_laptime_gap"]:  # hide laptime gap
             self.bar_time_gap.grid_remove()
 
         # Initialize with default values
         self.set_defaults()
+
+        # Last data
+        self.last_cb_topspeed = 0
+        self.last_ub_topspeed = 0
+        self.last_plr_place = 0
+        self.last_plr_laps = 0
 
         self.update_data()
 
@@ -145,32 +154,28 @@ class Draw(Widget, MouseEvent):
 
     def set_defaults(self):
         """Initialize variables"""
-        self.start_last = 0.0                    # last lap start time
-        self.last_sector = -1                    # previous recorded sector index value
+        self.start_last = 0                      # last lap start time
+        self.last_sector_idx = -1                # previous recorded sector index value
         self.combo_name = "unknown"              # current car & track combo
         self.session_id = None                   # session identity
 
         self.best_laptime = MAGIC_NUM            # best laptime (seconds)
-        self.curr_sectortime = 0                 # current sector times
-        self.delta_s = [0,0,0]                   # deltabest sector times against all time best sector
-        self.delta_bestlap_s = [0,0,0]           # deltabest sector times against best lap sector
+        self.delta_s = [0,0,0]                   # deltabest times against all time best sector
+        self.delta_bestlap_s = [0,0,0]           # deltabest times against best laptime sector
         self.prev_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]           # previous sector times
         self.best_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]           # best sector times
         self.bestlap_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]        # best lap sector times
 
-        self.valid_speed = True
-        self.current_best_speed = 0              # fastest current-lap top speed
-        self.session_best_speed = 0              # fastest session top speed
-        self.unverified_best_speed = 0           # unverified fastest session top speed
+        self.valid_topspeed = True
+        self.cb_topspeed = 0                     # current-lap best top speed
+        self.sb_topspeed = 0                     # session best top speed
+        self.ub_topspeed = 0                     # unverified session best top speed
         self.speed_timer_start = 0               # speed timer start
-        self.speed_timer = 0                     # speed timer difference
         self.freeze_timer_start = 0              # sector timer start
-        self.freeze_timer = 0                    # sector timer difference
 
-        self.time_target_text = "  --:--.---"        # target time text
-        self.freeze_time_target_text = "  --:--.---" # last recorded target time text for freeze
-        self.bar_time_target.config(text=self.time_target_text)
-        self.bar_time_curr.config(text=self.time_target_text)
+        self.time_target_text = "  --:--.---"    # target time text
+        self.last_time_target_text = ""          # last recorded target time text for freeze
+        self.update_time_target(self.time_target_text)
 
     def update_data(self):
         """Update when vehicle on track"""
@@ -180,10 +185,8 @@ class Draw(Widget, MouseEvent):
             laptime_curr = module.delta_time.output_data[0]
 
             # Read Sector data
-            (gSector, mCurSector1, mCurSector2, mLastSector2, mLastLapTime,
-             mTotalLaps, mPlace, mElapsedTime, speed, start_curr) = read_data.sector()
-
-            mSector = (2,0,1)[gSector]  # convert game sector order to 0,1,2 for consistency
+            (sector_idx, curr_sector1, curr_sector2, last_sector2, last_laptime,
+             plr_laps, plr_place, lap_etime, speed, start_curr) = read_data.sector()
 
             # Start updating
 
@@ -192,210 +195,119 @@ class Draw(Widget, MouseEvent):
                 self.verified = True
                 self.set_defaults()  # reset data
                 self.load_saved_sector_data()  # load saved sector data
-                self.update_sector_data()  # update sector data
+                self.restore_best_sector(self.best_s)  # Restore best sector time
 
             # Speed update
             if self.wcfg["show_speed"]:
                 # Lap start & finish detection
                 if start_curr != self.start_last:  # time stamp difference
-                    self.current_best_speed = speed  # reset current lap fastest speed
+                    self.cb_topspeed = speed  # reset current lap fastest speed
                     self.start_last = start_curr  # reset
-                    self.valid_speed = False
+                    self.valid_topspeed = False
 
                 # Validate fastest speed
-                if not self.valid_speed and laptime_curr > 1:
-                    if mLastLapTime > 0:  # valid last laptime
-                        self.session_best_speed = self.unverified_best_speed
+                if not self.valid_topspeed and laptime_curr > 1:
+                    if last_laptime > 0:  # valid last laptime
+                        self.sb_topspeed = self.ub_topspeed
                     else:  # invalid last laptime
-                        self.unverified_best_speed = self.session_best_speed  # restore session fastest speed
-                        if self.current_best_speed > self.unverified_best_speed:
-                            self.unverified_best_speed = self.current_best_speed
-                    # Update top speed display
-                    best_speed_d = calc.conv_speed(self.unverified_best_speed, self.wcfg["speed_unit"])
-                    self.bar_speed_best.config(text=f"{best_speed_d:.01f}")
-                    self.valid_speed = True
+                        self.ub_topspeed = self.sb_topspeed  # restore session fastest speed
+                        if self.cb_topspeed > self.ub_topspeed:
+                            self.ub_topspeed = self.cb_topspeed
+                    # Update session top speed display
+                    self.update_speed_best(self.ub_topspeed, MAGIC_NUM)
+                    self.valid_topspeed = True
 
-                # Freeze fastest speed
-                if speed > self.current_best_speed:
-                    self.current_best_speed = speed
+                # Update current top speed display
+                if speed > self.cb_topspeed:
+                    self.cb_topspeed = speed
+                self.update_speed_curr(self.cb_topspeed, self.last_cb_topspeed)
+                self.last_cb_topspeed = self.cb_topspeed
 
-                if speed > self.unverified_best_speed:
-                    self.unverified_best_speed = speed
-                    self.speed_timer_start = mElapsedTime  # start timer if speed higher
+                # Update session top speed display
+                if speed > self.ub_topspeed:
+                    self.ub_topspeed = speed
+                    self.speed_timer_start = lap_etime  # start timer if speed higher
 
                 if self.speed_timer_start:
-                    self.speed_timer = mElapsedTime - self.speed_timer_start
-
-                    if self.speed_timer >= max(self.wcfg["speed_highlight_duration"], 0):
+                    speed_timer = lap_etime - self.speed_timer_start
+                    if speed_timer >= max(self.wcfg["speed_highlight_duration"], 0):
                         self.speed_timer_start = 0  # stop timer
-                        self.bar_speed_best.config(fg=self.wcfg["font_color_speed"],
-                                                   bg=self.wcfg["bkg_color_speed"])
-                    else:  # update top speed display when necessary
-                        best_speed_d = calc.conv_speed(self.unverified_best_speed, self.wcfg["speed_unit"])
-                        self.bar_speed_best.config(text=f"{best_speed_d:.01f}",
-                                                   fg=self.wcfg["font_color_speed_highlighted"],
-                                                   bg=self.wcfg["bkg_color_speed_highlighted"])
+                        self.update_speed_best(self.ub_topspeed, MAGIC_NUM)
+                    else:
+                        self.update_speed_best(self.ub_topspeed, self.last_ub_topspeed, True)
 
-                # Update current speed display
-                speed_d = calc.conv_speed(self.current_best_speed, self.wcfg["speed_unit"])
-                self.bar_speed_cur.config(text=f"{speed_d:.01f}")
+                self.last_ub_topspeed = self.ub_topspeed
 
             # Position & lap number update
             if self.wcfg["show_position_lapnumber"]:
-                self.bar_position.config(text=f"P{mPlace}")
-                self.bar_lap.config(text=f"L{mTotalLaps}")
+                self.update_position(plr_place, self.last_plr_place)
+                self.last_plr_place = plr_place
+
+                self.update_laps(plr_laps, self.last_plr_laps)
+                self.last_plr_laps = plr_laps
 
             # Sector update
 
             # Update previous & best sector time
-            if self.last_sector != mSector:  # keep checking until conditions met
+            if self.last_sector_idx != sector_idx:  # keep checking until conditions met
 
-                # While vehicle in sector 1
-                if mSector == 0 and mLastLapTime > 0 and mLastSector2 > 0:
-                    self.last_sector = mSector  # reset sector value and stop checking
+                # While vehicle in S1, update S3 data
+                if sector_idx == 0 and last_laptime > 0 and last_sector2 > 0:
+                    self.last_sector_idx = sector_idx  # reset & stop checking
+                    self.update_sector3_data(last_laptime, last_sector2)
 
-                    # Save previous sector 3 time
-                    self.prev_s[2] = mLastLapTime - mLastSector2
+                # While vehicle in S2, update S1 data
+                elif sector_idx == 1 and curr_sector1 > 0:
+                    self.last_sector_idx = sector_idx  # reset
+                    self.update_sector1_data(curr_sector1)
 
-                    # Update (time gap) deltabest bestlap sector 3 text
-                    if self.valid_sector(self.bestlap_s[2]):
-                        self.delta_bestlap_s[2] = self.prev_s[2] - self.bestlap_s[2] + self.delta_bestlap_s[1]
-                        self.bar_time_gap.config(text=f"{self.delta_bestlap_s[2]:+.03f}"[:7],
-                                                 fg=self.color_delta(self.delta_bestlap_s[2], 1))
-                        self.bar_time_gap.grid()
-
-                    # Update deltabest sector 3 text
-                    if self.valid_sector(self.best_s[2]):
-                        self.delta_s[2] = self.prev_s[2] - self.best_s[2]
-                        self.bar_s3_gap.config(text=f"{self.delta_s[2]:+.03f}"[:7],
-                                               fg=self.wcfg["font_color_sector_highlighted"],
-                                               bg=self.color_delta(self.delta_s[2], 0))
-                    elif self.wcfg["show_best_sector_time"] and self.valid_sector(self.prev_s[2]):
-                        # Show previous sector time if no best sector time set
-                        self.bar_s3_gap.config(text=f"{self.prev_s[2]:.03f}"[:7])
-
-                    # Save best sector 3 time
-                    if self.prev_s[2] < self.best_s[2]:
-                        self.best_s[2] = self.prev_s[2]
-
-                    # Save sector time from personal best laptime
-                    if mLastLapTime < self.best_laptime and self.valid_sector(self.prev_s):
-                        self.best_laptime = mLastLapTime
-                        self.bestlap_s = self.prev_s.copy()
-
-                # While vehicle in sector 2
-                elif mSector == 1 and mCurSector1 > 0:
-                    self.last_sector = mSector  # reset
-
-                    # Save previous sector 1 time
-                    self.prev_s[0] = mCurSector1
-
-                    # Update (time gap) deltabest bestlap sector 1 text
-                    if self.valid_sector(self.bestlap_s[0]):
-                        self.delta_bestlap_s[0] = self.prev_s[0] - self.bestlap_s[0]
-                        self.bar_time_gap.config(text=f"{self.delta_bestlap_s[0]:+.03f}"[:7],
-                                                 fg=self.color_delta(self.delta_bestlap_s[0], 1))
-                        self.bar_time_gap.grid()
-
-                    # Update deltabest sector 1 text
-                    if self.valid_sector(self.best_s[0]):
-                        self.delta_s[0] = self.prev_s[0] - self.best_s[0]
-                        self.bar_s1_gap.config(text=f"{self.delta_s[0]:+.03f}"[:7],
-                                               fg=self.wcfg["font_color_sector_highlighted"],
-                                               bg=self.color_delta(self.delta_s[0], 0))
-                    elif self.wcfg["show_best_sector_time"] and self.valid_sector(self.prev_s[0]):
-                        # Show previous sector time if no best sector time set
-                        self.bar_s1_gap.config(text=f"{self.prev_s[0]:.03f}"[:7])
-
-                    # Save best sector 1 time
-                    if self.prev_s[0] < self.best_s[0]:
-                        self.best_s[0] = self.prev_s[0]
-
-                # While vehicle in sector 3
-                elif mSector == 2 and mCurSector2 > 0 and mCurSector1 > 0:
-                    self.last_sector = mSector  # reset
-
-                    # Save previous sector 2 time
-                    self.prev_s[1] = mCurSector2 - mCurSector1
-
-                    # Update (time gap) deltabest bestlap sector 2 text
-                    if self.valid_sector(self.bestlap_s[1]):
-                        self.delta_bestlap_s[1] = self.prev_s[1] - self.bestlap_s[1] + self.delta_bestlap_s[0]
-                        self.bar_time_gap.config(text=f"{self.delta_bestlap_s[1]:+.03f}"[:7],
-                                                 fg=self.color_delta(self.delta_bestlap_s[1], 1))
-                        self.bar_time_gap.grid()
-
-                    # Update deltabest sector 2 text
-                    if self.valid_sector(self.best_s[1]):
-                        self.delta_s[1] = self.prev_s[1] - self.best_s[1]
-                        self.bar_s2_gap.config(text=f"{self.delta_s[1]:+.03f}"[:7],
-                                               fg=self.wcfg["font_color_sector_highlighted"],
-                                               bg=self.color_delta(self.delta_s[1], 0))
-                    elif self.wcfg["show_best_sector_time"] and self.valid_sector(self.prev_s[1]):
-                        # Show previous sector time if no best sector time set
-                        self.bar_s2_gap.config(text=f"{self.prev_s[1]:.03f}"[:7])
-
-                    # Save best sector 2 time
-                    if self.prev_s[1] < self.best_s[1]:
-                        self.best_s[1] = self.prev_s[1]
+                # While vehicle in S3, update S2 data
+                elif sector_idx == 2 and curr_sector2 > 0 and curr_sector1 > 0:
+                    self.last_sector_idx = sector_idx  # reset
+                    self.update_sector2_data(curr_sector2, curr_sector1)
 
                 # Triggered when sector values reset
-                if self.last_sector == mSector:
+                if self.last_sector_idx == sector_idx:
                     # Store last time target text for freeze state before update
-                    self.freeze_time_target_text = self.time_target_text
+                    self.last_time_target_text = self.time_target_text
 
                     # Update (time target) best sector text
-                    self.update_time_target(self.best_s, self.bestlap_s, mSector)
+                    self.time_target_text = self.set_target_time(
+                                                self.best_s, self.bestlap_s, sector_idx)
+
+                    # Freeze best sector time text
+                    self.update_time_target(self.last_time_target_text)
 
                     # Activate freeze & sector timer
-                    self.freeze_timer_start = mElapsedTime
+                    self.freeze_timer_start = lap_etime
 
                 # Triggered if no valid last laptime set & 8s after cross line
                 # Necessary for correctly update target time for garage-pitout & app-restart
-                if mLastLapTime < 0 and laptime_curr > 8:
-                    self.last_sector = mSector  # reset
+                if last_laptime < 0 and laptime_curr > 8:
+                    self.last_sector_idx = sector_idx  # reset
                     # Update (time target) best sector text
-                    self.update_time_target(self.best_s, self.bestlap_s, mSector)
-                    self.bar_time_target.config(text=self.time_target_text)
-
-            # Update current sector time value
-            sector_text = ("S1","S2","S3")[mSector]
-            self.curr_sectortime = laptime_curr
+                    self.time_target_text = self.set_target_time(
+                                                self.best_s, self.bestlap_s, sector_idx)
+                    self.update_time_target(self.time_target_text)
 
             # Update freeze timer
             if self.freeze_timer_start:
-                self.freeze_timer = mElapsedTime - self.freeze_timer_start
-
-                # Set max freeze duration
-                if self.valid_sector(self.prev_s[mSector]):
-                    max_freeze = self.prev_s[mSector] / 2
-                else:
-                    max_freeze = 3
+                freeze_timer = lap_etime - self.freeze_timer_start
 
                 # Stop freeze timer after duration
-                if self.freeze_timer >= min(max(self.wcfg["freeze_duration"], 0), max_freeze):
+                if freeze_timer >= self.freeze_duration(self.prev_s[sector_idx]):
                     self.freeze_timer_start = 0  # stop timer
                     # Update best sector time
-                    self.bar_time_target.config(text=self.time_target_text)
-                    # Reset deltabest sector data
-                    if mSector == 0:
-                        self.update_sector_data()
+                    self.update_time_target(self.time_target_text)
+                    # Restore best sector time when cross finish line
+                    if sector_idx == 0:
+                        self.restore_best_sector(self.best_s)
                     # Hide laptime gap
                     if not self.wcfg["always_show_laptime_gap"]:
                         self.bar_time_gap.grid_remove()
-                else:
-                    # Freeze best sector time
-                    self.bar_time_target.config(text=self.freeze_time_target_text)
-                    # Freeze current sector time value
-                    prev_sector_idx = (2,0,1)[mSector]
-                    if self.valid_sector(self.prev_s[prev_sector_idx]):  # valid previous sector time
-                        calc_sectortime = self.calc_sector_time(self.prev_s, prev_sector_idx)
-                        if calc_sectortime < MAGIC_NUM:  # bypass invalid value
-                            self.curr_sectortime = calc_sectortime
-                            sector_text = ("S1","S2","S3")[prev_sector_idx]
 
             # Update current sector time
-            self.bar_time_curr.config(text=f"{sector_text}{calc.sec2laptime(self.curr_sectortime)[:8].rjust(9)}")
+            self.update_time_curr(sector_idx, laptime_curr)
 
         else:
             if self.verified:
@@ -405,7 +317,7 @@ class Draw(Widget, MouseEvent):
                     self.bar_time_gap.grid_remove()
 
                 # Save only valid sector data
-                if self.session_id and self.valid_sector(self.best_s) and self.valid_sector(self.bestlap_s):
+                if self.session_id and self.valid_sector(self.bestlap_s):
                     self.wcfg["last_saved_sector_data"] = (
                         str(self.combo_name)
                         + "|" + str(self.session_id[0])
@@ -418,40 +330,198 @@ class Draw(Widget, MouseEvent):
                         + "|" + str(self.bestlap_s[0])
                         + "|" + str(self.bestlap_s[1])
                         + "|" + str(self.bestlap_s[2])
-                        + "|" + str(self.session_best_speed)
+                        + "|" + str(self.sb_topspeed)
                         )
                     self.cfg.save()
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
 
-    # Additional methods
-    @staticmethod
-    def valid_sector(sec_time):
-        """Validate sector time"""
-        valid = False
-        if isinstance(sec_time, list):
-            if MAGIC_NUM not in sec_time:
-                valid = True
-        else:
-            if MAGIC_NUM != sec_time:
-                valid = True
-        return valid
+    # GUI update methods
+    def update_speed_curr(self, curr, last):
+        """Current lap best top speed"""
+        if curr != last:
+            self.bar_speed_curr.config(
+                text=f"{calc.conv_speed(curr, self.wcfg['speed_unit']):.01f}")
 
-    def update_time_target(self, sec_tb, sec_pb, sec_index):
-        """Update time target text based on target time mode setting"""
+    def update_speed_best(self, curr, last, highlighted=False):
+        """Session best top speed"""
+        if curr != last:
+            display_text = f"{calc.conv_speed(curr, self.wcfg['speed_unit']):.01f}"
+            if highlighted:
+                self.bar_speed_best.config(text=display_text,
+                                           fg=self.wcfg["font_color_speed_highlighted"],
+                                           bg=self.wcfg["bkg_color_speed_highlighted"])
+            else:
+                self.bar_speed_best.config(text=display_text,
+                                           fg=self.wcfg["font_color_speed"],
+                                           bg=self.wcfg["bkg_color_speed"])
+
+    def update_position(self, curr, last):
+        """Driver position"""
+        if curr != last:
+            self.bar_position.config(text=f"P{curr}")
+
+    def update_laps(self, curr, last):
+        """Current lap number"""
+        if curr != last:
+            self.bar_laps.config(text=f"L{curr}")
+
+    def update_time_gap(self, time_diff):
+        """Gap to best lap laptime"""
+        self.bar_time_gap.config(text=f"{time_diff:+.03f}"[:7], fg=self.color_delta(time_diff, 1))
+        self.bar_time_gap.grid()
+
+    def update_time_target(self, time_text):
+        """Target sector time text"""
+        self.bar_time_target.config(text=time_text)
+
+    def update_time_curr(self, sector_idx, laptime_curr):
+        """Current sector time text"""
+        sector_text = ("S1","S2","S3")[sector_idx]
+        curr_sectortime = laptime_curr
+
+        # Freeze current sector time
+        if self.freeze_timer_start:
+            prev_sector_idx = (2,0,1)[sector_idx]
+            if self.valid_sector(self.prev_s[prev_sector_idx]):  # valid previous sector time
+                calc_sectortime = self.calc_sector_time(self.prev_s, prev_sector_idx)
+                if calc_sectortime < MAGIC_NUM:  # bypass invalid value
+                    curr_sectortime = calc_sectortime
+                    sector_text = ("S1","S2","S3")[prev_sector_idx]
+
+        # Update current sector time
+        self.bar_time_curr.config(
+            text=f"{sector_text}{calc.sec2laptime(curr_sectortime)[:8].rjust(9)}")
+
+    def update_sector_gap(self, suffix, time_delta, highlighted=False):
+        """Gap to best sector time"""
+        if highlighted:
+            getattr(self, f"bar_{suffix}").config(text=f"{time_delta:+.03f}"[:7],
+                                                  fg=self.wcfg["font_color_sector_highlighted"],
+                                                  bg=self.color_delta(time_delta, 0))
+        else:  # show previous sector time instead
+            getattr(self, f"bar_{suffix}").config(text=f"{time_delta:.03f}"[:7])
+
+    def restore_best_sector(self, sector_time):
+        """Restore best sector time"""
+        for idx in range(3):
+            text_s = f"S{idx+1}"
+            if self.valid_sector(sector_time[idx]):
+                text_s = f"{sector_time[idx]:.03f}"[:7]
+            getattr(self, f"bar_s{idx+1}_gap").config(text=text_s,
+                                                      fg=self.wcfg["font_color_sector"],
+                                                      bg=self.wcfg["bkg_color_sector"])
+
+    # Sector data update methods
+    def update_sector3_data(self, last_laptime, last_sector2):
+        """Save previous sector 3 time"""
+        self.prev_s[2] = last_laptime - last_sector2
+
+        # Update (time gap) deltabest bestlap sector 3 text
+        if self.valid_sector(self.bestlap_s[2]):
+            self.delta_bestlap_s[2] = self.prev_s[2] - self.bestlap_s[2] + self.delta_bestlap_s[1]
+            self.update_time_gap(self.delta_bestlap_s[2])
+
+        # Update deltabest sector 3 text
+        if self.valid_sector(self.best_s[2]):
+            self.delta_s[2] = self.prev_s[2] - self.best_s[2]
+            self.update_sector_gap("s3_gap", self.delta_s[2], True)
+        elif self.valid_sector(self.prev_s[2]):
+            # Show previous sector time if no best sector time set
+            self.update_sector_gap("s3_gap", self.prev_s[2])
+
+        # Save best sector 3 time
+        if self.prev_s[2] < self.best_s[2]:
+            self.best_s[2] = self.prev_s[2]
+
+        # Save sector time from personal best laptime
+        if last_laptime < self.best_laptime and self.valid_sector(self.prev_s):
+            self.best_laptime = last_laptime
+            self.bestlap_s = self.prev_s.copy()
+
+    def update_sector1_data(self, curr_sector1):
+        """Save previous sector 1 time"""
+        self.prev_s[0] = curr_sector1
+
+        # Update (time gap) deltabest bestlap sector 1 text
+        if self.valid_sector(self.bestlap_s[0]):
+            self.delta_bestlap_s[0] = self.prev_s[0] - self.bestlap_s[0]
+            self.update_time_gap(self.delta_bestlap_s[0])
+
+        # Update deltabest sector 1 text
+        if self.valid_sector(self.best_s[0]):
+            self.delta_s[0] = self.prev_s[0] - self.best_s[0]
+            self.update_sector_gap("s1_gap", self.delta_s[0], 1)
+        elif self.valid_sector(self.prev_s[0]):
+            # Show previous sector time if no best sector time set
+            self.update_sector_gap("s1_gap", self.prev_s[0])
+
+        # Save best sector 1 time
+        if self.prev_s[0] < self.best_s[0]:
+            self.best_s[0] = self.prev_s[0]
+
+    def update_sector2_data(self, curr_sector2, curr_sector1):
+        """Save previous sector 2 time"""
+        self.prev_s[1] = curr_sector2 - curr_sector1
+
+        # Update (time gap) deltabest bestlap sector 2 text
+        if self.valid_sector(self.bestlap_s[1]):
+            self.delta_bestlap_s[1] = self.prev_s[1] - self.bestlap_s[1] + self.delta_bestlap_s[0]
+            self.update_time_gap(self.delta_bestlap_s[1])
+
+        # Update deltabest sector 2 text
+        if self.valid_sector(self.best_s[1]):
+            self.delta_s[1] = self.prev_s[1] - self.best_s[1]
+            self.update_sector_gap("s2_gap", self.delta_s[1], 1)
+        elif self.valid_sector(self.prev_s[1]):
+            # Show previous sector time if no best sector time set
+            self.update_sector_gap("s2_gap", self.prev_s[1])
+
+        # Save best sector 2 time
+        if self.prev_s[1] < self.best_s[1]:
+            self.best_s[1] = self.prev_s[1]
+
+    def set_target_time(self, sec_tb, sec_pb, sec_index):
+        """Set target sector time text"""
         # Mode 0 - show theoretical best sector, only update if all sector time is valid
         if self.wcfg["target_time_mode"] == 0:
             sector_time = self.calc_sector_time(sec_tb, sec_index)
             if sector_time < MAGIC_NUM:  # bypass invalid value
-                self.time_target_text = f"TB{calc.sec2laptime(sector_time)[:8].rjust(9)}"
+                text = f"TB{calc.sec2laptime(sector_time)[:8].rjust(9)}"
+            else:
+                text = "  --:--.---"
         # Mode 1 - show personal best lap sector
         else:
             sector_time = self.calc_sector_time(sec_pb, sec_index)
             if sector_time < MAGIC_NUM:  # bypass invalid value
-                self.time_target_text = f"PB{calc.sec2laptime(sector_time)[:8].rjust(9)}"
+                text = f"PB{calc.sec2laptime(sector_time)[:8].rjust(9)}"
+            else:
+                text = "  --:--.---"
+        return text
 
-    def calc_sector_time(self, sec_time, sec_index):
+    # Additional methods
+    @staticmethod
+    def valid_sector(sec_time):
+        """Validate sector time"""
+        if isinstance(sec_time, list):
+            if MAGIC_NUM not in sec_time:
+                return True
+        else:
+            if MAGIC_NUM != sec_time:
+                return True
+        return False
+
+    def freeze_duration(self, seconds):
+        """Set freeze duration"""
+        if self.valid_sector(seconds):
+            max_freeze = seconds / 2
+        else:
+            max_freeze = 3
+        return min(max(self.wcfg["freeze_duration"], 0), max_freeze)
+
+    @staticmethod
+    def calc_sector_time(sec_time, sec_index):
         """Calculate accumulated sector time"""
         sector_time = sec_time[0]  # sector 1
         if sec_index == 1:    # sector 2 sum
@@ -459,25 +529,6 @@ class Draw(Widget, MouseEvent):
         elif sec_index == 2:  # sector 3 sum
             sector_time = sum(sec_time)
         return sector_time
-
-    def update_sector_data(self):
-        """Update sector data and reset deltabest"""
-        self.delta_s = [0,0,0]  # reset deltabest
-        text_s1 = "S1"
-        text_s2 = "S2"
-        text_s3 = "S3"
-        # Show best sector time instead of sector number
-        if self.wcfg["show_best_sector_time"]:
-            if self.valid_sector(self.best_s[0]):
-                text_s1 = f"{self.best_s[0]:.03f}"[:7]
-            if self.valid_sector(self.best_s[1]):
-                text_s2 = f"{self.best_s[1]:.03f}"[:7]
-            if self.valid_sector(self.best_s[2]):
-                text_s3 = f"{self.best_s[2]:.03f}"[:7]
-        bar_style = {"fg":self.wcfg["font_color_sector"], "bg":self.wcfg["bkg_color_sector"]}
-        self.bar_s1_gap.config(bar_style, text=text_s1)
-        self.bar_s2_gap.config(bar_style, text=text_s2)
-        self.bar_s3_gap.config(bar_style, text=text_s3)
 
     def color_delta(self, seconds, types):
         """Sector delta color"""
@@ -508,17 +559,20 @@ class Draw(Widget, MouseEvent):
                 self.best_laptime = saved_data[4]
                 self.best_s = saved_data[5]
                 self.bestlap_s = saved_data[6]
-                self.unverified_best_speed = self.session_best_speed = saved_data[7]
+                self.ub_topspeed = self.sb_topspeed = saved_data[7]
 
     @staticmethod
     def parse_save_data(save_data):
         """Parse last saved sector data"""
         data = []
-        rex_string = re.split("(\|)", save_data)
+        rex_string = re.split(r"(\|)", save_data)
 
         for index, val in enumerate(rex_string):
             if val != "|":
-                data.append(val) if index <= 2 else data.append(float(val))
+                if index <= 2:
+                    data.append(val)
+                else:
+                    data.append(float(val))
 
         try:  # fill in data
             final_list = [data[0],                    # combo name, str
@@ -530,7 +584,7 @@ class Draw(Widget, MouseEvent):
                           [data[8],data[9],data[10]], # session PB laptime sector, float
                           data[11]                    # session fastest top speed, float
                           ]
-        except (IndexError):  # reset data
+        except IndexError:  # reset data
             final_list = ["None"]
 
         return final_list
