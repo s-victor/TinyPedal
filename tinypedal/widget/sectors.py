@@ -275,11 +275,14 @@ class Draw(Widget, MouseEvent):
                     self.time_target_text = self.set_target_time(
                                                 self.best_s, self.bestlap_s, sector_idx)
 
-                    # Freeze best sector time text
-                    self.update_time_target(self.last_time_target_text)
-
                     # Activate freeze & sector timer
                     self.freeze_timer_start = lap_etime
+
+                    # Freeze best sector time
+                    self.update_time_target(self.last_time_target_text)
+
+                    # Freeze current sector time
+                    self.update_time_curr(sector_idx, laptime_curr)
 
                 # Triggered if no valid last laptime set & 8s after cross line
                 # Necessary for correctly update target time for garage-pitout & app-restart
@@ -305,9 +308,9 @@ class Draw(Widget, MouseEvent):
                     # Hide laptime gap
                     if not self.wcfg["always_show_laptime_gap"]:
                         self.bar_time_gap.grid_remove()
-
-            # Update current sector time
-            self.update_time_curr(sector_idx, laptime_curr)
+            else:
+                # Update current sector time
+                self.update_time_curr(sector_idx, laptime_curr)
 
         else:
             if self.verified:
