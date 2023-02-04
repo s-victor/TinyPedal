@@ -282,7 +282,7 @@ class Draw(Widget, MouseEvent):
                     self.update_time_target(self.last_time_target_text)
 
                     # Freeze current sector time
-                    self.update_time_curr(sector_idx, laptime_curr)
+                    self.update_time_curr(sector_idx, laptime_curr, True)
 
                 # Triggered if no valid last laptime set & 8s after cross line
                 # Necessary for correctly update target time for garage-pitout & app-restart
@@ -379,13 +379,13 @@ class Draw(Widget, MouseEvent):
         """Target sector time text"""
         self.bar_time_target.config(text=time_text)
 
-    def update_time_curr(self, sector_idx, laptime_curr):
+    def update_time_curr(self, sector_idx, laptime_curr, freeze=False):
         """Current sector time text"""
         sector_text = ("S1","S2","S3")[sector_idx]
         curr_sectortime = laptime_curr
 
         # Freeze current sector time
-        if self.freeze_timer_start:
+        if freeze:
             prev_sector_idx = (2,0,1)[sector_idx]
             if self.valid_sector(self.prev_s[prev_sector_idx]):  # valid previous sector time
                 calc_sectortime = self.calc_sector_time(self.prev_s, prev_sector_idx)
