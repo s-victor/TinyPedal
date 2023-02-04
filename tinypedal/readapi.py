@@ -150,13 +150,13 @@ def session():
     """Session data"""
     time_left = (chknm(info.LastScor.mScoringInfo.mEndET)
                  - chknm(info.LastScor.mScoringInfo.mCurrentET))
-    lap_total = chknm(info.LastScor.mScoringInfo.mMaxLaps)
+    lap_into = int(min(max(chknm(info.syncedVehicleScoring().mLapDist) * 100
+                       / max(chknm(info.LastScor.mScoringInfo.mLapDist), 1), 0), 99))
     lap_num = chknm(info.syncedVehicleTelemetry().mLapNumber)
-    plr_place = chknm(info.syncedVehicleScoring().mPlace)
-    veh_total = chknm(info.LastTele.mNumVehicles)
-    lap_into = min(max(chknm(info.syncedVehicleScoring().mLapDist) * 100
-                       / max(chknm(info.LastScor.mScoringInfo.mLapDist), 1), 0), 99)
-    return time_left, lap_total, lap_num, plr_place, veh_total, lap_into
+    lap_total = chknm(info.LastScor.mScoringInfo.mMaxLaps)
+    plr_place = (chknm(info.syncedVehicleScoring().mPlace),
+                 chknm(info.LastTele.mNumVehicles))
+    return time_left, lap_into, lap_num, lap_total, plr_place
 
 
 def stint():

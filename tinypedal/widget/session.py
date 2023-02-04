@@ -72,6 +72,12 @@ class Draw(Widget, MouseEvent):
                                       bg=self.wcfg["bkg_color_place"])
             self.bar_place.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
 
+        # Last data
+        self.last_clock = 0
+        self.last_time_left = 0
+        self.last_lap_into = 0
+        self.last_plr_place = (0,0)
+
         self.update_data()
 
         # Assign mouse event
@@ -82,34 +88,64 @@ class Draw(Widget, MouseEvent):
         if read_data.state() and self.wcfg["enable"]:
 
             # Read session data
-            time_left, lap_total, lap_num, plr_place, veh_total, lap_into = read_data.session()
+            time_left, lap_into, lap_num, lap_total, plr_place = read_data.session()
 
             # Start updating
-            clock = time.strftime(self.wcfg["clock_format"])
 
-            # Check race type
-            if lap_total > 100000:  # none-lap race
-                lap_num_text = f"{self.wcfg['lapnumber_text']}{lap_num}.{lap_into:02.0f}"
-            else:
-                lap_num_text = f"{self.wcfg['lapnumber_text']}{lap_num}.{lap_into:02.0f}/{lap_total}"
-
-            # Session update
-            self.bar_racelength.config(text=calc.sec2sessiontime(max(time_left, 0)))
-
+            # System Clock
             if self.wcfg["show_clock"]:
-                self.bar_clock.config(text=f"{clock}", width=len(clock) + 1)
+                clock = time.strftime(self.wcfg["clock_format"])
+                self.update_clock(clock, self.last_clock)
+                self.last_clock = clock
 
+            # Race length
+            self.update_racelength(time_left, self.last_time_left)
+            self.last_time_left = time_left
+
+            # Lap number
             if self.wcfg["show_lapnumber"]:
-                if (lap_num + 1) >= lap_total:
-                    bg_lapnumber = self.wcfg["bkg_color_maxlap_warn"]
-                else:
-                    bg_lapnumber = self.wcfg["bkg_color_lapnumber"]
-                self.bar_lapnumber.config(text=lap_num_text,
-                                          width=len(lap_num_text) + 1,
-                                          bg=bg_lapnumber)
+                self.update_lapnumber(lap_into, self.last_lap_into, lap_num, lap_total)
+                self.last_lap_into = lap_into
 
+            # Driver place & total vehicles
             if self.wcfg["show_place"]:
-                self.bar_place.config(text=f"{plr_place:02.0f}/{veh_total:02.0f}")
+                self.update_place(plr_place, self.last_plr_place)
+                self.last_plr_place = plr_place
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
+
+    # GUI update methods
+    def update_clock(self, curr, last):
+        """System Clock"""
+        if curr != last:
+            self.bar_clock.config(text=f"{curr}", width=len(curr) + 1)
+
+    def update_racelength(self, curr, last):
+        """Race length"""
+        if curr != last:
+            self.bar_racelength.config(text=calc.sec2sessiontime(max(curr, 0)))
+
+    def update_lapnumber(self, curr, last, lap_num, lap_total):
+        """Lap number"""
+        if curr != last:
+            if lap_total > 100000:  # none-lap race type
+                lap_num_text = f"{self.wcfg['lapnumber_text']}{lap_num}.{curr:02.0f}"
+            else:
+                lap_num_text = f"{self.wcfg['lapnumber_text']}{lap_num}.{curr:02.0f}/{lap_total}"
+
+            self.bar_lapnumber.config(text=lap_num_text,
+                                      width=len(lap_num_text) + 1,
+                                      bg=self.maxlap_warning(lap_num - lap_total))
+
+    def update_place(self, curr, last):
+        """Driver place & total vehicles"""
+        if curr != last:
+            self.bar_place.config(text=f"{curr[0]:02.0f}/{curr[1]:02.0f}")
+
+    # Additional methods
+    def maxlap_warning(self, lap_diff):
+        """Max lap warning"""
+        if lap_diff >= -1:
+            return self.wcfg["bkg_color_maxlap_warn"]
+        return self.wcfg["bkg_color_lapnumber"]
