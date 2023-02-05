@@ -22,7 +22,7 @@ TinyPedal (WIP)
     - Auto sorts all options in JSON file according to default setting template
       for better readability and consistency.
     - Optimized GUI update methods for widgets:
-      Cruise, Deltabest, Force, Sectors, Session, Timing.
+      Cruise, Deltabest, DRS, Force, Sectors, Session, Timing.
     - Use Linux XDG directories for storing user data (by Bernat).
 
 * Misc

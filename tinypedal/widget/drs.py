@@ -51,6 +51,10 @@ class Draw(Widget, MouseEvent):
                                 bg=self.wcfg["bkg_color_not_available"])
         self.bar_drs.grid(row=0, column=0, padx=0, pady=0)
 
+        # Last data
+        self.last_drs_state = 0
+
+        # Start updating
         self.update_data()
 
         # Assign mouse event
@@ -61,23 +65,35 @@ class Draw(Widget, MouseEvent):
         if read_data.state() and self.wcfg["enable"]:
 
             # Read DRS data
-            drs_on, drs_status = read_data.drs()
+            drs_state = read_data.drs()
 
-            # Start updating
             # DRS update
-            if drs_status == 1:  # blue
-                self.bar_drs.config(fg=self.wcfg["font_color_available"],
-                                    bg=self.wcfg["bkg_color_available"])
-            elif drs_status == 2:
-                if drs_on:  # green
-                    self.bar_drs.config(fg=self.wcfg["font_color_activated"],
-                                        bg=self.wcfg["bkg_color_activated"])
-                else:  # orange
-                    self.bar_drs.config(fg=self.wcfg["font_color_allowed"],
-                                        bg=self.wcfg["bkg_color_allowed"])
-            else:  # grey
-                self.bar_drs.config(fg=self.wcfg["font_color_not_available"],
-                                    bg=self.wcfg["bkg_color_not_available"])
+            self.update_drs(drs_state, self.last_drs_state)
+            self.last_drs_state = drs_state
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
+
+    # GUI update methods
+    def update_drs(self, curr, last):
+        """DRS"""
+        if curr != last:
+            self.bar_drs.config(self.color_drs(curr))
+
+    # Additional methods
+    def color_drs(self, drs_state):
+        """DRS state color"""
+        if drs_state[1] == 1:  # blue
+            color = {"fg":self.wcfg['font_color_available'],
+                     "bg":self.wcfg['bkg_color_available']}
+        elif drs_state[1] == 2:
+            if drs_state[0]:  # green
+                color = {"fg":self.wcfg['font_color_activated'],
+                         "bg":self.wcfg['bkg_color_activated']}
+            else:  # orange
+                color = {"fg":self.wcfg['font_color_allowed'],
+                         "bg":self.wcfg['bkg_color_allowed']}
+        else:  # grey
+            color = {"fg":self.wcfg['font_color_not_available'],
+                     "bg":self.wcfg['bkg_color_not_available']}
+        return color
