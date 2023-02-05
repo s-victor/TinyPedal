@@ -169,10 +169,9 @@ class FuelUsage:
                 if laps_total < 100000:  # detected lap type race
                     # Total laps left * last lap fuel consumption
                     amount_need = laps_left * used_est - amount_curr
-                else:  # detected time type race
+                elif laptime_last > 0:  # detected time type race
                     # Time left / last laptime * last lap fuel consumption - total current fuel
-                    amount_need = (math.ceil(time_left / (laptime_last + 0.001) + 0.001)
-                                        * used_est - amount_curr)
+                    amount_need = (math.ceil(time_left / laptime_last) * used_est - amount_curr)
 
                 # Minimum required pitstops to finish race
                 pit_required = amount_need / max(capacity, 1)
