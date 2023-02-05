@@ -262,6 +262,15 @@ def drs():
     return drs_on, drs_status
 
 
+def timing(index):
+    """Timing data"""
+    veh_total = chknm(info.LastTele.mNumVehicles)
+    laptime_opt = chknm(info.LastScor.mVehicles[index].mBestLapTime)
+    class_opt = cs2py(info.LastScor.mVehicles[index].mVehicleClass)
+    class_plr = cs2py(info.syncedVehicleScoring().mVehicleClass)
+    return veh_total, laptime_opt, class_opt == class_plr
+
+
 def engine():
     """Engine data"""
     temp_oil = chknm(info.syncedVehicleTelemetry().mEngineOilTemp)

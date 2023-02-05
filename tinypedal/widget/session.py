@@ -78,6 +78,7 @@ class Draw(Widget, MouseEvent):
         self.last_lap_into = 0
         self.last_plr_place = (0,0)
 
+        # Start updating
         self.update_data()
 
         # Assign mouse event
@@ -89,8 +90,6 @@ class Draw(Widget, MouseEvent):
 
             # Read session data
             time_left, lap_into, lap_num, lap_total, plr_place = read_data.session()
-
-            # Start updating
 
             # System Clock
             if self.wcfg["show_clock"]:

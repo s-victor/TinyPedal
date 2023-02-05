@@ -11,7 +11,6 @@
 - Show delta bar with customizable range, size and color.
 - Record, save, and load player's best laptime data automatically.
 - Best laptime file is saved in deltabest folder, and can be used by other players.
-- 2 different layouts.
 
 ## DRS
 - Show DRS color indicator.
@@ -34,7 +33,6 @@
 - Show caption descriptions (optional).
 
 ## Gear
-- Show Gear in 2 layouts.
 - Show Speed, with kph, mph, or m/s as display unit.
 - Show Speed Limiter sign while activated.
 - Show RPM color indicator with customizable RPM range setting.
@@ -67,7 +65,6 @@
 ## Pressure
 - Show Tyre pressure, with kPa, psi, or bar as display unit.
 - Show Tyre load (optional) in Newtons or percentage ratio.
-- 4 different layouts.
 
 ## Radar
 - Show car radar that displays relative position of player's vehicle against up 6 nearby vehicles.
@@ -96,7 +93,7 @@
 - Show sector/laptime gap comparing to sector time from personal best laptime of current session.
 - Show theoretical best sector time of each sector on 3 separated sector bars.
 - Show sector time gap against session best sector time on sector bars.
-- Show optional current vehicle fastest speed & session fastest speed.
+- Show optional current lap vehicle fastest speed & session fastest speed.
 - Show optional local driver position standing & current lap number.
 
 ## Session
@@ -123,18 +120,15 @@
 - Show Brake temperature of front and rear.
 - Available temperature unit: Celsius, Fahrenheit.
 - Changes font color or background color based on heat map.
-- 4 different layouts.
 
 ## Timing
-- Show personal best, last, current, and delta estimated laptime.
-- 3 different layouts.
+- Show session best, personal best, last, current, and delta estimated laptime.
 
 ## Wear
 - Show total remaining tyre in percentage that changes color according to wear.
 - Show total tyre wear from last lap.
 - Show realtime tyre wear of current lap.
 - Show estimated tyre lifespan in laps.
-- 2 different layouts with customizable placement order.
 
 ## Weather
 - Show surface condition (dry or wet).

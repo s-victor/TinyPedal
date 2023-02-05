@@ -80,6 +80,7 @@ class Draw(Widget, MouseEvent):
         self.last_pos_y = 0
         self.last_traveled_distance = 0
 
+        # Start updating
         self.update_data()
 
         # Assign mouse event
@@ -91,8 +92,6 @@ class Draw(Widget, MouseEvent):
 
             # Read cruise data
             ori_yaw, pos_y, time_start, time_curr = read_data.cruise()
-
-            # Start updating
 
             # Compass
             dir_degree = round(180 - calc.rad2deg(calc.oriyaw2rad(*ori_yaw)), 0)

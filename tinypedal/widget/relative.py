@@ -203,6 +203,7 @@ class Draw(Widget, MouseEvent):
         if self.rel_add_behind > 2:
             self.last_veh_r_06 = [None] * data_slots
 
+        # Start updating
         self.update_data()
 
         # Assign mouse event
@@ -236,8 +237,6 @@ class Draw(Widget, MouseEvent):
             # Read relative data
             rel_idx, cls_info, plr_idx = module.relative_info.relative_list
             veh_center = int(3 + self.rel_add_front)
-
-            # Start updating
 
             # Data index reference:
             # 0 place, 1 driver, 2 laptime, 3 pos_class, 4 veh_class,

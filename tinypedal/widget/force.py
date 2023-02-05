@@ -80,6 +80,7 @@ class Draw(Widget, MouseEvent):
         self.last_gf_lat = 0
         self.last_df_ratio = 0
 
+        # Start updating
         self.update_data()
 
         # Assign mouse event
@@ -91,8 +92,6 @@ class Draw(Widget, MouseEvent):
 
             # Read acceleration & downforce data
             lgt_accel, lat_accel, downforce = read_data.force()
-
-            # Start updating
 
             # Longitudinal g-force
             gf_lgt = round(calc.gforce(lgt_accel), 2)

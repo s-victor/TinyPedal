@@ -1,7 +1,7 @@
 TinyPedal (WIP)
 -----------------------------
 * Force widget
-    - Added horizontal layout.
+    - [New]Added horizontal layout.
 
 * Relative Widget
     - Removed brackets from combined driver name if name is empty.
@@ -10,11 +10,23 @@ TinyPedal (WIP)
     - Removed unnecessary "show_best_sector_time" option,
       always shows each best sector time if available.
 
+* Timing Widget
+    - [New]Show current session best laptime from all players,
+      with additional option to show laptime from same vehicle class only (default ON).
+    - [New]Personal best, last, estimated laptime display can be individually hide in JSON.
+    - [New]All laptime prefix text can be individually customized or hide in JSON.
+    - [New]All laptime display order can be customized via "column_index" in JSON.
+    - Removed double lines horizontal layout.
+
 * Core
     - Auto sorts all options in JSON file according to default setting template
       for better readability and consistency.
-    - Optimized GUI update methods for widgets: Cruise, Deltabest, Force, Sectors, Session.
+    - Optimized GUI update methods for widgets:
+      Cruise, Deltabest, Force, Sectors, Session, Timing.
     - Use Linux XDG directories for storing user data (by Bernat).
+
+* Misc
+    - Updated customization guide with new configurable options for each widget.
 
 TinyPedal 1.10.3 (2023-01-31)
 -----------------------------

@@ -49,8 +49,6 @@ class Draw(Widget, MouseEvent):
                                    size=-self.wcfg["font_size"],
                                    weight=self.wcfg["font_weight"])
 
-        self.verified = False  # load & save switch
-
         # Draw label
         bar_style = {"bd":0, "height":1, "padx":0, "pady":0, "font":font_sectors}
         frame_laptime = tk.Frame(self, bd=0, highlightthickness=0,
@@ -138,15 +136,16 @@ class Draw(Widget, MouseEvent):
         if not self.wcfg["always_show_laptime_gap"]:  # hide laptime gap
             self.bar_time_gap.grid_remove()
 
-        # Initialize with default values
+        # Last data
+        self.verified = False  # load & save switch
         self.set_defaults()
 
-        # Last data
         self.last_cb_topspeed = 0
         self.last_ub_topspeed = 0
         self.last_plr_place = 0
         self.last_plr_laps = 0
 
+        # Start updating
         self.update_data()
 
         # Assign mouse event
@@ -187,8 +186,6 @@ class Draw(Widget, MouseEvent):
             # Read Sector data
             (sector_idx, curr_sector1, curr_sector2, last_sector2, last_laptime,
              plr_laps, plr_place, lap_etime, speed, start_curr) = read_data.sector()
-
-            # Start updating
 
             # Save switch
             if not self.verified:

@@ -477,10 +477,28 @@ Swap heat map color between font & background color.
 
 ## Timing
     layout
-3 layouts are available: `0` = vertical layout, `1` = double lines horizontal layout, `2` = single line horizontal layout.
+2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
-    last_laptime
-This value holds the last recorded laptime, which will be read by delta module, and used for fuel calculation. Accept manual editing, but will be updated & overridden by any new lap done.
+    show_session_best
+Show current session best laptime from all players.
+
+    session_best_from_same_class_only
+Show current session best laptime from same vehicle class only.
+
+    show_best
+Show personal best laptime.
+
+    show_last
+Show personal last laptime.
+
+    show_estimated
+Show personal current estimated laptime.
+
+    prefix_*
+Set prefix text that displayed beside laptime. Set to `""` to hide prefix text.
+
+    column_index_*
+Set order of each info column. Must keep index number unique to each column, otherwise columns will overlap.
 
 
 ## Wear

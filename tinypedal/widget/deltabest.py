@@ -76,6 +76,7 @@ class Draw(Widget, MouseEvent):
         # Last data
         self.last_delta_best = 0
 
+        # Start updating
         self.update_data()
 
         # Assign mouse event
@@ -87,8 +88,6 @@ class Draw(Widget, MouseEvent):
 
             # Read delta best data
             delta_best = min(max(module.delta_time.output_data[4], -99.999), 99.999)
-
-            # Start updating
 
             # Deltabest
             self.update_deltabest(delta_best, self.last_delta_best)
