@@ -3,6 +3,9 @@ TinyPedal (WIP)
 * Force widget
     - [New]Added horizontal layout.
 
+* Fuel widget
+    - [New]Added "low_fuel_lap_threshold" option in JSON.
+
 * Relative Widget
     - Removed brackets from combined driver name if name is empty.
 
@@ -22,7 +25,7 @@ TinyPedal (WIP)
     - Auto sorts all options in JSON file according to default setting template
       for better readability and consistency.
     - Optimized GUI update methods for widgets:
-      Cruise, Deltabest, DRS, Force, Sectors, Session, Timing.
+      Cruise, Deltabest, DRS, Force, Fuel, Sectors, Session, Timing.
     - Use Linux XDG directories for storing user data (by Bernat).
 
 * Misc

@@ -177,6 +177,8 @@ Set low fuel color indicator, which changes widget background color when there i
     fuel_unit
 2 unit types are available: `0` = liters, `1` = gallons.
 
+    low_fuel_lap_threshold
+Set amount lap threshold to show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default value is `2` laps before running out of fuel.
 
 ## Gear
     layout
@@ -231,10 +233,10 @@ Show low fuel indicator when fuel level is below certain amount value.
 Only show low fuel indicator during race session.
 
     low_fuel_volume_threshold
-Set fuel volume threshold to only show low fuel indicator when total amount of remaining fuel is equal or less than this value. This value takes consideration from `fuel_unit` setting of Fuel Widget. For example, if `fuel_unit` is set to gallon, then this value should also be set using gallon unit. The purpose of this setting is to limit low fuel warning when racing on lengthy tracks, where fuel tank may only hold for a lap or two. Default value is `20`.
+Set fuel volume threshold to show low fuel indicator when total amount of remaining fuel is equal or less than this value. This value takes consideration from `fuel_unit` setting of Fuel Widget. For example, if `fuel_unit` is set to gallon, then this value should also be set using gallon unit. The purpose of this setting is to limit low fuel warning when racing on lengthy tracks, where fuel tank may only hold for a lap or two. Default value is `20`.
 
     low_fuel_lap_threshold
-Set amount lap threshold to only show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default value is `2` laps before running out of fuel.
+Set amount lap threshold to show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default value is `2` laps before running out of fuel.
 
     show_blue_flag
 Show blue flag indicator.

@@ -166,6 +166,7 @@ class Setting:
             "bkg_color_estimate": "#222222",
             "bkg_color_pits": "#555555",
             "bkg_color_low_fuel": "#FF2200",
+            "low_fuel_lap_threshold": 2,
             "show_caption": True,
             "font_color_caption": "#CCCCCC",
             "bkg_color_caption": "#777777",
