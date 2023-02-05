@@ -87,6 +87,20 @@ Note: for py2exe version older than `v0.12.0.0`, run following command instead:
 `python build_py2exe.py py2exe`
 
 
+## Running on Linux
+
+The procedure is basically the same as the above procedure to run from source with the following differences.
+
+The only required dependencies are `psutil` and `pyxdg`. They can be installed with the command:  
+`pip3 install psutil pyxdg`
+
+Alternatively, instead of using pip3, you can use your system's package manager to install the dependencies. The packages will be named with some prefix like `python3-psutil` and `python3-pyxdg`.
+
+The Iron Wolf's rF2 Shared Memory Map Plugin has to be replaced with [this fork for Wine](https://github.com/schlegp/rF2SharedMemoryMapPlugin_Wine/blob/master/build).
+
+Configuration and data files will be stored in the defined user-specific directories, usually at `$HOME/.config/TinyPedal/` and `$HOME/.local/share/TinyPedal/` respectively.
+
+
 ## Credits
 ### Author:
 TinyPedal is created by Xiang (S.Victor), with helps from other contributors.
