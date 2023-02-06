@@ -138,15 +138,14 @@ def max_vs_avg_rotation(w_rot1, w_rot2):
     return difference
 
 
-def kpa2psi(tyre_pres, pres_unit):
+def kpa2psi(pressure):
     """Convert kilopascal to psi"""
-    if pres_unit == "0":
-        pressure = f"{tyre_pres:03.0f}"  # kPa
-    elif pres_unit == "1":
-        pressure = f"{tyre_pres * 0.14503774:03.1f}"  # psi
-    else:
-        pressure = f"{tyre_pres * 0.01:03.2f}"  # bar
-    return pressure
+    return pressure * 0.14503774
+
+
+def kpa2bar(pressure):
+    """Convert kilopascal to bar"""
+    return pressure * 0.01
 
 
 def gforce(value):

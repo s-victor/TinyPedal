@@ -17,7 +17,7 @@
 
 ## Engine
 - Show Oil & Water temperature with overheating indicator.
-- Show Turbo pressure (bar).
+- Show Turbo pressure (bar, psi, kPa).
 - Show Engine RPM.
 
 ## Force

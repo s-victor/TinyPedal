@@ -63,6 +63,9 @@ Those are for font color.
     bkg_color
 Those are for background color.
 
+    column_index_*
+Set order of each info column(or row). Must keep index number unique to each column, otherwise columns will overlap.
+
 
 ## Overlay
 
@@ -146,17 +149,20 @@ Set color when DRS is unavailable for current track or car.
 
 
 ## Engine
-    bkg_color_overheat
-Set oil & water overheat color indicator.
-
     overheat_threshold_oil, overheat_threshold_water
 Set temperature threshold for oil & water overheat color indicator, value in Celsius.
 
+    bkg_color_overheat
+Set oil & water overheat color indicator.
+
+    show_turbo_pressure
+Show turbo pressure.
+
+    turbo_pressure_unit
+3 unit types are available: `0` = bar, `1` = psi, `2` = kPa.
+
     show_rpm
 Show engine RPM.
-
-    show_turbo
-Show turbo pressure in bar.
 
 
 ## Force
@@ -260,9 +266,6 @@ Set size of instrument icon in pixel. Minimum value is limited to `16`.
 
     layout
 2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
-
-    column_index_*
-Set display order of each icon. Must keep index number unique to each icon, otherwise icons will overlap.
 
     warning_color_*
 Set warning color for each icon, which shows when conditions are met.
@@ -391,9 +394,6 @@ Set custom tire compound index letter. One letter for one compound index. Note: 
     show_pitstop_count
 Show each driver's pitstop count.
 
-    column_index_*
-Set order of each info column. Must keep index number unique to each column, otherwise columns will overlap.
-
     additional_players_front, additional_players_behind
 Set additional players shown on relative list. The value is limited to a maximum of 3 additional players for each front & behind setting. Default value is `0`.
 
@@ -499,9 +499,6 @@ Show personal current estimated laptime.
     prefix_*
 Set prefix text that displayed beside laptime. Set to `""` to hide prefix text.
 
-    column_index_*
-Set order of each info column. Must keep index number unique to each column, otherwise columns will overlap.
-
 
 ## Wear
     layout
@@ -536,9 +533,6 @@ Set warning threshold for total amount tyre wear of last lap in percentage. Defa
 
     warning_threshold_laps
 Set warning threshold for estimated tyre lifespan in laps. Default is `5` laps.
-
-    column_index_*
-Set order of each info column. Must keep index number unique to each column, otherwise columns will overlap.
 
 
 ## Weather

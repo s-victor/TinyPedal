@@ -157,4 +157,10 @@ class Draw(Widget, MouseEvent):
     # Additional methods
     def format_pressure(self, pres):
         """Format pressure"""
-        return calc.kpa2psi(pres, self.wcfg["pressure_unit"])
+        if self.wcfg["pressure_unit"] == "0":
+            pressure = f"{pres:03.0f}"  # kPa
+        elif self.wcfg["pressure_unit"] == "1":
+            pressure = f"{calc.kpa2psi(pres):03.01f}"  # psi
+        else:
+            pressure = f"{calc.kpa2bar(pres):03.02f}"  # bar
+        return pressure

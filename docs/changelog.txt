@@ -1,5 +1,11 @@
 TinyPedal (WIP)
 -----------------------------
+* Engine widget
+    - [New]Added horizontal layout.
+    - [New]Added "turbo_pressure_unit" option (bar, psi, kPa) in JSON, default is bar.
+    - [New]Each info font & background color can be customized in JSON.
+    - [New]Each info display order can be customized via "column_index" in JSON.
+
 * Force widget
     - [New]Added horizontal layout.
 
@@ -17,16 +23,17 @@ TinyPedal (WIP)
     - [New]Show current session best laptime from all players,
       with additional option to show laptime from same vehicle class only (default ON).
     - [New]Personal best, last, estimated laptime display can be individually hide in JSON.
-    - [New]All laptime prefix text can be individually customized or hide in JSON.
-    - [New]All laptime display order can be customized via "column_index" in JSON.
+    - [New]Each info prefix text can be customized or hide in JSON.
+    - [New]Each info display order can be customized via "column_index" in JSON.
     - Removed double lines horizontal layout.
 
 * Core
     - Auto sorts all options in JSON file according to default setting template
       for better readability and consistency.
     - Optimized GUI update methods for widgets:
-      Cruise, Deltabest, DRS, Force, Fuel, Sectors, Session, Timing.
+      Cruise, Deltabest, DRS, Engine, Force, Fuel, Sectors, Session, Timing.
     - Use Linux XDG directories for storing user data (by Bernat).
+    - Add Linux instructions to README.md (by Bernat).
 
 * Misc
     - Updated customization guide with new configurable options for each widget.

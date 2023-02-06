@@ -275,8 +275,8 @@ def engine():
     """Engine data"""
     temp_oil = chknm(info.syncedVehicleTelemetry().mEngineOilTemp)
     temp_water = chknm(info.syncedVehicleTelemetry().mEngineWaterTemp)
-    e_turbo = chknm(info.syncedVehicleTelemetry().mTurboBoostPressure)
-    e_rpm = chknm(info.syncedVehicleTelemetry().mEngineRPM)
+    e_turbo = int(chknm(info.syncedVehicleTelemetry().mTurboBoostPressure))
+    e_rpm = int(chknm(info.syncedVehicleTelemetry().mEngineRPM))
     return temp_oil, temp_water, e_turbo, e_rpm
 
 
