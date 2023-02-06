@@ -27,37 +27,32 @@ def in2zero(value):
     """Convert invalid value to zero"""
     if isinstance(value, (float, int)):
         if math.isnan(value) or math.isinf(value):  # bypass nan & inf
-            value = 0
+            return 0
     else:
-        value = 0
+        return 0
     return value
 
 
 def pedal_pos(pedal, offset, scale):
     """Convert input range to 100, and multiply scale"""
-    position = offset - abs(pedal * 100) * scale
-    return position
+    return offset - abs(pedal * 100) * scale
 
 
 def steering_pos(steering, length):
     """Multiply scale, add offset"""
-    position = steering * length + length
-    return position
+    return steering * length + length
 
 
 def scale_mark_gap(degree, rot_range, scale):
     """mark gap(degree) divide half of full steering range (degree) and multiply scale"""
     if rot_range != 0:
-        gap = degree / (rot_range / 2) * scale
-    else:
-        gap = 0
-    return gap
+        return degree / (rot_range / 2) * scale
+    return 0
 
 
 def vel2speed(vel_x, vel_y, vel_z):
     """Convert velocity to Speed"""
-    speed = (vel_x ** 2 + vel_y ** 2 + vel_z ** 2) ** 0.5
-    return speed
+    return (vel_x ** 2 + vel_y ** 2 + vel_z ** 2) ** 0.5
 
 
 def conv_speed(speed, speed_unit):
@@ -68,21 +63,20 @@ def conv_speed(speed, speed_unit):
         multiplier = 2.23693629  # mph
     else:
         multiplier = 1  # meter per sec
-    speed = speed * multiplier
-    return speed
+    return speed * multiplier
 
 
 def conv_temperature(temp, temp_unit):
     """2 different temperature unit conversion, default is Celsius"""
     if temp_unit == "1":
-        temp = temp * 1.8 + 32  # Celsius to Fahrenheit
+        return temp * 1.8 + 32  # Celsius to Fahrenheit
     return temp
 
 
 def conv_fuel(fuel, fuel_unit):
     """2 different fuel unit conversion, default is Liter"""
     if fuel_unit == "1":
-        fuel = fuel * 0.2641729  # Liter to Gallon
+        return fuel * 0.2641729  # Liter to Gallon
     return fuel
 
 
@@ -99,43 +93,36 @@ def gear(gear_index):
 
 def rad2deg(radian):
     """Convert radians to degrees"""
-    degree = radian * 57.2957795
-    return degree
+    return radian * 57.2957795
 
 
 def meter2millmeter(meter):
     """Convert meter to millimeter"""
-    millimeter = meter * 1000
-    return millimeter
+    return meter * 1000
 
 
 def rake(height_fl, height_fr, height_rl, height_rr):
     """Calculate rake"""
-    diff = (height_rr + height_rl - height_fr - height_fl) * 0.5
-    return diff
+    return (height_rr + height_rl - height_fr - height_fl) * 0.5
 
 
 def rake2angle(v_rake, wheelbase):
     """Calculate rake angle based on wheelbase value set in JSON"""
-    degree = math.atan(float(v_rake) / (wheelbase + 0.001) * 57.2957795)
-    return degree
+    return math.atan(float(v_rake) / (wheelbase + 0.001) * 57.2957795)
 
 
 def slip_ratio(w_rot, w_radius, v_speed):
-    """Calculate slip ratio, speed unit in m/s"""
+    """Calculate slip ratio (percentage), speed unit in m/s"""
     if v_speed > 0.1:
-        percentage = abs((v_speed - abs(w_rot * w_radius)) / v_speed)
-    else:
-        percentage = 0
-    return percentage
+        return abs((v_speed - abs(w_rot * w_radius)) / v_speed)
+    return 0
 
 
 def max_vs_avg_rotation(w_rot1, w_rot2):
     """Calculate left and right wheel rotation difference of same axle"""
     max_rot = min(w_rot1, w_rot2)  # negative value is forward
     avg_rot = (w_rot1 + w_rot2) / 2
-    difference = abs(max_rot - avg_rot)
-    return difference
+    return abs(max_rot - avg_rot)  # difference
 
 
 def kpa2psi(pressure):
@@ -156,14 +143,12 @@ def gforce(value):
 
 def force_ratio(value1, value2):
     """Calculate force ratio from Newtons"""
-    ratio = abs(value1 / (value1 + value2 + 0.01) * 100)
-    return ratio
+    return abs(value1 / (value2 + 0.01) * 100)
 
 
 def oriyaw2rad(value1, value2):
     """Convert orientation yaw to radians"""
-    radian = math.atan2(value1, value2)
-    return radian
+    return math.atan2(value1, value2)
 
 
 def rotate_pos(ori_rad, value1, value2):
@@ -175,10 +160,9 @@ def rotate_pos(ori_rad, value1, value2):
 
 def pos2distance(value1, value2):
     """Calculate distance from global position difference"""
-    meter = ((value1[0] - value2[0]) ** 2
-              + (value1[1] - value2[1]) ** 2
-              + (value1[2] - value2[2]) **2 ) ** 0.5
-    return meter
+    return ((value1[0] - value2[0]) ** 2
+             + (value1[1] - value2[1]) ** 2
+             + (value1[2] - value2[2]) **2 ) ** 0.5
 
 
 def sec2sessiontime(seconds):
@@ -186,36 +170,31 @@ def sec2sessiontime(seconds):
     hours = seconds // 3600
     mins = divmod(seconds // 60, 60)[1]
     secs = divmod(seconds, 60)[1]
-    sessiontime = f"{hours:02.0f}:{mins:02.0f}:{secs:04.01f}"
-    return sessiontime
+    return f"{hours:02.0f}:{mins:02.0f}:{secs:04.01f}"
 
 
 def sec2laptime(seconds):
     """Calculate lap time (min/sec/ms)"""
     if seconds > 60:
-        laptime = f"{seconds // 60:.0f}:{divmod(seconds, 60)[1]:06.03f}"
-    else:
-        laptime = f"{divmod(seconds, 60)[1]:.03f}"
-    return laptime
+        return f"{seconds // 60:.0f}:{divmod(seconds, 60)[1]:06.03f}"
+    return f"{divmod(seconds, 60)[1]:.03f}"
 
 
 def sec2stinttime(seconds):
     """Calculate lap time (min/sec/ms)"""
-    stinttime = f"{seconds // 60:02.0f}:{divmod(seconds, 60)[1]:02.0f}"
-    return stinttime
+    return f"{seconds // 60:02.0f}:{divmod(seconds, 60)[1]:02.0f}"
 
 
 def linear_interp(meter, meter1, secs1, meter2, secs2):
     """Linear interpolation"""
-    secs = secs1 + (meter - meter1) * (secs2 - secs1) / (meter2 - meter1 + 0.0000001)
-    return secs
+    return secs1 + (meter - meter1) * (secs2 - secs1) / (meter2 - meter1 + 0.0000001)
 
 
 def nearest_dist_index(position, listname):
     """Use current position to get nearest distance index from deltabest lap data"""
     index_lower, index_higher = 0, 0
-    for index in range(0, len(listname)):
-        if position < listname[index][0]:
+    for index, line in enumerate(listname):
+        if position < line[0]:
             index_higher = index
             break
     for index in range(index_higher - 1, -1, -1):
@@ -226,7 +205,6 @@ def nearest_dist_index(position, listname):
 
 
 # Unused
-def _kelvin2celsius(kelvin):
+def kelvin2celsius(kelvin):
     """Convert Kelvin to Celsius"""
-    celsius = max(kelvin - 273.15, 0)
-    return celsius
+    return max(kelvin - 273.15, 0)

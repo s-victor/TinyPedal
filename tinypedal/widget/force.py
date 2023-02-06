@@ -105,7 +105,7 @@ class Draw(Widget, MouseEvent):
 
             # Downforce ratio
             if self.wcfg["show_downforce_ratio"]:
-                df_ratio = round(calc.force_ratio(*downforce), 2)
+                df_ratio = round(calc.force_ratio(downforce[0], sum(downforce)), 2)
                 self.update_df_ratio(df_ratio, self.last_df_ratio)
                 self.last_df_ratio = df_ratio
 
