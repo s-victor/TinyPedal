@@ -140,10 +140,10 @@ class Draw(Widget, MouseEvent):
         self.verified = False  # load & save switch
         self.set_defaults()
 
-        self.last_cb_topspeed = 0
-        self.last_ub_topspeed = 0
-        self.last_plr_place = 0
-        self.last_plr_laps = 0
+        self.last_cb_topspeed = None
+        self.last_ub_topspeed = None
+        self.last_plr_place = None
+        self.last_plr_laps = None
 
         # Start updating
         self.update_data()

@@ -132,21 +132,29 @@ class Draw(Widget, MouseEvent):
     def update_oil(self, curr, last):
         """Oil temperature"""
         if curr != last:
-            format_text = f"{curr:.01f}°"[:7].rjust(7)
             if curr < self.wcfg["overheat_threshold_oil"]:
                 bgcolor = self.wcfg["bkg_color_oil"]
             else:
                 bgcolor = self.wcfg["bkg_color_overheat"]
+
+            if self.wcfg["temp_unit"] == "1":
+                curr = calc.celsius2fahrenheit(curr)
+
+            format_text = f"{curr:.01f}°"[:7].rjust(7)
             self.bar_oil.config(text=f"O{format_text}", bg=bgcolor)
 
     def update_water(self, curr, last):
         """Water temperature"""
         if curr != last:
-            format_text = f"{curr:.01f}°"[:7].rjust(7)
             if curr < self.wcfg["overheat_threshold_water"]:
                 bgcolor = self.wcfg["bkg_color_water"]
             else:
                 bgcolor = self.wcfg["bkg_color_overheat"]
+
+            if self.wcfg["temp_unit"] == "1":
+                curr = calc.celsius2fahrenheit(curr)
+
+            format_text = f"{curr:.01f}°"[:7].rjust(7)
             self.bar_water.config(text=f"W{format_text}", bg=bgcolor)
 
     def update_turbo(self, curr, last):

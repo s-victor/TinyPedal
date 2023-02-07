@@ -66,6 +66,11 @@ def conv_speed(speed, speed_unit):
     return speed * multiplier
 
 
+def celsius2fahrenheit(temp):
+    """Celsius to Fahrenheit"""
+    return temp * 1.8 + 32
+
+
 def conv_temperature(temp, temp_unit):
     """2 different temperature unit conversion, default is Celsius"""
     if temp_unit == "1":

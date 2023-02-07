@@ -91,8 +91,8 @@ class Draw(Widget, MouseEvent):
                 frame_load.grid(row=0, column=column_load, padx=(0,bar_gap), pady=0)
 
         # Last data
-        self.last_pressure = [0] * 4
-        self.last_load_d = [0] * 4
+        self.last_pressure = [None] * 4
+        self.last_load_d = [None] * 4
 
         # Start updating
         self.update_data()

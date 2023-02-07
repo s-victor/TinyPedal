@@ -149,8 +149,11 @@ Set color when DRS is unavailable for current track or car.
 
 
 ## Engine
+    temp_unit
+2 unit types are available: `0` = Celsius, `1` = Fahrenheit
+
     overheat_threshold_oil, overheat_threshold_water
-Set temperature threshold for oil & water overheat color indicator, value in Celsius.
+Set temperature threshold for oil & water overheat color indicator, unit in Celsius.
 
     bkg_color_overheat
 Set oil & water overheat color indicator.

@@ -282,13 +282,13 @@ def engine():
 
 def weather():
     """Weather data"""
-    amb_temp = chknm(info.LastScor.mScoringInfo.mAmbientTemp)
-    trk_temp = chknm(info.LastScor.mScoringInfo.mTrackTemp)
-    rain = chknm(info.LastScor.mScoringInfo.mRaining) * 100
-    min_wet = chknm(info.LastScor.mScoringInfo.mMinPathWetness) * 100
-    max_wet = chknm(info.LastScor.mScoringInfo.mMaxPathWetness) * 100
-    avg_wet = chknm(info.LastScor.mScoringInfo.mAvgPathWetness) * 100
-    return amb_temp, trk_temp, rain, min_wet, max_wet, avg_wet
+    track_temp = chknm(info.LastScor.mScoringInfo.mTrackTemp)
+    ambient_temp = chknm(info.LastScor.mScoringInfo.mAmbientTemp)
+    rain_per = chknm(info.LastScor.mScoringInfo.mRaining) * 100
+    wet_road = (chknm(info.LastScor.mScoringInfo.mMinPathWetness) * 100,
+                chknm(info.LastScor.mScoringInfo.mMaxPathWetness) * 100,
+                chknm(info.LastScor.mScoringInfo.mAvgPathWetness) * 100)
+    return track_temp, ambient_temp, rain_per, wet_road
 
 
 def sector():

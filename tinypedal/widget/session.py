@@ -73,10 +73,10 @@ class Draw(Widget, MouseEvent):
             self.bar_place.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
 
         # Last data
-        self.last_clock = 0
-        self.last_time_left = 0
-        self.last_lap_into = 0
-        self.last_plr_place = (0,0)
+        self.last_clock = None
+        self.last_time_left = None
+        self.last_lap_into = None
+        self.last_plr_place = None
 
         # Start updating
         self.update_data()

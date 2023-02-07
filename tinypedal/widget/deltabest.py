@@ -74,7 +74,7 @@ class Draw(Widget, MouseEvent):
             self.bar_deltabest.grid(row=0, column=0, padx=0, pady=0)
 
         # Last data
-        self.last_delta_best = 0
+        self.last_delta_best = None
 
         # Start updating
         self.update_data()

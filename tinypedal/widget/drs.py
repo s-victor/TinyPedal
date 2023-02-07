@@ -52,7 +52,7 @@ class Draw(Widget, MouseEvent):
         self.bar_drs.grid(row=0, column=0, padx=0, pady=0)
 
         # Last data
-        self.last_drs_state = 0
+        self.last_drs_state = None
 
         # Start updating
         self.update_data()

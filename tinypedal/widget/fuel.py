@@ -98,12 +98,12 @@ class Draw(Widget, MouseEvent):
         self.bar_fuel_pits.grid(row=2, column=2, padx=0, pady=(bar_gap, 0))
 
         # Last data
-        self.last_amount_curr = 0
-        self.last_amount_need = 0
-        self.last_used_last = 0
-        self.last_est_runlaps = 0
-        self.last_est_runmins = 0
-        self.last_pit_required = 0
+        self.last_amount_curr = None
+        self.last_amount_need = None
+        self.last_used_last = None
+        self.last_est_runlaps = None
+        self.last_est_runmins = None
+        self.last_pit_required = None
 
         # Start updating
         self.update_data()

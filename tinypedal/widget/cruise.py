@@ -75,10 +75,10 @@ class Draw(Widget, MouseEvent):
             self.bar_odometer.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
 
         # Last data
-        self.last_dir_degree = 0
-        self.last_time_curr = 0
-        self.last_pos_y = 0
-        self.last_traveled_distance = 0
+        self.last_dir_degree = None
+        self.last_time_curr = None
+        self.last_pos_y = None
+        self.last_traveled_distance = None
 
         # Start updating
         self.update_data()

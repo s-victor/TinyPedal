@@ -114,11 +114,11 @@ class Draw(Widget, MouseEvent):
         self.vehicle_counter = 0
         self.laptime_sbest = MAGIC_NUM
 
-        self.last_laptime_sbest = 0
-        self.last_laptime_best = 0
-        self.last_laptime_last = 0
-        self.last_laptime_curr = 0
-        self.last_laptime_est = 0
+        self.last_laptime_sbest = None
+        self.last_laptime_best = None
+        self.last_laptime_last = None
+        self.last_laptime_curr = None
+        self.last_laptime_est = None
 
         # Start updating
         self.update_data()

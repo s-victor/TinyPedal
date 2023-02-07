@@ -76,9 +76,9 @@ class Draw(Widget, MouseEvent):
                 self.bar_dforce.grid(row=0, column=2, padx=(bar_gap, 0), pady=0)
 
         # Last data
-        self.last_gf_lgt = 0
-        self.last_gf_lat = 0
-        self.last_df_ratio = 0
+        self.last_gf_lgt = None
+        self.last_gf_lat = None
+        self.last_df_ratio = None
 
         # Start updating
         self.update_data()
