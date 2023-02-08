@@ -28,14 +28,8 @@ def in2zero(value):
     if isinstance(value, (float, int)):
         if math.isnan(value) or math.isinf(value):  # bypass nan & inf
             return 0
-    else:
-        return 0
-    return value
-
-
-def pedal_pos(pedal, offset, scale):
-    """Convert input range to 100, and multiply scale"""
-    return offset - abs(pedal * 100) * scale
+        return value
+    return 0
 
 
 def steering_pos(steering, length):

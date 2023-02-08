@@ -46,7 +46,7 @@ TinyPedal (WIP)
     - Auto sorts all options in JSON file according to default setting template
       for better readability and consistency.
     - Optimized GUI update methods for widgets:
-      Cruise, Deltabest, DRS, Engine, Force, Fuel, Pressure, Sectors, Session, Timing, Wear, Weather.
+      Cruise, Deltabest, DRS, Engine, Force, Fuel, Pedal, Pressure, Sectors, Session, Timing, Wear, Weather.
     - Use Linux XDG directories for storing user data (by Bernat).
     - Add Linux instructions to README.md (by Bernat).
     - Improved various calculation.
