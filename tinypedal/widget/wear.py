@@ -45,44 +45,52 @@ class Draw(Widget, MouseEvent):
                                 size=-self.wcfg["font_size"],
                                 weight=self.wcfg["font_weight"])
 
-        self.checked = False
-        self.start_last = 0.0  # last lap start time
-        self.wear_last = [0,0,0,0]  # remaining tyre wear from last lap
-        self.wear_rlt = [0,0,0,0]  # realtime tyre wear difference since last lap
-        self.wear_per = [0,0,0,0]  # total tyre wear of last lap
-        self.wear_laps = [0,0,0,0]  # estimated tyre lifespan in laps
+        column_wear = self.wcfg["column_index_remaining"]
+        column_diff = self.wcfg["column_index_wear_difference"]
+        column_laps = self.wcfg["column_index_lifespan"]
 
         # Draw label
-        bar_style = {"text":"0.0", "bd":0, "height":1, "width":5,
-                     "padx":0, "pady":0, "font":font_wear, "bg":self.wcfg["bkg_color"]}
-
         frame_wear = tk.Frame(self, bd=0, highlightthickness=0)
-        frame_last = tk.Frame(self, bd=0, highlightthickness=0)
+        frame_diff = tk.Frame(self, bd=0, highlightthickness=0)
 
-        self.bar_wear_fl = tk.Label(frame_wear, bar_style, fg=self.wcfg["font_color_remaining"])
-        self.bar_wear_fr = tk.Label(frame_wear, bar_style, fg=self.wcfg["font_color_remaining"])
-        self.bar_wear_rl = tk.Label(frame_wear, bar_style, fg=self.wcfg["font_color_remaining"])
-        self.bar_wear_rr = tk.Label(frame_wear, bar_style, fg=self.wcfg["font_color_remaining"])
+        bar_style_wear = {"text":"0.0", "bd":0, "height":1, "width":5,
+                          "padx":0, "pady":0, "font":font_wear,
+                          "fg":self.wcfg["font_color_remaining"],
+                          "bg":self.wcfg["bkg_color_remaining"]}
+        self.bar_wear_fl = tk.Label(frame_wear, bar_style_wear)
+        self.bar_wear_fr = tk.Label(frame_wear, bar_style_wear)
+        self.bar_wear_rl = tk.Label(frame_wear, bar_style_wear)
+        self.bar_wear_rr = tk.Label(frame_wear, bar_style_wear)
         self.bar_wear_fl.grid(row=0, column=0, padx=0, pady=0)
         self.bar_wear_fr.grid(row=0, column=1, padx=0, pady=0)
         self.bar_wear_rl.grid(row=1, column=0, padx=0, pady=0)
         self.bar_wear_rr.grid(row=1, column=1, padx=0, pady=0)
 
-        self.bar_last_fl = tk.Label(frame_last, bar_style, fg=self.wcfg["font_color_last_wear"])
-        self.bar_last_fr = tk.Label(frame_last, bar_style, fg=self.wcfg["font_color_last_wear"])
-        self.bar_last_rl = tk.Label(frame_last, bar_style, fg=self.wcfg["font_color_last_wear"])
-        self.bar_last_rr = tk.Label(frame_last, bar_style, fg=self.wcfg["font_color_last_wear"])
-        self.bar_last_fl.grid(row=0, column=0, padx=0, pady=0)
-        self.bar_last_fr.grid(row=0, column=1, padx=0, pady=0)
-        self.bar_last_rl.grid(row=1, column=0, padx=0, pady=0)
-        self.bar_last_rr.grid(row=1, column=1, padx=0, pady=0)
+        if self.wcfg["show_wear_difference"]:
+            bar_style_diff = {"text":"0.0", "bd":0, "height":1, "width":5,
+                              "padx":0, "pady":0, "font":font_wear,
+                              "fg":self.wcfg["font_color_wear_difference"],
+                              "bg":self.wcfg["bkg_color_wear_difference"]}
+            self.bar_diff_fl = tk.Label(frame_diff, bar_style_diff)
+            self.bar_diff_fr = tk.Label(frame_diff, bar_style_diff)
+            self.bar_diff_rl = tk.Label(frame_diff, bar_style_diff)
+            self.bar_diff_rr = tk.Label(frame_diff, bar_style_diff)
+            self.bar_diff_fl.grid(row=0, column=0, padx=0, pady=0)
+            self.bar_diff_fr.grid(row=0, column=1, padx=0, pady=0)
+            self.bar_diff_rl.grid(row=1, column=0, padx=0, pady=0)
+            self.bar_diff_rr.grid(row=1, column=1, padx=0, pady=0)
 
         if self.wcfg["show_lifespan"]:
             frame_laps = tk.Frame(self, bd=0, highlightthickness=0)
-            self.bar_laps_fl = tk.Label(frame_laps, bar_style, fg=self.wcfg["font_color_lifespan"])
-            self.bar_laps_fr = tk.Label(frame_laps, bar_style, fg=self.wcfg["font_color_lifespan"])
-            self.bar_laps_rl = tk.Label(frame_laps, bar_style, fg=self.wcfg["font_color_lifespan"])
-            self.bar_laps_rr = tk.Label(frame_laps, bar_style, fg=self.wcfg["font_color_lifespan"])
+
+            bar_style_laps = {"text":"0.0", "bd":0, "height":1, "width":5,
+                              "padx":0, "pady":0, "font":font_wear,
+                              "fg":self.wcfg["font_color_lifespan"],
+                              "bg":self.wcfg["bkg_color_lifespan"]}
+            self.bar_laps_fl = tk.Label(frame_laps, bar_style_laps)
+            self.bar_laps_fr = tk.Label(frame_laps, bar_style_laps)
+            self.bar_laps_rl = tk.Label(frame_laps, bar_style_laps)
+            self.bar_laps_rr = tk.Label(frame_laps, bar_style_laps)
             self.bar_laps_fl.grid(row=0, column=0, padx=0, pady=0)
             self.bar_laps_fr.grid(row=0, column=1, padx=0, pady=0)
             self.bar_laps_rl.grid(row=1, column=0, padx=0, pady=0)
@@ -90,19 +98,33 @@ class Draw(Widget, MouseEvent):
 
         if self.wcfg["layout"] == "0":
             # Vertical layout
-            frame_wear.grid(row=self.wcfg["column_index_remaining"], column=0, padx=0, pady=(0,bar_gap))
-            frame_last.grid(row=self.wcfg["column_index_last_wear"], column=0, padx=0, pady=(0,bar_gap))
-
+            frame_wear.grid(row=column_wear, column=0, padx=0, pady=(0,bar_gap))
+            if self.wcfg["show_wear_difference"]:
+                frame_diff.grid(row=column_diff, column=0, padx=0, pady=(0,bar_gap))
             if self.wcfg["show_lifespan"]:
-                frame_laps.grid(row=self.wcfg["column_index_lifespan"], column=0, padx=0, pady=(0,bar_gap))
+                frame_laps.grid(row=column_laps, column=0, padx=0, pady=(0,bar_gap))
         else:
             # Horizontal layout
-            frame_wear.grid(row=0, column=self.wcfg["column_index_remaining"], padx=(0,bar_gap), pady=0)
-            frame_last.grid(row=0, column=self.wcfg["column_index_last_wear"], padx=(0,bar_gap), pady=0)
-
+            frame_wear.grid(row=0, column=column_wear, padx=(0,bar_gap), pady=0)
+            if self.wcfg["show_wear_difference"]:
+                frame_diff.grid(row=0, column=column_diff, padx=(0,bar_gap), pady=0)
             if self.wcfg["show_lifespan"]:
-                frame_laps.grid(row=0, column=self.wcfg["column_index_lifespan"], padx=(0,bar_gap), pady=0)
+                frame_laps.grid(row=0, column=column_laps, padx=(0,bar_gap), pady=0)
 
+        # Last data
+        self.checked = False
+        self.start_last = 0.0  # last lap start time
+        self.wear_last = [0,0,0,0]  # remaining tyre wear from last lap
+        self.wear_rlt = [0,0,0,0]  # realtime tyre wear difference since last lap
+        self.wear_per = [0,0,0,0]  # total tyre wear of last lap
+        self.wear_laps = [0,0,0,0]  # estimated tyre lifespan in laps
+
+        self.last_wear_curr = [None] * 4
+        self.last_wear_rlt = [None] * 4
+        self.last_wear_per = [None] * 4
+        self.last_wear_laps = [None] * 4
+
+        # Start updating
         self.update_data()
 
         # Assign mouse event
@@ -119,68 +141,47 @@ class Draw(Widget, MouseEvent):
             # Read tyre wear data
             start_curr, lap_etime, wear_curr = read_data.wear()
 
-            # Start updating
-            # Recording tyre wear differences
-            self.wear_diff(wear_curr)
+            # Remaining tyre wear
+            wear_curr = tuple(map(self.round2decimal, wear_curr))
+            self.update_wear("wear_fl", wear_curr[0], self.last_wear_curr[0], self.wcfg["warning_threshold_remaining"])
+            self.update_wear("wear_fr", wear_curr[1], self.last_wear_curr[1], self.wcfg["warning_threshold_remaining"])
+            self.update_wear("wear_rl", wear_curr[2], self.last_wear_curr[2], self.wcfg["warning_threshold_remaining"])
+            self.update_wear("wear_rr", wear_curr[3], self.last_wear_curr[3], self.wcfg["warning_threshold_remaining"])
+            self.last_wear_curr = wear_curr
 
-            # Remaining tyre update
-            self.bar_wear_fl.config(text=self.format_num(wear_curr[0]),
-                                    fg=self.color_wear(wear_curr[0], self.wcfg["warning_threshold_remaining"]))
-            self.bar_wear_fr.config(text=self.format_num(wear_curr[1]),
-                                    fg=self.color_wear(wear_curr[1], self.wcfg["warning_threshold_remaining"]))
-            self.bar_wear_rl.config(text=self.format_num(wear_curr[2]),
-                                    fg=self.color_wear(wear_curr[2], self.wcfg["warning_threshold_remaining"]))
-            self.bar_wear_rr.config(text=self.format_num(wear_curr[3]),
-                                    fg=self.color_wear(wear_curr[3], self.wcfg["warning_threshold_remaining"]))
+            # Update tyre wear differences
+            self.wear_last, self.wear_rlt = zip(*tuple(map(self.wear_diff, wear_curr, self.wear_last, self.wear_rlt)))
 
-            # Last lap tyre wear update
             if start_curr != self.start_last:  # time stamp difference
-                # Calculate last lap tyre wear
                 self.wear_per = self.wear_rlt
-                self.wear_rlt = [0,0,0,0]
+                self.wear_rlt = [0,0,0,0]  # reset real time wear
                 self.start_last = start_curr  # reset time stamp counter
 
-                self.bar_last_fl.config(text=f"{self.wear_per[0]:.2f}",
-                                        fg=self.color_last(self.wear_per[0], self.wcfg["warning_threshold_wear"]))
-                self.bar_last_fr.config(text=f"{self.wear_per[1]:.2f}",
-                                        fg=self.color_last(self.wear_per[1], self.wcfg["warning_threshold_wear"]))
-                self.bar_last_rl.config(text=f"{self.wear_per[2]:.2f}",
-                                        fg=self.color_last(self.wear_per[2], self.wcfg["warning_threshold_wear"]))
-                self.bar_last_rr.config(text=f"{self.wear_per[3]:.2f}",
-                                        fg=self.color_last(self.wear_per[3], self.wcfg["warning_threshold_wear"]))
+            # Tyre wear differences
+            if self.wcfg["show_wear_difference"]:
+                # Realtime diff
+                if self.wcfg["realtime_wear_difference"] and lap_etime - start_curr > self.wcfg["freeze_duration"]:
+                    self.update_diff("diff_fl", self.wear_rlt[0], self.last_wear_rlt[0], self.wcfg["warning_threshold_wear"])
+                    self.update_diff("diff_fr", self.wear_rlt[1], self.last_wear_rlt[1], self.wcfg["warning_threshold_wear"])
+                    self.update_diff("diff_rl", self.wear_rlt[2], self.last_wear_rlt[2], self.wcfg["warning_threshold_wear"])
+                    self.update_diff("diff_rr", self.wear_rlt[3], self.last_wear_rlt[3], self.wcfg["warning_threshold_wear"])
+                    self.last_wear_rlt = self.wear_rlt
+                else:
+                    # Last lap diff
+                    self.update_diff("diff_fl", self.wear_per[0], self.last_wear_per[0], self.wcfg["warning_threshold_wear"])
+                    self.update_diff("diff_fr", self.wear_per[1], self.last_wear_per[1], self.wcfg["warning_threshold_wear"])
+                    self.update_diff("diff_rl", self.wear_per[2], self.last_wear_per[2], self.wcfg["warning_threshold_wear"])
+                    self.update_diff("diff_rr", self.wear_per[3], self.last_wear_per[3], self.wcfg["warning_threshold_wear"])
+                    self.last_wear_per = self.wear_per
 
-            # Show realtime tyre wear
-            if self.wcfg["show_realtime_wear"]:
-                if lap_etime - start_curr > self.wcfg["seconds_before_showing_realtime_wear"]:
-                    self.bar_last_fl.config(text=f"{self.wear_rlt[0]:.2f}",
-                                            fg=self.color_last(self.wear_rlt[0], self.wcfg["warning_threshold_wear"]))
-                    self.bar_last_fr.config(text=f"{self.wear_rlt[1]:.2f}",
-                                            fg=self.color_last(self.wear_rlt[1], self.wcfg["warning_threshold_wear"]))
-                    self.bar_last_rl.config(text=f"{self.wear_rlt[2]:.2f}",
-                                            fg=self.color_last(self.wear_rlt[2], self.wcfg["warning_threshold_wear"]))
-                    self.bar_last_rr.config(text=f"{self.wear_rlt[3]:.2f}",
-                                            fg=self.color_last(self.wear_rlt[3], self.wcfg["warning_threshold_wear"]))
-
-            # Show estimated tyre lifespan update
+            # Estimated tyre lifespan in laps
             if self.wcfg["show_lifespan"]:
-                if self.wear_per[0] > 0:
-                    self.wear_laps[0] = min(wear_curr[0] / self.wear_per[0], 999)
-                if self.wear_per[1] > 0:
-                    self.wear_laps[1] = min(wear_curr[1] / self.wear_per[1], 999)
-                if self.wear_per[2] > 0:
-                    self.wear_laps[2] = min(wear_curr[2] / self.wear_per[2], 999)
-                if self.wear_per[3] > 0:
-                    self.wear_laps[3] = min(wear_curr[3] / self.wear_per[3], 999)
-
-                self.bar_laps_fl.config(text=self.format_num(self.wear_laps[0]),
-                                        fg=self.color_laps(self.wear_laps[0], self.wcfg["warning_threshold_laps"]))
-                self.bar_laps_fr.config(text=self.format_num(self.wear_laps[1]),
-                                        fg=self.color_laps(self.wear_laps[1], self.wcfg["warning_threshold_laps"]))
-                self.bar_laps_rl.config(text=self.format_num(self.wear_laps[2]),
-                                        fg=self.color_laps(self.wear_laps[2], self.wcfg["warning_threshold_laps"]))
-                self.bar_laps_rr.config(text=self.format_num(self.wear_laps[3]),
-                                        fg=self.color_laps(self.wear_laps[3], self.wcfg["warning_threshold_laps"]))
-
+                self.wear_laps = tuple(map(self.estimated_laps, wear_curr, self.wear_per))
+                self.update_laps("laps_fl", self.wear_laps[0], self.last_wear_laps[0], self.wcfg["warning_threshold_laps"])
+                self.update_laps("laps_fr", self.wear_laps[1], self.last_wear_laps[1], self.wcfg["warning_threshold_laps"])
+                self.update_laps("laps_rl", self.wear_laps[2], self.last_wear_laps[2], self.wcfg["warning_threshold_laps"])
+                self.update_laps("laps_rr", self.wear_laps[3], self.last_wear_laps[3], self.wcfg["warning_threshold_laps"])
+                self.last_wear_laps = self.wear_laps
         else:
             if self.checked:
                 self.checked = False
@@ -192,45 +193,70 @@ class Draw(Widget, MouseEvent):
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
 
+    # GUI update methods
+    def update_wear(self, suffix, curr, last, color):
+        """Remaining tyre wear"""
+        if curr != last:
+            getattr(self, f"bar_{suffix}").config(
+                text=self.format_num(curr),
+                fg=self.color_wear(curr, color))
+
+    def update_diff(self, suffix, curr, last, color):
+        """Tyre wear differences"""
+        if curr != last:
+            getattr(self, f"bar_{suffix}").config(
+                text=f"{curr:.02f}",
+                fg=self.color_diff(curr, color))
+
+    def update_laps(self, suffix, curr, last, color):
+        """Estimated tyre lifespan in laps"""
+        if curr != last:
+            getattr(self, f"bar_{suffix}").config(
+                text=self.format_num(curr),
+                fg=self.color_laps(curr, color))
+
     # Additional methods
-    def wear_diff(self, value):
-        """Recording tyre wear differences"""
-        for index in range(4):
-            if self.wear_last[index] < value[index]:
-                self.wear_last[index] = value[index]
-            elif self.wear_last[index] > value[index]:
-                self.wear_rlt[index] += self.wear_last[index] - value[index]
-                self.wear_last[index] = value[index]
+    @staticmethod
+    def wear_diff(value, wear_last, wear_rlt):
+        """Tyre wear differences"""
+        if wear_last < value:
+            wear_last = value
+        elif wear_last > value:
+            wear_rlt += wear_last - value
+            wear_last = value
+        return wear_last, wear_rlt
 
-    def color_wear(self, tyre_wear, threshold):
-        """Warning color for remaining tyre"""
-        if tyre_wear <= threshold:
-            color = self.wcfg["font_color_warning"]
-        else:
-            color = self.wcfg["font_color_remaining"]
-        return color
+    @staticmethod
+    def estimated_laps(wear_curr, wear_per):
+        """Estimated tyre lifespan in laps = remaining / last lap wear"""
+        return min(wear_curr / max(wear_per, 0.001), 999)
 
-    def color_last(self, tyre_wear, threshold):
-        """Warning color for last lap tyre wear"""
-        if tyre_wear >= threshold:
-            color = self.wcfg["font_color_warning"]
-        else:
-            color = self.wcfg["font_color_last_wear"]
-        return color
-
-    def color_laps(self, tyre_wear, threshold):
-        """Warning color for estimated tyre lifespan"""
-        if tyre_wear <= threshold:
-            color = self.wcfg["font_color_warning"]
-        else:
-            color = self.wcfg["font_color_lifespan"]
-        return color
+    @staticmethod
+    def round2decimal(value):
+        """Round 2 decimal"""
+        return round(value * 100, 2)
 
     @staticmethod
     def format_num(value):
         """Format number"""
         if value > 99.9:
-            value = f"{value:.0f}"
-        else:
-            value = f"{value:.1f}"
-        return value
+            return f"{value:.0f}"
+        return f"{value:.01f}"
+
+    def color_wear(self, tyre_wear, threshold):
+        """Warning color for remaining tyre"""
+        if tyre_wear <= threshold:
+            return self.wcfg["font_color_warning"]
+        return self.wcfg["font_color_remaining"]
+
+    def color_diff(self, tyre_wear, threshold):
+        """Warning color for tyre wear differences"""
+        if tyre_wear >= threshold:
+            return self.wcfg["font_color_warning"]
+        return self.wcfg["font_color_wear_difference"]
+
+    def color_laps(self, tyre_wear, threshold):
+        """Warning color for estimated tyre lifespan"""
+        if tyre_wear <= threshold:
+            return self.wcfg["font_color_warning"]
+        return self.wcfg["font_color_lifespan"]

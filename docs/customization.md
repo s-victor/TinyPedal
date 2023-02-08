@@ -510,8 +510,8 @@ Set prefix text that displayed beside laptime. Set to `""` to hide prefix text.
     font_color_remaining
 Set font color for total remaining tyre.
 
-    font_color_last_wear
-Set font color for total amount tyre wear of last lap.
+    font_color_wear_difference
+Set font color for tyre wear difference of previous lap.
 
     font_color_lifespan
 Set font color for estimated tyre lifespan in laps.
@@ -519,11 +519,14 @@ Set font color for estimated tyre lifespan in laps.
     font_color_warning
 Set warning font color when reaching user defined threshold.
 
-    show_realtime_wear
-Show current lap tyre wear that constantly updated in realtime.
+    show_wear_difference
+Show total tyre wear difference of previous lap.
 
-    seconds_before_showing_realtime_wear
-Seconds before realtime tyre wear replacing last lap tyre wear.
+    realtime_wear_difference
+Show tyre wear difference of current lap that constantly updated in realtime.
+
+    freeze_duration
+Set freeze duration(seconds) for previous lap tyre wear info if `realtime_wear_difference` is enabled.
 
     show_lifespan
 Show estimated tyre lifespan in laps.

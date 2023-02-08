@@ -126,8 +126,8 @@
 
 ## Wear
 - Show total remaining tyre in percentage that changes color according to wear.
-- Show total tyre wear from last lap.
-- Show realtime tyre wear of current lap.
+- Show total tyre wear difference of previous lap.
+- Show realtime tyre wear difference of current lap.
 - Show estimated tyre lifespan in laps.
 
 ## Weather

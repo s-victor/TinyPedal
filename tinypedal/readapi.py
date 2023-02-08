@@ -221,10 +221,10 @@ def wear():
     """Tyre wear data"""
     start_curr = chknm(info.syncedVehicleTelemetry().mLapStartET)
     lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
-    wear_curr = (chknm(info.syncedVehicleTelemetry().mWheels[0].mWear) * 100,
-                 chknm(info.syncedVehicleTelemetry().mWheels[1].mWear) * 100,
-                 chknm(info.syncedVehicleTelemetry().mWheels[2].mWear) * 100,
-                 chknm(info.syncedVehicleTelemetry().mWheels[3].mWear) * 100)
+    wear_curr = (chknm(info.syncedVehicleTelemetry().mWheels[0].mWear),
+                 chknm(info.syncedVehicleTelemetry().mWheels[1].mWear),
+                 chknm(info.syncedVehicleTelemetry().mWheels[2].mWear),
+                 chknm(info.syncedVehicleTelemetry().mWheels[3].mWear))
     return start_curr, lap_etime, wear_curr
 
 

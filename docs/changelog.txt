@@ -33,6 +33,10 @@ TinyPedal (WIP)
     - [New]Each info display order can be customized via "column_index" in JSON.
     - Removed double lines horizontal layout.
 
+* Wear widget
+    - [New]Each info font & background color can be customized in JSON.
+    - Adjusted options naming in JSON.
+
 * Weather widget
     - [New]Each info display order can be customized via "column_index" in JSON.
     - [New]Each info font & background color can be customized in JSON.
@@ -42,9 +46,10 @@ TinyPedal (WIP)
     - Auto sorts all options in JSON file according to default setting template
       for better readability and consistency.
     - Optimized GUI update methods for widgets:
-      Cruise, Deltabest, DRS, Engine, Force, Fuel, Pressure, Sectors, Session, Timing, Weather.
+      Cruise, Deltabest, DRS, Engine, Force, Fuel, Pressure, Sectors, Session, Timing, Wear, Weather.
     - Use Linux XDG directories for storing user data (by Bernat).
     - Add Linux instructions to README.md (by Bernat).
+    - Improved various calculation.
 
 * Misc
     - Updated customization guide with new configurable options for each widget.
