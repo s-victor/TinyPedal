@@ -22,7 +22,6 @@ Steering Widget
 
 import tkinter as tk
 
-from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget, MouseEvent
 
@@ -44,7 +43,7 @@ class Draw(Widget, MouseEvent):
 
         # Config style & variable
         self.configure(bg=self.wcfg["bar_edge_color"])
-        self.last_rot_range = 0  # last recorded wheel rotation range
+        self.mark_num = int(1440 / max(self.wcfg["scale_mark_degree"], 10) / 2) - 1
 
         # Draw widget
         self.bar_steering = tk.Canvas(self, bd=0, highlightthickness=0,
@@ -59,70 +58,96 @@ class Draw(Widget, MouseEvent):
         self.rect_steering_rt = self.bar_steering.create_rectangle(
                               self.sbar_length, 0, self.sbar_length * 2, self.sbar_height,
                               fill=self.wcfg["steering_color"], outline="")
+        # Recenter position
+        self.bar_steering.coords(self.rect_steering_lt, self.sbar_length - 1,
+                                 0, self.sbar_length, self.sbar_height)
+        self.bar_steering.coords(self.rect_steering_rt, self.sbar_length,
+                                 0, self.sbar_length + 1, self.sbar_height)
 
         if self.wcfg["show_scale_mark"]:
-            rect_style = {"fill":self.wcfg["scale_mark_color"], "outline":""}
-            self.rect_mark_lt1 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
-            self.rect_mark_lt2 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
-            self.rect_mark_lt3 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
-            self.rect_mark_lt4 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
-            self.rect_mark_lt5 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
-            self.rect_mark_rt1 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
-            self.rect_mark_rt2 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
-            self.rect_mark_rt3 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
-            self.rect_mark_rt4 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
-            self.rect_mark_rt5 = self.bar_steering.create_rectangle(0, 0, 0, 0, rect_style)
+            tuple(map(self.create_mark, list(range(1, self.mark_num + 1)) * 2))
 
+        # Last data
+        self.last_sw_rot_range = 0
+        self.last_raw_steering = 0
+
+        # Start updating
         self.update_data()
 
         # Assign mouse event
         MouseEvent.__init__(self)
-
-    def create_mark(self, mark_label, mark_gap, mark_count, mark_offset):
-        """Create scale mark"""
-        pos = self.sbar_length + mark_gap * mark_count + mark_offset
-        self.bar_steering.coords(mark_label, pos, 0, pos, self.sbar_height)
 
     def update_data(self):
         """Update when vehicle on track"""
         if read_data.state() and self.wcfg["enable"]:
 
             # Read steering data
-            raw_steering, steering_wheel_rot_range = read_data.steering()
+            raw_steering, sw_rot_range = read_data.steering()
 
-            # Start updating
-            # Steering update
-            raw_steering = calc.steering_pos(raw_steering, self.sbar_length)
+            # Steering
+            raw_steering = self.steering_pos(raw_steering, self.sbar_length)
+            self.update_steering(raw_steering, self.last_raw_steering)
+            self.last_raw_steering = raw_steering
 
-            if raw_steering <= self.sbar_length:
-                self.bar_steering.coords(self.rect_steering_lt, raw_steering,
-                                         0, self.sbar_length, self.sbar_height)
-                self.bar_steering.coords(self.rect_steering_rt, self.sbar_length,
-                                         0, self.sbar_length + 1, self.sbar_height)
-            else:
-                self.bar_steering.coords(self.rect_steering_lt, self.sbar_length - 1,
-                                         0, self.sbar_length, self.sbar_height)
-                self.bar_steering.coords(self.rect_steering_rt, self.sbar_length,
-                                         0, raw_steering, self.sbar_height)
-
-            # Scale mark update
+            # Scale mark
             if self.wcfg["show_scale_mark"]:
-                if steering_wheel_rot_range != self.last_rot_range:  # recalc if changed
-                    self.last_rot_range = steering_wheel_rot_range
-
-                    scale_mark_gap = calc.scale_mark_gap(
-                                   90, steering_wheel_rot_range, self.sbar_length)
-
-                    self.create_mark(self.rect_mark_lt1, -scale_mark_gap, 1, -1)
-                    self.create_mark(self.rect_mark_lt2, -scale_mark_gap, 2, -1)
-                    self.create_mark(self.rect_mark_lt3, -scale_mark_gap, 3, -1)
-                    self.create_mark(self.rect_mark_lt4, -scale_mark_gap, 4, -1)
-                    self.create_mark(self.rect_mark_lt5, -scale_mark_gap, 5, -1)
-                    self.create_mark(self.rect_mark_rt1, scale_mark_gap, 1, 0)
-                    self.create_mark(self.rect_mark_rt2, scale_mark_gap, 2, 0)
-                    self.create_mark(self.rect_mark_rt3, scale_mark_gap, 3, 0)
-                    self.create_mark(self.rect_mark_rt4, scale_mark_gap, 4, 0)
-                    self.create_mark(self.rect_mark_rt5, scale_mark_gap, 5, 0)
+                if sw_rot_range != self.last_sw_rot_range:  # recalc if changed
+                    self.last_sw_rot_range = sw_rot_range
+                    mark_gap = self.scale_mark_gap(max(self.wcfg["scale_mark_degree"], 10),
+                                                   sw_rot_range, self.sbar_length)
+                    tuple(map(self.move_mark,
+                              [-mark_gap]*self.mark_num + [mark_gap]*self.mark_num,
+                              list(range(1, self.mark_num + 1)) * 2))
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
+
+    # GUI update methods
+    def update_steering(self, curr, last):
+        """Steering"""
+        if curr != last:
+            if curr <= self.sbar_length:
+                self.bar_steering.coords(self.rect_steering_lt, curr,
+                                         0, self.sbar_length, self.sbar_height)
+                if last >= self.sbar_length:
+                    self.bar_steering.coords(self.rect_steering_rt, self.sbar_length,
+                                             0, self.sbar_length + 1, self.sbar_height)
+            else:
+                if last <= self.sbar_length:
+                    self.bar_steering.coords(self.rect_steering_lt, self.sbar_length - 1,
+                                             0, self.sbar_length, self.sbar_height)
+                self.bar_steering.coords(self.rect_steering_rt, self.sbar_length,
+                                         0, curr, self.sbar_height)
+
+    def create_mark(self, index):
+        """Create left & right side scale mark"""
+        setattr(self, f"rect_mark_lt{index}", self.bar_steering.create_rectangle(
+            0, 0, 0, 0, fill=self.wcfg["scale_mark_color"], outline=""))
+        setattr(self, f"rect_mark_rt{index}", self.bar_steering.create_rectangle(
+            0, 0, 0, 0, fill=self.wcfg["scale_mark_color"], outline=""))
+
+    def move_mark(self, mark_gap, index):
+        """Move scale mark"""
+        if mark_gap < 0:
+            offset = -1
+            suffix = "lt"
+        else:
+            offset = 0
+            suffix = "rt"
+        pos = mark_gap * index + self.sbar_length + offset
+        self.bar_steering.coords(
+            getattr(self, f"rect_mark_{suffix}{index}"),
+            pos, 0, pos, self.sbar_height)
+
+    # Additional methods
+    @staticmethod
+    def steering_pos(steering, length):
+        """Multiply scale, add offset"""
+        return length * (1 + steering)
+
+    @staticmethod
+    def scale_mark_gap(degree, rot_range, scale):
+        """mark gap(degree) divide half of full steering range (degree) and multiply scale"""
+        if rot_range != 0:
+            return degree / (rot_range / 2) * scale
+        return 0

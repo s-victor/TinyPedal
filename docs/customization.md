@@ -461,7 +461,10 @@ Scale steering bar length & height, accepts decimal place.
 Set left and right edge boundary width.
 
     show_scale_mark
-This enables scale marks on steering bar, which is set 90 degrees apart from each other.
+This enables scale marks on steering bar.
+
+    scale_mark_degree
+Set gap between each scale mark in degree. Default is `90` degree. Minimum value is limited to `10` degree.
 
 
 ## Stint

@@ -14,7 +14,7 @@ TinyPedal (WIP)
     - [New]Added "low_fuel_lap_threshold" option in JSON.
 
 * Pedal widget
-    - [New]Added "show_average_brake_pressure" option that
+    - [New]Added "show_average_brake_pressure" option in JSON that
       shows average brake pressure changes applied on all wheels,
       which auto scales with max brake pressure and
       indicates average amount brake released by ABS on all wheels.
@@ -32,6 +32,10 @@ TinyPedal (WIP)
 * Sectors Widget
     - Removed unnecessary "show_best_sector_time" option,
       always shows each best sector time if available.
+
+* Steering Widget
+    - [New]Added "scale_mark_degree" option in JSON,
+      which set gap between each scale mark in degree.
 
 * Timing Widget
     - [New]Show current session best laptime from all players,
@@ -54,7 +58,8 @@ TinyPedal (WIP)
     - Auto sorts all options in JSON file according to default setting template
       for better readability and consistency.
     - Optimized GUI update methods for widgets:
-      Cruise, Deltabest, DRS, Engine, Force, Fuel, Pedal, Pressure, Sectors, Session, Timing, Wear, Weather.
+      Cruise, Deltabest, DRS, Engine, Force, Fuel, Pedal, Pressure,
+      Sectors, Session, Steering, Timing, Wear, Weather.
     - Use Linux XDG directories for storing user data (by Bernat).
     - Add Linux instructions to README.md (by Bernat).
     - Improved various calculation.

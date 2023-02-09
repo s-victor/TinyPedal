@@ -109,8 +109,8 @@ def brake_pressure():
 def steering():
     """Steering data"""
     raw_steering = chknm(info.syncedVehicleTelemetry().mUnfilteredSteering)
-    steering_wheel_rot_range = chknm(info.syncedVehicleTelemetry().mPhysicalSteeringWheelRange)
-    return raw_steering, steering_wheel_rot_range
+    sw_rot_range = chknm(info.syncedVehicleTelemetry().mPhysicalSteeringWheelRange)
+    return raw_steering, sw_rot_range
 
 
 def gear():

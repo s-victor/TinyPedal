@@ -32,18 +32,6 @@ def in2zero(value):
     return 0
 
 
-def steering_pos(steering, length):
-    """Multiply scale, add offset"""
-    return steering * length + length
-
-
-def scale_mark_gap(degree, rot_range, scale):
-    """mark gap(degree) divide half of full steering range (degree) and multiply scale"""
-    if rot_range != 0:
-        return degree / (rot_range / 2) * scale
-    return 0
-
-
 def vel2speed(vel_x, vel_y, vel_z):
     """Convert velocity to Speed"""
     return (vel_x ** 2 + vel_y ** 2 + vel_z ** 2) ** 0.5

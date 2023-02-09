@@ -465,6 +465,7 @@ class Setting:
             "bar_edge_width": 2,
             "bar_edge_color": "#FFAA00",
             "show_scale_mark": True,
+            "scale_mark_degree": 90,
             "scale_mark_color": "#555555",
         },
         "stint": {

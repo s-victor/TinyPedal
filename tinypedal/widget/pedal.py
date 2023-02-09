@@ -159,7 +159,7 @@ class Draw(Widget, MouseEvent):
             self.update_raw_pos("clutch", pedal_data[5], self.last_pedal_data[5])
             self.update_max_pos("clutch", pedal_data[5], self.last_pedal_data[5])
 
-            # Force feedback update
+            # Force feedback
             if self.wcfg["show_ffb_meter"]:
                 self.update_ffb_pos(pedal_data[6], self.last_pedal_data[6])
 
