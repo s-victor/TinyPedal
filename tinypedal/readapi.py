@@ -97,6 +97,15 @@ def pedal():
     return throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
 
 
+def brake_pressure():
+    """Brake pressure data"""
+    brake_pres = (chknm(info.syncedVehicleTelemetry().mWheels[0].mBrakePressure),
+                  chknm(info.syncedVehicleTelemetry().mWheels[1].mBrakePressure),
+                  chknm(info.syncedVehicleTelemetry().mWheels[2].mBrakePressure),
+                  chknm(info.syncedVehicleTelemetry().mWheels[3].mBrakePressure))
+    return brake_pres
+
+
 def steering():
     """Steering data"""
     raw_steering = chknm(info.syncedVehicleTelemetry().mUnfilteredSteering)

@@ -104,7 +104,11 @@ class Draw(Widget, MouseEvent):
                           fill=self.wcfg["bkg_color"], outline="")
 
         # Last data
+        self.checked = False
+        self.max_brake_pres = 0
+
         self.last_pedal_data = [None] * 7
+        self.last_abs_brake = None
 
         # Start updating
         self.update_data()
@@ -116,6 +120,10 @@ class Draw(Widget, MouseEvent):
         """Update when vehicle on track"""
         if read_data.state() and self.wcfg["enable"]:
 
+            # Reset switch
+            if not self.checked:
+                self.checked = True
+
             # Read pedal data
             # Throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
             pedal_data = tuple(map(self.scale_input, read_data.pedal()))
@@ -124,7 +132,17 @@ class Draw(Widget, MouseEvent):
             self.update_filtered_pos("throttle", pedal_data[0], self.last_pedal_data[0])
 
             # Brake
-            self.update_filtered_pos("brake", pedal_data[1], self.last_pedal_data[1])
+            if self.wcfg["show_average_brake_pressure"]:
+                brake_pres = sum(read_data.brake_pressure()) / 4
+
+                if brake_pres > self.max_brake_pres:
+                    self.max_brake_pres = brake_pres
+
+                abs_brake = self.scale_input(brake_pres / max(self.max_brake_pres, 0.001))
+                self.update_filtered_pos("brake", abs_brake, self.last_abs_brake)
+                self.last_abs_brake = None
+            else:
+                self.update_filtered_pos("brake", pedal_data[1], self.last_pedal_data[1])
 
             # Clutch
             self.update_filtered_pos("clutch", pedal_data[2], self.last_pedal_data[2])
@@ -146,6 +164,10 @@ class Draw(Widget, MouseEvent):
                 self.update_ffb_pos(pedal_data[6], self.last_pedal_data[6])
 
             self.last_pedal_data = pedal_data
+        else:
+            if self.checked:
+                self.checked = False
+                self.max_brake_pres = 0
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

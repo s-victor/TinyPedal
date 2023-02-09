@@ -275,6 +275,7 @@ class Setting:
             "bar_width_scale": 1.0,
             "bar_gap": 2,
             "full_pedal_height": 5,
+            "show_average_brake_pressure": True,
             "throttle_color": "#77FF00",
             "brake_color": "#FF2200",
             "clutch_color": "#00C2F2",

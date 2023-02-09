@@ -13,6 +13,14 @@ TinyPedal (WIP)
 * Fuel widget
     - [New]Added "low_fuel_lap_threshold" option in JSON.
 
+* Pedal widget
+    - [New]Added "show_average_brake_pressure" option that
+      shows average brake pressure changes applied on all wheels,
+      which auto scales with max brake pressure and
+      indicates average amount brake released by ABS on all wheels.
+      This option is enabled by default, which replaces
+      game's filtered brake input that cannot show ABS.
+
 * Pressure widget
     - [New]Each info display order can be customized via "column_index" in JSON.
     - Tyre load ratio is now calculated against sum of all wheels load.

@@ -296,6 +296,9 @@ Scale pedal bar length & width, accepts decimal place.
     full_pedal_height
 This is the indicator height when pedal reaches 100% travel, value in pixel.
 
+    show_average_brake_pressure
+Show average brake pressure changes applied on all wheels, which auto scales with max brake pressure and indicates average amount brake released by ABS on all wheels. This option is enabled by default, which replaces game's filtered brake input that cannot show ABS.
+
     show_ffb_meter
 This enables Force Feedback meter.
 
