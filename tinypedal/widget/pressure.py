@@ -105,7 +105,7 @@ class Draw(Widget, MouseEvent):
         if read_data.state() and self.wcfg["enable"]:
 
             # Read tyre pressure data
-            pressure = tuple(map(self.format_pressure, read_data.tyre_pressure()))
+            pressure = tuple(map(self.pressure_units, read_data.tyre_pressure()))
 
             # Tyre pressure
             self.update_tyre("pres_fl", pressure[0], self.last_pressure[0])
@@ -150,8 +150,8 @@ class Draw(Widget, MouseEvent):
         """Tyre load ratio"""
         return f"{calc.force_ratio(value, total):.01f}"
 
-    def format_pressure(self, pres):
-        """Format pressure"""
+    def pressure_units(self, pres):
+        """Pressure units"""
         if self.wcfg["pressure_unit"] == "0":
             pressure = f"{pres:03.0f}"  # kPa
         elif self.wcfg["pressure_unit"] == "1":

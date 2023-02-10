@@ -160,7 +160,7 @@ class Draw(Widget, MouseEvent):
     def update_turbo(self, curr, last):
         """Turbo pressure"""
         if curr != last:
-            self.bar_turbo.config(text=self.format_pressure(curr * 0.001))
+            self.bar_turbo.config(text=self.pressure_units(curr * 0.001))
 
     def update_rpm(self, curr, last):
         """Engine RPM"""
@@ -168,8 +168,8 @@ class Draw(Widget, MouseEvent):
             self.bar_rpm.config(text=f"{curr: =05.0f}rpm")
 
     # Additional methods
-    def format_pressure(self, pres):
-        """Format pressure"""
+    def pressure_units(self, pres):
+        """Pressure units"""
         if self.wcfg["turbo_pressure_unit"] == "0":
             pressure = f"{calc.kpa2bar(pres):03.03f}bar"
         elif self.wcfg["turbo_pressure_unit"] == "1":

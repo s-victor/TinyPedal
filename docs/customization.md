@@ -184,7 +184,7 @@ Show short caption description besides each info block.
 Set low fuel color indicator, which changes widget background color when there is just 2 laps of fuel left.
 
     fuel_unit
-2 unit types are available: `0` = liters, `1` = gallons.
+2 unit types are available: `0` = liters, `1` = gallons. This setting affects all widgets that use fuel data.
 
     low_fuel_lap_threshold
 Set amount lap threshold to show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default value is `2` laps before running out of fuel.
@@ -468,9 +468,6 @@ Set gap between each scale mark in degree. Default is `90` degree. Minimum value
 
 
 ## Stint
-    fuel_unit
-2 unit types are available: `0` = liters, `1` = gallons.
-
     tyre_compound_list
 Set custom tire compound index letter. One letter for one compound index. Note: since most vehicle mods don't share a common tire compound types or list order, it is impossible to have a tyre compound letter list that matches every car.
 

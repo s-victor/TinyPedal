@@ -173,13 +173,12 @@ def stint():
     lap_num = chknm(info.syncedVehicleTelemetry().mLapNumber)
     wear_avg = 100 - (sum([chknm(info.syncedVehicleTelemetry().mWheels[data].mWear)
                            for data in range(4)]) * 25)
-    fuel_curr = chknm(info.syncedVehicleTelemetry().mFuel)
     time_curr = chknm(info.LastScor.mScoringInfo.mCurrentET)
     inpits = chknm(info.syncedVehicleScoring().mInPits)
     tire_idx = (chknm(info.syncedVehicleTelemetry().mFrontTireCompoundIndex),
                 chknm(info.syncedVehicleTelemetry().mRearTireCompoundIndex))
     game_phase = chknm(info.LastScor.mScoringInfo.mGamePhase)
-    return lap_num, wear_avg, fuel_curr, time_curr, inpits, tire_idx, game_phase
+    return lap_num, wear_avg, time_curr, inpits, tire_idx, game_phase
 
 
 def camber():

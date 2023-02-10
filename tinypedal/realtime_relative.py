@@ -106,11 +106,10 @@ class RelativeInfo:
 
             time.sleep(update_delay)
 
-        else:
-            self.relative_list = None
-            self.radar_list = None
-            self.stopped = True
-            print("relative module closed")
+        self.relative_list = None
+        self.radar_list = None
+        self.stopped = True
+        print("relative module closed")
 
     def relative_data(self, index, index_player, veh_class_info):
         """Relative data, this function is accessed by relative widget"""

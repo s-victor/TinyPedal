@@ -53,18 +53,16 @@ def celsius2fahrenheit(temp):
     return temp * 1.8 + 32
 
 
+def liter2gallon(fuel):
+    """Liter to Gallon"""
+    return fuel * 0.2641729
+
+
 def conv_temperature(temp, temp_unit):
     """2 different temperature unit conversion, default is Celsius"""
     if temp_unit == "1":
         return temp * 1.8 + 32  # Celsius to Fahrenheit
     return temp
-
-
-def conv_fuel(fuel, fuel_unit):
-    """2 different fuel unit conversion, default is Liter"""
-    if fuel_unit == "1":
-        return fuel * 0.2641729  # Liter to Gallon
-    return fuel
 
 
 def gear(gear_index):
@@ -81,6 +79,13 @@ def gear(gear_index):
 def rad2deg(radian):
     """Convert radians to degrees"""
     return radian * 57.2957795
+
+
+def max_vs_avg_rotation(w_rot1, w_rot2):
+    """Calculate left and right wheel rotation difference of same axle"""
+    max_rot = min(w_rot1, w_rot2)  # negative value is forward
+    avg_rot = (w_rot1 + w_rot2) / 2
+    return abs(max_rot - avg_rot)  # difference
 
 
 def meter2millmeter(meter):
@@ -100,16 +105,9 @@ def rake2angle(v_rake, wheelbase):
 
 def slip_ratio(w_rot, w_radius, v_speed):
     """Calculate slip ratio (percentage), speed unit in m/s"""
-    if v_speed > 0.1:
+    if v_speed:
         return abs((v_speed - abs(w_rot * w_radius)) / v_speed)
     return 0
-
-
-def max_vs_avg_rotation(w_rot1, w_rot2):
-    """Calculate left and right wheel rotation difference of same axle"""
-    max_rot = min(w_rot1, w_rot2)  # negative value is forward
-    avg_rot = (w_rot1 + w_rot2) / 2
-    return abs(max_rot - avg_rot)  # difference
 
 
 def kpa2psi(pressure):

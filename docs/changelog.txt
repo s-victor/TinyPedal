@@ -1,19 +1,22 @@
 TinyPedal (WIP)
 -----------------------------
-* Engine widget
+* Engine Widget
     - [New]Added horizontal layout.
     - [New]Added "turbo_pressure_unit" option (bar, psi, kPa) in JSON, default is bar.
     - [New]Each info font & background color can be customized in JSON.
     - [New]Each info display order can be customized via "column_index" in JSON.
     - [New]Added Fahrenheit unit for temperature display via "temp_unit" in JSON.
 
-* Force widget
+* Force Widget
     - [New]Added horizontal layout.
 
-* Fuel widget
+* Fuel Widget
     - [New]Added "low_fuel_lap_threshold" option in JSON.
 
-* Pedal widget
+* Instrument Widget
+    - [New]Each instrument icon can be individually hide in JSON.
+
+* Pedal Widget
     - [New]Added "show_average_brake_pressure" option in JSON that
       shows average brake pressure changes applied on all wheels,
       which auto scales with max brake pressure and
@@ -21,13 +24,13 @@ TinyPedal (WIP)
       This option is enabled by default, which replaces
       game's filtered brake input that cannot show ABS.
 
-* Pressure widget
+* Pressure Widget
     - [New]Each info display order can be customized via "column_index" in JSON.
     - Tyre load ratio is now calculated against sum of all wheels load.
     - Reworked layouts (vertical & horizontal).
 
 * Relative Widget
-    - Removed brackets from combined driver name if name is empty.
+    - Removes brackets from combined driver name if name is empty.
 
 * Sectors Widget
     - Removed unnecessary "show_best_sector_time" option,
@@ -37,6 +40,9 @@ TinyPedal (WIP)
     - [New]Added "scale_mark_degree" option in JSON,
       which set gap between each scale mark in degree.
 
+* Stint Widget
+    - Removed "fuel_unit" option, now uses fuel unit setting from Fuel Widget instead.
+
 * Timing Widget
     - [New]Show current session best laptime from all players,
       with additional option to show laptime from same vehicle class only (default ON).
@@ -45,11 +51,11 @@ TinyPedal (WIP)
     - [New]Each info display order can be customized via "column_index" in JSON.
     - Removed double lines horizontal layout.
 
-* Wear widget
+* Wear Widget
     - [New]Each info font & background color can be customized in JSON.
     - Adjusted options naming in JSON.
 
-* Weather widget
+* Weather Widget
     - [New]Each info display order can be customized via "column_index" in JSON.
     - [New]Each info font & background color can be customized in JSON.
     - Moved "Dry/Wet" label to wetness bar.
@@ -58,7 +64,7 @@ TinyPedal (WIP)
     - Auto sorts all options in JSON file according to default setting template
       for better readability and consistency.
     - Optimized GUI update methods for widgets:
-      Cruise, Deltabest, DRS, Engine, Force, Fuel, Pedal, Pressure,
+      Cruise, Deltabest, DRS, Engine, Force, Fuel, Instrument, Pedal, Pressure,
       Sectors, Session, Steering, Timing, Wear, Weather.
     - Use Linux XDG directories for storing user data (by Bernat).
     - Add Linux instructions to README.md (by Bernat).

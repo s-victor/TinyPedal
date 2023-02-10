@@ -87,16 +87,8 @@ class Draw(Widget, MouseEvent):
             track_temp, ambient_temp, rain_per, wet_road = read_data.weather()
 
             # Track temperature
-            if self.wcfg["temp_unit"] == "0":
-                temp_unit = "C"
-                temp_d = (round(track_temp, 1),
-                          round(ambient_temp, 1))
-            else:
-                temp_unit = "F"
-                temp_d = (round(calc.celsius2fahrenheit(track_temp), 1),
-                          round(calc.celsius2fahrenheit(ambient_temp), 1))
-
-            self.update_temp(temp_d, self.last_temp_d, temp_unit)
+            temp_d = self.temp_units(track_temp, ambient_temp)
+            self.update_temp(temp_d, self.last_temp_d)
             self.last_temp_d = temp_d
 
             # Rain percentage
@@ -112,12 +104,17 @@ class Draw(Widget, MouseEvent):
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
 
+    def temp_units(self, track_temp, ambient_temp):
+        """Track & ambient temperature"""
+        if self.wcfg["temp_unit"] == "0":
+            return f"{track_temp:.01f}({ambient_temp:.01f})°C"
+        return f"{calc.celsius2fahrenheit(track_temp):.01f}({calc.celsius2fahrenheit(ambient_temp):.01f})°F"
+
     # GUI update methods
-    def update_temp(self, curr, last, unit):
-        """Track temperature"""
+    def update_temp(self, curr, last):
+        """Track & ambient temperature"""
         if curr != last:
-            temp_text = f"{curr[0]:.01f}({curr[1]:.01f})°{unit}"
-            self.bar_temp.config(text=temp_text, width=len(temp_text)+1)
+            self.bar_temp.config(text=curr, width=len(curr)+1)
 
     def update_rain(self, curr, last):
         """Rain percentage"""

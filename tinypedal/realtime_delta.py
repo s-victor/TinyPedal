@@ -25,7 +25,7 @@ import threading
 import csv
 
 from .const import PATH_DELTABEST
-from .readapi import info, chknm, cs2py, state, combo_check
+from .readapi import info, chknm, state, combo_check
 from . import calculation as calc
 
 
@@ -185,9 +185,8 @@ class DeltaTime:
 
             time.sleep(update_delay)
 
-        else:
-            self.stopped = True
-            print("delta module closed")
+        self.stopped = True
+        print("delta module closed")
 
     @staticmethod
     def delta_telemetry():

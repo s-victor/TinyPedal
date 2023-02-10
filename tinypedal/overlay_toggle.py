@@ -143,9 +143,8 @@ class OverlayAutoHide:
 
             time.sleep(0.4)
 
-        else:
-            self.stopped = True
-            print("auto-hide module closed")
+        self.stopped = True
+        print("auto-hide module closed")
 
     def toggle(self):
         """Toggle hide state"""

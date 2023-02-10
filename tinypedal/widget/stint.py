@@ -26,6 +26,7 @@ import tkinter.font as tkfont
 from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget, MouseEvent
+from ..module_control import module
 
 WIDGET_NAME = "stint"
 
@@ -117,11 +118,11 @@ class Draw(Widget, MouseEvent):
                 self.checked = True
 
             # Read stint data
-            (lap_num, wear_avg, fuel_curr, time_curr, inpits, tire_idx, game_phase
+            (lap_num, wear_avg, time_curr, inpits, tire_idx, game_phase
              ) = read_data.stint()
 
             # Start updating
-            fuel_curr = calc.conv_fuel(fuel_curr, self.wcfg["fuel_unit"])
+            fuel_curr = module.fuel_usage.output_data[0]
             ftire_cmpd = self.wcfg["tyre_compound_list"][tire_idx[0]:(tire_idx[0]+1)]
             rtire_cmpd = self.wcfg["tyre_compound_list"][tire_idx[1]:(tire_idx[1]+1)]
 
@@ -154,15 +155,14 @@ class Draw(Widget, MouseEvent):
                 self.start_wear = wear_avg
                 self.reset_stint = False
 
+            if self.start_fuel < fuel_curr:
+                self.start_fuel = fuel_curr
+
             if game_phase < 5:  # reset stint stats if session has not started
                 self.reset_stint = True
 
-            if self.wcfg["fuel_unit"] == 0:
-                fuel_text = f"{stint_fuel:05.01f}"
-                last_fuel_text = f"{self.last_stint_fuel:05.01f}"
-            else:
-                fuel_text = f"{stint_fuel:05.02f}"
-                last_fuel_text = f"{self.last_stint_fuel:05.02f}"
+            fuel_text = f"{stint_fuel:05.01f}"
+            last_fuel_text = f"{self.last_stint_fuel:05.01f}"
 
             self.bar_laps.config(text=f"{stint_cmpd}{stint_lap: =03.0f}")
             self.bar_time.config(text=calc.sec2stinttime(stint_time))

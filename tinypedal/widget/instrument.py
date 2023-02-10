@@ -47,23 +47,14 @@ class Draw(Widget, MouseEvent):
         icon_image = ImageTk.PhotoImage(icon_resize)
         self.image = icon_image
 
+        column_hl = self.wcfg["column_index_headlights"]
+        column_ig = self.wcfg["column_index_ignition"]
+        column_cl = self.wcfg["column_index_clutch"]
+        column_wl = self.wcfg["column_index_wheel_lock"]
+        column_ws = self.wcfg["column_index_wheel_slip"]
+
         bar_style = {"bd":0, "highlightthickness":0, "bg":self.wcfg["bkg_color"],
                      "height":self.icon_size, "width":self.icon_size}
-
-        self.list_radius_f = []
-        self.list_radius_r = []
-        self.avg_wheel_radius_f = self.wcfg["wheel_radius_front"]
-        self.avg_wheel_radius_r = self.wcfg["wheel_radius_rear"]
-        self.checked = False
-
-        # Set state for drawing optimization
-        self.state_hl = True  # headlights
-        self.state_ig = True  # ignition
-        self.state_st = True  # starter
-        self.state_cl = True  # clutch
-        self.state_ac = True  # auto clutch
-        self.state_wl = True  # wheel lock
-        self.state_ws = True  # wheel slip
 
         # Draw widget
 
@@ -92,12 +83,6 @@ class Draw(Widget, MouseEvent):
         self.icon_slip = self.bar_slip.create_image(
                          0, self.icon_size, image=icon_image, anchor="s")
 
-        column_hl = self.wcfg["column_index_headlights"]
-        column_ig = self.wcfg["column_index_ignition"]
-        column_cl = self.wcfg["column_index_clutch"]
-        column_wl = self.wcfg["column_index_wheel_lock"]
-        column_ws = self.wcfg["column_index_wheel_slip"]
-
         if self.wcfg["layout"] == "0":
             self.bar_headlights.grid(row=0, column=column_hl, padx=(0, self.wcfg["bar_gap"]), pady=0)
             self.bar_ignition.grid(row=0, column=column_ig, padx=(0, self.wcfg["bar_gap"]), pady=0)
@@ -111,6 +96,37 @@ class Draw(Widget, MouseEvent):
             self.bar_lock.grid(row=column_wl, column=0, padx=0, pady=(0, self.wcfg["bar_gap"]))
             self.bar_slip.grid(row=column_ws, column=0, padx=0, pady=(0, self.wcfg["bar_gap"]))
 
+        if not self.wcfg["show_headlights"]:
+            self.bar_headlights.grid_remove()
+
+        if not self.wcfg["show_ignition"]:
+            self.bar_ignition.grid_remove()
+
+        if not self.wcfg["show_clutch"]:
+            self.bar_clutch.grid_remove()
+
+        if not self.wcfg["show_wheel_lock"]:
+            self.bar_lock.grid_remove()
+
+        if not self.wcfg["show_wheel_slip"]:
+            self.bar_slip.grid_remove()
+
+        # Last data
+        self.checked = False
+        self.list_radius_f = []
+        self.list_radius_r = []
+        self.avg_wheel_radius_f = self.wcfg["wheel_radius_front"]
+        self.avg_wheel_radius_r = self.wcfg["wheel_radius_rear"]
+
+        self.state_hl = True  # headlights
+        self.state_ig = True  # ignition
+        self.state_st = True  # starter
+        self.state_cl = True  # clutch
+        self.state_ac = True  # auto clutch
+        self.state_wl = True  # wheel lock
+        self.state_ws = True  # wheel slip
+
+        # Start updating
         self.update_data()
 
         # Assign mouse event
@@ -128,34 +144,7 @@ class Draw(Widget, MouseEvent):
             (headlights, ignition, rpm, autoclutch, clutch, brake, wheel_rot, speed
              ) = read_data.instrument()
 
-            # Start updating
-            if speed > self.wcfg["minimum_speed"]:
-                # Get wheel rotation difference
-                diff_rot_f = calc.max_vs_avg_rotation(wheel_rot[0], wheel_rot[1])
-                diff_rot_r = calc.max_vs_avg_rotation(wheel_rot[2], wheel_rot[3])
-                # Record radius value for targeted rotation difference
-                if 0 < diff_rot_f < 0.1:
-                    self.list_radius_f.append(abs(speed * 2 / (wheel_rot[0] + wheel_rot[1])))
-                if 0 < diff_rot_r < 0.1:
-                    self.list_radius_r.append(abs(speed * 2 / (wheel_rot[2] + wheel_rot[3])))
-
-                # Calc average wheel radius reading
-                minimum_samples = max(self.wcfg["minimum_samples"], 100)
-
-                if len(self.list_radius_f) >= minimum_samples:
-                    radius_samples_f = sorted(self.list_radius_f)[int(minimum_samples*0.25):int(minimum_samples*0.75)]
-                    self.avg_wheel_radius_f = round(sum(radius_samples_f) / len(radius_samples_f), 3)
-                    self.list_radius_f = []  # reset list
-
-                if len(self.list_radius_r) >= minimum_samples:
-                    radius_samples_r = sorted(self.list_radius_r)[int(minimum_samples*0.25):int(minimum_samples*0.75)]
-                    self.avg_wheel_radius_r = round(sum(radius_samples_r) / len(radius_samples_r), 3)
-                    self.list_radius_r = []
-
-            slipratio = max(calc.slip_ratio(wheel_rot[0], self.avg_wheel_radius_f, speed),
-                            calc.slip_ratio(wheel_rot[1], self.avg_wheel_radius_f, speed),
-                            calc.slip_ratio(wheel_rot[2], self.avg_wheel_radius_r, speed),
-                            calc.slip_ratio(wheel_rot[3], self.avg_wheel_radius_r, speed))
+            slipratio = self.calc_slipratio(wheel_rot, speed)
 
             # Headlights
             if headlights == 1 and self.state_hl:
@@ -244,3 +233,35 @@ class Draw(Widget, MouseEvent):
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
+
+    # Additional methods
+    def calc_slipratio(self, wheel_rot, speed):
+        """Calculate slip ratio"""
+        if speed > self.wcfg["minimum_speed"]:
+            # Get wheel rotation difference
+            # Record radius value for targeted rotation difference
+            diff_rot_f = calc.max_vs_avg_rotation(wheel_rot[0], wheel_rot[1])
+            diff_rot_r = calc.max_vs_avg_rotation(wheel_rot[2], wheel_rot[3])
+            # Record radius value for targeted rotation difference
+            if 0 < diff_rot_f < 0.1:
+                self.list_radius_f.append(abs(speed * 2 / (wheel_rot[0] + wheel_rot[1])))
+            if 0 < diff_rot_r < 0.1:
+                self.list_radius_r.append(abs(speed * 2 / (wheel_rot[2] + wheel_rot[3])))
+
+            # Calc average wheel radius reading
+            min_samples = max(self.wcfg["minimum_samples"], 100)
+
+            if len(self.list_radius_f) >= min_samples:
+                radius_samples_f = sorted(self.list_radius_f)[int(min_samples*0.25):int(min_samples*0.75)]
+                self.avg_wheel_radius_f = round(sum(radius_samples_f) / len(radius_samples_f), 3)
+                self.list_radius_f = []  # reset list
+
+            if len(self.list_radius_r) >= min_samples:
+                radius_samples_r = sorted(self.list_radius_r)[int(min_samples*0.25):int(min_samples*0.75)]
+                self.avg_wheel_radius_r = round(sum(radius_samples_r) / len(radius_samples_r), 3)
+                self.list_radius_r = []
+
+        return max(calc.slip_ratio(wheel_rot[0], self.avg_wheel_radius_f, speed),
+                   calc.slip_ratio(wheel_rot[1], self.avg_wheel_radius_f, speed),
+                   calc.slip_ratio(wheel_rot[2], self.avg_wheel_radius_r, speed),
+                   calc.slip_ratio(wheel_rot[3], self.avg_wheel_radius_r, speed))

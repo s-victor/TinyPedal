@@ -78,7 +78,8 @@ class WidgetControl:
         """Start widget"""
         for obj in WIDGET_PACK:
             if cfg.setting_user[obj.WIDGET_NAME]["enable"]:
-                setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))  # create widget instance
+                # Create widget instance
+                setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
 
     @staticmethod
     def close():
@@ -95,13 +96,19 @@ class WidgetControl:
         for obj in WIDGET_PACK:
             if name == obj.WIDGET_NAME:
                 if not cfg.setting_user[obj.WIDGET_NAME]["enable"]:
-                    setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))  # create widget instance
-                    cfg.setting_user[obj.WIDGET_NAME]["enable"] = True  # set True after widget enabled
+                    # Create widget instance
+                    setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
+                    # Set True after widget enabled
+                    cfg.setting_user[obj.WIDGET_NAME]["enable"] = True
                 else:
-                    widget_instance = getattr(self, f"widget_{obj.WIDGET_NAME}")  # get widget instance
-                    cfg.setting_user[obj.WIDGET_NAME]["enable"] = False  # set False before widget disabled
-                    cfg.active_widget_list.remove(widget_instance)  # remove widget from active list
-                    widget_instance.destroy()  # close widget
+                    # Get widget instance
+                    widget_instance = getattr(self, f"widget_{obj.WIDGET_NAME}")
+                    # Set False before widget disabled
+                    cfg.setting_user[obj.WIDGET_NAME]["enable"] = False
+                    # Remove widget from active list
+                    cfg.active_widget_list.remove(widget_instance)
+                    # Close widget
+                    widget_instance.destroy()
                 cfg.save()
                 break
 

@@ -26,7 +26,7 @@ import csv
 import math
 
 from .const import PATH_FUEL
-from .readapi import info, chknm, cs2py, state, combo_check
+from .readapi import info, chknm, state, combo_check
 from . import calculation as calc
 
 
@@ -75,7 +75,6 @@ class FuelUsage:
         delta_fuel = 0  # delta fuel consumption compare to last lap
 
         laptime_last = 0 # last laptime
-        fuel_unit = self.cfg.setting_user["fuel"]["fuel_unit"]  # load fuel unit setting
         update_delay = 0.4  # changeable update delay for conserving resources
 
         while self.running:
@@ -156,7 +155,7 @@ class FuelUsage:
                     used_est = used_last
 
                 # Estimate laps current fuel can last
-                if used_est != 0:
+                if used_est:
                     # Total current fuel / last lap fuel consumption
                     est_runlaps = amount_curr / used_est
                 else:
@@ -177,9 +176,9 @@ class FuelUsage:
                 pit_required = amount_need / max(capacity, 1)
 
                 # Unit conversion
-                amount_curr_d = calc.conv_fuel(amount_curr, fuel_unit)
-                amount_need_d = calc.conv_fuel(amount_need, fuel_unit)
-                used_est_d = calc.conv_fuel(used_est, fuel_unit)
+                amount_curr_d = self.fuel_units(amount_curr)
+                amount_need_d = self.fuel_units(amount_need)
+                used_est_d = self.fuel_units(used_est)
 
                 # Output fuel data
                 self.output_data = (amount_curr_d, amount_need_d, used_est_d,
@@ -198,9 +197,14 @@ class FuelUsage:
 
             time.sleep(update_delay)
 
-        else:
-            self.stopped = True
-            print("fuel module closed")
+        self.stopped = True
+        print("fuel module closed")
+
+    def fuel_units(self, fuel):
+        """2 different fuel unit conversion, default is Liter"""
+        if self.cfg.setting_user["fuel"]["fuel_unit"] != "0":
+            return calc.liter2gallon(fuel)
+        return fuel
 
     @staticmethod
     def fuel_telemetry():
