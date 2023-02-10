@@ -42,25 +42,6 @@ class Draw(Widget, MouseEvent):
         bar_gap = self.wcfg["bar_gap"]
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
-        self.checked = False
-        self.stint_running = False  # check whether current stint running
-        self.reset_stint = True  # reset stint stats
-
-        self.start_lap = 0
-        self.start_time = 0
-        self.start_fuel = 0
-        self.start_wear = 0
-
-        self.last_stint_lap = 0
-        self.last_stint_time = 0
-        self.last_stint_fuel = 0
-        self.last_stint_wear = 0
-        self.last_stint_cmpd = "--"
-
-        self.last_fuel = 0  # last recorded remaining fuel
-        self.last_wear = 0  # last recorded average tyre wear
-        self.last_cmpd = "--"  # last recorded tyre compound
-
         # Config style & variable
         font_stint = tkfont.Font(family=self.wcfg["font_name"],
                                  size=-self.wcfg["font_size"],
@@ -81,16 +62,16 @@ class Draw(Widget, MouseEvent):
                                  fg=self.wcfg["font_color_wear"],
                                  bg=self.wcfg["bkg_color_wear"])
 
-        self.bar_last_laps = tk.Label(self, bar_style, text="LAPS", width=6,
+        self.bar_last_laps = tk.Label(self, bar_style, text="-- --", width=6,
                                       fg=self.wcfg["font_color_last_stint_laps"],
                                       bg=self.wcfg["bkg_color_last_stint_laps"])
-        self.bar_last_time = tk.Label(self, bar_style, text="TIME", width=6,
+        self.bar_last_time = tk.Label(self, bar_style, text="--:--", width=6,
                                       fg=self.wcfg["font_color_last_stint_time"],
                                       bg=self.wcfg["bkg_color_last_stint_time"])
-        self.bar_last_fuel = tk.Label(self, bar_style, text="FUEL", width=6,
+        self.bar_last_fuel = tk.Label(self, bar_style, text="---.-", width=6,
                                       fg=self.wcfg["font_color_last_stint_fuel"],
                                       bg=self.wcfg["bkg_color_last_stint_fuel"])
-        self.bar_last_wear = tk.Label(self, bar_style, text="WEAR", width=4,
+        self.bar_last_wear = tk.Label(self, bar_style, text="--%", width=4,
                                       fg=self.wcfg["font_color_last_stint_wear"],
                                       bg=self.wcfg["bkg_color_last_stint_wear"])
 
@@ -104,6 +85,26 @@ class Draw(Widget, MouseEvent):
         self.bar_last_fuel.grid(row=1, column=3, padx=0, pady=(bar_gap, 0))
         self.bar_last_wear.grid(row=1, column=4, padx=0, pady=(bar_gap, 0))
 
+        # Last data
+        self.checked = False
+        self.stint_running = False  # check whether current stint running
+        self.reset_stint = True  # reset stint stats
+
+        self.start_lap = 0
+        self.start_time = 0
+        self.start_fuel = 0
+        self.start_wear = 0
+
+        self.last_fuel = 0  # last recorded remaining fuel
+        self.last_wear = 0  # last recorded average tyre wear
+        self.last_cmpd = "--"  # last recorded tyre compound
+
+        self.last_laps_text = None
+        self.last_time_text = None
+        self.last_fuel_text = None
+        self.last_wear_text = None
+
+        # Start updating
         self.update_data()
 
         # Assign mouse event
@@ -118,33 +119,29 @@ class Draw(Widget, MouseEvent):
                 self.checked = True
 
             # Read stint data
-            (lap_num, wear_avg, time_curr, inpits, tire_idx, game_phase
-             ) = read_data.stint()
+            lap_num, wear_curr, time_curr, inpits, tire_idx = read_data.stint()
 
-            # Start updating
+            wear_avg = 100 - (sum(wear_curr) * 25)
             fuel_curr = module.fuel_usage.output_data[0]
-            ftire_cmpd = self.wcfg["tyre_compound_list"][tire_idx[0]:(tire_idx[0]+1)]
-            rtire_cmpd = self.wcfg["tyre_compound_list"][tire_idx[1]:(tire_idx[1]+1)]
 
+            stint_cmpd = self.set_tyre_cmp(tire_idx)
             stint_lap = max(lap_num - self.start_lap, 0)
             stint_time = max(time_curr - self.start_time, 0)
             stint_fuel = max(self.start_fuel - fuel_curr, 0)
             stint_wear = max(wear_avg - self.start_wear, 0)
-            stint_cmpd = f"{ftire_cmpd}{rtire_cmpd}"
 
             if not inpits:
+                self.last_cmpd = stint_cmpd
                 self.last_fuel = fuel_curr
                 self.last_wear = stint_wear
-                self.last_cmpd = stint_cmpd
                 self.stint_running = True
             else:
                 if self.stint_running:
-                    if (self.last_wear > stint_wear) or (self.last_fuel < fuel_curr):
-                        self.last_stint_lap = stint_lap
-                        self.last_stint_time = stint_time
-                        self.last_stint_fuel = stint_fuel
-                        self.last_stint_wear = self.last_wear
-                        self.last_stint_cmpd = self.last_cmpd
+                    if self.last_wear > stint_wear or self.last_fuel < fuel_curr:
+                        self.bar_last_laps.config(text=f"{self.last_cmpd}{stint_lap: =03.0f}")
+                        self.bar_last_time.config(text=calc.sec2stinttime(stint_time))
+                        self.bar_last_fuel.config(text=f"{stint_fuel:05.01f}")
+                        self.bar_last_wear.config(text=f"{self.last_wear:02.0f}%")
                         self.stint_running = False
                         self.reset_stint = True
 
@@ -158,21 +155,21 @@ class Draw(Widget, MouseEvent):
             if self.start_fuel < fuel_curr:
                 self.start_fuel = fuel_curr
 
-            if game_phase < 5:  # reset stint stats if session has not started
-                self.reset_stint = True
+            laps_text = f"{stint_cmpd}{stint_lap: =03.0f}"
+            self.update_stint("laps", laps_text, self.last_laps_text)
+            self.last_laps_text = laps_text
+
+            time_text = calc.sec2stinttime(stint_time)
+            self.update_stint("time", time_text, self.last_time_text)
+            self.last_time_text = time_text
 
             fuel_text = f"{stint_fuel:05.01f}"
-            last_fuel_text = f"{self.last_stint_fuel:05.01f}"
+            self.update_stint("fuel", fuel_text, self.last_fuel_text)
+            self.last_fuel_text = fuel_text
 
-            self.bar_laps.config(text=f"{stint_cmpd}{stint_lap: =03.0f}")
-            self.bar_time.config(text=calc.sec2stinttime(stint_time))
-            self.bar_fuel.config(text=fuel_text)
-            self.bar_wear.config(text=f"{stint_wear:02.0f}%")
-
-            self.bar_last_laps.config(text=f"{self.last_stint_cmpd}{self.last_stint_lap: =03.0f}")
-            self.bar_last_time.config(text=calc.sec2stinttime(self.last_stint_time))
-            self.bar_last_fuel.config(text=last_fuel_text)
-            self.bar_last_wear.config(text=f"{self.last_stint_wear:02.0f}%")
+            wear_text = f"{stint_wear:02.0f}%"
+            self.update_stint("wear", wear_text, self.last_wear_text)
+            self.last_wear_text = wear_text
 
         else:
             if self.checked:
@@ -182,3 +179,17 @@ class Draw(Widget, MouseEvent):
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
+
+    # GUI update methods
+    def update_stint(self, suffix, curr, last):
+        """Stint data"""
+        if curr != last:
+            getattr(self, f"bar_{suffix}").config(text=curr)
+
+    # Additional methods
+    def set_tyre_cmp(self, tc_index):
+        """Substitute tyre compound index with custom chars"""
+        ftire = self.wcfg["tyre_compound_list"][tc_index[0]:(tc_index[0]+1)]
+        rtire = self.wcfg["tyre_compound_list"][tc_index[1]:(tc_index[1]+1)]
+        tire_cmpd = f"{ftire}{rtire}"
+        return tire_cmpd

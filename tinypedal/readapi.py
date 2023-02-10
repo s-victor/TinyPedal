@@ -75,10 +75,7 @@ def instrument():
     autoclutch = chknm(info.LastExt.mPhysics.mAutoClutch)
     clutch = chknm(info.syncedVehicleTelemetry().mFilteredClutch)
     brake = chknm(info.syncedVehicleTelemetry().mFilteredBrake)
-    wheel_rot = (chknm(info.syncedVehicleTelemetry().mWheels[0].mRotation),
-                 chknm(info.syncedVehicleTelemetry().mWheels[1].mRotation),
-                 chknm(info.syncedVehicleTelemetry().mWheels[2].mRotation),
-                 chknm(info.syncedVehicleTelemetry().mWheels[3].mRotation))
+    wheel_rot = [chknm(info.syncedVehicleTelemetry().mWheels[data].mRotation) for data in range(4)]
     speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.y),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.z))
@@ -99,11 +96,7 @@ def pedal():
 
 def brake_pressure():
     """Brake pressure data"""
-    brake_pres = (chknm(info.syncedVehicleTelemetry().mWheels[0].mBrakePressure),
-                  chknm(info.syncedVehicleTelemetry().mWheels[1].mBrakePressure),
-                  chknm(info.syncedVehicleTelemetry().mWheels[2].mBrakePressure),
-                  chknm(info.syncedVehicleTelemetry().mWheels[3].mBrakePressure))
-    return brake_pres
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mBrakePressure) for data in range(4)]
 
 
 def steering():
@@ -171,41 +164,27 @@ def session():
 def stint():
     """Stint data"""
     lap_num = chknm(info.syncedVehicleTelemetry().mLapNumber)
-    wear_avg = 100 - (sum([chknm(info.syncedVehicleTelemetry().mWheels[data].mWear)
-                           for data in range(4)]) * 25)
+    wear_curr = [chknm(info.syncedVehicleTelemetry().mWheels[data].mWear) for data in range(4)]
     time_curr = chknm(info.LastScor.mScoringInfo.mCurrentET)
     inpits = chknm(info.syncedVehicleScoring().mInPits)
     tire_idx = (chknm(info.syncedVehicleTelemetry().mFrontTireCompoundIndex),
                 chknm(info.syncedVehicleTelemetry().mRearTireCompoundIndex))
-    game_phase = chknm(info.LastScor.mScoringInfo.mGamePhase)
-    return lap_num, wear_avg, time_curr, inpits, tire_idx, game_phase
+    return lap_num, wear_curr, time_curr, inpits, tire_idx
 
 
 def camber():
     """Camber data"""
-    raw_camber = (chknm(info.syncedVehicleTelemetry().mWheels[0].mCamber),
-                  chknm(info.syncedVehicleTelemetry().mWheels[1].mCamber),
-                  chknm(info.syncedVehicleTelemetry().mWheels[2].mCamber),
-                  chknm(info.syncedVehicleTelemetry().mWheels[3].mCamber))
-    return raw_camber
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mCamber) for data in range(4)]
 
 
 def toe():
     """Toe data"""
-    raw_toe = (chknm(info.syncedVehicleTelemetry().mWheels[0].mToe),
-               -chknm(info.syncedVehicleTelemetry().mWheels[1].mToe),
-               chknm(info.syncedVehicleTelemetry().mWheels[2].mToe),
-               -chknm(info.syncedVehicleTelemetry().mWheels[3].mToe))
-    return raw_toe
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mToe) for data in range(4)]
 
 
 def ride_height():
     """Ride height data"""
-    height = (chknm(info.syncedVehicleTelemetry().mWheels[0].mRideHeight),
-              chknm(info.syncedVehicleTelemetry().mWheels[1].mRideHeight),
-              chknm(info.syncedVehicleTelemetry().mWheels[2].mRideHeight),
-              chknm(info.syncedVehicleTelemetry().mWheels[3].mRideHeight))
-    return height
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mRideHeight) for data in range(4)]
 
 
 def temperature():
@@ -229,29 +208,18 @@ def wear():
     """Tyre wear data"""
     start_curr = chknm(info.syncedVehicleTelemetry().mLapStartET)
     lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
-    wear_curr = (chknm(info.syncedVehicleTelemetry().mWheels[0].mWear),
-                 chknm(info.syncedVehicleTelemetry().mWheels[1].mWear),
-                 chknm(info.syncedVehicleTelemetry().mWheels[2].mWear),
-                 chknm(info.syncedVehicleTelemetry().mWheels[3].mWear))
+    wear_curr = [chknm(info.syncedVehicleTelemetry().mWheels[data].mWear) for data in range(4)]
     return start_curr, lap_etime, wear_curr
 
 
 def tyre_load():
     """Tyre load data"""
-    raw_load = (chknm(info.syncedVehicleTelemetry().mWheels[0].mTireLoad),
-                chknm(info.syncedVehicleTelemetry().mWheels[1].mTireLoad),
-                chknm(info.syncedVehicleTelemetry().mWheels[2].mTireLoad),
-                chknm(info.syncedVehicleTelemetry().mWheels[3].mTireLoad))
-    return raw_load
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mTireLoad) for data in range(4)]
 
 
 def tyre_pressure():
     """Tyre pressure data"""
-    pressure = (chknm(info.syncedVehicleTelemetry().mWheels[0].mPressure),
-                chknm(info.syncedVehicleTelemetry().mWheels[1].mPressure),
-                chknm(info.syncedVehicleTelemetry().mWheels[2].mPressure),
-                chknm(info.syncedVehicleTelemetry().mWheels[3].mPressure))
-    return pressure
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mPressure) for data in range(4)]
 
 
 def force():

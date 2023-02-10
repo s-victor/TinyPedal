@@ -135,9 +135,9 @@ class Draw(Widget, MouseEvent):
 
             # Toe update
             self.bar_toe_fl.config(text=f"{toe[0]:+.2f}")
-            self.bar_toe_fr.config(text=f"{toe[1]:+.2f}")
+            self.bar_toe_fr.config(text=f"{-toe[1]:+.2f}")
             self.bar_toe_rl.config(text=f"{toe[2]:+.2f}")
-            self.bar_toe_rr.config(text=f"{toe[3]:+.2f}")
+            self.bar_toe_rr.config(text=f"{-toe[3]:+.2f}")
 
             # Ride height update
             self.bar_rideh_fl.config(text=f"{ride_height[0]:+.1f}",
