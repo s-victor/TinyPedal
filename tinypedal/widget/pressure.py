@@ -27,7 +27,7 @@ from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget, MouseEvent
 
-WIDGET_NAME = "tyre_pressure"
+WIDGET_NAME = "pressure"
 
 
 class Draw(Widget, MouseEvent):

@@ -26,7 +26,7 @@ import tkinter.font as tkfont
 from .. import readapi as read_data
 from ..base import Widget, MouseEvent
 
-WIDGET_NAME = "tyre_wear"
+WIDGET_NAME = "wear"
 
 
 class Draw(Widget, MouseEvent):
@@ -47,7 +47,7 @@ class Draw(Widget, MouseEvent):
 
         column_wear = self.wcfg["column_index_remaining"]
         column_diff = self.wcfg["column_index_wear_difference"]
-        column_laps = self.wcfg["column_index_lifespan"]
+        column_laps = self.wcfg["column_index_life_span"]
 
         # Draw label
         frame_wear = tk.Frame(self, bd=0, highlightthickness=0)

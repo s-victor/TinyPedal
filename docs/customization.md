@@ -306,6 +306,17 @@ This enables Force Feedback meter.
 Set Force Feedback clipping color.
 
 
+## Pressure
+    pressure_unit
+3 unit types are available: `0` = kPa, `1` = psi, `2` = bar.
+
+    show_tyre_load
+This enables Tyre Load display.
+
+    show_tyre_load_ratio
+Show percentage ratio of tyre load between each and total tyre load. Set `false` to show individual tyre load in Newtons.
+
+
 ## Radar
     area_scale
 Set radar area size multiplier. Higher value extends widget size & visible area. This value does not change vehicle size. Minimum value is limited to `0.5`.
@@ -495,18 +506,7 @@ Show personal current estimated laptime.
 Set prefix text that displayed beside laptime. Set to `""` to hide prefix text.
 
 
-## Tyre pressure
-    pressure_unit
-3 unit types are available: `0` = kPa, `1` = psi, `2` = bar.
-
-    show_tyre_load
-This enables Tyre Load display.
-
-    show_tyre_load_ratio
-Show percentage ratio of tyre load between each and total tyre load. Set `false` to show individual tyre load in Newtons.
-
-
-## Tyre wear
+## Wear
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
