@@ -557,7 +557,7 @@ class Setting:
             "column_index_current": 4,
             "column_index_estimated": 5,
         },
-        "wear": {
+        "tyre_wear": {
             "enable": True,
             "update_delay": 50,
             "position_x": "830",
@@ -645,9 +645,9 @@ class Setting:
                         if re.search('backup', data[1].lower()) is None  # ignore backup file
                         and re.search('classes', data[1].lower()) is None  # ignore classes file
                         ]
-        else:
-            cfg_list = ["default"]
-        return cfg_list
+            if cfg_list:
+                return cfg_list
+        return ["default"]
 
     def load(self):
         """Load & validate setting"""
@@ -749,23 +749,23 @@ class VehicleClass:
             json.dump(self.classdict_user, jsonfile, indent=4)
 
 
-def check_invalid_key(target, origin, dict_user):
+def check_invalid_key(key_list_def, key_list_user, dict_user):
     """First step, check & remove invalid key from user list"""
-    for _, key in enumerate(target):  # loop through user key list
-        if key not in origin:  # check each user key in default list
+    for key in key_list_user:  # loop through user key list
+        if key not in key_list_def:  # check each user key in default list
             dict_user.pop(key)  # remove invalid key
 
 
-def check_missing_key(target, origin, dict_user, dict_def):
+def check_missing_key(key_list_def, key_list_user, dict_user, dict_def):
     """Second step, adding missing default key to user list"""
-    for _, key in enumerate(target):  # loop through default key list
-        if key not in origin:  # check each default key in user list
+    for key in key_list_def:  # loop through default key list
+        if key not in key_list_user:  # check each default key in user list
             dict_user[key] = dict_def[key]  # add missing item to user
 
 
-def sort_key_order(dict_user, dict_def):
-    """Third step, sort user key order according to default key"""
-    for d_key in dict_def:  # loop through default key
+def sort_key_order(key_list_def, dict_user):
+    """Third step, sort user key order according to default key list"""
+    for d_key in key_list_def:  # loop through default key list
         for u_key in dict_user:  # loop through user key
             if u_key == d_key:
                 temp_key = u_key  # store user key
@@ -776,12 +776,12 @@ def sort_key_order(dict_user, dict_def):
 
 
 def check_key(dict_user, dict_def):
-    """Create key-only check list, then validate key"""
-    key_list_def = list(dict_def)
-    key_list_user = list(dict_user)
-    check_invalid_key(key_list_user, key_list_def, dict_user)
+    """Create key-only check list to avoid error, then validate key"""
+    key_list_def = tuple(dict_def)
+    key_list_user = tuple(dict_user)
+    check_invalid_key(key_list_def, key_list_user, dict_user)
     check_missing_key(key_list_def, key_list_user, dict_user, dict_def)
-    sort_key_order(dict_user, dict_def)
+    sort_key_order(key_list_def, dict_user)
 
 
 def verify_setting(dict_user, dict_def):
