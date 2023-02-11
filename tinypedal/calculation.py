@@ -105,7 +105,7 @@ def rake2angle(v_rake, wheelbase):
 
 def slip_ratio(w_rot, w_radius, v_speed):
     """Calculate slip ratio (percentage), speed unit in m/s"""
-    if v_speed:
+    if v_speed > 0.1:  # set minimum speed to avoid flickering while stationary
         return abs((v_speed - abs(w_rot * w_radius)) / v_speed)
     return 0
 
