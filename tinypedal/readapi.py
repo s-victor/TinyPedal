@@ -122,8 +122,7 @@ def gear():
 
 def blue_flag():
     """Blue flag data"""
-    blue = chknm(info.syncedVehicleScoring().mFlag)
-    return blue
+    return chknm(info.syncedVehicleScoring().mFlag)
 
 
 def yellow_flag():
@@ -179,7 +178,10 @@ def camber():
 
 def toe():
     """Toe data"""
-    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mToe) for data in range(4)]
+    return (chknm(info.syncedVehicleTelemetry().mWheels[0].mToe),
+            -chknm(info.syncedVehicleTelemetry().mWheels[1].mToe),
+            chknm(info.syncedVehicleTelemetry().mWheels[2].mToe),
+            -chknm(info.syncedVehicleTelemetry().mWheels[3].mToe))
 
 
 def ride_height():

@@ -108,6 +108,14 @@ class Draw(Widget, MouseEvent):
         self.bar_rake.grid(row=10, column=0, padx=0, pady=0)
         self.bar_rakeangle.grid(row=10, column=1, padx=0, pady=0)
 
+        # Last data
+        self.last_camber = [-1] * 4
+        self.last_toe = [-1] * 4
+        self.last_ride_height = [-1] * 4
+        self.last_rake = -1
+        self.last_rake_angle = -1
+
+        # Start updating
         self.update_data()
 
         # Assign mouse event
@@ -126,42 +134,63 @@ class Draw(Widget, MouseEvent):
             # Read ride height & rake data
             ride_height = tuple(map(calc.meter2millmeter, read_data.ride_height()))
 
-            # Start updating
-            # Camber update
-            self.bar_camber_fl.config(text=f"{camber[0]:+.2f}")
-            self.bar_camber_fr.config(text=f"{camber[1]:+.2f}")
-            self.bar_camber_rl.config(text=f"{camber[2]:+.2f}")
-            self.bar_camber_rr.config(text=f"{camber[3]:+.2f}")
+            # Camber
+            self.update_wheel("camber_fl", camber[0], self.last_camber[0])
+            self.update_wheel("camber_fr", camber[1], self.last_camber[1])
+            self.update_wheel("camber_rl", camber[2], self.last_camber[2])
+            self.update_wheel("camber_rr", camber[3], self.last_camber[3])
+            self.last_camber = camber
 
-            # Toe update
-            self.bar_toe_fl.config(text=f"{toe[0]:+.2f}")
-            self.bar_toe_fr.config(text=f"{-toe[1]:+.2f}")
-            self.bar_toe_rl.config(text=f"{toe[2]:+.2f}")
-            self.bar_toe_rr.config(text=f"{-toe[3]:+.2f}")
+            # Toe in
+            self.update_wheel("toe_fl", toe[0], self.last_toe[0])
+            self.update_wheel("toe_fr", toe[1], self.last_toe[1])
+            self.update_wheel("toe_rl", toe[2], self.last_toe[2])
+            self.update_wheel("toe_rr", toe[3], self.last_toe[3])
+            self.last_toe = toe
 
-            # Ride height update
-            self.bar_rideh_fl.config(text=f"{ride_height[0]:+.1f}",
-                                     bg=self.color_rideh(
-                                        ride_height[0], self.wcfg["rideheight_offset_front"]))
-            self.bar_rideh_fr.config(text=f"{ride_height[1]:+.1f}",
-                                     bg=self.color_rideh(
-                                        ride_height[1], self.wcfg["rideheight_offset_front"]))
-            self.bar_rideh_rl.config(text=f"{ride_height[2]:+.1f}",
-                                     bg=self.color_rideh(
-                                        ride_height[2], self.wcfg["rideheight_offset_rear"]))
-            self.bar_rideh_rr.config(text=f"{ride_height[3]:+.1f}",
-                                     bg=self.color_rideh(
-                                        ride_height[3], self.wcfg["rideheight_offset_rear"]))
+            # Ride height
+            self.update_rideh("rideh_fl", ride_height[0], self.last_ride_height[0],
+                              self.wcfg["rideheight_offset_front"])
+            self.update_rideh("rideh_fr", ride_height[1], self.last_ride_height[1],
+                              self.wcfg["rideheight_offset_front"])
+            self.update_rideh("rideh_rl", ride_height[2], self.last_ride_height[2],
+                              self.wcfg["rideheight_offset_rear"])
+            self.update_rideh("rideh_rr", ride_height[3], self.last_ride_height[3],
+                              self.wcfg["rideheight_offset_rear"])
+            self.last_ride_height = ride_height
 
-            # Rake update
+            # Rake
             rake = calc.rake(*ride_height)
-            rake_angle = calc.rake2angle(rake, self.wcfg["wheelbase"])
+            self.update_rideh("rake", rake, self.last_rake, 0)
+            self.last_rake = rake
 
-            self.bar_rake.config(text=f"{rake:+.1f}", bg=self.color_rideh(rake, 0))
-            self.bar_rakeangle.config(text=f" {rake_angle:.2f}°", bg=self.color_rideh(rake, 0))
+            # Rake angle
+            rake_angle = calc.rake2angle(rake, self.wcfg["wheelbase"])
+            self.update_rakeangle(rake_angle, self.last_rake_angle, 0)
+            self.last_rake_angle = rake_angle
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
+
+    # GUI update methods
+    def update_wheel(self, suffix, curr, last):
+        """Wheel data"""
+        if round(curr, 2) != round(last, 2):
+            getattr(self, f"bar_{suffix}").config(text=f"{curr:+.02f}")
+
+    def update_rideh(self, suffix, curr, last, offset):
+        """Ride height data"""
+        if round(curr, 1) != round(last, 1):
+            getattr(self, f"bar_{suffix}").config(
+                text=f"{curr:+.01f}",
+                bg=self.color_rideh(curr, offset))
+
+    def update_rakeangle(self, curr, last, offset):
+        """Rake angle data"""
+        if round(curr, 2) != round(last, 2):
+            self.bar_rakeangle.config(
+                text=f" {curr:+.02f}°",
+                bg=self.color_rideh(curr, offset))
 
     # Additional methods
     def color_rideh(self, height, offset):

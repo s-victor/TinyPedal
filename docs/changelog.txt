@@ -65,7 +65,7 @@ TinyPedal (WIP)
       for better readability and consistency.
     - Optimized GUI update methods for widgets:
       Cruise, Deltabest, DRS, Engine, Force, Fuel, Instrument, Pedal, Pressure,
-      Sectors, Session, Steering, Stint, Timing, Wear, Weather.
+      Sectors, Session, Steering, Stint, Timing, Wear, Weather, Wheel.
     - Use Linux XDG directories for storing user data (by Bernat).
     - Add Linux instructions to README.md (by Bernat).
     - Improved various calculation.
