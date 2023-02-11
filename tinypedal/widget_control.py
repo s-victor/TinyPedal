@@ -41,7 +41,7 @@ from .widget import (cruise,
                      stint,
                      temperature,
                      timing,
-                     wear,
+                     tyre_wear,
                      weather,
                      wheel
                      )
@@ -65,7 +65,7 @@ WIDGET_PACK = (
     stint,
     temperature,
     timing,
-    wear,
+    tyre_wear,
     weather,
     wheel
     )

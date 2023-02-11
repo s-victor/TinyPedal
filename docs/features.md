@@ -124,7 +124,7 @@
 ## Timing
 - Show session best, personal best, last, current, and delta estimated laptime.
 
-## Wear
+## Tyre wear
 - Show total remaining tyre in percentage that changes color according to wear.
 - Show total tyre wear difference of previous lap.
 - Show realtime tyre wear difference of current lap.

@@ -51,7 +51,8 @@ TinyPedal (WIP)
     - [New]Each info display order can be customized via "column_index" in JSON.
     - Removed double lines horizontal layout.
 
-* Wear Widget
+* Tyre wear Widget
+    - Renamed "Wear Widget" to "Tyre wear Widget".
     - [New]Each info font & background color can be customized in JSON.
     - Adjusted options naming in JSON.
 
@@ -65,10 +66,11 @@ TinyPedal (WIP)
       for better readability and consistency.
     - Optimized GUI update methods for widgets:
       Cruise, Deltabest, DRS, Engine, Force, Fuel, Instrument, Pedal, Pressure,
-      Sectors, Session, Steering, Stint, Timing, Wear, Weather, Wheel.
+      Sectors, Session, Steering, Stint, Timing, Tyre wear, Weather, Wheel.
     - Use Linux XDG directories for storing user data (by Bernat).
     - Add Linux instructions to README.md (by Bernat).
     - Improved various calculation.
+    - Fixed setting loading errors.
 
 * Misc
     - Updated customization guide with new configurable options for each widget.

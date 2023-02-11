@@ -506,7 +506,7 @@ Show personal current estimated laptime.
 Set prefix text that displayed beside laptime. Set to `""` to hide prefix text.
 
 
-## Wear
+## Tyre wear
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 

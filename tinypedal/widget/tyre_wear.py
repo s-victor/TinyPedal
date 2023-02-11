@@ -26,7 +26,7 @@ import tkinter.font as tkfont
 from .. import readapi as read_data
 from ..base import Widget, MouseEvent
 
-WIDGET_NAME = "wear"
+WIDGET_NAME = "tyre_wear"
 
 
 class Draw(Widget, MouseEvent):
