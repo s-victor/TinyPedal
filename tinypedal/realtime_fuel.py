@@ -45,7 +45,7 @@ class FuelUsage:
         self.running = True
         self.stopped = False
         fuel_thread = threading.Thread(target=self.__calculation)
-        fuel_thread.setDaemon(True)
+        fuel_thread.daemon=True
         fuel_thread.start()
         print("fuel module started")
 

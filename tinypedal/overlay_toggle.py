@@ -113,7 +113,7 @@ class OverlayAutoHide:
         self.running = True
         self.stopped = False
         autohide_thread = threading.Thread(target=self.__autohide)
-        autohide_thread.setDaemon(True)
+        autohide_thread.daemon=True
         autohide_thread.start()
         print("auto-hide module started")
 

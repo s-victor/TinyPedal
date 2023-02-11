@@ -42,7 +42,7 @@ class RelativeInfo:
         self.running = True
         self.stopped = False
         relative_thread = threading.Thread(target=self.__relative)
-        relative_thread.setDaemon(True)
+        relative_thread.daemon=True
         relative_thread.start()
         print("relative module started")
 

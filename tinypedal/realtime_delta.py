@@ -45,7 +45,7 @@ class DeltaTime:
         self.running = True
         self.stopped = False
         delta_thread = threading.Thread(target=self.__calculation)
-        delta_thread.setDaemon(True)
+        delta_thread.daemon=True
         delta_thread.start()
         print("delta module started")
 
