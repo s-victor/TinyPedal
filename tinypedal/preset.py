@@ -82,7 +82,8 @@ class LoadPreset(tk.Toplevel):
         for obj in WIDGET_PACK:
             setattr(self, f"chk_{obj.WIDGET_NAME}", tk.BooleanVar())
             getattr(self, f"chk_{obj.WIDGET_NAME}").set(cfg.setting_user[obj.WIDGET_NAME]["enable"])
-            menu_widgets.add_checkbutton(label=obj.WIDGET_NAME.capitalize(), onvalue=1, offvalue=0,
+            menu_widgets.add_checkbutton(label=self.format_widget_name(obj.WIDGET_NAME),
+                                         onvalue=1, offvalue=0,
                                          variable=getattr(self, f"chk_{obj.WIDGET_NAME}"),
                                          command=lambda wname=obj.WIDGET_NAME: wctrl.toggle(wname)
                                          )
@@ -263,6 +264,16 @@ class LoadPreset(tk.Toplevel):
     def int_signal_handler(self, sign, frame):
         """Quit by keyboard interrupt"""
         self.quit_app()
+
+    @staticmethod
+    def format_widget_name(name):
+        """Format widget name"""
+        uppercase = ["drs"]
+        name = re.sub("_", " ", name)
+
+        if name in uppercase:
+            return name.upper()
+        return name.capitalize()
 
 
 class CreatePreset(tk.Toplevel):

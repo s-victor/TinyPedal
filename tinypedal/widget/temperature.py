@@ -105,6 +105,7 @@ class Draw(Widget, MouseEvent):
             self.bar_ttemp_rl.grid(row=1, column=1, padx=0, pady=0)
             self.bar_ttemp_rr.grid(row=1, column=2, padx=0, pady=0)
 
+        # Start updating
         self.update_data()
 
         # Assign mouse event
@@ -117,7 +118,6 @@ class Draw(Widget, MouseEvent):
             # Read average tyre & brake temperature data
             ttemp, btemp = read_data.temperature()
 
-            # Start updating
             # Set up display temps
             ttemp_d = tuple(map(self.temp_units, ttemp))
             btemp_d = tuple(map(self.temp_units, btemp))

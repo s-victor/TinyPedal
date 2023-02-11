@@ -37,6 +37,8 @@ class TrayIcon:
     """
 
     def __init__(self, master, preset_manager):
+        self.preset_manager = preset_manager
+
         # Config tray icon
         name = f"TinyPedal v{VERSION}"
         image = Image.open("icon.ico")
@@ -45,12 +47,12 @@ class TrayIcon:
         separator = pystray.Menu.SEPARATOR
 
         # Create widget menu
-        widget_items = tuple(map(create_widget_menu, WIDGET_PACK))
+        widget_items = tuple(map(self.create_widget_menu, WIDGET_PACK))
         widget_menu = menu(*widget_items)
 
         # Create main menu
         main_menu = (
-            item("Load Preset", preset_manager.unhide),
+            item("Load Preset", self.preset_manager.unhide),
             separator,
             item("Lock Overlay", module.overlay_lock.toggle,
                  checked=lambda enabled: cfg.overlay["fixed_position"]),
@@ -60,7 +62,7 @@ class TrayIcon:
             item("Widgets", widget_menu),
             separator,
             item("About", master.deiconify),
-            item("Quit", preset_manager.quit_app),
+            item("Quit", self.preset_manager.quit_app),
         )
 
         self.tray = pystray.Icon("icon", icon=image, title=name, menu=main_menu)
@@ -69,14 +71,13 @@ class TrayIcon:
         """Start tray icon"""
         threading.Thread(target=self.tray.run).start()
 
+    def create_widget_menu(self, obj):
+        """Create widget menu"""
+        widget_name = obj.WIDGET_NAME
+        display_name = self.preset_manager.format_widget_name(widget_name)
 
-def create_widget_menu(obj):
-    """Create widget menu"""
-    widget_name = obj.WIDGET_NAME
-    display_name = widget_name.capitalize()
-
-    return pystray.MenuItem(
-            display_name,  # widget name
-            lambda: wctrl.toggle(widget_name),  # call widget toggle
-            checked=lambda _: cfg.setting_user[widget_name]["enable"]  # check toggle state
-            )
+        return pystray.MenuItem(
+                display_name,  # widget name
+                lambda: wctrl.toggle(widget_name),  # call widget toggle
+                checked=lambda _: cfg.setting_user[widget_name]["enable"]  # check toggle state
+                )
