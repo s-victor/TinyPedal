@@ -62,10 +62,6 @@
 - Show Pedal input, both Filtered & Unfiltered input side by side, which helps distinguish car specific assists such as TC/ABS/Auto-clutch, etc.
 - Show Force Feedback meter (optional), and clipping indicator.
 
-## Pressure
-- Show Tyre pressure, with kPa, psi, or bar as display unit.
-- Show Tyre load (optional) in Newtons or percentage ratio.
-
 ## Radar
 - Show car radar that displays relative position of player's vehicle against up 6 nearby vehicles.
 - Vehicle changes color if is laps ahead or behind player.
@@ -123,6 +119,10 @@
 
 ## Timing
 - Show session best, personal best, last, current, and delta estimated laptime.
+
+## Tyre pressure
+- Show Tyre pressure, with kPa, psi, or bar as display unit.
+- Show Tyre load (optional) in Newtons or percentage ratio.
 
 ## Tyre wear
 - Show total remaining tyre in percentage that changes color according to wear.
