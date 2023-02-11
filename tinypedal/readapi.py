@@ -32,13 +32,14 @@ Access rF2 shared memory data using:
 """
 
 import re
-from pyRfactor2SharedMemory.sharedMemoryAPI import SimInfoAPI, Cbytestring2Python
+from pyRfactor2SharedMemory.sharedMemoryAPI import Cbytestring2Python
+from pyRfactor2SharedMemory.SimInfoSync import SimInfoSync
 
 from . import calculation as calc
 
 
 # Load Shared Memory API
-info = SimInfoAPI()
+info = SimInfoSync()
 info.startUpdating()  # start Shared Memory updating thread
 
 chknm = calc.in2zero
