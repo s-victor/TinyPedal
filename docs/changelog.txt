@@ -1,10 +1,24 @@
-TinyPedal (WIP)
+(WIP)
 -----------------------------
+* General
+    - Added "column_index" option for most widgets.
+    - Added "text_padding" option for most widgets,
+      which sets text edge padding value that multiplies & scales with `font_size`.
+      This option affects how compact widget looks.
+      Default is `0.2` for most widgets.
+    - Added individual font & background color options for most widgets.
+    - Each info display can be individually disabled for most widgets.
+
+* [New]Brake Widget
+    - Separated Brake temperature info from Temperature Widget to the new Brake Widget.
+    - Show average brake temperature of current lap that calculated in realtime.
+    - Highlighting average brake temperature from previous lap after crossing start/finish line.
+    - Show/hide degree sign for maximum compact looking.
+    - Added "leading_zero" and more options in JSON.
+
 * Engine Widget
     - [New]Added horizontal layout.
     - [New]Added "turbo_pressure_unit" option (bar, psi, kPa) in JSON, default is bar.
-    - [New]Each info font & background color can be customized in JSON.
-    - [New]Each info display order can be customized via "column_index" in JSON.
     - [New]Added Fahrenheit unit for temperature display via "temp_unit" in JSON.
 
 * Force Widget
@@ -17,17 +31,18 @@ TinyPedal (WIP)
     - [New]Each instrument icon can be individually hide in JSON.
 
 * Pedal Widget
-    - [New]Added "show_average_brake_pressure" option in JSON that
-      shows average brake pressure changes applied on all wheels,
+    - [New]Added "show_brake_pressure" option in JSON that
+      shows brake pressure changes applied on all wheels,
       which auto scales with max brake pressure and
-      indicates average amount brake released by ABS on all wheels.
+      indicates amount brake released by ABS on all wheels.
       This option is enabled by default, which replaces
       game's filtered brake input that cannot show ABS.
 
 * Pressure Widget
-    - [New]Each info display order can be customized via "column_index" in JSON.
+    - [New]Show percentage brake pressure of each wheel.
     - Tyre load ratio is now calculated against sum of all wheels load.
     - Reworked layouts (vertical & horizontal).
+    - Added "show_caption" option in JSON.
 
 * Relative Widget
     - Removes brackets from combined driver name if name is empty.
@@ -43,38 +58,48 @@ TinyPedal (WIP)
 * Stint Widget
     - Removed "fuel_unit" option, now uses fuel unit setting from Fuel Widget instead.
 
+* [New]Suspension Widget
+    - Separated Ride height & Rake angle info from Wheel Widget to the new Suspension Widget.
+    - "ride_height_offset" option is now available for all wheels.
+    - Separated warning color options as "warning_color_bottoming" for Ride height
+      and "warning_color_negative_rake" for Rake angle.
+    - Added "show_caption" option in JSON.
+
+* Temperature Widget
+    - [New]Added "ICO_mode" option which shows full tyre temperature display mode (inner/center/outer).
+    - [New]Added "show_innerlayer" option which shows tyre inner layer temperature.
+    - [New]Added "show_tyre_compound" option which shows tyre compound index letter (front/rear).
+    - [New]Show/hide degree sign for maximum compact looking.
+    - [New]Added "leading_zero" and more options in JSON.
+    - Removed Brake temperature info.
+
 * Timing Widget
     - [New]Show current session best laptime from all players,
       with additional option to show laptime from same vehicle class only (default ON).
-    - [New]Personal best, last, estimated laptime display can be individually hide in JSON.
     - [New]Each info prefix text can be customized or hide in JSON.
-    - [New]Each info display order can be customized via "column_index" in JSON.
     - Removed double lines horizontal layout.
 
 * Wear Widget
-    - [New]Each info font & background color can be customized in JSON.
     - Adjusted options naming in JSON.
+    - Added "show_caption" option in JSON.
 
 * Weather Widget
-    - [New]Each info display order can be customized via "column_index" in JSON.
-    - [New]Each info font & background color can be customized in JSON.
     - Moved "Dry/Wet" label to wetness bar.
 
 * Core
     - Auto sorts all options in JSON file according to default setting template
       for better readability and consistency.
-    - Optimized GUI update methods for widgets:
-      Cruise, Deltabest, DRS, Engine, Force, Fuel, Instrument, Pedal, Pressure,
-      Sectors, Session, Steering, Stint, Timing, Wear, Weather, Wheel.
-    - Use Linux XDG directories for storing user data (by Bernat).
+    - Optimized GUI update methods for all widgets.
     - Add Linux instructions to README.md (by Bernat).
     - Improved various calculation.
     - Fixed setting loading errors.
+    - Fixed a hanging problem if no widgets enabled while exiting APP.
 
 * Misc
     - Updated customization guide with new configurable options for each widget.
+    - Updated feature.md.
 
-TinyPedal 1.10.3 (2023-01-31)
+1.10.3 (2023-01-31)
 -----------------------------
 * Relative Widget
     - [New]Implemented lazy GUI update method that reduces Relative Widget CPU usage by 80% more.
@@ -97,7 +122,7 @@ TinyPedal 1.10.3 (2023-01-31)
 * Misc
     - Updated customization guide with new configurable options.
 
-TinyPedal 1.10.2 (2023-01-29)
+1.10.2 (2023-01-29)
 -----------------------------
 * Preset manager
     - [New]Add menu bar with same functionality as tray icon menu for all platform,
@@ -123,14 +148,14 @@ TinyPedal 1.10.2 (2023-01-29)
     - Updated contributors.md with new contributor (Bernat).
     - Updated customization guide with new configurable setting.
 
-TinyPedal 1.10.1 (2023-01-14)
+1.10.1 (2023-01-14)
 -----------------------------
 * Core
     - Fixed invalid deltabest & fuel data filename that contains special characters,
       which would cause saving & loading error.
     - Improved calculation for cruise, pedal, pressure, temperature, wheel widgets.
 
-TinyPedal 1.10.0 (2022-12-09)
+1.10.0 (2022-12-09)
 -----------------------------
 * [New]Sectors Widget (created by Nibo)
     - Show accumulated target sector time, with two available options:
@@ -170,7 +195,7 @@ TinyPedal 1.10.0 (2022-12-09)
     - Updated feature.md for Sectors Widget.
     - Updated contributors.md with new contributor (Nibo).
 
-TinyPedal 1.9.5 (2022-11-24)
+1.9.5 (2022-11-24)
 ----------------------------
 * Fuel Widget
     - [New]Show "estimated fuel consumption" that is constantly updated and calculated
@@ -202,12 +227,12 @@ TinyPedal 1.9.5 (2022-11-24)
       with apps or functions that uses none-synced methods.
       Note: TinyPedal now uses player-synced methods for reading shared memory.
 
-TinyPedal 1.9.4 (2022-11-20)
+1.9.4 (2022-11-20)
 ----------------------------
 * pyRfactor2SharedMemory library
     - Fixed "players_mid" variable that could be referenced before assign.
 
-TinyPedal 1.9.3 (2022-11-20)
+1.9.3 (2022-11-20)
 ----------------------------
 * Core
     - Auto-hide function is reverted back to previous method,
@@ -228,7 +253,7 @@ TinyPedal 1.9.3 (2022-11-20)
       and compares with the mID from Telemetry info to ensure
       all assigned Telemetry & Scoring info data is correctly synced to local player.
 
-TinyPedal 1.9.2 (2022-11-19)
+1.9.2 (2022-11-19)
 ----------------------------
 * Preset manager
     - [New]TinyPedal now supports reload & change preset while running.
@@ -261,13 +286,13 @@ TinyPedal 1.9.2 (2022-11-19)
 * Misc
     - Updated customization guide with new configurable setting for Wear Widget.
 
-TinyPedal 1.9.0 (2022-11-07)
+1.9.0 (2022-11-07)
 ----------------------------
 * [New]Preset manager
     - Added new "Preset" list window when launching TinyPedal,
       where user can load exist preset, or create new preset.
       Preset files are sorted by last modified date.
-    - All JSON preset files are now saved in `TinyPedal\settings` folder.
+    - All JSON preset files are now saved in "TinyPedal\settings" folder.
       User may manually move all old JSON files into "settings" folder.
       Note: Preset manager does not provide file delete function (to avoid accidental deletion).
 
@@ -281,7 +306,7 @@ TinyPedal 1.9.0 (2022-11-07)
     - Updated third-party software libraries.
     - Updated customization guide with info about the new preset manager.
 
-TinyPedal 1.8.1 (2022-11-01)
+1.8.1 (2022-11-01)
 ----------------------------
 * Core
     - Improved auto-hide function & player status check.
@@ -290,7 +315,7 @@ TinyPedal 1.8.1 (2022-11-01)
 * pyRfactor2SharedMemory library
     - [New]Added an argument to pass rf2 PID to SimInfo for reading data from dedicated server.
 
-TinyPedal 1.8.0 (2022-10-07)
+1.8.0 (2022-10-07)
 ----------------------------
 * Relative Widget
     - [New]Relative Widget now displays up to 6 additional players (3 front & 3 behind, total 13),
@@ -308,7 +333,7 @@ TinyPedal 1.8.0 (2022-10-07)
 * Misc
     - Updated customization guide with new configurable setting for Relative & Radar Widget.
 
-TinyPedal 1.7.0 (2022-10-03)
+1.7.0 (2022-10-03)
 ----------------------------
 * [New]Fuel Module
     - Moved all fuel usage calculation into the new separated "Fuel Module"
@@ -329,7 +354,7 @@ TinyPedal 1.7.0 (2022-10-03)
     - Updated customization guide with new configurable setting for Gear Widget.
     - Updated features list.
 
-TinyPedal 1.6.10 (2022-09-30)
+1.6.10 (2022-09-30)
 ----------------------------
 * Core
     - Extended laptime validation period from 2s to 8s in case of game's new cut detection being triggered.
@@ -338,17 +363,17 @@ TinyPedal 1.6.10 (2022-09-30)
 * pyRfactor2SharedMemory library
     - Added numeric validation for every sharedmemory data input to eliminate data reading errors during game crash, freeze or unexpected interruption.
 
-TinyPedal 1.6.9 (2022-09-11)
+1.6.9 (2022-09-11)
 ----------------------------
 * Core
     - Fixed an empty list issue that can result "list index out of range" in Relative module.
 
-TinyPedal 1.6.8 (2022-09-03)
+1.6.8 (2022-09-03)
 ----------------------------
 * Core
     - Fixed a "list index out of range" issue in Relative module when client lost connection from server.
 
-TinyPedal 1.6.7 (2022-08-15)
+1.6.7 (2022-08-15)
 ----------------------------
 * Relative Widget
     - [New]Add tyre compound index (front/rear) column with customizable compound letter & color in config.json.
@@ -363,7 +388,7 @@ TinyPedal 1.6.7 (2022-08-15)
     - Updated customization guide with new configurable setting for Relative Widget.
     - Updated features list.
 
-TinyPedal 1.6.6 (2022-07-31)
+1.6.6 (2022-07-31)
 ----------------------------
 * Instrument Widget
     - Improved wheel radius calculation.
@@ -379,7 +404,7 @@ TinyPedal 1.6.6 (2022-07-31)
 * Misc
     - Minor changes to customization guide.
 
-TinyPedal 1.6.5 (2022-07-16)
+1.6.5 (2022-07-16)
 ----------------------------
 * Cruise Widget
     - [New]Add "track_clock_time_scale" setting in config.json for time scaled session.
@@ -391,13 +416,13 @@ TinyPedal 1.6.5 (2022-07-16)
 * Misc
     - Updated customization guide with new configurable setting for Cruise Widget.
 
-TinyPedal 1.6.4 (2022-07-08)
+1.6.4 (2022-07-08)
 ----------------------------
 * Core
     - Fixed a rare "list index out of range" error in Relative module when player has lost connection from a server,
       which would stop relative date from updating.
 
-TinyPedal 1.6.3 (2022-07-03)
+1.6.3 (2022-07-03)
 ----------------------------
 * Core
     - Deltatime module now stores last laptime value to "last_laptime" key value in "timing" section of config.json.
@@ -410,7 +435,7 @@ TinyPedal 1.6.3 (2022-07-03)
 * Misc
     - Updated customization guide with new configurable setting for Timing Widget.
 
-TinyPedal 1.6.2 (2022-06-30)
+1.6.2 (2022-06-30)
 ----------------------------
 * Gear Widget
     - [New]Add Startlights display with 20ms(50fps) accuracy, which works the same way as how the game is designed.
@@ -424,7 +449,7 @@ TinyPedal 1.6.2 (2022-06-30)
 * Misc
     - Updated customization guide with new configurable setting for Gear Widget.
 
-TinyPedal 1.6.1 (2022-06-29)
+1.6.1 (2022-06-29)
 ----------------------------
 * Instrument Widget
     - Add new "minimum_speed" setting in config file, default value is 16.5 (m/s),
@@ -451,7 +476,7 @@ TinyPedal 1.6.1 (2022-06-29)
 * Misc
     - Updated customization guide with new configurable setting for Gear & Instrument Widget.
 
-TinyPedal 1.6.0 (2022-06-24)
+1.6.0 (2022-06-24)
 ----------------------------
 * [New]Instrument Widget
     - Show Headlights state.
@@ -483,12 +508,12 @@ TinyPedal 1.6.0 (2022-06-24)
     - Updated features.md with Instrument Widget info.
     - Updated README.md.
 
-TinyPedal 1.5.1 (2022-06-08)
+1.5.1 (2022-06-08)
 ----------------------------
 * Radar Widget
     - Now draw vehicle orientation relative to player vehicle.
 
-TinyPedal 1.5.0 (2022-06-07)
+1.5.0 (2022-06-07)
 ----------------------------
 * [New]Radar Widget
     - Show car radar that displays relative position of player's vehicle against up 6 nearby vehicles.
@@ -507,18 +532,18 @@ TinyPedal 1.5.0 (2022-06-07)
     - Updated customization guide with new configurable setting for Radar Widget.
     - Updated features.md with Radar Widget info.
 
-TinyPedal 1.4.2 (2022-06-06)
+1.4.2 (2022-06-06)
 ----------------------------
 * Core
     - Replaced mInRealtimeFC with mIgnitionStarter for player status check and auto-hide function.
 
-TinyPedal 1.4.1 (2022-06-05)
+1.4.1 (2022-06-05)
 ----------------------------
 * Core
     - Removed additional player index check that freezes overlay update.
       Overlay now works correctly with Driver Swap.
 
-TinyPedal 1.4.0 (2022-06-01)
+1.4.0 (2022-06-01)
 ----------------------------
 * [New]Cruise Widget
     - Show compass directions with three-figure bearings that matches game's cardinal directions.
@@ -538,20 +563,20 @@ TinyPedal 1.4.0 (2022-06-01)
     - Updated customization guide with new configurable setting for Cruise & Fuel Widget.
     - Updated features.md with Cruise Widget info.
 
-TinyPedal 1.3.3 (2022-05-28)
+1.3.3 (2022-05-28)
 ----------------------------
 * Core
     - Added additional best laptime validation condition for deltabest module
       that fixed invalid deltabest laptime being saved in some rare cases. 
 
-TinyPedal 1.3.2 (2022-05-24)
+1.3.2 (2022-05-24)
 ----------------------------
 * Core
     - Add additional player index check before refreshing overlay data,
       to avoid data mismatch that could happen in a multiplayer session
       due to player index change.
 
-TinyPedal 1.3.0 (2022-05-16)
+1.3.0 (2022-05-16)
 ----------------------------
 * [New]Stint Widget
     - Show realtime stint data, includes:
@@ -572,7 +597,7 @@ TinyPedal 1.3.0 (2022-05-16)
     - Updated customization guide with new configurable setting for Stint Widget.
     - Updated features.md with Stint Widget info.
 
-TinyPedal 1.2.0 (2022-05-06)
+1.2.0 (2022-05-06)
 ----------------------------
 * [New]Session Widget
     - Show current system clock time, with customizable time format.
@@ -587,7 +612,7 @@ TinyPedal 1.2.0 (2022-05-06)
     - Updated customization guide with new configurable setting for Session Widget.
     - Updated features.md with Session Widget info.
 
-TinyPedal 1.1.11 (2022-05-03)
+1.1.11 (2022-05-03)
 ----------------------------
 * Pressure Widget
     - [New]Add option to display tyre load percentage ratio between left & right tyres of same axle (default on).
@@ -607,13 +632,13 @@ TinyPedal 1.1.11 (2022-05-03)
     - Updated customization guide with new configurable setting for Pressure Widget.
     - Add new contributor to contributors.md.
 
-TinyPedal 1.1.10 (2022-04-19)
+1.1.10 (2022-04-19)
 ----------------------------
 * Core
     - Fixed shared memory access issue that freezes APP when a player leaves server in multiplayer session.
     - Improved relative calculation code.
 
-TinyPedal 1.1.9 (2022-04-18)
+1.1.9 (2022-04-18)
 ----------------------------
 * Relative
     - Fixed a player index mismatch issue that happens in multiplayer session when a player leaves server,
@@ -625,7 +650,7 @@ TinyPedal 1.1.9 (2022-04-18)
     - Simplified widget module import method, removed repetitive references.
     - Improved setting auto-sorting, moved "overlay" setting back to the top of the JSON file.
 
-TinyPedal 1.1.8 (2022-04-17)
+1.1.8 (2022-04-17)
 ----------------------------
 * Relative
     - [New]Show driver's position standing in class.
@@ -643,7 +668,7 @@ TinyPedal 1.1.8 (2022-04-17)
     - Updated customization guide with new configurable setting.
     - Updated features list.
 
-TinyPedal 1.1.7 (2022-04-16)
+1.1.7 (2022-04-16)
 ----------------------------
 * Relative
     - Fixed a variable name typo from new setting code, which causes vehicle class not shown correctly.
@@ -651,7 +676,7 @@ TinyPedal 1.1.7 (2022-04-16)
 * Core
     - Renamed various "temp" reference to "temperature" for temperature widget.
 
-TinyPedal 1.1.6 (2022-04-16)
+1.1.6 (2022-04-16)
 ----------------------------
 * Core
     - New algorithm for handling setting validating.
@@ -665,7 +690,7 @@ TinyPedal 1.1.6 (2022-04-16)
 * Misc
     - Updated document files to reflect the new changes to setting validating.
 
-TinyPedal 1.1.5 (2022-04-02)
+1.1.5 (2022-04-02)
 ----------------------------
 * [New]Pressure widget
     - Tyre pressure is now a separated widget that shows pressure & load.
@@ -687,7 +712,7 @@ TinyPedal 1.1.5 (2022-04-02)
     - Updated customization.md with new config options (by thoraxe).
     - Updated contributors.md with new contributor (thoraxe).
 
-TinyPedal 1.1.3 (2022-03-22)
+1.1.3 (2022-03-22)
 ----------------------------
 * Core
     - Add laptime validating function for "deltatime" module.
@@ -698,7 +723,7 @@ TinyPedal 1.1.3 (2022-03-22)
     - Fixed a few typo in README.md & previous changelog.
     - Added missing contributors.md reference to build_py2exe.py.
 
-TinyPedal 1.1.0 (2022-03-21)
+1.1.0 (2022-03-21)
 ----------------------------
 * [New]Delta best widget
     - Show delta best based on personal best laptime.
@@ -730,6 +755,6 @@ TinyPedal 1.1.0 (2022-03-21)
 * Wear widget
     - Add unit "bar" for tyre pressure.
 
-TinyPedal 1.0.0 (2022-03-14)
+1.0.0 (2022-03-14)
 ----------------------------
 * Initial release

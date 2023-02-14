@@ -58,11 +58,9 @@ def liter2gallon(fuel):
     return fuel * 0.2641729
 
 
-def conv_temperature(temp, temp_unit):
-    """2 different temperature unit conversion, default is Celsius"""
-    if temp_unit == "1":
-        return temp * 1.8 + 32  # Celsius to Fahrenheit
-    return temp
+def average_value(average, value, num_samples):
+    """Calculate average value"""
+    return (average * num_samples + value) / (num_samples + 1)
 
 
 def gear(gear_index):

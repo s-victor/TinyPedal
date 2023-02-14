@@ -1,5 +1,11 @@
 # Available Widgets & Features
 
+## Brake
+- Show brake temperature.
+- Show average brake temperature.
+- Available temperature unit: Celsius, Fahrenheit.
+- Changes font color or background color based on heat map.
+
 ## Cruise
 - Show current in-game clock time of the circuit.
 - Show compass directions with three-figure bearings that matches game's cardinal directions.
@@ -16,9 +22,9 @@
 - Show DRS color indicator.
 
 ## Engine
-- Show Oil & Water temperature with overheating indicator.
-- Show Turbo pressure (bar, psi, kPa).
-- Show Engine RPM.
+- Show oil & water temperature with overheating indicator.
+- Show turbo pressure (bar, psi, kPa).
+- Show engine RPM.
 
 ## Force
 - Show longitudinal & lateral G force with direction indicator.
@@ -33,38 +39,40 @@
 - Show caption descriptions (optional).
 
 ## Gear
-- Show Speed, with kph, mph, or m/s as display unit.
-- Show Speed Limiter sign while activated.
+- Show speed, with kph, mph, or m/s as display unit.
+- Show speed limiter sign while activated.
 - Show RPM color indicator with customizable RPM range setting.
 - Show RPM over-rev color warning.
 - Show RPM bar animation (optional) ranged from safe RPM to max RPM.
-- Show Startlights indicator.
-- Show Low Fuel indicator.
-- Show Blue Flag indicator.
-- Show Yellow Flag indicator.
+- Show startlights indicator.
+- Show low Fuel indicator.
+- Show blue Flag indicator.
+- Show yellow Flag indicator.
 
 ## Instrument
-- Show Headlights state.
-  When Headlights on, icon turns white.
-- Show Ignition & Starter state.
-  When Ignition on, icon turns white.
-  When Ignition on while Engine off, icon background turns green (default color).
-- Show Auto-Clutch state.
-  When Auto-Clutch on, icon turns white.
-  When Clutch pressed, icon background turns cyan (default color).
-- Show Wheel Lock state.
-  When Brake pressed and Slip Ratio reaches threshold, icon background flashes red (default color).
-- Show Wheel Slip state.
-  When Slip Ratio reaches threshold, icon background flashes yellow (default color).
+- Show headlights state.
+  When headlights on, icon turns white.
+- Show ignition & starter state.
+  When ignition on, icon turns white.
+  When ignition on while engine off, icon background turns green (default color).
+- Show auto-clutch state.
+  When auto-clutch on, icon turns white.
+  When clutch pressed, icon background turns cyan (default color).
+- Show wheel lock state.
+  When brake pressed and slip ratio reaches threshold, icon background flashes red (default color).
+- Show wheel slip state.
+  When slip ratio reaches threshold, icon background flashes yellow (default color).
 - Include many customizable options.
 
 ## Pedal
-- Show Pedal input, both Filtered & Unfiltered input side by side, which helps distinguish car specific assists such as TC/ABS/Auto-clutch, etc.
-- Show Force Feedback meter (optional), and clipping indicator.
+- Show pedal input, both filtered & unfiltered input side by side, which helps distinguish car specific assists such as TC/ABS/Auto-clutch, etc.
+- Show force feedback meter (optional), and clipping indicator.
 
 ## Pressure
-- Show Tyre pressure, with kPa, psi, or bar as display unit.
-- Show Tyre load (optional) in Newtons or percentage ratio.
+- Show tyre pressure, with kPa, psi, or bar as display unit.
+- Show tyre load (optional) in Newtons or percentage ratio.
+- Show percentage brake pressure of each wheel.
+- Show caption descriptions (optional).
 
 ## Radar
 - Show car radar that displays relative position of player's vehicle against up 6 nearby vehicles.
@@ -104,8 +112,8 @@
 - Show driver's current place against all drivers in a session.
 
 ## Steering
-- Show Steering input.
-- Show Scale Marks (optional), each with 90 degrees gap.
+- Show steering input.
+- Show scale marks (optional), with customizable gap.
 
 ## Stint
 - Show realtime stint data, as well as last stint data.
@@ -115,9 +123,16 @@
 - Show total used fuel (in liters or gallons).
 - Show total average tire wear.
 
+## Suspension
+- Show ride height (millimeter).
+- Show car bottoming indicator with customizable offset.
+- Show rake angle (degree) & rake (millimeter) with negative rake indicator and customizable wheelbase.
+- Show caption descriptions (optional).
+
 ## Temperature
-- Show average Tyre surface temperature.
-- Show Brake temperature of front and rear.
+- Show "inner/center/outer" or average tyre surface temperature.
+- Show tyre inner layer temperature.
+- Show front & rear tire compound index, with customizable letter.
 - Available temperature unit: Celsius, Fahrenheit.
 - Changes font color or background color based on heat map.
 
@@ -129,16 +144,14 @@
 - Show total tyre wear difference of previous lap.
 - Show realtime tyre wear difference of current lap.
 - Show estimated tyre lifespan in laps.
+- Show caption descriptions (optional).
 
 ## Weather
-- Show surface condition (dry or wet).
-- Show Track & Ambient temperature.
+- Show track and ambient temperature.
 - Available temperature unit: Celsius, Fahrenheit.
-- Show rain percentage, min, max, average wetness.
+- Show rain percentage.
+- Show surface condition, minimum, maximum, and average wetness.
 
 ## Wheel
-- Show Camber & Toe in (degree).
-- Show Ride Height (millimeter).
-- Show car bottoming indicator with customizable offset.
-- Show Rake (millimeter) & Rake angle (degree) with negative rake indicator. Wheelbase can be defined in config.
+- Show camber & toe in (degree).
 - Show caption descriptions (optional).

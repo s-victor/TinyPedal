@@ -36,12 +36,13 @@ class Draw(Widget, MouseEvent):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config size & position
+        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+
         bar_gap = self.wcfg["bar_gap"]
         self.pbar_uwidth = int(5 * self.wcfg["bar_width_scale"])  # 5 pixel
         self.pbar_cwidth = self.pbar_uwidth * 3  # 15 pixel combined
         self.pbar_extend = self.wcfg["full_pedal_height"] + 2  # full pedal indicator
         self.pbar_length = int(100 * self.wcfg["bar_length_scale"]) + self.pbar_extend  # 100 pixel
-        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
         # Draw widget
 
@@ -132,8 +133,8 @@ class Draw(Widget, MouseEvent):
             self.update_filtered_pos("throttle", pedal_data[0], self.last_pedal_data[0])
 
             # Brake
-            if self.wcfg["show_average_brake_pressure"]:
-                brake_pres = sum(read_data.brake_pressure()) / 4
+            if self.wcfg["show_brake_pressure"]:
+                brake_pres = sum(read_data.brake_pressure())
 
                 if brake_pres > self.max_brake_pres:
                     self.max_brake_pres = brake_pres

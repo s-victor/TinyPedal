@@ -58,7 +58,7 @@ class FuelUsage:
         recording = False  # set fuel recording state
         verified = False  # additional check for conserving resources
         pittinglap = False  # set pitting lap state
-        start_last = 0.0  # last lap start time
+        last_lap_stime = 0  # last lap start time
         amount_last = 0.0  # last fuel reading
         amount_need = 0.0  # total additional fuel required to finish race
         used_curr = 0.0  # current lap fuel consumption
@@ -80,7 +80,7 @@ class FuelUsage:
         while self.running:
             if state():
 
-                (start_curr, laps_total, laps_left, time_left, amount_curr, capacity,
+                (lap_stime, laps_total, laps_left, time_left, amount_curr, capacity,
                  inpits, pos_curr, elapsed_time, speed) = self.fuel_telemetry()
 
                 # Save switch
@@ -89,7 +89,7 @@ class FuelUsage:
                     update_delay = 0.01  # shorter delay
                     combo_name = combo_check()
                     delta_list_last, used_last, laptime_last = self.load_deltafuel(combo_name)
-                    start_last = start_curr  # reset time stamp counter
+                    last_lap_stime = lap_stime  # reset time stamp counter
                     pos_last = pos_curr
 
                 # Start updating
@@ -104,10 +104,10 @@ class FuelUsage:
                     amount_last = amount_curr
 
                 # Calc last lap fuel consumption
-                if start_curr > start_last:  # time stamp difference
+                if lap_stime > last_lap_stime:  # time stamp difference
                     # Update laptime during non-pitting lap
                     if delta_list_curr and not pittinglap:
-                        laptime_last = start_curr - start_last
+                        laptime_last = lap_stime - last_lap_stime
                         used_last = used_curr
                         delta_list_curr.append((pos_last + 10, used_last, laptime_last))  # set end value
                         delta_list_last = delta_list_curr.copy()
@@ -116,7 +116,7 @@ class FuelUsage:
                     delta_list_curr.append((0.0, 0.0))  # set start value
 
                     recording = True  # activate fuel recording
-                    start_last = start_curr  # reset
+                    last_lap_stime = lap_stime  # reset
                     pos_last = pos_curr  # set pos last
                     pittinglap = 0
                     used_curr = 0
@@ -149,7 +149,7 @@ class FuelUsage:
                         delta_fuel = 0
 
                 # Estimate fuel consumption
-                if elapsed_time - start_curr > 2:  # wait 2s after cross finish line
+                if elapsed_time - lap_stime > 2:  # wait 2s after cross finish line
                     used_est = used_last + delta_fuel
                 else:
                     used_est = used_last
@@ -209,7 +209,7 @@ class FuelUsage:
     @staticmethod
     def fuel_telemetry():
         """Fuel Telemetry data"""
-        start_curr = chknm(info.syncedVehicleTelemetry().mLapStartET)
+        lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
         laps_total = chknm(info.LastScor.mScoringInfo.mMaxLaps)
         laps_left = laps_total - chknm(info.syncedVehicleScoring().mTotalLaps)
         time_left = (chknm(info.LastScor.mScoringInfo.mEndET)
@@ -222,7 +222,7 @@ class FuelUsage:
         speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
                                chknm(info.syncedVehicleTelemetry().mLocalVel.y),
                                chknm(info.syncedVehicleTelemetry().mLocalVel.z))
-        return (start_curr, laps_total, laps_left, time_left, amount_curr, capacity,
+        return (lap_stime, laps_total, laps_left, time_left, amount_curr, capacity,
                 inpits, pos_curr, elapsed_time, speed)
 
     def load_deltafuel(self, combo):

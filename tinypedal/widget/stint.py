@@ -39,8 +39,10 @@ class Draw(Widget, MouseEvent):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config size & position
-        bar_gap = self.wcfg["bar_gap"]
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        bar_gap = self.wcfg["bar_gap"]
 
         # Config style & variable
         font_stint = tkfont.Font(family=self.wcfg["font_name"],
@@ -48,30 +50,30 @@ class Draw(Widget, MouseEvent):
                                  weight=self.wcfg["font_weight"])
 
         # Draw label
-        bar_style = {"bd":0, "height":1, "padx":0, "pady":0, "font":font_stint}
-        self.bar_laps = tk.Label(self, bar_style, text="LAPS", width=6,
+        bar_style = {"bd":0, "height":1, "padx":bar_padx, "pady":0, "font":font_stint}
+        self.bar_laps = tk.Label(self, bar_style, text="LAPS", width=5,
                                  fg=self.wcfg["font_color_laps"],
                                  bg=self.wcfg["bkg_color_laps"])
-        self.bar_time = tk.Label(self, bar_style, text="TIME", width=6,
+        self.bar_time = tk.Label(self, bar_style, text="TIME", width=5,
                                  fg=self.wcfg["font_color_time"],
                                  bg=self.wcfg["bkg_color_time"])
-        self.bar_fuel = tk.Label(self, bar_style, text="FUEL", width=6,
+        self.bar_fuel = tk.Label(self, bar_style, text="FUEL", width=5,
                                  fg=self.wcfg["font_color_fuel"],
                                  bg=self.wcfg["bkg_color_fuel"])
-        self.bar_wear = tk.Label(self, bar_style, text="WEAR", width=4,
+        self.bar_wear = tk.Label(self, bar_style, text="WEAR", width=3,
                                  fg=self.wcfg["font_color_wear"],
                                  bg=self.wcfg["bkg_color_wear"])
 
-        self.bar_last_laps = tk.Label(self, bar_style, text="-- --", width=6,
+        self.bar_last_laps = tk.Label(self, bar_style, text="-- --", width=5,
                                       fg=self.wcfg["font_color_last_stint_laps"],
                                       bg=self.wcfg["bkg_color_last_stint_laps"])
-        self.bar_last_time = tk.Label(self, bar_style, text="--:--", width=6,
+        self.bar_last_time = tk.Label(self, bar_style, text="--:--", width=5,
                                       fg=self.wcfg["font_color_last_stint_time"],
                                       bg=self.wcfg["bkg_color_last_stint_time"])
-        self.bar_last_fuel = tk.Label(self, bar_style, text="---.-", width=6,
+        self.bar_last_fuel = tk.Label(self, bar_style, text="---.-", width=5,
                                       fg=self.wcfg["font_color_last_stint_fuel"],
                                       bg=self.wcfg["bkg_color_last_stint_fuel"])
-        self.bar_last_wear = tk.Label(self, bar_style, text="--%", width=4,
+        self.bar_last_wear = tk.Label(self, bar_style, text="--%", width=3,
                                       fg=self.wcfg["font_color_last_stint_wear"],
                                       bg=self.wcfg["bkg_color_last_stint_wear"])
 
@@ -119,12 +121,12 @@ class Draw(Widget, MouseEvent):
                 self.checked = True
 
             # Read stint data
-            lap_num, wear_curr, time_curr, inpits, tire_idx = read_data.stint()
+            lap_num, wear_curr, time_curr, inpits = read_data.stint()
 
             wear_avg = 100 - (sum(wear_curr) * 25)
             fuel_curr = module.fuel_usage.output_data[0]
 
-            stint_cmpd = self.set_tyre_cmp(tire_idx)
+            stint_cmpd = self.set_tyre_cmp(read_data.tyre_compound())
             stint_lap = max(lap_num - self.start_lap, 0)
             stint_time = max(time_curr - self.start_time, 0)
             stint_fuel = max(self.start_fuel - fuel_curr, 0)

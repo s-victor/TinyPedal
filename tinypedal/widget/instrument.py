@@ -40,6 +40,8 @@ class Draw(Widget, MouseEvent):
         # Config size & position
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
+        bar_gap = self.wcfg["bar_gap"]
+
         # Config style & variable
         self.icon_size = int(max(self.wcfg["icon_size"], 16) / 2) * 2
         icon_source = Image.open("images/icon_instrument.png")
@@ -84,17 +86,17 @@ class Draw(Widget, MouseEvent):
                          0, self.icon_size, image=icon_image, anchor="s")
 
         if self.wcfg["layout"] == "0":
-            self.bar_headlights.grid(row=0, column=column_hl, padx=(0, self.wcfg["bar_gap"]), pady=0)
-            self.bar_ignition.grid(row=0, column=column_ig, padx=(0, self.wcfg["bar_gap"]), pady=0)
-            self.bar_clutch.grid(row=0, column=column_cl, padx=(0, self.wcfg["bar_gap"]), pady=0)
-            self.bar_lock.grid(row=0, column=column_wl, padx=(0, self.wcfg["bar_gap"]), pady=0)
-            self.bar_slip.grid(row=0, column=column_ws, padx=(0, self.wcfg["bar_gap"]), pady=0)
+            self.bar_headlights.grid(row=0, column=column_hl, padx=(0, bar_gap), pady=0)
+            self.bar_ignition.grid(row=0, column=column_ig, padx=(0, bar_gap), pady=0)
+            self.bar_clutch.grid(row=0, column=column_cl, padx=(0, bar_gap), pady=0)
+            self.bar_lock.grid(row=0, column=column_wl, padx=(0, bar_gap), pady=0)
+            self.bar_slip.grid(row=0, column=column_ws, padx=(0, bar_gap), pady=0)
         else:
-            self.bar_headlights.grid(row=column_hl, column=0, padx=0, pady=(0, self.wcfg["bar_gap"]))
-            self.bar_ignition.grid(row=column_ig, column=0, padx=0, pady=(0, self.wcfg["bar_gap"]))
-            self.bar_clutch.grid(row=column_cl, column=0, padx=0, pady=(0, self.wcfg["bar_gap"]))
-            self.bar_lock.grid(row=column_wl, column=0, padx=0, pady=(0, self.wcfg["bar_gap"]))
-            self.bar_slip.grid(row=column_ws, column=0, padx=0, pady=(0, self.wcfg["bar_gap"]))
+            self.bar_headlights.grid(row=column_hl, column=0, padx=0, pady=(0, bar_gap))
+            self.bar_ignition.grid(row=column_ig, column=0, padx=0, pady=(0, bar_gap))
+            self.bar_clutch.grid(row=column_cl, column=0, padx=0, pady=(0, bar_gap))
+            self.bar_lock.grid(row=column_wl, column=0, padx=0, pady=(0, bar_gap))
+            self.bar_slip.grid(row=column_ws, column=0, padx=0, pady=(0, bar_gap))
 
         if not self.wcfg["show_headlights"]:
             self.bar_headlights.grid_remove()

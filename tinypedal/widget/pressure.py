@@ -38,61 +38,93 @@ class Draw(Widget, MouseEvent):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config size & position
-        bar_gap = self.wcfg["bar_gap"]
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        bar_gap = self.wcfg["bar_gap"]
+
         # Config style & variable
-        text_def = "n/a"
-        fg_color_load = self.wcfg["font_color_load"]
-        fg_color_pres = self.wcfg["font_color_pressure"]
-        bg_color_load = self.wcfg["bkg_color_load"]
-        bg_color_pres = self.wcfg["bkg_color_pressure"]
         font_pres = tkfont.Font(family=self.wcfg["font_name"],
                                 size=-self.wcfg["font_size"],
                                 weight=self.wcfg["font_weight"])
 
-        column_pres = self.wcfg["column_index_pressure"]
-        column_load = self.wcfg["column_index_load"]
+        column_tpres = self.wcfg["column_index_tyre_pressure"]
+        column_tload = self.wcfg["column_index_tyre_load"]
+        column_bpres = self.wcfg["column_index_brake_pressure"]
 
         # Draw label
-        bar_style = {"text":text_def, "bd":0, "height":1, "width":5,
-                     "padx":0, "pady":0, "font":font_pres}
+        frame_tpres = tk.Frame(self, bd=0, highlightthickness=0)
+        frame_tload = tk.Frame(self, bd=0, highlightthickness=0)
+        frame_bpres = tk.Frame(self, bd=0, highlightthickness=0)
 
-        frame_pres = tk.Frame(self, bd=0, highlightthickness=0)
-        self.bar_pres_fl = tk.Label(frame_pres, bar_style, fg=fg_color_pres, bg=bg_color_pres)
-        self.bar_pres_fr = tk.Label(frame_pres, bar_style, fg=fg_color_pres, bg=bg_color_pres)
-        self.bar_pres_rl = tk.Label(frame_pres, bar_style, fg=fg_color_pres, bg=bg_color_pres)
-        self.bar_pres_rr = tk.Label(frame_pres, bar_style, fg=fg_color_pres, bg=bg_color_pres)
-        self.bar_pres_fl.grid(row=0, column=0, padx=0, pady=0)
-        self.bar_pres_fr.grid(row=0, column=1, padx=0, pady=0)
-        self.bar_pres_rl.grid(row=1, column=0, padx=0, pady=0)
-        self.bar_pres_rr.grid(row=1, column=1, padx=0, pady=0)
+        if self.wcfg["show_caption"]:
+            self.add_caption(frame=frame_tpres, toggle="show_tyre_pressure", value="tyre pres")
+            self.add_caption(frame=frame_tload, toggle="show_tyre_load", value="tyre load")
+            self.add_caption(frame=frame_bpres, toggle="show_brake_pressure", value="brake pres")
+
+        if self.wcfg["show_tyre_pressure"]:
+            bar_style_tpres = {"text":"n/a", "bd":0, "height":1, "width":4,
+                               "padx":bar_padx, "pady":0, "font":font_pres,
+                               "fg":self.wcfg["font_color_tyre_pressure"],
+                               "bg":self.wcfg["bkg_color_tyre_pressure"]}
+            self.bar_tpres_fl = tk.Label(frame_tpres, bar_style_tpres)
+            self.bar_tpres_fr = tk.Label(frame_tpres, bar_style_tpres)
+            self.bar_tpres_rl = tk.Label(frame_tpres, bar_style_tpres)
+            self.bar_tpres_rr = tk.Label(frame_tpres, bar_style_tpres)
+            self.bar_tpres_fl.grid(row=1, column=0, padx=0, pady=0)
+            self.bar_tpres_fr.grid(row=1, column=1, padx=0, pady=0)
+            self.bar_tpres_rl.grid(row=2, column=0, padx=0, pady=0)
+            self.bar_tpres_rr.grid(row=2, column=1, padx=0, pady=0)
 
         if self.wcfg["show_tyre_load"]:
-            frame_load = tk.Frame(self, bd=0, highlightthickness=0)
-            self.bar_load_fl = tk.Label(frame_load, bar_style, fg=fg_color_load, bg=bg_color_load)
-            self.bar_load_fr = tk.Label(frame_load, bar_style, fg=fg_color_load, bg=bg_color_load)
-            self.bar_load_rl = tk.Label(frame_load, bar_style, fg=fg_color_load, bg=bg_color_load)
-            self.bar_load_rr = tk.Label(frame_load, bar_style, fg=fg_color_load, bg=bg_color_load)
-            self.bar_load_fl.grid(row=0, column=0, padx=0, pady=0)
-            self.bar_load_fr.grid(row=0, column=1, padx=0, pady=0)
-            self.bar_load_rl.grid(row=1, column=0, padx=0, pady=0)
-            self.bar_load_rr.grid(row=1, column=1, padx=0, pady=0)
+            bar_style_tload = {"text":"n/a", "bd":0, "height":1, "width":4,
+                               "padx":bar_padx, "pady":0, "font":font_pres,
+                               "fg":self.wcfg["font_color_tyre_load"],
+                               "bg":self.wcfg["bkg_color_tyre_load"]}
+            self.bar_tload_fl = tk.Label(frame_tload, bar_style_tload)
+            self.bar_tload_fr = tk.Label(frame_tload, bar_style_tload)
+            self.bar_tload_rl = tk.Label(frame_tload, bar_style_tload)
+            self.bar_tload_rr = tk.Label(frame_tload, bar_style_tload)
+            self.bar_tload_fl.grid(row=1, column=0, padx=0, pady=0)
+            self.bar_tload_fr.grid(row=1, column=1, padx=0, pady=0)
+            self.bar_tload_rl.grid(row=2, column=0, padx=0, pady=0)
+            self.bar_tload_rr.grid(row=2, column=1, padx=0, pady=0)
+
+        if self.wcfg["show_brake_pressure"]:
+            bar_style_bpres = {"text":"n/a", "bd":0, "height":1, "width":4,
+                               "padx":bar_padx, "pady":0, "font":font_pres,
+                               "fg":self.wcfg["font_color_brake_pressure"],
+                               "bg":self.wcfg["bkg_color_brake_pressure"]}
+            self.bar_bpres_fl = tk.Label(frame_bpres, bar_style_bpres)
+            self.bar_bpres_fr = tk.Label(frame_bpres, bar_style_bpres)
+            self.bar_bpres_rl = tk.Label(frame_bpres, bar_style_bpres)
+            self.bar_bpres_rr = tk.Label(frame_bpres, bar_style_bpres)
+            self.bar_bpres_fl.grid(row=1, column=0, padx=0, pady=0)
+            self.bar_bpres_fr.grid(row=1, column=1, padx=0, pady=0)
+            self.bar_bpres_rl.grid(row=2, column=0, padx=0, pady=0)
+            self.bar_bpres_rr.grid(row=2, column=1, padx=0, pady=0)
 
         if self.wcfg["layout"] == "0":
             # Vertical layout
-            frame_pres.grid(row=column_pres, column=0, padx=0, pady=(0,bar_gap))
+            if self.wcfg["show_tyre_pressure"]:
+                frame_tpres.grid(row=column_tpres, column=0, padx=0, pady=(0,bar_gap))
             if self.wcfg["show_tyre_load"]:
-                frame_load.grid(row=column_load, column=0, padx=0, pady=(0,bar_gap))
+                frame_tload.grid(row=column_tload, column=0, padx=0, pady=(0,bar_gap))
+            if self.wcfg["show_brake_pressure"]:
+                frame_bpres.grid(row=column_bpres, column=0, padx=0, pady=(0,bar_gap))
         else:
             # Horizontal layout
-            frame_pres.grid(row=0, column=column_pres, padx=(0,bar_gap), pady=0)
+            if self.wcfg["show_tyre_pressure"]:
+                frame_tpres.grid(row=0, column=column_tpres, padx=(0,bar_gap), pady=0)
             if self.wcfg["show_tyre_load"]:
-                frame_load.grid(row=0, column=column_load, padx=(0,bar_gap), pady=0)
+                frame_tload.grid(row=0, column=column_tload, padx=(0,bar_gap), pady=0)
+            if self.wcfg["show_brake_pressure"]:
+                frame_bpres.grid(row=0, column=column_bpres, padx=(0,bar_gap), pady=0)
 
         # Last data
-        self.last_pressure = [None] * 4
-        self.last_load_d = [None] * 4
+        self.last_tpres = [None] * 4
+        self.last_tload = [None] * 4
+        self.last_bpres = [None] * 4
 
         # Start updating
         self.update_data()
@@ -104,15 +136,16 @@ class Draw(Widget, MouseEvent):
         """Update when vehicle on track"""
         if read_data.state() and self.wcfg["enable"]:
 
-            # Read tyre pressure data
-            pressure = tuple(map(self.pressure_units, read_data.tyre_pressure()))
-
             # Tyre pressure
-            self.update_tyre("pres_fl", pressure[0], self.last_pressure[0])
-            self.update_tyre("pres_fr", pressure[1], self.last_pressure[1])
-            self.update_tyre("pres_rl", pressure[2], self.last_pressure[2])
-            self.update_tyre("pres_rr", pressure[3], self.last_pressure[3])
-            self.last_pressure = pressure
+            if self.wcfg["show_tyre_pressure"]:
+                # Read tyre pressure data
+                tpres = tuple(map(self.tyre_pressure_units, read_data.tyre_pressure()))
+
+                self.update_text("tpres_fl", tpres[0], self.last_tpres[0])
+                self.update_text("tpres_fr", tpres[1], self.last_tpres[1])
+                self.update_text("tpres_rl", tpres[2], self.last_tpres[2])
+                self.update_text("tpres_rr", tpres[3], self.last_tpres[3])
+                self.last_tpres = tpres
 
             # Tyre load
             if self.wcfg["show_tyre_load"]:
@@ -120,28 +153,39 @@ class Draw(Widget, MouseEvent):
                 raw_load = read_data.tyre_load()
 
                 if self.wcfg["show_tyre_load_ratio"]:
-                    load_d = tuple(map(self.tyre_load_ratio, raw_load, [sum(raw_load)]*4))
+                    tload = tuple(map(self.tyre_load_ratio, raw_load, [sum(raw_load)]*4))
                 else:
-                    load_d = tuple(map(self.tyre_load_n, raw_load))
+                    tload = tuple(map(self.tyre_load_newtons, raw_load))
 
-                self.update_tyre("load_fl", load_d[0], self.last_load_d[0])
-                self.update_tyre("load_fr", load_d[1], self.last_load_d[1])
-                self.update_tyre("load_rl", load_d[2], self.last_load_d[2])
-                self.update_tyre("load_rr", load_d[3], self.last_load_d[3])
-                self.last_load_d = load_d
+                self.update_text("tload_fl", tload[0], self.last_tload[0])
+                self.update_text("tload_fr", tload[1], self.last_tload[1])
+                self.update_text("tload_rl", tload[2], self.last_tload[2])
+                self.update_text("tload_rr", tload[3], self.last_tload[3])
+                self.last_tload = tload
+
+            # Brake pressure
+            if self.wcfg["show_brake_pressure"]:
+                # Read brake pressure data
+                bpres = tuple(map(self.brake_pressure_units, read_data.brake_pressure()))
+
+                self.update_text("bpres_fl", bpres[0], self.last_bpres[0])
+                self.update_text("bpres_fr", bpres[1], self.last_bpres[1])
+                self.update_text("bpres_rl", bpres[2], self.last_bpres[2])
+                self.update_text("bpres_rr", bpres[3], self.last_bpres[3])
+                self.last_bpres = bpres
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
 
     # GUI update methods
-    def update_tyre(self, suffix, curr, last):
-        """Tyre pressure"""
+    def update_text(self, suffix, curr, last):
+        """Text"""
         if curr != last:
             getattr(self, f"bar_{suffix}").config(text=curr)
 
     # Additional methods
     @staticmethod
-    def tyre_load_n(value):
+    def tyre_load_newtons(value):
         """Tyre load"""
         return f"{value:.0f}"
 
@@ -150,12 +194,15 @@ class Draw(Widget, MouseEvent):
         """Tyre load ratio"""
         return f"{calc.force_ratio(value, total):.01f}"
 
-    def pressure_units(self, pres):
-        """Pressure units"""
-        if self.wcfg["pressure_unit"] == "0":
-            pressure = f"{pres:03.0f}"  # kPa
-        elif self.wcfg["pressure_unit"] == "1":
-            pressure = f"{calc.kpa2psi(pres):03.01f}"  # psi
-        else:
-            pressure = f"{calc.kpa2bar(pres):03.02f}"  # bar
-        return pressure
+    def tyre_pressure_units(self, value):
+        """Tyre pressure units"""
+        if self.wcfg["tyre_pressure_unit"] == "0":
+            return f"{value:.0f}"  # kPa
+        if self.wcfg["tyre_pressure_unit"] == "1":
+            return f"{calc.kpa2psi(value):.01f}"  # psi
+        return f"{calc.kpa2bar(value):.02f}"  # bar
+
+    @staticmethod
+    def brake_pressure_units(value):
+        """Brake pressure percentage"""
+        return f"{value * 100:.01f}"

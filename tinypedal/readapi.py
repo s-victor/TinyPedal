@@ -95,11 +95,6 @@ def pedal():
     return throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
 
 
-def brake_pressure():
-    """Brake pressure data"""
-    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mBrakePressure) for data in range(4)]
-
-
 def steering():
     """Steering data"""
     raw_steering = chknm(info.syncedVehicleTelemetry().mUnfilteredSteering)
@@ -136,9 +131,9 @@ def yellow_flag():
 
 def lap_timestamp():
     """lap timestamp data"""
-    lap_start = chknm(info.syncedVehicleTelemetry().mLapStartET)
+    lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
     lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
-    return lap_start - lap_etime
+    return lap_stime, lap_etime
 
 
 def startlights():
@@ -167,9 +162,13 @@ def stint():
     wear_curr = [chknm(info.syncedVehicleTelemetry().mWheels[data].mWear) for data in range(4)]
     time_curr = chknm(info.LastScor.mScoringInfo.mCurrentET)
     inpits = chknm(info.syncedVehicleScoring().mInPits)
-    tire_idx = (chknm(info.syncedVehicleTelemetry().mFrontTireCompoundIndex),
-                chknm(info.syncedVehicleTelemetry().mRearTireCompoundIndex))
-    return lap_num, wear_curr, time_curr, inpits, tire_idx
+    return lap_num, wear_curr, time_curr, inpits
+
+
+def tyre_compound():
+    """Tyre compound data"""
+    return (chknm(info.syncedVehicleTelemetry().mFrontTireCompoundIndex),
+            chknm(info.syncedVehicleTelemetry().mRearTireCompoundIndex))
 
 
 def camber():
@@ -190,29 +189,31 @@ def ride_height():
     return [chknm(info.syncedVehicleTelemetry().mWheels[data].mRideHeight) for data in range(4)]
 
 
-def temperature():
-    """Temperature data"""
-    ttemp_fl = sum([chknm(info.syncedVehicleTelemetry().mWheels[0].mTemperature[data])
-                    for data in range(3)]) / 3 - 273.15
-    ttemp_fr = sum([chknm(info.syncedVehicleTelemetry().mWheels[1].mTemperature[data])
-                    for data in range(3)]) / 3 - 273.15
-    ttemp_rl = sum([chknm(info.syncedVehicleTelemetry().mWheels[2].mTemperature[data])
-                    for data in range(3)]) / 3 - 273.15
-    ttemp_rr = sum([chknm(info.syncedVehicleTelemetry().mWheels[3].mTemperature[data])
-                    for data in range(3)]) / 3 - 273.15
-    btemp = (chknm(info.syncedVehicleTelemetry().mWheels[0].mBrakeTemp) - 273.15,
-             chknm(info.syncedVehicleTelemetry().mWheels[1].mBrakeTemp) - 273.15,
-             chknm(info.syncedVehicleTelemetry().mWheels[2].mBrakeTemp) - 273.15,
-             chknm(info.syncedVehicleTelemetry().mWheels[3].mBrakeTemp) - 273.15)
-    return (ttemp_fl, ttemp_fr, ttemp_rl, ttemp_rr), btemp
+def brake_pressure():
+    """Brake pressure data"""
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mBrakePressure) for data in range(4)]
+
+
+def brake_temp():
+    """Brake temperature data"""
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mBrakeTemp) for data in range(4)]
+
+
+def tyre_temp_surface():
+    """Tyre surface temperature data"""
+    return [[chknm(info.syncedVehicleTelemetry().mWheels[tyre].mTemperature[data])
+             for data in range(3)] for tyre in range(4)]
+
+
+def tyre_temp_innerlayer():
+    """Tyre inner layer temperature data"""
+    return [[chknm(info.syncedVehicleTelemetry().mWheels[tyre].mTireInnerLayerTemperature[data])
+             for data in range(3)] for tyre in range(4)]
 
 
 def wear():
     """Tyre wear data"""
-    start_curr = chknm(info.syncedVehicleTelemetry().mLapStartET)
-    lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
-    wear_curr = [chknm(info.syncedVehicleTelemetry().mWheels[data].mWear) for data in range(4)]
-    return start_curr, lap_etime, wear_curr
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mWear) for data in range(4)]
 
 
 def tyre_load():
@@ -282,13 +283,11 @@ def sector():
     last_laptime = chknm(info.syncedVehicleScoring().mLastLapTime)
     plr_laps = chknm(info.syncedVehicleScoring().mTotalLaps) + 1
     plr_place = chknm(info.syncedVehicleScoring().mPlace)
-    lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
     speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.y),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.z))
-    start_curr = chknm(info.syncedVehicleTelemetry().mLapStartET)
     return (sector_idx, curr_sector1, curr_sector2, last_sector2, last_laptime,
-            plr_laps, plr_place, lap_etime, speed, start_curr)
+            plr_laps, plr_place, speed)
 
 
 def session_check():

@@ -40,39 +40,47 @@ class Draw(Widget, MouseEvent):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config size & position
-        bar_gap = self.wcfg["bar_gap"]
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        bar_gap = self.wcfg["bar_gap"]
 
         # Config style & variable
         font_cruise = tkfont.Font(family=self.wcfg["font_name"],
                                   size=-self.wcfg["font_size"],
                                   weight=self.wcfg["font_weight"])
 
+        column_cloc = self.wcfg["column_index_track_clock"]
+        column_comp = self.wcfg["column_index_compass"]
+        column_evel = self.wcfg["column_index_elevation"]
+        column_odom = self.wcfg["column_index_odometer"]
+
         # Draw label
-        bar_style = {"bd":0, "height":1, "padx":0, "pady":0, "font":font_cruise}
+        bar_style = {"bd":0, "height":1, "padx":bar_padx, "pady":0, "font":font_cruise}
 
         if self.wcfg["show_track_clock"]:
-            self.bar_trackclock = tk.Label(self, bar_style, text="", width=7,
+            self.bar_trackclock = tk.Label(self, bar_style, text="n/a", width=6,
                                            fg=self.wcfg["font_color_track_clock"],
                                            bg=self.wcfg["bkg_color_track_clock"])
-            self.bar_trackclock.grid(row=0, column=0, padx=(0, bar_gap), pady=0)
+            self.bar_trackclock.grid(row=0, column=column_cloc, padx=(0, bar_gap), pady=0)
 
-        self.bar_compass = tk.Label(self, bar_style, text="CRUISE", width=7,
-                                    fg=self.wcfg["font_color_compass"],
-                                    bg=self.wcfg["bkg_color_compass"])
-        self.bar_compass.grid(row=0, column=1, padx=0, pady=0)
+        if self.wcfg["show_compass"]:
+            self.bar_compass = tk.Label(self, bar_style, text="n/a", width=6,
+                                        fg=self.wcfg["font_color_compass"],
+                                        bg=self.wcfg["bkg_color_compass"])
+            self.bar_compass.grid(row=0, column=column_comp, padx=(0, bar_gap), pady=0)
 
         if self.wcfg["show_elevation"]:
-            self.bar_elevation = tk.Label(self, bar_style, text="", width=7,
+            self.bar_elevation = tk.Label(self, bar_style, text="n/a", width=6,
                                           fg=self.wcfg["font_color_elevation"],
                                           bg=self.wcfg["bkg_color_elevation"])
-            self.bar_elevation.grid(row=0, column=2, padx=(bar_gap, 0), pady=0)
+            self.bar_elevation.grid(row=0, column=column_evel, padx=(0, bar_gap), pady=0)
 
         if self.wcfg["show_odometer"]:
-            self.bar_odometer = tk.Label(self, bar_style, text="", width=9,
+            self.bar_odometer = tk.Label(self, bar_style, text="n/a", width=6,
                                          fg=self.wcfg["font_color_odometer"],
                                          bg=self.wcfg["bkg_color_odometer"])
-            self.bar_odometer.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
+            self.bar_odometer.grid(row=0, column=column_odom, padx=(0, bar_gap), pady=0)
 
         # Last data
         self.last_dir_degree = None
@@ -94,9 +102,10 @@ class Draw(Widget, MouseEvent):
             ori_yaw, pos_y, time_start, time_curr = read_data.cruise()
 
             # Compass
-            dir_degree = round(180 - calc.rad2deg(calc.oriyaw2rad(*ori_yaw)), 0)
-            self.update_compass(dir_degree, self.last_dir_degree)
-            self.last_dir_degree = dir_degree
+            if self.wcfg["show_compass"]:
+                dir_degree = round(180 - calc.rad2deg(calc.oriyaw2rad(*ori_yaw)), 0)
+                self.update_compass(dir_degree, self.last_dir_degree)
+                self.last_dir_degree = dir_degree
 
             # Track clock
             if self.wcfg["show_track_clock"]:
@@ -135,16 +144,16 @@ class Draw(Widget, MouseEvent):
             track_clock = start + time_offset
 
             clock_text = time.strftime(self.wcfg["track_clock_format"], time.gmtime(track_clock))
-            self.bar_trackclock.config(text=clock_text, width=len(clock_text)+1)
+            self.bar_trackclock.config(text=clock_text, width=len(clock_text))
 
     def update_elevation(self, curr, last):
         """Elevation"""
         if curr != last:
             if self.wcfg["elevation_unit"] == "0":
-                elev_text = f"↑ {curr: =03.0f}m"
+                elev_text = "↑ " + f"{curr:.0f}m".rjust(4)
             else:
-                elev_text = f"↑ {curr * 3.2808399: =03.0f}ft"
-            self.bar_elevation.config(text=elev_text, width=len(elev_text)+1)
+                elev_text = "↑ " + f"{curr * 3.2808399:.0f}ft".rjust(5)
+            self.bar_elevation.config(text=elev_text, width=len(elev_text))
 
     def update_odometer(self, curr, last):
         """Odometer"""
@@ -153,7 +162,7 @@ class Draw(Widget, MouseEvent):
                 dist_text = f"{curr * 0.001:06.01f}km"
             else:  # mile
                 dist_text = f"{curr / 1609.344:06.01f}mi"
-            self.bar_odometer.config(text=dist_text, width=len(dist_text)+1)
+            self.bar_odometer.config(text=dist_text, width=len(dist_text))
 
     # Additional methods
     @staticmethod

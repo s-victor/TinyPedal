@@ -38,8 +38,10 @@ class Draw(Widget, MouseEvent):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config size & position
-        bar_gap = self.wcfg["bar_gap"]
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        bar_gap = self.wcfg["bar_gap"]
 
         # Config style & variable
         text_def = "n/a"
@@ -53,20 +55,25 @@ class Draw(Widget, MouseEvent):
 
         # Draw label
         bar_style  = {"text":text_def, "bd":0, "height":1,
-                      "padx":0, "pady":0, "font":font_weather}
-        self.bar_temp = tk.Label(self, bar_style, width=13,
-                                 fg=self.wcfg["font_color_temperature"],
-                                 bg=self.wcfg["bkg_color_temperature"])
-        self.bar_rain = tk.Label(self, bar_style, width=8,
-                                 fg=self.wcfg["font_color_rain"],
-                                 bg=self.wcfg["bkg_color_rain"])
-        self.bar_wetness = tk.Label(self, bar_style, width=16,
-                                    fg=self.wcfg["font_color_wetness"],
-                                    bg=self.wcfg["bkg_color_wetness"])
+                      "padx":bar_padx, "pady":0, "font":font_weather}
 
-        self.bar_temp.grid(row=0, column=column_temp, padx=(0, bar_gap), pady=0)
-        self.bar_rain.grid(row=0, column=column_rain, padx=(0, bar_gap), pady=0)
-        self.bar_wetness.grid(row=0, column=column_wet, padx=(0, bar_gap), pady=0)
+        if self.wcfg["show_temperature"]:
+            self.bar_temp = tk.Label(self, bar_style, width=12,
+                                     fg=self.wcfg["font_color_temperature"],
+                                     bg=self.wcfg["bkg_color_temperature"])
+            self.bar_temp.grid(row=0, column=column_temp, padx=(0, bar_gap), pady=0)
+
+        if self.wcfg["show_rain"]:
+            self.bar_rain = tk.Label(self, bar_style, width=7,
+                                     fg=self.wcfg["font_color_rain"],
+                                     bg=self.wcfg["bkg_color_rain"])
+            self.bar_rain.grid(row=0, column=column_rain, padx=(0, bar_gap), pady=0)
+
+        if self.wcfg["show_wetness"]:
+            self.bar_wetness = tk.Label(self, bar_style, width=15,
+                                        fg=self.wcfg["font_color_wetness"],
+                                        bg=self.wcfg["bkg_color_wetness"])
+            self.bar_wetness.grid(row=0, column=column_wet, padx=(0, bar_gap), pady=0)
 
         # Last data
         self.last_temp_d = None
@@ -87,19 +94,22 @@ class Draw(Widget, MouseEvent):
             track_temp, ambient_temp, rain_per, wet_road = read_data.weather()
 
             # Track temperature
-            temp_d = self.temp_units(track_temp, ambient_temp)
-            self.update_temp(temp_d, self.last_temp_d)
-            self.last_temp_d = temp_d
+            if self.wcfg["show_temperature"]:
+                temp_d = self.temp_units(track_temp, ambient_temp)
+                self.update_temp(temp_d, self.last_temp_d)
+                self.last_temp_d = temp_d
 
             # Rain percentage
-            rain_per = int(rain_per)
-            self.update_rain(rain_per, self.last_rain_per)
-            self.last_rain_per = rain_per
+            if self.wcfg["show_rain"]:
+                rain_per = int(rain_per)
+                self.update_rain(rain_per, self.last_rain_per)
+                self.last_rain_per = rain_per
 
             # Surface wetness
-            wet_road = tuple(map(int, wet_road))
-            self.update_wetness(wet_road, self.last_wet_road)
-            self.last_wet_road = wet_road
+            if self.wcfg["show_wetness"]:
+                wet_road = tuple(map(int, wet_road))
+                self.update_wetness(wet_road, self.last_wet_road)
+                self.last_wet_road = wet_road
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
@@ -108,26 +118,28 @@ class Draw(Widget, MouseEvent):
         """Track & ambient temperature"""
         if self.wcfg["temp_unit"] == "0":
             return f"{track_temp:.01f}({ambient_temp:.01f})°C"
-        return f"{calc.celsius2fahrenheit(track_temp):.01f}({calc.celsius2fahrenheit(ambient_temp):.01f})°F"
+        return f"{calc.celsius2fahrenheit(track_temp):.01f}" \
+               f"({calc.celsius2fahrenheit(ambient_temp):.01f})°F"
 
     # GUI update methods
     def update_temp(self, curr, last):
         """Track & ambient temperature"""
         if curr != last:
-            self.bar_temp.config(text=curr, width=len(curr)+1)
+            self.bar_temp.config(text=curr, width=len(curr))
 
     def update_rain(self, curr, last):
         """Rain percentage"""
         if curr != last:
-            rain_text = f"Rain {curr}%"
-            self.bar_rain.config(text=rain_text, width=len(rain_text)+1)
+            sign = "%" if self.wcfg["show_percentage_sign"] else ""
+
+            rain_text = f"Rain {curr}{sign}"
+            self.bar_rain.config(text=rain_text, width=len(rain_text))
 
     def update_wetness(self, curr, last):
         """Surface wetness"""
         if curr != last:
-            if curr[1] > 0:
-                surface = "Wet"
-            else:
-                surface = "Dry"
-            wet_text = f"{surface} {curr[0]}% < {curr[1]}% ≈ {curr[2]}%"
-            self.bar_wetness.config(text=wet_text, width=len(wet_text)+1)
+            surface = "Wet" if curr[1] > 0 else "Dry"
+            sign = "%" if self.wcfg["show_percentage_sign"] else ""
+
+            wet_text = f"{surface} {curr[0]}{sign} < {curr[1]}{sign} ≈ {curr[2]}{sign}"
+            self.bar_wetness.config(text=wet_text, width=len(wet_text))

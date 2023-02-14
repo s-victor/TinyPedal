@@ -39,38 +39,47 @@ class Draw(Widget, MouseEvent):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config size & position
-        bar_gap = self.wcfg["bar_gap"]
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        bar_gap = self.wcfg["bar_gap"]
 
         # Config style & variable
         font_session = tkfont.Font(family=self.wcfg["font_name"],
                                    size=-self.wcfg["font_size"],
                                    weight=self.wcfg["font_weight"])
 
-        # Draw label
-        bar_style = {"bd":0, "height":1, "padx":0, "pady":0, "font":font_session}
-        self.bar_racelength = tk.Label(self, bar_style, text="RACELENGTH", width=11,
-                                       fg=self.wcfg["font_color_racelength"],
-                                       bg=self.wcfg["bkg_color_racelength"])
-        self.bar_racelength.grid(row=0, column=1, padx=(bar_gap, 0), pady=0)
+        column_sysc = self.wcfg["column_index_system_clock"]
+        column_sest = self.wcfg["column_index_session_timer"]
+        column_lapn = self.wcfg["column_index_lapnumber"]
+        column_plac = self.wcfg["column_index_place"]
 
-        if self.wcfg["show_clock"]:
-            self.bar_clock = tk.Label(self, bar_style, text="CLOCK", width=6,
-                                      fg=self.wcfg["font_color_clock"],
-                                      bg=self.wcfg["bkg_color_clock"])
-            self.bar_clock.grid(row=0, column=0, padx=0, pady=0)
+        # Draw label
+        bar_style = {"bd":0, "height":1, "padx":bar_padx, "pady":0, "font":font_session}
+
+        if self.wcfg["show_system_clock"]:
+            self.bar_clock = tk.Label(self, bar_style, text="CLOCK", width=5,
+                                      fg=self.wcfg["font_color_system_clock"],
+                                      bg=self.wcfg["bkg_color_system_clock"])
+            self.bar_clock.grid(row=0, column=column_sysc, padx=(0, bar_gap), pady=0)
+
+        if self.wcfg["show_session_timer"]:
+            self.bar_session = tk.Label(self, bar_style, text="SESSION", width=10,
+                                           fg=self.wcfg["font_color_session_timer"],
+                                           bg=self.wcfg["bkg_color_session_timer"])
+            self.bar_session.grid(row=0, column=column_sest, padx=(0, bar_gap), pady=0)
 
         if self.wcfg["show_lapnumber"]:
-            self.bar_lapnumber = tk.Label(self, bar_style, text="LAPS", width=5,
+            self.bar_lapnumber = tk.Label(self, bar_style, text="LAPS", width=4,
                                           fg=self.wcfg["font_color_lapnumber"],
                                           bg=self.wcfg["bkg_color_lapnumber"])
-            self.bar_lapnumber.grid(row=0, column=2, padx=(bar_gap, 0), pady=0)
+            self.bar_lapnumber.grid(row=0, column=column_lapn, padx=(0, bar_gap), pady=0)
 
         if self.wcfg["show_place"]:
-            self.bar_place = tk.Label(self, bar_style, text="PLACE", width=6,
+            self.bar_place = tk.Label(self, bar_style, text="PLACE", width=5,
                                       fg=self.wcfg["font_color_place"],
                                       bg=self.wcfg["bkg_color_place"])
-            self.bar_place.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
+            self.bar_place.grid(row=0, column=column_plac, padx=(0, bar_gap), pady=0)
 
         # Last data
         self.last_clock = None
@@ -92,14 +101,15 @@ class Draw(Widget, MouseEvent):
             time_left, lap_into, lap_num, lap_total, plr_place = read_data.session()
 
             # System Clock
-            if self.wcfg["show_clock"]:
-                clock = time.strftime(self.wcfg["clock_format"])
+            if self.wcfg["show_system_clock"]:
+                clock = time.strftime(self.wcfg["system_clock_format"])
                 self.update_clock(clock, self.last_clock)
                 self.last_clock = clock
 
-            # Race length
-            self.update_racelength(time_left, self.last_time_left)
-            self.last_time_left = time_left
+            # Session timer
+            if self.wcfg["show_session_timer"]:
+                self.update_session_timer(time_left, self.last_time_left)
+                self.last_time_left = time_left
 
             # Lap number
             if self.wcfg["show_lapnumber"]:
@@ -118,12 +128,12 @@ class Draw(Widget, MouseEvent):
     def update_clock(self, curr, last):
         """System Clock"""
         if curr != last:
-            self.bar_clock.config(text=f"{curr}", width=len(curr) + 1)
+            self.bar_clock.config(text=f"{curr}", width=len(curr))
 
-    def update_racelength(self, curr, last):
-        """Race length"""
+    def update_session_timer(self, curr, last):
+        """Session timer"""
         if curr != last:
-            self.bar_racelength.config(text=calc.sec2sessiontime(max(curr, 0)))
+            self.bar_session.config(text=calc.sec2sessiontime(max(curr, 0)))
 
     def update_lapnumber(self, curr, last, lap_num, lap_total):
         """Lap number"""
@@ -134,7 +144,7 @@ class Draw(Widget, MouseEvent):
                 lap_num_text = f"{self.wcfg['lapnumber_text']}{lap_num}.{curr:02.0f}/{lap_total}"
 
             self.bar_lapnumber.config(text=lap_num_text,
-                                      width=len(lap_num_text) + 1,
+                                      width=len(lap_num_text),
                                       bg=self.maxlap_warning(lap_num - lap_total))
 
     def update_place(self, curr, last):

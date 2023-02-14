@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Temperature Widget
+Tyre temperature Widget
 """
 
 import tkinter as tk
@@ -38,72 +38,155 @@ class Draw(Widget, MouseEvent):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config size & position
-        bar_gap = self.wcfg["bar_gap"]
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        bar_gap = self.wcfg["bar_gap"]
+        inner_gap = self.wcfg["inner_gap"]
+        bar_width = 4 if self.wcfg["show_degree_sign"] else 3
+
         # Config style & variable
-        text_def = "n/a"
-        fg_color_tyre = self.wcfg["font_color_tyre"]
-        bg_color_tyre = self.wcfg["bkg_color_tyre"]
-        fg_color_brake = self.wcfg["font_color_brake"]
-        bg_color_brake = self.wcfg["bkg_color_brake"]
+        self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
         font_temp = tkfont.Font(family=self.wcfg["font_name"],
                                 size=-self.wcfg["font_size"],
                                 weight=self.wcfg["font_weight"])
 
-        # Draw label
-        bar_style = {"text":text_def, "bd":0, "height":1, "width":5,
-                     "padx":0, "pady":0, "font":font_temp}
+        column_stemp = self.wcfg["column_index_surface"]
+        column_itemp = self.wcfg["column_index_innerlayer"]
 
-        self.bar_ttemp_fl = tk.Label(self, bar_style, fg=fg_color_tyre, bg=bg_color_tyre)
-        self.bar_ttemp_fr = tk.Label(self, bar_style, fg=fg_color_tyre, bg=bg_color_tyre)
-        self.bar_ttemp_rl = tk.Label(self, bar_style, fg=fg_color_tyre, bg=bg_color_tyre)
-        self.bar_ttemp_rr = tk.Label(self, bar_style, fg=fg_color_tyre, bg=bg_color_tyre)
-        self.bar_btemp_fl = tk.Label(self, bar_style, fg=fg_color_brake, bg=bg_color_brake)
-        self.bar_btemp_fr = tk.Label(self, bar_style, fg=fg_color_brake, bg=bg_color_brake)
-        self.bar_btemp_rl = tk.Label(self, bar_style, fg=fg_color_brake, bg=bg_color_brake)
-        self.bar_btemp_rr = tk.Label(self, bar_style, fg=fg_color_brake, bg=bg_color_brake)
+        # Draw label
+        frame_stemp = tk.Frame(self, bd=0, highlightthickness=0,
+                               bg=self.cfg.overlay["transparent_color"])
+        frame_itemp = tk.Frame(self, bd=0, highlightthickness=0,
+                               bg=self.cfg.overlay["transparent_color"])
+        bar_style_stemp = {"text":"n/a", "bd":0, "height":1, "width":bar_width,
+                           "padx":bar_padx, "pady":0, "font":font_temp,
+                           "fg":self.wcfg["font_color_surface"],
+                           "bg":self.wcfg["bkg_color_surface"]}
+        bar_style_itemp = {"text":"n/a", "bd":0, "height":1, "width":bar_width,
+                           "padx":bar_padx, "pady":0, "font":font_temp,
+                           "fg":self.wcfg["font_color_innerlayer"],
+                           "bg":self.wcfg["bkg_color_innerlayer"]}
+
+        if self.wcfg["show_tyre_compound"]:
+            bar_style_tcmpd = {"text":"-", "bd":0, "height":1, "width":1,
+                               "padx":bar_padx, "pady":0, "font":font_temp,
+                               "fg":self.wcfg["font_color_tyre_compound"],
+                               "bg":self.wcfg["bkg_color_tyre_compound"]}
+            self.bar_tcmpd_f = tk.Label(frame_stemp, bar_style_tcmpd)
+            self.bar_tcmpd_f.grid(row=0, column=4, padx=(0,inner_gap), pady=(0,inner_gap))
+            self.bar_tcmpd_r = tk.Label(frame_stemp, bar_style_tcmpd)
+            self.bar_tcmpd_r.grid(row=1, column=4, padx=(0,inner_gap), pady=0)
+            bar_phold1 = tk.Label(frame_itemp, bar_style_tcmpd, text="")
+            bar_phold1.grid(row=0, column=4, padx=(0,inner_gap), pady=(0,inner_gap))
+            bar_phold2 = tk.Label(frame_itemp, bar_style_tcmpd, text="")
+            bar_phold2.grid(row=1, column=4, padx=(0,inner_gap), pady=0)
+
+        if self.wcfg["ICO_mode"]:
+            self.bar_stemp_fl_i = tk.Label(frame_stemp, bar_style_stemp)
+            self.bar_stemp_fl_c = tk.Label(frame_stemp, bar_style_stemp)
+            self.bar_stemp_fl_o = tk.Label(frame_stemp, bar_style_stemp)
+
+            self.bar_stemp_fr_i = tk.Label(frame_stemp, bar_style_stemp)
+            self.bar_stemp_fr_c = tk.Label(frame_stemp, bar_style_stemp)
+            self.bar_stemp_fr_o = tk.Label(frame_stemp, bar_style_stemp)
+
+            self.bar_stemp_rl_i = tk.Label(frame_stemp, bar_style_stemp)
+            self.bar_stemp_rl_c = tk.Label(frame_stemp, bar_style_stemp)
+            self.bar_stemp_rl_o = tk.Label(frame_stemp, bar_style_stemp)
+
+            self.bar_stemp_rr_i = tk.Label(frame_stemp, bar_style_stemp)
+            self.bar_stemp_rr_c = tk.Label(frame_stemp, bar_style_stemp)
+            self.bar_stemp_rr_o = tk.Label(frame_stemp, bar_style_stemp)
+
+            self.bar_stemp_fl_i.grid(row=0, column=2, padx=(0,inner_gap), pady=(0,inner_gap))
+            self.bar_stemp_fl_c.grid(row=0, column=1, padx=(0,inner_gap), pady=(0,inner_gap))
+            self.bar_stemp_fl_o.grid(row=0, column=0, padx=(0,inner_gap), pady=(0,inner_gap))
+
+            self.bar_stemp_fr_i.grid(row=0, column=7, padx=0, pady=(0,inner_gap))
+            self.bar_stemp_fr_c.grid(row=0, column=8, padx=(inner_gap,0), pady=(0,inner_gap))
+            self.bar_stemp_fr_o.grid(row=0, column=9, padx=(inner_gap,0), pady=(0,inner_gap))
+
+            self.bar_stemp_rl_i.grid(row=1, column=2, padx=(0,inner_gap), pady=0)
+            self.bar_stemp_rl_c.grid(row=1, column=1, padx=(0,inner_gap), pady=0)
+            self.bar_stemp_rl_o.grid(row=1, column=0, padx=(0,inner_gap), pady=0)
+
+            self.bar_stemp_rr_i.grid(row=1, column=7, padx=0, pady=0)
+            self.bar_stemp_rr_c.grid(row=1, column=8, padx=(inner_gap,0), pady=0)
+            self.bar_stemp_rr_o.grid(row=1, column=9, padx=(inner_gap,0), pady=0)
+
+            if self.wcfg["show_innerlayer"]:
+                self.bar_itemp_fl_i = tk.Label(frame_itemp, bar_style_itemp)
+                self.bar_itemp_fl_c = tk.Label(frame_itemp, bar_style_itemp)
+                self.bar_itemp_fl_o = tk.Label(frame_itemp, bar_style_itemp)
+
+                self.bar_itemp_fr_i = tk.Label(frame_itemp, bar_style_itemp)
+                self.bar_itemp_fr_c = tk.Label(frame_itemp, bar_style_itemp)
+                self.bar_itemp_fr_o = tk.Label(frame_itemp, bar_style_itemp)
+
+                self.bar_itemp_rl_i = tk.Label(frame_itemp, bar_style_itemp)
+                self.bar_itemp_rl_c = tk.Label(frame_itemp, bar_style_itemp)
+                self.bar_itemp_rl_o = tk.Label(frame_itemp, bar_style_itemp)
+
+                self.bar_itemp_rr_i = tk.Label(frame_itemp, bar_style_itemp)
+                self.bar_itemp_rr_c = tk.Label(frame_itemp, bar_style_itemp)
+                self.bar_itemp_rr_o = tk.Label(frame_itemp, bar_style_itemp)
+
+                self.bar_itemp_fl_i.grid(row=0, column=2, padx=(0,inner_gap), pady=(0,inner_gap))
+                self.bar_itemp_fl_c.grid(row=0, column=1, padx=(0,inner_gap), pady=(0,inner_gap))
+                self.bar_itemp_fl_o.grid(row=0, column=0, padx=(0,inner_gap), pady=(0,inner_gap))
+
+                self.bar_itemp_fr_i.grid(row=0, column=7, padx=0, pady=(0,inner_gap))
+                self.bar_itemp_fr_c.grid(row=0, column=8, padx=(inner_gap,0), pady=(0,inner_gap))
+                self.bar_itemp_fr_o.grid(row=0, column=9, padx=(inner_gap,0), pady=(0,inner_gap))
+
+                self.bar_itemp_rl_i.grid(row=1, column=2, padx=(0,inner_gap), pady=0)
+                self.bar_itemp_rl_c.grid(row=1, column=1, padx=(0,inner_gap), pady=0)
+                self.bar_itemp_rl_o.grid(row=1, column=0, padx=(0,inner_gap), pady=0)
+
+                self.bar_itemp_rr_i.grid(row=1, column=7, padx=0, pady=0)
+                self.bar_itemp_rr_c.grid(row=1, column=8, padx=(inner_gap,0), pady=0)
+                self.bar_itemp_rr_o.grid(row=1, column=9, padx=(inner_gap,0), pady=0)
+
+        else:
+            self.bar_stemp_fl = tk.Label(frame_stemp, bar_style_stemp)
+            self.bar_stemp_fr = tk.Label(frame_stemp, bar_style_stemp)
+            self.bar_stemp_rl = tk.Label(frame_stemp, bar_style_stemp)
+            self.bar_stemp_rr = tk.Label(frame_stemp, bar_style_stemp)
+            self.bar_stemp_fl.grid(row=0, column=0, padx=(0,inner_gap), pady=(0,inner_gap))
+            self.bar_stemp_fr.grid(row=0, column=9, padx=0, pady=(0,inner_gap))
+            self.bar_stemp_rl.grid(row=1, column=0, padx=(0,inner_gap), pady=0)
+            self.bar_stemp_rr.grid(row=1, column=9, padx=0, pady=0)
+
+            if self.wcfg["show_innerlayer"]:
+                self.bar_itemp_fl = tk.Label(frame_itemp, bar_style_itemp)
+                self.bar_itemp_fr = tk.Label(frame_itemp, bar_style_itemp)
+                self.bar_itemp_rl = tk.Label(frame_itemp, bar_style_itemp)
+                self.bar_itemp_rr = tk.Label(frame_itemp, bar_style_itemp)
+                self.bar_itemp_fl.grid(row=0, column=0, padx=(0,inner_gap), pady=(0,inner_gap))
+                self.bar_itemp_fr.grid(row=0, column=9, padx=0, pady=(0,inner_gap))
+                self.bar_itemp_rl.grid(row=1, column=0, padx=(0,inner_gap), pady=0)
+                self.bar_itemp_rr.grid(row=1, column=9, padx=0, pady=0)
 
         if self.wcfg["layout"] == "0":
-            # Vertical layout, tyre above brake
-            self.bar_ttemp_fl.grid(row=0, column=0, padx=0, pady=0)
-            self.bar_ttemp_fr.grid(row=0, column=1, padx=0, pady=0)
-            self.bar_ttemp_rl.grid(row=1, column=0, padx=0, pady=(0, bar_gap))
-            self.bar_ttemp_rr.grid(row=1, column=1, padx=0, pady=(0, bar_gap))
-            self.bar_btemp_fl.grid(row=2, column=0, padx=0, pady=0)
-            self.bar_btemp_fr.grid(row=2, column=1, padx=0, pady=0)
-            self.bar_btemp_rl.grid(row=3, column=0, padx=0, pady=0)
-            self.bar_btemp_rr.grid(row=3, column=1, padx=0, pady=0)
-        elif self.wcfg["layout"] == "1":
-            # Vertical layout, brake above tyre
-            self.bar_btemp_fl.grid(row=0, column=0, padx=0, pady=0)
-            self.bar_btemp_fr.grid(row=0, column=1, padx=0, pady=0)
-            self.bar_btemp_rl.grid(row=1, column=0, padx=0, pady=(0, bar_gap))
-            self.bar_btemp_rr.grid(row=1, column=1, padx=0, pady=(0, bar_gap))
-            self.bar_ttemp_fl.grid(row=2, column=0, padx=0, pady=0)
-            self.bar_ttemp_fr.grid(row=2, column=1, padx=0, pady=0)
-            self.bar_ttemp_rl.grid(row=3, column=0, padx=0, pady=0)
-            self.bar_ttemp_rr.grid(row=3, column=1, padx=0, pady=0)
-        elif self.wcfg["layout"] == "2":
-            # Horizontal layout, tyre outside of brake
-            self.bar_ttemp_fl.grid(row=0, column=0, padx=(0, bar_gap), pady=0)
-            self.bar_ttemp_fr.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
-            self.bar_ttemp_rl.grid(row=1, column=0, padx=(0, bar_gap), pady=0)
-            self.bar_ttemp_rr.grid(row=1, column=3, padx=(bar_gap, 0), pady=0)
-            self.bar_btemp_fl.grid(row=0, column=1, padx=0, pady=0)
-            self.bar_btemp_fr.grid(row=0, column=2, padx=0, pady=0)
-            self.bar_btemp_rl.grid(row=1, column=1, padx=0, pady=0)
-            self.bar_btemp_rr.grid(row=1, column=2, padx=0, pady=0)
+            # Vertical layout
+            frame_stemp.grid(row=column_stemp, column=0, padx=0, pady=(0,bar_gap))
+            if self.wcfg["show_innerlayer"]:
+                frame_itemp.grid(row=column_itemp, column=0, padx=0, pady=(0,bar_gap))
         else:
-            # Horizontal layout, brake outside of tyre
-            self.bar_btemp_fl.grid(row=0, column=0, padx=(0, bar_gap), pady=0)
-            self.bar_btemp_fr.grid(row=0, column=3, padx=(bar_gap, 0), pady=0)
-            self.bar_btemp_rl.grid(row=1, column=0, padx=(0, bar_gap), pady=0)
-            self.bar_btemp_rr.grid(row=1, column=3, padx=(bar_gap, 0), pady=0)
-            self.bar_ttemp_fl.grid(row=0, column=1, padx=0, pady=0)
-            self.bar_ttemp_fr.grid(row=0, column=2, padx=0, pady=0)
-            self.bar_ttemp_rl.grid(row=1, column=1, padx=0, pady=0)
-            self.bar_ttemp_rr.grid(row=1, column=2, padx=0, pady=0)
+            # Horizontal layout
+            frame_stemp.grid(row=0, column=column_stemp, padx=(0,bar_gap), pady=0)
+            if self.wcfg["show_innerlayer"]:
+                frame_itemp.grid(row=0, column=column_itemp, padx=(0,bar_gap), pady=0)
+
+        # Last data
+        self.last_tcmpd = [None] * 2
+        if self.wcfg["ICO_mode"]:
+            self.last_stemp = [[None] * 3] * 4
+            self.last_itemp = [[None] * 3] * 4
+        else:
+            self.last_stemp = [None] * 4
+            self.last_itemp = [None] * 4
 
         # Start updating
         self.update_data()
@@ -115,56 +198,111 @@ class Draw(Widget, MouseEvent):
         """Update when vehicle on track"""
         if read_data.state() and self.wcfg["enable"]:
 
-            # Read average tyre & brake temperature data
-            ttemp, btemp = read_data.temperature()
+            # Read tyre surface & inner temperature data
+            stemp = tuple(map(self.temp_mode, read_data.tyre_temp_surface()))
+            tcmpd = self.set_tyre_cmp(read_data.tyre_compound())
 
-            # Set up display temps
-            ttemp_d = tuple(map(self.temp_units, ttemp))
-            btemp_d = tuple(map(self.temp_units, btemp))
+            if self.wcfg["show_tyre_compound"]:
+                self.update_tcmpd(tcmpd, self.last_tcmpd)
+                self.last_tcmpd = tcmpd
 
-            # Temperature update
-            if self.wcfg["color_swap_tyre"] == "0":
-                self.bar_ttemp_fl["fg"] = self.color_ttemp(ttemp[0])
-                self.bar_ttemp_fr["fg"] = self.color_ttemp(ttemp[1])
-                self.bar_ttemp_rl["fg"] = self.color_ttemp(ttemp[2])
-                self.bar_ttemp_rr["fg"] = self.color_ttemp(ttemp[3])
+            # Inner, center, outer mode
+            if self.wcfg["ICO_mode"]:
+                # Surface temperature
+                self.update_temp("stemp_fl_i", stemp[0][2], self.last_stemp[0][2])
+                self.update_temp("stemp_fl_c", stemp[0][1], self.last_stemp[0][1])
+                self.update_temp("stemp_fl_o", stemp[0][0], self.last_stemp[0][0])
+                self.update_temp("stemp_fr_i", stemp[1][0], self.last_stemp[1][0])
+                self.update_temp("stemp_fr_c", stemp[1][1], self.last_stemp[1][1])
+                self.update_temp("stemp_fr_o", stemp[1][2], self.last_stemp[1][2])
+
+                self.update_temp("stemp_rl_i", stemp[2][2], self.last_stemp[2][2])
+                self.update_temp("stemp_rl_c", stemp[2][1], self.last_stemp[2][1])
+                self.update_temp("stemp_rl_o", stemp[2][0], self.last_stemp[2][0])
+                self.update_temp("stemp_rr_i", stemp[3][0], self.last_stemp[3][0])
+                self.update_temp("stemp_rr_c", stemp[3][1], self.last_stemp[3][1])
+                self.update_temp("stemp_rr_o", stemp[3][2], self.last_stemp[3][2])
+                self.last_stemp = stemp
+
+                # Inner layer temperature
+                if self.wcfg["show_innerlayer"]:
+                    itemp = tuple(map(self.temp_mode, read_data.tyre_temp_innerlayer()))
+                    self.update_temp("itemp_fl_i", itemp[0][2], self.last_itemp[0][2])
+                    self.update_temp("itemp_fl_c", itemp[0][1], self.last_itemp[0][1])
+                    self.update_temp("itemp_fl_o", itemp[0][0], self.last_itemp[0][0])
+                    self.update_temp("itemp_fr_i", itemp[1][0], self.last_itemp[1][0])
+                    self.update_temp("itemp_fr_c", itemp[1][1], self.last_itemp[1][1])
+                    self.update_temp("itemp_fr_o", itemp[1][2], self.last_itemp[1][2])
+
+                    self.update_temp("itemp_rl_i", itemp[2][2], self.last_itemp[2][2])
+                    self.update_temp("itemp_rl_c", itemp[2][1], self.last_itemp[2][1])
+                    self.update_temp("itemp_rl_o", itemp[2][0], self.last_itemp[2][0])
+                    self.update_temp("itemp_rr_i", itemp[3][0], self.last_itemp[3][0])
+                    self.update_temp("itemp_rr_c", itemp[3][1], self.last_itemp[3][1])
+                    self.update_temp("itemp_rr_o", itemp[3][2], self.last_itemp[3][2])
+                    self.last_itemp = itemp
+            # Average mode
             else:
-                self.bar_ttemp_fl["bg"] = self.color_ttemp(ttemp[0])
-                self.bar_ttemp_fr["bg"] = self.color_ttemp(ttemp[1])
-                self.bar_ttemp_rl["bg"] = self.color_ttemp(ttemp[2])
-                self.bar_ttemp_rr["bg"] = self.color_ttemp(ttemp[3])
+                # Surface temperature
+                self.update_temp("stemp_fl", stemp[0], self.last_stemp[0])
+                self.update_temp("stemp_fr", stemp[1], self.last_stemp[1])
+                self.update_temp("stemp_rl", stemp[2], self.last_stemp[2])
+                self.update_temp("stemp_rr", stemp[3], self.last_stemp[3])
+                self.last_stemp = stemp
 
-            if self.wcfg["color_swap_brake"] == "0":
-                self.bar_btemp_fl["bg"] = self.color_btemp(btemp[0])
-                self.bar_btemp_fr["bg"] = self.color_btemp(btemp[1])
-                self.bar_btemp_rl["bg"] = self.color_btemp(btemp[2])
-                self.bar_btemp_rr["bg"] = self.color_btemp(btemp[3])
-            else:
-                self.bar_btemp_fl["fg"] = self.color_btemp(btemp[0])
-                self.bar_btemp_fr["fg"] = self.color_btemp(btemp[1])
-                self.bar_btemp_rl["fg"] = self.color_btemp(btemp[2])
-                self.bar_btemp_rr["fg"] = self.color_btemp(btemp[3])
-
-            self.bar_ttemp_fl.config(text=ttemp_d[0])
-            self.bar_ttemp_fr.config(text=ttemp_d[1])
-            self.bar_ttemp_rl.config(text=ttemp_d[2])
-            self.bar_ttemp_rr.config(text=ttemp_d[3])
-
-            self.bar_btemp_fl.config(text=btemp_d[0])
-            self.bar_btemp_fr.config(text=btemp_d[1])
-            self.bar_btemp_rl.config(text=btemp_d[2])
-            self.bar_btemp_rr.config(text=btemp_d[3])
+                # Inner layer temperature
+                if self.wcfg["show_innerlayer"]:
+                    itemp = tuple(map(self.temp_mode, read_data.tyre_temp_innerlayer()))
+                    self.update_temp("itemp_fl", itemp[0], self.last_itemp[0])
+                    self.update_temp("itemp_fr", itemp[1], self.last_itemp[1])
+                    self.update_temp("itemp_rl", itemp[2], self.last_itemp[2])
+                    self.update_temp("itemp_rr", itemp[3], self.last_itemp[3])
+                    self.last_itemp = itemp
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
 
+    # GUI update methods
+    def update_temp(self, suffix, curr, last):
+        """Tyre temperature"""
+        if curr != last:
+            if self.wcfg["color_swap_temperature"] == "0":
+                stemp_color = {"fg":self.color_heatmap(curr)}
+            else:
+                stemp_color = {"bg":self.color_heatmap(curr)}
+
+            sign = "°" if self.wcfg["show_degree_sign"] else ""
+
+            getattr(self, f"bar_{suffix}").config(
+                stemp_color, text=f"{curr:0{self.leading_zero}.0f}{sign}")
+
+    def update_tcmpd(self, curr, last):
+        """Tyre compound"""
+        if curr != last:
+            self.bar_tcmpd_f.config(text=curr[0])
+            self.bar_tcmpd_r.config(text=curr[1])
+
     # Additional methods
-    def temp_units(self, temp):
+    def temp_mode(self, value):
+        """Temperature inner/center/outer mode"""
+        if self.wcfg["ICO_mode"]:
+            return tuple(map(self.temp_units, value))
+        return self.temp_units(sum(value) / 3)
+
+    def temp_units(self, value):
         """Temperature units"""
-        return f" {calc.conv_temperature(temp, self.wcfg['temp_unit']):02.0f}°"
+        if self.wcfg["temp_unit"] == "0":
+            return round(value - 273.15)
+        return round(calc.celsius2fahrenheit(value - 273.15))
+
+    def set_tyre_cmp(self, tc_index):
+        """Substitute tyre compound index with custom chars"""
+        ftire = self.wcfg["tyre_compound_list"][tc_index[0]:(tc_index[0]+1)]
+        rtire = self.wcfg["tyre_compound_list"][tc_index[1]:(tc_index[1]+1)]
+        return ftire, rtire
 
     @staticmethod
-    def color_ttemp(temp):
+    def color_heatmap(temp):
         """Tyre temperature color"""
         if temp < 40:
             color = "#44F"  # blue
@@ -180,27 +318,4 @@ class Draw(Widget, MouseEvent):
             color = "#F84"
         else:
             color = "#FF4"  # yellow
-        return color
-
-    @staticmethod
-    def color_btemp(temp):
-        """Brake temperature color"""
-        if temp < 100:
-            color = "#44F"  # blue
-        elif 100 <= temp < 200:
-            color = "#48F"
-        elif 200 <= temp < 300:
-            color = "#4FF"  # cyan
-        elif 300 <= temp < 400:
-            color = "#4F8"
-        elif 400 <= temp < 500:
-            color = "#4F4"  # green
-        elif 500 <= temp < 600:
-            color = "#8F4"
-        elif 600 <= temp < 700:
-            color = "#FF4"  # yellow
-        elif 700 <= temp < 800:
-            color = "#F84"
-        else:
-            color = "#F44"  # red
         return color

@@ -38,12 +38,14 @@ class Draw(Widget, MouseEvent):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config size & position
+        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+
         self.dbar_length = int(100 * self.wcfg["bar_length_scale"])  # 100 pixel base length
         self.dbar_height = int(15 * self.wcfg["bar_height_scale"])  # 15 pixel
         bar_gap = self.wcfg["bar_gap"]
-        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
         # Config style & variable
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
         font_deltabest = tkfont.Font(family=self.wcfg["font_name"],
                                      size=-self.wcfg["font_size"],
                                      weight=self.wcfg["font_weight"])
@@ -63,7 +65,8 @@ class Draw(Widget, MouseEvent):
                                fill=self.wcfg["bkg_color_time_gain"], outline="")
 
         # Delta label
-        bar_style = {"bd":0, "height":1, "width":8, "padx":0, "pady":0, "font":font_deltabest}
+        bar_style = {"bd":0, "height":1, "width":7, "font":font_deltabest,
+                     "padx":bar_padx, "pady":0}
         self.bar_deltabest = tk.Label(self, bar_style, text="---.---",
                                       fg=self.wcfg["font_color_deltabest"],
                                       bg=self.wcfg["bkg_color_deltabest"])

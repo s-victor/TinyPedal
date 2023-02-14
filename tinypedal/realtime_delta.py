@@ -64,7 +64,7 @@ class DeltaTime:
         delta_list_last = []  # distance vs time list, last lap, used for verification only
         delta_list_best = []  # distance vs time list, best lap
         delta_best = 0  # delta time compare to best laptime
-        start_last = 0  # lap-start-time
+        last_lap_stime = 0  # lap-start-time
         pos_last = 0  # last checked player vehicle position
         pos_append = 0  # append last checked position with calc traveled dist
         gps_last = [0,0,0]  # last global position
@@ -79,7 +79,7 @@ class DeltaTime:
         while self.running:
             if state():
 
-                (start_curr, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase
+                (lap_stime, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase
                  ) = self.delta_telemetry()
 
                 # Read combo & best laptime
@@ -88,17 +88,17 @@ class DeltaTime:
                     update_delay = 0.01  # shorter delay
                     combo_name = combo_check()
                     delta_list_best, laptime_best = self.load_deltabest(combo_name)
-                    start_last = start_curr  # reset lap-start-time
+                    last_lap_stime = lap_stime  # reset lap-start-time
 
                 if game_phase < 5:  # reset stint stats if session has not started
-                    start_last = start_curr  # reset
+                    last_lap_stime = lap_stime  # reset
 
                 # Start updating
-                laptime_curr = max(elapsed_time - start_last, 0)  # current laptime
+                laptime_curr = max(elapsed_time - last_lap_stime, 0)  # current laptime
 
                 # Lap start & finish detection
-                if start_curr > start_last:  # difference of lap-start-time
-                    laptime_last = start_curr - start_last
+                if lap_stime > last_lap_stime:  # difference of lap-start-time
+                    laptime_last = lap_stime - last_lap_stime
 
                     if delta_list_curr:  # non-empty list check
                         delta_list_curr.append((pos_last + 10, laptime_last))  # set end value
@@ -108,7 +108,7 @@ class DeltaTime:
                     delta_list_curr.clear()  # reset current delta list
                     delta_list_curr.append((0.0, 0.0))  # set start value
                     recording = True  # activate delta recording
-                    start_last = start_curr  # reset
+                    last_lap_stime = lap_stime  # reset
                     pos_last = pos_curr  # set pos last
 
                 # Laptime validating 1s after passing finish line
@@ -191,7 +191,7 @@ class DeltaTime:
     @staticmethod
     def delta_telemetry():
         """Delta telemetry data"""
-        start_curr = chknm(info.syncedVehicleTelemetry().mLapStartET)
+        lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
         elapsed_time = chknm(info.syncedVehicleTelemetry().mElapsedTime)
         lastlap_check = chknm(info.syncedVehicleScoring().mLastLapTime)
         speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
@@ -202,7 +202,7 @@ class DeltaTime:
                     chknm(info.syncedVehicleTelemetry().mPos.y),
                     chknm(info.syncedVehicleTelemetry().mPos.z))
         game_phase = chknm(info.LastScor.mScoringInfo.mGamePhase)
-        return (start_curr, elapsed_time, lastlap_check, speed, pos_curr,
+        return (lap_stime, elapsed_time, lastlap_check, speed, pos_curr,
                 gps_curr, game_phase)
 
     def load_deltabest(self, combo):

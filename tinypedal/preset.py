@@ -249,6 +249,8 @@ class LoadPreset(tk.Toplevel):
 
     def quit(self):
         """Quit manager"""
+        if not cfg.active_widget_list:
+            self.deiconify()  # prevent app hanging if no widgets enabled while exiting
         module.stop()  # stop module
         self.master.quit()  # close root window
         info.stopUpdating()  # stop sharedmemory synced player data updating thread

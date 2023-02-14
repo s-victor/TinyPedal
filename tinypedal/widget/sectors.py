@@ -41,8 +41,10 @@ class Draw(Widget, MouseEvent):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config size & position
-        bar_gap = self.wcfg["bar_gap"]
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        bar_gap = self.wcfg["bar_gap"]
 
         # Config style & variable
         font_sectors = tkfont.Font(family=self.wcfg["font_name"],
@@ -50,55 +52,55 @@ class Draw(Widget, MouseEvent):
                                    weight=self.wcfg["font_weight"])
 
         # Draw label
-        bar_style = {"bd":0, "height":1, "padx":0, "pady":0, "font":font_sectors}
+        bar_style = {"bd":0, "height":1, "padx":bar_padx, "pady":0, "font":font_sectors}
         frame_laptime = tk.Frame(self, bd=0, highlightthickness=0,
                                  bg=self.cfg.overlay["transparent_color"])
 
         # Current position and current lap number
         if self.wcfg["show_position_lapnumber"]:
-            self.bar_position = tk.Label(self, bar_style, text="P  ", width=4,
+            self.bar_position = tk.Label(self, bar_style, text="P  ", width=3,
                                          fg=self.wcfg["font_color_position"],
                                          bg=self.wcfg["bkg_color_position"])
 
-            self.bar_laps = tk.Label(self, bar_style, text="L  ", width=4,
+            self.bar_laps = tk.Label(self, bar_style, text="L  ", width=3,
                                     fg=self.wcfg["font_color_lapnumber"],
                                     bg=self.wcfg["bkg_color_lapnumber"])
 
         # Speed
         if self.wcfg["show_speed"]:
-            self.bar_speed_curr = tk.Label(self, bar_style, text="", width=6,
+            self.bar_speed_curr = tk.Label(self, bar_style, text="", width=5,
                                           fg=self.wcfg["font_color_speed"],
                                           bg=self.wcfg["bkg_color_speed"])
 
-            self.bar_speed_best = tk.Label(self, bar_style, text="", width=6,
+            self.bar_speed_best = tk.Label(self, bar_style, text="", width=5,
                                            fg=self.wcfg["font_color_speed"],
                                            bg=self.wcfg["bkg_color_speed"])
 
         # Target time
         self.bar_time_target = tk.Label(frame_laptime, bar_style,
-                                        text="  --:--.---", width=12,
+                                        text="  --:--.---", width=11,
                                         fg=self.wcfg["font_color_target_time"],
                                         bg=self.wcfg["bkg_color_target_time"])
 
         # Current time
         self.bar_time_curr = tk.Label(frame_laptime, bar_style,
-                                      text="  --:--.---", width=12,
+                                      text="  --:--.---", width=11,
                                       fg=self.wcfg["font_color_current_time"],
                                       bg=self.wcfg["bkg_color_current_time"])
 
         # Gap to best lap laptime
-        self.bar_time_gap = tk.Label(self, bar_style, text="--.---", width=8,
+        self.bar_time_gap = tk.Label(self, bar_style, text="--.---", width=7,
                                      fg=self.wcfg["font_color_laptime_gap"],
                                      bg=self.wcfg["bkg_color_laptime_gap"])
 
         # Gap to best sector time
-        self.bar_s1_gap = tk.Label(self, bar_style, text="S1", width=8,
+        self.bar_s1_gap = tk.Label(self, bar_style, text="S1", width=7,
                                    fg=self.wcfg["font_color_sector"],
                                    bg=self.wcfg["bkg_color_sector"])
-        self.bar_s2_gap = tk.Label(self, bar_style, text="S2", width=8,
+        self.bar_s2_gap = tk.Label(self, bar_style, text="S2", width=7,
                                    fg=self.wcfg["font_color_sector"],
                                    bg=self.wcfg["bkg_color_sector"])
-        self.bar_s3_gap = tk.Label(self, bar_style, text="S3", width=8,
+        self.bar_s3_gap = tk.Label(self, bar_style, text="S3", width=7,
                                    fg=self.wcfg["font_color_sector"],
                                    bg=self.wcfg["bkg_color_sector"])
 
@@ -153,7 +155,7 @@ class Draw(Widget, MouseEvent):
 
     def set_defaults(self):
         """Initialize variables"""
-        self.start_last = 0                      # last lap start time
+        self.last_lap_stime = 0                      # last lap start time
         self.last_sector_idx = -1                # previous recorded sector index value
         self.combo_name = "unknown"              # current car & track combo
         self.session_id = None                   # session identity
@@ -185,7 +187,8 @@ class Draw(Widget, MouseEvent):
 
             # Read Sector data
             (sector_idx, curr_sector1, curr_sector2, last_sector2, last_laptime,
-             plr_laps, plr_place, lap_etime, speed, start_curr) = read_data.sector()
+             plr_laps, plr_place, speed) = read_data.sector()
+            lap_stime, lap_etime = read_data.lap_timestamp()
 
             # Save switch
             if not self.verified:
@@ -197,9 +200,9 @@ class Draw(Widget, MouseEvent):
             # Speed update
             if self.wcfg["show_speed"]:
                 # Lap start & finish detection
-                if start_curr != self.start_last:  # time stamp difference
+                if lap_stime != self.last_lap_stime:  # time stamp difference
                     self.cb_topspeed = speed  # reset current lap fastest speed
-                    self.start_last = start_curr  # reset
+                    self.last_lap_stime = lap_stime  # reset
                     self.valid_topspeed = False
 
                 # Validate fastest speed

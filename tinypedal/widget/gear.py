@@ -223,8 +223,9 @@ class Draw(Widget, MouseEvent):
             # Start lights update
             if self.wcfg["show_startlights"]:
                 if race_phase == 4:
+                    lap_stime, lap_etime = read_data.lap_timestamp()
                     self.bar_startlights.grid()
-                    start_timer = max(read_data.lap_timestamp(), 0)
+                    start_timer = max(lap_stime - lap_etime, 0)
 
                     if start_timer == 0:
                         self.bar_startlights.config(text=self.wcfg["green_flag_text"],
@@ -240,8 +241,7 @@ class Draw(Widget, MouseEvent):
                         self.bar_startlights.config(text=self.wcfg["green_flag_text"],
                                                     width=len(self.wcfg["green_flag_text"]) + 1,
                                                     bg=self.wcfg["bkg_color_green_flag"])
-                        hide_timer = read_data.lap_timestamp()
-                        if -hide_timer >= self.wcfg["green_flag_duration"]:
+                        if -(lap_stime - lap_etime) >= self.wcfg["green_flag_duration"]:
                             self.bar_startlights.grid_remove()
                             self.state_slight = False
 

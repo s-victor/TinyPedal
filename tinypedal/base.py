@@ -21,6 +21,7 @@ GUI window, events.
 """
 
 import tkinter as tk
+import tkinter.font as tkfont
 
 from .const import PLATFORM
 from .module_control import module
@@ -54,6 +55,18 @@ class Widget(tk.Toplevel):
 
         self.lift()
         self.attributes("-alpha", self.wcfg["opacity"])  # set window opacity after lift
+
+    def add_caption(self, frame, toggle, value):
+        """Create caption"""
+        if self.wcfg[toggle]:
+            font_desc = tkfont.Font(family=self.wcfg["font_name"],
+                                    size=-int(self.wcfg["font_size"] * 0.8),
+                                    weight=self.wcfg["font_weight"])
+            bar_style_desc = {"bd":0, "height":1, "font":font_desc, "padx":0, "pady":0,
+                              "fg":self.wcfg["font_color_caption"],
+                              "bg":self.wcfg["bkg_color_caption"]}
+            bar_desc = tk.Label(frame, bar_style_desc, text=value)
+            bar_desc.grid(row=0, column=0, columnspan=2, padx=0, pady=0, sticky="we")
 
 
 class MouseEvent:

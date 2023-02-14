@@ -23,30 +23,8 @@ Widget control
 import time
 
 from .setting import cfg
-from .widget import (cruise,
-                     deltabest,
-                     drs,
-                     engine,
-                     force,
-                     fuel,
-                     gear,
-                     instrument,
-                     pedal,
-                     pressure,
-                     radar,
-                     relative,
-                     sectors,
-                     session,
-                     steering,
-                     stint,
-                     temperature,
-                     timing,
-                     wear,
-                     weather,
-                     wheel
-                     )
-
-WIDGET_PACK = (
+from .widget import (
+    brake,
     cruise,
     deltabest,
     drs,
@@ -63,12 +41,39 @@ WIDGET_PACK = (
     session,
     steering,
     stint,
+    suspension,
     temperature,
     timing,
     wear,
     weather,
     wheel
-    )
+)
+
+WIDGET_PACK = (
+    brake,
+    cruise,
+    deltabest,
+    drs,
+    engine,
+    force,
+    fuel,
+    gear,
+    instrument,
+    pedal,
+    pressure,
+    radar,
+    relative,
+    sectors,
+    session,
+    steering,
+    stint,
+    suspension,
+    temperature,
+    timing,
+    wear,
+    weather,
+    wheel
+)
 
 
 class WidgetControl:

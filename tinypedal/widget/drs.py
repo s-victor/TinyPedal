@@ -39,14 +39,16 @@ class Draw(Widget, MouseEvent):
         # Config size & position
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+
         # Config style & variable
         font_drs = tkfont.Font(family=self.wcfg["font_name"],
                                size=-self.wcfg["font_size"],
                                weight=self.wcfg["font_weight"])
 
         # Draw label
-        self.bar_drs = tk.Label(self, text="DRS", bd=0, height=1, width=4,
-                                padx=0, pady=0, font=font_drs,
+        self.bar_drs = tk.Label(self, text="DRS", bd=0, height=1, width=3,
+                                padx=bar_padx, pady=0, font=font_drs,
                                 fg=self.wcfg["font_color_not_available"],
                                 bg=self.wcfg["bkg_color_not_available"])
         self.bar_drs.grid(row=0, column=0, padx=0, pady=0)

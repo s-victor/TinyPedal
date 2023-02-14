@@ -40,8 +40,10 @@ class Draw(Widget, MouseEvent):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config size & position
-        bar_gap = self.wcfg["bar_gap"]
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        bar_gap = self.wcfg["bar_gap"]
 
         # Config style & variable
         font_timing = tkfont.Font(family=self.wcfg["font_name"],
@@ -61,30 +63,31 @@ class Draw(Widget, MouseEvent):
         column_est = self.wcfg["column_index_estimated"]
 
         # Draw label
-        bar_style = {"bd":0, "height":1, "width":12, "padx":0, "pady":0, "font":font_timing}
+        bar_style = {"bd":0, "height":1, "padx":bar_padx, "pady":0, "font":font_timing}
 
         if self.wcfg["show_session_best"]:
             self.bar_time_sbest = tk.Label(self, bar_style, text=text_sbest,
-                                           width=len(text_sbest)+1,
+                                           width=len(text_sbest),
                                            fg=self.wcfg["font_color_session_best"],
                                            bg=self.wcfg["bkg_color_session_best"])
         if self.wcfg["show_best"]:
             self.bar_time_best = tk.Label(self, bar_style, text=text_best,
-                                          width=len(text_best)+1,
+                                          width=len(text_best),
                                           fg=self.wcfg["font_color_best"],
                                           bg=self.wcfg["bkg_color_best"])
         if self.wcfg["show_last"]:
             self.bar_time_last = tk.Label(self, bar_style, text=text_last,
-                                          width=len(text_last)+1,
+                                          width=len(text_last),
                                           fg=self.wcfg["font_color_last"],
                                           bg=self.wcfg["bkg_color_last"])
-        self.bar_time_curr = tk.Label(self, bar_style, text=text_curr,
-                                      width=len(text_curr)+1,
-                                      fg=self.wcfg["font_color_current"],
-                                      bg=self.wcfg["bkg_color_current"])
+        if self.wcfg["show_current"]:
+            self.bar_time_curr = tk.Label(self, bar_style, text=text_curr,
+                                          width=len(text_curr),
+                                          fg=self.wcfg["font_color_current"],
+                                          bg=self.wcfg["bkg_color_current"])
         if self.wcfg["show_estimated"]:
             self.bar_time_est = tk.Label(self, bar_style, text=text_est,
-                                         width=len(text_est)+1,
+                                         width=len(text_est),
                                          fg=self.wcfg["font_color_estimated"],
                                          bg=self.wcfg["bkg_color_estimated"])
 
@@ -95,7 +98,8 @@ class Draw(Widget, MouseEvent):
                 self.bar_time_best.grid(row=column_best, column=0, padx=0, pady=(0, bar_gap))
             if self.wcfg["show_last"]:
                 self.bar_time_last.grid(row=column_last, column=0, padx=0, pady=(0, bar_gap))
-            self.bar_time_curr.grid(row=column_curr, column=0, padx=0, pady=(0, bar_gap))
+            if self.wcfg["show_current"]:
+                self.bar_time_curr.grid(row=column_curr, column=0, padx=0, pady=(0, bar_gap))
             if self.wcfg["show_estimated"]:
                 self.bar_time_est.grid(row=column_est, column=0, padx=0, pady=(0, bar_gap))
         else:
@@ -105,7 +109,8 @@ class Draw(Widget, MouseEvent):
                 self.bar_time_best.grid(row=0, column=column_best, padx=(0, bar_gap), pady=0)
             if self.wcfg["show_last"]:
                 self.bar_time_last.grid(row=0, column=column_last, padx=(0, bar_gap), pady=0)
-            self.bar_time_curr.grid(row=0, column=column_curr, padx=(0, bar_gap), pady=0)
+            if self.wcfg["show_current"]:
+                self.bar_time_curr.grid(row=0, column=column_curr, padx=(0, bar_gap), pady=0)
             if self.wcfg["show_estimated"]:
                 self.bar_time_est.grid(row=0, column=column_est, padx=(0, bar_gap), pady=0)
 
@@ -170,9 +175,10 @@ class Draw(Widget, MouseEvent):
                 self.last_laptime_last = laptime_last
 
             # Current laptime
-            self.update_laptime(laptime_curr, self.last_laptime_curr,
-                                self.wcfg["prefix_current"], "curr")
-            self.last_laptime_curr = laptime_curr
+            if self.wcfg["show_current"]:
+                self.update_laptime(laptime_curr, self.last_laptime_curr,
+                                    self.wcfg["prefix_current"], "curr")
+                self.last_laptime_curr = laptime_curr
 
             # Estimated laptime
             if self.wcfg["show_estimated"]:

@@ -38,39 +38,39 @@ class Draw(Widget, MouseEvent):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config size & position
-        bar_gap = self.wcfg["bar_gap"]
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        bar_gap = self.wcfg["bar_gap"]
+
         # Config style & variable
-        text_def = "-.--"
-        fg_color_cap = self.wcfg["font_color_caption"]
-        bg_color_cap = self.wcfg["bkg_color_caption"]
         font_fuel = tkfont.Font(family=self.wcfg["font_name"],
                                 size=-self.wcfg["font_size"],
-                                weight=self.wcfg["font_weight"])
-        font_desc = tkfont.Font(family=self.wcfg["font_name"],
-                                size=-int(self.wcfg["font_size"] * 0.8),
                                 weight=self.wcfg["font_weight"])
 
         # Draw label
         if self.wcfg["show_caption"]:
-            bar_style_desc = {"bd":0, "height":1, "padx":0, "pady":0,
-                              "font":font_desc, "fg":fg_color_cap, "bg":bg_color_cap}
-            self.bar_desc_curr = tk.Label(self, bar_style_desc, text="fuel")
-            self.bar_desc_need = tk.Label(self, bar_style_desc, text="refuel")
-            self.bar_desc_used = tk.Label(self, bar_style_desc, text="used")
-            self.bar_desc_laps = tk.Label(self, bar_style_desc, text="laps")
-            self.bar_desc_mins = tk.Label(self, bar_style_desc, text="mins")
-            self.bar_desc_pits = tk.Label(self, bar_style_desc, text="pits")
-            self.bar_desc_curr.grid(row=0, column=0, padx=0, pady=0, sticky="we")
-            self.bar_desc_need.grid(row=0, column=1, padx=0, pady=0, sticky="we")
-            self.bar_desc_used.grid(row=0, column=2, padx=0, pady=0, sticky="we")
-            self.bar_desc_laps.grid(row=3, column=0, padx=0, pady=0, sticky="we")
-            self.bar_desc_mins.grid(row=3, column=1, padx=0, pady=0, sticky="we")
-            self.bar_desc_pits.grid(row=3, column=2, padx=0, pady=0, sticky="we")
+            font_desc = tkfont.Font(family=self.wcfg["font_name"],
+                                    size=-int(self.wcfg["font_size"] * 0.8),
+                                    weight=self.wcfg["font_weight"])
+            bar_style_desc = {"bd":0, "height":1, "font":font_desc, "padx":0, "pady":0,
+                              "fg":self.wcfg["font_color_caption"],
+                              "bg":self.wcfg["bkg_color_caption"]}
+            bar_desc_curr = tk.Label(self, bar_style_desc, text="fuel")
+            bar_desc_need = tk.Label(self, bar_style_desc, text="refuel")
+            bar_desc_used = tk.Label(self, bar_style_desc, text="used")
+            bar_desc_laps = tk.Label(self, bar_style_desc, text="laps")
+            bar_desc_mins = tk.Label(self, bar_style_desc, text="mins")
+            bar_desc_pits = tk.Label(self, bar_style_desc, text="pits")
+            bar_desc_curr.grid(row=0, column=0, padx=0, pady=0, sticky="we")
+            bar_desc_need.grid(row=0, column=1, padx=0, pady=0, sticky="we")
+            bar_desc_used.grid(row=0, column=2, padx=0, pady=0, sticky="we")
+            bar_desc_laps.grid(row=3, column=0, padx=0, pady=0, sticky="we")
+            bar_desc_mins.grid(row=3, column=1, padx=0, pady=0, sticky="we")
+            bar_desc_pits.grid(row=3, column=2, padx=0, pady=0, sticky="we")
 
-        bar_style_fuel = {"bd":0, "width":7, "height":1, "padx":0, "pady":0,
-                          "font":font_fuel, "text":text_def}
+        bar_style_fuel = {"bd":0, "width":6, "height":1, "padx":bar_padx, "pady":0,
+                          "font":font_fuel, "text":"-.--"}
 
         self.bar_fuel_curr = tk.Label(self, bar_style_fuel,
                                       fg=self.wcfg["font_color_fuel"],
@@ -78,7 +78,7 @@ class Draw(Widget, MouseEvent):
         self.bar_fuel_need = tk.Label(self, bar_style_fuel,
                                       fg=self.wcfg["font_color_fuel"],
                                       bg=self.wcfg["bkg_color_fuel"])
-        self.bar_fuel_used = tk.Label(self, bar_style_fuel, width=6,
+        self.bar_fuel_used = tk.Label(self, bar_style_fuel, width=5,
                                       fg=self.wcfg["font_color_consumption"],
                                       bg=self.wcfg["bkg_color_consumption"])
         self.bar_fuel_laps = tk.Label(self, bar_style_fuel,
@@ -87,7 +87,7 @@ class Draw(Widget, MouseEvent):
         self.bar_fuel_mins = tk.Label(self, bar_style_fuel,
                                       fg=self.wcfg["font_color_estimate"],
                                       bg=self.wcfg["bkg_color_estimate"])
-        self.bar_fuel_pits = tk.Label(self, bar_style_fuel, width=6,
+        self.bar_fuel_pits = tk.Label(self, bar_style_fuel, width=5,
                                       fg=self.wcfg["font_color_pits"],
                                       bg=self.wcfg["bkg_color_pits"])
         self.bar_fuel_curr.grid(row=1, column=0, padx=0, pady=0)

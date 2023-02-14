@@ -38,8 +38,10 @@ class Draw(Widget, MouseEvent):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config size & position
-        bar_gap = self.wcfg["bar_gap"]
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        bar_gap = self.wcfg["bar_gap"]
 
         # Config style & variable
         text_def = "n/a"
@@ -52,26 +54,27 @@ class Draw(Widget, MouseEvent):
                                  weight=self.wcfg["font_weight"])
 
         # Draw label
-        bar_style = {"text":text_def, "bd":0, "height":1, "width":7,
-                     "padx":0, "pady":0, "font":font_force}
-        self.bar_gforce_lgt = tk.Label(self, bar_style, fg=fg_color_gf, bg=bg_color_gf)
-        self.bar_gforce_lat = tk.Label(self, bar_style, fg=fg_color_gf, bg=bg_color_gf)
+        bar_style = {"text":text_def, "bd":0, "height":1, "width":6,
+                     "padx":bar_padx, "pady":0, "font":font_force}
+        if self.wcfg["show_g_force"]:
+            self.bar_gforce_lgt = tk.Label(self, bar_style, fg=fg_color_gf, bg=bg_color_gf)
+            self.bar_gforce_lat = tk.Label(self, bar_style, fg=fg_color_gf, bg=bg_color_gf)
 
         if self.wcfg["show_downforce_ratio"]:
             self.bar_dforce = tk.Label(self, bar_style, fg=fg_color_df, bg=bg_color_df)
 
         if self.wcfg["layout"] == "0":
             # Vertical layout
-            self.bar_gforce_lgt.grid(row=0, column=0, padx=0, pady=0)
-            self.bar_gforce_lat.grid(row=1, column=0, padx=0, pady=(bar_gap, 0))
-
+            if self.wcfg["show_g_force"]:
+                self.bar_gforce_lgt.grid(row=0, column=0, padx=0, pady=0)
+                self.bar_gforce_lat.grid(row=1, column=0, padx=0, pady=(bar_gap, 0))
             if self.wcfg["show_downforce_ratio"]:
                 self.bar_dforce.grid(row=2, column=0, padx=0, pady=(bar_gap, 0))
         else:
             # Horizontal layout
-            self.bar_gforce_lgt.grid(row=0, column=0, padx=0, pady=0)
-            self.bar_gforce_lat.grid(row=0, column=1, padx=(bar_gap, 0), pady=0)
-
+            if self.wcfg["show_g_force"]:
+                self.bar_gforce_lgt.grid(row=0, column=0, padx=0, pady=0)
+                self.bar_gforce_lat.grid(row=0, column=1, padx=(bar_gap, 0), pady=0)
             if self.wcfg["show_downforce_ratio"]:
                 self.bar_dforce.grid(row=0, column=2, padx=(bar_gap, 0), pady=0)
 
@@ -93,15 +96,17 @@ class Draw(Widget, MouseEvent):
             # Read acceleration & downforce data
             lgt_accel, lat_accel, downforce = read_data.force()
 
-            # Longitudinal g-force
-            gf_lgt = round(calc.gforce(lgt_accel), 2)
-            self.update_gf_lgt(gf_lgt, self.last_gf_lgt)
-            self.last_gf_lgt = gf_lgt
+            # G-force
+            if self.wcfg["show_g_force"]:
+                # Longitudinal g-force
+                gf_lgt = round(calc.gforce(lgt_accel), 2)
+                self.update_gf_lgt(gf_lgt, self.last_gf_lgt)
+                self.last_gf_lgt = gf_lgt
 
-            # Lateral g-force
-            gf_lat = round(calc.gforce(lat_accel), 2)
-            self.update_gf_lat(gf_lat, self.last_gf_lat)
-            self.last_gf_lat = gf_lat
+                # Lateral g-force
+                gf_lat = round(calc.gforce(lat_accel), 2)
+                self.update_gf_lat(gf_lat, self.last_gf_lat)
+                self.last_gf_lat = gf_lat
 
             # Downforce ratio
             if self.wcfg["show_downforce_ratio"]:

@@ -41,9 +41,8 @@ class Draw(Widget, MouseEvent):
         # Config size & position
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
-        bar_padx = self.wcfg["font_size"] * 0.3
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
         bar_gap = self.wcfg["bar_gap"]
-        num_width = 3
         gap_width = self.wcfg["bar_time_gap_width"]
         self.drv_width = self.wcfg["bar_driver_name_width"]
         self.cls_width = self.wcfg["bar_class_name_width"]
@@ -74,8 +73,8 @@ class Draw(Widget, MouseEvent):
 
         # Draw label
         # Driver place number
-        bar_style_plc = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
-                         "height":1, "width":num_width, "fg":fg_color, "bg":self.wcfg['bkg_color_place']}
+        bar_style_plc = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0, "font":font_relative,
+                         "height":1, "width":2, "fg":fg_color, "bg":self.wcfg['bkg_color_place']}
 
         self.row_plr_plc = tk.Label(self, bar_style_plc,
                                     fg=fg_color_plr, bg=self.wcfg["bkg_color_player_place"])
@@ -120,8 +119,8 @@ class Draw(Widget, MouseEvent):
 
         # Vehicle position in class
         if self.wcfg["show_position_in_class"]:
-            bar_style_pic = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
-                             "height":1, "width":num_width,
+            bar_style_pic = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0, "font":font_relative,
+                             "height":1, "width":2,
                              "fg":self.wcfg['font_color_position_in_class'],
                              "bg":self.wcfg['bkg_color_position_in_class']}
 
@@ -145,8 +144,8 @@ class Draw(Widget, MouseEvent):
 
         # Vehicle in pit
         if self.wcfg["show_pit_status"]:
-            bar_style_pit = {"text":text_def, "bd":0, "padx":0, "pady":0, "font":font_relative,
-                             "height":1, "width":len(self.wcfg["pit_status_text"])+1,
+            bar_style_pit = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0, "font":font_relative,
+                             "height":1, "width":len(self.wcfg["pit_status_text"]),
                              "fg":self.wcfg['font_color_pit'],
                              "bg":self.wcfg['bkg_color_pit']}
 

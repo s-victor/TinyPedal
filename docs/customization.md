@@ -32,7 +32,6 @@ If a number (default value) does not contain any decimal place, that means it on
 
 
 ## Common Setting
-
     enable
 This checks whether a widget will be loaded at startup. It can also be accessed and changed from tray icon `Widgets` submenu.
 
@@ -57,18 +56,23 @@ Set font size, increase or decrease font size will also apply to widget size. Va
     font_weight
 Acceptable value: `normal` or `bold` .
 
+    text_padding
+Set text edge padding value that multiplies & scales with `font_size`. Default is `0.2` for most widgets.
+
     font_color
 Those are for font color.
 
     bkg_color
 Those are for background color.
 
+    show_caption
+Show short caption description besides each info block.
+
     column_index_*
 Set order of each info column(or row). Must keep index number unique to each column, otherwise columns will overlap.
 
 
 ## Overlay
-
     fixed_position
 Check whether widget is locked at startup. This setting can be toggled from tray icon menu. Valid value: `true`, same as `1`. `false`, same as `0`.
 
@@ -91,6 +95,32 @@ Define color of hover cover when mouse cursor is above widget (when not locked).
 Define global transparent background color. Default value is `"#000002"`. This setting is meant to be used by none-Windows platform where transparent background color is not supported, and user may customize a substitute color.
 
 
+## Brake
+    layout
+2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
+
+    temp_unit
+2 unit types are available: `0` = Celsius, `1` = Fahrenheit
+
+    inner_gap
+Set inner gap (screen pixel) of each temperature value, only accept integer, `1` = 1 pixel.
+
+    color_swap_temperature
+Swap heat map color between font & background color.
+
+    show_degree_sign
+Set `true` to show degree sign for each temperature value.
+
+    leading_zero
+Set amount leading zeros for each temperature value. Default is `2`. Minimum value is limited to `1`.
+
+    show_average
+Show average brake temperature calculated from a full lap.
+
+    highlight_duration
+Set duration (seconds) for highlighting average brake temperature from previous lap after crossing start/finish line. Default value is `5` seconds.
+
+
 ## Cruise
     show_track_clock
 Show current in-game clock time of the circuit.
@@ -100,6 +130,9 @@ Set time multiplier for time-scaled session. Default value is `1`, which matches
 
     track_clock_format
 Set track clock format string. To show seconds, add `%S`, such as `"%H:%M:%S %p"`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
+
+    show_compass
+Show compass directions with three-figure bearings that matches game's cardinal directions.
 
     show_elevation
 Show elevation difference in game's coordinate system.
@@ -149,13 +182,19 @@ Set color when DRS is unavailable for current track or car.
 
 
 ## Engine
+    layout
+2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
+
+    show_temperature
+Show oil & water temperature.
+
     temp_unit
 2 unit types are available: `0` = Celsius, `1` = Fahrenheit
 
     overheat_threshold_oil, overheat_threshold_water
 Set temperature threshold for oil & water overheat color indicator, unit in Celsius.
 
-    bkg_color_overheat
+    warning_color_overheat
 Set oil & water overheat color indicator.
 
     show_turbo_pressure
@@ -172,14 +211,14 @@ Show engine RPM.
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
+    show_g_force
+Show longitudinal & lateral G force with direction indicator.
+
     show_downforce_ratio
 Show front vs rear downforce ratio. 50% means equal downforce; higher than 50% means front has more downforce.
 
 
 ## Fuel
-    show_caption
-Show short caption description besides each info block.
-
     bkg_color_low_fuel
 Set low fuel color indicator, which changes widget background color when there is just 2 laps of fuel left.
 
@@ -188,6 +227,7 @@ Set low fuel color indicator, which changes widget background color when there i
 
     low_fuel_lap_threshold
 Set amount lap threshold to show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default value is `2` laps before running out of fuel.
+
 
 ## Gear
     layout
@@ -273,6 +313,21 @@ Set size of instrument icon in pixel. Minimum value is limited to `16`.
     warning_color_*
 Set warning color for each icon, which shows when conditions are met.
 
+    show_headlights
+Show Headlights state.
+
+    show_ignition
+Show Ignition & Starter state.
+
+    show_clutch
+Show Auto-Clutch state.
+
+    show_wheel_lock
+Show Wheel Lock state.
+
+    show_wheel_slip
+Show Wheel Slip state.
+
     wheel_lock_threshold
 Set percentage threshold for triggering wheel lock warning under braking. `0.2` means 20% of tyre slip ratio.
 
@@ -296,8 +351,8 @@ Scale pedal bar length & width, accepts decimal place.
     full_pedal_height
 This is the indicator height when pedal reaches 100% travel, value in pixel.
 
-    show_average_brake_pressure
-Show average brake pressure changes applied on all wheels, which auto scales with max brake pressure and indicates average amount brake released by ABS on all wheels. This option is enabled by default, which replaces game's filtered brake input that cannot show ABS.
+    show_brake_pressure
+Show brake pressure changes applied on all wheels, which auto scales with max brake pressure and indicates amount brake released by ABS on all wheels. This option is enabled by default, which replaces game's filtered brake input that cannot show ABS.
 
     show_ffb_meter
 This enables Force Feedback meter.
@@ -307,14 +362,20 @@ Set Force Feedback clipping color.
 
 
 ## Pressure
-    pressure_unit
+    show_tyre_pressure
+Show tyre pressure of each wheel.
+
+    tyre_pressure_unit
 3 unit types are available: `0` = kPa, `1` = psi, `2` = bar.
 
     show_tyre_load
-This enables Tyre Load display.
+This enables tyre Load display.
 
     show_tyre_load_ratio
 Show percentage ratio of tyre load between each and total tyre load. Set `false` to show individual tyre load in Newtons.
+
+    show_brake_pressure
+Show percentage brake pressure of each wheel.
 
 
 ## Radar
@@ -395,7 +456,7 @@ Set custom pit status text which shows when driver is in pit.
 Show tyre compound index (front/rear).
 
     tyre_compound_list
-Set custom tire compound index letter. One letter for one compound index. Note: since most vehicle mods don't share a common tire compound types or list order, it is impossible to have a tyre compound letter list that matches every car.
+Set custom tire compound index letter. One letter corresponds to one compound index. Note: since most vehicle mods don't share a common tire compound types or list order, it is impossible to have a tyre compound letter list that matches every car.
 
     show_pitstop_count
 Show each driver's pitstop count.
@@ -434,23 +495,26 @@ Store last auto-saved sector data string of current session, not recommended for
 
 
 ## Session
-    show_clock
+    show_system_clock
 Show current system clock time.
+
+    system_clock_format
+Set clock format string. To show seconds, add `%S`, such as `"%H:%M:%S %p"`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
+
+    show_session_timer
+Show session timer, accuracy is limited by 200ms refresh rate of rF2 API.
 
     show_lapnumber
 Show your current lap number & max laps (if available).
-
-    show_place
-Show your current place against all drivers in a session.
-
-    clock_format
-Set clock format string. To show seconds, add `%S`, such as `"%H:%M:%S %p"`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
 
     lapnumber_text
 Set custom lap number description text. Set `""` to hide text.
 
     bkg_color_maxlap_warn
 Set warning color that shows 1 lap before exceeding max-lap in qualify (or indicates the last lap of a lap-type race).
+
+    show_place
+Show your current place against all drivers in a session.
 
 
 ## Steering
@@ -469,18 +533,59 @@ Set gap between each scale mark in degree. Default is `90` degree. Minimum value
 
 ## Stint
     tyre_compound_list
-Set custom tire compound index letter. One letter for one compound index. Note: since most vehicle mods don't share a common tire compound types or list order, it is impossible to have a tyre compound letter list that matches every car.
+Set custom tire compound index letter. One letter corresponds to one compound index.
+
+
+## Suspension
+    show_ride_height
+Show ride height (millimeter).
+
+    rideheight_offset*
+Set ride height offset for bottoming indicator. Value in millimeters, but without decimal place.
+
+    warning_color_bottoming
+Set color indicator when car bottoming.
+
+    show_rake_angle
+Show rake angle (degree) & rake (millimeter).
+
+    wheelbase
+Set wheelbase in millimeters, for used in rake angle calculation.
+
+    warning_color_negative_rake
+Set color indicator when negative rake.
 
 
 ## Temperature
     layout
-4 layouts are available: `0` = vertical layout, `1` = vertical swapped, `2` = horizontal layout, `3` = horizontal swapped.
-
-    color_swap_tyre, color_swap_brake
-Swap heat map color between font & background color.
+2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
     temp_unit
 2 unit types are available: `0` = Celsius, `1` = Fahrenheit
+
+    inner_gap
+Set inner gap (screen pixel) of each temperature value, only accept integer, `1` = 1 pixel.
+
+    color_swap_temperature
+Swap heat map color between font & background color.
+
+    ICO_mode
+Set full tyre temperature display mode (inner/center/outer). Set `false` to show average temperature instead.
+
+    show_degree_sign
+Set `true` to show degree sign for each temperature value.
+
+    leading_zero
+Set amount leading zeros for each temperature value. Default is `2`. Minimum value is limited to `1`.
+
+    show_innerlayer
+Show tyre inner layer temperature.
+
+    show_tyre_compound
+Show tyre compound index (front/rear).
+
+    tyre_compound_list
+Set custom tire compound index letter. One letter corresponds to one compound index.
 
 
 ## Timing
@@ -499,6 +604,9 @@ Show personal best laptime.
     show_last
 Show personal last laptime.
 
+    show_current
+Show personal current laptime.
+
     show_estimated
 Show personal current estimated laptime.
 
@@ -510,17 +618,8 @@ Set prefix text that displayed beside laptime. Set to `""` to hide prefix text.
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
-    font_color_remaining
-Set font color for total remaining tyre.
-
-    font_color_wear_difference
-Set font color for tyre wear difference of previous lap.
-
-    font_color_lifespan
-Set font color for estimated tyre lifespan in laps.
-
-    font_color_warning
-Set warning font color when reaching user defined threshold.
+    show_remaining
+Show total remaining tyre in percentage that changes color according to wear.
 
     show_wear_difference
 Show total tyre wear difference of previous lap.
@@ -543,21 +642,30 @@ Set warning threshold for total amount tyre wear of last lap in percentage. Defa
     warning_threshold_laps
 Set warning threshold for estimated tyre lifespan in laps. Default is `5` laps.
 
+    font_color_warning
+Set warning font color when reaching user defined threshold.
+
 
 ## Weather
+    show_percentage_sign
+Set `true` to show percentage sign for rain & wetness display.
+
+    show_temperature
+Show track & ambient temperature.
+
     temp_unit
 2 unit types are available: `0` = Celsius, `1` = Fahrenheit
 
+    show_rain
+Show rain percentage.
+
+    show_wetness
+Show surface condition, minimum, maximum, and average wetness.
+
 
 ## Wheel
-    bkg_color_bottoming
-Set color indicator when car bottoming.
+    show_camber
+Show camber (degree).
 
-    rideheight_offset_front, rideheight_offset_rear
-Set front & rear ride height offset, for bottoming color indicator. Value in millimeters, but without decimal place.
-
-    wheelbase
-Set wheelbase in millimeters, for used in rake angle calculation.
-
-    show_caption
-Show short caption description besides each info block.
+    show_toe_in
+Show toe-in (degree).

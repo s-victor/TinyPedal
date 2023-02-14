@@ -38,8 +38,10 @@ class Draw(Widget, MouseEvent):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config size & position
-        bar_gap = self.wcfg["bar_gap"]
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+
+        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        bar_gap = self.wcfg["bar_gap"]
 
         # Config style & variable
         text_def = "n/a"
@@ -53,15 +55,17 @@ class Draw(Widget, MouseEvent):
         column_rpm = self.wcfg["column_index_rpm"]
 
         # Draw label
-        bar_style  = {"text":text_def, "bd":0, "height":1, "width":9,
-                      "padx":0, "pady":0, "font":font_engine}
+        bar_style  = {"text":text_def, "bd":0, "height":1, "width":8,
+                      "padx":bar_padx, "pady":0, "font":font_engine}
 
-        self.bar_oil = tk.Label(self, bar_style,
-                                fg=self.wcfg["font_color_oil"],
-                                bg=self.wcfg["bkg_color_oil"])
-        self.bar_water = tk.Label(self, bar_style,
-                                  fg=self.wcfg["font_color_water"],
-                                  bg=self.wcfg["bkg_color_water"])
+        if self.wcfg["show_temperature"]:
+            self.bar_oil = tk.Label(self, bar_style,
+                                    fg=self.wcfg["font_color_oil"],
+                                    bg=self.wcfg["bkg_color_oil"])
+            self.bar_water = tk.Label(self, bar_style,
+                                      fg=self.wcfg["font_color_water"],
+                                      bg=self.wcfg["bkg_color_water"])
+
         if self.wcfg["show_turbo_pressure"]:
             self.bar_turbo = tk.Label(self, bar_style,
                                       fg=self.wcfg["font_color_turbo"],
@@ -72,15 +76,19 @@ class Draw(Widget, MouseEvent):
                                     bg=self.wcfg["bkg_color_rpm"])
 
         if self.wcfg["layout"] == "0":
-            self.bar_oil.grid(row=column_oil, column=0, padx=0, pady=(0, bar_gap))
-            self.bar_water.grid(row=column_water, column=0, padx=0, pady=(0, bar_gap))
+            # Vertical layout
+            if self.wcfg["show_temperature"]:
+                self.bar_oil.grid(row=column_oil, column=0, padx=0, pady=(0, bar_gap))
+                self.bar_water.grid(row=column_water, column=0, padx=0, pady=(0, bar_gap))
             if self.wcfg["show_turbo_pressure"]:
                 self.bar_turbo.grid(row=column_turbo, column=0, padx=0, pady=(0, bar_gap))
             if self.wcfg["show_rpm"]:
                 self.bar_rpm.grid(row=column_rpm, column=0, padx=0, pady=(0, bar_gap))
         else:
-            self.bar_oil.grid(row=0, column=column_oil, padx=(0, bar_gap), pady=0)
-            self.bar_water.grid(row=0, column=column_water, padx=(0, bar_gap), pady=0)
+            # Horizontal layout
+            if self.wcfg["show_temperature"]:
+                self.bar_oil.grid(row=0, column=column_oil, padx=(0, bar_gap), pady=0)
+                self.bar_water.grid(row=0, column=column_water, padx=(0, bar_gap), pady=0)
             if self.wcfg["show_turbo_pressure"]:
                 self.bar_turbo.grid(row=0, column=column_turbo, padx=(0, bar_gap), pady=0)
             if self.wcfg["show_rpm"]:
@@ -105,15 +113,16 @@ class Draw(Widget, MouseEvent):
             # Read Engine data
             temp_oil, temp_water, e_turbo, e_rpm = read_data.engine()
 
-            # Oil temperature
-            temp_oil = round(temp_oil, 1)
-            self.update_oil(temp_oil, self.last_temp_oil)
-            self.last_temp_oil = temp_oil
+            if self.wcfg["show_temperature"]:
+                # Oil temperature
+                temp_oil = round(temp_oil, 1)
+                self.update_oil(temp_oil, self.last_temp_oil)
+                self.last_temp_oil = temp_oil
 
-            # Water temperature
-            temp_water = round(temp_water, 1)
-            self.update_water(temp_water, self.last_temp_water)
-            self.last_temp_water = temp_water
+                # Water temperature
+                temp_water = round(temp_water, 1)
+                self.update_water(temp_water, self.last_temp_water)
+                self.last_temp_water = temp_water
 
             # Turbo pressure
             if self.wcfg["show_turbo_pressure"]:
@@ -135,7 +144,7 @@ class Draw(Widget, MouseEvent):
             if curr < self.wcfg["overheat_threshold_oil"]:
                 bgcolor = self.wcfg["bkg_color_oil"]
             else:
-                bgcolor = self.wcfg["bkg_color_overheat"]
+                bgcolor = self.wcfg["warning_color_overheat"]
 
             if self.wcfg["temp_unit"] == "1":
                 curr = calc.celsius2fahrenheit(curr)
@@ -149,7 +158,7 @@ class Draw(Widget, MouseEvent):
             if curr < self.wcfg["overheat_threshold_water"]:
                 bgcolor = self.wcfg["bkg_color_water"]
             else:
-                bgcolor = self.wcfg["bkg_color_overheat"]
+                bgcolor = self.wcfg["warning_color_overheat"]
 
             if self.wcfg["temp_unit"] == "1":
                 curr = calc.celsius2fahrenheit(curr)
