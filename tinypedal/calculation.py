@@ -37,15 +37,19 @@ def vel2speed(vel_x, vel_y, vel_z):
     return (vel_x ** 2 + vel_y ** 2 + vel_z ** 2) ** 0.5
 
 
-def conv_speed(speed, speed_unit):
-    """3 different speed unit conversion"""
-    if speed_unit == "0":
-        multiplier = 3.6  # kph
-    elif speed_unit == "1":
-        multiplier = 2.23693629  # mph
-    else:
-        multiplier = 1  # meter per sec
-    return speed * multiplier
+def meter2millmeter(meter):
+    """Convert meter to millimeter"""
+    return meter * 1000
+
+
+def mps2kph(meter):
+    """meter per sec to kilometers per hour"""
+    return meter * 3.6
+
+
+def mps2mph(meter):
+    """meter per sec to miles per hour"""
+    return meter * 2.23693629
 
 
 def celsius2fahrenheit(temp):
@@ -84,11 +88,6 @@ def max_vs_avg_rotation(w_rot1, w_rot2):
     max_rot = min(w_rot1, w_rot2)  # negative value is forward
     avg_rot = (w_rot1 + w_rot2) / 2
     return abs(max_rot - avg_rot)  # difference
-
-
-def meter2millmeter(meter):
-    """Convert meter to millimeter"""
-    return meter * 1000
 
 
 def rake(height_fl, height_fr, height_rl, height_rr):

@@ -26,6 +26,15 @@
 - Show turbo pressure (bar, psi, kPa).
 - Show engine RPM.
 
+## Flag
+- Show pit timer, and total amount time spent in pit after exit pit.
+- Show low fuel indicator when fuel level is below certain amount value.
+- Show speed limiter indicator.
+- Show yellow flag indicator of current & next sectors.
+- Show blue flag indicator with timer.
+- Show race start lights indicator with light frame number for standing-type start.
+- Show race start countdown timer for standing-type start. 
+
 ## Force
 - Show longitudinal & lateral G force with direction indicator.
 - Show downforce ratio (percentage).
@@ -40,14 +49,11 @@
 
 ## Gear
 - Show speed, with kph, mph, or m/s as display unit.
-- Show speed limiter sign while activated.
+- Show speed limiter (optional) indicator while activated.
 - Show RPM color indicator with customizable RPM range setting.
+- Show neutral-gear color warning when vehicle speed is higher than threshold.
 - Show RPM over-rev color warning.
 - Show RPM bar animation (optional) ranged from safe RPM to max RPM.
-- Show startlights indicator.
-- Show low Fuel indicator.
-- Show blue Flag indicator.
-- Show yellow Flag indicator.
 
 ## Instrument
 - Show headlights state.

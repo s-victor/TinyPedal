@@ -345,12 +345,12 @@ class Draw(Widget, MouseEvent):
         """Current lap best top speed"""
         if curr != last:
             self.bar_speed_curr.config(
-                text=f"{calc.conv_speed(curr, self.wcfg['speed_unit']):.01f}")
+                text=f"{self.speed_units(curr):.01f}")
 
     def update_speed_best(self, curr, last, highlighted=False):
         """Session best top speed"""
         if curr != last:
-            display_text = f"{calc.conv_speed(curr, self.wcfg['speed_unit']):.01f}"
+            display_text = f"{self.speed_units(curr):.01f}"
             if highlighted:
                 self.bar_speed_best.config(text=display_text,
                                            fg=self.wcfg["font_color_speed_highlighted"],
@@ -504,6 +504,14 @@ class Draw(Widget, MouseEvent):
         return text
 
     # Additional methods
+    def speed_units(self, value):
+        """Speed units"""
+        if self.wcfg["speed_unit"] == "0":
+            return calc.mps2kph(value)
+        if self.wcfg["speed_unit"] == "1":
+            return calc.mps2mph(value)
+        return value
+
     @staticmethod
     def valid_sector(sec_time):
         """Validate sector time"""

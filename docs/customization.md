@@ -207,6 +207,62 @@ Show turbo pressure.
 Show engine RPM.
 
 
+## Flag
+    layout
+2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
+
+    show_pit_timer
+Show pit timer, and total amount time spent in pit after exit pit.
+
+    pit_time_highlight_duration
+Set highlight duration for total amount time spent in pit after exit pit.
+
+    show_low_fuel
+Show low fuel indicator when fuel level is below certain amount value.
+
+    low_fuel_for_race_only
+Only show low fuel indicator during race session.
+
+    low_fuel_volume_threshold
+Set fuel volume threshold to show low fuel indicator when total amount of remaining fuel is equal or less than this value. This value takes consideration from `fuel_unit` setting of Fuel Widget. For example, if `fuel_unit` is set to gallon, then this value should also be set using gallon unit. The purpose of this setting is to limit low fuel warning when racing on lengthy tracks, where fuel tank may only hold for a lap or two. Default value is `20`.
+
+    low_fuel_lap_threshold
+Set amount lap threshold to show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default value is `2` laps before running out of fuel.
+
+    show_speed_limiter
+Show speed limiter indicator.
+
+    speed_limiter_text
+Set custom pit speed limiter text which shows when speed limiter is engaged. 
+
+    show_yellow_flag
+Show yellow flag indicator of current & next sectors.
+
+    yellow_flag_for_race_only
+Only show yellow flag indicator during race session.
+
+    show_blue_flag
+Show blue flag indicator with timer.
+
+    blue_flag_for_race_only
+Only show blue flag indicator during race session.
+
+    show_startlights
+Show race start lights indicator with light frame number for standing-type start.
+
+    red_lights_text
+Set custom text for red lights. 
+
+    green_flag_text
+Set custom text for green flag. 
+
+    green_flag_duration
+Set display duration(seconds) for green flag text before it disappears. Default value is `3`.
+
+    show_start_countdown
+Show race start countdown timer for standing-type start. 
+
+
 ## Force
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
@@ -236,6 +292,9 @@ Set amount lap threshold to show low fuel indicator when total completable laps 
     speed_unit
 3 unit types are available: `0` = KPH, `1` = MPH, `2` = m/s.
 
+    show_speed_limiter
+Show speed limiter indicator.
+
     speed_limiter_text
 Set custom pit speed limiter text which shows when speed limiter is engaged. 
 
@@ -257,50 +316,11 @@ This value multiplies max RPM value, which sets a relative safe RPM range for RP
     rpm_warn_multiplier
 This value multiplies max RPM value, which sets a relative near-max RPM range for RPM color indicator.
 
+    neutral_warning_speed_threshold
+Set speed threshold value for color warning when gear is in neutral and vehicle speed is higher than the threshold. Speed unit in meters per second. Default value is `28`, which is close to 100 kph.
+
     bkg_color_rpm_over_rev
-This sets the color for over-rev warning indicator.
-
-    show_startlights
-Show race start lights indicator during countdown game phase for standing-type start only(includes formation/standing).
-
-    red_lights_text
-Set custom text for red lights. 
-
-    green_flag_text
-Set custom text for green flag. 
-
-    green_flag_duration
-Set display duration(seconds) for green flag text before it disappears. Default value is `3`.
-
-    show_start_countdown
-Show race start countdown timer during countdown game phase for standing-type start only(includes formation/standing). CHECK LEAGUE and RACE RULES first before enabling it! This option can potentially create unfair advantages against who doesn't use it! Disabled by Default, set `"THIS_MAY_CREATE_UNFAIR_ADVANTAGES"` to enable. 
-
-    show_low_fuel
-Show low fuel indicator when fuel level is below certain amount value.
-
-    low_fuel_for_race_only
-Only show low fuel indicator during race session.
-
-    low_fuel_volume_threshold
-Set fuel volume threshold to show low fuel indicator when total amount of remaining fuel is equal or less than this value. This value takes consideration from `fuel_unit` setting of Fuel Widget. For example, if `fuel_unit` is set to gallon, then this value should also be set using gallon unit. The purpose of this setting is to limit low fuel warning when racing on lengthy tracks, where fuel tank may only hold for a lap or two. Default value is `20`.
-
-    low_fuel_lap_threshold
-Set amount lap threshold to show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default value is `2` laps before running out of fuel.
-
-    show_blue_flag
-Show blue flag indicator.
-
-    blue_flag_for_race_only
-Only show blue flag indicator during race session.
-
-    blue_flag_text
-Set custom blue flag text. 
-
-    show_yellow_flag
-Show yellow flag indicator of each affected sector.
-
-    yellow_flag_for_race_only
-Only show yellow flag indicator during race session.
+This sets the color for over-rev and neutral-gear warning indicator.
 
 
 ## Instrument
@@ -593,7 +613,7 @@ Set custom tire compound index letter. One letter corresponds to one compound in
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
     show_session_best
-Show current session best laptime from all players.
+Show current session best laptime from all vehicle classes.
 
     session_best_from_same_class_only
 Show current session best laptime from same vehicle class only.

@@ -111,9 +111,16 @@ def gear():
                            chknm(info.syncedVehicleTelemetry().mLocalVel.z))
     rpm = chknm(info.syncedVehicleTelemetry().mEngineRPM)
     rpm_max = chknm(info.syncedVehicleTelemetry().mEngineMaxRPM)
-    race_phase = chknm(info.LastScor.mScoringInfo.mGamePhase)
+    return pit_limiter, mgear, speed, rpm, rpm_max
+
+
+def pitting():
+    """Pitting data"""
+    inpits = chknm(info.syncedVehicleScoring().mInPits)
+    pit_limiter = chknm(info.syncedVehicleTelemetry().mSpeedLimiter)
     curr_session = chknm(info.LastScor.mScoringInfo.mSession)
-    return pit_limiter, mgear, speed, rpm, rpm_max, race_phase, curr_session
+    race_phase = chknm(info.LastScor.mScoringInfo.mGamePhase)
+    return inpits, pit_limiter, curr_session, race_phase
 
 
 def blue_flag():
@@ -123,10 +130,10 @@ def blue_flag():
 
 def yellow_flag():
     """Yellow flag data"""
-    yellow_s1 = chknm(info.LastScor.mScoringInfo.mSectorFlag[0])
-    yellow_s2 = chknm(info.LastScor.mScoringInfo.mSectorFlag[1])
-    yellow_s3 = chknm(info.LastScor.mScoringInfo.mSectorFlag[2])
-    return yellow_s1, yellow_s2, yellow_s3
+    return (chknm(info.LastScor.mScoringInfo.mSectorFlag[0]),
+            chknm(info.LastScor.mScoringInfo.mSectorFlag[1]),
+            chknm(info.LastScor.mScoringInfo.mSectorFlag[2]),
+            (2,0,1)[chknm(info.syncedVehicleScoring().mSector)])
 
 
 def lap_timestamp():

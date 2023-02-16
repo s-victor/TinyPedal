@@ -1,4 +1,4 @@
-(WIP)
+1.11.0 (2023-02-16)
 -----------------------------
 * General
     - Added "column_index" option for most widgets.
@@ -11,8 +11,8 @@
 
 * [New]Brake Widget
     - Separated Brake temperature info from Temperature Widget to the new Brake Widget.
-    - Show average brake temperature of current lap that calculated in realtime.
-    - Highlighting average brake temperature from previous lap after crossing start/finish line.
+    - [New]Show average brake temperature of current lap that calculated in realtime.
+    - [New]Highlighting average brake temperature from previous lap after crossing start/finish line.
     - Show/hide degree sign for maximum compact looking.
     - Added "leading_zero" and more options in JSON.
 
@@ -21,11 +21,30 @@
     - [New]Added "turbo_pressure_unit" option (bar, psi, kPa) in JSON, default is bar.
     - [New]Added Fahrenheit unit for temperature display via "temp_unit" in JSON.
 
+* [New]Flag Widget
+    - Separated flag, pit status, start lights info from Gear Widget to the new Flag Widget.
+    - Show pit timer, and total amount time spent in pit after exit pit.
+    - Show low fuel indicator when fuel level is below certain amount value.
+    - Show speed limiter indicator.
+    - Show yellow flag indicator of current & next sectors.
+    - Show blue flag indicator with timer.
+    - Show race start lights indicator with light frame number for standing-type start.
+    - Show race start countdown timer for standing-type start.
+    - Two layouts option (vertical & horizontal).
+
 * Force Widget
     - [New]Added horizontal layout.
 
 * Fuel Widget
     - [New]Added "low_fuel_lap_threshold" option in JSON.
+
+* Gear Widget
+    - [New]Added "neutral_warning_speed_threshold" option in JSON,
+      which sets speed threshold value for color warning
+      when gear is in neutral and vehicle speed is higher than the threshold.
+      Speed unit in meters per second. Default value is `28`, which is close to 100 kph.
+      This option is helpful for situation where player mis-shifted gear into neutral at high speed.
+    - Added "show_speed_limiter" option in JSON, which can be turned off.
 
 * Instrument Widget
     - [New]Each instrument icon can be individually hide in JSON.
@@ -42,7 +61,7 @@
     - [New]Show percentage brake pressure of each wheel.
     - Tyre load ratio is now calculated against sum of all wheels load.
     - Reworked layouts (vertical & horizontal).
-    - Added "show_caption" option in JSON.
+    - [New]Added "show_caption" option in JSON.
 
 * Relative Widget
     - Removes brackets from combined driver name if name is empty.
@@ -60,10 +79,10 @@
 
 * [New]Suspension Widget
     - Separated Ride height & Rake angle info from Wheel Widget to the new Suspension Widget.
-    - "ride_height_offset" option is now available for all wheels.
-    - Separated warning color options as "warning_color_bottoming" for Ride height
+    - [New]"ride_height_offset" option is now available for all wheels.
+    - [New]Separated warning color options as "warning_color_bottoming" for Ride height
       and "warning_color_negative_rake" for Rake angle.
-    - Added "show_caption" option in JSON.
+    - [New]Added "show_caption" option in JSON.
 
 * Temperature Widget
     - [New]Added "ICO_mode" option which shows full tyre temperature display mode (inner/center/outer).
@@ -74,26 +93,31 @@
     - Removed Brake temperature info.
 
 * Timing Widget
-    - [New]Show current session best laptime from all players,
+    - [New]Show current session best laptime from all vehicle classes,
       with additional option to show laptime from same vehicle class only (default ON).
     - [New]Each info prefix text can be customized or hide in JSON.
     - Removed double lines horizontal layout.
 
 * Wear Widget
     - Adjusted options naming in JSON.
-    - Added "show_caption" option in JSON.
+    - [New]Added "show_caption" option in JSON.
 
 * Weather Widget
     - Moved "Dry/Wet" label to wetness bar.
+    - [New]Show/hide percentage sign for maximum compact looking.
 
 * Core
+    - Optimized GUI update methods for all widgets with over 50% less CPU usage.
     - Auto sorts all options in JSON file according to default setting template
       for better readability and consistency.
-    - Optimized GUI update methods for all widgets.
     - Add Linux instructions to README.md (by Bernat).
     - Improved various calculation.
     - Fixed setting loading errors.
     - Fixed a hanging problem if no widgets enabled while exiting APP.
+
+* pyRfactor2SharedMemory library
+    - Fallback to mID matching if mIsPlayer fails to retrieve player index.
+    - Add additional auto restart condition check for sharedmemory mapping.
 
 * Misc
     - Updated customization guide with new configurable options for each widget.
