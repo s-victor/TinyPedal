@@ -23,6 +23,7 @@ Constants
 import platform
 
 
+APP_NAME = "TinyPedal"
 VERSION = "1.11.0"
 PLATFORM = platform.system()
 
@@ -34,7 +35,7 @@ if PLATFORM == "Windows":
     PATH_FUEL = "./deltabest/"
 else:
     from xdg import BaseDirectory as BD
-    PATH_SETTINGS = BD.save_config_path("TinyPedal") + "/"
+    PATH_SETTINGS = BD.save_config_path(APP_NAME) + "/"
     PATH_CLASSES = PATH_SETTINGS
-    PATH_DELTABEST = BD.save_data_path("TinyPedal", "deltabest") + "/"
+    PATH_DELTABEST = BD.save_data_path(APP_NAME, "deltabest") + "/"
     PATH_FUEL = PATH_DELTABEST

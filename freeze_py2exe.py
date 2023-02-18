@@ -1,10 +1,11 @@
 """
 py2exe build script
 """
-from py2exe import freeze
 from glob import glob
+from py2exe import freeze
 
-from tinypedal.about import VERSION
+from tinypedal.const import APP_NAME, VERSION
+from tinypedal.about import COPYRIGHT
 
 
 app_setting = [{
@@ -17,7 +18,11 @@ app_setting = [{
 excludes = ["_ssl", "difflib", "email", "pdb", "venv", "http"]
 
 data_files = [("", ["icon.ico", "LICENSE.txt", "README.md"]),
-              ("docs", ["docs/changelog.txt", "docs/customization.md", "docs/contributors.md", "docs/features.md"]),
+              ("docs", ["docs/changelog.txt",
+                        "docs/customization.md",
+                        "docs/contributors.md",
+                        "docs/features.md"
+                        ]),
               ("docs/licenses", glob("docs/licenses/*")),
               ("deltabest", ["deltabest/README.txt"]),
               ("settings", []),
@@ -25,7 +30,7 @@ data_files = [("", ["icon.ico", "LICENSE.txt", "README.md"]),
               ]
 
 options = {
-    "dist_dir": "dist/TinyPedal",
+    "dist_dir": f"dist/{APP_NAME}",
     "excludes": excludes,
     "dll_excludes": ["libcrypto-1_1.dll"],
     "optimize": 2,
@@ -35,9 +40,9 @@ options = {
 
 app_info = {
     "version": VERSION,
-    "description": "TinyPedal",
-    "copyright": "Copyright (C) 2022 Xiang",
-    "product_name": "TinyPedal",
+    "description": APP_NAME,
+    "copyright": COPYRIGHT,
+    "product_name": APP_NAME,
     "product_version": VERSION,
 }
 

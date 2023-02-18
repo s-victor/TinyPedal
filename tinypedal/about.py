@@ -24,7 +24,11 @@ import os
 import tkinter as tk
 from PIL import Image, ImageTk
 
-from .const import VERSION, PLATFORM
+from .const import APP_NAME, VERSION, PLATFORM
+
+COPYRIGHT = "Copyright (C) 2022 Xiang"
+DESCRIPTION = "An open-source overlay application for racing simulation."
+LICENSE = "Licensed under the GNU General Public License v3.0 or later."
 
 
 class About(tk.Tk):
@@ -51,11 +55,7 @@ class About(tk.Tk):
         else:
             self.iconphoto(True, tk.PhotoImage(file="icon.png"))
 
-        description = (
-            "\nCopyright (C) 2022 Xiang\n\n"
-            "An open-source overlay application for racing simulation.\n\n"
-            "Licensed under the GNU General Public License v3.0 or later.\n"
-            )
+        description = (f"\n{COPYRIGHT}\n\n{DESCRIPTION}\n\n{LICENSE}\n")
 
         with Image.open("icon.ico") as icon_source:
             icon_resize = icon_source.resize((54, 54), resample=1)
@@ -64,7 +64,7 @@ class About(tk.Tk):
         icon_label.image = icon_image
         icon_label.grid(row=0, column=0, padx=0, pady=0, sticky="w")
 
-        about_title1 = tk.Label(self, text="TinyPedal", font=("Tahoma",16, "normal"),
+        about_title1 = tk.Label(self, text=APP_NAME, font=("Tahoma",16, "normal"),
                                 padx=0, pady=0, fg=fg_color, bg=bg_color)
         about_title1.grid(row=0, column=0, padx=(62, 0), pady=(7,0), sticky="wn")
 

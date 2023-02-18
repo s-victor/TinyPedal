@@ -23,7 +23,7 @@ GUI window, events.
 import tkinter as tk
 import tkinter.font as tkfont
 
-from .const import PLATFORM
+from .const import APP_NAME, PLATFORM
 from .module_control import module
 
 
@@ -45,7 +45,7 @@ class Widget(tk.Toplevel):
         self.wcfg = self.cfg.setting_user[widget_name]
 
         # Base setting
-        self.title("TinyPedal - " + widget_name.capitalize())
+        self.title(f"{APP_NAME} - {widget_name.capitalize()}")
         self.configure(bg=self.cfg.overlay["transparent_color"])  # set transparent background
         self.resizable(False, False)  # disable resize
         self.overrideredirect(True)  # remove window frame

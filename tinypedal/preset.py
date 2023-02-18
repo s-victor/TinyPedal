@@ -28,7 +28,7 @@ from tkinter import ttk
 from tkinter import messagebox
 
 from .setting import cfg
-from .const import VERSION, PLATFORM
+from .const import APP_NAME, VERSION, PLATFORM
 from .readapi import info
 from .module_control import module
 from .widget_control import wctrl, WIDGET_PACK
@@ -51,7 +51,7 @@ class LoadPreset(tk.Toplevel):
         font_list = ("Tahoma", 12, "normal")
         font_btn = ("Tahoma", 11, "normal")
 
-        self.title(f"TinyPedal v{VERSION}")
+        self.title(f"{APP_NAME} v{VERSION}")
         self.configure(bg="#EEE")
         self.resizable(False, False)
 
