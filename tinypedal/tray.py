@@ -25,7 +25,7 @@ from PIL import Image
 import pystray
 
 from .setting import cfg
-from .const import VERSION
+from .const import APP_NAME, VERSION
 from .module_control import module
 from .widget_control import WIDGET_PACK, wctrl
 
@@ -40,7 +40,7 @@ class TrayIcon:
         self.preset_manager = preset_manager
 
         # Config tray icon
-        name = f"TinyPedal v{VERSION}"
+        name = f"{APP_NAME} v{VERSION}"
         image = Image.open("icon.ico")
         menu = pystray.Menu
         item = pystray.MenuItem

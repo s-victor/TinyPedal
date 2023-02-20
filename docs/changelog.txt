@@ -1,3 +1,9 @@
+1.11.1 (2023-02-20)
+-----------------------------
+* Core
+    - Add delayed setting saving method that limits to one save operation for a given period.
+    - Now verifies setting file after saving, and retries if errors found (3 attempts).
+
 1.11.0 (2023-02-16)
 -----------------------------
 * General

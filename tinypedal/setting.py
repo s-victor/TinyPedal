@@ -23,6 +23,7 @@ Overlay setting
 import os
 import re
 import time
+import threading
 import json
 import shutil
 import copy
@@ -41,6 +42,8 @@ class Setting:
         self.active_widget_list = []  # create active widget list
         self.setting_user = {}
         self.overlay = {}
+        self.is_saving = False
+        self.save_delay = 0
 
     def load_preset_list(self):
         """Load preset list"""
@@ -58,7 +61,7 @@ class Setting:
         return ["default"]
 
     def load(self):
-        """Load & validate setting"""
+        """Load & verify setting"""
         try:
             # Read JSON file
             with open(f"{self.filepath}{self.filename}", "r", encoding="utf-8") as jsonfile:
@@ -71,19 +74,66 @@ class Setting:
             self.setting_user = setting_user_unsorted
 
             # Save setting to JSON file
-            self.save()
+            self.save(0)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             self.backup()
             self.create()
-            self.save()
+            self.save(0)
 
         # Assign base setting
         self.overlay = self.setting_user["overlay"]
 
-    def save(self):
+    def save(self, count=66):
+        """Save trigger
+
+        Limit to one save operation for a given period.
+        Set time delay(count) that can be refreshed before trigger saving thread.
+        Default is roughly one sec delay, use 0 for instant saving.
+        """
+        self.save_delay = count
+
+        if not self.is_saving:
+            self.is_saving = True
+            saving_thread = threading.Thread(target=self.__saving)
+            saving_thread.start()
+            #print("saving setting")
+
+    def __saving(self):
+        """Saving thread"""
+        attempts = 3
+
+        # Update save delay
+        while self.save_delay > 0:
+            self.save_delay -= 1
+            #print(f"saving time delay {self.save_delay}")
+            time.sleep(0.01)
+
+        # Start saving attempts
+        while attempts > 0:
+            self.save_file()
+            if self.verify_save_file():
+                attempts = 0
+                #print("verified save file")
+            else:
+                attempts -= 1
+                print(f"saving failed, {attempts} attempt(s) left")
+            time.sleep(0.01)
+
+        self.is_saving = False
+        print("setting saved")
+
+    def save_file(self):
         """Save setting to file"""
         with open(f"{self.filepath}{self.filename}", "w", encoding="utf-8") as jsonfile:
             json.dump(self.setting_user, jsonfile, indent=4)
+
+    def verify_save_file(self):
+        """Verify save file"""
+        try:
+            with open(f"{self.filepath}{self.filename}", "r", encoding="utf-8") as jsonfile:
+                return json.load(jsonfile) == self.setting_user
+        except (FileNotFoundError, json.decoder.JSONDecodeError):
+            return False
 
     def create(self):
         """Create default setting"""

@@ -24,7 +24,7 @@ import platform
 
 
 APP_NAME = "TinyPedal"
-VERSION = "1.11.0"
+VERSION = "1.11.1"
 PLATFORM = platform.system()
 
 # User data path
