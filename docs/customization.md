@@ -427,7 +427,7 @@ Set color for opponent vehicle that is laps ahead or behind player vehicle.
 Show center mark on radar.
 
     additional_vehicles_front, additional_vehicles_behind
-Set additional visible vehicles. The value is limited to a maximum of 9 additional vehicles for each front & behind setting. Default value is `4`.
+Set additional visible vehicles. Each value is limited to a maximum of 60 additional vehicles (for a total of 120 additional vehicles). Default value is `4`.
 
 
 ## Relative
@@ -482,7 +482,7 @@ Set custom tire compound index letter. One letter corresponds to one compound in
 Show each driver's pitstop count.
 
     additional_players_front, additional_players_behind
-Set additional players shown on relative list. The value is limited to a maximum of 3 additional players for each front & behind setting. Default value is `0`.
+Set additional players shown on relative list. Each value is limited to a maximum of 60 additional players (for a total of 120 additional players). Default value is `0`.
 
 
 ## Sectors

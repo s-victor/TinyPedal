@@ -65,11 +65,12 @@ class Draw(Widget, MouseEvent):
         font_relative = tkfont.Font(family=self.wcfg["font_name"],
                                     size=-self.wcfg["font_size"],
                                     weight=self.wcfg["font_weight"])
-        plr_row = 9  # set player row number
 
         # Max display players
-        self.rel_add_front = min(max(self.wcfg["additional_players_front"], 0), 3)
-        self.rel_add_behind = min(max(self.wcfg["additional_players_behind"], 0), 3)
+        self.veh_add_front = min(max(self.wcfg["additional_players_front"], 0), 60)
+        self.veh_add_behind = min(max(self.wcfg["additional_players_behind"], 0), 60)
+        self.veh_range = max(4, self.veh_add_front + 4, self.veh_add_behind + 4)
+        plr_row = self.veh_add_front + 3  # set player row number
 
         # Draw label
         # Driver place number
@@ -112,15 +113,16 @@ class Draw(Widget, MouseEvent):
                              "bg":self.wcfg['bkg_color_laptime']}
 
             self.row_plr_lpt = tk.Label(self, bar_style_lpt,
-                                        fg=fg_color_plr, bg=self.wcfg["bkg_color_player_laptime"])
+                                        fg=fg_color_plr,
+                                        bg=self.wcfg["bkg_color_player_laptime"])
             self.row_plr_lpt.grid(row=plr_row, column=column_lpt, padx=0, pady=(0, bar_gap))
 
             self.generate_bar("lpt", bar_style_lpt, plr_row, column_lpt, bar_gap)
 
         # Vehicle position in class
         if self.wcfg["show_position_in_class"]:
-            bar_style_pic = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0, "font":font_relative,
-                             "height":1, "width":2,
+            bar_style_pic = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
+                             "font":font_relative, "height":1, "width":2,
                              "fg":self.wcfg['font_color_position_in_class'],
                              "bg":self.wcfg['bkg_color_position_in_class']}
 
@@ -132,8 +134,8 @@ class Draw(Widget, MouseEvent):
         # Vehicle class
         if self.wcfg["show_class"]:
             self.vehcls = VehicleClass()  # load VehicleClass setting
-            bar_style_cls = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0, "font":font_relative,
-                             "height":1, "width":self.cls_width,
+            bar_style_cls = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
+                             "font":font_relative, "height":1, "width":self.cls_width,
                              "fg":self.wcfg['font_color_class'],
                              "bg":self.wcfg['bkg_color_class']}
 
@@ -144,7 +146,8 @@ class Draw(Widget, MouseEvent):
 
         # Vehicle in pit
         if self.wcfg["show_pit_status"]:
-            bar_style_pit = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0, "font":font_relative,
+            bar_style_pit = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
+                             "font":font_relative,
                              "height":1, "width":len(self.wcfg["pit_status_text"]),
                              "fg":self.wcfg['font_color_pit'],
                              "bg":self.wcfg['bkg_color_pit']}
@@ -156,26 +159,28 @@ class Draw(Widget, MouseEvent):
 
         # Tyre compound index
         if self.wcfg["show_tyre_compound"]:
-            bar_style_tcp = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0, "font":font_relative,
-                             "height":1, "width":2,
+            bar_style_tcp = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
+                             "font":font_relative, "height":1, "width":2,
                              "fg":self.wcfg['font_color_tyre_compound'],
                              "bg":self.wcfg['bkg_color_tyre_compound']}
 
             self.row_plr_tcp = tk.Label(self, bar_style_tcp,
-                                        fg=fg_color_plr, bg=self.wcfg["bkg_color_player_tyre_compound"])
+                                        fg=fg_color_plr,
+                                        bg=self.wcfg["bkg_color_player_tyre_compound"])
             self.row_plr_tcp.grid(row=plr_row, column=column_tcp, padx=0, pady=(0, bar_gap))
 
             self.generate_bar("tcp", bar_style_tcp, plr_row, column_tcp, bar_gap)
 
         # Pitstop count
         if self.wcfg["show_pitstop_count"]:
-            bar_style_psc = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0, "font":font_relative,
-                             "height":1, "width":2,
+            bar_style_psc = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
+                             "font":font_relative, "height":1, "width":2,
                              "fg":self.wcfg['font_color_pitstop_count'],
                              "bg":self.wcfg['bkg_color_pitstop_count']}
 
             self.row_plr_psc = tk.Label(self, bar_style_psc,
-                                        fg=fg_color_plr, bg=self.wcfg["bkg_color_player_pitstop_count"])
+                                        fg=fg_color_plr,
+                                        bg=self.wcfg["bkg_color_player_pitstop_count"])
             self.row_plr_psc.grid(row=plr_row, column=column_psc, padx=0, pady=(0, bar_gap))
 
             self.generate_bar("psc", bar_style_psc, plr_row, column_psc, bar_gap)
@@ -183,24 +188,13 @@ class Draw(Widget, MouseEvent):
         # Last data
         data_slots = 10
         self.last_veh_plr = [None] * data_slots
-        self.last_veh_f_03 = [None] * data_slots
-        self.last_veh_f_02 = [None] * data_slots
-        self.last_veh_f_01 = [None] * data_slots
-        self.last_veh_r_01 = [None] * data_slots
-        self.last_veh_r_02 = [None] * data_slots
-        self.last_veh_r_03 = [None] * data_slots
-        if self.rel_add_front > 0:
-            self.last_veh_f_04 = [None] * data_slots
-        if self.rel_add_behind > 0:
-            self.last_veh_r_04 = [None] * data_slots
-        if self.rel_add_front > 1:
-            self.last_veh_f_05 = [None] * data_slots
-        if self.rel_add_behind > 1:
-            self.last_veh_r_05 = [None] * data_slots
-        if self.rel_add_front > 2:
-            self.last_veh_f_06 = [None] * data_slots
-        if self.rel_add_behind > 2:
-            self.last_veh_r_06 = [None] * data_slots
+
+        for idx in range(1, self.veh_range):
+            if idx < self.veh_add_front + 4:
+                setattr(self, f"last_veh_f_{idx:02.0f}", [None] * data_slots)
+
+            if idx < self.veh_add_behind + 4:
+                setattr(self, f"last_veh_r_{idx:02.0f}", [None] * data_slots)
 
         # Start updating
         self.update_data()
@@ -210,24 +204,16 @@ class Draw(Widget, MouseEvent):
 
     def generate_bar(self, suffix, style, row_idx, column_idx, bar_gap):
         """Generate data bar"""
-        for idx in range(1,4):
-            setattr(self, f"row_f_{idx:02.0f}_{suffix}", tk.Label(self, style))  # front row
-            getattr(self, f"row_f_{idx:02.0f}_{suffix}").grid(
-                row=row_idx - idx, column=column_idx, padx=0, pady=(0, bar_gap))
+        for idx in range(1, self.veh_range):
+            if idx < self.veh_add_front + 4:
+                setattr(self, f"row_f_{idx:02.0f}_{suffix}", tk.Label(self, style))  # front row
+                getattr(self, f"row_f_{idx:02.0f}_{suffix}").grid(
+                    row=row_idx - idx, column=column_idx, padx=0, pady=(0, bar_gap))
 
-            setattr(self, f"row_r_{idx:02.0f}_{suffix}", tk.Label(self, style))  # rear row
-            getattr(self, f"row_r_{idx:02.0f}_{suffix}").grid(
-                row=row_idx + idx, column=column_idx, padx=0, pady=(0, bar_gap))
-
-            if self.rel_add_front > (idx - 1):
-                setattr(self, f"row_f_{idx+3:02.0f}_{suffix}", tk.Label(self, style))  # additional front row
-                getattr(self, f"row_f_{idx+3:02.0f}_{suffix}").grid(
-                    row=row_idx - idx - 3, column=column_idx, padx=0, pady=(0, bar_gap))
-
-            if self.rel_add_behind > (idx - 1):
-                setattr(self, f"row_r_{idx+3:02.0f}_{suffix}", tk.Label(self, style))  # additional rear row
-                getattr(self, f"row_r_{idx+3:02.0f}_{suffix}").grid(
-                    row=row_idx + idx + 3, column=column_idx, padx=0, pady=(0, bar_gap))
+            if idx < self.veh_add_behind + 4:
+                setattr(self, f"row_r_{idx:02.0f}_{suffix}", tk.Label(self, style))  # rear row
+                getattr(self, f"row_r_{idx:02.0f}_{suffix}").grid(
+                    row=row_idx + idx, column=column_idx, padx=0, pady=(0, bar_gap))
 
     def update_data(self):
         """Update when vehicle on track"""
@@ -235,293 +221,211 @@ class Draw(Widget, MouseEvent):
 
             # Read relative data
             rel_idx, cls_info, plr_idx = module.relative_info.relative_list
-            veh_center = int(3 + self.rel_add_front)
+            veh_center = int(3 + self.veh_add_front)
 
             # Data index reference:
             # 0 place, 1 driver, 2 laptime, 3 pos_class, 4 veh_class,
             # 5 time_gap, 6 num_lap, 7 in_pit, 8 tire_idx, 9 pit_count
             veh_plr = module.relative_info.relative_data(plr_idx, plr_idx, cls_info)
 
-            veh_f_03 = module.relative_info.relative_data(rel_idx[veh_center - 3], plr_idx, cls_info)
-            veh_f_02 = module.relative_info.relative_data(rel_idx[veh_center - 2], plr_idx, cls_info)
-            veh_f_01 = module.relative_info.relative_data(rel_idx[veh_center - 1], plr_idx, cls_info)
-            veh_r_01 = module.relative_info.relative_data(rel_idx[veh_center + 1], plr_idx, cls_info)
-            veh_r_02 = module.relative_info.relative_data(rel_idx[veh_center + 2], plr_idx, cls_info)
-            veh_r_03 = module.relative_info.relative_data(rel_idx[veh_center + 3], plr_idx, cls_info)
-
-            if self.rel_add_front > 0:
-                veh_f_04 = module.relative_info.relative_data(rel_idx[veh_center - 4], plr_idx, cls_info)
-            if self.rel_add_behind > 0:
-                veh_r_04 = module.relative_info.relative_data(rel_idx[veh_center + 4], plr_idx, cls_info)
-            if self.rel_add_front > 1:
-                veh_f_05 = module.relative_info.relative_data(rel_idx[veh_center - 5], plr_idx, cls_info)
-            if self.rel_add_behind > 1:
-                veh_r_05 = module.relative_info.relative_data(rel_idx[veh_center + 5], plr_idx, cls_info)
-            if self.rel_add_front > 2:
-                veh_f_06 = module.relative_info.relative_data(rel_idx[veh_center - 6], plr_idx, cls_info)
-            if self.rel_add_behind > 2:
-                veh_r_06 = module.relative_info.relative_data(rel_idx[veh_center + 6], plr_idx, cls_info)
+            # Set opponent vehicle data: veh_f_**
+            for idx in range(1, self.veh_range):
+                if idx < self.veh_add_front + 4:
+                    setattr(self, f"veh_f_{idx:02.0f}",
+                            module.relative_info.relative_data(
+                                rel_idx[veh_center - idx], plr_idx, cls_info)
+                            )
+                if idx < self.veh_add_behind + 4:
+                    setattr(self, f"veh_r_{idx:02.0f}",
+                            module.relative_info.relative_data(
+                                rel_idx[veh_center + idx], plr_idx, cls_info)
+                            )
 
             # Relative update
 
             # Driver place
-            self.update_plc("plr_plc", veh_plr[0], self.last_veh_plr[0])
+            self.update_plc("plr_plc", veh_plr[0], self.last_veh_plr[0], opt=False)
 
-            self.update_plc("f_03_plc", veh_f_03[0], self.last_veh_f_03[0], veh_f_03[6], veh_plr[6])
-            self.update_plc("f_02_plc", veh_f_02[0], self.last_veh_f_02[0], veh_f_02[6], veh_plr[6])
-            self.update_plc("f_01_plc", veh_f_01[0], self.last_veh_f_01[0], veh_f_01[6], veh_plr[6])
-            self.update_plc("r_01_plc", veh_r_01[0], self.last_veh_r_01[0], veh_r_01[6], veh_plr[6])
-            self.update_plc("r_02_plc", veh_r_02[0], self.last_veh_r_02[0], veh_r_02[6], veh_plr[6])
-            self.update_plc("r_03_plc", veh_r_03[0], self.last_veh_r_03[0], veh_r_03[6], veh_plr[6])
-
-            if self.rel_add_front > 0:
-                self.update_plc("f_04_plc", veh_f_04[0], self.last_veh_f_04[0], veh_f_04[6], veh_plr[6])
-            if self.rel_add_behind > 0:
-                self.update_plc("r_04_plc", veh_r_04[0], self.last_veh_r_04[0], veh_r_04[6], veh_plr[6])
-            if self.rel_add_front > 1:
-                self.update_plc("f_05_plc", veh_f_05[0], self.last_veh_f_05[0], veh_f_05[6], veh_plr[6])
-            if self.rel_add_behind > 1:
-                self.update_plc("r_05_plc", veh_r_05[0], self.last_veh_r_05[0], veh_r_05[6], veh_plr[6])
-            if self.rel_add_front > 2:
-                self.update_plc("f_06_plc", veh_f_06[0], self.last_veh_f_06[0], veh_f_06[6], veh_plr[6])
-            if self.rel_add_behind > 2:
-                self.update_plc("r_06_plc", veh_r_06[0], self.last_veh_r_06[0], veh_r_06[6], veh_plr[6])
+            for idx in range(1, self.veh_range):
+                if idx < self.veh_add_front + 4:
+                    self.update_plc(f"f_{idx:02.0f}_plc",
+                                    getattr(self, f"veh_f_{idx:02.0f}")[0],
+                                    getattr(self, f"last_veh_f_{idx:02.0f}")[0]
+                                    )
+                if idx < self.veh_add_behind + 4:
+                    self.update_plc(f"r_{idx:02.0f}_plc",
+                                    getattr(self, f"veh_r_{idx:02.0f}")[0],
+                                    getattr(self, f"last_veh_r_{idx:02.0f}")[0]
+                                    )
 
             # Driver name
-            self.update_drv("plr_drv", veh_plr[1], self.last_veh_plr[1])
+            self.update_drv("plr_drv", veh_plr[1], self.last_veh_plr[1], opt=False)
 
-            self.update_drv("f_03_drv", veh_f_03[1], self.last_veh_f_03[1], veh_f_03[6], veh_plr[6])
-            self.update_drv("f_02_drv", veh_f_02[1], self.last_veh_f_02[1], veh_f_02[6], veh_plr[6])
-            self.update_drv("f_01_drv", veh_f_01[1], self.last_veh_f_01[1], veh_f_01[6], veh_plr[6])
-            self.update_drv("r_01_drv", veh_r_01[1], self.last_veh_r_01[1], veh_r_01[6], veh_plr[6])
-            self.update_drv("r_02_drv", veh_r_02[1], self.last_veh_r_02[1], veh_r_02[6], veh_plr[6])
-            self.update_drv("r_03_drv", veh_r_03[1], self.last_veh_r_03[1], veh_r_03[6], veh_plr[6])
-
-            if self.rel_add_front > 0:
-                self.update_drv("f_04_drv", veh_f_04[1], self.last_veh_f_04[1], veh_f_04[6], veh_plr[6])
-            if self.rel_add_behind > 0:
-                self.update_drv("r_04_drv", veh_r_04[1], self.last_veh_r_04[1], veh_r_04[6], veh_plr[6])
-            if self.rel_add_front > 1:
-                self.update_drv("f_05_drv", veh_f_05[1], self.last_veh_f_05[1], veh_f_05[6], veh_plr[6])
-            if self.rel_add_behind > 1:
-                self.update_drv("r_05_drv", veh_r_05[1], self.last_veh_r_05[1], veh_r_05[6], veh_plr[6])
-            if self.rel_add_front > 2:
-                self.update_drv("f_06_drv", veh_f_06[1], self.last_veh_f_06[1], veh_f_06[6], veh_plr[6])
-            if self.rel_add_behind > 2:
-                self.update_drv("r_06_drv", veh_r_06[1], self.last_veh_r_06[1], veh_r_06[6], veh_plr[6])
+            for idx in range(1, self.veh_range):
+                if idx < self.veh_add_front + 4:
+                    self.update_drv(f"f_{idx:02.0f}_drv",
+                                    getattr(self, f"veh_f_{idx:02.0f}")[1],
+                                    getattr(self, f"last_veh_f_{idx:02.0f}")[1]
+                                    )
+                if idx < self.veh_add_behind + 4:
+                    self.update_drv(f"r_{idx:02.0f}_drv",
+                                    getattr(self, f"veh_r_{idx:02.0f}")[1],
+                                    getattr(self, f"last_veh_r_{idx:02.0f}")[1]
+                                    )
 
             # Vehicle laptime
             if self.wcfg["show_laptime"]:
                 self.update_lpt("plr_lpt", veh_plr[2], self.last_veh_plr[2])
 
-                self.update_lpt("f_03_lpt", veh_f_03[2], self.last_veh_f_03[2])
-                self.update_lpt("f_02_lpt", veh_f_02[2], self.last_veh_f_02[2])
-                self.update_lpt("f_01_lpt", veh_f_01[2], self.last_veh_f_01[2])
-                self.update_lpt("r_01_lpt", veh_r_01[2], self.last_veh_r_01[2])
-                self.update_lpt("r_02_lpt", veh_r_02[2], self.last_veh_r_02[2])
-                self.update_lpt("r_03_lpt", veh_r_03[2], self.last_veh_r_03[2])
-
-                if self.rel_add_front > 0:
-                    self.update_lpt("f_04_lpt", veh_f_04[2], self.last_veh_f_04[2])
-                if self.rel_add_behind > 0:
-                    self.update_lpt("r_04_lpt", veh_r_04[2], self.last_veh_r_04[2])
-                if self.rel_add_front > 1:
-                    self.update_lpt("f_05_lpt", veh_f_05[2], self.last_veh_f_05[2])
-                if self.rel_add_behind > 1:
-                    self.update_lpt("r_05_lpt", veh_r_05[2], self.last_veh_r_05[2])
-                if self.rel_add_front > 2:
-                    self.update_lpt("f_06_lpt", veh_f_06[2], self.last_veh_f_06[2])
-                if self.rel_add_behind > 2:
-                    self.update_lpt("r_06_lpt", veh_r_06[2], self.last_veh_r_06[2])
+                for idx in range(1, self.veh_range):
+                    if idx < self.veh_add_front + 4:
+                        self.update_lpt(f"f_{idx:02.0f}_lpt",
+                                        getattr(self, f"veh_f_{idx:02.0f}")[2],
+                                        getattr(self, f"last_veh_f_{idx:02.0f}")[2]
+                                        )
+                    if idx < self.veh_add_behind + 4:
+                        self.update_lpt(f"r_{idx:02.0f}_lpt",
+                                        getattr(self, f"veh_r_{idx:02.0f}")[2],
+                                        getattr(self, f"last_veh_r_{idx:02.0f}")[2]
+                                        )
 
             # Vehicle position in class
             if self.wcfg["show_position_in_class"]:
-                self.update_lpt("plr_pic", veh_plr[3], self.last_veh_plr[3])
+                self.update_pic("plr_pic", veh_plr[3], self.last_veh_plr[3])
 
-                self.update_lpt("f_03_pic", veh_f_03[3], self.last_veh_f_03[3])
-                self.update_lpt("f_02_pic", veh_f_02[3], self.last_veh_f_02[3])
-                self.update_lpt("f_01_pic", veh_f_01[3], self.last_veh_f_01[3])
-                self.update_lpt("r_01_pic", veh_r_01[3], self.last_veh_r_01[3])
-                self.update_lpt("r_02_pic", veh_r_02[3], self.last_veh_r_02[3])
-                self.update_lpt("r_03_pic", veh_r_03[3], self.last_veh_r_03[3])
-
-                if self.rel_add_front > 0:
-                    self.update_lpt("f_04_pic", veh_f_04[3], self.last_veh_f_04[3])
-                if self.rel_add_behind > 0:
-                    self.update_lpt("r_04_pic", veh_r_04[3], self.last_veh_r_04[3])
-                if self.rel_add_front > 1:
-                    self.update_lpt("f_05_pic", veh_f_05[3], self.last_veh_f_05[3])
-                if self.rel_add_behind > 1:
-                    self.update_lpt("r_05_pic", veh_r_05[3], self.last_veh_r_05[3])
-                if self.rel_add_front > 2:
-                    self.update_lpt("f_06_pic", veh_f_06[3], self.last_veh_f_06[3])
-                if self.rel_add_behind > 2:
-                    self.update_lpt("r_06_pic", veh_r_06[3], self.last_veh_r_06[3])
+                for idx in range(1, self.veh_range):
+                    if idx < self.veh_add_front + 4:
+                        self.update_pic(f"f_{idx:02.0f}_pic",
+                                        getattr(self, f"veh_f_{idx:02.0f}")[3],
+                                        getattr(self, f"last_veh_f_{idx:02.0f}")[3]
+                                        )
+                    if idx < self.veh_add_behind + 4:
+                        self.update_pic(f"r_{idx:02.0f}_pic",
+                                        getattr(self, f"veh_r_{idx:02.0f}")[3],
+                                        getattr(self, f"last_veh_r_{idx:02.0f}")[3]
+                                        )
 
             # Vehicle class
             if self.wcfg["show_class"]:
                 self.update_cls("plr_cls", veh_plr[4], self.last_veh_plr[4])
 
-                self.update_cls("f_03_cls", veh_f_03[4], self.last_veh_f_03[4])
-                self.update_cls("f_02_cls", veh_f_02[4], self.last_veh_f_02[4])
-                self.update_cls("f_01_cls", veh_f_01[4], self.last_veh_f_01[4])
-                self.update_cls("r_01_cls", veh_r_01[4], self.last_veh_r_01[4])
-                self.update_cls("r_02_cls", veh_r_02[4], self.last_veh_r_02[4])
-                self.update_cls("r_03_cls", veh_r_03[4], self.last_veh_r_03[4])
-
-                if self.rel_add_front > 0:
-                    self.update_cls("f_04_cls", veh_f_04[4], self.last_veh_f_04[4])
-                if self.rel_add_behind > 0:
-                    self.update_cls("r_04_cls", veh_r_04[4], self.last_veh_r_04[4])
-                if self.rel_add_front > 1:
-                    self.update_cls("f_05_cls", veh_f_05[4], self.last_veh_f_05[4])
-                if self.rel_add_behind > 1:
-                    self.update_cls("r_05_cls", veh_r_05[4], self.last_veh_r_05[4])
-                if self.rel_add_front > 2:
-                    self.update_cls("f_06_cls", veh_f_06[4], self.last_veh_f_06[4])
-                if self.rel_add_behind > 2:
-                    self.update_cls("r_06_cls", veh_r_06[4], self.last_veh_r_06[4])
+                for idx in range(1, self.veh_range):
+                    if idx < self.veh_add_front + 4:
+                        self.update_cls(f"f_{idx:02.0f}_cls",
+                                        getattr(self, f"veh_f_{idx:02.0f}")[4],
+                                        getattr(self, f"last_veh_f_{idx:02.0f}")[4]
+                                        )
+                    if idx < self.veh_add_behind + 4:
+                        self.update_cls(f"r_{idx:02.0f}_cls",
+                                        getattr(self, f"veh_r_{idx:02.0f}")[4],
+                                        getattr(self, f"last_veh_r_{idx:02.0f}")[4]
+                                        )
 
             # Time gap
-            self.update_plc("plr_gap", veh_plr[5], self.last_veh_plr[5])
+            self.update_plc("plr_gap", veh_plr[5], self.last_veh_plr[5], opt=False)
 
-            self.update_plc("f_03_gap", veh_f_03[5], self.last_veh_f_03[5], veh_f_03[6], veh_plr[6])
-            self.update_plc("f_02_gap", veh_f_02[5], self.last_veh_f_02[5], veh_f_02[6], veh_plr[6])
-            self.update_plc("f_01_gap", veh_f_01[5], self.last_veh_f_01[5], veh_f_01[6], veh_plr[6])
-            self.update_plc("r_01_gap", veh_r_01[5], self.last_veh_r_01[5], veh_r_01[6], veh_plr[6])
-            self.update_plc("r_02_gap", veh_r_02[5], self.last_veh_r_02[5], veh_r_02[6], veh_plr[6])
-            self.update_plc("r_03_gap", veh_r_03[5], self.last_veh_r_03[5], veh_r_03[6], veh_plr[6])
-
-            if self.rel_add_front > 0:
-                self.update_plc("f_04_gap", veh_f_04[5], self.last_veh_f_04[5], veh_f_04[6], veh_plr[6])
-            if self.rel_add_behind > 0:
-                self.update_plc("r_04_gap", veh_r_04[5], self.last_veh_r_04[5], veh_r_04[6], veh_plr[6])
-            if self.rel_add_front > 1:
-                self.update_plc("f_05_gap", veh_f_05[5], self.last_veh_f_05[5], veh_f_05[6], veh_plr[6])
-            if self.rel_add_behind > 1:
-                self.update_plc("r_05_gap", veh_r_05[5], self.last_veh_r_05[5], veh_r_05[6], veh_plr[6])
-            if self.rel_add_front > 2:
-                self.update_plc("f_06_gap", veh_f_06[5], self.last_veh_f_06[5], veh_f_06[6], veh_plr[6])
-            if self.rel_add_behind > 2:
-                self.update_plc("r_06_gap", veh_r_06[5], self.last_veh_r_06[5], veh_r_06[6], veh_plr[6])
+            for idx in range(1, self.veh_range):
+                if idx < self.veh_add_front + 4:
+                    self.update_plc(f"f_{idx:02.0f}_gap",
+                                    getattr(self, f"veh_f_{idx:02.0f}")[5],
+                                    getattr(self, f"last_veh_f_{idx:02.0f}")[5]
+                                    )
+                if idx < self.veh_add_behind + 4:
+                    self.update_plc(f"r_{idx:02.0f}_gap",
+                                    getattr(self, f"veh_r_{idx:02.0f}")[5],
+                                    getattr(self, f"last_veh_r_{idx:02.0f}")[5]
+                                    )
 
             # Vehicle in pit
             if self.wcfg["show_pit_status"]:
                 self.update_pit("plr_pit", veh_plr[7], self.last_veh_plr[7])
 
-                self.update_pit("f_03_pit", veh_f_03[7], self.last_veh_f_03[7])
-                self.update_pit("f_02_pit", veh_f_02[7], self.last_veh_f_02[7])
-                self.update_pit("f_01_pit", veh_f_01[7], self.last_veh_f_01[7])
-                self.update_pit("r_01_pit", veh_r_01[7], self.last_veh_r_01[7])
-                self.update_pit("r_02_pit", veh_r_02[7], self.last_veh_r_02[7])
-                self.update_pit("r_03_pit", veh_r_03[7], self.last_veh_r_03[7])
-
-                if self.rel_add_front > 0:
-                    self.update_pit("f_04_pit", veh_f_04[7], self.last_veh_f_04[7])
-                if self.rel_add_behind > 0:
-                    self.update_pit("r_04_pit", veh_r_04[7], self.last_veh_r_04[7])
-                if self.rel_add_front > 1:
-                    self.update_pit("f_05_pit", veh_f_05[7], self.last_veh_f_05[7])
-                if self.rel_add_behind > 1:
-                    self.update_pit("r_05_pit", veh_r_05[7], self.last_veh_r_05[7])
-                if self.rel_add_front > 2:
-                    self.update_pit("f_06_pit", veh_f_06[7], self.last_veh_f_06[7])
-                if self.rel_add_behind > 2:
-                    self.update_pit("r_06_pit", veh_r_06[7], self.last_veh_r_06[7])
+                for idx in range(1, self.veh_range):
+                    if idx < self.veh_add_front + 4:
+                        self.update_pit(f"f_{idx:02.0f}_pit",
+                                        getattr(self, f"veh_f_{idx:02.0f}")[7],
+                                        getattr(self, f"last_veh_f_{idx:02.0f}")[7]
+                                        )
+                    if idx < self.veh_add_behind + 4:
+                        self.update_pit(f"r_{idx:02.0f}_pit",
+                                        getattr(self, f"veh_r_{idx:02.0f}")[7],
+                                        getattr(self, f"last_veh_r_{idx:02.0f}")[7]
+                                        )
 
             # Tyre compound index
             if self.wcfg["show_tyre_compound"]:
                 self.update_tcp("plr_tcp", veh_plr[8], self.last_veh_plr[8])
 
-                self.update_tcp("f_03_tcp", veh_f_03[8], self.last_veh_f_03[8])
-                self.update_tcp("f_02_tcp", veh_f_02[8], self.last_veh_f_02[8])
-                self.update_tcp("f_01_tcp", veh_f_01[8], self.last_veh_f_01[8])
-                self.update_tcp("r_01_tcp", veh_r_01[8], self.last_veh_r_01[8])
-                self.update_tcp("r_02_tcp", veh_r_02[8], self.last_veh_r_02[8])
-                self.update_tcp("r_03_tcp", veh_r_03[8], self.last_veh_r_03[8])
-
-                if self.rel_add_front > 0:
-                    self.update_tcp("f_04_tcp", veh_f_04[8], self.last_veh_f_04[8])
-                if self.rel_add_behind > 0:
-                    self.update_tcp("r_04_tcp", veh_r_04[8], self.last_veh_r_04[8])
-                if self.rel_add_front > 1:
-                    self.update_tcp("f_05_tcp", veh_f_05[8], self.last_veh_f_05[8])
-                if self.rel_add_behind > 1:
-                    self.update_tcp("r_05_tcp", veh_r_05[8], self.last_veh_r_05[8])
-                if self.rel_add_front > 2:
-                    self.update_tcp("f_06_tcp", veh_f_06[8], self.last_veh_f_06[8])
-                if self.rel_add_behind > 2:
-                    self.update_tcp("r_06_tcp", veh_r_06[8], self.last_veh_r_06[8])
+                for idx in range(1, self.veh_range):
+                    if idx < self.veh_add_front + 4:
+                        self.update_tcp(f"f_{idx:02.0f}_tcp",
+                                        getattr(self, f"veh_f_{idx:02.0f}")[8],
+                                        getattr(self, f"last_veh_f_{idx:02.0f}")[8]
+                                        )
+                    if idx < self.veh_add_behind + 4:
+                        self.update_tcp(f"r_{idx:02.0f}_tcp",
+                                        getattr(self, f"veh_r_{idx:02.0f}")[8],
+                                        getattr(self, f"last_veh_r_{idx:02.0f}")[8]
+                                        )
 
             # Pitstop count
             if self.wcfg["show_pitstop_count"]:
                 self.update_psc("plr_psc", veh_plr[9], self.last_veh_plr[9])
 
-                self.update_psc("f_03_psc", veh_f_03[9], self.last_veh_f_03[9])
-                self.update_psc("f_02_psc", veh_f_02[9], self.last_veh_f_02[9])
-                self.update_psc("f_01_psc", veh_f_01[9], self.last_veh_f_01[9])
-                self.update_psc("r_01_psc", veh_r_01[9], self.last_veh_r_01[9])
-                self.update_psc("r_02_psc", veh_r_02[9], self.last_veh_r_02[9])
-                self.update_psc("r_03_psc", veh_r_03[9], self.last_veh_r_03[9])
-
-                if self.rel_add_front > 0:
-                    self.update_psc("f_04_psc", veh_f_04[9], self.last_veh_f_04[9])
-                if self.rel_add_behind > 0:
-                    self.update_psc("r_04_psc", veh_r_04[9], self.last_veh_r_04[9])
-                if self.rel_add_front > 1:
-                    self.update_psc("f_05_psc", veh_f_05[9], self.last_veh_f_05[9])
-                if self.rel_add_behind > 1:
-                    self.update_psc("r_05_psc", veh_r_05[9], self.last_veh_r_05[9])
-                if self.rel_add_front > 2:
-                    self.update_psc("f_06_psc", veh_f_06[9], self.last_veh_f_06[9])
-                if self.rel_add_behind > 2:
-                    self.update_psc("r_06_psc", veh_r_06[9], self.last_veh_r_06[9])
+                for idx in range(1, self.veh_range):
+                    if idx < self.veh_add_front + 4:
+                        self.update_psc(f"f_{idx:02.0f}_psc",
+                                        getattr(self, f"veh_f_{idx:02.0f}")[9],
+                                        getattr(self, f"last_veh_f_{idx:02.0f}")[9]
+                                        )
+                    if idx < self.veh_add_behind + 4:
+                        self.update_psc(f"r_{idx:02.0f}_psc",
+                                        getattr(self, f"veh_r_{idx:02.0f}")[9],
+                                        getattr(self, f"last_veh_r_{idx:02.0f}")[9]
+                                        )
 
             # Store last data reading
             self.last_veh_plr = veh_plr
-            self.last_veh_f_03 = veh_f_03
-            self.last_veh_f_02 = veh_f_02
-            self.last_veh_f_01 = veh_f_01
-            self.last_veh_r_01 = veh_r_01
-            self.last_veh_r_02 = veh_r_02
-            self.last_veh_r_03 = veh_r_03
-            if self.rel_add_front > 0:
-                self.last_veh_f_04 = veh_f_04
-            if self.rel_add_behind > 0:
-                self.last_veh_r_04 = veh_r_04
-            if self.rel_add_front > 1:
-                self.last_veh_f_05 = veh_f_05
-            if self.rel_add_behind > 1:
-                self.last_veh_r_05 = veh_r_05
-            if self.rel_add_front > 2:
-                self.last_veh_f_06 = veh_f_06
-            if self.rel_add_behind > 2:
-                self.last_veh_r_06 = veh_r_06
+
+            for idx in range(1, self.veh_range):
+                if idx < self.veh_add_front + 4:
+                    setattr(self, f"last_veh_f_{idx:02.0f}",
+                            getattr(self, f"veh_f_{idx:02.0f}"))
+
+                if idx < self.veh_add_behind + 4:
+                    setattr(self, f"last_veh_r_{idx:02.0f}",
+                            getattr(self, f"veh_r_{idx:02.0f}"))
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
 
     # GUI update methods
-    def update_plc(self, suffix, curr, last, extra1=None, extra2=None):
+    def update_plc(self, suffix, curr, last, opt=True):
         """Driver place & Time gap"""
         if curr != last:
-            if extra1:
-                getattr(self, f"row_{suffix}").config(text=curr, fg=self.color_lapdiff(extra1, extra2))
+            if opt:
+                color = self.color_lapdiff(curr[1])
             else:
-                getattr(self, f"row_{suffix}").config(text=curr)
+                color = self.wcfg["font_color_player"]
+            getattr(self, f"row_{suffix}").config(text=curr[0], fg=color)
 
-    def update_drv(self, suffix, curr, last, extra1=None, extra2=None):
-        """Driver name"""
+    def update_drv(self, suffix, curr, last, opt=True):
+        """Driver & vehicle name"""
         if curr != last:
-            if extra1:
-                getattr(self, f"row_{suffix}").config(
-                    text=self.set_driver_name(curr)[:self.drv_width], fg=self.color_lapdiff(extra1, extra2))
+            if opt:
+                color = self.color_lapdiff(curr[2])
             else:
-                getattr(self, f"row_{suffix}").config(
-                    text=self.set_driver_name(curr)[:self.drv_width])
+                color = self.wcfg["font_color_player"]
+            getattr(self, f"row_{suffix}").config(
+                text=self.set_driver_name(curr[0:2])[:self.drv_width], fg=color)
 
     def update_lpt(self, suffix, curr, last):
-        """Vehicle laptime & Vehicle position in class"""
+        """Vehicle laptime"""
+        if curr != last:
+            getattr(self, f"row_{suffix}").config(text=curr)
+
+    def update_pic(self, suffix, curr, last):
+        """Vehicle position in class"""
         if curr != last:
             getattr(self, f"row_{suffix}").config(text=curr)
 
@@ -546,74 +450,55 @@ class Draw(Widget, MouseEvent):
             getattr(self, f"row_{suffix}").config(text=self.set_pitcount(curr))
 
     # Additional methods
-    def color_lapdiff(self, nlap, player_nlap):
+    def color_lapdiff(self, is_lapped):
         """Compare lap differences & set color"""
-        if nlap > player_nlap:
-            color = self.wcfg["font_color_laps_ahead"]
-        elif nlap < player_nlap:
-            color = self.wcfg["font_color_laps_behind"]
-        else:
-            color = self.wcfg["font_color_same_lap"]
-        return color
+        if is_lapped > 0:
+            return self.wcfg["font_color_laps_ahead"]
+        if is_lapped < 0:
+            return self.wcfg["font_color_laps_behind"]
+        return self.wcfg["font_color_same_lap"]
 
     def set_driver_name(self, name):
         """Set driver name"""
         if self.wcfg["driver_name_mode"] == 0:
-            text = name[0]  # driver name
-        elif self.wcfg["driver_name_mode"] == 1:
-            text = name[1]  # vehicle name
-        else:
-            if name[1] != "":
-                text = f"{name[0]} [{name[1]}]"  # combined name
-            else:
-                text = ""
-        return text
+            return name[0]  # driver name
+        if self.wcfg["driver_name_mode"] == 1:
+            return name[1]  # vehicle name
+        if name[1]:
+            return f"{name[0]} [{name[1]}]"  # combined name
+        return ""
 
     def set_tyre_cmp(self, tc_index):
         """Substitute tyre compound index with custom chars"""
         if tc_index:
             ftire = self.wcfg["tyre_compound_list"][tc_index[0]:(tc_index[0]+1)]
             rtire = self.wcfg["tyre_compound_list"][tc_index[1]:(tc_index[1]+1)]
-            tire_cmpd = f"{ftire}{rtire}"
-        else:
-            tire_cmpd = ""
-        return tire_cmpd
+            return f"{ftire}{rtire}"
+        return ""
 
     def set_pitstatus(self, pits):
         """Set pit status color"""
         if pits > 0:
-            status = {"text":self.wcfg["pit_status_text"], "bg":self.wcfg["bkg_color_pit"]}
-        else:
-            status = {"text":"", "bg":self.cfg.overlay["transparent_color"]}
-        return status
+            return {"text":self.wcfg["pit_status_text"], "bg":self.wcfg["bkg_color_pit"]}
+        return {"text":"", "bg":self.cfg.overlay["transparent_color"]}
 
     @staticmethod
     def set_pitcount(pits):
         """Set pitstop count test"""
-        if pits < 0:
-            count = ""
-        elif pits == 0:
-            count = "-"
-        else:
-            count = pits
-        return count
+        if pits == 0:
+            return "-"
+        if pits > 0:
+            return pits
+        return ""
 
     def set_class_style(self, vehclass_name):
         """Compare vehicle class name with user defined dictionary"""
-        if vehclass_name == "":
-            class_setting = {"text":"", "bg":self.wcfg["bkg_color_class"]}
-        else:
-            class_setting = {"text":vehclass_name[:self.cls_width],
-                             "bg":self.wcfg["bkg_color_class"]}
+        if not vehclass_name:
+            return {"text":"", "bg":self.wcfg["bkg_color_class"]}
 
-        for key, value in self.vehcls.classdict_user.items():
-            # If class name matches user defined class
-            if vehclass_name == key:
-                # Assign new class name from user defined value
-                short_name = value
-                for subkey, subvalue in short_name.items():
-                    # Assign corresponding background color
-                    class_setting = {"text":subkey, "bg":subvalue}
-                    break
+        for full_name, short_name in self.vehcls.classdict_user.items():
+            if vehclass_name == full_name:
+                for sub_name, sub_color in short_name.items():
+                    return {"text":sub_name, "bg":sub_color}
 
-        return class_setting
+        return {"text":vehclass_name[:self.cls_width], "bg":self.wcfg["bkg_color_class"]}

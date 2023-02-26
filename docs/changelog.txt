@@ -1,3 +1,28 @@
+1.11.3 (2023-02-26)
+-----------------------------
+* Radar Widget
+    - [New]Now supports displaying up to 126 nearby vehicles! (63 front & 63 behind vehicles).
+    - Significantly improved & optimized drawing methods.
+
+* Relative Widget
+    - [New]Now dynamically generates relative players list that supports
+      displaying up to 126 nearby players! (63 front & 63 behind players).
+    - All players on relative list are properly sorted by
+      relative distance between each opponent and local player vehicle,
+      which also fixed an issue that players list previously
+      would jump around the moment crossing finish line.
+    - Fixed an issue where sometimes lap difference & color indicator won't get updated.
+
+* Core
+    - Various small improvements.
+
+* pyRfactor2SharedMemory library
+    - Now uses player name matching for finding player index.
+
+* Misc
+    - Updated customization guide with new info for Radar & Relative Widget.
+    - Updated feature.md.
+
 1.11.1 (2023-02-20)
 -----------------------------
 * Core

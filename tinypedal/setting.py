@@ -43,7 +43,7 @@ class Setting:
         self.setting_user = {}
         self.overlay = {}
         self.is_saving = False
-        self.save_delay = 0
+        self._save_delay = 0
 
     def load_preset_list(self):
         """Load preset list"""
@@ -90,12 +90,11 @@ class Setting:
         Set time delay(count) that can be refreshed before trigger saving thread.
         Default is roughly one sec delay, use 0 for instant saving.
         """
-        self.save_delay = count
+        self._save_delay = count
 
         if not self.is_saving:
             self.is_saving = True
-            saving_thread = threading.Thread(target=self.__saving)
-            saving_thread.start()
+            threading.Thread(target=self.__saving).start()
             #print("saving setting")
 
     def __saving(self):
@@ -103,9 +102,9 @@ class Setting:
         attempts = 3
 
         # Update save delay
-        while self.save_delay > 0:
-            self.save_delay -= 1
-            #print(f"saving time delay {self.save_delay}")
+        while self._save_delay > 0:
+            self._save_delay -= 1
+            #print(f"saving time delay {self._save_delay}")
             time.sleep(0.01)
 
         # Start saving attempts

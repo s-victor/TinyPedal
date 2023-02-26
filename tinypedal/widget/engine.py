@@ -180,9 +180,7 @@ class Draw(Widget, MouseEvent):
     def pressure_units(self, pres):
         """Pressure units"""
         if self.wcfg["turbo_pressure_unit"] == "0":
-            pressure = f"{calc.kpa2bar(pres):03.03f}bar"
-        elif self.wcfg["turbo_pressure_unit"] == "1":
-            pressure = f"{calc.kpa2psi(pres):03.02f}psi"
-        else:
-            pressure = f"{pres:03.01f}kPa"
-        return pressure
+            return f"{calc.kpa2bar(pres):03.03f}bar"
+        if self.wcfg["turbo_pressure_unit"] == "1":
+            return f"{calc.kpa2psi(pres):03.02f}psi"
+        return f"{pres:03.01f}kPa"

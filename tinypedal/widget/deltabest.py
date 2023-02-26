@@ -130,7 +130,5 @@ class Draw(Widget, MouseEvent):
     def color_delta(self, delta):
         """Delta time color"""
         if delta <= 0:
-            color = self.wcfg["bkg_color_time_gain"]
-        else:
-            color = self.wcfg["bkg_color_time_loss"]
-        return color
+            return self.wcfg["bkg_color_time_gain"]
+        return self.wcfg["bkg_color_time_loss"]

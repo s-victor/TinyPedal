@@ -193,5 +193,4 @@ class Draw(Widget, MouseEvent):
         """Substitute tyre compound index with custom chars"""
         ftire = self.wcfg["tyre_compound_list"][tc_index[0]:(tc_index[0]+1)]
         rtire = self.wcfg["tyre_compound_list"][tc_index[1]:(tc_index[1]+1)]
-        tire_cmpd = f"{ftire}{rtire}"
-        return tire_cmpd
+        return f"{ftire}{rtire}"

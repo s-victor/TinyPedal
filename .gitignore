@@ -16,9 +16,8 @@ pylintrc
 *.csv
 *.fuel
 
-# random test file
+# random file
 test*.py
-
-# random zip file
 *.7z
 *.zip
+*.log

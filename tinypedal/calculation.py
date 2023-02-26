@@ -70,12 +70,10 @@ def average_value(average, value, num_samples):
 def gear(gear_index):
     """Convert gear index to text string"""
     if gear_index > 0:
-        text = str(gear_index)
-    elif gear_index == 0:
-        text = "N"
-    else:
-        text = "R"
-    return text
+        return str(gear_index)
+    if gear_index == 0:
+        return "N"
+    return "R"
 
 
 def rad2deg(radian):
@@ -119,8 +117,7 @@ def kpa2bar(pressure):
 
 def gforce(value):
     """Calculate G force"""
-    force = value / 9.8
-    return force
+    return value / 9.8
 
 
 def force_ratio(value1, value2):

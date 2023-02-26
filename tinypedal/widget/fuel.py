@@ -165,7 +165,5 @@ class Draw(Widget, MouseEvent):
     def color_lowfuel(self, fuel):
         """Low fuel warning color"""
         if fuel > self.wcfg["low_fuel_lap_threshold"]:
-            color = self.wcfg["bkg_color_fuel"]
-        else:
-            color = self.wcfg["bkg_color_low_fuel"]
-        return color
+            return self.wcfg["bkg_color_fuel"]
+        return self.wcfg["bkg_color_low_fuel"]

@@ -365,7 +365,7 @@ class CreatePreset(tk.Toplevel):
             if valid:
                 cfg.filename = f"{entered_filename}.json"
                 cfg.create()  # create setting
-                cfg.save()  # save setting
+                cfg.save(0)  # save setting
                 self.master.refresh_list()  # refresh preset list
                 self.destroy()  # close window
             else:

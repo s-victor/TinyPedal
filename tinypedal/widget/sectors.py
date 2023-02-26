@@ -491,17 +491,13 @@ class Draw(Widget, MouseEvent):
         if self.wcfg["target_time_mode"] == 0:
             sector_time = self.calc_sector_time(sec_tb, sec_index)
             if sector_time < MAGIC_NUM:  # bypass invalid value
-                text = f"TB{calc.sec2laptime(sector_time)[:8].rjust(9)}"
-            else:
-                text = "  --:--.---"
+                return f"TB{calc.sec2laptime(sector_time)[:8].rjust(9)}"
         # Mode 1 - show personal best lap sector
         else:
             sector_time = self.calc_sector_time(sec_pb, sec_index)
             if sector_time < MAGIC_NUM:  # bypass invalid value
-                text = f"PB{calc.sec2laptime(sector_time)[:8].rjust(9)}"
-            else:
-                text = "  --:--.---"
-        return text
+                return f"PB{calc.sec2laptime(sector_time)[:8].rjust(9)}"
+        return "  --:--.---"
 
     # Additional methods
     def speed_units(self, value):
@@ -534,12 +530,11 @@ class Draw(Widget, MouseEvent):
     @staticmethod
     def calc_sector_time(sec_time, sec_index):
         """Calculate accumulated sector time"""
-        sector_time = sec_time[0]  # sector 1
         if sec_index == 1:    # sector 2 sum
-            sector_time = sec_time[0] + sec_time[1]
-        elif sec_index == 2:  # sector 3 sum
-            sector_time = sum(sec_time)
-        return sector_time
+            return sec_time[0] + sec_time[1]
+        if sec_index == 2:  # sector 3 sum
+            return sum(sec_time)
+        return sec_time[0]  # sector 1
 
     def color_delta(self, seconds, types):
         """Sector delta color"""

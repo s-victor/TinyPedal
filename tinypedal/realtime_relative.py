@@ -55,12 +55,12 @@ class RelativeInfo:
         update_delay = 0.4  # changeable update delay for conserving resources
 
         # Load additional relative players
-        rel_add_front = min(max(self.cfg.setting_user["relative"]["additional_players_front"], 0), 3)
-        rel_add_behind = min(max(self.cfg.setting_user["relative"]["additional_players_behind"], 0), 3)
+        rel_add_front = min(max(self.cfg.setting_user["relative"]["additional_players_front"], 0), 60)
+        rel_add_behind = min(max(self.cfg.setting_user["relative"]["additional_players_behind"], 0), 60)
 
         # Load additional radar vehicles
-        radar_add_front = min(max(self.cfg.setting_user["radar"]["additional_vehicles_front"], 0), 9)
-        radar_add_behind = min(max(self.cfg.setting_user["radar"]["additional_vehicles_behind"], 0), 9)
+        radar_add_front = min(max(self.cfg.setting_user["radar"]["additional_vehicles_front"], 0), 60)
+        radar_add_behind = min(max(self.cfg.setting_user["radar"]["additional_vehicles_behind"], 0), 60)
 
         while self.running:
             # Reset switch
@@ -75,9 +75,13 @@ class RelativeInfo:
                 unsorted_veh_class = []
                 unique_veh_class = []
 
+                plr_index = info.players_index
+
                 for index in range(max(chknm(info.LastTele.mNumVehicles), 1)):
+                    rel_dist = self.calc_relative_dist(index, info.players_index)  # relative distance
+
                     # Create vehicle dict, use "vehicle index" as key, "distance position" as value
-                    veh_dict.update({index:chknm(info.LastScor.mVehicles[index].mLapDist)})
+                    veh_dict.update({index:rel_dist})
 
                     # Create vehicle class list (class name, veh place, veh index)
                     vehclass = cs2py(info.LastScor.mVehicles[index].mVehicleClass)
@@ -89,7 +93,6 @@ class RelativeInfo:
                                                ))
                     unique_veh_class.append(vehclass)
 
-                plr_index = info.players_index
                 selected_index = self.calc_relative_index(veh_dict, plr_index, rel_add_front, rel_add_behind)
                 veh_class_info = self.calc_veh_class_list(unsorted_veh_class, unique_veh_class)
 
@@ -115,12 +118,19 @@ class RelativeInfo:
         """Relative data, this function is accessed by relative widget"""
         # Prevent index out of range
         if 0 <= index < len(veh_class_info) and len(veh_class_info[index]) == 4:
+            # 6 Completed laps
+            num_lap = chknm(info.LastTele.mVehicles[index].mLapNumber)
+
+            # check whether is lapped
+            is_lapped = num_lap - chknm(info.LastTele.mVehicles[index_player].mLapNumber)
+
             # 0 Driver place position
-            place = f"{veh_class_info[index][3]:02d}"
+            place = (f"{veh_class_info[index][3]:02d}", is_lapped)
 
             # 1 Driver name
             driver = (cs2py(info.LastScor.mVehicles[index].mDriverName),
-                      cs2py(info.LastScor.mVehicles[index].mVehicleName))
+                      cs2py(info.LastScor.mVehicles[index].mVehicleName),
+                      is_lapped)
 
             # 2 Lap time
             raw_laptime = chknm(info.LastScor.mVehicles[index].mLastLapTime)
@@ -133,10 +143,7 @@ class RelativeInfo:
             veh_class = veh_class_info[index][2]
 
             # 5 Time gap
-            time_gap = self.calc_relative_time_gap(index, index_player)
-
-            # 6 Completed laps
-            num_lap = chknm(info.LastTele.mVehicles[index].mLapNumber)
+            time_gap = (self.calc_relative_time_gap(index, index_player), is_lapped)
 
             # 7 Is driver in pit
             in_pit = chknm(info.LastScor.mVehicles[index].mInPits)
@@ -151,7 +158,7 @@ class RelativeInfo:
         else:
             # Assign empty value to -1 player index
             (place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit, tire_idx, pit_count
-             ) = "", ("",""), "", "", "", "", 0, 0, 0, -1
+             ) = ("",0), ("","",0), "", "", "", ("",0), 0, 0, 0, -1
         return place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit, tire_idx, pit_count
 
     @staticmethod
@@ -210,27 +217,26 @@ class RelativeInfo:
         return sorted(veh_class_info)
 
     @staticmethod
-    def calc_relative_time_gap(index, index_player):
-        """Calculate relative time gap"""
+    def calc_relative_dist(index, index_player):
+        """Calculate relative distance"""
         # Relative distance position
         track_length = chknm(info.LastScor.mScoringInfo.mLapDist)  # track length
         track_half = track_length * 0.5  # half of track length
         opv_dist = chknm(info.LastScor.mVehicles[index].mLapDist)  # opponent player vehicle position
         plr_dist = chknm(info.LastScor.mVehicles[index_player].mLapDist)  # player vehicle position
-        rel_dist = abs(opv_dist - plr_dist)  # get relative distance between opponent & player
+        rel_dist = opv_dist - plr_dist  # get relative distance between opponent & player
 
-        # Opponent is ahead of player
-        if opv_dist > plr_dist:
-            # Relative dist is greater than half of track length
-            if rel_dist > track_half:
-                rel_dist = track_length - opv_dist + plr_dist
-        # Opponent is behind player
-        elif opv_dist < plr_dist:
-            if rel_dist > track_half:
-                rel_dist = track_length + opv_dist - plr_dist
-        else:
-            rel_dist = 0
+        # Relative dist is greater than half of track length
+        if abs(rel_dist) > track_half:
+            if opv_dist > plr_dist:
+                rel_dist -= track_length  # opponent is behind player
+            elif opv_dist < plr_dist:
+                rel_dist += track_length  # opponent is ahead player
+        return rel_dist
 
+    def calc_relative_time_gap(self, index, index_player):
+        """Calculate relative time gap"""
+        rel_dist = self.calc_relative_dist(index, index_player)
         # Time gap = Relative dist / player speed
         speed_plr = calc.vel2speed(
                     chknm(info.LastScor.mVehicles[index_player].mLocalVel.x),
@@ -248,28 +254,29 @@ class RelativeInfo:
         return time_gap
 
     @staticmethod
-    def vehicle_gps(index_list):
+    def vehicle_gps(index_list, index_player):
         """Player orientation yaw & global position"""
         veh_gps = []
+        plr_lapnum = chknm(info.LastTele.mVehicles[index_player].mLapNumber)
         for index in index_list:
-            # Orientation, pos x z, lap number
+            # Orientation, pos x z, is lapped
             veh_gps.append((calc.oriyaw2rad(chknm(info.LastTele.mVehicles[index].mOri[2].z),
                                             chknm(info.LastTele.mVehicles[index].mOri[2].x)),
                             chknm(info.LastTele.mVehicles[index].mPos.x * 10),
                             chknm(info.LastTele.mVehicles[index].mPos.z * 10),
-                            chknm(info.LastTele.mVehicles[index].mLapNumber)
+                            chknm(info.LastTele.mVehicles[index].mLapNumber) - plr_lapnum
                             ))
         return veh_gps
 
     @staticmethod
     def radar_pos(plr_gps, opt_gps, index):
-        """Calculate vehicle coordinates, lap number, orientation"""
+        """Calculate vehicle coordinates, is lapped, orientation"""
         if index >= 0:
             new_pos = calc.rotate_pos(plr_gps[0], opt_gps[1], opt_gps[2])
-            num_lap = opt_gps[3]
             ori_diff = opt_gps[0] - plr_gps[0]  # opponent orientation - player orientation
+            is_lapped = opt_gps[3]
         else:
             new_pos = (-99999, -99999)
-            num_lap = 0
             ori_diff = 0
-        return new_pos, num_lap, ori_diff
+            is_lapped = 0
+        return new_pos, ori_diff, is_lapped
