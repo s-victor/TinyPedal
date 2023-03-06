@@ -182,8 +182,8 @@ class Draw(Widget, MouseEvent):
         # Last data
         self.last_tcmpd = [None] * 2
         if self.wcfg["ICO_mode"]:
-            self.last_stemp = [[None] * 3] * 4
-            self.last_itemp = [[None] * 3] * 4
+            self.last_stemp = [[None] * 3 for _ in range(4)]
+            self.last_itemp = [[None] * 3 for _ in range(4)]
         else:
             self.last_stemp = [None] * 4
             self.last_itemp = [None] * 4

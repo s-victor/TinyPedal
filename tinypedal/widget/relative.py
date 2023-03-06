@@ -108,7 +108,7 @@ class Draw(Widget, MouseEvent):
         # Vehicle laptime
         if self.wcfg["show_laptime"]:
             bar_style_lpt = {"text":text_def, "bd":0, "padx":bar_padx, "pady":0,
-                             "font":font_relative, "height":1, "width":9,
+                             "font":font_relative, "height":1, "width":8,
                              "fg":self.wcfg['font_color_laptime'],
                              "bg":self.wcfg['bkg_color_laptime']}
 
@@ -370,7 +370,7 @@ class Draw(Widget, MouseEvent):
 
             # Pitstop count
             if self.wcfg["show_pitstop_count"]:
-                self.update_psc("plr_psc", veh_plr[9], self.last_veh_plr[9])
+                self.update_psc("plr_psc", veh_plr[9], self.last_veh_plr[9], True)
 
                 for idx in range(1, self.veh_range):
                     if idx < self.veh_add_front + 4:
@@ -444,10 +444,20 @@ class Draw(Widget, MouseEvent):
         if curr != last:
             getattr(self, f"row_{suffix}").config(text=self.set_tyre_cmp(curr))
 
-    def update_psc(self, suffix, curr, last):
+    def update_psc(self, suffix, curr, last, plr=False):
         """Pitstop count"""
         if curr != last:
-            getattr(self, f"row_{suffix}").config(text=self.set_pitcount(curr))
+            if self.wcfg["show_pit_request"] and curr[1] == 1:
+                color = {"fg":self.wcfg["font_color_pit_request"],
+                         "bg":self.wcfg["bkg_color_pit_request"]}
+            elif plr:
+                color = {"fg":self.wcfg["font_color_player"],
+                         "bg":self.wcfg["bkg_color_player_pitstop_count"]}
+            else:
+                color = {"fg":self.wcfg["font_color_pitstop_count"],
+                         "bg":self.wcfg["bkg_color_pitstop_count"]}
+
+            getattr(self, f"row_{suffix}").config(color, text=self.set_pitcount(curr[0]))
 
     # Additional methods
     def color_lapdiff(self, is_lapped):

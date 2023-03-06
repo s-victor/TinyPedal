@@ -1,3 +1,21 @@
+WIP
+-----------------------------
+* Relative Widget
+    - [New]Add "show_pit_request" option in JSON,
+      which shows pit request color indicator on pitstop count column.
+    - [New]Add "show_pit_timer" option in JSON,
+      which show pit timer on last laptime column.
+    - [New]Add "pit_time_highlight_duration" option in JSON,
+      which sets highlight duration for total amount time spent in pit after exit pit.
+
+* pyRfactor2SharedMemory library
+    - Corrected "ctypes data types" in rF2data.py to match "C data types" in rF2State.h from Sharedmemory Plugin.
+    - Reverted back to mIsPlayer finding method, removed unused code.
+    - Auto set driving status to False after 3 seconds without receiving new data.
+
+* Misc
+    - Updated customization guide with new configurable options for Relative Widget.
+
 1.11.3 (2023-02-26)
 -----------------------------
 * Radar Widget

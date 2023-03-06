@@ -95,10 +95,10 @@ class Draw(Widget, MouseEvent):
                 self.bar_rpm.grid(row=0, column=column_rpm, padx=(0, bar_gap), pady=0)
 
         # Last data
-        self.last_temp_oil = 0
-        self.last_temp_water = 0
-        self.last_e_turbo = 0
-        self.last_e_rpm = 0
+        self.last_temp_oil = None
+        self.last_temp_water = None
+        self.last_e_turbo = None
+        self.last_e_rpm = None
 
         # Start updating
         self.update_data()

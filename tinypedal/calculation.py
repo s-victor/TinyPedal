@@ -159,6 +159,11 @@ def sec2laptime(seconds):
     return f"{divmod(seconds, 60)[1]:.03f}"
 
 
+def sec2laptime_full(seconds):
+    """Calculate lap time (min/sec/ms) full"""
+    return f"{seconds // 60:.0f}:{divmod(seconds, 60)[1]:06.03f}"
+
+
 def sec2stinttime(seconds):
     """Calculate lap time (min/sec/ms)"""
     return f"{seconds // 60:02.0f}:{divmod(seconds, 60)[1]:02.0f}"

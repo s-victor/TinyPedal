@@ -481,6 +481,15 @@ Set custom tire compound index letter. One letter corresponds to one compound in
     show_pitstop_count
 Show each driver's pitstop count.
 
+    show_pit_request
+Show pit request color indicator on pitstop count column.
+
+    show_pit_timer
+Show pit timer on last laptime column.
+
+    pit_time_highlight_duration
+Set highlight duration for total amount time spent in pit after exit pit.
+
     additional_players_front, additional_players_behind
 Set additional players shown on relative list. Each value is limited to a maximum of 60 additional players (for a total of 120 additional players). Default value is `0`.
 

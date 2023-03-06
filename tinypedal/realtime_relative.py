@@ -36,6 +36,7 @@ class RelativeInfo:
         self.radar_list = None
         self.running = False
         self.stopped = True
+        self.pit_time_list = [[0,-1,0] for _ in range(128)]
 
     def start(self):
         """Start calculation thread"""
@@ -133,8 +134,7 @@ class RelativeInfo:
                       is_lapped)
 
             # 2 Lap time
-            raw_laptime = chknm(info.LastScor.mVehicles[index].mLastLapTime)
-            laptime = calc.sec2laptime(raw_laptime)[:9].rjust(9) if raw_laptime > 0 else "--:--.---"
+            laptime = self.calc_lap_pit_time(index)
 
             # 3 Vehicle position in class
             pos_class = f"{veh_class_info[index][1]:02d}"
@@ -153,13 +153,12 @@ class RelativeInfo:
                         chknm(info.LastTele.mVehicles[index].mRearTireCompoundIndex))
 
             # 9 Pitstop count
-            pit_count = chknm(info.LastScor.mVehicles[index].mNumPitstops)
+            pit_count = (chknm(info.LastScor.mVehicles[index].mNumPitstops),
+                         chknm(info.LastScor.mVehicles[index].mPitState))
 
-        else:
-            # Assign empty value to -1 player index
-            (place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit, tire_idx, pit_count
-             ) = ("",0), ("","",0), "", "", "", ("",0), 0, 0, 0, -1
-        return place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit, tire_idx, pit_count
+            return place, driver, laptime, pos_class, veh_class, time_gap, num_lap, in_pit, tire_idx, pit_count
+        # Assign empty value to -1 player index
+        return ("",0), ("","",0), "", "", "", ("",0), 0, 0, 0, (-1,0)
 
     @staticmethod
     def calc_relative_index(veh_dict, plr_index, add_front, add_behind):
@@ -239,19 +238,48 @@ class RelativeInfo:
         rel_dist = self.calc_relative_dist(index, index_player)
         # Time gap = Relative dist / player speed
         speed_plr = calc.vel2speed(
-                    chknm(info.LastScor.mVehicles[index_player].mLocalVel.x),
-                    chknm(info.LastScor.mVehicles[index_player].mLocalVel.y),
-                    chknm(info.LastScor.mVehicles[index_player].mLocalVel.z))
+                    chknm(info.LastTele.mVehicles[index_player].mLocalVel.x),
+                    chknm(info.LastTele.mVehicles[index_player].mLocalVel.y),
+                    chknm(info.LastTele.mVehicles[index_player].mLocalVel.z))
         speed_opt = calc.vel2speed(
-                    chknm(info.LastScor.mVehicles[index].mLocalVel.x),
-                    chknm(info.LastScor.mVehicles[index].mLocalVel.y),
-                    chknm(info.LastScor.mVehicles[index].mLocalVel.z))
+                    chknm(info.LastTele.mVehicles[index].mLocalVel.x),
+                    chknm(info.LastTele.mVehicles[index].mLocalVel.y),
+                    chknm(info.LastTele.mVehicles[index].mLocalVel.z))
         speed = max(speed_plr, speed_opt)
-        if round(speed, 1) > 0:
-            time_gap = f"{abs(rel_dist / speed):.01f}"
-        else:
-            time_gap = "0.0"
-        return time_gap
+        if int(speed):
+            return f"{abs(rel_dist / speed):.01f}"
+        return "0.0"
+
+    def calc_lap_pit_time(self, index):
+        """Calculate lap & pit time"""
+        raw_laptime = chknm(info.LastScor.mVehicles[index].mLastLapTime)
+        laptime_format = calc.sec2laptime_full(raw_laptime)[:8].rjust(8)
+
+        if self.cfg.setting_user["relative"]["show_pit_timer"]:
+            in_pit = chknm(info.LastScor.mVehicles[index].mInPits)
+            lap_etime = chknm(info.LastTele.mVehicles[index].mElapsedTime)
+            pit_status = in_pit * 1000 + chknm(info.LastTele.mVehicles[index].mID)
+
+            if pit_status != self.pit_time_list[index][0]:
+                self.pit_time_list[index][0] = pit_status  # last pit status
+                self.pit_time_list[index][1] = lap_etime  # last etime stamp
+
+            if chknm(info.LastScor.mVehicles[index].mInGarageStall):
+                self.pit_time_list[index][1] = -1
+                self.pit_time_list[index][2] = 0
+
+            if self.pit_time_list[index][1] >= 0:
+                pit_time = min(max(lap_etime - self.pit_time_list[index][1], 0), 999.9)
+
+                if in_pit:
+                    raw_laptime = pit_time
+                    self.pit_time_list[index][2] = pit_time
+                    laptime_format = "PIT" + f"{raw_laptime:.01f}"[:5].rjust(5)
+                elif pit_time <= self.cfg.setting_user["relative"]["pit_time_highlight_duration"]:
+                    raw_laptime = self.pit_time_list[index][2]
+                    laptime_format = "OUT" + f"{raw_laptime:.01f}"[:5].rjust(5)
+
+        return laptime_format if raw_laptime > 0 else "-:--.---"
 
     @staticmethod
     def vehicle_gps(index_list, index_player):

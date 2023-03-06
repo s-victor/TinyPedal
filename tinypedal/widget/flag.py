@@ -164,7 +164,7 @@ class Draw(Widget, MouseEvent):
         self.last_pit_limiter = None
         self.last_blue_flag = None
         self.blue_flag_timer_start = None
-        self.last_blue_flag_timer = 0
+        self.last_blue_flag_timer = None
         self.last_yellow_flag = None
         self.last_start_timer = None
         self.last_lap_stime = 0
@@ -290,7 +290,7 @@ class Draw(Widget, MouseEvent):
                 self.last_pit_limiter = None
                 self.last_blue_flag = None
                 self.blue_flag_timer_start = None
-                self.last_blue_flag_timer = 0
+                self.last_blue_flag_timer = None
                 self.last_yellow_flag = None
                 self.last_start_timer = None
                 self.last_lap_stime = 0
