@@ -182,11 +182,11 @@ class Draw(Widget, MouseEvent):
         # Last data
         self.last_tcmpd = [None] * 2
         if self.wcfg["ICO_mode"]:
-            self.last_stemp = [[None] * 3 for _ in range(4)]
-            self.last_itemp = [[None] * 3 for _ in range(4)]
+            self.last_stemp = [[-273.15] * 3 for _ in range(4)]
+            self.last_itemp = [[-273.15] * 3 for _ in range(4)]
         else:
-            self.last_stemp = [None] * 4
-            self.last_itemp = [None] * 4
+            self.last_stemp = [-273.15] * 4
+            self.last_itemp = [-273.15] * 4
 
         # Start updating
         self.update_data()
@@ -265,7 +265,7 @@ class Draw(Widget, MouseEvent):
     # GUI update methods
     def update_temp(self, suffix, curr, last):
         """Tyre temperature"""
-        if curr != last:
+        if round(curr) != round(last):
             if self.wcfg["color_swap_temperature"] == "0":
                 stemp_color = {"fg":self.color_heatmap(curr)}
             else:
@@ -274,7 +274,7 @@ class Draw(Widget, MouseEvent):
             sign = "°" if self.wcfg["show_degree_sign"] else ""
 
             getattr(self, f"bar_{suffix}").config(
-                stemp_color, text=f"{curr:0{self.leading_zero}.0f}{sign}")
+                stemp_color, text=f"{self.temp_units(curr):0{self.leading_zero}.0f}{sign}")
 
     def update_tcmpd(self, curr, last):
         """Tyre compound"""
@@ -286,14 +286,14 @@ class Draw(Widget, MouseEvent):
     def temp_mode(self, value):
         """Temperature inner/center/outer mode"""
         if self.wcfg["ICO_mode"]:
-            return tuple(map(self.temp_units, value))
-        return self.temp_units(sum(value) / 3)
+            return value
+        return sum(value) / 3
 
     def temp_units(self, value):
         """Temperature units"""
         if self.wcfg["temp_unit"] == "0":
-            return round(value - 273.15)
-        return round(calc.celsius2fahrenheit(value - 273.15))
+            return value
+        return calc.celsius2fahrenheit(value)
 
     def set_tyre_cmp(self, tc_index):
         """Substitute tyre compound index with custom chars"""

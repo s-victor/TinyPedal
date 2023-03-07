@@ -561,8 +561,17 @@ Set gap between each scale mark in degree. Default is `90` degree. Minimum value
 
 
 ## Stint
+    layout
+2 layouts are available: `0` = vertical layout, `1` = reversed vertical layout.
+
     tyre_compound_list
 Set custom tire compound index letter. One letter corresponds to one compound index.
+
+    stint_history_count
+Set the number of stint history display. Default is to show `2` most recent stints.
+
+    minimum_stint_threshold_minutes
+Set the minimum stint time threshold in minutes for updating stint history. This only affects ESC.
 
 
 ## Suspension

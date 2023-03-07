@@ -1,5 +1,8 @@
-WIP
+1.11.4 (2023-03-07)
 -----------------------------
+* Brake Widget
+    - Fixed wrong heatmap color display for Fahrenheit temperature unit.
+
 * Relative Widget
     - [New]Add "show_pit_request" option in JSON,
       which shows pit request color indicator on pitstop count column.
@@ -8,13 +11,25 @@ WIP
     - [New]Add "pit_time_highlight_duration" option in JSON,
       which sets highlight duration for total amount time spent in pit after exit pit.
 
+* Stint Widget
+    - [New]Add "stint_history_count" option in JSON,
+      which sets the number of stint history display. Default is to show 2 most recent stints.
+    - [New]Add "minimum_stint_threshold_minutes" option in JSON,
+      which sets the minimum stint time threshold in minutes for updating stint history.
+      This only affects ESC.
+    - [New]Add "layout" option with 2 available layouts: vertical & reversed vertical.
+    - Only update data when not in garage.
+
+* Temperature Widget
+    - Fixed wrong heatmap color display for Fahrenheit temperature unit.
+
 * pyRfactor2SharedMemory library
     - Corrected "ctypes data types" in rF2data.py to match "C data types" in rF2State.h from Sharedmemory Plugin.
     - Reverted back to mIsPlayer finding method, removed unused code.
     - Auto set driving status to False after 3 seconds without receiving new data.
 
 * Misc
-    - Updated customization guide with new configurable options for Relative Widget.
+    - Updated customization guide with new configurable options for Relative & Stint Widget.
 
 1.11.3 (2023-02-26)
 -----------------------------

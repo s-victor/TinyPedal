@@ -43,7 +43,11 @@ class Draw(Widget, MouseEvent):
         bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
         bar_gap = self.wcfg["bar_gap"]
         inner_gap = self.wcfg["inner_gap"]
-        bar_width = 4 if self.wcfg["show_degree_sign"] else 3
+
+        if self.wcfg["temp_unit"] == "0":
+            bar_width = 4 if self.wcfg["show_degree_sign"] else 3
+        else:
+            bar_width = 5 if self.wcfg["show_degree_sign"] else 4
 
         # Config style & variable
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
@@ -105,7 +109,7 @@ class Draw(Widget, MouseEvent):
         self.btavg_samples = 1  # number of temperature samples
         self.highlight_timer_start = 0  # sector timer start
 
-        self.last_btemp = [0] * 4
+        self.last_btemp = [-273.15] * 4
         self.last_btavg = [0] * 4
 
         # Start updating
@@ -123,7 +127,7 @@ class Draw(Widget, MouseEvent):
                 self.checked = True
 
             # Read brake temperature data
-            btemp = tuple(map(self.temp_units, read_data.brake_temp()))
+            btemp = read_data.brake_temp()
 
             # Brake temperature
             self.update_btemp("btemp_fl", btemp[0], self.last_btemp[0])
@@ -186,7 +190,7 @@ class Draw(Widget, MouseEvent):
     # GUI update methods
     def update_btemp(self, suffix, curr, last):
         """Brake temperature"""
-        if curr != last:
+        if round(curr) != round(last):
             if self.wcfg["color_swap_temperature"] == "0":
                 btemp_color = {"bg":self.color_heatmap(curr)}
             else:
@@ -195,11 +199,11 @@ class Draw(Widget, MouseEvent):
             sign = "°" if self.wcfg["show_degree_sign"] else ""
 
             getattr(self, f"bar_{suffix}").config(
-                btemp_color, text=f"{curr:0{self.leading_zero}.0f}{sign}")
+                btemp_color, text=f"{self.temp_units(curr):0{self.leading_zero}.0f}{sign}")
 
     def update_btavg(self, suffix, curr, last, highlighted=0):
         """Brake average temperature"""
-        if curr != last:
+        if round(curr) != round(last):
             if highlighted:
                 color = {"fg":self.wcfg["font_color_average_highlighted"],
                          "bg":self.wcfg["bkg_color_average_highlighted"]}
@@ -210,14 +214,14 @@ class Draw(Widget, MouseEvent):
             sign = "°" if self.wcfg["show_degree_sign"] else ""
 
             getattr(self, f"bar_{suffix}").config(
-                color, text=f"{curr:02.0f}{sign}")
+                color, text=f"{self.temp_units(curr):02.0f}{sign}")
 
     # Additional methods
     def temp_units(self, value):
         """Temperature units"""
         if self.wcfg["temp_unit"] == "0":
-            return round(value - 273.15)
-        return round(calc.celsius2fahrenheit(value - 273.15))
+            return value
+        return calc.celsius2fahrenheit(value)
 
     @staticmethod
     def color_heatmap(temp):

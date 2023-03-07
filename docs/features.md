@@ -91,11 +91,11 @@
 - Show driver standings, relative position and time gap against up 126 nearby players.
 - Show driver name, vehicle name.
 - Show different text color based on laps ahead or behind you.
-- Show driver's last laptime (optional).
-- Show vehicle class categories (optional) with fully customizable class name and color.
+- Show driver's last laptime and pit timer.
+- Show vehicle class categories with fully customizable class name and color.
 - Show driver's position standing in class.
 - Show tyre compound index, with customizable letter.
-- Show pitstops count.
+- Show pitstops count, pit request.
 - Show pit status indicator whether driver is currently in pit, with customizable pit status text.
 - Customizable column info display order.
 
@@ -122,12 +122,12 @@
 - Show scale marks (optional), with customizable gap.
 
 ## Stint
-- Show realtime stint data, as well as last stint data.
+- Show realtime stint data, as well as stint history.
 - Show front & rear tire compound index, with customizable letter.
 - Show total driven laps.
 - Show total driven time (min:sec).
 - Show total used fuel (in liters or gallons).
-- Show total average tire wear.
+- Show total average tire wear (percentage).
 
 ## Suspension
 - Show ride height (millimeter).

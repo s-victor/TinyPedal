@@ -169,7 +169,8 @@ def stint():
     wear_curr = [chknm(info.syncedVehicleTelemetry().mWheels[data].mWear) for data in range(4)]
     time_curr = chknm(info.LastScor.mScoringInfo.mCurrentET)
     inpits = chknm(info.syncedVehicleScoring().mInPits)
-    return lap_num, wear_curr, time_curr, inpits
+    ingarage = chknm(info.syncedVehicleScoring().mInGarageStall)
+    return lap_num, wear_curr, time_curr, inpits, ingarage
 
 
 def tyre_compound():
@@ -203,18 +204,18 @@ def brake_pressure():
 
 def brake_temp():
     """Brake temperature data"""
-    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mBrakeTemp) for data in range(4)]
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mBrakeTemp) - 273.15 for data in range(4)]
 
 
 def tyre_temp_surface():
     """Tyre surface temperature data"""
-    return [[chknm(info.syncedVehicleTelemetry().mWheels[tyre].mTemperature[data])
+    return [[chknm(info.syncedVehicleTelemetry().mWheels[tyre].mTemperature[data]) - 273.15
              for data in range(3)] for tyre in range(4)]
 
 
 def tyre_temp_innerlayer():
     """Tyre inner layer temperature data"""
-    return [[chknm(info.syncedVehicleTelemetry().mWheels[tyre].mTireInnerLayerTemperature[data])
+    return [[chknm(info.syncedVehicleTelemetry().mWheels[tyre].mTireInnerLayerTemperature[data]) - 273.15
              for data in range(3)] for tyre in range(4)]
 
 

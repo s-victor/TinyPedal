@@ -90,7 +90,7 @@ class RelativeInfo:
 
                     unsorted_veh_class.append((vehclass,  # 0 vehicle class name
                                                place,     # 1 overall position
-                                               index     # 2 player index
+                                               index      # 2 player index
                                                ))
                     unique_veh_class.append(vehclass)
 
@@ -199,19 +199,19 @@ class RelativeInfo:
         # Create vehicle class reference list (vehicle index, position in class, class name, place)
         veh_class_info = []
         pos_counter = 0  # position in class
-        for index in range(len(sorted_veh_class)):  # loop through sorted vehicle class list
-            for unique_idx in range(len(unique_veh_class)):  # unique vehicle class range
-                if sorted_veh_class[index][0] == unique_veh_class[unique_idx]:
-                    if unique_initial_class == unique_veh_class[unique_idx]:
+        for veh_sort in sorted_veh_class:  # loop through sorted vehicle class list
+            for veh_uniq in unique_veh_class:  # unique vehicle class range
+                if veh_sort[0] == veh_uniq:
+                    if unique_initial_class == veh_uniq:
                         pos_counter += 1
                     else:
                         pos_counter = 1  # reset position counter
-                        unique_initial_class = unique_veh_class[unique_idx]  # reset init name
+                        unique_initial_class = veh_uniq  # reset init name
 
-                    veh_class_info.append((sorted_veh_class[index][2],       # 0 - 2 player index
-                                           pos_counter,                      # 1 - position in class
-                                           unique_veh_class[unique_idx],     # 2 - 0 vehicle class name
-                                           sorted_veh_class[index][1]        # 3 - 1 overall position
+                    veh_class_info.append((veh_sort[2],  # 0 - 2 player index
+                                           pos_counter,  # 1 - position in class
+                                           veh_uniq,     # 2 - 0 vehicle class name
+                                           veh_sort[1]   # 3 - 1 overall position
                                            ))
         return sorted(veh_class_info)
 
