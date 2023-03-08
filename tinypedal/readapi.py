@@ -48,7 +48,7 @@ cs2py = Cbytestring2Python
 
 def state():
     """Check whether is driving"""
-    return info.syncedVehicleTelemetry().mIgnitionStarter != 0
+    return info.syncedVehicleTelemetry().mIgnitionStarter
 
 
 def combo_check():

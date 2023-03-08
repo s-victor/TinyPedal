@@ -1,3 +1,15 @@
+1.11.5 (2023-03-08)
+-----------------------------
+* pyRfactor2SharedMemory library
+    - Fixed a data freeze issue that caused by mismatched player's index between rF2Scoring & rF2Telemetry.
+    - Now keeps two separate player's index values of the same local player, one for rF2Scoring, one for rF2Telemetry.
+    - Add new mID matching method that uses rF2Scoring player's index
+      to match the same mID and retrieves correct player's index in rF2Telemetry,
+      which can also be used to match remote player's index in rF2Telemetry.
+
+* Core
+    - Updated relative module to use the new mID matching method.
+
 1.11.4 (2023-03-07)
 -----------------------------
 * Brake Widget
