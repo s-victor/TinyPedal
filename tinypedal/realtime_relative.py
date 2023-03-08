@@ -288,10 +288,8 @@ class RelativeInfo:
     @staticmethod
     def vehicle_gps(index_list, index_player):
         """Player orientation yaw & global position"""
-        tele_index_player = info.find_player_index_tele(index_player)
-
         veh_gps = []
-        plr_lapnum = chknm(info.LastTele.mVehicles[tele_index_player].mLapNumber)
+        plr_lapnum = chknm(info.LastScor.mVehicles[index_player].mTotalLaps)
         for index in index_list:
             tele_index = info.find_player_index_tele(index)
             # Orientation, pos x z, is lapped
@@ -299,7 +297,7 @@ class RelativeInfo:
                                             chknm(info.LastTele.mVehicles[tele_index].mOri[2].x)),
                             chknm(info.LastTele.mVehicles[tele_index].mPos.x * 10),
                             chknm(info.LastTele.mVehicles[tele_index].mPos.z * 10),
-                            chknm(info.LastTele.mVehicles[tele_index].mLapNumber) - plr_lapnum
+                            chknm(info.LastScor.mVehicles[index].mTotalLaps) - plr_lapnum
                             ))
         return veh_gps
 
