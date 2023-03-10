@@ -84,8 +84,9 @@
 - Show car radar that displays relative position of player's vehicle against up 126 nearby vehicles.
 - Vehicle changes color if is laps ahead or behind player.
 - Fully customizable size & scale.
-- Default refresh rate at 50 fps.
+- Auto hide when no nearby vehicles.
 - Show center mark.
+- Show distance circle.
 
 ## Relative
 - Show driver standings, relative position and time gap against up 126 nearby players.

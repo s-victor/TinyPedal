@@ -40,9 +40,9 @@ class Draw(Widget, MouseEvent):
         # Config size & position
         self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
 
-        self.base_size = 100 * max(self.wcfg["area_scale"], 0.5)
-        self.veh_width = max(int(self.wcfg["vehicle_width"] * 5 * self.wcfg["vehicle_scale"]), 1)
-        self.veh_length = max(int(self.wcfg["vehicle_length"] * 5 * self.wcfg["vehicle_scale"]), 2)
+        self.base_size = max(self.wcfg["radar_radius"], 5) * 10 * self.wcfg["radar_scale"]
+        self.veh_width = max(int(self.wcfg["vehicle_width"] * 5 * self.wcfg["radar_scale"]), 1)
+        self.veh_length = max(int(self.wcfg["vehicle_length"] * 5 * self.wcfg["radar_scale"]), 2)
 
         # Coordinates for drawing player vehicle
         plr_rect_coord = (self.base_size - self.veh_width,
@@ -63,10 +63,35 @@ class Draw(Widget, MouseEvent):
         self.bar_radar.grid(row=0, column=0, padx=0, pady=0)
 
         if self.wcfg["show_center_mark"]:
-            self.bar_radar.create_line(self.base_size, 0, self.base_size, self.base_size * 2,
+            mark_scale = self.wcfg["center_mark_radius"] * 10 * self.wcfg["radar_scale"]
+            self.bar_radar.create_line(self.base_size,
+                                       self.base_size - mark_scale,
+                                       self.base_size,
+                                       self.base_size + mark_scale - 1,
                                        fill=self.wcfg["center_mark_color"], dash=(2, 2))
-            self.bar_radar.create_line(0, self.base_size, self.base_size * 2, self.base_size,
+            self.bar_radar.create_line(self.base_size - mark_scale,
+                                       self.base_size,
+                                       self.base_size + mark_scale - 1,
+                                       self.base_size,
                                        fill=self.wcfg["center_mark_color"], dash=(2, 2))
+
+        if self.wcfg["show_distance_circle"]:
+            circle_scale1 = self.wcfg["distance_circle_1_radius"] * 10 * self.wcfg["radar_scale"]
+            if self.wcfg["distance_circle_1_radius"] < self.wcfg["radar_radius"]:
+                self.bar_radar.create_oval(self.base_size - circle_scale1,
+                                           self.base_size - circle_scale1,
+                                           self.base_size + circle_scale1 - 1,
+                                           self.base_size + circle_scale1 - 1,
+                                           fill="", dash=(2, 2),
+                                           outline=self.wcfg["distance_circle_color"])
+            circle_scale2 = self.wcfg["distance_circle_2_radius"] * 10 * self.wcfg["radar_scale"]
+            if self.wcfg["distance_circle_2_radius"] < self.wcfg["radar_radius"]:
+                self.bar_radar.create_oval(self.base_size - circle_scale2,
+                                           self.base_size - circle_scale2,
+                                           self.base_size + circle_scale2 - 1,
+                                           self.base_size + circle_scale2 - 1,
+                                           fill="", dash=(2, 2),
+                                           outline=self.wcfg["distance_circle_color"])
 
         self.poly_plr = self.bar_radar.create_rectangle(
                         plr_rect_coord,
@@ -95,6 +120,9 @@ class Draw(Widget, MouseEvent):
                 setattr(self, f"last_veh_lap_r_{idx:02.0f}", None)
                 setattr(self, f"last_veh_pos_r_{idx:02.0f}", None)
 
+        # Last data
+        self.autohide_timer_start = 1
+
         # Start updating
         self.update_data()
 
@@ -111,6 +139,10 @@ class Draw(Widget, MouseEvent):
             # Read orientation & position data
             veh_center = int(3 + self.veh_add_front)
             veh_gps = module.relative_info.vehicle_gps(rel_idx, rel_idx[veh_center])
+
+            # Auto hide radar if no nearby vehicles
+            if self.wcfg["auto_hide"]:
+                self.autohide_radar()
 
             # Data index reference:
             # 1 position coordinates, 2 orientation, 3 is lapped
@@ -207,8 +239,8 @@ class Draw(Widget, MouseEvent):
     def update_veh_pos(self, plr_pos, opt_pos, opt_ori):
         """Update vehicle coordinates"""
         # Relative distance towards player vehicle
-        pos_x_diff = (plr_pos[0] - opt_pos[0]) * self.wcfg["vehicle_scale"] + self.base_size
-        pos_y_diff = (plr_pos[1] - opt_pos[1]) * self.wcfg["vehicle_scale"] + self.base_size
+        pos_x_diff = (plr_pos[0] - opt_pos[0]) * self.wcfg["radar_scale"] + self.base_size
+        pos_y_diff = (plr_pos[1] - opt_pos[1]) * self.wcfg["radar_scale"] + self.base_size
 
         # Rotate opponent vehicle coordinates
         coord1 = calc.rotate_pos(opt_ori, -self.veh_width, -self.veh_length)
@@ -236,3 +268,18 @@ class Draw(Widget, MouseEvent):
         if is_lapped < 0:
             return self.wcfg["opponent_color_laps_behind"]
         return self.wcfg["opponent_color"]
+
+    def autohide_radar(self):
+        """Auto hide radar if no nearby vehicles"""
+        lap_etime, ingarage = read_data.radar()
+
+        if module.relative_info.nearest_opt_dist < self.wcfg["minimum_auto_hide_distance"] or ingarage:
+            if not self.autohide_timer_start:
+                self.bar_radar.grid()
+            self.autohide_timer_start = lap_etime
+
+        if self.autohide_timer_start:
+            autohide_timer = lap_etime - self.autohide_timer_start
+            if autohide_timer > self.wcfg["auto_hide_time_threshold"]:
+                self.bar_radar.grid_remove()
+                self.autohide_timer_start = 0

@@ -1,3 +1,27 @@
+WIP
+-----------------------------
+* Radar Widget
+    - Add "auto_hide" option in JSON (default ON),
+      which auto hides radar display when no nearby vehicles.
+    - Add "auto_hide_time_threshold" option,
+      which sets amount time(unit second) before triggering auto hide.
+    - Add "minimum_auto_hide_distance" option,
+      which sets minimum straight line distance(unit meter) before triggering auto hide.
+    - Replaced "vehicle_scale" with new "radar_scale",
+      which sets global scale of radar display.
+    - Replaced "area_scale" with new "radar_radius",
+      which sets radar display area by radius(unit meter).
+    - Add "center_mark_radius" option,
+      which sets center mark size by radius(unit meter).
+    - Add "show_distance_circle" option,
+      which shows 2 distance circles for distance reference.
+    - Add "distance_circle_1_radius" & "distance_circle_2_radius" option,
+      which sets distance circle size by radius(unit meter).
+      Distance circle will not be displayed if radius is smaller than "radar_radius".
+
+* Misc
+    - Updated customization guide with new configurable options for Radar Widget.
+
 1.11.5 (2023-03-08)
 -----------------------------
 * pyRfactor2SharedMemory library
@@ -19,7 +43,7 @@
     - [New]Add "show_pit_request" option in JSON,
       which shows pit request color indicator on pitstop count column.
     - [New]Add "show_pit_timer" option in JSON,
-      which show pit timer on last laptime column.
+      which shows pit timer on last laptime column.
     - [New]Add "pit_time_highlight_duration" option in JSON,
       which sets highlight duration for total amount time spent in pit after exit pit.
 

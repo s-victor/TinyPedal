@@ -143,6 +143,13 @@ def lap_timestamp():
     return lap_stime, lap_etime
 
 
+def radar():
+    """Radar data"""
+    lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
+    ingarage = chknm(info.syncedVehicleScoring().mInGarageStall)
+    return lap_etime, ingarage
+
+
 def startlights():
     """Startlights data"""
     lights_frame = chknm(info.LastScor.mScoringInfo.mStartLight)

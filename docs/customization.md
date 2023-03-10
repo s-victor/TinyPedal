@@ -399,14 +399,14 @@ Show percentage brake pressure of each wheel.
 
 
 ## Radar
-    area_scale
-Set radar area size multiplier. Higher value extends widget size & visible area. This value does not change vehicle size. Minimum value is limited to `0.5`.
+    radar_radius
+Set the radar display area by radius(unit meter). Default value is `25` meters. Minimum value is limited to `5`.
+
+    radar_scale
+Sets global scale of radar display. Default value is `0.6`, which is 60% of original size.
 
     vehicle_length, vehicle_width
 Set vehicle overall size (length & width), value in meters.
-
-    vehicle_scale
-Set vehicle size scale for displaying, this affects both vehicle size and relative distance between other vehicles (like zoom). Default value is `0.6`, which is 60% of original scale.
 
     bkg_color
 Set radar background color. Default value is `"#000002"`, which makes background fully transparent.
@@ -423,8 +423,26 @@ Set opponent vehicle color.
     opponent_color_laps_ahead, opponent_color_laps_behind
 Set color for opponent vehicle that is laps ahead or behind player vehicle.
 
+    auto_hide
+Auto hides radar display when no nearby vehicles.
+
+    auto_hide_time_threshold
+Set amount time(unit second) before triggering auto hide. Default value is `1` second.
+
+    minimum_auto_hide_distance
+Set minimum straight line distance(unit meter) before triggering auto hide. Default value is `25` meters.
+
     show_center_mark
 Show center mark on radar.
+
+    center_mark_radius
+Set center mark size by radius(unit meter).
+
+    show_distance_circle
+Show distance circles on radar for distance reference.
+
+    distance_circle_1_radius, distance_circle_2_radius
+Set circle size by radius(unit meter). Circle will not be displayed if radius is smaller than `radar_radius`.
 
     additional_vehicles_front, additional_vehicles_behind
 Set additional visible vehicles. Each value is limited to a maximum of 60 additional vehicles (for a total of 120 additional vehicles). Default value is `4`.

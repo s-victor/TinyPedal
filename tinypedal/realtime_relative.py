@@ -32,10 +32,12 @@ class RelativeInfo:
 
     def __init__(self, config):
         self.cfg = config
-        self.relative_list = None
-        self.radar_list = None
         self.running = False
         self.stopped = True
+
+        self.relative_list = None
+        self.radar_list = None
+        self.nearest_opt_dist = 99999
         self.pit_time_list = [[0,-1,0] for _ in range(128)]
 
     def start(self):
@@ -100,6 +102,8 @@ class RelativeInfo:
                 self.relative_list = (selected_index, veh_class_info, plr_index)
 
                 self.radar_list = self.calc_relative_index(veh_dict, plr_index, radar_add_front, radar_add_behind)
+
+                self.nearest_opt_dist = self.nearest_opponent_dist(self.radar_list, plr_index)
 
             else:
                 if checked:
@@ -300,6 +304,24 @@ class RelativeInfo:
                             chknm(info.LastScor.mVehicles[index].mTotalLaps) - plr_lapnum
                             ))
         return veh_gps
+
+    @staticmethod
+    def nearest_opponent_dist(index_list, index_player):
+        """Nearest opponent straight line distance"""
+        opt_dist = 99999
+        plr_pos = (chknm(info.LastScor.mVehicles[index_player].mPos.x),
+                   chknm(info.LastScor.mVehicles[index_player].mPos.z),
+                   0)
+        for index in index_list:
+            rel_dist = calc.pos2distance(
+                        plr_pos,
+                        (chknm(info.LastScor.mVehicles[index].mPos.x),
+                         chknm(info.LastScor.mVehicles[index].mPos.z),
+                         0),
+                        )
+            if index >= 0 and index != index_player and rel_dist < opt_dist:
+                opt_dist = rel_dist
+        return opt_dist
 
     @staticmethod
     def radar_pos(plr_gps, opt_gps, index):
