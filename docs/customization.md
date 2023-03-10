@@ -442,7 +442,7 @@ Set center mark size by radius(unit meter).
 Show distance circles on radar for distance reference.
 
     distance_circle_1_radius, distance_circle_2_radius
-Set circle size by radius(unit meter). Circle will not be displayed if radius is smaller than `radar_radius`.
+Set circle size by radius(unit meter). Circle will not be displayed if radius is bigger than `radar_radius`.
 
     additional_vehicles_front, additional_vehicles_behind
 Set additional visible vehicles. Each value is limited to a maximum of 60 additional vehicles (for a total of 120 additional vehicles). Default value is `4`.

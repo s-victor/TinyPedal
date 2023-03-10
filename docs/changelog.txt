@@ -18,7 +18,7 @@
       which shows 2 distance circles for distance reference.
     - Add "distance_circle_1_radius" & "distance_circle_2_radius" option,
       which sets distance circle size by radius(unit meter).
-      Distance circle will not be displayed if radius is smaller than "radar_radius".
+      Distance circle will not be displayed if radius is bigger than "radar_radius".
 
 * Misc
     - Updated customization guide with new configurable options for Radar Widget.
