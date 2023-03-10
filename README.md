@@ -83,8 +83,7 @@ To build executable file, run command:
 
 After building completed, you can find executable file in `dist\TinyPedal` folder.
 
-Note: for py2exe version older than `v0.12.0.0`, run following command instead:  
-`python build_py2exe.py py2exe`
+Note: the build script only supports py2exe `v0.12.0.0` or higher.
 
 
 ## Running on Linux

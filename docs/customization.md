@@ -430,7 +430,7 @@ Auto hides radar display when no nearby vehicles.
 Set amount time(unit second) before triggering auto hide. Default value is `1` second.
 
     minimum_auto_hide_distance
-Set minimum straight line distance(unit meter) before triggering auto hide. Default value is `25` meters.
+Set minimum straight line distance(unit meter) before triggering auto hide. Set `-1` value to auto scale with `radar_radius` value. Default value is `-1`.
 
     show_center_mark
 Show center mark on radar.

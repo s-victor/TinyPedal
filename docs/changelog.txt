@@ -1,4 +1,4 @@
-WIP
+1.11.6 (2023-03-10)
 -----------------------------
 * Radar Widget
     - Add "auto_hide" option in JSON (default ON),
@@ -7,6 +7,7 @@ WIP
       which sets amount time(unit second) before triggering auto hide.
     - Add "minimum_auto_hide_distance" option,
       which sets minimum straight line distance(unit meter) before triggering auto hide.
+      Set -1 value to auto scale with "radar_radius" value. Default value is -1.
     - Replaced "vehicle_scale" with new "radar_scale",
       which sets global scale of radar display.
     - Replaced "area_scale" with new "radar_radius",

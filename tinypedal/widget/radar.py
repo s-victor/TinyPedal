@@ -273,7 +273,7 @@ class Draw(Widget, MouseEvent):
         """Auto hide radar if no nearby vehicles"""
         lap_etime, ingarage = read_data.radar()
 
-        if module.relative_info.nearest_opt_dist < self.wcfg["minimum_auto_hide_distance"] or ingarage:
+        if self.nearby() or ingarage:
             if not self.autohide_timer_start:
                 self.bar_radar.grid()
             self.autohide_timer_start = lap_etime
@@ -283,3 +283,9 @@ class Draw(Widget, MouseEvent):
             if autohide_timer > self.wcfg["auto_hide_time_threshold"]:
                 self.bar_radar.grid_remove()
                 self.autohide_timer_start = 0
+
+    def nearby(self):
+        """Check nearby vehicles"""
+        if self.wcfg["minimum_auto_hide_distance"] == -1:
+            return module.relative_info.nearest_opt_dist < self.wcfg["radar_radius"]
+        return module.relative_info.nearest_opt_dist < self.wcfg["minimum_auto_hide_distance"]

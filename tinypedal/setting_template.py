@@ -397,7 +397,7 @@ SETTING_DEFAULT = {
         "opponent_color_laps_behind": "#00CCFF",
         "auto_hide": True,
         "auto_hide_time_threshold": 1,
-        "minimum_auto_hide_distance": 25,
+        "minimum_auto_hide_distance": -1,
         "show_center_mark": True,
         "center_mark_radius": 22,
         "center_mark_color": "#888888",
