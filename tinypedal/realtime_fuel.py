@@ -44,9 +44,9 @@ class FuelUsage:
         """Start calculation thread"""
         self.running = True
         self.stopped = False
-        fuel_thread = threading.Thread(target=self.__calculation)
-        fuel_thread.daemon=True
-        fuel_thread.start()
+        _thread = threading.Thread(target=self.__calculation)
+        _thread.daemon=True
+        _thread.start()
         print("fuel module started")
 
     def __calculation(self):
@@ -81,7 +81,7 @@ class FuelUsage:
             if state():
 
                 (lap_stime, laps_total, laps_left, time_left, amount_curr, capacity,
-                 inpits, pos_curr, elapsed_time, speed) = self.fuel_telemetry()
+                 inpits, pos_curr, elapsed_time, speed) = self.__telemetry()
 
                 # Save switch
                 if not verified:
@@ -207,8 +207,8 @@ class FuelUsage:
         return fuel
 
     @staticmethod
-    def fuel_telemetry():
-        """Fuel Telemetry data"""
+    def __telemetry():
+        """Telemetry data"""
         lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
         laps_total = chknm(info.LastScor.mScoringInfo.mMaxLaps)
         laps_left = laps_total - chknm(info.syncedVehicleScoring().mTotalLaps)

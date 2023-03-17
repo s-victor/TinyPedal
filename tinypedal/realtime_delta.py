@@ -44,9 +44,9 @@ class DeltaTime:
         """Start calculation thread"""
         self.running = True
         self.stopped = False
-        delta_thread = threading.Thread(target=self.__calculation)
-        delta_thread.daemon=True
-        delta_thread.start()
+        _thread = threading.Thread(target=self.__calculation)
+        _thread.daemon=True
+        _thread.start()
         print("delta module started")
 
     def __calculation(self):
@@ -80,7 +80,7 @@ class DeltaTime:
             if state():
 
                 (lap_stime, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase
-                 ) = self.delta_telemetry()
+                 ) = self.__telemetry()
 
                 # Read combo & best laptime
                 if not verified:
@@ -189,8 +189,8 @@ class DeltaTime:
         print("delta module closed")
 
     @staticmethod
-    def delta_telemetry():
-        """Delta telemetry data"""
+    def __telemetry():
+        """Telemetry data"""
         lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
         elapsed_time = chknm(info.syncedVehicleTelemetry().mElapsedTime)
         lastlap_check = chknm(info.syncedVehicleScoring().mLastLapTime)

@@ -133,7 +133,7 @@ def yellow_flag():
     return (chknm(info.LastScor.mScoringInfo.mSectorFlag[0]),
             chknm(info.LastScor.mScoringInfo.mSectorFlag[1]),
             chknm(info.LastScor.mScoringInfo.mSectorFlag[2]),
-            (2,0,1)[chknm(info.syncedVehicleScoring().mSector)])
+            (2,0,1)[min(max(chknm(info.syncedVehicleScoring().mSector), 2), 0)])
 
 
 def lap_timestamp():
@@ -291,7 +291,7 @@ def sector():
 
     Convert game sector index order to 0,1,2 for consistency.
     """
-    sector_idx = (2,0,1)[chknm(info.syncedVehicleScoring().mSector)]
+    sector_idx = (2,0,1)[min(max(chknm(info.syncedVehicleScoring().mSector), 2), 0)]
     curr_sector1 = chknm(info.syncedVehicleScoring().mCurSector1)
     curr_sector2 = chknm(info.syncedVehicleScoring().mCurSector2)
     last_sector2 = chknm(info.syncedVehicleScoring().mLastSector2)

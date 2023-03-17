@@ -191,10 +191,10 @@ class Draw(Widget, MouseEvent):
 
         for idx in range(1, self.veh_range):
             if idx < self.veh_add_front + 4:
-                setattr(self, f"last_veh_f_{idx:02.0f}", [None] * data_slots)
+                setattr(self, f"last_veh_f_{idx}", [None] * data_slots)
 
             if idx < self.veh_add_behind + 4:
-                setattr(self, f"last_veh_r_{idx:02.0f}", [None] * data_slots)
+                setattr(self, f"last_veh_r_{idx}", [None] * data_slots)
 
         # Start updating
         self.update_data()
@@ -206,13 +206,13 @@ class Draw(Widget, MouseEvent):
         """Generate data bar"""
         for idx in range(1, self.veh_range):
             if idx < self.veh_add_front + 4:
-                setattr(self, f"row_f_{idx:02.0f}_{suffix}", tk.Label(self, style))  # front row
-                getattr(self, f"row_f_{idx:02.0f}_{suffix}").grid(
+                setattr(self, f"row_f_{idx}_{suffix}", tk.Label(self, style))  # front row
+                getattr(self, f"row_f_{idx}_{suffix}").grid(
                     row=row_idx - idx, column=column_idx, padx=0, pady=(0, bar_gap))
 
             if idx < self.veh_add_behind + 4:
-                setattr(self, f"row_r_{idx:02.0f}_{suffix}", tk.Label(self, style))  # rear row
-                getattr(self, f"row_r_{idx:02.0f}_{suffix}").grid(
+                setattr(self, f"row_r_{idx}_{suffix}", tk.Label(self, style))  # rear row
+                getattr(self, f"row_r_{idx}_{suffix}").grid(
                     row=row_idx + idx, column=column_idx, padx=0, pady=(0, bar_gap))
 
     def update_data(self):
@@ -231,12 +231,12 @@ class Draw(Widget, MouseEvent):
             # Set opponent vehicle data: veh_f_**
             for idx in range(1, self.veh_range):
                 if idx < self.veh_add_front + 4:
-                    setattr(self, f"veh_f_{idx:02.0f}",
+                    setattr(self, f"veh_f_{idx}",
                             module.relative_info.relative_data(
                                 rel_idx[veh_center - idx], plr_idx, cls_info)
                             )
                 if idx < self.veh_add_behind + 4:
-                    setattr(self, f"veh_r_{idx:02.0f}",
+                    setattr(self, f"veh_r_{idx}",
                             module.relative_info.relative_data(
                                 rel_idx[veh_center + idx], plr_idx, cls_info)
                             )
@@ -248,14 +248,14 @@ class Draw(Widget, MouseEvent):
 
             for idx in range(1, self.veh_range):
                 if idx < self.veh_add_front + 4:
-                    self.update_plc(f"f_{idx:02.0f}_plc",
-                                    getattr(self, f"veh_f_{idx:02.0f}")[0],
-                                    getattr(self, f"last_veh_f_{idx:02.0f}")[0]
+                    self.update_plc(f"f_{idx}_plc",
+                                    getattr(self, f"veh_f_{idx}")[0],
+                                    getattr(self, f"last_veh_f_{idx}")[0]
                                     )
                 if idx < self.veh_add_behind + 4:
-                    self.update_plc(f"r_{idx:02.0f}_plc",
-                                    getattr(self, f"veh_r_{idx:02.0f}")[0],
-                                    getattr(self, f"last_veh_r_{idx:02.0f}")[0]
+                    self.update_plc(f"r_{idx}_plc",
+                                    getattr(self, f"veh_r_{idx}")[0],
+                                    getattr(self, f"last_veh_r_{idx}")[0]
                                     )
 
             # Driver name
@@ -263,14 +263,14 @@ class Draw(Widget, MouseEvent):
 
             for idx in range(1, self.veh_range):
                 if idx < self.veh_add_front + 4:
-                    self.update_drv(f"f_{idx:02.0f}_drv",
-                                    getattr(self, f"veh_f_{idx:02.0f}")[1],
-                                    getattr(self, f"last_veh_f_{idx:02.0f}")[1]
+                    self.update_drv(f"f_{idx}_drv",
+                                    getattr(self, f"veh_f_{idx}")[1],
+                                    getattr(self, f"last_veh_f_{idx}")[1]
                                     )
                 if idx < self.veh_add_behind + 4:
-                    self.update_drv(f"r_{idx:02.0f}_drv",
-                                    getattr(self, f"veh_r_{idx:02.0f}")[1],
-                                    getattr(self, f"last_veh_r_{idx:02.0f}")[1]
+                    self.update_drv(f"r_{idx}_drv",
+                                    getattr(self, f"veh_r_{idx}")[1],
+                                    getattr(self, f"last_veh_r_{idx}")[1]
                                     )
 
             # Vehicle laptime
@@ -279,14 +279,14 @@ class Draw(Widget, MouseEvent):
 
                 for idx in range(1, self.veh_range):
                     if idx < self.veh_add_front + 4:
-                        self.update_lpt(f"f_{idx:02.0f}_lpt",
-                                        getattr(self, f"veh_f_{idx:02.0f}")[2],
-                                        getattr(self, f"last_veh_f_{idx:02.0f}")[2]
+                        self.update_lpt(f"f_{idx}_lpt",
+                                        getattr(self, f"veh_f_{idx}")[2],
+                                        getattr(self, f"last_veh_f_{idx}")[2]
                                         )
                     if idx < self.veh_add_behind + 4:
-                        self.update_lpt(f"r_{idx:02.0f}_lpt",
-                                        getattr(self, f"veh_r_{idx:02.0f}")[2],
-                                        getattr(self, f"last_veh_r_{idx:02.0f}")[2]
+                        self.update_lpt(f"r_{idx}_lpt",
+                                        getattr(self, f"veh_r_{idx}")[2],
+                                        getattr(self, f"last_veh_r_{idx}")[2]
                                         )
 
             # Vehicle position in class
@@ -295,14 +295,14 @@ class Draw(Widget, MouseEvent):
 
                 for idx in range(1, self.veh_range):
                     if idx < self.veh_add_front + 4:
-                        self.update_pic(f"f_{idx:02.0f}_pic",
-                                        getattr(self, f"veh_f_{idx:02.0f}")[3],
-                                        getattr(self, f"last_veh_f_{idx:02.0f}")[3]
+                        self.update_pic(f"f_{idx}_pic",
+                                        getattr(self, f"veh_f_{idx}")[3],
+                                        getattr(self, f"last_veh_f_{idx}")[3]
                                         )
                     if idx < self.veh_add_behind + 4:
-                        self.update_pic(f"r_{idx:02.0f}_pic",
-                                        getattr(self, f"veh_r_{idx:02.0f}")[3],
-                                        getattr(self, f"last_veh_r_{idx:02.0f}")[3]
+                        self.update_pic(f"r_{idx}_pic",
+                                        getattr(self, f"veh_r_{idx}")[3],
+                                        getattr(self, f"last_veh_r_{idx}")[3]
                                         )
 
             # Vehicle class
@@ -311,14 +311,14 @@ class Draw(Widget, MouseEvent):
 
                 for idx in range(1, self.veh_range):
                     if idx < self.veh_add_front + 4:
-                        self.update_cls(f"f_{idx:02.0f}_cls",
-                                        getattr(self, f"veh_f_{idx:02.0f}")[4],
-                                        getattr(self, f"last_veh_f_{idx:02.0f}")[4]
+                        self.update_cls(f"f_{idx}_cls",
+                                        getattr(self, f"veh_f_{idx}")[4],
+                                        getattr(self, f"last_veh_f_{idx}")[4]
                                         )
                     if idx < self.veh_add_behind + 4:
-                        self.update_cls(f"r_{idx:02.0f}_cls",
-                                        getattr(self, f"veh_r_{idx:02.0f}")[4],
-                                        getattr(self, f"last_veh_r_{idx:02.0f}")[4]
+                        self.update_cls(f"r_{idx}_cls",
+                                        getattr(self, f"veh_r_{idx}")[4],
+                                        getattr(self, f"last_veh_r_{idx}")[4]
                                         )
 
             # Time gap
@@ -326,14 +326,14 @@ class Draw(Widget, MouseEvent):
 
             for idx in range(1, self.veh_range):
                 if idx < self.veh_add_front + 4:
-                    self.update_plc(f"f_{idx:02.0f}_gap",
-                                    getattr(self, f"veh_f_{idx:02.0f}")[5],
-                                    getattr(self, f"last_veh_f_{idx:02.0f}")[5]
+                    self.update_plc(f"f_{idx}_gap",
+                                    getattr(self, f"veh_f_{idx}")[5],
+                                    getattr(self, f"last_veh_f_{idx}")[5]
                                     )
                 if idx < self.veh_add_behind + 4:
-                    self.update_plc(f"r_{idx:02.0f}_gap",
-                                    getattr(self, f"veh_r_{idx:02.0f}")[5],
-                                    getattr(self, f"last_veh_r_{idx:02.0f}")[5]
+                    self.update_plc(f"r_{idx}_gap",
+                                    getattr(self, f"veh_r_{idx}")[5],
+                                    getattr(self, f"last_veh_r_{idx}")[5]
                                     )
 
             # Vehicle in pit
@@ -342,14 +342,14 @@ class Draw(Widget, MouseEvent):
 
                 for idx in range(1, self.veh_range):
                     if idx < self.veh_add_front + 4:
-                        self.update_pit(f"f_{idx:02.0f}_pit",
-                                        getattr(self, f"veh_f_{idx:02.0f}")[7],
-                                        getattr(self, f"last_veh_f_{idx:02.0f}")[7]
+                        self.update_pit(f"f_{idx}_pit",
+                                        getattr(self, f"veh_f_{idx}")[7],
+                                        getattr(self, f"last_veh_f_{idx}")[7]
                                         )
                     if idx < self.veh_add_behind + 4:
-                        self.update_pit(f"r_{idx:02.0f}_pit",
-                                        getattr(self, f"veh_r_{idx:02.0f}")[7],
-                                        getattr(self, f"last_veh_r_{idx:02.0f}")[7]
+                        self.update_pit(f"r_{idx}_pit",
+                                        getattr(self, f"veh_r_{idx}")[7],
+                                        getattr(self, f"last_veh_r_{idx}")[7]
                                         )
 
             # Tyre compound index
@@ -358,14 +358,14 @@ class Draw(Widget, MouseEvent):
 
                 for idx in range(1, self.veh_range):
                     if idx < self.veh_add_front + 4:
-                        self.update_tcp(f"f_{idx:02.0f}_tcp",
-                                        getattr(self, f"veh_f_{idx:02.0f}")[8],
-                                        getattr(self, f"last_veh_f_{idx:02.0f}")[8]
+                        self.update_tcp(f"f_{idx}_tcp",
+                                        getattr(self, f"veh_f_{idx}")[8],
+                                        getattr(self, f"last_veh_f_{idx}")[8]
                                         )
                     if idx < self.veh_add_behind + 4:
-                        self.update_tcp(f"r_{idx:02.0f}_tcp",
-                                        getattr(self, f"veh_r_{idx:02.0f}")[8],
-                                        getattr(self, f"last_veh_r_{idx:02.0f}")[8]
+                        self.update_tcp(f"r_{idx}_tcp",
+                                        getattr(self, f"veh_r_{idx}")[8],
+                                        getattr(self, f"last_veh_r_{idx}")[8]
                                         )
 
             # Pitstop count
@@ -374,14 +374,14 @@ class Draw(Widget, MouseEvent):
 
                 for idx in range(1, self.veh_range):
                     if idx < self.veh_add_front + 4:
-                        self.update_psc(f"f_{idx:02.0f}_psc",
-                                        getattr(self, f"veh_f_{idx:02.0f}")[9],
-                                        getattr(self, f"last_veh_f_{idx:02.0f}")[9]
+                        self.update_psc(f"f_{idx}_psc",
+                                        getattr(self, f"veh_f_{idx}")[9],
+                                        getattr(self, f"last_veh_f_{idx}")[9]
                                         )
                     if idx < self.veh_add_behind + 4:
-                        self.update_psc(f"r_{idx:02.0f}_psc",
-                                        getattr(self, f"veh_r_{idx:02.0f}")[9],
-                                        getattr(self, f"last_veh_r_{idx:02.0f}")[9]
+                        self.update_psc(f"r_{idx}_psc",
+                                        getattr(self, f"veh_r_{idx}")[9],
+                                        getattr(self, f"last_veh_r_{idx}")[9]
                                         )
 
             # Store last data reading
@@ -389,12 +389,12 @@ class Draw(Widget, MouseEvent):
 
             for idx in range(1, self.veh_range):
                 if idx < self.veh_add_front + 4:
-                    setattr(self, f"last_veh_f_{idx:02.0f}",
-                            getattr(self, f"veh_f_{idx:02.0f}"))
+                    setattr(self, f"last_veh_f_{idx}",
+                            getattr(self, f"veh_f_{idx}"))
 
                 if idx < self.veh_add_behind + 4:
-                    setattr(self, f"last_veh_r_{idx:02.0f}",
-                            getattr(self, f"veh_r_{idx:02.0f}"))
+                    setattr(self, f"last_veh_r_{idx}",
+                            getattr(self, f"veh_r_{idx}"))
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)

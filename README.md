@@ -2,11 +2,9 @@
 
 TinyPedal is an open-source overlay application for racing simulation.
 
-It focuses on light weight, compact, minimalistic visual presentation, while provides important real-time info with detailed customization.
-
 Currently supports rFactor 2 and displays simulation info using The Iron Wolf’s [rF2 Shared Memory Map Plugin](https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin) & Tony Whitley’s [pyRfactor2SharedMemory](https://github.com/TonyWhitley/pyRfactor2SharedMemory) Library.
 
-`Borderless` or `Windowed Mode` is required. Full-screen mode is not supported.
+`Borderless` or `Windowed` mode is required. `Fullscreen` mode is not supported.
 
 
 ## Feature
@@ -21,15 +19,15 @@ The plugin file `rFactor2SharedMemoryMapPlugin64.dll` should be placed in `rFact
 
 
 ## Usage
-1. Make sure The Iron Wolf’s `rF2 Shared Memory Map Plugin` is installed, as described above, and `Borderless` or `Windowed Mode` is activated in game.
+1. Make sure The Iron Wolf’s `rF2 Shared Memory Map Plugin` is installed, as described above, and `Borderless` or `Windowed` mode is activated in game.
 
-2. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract, and run `tinypedal.exe`. Alternatively, you can run TinyPedal from source, see **Run from source** section for details.
+2. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract, and run `tinypedal.exe`. Alternatively, run TinyPedal from source, see **Run from source** section for details.
 
 3. A tray icon will appear at system tray. If not shown, check hidden tray icon. `Right Click` on tray icon will bring up context menu.
 
-4. Launch `rFactor 2`, overlay will appear once your vehicle is on track, and auto-hide otherwise. You can turn off auto-hide by `Right Click` on tray icon and select `Auto Hide`.
+4. Launch `rFactor 2`, overlay will appear once vehicle is on track, and auto-hide otherwise. Auto-hide can toggled ON or OFF by clicking `Auto Hide` from tray menu.
 
-5. Click on overlay to drag around. You can Lock or Unlock overlay from tray menu.
+5. Click on overlay to drag around. Overlay can be Locked or Unlocked by clicking `Lock Overlay` from tray menu.
 
 6. Widgets can be Enabled or Disabled by accessing `Widgets` menu from tray menu.
 
@@ -52,7 +50,7 @@ TinyPedal offers a wide range of customization, see [Customization Guide](https:
     * six (sub-dependency)
 
 ### Steps:
-1. Download source code from [Releases](https://github.com/s-victor/TinyPedal/releases) page; or click `Code` button at the top of repository and select `Download ZIP`. You can also use `Git` tool to clone this repository.
+1. Download source code from [Releases](https://github.com/s-victor/TinyPedal/releases) page; or click `Code` button at the top of repository and select `Download ZIP`; or use `Git` tool to clone this repository.
 
 2. Download this forked version of pyRfactor2SharedMemory source code from:  
 https://github.com/s-victor/pyRfactor2SharedMemory  
@@ -81,7 +79,7 @@ To install py2exe, run command:
 To build executable file, run command:  
 `python freeze_py2exe.py`
 
-After building completed, you can find executable file in `dist\TinyPedal` folder.
+After building completed, executable file can be found in `dist\TinyPedal` folder.
 
 Note: the build script only supports py2exe `v0.12.0.0` or higher.
 
@@ -93,7 +91,7 @@ The procedure is basically the same as the above procedure to run from source wi
 The only required dependencies are `psutil` and `pyxdg`. They can be installed with the command:  
 `pip3 install psutil pyxdg`
 
-Alternatively, instead of using pip3, you can use your system's package manager to install the dependencies. The packages will be named with some prefix like `python3-psutil` and `python3-pyxdg`.
+Alternatively, instead of using pip3, it is possible to use system's package manager to install the dependencies. The packages will be named with some prefix like `python3-psutil` and `python3-pyxdg`.
 
 The Iron Wolf's rF2 Shared Memory Map Plugin has to be replaced with [this fork for Wine](https://github.com/schlegp/rF2SharedMemoryMapPlugin_Wine/blob/master/build).
 

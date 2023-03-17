@@ -104,21 +104,21 @@ class Draw(Widget, MouseEvent):
         for idx in range(1, self.veh_range):
             if idx < self.veh_add_front + 4:
                 # Draw vehicles: poly_f_**
-                setattr(self, f"poly_f_{idx:02.0f}",
+                setattr(self, f"poly_f_{idx}",
                         self.bar_radar.create_polygon(0, 0, 0, 0, 0, 0, 0, 0, poly_style)
                         )
                 # Last data
-                setattr(self, f"last_veh_lap_f_{idx:02.0f}", None)
-                setattr(self, f"last_veh_pos_f_{idx:02.0f}", None)
+                setattr(self, f"last_veh_lap_f_{idx}", None)
+                setattr(self, f"last_veh_pos_f_{idx}", None)
 
             if idx < self.veh_add_behind + 4:
                 # Draw vehicles
-                setattr(self, f"poly_r_{idx:02.0f}",
+                setattr(self, f"poly_r_{idx}",
                         self.bar_radar.create_polygon(0, 0, 0, 0, 0, 0, 0, 0, poly_style)
                         )
                 # Last data
-                setattr(self, f"last_veh_lap_r_{idx:02.0f}", None)
-                setattr(self, f"last_veh_pos_r_{idx:02.0f}", None)
+                setattr(self, f"last_veh_lap_r_{idx}", None)
+                setattr(self, f"last_veh_pos_r_{idx}", None)
 
         # Last data
         self.autohide_timer_start = 1
@@ -153,7 +153,7 @@ class Draw(Widget, MouseEvent):
             # Set opponent vehicle data: veh_f_**
             for idx in range(1, self.veh_range):
                 if idx < self.veh_add_front + 4:
-                    setattr(self, f"veh_f_{idx:02.0f}",
+                    setattr(self, f"veh_f_{idx}",
                             module.relative_info.radar_pos(
                                 veh_gps[veh_center],        # player position
                                 veh_gps[veh_center - idx],  # opponent position
@@ -161,7 +161,7 @@ class Draw(Widget, MouseEvent):
                                 )
                             )
                 if idx < self.veh_add_behind + 4:
-                    setattr(self, f"veh_r_{idx:02.0f}",
+                    setattr(self, f"veh_r_{idx}",
                             module.relative_info.radar_pos(
                                 veh_gps[veh_center],
                                 veh_gps[veh_center + idx],
@@ -172,52 +172,52 @@ class Draw(Widget, MouseEvent):
             # Vehicle color
             for idx in range(1, self.veh_range):
                 if idx < self.veh_add_front + 4:
-                    self.update_color(f"f_{idx:02.0f}",
-                                      getattr(self, f"veh_f_{idx:02.0f}")[2],  # is_lapped
-                                      getattr(self, f"last_veh_lap_f_{idx:02.0f}")
+                    self.update_color(f"f_{idx}",
+                                      getattr(self, f"veh_f_{idx}")[2],  # is_lapped
+                                      getattr(self, f"last_veh_lap_f_{idx}")
                                       )
-                    setattr(self, f"last_veh_lap_f_{idx:02.0f}",
-                            getattr(self, f"veh_f_{idx:02.0f}")[2])
+                    setattr(self, f"last_veh_lap_f_{idx}",
+                            getattr(self, f"veh_f_{idx}")[2])
 
                 if idx < self.veh_add_behind + 4:
-                    self.update_color(f"r_{idx:02.0f}",
-                                      getattr(self, f"veh_r_{idx:02.0f}")[2],
-                                      getattr(self, f"last_veh_lap_r_{idx:02.0f}")
+                    self.update_color(f"r_{idx}",
+                                      getattr(self, f"veh_r_{idx}")[2],
+                                      getattr(self, f"last_veh_lap_r_{idx}")
                                       )
-                    setattr(self, f"last_veh_lap_r_{idx:02.0f}",
-                            getattr(self, f"veh_r_{idx:02.0f}")[2])
+                    setattr(self, f"last_veh_lap_r_{idx}",
+                            getattr(self, f"veh_r_{idx}")[2])
 
             # Vehicle position
             for idx in range(1, self.veh_range):
                 if idx < self.veh_add_front + 4:
-                    setattr(self, f"veh_pos_f_{idx:02.0f}",  # update coordinates data
+                    setattr(self, f"veh_pos_f_{idx}",  # update coordinates data
                             self.update_veh_pos(
                                 veh_plr_pos,
-                                getattr(self, f"veh_f_{idx:02.0f}")[0],
-                                getattr(self, f"veh_f_{idx:02.0f}")[1]
+                                getattr(self, f"veh_f_{idx}")[0],
+                                getattr(self, f"veh_f_{idx}")[1]
                                 )
                             )
-                    self.update_position(f"f_{idx:02.0f}",  # update vehicle position
-                                         getattr(self, f"veh_pos_f_{idx:02.0f}"),
-                                         getattr(self, f"last_veh_pos_f_{idx:02.0f}")
+                    self.update_position(f"f_{idx}",  # update vehicle position
+                                         getattr(self, f"veh_pos_f_{idx}"),
+                                         getattr(self, f"last_veh_pos_f_{idx}")
                                          )
-                    setattr(self, f"last_veh_pos_f_{idx:02.0f}",
-                            getattr(self, f"veh_pos_f_{idx:02.0f}"))
+                    setattr(self, f"last_veh_pos_f_{idx}",
+                            getattr(self, f"veh_pos_f_{idx}"))
 
                 if idx < self.veh_add_behind + 4:
-                    setattr(self, f"veh_pos_r_{idx:02.0f}",
+                    setattr(self, f"veh_pos_r_{idx}",
                             self.update_veh_pos(
                                 veh_plr_pos,
-                                getattr(self, f"veh_r_{idx:02.0f}")[0],
-                                getattr(self, f"veh_r_{idx:02.0f}")[1]
+                                getattr(self, f"veh_r_{idx}")[0],
+                                getattr(self, f"veh_r_{idx}")[1]
                                 )
                             )
-                    self.update_position(f"r_{idx:02.0f}",
-                                         getattr(self, f"veh_pos_r_{idx:02.0f}"),
-                                         getattr(self, f"last_veh_pos_r_{idx:02.0f}")
+                    self.update_position(f"r_{idx}",
+                                         getattr(self, f"veh_pos_r_{idx}"),
+                                         getattr(self, f"last_veh_pos_r_{idx}")
                                          )
-                    setattr(self, f"last_veh_pos_r_{idx:02.0f}",
-                            getattr(self, f"veh_pos_r_{idx:02.0f}"))
+                    setattr(self, f"last_veh_pos_r_{idx}",
+                            getattr(self, f"veh_pos_r_{idx}"))
 
         # Update rate
         self.after(self.wcfg["update_delay"], self.update_data)
