@@ -25,7 +25,7 @@ The plugin file `rFactor2SharedMemoryMapPlugin64.dll` should be placed in `rFact
 
 3. A tray icon will appear at system tray. If not shown, check hidden tray icon. `Right Click` on tray icon will bring up context menu.
 
-4. Launch `rFactor 2`, overlay will appear once vehicle is on track, and auto-hide otherwise. Auto-hide can toggled ON or OFF by clicking `Auto Hide` from tray menu.
+4. Launch `rFactor 2`, overlay will appear once vehicle is on track, and auto-hide otherwise. Auto-hide can be switched On or Off by clicking `Auto Hide` from tray menu.
 
 5. Click on overlay to drag around. Overlay can be Locked or Unlocked by clicking `Lock Overlay` from tray menu.
 
@@ -36,7 +36,7 @@ The plugin file `rFactor2SharedMemoryMapPlugin64.dll` should be placed in `rFact
 
 ## Customization
 
-TinyPedal offers a wide range of customization, see [Customization Guide](https://github.com/s-victor/TinyPedal/wiki) for editing guide.
+See [Customization Guide](https://github.com/s-victor/TinyPedal/wiki) for editing guide.
 
 
 ## Run from source
