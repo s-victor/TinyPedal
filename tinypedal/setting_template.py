@@ -293,6 +293,7 @@ SETTING_DEFAULT = {
         "rpm_safe_multiplier": 0.91,
         "rpm_warn_multiplier": 0.97,
         "neutral_warning_speed_threshold": 28,
+        "neutral_warning_time_threshold": 0.3,
         "bkg_color_rpm_bar": "#FFFFFF",
         "bkg_color_rpm_safe": "#FF2200",
         "bkg_color_rpm_warn": "#00FFFF",

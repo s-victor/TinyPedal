@@ -58,6 +58,13 @@ def combo_check():
     return re.sub('[\\\\/:*?"<>|]', "", f"{name_track} - {name_class}")
 
 
+def lap_timestamp():
+    """lap timestamp data"""
+    lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
+    lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
+    return lap_stime, lap_etime
+
+
 def cruise():
     """Cruise data"""
     ori_yaw = (chknm(info.syncedVehicleTelemetry().mOri[2].x),
@@ -111,7 +118,8 @@ def gear():
                            chknm(info.syncedVehicleTelemetry().mLocalVel.z))
     rpm = chknm(info.syncedVehicleTelemetry().mEngineRPM)
     rpm_max = chknm(info.syncedVehicleTelemetry().mEngineMaxRPM)
-    return pit_limiter, mgear, speed, rpm, rpm_max
+    lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
+    return pit_limiter, mgear, speed, rpm, rpm_max, lap_etime
 
 
 def pitting():
@@ -134,13 +142,6 @@ def yellow_flag():
             chknm(info.LastScor.mScoringInfo.mSectorFlag[1]),
             chknm(info.LastScor.mScoringInfo.mSectorFlag[2]),
             (2,0,1)[min(max(chknm(info.syncedVehicleScoring().mSector), 2), 0)])
-
-
-def lap_timestamp():
-    """lap timestamp data"""
-    lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
-    lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
-    return lap_stime, lap_etime
 
 
 def radar():

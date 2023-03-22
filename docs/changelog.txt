@@ -1,3 +1,18 @@
+1.11.7 (2023-03-22)
+-----------------------------
+* Gear Widget
+    - Add "neutral_warning_time_threshold" additional condition check option in JSON,
+      which activates color warning when both speed & time-in-neutral is higher than threshold.
+      This helps avoid displaying color warning during normal shifting.
+      Default value is `0.3` seconds.
+
+* Core
+    - Fixed an index out of range error that related to mSector data,
+      which could cause Sector & Flag Widget to freeze.
+
+* Misc
+    - Updated customization guide for Gear Widget.
+
 1.11.6 (2023-03-10)
 -----------------------------
 * Radar Widget

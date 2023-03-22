@@ -114,6 +114,9 @@ class Draw(Widget, MouseEvent):
             self.bar_limiter.grid_remove()
 
         # Last data
+        self.shifting_timer_start = 0
+        self.shifting_timer = 0
+        self.last_gear = None
         self.last_gear_data = [None] * 3
         self.last_pit_limiter = None
         self.last_rpm_pos = None
@@ -133,11 +136,16 @@ class Draw(Widget, MouseEvent):
                 self.checked = True
 
             # Read gear data
-            pit_limiter, gear, speed, rpm, rpm_max = read_data.gear()
+            pit_limiter, gear, speed, rpm, rpm_max, lap_etime = read_data.gear()
             rpm_safe = int(rpm_max * self.wcfg["rpm_safe_multiplier"])
             rpm_warn = int(rpm_max * self.wcfg["rpm_warn_multiplier"])
 
             # Gear update
+            if gear != self.last_gear:
+                self.shifting_timer_start = lap_etime
+                self.last_gear = gear
+            self.shifting_timer = lap_etime - self.shifting_timer_start
+
             gear_data = (calc.gear(gear),
                          round(self.speed_units(speed)),
                          self.color_rpm(rpm, rpm_safe, rpm_warn, rpm_max, gear, speed))
@@ -164,6 +172,9 @@ class Draw(Widget, MouseEvent):
                 self.checked = False
 
                 # Reset state
+                self.shifting_timer_start = 0
+                self.shifting_timer = 0
+                self.last_gear = None
                 self.last_gear_data = [None] * 3
                 self.last_pit_limiter = None
                 self.last_rpm_pos = None
@@ -205,7 +216,9 @@ class Draw(Widget, MouseEvent):
 
     def color_rpm(self, rpm, rpm_safe, rpm_warn, rpm_max, gear, speed):
         """RPM indicator color"""
-        if gear == 0 and speed > self.wcfg["neutral_warning_speed_threshold"]:
+        if (gear == 0 and
+            speed > self.wcfg["neutral_warning_speed_threshold"] and
+            self.shifting_timer >= self.wcfg["neutral_warning_time_threshold"]):
             return self.wcfg["bkg_color_rpm_over_rev"]
         if rpm < rpm_safe:
             color = self.wcfg["bkg_color"]

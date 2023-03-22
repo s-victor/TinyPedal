@@ -316,8 +316,8 @@ This value multiplies max RPM value, which sets a relative safe RPM range for RP
     rpm_warn_multiplier
 This value multiplies max RPM value, which sets a relative near-max RPM range for RPM color indicator.
 
-    neutral_warning_speed_threshold
-Set speed threshold value for color warning when gear is in neutral and vehicle speed is higher than the threshold. Speed unit in meters per second. Default value is `28`, which is close to 100 kph.
+    neutral_warning_speed_threshold, neutral_warning_time_threshold
+Set speed/time threshold value for neutral gear color warning, which activates color warning when speed & time-in-neutral is higher than threshold. Speed unit in meters per second, default value is `28`. Time unit in seconds, default value is `0.3` seconds.
 
     bkg_color_rpm_over_rev
 This sets the color for over-rev and neutral-gear warning indicator.
