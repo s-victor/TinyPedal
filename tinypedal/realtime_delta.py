@@ -44,9 +44,9 @@ class DeltaTime:
         """Start calculation thread"""
         self.running = True
         self.stopped = False
-        _thread = threading.Thread(target=self.__calculation)
-        _thread.daemon=True
-        _thread.start()
+        self.thread = threading.Thread(target=self.__calculation)
+        self.thread.daemon=True
+        self.thread.start()
         print("delta module started")
 
     def __calculation(self):
@@ -143,12 +143,16 @@ class DeltaTime:
                     index_lower, index_higher = calc.nearest_dist_index(
                                                 pos_append, delta_list_best)
                     try:  # add 20ms error offset due to 50hz refresh rate limit
-                        delta_best = laptime_curr + 0.02 - calc.linear_interp(
-                                            pos_append,
-                                            delta_list_best[index_lower][0],
-                                            delta_list_best[index_lower][1],
-                                            delta_list_best[index_higher][0],
-                                            delta_list_best[index_higher][1])
+                        if sum([delta_list_best[index_lower][0],
+                               delta_list_best[index_lower][1],
+                               delta_list_best[index_higher][0],
+                               delta_list_best[index_higher][1]]) != 0:
+                            delta_best = laptime_curr + 0.02 - calc.linear_interp(
+                                                pos_append,
+                                                delta_list_best[index_lower][0],
+                                                delta_list_best[index_lower][1],
+                                                delta_list_best[index_higher][0],
+                                                delta_list_best[index_higher][1])
                     except IndexError:
                         delta_best = 0
 

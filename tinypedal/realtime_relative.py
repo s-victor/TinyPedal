@@ -44,9 +44,9 @@ class RelativeInfo:
         """Start calculation thread"""
         self.running = True
         self.stopped = False
-        _thread = threading.Thread(target=self.__relative)
-        _thread.daemon=True
-        _thread.start()
+        self.thread = threading.Thread(target=self.__relative)
+        self.thread.daemon=True
+        self.thread.start()
         print("relative module started")
 
     def __relative(self):

@@ -44,9 +44,9 @@ class FuelUsage:
         """Start calculation thread"""
         self.running = True
         self.stopped = False
-        _thread = threading.Thread(target=self.__calculation)
-        _thread.daemon=True
-        _thread.start()
+        self.thread = threading.Thread(target=self.__calculation)
+        self.thread.daemon=True
+        self.thread.start()
         print("fuel module started")
 
     def __calculation(self):
@@ -139,12 +139,16 @@ class FuelUsage:
                     index_lower, index_higher = calc.nearest_dist_index(
                                                 pos_append, delta_list_last)
                     try:
-                        delta_fuel = used_curr - calc.linear_interp(
-                                            pos_append,
-                                            delta_list_last[index_lower][0],
-                                            delta_list_last[index_lower][1],
-                                            delta_list_last[index_higher][0],
-                                            delta_list_last[index_higher][1])
+                        if sum([delta_list_last[index_lower][0],
+                                delta_list_last[index_lower][1],
+                                delta_list_last[index_higher][0],
+                                delta_list_last[index_higher][1]]) != 0:
+                            delta_fuel = used_curr - calc.linear_interp(
+                                                pos_append,
+                                                delta_list_last[index_lower][0],
+                                                delta_list_last[index_lower][1],
+                                                delta_list_last[index_higher][0],
+                                                delta_list_last[index_higher][1])
                     except IndexError:
                         delta_fuel = 0
 
