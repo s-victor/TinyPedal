@@ -267,6 +267,15 @@ def timing(index):
     return veh_total, laptime_opt, class_opt == class_plr
 
 
+def electric():
+    """Electric data"""
+    motor_torque = chknm(info.syncedVehicleTelemetry().mElectricBoostMotorTorque)
+    motor_rpm = chknm(info.syncedVehicleTelemetry().mElectricBoostMotorRPM)
+    motor_temp = chknm(info.syncedVehicleTelemetry().mElectricBoostMotorTemperature)
+    water_temp = chknm(info.syncedVehicleTelemetry().mElectricBoostWaterTemperature)
+    return motor_torque, motor_rpm, motor_temp, water_temp
+
+
 def engine():
     """Engine data"""
     temp_oil = chknm(info.syncedVehicleTelemetry().mEngineOilTemp)

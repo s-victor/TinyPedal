@@ -1,7 +1,27 @@
 WIP
 -----------------------------
+* [New]Hybrid Widget
+    - Show percentage available battery charge.
+    - Show percentage battery charge used in current lap.
+    - Show percentage battery charge regenerated in current lap.
+    - Show boost motor temperature with customizable unit & overheating indicator.
+    - Show boost motor cooler water temperature with customizable unit & overheating indicator.
+    - Show boost motor RPM.
+    - Show boost motor torque.
+    - Show boost motor activation timer.
+
 * Sector Widget
     - Fixed a typo that caused wrong sector index reading
+
+* Core
+    - [New]Add battery module for calculating battery charge usage.
+
+* pyRfactor2SharedMemory library
+    - Add hybrid related entries (requires at least v3.7.15.1 of rf2 sharedmemory plugin).
+    - Fixed ctypes data types for linux (by Bernat).
+
+* Misc
+    - Updated customization guide for Hybrid Widget.
 
 1.11.8 (2023-04-01)
 -----------------------------

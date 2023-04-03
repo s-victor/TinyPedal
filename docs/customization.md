@@ -85,6 +85,9 @@ Enable delta timing module. This module provides timing data for `Delta best` an
     fuel_module
 Enable fuel calculation module. This module provides vehicle fuel usage data for `Fuel` and other widgets, which returns nothing if turned off.
 
+    battery_module
+Enable battery calculation module. This module provides vehicle battery usage data for `Hybrid` and other widgets, which returns nothing if turned off.
+
     relative_module
 Enable relative calculation module. This module provides vehicle relative data for `Relative` and `Radar` widgets, which returns nothing if turned off.
 
@@ -321,6 +324,41 @@ Set speed/time threshold value for neutral gear color warning, which activates c
 
     bkg_color_rpm_over_rev
 This sets the color for over-rev and neutral-gear warning indicator.
+
+
+## Hybrid
+    show_battery_charge
+Show percentage available battery charge.
+
+    show_battery_used
+Show percentage battery charge used in current lap.
+
+    show_battery_regen
+Show percentage battery charge regenerated in current lap.
+
+    show_boost_motor_temp
+Show boost motor temperature with customizable unit & overheating indicator.
+
+    show_boost_water_temp
+Show boost motor cooler water temperature with customizable unit & overheating indicator.
+
+    show_boost_motor_rpm
+Show boost motor RPM.
+
+    show_boost_motor_torque
+Show boost motor torque.
+
+    show_boost_motor_state
+Show boost motor activation timer.
+
+    overheat_threshold_motor, overheat_threshold_water
+Set temperature threshold for boost motor & water overheat color indicator, unit in Celsius.
+
+    low_battery_threshold
+Set percentage threshold for low battery charge warning indicator.
+
+    freeze_duration
+Set auto-freeze duration (seconds) for previous lap used/regenerated battery charge display. Default value is `5` seconds.
 
 
 ## Instrument
