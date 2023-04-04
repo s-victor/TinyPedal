@@ -330,8 +330,8 @@ This sets the color for over-rev and neutral-gear warning indicator.
     show_battery_charge
 Show percentage available battery charge.
 
-    show_battery_used
-Show percentage battery charge used in current lap.
+    show_battery_drain
+Show percentage battery charge drained in current lap.
 
     show_battery_regen
 Show percentage battery charge regenerated in current lap.
@@ -400,6 +400,26 @@ Set minimum speed threshold before APP records and calculates wheel radius sampl
 
     minimum_samples
 Set minimum number of radius samples that required for calculating average wheel radius. Default value is `400`. Minimum value is limited to `100`.
+
+
+## P2P
+    show_battery_charge
+Show percentage available battery charge.
+
+    show_boost_motor_state
+Show boost motor activation timer.
+
+    activation_threshold_gear
+Set minimum gear threshold for P2P ready indicator.
+
+    activation_threshold_speed
+Set minimum speed threshold for P2P ready indicator, unit in KPH.
+
+    minimum_activation_time_delay
+Set minimum time delay between each P2P activation, unit in seconds.
+
+    maximum_activation_time_per_lap
+Set maximum P2P activation time per lap, unit in seconds.
 
 
 ## Pedal

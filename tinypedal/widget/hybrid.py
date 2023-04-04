@@ -50,7 +50,7 @@ class Draw(Widget, MouseEvent):
                                   weight=self.wcfg["font_weight"])
 
         column_bc = self.wcfg["column_index_battery_charge"]
-        column_bu = self.wcfg["column_index_battery_used"]
+        column_bu = self.wcfg["column_index_battery_drain"]
         column_br = self.wcfg["column_index_battery_regen"]
         column_mt = self.wcfg["column_index_boost_motor_temp"]
         column_wt = self.wcfg["column_index_boost_water_temp"]
@@ -68,11 +68,11 @@ class Draw(Widget, MouseEvent):
                 fg=self.wcfg["font_color_battery_charge"],
                 bg=self.wcfg["bkg_color_battery_charge"])
 
-        if self.wcfg["show_battery_used"]:
-            self.bar_battery_used = tk.Label(
+        if self.wcfg["show_battery_drain"]:
+            self.bar_battery_drain = tk.Label(
                 self, bar_style,
-                fg=self.wcfg["font_color_battery_used"],
-                bg=self.wcfg["bkg_color_battery_used"])
+                fg=self.wcfg["font_color_battery_drain"],
+                bg=self.wcfg["bkg_color_battery_drain"])
 
         if self.wcfg["show_battery_regen"]:
             self.bar_battery_regen = tk.Label(
@@ -114,8 +114,8 @@ class Draw(Widget, MouseEvent):
             # Vertical layout
             if self.wcfg["show_battery_charge"]:
                 self.bar_battery_charge.grid(row=column_bc, column=0, padx=0, pady=(0, bar_gap))
-            if self.wcfg["show_battery_used"]:
-                self.bar_battery_used.grid(row=column_bu, column=0, padx=0, pady=(0, bar_gap))
+            if self.wcfg["show_battery_drain"]:
+                self.bar_battery_drain.grid(row=column_bu, column=0, padx=0, pady=(0, bar_gap))
             if self.wcfg["show_battery_regen"]:
                 self.bar_battery_regen.grid(row=column_br, column=0, padx=0, pady=(0, bar_gap))
             if self.wcfg["show_boost_motor_temp"]:
@@ -132,8 +132,8 @@ class Draw(Widget, MouseEvent):
             # Horizontal layout
             if self.wcfg["show_battery_charge"]:
                 self.bar_battery_charge.grid(row=0, column=column_bc, padx=(0, bar_gap), pady=0)
-            if self.wcfg["show_battery_used"]:
-                self.bar_battery_used.grid(row=0, column=column_bu, padx=(0, bar_gap), pady=0)
+            if self.wcfg["show_battery_drain"]:
+                self.bar_battery_drain.grid(row=0, column=column_bu, padx=(0, bar_gap), pady=0)
             if self.wcfg["show_battery_regen"]:
                 self.bar_battery_regen.grid(row=0, column=column_br, padx=(0, bar_gap), pady=0)
             if self.wcfg["show_boost_motor_temp"]:
@@ -151,7 +151,7 @@ class Draw(Widget, MouseEvent):
         self.last_lap_stime = 0  # last lap start time
 
         self.last_battery_charge = None
-        self.last_battery_used = None
+        self.last_battery_drain = None
         self.last_battery_regen = None
         self.last_motor_torque = None
         self.last_motor_rpm = None
@@ -169,12 +169,12 @@ class Draw(Widget, MouseEvent):
         """Update when vehicle on track"""
         if read_data.state() and self.wcfg["enable"]:
 
-            # Read Engine data
+            # Read boost motor data
             (motor_torque, motor_rpm, motor_temp, water_temp
              ) = read_data.electric()
 
             # Read battery data from battery module
-            (battery_charge, battery_delta, motor_active_timer
+            (battery_charge, battery_delta, motor_active_timer, _, _
              ) = module.battery_usage.output_data
 
             lap_stime, lap_etime = read_data.lap_timestamp()
@@ -187,15 +187,15 @@ class Draw(Widget, MouseEvent):
                 elapsed_time = lap_etime - lap_stime
                 if elapsed_time >= self.wcfg["freeze_duration"] or elapsed_time < 0:
                     self.last_lap_stime = lap_stime
-                battery_used = battery_delta[2]
+                battery_drain = battery_delta[2]
                 battery_regen = battery_delta[3]
             else:
-                battery_used = battery_delta[0]
+                battery_drain = battery_delta[0]
                 battery_regen = battery_delta[1]
 
-            if self.wcfg["show_battery_used"]:
-                self.update_battery_used(battery_used, self.last_battery_used)
-                self.last_battery_used = battery_used
+            if self.wcfg["show_battery_drain"]:
+                self.update_battery_drain(battery_drain, self.last_battery_drain)
+                self.last_battery_drain = battery_drain
 
             if self.wcfg["show_battery_regen"]:
                 self.update_battery_regen(battery_regen, self.last_battery_regen)
@@ -247,11 +247,11 @@ class Draw(Widget, MouseEvent):
             format_text = f"{curr:.02f}"[:7].rjust(7)
             self.bar_battery_charge.config(text=f"B{format_text}", bg=bgcolor)
 
-    def update_battery_used(self, curr, last):
+    def update_battery_drain(self, curr, last):
         """Battery used"""
         if curr != last:
             format_text = f"{curr:.02f}"[:7].rjust(7)
-            self.bar_battery_used.config(text=f"U{format_text}")
+            self.bar_battery_drain.config(text=f"U{format_text}")
 
     def update_battery_regen(self, curr, last):
         """Battery regen"""

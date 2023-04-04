@@ -122,6 +122,16 @@ def gear():
     return pit_limiter, mgear, speed, rpm, rpm_max, lap_etime
 
 
+def p2p():
+    """P2P data"""
+    mgear = chknm(info.syncedVehicleTelemetry().mGear)
+    speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
+                           chknm(info.syncedVehicleTelemetry().mLocalVel.y),
+                           chknm(info.syncedVehicleTelemetry().mLocalVel.z))
+    throttle = chknm(info.syncedVehicleTelemetry().mUnfilteredThrottle)
+    return mgear, speed, throttle
+
+
 def pitting():
     """Pitting data"""
     inpits = chknm(info.syncedVehicleScoring().mInPits)

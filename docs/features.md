@@ -55,6 +55,16 @@
 - Show RPM over-rev color warning.
 - Show RPM bar animation (optional) ranged from safe RPM to max RPM.
 
+## Hybrid
+- Show percentage available battery charge.
+- Show percentage battery charge drained in current lap.
+- Show percentage battery charge regenerated in current lap.
+- Show boost motor temperature with customizable unit & overheating indicator.
+- Show boost motor cooler water temperature with customizable unit & overheating indicator.
+- Show boost motor RPM.
+- Show boost motor torque.
+- Show boost motor activation timer.
+
 ## Instrument
 - Show headlights state.
   When headlights on, icon turns white.
@@ -69,6 +79,12 @@
 - Show wheel slip state.
   When slip ratio reaches threshold, icon background flashes yellow (default color).
 - Include many customizable options.
+
+## P2P
+- Show percentage available battery charge.
+- Show battery drain & regen color indicator.
+- Show P2P (boost motor) activation timer.
+- Customizable P2P activation threshold options.
 
 ## Pedal
 - Show pedal input, both filtered & unfiltered input side by side, which helps distinguish car specific assists such as TC/ABS/Auto-clutch, etc.

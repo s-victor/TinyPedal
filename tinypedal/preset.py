@@ -270,7 +270,7 @@ class LoadPreset(tk.Toplevel):
     @staticmethod
     def format_widget_name(name):
         """Format widget name"""
-        uppercase = ["drs"]
+        uppercase = ["drs","p2p"]
         name = re.sub("_", " ", name)
 
         if name in uppercase:
