@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 #  TinyPedal is an open-source overlay application for racing simulation.
 #  Copyright (C) 2022  Xiang
 #
