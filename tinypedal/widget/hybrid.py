@@ -248,7 +248,7 @@ class Draw(Widget, MouseEvent):
             self.bar_battery_charge.config(text=f"B{format_text}", bg=bgcolor)
 
     def update_battery_drain(self, curr, last):
-        """Battery used"""
+        """Battery drain"""
         if curr != last:
             format_text = f"{curr:.02f}"[:7].rjust(7)
             self.bar_battery_drain.config(text=f"U{format_text}")

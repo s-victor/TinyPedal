@@ -358,7 +358,7 @@ Set temperature threshold for boost motor & water overheat color indicator, unit
 Set percentage threshold for low battery charge warning indicator.
 
     freeze_duration
-Set auto-freeze duration (seconds) for previous lap used/regenerated battery charge display. Default value is `5` seconds.
+Set auto-freeze duration (seconds) for previous lap drained/regenerated battery charge display. Default value is `5` seconds.
 
 
 ## Instrument
