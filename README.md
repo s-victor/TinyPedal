@@ -86,16 +86,43 @@ Note: the build script only supports py2exe `v0.12.0.0` or higher.
 
 ## Running on Linux
 
-The procedure is basically the same as the above procedure to run from source with the following differences.
+The procedure described in the **Run from source** section is mostly valid,
+except some differences in the dependencies, and that no executable can be
+built. The differences are explained here.
 
-The only required dependencies are `psutil` and `pyxdg`. They can be installed with the command:  
+Configuration and data files will be stored in the defined user-specific
+directories, usually at `$HOME/.config/TinyPedal/` and
+`$HOME/.local/share/TinyPedal/` respectively.
+
+The required Python packages are `psutil` and `pyxdg`. They can be installed with
+this command:  
 `pip3 install psutil pyxdg`
 
-Alternatively, instead of using pip3, it is possible to use system's package manager to install the dependencies. The packages will be named with some prefix like `python3-psutil` and `python3-pyxdg`.
+Alternatively, you can use the system's package manager instead of `pip3`. The
+packages will be named with some prefix like
+`python3-psutil` and `python3-pyxdg`.
 
-The Iron Wolf's rF2 Shared Memory Map Plugin has to be replaced with [this fork for Wine](https://github.com/schlegp/rF2SharedMemoryMapPlugin_Wine/blob/master/build).
+The Iron Wolf's rF2 Shared Memory Map Plugin has to be replaced with [this fork
+for
+Wine](https://github.com/schlegp/rF2SharedMemoryMapPlugin_Wine/blob/master/build).
 
-Configuration and data files will be stored in the defined user-specific directories, usually at `$HOME/.config/TinyPedal/` and `$HOME/.local/share/TinyPedal/` respectively.
+To start TinyPedal type the following command:  
+`./run.py`
+
+### Using the install script
+
+Once you have a working instance of TinyPedal, created using the git command or
+by unpacking the Linux release file, you can run the install script to install
+or update TinyPedal on your system.
+
+The install script will create a desktop launcher and will make `TinyPedal`
+available as a command from the terminal.
+
+The files will be installed at the `/usr/local/` prefix. You'll need
+appropriate permissions to write there, for example, by using `sudo`.
+
+You can run the script as (it doesn't support any arguments or options):  
+`sudo ./install.sh`
 
 
 ## Credits
