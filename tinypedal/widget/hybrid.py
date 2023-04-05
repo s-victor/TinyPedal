@@ -251,13 +251,13 @@ class Draw(Widget, MouseEvent):
         """Battery drain"""
         if curr != last:
             format_text = f"{curr:.02f}"[:7].rjust(7)
-            self.bar_battery_drain.config(text=f"U{format_text}")
+            self.bar_battery_drain.config(text=f"-{format_text}")
 
     def update_battery_regen(self, curr, last):
         """Battery regen"""
         if curr != last:
             format_text = f"{curr:.02f}"[:7].rjust(7)
-            self.bar_battery_regen.config(text=f"R{format_text}")
+            self.bar_battery_regen.config(text=f"+{format_text}")
 
     def update_motor_temp(self, curr, last):
         """Motor temperature"""
