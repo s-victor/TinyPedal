@@ -40,7 +40,8 @@ class LoadPreset(tk.Toplevel):
     def __init__(self, master):
         tk.Toplevel.__init__(self)
         self.master = master
-        self.attributes("-topmost", 1)
+        if PLATFORM == "Windows":
+            self.attributes("-topmost", 1)
 
         # Base setting
         fg_color = "#222"
