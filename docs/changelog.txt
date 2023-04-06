@@ -1,3 +1,15 @@
+WIP
+-----------------------------
+* Hybrid Widget
+    - Use plus/minus sign for regen/drain display.
+
+* Core
+    - Remove always on top on main(preset) window. (by Bernat)
+    - Fixed an issue where app would fail to run if the current working directory isn't the app directory. (by Bernat)
+
+* Misc
+    - Update README with install instruction for Linux. (by Bernat)
+
 1.12.0 (2023-04-05)
 -----------------------------
 * [New]Hybrid Widget
