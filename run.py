@@ -23,6 +23,7 @@ Run program
 """
 
 import os
+import sys
 from tkinter import messagebox
 import psutil
 from tinypedal.about import About
@@ -60,4 +61,5 @@ def load_tinypedal():
 
 
 if __name__ == "__main__":
+    os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
     load_tinypedal()
