@@ -76,6 +76,9 @@ class LoadPreset(tk.Toplevel):
                                     variable=self.chk_autohide,
                                     command=module.overlay_hide.toggle)
 
+        menu_config.add_separator()
+        menu_config.add_command(label="Quit", command=self.quit_app)
+
         # Widgets menu
         menubar.add_cascade(label="Widgets", menu=menu_widgets)
         for obj in WIDGET_PACK:
