@@ -1,14 +1,25 @@
-WIP
+1.12.1 (2023-04-07)
 -----------------------------
+* Relative Widget
+    - [New]Add "hide_vehicle_in_garage_for_race" option in JSON,
+      which hides vehicles that are stored in garage stall during race (for example, DNF or DQ).
+      This option is enabled by default, set to false to disable.
+
 * Hybrid Widget
     - Use plus/minus sign for regen/drain display.
 
 * Core
     - Remove always on top on main(preset) window. (by Bernat)
     - Fixed an issue where app would fail to run if the current working directory isn't the app directory. (by Bernat)
+    - Fixed deltabest being interrupted by mid-joining in multiplayer session.
+    - Add "Quit" to Config menu in preset window.
+
+* pyRfactor2SharedMemory library
+    - Now always stores a separate copy of verified local-player-only data.
 
 * Misc
     - Update README with install instruction for Linux. (by Bernat)
+    - Updated customization guide for Relative Widget.
 
 1.12.0 (2023-04-05)
 -----------------------------

@@ -543,6 +543,7 @@ SETTING_DEFAULT = {
         "show_pit_request": True,
         "font_color_pit_request": "#000000",
         "bkg_color_pit_request": "#22AA00",
+        "hide_vehicle_in_garage_for_race": True,
         "column_index_place": 1,
         "column_index_driver": 2,
         "column_index_laptime": 3,

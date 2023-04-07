@@ -566,6 +566,9 @@ Show pit timer on last laptime column.
     pit_time_highlight_duration
 Set highlight duration for total amount time spent in pit after exit pit.
 
+    hide_vehicle_in_garage_for_race
+Hide vehicles that are stored in garage stall during race (for example, DNF or DQ). This option is enabled by default, set to `false` to disable.
+
     additional_players_front, additional_players_behind
 Set additional players shown on relative list. Each value is limited to a maximum of 60 additional players (for a total of 120 additional players). Default value is `0`.
 

@@ -79,12 +79,15 @@ class RelativeInfo:
                 unique_veh_class = []
 
                 plr_index = info.players_scor_index
+                race_check = bool(
+                    chknm(info.LastScor.mScoringInfo.mSession) > 9
+                    and self.cfg.setting_user["relative"]["hide_vehicle_in_garage_for_race"])
 
                 for index in range(max(chknm(info.LastTele.mNumVehicles), 1)):
-                    rel_dist = self.calc_relative_dist(index, plr_index)  # relative distance
-
-                    # Create vehicle dict, use "vehicle index" as key, "distance position" as value
-                    veh_dict.update({index:rel_dist})
+                    if self.veh_filter(race_check, index):
+                        rel_dist = self.calc_relative_dist(index, plr_index)  # relative distance
+                        # Create vehicle dict, use "vehicle index" as key, "distance position" as value
+                        veh_dict.update({index:rel_dist})
 
                     # Create vehicle class list (class name, veh place, veh index)
                     vehclass = cs2py(info.LastScor.mVehicles[index].mVehicleClass)
@@ -118,6 +121,14 @@ class RelativeInfo:
         self.radar_list = None
         self.stopped = True
         print("relative module closed")
+
+    def veh_filter(self, race_check, index):
+        """Vehicle filter for creating relative list"""
+        if race_check:
+            if not chknm(info.LastScor.mVehicles[index].mInGarageStall):
+                return True  # not in garage, show
+            return False  # in garage, hide
+        return True  # not in race or off, show
 
     def relative_data(self, index, index_player, veh_class_info):
         """Relative data, this function is accessed by relative widget"""
