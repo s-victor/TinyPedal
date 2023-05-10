@@ -94,6 +94,10 @@ Alternatively, you can use the system's package manager instead of `pip3`. The
 packages will be named with some prefix like
 `python3-PySide2`, `python3-psutil` and `python3-pyxdg`.
 
+Some distros might have split `PySide2` in subpackages. If you don't find
+`python3-PySide2` then you should install `python3-pyside2.qtgui` and
+`python3-pyside2.qtwidgets`.
+
 The Iron Wolf's rF2 Shared Memory Map Plugin has to be replaced with [this fork
 for
 Wine](https://github.com/schlegp/rF2SharedMemoryMapPlugin_Wine/blob/master/build).
