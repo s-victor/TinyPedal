@@ -1,5 +1,7 @@
 # ignore list
 
+/dist/
+/dist/TinyPedal/
 /trackmap/
 
 __pycache__/
