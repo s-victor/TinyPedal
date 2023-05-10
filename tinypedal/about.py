@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -17,72 +17,106 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Root window
+About window
 """
 
 import os
-import tkinter as tk
-from PIL import Image, ImageTk
 
-from .const import APP_NAME, VERSION, PLATFORM
+from PySide2.QtCore import Qt
+from PySide2.QtGui import QIcon, QPixmap
+from PySide2.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QHBoxLayout,
+    QLabel,
+    QPushButton,
+)
 
-COPYRIGHT = "Copyright (C) 2022 Xiang"
+from .const import APP_NAME, VERSION, APP_ICON
+from . import readapi as read_data
+
+COPYRIGHT = "Copyright (C) 2022-2023 Xiang"
 DESCRIPTION = "An open-source overlay application for racing simulation."
 LICENSE = "Licensed under the GNU General Public License v3.0 or later."
 
 
-class About(tk.Tk):
+class About(QWidget):
     """Create about window
 
     Hide window at startup.
     """
 
     def __init__(self):
-        # Assign base setting
-        tk.Tk.__init__(self)
-        self.protocol("WM_DELETE_WINDOW", self.withdraw)
-        self.attributes("-topmost", 1)
-        self.withdraw()
+        super().__init__()
+        # Base setting
+        self.setFixedWidth(226)
+        self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)
+        self.setWindowIcon(QIcon(APP_ICON))
+        self.setWindowTitle("About")
 
-        # Config title & background
-        fg_color = "#222"
-        bg_color = "#ddd"
-        self.title("About")
-        self.configure(bg=bg_color, padx=22, pady=12)
-        self.resizable(False, False)
-        if PLATFORM == "Windows":
-            self.iconbitmap("icon.ico")
-        else:
-            self.iconphoto(True, tk.PhotoImage(file="icon.png"))
+        # Logo
+        logo_image = QPixmap(APP_ICON)
+        logo_image = logo_image.scaled(64,64, mode=Qt.SmoothTransformation)
+        label_logo = QLabel(self)
+        label_logo.setPixmap(logo_image)
+        label_logo.setFixedSize(74,74)
+        label_logo.setStyleSheet("padding: 5px 0 5px 10px;")
 
-        description = (f"\n{COPYRIGHT}\n\n{DESCRIPTION}\n\n{LICENSE}\n")
+        # Title
+        label_title = QLabel(APP_NAME)
+        label_title.setAlignment(Qt.AlignLeft)
+        label_title.setStyleSheet("padding: 12px 0 0 3px; font-size: 20px;")
+        label_title.setFixedHeight(34)
 
-        with Image.open("icon.ico") as icon_source:
-            icon_resize = icon_source.resize((54, 54), resample=1)
-        icon_image = ImageTk.PhotoImage(icon_resize)
-        icon_label = tk.Label(self, image=icon_image, bg=bg_color)
-        icon_label.image = icon_image
-        icon_label.grid(row=0, column=0, padx=0, pady=0, sticky="w")
+        label_version = QLabel(f"Version: {VERSION}")
+        label_version.setAlignment(Qt.AlignLeft)
+        label_version.setStyleSheet("padding: 0 0 0 6px; font-size: 11px;")
+        label_version.setFixedHeight(30)
 
-        about_title1 = tk.Label(self, text=APP_NAME, font=("Tahoma",16, "normal"),
-                                padx=0, pady=0, fg=fg_color, bg=bg_color)
-        about_title1.grid(row=0, column=0, padx=(62, 0), pady=(7,0), sticky="wn")
+        # Description
+        label_desc = QLabel(f"<p>{COPYRIGHT}</p><p>{DESCRIPTION}</p><p>{LICENSE}</p>")
+        label_desc.setWordWrap(True)
+        label_desc.setStyleSheet("padding: 5px; font-size: 11px;")
 
-        about_version = tk.Label(self, text=f"Version: {VERSION}", font=("Tahoma",8, "normal"),
-                                 padx=0, pady=0, fg=fg_color, bg=bg_color)
-        about_version.grid(row=0, column=0, padx=(63, 0), pady=(34, 0), sticky="wn")
+        # Additional info
+        label_addinfo = QLabel(f"Loaded API version: {read_data.api_version()}")
+        label_addinfo.setAlignment(Qt.AlignLeft)
+        label_addinfo.setStyleSheet("padding: 5px; font-size: 11px;")
 
-        about_text = tk.Message(self, text=description, font=("Tahoma", 8, "normal"),
-                                width=190, padx=2, pady=0, fg=fg_color, bg=bg_color)
-        about_text.grid(row=1, column=0, padx=0, pady=0, sticky="w")
+        # Add button
+        button_lic = QPushButton("License")
+        button_lic.setStyleSheet("padding: 4px 6px")
+        button_lic.clicked.connect(self.open_license_text)
 
-        lbutton = tk.Button(self, text="License", bd=0, padx=4, pady=0,
-                            command=self.open_license_text)
-        lbutton.grid(row=2, column=0, padx=0, pady=0, sticky="w")
+        button_3rd = QPushButton("Third-Party Notices")
+        button_3rd.setStyleSheet("padding: 4px 6px")
+        button_3rd.clicked.connect(self.open_thirdparty_text)
 
-        tbutton = tk.Button(self, text="Third-Party Notices", bd=0, padx=4, pady=0,
-                            command=self.open_thirdparty_text)
-        tbutton.grid(row=2, column=0, padx=0, pady=0, sticky="e")
+        # Create layout
+        layout_main = QVBoxLayout()
+        layout_logo = QHBoxLayout()
+        layout_title = QVBoxLayout()
+        layout_button = QHBoxLayout()
+        layout_button.setContentsMargins(5,5,5,5)
+
+        # Add to layout
+        layout_title.addWidget(label_title)
+        layout_title.addWidget(label_version)
+
+        layout_logo.addWidget(label_logo)
+        layout_logo.addLayout(layout_title)
+
+        layout_button.addWidget(button_lic, stretch=1)
+        layout_button.addStretch(stretch=1)
+        layout_button.addWidget(button_3rd, stretch=2)
+
+        layout_main.addLayout(layout_logo)
+        layout_main.addWidget(label_desc)
+        layout_main.addWidget(label_addinfo)
+        layout_main.addLayout(layout_button)
+        #layout_main.setSpacing(0)
+
+        self.setLayout(layout_main)
 
     @staticmethod
     def open_license_text():
@@ -93,3 +127,8 @@ class About(tk.Tk):
     def open_thirdparty_text():
         """Open THIRDPARTYNOTICES file"""
         os.startfile("docs\\licenses\\THIRDPARTYNOTICES.txt")
+
+    def closeEvent(self, event):
+        """Minimize to tray"""
+        event.ignore()
+        self.hide()

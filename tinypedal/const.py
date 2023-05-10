@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -21,21 +21,27 @@ Constants
 """
 
 import platform
+from .validator import is_folder_exist
 
 
 APP_NAME = "TinyPedal"
-VERSION = "1.12.1"
+VERSION = "2.0.0"
 PLATFORM = platform.system()
+APP_ICON = "images/icon.png"
+
 
 # User data path
 if PLATFORM == "Windows":
-    PATH_SETTINGS = "./settings/"
-    PATH_CLASSES = "./settings/"
-    PATH_DELTABEST = "./deltabest/"
-    PATH_FUEL = "./deltabest/"
+    PATH_SETTINGS = "settings/"
+    PATH_DELTABEST = "deltabest/"
+    PATH_FUEL = PATH_DELTABEST
+    PATH_TRACKMAP = "trackmap/"
+    is_folder_exist(PATH_SETTINGS)
+    is_folder_exist(PATH_DELTABEST)
+    is_folder_exist(PATH_TRACKMAP)
 else:
     from xdg import BaseDirectory as BD
     PATH_SETTINGS = BD.save_config_path(APP_NAME) + "/"
-    PATH_CLASSES = PATH_SETTINGS
     PATH_DELTABEST = BD.save_data_path(APP_NAME, "deltabest") + "/"
     PATH_FUEL = PATH_DELTABEST
+    PATH_TRACKMAP = BD.save_data_path(APP_NAME, "trackmap") + "/"

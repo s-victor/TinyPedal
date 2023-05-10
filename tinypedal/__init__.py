@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -19,3 +19,17 @@
 """
 Init
 """
+import sys
+import logging
+
+logger = logging.getLogger(__name__)
+
+log_format = logging.Formatter("[%(levelname)s] %(message)s")
+cli_handler = logging.StreamHandler(sys.stdout)
+
+#logger.setLevel(logging.NOTSET)
+logger.setLevel(logging.INFO)
+logger.addHandler(cli_handler)
+
+cli_handler.setLevel(logging.INFO)
+cli_handler.setFormatter(log_format)

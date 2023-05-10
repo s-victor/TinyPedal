@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -31,10 +31,10 @@ Access rF2 shared memory data using:
    https://github.com/s-victor/pyRfactor2SharedMemory
 """
 
-import re
 from pyRfactor2SharedMemory.sharedMemoryAPI import Cbytestring2Python
 from pyRfactor2SharedMemory.sim_info_sync import SimInfoSync
 
+from . import validator as val
 from . import calculation as calc
 
 
@@ -42,7 +42,7 @@ from . import calculation as calc
 info = SimInfoSync()
 info.startUpdating()  # start Shared Memory updating thread
 
-chknm = calc.in2zero
+chknm = val.in2zero
 cs2py = Cbytestring2Python
 
 
@@ -51,11 +51,31 @@ def state():
     return info.syncedVehicleTelemetry().mIgnitionStarter
 
 
+def api_version():
+    """Check API version"""
+    version = cs2py(info.LastExt.mVersion)
+    if version:
+        return cs2py(info.LastExt.mVersion)
+    return "unknown"
+
+
 def combo_check():
     """Track & vehicle combo data"""
-    name_class = cs2py(info.syncedVehicleScoring().mVehicleClass)
-    name_track = cs2py(info.LastScor.mScoringInfo.mTrackName)
-    return re.sub('[\\\\/:*?"<>|]', "", f"{name_track} - {name_class}")
+    track_name = cs2py(info.LastScor.mScoringInfo.mTrackName)
+    class_name = cs2py(info.syncedVehicleScoring().mVehicleClass)
+    return val.format_invalid_char(f"{track_name} - {class_name}")
+
+
+def vehicle_check():
+    """Track & vehicle combo data"""
+    class_name = cs2py(info.syncedVehicleScoring().mVehicleClass)
+    veh_name = cs2py(info.syncedVehicleScoring().mVehicleName)
+    return val.format_invalid_char(f"{class_name} - {veh_name}")
+
+
+def is_race():
+    """Is race session"""
+    return chknm(info.LastScor.mScoringInfo.mSession) > 9
 
 
 def lap_timestamp():
@@ -65,29 +85,35 @@ def lap_timestamp():
     return lap_stime, lap_etime
 
 
+def lap_number():
+    """Lap number data"""
+    return chknm(info.syncedVehicleTelemetry().mLapNumber)
+
+
 def cruise():
     """Cruise data"""
     ori_yaw = (chknm(info.syncedVehicleTelemetry().mOri[2].x),
                chknm(info.syncedVehicleTelemetry().mOri[2].z))
-    pos_y = round(chknm(info.syncedVehicleScoring().mPos.y), 1)
     time_start = int(chknm(info.LastScor.mScoringInfo.mStartET))
-    time_curr = int(chknm(info.LastScor.mScoringInfo.mCurrentET))
-    return ori_yaw, pos_y, time_start, time_curr
+    track_time = int(chknm(info.LastScor.mScoringInfo.mCurrentET))
+    pos_y = round(chknm(info.syncedVehicleScoring().mPos.y), 1)
+    return ori_yaw, pos_y, time_start, track_time
 
 
 def instrument():
     """Instrument data"""
     headlights = chknm(info.syncedVehicleTelemetry().mHeadlights)
-    ignition = chknm(info.syncedVehicleTelemetry().mIgnitionStarter)
-    rpm = chknm(info.syncedVehicleTelemetry().mEngineRPM)
-    autoclutch = chknm(info.LastExt.mPhysics.mAutoClutch)
-    clutch = chknm(info.syncedVehicleTelemetry().mFilteredClutch)
-    brake = chknm(info.syncedVehicleTelemetry().mFilteredBrake)
-    wheel_rot = [chknm(info.syncedVehicleTelemetry().mWheels[data].mRotation) for data in range(4)]
+    ignition = (chknm(info.syncedVehicleTelemetry().mIgnitionStarter),
+                chknm(info.syncedVehicleTelemetry().mEngineRPM))
+    clutch = (chknm(info.LastExt.mPhysics.mAutoClutch),
+              chknm(info.syncedVehicleTelemetry().mFilteredClutch))
+    brake = bool(chknm(info.syncedVehicleTelemetry().mFilteredBrake) > 0)
+    wheel_rot = [chknm(info.syncedVehicleTelemetry().mWheels[data].mRotation)
+                 for data in range(4)]
     speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.y),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.z))
-    return headlights, ignition, rpm, autoclutch, clutch, brake, wheel_rot, speed
+    return headlights, ignition, clutch, brake, wheel_rot, speed
 
 
 def pedal():
@@ -109,17 +135,17 @@ def steering():
     return raw_steering, sw_rot_range
 
 
-def gear():
-    """Gear data"""
-    pit_limiter = chknm(info.syncedVehicleTelemetry().mSpeedLimiter)
+def gauge():
+    """Gauge data"""
     mgear = chknm(info.syncedVehicleTelemetry().mGear)
+    max_gear = chknm(info.syncedVehicleTelemetry().mMaxGears)
     speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.y),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.z))
     rpm = chknm(info.syncedVehicleTelemetry().mEngineRPM)
     rpm_max = chknm(info.syncedVehicleTelemetry().mEngineMaxRPM)
     lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
-    return pit_limiter, mgear, speed, rpm, rpm_max, lap_etime
+    return mgear, max_gear, speed, rpm, rpm_max, lap_etime
 
 
 def p2p():
@@ -136,9 +162,8 @@ def pitting():
     """Pitting data"""
     inpits = chknm(info.syncedVehicleScoring().mInPits)
     pit_limiter = chknm(info.syncedVehicleTelemetry().mSpeedLimiter)
-    curr_session = chknm(info.LastScor.mScoringInfo.mSession)
     race_phase = chknm(info.LastScor.mScoringInfo.mGamePhase)
-    return inpits, pit_limiter, curr_session, race_phase
+    return inpits, pit_limiter, race_phase
 
 
 def blue_flag():
@@ -150,8 +175,7 @@ def yellow_flag():
     """Yellow flag data"""
     return (chknm(info.LastScor.mScoringInfo.mSectorFlag[0]),
             chknm(info.LastScor.mScoringInfo.mSectorFlag[1]),
-            chknm(info.LastScor.mScoringInfo.mSectorFlag[2]),
-            (2,0,1)[min(max(chknm(info.syncedVehicleScoring().mSector), 0), 2)])
+            chknm(info.LastScor.mScoringInfo.mSectorFlag[2]))
 
 
 def radar():
@@ -174,21 +198,18 @@ def session():
                  - chknm(info.LastScor.mScoringInfo.mCurrentET))
     lap_into = int(min(max(chknm(info.syncedVehicleScoring().mLapDist) * 100
                        / max(chknm(info.LastScor.mScoringInfo.mLapDist), 1), 0), 99))
-    lap_num = chknm(info.syncedVehicleTelemetry().mLapNumber)
     lap_total = chknm(info.LastScor.mScoringInfo.mMaxLaps)
-    plr_place = (chknm(info.syncedVehicleScoring().mPlace),
+    plr_position = (chknm(info.syncedVehicleScoring().mPlace),
                  chknm(info.LastTele.mNumVehicles))
-    return time_left, lap_into, lap_num, lap_total, plr_place
+    return time_left, lap_into, lap_total, plr_position
 
 
 def stint():
     """Stint data"""
-    lap_num = chknm(info.syncedVehicleTelemetry().mLapNumber)
-    wear_curr = [chknm(info.syncedVehicleTelemetry().mWheels[data].mWear) for data in range(4)]
     time_curr = chknm(info.LastScor.mScoringInfo.mCurrentET)
     inpits = chknm(info.syncedVehicleScoring().mInPits)
     ingarage = chknm(info.syncedVehicleScoring().mInGarageStall)
-    return lap_num, wear_curr, time_curr, inpits, ingarage
+    return time_curr, inpits, ingarage
 
 
 def tyre_compound():
@@ -199,30 +220,36 @@ def tyre_compound():
 
 def camber():
     """Camber data"""
-    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mCamber) for data in range(4)]
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mCamber)
+            for data in range(4)]
 
 
 def toe():
     """Toe data"""
-    return (chknm(info.syncedVehicleTelemetry().mWheels[0].mToe),
-            -chknm(info.syncedVehicleTelemetry().mWheels[1].mToe),
-            chknm(info.syncedVehicleTelemetry().mWheels[2].mToe),
-            -chknm(info.syncedVehicleTelemetry().mWheels[3].mToe))
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mToe)
+            for data in range(4)]
 
 
 def ride_height():
     """Ride height data"""
-    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mRideHeight) for data in range(4)]
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mRideHeight)
+            for data in range(4)]
 
+
+def brake_bias():
+    """Brake bias data"""
+    return chknm(info.syncedVehicleTelemetry().mRearBrakeBias)
 
 def brake_pressure():
     """Brake pressure data"""
-    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mBrakePressure) for data in range(4)]
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mBrakePressure)
+            for data in range(4)]
 
 
 def brake_temp():
     """Brake temperature data"""
-    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mBrakeTemp) - 273.15 for data in range(4)]
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mBrakeTemp) - 273.15
+            for data in range(4)]
 
 
 def tyre_temp_surface():
@@ -233,23 +260,26 @@ def tyre_temp_surface():
 
 def tyre_temp_innerlayer():
     """Tyre inner layer temperature data"""
-    return [[chknm(info.syncedVehicleTelemetry().mWheels[tyre].mTireInnerLayerTemperature[data]) - 273.15
-             for data in range(3)] for tyre in range(4)]
+    return [[chknm(info.syncedVehicleTelemetry().mWheels[tyre].mTireInnerLayerTemperature[data])
+            - 273.15 for data in range(3)] for tyre in range(4)]
 
 
 def wear():
     """Tyre wear data"""
-    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mWear) for data in range(4)]
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mWear)
+            for data in range(4)]
 
 
 def tyre_load():
     """Tyre load data"""
-    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mTireLoad) for data in range(4)]
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mTireLoad)
+            for data in range(4)]
 
 
 def tyre_pressure():
     """Tyre pressure data"""
-    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mPressure) for data in range(4)]
+    return [chknm(info.syncedVehicleTelemetry().mWheels[data].mPressure)
+            for data in range(4)]
 
 
 def force():
@@ -277,13 +307,13 @@ def timing(index):
     return veh_total, laptime_opt, class_opt == class_plr
 
 
-def electric():
-    """Electric data"""
-    motor_torque = chknm(info.syncedVehicleTelemetry().mElectricBoostMotorTorque)
-    motor_rpm = chknm(info.syncedVehicleTelemetry().mElectricBoostMotorRPM)
+def electric_motor():
+    """Electric motor data"""
     motor_temp = chknm(info.syncedVehicleTelemetry().mElectricBoostMotorTemperature)
     water_temp = chknm(info.syncedVehicleTelemetry().mElectricBoostWaterTemperature)
-    return motor_torque, motor_rpm, motor_temp, water_temp
+    motor_rpm = chknm(info.syncedVehicleTelemetry().mElectricBoostMotorRPM)
+    motor_torque = chknm(info.syncedVehicleTelemetry().mElectricBoostMotorTorque)
+    return motor_temp, water_temp, motor_rpm, motor_torque
 
 
 def engine():
@@ -316,13 +346,10 @@ def sector():
     curr_sector2 = chknm(info.syncedVehicleScoring().mCurSector2)
     last_sector2 = chknm(info.syncedVehicleScoring().mLastSector2)
     last_laptime = chknm(info.syncedVehicleScoring().mLastLapTime)
-    plr_laps = chknm(info.syncedVehicleScoring().mTotalLaps) + 1
-    plr_place = chknm(info.syncedVehicleScoring().mPlace)
     speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.y),
                            chknm(info.syncedVehicleTelemetry().mLocalVel.z))
-    return (sector_idx, curr_sector1, curr_sector2, last_sector2, last_laptime,
-            plr_laps, plr_place, speed)
+    return sector_idx, curr_sector1, curr_sector2, last_sector2, last_laptime, speed
 
 
 def session_check():

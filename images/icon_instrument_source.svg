@@ -8,8 +8,8 @@
    version="1.1"
    id="svg8"
    inkscape:version="1.1.2 (b8e25be833, 2022-02-05)"
-   sodipodi:docname="instruments_icon_source.svg"
-   inkscape:export-filename="icon_instruments.png"
+   sodipodi:docname="icon_instrument_source.svg"
+   inkscape:export-filename="icon_instrument.png"
    inkscape:export-xdpi="96"
    inkscape:export-ydpi="96"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
@@ -32,10 +32,10 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="0.32"
-     inkscape:cx="484.375"
-     inkscape:cy="707.8125"
+     inkscape:cx="-653.125"
+     inkscape:cy="810.9375"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer2"
      showgrid="true"
      inkscape:window-width="1920"
      inkscape:window-height="1026"
@@ -51,7 +51,7 @@
      showguides="true"
      inkscape:guide-bbox="true"
      inkscape:snap-nodes="true"
-     height="256px"
+     height="1280px"
      width="256px">
     <inkscape:grid
        type="xygrid"
@@ -96,7 +96,7 @@
      inkscape:groupmode="layer"
      id="layer2"
      inkscape:label="inactive"
-     sodipodi:insensitive="true">
+     style="display:inline">
     <use
        x="0"
        y="0"

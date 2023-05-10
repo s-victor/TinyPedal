@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -21,15 +21,6 @@ Calculation function
 """
 
 import math
-
-
-def in2zero(value):
-    """Convert invalid value to zero"""
-    if isinstance(value, (float, int)):
-        if math.isnan(value) or math.isinf(value):  # bypass nan & inf
-            return 0
-        return value
-    return 0
 
 
 def vel2speed(vel_x, vel_y, vel_z):
@@ -57,23 +48,19 @@ def celsius2fahrenheit(temp):
     return temp * 1.8 + 32
 
 
+def kelvin2celsius(kelvin):
+    """Convert Kelvin to Celsius"""
+    return max(kelvin - 273.15, 0)
+
+
 def liter2gallon(fuel):
     """Liter to Gallon"""
     return fuel * 0.2641729
 
 
 def average_value(average, value, num_samples):
-    """Calculate average value"""
+    """Average value"""
     return (average * num_samples + value) / (num_samples + 1)
-
-
-def gear(gear_index):
-    """Convert gear index to text string"""
-    if gear_index > 0:
-        return str(gear_index)
-    if gear_index == 0:
-        return "N"
-    return "R"
 
 
 def rad2deg(radian):
@@ -82,24 +69,24 @@ def rad2deg(radian):
 
 
 def max_vs_avg_rotation(w_rot1, w_rot2):
-    """Calculate left and right wheel rotation difference of same axle"""
+    """Left and right wheel rotation difference of same axle"""
     max_rot = min(w_rot1, w_rot2)  # negative value is forward
     avg_rot = (w_rot1 + w_rot2) / 2
     return abs(max_rot - avg_rot)  # difference
 
 
 def rake(height_fl, height_fr, height_rl, height_rr):
-    """Calculate rake"""
+    """Raw rake"""
     return (height_rr + height_rl - height_fr - height_fl) * 0.5
 
 
 def rake2angle(v_rake, wheelbase):
-    """Calculate rake angle based on wheelbase value set in JSON"""
+    """Rake angle based on wheelbase value set in JSON"""
     return math.atan(float(v_rake) / (wheelbase + 0.001) * 57.2957795)
 
 
 def slip_ratio(w_rot, w_radius, v_speed):
-    """Calculate slip ratio (percentage), speed unit in m/s"""
+    """Slip ratio (percentage), speed unit in m/s"""
     if v_speed > 0.1:  # set minimum speed to avoid flickering while stationary
         return abs((v_speed - abs(w_rot * w_radius)) / v_speed)
     return 0
@@ -116,12 +103,12 @@ def kpa2bar(pressure):
 
 
 def gforce(value):
-    """Calculate G force"""
+    """G force"""
     return value / 9.8
 
 
 def force_ratio(value1, value2):
-    """Calculate force ratio from Newtons"""
+    """Force ratio from Newtons"""
     return abs(value1 / (value2 + 0.01) * 100)
 
 
@@ -137,35 +124,61 @@ def rotate_pos(ori_rad, value1, value2):
     return new_pos_x, new_pos_z
 
 
-def pos2distance(value1, value2):
-    """Calculate distance from global position difference"""
+def distance_xy(value1, value2):
+    """Distance in 2d space"""
+    return ((value1[0] - value2[0]) ** 2
+             + (value1[1] - value2[1]) ** 2) ** 0.5
+
+
+def distance_xyz(value1, value2):
+    """Distance in 3d space"""
     return ((value1[0] - value2[0]) ** 2
              + (value1[1] - value2[1]) ** 2
-             + (value1[2] - value2[2]) **2 ) ** 0.5
+             + (value1[2] - value2[2]) ** 2) ** 0.5
+
+
+def circular_relative_distance(circle_length, plr_dist, opt_dist):
+    """Relative distance between opponent & player in a circle"""
+    rel_dist = opt_dist - plr_dist
+    # Relative dist is greater than half of track length
+    if abs(rel_dist) > circle_length * 0.5:
+        if opt_dist > plr_dist:
+            rel_dist -= circle_length  # opponent is behind player
+        elif opt_dist < plr_dist:
+            rel_dist += circle_length  # opponent is ahead player
+    return rel_dist
+
+
+def relative_time_gap(distance, plr_speed, opt_speed):
+    """Relative time gap between opponent & player"""
+    speed = max(plr_speed, opt_speed)
+    if speed > 1:
+        return abs(distance / speed)
+    return 0
 
 
 def sec2sessiontime(seconds):
-    """Calculate session time (hour/min/sec/ms)"""
+    """Session time (hour/min/sec/ms)"""
     hours = seconds // 3600
     mins = divmod(seconds // 60, 60)[1]
     secs = divmod(seconds, 60)[1]
-    return f"{hours:02.0f}:{mins:02.0f}:{secs:04.01f}"
+    return f"{hours:01.0f}:{mins:02.0f}:{secs:02.0f}"
 
 
 def sec2laptime(seconds):
-    """Calculate lap time (min/sec/ms)"""
+    """Lap time (min/sec/ms)"""
     if seconds > 60:
         return f"{seconds // 60:.0f}:{divmod(seconds, 60)[1]:06.03f}"
     return f"{divmod(seconds, 60)[1]:.03f}"
 
 
 def sec2laptime_full(seconds):
-    """Calculate lap time (min/sec/ms) full"""
+    """Lap time (min/sec/ms) full"""
     return f"{seconds // 60:.0f}:{divmod(seconds, 60)[1]:06.03f}"
 
 
 def sec2stinttime(seconds):
-    """Calculate lap time (min/sec/ms)"""
+    """Lap time (min/sec/ms)"""
     return f"{seconds // 60:02.0f}:{divmod(seconds, 60)[1]:02.0f}"
 
 
@@ -177,8 +190,8 @@ def linear_interp(meter, meter1, secs1, meter2, secs2):
 def nearest_dist_index(position, listname):
     """Use current position to get nearest distance index from deltabest lap data"""
     index_lower, index_higher = 0, 0
-    for index, line in enumerate(listname):
-        if position < line[0]:
+    for index, column in enumerate(listname):
+        if position < column[0]:
             index_higher = index
             break
     for index in range(index_higher - 1, -1, -1):
@@ -188,7 +201,27 @@ def nearest_dist_index(position, listname):
     return index_lower, index_higher
 
 
-# Unused
-def kelvin2celsius(kelvin):
-    """Convert Kelvin to Celsius"""
-    return max(kelvin - 273.15, 0)
+def color_heatmap(heatmap, temperature):
+    """Set color from heatmap"""
+    last_color = heatmap[0][1]
+    for temp in heatmap:
+        if temperature < float(temp[0]):
+            return last_color
+        last_color = temp[1]
+    return heatmap[-1][1]
+
+
+def del_decimal_point(value):
+    """Delete decimal point"""
+    if value and value[-1] == ".":
+        return value[:-1]
+    return value
+
+
+def lap_difference(opt_laps, plr_laps, opt_per_dist, plr_per_dist, session=10):
+    """Calculate lap difference between 2 players"""
+    lap_diff = opt_laps + opt_per_dist - plr_laps - plr_per_dist
+    # Only check during race session
+    if session > 9 and abs(lap_diff) > 1:
+        return lap_diff
+    return 0

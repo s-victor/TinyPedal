@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -20,41 +20,58 @@
 Timing Widget
 """
 
-import tkinter as tk
-import tkinter.font as tkfont
+from PySide2.QtCore import Qt, Slot
+from PySide2.QtGui import QFont, QFontMetrics
+from PySide2.QtWidgets import (
+    QGridLayout,
+    QLabel,
+)
 
 from .. import calculation as calc
 from .. import readapi as read_data
-from ..base import Widget, MouseEvent
-from ..module_control import module
+from ..base import Widget
+from ..module_control import mctrl
 
 WIDGET_NAME = "timing"
 MAGIC_NUM = 99999  # magic number for default variable not updated by rF2
 
 
-class Draw(Widget, MouseEvent):
+class Draw(Widget):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
         Widget.__init__(self, config, WIDGET_NAME)
 
-        # Config size & position
-        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+        # Config font
+        self.font = QFont()
+        self.font.setFamily(self.wcfg['font_name'])
+        self.font.setPixelSize(self.wcfg['font_size'])
+        font_w = QFontMetrics(self.font).averageCharWidth()
 
-        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        # Config variable
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
 
-        # Config style & variable
-        font_timing = tkfont.Font(family=self.wcfg["font_name"],
-                                  size=-self.wcfg["font_size"],
-                                  weight=self.wcfg["font_weight"])
+        text_best = f"{self.wcfg['prefix_best']}-:--.---"
+        text_last = f"{self.wcfg['prefix_last']}-:--.---"
+        text_curr = f"{self.wcfg['prefix_current']}-:--.---"
+        text_est = f"{self.wcfg['prefix_estimated']}-:--.---"
+        text_sbest = f"{self.wcfg['prefix_session_best']}-:--.---"
+        self.bar_width = font_w * len(max(text_best))
 
-        text_best = f"{self.wcfg['prefix_best']}--:--.---"
-        text_last = f"{self.wcfg['prefix_last']}--:--.---"
-        text_curr = f"{self.wcfg['prefix_current']}--:--.---"
-        text_est = f"{self.wcfg['prefix_estimated']}--:--.---"
-        text_sbest = f"{self.wcfg['prefix_session_best']}--:--.---"
+        # Base style
+        self.setStyleSheet(
+            f"font-family: {self.wcfg['font_name']};"
+            f"font-size: {self.wcfg['font_size']}px;"
+            f"font-weight: {self.wcfg['font_weight']};"
+            f"padding: 0 {bar_padx}px;"
+        )
+
+        # Create layout
+        layout = QGridLayout()
+        layout.setSpacing(bar_gap)
+        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         column_sbest = self.wcfg["column_index_session_best"]
         column_best = self.wcfg["column_index_best"]
@@ -62,82 +79,102 @@ class Draw(Widget, MouseEvent):
         column_curr = self.wcfg["column_index_current"]
         column_est = self.wcfg["column_index_estimated"]
 
-        # Draw label
-        bar_style = {"bd":0, "height":1, "padx":bar_padx, "pady":0, "font":font_timing}
-
+        # Session best laptime
         if self.wcfg["show_session_best"]:
-            self.bar_time_sbest = tk.Label(self, bar_style, text=text_sbest,
-                                           width=len(text_sbest),
-                                           fg=self.wcfg["font_color_session_best"],
-                                           bg=self.wcfg["bkg_color_session_best"])
-        if self.wcfg["show_best"]:
-            self.bar_time_best = tk.Label(self, bar_style, text=text_best,
-                                          width=len(text_best),
-                                          fg=self.wcfg["font_color_best"],
-                                          bg=self.wcfg["bkg_color_best"])
-        if self.wcfg["show_last"]:
-            self.bar_time_last = tk.Label(self, bar_style, text=text_last,
-                                          width=len(text_last),
-                                          fg=self.wcfg["font_color_last"],
-                                          bg=self.wcfg["bkg_color_last"])
-        if self.wcfg["show_current"]:
-            self.bar_time_curr = tk.Label(self, bar_style, text=text_curr,
-                                          width=len(text_curr),
-                                          fg=self.wcfg["font_color_current"],
-                                          bg=self.wcfg["bkg_color_current"])
-        if self.wcfg["show_estimated"]:
-            self.bar_time_est = tk.Label(self, bar_style, text=text_est,
-                                         width=len(text_est),
-                                         fg=self.wcfg["font_color_estimated"],
-                                         bg=self.wcfg["bkg_color_estimated"])
+            self.bar_time_sbest = QLabel(text_sbest)
+            self.bar_time_sbest.setAlignment(Qt.AlignCenter)
+            self.bar_time_sbest.setStyleSheet(
+                f"color: {self.wcfg['font_color_session_best']};"
+                f"background: {self.wcfg['bkg_color_session_best']};"
+                f"min-width: {self.bar_width}px;"
+            )
 
-        if self.wcfg["layout"] == "0":
+        # Personal best laptime
+        if self.wcfg["show_best"]:
+            self.bar_time_best = QLabel(text_best)
+            self.bar_time_best.setAlignment(Qt.AlignCenter)
+            self.bar_time_best.setStyleSheet(
+                f"color: {self.wcfg['font_color_best']};"
+                f"background: {self.wcfg['bkg_color_best']};"
+                f"min-width: {self.bar_width}px;"
+            )
+
+        # Last laptime
+        if self.wcfg["show_last"]:
+            self.bar_time_last = QLabel(text_last)
+            self.bar_time_last.setAlignment(Qt.AlignCenter)
+            self.bar_time_last.setStyleSheet(
+                f"color: {self.wcfg['font_color_last']};"
+                f"background: {self.wcfg['bkg_color_last']};"
+                f"min-width: {self.bar_width}px;"
+            )
+
+        # Current laptime
+        if self.wcfg["show_current"]:
+            self.bar_time_curr = QLabel(text_curr)
+            self.bar_time_curr.setAlignment(Qt.AlignCenter)
+            self.bar_time_curr.setStyleSheet(
+                f"color: {self.wcfg['font_color_current']};"
+                f"background: {self.wcfg['bkg_color_current']};"
+                f"min-width: {self.bar_width}px;"
+            )
+
+        # Estimated laptime
+        if self.wcfg["show_estimated"]:
+            self.bar_time_est = QLabel(text_est)
+            self.bar_time_est.setAlignment(Qt.AlignCenter)
+            self.bar_time_est.setStyleSheet(
+                f"color: {self.wcfg['font_color_estimated']};"
+                f"background: {self.wcfg['bkg_color_estimated']};"
+                f"min-width: {self.bar_width}px;"
+            )
+
+        # Set layout
+        if self.wcfg["layout"] == 0:
+            # Vertical layout
             if self.wcfg["show_session_best"]:
-                self.bar_time_sbest.grid(row=column_sbest, column=0, padx=0, pady=(0, bar_gap))
+                layout.addWidget(self.bar_time_sbest, column_sbest, 0)
             if self.wcfg["show_best"]:
-                self.bar_time_best.grid(row=column_best, column=0, padx=0, pady=(0, bar_gap))
+                layout.addWidget(self.bar_time_best, column_best, 0)
             if self.wcfg["show_last"]:
-                self.bar_time_last.grid(row=column_last, column=0, padx=0, pady=(0, bar_gap))
+                layout.addWidget(self.bar_time_last, column_last, 0)
             if self.wcfg["show_current"]:
-                self.bar_time_curr.grid(row=column_curr, column=0, padx=0, pady=(0, bar_gap))
+                layout.addWidget(self.bar_time_curr, column_curr, 0)
             if self.wcfg["show_estimated"]:
-                self.bar_time_est.grid(row=column_est, column=0, padx=0, pady=(0, bar_gap))
+                layout.addWidget(self.bar_time_est, column_est, 0)
         else:
+            # Horizontal layout
             if self.wcfg["show_session_best"]:
-                self.bar_time_sbest.grid(row=0, column=column_sbest, padx=(0, bar_gap), pady=0)
+                layout.addWidget(self.bar_time_sbest, 0, column_sbest)
             if self.wcfg["show_best"]:
-                self.bar_time_best.grid(row=0, column=column_best, padx=(0, bar_gap), pady=0)
+                layout.addWidget(self.bar_time_best, 0, column_best)
             if self.wcfg["show_last"]:
-                self.bar_time_last.grid(row=0, column=column_last, padx=(0, bar_gap), pady=0)
+                layout.addWidget(self.bar_time_last, 0, column_last)
             if self.wcfg["show_current"]:
-                self.bar_time_curr.grid(row=0, column=column_curr, padx=(0, bar_gap), pady=0)
+                layout.addWidget(self.bar_time_curr, 0, column_curr)
             if self.wcfg["show_estimated"]:
-                self.bar_time_est.grid(row=0, column=column_est, padx=(0, bar_gap), pady=0)
+                layout.addWidget(self.bar_time_est, 0, column_est)
+        self.setLayout(layout)
 
         # Last data
         self.checked = False
         self.vehicle_counter = 0
         self.laptime_sbest = MAGIC_NUM
 
-        self.last_laptime_sbest = None
-        self.last_laptime_best = None
-        self.last_laptime_last = None
-        self.last_laptime_curr = None
-        self.last_laptime_est = None
+        self.last_laptime_sbest = 0
+        self.last_laptime_best = 0
+        self.last_laptime_last = (0,0)
+        self.last_laptime_curr = 0
+        self.last_laptime_est = 0
 
-        # Start updating
-        self.update_data()
+        # Set widget state & start update
+        self.set_widget_state()
+        self.update_timer.start()
 
-        # Assign mouse event
-        MouseEvent.__init__(self)
-
+    @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.wcfg["enable"]:
-
-            # Read Timing data
-            (laptime_curr, laptime_last, laptime_best, laptime_est, _
-             ) = module.delta_time.output_data
+        if self.wcfg["enable"] and read_data.state():
 
             # Reset switch
             if not self.checked:
@@ -148,9 +185,9 @@ class Draw(Widget, MouseEvent):
                 veh_total, laptime_opt, is_same_class = read_data.timing(self.vehicle_counter)
 
                 if 0 < laptime_opt < self.laptime_sbest:
-                    if self.wcfg["session_best_from_same_class_only"] and is_same_class:
+                    if self.wcfg["show_session_best_from_same_class_only"] and is_same_class:
                         self.laptime_sbest = laptime_opt
-                    elif not self.wcfg["session_best_from_same_class_only"]:
+                    elif not self.wcfg["show_session_best_from_same_class_only"]:
                         self.laptime_sbest = laptime_opt
 
                 if self.vehicle_counter < max(veh_total, 1):
@@ -164,24 +201,29 @@ class Draw(Widget, MouseEvent):
 
             # Personal best laptime
             if self.wcfg["show_best"]:
+                laptime_best = mctrl.module_delta.output.LaptimeBest
                 self.update_laptime(laptime_best, self.last_laptime_best,
                                     self.wcfg["prefix_best"], "best")
                 self.last_laptime_best = laptime_best
 
             # Last laptime
             if self.wcfg["show_last"]:
-                self.update_laptime(laptime_last, self.last_laptime_last,
-                                    self.wcfg["prefix_last"], "last")
+                laptime_last = (mctrl.module_delta.output.LaptimeLast,
+                                mctrl.module_delta.output.IsValidLap)
+                self.update_last_laptime(laptime_last, self.last_laptime_last,
+                                         self.wcfg["prefix_last"])
                 self.last_laptime_last = laptime_last
 
             # Current laptime
             if self.wcfg["show_current"]:
+                laptime_curr = mctrl.module_delta.output.LaptimeCurrent
                 self.update_laptime(laptime_curr, self.last_laptime_curr,
                                     self.wcfg["prefix_current"], "curr")
                 self.last_laptime_curr = laptime_curr
 
             # Estimated laptime
             if self.wcfg["show_estimated"]:
+                laptime_est = mctrl.module_delta.output.LaptimeEstimated
                 self.update_laptime(laptime_est, self.last_laptime_est,
                                     self.wcfg["prefix_estimated"], "est")
                 self.last_laptime_est = laptime_est
@@ -191,16 +233,29 @@ class Draw(Widget, MouseEvent):
                 self.checked = False
                 self.laptime_sbest = MAGIC_NUM  # reset laptime
 
-        # Update rate
-        self.after(self.wcfg["update_delay"], self.update_data)
-
     # GUI update methods
     def update_laptime(self, curr, last, prefix, suffix):
         """Update laptime"""
         if curr != last:
             if 0 < curr < MAGIC_NUM:
-                getattr(self, f"bar_time_{suffix}").config(
-                    text=f"{prefix}{calc.sec2laptime(curr)[:9].rjust(9)}")
+                text = f"{prefix}{calc.sec2laptime(curr)[:8].rjust(8)}"
             else:
-                getattr(self, f"bar_time_{suffix}").config(
-                    text=f"{prefix}--:--.---")
+                text = f"{prefix}-:--.---"
+            getattr(self, f"bar_time_{suffix}").setText(text)
+
+    def update_last_laptime(self, curr, last, prefix):
+        """Update last laptime"""
+        if curr != last:
+            if 0 < curr[0] < MAGIC_NUM:
+                text = f"{prefix}{calc.sec2laptime(curr[0])[:8].rjust(8)}"
+            else:
+                text = f"{prefix}-:--.---"
+            if curr[1]:
+                color = (f"color: {self.wcfg['font_color_last']};"
+                         f"background: {self.wcfg['bkg_color_last']};")
+            else:
+                color = (f"color: {self.wcfg['font_color_invalid_laptime']};"
+                         f"background: {self.wcfg['bkg_color_last']};")
+            self.bar_time_last.setText(text)
+            self.bar_time_last.setStyleSheet(
+                f"{color}min-width: {self.bar_width}px;")

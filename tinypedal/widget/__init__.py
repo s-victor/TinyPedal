@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -19,6 +19,5 @@
 """
 Widget modules
 
-Widget module file name must match key name in setting.py,
-which is used to auto-generate key groups in setting.py.
+Widget module file name must match key name in template_setting.py
 """

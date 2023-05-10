@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -20,34 +20,35 @@
 Instrument Widget
 """
 
-import tkinter as tk
-from PIL import Image, ImageTk
+from PySide2.QtCore import Qt, Slot, QRectF
+from PySide2.QtGui import QPixmap, QPainter, QPen, QColor
+from PySide2.QtWidgets import (
+    QLabel,
+    QGridLayout,
+)
 
 from .. import calculation as calc
 from .. import readapi as read_data
-from ..base import Widget, MouseEvent
+from ..base import Widget
 
 WIDGET_NAME = "instrument"
 
 
-class Draw(Widget, MouseEvent):
+class Draw(Widget):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
         Widget.__init__(self, config, WIDGET_NAME)
 
-        # Config size & position
-        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
-
+        # Config variable
         bar_gap = self.wcfg["bar_gap"]
-
-        # Config style & variable
         self.icon_size = int(max(self.wcfg["icon_size"], 16) / 2) * 2
-        icon_source = Image.open("images/icon_instrument.png")
-        icon_resize = icon_source.resize((self.icon_size * 2, self.icon_size * 5), resample=1)
-        icon_image = ImageTk.PhotoImage(icon_resize)
-        self.image = icon_image
+
+        # Create layout
+        layout = QGridLayout()
+        layout.setSpacing(bar_gap)
+        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         column_hl = self.wcfg["column_index_headlights"]
         column_ig = self.wcfg["column_index_ignition"]
@@ -55,186 +56,220 @@ class Draw(Widget, MouseEvent):
         column_wl = self.wcfg["column_index_wheel_lock"]
         column_ws = self.wcfg["column_index_wheel_slip"]
 
-        bar_style = {"bd":0, "highlightthickness":0, "bg":self.wcfg["bkg_color"],
-                     "height":self.icon_size, "width":self.icon_size}
+        # Config canvas
+        blank_image = QPixmap(self.icon_size, self.icon_size)
+        icon_source = QPixmap("images/icon_instrument.png")
+        self.icon_inst = icon_source.scaledToWidth(
+            self.icon_size * 2,
+            mode=Qt.SmoothTransformation
+        )
 
-        # Draw widget
+        self.pen = QPen()
 
         # Headlights
-        self.bar_headlights = tk.Canvas(self, bar_style)
-        self.icon_headlights = self.bar_headlights.create_image(
-                               0, self.icon_size * 5, image=icon_image, anchor="s")
+        if self.wcfg["show_headlights"]:
+            self.bar_headlights = QLabel()
+            self.bar_headlights.setFixedSize(self.icon_size, self.icon_size)
+            self.bar_headlights.setPixmap(blank_image)
+            self.draw_instrument(self.bar_headlights, 1, 0)
 
         # Ignition
-        self.bar_ignition = tk.Canvas(self, bar_style)
-        self.icon_ignition = self.bar_ignition.create_image(
-                             0, self.icon_size * 4, image=icon_image, anchor="s")
+        if self.wcfg["show_ignition"]:
+            self.bar_ignition = QLabel()
+            self.bar_ignition.setFixedSize(self.icon_size, self.icon_size)
+            self.bar_ignition.setPixmap(blank_image)
+            self.draw_instrument(self.bar_ignition, 1, 1)
 
         # Clutch
-        self.bar_clutch = tk.Canvas(self, bar_style)
-        self.icon_clutch = self.bar_clutch.create_image(
-                           0, self.icon_size * 3, image=icon_image, anchor="s")
+        if self.wcfg["show_clutch"]:
+            self.bar_clutch = QLabel()
+            self.bar_clutch.setFixedSize(self.icon_size, self.icon_size)
+            self.bar_clutch.setPixmap(blank_image)
+            self.draw_instrument(self.bar_clutch, 1, 2)
 
         # Lock
-        self.bar_lock = tk.Canvas(self, bar_style)
-        self.icon_lock = self.bar_lock.create_image(
-                         0, self.icon_size * 2, image=icon_image, anchor="s")
+        if self.wcfg["show_wheel_lock"]:
+            self.bar_wlock = QLabel()
+            self.bar_wlock.setFixedSize(self.icon_size, self.icon_size)
+            self.bar_wlock.setPixmap(blank_image)
+            self.draw_instrument(self.bar_wlock, 1, 3)
 
         # Slip
-        self.bar_slip = tk.Canvas(self, bar_style)
-        self.icon_slip = self.bar_slip.create_image(
-                         0, self.icon_size, image=icon_image, anchor="s")
+        if self.wcfg["show_wheel_slip"]:
+            self.bar_wslip = QLabel()
+            self.bar_wslip.setFixedSize(self.icon_size, self.icon_size)
+            self.bar_wslip.setPixmap(blank_image)
+            self.draw_instrument(self.bar_wslip, 1, 4)
 
-        if self.wcfg["layout"] == "0":
-            self.bar_headlights.grid(row=0, column=column_hl, padx=(0, bar_gap), pady=0)
-            self.bar_ignition.grid(row=0, column=column_ig, padx=(0, bar_gap), pady=0)
-            self.bar_clutch.grid(row=0, column=column_cl, padx=(0, bar_gap), pady=0)
-            self.bar_lock.grid(row=0, column=column_wl, padx=(0, bar_gap), pady=0)
-            self.bar_slip.grid(row=0, column=column_ws, padx=(0, bar_gap), pady=0)
+        # Set layout
+        if self.wcfg["layout"] == 0:
+            # Horizontal layout
+            if self.wcfg["show_headlights"]:
+                layout.addWidget(self.bar_headlights, 0, column_hl)
+            if self.wcfg["show_ignition"]:
+                layout.addWidget(self.bar_ignition, 0, column_ig)
+            if self.wcfg["show_clutch"]:
+                layout.addWidget(self.bar_clutch, 0, column_cl)
+            if self.wcfg["show_wheel_lock"]:
+                layout.addWidget(self.bar_wlock, 0, column_wl)
+            if self.wcfg["show_wheel_slip"]:
+                layout.addWidget(self.bar_wslip, 0, column_ws)
         else:
-            self.bar_headlights.grid(row=column_hl, column=0, padx=0, pady=(0, bar_gap))
-            self.bar_ignition.grid(row=column_ig, column=0, padx=0, pady=(0, bar_gap))
-            self.bar_clutch.grid(row=column_cl, column=0, padx=0, pady=(0, bar_gap))
-            self.bar_lock.grid(row=column_wl, column=0, padx=0, pady=(0, bar_gap))
-            self.bar_slip.grid(row=column_ws, column=0, padx=0, pady=(0, bar_gap))
-
-        if not self.wcfg["show_headlights"]:
-            self.bar_headlights.grid_remove()
-
-        if not self.wcfg["show_ignition"]:
-            self.bar_ignition.grid_remove()
-
-        if not self.wcfg["show_clutch"]:
-            self.bar_clutch.grid_remove()
-
-        if not self.wcfg["show_wheel_lock"]:
-            self.bar_lock.grid_remove()
-
-        if not self.wcfg["show_wheel_slip"]:
-            self.bar_slip.grid_remove()
+            # Vertical layout
+            if self.wcfg["show_headlights"]:
+                layout.addWidget(self.bar_headlights, column_hl, 0)
+            if self.wcfg["show_ignition"]:
+                layout.addWidget(self.bar_ignition, column_ig, 0)
+            if self.wcfg["show_clutch"]:
+                layout.addWidget(self.bar_clutch, column_cl, 0)
+            if self.wcfg["show_wheel_lock"]:
+                layout.addWidget(self.bar_wlock, column_wl, 0)
+            if self.wcfg["show_wheel_slip"]:
+                layout.addWidget(self.bar_wslip, column_ws, 0)
+        self.setLayout(layout)
 
         # Last data
         self.checked = False
+        self.min_samples_f = 20
+        self.min_samples_r = 20
         self.list_radius_f = []
         self.list_radius_r = []
-        self.avg_wheel_radius_f = self.wcfg["wheel_radius_front"]
-        self.avg_wheel_radius_r = self.wcfg["wheel_radius_rear"]
+        self.avg_wheel_radius_f = self.wcfg["last_wheel_radius_front"]
+        self.avg_wheel_radius_r = self.wcfg["last_wheel_radius_rear"]
 
-        self.state_hl = True  # headlights
-        self.state_ig = True  # ignition
-        self.state_st = True  # starter
-        self.state_cl = True  # clutch
-        self.state_ac = True  # auto clutch
-        self.state_wl = True  # wheel lock
-        self.state_ws = True  # wheel slip
+        self.last_headlights = None
+        self.last_ignition = None
+        self.last_clutch = None
+        self.last_wlock = None
+        self.last_slipratio = None
+        self.flicker = 0
 
-        # Start updating
-        self.update_data()
+        # Set widget state & start update
+        self.set_widget_state()
+        self.update_timer.start()
 
-        # Assign mouse event
-        MouseEvent.__init__(self)
-
+    @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.wcfg["enable"]:
+        if self.wcfg["enable"] and read_data.state():
 
             # Save switch
             if not self.checked:
                 self.checked = True
+                if self.wcfg["last_vehicle_info"] == read_data.vehicle_check():
+                    self.min_samples_f = 320
+                    self.min_samples_r = 320
 
             # Read instrument data
-            (headlights, ignition, rpm, autoclutch, clutch, brake, wheel_rot, speed
+            (headlights, ignition, clutch, brake, wheel_rot, speed
              ) = read_data.instrument()
 
-            slipratio = self.calc_slipratio(wheel_rot, speed)
+            slipratio = round(self.calc_slipratio(wheel_rot, speed), 2)
+            self.flicker = 0 if self.flicker else 1
 
             # Headlights
-            if headlights == 1 and self.state_hl:
-                self.bar_headlights.coords(self.icon_headlights, self.icon_size, self.icon_size * 5)
-                self.state_hl = False
-            elif headlights == 0 and not self.state_hl:
-                self.bar_headlights.coords(self.icon_headlights, 0, self.icon_size * 5)
-                self.state_hl = True
+            if self.wcfg["show_headlights"]:
+                self.update_headlights(headlights, self.last_headlights)
+                self.last_headlights = headlights
 
             # Ignition
-            if ignition > 0 and self.state_ig:
-                self.bar_ignition.coords(self.icon_ignition, self.icon_size, self.icon_size * 4)
-                self.state_ig = False
-            elif ignition == 0 and not self.state_ig:
-                self.bar_ignition.coords(self.icon_ignition, 0, self.icon_size * 4)
-                self.state_ig = True
-
-            if rpm < 10 and self.state_st:
-                self.bar_ignition.config(bg=self.wcfg["warning_color_ignition"])
-                self.state_st = False
-            elif rpm > 10 and not self.state_st:
-                self.bar_ignition.config(bg=self.wcfg["bkg_color"])
-                self.state_st = True
+            if self.wcfg["show_ignition"]:
+                self.update_ignition(ignition, self.last_ignition)
+                self.last_ignition = ignition
 
             # Clutch
-            if autoclutch == 1 and self.state_cl:
-                self.bar_clutch.coords(self.icon_clutch, self.icon_size, self.icon_size * 3)
-                self.state_cl = False
-            elif autoclutch == 0 and not self.state_cl:
-                self.bar_clutch.coords(self.icon_clutch, 0, self.icon_size * 3)
-                self.state_cl = True
-
-            if clutch > 0.01 and self.state_ac:
-                self.bar_clutch.config(bg=self.wcfg["warning_color_clutch"])
-                self.state_ac = False
-            elif clutch <= 0.01 and not self.state_ac:
-                self.bar_clutch.config(bg=self.wcfg["bkg_color"])
-                self.state_ac = True
+            if self.wcfg["show_clutch"]:
+                self.update_clutch(clutch, self.last_clutch)
+                self.last_clutch = clutch
 
             # Wheel lock
-            if brake > 0 and slipratio >= self.wcfg["wheel_lock_threshold"] and self.state_wl:
-                self.bar_lock.coords(self.icon_lock, self.icon_size, self.icon_size * 2)
-                self.bar_lock.config(bg=self.wcfg["warning_color_wheel_lock"])
-                self.state_wl = False
-            elif not self.state_wl:
-                self.bar_lock.coords(self.icon_lock, 0, self.icon_size * 2)
-                self.bar_lock.config(bg=self.wcfg["bkg_color"])
-                self.state_wl = True
+            if self.wcfg["show_wheel_lock"]:
+                wlock = (brake, slipratio)
+                self.update_wlock(wlock, self.last_wlock)
+                self.last_wlock = wlock
 
             # Wheel slip
-            if slipratio >= self.wcfg["wheel_slip_threshold"] and self.state_ws:
-                self.bar_slip.coords(self.icon_slip, self.icon_size, self.icon_size)
-                self.bar_slip.config(bg=self.wcfg["warning_color_wheel_slip"])
-                self.state_ws = False
-            elif not self.state_ws:
-                self.bar_slip.coords(self.icon_slip, 0, self.icon_size)
-                self.bar_slip.config(bg=self.wcfg["bkg_color"])
-                self.state_ws = True
+            if self.wcfg["show_wheel_slip"]:
+                self.update_wslip(slipratio, self.last_slipratio)
+                self.last_slipratio = slipratio
 
         else:
             if self.checked:
                 self.checked = False
 
-                self.state_hl = True
-                self.state_ig = True
-                self.state_st = True
-                self.state_cl = True
-                self.state_ac = True
-                self.state_wl = True
-                self.state_ws = True
-
-                self.bar_headlights.coords(self.icon_headlights, 0, self.icon_size * 5)
-                self.bar_ignition.coords(self.icon_ignition, 0, self.icon_size * 4)
-                self.bar_clutch.coords(self.icon_clutch, 0, self.icon_size * 3)
-                self.bar_lock.coords(self.icon_lock, 0, self.icon_size * 2)
-                self.bar_slip.coords(self.icon_slip, 0, self.icon_size)
-
-                self.bar_ignition.config(bg=self.wcfg["bkg_color"])
-                self.bar_clutch.config(bg=self.wcfg["bkg_color"])
-                self.bar_lock.config(bg=self.wcfg["bkg_color"])
-                self.bar_slip.config(bg=self.wcfg["bkg_color"])
-
-                self.wcfg["wheel_radius_front"] = self.avg_wheel_radius_f
-                self.wcfg["wheel_radius_rear"] = self.avg_wheel_radius_r
+                if self.min_samples_f == self.min_samples_r == 320:
+                    self.wcfg["last_vehicle_info"] = read_data.vehicle_check()
+                    self.wcfg["last_wheel_radius_front"] = self.avg_wheel_radius_f
+                    self.wcfg["last_wheel_radius_rear"] = self.avg_wheel_radius_r
                 self.cfg.save()
 
-        # Update rate
-        self.after(self.wcfg["update_delay"], self.update_data)
+    # GUI update methods
+    def update_headlights(self, curr, last):
+        """Headlights update"""
+        if curr != last:
+            state = 0 if curr == 1 else 1
+            self.draw_instrument(self.bar_headlights, state, 0)
+
+    def update_ignition(self, curr, last):
+        """Ignition update"""
+        if curr != last:
+            state = 0 if curr[0] > 0 else 1
+            color = self.wcfg["warning_color_ignition"] if curr[1] < 10 else None
+            self.draw_instrument(self.bar_ignition, state, 1, color)
+
+    def update_clutch(self, curr, last):
+        """Clutch update"""
+        if curr != last:
+            state = 0 if curr[0] > 0 else 1
+            color = self.wcfg["warning_color_clutch"] if curr[1] > 0.01 else None
+            self.draw_instrument(self.bar_clutch, state, 2, color)
+
+    def update_wlock(self, curr, last):
+        """Wheel lock update"""
+        if curr != last:
+            if self.flicker and curr[0] > 0 and curr[1] >= self.wcfg["wheel_lock_threshold"]:
+                state = 0
+                color = self.wcfg["warning_color_wheel_lock"]
+            else:
+                state = 1
+                color = None
+            self.draw_instrument(self.bar_wlock, state, 3, color)
+
+    def update_wslip(self, curr, last):
+        """Wheel slip update"""
+        if curr != last:
+            if self.flicker and curr >= self.wcfg["wheel_slip_threshold"]:
+                state = 0
+                color = self.wcfg["warning_color_wheel_slip"]
+            else:
+                state = 1
+                color = None
+            self.draw_instrument(self.bar_wslip, state, 4, color)
+
+    def draw_instrument(self, canvas, h_offset, v_offset, hicolor=None):
+        """Instrument"""
+        icon = canvas.pixmap()
+        painter = QPainter(icon)
+
+        # Set size
+        rect_size = QRectF(0, 0, self.icon_size, self.icon_size)
+        rect_offset = QRectF(
+            self.icon_size * h_offset,  # x pos
+            self.icon_size * v_offset,  # y pos
+            self.icon_size,
+            self.icon_size
+        )
+
+        # Background
+        painter.setCompositionMode(QPainter.CompositionMode_Source)
+        rect_bg = QColor(self.wcfg["bkg_color"] if not hicolor else hicolor)
+        painter.setPen(Qt.NoPen)
+        painter.fillRect(rect_size, rect_bg)
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+
+        # Icon
+        painter.drawPixmap(rect_size, self.icon_inst, rect_offset)
+        canvas.setPixmap(icon)
 
     # Additional methods
     def calc_slipratio(self, wheel_rot, speed):
@@ -251,17 +286,21 @@ class Draw(Widget, MouseEvent):
                 self.list_radius_r.append(abs(speed * 2 / (wheel_rot[2] + wheel_rot[3])))
 
             # Calc average wheel radius reading
-            min_samples = max(self.wcfg["minimum_samples"], 100)
-
-            if len(self.list_radius_f) >= min_samples:
-                radius_samples_f = sorted(self.list_radius_f)[int(min_samples*0.25):int(min_samples*0.75)]
+            if len(self.list_radius_f) >= self.min_samples_f:
+                radius_samples_f = sorted(
+                    self.list_radius_f)[int(self.min_samples_f*0.25):int(self.min_samples_f*0.75)]
                 self.avg_wheel_radius_f = round(sum(radius_samples_f) / len(radius_samples_f), 3)
                 self.list_radius_f = []  # reset list
+                if self.min_samples_f < 320:
+                    self.min_samples_f *= 2
 
-            if len(self.list_radius_r) >= min_samples:
-                radius_samples_r = sorted(self.list_radius_r)[int(min_samples*0.25):int(min_samples*0.75)]
+            if len(self.list_radius_r) >= self.min_samples_r:
+                radius_samples_r = sorted(
+                    self.list_radius_r)[int(self.min_samples_r*0.25):int(self.min_samples_r*0.75)]
                 self.avg_wheel_radius_r = round(sum(radius_samples_r) / len(radius_samples_r), 3)
                 self.list_radius_r = []
+                if self.min_samples_r < 320:
+                    self.min_samples_r *= 2
 
         return max(calc.slip_ratio(wheel_rot[0], self.avg_wheel_radius_f, speed),
                    calc.slip_ratio(wheel_rot[1], self.avg_wheel_radius_f, speed),

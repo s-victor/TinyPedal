@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -20,83 +20,118 @@
 Force Widget
 """
 
-import tkinter as tk
-import tkinter.font as tkfont
+from PySide2.QtCore import Qt, Slot
+from PySide2.QtGui import QFont, QFontMetrics
+from PySide2.QtWidgets import (
+    QGridLayout,
+    QLabel,
+)
 
 from .. import calculation as calc
 from .. import readapi as read_data
-from ..base import Widget, MouseEvent
+from ..base import Widget
 
 WIDGET_NAME = "force"
 
 
-class Draw(Widget, MouseEvent):
+class Draw(Widget):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
         Widget.__init__(self, config, WIDGET_NAME)
 
-        # Config size & position
-        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+        # Config font
+        self.font = QFont()
+        self.font.setFamily(self.wcfg['font_name'])
+        self.font.setPixelSize(self.wcfg['font_size'])
+        font_w = QFontMetrics(self.font).averageCharWidth()
 
-        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        # Config variable
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
+        self.bar_width = font_w * 6
 
-        # Config style & variable
-        text_def = "n/a"
-        fg_color_gf = self.wcfg["font_color_g_force"]
-        bg_color_gf = self.wcfg["bkg_color_g_force"]
-        fg_color_df = self.wcfg["font_color_downforce"]
-        bg_color_df = self.wcfg["bkg_color_downforce"]
-        font_force = tkfont.Font(family=self.wcfg["font_name"],
-                                 size=-self.wcfg["font_size"],
-                                 weight=self.wcfg["font_weight"])
+        # Base style
+        self.setStyleSheet(
+            f"font-family: {self.wcfg['font_name']};"
+            f"font-size: {self.wcfg['font_size']}px;"
+            f"font-weight: {self.wcfg['font_weight']};"
+            f"padding: 0 {bar_padx}px;"
+        )
 
-        # Draw label
-        bar_style = {"text":text_def, "bd":0, "height":1, "width":6,
-                     "padx":bar_padx, "pady":0, "font":font_force}
+        # Create layout
+        layout = QGridLayout()
+        layout.setSpacing(bar_gap)
+        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+
+        column_lg = self.wcfg["column_index_long_gforce"]
+        column_lt = self.wcfg["column_index_lat_gforce"]
+        column_df = self.wcfg["column_index_downforce"]
+
+        # G force
         if self.wcfg["show_g_force"]:
-            self.bar_gforce_lgt = tk.Label(self, bar_style, fg=fg_color_gf, bg=bg_color_gf)
-            self.bar_gforce_lat = tk.Label(self, bar_style, fg=fg_color_gf, bg=bg_color_gf)
+            self.bar_gforce_lgt = QLabel("n/a")
+            self.bar_gforce_lgt.setAlignment(Qt.AlignCenter)
+            self.bar_gforce_lgt.setStyleSheet(
+                f"color: {self.wcfg['font_color_g_force']};"
+                f"background: {self.wcfg['bkg_color_g_force']};"
+                f"min-width: {self.bar_width}px;"
+            )
 
+            self.bar_gforce_lat = QLabel("n/a")
+            self.bar_gforce_lat.setAlignment(Qt.AlignCenter)
+            self.bar_gforce_lat.setStyleSheet(
+                f"color: {self.wcfg['font_color_g_force']};"
+                f"background: {self.wcfg['bkg_color_g_force']};"
+                f"min-width: {self.bar_width}px;"
+            )
+
+        # Downforce ratio
         if self.wcfg["show_downforce_ratio"]:
-            self.bar_dforce = tk.Label(self, bar_style, fg=fg_color_df, bg=bg_color_df)
+            self.bar_dforce = QLabel("n/a")
+            self.bar_dforce.setAlignment(Qt.AlignCenter)
+            self.bar_dforce.setStyleSheet(
+                f"color: {self.wcfg['font_color_downforce']};"
+                f"background: {self.wcfg['bkg_color_downforce']};"
+                f"min-width: {self.bar_width}px;"
+            )
 
-        if self.wcfg["layout"] == "0":
+        # Set layout
+        if self.wcfg["layout"] == 0:
             # Vertical layout
             if self.wcfg["show_g_force"]:
-                self.bar_gforce_lgt.grid(row=0, column=0, padx=0, pady=0)
-                self.bar_gforce_lat.grid(row=1, column=0, padx=0, pady=(bar_gap, 0))
+                layout.addWidget(self.bar_gforce_lgt, column_lg, 0)
+                layout.addWidget(self.bar_gforce_lat, column_lt, 0)
             if self.wcfg["show_downforce_ratio"]:
-                self.bar_dforce.grid(row=2, column=0, padx=0, pady=(bar_gap, 0))
+                layout.addWidget(self.bar_dforce, column_df, 0)
         else:
             # Horizontal layout
             if self.wcfg["show_g_force"]:
-                self.bar_gforce_lgt.grid(row=0, column=0, padx=0, pady=0)
-                self.bar_gforce_lat.grid(row=0, column=1, padx=(bar_gap, 0), pady=0)
+                layout.addWidget(self.bar_gforce_lgt, 0, column_lg)
+                layout.addWidget(self.bar_gforce_lat, 0, column_lt)
             if self.wcfg["show_downforce_ratio"]:
-                self.bar_dforce.grid(row=0, column=2, padx=(bar_gap, 0), pady=0)
+                layout.addWidget(self.bar_dforce, 0, column_df)
+        self.setLayout(layout)
 
         # Last data
         self.last_gf_lgt = None
         self.last_gf_lat = None
         self.last_df_ratio = None
 
-        # Start updating
-        self.update_data()
+        # Set widget state & start update
+        self.set_widget_state()
+        self.update_timer.start()
 
-        # Assign mouse event
-        MouseEvent.__init__(self)
-
+    @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.wcfg["enable"]:
+        if self.wcfg["enable"] and read_data.state():
 
             # Read acceleration & downforce data
             lgt_accel, lat_accel, downforce = read_data.force()
 
-            # G-force
+            # G force
             if self.wcfg["show_g_force"]:
                 # Longitudinal g-force
                 gf_lgt = round(calc.gforce(lgt_accel), 2)
@@ -114,24 +149,21 @@ class Draw(Widget, MouseEvent):
                 self.update_df_ratio(df_ratio, self.last_df_ratio)
                 self.last_df_ratio = df_ratio
 
-        # Update rate
-        self.after(self.wcfg["update_delay"], self.update_data)
-
     # GUI update methods
     def update_gf_lgt(self, curr, last):
         """Longitudinal g-force"""
         if curr != last:
-            self.bar_gforce_lgt.config(text=f"{self.gforce_lgt(curr)} {abs(curr):.2f}")
+            self.bar_gforce_lgt.setText(f"{self.gforce_lgt(curr)} {abs(curr):.2f}")
 
     def update_gf_lat(self, curr, last):
         """Lateral g-force"""
         if curr != last:
-            self.bar_gforce_lat.config(text=f"{abs(curr):.2f} {self.gforce_lat(curr)}")
+            self.bar_gforce_lat.setText(f"{abs(curr):.2f} {self.gforce_lat(curr)}")
 
     def update_df_ratio(self, curr, last):
         """Downforce ratio"""
         if curr != last:
-            self.bar_dforce.config(text=f"{curr:04.02f}%")
+            self.bar_dforce.setText(f"{curr:04.02f}%")
 
     # Additional methods
     @staticmethod

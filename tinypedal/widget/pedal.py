@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -20,106 +20,104 @@
 Pedal Widget
 """
 
-import tkinter as tk
+from PySide2.QtCore import Qt, Slot, QRectF
+from PySide2.QtGui import QPixmap, QPainter, QColor
+from PySide2.QtWidgets import (
+    QLabel,
+    QGridLayout,
+)
 
 from .. import readapi as read_data
-from ..base import Widget, MouseEvent
+from ..base import Widget
 
 WIDGET_NAME = "pedal"
 
 
-class Draw(Widget, MouseEvent):
+class Draw(Widget):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
         Widget.__init__(self, config, WIDGET_NAME)
 
-        # Config size & position
-        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
-
+        # Config variable
         bar_gap = self.wcfg["bar_gap"]
-        self.pbar_uwidth = int(5 * self.wcfg["bar_width_scale"])  # 5 pixel
-        self.pbar_cwidth = self.pbar_uwidth * 3  # 15 pixel combined
-        self.pbar_extend = self.wcfg["full_pedal_height"] + 2  # full pedal indicator
-        self.pbar_length = int(100 * self.wcfg["bar_length_scale"]) + self.pbar_extend  # 100 pixel
+        self.pedal_uwidth = max(int(self.wcfg["bar_width_unfiltered"]), 1)
+        self.pedal_fwidth = max(int(self.wcfg["bar_width_filtered"]), 1)
+        self.pedal_extend = max(int(self.wcfg["max_indicator_height"]), 0) + 2
+        self.pedal_length = max(int(self.wcfg["bar_length"]), 10)
+        self.pbar_width = self.pedal_uwidth + self.pedal_fwidth
+        self.pbar_length = self.pedal_length + self.pedal_extend
 
-        # Draw widget
+        # Create layout
+        layout = QGridLayout()
+        layout.setSpacing(bar_gap)
+        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+
+        column_ffb = self.wcfg["column_index_ffb"]
+        column_clt = self.wcfg["column_index_clutch"]
+        column_brk = self.wcfg["column_index_brake"]
+        column_tht = self.wcfg["column_index_throttle"]
+
+        # Config canvas
+        blank_image = QPixmap(self.pbar_width, self.pbar_length)
 
         # Force feedback
         if self.wcfg["show_ffb_meter"]:
-            self.bar_ffb = tk.Canvas(self, bd=0, highlightthickness=0,
-                                     height=self.pbar_length, width=self.pbar_cwidth,
-                                     bg=self.wcfg["bkg_color"])
-            self.bar_ffb.grid(row=0, column=0, padx=(0, bar_gap), pady=0, sticky="we")
-
-            self.rect_ffb = self.bar_ffb.create_rectangle(
-                          0, 0, 0, 0, fill=self.wcfg["ffb_color"], outline="")
+            self.bar_ffb = QLabel()
+            self.bar_ffb.setFixedSize(self.pbar_width, self.pbar_length)
+            self.bar_ffb.setPixmap(blank_image)
+            self.draw_ffb(self.bar_ffb, 0)
 
         # Clutch
-        self.bar_clutch = tk.Canvas(self, bd=0, highlightthickness=0,
-                                    height=self.pbar_length, width=self.pbar_cwidth,
-                                    bg=self.wcfg["bkg_color"])
-        self.bar_clutch.grid(row=0, column=1, columnspan=2,
-                             padx=(0, bar_gap), pady=0, sticky="we")
-
-        self.rect_raw_clutch = self.bar_clutch.create_rectangle(
-                             0, 0, 0, 0, fill=self.wcfg["clutch_color"], outline="")
-        self.rect_clutch = self.bar_clutch.create_rectangle(
-                         0, 0, 0, 0, fill=self.wcfg["clutch_color"], outline="")
-
-        self.max_clutch = self.bar_clutch.create_rectangle(
-                        0, 0, self.pbar_cwidth, self.wcfg["full_pedal_height"],
-                        fill=self.wcfg["bkg_color"], outline="")
+        if self.wcfg["show_clutch"]:
+            self.bar_clutch = QLabel()
+            self.bar_clutch.setFixedSize(self.pbar_width, self.pbar_length)
+            self.bar_clutch.setPixmap(blank_image)
+            self.draw_pedal(self.bar_clutch, 0, 0, self.wcfg["clutch_color"])
 
         # Brake
-        self.bar_brake = tk.Canvas(self, bd=0, highlightthickness=0,
-                                   height=self.pbar_length, width=self.pbar_cwidth,
-                                   bg=self.wcfg["bkg_color"])
-        self.bar_brake.grid(row=0, column=3, columnspan=2,
-                            padx=(0, bar_gap), pady=0, sticky="we")
-
-        self.rect_raw_brake = self.bar_brake.create_rectangle(
-                            0, 0, 0, 0, fill=self.wcfg["brake_color"], outline="")
-        self.rect_brake = self.bar_brake.create_rectangle(
-                        0, 0, 0, 0, fill=self.wcfg["brake_color"], outline="")
-
-        self.max_brake = self.bar_brake.create_rectangle(
-                       0, 0, self.pbar_cwidth, self.wcfg["full_pedal_height"],
-                       fill=self.wcfg["bkg_color"], outline="")
+        if self.wcfg["show_brake"]:
+            self.bar_brake = QLabel()
+            self.bar_brake.setFixedSize(self.pbar_width, self.pbar_length)
+            self.bar_brake.setPixmap(blank_image)
+            self.draw_pedal(self.bar_brake, 0, 0, self.wcfg["brake_color"])
 
         # Throttle
-        self.bar_throttle = tk.Canvas(self, bd=0, highlightthickness=0,
-                                      height=self.pbar_length, width=self.pbar_cwidth,
-                                      bg=self.wcfg["bkg_color"])
-        self.bar_throttle.grid(row=0, column=5, columnspan=2,
-                               padx=0, pady=0, sticky="we")
+        if self.wcfg["show_throttle"]:
+            self.bar_throttle = QLabel()
+            self.bar_throttle.setFixedSize(self.pbar_width, self.pbar_length)
+            self.bar_throttle.setPixmap(blank_image)
+            self.draw_pedal(self.bar_throttle, 0, 0, self.wcfg["throttle_color"])
 
-        self.rect_raw_throttle = self.bar_throttle.create_rectangle(
-                               0, 0, 0, 0, fill=self.wcfg["throttle_color"], outline="")
-        self.rect_throttle = self.bar_throttle.create_rectangle(
-                           0, 0, 0, 0, fill=self.wcfg["throttle_color"], outline="")
-
-        self.max_throttle = self.bar_throttle.create_rectangle(
-                          0, 0, self.pbar_cwidth, self.wcfg["full_pedal_height"],
-                          fill=self.wcfg["bkg_color"], outline="")
+        # Set layout
+        if self.wcfg["show_ffb_meter"]:
+            layout.addWidget(self.bar_ffb, 0, column_ffb)
+        if self.wcfg["show_clutch"]:
+            layout.addWidget(self.bar_clutch, 0, column_clt)
+        if self.wcfg["show_brake"]:
+            layout.addWidget(self.bar_brake, 0, column_brk)
+        if self.wcfg["show_throttle"]:
+            layout.addWidget(self.bar_throttle, 0, column_tht)
+        self.setLayout(layout)
 
         # Last data
         self.checked = False
         self.max_brake_pres = 0
 
-        self.last_pedal_data = [None] * 7
-        self.last_abs_brake = None
+        self.last_throttle = None
+        self.last_brake = None
+        self.last_clutch = None
+        self.last_ffb = None
 
-        # Start updating
-        self.update_data()
+        # Set widget state & start update
+        self.set_widget_state()
+        self.update_timer.start()
 
-        # Assign mouse event
-        MouseEvent.__init__(self)
-
+    @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.wcfg["enable"]:
+        if self.wcfg["enable"] and read_data.state():
 
             # Reset switch
             if not self.checked:
@@ -127,89 +125,118 @@ class Draw(Widget, MouseEvent):
 
             # Read pedal data
             # Throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
-            pedal_data = tuple(map(self.scale_input, read_data.pedal()))
+            (f_throttle, f_brake, f_clutch, raw_throttle, raw_brake, raw_clutch, ffb
+             ) = tuple(map(self.scale_input, read_data.pedal()))
 
             # Throttle
-            self.update_filtered_pos("throttle", pedal_data[0], self.last_pedal_data[0])
+            if self.wcfg["show_throttle"]:
+                throttle = (raw_throttle, f_throttle)
+                self.update_throttle(throttle, self.last_throttle)
+                self.last_throttle = throttle
 
             # Brake
-            if self.wcfg["show_brake_pressure"]:
-                brake_pres = sum(read_data.brake_pressure())
+            if self.wcfg["show_brake"]:
+                if self.wcfg["show_brake_pressure"]:
+                    brake_pres = sum(read_data.brake_pressure())
+                    if brake_pres > self.max_brake_pres:
+                        self.max_brake_pres = brake_pres
+                    f_brake = self.scale_input(brake_pres / max(self.max_brake_pres, 0.001))
 
-                if brake_pres > self.max_brake_pres:
-                    self.max_brake_pres = brake_pres
-
-                abs_brake = self.scale_input(brake_pres / max(self.max_brake_pres, 0.001))
-                self.update_filtered_pos("brake", abs_brake, self.last_abs_brake)
-                self.last_abs_brake = None
-            else:
-                self.update_filtered_pos("brake", pedal_data[1], self.last_pedal_data[1])
+                brake = (raw_brake, f_brake)
+                self.update_brake(brake, self.last_brake)
+                self.last_brake = brake
 
             # Clutch
-            self.update_filtered_pos("clutch", pedal_data[2], self.last_pedal_data[2])
-
-            # Raw throttle
-            self.update_raw_pos("throttle", pedal_data[3], self.last_pedal_data[3])
-            self.update_max_pos("throttle", pedal_data[3], self.last_pedal_data[3])
-
-            # Raw brake
-            self.update_raw_pos("brake", pedal_data[4], self.last_pedal_data[4])
-            self.update_max_pos("brake", pedal_data[4], self.last_pedal_data[4])
-
-            # Raw clutch
-            self.update_raw_pos("clutch", pedal_data[5], self.last_pedal_data[5])
-            self.update_max_pos("clutch", pedal_data[5], self.last_pedal_data[5])
+            if self.wcfg["show_clutch"]:
+                clutch = (raw_clutch, f_clutch)
+                self.update_clutch(clutch, self.last_clutch)
+                self.last_clutch = clutch
 
             # Force feedback
             if self.wcfg["show_ffb_meter"]:
-                self.update_ffb_pos(pedal_data[6], self.last_pedal_data[6])
+                self.update_ffb(ffb, self.last_ffb)
+                self.last_ffb = ffb
 
-            self.last_pedal_data = pedal_data
         else:
             if self.checked:
                 self.checked = False
                 self.max_brake_pres = 0
 
-        # Update rate
-        self.after(self.wcfg["update_delay"], self.update_data)
-
     # GUI update methods
-    def update_filtered_pos(self, suffix, curr, last):
-        """Filtered Pedal position"""
+    def update_throttle(self, curr, last):
+        """Throttle update"""
         if curr != last:
-            getattr(self, f"bar_{suffix}").coords(
-                getattr(self, f"rect_{suffix}"),
-                self.pbar_uwidth, self.pbar_length, self.pbar_cwidth, curr)
+            self.draw_pedal(self.bar_throttle, curr[0], curr[1], self.wcfg["throttle_color"])
 
-    def update_raw_pos(self, suffix, curr, last):
-        """Raw pedal position"""
+    def update_brake(self, curr, last):
+        """Brake update"""
         if curr != last:
-            getattr(self, f"bar_{suffix}").coords(
-                getattr(self, f"rect_raw_{suffix}"),
-                0, self.pbar_length, self.pbar_uwidth, curr)
+            self.draw_pedal(self.bar_brake, curr[0], curr[1], self.wcfg["brake_color"])
 
-    def update_max_pos(self, suffix, curr, last):
-        """Max pedal position indicator"""
+    def update_clutch(self, curr, last):
+        """Clutch update"""
         if curr != last:
-            if last != self.pbar_extend and curr <= self.pbar_extend:  # only trigger on full
-                getattr(self, f"bar_{suffix}").itemconfig(
-                    getattr(self, f"max_{suffix}"), fill=self.wcfg[f"{suffix}_color"])
-            elif last == self.pbar_extend and curr >= self.pbar_extend:
-                getattr(self, f"bar_{suffix}").itemconfig(
-                    getattr(self, f"max_{suffix}"), fill=self.wcfg["bkg_color"])
+            self.draw_pedal(self.bar_clutch, curr[0], curr[1], self.wcfg["clutch_color"])
 
-    def update_ffb_pos(self, curr, last):
-        """FFB position"""
+    def update_ffb(self, curr, last):
+        """FFB update"""
         if curr != last:
-            if last != self.pbar_extend and curr <= self.pbar_extend:
-                self.bar_ffb.itemconfig(self.rect_ffb, fill=self.wcfg["ffb_clipping_color"])
-                curr = 0  # set to top position
-            elif last == self.pbar_extend and curr >= self.pbar_extend:
-                self.bar_ffb.itemconfig(self.rect_ffb, fill=self.wcfg["ffb_color"])
-            self.bar_ffb.coords(self.rect_ffb,
-                                0, self.pbar_length, self.pbar_cwidth, curr)
+            self.draw_ffb(self.bar_ffb, curr)
+
+    def draw_pedal(self, canvas, input_raw, input_filter, color=None):
+        """Instrument"""
+        pedal = canvas.pixmap()
+        painter = QPainter(pedal)
+        painter.setPen(Qt.NoPen)
+
+        # Set size
+        rect_size = QRectF(0, 0, self.pbar_width, self.pbar_length)
+
+        # Pedal position
+        rect_raw = QRectF(0, input_raw, self.pedal_uwidth, self.pbar_length)
+        rect_filtered = QRectF(self.pedal_uwidth, input_filter, self.pedal_fwidth, self.pbar_length)
+
+        # Background
+        painter.setCompositionMode(QPainter.CompositionMode_Source)
+        painter.fillRect(rect_size, QColor(self.wcfg["bkg_color"]))
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+
+        # Pedal
+        if input_raw <= self.pedal_extend:
+            rect_max = QRectF(0, 0, self.pbar_width, self.pedal_extend - 2)
+            painter.fillRect(rect_max, QColor(color))
+
+        painter.fillRect(rect_raw, QColor(color))
+        painter.fillRect(rect_filtered, QColor(color))
+        canvas.setPixmap(pedal)
+
+    def draw_ffb(self, canvas, input_raw):
+        """FFB"""
+        pedal = canvas.pixmap()
+        painter = QPainter(pedal)
+        painter.setPen(Qt.NoPen)
+
+        # Set size
+        rect_size = QRectF(0, 0, self.pbar_width, self.pbar_length)
+
+        # FFB position
+        if input_raw > self.pedal_extend:
+            color = self.wcfg["ffb_color"]
+            rect_raw = QRectF(0, input_raw, self.pbar_width, self.pbar_length)
+        else:
+            color = self.wcfg["ffb_clipping_color"]
+            rect_raw = QRectF(0, 0, self.pbar_width, self.pbar_length)
+
+        # Background
+        painter.setCompositionMode(QPainter.CompositionMode_Source)
+        painter.fillRect(rect_size, QColor(self.wcfg["bkg_color"]))
+        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+
+        # FFB
+        painter.fillRect(rect_raw, QColor(color))
+        canvas.setPixmap(pedal)
 
     # Additional methods
     def scale_input(self, value):
         """Convert input range to 100, and multiply scale"""
-        return self.pbar_length - abs(int(value * 100)) * self.wcfg["bar_length_scale"]
+        return self.pbar_length - abs(int(value * self.pedal_length))

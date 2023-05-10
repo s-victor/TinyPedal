@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -24,9 +24,15 @@ Run program
 
 import os
 import sys
-from tkinter import messagebox
+import signal
 import psutil
-from tinypedal.about import About
+
+from PySide2.QtGui import QFont
+from PySide2.QtWidgets import (
+    QApplication,
+    QMessageBox,
+)
+from tinypedal.const import APP_NAME, VERSION
 
 
 def is_tinypedal_running(app_name):
@@ -42,22 +48,28 @@ def is_tinypedal_running(app_name):
 
 def load_tinypedal():
     """Start tinypedal"""
-    root = About()
+    root = QApplication(sys.argv)
+    font = QFont("sans-serif", 10)
+    font.setStyleHint(QFont.SansSerif)
+    root.setFont(font)
+    root.setStyle('Fusion')
 
     if is_tinypedal_running("tinypedal.exe"):
-        messagebox.showwarning(
-            "TinyPedal",
+        QMessageBox.warning(
+            None,
+            f"{APP_NAME} v{VERSION}",
             "TinyPedal is already running.\n\n"
             "Only one TinyPedal may be run at a time.\n"
             "Check system tray for hidden icon."
             )
     else:
-        # Start preset manager
-        from tinypedal.preset import LoadPreset
-        LoadPreset(root)
+        # Start main window
+        from tinypedal.main import ConfigWindow
+        config_window = ConfigWindow()
+        signal.signal(signal.SIGINT, config_window.int_signal_handler)
 
-        # Start tkinter mainloop
-        root.mainloop()
+        # Start mainloop
+        sys.exit(root.exec_())
 
 
 if __name__ == "__main__":

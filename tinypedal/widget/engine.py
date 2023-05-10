@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -20,79 +20,115 @@
 Engine Widget
 """
 
-import tkinter as tk
-import tkinter.font as tkfont
+from PySide2.QtCore import Qt, Slot
+from PySide2.QtGui import QFont, QFontMetrics
+from PySide2.QtWidgets import (
+    QGridLayout,
+    QLabel,
+)
 
 from .. import calculation as calc
 from .. import readapi as read_data
-from ..base import Widget, MouseEvent
+from ..base import Widget
 
 WIDGET_NAME = "engine"
 
 
-class Draw(Widget, MouseEvent):
+class Draw(Widget):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
         Widget.__init__(self, config, WIDGET_NAME)
 
-        # Config size & position
-        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+        # Config font
+        self.font = QFont()
+        self.font.setFamily(self.wcfg['font_name'])
+        self.font.setPixelSize(self.wcfg['font_size'])
+        font_w = QFontMetrics(self.font).averageCharWidth()
 
-        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        # Config variable
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
+        self.bar_width = font_w * 8
 
-        # Config style & variable
-        text_def = "n/a"
-        font_engine = tkfont.Font(family=self.wcfg["font_name"],
-                                  size=-self.wcfg["font_size"],
-                                  weight=self.wcfg["font_weight"])
+        # Base style
+        self.setStyleSheet(
+            f"font-family: {self.wcfg['font_name']};"
+            f"font-size: {self.wcfg['font_size']}px;"
+            f"font-weight: {self.wcfg['font_weight']};"
+            f"padding: 0 {bar_padx}px;"
+        )
+
+        # Create layout
+        layout = QGridLayout()
+        layout.setSpacing(bar_gap)
+        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         column_oil = self.wcfg["column_index_oil"]
         column_water = self.wcfg["column_index_water"]
         column_turbo = self.wcfg["column_index_turbo"]
         column_rpm = self.wcfg["column_index_rpm"]
 
-        # Draw label
-        bar_style  = {"text":text_def, "bd":0, "height":1, "width":8,
-                      "padx":bar_padx, "pady":0, "font":font_engine}
-
+        # Oil temperature
         if self.wcfg["show_temperature"]:
-            self.bar_oil = tk.Label(self, bar_style,
-                                    fg=self.wcfg["font_color_oil"],
-                                    bg=self.wcfg["bkg_color_oil"])
-            self.bar_water = tk.Label(self, bar_style,
-                                      fg=self.wcfg["font_color_water"],
-                                      bg=self.wcfg["bkg_color_water"])
+            self.bar_oil = QLabel("Oil T")
+            self.bar_oil.setAlignment(Qt.AlignCenter)
+            self.bar_oil.setStyleSheet(
+                f"color: {self.wcfg['font_color_oil']};"
+                f"background: {self.wcfg['bkg_color_oil']};"
+                f"min-width: {self.bar_width}px;"
+            )
 
+            # Water temperature
+            self.bar_water = QLabel("Water T")
+            self.bar_water.setAlignment(Qt.AlignCenter)
+            self.bar_water.setStyleSheet(
+                f"color: {self.wcfg['font_color_water']};"
+                f"background: {self.wcfg['bkg_color_water']};"
+                f"min-width: {self.bar_width}px;"
+            )
+
+        # Turbo pressure
         if self.wcfg["show_turbo_pressure"]:
-            self.bar_turbo = tk.Label(self, bar_style,
-                                      fg=self.wcfg["font_color_turbo"],
-                                      bg=self.wcfg["bkg_color_turbo"])
-        if self.wcfg["show_rpm"]:
-            self.bar_rpm = tk.Label(self, bar_style,
-                                    fg=self.wcfg["font_color_rpm"],
-                                    bg=self.wcfg["bkg_color_rpm"])
+            self.bar_turbo = QLabel("Turbo")
+            self.bar_turbo.setAlignment(Qt.AlignCenter)
+            self.bar_turbo.setStyleSheet(
+                f"color: {self.wcfg['font_color_turbo']};"
+                f"background: {self.wcfg['bkg_color_turbo']};"
+                f"min-width: {self.bar_width}px;"
+            )
 
-        if self.wcfg["layout"] == "0":
+        # RPM
+        if self.wcfg["show_rpm"]:
+            self.bar_rpm = QLabel("RPM")
+            self.bar_rpm.setAlignment(Qt.AlignCenter)
+            self.bar_rpm.setStyleSheet(
+                f"color: {self.wcfg['font_color_rpm']};"
+                f"background: {self.wcfg['bkg_color_rpm']};"
+                f"min-width: {self.bar_width}px;"
+            )
+
+        # Set layout
+        if self.wcfg["layout"] == 0:
             # Vertical layout
             if self.wcfg["show_temperature"]:
-                self.bar_oil.grid(row=column_oil, column=0, padx=0, pady=(0, bar_gap))
-                self.bar_water.grid(row=column_water, column=0, padx=0, pady=(0, bar_gap))
+                layout.addWidget(self.bar_oil, column_oil, 0)
+                layout.addWidget(self.bar_water, column_water, 0)
             if self.wcfg["show_turbo_pressure"]:
-                self.bar_turbo.grid(row=column_turbo, column=0, padx=0, pady=(0, bar_gap))
+                layout.addWidget(self.bar_turbo, column_turbo, 0)
             if self.wcfg["show_rpm"]:
-                self.bar_rpm.grid(row=column_rpm, column=0, padx=0, pady=(0, bar_gap))
+                layout.addWidget(self.bar_rpm, column_rpm, 0)
         else:
             # Horizontal layout
             if self.wcfg["show_temperature"]:
-                self.bar_oil.grid(row=0, column=column_oil, padx=(0, bar_gap), pady=0)
-                self.bar_water.grid(row=0, column=column_water, padx=(0, bar_gap), pady=0)
+                layout.addWidget(self.bar_oil, 0, column_oil)
+                layout.addWidget(self.bar_water, 0, column_water)
             if self.wcfg["show_turbo_pressure"]:
-                self.bar_turbo.grid(row=0, column=column_turbo, padx=(0, bar_gap), pady=0)
+                layout.addWidget(self.bar_turbo, 0, column_turbo)
             if self.wcfg["show_rpm"]:
-                self.bar_rpm.grid(row=0, column=column_rpm, padx=(0, bar_gap), pady=0)
+                layout.addWidget(self.bar_rpm, 0, column_rpm)
+        self.setLayout(layout)
 
         # Last data
         self.last_temp_oil = None
@@ -100,15 +136,14 @@ class Draw(Widget, MouseEvent):
         self.last_e_turbo = None
         self.last_e_rpm = None
 
-        # Start updating
-        self.update_data()
+        # Set widget state & start update
+        self.set_widget_state()
+        self.update_timer.start()
 
-        # Assign mouse event
-        MouseEvent.__init__(self)
-
+    @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.wcfg["enable"]:
+        if self.wcfg["enable"] and read_data.state():
 
             # Read Engine data
             temp_oil, temp_water, e_turbo, e_rpm = read_data.engine()
@@ -134,53 +169,58 @@ class Draw(Widget, MouseEvent):
                 self.update_rpm(e_rpm, self.last_e_rpm)
                 self.last_e_rpm = e_rpm
 
-        # Update rate
-        self.after(self.wcfg["update_delay"], self.update_data)
-
     # GUI update methods
     def update_oil(self, curr, last):
         """Oil temperature"""
         if curr != last:
             if curr < self.wcfg["overheat_threshold_oil"]:
-                bgcolor = self.wcfg["bkg_color_oil"]
+                color = (f"color: {self.wcfg['font_color_oil']};"
+                         f"background: {self.wcfg['bkg_color_oil']};")
             else:
-                bgcolor = self.wcfg["warning_color_overheat"]
+                color = (f"color: {self.wcfg['font_color_oil']};"
+                         f"background: {self.wcfg['warning_color_overheat']};")
 
-            if self.wcfg["temp_unit"] == "1":
+            if self.cfg.units["temperature_unit"] == "Fahrenheit":
                 curr = calc.celsius2fahrenheit(curr)
 
             format_text = f"{curr:.01f}°"[:7].rjust(7)
-            self.bar_oil.config(text=f"O{format_text}", bg=bgcolor)
+            self.bar_oil.setText(f"O{format_text}")
+            self.bar_oil.setStyleSheet(
+                f"{color}min-width: {self.bar_width}px;")
 
     def update_water(self, curr, last):
         """Water temperature"""
         if curr != last:
             if curr < self.wcfg["overheat_threshold_water"]:
-                bgcolor = self.wcfg["bkg_color_water"]
+                color = (f"color: {self.wcfg['font_color_water']};"
+                         f"background: {self.wcfg['bkg_color_water']};")
             else:
-                bgcolor = self.wcfg["warning_color_overheat"]
+                color = (f"color: {self.wcfg['font_color_water']};"
+                         f"background: {self.wcfg['warning_color_overheat']};")
 
-            if self.wcfg["temp_unit"] == "1":
+            if self.cfg.units["temperature_unit"] == "Fahrenheit":
                 curr = calc.celsius2fahrenheit(curr)
 
             format_text = f"{curr:.01f}°"[:7].rjust(7)
-            self.bar_water.config(text=f"W{format_text}", bg=bgcolor)
+            self.bar_water.setText(f"W{format_text}")
+            self.bar_water.setStyleSheet(
+                f"{color}min-width: {self.bar_width}px;")
 
     def update_turbo(self, curr, last):
         """Turbo pressure"""
         if curr != last:
-            self.bar_turbo.config(text=self.pressure_units(curr * 0.001))
+            self.bar_turbo.setText(self.pressure_units(curr * 0.001))
 
     def update_rpm(self, curr, last):
         """Engine RPM"""
         if curr != last:
-            self.bar_rpm.config(text=f"{curr: =05.0f}rpm")
+            self.bar_rpm.setText(f"{curr: =05.0f}rpm")
 
     # Additional methods
     def pressure_units(self, pres):
         """Pressure units"""
-        if self.wcfg["turbo_pressure_unit"] == "0":
-            return f"{calc.kpa2bar(pres):03.03f}bar"
-        if self.wcfg["turbo_pressure_unit"] == "1":
+        if self.cfg.units["turbo_pressure_unit"] == "psi":
             return f"{calc.kpa2psi(pres):03.02f}psi"
-        return f"{pres:03.01f}kPa"
+        if self.cfg.units["turbo_pressure_unit"] == "kPa":
+            return f"{pres:03.01f}kPa"
+        return f"{calc.kpa2bar(pres):03.03f}bar"

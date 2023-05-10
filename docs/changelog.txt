@@ -1,3 +1,317 @@
+2.0.0 (2023-05-10)
+-----------------------------
+* Core
+    - TinyPedal now uses Qt GUI for all UI & widget displaying.
+    - All UI & widgets have been rewritten using Qt GUI
+      and support more visual effects and better performance.
+    - The APP can now be launched from any folder path name.
+    - There are currently 34 overlay widgets available,
+      includes 10 new widgets and many reworked widgets.
+    - New application main window with more functionalities,
+      includes the new Widget & Module control panels
+      that provide easy access to enable & disable function.
+    - Add new "Config dialog" for customizing Widget & Module directly in the APP.
+    - All widgets color options now support alpha value adjustment,
+      which each color's opacity can be changed.
+      This can be easily edited by double-clicking on color entry box
+      in "Config" dialog, then adjust alpha value.
+    - The old preset panel has also been redesigned with additional
+      file operation supports via Right-Click context menu,
+      where user can duplicate, rename, or delete selected preset.
+      And preset can be easily loaded by double-clicking.
+    - Add new "Display Units" config dialog,
+      which handles all units setting in one place for all widgets.
+    - Add "show_at_startup" and "minimize_to_tray" options to "Config" menu in main window.
+    - Add "Reload" option to "Overlay" menu in main window,
+      which can reload current active preset.
+    - Add new customizable "heatmap.json" preset file for displaying color
+      that matches specific value range of telemetry data,
+      such as brake and tyre temperature.
+    - Moved all previously called "real-time" modules into separated Module section,
+      with a new Module panel in main window for grouped Module control and config.
+    - Reworked tray icon menu:
+      Add "Reload" & "Config" options.
+      Removed "Widgets" sub menu.
+      Show currently loaded preset name.
+    - Various fixes & improvements.
+
+* Delta Module
+    - Add "IsValidLap" condition check output info,
+      which is used for last lap time validation check in other timing widgets.
+
+* Fuel Module
+    - Add "Capacity", "AmountFuelStart", "AmountFuelBeforePitstop",
+      "DeltaFuelConsumption", "OneLessPitFuelConsumption" data output info.
+    - Further improvements to fuel calculation and estimated refueling accuracy,
+      now takes consideration of player's current on track position relative to
+      amount race time left for estimating more accurate finishing position and remaining distance.
+
+* [New]Hybrid Module
+    - The previous "Battery module" is now renamed to "Hybrid module" instead,
+      and provide all necessary data calculation for battery and electric motor usage.
+
+* [New]Mapping Module
+    - The new "Mapping module" is used for recording track map,
+      and processing map data for used in track map widget.
+    - Map files are stored as SVG vector format under "TinyPedal\trackmap" folder,
+      which can also be view in web browser directly.
+    - The SVG vector map file contains two coordinate paths:
+      First is the global x,y position path, used for drawing track map.
+      Second is the corresponding track distance & elevation path, which is recorded for future use.
+    - Each sector position index is also stored in SVG file for finding sector coordinates.
+
+* Relative Module
+    - Add new standings index list generator for used by standings widget.
+    - Moved all vehicles info to the new "Standings module".
+    - Radar widget no longer depends on Relative module.
+
+* [New]Standings Module
+     - The new "Standings module" now handles and provides all players & vehicles info
+       that is required by widgets such as relative, radar, standings, track map, etc.
+
+* [New]Battery Widget
+    - The previous "Hybrid Widget" is now split into two separate widgets,
+      which are "Battery Widget" & "Electric motor Widget".
+    - Show percentage available battery charge with low charge warning.
+    - Show percentage battery charge drained in current lap.
+    - Show percentage battery charge regenerated in current lap.
+    - Show electric boost motor activation timer.
+
+* [New]Brake bias Widget
+    - Show percentage forward Brake bias.
+    - Add "decimal_places" option, which sets amount decimal places to keep.
+    - Add "show_front_and_rear" option, which shows both front and rear bias.
+    - Add "show_percentage_sign" option, which shows percentage sign.
+
+* [New]Brake pressure Widget
+    - Show visualized percentage brake pressure of each wheel.
+
+* Brake temperature Widget
+    - Add "heatmap_name" option, which user can assign a custom heatmap preset.
+    - Renamed "color_swap" option to "swap_style",
+      which swaps heatmap color between font & background color.
+
+* Deltabest Widget
+    - Remove bar scale options, and replaced with "bar_length" & "bar_height" options,
+      which sets delta bar length & height in pixels.
+    - Add "show_animated_deltabest" option,
+      which deltabest display follows delta bar progress.
+
+* [New]Electric motor Widget
+    - Show boost motor temperature.
+    - Show boost motor cooler water temperature.
+    - Show boost motor RPM.
+    - Show boost motor torque.
+    - Show overheating warning.
+
+* Flag Widget
+    - Add "P CLOSE" warning text on pit timer with customizable color,
+      which shows when pit lane is closed while in pit.
+    - Add distance display for yellow flag indicator,
+      which shows nearest yellow flag vehicle distance to player in meters.
+    - Add "yellow_flag_maximum_range" option,
+      which only shows yellow flag indicator when there is yellow flag
+      within the maximum range (track distance in meters).
+      Default is 500 meters.
+    - Fixed low fuel & flag indicators not hiding issue.
+
+* Fuel Widget
+    - Add "save" fuel display, which shows minimum fuel consumption in order to
+      achieve one less pit stops than current estimated number of pit stops.
+    - Add new "Start" & "End" fuel display,
+      which shows amount fuel at the start of stint,
+      and estimated amount fuel left at the end of stint (just before pit stop).
+    - Add "show_fuel_level_bar" option,
+      which shows a visualized horizontal fuel level bar in the middle.
+    - Add "show_starting_fuel_level_mark" option,
+      which shows starting fuel level mark of current stint on fuel level bar.
+
+* Gear Widget
+    - Add "show_speed" option, which shows speed display when enabled.
+    - Add "show_battery_bar" option,
+      which shows battery bar that is only visible if electric motor available.
+    - Add "rpm_multiplier_critical" option,
+      which sets critical RPM range for RPM color indicator.
+    - Add "show_rpm_flickering_above_critical" option,
+      which shows flickering effects when RPM is above critical range
+      and gear is lower than max gear.
+    - Add "column_index" options, which can be used to re-arrange layouts.
+    - Removed old "layout" option.
+
+* Instrument Widget
+    - Add "last_vehicle_info" option,
+      which saves the last driven vehicle name for matching wheel radius.
+    - Significantly improved average wheel radius calculation.
+    - Average radius calculation now starts with a small amount samples
+      and then gradually increases to highest number of samples.
+      If "last_vehicle_info" matches current vehicle,
+      then average radius calculation starts from highest number of samples.
+
+* [New]Lap time history Widget
+    - Show current lap number, current estimated lap time,
+      current estimated fuel consumption, current lap average tyre wear.
+    - Show history lap number, history lap time,
+      history lap fuel consumption, history lap average tyre wear.
+    - The number of lap time history can be set with "lap_time_history_count" option.
+    - Show invalid lap time indicate color (default red).
+    - Add "show_empty_history" which shows empty lap time history.
+      Default is False, which hides empty rows.
+
+* P2P Widget
+    - Add "activation_threshold_throttle" option,
+      which sets minimum throttle input percentage threshold for P2P ready indicator.
+      Default is 0.6, which is 60% of throttle.
+
+* Pedal Widget
+    - All pedal & FFB display can now be individually turned off or on.
+    - Add "column_index" options, which can be used to re-arrange layouts.
+
+* Radar Widget
+    - Now show all vehicles within the radar radius,
+      removed "additional_vehicles_front" & "additional_vehicles_behind" options,
+    - Now shows different customizable colors for
+      player, leader, opponents on same lap or lapped,
+      vehicles under yellow flag or in pit lane.
+    - Now reads all vehicle info from Standings module.
+    - Replaced "radar_scale" with new "global_scale" option,
+      which sets global scale of radar display related to screen pixel.
+      Default value is "6", which is 6 times of original size.
+    - Changed "radar_radius" default value from 25 to 30.
+    - Add "vehicle_border_radius" option,
+      which sets vehicle visual round border radius.
+    - Add "vehicle_outline_width" option,
+      which sets vehicle visual outline width.
+    - Add "show_overlap_indicator" option,
+      which shows overlap indicator when there is nearby side by side vehicle.
+    - Add "overlap_detection_range_multiplier" option,
+      which sets overlap detection range multiplier that scales with vehicle width.
+    - Add "indicator_size_multiplier" option,
+      which sets indicator visual size multiplier that scales with vehicle width.
+    - Changed "center_mark_radius" default value from 25 to 30.
+    - Add "center_mark_width" option,
+      which sets center mark line width in pixels.
+    - Add "distance_circle_1_width", "distance_circle_2_width" options,
+      which sets distance circle line width in pixels.
+    - Add "center_mark_style" & "distance_circle_style" options.
+
+* [New]Rake angle Widget
+    - Show rake angle in degrees.
+
+* Relative Widget
+    - Now reads all vehicle info from Standings module.
+    - Now all columns can be turned on or off, and every column color can be customized.
+    - No longer show lap difference color in none race session.
+    - Add "show_player_highlighted" option,
+      which highlights player row with customizable specific color.
+    - Add "show_lap_difference" option,
+      which shows different font color based on lap difference between player and opponents. 
+    - Add "show_position", "show_driver_name", "show_time_gap" options,
+      which can be turned on or off individually.
+    - Add "driver_name_uppercase" option,
+      which sets driver name to uppercase.
+    - Add "show_random_color_for_unknown_class" option,
+      which show random color for unknown class name that is not defined in classes.json.
+
+* [New]Ride height Widget
+    - Show visualized ride height display.
+    - Add "ride_height_max_range" option,
+      which sets visualized maximum ride height range (millimeter).
+
+* [New]Standings Widget
+    - Most options are inherited from relative widget, with some additions noted below.
+    - Add "max_vehicles_combined_mode" option,
+      which sets maximum amount vehicles to display,
+      which takes effect when "enable_multi_class_split_mode" is not enabled.
+      When total vehicle number is lower than this value,
+      extra rows will auto-hide.
+      When total vehicle number is above this value,
+      the top 3 vehicles will always show,
+      and rest of the vehicles will be selected from
+      the nearest front and behind places related to player.
+    - Add "max_vehicles_split_mode" option,
+      which sets maximum amount vehicles to display,
+      which takes effect when in multi-class session and
+      "enable_multi_class_split_mode" is enabled.
+      If total vehicle number is above this value,
+      any extra vehicles will not be shown.
+      Default value is "50", which is sufficient in most case. 
+    - Reworked "show_time_gap" option.
+      For race session, this option shows time gap between leader and all other drivers.
+      For other none race sessions, this option shows the time gap
+      between session's best lap time and all other drivers.
+    - Add "show_time_gap_from_class_best" option, which shows time gap
+      from none race session's best lap time of the same vehicle class.
+    - Add "time_gap_leader_text" option, which sets text indicator for race leader.
+    - Add "time_gap_decimal_places" option, which sets amount decimal places to keep.
+    - Add "show_time_interval" option,
+      which shows time interval between each closest driver in order.
+
+* Sectors Widget
+    - Removed "show_position_lapnumber" option.
+
+* Session Widget
+    - Add "prefix_lap_number" & "prefix_position" options.
+    - Improved lap number formatting.
+    - Removed unnecessary zero padding and decimal places in session timer.
+
+* Steering Widget
+    - Add "bar_width" & "bar_height" options,
+      which sets steering bar width & height in pixels.
+    - Add "show_steering_angle" option,
+      which shows steering angle text in degree.
+
+* Stint history Widget
+    - Separated tire compound display to its own column.
+    - Adjusted default color theme.
+    - Add "show_empty_history" which shows empty stint history.
+      Default is False, which hides empty rows.
+
+* Timing Widget
+    - Show invalid last lap time indicate color (default red).
+
+* [New]Track map Widget
+    - Show current track map, which the map is recorded & read from Mapping module.
+    - Shows different customizable colors for
+      player, leader, opponents on same lap or lapped,
+      vehicles under yellow flag or in pit lane.
+    - Add "show_background" option, which shows track map background.
+    - Add "area_size" option, which sets area display size.
+    - Add "area_margin" option, which sets area margin size.
+    - Add "map_width" option, which track map line width.
+    - Add "map_outline_width" option, which sets track map outline width.
+    - Add "show_start_line" option, which shows start line mark.
+    - Add "show_sector_line" option, which shows sector line mark.
+    - Add "show_vehicle_standings" option, which shows vehicle standings info on map.
+
+* [New]Tyre load Widget
+    - Show visualized tyre load display.
+    - Add "show_tyre_load_ratio" option,
+      which shows percentage ratio of tyre load between each and total tyre load.
+      Set "false" to show individual tyre load in Newtons.
+
+* Tyre pressure Widget
+    - Renamed old "Pressure widget" to "Tyre pressure Widget"
+
+* Tyre temperature Widget
+    - Add "heatmap_name" option, which user can assign a custom heatmap preset.
+    - Renamed "color_swap" option to "swap_style",
+      which swaps heatmap color between font & background color.
+    - Renamed "ICO_mode" option to "show_inner_center_outer",
+      which sets inner, center, outer temperature display mode.
+
+* Wheel alignment Widget
+    - Renamed old "Wheel widget" to "Wheel alignment Widget".
+
+* Misc
+    - Updated Customization guide.
+    - Updated README.
+    - Updated THIRDPARTYNOTICES and licenses.
+    - Removed feature.md, feature info can be found in Customization guide.
+    - Updated "icon_instrument.png" with slightly adjustments.
+    - Moved icon.png & icon.ico file into "images" folder.
+    - Updated executable building script.
+
+
 1.12.1 (2023-04-07)
 -----------------------------
 * Relative Widget
@@ -66,7 +380,7 @@
     - Add "neutral_warning_time_threshold" additional condition check option in JSON,
       which activates color warning when both speed & time-in-neutral is higher than threshold.
       This helps avoid displaying color warning during normal shifting.
-      Default value is `0.3` seconds.
+      Default value is "0.3" seconds.
 
 * Core
     - Fixed an index out of range error that related to mSector data,
@@ -181,9 +495,9 @@
 * General
     - Added "column_index" option for most widgets.
     - Added "text_padding" option for most widgets,
-      which sets text edge padding value that multiplies & scales with `font_size`.
+      which sets text edge padding value that multiplies & scales with "font_size".
       This option affects how compact widget looks.
-      Default is `0.2` for most widgets.
+      Default is "0.2" for most widgets.
     - Added individual font & background color options for most widgets.
     - Each info display can be individually disabled for most widgets.
 
@@ -220,7 +534,7 @@
     - [New]Added "neutral_warning_speed_threshold" option in JSON,
       which sets speed threshold value for color warning
       when gear is in neutral and vehicle speed is higher than the threshold.
-      Speed unit in meters per second. Default value is `28`, which is close to 100 kph.
+      Speed unit in meters per second. Default value is "28", which is close to 100 kph.
       This option is helpful for situation where player mis-shifted gear into neutral at high speed.
     - Added "show_speed_limiter" option in JSON, which can be turned off.
 

@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -20,82 +20,121 @@
 DRS Widget
 """
 
-import tkinter as tk
-import tkinter.font as tkfont
+from PySide2.QtCore import Qt, Slot, QRectF
+from PySide2.QtGui import QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
 
 from .. import readapi as read_data
-from ..base import Widget, MouseEvent
+from ..base import Widget
 
 WIDGET_NAME = "drs"
 
 
-class Draw(Widget, MouseEvent):
+class Draw(Widget):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
         Widget.__init__(self, config, WIDGET_NAME)
 
-        # Config size & position
-        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+        # Config font
+        self.font = QFont()
+        self.font.setFamily(self.wcfg['font_name'])
+        self.font.setPixelSize(self.wcfg['font_size'])
+        self.font.setWeight(getattr(QFont, self.wcfg['font_weight'].capitalize()))
 
-        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        font_w = QFontMetrics(self.font).averageCharWidth()
+        font_h = QFontMetrics(self.font).height()
+        font_l = QFontMetrics(self.font).leading()
+        font_c = QFontMetrics(self.font).capHeight()
+        font_d = QFontMetrics(self.font).descent()
 
-        # Config style & variable
-        font_drs = tkfont.Font(family=self.wcfg["font_name"],
-                               size=-self.wcfg["font_size"],
-                               weight=self.wcfg["font_weight"])
+        # Config variable
+        padx = round(font_w * self.wcfg["bar_padding_horizontal"])
+        pady = round(font_c * self.wcfg["bar_padding_vertical"])
 
-        # Draw label
-        self.bar_drs = tk.Label(self, text="DRS", bd=0, height=1, width=3,
-                                padx=bar_padx, pady=0, font=font_drs,
-                                fg=self.wcfg["font_color_not_available"],
-                                bg=self.wcfg["bkg_color_not_available"])
-        self.bar_drs.grid(row=0, column=0, padx=0, pady=0)
+        if not self.wcfg["font_offset_vertical"]:
+            self.font_offset = font_c + font_d * 2 + font_l * 2 - font_h
+        else:
+            self.font_offset = self.wcfg["font_offset_vertical"]
+
+        self.drs_width = font_w * 3 + padx * 2
+        self.drs_height = int(font_c + pady * 2)
+
+        # Config canvas
+        self.resize(self.drs_width, self.drs_height)
+
+        self.pen = QPen()
+        self.brush = QBrush(Qt.SolidPattern)
 
         # Last data
+        self.drs_state = (0, 0)
         self.last_drs_state = None
 
-        # Start updating
-        self.update_data()
+        # Set widget state & start update
+        self.set_widget_state()
+        self.update_timer.start()
 
-        # Assign mouse event
-        MouseEvent.__init__(self)
-
+    @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.wcfg["enable"]:
-
-            # Read DRS data
-            drs_state = read_data.drs()
+        if self.wcfg["enable"] and read_data.state():
 
             # DRS update
-            self.update_drs(drs_state, self.last_drs_state)
-            self.last_drs_state = drs_state
-
-        # Update rate
-        self.after(self.wcfg["update_delay"], self.update_data)
+            self.drs_state = read_data.drs()
+            self.update_drs(self.drs_state, self.last_drs_state)
+            self.last_drs_state = self.drs_state
 
     # GUI update methods
     def update_drs(self, curr, last):
-        """DRS"""
+        """DRS update"""
         if curr != last:
-            self.bar_drs.config(self.color_drs(curr))
+            self.update()
+
+    def paintEvent(self, event):
+        """Draw"""
+        painter = QPainter(self)
+        #painter.setRenderHint(QPainter.Antialiasing, True)
+
+        # Draw DRS
+        self.draw_drs(painter)
+
+    def draw_drs(self, painter):
+        """DRS"""
+        fg_color, bg_color = self.color_drs(self.drs_state)
+        self.brush.setColor(QColor(bg_color))
+        self.pen.setColor(QColor(fg_color))
+
+        # Set gauge size
+        rect_drs = QRectF(0, 0, self.drs_width, self.drs_height)
+
+        # Update DRS background
+        painter.setPen(Qt.NoPen)
+        painter.setBrush(self.brush)
+        painter.drawRect(rect_drs)
+
+        # Update DRS text
+        painter.setPen(self.pen)
+        painter.setFont(self.font)
+        painter.drawText(
+            rect_drs.adjusted(0, self.font_offset, 0, 0),
+            Qt.AlignCenter,
+            "DRS"
+        )
 
     # Additional methods
     def color_drs(self, drs_state):
         """DRS state color"""
         if drs_state[1] == 1:  # blue
-            color = {"fg":self.wcfg['font_color_available'],
-                     "bg":self.wcfg['bkg_color_available']}
+            color = (self.wcfg["font_color_available"],
+                     self.wcfg["bkg_color_available"])
         elif drs_state[1] == 2:
             if drs_state[0]:  # green
-                color = {"fg":self.wcfg['font_color_activated'],
-                         "bg":self.wcfg['bkg_color_activated']}
+                color = (self.wcfg["font_color_activated"],
+                         self.wcfg["bkg_color_activated"])
             else:  # orange
-                color = {"fg":self.wcfg['font_color_allowed'],
-                         "bg":self.wcfg['bkg_color_allowed']}
+                color = (self.wcfg["font_color_allowed"],
+                         self.wcfg["bkg_color_allowed"])
         else:  # grey
-            color = {"fg":self.wcfg['font_color_not_available'],
-                     "bg":self.wcfg['bkg_color_not_available']}
+            color = (self.wcfg["font_color_not_available"],
+                     self.wcfg["bkg_color_not_available"])
         return color

@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -20,97 +20,102 @@
 GUI window, events.
 """
 
-import tkinter as tk
-import tkinter.font as tkfont
+from PySide2.QtCore import Qt, QTimer, Slot
+from PySide2.QtWidgets import QWidget
 
-from .const import APP_NAME, PLATFORM
-from .module_control import module
+from .const import APP_NAME
+from .overlay_control import octrl
 
 
-class Widget(tk.Toplevel):
-    """Widget window
-
-    Create borderless, topmost window without title bar.
-    Use tk.Label to create flexible text-based widget.
-    Use tk.Canvas to draw shape-based widget for better performance.
-    """
+class Widget(QWidget):
+    """Widget window"""
 
     def __init__(self, config, widget_name):
-        tk.Toplevel.__init__(self)
+        super().__init__()
+        self.widget_name = widget_name
 
-        # Load config
+        # Base config
         self.cfg = config
 
-        # Assign widget specific config
-        self.wcfg = self.cfg.setting_user[widget_name]
+        # Widget config
+        self.wcfg = self.cfg.setting_user[self.widget_name]
 
         # Base setting
-        self.title(f"{APP_NAME} - {widget_name.capitalize()}")
-        self.configure(bg=self.cfg.overlay["transparent_color"])  # set transparent background
-        self.resizable(False, False)  # disable resize
-        self.overrideredirect(True)  # remove window frame
-        self.attributes("-topmost", 1)  # set window always on top
-        if PLATFORM == "Windows":
-            self.attributes("-transparentcolor", self.cfg.overlay["transparent_color"])
+        self.setWindowTitle(f"{APP_NAME} - {self.widget_name.capitalize()}")
+        self.move(int(self.wcfg["position_x"]), int(self.wcfg["position_y"]))
 
-        self.lift()
-        self.attributes("-alpha", self.wcfg["opacity"])  # set window opacity after lift
-
-    def add_caption(self, frame, toggle, value):
-        """Create caption"""
-        if self.wcfg[toggle]:
-            font_desc = tkfont.Font(family=self.wcfg["font_name"],
-                                    size=-int(self.wcfg["font_size"] * 0.8),
-                                    weight=self.wcfg["font_weight"])
-            bar_style_desc = {"bd":0, "height":1, "font":font_desc, "padx":0, "pady":0,
-                              "fg":self.wcfg["font_color_caption"],
-                              "bg":self.wcfg["bkg_color_caption"]}
-            bar_desc = tk.Label(frame, bar_style_desc, text=value)
-            bar_desc.grid(row=0, column=0, columnspan=2, padx=0, pady=0, sticky="we")
-
-
-class MouseEvent:
-    """Widget mouse event
-
-    Event binding located in overlay_toggle
-    """
-
-    def __init__(self):
-        self.cfg.active_widget_list.append(self)  # add to active widget list
-        module.overlay_lock.load_state()  # load overlay lock state
+        # Widget mouse event
         self.mouse_pos = (0, 0)
         self.mouse_pressed = 0
 
-        # Create hover cover & stripe pattern
-        self.hover_bg = tk.Canvas(self, bd=0, highlightthickness=0, cursor="fleur",
-                                  bg=self.cfg.overlay["hover_color_1"])
-        for lines in range(50):
-            self.hover_bg.create_line(lines*-25 + 1200, -10,
-                                      lines*-25 + 200, 990,
-                                      fill=self.cfg.overlay["hover_color_2"],
-                                      width=10)
+        # Connect overlay-lock signal and slot
+        octrl.overlay_lock.locked.connect(self.toggle_lock)
+        octrl.overlay_hide.hidden.connect(self.toggle_hide)
 
-    def hover_enter(self, event):
-        """Show cover"""
-        self.hover_bg.place(x=0, y=0, relwidth=1, relheight=1)
+        # Set update timer
+        self.update_timer = QTimer(self)
+        self.update_timer.setInterval(self.wcfg["update_interval"])
+        self.update_timer.timeout.connect(self.update_data)
 
-    def hover_leave(self, event):
-        """Hide cover if not pressed"""
-        if not self.mouse_pressed:
-            self.hover_bg.place(x=-9999, y=0)
-
-    def release_mouse(self, event):
-        """Save position on release"""
-        self.wcfg["position_x"] = str(self.winfo_x())
-        self.wcfg["position_y"] = str(self.winfo_y())
-        self.cfg.save()
-        self.mouse_pressed = 0
-
-    def set_offset(self, event):
-        """Set offset position & press state"""
-        self.mouse_pos = (event.x, event.y)
-        self.mouse_pressed = 1
-
-    def update_pos(self, event):
+    def mouseMoveEvent(self, event):
         """Update widget position"""
-        self.geometry(f"+{event.x_root - self.mouse_pos[0]}+{event.y_root - self.mouse_pos[1]}")
+        if event.buttons() == Qt.LeftButton:
+            self.move(event.globalPos() - self.mouse_pos)
+
+    def mousePressEvent(self, event):
+        """Set offset position & press state"""
+        if event.buttons() == Qt.LeftButton:
+            self.mouse_pos = event.pos()
+            self.mouse_pressed = 1
+
+    def mouseReleaseEvent(self, event):
+        """Save position on release"""
+        if self.mouse_pressed:
+            self.mouse_pressed = 0
+            self.wcfg["position_x"] = self.x()
+            self.wcfg["position_y"] = self.y()
+            self.cfg.save()
+
+    def set_widget_state(self):
+        """Set initial widget state"""
+        # Window flags
+        self.setWindowOpacity(self.wcfg["opacity"])
+        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setWindowFlag(Qt.FramelessWindowHint, True)
+        self.setWindowFlag(Qt.Tool, True)  # remove taskbar icon
+        self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
+
+        self.cfg.active_widget_list.append(self)  # add to active widget list
+        self.show()
+        octrl.overlay_lock.set_state()  # load overlay lock state
+
+    def break_signal(self):
+        """Disconnect signal"""
+        octrl.overlay_lock.locked.disconnect(self.toggle_lock)
+        octrl.overlay_hide.hidden.disconnect(self.toggle_hide)
+
+    @Slot(bool)
+    def toggle_lock(self, locked):
+        """Toggle widget lock"""
+        if locked:
+            self.setWindowFlag(Qt.WindowTransparentForInput, True)
+        else:
+            self.setWindowFlag(Qt.WindowTransparentForInput, False)
+        if not self.cfg.overlay["auto_hide"]:
+            self.show()
+
+    @Slot(bool)
+    def toggle_hide(self, hidden):
+        """Toggle widget hide"""
+        if hidden:
+            if self.isVisible():
+                self.hide()
+        else:
+            if not self.isVisible():
+                self.show()
+
+    def closing(self):
+        """Close widget"""
+        self.cfg.active_widget_list.remove(self)
+        self.close()

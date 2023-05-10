@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -20,74 +20,92 @@
 Widget control
 """
 
+import logging
 import time
 
 from .setting import cfg
 from .widget import (
-    brake,
+    battery,
+    brake_bias,
+    brake_pressure,
+    brake_temperature,
     cruise,
     deltabest,
     drs,
+    electric_motor,
     engine,
     flag,
     force,
     fuel,
     gear,
-    hybrid,
     instrument,
+    lap_time_history,
     p2p,
     pedal,
-    pressure,
     radar,
+    rake_angle,
     relative,
+    ride_height,
     sectors,
     session,
+    standings,
     steering,
-    stint,
-    suspension,
-    temperature,
+    stint_history,
     timing,
-    wear,
+    track_map,
+    tyre_load,
+    tyre_pressure,
+    tyre_temperature,
+    tyre_wear,
     weather,
-    wheel
+    wheel_alignment,
 )
 
-WIDGET_PACK = (
-    brake,
-    cruise,
-    deltabest,
-    drs,
-    engine,
-    flag,
-    force,
-    fuel,
-    gear,
-    hybrid,
-    instrument,
-    p2p,
-    pedal,
-    pressure,
-    radar,
-    relative,
-    sectors,
-    session,
-    steering,
-    stint,
-    suspension,
-    temperature,
-    timing,
-    wear,
-    weather,
-    wheel
-)
+logger = logging.getLogger(__name__)
 
 
 class WidgetControl:
     """Widget control"""
+    WIDGET_PACK = (
+        battery,
+        brake_bias,
+        brake_pressure,
+        brake_temperature,
+        cruise,
+        deltabest,
+        drs,
+        electric_motor,
+        engine,
+        flag,
+        force,
+        fuel,
+        gear,
+        instrument,
+        lap_time_history,
+        p2p,
+        pedal,
+        radar,
+        rake_angle,
+        relative,
+        ride_height,
+        sectors,
+        session,
+        standings,
+        steering,
+        stint_history,
+        timing,
+        track_map,
+        tyre_load,
+        tyre_pressure,
+        tyre_temperature,
+        tyre_wear,
+        weather,
+        wheel_alignment,
+    )
 
     def start(self):
         """Start widget"""
-        for obj in WIDGET_PACK:
+        for obj in self.WIDGET_PACK:
             if cfg.setting_user[obj.WIDGET_NAME]["enable"]:
                 # Create widget instance
                 setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
@@ -96,32 +114,61 @@ class WidgetControl:
     def close():
         """Close widget"""
         while cfg.active_widget_list:
-            for widgets in cfg.active_widget_list:
-                widgets.destroy()
-                cfg.active_widget_list.remove(widgets)
+            for widget in cfg.active_widget_list:
+                widget.break_signal()
+                widget.closing()
             time.sleep(0.01)
-        print("all widgets closed")
+        logger.info("all widgets closed")
 
-    def toggle(self, name):
+    def toggle(self, widget):
         """Toggle widget"""
-        for obj in WIDGET_PACK:
-            if name == obj.WIDGET_NAME:
-                if not cfg.setting_user[obj.WIDGET_NAME]["enable"]:
-                    # Create widget instance
-                    setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
-                    # Set True after widget enabled
-                    cfg.setting_user[obj.WIDGET_NAME]["enable"] = True
-                else:
-                    # Get widget instance
-                    widget_instance = getattr(self, f"widget_{obj.WIDGET_NAME}")
-                    # Set False before widget disabled
-                    cfg.setting_user[obj.WIDGET_NAME]["enable"] = False
-                    # Remove widget from active list
-                    cfg.active_widget_list.remove(widget_instance)
-                    # Close widget
-                    widget_instance.destroy()
-                cfg.save()
+        name = widget.WIDGET_NAME
+
+        if cfg.setting_user[name]["enable"]:
+            cfg.setting_user[name]["enable"] = False
+            getattr(self, f"widget_{name}").break_signal()
+            getattr(self, f"widget_{name}").closing()
+        else:
+            cfg.setting_user[name]["enable"] = True
+            setattr(self, f"widget_{name}", widget.Draw(cfg))
+
+        cfg.save()
+
+    def enable_all(self):
+        """Enable all widgets"""
+        for obj in self.WIDGET_PACK:
+            if not cfg.setting_user[obj.WIDGET_NAME]["enable"]:
+                cfg.setting_user[obj.WIDGET_NAME]["enable"] = True
+                setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
+        cfg.save()
+        logger.info("all widgets enabled")
+
+    def disable_all(self):
+        """Disable all widgets"""
+        while cfg.active_widget_list:
+            for widget in cfg.active_widget_list:
+                cfg.setting_user[widget.widget_name]["enable"] = False
+                widget.break_signal()
+                widget.closing()
+            #time.sleep(0.01)
+        cfg.save()
+        logger.info("all widgets disabled")
+
+    def start_widget(self, widget_name):
+        """Start selected widget"""
+        for obj in self.WIDGET_PACK:
+            if obj.WIDGET_NAME == widget_name and cfg.setting_user[widget_name]["enable"]:
+                setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
                 break
+
+    def close_widget(self, widget_name):
+        """Close selected widget"""
+        if cfg.active_widget_list:
+            for widget in cfg.active_widget_list:
+                if widget.widget_name == widget_name:
+                    widget.break_signal()
+                    widget.closing()
+                    break
 
 
 wctrl = WidgetControl()

@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -20,64 +20,97 @@
 Tray icon
 """
 
-import threading
-from PIL import Image
-import pystray
+from PySide2.QtGui import QIcon
+from PySide2.QtWidgets import (
+    QSystemTrayIcon,
+    QMenu,
+    QAction,
+)
 
-from .setting import cfg
-from .const import APP_NAME, VERSION
-from .module_control import module
-from .widget_control import WIDGET_PACK, wctrl
+from .const import APP_NAME, VERSION, APP_ICON
 
 
-class TrayIcon:
+class TrayIcon(QSystemTrayIcon):
     """System tray icon
 
     Activate overlay widgets via system tray icon.
     """
 
-    def __init__(self, master, preset_manager):
-        self.preset_manager = preset_manager
+    def __init__(self, master, config):
+        super().__init__()
+        self.cfg = config
+        self.master = master
 
         # Config tray icon
-        name = f"{APP_NAME} v{VERSION}"
-        image = Image.open("icon.ico")
-        menu = pystray.Menu
-        item = pystray.MenuItem
-        separator = pystray.Menu.SEPARATOR
+        self.setIcon(QIcon(APP_ICON))
+        self.setToolTip(f"{APP_NAME} v{VERSION}")
 
-        # Create widget menu
-        widget_items = tuple(map(self.create_widget_menu, WIDGET_PACK))
-        widget_menu = menu(*widget_items)
+        # Create tray menu
+        menu = QMenu()
 
-        # Create main menu
-        main_menu = (
-            item("Load Preset", self.preset_manager.unhide),
-            separator,
-            item("Lock Overlay", module.overlay_lock.toggle,
-                 checked=lambda enabled: cfg.overlay["fixed_position"]),
-            item("Auto Hide", module.overlay_hide.toggle,
-                 checked=lambda enabled: cfg.overlay["auto_hide"]),
-            separator,
-            item("Widgets", widget_menu),
-            separator,
-            item("About", master.deiconify),
-            item("Quit", self.preset_manager.quit_app),
+        # Loaded preset
+        self.loaded_preset = QAction("", self)
+        self.loaded_preset.setDisabled(True)
+        menu.addAction(self.loaded_preset)
+
+        # Lock overlay
+        self.overlay_lock = QAction("Lock Overlay", self)
+        self.overlay_lock.setCheckable(True)
+        self.overlay_lock.setChecked(self.cfg.overlay["fixed_position"])
+        self.overlay_lock.triggered.connect(self.master.is_locked)
+        menu.addAction(self.overlay_lock)
+
+        # Auto hide
+        self.overlay_hide = QAction("Auto Hide", self)
+        self.overlay_hide.setCheckable(True)
+        self.overlay_hide.setChecked(self.cfg.overlay["auto_hide"])
+        self.overlay_hide.triggered.connect(self.master.is_hidden)
+        menu.addAction(self.overlay_hide)
+
+        # Reload preset
+        reload_preset = QAction("Reload", self)
+        reload_preset.triggered.connect(self.master.reload_preset)
+        menu.addAction(reload_preset)
+
+        menu.addSeparator()
+
+        # Config
+        app_config = QAction("Config", self)
+        app_config.triggered.connect(self.show_config)
+        menu.addAction(app_config)
+
+        menu.addSeparator()
+
+        # About
+        app_about = QAction("About", self)
+        app_about.triggered.connect(self.master.show_about)
+        menu.addAction(app_about)
+
+        # Quit
+        app_quit = QAction("Quit", self)
+        app_quit.triggered.connect(self.master.quit_app)
+        menu.addAction(app_quit)
+
+        self.setContextMenu(menu)
+        self.activated.connect(self.refresh_menu)
+
+    def show_config(self):
+        """Show config window"""
+        self.master.show()
+        self.master.activateWindow()
+
+    def refresh_menu(self):
+        """Refresh menu"""
+        self.loaded_preset.setText(
+            self.format_preset_name(self.cfg.last_loaded_setting)
         )
+        self.overlay_lock.setChecked(self.cfg.overlay["fixed_position"])
+        self.overlay_hide.setChecked(self.cfg.overlay["auto_hide"])
 
-        self.tray = pystray.Icon("icon", icon=image, title=name, menu=main_menu)
-
-    def start(self):
-        """Start tray icon"""
-        threading.Thread(target=self.tray.run).start()
-
-    def create_widget_menu(self, obj):
-        """Create widget menu"""
-        widget_name = obj.WIDGET_NAME
-        display_name = self.preset_manager.format_widget_name(widget_name)
-
-        return pystray.MenuItem(
-                display_name,  # widget name
-                lambda: wctrl.toggle(widget_name),  # call widget toggle
-                checked=lambda _: cfg.setting_user[widget_name]["enable"]  # check toggle state
-                )
+    @staticmethod
+    def format_preset_name(filename):
+        """Format preset name"""
+        loaded_preset = filename[:-5]
+        if len(loaded_preset) > 16:
+            loaded_preset = f"{loaded_preset[:16]}..."
+        return loaded_preset

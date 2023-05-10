@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -20,33 +20,50 @@
 Flag Widget
 """
 
-import tkinter as tk
-import tkinter.font as tkfont
+from PySide2.QtCore import Qt, Slot
+from PySide2.QtGui import QFont, QFontMetrics
+from PySide2.QtWidgets import (
+    QGridLayout,
+    QLabel,
+)
 
 from .. import readapi as read_data
-from ..base import Widget, MouseEvent
-from ..module_control import module
+from ..base import Widget
+from ..module_control import mctrl
 
 WIDGET_NAME = "flag"
 
 
-class Draw(Widget, MouseEvent):
+class Draw(Widget):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
         Widget.__init__(self, config, WIDGET_NAME)
 
-        # Config size & position
-        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
+        # Config font
+        self.font = QFont()
+        self.font.setFamily(self.wcfg['font_name'])
+        self.font.setPixelSize(self.wcfg['font_size'])
+        font_w = QFontMetrics(self.font).averageCharWidth()
 
-        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        # Config variable
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
+        bar_width = 7
 
-        # Config style & variable
-        font_flag = tkfont.Font(family=self.wcfg["font_name"],
-                                size=-self.wcfg["font_size"],
-                                weight=self.wcfg["font_weight"])
+        # Base style
+        self.setStyleSheet(
+            f"font-family: {self.wcfg['font_name']};"
+            f"font-size: {self.wcfg['font_size']}px;"
+            f"font-weight: {self.wcfg['font_weight']};"
+            f"padding: 0 {bar_padx}px;"
+        )
+
+        # Create layout
+        layout = QGridLayout()
+        layout.setSpacing(bar_gap)
+        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         column_ptim = self.wcfg["column_index_pit_timer"]
         column_fuel = self.wcfg["column_index_low_fuel"]
@@ -56,103 +73,110 @@ class Draw(Widget, MouseEvent):
         column_slit = self.wcfg["column_index_startlights"]
         column_cdwn = self.wcfg["column_index_countdown"]
 
-        # Draw label
-
         # Pit status
         if self.wcfg["show_pit_timer"]:
-            self.bar_pit_timer = tk.Label(self, width=7, bd=0, height=1,
-                                          text="PITST0P",
-                                          font=font_flag, padx=bar_padx, pady=0,
-                                          fg=self.wcfg["font_color_pit_timer"],
-                                          bg=self.wcfg["bkg_color_pit_timer"])
-            self.bar_pit_timer.grid_remove()
+            self.bar_pit_timer = QLabel("PITST0P")
+            self.bar_pit_timer.setAlignment(Qt.AlignCenter)
+            self.bar_pit_timer.setStyleSheet(
+                f"color: {self.wcfg['font_color_pit_timer']};"
+                f"background: {self.wcfg['bkg_color_pit_timer']};"
+                f"min-width: {font_w * bar_width}px;"
+            )
 
         # Low fuel warning
         if self.wcfg["show_low_fuel"]:
-            self.bar_lowfuel = tk.Label(self, width=7, bd=0, height=1,
-                                        text="LOWFUEL",
-                                        font=font_flag, padx=bar_padx, pady=0,
-                                        fg=self.wcfg["font_color_low_fuel"],
-                                        bg=self.wcfg["bkg_color_low_fuel"])
-            self.bar_lowfuel.grid_remove()
+            self.bar_lowfuel = QLabel("LOWFUEL")
+            self.bar_lowfuel.setAlignment(Qt.AlignCenter)
+            self.bar_lowfuel.setStyleSheet(
+                f"color: {self.wcfg['font_color_low_fuel']};"
+                f"background: {self.wcfg['bkg_color_low_fuel']};"
+                f"min-width: {font_w * bar_width}px;"
+            )
 
         # Speed limiter
         if self.wcfg["show_speed_limiter"]:
-            self.bar_limiter = tk.Label(self, width=7, bd=0, height=1,
-                                        text=self.wcfg["speed_limiter_text"],
-                                        font=font_flag, padx=bar_padx, pady=0,
-                                        fg=self.wcfg["font_color_speed_limiter"],
-                                        bg=self.wcfg["bkg_color_speed_limiter"])
-            self.bar_limiter.grid_remove()
+            self.bar_limiter = QLabel(self.wcfg["speed_limiter_text"])
+            self.bar_limiter.setAlignment(Qt.AlignCenter)
+            self.bar_limiter.setStyleSheet(
+                f"color: {self.wcfg['font_color_speed_limiter']};"
+                f"background: {self.wcfg['bkg_color_speed_limiter']};"
+                f"min-width: {font_w * bar_width}px;"
+            )
 
         # Yellow flag
         if self.wcfg["show_yellow_flag"]:
-            self.bar_yellowflag = tk.Label(self, width=7, bd=0, height=1,
-                                           text="YELLOW",
-                                           font=font_flag, padx=bar_padx, pady=0,
-                                           fg=self.wcfg["font_color_yellow_flag"],
-                                           bg=self.wcfg["bkg_color_yellow_flag"])
-            self.bar_yellowflag.grid_remove()
+            self.bar_yellowflag = QLabel("YELLOW")
+            self.bar_yellowflag.setAlignment(Qt.AlignCenter)
+            self.bar_yellowflag.setStyleSheet(
+                f"color: {self.wcfg['font_color_yellow_flag']};"
+                f"background: {self.wcfg['bkg_color_yellow_flag']};"
+                f"min-width: {font_w * bar_width}px;"
+            )
 
         # Blue flag
         if self.wcfg["show_blue_flag"]:
-            self.bar_blueflag = tk.Label(self, width=7, bd=0, height=1,
-                                         text="BLUE",
-                                         font=font_flag, padx=bar_padx, pady=0,
-                                         fg=self.wcfg["font_color_blue_flag"],
-                                         bg=self.wcfg["bkg_color_blue_flag"])
-            self.bar_blueflag.grid_remove()
+            self.bar_blueflag = QLabel("BLUE")
+            self.bar_blueflag.setAlignment(Qt.AlignCenter)
+            self.bar_blueflag.setStyleSheet(
+                f"color: {self.wcfg['font_color_blue_flag']};"
+                f"background: {self.wcfg['bkg_color_blue_flag']};"
+                f"min-width: {font_w * bar_width}px;"
+            )
 
         # Start lights
         if self.wcfg["show_startlights"]:
-            self.bar_startlights = tk.Label(self, width=7, bd=0, height=1,
-                                            text="SLIGHTS",
-                                            font=font_flag, padx=bar_padx, pady=0,
-                                            fg=self.wcfg["font_color_startlights"],
-                                            bg=self.wcfg["bkg_color_red_lights"])
-            self.bar_startlights.grid_remove()
+            self.bar_startlights = QLabel("SLIGHTS")
+            self.bar_startlights.setAlignment(Qt.AlignCenter)
+            self.bar_startlights.setStyleSheet(
+                f"color: {self.wcfg['font_color_startlights']};"
+                f"background: {self.wcfg['bkg_color_red_lights']};"
+                f"min-width: {font_w * bar_width}px;"
+            )
 
         # Countdown
         if self.wcfg["show_start_countdown"]:
-            self.bar_countdown = tk.Label(self, width=7, bd=0, height=1,
-                                          text="CDTIMER",
-                                          font=font_flag, padx=bar_padx, pady=0,
-                                          fg=self.wcfg["font_color_countdown"],
-                                          bg=self.wcfg["bkg_color_countdown"])
-            self.bar_countdown.grid_remove()
+            self.bar_countdown = QLabel("CDTIMER")
+            self.bar_countdown.setAlignment(Qt.AlignCenter)
+            self.bar_countdown.setStyleSheet(
+                f"color: {self.wcfg['font_color_countdown']};"
+                f"background: {self.wcfg['bkg_color_countdown']};"
+                f"min-width: {font_w * bar_width}px;"
+            )
 
-        if self.wcfg["layout"] == "0":
+        # Set layout
+        if self.wcfg["layout"] == 0:
             # Vertical layout
             if self.wcfg["show_pit_timer"]:
-                self.bar_pit_timer.grid(row=column_ptim, column=0, padx=0, pady=(0,bar_gap))
+                layout.addWidget(self.bar_pit_timer, column_ptim, 0)
             if self.wcfg["show_low_fuel"]:
-                self.bar_lowfuel.grid(row=column_fuel, column=0, padx=0, pady=(0,bar_gap))
+                layout.addWidget(self.bar_lowfuel, column_fuel, 0)
             if self.wcfg["show_speed_limiter"]:
-                self.bar_limiter.grid(row=column_slmt, column=0, padx=0, pady=(0,bar_gap))
+                layout.addWidget(self.bar_limiter, column_slmt, 0)
             if self.wcfg["show_yellow_flag"]:
-                self.bar_yellowflag.grid(row=column_yllw, column=0, padx=0, pady=(0,bar_gap))
+                layout.addWidget(self.bar_yellowflag, column_yllw, 0)
             if self.wcfg["show_blue_flag"]:
-                self.bar_blueflag.grid(row=column_blue, column=0, padx=0, pady=(0,bar_gap))
+                layout.addWidget(self.bar_blueflag, column_blue, 0)
             if self.wcfg["show_startlights"]:
-                self.bar_startlights.grid(row=column_slit, column=0, padx=0, pady=(0,bar_gap))
+                layout.addWidget(self.bar_startlights, column_slit, 0)
             if self.wcfg["show_start_countdown"]:
-                self.bar_countdown.grid(row=column_cdwn, column=0, padx=0, pady=(0,bar_gap))
+                layout.addWidget(self.bar_countdown, column_cdwn, 0)
         else:
             # Horizontal layout
             if self.wcfg["show_pit_timer"]:
-                self.bar_pit_timer.grid(row=0, column=column_ptim, padx=(0,bar_gap), pady=0)
+                layout.addWidget(self.bar_pit_timer, 0, column_ptim)
             if self.wcfg["show_low_fuel"]:
-                self.bar_lowfuel.grid(row=0, column=column_fuel, padx=(0,bar_gap), pady=0)
+                layout.addWidget(self.bar_lowfuel, 0, column_fuel)
             if self.wcfg["show_speed_limiter"]:
-                self.bar_limiter.grid(row=0, column=column_slmt, padx=(0,bar_gap), pady=0)
+                layout.addWidget(self.bar_limiter, 0, column_slmt)
             if self.wcfg["show_yellow_flag"]:
-                self.bar_yellowflag.grid(row=0, column=column_yllw, padx=(0,bar_gap), pady=0)
+                layout.addWidget(self.bar_yellowflag, 0, column_yllw)
             if self.wcfg["show_blue_flag"]:
-                self.bar_blueflag.grid(row=0, column=column_blue, padx=(0,bar_gap), pady=0)
+                layout.addWidget(self.bar_blueflag, 0, column_blue)
             if self.wcfg["show_startlights"]:
-                self.bar_startlights.grid(row=0, column=column_slit, padx=(0,bar_gap), pady=0)
+                layout.addWidget(self.bar_startlights, 0, column_slit)
             if self.wcfg["show_start_countdown"]:
-                self.bar_countdown.grid(row=0, column=column_cdwn, padx=(0,bar_gap), pady=0)
+                layout.addWidget(self.bar_countdown, 0, column_cdwn)
+        self.setLayout(layout)
 
         # Last data
         self.checked = False
@@ -160,31 +184,31 @@ class Draw(Widget, MouseEvent):
         self.last_inpits = None
         self.pit_timer_start = None
         self.last_pit_timer = None
-        self.last_fuel_usage = [None] * 2
+        self.last_fuel_usage = None
         self.last_pit_limiter = None
         self.last_blue_flag = None
         self.blue_flag_timer_start = None
-        self.last_blue_flag_timer = None
+        self.last_blue_flag_data = None
         self.last_yellow_flag = None
         self.last_start_timer = None
         self.last_lap_stime = 0
 
-        # Start updating
-        self.update_data()
+        # Set widget state & start update
+        self.set_widget_state()
+        self.update_timer.start()
 
-        # Assign mouse event
-        MouseEvent.__init__(self)
-
+    @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.wcfg["enable"]:
+        if self.wcfg["enable"] and read_data.state():
 
             # Reset switch
             if not self.checked:
                 self.checked = True
 
             # Read flag data
-            inpits, pit_limiter, curr_session, race_phase = read_data.pitting()
+            inpits, pit_limiter, race_phase = read_data.pitting()
+            is_race = read_data.is_race()
             lap_stime, lap_etime = read_data.lap_timestamp()
 
             # Pit timer
@@ -206,20 +230,24 @@ class Draw(Widget, MouseEvent):
                     else:
                         self.pit_timer_start = 0  # stop timer
 
-                self.update_pit_timer(pit_timer, self.last_pit_timer, pit_timer_highlight)
+                self.update_pit_timer(
+                    pit_timer, self.last_pit_timer, race_phase, pit_timer_highlight)
                 self.last_pit_timer = pit_timer
 
             # Low fuel update
             if self.wcfg["show_low_fuel"]:
-                fuel_usage = (min(round(module.fuel_usage.output_data[0], 2),  # amount_curr
-                                  self.wcfg["low_fuel_volume_threshold"]),
-                              min(round(module.fuel_usage.output_data[3], 1),  # est_runlaps
-                                  self.wcfg["low_fuel_lap_threshold"]))
+                fuel_info = mctrl.module_fuel.output
+                fuel_usage = (
+                    min(round(fuel_info.AmountFuelCurrent, 2),
+                        self.wcfg["low_fuel_volume_threshold"]),
+                    min(round(fuel_info.EstimatedLaps, 1),
+                        self.wcfg["low_fuel_lap_threshold"]),
+                    bool(not self.wcfg["show_low_fuel_for_race_only"] or
+                         self.wcfg["show_low_fuel_for_race_only"] and is_race)
+                )
 
-                if (not self.wcfg["low_fuel_for_race_only"]
-                    or self.wcfg["low_fuel_for_race_only"] and curr_session > 9):
-                    self.update_lowfuel(fuel_usage, self.last_fuel_usage)
-                    self.last_fuel_usage = fuel_usage
+                self.update_lowfuel(fuel_usage, self.last_fuel_usage)
+                self.last_fuel_usage = fuel_usage
 
             # Pit limiter
             if self.wcfg["show_speed_limiter"]:
@@ -241,19 +269,26 @@ class Draw(Widget, MouseEvent):
                 if self.blue_flag_timer_start:
                     blue_flag_timer = min(round(lap_etime - self.blue_flag_timer_start, 1), 999)
 
-                if (not self.wcfg["blue_flag_for_race_only"]
-                    or self.wcfg["blue_flag_for_race_only"] and curr_session > 9):
-                    self.update_blueflag(blue_flag_timer, self.last_blue_flag_timer)
-                    self.last_blue_flag_timer = blue_flag_timer
+                blue_flag_data = (
+                    blue_flag_timer,
+                    bool(not self.wcfg["show_blue_flag_for_race_only"] or
+                         self.wcfg["show_blue_flag_for_race_only"] and is_race)
+                )
+                self.update_blueflag(blue_flag_data, self.last_blue_flag_data)
+                self.last_blue_flag_data = blue_flag_data
 
             # Yellow flag
             if self.wcfg["show_yellow_flag"]:
-                #yellow_flag = [1,1,1, 1]# testing
-                yellow_flag = read_data.yellow_flag()
-
-                if (not self.wcfg["yellow_flag_for_race_only"]
-                    or self.wcfg["yellow_flag_for_race_only"] and curr_session > 9):
-                    self.update_yellowflag(yellow_flag, self.last_yellow_flag)
+                #yellow_flag = [1,1,1,0,0]# testing
+                yellow_flag = (
+                    *read_data.yellow_flag(),
+                    mctrl.module_standings.nearest.Yellow,
+                    bool(mctrl.module_standings.nearest.Yellow
+                         < self.wcfg["yellow_flag_maximum_range"]),
+                    bool(not self.wcfg["show_yellow_flag_for_race_only"] or
+                         self.wcfg["show_yellow_flag_for_race_only"] and is_race)
+                )
+                self.update_yellowflag(yellow_flag, self.last_yellow_flag)
                 self.last_yellow_flag = yellow_flag
 
             # Start lights & countdown timer
@@ -286,109 +321,110 @@ class Draw(Widget, MouseEvent):
                 self.last_inpits = None
                 self.pit_timer_start = None
                 self.last_pit_timer = None
-                self.last_fuel_usage = [None] * 2
+                self.last_fuel_usage = None
                 self.last_pit_limiter = None
                 self.last_blue_flag = None
                 self.blue_flag_timer_start = None
-                self.last_blue_flag_timer = None
+                self.last_blue_flag_data = None
                 self.last_yellow_flag = None
                 self.last_start_timer = None
                 self.last_lap_stime = 0
 
-        # Update rate
-        self.after(self.wcfg["update_delay"], self.update_data)
-
     # GUI update methods
-    def update_pit_timer(self, curr, last, mode=0):
+    def update_pit_timer(self, curr, last, phase, mode=0):
         """Pit timer"""
         if curr != last:  # timer
             if curr != -1:
                 if mode == 0:
-                    color = {"fg":self.wcfg["font_color_pit_timer"],
-                             "bg":self.wcfg["bkg_color_pit_timer"]}
-                    state = "P " + f"{curr:.02f}"[:5].rjust(5)
+                    if phase == 0:
+                        color = (f"color: {self.wcfg['font_color_pit_closed']};"
+                                 f"background: {self.wcfg['bkg_color_pit_closed']};")
+                        state = "P CLOSE"
+                    else:
+                        color = (f"color: {self.wcfg['font_color_pit_timer']};"
+                                 f"background: {self.wcfg['bkg_color_pit_timer']};")
+                        state = "P " + f"{curr:.02f}"[:5].rjust(5)
                 else:  # highlight
-                    color = {"fg":self.wcfg["font_color_pit_timer_stopped"],
-                             "bg":self.wcfg["bkg_color_pit_timer_stopped"]}
+                    color = (f"color: {self.wcfg['font_color_pit_timer_stopped']};"
+                             f"background: {self.wcfg['bkg_color_pit_timer_stopped']};")
                     state = "F " + f"{curr:.02f}"[:5].rjust(5)
 
-                self.bar_pit_timer.config(color, text=state)
-                self.bar_pit_timer.grid()
+                self.bar_pit_timer.setText(state)
+                self.bar_pit_timer.setStyleSheet(color)
+                self.bar_pit_timer.show()
             else:
-                self.bar_pit_timer.grid_remove()
+                self.bar_pit_timer.hide()
 
     def update_lowfuel(self, curr, last):
         """Low fuel warning"""
         if curr != last:
-            if (curr[0] < self.wcfg["low_fuel_volume_threshold"]
-                and curr[1] < self.wcfg["low_fuel_lap_threshold"]):
-                self.bar_lowfuel.config(text="LF" + f"{curr[0]:.02f}"[:4].rjust(5))
-                self.bar_lowfuel.grid()
+            if (curr[2] and
+                curr[0] < self.wcfg["low_fuel_volume_threshold"] and
+                curr[1] < self.wcfg["low_fuel_lap_threshold"]):
+                self.bar_lowfuel.setText("LF" + f"{curr[0]:.02f}"[:4].rjust(5))
+                self.bar_lowfuel.show()
             else:
-                self.bar_lowfuel.grid_remove()
+                self.bar_lowfuel.hide()
 
     def update_limiter(self, curr, last):
         """Speed limiter"""
         if curr != last:
             if curr == 1:
-                self.bar_limiter.grid()
+                self.bar_limiter.show()
             else:
-                self.bar_limiter.grid_remove()
+                self.bar_limiter.hide()
 
     def update_blueflag(self, curr, last):
         """Blue flag"""
         if curr != last:
-            if curr != -1:
-                self.bar_blueflag.grid()
-                self.bar_blueflag.config(text=f"BLUE{curr:3.0f}")
+            if curr[1] and curr[0] != -1:
+                self.bar_blueflag.setText(f"BLUE{curr[0]:3.0f}")
+                self.bar_blueflag.show()
             else:
-                self.bar_blueflag.grid_remove()
+                self.bar_blueflag.hide()
 
     def update_yellowflag(self, curr, last):
         """Yellow flag"""
         if curr != last:
-            if curr[3] == 0 and curr[0] == 1 or curr[1] == 1:
-                y_text = f"{self.yflag_text(curr[0], 1)}{self.yflag_text(curr[1], 2)}"
-                yellow = True
-            elif curr[3] == 1 and curr[1] == 1 or curr[2] == 1:
-                y_text = f"{self.yflag_text(curr[1], 2)}{self.yflag_text(curr[2], 3)}"
-                yellow = True
-            elif curr[3] == 2 and curr[2] == 1 or curr[0] == 1:
-                y_text = f"{self.yflag_text(curr[2], 3)}{self.yflag_text(curr[0], 1)}"
+            if curr[0] == 1 or curr[1] == 1 or curr[2] == 1:
                 yellow = True
             else:
                 yellow = False
 
-            if yellow:
-                self.bar_yellowflag.config(text=f"Y{y_text[:6].rjust(6)}")
-                self.bar_yellowflag.grid()
+            if curr[5] and yellow and curr[4]:
+                self.bar_yellowflag.setText(f"Y{curr[3]:5.0f}M")
+                self.bar_yellowflag.show()
             else:
-                self.bar_yellowflag.grid_remove()
+                self.bar_yellowflag.hide()
 
     def update_startlights(self, curr, last, green=0):
         """Start lights"""
         if curr != last:
             if green == 0:
-                self.bar_startlights.config(
-                    text=f"{self.wcfg['red_lights_text'][:6].ljust(6)}{read_data.startlights()}",
-                    bg=self.wcfg["bkg_color_red_lights"])
-                self.bar_startlights.grid()
+                self.bar_startlights.setText(
+                    f"{self.wcfg['red_lights_text'][:6].ljust(6)}{read_data.startlights()}")
+                self.bar_startlights.setStyleSheet(
+                    f"color: {self.wcfg['font_color_startlights']};"
+                    f"background: {self.wcfg['bkg_color_red_lights']};")
+                self.bar_startlights.show()
             elif green == 1:
-                self.bar_startlights.config(
-                    text=self.wcfg["green_flag_text"],
-                    bg=self.wcfg["bkg_color_green_flag"])
-                self.bar_startlights.grid()
+                self.bar_startlights.setText(
+                    self.wcfg["green_flag_text"])
+                self.bar_startlights.setStyleSheet(
+                    f"color: {self.wcfg['font_color_startlights']};"
+                    f"background: {self.wcfg['bkg_color_green_flag']};")
+                self.bar_startlights.show()
             else:
-                self.bar_startlights.grid_remove()
+                self.bar_startlights.hide()
 
     def update_countdown(self, curr, last, green=0):
         """Start countdown"""
         if curr != last:
             if green == 2:
-                self.bar_countdown.grid_remove()
+                self.bar_countdown.hide()
             else:
-                self.bar_countdown.config(text="CD" + f"{max(curr, 0):.02f}"[:4].rjust(5))
-                self.bar_countdown.grid()
+                self.bar_countdown.setText("CD" + f"{max(curr, 0):.02f}"[:4].rjust(5))
+                self.bar_countdown.show()
 
     # Additional methods
     @staticmethod

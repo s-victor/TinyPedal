@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -20,66 +20,106 @@
 Module control
 """
 
+import logging
 import time
 
 from .setting import cfg
-from .realtime_delta import DeltaTime
-from .realtime_battery import Battery
-from .realtime_fuel import FuelUsage
-from .realtime_relative import RelativeInfo
-from .overlay_toggle import OverlayLock, OverlayAutoHide
+from .module import (
+    module_delta,
+    module_fuel,
+    module_hybrid,
+    module_mapping,
+    module_relative,
+    module_standings,
+)
+
+logger = logging.getLogger(__name__)
 
 
 class ModuleControl:
     """Module control"""
-
-    def __init__(self):
-        """Widget list"""
-        self.delta_time = DeltaTime(cfg)  # delta module
-        self.battery_usage = Battery(cfg)  # battery module
-        self.fuel_usage = FuelUsage(cfg)  # fuel module
-        self.relative_info = RelativeInfo(cfg)  # relative module
-        self.overlay_lock = OverlayLock(cfg)  # overlay lock
-        self.overlay_hide = OverlayAutoHide(cfg)  # overlay auto hide
+    MODULE_PACK = (
+        module_delta,
+        module_fuel,
+        module_hybrid,
+        module_mapping,
+        module_relative,
+        module_standings,
+    )
+    vehicle_classes = None
 
     def start(self):
         """Start module"""
-        self.delta_time = DeltaTime(cfg)
-        self.battery_usage = Battery(cfg)
-        self.fuel_usage = FuelUsage(cfg)
-        self.relative_info = RelativeInfo(cfg)
-        self.overlay_lock = OverlayLock(cfg)
-        self.overlay_hide = OverlayAutoHide(cfg)
-
-        if cfg.overlay["delta_module"]:
-            self.delta_time.start()
-        if cfg.overlay["fuel_module"]:
-            self.fuel_usage.start()
-        if cfg.overlay["battery_module"]:
-            self.battery_usage.start()
-        if cfg.overlay["relative_module"]:
-            self.relative_info.start()
-        self.overlay_hide.start()
-
-    def is_stopped(self):
-        """Check is all module stopped"""
-        return all((
-                    self.delta_time.stopped,
-                    self.battery_usage.stopped,
-                    self.fuel_usage.stopped,
-                    self.relative_info.stopped,
-                    self.overlay_hide.stopped
-                    ))
+        for obj in self.MODULE_PACK:
+            # Initialize module
+            setattr(self, obj.MODULE_NAME, obj.Realtime(self, cfg))
+            # Start module
+            if cfg.setting_user[obj.MODULE_NAME]["enable"]:
+                getattr(self, obj.MODULE_NAME).start()
 
     def stop(self):
-        """Stop modules"""
-        self.delta_time.running = False
-        self.battery_usage.running = False
-        self.fuel_usage.running = False
-        self.relative_info.running = False
-        self.overlay_hide.running = False
-        while not self.is_stopped():
-            time.sleep(0.01)
+        """Stop module"""
+        if cfg.active_module_list:
+            for module in cfg.active_module_list:
+                module.running = False
+            while cfg.active_module_list:
+                time.sleep(0.01)
+
+    def toggle(self, module):
+        """Toggle module"""
+        name = module.MODULE_NAME
+
+        if cfg.setting_user[name]["enable"]:
+            cfg.setting_user[name]["enable"] = False
+            getattr(self, name).running = False
+            while not getattr(self, name).stopped:
+                time.sleep(0.01)
+        else:
+            cfg.setting_user[name]["enable"] = True
+            setattr(self, name, module.Realtime(self, cfg))
+            getattr(self, name).start()
+
+        cfg.save()
+
+    def enable_all(self):
+        """Enable all modules"""
+        for obj in self.MODULE_PACK:
+            if not cfg.setting_user[obj.MODULE_NAME]["enable"]:
+                cfg.setting_user[obj.MODULE_NAME]["enable"] = True
+                setattr(self, obj.MODULE_NAME, obj.Realtime(self, cfg))
+                getattr(self, obj.MODULE_NAME).start()
+        cfg.save()
+        logger.info("all modules enabled")
+
+    def disable_all(self):
+        """Disable all modules"""
+        for obj in self.MODULE_PACK:
+            cfg.setting_user[obj.MODULE_NAME]["enable"] = False
+
+        while cfg.active_module_list:
+            for module in cfg.active_module_list:
+                module.running = False
+            #time.sleep(0.01)
+        cfg.save()
+        logger.info("all modules disabled")
+
+    def start_module(self, module_name):
+        """Start selected module"""
+        for obj in self.MODULE_PACK:
+            if obj.MODULE_NAME == module_name and cfg.setting_user[module_name]["enable"]:
+                setattr(self, obj.MODULE_NAME, obj.Realtime(self, cfg))
+                getattr(self, obj.MODULE_NAME).start()
+                break
+
+    def stop_module(self, module_name):
+        """stop selected module"""
+        if cfg.active_widget_list:
+            for module in cfg.active_module_list:
+                if module.module_name == module_name:
+                    module.running = False
+                    while not module.stopped:
+                        time.sleep(0.01)
+                    break
 
 
-module = ModuleControl()
+mctrl = ModuleControl()

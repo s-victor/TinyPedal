@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -20,46 +20,68 @@
 Delta module
 """
 
+import logging
 import time
 import threading
 import csv
+from collections import namedtuple
 
-from .const import PATH_DELTABEST
-from .readapi import info, chknm, state, combo_check
-from . import calculation as calc
+from ..const import PATH_DELTABEST
+from ..readapi import info, chknm, state, combo_check
+from .. import calculation as calc
+
+MODULE_NAME = "module_delta"
+
+logger = logging.getLogger(__name__)
 
 
-class DeltaTime:
+class Realtime:
     """Delta time data"""
+    module_name = MODULE_NAME
     filepath = PATH_DELTABEST
+    DataSet = namedtuple(
+        "DataSet",
+        [
+        "LaptimeCurrent",
+        "LaptimeLast",
+        "LaptimeBest",
+        "LaptimeEstimated",
+        "DeltaBest",
+        "IsValidLap",
+        "MetersDriven",
+        ],
+        defaults = ([0] * 7)
+    )
 
-    def __init__(self, config):
+    def __init__(self, mctrl, config):
+        self.mctrl = mctrl
         self.cfg = config
-        self.output_data = (0,0,0,0,0)
-        self.meters_driven = 0
-        self.running = False
+        self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
+        self.running = False
+        self.set_default()
+
+    def set_default(self):
+        """Set default output"""
+        self.output = self.DataSet()
 
     def start(self):
         """Start calculation thread"""
-        self.running = True
-        self.stopped = False
-        self.thread = threading.Thread(target=self.__calculation)
-        self.thread.daemon=True
-        self.thread.start()
-        print("delta module started")
+        if self.stopped:
+            self.stopped = False
+            self.running = True
+            _thread = threading.Thread(target=self.__calculation, daemon=True)
+            _thread.start()
+            self.cfg.active_module_list.append(self)
+            logger.info("delta module started")
 
     def __calculation(self):
-        """Delta best & laptime
-
-        Run calculation separately.
-        Saving & loading delta data only on exit & enter.
-        """
+        """Delta calculation"""
         recording = False  # set delta recording state
         verified = False  # additional check for conserving resources
         validating = False  # validate last laptime after cross finish line
 
-        self.meters_driven = self.cfg.setting_user["cruise"]["meters_driven"]
+        meters_driven = 0
         delta_list_curr = []  # distance vs time list, current lap
         delta_list_last = []  # distance vs time list, last lap, used for verification only
         delta_list_best = []  # distance vs time list, best lap
@@ -74,7 +96,10 @@ class DeltaTime:
         laptime_best = 99999  # best laptime
         laptime_est = 0  # estimated current laptime
         combo_name = "unknown"  # current car & track combo
-        update_delay = 0.4  # changeable update delay for conserving resources
+
+        active_interval = self.mcfg["update_interval"] / 1000
+        idle_interval = self.mcfg["idle_update_interval"] / 1000
+        update_interval = idle_interval
 
         while self.running:
             if state():
@@ -85,9 +110,10 @@ class DeltaTime:
                 # Read combo & best laptime
                 if not verified:
                     verified = True
-                    update_delay = 0.01  # shorter delay
+                    update_interval = active_interval  # shorter delay
                     combo_name = combo_check()
                     delta_list_best, laptime_best = self.load_deltabest(combo_name)
+                    meters_driven = self.cfg.setting_user["cruise"]["meters_driven"]
                     last_lap_stime = lap_stime  # reset lap-start-time
 
                 if game_phase < 5:  # reset stint stats if session has not started
@@ -102,10 +128,10 @@ class DeltaTime:
 
                     if delta_list_curr:  # non-empty list check
                         delta_list_curr.append((pos_last + 10, laptime_last))  # set end value
-                        delta_list_last = delta_list_curr.copy()
+                        delta_list_last = delta_list_curr
                         validating = True
 
-                    delta_list_curr.clear()  # reset current delta list
+                    delta_list_curr = []  # reset current delta list
                     delta_list_curr.append((0.0, 0.0))  # set start value
                     recording = True  # activate delta recording
                     last_lap_stime = lap_stime  # reset
@@ -158,39 +184,42 @@ class DeltaTime:
 
                 laptime_est = laptime_best + delta_best
 
-                # Output delta time data
-                self.output_data = (laptime_curr, laptime_last, laptime_best,
-                                    laptime_est, delta_best)
-
                 # Record driven distance in meters
                 if gps_last != gps_curr:
-                    moved_distance = calc.pos2distance(gps_last, gps_curr)
+                    moved_distance = calc.distance_xyz(gps_last, gps_curr)
                     if moved_distance < 15:  # add small amount limit
-                        self.meters_driven += moved_distance
-                        gps_last = gps_curr
-                    else:
-                        gps_last = gps_curr
+                        meters_driven += moved_distance
+                    gps_last = gps_curr
+
+                # Output delta time data
+                self.output = self.DataSet(
+                    LaptimeCurrent = laptime_curr,
+                    LaptimeLast = laptime_last,
+                    LaptimeBest = laptime_best,
+                    LaptimeEstimated = laptime_est,
+                    DeltaBest = delta_best,
+                    IsValidLap = bool(lastlap_check > 0),
+                    MetersDriven = meters_driven,
+                )
 
             else:
                 if verified:
                     recording = False  # disable delta recording after exit track
                     verified = False  # activate verification when enter track next time
                     validating = False  # disable laptime validate
-                    update_delay = 0.4  # longer delay while inactive
-                    delta_list_curr.clear()  # reset current delta list
-
-                    # Save delta best data
-                    #if delta_list_best:
-                        #self.save_deltabest(combo_name, delta_list_best)
+                    update_interval = idle_interval  # longer delay while inactive
+                    delta_list_curr = []  # reset current delta list
 
                     # Save meters driven & last laptime data
-                    self.cfg.setting_user["cruise"]["meters_driven"] = int(self.meters_driven)
+                    self.cfg.setting_user["cruise"]["meters_driven"] = int(meters_driven)
                     self.cfg.save()
 
-            time.sleep(update_delay)
+            time.sleep(update_interval)
 
+        self.set_default()
+        self.cfg.active_module_list.remove(self)
         self.stopped = True
-        print("delta module closed")
+        logger.info("delta module closed")
 
     @staticmethod
     def __telemetry():

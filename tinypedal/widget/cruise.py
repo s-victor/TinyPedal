@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -21,96 +21,124 @@ Cruise Widget
 """
 
 import time
-import tkinter as tk
-import tkinter.font as tkfont
+from PySide2.QtCore import Qt, Slot
+from PySide2.QtWidgets import (
+    QGridLayout,
+    QLabel,
+)
 
 from .. import calculation as calc
 from .. import readapi as read_data
-from ..base import Widget, MouseEvent
-from ..module_control import module
+from ..base import Widget
+from ..module_control import mctrl
 
 WIDGET_NAME = "cruise"
 
 
-class Draw(Widget, MouseEvent):
+class Draw(Widget):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
         Widget.__init__(self, config, WIDGET_NAME)
 
-        # Config size & position
-        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
-
-        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        # Config variable
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
 
-        # Config style & variable
-        font_cruise = tkfont.Font(family=self.wcfg["font_name"],
-                                  size=-self.wcfg["font_size"],
-                                  weight=self.wcfg["font_weight"])
+        # Base style
+        self.setStyleSheet(
+            f"font-family: {self.wcfg['font_name']};"
+            f"font-size: {self.wcfg['font_size']}px;"
+            f"font-weight: {self.wcfg['font_weight']};"
+            f"padding: 0 {bar_padx}px;"
+        )
 
-        column_cloc = self.wcfg["column_index_track_clock"]
+        # Create layout
+        layout = QGridLayout()
+        layout.setSpacing(bar_gap)
+        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+
+        column_trkc = self.wcfg["column_index_track_clock"]
         column_comp = self.wcfg["column_index_compass"]
         column_evel = self.wcfg["column_index_elevation"]
         column_odom = self.wcfg["column_index_odometer"]
 
-        # Draw label
-        bar_style = {"bd":0, "height":1, "padx":bar_padx, "pady":0, "font":font_cruise}
-
+        # Track clock
         if self.wcfg["show_track_clock"]:
-            self.bar_trackclock = tk.Label(self, bar_style, text="n/a", width=6,
-                                           fg=self.wcfg["font_color_track_clock"],
-                                           bg=self.wcfg["bkg_color_track_clock"])
-            self.bar_trackclock.grid(row=0, column=column_cloc, padx=(0, bar_gap), pady=0)
+            self.bar_track_clock = QLabel("T CLOCK")
+            self.bar_track_clock.setAlignment(Qt.AlignCenter)
+            self.bar_track_clock.setStyleSheet(
+                f"color: {self.wcfg['font_color_track_clock']};"
+                f"background: {self.wcfg['bkg_color_track_clock']};"
+            )
 
+        # Compass
         if self.wcfg["show_compass"]:
-            self.bar_compass = tk.Label(self, bar_style, text="n/a", width=6,
-                                        fg=self.wcfg["font_color_compass"],
-                                        bg=self.wcfg["bkg_color_compass"])
-            self.bar_compass.grid(row=0, column=column_comp, padx=(0, bar_gap), pady=0)
+            self.bar_compass = QLabel("COMPASS")
+            self.bar_compass.setAlignment(Qt.AlignCenter)
+            self.bar_compass.setStyleSheet(
+                f"color: {self.wcfg['font_color_compass']};"
+                f"background: {self.wcfg['bkg_color_compass']};"
+            )
 
+        # Elevation
         if self.wcfg["show_elevation"]:
-            self.bar_elevation = tk.Label(self, bar_style, text="n/a", width=6,
-                                          fg=self.wcfg["font_color_elevation"],
-                                          bg=self.wcfg["bkg_color_elevation"])
-            self.bar_elevation.grid(row=0, column=column_evel, padx=(0, bar_gap), pady=0)
+            self.bar_elevation = QLabel("ELEVATION")
+            self.bar_elevation.setAlignment(Qt.AlignCenter)
+            self.bar_elevation.setStyleSheet(
+                f"color: {self.wcfg['font_color_elevation']};"
+                f"background: {self.wcfg['bkg_color_elevation']};"
+            )
 
+        # Odometer
         if self.wcfg["show_odometer"]:
-            self.bar_odometer = tk.Label(self, bar_style, text="n/a", width=6,
-                                         fg=self.wcfg["font_color_odometer"],
-                                         bg=self.wcfg["bkg_color_odometer"])
-            self.bar_odometer.grid(row=0, column=column_odom, padx=(0, bar_gap), pady=0)
+            self.bar_odometer = QLabel("ODOMETER")
+            self.bar_odometer.setAlignment(Qt.AlignCenter)
+            self.bar_odometer.setStyleSheet(
+                f"color: {self.wcfg['font_color_odometer']};"
+                f"background: {self.wcfg['bkg_color_odometer']};"
+            )
+
+        # Set layout
+        if self.wcfg["show_track_clock"]:
+            layout.addWidget(self.bar_track_clock, 0, column_trkc)
+        if self.wcfg["show_compass"]:
+            layout.addWidget(self.bar_compass, 0, column_comp)
+        if self.wcfg["show_elevation"]:
+            layout.addWidget(self.bar_elevation, 0, column_evel)
+        if self.wcfg["show_odometer"]:
+            layout.addWidget(self.bar_odometer, 0, column_odom)
+        self.setLayout(layout)
 
         # Last data
+        self.last_track_time = None
         self.last_dir_degree = None
-        self.last_time_curr = None
         self.last_pos_y = None
         self.last_traveled_distance = None
 
-        # Start updating
-        self.update_data()
+        # Set widget state & start update
+        self.set_widget_state()
+        self.update_timer.start()
 
-        # Assign mouse event
-        MouseEvent.__init__(self)
-
+    @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.wcfg["enable"]:
+        if self.wcfg["enable"] and read_data.state():
 
             # Read cruise data
-            ori_yaw, pos_y, time_start, time_curr = read_data.cruise()
-
-            # Compass
-            if self.wcfg["show_compass"]:
-                dir_degree = round(180 - calc.rad2deg(calc.oriyaw2rad(*ori_yaw)), 0)
-                self.update_compass(dir_degree, self.last_dir_degree)
-                self.last_dir_degree = dir_degree
+            ori_yaw, pos_y, time_start, track_time = read_data.cruise()
 
             # Track clock
             if self.wcfg["show_track_clock"]:
-                self.update_trackclock(time_curr, self.last_time_curr, time_start)
-                self.last_time_curr = time_curr
+                self.update_track_clock(track_time, self.last_track_time, time_start)
+                self.last_track_time = track_time
+
+            # Compass
+            if self.wcfg["show_compass"]:
+                dir_degree = round(180 - calc.rad2deg(calc.oriyaw2rad(*ori_yaw)))
+                self.update_compass(dir_degree, self.last_dir_degree)
+                self.last_dir_degree = dir_degree
 
             # Elevation
             if self.wcfg["show_elevation"]:
@@ -119,20 +147,12 @@ class Draw(Widget, MouseEvent):
 
             # Odometer
             if self.wcfg["show_odometer"]:
-                traveled_distance = module.delta_time.meters_driven
+                traveled_distance = mctrl.module_delta.output.MetersDriven
                 self.update_odometer(traveled_distance, self.last_traveled_distance)
                 self.last_traveled_distance = traveled_distance
 
-        # Update rate
-        self.after(self.wcfg["update_delay"], self.update_data)
-
     # GUI update methods
-    def update_compass(self, curr, last):
-        """Compass"""
-        if curr != last:
-            self.bar_compass.config(text=f"{curr:03.0f}°{self.deg2direction(curr)}")
-
-    def update_trackclock(self, curr, last, start):
+    def update_track_clock(self, curr, last, start):
         """Track clock"""
         if curr != last:
             time_offset = curr * self.wcfg["track_clock_time_scale"]
@@ -143,26 +163,34 @@ class Draw(Widget, MouseEvent):
 
             track_clock = start + time_offset
 
-            clock_text = time.strftime(self.wcfg["track_clock_format"], time.gmtime(track_clock))
-            self.bar_trackclock.config(text=clock_text, width=len(clock_text))
+            clock_text = time.strftime(
+                self.wcfg["track_clock_format"], time.gmtime(track_clock))
+            self.bar_track_clock.setText(clock_text)
+
+    def update_compass(self, curr, last):
+        """Compass"""
+        if curr != last:
+            self.bar_compass.setText(f"{curr:03.0f}°{self.deg2direction(curr)}")
 
     def update_elevation(self, curr, last):
         """Elevation"""
         if curr != last:
-            if self.wcfg["elevation_unit"] == "0":
-                elev_text = "↑ " + f"{curr:.0f}m".rjust(4)
-            else:
+            if self.cfg.units["elevation_unit"] == "Feet":
                 elev_text = "↑ " + f"{curr * 3.2808399:.0f}ft".rjust(5)
-            self.bar_elevation.config(text=elev_text, width=len(elev_text))
+            else:  # meter
+                elev_text = "↑ " + f"{curr:.0f}m".rjust(4)
+            self.bar_elevation.setText(elev_text)
 
     def update_odometer(self, curr, last):
         """Odometer"""
         if curr != last:
-            if self.wcfg["odometer_unit"] == "0":  # kilometer
-                dist_text = f"{curr * 0.001:06.01f}km"
-            else:  # mile
+            if self.cfg.units["odometer_unit"] == "Mile":
                 dist_text = f"{curr / 1609.344:06.01f}mi"
-            self.bar_odometer.config(text=dist_text, width=len(dist_text))
+            elif self.cfg.units["odometer_unit"] == "Meter":
+                dist_text = f"{curr:07.0f}m"
+            else:  # kilometer
+                dist_text = f"{curr * 0.001:06.01f}km"
+            self.bar_odometer.setText(dist_text)
 
     # Additional methods
     @staticmethod

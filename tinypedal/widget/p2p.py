@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022  Xiang
+#  Copyright (C) 2022-2023  Xiang
 #
 #  This file is part of TinyPedal.
 #
@@ -20,101 +20,117 @@
 P2P Widget
 """
 
-import tkinter as tk
-import tkinter.font as tkfont
+from PySide2.QtCore import Qt, Slot
+from PySide2.QtWidgets import (
+    QGridLayout,
+    QLabel,
+)
 
 from .. import readapi as read_data
-from ..base import Widget, MouseEvent
-from ..module_control import module
+from ..base import Widget
+from ..module_control import mctrl
 
 WIDGET_NAME = "p2p"
 
 
-class Draw(Widget, MouseEvent):
+class Draw(Widget):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
         Widget.__init__(self, config, WIDGET_NAME)
 
-        # Config size & position
-        self.geometry(f"+{self.wcfg['position_x']}+{self.wcfg['position_y']}")
-
-        bar_padx = self.wcfg["font_size"] * self.wcfg["text_padding"]
+        # Config variable
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
 
-        # Config style & variable
-        font_p2p = tkfont.Font(family=self.wcfg["font_name"],
-                                  size=-self.wcfg["font_size"],
-                                  weight=self.wcfg["font_weight"])
+        # Base style
+        self.setStyleSheet(
+            f"font-family: {self.wcfg['font_name']};"
+            f"font-size: {self.wcfg['font_size']}px;"
+            f"font-weight: {self.wcfg['font_weight']};"
+            f"padding: 0 {bar_padx}px;"
+        )
+
+        # Create layout
+        layout = QGridLayout()
+        layout.setSpacing(bar_gap)
+        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         column_bc = self.wcfg["column_index_battery_charge"]
-        column_ms = self.wcfg["column_index_boost_motor_state"]
+        column_at = self.wcfg["column_index_activation_timer"]
 
-        # Draw label
-        bar_style  = {"bd":0, "height":1,
-                      "padx":bar_padx, "pady":0, "font":font_p2p}
-
+        # Battery charge
         if self.wcfg["show_battery_charge"]:
-            self.bar_battery_charge = tk.Label(
-                self, bar_style, text="P2P",
-                fg=self.wcfg["font_color_battery_charge"],
-                bg=self.wcfg["bkg_color_battery_charge"])
+            self.bar_battery_charge = QLabel("P2P")
+            self.bar_battery_charge.setAlignment(Qt.AlignCenter)
+            self.bar_battery_charge.setStyleSheet(
+                f"color: {self.wcfg['font_color_battery_charge']};"
+                f"background: {self.wcfg['bkg_color_battery_charge']};"
+            )
 
-        if self.wcfg["show_boost_motor_state"]:
-            self.bar_motor_state = tk.Label(
-                self, bar_style, text="TIMER",
-                fg=self.wcfg["font_color_boost_motor_state"],
-                bg=self.wcfg["bkg_color_boost_motor_state"])
+        # Activation timer
+        if self.wcfg["show_activation_timer"]:
+            self.bar_active_timer = QLabel("TIMER")
+            self.bar_active_timer.setAlignment(Qt.AlignCenter)
+            self.bar_active_timer.setStyleSheet(
+                f"color: {self.wcfg['font_color_activation_timer']};"
+                f"background: {self.wcfg['bkg_color_activation_timer']};"
+            )
 
-        # Horizontal layout
+        # Set layout
         if self.wcfg["show_battery_charge"]:
-            self.bar_battery_charge.grid(row=0, column=column_bc, padx=(0, bar_gap), pady=0)
-        if self.wcfg["show_boost_motor_state"]:
-            self.bar_motor_state.grid(row=0, column=column_ms, padx=(0, bar_gap), pady=0)
+            layout.addWidget(self.bar_battery_charge, 0, column_bc)
+        if self.wcfg["show_activation_timer"]:
+            layout.addWidget(self.bar_active_timer, 0, column_at)
+        self.setLayout(layout)
 
         # Last data
         self.last_battery_charge = None
-        self.last_motor_active_timer = None
+        self.last_active_timer = None
 
-        # Start updating
-        self.update_data()
+        # Set widget state & start update
+        self.set_widget_state()
+        self.update_timer.start()
 
-        # Assign mouse event
-        MouseEvent.__init__(self)
-
+    @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if read_data.state() and self.wcfg["enable"]:
+        if self.wcfg["enable"] and read_data.state():
 
-            # Read battery data from battery module
-            (battery_charge, _, motor_active_timer, motor_inactive_timer, motor_state
-             ) = module.battery_usage.output_data
+            # Read hybrid data from hybrid module
+            hybrid_info = mctrl.module_hybrid.output
 
             # Read p2p data
             mgear, speed, throttle = read_data.p2p()
 
             alt_active_state = (
                 mgear >= self.wcfg["activation_threshold_gear"] and
-                speed*3.6 > self.wcfg["activation_threshold_speed"] and
-                throttle > 0
-                )
+                speed * 3.6 > self.wcfg["activation_threshold_speed"] and
+                throttle >= self.wcfg["activation_threshold_throttle"] and
+                hybrid_info.MotorState
+            )
 
-            # Battery charge & usage
+            # Battery charge
             if self.wcfg["show_battery_charge"]:
-                battery_charge = [battery_charge, motor_state, alt_active_state,
-                                  motor_active_timer, motor_inactive_timer]
+                battery_charge = (
+                    hybrid_info.BatteryCharge,
+                    hybrid_info.MotorState,
+                    alt_active_state,
+                    hybrid_info.MotorActiveTimer,
+                    hybrid_info.MotorInActiveTimer
+                )
                 self.update_battery_charge(battery_charge, self.last_battery_charge)
                 self.last_battery_charge = battery_charge
 
-            # Motor state
-            if self.wcfg["show_boost_motor_state"]:
-                motor_active_timer = [motor_active_timer, motor_state]
-                self.update_motor_state(motor_active_timer, self.last_motor_active_timer)
-                self.last_motor_active_timer = motor_active_timer
-
-        # Update rate
-        self.after(self.wcfg["update_delay"], self.update_data)
+            # Activation timer
+            if self.wcfg["show_activation_timer"]:
+                active_timer = (
+                    hybrid_info.MotorActiveTimer,
+                    hybrid_info.MotorState
+                )
+                self.update_active_timer(active_timer, self.last_active_timer)
+                self.last_active_timer = active_timer
 
     # GUI update methods
     def update_battery_charge(self, curr, last):
@@ -126,28 +142,36 @@ class Draw(Widget, MouseEvent):
             # State = regen
             elif curr[1] == 3:
                 bgcolor = self.wcfg["bkg_color_battery_regen"]
-            # alt_active_state True, motor_active_timer, motor_inactive_timer
+            # alt_active_state True, active_timer, inactive_timer
             elif (curr[2] and
                   curr[4] >= self.wcfg["minimum_activation_time_delay"] and
                   curr[3] < self.wcfg["maximum_activation_time_per_lap"] - 0.05):
                 bgcolor = self.wcfg["bkg_color_battery_charge"]
             else:
-                bgcolor = self.wcfg["bkg_color_boost_motor_inactive"]
+                bgcolor = self.wcfg["bkg_color_inactive"]
 
             if curr[0] < 99.5:
                 format_text = f"±{curr[0]:02.0f}"
             else:
                 format_text = "MAX"
-            self.bar_battery_charge.config(
-                text=format_text, bg=bgcolor)
 
-    def update_motor_state(self, curr, last):
-        """Motor state"""
+            self.bar_battery_charge.setText(format_text)
+            self.bar_battery_charge.setStyleSheet(
+                f"color: {self.wcfg['font_color_battery_charge']};"
+                f"background: {bgcolor};"
+            )
+
+    def update_active_timer(self, curr, last):
+        """P2P activation timer"""
         if curr != last:
             if curr[1] != 2:
-                fgcolor = self.wcfg["font_color_boost_motor_inactive"]
+                fgcolor = self.wcfg["font_color_inactive"]
             else:
-                fgcolor = self.wcfg["font_color_boost_motor_state"]
+                fgcolor = self.wcfg["bkg_color_inactive"]
 
             format_text = f"{curr[0]:.01f}"
-            self.bar_motor_state.config(text=format_text, fg=fgcolor)
+            self.bar_active_timer.setText(format_text)
+            self.bar_active_timer.setStyleSheet(
+                f"color: {fgcolor};"
+                f"background: {self.wcfg['bkg_color_activation_timer']};"
+            )

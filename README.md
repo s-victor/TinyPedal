@@ -7,10 +7,6 @@ Currently supports rFactor 2 and displays simulation info using The Iron Wolf’
 `Borderless` or `Windowed` mode is required. `Fullscreen` mode is not supported.
 
 
-## Feature
-See [docs\features.md](./docs/features.md) for complete widgets & feature list.
-
-
 ## Requirements
 TinyPedal requires The Iron Wolf’s rF2 Shared Memory Map Plugin, download it from here:  
 https://forum.studio-397.com/index.php?threads/rf2-shared-memory-tools-for-developers.54282/
@@ -29,25 +25,22 @@ The plugin file `rFactor2SharedMemoryMapPlugin64.dll` should be placed in `rFact
 
 5. Click on overlay to drag around. Overlay can be Locked or Unlocked by clicking `Lock Overlay` from tray menu.
 
-6. Widgets can be Enabled or Disabled by accessing `Widgets` menu from tray menu.
+6. Widgets can be Enabled or Disabled by clicking `Config` from tray menu.
 
 7. To quit APP, `Right Click` on tray icon and select `Quit`.
 
 
 ## Customization
-
-See [Customization Guide](https://github.com/s-victor/TinyPedal/wiki) for editing guide.
+See [Customization Guide](https://github.com/s-victor/TinyPedal/wiki) for details.
 
 
 ## Run from source
 
 ### Dependencies:
 * [Python](https://www.python.org/) 3.8 or higher
+* PySide2
 * pyRfactor2SharedMemory
-    * psutil (sub-dependency)
-* pystray
-    * Pillow (sub-dependency)
-    * six (sub-dependency)
+* psutil
 
 ### Steps:
 1. Download source code from [Releases](https://github.com/s-victor/TinyPedal/releases) page; or click `Code` button at the top of repository and select `Download ZIP`; or use `Git` tool to clone this repository.
@@ -59,12 +52,11 @@ It includes a few required changes for TinyPedal.
 3. Extract TinyPedal source code ZIP file. Then extract pyRfactor2SharedMemory ZIP file and put `pyRfactor2SharedMemory` folder in the root folder of TinyPedal.
 
 4. Install additional dependencies by using command:  
-`pip3 install pystray psutil`  
-Note: sub-dependencies should be auto-installed alongside related packages.
+`pip3 install PySide2 psutil`  
 
 5. To start TinyPedal, type command from root folder:  
 `python run.py`  
-(TinyPedal is currently tested and worked with Python 3.8 & 3.9)
+(TinyPedal is currently tested and worked with Python 3.8+)
 
 Note: if using `Git` tool to clone this repository, run command with `--recursive` to also clone submodule, such as:  
 `git clone --recursive https://github.com/s-victor/TinyPedal.git`
@@ -94,13 +86,13 @@ Configuration and data files will be stored in the defined user-specific
 directories, usually at `$HOME/.config/TinyPedal/` and
 `$HOME/.local/share/TinyPedal/` respectively.
 
-The required Python packages are `psutil` and `pyxdg`. They can be installed with
+The required Python packages are `PySide2`, `psutil` and `pyxdg`. They can be installed with
 this command:  
-`pip3 install psutil pyxdg`
+`pip3 install PySide2 psutil pyxdg`
 
 Alternatively, you can use the system's package manager instead of `pip3`. The
 packages will be named with some prefix like
-`python3-psutil` and `python3-pyxdg`.
+`python3-PySide2`, `python3-psutil` and `python3-pyxdg`.
 
 The Iron Wolf's rF2 Shared Memory Map Plugin has to be replaced with [this fork
 for
