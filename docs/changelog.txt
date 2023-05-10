@@ -1,3 +1,10 @@
+2.0.1 (2023-05-10)
+-----------------------------
+* pyRfactor2SharedMemory
+    - Hotfix to a data freeze issue reintroduced in v2.0.0
+      when trying to solve data interruption issue.
+      The code has been revert back to earlier version in the meantime.
+
 2.0.0 (2023-05-10)
 -----------------------------
 * Core
