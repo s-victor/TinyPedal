@@ -808,7 +808,7 @@ Show time interval between each closest driver in order.
 Set text indicator for race leader in time interval column.
 
     show_laptime
-For none race session, this option shows driver's session best lap time. For other none race sessions, this option shows driver's last lap time or pit timer if available.
+For race session, this option shows driver's last lap time or pit timer if available. For other none race sessions, this option shows driver's session best lap time.
 
 
 ## Steering

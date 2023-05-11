@@ -145,7 +145,8 @@ class Setting:
             time.sleep(0.05)
 
         self.is_saving = False
-        logger.info("setting saved")
+        time_stamp = time.strftime("%H:%M:%S", time.localtime())
+        logger.info("setting saved at %s", time_stamp)
 
     def save_file(self):
         """Save setting to file"""
