@@ -833,7 +833,7 @@ SETTING_DEFAULT = {
         "max_vehicles_split_mode": 50,
         "min_top_vehicles": 3,
         "enable_multi_class_split_mode": True,
-        "max_vehicles_per_split_player": 5,
+        "max_vehicles_per_split_player": 7,
         "max_vehicles_per_split_others": 3,
         "split_gap": 5,
         "show_player_highlighted": True,

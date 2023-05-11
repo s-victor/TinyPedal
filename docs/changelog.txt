@@ -1,3 +1,14 @@
+WIP
+-----------------------------
+* Standings Widget
+    - Adjusted default setting "max_vehicles_per_split_player" value from 5 to 7.
+
+* Tyre temperature Widget
+    - Fixed average temperature layout not shown correctly.
+
+* Misc
+    - Add additional info in cutomization guide for Standings widget.
+
 2.0.1 (2023-05-10)
 -----------------------------
 * pyRfactor2SharedMemory

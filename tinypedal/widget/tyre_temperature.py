@@ -160,9 +160,9 @@ class Draw(Widget):
                 if item == "stemp_fl":  # 0
                     layout_stemp.addWidget(getattr(self, f"bar_{item}"), 0, 0)
                 if item == "stemp_fr":  # 9
-                    layout_stemp.addWidget(getattr(self, f"bar_{item}"), 0, 0)
+                    layout_stemp.addWidget(getattr(self, f"bar_{item}"), 0, 9)
                 if item == "stemp_rl":  # 0
-                    layout_stemp.addWidget(getattr(self, f"bar_{item}"), 1, 9)
+                    layout_stemp.addWidget(getattr(self, f"bar_{item}"), 1, 0)
                 if item == "stemp_rr":  # 9
                     layout_stemp.addWidget(getattr(self, f"bar_{item}"), 1, 9)
 
@@ -172,13 +172,13 @@ class Draw(Widget):
                     getattr(self, f"bar_{item}").setAlignment(Qt.AlignCenter)
                     getattr(self, f"bar_{item}").setStyleSheet(bar_style_itemp)
                     if item == "itemp_fl":  # 0
-                        layout_stemp.addWidget(getattr(self, f"bar_{item}"), 0, 0)
+                        layout_itemp.addWidget(getattr(self, f"bar_{item}"), 0, 0)
                     if item == "itemp_fr":  # 9
-                        layout_stemp.addWidget(getattr(self, f"bar_{item}"), 0, 0)
+                        layout_itemp.addWidget(getattr(self, f"bar_{item}"), 0, 9)
                     if item == "itemp_rl":  # 0
-                        layout_stemp.addWidget(getattr(self, f"bar_{item}"), 1, 9)
+                        layout_itemp.addWidget(getattr(self, f"bar_{item}"), 1, 0)
                     if item == "itemp_rr":  # 9
-                        layout_stemp.addWidget(getattr(self, f"bar_{item}"), 1, 9)
+                        layout_itemp.addWidget(getattr(self, f"bar_{item}"), 1, 9)
 
         # Set layout
         if self.wcfg["layout"] == 0:

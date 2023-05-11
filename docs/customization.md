@@ -781,7 +781,7 @@ Set minimum amount top place vehicles to display. This value has higher priority
 Enable multi-class split mode, which splits and displays each vehicle class in separated groups. This mode will only take effect when there is more than one vehicle class present in a session, otherwise it will automatically fall back to normal single class mode.
 
     max_vehicles_per_split_player
-Set maximum amount vehicles to display for class where player is in. Default value is `5`. Note that, if player is not in first place, then at least one opponent ahead of player will always be displayed, even if this value sets lower.
+Set maximum amount vehicles to display for class where player is in. Default value is `7`. Note that, if player is not in first place, then at least one opponent ahead of player will always be displayed, even if this value sets lower.
 
     max_vehicles_per_split_others
 Set maximum amount vehicles to display for classes where player is not in. Default value is `3`.
@@ -806,6 +806,9 @@ Show time interval between each closest driver in order.
 
     time_interval_leader_text
 Set text indicator for race leader in time interval column.
+
+    show_laptime
+For none race session, this option shows driver's session best lap time. For other none race sessions, this option shows driver's last lap time or pit timer if available.
 
 
 ## Steering
