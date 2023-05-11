@@ -187,7 +187,7 @@ class Draw(Widget):
             if self.mark_num:
                 for idx in range(self.mark_num):
                     painter.drawRect(
-                        self.bar_edge + self.mark_gap * (idx + 1),
+                        self.bar_edge + self.bar_width - self.mark_gap * (idx + 1),
                         0, 1, self.bar_height
                     )
                     painter.drawRect(
@@ -216,7 +216,7 @@ class Draw(Widget):
     @staticmethod
     def scale_mark(degree, rot_range, width):
         """mark gap(degree) divide half of full steering range (degree) and multiply scale"""
-        mark_num = max(int(rot_range / max(degree, 10) / 2) - 1, 0)
+        mark_num = max(int(rot_range / max(degree, 10) / 2), 0)
         if rot_range != 0:
             return degree / (rot_range / 2) * width, mark_num
         return 0, mark_num

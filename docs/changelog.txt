@@ -3,6 +3,9 @@ WIP
 * Standings Widget
     - Adjusted default setting "max_vehicles_per_split_player" value from 5 to 7.
 
+* Steering Widget
+    - Fixed scale marks not shown in correct position.
+
 * Tyre temperature Widget
     - Fixed average temperature layout not shown correctly.
 
