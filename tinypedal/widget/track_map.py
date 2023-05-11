@@ -95,6 +95,7 @@ class Draw(Widget):
             # Map
             raw_coords = mctrl.module_mapping.map_coordinates
             self.update_map(raw_coords, self.last_raw_coords)
+            self.last_raw_coords = raw_coords
 
             # Vehicle
             self.standings_veh = mctrl.module_standings.vehicles
@@ -113,7 +114,6 @@ class Draw(Widget):
         """Map update"""
         if curr != last:
             self.draw_map_image(self.create_map_path(curr))
-            self.last_raw_coords = curr
 
     def update_veh(self, curr, last):
         """Vehicle update"""

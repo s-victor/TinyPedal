@@ -1,4 +1,4 @@
-WIP
+2.0.2 (2023-05-11)
 -----------------------------
 * Standings Widget
     - Adjusted default setting "max_vehicles_per_split_player" value from 5 to 7.
@@ -9,8 +9,12 @@ WIP
 * Tyre temperature Widget
     - Fixed average temperature layout not shown correctly.
 
+* pyRfactor2SharedMemory
+    - Fixed data interruption issue in multiplayer session
+      that would interrupt calculation of deltabest & a few other widgets.
+
 * Misc
-    - Add additional info in cutomization guide for Standings widget.
+    - Add additional info in customization guide for Standings widget.
 
 2.0.1 (2023-05-10)
 -----------------------------
