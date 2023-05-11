@@ -1,7 +1,7 @@
 [Desktop Entry]
 Exec=/usr/local/share/TinyPedal/run.py
 GenericName=Overlay for rFactor2
-Icon=/usr/local/share/TinyPedal/icon.png
+Icon=/usr/local/share/TinyPedal/images/icon.png
 Name=TinyPedal
 Path=/usr/local/share/TinyPedal
 StartupNotify=true
