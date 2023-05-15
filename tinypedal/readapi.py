@@ -137,6 +137,7 @@ def steering():
 
 def gauge():
     """Gauge data"""
+    limiter = chknm(info.syncedVehicleTelemetry().mSpeedLimiter)
     mgear = chknm(info.syncedVehicleTelemetry().mGear)
     max_gear = chknm(info.syncedVehicleTelemetry().mMaxGears)
     speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
@@ -145,7 +146,7 @@ def gauge():
     rpm = chknm(info.syncedVehicleTelemetry().mEngineRPM)
     rpm_max = chknm(info.syncedVehicleTelemetry().mEngineMaxRPM)
     lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
-    return mgear, max_gear, speed, rpm, rpm_max, lap_etime
+    return limiter, mgear, max_gear, speed, rpm, rpm_max, lap_etime
 
 
 def p2p():

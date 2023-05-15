@@ -1,3 +1,20 @@
+2.0.3 (2023-05-15)
+-----------------------------
+* Gear Widget
+    - Restored "show_speed_limiter" option,
+      which shows pit speed limiter indicator.
+
+* Timing Widget
+    - Left alignment is now forced on all prefix text,
+      and prefix width is based on the longest prefix text of all.
+
+* pyRfactor2SharedMemory
+    - Fixed a performance issue while local player is spectating.
+
+* Misc
+    - Add information about split PySide2 Linux package. (by Bernat)
+    - Fix icon location in Linux desktop file. (by Bernat)
+
 2.0.2 (2023-05-11)
 -----------------------------
 * Standings Widget

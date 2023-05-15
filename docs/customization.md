@@ -462,6 +462,12 @@ Show battery bar, which is only visible if electric motor available.
     battery_bar_height
 Set battery bar height in pixels.
 
+    show_speed_limiter
+Show pit speed limiter indicator.
+
+    speed_limiter_text
+Set custom pit speed limiter text which shows when speed limiter is engaged.
+
     show_rpm_bar
 Show a RPM bar at bottom of gear widget, which moves when RPM reaches range between safe & max RPM.
 

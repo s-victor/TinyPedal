@@ -21,7 +21,6 @@ Timing Widget
 """
 
 from PySide2.QtCore import Qt, Slot
-from PySide2.QtGui import QFont, QFontMetrics
 from PySide2.QtWidgets import (
     QGridLayout,
     QLabel,
@@ -43,22 +42,28 @@ class Draw(Widget):
         # Assign base setting
         Widget.__init__(self, config, WIDGET_NAME)
 
-        # Config font
-        self.font = QFont()
-        self.font.setFamily(self.wcfg['font_name'])
-        self.font.setPixelSize(self.wcfg['font_size'])
-        font_w = QFontMetrics(self.font).averageCharWidth()
-
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
 
-        text_best = f"{self.wcfg['prefix_best']}-:--.---"
-        text_last = f"{self.wcfg['prefix_last']}-:--.---"
-        text_curr = f"{self.wcfg['prefix_current']}-:--.---"
-        text_est = f"{self.wcfg['prefix_estimated']}-:--.---"
-        text_sbest = f"{self.wcfg['prefix_session_best']}-:--.---"
-        self.bar_width = font_w * len(max(text_best))
+        prefix_w = max(
+            len(self.wcfg["prefix_best"]),
+            len(self.wcfg["prefix_last"]),
+            len(self.wcfg["prefix_current"]),
+            len(self.wcfg["prefix_estimated"]),
+            len(self.wcfg["prefix_session_best"]),
+        )
+        self.prefix_best = self.wcfg["prefix_best"][:prefix_w].ljust(prefix_w)
+        self.prefix_last = self.wcfg["prefix_last"][:prefix_w].ljust(prefix_w)
+        self.prefix_curr = self.wcfg["prefix_current"][:prefix_w].ljust(prefix_w)
+        self.prefix_esti = self.wcfg["prefix_estimated"][:prefix_w].ljust(prefix_w)
+        self.prefix_sbst = self.wcfg["prefix_session_best"][:prefix_w].ljust(prefix_w)
+
+        text_best = f"{self.prefix_best}-:--.---"
+        text_last = f"{self.prefix_last}-:--.---"
+        text_curr = f"{self.prefix_curr}-:--.---"
+        text_est = f"{self.prefix_esti}-:--.---"
+        text_sbest = f"{self.prefix_sbst}-:--.---"
 
         # Base style
         self.setStyleSheet(
@@ -86,7 +91,6 @@ class Draw(Widget):
             self.bar_time_sbest.setStyleSheet(
                 f"color: {self.wcfg['font_color_session_best']};"
                 f"background: {self.wcfg['bkg_color_session_best']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Personal best laptime
@@ -96,7 +100,6 @@ class Draw(Widget):
             self.bar_time_best.setStyleSheet(
                 f"color: {self.wcfg['font_color_best']};"
                 f"background: {self.wcfg['bkg_color_best']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Last laptime
@@ -106,7 +109,6 @@ class Draw(Widget):
             self.bar_time_last.setStyleSheet(
                 f"color: {self.wcfg['font_color_last']};"
                 f"background: {self.wcfg['bkg_color_last']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Current laptime
@@ -116,7 +118,6 @@ class Draw(Widget):
             self.bar_time_curr.setStyleSheet(
                 f"color: {self.wcfg['font_color_current']};"
                 f"background: {self.wcfg['bkg_color_current']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Estimated laptime
@@ -126,7 +127,6 @@ class Draw(Widget):
             self.bar_time_est.setStyleSheet(
                 f"color: {self.wcfg['font_color_estimated']};"
                 f"background: {self.wcfg['bkg_color_estimated']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Set layout
@@ -196,14 +196,14 @@ class Draw(Widget):
                     self.vehicle_counter = 0
 
                 self.update_laptime(self.laptime_sbest, self.last_laptime_sbest,
-                                    self.wcfg["prefix_session_best"], "sbest")
+                                    self.prefix_sbst, "sbest")
                 self.last_laptime_sbest = self.laptime_sbest
 
             # Personal best laptime
             if self.wcfg["show_best"]:
                 laptime_best = mctrl.module_delta.output.LaptimeBest
                 self.update_laptime(laptime_best, self.last_laptime_best,
-                                    self.wcfg["prefix_best"], "best")
+                                    self.prefix_best, "best")
                 self.last_laptime_best = laptime_best
 
             # Last laptime
@@ -211,21 +211,21 @@ class Draw(Widget):
                 laptime_last = (mctrl.module_delta.output.LaptimeLast,
                                 mctrl.module_delta.output.IsValidLap)
                 self.update_last_laptime(laptime_last, self.last_laptime_last,
-                                         self.wcfg["prefix_last"])
+                                         self.prefix_last)
                 self.last_laptime_last = laptime_last
 
             # Current laptime
             if self.wcfg["show_current"]:
                 laptime_curr = mctrl.module_delta.output.LaptimeCurrent
                 self.update_laptime(laptime_curr, self.last_laptime_curr,
-                                    self.wcfg["prefix_current"], "curr")
+                                    self.prefix_curr, "curr")
                 self.last_laptime_curr = laptime_curr
 
             # Estimated laptime
             if self.wcfg["show_estimated"]:
                 laptime_est = mctrl.module_delta.output.LaptimeEstimated
                 self.update_laptime(laptime_est, self.last_laptime_est,
-                                    self.wcfg["prefix_estimated"], "est")
+                                    self.prefix_esti, "est")
                 self.last_laptime_est = laptime_est
 
         else:
@@ -258,4 +258,4 @@ class Draw(Widget):
                          f"background: {self.wcfg['bkg_color_last']};")
             self.bar_time_last.setText(text)
             self.bar_time_last.setStyleSheet(
-                f"{color}min-width: {self.bar_width}px;")
+                f"{color}")
