@@ -43,9 +43,9 @@ class Realtime:
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
         self.running = False
-        self.set_default()
+        self.set_defaults()
 
-    def set_default(self):
+    def set_defaults(self):
         """Set default output"""
         self.relative = None
         self.standings = None
@@ -100,7 +100,7 @@ class Realtime:
 
             time.sleep(update_interval)
 
-        self.set_default()
+        self.set_defaults()
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("relative module closed")

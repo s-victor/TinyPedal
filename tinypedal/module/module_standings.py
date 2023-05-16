@@ -72,7 +72,7 @@ class Realtime:
         "OrientationXZRadians",
         "RelativeOrientationXZRadians",
         "RelativeRotatedPosXZ",
-        "RelativeStraightLineDistance",
+        "RelativeStraightDistance",
         ]
     )
     DistSet = namedtuple(
@@ -92,9 +92,9 @@ class Realtime:
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
         self.running = False
-        self.set_default()
+        self.set_defaults()
 
-    def set_default(self):
+    def set_defaults(self):
         """Set default output"""
         self.vehicles = None
         self.nearest = self.DistSet()
@@ -128,8 +128,12 @@ class Realtime:
                 veh_total = max(chknm(info.LastTele.mNumVehicles), 1)
                 if class_pos_list and len(class_pos_list) == veh_total:
                     # Output
-                    self.vehicles, self.nearest = self.__standings_vehicle_list(
-                        veh_total, class_pos_list)
+                    self.vehicles = list(self.__vehicle_data(veh_total, class_pos_list))
+                    self.nearest = self.DistSet(
+                        Straight = min(self.vehicles, key=nearest_line_dist).RelativeStraightDistance,
+                        Track = abs(min(self.vehicles, key=nearest_track_dist).RelativeDistance),
+                        Yellow = abs(min(self.vehicles, key=nearest_yellow_dist).RelativeDistance),
+                    )
                 #timer_start = time.perf_counter()
                 #timer_end = time.perf_counter() - timer_start
                 #logger.info(timer_end)
@@ -141,23 +145,13 @@ class Realtime:
 
             time.sleep(update_interval)
 
-        self.set_default()
+        self.set_defaults()
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("standings module closed")
 
-    def __standings_vehicle_list(self, veh_total, class_pos_list):
-        """Create standings vehicle list"""
-        vehicles_list = list(self.__vehicle_data(veh_total, class_pos_list))
-        nearest_list = vehicles_list.pop(-1)
-        return vehicles_list, nearest_list
-
     def __vehicle_data(self, veh_total, class_pos_list):
         """Get vehicle data"""
-        nearest_line_dist = 999999
-        nearest_track_dist = 999999
-        nearest_yellow_dist = 999999
-
         # Additional data
         track_length = chknm(info.LastScor.mScoringInfo.mLapDist)
         current_session = chknm(info.LastScor.mScoringInfo.mSession)
@@ -242,17 +236,7 @@ class Realtime:
                 pos_xz[1] - plr_pos_xz[1]   # y position related to player
             )
             relative_orientation_xz_radians = orientation_xz_radians - plr_ori_rad
-            relative_straight_line_distance = calc.distance_xy(plr_pos_xz, pos_xz)
-
-            # Calculate nearest distance data
-            if not is_player:
-                if relative_straight_line_distance < nearest_line_dist:
-                    nearest_line_dist = relative_straight_line_distance
-                if abs(relative_distance) < nearest_track_dist:
-                    nearest_track_dist = abs(relative_distance)
-
-            if is_yellow and abs(relative_distance) < nearest_yellow_dist:
-                nearest_yellow_dist = abs(relative_distance)
+            relative_straight_distance = calc.distance_xy(plr_pos_xz, pos_xz)
 
             yield self.DataSet(
                 VehicleID = vehicle_id,
@@ -288,14 +272,8 @@ class Realtime:
                 OrientationXZRadians = orientation_xz_radians,
                 RelativeOrientationXZRadians = relative_orientation_xz_radians,
                 RelativeRotatedPosXZ = relative_rotated_pos_xz,
-                RelativeStraightLineDistance = relative_straight_line_distance,
+                RelativeStraightDistance = relative_straight_distance,
             )
-            if index == veh_total - 1:
-                yield self.DistSet(
-                    Straight = nearest_line_dist,
-                    Track = nearest_track_dist,
-                    Yellow = nearest_yellow_dist,
-                )
 
     def __calc_pit_time(self, index, in_pit, in_garage, last_laptime, elapsed_time):
         """Calculate lap & pit time"""
@@ -317,3 +295,24 @@ class Realtime:
         if not in_pit and self.pit_time_list[index][2] > 0 and last_laptime > 0:
             self.pit_time_list[index][2] = 0
         return self.pit_time_list[index][2]
+
+
+def nearest_line_dist(value):
+    """Find nearest straight line distance"""
+    if not value.IsPlayer:
+        return value.RelativeStraightDistance
+    return 999999
+
+
+def nearest_track_dist(value):
+    """Find nearest track distance"""
+    if not value.IsPlayer:
+        return abs(value.RelativeDistance)
+    return 999999
+
+
+def nearest_yellow_dist(value):
+    """Find nearest yellow flag distance"""
+    if value.IsYellow:
+        return abs(value.RelativeDistance)
+    return 999999

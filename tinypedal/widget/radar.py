@@ -292,7 +292,7 @@ class Draw(Widget):
         radar_range = self.wcfg["radar_radius"] * 3
 
         for veh_info in self.standings_veh:
-            if not veh_info.IsPlayer and veh_info.RelativeStraightLineDistance < radar_range:
+            if not veh_info.IsPlayer and veh_info.RelativeStraightDistance < radar_range:
                 # Rotated position relative to player
                 pos_x, pos_y = tuple(map(self.scale_veh_pos, veh_info.RelativeRotatedPosXZ))
 

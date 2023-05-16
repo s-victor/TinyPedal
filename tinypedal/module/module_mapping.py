@@ -47,9 +47,9 @@ class Realtime:
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
         self.running = False
-        self.set_default()
+        self.set_defaults()
 
-    def set_default(self):
+    def set_defaults(self):
         """Set default output"""
         self.map_coordinates = None
         self.map_distance = None
@@ -163,11 +163,11 @@ class Realtime:
                                 svg_path_coords, svg_path_dist,
                                 view_box, sector_index
                             )
+                            self.update_output_data(raw_coords, raw_dists, sector_index)
 
                             # Reset data
                             validating = False
                             recording = False
-                            self.update_output_data(raw_coords, raw_dists, sector_index)
                             map_exist = True
                             update_interval = idle_interval
                             continue
@@ -207,7 +207,7 @@ class Realtime:
 
             time.sleep(update_interval)
 
-        self.set_default()
+        self.set_defaults()
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("mapping module closed")

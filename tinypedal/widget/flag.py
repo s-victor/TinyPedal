@@ -179,8 +179,15 @@ class Draw(Widget):
         self.setLayout(layout)
 
         # Last data
-        self.checked = False
+        self.set_defaults()
 
+        # Set widget state & start update
+        self.set_widget_state()
+        self.update_timer.start()
+
+    def set_defaults(self):
+        """Initialize variables"""
+        self.checked = False
         self.last_inpits = None
         self.pit_timer_start = None
         self.last_pit_timer = None
@@ -192,10 +199,6 @@ class Draw(Widget):
         self.last_yellow_flag = None
         self.last_start_timer = None
         self.last_lap_stime = 0
-
-        # Set widget state & start update
-        self.set_widget_state()
-        self.update_timer.start()
 
     @Slot()
     def update_data(self):
@@ -281,11 +284,11 @@ class Draw(Widget):
             if self.wcfg["show_yellow_flag"]:
                 #yellow_flag = [1,1,1,0,0]# testing
                 yellow_flag = (
-                    *read_data.yellow_flag(),
-                    mctrl.module_standings.nearest.Yellow,
-                    bool(mctrl.module_standings.nearest.Yellow
+                    *read_data.yellow_flag(),  # 0,1,2
+                    mctrl.module_standings.nearest.Yellow,  # 3
+                    bool(mctrl.module_standings.nearest.Yellow  # 4
                          < self.wcfg["yellow_flag_maximum_range"]),
-                    bool(not self.wcfg["show_yellow_flag_for_race_only"] or
+                    bool(not self.wcfg["show_yellow_flag_for_race_only"] or  # 5
                          self.wcfg["show_yellow_flag_for_race_only"] and is_race)
                 )
                 self.update_yellowflag(yellow_flag, self.last_yellow_flag)
@@ -315,20 +318,7 @@ class Draw(Widget):
 
         else:
             if self.checked:
-                self.checked = False
-
-                # Reset state
-                self.last_inpits = None
-                self.pit_timer_start = None
-                self.last_pit_timer = None
-                self.last_fuel_usage = None
-                self.last_pit_limiter = None
-                self.last_blue_flag = None
-                self.blue_flag_timer_start = None
-                self.last_blue_flag_data = None
-                self.last_yellow_flag = None
-                self.last_start_timer = None
-                self.last_lap_stime = 0
+                self.set_defaults()
 
     # GUI update methods
     def update_pit_timer(self, curr, last, phase, mode=0):
