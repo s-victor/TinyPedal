@@ -27,6 +27,8 @@ If a value is surrounded by quotation marks, make sure not to remove those quota
 
 Any boolean type value (true or false) will only accept: `true`, which can be substituted with `1`. And `false`, which can be substituted with `0`. All words must be in `lowercase`, otherwise will cause error.
 
+Also important to note, not every setting allows float point value that contains decimal places. Usually if a number (default value) does not contain any decimal place, that means it only accepts `integer`. Make sure not to add any decimal place, otherwise error may occur.
+
 
 ## Common Setting
     enable
