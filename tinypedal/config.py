@@ -23,7 +23,7 @@ Config window
 import re
 import time
 
-from PySide2.QtCore import Qt, QRegExp
+from PySide2.QtCore import Qt, QRegExp, QLocale
 from PySide2.QtGui import QIcon, QRegExpValidator, QIntValidator, QDoubleValidator, QColor
 from PySide2.QtWidgets import (
     QWidget,
@@ -150,6 +150,8 @@ class WidgetConfig(QDialog):
         self.master = master
         self.obj_name = obj_name
         self.obj_type = obj_type
+        self.number_locale = QLocale(QLocale.C)
+        self.number_locale.setNumberOptions(QLocale.RejectGroupSeparator)
 
         self.setWindowTitle(f"Config - {val.format_option_name(obj_name)}")
         self.setWindowIcon(QIcon(APP_ICON))
@@ -305,7 +307,9 @@ class WidgetConfig(QDialog):
         key_list_user = tuple(cfg.setting_user[self.obj_name])  # create user key list
         color_valid = QRegExpValidator(QRegExp('^#[0-9a-fA-F]*'))
         int_valid = QIntValidator(-999999, 999999)
+        int_valid.setLocale(self.number_locale)
         float_valid = QDoubleValidator(-999999.9999, 999999.9999, 4)
+        float_valid.setLocale(self.number_locale)
         option_width = 120
         column_index_label = 0
         column_index_option = 1
