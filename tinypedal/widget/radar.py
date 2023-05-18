@@ -371,10 +371,10 @@ class Draw(Widget):
                 self.autohide_timer_start = 0
 
     def nearby(self):
-        """Check nearby vehicles"""
+        """Check nearby vehicles, add 0 limit to ignore local player"""
         if self.wcfg["minimum_auto_hide_distance"] == -1:
-            return mctrl.module_standings.nearest.Straight < self.wcfg["radar_radius"]
-        return mctrl.module_standings.nearest.Straight < self.wcfg["minimum_auto_hide_distance"]
+            return 0 < mctrl.module_standings.nearest.Straight < self.wcfg["radar_radius"]
+        return 0 < mctrl.module_standings.nearest.Straight < self.wcfg["minimum_auto_hide_distance"]
 
     def calc_indicator_dimention(self, veh_width, veh_length):
         """Calculate indicator dimention"""
