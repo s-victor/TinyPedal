@@ -399,8 +399,8 @@ SETTING_DEFAULT = {
     "friction_circle": {
         "enable": True,
         "update_interval": 20,
-        "position_x": 689,
-        "position_y": 353,
+        "position_x": 779,
+        "position_y": 688,
         "opacity": 0.9,
         "font_name": "consolas",
         "font_size": 13,
