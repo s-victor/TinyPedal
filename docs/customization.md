@@ -187,6 +187,9 @@ Enable delta module. This module provides deltabest & timing data.
     module_force
 Enable force module. This module provides vehicle g force and downforce data.
 
+    gravitational_acceleration
+Set gravitational acceleration value (on earth).
+
     max_g_force_freeze_duration
 Set freeze duration (seconds) for max g force reading.
 
