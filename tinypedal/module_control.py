@@ -26,6 +26,7 @@ import time
 from .setting import cfg
 from .module import (
     module_delta,
+    module_force,
     module_fuel,
     module_hybrid,
     module_mapping,
@@ -40,6 +41,7 @@ class ModuleControl:
     """Module control"""
     MODULE_PACK = (
         module_delta,
+        module_force,
         module_fuel,
         module_hybrid,
         module_mapping,

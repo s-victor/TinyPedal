@@ -82,13 +82,22 @@ def rake(height_fl, height_fr, height_rl, height_rr):
 
 def rake2angle(v_rake, wheelbase):
     """Rake angle based on wheelbase value set in JSON"""
-    return math.atan(float(v_rake) / (wheelbase + 0.001) * 57.2957795)
+    if wheelbase:
+        return math.atan(v_rake / wheelbase * 57.2957795)
+    return 0
 
 
 def slip_ratio(w_rot, w_radius, v_speed):
     """Slip ratio (percentage), speed unit in m/s"""
     if v_speed > 0.1:  # set minimum speed to avoid flickering while stationary
         return abs((v_speed - abs(w_rot * w_radius)) / v_speed)
+    return 0
+
+
+def slip_angle(v_lat, v_lgt):
+    """Slip angle (radians)"""
+    if v_lgt:
+        return math.atan(v_lat / v_lgt)
     return 0
 
 
@@ -102,9 +111,9 @@ def kpa2bar(pressure):
     return pressure * 0.01
 
 
-def gforce(value):
+def gforce(value, g_accel):
     """G force"""
-    return value / 9.8
+    return value / g_accel
 
 
 def force_ratio(value1, value2):
@@ -124,10 +133,12 @@ def rotate_pos(ori_rad, value1, value2):
     return new_pos_x, new_pos_z
 
 
-def distance_xy(value1, value2):
+def distance_xy(value1, value2=None):
     """Distance in 2d space"""
-    return ((value1[0] - value2[0]) ** 2
-             + (value1[1] - value2[1]) ** 2) ** 0.5
+    if value2:
+        return ((value1[0] - value2[0]) ** 2
+                + (value1[1] - value2[1]) ** 2) ** 0.5
+    return (value1[0] ** 2 + value1[1] ** 2) ** 0.5
 
 
 def distance_xyz(value1, value2):
@@ -188,16 +199,18 @@ def linear_interp(meter, meter1, secs1, meter2, secs2):
 
 
 def nearest_dist_index(position, listname):
-    """Use current position to get nearest distance index from deltabest lap data"""
-    index_lower, index_higher = 0, 0
+    """Find nearest distance value index from list"""
+    index_higher = 0
+    nearest_dist = 99999999
     for index, column in enumerate(listname):
-        if position < column[0]:
+        if position < column[0] and nearest_dist > column[0]:
+            nearest_dist = column[0]
             index_higher = index
-            break
-    for index in range(index_higher - 1, -1, -1):
-        if position > listname[index][0]:
-            index_lower = index
-            break
+    index_lower = max(index_higher - 1, 0)
+    #for index in range(index_higher - 1, -1, -1):
+    #    if position > listname[index][0]:
+    #        index_lower = index
+    #        break
     return index_lower, index_higher
 
 

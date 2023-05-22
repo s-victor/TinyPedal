@@ -280,7 +280,6 @@ class Draw(Widget):
 
         self.brush.setColor(QColor(self.wcfg["vehicle_color_player"]))
         painter.setBrush(self.brush)
-        painter.setPen(self.pen)
         painter.translate(self.area_center, self.area_center)
         painter.drawRoundedRect(
             self.rect_veh,

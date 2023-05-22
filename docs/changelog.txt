@@ -1,3 +1,29 @@
+2.1.0 (2023-05-22)
+-----------------------------
+* [New]Friction Circle Widget
+    - Show longitudinal & lateral g force as friction circle with 2 orientation layouts.
+    - Show longitudinal & lateral g force readings.
+    - Show max longitudinal & lateral g force readings.
+    - Show reference circle from max average lateral g force reading.
+    - Show g force trace plot with customizable sample size, and line or points style.
+    - Show center mark and up to 5 customizable reference circles.
+
+* Radar Widget
+    - Fixed wrong outline drawing when set "vehicle_outline_width" to 0.
+
+* [New]Force Module
+    - Provide vehicle g force and downforce data calculation for Force & Friction Circle Widget,
+    - Add customizable options for g force calculation.
+
+* Misc
+    - Add "Remember position" position to main window Config menu,
+      which auto saves & loads last window position.
+    - Minimize main window to taskbar at startup
+      if both "minimize_to_tray" & "show_at_startup" are false.
+    - Fixed an issue with config value validator under
+      certain system language locale setting.
+    - Fixed widget windows not show on top on linux (thanks to srlemke for help & testing).
+
 2.0.3 (2023-05-15)
 -----------------------------
 * Gear Widget

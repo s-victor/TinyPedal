@@ -86,6 +86,9 @@ Show main window at startup, otherwise hides to tray icon.
     minimize_to_tray
 Minimize to tray when user clicks `X` close button.
 
+    remember_position
+Remember last window position.
+
 
 ## Overlay
 Overlay options can be accessed from `Overlay` menu in main window, or from tray icon menu.
@@ -180,6 +183,20 @@ Modules here provide important data that updated in real-time for other widgets.
 Enable delta module. This module provides deltabest & timing data.
 
 
+## Force
+    module_force
+Enable force module. This module provides vehicle g force and downforce data.
+
+    max_g_force_freeze_duration
+Set freeze duration (seconds) for max g force reading.
+
+    max_average_g_force_samples
+Set amount samples for calculating max average g force.
+
+    max_average_g_force_differece
+Set g force differece threshold for calculating max average g force. Default is `0.1` g.
+
+
 ## Fuel
     module_fuel
 Enable fuel module. This module provides vehicle fuel usage data.
@@ -226,7 +243,7 @@ Show electric boost motor activation timer.
 Set percentage threshold for low battery charge warning indicator.
 
     freeze_duration
-Set auto-freeze duration (seconds) for previous lap drained/regenerated battery charge display. Default value is `10` seconds.
+Set freeze duration (seconds) for previous lap drained/regenerated battery charge display. Default value is `10` seconds.
 
 
 ## Brake bias
@@ -434,6 +451,77 @@ Show longitudinal & lateral G force with direction indicator.
 Show front vs rear downforce ratio. 50% means equal downforce; higher than 50% means front has more downforce.
 
 
+## Friction circle
+    display_size
+Set widget size in pixels.
+
+    display_radius_g
+Set viewable g force range by radius(g).
+
+    display_orientation
+Set display orientation for longitudinal & lateral g force axis. Default value is `0`, which shows brake at top, acceleration at bottom, right-turn at left, left-turn at right. Set to `1` to inverted orientation.
+
+    show_readings
+Show values from g force reading. Value at top is current longitudinal g force, and value at bottom is max longitudinal g force. Value at left is max lateral g force, and value at right is current lateral g force.
+
+    show_background
+Show background color.
+
+    background_style
+Set background style. `0` for radial gradient style. `1` for solid style.
+
+    show_max_average_lateral_g_circle
+Show max average lateral g force reference circle.
+
+    max_average_lateral_g_circle_style
+Set circle line style. `0` for dashed line, `1` for solid line.
+
+    max_average_lateral_g_circle_width
+Set circle line width in pixels.
+
+    show_dot
+Show g force dot.
+
+    dot_size
+Set g force dot size in pixels.
+
+    show_trace
+Show g force trace.
+
+    trace_max_samples
+Set max amount g force trace samples.
+
+    trace_style
+Set g force trace style. `0` for line style. `1` for point style.
+
+    trace_width
+Set g force trace width in pixels.
+
+    show_center_mark
+Show center mark.
+
+    center_mark_radius_g
+Set center mark size by radius(g).
+
+    center_mark_style
+Set center mark line style. `0` for dashed line, `1` for solid line.
+
+    center_mark_width
+Set center mark line width in pixels.
+
+    show_reference_circle
+Show reference circle.
+
+    reference_circle_*_radius_g
+Set reference circle size by radius(g). Circle will not be displayed if radius is bigger than `display_radius_g`.
+
+    reference_circle_*_style
+Set reference circle line style. `0` for dashed line, `1` for solid line.
+
+    reference_circle_*_width
+Set reference circle line width in pixels.
+
+
 ## Fuel
     low_fuel_lap_threshold
 Set amount lap threshold to show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default value is `2` laps before running out of fuel.
@@ -613,7 +701,7 @@ Set indicator visual size multiplier that scales with vehicle width.
 Show center mark on radar.
 
     center_mark_style
-Set center mark style. `0` for dashed line, `1` for solid line.
+Set center mark line style. `0` for dashed line, `1` for solid line.
 
     center_mark_radius
 Set center mark size by radius(unit meter).
@@ -622,10 +710,10 @@ Set center mark size by radius(unit meter).
 Set center mark line width in pixels.
 
     show_distance_circle
-Show distance circle on radar for distance reference.
+Show distance circle line on radar for distance reference.
 
     distance_circle_style
-Set distance circle style. `0` for dashed line, `1` for solid line.
+Set distance circle line style. `0` for dashed line, `1` for solid line.
 
     distance_circle_1_radius, distance_circle_2_radius
 Set distance circle size by radius(unit meter). Circle will not be displayed if radius is bigger than `radar_radius`.
@@ -738,7 +826,7 @@ Set ride height offset for bottoming indicator. Value in millimeters, but withou
 Set mode for accumulated target sector time. Set `0` to show theoretical best sector time from session best sectors. Set `1` to show sector time from personal best laptime.
 
     freeze_duration
-Set auto-freeze duration (seconds) for previous sector time display. Default value is `5` seconds.
+Set freeze duration (seconds) for previous sector time display. Default value is `5` seconds.
 
     always_show_laptime_gap
 Set `true` to always show sector/laptime gap bar. Set `false` to show only in freeze duration.
@@ -956,7 +1044,7 @@ Show total tyre wear difference of previous lap.
 Show tyre wear difference of current lap that constantly updated.
 
     freeze_duration
-Set freeze duration(seconds) for previous lap tyre wear info if `show_live_wear_difference` is enabled.
+Set freeze duration (seconds) for previous lap tyre wear info if `show_live_wear_difference` is enabled.
 
     show_lifespan
 Show estimated tyre lifespan in laps.

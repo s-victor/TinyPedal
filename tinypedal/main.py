@@ -69,8 +69,6 @@ class ConfigWindow(QMainWindow):
 
         # Start
         self.start_app()
-        if cfg.application["show_at_startup"]:
-            self.show()
 
         # Create menu
         self.main_menubar()
@@ -137,6 +135,12 @@ class ConfigWindow(QMainWindow):
         self.minimize_to_tray.triggered.connect(self.is_minimize_to_tray)
         menu_config.addAction(self.minimize_to_tray)
 
+        self.remember_position = QAction("Remember position", self)
+        self.remember_position.setCheckable(True)
+        self.remember_position.setChecked(cfg.application["remember_position"])
+        self.remember_position.triggered.connect(self.is_remember_position)
+        menu_config.addAction(self.remember_position)
+
         menu_config.aboutToShow.connect(self.refresh_config_menu)
 
         # Help menu
@@ -160,8 +164,24 @@ class ConfigWindow(QMainWindow):
         mctrl.start()  # 1 start module
         octrl.enable()  # 2 enable overlay control
         wctrl.start()  # 3 start widget
-        self.start_tray_icon()
         self.about = About()
+        self.start_tray_icon()
+        self.set_window_state()
+
+    def set_window_state(self):
+        """Set initial window state"""
+        if cfg.application["show_at_startup"]:
+            self.show()
+        elif not cfg.application["minimize_to_tray"]:
+            self.showMinimized()
+
+        if cfg.application["remember_position"]:
+            app_pos_x = int(cfg.application["position_x"])
+            app_pos_y = int(cfg.application["position_y"])
+            if app_pos_x + app_pos_y:
+                self.move(app_pos_x, app_pos_y)
+            else:
+                self.save_window_position()
 
     def show_about(self):
         """Show about"""
@@ -173,9 +193,9 @@ class ConfigWindow(QMainWindow):
         self.tray_icon = TrayIcon(self, cfg)
         self.tray_icon.show()
 
-    @staticmethod
-    def quit_app():
+    def quit_app(self):
         """Quit manager"""
+        self.save_window_position()
         mctrl.stop()  # stop module
         octrl.disable()  # disable overlay control
         wctrl.close()  # close widget
@@ -193,6 +213,13 @@ class ConfigWindow(QMainWindow):
             self.hide()
         else:
             self.quit_app()
+
+    def save_window_position(self):
+        """Save window position"""
+        if cfg.application["remember_position"]:
+            cfg.application["position_x"] = self.x()
+            cfg.application["position_y"] = self.y()
+            cfg.save(0)
 
     @staticmethod
     def is_locked():
@@ -222,6 +249,15 @@ class ConfigWindow(QMainWindow):
             cfg.application["minimize_to_tray"] = False
         cfg.save()
 
+    @staticmethod
+    def is_remember_position():
+        """Toggle config window remember position state"""
+        if not cfg.application["remember_position"]:
+            cfg.application["remember_position"] = True
+        else:
+            cfg.application["remember_position"] = False
+        cfg.save()
+
     def reload_preset(self):
         """Reload current preset"""
         # Close modules & widgets in order
@@ -244,7 +280,7 @@ class ConfigWindow(QMainWindow):
 
     def open_config_units(self):
         """Config display units"""
-        window_units_config = UnitsConfig()
+        window_units_config = UnitsConfig(self)
         window_units_config.exec_()
 
 
@@ -656,7 +692,7 @@ class CreatePreset(QDialog):
     """Create preset"""
 
     def __init__(self, master, title="", mode=None, src_filename=None):
-        super().__init__()
+        super().__init__(master)
         self.master = master
         self.edit_mode = mode
         self.src_filename = src_filename

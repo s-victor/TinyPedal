@@ -27,6 +27,7 @@ REGEX_BOOL = (
     "^auto_hide$|"
     "^fixed_position$|"
     "^minimize_to_tray$|"
+    "^remember_position$|"
     # Partial match
     "enable|"
     "show|"
@@ -62,6 +63,7 @@ REGEX_INT = (
     "bar_width|"
     "column_index|"
     "decimal_places|"
+    "display_size|"
     "font_size|"
     "icon_size|"
     "inner_gap|"

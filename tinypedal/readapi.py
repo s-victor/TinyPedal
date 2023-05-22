@@ -283,13 +283,13 @@ def tyre_pressure():
             for data in range(4)]
 
 
-def force():
-    """Force data"""
-    lgt_accel = chknm(info.syncedVehicleTelemetry().mLocalAccel.z)
-    lat_accel = chknm(info.syncedVehicleTelemetry().mLocalAccel.x)
-    downforce = (chknm(info.syncedVehicleTelemetry().mFrontDownforce),
-                 chknm(info.syncedVehicleTelemetry().mRearDownforce))
-    return lgt_accel, lat_accel, downforce
+def ground_velocity():
+    """Ground velocity data"""
+    lat_gv = [chknm(info.syncedVehicleTelemetry().mWheels[data].mLateralGroundVel)
+              for data in range(4)]
+    lgt_gv = [chknm(info.syncedVehicleTelemetry().mWheels[data].mLongitudinalGroundVel)
+              for data in range(4)]
+    return lat_gv, lgt_gv
 
 
 def drs():

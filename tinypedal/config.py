@@ -53,8 +53,8 @@ from . import regex_pattern as rxp
 class UnitsConfig(QDialog):
     """Config display units"""
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, master):
+        super().__init__(master)
         self.setFixedWidth(260)
         self.setWindowTitle("Config - Display Units")
         self.setWindowIcon(QIcon(APP_ICON))
@@ -146,7 +146,7 @@ class WidgetConfig(QDialog):
     """Config widget & module"""
 
     def __init__(self, master, obj_name, obj_type):
-        super().__init__()
+        super().__init__(master)
         self.master = master
         self.obj_name = obj_name
         self.obj_type = obj_type

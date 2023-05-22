@@ -27,9 +27,9 @@ from PySide2.QtWidgets import (
     QLabel,
 )
 
-from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget
+from ..module_control import mctrl
 
 WIDGET_NAME = "force"
 
@@ -128,24 +128,21 @@ class Draw(Widget):
         """Update when vehicle on track"""
         if self.wcfg["enable"] and read_data.state():
 
-            # Read acceleration & downforce data
-            lgt_accel, lat_accel, downforce = read_data.force()
-
             # G force
             if self.wcfg["show_g_force"]:
                 # Longitudinal g-force
-                gf_lgt = round(calc.gforce(lgt_accel), 2)
+                gf_lgt = round(mctrl.module_force.output.LgtGForceRaw, 2)
                 self.update_gf_lgt(gf_lgt, self.last_gf_lgt)
                 self.last_gf_lgt = gf_lgt
 
                 # Lateral g-force
-                gf_lat = round(calc.gforce(lat_accel), 2)
+                gf_lat = round(mctrl.module_force.output.LatGForceRaw, 2)
                 self.update_gf_lat(gf_lat, self.last_gf_lat)
                 self.last_gf_lat = gf_lat
 
             # Downforce ratio
             if self.wcfg["show_downforce_ratio"]:
-                df_ratio = round(calc.force_ratio(downforce[0], sum(downforce)), 2)
+                df_ratio = round(mctrl.module_force.output.DownForceRatio, 2)
                 self.update_df_ratio(df_ratio, self.last_df_ratio)
                 self.last_df_ratio = df_ratio
 
