@@ -197,7 +197,7 @@ Set freeze duration (seconds) for max g force reading.
 Set amount samples for calculating max average g force.
 
     max_average_g_force_differece
-Set g force differece threshold for calculating max average g force. Default is `0.1` g.
+Set g force differece threshold for calculating max average g force. Default is `0.2` g.
 
 
 ## Fuel
