@@ -53,7 +53,7 @@ SETTING_DEFAULT = {
         "idle_update_interval": 400,
         "gravitational_acceleration": 9.80665,
         "max_g_force_freeze_duration": 5,
-        "max_average_g_force_samples": 5,
+        "max_average_g_force_samples": 10,
         "max_average_g_force_differece": 0.1,
     },
     "module_fuel": {
