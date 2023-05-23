@@ -92,10 +92,10 @@ class Realtime:
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
         self.running = False
-        self.set_defaults()
+        self.set_output()
 
-    def set_defaults(self):
-        """Set default output"""
+    def set_output(self):
+        """Set output"""
         self.vehicles = None
         self.nearest = self.DistSet()
 
@@ -145,7 +145,7 @@ class Realtime:
 
             time.sleep(update_interval)
 
-        self.set_defaults()
+        self.set_output()
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("standings module closed")

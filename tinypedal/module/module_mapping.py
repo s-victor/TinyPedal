@@ -47,13 +47,13 @@ class Realtime:
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
         self.running = False
-        self.set_defaults()
+        self.set_output()
 
-    def set_defaults(self):
-        """Set default output"""
-        self.map_coordinates = None
-        self.map_distance = None
-        self.map_sectors = None
+    def set_output(self, raw_coords=None, raw_dists=None, sector_index=None):
+        """Set output"""
+        self.map_coordinates = raw_coords
+        self.map_distance = raw_dists
+        self.map_sectors = sector_index
 
     def start(self):
         """Start calculation thread"""
@@ -115,14 +115,14 @@ class Realtime:
                             #logger.info("map exist")
                             raw_coords = points_to_coords(svg_path_coords)
                             raw_dists = points_to_coords(svg_path_dist)
-                            self.update_output_data(raw_coords, raw_dists, sector_index)
+                            self.set_output(raw_coords, raw_dists, sector_index)
                             map_exist = True
                             update_interval = idle_interval
                             continue
                         else:
                             #logger.info("map not exist")
                             map_exist = False
-                            self.update_output_data(None, None, None)
+                            self.set_output()
 
                     laptime_curr = max(lap_etime - last_lap_stime, 0)
 
@@ -163,7 +163,7 @@ class Realtime:
                                 svg_path_coords, svg_path_dist,
                                 view_box, sector_index
                             )
-                            self.update_output_data(raw_coords, raw_dists, sector_index)
+                            self.set_output(raw_coords, raw_dists, sector_index)
 
                             # Reset data
                             validating = False
@@ -207,16 +207,10 @@ class Realtime:
 
             time.sleep(update_interval)
 
-        self.set_defaults()
+        self.set_output()
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("mapping module closed")
-
-    def update_output_data(self, raw_coords, raw_dists, sector_index):
-        """Update output data"""
-        self.map_coordinates = raw_coords
-        self.map_distance = raw_dists
-        self.map_sectors = sector_index
 
     @staticmethod
     def __telemetry():
