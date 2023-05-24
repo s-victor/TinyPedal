@@ -228,21 +228,14 @@ class Draw(Widget):
                 painter.setPen(pen)
 
                 sector_index = mctrl.module_mapping.map_sectors
-                pos_x1, pos_y1, pos_x2, pos_y2 = self.sector_coords(
-                    self.map_scaled[sector_index[0]],  # point a
-                    self.map_scaled[sector_index[0] + 1],  # point b
-                    1.57079633,  # 90 degree rotation
-                    self.wcfg["sector_line_length"]
-                )
-                painter.drawLine(QLineF(pos_x1, pos_y1, pos_x2, pos_y2))
-
-                pos_x1, pos_y1, pos_x2, pos_y2 = self.sector_coords(
-                    self.map_scaled[sector_index[1]],  # point a
-                    self.map_scaled[sector_index[1] + 1],  # point b
-                    1.57079633,  # 90 degree rotation
-                    self.wcfg["sector_line_length"]
-                )
-                painter.drawLine(QLineF(pos_x1, pos_y1, pos_x2, pos_y2))
+                for idx in range(2):
+                    pos_x1, pos_y1, pos_x2, pos_y2 = self.sector_coords(
+                        self.map_scaled[sector_index[idx]],  # point a
+                        self.map_scaled[sector_index[idx] + 1],  # point b
+                        1.57079633,  # 90 degree rotation
+                        self.wcfg["sector_line_length"]
+                    )
+                    painter.drawLine(QLineF(pos_x1, pos_y1, pos_x2, pos_y2))
         else:
             # SF line
             if self.wcfg["show_start_line"]:
