@@ -105,6 +105,7 @@ class Setting:
 
         # Assign base setting
         self.application = self.setting_user["application"]
+        self.compatibility = self.setting_user["compatibility"]
         self.overlay = self.setting_user["overlay"]
         self.units = self.setting_user["units"]
         self.last_loaded_setting = self.filename_setting

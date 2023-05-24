@@ -29,6 +29,9 @@ SETTING_DEFAULT = {
         "position_x": 0,
         "position_y": 0,
     },
+    "compatibility": {
+        "enable_bypass_window_manager": False,
+    },
     "overlay": {
         "fixed_position": False,
         "auto_hide": True,

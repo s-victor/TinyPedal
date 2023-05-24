@@ -81,11 +81,12 @@ class Widget(QWidget):
         # Window flags
         self.setWindowOpacity(self.wcfg["opacity"])
         self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setWindowFlag(Qt.FramelessWindowHint, True)
         self.setWindowFlag(Qt.Tool, True)  # remove taskbar icon
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
-        #self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        if self.cfg.compatibility["enable_bypass_window_manager"]:
+            self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
 
         self.cfg.active_widget_list.append(self)  # add to active widget list
         self.show()
