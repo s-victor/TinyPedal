@@ -71,7 +71,6 @@ class Draw(Widget):
         column_yllw = self.wcfg["column_index_yellow_flag"]
         column_blue = self.wcfg["column_index_blue_flag"]
         column_slit = self.wcfg["column_index_startlights"]
-        column_cdwn = self.wcfg["column_index_countdown"]
 
         # Pit status
         if self.wcfg["show_pit_timer"]:
@@ -133,16 +132,6 @@ class Draw(Widget):
                 f"min-width: {font_w * bar_width}px;"
             )
 
-        # Countdown
-        if self.wcfg["show_start_countdown"]:
-            self.bar_countdown = QLabel("CDTIMER")
-            self.bar_countdown.setAlignment(Qt.AlignCenter)
-            self.bar_countdown.setStyleSheet(
-                f"color: {self.wcfg['font_color_countdown']};"
-                f"background: {self.wcfg['bkg_color_countdown']};"
-                f"min-width: {font_w * bar_width}px;"
-            )
-
         # Set layout
         if self.wcfg["layout"] == 0:
             # Vertical layout
@@ -158,8 +147,6 @@ class Draw(Widget):
                 layout.addWidget(self.bar_blueflag, column_blue, 0)
             if self.wcfg["show_startlights"]:
                 layout.addWidget(self.bar_startlights, column_slit, 0)
-            if self.wcfg["show_start_countdown"]:
-                layout.addWidget(self.bar_countdown, column_cdwn, 0)
         else:
             # Horizontal layout
             if self.wcfg["show_pit_timer"]:
@@ -174,8 +161,6 @@ class Draw(Widget):
                 layout.addWidget(self.bar_blueflag, 0, column_blue)
             if self.wcfg["show_startlights"]:
                 layout.addWidget(self.bar_startlights, 0, column_slit)
-            if self.wcfg["show_start_countdown"]:
-                layout.addWidget(self.bar_countdown, 0, column_cdwn)
         self.setLayout(layout)
 
         # Last data
@@ -294,10 +279,10 @@ class Draw(Widget):
                 self.update_yellowflag(yellow_flag, self.last_yellow_flag)
                 self.last_yellow_flag = yellow_flag
 
-            # Start lights & countdown timer
-            if self.wcfg["show_startlights"] or self.wcfg["show_start_countdown"]:
+            # Start lights
+            if self.wcfg["show_startlights"]:
                 if race_phase == 4:
-                    self.last_lap_stime = lap_stime  # record start time during countdown phase
+                    self.last_lap_stime = lap_stime
 
                 green = 1  # enable green flag
                 start_timer = max(self.last_lap_stime - lap_etime,
@@ -310,9 +295,6 @@ class Draw(Widget):
 
                 if self.wcfg["show_startlights"]:
                     self.update_startlights(start_timer, self.last_start_timer, green)
-
-                if self.wcfg["show_start_countdown"]:
-                    self.update_countdown(start_timer, self.last_start_timer, green)
 
                 self.last_start_timer = start_timer
 
@@ -406,15 +388,6 @@ class Draw(Widget):
                 self.bar_startlights.show()
             else:
                 self.bar_startlights.hide()
-
-    def update_countdown(self, curr, last, green=0):
-        """Start countdown"""
-        if curr != last:
-            if green == 2:
-                self.bar_countdown.hide()
-            else:
-                self.bar_countdown.setText("CD" + f"{max(curr, 0):.02f}"[:4].rjust(5))
-                self.bar_countdown.show()
 
     # Additional methods
     @staticmethod

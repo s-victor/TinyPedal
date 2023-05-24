@@ -446,9 +446,6 @@ Set custom text for red lights.
     green_flag_text
 Set custom text for green flag. 
 
-    show_start_countdown
-Show race start countdown timer for standing-type start. 
-
 
 ## Force
     layout

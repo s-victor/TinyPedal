@@ -1,3 +1,16 @@
+2.1.1 (2023-05-24)
+-----------------------------
+* Flag Widget
+    - Removed countdown timer feature.
+
+* Core
+    - Add new "compatibility" section in json file for solving platform specific problem.
+    - Add "enable_bypass_window_manager" option in "compatibility"
+      section for linux platform (thanks to help from srlemke & Bernat).
+
+* Misc
+    - Updated customization guide.
+
 2.1.0 (2023-05-22)
 -----------------------------
 * [New]Friction Circle Widget
