@@ -84,7 +84,7 @@ class Widget(QWidget):
         self.setWindowFlag(Qt.FramelessWindowHint, True)
         self.setWindowFlag(Qt.Tool, True)  # remove taskbar icon
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
-        self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
+        #self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         self.cfg.active_widget_list.append(self)  # add to active widget list
