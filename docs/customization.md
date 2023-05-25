@@ -78,7 +78,7 @@ Set order of each info column(or row). Must keep index number unique to each col
 
 
 ## Application
-Application options can be accessed from `Config` menu in main window.
+Application options can be accessed from `Window` menu in main window.
 
     show_at_startup
 Show main window at startup, otherwise hides to tray icon.
@@ -91,7 +91,7 @@ Remember last window position.
 
 
 ## Compatibility
-Compatibility options are for solving platform-specific issues.
+Compatibility options can be accessed from `Config` menu in main window.
 
     enable_bypass_window_manager
 Set `true` to bypass window manager on X11 system such as linux. This option may only be enabled if overlay widgets fail to stay on top of all windows. Also note that by enabling this option, OBS may not be able to capture overlay widgets in streaming. Default is `false`.
