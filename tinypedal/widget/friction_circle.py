@@ -69,31 +69,31 @@ class Draw(Widget):
         self.dot_size = max(self.wcfg["dot_size"], 1)
 
         if self.wcfg["enable_auto_font_offset"]:
-            font_offset = font_c + font_d * 2 + font_l * 2 - font_h
+            self.font_offset = font_c + font_d * 2 + font_l * 2 - font_h
         else:
-            font_offset = self.wcfg["font_offset_vertical"]
+            self.font_offset = self.wcfg["font_offset_vertical"]
 
         self.rect_gforce_top = QRectF(
             self.area_center - text_width / 2,
-            font_offset,
+            0,
             text_width,
             font_h
         )
         self.rect_gforce_bottom = QRectF(
             self.area_center - text_width / 2,
-            self.area_size - font_h + font_offset,
+            self.area_size - font_h,
             text_width,
             font_h
         )
         self.rect_gforce_left = QRectF(
             0,
-            self.area_center - font_h + font_offset,
+            self.area_center - font_h,
             text_width,
             font_h
         )
         self.rect_gforce_right = QRectF(
             self.area_size - text_width,
-            self.area_center - font_h + font_offset,
+            self.area_center - font_h,
             text_width,
             font_h
         )
@@ -327,12 +327,12 @@ class Draw(Widget):
         painter.setPen(self.pen)
 
         painter.drawText(
-            self.rect_gforce_top,
+            self.rect_gforce_top.adjusted(0, self.font_offset, 0, 0),
             Qt.AlignCenter,
             f"{abs(self.gforce_raw[0]):.2f}"[:4]
         )
         painter.drawText(
-            self.rect_gforce_right,
+            self.rect_gforce_right.adjusted(0, self.font_offset, 0, 0),
             Qt.AlignCenter,
             f"{abs(self.gforce_raw[1]):.2f}"[:4]
         )
@@ -341,12 +341,12 @@ class Draw(Widget):
         self.pen.setColor(QColor(self.wcfg["font_color_highlight"]))
         painter.setPen(self.pen)
         painter.drawText(
-            self.rect_gforce_bottom,
+            self.rect_gforce_bottom.adjusted(0, self.font_offset, 0, 0),
             Qt.AlignCenter,
             f"{mctrl.module_force.output.MaxLgtGForce:.2f}"[:4]
         )
         painter.drawText(
-            self.rect_gforce_left,
+            self.rect_gforce_left.adjusted(0, self.font_offset, 0, 0),
             Qt.AlignCenter,
             f"{mctrl.module_force.output.MaxLatGForce:.2f}"[:4]
         )
