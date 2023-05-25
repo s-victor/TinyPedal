@@ -73,6 +73,7 @@ class Draw(Widget):
 
         # Create layout
         self.layout = QGridLayout()
+        self.layout.setContentsMargins(0,0,0,0)  # remove border
         self.layout.setHorizontalSpacing(0)
         self.layout.setVerticalSpacing(bar_gap)
         self.layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)

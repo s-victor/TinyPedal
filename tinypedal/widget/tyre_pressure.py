@@ -63,6 +63,7 @@ class Draw(Widget):
 
         # Create layout
         layout = QGridLayout()
+        layout.setContentsMargins(0,0,0,0)  # remove border
         layout_tpres = QGridLayout()
         layout_tpres.setSpacing(0)
         layout.setSpacing(bar_gap)

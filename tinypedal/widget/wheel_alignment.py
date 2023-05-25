@@ -63,6 +63,7 @@ class Draw(Widget):
 
         # Create layout
         layout = QGridLayout()
+        layout.setContentsMargins(0,0,0,0)  # remove border
         layout_camber = QGridLayout()
         layout_toein = QGridLayout()
         layout_camber.setSpacing(0)

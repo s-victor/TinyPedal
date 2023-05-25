@@ -75,6 +75,7 @@ class Draw(Widget):
 
         # Create layout
         layout = QGridLayout()
+        layout.setContentsMargins(0,0,0,0)  # remove border
         layout_btemp = QGridLayout()
         layout_btavg = QGridLayout()
         layout_btemp.setSpacing(inner_gap)

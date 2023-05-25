@@ -65,6 +65,7 @@ class Draw(Widget):
 
         # Create layout
         layout = QGridLayout()
+        layout.setContentsMargins(0,0,0,0)  # remove border
         layout_laptime = QHBoxLayout()
         layout_sector = QHBoxLayout()
         layout_laptime.setSpacing(bar_gap)
