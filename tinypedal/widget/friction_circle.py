@@ -68,7 +68,7 @@ class Draw(Widget):
         self.area_center = self.area_size / 2
         self.dot_size = max(self.wcfg["dot_size"], 1)
 
-        if not self.wcfg["font_offset_vertical"]:
+        if self.wcfg["enable_auto_font_offset"]:
             font_offset = font_c + font_d * 2 + font_l * 2 - font_h
         else:
             font_offset = self.wcfg["font_offset_vertical"]

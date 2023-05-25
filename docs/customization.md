@@ -58,8 +58,11 @@ Set font size, increase or decrease font size will also apply to widget size. Va
     font_weight
 Acceptable value: `normal` or `bold`.
 
+    enable_auto_font_offset
+Automatically adjust font vertical offset based on font geometry for better vertical alignment, and sould give good result in most case. This option is enabled by default. Set `false` to disable.
+
     font_offset_vertical
-Set font vertical offset. Default value is `0`, which APP will automatically adjust vertical offset based on font geometry, and should work for most case. By manually setting negative value will offset font upward, and position value for downward.
+Manually set font vertical offset. Default value is `0`. Negative value will offset font upward, and position value for downward. This option only takes effect when `enable_auto_font_offset` is set to `false`.
 
     bar_padding
 Set widget edge padding value that multiplies & scales with `font_size`. Default is `0.2` for most widgets.

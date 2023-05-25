@@ -66,7 +66,7 @@ class Draw(Widget):
         padx = round(font_w * self.wcfg["bar_padding_horizontal"])
         pady = round(font_c * self.wcfg["bar_padding_vertical"])
 
-        if not self.wcfg["font_offset_vertical"]:
+        if self.wcfg["enable_auto_font_offset"]:
             self.font_offset = font_c + font_d * 2 + font_l * 2 - font_h
         else:
             self.font_offset = self.wcfg["font_offset_vertical"]

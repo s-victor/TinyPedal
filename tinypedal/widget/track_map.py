@@ -53,7 +53,7 @@ class Draw(Widget):
         # Config variable
         self.veh_size = self.wcfg["font_size"] + round(font_w * self.wcfg["bar_padding"])
 
-        if not self.wcfg["font_offset_vertical"]:
+        if self.wcfg["enable_auto_font_offset"]:
             self.font_offset = font_c + font_d * 2 + font_l * 2 - font_h
         else:
             self.font_offset = self.wcfg["font_offset_vertical"]

@@ -1,5 +1,15 @@
 WIP
 -----------------------------
+* General
+    - Add "enable_auto_font_offset" option to widgets
+      that have "font_offset_vertical" option.
+      Enabling this option will automatically adjust font vertical offset
+      based on font geometry for better vertical alignment,
+      and sould give good result in most case.
+      This option is enabled by default.
+    - "font_offset_vertical" option now only takes effect
+      when `enable_auto_font_offset` is disabled.
+
 * Core
     - Removed "thick black border" from all widgets that could be visible
       when running on certain window manager, or using certain window capture APPs.
