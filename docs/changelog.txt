@@ -1,3 +1,12 @@
+WIP
+-----------------------------
+* Core
+    - Removed "thick black border" from all widgets that could be visible
+      when running on certain window manager, or using certain window capture APPs.
+    - Add "compatibility" option to "Config menu" on main window for easy access.
+    - Moved "show_at_startup", "minimize_to_tray", "remember_position" options
+      to "Window menu" on main window.
+
 2.1.1 (2023-05-24)
 -----------------------------
 * Flag Widget
