@@ -298,6 +298,9 @@ class WidgetConfig(QDialog):
             mctrl.stop_module(self.obj_name)
             mctrl.start_module(self.obj_name)
             self.master.refresh_module_list()
+        elif self.obj_type == "compat":
+            wctrl.close()
+            wctrl.start()
 
     def create_options(self):
         """Create options"""

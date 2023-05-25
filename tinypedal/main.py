@@ -121,27 +121,31 @@ class ConfigWindow(QMainWindow):
         config_units.triggered.connect(self.open_config_units)
         menu_config.addAction(config_units)
 
-        menu_config.addSeparator()
+        config_compat = QAction("Compatibility", self)
+        config_compat.triggered.connect(self.open_config_compatibility)
+        menu_config.addAction(config_compat)
 
-        self.show_config = QAction("Show at startup", self)
-        self.show_config.setCheckable(True)
-        self.show_config.setChecked(cfg.application["show_at_startup"])
-        self.show_config.triggered.connect(self.is_show_at_startup)
-        menu_config.addAction(self.show_config)
+        # Window menu
+        menu_window = menu.addMenu("Window")
+        self.show_window = QAction("Show at startup", self)
+        self.show_window.setCheckable(True)
+        self.show_window.setChecked(cfg.application["show_at_startup"])
+        self.show_window.triggered.connect(self.is_show_at_startup)
+        menu_window.addAction(self.show_window)
 
         self.minimize_to_tray = QAction("Minimize to tray", self)
         self.minimize_to_tray.setCheckable(True)
         self.minimize_to_tray.setChecked(cfg.application["minimize_to_tray"])
         self.minimize_to_tray.triggered.connect(self.is_minimize_to_tray)
-        menu_config.addAction(self.minimize_to_tray)
+        menu_window.addAction(self.minimize_to_tray)
 
         self.remember_position = QAction("Remember position", self)
         self.remember_position.setCheckable(True)
         self.remember_position.setChecked(cfg.application["remember_position"])
         self.remember_position.triggered.connect(self.is_remember_position)
-        menu_config.addAction(self.remember_position)
+        menu_window.addAction(self.remember_position)
 
-        menu_config.aboutToShow.connect(self.refresh_config_menu)
+        menu_window.aboutToShow.connect(self.refresh_window_menu)
 
         # Help menu
         menu_help = menu.addMenu("Help")
@@ -149,10 +153,11 @@ class ConfigWindow(QMainWindow):
         app_about.triggered.connect(self.show_about)
         menu_help.addAction(app_about)
 
-    def refresh_config_menu(self):
-        """Refresh overlay menu"""
-        self.show_config.setChecked(cfg.application["show_at_startup"])
+    def refresh_window_menu(self):
+        """Refresh window menu"""
+        self.show_window.setChecked(cfg.application["show_at_startup"])
         self.minimize_to_tray.setChecked(cfg.application["minimize_to_tray"])
+        self.remember_position.setChecked(cfg.application["remember_position"])
 
     def refresh_overlay_menu(self):
         """Refresh overlay menu"""
@@ -282,6 +287,11 @@ class ConfigWindow(QMainWindow):
         """Config display units"""
         window_units_config = UnitsConfig(self)
         window_units_config.exec_()
+
+    def open_config_compatibility(self):
+        """Config compatibility"""
+        window_compat_config = WidgetConfig(self, "compatibility", "compat")
+        window_compat_config.exec_()
 
 
 class WidgetList(QWidget):
