@@ -9,13 +9,25 @@ WIP
       This option is enabled by default.
     - "font_offset_vertical" option now only takes effect
       when `enable_auto_font_offset` is disabled.
+    - Fixed wrong vertical alignment on Friction Circle & Gear Widget.
 
 * Core
-    - Removed "thick black border" from all widgets that could be visible
-      when running on certain window manager, or using certain window capture APPs.
+    - Add "Global Font Override" option to "Config menu" on main window,
+      which provides options to change font setting globally for all widgets.
+      Options explain:
+      [Font Name]
+      Select a font name to replace "font_name" setting of all widgets.
+      [Font Size Addend]
+      Set an addend number that will be added (or subtracted if negative)
+      to "font_size" value of all widgets. "0" means no change to font size.
+      [Font Weight]
+      Set font weight to replace "font_weight" setting of all widgets.
+      "unchanged" means no change to font weight.
     - Add "compatibility" option to "Config menu" on main window for easy access.
     - Moved "show_at_startup", "minimize_to_tray", "remember_position" options
       to "Window menu" on main window.
+    - Removed "thick black border" from all widgets that could be visible
+      when running on certain window manager, or using certain window capture APPs.
 
 2.1.1 (2023-05-24)
 -----------------------------

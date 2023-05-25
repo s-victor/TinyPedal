@@ -39,6 +39,7 @@ from PySide2.QtWidgets import (
     QScrollArea,
     QColorDialog,
     QFontComboBox,
+    QSpinBox,
 )
 
 from .setting import cfg
@@ -50,13 +51,103 @@ from .widget_control import wctrl
 from . import regex_pattern as rxp
 
 
+class FontConfig(QDialog):
+    """Config global font setting"""
+
+    def __init__(self, master):
+        super().__init__(master)
+        self.setFixedWidth(260)
+        self.setWindowTitle("Global Font Override")
+        self.setWindowIcon(QIcon(APP_ICON))
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
+
+        # Label & combobox
+        self.label_fontname = QLabel("Font Name")
+        self.edit_fontname = QFontComboBox()
+        self.edit_fontname.setCurrentFont(self.get_font_name(cfg.setting_user))
+
+        self.label_fontsize = QLabel("Font Size Addend")
+        self.edit_fontsize = QSpinBox()
+        self.edit_fontsize.setRange(-999,999)
+
+        self.label_fontweight = QLabel("Font Weight")
+        self.edit_fontweight = QComboBox()
+        self.edit_fontweight.addItems(["unchanged", "normal", "bold"])
+
+        layout_option = QGridLayout()
+        layout_option.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        layout_option.addWidget(self.label_fontname, 0, 0)
+        layout_option.addWidget(self.edit_fontname, 0, 1)
+        layout_option.addWidget(self.label_fontsize, 1, 0)
+        layout_option.addWidget(self.edit_fontsize, 1, 1)
+        layout_option.addWidget(self.label_fontweight, 2, 0)
+        layout_option.addWidget(self.edit_fontweight, 2, 1)
+
+        # Button
+        button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
+        button_apply.clicked.connect(self.applying)
+
+        button_save = QDialogButtonBox(
+            QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+        button_save.accepted.connect(self.saving)
+        button_save.rejected.connect(self.reject)
+
+        layout_button = QHBoxLayout()
+        layout_button.addWidget(button_apply)
+        layout_button.addWidget(button_save)
+
+        # Set layout
+        layout_main = QVBoxLayout()
+        layout_main.addLayout(layout_option)
+        layout_main.addLayout(layout_button)
+        self.setLayout(layout_main)
+
+    def get_font_name(self, dict_user):
+        """Get font name"""
+        for item in dict_user.keys():
+            key_list_user = tuple(dict_user[item])
+            for key in key_list_user:
+                if re.search(rxp.REGEX_FONTNAME, key):
+                    return dict_user[item][key]
+        return ""
+
+    def applying(self):
+        """Save & apply"""
+        self.save_setting(cfg.setting_user)
+
+    def saving(self):
+        """Save & close"""
+        self.save_setting(cfg.setting_user)
+        self.accept()  # close
+
+    def save_setting(self, dict_user):
+        """Save setting"""
+        for item in dict_user.keys():
+            key_list_user = tuple(dict_user[item])
+            for key in key_list_user:
+                if re.search(rxp.REGEX_FONTNAME, key):
+                    dict_user[item][key] = self.edit_fontname.currentFont().family()
+                if (re.search(rxp.REGEX_FONTWEIGHT, key) and
+                    self.edit_fontweight.currentText() != "unchanged"):
+                    dict_user[item][key] = self.edit_fontweight.currentText()
+                if key == "font_size":
+                    dict_user[item][key] = max(
+                        dict_user[item][key] + self.edit_fontsize.value(), 1)
+        self.edit_fontsize.setValue(0)
+        cfg.save(0)
+        while cfg.is_saving:  # wait saving finish
+            time.sleep(0.01)
+        wctrl.close()
+        wctrl.start()
+
+
 class UnitsConfig(QDialog):
     """Config display units"""
 
     def __init__(self, master):
         super().__init__(master)
         self.setFixedWidth(260)
-        self.setWindowTitle("Config - Display Units")
+        self.setWindowTitle("Display Units")
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 
@@ -100,15 +191,14 @@ class UnitsConfig(QDialog):
         self.combobox_tyre_pressure = QComboBox()
         self.combobox_tyre_pressure.addItems(["kPa", "psi", "bar"])
 
-        # Reset button
+        # Button
         button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
         button_reset.clicked.connect(self.reset_setting)
 
-        # Save & cancel button
-        button_confirm = QDialogButtonBox(
+        button_save = QDialogButtonBox(
             QDialogButtonBox.Save | QDialogButtonBox.Cancel)
-        button_confirm.accepted.connect(self.save_setting)
-        button_confirm.rejected.connect(self.reject)
+        button_save.accepted.connect(self.save_setting)
+        button_save.rejected.connect(self.reject)
 
         # Layout
         layout_main = QGridLayout()
@@ -125,16 +215,16 @@ class UnitsConfig(QDialog):
             layout_main.addWidget(getattr(self, f"combobox_{unit_type}"), idx, 1)
 
         layout_main.addWidget(button_reset, len(self.units_type), 0)
-        layout_main.addWidget(button_confirm, len(self.units_type), 1)
+        layout_main.addWidget(button_save, len(self.units_type), 1)
         self.setLayout(layout_main)
 
     def reset_setting(self):
-        """Reset unit setting"""
+        """Reset setting"""
         for unit_type in self.units_type:
             getattr(self, f"combobox_{unit_type}").setCurrentIndex(0)
 
     def save_setting(self):
-        """Save unit setting"""
+        """Save setting"""
         for unit_type in self.units_type:
             cfg.units[f"{unit_type}_unit"] = getattr(
                 self, f"combobox_{unit_type}").currentText()
@@ -153,7 +243,7 @@ class WidgetConfig(QDialog):
         self.number_locale = QLocale(QLocale.C)
         self.number_locale.setNumberOptions(QLocale.RejectGroupSeparator)
 
-        self.setWindowTitle(f"Config - {val.format_option_name(obj_name)}")
+        self.setWindowTitle(f"{val.format_option_name(obj_name)}")
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 

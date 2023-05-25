@@ -53,7 +53,7 @@ from .readapi import info
 from .module_control import mctrl
 from .widget_control import wctrl
 from .overlay_control import octrl
-from .config import UnitsConfig, WidgetConfig
+from .config import FontConfig, UnitsConfig, WidgetConfig
 
 class ConfigWindow(QMainWindow):
     """Load setting preset window"""
@@ -120,6 +120,10 @@ class ConfigWindow(QMainWindow):
         config_units = QAction("Display Units", self)
         config_units.triggered.connect(self.open_config_units)
         menu_config.addAction(config_units)
+
+        config_font = QAction("Global Font Override", self)
+        config_font.triggered.connect(self.open_config_font)
+        menu_config.addAction(config_font)
 
         config_compat = QAction("Compatibility", self)
         config_compat.triggered.connect(self.open_config_compatibility)
@@ -287,6 +291,11 @@ class ConfigWindow(QMainWindow):
         """Config display units"""
         window_units_config = UnitsConfig(self)
         window_units_config.exec_()
+
+    def open_config_font(self):
+        """Config global font"""
+        window_font_config = FontConfig(self)
+        window_font_config.exec_()
 
     def open_config_compatibility(self):
         """Config compatibility"""

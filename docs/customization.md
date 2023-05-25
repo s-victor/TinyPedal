@@ -135,6 +135,19 @@ Display units config dialog can be accessed from `Config` menu in main window.
 3 unit types are available: `"kPa"`, `"psi"`, `"bar"`.
 
 
+## Global Font Override
+Global font override config dialog can be accessed from `Config` menu in main window, which provides options to change font setting globally for all widgets.
+
+    Font Name
+Select a font name to replace `font_name` setting of all widgets.
+
+    Font Size Addend
+Set an addend number that will be added (or subtracted if negative) to `font_size` value of all widgets. `0` means no change to font size.
+
+    Font Weight
+Set font weight to replace `font_weight` setting of all widgets. `unchanged` means no change to font weight.
+
+
 ## Classes preset
 Classes preset file is used for displaying name & color that matches specific vehicle classes.
 
