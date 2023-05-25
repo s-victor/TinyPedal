@@ -254,7 +254,7 @@ class Draw(Widget):
 
         # Set gauge size
         rect_gauge = QRectF(0, 0, self.gauge_width, self.gauge_height)
-        rect_gear = QRectF(0, self.font_offset, self.gear_width, self.gauge_height)
+        rect_gear = QRectF(0, 0, self.gear_width, self.gauge_height)
 
         # Update gauge background
         painter.setPen(Qt.NoPen)
@@ -267,13 +267,21 @@ class Draw(Widget):
         self.pen.setColor(QColor(gauge_data[2][0]))
         painter.setPen(self.pen)
         painter.setFont(self.font_gear)
-        painter.drawText(rect_gear, Qt.AlignCenter, f"{gauge_data[0]}")
+        painter.drawText(
+            rect_gear.adjusted(0, self.font_offset, 0, 0),
+            Qt.AlignCenter,
+            f"{gauge_data[0]}"
+        )
 
         if self.wcfg["show_speed"]:
             rect_speed = QRectF(
-                self.gear_width, self.font_offset, self.speed_width, self.gauge_height)
+                self.gear_width, 0, self.speed_width, self.gauge_height)
             painter.setFont(self.font_speed)
-            painter.drawText(rect_speed, Qt.AlignCenter, f"{gauge_data[1]:03.0f}")
+            painter.drawText(
+                rect_speed.adjusted(0, self.font_offset, 0, 0),
+                Qt.AlignCenter,
+                f"{gauge_data[1]:03.0f}"
+            )
 
         canvas.setPixmap(gauge)
 
@@ -328,7 +336,7 @@ class Draw(Widget):
         # Set limiter size
         rect_limiter = QRectF(0, 0, self.limiter_width, self.gauge_height)
         rect_text = QRectF(
-            0, self.font_offset, self.limiter_width, self.gauge_height)
+            0, 0, self.limiter_width, self.gauge_height)
 
         # Update limiter background
         painter.setPen(Qt.NoPen)
@@ -342,7 +350,10 @@ class Draw(Widget):
         painter.setPen(self.pen)
         painter.setFont(self.font_gear)
         painter.drawText(
-            rect_text, Qt.AlignCenter, self.wcfg["speed_limiter_text"])
+            rect_text.adjusted(0, self.font_offset, 0, 0),
+            Qt.AlignCenter,
+            self.wcfg["speed_limiter_text"]
+        )
 
         canvas.setPixmap(limiter)
 
