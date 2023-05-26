@@ -662,16 +662,16 @@ class PresetList(QWidget):
         """Preset context menu"""
         if bool(self.listbox_preset.itemAt(position)):
             menu = QMenu()
-            duplicate_preset = menu.addAction("Duplicate")
-            rename_preset = menu.addAction("Rename")
-            delete_preset = menu.addAction("Delete")
+            option_duplicate = menu.addAction("Duplicate")
+            option_rename = menu.addAction("Rename")
+            option_delete = menu.addAction("Delete")
 
             action = menu.exec_(self.listbox_preset.mapToGlobal(position))
             selected_index = self.listbox_preset.currentRow()
             selected_filename = f"{self.preset_list[selected_index]}.json"
 
             # Duplicate preset
-            if action == duplicate_preset:
+            if action == option_duplicate:
                 window_preset = CreatePreset(
                     self,
                     title="Duplicate Preset",
@@ -680,7 +680,7 @@ class PresetList(QWidget):
                 )
                 window_preset.exec_()
             # Rename preset
-            elif action == rename_preset:
+            elif action == option_rename:
                 window_preset = CreatePreset(
                     self,
                     title="Rename Preset",
@@ -689,7 +689,7 @@ class PresetList(QWidget):
                 )
                 window_preset.exec_()
             # Delete preset
-            elif action == delete_preset:
+            elif action == option_delete:
                 message_text = (
                     "<font style='font-size: 15px;'><b>"
                     "Are you sure you want to delete<br>"

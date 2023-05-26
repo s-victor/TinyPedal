@@ -40,6 +40,7 @@ from PySide2.QtWidgets import (
     QColorDialog,
     QFontComboBox,
     QSpinBox,
+    QMenu
 )
 
 from .setting import cfg
@@ -409,6 +410,13 @@ class WidgetConfig(QDialog):
                 getattr(self, f"checkbox_{key}").setFixedWidth(option_width)
                 getattr(self, f"checkbox_{key}").setChecked(cfg.setting_user[self.obj_name][key])
 
+                # Context menu
+                self.add_context_menu(
+                    getattr(self, f"checkbox_{key}"),
+                    cfg.setting_default[self.obj_name][key],
+                    "set_check"
+                )
+
                 # Add layout
                 self.layout_option.addWidget(
                     getattr(self, f"checkbox_{key}"), idx, column_index_option)
@@ -430,6 +438,13 @@ class WidgetConfig(QDialog):
                 getattr(self, f"lineedit_{key}").setText(
                     cfg.setting_user[self.obj_name][key])
 
+                # Context menu
+                self.add_context_menu(
+                    getattr(self, f"lineedit_{key}"),
+                    str(cfg.setting_default[self.obj_name][key]),
+                    "set_text"
+                )
+
                 # Add layout
                 self.layout_option.addWidget(
                     getattr(self, f"lineedit_{key}"), idx, column_index_option)
@@ -444,6 +459,13 @@ class WidgetConfig(QDialog):
                 # Load selected option
                 getattr(self, f"fontedit_{key}").setCurrentFont(
                     cfg.setting_user[self.obj_name][key])
+
+                # Context menu
+                self.add_context_menu(
+                    getattr(self, f"fontedit_{key}"),
+                    cfg.setting_default[self.obj_name][key],
+                    "set_font"
+                )
 
                 # Add layout
                 self.layout_option.addWidget(
@@ -463,6 +485,13 @@ class WidgetConfig(QDialog):
                 if curr_index != -1:
                     getattr(self, f"combobox_{key}").setCurrentIndex(curr_index)
 
+                # Context menu
+                self.add_context_menu(
+                    getattr(self, f"combobox_{key}"),
+                    cfg.setting_default[self.obj_name][key],
+                    "set_combo"
+                )
+
                 # Add layout
                 self.layout_option.addWidget(
                     getattr(self, f"combobox_{key}"), idx, column_index_option)
@@ -481,6 +510,13 @@ class WidgetConfig(QDialog):
                 if curr_index != -1:
                     getattr(self, f"combobox_{key}").setCurrentIndex(curr_index)
 
+                # Context menu
+                self.add_context_menu(
+                    getattr(self, f"combobox_{key}"),
+                    cfg.setting_default[self.obj_name][key],
+                    "set_combo"
+                )
+
                 # Add layout
                 self.layout_option.addWidget(
                     getattr(self, f"combobox_{key}"), idx, column_index_option)
@@ -495,6 +531,13 @@ class WidgetConfig(QDialog):
                 # Load selected option
                 getattr(self, f"lineedit_{key}").setText(
                     cfg.setting_user[self.obj_name][key])
+
+                # Context menu
+                self.add_context_menu(
+                    getattr(self, f"lineedit_{key}"),
+                    cfg.setting_default[self.obj_name][key],
+                    "set_text"
+                )
 
                 # Add layout
                 self.layout_option.addWidget(getattr(
@@ -512,6 +555,13 @@ class WidgetConfig(QDialog):
                 getattr(self, f"lineedit_{key}").setText(
                     str(cfg.setting_user[self.obj_name][key]))
 
+                # Context menu
+                self.add_context_menu(
+                    getattr(self, f"lineedit_{key}"),
+                    str(cfg.setting_default[self.obj_name][key]),
+                    "set_text"
+                )
+
                 # Add layout
                 self.layout_option.addWidget(
                     getattr(self, f"lineedit_{key}"), idx, column_index_option)
@@ -526,6 +576,13 @@ class WidgetConfig(QDialog):
             # Load selected option
             getattr(self, f"lineedit_{key}").setText(
                 str(cfg.setting_user[self.obj_name][key]))
+
+            # Context menu
+            self.add_context_menu(
+                getattr(self, f"lineedit_{key}"),
+                str(cfg.setting_default[self.obj_name][key]),
+                "set_text"
+            )
 
             # Add layout
             self.layout_option.addWidget(
@@ -547,6 +604,37 @@ class WidgetConfig(QDialog):
                 f"color: {self.set_fg_color(color_str)};"
                 f"background-color: {color_str};"
             )
+
+    def add_context_menu(self, target, default, mode):
+        """Add context menu"""
+        target.setContextMenuPolicy(
+            Qt.CustomContextMenu)
+        target.customContextMenuRequested.connect(
+            lambda
+            pos,
+            target=target,
+            default=default,
+            mode=mode:
+            self.context_menu(pos, target, default, mode)
+        )
+
+    def context_menu(self, pos, target, default, mode):
+        """Context menu"""
+        menu = QMenu()
+        option_reset = menu.addAction("Reset to Default")
+        action = menu.exec_(target.mapToGlobal(pos))
+
+        if action == option_reset:
+            if mode == "set_check":
+                target.setChecked(default)
+            if mode == "set_font":
+                target.setCurrentText(default)
+            if mode == "set_text":
+                target.setText(default)
+            if mode == "set_combo":
+                curr_index = target.findText(f"{default}", Qt.MatchExactly)
+                if curr_index != -1:
+                    target.setCurrentIndex(curr_index)
 
 
 class ColorEdit(QLineEdit):
