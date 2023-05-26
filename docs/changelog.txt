@@ -1,4 +1,4 @@
-WIP
+2.1.2 (2023-05-26)
 -----------------------------
 * General
     - Add "enable_auto_font_offset" option to widgets
@@ -19,7 +19,7 @@ WIP
       Select a font name to replace "font_name" setting of all widgets.
       Default selection is "no change", which no changes will be applied.
       [Font Size Addend]
-      Set an addend number that will be added (or subtracted if negative)
+      Set a value that will be added (or subtracted if negative)
       to "font_size" value of all widgets.
       Default value is "0", which no changes will be applied.
       [Font Weight]
@@ -33,6 +33,9 @@ WIP
       to "Window menu" on main window.
     - Removed "thick black border" from all widgets that could be visible
       when running on certain window manager, or using certain window capture APPs.
+
+* Misc
+    - Updated user guide.
 
 2.1.1 (2023-05-24)
 -----------------------------

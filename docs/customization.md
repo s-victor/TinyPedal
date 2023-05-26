@@ -1,4 +1,4 @@
-# Customization Guide
+# User Guide
 Note: the guide is for version 2.0 or higher.
 
 TinyPedal offers a wide range of customization options for widget & module controls, as well as preset management, which can be accessed from main window. Manual editing is also possible via `JSON` setting file with text editor.
