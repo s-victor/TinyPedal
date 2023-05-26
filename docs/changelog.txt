@@ -17,12 +17,14 @@ WIP
       Options explain:
       [Font Name]
       Select a font name to replace "font_name" setting of all widgets.
+      Default selection is "no change", which no changes will be applied.
       [Font Size Addend]
       Set an addend number that will be added (or subtracted if negative)
-      to "font_size" value of all widgets. "0" means no change to font size.
+      to "font_size" value of all widgets.
+      Default value is "0", which no changes will be applied.
       [Font Weight]
       Set font weight to replace "font_weight" setting of all widgets.
-      "unchanged" means no change to font weight.
+      Default selection is "no change", which no changes will be applied.
     - Add "compatibility" option to "Config menu" on main window for easy access.
     - Moved "show_at_startup", "minimize_to_tray", "remember_position" options
       to "Window menu" on main window.

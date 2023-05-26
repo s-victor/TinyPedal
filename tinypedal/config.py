@@ -64,7 +64,7 @@ class FontConfig(QDialog):
         # Label & combobox
         self.label_fontname = QLabel("Font Name")
         self.edit_fontname = QFontComboBox()
-        self.edit_fontname.setCurrentFont(self.get_font_name(cfg.setting_user))
+        self.edit_fontname.setCurrentText("no change")
 
         self.label_fontsize = QLabel("Font Size Addend")
         self.edit_fontsize = QSpinBox()
@@ -72,7 +72,7 @@ class FontConfig(QDialog):
 
         self.label_fontweight = QLabel("Font Weight")
         self.edit_fontweight = QComboBox()
-        self.edit_fontweight.addItems(["unchanged", "normal", "bold"])
+        self.edit_fontweight.addItems(["no change", "normal", "bold"])
 
         layout_option = QGridLayout()
         layout_option.setAlignment(Qt.AlignLeft | Qt.AlignTop)
@@ -102,15 +102,6 @@ class FontConfig(QDialog):
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
 
-    def get_font_name(self, dict_user):
-        """Get font name"""
-        for item in dict_user.keys():
-            key_list_user = tuple(dict_user[item])
-            for key in key_list_user:
-                if re.search(rxp.REGEX_FONTNAME, key):
-                    return dict_user[item][key]
-        return ""
-
     def applying(self):
         """Save & apply"""
         self.save_setting(cfg.setting_user)
@@ -125,10 +116,11 @@ class FontConfig(QDialog):
         for item in dict_user.keys():
             key_list_user = tuple(dict_user[item])
             for key in key_list_user:
-                if re.search(rxp.REGEX_FONTNAME, key):
+                if (re.search(rxp.REGEX_FONTNAME, key) and
+                    self.edit_fontname.currentText() != "no change"):
                     dict_user[item][key] = self.edit_fontname.currentFont().family()
                 if (re.search(rxp.REGEX_FONTWEIGHT, key) and
-                    self.edit_fontweight.currentText() != "unchanged"):
+                    self.edit_fontweight.currentText() != "no change"):
                     dict_user[item][key] = self.edit_fontweight.currentText()
                 if key == "font_size":
                     dict_user[item][key] = max(

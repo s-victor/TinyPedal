@@ -139,13 +139,13 @@ Display units config dialog can be accessed from `Config` menu in main window.
 Global font override config dialog can be accessed from `Config` menu in main window, which provides options to change font setting globally for all widgets.
 
     Font Name
-Select a font name to replace `font_name` setting of all widgets.
+Select a font name to replace `font_name` setting of all widgets. Default selection is `no change`, which no changes will be applied.
 
     Font Size Addend
-Set an addend number that will be added (or subtracted if negative) to `font_size` value of all widgets. `0` means no change to font size.
+Set a value that will be added (or subtracted if negative) to `font_size` value of all widgets. Default value is `0`, which no changes will be applied.
 
     Font Weight
-Set font weight to replace `font_weight` setting of all widgets. `unchanged` means no change to font weight.
+Set font weight to replace `font_weight` setting of all widgets. Default selection is "no change", which no changes will be applied.
 
 
 ## Classes preset
