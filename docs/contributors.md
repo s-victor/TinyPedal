@@ -5,6 +5,7 @@
 * Erik Jacobs (thoraxe)
 * Nibo
 * Bernat (berarma)
+* Sergio Rafael Lemke (srlemke)
 
 ## Technical support
 * Xudong Zhang (zxd1997)

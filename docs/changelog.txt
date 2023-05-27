@@ -5,6 +5,9 @@ WIP
       This option is disabled by default. (thanks to srlemke for help & suggestion)
     - Removed "driver_name_mode" option.
 
+* Misc
+    - Updated contributors.md with new contributor (Sergio Rafael Lemke).
+
 2.1.2 (2023-05-26)
 -----------------------------
 * General
