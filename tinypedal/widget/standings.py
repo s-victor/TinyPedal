@@ -54,6 +54,7 @@ class Draw(Widget):
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
         self.drv_width = max(int(self.wcfg["driver_name_width"]), 1)
+        self.veh_width = max(int(self.wcfg["vehicle_name_width"]), 1)
         self.cls_width = max(int(self.wcfg["class_width"]), 1)
         self.gap_width = max(int(self.wcfg["time_gap_width"]), 1)
         self.int_width = max(int(self.wcfg["time_interval_width"]), 1)
@@ -83,6 +84,7 @@ class Draw(Widget):
 
         column_pos = self.wcfg["column_index_position"]
         column_drv = self.wcfg["column_index_driver"]
+        column_veh = self.wcfg["column_index_vehicle"]
         column_lpt = self.wcfg["column_index_laptime"]
         column_pic = self.wcfg["column_index_position_in_class"]
         column_cls = self.wcfg["column_index_class"]
@@ -111,6 +113,16 @@ class Draw(Widget):
                 f"{self.bar_width_drv}"
             )
             self.generate_bar("drv", bar_style_drv, column_drv)
+
+        # Vehicle name
+        if self.wcfg["show_vehicle_name"]:
+            self.bar_width_veh = f"min-width: {font_w * self.veh_width}px;"
+            bar_style_veh = (
+                f"color: {self.wcfg['font_color_vehicle_name']};"
+                f"background: {self.wcfg['bkg_color_vehicle_name']};"
+                f"{self.bar_width_veh}"
+            )
+            self.generate_bar("veh", bar_style_veh, column_veh)
 
         # Time gap
         if self.wcfg["show_time_gap"]:
@@ -200,7 +212,8 @@ class Draw(Widget):
             0,  # is_player
             (0,0),  # in_pit
             ("",0),  # position
-            ("","",0),  # driver
+            ("",0),  # driver name
+            ("",0),  # vehicle name
             ("",0),  # pos_class
             ("",0),  # veh_class
             (0,0),  # tire_idx
@@ -219,7 +232,7 @@ class Draw(Widget):
 
     def generate_bar(self, suffix, style, column_idx):
         """Generate data bar"""
-        data_slots = 11
+        data_slots = 12
         for idx in range(self.veh_range):
             setattr(self, f"row_{idx}_{suffix}", QLabel(""))
             getattr(self, f"row_{idx}_{suffix}").setAlignment(Qt.AlignCenter)
@@ -267,39 +280,46 @@ class Draw(Widget):
                                     getattr(self, f"last_veh_{idx}")[3],
                                     getattr(self, f"veh_{idx}")[0]  # is_player
                                     )
+                # Vehicle name
+                if self.wcfg["show_vehicle_name"]:
+                    self.update_veh(f"{idx}_veh",
+                                    getattr(self, f"veh_{idx}")[4],
+                                    getattr(self, f"last_veh_{idx}")[4],
+                                    getattr(self, f"veh_{idx}")[0]  # is_player
+                                    )
                 # Time gap
                 if self.wcfg["show_time_gap"]:
                     self.update_gap(f"{idx}_gap",
-                                    getattr(self, f"veh_{idx}")[8],
-                                    getattr(self, f"last_veh_{idx}")[8],
+                                    getattr(self, f"veh_{idx}")[9],
+                                    getattr(self, f"last_veh_{idx}")[9],
                                     getattr(self, f"veh_{idx}")[0]  # is_player
                                     )
                 # Time interval
                 if self.wcfg["show_time_interval"]:
                     self.update_int(f"{idx}_int",
-                                    getattr(self, f"veh_{idx}")[10],
-                                    getattr(self, f"last_veh_{idx}")[10],
+                                    getattr(self, f"veh_{idx}")[11],
+                                    getattr(self, f"last_veh_{idx}")[11],
                                     getattr(self, f"veh_{idx}")[0]  # is_player
                                     )
                 # Vehicle laptime
                 if self.wcfg["show_laptime"]:
                     self.update_lpt(f"{idx}_lpt",
-                                    getattr(self, f"veh_{idx}")[7],
-                                    getattr(self, f"last_veh_{idx}")[7],
+                                    getattr(self, f"veh_{idx}")[8],
+                                    getattr(self, f"last_veh_{idx}")[8],
                                     getattr(self, f"veh_{idx}")[0]  # is_player
                                     )
                 # Vehicle position in class
                 if self.wcfg["show_position_in_class"]:
                     self.update_pic(f"{idx}_pic",
-                                    getattr(self, f"veh_{idx}")[4],
-                                    getattr(self, f"last_veh_{idx}")[4],
+                                    getattr(self, f"veh_{idx}")[5],
+                                    getattr(self, f"last_veh_{idx}")[5],
                                     getattr(self, f"veh_{idx}")[0]  # is_player
                                     )
                 # Vehicle class
                 if self.wcfg["show_class"]:
                     self.update_cls(f"{idx}_cls",
-                                    getattr(self, f"veh_{idx}")[5],
-                                    getattr(self, f"last_veh_{idx}")[5]
+                                    getattr(self, f"veh_{idx}")[6],
+                                    getattr(self, f"last_veh_{idx}")[6]
                                     )
                 # Vehicle in pit
                 if self.wcfg["show_pit_status"]:
@@ -310,15 +330,15 @@ class Draw(Widget):
                 # Tyre compound index
                 if self.wcfg["show_tyre_compound"]:
                     self.update_tcp(f"{idx}_tcp",
-                                    getattr(self, f"veh_{idx}")[6],
-                                    getattr(self, f"last_veh_{idx}")[6],
+                                    getattr(self, f"veh_{idx}")[7],
+                                    getattr(self, f"last_veh_{idx}")[7],
                                     getattr(self, f"veh_{idx}")[0]  # is_player
                                     )
                 # Pitstop count
                 if self.wcfg["show_pitstop_count"]:
                     self.update_psc(f"{idx}_psc",
-                                    getattr(self, f"veh_{idx}")[9],
-                                    getattr(self, f"last_veh_{idx}")[9],
+                                    getattr(self, f"veh_{idx}")[10],
+                                    getattr(self, f"last_veh_{idx}")[10],
                                     getattr(self, f"veh_{idx}")[0]  # is_player
                                     )
                 # Store last data reading
@@ -342,7 +362,7 @@ class Draw(Widget):
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 
     def update_drv(self, suffix, curr, last, isplayer):
-        """Driver & vehicle name"""
+        """Driver name"""
         if curr != last:
             if self.wcfg["show_player_highlighted"] and isplayer:
                 color = (f"color: {self.wcfg['font_color_player_driver_name']};"
@@ -351,10 +371,31 @@ class Draw(Widget):
                 color = (f"color: {self.wcfg['font_color_driver_name']};"
                          f"background: {self.wcfg['bkg_color_driver_name']};")
 
+            text = curr[0].upper() if self.wcfg["driver_name_uppercase"] else curr[0]
+
             getattr(self, f"row_{suffix}").setText(
-                self.set_driver_name(curr[0:2])[:self.drv_width])
+                text[:self.drv_width].ljust(self.drv_width))
             getattr(self, f"row_{suffix}").setStyleSheet(
                 f"{color}{self.bar_width_drv}"
+            )
+            self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
+
+    def update_veh(self, suffix, curr, last, isplayer):
+        """Vehicle name"""
+        if curr != last:
+            if self.wcfg["show_player_highlighted"] and isplayer:
+                color = (f"color: {self.wcfg['font_color_player_vehicle_name']};"
+                         f"background: {self.wcfg['bkg_color_player_vehicle_name']};")
+            else:
+                color = (f"color: {self.wcfg['font_color_vehicle_name']};"
+                         f"background: {self.wcfg['bkg_color_vehicle_name']};")
+
+            text = curr[0].upper() if self.wcfg["vehicle_name_uppercase"] else curr[0]
+
+            getattr(self, f"row_{suffix}").setText(
+                text[:self.veh_width].ljust(self.veh_width))
+            getattr(self, f"row_{suffix}").setStyleSheet(
+                f"{color}{self.bar_width_veh}"
             )
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 
@@ -503,20 +544,6 @@ class Draw(Widget):
                 if not row_bar.isHidden():
                     row_bar.hide()
 
-    def set_driver_name(self, name):
-        """Set driver name"""
-        if self.wcfg["driver_name_mode"] == 0:
-            text = name[0]  # driver name
-        elif self.wcfg["driver_name_mode"] == 1:
-            text = name[1]  # vehicle name
-        elif name[1]:
-            text = f"{name[0]} [{name[1]}]"  # combined name
-        else:
-            text = ""
-        if self.wcfg["driver_name_uppercase"]:
-            text = text.upper()
-        return text[:self.drv_width].ljust(self.drv_width)
-
     def set_tyre_cmp(self, tc_index):
         """Substitute tyre compound index with custom chars"""
         if tc_index:
@@ -612,21 +639,22 @@ class Draw(Widget):
             position = (f"{standings_veh[index].Position:02d}", vid)
 
             # 3 Driver name
-            driver = (standings_veh[index].DriverName,
-                      standings_veh[index].VehicleName,
-                      vid)
+            drv_name = (standings_veh[index].DriverName, vid)
 
-            # 4 Vehicle position in class
+            # 4 Vehicle name
+            veh_name = (standings_veh[index].VehicleName, vid)
+
+            # 5 Vehicle position in class
             pos_class = (f"{standings_veh[index].PositionInClass:02d}", vid)
 
-            # 5 Vehicle class
+            # 6 Vehicle class
             veh_class = (standings_veh[index].VehicleClass, vid)
 
-            # 6 Tyre compound index
+            # 7 Tyre compound index
             tire_idx = (standings_veh[index].TireCompoundIndex, vid)
 
             if read_data.is_race():
-                # 7 Lap time
+                # 8 Lap time
                 laptime = (
                     self.set_laptime(
                         standings_veh[index].InPit,
@@ -634,7 +662,7 @@ class Draw(Widget):
                         standings_veh[index].PitTime
                     ),
                     vid)
-                # 8 Time gap
+                # 9 Time gap
                 time_gap = (
                     self.gap_to_leader_race(
                         standings_veh[index].TimeBehindLeader,
@@ -658,12 +686,12 @@ class Draw(Widget):
                     ),
                     vid)
 
-            # 9 Pitstop count
+            # 10 Pitstop count
             pit_count = (standings_veh[index].NumPitStops,
                          standings_veh[index].PitState,
                          vid)
 
-            # 10 Time interval
+            # 11 Time interval
             time_int = (
                 self.int_to_next(
                     standings_veh[index].TimeBehindNext,
@@ -672,7 +700,7 @@ class Draw(Widget):
                 ),
                 vid)
 
-            return (is_player, in_pit, position, driver, pos_class, veh_class,
+            return (is_player, in_pit, position, drv_name, veh_name, pos_class, veh_class,
                     tire_idx, laptime, time_gap, pit_count, time_int)
         # Assign empty value to -1 index
         return self.empty_standings_data

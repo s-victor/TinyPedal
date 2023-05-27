@@ -778,11 +778,17 @@ Show driver name.
     driver_name_uppercase
 Set driver name to uppercase.
 
-    driver_name_mode
-Set driver name display mode. Default value is `0`, which displays driver name. Set to `1` to display vehicle(livery) name. Set to `2` to display both driver name & vehicle name combined.
-
     driver_name_width
 Set drive name display width, value in chars, such as 10 = 10 chars.
+
+    show_vehicle_name
+Show vehicle name.
+
+    vehicle_name_uppercase
+Set vehicle name to uppercase.
+
+    vehicle_name_width
+Set vehicle name display width, value in chars, such as 10 = 10 chars.
 
     show_time_gap
 Show relative time gap between player and opponents. 

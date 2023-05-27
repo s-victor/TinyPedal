@@ -1,3 +1,10 @@
+WIP
+-----------------------------
+* Relative & Standings Widget
+    - Add "show_vehicle_name" option, which displays vehicle name in separated column.
+      This option is disabled by default. (thanks to srlemke for help & suggestion)
+    - Removed "driver_name_mode" option.
+
 2.1.2 (2023-05-26)
 -----------------------------
 * General
