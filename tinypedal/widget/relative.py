@@ -324,7 +324,7 @@ class Draw(Widget):
                 if self.wcfg["show_lap_difference"]:
                     fgcolor = self.color_lapdiff(curr[1])
                 else:
-                    fgcolor = self.wcfg["font_color_time_gap"]
+                    fgcolor = self.wcfg["font_color_position"]
                 color = (f"color: {fgcolor};"
                          f"background: {self.wcfg['bkg_color_position']};")
 
@@ -343,7 +343,7 @@ class Draw(Widget):
                 if self.wcfg["show_lap_difference"]:
                     fgcolor = self.color_lapdiff(curr[1])
                 else:
-                    fgcolor = self.wcfg["font_color_time_gap"]
+                    fgcolor = self.wcfg["font_color_driver_name"]
                 color = (f"color: {fgcolor};"
                          f"background: {self.wcfg['bkg_color_driver_name']};")
 
@@ -365,7 +365,7 @@ class Draw(Widget):
                 if self.wcfg["show_lap_difference"]:
                     fgcolor = self.color_lapdiff(curr[1])
                 else:
-                    fgcolor = self.wcfg["font_color_time_gap"]
+                    fgcolor = self.wcfg["font_color_vehicle_name"]
                 color = (f"color: {fgcolor};"
                          f"background: {self.wcfg['bkg_color_vehicle_name']};")
 

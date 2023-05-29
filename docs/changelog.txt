@@ -1,3 +1,13 @@
+2.1.4 (2023-05-29)
+-----------------------------
+* Relative Widget
+    - Fixed "font_color" setting not correctly applied to
+      "position", "driver name", "vehicle name" options
+      when "show_lap_difference" is disabled.
+
+* Misc
+    - Updated user guide with additional info for "show_lap_difference" option.
+
 2.1.3 (2023-05-29)
 -----------------------------
 * General
