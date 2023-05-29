@@ -47,22 +47,24 @@ class Draw(Widget):
         self.font.setFamily(self.wcfg['font_name'])
         self.font.setPixelSize(self.wcfg['font_size'])
 
-        self.font_gear = self.font
-        self.font_gear.setWeight(getattr(QFont, self.wcfg['font_weight_gear'].capitalize()))
-
-        self.font_speed = QFont()
-        self.font_speed.setFamily(self.wcfg['font_name'])
-        self.font_speed.setPixelSize(self.wcfg['font_size'])
-        self.font_speed.setWeight(getattr(QFont, self.wcfg['font_weight_speed'].capitalize()))
-
         font_w = QFontMetrics(self.font).averageCharWidth()
         font_h = QFontMetrics(self.font).height()
         font_l = QFontMetrics(self.font).leading()
         font_c = QFontMetrics(self.font).capHeight()
         font_d = QFontMetrics(self.font).descent()
 
+        self.font_gear = self.font
+        self.font_gear.setWeight(getattr(QFont, self.wcfg['font_weight_gear'].capitalize()))
+
+        font_scale_speed = self.wcfg["font_scale_speed"] if self.wcfg["show_speed_below_gear"] else 1
+        self.font_speed = QFont()
+        self.font_speed.setFamily(self.wcfg['font_name'])
+        self.font_speed.setWeight(getattr(QFont, self.wcfg['font_weight_speed'].capitalize()))
+        self.font_speed.setPixelSize(round(self.wcfg['font_size'] * font_scale_speed))
+
         # Config variable
         bar_gap = self.wcfg["bar_gap"]
+        self.inner_gap = self.wcfg["inner_gap"]
         padx = round(font_w * self.wcfg["bar_padding_horizontal"])
         pady = round(font_c * self.wcfg["bar_padding_vertical"])
 
@@ -72,13 +74,25 @@ class Draw(Widget):
             self.font_offset = self.wcfg["font_offset_vertical"]
 
         self.gear_width = font_w + padx * 2
-        self.speed_width = font_w * 3 + padx * 2 if self.wcfg["show_speed"] else 0
+        self.gear_height = font_c + pady * 2
+        self.speed_width = round(font_w * 3 * font_scale_speed) + padx * 2
+        self.speed_height = round(font_c * font_scale_speed) + pady * 2
         self.limiter_width = (
             font_w * len(self.wcfg["speed_limiter_text"])
             + round(font_w * self.wcfg["speed_limiter_padding_horizontal"]) * 2)
 
-        self.gauge_width = self.gear_width + self.speed_width
-        self.gauge_height = int(font_c + pady * 2)
+        if self.wcfg["show_speed_below_gear"]:
+            self.gauge_width = self.gear_width
+            if self.wcfg["show_speed"]:
+                self.gauge_height = self.gear_height + self.inner_gap + self.speed_height
+            else:
+                self.gauge_height = self.gear_height
+        else:
+            if self.wcfg["show_speed"]:
+                self.gauge_width = self.gear_width + self.inner_gap + self.speed_width
+            else:
+                self.gauge_width = self.gear_width
+            self.gauge_height = self.gear_height
 
         self.rpmbar_height = self.wcfg["rpm_bar_height"]
         self.battbar_height = self.wcfg["battery_bar_height"]
@@ -254,7 +268,6 @@ class Draw(Widget):
 
         # Set gauge size
         rect_gauge = QRectF(0, 0, self.gauge_width, self.gauge_height)
-        rect_gear = QRectF(0, 0, self.gear_width, self.gauge_height)
 
         # Update gauge background
         painter.setPen(Qt.NoPen)
@@ -266,6 +279,8 @@ class Draw(Widget):
         # Update gauge text
         self.pen.setColor(QColor(gauge_data[2][0]))
         painter.setPen(self.pen)
+
+        rect_gear = QRectF(0, 0, self.gear_width, self.gear_height)
         painter.setFont(self.font_gear)
         painter.drawText(
             rect_gear.adjusted(0, self.font_offset, 0, 0),
@@ -274,8 +289,20 @@ class Draw(Widget):
         )
 
         if self.wcfg["show_speed"]:
-            rect_speed = QRectF(
-                self.gear_width, 0, self.speed_width, self.gauge_height)
+            if self.wcfg["show_speed_below_gear"]:
+                rect_speed = QRectF(
+                    0,
+                    self.gear_height + self.inner_gap,
+                    self.gear_width,
+                    self.speed_height
+                )
+            else:
+                rect_speed = QRectF(
+                    self.gear_width + self.inner_gap,
+                    0,
+                    self.speed_width,
+                    self.gear_height
+                )
             painter.setFont(self.font_speed)
             painter.drawText(
                 rect_speed.adjusted(0, self.font_offset, 0, 0),

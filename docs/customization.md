@@ -1,5 +1,4 @@
-# User Guide
-Note: the guide is for version 2.0 or higher.
+*Note: the guide is for version 2.0 or higher.*
 
 TinyPedal offers a wide range of customization options for widget & module controls, as well as preset management, which can be accessed from main window. Manual editing is also possible via `JSON` setting file with text editor.
 
@@ -566,8 +565,17 @@ Set starting fuel level mark width in pixels.
 
 
 ## Gear
+    inner_gap
+Set inner gap between gear & speed readings. Negative value reduces gap, while positive value increases gap. Default value is `0`.
+
     show_speed
-Show speed display.
+Show speed reading.
+
+    show_speed_below_gear
+Show speed reading below gear.
+
+    font_scale_speed
+Set font scale for speed reading. This option only takes effect when `show_speed_below_gear` is enabled. Default value is `0.5`.
 
     show_battery_bar
 Show battery bar, which is only visible if electric motor available.

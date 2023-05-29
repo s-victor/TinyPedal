@@ -1,12 +1,32 @@
-WIP
+2.1.3 (2023-05-29)
 -----------------------------
+* General
+    - Adjusted all default values of "bar_padding_horizontal" to 0.5.
+
+* Gear Widget
+    - Add "show_speed_below_gear" option,
+      which shows speed reading below gear.
+      This option is disabled by default.
+    - Add "font_scale_speed" option,
+      which sets font scale for speed reading.
+      This option only takes effect when
+      "show_speed_below_gear" is enabled.
+      Default value is 0.5.
+    - Add "inner_gap" option,
+      which sets inner gap between gear & speed readings.
+      Negative value reduces gap,
+      while positive value increases gap.
+      Default value is 0.
+
 * Relative & Standings Widget
-    - Add "show_vehicle_name" option, which displays vehicle name in separated column.
-      This option is disabled by default. (thanks to srlemke for help & suggestion)
+    - Add "show_vehicle_name" option,
+      which displays vehicle name in separated column.
+      This option is disabled by default.
     - Removed "driver_name_mode" option.
 
 * Misc
     - Updated contributors.md with new contributor (Sergio Rafael Lemke).
+    - Updated user guide.
 
 2.1.2 (2023-05-26)
 -----------------------------
