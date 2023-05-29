@@ -775,7 +775,7 @@ Set `true` to show degree sign for rake angle value.
 Highlight player row with customizable specific color.
 
     show_lap_difference
-Show different font color based on lap difference between player and opponents. Note, this option will override `font_color` setting from `position`, `driver_name`, `show_vehicle_name`, `show_time_gap`.
+Show different font color based on lap difference between player and opponents. Note, this option will override `font_color` setting from `position`, `driver name`, `vehicle name`, `time gap`.
 
     font_color_same_lap, font_color_laps_ahead, font_color_laps_behind
 Set font color for lap difference. Note, `font_color_laps_ahead` & `font_color_laps_behind` applies to race session only.
