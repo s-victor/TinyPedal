@@ -726,6 +726,7 @@ SETTING_DEFAULT = {
         "bkg_color_rake_angle": "#222222",
         "warning_color_negative_rake": "#00AAFF",
         "show_degree_sign": True,
+        "show_ride_height_difference": True,
         "prefix_rake_angle": "RA ",
     },
     "relative": {

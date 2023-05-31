@@ -769,6 +769,9 @@ Set wheelbase in millimeters, for used in rake angle calculation.
     show_degree_sign
 Set `true` to show degree sign for rake angle value.
 
+    show_ride_height_difference
+Show average front & rear ride height difference in millimeters.
+
 
 ## Relative
     show_player_highlighted

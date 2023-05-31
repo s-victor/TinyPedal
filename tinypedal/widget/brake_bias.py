@@ -103,12 +103,12 @@ class Draw(Widget):
             if self.wcfg["show_front_and_rear"]:
                 text = (
                     f"{self.wcfg['prefix_brake_bias']}"
-                    f"{curr:.0{self.decimals}f}:{100 - curr:.0{self.decimals}f}"
+                    f"{curr:02.0{self.decimals}f}:{100 - curr:02.0{self.decimals}f}"
                 )
             else:
                 text = (
                     f"{self.wcfg['prefix_brake_bias']}"
-                    f"{curr:.0{self.decimals}f}{self.sign_text}"
+                    f"{curr:02.0{self.decimals}f}{self.sign_text}"
                 )
             self.bar_bbias.setText(text)
             self.bar_bbias.setStyleSheet(

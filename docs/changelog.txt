@@ -1,3 +1,9 @@
+WIP
+-----------------------------
+* Rake angle Widget
+    - Add "show_ride_height_difference" option,
+      which shows average front & rear ride height difference in millimeters.
+
 2.1.4 (2023-05-29)
 -----------------------------
 * Relative Widget

@@ -45,13 +45,11 @@ class Draw(Widget):
         self.font = QFont()
         self.font.setFamily(self.wcfg['font_name'])
         self.font.setPixelSize(self.wcfg['font_size'])
-        font_w = QFontMetrics(self.font).averageCharWidth()
+        self.font_w = QFontMetrics(self.font).averageCharWidth()
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
-        self.bar_width = font_w * (
-            5 + len(self.sign_text) + len(self.wcfg["prefix_rake_angle"]))
 
         # Base style
         self.setStyleSheet(
@@ -73,8 +71,8 @@ class Draw(Widget):
         self.bar_rake.setStyleSheet(
             f"color: {self.wcfg['font_color_rake_angle']};"
             f"background: {self.wcfg['bkg_color_rake_angle']};"
-            f"min-width: {self.bar_width}px;"
-            f"max-width: {self.bar_width}px;"
+            f"min-width: {self.font_w * 8}px;"
+            f"max-width: {self.font_w * 8}px;"
         )
 
         # Set layout
@@ -111,10 +109,13 @@ class Draw(Widget):
                 bgcolor = self.wcfg["warning_color_negative_rake"]
 
             rake_angle = calc.rake2angle(curr, self.wcfg["wheelbase"])
-            self.bar_rake.setText(
-                f"{self.wcfg['prefix_rake_angle']}{rake_angle:+.02f}{self.sign_text}")
+            ride_diff = f"({abs(curr):02.0f})" if self.wcfg["show_ride_height_difference"] else ""
+            text = f"{self.wcfg['prefix_rake_angle']}{rake_angle:+.02f}{self.sign_text}{ride_diff}"
+
+            self.bar_rake.setText(text)
             self.bar_rake.setStyleSheet(
                 f"color: {self.wcfg['font_color_rake_angle']};"
                 f"background: {bgcolor};"
-                f"min-width: {self.bar_width}px;"
+                f"min-width: {self.font_w * len(text)}px;"
+                f"max-width: {self.font_w * len(text)}px;"
             )
