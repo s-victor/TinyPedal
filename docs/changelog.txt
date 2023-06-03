@@ -7,8 +7,17 @@ WIP
     - Add "show_ride_height_difference" option,
       which shows average front & rear ride height difference in millimeters.
 
-* Delta & Fuel Module
-    - Improved calculation.
+* Delta Module
+    - Improved accuracy of delta data calculation.
+    - Fixed inaccurate reading issue that could happen
+      during first lap of race or garage out lap.
+
+* Fuel Module
+    - Improved accuracy & consistency of estimated fuel usage calculation.
+      First lap of race & pit in/out laps no longer affect fuel calculation.
+    - Accurate estimated fuel consumption & fuel delta readings
+      during race first lap & pit in/out laps.
+    - Now save & compare fuel data from valid lap only.
 
 2.1.4 (2023-05-29)
 -----------------------------

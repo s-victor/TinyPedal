@@ -22,7 +22,7 @@ Init
 import sys
 import logging
 
-logger = logging.getLogger(__name__)
+logger = logging.getLogger("tinypedal")
 
 log_format = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S")
 cli_handler = logging.StreamHandler(sys.stdout)

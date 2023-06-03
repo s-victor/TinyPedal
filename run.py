@@ -25,6 +25,7 @@ Run program
 import os
 import sys
 import signal
+import logging
 import psutil
 
 from PySide2.QtGui import QFont
@@ -33,6 +34,8 @@ from PySide2.QtWidgets import (
     QMessageBox,
 )
 from tinypedal.const import APP_NAME, VERSION
+
+logger = logging.getLogger("tinypedal")
 
 
 def is_tinypedal_running(app_name):
@@ -61,13 +64,13 @@ def load_tinypedal():
             "TinyPedal is already running.\n\n"
             "Only one TinyPedal may be run at a time.\n"
             "Check system tray for hidden icon."
-            )
+        )
     else:
+        logger.info("starting tinypedal")
         # Start main window
         from tinypedal.main import ConfigWindow
         config_window = ConfigWindow()
         signal.signal(signal.SIGINT, config_window.int_signal_handler)
-
         # Start mainloop
         sys.exit(root.exec_())
 

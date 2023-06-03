@@ -95,7 +95,6 @@ class Realtime:
                     update_interval = active_interval  # shorter delay
 
                     recording = False
-                    lap_diff = False
                     validating = False
 
                     combo_name = combo_check()
@@ -116,13 +115,6 @@ class Realtime:
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime:
                     laptime_last = lap_stime - last_lap_stime
-                    lap_diff = True
-                else:
-                    lap_diff = False
-                last_lap_stime = lap_stime  # reset
-                laptime_curr = max(elapsed_time - last_lap_stime, 0)
-
-                if lap_diff:
                     if len(delta_list_curr) > 1:
                         delta_list_curr.append(  # set end value
                             (round(pos_last + 10, 6), round(laptime_last, 6))
@@ -131,7 +123,9 @@ class Realtime:
                         validating = True
                     delta_list_curr = [DELTA_ZERO]  # reset
                     pos_last = pos_curr
-                    recording = True if laptime_curr < 1 else False
+                    recording = True if elapsed_time - lap_stime < 1 else False
+                last_lap_stime = lap_stime  # reset
+                laptime_curr = max(elapsed_time - last_lap_stime, 0)
 
                 # Update if position value is different & positive
                 if 0 <= pos_curr != pos_last:
@@ -144,14 +138,14 @@ class Realtime:
 
                 # Validating 1s after passing finish line
                 if validating:
-                    if 1 < laptime_curr <= 8:
+                    if 1 < elapsed_time - lap_stime <= 8:  # compare current time
                         if laptime_last < laptime_best and lastlap_valid:
                             laptime_best = laptime_last
                             delta_list_best = delta_list_last
                             delta_list_last = [DELTA_ZERO]
                             self.save_deltabest(combo_name, delta_list_best)
                             validating = False
-                    elif 8 < laptime_curr < 10:  # switch off after 8s
+                    elif 8 < elapsed_time - lap_stime < 10:  # switch off after 8s
                         validating = False
 
                 # Calc delta

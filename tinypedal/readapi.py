@@ -31,7 +31,6 @@ Access rF2 shared memory data using:
    https://github.com/s-victor/pyRfactor2SharedMemory
 """
 
-from pyRfactor2SharedMemory.sharedMemoryAPI import Cbytestring2Python
 from pyRfactor2SharedMemory.sim_info_sync import SimInfoSync
 
 from . import validator as val
@@ -39,16 +38,16 @@ from . import calculation as calc
 
 
 # Load Shared Memory API
-info = SimInfoSync()
-info.startUpdating()  # start Shared Memory updating thread
+info = SimInfoSync(logger="tinypedal")
+info.startUpdating()
 
 chknm = val.in2zero
-cs2py = Cbytestring2Python
+cs2py = info.cbytes2str
 
 
 def state():
     """Check whether is driving"""
-    return info.syncedVehicleTelemetry().mIgnitionStarter
+    return not info.freezed() and info.syncedVehicleTelemetry().mIgnitionStarter
 
 
 def api_version():

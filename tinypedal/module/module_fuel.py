@@ -92,8 +92,9 @@ class Realtime:
         while self.running:
             if state():
 
-                (lap_stime, laps_total, laps_left, time_left, amount_curr, capacity,
-                 inpits, pos_curr, elapsed_time, gps_curr) = self.__telemetry()
+                (lap_stime, elapsed_time, lastlap_valid, laps_total,
+                 lap_number, time_left, amount_curr, capacity, inpits,
+                 pos_curr, laps_left, gps_curr) = self.__telemetry()
 
                 # Reset data
                 if not reset:
@@ -101,12 +102,13 @@ class Realtime:
                     update_interval = active_interval  # shorter delay
 
                     recording = False
-                    lap_diff = False
                     pittinglap = False
+                    validating = False
 
                     combo_name = combo_check()
-                    delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
                     delta_list_last = self.load_deltafuel(combo_name)
+                    delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
+                    delta_list_temp = [DELTA_ZERO]  # last lap temp
                     delta_fuel = 0  # delta fuel consumption compare to last lap
 
                     amount_start = 0  # start fuel reading
@@ -114,8 +116,9 @@ class Realtime:
                     amount_need = 0  # total additional fuel to finish race
                     amount_left = 0  # amount fuel left before pitting
                     used_curr = 0  # current lap fuel consumption
-                    used_last = delta_list_last[-1][1]  # last lap fuel consumption
-                    used_est = 0  # estimated fuel consumption
+                    used_last = delta_list_last[-1][1]  # exclude first & pit lap
+                    used_last_raw = delta_list_last[-1][1]  # raw usage
+                    used_est = 0  # estimated fuel consumption, for calculation only
                     est_runlaps = 0  # estimate laps current fuel can last
                     est_runmins = 0  # estimate minutes current fuel can last
                     pit_required = 0  # minimum pit stops to finish race
@@ -135,28 +138,26 @@ class Realtime:
                     used_curr += amount_last - amount_curr
                     amount_last = amount_curr
 
-                # Lap start & finish detection
-                if lap_stime > last_lap_stime:
-                    laptime_last = lap_stime - last_lap_stime
-                    lap_diff = True
-                else:
-                    lap_diff = False
-                last_lap_stime = lap_stime  # reset
-                laptime_curr = max(elapsed_time - last_lap_stime, 0)
                 pittinglap = bool(pittinglap + inpits)
 
-                if lap_diff:
+                # Lap start & finish detection
+                if lap_stime > last_lap_stime:
+                    used_last_raw = used_curr
                     if len(delta_list_curr) > 1 and not pittinglap:
-                        used_last = used_curr
                         delta_list_curr.append(  # set end value
-                            (round(pos_last + 10, 6), round(used_last, 6), round(laptime_last, 6))
+                            (round(pos_last + 10, 6),
+                             round(used_curr, 6),
+                             round(lap_stime - last_lap_stime, 6))
                         )
-                        delta_list_last = delta_list_curr
+                        delta_list_temp = delta_list_curr
+                        validating = True
                     delta_list_curr = [DELTA_ZERO]  # reset
                     pos_last = pos_curr
-                    recording = True if laptime_curr < 1 else False
+                    recording = True if elapsed_time - lap_stime < 1 else False
                     pittinglap = False
                     used_curr = 0
+                last_lap_stime = lap_stime  # reset
+                laptime_curr = max(elapsed_time - last_lap_stime, 0)
 
                 # Update if position value is different & positive
                 if 0 <= pos_curr != pos_last:
@@ -167,6 +168,18 @@ class Realtime:
                     pos_last = pos_curr  # reset last position
                     pos_calc = pos_last  # reset calc position
 
+                # Validating 1s after passing finish line
+                if validating:
+                    if 1 < elapsed_time - lap_stime <= 8:  # compare current time
+                        if lastlap_valid > 0:
+                            used_last = used_last_raw
+                            laptime_last = lastlap_valid
+                            delta_list_last = delta_list_temp
+                            delta_list_temp = [DELTA_ZERO]
+                            validating = False
+                    elif 8 < elapsed_time - lap_stime < 10:  # switch off after 8s
+                        validating = False
+
                 # Calc delta
                 if gps_last != gps_curr:
                     pos_calc += calc.distance_xyz(gps_last, gps_curr)
@@ -175,11 +188,15 @@ class Realtime:
                         pos_calc,
                         used_curr,
                         delta_list_last,
-                        laptime_curr > 0.2 and not pittinglap,  # 200ms delay
+                        laptime_curr > 0.2,  # 200ms delay
                     )
 
-                # Estimate fuel consumption
-                used_est = used_last + delta_fuel
+                # Estimate fuel consumption for calculation
+                # Exclude first lap & pit in & out lap
+                if not pittinglap and lap_number > 0:
+                    used_est = used_last + delta_fuel
+                else:
+                    used_est = used_last
 
                 # Estimate laps current fuel can last
                 if used_est:
@@ -217,8 +234,8 @@ class Realtime:
                     AmountFuelCurrent = amount_curr,
                     AmountFuelNeeded = amount_need,
                     AmountFuelBeforePitstop = amount_left,
-                    LastLapFuelConsumption = used_last,
-                    EstimatedFuelConsumption = used_est,
+                    LastLapFuelConsumption = used_last_raw,
+                    EstimatedFuelConsumption = used_last + delta_fuel,
                     EstimatedLaps = est_runlaps,
                     EstimatedMinutes = est_runmins,
                     RequiredPitStops = pit_required,
@@ -243,7 +260,10 @@ class Realtime:
     def __telemetry():
         """Telemetry data"""
         lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
+        elapsed_time = chknm(info.syncedVehicleTelemetry().mElapsedTime)
+        lastlap_valid = chknm(info.syncedVehicleScoring().mLastLapTime)
         laps_total = chknm(info.LastScor.mScoringInfo.mMaxLaps)
+        lap_number = chknm(info.syncedVehicleTelemetry().mLapNumber)
         time_left = (chknm(info.LastScor.mScoringInfo.mEndET)
                      - chknm(info.LastScor.mScoringInfo.mCurrentET))
         amount_curr = chknm(info.syncedVehicleTelemetry().mFuel)
@@ -252,12 +272,12 @@ class Realtime:
         pos_curr = chknm(info.syncedVehicleScoring().mLapDist)
         laps_left = (laps_total - chknm(info.syncedVehicleScoring().mTotalLaps)
                      - (pos_curr / max(chknm(info.LastScor.mScoringInfo.mLapDist), 1)))
-        elapsed_time = chknm(info.syncedVehicleTelemetry().mElapsedTime)
         gps_curr = (chknm(info.syncedVehicleTelemetry().mPos.x),
                     chknm(info.syncedVehicleTelemetry().mPos.y),
                     chknm(info.syncedVehicleTelemetry().mPos.z))
-        return (lap_stime, laps_total, laps_left, time_left, amount_curr, capacity,
-                inpits, pos_curr, elapsed_time, gps_curr)
+        return (lap_stime, elapsed_time, lastlap_valid, laps_total,
+                lap_number, time_left, amount_curr, capacity, inpits,
+                pos_curr, laps_left, gps_curr)
 
     def load_deltafuel(self, combo):
         """Load last saved fuel consumption data"""
