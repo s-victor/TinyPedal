@@ -31,6 +31,7 @@ from ..readapi import info, chknm, state, combo_check
 from .. import calculation as calc
 
 MODULE_NAME = "module_delta"
+DELTA_ZERO = 0.0,0.0
 
 logger = logging.getLogger(__name__)
 
@@ -77,26 +78,7 @@ class Realtime:
 
     def __calculation(self):
         """Delta calculation"""
-        recording = False  # set delta recording state
-        verified = False  # additional check for conserving resources
-        validating = False  # validate last laptime after cross finish line
-
-        meters_driven = 0
-        delta_list_curr = []  # distance vs time list, current lap
-        delta_list_last = []  # distance vs time list, last lap, used for verification only
-        delta_list_best = []  # distance vs time list, best lap
-        delta_best = 0  # delta time compare to best laptime
-        last_lap_stime = 0  # lap-start-time
-        pos_last = 0  # last checked player vehicle position
-        pos_append = 0  # append last checked position with calc traveled dist
-        gps_last = [0,0,0]  # last global position
-        last_time = 0  # last checked elapsed time
-        laptime_curr = 0  # current laptime
-        laptime_last = 0  # last laptime
-        laptime_best = 99999  # best laptime
-        laptime_est = 0  # estimated current laptime
-        combo_name = "unknown"  # current car & track combo
-
+        reset = False
         active_interval = self.mcfg["update_interval"] / 1000
         idle_interval = self.mcfg["idle_update_interval"] / 1000
         update_interval = idle_interval
@@ -104,113 +86,106 @@ class Realtime:
         while self.running:
             if state():
 
-                (lap_stime, elapsed_time, lastlap_check, speed, pos_curr, gps_curr, game_phase
+                (lap_stime, elapsed_time, lastlap_valid, pos_curr, gps_curr
                  ) = self.__telemetry()
 
-                # Read combo & best laptime
-                if not verified:
-                    verified = True
+                # Reset data
+                if not reset:
+                    reset = True
                     update_interval = active_interval  # shorter delay
+
+                    recording = False
+                    lap_diff = False
+                    validating = False
+
                     combo_name = combo_check()
-                    delta_list_best, laptime_best = self.load_deltabest(combo_name)
+                    delta_list_best = self.load_deltabest(combo_name)
+                    delta_list_curr = [DELTA_ZERO]  # distance, laptime
+                    delta_list_last = [DELTA_ZERO]  # last lap
+                    delta_best = 0  # delta time compare to best laptime
+
+                    last_lap_stime = lap_stime  # lap-start-time
+                    laptime_curr = 0  # current laptime
+                    laptime_last = 0  # last laptime
+                    laptime_best = delta_list_best[-1][1]  # best laptime
+                    pos_last = 0  # last checked vehicle position
+                    pos_calc = 0  # calculated position
+                    gps_last = [0,0,0]  # last global position
                     meters_driven = self.cfg.setting_user["cruise"]["meters_driven"]
-                    last_lap_stime = lap_stime  # reset lap-start-time
-
-                if game_phase < 5:  # reset stint stats if session has not started
-                    last_lap_stime = lap_stime  # reset
-
-                # Start updating
-                laptime_curr = max(elapsed_time - last_lap_stime, 0)  # current laptime
 
                 # Lap start & finish detection
-                if lap_stime > last_lap_stime:  # difference of lap-start-time
+                if lap_stime > last_lap_stime:
                     laptime_last = lap_stime - last_lap_stime
+                    lap_diff = True
+                else:
+                    lap_diff = False
+                last_lap_stime = lap_stime  # reset
+                laptime_curr = max(elapsed_time - last_lap_stime, 0)
 
-                    if delta_list_curr:  # non-empty list check
-                        delta_list_curr.append((pos_last + 10, laptime_last))  # set end value
+                if lap_diff:
+                    if len(delta_list_curr) > 1:
+                        delta_list_curr.append(  # set end value
+                            (round(pos_last + 10, 6), round(laptime_last, 6))
+                        )
                         delta_list_last = delta_list_curr
                         validating = True
+                    delta_list_curr = [DELTA_ZERO]  # reset
+                    pos_last = pos_curr
+                    recording = True if laptime_curr < 1 else False
 
-                    delta_list_curr = []  # reset current delta list
-                    delta_list_curr.append((0.0, 0.0))  # set start value
-                    recording = True  # activate delta recording
-                    last_lap_stime = lap_stime  # reset
-                    pos_last = pos_curr  # set pos last
+                # Update if position value is different & positive
+                if 0 <= pos_curr != pos_last:
+                    if recording and pos_curr > pos_last:  # position further
+                        delta_list_curr.append(  # keep 6 decimals
+                            (round(pos_curr, 6), round(laptime_curr, 6))
+                        )
+                    pos_last = pos_curr  # reset last position
+                    pos_calc = pos_last  # reset calc position
 
-                # Laptime validating 1s after passing finish line
-                # To compensate 5fps refresh rate of Scoring data
-                # Must place validating after lap start & finish detection
-                # Negative mLastLapTime value indicates invalid last laptime
+                # Validating 1s after passing finish line
                 if validating:
                     if 1 < laptime_curr <= 8:
-                        if laptime_last < laptime_best and abs(lastlap_check - laptime_last) < 1:
+                        if laptime_last < laptime_best and lastlap_valid:
                             laptime_best = laptime_last
                             delta_list_best = delta_list_last
+                            delta_list_last = [DELTA_ZERO]
                             self.save_deltabest(combo_name, delta_list_best)
                             validating = False
-                    elif 8 < laptime_curr < 10:  # switch off validating after 8s
+                    elif 8 < laptime_curr < 10:  # switch off after 8s
                         validating = False
 
-                # Recording only from the beginning of a lap
-                if recording:
-                    # Update position if current dist value is diff & positive
-                    if pos_curr != pos_last and pos_curr >= 0:
-                        if pos_curr > pos_last:  # record if position is further away
-                            delta_list_curr.append((pos_curr, laptime_curr))
-
-                        pos_last = pos_curr  # reset last position
-                        pos_append = pos_last  # reset initial position for appending
-
-                # Update time difference & calculate additional traveled distance
-                if elapsed_time != last_time:
-                    delta_dist = speed * (elapsed_time - last_time)
-                    pos_append += delta_dist
-                    last_time = elapsed_time
-                    index_lower, index_higher = calc.nearest_dist_index(
-                                                pos_append, delta_list_best)
-                    try:  # add 20ms error offset due to 50hz refresh rate limit
-                        if sum([delta_list_best[index_lower][0],
-                               delta_list_best[index_lower][1],
-                               delta_list_best[index_higher][0],
-                               delta_list_best[index_higher][1]]) != 0:
-                            delta_best = laptime_curr + 0.02 - calc.linear_interp(
-                                                pos_append,
-                                                delta_list_best[index_lower][0],
-                                                delta_list_best[index_lower][1],
-                                                delta_list_best[index_higher][0],
-                                                delta_list_best[index_higher][1])
-                    except IndexError:
-                        delta_best = 0
-
-                laptime_est = laptime_best + delta_best
-
-                # Record driven distance in meters
+                # Calc delta
                 if gps_last != gps_curr:
                     moved_distance = calc.distance_xyz(gps_last, gps_curr)
-                    if moved_distance < 15:  # add small amount limit
-                        meters_driven += moved_distance
                     gps_last = gps_curr
+                    # Update delta
+                    pos_calc += moved_distance
+                    delta_best = calc.delta_telemetry(
+                        pos_calc,
+                        laptime_curr,
+                        delta_list_best,
+                        laptime_curr > 0.2,  # 200ms delay
+                        0.02,  # add 20ms offset
+                    )
+                    # Update driven distance
+                    if moved_distance < 1500 * active_interval:
+                        meters_driven += moved_distance
 
                 # Output delta time data
                 self.output = self.DataSet(
                     LaptimeCurrent = laptime_curr,
                     LaptimeLast = laptime_last,
                     LaptimeBest = laptime_best,
-                    LaptimeEstimated = laptime_est,
+                    LaptimeEstimated = laptime_best + delta_best,
                     DeltaBest = delta_best,
-                    IsValidLap = bool(lastlap_check > 0),
+                    IsValidLap = lastlap_valid,
                     MetersDriven = meters_driven,
                 )
 
             else:
-                if verified:
-                    recording = False  # disable delta recording after exit track
-                    verified = False  # activate verification when enter track next time
-                    validating = False  # disable laptime validate
+                if reset:
+                    reset = False
                     update_interval = idle_interval  # longer delay while inactive
-                    delta_list_curr = []  # reset current delta list
-
-                    # Save meters driven & last laptime data
                     self.cfg.setting_user["cruise"]["meters_driven"] = int(meters_driven)
                     self.cfg.save()
 
@@ -226,32 +201,28 @@ class Realtime:
         """Telemetry data"""
         lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
         elapsed_time = chknm(info.syncedVehicleTelemetry().mElapsedTime)
-        lastlap_check = chknm(info.syncedVehicleScoring().mLastLapTime)
-        speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
-                               chknm(info.syncedVehicleTelemetry().mLocalVel.y),
-                               chknm(info.syncedVehicleTelemetry().mLocalVel.z))
+        lastlap_valid = chknm(info.syncedVehicleScoring().mLastLapTime) > 0
         pos_curr = chknm(info.syncedVehicleScoring().mLapDist)
         gps_curr = (chknm(info.syncedVehicleTelemetry().mPos.x),
                     chknm(info.syncedVehicleTelemetry().mPos.y),
                     chknm(info.syncedVehicleTelemetry().mPos.z))
-        game_phase = chknm(info.LastScor.mScoringInfo.mGamePhase)
-        return (lap_stime, elapsed_time, lastlap_check, speed, pos_curr,
-                gps_curr, game_phase)
+        return lap_stime, elapsed_time, lastlap_valid, pos_curr, gps_curr
 
     def load_deltabest(self, combo):
         """Load delta best & best laptime"""
         try:
-            with open(f"{self.filepath}{combo}.csv", newline="", encoding="utf-8") as csvfile:
+            with open(f"{self.filepath}{combo}.csv",
+                      newline="", encoding="utf-8") as csvfile:
                 deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 bestlist = list(deltaread)
-                bestlap = bestlist[-1][1]  # read best laptime
+                bestlist[-1][1]  # test read best laptime
         except (FileNotFoundError, IndexError):
-            bestlist = []
-            bestlap = 99999
-        return bestlist, bestlap
+            bestlist = [(0,99999)]
+        return bestlist
 
     def save_deltabest(self, combo, listname):
         """Save delta best"""
-        with open(f"{self.filepath}{combo}.csv", "w", newline="", encoding="utf-8") as csvfile:
+        with open(f"{self.filepath}{combo}.csv",
+                  "w", newline="", encoding="utf-8") as csvfile:
             deltawrite = csv.writer(csvfile)
             deltawrite.writerows(listname)

@@ -1,8 +1,14 @@
 WIP
 -----------------------------
+* Fuel Widget
+    - Fixed number formatting.
+
 * Rake angle Widget
     - Add "show_ride_height_difference" option,
       which shows average front & rear ride height difference in millimeters.
+
+* Delta & Fuel Module
+    - Improved calculation.
 
 2.1.4 (2023-05-29)
 -----------------------------

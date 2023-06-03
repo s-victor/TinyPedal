@@ -32,6 +32,7 @@ from ..readapi import info, chknm, state, combo_check
 from .. import calculation as calc
 
 MODULE_NAME = "module_fuel"
+DELTA_ZERO = 0.0,0.0
 
 logger = logging.getLogger(__name__)
 
@@ -83,29 +84,7 @@ class Realtime:
 
     def __calculation(self):
         """Fuel calculation"""
-        recording = False  # set fuel recording state
-        verified = False  # additional check for conserving resources
-        pittinglap = False  # set pitting lap state
-        last_lap_stime = 0  # last lap start time
-        amount_start = 0  # start fuel reading
-        amount_last = 0  # last fuel reading
-        amount_need = 0  # total additional fuel required to finish race
-        amount_left = 0  # amount fuel left before pitting
-        used_curr = 0  # current lap fuel consumption
-        used_last = 0  # last lap fuel consumption
-        used_est = 0  # estimated fuel consumption
-        est_runlaps = 0  # estimate laps current fuel can last
-        est_runmins = 0  # estimate minutes current fuel can last
-        pit_required = 0  # minimum pit stops to finish race
-        delta_list_curr = []  # distance vs fuel consumption list, current lap
-        delta_list_last = []  # distance vs fuel consumption list, last lap
-        last_time = 0  # last checked elapsed time
-        pos_last = 0  # last checked player vehicle position
-        pos_append = 0  # append last checked position with calc traveled dist
-        delta_fuel = 0  # delta fuel consumption compare to last lap
-        one_pit_save = 0  # target fuel consumption for one less pit stop
-        laptime_last = 0 # last laptime
-
+        reset = False
         active_interval = self.mcfg["update_interval"] / 1000
         idle_interval = self.mcfg["idle_update_interval"] / 1000
         update_interval = idle_interval
@@ -114,22 +93,39 @@ class Realtime:
             if state():
 
                 (lap_stime, laps_total, laps_left, time_left, amount_curr, capacity,
-                 inpits, pos_curr, elapsed_time, speed) = self.__telemetry()
+                 inpits, pos_curr, elapsed_time, gps_curr) = self.__telemetry()
 
-                # Save switch
-                if not verified:
-                    verified = True
+                # Reset data
+                if not reset:
+                    reset = True
                     update_interval = active_interval  # shorter delay
+
+                    recording = False
+                    lap_diff = False
+                    pittinglap = False
+
                     combo_name = combo_check()
-                    delta_list_last, used_last, laptime_last = self.load_deltafuel(combo_name)
-                    last_lap_stime = lap_stime  # reset time stamp counter
-                    pos_last = pos_curr
+                    delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
+                    delta_list_last = self.load_deltafuel(combo_name)
+                    delta_fuel = 0  # delta fuel consumption compare to last lap
 
-                # Start updating
-                laptime_curr = max(elapsed_time - last_lap_stime, 0)  # current laptime
+                    amount_start = 0  # start fuel reading
+                    amount_last = 0  # last fuel reading
+                    amount_need = 0  # total additional fuel to finish race
+                    amount_left = 0  # amount fuel left before pitting
+                    used_curr = 0  # current lap fuel consumption
+                    used_last = delta_list_last[-1][1]  # last lap fuel consumption
+                    used_est = 0  # estimated fuel consumption
+                    est_runlaps = 0  # estimate laps current fuel can last
+                    est_runmins = 0  # estimate minutes current fuel can last
+                    pit_required = 0  # minimum pit stops to finish race
+                    pit_one_less = 0  # target fuel consumption for one less pit stop
 
-                if inpits == 1:
-                    pittinglap = min(pittinglap + inpits, 1)
+                    laptime_last = delta_list_last[-1][2] # last laptime
+                    last_lap_stime = lap_stime  # last lap start time
+                    pos_last = 0  # last checked vehicle position
+                    pos_calc = 0  # calculated position
+                    gps_last = [0,0,0]  # last global position
 
                 # Realtime fuel consumption
                 if amount_last < amount_curr:
@@ -139,62 +135,51 @@ class Realtime:
                     used_curr += amount_last - amount_curr
                     amount_last = amount_curr
 
-                # Calc last lap fuel consumption
-                if lap_stime > last_lap_stime:  # time stamp difference
-                    # Update laptime during non-pitting lap
-                    if delta_list_curr and not pittinglap:
-                        laptime_last = lap_stime - last_lap_stime
+                # Lap start & finish detection
+                if lap_stime > last_lap_stime:
+                    laptime_last = lap_stime - last_lap_stime
+                    lap_diff = True
+                else:
+                    lap_diff = False
+                last_lap_stime = lap_stime  # reset
+                laptime_curr = max(elapsed_time - last_lap_stime, 0)
+                pittinglap = bool(pittinglap + inpits)
+
+                if lap_diff:
+                    if len(delta_list_curr) > 1 and not pittinglap:
                         used_last = used_curr
-                        # Set end value
-                        delta_list_curr.append((pos_last + 10, used_last, laptime_last))
+                        delta_list_curr.append(  # set end value
+                            (round(pos_last + 10, 6), round(used_last, 6), round(laptime_last, 6))
+                        )
                         delta_list_last = delta_list_curr
-
-                    delta_list_curr = []  # reset current delta list
-                    delta_list_curr.append((0.0, 0.0))  # set start value
-
-                    recording = True  # activate fuel recording
-                    last_lap_stime = lap_stime  # reset
-                    pos_last = pos_curr  # set pos last
-                    pittinglap = 0
+                    delta_list_curr = [DELTA_ZERO]  # reset
+                    pos_last = pos_curr
+                    recording = True if laptime_curr < 1 else False
+                    pittinglap = False
                     used_curr = 0
 
-                # Recording fuel data only from the beginning of a lap
-                if recording:
-                    # Update position if current dist value is diff & positive
-                    if pos_curr != pos_last and pos_curr >= 0:
-                        if pos_curr > pos_last:  # record if position is further away
-                            delta_list_curr.append((pos_curr, used_curr))
+                # Update if position value is different & positive
+                if 0 <= pos_curr != pos_last:
+                    if recording and pos_curr > pos_last:  # position further
+                        delta_list_curr.append(  # keep 6 decimals
+                            (round(pos_curr, 6), round(used_curr, 6))
+                        )
+                    pos_last = pos_curr  # reset last position
+                    pos_calc = pos_last  # reset calc position
 
-                        pos_last = pos_curr  # reset last position
-                        pos_append = pos_last  # reset initial position for appending
-
-                # Update time difference & calculate additional traveled distance
-                if elapsed_time != last_time:
-                    delta_dist = speed * (elapsed_time - last_time)
-                    pos_append += delta_dist
-                    last_time = elapsed_time
-                    index_lower, index_higher = calc.nearest_dist_index(
-                                                pos_append, delta_list_last)
-                    try:
-                        if sum([delta_list_last[index_lower][0],
-                                delta_list_last[index_lower][1],
-                                delta_list_last[index_higher][0],
-                                delta_list_last[index_higher][1]]) != 0:
-                            delta_fuel = used_curr - calc.linear_interp(
-                                                pos_append,
-                                                delta_list_last[index_lower][0],
-                                                delta_list_last[index_lower][1],
-                                                delta_list_last[index_higher][0],
-                                                delta_list_last[index_higher][1])
-                    except IndexError:
-                        delta_fuel = 0
+                # Calc delta
+                if gps_last != gps_curr:
+                    pos_calc += calc.distance_xyz(gps_last, gps_curr)
+                    gps_last = gps_curr
+                    delta_fuel = calc.delta_telemetry(
+                        pos_calc,
+                        used_curr,
+                        delta_list_last,
+                        laptime_curr > 0.2 and not pittinglap,  # 200ms delay
+                    )
 
                 # Estimate fuel consumption
-                # Wait 2s after cross finish line
-                if elapsed_time - lap_stime > 2:
-                    used_est = used_last + delta_fuel
-                else:
-                    used_est = used_last
+                used_est = used_last + delta_fuel
 
                 # Estimate laps current fuel can last
                 if used_est:
@@ -210,7 +195,7 @@ class Realtime:
                 est_runmins = est_runlaps * laptime_last / 60
 
                 # Total additional fuel required to finish race
-                if laps_total < 100000:  # detected lap type race
+                if laps_total < 99999:  # detected lap type race
                     # Total laps left * last lap fuel consumption
                     amount_need = laps_left * used_est - amount_curr
                 elif laptime_last > 0:  # detected time type race
@@ -222,38 +207,30 @@ class Realtime:
                 if capacity:
                     # Minimum required pitstops to finish race
                     pit_required = amount_need / capacity
-
-                    one_pit_save = (
+                    pit_one_less = (
                         ((math.ceil(pit_required) - 1) * capacity + amount_curr) / laps_left)
 
-                    # Output fuel data
-                    self.output = self.DataSet(
-                        Capacity = capacity,
-                        AmountFuelStart = amount_start,
-                        AmountFuelCurrent = amount_curr,
-                        AmountFuelNeeded = amount_need,
-                        AmountFuelBeforePitstop = amount_left,
-                        LastLapFuelConsumption = used_last,
-                        EstimatedFuelConsumption = used_est,
-                        EstimatedLaps = est_runlaps,
-                        EstimatedMinutes = est_runmins,
-                        RequiredPitStops = pit_required,
-                        DeltaFuelConsumption = delta_fuel,
-                        OneLessPitFuelConsumption = one_pit_save,
-                    )
+                # Output fuel data
+                self.output = self.DataSet(
+                    Capacity = capacity,
+                    AmountFuelStart = amount_start,
+                    AmountFuelCurrent = amount_curr,
+                    AmountFuelNeeded = amount_need,
+                    AmountFuelBeforePitstop = amount_left,
+                    LastLapFuelConsumption = used_last,
+                    EstimatedFuelConsumption = used_est,
+                    EstimatedLaps = est_runlaps,
+                    EstimatedMinutes = est_runmins,
+                    RequiredPitStops = pit_required,
+                    DeltaFuelConsumption = delta_fuel,
+                    OneLessPitFuelConsumption = pit_one_less,
+                )
 
             else:
-                if verified:
-                    recording = False  # disable fuel recording after exit track
-                    verified = False
+                if reset:
+                    reset = False
                     update_interval = idle_interval  # longer delay while inactive
-                    delta_list_curr = []  # reset current delta list
-                    amount_start = 0
-                    amount_last = 0
-                    used_curr = 0
-                    pos_append = 0
-                    if delta_list_last:
-                        self.save_deltafuel(combo_name, delta_list_last)
+                    self.save_deltafuel(combo_name, delta_list_last)
 
             time.sleep(update_interval)
 
@@ -276,28 +253,29 @@ class Realtime:
         laps_left = (laps_total - chknm(info.syncedVehicleScoring().mTotalLaps)
                      - (pos_curr / max(chknm(info.LastScor.mScoringInfo.mLapDist), 1)))
         elapsed_time = chknm(info.syncedVehicleTelemetry().mElapsedTime)
-        speed = calc.vel2speed(chknm(info.syncedVehicleTelemetry().mLocalVel.x),
-                               chknm(info.syncedVehicleTelemetry().mLocalVel.y),
-                               chknm(info.syncedVehicleTelemetry().mLocalVel.z))
+        gps_curr = (chknm(info.syncedVehicleTelemetry().mPos.x),
+                    chknm(info.syncedVehicleTelemetry().mPos.y),
+                    chknm(info.syncedVehicleTelemetry().mPos.z))
         return (lap_stime, laps_total, laps_left, time_left, amount_curr, capacity,
-                inpits, pos_curr, elapsed_time, speed)
+                inpits, pos_curr, elapsed_time, gps_curr)
 
     def load_deltafuel(self, combo):
         """Load last saved fuel consumption data"""
         try:
-            with open(f"{self.filepath}{combo}.fuel", newline="", encoding="utf-8") as csvfile:
+            with open(f"{self.filepath}{combo}.fuel",
+                      newline="", encoding="utf-8") as csvfile:
                 deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 lastlist = list(deltaread)
-                lastfuel = lastlist[-1][1]  # read fuel consumption
-                lastlaptime = lastlist[-1][2]  # read last laptime
+                lastlist[-1][1]  # test read fuel consumption
+                lastlist[-1][2]  # test read last laptime
         except (FileNotFoundError, IndexError):
-            lastlist = []
-            lastfuel = 0
-            lastlaptime = 0
-        return lastlist, lastfuel, lastlaptime
+            lastlist = [(0,0,0)]
+        return lastlist
 
     def save_deltafuel(self, combo, listname):
         """Save fuel consumption data"""
-        with open(f"{self.filepath}{combo}.fuel", "w", newline="", encoding="utf-8") as csvfile:
-            deltawrite = csv.writer(csvfile)
-            deltawrite.writerows(listname)
+        if len(listname) > 1:
+            with open(f"{self.filepath}{combo}.fuel",
+                      "w", newline="", encoding="utf-8") as csvfile:
+                deltawrite = csv.writer(csvfile)
+                deltawrite.writerows(listname)

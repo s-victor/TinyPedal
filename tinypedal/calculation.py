@@ -70,9 +70,10 @@ def rad2deg(radian):
 
 def max_vs_avg_rotation(w_rot1, w_rot2):
     """Left and right wheel rotation difference of same axle"""
-    max_rot = min(w_rot1, w_rot2)  # negative value is forward
-    avg_rot = (w_rot1 + w_rot2) / 2
-    return abs(max_rot - avg_rot)  # difference
+    return abs(
+        min(w_rot1, w_rot2)  # max roation, negative = forward
+        - (w_rot1 + w_rot2) / 2  # average roation
+    )
 
 
 def rake(height_fl, height_fr, height_rl, height_rr):
@@ -89,7 +90,7 @@ def rake2angle(v_rake, wheelbase):
 
 def slip_ratio(w_rot, w_radius, v_speed):
     """Slip ratio (percentage), speed unit in m/s"""
-    if v_speed > 0.1:  # set minimum speed to avoid flickering while stationary
+    if v_speed > 0.1:  # set minimum to avoid flickering while stationary
         return abs((v_speed - abs(w_rot * w_radius)) / v_speed)
     return 0
 
@@ -133,12 +134,10 @@ def rotate_pos(ori_rad, value1, value2):
     return new_pos_x, new_pos_z
 
 
-def distance_xy(value1, value2=None):
+def distance_xy(value1, value2=(0,0)):
     """Distance in 2d space"""
-    if value2:
-        return ((value1[0] - value2[0]) ** 2
-                + (value1[1] - value2[1]) ** 2) ** 0.5
-    return (value1[0] ** 2 + value1[1] ** 2) ** 0.5
+    return ((value1[0] - value2[0]) ** 2
+            + (value1[1] - value2[1]) ** 2) ** 0.5
 
 
 def distance_xyz(value1, value2):
@@ -193,9 +192,12 @@ def sec2stinttime(seconds):
     return f"{seconds // 60:02.0f}:{divmod(seconds, 60)[1]:02.0f}"
 
 
-def linear_interp(meter, meter1, secs1, meter2, secs2):
+def linear_interp(x, x1, y1, x2, y2):
     """Linear interpolation"""
-    return secs1 + (meter - meter1) * (secs2 - secs1) / (meter2 - meter1 + 0.0000001)
+    x_diff = (x2 - x1)
+    if x_diff:
+        return y1 + (x - x1) * (y2 - y1) / x_diff
+    return y1
 
 
 def nearest_dist_index(position, listname):
@@ -237,4 +239,23 @@ def lap_difference(opt_laps, plr_laps, opt_per_dist, plr_per_dist, session=10):
     # Only check during race session
     if session > 9 and abs(lap_diff) > 1:
         return lap_diff
+    return 0
+
+
+def delta_telemetry(position, live_data, delta_list, condition=True, offset=0):
+    """Calculate delta telemetry data"""
+    index_lower, index_higher = nearest_dist_index(
+                                    position, delta_list
+                                )
+    # At least 2 data pieces & additional condition
+    if index_higher != 0 and condition:
+        return (
+            live_data + offset - linear_interp(
+                position,
+                delta_list[index_lower][0],
+                delta_list[index_lower][1],
+                delta_list[index_higher][0],
+                delta_list[index_higher][1],
+            )
+        )
     return 0

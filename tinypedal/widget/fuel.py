@@ -251,15 +251,13 @@ class Draw(Widget):
             self.last_amount_start = amount_start
 
             # Current remaining fuel
-            amount_curr = calc.del_decimal_point(
-                f"{self.fuel_units(fuel_info.AmountFuelCurrent):.2f}"[:5])
+            amount_curr = f"{self.fuel_units(fuel_info.AmountFuelCurrent):.2f}"
             self.update_fuel_curr(
                 "curr", amount_curr, self.last_amount_curr, fuel_info.EstimatedLaps)
             self.last_amount_curr = amount_curr
 
             # Total needed fuel
-            amount_need = calc.del_decimal_point(
-                f"{min(max(self.fuel_units(fuel_info.AmountFuelNeeded), -999), 999):+0.2f}"[:5])
+            amount_need = f"{min(max(self.fuel_units(fuel_info.AmountFuelNeeded), -9999), 9999):+0.2f}"
             self.update_fuel_curr(
                 "need", amount_need, self.last_amount_need, fuel_info.EstimatedLaps)
             self.last_amount_need = amount_need
@@ -270,7 +268,7 @@ class Draw(Widget):
             self.last_used_last = used_last
 
             # Delta fuel consumption
-            delta_fuel = f"{self.fuel_units(fuel_info.DeltaFuelConsumption):+.2f}"[:5]
+            delta_fuel = f"{self.fuel_units(fuel_info.DeltaFuelConsumption):+.2f}"
             self.update_fuel_misc("delta", delta_fuel, self.last_delta_fuel)
             self.last_delta_fuel = delta_fuel
 
@@ -280,7 +278,7 @@ class Draw(Widget):
             self.last_amount_end = amount_end
 
             # Estimated laps current fuel can last
-            est_runlaps = f"{min(fuel_info.EstimatedLaps, 9999):.1f}"[:5]
+            est_runlaps = f"{min(fuel_info.EstimatedLaps, 9999):.1f}"
             self.update_fuel_misc("laps", est_runlaps, self.last_est_runlaps)
             self.last_est_runlaps = est_runlaps
 
@@ -318,12 +316,14 @@ class Draw(Widget):
                     f"background: {self.color_lowfuel(state)};"
                     f"{self.bar_width}{self.bar_font_size}"
                 )
-            getattr(self, f"bar_fuel_{suffix}").setText(curr)
+            getattr(self, f"bar_fuel_{suffix}").setText(
+                calc.del_decimal_point(curr[:5]))
 
     def update_fuel_misc(self, suffix, curr, last):
         """Update fuel data"""
         if curr != last:
-            getattr(self, f"bar_fuel_{suffix}").setText(curr)
+            getattr(self, f"bar_fuel_{suffix}").setText(
+                calc.del_decimal_point(curr[:5]))
 
     def update_fuel_level(self, curr, last):
         """Fuel level update"""
