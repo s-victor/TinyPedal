@@ -1,7 +1,16 @@
-WIP
+2.1.5 (2023-06-04)
 -----------------------------
 * Fuel Widget
-    - Fixed number formatting.
+    - Fixed a display issue with very large number formatting.
+
+* Pedal Widget
+    - Add "enable_horizontal_style" option,
+      which shows pedal bar in horizontal style.
+      This option is disabled by default.
+    - Add "inner_gap" option,
+      which sets gap between pedal and max indicator.
+      Note, to completely hide indicator & extra gap space,
+      set both "inner_gap" & "max_indicator_height" value to 0.
 
 * Rake angle Widget
     - Add "show_ride_height_difference" option,
@@ -10,14 +19,23 @@ WIP
 * Delta Module
     - Improved accuracy of delta data calculation.
     - Fixed inaccurate reading issue that could happen
-      during first lap of race or garage out lap.
+      during first lap of race or garage-out lap.
 
 * Fuel Module
     - Improved accuracy & consistency of estimated fuel usage calculation.
-      First lap of race & pit in/out laps no longer affect fuel calculation.
+      First lap of race & pit-in/out laps no longer affect overall fuel calculation,
+      which gives more consistent stint fuel readings.
     - Accurate estimated fuel consumption & fuel delta readings
-      during race first lap & pit in/out laps.
-    - Now save & compare fuel data from valid lap only.
+      from race first lap & pit-in/out laps.
+    - Record delta fuel data from valid lap only.
+    - Fixed invalid delta fuel data readings from
+      tracks that uses fast timing mechanism.
+
+* Core
+    - Various improvements to sharedmemory data access methods.
+
+* Misc
+    - Updated user guide with new options for Pedal & Rake angle Widget.
 
 2.1.4 (2023-05-29)
 -----------------------------

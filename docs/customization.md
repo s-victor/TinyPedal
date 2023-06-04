@@ -681,8 +681,14 @@ Set maximum P2P activation time per lap, unit in seconds.
 
 
 ## Pedal
+    enable_horizontal_style
+Show pedal bar in horizontal style.
+
     bar_length, bar_width_unfiltered, bar_width_filtered
 Set pedal bar length & width in pixels.
+
+    inner_gap
+Set gap between pedal and max indicator.
 
     max_indicator_height
 This is the indicator height when pedal reaches 100% travel, value in pixel.

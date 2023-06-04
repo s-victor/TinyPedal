@@ -20,7 +20,7 @@
 Pedal Widget
 """
 
-from PySide2.QtCore import Qt, Slot, QRectF
+from PySide2.QtCore import Qt, Slot, QRectF, QSize
 from PySide2.QtGui import QPixmap, QPainter, QColor
 from PySide2.QtWidgets import (
     QLabel,
@@ -42,12 +42,18 @@ class Draw(Widget):
 
         # Config variable
         bar_gap = self.wcfg["bar_gap"]
+        self.max_gap = max(self.wcfg["inner_gap"], 0)
         self.pedal_uwidth = max(int(self.wcfg["bar_width_unfiltered"]), 1)
         self.pedal_fwidth = max(int(self.wcfg["bar_width_filtered"]), 1)
-        self.pedal_extend = max(int(self.wcfg["max_indicator_height"]), 0) + 2
+        self.pedal_extend = max(int(self.wcfg["max_indicator_height"]), 0) + self.max_gap
         self.pedal_length = max(int(self.wcfg["bar_length"]), 10)
         self.pbar_width = self.pedal_uwidth + self.pedal_fwidth
         self.pbar_length = self.pedal_length + self.pedal_extend
+
+        if self.wcfg["enable_horizontal_style"]:
+            pedal_size = QSize(self.pbar_length, self.pbar_width)
+        else:
+            pedal_size = QSize(self.pbar_width, self.pbar_length)
 
         # Create layout
         layout = QGridLayout()
@@ -61,45 +67,55 @@ class Draw(Widget):
         column_tht = self.wcfg["column_index_throttle"]
 
         # Config canvas
-        blank_image = QPixmap(self.pbar_width, self.pbar_length)
+        blank_image = QPixmap(pedal_size)
 
         # Force feedback
         if self.wcfg["show_ffb_meter"]:
             self.bar_ffb = QLabel()
-            self.bar_ffb.setFixedSize(self.pbar_width, self.pbar_length)
+            self.bar_ffb.setFixedSize(pedal_size)
             self.bar_ffb.setPixmap(blank_image)
             self.draw_ffb(self.bar_ffb, 0)
 
         # Clutch
         if self.wcfg["show_clutch"]:
             self.bar_clutch = QLabel()
-            self.bar_clutch.setFixedSize(self.pbar_width, self.pbar_length)
+            self.bar_clutch.setFixedSize(pedal_size)
             self.bar_clutch.setPixmap(blank_image)
             self.draw_pedal(self.bar_clutch, 0, 0, self.wcfg["clutch_color"])
 
         # Brake
         if self.wcfg["show_brake"]:
             self.bar_brake = QLabel()
-            self.bar_brake.setFixedSize(self.pbar_width, self.pbar_length)
+            self.bar_brake.setFixedSize(pedal_size)
             self.bar_brake.setPixmap(blank_image)
             self.draw_pedal(self.bar_brake, 0, 0, self.wcfg["brake_color"])
 
         # Throttle
         if self.wcfg["show_throttle"]:
             self.bar_throttle = QLabel()
-            self.bar_throttle.setFixedSize(self.pbar_width, self.pbar_length)
+            self.bar_throttle.setFixedSize(pedal_size)
             self.bar_throttle.setPixmap(blank_image)
             self.draw_pedal(self.bar_throttle, 0, 0, self.wcfg["throttle_color"])
 
-        # Set layout
-        if self.wcfg["show_ffb_meter"]:
-            layout.addWidget(self.bar_ffb, 0, column_ffb)
-        if self.wcfg["show_clutch"]:
-            layout.addWidget(self.bar_clutch, 0, column_clt)
-        if self.wcfg["show_brake"]:
-            layout.addWidget(self.bar_brake, 0, column_brk)
-        if self.wcfg["show_throttle"]:
-            layout.addWidget(self.bar_throttle, 0, column_tht)
+        # Set layout & style
+        if self.wcfg["enable_horizontal_style"]:
+            if self.wcfg["show_ffb_meter"]:
+                layout.addWidget(self.bar_ffb, column_ffb, 0)
+            if self.wcfg["show_clutch"]:
+                layout.addWidget(self.bar_clutch, column_clt, 0)
+            if self.wcfg["show_brake"]:
+                layout.addWidget(self.bar_brake, column_brk, 0)
+            if self.wcfg["show_throttle"]:
+                layout.addWidget(self.bar_throttle, column_tht, 0)
+        else:
+            if self.wcfg["show_ffb_meter"]:
+                layout.addWidget(self.bar_ffb, 0, column_ffb)
+            if self.wcfg["show_clutch"]:
+                layout.addWidget(self.bar_clutch, 0, column_clt)
+            if self.wcfg["show_brake"]:
+                layout.addWidget(self.bar_brake, 0, column_brk)
+            if self.wcfg["show_throttle"]:
+                layout.addWidget(self.bar_throttle, 0, column_tht)
         self.setLayout(layout)
 
         # Last data
@@ -191,11 +207,20 @@ class Draw(Widget):
         painter.setPen(Qt.NoPen)
 
         # Set size
-        rect_size = QRectF(0, 0, self.pbar_width, self.pbar_length)
-
-        # Pedal position
-        rect_raw = QRectF(0, input_raw, self.pedal_uwidth, self.pbar_length)
-        rect_filtered = QRectF(self.pedal_uwidth, input_filter, self.pedal_fwidth, self.pbar_length)
+        if self.wcfg["enable_horizontal_style"]:
+            rect_size = QRectF(
+                0, 0, self.pbar_length, self.pbar_width)
+            rect_raw = QRectF(
+                0, 0, input_raw, self.pedal_uwidth)
+            rect_filtered = QRectF(
+                0, self.pedal_uwidth, input_filter, self.pedal_fwidth)
+        else:
+            rect_size = QRectF(
+                0, 0, self.pbar_width, self.pbar_length)
+            rect_raw = QRectF(
+                0, input_raw, self.pedal_uwidth, self.pbar_length)
+            rect_filtered = QRectF(
+                self.pedal_uwidth, input_filter, self.pedal_fwidth, self.pbar_length)
 
         # Background
         painter.setCompositionMode(QPainter.CompositionMode_Source)
@@ -203,9 +228,17 @@ class Draw(Widget):
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # Pedal
-        if input_raw <= self.pedal_extend:
-            rect_max = QRectF(0, 0, self.pbar_width, self.pedal_extend - 2)
-            painter.fillRect(rect_max, QColor(color))
+        if self.wcfg["enable_horizontal_style"]:
+            if input_raw >= self.pedal_length:
+                rect_max = QRectF(
+                    self.pedal_length + self.max_gap, 0,
+                    self.pedal_extend - self.max_gap, self.pbar_width)
+                painter.fillRect(rect_max, QColor(color))
+        else:
+            if input_raw <= self.pedal_extend:
+                rect_max = QRectF(
+                    0, 0, self.pbar_width, self.pedal_extend - self.max_gap)
+                painter.fillRect(rect_max, QColor(color))
 
         painter.fillRect(rect_raw, QColor(color))
         painter.fillRect(rect_filtered, QColor(color))
@@ -218,15 +251,26 @@ class Draw(Widget):
         painter.setPen(Qt.NoPen)
 
         # Set size
-        rect_size = QRectF(0, 0, self.pbar_width, self.pbar_length)
+        if self.wcfg["enable_horizontal_style"]:
+            rect_size = QRectF(0, 0, self.pbar_length, self.pbar_width)
+        else:
+            rect_size = QRectF(0, 0, self.pbar_width, self.pbar_length)
 
         # FFB position
-        if input_raw > self.pedal_extend:
-            color = self.wcfg["ffb_color"]
-            rect_raw = QRectF(0, input_raw, self.pbar_width, self.pbar_length)
+        if self.wcfg["enable_horizontal_style"]:
+            if input_raw < self.pedal_length:
+                color = self.wcfg["ffb_color"]
+                rect_raw = QRectF(0, 0, input_raw, self.pbar_width)
+            else:
+                color = self.wcfg["ffb_clipping_color"]
+                rect_raw = QRectF(0, 0, self.pbar_length, self.pbar_width)
         else:
-            color = self.wcfg["ffb_clipping_color"]
-            rect_raw = QRectF(0, 0, self.pbar_width, self.pbar_length)
+            if input_raw > self.pedal_extend:
+                color = self.wcfg["ffb_color"]
+                rect_raw = QRectF(0, input_raw, self.pbar_width, self.pbar_length)
+            else:
+                color = self.wcfg["ffb_clipping_color"]
+                rect_raw = QRectF(0, 0, self.pbar_width, self.pbar_length)
 
         # Background
         painter.setCompositionMode(QPainter.CompositionMode_Source)
@@ -239,5 +283,7 @@ class Draw(Widget):
 
     # Additional methods
     def scale_input(self, value):
-        """Convert input range to 100, and multiply scale"""
+        """Scale input to pedal bar length"""
+        if self.wcfg["enable_horizontal_style"]:
+            return abs(int(value * self.pedal_length))
         return self.pbar_length - abs(int(value * self.pedal_length))
