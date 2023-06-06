@@ -94,7 +94,7 @@ class Realtime:
 
                 (lap_stime, elapsed_time, lastlap_valid, laps_total,
                  lap_number, time_left, amount_curr, capacity, inpits,
-                 pos_curr, laps_left, gps_curr) = self.__telemetry()
+                 ingarage, pos_curr, laps_left, gps_curr) = self.__telemetry()
 
                 # Reset data
                 if not reset:
@@ -188,7 +188,7 @@ class Realtime:
                         pos_calc,
                         used_curr,
                         delta_list_last,
-                        laptime_curr > 0.2,  # 200ms delay
+                        laptime_curr > 0.2 and not ingarage,  # 200ms delay
                     )
 
                 # Estimate fuel consumption for calculation
@@ -269,6 +269,7 @@ class Realtime:
         amount_curr = chknm(info.syncedVehicleTelemetry().mFuel)
         capacity = chknm(info.syncedVehicleTelemetry().mFuelCapacity)
         inpits = chknm(info.syncedVehicleScoring().mInPits)
+        ingarage = chknm(info.syncedVehicleScoring().mInGarageStall)
         pos_curr = chknm(info.syncedVehicleScoring().mLapDist)
         laps_left = (laps_total - chknm(info.syncedVehicleScoring().mTotalLaps)
                      - (pos_curr / max(chknm(info.LastScor.mScoringInfo.mLapDist), 1)))
@@ -277,7 +278,7 @@ class Realtime:
                     chknm(info.syncedVehicleTelemetry().mPos.z))
         return (lap_stime, elapsed_time, lastlap_valid, laps_total,
                 lap_number, time_left, amount_curr, capacity, inpits,
-                pos_curr, laps_left, gps_curr)
+                ingarage, pos_curr, laps_left, gps_curr)
 
     def load_deltafuel(self, combo):
         """Load last saved fuel consumption data"""
