@@ -1,3 +1,16 @@
+WIP
+-----------------------------
+* Fuel Widget
+    - Add "decimal_places" options for each individual fuel info.
+      Maximum value is limited to "3".
+    - Add "bar_width" options, which sets each column width in chars.
+      Default value is "5". Minimum width is limited to "3".
+    - Add "caption_text" options, which sets custom caption text.
+    - Renamed several fuel options for consistency.
+
+* Misc
+    - Add additional Fuel Widget readings explanation in user guide.
+
 2.1.5 (2023-06-04)
 -----------------------------
 * Fuel Widget

@@ -78,6 +78,9 @@ Show short caption description on widget.
     column_index
 Set order of each info column(or row). Must keep index number unique to each column, otherwise columns may overlap.
 
+    decimal_places
+Set amount decimal places to keep.
+
 
 ## Application
 Application options can be accessed from `Window` menu in main window.
@@ -272,9 +275,6 @@ Set freeze duration (seconds) for previous lap drained/regenerated battery charg
 
 
 ## Brake bias
-    decimal_places
-Set amount decimal places to keep.
-
     show_front_and_rear
 Show both front and rear bias. Default is `false`.
 
@@ -545,6 +545,39 @@ Set reference circle line width in pixels.
 
 
 ## Fuel
+    *start
+Starting fuel reading.
+
+    *remain
+Remaining fuel reading.
+
+    *refuel
+Estimated refueling reading, which is the total amount additional fuel required to finish race.
+
+    *used
+Estimated fuel consumption reading, which is calculated from last-valid-lap fuel consumption and delta fuel consumption. Note, when vehicle is in garage stall, this reading only shows last-valid-lap fuel consumption without delta calculation.
+
+    *delta
+Estimated delta fuel consumption reading.
+
+    *end
+Estimated remaining fuel reading at the end of current stint before pit.
+
+    *laps
+Estimated laps reading that current fuel can last.
+
+    *mins
+Estimated minutes reading that current fuel can last.
+
+    *save
+One less pit stops target fuel consumption reading.
+
+    *pits
+Estimated number of pitstops that required to finish race. Any non-zero decimal places would be considered for an additional pit stop.
+
+    bar_width
+Set each column width, value in chars, such as 10 = 10 chars. Default value is `5`. Minimum width is limited to `3`.
+
     low_fuel_lap_threshold
 Set amount lap threshold to show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default value is `2` laps before running out of fuel.
 
@@ -562,6 +595,9 @@ Show starting fuel level mark of current stint.
 
     starting_fuel_level_mark_width
 Set starting fuel level mark width in pixels.
+
+    caption_text
+Set custom caption text.
 
 
 ## Gear
@@ -813,9 +849,6 @@ Set vehicle name display width, value in chars, such as 10 = 10 chars.
     show_time_gap
 Show relative time gap between player and opponents. 
 
-    time_gap_decimal_places
-Set amount decimal places to keep.
-
     time_gap_width
 Set time gap display width, value is in chars, 5 = 5 chars wide.
 
@@ -942,9 +975,6 @@ Show time gap from none race session's best lap time of the same vehicle class.
 
     time_gap_leader_text
 Set text indicator for race leader in time gap column.
-
-    time_gap_decimal_places
-Set amount decimal places to keep.
 
     show_time_interval
 Show time interval between each closest driver in order.

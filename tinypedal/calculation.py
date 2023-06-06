@@ -194,7 +194,7 @@ def sec2stinttime(seconds):
 
 def linear_interp(x, x1, y1, x2, y2):
     """Linear interpolation"""
-    x_diff = (x2 - x1)
+    x_diff = x2 - x1
     if x_diff:
         return y1 + (x - x1) * (y2 - y1) / x_diff
     return y1
@@ -205,7 +205,7 @@ def nearest_dist_index(position, listname):
     index_higher = 0
     nearest_dist = 99999999
     for index, column in enumerate(listname):
-        if position < column[0] and nearest_dist > column[0]:
+        if position < column[0] < nearest_dist:
             nearest_dist = column[0]
             index_higher = index
     index_lower = max(index_higher - 1, 0)

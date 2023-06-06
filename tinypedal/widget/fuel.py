@@ -50,8 +50,22 @@ class Draw(Widget):
 
         # Config variable
         text_def = "-.--"
+        self.bar_width = max(self.wcfg["bar_width"], 3)
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
+        self.decimals = tuple(
+            map(self.decimal_range, (
+            self.wcfg["decimal_places_start"],  # 0
+            self.wcfg["decimal_places_remain"],  # 1
+            self.wcfg["decimal_places_refuel"],  # 2
+            self.wcfg["decimal_places_used"],  # 3
+            self.wcfg["decimal_places_delta"],  # 4
+            self.wcfg["decimal_places_end"],  # 5
+            self.wcfg["decimal_places_laps"],  # 6
+            self.wcfg["decimal_places_mins"],  # 7
+            self.wcfg["decimal_places_save"],  # 8
+            self.wcfg["decimal_places_pits"],  # 9
+        )))
 
         # Base style
         self.setStyleSheet(
@@ -59,8 +73,9 @@ class Draw(Widget):
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
         )
-        self.bar_font_size = f"font-size: {self.wcfg['font_size']}px;"
-        self.bar_width = f"min-width: {font_w * 5}px;max-width: {font_w * 5}px;"
+        self.style_font_size = f"font-size: {self.wcfg['font_size']}px;"
+        self.style_width = f"min-width: {font_w * self.bar_width}px; \
+                             max-width: {font_w * self.bar_width}px;"
 
         # Create layout
         layout = QGridLayout()
@@ -78,10 +93,20 @@ class Draw(Widget):
                 f"color: {self.wcfg['font_color_caption']};"
                 f"background: {self.wcfg['bkg_color_caption']};"
                 f"font-size: {int(self.wcfg['font_size'] * 0.8)}px;"
-                f"{self.bar_width}"
+                f"{self.style_width}"
             )
-            caption_list = ("start", "fuel", "refuel", "used", "delta",
-                            "end", "laps", "mins","save", "pits")
+            caption_list = (
+                self.wcfg["caption_text_start"],
+                self.wcfg["caption_text_remain"],
+                self.wcfg["caption_text_refuel"],
+                self.wcfg["caption_text_used"],
+                self.wcfg["caption_text_delta"],
+                self.wcfg["caption_text_end"],
+                self.wcfg["caption_text_laps"],
+                self.wcfg["caption_text_mins"],
+                self.wcfg["caption_text_save"],
+                self.wcfg["caption_text_pits"],
+            )
             for index, caption in enumerate(caption_list):
                 setattr(self, f"bar_desc_{caption}", QLabel(caption))
                 getattr(self, f"bar_desc_{caption}").setAlignment(Qt.AlignCenter)
@@ -91,109 +116,109 @@ class Draw(Widget):
                 else:
                     layout_lower.addWidget(getattr(self, f"bar_desc_{caption}"), 1, index - 5)
 
-        # Start fuel
+        # Starting fuel
         self.bar_fuel_start = QLabel(text_def)
         self.bar_fuel_start.setAlignment(Qt.AlignCenter)
         self.bar_fuel_start.setStyleSheet(
             f"color: {self.wcfg['font_color_start']};"
             f"background: {self.wcfg['bkg_color_start']};"
-            f"{self.bar_width}"
-            f"{self.bar_font_size}"
+            f"{self.style_width}"
+            f"{self.style_font_size}"
         )
 
-        # Fuel
+        # Remaining fuel
         self.bar_fuel_curr = QLabel(text_def)
         self.bar_fuel_curr.setAlignment(Qt.AlignCenter)
         self.bar_fuel_curr.setStyleSheet(
-            f"color: {self.wcfg['font_color_fuel']};"
-            f"background: {self.wcfg['bkg_color_fuel']};"
-            f"{self.bar_width}"
-            f"{self.bar_font_size}"
+            f"color: {self.wcfg['font_color_remain']};"
+            f"background: {self.wcfg['bkg_color_remain']};"
+            f"{self.style_width}"
+            f"{self.style_font_size}"
         )
 
-        # Fuel required
+        # Total needed fuel
         self.bar_fuel_need = QLabel(text_def)
         self.bar_fuel_need.setAlignment(Qt.AlignCenter)
         self.bar_fuel_need.setStyleSheet(
-            f"color: {self.wcfg['font_color_fuel']};"
-            f"background: {self.wcfg['bkg_color_fuel']};"
-            f"{self.bar_width}"
-            f"{self.bar_font_size}"
+            f"color: {self.wcfg['font_color_refuel']};"
+            f"background: {self.wcfg['bkg_color_refuel']};"
+            f"{self.style_width}"
+            f"{self.style_font_size}"
         )
 
-        # Fuel consumption
+        # Estimated fuel consumption
         self.bar_fuel_used = QLabel(text_def)
         self.bar_fuel_used.setAlignment(Qt.AlignCenter)
         self.bar_fuel_used.setStyleSheet(
-            f"color: {self.wcfg['font_color_consumption']};"
-            f"background: {self.wcfg['bkg_color_consumption']};"
-            f"{self.bar_width}"
-            f"{self.bar_font_size}"
+            f"color: {self.wcfg['font_color_used']};"
+            f"background: {self.wcfg['bkg_color_used']};"
+            f"{self.style_width}"
+            f"{self.style_font_size}"
         )
 
-        # Fuel delta
+        # Delta fuel consumption
         self.bar_fuel_delta = QLabel(text_def)
         self.bar_fuel_delta.setAlignment(Qt.AlignCenter)
         self.bar_fuel_delta.setStyleSheet(
             f"color: {self.wcfg['font_color_delta']};"
             f"background: {self.wcfg['bkg_color_delta']};"
-            f"{self.bar_width}"
-            f"{self.bar_font_size}"
+            f"{self.style_width}"
+            f"{self.style_font_size}"
         )
 
-        # End fuel
+        # Estimated end fuel
         self.bar_fuel_end = QLabel(text_def)
         self.bar_fuel_end.setAlignment(Qt.AlignCenter)
         self.bar_fuel_end.setStyleSheet(
             f"color: {self.wcfg['font_color_end']};"
             f"background: {self.wcfg['bkg_color_end']};"
-            f"{self.bar_width}"
-            f"{self.bar_font_size}"
+            f"{self.style_width}"
+            f"{self.style_font_size}"
         )
 
-        # Estimated laps
+        # Estimated laps current fuel can last
         self.bar_fuel_laps = QLabel(text_def)
         self.bar_fuel_laps.setAlignment(Qt.AlignCenter)
         self.bar_fuel_laps.setStyleSheet(
-            f"color: {self.wcfg['font_color_estimate_laps']};"
-            f"background: {self.wcfg['bkg_color_estimate_laps']};"
-            f"{self.bar_width}"
-            f"{self.bar_font_size}"
+            f"color: {self.wcfg['font_color_laps']};"
+            f"background: {self.wcfg['bkg_color_laps']};"
+            f"{self.style_width}"
+            f"{self.style_font_size}"
         )
 
-        # Estimated minutes
+        # Estimated minutes current fuel can last
         self.bar_fuel_mins = QLabel(text_def)
         self.bar_fuel_mins.setAlignment(Qt.AlignCenter)
         self.bar_fuel_mins.setStyleSheet(
-            f"color: {self.wcfg['font_color_estimate_mins']};"
-            f"background: {self.wcfg['bkg_color_estimate_mins']};"
-            f"{self.bar_width}"
-            f"{self.bar_font_size}"
+            f"color: {self.wcfg['font_color_mins']};"
+            f"background: {self.wcfg['bkg_color_mins']};"
+            f"{self.style_width}"
+            f"{self.style_font_size}"
         )
 
-        # One less pit fuel consumption
+        # Estimated one less pit fuel consumption
         self.bar_fuel_save = QLabel(text_def)
         self.bar_fuel_save.setAlignment(Qt.AlignCenter)
         self.bar_fuel_save.setStyleSheet(
-            f"color: {self.wcfg['font_color_one_less_pit_consumption']};"
-            f"background: {self.wcfg['bkg_color_one_less_pit_consumption']};"
-            f"{self.bar_width}"
-            f"{self.bar_font_size}"
+            f"color: {self.wcfg['font_color_save']};"
+            f"background: {self.wcfg['bkg_color_save']};"
+            f"{self.style_width}"
+            f"{self.style_font_size}"
         )
 
-        # Estimated pits
+        # Estimated pitstops required to finish race
         self.bar_fuel_pits = QLabel(text_def)
         self.bar_fuel_pits.setAlignment(Qt.AlignCenter)
         self.bar_fuel_pits.setStyleSheet(
             f"color: {self.wcfg['font_color_pits']};"
             f"background: {self.wcfg['bkg_color_pits']};"
-            f"{self.bar_width}"
-            f"{self.bar_font_size}"
+            f"{self.style_width}"
+            f"{self.style_font_size}"
         )
 
         # Fuel level bar
         if self.wcfg["show_fuel_level_bar"]:
-            self.fuel_level_width = font_w * (5+5+5+5+5) + bar_padx * (5*2)
+            self.fuel_level_width = (font_w * self.bar_width + bar_padx * 2) * 5
             self.fuel_level_height = self.wcfg["fuel_level_bar_height"]
             blank_fuel_level = QPixmap(self.fuel_level_width, self.fuel_level_height)
 
@@ -245,56 +270,56 @@ class Draw(Widget):
             # Read fuel data from fuel usage module
             fuel_info = mctrl.module_fuel.output
 
-            # Start fuel
-            amount_start = f"{self.fuel_units(fuel_info.AmountFuelStart):.1f}"
-            self.update_fuel_misc("start", amount_start, self.last_amount_start)
+            # Starting fuel
+            amount_start = f"{self.fuel_units(fuel_info.AmountFuelStart):.{self.decimals[0]}f}"
+            self.update_fuel("start", amount_start, self.last_amount_start)
             self.last_amount_start = amount_start
 
-            # Current remaining fuel
-            amount_curr = f"{self.fuel_units(fuel_info.AmountFuelCurrent):.2f}"
-            self.update_fuel_curr(
+            # Remaining fuel
+            amount_curr = f"{self.fuel_units(fuel_info.AmountFuelCurrent):.{self.decimals[1]}f}"
+            self.update_fuel(
                 "curr", amount_curr, self.last_amount_curr, fuel_info.EstimatedLaps)
             self.last_amount_curr = amount_curr
 
             # Total needed fuel
-            amount_need = f"{min(max(self.fuel_units(fuel_info.AmountFuelNeeded), -9999), 9999):+0.2f}"
-            self.update_fuel_curr(
+            amount_need = f"{min(max(self.fuel_units(fuel_info.AmountFuelNeeded), -9999), 9999):+.{self.decimals[2]}f}"
+            self.update_fuel(
                 "need", amount_need, self.last_amount_need, fuel_info.EstimatedLaps)
             self.last_amount_need = amount_need
 
             # Estimated fuel consumption
-            used_last = f"{self.fuel_units(fuel_info.EstimatedFuelConsumption):.2f}"
-            self.update_fuel_misc("used", used_last, self.last_used_last)
+            used_last = f"{self.fuel_units(fuel_info.EstimatedFuelConsumption):.{self.decimals[3]}f}"
+            self.update_fuel("used", used_last, self.last_used_last)
             self.last_used_last = used_last
 
             # Delta fuel consumption
-            delta_fuel = f"{self.fuel_units(fuel_info.DeltaFuelConsumption):+.2f}"
-            self.update_fuel_misc("delta", delta_fuel, self.last_delta_fuel)
+            delta_fuel = f"{self.fuel_units(fuel_info.DeltaFuelConsumption):+.{self.decimals[4]}f}"
+            self.update_fuel("delta", delta_fuel, self.last_delta_fuel)
             self.last_delta_fuel = delta_fuel
 
-            # End fuel
-            amount_end = f"{self.fuel_units(fuel_info.AmountFuelBeforePitstop):.2f}"
-            self.update_fuel_misc("end", amount_end, self.last_amount_end)
+            # Estimated end fuel
+            amount_end = f"{self.fuel_units(fuel_info.AmountFuelBeforePitstop):.{self.decimals[5]}f}"
+            self.update_fuel("end", amount_end, self.last_amount_end)
             self.last_amount_end = amount_end
 
             # Estimated laps current fuel can last
-            est_runlaps = f"{min(fuel_info.EstimatedLaps, 9999):.1f}"
-            self.update_fuel_misc("laps", est_runlaps, self.last_est_runlaps)
+            est_runlaps = f"{min(fuel_info.EstimatedLaps, 9999):.{self.decimals[6]}f}"
+            self.update_fuel("laps", est_runlaps, self.last_est_runlaps)
             self.last_est_runlaps = est_runlaps
 
             # Estimated minutes current fuel can last
-            est_runmins = f"{min(fuel_info.EstimatedMinutes, 9999):.1f}"
-            self.update_fuel_misc("mins", est_runmins, self.last_est_runmins)
+            est_runmins = f"{min(fuel_info.EstimatedMinutes, 9999):.{self.decimals[7]}f}"
+            self.update_fuel("mins", est_runmins, self.last_est_runmins)
             self.last_est_runmins = est_runmins
 
-            # One less pit fuel consumption
-            fuel_save = f"{min(max(self.fuel_units(fuel_info.OneLessPitFuelConsumption), 0), 99.99):.2f}"
-            self.update_fuel_misc("save", fuel_save, self.last_fuel_save)
+            # Estimated one less pit fuel consumption
+            fuel_save = f"{min(max(self.fuel_units(fuel_info.OneLessPitFuelConsumption), 0), 99.99):.{self.decimals[8]}f}"
+            self.update_fuel("save", fuel_save, self.last_fuel_save)
             self.last_fuel_save = fuel_save
 
             # Estimated pitstops required to finish race
-            pit_required = f"{min(max(fuel_info.RequiredPitStops, 0), 99.99):.2f}"
-            self.update_fuel_misc("pits", pit_required, self.last_pit_required)
+            pit_required = f"{min(max(fuel_info.RequiredPitStops, 0), 99.99):.{self.decimals[9]}f}"
+            self.update_fuel("pits", pit_required, self.last_pit_required)
             self.last_pit_required = pit_required
 
             # Fuel level bar
@@ -307,23 +332,16 @@ class Draw(Widget):
                 self.last_fuel_level = fuel_level
 
     # GUI update methods
-    def update_fuel_curr(self, suffix, curr, last, state):
+    def update_fuel(self, suffix, curr, last, state=None):
         """Update fuel data"""
         if curr != last:
             if state:  # low fuel warning
                 getattr(self, f"bar_fuel_{suffix}").setStyleSheet(
-                    f"color: {self.wcfg['font_color_fuel']};"
-                    f"background: {self.color_lowfuel(state)};"
-                    f"{self.bar_width}{self.bar_font_size}"
+                    f"{self.color_lowfuel(state, suffix)}"
+                    f"{self.style_width}{self.style_font_size}"
                 )
             getattr(self, f"bar_fuel_{suffix}").setText(
-                calc.del_decimal_point(curr[:5]))
-
-    def update_fuel_misc(self, suffix, curr, last):
-        """Update fuel data"""
-        if curr != last:
-            getattr(self, f"bar_fuel_{suffix}").setText(
-                calc.del_decimal_point(curr[:5]))
+                calc.del_decimal_point(curr[:self.bar_width]))
 
     def update_fuel_level(self, curr, last):
         """Fuel level update"""
@@ -368,8 +386,20 @@ class Draw(Widget):
             return calc.liter2gallon(fuel)
         return fuel
 
-    def color_lowfuel(self, fuel):
+    def color_lowfuel(self, state, suffix):
         """Low fuel warning color"""
-        if fuel > self.wcfg["low_fuel_lap_threshold"]:
-            return self.wcfg["bkg_color_fuel"]
-        return self.wcfg["warning_color_low_fuel"]
+        if suffix == "curr":
+            fgcolor = self.wcfg["font_color_remain"]
+            bgcolor = self.wcfg["bkg_color_remain"]
+        else:
+            fgcolor = self.wcfg["font_color_refuel"]
+            bgcolor = self.wcfg["bkg_color_refuel"]
+
+        if state > self.wcfg["low_fuel_lap_threshold"]:
+            return f"color: {fgcolor};background: {bgcolor};"
+        return f"color: {fgcolor};background: {self.wcfg['warning_color_low_fuel']};"
+
+    @staticmethod
+    def decimal_range(value):
+        """Decimal place range"""
+        return min(max(int(value), 0), 3)
