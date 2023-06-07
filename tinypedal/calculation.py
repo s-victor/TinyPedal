@@ -192,30 +192,6 @@ def sec2stinttime(seconds):
     return f"{seconds // 60:02.0f}:{divmod(seconds, 60)[1]:02.0f}"
 
 
-def linear_interp(x, x1, y1, x2, y2):
-    """Linear interpolation"""
-    x_diff = x2 - x1
-    if x_diff:
-        return y1 + (x - x1) * (y2 - y1) / x_diff
-    return y1
-
-
-def nearest_dist_index(position, listname):
-    """Find nearest distance value index from list"""
-    index_higher = 0
-    nearest_dist = 99999999
-    for index, column in enumerate(listname):
-        if position < column[0] < nearest_dist:
-            nearest_dist = column[0]
-            index_higher = index
-    index_lower = max(index_higher - 1, 0)
-    #for index in range(index_higher - 1, -1, -1):
-    #    if position > listname[index][0]:
-    #        index_lower = index
-    #        break
-    return index_lower, index_higher
-
-
 def color_heatmap(heatmap, temperature):
     """Set color from heatmap"""
     last_color = heatmap[0][1]
@@ -242,13 +218,47 @@ def lap_difference(opt_laps, plr_laps, opt_per_dist, plr_per_dist, session=10):
     return 0
 
 
+def linear_interp(x, x1, y1, x2, y2):
+    """Linear interpolation"""
+    x_diff = x2 - x1
+    if x_diff:
+        return y1 + (x - x1) * (y2 - y1) / x_diff
+    return y1
+
+
+def linear_search_hi(data, target, column=-1):
+    """linear search nearest value higher index from unordered list"""
+    key = lambda x:x[column] if column >= 0 else x
+    end = len(data) - 1
+    nearest = float("inf")
+    for index, data_row in enumerate(data):
+        if target <= key(data_row) < nearest:
+            nearest = key(data_row)
+            end = index
+    return end
+
+
+def binary_search_hi(data, target, start, end, column=-1):
+    """Binary search nearest value higher index from ordered list"""
+    key = lambda x:x[column] if column >= 0 else x
+    while start < end:
+        center = (start + end) // 2
+        if target == key(data[center]):
+            return center
+        elif target > key(data[center]):
+            start = center + 1
+        else:
+            end = center
+    return end
+
+
 def delta_telemetry(position, live_data, delta_list, condition=True, offset=0):
     """Calculate delta telemetry data"""
-    index_lower, index_higher = nearest_dist_index(
-                                    position, delta_list
-                                )
+    index_higher = binary_search_hi(
+        delta_list, position, 0, len(delta_list) - 1, 0)
     # At least 2 data pieces & additional condition
     if index_higher != 0 and condition:
+        index_lower = max(index_higher - 1, 0)
         return (
             live_data + offset - linear_interp(
                 position,

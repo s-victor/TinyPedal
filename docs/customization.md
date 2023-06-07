@@ -184,13 +184,13 @@ To restore all heatmap settings back to default, just delete `heatmap.json` file
 ## User files
 TinyPedal generates & saves various user data in specific folders. To reset a data file, simply delete the file from corresponding folder.
 
-* Deltabest 
+* Deltabest  
     Deltabest data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
 
-* Fuel delta
+* Fuel delta  
     Fuel delta data is stored as `CSV` format (.fuel extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
 
-* Track map
+* Track map  
     Track map is stored as `SVG` vector format (.svg extension) under `TinyPedal\trackmap` folder.
 
     The SVG vector map file contains two coordinate paths:

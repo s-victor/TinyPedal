@@ -8,6 +8,10 @@ WIP
     - Add "caption_text" options, which sets custom caption text.
     - Renamed several fuel options for consistency.
 
+* Fuel Module
+    - Exclude delta fuel from estimated fuel consumption reading
+      while vehicle is in garage stall.
+
 * Misc
     - Add additional Fuel Widget readings explanation in user guide.
 
