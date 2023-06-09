@@ -58,22 +58,39 @@ def liter2gallon(fuel):
     return fuel * 0.2641729
 
 
-def average_value(average, value, num_samples):
+def sym_range(value, rng):
+    """Symmetric range"""
+    return min(max(value, -rng), rng)
+
+
+def average(data):
+    """Average"""
+    return sum(data) / len(data)
+
+
+def average_value(avg, value, num_samples):
     """Average value"""
-    return (average * num_samples + value) / (num_samples + 1)
+    return (avg * num_samples + value) / (num_samples + 1)
+
+
+def min_vs_avg(data):
+    """Min vs average"""
+    return abs(min(data) - average(data))
+
+
+def max_vs_avg(data):
+    """Max vs average"""
+    return abs(max(data) - average(data))
+
+
+def max_vs_min(data):
+    """Max vs min"""
+    return max(data) - min(data)
 
 
 def rad2deg(radian):
     """Convert radians to degrees"""
-    return radian * 57.2957795
-
-
-def max_vs_avg_rotation(w_rot1, w_rot2):
-    """Left and right wheel rotation difference of same axle"""
-    return abs(
-        min(w_rot1, w_rot2)  # max roation, negative = forward
-        - (w_rot1 + w_rot2) / 2  # average roation
-    )
+    return math.degrees(radian)
 
 
 def rake(height_fl, height_fr, height_rl, height_rr):
@@ -84,8 +101,13 @@ def rake(height_fl, height_fr, height_rl, height_rr):
 def rake2angle(v_rake, wheelbase):
     """Rake angle based on wheelbase value set in JSON"""
     if wheelbase:
-        return math.atan(v_rake / wheelbase * 57.2957795)
+        return math.atan(rad2deg(v_rake / wheelbase))
     return 0
+
+
+def rot2radius(speed, angular_speed):
+    """Angular speed to radius"""
+    return abs(speed / angular_speed)
 
 
 def slip_ratio(w_rot, w_radius, v_speed):

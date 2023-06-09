@@ -86,7 +86,7 @@ class Realtime:
         while self.running:
             if state():
 
-                (lap_stime, elapsed_time, lastlap_valid, pos_curr, gps_curr
+                (lap_stime, laptime_curr, lastlap_valid, pos_curr, gps_curr
                  ) = self.__telemetry()
 
                 # Reset data
@@ -108,7 +108,7 @@ class Realtime:
                     laptime_last = 0  # last laptime
                     laptime_best = delta_list_best[-1][1]  # best laptime
                     pos_last = 0  # last checked vehicle position
-                    pos_calc = 0  # calculated position
+                    pos_estimate = 0  # calculated position
                     gps_last = [0,0,0]  # last global position
                     meters_driven = self.cfg.setting_user["cruise"]["meters_driven"]
 
@@ -123,9 +123,8 @@ class Realtime:
                         validating = True
                     delta_list_curr = [DELTA_ZERO]  # reset
                     pos_last = pos_curr
-                    recording = True if elapsed_time - lap_stime < 1 else False
+                    recording = laptime_curr < 1
                 last_lap_stime = lap_stime  # reset
-                laptime_curr = max(elapsed_time - last_lap_stime, 0)
 
                 # Update if position value is different & positive
                 if 0 <= pos_curr != pos_last:
@@ -133,19 +132,18 @@ class Realtime:
                         delta_list_curr.append(  # keep 6 decimals
                             (round(pos_curr, 6), round(laptime_curr, 6))
                         )
-                    pos_last = pos_curr  # reset last position
-                    pos_calc = pos_last  # reset calc position
+                    pos_estimate = pos_last = pos_curr  # reset last position
 
                 # Validating 1s after passing finish line
                 if validating:
-                    if 1 < elapsed_time - lap_stime <= 8:  # compare current time
+                    if 1 < laptime_curr <= 8:  # compare current time
                         if laptime_last < laptime_best and lastlap_valid:
                             laptime_best = laptime_last
                             delta_list_best = delta_list_last
                             delta_list_last = [DELTA_ZERO]
                             self.save_deltabest(combo_name, delta_list_best)
                             validating = False
-                    elif 8 < elapsed_time - lap_stime < 10:  # switch off after 8s
+                    elif 8 < laptime_curr < 10:  # switch off after 8s
                         validating = False
 
                 # Calc delta
@@ -153,9 +151,9 @@ class Realtime:
                     moved_distance = calc.distance_xyz(gps_last, gps_curr)
                     gps_last = gps_curr
                     # Update delta
-                    pos_calc += moved_distance
+                    pos_estimate += moved_distance
                     delta_best = calc.delta_telemetry(
-                        pos_calc,
+                        pos_estimate,
                         laptime_curr,
                         delta_list_best,
                         laptime_curr > 0.2,  # 200ms delay
@@ -194,13 +192,13 @@ class Realtime:
     def __telemetry():
         """Telemetry data"""
         lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
-        elapsed_time = chknm(info.syncedVehicleTelemetry().mElapsedTime)
+        laptime_curr = max(chknm(info.syncedVehicleTelemetry().mElapsedTime) - lap_stime, 0)
         lastlap_valid = chknm(info.syncedVehicleScoring().mLastLapTime) > 0
         pos_curr = chknm(info.syncedVehicleScoring().mLapDist)
         gps_curr = (chknm(info.syncedVehicleTelemetry().mPos.x),
                     chknm(info.syncedVehicleTelemetry().mPos.y),
                     chknm(info.syncedVehicleTelemetry().mPos.z))
-        return lap_stime, elapsed_time, lastlap_valid, pos_curr, gps_curr
+        return lap_stime, laptime_curr, lastlap_valid, pos_curr, gps_curr
 
     def load_deltabest(self, combo):
         """Load delta best & best laptime"""
@@ -210,7 +208,8 @@ class Realtime:
                 deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 bestlist = list(deltaread)
                 bestlist[-1][1]  # test read best laptime
-        except (FileNotFoundError, IndexError):
+        except (FileNotFoundError, IndexError, ValueError):
+            logger.info("no valid deltabest data file found")
             bestlist = [(0,99999)]
         return bestlist
 

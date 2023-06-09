@@ -346,7 +346,10 @@ Show visualized delta bar.
 Set delta bar length & height in pixels.
 
     bar_display_range
-Set max display range (gain or loss) for delta bar, accepts decimal place.
+Set max display range (gain or loss) in seconds for delta bar, accepts decimal place. Default value is `2` seconds.
+
+    delta_display_range
+Set max display range (gain or loss) in seconds for delta reading, accepts decimal place. Default value is `99` seconds.
 
     show_animated_deltabest
 Deltabest display follows delta bar progress.
@@ -573,7 +576,7 @@ Estimated minutes reading that current fuel can last.
 One less pit stops target fuel consumption reading.
 
     *pits
-Estimated number of pitstops that required to finish race. Any non-zero decimal places would be considered for an additional pit stop.
+Estimated number of pitstops that required to finish race. Any non-zero decimal places would be considered for an additional pit stop. Note: this value concerns only pit-stop made at the end of stint.
 
     bar_width
 Set each column width, value in chars, such as 10 = 10 chars. Default value is `5`. Minimum width is limited to `3`.

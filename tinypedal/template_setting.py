@@ -236,6 +236,7 @@ SETTING_DEFAULT = {
         "bar_length": 400,
         "bar_height": 16,
         "bar_display_range": 2,
+        "delta_display_range": 99,
         "show_animated_deltabest": True,
     },
     "drs": {

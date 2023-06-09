@@ -23,6 +23,7 @@ Deltabest Widget
 from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
 
+from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget
 from ..module_control import mctrl
@@ -87,10 +88,10 @@ class Draw(Widget):
         """Update when vehicle on track"""
         if self.wcfg["enable"] and read_data.state():
 
-            # Read delta best data
-            self.delta_best = min(max(mctrl.module_delta.output.DeltaBest, -99.999), 99.999)
-
             # Deltabest
+            self.delta_best = calc.sym_range(
+                mctrl.module_delta.output.DeltaBest,
+                self.wcfg["delta_display_range"])
             self.update_deltabest(self.delta_best, self.last_delta_best)
             self.last_delta_best = self.delta_best
 
@@ -175,14 +176,14 @@ class Draw(Widget):
         painter.drawText(
             rect.adjusted(0, self.font_offset, 0, 0),
             Qt.AlignCenter,
-            f"{self.delta_best:+.03f}"
+            f"{self.delta_best:+.03f}"[:7]
         )
 
     # Additional methods
     @staticmethod
     def deltabar_pos(rng, delta, length):
         """Delta position"""
-        return (rng - min(max(delta, -rng), rng)) * length / rng
+        return (rng - calc.sym_range(delta, rng)) * length / rng
 
     def color_delta(self, delta):
         """Delta time color"""

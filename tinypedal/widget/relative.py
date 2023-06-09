@@ -535,6 +535,15 @@ class Draw(Widget):
             color = self.wcfg["bkg_color_class"]
         return vehclass_name[:self.cls_width], color
 
+    @staticmethod
+    def set_laptime(inpit, last_laptime, pit_time):
+        """Set lap time"""
+        if inpit:
+            return "PIT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
+        if last_laptime <= 0:
+            return "OUT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
+        return calc.sec2laptime_full(last_laptime)[:8].rjust(8)
+
     def get_data(self, index, standings_veh):
         """Relative data"""
         # Prevent index out of range
@@ -571,14 +580,11 @@ class Draw(Widget):
             tire_idx = standings_veh[index].TireCompoundIndex
 
             # 9 Lap time
-            last_laptime = standings_veh[index].LastLaptime
-            pit_time = standings_veh[index].PitTime
-            if in_pit:
-                laptime = "PIT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
-            elif last_laptime <= 0:
-                laptime = "OUT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
-            else:
-                laptime = calc.sec2laptime_full(last_laptime)[:8].rjust(8)
+            laptime = self.set_laptime(
+                standings_veh[index].InPit,
+                standings_veh[index].LastLaptime,
+                standings_veh[index].PitTime
+            )
 
             # 10 Pitstop count
             pit_count = (standings_veh[index].NumPitStops,

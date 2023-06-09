@@ -305,10 +305,8 @@ class Draw(Widget):
                 color = (f"color: {self.color_heatmap(curr)};"
                          f"background: {self.wcfg['bkg_color_surface']};")
 
-            sign = "°" if self.wcfg["show_degree_sign"] else ""
-
             getattr(self, f"bar_{suffix}").setText(
-                f"{self.temp_units(curr):0{self.leading_zero}.0f}{sign}")
+                f"{self.temp_units(curr):0{self.leading_zero}.0f}{self.sign_text}")
 
             getattr(self, f"bar_{suffix}").setStyleSheet(
                 f"{color}min-width: {self.bar_width_temp}px;")
@@ -323,10 +321,8 @@ class Draw(Widget):
                 color = (f"color: {self.color_heatmap(curr)};"
                          f"background: {self.wcfg['bkg_color_innerlayer']};")
 
-            sign = "°" if self.wcfg["show_degree_sign"] else ""
-
             getattr(self, f"bar_{suffix}").setText(
-                f"{self.temp_units(curr):0{self.leading_zero}.0f}{sign}")
+                f"{self.temp_units(curr):0{self.leading_zero}.0f}{self.sign_text}")
 
             getattr(self, f"bar_{suffix}").setStyleSheet(
                 f"{color}min-width: {self.bar_width_temp}px;")

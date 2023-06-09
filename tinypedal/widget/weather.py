@@ -43,6 +43,7 @@ class Draw(Widget):
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
+        self.sign_text = "%" if self.wcfg["show_percentage_sign"] else ""
 
         # Base style
         self.setStyleSheet(
@@ -142,18 +143,14 @@ class Draw(Widget):
     def update_rain(self, curr, last):
         """Rain percentage"""
         if curr != last:
-            sign = "%" if self.wcfg["show_percentage_sign"] else ""
-
-            rain_text = f"Rain {curr}{sign}"
+            rain_text = f"Rain {curr}{self.sign_text}"
             self.bar_rain.setText(rain_text)
 
     def update_wetness(self, curr, last):
         """Surface wetness"""
         if curr != last:
             surface = "Wet" if curr[1] > 0 else "Dry"
-            sign = "%" if self.wcfg["show_percentage_sign"] else ""
-
-            wet_text = f"{surface} {curr[0]}{sign} < {curr[1]}{sign} ≈ {curr[2]}{sign}"
+            wet_text = f"{surface} {curr[0]}{self.sign_text} < {curr[1]}{self.sign_text} ≈ {curr[2]}{self.sign_text}"
             self.bar_wetness.setText(wet_text)
 
     # Additional methods

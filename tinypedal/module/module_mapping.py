@@ -275,6 +275,7 @@ def load_svg(filename, pathname):
 
         return svg_path_coords, svg_path_dist, sector_index
     except (FileNotFoundError, IndexError, xml.parsers.expat.ExpatError):
+        logger.info("no valid map data file found")
         return None, None, [0,0]
 
 

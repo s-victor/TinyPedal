@@ -76,7 +76,7 @@ class Realtime:
         """Hybrid calculation"""
         verified = False  # additional check for conserving resources
         last_lap_stime = 0  # last lap start time
-        battery_delta = [0,0,0,0]  # battery used & regen, last lap used & regen
+        battery_delta = [0,0,0,0]  # battery drain & regen, last lap drain & regen
         last_battery_charge = 0
         last_motor_state = 0
         motor_active_timer = 0
@@ -106,10 +106,10 @@ class Realtime:
                     motor_active_timer = 0
 
                 if last_battery_charge:
-                    if last_battery_charge > battery_charge > 0:
+                    if last_battery_charge > battery_charge > 0:  # drain
                         battery_delta[0] += last_battery_charge - battery_charge
 
-                    if last_battery_charge < battery_charge < 100:
+                    if last_battery_charge < battery_charge < 100: # regen
                         battery_delta[1] += battery_charge - last_battery_charge
                 last_battery_charge = battery_charge
 

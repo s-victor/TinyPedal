@@ -335,7 +335,7 @@ class WidgetConfig(QDialog):
         """Save setting"""
         for key in self.option_bool:
             value = getattr(self, f"checkbox_{key}").checkState()
-            cfg.setting_user[self.obj_name][key] = True if value else False
+            cfg.setting_user[self.obj_name][key] = bool(value)
 
         for key in self.option_color:
             cfg.setting_user[self.obj_name][key] = getattr(
@@ -607,11 +607,9 @@ class WidgetConfig(QDialog):
 
     def add_context_menu(self, target, default, mode):
         """Add context menu"""
-        target.setContextMenuPolicy(
-            Qt.CustomContextMenu)
+        target.setContextMenuPolicy(Qt.CustomContextMenu)
         target.customContextMenuRequested.connect(
-            lambda
-            pos,
+            lambda pos,
             target=target,
             default=default,
             mode=mode:

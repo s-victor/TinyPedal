@@ -412,7 +412,7 @@ class Draw(Widget):
     def color_rpm(
             self, rpm, rpm_safe, rpm_red, rpm_crit, rpm_max, gear, max_gear, speed):
         """RPM indicator color"""
-        self.flicker = 0 if self.flicker else 1
+        self.flicker = bool(not self.flicker)
         fgcolor = self.wcfg["font_color"]
         if (self.wcfg["show_rpm_flickering_above_critical"] and
             self.flicker and

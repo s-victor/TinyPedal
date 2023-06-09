@@ -166,7 +166,7 @@ class Draw(Widget):
              ) = read_data.instrument()
 
             slipratio = round(self.calc_slipratio(wheel_rot, speed), 2)
-            self.flicker = 0 if self.flicker else 1
+            self.flicker = bool(not self.flicker)
 
             # Headlights
             if self.wcfg["show_headlights"]:
@@ -278,32 +278,38 @@ class Draw(Widget):
         if speed > self.wcfg["minimum_speed"]:
             # Get wheel rotation difference
             # Record radius value for targeted rotation difference
-            diff_rot_f = calc.max_vs_avg_rotation(wheel_rot[0], wheel_rot[1])
-            diff_rot_r = calc.max_vs_avg_rotation(wheel_rot[2], wheel_rot[3])
+            # Max rotation vs average, negative = forward,  so use min instead of max
+            diff_rot_f = calc.min_vs_avg(wheel_rot[0:2])
+            diff_rot_r = calc.min_vs_avg(wheel_rot[2:4])
             # Record radius value for targeted rotation difference
             if 0 < diff_rot_f < 0.1:
-                self.list_radius_f.append(abs(speed * 2 / (wheel_rot[0] + wheel_rot[1])))
+                self.list_radius_f.append(
+                    calc.rot2radius(speed, calc.average(wheel_rot[0:2])))
             if 0 < diff_rot_r < 0.1:
-                self.list_radius_r.append(abs(speed * 2 / (wheel_rot[2] + wheel_rot[3])))
+                self.list_radius_r.append(
+                    calc.rot2radius(speed, calc.average(wheel_rot[2:4])))
 
             # Calc average wheel radius reading
             if len(self.list_radius_f) >= self.min_samples_f:
                 radius_samples_f = sorted(
                     self.list_radius_f)[int(self.min_samples_f*0.25):int(self.min_samples_f*0.75)]
-                self.avg_wheel_radius_f = round(sum(radius_samples_f) / len(radius_samples_f), 3)
+                self.avg_wheel_radius_f = round(calc.average(radius_samples_f), 3)
                 self.list_radius_f = []  # reset list
                 if self.min_samples_f < 320:
-                    self.min_samples_f *= 2
+                    self.min_samples_f *= 2  # double sample counts
 
             if len(self.list_radius_r) >= self.min_samples_r:
                 radius_samples_r = sorted(
                     self.list_radius_r)[int(self.min_samples_r*0.25):int(self.min_samples_r*0.75)]
-                self.avg_wheel_radius_r = round(sum(radius_samples_r) / len(radius_samples_r), 3)
+                self.avg_wheel_radius_r = round(calc.average(radius_samples_r), 3)
                 self.list_radius_r = []
                 if self.min_samples_r < 320:
                     self.min_samples_r *= 2
 
-        return max(calc.slip_ratio(wheel_rot[0], self.avg_wheel_radius_f, speed),
-                   calc.slip_ratio(wheel_rot[1], self.avg_wheel_radius_f, speed),
-                   calc.slip_ratio(wheel_rot[2], self.avg_wheel_radius_r, speed),
-                   calc.slip_ratio(wheel_rot[3], self.avg_wheel_radius_r, speed))
+        return max(tuple(map(
+            calc.slip_ratio,
+            wheel_rot,
+            [self.avg_wheel_radius_f] * 2 + [self.avg_wheel_radius_r] * 2,
+            [speed] * 4
+        )))
+

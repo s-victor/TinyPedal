@@ -282,7 +282,7 @@ class Draw(Widget):
             self.last_amount_curr = amount_curr
 
             # Total needed fuel
-            amount_need = f"{min(max(self.fuel_units(fuel_info.AmountFuelNeeded), -9999), 9999):+.{self.decimals[2]}f}"
+            amount_need = f"{calc.sym_range(self.fuel_units(fuel_info.AmountFuelNeeded), 9999):+.{self.decimals[2]}f}"
             self.update_fuel(
                 "need", amount_need, self.last_amount_need, fuel_info.EstimatedLaps)
             self.last_amount_need = amount_need

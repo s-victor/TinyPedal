@@ -240,10 +240,8 @@ class Draw(Widget):
                 color = (f"color: {self.wcfg['font_color_temperature']};"
                          f"background: {self.color_heatmap(curr)};")
 
-            sign = "°" if self.wcfg["show_degree_sign"] else ""
-
             getattr(self, f"bar_{suffix}").setText(
-                f"{self.temp_units(curr):0{self.leading_zero}.0f}{sign}")
+                f"{self.temp_units(curr):0{self.leading_zero}.0f}{self.sign_text}")
 
             getattr(self, f"bar_{suffix}").setStyleSheet(
                 f"{color}min-width: {self.bar_width}px;")

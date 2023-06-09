@@ -588,7 +588,7 @@ class Draw(Widget):
 
     @staticmethod
     def set_laptime(inpit, last_laptime, pit_time):
-        """Set pit status color"""
+        """Set lap time"""
         if inpit:
             return "PIT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
         if last_laptime <= 0:
