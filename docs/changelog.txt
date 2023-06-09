@@ -4,7 +4,7 @@ WIP
     - Add "delta_display_range" option,
       which sets max display range (gain or loss) in seconds
       for delta reading, accepts decimal place.
-      Default value is "99" seconds.
+      Default value is "99.999" seconds.
 
 * Fuel Widget
     - Add "decimal_places" options for each individual fuel info.

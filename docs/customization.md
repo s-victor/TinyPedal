@@ -349,7 +349,7 @@ Set delta bar length & height in pixels.
 Set max display range (gain or loss) in seconds for delta bar, accepts decimal place. Default value is `2` seconds.
 
     delta_display_range
-Set max display range (gain or loss) in seconds for delta reading, accepts decimal place. Default value is `99` seconds.
+Set max display range (gain or loss) in seconds for delta reading, accepts decimal place. Default value is `99.999` seconds.
 
     show_animated_deltabest
 Deltabest display follows delta bar progress.
