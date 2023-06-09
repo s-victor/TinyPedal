@@ -284,16 +284,16 @@ class Draw(Widget):
             # Record radius value for targeted rotation difference
             if 0 < diff_rot_f < 0.1:
                 self.list_radius_f.append(
-                    calc.rot2radius(speed, calc.average(wheel_rot[0:2])))
+                    calc.rot2radius(speed, calc.mean(wheel_rot[0:2])))
             if 0 < diff_rot_r < 0.1:
                 self.list_radius_r.append(
-                    calc.rot2radius(speed, calc.average(wheel_rot[2:4])))
+                    calc.rot2radius(speed, calc.mean(wheel_rot[2:4])))
 
             # Calc average wheel radius reading
             if len(self.list_radius_f) >= self.min_samples_f:
                 radius_samples_f = sorted(
                     self.list_radius_f)[int(self.min_samples_f*0.25):int(self.min_samples_f*0.75)]
-                self.avg_wheel_radius_f = round(calc.average(radius_samples_f), 3)
+                self.avg_wheel_radius_f = round(calc.mean(radius_samples_f), 3)
                 self.list_radius_f = []  # reset list
                 if self.min_samples_f < 320:
                     self.min_samples_f *= 2  # double sample counts
@@ -301,7 +301,7 @@ class Draw(Widget):
             if len(self.list_radius_r) >= self.min_samples_r:
                 radius_samples_r = sorted(
                     self.list_radius_r)[int(self.min_samples_r*0.25):int(self.min_samples_r*0.75)]
-                self.avg_wheel_radius_r = round(calc.average(radius_samples_r), 3)
+                self.avg_wheel_radius_r = round(calc.mean(radius_samples_r), 3)
                 self.list_radius_r = []
                 if self.min_samples_r < 320:
                     self.min_samples_r *= 2

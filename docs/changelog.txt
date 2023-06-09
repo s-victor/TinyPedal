@@ -18,6 +18,9 @@ WIP
     - Exclude delta fuel from estimated fuel consumption reading
       while vehicle is in garage stall.
 
+* Force Module
+    - Use standard deviation for max average g force comparison.
+
 * Misc
     - Add additional Fuel Widget readings explanation in user guide.
 

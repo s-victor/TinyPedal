@@ -63,29 +63,37 @@ def sym_range(value, rng):
     return min(max(value, -rng), rng)
 
 
-def average(data):
-    """Average"""
+def mean(data):
+    """Average value"""
     return sum(data) / len(data)
 
 
-def average_value(avg, value, num_samples):
+def mean_iter(avg, value, num_samples):
     """Average value"""
     return (avg * num_samples + value) / (num_samples + 1)
 
 
 def min_vs_avg(data):
     """Min vs average"""
-    return abs(min(data) - average(data))
+    return abs(min(data) - mean(data))
 
 
 def max_vs_avg(data):
     """Max vs average"""
-    return abs(max(data) - average(data))
+    return abs(max(data) - mean(data))
 
 
 def max_vs_min(data):
     """Max vs min"""
     return max(data) - min(data)
+
+
+def std_dev(data, avg, k=1):
+    """Standard Deviation"""
+    n = len(data) - k
+    if n > 0:
+        return math.sqrt(sum(tuple(map(lambda x:(x-avg)**2, data))) / n)
+    return 0
 
 
 def rad2deg(radian):

@@ -33,9 +33,7 @@ logger = logging.getLogger(__name__)
 # Value validate
 def in2zero(value):
     """Convert invalid value to zero"""
-    if (isinstance(value, (float, int)) and
-        not math.isnan(value) and
-        not math.isinf(value)):
+    if isinstance(value, (float, int)) and math.isfinite(value):
         return value
     return 0
 

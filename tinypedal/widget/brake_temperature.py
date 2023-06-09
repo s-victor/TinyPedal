@@ -200,7 +200,7 @@ class Draw(Widget):
                 if lap_etime > self.last_lap_etime:
                     self.last_lap_etime = lap_etime
                     self.btavg_samples += 1
-                    btavg = tuple(map(calc.average_value,
+                    btavg = tuple(map(calc.mean_iter,
                                       self.last_btavg,
                                       btemp,
                                       [self.btavg_samples]*4

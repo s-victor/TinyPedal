@@ -166,10 +166,10 @@ class Realtime:
         g_samples = []
         while True:
             if len(g_samples) >= self.mcfg["max_average_g_force_samples"]:
-                g_diff = calc.max_vs_min(g_samples)
-                g_avg = calc.average(g_samples)
+                g_avg = calc.mean(g_samples)
+                g_std = calc.std_dev(g_samples, g_avg)
                 if (g_avg > g_max_avg and
-                    0 < g_diff <= self.mcfg["max_average_g_force_differece"]):
+                    0 < g_std <= self.mcfg["max_average_g_force_differece"]):
                     g_max_avg = g_avg
                     g_samples.clear()
                 else:
