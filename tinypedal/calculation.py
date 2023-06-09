@@ -89,10 +89,10 @@ def max_vs_min(data):
 
 
 def std_dev(data, avg, k=1):
-    """Standard Deviation"""
+    """Standard deviation"""
     n = len(data) - k
     if n > 0:
-        return math.sqrt(sum(tuple(map(lambda x:(x-avg)**2, data))) / n)
+        return math.sqrt(sum(map(lambda x:(x-avg)**2, data)) / n)
     return 0
 
 

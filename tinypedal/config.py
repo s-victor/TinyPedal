@@ -594,7 +594,6 @@ class WidgetConfig(QDialog):
         if QColor(color_str).alpha() > 128:
             if QColor(color_str).lightness() < 128:
                 return "#FFF"
-            return "#000"
         return "#000"
 
     def update_preview_color(self, color_str, option):

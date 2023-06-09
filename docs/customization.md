@@ -555,13 +555,13 @@ Starting fuel reading.
 Remaining fuel reading.
 
     *refuel
-Estimated refueling reading, which is the total amount additional fuel required to finish race.
+Estimated refueling reading, which is the total amount additional fuel required to finish race. Note, positive value indicates additional refueling and pit-stop would be required, while negative value indicates total extra fuel would left at the end of race and no extra pit-stop required.
 
     *used
 Estimated fuel consumption reading, which is calculated from last-valid-lap fuel consumption and delta fuel consumption. Note, when vehicle is in garage stall, this reading only shows last-valid-lap fuel consumption without delta calculation.
 
     *delta
-Estimated delta fuel consumption reading.
+Estimated delta fuel consumption reading. Positive value indicates an increase in consumption, while negative indicates a decrease in consumption.
 
     *end
 Estimated remaining fuel reading at the end of current stint before pit.
@@ -576,7 +576,7 @@ Estimated minutes reading that current fuel can last.
 One less pit stops target fuel consumption reading.
 
     *pits
-Estimated number of pitstops that required to finish race. Any non-zero decimal places would be considered for an additional pit stop. Note: this value concerns only pit-stop made at the end of stint.
+Estimated number of pit stops that required to finish race. Any non-zero decimal places would be considered for an additional pit stop. Note: this value concerns only pit-stop that made at the end of a stint.
 
     bar_width
 Set each column width, value in chars, such as 10 = 10 chars. Default value is `5`. Minimum width is limited to `3`.
