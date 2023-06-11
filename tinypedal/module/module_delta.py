@@ -148,7 +148,7 @@ class Realtime:
 
                 # Calc delta
                 if gps_last != gps_curr:
-                    moved_distance = calc.distance_xyz(gps_last, gps_curr)
+                    moved_distance = calc.distance(gps_last, gps_curr)
                     gps_last = gps_curr
                     # Update delta
                     pos_estimate += moved_distance

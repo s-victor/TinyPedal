@@ -50,7 +50,6 @@ class Draw(Widget):
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
-        bar_width = 7
 
         # Base style
         self.setStyleSheet(
@@ -58,6 +57,7 @@ class Draw(Widget):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
+            f"min-width: {font_w * 7}px;"
         )
 
         # Create layout
@@ -80,7 +80,6 @@ class Draw(Widget):
             self.bar_pit_timer.setStyleSheet(
                 f"color: {self.wcfg['font_color_pit_timer']};"
                 f"background: {self.wcfg['bkg_color_pit_timer']};"
-                f"min-width: {font_w * bar_width}px;"
             )
 
         # Low fuel warning
@@ -90,7 +89,6 @@ class Draw(Widget):
             self.bar_lowfuel.setStyleSheet(
                 f"color: {self.wcfg['font_color_low_fuel']};"
                 f"background: {self.wcfg['bkg_color_low_fuel']};"
-                f"min-width: {font_w * bar_width}px;"
             )
 
         # Speed limiter
@@ -100,7 +98,6 @@ class Draw(Widget):
             self.bar_limiter.setStyleSheet(
                 f"color: {self.wcfg['font_color_speed_limiter']};"
                 f"background: {self.wcfg['bkg_color_speed_limiter']};"
-                f"min-width: {font_w * bar_width}px;"
             )
 
         # Yellow flag
@@ -110,7 +107,6 @@ class Draw(Widget):
             self.bar_yellowflag.setStyleSheet(
                 f"color: {self.wcfg['font_color_yellow_flag']};"
                 f"background: {self.wcfg['bkg_color_yellow_flag']};"
-                f"min-width: {font_w * bar_width}px;"
             )
 
         # Blue flag
@@ -120,7 +116,6 @@ class Draw(Widget):
             self.bar_blueflag.setStyleSheet(
                 f"color: {self.wcfg['font_color_blue_flag']};"
                 f"background: {self.wcfg['bkg_color_blue_flag']};"
-                f"min-width: {font_w * bar_width}px;"
             )
 
         # Start lights
@@ -130,7 +125,6 @@ class Draw(Widget):
             self.bar_startlights.setStyleSheet(
                 f"color: {self.wcfg['font_color_startlights']};"
                 f"background: {self.wcfg['bkg_color_red_lights']};"
-                f"min-width: {font_w * bar_width}px;"
             )
 
         # Set layout

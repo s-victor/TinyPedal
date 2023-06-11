@@ -68,6 +68,7 @@ REGEX_INT = (
     "icon_size|"
     "inner_gap|"
     "layout|"
+    "samples|"
     "split_gap|"
     "update_interval|"
     "vehicles"

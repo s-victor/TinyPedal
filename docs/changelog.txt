@@ -7,22 +7,32 @@ WIP
       Default value is "99.999" seconds.
 
 * Fuel Widget
+    - Add "*early" option, which shows estimate number of pit stop counts
+      when making an early pit stop at end of current lap.
+    - Add "show_refueling_level_mark" option,
+      which shows estimated fuel level after refueling.
+      If the mark is not visible on fuel level bar,
+      it indicates total refueling has exceeded fuel tank capacity.
+      Default mark color is green.
     - Add "decimal_places" options for each individual fuel info.
       Maximum value is limited to "3".
     - Add "bar_width" options, which sets each column width in chars.
       Default value is "5". Minimum width is limited to "3".
     - Add "caption_text" options, which sets custom caption text.
     - Renamed several fuel options for consistency.
+    - Removed "*start" option and starting fuel reading.
 
 * Fuel Module
-    - Exclude delta fuel from estimated fuel consumption reading
+    - Add early pit stop calculation.
+    - Improved calculation accuracy under certain conditions.
+    - Exclude delta fuel calculation from estimated fuel consumption reading
       while vehicle is in garage stall.
 
 * Force Module
     - Use standard deviation for max average g force comparison.
 
 * Misc
-    - Add additional Fuel Widget readings explanation in user guide.
+    - Add additional explanation for Fuel Widget in user guide.
 
 2.1.5 (2023-06-04)
 -----------------------------

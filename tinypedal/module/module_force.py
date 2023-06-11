@@ -118,7 +118,7 @@ class Realtime:
                 max_lat_gforce = gen_max_lat.send((lat_gforce_raw, elapsed_time))
 
                 # G Vector
-                gforce_vector = calc.distance_xy((lgt_gforce_raw, lat_gforce_raw))
+                gforce_vector = calc.distance((lgt_gforce_raw, lat_gforce_raw),(0,0))
 
                 # Downforce
                 dforce_ratio = calc.force_ratio(dforce_f, dforce_f + dforce_r)
@@ -161,11 +161,12 @@ class Realtime:
 
     def calc_max_avg_gforce(self):
         """Calc max average G force"""
+        max_samples = int(max(self.mcfg["max_average_g_force_samples"], 3))
         g_abs = 0
         g_max_avg = 0
         g_samples = []
         while True:
-            if len(g_samples) >= self.mcfg["max_average_g_force_samples"]:
+            if len(g_samples) >= max_samples:
                 g_avg = calc.mean(g_samples)
                 g_std = calc.std_dev(g_samples, g_avg)
                 if (g_avg > g_max_avg and

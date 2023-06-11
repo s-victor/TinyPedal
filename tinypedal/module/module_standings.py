@@ -236,7 +236,7 @@ class Realtime:
                 pos_xz[1] - plr_pos_xz[1]   # y position related to player
             )
             relative_orientation_xz_radians = orientation_xz_radians - plr_ori_rad
-            relative_straight_distance = calc.distance_xy(plr_pos_xz, pos_xz)
+            relative_straight_distance = calc.distance(plr_pos_xz, pos_xz)
 
             yield self.DataSet(
                 VehicleID = vehicle_id,

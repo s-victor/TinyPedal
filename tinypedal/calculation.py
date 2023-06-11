@@ -21,11 +21,18 @@ Calculation function
 """
 
 import math
+import statistics
 
 
 def vel2speed(vel_x, vel_y, vel_z):
     """Convert velocity to Speed"""
-    return (vel_x ** 2 + vel_y ** 2 + vel_z ** 2) ** 0.5
+    # (vel_x ** 2 + vel_y ** 2 + vel_z ** 2) ** 0.5
+    return math.hypot(vel_x, vel_y, vel_z)
+
+
+def distance(value1, value2):
+    """Coordinates distance"""
+    return math.dist(value1, value2)
 
 
 def meter2millmeter(meter):
@@ -39,7 +46,7 @@ def mps2kph(meter):
 
 
 def mps2mph(meter):
-    """meter per sec to miles per hour"""
+    """Meter per sec to miles per hour"""
     return meter * 2.23693629
 
 
@@ -49,7 +56,7 @@ def celsius2fahrenheit(temp):
 
 
 def kelvin2celsius(kelvin):
-    """Convert Kelvin to Celsius"""
+    """Kelvin to Celsius"""
     return max(kelvin - 273.15, 0)
 
 
@@ -65,7 +72,8 @@ def sym_range(value, rng):
 
 def mean(data):
     """Average value"""
-    return sum(data) / len(data)
+    # sum(data) / len(data)
+    return statistics.fmean(data)
 
 
 def mean_iter(avg, value, num_samples):
@@ -88,16 +96,14 @@ def max_vs_min(data):
     return max(data) - min(data)
 
 
-def std_dev(data, avg, k=1):
-    """Standard deviation"""
-    n = len(data) - k
-    if n > 0:
-        return math.sqrt(sum(map(lambda x:(x-avg)**2, data)) / n)
-    return 0
+def std_dev(data, avg):
+    """Sample standard deviation"""
+    # math.sqrt(sum(map(lambda x:(x-avg)**2, data)) / (len(data) - k))
+    return statistics.stdev(data, avg)
 
 
 def rad2deg(radian):
-    """Convert radians to degrees"""
+    """Radians to degrees"""
     return math.degrees(radian)
 
 
@@ -133,12 +139,12 @@ def slip_angle(v_lat, v_lgt):
 
 
 def kpa2psi(pressure):
-    """Convert kilopascal to psi"""
+    """Kilopascal to psi"""
     return pressure * 0.14503774
 
 
 def kpa2bar(pressure):
-    """Convert kilopascal to bar"""
+    """Kilopascal to bar"""
     return pressure * 0.01
 
 
@@ -153,7 +159,7 @@ def force_ratio(value1, value2):
 
 
 def oriyaw2rad(value1, value2):
-    """Convert orientation yaw to radians"""
+    """Orientation yaw to radians"""
     return math.atan2(value1, value2)
 
 
@@ -162,19 +168,6 @@ def rotate_pos(ori_rad, value1, value2):
     new_pos_x = (math.cos(ori_rad) * value1) - (math.sin(ori_rad) * value2)
     new_pos_z = (math.cos(ori_rad) * value2) + (math.sin(ori_rad) * value1)
     return new_pos_x, new_pos_z
-
-
-def distance_xy(value1, value2=(0,0)):
-    """Distance in 2d space"""
-    return ((value1[0] - value2[0]) ** 2
-            + (value1[1] - value2[1]) ** 2) ** 0.5
-
-
-def distance_xyz(value1, value2):
-    """Distance in 3d space"""
-    return ((value1[0] - value2[0]) ** 2
-             + (value1[1] - value2[1]) ** 2
-             + (value1[2] - value2[2]) ** 2) ** 0.5
 
 
 def circular_relative_distance(circle_length, plr_dist, opt_dist):

@@ -219,7 +219,7 @@ Set gravitational acceleration value (on earth).
 Set freeze duration (seconds) for max g force reading.
 
     max_average_g_force_samples
-Set amount samples for calculating max average g force.
+Set amount samples for calculating max average g force. Minimum value is limited to `3`.
 
     max_average_g_force_differece
 Set max average g force differece threshold which compares with the standard deviation calculated from max average g force samples. Default is `0.2` g.
@@ -548,8 +548,8 @@ Set reference circle line width in pixels.
 
 
 ## Fuel
-    *start
-Starting fuel reading.
+    *end
+Estimated remaining fuel reading at the end of current stint before pit.
 
     *remain
 Remaining fuel reading.
@@ -563,8 +563,10 @@ Estimated fuel consumption reading, which is calculated from last-valid-lap fuel
     *delta
 Estimated delta fuel consumption reading. Positive value indicates an increase in consumption, while negative indicates a decrease in consumption.
 
-    *end
-Estimated remaining fuel reading at the end of current stint before pit.
+    *early
+Estimate number of pit stop counts when making an early pit stop at end of current lap. This value will be close to `pits` value when remaining fuel is very low.
+
+Example usage, when this value is just below 1.0, such as `0.97`, it indicates an early pit stop can be made right at the end of current lap with amount refueling according to `refuel` reading that can last to the end of race.
 
     *laps
 Estimated laps reading that current fuel can last.
@@ -573,10 +575,10 @@ Estimated laps reading that current fuel can last.
 Estimated minutes reading that current fuel can last.
 
     *save
-One less pit stops target fuel consumption reading.
+Estimated fuel consumption reading for one less pit stop.
 
     *pits
-Estimated number of pit stops that required to finish race. Any non-zero decimal places would be considered for an additional pit stop. Note: this value concerns only pit-stop that made at the end of a stint.
+Estimate number of pit stop counts when making a pit stop at end of current stint. Any non-zero decimal places would be considered for an additional pit stop.
 
     bar_width
 Set each column width, value in chars, such as 10 = 10 chars. Default value is `5`. Minimum width is limited to `3`.
@@ -594,10 +596,13 @@ Show visualized horizontal fuel level bar.
 Set fuel level bar height in pixels.
 
     show_starting_fuel_level_mark
-Show starting fuel level mark of current stint.
+Show starting fuel level mark of current stint. Default mark color is red.
 
-    starting_fuel_level_mark_width
-Set starting fuel level mark width in pixels.
+    show_refueling_level_mark
+Show estimated fuel level mark after refueling. If the mark is not visible on fuel level bar, it indicates total refueling has exceeded fuel tank capacity. Default mark color is green.
+
+    starting_fuel_level_mark_width, refueling_level_mark_width
+Set fuel level mark width in pixels.
 
     caption_text
 Set custom caption text.

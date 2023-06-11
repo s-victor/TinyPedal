@@ -130,7 +130,7 @@ class Realtime:
                     if lap_stime > last_lap_stime:  # difference of lap-start-time
                         # End last lap recording
                         if coords_list_curr:
-                            if calc.distance_xy(coords_list_curr[0], gps_curr) > 500:
+                            if calc.distance(coords_list_curr[0], gps_curr) > 500:
                                 coords_list_curr.append(gps_curr)
                                 dist_list_curr.append((pos_curr, elv_curr))
                             coords_list_last = coords_list_curr
