@@ -230,10 +230,13 @@ class Realtime:
                 est_empty = capacity - amount_curr - used_curr + used_last + delta_fuel
 
                 # Estimate pit stop counts when pitting at end of current stint
-                est_pits_end = (amount_need + amount_left) / capacity
+                est_pits_end = amount_need / (capacity - amount_left)
 
                 # Estimate pit stop counts when pitting at end of current lap
-                est_pits_early = (amount_need + capacity - est_empty) / capacity
+                if amount_need > est_empty:  # exceed capacity
+                    est_pits_early = 1 + (amount_need - est_empty) / (capacity - amount_left)
+                else:
+                    est_pits_early = est_pits_end
 
                 if laps_left:
                     used_est_less = (
