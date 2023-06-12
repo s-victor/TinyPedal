@@ -165,6 +165,7 @@ class Realtime:
         max_samples = int(max(self.mcfg["max_average_g_force_samples"], 3))
         g_samples = array.array("f", [0] * max_samples)
         g_abs = 0
+        g_abs_last = 0
         g_max_avg = 0
         sample_counter = 0
         sample_idx = 0
@@ -180,8 +181,8 @@ class Realtime:
             if sample_idx >= max_samples:
                 sample_idx = 0
             # Update data if pos diff
-            if g_abs != g_samples[-1]:
-                g_samples[sample_idx] = g_abs
+            if g_abs != g_abs_last:
+                g_samples[sample_idx] = g_abs_last = g_abs
                 sample_idx += 1
                 if sample_counter < max_samples:
                     sample_counter += 1
