@@ -20,6 +20,7 @@
 Standings module
 """
 
+import array
 import logging
 import time
 import threading
@@ -84,7 +85,6 @@ class Realtime:
         ],
         defaults = ([999999] * 3)
     )
-    pit_time_list = [[0,-1,0] for _ in range(128)]
 
     def __init__(self, mctrl, config):
         self.mctrl = mctrl
@@ -92,6 +92,7 @@ class Realtime:
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
         self.running = False
+        self.pit_time_list = array.array("f", [0,-1,0] * 128)
         self.set_output()
 
     def set_output(self):
@@ -134,9 +135,6 @@ class Realtime:
                         Track = abs(min(self.vehicles, key=nearest_track_dist).RelativeDistance),
                         Yellow = abs(min(self.vehicles, key=nearest_yellow_dist).RelativeDistance),
                     )
-                #timer_start = time.perf_counter()
-                #timer_end = time.perf_counter() - timer_start
-                #logger.info(timer_end)
 
             else:
                 if checked:
@@ -165,7 +163,7 @@ class Realtime:
             chknm(info.syncedVehicleScoring().mLocalVel.y),
             chknm(info.syncedVehicleScoring().mLocalVel.z))
         plr_pos_xz = (chknm(info.syncedVehicleTelemetry().mPos.x),
-                    -chknm(info.syncedVehicleTelemetry().mPos.z))
+                     -chknm(info.syncedVehicleTelemetry().mPos.z))
         plr_ori_rad = calc.oriyaw2rad(
             chknm(info.syncedVehicleTelemetry().mOri[2].x),
             chknm(info.syncedVehicleTelemetry().mOri[2].z))
@@ -218,7 +216,8 @@ class Realtime:
             num_pit_stops = chknm(info.LastScor.mVehicles[index].mNumPitstops)
             pit_state = chknm(info.LastScor.mVehicles[index].mPitState)
             pit_time = self.__calc_pit_time(
-                index, in_pit, in_garage, last_laptime, elapsed_time)
+                index, in_pit, in_garage, last_laptime, elapsed_time,
+                in_pit * 1000 + vehicle_id)
             tire_compound_index = (
                 chknm(info.LastTele.mVehicles[tele_index].mFrontTireCompoundIndex),
                 chknm(info.LastTele.mVehicles[tele_index].mRearTireCompoundIndex)
@@ -275,26 +274,26 @@ class Realtime:
                 RelativeStraightDistance = relative_straight_distance,
             )
 
-    def __calc_pit_time(self, index, in_pit, in_garage, last_laptime, elapsed_time):
+    def __calc_pit_time(self, index, in_pit, in_garage, last_laptime, elapsed_time, pit_status):
         """Calculate lap & pit time"""
-        pit_status = in_pit * 1000 + chknm(info.LastScor.mVehicles[index].mID)
+        index *= 3
         # Pit status check
-        if pit_status != self.pit_time_list[index][0]:
-            self.pit_time_list[index][0] = pit_status  # last pit status
-            self.pit_time_list[index][1] = elapsed_time  # last etime stamp
+        if pit_status != self.pit_time_list[index+0]:
+            self.pit_time_list[index+0] = pit_status  # last pit status
+            self.pit_time_list[index+1] = elapsed_time  # last etime stamp
         # Ignore pit timer in garage
         if in_garage:
-            self.pit_time_list[index][1] = -1
-            self.pit_time_list[index][2] = 0
+            self.pit_time_list[index+1] = -1
+            self.pit_time_list[index+2] = 0
         # Start counting pit time
-        if self.pit_time_list[index][1] >= 0:
-            pit_time = min(max(elapsed_time - self.pit_time_list[index][1], 0), 999.9)
+        if self.pit_time_list[index+1] >= 0:
+            pit_time = min(max(elapsed_time - self.pit_time_list[index+1], 0), 999.9)
             if in_pit:
-                self.pit_time_list[index][2] = pit_time
+                self.pit_time_list[index+2] = pit_time
         # Reset pit time if made a valid lap time after pit
-        if not in_pit and self.pit_time_list[index][2] > 0 and last_laptime > 0:
-            self.pit_time_list[index][2] = 0
-        return self.pit_time_list[index][2]
+        if not in_pit and self.pit_time_list[index+2] > 0 and last_laptime > 0:
+            self.pit_time_list[index+2] = 0
+        return self.pit_time_list[index+2]
 
 
 def nearest_line_dist(value):

@@ -20,6 +20,7 @@
 Force module
 """
 
+import array
 import logging
 import time
 import threading
@@ -162,23 +163,28 @@ class Realtime:
     def calc_max_avg_gforce(self):
         """Calc max average G force"""
         max_samples = int(max(self.mcfg["max_average_g_force_samples"], 3))
+        g_samples = array.array("f", [0] * max_samples)
         g_abs = 0
         g_max_avg = 0
-        g_samples = []
+        sample_counter = 0
+        sample_idx = 0
         while True:
-            if len(g_samples) >= max_samples:
+            if sample_counter >= max_samples:
                 g_avg = calc.mean(g_samples)
                 g_std = calc.std_dev(g_samples, g_avg)
                 if (g_avg > g_max_avg and
                     0 < g_std <= self.mcfg["max_average_g_force_differece"]):
                     g_max_avg = g_avg
-                    g_samples.clear()
-                else:
-                    g_samples.pop(0)
-            if g_samples and g_abs != g_samples[-1]:  # update if pos diff
-                g_samples.append(g_abs)
-            elif not g_samples:
-                g_samples.append(g_abs)
+                    sample_counter = 0
+            # Reset sample index
+            if sample_idx >= max_samples:
+                sample_idx = 0
+            # Update data if pos diff
+            if g_abs != g_samples[-1]:
+                g_samples[sample_idx] = g_abs
+                sample_idx += 1
+                if sample_counter < max_samples:
+                    sample_counter += 1
             g_raw = yield g_max_avg
             g_abs = abs(g_raw)
 
