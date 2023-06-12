@@ -123,6 +123,9 @@ class Realtime:
                     used_est = 0  # estimated fuel consumption, for calculation only
                     est_runlaps = 0  # estimate laps current fuel can last
                     est_runmins = 0  # estimate minutes current fuel can last
+                    est_empty = 0  # estimate empty capacity at end of current lap
+                    est_pits_late = 0  # estimate end-stint pit stop counts
+                    est_pits_early = 0  # estimate end-lap pit stop counts
                     used_est_less = 0  # estimate fuel consumption for one less pit stop
 
                     laptime_last = delta_list_last[-1][2] # last laptime
@@ -191,26 +194,9 @@ class Realtime:
                         laptime_curr > 0.2 and not ingarage,  # 200ms delay
                     )
 
-                # Estimate fuel consumption for calculation
                 # Exclude first lap & pit in & out lap
-                if 0 == pittinglap < lap_number:
-                    used_est = used_last + delta_fuel
-                else:
-                    used_est = used_last
-
-                # Estimate laps current fuel can last
-                if used_est:
-                    # Total current fuel / last lap fuel consumption
-                    est_runlaps = amount_curr / used_est
-                    # Total remaining fuel at start of lap = current fuel + current used fuel
-                    # Fraction of lap numbers * estimate fuel consumption
-                    amount_left = math.modf((amount_curr + used_curr) / used_est)[0] * used_est
-                else:
-                    est_runlaps = 0
-                    amount_left = 0
-
-                # Estimate minutes current fuel can last
-                est_runmins = est_runlaps * laptime_last / 60
+                used_est = end_lap_consumption(
+                    used_last, delta_fuel, 0 == pittinglap < lap_number)
 
                 # Total refuel = laps left * last consumption - remaining fuel
                 if laps_max < 99999:  # lap-type race
@@ -226,23 +212,25 @@ class Realtime:
                         laps_left = max(full_laps_left - lap_into, 0)
                     amount_need = full_laps_left * used_est - used_curr - amount_curr
 
-                # Estimate empty capacity at end of current lap
-                est_empty = capacity - amount_curr - used_curr + used_last + delta_fuel
+                amount_left = end_stint_fuel(
+                    amount_curr, used_curr, used_est)
 
-                # Estimate pit stop counts when pitting at end of current stint
-                est_pits_end = amount_need / (capacity - amount_left)
+                est_runlaps = end_stint_laps(
+                    amount_curr, used_est)
 
-                # Estimate pit stop counts when pitting at end of current lap
-                if amount_need > est_empty:  # exceed capacity
-                    est_pits_early = 1 + (amount_need - est_empty) / (capacity - amount_left)
-                else:
-                    est_pits_early = est_pits_end
+                est_runmins = est_runlaps * laptime_last / 60
 
-                if laps_left:
-                    used_est_less = (
-                        ((math.ceil(est_pits_end) - 1) * capacity + amount_curr) / laps_left)
-                else:
-                    used_est_less = 0
+                est_empty = end_lap_empty_capacity(
+                    capacity, amount_curr + used_curr, used_last + delta_fuel)
+
+                est_pits_late = end_stint_pit_counts(
+                    amount_need, capacity - amount_left)
+
+                est_pits_early = end_lap_pit_counts(
+                    amount_need, est_empty, capacity - amount_left)
+
+                used_est_less = less_pit_stop_consumption(
+                    est_pits_late, capacity, amount_curr, laps_left)
 
                 # Output fuel data
                 self.output = self.DataSet(
@@ -256,7 +244,7 @@ class Realtime:
                     EstimatedLaps = est_runlaps,
                     EstimatedMinutes = est_runmins,
                     EstimatedEmptyCapacity = est_empty,
-                    EstimatedNumPitStopsEnd = est_pits_end,
+                    EstimatedNumPitStopsEnd = est_pits_late,
                     EstimatedNumPitStopsEarly = est_pits_early,
                     DeltaFuelConsumption = delta_fuel,
                     OneLessPitFuelConsumption = used_est_less,
@@ -319,3 +307,60 @@ class Realtime:
                       "w", newline="", encoding="utf-8") as csvfile:
                 deltawrite = csv.writer(csvfile)
                 deltawrite.writerows(listname)
+
+
+def end_lap_consumption(used_last, delta_fuel, condition):
+    """Estimate fuel consumption"""
+    if condition:
+        return used_last + delta_fuel
+    return used_last
+
+
+def end_stint_fuel(amount_curr, used_curr, used_est):
+    """Estimate end-stint remaining fuel before pitting"""
+    if used_est:
+        # Total fuel at start of current lap
+        total_fuel = amount_curr + used_curr
+        # Fraction of lap counts * estimate fuel consumption
+        return math.modf(total_fuel / used_est)[0] * used_est
+    return 0
+
+
+def end_stint_laps(amount_curr, used_est):
+    """Estimate laps current fuel can last"""
+    if used_est:
+        # Laps = remaining fuel / estimate fuel consumption
+        return amount_curr / used_est
+    return 0
+
+
+def end_lap_empty_capacity(capacity, fuel_remain, fuel_consumption):
+    """Estimate empty capacity at end of current lap"""
+    return capacity - fuel_remain + fuel_consumption
+
+
+def end_stint_pit_counts(amount_need, capacity):
+    """Estimate end-stint pit stop counts"""
+    # Pit counts = required fuel / empty capacity
+    return amount_need / capacity
+
+
+def end_lap_pit_counts(amount_need, est_empty, capacity):
+    """Estimate end-lap pit stop counts"""
+    # Amount fuel can be added without exceeding capacity
+    max_add_curr = min(amount_need, est_empty)
+    # Pit count of current stint, 1 if exceed empty capacity or no empty space
+    est_pits_curr = max_add_curr / est_empty if est_empty else 1
+    # Pit counts after current stint
+    est_pits_end = (amount_need - max_add_curr) / capacity
+    # Total pit counts add together
+    return est_pits_curr + est_pits_end
+
+
+def less_pit_stop_consumption(est_pits_late, capacity, amount_curr, laps_left):
+    """Estimate fuel consumption for one less pit stop"""
+    if laps_left:
+        pit_counts = math.ceil(est_pits_late) - 1
+        # Consumption = total fuel / laps
+        return (pit_counts * capacity + amount_curr) / laps_left
+    return 0

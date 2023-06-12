@@ -564,9 +564,13 @@ Estimated fuel consumption reading, which is calculated from last-valid-lap fuel
 Estimated delta fuel consumption reading. Positive value indicates an increase in consumption, while negative indicates a decrease in consumption.
 
     *early
-Estimate number of pit stop counts when making an early pit stop at end of current lap. This value will be close to `pits` value when remaining fuel is very low.
+Estimate number of pit stop counts when making an early pit stop at end of current lap. This value can be used to determine whether an early pit stop is worth performing comparing to `pits` value.
 
-Example usage, when this value is just below 1.0, such as `0.97`, it indicates an early pit stop can be made right at the end of current lap with amount refueling according to `refuel` reading that can last to the end of race.
+Example 1: When this value is just below `1.0` (such as `0.97`), it indicates an early pit stop can be made right at the end of current lap with enough empty capacity to refuel according to `refuel` reading which would last to the end of race.
+
+Example 2: When this value is just below `2.0` (such as `1.96`), and `pits` value is also in `1.x` range (such as `1.32`),  it indicates 2 required pit stops, and an early pit stop can be made right at the end of current lap with tank fully refueled according to `refuel` reading. After refueling, `pits` reading would show an approximately `0.96` value which indicates one more required pit stop.
+
+Example 3: If this value is one or more integers higher than `pits` value, then additional pit stops would be required after making a pit stop at the end of current lap.
 
     *laps
 Estimated laps reading that current fuel can last.

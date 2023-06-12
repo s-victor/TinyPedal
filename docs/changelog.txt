@@ -1,4 +1,4 @@
-WIP
+2.1.6 (2023-06-12)
 -----------------------------
 * Deltabest Widget
     - Add "delta_display_range" option,
@@ -9,6 +9,9 @@ WIP
 * Fuel Widget
     - Add "*early" option, which shows estimate number of pit stop counts
       when making an early pit stop at end of current lap.
+      This value can be used to determine whether an early pit stop
+      is worth performing comparing to "pits" value.
+      More example usage and explanation in user guide.
     - Add "show_refueling_level_mark" option,
       which shows estimated fuel level after refueling.
       If the mark is not visible on fuel level bar,
@@ -32,7 +35,7 @@ WIP
     - Use standard deviation for max average g force comparison.
 
 * Misc
-    - Add additional explanation for Fuel Widget in user guide.
+    - Updated user guide with new options for Fuel Widget.
 
 2.1.5 (2023-06-04)
 -----------------------------
