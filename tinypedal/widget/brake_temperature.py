@@ -87,6 +87,7 @@ class Draw(Widget):
         column_btavg = self.wcfg["column_index_average"]
 
         # Brake temperature
+        self.btemp_set = ("btemp_fl", "btemp_fr", "btemp_rl", "btemp_rr")
         bar_style_btemp = (
             f"color: {self.wcfg['font_color_temperature']};"
             f"background: {self.wcfg['bkg_color_temperature']};"
@@ -112,6 +113,7 @@ class Draw(Widget):
 
         # Average brake temperature
         if self.wcfg["show_average"]:
+            self.btavg_set = ("btavg_fl", "btavg_fr", "btavg_rl", "btavg_rr")
             bar_style_btavg = (
                 f"color: {self.wcfg['font_color_average']};"
                 f"background: {self.wcfg['bkg_color_average']};"
@@ -171,14 +173,10 @@ class Draw(Widget):
             if not self.checked:
                 self.checked = True
 
-            # Read brake temperature data
-            btemp = read_data.brake_temp()
-
             # Brake temperature
-            self.update_btemp("btemp_fl", btemp[0], self.last_btemp[0])
-            self.update_btemp("btemp_fr", btemp[1], self.last_btemp[1])
-            self.update_btemp("btemp_rl", btemp[2], self.last_btemp[2])
-            self.update_btemp("btemp_rr", btemp[3], self.last_btemp[3])
+            btemp = read_data.brake_temp()
+            for idx, suffix in enumerate(self.btemp_set):
+                self.update_btemp(suffix, btemp[idx], self.last_btemp[idx])
             self.last_btemp = btemp
 
             # Brake average temperature
@@ -191,20 +189,15 @@ class Draw(Widget):
                     self.highlight_timer_start = lap_etime  # start timer
 
                     # Highlight reading
-                    self.update_btavg("btavg_fl", self.last_btavg[0], 0, 1)
-                    self.update_btavg("btavg_fr", self.last_btavg[1], 0, 1)
-                    self.update_btavg("btavg_rl", self.last_btavg[2], 0, 1)
-                    self.update_btavg("btavg_rr", self.last_btavg[3], 0, 1)
+                    for idx, suffix in enumerate(self.btavg_set):
+                        self.update_btavg(suffix, self.last_btavg[idx], 0, 1)
 
                 # Update if time diff
                 if lap_etime > self.last_lap_etime:
                     self.last_lap_etime = lap_etime
                     self.btavg_samples += 1
-                    btavg = tuple(map(calc.mean_iter,
-                                      self.last_btavg,
-                                      btemp,
-                                      [self.btavg_samples]*4
-                                      ))
+                    btavg = tuple(map(
+                        calc.mean_iter, self.last_btavg, btemp, [self.btavg_samples]*4))
                 else:
                     btavg = self.last_btavg
 
@@ -215,10 +208,8 @@ class Draw(Widget):
                         self.highlight_timer_start = 0  # stop timer
                 else:
                     # Update average reading
-                    self.update_btavg("btavg_fl", btavg[0], self.last_btavg[0])
-                    self.update_btavg("btavg_fr", btavg[1], self.last_btavg[1])
-                    self.update_btavg("btavg_rl", btavg[2], self.last_btavg[2])
-                    self.update_btavg("btavg_rr", btavg[3], self.last_btavg[3])
+                    for idx, suffix in enumerate(self.btavg_set):
+                        self.update_btavg(suffix, btavg[idx], self.last_btavg[idx])
                     self.last_btavg = btavg
         else:
             if self.checked:

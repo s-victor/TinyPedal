@@ -84,22 +84,7 @@ class Draw(Widget):
         column_stemp = self.wcfg["column_index_surface"]
         column_itemp = self.wcfg["column_index_innerlayer"]
 
-        # Tyre temperature
-        self.stemp_set = ("stemp_fl", "stemp_fr", "stemp_rl", "stemp_rr")
-        self.itemp_set = ("itemp_fl", "itemp_fr", "itemp_rl", "itemp_rr")
-
-        self.bar_width_temp = font_w * text_width
-        bar_style_stemp = (
-            f"color: {self.wcfg['font_color_surface']};"
-            f"background: {self.wcfg['bkg_color_surface']};"
-            f"min-width: {self.bar_width_temp}px;"
-        )
-        bar_style_itemp = (
-            f"color: {self.wcfg['font_color_innerlayer']};"
-            f"background: {self.wcfg['bkg_color_innerlayer']};"
-            f"min-width: {self.bar_width_temp}px;"
-        )
-
+        # Tyre compound
         if self.wcfg["show_tyre_compound"]:
             bar_style_tcmpd = (
                 f"color: {self.wcfg['font_color_tyre_compound']};"
@@ -123,63 +108,95 @@ class Draw(Widget):
                 layout_itemp.addWidget(bar_blank_1, 0, 4)
                 layout_itemp.addWidget(bar_blank_2, 1, 4)
 
+        # Tyre temperature
+        self.stemp_set = ("stemp_fl", "stemp_fr", "stemp_rl", "stemp_rr")
+        self.itemp_set = ("itemp_fl", "itemp_fr", "itemp_rl", "itemp_rr")
+
+        self.bar_width_temp = font_w * text_width
+        bar_style_stemp = (
+            f"color: {self.wcfg['font_color_surface']};"
+            f"background: {self.wcfg['bkg_color_surface']};"
+            f"min-width: {self.bar_width_temp}px;"
+        )
+        bar_style_itemp = (
+            f"color: {self.wcfg['font_color_innerlayer']};"
+            f"background: {self.wcfg['bkg_color_innerlayer']};"
+            f"min-width: {self.bar_width_temp}px;"
+        )
+
         if self.wcfg["show_inner_center_outer"]:
-            for item in self.stemp_set:
+            for suffix in self.stemp_set:
                 for idx in range(3):
-                    setattr(self, f"bar_{item}_{idx}", QLabel(text_def))
-                    getattr(self, f"bar_{item}_{idx}").setAlignment(Qt.AlignCenter)
-                    getattr(self, f"bar_{item}_{idx}").setStyleSheet(bar_style_stemp)
-                    if item == "stemp_fl":  # 2 1 0
-                        layout_stemp.addWidget(getattr(self, f"bar_{item}_{idx}"), 0, 2 - idx)
-                    if item == "stemp_fr":  # 7 8 9
-                        layout_stemp.addWidget(getattr(self, f"bar_{item}_{idx}"), 0, 7 + idx)
-                    if item == "stemp_rl":  # 2 1 0
-                        layout_stemp.addWidget(getattr(self, f"bar_{item}_{idx}"), 1, 2 - idx)
-                    if item == "stemp_rr":  # 7 8 9
-                        layout_stemp.addWidget(getattr(self, f"bar_{item}_{idx}"), 1, 7 + idx)
+                    setattr(self, f"bar_{suffix}_{idx}", QLabel(text_def))
+                    getattr(self, f"bar_{suffix}_{idx}").setAlignment(Qt.AlignCenter)
+                    getattr(self, f"bar_{suffix}_{idx}").setStyleSheet(bar_style_stemp)
+                    if suffix == "stemp_fl":  # 2 1 0
+                        layout_stemp.addWidget(
+                            getattr(self, f"bar_{suffix}_{idx}"), 0, 2 - idx)
+                    if suffix == "stemp_fr":  # 7 8 9
+                        layout_stemp.addWidget(
+                            getattr(self, f"bar_{suffix}_{idx}"), 0, 7 + idx)
+                    if suffix == "stemp_rl":  # 2 1 0
+                        layout_stemp.addWidget(
+                            getattr(self, f"bar_{suffix}_{idx}"), 1, 2 - idx)
+                    if suffix == "stemp_rr":  # 7 8 9
+                        layout_stemp.addWidget(
+                            getattr(self, f"bar_{suffix}_{idx}"), 1, 7 + idx)
 
             if self.wcfg["show_innerlayer"]:
-                for item in self.itemp_set:
+                for suffix in self.itemp_set:
                     for idx in range(3):
-                        setattr(self, f"bar_{item}_{idx}", QLabel(text_def))
-                        getattr(self, f"bar_{item}_{idx}").setAlignment(Qt.AlignCenter)
-                        getattr(self, f"bar_{item}_{idx}").setStyleSheet(bar_style_itemp)
-                        if item == "itemp_fl":  # 2 1 0
-                            layout_itemp.addWidget(getattr(self, f"bar_{item}_{idx}"), 0, 2 - idx)
-                        if item == "itemp_fr":  # 7 8 9
-                            layout_itemp.addWidget(getattr(self, f"bar_{item}_{idx}"), 0, 7 + idx)
-                        if item == "itemp_rl":  # 2 1 0
-                            layout_itemp.addWidget(getattr(self, f"bar_{item}_{idx}"), 1, 2 - idx)
-                        if item == "itemp_rr":  # 7 8 9
-                            layout_itemp.addWidget(getattr(self, f"bar_{item}_{idx}"), 1, 7 + idx)
+                        setattr(self, f"bar_{suffix}_{idx}", QLabel(text_def))
+                        getattr(self, f"bar_{suffix}_{idx}").setAlignment(Qt.AlignCenter)
+                        getattr(self, f"bar_{suffix}_{idx}").setStyleSheet(bar_style_itemp)
+                        if suffix == "itemp_fl":  # 2 1 0
+                            layout_itemp.addWidget(
+                                getattr(self, f"bar_{suffix}_{idx}"), 0, 2 - idx)
+                        if suffix == "itemp_fr":  # 7 8 9
+                            layout_itemp.addWidget(
+                                getattr(self, f"bar_{suffix}_{idx}"), 0, 7 + idx)
+                        if suffix == "itemp_rl":  # 2 1 0
+                            layout_itemp.addWidget(
+                                getattr(self, f"bar_{suffix}_{idx}"), 1, 2 - idx)
+                        if suffix == "itemp_rr":  # 7 8 9
+                            layout_itemp.addWidget(
+                                getattr(self, f"bar_{suffix}_{idx}"), 1, 7 + idx)
 
         else:
-            for item in self.stemp_set:
-                setattr(self, f"bar_{item}", QLabel(text_def))
-                getattr(self, f"bar_{item}").setAlignment(Qt.AlignCenter)
-                getattr(self, f"bar_{item}").setStyleSheet(bar_style_stemp)
-                if item == "stemp_fl":  # 0
-                    layout_stemp.addWidget(getattr(self, f"bar_{item}"), 0, 0)
-                if item == "stemp_fr":  # 9
-                    layout_stemp.addWidget(getattr(self, f"bar_{item}"), 0, 9)
-                if item == "stemp_rl":  # 0
-                    layout_stemp.addWidget(getattr(self, f"bar_{item}"), 1, 0)
-                if item == "stemp_rr":  # 9
-                    layout_stemp.addWidget(getattr(self, f"bar_{item}"), 1, 9)
+            for suffix in self.stemp_set:
+                setattr(self, f"bar_{suffix}", QLabel(text_def))
+                getattr(self, f"bar_{suffix}").setAlignment(Qt.AlignCenter)
+                getattr(self, f"bar_{suffix}").setStyleSheet(bar_style_stemp)
+                if suffix == "stemp_fl":  # 0
+                    layout_stemp.addWidget(
+                        getattr(self, f"bar_{suffix}"), 0, 0)
+                if suffix == "stemp_fr":  # 9
+                    layout_stemp.addWidget(
+                        getattr(self, f"bar_{suffix}"), 0, 9)
+                if suffix == "stemp_rl":  # 0
+                    layout_stemp.addWidget(
+                        getattr(self, f"bar_{suffix}"), 1, 0)
+                if suffix == "stemp_rr":  # 9
+                    layout_stemp.addWidget(
+                        getattr(self, f"bar_{suffix}"), 1, 9)
 
             if self.wcfg["show_innerlayer"]:
-                for item in self.itemp_set:
-                    setattr(self, f"bar_{item}", QLabel(text_def))
-                    getattr(self, f"bar_{item}").setAlignment(Qt.AlignCenter)
-                    getattr(self, f"bar_{item}").setStyleSheet(bar_style_itemp)
-                    if item == "itemp_fl":  # 0
-                        layout_itemp.addWidget(getattr(self, f"bar_{item}"), 0, 0)
-                    if item == "itemp_fr":  # 9
-                        layout_itemp.addWidget(getattr(self, f"bar_{item}"), 0, 9)
-                    if item == "itemp_rl":  # 0
-                        layout_itemp.addWidget(getattr(self, f"bar_{item}"), 1, 0)
-                    if item == "itemp_rr":  # 9
-                        layout_itemp.addWidget(getattr(self, f"bar_{item}"), 1, 9)
+                for suffix in self.itemp_set:
+                    setattr(self, f"bar_{suffix}", QLabel(text_def))
+                    getattr(self, f"bar_{suffix}").setAlignment(Qt.AlignCenter)
+                    getattr(self, f"bar_{suffix}").setStyleSheet(bar_style_itemp)
+                    if suffix == "itemp_fl":  # 0
+                        layout_itemp.addWidget(
+                            getattr(self, f"bar_{suffix}"), 0, 0)
+                    if suffix == "itemp_fr":  # 9
+                        layout_itemp.addWidget(
+                            getattr(self, f"bar_{suffix}"), 0, 9)
+                    if suffix == "itemp_rl":  # 0
+                        layout_itemp.addWidget(
+                            getattr(self, f"bar_{suffix}"), 1, 0)
+                    if suffix == "itemp_rr":  # 9
+                        layout_itemp.addWidget(
+                            getattr(self, f"bar_{suffix}"), 1, 9)
 
         # Set layout
         if self.wcfg["layout"] == 0:
@@ -212,40 +229,41 @@ class Draw(Widget):
         """Update when vehicle on track"""
         if self.wcfg["enable"] and read_data.state():
 
-            # Read tyre surface & inner temperature data
-            stemp = tuple(map(self.temp_mode, read_data.tyre_temp_surface()))
-            tcmpd = self.set_tyre_cmp(read_data.tyre_compound())
-
+            # Tyre compound
             if self.wcfg["show_tyre_compound"]:
+                tcmpd = self.set_tyre_cmp(read_data.tyre_compound())
                 self.update_tcmpd(tcmpd, self.last_tcmpd)
                 self.last_tcmpd = tcmpd
+
+            # Tyre temperature
+            stemp = tuple(map(self.temp_mode, read_data.tyre_temp_surface()))
 
             # Inner, center, outer mode
             if self.wcfg["show_inner_center_outer"]:
                 # Surface temperature
-                for item in self.stemp_set:
+                for suffix in self.stemp_set:
                     for idx in range(3):
-                        if item == "stemp_fl":  # 2 1 0
+                        if suffix == "stemp_fl":  # 2 1 0
                             self.update_stemp(
-                                f"{item}_{idx}",
+                                f"{suffix}_{idx}",
                                 stemp[0][2 - idx],
                                 self.last_stemp[0][2 - idx]
                             )
-                        if item == "stemp_fr":  # 0 1 2
+                        if suffix == "stemp_fr":  # 0 1 2
                             self.update_stemp(
-                                f"{item}_{idx}",
+                                f"{suffix}_{idx}",
                                 stemp[1][idx],
                                 self.last_stemp[1][idx]
                             )
-                        if item == "stemp_rl":  # 2 1 0
+                        if suffix == "stemp_rl":  # 2 1 0
                             self.update_stemp(
-                                f"{item}_{idx}",
+                                f"{suffix}_{idx}",
                                 stemp[2][2 - idx],
                                 self.last_stemp[2][2 - idx]
                             )
-                        if item == "stemp_rr":  # 0 1 2
+                        if suffix == "stemp_rr":  # 0 1 2
                             self.update_stemp(
-                                f"{item}_{idx}",
+                                f"{suffix}_{idx}",
                                 stemp[3][idx],
                                 self.last_stemp[3][idx]
                             )
@@ -253,30 +271,31 @@ class Draw(Widget):
 
                 # Inner layer temperature
                 if self.wcfg["show_innerlayer"]:
-                    itemp = tuple(map(self.temp_mode, read_data.tyre_temp_innerlayer()))
-                    for item in self.itemp_set:
+                    itemp = tuple(map(
+                        self.temp_mode, read_data.tyre_temp_innerlayer()))
+                    for suffix in self.itemp_set:
                         for idx in range(3):
-                            if item == "itemp_fl":  # 2 1 0
+                            if suffix == "itemp_fl":  # 2 1 0
                                 self.update_itemp(
-                                    f"{item}_{idx}",
+                                    f"{suffix}_{idx}",
                                     itemp[0][2 - idx],
                                     self.last_itemp[0][2 - idx]
                                 )
-                            if item == "itemp_fr":  # 0 1 2
+                            if suffix == "itemp_fr":  # 0 1 2
                                 self.update_itemp(
-                                    f"{item}_{idx}",
+                                    f"{suffix}_{idx}",
                                     itemp[1][idx],
                                     self.last_itemp[1][idx]
                                 )
-                            if item == "itemp_rl":  # 2 1 0
+                            if suffix == "itemp_rl":  # 2 1 0
                                 self.update_itemp(
-                                    f"{item}_{idx}",
+                                    f"{suffix}_{idx}",
                                     itemp[2][2 - idx],
                                     self.last_itemp[2][2 - idx]
                                 )
-                            if item == "itemp_rr":  # 0 1 2
+                            if suffix == "itemp_rr":  # 0 1 2
                                 self.update_itemp(
-                                    f"{item}_{idx}",
+                                    f"{suffix}_{idx}",
                                     itemp[3][idx],
                                     self.last_itemp[3][idx]
                                 )
@@ -284,14 +303,15 @@ class Draw(Widget):
             # Average mode
             else:
                 # Surface temperature
-                for idx, item in enumerate(self.stemp_set):
-                    self.update_stemp(item, stemp[idx], self.last_stemp[idx])
+                for idx, suffix in enumerate(self.stemp_set):
+                    self.update_stemp(suffix, stemp[idx], self.last_stemp[idx])
                 self.last_stemp = stemp
                 # Inner layer temperature
                 if self.wcfg["show_innerlayer"]:
-                    itemp = tuple(map(self.temp_mode, read_data.tyre_temp_innerlayer()))
-                    for idx, item in enumerate(self.itemp_set):
-                        self.update_itemp(item, itemp[idx], self.last_itemp[idx])
+                    itemp = tuple(map(
+                        self.temp_mode, read_data.tyre_temp_innerlayer()))
+                    for idx, suffix in enumerate(self.itemp_set):
+                        self.update_itemp(suffix, itemp[idx], self.last_itemp[idx])
                     self.last_itemp = itemp
 
     # GUI update methods
