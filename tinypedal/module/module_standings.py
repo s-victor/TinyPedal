@@ -80,7 +80,8 @@ class Realtime:
         "DistSet",
         [
         "Straight",
-        "Track",
+        #"Track",
+        "Traffic",
         "Yellow",
         ],
         defaults = ([999999] * 3)
@@ -132,7 +133,8 @@ class Realtime:
                     self.vehicles = list(self.__vehicle_data(veh_total, class_pos_list))
                     self.nearest = self.DistSet(
                         Straight = min(self.vehicles, key=nearest_line_dist).RelativeStraightDistance,
-                        Track = abs(min(self.vehicles, key=nearest_track_dist).RelativeDistance),
+                        #Track = abs(min(self.vehicles, key=nearest_track_dist).RelativeDistance),
+                        Traffic = abs(min(self.vehicles, key=nearest_traffic).RelativeTimeGap),
                         Yellow = abs(min(self.vehicles, key=nearest_yellow_dist).RelativeDistance),
                     )
 
@@ -225,7 +227,7 @@ class Realtime:
 
             # Position data
             pos_xz = (chknm(info.LastTele.mVehicles[tele_index].mPos.x),
-                    -chknm(info.LastTele.mVehicles[tele_index].mPos.z))
+                     -chknm(info.LastTele.mVehicles[tele_index].mPos.z))
             orientation_xz_radians = calc.oriyaw2rad(
                 chknm(info.LastTele.mVehicles[tele_index].mOri[2].x),
                 chknm(info.LastTele.mVehicles[tele_index].mOri[2].z))
@@ -277,23 +279,24 @@ class Realtime:
     def __calc_pit_time(self, index, in_pit, in_garage, last_laptime, elapsed_time, pit_status):
         """Calculate lap & pit time"""
         index *= 3
+        idx_inpit, idx_start, idx_timer = index, index + 1, index + 2
         # Pit status check
-        if pit_status != self.pit_time_list[index+0]:
-            self.pit_time_list[index+0] = pit_status  # last pit status
-            self.pit_time_list[index+1] = elapsed_time  # last etime stamp
+        if pit_status != self.pit_time_list[idx_inpit]:
+            self.pit_time_list[idx_inpit] = pit_status  # last pit status
+            self.pit_time_list[idx_start] = elapsed_time  # last etime stamp
         # Ignore pit timer in garage
         if in_garage:
-            self.pit_time_list[index+1] = -1
-            self.pit_time_list[index+2] = 0
+            self.pit_time_list[idx_start] = -1
+            self.pit_time_list[idx_timer] = 0
         # Start counting pit time
-        if self.pit_time_list[index+1] >= 0:
-            pit_time = min(max(elapsed_time - self.pit_time_list[index+1], 0), 999.9)
+        if self.pit_time_list[idx_start] >= 0:
+            pit_time = min(max(elapsed_time - self.pit_time_list[idx_start], 0), 999.9)
             if in_pit:
-                self.pit_time_list[index+2] = pit_time
+                self.pit_time_list[idx_timer] = pit_time
         # Reset pit time if made a valid lap time after pit
-        if not in_pit and self.pit_time_list[index+2] > 0 and last_laptime > 0:
-            self.pit_time_list[index+2] = 0
-        return self.pit_time_list[index+2]
+        if not in_pit and self.pit_time_list[idx_timer] > 0 and last_laptime > 0:
+            self.pit_time_list[idx_timer] = 0
+        return self.pit_time_list[idx_timer]
 
 
 def nearest_line_dist(value):
@@ -307,6 +310,13 @@ def nearest_track_dist(value):
     """Find nearest track distance"""
     if not value.IsPlayer:
         return abs(value.RelativeDistance)
+    return 999999
+
+
+def nearest_traffic(value):
+    """Find nearest traffic gap"""
+    if 0 == value.InPit > value.RelativeDistance:
+        return value.RelativeTimeGap
     return 999999
 
 

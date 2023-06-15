@@ -1,3 +1,14 @@
+WIP
+---------
+* Flag Widget
+    - Add "pit_closed_text" option, which sets custom pit closed text.
+    - Add "show_traffic" option, which shows incoming on-track
+      traffic indicator (time gap) while in pitlane or after pit-out.
+    - Add "traffic_maximum_time_gap" option, which sets
+      maximum time gap (seconds) of incoming on-track traffic.
+    - Add "traffic_pitout_duration" option, which sets
+      traffic indicator extended duration (seconds) after pit-out.
+
 2.1.6 (2023-06-12)
 -----------------------------
 * Deltabest Widget

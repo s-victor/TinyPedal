@@ -416,6 +416,9 @@ Show pit timer, and total amount time spent in pit after exit pit.
     pit_time_highlight_duration
 Set highlight duration for total amount time spent in pit after exit pit.
 
+    pit_closed_text
+Set custom pit closed text.
+
     font_color_pit_closed, bkg_color_pit_closed
 Set color indicator on pit timer when pit lane is closed.
 
@@ -459,10 +462,19 @@ Show race start lights indicator with light frame number for standing-type start
 Set display duration(seconds) for green flag text before it disappears. Default value is `3`.
 
     red_lights_text
-Set custom text for red lights. 
+Set custom text for red lights.
 
     green_flag_text
-Set custom text for green flag. 
+Set custom text for green flag.
+
+    show_traffic
+Show incoming on-track traffic indicator (time gap) while in pitlane or after pit-out.
+
+    traffic_maximum_time_gap
+Set maximum time gap (seconds) of incoming on-track traffic.
+
+    traffic_pitout_duration
+Set traffic indicator extended duration (seconds) after pit-out.
 
 
 ## Force

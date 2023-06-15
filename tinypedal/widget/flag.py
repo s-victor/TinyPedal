@@ -72,6 +72,7 @@ class Draw(Widget):
         column_yllw = self.wcfg["column_index_yellow_flag"]
         column_blue = self.wcfg["column_index_blue_flag"]
         column_slit = self.wcfg["column_index_startlights"]
+        column_icom = self.wcfg["column_index_traffic"]
 
         # Pit status
         if self.wcfg["show_pit_timer"]:
@@ -127,6 +128,15 @@ class Draw(Widget):
                 f"background: {self.wcfg['bkg_color_red_lights']};"
             )
 
+        # Incoming traffic
+        if self.wcfg["show_traffic"]:
+            self.bar_traffic = QLabel("TRAFFIC")
+            self.bar_traffic.setAlignment(Qt.AlignCenter)
+            self.bar_traffic.setStyleSheet(
+                f"color: {self.wcfg['font_color_traffic']};"
+                f"background: {self.wcfg['bkg_color_traffic']};"
+            )
+
         # Set layout
         if self.wcfg["layout"] == 0:
             # Vertical layout
@@ -142,6 +152,8 @@ class Draw(Widget):
                 layout.addWidget(self.bar_blueflag, column_blue, 0)
             if self.wcfg["show_startlights"]:
                 layout.addWidget(self.bar_startlights, column_slit, 0)
+            if self.wcfg["show_traffic"]:
+                layout.addWidget(self.bar_traffic, column_icom, 0)
         else:
             # Horizontal layout
             if self.wcfg["show_pit_timer"]:
@@ -156,6 +168,8 @@ class Draw(Widget):
                 layout.addWidget(self.bar_blueflag, 0, column_blue)
             if self.wcfg["show_startlights"]:
                 layout.addWidget(self.bar_startlights, 0, column_slit)
+            if self.wcfg["show_traffic"]:
+                layout.addWidget(self.bar_traffic, 0, column_icom)
         self.setLayout(layout)
 
         # Last data
@@ -179,6 +193,8 @@ class Draw(Widget):
         self.last_yellow_flag = None
         self.last_start_timer = None
         self.last_lap_stime = 0
+        self.last_traffic = None
+        self.traffic_timer_start = None
 
     @Slot()
     def update_data(self):
@@ -201,7 +217,7 @@ class Draw(Widget):
                 if inpits != self.last_inpits:
                     if inpits:
                         self.pit_timer_start = lap_etime
-                    self.last_inpits = inpits
+                    #self.last_inpits = inpits
 
                 if self.pit_timer_start:
                     if inpits:
@@ -228,7 +244,6 @@ class Draw(Widget):
                     bool(not self.wcfg["show_low_fuel_for_race_only"] or
                          self.wcfg["show_low_fuel_for_race_only"] and is_race)
                 )
-
                 self.update_lowfuel(fuel_usage, self.last_fuel_usage)
                 self.last_fuel_usage = fuel_usage
 
@@ -243,9 +258,9 @@ class Draw(Widget):
                 blue_flag = read_data.blue_flag()
                 blue_flag_timer = -1
 
-                if self.last_blue_flag != blue_flag and blue_flag == 6:
+                if self.last_blue_flag != blue_flag == 6:
                     self.blue_flag_timer_start = lap_etime
-                elif self.last_blue_flag != blue_flag and blue_flag != 6:
+                elif self.last_blue_flag != blue_flag != 6:
                     self.blue_flag_timer_start = 0
                 self.last_blue_flag = blue_flag
 
@@ -262,7 +277,7 @@ class Draw(Widget):
 
             # Yellow flag
             if self.wcfg["show_yellow_flag"]:
-                #yellow_flag = [1,1,1,0,0]# testing
+                #yellow_flag = [1,1,1,0,0,0]# testing
                 yellow_flag = (
                     *read_data.yellow_flag(),  # 0,1,2
                     mctrl.module_standings.nearest.Yellow,  # 3
@@ -282,39 +297,57 @@ class Draw(Widget):
                 green = 1  # enable green flag
                 start_timer = max(self.last_lap_stime - lap_etime,
                                   -self.wcfg["green_flag_duration"])
-
                 if start_timer > 0:
                     green = 0  # enable red lights
                 elif -start_timer == self.wcfg["green_flag_duration"]:
                     green = 2  # disable green flag
-
-                if self.wcfg["show_startlights"]:
-                    self.update_startlights(start_timer, self.last_start_timer, green)
-
+                self.update_startlights(start_timer, self.last_start_timer, green)
                 self.last_start_timer = start_timer
+
+            # Incoming traffic
+            if self.wcfg["show_traffic"]:
+                if inpits != self.last_inpits:
+                    if not inpits and self.last_inpits:
+                        self.traffic_timer_start = lap_etime
+
+                if (self.traffic_timer_start and
+                    self.wcfg["traffic_pitout_duration"]
+                    < lap_etime - self.traffic_timer_start):
+                    self.traffic_timer_start = 0
+
+                traffic = (
+                    mctrl.module_standings.nearest.Traffic,
+                    bool(0 < mctrl.module_standings.nearest.Traffic
+                         < self.wcfg["traffic_maximum_time_gap"]
+                         and (inpits or self.traffic_timer_start)))
+                self.update_traffic(traffic, self.last_traffic)
+                self.last_traffic = traffic
+
+            # Reset
+            if inpits != self.last_inpits:
+                self.last_inpits = inpits
 
         else:
             if self.checked:
                 self.set_defaults()
 
     # GUI update methods
-    def update_pit_timer(self, curr, last, phase, mode=0):
+    def update_pit_timer(self, curr, last, pitopen, highlight):
         """Pit timer"""
         if curr != last:  # timer
             if curr != -1:
-                if mode == 0:
-                    if phase == 0:
-                        color = (f"color: {self.wcfg['font_color_pit_closed']};"
-                                 f"background: {self.wcfg['bkg_color_pit_closed']};")
-                        state = "P CLOSE"
-                    else:
-                        color = (f"color: {self.wcfg['font_color_pit_timer']};"
-                                 f"background: {self.wcfg['bkg_color_pit_timer']};")
-                        state = "P " + f"{curr:.02f}"[:5].rjust(5)
-                else:  # highlight
+                if highlight:
                     color = (f"color: {self.wcfg['font_color_pit_timer_stopped']};"
                              f"background: {self.wcfg['bkg_color_pit_timer_stopped']};")
                     state = "F " + f"{curr:.02f}"[:5].rjust(5)
+                elif pitopen:
+                    color = (f"color: {self.wcfg['font_color_pit_timer']};"
+                                f"background: {self.wcfg['bkg_color_pit_timer']};")
+                    state = "P " + f"{curr:.02f}"[:5].rjust(5)
+                else:
+                    color = (f"color: {self.wcfg['font_color_pit_closed']};"
+                                f"background: {self.wcfg['bkg_color_pit_closed']};")
+                    state = self.wcfg["pit_closed_text"]
 
                 self.bar_pit_timer.setText(state)
                 self.bar_pit_timer.setStyleSheet(color)
@@ -384,10 +417,11 @@ class Draw(Widget):
             else:
                 self.bar_startlights.hide()
 
-    # Additional methods
-    @staticmethod
-    def yflag_text(value, sector):
-        """Yellow flag text"""
-        if value == 1:
-            return f" S{sector}"
-        return ""
+    def update_traffic(self, curr, last):
+        """Incoming traffic"""
+        if curr != last:
+            if curr[1]:
+                self.bar_traffic.setText(f"≥{curr[0]:6.01f}")
+                self.bar_traffic.show()
+            else:
+                self.bar_traffic.hide()
