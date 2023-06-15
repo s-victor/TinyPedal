@@ -1,5 +1,5 @@
-WIP
----------
+2.1.7 (2023-06-16)
+-----------------------------
 * Flag Widget
     - Add "pit_closed_text" option, which sets custom pit closed text.
     - Add "show_traffic" option, which shows incoming on-track
@@ -10,7 +10,13 @@ WIP
       traffic indicator extended duration (seconds) after pit-out.
 
 * Delta & Fuel Module
-    - Add additional delta data check and auto error correction.
+    - Add additional delta data validation and error correction methods,
+      which auto corrects potential data desynced & disordered issue
+      between recorded laptime and corresponding distance data
+      that could happen in rare cases.
+
+* Misc
+    - Updated user guide with new options for Flag Widget.
 
 2.1.6 (2023-06-12)
 -----------------------------

@@ -200,7 +200,7 @@ class Realtime:
                         pos_estimate,
                         used_curr,
                         delta_list_last,
-                        laptime_curr > 0.3 and not ingarage,  # 200ms delay
+                        laptime_curr > 0.3 and not ingarage,  # 300ms delay
                     )
 
                 # Exclude first lap & pit in & out lap
