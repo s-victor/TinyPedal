@@ -30,6 +30,7 @@ from collections import namedtuple
 from ..const import PATH_FUEL
 from ..readapi import info, chknm, state, combo_check
 from .. import calculation as calc
+from .. import validator as val
 
 MODULE_NAME = "module_fuel"
 DELTA_ZERO = 0.0,0.0
@@ -87,6 +88,7 @@ class Realtime:
     def __calculation(self):
         """Fuel calculation"""
         reset = False
+        delayed_save = False
         active_interval = self.mcfg["update_interval"] / 1000
         idle_interval = self.mcfg["idle_update_interval"] / 1000
         update_interval = idle_interval
@@ -106,6 +108,7 @@ class Realtime:
                     recording = False
                     pittinglap = False
                     validating = False
+                    delayed_save = False
 
                     combo_name = combo_check()
                     delta_list_last = self.load_deltafuel(combo_name)
@@ -163,6 +166,11 @@ class Realtime:
                     pittinglap = False
                 last_lap_stime = lap_stime  # reset
 
+                # 1 sec position distance check after new lap begins
+                # Reset to 0 if higher than normal distance
+                if 0 < laptime_curr < 1 and pos_curr > 300:
+                    pos_last = pos_curr = 0
+
                 # Update if position value is different & positive
                 if 0 <= pos_curr != pos_last:
                     if recording and pos_curr > pos_last:  # position further
@@ -180,6 +188,7 @@ class Realtime:
                             delta_list_last = delta_list_temp
                             delta_list_temp = [DELTA_ZERO]
                             validating = False
+                            delayed_save = True
                     elif 3 < laptime_curr < 5:  # switch off after 3s
                         validating = False
 
@@ -191,7 +200,7 @@ class Realtime:
                         pos_estimate,
                         used_curr,
                         delta_list_last,
-                        laptime_curr > 0.2 and not ingarage,  # 200ms delay
+                        laptime_curr > 0.3 and not ingarage,  # 200ms delay
                     )
 
                 # Exclude first lap & pit in & out lap
@@ -254,7 +263,8 @@ class Realtime:
                 if reset:
                     reset = False
                     update_interval = idle_interval  # longer delay while inactive
-                    self.save_deltafuel(combo_name, delta_list_last)
+                    if delayed_save:
+                        self.save_deltafuel(combo_name, delta_list_last)
 
             time.sleep(update_interval)
 
@@ -293,11 +303,13 @@ class Realtime:
                       newline="", encoding="utf-8") as csvfile:
                 deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 lastlist = list(deltaread)
-                lastlist[-1][1]  # test read fuel consumption
                 lastlist[-1][2]  # test read last laptime
-        except (FileNotFoundError, IndexError, ValueError):
+                # Validate data
+                if not val.delta_list(lastlist):
+                    self.save_deltafuel(combo, lastlist)
+        except (FileNotFoundError, IndexError, ValueError, TypeError):
             logger.info("no valid fuel data file found")
-            lastlist = [(0,0,0)]
+            lastlist = [(99999,0,0)]
         return lastlist
 
     def save_deltafuel(self, combo, listname):

@@ -233,7 +233,7 @@ SETTING_DEFAULT = {
         "bkg_color_time_loss": "#FF4400",
         "show_delta_bar": True,
         "bkg_color_deltabar": "#222222",
-        "bar_length": 400,
+        "bar_length": 300,
         "bar_height": 16,
         "bar_display_range": 2,
         "delta_display_range": 99.999,

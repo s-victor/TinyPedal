@@ -20,6 +20,7 @@
 Friction circle Widget
 """
 
+from collections import deque
 from PySide2.QtCore import Qt, Slot, QPointF, QRectF
 from PySide2.QtGui import (
     QPainter,
@@ -111,7 +112,7 @@ class Draw(Widget):
 
         self.gforce_raw = [0,0]
         self.last_gforce_raw = None
-        self.gforce_trace = []
+        self.gforce_trace = deque([], max(self.wcfg["trace_max_samples"], 5))
 
         # Set widget state & start update
         self.set_widget_state()
@@ -149,8 +150,6 @@ class Draw(Widget):
 
     def update_gforce_trace(self):
         """G force trace update"""
-        if len(self.gforce_trace) > self.wcfg["trace_max_samples"]:
-            self.gforce_trace.pop(0)
         self.gforce_trace.append(
             QPointF(
                 self.scale_position(self.gforce_raw[1]),

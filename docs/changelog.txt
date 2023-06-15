@@ -9,6 +9,9 @@ WIP
     - Add "traffic_pitout_duration" option, which sets
       traffic indicator extended duration (seconds) after pit-out.
 
+* Delta & Fuel Module
+    - Add additional delta data check and auto error correction.
+
 2.1.6 (2023-06-12)
 -----------------------------
 * Deltabest Widget

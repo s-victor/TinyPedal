@@ -49,6 +49,24 @@ def is_folder_exist(folder_name):
             logger.error("failed to create %s folder", folder_name)
 
 
+# Delta list validate
+def delta_list(listname):
+    """Validate delta data list"""
+    # Compare second column last 2 row values
+    if listname[-1][1] < listname[-2][1]:
+        raise ValueError
+    # Remove distance greater than half of track length
+    max_dist = listname[-1][0] * 0.5  # half of track length
+    pop_index = tuple(  # add invalid index in reverse order
+        (idx for idx in range(11, 0, -1) if listname[idx][0] > max_dist)
+    )
+    if pop_index:
+        for idx in pop_index:
+            listname.pop(idx)  # del invalid row
+        return False  # list modified
+    return True  # list no change
+
+
 # Color validate
 def color_validator(color_str):
     """Validate color value"""

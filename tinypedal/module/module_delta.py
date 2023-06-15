@@ -29,6 +29,7 @@ from collections import namedtuple
 from ..const import PATH_DELTABEST
 from ..readapi import info, chknm, state, combo_check
 from .. import calculation as calc
+from .. import validator as val
 
 MODULE_NAME = "module_delta"
 DELTA_ZERO = 0.0,0.0
@@ -126,6 +127,11 @@ class Realtime:
                     recording = laptime_curr < 1
                 last_lap_stime = lap_stime  # reset
 
+                # 1 sec position distance check after new lap begins
+                # Reset to 0 if higher than normal distance
+                if 0 < laptime_curr < 1 and pos_curr > 300:
+                    pos_last = pos_curr = 0
+
                 # Update if position value is different & positive
                 if 0 <= pos_curr != pos_last:
                     if recording and pos_curr > pos_last:  # position further
@@ -137,7 +143,7 @@ class Realtime:
                 # Validating 1s after passing finish line
                 if validating:
                     if 1 < laptime_curr <= 8:  # compare current time
-                        if laptime_last < laptime_best and lastlap_valid:
+                        if laptime_last < laptime_best and abs(lastlap_valid - laptime_last) < 1:
                             laptime_best = laptime_last
                             delta_list_best = delta_list_last
                             delta_list_last = [DELTA_ZERO]
@@ -156,7 +162,7 @@ class Realtime:
                         pos_estimate,
                         laptime_curr,
                         delta_list_best,
-                        laptime_curr > 0.2,  # 200ms delay
+                        laptime_curr > 0.3,  # 200ms delay
                         0.02,  # add 20ms offset
                     )
                     # Update driven distance
@@ -170,7 +176,7 @@ class Realtime:
                     LaptimeBest = laptime_best,
                     LaptimeEstimated = laptime_best + delta_best,
                     DeltaBest = delta_best,
-                    IsValidLap = lastlap_valid,
+                    IsValidLap = lastlap_valid > 0,
                     MetersDriven = meters_driven,
                 )
 
@@ -193,7 +199,7 @@ class Realtime:
         """Telemetry data"""
         lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
         laptime_curr = max(chknm(info.syncedVehicleTelemetry().mElapsedTime) - lap_stime, 0)
-        lastlap_valid = chknm(info.syncedVehicleScoring().mLastLapTime) > 0
+        lastlap_valid = chknm(info.syncedVehicleScoring().mLastLapTime)
         pos_curr = chknm(info.syncedVehicleScoring().mLapDist)
         gps_curr = (chknm(info.syncedVehicleTelemetry().mPos.x),
                     chknm(info.syncedVehicleTelemetry().mPos.y),
@@ -207,10 +213,12 @@ class Realtime:
                       newline="", encoding="utf-8") as csvfile:
                 deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 bestlist = list(deltaread)
-                bestlist[-1][1]  # test read best laptime
-        except (FileNotFoundError, IndexError, ValueError):
+                # Validate data
+                if not val.delta_list(bestlist):
+                    self.save_deltabest(combo, bestlist)
+        except (FileNotFoundError, IndexError, ValueError, TypeError):
             logger.info("no valid deltabest data file found")
-            bestlist = [(0,99999)]
+            bestlist = [(99999,99999)]
         return bestlist
 
     def save_deltabest(self, combo, listname):
