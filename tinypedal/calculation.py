@@ -225,13 +225,6 @@ def color_heatmap(heatmap, temperature):
     return heatmap[-1][1]
 
 
-def del_decimal_point(value):
-    """Delete decimal point"""
-    if value and value[-1] == ".":
-        return value[:-1]
-    return value
-
-
 def lap_difference(opt_laps, plr_laps, opt_per_dist, plr_per_dist, session=10):
     """Calculate lap difference between 2 players"""
     lap_diff = opt_laps + opt_per_dist - plr_laps - plr_per_dist
@@ -292,3 +285,38 @@ def delta_telemetry(position, live_data, delta_list, condition=True, offset=0):
             )
         )
     return 0
+
+
+def scale_map(map_data, area_size, margin=0):
+    """Scale map data"""
+    # Separate X & Y coordinates
+    x_range, y_range = list(zip(*map_data))
+    # Map size: x=width, y=height
+    map_range = min(x_range), max(x_range), min(y_range), max(y_range)
+    map_size = map_range[1] - map_range[0], map_range[3] - map_range[2]
+    # Display area / map_size
+    map_scale = (area_size - margin * 2) / max(map_size[0], map_size[1])
+    # Alignment offset
+    if map_size[0] > map_size[1]:
+        map_offset = margin, (area_size - map_size[1] * map_scale) * 0.5
+    else:
+        map_offset = (area_size - map_size[0] * map_scale) * 0.5, margin
+    x_range_scaled = [(x_pos - map_range[0]) * map_scale + map_offset[0]
+                        for x_pos in x_range]
+    y_range_scaled = [(y_pos - map_range[2]) * map_scale + map_offset[1]
+                        for y_pos in y_range]
+    return list(zip(x_range_scaled, y_range_scaled)), map_range, map_scale, map_offset
+
+
+def map_view_box(map_data, margin=0):
+    """Map bounding box"""
+    # Separate X & Y coordinates
+    x_range, y_range = list(zip(*map_data))
+    # Map size: x=width, y=height
+    map_range = min(x_range), max(x_range), min(y_range), max(y_range)
+    map_size = map_range[1] - map_range[0], map_range[3] - map_range[2]
+    x1 = round(map_range[0] - margin, 4)
+    y1 = round(map_range[2] - margin, 4)
+    x2 = round(map_size[0] + margin * 2, 4)
+    y2 = round(map_size[1] + margin * 2, 4)
+    return f"{x1} {y1} {x2} {y2}"

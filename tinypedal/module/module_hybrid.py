@@ -74,17 +74,7 @@ class Realtime:
 
     def __calculation(self):
         """Hybrid calculation"""
-        verified = False  # additional check for conserving resources
-        last_lap_stime = 0  # last lap start time
-        battery_delta = [0,0,0,0]  # battery drain & regen, last lap drain & regen
-        last_battery_charge = 0
-        last_motor_state = 0
-        motor_active_timer = 0
-        motor_active_timer_start = False
-        motor_inactive_timer = 99999
-        motor_inactive_timer_start = False
-        lap_etime_last = 0
-
+        reset = False  # additional check for conserving resources
         active_interval = self.mcfg["update_interval"] / 1000
         idle_interval = self.mcfg["idle_update_interval"] / 1000
         update_interval = idle_interval
@@ -92,13 +82,26 @@ class Realtime:
         while self.running:
             if state():
 
+                if not reset:
+                    reset = True
+                    update_interval = active_interval
+
+                    battery_delta = [0,0,0,0]  # battery drain & regen & last
+                    last_battery_charge = 0
+                    last_motor_state = 0
+                    motor_active_timer = 0
+                    motor_active_timer_start = False
+                    motor_inactive_timer = 99999
+                    motor_inactive_timer_start = False
+                    lap_etime_last = 0
+                    last_lap_stime = 0  # last lap start time
+
+                # Read telemetry
                 (lap_stime, lap_etime, battery_charge, motor_state) = self.__telemetry()
 
-                # Save switch
-                if not verified:
-                    verified = True
-                    update_interval = active_interval  # shorter delay
-                    last_lap_stime = lap_stime  # reset time stamp counter
+                # Reset lap start time
+                if 0 == last_lap_stime != lap_stime:
+                    last_lap_stime = lap_stime
 
                 if lap_stime != last_lap_stime:  # time stamp difference
                     last_lap_stime = lap_stime  # reset
@@ -145,17 +148,9 @@ class Realtime:
                 )
 
             else:
-                if verified:
-                    verified = False
-                    update_interval = idle_interval  # longer delay while inactive
-                    lap_etime_last = 0
-                    battery_delta = [0,0,0,0]
-                    last_battery_charge = 0
-                    last_motor_state = 0
-                    motor_active_timer = 0
-                    motor_active_timer_start = False
-                    motor_inactive_timer = 99999
-                    motor_inactive_timer_start = False
+                if reset:
+                    reset = False
+                    update_interval = idle_interval
 
             time.sleep(update_interval)
 

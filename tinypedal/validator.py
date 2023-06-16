@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 # Value validate
-def in2zero(value):
+def numeric_validator(value):
     """Convert invalid value to zero"""
     if isinstance(value, (float, int)) and math.isfinite(value):
         return value
@@ -83,35 +83,6 @@ def verify_heatmap(heatmap_dict):
         if not color_validator(color):
             return False
     return True
-
-
-# Format name
-def format_widget_name(name):
-    """Format widget name"""
-    name = re.sub("_", " ", name)
-
-    if re.search(rxp.REGEX_WIDGET_NAME, name):
-        return name.upper()
-    return name.capitalize()
-
-
-def format_module_name(name):
-    """Format module name"""
-    name = re.sub("module_", "", name)
-    name = re.sub("_", " ", name)
-    return name.capitalize()
-
-
-def format_option_name(name):
-    """Format option name"""
-    name = re.sub("bkg", "background", name)
-    name = re.sub("_", " ", name)
-    return name.title()
-
-
-def format_invalid_char(name):
-    """Format filename"""
-    return re.sub('[\\\\/:*?"<>|]', "", name)
 
 
 # Setting validate

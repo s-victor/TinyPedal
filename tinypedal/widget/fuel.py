@@ -28,6 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
+from .. import formatter as fmt
 from .. import readapi as read_data
 from ..base import Widget
 from ..module_control import mctrl
@@ -346,7 +347,7 @@ class Draw(Widget):
                     f"{self.style_width}{self.style_font_size}"
                 )
             getattr(self, f"bar_fuel_{suffix}").setText(
-                calc.del_decimal_point(curr[:self.bar_width]))
+                fmt.strip_decimal_pt(curr[:self.bar_width]))
 
     def update_fuel_level(self, curr, last):
         """Fuel level update"""

@@ -78,8 +78,7 @@ class Realtime:
 
     def __calculation(self):
         """Force calculation"""
-        checked = False
-
+        reset = False
         active_interval = self.mcfg["update_interval"] / 1000
         idle_interval = self.mcfg["idle_update_interval"] / 1000
         update_interval = idle_interval
@@ -87,12 +86,9 @@ class Realtime:
         while self.running:
             if state():
 
-                (elapsed_time, lgt_accel, lat_accel, dforce_f, dforce_r
-                 ) = self.__telemetry()
-
-                if not checked:
-                    checked = True
-                    update_interval = active_interval  # shorter delay
+                if not reset:
+                    reset = True
+                    update_interval = active_interval
 
                     gen_max_avg_lgt = self.calc_max_avg_gforce()
                     max_avg_lgt_gforce = next(gen_max_avg_lgt)
@@ -103,6 +99,10 @@ class Realtime:
                     max_lgt_gforce = next(gen_max_lgt)
                     gen_max_lat = self.calc_max_gforce()
                     max_lat_gforce = next(gen_max_lat)
+
+                # Read telemetry
+                (elapsed_time, lgt_accel, lat_accel, dforce_f, dforce_r
+                 ) = self.__telemetry()
 
                 # G raw
                 lgt_gforce_raw = calc.gforce(
@@ -139,9 +139,9 @@ class Realtime:
                 )
 
             else:
-                if checked:
-                    checked = False
-                    update_interval = idle_interval  # longer delay while inactive
+                if reset:
+                    reset = False
+                    update_interval = idle_interval
 
             time.sleep(update_interval)
 

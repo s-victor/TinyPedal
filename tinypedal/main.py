@@ -47,6 +47,7 @@ from PySide2.QtWidgets import (
 
 from .setting import cfg
 from . import validator as val
+from . import formatter as fmt
 from .const import APP_NAME, VERSION, APP_ICON, PATH_SETTINGS
 from .about import About
 from .readapi import info
@@ -351,7 +352,7 @@ class WidgetList(QWidget):
         for obj in wctrl.WIDGET_PACK:
             widget_item = QWidget()
             widget_item.setStyleSheet("font-size: 16px;")
-            label_widget = QLabel(val.format_widget_name(obj.WIDGET_NAME))
+            label_widget = QLabel(fmt.format_widget_name(obj.WIDGET_NAME))
             button_toggle = self.widget_toggle_button(obj)
             button_config = self.widget_config_button(obj.WIDGET_NAME)
 
@@ -482,7 +483,7 @@ class ModuleList(QWidget):
         for obj in mctrl.MODULE_PACK:
             module_item = QWidget()
             module_item.setStyleSheet("font-size: 16px;")
-            label_module = QLabel(val.format_module_name(obj.MODULE_NAME))
+            label_module = QLabel(fmt.format_module_name(obj.MODULE_NAME))
             button_toggle = self.module_toggle_button(obj)
             button_config = self.module_config_button(obj.MODULE_NAME)
 

@@ -30,6 +30,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
+from .. import formatter as fmt
 from .. import readapi as read_data
 from ..base import Widget
 from ..module_control import mctrl
@@ -392,7 +393,7 @@ class Draw(Widget):
                          f"background: {self.wcfg['bkg_color_time_gap']};")
 
             getattr(self, f"row_{suffix}").setText(
-                calc.del_decimal_point(curr[0][:self.gap_width]).rjust(self.gap_width))
+                fmt.strip_decimal_pt(curr[0][:self.gap_width]).rjust(self.gap_width))
             getattr(self, f"row_{suffix}").setStyleSheet(
                 f"{color}{self.bar_width_gap}"
             )

@@ -45,6 +45,7 @@ from PySide2.QtWidgets import (
 
 from .setting import cfg
 from . import validator as val
+from . import formatter as fmt
 from .const import APP_ICON
 from .module_control import mctrl
 from .widget_control import wctrl
@@ -236,7 +237,7 @@ class WidgetConfig(QDialog):
         self.number_locale = QLocale(QLocale.C)
         self.number_locale.setNumberOptions(QLocale.RejectGroupSeparator)
 
-        self.setWindowTitle(f"{val.format_option_name(obj_name)}")
+        self.setWindowTitle(f"{fmt.format_option_name(obj_name)}")
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 
@@ -401,7 +402,7 @@ class WidgetConfig(QDialog):
         column_index_option = 1
 
         for idx, key in enumerate(key_list_user):
-            setattr(self, f"label_{key}", QLabel(f"{val.format_option_name(key)}"))
+            setattr(self, f"label_{key}", QLabel(f"{fmt.format_option_name(key)}"))
             self.layout_option.addWidget(getattr(self, f"label_{key}"), idx, column_index_label)
             #print(key, cfg.setting_user[self.obj_name][key])
             # Bool

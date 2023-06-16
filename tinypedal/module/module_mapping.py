@@ -23,13 +23,12 @@ Mapping module
 import logging
 import time
 import threading
-import re
 import xml.dom.minidom
 
 from ..const import PATH_TRACKMAP
 from ..readapi import info, chknm, cs2py, state
 from .. import calculation as calc
-from .. import validator as val
+from .. import formatter as fmt
 
 MODULE_NAME = "module_mapping"
 
@@ -39,7 +38,6 @@ logger = logging.getLogger(__name__)
 class Realtime:
     """Mapping data"""
     module_name = MODULE_NAME
-    filepath = PATH_TRACKMAP
 
     def __init__(self, mctrl, config):
         self.mctrl = mctrl
@@ -67,27 +65,8 @@ class Realtime:
 
     def __calculation(self):
         """Mapping calculation"""
-        recording = False  # set recording state
-        verified = False  # additional check for conserving resources
-        validating = False  # validate after cross finish line
-        map_exist = False
-
-        sector_index = [0,0]
-        coords_list_curr = []  # coordinates list, current lap
-        coords_list_last = []  # coordinates list, last lap, used for verification only
-        dist_list_curr = []  # distance list, current lap
-        dist_list_last = []  # distance list, last lap, used for verification only
-        pos_last = 0  # last checked player vehicle position
-        last_lap_stime = 0  # last lap start time
-        last_lap_etime = 0  # last elapsed time
-        last_sector_idx = -1
-
-        raw_coords = None
-        raw_dists = None
-        map_file = None
-        svg_path_coords = None
-        svg_path_dist = None
-
+        reset = False
+        map_data = MapData()
         active_interval = self.mcfg["update_interval"] / 1000
         idle_interval = self.mcfg["idle_update_interval"] / 1000
         update_interval = idle_interval
@@ -95,115 +74,35 @@ class Realtime:
         while self.running:
             if state():
 
-                if not map_exist:
-                    (sector_idx, lap_stime, lap_etime, lastlap_check,
-                     pos_curr, gps_curr, elv_curr) = self.__telemetry()
+                if not reset:
+                    reset = True
+                    update_interval = active_interval
 
-                    # Load & verify track map data
-                    if not verified:
-                        update_interval = active_interval  # shorter delay
-                        verified = True
-                        last_lap_stime = lap_stime  # reset lap-start-time
-                        last_sector_idx = -1
+                    map_data.reset()
+                    map_data.load()
+                    if map_data.exist:
+                        update_interval = idle_interval
+                        self.set_output(
+                            map_data.raw_coords,
+                            map_data.raw_dists,
+                            map_data.sector_index
+                        )
+                    else:
+                        self.set_output()
 
-                        map_file = val.format_invalid_char(
-                            cs2py(info.LastScor.mScoringInfo.mTrackName))
-                        # Load map file
-                        (svg_path_coords, svg_path_dist, sector_index
-                         ) = load_svg(map_file, self.filepath)
-                        if svg_path_coords:
-                            #logger.info("map exist")
-                            raw_coords = points_to_coords(svg_path_coords)
-                            raw_dists = points_to_coords(svg_path_dist)
-                            self.set_output(raw_coords, raw_dists, sector_index)
-                            map_exist = True
-                            update_interval = idle_interval
-                            continue
-                        else:
-                            #logger.info("map not exist")
-                            map_exist = False
-                            self.set_output()
-
-                    laptime_curr = max(lap_etime - last_lap_stime, 0)
-
-                    # Lap start & finish detection
-                    if lap_stime > last_lap_stime:  # difference of lap-start-time
-                        # End last lap recording
-                        if coords_list_curr:
-                            if calc.distance(coords_list_curr[0], gps_curr) > 500:
-                                coords_list_curr.append(gps_curr)
-                                dist_list_curr.append((pos_curr, elv_curr))
-                            coords_list_last = coords_list_curr
-                            dist_list_last = dist_list_curr
-                            validating = True
-
-                        # Reset data
-                        coords_list_curr = []
-                        dist_list_curr = []
-                        last_lap_stime = lap_stime
-                        pos_last = 0
-                        last_lap_etime = 0
-
-                        # Activate recording
-                        recording = True
-                        #logger.info("map recording")
-
-                    if validating:
-                        if 1 < laptime_curr <= 8 and lastlap_check > 0:
-                            # Store & convert raw coordinates to svg points data
-                            raw_coords = coords_list_last
-                            raw_dists = dist_list_last
-                            svg_path_coords = coords_to_points(raw_coords)
-                            svg_path_dist = coords_to_points(raw_dists)
-
-                            # Save to svg file
-                            view_box = self.scale_map(raw_coords, False)
-                            save_svg(
-                                map_file, self.filepath,
-                                svg_path_coords, svg_path_dist,
-                                view_box, sector_index
-                            )
-                            self.set_output(raw_coords, raw_dists, sector_index)
-
-                            # Reset data
-                            validating = False
-                            recording = False
-                            map_exist = True
-                            update_interval = idle_interval
-                            continue
-                            #logger.info("map saved, stopped map recording")
-                        elif 8 < laptime_curr < 10:  # switch off validating after 8s
-                            validating = False
-
-                    # Recording only from the beginning of a lap
-                    if recording:
-                        # Sector index
-                        if last_sector_idx != sector_idx:
-                            if sector_idx == 1:
-                                sector_index[0] = len(coords_list_curr) - 1
-                            elif sector_idx == 2:
-                                sector_index[1] = len(coords_list_curr) - 1
-                            last_sector_idx = sector_idx
-
-                        # Update position if current dist value is diff & positive
-                        if pos_curr != pos_last and pos_curr >= 0:
-                            # Record if position & time is further
-                            if pos_curr > pos_last and lap_etime > last_lap_etime:
-                                coords_list_curr.append(gps_curr)
-                                dist_list_curr.append((pos_curr, elv_curr))
-
-                            pos_last = pos_curr  # reset last position
-                            last_lap_etime = lap_etime  # reset last elapsed time
-
+                if not map_data.exist:
+                    map_data.update()
+                    if map_data.exist:
+                        update_interval = idle_interval
+                        self.set_output(
+                            map_data.raw_coords,
+                            map_data.raw_dists,
+                            map_data.sector_index
+                        )
             else:
-                if verified:
-                    recording = False
-                    verified = False
-                    validating = False
-                    map_exist = False
-                    update_interval = idle_interval  # longer delay while inactive
-                    coords_list_curr = []
-                    dist_list_curr = []
+                if reset:
+                    reset = False
+                    update_interval = idle_interval
 
             time.sleep(update_interval)
 
@@ -211,6 +110,143 @@ class Realtime:
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("mapping module closed")
+
+
+class MapData:
+    """Map data"""
+    filepath = PATH_TRACKMAP
+
+    def __init__(self):
+        self._map_exist = False
+        self.recording = False
+        self.validating = False
+
+        self.coords_list_curr = []  # coordinates list, current lap
+        self.coords_list_last = []  # for verification only
+        self.dist_list_curr = []  # distance list, current lap
+        self.dist_list_last = []  # for verification only
+        self.pos_last = 0  # last checked player vehicle position
+        self.last_lap_stime = 0  # last lap start time
+        self.last_sector_idx = -1
+
+        self.raw_coords = None
+        self.raw_dists = None
+        self.map_file = None
+        self.svg_path_coords = None
+        self.svg_path_dist = None
+        self.sector_index = [0,0]
+
+    def update(self):
+        """Update map data"""
+        # Read telemetry
+        (sector_idx, lap_stime, lap_etime, lastlap_check,
+         pos_curr, gps_curr, elv_curr) = self.__telemetry()
+
+        # Reset lap start time
+        if 0 == self.last_lap_stime != lap_stime:
+            self.last_lap_stime = lap_stime
+
+        # Update map data
+        self.__start(lap_stime, pos_curr, gps_curr, elv_curr)
+        if self.validating:
+            self.__validate(lap_etime, lastlap_check)
+        if self.recording:
+            self.__record(sector_idx, pos_curr, gps_curr, elv_curr)
+
+    @property
+    def exist(self):
+        """Check map existence"""
+        return self._map_exist
+
+    def reset(self):
+        """Reset to defaults"""
+        self._map_exist = False
+        self.recording = False
+        self.validating = False
+        self.coords_list_curr = []
+        self.dist_list_curr = []
+        self.last_sector_idx = -1
+        self.last_lap_stime = 0
+        self.svg_path_coords = None
+        self.svg_path_dist = None
+        self.sector_index = [0,0]
+
+    def load(self):
+        """Load map data file"""
+        self.map_file = fmt.strip_invalid_char(
+            cs2py(info.LastScor.mScoringInfo.mTrackName))
+        # Load map file
+        (self.svg_path_coords, self.svg_path_dist, self.sector_index
+            ) = load_svg(self.map_file, self.filepath)
+        if self.svg_path_coords:
+            self.raw_coords = fmt.points_to_coords(self.svg_path_coords)
+            self.raw_dists = fmt.points_to_coords(self.svg_path_dist)
+            self._map_exist = True
+            #logger.info("map exist")
+        else:
+            self._map_exist = False
+            #logger.info("map not exist")
+
+    def __start(self, lap_stime, pos_curr, gps_curr, elv_curr):
+        """Lap start & finish detection"""
+        if lap_stime > self.last_lap_stime:  # difference of lap-start-time
+            # End last lap recording
+            if self.coords_list_curr:
+                if calc.distance(self.coords_list_curr[0], gps_curr) > 500:
+                    self.coords_list_curr.append(gps_curr)
+                    self.dist_list_curr.append((pos_curr, elv_curr))
+                self.coords_list_last = self.coords_list_curr
+                self.dist_list_last = self.dist_list_curr
+                self.validating = True
+            # Reset data
+            self.coords_list_curr = []
+            self.dist_list_curr = []
+            self.last_lap_stime = lap_stime
+            self.pos_last = 0
+            self.recording = True  # Activate recording
+            #logger.info("map recording")
+
+    def __validate(self, lap_etime, lastlap_check):
+        """Validate map data after crossing finish line"""
+        laptime_curr = lap_etime - self.last_lap_stime
+        if 1 < laptime_curr <= 8 and lastlap_check > 0:
+            # Store & convert raw coordinates to svg points data
+            self.raw_coords = self.coords_list_last
+            self.raw_dists = self.dist_list_last
+            self.svg_path_coords = fmt.coords_to_points(self.raw_coords)
+            self.svg_path_dist = fmt.coords_to_points(self.raw_dists)
+            # Save to svg file
+            save_svg(
+                self.map_file,
+                self.filepath,
+                self.svg_path_coords,
+                self.svg_path_dist,
+                calc.map_view_box(self.raw_coords, 20),
+                self.sector_index
+            )
+            # Reset data
+            self.validating = False
+            self.recording = False
+            self._map_exist = True
+            #logger.info("map saved, stopped map recording")
+        elif 8 < laptime_curr < 10:  # switch off validating after 8s
+            self.validating = False
+
+    def __record(self, sector_idx, pos_curr, gps_curr, elv_curr):
+        """Recording only from beginning of a lap"""
+        # Sector index
+        if self.last_sector_idx != sector_idx:
+            if sector_idx == 1:
+                self.sector_index[0] = len(self.coords_list_curr) - 1
+            elif sector_idx == 2:
+                self.sector_index[1] = len(self.coords_list_curr) - 1
+            self.last_sector_idx = sector_idx
+        # Update if position value is different & positive
+        if 0 <= pos_curr != self.pos_last:
+            if pos_curr > self.pos_last:  # position further
+                self.coords_list_curr.append(gps_curr)
+                self.dist_list_curr.append((pos_curr, elv_curr))
+            self.pos_last = pos_curr  # reset last position
 
     @staticmethod
     def __telemetry():
@@ -225,36 +261,6 @@ class Realtime:
         elv_curr = round(chknm(info.syncedVehicleScoring().mPos.y), 4)
         return sector_idx, lap_stime, lap_etime, lastlap_check, pos_curr, gps_curr, elv_curr
 
-    @staticmethod
-    def scale_map(map_data, area_size, margin=0):
-        """Scale map data"""
-        # Separate X & Y coordinates
-        x_range, y_range = list(zip(*map_data))
-
-        # Map size: x=width, y=height
-        map_range = min(x_range), max(x_range), min(y_range), max(y_range)
-        map_size = map_range[1] - map_range[0], map_range[3] - map_range[2]
-
-        if area_size:
-            # Display area / map_size
-            map_scale = (area_size - margin * 2) / max(map_size[0], map_size[1])
-
-            if map_size[0] > map_size[1]:
-                map_offset = margin, (area_size - map_size[1] * map_scale) * 0.5
-            else:
-                map_offset = (area_size - map_size[0] * map_scale) * 0.5, margin
-
-            x_range_scaled = [(x_pos - map_range[0]) * map_scale + map_offset[0]
-                              for x_pos in x_range]
-            y_range_scaled = [(y_pos - map_range[2]) * map_scale + map_offset[1]
-                              for y_pos in y_range]
-
-            # Output scaled map data
-            return list(zip(x_range_scaled, y_range_scaled)), map_range, map_scale, map_offset
-
-        # Output svg view box info
-        return f"{map_range[0]-20} {map_range[2]-20} {map_size[0]+40} {map_size[1]+40}"
-
 
 def load_svg(filename, pathname):
     """Load svg file"""
@@ -262,8 +268,7 @@ def load_svg(filename, pathname):
         dom = xml.dom.minidom.parse(f"{pathname}{filename}.svg")
         desc_col = dom.documentElement.getElementsByTagName("desc")
         path_col = dom.documentElement.getElementsByTagName("polyline")
-
-        sector_index = string_pair_to_int(desc_col[0].childNodes[0].nodeValue)
+        sector_index = fmt.string_pair_to_int(desc_col[0].childNodes[0].nodeValue)
 
         for tags in path_col:
             if tags.getAttribute("id") == "map":
@@ -337,31 +342,3 @@ def save_svg(filename, pathname, svg_path_coords, svg_path_dist, view_box, secto
     # Save svg
     with open(f"{pathname}{filename}.svg", "w", encoding="utf-8") as svgfile:
         new_svg.writexml(svgfile, indent="", addindent="\t", newl="\n", encoding="utf-8")
-
-
-def string_pair_to_int(string):
-    """Convert string "x,y" to int"""
-    value = re.split(",", string)
-    return int(value[0]), int(value[1])
-
-
-def string_pair_to_float(string):
-    """Convert string "x,y" to float"""
-    value = re.split(",", string)
-    return float(value[0]), float(value[1])
-
-
-def points_to_coords(points):
-    """Convert svg points to raw coordinates"""
-    string = re.split(" ", points)
-    return list(map(string_pair_to_float, string))
-
-
-def coords_to_points(coords):
-    """Convert raw coordinates (x,y),(x,y) to svg points x,y x,y"""
-    output = ""
-    for data in coords:
-        if output:
-            output += " "
-        output += f"{data[0]},{data[1]}"
-    return output

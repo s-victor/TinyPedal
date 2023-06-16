@@ -34,6 +34,7 @@ Access rF2 shared memory data using:
 from pyRfactor2SharedMemory.sim_info_sync import SimInfoSync
 
 from . import validator as val
+from . import formatter as fmt
 from . import calculation as calc
 
 
@@ -41,7 +42,7 @@ from . import calculation as calc
 info = SimInfoSync(logger="tinypedal")
 info.startUpdating()
 
-chknm = val.in2zero
+chknm = val.numeric_validator
 cs2py = info.cbytes2str
 
 
@@ -62,14 +63,14 @@ def combo_check():
     """Track & vehicle combo data"""
     track_name = cs2py(info.LastScor.mScoringInfo.mTrackName)
     class_name = cs2py(info.syncedVehicleScoring().mVehicleClass)
-    return val.format_invalid_char(f"{track_name} - {class_name}")
+    return fmt.strip_invalid_char(f"{track_name} - {class_name}")
 
 
 def vehicle_check():
     """Track & vehicle combo data"""
     class_name = cs2py(info.syncedVehicleScoring().mVehicleClass)
     veh_name = cs2py(info.syncedVehicleScoring().mVehicleName)
-    return val.format_invalid_char(f"{class_name} - {veh_name}")
+    return fmt.strip_invalid_char(f"{class_name} - {veh_name}")
 
 
 def is_race():

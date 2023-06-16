@@ -96,14 +96,9 @@ class Realtime:
         while self.running:
             if state():
 
-                (lap_stime, laptime_curr, lastlap_valid, time_left,
-                 amount_curr, capacity, inpits, ingarage, pos_curr,
-                 gps_curr, lap_number, lap_into, laps_max) = self.__telemetry()
-
-                # Reset data
                 if not reset:
                     reset = True
-                    update_interval = active_interval  # shorter delay
+                    update_interval = active_interval
 
                     recording = False
                     pittinglap = False
@@ -132,11 +127,21 @@ class Realtime:
                     used_est_less = 0  # estimate fuel consumption for one less pit stop
 
                     laptime_last = delta_list_last[-1][2] # last laptime
-                    last_lap_stime = lap_stime  # last lap start time
+                    last_lap_stime = 0  # last lap start time
                     laps_left = 0  # amount laps left at current lap distance
                     pos_last = 0  # last checked vehicle position
                     pos_estimate = 0  # calculated position
                     gps_last = [0,0,0]  # last global position
+
+                # Read telemetry
+                (lap_stime, laptime_curr, lastlap_valid, time_left,
+                 amount_curr, capacity, inpits, ingarage, pos_curr,
+                 gps_curr, lap_number, lap_into, laps_max
+                 ) = self.__telemetry()
+
+                # Reset lap start time
+                if 0 == last_lap_stime != lap_stime:
+                    last_lap_stime = lap_stime
 
                 # Realtime fuel consumption
                 if amount_last < amount_curr:
@@ -262,7 +267,7 @@ class Realtime:
             else:
                 if reset:
                     reset = False
-                    update_interval = idle_interval  # longer delay while inactive
+                    update_interval = idle_interval
                     if delayed_save:
                         self.save_deltafuel(combo_name, delta_list_last)
 

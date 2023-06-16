@@ -138,7 +138,7 @@ class Draw(Widget):
         if raw_coords:
             dist = calc.distance(raw_coords[0], raw_coords[-1])
             (self.map_scaled, self.map_range, self.map_scale, self.map_offset
-             ) = mctrl.module_mapping.scale_map(raw_coords, self.area_size, self.area_margin)
+             ) = calc.scale_map(raw_coords, self.area_size, self.area_margin)
 
             for index, coords in enumerate(self.map_scaled):
                 if index == 0:
@@ -159,7 +159,7 @@ class Draw(Widget):
                 (self.area_margin, self.temp_map_size)
             )
             (_, self.map_range, self.map_scale, self.map_offset
-             ) = mctrl.module_mapping.scale_map(temp_coords, self.area_size, self.area_margin)
+             ) = calc.scale_map(temp_coords, self.area_size, self.area_margin)
 
             self.map_scaled = None
 

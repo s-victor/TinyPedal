@@ -87,13 +87,9 @@ class Realtime:
         while self.running:
             if state():
 
-                (lap_stime, laptime_curr, lastlap_valid, pos_curr, gps_curr
-                 ) = self.__telemetry()
-
-                # Reset data
                 if not reset:
                     reset = True
-                    update_interval = active_interval  # shorter delay
+                    update_interval = active_interval
 
                     recording = False
                     validating = False
@@ -104,7 +100,7 @@ class Realtime:
                     delta_list_last = [DELTA_ZERO]  # last lap
                     delta_best = 0  # delta time compare to best laptime
 
-                    last_lap_stime = lap_stime  # lap-start-time
+                    last_lap_stime = 0  # lap-start-time
                     laptime_curr = 0  # current laptime
                     laptime_last = 0  # last laptime
                     laptime_best = delta_list_best[-1][1]  # best laptime
@@ -112,6 +108,14 @@ class Realtime:
                     pos_estimate = 0  # calculated position
                     gps_last = [0,0,0]  # last global position
                     meters_driven = self.cfg.setting_user["cruise"]["meters_driven"]
+
+                # Read telemetry
+                (lap_stime, laptime_curr, lastlap_valid, pos_curr, gps_curr
+                 ) = self.__telemetry()
+
+                # Reset lap start time
+                if 0 == last_lap_stime != lap_stime:
+                    last_lap_stime = lap_stime
 
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime:
@@ -183,7 +187,7 @@ class Realtime:
             else:
                 if reset:
                     reset = False
-                    update_interval = idle_interval  # longer delay while inactive
+                    update_interval = idle_interval
                     self.cfg.setting_user["cruise"]["meters_driven"] = int(meters_driven)
                     self.cfg.save()
 

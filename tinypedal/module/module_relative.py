@@ -63,18 +63,17 @@ class Realtime:
 
     def __calculation(self):
         """Create relative list with vehicle class info"""
-        checked = False
-
+        reset = False
         active_interval = self.mcfg["update_interval"] / 1000
         idle_interval = self.mcfg["idle_update_interval"] / 1000
         update_interval = idle_interval
 
         while self.running:
             if state():
-                # Reset switch
-                if not checked:
-                    checked = True
-                    update_interval = active_interval  # shorter delay
+
+                if not reset:
+                    reset = True
+                    update_interval = active_interval
 
                 veh_total = max(chknm(info.LastTele.mNumVehicles), 1)
 
@@ -94,9 +93,9 @@ class Realtime:
                 self.standings = stand_idx_list
 
             else:
-                if checked:
-                    checked = False
-                    update_interval = idle_interval  # longer delay while inactive
+                if reset:
+                    reset = False
+                    update_interval = idle_interval
 
             time.sleep(update_interval)
 
