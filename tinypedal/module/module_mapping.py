@@ -174,9 +174,9 @@ class MapRecorder:
         """Record sector index"""
         if self.last_sector_idx != sector_idx:
             if sector_idx == 1:
-                MapData.sector_index[0] = len(MapData.list_coords) - 1
+                MapData.sector_index[0] = len(MapData.raw_coords) - 1
             elif sector_idx == 2:
-                MapData.sector_index[1] = len(MapData.list_coords) - 1
+                MapData.sector_index[1] = len(MapData.raw_coords) - 1
             self.last_sector_idx = sector_idx
 
     def __record_path(self, pos_curr, gps_curr, elv_curr):
@@ -184,13 +184,13 @@ class MapRecorder:
         # Update if position value is different & positive
         if 0 <= pos_curr != self.pos_last:
             if pos_curr > self.pos_last:  # position further
-                MapData.list_coords.append(gps_curr)
-                MapData.list_dists.append((pos_curr, elv_curr))
+                MapData.raw_coords.append(gps_curr)
+                MapData.raw_dists.append((pos_curr, elv_curr))
             self.pos_last = pos_curr  # reset last position
 
     def __record_end(self):
         """End recording"""
-        if MapData.list_coords:
+        if MapData.raw_coords:
             MapData.copy()
             self.validating = True
 
@@ -213,18 +213,16 @@ class MapData:
     filepath = PATH_TRACKMAP
     filename = None
     exist = False
-    # Output data
+    # SVG data
     svg_coords = None
     svg_dists = None
+    # Raw data
     raw_coords = None
     raw_dists = None
     sector_index = None
-    # Data list current lap
-    list_coords = None  # coordinates
-    list_dists = None  # distances
-    # For verification only
-    list_coords_temp = None
-    list_dists_temp = None
+    # Temp data
+    raw_coords_temp = None
+    raw_dists_temp = None
     sector_index_temp = None
 
     @classmethod
@@ -233,18 +231,15 @@ class MapData:
         cls.exist = False
         cls.svg_coords = None
         cls.svg_dists = None
-        cls.raw_coords = None
-        cls.raw_dists = None
+        cls.raw_coords = []
+        cls.raw_dists = []
         cls.sector_index = [0,0]
-
-        cls.list_coords = []
-        cls.list_dists = []
 
     @classmethod
     def copy(cls):
         """Copy (reference) map data"""
-        cls.list_coords_temp = cls.list_coords
-        cls.list_dists_temp = cls.list_dists
+        cls.raw_coords_temp = cls.raw_coords
+        cls.raw_dists_temp = cls.raw_dists
         cls.sector_index_temp = cls.sector_index
 
     @classmethod
@@ -267,8 +262,8 @@ class MapData:
     @classmethod
     def save(cls):
         """Store & convert raw coordinates to svg points data"""
-        cls.raw_coords = cls.list_coords_temp
-        cls.raw_dists = cls.list_dists_temp
+        cls.raw_coords = cls.raw_coords_temp
+        cls.raw_dists = cls.raw_dists_temp
         cls.svg_coords = fmt.coords_to_points(cls.raw_coords)
         cls.svg_dists = fmt.coords_to_points(cls.raw_dists)
         cls.sector_index = cls.sector_index_temp
