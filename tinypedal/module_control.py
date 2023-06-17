@@ -115,7 +115,7 @@ class ModuleControl:
 
     def stop_module(self, module_name):
         """stop selected module"""
-        if cfg.active_widget_list:
+        if cfg.active_module_list:
             for module in cfg.active_module_list:
                 if module.module_name == module_name:
                     module.running = False
