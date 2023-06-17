@@ -94,13 +94,13 @@ class Realtime:
                     motor_inactive_timer = 99999
                     motor_inactive_timer_start = False
                     lap_etime_last = 0
-                    last_lap_stime = 0  # last lap start time
+                    last_lap_stime = -1  # last lap start time
 
                 # Read telemetry
                 (lap_stime, lap_etime, battery_charge, motor_state) = self.__telemetry()
 
                 # Reset lap start time
-                if 0 == last_lap_stime != lap_stime:
+                if last_lap_stime == -1:
                     last_lap_stime = lap_stime
 
                 if lap_stime != last_lap_stime:  # time stamp difference

@@ -127,7 +127,7 @@ class Realtime:
                     used_est_less = 0  # estimate fuel consumption for one less pit stop
 
                     laptime_last = delta_list_last[-1][2] # last laptime
-                    last_lap_stime = 0  # last lap start time
+                    last_lap_stime = -1  # last lap start time
                     laps_left = 0  # amount laps left at current lap distance
                     pos_last = 0  # last checked vehicle position
                     pos_estimate = 0  # calculated position
@@ -140,7 +140,7 @@ class Realtime:
                  ) = self.__telemetry()
 
                 # Reset lap start time
-                if 0 == last_lap_stime != lap_stime:
+                if last_lap_stime == -1:
                     last_lap_stime = lap_stime
 
                 # Realtime fuel consumption

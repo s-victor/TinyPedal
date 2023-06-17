@@ -93,7 +93,7 @@ class Draw(Widget):
                 self.checked = True
 
             # Map
-            raw_coords = mctrl.module_mapping.map_coordinates
+            raw_coords = mctrl.module_mapping.coordinates
             self.update_map(raw_coords, self.last_raw_coords)
             self.last_raw_coords = raw_coords
 
@@ -227,7 +227,7 @@ class Draw(Widget):
                 pen.setColor(QColor(self.wcfg["sector_line_color"]))
                 painter.setPen(pen)
 
-                sector_index = mctrl.module_mapping.map_sectors
+                sector_index = mctrl.module_mapping.sectors
                 for idx in range(2):
                     pos_x1, pos_y1, pos_x2, pos_y2 = self.sector_coords(
                         self.map_scaled[sector_index[idx]],  # point a

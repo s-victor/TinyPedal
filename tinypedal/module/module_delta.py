@@ -100,7 +100,7 @@ class Realtime:
                     delta_list_last = [DELTA_ZERO]  # last lap
                     delta_best = 0  # delta time compare to best laptime
 
-                    last_lap_stime = 0  # lap-start-time
+                    last_lap_stime = -1  # lap-start-time
                     laptime_curr = 0  # current laptime
                     laptime_last = 0  # last laptime
                     laptime_best = delta_list_best[-1][1]  # best laptime
@@ -114,7 +114,7 @@ class Realtime:
                  ) = self.__telemetry()
 
                 # Reset lap start time
-                if 0 == last_lap_stime != lap_stime:
+                if last_lap_stime == -1:
                     last_lap_stime = lap_stime
 
                 # Lap start & finish detection
