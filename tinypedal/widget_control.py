@@ -156,14 +156,14 @@ class WidgetControl:
         cfg.save()
         logger.info("all widgets disabled")
 
-    def start_widget(self, widget_name):
+    def start_selected(self, widget_name):
         """Start selected widget"""
         for obj in self.WIDGET_PACK:
             if obj.WIDGET_NAME == widget_name and cfg.setting_user[widget_name]["enable"]:
                 setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
                 break
 
-    def close_widget(self, widget_name):
+    def close_selected(self, widget_name):
         """Close selected widget"""
         if cfg.active_widget_list:
             for widget in cfg.active_widget_list:

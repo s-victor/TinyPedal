@@ -375,12 +375,12 @@ class WidgetConfig(QDialog):
 
         # Select type
         if self.obj_type == "widget":
-            wctrl.close_widget(self.obj_name)
-            wctrl.start_widget(self.obj_name)
+            wctrl.close_selected(self.obj_name)
+            wctrl.start_selected(self.obj_name)
             self.master.refresh_widget_list()
         elif self.obj_type == "module":
-            mctrl.stop_module(self.obj_name)
-            mctrl.start_module(self.obj_name)
+            mctrl.close_selected(self.obj_name)
+            mctrl.start_selected(self.obj_name)
             self.master.refresh_module_list()
         elif self.obj_type == "compat":
             wctrl.close()

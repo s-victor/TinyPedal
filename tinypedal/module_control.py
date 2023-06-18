@@ -59,8 +59,8 @@ class ModuleControl:
             if cfg.setting_user[obj.MODULE_NAME]["enable"]:
                 getattr(self, obj.MODULE_NAME).start()
 
-    def stop(self):
-        """Stop module"""
+    def close(self):
+        """Close module"""
         if cfg.active_module_list:
             for module in cfg.active_module_list:
                 module.running = False
@@ -105,7 +105,7 @@ class ModuleControl:
         cfg.save()
         logger.info("all modules disabled")
 
-    def start_module(self, module_name):
+    def start_selected(self, module_name):
         """Start selected module"""
         for obj in self.MODULE_PACK:
             if obj.MODULE_NAME == module_name and cfg.setting_user[module_name]["enable"]:
@@ -113,8 +113,8 @@ class ModuleControl:
                 getattr(self, obj.MODULE_NAME).start()
                 break
 
-    def stop_module(self, module_name):
-        """stop selected module"""
+    def close_selected(self, module_name):
+        """Close selected module"""
         if cfg.active_module_list:
             for module in cfg.active_module_list:
                 if module.module_name == module_name:

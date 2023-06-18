@@ -206,7 +206,7 @@ class ConfigWindow(QMainWindow):
     def quit_app(self):
         """Quit manager"""
         self.save_window_position()
-        mctrl.stop()  # stop module
+        mctrl.close()  # stop module
         octrl.disable()  # disable overlay control
         wctrl.close()  # close widget
         QApplication.quit()  # close app
@@ -271,7 +271,7 @@ class ConfigWindow(QMainWindow):
     def reload_preset(self):
         """Reload current preset"""
         # Close modules & widgets in order
-        mctrl.stop()
+        mctrl.close()
         octrl.disable()
         wctrl.close()
 
@@ -632,7 +632,7 @@ class PresetList(QWidget):
         selected_index = self.listbox_preset.currentRow()
         if selected_index >= 0:
             # Close modules & widgets in order
-            mctrl.stop()
+            mctrl.close()
             octrl.disable()
             wctrl.close()
 
