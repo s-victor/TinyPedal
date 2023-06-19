@@ -191,8 +191,8 @@ class Realtime:
                         veh_sort[2],       # 0 - 2 player index
                         position_counter,  # 1 - position in class
                         veh_sort[0],       # 2 - 0 class name
-                        session_best_laptime,
-                        class_best_laptime,
+                        session_best_laptime,  # 3 session best
+                        class_best_laptime,  # 4 classes best
                     )
 
     def __standings_index_list(self, veh_total, class_pos_list, unique_veh_class):
@@ -221,7 +221,7 @@ class Realtime:
     def __class_standings_index(self, veh_top, plr_index, class_collection):
         """Generate class standings index list from class list collection"""
         for class_list in class_collection:
-            # 0 index, 1 class pos, 2 class name, 3 sbest, 4cbeat
+            # 0 index, 1 class pos, 2 class name, 3 session best, 4 classes best
             class_split = list(zip(*class_list))
             veh_total = class_split[1][-1]  # last pos in class
             veh_limit = max(int(
@@ -241,17 +241,17 @@ class Realtime:
     def __calc_standings_index(
             self, veh_top, veh_total, veh_limit, plr_place, place_index_list):
         """Create vehicle standings index list"""
-        # Current total vehicles list
-        veh_list_full = list(range(1, veh_total+1))
+        # All vehicles place list
+        all_veh_place_list = list(range(1, veh_total+1))
 
         # Create reference place list
         if plr_place <= veh_top or veh_total <= veh_limit:
-            ref_place_list = veh_list_full[:veh_limit]
+            ref_place_list = all_veh_place_list[:veh_limit]
         else:
             # Create player centered place list
             plr_center_list = list(self.__relative_nearby_place_index(
                 veh_top, veh_total, plr_place, veh_limit))
-            ref_place_list = sorted(veh_list_full[:veh_top] + plr_center_list)
+            ref_place_list = sorted(all_veh_place_list[:veh_top] + plr_center_list)
 
         # Create final standing index list
         standing_index_list = list(
@@ -290,15 +290,15 @@ class Realtime:
         count = 0
         for veh in place_index_list:
             for place_index in ref_place_list:
-                if place_index == veh[0]:
+                if place_index == veh[0]:  # 0 vehicle place
                     count += 1
-                    yield veh[1]
+                    yield veh[1]  # 1 vehicle index
                     break
-        yield -1  # append class gap at end
+        yield -1  # append an empty index as gap between classes
 
     @staticmethod
     def __place_n_index(veh_total):
-        """Create vehicle place & index list"""
+        """Create vehicle place & vehicle index list"""
         for index in range(veh_total):
             yield chknm(info.LastScor.mVehicles[index].mPlace), index
 
