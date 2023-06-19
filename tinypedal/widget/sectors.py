@@ -32,7 +32,7 @@ from PySide2.QtWidgets import (
 from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "sectors"
 MAGIC_NUM = 99999  # magic number for default variable not updated by rF2
@@ -213,8 +213,7 @@ class Draw(Widget):
         """Update when vehicle on track"""
         if self.wcfg["enable"] and read_data.state():
 
-            # Read current running laptime from delta_time module
-            laptime_curr = mctrl.module_delta.output[0]
+            laptime_curr = minfo.delta.LaptimeCurrent
 
             # Read Sector data
             (sector_idx, curr_sector1, curr_sector2, last_sector2, last_laptime, speed

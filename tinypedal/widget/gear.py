@@ -30,7 +30,7 @@ from PySide2.QtWidgets import (
 from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "gear"
 
@@ -208,12 +208,12 @@ class Draw(Widget):
             # Battery bar
             if self.wcfg["show_battery_bar"]:
                 # Hide battery bar if electric motor unavailable
-                motor_state = mctrl.module_hybrid.output.MotorState
+                motor_state = minfo.hybrid.MotorState
                 self.update_state("battbar", motor_state, self.last_motor_state)
                 self.last_motor_state = motor_state
 
                 if motor_state:
-                    battery = mctrl.module_hybrid.output.BatteryCharge
+                    battery = minfo.hybrid.BatteryCharge
                     self.update_battbar(battery, self.last_battery)
                     self.last_battery = battery
 

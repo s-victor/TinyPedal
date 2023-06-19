@@ -23,8 +23,8 @@ Hybrid module
 import logging
 import time
 import threading
-from collections import namedtuple
 
+from ..module_info import minfo
 from ..readapi import info, chknm, state
 
 MODULE_NAME = "module_hybrid"
@@ -35,32 +35,12 @@ logger = logging.getLogger(__name__)
 class Realtime:
     """Hybrid data"""
     module_name = MODULE_NAME
-    DataSet = namedtuple(
-        "DataSet",
-        [
-        "BatteryCharge",
-        "BatteryDrain",
-        "BatteryRegen",
-        "BatteryDrainLast",
-        "BatteryRegenLast",
-        "MotorActiveTimer",
-        "MotorInActiveTimer",
-        "MotorState",
-        ],
-        defaults = ([0] * 8)
-    )
 
-    def __init__(self, mctrl, config):
-        self.mctrl = mctrl
+    def __init__(self, config):
         self.cfg = config
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
         self.running = False
-        self.set_output()
-
-    def set_output(self):
-        """Set output"""
-        self.output = self.DataSet()
 
     def start(self):
         """Start calculation thread"""
@@ -136,16 +116,14 @@ class Realtime:
                         motor_inactive_timer = 99999
 
                 # Output hybrid data
-                self.output = self.DataSet(
-                    BatteryCharge = battery_charge,
-                    BatteryDrain = battery_delta[0],
-                    BatteryRegen = battery_delta[1],
-                    BatteryDrainLast = battery_delta[2],
-                    BatteryRegenLast = battery_delta[3],
-                    MotorActiveTimer = motor_active_timer,
-                    MotorInActiveTimer = motor_inactive_timer,
-                    MotorState = motor_state,
-                )
+                minfo.hybrid.BatteryCharge = battery_charge
+                minfo.hybrid.BatteryDrain = battery_delta[0]
+                minfo.hybrid.BatteryRegen = battery_delta[1]
+                minfo.hybrid.BatteryDrainLast = battery_delta[2]
+                minfo.hybrid.BatteryRegenLast = battery_delta[3]
+                minfo.hybrid.MotorActiveTimer = motor_active_timer
+                minfo.hybrid.MotorInActiveTimer = motor_inactive_timer
+                minfo.hybrid.MotorState = motor_state
 
             else:
                 if reset:
@@ -154,7 +132,6 @@ class Realtime:
 
             time.sleep(update_interval)
 
-        self.set_output()
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("hybrid module closed")

@@ -26,6 +26,7 @@ import time
 import threading
 from collections import namedtuple
 
+from ..module_info import minfo
 from ..readapi import info, chknm, cs2py, state
 from .. import calculation as calc
 
@@ -76,30 +77,13 @@ class Realtime:
         "RelativeStraightDistance",
         ]
     )
-    DistSet = namedtuple(
-        "DistSet",
-        [
-        "Straight",
-        #"Track",
-        "Traffic",
-        "Yellow",
-        ],
-        defaults = ([999999] * 3)
-    )
 
-    def __init__(self, mctrl, config):
-        self.mctrl = mctrl
+    def __init__(self, config):
         self.cfg = config
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
         self.running = False
         self.pit_time_list = array.array("f", [0,-1,0] * 128)
-        self.set_output()
-
-    def set_output(self):
-        """Set output"""
-        self.vehicles = None
-        self.nearest = self.DistSet()
 
     def start(self):
         """Start calculation thread"""
@@ -125,17 +109,20 @@ class Realtime:
                     reset = True
                     update_interval = active_interval
 
-                class_pos_list = self.mctrl.vehicle_classes
+                class_pos_list = minfo.relative.Classes
                 veh_total = max(chknm(info.LastTele.mNumVehicles), 1)
                 if class_pos_list and len(class_pos_list) == veh_total:
+                    vehicles_data = list(self.__vehicle_data(veh_total, class_pos_list))
                     # Output
-                    self.vehicles = list(self.__vehicle_data(veh_total, class_pos_list))
-                    self.nearest = self.DistSet(
-                        Straight = min(self.vehicles, key=nearest_line_dist).RelativeStraightDistance,
-                        #Track = abs(min(self.vehicles, key=nearest_track_dist).RelativeDistance),
-                        Traffic = abs(min(self.vehicles, key=nearest_traffic).RelativeTimeGap),
-                        Yellow = abs(min(self.vehicles, key=nearest_yellow_dist).RelativeDistance),
-                    )
+                    minfo.standings.Vehicles = vehicles_data
+                    minfo.standings.NearestStraight = min(
+                        vehicles_data, key=nearest_line_dist).RelativeStraightDistance
+                    minfo.standings.NearestTraffic = abs(
+                        min(vehicles_data, key=nearest_traffic).RelativeTimeGap)
+                    minfo.standings.NearestYellow = abs(
+                        min(vehicles_data, key=nearest_yellow_dist).RelativeDistance)
+                    #minfo.standings.nearestTrack = abs(
+                    # min(vehicles_data, key=nearest_track_dist).RelativeDistance)
 
             else:
                 if reset:
@@ -144,7 +131,6 @@ class Realtime:
 
             time.sleep(update_interval)
 
-        self.set_output()
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("standings module closed")

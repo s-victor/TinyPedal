@@ -125,7 +125,6 @@ class WidgetControl:
     def toggle(self, widget):
         """Toggle widget"""
         name = widget.WIDGET_NAME
-
         if cfg.setting_user[name]["enable"]:
             cfg.setting_user[name]["enable"] = False
             getattr(self, f"widget_{name}").break_signal()
@@ -133,7 +132,6 @@ class WidgetControl:
         else:
             cfg.setting_user[name]["enable"] = True
             setattr(self, f"widget_{name}", widget.Draw(cfg))
-
         cfg.save()
 
     def enable_all(self):
@@ -152,7 +150,6 @@ class WidgetControl:
                 cfg.setting_user[widget.widget_name]["enable"] = False
                 widget.break_signal()
                 widget.closing()
-            #time.sleep(0.01)
         cfg.save()
         logger.info("all widgets disabled")
 

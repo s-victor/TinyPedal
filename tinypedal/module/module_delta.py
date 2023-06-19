@@ -24,8 +24,8 @@ import logging
 import time
 import threading
 import csv
-from collections import namedtuple
 
+from ..module_info import minfo
 from ..const import PATH_DELTABEST
 from ..readapi import info, chknm, state, combo_check
 from .. import calculation as calc
@@ -41,31 +41,12 @@ class Realtime:
     """Delta time data"""
     module_name = MODULE_NAME
     filepath = PATH_DELTABEST
-    DataSet = namedtuple(
-        "DataSet",
-        [
-        "LaptimeCurrent",
-        "LaptimeLast",
-        "LaptimeBest",
-        "LaptimeEstimated",
-        "DeltaBest",
-        "IsValidLap",
-        "MetersDriven",
-        ],
-        defaults = ([0] * 7)
-    )
 
-    def __init__(self, mctrl, config):
-        self.mctrl = mctrl
+    def __init__(self, config):
         self.cfg = config
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
         self.running = False
-        self.set_output()
-
-    def set_output(self):
-        """Set output"""
-        self.output = self.DataSet()
 
     def start(self):
         """Start calculation thread"""
@@ -174,15 +155,13 @@ class Realtime:
                         meters_driven += moved_distance
 
                 # Output delta time data
-                self.output = self.DataSet(
-                    LaptimeCurrent = laptime_curr,
-                    LaptimeLast = laptime_last,
-                    LaptimeBest = laptime_best,
-                    LaptimeEstimated = laptime_best + delta_best,
-                    DeltaBest = delta_best,
-                    IsValidLap = lastlap_valid > 0,
-                    MetersDriven = meters_driven,
-                )
+                minfo.delta.LaptimeCurrent = laptime_curr
+                minfo.delta.LaptimeLast = laptime_last
+                minfo.delta.LaptimeBest = laptime_best
+                minfo.delta.LaptimeEstimated = laptime_best + delta_best
+                minfo.delta.DeltaBest = delta_best
+                minfo.delta.IsValidLap = lastlap_valid > 0
+                minfo.delta.MetersDriven = meters_driven
 
             else:
                 if reset:
@@ -193,7 +172,6 @@ class Realtime:
 
             time.sleep(update_interval)
 
-        self.set_output()
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("delta module closed")

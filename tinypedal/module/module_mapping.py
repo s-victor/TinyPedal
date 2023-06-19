@@ -25,6 +25,7 @@ import time
 import threading
 import xml.dom.minidom
 
+from ..module_info import minfo
 from ..const import PATH_TRACKMAP
 from ..readapi import info, chknm, cs2py, state
 from .. import calculation as calc
@@ -39,19 +40,11 @@ class Realtime:
     """Mapping data"""
     module_name = MODULE_NAME
 
-    def __init__(self, mctrl, config):
-        self.mctrl = mctrl
+    def __init__(self, config):
         self.cfg = config
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
         self.running = False
-        self.set_output()
-
-    def set_output(self, raw_coords=None, raw_dists=None, sector_index=None):
-        """Set output"""
-        self.coordinates = raw_coords
-        self.elevations = raw_dists
-        self.sectors = sector_index
 
     def start(self):
         """Start calculation thread"""
@@ -81,24 +74,22 @@ class Realtime:
                     MapData.load()
                     if MapData.exist:
                         update_interval = idle_interval
-                        self.set_output(
-                            MapData.raw_coords,
-                            MapData.raw_dists,
-                            MapData.sector_index
-                        )
+                        minfo.mapping.Coordinates = MapData.raw_coords
+                        minfo.mapping.Elevations = MapData.raw_dists
+                        minfo.mapping.Sectors = MapData.sector_index
                     else:
                         map_recorder.reset()
-                        self.set_output()
+                        minfo.mapping.Coordinates = None
+                        minfo.mapping.Elevations = None
+                        minfo.mapping.Sectors = None
 
                 if not MapData.exist:
                     map_recorder.update()
                     if MapData.exist:
                         update_interval = idle_interval
-                        self.set_output(
-                            MapData.raw_coords,
-                            MapData.raw_dists,
-                            MapData.sector_index
-                        )
+                        minfo.mapping.Coordinates = MapData.raw_coords
+                        minfo.mapping.Elevations = MapData.raw_dists
+                        minfo.mapping.Sectors = MapData.sector_index
             else:
                 if reset:
                     reset = False
@@ -106,7 +97,6 @@ class Realtime:
 
             time.sleep(update_interval)
 
-        self.set_output()
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("mapping module closed")

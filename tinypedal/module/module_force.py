@@ -24,8 +24,8 @@ import array
 import logging
 import time
 import threading
-from collections import namedtuple
 
+from ..module_info import minfo
 from ..readapi import info, chknm, state
 from .. import calculation as calc
 
@@ -37,34 +37,12 @@ logger = logging.getLogger(__name__)
 class Realtime:
     """Force data"""
     module_name = MODULE_NAME
-    DataSet = namedtuple(
-        "DataSet",
-        [
-        "LgtGForceRaw",
-        "LatGForceRaw",
-        "MaxAvgLgtGForce",
-        "MaxAvgLatGForce",
-        "MaxLgtGForce",
-        "MaxLatGForce",
-        "GForceVector",
-        "DownForceFront",
-        "DownForceRear",
-        "DownForceRatio",
-        ],
-        defaults = ([0] * 10)
-    )
 
-    def __init__(self, mctrl, config):
-        self.mctrl = mctrl
+    def __init__(self, config):
         self.cfg = config
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
         self.running = False
-        self.set_output()
-
-    def set_output(self):
-        """Set output"""
-        self.output = self.DataSet()
 
     def start(self):
         """Start calculation thread"""
@@ -125,18 +103,16 @@ class Realtime:
                 dforce_ratio = calc.force_ratio(dforce_f, dforce_f + dforce_r)
 
                 # Output force data
-                self.output = self.DataSet(
-                    LgtGForceRaw = lgt_gforce_raw,
-                    LatGForceRaw = lat_gforce_raw,
-                    MaxAvgLgtGForce = max_avg_lgt_gforce,
-                    MaxAvgLatGForce = max_avg_lat_gforce,
-                    MaxLgtGForce = max_lgt_gforce,
-                    MaxLatGForce = max_lat_gforce,
-                    GForceVector = gforce_vector,
-                    DownForceFront = dforce_f,
-                    DownForceRear = dforce_r,
-                    DownForceRatio = dforce_ratio,
-                )
+                minfo.force.LgtGForceRaw = lgt_gforce_raw
+                minfo.force.LatGForceRaw = lat_gforce_raw
+                minfo.force.MaxAvgLgtGForce = max_avg_lgt_gforce
+                minfo.force.MaxAvgLatGForce = max_avg_lat_gforce
+                minfo.force.MaxLgtGForce = max_lgt_gforce
+                minfo.force.MaxLatGForce = max_lat_gforce
+                minfo.force.GForceVector = gforce_vector
+                minfo.force.DownForceFront = dforce_f
+                minfo.force.DownForceRear = dforce_r
+                minfo.force.DownForceRatio = dforce_ratio
 
             else:
                 if reset:
@@ -145,7 +121,6 @@ class Realtime:
 
             time.sleep(update_interval)
 
-        self.set_output()
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("force module closed")

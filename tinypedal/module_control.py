@@ -48,15 +48,12 @@ class ModuleControl:
         module_relative,
         module_standings,
     )
-    vehicle_classes = None
 
     def start(self):
         """Start module"""
         for obj in self.MODULE_PACK:
-            # Initialize module
-            setattr(self, obj.MODULE_NAME, obj.Realtime(self, cfg))
-            # Start module
             if cfg.setting_user[obj.MODULE_NAME]["enable"]:
+                setattr(self, obj.MODULE_NAME, obj.Realtime(cfg))
                 getattr(self, obj.MODULE_NAME).start()
 
     def close(self):
@@ -70,7 +67,6 @@ class ModuleControl:
     def toggle(self, module):
         """Toggle module"""
         name = module.MODULE_NAME
-
         if cfg.setting_user[name]["enable"]:
             cfg.setting_user[name]["enable"] = False
             getattr(self, name).running = False
@@ -78,9 +74,8 @@ class ModuleControl:
                 time.sleep(0.01)
         else:
             cfg.setting_user[name]["enable"] = True
-            setattr(self, name, module.Realtime(self, cfg))
+            setattr(self, name, module.Realtime(cfg))
             getattr(self, name).start()
-
         cfg.save()
 
     def enable_all(self):
@@ -88,7 +83,7 @@ class ModuleControl:
         for obj in self.MODULE_PACK:
             if not cfg.setting_user[obj.MODULE_NAME]["enable"]:
                 cfg.setting_user[obj.MODULE_NAME]["enable"] = True
-                setattr(self, obj.MODULE_NAME, obj.Realtime(self, cfg))
+                setattr(self, obj.MODULE_NAME, obj.Realtime(cfg))
                 getattr(self, obj.MODULE_NAME).start()
         cfg.save()
         logger.info("all modules enabled")
@@ -101,7 +96,6 @@ class ModuleControl:
         while cfg.active_module_list:
             for module in cfg.active_module_list:
                 module.running = False
-            #time.sleep(0.01)
         cfg.save()
         logger.info("all modules disabled")
 
@@ -109,7 +103,7 @@ class ModuleControl:
         """Start selected module"""
         for obj in self.MODULE_PACK:
             if obj.MODULE_NAME == module_name and cfg.setting_user[module_name]["enable"]:
-                setattr(self, obj.MODULE_NAME, obj.Realtime(self, cfg))
+                setattr(self, obj.MODULE_NAME, obj.Realtime(cfg))
                 getattr(self, obj.MODULE_NAME).start()
                 break
 

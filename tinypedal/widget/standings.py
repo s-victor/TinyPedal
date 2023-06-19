@@ -33,7 +33,7 @@ from .. import calculation as calc
 from .. import formatter as fmt
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "standings"
 
@@ -249,10 +249,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state() and mctrl.module_relative.standings:
+        if self.wcfg["enable"] and read_data.state() and minfo.relative.Standings:
 
-            standings_idx = mctrl.module_relative.standings
-            standings_veh = mctrl.module_standings.vehicles
+            standings_idx = minfo.relative.Standings
+            standings_veh = minfo.standings.Vehicles
             total_idx = len(standings_idx)
 
             # Standings update

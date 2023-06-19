@@ -33,7 +33,7 @@ from .. import calculation as calc
 from .. import formatter as fmt
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "relative"
 
@@ -231,10 +231,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state() and mctrl.module_relative.relative:
+        if self.wcfg["enable"] and read_data.state() and minfo.relative.Relative:
 
-            relative_idx = mctrl.module_relative.relative
-            standings_veh = mctrl.module_standings.vehicles
+            relative_idx = minfo.relative.Relative
+            standings_veh = minfo.standings.Vehicles
 
             # Relative update
             for idx in range(self.veh_range):

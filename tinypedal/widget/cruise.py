@@ -30,7 +30,7 @@ from PySide2.QtWidgets import (
 from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "cruise"
 
@@ -148,7 +148,7 @@ class Draw(Widget):
 
             # Odometer
             if self.wcfg["show_odometer"]:
-                traveled_distance = mctrl.module_delta.output.MetersDriven
+                traveled_distance = minfo.delta.MetersDriven
                 self.update_odometer(traveled_distance, self.last_traveled_distance)
                 self.last_traveled_distance = traveled_distance
 

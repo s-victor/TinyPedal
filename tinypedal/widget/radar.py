@@ -26,7 +26,7 @@ from PySide2.QtGui import QPainter, QPixmap, QLinearGradient, QRadialGradient, Q
 from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "radar"
 
@@ -80,7 +80,7 @@ class Draw(Widget):
                 self.autohide_radar()
 
             # Read orientation & position data
-            self.standings_veh = mctrl.module_standings.vehicles
+            self.standings_veh = minfo.standings.Vehicles
             self.update_radar(self.standings_veh, self.last_standings_veh)
             self.last_standings_veh = self.standings_veh
 
@@ -372,8 +372,8 @@ class Draw(Widget):
     def nearby(self):
         """Check nearby vehicles, add 0 limit to ignore local player"""
         if self.wcfg["minimum_auto_hide_distance"] == -1:
-            return 0 < mctrl.module_standings.nearest.Straight < self.wcfg["radar_radius"]
-        return 0 < mctrl.module_standings.nearest.Straight < self.wcfg["minimum_auto_hide_distance"]
+            return 0 < minfo.standings.NearestStraight < self.wcfg["radar_radius"]
+        return 0 < minfo.standings.NearestStraight < self.wcfg["minimum_auto_hide_distance"]
 
     def calc_indicator_dimention(self, veh_width, veh_length):
         """Calculate indicator dimention"""

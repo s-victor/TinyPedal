@@ -25,8 +25,8 @@ import time
 import threading
 import csv
 import math
-from collections import namedtuple
 
+from ..module_info import minfo
 from ..const import PATH_FUEL
 from ..readapi import info, chknm, state, combo_check
 from .. import calculation as calc
@@ -42,38 +42,12 @@ class Realtime:
     """Fuel usage data"""
     module_name = MODULE_NAME
     filepath = PATH_FUEL
-    DataSet = namedtuple(
-        "DataSet",
-        [
-        "Capacity",
-        "AmountFuelStart",
-        "AmountFuelCurrent",
-        "AmountFuelNeeded",
-        "AmountFuelBeforePitstop",
-        "LastLapFuelConsumption",
-        "EstimatedFuelConsumption",
-        "EstimatedLaps",
-        "EstimatedMinutes",
-        "EstimatedEmptyCapacity",
-        "EstimatedNumPitStopsEnd",
-        "EstimatedNumPitStopsEarly",
-        "DeltaFuelConsumption",
-        "OneLessPitFuelConsumption",
-        ],
-        defaults = ([0] * 14)
-    )
 
-    def __init__(self, mctrl, config):
-        self.mctrl = mctrl
+    def __init__(self, config):
         self.cfg = config
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
         self.running = False
-        self.set_output()
-
-    def set_output(self):
-        """Set output"""
-        self.output = self.DataSet()
 
     def start(self):
         """Start calculation thread"""
@@ -247,22 +221,20 @@ class Realtime:
                     est_pits_late, capacity, amount_curr, laps_left)
 
                 # Output fuel data
-                self.output = self.DataSet(
-                    Capacity = capacity,
-                    AmountFuelStart = amount_start,
-                    AmountFuelCurrent = amount_curr,
-                    AmountFuelNeeded = amount_need,
-                    AmountFuelBeforePitstop = amount_left,
-                    LastLapFuelConsumption = used_last_raw,
-                    EstimatedFuelConsumption = used_last + delta_fuel,
-                    EstimatedLaps = est_runlaps,
-                    EstimatedMinutes = est_runmins,
-                    EstimatedEmptyCapacity = est_empty,
-                    EstimatedNumPitStopsEnd = est_pits_late,
-                    EstimatedNumPitStopsEarly = est_pits_early,
-                    DeltaFuelConsumption = delta_fuel,
-                    OneLessPitFuelConsumption = used_est_less,
-                )
+                minfo.fuel.Capacity = capacity
+                minfo.fuel.AmountFuelStart = amount_start
+                minfo.fuel.AmountFuelCurrent = amount_curr
+                minfo.fuel.AmountFuelNeeded = amount_need
+                minfo.fuel.AmountFuelBeforePitstop = amount_left
+                minfo.fuel.LastLapFuelConsumption = used_last_raw
+                minfo.fuel.EstimatedFuelConsumption = used_last + delta_fuel
+                minfo.fuel.EstimatedLaps = est_runlaps
+                minfo.fuel.EstimatedMinutes = est_runmins
+                minfo.fuel.EstimatedEmptyCapacity = est_empty
+                minfo.fuel.EstimatedNumPitStopsEnd = est_pits_late
+                minfo.fuel.EstimatedNumPitStopsEarly = est_pits_early
+                minfo.fuel.DeltaFuelConsumption = delta_fuel
+                minfo.fuel.OneLessPitFuelConsumption = used_est_less
 
             else:
                 if reset:
@@ -273,7 +245,6 @@ class Realtime:
 
             time.sleep(update_interval)
 
-        self.set_output()
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("fuel module closed")

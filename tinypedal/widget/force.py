@@ -29,7 +29,7 @@ from PySide2.QtWidgets import (
 
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "force"
 
@@ -132,18 +132,18 @@ class Draw(Widget):
             # G force
             if self.wcfg["show_g_force"]:
                 # Longitudinal g-force
-                gf_lgt = round(mctrl.module_force.output.LgtGForceRaw, 2)
+                gf_lgt = round(minfo.force.LgtGForceRaw, 2)
                 self.update_gf_lgt(gf_lgt, self.last_gf_lgt)
                 self.last_gf_lgt = gf_lgt
 
                 # Lateral g-force
-                gf_lat = round(mctrl.module_force.output.LatGForceRaw, 2)
+                gf_lat = round(minfo.force.LatGForceRaw, 2)
                 self.update_gf_lat(gf_lat, self.last_gf_lat)
                 self.last_gf_lat = gf_lat
 
             # Downforce ratio
             if self.wcfg["show_downforce_ratio"]:
-                df_ratio = round(mctrl.module_force.output.DownForceRatio, 2)
+                df_ratio = round(minfo.force.DownForceRatio, 2)
                 self.update_df_ratio(df_ratio, self.last_df_ratio)
                 self.last_df_ratio = df_ratio
 

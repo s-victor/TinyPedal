@@ -36,7 +36,7 @@ from PySide2.QtGui import (
 
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "friction_circle"
 
@@ -129,8 +129,8 @@ class Draw(Widget):
 
             # Read acceleration data
             self.gforce_raw = self.gforce_orientation(
-                mctrl.module_force.output.LgtGForceRaw,
-                mctrl.module_force.output.LatGForceRaw
+                minfo.force.LgtGForceRaw,
+                minfo.force.LatGForceRaw
             )
             self.update_gforce(self.gforce_raw, self.last_gforce_raw)
             self.last_gforce_raw = self.gforce_raw
@@ -171,7 +171,7 @@ class Draw(Widget):
             self.draw_circle_mark(
                 painter,
                 self.wcfg["max_average_lateral_g_circle_style"],
-                mctrl.module_force.output.MaxAvgLatGForce,
+                minfo.force.MaxAvgLatGForce,
                 self.wcfg["max_average_lateral_g_circle_width"],
                 self.wcfg["max_average_lateral_g_circle_color"]
             )
@@ -342,12 +342,12 @@ class Draw(Widget):
         painter.drawText(
             self.rect_gforce_bottom.adjusted(0, self.font_offset, 0, 0),
             Qt.AlignCenter,
-            f"{mctrl.module_force.output.MaxLgtGForce:.2f}"[:4]
+            f"{minfo.force.MaxLgtGForce:.2f}"[:4]
         )
         painter.drawText(
             self.rect_gforce_left.adjusted(0, self.font_offset, 0, 0),
             Qt.AlignCenter,
-            f"{mctrl.module_force.output.MaxLatGForce:.2f}"[:4]
+            f"{minfo.force.MaxLatGForce:.2f}"[:4]
         )
 
     # Additional methods

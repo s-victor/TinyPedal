@@ -30,7 +30,7 @@ from PySide2.QtWidgets import (
 from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "stint_history"
 
@@ -219,7 +219,7 @@ class Draw(Widget):
             time_curr, inpits, ingarage = read_data.stint()
 
             wear_avg = 100 - (sum(read_data.wear()) * 25)
-            fuel_curr = self.fuel_units(mctrl.module_fuel.output.AmountFuelCurrent)
+            fuel_curr = self.fuel_units(minfo.fuel.AmountFuelCurrent)
 
             if not inpits:
                 self.last_fuel_curr = fuel_curr

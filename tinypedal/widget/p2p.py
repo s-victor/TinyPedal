@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "p2p"
 
@@ -99,9 +99,6 @@ class Draw(Widget):
         """Update when vehicle on track"""
         if self.wcfg["enable"] and read_data.state():
 
-            # Read hybrid data from hybrid module
-            hybrid_info = mctrl.module_hybrid.output
-
             # Read p2p data
             mgear, speed, throttle = read_data.p2p()
 
@@ -109,17 +106,17 @@ class Draw(Widget):
                 mgear >= self.wcfg["activation_threshold_gear"] and
                 speed * 3.6 > self.wcfg["activation_threshold_speed"] and
                 throttle >= self.wcfg["activation_threshold_throttle"] and
-                hybrid_info.MotorState
+                minfo.hybrid.MotorState
             )
 
             # Battery charge
             if self.wcfg["show_battery_charge"]:
                 battery_charge = (
-                    hybrid_info.BatteryCharge,
-                    hybrid_info.MotorState,
+                    minfo.hybrid.BatteryCharge,
+                    minfo.hybrid.MotorState,
                     alt_active_state,
-                    hybrid_info.MotorActiveTimer,
-                    hybrid_info.MotorInActiveTimer
+                    minfo.hybrid.MotorActiveTimer,
+                    minfo.hybrid.MotorInActiveTimer
                 )
                 self.update_battery_charge(battery_charge, self.last_battery_charge)
                 self.last_battery_charge = battery_charge
@@ -127,8 +124,8 @@ class Draw(Widget):
             # Activation timer
             if self.wcfg["show_activation_timer"]:
                 active_timer = (
-                    hybrid_info.MotorActiveTimer,
-                    hybrid_info.MotorState
+                    minfo.hybrid.MotorActiveTimer,
+                    minfo.hybrid.MotorState
                 )
                 self.update_active_timer(active_timer, self.last_active_timer)
                 self.last_active_timer = active_timer

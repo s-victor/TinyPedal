@@ -26,7 +26,7 @@ from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QPen, QBrush, QColor,
 from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "track_map"
 
@@ -93,12 +93,12 @@ class Draw(Widget):
                 self.checked = True
 
             # Map
-            raw_coords = mctrl.module_mapping.coordinates
+            raw_coords = minfo.mapping.Coordinates
             self.update_map(raw_coords, self.last_raw_coords)
             self.last_raw_coords = raw_coords
 
             # Vehicle
-            self.standings_veh = mctrl.module_standings.vehicles
+            self.standings_veh = minfo.standings.Vehicles
             self.update_veh(self.standings_veh, self.last_standings_veh)
             self.last_standings_veh = self.standings_veh
 
@@ -227,7 +227,7 @@ class Draw(Widget):
                 pen.setColor(QColor(self.wcfg["sector_line_color"]))
                 painter.setPen(pen)
 
-                sector_index = mctrl.module_mapping.sectors
+                sector_index = minfo.mapping.Sectors
                 for idx in range(2):
                     pos_x1, pos_y1, pos_x2, pos_y2 = self.sector_coords(
                         self.map_scaled[sector_index[idx]],  # point a

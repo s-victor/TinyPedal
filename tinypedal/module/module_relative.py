@@ -25,6 +25,7 @@ import time
 import threading
 from itertools import chain
 
+from ..module_info import minfo
 from ..readapi import info, chknm, cs2py, state
 from .. import calculation as calc
 
@@ -37,19 +38,11 @@ class Realtime:
     """Relative info"""
     module_name = MODULE_NAME
 
-    def __init__(self, mctrl, config):
-        self.mctrl = mctrl
+    def __init__(self, config):
         self.cfg = config
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
         self.running = False
-        self.set_output()
-
-    def set_output(self):
-        """Set output"""
-        self.relative = None
-        self.standings = None
-        self.mctrl.vehicle_classes = None
 
     def start(self):
         """Start calculation thread"""
@@ -88,9 +81,9 @@ class Realtime:
                     veh_total, class_pos_list, unique_veh_class)
 
                 # Output data
-                self.mctrl.vehicle_classes = class_pos_list
-                self.relative = relative_index
-                self.standings = stand_idx_list
+                minfo.relative.Classes = class_pos_list
+                minfo.relative.Relative = relative_index
+                minfo.relative.Standings = stand_idx_list
 
             else:
                 if reset:
@@ -99,7 +92,6 @@ class Realtime:
 
             time.sleep(update_interval)
 
-        self.set_output()
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("relative module closed")

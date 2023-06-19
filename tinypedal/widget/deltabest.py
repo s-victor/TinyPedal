@@ -26,7 +26,7 @@ from PySide2.QtGui import QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
 from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "deltabest"
 
@@ -90,7 +90,7 @@ class Draw(Widget):
 
             # Deltabest
             self.delta_best = calc.sym_range(
-                mctrl.module_delta.output.DeltaBest,
+                minfo.delta.DeltaBest,
                 self.wcfg["delta_display_range"])
             self.update_deltabest(self.delta_best, self.last_delta_best)
             self.last_delta_best = self.delta_best

@@ -30,7 +30,7 @@ from PySide2.QtWidgets import (
 from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "lap_time_history"
 
@@ -185,15 +185,15 @@ class Draw(Widget):
                 if 2 < lap_etime - lap_stime < 10:  # update 2s after cross line
                     self.last_wear = wear_avg
                     self.last_lap_stime = lap_stime  # reset time stamp counter
-                    self.laps_data[0][1] = (mctrl.module_delta.output.LaptimeLast,
-                                            mctrl.module_delta.output.IsValidLap)
-                    self.laps_data[0][2] = mctrl.module_fuel.output.LastLapFuelConsumption
+                    self.laps_data[0][1] = (minfo.delta.LaptimeLast,
+                                            minfo.delta.IsValidLap)
+                    self.laps_data[0][2] = minfo.fuel.LastLapFuelConsumption
                     self.store_last_data()
 
             # Current laps data
             self.laps_data[0][0] = read_data.lap_number()
-            self.laps_data[0][1] = mctrl.module_delta.output.LaptimeEstimated, 0
-            self.laps_data[0][2] = mctrl.module_fuel.output.EstimatedFuelConsumption
+            self.laps_data[0][1] = minfo.delta.LaptimeEstimated, 0
+            self.laps_data[0][2] = minfo.fuel.EstimatedFuelConsumption
             self.laps_data[0][3] = max(wear_avg - self.last_wear, 0)
 
             laps_text = f"{self.laps_data[0][0]:03.0f}"[:3].ljust(3)

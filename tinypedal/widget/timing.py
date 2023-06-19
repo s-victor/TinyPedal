@@ -29,7 +29,7 @@ from PySide2.QtWidgets import (
 from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "timing"
 MAGIC_NUM = 99999  # magic number for default variable not updated by rF2
@@ -202,29 +202,29 @@ class Draw(Widget):
 
             # Personal best laptime
             if self.wcfg["show_best"]:
-                laptime_best = mctrl.module_delta.output.LaptimeBest
+                laptime_best = minfo.delta.LaptimeBest
                 self.update_laptime(laptime_best, self.last_laptime_best,
                                     self.prefix_best, "best")
                 self.last_laptime_best = laptime_best
 
             # Last laptime
             if self.wcfg["show_last"]:
-                laptime_last = (mctrl.module_delta.output.LaptimeLast,
-                                mctrl.module_delta.output.IsValidLap)
+                laptime_last = (minfo.delta.LaptimeLast,
+                                minfo.delta.IsValidLap)
                 self.update_last_laptime(laptime_last, self.last_laptime_last,
                                          self.prefix_last)
                 self.last_laptime_last = laptime_last
 
             # Current laptime
             if self.wcfg["show_current"]:
-                laptime_curr = mctrl.module_delta.output.LaptimeCurrent
+                laptime_curr = minfo.delta.LaptimeCurrent
                 self.update_laptime(laptime_curr, self.last_laptime_curr,
                                     self.prefix_curr, "curr")
                 self.last_laptime_curr = laptime_curr
 
             # Estimated laptime
             if self.wcfg["show_estimated"]:
-                laptime_est = mctrl.module_delta.output.LaptimeEstimated
+                laptime_est = minfo.delta.LaptimeEstimated
                 self.update_laptime(laptime_est, self.last_laptime_est,
                                     self.prefix_esti, "est")
                 self.last_laptime_est = laptime_est

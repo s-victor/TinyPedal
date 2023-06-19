@@ -29,7 +29,7 @@ from PySide2.QtWidgets import (
 
 from .. import readapi as read_data
 from ..base import Widget
-from ..module_control import mctrl
+from ..module_info import minfo
 
 WIDGET_NAME = "flag"
 
@@ -235,11 +235,10 @@ class Draw(Widget):
 
             # Low fuel update
             if self.wcfg["show_low_fuel"]:
-                fuel_info = mctrl.module_fuel.output
                 fuel_usage = (
-                    min(round(fuel_info.AmountFuelCurrent, 2),
+                    min(round(minfo.fuel.AmountFuelCurrent, 2),
                         self.wcfg["low_fuel_volume_threshold"]),
-                    min(round(fuel_info.EstimatedLaps, 1),
+                    min(round(minfo.fuel.EstimatedLaps, 1),
                         self.wcfg["low_fuel_lap_threshold"]),
                     bool(not self.wcfg["show_low_fuel_for_race_only"] or
                          self.wcfg["show_low_fuel_for_race_only"] and is_race)
@@ -280,8 +279,8 @@ class Draw(Widget):
                 #yellow_flag = [1,1,1,0,0,0]# testing
                 yellow_flag = (
                     *read_data.yellow_flag(),  # 0,1,2
-                    mctrl.module_standings.nearest.Yellow,  # 3
-                    bool(mctrl.module_standings.nearest.Yellow  # 4
+                    minfo.standings.NearestYellow,  # 3
+                    bool(minfo.standings.NearestYellow  # 4
                          < self.wcfg["yellow_flag_maximum_range"]),
                     bool(not self.wcfg["show_yellow_flag_for_race_only"] or  # 5
                          self.wcfg["show_yellow_flag_for_race_only"] and is_race)
@@ -316,8 +315,8 @@ class Draw(Widget):
                     self.traffic_timer_start = 0
 
                 traffic = (
-                    mctrl.module_standings.nearest.Traffic,
-                    bool(0 < mctrl.module_standings.nearest.Traffic
+                    minfo.standings.NearestTraffic,
+                    bool(0 < minfo.standings.NearestTraffic
                          < self.wcfg["traffic_maximum_time_gap"]
                          and (inpits or self.traffic_timer_start)))
                 self.update_traffic(traffic, self.last_traffic)
