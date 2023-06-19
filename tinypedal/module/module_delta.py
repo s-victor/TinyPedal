@@ -94,12 +94,8 @@ class Realtime:
                 (lap_stime, laptime_curr, lastlap_valid, pos_curr, gps_curr
                  ) = self.__telemetry()
 
-                # Reset lap start time
-                if last_lap_stime == -1:
-                    last_lap_stime = lap_stime
-
                 # Lap start & finish detection
-                if lap_stime > last_lap_stime:
+                if lap_stime > last_lap_stime != -1:
                     laptime_last = lap_stime - last_lap_stime
                     if len(delta_list_curr) > 1:
                         delta_list_curr.append(  # set end value
@@ -147,7 +143,7 @@ class Realtime:
                         pos_estimate,
                         laptime_curr,
                         delta_list_best,
-                        laptime_curr > 0.3,  # 200ms delay
+                        laptime_curr > 0.3,  # 300ms delay
                         0.02,  # add 20ms offset
                     )
                     # Update driven distance

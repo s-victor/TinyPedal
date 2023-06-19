@@ -113,10 +113,6 @@ class Realtime:
                  gps_curr, lap_number, lap_into, laps_max
                  ) = self.__telemetry()
 
-                # Reset lap start time
-                if last_lap_stime == -1:
-                    last_lap_stime = lap_stime
-
                 # Realtime fuel consumption
                 if amount_last < amount_curr:
                     amount_last = amount_curr
@@ -128,7 +124,7 @@ class Realtime:
                 pittinglap = bool(pittinglap + inpits)
 
                 # Lap start & finish detection
-                if lap_stime > last_lap_stime:
+                if lap_stime > last_lap_stime != -1:
                     if len(delta_list_curr) > 1 and not pittinglap:
                         delta_list_curr.append(  # set end value
                             (round(pos_last + 10, 6),

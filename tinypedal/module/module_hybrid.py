@@ -66,7 +66,10 @@ class Realtime:
                     reset = True
                     update_interval = active_interval
 
-                    battery_delta = [0,0,0,0]  # battery drain & regen & last
+                    battery_drain = 0
+                    battery_regen = 0
+                    battery_drain_last = 0
+                    battery_regen_last = 0
                     last_battery_charge = 0
                     last_motor_state = 0
                     motor_active_timer = 0
@@ -77,23 +80,24 @@ class Realtime:
                     last_lap_stime = -1  # last lap start time
 
                 # Read telemetry
-                (lap_stime, lap_etime, battery_charge, motor_state) = self.__telemetry()
+                (lap_stime, lap_etime, battery_charge, motor_state
+                 ) = self.__telemetry()
 
-                # Reset lap start time
-                if last_lap_stime == -1:
-                    last_lap_stime = lap_stime
-
-                if lap_stime != last_lap_stime:  # time stamp difference
-                    last_lap_stime = lap_stime  # reset
-                    battery_delta = [0,0,*battery_delta.copy()]
+                # Lap start & finish detection
+                if lap_stime > last_lap_stime != -1:
+                    battery_drain_last = battery_drain
+                    battery_regen_last = battery_regen
+                    battery_drain = 0
+                    battery_regen = 0
                     motor_active_timer = 0
+                last_lap_stime = lap_stime  # reset
 
                 if last_battery_charge:
                     if last_battery_charge > battery_charge > 0:  # drain
-                        battery_delta[0] += last_battery_charge - battery_charge
+                        battery_drain += last_battery_charge - battery_charge
 
                     if last_battery_charge < battery_charge < 100: # regen
-                        battery_delta[1] += battery_charge - last_battery_charge
+                        battery_regen += battery_charge - last_battery_charge
                 last_battery_charge = battery_charge
 
                 if last_motor_state != motor_state and motor_state == 2:
@@ -117,10 +121,10 @@ class Realtime:
 
                 # Output hybrid data
                 minfo.hybrid.BatteryCharge = battery_charge
-                minfo.hybrid.BatteryDrain = battery_delta[0]
-                minfo.hybrid.BatteryRegen = battery_delta[1]
-                minfo.hybrid.BatteryDrainLast = battery_delta[2]
-                minfo.hybrid.BatteryRegenLast = battery_delta[3]
+                minfo.hybrid.BatteryDrain = battery_drain
+                minfo.hybrid.BatteryRegen = battery_regen
+                minfo.hybrid.BatteryDrainLast = battery_drain_last
+                minfo.hybrid.BatteryRegenLast = battery_regen_last
                 minfo.hybrid.MotorActiveTimer = motor_active_timer
                 minfo.hybrid.MotorInActiveTimer = motor_inactive_timer
                 minfo.hybrid.MotorState = motor_state
