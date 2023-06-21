@@ -143,8 +143,8 @@ class Realtime:
     @staticmethod
     def __telemetry():
         """Telemetry data"""
-        lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
-        lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
-        battery_charge = chknm(info.syncedVehicleTelemetry().mBatteryChargeFraction) * 100
-        motor_state = chknm(info.syncedVehicleTelemetry().mElectricBoostMotorState)
+        lap_stime = chknm(info.playerTele.mLapStartET)
+        lap_etime = chknm(info.playerTele.mElapsedTime)
+        battery_charge = chknm(info.playerTele.mBatteryChargeFraction) * 100
+        motor_state = chknm(info.playerTele.mElectricBoostMotorState)
         return (lap_stime, lap_etime, battery_charge, motor_state)

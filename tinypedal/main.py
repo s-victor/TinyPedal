@@ -46,7 +46,6 @@ from PySide2.QtWidgets import (
 )
 
 from .setting import cfg
-from . import validator as val
 from . import formatter as fmt
 from .const import APP_NAME, VERSION, APP_ICON, PATH_SETTINGS
 from .about import About
@@ -108,6 +107,12 @@ class ConfigWindow(QMainWindow):
         reload_preset = QAction("Reload", self)
         reload_preset.triggered.connect(self.reload_preset)
         menu_overlay.addAction(reload_preset)
+
+        menu_overlay.addSeparator()
+
+        restart_api = QAction("Restart API", self)
+        restart_api.triggered.connect(info.restart)
+        menu_overlay.addAction(restart_api)
 
         menu_overlay.addSeparator()
 
@@ -210,7 +215,7 @@ class ConfigWindow(QMainWindow):
         octrl.disable()  # disable overlay control
         wctrl.close()  # close widget
         QApplication.quit()  # close app
-        info.stopUpdating()  # stop sharedmemory mapping
+        info.stop()  # stop sharedmemory mapping
 
     def int_signal_handler(self, sign, frame):
         """Quit by keyboard interrupt"""

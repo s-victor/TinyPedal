@@ -187,14 +187,14 @@ class MapRecorder:
     @staticmethod
     def __telemetry():
         """Telemetry data"""
-        sector_idx = (2,0,1)[min(max(chknm(info.syncedVehicleScoring().mSector), 0), 2)]
-        lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
-        lap_etime = chknm(info.syncedVehicleTelemetry().mElapsedTime)
-        lastlap_check = chknm(info.syncedVehicleScoring().mLastLapTime)
-        pos_curr = round(chknm(info.syncedVehicleScoring().mLapDist), 4)
-        gps_curr = (round(chknm(info.syncedVehicleScoring().mPos.x), 4),
-                    -round(chknm(info.syncedVehicleScoring().mPos.z), 4))
-        elv_curr = round(chknm(info.syncedVehicleScoring().mPos.y), 4)
+        sector_idx = (2,0,1)[min(max(chknm(info.playerScor.mSector), 0), 2)]
+        lap_stime = chknm(info.playerTele.mLapStartET)
+        lap_etime = chknm(info.playerTele.mElapsedTime)
+        lastlap_check = chknm(info.playerScor.mLastLapTime)
+        pos_curr = round(chknm(info.playerScor.mLapDist), 4)
+        gps_curr = (round(chknm(info.playerScor.mPos.x), 4),
+                    -round(chknm(info.playerScor.mPos.z), 4))
+        elv_curr = round(chknm(info.playerScor.mPos.y), 4)
         return sector_idx, lap_stime, lap_etime, lastlap_check, pos_curr, gps_curr, elv_curr
 
 
@@ -236,7 +236,7 @@ class MapData:
     def load(cls):
         """Load map data file"""
         cls.filename = fmt.strip_invalid_char(
-            cs2py(info.LastScor.mScoringInfo.mTrackName))
+            cs2py(info.rf2Scor.mScoringInfo.mTrackName))
         # Load map file
         (cls.svg_coords, cls.svg_dists, cls.sector_index
          ) = load_svg_file(cls.filename, cls.filepath)

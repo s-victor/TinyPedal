@@ -248,22 +248,23 @@ class Realtime:
     @staticmethod
     def __telemetry():
         """Telemetry data"""
-        lap_stime = chknm(info.syncedVehicleTelemetry().mLapStartET)
-        laptime_curr = max(chknm(info.syncedVehicleTelemetry().mElapsedTime) - lap_stime, 0)
-        lastlap_valid = chknm(info.syncedVehicleScoring().mLastLapTime)
-        time_left = (chknm(info.LastScor.mScoringInfo.mEndET)
-                     - chknm(info.LastScor.mScoringInfo.mCurrentET))
-        amount_curr = chknm(info.syncedVehicleTelemetry().mFuel)
-        capacity = max(chknm(info.syncedVehicleTelemetry().mFuelCapacity), 1)
-        inpits = chknm(info.syncedVehicleScoring().mInPits)
-        ingarage = chknm(info.syncedVehicleScoring().mInGarageStall)
-        pos_curr = chknm(info.syncedVehicleScoring().mLapDist)
-        gps_curr = (chknm(info.syncedVehicleTelemetry().mPos.x),
-                    chknm(info.syncedVehicleTelemetry().mPos.y),
-                    chknm(info.syncedVehicleTelemetry().mPos.z))
-        lap_number = chknm(info.syncedVehicleScoring().mTotalLaps)
-        lap_into = max(pos_curr / max(chknm(info.LastScor.mScoringInfo.mLapDist), 1), 0)
-        laps_max = chknm(info.LastScor.mScoringInfo.mMaxLaps)
+        lap_stime = chknm(info.playerTele.mLapStartET)
+        laptime_curr = max(chknm(info.playerTele.mElapsedTime) - lap_stime, 0)
+        lastlap_valid = chknm(info.playerScor.mLastLapTime)
+        time_left = (chknm(info.rf2Scor.mScoringInfo.mEndET)
+                     - chknm(info.rf2Scor.mScoringInfo.mCurrentET))
+        amount_curr = chknm(info.playerTele.mFuel)
+        capacity = max(chknm(info.playerTele.mFuelCapacity), 1)
+        inpits = chknm(info.playerScor.mInPits)
+        ingarage = chknm(info.playerScor.mInGarageStall)
+        pos_curr = chknm(info.playerScor.mLapDist)
+        gps_curr = (chknm(info.playerTele.mPos.x),
+                    chknm(info.playerTele.mPos.y),
+                    chknm(info.playerTele.mPos.z))
+        lap_number = chknm(info.playerScor.mTotalLaps)
+        lap_into = calc.percentage_distance(
+            pos_curr, chknm(info.rf2Scor.mScoringInfo.mLapDist))
+        laps_max = chknm(info.rf2Scor.mScoringInfo.mMaxLaps)
         return (lap_stime, laptime_curr, lastlap_valid, time_left,
                 amount_curr, capacity, inpits, ingarage, pos_curr,
                 gps_curr, lap_number, lap_into, laps_max)

@@ -49,8 +49,7 @@ class Widget(QWidget):
         self.mouse_pressed = 0
 
         # Connect overlay-lock signal and slot
-        octrl.overlay_lock.locked.connect(self.toggle_lock)
-        octrl.overlay_hide.hidden.connect(self.toggle_hide)
+        self.connect_signal_slot()
 
         # Set update timer
         self.update_timer = QTimer(self)
@@ -92,11 +91,6 @@ class Widget(QWidget):
         self.show()
         octrl.overlay_lock.set_state()  # load overlay lock state
 
-    def break_signal(self):
-        """Disconnect signal"""
-        octrl.overlay_lock.locked.disconnect(self.toggle_lock)
-        octrl.overlay_hide.hidden.disconnect(self.toggle_hide)
-
     @Slot(bool)
     def toggle_lock(self, locked):
         """Toggle widget lock"""
@@ -117,7 +111,18 @@ class Widget(QWidget):
             if not self.isVisible():
                 self.show()
 
+    def connect_signal_slot(self):
+        """Connect overlay-lock signal and slot"""
+        octrl.overlay_lock.locked.connect(self.toggle_lock)
+        octrl.overlay_hide.hidden.connect(self.toggle_hide)
+
+    def break_signal(self):
+        """Disconnect signal"""
+        octrl.overlay_lock.locked.disconnect(self.toggle_lock)
+        octrl.overlay_hide.hidden.disconnect(self.toggle_hide)
+
     def closing(self):
         """Close widget"""
+        self.break_signal()
         self.cfg.active_widget_list.remove(self)
         self.close()

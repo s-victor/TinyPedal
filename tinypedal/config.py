@@ -234,8 +234,14 @@ class WidgetConfig(QDialog):
         self.master = master
         self.obj_name = obj_name
         self.obj_type = obj_type
+
         self.number_locale = QLocale(QLocale.C)
         self.number_locale.setNumberOptions(QLocale.RejectGroupSeparator)
+        self.int_valid = QIntValidator(-999999, 999999)
+        self.int_valid.setLocale(self.number_locale)
+        self.float_valid = QDoubleValidator(-999999.9999, 999999.9999, 4)
+        self.float_valid.setLocale(self.number_locale)
+        self.color_valid = QRegExpValidator(QRegExp('^#[0-9a-fA-F]*'))
 
         self.setWindowTitle(f"{fmt.format_option_name(obj_name)}")
         self.setWindowIcon(QIcon(APP_ICON))
@@ -390,211 +396,58 @@ class WidgetConfig(QDialog):
         """Create options"""
         self.layout_option = QGridLayout()
         self.layout_option.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
         key_list_user = tuple(cfg.setting_user[self.obj_name])  # create user key list
-        color_valid = QRegExpValidator(QRegExp('^#[0-9a-fA-F]*'))
-        int_valid = QIntValidator(-999999, 999999)
-        int_valid.setLocale(self.number_locale)
-        float_valid = QDoubleValidator(-999999.9999, 999999.9999, 4)
-        float_valid.setLocale(self.number_locale)
         option_width = 120
         column_index_label = 0
         column_index_option = 1
 
         for idx, key in enumerate(key_list_user):
-            setattr(self, f"label_{key}", QLabel(f"{fmt.format_option_name(key)}"))
-            self.layout_option.addWidget(getattr(self, f"label_{key}"), idx, column_index_label)
             #print(key, cfg.setting_user[self.obj_name][key])
+            self.__add_option_label(
+                idx, key, column_index_label)
             # Bool
             if re.search(rxp.REGEX_BOOL, key):
-                setattr(self, f"checkbox_{key}", QCheckBox())
-                getattr(self, f"checkbox_{key}").setFixedWidth(option_width)
-                getattr(self, f"checkbox_{key}").setChecked(cfg.setting_user[self.obj_name][key])
-
-                # Context menu
-                self.add_context_menu(
-                    getattr(self, f"checkbox_{key}"),
-                    cfg.setting_default[self.obj_name][key],
-                    "set_check"
-                )
-
-                # Add layout
-                self.layout_option.addWidget(
-                    getattr(self, f"checkbox_{key}"), idx, column_index_option)
-                self.option_bool.append(key)
+                self.__add_option_bool(
+                    idx, key, option_width, column_index_option)
                 continue
-
             # Color string
             if re.search(rxp.REGEX_COLOR, key):
-                setattr(self, f"lineedit_{key}", ColorEdit(cfg.setting_user[self.obj_name][key]))
-                getattr(self, f"lineedit_{key}").setFixedWidth(option_width)
-                getattr(self, f"lineedit_{key}").setMaxLength(9)
-                getattr(self, f"lineedit_{key}").setValidator(color_valid)
-                getattr(self, f"lineedit_{key}").textChanged.connect(
-                    lambda color_str, option=getattr(self, f"lineedit_{key}"):
-                    self.update_preview_color(color_str, option)
-                )
-
-                # Load selected option
-                getattr(self, f"lineedit_{key}").setText(
-                    cfg.setting_user[self.obj_name][key])
-
-                # Context menu
-                self.add_context_menu(
-                    getattr(self, f"lineedit_{key}"),
-                    str(cfg.setting_default[self.obj_name][key]),
-                    "set_text"
-                )
-
-                # Add layout
-                self.layout_option.addWidget(
-                    getattr(self, f"lineedit_{key}"), idx, column_index_option)
-                self.option_color.append(key)
+                self.__add_option_color(
+                    idx, key, option_width, column_index_option)
                 continue
-
             # Font name string
             if re.search(rxp.REGEX_FONTNAME, key):
-                setattr(self, f"fontedit_{key}", QFontComboBox())
-                getattr(self, f"fontedit_{key}").setFixedWidth(option_width)
-
-                # Load selected option
-                getattr(self, f"fontedit_{key}").setCurrentFont(
-                    cfg.setting_user[self.obj_name][key])
-
-                # Context menu
-                self.add_context_menu(
-                    getattr(self, f"fontedit_{key}"),
-                    cfg.setting_default[self.obj_name][key],
-                    "set_font"
-                )
-
-                # Add layout
-                self.layout_option.addWidget(
-                    getattr(self, f"fontedit_{key}"), idx, column_index_option)
-                self.option_fontname.append(key)
+                self.__add_option_fontname(
+                    idx, key, option_width, column_index_option)
                 continue
-
             # Font weight string
             if re.search(rxp.REGEX_FONTWEIGHT, key):
-                setattr(self, f"combobox_{key}", QComboBox())
-                getattr(self, f"combobox_{key}").setFixedWidth(option_width)
-                getattr(self, f"combobox_{key}").addItems(["normal", "bold"])
-
-                # Load selected option
-                curr_index = getattr(self, f"combobox_{key}").findText(
-                    f"{cfg.setting_user[self.obj_name][key]}", Qt.MatchExactly)
-                if curr_index != -1:
-                    getattr(self, f"combobox_{key}").setCurrentIndex(curr_index)
-
-                # Context menu
-                self.add_context_menu(
-                    getattr(self, f"combobox_{key}"),
-                    cfg.setting_default[self.obj_name][key],
-                    "set_combo"
-                )
-
-                # Add layout
-                self.layout_option.addWidget(
-                    getattr(self, f"combobox_{key}"), idx, column_index_option)
-                self.option_fontweight.append(key)
+                self.__add_option_fontweight(
+                    idx, key, option_width, column_index_option)
                 continue
-
             # Heatmap string
-            if re.search("heatmap", key):
-                setattr(self, f"combobox_{key}", QComboBox())
-                getattr(self, f"combobox_{key}").setFixedWidth(option_width)
-                getattr(self, f"combobox_{key}").addItems(tuple(cfg.heatmap_user))
-
-                # Load selected option
-                curr_index = getattr(self, f"combobox_{key}").findText(
-                    f"{cfg.setting_user[self.obj_name][key]}", Qt.MatchExactly)
-                if curr_index != -1:
-                    getattr(self, f"combobox_{key}").setCurrentIndex(curr_index)
-
-                # Context menu
-                self.add_context_menu(
-                    getattr(self, f"combobox_{key}"),
-                    cfg.setting_default[self.obj_name][key],
-                    "set_combo"
-                )
-
-                # Add layout
-                self.layout_option.addWidget(
-                    getattr(self, f"combobox_{key}"), idx, column_index_option)
-                self.option_heatmap.append(key)
+            if re.search(rxp.REGEX_HEATMAP, key):
+                self.__add_option_heatmap(
+                    idx, key, option_width, column_index_option)
                 continue
-
             # String
             if re.search(rxp.REGEX_STRING, key):
-                setattr(self, f"lineedit_{key}", QLineEdit())
-                getattr(self, f"lineedit_{key}").setFixedWidth(option_width)
-
-                # Load selected option
-                getattr(self, f"lineedit_{key}").setText(
-                    cfg.setting_user[self.obj_name][key])
-
-                # Context menu
-                self.add_context_menu(
-                    getattr(self, f"lineedit_{key}"),
-                    cfg.setting_default[self.obj_name][key],
-                    "set_text"
-                )
-
-                # Add layout
-                self.layout_option.addWidget(getattr(
-                    self, f"lineedit_{key}"), idx, column_index_option)
-                self.option_string.append(key)
+                self.__add_option_string(
+                    idx, key, option_width, column_index_option)
                 continue
-
             # Int
-            if re.search(rxp.REGEX_INT, key):
-                setattr(self, f"lineedit_{key}", QLineEdit())
-                getattr(self, f"lineedit_{key}").setFixedWidth(option_width)
-                getattr(self, f"lineedit_{key}").setValidator(int_valid)
-
-                # Load selected option
-                getattr(self, f"lineedit_{key}").setText(
-                    str(cfg.setting_user[self.obj_name][key]))
-
-                # Context menu
-                self.add_context_menu(
-                    getattr(self, f"lineedit_{key}"),
-                    str(cfg.setting_default[self.obj_name][key]),
-                    "set_text"
-                )
-
-                # Add layout
-                self.layout_option.addWidget(
-                    getattr(self, f"lineedit_{key}"), idx, column_index_option)
-                self.option_int.append(key)
+            if re.search(rxp.REGEX_INTEGER, key):
+                self.__add_option_integer(
+                    idx, key, option_width, column_index_option)
                 continue
-
             # Anything else
-            setattr(self, f"lineedit_{key}", QLineEdit())
-            getattr(self, f"lineedit_{key}").setFixedWidth(option_width)
-            getattr(self, f"lineedit_{key}").setValidator(float_valid)
-
-            # Load selected option
-            getattr(self, f"lineedit_{key}").setText(
-                str(cfg.setting_user[self.obj_name][key]))
-
-            # Context menu
-            self.add_context_menu(
-                getattr(self, f"lineedit_{key}"),
-                str(cfg.setting_default[self.obj_name][key]),
-                "set_text"
-            )
-
-            # Add layout
-            self.layout_option.addWidget(
-                getattr(self, f"lineedit_{key}"), idx, column_index_option)
-            self.option_float.append(key)
+            self.__add_option_float(
+                idx, key, option_width, column_index_option)
 
     def set_fg_color(self, color_str):
         """Set foreground color based on background color lightness"""
-        if QColor(color_str).alpha() > 128:
-            if QColor(color_str).lightness() < 128:
-                return "#FFF"
+        if QColor(color_str).alpha() > 128 > QColor(color_str).lightness():
+            return "#FFF"
         return "#000"
 
     def update_preview_color(self, color_str, option):
@@ -625,14 +478,166 @@ class WidgetConfig(QDialog):
         if action == option_reset:
             if mode == "set_check":
                 target.setChecked(default)
-            if mode == "set_font":
+            elif mode == "set_font":
                 target.setCurrentText(default)
-            if mode == "set_text":
+            elif mode == "set_text":
                 target.setText(default)
-            if mode == "set_combo":
+            elif mode == "set_combo":
                 curr_index = target.findText(f"{default}", Qt.MatchExactly)
                 if curr_index != -1:
                     target.setCurrentIndex(curr_index)
+
+    def __add_option_label(self, idx, key, column_index):
+        """Label"""
+        setattr(self, f"label_{key}", QLabel(f"{fmt.format_option_name(key)}"))
+        self.layout_option.addWidget(getattr(self, f"label_{key}"), idx, column_index)
+
+    def __add_option_bool(self, idx, key, width, column_index):
+        """Bool"""
+        setattr(self, f"checkbox_{key}", QCheckBox())
+        getattr(self, f"checkbox_{key}").setFixedWidth(width)
+        getattr(self, f"checkbox_{key}").setChecked(cfg.setting_user[self.obj_name][key])
+        # Context menu
+        self.add_context_menu(
+            getattr(self, f"checkbox_{key}"),
+            cfg.setting_default[self.obj_name][key],
+            "set_check")
+        # Add layout
+        self.layout_option.addWidget(
+            getattr(self, f"checkbox_{key}"), idx, column_index)
+        self.option_bool.append(key)
+
+    def __add_option_color(self, idx, key, width, column_index):
+        """Color string"""
+        setattr(self, f"lineedit_{key}", ColorEdit(cfg.setting_user[self.obj_name][key]))
+        getattr(self, f"lineedit_{key}").setFixedWidth(width)
+        getattr(self, f"lineedit_{key}").setMaxLength(9)
+        getattr(self, f"lineedit_{key}").setValidator(self.color_valid)
+        getattr(self, f"lineedit_{key}").textChanged.connect(
+            lambda color_str, option=getattr(self, f"lineedit_{key}"):
+            self.update_preview_color(color_str, option))
+        # Load selected option
+        getattr(self, f"lineedit_{key}").setText(
+            cfg.setting_user[self.obj_name][key])
+        # Context menu
+        self.add_context_menu(
+            getattr(self, f"lineedit_{key}"),
+            str(cfg.setting_default[self.obj_name][key]),
+            "set_text")
+        # Add layout
+        self.layout_option.addWidget(
+            getattr(self, f"lineedit_{key}"), idx, column_index)
+        self.option_color.append(key)
+
+    def __add_option_fontname(self, idx, key, width, column_index):
+        """Font name string"""
+        setattr(self, f"fontedit_{key}", QFontComboBox())
+        getattr(self, f"fontedit_{key}").setFixedWidth(width)
+        # Load selected option
+        getattr(self, f"fontedit_{key}").setCurrentFont(
+            cfg.setting_user[self.obj_name][key])
+        # Context menu
+        self.add_context_menu(
+            getattr(self, f"fontedit_{key}"),
+            cfg.setting_default[self.obj_name][key],
+            "set_font")
+        # Add layout
+        self.layout_option.addWidget(
+            getattr(self, f"fontedit_{key}"), idx, column_index)
+        self.option_fontname.append(key)
+
+    def __add_option_fontweight(self, idx, key, width, column_index):
+        """Font weight string"""
+        setattr(self, f"combobox_{key}", QComboBox())
+        getattr(self, f"combobox_{key}").setFixedWidth(width)
+        getattr(self, f"combobox_{key}").addItems(["normal", "bold"])
+        # Load selected option
+        curr_index = getattr(self, f"combobox_{key}").findText(
+            f"{cfg.setting_user[self.obj_name][key]}", Qt.MatchExactly)
+        if curr_index != -1:
+            getattr(self, f"combobox_{key}").setCurrentIndex(curr_index)
+        # Context menu
+        self.add_context_menu(
+            getattr(self, f"combobox_{key}"),
+            cfg.setting_default[self.obj_name][key],
+            "set_combo")
+        # Add layout
+        self.layout_option.addWidget(
+            getattr(self, f"combobox_{key}"), idx, column_index)
+        self.option_fontweight.append(key)
+
+    def __add_option_heatmap(self, idx, key, width, column_index):
+        """Heatmap string"""
+        setattr(self, f"combobox_{key}", QComboBox())
+        getattr(self, f"combobox_{key}").setFixedWidth(width)
+        getattr(self, f"combobox_{key}").addItems(tuple(cfg.heatmap_user))
+        # Load selected option
+        curr_index = getattr(self, f"combobox_{key}").findText(
+            f"{cfg.setting_user[self.obj_name][key]}", Qt.MatchExactly)
+        if curr_index != -1:
+            getattr(self, f"combobox_{key}").setCurrentIndex(curr_index)
+        # Context menu
+        self.add_context_menu(
+            getattr(self, f"combobox_{key}"),
+            cfg.setting_default[self.obj_name][key],
+            "set_combo")
+        # Add layout
+        self.layout_option.addWidget(
+            getattr(self, f"combobox_{key}"), idx, column_index)
+        self.option_heatmap.append(key)
+
+    def __add_option_string(self, idx, key, width, column_index):
+        """String"""
+        setattr(self, f"lineedit_{key}", QLineEdit())
+        getattr(self, f"lineedit_{key}").setFixedWidth(width)
+        # Load selected option
+        getattr(self, f"lineedit_{key}").setText(
+            cfg.setting_user[self.obj_name][key])
+        # Context menu
+        self.add_context_menu(
+            getattr(self, f"lineedit_{key}"),
+            cfg.setting_default[self.obj_name][key],
+            "set_text")
+        # Add layout
+        self.layout_option.addWidget(getattr(
+            self, f"lineedit_{key}"), idx, column_index)
+        self.option_string.append(key)
+
+    def __add_option_integer(self, idx, key, width, column_index):
+        """Integer"""
+        setattr(self, f"lineedit_{key}", QLineEdit())
+        getattr(self, f"lineedit_{key}").setFixedWidth(width)
+        getattr(self, f"lineedit_{key}").setValidator(self.int_valid)
+        # Load selected option
+        getattr(self, f"lineedit_{key}").setText(
+            str(cfg.setting_user[self.obj_name][key]))
+        # Context menu
+        self.add_context_menu(
+            getattr(self, f"lineedit_{key}"),
+            str(cfg.setting_default[self.obj_name][key]),
+            "set_text")
+        # Add layout
+        self.layout_option.addWidget(
+            getattr(self, f"lineedit_{key}"), idx, column_index)
+        self.option_int.append(key)
+
+    def __add_option_float(self, idx, key, width, column_index):
+        """Float"""
+        setattr(self, f"lineedit_{key}", QLineEdit())
+        getattr(self, f"lineedit_{key}").setFixedWidth(width)
+        getattr(self, f"lineedit_{key}").setValidator(self.float_valid)
+        # Load selected option
+        getattr(self, f"lineedit_{key}").setText(
+            str(cfg.setting_user[self.obj_name][key]))
+        # Context menu
+        self.add_context_menu(
+            getattr(self, f"lineedit_{key}"),
+            str(cfg.setting_default[self.obj_name][key]),
+            "set_text")
+        # Add layout
+        self.layout_option.addWidget(
+            getattr(self, f"lineedit_{key}"), idx, column_index)
+        self.option_float.append(key)
 
 
 class ColorEdit(QLineEdit):

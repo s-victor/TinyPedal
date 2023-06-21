@@ -110,7 +110,7 @@ class Realtime:
                     update_interval = active_interval
 
                 class_pos_list = minfo.relative.Classes
-                veh_total = max(chknm(info.LastTele.mNumVehicles), 1)
+                veh_total = max(chknm(info.rf2Tele.mNumVehicles), 1)
                 if class_pos_list and len(class_pos_list) == veh_total:
                     vehicles_data = list(self.__vehicle_data(veh_total, class_pos_list))
                     # Output
@@ -138,58 +138,58 @@ class Realtime:
     def __vehicle_data(self, veh_total, class_pos_list):
         """Get vehicle data"""
         # Additional data
-        track_length = chknm(info.LastScor.mScoringInfo.mLapDist)
-        current_session = chknm(info.LastScor.mScoringInfo.mSession)
+        track_length = max(chknm(info.rf2Scor.mScoringInfo.mLapDist), 1)
+        current_session = chknm(info.rf2Scor.mScoringInfo.mSession)
 
         # Local player data
-        plr_total_laps = chknm(info.syncedVehicleScoring().mTotalLaps)
-        plr_lap_distance = chknm(info.syncedVehicleScoring().mLapDist)
-        plr_percentage_distance = plr_lap_distance / max(track_length, 1)
+        plr_total_laps = chknm(info.playerScor.mTotalLaps)
+        plr_lap_distance = chknm(info.playerScor.mLapDist)
+        plr_percentage_distance = plr_lap_distance / track_length
         plr_speed = calc.vel2speed(
-            chknm(info.syncedVehicleScoring().mLocalVel.x),
-            chknm(info.syncedVehicleScoring().mLocalVel.y),
-            chknm(info.syncedVehicleScoring().mLocalVel.z))
-        plr_pos_xz = (chknm(info.syncedVehicleTelemetry().mPos.x),
-                     -chknm(info.syncedVehicleTelemetry().mPos.z))
+            chknm(info.playerScor.mLocalVel.x),
+            chknm(info.playerScor.mLocalVel.y),
+            chknm(info.playerScor.mLocalVel.z))
+        plr_pos_xz = (chknm(info.playerTele.mPos.x),
+                     -chknm(info.playerTele.mPos.z))
         plr_ori_rad = calc.oriyaw2rad(
-            chknm(info.syncedVehicleTelemetry().mOri[2].x),
-            chknm(info.syncedVehicleTelemetry().mOri[2].z))
+            chknm(info.playerTele.mOri[2].x),
+            chknm(info.playerTele.mOri[2].z))
 
         # Generate data list from all vehicles in current session
         for index in range(veh_total):
             tele_index = info.find_player_index_tele(index)
 
-            vehicle_id = chknm(info.LastScor.mVehicles[index].mID)
-            position = chknm(info.LastScor.mVehicles[index].mPlace)
-            driver_name = cs2py(info.LastScor.mVehicles[index].mDriverName)
-            vehicle_name = cs2py(info.LastScor.mVehicles[index].mVehicleName)
-            vehicle_class = cs2py(info.LastScor.mVehicles[index].mVehicleClass)
+            vehicle_id = chknm(info.rf2Scor.mVehicles[index].mID)
+            position = chknm(info.rf2Scor.mVehicles[index].mPlace)
+            driver_name = cs2py(info.rf2Scor.mVehicles[index].mDriverName)
+            vehicle_name = cs2py(info.rf2Scor.mVehicles[index].mVehicleName)
+            vehicle_class = cs2py(info.rf2Scor.mVehicles[index].mVehicleClass)
             position_in_class = class_pos_list[index][1]
 
             session_best_laptime = class_pos_list[index][3]
             class_best_laptime = class_pos_list[index][4]
-            best_laptime = chknm(info.LastScor.mVehicles[index].mBestLapTime)
-            last_laptime = chknm(info.LastScor.mVehicles[index].mLastLapTime)
-            elapsed_time = chknm(info.LastTele.mVehicles[tele_index].mElapsedTime)
+            best_laptime = chknm(info.rf2Scor.mVehicles[index].mBestLapTime)
+            last_laptime = chknm(info.rf2Scor.mVehicles[index].mLastLapTime)
+            elapsed_time = chknm(info.rf2Tele.mVehicles[tele_index].mElapsedTime)
             speed = calc.vel2speed(
-                chknm(info.LastScor.mVehicles[index].mLocalVel.x),
-                chknm(info.LastScor.mVehicles[index].mLocalVel.y),
-                chknm(info.LastScor.mVehicles[index].mLocalVel.z)
+                chknm(info.rf2Scor.mVehicles[index].mLocalVel.x),
+                chknm(info.rf2Scor.mVehicles[index].mLocalVel.y),
+                chknm(info.rf2Scor.mVehicles[index].mLocalVel.z)
             )
-            is_player = chknm(info.LastScor.mVehicles[index].mIsPlayer)
+            is_player = chknm(info.rf2Scor.mVehicles[index].mIsPlayer)
 
             # Distance & time
-            total_laps = chknm(info.LastScor.mVehicles[index].mTotalLaps)
-            lap_distance = chknm(info.LastScor.mVehicles[index].mLapDist)
-            percentage_distance = lap_distance / max(track_length, 1)
+            total_laps = chknm(info.rf2Scor.mVehicles[index].mTotalLaps)
+            lap_distance = chknm(info.rf2Scor.mVehicles[index].mLapDist)
+            percentage_distance = lap_distance / track_length
             relative_distance = calc.circular_relative_distance(
                 track_length, plr_lap_distance, lap_distance)
             relative_time_gap = calc.relative_time_gap(
                 relative_distance, speed, plr_speed)
-            time_behind_leader = chknm(info.LastScor.mVehicles[index].mTimeBehindLeader)
-            laps_behind_leader = chknm(info.LastScor.mVehicles[index].mLapsBehindLeader)
-            time_behind_next = chknm(info.LastScor.mVehicles[index].mTimeBehindNext)
-            laps_behind_next = chknm(info.LastScor.mVehicles[index].mLapsBehindNext)
+            time_behind_leader = chknm(info.rf2Scor.mVehicles[index].mTimeBehindLeader)
+            laps_behind_leader = chknm(info.rf2Scor.mVehicles[index].mLapsBehindLeader)
+            time_behind_next = chknm(info.rf2Scor.mVehicles[index].mTimeBehindNext)
+            laps_behind_next = chknm(info.rf2Scor.mVehicles[index].mLapsBehindNext)
             is_lapped = calc.lap_difference(
                 total_laps, plr_total_laps,
                 percentage_distance, plr_percentage_distance,
@@ -198,24 +198,24 @@ class Realtime:
             is_yellow = bool(speed <= 8)
 
             # Pit
-            in_garage = chknm(info.LastScor.mVehicles[index].mInGarageStall)
-            in_pit = chknm(info.LastScor.mVehicles[index].mInPits)
-            num_pit_stops = chknm(info.LastScor.mVehicles[index].mNumPitstops)
-            pit_state = chknm(info.LastScor.mVehicles[index].mPitState)
+            in_garage = chknm(info.rf2Scor.mVehicles[index].mInGarageStall)
+            in_pit = chknm(info.rf2Scor.mVehicles[index].mInPits)
+            num_pit_stops = chknm(info.rf2Scor.mVehicles[index].mNumPitstops)
+            pit_state = chknm(info.rf2Scor.mVehicles[index].mPitState)
             pit_time = self.__calc_pit_time(
                 index, in_pit, in_garage, last_laptime, elapsed_time,
                 in_pit * 1000 + vehicle_id)
             tire_compound_index = (
-                chknm(info.LastTele.mVehicles[tele_index].mFrontTireCompoundIndex),
-                chknm(info.LastTele.mVehicles[tele_index].mRearTireCompoundIndex)
+                chknm(info.rf2Tele.mVehicles[tele_index].mFrontTireCompoundIndex),
+                chknm(info.rf2Tele.mVehicles[tele_index].mRearTireCompoundIndex)
             )
 
             # Position data
-            pos_xz = (chknm(info.LastTele.mVehicles[tele_index].mPos.x),
-                     -chknm(info.LastTele.mVehicles[tele_index].mPos.z))
+            pos_xz = (chknm(info.rf2Tele.mVehicles[tele_index].mPos.x),
+                     -chknm(info.rf2Tele.mVehicles[tele_index].mPos.z))
             orientation_xz_radians = calc.oriyaw2rad(
-                chknm(info.LastTele.mVehicles[tele_index].mOri[2].x),
-                chknm(info.LastTele.mVehicles[tele_index].mOri[2].z))
+                chknm(info.rf2Tele.mVehicles[tele_index].mOri[2].x),
+                chknm(info.rf2Tele.mVehicles[tele_index].mOri[2].z))
             relative_rotated_pos_xz = calc.rotate_pos(
                 plr_ori_rad - 3.14159265,   # plr_ori_rad, rotate view
                 pos_xz[0] - plr_pos_xz[0],  # x position related to player

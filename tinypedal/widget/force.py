@@ -27,6 +27,7 @@ from PySide2.QtWidgets import (
     QLabel,
 )
 
+from .. import formatter as fmt
 from .. import readapi as read_data
 from ..base import Widget
 from ..module_info import minfo
@@ -143,7 +144,7 @@ class Draw(Widget):
 
             # Downforce ratio
             if self.wcfg["show_downforce_ratio"]:
-                df_ratio = round(minfo.force.DownForceRatio, 2)
+                df_ratio = f"{minfo.force.DownForceRatio:04.02f}"[:5]
                 self.update_df_ratio(df_ratio, self.last_df_ratio)
                 self.last_df_ratio = df_ratio
 
@@ -161,7 +162,7 @@ class Draw(Widget):
     def update_df_ratio(self, curr, last):
         """Downforce ratio"""
         if curr != last:
-            self.bar_dforce.setText(f"{curr:04.02f}%")
+            self.bar_dforce.setText(f"{fmt.strip_decimal_pt(curr)}%")
 
     # Additional methods
     @staticmethod

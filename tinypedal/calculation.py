@@ -170,6 +170,13 @@ def rotate_pos(ori_rad, value1, value2):
     return new_pos_x, new_pos_z
 
 
+def percentage_distance(dist, length, max_range=1, min_range=0):
+    """Current distance in percentage relative to length"""
+    if length:
+        return min(max(dist / length, min_range), max_range)
+    return 0
+
+
 def circular_relative_distance(circle_length, plr_dist, opt_dist):
     """Relative distance between opponent & player in a circle"""
     rel_dist = opt_dist - plr_dist
@@ -180,6 +187,15 @@ def circular_relative_distance(circle_length, plr_dist, opt_dist):
         elif opt_dist < plr_dist:
             rel_dist += circle_length  # opponent is ahead player
     return rel_dist
+
+
+def lap_difference(opt_laps, plr_laps, opt_per_dist, plr_per_dist, session=10):
+    """Calculate lap difference between 2 players"""
+    lap_diff = opt_laps + opt_per_dist - plr_laps - plr_per_dist
+    # Only check during race session
+    if session > 9 and abs(lap_diff) > 1:
+        return lap_diff
+    return 0
 
 
 def relative_time_gap(distance, plr_speed, opt_speed):
@@ -194,7 +210,7 @@ def sec2sessiontime(seconds):
     """Session time (hour/min/sec/ms)"""
     hours = seconds // 3600
     mins = divmod(seconds // 60, 60)[1]
-    secs = min(divmod(seconds, 60)[1],59)
+    secs = min(divmod(seconds, 60)[1], 59)
     return f"{hours:01.0f}:{mins:02.0f}:{secs:02.0f}"
 
 
@@ -223,15 +239,6 @@ def color_heatmap(heatmap, temperature):
             return last_color
         last_color = temp[1]
     return heatmap[-1][1]
-
-
-def lap_difference(opt_laps, plr_laps, opt_per_dist, plr_per_dist, session=10):
-    """Calculate lap difference between 2 players"""
-    lap_diff = opt_laps + opt_per_dist - plr_laps - plr_per_dist
-    # Only check during race session
-    if session > 9 and abs(lap_diff) > 1:
-        return lap_diff
-    return 0
 
 
 def linear_interp(x, x1, y1, x2, y2):

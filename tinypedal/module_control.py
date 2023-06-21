@@ -53,29 +53,26 @@ class ModuleControl:
         """Start module"""
         for obj in self.MODULE_PACK:
             if cfg.setting_user[obj.MODULE_NAME]["enable"]:
-                setattr(self, obj.MODULE_NAME, obj.Realtime(cfg))
-                getattr(self, obj.MODULE_NAME).start()
+                self.__create_instance(obj)
 
-    def close(self):
+    @staticmethod
+    def close():
         """Close module"""
-        if cfg.active_module_list:
+        while cfg.active_module_list:
             for module in cfg.active_module_list:
                 module.running = False
-            while cfg.active_module_list:
-                time.sleep(0.01)
+            time.sleep(0.01)
 
     def toggle(self, module):
         """Toggle module"""
-        name = module.MODULE_NAME
-        if cfg.setting_user[name]["enable"]:
-            cfg.setting_user[name]["enable"] = False
-            getattr(self, name).running = False
-            while not getattr(self, name).stopped:
+        if cfg.setting_user[module.MODULE_NAME]["enable"]:
+            cfg.setting_user[module.MODULE_NAME]["enable"] = False
+            getattr(self, module.MODULE_NAME).running = False
+            while not getattr(self, module.MODULE_NAME).stopped:
                 time.sleep(0.01)
         else:
-            cfg.setting_user[name]["enable"] = True
-            setattr(self, name, module.Realtime(cfg))
-            getattr(self, name).start()
+            cfg.setting_user[module.MODULE_NAME]["enable"] = True
+            self.__create_instance(module)
         cfg.save()
 
     def enable_all(self):
@@ -83,8 +80,7 @@ class ModuleControl:
         for obj in self.MODULE_PACK:
             if not cfg.setting_user[obj.MODULE_NAME]["enable"]:
                 cfg.setting_user[obj.MODULE_NAME]["enable"] = True
-                setattr(self, obj.MODULE_NAME, obj.Realtime(cfg))
-                getattr(self, obj.MODULE_NAME).start()
+                self.__create_instance(obj)
         cfg.save()
         logger.info("all modules enabled")
 
@@ -92,30 +88,34 @@ class ModuleControl:
         """Disable all modules"""
         for obj in self.MODULE_PACK:
             cfg.setting_user[obj.MODULE_NAME]["enable"] = False
-
-        while cfg.active_module_list:
-            for module in cfg.active_module_list:
-                module.running = False
+        self.close()
         cfg.save()
         logger.info("all modules disabled")
 
     def start_selected(self, module_name):
         """Start selected module"""
         for obj in self.MODULE_PACK:
-            if obj.MODULE_NAME == module_name and cfg.setting_user[module_name]["enable"]:
-                setattr(self, obj.MODULE_NAME, obj.Realtime(cfg))
-                getattr(self, obj.MODULE_NAME).start()
+            if (cfg.setting_user[module_name]["enable"]
+                and obj.MODULE_NAME == module_name):
+                self.__create_instance(obj)
                 break
 
-    def close_selected(self, module_name):
+    @staticmethod
+    def close_selected(module_name):
         """Close selected module"""
-        if cfg.active_module_list:
-            for module in cfg.active_module_list:
-                if module.module_name == module_name:
-                    module.running = False
-                    while not module.stopped:
-                        time.sleep(0.01)
-                    break
+        if not cfg.active_module_list:
+            return None
+        for module in cfg.active_module_list:
+            if module.module_name == module_name:
+                module.running = False
+                while not module.stopped:
+                    time.sleep(0.01)
+                return None
+
+    def __create_instance(self, obj):
+        """Create module instance"""
+        setattr(self, obj.MODULE_NAME, obj.Realtime(cfg))
+        getattr(self, obj.MODULE_NAME).start()
 
 
 mctrl = ModuleControl()

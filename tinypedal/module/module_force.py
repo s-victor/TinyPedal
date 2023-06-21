@@ -128,11 +128,11 @@ class Realtime:
     @staticmethod
     def __telemetry():
         """Telemetry data"""
-        elapsed_time = chknm(info.syncedVehicleTelemetry().mElapsedTime)
-        lgt_accel = chknm(info.syncedVehicleTelemetry().mLocalAccel.z)
-        lat_accel = chknm(info.syncedVehicleTelemetry().mLocalAccel.x)
-        dforce_f = chknm(info.syncedVehicleTelemetry().mFrontDownforce)
-        dforce_r = chknm(info.syncedVehicleTelemetry().mRearDownforce)
+        elapsed_time = chknm(info.playerTele.mElapsedTime)
+        lgt_accel = chknm(info.playerTele.mLocalAccel.z)
+        lat_accel = chknm(info.playerTele.mLocalAccel.x)
+        dforce_f = chknm(info.playerTele.mFrontDownforce)
+        dforce_r = chknm(info.playerTele.mRearDownforce)
         return elapsed_time, lgt_accel, lat_accel, dforce_f, dforce_r
 
     def calc_max_avg_gforce(self):

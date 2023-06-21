@@ -1,3 +1,14 @@
+WIP
+-----------------------------
+* General
+    - Add "Restart API" option to main menu bar & tray context menu,
+      which can be used to quickly restart shared memory API accessing.
+    - Add "shared_memory" section in user config file,
+      which is reserved for future use.
+
+* Force Widget
+    - Fixed a display issue with very large readings.
+
 2.1.7 (2023-06-16)
 -----------------------------
 * Flag Widget

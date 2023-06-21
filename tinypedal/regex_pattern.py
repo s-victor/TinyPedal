@@ -37,7 +37,10 @@ REGEX_BOOL = (
 REGEX_COLOR = "color"
 REGEX_FONTNAME = "font_name"
 REGEX_FONTWEIGHT = "font_weight"
+REGEX_HEATMAP = "heatmap"
 REGEX_STRING = (
+    # Exact match
+    "^rF2_process_id$|"
     # Partial match
     "format|"
     "heatmap_name|"
@@ -47,7 +50,7 @@ REGEX_STRING = (
     "text|"
     "unit"
 )
-REGEX_INT = (
+REGEX_INTEGER = (
     # Exact match
     "^lap_time_history_count$|"
     "^leading_zero$|"

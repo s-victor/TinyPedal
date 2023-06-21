@@ -117,13 +117,18 @@ def remove_invalid_setting(key_list_def, dict_user):
                 if dict_user[key].lower() not in ("normal", "bold"):
                     dict_user.pop(key)
                 continue
+            # Heatmap
+            if re.search(rxp.REGEX_HEATMAP, key):
+                if type(dict_user[key]) != str:
+                    dict_user.pop(key)
+                continue
             # String
             if re.search(rxp.REGEX_STRING, key):
                 if type(dict_user[key]) != str:
                     dict_user.pop(key)
                 continue
             # Int
-            if re.search(rxp.REGEX_INT, key):
+            if re.search(rxp.REGEX_INTEGER, key):
                 if type(dict_user[key]) != int:
                     try:
                         dict_user[key] = int(dict_user[key])

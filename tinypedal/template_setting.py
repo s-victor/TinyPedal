@@ -36,6 +36,9 @@ SETTING_DEFAULT = {
         "fixed_position": False,
         "auto_hide": True,
     },
+    "shared_memory": {
+        "rF2_process_id": "",
+    },
     "units": {
         "elevation_unit": "Meter",
         "fuel_unit": "Liter",

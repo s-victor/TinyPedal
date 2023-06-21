@@ -109,29 +109,24 @@ class WidgetControl:
         """Start widget"""
         for obj in self.WIDGET_PACK:
             if cfg.setting_user[obj.WIDGET_NAME]["enable"]:
-                # Create widget instance
-                setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
+                self.__create_instance(obj)
 
     @staticmethod
     def close():
         """Close widget"""
         while cfg.active_widget_list:
             for widget in cfg.active_widget_list:
-                widget.break_signal()
                 widget.closing()
             time.sleep(0.01)
-        logger.info("all widgets closed")
 
     def toggle(self, widget):
         """Toggle widget"""
-        name = widget.WIDGET_NAME
-        if cfg.setting_user[name]["enable"]:
-            cfg.setting_user[name]["enable"] = False
-            getattr(self, f"widget_{name}").break_signal()
-            getattr(self, f"widget_{name}").closing()
+        if cfg.setting_user[widget.WIDGET_NAME]["enable"]:
+            cfg.setting_user[widget.WIDGET_NAME]["enable"] = False
+            getattr(self, f"widget_{widget.WIDGET_NAME}").closing()
         else:
-            cfg.setting_user[name]["enable"] = True
-            setattr(self, f"widget_{name}", widget.Draw(cfg))
+            cfg.setting_user[widget.WIDGET_NAME]["enable"] = True
+            self.__create_instance(widget)
         cfg.save()
 
     def enable_all(self):
@@ -139,35 +134,39 @@ class WidgetControl:
         for obj in self.WIDGET_PACK:
             if not cfg.setting_user[obj.WIDGET_NAME]["enable"]:
                 cfg.setting_user[obj.WIDGET_NAME]["enable"] = True
-                setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
+                self.__create_instance(obj)
         cfg.save()
         logger.info("all widgets enabled")
 
     def disable_all(self):
         """Disable all widgets"""
-        while cfg.active_widget_list:
-            for widget in cfg.active_widget_list:
-                cfg.setting_user[widget.widget_name]["enable"] = False
-                widget.break_signal()
-                widget.closing()
+        for obj in self.WIDGET_PACK:
+            cfg.setting_user[obj.WIDGET_NAME]["enable"] = False
+        self.close()
         cfg.save()
         logger.info("all widgets disabled")
 
     def start_selected(self, widget_name):
         """Start selected widget"""
         for obj in self.WIDGET_PACK:
-            if obj.WIDGET_NAME == widget_name and cfg.setting_user[widget_name]["enable"]:
-                setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
+            if (cfg.setting_user[widget_name]["enable"]
+                and obj.WIDGET_NAME == widget_name):
+                self.__create_instance(obj)
                 break
 
-    def close_selected(self, widget_name):
+    @staticmethod
+    def close_selected(widget_name):
         """Close selected widget"""
-        if cfg.active_widget_list:
-            for widget in cfg.active_widget_list:
-                if widget.widget_name == widget_name:
-                    widget.break_signal()
-                    widget.closing()
-                    break
+        if not cfg.active_widget_list:
+            return None
+        for widget in cfg.active_widget_list:
+            if widget.widget_name == widget_name:
+                widget.closing()
+                return None
+
+    def __create_instance(self, obj):
+        """Create widget instance"""
+        setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
 
 
 wctrl = WidgetControl()
