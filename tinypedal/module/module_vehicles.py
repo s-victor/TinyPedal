@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Standings module
+Vehicles module
 """
 
 import array
@@ -30,13 +30,13 @@ from ..module_info import minfo
 from ..readapi import info, chknm, cs2py, state
 from .. import calculation as calc
 
-MODULE_NAME = "module_standings"
+MODULE_NAME = "module_vehicles"
 
 logger = logging.getLogger(__name__)
 
 
 class Realtime:
-    """Standings info"""
+    """Vehicles info"""
     module_name = MODULE_NAME
     DataSet = namedtuple(
         "DataSet",
@@ -93,10 +93,10 @@ class Realtime:
             _thread = threading.Thread(target=self.__calculation, daemon=True)
             _thread.start()
             self.cfg.active_module_list.append(self)
-            logger.info("standings module started")
+            logger.info("vehicles module started")
 
     def __calculation(self):
-        """Create standings list"""
+        """Create vehicles data list"""
         reset = False
         active_interval = self.mcfg["update_interval"] / 1000
         idle_interval = self.mcfg["idle_update_interval"] / 1000
@@ -114,14 +114,14 @@ class Realtime:
                 if class_pos_list and len(class_pos_list) == veh_total:
                     vehicles_data = list(self.__vehicle_data(veh_total, class_pos_list))
                     # Output
-                    minfo.standings.Vehicles = vehicles_data
-                    minfo.standings.NearestStraight = min(
+                    minfo.vehicles.Data = vehicles_data
+                    minfo.vehicles.NearestStraight = min(
                         vehicles_data, key=nearest_line_dist).RelativeStraightDistance
-                    minfo.standings.NearestTraffic = abs(
+                    minfo.vehicles.NearestTraffic = abs(
                         min(vehicles_data, key=nearest_traffic).RelativeTimeGap)
-                    minfo.standings.NearestYellow = abs(
+                    minfo.vehicles.NearestYellow = abs(
                         min(vehicles_data, key=nearest_yellow_dist).RelativeDistance)
-                    #minfo.standings.nearestTrack = abs(
+                    #minfo.vehicles.nearestTrack = abs(
                     # min(vehicles_data, key=nearest_track_dist).RelativeDistance)
 
             else:
@@ -133,7 +133,7 @@ class Realtime:
 
         self.cfg.active_module_list.remove(self)
         self.stopped = True
-        logger.info("standings module closed")
+        logger.info("vehicles module closed")
 
     def __vehicle_data(self, veh_total, class_pos_list):
         """Get vehicle data"""

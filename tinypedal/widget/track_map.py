@@ -76,8 +76,8 @@ class Draw(Widget):
 
         self.checked = False
         self.last_raw_coords = None
-        self.standings_veh = None
-        self.last_standings_veh = None
+        self.vehicles_data = None
+        self.last_vehicles_data = None
 
         # Set widget state & start update
         self.set_widget_state()
@@ -98,16 +98,16 @@ class Draw(Widget):
             self.last_raw_coords = raw_coords
 
             # Vehicle
-            self.standings_veh = minfo.standings.Vehicles
-            self.update_veh(self.standings_veh, self.last_standings_veh)
-            self.last_standings_veh = self.standings_veh
+            self.vehicles_data = minfo.vehicles.Data
+            self.update_veh(self.vehicles_data, self.last_vehicles_data)
+            self.last_vehicles_data = self.vehicles_data
 
         else:
             if self.checked:
                 self.checked = False
                 self.last_raw_coords = None
-                self.standings_veh = None
-                self.last_standings_veh = None
+                self.vehicles_data = None
+                self.last_vehicles_data = None
 
     # GUI update methods
     def update_map(self, curr, last):
@@ -129,7 +129,7 @@ class Draw(Widget):
         painter.drawPixmap(0, 0, self.area_size, self.area_size, self.map_image)
 
         # Draw vehicles
-        if self.standings_veh:
+        if self.vehicles_data:
             self.draw_vehicle(painter)
 
     def create_map_path(self, raw_coords):
@@ -257,7 +257,7 @@ class Draw(Widget):
         """Draw vehicles"""
         painter.setFont(self.font)
 
-        for veh_info in sorted(self.standings_veh, key=self.sort_vehicles):
+        for veh_info in sorted(self.vehicles_data, key=self.sort_vehicles):
             if self.last_raw_coords:
                 pos_x, pos_y = self.vehicle_scale(*veh_info.PosXZ)
                 offset = 0

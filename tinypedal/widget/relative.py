@@ -195,7 +195,7 @@ class Draw(Widget):
         self.setLayout(self.layout)
 
         # Last data
-        self.empty_standings_data = (
+        self.empty_vehicles_data = (
             0,  # is_player
             0,  # in_pit
             ("",0),  # position
@@ -234,14 +234,14 @@ class Draw(Widget):
         if self.wcfg["enable"] and read_data.state() and minfo.relative.Relative:
 
             relative_idx = minfo.relative.Relative
-            standings_veh = minfo.standings.Vehicles
+            vehicles_data = minfo.vehicles.Data
 
             # Relative update
             for idx in range(self.veh_range):
 
                 # Get vehicle data
                 setattr(self, f"veh_{idx}",
-                        self.get_data(relative_idx[idx], standings_veh)
+                        self.get_data(relative_idx[idx], vehicles_data)
                         )
                 # Driver position
                 if self.wcfg["show_position"]:
@@ -545,53 +545,53 @@ class Draw(Widget):
             return "OUT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
         return calc.sec2laptime_full(last_laptime)[:8].rjust(8)
 
-    def get_data(self, index, standings_veh):
+    def get_data(self, index, vehicles_data):
         """Relative data"""
         # Prevent index out of range
-        if standings_veh and 0 <= index < len(standings_veh):
+        if vehicles_data and 0 <= index < len(vehicles_data):
 
             # check whether is lapped
-            is_lapped = standings_veh[index].IsLapped
+            is_lapped = vehicles_data[index].IsLapped
 
             # 0 Is player
-            is_player = standings_veh[index].IsPlayer
+            is_player = vehicles_data[index].IsPlayer
 
             # 1 Vehicle in pit
-            in_pit = standings_veh[index].InPit
+            in_pit = vehicles_data[index].InPit
 
             # 2 Driver position
-            position = (f"{standings_veh[index].Position:02d}", is_lapped)
+            position = (f"{vehicles_data[index].Position:02d}", is_lapped)
 
             # 3 Driver name
-            drv_name = (standings_veh[index].DriverName, is_lapped)
+            drv_name = (vehicles_data[index].DriverName, is_lapped)
 
             # 4 Vehicle name
-            veh_name = (standings_veh[index].VehicleName, is_lapped)
+            veh_name = (vehicles_data[index].VehicleName, is_lapped)
 
             # 5 Vehicle position in class
-            pos_class = f"{standings_veh[index].PositionInClass:02d}"
+            pos_class = f"{vehicles_data[index].PositionInClass:02d}"
 
             # 6 Vehicle class
-            veh_class = standings_veh[index].VehicleClass
+            veh_class = vehicles_data[index].VehicleClass
 
             # 7 Time gap
-            time_gap = (f"{standings_veh[index].RelativeTimeGap:.0{self.gap_decimals}f}", is_lapped)
+            time_gap = (f"{vehicles_data[index].RelativeTimeGap:.0{self.gap_decimals}f}", is_lapped)
 
             # 8 Tyre compound index
-            tire_idx = standings_veh[index].TireCompoundIndex
+            tire_idx = vehicles_data[index].TireCompoundIndex
 
             # 9 Lap time
             laptime = self.set_laptime(
-                standings_veh[index].InPit,
-                standings_veh[index].LastLaptime,
-                standings_veh[index].PitTime
+                vehicles_data[index].InPit,
+                vehicles_data[index].LastLaptime,
+                vehicles_data[index].PitTime
             )
 
             # 10 Pitstop count
-            pit_count = (standings_veh[index].NumPitStops,
-                         standings_veh[index].PitState)
+            pit_count = (vehicles_data[index].NumPitStops,
+                         vehicles_data[index].PitState)
 
             return (is_player, in_pit, position, drv_name, veh_name, pos_class, veh_class,
                     time_gap, tire_idx, laptime, pit_count)
         # Assign empty value to -1 index
-        return self.empty_standings_data
+        return self.empty_vehicles_data

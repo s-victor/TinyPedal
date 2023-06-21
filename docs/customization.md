@@ -245,9 +245,9 @@ Enable mapping module. This module records and processes track map data.
 Enable relative module. This module provides vehicle relative data.
 
 
-## Standings
-    module_standings
-Enable standings module. This module provides vehicle standings data.
+## Vehicles
+    module_vehicles
+Enable vehicles module. This module provides vehicles data.
 
 
 # Widgets

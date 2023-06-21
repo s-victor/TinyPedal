@@ -6,6 +6,10 @@ WIP
     - Add "shared_memory" section in user config file,
       which is reserved for future use.
 
+* Vehicles Module
+    - Renamed "Standings Module" to "Vehicles Module",
+      which provides vehicles data.
+
 * Force Widget
     - Fixed a display issue with very large readings.
 

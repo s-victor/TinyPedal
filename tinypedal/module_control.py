@@ -31,7 +31,7 @@ from .module import (
     module_hybrid,
     module_mapping,
     module_relative,
-    module_standings,
+    module_vehicles,
 )
 
 logger = logging.getLogger(__name__)
@@ -46,7 +46,7 @@ class ModuleControl:
         module_hybrid,
         module_mapping,
         module_relative,
-        module_standings,
+        module_vehicles,
     )
 
     def start(self):

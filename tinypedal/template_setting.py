@@ -82,7 +82,7 @@ SETTING_DEFAULT = {
         "update_interval": 100,
         "idle_update_interval": 400,
     },
-    "module_standings": {
+    "module_vehicles": {
         "enable": True,
         "update_interval": 20,
         "idle_update_interval": 400,

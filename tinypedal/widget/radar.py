@@ -63,8 +63,8 @@ class Draw(Widget):
         self.autohide_timer_start = 1
         self.show_radar = True
 
-        self.standings_veh = None
-        self.last_standings_veh = None
+        self.vehicles_data = None
+        self.last_vehicles_data = None
 
         # Set widget state & start update
         self.set_widget_state()
@@ -80,9 +80,9 @@ class Draw(Widget):
                 self.autohide_radar()
 
             # Read orientation & position data
-            self.standings_veh = minfo.standings.Vehicles
-            self.update_radar(self.standings_veh, self.last_standings_veh)
-            self.last_standings_veh = self.standings_veh
+            self.vehicles_data = minfo.vehicles.Data
+            self.update_radar(self.vehicles_data, self.last_vehicles_data)
+            self.last_vehicles_data = self.vehicles_data
 
     # GUI update methods
     def update_radar(self, curr, last):
@@ -100,7 +100,7 @@ class Draw(Widget):
             painter.drawPixmap(0, 0, self.area_size, self.area_size, self.radar_background)
 
             # Draw vehicles
-            if self.standings_veh:
+            if self.vehicles_data:
                 if self.wcfg["show_overlap_indicator"]:
                     self.draw_warning_indicator(painter, *self.indicator_dimention)
                 self.draw_vehicle(painter)
@@ -220,7 +220,7 @@ class Draw(Widget):
         nearest_left = -max_range_x
         nearest_right = max_range_x
 
-        for veh_info in self.standings_veh:
+        for veh_info in self.vehicles_data:
             if not veh_info.IsPlayer:
                 raw_pos_x, raw_pos_y = veh_info.RelativeRotatedPosXZ
                 if abs(raw_pos_x) < max_range_x and abs(raw_pos_y) < max_range_y:
@@ -290,7 +290,7 @@ class Draw(Widget):
         # Draw opponent vehicle within radar_range
         radar_range = self.wcfg["radar_radius"] * 3
 
-        for veh_info in self.standings_veh:
+        for veh_info in self.vehicles_data:
             if not veh_info.IsPlayer and veh_info.RelativeStraightDistance < radar_range:
                 # Rotated position relative to player
                 pos_x, pos_y = tuple(map(self.scale_veh_pos, veh_info.RelativeRotatedPosXZ))
@@ -372,8 +372,8 @@ class Draw(Widget):
     def nearby(self):
         """Check nearby vehicles, add 0 limit to ignore local player"""
         if self.wcfg["minimum_auto_hide_distance"] == -1:
-            return 0 < minfo.standings.NearestStraight < self.wcfg["radar_radius"]
-        return 0 < minfo.standings.NearestStraight < self.wcfg["minimum_auto_hide_distance"]
+            return 0 < minfo.vehicles.NearestStraight < self.wcfg["radar_radius"]
+        return 0 < minfo.vehicles.NearestStraight < self.wcfg["minimum_auto_hide_distance"]
 
     def calc_indicator_dimention(self, veh_width, veh_length):
         """Calculate indicator dimention"""

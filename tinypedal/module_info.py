@@ -99,9 +99,9 @@ class RelativeInfo:
 
 
 @dataclass
-class StandingsInfo:
-    """Standings module output data"""
-    Vehicles: list = None
+class VehiclesInfo:
+    """Vehicles module output data"""
+    Data: list = None
     NearestStraight: float = 999999
     NearestTraffic: float = 999999
     NearestYellow: float = 999999
@@ -117,7 +117,7 @@ class ModuleInfo:
         self.hybrid = HybridInfo()
         self.mapping = MappingInfo()
         self.relative = RelativeInfo()
-        self.standings = StandingsInfo()
+        self.vehicles = VehiclesInfo()
 
 
 minfo = ModuleInfo()

@@ -279,8 +279,8 @@ class Draw(Widget):
                 #yellow_flag = [1,1,1,0,0,0]# testing
                 yellow_flag = (
                     *read_data.yellow_flag(),  # 0,1,2
-                    minfo.standings.NearestYellow,  # 3
-                    bool(minfo.standings.NearestYellow  # 4
+                    minfo.vehicles.NearestYellow,  # 3
+                    bool(minfo.vehicles.NearestYellow  # 4
                          < self.wcfg["yellow_flag_maximum_range"]),
                     bool(not self.wcfg["show_yellow_flag_for_race_only"] or  # 5
                          self.wcfg["show_yellow_flag_for_race_only"] and is_race)
@@ -315,8 +315,8 @@ class Draw(Widget):
                     self.traffic_timer_start = 0
 
                 traffic = (
-                    minfo.standings.NearestTraffic,
-                    bool(0 < minfo.standings.NearestTraffic
+                    minfo.vehicles.NearestTraffic,
+                    bool(0 < minfo.vehicles.NearestTraffic
                          < self.wcfg["traffic_maximum_time_gap"]
                          and (inpits or self.traffic_timer_start)))
                 self.update_traffic(traffic, self.last_traffic)
