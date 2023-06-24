@@ -222,12 +222,12 @@ class Draw(Widget):
                 painter.drawLine(QLineF(pos_x1, pos_y1, pos_x2, pos_y2))
 
             # Sector lines
-            if self.wcfg["show_sector_line"]:
+            sector_index = minfo.mapping.Sectors
+            if self.wcfg["show_sector_line"] and sector_index:
                 pen.setWidth(self.wcfg["sector_line_width"])
                 pen.setColor(QColor(self.wcfg["sector_line_color"]))
                 painter.setPen(pen)
 
-                sector_index = minfo.mapping.Sectors
                 for idx in range(2):
                     pos_x1, pos_y1, pos_x2, pos_y2 = self.sector_coords(
                         self.map_scaled[sector_index[idx]],  # point a
