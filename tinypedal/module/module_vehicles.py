@@ -158,6 +158,7 @@ class Realtime:
         # Generate data list from all vehicles in current session
         for index in range(veh_total):
             tele_index = info.find_player_index_tele(index)
+            is_player = chknm(info.rf2Scor.mVehicles[index].mIsPlayer)
 
             vehicle_id = chknm(info.rf2Scor.mVehicles[index].mID)
             position = chknm(info.rf2Scor.mVehicles[index].mPlace)
@@ -176,16 +177,17 @@ class Realtime:
                 chknm(info.rf2Scor.mVehicles[index].mLocalVel.y),
                 chknm(info.rf2Scor.mVehicles[index].mLocalVel.z)
             )
-            is_player = chknm(info.rf2Scor.mVehicles[index].mIsPlayer)
 
             # Distance & time
             total_laps = chknm(info.rf2Scor.mVehicles[index].mTotalLaps)
             lap_distance = chknm(info.rf2Scor.mVehicles[index].mLapDist)
             percentage_distance = lap_distance / track_length
             relative_distance = calc.circular_relative_distance(
-                track_length, plr_lap_distance, lap_distance)
+                track_length, plr_lap_distance, lap_distance
+                ) if not is_player else 0
             relative_time_gap = calc.relative_time_gap(
-                relative_distance, speed, plr_speed)
+                relative_distance, speed, plr_speed
+                ) if not is_player else 0
             time_behind_leader = chknm(info.rf2Scor.mVehicles[index].mTimeBehindLeader)
             laps_behind_leader = chknm(info.rf2Scor.mVehicles[index].mLapsBehindLeader)
             time_behind_next = chknm(info.rf2Scor.mVehicles[index].mTimeBehindNext)
@@ -194,7 +196,7 @@ class Realtime:
                 total_laps, plr_total_laps,
                 percentage_distance, plr_percentage_distance,
                 current_session
-            )
+                ) if not is_player else 0
             is_yellow = bool(speed <= 8)
 
             # Pit
@@ -220,9 +222,13 @@ class Realtime:
                 plr_ori_rad - 3.14159265,   # plr_ori_rad, rotate view
                 pos_xz[0] - plr_pos_xz[0],  # x position related to player
                 pos_xz[1] - plr_pos_xz[1]   # y position related to player
-            )
-            relative_orientation_xz_radians = orientation_xz_radians - plr_ori_rad
-            relative_straight_distance = calc.distance(plr_pos_xz, pos_xz)
+                ) if not is_player else (0,0)
+            relative_orientation_xz_radians = (
+                orientation_xz_radians - plr_ori_rad
+                ) if not is_player else 0
+            relative_straight_distance = calc.distance(
+                plr_pos_xz, pos_xz
+                ) if not is_player else 0
 
             yield self.DataSet(
                 VehicleID = vehicle_id,

@@ -75,9 +75,9 @@ class Draw(Widget):
         self.map_offset = (0,0)
 
         self.checked = False
-        self.last_raw_coords = None
+        self.last_raw_coords = 99999
         self.vehicles_data = None
-        self.last_vehicles_data = None
+        self.last_vehicles_data = 99999
 
         # Set widget state & start update
         self.set_widget_state()
@@ -105,9 +105,9 @@ class Draw(Widget):
         else:
             if self.checked:
                 self.checked = False
-                self.last_raw_coords = None
+                self.last_raw_coords = 99999
                 self.vehicles_data = None
-                self.last_vehicles_data = None
+                self.last_vehicles_data = 99999
 
     # GUI update methods
     def update_map(self, curr, last):
