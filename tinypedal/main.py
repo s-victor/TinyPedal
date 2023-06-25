@@ -660,6 +660,7 @@ class PresetList(QWidget):
             # Load new setting
             cfg.filename_setting = f"{self.preset_list[selected_index]}.json"
             cfg.load()
+            self.master.restart_api()
 
             # Start modules & widgets
             mctrl.start()
