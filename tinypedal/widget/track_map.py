@@ -74,10 +74,9 @@ class Draw(Widget):
         self.map_scale = 1
         self.map_offset = (0,0)
 
-        self.checked = False
-        self.last_raw_coords = 99999
         self.vehicles_data = None
-        self.last_vehicles_data = 99999
+        self.last_raw_coords = -1
+        self.last_vehicles_data = -1
 
         # Set widget state & start update
         self.set_widget_state()
@@ -88,10 +87,6 @@ class Draw(Widget):
         """Update when vehicle on track"""
         if self.wcfg["enable"] and read_data.state():
 
-            # Reset switch
-            if not self.checked:
-                self.checked = True
-
             # Map
             raw_coords = minfo.mapping.Coordinates
             self.update_map(raw_coords, self.last_raw_coords)
@@ -101,13 +96,6 @@ class Draw(Widget):
             self.vehicles_data = minfo.vehicles.Data
             self.update_veh(self.vehicles_data, self.last_vehicles_data)
             self.last_vehicles_data = self.vehicles_data
-
-        else:
-            if self.checked:
-                self.checked = False
-                self.last_raw_coords = 99999
-                self.vehicles_data = None
-                self.last_vehicles_data = 99999
 
     # GUI update methods
     def update_map(self, curr, last):
