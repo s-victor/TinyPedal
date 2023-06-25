@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .const import APP_NAME, VERSION, APP_ICON
-from .readapi import info
+
 
 class TrayIcon(QSystemTrayIcon):
     """System tray icon
@@ -76,7 +76,7 @@ class TrayIcon(QSystemTrayIcon):
 
         # Restart API
         restart_api = QAction("Restart API", self)
-        restart_api.triggered.connect(info.restart)
+        restart_api.triggered.connect(self.master.restart_api)
         menu.addAction(restart_api)
 
         menu.addSeparator()

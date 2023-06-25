@@ -111,7 +111,7 @@ class ConfigWindow(QMainWindow):
         menu_overlay.addSeparator()
 
         restart_api = QAction("Restart API", self)
-        restart_api.triggered.connect(info.restart)
+        restart_api.triggered.connect(self.restart_api)
         menu_overlay.addAction(restart_api)
 
         menu_overlay.addSeparator()
@@ -130,6 +130,10 @@ class ConfigWindow(QMainWindow):
         config_font = QAction("Global Font Override", self)
         config_font.triggered.connect(self.open_config_font)
         menu_config.addAction(config_font)
+
+        config_sharedmem = QAction("Shared Memory API", self)
+        config_sharedmem.triggered.connect(self.open_config_sharedmemory)
+        menu_config.addAction(config_sharedmem)
 
         config_compat = QAction("Compatibility", self)
         config_compat.triggered.connect(self.open_config_compatibility)
@@ -237,6 +241,11 @@ class ConfigWindow(QMainWindow):
             cfg.save(0)
 
     @staticmethod
+    def restart_api():
+        """Restart shared memory api"""
+        info.restart(access_mode=cfg.shared_memory_api["access_mode"])
+
+    @staticmethod
     def is_locked():
         """Check lock state"""
         octrl.overlay_lock.toggle()
@@ -303,9 +312,16 @@ class ConfigWindow(QMainWindow):
         window_font_config = FontConfig(self)
         window_font_config.exec_()
 
+    def open_config_sharedmemory(self):
+        """Config sharedmemory"""
+        window_sharedmemory_config = WidgetConfig(
+            self, "shared_memory_api", "api")
+        window_sharedmemory_config.exec_()
+
     def open_config_compatibility(self):
         """Config compatibility"""
-        window_compat_config = WidgetConfig(self, "compatibility", "compat")
+        window_compat_config = WidgetConfig(
+            self, "compatibility", "misc")
         window_compat_config.exec_()
 
 

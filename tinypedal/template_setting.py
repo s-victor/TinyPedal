@@ -36,7 +36,8 @@ SETTING_DEFAULT = {
         "fixed_position": False,
         "auto_hide": True,
     },
-    "shared_memory": {
+    "shared_memory_api": {
+        "access_mode": 0,
         "rF2_process_id": "",
     },
     "units": {

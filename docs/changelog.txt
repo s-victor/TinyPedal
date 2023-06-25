@@ -3,8 +3,18 @@ WIP
 * General
     - Add "Restart API" option to main menu bar & tray context menu,
       which can be used to quickly restart shared memory API accessing.
-    - Add "shared_memory" section in user config file,
-      which is reserved for future use.
+    - Add "shared_memory_api" section in user config file,
+      which is used for configuring shared memory API.
+    - Add "access_mode" under "shared_memory_api" section,
+      which sets access mode for shared memory API.
+      Mode value "0" uses copy access and additional data check
+      to avoid data desync or interruption issues.
+      Mode value "1" uses direct access, which may result
+      data desync or interruption issues.
+      Default mode is copy access.
+    - Add "rF2_process_id" under "shared_memory_api" section,
+      which sets rF2 process ID string for accessing API from server,
+      currently this option is a placeholder and has no effect.
 
 * Vehicles Module
     - Renamed "Standings Module" to "Vehicles Module",

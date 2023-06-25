@@ -33,13 +33,17 @@ Access rF2 shared memory data using:
 
 from pyRfactor2SharedMemory.sim_info_sync import SimInfoSync
 
+from .setting import cfg
 from . import validator as val
 from . import formatter as fmt
 from . import calculation as calc
 
 
 # Load Shared Memory API
-info = SimInfoSync(logger="tinypedal")
+info = SimInfoSync(
+    access_mode=cfg.shared_memory_api["access_mode"],
+    logger="tinypedal"
+)
 info.start()
 
 chknm = val.numeric_validator

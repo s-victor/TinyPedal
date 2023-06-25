@@ -95,6 +95,16 @@ Minimize to tray when user clicks `X` close button.
 Remember last window position.
 
 
+## Shared Memory API
+Shared Memory API options can be accessed from `Config` menu in main window.
+
+    access_mode
+Set access mode for shared memory API. Mode value `0` uses copy access and additional data check to avoid data desync or interruption issues. Mode value `1` uses direct access, which may result data desync or interruption issues. Default mode is copy access.
+
+    rF2_process_id
+Set rF2 process ID string for accessing API from server, currently this option is a placeholder and has no effect.
+
+
 ## Compatibility
 Compatibility options can be accessed from `Config` menu in main window.
 

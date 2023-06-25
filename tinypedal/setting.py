@@ -107,7 +107,7 @@ class Setting:
         self.application = self.setting_user["application"]
         self.compatibility = self.setting_user["compatibility"]
         self.overlay = self.setting_user["overlay"]
-        self.shared_memory = self.setting_user["shared_memory"]
+        self.shared_memory_api = self.setting_user["shared_memory_api"]
         self.units = self.setting_user["units"]
         self.last_loaded_setting = self.filename_setting
 

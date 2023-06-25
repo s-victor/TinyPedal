@@ -52,6 +52,7 @@ REGEX_STRING = (
 )
 REGEX_INTEGER = (
     # Exact match
+    "^access_mode$|"
     "^lap_time_history_count$|"
     "^leading_zero$|"
     "^position_x$|"

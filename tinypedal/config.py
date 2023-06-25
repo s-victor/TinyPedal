@@ -229,11 +229,11 @@ class UnitsConfig(QDialog):
 class WidgetConfig(QDialog):
     """Config widget & module"""
 
-    def __init__(self, master, obj_name, obj_type):
+    def __init__(self, master, obj_name, reload_mode):
         super().__init__(master)
         self.master = master
         self.obj_name = obj_name
-        self.obj_type = obj_type
+        self.reload_mode = reload_mode
 
         self.number_locale = QLocale(QLocale.C)
         self.number_locale.setNumberOptions(QLocale.RejectGroupSeparator)
@@ -380,17 +380,19 @@ class WidgetConfig(QDialog):
             time.sleep(0.01)
 
         # Select type
-        if self.obj_type == "widget":
+        if self.reload_mode == "widget":
             wctrl.close_selected(self.obj_name)
             wctrl.start_selected(self.obj_name)
             self.master.refresh_widget_list()
-        elif self.obj_type == "module":
+        elif self.reload_mode == "module":
             mctrl.close_selected(self.obj_name)
             mctrl.start_selected(self.obj_name)
             self.master.refresh_module_list()
-        elif self.obj_type == "compat":
+        elif self.reload_mode == "misc":
             wctrl.close()
             wctrl.start()
+        elif self.reload_mode == "api":
+            self.master.restart_api()
 
     def create_options(self):
         """Create options"""
