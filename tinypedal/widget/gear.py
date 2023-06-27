@@ -321,7 +321,7 @@ class Draw(Widget):
 
         painter.setCompositionMode(QPainter.CompositionMode_Source)
         painter.fillRect(
-            0, 0, self.gauge_width, self.rpmbar_height, QColor(0,0,0,0))
+            0, 0, self.gauge_width, self.rpmbar_height, Qt.transparent)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         self.brush.setColor(QColor(self.wcfg["rpm_bar_color"]))
@@ -341,7 +341,7 @@ class Draw(Widget):
 
         painter.setCompositionMode(QPainter.CompositionMode_Source)
         painter.fillRect(
-            0, 0, self.gauge_width, self.battbar_height, QColor(0,0,0,0))
+            0, 0, self.gauge_width, self.battbar_height, Qt.transparent)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         self.brush.setColor(QColor(self.wcfg["battery_bar_color"]))

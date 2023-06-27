@@ -170,7 +170,7 @@ class Draw(Widget):
         # Draw transparent background to avoid visual artifacts
         painter.setCompositionMode(QPainter.CompositionMode_Source)
         painter.setPen(Qt.NoPen)
-        painter.fillRect(0, 0, self.area_size, self.area_size, QColor(0,0,0,0))
+        painter.fillRect(0, 0, self.area_size, self.area_size, Qt.transparent)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # Draw map background

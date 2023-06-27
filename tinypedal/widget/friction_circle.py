@@ -194,7 +194,7 @@ class Draw(Widget):
         # Draw background
         painter.setCompositionMode(QPainter.CompositionMode_Source)
         painter.setPen(Qt.NoPen)
-        painter.fillRect(0, 0, self.area_size, self.area_size, QColor(0,0,0,0))
+        painter.fillRect(0, 0, self.area_size, self.area_size, Qt.transparent)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         if self.wcfg["show_background"]:
@@ -211,7 +211,7 @@ class Draw(Widget):
                     self.area_center
                 )
                 rad_gra.setColorAt(0.5, QColor(self.wcfg["bkg_color"]))
-                rad_gra.setColorAt(0.98, QColor(Qt.transparent))
+                rad_gra.setColorAt(0.98, Qt.transparent)
                 painter.setBrush(rad_gra)
             painter.drawEllipse(
                 self.area_center - circle_scale,

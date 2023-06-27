@@ -39,15 +39,16 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config variable
-        self.area_size = max(self.wcfg["radar_radius"], 5) * 2 * self.wcfg["global_scale"]
+        self.global_scale = self.wcfg["global_scale"]
+        self.area_size = max(self.wcfg["radar_radius"], 5) * 2 * self.global_scale
         self.area_center = self.area_size / 2
         self.veh_width = max(self.wcfg["vehicle_width"], 0.01)
         self.veh_length = max(self.wcfg["vehicle_length"], 0.01)
         self.rect_veh = QRectF(
-            -self.veh_width * self.wcfg["global_scale"] / 2,
-            -self.veh_length * self.wcfg["global_scale"] / 2,
-            self.veh_width * self.wcfg["global_scale"],
-            self.veh_length * self.wcfg["global_scale"]
+            -self.veh_width * self.global_scale / 2,
+            -self.veh_length * self.global_scale / 2,
+            self.veh_width * self.global_scale,
+            self.veh_length * self.global_scale
         )
         self.indicator_dimention = self.calc_indicator_dimention(self.veh_width, self.veh_length)
 
@@ -127,7 +128,7 @@ class Draw(Widget):
             self.area_center,
             self.area_center
         )
-        rad_gra.setColorAt(0.6, QColor(0,0,0,0))
+        rad_gra.setColorAt(0.6, Qt.transparent)
         rad_gra.setColorAt(0.98, QColor(0,0,0))
         painter.setBrush(rad_gra)
         painter.drawEllipse(0, 0, self.area_size, self.area_size)
@@ -141,7 +142,7 @@ class Draw(Widget):
         # Draw background
         painter.setCompositionMode(QPainter.CompositionMode_Source)
         painter.setPen(Qt.NoPen)
-        painter.fillRect(0, 0, self.area_size, self.area_size, QColor(0,0,0,0))
+        painter.fillRect(0, 0, self.area_size, self.area_size, Qt.transparent)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # Draw center mark
@@ -152,7 +153,7 @@ class Draw(Widget):
                 pen.setStyle(Qt.DashLine)
             else:
                 pen.setStyle(Qt.SolidLine)
-            mark_scale = self.wcfg["center_mark_radius"] * self.wcfg["global_scale"]
+            mark_scale = self.wcfg["center_mark_radius"] * self.global_scale
             pen.setWidth(self.wcfg["center_mark_width"])
             pen.setColor(QColor(self.wcfg["center_mark_color"]))
             painter.setPen(pen)
@@ -187,7 +188,7 @@ class Draw(Widget):
                 pen.setStyle(Qt.DashLine)
             else:
                 pen.setStyle(Qt.SolidLine)
-            circle_scale1 = self.wcfg["distance_circle_1_radius"] * self.wcfg["global_scale"]
+            circle_scale1 = self.wcfg["distance_circle_1_radius"] * self.global_scale
             if self.wcfg["distance_circle_1_radius"] < self.wcfg["radar_radius"]:
                 pen.setWidth(self.wcfg["distance_circle_1_width"])
                 pen.setColor(QColor(self.wcfg["distance_circle_1_color"]))
@@ -199,7 +200,7 @@ class Draw(Widget):
                     circle_scale1 * 2
                 )
 
-            circle_scale2 = self.wcfg["distance_circle_2_radius"] * self.wcfg["global_scale"]
+            circle_scale2 = self.wcfg["distance_circle_2_radius"] * self.global_scale
             if self.wcfg["distance_circle_2_radius"] < self.wcfg["radar_radius"]:
                 pen.setWidth(self.wcfg["distance_circle_2_width"])
                 pen.setColor(QColor(self.wcfg["distance_circle_2_color"]))
@@ -239,11 +240,11 @@ class Draw(Widget):
                 x_left + indicator_offset,
                 0
             )
-            color_center, color_edge = self.warning_color(
+            color_center = self.warning_color(
                 abs(nearest_left), min_range_x, max_range_x)
-            lin_gra.setColorAt(0, color_edge)
+            lin_gra.setColorAt(0, Qt.transparent)
             lin_gra.setColorAt(indicator_edge, color_center)
-            lin_gra.setColorAt(1, color_edge)
+            lin_gra.setColorAt(1, Qt.transparent)
             painter.setBrush(lin_gra)
             painter.drawRect(
                 x_left - indicator_width + indicator_offset,
@@ -257,11 +258,11 @@ class Draw(Widget):
                 x_right + indicator_width - indicator_offset,
                 0
             )
-            color_center, color_edge = self.warning_color(
+            color_center = self.warning_color(
                 abs(nearest_right), min_range_x, max_range_x)
-            lin_gra.setColorAt(0, color_edge)
+            lin_gra.setColorAt(0, Qt.transparent)
             lin_gra.setColorAt(1 - indicator_edge, color_center)
-            lin_gra.setColorAt(1, color_edge)
+            lin_gra.setColorAt(1, Qt.transparent)
             painter.setBrush(lin_gra)
             painter.drawRect(
                 x_right - indicator_offset,
@@ -323,22 +324,18 @@ class Draw(Widget):
     # Additional methods
     def scale_veh_pos(self, position):
         """Scale vehicle position coordinate to radar scale"""
-        return position * self.wcfg["global_scale"] + self.area_center
+        return position * self.global_scale + self.area_center
 
     def warning_color(self, nearest_x, min_range_x, max_range_x):
         """Overtaking warning color"""
         alpha = 1 - (nearest_x - min_range_x) / max_range_x
         if nearest_x < min_range_x * 1.7:
-            color1 = QColor(self.wcfg["indicator_color_critical"])
-            color1.setAlphaF(alpha)  # alpha changes with nearest distance
-            color2 = QColor(self.wcfg["indicator_color_critical"])
-            color2.setAlphaF(0)  # full transparent
+            color = QColor(self.wcfg["indicator_color_critical"])
+            color.setAlphaF(alpha)  # alpha changes with nearest distance
         else:
-            color1 = QColor(self.wcfg["indicator_color"])
-            color1.setAlphaF(alpha)
-            color2 = QColor(self.wcfg["indicator_color"])
-            color2.setAlphaF(0)
-        return color1, color2
+            color = QColor(self.wcfg["indicator_color"])
+            color.setAlphaF(alpha)
+        return color
 
     def color_lapdiff(self, position, in_pit, is_yellow, is_lapped, in_garage):
         """Compare lap differences & set color"""
@@ -380,7 +377,7 @@ class Draw(Widget):
         min_range_x = veh_width * 0.9  # left to right range
         max_range_x = veh_width * self.wcfg["overlap_detection_range_multiplier"]
         max_range_y = veh_length * 1.2  # forward to backward range
-        id_width = veh_width * self.wcfg["indicator_size_multiplier"] * self.wcfg["global_scale"]
+        id_width = veh_width * self.wcfg["indicator_size_multiplier"] * self.global_scale
         id_edge = max((id_width - 3) / id_width, 0.001)
-        id_offset = veh_width * self.wcfg["global_scale"] / 2
+        id_offset = veh_width * self.global_scale / 2
         return min_range_x, max_range_x, max_range_y, id_width, id_edge, id_offset
