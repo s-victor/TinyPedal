@@ -178,20 +178,21 @@ class Draw(Widget):
         painter.fillRect(0, 0, self.area_size, self.area_size, Qt.transparent)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
-        # Draw map background
+        # Draw map outer background
         if self.wcfg["show_background"]:
             painter.fillRect(0, 0, self.area_size, self.area_size, QColor(self.wcfg["bkg_color"]))
 
-        # Set pen style
-        pen = QPen()
-        pen.setJoinStyle(Qt.RoundJoin)
-
+        # Draw map inner background
         if self.wcfg["show_map_background"] and circular_map:
             brush = QBrush(Qt.SolidPattern)
             brush.setColor(QColor(self.wcfg["bkg_color_map"]))
             painter.setBrush(brush)
             painter.drawPath(map_path)
             painter.setBrush(Qt.NoBrush)
+
+        # Set pen style
+        pen = QPen()
+        pen.setJoinStyle(Qt.RoundJoin)
 
         # Draw map outline
         if self.wcfg["map_outline_width"]:
