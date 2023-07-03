@@ -77,6 +77,7 @@ class Draw(Widget):
         self.vehicles_data = None
         self.last_raw_coords = -1
         self.last_vehicles_data = -1
+        self.circular_map = True
 
         # Set widget state & start update
         self.set_widget_state()
@@ -101,7 +102,7 @@ class Draw(Widget):
     def update_map(self, curr, last):
         """Map update"""
         if curr != last:
-            self.draw_map_image(self.create_map_path(curr))
+            self.draw_map_image(self.create_map_path(curr), self.circular_map)
 
     def update_veh(self, curr, last):
         """Vehicle update"""
@@ -137,6 +138,9 @@ class Draw(Widget):
             # Close map loop if start & end distance less than 500 meters
             if dist < 500:
                 map_path.closeSubpath()
+                self.circular_map = True
+            else:
+                self.circular_map = False
 
         # Temp map
         else:
@@ -159,9 +163,10 @@ class Draw(Widget):
                     self.temp_map_size,
                 )
             )
+            self.circular_map = True
         return map_path
 
-    def draw_map_image(self, map_path):
+    def draw_map_image(self, map_path, circular_map=True):
         """Draw map image separately"""
         self.map_image = QPixmap(self.area_size, self.area_size)
         painter = QPainter(self.map_image)
@@ -180,6 +185,13 @@ class Draw(Widget):
         # Set pen style
         pen = QPen()
         pen.setJoinStyle(Qt.RoundJoin)
+
+        if self.wcfg["show_map_background"] and circular_map:
+            brush = QBrush(Qt.SolidPattern)
+            brush.setColor(QColor(self.wcfg["bkg_color_map"]))
+            painter.setBrush(brush)
+            painter.drawPath(map_path)
+            painter.setBrush(Qt.NoBrush)
 
         # Draw map outline
         if self.wcfg["map_outline_width"]:

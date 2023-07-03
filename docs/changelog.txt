@@ -23,6 +23,11 @@ WIP
 * Force Widget
     - Fixed a display issue with very large readings.
 
+* Trackmap Widget
+    - Add "show_map_background" & "bkg_color_map" options,
+      which shows background of the inner map area.
+      This option only works for circular type tracks.
+
 2.1.7 (2023-06-16)
 -----------------------------
 * Flag Widget

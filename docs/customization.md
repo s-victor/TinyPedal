@@ -1079,7 +1079,10 @@ Show personal current estimated laptime.
 
 ## Track map
     show_background
-Show track map background.
+Show widget background.
+
+    show_map_background
+Show background of the inner map area. This option only works for circular type tracks.
 
     area_size
 Set area display size.

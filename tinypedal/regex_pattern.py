@@ -79,7 +79,7 @@ REGEX_INTEGER = (
 )
 
 # For name formatting
-REGEX_WIDGET_NAME = (
+REGEX_UPPERCASE = (
     # Partial match
     "drs|"
     "p2p"
