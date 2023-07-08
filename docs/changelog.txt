@@ -13,8 +13,8 @@ WIP
       data desync or interruption issues.
       Default mode is copy access.
     - Add "rF2_process_id" under "shared_memory_api" section,
-      which sets rF2 process ID string for accessing API from server,
-      currently this option is a placeholder and has no effect.
+      which sets rF2 process ID string for accessing API from server.
+      Currently this option is a placeholder, and should be left blank.
 
 * Vehicles Module
     - Renamed "Standings Module" to "Vehicles Module",

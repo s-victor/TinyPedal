@@ -55,8 +55,9 @@ from .widget_control import wctrl
 from .overlay_control import octrl
 from .config import FontConfig, UnitsConfig, WidgetConfig
 
-class ConfigWindow(QMainWindow):
-    """Load setting preset window"""
+
+class AppWindow(QMainWindow):
+    """Main window"""
 
     def __init__(self):
         super().__init__()
@@ -243,7 +244,9 @@ class ConfigWindow(QMainWindow):
     @staticmethod
     def restart_api():
         """Restart shared memory api"""
-        info.restart(access_mode=cfg.shared_memory_api["access_mode"])
+        info.setMode(cfg.shared_memory_api["access_mode"])
+        info.setPID(cfg.shared_memory_api["rF2_process_id"])
+        info.restart()
 
     @staticmethod
     def is_locked():

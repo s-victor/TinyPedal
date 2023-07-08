@@ -43,14 +43,13 @@ from PySide2.QtWidgets import (
     QMenu
 )
 
-from .setting import cfg
+from . import regex_pattern as rxp
 from . import validator as val
 from . import formatter as fmt
+from .setting import cfg
 from .const import APP_ICON
 from .module_control import mctrl
 from .widget_control import wctrl
-
-from . import regex_pattern as rxp
 
 
 class FontConfig(QDialog):

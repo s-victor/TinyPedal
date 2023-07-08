@@ -40,10 +40,9 @@ from . import calculation as calc
 
 
 # Load Shared Memory API
-info = SimInfoSync(
-    access_mode=cfg.shared_memory_api["access_mode"],
-    logger="tinypedal"
-)
+info = SimInfoSync("tinypedal")
+info.setMode(cfg.shared_memory_api["access_mode"])
+info.setPID(cfg.shared_memory_api["rF2_process_id"])
 info.start()
 
 chknm = val.numeric_validator

@@ -68,8 +68,8 @@ def load_tinypedal():
     else:
         logger.info("starting tinypedal")
         # Start main window
-        from tinypedal.main import ConfigWindow
-        config_window = ConfigWindow()
+        from tinypedal.main import AppWindow
+        config_window = AppWindow()
         signal.signal(signal.SIGINT, config_window.int_signal_handler)
         # Start mainloop
         sys.exit(root.exec_())
