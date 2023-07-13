@@ -1,20 +1,38 @@
-WIP
+2.1.8 (2023-07-13)
 -----------------------------
-* General
+* [New]Shared Memory API configuration
     - Add "Restart API" option to main menu bar & tray context menu,
       which can be used to quickly restart shared memory API accessing.
-    - Add "shared_memory_api" section in user config file,
-      which is used for configuring shared memory API.
-    - Add "access_mode" under "shared_memory_api" section,
+    - Add "Shared Memory API" config dialog,
+      which can be accessed from main menu bar "Config" menu.
+    - Add "shared_memory_api" section in user config file.
+    - Add "access_mode" option,
       which sets access mode for shared memory API.
       Mode value "0" uses copy access and additional data check
       to avoid data desync or interruption issues.
       Mode value "1" uses direct access, which may result
       data desync or interruption issues.
       Default mode is copy access.
-    - Add "rF2_process_id" under "shared_memory_api" section,
+    - Add "rF2_process_id" option,
       which sets rF2 process ID string for accessing API from server.
       Currently this option is a placeholder, and should be left blank.
+    - Add "enable_active_state_override" option,
+      which enables "active state" manual override.
+    - Add "active_state" option,
+      which overrides local player on-track status check,
+      and updates or stops overlay & data processing accordingly.
+      Set "true" to activate state.
+      Set "false" to deactivate state.
+      This option works only when "enable_active_state_override" enabled.
+    - Add "enable_player_index_override" option,
+      which enables "player index" manual override.
+    - Add "player_index" option,
+      which sets "player index" override for displaying data from specific player.
+      Valid player index range starts from "0" to max number players minus one,
+      and must not exceed "127".
+      Set value to "-1" for unspecified player, which can be useful
+      for display general standings and trackmap info (ex. broadcasting).
+      This option works only when "enable_player_index_override" enabled.
 
 * Vehicles Module
     - Renamed "Standings Module" to "Vehicles Module",
@@ -176,7 +194,7 @@ WIP
       and sould give good result in most case.
       This option is enabled by default.
     - "font_offset_vertical" option now only takes effect
-      when `enable_auto_font_offset` is disabled.
+      when "enable_auto_font_offset" is disabled.
     - Fixed wrong vertical alignment on Friction Circle & Gear Widget.
 
 * Core

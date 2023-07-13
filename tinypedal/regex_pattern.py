@@ -24,6 +24,7 @@ Regex pattern
 # For setting validation
 REGEX_BOOL = (
     # Exact match
+    "^active_state$|"
     "^auto_hide$|"
     "^fixed_position$|"
     "^minimize_to_tray$|"
@@ -55,6 +56,7 @@ REGEX_INTEGER = (
     "^access_mode$|"
     "^lap_time_history_count$|"
     "^leading_zero$|"
+    "^player_index$|"
     "^position_x$|"
     "^position_y$|"
     "^stint_history_count$|"

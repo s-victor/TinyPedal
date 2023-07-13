@@ -158,7 +158,7 @@ class Realtime:
         # Generate data list from all vehicles in current session
         for index in range(veh_total):
             tele_index = info.find_player_index_tele(index)
-            is_player = chknm(info.rf2Scor.mVehicles[index].mIsPlayer)
+            is_player = info.isPlayer(index)
 
             vehicle_id = chknm(info.rf2Scor.mVehicles[index].mID)
             position = chknm(info.rf2Scor.mVehicles[index].mPlace)

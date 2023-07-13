@@ -628,31 +628,29 @@ class Draw(Widget):
         """Standings data"""
         # Prevent index out of range
         if vehicles_data and 0 <= index < len(vehicles_data):
-            vid = vehicles_data[index].VehicleID
-
             # 0 Is player
             is_player = vehicles_data[index].IsPlayer
 
             # 1 Vehicle in pit
-            in_pit = (vehicles_data[index].InPit, vid)
+            in_pit = (vehicles_data[index].InPit, is_player)
 
             # 2 Driver position
-            position = (f"{vehicles_data[index].Position:02d}", vid)
+            position = (f"{vehicles_data[index].Position:02d}", is_player)
 
             # 3 Driver name
-            drv_name = (vehicles_data[index].DriverName, vid)
+            drv_name = (vehicles_data[index].DriverName, is_player)
 
             # 4 Vehicle name
-            veh_name = (vehicles_data[index].VehicleName, vid)
+            veh_name = (vehicles_data[index].VehicleName, is_player)
 
             # 5 Vehicle position in class
-            pos_class = (f"{vehicles_data[index].PositionInClass:02d}", vid)
+            pos_class = (f"{vehicles_data[index].PositionInClass:02d}", is_player)
 
             # 6 Vehicle class
-            veh_class = (vehicles_data[index].VehicleClass, vid)
+            veh_class = (vehicles_data[index].VehicleClass, is_player)
 
             # 7 Tyre compound index
-            tire_idx = (vehicles_data[index].TireCompoundIndex, vid)
+            tire_idx = (vehicles_data[index].TireCompoundIndex, is_player)
 
             if read_data.is_race():
                 # 8 Lap time
@@ -662,7 +660,7 @@ class Draw(Widget):
                         vehicles_data[index].LastLaptime,
                         vehicles_data[index].PitTime
                     ),
-                    vid)
+                    is_player)
                 # 9 Time gap
                 time_gap = (
                     self.gap_to_leader_race(
@@ -670,7 +668,7 @@ class Draw(Widget):
                         vehicles_data[index].LapsBehindLeader,
                         vehicles_data[index].Position
                     ),
-                    vid)
+                    is_player)
             else:
                 laptime = (
                     self.set_laptime(
@@ -678,19 +676,19 @@ class Draw(Widget):
                         vehicles_data[index].BestLaptime,
                         0
                     ),
-                    vid)
+                    is_player)
                 time_gap = (
                     self.gap_to_session_bestlap(
                         vehicles_data[index].BestLaptime,
                         vehicles_data[index].SessionBestLaptime,
                         vehicles_data[index].ClassBestLaptime,
                     ),
-                    vid)
+                    is_player)
 
             # 10 Pitstop count
             pit_count = (vehicles_data[index].NumPitStops,
                          vehicles_data[index].PitState,
-                         vid)
+                         is_player)
 
             # 11 Time interval
             time_int = (
@@ -699,7 +697,7 @@ class Draw(Widget):
                     vehicles_data[index].LapsBehindNext,
                     vehicles_data[index].Position
                 ),
-                vid)
+                is_player)
 
             return (is_player, in_pit, position, drv_name, veh_name, pos_class, veh_class,
                     tire_idx, laptime, time_gap, pit_count, time_int)

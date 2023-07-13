@@ -104,6 +104,18 @@ Set access mode for shared memory API. Mode value `0` uses copy access and addit
     rF2_process_id
 Set rF2 process ID string for accessing API from server. Currently this option is a placeholder, and should be left blank.
 
+    enable_active_state_override
+Set `true` to enable `active state` manual override.
+
+    active_state
+This option overrides local player on-track status check, and updates or stops overlay & data processing accordingly. Set `true` to activate state. Set `false` to deactivate state. This option works only when `enable_active_state_override` enabled.
+
+    enable_player_index_override
+Set `true` to enable `player index` manual override.
+
+    player_index
+Set `player index` override for displaying data from specific player. Valid player index range starts from `0` to max number players minus one, and must not exceed `127`. Set value to `-1` for unspecified player, which can be useful for display general standings and trackmap data (ex. broadcasting). This option works only when `enable_player_index_override` enabled.
+
 
 ## Compatibility
 Compatibility options can be accessed from `Config` menu in main window.

@@ -39,6 +39,10 @@ SETTING_DEFAULT = {
     "shared_memory_api": {
         "access_mode": 0,
         "rF2_process_id": "",
+        "enable_active_state_override": False,
+        "active_state": True,
+        "enable_player_index_override": False,
+        "player_index": -1,
     },
     "units": {
         "elevation_unit": "Meter",

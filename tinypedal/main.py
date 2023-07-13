@@ -49,7 +49,7 @@ from .setting import cfg
 from . import formatter as fmt
 from .const import APP_NAME, VERSION, APP_ICON, PATH_SETTINGS
 from .about import About
-from .readapi import info
+from .readapi import info, setup_api
 from .module_control import mctrl
 from .widget_control import wctrl
 from .overlay_control import octrl
@@ -244,8 +244,7 @@ class AppWindow(QMainWindow):
     @staticmethod
     def restart_api():
         """Restart shared memory api"""
-        info.setMode(cfg.shared_memory_api["access_mode"])
-        info.setPID(cfg.shared_memory_api["rF2_process_id"])
+        setup_api(info)
         info.restart()
 
     @staticmethod
@@ -294,6 +293,7 @@ class AppWindow(QMainWindow):
 
         # Load new setting
         cfg.load()
+        self.restart_api()
 
         # Start modules & widgets
         mctrl.start()
@@ -655,25 +655,8 @@ class PresetList(QWidget):
         """Load selected preset"""
         selected_index = self.listbox_preset.currentRow()
         if selected_index >= 0:
-            # Close modules & widgets in order
-            mctrl.close()
-            octrl.disable()
-            wctrl.close()
-
-            # Load new setting
             cfg.filename_setting = f"{self.preset_list[selected_index]}.json"
-            cfg.load()
-            self.master.restart_api()
-
-            # Start modules & widgets
-            mctrl.start()
-            octrl.enable()
-            wctrl.start()
-
-            # Refresh menu & preset list
-            self.refresh_preset_list()
-            self.master.widget_tab.refresh_widget_list()
-            self.master.module_tab.refresh_module_list()
+            self.master.reload_preset()
         else:
             QMessageBox.warning(
                 self, "Warning",

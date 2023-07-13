@@ -39,10 +39,17 @@ from . import formatter as fmt
 from . import calculation as calc
 
 
+def setup_api(api):
+    """Setup API custom parameters"""
+    api.setMode(cfg.shared_memory_api["access_mode"])
+    api.setPID(cfg.shared_memory_api["rF2_process_id"])
+    api.setPlayerOverride(cfg.shared_memory_api["enable_player_index_override"])
+    api.setPlayerIndex(cfg.shared_memory_api["player_index"])
+
+
 # Load Shared Memory API
 info = SimInfoSync("tinypedal")
-info.setMode(cfg.shared_memory_api["access_mode"])
-info.setPID(cfg.shared_memory_api["rF2_process_id"])
+setup_api(info)
 info.start()
 
 chknm = val.numeric_validator
@@ -51,6 +58,8 @@ cs2py = info.cbytes2str
 
 def state():
     """Check whether is driving"""
+    if cfg.shared_memory_api["enable_active_state_override"]:
+        return cfg.shared_memory_api["active_state"]
     return not info.paused and info.playerTele.mIgnitionStarter
 
 
