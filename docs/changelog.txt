@@ -1,3 +1,19 @@
+2.1.9 (2023-07-14)
+-----------------------------
+* [New]Spectate mode
+    - Add "Spectate" tab that is accessible from main window.
+    - Click "Enabled" or "Disabled" button to quickly toggle spectate mode on & off.
+      Note, spectate mode can also be enabled by setting
+      "enable_player_index_override" option to "true"
+      in "Shared Memory API" config.
+    - While Spectate mode is enabled, double-click on a player name in the list
+      to access telemetry data and overlay readings from selected player.
+      Alternatively, select a player name and click "Spectate" button.
+      Current spectating player name is displayed on top of player name list.
+    - Select "Anonymous" for unspecified player,
+      which is equivalent to player index "-1" in JSON file.
+    - Click "Refresh" button to manually refresh player name list.
+
 2.1.8 (2023-07-13)
 -----------------------------
 * [New]Shared Memory API configuration

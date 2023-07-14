@@ -117,10 +117,10 @@ class FontConfig(QDialog):
         for item in dict_user.keys():
             key_list_user = tuple(dict_user[item])
             for key in key_list_user:
-                if (re.search(rxp.REGEX_FONTNAME, key) and
+                if (re.search(rxp.FONTNAME, key) and
                     self.edit_fontname.currentText() != "no change"):
                     dict_user[item][key] = self.edit_fontname.currentFont().family()
-                if (re.search(rxp.REGEX_FONTWEIGHT, key) and
+                if (re.search(rxp.FONTWEIGHT, key) and
                     self.edit_fontweight.currentText() != "no change"):
                     dict_user[item][key] = self.edit_fontweight.currentText()
                 if key == "font_size":
@@ -392,6 +392,7 @@ class WidgetConfig(QDialog):
             wctrl.start()
         elif self.reload_mode == "api":
             self.master.restart_api()
+            self.master.spectate_tab.refresh_spectate_list()
 
     def create_options(self):
         """Create options"""
@@ -407,37 +408,37 @@ class WidgetConfig(QDialog):
             self.__add_option_label(
                 idx, key, column_index_label)
             # Bool
-            if re.search(rxp.REGEX_BOOL, key):
+            if re.search(rxp.BOOL, key):
                 self.__add_option_bool(
                     idx, key, option_width, column_index_option)
                 continue
             # Color string
-            if re.search(rxp.REGEX_COLOR, key):
+            if re.search(rxp.COLOR, key):
                 self.__add_option_color(
                     idx, key, option_width, column_index_option)
                 continue
             # Font name string
-            if re.search(rxp.REGEX_FONTNAME, key):
+            if re.search(rxp.FONTNAME, key):
                 self.__add_option_fontname(
                     idx, key, option_width, column_index_option)
                 continue
             # Font weight string
-            if re.search(rxp.REGEX_FONTWEIGHT, key):
+            if re.search(rxp.FONTWEIGHT, key):
                 self.__add_option_fontweight(
                     idx, key, option_width, column_index_option)
                 continue
             # Heatmap string
-            if re.search(rxp.REGEX_HEATMAP, key):
+            if re.search(rxp.HEATMAP, key):
                 self.__add_option_heatmap(
                     idx, key, option_width, column_index_option)
                 continue
             # String
-            if re.search(rxp.REGEX_STRING, key):
+            if re.search(rxp.STRING, key):
                 self.__add_option_string(
                     idx, key, option_width, column_index_option)
                 continue
             # Int
-            if re.search(rxp.REGEX_INTEGER, key):
+            if re.search(rxp.INTEGER, key):
                 self.__add_option_integer(
                     idx, key, option_width, column_index_option)
                 continue

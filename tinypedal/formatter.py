@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 def format_widget_name(name):
     """Format widget name"""
     name = re.sub("_", " ", name)
-    if re.search(rxp.REGEX_UPPERCASE, name):
+    if re.search(rxp.UPPERCASE, name):
         return name.upper()
     return name.capitalize()
 

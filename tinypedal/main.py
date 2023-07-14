@@ -49,7 +49,7 @@ from .setting import cfg
 from . import formatter as fmt
 from .const import APP_NAME, VERSION, APP_ICON, PATH_SETTINGS
 from .about import About
-from .readapi import info, setup_api
+from .readapi import info, setup_api, create_spectate_list
 from .module_control import mctrl
 from .widget_control import wctrl
 from .overlay_control import octrl
@@ -79,9 +79,11 @@ class AppWindow(QMainWindow):
         self.widget_tab = WidgetList()
         self.module_tab = ModuleList()
         self.preset_tab = PresetList(self)
+        self.spectate_tab = SpectateList(self)
         self.main_tab.addTab(self.widget_tab, 'Widget')
         self.main_tab.addTab(self.module_tab, 'Module')
         self.main_tab.addTab(self.preset_tab, 'Preset')
+        self.main_tab.addTab(self.spectate_tab, 'Spectate')
         self.setCentralWidget(self.main_tab)
 
     def main_menubar(self):
@@ -304,6 +306,7 @@ class AppWindow(QMainWindow):
         self.preset_tab.refresh_preset_list()
         self.widget_tab.refresh_widget_list()
         self.module_tab.refresh_module_list()
+        self.spectate_tab.refresh_spectate_list()
 
     def open_config_units(self):
         """Config display units"""
@@ -589,6 +592,116 @@ class ModuleList(QWidget):
         """Module config dialog"""
         window_widget_config = WidgetConfig(self, module_name, "module")
         window_widget_config.exec_()
+
+
+class SpectateList(QWidget):
+    """Spectate list box"""
+
+    def __init__(self, master):
+        super().__init__()
+        self.master = master
+        self.spectate_list = []
+
+        # Label
+        self.label_spectateed = QLabel("")
+
+        # List box
+        self.listbox_spectate = QListWidget(self)
+        self.listbox_spectate.setAlternatingRowColors(True)
+        self.listbox_spectate.setStyleSheet(
+            "QListView {font-size: 14px;outline: none;"
+            "background-color: #FFF;alternate-background-color: #EEE;}"
+            "QListView::item {height: 26px;border-radius: 0;}"
+            "QListView::item:selected {selection-color:#FFF;background-color: #F20;}"
+        )
+        self.listbox_spectate.itemDoubleClicked.connect(self.spectate_selected)
+
+        # Button
+        self.button_spectate = QPushButton("Spectate")
+        self.button_spectate.clicked.connect(self.spectate_selected)
+
+        self.button_refresh = QPushButton("Refresh")
+        self.button_refresh.clicked.connect(self.refresh_spectate_list)
+
+        self.button_toggle = QPushButton("")
+        self.button_toggle.setCheckable(True)
+        self.button_toggle.clicked.connect(self.spectate_toggle_state)
+        self.refresh_spectate_list()
+
+        # Layout
+        layout_main = QVBoxLayout(self)
+        layout_button = QHBoxLayout()
+
+        layout_main.addWidget(self.label_spectateed)
+        layout_main.addWidget(self.listbox_spectate)
+        layout_button.addWidget(self.button_spectate)
+        layout_button.addWidget(self.button_refresh)
+        layout_button.addStretch(stretch=1)
+        layout_button.addWidget(self.button_toggle)
+        layout_main.addLayout(layout_button)
+        self.setLayout(layout_main)
+
+    def set_button_state(self):
+        """Set button state"""
+        if cfg.shared_memory_api["enable_player_index_override"]:
+            self.button_toggle.setChecked(True)
+            self.button_toggle.setText("Enabled")
+            self.listbox_spectate.setDisabled(False)
+            self.button_spectate.setDisabled(False)
+            self.button_refresh.setDisabled(False)
+            self.label_spectateed.setDisabled(False)
+        else:
+            self.button_toggle.setChecked(False)
+            self.button_toggle.setText("Disabled")
+            self.listbox_spectate.setDisabled(True)
+            self.button_spectate.setDisabled(True)
+            self.button_refresh.setDisabled(True)
+            self.label_spectateed.setDisabled(True)
+
+    def spectate_toggle_state(self):
+        """Spectate state toggle"""
+        if cfg.shared_memory_api["enable_player_index_override"]:
+            cfg.shared_memory_api["enable_player_index_override"] = False
+        else:
+            cfg.shared_memory_api["enable_player_index_override"] = True
+        cfg.save()  # save only if toggled
+
+        info.setPlayerOverride(cfg.shared_memory_api["enable_player_index_override"])
+        info.setPlayerIndex(cfg.shared_memory_api["player_index"])
+        self.refresh_spectate_list()
+
+    def refresh_spectate_list(self):
+        """Refresh spectate list"""
+        if cfg.shared_memory_api["enable_player_index_override"]:
+            temp_list = create_spectate_list()
+            if temp_list != self.spectate_list:
+                self.spectate_list = temp_list
+                self.listbox_spectate.clear()
+                self.listbox_spectate.addItems(self.spectate_list)
+            index = cfg.shared_memory_api["player_index"] + 1
+            if index >= len(temp_list):  # prevent index out of range
+                index = 0
+            self.listbox_spectate.setCurrentRow(index)
+            self.label_spectateed.setText(
+                f"Spectating: <b>{self.spectate_list[index]}</b>")
+        else:
+            self.spectate_list = []
+            self.listbox_spectate.clear()
+            self.label_spectateed.setText(
+                f"Spectating: <b>Disabled</b>")
+
+        self.set_button_state()
+
+    def spectate_selected(self):
+        """Spectate selected player"""
+        selected_index = self.listbox_spectate.currentRow()
+        if selected_index >= 0:
+            cfg.shared_memory_api["player_index"] = selected_index - 1
+        else:
+            cfg.shared_memory_api["player_index"] = -1
+        info.setPlayerIndex(cfg.shared_memory_api["player_index"])
+        self.refresh_spectate_list()
+        cfg.save()  # save only if selected
 
 
 class PresetList(QWidget):

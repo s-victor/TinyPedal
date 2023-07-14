@@ -98,37 +98,31 @@ def remove_invalid_setting(key_list_def, dict_user):
         # Non-dict sub_level values
         if type(dict_user[key]) != dict:
             # Bool
-            if re.search(rxp.REGEX_BOOL, key):
+            if re.search(rxp.BOOL, key):
                 if type(dict_user[key]) != bool:
                     dict_user[key] = bool(dict_user[key])
                 continue
             # Color string
-            if re.search(rxp.REGEX_COLOR, key):
+            if re.search(rxp.COLOR, key):
                 if not color_validator(dict_user[key]):
                     dict_user.pop(key)
                 continue
-            # Font name string
-            if re.search(rxp.REGEX_FONTNAME, key):
-                if type(dict_user[key]) != str:
-                    dict_user.pop(key)
-                continue
             # Font weight string
-            if re.search(rxp.REGEX_FONTWEIGHT, key):
+            if re.search(rxp.FONTWEIGHT, key):
                 if dict_user[key].lower() not in ("normal", "bold"):
                     dict_user.pop(key)
                 continue
-            # Heatmap
-            if re.search(rxp.REGEX_HEATMAP, key):
-                if type(dict_user[key]) != str:
-                    dict_user.pop(key)
-                continue
             # String
-            if re.search(rxp.REGEX_STRING, key):
+            if re.search(
+                rxp.FONTNAME + "|" +
+                rxp.HEATMAP + "|" +
+                rxp.STRING,
+                key):
                 if type(dict_user[key]) != str:
                     dict_user.pop(key)
                 continue
             # Int
-            if re.search(rxp.REGEX_INTEGER, key):
+            if re.search(rxp.INTEGER, key):
                 if type(dict_user[key]) != int:
                     try:
                         dict_user[key] = int(dict_user[key])

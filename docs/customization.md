@@ -124,6 +124,18 @@ Compatibility options can be accessed from `Config` menu in main window.
 Set `true` to bypass window manager on X11 system such as linux. This option may only be enabled if overlay widgets fail to stay on top of all windows. Also note that by enabling this option, OBS may not be able to capture overlay widgets in streaming. Default is `false`.
 
 
+## Spectate mode
+Spectate mode can be accessed from `Spectate` tab in main window.
+
+Click `Enabled` or `Disabled` button to toggle spectate mode on & off. Note, spectate mode can also be enabled by setting `enable_player_index_override` option to `true` in `Shared Memory API` config.
+
+While Spectate mode is enabled, `double-click` on a player name in the list to access telemetry data and overlay readings from selected player; alternatively, select a player name and click `Spectate` button. Current spectating player name is displayed on top of player name list.
+
+Select `Anonymous` for unspecified player, which is equivalent to player index `-1` in JSON file.
+
+Click `Refresh` button to manually refresh player name list.
+
+
 ## Overlay
 Overlay options can be accessed from `Overlay` menu in main window, or from tray icon menu.
 
@@ -224,6 +236,7 @@ TinyPedal generates & saves various user data in specific folders. To reset a da
 
 # Modules
 Modules here provide important data that updated in real-time for other widgets. Widgets may stop updating if corresponding modules were turned off. Module config dialog can be accessed by clicking `Config` button from `Module` tab in main window. 
+
 
 ## Delta
     module_delta

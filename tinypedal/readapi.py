@@ -69,6 +69,16 @@ def api_version():
     return version if version else "unknown"
 
 
+def create_spectate_list():
+    """Create player name spectate list based on player index order"""
+    index_list = ["Anonymous"]
+    veh_total = chknm(info.rf2Tele.mNumVehicles)
+    if veh_total:
+        for index in range(veh_total):
+            index_list.append(cs2py(info.rf2Scor.mVehicles[index].mDriverName))
+    return index_list
+
+
 def combo_check():
     """Track & vehicle combo data"""
     track_name = cs2py(info.rf2Scor.mScoringInfo.mTrackName)

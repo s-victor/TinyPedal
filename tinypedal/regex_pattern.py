@@ -21,8 +21,8 @@ Regex pattern
 """
 
 
-# For setting validation
-REGEX_BOOL = (
+# Bool
+BOOL = (
     # Exact match
     "^active_state$|"
     "^auto_hide$|"
@@ -35,23 +35,24 @@ REGEX_BOOL = (
     "swap_style|"
     "uppercase"
 )
-REGEX_COLOR = "color"
-REGEX_FONTNAME = "font_name"
-REGEX_FONTWEIGHT = "font_weight"
-REGEX_HEATMAP = "heatmap"
-REGEX_STRING = (
+# String
+COLOR = "color"
+FONTNAME = "font_name"
+FONTWEIGHT = "font_weight"
+HEATMAP = "heatmap"
+STRING = (
     # Exact match
     "^rF2_process_id$|"
     # Partial match
     "format|"
-    "heatmap_name|"
     "info|"
     "list|"
     "prefix|"
     "text|"
     "unit"
 )
-REGEX_INTEGER = (
+# Integer
+INTEGER = (
     # Exact match
     "^access_mode$|"
     "^lap_time_history_count$|"
@@ -80,8 +81,8 @@ REGEX_INTEGER = (
     "vehicles"
 )
 
-# For name formatting
-REGEX_UPPERCASE = (
+# Formatting
+UPPERCASE = (
     # Partial match
     "drs|"
     "p2p"
