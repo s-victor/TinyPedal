@@ -235,14 +235,20 @@ class Draw(Widget):
 
             relative_idx = minfo.relative.Relative
             vehicles_data = minfo.vehicles.Data
+            total_idx = len(relative_idx)
 
             # Relative update
             for idx in range(self.veh_range):
 
                 # Get vehicle data
-                setattr(self, f"veh_{idx}",
-                        self.get_data(relative_idx[idx], vehicles_data)
-                        )
+                if idx < total_idx:
+                    setattr(self, f"veh_{idx}",
+                            self.get_data(relative_idx[idx], vehicles_data)
+                            )
+                else:  # bypass index out range
+                    setattr(self, f"veh_{idx}",
+                            self.empty_vehicles_data
+                            )
                 # Driver position
                 if self.wcfg["show_position"]:
                     self.update_pos(f"{idx}_pos",
