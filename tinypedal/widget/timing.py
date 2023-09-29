@@ -46,18 +46,23 @@ class Draw(Widget):
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
 
-        prefix_w = max(
-            len(self.wcfg["prefix_best"]),
-            len(self.wcfg["prefix_last"]),
-            len(self.wcfg["prefix_current"]),
-            len(self.wcfg["prefix_estimated"]),
-            len(self.wcfg["prefix_session_best"]),
-        )
-        self.prefix_best = self.wcfg["prefix_best"][:prefix_w].ljust(prefix_w)
-        self.prefix_last = self.wcfg["prefix_last"][:prefix_w].ljust(prefix_w)
-        self.prefix_curr = self.wcfg["prefix_current"][:prefix_w].ljust(prefix_w)
-        self.prefix_esti = self.wcfg["prefix_estimated"][:prefix_w].ljust(prefix_w)
-        self.prefix_sbst = self.wcfg["prefix_session_best"][:prefix_w].ljust(prefix_w)
+        if self.wcfg["layout"] == 0:
+            prefix_w = prefix_just = max(
+                len(self.wcfg["prefix_best"]),
+                len(self.wcfg["prefix_last"]),
+                len(self.wcfg["prefix_current"]),
+                len(self.wcfg["prefix_estimated"]),
+                len(self.wcfg["prefix_session_best"]),
+            )
+        else:
+            prefix_w = None
+            prefix_just = 0
+
+        self.prefix_best = self.wcfg["prefix_best"][:prefix_w].ljust(prefix_just)
+        self.prefix_last = self.wcfg["prefix_last"][:prefix_w].ljust(prefix_just)
+        self.prefix_curr = self.wcfg["prefix_current"][:prefix_w].ljust(prefix_just)
+        self.prefix_esti = self.wcfg["prefix_estimated"][:prefix_w].ljust(prefix_just)
+        self.prefix_sbst = self.wcfg["prefix_session_best"][:prefix_w].ljust(prefix_just)
 
         text_best = f"{self.prefix_best}-:--.---"
         text_last = f"{self.prefix_last}-:--.---"
