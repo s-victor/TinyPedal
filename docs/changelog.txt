@@ -1,3 +1,12 @@
+2.1.10 (2023-10-09)
+-----------------------------
+* Relative Widget
+    - Fixed index out of range issue when configuring display rows.
+
+* Timing Widget
+    - Removed prefix alignment padding when using horizontal layout.
+
+
 2.1.9 (2023-07-14)
 -----------------------------
 * [New]Spectate mode
