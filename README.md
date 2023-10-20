@@ -86,17 +86,19 @@ Configuration and data files will be stored in the defined user-specific
 directories, usually at `$HOME/.config/TinyPedal/` and
 `$HOME/.local/share/TinyPedal/` respectively.
 
-The required Python packages are `PySide2`, `psutil` and `pyxdg`. They can be installed with
-this command:  
-`pip3 install PySide2 psutil pyxdg`
+The required Python packages are `PySide2`, `psutil` and `pyxdg`. Most distros
+name the package with a prefix, like `python3-pyside2`, `python3-psutil` and
+`python3-pyxdg`.
 
-Alternatively, you can use the system's package manager instead of `pip3`. The
-packages will be named with some prefix like
-`python3-PySide2`, `python3-psutil` and `python3-pyxdg`.
-
-Some distros might have split `PySide2` in subpackages. If you don't find
-`python3-PySide2` then you should install `python3-pyside2.qtgui` and
+Some distros split `PySide2` in subpackages. If you don't find
+`python3-pyside2` then you should install `python3-pyside2.qtgui` and
 `python3-pyside2.qtwidgets`.
+
+Alternatively, you can install them using `pip3` but this will bypass your
+system package manager and it isn't the recommended option. The command to
+install the dependencies with this method is:
+
+`pip3 install PySide2 psutil pyxdg`
 
 The Iron Wolf's rF2 Shared Memory Map Plugin has to be replaced with [this fork
 for
@@ -105,7 +107,7 @@ Wine](https://github.com/schlegp/rF2SharedMemoryMapPlugin_Wine/blob/master/build
 To start TinyPedal type the following command:  
 `./run.py`
 
-### Using the install script
+### Installation
 
 Once you have a working instance of TinyPedal, created using the git command or
 by unpacking the Linux release file, you can run the install script to install
@@ -120,6 +122,14 @@ appropriate permissions to write there, for example, by using `sudo`.
 You can run the script as (it doesn't support any arguments or options):  
 `sudo ./install.sh`
 
+### Known issues
+
+- Some KDE themes can make the text unreadable in the main window. Workaround:
+  use the default light theme.
+- Widgets don't appear over the game window in KDE. Workaround: enable
+  bypassing the window manager in the menu Config -> Compatibility.
+- Transparency of widgets doesn't work when desktop compositing is disabled.
+  Workaround: enable window manager compositing in your DE.
 
 ## Credits
 ### Author:
