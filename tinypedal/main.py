@@ -408,7 +408,7 @@ class WidgetList(QWidget):
             widget=obj: self.widget_toggle_state(checked, button, widget))
 
         button.setStyleSheet(
-            "QPushButton {color: #555;background-color: #DDD;font-size: 14px;"
+            "QPushButton {color: #555;background-color: #CCC;font-size: 14px;"
             "min-width: 30px;max-width: 30px;padding: 2px 3px;border-radius: 3px;}"
             "QPushButton::hover {color: #FFF;background-color: #F20;}"
             "QPushButton::pressed {color: #FFF;background-color: #555;}"
@@ -539,7 +539,7 @@ class ModuleList(QWidget):
             module=obj: self.module_toggle_state(checked, button_toggle, module))
 
         button_toggle.setStyleSheet(
-            "QPushButton {color: #555;background-color: #DDD;font-size: 14px;"
+            "QPushButton {color: #555;background-color: #CCC;font-size: 14px;"
             "min-width: 30px;max-width: 30px;padding: 2px 3px;border-radius: 3px;}"
             "QPushButton::hover {color: #FFF;background-color: #F20;}"
             "QPushButton::pressed {color: #FFF;background-color: #555;}"
