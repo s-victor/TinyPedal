@@ -344,8 +344,7 @@ class WidgetList(QWidget):
         self.listbox_widget = QListWidget(self)
         self.listbox_widget.setAlternatingRowColors(True)
         self.listbox_widget.setStyleSheet(
-            "QListView {outline: none;"
-            "background-color: #FFF;alternate-background-color: #EEE;}"
+            "QListView {outline: none;}"
             "QListView::item {height: 28px;border-radius: 0;}"
             "QListView::item:selected {background-color: transparent;}"
             "QListView::item:hover {background-color: transparent;}"
@@ -475,8 +474,7 @@ class ModuleList(QWidget):
         self.listbox_module = QListWidget(self)
         self.listbox_module.setAlternatingRowColors(True)
         self.listbox_module.setStyleSheet(
-            "QListView {outline: none;"
-            "background-color: #FFF;alternate-background-color: #EEE;}"
+            "QListView {outline: none;}"
             "QListView::item {height: 28px;border-radius: 0;}"
             "QListView::item:selected {background-color: transparent;}"
             "QListView::item:hover {background-color: transparent;}"
@@ -609,8 +607,7 @@ class SpectateList(QWidget):
         self.listbox_spectate = QListWidget(self)
         self.listbox_spectate.setAlternatingRowColors(True)
         self.listbox_spectate.setStyleSheet(
-            "QListView {font-size: 14px;outline: none;"
-            "background-color: #FFF;alternate-background-color: #EEE;}"
+            "QListView {font-size: 14px;outline: none;}"
             "QListView::item {height: 26px;border-radius: 0;}"
             "QListView::item:selected {selection-color:#FFF;background-color: #F20;}"
         )
@@ -719,8 +716,7 @@ class PresetList(QWidget):
         self.listbox_preset = QListWidget(self)
         self.listbox_preset.setAlternatingRowColors(True)
         self.listbox_preset.setStyleSheet(
-            "QListView {font-size: 16px;outline: none;"
-            "background-color: #FFF;alternate-background-color: #EEE;}"
+            "QListView {font-size: 16px;outline: none;}"
             "QListView::item {height: 28px;border-radius: 0;}"
             "QListView::item:selected {selection-color:#FFF;background-color: #F20;}"
         )
