@@ -2,9 +2,7 @@
 
 TinyPedal is an open-source overlay application for racing simulation.
 
-Currently supports rFactor 2 and displays simulation info using The Iron Wolf’s [rF2 Shared Memory Map Plugin](https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin) & Tony Whitley’s [pyRfactor2SharedMemory](https://github.com/TonyWhitley/pyRfactor2SharedMemory) Library.
-
-`Borderless` or `Windowed` mode is required. `Fullscreen` mode is not supported.
+Currently supports rFactor 2. `Borderless` or `Windowed` mode is required. `Fullscreen` mode is not supported.
 
 
 ## Requirements
@@ -30,8 +28,8 @@ The plugin file `rFactor2SharedMemoryMapPlugin64.dll` should be placed in `rFact
 7. To quit APP, `Right Click` on tray icon and select `Quit`.
 
 
-## Customization
-See [Customization Guide](https://github.com/s-victor/TinyPedal/wiki) for details.
+## User Guide
+See [Wiki page](https://github.com/s-victor/TinyPedal/wiki) for details.
 
 
 ## Run from source
@@ -124,8 +122,6 @@ You can run the script as (it doesn't support any arguments or options):
 
 ### Known issues
 
-- Some KDE themes can make the text unreadable in the main window. Workaround:
-  use the default light theme.
 - Widgets don't appear over the game window in KDE. Workaround: enable
   bypassing the window manager in the menu Config -> Compatibility.
 - Transparency of widgets doesn't work when desktop compositing is disabled.
@@ -138,8 +134,8 @@ TinyPedal is created by Xiang (S.Victor), with helps from other contributors.
 See [docs\contributors.md](./docs/contributors.md) file for full list of contributors.
 
 ### Special thanks to:  
-The Iron Wolf for the permission to use rF2 Shared Memory Map Plugin in TinyPedal.  
-Tony Whitley for pyRfactor2SharedMemory library.  
+The Iron Wolf for [rF2 Shared Memory Map Plugin](https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin).  
+Tony Whitley for [pyRfactor2SharedMemory library](https://github.com/TonyWhitley/pyRfactor2SharedMemory).  
 
 
 ## License
