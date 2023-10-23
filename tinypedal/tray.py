@@ -99,7 +99,7 @@ class TrayIcon(QSystemTrayIcon):
         menu.addAction(app_quit)
 
         self.setContextMenu(menu)
-        self.activated.connect(self.refresh_menu)
+        menu.aboutToShow.connect(self.refresh_menu)
 
     def show_config(self):
         """Show config window"""
