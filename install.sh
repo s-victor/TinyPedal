@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 SOURCE_PATH=$(dirname $(readlink -f $0))
 DESTINATION_PREFIX="/usr/local"
@@ -6,6 +6,27 @@ SHARE_PATH="${DESTINATION_PREFIX}/share"
 APPLICATIONS_PATH="${SHARE_PATH}/applications"
 BIN_PATH="${DESTINATION_PREFIX}/bin"
 DESTINATION_PATH="${SHARE_PATH}/TinyPedal"
+
+replace() {
+    PATTERN="$1"
+    STRING="$2"
+    while read LINE; do
+        echo "${LINE/${PATTERN}/${STRING}}"
+    done
+}
+
+if [ -n "$1" ];
+then
+    DESTINATION_PREFIX="$1"
+    while true; do
+        read -p "Are you sure you want to install this program to '${DESTINATION_PREFIX}' prefix? " yn
+        case $yn in
+            [Yy]* ) break;;
+            [Nn]* ) exit;;
+            * ) echo "Please answer yes or no.";;
+        esac
+    done
+fi
 
 if [ ! -f "pyRfactor2SharedMemory/__init__.py" ];
 then
@@ -33,10 +54,11 @@ fi
 echo "Writing ${DESTINATION_PATH}"
 cp -r "${SOURCE_PATH}" "${DESTINATION_PATH}"
 
-echo "Writing ${APPLICATIONS_PATH}/svictor.TinyPedal.desktop"
-cp "${SOURCE_PATH}/svictor-TinyPedal.desktop" "${APPLICATIONS_PATH}"
+echo "Writing ${APPLICATIONS_PATH}/svictor-TinyPedal.desktop"
+replace "{.}" "${DESTINATION_PATH}" <"${SOURCE_PATH}/svictor-TinyPedal.desktop" >"${APPLICATIONS_PATH}/svictor-TinyPedal.desktop"
 
 echo "Writing ${BIN_PATH}/TinyPedal"
-ln -fs "${DESTINATION_PATH}/run.py" "${BIN_PATH}/TinyPedal"
+replace "./" "${DESTINATION_PATH}/" <"${SOURCE_PATH}/TinyPedal.sh" >"${BIN_PATH}/TinyPedal"
+chmod a+x "${BIN_PATH}/TinyPedal"
 
 echo "Installation finished."

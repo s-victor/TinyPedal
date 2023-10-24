@@ -1,9 +1,9 @@
 [Desktop Entry]
-Exec=/usr/local/share/TinyPedal/run.py
+Exec=env XDG_SESSION_TYPE=x11 {.}/run.py
 GenericName=Overlay for rFactor2
-Icon=/usr/local/share/TinyPedal/images/icon.png
+Icon={.}/images/icon.png
 Name=TinyPedal
-Path=/usr/local/share/TinyPedal
+Path={.}
 StartupNotify=true
 Terminal=false
 Type=Application
