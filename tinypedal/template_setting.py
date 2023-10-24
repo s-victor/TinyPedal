@@ -31,6 +31,8 @@ SETTING_DEFAULT = {
     },
     "compatibility": {
         "enable_bypass_window_manager": False,
+        "enable_translucent_background": True,
+        "global_bkg_color": "#000000",
     },
     "overlay": {
         "fixed_position": False,
@@ -733,6 +735,11 @@ SETTING_DEFAULT = {
         "vehicle_color_yellow": "#FFFF00",
         "vehicle_outline_color": "#88000000",
         "vehicle_outline_width": 1,
+        "show_background": False,
+        "bkg_color": "#222222",
+        "show_fade_out": True,
+        "fade_in_radius": 0.6,
+        "fade_out_radius": 0.98,
         "show_overlap_indicator": True,
         "overlap_detection_range_multiplier": 6,
         "indicator_size_multiplier": 8,

@@ -21,6 +21,7 @@ GUI window, events.
 """
 
 from PySide2.QtCore import Qt, QTimer, Slot
+from PySide2.QtGui import QColor, QPalette
 from PySide2.QtWidgets import QWidget
 
 from .const import APP_NAME
@@ -43,6 +44,11 @@ class Widget(QWidget):
         # Base setting
         self.setWindowTitle(f"{APP_NAME} - {self.widget_name.capitalize()}")
         self.move(int(self.wcfg["position_x"]), int(self.wcfg["position_y"]))
+
+        # Base window background color
+        pal_base = QPalette()
+        pal_base.setColor(QPalette.Window, QColor(self.cfg.compatibility["global_bkg_color"]))
+        self.setPalette(pal_base)
 
         # Widget mouse event
         self.mouse_pos = (0, 0)
@@ -79,7 +85,8 @@ class Widget(QWidget):
         """Set initial widget state"""
         # Window flags
         self.setWindowOpacity(self.wcfg["opacity"])
-        self.setAttribute(Qt.WA_TranslucentBackground, True)
+        if self.cfg.compatibility["enable_translucent_background"]:
+            self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setWindowFlag(Qt.FramelessWindowHint, True)
         self.setWindowFlag(Qt.Tool, True)  # remove taskbar icon
