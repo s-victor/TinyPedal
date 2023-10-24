@@ -2,18 +2,6 @@
 
 SOURCE_PATH=$(dirname $(readlink -f $0))
 DESTINATION_PREFIX="/usr/local"
-SHARE_PATH="${DESTINATION_PREFIX}/share"
-APPLICATIONS_PATH="${SHARE_PATH}/applications"
-BIN_PATH="${DESTINATION_PREFIX}/bin"
-DESTINATION_PATH="${SHARE_PATH}/TinyPedal"
-
-replace() {
-    PATTERN="$1"
-    STRING="$2"
-    while read LINE; do
-        echo "${LINE/${PATTERN}/${STRING}}"
-    done
-}
 
 if [ -n "$1" ];
 then
@@ -27,6 +15,19 @@ then
         esac
     done
 fi
+
+SHARE_PATH="${DESTINATION_PREFIX}/share"
+APPLICATIONS_PATH="${SHARE_PATH}/applications"
+BIN_PATH="${DESTINATION_PREFIX}/bin"
+DESTINATION_PATH="${SHARE_PATH}/TinyPedal"
+
+replace() {
+    PATTERN="$1"
+    STRING="$2"
+    while read LINE; do
+        echo "${LINE/${PATTERN}/${STRING}}"
+    done
+}
 
 if [ ! -f "pyRfactor2SharedMemory/__init__.py" ];
 then
@@ -53,6 +54,8 @@ fi
 
 echo "Writing ${DESTINATION_PATH}"
 cp -r "${SOURCE_PATH}" "${DESTINATION_PATH}"
+
+rm "${APPLICATIONS_PATH}/svictor-TinyPedal.desktop" "${BIN_PATH}/TinyPedal"
 
 echo "Writing ${APPLICATIONS_PATH}/svictor-TinyPedal.desktop"
 replace "{.}" "${DESTINATION_PATH}" <"${SOURCE_PATH}/svictor-TinyPedal.desktop" >"${APPLICATIONS_PATH}/svictor-TinyPedal.desktop"
