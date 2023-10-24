@@ -107,9 +107,10 @@ class Draw(Widget):
                 self.draw_vehicle(painter)
 
             # Apply radar mask
-            painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)
-            painter.drawPixmap(0, 0, self.area_size, self.area_size, self.radar_mask)
-            painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+            if self.wcfg["show_fade_out"]:
+                painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)
+                painter.drawPixmap(0, 0, self.area_size, self.area_size, self.radar_mask)
+                painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
     def draw_radar_mask(self):
         """radar mask"""
@@ -128,8 +129,8 @@ class Draw(Widget):
             self.area_center,
             self.area_center
         )
-        rad_gra.setColorAt(0.6, Qt.transparent)
-        rad_gra.setColorAt(0.98, QColor(0,0,0))
+        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_in_radius"]), Qt.transparent)
+        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_out_radius"]), QColor(0,0,0))
         painter.setBrush(rad_gra)
         painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
@@ -142,7 +143,10 @@ class Draw(Widget):
         # Draw background
         painter.setCompositionMode(QPainter.CompositionMode_Source)
         painter.setPen(Qt.NoPen)
-        painter.fillRect(0, 0, self.area_size, self.area_size, Qt.transparent)
+        if self.wcfg["show_background"]:
+            painter.fillRect(0, 0, self.area_size, self.area_size, self.wcfg["bkg_color"])
+        else:
+            painter.fillRect(0, 0, self.area_size, self.area_size, Qt.transparent)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # Draw center mark

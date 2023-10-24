@@ -1,3 +1,28 @@
+WIP
+-----------------------------
+* Radar Widget
+    - Add "show_background" & "bkg_color" options,
+      which shows customized radar background color.
+    - Add "show_fade_out" option,
+      which fades out radar edge.
+    - Add "fade_in_radius" & "fade_out_radius" options,
+      which sets fade in/out radius, value range in 0 to 1.
+
+* Core
+    - Add "enable_translucent_background" option in Compatibility,
+      which turns off translucent background if disabled.
+    - Add "global_bkg_color" option in Compatibility,
+      which sets global background color for all widgets.
+      Note 1, global background color will only be visible
+      when "enable_translucent_background" option disabled
+      or translucent background is not supported.
+      Note 2, some widgets with own background setting may override this option.
+    - Fixed tray menu not synced with main Config window (by berarma).
+    - Fixed window color theme when dark-mode is enabled in some operation system.
+
+* Misc
+    - Updated README with Linux usage info (by berarma).
+
 2.1.10 (2023-10-09)
 -----------------------------
 * Relative Widget
@@ -5,7 +30,6 @@
 
 * Timing Widget
     - Removed prefix alignment padding when using horizontal layout.
-
 
 2.1.9 (2023-07-14)
 -----------------------------

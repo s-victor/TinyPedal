@@ -123,6 +123,13 @@ Compatibility options can be accessed from `Config` menu in main window.
     enable_bypass_window_manager
 Set `true` to bypass window manager on X11 system such as linux. This option may only be enabled if overlay widgets fail to stay on top of all windows. Also note that by enabling this option, OBS may not be able to capture overlay widgets in streaming. Default is `false`.
 
+    enable_translucent_background
+Set `false` to disable translucent background.
+
+    global_bkg_color
+Sets global background color for all widgets.
+
+Note, global background color will only be visible when `enable_translucent_background` option is disabled or translucent background is not supported. Some widgets with own background setting may override this option.
 
 ## Spectate mode
 Spectate mode can be accessed from `Spectate` tab in main window.
@@ -181,7 +188,7 @@ Select a font name to replace `font_name` setting of all widgets. Default select
 Set a value that will be added (or subtracted if negative) to `font_size` value of all widgets. Default value is `0`, which no changes will be applied.
 
     Font Weight
-Set font weight to replace `font_weight` setting of all widgets. Default selection is "no change", which no changes will be applied.
+Set font weight to replace `font_weight` setting of all widgets. Default selection is `no change`, which no changes will be applied.
 
 
 ## Classes preset

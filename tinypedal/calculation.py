@@ -70,6 +70,11 @@ def sym_range(value, rng):
     return min(max(value, -rng), rng)
 
 
+def zero_one_range(value):
+    """Limit value in range 0 to 1 """
+    return min(max(value, 0), 1)
+
+
 def mean(data):
     """Average value"""
     # sum(data) / len(data)
