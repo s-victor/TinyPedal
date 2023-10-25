@@ -34,6 +34,7 @@ from PySide2.QtGui import (
     QFontMetrics
 )
 
+from .. import calculation as calc
 from .. import readapi as read_data
 from ..base import Widget
 from ..module_info import minfo
@@ -194,15 +195,15 @@ class Draw(Widget):
         # Draw background
         painter.setCompositionMode(QPainter.CompositionMode_Source)
         painter.setPen(Qt.NoPen)
-        painter.fillRect(0, 0, self.area_size, self.area_size, Qt.transparent)
+        if self.wcfg["show_background"]:
+            painter.fillRect(0, 0, self.area_size, self.area_size, self.wcfg["bkg_color"])
+        else:
+            painter.fillRect(0, 0, self.area_size, self.area_size, Qt.transparent)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
-        if self.wcfg["show_background"]:
+        if self.wcfg["show_circle_background"]:
             circle_scale = round(self.display_radius_g * self.global_scale)
-            if self.wcfg["background_style"]:
-                self.brush.setColor(QColor(self.wcfg["bkg_color"]))
-                painter.setBrush(self.brush)
-            else:
+            if self.wcfg["show_fade_out"]:
                 rad_gra = QRadialGradient(
                     self.area_center,
                     self.area_center,
@@ -210,9 +211,12 @@ class Draw(Widget):
                     self.area_center,
                     self.area_center
                 )
-                rad_gra.setColorAt(0.5, QColor(self.wcfg["bkg_color"]))
-                rad_gra.setColorAt(0.98, Qt.transparent)
+                rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_in_radius"]), QColor(self.wcfg["bkg_color_circle"]))
+                rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_out_radius"]), Qt.transparent)
                 painter.setBrush(rad_gra)
+            else:
+                self.brush.setColor(QColor(self.wcfg["bkg_color_circle"]))
+                painter.setBrush(self.brush)
             painter.drawEllipse(
                 self.area_center - circle_scale,
                 self.area_center - circle_scale,
