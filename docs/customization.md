@@ -544,10 +544,16 @@ Set display orientation for longitudinal & lateral g force axis. Default value i
 Show values from g force reading. Value at top is current longitudinal g force, and value at bottom is max longitudinal g force. Value at left is max lateral g force, and value at right is current lateral g force.
 
     show_background
-Show background color.
+Show background color that covers entire widget.
 
-    background_style
-Set background style. `0` for radial gradient style. `1` for solid style.
+    show_circle_background
+Show circle background color.
+
+    show_fade_out
+Fade out circle background edge.
+
+    fade_in_radius, fade_out_radius
+Set fade in/out radius, value range in `0.0` to `1.0`.
 
     show_max_average_lateral_g_circle
 Show max average lateral g force reference circle.
@@ -826,6 +832,15 @@ Set vehicle visual round border radius.
 
     vehicle_outline_width
 Set vehicle visual outline width.
+
+    show_background
+Show background color.
+
+    show_fade_out
+Fade out Radar edge.
+
+    fade_in_radius, fade_out_radius
+Set fade in/out radius, value range in `0.0` to `1.0`.
 
     show_overlap_indicator
 Show overlap indicator when there is nearby side by side vehicle.

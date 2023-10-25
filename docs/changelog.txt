@@ -1,27 +1,45 @@
 WIP
 -----------------------------
+* General
+    - Add "enable_translucent_background" option in Compatibility,
+      which turns off translucent background if disabled.
+    - Add "global_bkg_color" option in Compatibility,
+      which sets global background color for all widgets.
+      Note 1, global background color will only be visible
+      when "enable_translucent_background" option is disabled
+      or translucent background is not supported by system.
+      Note 2, some widgets with own background setting may override this option.
+    - Fixed window color theme when system style is set to dark-mode.
+
+* Linux support
+    - Add customizable installation path option for installer,
+      remove some old files before installing (by Bernat).
+    - Add workaround in launcher to force X11 session type
+      which fixed non-draggable issue found on Wayland (by Bernat).
+    - Fixed tray menu not synced with main Config window (by Bernat).
+
+* Friction Circle Widget
+    - Add "show_circle_background" & "bkg_color_circle" options,
+      which shows customized circle background color.
+      Note, the "show_background" option shows background color
+      that covers entire Friction Circle widget.
+    - Add "show_fade_out" option,
+      which fades out circle background edge.
+    - Add "fade_in_radius" & "fade_out_radius" options,
+      which sets fade in/out radius, value range in 0.0 to 1.0.
+    - Removed "background_style" option as replaced by "show_fade_out" option.
+
 * Radar Widget
     - Add "show_background" & "bkg_color" options,
       which shows customized radar background color.
     - Add "show_fade_out" option,
       which fades out radar edge.
     - Add "fade_in_radius" & "fade_out_radius" options,
-      which sets fade in/out radius, value range in 0 to 1.
-
-* Core
-    - Add "enable_translucent_background" option in Compatibility,
-      which turns off translucent background if disabled.
-    - Add "global_bkg_color" option in Compatibility,
-      which sets global background color for all widgets.
-      Note 1, global background color will only be visible
-      when "enable_translucent_background" option disabled
-      or translucent background is not supported.
-      Note 2, some widgets with own background setting may override this option.
-    - Fixed tray menu not synced with main Config window (by berarma).
-    - Fixed window color theme when dark-mode is enabled in some operation system.
+      which sets fade in/out radius, value range in 0.0 to 1.0.
 
 * Misc
-    - Updated README with Linux usage info (by berarma).
+    - Updated README.md with Linux usage info (by Bernat).
+    - Updated customization.md.
 
 2.1.10 (2023-10-09)
 -----------------------------
