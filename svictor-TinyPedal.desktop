@@ -7,3 +7,4 @@ Path=/usr/local/share/TinyPedal
 StartupNotify=true
 Terminal=false
 Type=Application
+StartupWMClass=TinyPedal
