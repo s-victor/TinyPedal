@@ -186,7 +186,7 @@ class AppWindow(QMainWindow):
         mctrl.start()  # 1 start module
         octrl.enable()  # 2 enable overlay control
         wctrl.start()  # 3 start widget
-        self.about = About()
+        self.about = About(hideonclose=True)
         self.start_tray_icon()
         self.set_window_state()
 

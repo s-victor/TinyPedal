@@ -46,8 +46,10 @@ class About(QWidget):
     Hide window at startup.
     """
 
-    def __init__(self):
+    def __init__(self, hideonclose=False):
         super().__init__()
+        self.hideonclose = hideonclose
+
         # Base setting
         self.setFixedWidth(226)
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)
@@ -130,5 +132,6 @@ class About(QWidget):
 
     def closeEvent(self, event):
         """Minimize to tray"""
-        event.ignore()
-        self.hide()
+        if self.hideonclose:
+            event.ignore()
+            self.hide()
