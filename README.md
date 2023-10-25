@@ -2,30 +2,31 @@
 
 TinyPedal is an open-source overlay application for racing simulation.
 
-Currently supports rFactor 2. `Borderless` or `Windowed` mode is required. `Fullscreen` mode is not supported.
+Currently supports rFactor 2.
 
 
 ## Requirements
-TinyPedal requires The Iron Wolf’s rF2 Shared Memory Map Plugin, download it from here:  
-https://forum.studio-397.com/index.php?threads/rf2-shared-memory-tools-for-developers.54282/
-
+1. TinyPedal requires The Iron Wolf’s rF2 Shared Memory Map Plugin, download it from:  
+https://forum.studio-397.com/index.php?threads/rf2-shared-memory-tools-for-developers.54282/  
 The plugin file `rFactor2SharedMemoryMapPlugin64.dll` should be placed in `rFactor 2\Bin64\Plugins` folder. This plugin also comes with some of the popular rF2 Apps, check `rFactor 2\Bin64\Plugins` folder first to see if it was installed already.
+
+2. Set rFactor 2 display mode to `Borderless` or `Windowed` mode. `Fullscreen` mode is not supported.
 
 
 ## Usage
-1. Make sure The Iron Wolf’s `rF2 Shared Memory Map Plugin` is installed, as described above, and `Borderless` or `Windowed` mode is activated in game.
+1. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract and run `tinypedal.exe`.  
+Alternatively, run TinyPedal from source, see **Run from source** section for details.  
+For Linux user, please follow **Running on Linux** section for instruction.
 
-2. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract, and run `tinypedal.exe`. Alternatively, run TinyPedal from source, see **Run from source** section for details.
+2. A tray icon will appear at system tray. If not shown, check hidden tray icon. `Right Click` on tray icon will bring up context menu.
 
-3. A tray icon will appear at system tray. If not shown, check hidden tray icon. `Right Click` on tray icon will bring up context menu.
+3. Launch `rFactor 2`, overlay will appear once vehicle is on track, and auto-hide otherwise. Auto-hide can be switched On or Off by clicking `Auto Hide` from tray menu.
 
-4. Launch `rFactor 2`, overlay will appear once vehicle is on track, and auto-hide otherwise. Auto-hide can be switched On or Off by clicking `Auto Hide` from tray menu.
+4. Click on overlay to drag around. Overlay can be Locked or Unlocked by clicking `Lock Overlay` from tray menu.
 
-5. Click on overlay to drag around. Overlay can be Locked or Unlocked by clicking `Lock Overlay` from tray menu.
+5. Widgets can be Enabled or Disabled by clicking `Config` from tray menu.
 
-6. Widgets can be Enabled or Disabled by clicking `Config` from tray menu.
-
-7. To quit APP, `Right Click` on tray icon and select `Quit`.
+6. To quit APP, `Right Click` on tray icon and select `Quit`.
 
 
 ## User Guide
@@ -54,13 +55,13 @@ It includes a few required changes for TinyPedal.
 
 5. To start TinyPedal, type command from root folder:  
 `python run.py`  
-(TinyPedal is currently tested and worked with Python 3.8+)
+(TinyPedal is currently tested on Python 3.8+)
 
 Note: if using `Git` tool to clone this repository, run command with `--recursive` to also clone submodule, such as:  
 `git clone --recursive https://github.com/s-victor/TinyPedal.git`
 
 
-## Build executable
+## Build executable for Windows
 Executable file can be built with [py2exe](http://www.py2exe.org).
 
 To install py2exe, run command:  
@@ -127,17 +128,6 @@ You can run the script as (it doesn't support any arguments or options):
 - Transparency of widgets doesn't work when desktop compositing is disabled.
   Workaround: enable window manager compositing in your DE.
 
-## Credits
-### Author:
-TinyPedal is created by Xiang (S.Victor), with helps from other contributors.
-
-See [docs\contributors.md](./docs/contributors.md) file for full list of contributors.
-
-### Special thanks to:  
-The Iron Wolf for [rF2 Shared Memory Map Plugin](https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin).  
-Tony Whitley for [pyRfactor2SharedMemory library](https://github.com/TonyWhitley/pyRfactor2SharedMemory).  
-
-
 ## License
 
 TinyPedal is licensed under the GNU General Public License v3.0 or later. See [LICENSE.txt](./LICENSE.txt) for full text.
@@ -145,3 +135,7 @@ TinyPedal is licensed under the GNU General Public License v3.0 or later. See [L
 TinyPedal icon, as well as image files located in `images` folder, are licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
 Licenses and notices file for third-party software are located in `docs\licenses` folder, see [THIRDPARTYNOTICES.txt](./docs/licenses/THIRDPARTYNOTICES.txt) file for details.
+
+## Credits
+
+See [docs\contributors.md](./docs/contributors.md) file for full list of contributors.
