@@ -5,7 +5,8 @@ DESTINATION_PREFIX="/usr/local"
 
 if [ -n "$1" ];
 then
-    DESTINATION_PREFIX="$1"
+    DESTINATION_PREFIX="${1%/}"
+    echo
     while true; do
         read -p "Are you sure you want to install this program to '${DESTINATION_PREFIX}' prefix? " yn
         case $yn in
@@ -14,6 +15,7 @@ then
             * ) echo "Please answer yes or no.";;
         esac
     done
+    echo
 fi
 
 SHARE_PATH="${DESTINATION_PREFIX}/share"
@@ -31,13 +33,14 @@ replace() {
 
 if [ ! -f "pyRfactor2SharedMemory/__init__.py" ];
 then
-    echo "Missing files. Please, use a Linux source release file or 'git clone --recurse-submodules'."
+    echo "Error: Missing files. Please, use a Linux source release file or 'git clone --recurse-submodules'."
     exit 1
 fi
 
 if [ ! -w "${SHARE_PATH}" -o ! -w "${BIN_PATH}" -o ! -w "${APPLICATIONS_PATH}" ];
 then
-    echo "Insufficient privileges to install in the prefix directory: ${DESTINATION_PREFIX}"
+    echo "Error: Insufficient privileges to install in prefix directory '${DESTINATION_PREFIX}' or it doesn't contain the required directories:"
+    echo -e "    ${SHARE_PATH}, ${BIN_PATH}, ${APPLICATIONS_PATH}\n"
     exit 1
 fi
 
@@ -47,7 +50,7 @@ then
     then
         rm -r "${DESTINATION_PATH}"
     else
-        echo "Insufficient privileges to update existing install."
+        echo "Error: Insufficient privileges to update existing install."
         exit 1
     fi
 fi
@@ -58,7 +61,7 @@ cp -r "${SOURCE_PATH}" "${DESTINATION_PATH}"
 rm "${APPLICATIONS_PATH}/svictor-TinyPedal.desktop" "${BIN_PATH}/TinyPedal"
 
 echo "Writing ${APPLICATIONS_PATH}/svictor-TinyPedal.desktop"
-replace "{.}" "${DESTINATION_PATH}" <"${SOURCE_PATH}/svictor-TinyPedal.desktop" >"${APPLICATIONS_PATH}/svictor-TinyPedal.desktop"
+replace "/usr/local" "${DESTINATION_PREFIX}" <"${SOURCE_PATH}/svictor-TinyPedal.desktop" >"${APPLICATIONS_PATH}/svictor-TinyPedal.desktop"
 
 echo "Writing ${BIN_PATH}/TinyPedal"
 replace "./" "${DESTINATION_PATH}/" <"${SOURCE_PATH}/TinyPedal.sh" >"${BIN_PATH}/TinyPedal"

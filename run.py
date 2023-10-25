@@ -52,6 +52,7 @@ def is_tinypedal_running(app_name):
 def load_tinypedal():
     """Start tinypedal"""
     root = QApplication(sys.argv)
+    root.setApplicationName(APP_NAME);
     font = QFont("sans-serif", 10)
     font.setStyleHint(QFont.SansSerif)
     root.setFont(font)
