@@ -358,20 +358,11 @@ def weather():
     return track_temp, ambient_temp, rain_per, wet_road
 
 
-def sector():
-    """Sector data
-
-    Convert game sector index order to 0,1,2 for consistency.
-    """
-    sector_idx = (2,0,1)[min(max(chknm(info.playerScor.mSector), 0), 2)]
-    curr_sector1 = chknm(info.playerScor.mCurSector1)
-    curr_sector2 = chknm(info.playerScor.mCurSector2)
-    last_sector2 = chknm(info.playerScor.mLastSector2)
-    last_laptime = chknm(info.playerScor.mLastLapTime)
-    speed = calc.vel2speed(chknm(info.playerTele.mLocalVel.x),
-                           chknm(info.playerTele.mLocalVel.y),
-                           chknm(info.playerTele.mLocalVel.z))
-    return sector_idx, curr_sector1, curr_sector2, last_sector2, last_laptime, speed
+def speed():
+    """Speed data"""
+    return calc.vel2speed(chknm(info.playerTele.mLocalVel.x),
+                          chknm(info.playerTele.mLocalVel.y),
+                          chknm(info.playerTele.mLocalVel.z))
 
 
 def session_check():
