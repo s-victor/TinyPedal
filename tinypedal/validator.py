@@ -38,6 +38,17 @@ def numeric_validator(value):
     return 0
 
 
+def sector_time(sec_time, magic_num=99999):
+    """Validate sector time"""
+    if isinstance(sec_time, list):
+        if magic_num not in sec_time:
+            return True
+    else:
+        if magic_num != sec_time:
+            return True
+    return False
+
+
 # Folder validate
 def is_folder_exist(folder_name):
     """Create folder if not exist"""

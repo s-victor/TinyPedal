@@ -31,6 +31,7 @@ from .module import (
     module_hybrid,
     module_mapping,
     module_relative,
+    module_sectors,
     module_vehicles,
 )
 
@@ -46,6 +47,7 @@ class ModuleControl:
         module_hybrid,
         module_mapping,
         module_relative,
+        module_sectors,
         module_vehicles,
     )
 

@@ -99,6 +99,18 @@ class RelativeInfo:
 
 
 @dataclass
+class SectorsInfo:
+    """Sectors module output data"""
+    SectorIndex: int = -1
+    DeltaSectorBestPB: list = None
+    DeltaSectorBestTB: list = None
+    SectorBestTB: list = None
+    SectorBestPB: list = None
+    SectorPrev: list = None
+    NoDeltaSector: bool = True
+
+
+@dataclass
 class VehiclesInfo:
     """Vehicles module output data"""
     Data: list = None
@@ -117,6 +129,7 @@ class ModuleInfo:
         self.hybrid = HybridInfo()
         self.mapping = MappingInfo()
         self.relative = RelativeInfo()
+        self.sectors = SectorsInfo()
         self.vehicles = VehiclesInfo()
 
 
