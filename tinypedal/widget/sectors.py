@@ -168,7 +168,7 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and read_data.state() and minfo.sectors.SectorPrev:
 
             # Read Sector data
             lap_stime, lap_etime = read_data.lap_timestamp()

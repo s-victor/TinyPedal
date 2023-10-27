@@ -193,7 +193,7 @@ class Realtime:
     def save_sector_data(self, combo_name, session_id, best_s_pb, best_laptime, best_s_tb):
         """Verify and save sector data"""
         if session_id and val.sector_time(best_s_pb):
-            self.mcfg["sector_data"] = (
+            self.mcfg["sector_info"] = (
                 str(combo_name)
                 + "|" + str(session_id[0])
                 + "|" + str(session_id[1])
@@ -213,7 +213,7 @@ class Realtime:
 
         Check if saved data is from same session, car, track combo, discard if not
         """
-        saved_data = self.parse_save_string(self.mcfg["sector_data"])
+        saved_data = self.parse_save_string(self.mcfg["sector_info"])
         if (combo_name == saved_data[0] and
             saved_data[1] == session_id[0] and
             saved_data[2] <= session_id[1] and

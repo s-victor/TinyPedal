@@ -1,4 +1,4 @@
-WIP
+2.2.0 (2023-10-27)
 -----------------------------
 * General
     - Add "enable_translucent_background" option in Compatibility,
@@ -13,10 +13,14 @@ WIP
 
 * Linux support
     - Add customizable installation path option for installer,
-      remove some old files before installing (by Bernat).
+      improved installer error prompt,
+      removing old files before installing (by Bernat).
     - Add workaround in launcher to force X11 session type
       which fixed non-draggable issue found on Wayland (by Bernat).
     - Fixed tray menu not synced with main Config window (by Bernat).
+
+* [New]Sectors Module
+    - Separated sector time calculation from Sectors Widget to this new module.
 
 * Friction Circle Widget
     - Add "show_circle_background" & "bkg_color_circle" options,
@@ -36,6 +40,18 @@ WIP
       which fades out radar edge.
     - Add "fade_in_radius" & "fade_out_radius" options,
       which sets fade in/out radius, value range in 0.0 to 1.0.
+
+* Sectors Widget
+    - Now reads sectors data from Sectors Module.
+    - Moved & re-implemented speed display to Speedometer Widget.
+
+* [New]Speedometer Widget
+    - Show current vehicle speed.
+    - Show minimum speed that is updated while off throttle.
+    - Show maximum speed that is updated while on throttle.
+    - Show fastest recorded speed.
+      To reset current record, shift gear into reverse, or reload preset.
+      See User Guide "Speedometer" section for details.
 
 * Misc
     - Updated README.md with Linux usage info (by Bernat).

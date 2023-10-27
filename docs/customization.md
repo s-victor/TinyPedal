@@ -43,7 +43,7 @@ This sets refresh rate for module while its idle for conserving resources.
 Defines widget position on screen. Those values will be auto-saved.
 
     opacity
-By default, all widgets have a 90% opacity setting, which equals value `0.9`. Lower value adds more transparency to widget. Acceptable value range is `0` to `1`.
+By default, all widgets have a 90% opacity setting, which equals value `0.9`. Lower value adds more transparency to widget. Acceptable value range is `0.0` to `1.0`.
 
     bar_gap, inner_gap
 Set gap (screen pixel) between elements in a widget, only accept integer, `1` = 1 pixel.
@@ -285,6 +285,14 @@ Enable mapping module. This module records and processes track map data.
 ## Relative
     module_relative
 Enable relative module. This module provides vehicle relative data.
+
+
+## Sectors
+    module_sectors
+Enable sectors module. This module provides sectors timing data.
+
+    sector_info
+Store last saved sector info string of current session, not recommended for manual editing.
 
 
 ## Vehicles
@@ -779,7 +787,7 @@ Set minimum gear threshold for P2P ready indicator.
 Set minimum speed threshold for P2P ready indicator, unit in KPH.
 
     activation_threshold_throttle
-Set minimum throttle input percentage threshold for P2P ready indicator, value range from `0.0` to `1.0`.
+Set minimum throttle input percentage threshold for P2P ready indicator, value range in `0.0` to `1.0`.
 
     minimum_activation_time_delay
 Set minimum time delay between each P2P activation, unit in seconds.
@@ -994,15 +1002,6 @@ Set freeze duration (seconds) for previous sector time display. Default value is
     always_show_laptime_gap
 Set `true` to always show sector/laptime gap bar. Set `false` to show only in freeze duration.
 
-    show_speed
-Show current lap fastest speed, and session fastest speed.
-
-    speed_highlight_duration
-Set duration (seconds) for highlighting new fastest speed. Default value is `5` seconds.
-
-    last_sector_info
-Store last saved sector info string of current session, not recommended for manual editing.
-
 
 ## Session
     show_system_clock
@@ -1022,6 +1021,32 @@ Set warning color that shows 1 lap before exceeding max-lap in qualify (or indic
 
     show_position
 Show your current position against all drivers in a session.
+
+
+## Speedometer
+    show_speed
+Show current vehicle speed.
+
+    show_speed_minimum
+Show minimum speed that is updated while off throttle.
+
+    show_speed_maximum
+Show maximum speed that is updated while on throttle.
+
+    show_speed_fastest
+Show fastest recorded speed. To reset current record, shift gear into reverse, or reload preset.
+
+    off_throttle_threshold
+Set throttle threshold which counts as off throttle if throttle position is lower, value range in `0.0` to `1.0`. Default is `0.5`.
+
+    on_throttle_threshold
+Set throttle threshold which counts as on throttle if throttle position is higher, value range in `0.0` to `1.0`. Default is `0.01`.
+
+    speed_minimum_reset_cooldown
+Set cooldown duration (seconds) before resetting minimum speed value.
+
+    speed_maximum_reset_cooldown
+Set cooldown duration (seconds) before resetting maximum speed value.
 
 
 ## Standings

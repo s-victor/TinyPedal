@@ -358,11 +358,15 @@ def weather():
     return track_temp, ambient_temp, rain_per, wet_road
 
 
-def speed():
-    """Speed data"""
-    return calc.vel2speed(chknm(info.playerTele.mLocalVel.x),
-                          chknm(info.playerTele.mLocalVel.y),
-                          chknm(info.playerTele.mLocalVel.z))
+def speedometer():
+    """Speedometer data"""
+    speed = calc.vel2speed(chknm(info.playerTele.mLocalVel.x),
+                           chknm(info.playerTele.mLocalVel.y),
+                           chknm(info.playerTele.mLocalVel.z))
+    raw_throttle = chknm(info.playerTele.mUnfilteredThrottle)
+    mgear = chknm(info.playerTele.mGear)
+    lap_etime = chknm(info.playerTele.mElapsedTime)
+    return speed, raw_throttle, mgear, lap_etime
 
 
 def session_check():
