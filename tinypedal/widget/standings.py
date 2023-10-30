@@ -76,6 +76,22 @@ class Draw(Widget):
         else:
             self.veh_range = min(max(int(self.wcfg["max_vehicles_combined_mode"]), 5), 126)
 
+        # Empty data set
+        self.empty_vehicles_data = (
+            0,  # is_player
+            (0,0),  # in_pit
+            ("",0),  # position
+            ("",0),  # driver name
+            ("",0),  # vehicle name
+            ("",0),  # pos_class
+            ("",0),  # veh_class
+            (0,0),  # tire_idx
+            ("",0),  # laptime
+            ("",0),  # time_gap
+            (-1,0),  # pit_count
+            ("",0),  # time_int
+        )
+
         # Create layout
         self.layout = QGridLayout()
         self.layout.setContentsMargins(0,0,0,0)  # remove border
@@ -208,22 +224,6 @@ class Draw(Widget):
         # Set layout
         self.setLayout(self.layout)
 
-        # Last data
-        self.empty_vehicles_data = (
-            0,  # is_player
-            (0,0),  # in_pit
-            ("",0),  # position
-            ("",0),  # driver name
-            ("",0),  # vehicle name
-            ("",0),  # pos_class
-            ("",0),  # veh_class
-            (0,0),  # tire_idx
-            ("",0),  # laptime
-            ("",0),  # time_gap
-            (-1,0),  # pit_count
-            ("",0),  # time_int
-        )
-
         # Start updating
         self.update_data()
 
@@ -233,17 +233,18 @@ class Draw(Widget):
 
     def generate_bar(self, suffix, style, column_idx):
         """Generate data bar"""
-        data_slots = 12
+        data_slots = len(self.empty_vehicles_data)
         for idx in range(self.veh_range):
             setattr(self, f"row_{idx}_{suffix}", QLabel(""))
             getattr(self, f"row_{idx}_{suffix}").setAlignment(Qt.AlignCenter)
             getattr(self, f"row_{idx}_{suffix}").setStyleSheet(style)
             self.layout.addWidget(
                 getattr(self, f"row_{idx}_{suffix}"), idx, column_idx)
-            if idx > 0:  # show at least 3 row at start
+            if idx > 0:  # show only first row initially
                 getattr(self, f"row_{idx}_{suffix}").setStyleSheet(
                     f"max-height:{self.wcfg['split_gap']}px;"
                 )
+            # Last data
             setattr(self, f"last_veh_{idx}", [None] * data_slots)
 
     @Slot()
@@ -533,11 +534,11 @@ class Draw(Widget):
 
     # Additional methods
     def toggle_visibility(self, state, row_bar):
-        """Toggle bar visibility"""
+        """Hide row bar if empty data"""
         if self.wcfg["split_gap"] > 0:
-            if not state:
+            if not state:  # add gap between non-empty data
                 row_bar.setStyleSheet(f"max-height:{self.wcfg['split_gap']}px;")
-        else:
+        else:  # workaround to 1px minimum bar height limit
             if state:
                 if row_bar.isHidden():
                     row_bar.show()
