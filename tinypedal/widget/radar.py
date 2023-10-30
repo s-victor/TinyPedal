@@ -218,7 +218,7 @@ class Draw(Widget):
 
     def draw_warning_indicator(
         self, painter, min_range_x, max_range_x, max_range_y,
-        indicator_width, indicator_edge, indicator_offset):
+        indicator_width, indicator_edge, center_offset):
         """Draw warning indicator"""
         painter.setPen(Qt.NoPen)
         # Real size in meters
@@ -239,9 +239,9 @@ class Draw(Widget):
 
         if nearest_left > -max_range_x:
             lin_gra = QLinearGradient(
-                x_left - indicator_width + indicator_offset,
+                x_left - indicator_width + center_offset,
                 0,
-                x_left + indicator_offset,
+                x_left + center_offset,
                 0
             )
             color_center = self.warning_color(
@@ -251,15 +251,15 @@ class Draw(Widget):
             lin_gra.setColorAt(1, Qt.transparent)
             painter.setBrush(lin_gra)
             painter.drawRect(
-                x_left - indicator_width + indicator_offset,
+                x_left - indicator_width + center_offset,
                 0, indicator_width, self.area_size
             )
 
         if nearest_right < max_range_x:
             lin_gra = QLinearGradient(
-                x_right - indicator_offset,
+                x_right - center_offset,
                 0,
-                x_right + indicator_width - indicator_offset,
+                x_right + indicator_width - center_offset,
                 0
             )
             color_center = self.warning_color(
@@ -269,7 +269,7 @@ class Draw(Widget):
             lin_gra.setColorAt(1, Qt.transparent)
             painter.setBrush(lin_gra)
             painter.drawRect(
-                x_right - indicator_offset,
+                x_right - center_offset,
                 0, indicator_width, self.area_size
             )
 
@@ -377,11 +377,16 @@ class Draw(Widget):
         return 0 < minfo.vehicles.NearestStraight < self.wcfg["minimum_auto_hide_distance"]
 
     def calc_indicator_dimention(self, veh_width, veh_length):
-        """Calculate indicator dimention"""
-        min_range_x = veh_width * 0.9  # left to right range
+        """Calculate indicator dimention
+
+        Range between player & opponents to show indicator.
+        x is left to right range.
+        y is forward to backward range.
+        """
+        min_range_x = veh_width * 0.9  # slightly overlapped
         max_range_x = veh_width * self.wcfg["overlap_detection_range_multiplier"]
-        max_range_y = veh_length * 1.2  # forward to backward range
-        id_width = veh_width * self.wcfg["indicator_size_multiplier"] * self.global_scale
-        id_edge = max((id_width - 3) / id_width, 0.001)
-        id_offset = veh_width * self.global_scale / 2
-        return min_range_x, max_range_x, max_range_y, id_width, id_edge, id_offset
+        max_range_y = veh_length * 1.2  # safe range for ahead & behind opponents
+        indicator_width = veh_width * self.wcfg["indicator_size_multiplier"] * self.global_scale
+        indicator_edge = max((indicator_width - 3) / indicator_width, 0.001)  # for antialiasing
+        center_offset = veh_width * self.global_scale / 2
+        return min_range_x, max_range_x, max_range_y, indicator_width, indicator_edge, center_offset
