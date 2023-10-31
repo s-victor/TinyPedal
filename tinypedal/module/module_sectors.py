@@ -223,6 +223,7 @@ class Realtime:
             best_s_tb = saved_data[5]     # theory best sector times
             best_s_pb = saved_data[6]     # personal best sector times
         else:
+            logger.info("no valid sectors data found")
             best_laptime = MAGIC_NUM
             best_s_tb = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]
             best_s_pb = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]
