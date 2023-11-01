@@ -60,7 +60,7 @@ def state():
     """Check whether is driving"""
     if cfg.shared_memory_api["enable_active_state_override"]:
         return cfg.shared_memory_api["active_state"]
-    return not info.paused and info.playerTele.mIgnitionStarter
+    return not info.paused and info.rf2TeleVeh().mIgnitionStarter
 
 
 def api_version():
@@ -75,21 +75,21 @@ def create_spectate_list():
     veh_total = chknm(info.rf2Tele.mNumVehicles)
     if veh_total:
         for index in range(veh_total):
-            index_list.append(cs2py(info.rf2Scor.mVehicles[index].mDriverName))
+            index_list.append(cs2py(info.rf2ScorVeh(index).mDriverName))
     return index_list
 
 
 def combo_check():
     """Track & vehicle combo data"""
     track_name = cs2py(info.rf2Scor.mScoringInfo.mTrackName)
-    class_name = cs2py(info.playerScor.mVehicleClass)
+    class_name = cs2py(info.rf2ScorVeh().mVehicleClass)
     return fmt.strip_invalid_char(f"{track_name} - {class_name}")
 
 
 def vehicle_check():
     """Track & vehicle combo data"""
-    class_name = cs2py(info.playerScor.mVehicleClass)
-    veh_name = cs2py(info.playerScor.mVehicleName)
+    class_name = cs2py(info.rf2ScorVeh().mVehicleClass)
+    veh_name = cs2py(info.rf2ScorVeh().mVehicleName)
     return fmt.strip_invalid_char(f"{class_name} - {veh_name}")
 
 
@@ -100,96 +100,96 @@ def is_race():
 
 def lap_timestamp():
     """lap timestamp data"""
-    lap_stime = chknm(info.playerTele.mLapStartET)
-    lap_etime = chknm(info.playerTele.mElapsedTime)
+    lap_stime = chknm(info.rf2TeleVeh().mLapStartET)
+    lap_etime = chknm(info.rf2TeleVeh().mElapsedTime)
     return lap_stime, lap_etime
 
 
 def lap_number():
     """Lap number data"""
-    return chknm(info.playerTele.mLapNumber)
+    return chknm(info.rf2TeleVeh().mLapNumber)
 
 
 def cruise():
     """Cruise data"""
-    ori_yaw = (chknm(info.playerTele.mOri[2].x),
-               chknm(info.playerTele.mOri[2].z))
+    ori_yaw = (chknm(info.rf2TeleVeh().mOri[2].x),
+               chknm(info.rf2TeleVeh().mOri[2].z))
     time_start = int(chknm(info.rf2Scor.mScoringInfo.mStartET))
     track_time = int(chknm(info.rf2Scor.mScoringInfo.mCurrentET))
-    pos_y = round(chknm(info.playerScor.mPos.y), 1)
+    pos_y = round(chknm(info.rf2ScorVeh().mPos.y), 1)
     return ori_yaw, pos_y, time_start, track_time
 
 
 def instrument():
     """Instrument data"""
-    headlights = chknm(info.playerTele.mHeadlights)
-    ignition = (chknm(info.playerTele.mIgnitionStarter),
-                chknm(info.playerTele.mEngineRPM))
+    headlights = chknm(info.rf2TeleVeh().mHeadlights)
+    ignition = (chknm(info.rf2TeleVeh().mIgnitionStarter),
+                chknm(info.rf2TeleVeh().mEngineRPM))
     clutch = (chknm(info.rf2Ext.mPhysics.mAutoClutch),
-              chknm(info.playerTele.mFilteredClutch))
-    brake = bool(chknm(info.playerTele.mFilteredBrake) > 0)
-    wheel_rot = [chknm(info.playerTele.mWheels[data].mRotation)
+              chknm(info.rf2TeleVeh().mFilteredClutch))
+    brake = bool(chknm(info.rf2TeleVeh().mFilteredBrake) > 0)
+    wheel_rot = [chknm(info.rf2TeleVeh().mWheels[data].mRotation)
                  for data in range(4)]
-    speed = calc.vel2speed(chknm(info.playerTele.mLocalVel.x),
-                           chknm(info.playerTele.mLocalVel.y),
-                           chknm(info.playerTele.mLocalVel.z))
+    speed = calc.vel2speed(chknm(info.rf2TeleVeh().mLocalVel.x),
+                           chknm(info.rf2TeleVeh().mLocalVel.y),
+                           chknm(info.rf2TeleVeh().mLocalVel.z))
     return headlights, ignition, clutch, brake, wheel_rot, speed
 
 
 def pedal():
     """Pedal data"""
-    throttle = chknm(info.playerTele.mFilteredThrottle)
-    brake = chknm(info.playerTele.mFilteredBrake)
-    clutch = chknm(info.playerTele.mFilteredClutch)
-    raw_throttle = chknm(info.playerTele.mUnfilteredThrottle)
-    raw_brake = chknm(info.playerTele.mUnfilteredBrake)
-    raw_clutch = chknm(info.playerTele.mUnfilteredClutch)
+    throttle = chknm(info.rf2TeleVeh().mFilteredThrottle)
+    brake = chknm(info.rf2TeleVeh().mFilteredBrake)
+    clutch = chknm(info.rf2TeleVeh().mFilteredClutch)
+    raw_throttle = chknm(info.rf2TeleVeh().mUnfilteredThrottle)
+    raw_brake = chknm(info.rf2TeleVeh().mUnfilteredBrake)
+    raw_clutch = chknm(info.rf2TeleVeh().mUnfilteredClutch)
     ffb = chknm(info.rf2Ffb.mForceValue)
     return throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
 
 
 def steering():
     """Steering data"""
-    raw_steering = chknm(info.playerTele.mUnfilteredSteering)
-    sw_rot_range = chknm(info.playerTele.mPhysicalSteeringWheelRange)
+    raw_steering = chknm(info.rf2TeleVeh().mUnfilteredSteering)
+    sw_rot_range = chknm(info.rf2TeleVeh().mPhysicalSteeringWheelRange)
     return raw_steering, sw_rot_range
 
 
 def gauge():
     """Gauge data"""
-    limiter = chknm(info.playerTele.mSpeedLimiter)
-    mgear = chknm(info.playerTele.mGear)
-    max_gear = chknm(info.playerTele.mMaxGears)
-    speed = calc.vel2speed(chknm(info.playerTele.mLocalVel.x),
-                           chknm(info.playerTele.mLocalVel.y),
-                           chknm(info.playerTele.mLocalVel.z))
-    rpm = chknm(info.playerTele.mEngineRPM)
-    rpm_max = chknm(info.playerTele.mEngineMaxRPM)
-    lap_etime = chknm(info.playerTele.mElapsedTime)
+    limiter = chknm(info.rf2TeleVeh().mSpeedLimiter)
+    mgear = chknm(info.rf2TeleVeh().mGear)
+    max_gear = chknm(info.rf2TeleVeh().mMaxGears)
+    speed = calc.vel2speed(chknm(info.rf2TeleVeh().mLocalVel.x),
+                           chknm(info.rf2TeleVeh().mLocalVel.y),
+                           chknm(info.rf2TeleVeh().mLocalVel.z))
+    rpm = chknm(info.rf2TeleVeh().mEngineRPM)
+    rpm_max = chknm(info.rf2TeleVeh().mEngineMaxRPM)
+    lap_etime = chknm(info.rf2TeleVeh().mElapsedTime)
     return limiter, mgear, max_gear, speed, rpm, rpm_max, lap_etime
 
 
 def p2p():
     """P2P data"""
-    mgear = chknm(info.playerTele.mGear)
-    speed = calc.vel2speed(chknm(info.playerTele.mLocalVel.x),
-                           chknm(info.playerTele.mLocalVel.y),
-                           chknm(info.playerTele.mLocalVel.z))
-    throttle = chknm(info.playerTele.mUnfilteredThrottle)
+    mgear = chknm(info.rf2TeleVeh().mGear)
+    speed = calc.vel2speed(chknm(info.rf2TeleVeh().mLocalVel.x),
+                           chknm(info.rf2TeleVeh().mLocalVel.y),
+                           chknm(info.rf2TeleVeh().mLocalVel.z))
+    throttle = chknm(info.rf2TeleVeh().mUnfilteredThrottle)
     return mgear, speed, throttle
 
 
 def pitting():
     """Pitting data"""
-    inpits = chknm(info.playerScor.mInPits)
-    pit_limiter = chknm(info.playerTele.mSpeedLimiter)
+    inpits = chknm(info.rf2ScorVeh().mInPits)
+    pit_limiter = chknm(info.rf2TeleVeh().mSpeedLimiter)
     race_phase = chknm(info.rf2Scor.mScoringInfo.mGamePhase)
     return inpits, pit_limiter, race_phase
 
 
 def blue_flag():
     """Blue flag data"""
-    return chknm(info.playerScor.mFlag)
+    return chknm(info.rf2ScorVeh().mFlag)
 
 
 def yellow_flag():
@@ -201,8 +201,8 @@ def yellow_flag():
 
 def radar():
     """Radar data"""
-    lap_etime = chknm(info.playerTele.mElapsedTime)
-    ingarage = chknm(info.playerScor.mInGarageStall)
+    lap_etime = chknm(info.rf2TeleVeh().mElapsedTime)
+    ingarage = chknm(info.rf2ScorVeh().mInGarageStall)
     return lap_etime, ingarage
 
 
@@ -218,10 +218,10 @@ def session():
     time_left = (chknm(info.rf2Scor.mScoringInfo.mEndET)
                  - chknm(info.rf2Scor.mScoringInfo.mCurrentET))
     lap_into = calc.percentage_distance(
-        chknm(info.playerScor.mLapDist) * 100,
+        chknm(info.rf2ScorVeh().mLapDist) * 100,
         chknm(info.rf2Scor.mScoringInfo.mLapDist), 99)
     lap_total = chknm(info.rf2Scor.mScoringInfo.mMaxLaps)
-    plr_position = (chknm(info.playerScor.mPlace),
+    plr_position = (chknm(info.rf2ScorVeh().mPlace),
                  chknm(info.rf2Tele.mNumVehicles))
     return time_left, lap_into, lap_total, plr_position
 
@@ -229,121 +229,121 @@ def session():
 def stint():
     """Stint data"""
     time_curr = chknm(info.rf2Scor.mScoringInfo.mCurrentET)
-    inpits = chknm(info.playerScor.mInPits)
-    ingarage = chknm(info.playerScor.mInGarageStall)
+    inpits = chknm(info.rf2ScorVeh().mInPits)
+    ingarage = chknm(info.rf2ScorVeh().mInGarageStall)
     return time_curr, inpits, ingarage
 
 
 def tyre_compound():
     """Tyre compound data"""
-    return (chknm(info.playerTele.mFrontTireCompoundIndex),
-            chknm(info.playerTele.mRearTireCompoundIndex))
+    return (chknm(info.rf2TeleVeh().mFrontTireCompoundIndex),
+            chknm(info.rf2TeleVeh().mRearTireCompoundIndex))
 
 
 def camber():
     """Camber data"""
-    return [chknm(info.playerTele.mWheels[data].mCamber)
+    return [chknm(info.rf2TeleVeh().mWheels[data].mCamber)
             for data in range(4)]
 
 
 def toe():
     """Toe data"""
-    return [chknm(info.playerTele.mWheels[data].mToe)
+    return [chknm(info.rf2TeleVeh().mWheels[data].mToe)
             for data in range(4)]
 
 
 def ride_height():
     """Ride height data"""
-    return [chknm(info.playerTele.mWheels[data].mRideHeight)
+    return [chknm(info.rf2TeleVeh().mWheels[data].mRideHeight)
             for data in range(4)]
 
 
 def brake_bias():
     """Brake bias data"""
-    return chknm(info.playerTele.mRearBrakeBias)
+    return chknm(info.rf2TeleVeh().mRearBrakeBias)
 
 def brake_pressure():
     """Brake pressure data"""
-    return [chknm(info.playerTele.mWheels[data].mBrakePressure)
+    return [chknm(info.rf2TeleVeh().mWheels[data].mBrakePressure)
             for data in range(4)]
 
 
 def brake_temp():
     """Brake temperature data"""
-    return [chknm(info.playerTele.mWheels[data].mBrakeTemp) - 273.15
+    return [chknm(info.rf2TeleVeh().mWheels[data].mBrakeTemp) - 273.15
             for data in range(4)]
 
 
 def tyre_temp_surface():
     """Tyre surface temperature data"""
-    return [[chknm(info.playerTele.mWheels[tyre].mTemperature[data]) - 273.15
+    return [[chknm(info.rf2TeleVeh().mWheels[tyre].mTemperature[data]) - 273.15
              for data in range(3)] for tyre in range(4)]
 
 
 def tyre_temp_innerlayer():
     """Tyre inner layer temperature data"""
-    return [[chknm(info.playerTele.mWheels[tyre].mTireInnerLayerTemperature[data])
+    return [[chknm(info.rf2TeleVeh().mWheels[tyre].mTireInnerLayerTemperature[data])
             - 273.15 for data in range(3)] for tyre in range(4)]
 
 
 def wear():
     """Tyre wear data"""
-    return [chknm(info.playerTele.mWheels[data].mWear)
+    return [chknm(info.rf2TeleVeh().mWheels[data].mWear)
             for data in range(4)]
 
 
 def tyre_load():
     """Tyre load data"""
-    return [chknm(info.playerTele.mWheels[data].mTireLoad)
+    return [chknm(info.rf2TeleVeh().mWheels[data].mTireLoad)
             for data in range(4)]
 
 
 def tyre_pressure():
     """Tyre pressure data"""
-    return [chknm(info.playerTele.mWheels[data].mPressure)
+    return [chknm(info.rf2TeleVeh().mWheels[data].mPressure)
             for data in range(4)]
 
 
 def ground_velocity():
     """Ground velocity data"""
-    lat_gv = [chknm(info.playerTele.mWheels[data].mLateralGroundVel)
+    lat_gv = [chknm(info.rf2TeleVeh().mWheels[data].mLateralGroundVel)
               for data in range(4)]
-    lgt_gv = [chknm(info.playerTele.mWheels[data].mLongitudinalGroundVel)
+    lgt_gv = [chknm(info.rf2TeleVeh().mWheels[data].mLongitudinalGroundVel)
               for data in range(4)]
     return lat_gv, lgt_gv
 
 
 def drs():
     """DRS data"""
-    drs_on = chknm(info.playerTele.mRearFlapActivated)
-    drs_status = chknm(info.playerTele.mRearFlapLegalStatus)
+    drs_on = chknm(info.rf2TeleVeh().mRearFlapActivated)
+    drs_status = chknm(info.rf2TeleVeh().mRearFlapLegalStatus)
     return drs_on, drs_status
 
 
 def timing(index):
     """Timing data"""
     veh_total = chknm(info.rf2Tele.mNumVehicles)
-    laptime_opt = chknm(info.rf2Scor.mVehicles[index].mBestLapTime)
-    class_opt = cs2py(info.rf2Scor.mVehicles[index].mVehicleClass)
-    class_plr = cs2py(info.playerScor.mVehicleClass)
+    laptime_opt = chknm(info.rf2ScorVeh(index).mBestLapTime)
+    class_opt = cs2py(info.rf2ScorVeh(index).mVehicleClass)
+    class_plr = cs2py(info.rf2ScorVeh().mVehicleClass)
     return veh_total, laptime_opt, class_opt == class_plr
 
 
 def electric_motor():
     """Electric motor data"""
-    motor_temp = chknm(info.playerTele.mElectricBoostMotorTemperature)
-    water_temp = chknm(info.playerTele.mElectricBoostWaterTemperature)
-    motor_rpm = chknm(info.playerTele.mElectricBoostMotorRPM)
-    motor_torque = chknm(info.playerTele.mElectricBoostMotorTorque)
+    motor_temp = chknm(info.rf2TeleVeh().mElectricBoostMotorTemperature)
+    water_temp = chknm(info.rf2TeleVeh().mElectricBoostWaterTemperature)
+    motor_rpm = chknm(info.rf2TeleVeh().mElectricBoostMotorRPM)
+    motor_torque = chknm(info.rf2TeleVeh().mElectricBoostMotorTorque)
     return motor_temp, water_temp, motor_rpm, motor_torque
 
 
 def engine():
     """Engine data"""
-    temp_oil = chknm(info.playerTele.mEngineOilTemp)
-    temp_water = chknm(info.playerTele.mEngineWaterTemp)
-    e_turbo = int(chknm(info.playerTele.mTurboBoostPressure))
-    e_rpm = int(chknm(info.playerTele.mEngineRPM))
+    temp_oil = chknm(info.rf2TeleVeh().mEngineOilTemp)
+    temp_water = chknm(info.rf2TeleVeh().mEngineWaterTemp)
+    e_turbo = int(chknm(info.rf2TeleVeh().mTurboBoostPressure))
+    e_rpm = int(chknm(info.rf2TeleVeh().mEngineRPM))
     return temp_oil, temp_water, e_turbo, e_rpm
 
 
@@ -360,12 +360,12 @@ def weather():
 
 def speedometer():
     """Speedometer data"""
-    speed = calc.vel2speed(chknm(info.playerTele.mLocalVel.x),
-                           chknm(info.playerTele.mLocalVel.y),
-                           chknm(info.playerTele.mLocalVel.z))
-    raw_throttle = chknm(info.playerTele.mUnfilteredThrottle)
-    mgear = chknm(info.playerTele.mGear)
-    lap_etime = chknm(info.playerTele.mElapsedTime)
+    speed = calc.vel2speed(chknm(info.rf2TeleVeh().mLocalVel.x),
+                           chknm(info.rf2TeleVeh().mLocalVel.y),
+                           chknm(info.rf2TeleVeh().mLocalVel.z))
+    raw_throttle = chknm(info.rf2TeleVeh().mUnfilteredThrottle)
+    mgear = chknm(info.rf2TeleVeh().mGear)
+    lap_etime = chknm(info.rf2TeleVeh().mElapsedTime)
     return speed, raw_throttle, mgear, lap_etime
 
 
@@ -375,5 +375,5 @@ def session_check():
     session_type = chknm(info.rf2Scor.mScoringInfo.mSession)
     session_stamp = f"{session_length:.0f}{session_type:.0f}"
     session_etime = int(chknm(info.rf2Scor.mScoringInfo.mCurrentET))
-    session_tlaps = chknm(info.playerScor.mTotalLaps)
+    session_tlaps = chknm(info.rf2ScorVeh().mTotalLaps)
     return session_stamp, session_etime, session_tlaps

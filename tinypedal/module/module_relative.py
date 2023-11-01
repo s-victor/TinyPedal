@@ -126,15 +126,15 @@ class Realtime:
     def __relative_data(self, veh_total):
         """Get relative data"""
         track_length = chknm(info.rf2Scor.mScoringInfo.mLapDist)  # track length
-        plr_dist = chknm(info.playerScor.mLapDist)
+        plr_dist = chknm(info.rf2ScorVeh().mLapDist)
         race_check = bool(
             chknm(info.rf2Scor.mScoringInfo.mSession) > 9 and not
             self.cfg.setting_user["relative"]["show_vehicle_in_garage_for_race"])
 
         for index in range(veh_total):
-            ingarage = chknm(info.rf2Scor.mVehicles[index].mInGarageStall)
+            ingarage = chknm(info.rf2ScorVeh(index).mInGarageStall)
             if show_vehicles(race_check, ingarage):
-                opt_dist = chknm(info.rf2Scor.mVehicles[index].mLapDist)
+                opt_dist = chknm(info.rf2ScorVeh(index).mLapDist)
                 rel_dist = calc.circular_relative_distance(
                     track_length, plr_dist, opt_dist)
                 yield (rel_dist, index)  # relative distance, player index
@@ -154,9 +154,9 @@ class Realtime:
     def __class_data(veh_total):
         """Get vehicle class data"""
         for index in range(veh_total):
-            vehclass = cs2py(info.rf2Scor.mVehicles[index].mVehicleClass)
-            position = chknm(info.rf2Scor.mVehicles[index].mPlace)
-            bestlaptime = chknm(info.rf2Scor.mVehicles[index].mBestLapTime)
+            vehclass = cs2py(info.rf2ScorVeh(index).mVehicleClass)
+            position = chknm(info.rf2ScorVeh(index).mPlace)
+            bestlaptime = chknm(info.rf2ScorVeh(index).mBestLapTime)
             yield (
                 (
                 vehclass,  # 0 vehicle class name
@@ -211,7 +211,7 @@ class Realtime:
             standing_index = list(chain(*list(  # combine class index lists group
                 self.__class_standings_index(veh_top, plr_index, class_collection))))
         else:
-            plr_place = chknm(info.playerScor.mPlace)
+            plr_place = chknm(info.rf2ScorVeh().mPlace)
             place_index_list = sorted(list(self.__place_n_index(veh_total)))
             standing_index = self.__calc_standings_index(
                 veh_top, veh_total, veh_limit, plr_place, place_index_list)
@@ -300,7 +300,7 @@ class Realtime:
     def __place_n_index(veh_total):
         """Create vehicle place & vehicle index list"""
         for index in range(veh_total):
-            yield chknm(info.rf2Scor.mVehicles[index].mPlace), index
+            yield chknm(info.rf2ScorVeh(index).mPlace), index
 
 
 def show_vehicles(race_check, ingarage):

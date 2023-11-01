@@ -183,11 +183,11 @@ class Realtime:
 
         Convert game sector index order to 0,1,2 for consistency.
         """
-        sector_idx = (2,0,1)[min(max(chknm(info.playerScor.mSector), 0), 2)]
-        curr_sector1 = chknm(info.playerScor.mCurSector1)
-        curr_sector2 = chknm(info.playerScor.mCurSector2)
-        last_sector2 = chknm(info.playerScor.mLastSector2)
-        last_laptime = chknm(info.playerScor.mLastLapTime)
+        sector_idx = (2,0,1)[min(max(chknm(info.rf2ScorVeh().mSector), 0), 2)]
+        curr_sector1 = chknm(info.rf2ScorVeh().mCurSector1)
+        curr_sector2 = chknm(info.rf2ScorVeh().mCurSector2)
+        last_sector2 = chknm(info.rf2ScorVeh().mLastSector2)
+        last_laptime = chknm(info.rf2ScorVeh().mLastLapTime)
         return sector_idx, curr_sector1, curr_sector2, last_sector2, last_laptime
 
     def save_sector_data(self, combo_name, session_id, best_s_pb, best_laptime, best_s_tb):

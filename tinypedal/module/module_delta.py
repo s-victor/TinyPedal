@@ -175,13 +175,13 @@ class Realtime:
     @staticmethod
     def __telemetry():
         """Telemetry data"""
-        lap_stime = chknm(info.playerTele.mLapStartET)
-        laptime_curr = max(chknm(info.playerTele.mElapsedTime) - lap_stime, 0)
-        lastlap_valid = chknm(info.playerScor.mLastLapTime)
-        pos_curr = chknm(info.playerScor.mLapDist)
-        gps_curr = (chknm(info.playerTele.mPos.x),
-                    chknm(info.playerTele.mPos.y),
-                    chknm(info.playerTele.mPos.z))
+        lap_stime = chknm(info.rf2TeleVeh().mLapStartET)
+        laptime_curr = max(chknm(info.rf2TeleVeh().mElapsedTime) - lap_stime, 0)
+        lastlap_valid = chknm(info.rf2ScorVeh().mLastLapTime)
+        pos_curr = chknm(info.rf2ScorVeh().mLapDist)
+        gps_curr = (chknm(info.rf2TeleVeh().mPos.x),
+                    chknm(info.rf2TeleVeh().mPos.y),
+                    chknm(info.rf2TeleVeh().mPos.z))
         return lap_stime, laptime_curr, lastlap_valid, pos_curr, gps_curr
 
     def load_deltabest(self, combo):

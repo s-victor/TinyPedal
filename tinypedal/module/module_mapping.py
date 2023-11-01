@@ -187,14 +187,14 @@ class MapRecorder:
     @staticmethod
     def __telemetry():
         """Telemetry data"""
-        sector_idx = (2,0,1)[min(max(chknm(info.playerScor.mSector), 0), 2)]
-        lap_stime = chknm(info.playerTele.mLapStartET)
-        lap_etime = chknm(info.playerTele.mElapsedTime)
-        lastlap_check = chknm(info.playerScor.mLastLapTime)
-        pos_curr = round(chknm(info.playerScor.mLapDist), 4)
-        gps_curr = (round(chknm(info.playerScor.mPos.x), 4),
-                    -round(chknm(info.playerScor.mPos.z), 4))
-        elv_curr = round(chknm(info.playerScor.mPos.y), 4)
+        sector_idx = (2,0,1)[min(max(chknm(info.rf2ScorVeh().mSector), 0), 2)]
+        lap_stime = chknm(info.rf2TeleVeh().mLapStartET)
+        lap_etime = chknm(info.rf2TeleVeh().mElapsedTime)
+        lastlap_check = chknm(info.rf2ScorVeh().mLastLapTime)
+        pos_curr = round(chknm(info.rf2ScorVeh().mLapDist), 4)
+        gps_curr = (round(chknm(info.rf2ScorVeh().mPos.x), 4),
+                    -round(chknm(info.rf2ScorVeh().mPos.z), 4))
+        elv_curr = round(chknm(info.rf2ScorVeh().mPos.y), 4)
         return sector_idx, lap_stime, lap_etime, lastlap_check, pos_curr, gps_curr, elv_curr
 
 

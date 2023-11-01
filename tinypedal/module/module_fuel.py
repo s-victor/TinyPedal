@@ -248,20 +248,20 @@ class Realtime:
     @staticmethod
     def __telemetry():
         """Telemetry data"""
-        lap_stime = chknm(info.playerTele.mLapStartET)
-        laptime_curr = max(chknm(info.playerTele.mElapsedTime) - lap_stime, 0)
-        lastlap_valid = chknm(info.playerScor.mLastLapTime)
+        lap_stime = chknm(info.rf2TeleVeh().mLapStartET)
+        laptime_curr = max(chknm(info.rf2TeleVeh().mElapsedTime) - lap_stime, 0)
+        lastlap_valid = chknm(info.rf2ScorVeh().mLastLapTime)
         time_left = (chknm(info.rf2Scor.mScoringInfo.mEndET)
                      - chknm(info.rf2Scor.mScoringInfo.mCurrentET))
-        amount_curr = chknm(info.playerTele.mFuel)
-        capacity = max(chknm(info.playerTele.mFuelCapacity), 1)
-        inpits = chknm(info.playerScor.mInPits)
-        ingarage = chknm(info.playerScor.mInGarageStall)
-        pos_curr = chknm(info.playerScor.mLapDist)
-        gps_curr = (chknm(info.playerTele.mPos.x),
-                    chknm(info.playerTele.mPos.y),
-                    chknm(info.playerTele.mPos.z))
-        lap_number = chknm(info.playerScor.mTotalLaps)
+        amount_curr = chknm(info.rf2TeleVeh().mFuel)
+        capacity = max(chknm(info.rf2TeleVeh().mFuelCapacity), 1)
+        inpits = chknm(info.rf2ScorVeh().mInPits)
+        ingarage = chknm(info.rf2ScorVeh().mInGarageStall)
+        pos_curr = chknm(info.rf2ScorVeh().mLapDist)
+        gps_curr = (chknm(info.rf2TeleVeh().mPos.x),
+                    chknm(info.rf2TeleVeh().mPos.y),
+                    chknm(info.rf2TeleVeh().mPos.z))
+        lap_number = chknm(info.rf2ScorVeh().mTotalLaps)
         lap_into = calc.percentage_distance(
             pos_curr, chknm(info.rf2Scor.mScoringInfo.mLapDist))
         laps_max = chknm(info.rf2Scor.mScoringInfo.mMaxLaps)
