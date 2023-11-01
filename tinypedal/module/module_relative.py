@@ -73,7 +73,7 @@ class Realtime:
                 # Create relative list
                 plr_index = info.playerScorIndex
                 veh_list = list(self.__relative_data(veh_total))
-                relative_index = self.__relative_index_list(veh_list, plr_index)
+                relative_index = self.__relative_index_list(veh_list, plr_index) if veh_list else None
 
                 # Create standings list
                 class_pos_list, unique_veh_class = self.__class_position_list(veh_total)
