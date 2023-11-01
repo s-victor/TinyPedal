@@ -24,6 +24,7 @@ import logging
 import os
 import re
 import math
+from functools import wraps
 
 from . import regex_pattern as rxp
 
@@ -31,11 +32,40 @@ logger = logging.getLogger(__name__)
 
 
 # Value validate
-def numeric_validator(value):
+def infnan2zero(value):
     """Convert invalid value to zero"""
     if isinstance(value, (float, int)) and math.isfinite(value):
         return value
     return 0
+
+
+def cbytes2str(bytestring):
+    """Convert bytes to string"""
+    if type(bytestring) == bytes:
+        return bytestring.decode(errors="replace").rstrip()
+    return ""
+
+
+def numeric_filter(func):
+    """Numeric filter decorator"""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        value = func(*args, **kwargs)
+        if isinstance(value, (list, tuple)):
+            return tuple(map(infnan2zero, value))
+        return infnan2zero(value)
+    return wrapper
+
+
+def string_filter(func):
+    """String filter decorator"""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        string = func(*args, **kwargs)
+        if isinstance(string, (list, tuple)):
+            return list(map(cbytes2str, string))
+        return cbytes2str(string)
+    return wrapper
 
 
 def sector_time(sec_time, magic_num=99999):

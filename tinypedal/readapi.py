@@ -52,8 +52,8 @@ info = SimInfoSync("tinypedal")
 setup_api(info)
 info.start()
 
-chknm = val.numeric_validator
-cs2py = info.cbytes2str
+chknm = val.infnan2zero
+cs2py = val.cbytes2str
 
 
 def state():
