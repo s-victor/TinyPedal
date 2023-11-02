@@ -69,20 +69,21 @@ class Realtime:
                     update_interval = active_interval
 
                 veh_total = max(chknm(info.rf2Tele.mNumVehicles), 1)
+                plr_index = info.playerScorIndex
+                plr_place = chknm(info.rf2ScorVeh().mPlace)
 
                 # Create relative list
-                plr_index = info.playerScorIndex
-                veh_list = list(self.__relative_data(veh_total))
-                relative_index = self.__relative_index_list(veh_list, plr_index) if veh_list else None
+                rel_dist_list = list(self.__relative_dist_list(veh_total))
+                rel_idx_list = self.__relative_index_list(rel_dist_list, plr_index) if rel_dist_list else None
 
                 # Create standings list
-                class_pos_list, unique_veh_class = self.__class_position_list(veh_total)
+                class_pos_list, unique_class_list, place_index_list = self.__class_position_list(veh_total)
                 stand_idx_list = self.__standings_index_list(
-                    veh_total, class_pos_list, unique_veh_class)
+                    veh_total, plr_index, plr_place, class_pos_list, unique_class_list, place_index_list)
 
                 # Output data
                 minfo.relative.Classes = class_pos_list
-                minfo.relative.Relative = relative_index
+                minfo.relative.Relative = rel_idx_list
                 minfo.relative.Standings = stand_idx_list
 
             else:
@@ -96,16 +97,16 @@ class Realtime:
         self.stopped = True
         logger.info("relative module closed")
 
-    def __relative_index_list(self, veh_list, plr_index):
-        """Calculate player centered relative index list"""
+    def __relative_index_list(self, rel_dist_list, plr_index):
+        """Create player-centered relative index list"""
         add_front = min(max(int(
             self.cfg.setting_user["relative"]["additional_players_front"]), 0), 60)
         add_behind = min(max(int(
             self.cfg.setting_user["relative"]["additional_players_behind"]), 0), 60)
         # Reverse-sort by relative distance
-        re_veh_list = sorted(veh_list, reverse=True)
+        reverse_dist_list = sorted(rel_dist_list, reverse=True)
         # Extract vehicle index to create new sorted vehicle list
-        sorted_veh_list = list(list(zip(*re_veh_list))[1])
+        sorted_veh_list = list(zip(*reverse_dist_list))[1]
         # Append with -1 if sorted vehicle list has less than max_veh items
         max_veh = 7 + add_front + add_behind
         if len(sorted_veh_list) < max_veh:
@@ -123,8 +124,8 @@ class Realtime:
             int(plr_num - 3 - add_front), int(plr_num + 4 + add_behind))]
         return selected_index
 
-    def __relative_data(self, veh_total):
-        """Get relative data"""
+    def __relative_dist_list(self, veh_total):
+        """Calculate relative distance"""
         track_length = chknm(info.rf2Scor.mScoringInfo.mLapDist)  # track length
         plr_dist = chknm(info.rf2ScorVeh().mLapDist)
         race_check = bool(
@@ -141,14 +142,17 @@ class Realtime:
 
     def __class_position_list(self, veh_total):
         """Create vehicle class position list"""
-        raw_veh_class = list(zip(*list(self.__class_data(veh_total))))
+        raw_veh_class = list(self.__class_data(veh_total))
+        split_veh_list = tuple(zip(*raw_veh_class))
         # Create unique vehicle class list
-        unique_veh_class = list(set(raw_veh_class[1]))
+        unique_class_list = list(set(split_veh_list[0]))
+        # Create overall vehicle place, player index list
+        place_index_list = sorted(list(zip(split_veh_list[1], split_veh_list[2])))
         # Sort & group different vehicle class list
-        sorted_veh_class = sorted(raw_veh_class[0])
+        sorted_veh_class = sorted(raw_veh_class)
         class_position_list = list(
-            self.__sort_class_data(sorted_veh_class, unique_veh_class))
-        return sorted(class_position_list), unique_veh_class
+            self.__sort_class_data(sorted_veh_class, unique_class_list))
+        return sorted(class_position_list), unique_class_list, place_index_list
 
     @staticmethod
     def __class_data(veh_total):
@@ -158,25 +162,22 @@ class Realtime:
             position = chknm(info.rf2ScorVeh(index).mPlace)
             bestlaptime = chknm(info.rf2ScorVeh(index).mBestLapTime)
             yield (
-                (
                 vehclass,  # 0 vehicle class name
-                position,     # 1 overall position
-                index,      # 2 player index
+                position,  # 1 overall position/place
+                index,     # 2 player index
                 bestlaptime if bestlaptime > 0 else 99999, # 3 best lap time
-                ),
-                vehclass
             )
 
     @staticmethod
-    def __sort_class_data(sorted_veh_class, unique_veh_class):
+    def __sort_class_data(sorted_veh_class, unique_class_list):
         """Get vehicle class position data"""
         session_best_laptime = sorted(sorted_veh_class, key=lambda laptime:laptime[3])[0][3]
         class_best_laptime = 99999
-        initial_class = unique_veh_class[0]
+        initial_class = unique_class_list[0]
         position_counter = 0  # position in class
 
         for veh_sort in sorted_veh_class:  # loop through sorted vehicle class list
-            for veh_uniq in unique_veh_class:  # unique vehicle class range
+            for veh_uniq in unique_class_list:  # unique vehicle class range
                 if veh_sort[0] == veh_uniq:
                     if initial_class == veh_uniq:
                         position_counter += 1
@@ -195,15 +196,14 @@ class Realtime:
                         class_best_laptime,  # 4 classes best
                     )
 
-    def __standings_index_list(self, veh_total, class_pos_list, unique_veh_class):
+    def __standings_index_list(self, veh_total, plr_index, plr_place, class_pos_list, unique_class_list, place_index_list):
         """Create standings index list"""
         veh_top = min(max(int(self.cfg.setting_user["standings"]["min_top_vehicles"]), 1), 5)
         veh_limit = max(int(
             self.cfg.setting_user["standings"]["max_vehicles_combined_mode"]), veh_top + 2)
 
         if (self.cfg.setting_user["standings"]["enable_multi_class_split_mode"] and
-           len(unique_veh_class) > 1):
-            plr_index = info.playerScorIndex
+           len(unique_class_list) > 1):
             sorted_class_pos_list = sorted(class_pos_list, key=sort_class)
             class_collection = sorted(list(
                 split_class_list(sorted_class_pos_list)),
@@ -211,8 +211,6 @@ class Realtime:
             standing_index = list(chain(*list(  # combine class index lists group
                 self.__class_standings_index(veh_top, plr_index, class_collection))))
         else:
-            plr_place = chknm(info.rf2ScorVeh().mPlace)
-            place_index_list = sorted(list(self.__place_n_index(veh_total)))
             standing_index = self.__calc_standings_index(
                 veh_top, veh_total, veh_limit, plr_place, place_index_list)
 
@@ -295,12 +293,6 @@ class Realtime:
                     yield veh[1]  # 1 vehicle index
                     break
         yield -1  # append an empty index as gap between classes
-
-    @staticmethod
-    def __place_n_index(veh_total):
-        """Create vehicle place & vehicle index list"""
-        for index in range(veh_total):
-            yield chknm(info.rf2ScorVeh(index).mPlace), index
 
 
 def show_vehicles(race_check, ingarage):
