@@ -139,7 +139,7 @@ class Realtime:
         """Get vehicle data"""
         # Additional data
         track_length = max(chknm(info.rf2Scor.mScoringInfo.mLapDist), 1)
-        current_session = chknm(info.rf2Scor.mScoringInfo.mSession)
+        is_race = chknm(info.rf2Scor.mScoringInfo.mSession) > 9
 
         # Local player data
         plr_total_laps = chknm(info.rf2ScorVeh().mTotalLaps)
@@ -195,7 +195,7 @@ class Realtime:
             is_lapped = calc.lap_difference(
                 total_laps, plr_total_laps,
                 percentage_distance, plr_percentage_distance,
-                current_session
+                is_race
                 ) if not is_player else 0
             is_yellow = bool(speed <= 8)
 

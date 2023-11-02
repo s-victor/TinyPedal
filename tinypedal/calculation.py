@@ -194,11 +194,11 @@ def circular_relative_distance(circle_length, plr_dist, opt_dist):
     return rel_dist
 
 
-def lap_difference(opt_laps, plr_laps, opt_per_dist, plr_per_dist, session=10):
+def lap_difference(opt_laps, plr_laps, opt_per_dist, plr_per_dist, condition=True):
     """Calculate lap difference between 2 players"""
     lap_diff = opt_laps + opt_per_dist - plr_laps - plr_per_dist
-    # Only check during race session
-    if session > 9 and abs(lap_diff) > 1:
+    # Check session and lap difference
+    if condition and abs(lap_diff) > 1:
         return lap_diff
     return 0
 
