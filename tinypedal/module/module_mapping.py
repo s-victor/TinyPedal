@@ -59,7 +59,7 @@ class Realtime:
     def __calculation(self):
         """Mapping calculation"""
         reset = False
-        map_recorder = MapRecorder()
+        recorder = MapRecorder()
         active_interval = self.mcfg["update_interval"] / 1000
         idle_interval = self.mcfg["idle_update_interval"] / 1000
         update_interval = idle_interval
@@ -71,25 +71,25 @@ class Realtime:
                     reset = True
                     update_interval = active_interval
 
-                    MapData.load()
-                    if MapData.exist:
+                    recorder.map.load()
+                    if recorder.map.exist:
                         update_interval = idle_interval
-                        minfo.mapping.Coordinates = MapData.raw_coords
-                        minfo.mapping.Elevations = MapData.raw_dists
-                        minfo.mapping.Sectors = MapData.sector_index
+                        minfo.mapping.Coordinates = recorder.map.raw_coords
+                        minfo.mapping.Elevations = recorder.map.raw_dists
+                        minfo.mapping.Sectors = recorder.map.sector_index
                     else:
-                        map_recorder.reset()
+                        recorder.reset()
                         minfo.mapping.Coordinates = None
                         minfo.mapping.Elevations = None
                         minfo.mapping.Sectors = None
 
-                if not MapData.exist:
-                    map_recorder.update()
-                    if MapData.exist:
+                if not recorder.map.exist:
+                    recorder.update()
+                    if recorder.map.exist:
                         update_interval = idle_interval
-                        minfo.mapping.Coordinates = MapData.raw_coords
-                        minfo.mapping.Elevations = MapData.raw_dists
-                        minfo.mapping.Sectors = MapData.sector_index
+                        minfo.mapping.Coordinates = recorder.map.raw_coords
+                        minfo.mapping.Elevations = recorder.map.raw_dists
+                        minfo.mapping.Sectors = recorder.map.sector_index
             else:
                 if reset:
                     reset = False
@@ -111,6 +111,7 @@ class MapRecorder:
         self.last_lap_stime = -1  # last lap start time
         self.last_sector_idx = -1
         self.pos_last = 0  # last checked player vehicle position
+        self.map = MapData()
 
     def reset(self):
         """Reset to defaults"""
@@ -137,12 +138,12 @@ class MapRecorder:
         """Lap start & finish detection"""
         # Init reset
         if self.last_lap_stime == -1:
-            MapData.reset()
+            self.map.reset()
             self.last_lap_stime = lap_stime
         # New lap
         if lap_stime > self.last_lap_stime:
             self.__record_end()
-            MapData.reset()
+            self.map.reset()
             self.last_lap_stime = lap_stime
             self.pos_last = 0
             self.recording = True
@@ -152,8 +153,8 @@ class MapRecorder:
         """Validate map data after crossing finish line"""
         laptime_curr = lap_etime - self.last_lap_stime
         if 1 < laptime_curr <= 8 and lastlap_check > 0:
-            MapData.save()
-            MapData.exist = True
+            self.map.save()
+            self.map.exist = True
             self.recording = False
             self.validating = False
         # Switch off validating after 8s
@@ -164,9 +165,9 @@ class MapRecorder:
         """Record sector index"""
         if self.last_sector_idx != sector_idx:
             if sector_idx == 1:
-                MapData.sector_index[0] = len(MapData.raw_coords) - 1
+                self.map.sector_index[0] = len(self.map.raw_coords) - 1
             elif sector_idx == 2:
-                MapData.sector_index[1] = len(MapData.raw_coords) - 1
+                self.map.sector_index[1] = len(self.map.raw_coords) - 1
             self.last_sector_idx = sector_idx
 
     def __record_path(self, pos_curr, gps_curr, elv_curr):
@@ -174,14 +175,14 @@ class MapRecorder:
         # Update if position value is different & positive
         if 0 <= pos_curr != self.pos_last:
             if pos_curr > self.pos_last:  # position further
-                MapData.raw_coords.append(gps_curr)
-                MapData.raw_dists.append((pos_curr, elv_curr))
+                self.map.raw_coords.append(gps_curr)
+                self.map.raw_dists.append((pos_curr, elv_curr))
             self.pos_last = pos_curr  # reset last position
 
     def __record_end(self):
         """End recording"""
-        if MapData.raw_coords:
-            MapData.copy()
+        if self.map.raw_coords:
+            self.map.copy()
             self.validating = True
 
     @staticmethod
@@ -200,71 +201,69 @@ class MapRecorder:
 
 class MapData:
     """Map data"""
-    filepath = PATH_TRACKMAP
-    filename = None
-    exist = False
-    # SVG data
-    svg_coords = None
-    svg_dists = None
-    # Raw data
-    raw_coords = None
-    raw_dists = None
-    sector_index = None
-    # Temp data
-    raw_coords_temp = None
-    raw_dists_temp = None
-    sector_index_temp = None
 
-    @classmethod
-    def reset(cls):
+    def __init__(self):
+        self.filepath = PATH_TRACKMAP
+        self.filename = None
+        self.exist = False
+        # SVG data
+        self.svg_coords = None
+        self.svg_dists = None
+        # Raw data
+        self.raw_coords = None
+        self.raw_dists = None
+        self.sector_index = None
+        # Temp data
+        self.raw_coords_temp = None
+        self.raw_dists_temp = None
+        self.sector_index_temp = None
+
+    def reset(self):
         """Reset map data"""
-        cls.exist = False
-        cls.svg_coords = None
-        cls.svg_dists = None
-        cls.raw_coords = []
-        cls.raw_dists = []
-        cls.sector_index = [0,0]
+        self.exist = False
+        self.svg_coords = None
+        self.svg_dists = None
+        self.raw_coords = []
+        self.raw_dists = []
+        self.sector_index = [0,0]
 
-    @classmethod
-    def copy(cls):
+    def copy(self):
         """Copy (reference) map data"""
-        cls.raw_coords_temp = cls.raw_coords
-        cls.raw_dists_temp = cls.raw_dists
-        cls.sector_index_temp = cls.sector_index
+        self.raw_coords_temp = self.raw_coords
+        self.raw_dists_temp = self.raw_dists
+        self.sector_index_temp = self.sector_index
 
-    @classmethod
-    def load(cls):
+    def load(self):
         """Load map data file"""
-        cls.filename = fmt.strip_invalid_char(
+        self.filename = fmt.strip_invalid_char(
             cs2py(info.rf2Scor.mScoringInfo.mTrackName))
         # Load map file
-        (cls.svg_coords, cls.svg_dists, cls.sector_index
-         ) = load_svg_file(cls.filename, cls.filepath)
-        if cls.svg_coords:
-            cls.raw_coords = fmt.points_to_coords(cls.svg_coords)
-            cls.raw_dists = fmt.points_to_coords(cls.svg_dists)
-            cls.exist = True
+        (self.svg_coords, self.svg_dists, self.sector_index
+         ) = load_svg_file(self.filename, self.filepath)
+        if self.svg_coords:
+            self.raw_coords = fmt.points_to_coords(self.svg_coords)
+            self.raw_dists = fmt.points_to_coords(self.svg_dists)
+            self.exist = True
             #logger.info("map exist")
         else:
-            cls.exist = False
+            self.exist = False
             #logger.info("map not exist")
 
-    @classmethod
-    def save(cls):
+    def save(self):
         """Store & convert raw coordinates to svg points data"""
-        cls.raw_coords = cls.raw_coords_temp
-        cls.raw_dists = cls.raw_dists_temp
-        cls.svg_coords = fmt.coords_to_points(cls.raw_coords)
-        cls.svg_dists = fmt.coords_to_points(cls.raw_dists)
-        cls.sector_index = cls.sector_index_temp
+        self.raw_coords = self.raw_coords_temp
+        self.raw_dists = self.raw_dists_temp
+        self.svg_coords = fmt.coords_to_points(self.raw_coords)
+        self.svg_dists = fmt.coords_to_points(self.raw_dists)
+        self.sector_index = self.sector_index_temp
         # Save to svg file
         save_svg_file(
-            cls.filename,
-            cls.filepath,
-            cls.svg_coords,
-            cls.svg_dists,
-            calc.map_view_box(cls.raw_coords, 20),
-            cls.sector_index
+            self.filename,
+            self.filepath,
+            self.svg_coords,
+            self.svg_dists,
+            calc.map_view_box(self.raw_coords, 20),
+            self.sector_index
         )
         #logger.info("map saved, stopped map recording")
 
