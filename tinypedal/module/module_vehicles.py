@@ -109,20 +109,18 @@ class Realtime:
                     reset = True
                     update_interval = active_interval
 
-                class_pos_list = minfo.relative.Classes
-                veh_total = max(chknm(info.rf2Tele.mNumVehicles), 1)
-                if class_pos_list and len(class_pos_list) == veh_total:
-                    vehicles_data = list(self.__vehicle_data(veh_total, class_pos_list))
-                    # Output
-                    minfo.vehicles.Data = vehicles_data
-                    minfo.vehicles.NearestStraight = min(
-                        vehicles_data, key=nearest_line_dist).RelativeStraightDistance
-                    minfo.vehicles.NearestTraffic = abs(
-                        min(vehicles_data, key=nearest_traffic).RelativeTimeGap)
-                    minfo.vehicles.NearestYellow = abs(
-                        min(vehicles_data, key=nearest_yellow_dist).RelativeDistance)
-                    #minfo.vehicles.nearestTrack = abs(
-                    # min(vehicles_data, key=nearest_track_dist).RelativeDistance)
+                vehicles_data = list(self.__vehicle_data(minfo.relative.Classes))
+
+                # Output
+                minfo.vehicles.Data = vehicles_data
+                minfo.vehicles.NearestStraight = min(
+                    vehicles_data, key=nearest_line_dist).RelativeStraightDistance
+                minfo.vehicles.NearestTraffic = abs(
+                    min(vehicles_data, key=nearest_traffic).RelativeTimeGap)
+                minfo.vehicles.NearestYellow = abs(
+                    min(vehicles_data, key=nearest_yellow_dist).RelativeDistance)
+                #minfo.vehicles.nearestTrack = abs(
+                # min(vehicles_data, key=nearest_track_dist).RelativeDistance)
 
             else:
                 if reset:
@@ -135,11 +133,13 @@ class Realtime:
         self.stopped = True
         logger.info("vehicles module closed")
 
-    def __vehicle_data(self, veh_total, class_pos_list):
+    def __vehicle_data(self, class_pos_list):
         """Get vehicle data"""
         # Additional data
+        veh_total = max(chknm(info.rf2Tele.mNumVehicles), 1)
         track_length = max(chknm(info.rf2Scor.mScoringInfo.mLapDist), 1)
         is_race = chknm(info.rf2Scor.mScoringInfo.mSession) > 9
+        matched_class_list = class_pos_list and len(class_pos_list) == veh_total
 
         # Local player data
         plr_total_laps = chknm(info.rf2ScorVeh().mTotalLaps)
@@ -165,10 +165,16 @@ class Realtime:
             driver_name = cs2py(info.rf2ScorVeh(index).mDriverName)
             vehicle_name = cs2py(info.rf2ScorVeh(index).mVehicleName)
             vehicle_class = cs2py(info.rf2ScorVeh(index).mVehicleClass)
-            position_in_class = class_pos_list[index][1]
 
-            session_best_laptime = class_pos_list[index][3]
-            class_best_laptime = class_pos_list[index][4]
+            if matched_class_list:
+                position_in_class = class_pos_list[index][1]
+                session_best_laptime = class_pos_list[index][3]
+                class_best_laptime = class_pos_list[index][4]
+            else:
+                position_in_class = 0
+                session_best_laptime = 99999
+                class_best_laptime = 99999
+
             best_laptime = chknm(info.rf2ScorVeh(index).mBestLapTime)
             last_laptime = chknm(info.rf2ScorVeh(index).mLastLapTime)
             elapsed_time = chknm(info.rf2TeleVeh(tele_index).mElapsedTime)

@@ -106,7 +106,7 @@ class Realtime:
         # Reverse-sort by relative distance
         reverse_dist_list = sorted(rel_dist_list, reverse=True)
         # Extract vehicle index to create new sorted vehicle list
-        sorted_veh_list = list(zip(*reverse_dist_list))[1]
+        sorted_veh_list = list(list(zip(*reverse_dist_list))[1])
         # Append with -1 if sorted vehicle list has less than max_veh items
         max_veh = 7 + add_front + add_behind
         if len(sorted_veh_list) < max_veh:
