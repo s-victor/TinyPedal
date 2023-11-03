@@ -127,6 +127,11 @@ def verify_heatmap(heatmap_dict):
 
 
 # Setting validate
+def setting_filename(filename):
+    """Validate setting filename"""
+    return re.search(rxp.INVALID_SETTING_FILENAME, filename.lower()) is None
+
+
 def remove_invalid_setting(key_list_def, dict_user):
     """Remove invalid key & value from user dictionary"""
     key_list_user = tuple(dict_user)  # create user key list

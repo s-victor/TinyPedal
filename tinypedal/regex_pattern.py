@@ -80,7 +80,15 @@ INTEGER = (
     "update_interval|"
     "vehicles"
 )
-
+# Filename
+INVALID_SETTING_FILENAME = (
+    # Exact match
+    "^$|"
+    "^classes$|"
+    "^heatmap$|"
+    # Partial match
+    "backup"
+)
 # Formatting
 UPPERCASE = (
     # Partial match

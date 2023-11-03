@@ -47,6 +47,7 @@ from PySide2.QtWidgets import (
 
 from .setting import cfg
 from . import formatter as fmt
+from . import validator as val
 from .const import APP_NAME, VERSION, APP_ICON, PATH_SETTINGS
 from .about import About
 from .readapi import info, setup_api, create_spectate_list
@@ -865,7 +866,7 @@ class CreatePreset(QDialog):
         if entered_filename.endswith(".json"):
             entered_filename = entered_filename[:-5]
 
-        if entered_filename.lower() not in cfg.invalid_filename:
+        if val.setting_filename(entered_filename):
             for preset in temp_list:
                 if entered_filename.lower() == preset.lower():
                     valid = False

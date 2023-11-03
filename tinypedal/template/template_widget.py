@@ -17,89 +17,11 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Default setting template
+Default widget setting template
 """
 
 
-SETTING_DEFAULT = {
-    "application": {
-        "show_at_startup": False,
-        "minimize_to_tray": True,
-        "remember_position": True,
-        "position_x": 0,
-        "position_y": 0,
-    },
-    "compatibility": {
-        "enable_bypass_window_manager": False,
-        "enable_translucent_background": True,
-        "global_bkg_color": "#000000",
-    },
-    "overlay": {
-        "fixed_position": False,
-        "auto_hide": True,
-    },
-    "shared_memory_api": {
-        "access_mode": 0,
-        "rF2_process_id": "",
-        "enable_active_state_override": False,
-        "active_state": True,
-        "enable_player_index_override": False,
-        "player_index": -1,
-    },
-    "units": {
-        "elevation_unit": "Meter",
-        "fuel_unit": "Liter",
-        "odometer_unit": "Kilometer",
-        "speed_unit": "KPH",
-        "temperature_unit": "Celsius",
-        "turbo_pressure_unit": "bar",
-        "tyre_pressure_unit": "kPa",
-    },
-    "module_delta": {
-        "enable": True,
-        "update_interval": 10,
-        "idle_update_interval": 400,
-    },
-    "module_force": {
-        "enable": True,
-        "update_interval": 10,
-        "idle_update_interval": 400,
-        "gravitational_acceleration": 9.80665,
-        "max_g_force_freeze_duration": 5,
-        "max_average_g_force_samples": 10,
-        "max_average_g_force_differece": 0.2,
-    },
-    "module_fuel": {
-        "enable": True,
-        "update_interval": 10,
-        "idle_update_interval": 400,
-    },
-    "module_hybrid": {
-        "enable": True,
-        "update_interval": 20,
-        "idle_update_interval": 400,
-    },
-    "module_mapping": {
-        "enable": True,
-        "update_interval": 10,
-        "idle_update_interval": 400,
-    },
-    "module_relative": {
-        "enable": True,
-        "update_interval": 100,
-        "idle_update_interval": 400,
-    },
-    "module_sectors": {
-        "enable": True,
-        "update_interval": 10,
-        "idle_update_interval": 400,
-        "sector_info": "",
-    },
-    "module_vehicles": {
-        "enable": True,
-        "update_interval": 20,
-        "idle_update_interval": 400,
-    },
+WIDGET_DEFAULT = {
     "battery": {
         "enable": True,
         "update_interval": 20,

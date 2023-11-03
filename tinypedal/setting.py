@@ -22,7 +22,6 @@ Setting
 
 import logging
 import os
-import re
 import time
 import threading
 import json
@@ -30,9 +29,11 @@ import shutil
 import copy
 
 from .const import PLATFORM, PATH_SETTINGS
-from .template_setting import SETTING_DEFAULT
-from .template_classes import CLASSES_DEFAULT
-from .template_heatmap import HEATMAP_DEFAULT
+from .template.template_application import APPLICATION_DEFAULT
+from .template.template_module import MODULE_DEFAULT
+from .template.template_widget import WIDGET_DEFAULT
+from .template.template_classes import CLASSES_DEFAULT
+from .template.template_heatmap import HEATMAP_DEFAULT
 from . import validator as val
 
 logger = logging.getLogger(__name__)
@@ -45,12 +46,11 @@ class Setting:
     filename_classes = "classes.json"
     filename_heatmap = "heatmap.json"
     last_loaded_setting = "None.json"
-    setting_default = SETTING_DEFAULT
+    setting_default = {**APPLICATION_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT}
     heatmap_default = HEATMAP_DEFAULT
-    invalid_filename = ("", "classes", "heatmap")
 
     def __init__(self):
-        self.platform_default_setting()
+        self.platform_default()
         self.active_widget_list = []
         self.active_module_list = []
         self.setting_user = {}
@@ -62,7 +62,7 @@ class Setting:
 
     def load(self):
         """Load all setting files"""
-        self.load_setting()
+        self.__load_setting()
         self.classes_user = load_style_config(
             self.filepath, self.filename_classes, CLASSES_DEFAULT)
         self.heatmap_user = load_style_config(
@@ -70,31 +70,25 @@ class Setting:
 
     def load_preset_list(self):
         """Load preset list"""
-        raw_cfg_list = [(os.path.getmtime(f"{self.filepath}{data}"), data[:-5])
-                        for data in os.listdir(self.filepath) if data.endswith(".json")]
-        raw_cfg_list.sort(reverse=True)  # sort by file modified date
-
+        # Create json file list: modified date, filename
+        raw_cfg_list = [(os.path.getmtime(f"{self.filepath}{fname}"), fname[:-5])
+                        for fname in os.listdir(self.filepath) if fname.endswith(".json")]
         if raw_cfg_list:
-            cfg_list = [
-                data[1] for data in raw_cfg_list
-                if re.search("backup", data[1].lower()) is None  # ignore backup file
-                and data[1].lower() not in self.invalid_filename
-            ]
+            raw_cfg_list.sort(reverse=True)  # sort by file modified date
+            cfg_list = [fname[1] for fname in raw_cfg_list if val.setting_filename(fname[1])]
             if cfg_list:
                 return cfg_list
         return ["default"]
 
-    def load_setting(self):
+    def __load_setting(self):
         """Load & verify setting"""
         try:
             # Read JSON file
             with open(f"{self.filepath}{self.filename_setting}", "r", encoding="utf-8") as jsonfile:
                 setting_user_unsorted = json.load(jsonfile)
-
             # Verify & assign setting
             verify_setting(setting_user_unsorted, self.setting_default)
             self.setting_user = copy.deepcopy(setting_user_unsorted)
-
             # Save setting to JSON file
             self.save(0)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
@@ -137,8 +131,8 @@ class Setting:
 
         # Start saving attempts
         while attempts > 0:
-            self.save_file()
-            if self.verify_save_file():
+            self.__save_file()
+            if self.__verify_file():
                 attempts = 0
                 #logger.info("verified save file")
             else:
@@ -149,12 +143,12 @@ class Setting:
         self.is_saving = False
         logger.info("setting saved")
 
-    def save_file(self):
+    def __save_file(self):
         """Save setting to file"""
         with open(f"{self.filepath}{self.filename_setting}", "w", encoding="utf-8") as jsonfile:
             json.dump(self.setting_user, jsonfile, indent=4)
 
-    def verify_save_file(self):
+    def __verify_file(self):
         """Verify save file"""
         try:
             with open(f"{self.filepath}{self.filename_setting}", "r", encoding="utf-8") as jsonfile:
@@ -176,7 +170,7 @@ class Setting:
         except FileNotFoundError:
             logger.error("setting backup failed")
 
-    def platform_default_setting(self):
+    def platform_default(self):
         """Platform specific default setting"""
         if PLATFORM != "Windows":
             self.setting_default["application"]["show_at_startup"] = True
