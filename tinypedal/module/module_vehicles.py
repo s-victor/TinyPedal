@@ -41,7 +41,7 @@ class Realtime:
     DataSet = namedtuple(
         "DataSet",
         [
-        "VehicleID",
+        "SlotID",
         "Position",
         "DriverName",
         "VehicleName",
@@ -160,7 +160,7 @@ class Realtime:
             tele_index = info.find_player_index_tele(index)
             is_player = info.isPlayer(index)
 
-            vehicle_id = chknm(info.rf2ScorVeh(index).mID)
+            slot_id = chknm(info.rf2ScorVeh(index).mID)
             position = chknm(info.rf2ScorVeh(index).mPlace)
             driver_name = cs2py(info.rf2ScorVeh(index).mDriverName)
             vehicle_name = cs2py(info.rf2ScorVeh(index).mVehicleName)
@@ -212,7 +212,7 @@ class Realtime:
             pit_state = chknm(info.rf2ScorVeh(index).mPitState)
             pit_time = self.__calc_pit_time(
                 index, in_pit, in_garage, last_laptime, elapsed_time,
-                in_pit * 1000 + vehicle_id)
+                in_pit * 1000 + slot_id)
             tire_compound_index = (
                 chknm(info.rf2TeleVeh(tele_index).mFrontTireCompoundIndex),
                 chknm(info.rf2TeleVeh(tele_index).mRearTireCompoundIndex)
@@ -237,7 +237,7 @@ class Realtime:
                 ) if not is_player else 0
 
             yield self.DataSet(
-                VehicleID = vehicle_id,
+                SlotID = slot_id,
                 Position = position,
                 DriverName = driver_name,
                 VehicleName = vehicle_name,

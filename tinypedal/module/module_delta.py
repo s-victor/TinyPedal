@@ -27,7 +27,7 @@ import csv
 
 from ..module_info import minfo
 from ..const import PATH_DELTABEST
-from ..readapi import info, chknm, state, combo_check
+from ..readapi import info, chknm, state, combo_identify
 from .. import calculation as calc
 from .. import validator as val
 
@@ -75,8 +75,8 @@ class Realtime:
                     recording = False
                     validating = False
 
-                    combo_name = combo_check()
-                    delta_list_best = self.load_deltabest(combo_name)
+                    combo_id = combo_identify()
+                    delta_list_best = self.load_deltabest(combo_id)
                     delta_list_curr = [DELTA_ZERO]  # distance, laptime
                     delta_list_last = [DELTA_ZERO]  # last lap
                     delta_best = 0  # delta time compare to best laptime
@@ -128,7 +128,7 @@ class Realtime:
                             laptime_best = laptime_last
                             delta_list_best = delta_list_last
                             delta_list_last = [DELTA_ZERO]
-                            self.save_deltabest(combo_name, delta_list_best)
+                            self.save_deltabest(combo_id, delta_list_best)
                             validating = False
                     elif 8 < laptime_curr < 10:  # switch off after 8s
                         validating = False

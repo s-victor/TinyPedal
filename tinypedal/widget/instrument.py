@@ -131,6 +131,7 @@ class Draw(Widget):
 
         # Last data
         self.checked = False
+        self.vehicle_id = None
         self.min_samples_f = 20
         self.min_samples_r = 20
         self.list_radius_f = []
@@ -157,7 +158,8 @@ class Draw(Widget):
             # Save switch
             if not self.checked:
                 self.checked = True
-                if self.wcfg["last_vehicle_info"] == read_data.vehicle_check():
+                self.vehicle_id = read_data.vehicle_identify()
+                if self.wcfg["last_vehicle_info"] == self.vehicle_id:
                     self.min_samples_f = 320
                     self.min_samples_r = 320
 
@@ -199,7 +201,7 @@ class Draw(Widget):
                 self.checked = False
 
                 if self.min_samples_f == self.min_samples_r == 320:
-                    self.wcfg["last_vehicle_info"] = read_data.vehicle_check()
+                    self.wcfg["last_vehicle_info"] = self.vehicle_id
                     self.wcfg["last_wheel_radius_front"] = self.avg_wheel_radius_f
                     self.wcfg["last_wheel_radius_rear"] = self.avg_wheel_radius_r
                 self.cfg.save()

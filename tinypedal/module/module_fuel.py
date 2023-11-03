@@ -28,7 +28,7 @@ import math
 
 from ..module_info import minfo
 from ..const import PATH_FUEL
-from ..readapi import info, chknm, state, combo_check
+from ..readapi import info, chknm, state, combo_identify
 from .. import calculation as calc
 from .. import validator as val
 
@@ -79,8 +79,8 @@ class Realtime:
                     validating = False
                     delayed_save = False
 
-                    combo_name = combo_check()
-                    delta_list_last = self.load_deltafuel(combo_name)
+                    combo_id = combo_identify()
+                    delta_list_last = self.load_deltafuel(combo_id)
                     delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
                     delta_list_temp = [DELTA_ZERO]  # last lap temp
                     delta_fuel = 0  # delta fuel consumption compare to last lap
@@ -237,7 +237,7 @@ class Realtime:
                     reset = False
                     update_interval = idle_interval
                     if delayed_save:
-                        self.save_deltafuel(combo_name, delta_list_last)
+                        self.save_deltafuel(combo_id, delta_list_last)
 
             time.sleep(update_interval)
 

@@ -79,18 +79,33 @@ def create_spectate_list():
     return index_list
 
 
-def combo_check():
-    """Track & vehicle combo data"""
+def combo_identify():
+    """Track & vehicle combo identify"""
     track_name = cs2py(info.rf2Scor.mScoringInfo.mTrackName)
     class_name = cs2py(info.rf2ScorVeh().mVehicleClass)
     return fmt.strip_invalid_char(f"{track_name} - {class_name}")
 
 
-def vehicle_check():
-    """Track & vehicle combo data"""
+def vehicle_identify():
+    """Vehicle identify"""
     class_name = cs2py(info.rf2ScorVeh().mVehicleClass)
     veh_name = cs2py(info.rf2ScorVeh().mVehicleName)
     return fmt.strip_invalid_char(f"{class_name} - {veh_name}")
+
+
+def track_identify():
+    """Track identify"""
+    return fmt.strip_invalid_char(cs2py(info.rf2Scor.mScoringInfo.mTrackName))
+
+
+def session_identify():
+    """Session identify"""
+    session_length = chknm(info.rf2Scor.mScoringInfo.mEndET)
+    session_type = chknm(info.rf2Scor.mScoringInfo.mSession)
+    session_stamp = int(session_length * 100 + session_type)
+    session_etime = int(chknm(info.rf2Scor.mScoringInfo.mCurrentET))
+    session_tlaps = chknm(info.rf2ScorVeh().mTotalLaps)
+    return session_stamp, session_etime, session_tlaps
 
 
 def is_race():
@@ -367,13 +382,3 @@ def speedometer():
     mgear = chknm(info.rf2TeleVeh().mGear)
     lap_etime = chknm(info.rf2TeleVeh().mElapsedTime)
     return speed, raw_throttle, mgear, lap_etime
-
-
-def session_check():
-    """Check session time stamp, type, elapsed time, completed laps"""
-    session_length = chknm(info.rf2Scor.mScoringInfo.mEndET)
-    session_type = chknm(info.rf2Scor.mScoringInfo.mSession)
-    session_stamp = f"{session_length:.0f}{session_type:.0f}"
-    session_etime = int(chknm(info.rf2Scor.mScoringInfo.mCurrentET))
-    session_tlaps = chknm(info.rf2ScorVeh().mTotalLaps)
-    return session_stamp, session_etime, session_tlaps

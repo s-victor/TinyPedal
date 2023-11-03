@@ -26,7 +26,7 @@ import time
 import threading
 
 from ..module_info import minfo
-from ..readapi import info, chknm, state, combo_check, session_check
+from ..readapi import info, chknm, state, combo_identify, session_identify
 from .. import validator as val
 
 MODULE_NAME = "module_sectors"
@@ -70,10 +70,10 @@ class Realtime:
                     update_interval = active_interval
 
                     last_sector_idx = -1                # previous recorded sector index value
-                    combo_name = combo_check()          # current car & track combo
-                    session_id = session_check()        # session identity
+                    combo_id = combo_identify()          # current car & track combo
+                    session_id = session_identify()        # session identity
                     best_laptime, best_s_tb, best_s_pb = self.load_sector_data(
-                        combo_name, session_id)
+                        combo_id, session_id)
                     delta_s_tb = [0,0,0]                   # deltabest times against all time best sector
                     delta_s_pb = [0,0,0]           # deltabest times against best laptime sector
                     prev_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]  # previous sector times
@@ -169,7 +169,7 @@ class Realtime:
                     update_interval = idle_interval
                     # Save only valid sector data
                     self.save_sector_data(
-                        combo_name, session_id, best_s_pb, best_laptime, best_s_tb)
+                        combo_id, session_id, best_s_pb, best_laptime, best_s_tb)
 
             time.sleep(update_interval)
 
@@ -190,11 +190,11 @@ class Realtime:
         last_laptime = chknm(info.rf2ScorVeh().mLastLapTime)
         return sector_idx, curr_sector1, curr_sector2, last_sector2, last_laptime
 
-    def save_sector_data(self, combo_name, session_id, best_s_pb, best_laptime, best_s_tb):
+    def save_sector_data(self, combo_id, session_id, best_s_pb, best_laptime, best_s_tb):
         """Verify and save sector data"""
         if session_id and val.sector_time(best_s_pb):
             self.mcfg["sector_info"] = (
-                str(combo_name)
+                str(combo_id)
                 + "|" + str(session_id[0])
                 + "|" + str(session_id[1])
                 + "|" + str(session_id[2])
@@ -208,13 +208,13 @@ class Realtime:
                 )
             self.cfg.save()
 
-    def load_sector_data(self, combo_name, session_id):
+    def load_sector_data(self, combo_id, session_id):
         """Load and verify sector data
 
         Check if saved data is from same session, car, track combo, discard if not
         """
         saved_data = self.parse_save_string(self.mcfg["sector_info"])
-        if (combo_name == saved_data[0] and
+        if (combo_id == saved_data[0] and
             saved_data[1] == session_id[0] and
             saved_data[2] <= session_id[1] and
             saved_data[3] <= session_id[2]):
@@ -238,7 +238,7 @@ class Realtime:
         try:  # fill in data
             final_list = [
                 data[0],                    # 0 - combo name, str
-                data[1],                    # 1 - session stamp, str
+                data[1],                    # 1 - session identify, float
                 data[2],                    # 2 - session elapsed time, float
                 data[3],                    # 3 - session total laps, float
                 data[4],                    # 4 - best_laptime, float
@@ -255,7 +255,7 @@ class Realtime:
         """Split save string"""
         for index, value in enumerate(rex_string):
             if value != "|":
-                if index <= 2:
+                if index <= 1:
                     yield value
                 else:
                     yield float(value)

@@ -27,7 +27,7 @@ import xml.dom.minidom
 
 from ..module_info import minfo
 from ..const import PATH_TRACKMAP
-from ..readapi import info, chknm, cs2py, state
+from ..readapi import info, chknm, state, track_identify
 from .. import calculation as calc
 from .. import formatter as fmt
 
@@ -71,7 +71,7 @@ class Realtime:
                     reset = True
                     update_interval = active_interval
 
-                    recorder.map.load()
+                    recorder.map.load(track_identify())
                     if recorder.map.exist:
                         update_interval = idle_interval
                         minfo.mapping.Coordinates = recorder.map.raw_coords
@@ -233,10 +233,9 @@ class MapData:
         self.raw_dists_temp = self.raw_dists
         self.sector_index_temp = self.sector_index
 
-    def load(self):
+    def load(self, filename):
         """Load map data file"""
-        self.filename = fmt.strip_invalid_char(
-            cs2py(info.rf2Scor.mScoringInfo.mTrackName))
+        self.filename = filename
         # Load map file
         (self.svg_coords, self.svg_dists, self.sector_index
          ) = load_svg_file(self.filename, self.filepath)
