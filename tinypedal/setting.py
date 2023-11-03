@@ -29,11 +29,11 @@ import shutil
 import copy
 
 from .const import PLATFORM, PATH_SETTINGS
-from .template.template_application import APPLICATION_DEFAULT
-from .template.template_module import MODULE_DEFAULT
-from .template.template_widget import WIDGET_DEFAULT
-from .template.template_classes import CLASSES_DEFAULT
-from .template.template_heatmap import HEATMAP_DEFAULT
+from .template.setting_application import APPLICATION_DEFAULT
+from .template.setting_module import MODULE_DEFAULT
+from .template.setting_widget import WIDGET_DEFAULT
+from .template.setting_classes import CLASSES_DEFAULT
+from .template.setting_heatmap import HEATMAP_DEFAULT
 from . import validator as val
 
 logger = logging.getLogger(__name__)
