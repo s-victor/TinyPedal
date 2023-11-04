@@ -26,7 +26,6 @@ import time
 import threading
 import json
 import shutil
-import copy
 
 from .const import PLATFORM, PATH_SETTINGS
 from .template.setting_application import APPLICATION_DEFAULT
@@ -82,18 +81,19 @@ class Setting:
 
     def __load_setting(self):
         """Load & verify setting"""
+        filename = self.filename_setting
         try:
             # Read JSON file
-            with open(f"{self.filepath}{self.filename_setting}", "r", encoding="utf-8") as jsonfile:
-                setting_user_unsorted = json.load(jsonfile)
+            with open(f"{self.filepath}{filename}", "r", encoding="utf-8") as jsonfile:
+                temp_setting_user = json.load(jsonfile)
             # Verify & assign setting
-            verify_setting(setting_user_unsorted, self.setting_default)
-            self.setting_user = copy.deepcopy(setting_user_unsorted)
+            verify_setting(temp_setting_user, self.setting_default)
+            self.setting_user = copy_setting(temp_setting_user)
             # Save setting to JSON file
             self.save(0)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             logger.error("setting loading failed, create backup & revert to default")
-            self.backup()
+            self.__backup(filename)
             self.create()
             self.save(0)
 
@@ -103,7 +103,11 @@ class Setting:
         self.overlay = self.setting_user["overlay"]
         self.shared_memory_api = self.setting_user["shared_memory_api"]
         self.units = self.setting_user["units"]
-        self.last_loaded_setting = self.filename_setting
+        self.last_loaded_setting = filename
+
+    def create(self):
+        """Create default setting"""
+        self.setting_user = copy_setting(self.setting_default)
 
     def save(self, count=66):
         """Save trigger
@@ -122,6 +126,8 @@ class Setting:
     def __saving(self):
         """Saving thread"""
         attempts = 5
+        # Make sure file name does not change during saving
+        filename = self.filename_setting
 
         # Update save delay
         while self._save_delay > 0:
@@ -131,8 +137,8 @@ class Setting:
 
         # Start saving attempts
         while attempts > 0:
-            self.__save_file()
-            if self.__verify_file():
+            self.__save_file(filename)
+            if self.__verify_file(filename):
                 attempts = 0
                 #logger.info("verified save file")
             else:
@@ -143,30 +149,26 @@ class Setting:
         self.is_saving = False
         logger.info("setting saved")
 
-    def __save_file(self):
+    def __save_file(self, filename):
         """Save setting to file"""
-        with open(f"{self.filepath}{self.filename_setting}", "w", encoding="utf-8") as jsonfile:
+        with open(f"{self.filepath}{filename}", "w", encoding="utf-8") as jsonfile:
             json.dump(self.setting_user, jsonfile, indent=4)
 
-    def __verify_file(self):
+    def __verify_file(self, filename):
         """Verify save file"""
         try:
-            with open(f"{self.filepath}{self.filename_setting}", "r", encoding="utf-8") as jsonfile:
+            with open(f"{self.filepath}{filename}", "r", encoding="utf-8") as jsonfile:
                 return json.load(jsonfile) == self.setting_user
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             logger.error("setting verification failed")
             return False
 
-    def create(self):
-        """Create default setting"""
-        self.setting_user = copy.deepcopy(self.setting_default)
-
-    def backup(self):
+    def __backup(self, filename):
         """Backup invalid file"""
         try:
             time_stamp = time.strftime("%Y-%m-%d %H-%M-%S", time.localtime())
-            shutil.copy(f"{self.filepath}{self.filename_setting}",
-                        f"{self.filepath}{self.filename_setting[:-5]}-backup {time_stamp}.json")
+            shutil.copy(f"{self.filepath}{filename}",
+                        f"{self.filepath}{filename[:-5]}-backup {time_stamp}.json")
         except FileNotFoundError:
             logger.error("setting backup failed")
 
@@ -185,7 +187,7 @@ def load_style_config(filepath, filename, default):
             return json.load(jsonfile)
     except (FileNotFoundError, json.decoder.JSONDecodeError):
         logger.error("setting loading failed, fall back to default instead")
-        new_dict = copy.deepcopy(default)
+        new_dict = copy_setting(default)
         # Save to file if not found
         if not os.path.exists(f"{filepath}{filename}"):
             with open(f"{filepath}{filename}", "w", encoding="utf-8") as jsonfile:
@@ -200,6 +202,11 @@ def verify_setting(dict_user, dict_def):
     # Check sub-level key
     for item in dict_user.keys():  # list each key lists
         val.setting_validator(dict_user[item], dict_def[item])
+
+
+def copy_setting(dict_user):
+    """Copy setting"""
+    return {key: item.copy() for key, item in dict_user.items()}
 
 
 # Assign config setting
