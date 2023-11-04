@@ -314,4 +314,3 @@ class Draw(Widget):
             [self.avg_wheel_radius_f] * 2 + [self.avg_wheel_radius_r] * 2,
             [speed] * 4
         )))
-

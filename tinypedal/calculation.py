@@ -203,11 +203,11 @@ def lap_difference(opt_laps, plr_laps, opt_per_dist, plr_per_dist, condition=Tru
     return 0
 
 
-def relative_time_gap(distance, plr_speed, opt_speed):
+def relative_time_gap(rel_dist, plr_speed, opt_speed):
     """Relative time gap between opponent & player"""
     speed = max(plr_speed, opt_speed)
     if speed > 1:
-        return abs(distance / speed)
+        return abs(rel_dist / speed)
     return 0
 
 
@@ -254,26 +254,31 @@ def linear_interp(x, x1, y1, x2, y2):
     return y1
 
 
-def linear_search_hi(data, target, column=-1):
+def search_column_key(key, column=None):
+    """Search column key"""
+    return key if column is None else key[column]
+
+
+def linear_search_hi(data, target, column=None):
     """linear search nearest value higher index from unordered list"""
-    key = lambda x:x[column] if column >= 0 else x
+    #key = lambda x:x[column] if column >= 0 else x
     end = len(data) - 1
     nearest = float("inf")
     for index, data_row in enumerate(data):
-        if target <= key(data_row) < nearest:
-            nearest = key(data_row)
+        if target <= search_column_key(data_row, column) < nearest:
+            nearest = search_column_key(data_row, column)
             end = index
     return end
 
 
-def binary_search_hi(data, target, start, end, column=-1):
+def binary_search_hi(data, target, start, end, column=None):
     """Binary search nearest value higher index from ordered list"""
-    key = lambda x:x[column] if column >= 0 else x
+    #key = lambda x:x[column] if column >= 0 else x
     while start < end:
         center = (start + end) // 2
-        if target == key(data[center]):
+        if target == search_column_key(data[center], column):
             return center
-        elif target > key(data[center]):
+        if target > search_column_key(data[center], column):
             start = center + 1
         else:
             end = center
