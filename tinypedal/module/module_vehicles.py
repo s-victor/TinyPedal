@@ -144,7 +144,7 @@ class Realtime:
         # Local player data
         plr_total_laps = chknm(info.rf2ScorVeh().mTotalLaps)
         plr_lap_distance = chknm(info.rf2ScorVeh().mLapDist)
-        plr_percentage_distance = plr_lap_distance / track_length
+        plr_percentage_distance = calc.percentage_distance(plr_lap_distance, track_length)
         plr_speed = calc.vel2speed(
             chknm(info.rf2ScorVeh().mLocalVel.x),
             chknm(info.rf2ScorVeh().mLocalVel.y),
@@ -187,7 +187,7 @@ class Realtime:
             # Distance & time
             total_laps = chknm(info.rf2ScorVeh(index).mTotalLaps)
             lap_distance = chknm(info.rf2ScorVeh(index).mLapDist)
-            percentage_distance = lap_distance / track_length
+            percentage_distance = calc.percentage_distance(lap_distance, track_length)
             relative_distance = calc.circular_relative_distance(
                 track_length, plr_lap_distance, lap_distance
                 ) if not is_player else 0
