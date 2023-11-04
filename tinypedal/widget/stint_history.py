@@ -20,7 +20,6 @@
 Stint history Widget
 """
 
-import copy
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import (
     QGridLayout,
@@ -176,7 +175,7 @@ class Draw(Widget):
         self.reset_stint = True  # reset stint stats
 
         self.stint_data = [["--",0,0,0,0] for _ in range(self.stint_count)]
-        self.last_stint_data = copy.deepcopy(self.stint_data)
+        self.last_stint_data = [data.copy() for data in self.stint_data]
 
         self.start_laps = 0
         self.start_time = 0
@@ -276,7 +275,7 @@ class Draw(Widget):
             for index in range(1, self.stint_count):
                 self.update_stint_history(
                     self.stint_data[-index], self.last_stint_data[-index], index)
-            self.last_stint_data = copy.deepcopy(self.stint_data)
+            self.last_stint_data = [data.copy() for data in self.stint_data]
 
         else:
             if self.checked:
@@ -332,19 +331,13 @@ class Draw(Widget):
             return calc.liter2gallon(fuel)
         return fuel
 
-    def store_last_data(self):
-        """Store last stint data"""
-        self.stint_data.pop(1)  # remove old data
-        self.stint_data.append(
-            [self.stint_data[0][0],
-             self.stint_data[0][1],
-             self.stint_data[0][2],
-             self.stint_data[0][3],
-             self.stint_data[0][4]
-            ])
-
     def set_tyre_cmp(self, tc_index):
         """Substitute tyre compound index with custom chars"""
         ftire = self.wcfg["tyre_compound_list"][tc_index[0]:(tc_index[0]+1)]
         rtire = self.wcfg["tyre_compound_list"][tc_index[1]:(tc_index[1]+1)]
         return f"{ftire}{rtire}"
+
+    def store_last_data(self):
+        """Store last stint data"""
+        self.stint_data.pop(1)  # remove old data
+        self.stint_data.append(self.stint_data[0].copy())

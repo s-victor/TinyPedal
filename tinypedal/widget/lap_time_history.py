@@ -272,10 +272,4 @@ class Draw(Widget):
     def store_last_data(self):
         """Store last laps data"""
         self.laps_data.pop(1)  # remove old data
-        self.laps_data.append(
-            [self.laps_data[0][0],
-             self.laps_data[0][1],
-             self.laps_data[0][2],
-             self.laps_data[0][3],
-             self.laps_data[0][4],
-            ])
+        self.laps_data.append(self.laps_data[0].copy())
