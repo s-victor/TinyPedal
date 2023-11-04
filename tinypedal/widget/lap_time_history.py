@@ -20,7 +20,6 @@
 Lap time history Widget
 """
 
-import copy
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import (
     QGridLayout,
@@ -149,8 +148,9 @@ class Draw(Widget):
 
         # Last data
         self.last_lap_stime = 0  # last lap start time
-        self.laps_data = [[0,[0,0],0,0] for _ in range(self.laps_count)]
-        self.last_data = copy.deepcopy(self.laps_data)
+        # 0 - lap number, 1 - est lap time, 2 - is valid lap, 3 - last fuel usage, 4 - tyre wear
+        self.laps_data = [[0,0,0,0,0] for _ in range(self.laps_count)]
+        self.last_data = [data.copy() for data in self.laps_data]
 
         self.last_wear = 0
 
@@ -185,30 +185,31 @@ class Draw(Widget):
                 if 2 < lap_etime - lap_stime < 10:  # update 2s after cross line
                     self.last_wear = wear_avg
                     self.last_lap_stime = lap_stime  # reset time stamp counter
-                    self.laps_data[0][1] = (minfo.delta.LaptimeLast,
-                                            minfo.delta.IsValidLap)
-                    self.laps_data[0][2] = minfo.fuel.LastLapFuelConsumption
+                    self.laps_data[0][1] = minfo.delta.LaptimeLast
+                    self.laps_data[0][2] = minfo.delta.IsValidLap
+                    self.laps_data[0][3] = minfo.fuel.LastLapFuelConsumption
                     self.store_last_data()
 
             # Current laps data
             self.laps_data[0][0] = read_data.lap_number()
-            self.laps_data[0][1] = minfo.delta.LaptimeEstimated, 0
-            self.laps_data[0][2] = minfo.fuel.EstimatedFuelConsumption
-            self.laps_data[0][3] = max(wear_avg - self.last_wear, 0)
+            self.laps_data[0][1] = minfo.delta.LaptimeEstimated
+            self.laps_data[0][2] = 0
+            self.laps_data[0][3] = minfo.fuel.EstimatedFuelConsumption
+            self.laps_data[0][4] = max(wear_avg - self.last_wear, 0)
 
             laps_text = f"{self.laps_data[0][0]:03.0f}"[:3].ljust(3)
             self.update_laps("laps", laps_text, self.last_laps_text)
             self.last_laps_text = laps_text
 
-            time_text = calc.sec2laptime_full(self.laps_data[0][1][0])[:8].rjust(8)
+            time_text = calc.sec2laptime_full(self.laps_data[0][1])[:8].rjust(8)
             self.update_laps("time", time_text, self.last_time_text)
             self.last_time_text = time_text
 
-            fuel_text = f"{self.laps_data[0][2]:04.02f}"[:4].rjust(4)
+            fuel_text = f"{self.laps_data[0][3]:04.02f}"[:4].rjust(4)
             self.update_laps("fuel", fuel_text, self.last_fuel_text)
             self.last_fuel_text = fuel_text
 
-            wear_text = f"{self.laps_data[0][3]:.01f}"[:3].rjust(3)
+            wear_text = f"{self.laps_data[0][4]:.01f}"[:3].rjust(3)
             self.update_laps("wear", wear_text, self.last_wear_text)
             self.last_wear_text = wear_text
 
@@ -216,7 +217,7 @@ class Draw(Widget):
             for index in range(1, self.laps_count):
                 self.update_laps_history(
                     self.laps_data[-index], self.last_data[-index], index)
-            self.last_data = copy.deepcopy(self.laps_data)
+            self.last_data = [data.copy() for data in self.laps_data]
 
     # GUI update methods
     def update_laps(self, suffix, curr, last):
@@ -227,21 +228,21 @@ class Draw(Widget):
     def update_laps_history(self, curr, last, index):
         """Laps history data"""
         if curr != last:
-            if curr[1][0] and curr[0] != last[0]:
+            if curr[1] and curr[0] != last[0]:
                 getattr(self, f"bar_last_laps{index}").setText(
                     f"{max(curr[0] - 1, 0):03.0f}"[:3].ljust(3)
                 )
                 getattr(self, f"bar_last_time{index}").setText(
-                    calc.sec2laptime_full(curr[1][0])[:8].rjust(8)
+                    calc.sec2laptime_full(curr[1])[:8].rjust(8)
                 )
                 getattr(self, f"bar_last_fuel{index}").setText(
-                    f"{curr[2]:04.02f}"[:4].rjust(4)
+                    f"{curr[3]:04.02f}"[:4].rjust(4)
                 )
                 getattr(self, f"bar_last_wear{index}").setText(
-                    f"{curr[3]:.01f}"[:3].rjust(3)
+                    f"{curr[4]:.01f}"[:3].rjust(3)
                 )
 
-                if curr[1][1]:
+                if curr[2]:
                     fgcolor = self.wcfg["font_color_last_time"]
                 else:
                     fgcolor = self.wcfg["font_color_invalid_laptime"]
@@ -275,5 +276,6 @@ class Draw(Widget):
             [self.laps_data[0][0],
              self.laps_data[0][1],
              self.laps_data[0][2],
-             self.laps_data[0][3]
+             self.laps_data[0][3],
+             self.laps_data[0][4],
             ])
