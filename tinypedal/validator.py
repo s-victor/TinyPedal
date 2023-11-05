@@ -42,7 +42,7 @@ def infnan2zero(value):
 def cbytes2str(bytestring):
     """Convert bytes to string"""
     if type(bytestring) == bytes:
-        return bytestring.decode(errors="replace").rstrip()
+        return bytestring.decode(encoding="iso-8859-1", errors="replace").rstrip()
     return ""
 
 
