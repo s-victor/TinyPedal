@@ -108,6 +108,11 @@ def session_identify():
     return session_stamp, session_etime, session_tlaps
 
 
+def is_lap_race():
+    """Is lap race type"""
+    return chknm(info.rf2Scor.mScoringInfo.mMaxLaps) < 2147483647
+
+
 def is_race():
     """Is race session"""
     return chknm(info.rf2Scor.mScoringInfo.mSession) > 9

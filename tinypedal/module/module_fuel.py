@@ -28,7 +28,7 @@ import math
 
 from ..module_info import minfo
 from ..const import PATH_FUEL
-from ..readapi import info, chknm, state, combo_identify
+from ..readapi import info, chknm, state, combo_identify, is_lap_race
 from .. import calculation as calc
 from .. import validator as val
 
@@ -183,7 +183,7 @@ class Realtime:
                     used_last, delta_fuel, 0 == pittinglap < lap_number)
 
                 # Total refuel = laps left * last consumption - remaining fuel
-                if laps_max < 99999:  # lap-type race
+                if is_lap_race():  # lap-type race
                     full_laps_left = laps_max - lap_number
                     laps_left = full_laps_left - lap_into
                     amount_need = laps_left * used_est - amount_curr
