@@ -101,7 +101,7 @@ Shared Memory API options can be accessed from `Config` menu in main window.
     access_mode
 Set access mode for shared memory API. Mode value `0` uses copy access and additional data check to avoid data desync or interruption issues. Mode value `1` uses direct access, which may result data desync or interruption issues. Default mode is copy access.
 
-    rF2_process_id
+    process_id
 Set rF2 process ID string for accessing API from server. Currently this option is a placeholder, and should be left blank.
 
     enable_active_state_override

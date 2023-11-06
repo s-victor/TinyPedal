@@ -40,7 +40,7 @@ APPLICATION_DEFAULT = {
     },
     "shared_memory_api": {
         "access_mode": 0,
-        "rF2_process_id": "",
+        "process_id": "",
         "enable_active_state_override": False,
         "active_state": True,
         "enable_player_index_override": False,

@@ -42,7 +42,7 @@ FONTWEIGHT = "font_weight"
 HEATMAP = "heatmap"
 STRING = (
     # Exact match
-    "^rF2_process_id$|"
+    "^process_id$|"
     # Partial match
     "format|"
     "info|"

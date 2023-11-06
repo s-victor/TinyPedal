@@ -42,7 +42,7 @@ from . import calculation as calc
 def setup_api(api):
     """Setup API custom parameters"""
     api.setMode(cfg.shared_memory_api["access_mode"])
-    api.setPID(cfg.shared_memory_api["rF2_process_id"])
+    api.setPID(cfg.shared_memory_api["process_id"])
     api.setPlayerOverride(cfg.shared_memory_api["enable_player_index_override"])
     api.setPlayerIndex(cfg.shared_memory_api["player_index"])
 
