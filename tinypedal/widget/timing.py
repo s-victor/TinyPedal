@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 from ..module_info import minfo
 
@@ -180,7 +180,7 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Reset switch
             if not self.checked:
@@ -188,7 +188,7 @@ class Draw(Widget):
 
             # Session best laptime
             if self.wcfg["show_session_best"]:
-                veh_total, laptime_opt, is_same_class = read_data.timing(self.vehicle_counter)
+                veh_total, laptime_opt, is_same_class = readapi.timing(self.vehicle_counter)
 
                 if 0 < laptime_opt < self.laptime_sbest:
                     if self.wcfg["show_session_best_from_same_class_only"] and is_same_class:

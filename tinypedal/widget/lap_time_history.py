@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 from ..module_info import minfo
 
@@ -175,11 +175,11 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Read laps data
-            lap_stime, lap_etime = read_data.lap_timestamp()
-            wear_avg = 100 - (sum(read_data.wear()) * 25)
+            lap_stime, lap_etime = readapi.lap_timestamp()
+            wear_avg = 100 - (sum(readapi.wear()) * 25)
 
             if lap_stime != self.last_lap_stime:  # time stamp difference
                 if 2 < lap_etime - lap_stime < 10:  # update 2s after cross line
@@ -191,7 +191,7 @@ class Draw(Widget):
                     self.store_last_data()
 
             # Current laps data
-            self.laps_data[0][0] = read_data.lap_number()
+            self.laps_data[0][0] = readapi.lap_number()
             self.laps_data[0][1] = minfo.delta.LaptimeEstimated
             self.laps_data[0][2] = 0
             self.laps_data[0][3] = minfo.fuel.EstimatedFuelConsumption

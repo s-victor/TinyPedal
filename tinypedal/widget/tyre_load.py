@@ -24,7 +24,7 @@ from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
 
 from .. import calculation as calc
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 
 WIDGET_NAME = "tyre_load"
@@ -83,10 +83,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Read tyre load data
-            raw_load = read_data.tyre_load()
+            raw_load = readapi.tyre_load()
             self.tload = tuple(map(round, raw_load))
             self.tratio = tuple(map(self.tyre_load_ratio, raw_load, [sum(raw_load)] * 4))
 

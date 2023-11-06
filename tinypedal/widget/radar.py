@@ -24,7 +24,7 @@ from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPixmap, QLinearGradient, QRadialGradient, QPen, QBrush, QColor
 
 from .. import calculation as calc
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 from ..module_info import minfo
 
@@ -74,7 +74,7 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Auto hide radar if no nearby vehicles
             if self.wcfg["auto_hide"]:
@@ -357,7 +357,7 @@ class Draw(Widget):
 
     def autohide_radar(self):
         """Auto hide radar if no nearby vehicles"""
-        lap_etime, ingarage = read_data.radar()
+        lap_etime, ingarage = readapi.radar()
 
         if self.nearby() or ingarage:
             if not self.autohide_timer_start:

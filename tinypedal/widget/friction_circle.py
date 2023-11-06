@@ -35,7 +35,7 @@ from PySide2.QtGui import (
 )
 
 from .. import calculation as calc
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 from ..module_info import minfo
 
@@ -122,7 +122,7 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Reset switch
             if not self.checked:

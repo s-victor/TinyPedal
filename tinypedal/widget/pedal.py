@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
     QGridLayout,
 )
 
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 
 WIDGET_NAME = "pedal"
@@ -134,7 +134,7 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Reset switch
             if not self.checked:
@@ -143,7 +143,7 @@ class Draw(Widget):
             # Read pedal data
             # Throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
             (f_throttle, f_brake, f_clutch, raw_throttle, raw_brake, raw_clutch, ffb
-             ) = tuple(map(self.scale_input, read_data.pedal()))
+             ) = tuple(map(self.scale_input, readapi.pedal()))
 
             # Throttle
             if self.wcfg["show_throttle"]:
@@ -154,7 +154,7 @@ class Draw(Widget):
             # Brake
             if self.wcfg["show_brake"]:
                 if self.wcfg["show_brake_pressure"]:
-                    brake_pres = sum(read_data.brake_pressure())
+                    brake_pres = sum(readapi.brake_pressure())
                     if brake_pres > self.max_brake_pres:
                         self.max_brake_pres = brake_pres
                     f_brake = self.scale_input(brake_pres / max(self.max_brake_pres, 0.001))

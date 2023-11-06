@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import formatter as fmt
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 from ..module_info import minfo
 
@@ -128,7 +128,7 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # G force
             if self.wcfg["show_g_force"]:

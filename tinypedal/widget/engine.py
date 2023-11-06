@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 
 WIDGET_NAME = "engine"
@@ -144,10 +144,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Read Engine data
-            temp_oil, temp_water, e_turbo, e_rpm = read_data.engine()
+            temp_oil, temp_water, e_turbo, e_rpm = readapi.engine()
 
             if self.wcfg["show_temperature"]:
                 # Oil temperature

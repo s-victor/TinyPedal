@@ -23,7 +23,7 @@ Steering Widget
 from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
 
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 
 WIDGET_NAME = "steering"
@@ -84,10 +84,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Read steering data
-            self.raw_steering, self.sw_rot_range = read_data.steering()
+            self.raw_steering, self.sw_rot_range = readapi.steering()
 
             # Steering
             self.update_steering(self.raw_steering, self.last_raw_steering)

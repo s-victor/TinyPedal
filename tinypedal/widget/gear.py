@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 from ..module_info import minfo
 
@@ -171,14 +171,14 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Switch
             if not self.checked:
                 self.checked = True
 
             # Read gauge data
-            limiter, gear, max_gear, speed, rpm, rpm_max, lap_etime = read_data.gauge()
+            limiter, gear, max_gear, speed, rpm, rpm_max, lap_etime = readapi.gauge()
             rpm_safe = int(rpm_max * self.wcfg["rpm_multiplier_safe"])
             rpm_red = int(rpm_max * self.wcfg["rpm_multiplier_redline"])
             rpm_crit = int(rpm_max * self.wcfg["rpm_multiplier_critical"])

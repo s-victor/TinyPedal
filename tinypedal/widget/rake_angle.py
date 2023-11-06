@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 
 WIDGET_NAME = "rake_angle"
@@ -89,10 +89,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Read ride height & rake data
-            ride_height = tuple(map(calc.meter2millmeter, read_data.ride_height()))
+            ride_height = tuple(map(calc.meter2millmeter, readapi.ride_height()))
 
             # Rake angle
             rake = round(calc.rake(*ride_height), 2)

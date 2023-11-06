@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
     QLabel,
 )
 
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 from ..module_info import minfo
 
@@ -149,9 +149,9 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
-            lap_stime, lap_etime = read_data.lap_timestamp()
+            lap_stime, lap_etime = readapi.lap_timestamp()
 
             # Battery charge & usage
             if self.wcfg["show_battery_charge"]:

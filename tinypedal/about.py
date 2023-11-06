@@ -33,7 +33,7 @@ from PySide2.QtWidgets import (
 )
 
 from .const import APP_NAME, VERSION, APP_ICON
-from . import readapi as read_data
+from . import readapi
 
 COPYRIGHT = "Copyright (C) 2022-2023 Xiang"
 DESCRIPTION = "An open-source overlay application for racing simulation."
@@ -81,7 +81,7 @@ class About(QWidget):
         label_desc.setStyleSheet("padding: 5px; font-size: 11px;")
 
         # Additional info
-        label_addinfo = QLabel(f"Loaded API version: {read_data.api_version()}")
+        label_addinfo = QLabel(f"Loaded API version: {readapi.api_version()}")
         label_addinfo.setAlignment(Qt.AlignLeft)
         label_addinfo.setStyleSheet("padding: 5px; font-size: 11px;")
 

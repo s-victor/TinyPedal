@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
     QLabel,
 )
 
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 
 WIDGET_NAME = "brake_bias"
@@ -89,10 +89,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Brake bias
-            bbias = (1 - read_data.brake_bias()) * 100
+            bbias = (1 - readapi.brake_bias()) * 100
             self.update_bbias(bbias, self.last_bbias)
             self.last_bbias = bbias
 

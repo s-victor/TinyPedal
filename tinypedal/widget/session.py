@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 
 WIDGET_NAME = "session"
@@ -124,10 +124,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Read session data
-            time_left, lap_into, lap_total, plr_position = read_data.session()
+            time_left, lap_into, lap_total, plr_position = readapi.session()
 
             # System Clock
             if self.wcfg["show_system_clock"]:
@@ -142,7 +142,7 @@ class Draw(Widget):
 
             # Lap number
             if self.wcfg["show_lapnumber"]:
-                lap_num = read_data.lap_number()
+                lap_num = readapi.lap_number()
                 self.update_lapnumber(lap_into, self.last_lap_into, lap_num, lap_total)
                 self.last_lap_into = lap_into
 

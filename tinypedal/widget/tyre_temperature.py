@@ -29,7 +29,7 @@ from PySide2.QtWidgets import (
 
 from .. import calculation as calc
 from .. import validator as val
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 
 WIDGET_NAME = "tyre_temperature"
@@ -227,16 +227,16 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Tyre compound
             if self.wcfg["show_tyre_compound"]:
-                tcmpd = self.set_tyre_cmp(read_data.tyre_compound())
+                tcmpd = self.set_tyre_cmp(readapi.tyre_compound())
                 self.update_tcmpd(tcmpd, self.last_tcmpd)
                 self.last_tcmpd = tcmpd
 
             # Tyre temperature
-            stemp = tuple(map(self.temp_mode, read_data.tyre_temp_surface()))
+            stemp = tuple(map(self.temp_mode, readapi.tyre_temp_surface()))
 
             # Inner, center, outer mode
             if self.wcfg["show_inner_center_outer"]:
@@ -272,7 +272,7 @@ class Draw(Widget):
                 # Inner layer temperature
                 if self.wcfg["show_innerlayer"]:
                     itemp = tuple(map(
-                        self.temp_mode, read_data.tyre_temp_innerlayer()))
+                        self.temp_mode, readapi.tyre_temp_innerlayer()))
                     for suffix in self.itemp_set:
                         for idx in range(3):
                             if suffix == "itemp_fl":  # 2 1 0
@@ -309,7 +309,7 @@ class Draw(Widget):
                 # Inner layer temperature
                 if self.wcfg["show_innerlayer"]:
                     itemp = tuple(map(
-                        self.temp_mode, read_data.tyre_temp_innerlayer()))
+                        self.temp_mode, readapi.tyre_temp_innerlayer()))
                     for idx, suffix in enumerate(self.itemp_set):
                         self.update_itemp(suffix, itemp[idx], self.last_itemp[idx])
                     self.last_itemp = itemp

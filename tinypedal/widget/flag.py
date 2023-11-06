@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
     QLabel,
 )
 
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 from ..module_info import minfo
 
@@ -199,16 +199,16 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Reset switch
             if not self.checked:
                 self.checked = True
 
             # Read flag data
-            inpits, pit_limiter, race_phase = read_data.pitting()
-            is_race = read_data.is_race()
-            lap_stime, lap_etime = read_data.lap_timestamp()
+            inpits, pit_limiter, race_phase = readapi.pitting()
+            is_race = readapi.is_race()
+            lap_stime, lap_etime = readapi.lap_timestamp()
 
             # Pit timer
             if self.wcfg["show_pit_timer"]:
@@ -254,7 +254,7 @@ class Draw(Widget):
             # Blue flag
             if self.wcfg["show_blue_flag"]:
                 #blue_flag = 6  # testing
-                blue_flag = read_data.blue_flag()
+                blue_flag = readapi.blue_flag()
                 blue_flag_timer = -1
 
                 if self.last_blue_flag != blue_flag == 6:
@@ -278,7 +278,7 @@ class Draw(Widget):
             if self.wcfg["show_yellow_flag"]:
                 #yellow_flag = [1,1,1,0,0,0]# testing
                 yellow_flag = (
-                    *read_data.yellow_flag(),  # 0,1,2
+                    *readapi.yellow_flag(),  # 0,1,2
                     minfo.vehicles.NearestYellow,  # 3
                     bool(minfo.vehicles.NearestYellow  # 4
                          < self.wcfg["yellow_flag_maximum_range"]),
@@ -401,7 +401,7 @@ class Draw(Widget):
         if curr != last:
             if green == 0:
                 self.bar_startlights.setText(
-                    f"{self.wcfg['red_lights_text'][:6].ljust(6)}{read_data.startlights()}")
+                    f"{self.wcfg['red_lights_text'][:6].ljust(6)}{readapi.startlights()}")
                 self.bar_startlights.setStyleSheet(
                     f"color: {self.wcfg['font_color_startlights']};"
                     f"background: {self.wcfg['bkg_color_red_lights']};")

@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 
 WIDGET_NAME = "instrument"
@@ -153,19 +153,19 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Save switch
             if not self.checked:
                 self.checked = True
-                self.vehicle_id = read_data.vehicle_identify()
+                self.vehicle_id = readapi.vehicle_identify()
                 if self.wcfg["last_vehicle_info"] == self.vehicle_id:
                     self.min_samples_f = 320
                     self.min_samples_r = 320
 
             # Read instrument data
             (headlights, ignition, clutch, brake, wheel_rot, speed
-             ) = read_data.instrument()
+             ) = readapi.instrument()
 
             slipratio = round(self.calc_slipratio(wheel_rot, speed), 2)
             self.flicker = bool(not self.flicker)

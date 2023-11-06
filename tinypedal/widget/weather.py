@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 
 WIDGET_NAME = "weather"
@@ -111,10 +111,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state():
+        if self.wcfg["enable"] and readapi.state():
 
             # Read Weather data
-            track_temp, ambient_temp, rain_per, wet_road = read_data.weather()
+            track_temp, ambient_temp, rain_per, wet_road = readapi.weather()
 
             # Track temperature
             if self.wcfg["show_temperature"]:

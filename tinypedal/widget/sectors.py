@@ -30,7 +30,7 @@ from PySide2.QtWidgets import (
 
 from .. import calculation as calc
 from .. import validator as val
-from .. import readapi as read_data
+from .. import readapi
 from ..base import Widget
 from ..module_info import minfo
 
@@ -168,10 +168,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and read_data.state() and minfo.sectors.SectorPrev:
+        if self.wcfg["enable"] and readapi.state() and minfo.sectors.SectorPrev:
 
             # Read Sector data
-            lap_stime, lap_etime = read_data.lap_timestamp()
+            lap_stime, lap_etime = readapi.lap_timestamp()
             laptime_curr = max(lap_etime - lap_stime, 0)
 
             # Save switch
