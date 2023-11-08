@@ -142,13 +142,13 @@ class Draw(Widget):
 
             # Read pedal data
             # Throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
-            f_throttle = self.scale_input(api.read.pedal.throttle())
-            f_brake = self.scale_input(api.read.pedal.brake())
-            f_clutch = self.scale_input(api.read.pedal.clutch())
-            raw_throttle = self.scale_input(api.read.pedal.throttle_raw())
-            raw_brake = self.scale_input(api.read.pedal.brake_raw())
-            raw_clutch = self.scale_input(api.read.pedal.clutch_raw())
-            ffb = self.scale_input(api.read.steering.force_feedback())
+            f_throttle = self.scale_input(api.read.input.throttle())
+            f_brake = self.scale_input(api.read.input.brake())
+            f_clutch = self.scale_input(api.read.input.clutch())
+            raw_throttle = self.scale_input(api.read.input.throttle_raw())
+            raw_brake = self.scale_input(api.read.input.brake_raw())
+            raw_clutch = self.scale_input(api.read.input.clutch_raw())
+            ffb = self.scale_input(api.read.input.force_feedback())
 
             # Throttle
             if self.wcfg["show_throttle"]:

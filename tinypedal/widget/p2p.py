@@ -102,7 +102,7 @@ class Draw(Widget):
             # Read p2p data
             gear = api.read.engine.gear()
             speed = api.read.vehicle.speed()
-            throttle_raw = api.read.pedal.throttle_raw()
+            throttle_raw = api.read.input.throttle_raw()
 
             alt_active_state = (
                 gear >= self.wcfg["activation_threshold_gear"] and

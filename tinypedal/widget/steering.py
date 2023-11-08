@@ -87,8 +87,8 @@ class Draw(Widget):
         if self.wcfg["enable"] and api.state:
 
             # Read steering data
-            self.raw_steering = api.read.steering.steering_raw()
-            self.sw_rot_range = api.read.steering.range_physical()
+            self.raw_steering = api.read.input.steering_raw()
+            self.sw_rot_range = api.read.input.steering_range_physical()
 
             # Steering
             self.update_steering(self.raw_steering, self.last_raw_steering)

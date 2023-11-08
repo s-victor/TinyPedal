@@ -167,9 +167,9 @@ class Draw(Widget):
             headlights = api.read.instrument.headlights()
             ignition = (api.read.instrument.ignition_starter(),
                         api.read.engine.rpm())
-            clutch = (api.read.pedal.clutch_auto(),
-                      api.read.pedal.clutch())
-            is_braking = api.read.pedal.brake() > 0
+            clutch = (api.read.input.clutch_auto(),
+                      api.read.input.clutch())
+            is_braking = api.read.input.brake() > 0
             wheel_rot = api.read.wheel.rotation()
             speed = api.read.vehicle.speed()
 

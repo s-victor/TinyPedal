@@ -672,9 +672,9 @@ class SpectateList(QWidget):
     def refresh_spectate_list(self):
         """Refresh spectate list"""
         if cfg.shared_memory_api["enable_player_index_override"]:
-            temp_list = api.read.vehicle.driver_list()
+            temp_list = ["Anonymous", *api.read.vehicle.driver_list()]
             if temp_list != self.spectate_list:
-                self.spectate_list = ["Anonymous", *temp_list]
+                self.spectate_list = temp_list
                 self.listbox_spectate.clear()
                 self.listbox_spectate.addItems(self.spectate_list)
             index = cfg.shared_memory_api["player_index"] + 1

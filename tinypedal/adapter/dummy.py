@@ -184,6 +184,61 @@ class Engine(DataFunc):
         return chknm(self.info.rf2TeleVeh(index).mEngineWaterTemp)
 
 
+class Input(DataFunc):
+    """Input"""
+    def throttle(self, index: int=None) -> float:
+        """Throttle filtered"""
+        return chknm(self.info.rf2TeleVeh(index).mFilteredThrottle)
+
+    def throttle_raw(self, index: int=None) -> float:
+        """Throttle raw"""
+        return chknm(self.info.rf2TeleVeh(index).mUnfilteredThrottle)
+
+    def brake(self, index: int=None) -> float:
+        """Brake filtered"""
+        return chknm(self.info.rf2TeleVeh(index).mFilteredBrake)
+
+    def brake_raw(self, index: int=None) -> float:
+        """Brake raw"""
+        return chknm(self.info.rf2TeleVeh(index).mUnfilteredBrake)
+
+    def clutch(self, index: int=None) -> float:
+        """Clutch filtered"""
+        return chknm(self.info.rf2TeleVeh(index).mFilteredClutch)
+
+    def clutch_raw(self, index: int=None) -> float:
+        """Clutch raw"""
+        return chknm(self.info.rf2TeleVeh(index).mUnfilteredClutch)
+
+    def clutch_auto(self) -> int:
+        """Clutch auto"""
+        return chknm(self.info.rf2Ext.mPhysics.mAutoClutch)
+
+    def steering(self, index: int=None) -> float:
+        """Steering filtered"""
+        return chknm(self.info.rf2TeleVeh(index).mFilteredSteering)
+
+    def steering_raw(self, index: int=None) -> float:
+        """Steering raw"""
+        return chknm(self.info.rf2TeleVeh(index).mUnfilteredSteering)
+
+    def steering_shaft_torque(self, index: int=None) -> float:
+        """Steering shaft torque"""
+        return chknm(self.info.rf2TeleVeh(index).mSteeringShaftTorque)
+
+    def steering_range_physical(self, index: int=None) -> float:
+        """Steering physical rotation range"""
+        return chknm(self.info.rf2TeleVeh(index).mPhysicalSteeringWheelRange)
+
+    def steering_range_visual(self, index: int=None) -> float:
+        """Steering physical rotation range"""
+        return chknm(self.info.rf2TeleVeh(index).mVisualSteeringWheelRange)
+
+    def force_feedback(self) -> float:
+        """Steering force feedback"""
+        return chknm(self.info.rf2Ffb.mForceValue)
+
+
 class Instrument(DataFunc):
     """Instrument"""
     def headlights(self, index: int=None) -> int:
@@ -249,37 +304,6 @@ class Lap(DataFunc):
         return chknm(self.info.rf2ScorVeh(index).mLapsBehindNext)
 
 
-class Pedal(DataFunc):
-    """Pedal"""
-    def throttle(self, index: int=None) -> float:
-        """Throttle filtered"""
-        return chknm(self.info.rf2TeleVeh(index).mFilteredThrottle)
-
-    def throttle_raw(self, index: int=None) -> float:
-        """Throttle raw"""
-        return chknm(self.info.rf2TeleVeh(index).mUnfilteredThrottle)
-
-    def brake(self, index: int=None) -> float:
-        """Brake filtered"""
-        return chknm(self.info.rf2TeleVeh(index).mFilteredBrake)
-
-    def brake_raw(self, index: int=None) -> float:
-        """Brake raw"""
-        return chknm(self.info.rf2TeleVeh(index).mUnfilteredBrake)
-
-    def clutch(self, index: int=None) -> float:
-        """Clutch filtered"""
-        return chknm(self.info.rf2TeleVeh(index).mFilteredClutch)
-
-    def clutch_raw(self, index: int=None) -> float:
-        """Clutch raw"""
-        return chknm(self.info.rf2TeleVeh(index).mUnfilteredClutch)
-
-    def clutch_auto(self) -> int:
-        """Clutch auto"""
-        return chknm(self.info.rf2Ext.mPhysics.mAutoClutch)
-
-
 class Session(DataFunc):
     """Session"""
     def elapsed(self) -> float:
@@ -297,33 +321,6 @@ class Session(DataFunc):
     def remaining(self) -> float:
         """Session time remaining"""
         return self.end() - self.elapsed()
-
-
-class Steering(DataFunc):
-    """Steering"""
-    def steering(self, index: int=None) -> float:
-        """Steering filtered"""
-        return chknm(self.info.rf2TeleVeh(index).mFilteredSteering)
-
-    def steering_raw(self, index: int=None) -> float:
-        """Steering raw"""
-        return chknm(self.info.rf2TeleVeh(index).mUnfilteredSteering)
-
-    def shaft_torque(self, index: int=None) -> float:
-        """Steering shaft torque"""
-        return chknm(self.info.rf2TeleVeh(index).mSteeringShaftTorque)
-
-    def range_physical(self, index: int=None) -> float:
-        """Steering physical rotation range"""
-        return chknm(self.info.rf2TeleVeh(index).mPhysicalSteeringWheelRange)
-
-    def range_visual(self, index: int=None) -> float:
-        """Steering physical rotation range"""
-        return chknm(self.info.rf2TeleVeh(index).mVisualSteeringWheelRange)
-
-    def force_feedback(self) -> float:
-        """Steering force feedback"""
-        return chknm(self.info.rf2Ffb.mForceValue)
 
 
 class Suspension(DataFunc):
@@ -603,11 +600,10 @@ class DataSet:
         self.brake = Brake(info)
         self.emotor = ElectricMotor(info)
         self.engine = Engine(info)
+        self.input = Input(info)
         self.instrument = Instrument(info)
         self.lap = Lap(info)
-        self.pedal = Pedal(info)
         self.session = Session(info)
-        self.steering = Steering(info)
         self.suspension = Suspension(info)
         self.timing = Timing(info)
         self.tyre = Tyre(info)
