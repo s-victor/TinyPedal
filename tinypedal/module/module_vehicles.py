@@ -163,16 +163,16 @@ class Realtime:
 
             if matched_class_list:
                 position_in_class = class_pos_list[index][1]
-                session_best_laptime = class_pos_list[index][3]
-                class_best_laptime = class_pos_list[index][4]
+                laptime_session_best = class_pos_list[index][3]
+                laptime_class_best = class_pos_list[index][4]
             else:
                 position_in_class = 0
-                session_best_laptime = 99999
-                class_best_laptime = 99999
+                laptime_session_best = 99999
+                laptime_class_best = 99999
 
-            best_laptime = api.read.timing.best_laptime(index)
-            last_laptime = api.read.timing.last_laptime(index)
-            elapsed_time = api.read.timing.elapsed(tele_index)
+            laptime_best = api.read.timing.best_laptime(index)
+            laptime_last = api.read.timing.last_laptime(index)
+            lap_etime = api.read.timing.elapsed(tele_index)
             speed = api.read.vehicle.speed(tele_index)
 
             # Distance & time
@@ -205,7 +205,7 @@ class Realtime:
             num_pit_stops = api.read.vehicle.number_pitstops(index)
             pit_state = api.read.vehicle.pit_state(index)
             pit_time = self.__calc_pit_time(
-                index, in_pit, in_garage, last_laptime, elapsed_time,
+                index, in_pit, in_garage, laptime_last, lap_etime,
                 in_pit * 1000 + slot_id)
             tire_compound_index = api.read.tyre.compound(tele_index)
 
@@ -233,10 +233,10 @@ class Realtime:
                 VehicleName = vehicle_name,
                 VehicleClass = vehicle_class,
                 PositionInClass = position_in_class,
-                SessionBestLaptime = session_best_laptime,
-                ClassBestLaptime = class_best_laptime,
-                BestLaptime = best_laptime,
-                LastLaptime = last_laptime,
+                SessionBestLaptime = laptime_session_best,
+                ClassBestLaptime = laptime_class_best,
+                BestLaptime = laptime_best,
+                LastLaptime = laptime_last,
                 Speed = speed,
                 IsPlayer = is_player,
                 TotalLaps = total_laps,
@@ -263,25 +263,25 @@ class Realtime:
                 RelativeStraightDistance = relative_straight_distance,
             )
 
-    def __calc_pit_time(self, index, in_pit, in_garage, last_laptime, elapsed_time, pit_status):
+    def __calc_pit_time(self, index, in_pit, in_garage, laptime_last, lap_etime, pit_status):
         """Calculate lap & pit time"""
         index *= 3
         idx_inpit, idx_start, idx_timer = index, index + 1, index + 2
         # Pit status check
         if pit_status != self.pit_time_list[idx_inpit]:
             self.pit_time_list[idx_inpit] = pit_status  # last pit status
-            self.pit_time_list[idx_start] = elapsed_time  # last etime stamp
+            self.pit_time_list[idx_start] = lap_etime  # last etime stamp
         # Ignore pit timer in garage
         if in_garage:
             self.pit_time_list[idx_start] = -1
             self.pit_time_list[idx_timer] = 0
         # Start counting pit time
         if self.pit_time_list[idx_start] >= 0:
-            pit_time = min(max(elapsed_time - self.pit_time_list[idx_start], 0), 999.9)
+            pit_time = min(max(lap_etime - self.pit_time_list[idx_start], 0), 999.9)
             if in_pit:
                 self.pit_time_list[idx_timer] = pit_time
         # Reset pit time if made a valid lap time after pit
-        if not in_pit and self.pit_time_list[idx_timer] > 0 and last_laptime > 0:
+        if not in_pit and self.pit_time_list[idx_timer] > 0 and laptime_last > 0:
             self.pit_time_list[idx_timer] = 0
         return self.pit_time_list[idx_timer]
 

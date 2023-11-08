@@ -93,7 +93,7 @@ class Realtime:
                 # Read telemetry
                 lap_stime = api.read.timing.start()
                 laptime_curr = max(api.read.timing.current_laptime(), 0)
-                lastlap_valid = api.read.timing.last_laptime()
+                laptime_valid = api.read.timing.last_laptime()
                 pos_curr = api.read.lap.distance()
                 gps_curr = api.read.vehicle.pos_xyz()
 
@@ -127,7 +127,7 @@ class Realtime:
                 # Validating 1s after passing finish line
                 if validating:
                     if 1 < laptime_curr <= 8:  # compare current time
-                        if laptime_last < laptime_best and abs(lastlap_valid - laptime_last) < 1:
+                        if laptime_last < laptime_best and abs(laptime_valid - laptime_last) < 1:
                             laptime_best = laptime_last
                             delta_list_best = delta_list_last
                             delta_list_last = [DELTA_ZERO]
@@ -159,7 +159,7 @@ class Realtime:
                 minfo.delta.lapTimeBest = laptime_best
                 minfo.delta.lapTimeEstimated = laptime_best + delta_best
                 minfo.delta.deltaBest = delta_best
-                minfo.delta.isValidLap = lastlap_valid > 0
+                minfo.delta.isValidLap = laptime_valid > 0
                 minfo.delta.metersDriven = meters_driven
 
             else:

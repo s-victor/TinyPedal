@@ -72,7 +72,7 @@ class Realtime:
                     last_sector_idx = -1  # previous recorded sector index value
                     combo_id = api.read.identify.combo()  # current car & track combo
                     session_id = api.read.identify.session()  # session identity
-                    best_laptime, best_s_tb, best_s_pb = self.load_sector_data(
+                    laptime_best, best_s_tb, best_s_pb = self.load_sector_data(
                         combo_id, session_id)
                     delta_s_tb = [0,0,0]  # deltabest times against all time best sector
                     delta_s_pb = [0,0,0]  # deltabest times against best laptime sector
@@ -81,7 +81,7 @@ class Realtime:
 
                 # Read telemetry
                 sector_idx = api.read.lap.sector_index()
-                last_laptime = api.read.timing.last_laptime()
+                laptime_valid = api.read.timing.last_laptime()
                 curr_sector1 = api.read.timing.curr_sector1()
                 curr_sector2 = api.read.timing.curr_sector2()
                 last_sector2 = api.read.timing.last_sector2()
@@ -90,10 +90,10 @@ class Realtime:
                 if last_sector_idx != sector_idx:  # keep checking until conditions met
 
                     # While vehicle in S1, update S3 data
-                    if sector_idx == 0 and last_laptime > 0 and last_sector2 > 0:
+                    if sector_idx == 0 and laptime_valid > 0 and last_sector2 > 0:
                         last_sector_idx = sector_idx  # reset & stop checking
 
-                        prev_s[2] = last_laptime - last_sector2
+                        prev_s[2] = laptime_valid - last_sector2
 
                         # Update (time gap) deltabest bestlap sector 3 text
                         if val.sector_time(best_s_pb[2]):
@@ -111,8 +111,8 @@ class Realtime:
                             best_s_tb[2] = prev_s[2]
 
                         # Save sector time from personal best laptime
-                        if last_laptime < best_laptime and val.sector_time(prev_s):
-                            best_laptime = last_laptime
+                        if laptime_valid < laptime_best and val.sector_time(prev_s):
+                            laptime_best = laptime_valid
                             best_s_pb = prev_s.copy()
 
                     # While vehicle in S2, update S1 data
@@ -172,7 +172,7 @@ class Realtime:
                     update_interval = idle_interval
                     # Save only valid sector data
                     self.save_sector_data(
-                        combo_id, session_id, best_s_pb, best_laptime, best_s_tb)
+                        combo_id, session_id, best_s_pb, laptime_best, best_s_tb)
 
             time.sleep(update_interval)
 
@@ -180,7 +180,7 @@ class Realtime:
         self.stopped = True
         logger.info("sectors module closed")
 
-    def save_sector_data(self, combo_id, session_id, best_s_pb, best_laptime, best_s_tb):
+    def save_sector_data(self, combo_id, session_id, best_s_pb, laptime_best, best_s_tb):
         """Verify and save sector data"""
         if session_id and val.sector_time(best_s_pb):
             self.mcfg["sector_info"] = (
@@ -188,7 +188,7 @@ class Realtime:
                 + "|" + str(session_id[0])
                 + "|" + str(session_id[1])
                 + "|" + str(session_id[2])
-                + "|" + str(best_laptime)
+                + "|" + str(laptime_best)
                 + "|" + str(best_s_tb[0])
                 + "|" + str(best_s_tb[1])
                 + "|" + str(best_s_tb[2])
@@ -209,15 +209,15 @@ class Realtime:
             saved_data[2] <= session_id[1] and
             saved_data[3] <= session_id[2]):
             # Assign loaded data
-            best_laptime = saved_data[4]  # best laptime (seconds)
+            laptime_best = saved_data[4]  # best laptime (seconds)
             best_s_tb = saved_data[5]     # theory best sector times
             best_s_pb = saved_data[6]     # personal best sector times
         else:
             logger.info("no valid sectors data found")
-            best_laptime = MAGIC_NUM
+            laptime_best = MAGIC_NUM
             best_s_tb = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]
             best_s_pb = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]
-        return best_laptime, best_s_tb, best_s_pb
+        return laptime_best, best_s_tb, best_s_pb
 
     def parse_save_string(self, save_data):
         """Parse last saved sector data"""
@@ -231,7 +231,7 @@ class Realtime:
                 data[1],                    # 1 - session identify, float
                 data[2],                    # 2 - session elapsed time, float
                 data[3],                    # 3 - session total laps, float
-                data[4],                    # 4 - best_laptime, float
+                data[4],                    # 4 - laptime_best, float
                 [data[5],data[6],data[7]],  # 5 - best_s_tb, float
                 [data[8],data[9],data[10]]  # 6 - best_s_pb, float
             ]

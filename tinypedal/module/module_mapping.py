@@ -126,7 +126,7 @@ class MapRecorder:
         # Read telemetry
         lap_stime = api.read.timing.start()
         lap_etime = api.read.timing.elapsed()
-        lastlap_check = api.read.timing.last_laptime()
+        laptime_valid = api.read.timing.last_laptime()
         sector_idx = api.read.lap.sector_index()
         pos_curr = round(api.read.lap.distance(), 4)
         gps_curr = (round(api.read.vehicle.pos_longitudinal(), 4),
@@ -136,7 +136,7 @@ class MapRecorder:
         # Update map data
         self.__start(lap_stime)
         if self.validating:
-            self.__validate(lap_etime, lastlap_check)
+            self.__validate(lap_etime, laptime_valid)
         if self.recording:
             self.__record_sector(sector_idx)
             self.__record_path(pos_curr, gps_curr, elv_curr)
@@ -156,10 +156,10 @@ class MapRecorder:
             self.recording = True
             #logger.info("map recording")
 
-    def __validate(self, lap_etime, lastlap_check):
+    def __validate(self, lap_etime, laptime_valid):
         """Validate map data after crossing finish line"""
         laptime_curr = lap_etime - self.last_lap_stime
-        if 1 < laptime_curr <= 8 and lastlap_check > 0:
+        if 1 < laptime_curr <= 8 and laptime_valid > 0:
             self.map.save()
             self.map.exist = True
             self.recording = False

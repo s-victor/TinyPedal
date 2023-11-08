@@ -110,7 +110,7 @@ class Realtime:
                 # Read telemetry
                 lap_stime = api.read.timing.start()
                 laptime_curr = max(api.read.timing.current_laptime(), 0)
-                lastlap_valid = api.read.timing.last_laptime()
+                laptime_valid = api.read.timing.last_laptime()
                 time_left = api.read.session.remaining()
                 amount_curr = api.read.vehicle.fuel()
                 capacity = max(api.read.vehicle.tank_capacity(), 1)
@@ -166,9 +166,9 @@ class Realtime:
                 # Validating 1s after passing finish line
                 if validating:
                     if 0.2 < laptime_curr <= 3:  # compare current time
-                        if lastlap_valid > 0:
+                        if laptime_valid > 0:
                             used_last = used_last_raw
-                            laptime_last = lastlap_valid
+                            laptime_last = laptime_valid
                             delta_list_last = delta_list_temp
                             delta_list_temp = [DELTA_ZERO]
                             validating = False

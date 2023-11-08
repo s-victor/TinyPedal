@@ -163,19 +163,19 @@ class Realtime:
         for index in range(veh_total):
             vehclass = api.read.vehicle.class_name(index)
             position = api.read.vehicle.place(index)
-            best_laptime = api.read.timing.best_laptime(index)
+            laptime_best = api.read.timing.best_laptime(index)
             yield (
                 vehclass,  # 0 vehicle class name
                 position,  # 1 overall position/place
                 index,     # 2 player index
-                best_laptime if best_laptime > 0 else 99999, # 3 best lap time
+                laptime_best if laptime_best > 0 else 99999, # 3 best lap time
             )
 
     @staticmethod
     def __sort_class_data(sorted_veh_class, unique_class_list):
         """Get vehicle class position data"""
-        session_best_laptime = sorted(sorted_veh_class, key=lambda laptime:laptime[3])[0][3]
-        class_best_laptime = 99999
+        laptime_session_best = sorted(sorted_veh_class, key=lambda laptime:laptime[3])[0][3]
+        laptime_class_best = 99999
         initial_class = unique_class_list[0]
         position_counter = 0  # position in class
 
@@ -189,14 +189,14 @@ class Realtime:
                         position_counter = 1  # reset position counter
 
                     if position_counter == 1:
-                        class_best_laptime = veh_sort[3]
+                        laptime_class_best = veh_sort[3]
 
                     yield (
                         veh_sort[2],       # 0 - 2 player index
                         position_counter,  # 1 - position in class
                         veh_sort[0],       # 2 - 0 class name
-                        session_best_laptime,  # 3 session best
-                        class_best_laptime,  # 4 classes best
+                        laptime_session_best,  # 3 session best
+                        laptime_class_best,  # 4 classes best
                     )
 
     def __standings_index_list(
