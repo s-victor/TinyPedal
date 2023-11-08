@@ -30,7 +30,7 @@ from PySide2.QtWidgets import (
 
 from .. import calculation as calc
 from .. import validator as val
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -168,10 +168,11 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state() and minfo.sectors.SectorPrev:
+        if self.wcfg["enable"] and api.state and minfo.sectors.sectorPrev:
 
             # Read Sector data
-            lap_stime, lap_etime = readapi.lap_timestamp()
+            lap_stime = api.read.timing.start()
+            lap_etime = api.read.timing.elapsed()
             laptime_curr = max(lap_etime - lap_stime, 0)
 
             # Save switch
@@ -180,16 +181,16 @@ class Draw(Widget):
                 self.set_defaults()  # reset data
 
             # Triggered when sector changed
-            if self.last_sector_idx != minfo.sectors.SectorIndex:
+            if self.last_sector_idx != minfo.sectors.sectorIndex:
 
                 # Store last time target text for freeze state before update
                 self.last_time_target_text = self.time_target_text
 
                 # Update (time target) best sector text
                 self.time_target_text = self.set_target_time(
-                    minfo.sectors.SectorBestTB,
-                    minfo.sectors.SectorBestPB,
-                    minfo.sectors.SectorIndex)
+                    minfo.sectors.sectorBestTB,
+                    minfo.sectors.sectorBestPB,
+                    minfo.sectors.sectorIndex)
 
                 # Activate freeze & sector timer
                 self.freeze_timer_start = lap_etime
@@ -199,24 +200,24 @@ class Draw(Widget):
 
                 # Freeze current sector time
                 self.update_time_curr(
-                    minfo.sectors.SectorIndex,
-                    minfo.sectors.SectorPrev,
+                    minfo.sectors.sectorIndex,
+                    minfo.sectors.sectorPrev,
                     laptime_curr, True)
 
                 # Update previous & best sector time
-                prev_s_idx = (2,0,1)[minfo.sectors.SectorIndex]
+                prev_s_idx = (2,0,1)[minfo.sectors.sectorIndex]
                 self.update_time_gap(
-                    minfo.sectors.DeltaSectorBestPB[prev_s_idx],
+                    minfo.sectors.deltaSectorBestPB[prev_s_idx],
                     self.last_delta_s_pb[prev_s_idx])
                 self.update_sector_gap(
                     f"s{prev_s_idx+1}_gap",
-                    minfo.sectors.DeltaSectorBestTB[prev_s_idx],
+                    minfo.sectors.deltaSectorBestTB[prev_s_idx],
                     self.last_delta_s_tb[prev_s_idx],
-                    minfo.sectors.NoDeltaSector)
+                    minfo.sectors.noDeltaSector)
 
-                self.last_delta_s_pb[prev_s_idx] = minfo.sectors.DeltaSectorBestPB[prev_s_idx]
-                self.last_delta_s_tb[prev_s_idx] = minfo.sectors.DeltaSectorBestTB[prev_s_idx]
-                self.last_sector_idx = minfo.sectors.SectorIndex  # reset
+                self.last_delta_s_pb[prev_s_idx] = minfo.sectors.deltaSectorBestPB[prev_s_idx]
+                self.last_delta_s_tb[prev_s_idx] = minfo.sectors.deltaSectorBestTB[prev_s_idx]
+                self.last_sector_idx = minfo.sectors.sectorIndex  # reset
 
             # Update freeze timer
             if self.freeze_timer_start:
@@ -224,21 +225,21 @@ class Draw(Widget):
 
                 # Stop freeze timer after duration
                 if freeze_timer >= self.freeze_duration(
-                    minfo.sectors.SectorPrev[minfo.sectors.SectorIndex]):
+                    minfo.sectors.sectorPrev[minfo.sectors.sectorIndex]):
                     self.freeze_timer_start = 0  # stop timer
                     # Update best sector time
                     self.update_time_target(self.time_target_text)
                     # Restore best sector time when cross finish line
-                    if minfo.sectors.SectorIndex == 0:
-                        self.restore_best_sector(minfo.sectors.SectorBestTB)
+                    if minfo.sectors.sectorIndex == 0:
+                        self.restore_best_sector(minfo.sectors.sectorBestTB)
                     # Hide laptime gap
                     if not self.wcfg["always_show_laptime_gap"]:
                         self.bar_time_gap.hide()
             else:
                 # Update current sector time
                 self.update_time_curr(
-                    minfo.sectors.SectorIndex,
-                    minfo.sectors.SectorPrev,
+                    minfo.sectors.sectorIndex,
+                    minfo.sectors.sectorPrev,
                     laptime_curr)
 
         else:

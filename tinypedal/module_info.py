@@ -26,97 +26,97 @@ from dataclasses import dataclass
 @dataclass
 class DeltaInfo:
     """Delta module output data"""
-    LaptimeCurrent: float = 0
-    LaptimeLast: float = 0
-    LaptimeBest: float = 0
-    LaptimeEstimated: float = 0
-    DeltaBest: float = 0
-    IsValidLap: bool = 0
-    MetersDriven: float = 0
+    lapTimeCurrent: float = 0
+    lapTimeLast: float = 0
+    lapTimeBest: float = 0
+    lapTimeEstimated: float = 0
+    deltaBest: float = 0
+    isValidLap: bool = 0
+    metersDriven: float = 0
 
 
 @dataclass
 class ForceInfo:
     """Force module output data"""
-    LgtGForceRaw: float = 0
-    LatGForceRaw: float = 0
-    MaxAvgLgtGForce: float = 0
-    MaxAvgLatGForce: float = 0
-    MaxLgtGForce: float = 0
-    MaxLatGForce: float = 0
-    GForceVector: float = 0
-    DownForceFront: float = 0
-    DownForceRear: float = 0
-    DownForceRatio: float = 0
+    lgtGForceRaw: float = 0
+    latGForceRaw: float = 0
+    maxAvgLgtGForce: float = 0
+    maxAvgLatGForce: float = 0
+    maxLgtGForce: float = 0
+    maxLatGForce: float = 0
+    gForceVector: float = 0
+    downForceFront: float = 0
+    downForceRear: float = 0
+    downForceRatio: float = 0
 
 
 @dataclass
 class FuelInfo:
     """Fuel module output data"""
-    Capacity: float = 0
-    AmountFuelStart: float = 0
-    AmountFuelCurrent: float = 0
-    AmountFuelNeeded: float = 0
-    AmountFuelBeforePitstop: float = 0
-    LastLapFuelConsumption: float = 0
-    EstimatedFuelConsumption: float = 0
-    EstimatedLaps: float = 0
-    EstimatedMinutes: float = 0
-    EstimatedEmptyCapacity: float = 0
-    EstimatedNumPitStopsEnd: float = 0
-    EstimatedNumPitStopsEarly: float = 0
-    DeltaFuelConsumption: float = 0
-    OneLessPitFuelConsumption: float = 0
+    tankCapacity: float = 0
+    amountFuelStart: float = 0
+    amountFuelCurrent: float = 0
+    amountFuelNeeded: float = 0
+    amountFuelBeforePitstop: float = 0
+    lastLapFuelConsumption: float = 0
+    estimatedFuelConsumption: float = 0
+    estimatedLaps: float = 0
+    estimatedMinutes: float = 0
+    estimatedEmptyCapacity: float = 0
+    estimatedNumPitStopsEnd: float = 0
+    estimatedNumPitStopsEarly: float = 0
+    deltaFuelConsumption: float = 0
+    oneLessPitFuelConsumption: float = 0
 
 
 @dataclass
 class HybridInfo:
     """Hybrid module output data"""
-    BatteryCharge: float = 0
-    BatteryDrain: float = 0
-    BatteryRegen: float = 0
-    BatteryDrainLast: float = 0
-    BatteryRegenLast: float = 0
-    MotorActiveTimer: float = 0
-    MotorInActiveTimer: float = 0
-    MotorState: int = 0
+    batteryCharge: float = 0
+    batteryDrain: float = 0
+    batteryRegen: float = 0
+    batteryDrainLast: float = 0
+    batteryRegenLast: float = 0
+    motorActiveTimer: float = 0
+    motorInActiveTimer: float = 0
+    motorState: int = 0
 
 
 @dataclass
 class MappingInfo:
     """Mapping module output data"""
-    Coordinates: list = None
-    Elevations: list = None
-    Sectors: list = None
+    coordinates: list = None
+    elevations: list = None
+    sectors: list = None
 
 
 @dataclass
 class RelativeInfo:
     """Relative module output data"""
-    Relative: list = None
-    Standings: list = None
-    Classes: list = None
+    relative: list = None
+    standings: list = None
+    classes: list = None
 
 
 @dataclass
 class SectorsInfo:
     """Sectors module output data"""
-    SectorIndex: int = -1
-    DeltaSectorBestPB: list = None
-    DeltaSectorBestTB: list = None
-    SectorBestTB: list = None
-    SectorBestPB: list = None
-    SectorPrev: list = None
-    NoDeltaSector: bool = True
+    sectorIndex: int = -1
+    deltaSectorBestPB: list = None
+    deltaSectorBestTB: list = None
+    sectorBestTB: list = None
+    sectorBestPB: list = None
+    sectorPrev: list = None
+    noDeltaSector: bool = True
 
 
 @dataclass
 class VehiclesInfo:
     """Vehicles module output data"""
-    Data: list = None
-    NearestStraight: float = 999999
-    NearestTraffic: float = 999999
-    NearestYellow: float = 999999
+    dataSet: list = None
+    nearestStraight: float = 999999
+    nearestTraffic: float = 999999
+    nearestYellow: float = 999999
 
 
 class ModuleInfo:

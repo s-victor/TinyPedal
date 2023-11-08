@@ -24,7 +24,7 @@ from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -86,11 +86,11 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Deltabest
             self.delta_best = calc.sym_range(
-                minfo.delta.DeltaBest,
+                minfo.delta.deltaBest,
                 self.wcfg["delta_display_range"])
             self.update_deltabest(self.delta_best, self.last_delta_best)
             self.last_delta_best = self.delta_best

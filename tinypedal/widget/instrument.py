@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 
 WIDGET_NAME = "instrument"
@@ -153,19 +153,25 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Save switch
             if not self.checked:
                 self.checked = True
-                self.vehicle_id = readapi.vehicle_identify()
+                self.vehicle_id = api.read.identify.vehicle()
                 if self.wcfg["last_vehicle_info"] == self.vehicle_id:
                     self.min_samples_f = 320
                     self.min_samples_r = 320
 
             # Read instrument data
-            (headlights, ignition, clutch, brake, wheel_rot, speed
-             ) = readapi.instrument()
+            headlights = api.read.instrument.headlights()
+            ignition = (api.read.instrument.ignition_starter(),
+                        api.read.engine.rpm())
+            clutch = (api.read.pedal.clutch_auto(),
+                      api.read.pedal.clutch())
+            is_braking = api.read.pedal.brake() > 0
+            wheel_rot = api.read.wheel.rotation()
+            speed = api.read.vehicle.speed()
 
             slipratio = round(self.calc_slipratio(wheel_rot, speed), 2)
             self.flicker = bool(not self.flicker)
@@ -187,7 +193,7 @@ class Draw(Widget):
 
             # Wheel lock
             if self.wcfg["show_wheel_lock"]:
-                wlock = (brake, slipratio)
+                wlock = (is_braking, slipratio)
                 self.update_wlock(wlock, self.last_wlock)
                 self.last_wlock = wlock
 

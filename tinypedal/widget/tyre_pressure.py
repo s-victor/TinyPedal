@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 
 WIDGET_NAME = "tyre_pressure"
@@ -119,10 +119,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Tyre pressure
-            tpres = tuple(map(self.tyre_pressure_units, readapi.tyre_pressure()))
+            tpres = tuple(map(self.tyre_pressure_units, api.read.tyre.pressure()))
 
             self.update_tpres("tpres_fl", tpres[0], self.last_tpres[0])
             self.update_tpres("tpres_fr", tpres[1], self.last_tpres[1])

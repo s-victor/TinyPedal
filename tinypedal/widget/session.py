@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 
 WIDGET_NAME = "session"
@@ -115,7 +115,7 @@ class Draw(Widget):
         self.last_system_time = None
         self.last_time_left = None
         self.last_lap_into = None
-        self.last_plr_position = None
+        self.last_place = None
 
         # Set widget state & start update
         self.set_widget_state()
@@ -124,10 +124,7 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
-
-            # Read session data
-            time_left, lap_into, lap_total, plr_position = readapi.session()
+        if self.wcfg["enable"] and api.state:
 
             # System Clock
             if self.wcfg["show_system_clock"]:
@@ -137,19 +134,23 @@ class Draw(Widget):
 
             # Session time
             if self.wcfg["show_session_time"]:
+                time_left = api.read.session.remaining()
                 self.update_session_time(time_left, self.last_time_left)
                 self.last_time_left = time_left
 
             # Lap number
             if self.wcfg["show_lapnumber"]:
-                lap_num = readapi.lap_number()
-                self.update_lapnumber(lap_into, self.last_lap_into, lap_num, lap_total)
+                lap_into = api.read.lap.percent() * 100
+                lap_num = api.read.lap.number()
+                lap_max = api.read.lap.maximum()
+                self.update_lapnumber(lap_into, self.last_lap_into, lap_num, lap_max)
                 self.last_lap_into = lap_into
 
             # Driver place & total vehicles
             if self.wcfg["show_position"]:
-                self.update_position(plr_position, self.last_plr_position)
-                self.last_plr_position = plr_position
+                place = (api.read.vehicle.place(), api.read.vehicle.total())
+                self.update_position(place, self.last_place)
+                self.last_place = place
 
     # GUI update methods
     def update_system_clock(self, curr, last):
@@ -162,17 +163,17 @@ class Draw(Widget):
         if curr != last:
             self.bar_session.setText(calc.sec2sessiontime(max(curr, 0)))
 
-    def update_lapnumber(self, curr, last, lap_num, lap_total):
+    def update_lapnumber(self, curr, last, lap_num, lap_max):
         """Lap number"""
         if curr != last:
-            lap_text = "-" if lap_total > 100000 else lap_total
+            lap_text = "-" if lap_max > 100000 else lap_max
 
             self.bar_lapnumber.setText(
                 f"{self.wcfg['prefix_lap_number']}{lap_num}.{curr:02.0f}/{lap_text}"
             )
             self.bar_lapnumber.setStyleSheet(
                 f"color: {self.wcfg['font_color_lapnumber']};"
-                f"background: {self.maxlap_warning(lap_num - lap_total)};"
+                f"background: {self.maxlap_warning(lap_num - lap_max)};"
             )
 
     def update_position(self, curr, last):

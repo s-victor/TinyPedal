@@ -24,7 +24,7 @@ from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPixmap, QLinearGradient, QRadialGradient, QPen, QBrush, QColor
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -74,14 +74,14 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Auto hide radar if no nearby vehicles
             if self.wcfg["auto_hide"]:
                 self.autohide_radar()
 
             # Read orientation & position data
-            self.vehicles_data = minfo.vehicles.Data
+            self.vehicles_data = minfo.vehicles.dataSet
             self.update_radar(self.vehicles_data, self.last_vehicles_data)
             self.last_vehicles_data = self.vehicles_data
 
@@ -357,7 +357,8 @@ class Draw(Widget):
 
     def autohide_radar(self):
         """Auto hide radar if no nearby vehicles"""
-        lap_etime, ingarage = readapi.radar()
+        lap_etime = api.read.timing.elapsed()
+        ingarage = api.read.state.in_garage()
 
         if self.nearby() or ingarage:
             if not self.autohide_timer_start:
@@ -373,8 +374,8 @@ class Draw(Widget):
     def nearby(self):
         """Check nearby vehicles, add 0 limit to ignore local player"""
         if self.wcfg["minimum_auto_hide_distance"] == -1:
-            return 0 < minfo.vehicles.NearestStraight < self.wcfg["radar_radius"]
-        return 0 < minfo.vehicles.NearestStraight < self.wcfg["minimum_auto_hide_distance"]
+            return 0 < minfo.vehicles.nearestStraight < self.wcfg["radar_radius"]
+        return 0 < minfo.vehicles.nearestStraight < self.wcfg["minimum_auto_hide_distance"]
 
     def calc_indicator_dimention(self, veh_width, veh_length):
         """Calculate indicator dimention

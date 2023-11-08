@@ -23,7 +23,7 @@ Brake pressure Widget
 from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
 
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 
 WIDGET_NAME = "brake_pressure"
@@ -81,10 +81,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Brake pressure
-            self.bpres = tuple(map(self.brake_pressure_units, readapi.brake_pressure()))
+            self.bpres = tuple(map(self.brake_pressure_units, api.read.brake.pressure()))
             self.update_bpres(self.bpres, self.last_bpres)
             self.last_bpres = self.bpres
 

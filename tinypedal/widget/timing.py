@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -180,7 +180,7 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Reset switch
             if not self.checked:
@@ -188,13 +188,15 @@ class Draw(Widget):
 
             # Session best laptime
             if self.wcfg["show_session_best"]:
-                veh_total, laptime_opt, is_same_class = readapi.timing(self.vehicle_counter)
+                veh_total = api.read.vehicle.total()
+                best_laptime = api.read.timing.best_laptime(self.vehicle_counter)
+                is_same_class = api.read.state.is_same_class(self.vehicle_counter)
 
-                if 0 < laptime_opt < self.laptime_sbest:
+                if 0 < best_laptime < self.laptime_sbest:
                     if self.wcfg["show_session_best_from_same_class_only"] and is_same_class:
-                        self.laptime_sbest = laptime_opt
+                        self.laptime_sbest = best_laptime
                     elif not self.wcfg["show_session_best_from_same_class_only"]:
-                        self.laptime_sbest = laptime_opt
+                        self.laptime_sbest = best_laptime
 
                 if self.vehicle_counter < max(veh_total, 1):
                     self.vehicle_counter += 1
@@ -207,29 +209,29 @@ class Draw(Widget):
 
             # Personal best laptime
             if self.wcfg["show_best"]:
-                laptime_best = minfo.delta.LaptimeBest
+                laptime_best = minfo.delta.lapTimeBest
                 self.update_laptime(laptime_best, self.last_laptime_best,
                                     self.prefix_best, "best")
                 self.last_laptime_best = laptime_best
 
             # Last laptime
             if self.wcfg["show_last"]:
-                laptime_last = (minfo.delta.LaptimeLast,
-                                minfo.delta.IsValidLap)
+                laptime_last = (minfo.delta.lapTimeLast,
+                                minfo.delta.isValidLap)
                 self.update_last_laptime(laptime_last, self.last_laptime_last,
                                          self.prefix_last)
                 self.last_laptime_last = laptime_last
 
             # Current laptime
             if self.wcfg["show_current"]:
-                laptime_curr = minfo.delta.LaptimeCurrent
+                laptime_curr = minfo.delta.lapTimeCurrent
                 self.update_laptime(laptime_curr, self.last_laptime_curr,
                                     self.prefix_curr, "curr")
                 self.last_laptime_curr = laptime_curr
 
             # Estimated laptime
             if self.wcfg["show_estimated"]:
-                laptime_est = minfo.delta.LaptimeEstimated
+                laptime_est = minfo.delta.lapTimeEstimated
                 self.update_laptime(laptime_est, self.last_laptime_est,
                                     self.prefix_esti, "est")
                 self.last_laptime_est = laptime_est

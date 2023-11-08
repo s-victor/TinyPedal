@@ -146,7 +146,7 @@ class UnitsConfig(QDialog):
 
         # Units type
         self.units_type = [
-            "elevation",
+            "distance",
             "fuel",
             "odometer",
             "speed",
@@ -156,9 +156,9 @@ class UnitsConfig(QDialog):
         ]
 
         # Label & combobox
-        self.label_elevation = QLabel("Elevation")
-        self.combobox_elevation = QComboBox()
-        self.combobox_elevation.addItems(["Meter", "Feet"])
+        self.label_distance = QLabel("Distance")
+        self.combobox_distance = QComboBox()
+        self.combobox_distance.addItems(["Meter", "Feet"])
 
         self.label_fuel = QLabel("Fuel")
         self.combobox_fuel = QComboBox()
@@ -176,11 +176,11 @@ class UnitsConfig(QDialog):
         self.combobox_temperature = QComboBox()
         self.combobox_temperature.addItems(["Celsius", "Fahrenheit"])
 
-        self.label_turbo_pressure = QLabel("Turbo pressure")
+        self.label_turbo_pressure = QLabel("Turbo Pressure")
         self.combobox_turbo_pressure = QComboBox()
         self.combobox_turbo_pressure.addItems(["bar", "psi", "kPa"])
 
-        self.label_tyre_pressure = QLabel("Tyre pressure")
+        self.label_tyre_pressure = QLabel("Tyre Pressure")
         self.combobox_tyre_pressure = QComboBox()
         self.combobox_tyre_pressure.addItems(["kPa", "psi", "bar"])
 

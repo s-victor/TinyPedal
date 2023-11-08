@@ -50,7 +50,7 @@ from . import formatter as fmt
 from . import validator as val
 from .const import APP_NAME, VERSION, APP_ICON, PATH_SETTINGS
 from .about import About
-from .readapi import info, setup_api, create_spectate_list
+from .api_control import api
 from .module_control import mctrl
 from .widget_control import wctrl
 from .overlay_control import octrl
@@ -127,15 +127,15 @@ class AppWindow(QMainWindow):
         # Config menu
         menu_config = menu.addMenu("Config")
 
-        config_units = QAction("Display Units", self)
+        config_units = QAction("Display units", self)
         config_units.triggered.connect(self.open_config_units)
         menu_config.addAction(config_units)
 
-        config_font = QAction("Global Font Override", self)
+        config_font = QAction("Global font override", self)
         config_font.triggered.connect(self.open_config_font)
         menu_config.addAction(config_font)
 
-        config_sharedmem = QAction("Shared Memory API", self)
+        config_sharedmem = QAction("Shared memory API", self)
         config_sharedmem.triggered.connect(self.open_config_sharedmemory)
         menu_config.addAction(config_sharedmem)
 
@@ -184,9 +184,13 @@ class AppWindow(QMainWindow):
 
     def start_app(self):
         """Start modules & widgets"""
+        api.connect(cfg.shared_memory_api["api"])
+        api.start()
+
         mctrl.start()  # 1 start module
         octrl.enable()  # 2 enable overlay control
         wctrl.start()  # 3 start widget
+
         self.about = About(hideonclose=True)
         self.start_tray_icon()
         self.set_window_state()
@@ -223,7 +227,7 @@ class AppWindow(QMainWindow):
         octrl.disable()  # disable overlay control
         wctrl.close()  # close widget
         QApplication.quit()  # close app
-        info.stop()  # stop sharedmemory mapping
+        api.stop()  # stop sharedmemory mapping
 
     def int_signal_handler(self, sign, frame):
         """Quit by keyboard interrupt"""
@@ -247,8 +251,7 @@ class AppWindow(QMainWindow):
     @staticmethod
     def restart_api():
         """Restart shared memory api"""
-        setup_api(info)
-        info.restart()
+        api.restart()
 
     @staticmethod
     def is_locked():
@@ -663,17 +666,15 @@ class SpectateList(QWidget):
         else:
             cfg.shared_memory_api["enable_player_index_override"] = True
         cfg.save()  # save only if toggled
-
-        info.setPlayerOverride(cfg.shared_memory_api["enable_player_index_override"])
-        info.setPlayerIndex(cfg.shared_memory_api["player_index"])
+        api.setup()
         self.refresh_spectate_list()
 
     def refresh_spectate_list(self):
         """Refresh spectate list"""
         if cfg.shared_memory_api["enable_player_index_override"]:
-            temp_list = create_spectate_list()
+            temp_list = api.read.vehicle.driver_list()
             if temp_list != self.spectate_list:
-                self.spectate_list = temp_list
+                self.spectate_list = ["Anonymous", *temp_list]
                 self.listbox_spectate.clear()
                 self.listbox_spectate.addItems(self.spectate_list)
             index = cfg.shared_memory_api["player_index"] + 1
@@ -686,7 +687,7 @@ class SpectateList(QWidget):
             self.spectate_list = []
             self.listbox_spectate.clear()
             self.label_spectateed.setText(
-                f"Spectating: <b>Disabled</b>")
+                "Spectating: <b>Disabled</b>")
 
         self.set_button_state()
 
@@ -697,7 +698,7 @@ class SpectateList(QWidget):
             cfg.shared_memory_api["player_index"] = selected_index - 1
         else:
             cfg.shared_memory_api["player_index"] = -1
-        info.setPlayerIndex(cfg.shared_memory_api["player_index"])
+        api.setup()
         self.refresh_spectate_list()
         cfg.save()  # save only if selected
 

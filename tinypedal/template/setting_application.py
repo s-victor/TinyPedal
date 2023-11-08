@@ -39,6 +39,7 @@ APPLICATION_DEFAULT = {
         "auto_hide": True,
     },
     "shared_memory_api": {
+        "api": 0,
         "access_mode": 0,
         "process_id": "",
         "enable_active_state_override": False,
@@ -47,7 +48,7 @@ APPLICATION_DEFAULT = {
         "player_index": -1,
     },
     "units": {
-        "elevation_unit": "Meter",
+        "distance_unit": "Meter",
         "fuel_unit": "Liter",
         "odometer_unit": "Kilometer",
         "speed_unit": "KPH",

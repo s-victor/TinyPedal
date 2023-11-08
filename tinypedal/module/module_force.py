@@ -26,7 +26,7 @@ import time
 import threading
 
 from ..module_info import minfo
-from ..readapi import info, chknm, state
+from ..api_control import api
 from .. import calculation as calc
 
 MODULE_NAME = "module_force"
@@ -62,7 +62,7 @@ class Realtime:
         update_interval = idle_interval
 
         while self.running:
-            if state():
+            if api.state:
 
                 if not reset:
                     reset = True
@@ -79,8 +79,11 @@ class Realtime:
                     max_lat_gforce = next(gen_max_lat)
 
                 # Read telemetry
-                (elapsed_time, lgt_accel, lat_accel, dforce_f, dforce_r
-                 ) = self.__telemetry()
+                lap_etime = api.read.timing.elapsed()
+                lat_accel = api.read.vehicle.accel_lateral()
+                lgt_accel = api.read.vehicle.accel_longitudinal()
+                dforce_f = api.read.vehicle.downforce_front()
+                dforce_r = api.read.vehicle.downforce_rear()
 
                 # G raw
                 lgt_gforce_raw = calc.gforce(
@@ -93,8 +96,8 @@ class Realtime:
                 max_avg_lat_gforce = gen_max_avg_lat.send(lat_gforce_raw)
 
                 # Max G
-                max_lgt_gforce = gen_max_lgt.send((lgt_gforce_raw, elapsed_time))
-                max_lat_gforce = gen_max_lat.send((lat_gforce_raw, elapsed_time))
+                max_lgt_gforce = gen_max_lgt.send((lgt_gforce_raw, lap_etime))
+                max_lat_gforce = gen_max_lat.send((lat_gforce_raw, lap_etime))
 
                 # G Vector
                 gforce_vector = calc.distance((lgt_gforce_raw, lat_gforce_raw),(0,0))
@@ -103,16 +106,16 @@ class Realtime:
                 dforce_ratio = calc.force_ratio(dforce_f, dforce_f + dforce_r)
 
                 # Output force data
-                minfo.force.LgtGForceRaw = lgt_gforce_raw
-                minfo.force.LatGForceRaw = lat_gforce_raw
-                minfo.force.MaxAvgLgtGForce = max_avg_lgt_gforce
-                minfo.force.MaxAvgLatGForce = max_avg_lat_gforce
-                minfo.force.MaxLgtGForce = max_lgt_gforce
-                minfo.force.MaxLatGForce = max_lat_gforce
-                minfo.force.GForceVector = gforce_vector
-                minfo.force.DownForceFront = dforce_f
-                minfo.force.DownForceRear = dforce_r
-                minfo.force.DownForceRatio = dforce_ratio
+                minfo.force.lgtGForceRaw = lgt_gforce_raw
+                minfo.force.latGForceRaw = lat_gforce_raw
+                minfo.force.maxAvgLgtGForce = max_avg_lgt_gforce
+                minfo.force.maxAvgLatGForce = max_avg_lat_gforce
+                minfo.force.maxLgtGForce = max_lgt_gforce
+                minfo.force.maxLatGForce = max_lat_gforce
+                minfo.force.gForceVector = gforce_vector
+                minfo.force.downForceFront = dforce_f
+                minfo.force.downForceRear = dforce_r
+                minfo.force.downForceRatio = dforce_ratio
 
             else:
                 if reset:
@@ -124,16 +127,6 @@ class Realtime:
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("force module closed")
-
-    @staticmethod
-    def __telemetry():
-        """Telemetry data"""
-        elapsed_time = chknm(info.rf2TeleVeh().mElapsedTime)
-        lgt_accel = chknm(info.rf2TeleVeh().mLocalAccel.z)
-        lat_accel = chknm(info.rf2TeleVeh().mLocalAccel.x)
-        dforce_f = chknm(info.rf2TeleVeh().mFrontDownforce)
-        dforce_r = chknm(info.rf2TeleVeh().mRearDownforce)
-        return elapsed_time, lgt_accel, lat_accel, dforce_f, dforce_r
 
     def calc_max_avg_gforce(self):
         """Calc max average G force"""

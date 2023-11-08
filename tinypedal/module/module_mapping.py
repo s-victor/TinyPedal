@@ -27,7 +27,7 @@ import xml.dom.minidom
 
 from ..module_info import minfo
 from ..const import PATH_TRACKMAP
-from ..readapi import info, chknm, state, track_identify
+from ..api_control import api
 from .. import calculation as calc
 from .. import formatter as fmt
 
@@ -65,31 +65,31 @@ class Realtime:
         update_interval = idle_interval
 
         while self.running:
-            if state():
+            if api.state:
 
                 if not reset:
                     reset = True
                     update_interval = active_interval
 
-                    recorder.map.load(track_identify())
+                    recorder.map.load(api.read.identify.track())
                     if recorder.map.exist:
                         update_interval = idle_interval
-                        minfo.mapping.Coordinates = recorder.map.raw_coords
-                        minfo.mapping.Elevations = recorder.map.raw_dists
-                        minfo.mapping.Sectors = recorder.map.sector_index
+                        minfo.mapping.coordinates = recorder.map.raw_coords
+                        minfo.mapping.elevations = recorder.map.raw_dists
+                        minfo.mapping.sectors = recorder.map.sector_index
                     else:
                         recorder.reset()
-                        minfo.mapping.Coordinates = None
-                        minfo.mapping.Elevations = None
-                        minfo.mapping.Sectors = None
+                        minfo.mapping.coordinates = None
+                        minfo.mapping.elevations = None
+                        minfo.mapping.sectors = None
 
                 if not recorder.map.exist:
                     recorder.update()
                     if recorder.map.exist:
                         update_interval = idle_interval
-                        minfo.mapping.Coordinates = recorder.map.raw_coords
-                        minfo.mapping.Elevations = recorder.map.raw_dists
-                        minfo.mapping.Sectors = recorder.map.sector_index
+                        minfo.mapping.coordinates = recorder.map.raw_coords
+                        minfo.mapping.elevations = recorder.map.raw_dists
+                        minfo.mapping.sectors = recorder.map.sector_index
             else:
                 if reset:
                     reset = False
@@ -124,8 +124,15 @@ class MapRecorder:
     def update(self):
         """Update map data"""
         # Read telemetry
-        (sector_idx, lap_stime, lap_etime, lastlap_check,
-         pos_curr, gps_curr, elv_curr) = self.__telemetry()
+        lap_stime = api.read.timing.start()
+        lap_etime = api.read.timing.elapsed()
+        lastlap_check = api.read.timing.last_laptime()
+        sector_idx = api.read.lap.sector_index()
+        pos_curr = round(api.read.lap.distance(), 4)
+        gps_curr = (round(api.read.vehicle.pos_longitudinal(), 4),
+                    round(api.read.vehicle.pos_lateral(), 4))
+        elv_curr = round(api.read.vehicle.pos_vertical(), 4)
+
         # Update map data
         self.__start(lap_stime)
         if self.validating:
@@ -184,19 +191,6 @@ class MapRecorder:
         if self.map.raw_coords:
             self.map.copy()
             self.validating = True
-
-    @staticmethod
-    def __telemetry():
-        """Telemetry data"""
-        sector_idx = (2,0,1)[min(max(chknm(info.rf2ScorVeh().mSector), 0), 2)]
-        lap_stime = chknm(info.rf2TeleVeh().mLapStartET)
-        lap_etime = chknm(info.rf2TeleVeh().mElapsedTime)
-        lastlap_check = chknm(info.rf2ScorVeh().mLastLapTime)
-        pos_curr = round(chknm(info.rf2ScorVeh().mLapDist), 4)
-        gps_curr = (round(chknm(info.rf2ScorVeh().mPos.x), 4),
-                    -round(chknm(info.rf2ScorVeh().mPos.z), 4))
-        elv_curr = round(chknm(info.rf2ScorVeh().mPos.y), 4)
-        return sector_idx, lap_stime, lap_etime, lastlap_check, pos_curr, gps_curr, elv_curr
 
 
 class MapData:

@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
     QLabel,
 )
 
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 
 WIDGET_NAME = "tyre_wear"
@@ -212,15 +212,16 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Reset switch
             if not self.checked:
                 self.checked = True
 
             # Read tyre wear data
-            lap_stime, lap_etime = readapi.lap_timestamp()
-            wear_curr = tuple(map(self.round2decimal, readapi.wear()))
+            lap_stime = api.read.timing.start()
+            lap_etime = api.read.timing.elapsed()
+            wear_curr = tuple(map(self.round2decimal, api.read.tyre.wear()))
 
             # Update tyre wear differences
             self.wear_last, self.wear_live = zip(

@@ -28,7 +28,7 @@ import math
 
 from ..module_info import minfo
 from ..const import PATH_FUEL
-from ..readapi import info, chknm, state, combo_identify, is_lap_race
+from ..api_control import api
 from .. import calculation as calc
 from .. import validator as val
 
@@ -68,7 +68,7 @@ class Realtime:
         update_interval = idle_interval
 
         while self.running:
-            if state():
+            if api.state:
 
                 if not reset:
                     reset = True
@@ -79,7 +79,7 @@ class Realtime:
                     validating = False
                     delayed_save = False
 
-                    combo_id = combo_identify()
+                    combo_id = api.read.identify.combo()
                     delta_list_last = self.load_deltafuel(combo_id)
                     delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
                     delta_list_temp = [DELTA_ZERO]  # last lap temp
@@ -108,10 +108,19 @@ class Realtime:
                     gps_last = [0,0,0]  # last global position
 
                 # Read telemetry
-                (lap_stime, laptime_curr, lastlap_valid, time_left,
-                 amount_curr, capacity, inpits, ingarage, pos_curr,
-                 gps_curr, lap_number, lap_into, laps_max
-                 ) = self.__telemetry()
+                lap_stime = api.read.timing.start()
+                laptime_curr = max(api.read.timing.current_laptime(), 0)
+                lastlap_valid = api.read.timing.last_laptime()
+                time_left = api.read.session.remaining()
+                amount_curr = api.read.vehicle.fuel()
+                capacity = max(api.read.vehicle.tank_capacity(), 1)
+                inpits = api.read.state.in_pits()
+                ingarage = api.read.state.in_garage()
+                pos_curr = api.read.lap.distance()
+                gps_curr = api.read.vehicle.pos_xyz()
+                lap_number = api.read.lap.number()
+                lap_into = api.read.lap.percent()
+                laps_max = api.read.lap.maximum()
 
                 # Realtime fuel consumption
                 if amount_last < amount_curr:
@@ -183,7 +192,7 @@ class Realtime:
                     used_last, delta_fuel, 0 == pittinglap < lap_number)
 
                 # Total refuel = laps left * last consumption - remaining fuel
-                if is_lap_race():  # lap-type race
+                if api.read.state.is_lap_race():  # lap-type race
                     full_laps_left = laps_max - lap_number
                     laps_left = full_laps_left - lap_into
                     amount_need = laps_left * used_est - amount_curr
@@ -217,20 +226,20 @@ class Realtime:
                     est_pits_late, capacity, amount_curr, laps_left)
 
                 # Output fuel data
-                minfo.fuel.Capacity = capacity
-                minfo.fuel.AmountFuelStart = amount_start
-                minfo.fuel.AmountFuelCurrent = amount_curr
-                minfo.fuel.AmountFuelNeeded = amount_need
-                minfo.fuel.AmountFuelBeforePitstop = amount_left
-                minfo.fuel.LastLapFuelConsumption = used_last_raw
-                minfo.fuel.EstimatedFuelConsumption = used_last + delta_fuel
-                minfo.fuel.EstimatedLaps = est_runlaps
-                minfo.fuel.EstimatedMinutes = est_runmins
-                minfo.fuel.EstimatedEmptyCapacity = est_empty
-                minfo.fuel.EstimatedNumPitStopsEnd = est_pits_late
-                minfo.fuel.EstimatedNumPitStopsEarly = est_pits_early
-                minfo.fuel.DeltaFuelConsumption = delta_fuel
-                minfo.fuel.OneLessPitFuelConsumption = used_est_less
+                minfo.fuel.tankCapacity = capacity
+                minfo.fuel.amountFuelStart = amount_start
+                minfo.fuel.amountFuelCurrent = amount_curr
+                minfo.fuel.amountFuelNeeded = amount_need
+                minfo.fuel.amountFuelBeforePitstop = amount_left
+                minfo.fuel.lastLapFuelConsumption = used_last_raw
+                minfo.fuel.estimatedFuelConsumption = used_last + delta_fuel
+                minfo.fuel.estimatedLaps = est_runlaps
+                minfo.fuel.estimatedMinutes = est_runmins
+                minfo.fuel.estimatedEmptyCapacity = est_empty
+                minfo.fuel.estimatedNumPitStopsEnd = est_pits_late
+                minfo.fuel.estimatedNumPitStopsEarly = est_pits_early
+                minfo.fuel.deltaFuelConsumption = delta_fuel
+                minfo.fuel.oneLessPitFuelConsumption = used_est_less
 
             else:
                 if reset:
@@ -245,30 +254,6 @@ class Realtime:
         self.stopped = True
         logger.info("fuel module closed")
 
-    @staticmethod
-    def __telemetry():
-        """Telemetry data"""
-        lap_stime = chknm(info.rf2TeleVeh().mLapStartET)
-        laptime_curr = max(chknm(info.rf2TeleVeh().mElapsedTime) - lap_stime, 0)
-        lastlap_valid = chknm(info.rf2ScorVeh().mLastLapTime)
-        time_left = (chknm(info.rf2Scor.mScoringInfo.mEndET)
-                     - chknm(info.rf2Scor.mScoringInfo.mCurrentET))
-        amount_curr = chknm(info.rf2TeleVeh().mFuel)
-        capacity = max(chknm(info.rf2TeleVeh().mFuelCapacity), 1)
-        inpits = chknm(info.rf2ScorVeh().mInPits)
-        ingarage = chknm(info.rf2ScorVeh().mInGarageStall)
-        pos_curr = chknm(info.rf2ScorVeh().mLapDist)
-        gps_curr = (chknm(info.rf2TeleVeh().mPos.x),
-                    chknm(info.rf2TeleVeh().mPos.y),
-                    chknm(info.rf2TeleVeh().mPos.z))
-        lap_number = chknm(info.rf2ScorVeh().mTotalLaps)
-        lap_into = calc.percentage_distance(
-            pos_curr, chknm(info.rf2Scor.mScoringInfo.mLapDist))
-        laps_max = chknm(info.rf2Scor.mScoringInfo.mMaxLaps)
-        return (lap_stime, laptime_curr, lastlap_valid, time_left,
-                amount_curr, capacity, inpits, ingarage, pos_curr,
-                gps_curr, lap_number, lap_into, laps_max)
-
     def load_deltafuel(self, combo):
         """Load last saved fuel consumption data"""
         try:
@@ -276,7 +261,7 @@ class Realtime:
                       newline="", encoding="utf-8") as csvfile:
                 deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 lastlist = list(deltaread)
-                lastlist[-1][2]  # test read last laptime
+                int(lastlist[-1][2])  # test read last laptime
                 # Validate data
                 if not val.delta_list(lastlist):
                     self.save_deltafuel(combo, lastlist)

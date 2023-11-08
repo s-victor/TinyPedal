@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -171,14 +171,21 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Switch
             if not self.checked:
                 self.checked = True
 
             # Read gauge data
-            limiter, gear, max_gear, speed, rpm, rpm_max, lap_etime = readapi.gauge()
+            limiter = api.read.instrument.speed_limiter()
+            rpm = api.read.engine.rpm()
+            rpm_max = api.read.engine.rpm_max()
+            speed = api.read.vehicle.speed()
+            gear = api.read.engine.gear()
+            gear_max = api.read.engine.gear_max()
+            lap_etime = api.read.timing.elapsed()
+
             rpm_safe = int(rpm_max * self.wcfg["rpm_multiplier_safe"])
             rpm_red = int(rpm_max * self.wcfg["rpm_multiplier_redline"])
             rpm_crit = int(rpm_max * self.wcfg["rpm_multiplier_critical"])
@@ -193,7 +200,7 @@ class Draw(Widget):
                 self.format_gear(gear),
                 round(self.speed_units(speed)),
                 self.color_rpm(
-                    rpm, rpm_safe, rpm_red, rpm_crit, rpm_max, gear, max_gear, speed)
+                    rpm, rpm_safe, rpm_red, rpm_crit, rpm_max, gear, gear_max, speed)
             )
 
             self.update_gauge(gauge_data, self.last_gauge_data)
@@ -208,12 +215,12 @@ class Draw(Widget):
             # Battery bar
             if self.wcfg["show_battery_bar"]:
                 # Hide battery bar if electric motor unavailable
-                motor_state = minfo.hybrid.MotorState
+                motor_state = minfo.hybrid.motorState
                 self.update_state("battbar", motor_state, self.last_motor_state)
                 self.last_motor_state = motor_state
 
                 if motor_state:
-                    battery = minfo.hybrid.BatteryCharge
+                    battery = minfo.hybrid.batteryCharge
                     self.update_battbar(battery, self.last_battery)
                     self.last_battery = battery
 
@@ -410,13 +417,13 @@ class Draw(Widget):
         return 0
 
     def color_rpm(
-            self, rpm, rpm_safe, rpm_red, rpm_crit, rpm_max, gear, max_gear, speed):
+            self, rpm, rpm_safe, rpm_red, rpm_crit, rpm_max, gear, gear_max, speed):
         """RPM indicator color"""
         self.flicker = bool(not self.flicker)
         fgcolor = self.wcfg["font_color"]
         if (self.wcfg["show_rpm_flickering_above_critical"] and
             self.flicker and
-            gear < max_gear and
+            gear < gear_max and
             rpm >= rpm_crit):
             fgcolor = self.wcfg["bkg_color"]
             bgcolor = self.wcfg["bkg_color"]

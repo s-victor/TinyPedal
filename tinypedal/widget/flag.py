@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
     QLabel,
 )
 
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -186,7 +186,7 @@ class Draw(Widget):
         self.pit_timer_start = None
         self.last_pit_timer = None
         self.last_fuel_usage = None
-        self.last_pit_limiter = None
+        self.last_limiter = None
         self.last_blue_flag = None
         self.blue_flag_timer_start = None
         self.last_blue_flag_data = None
@@ -199,16 +199,19 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Reset switch
             if not self.checked:
                 self.checked = True
 
             # Read flag data
-            inpits, pit_limiter, race_phase = readapi.pitting()
-            is_race = readapi.is_race()
-            lap_stime, lap_etime = readapi.lap_timestamp()
+            lap_stime = api.read.timing.start()
+            lap_etime = api.read.timing.elapsed()
+            inpits = api.read.state.in_pits()
+            is_pit_open = api.read.state.is_pit_open()
+            is_countdown = api.read.state.is_countdown()
+            is_race = api.read.state.is_race()
 
             # Pit timer
             if self.wcfg["show_pit_timer"]:
@@ -230,15 +233,15 @@ class Draw(Widget):
                         self.pit_timer_start = 0  # stop timer
 
                 self.update_pit_timer(
-                    pit_timer, self.last_pit_timer, race_phase, pit_timer_highlight)
+                    pit_timer, self.last_pit_timer, is_pit_open, pit_timer_highlight)
                 self.last_pit_timer = pit_timer
 
             # Low fuel update
             if self.wcfg["show_low_fuel"]:
                 fuel_usage = (
-                    min(round(minfo.fuel.AmountFuelCurrent, 2),
+                    min(round(minfo.fuel.amountFuelCurrent, 2),
                         self.wcfg["low_fuel_volume_threshold"]),
-                    min(round(minfo.fuel.EstimatedLaps, 1),
+                    min(round(minfo.fuel.estimatedLaps, 1),
                         self.wcfg["low_fuel_lap_threshold"]),
                     bool(not self.wcfg["show_low_fuel_for_race_only"] or
                          self.wcfg["show_low_fuel_for_race_only"] and is_race)
@@ -248,19 +251,18 @@ class Draw(Widget):
 
             # Pit limiter
             if self.wcfg["show_speed_limiter"]:
-                self.update_limiter(pit_limiter, self.last_pit_limiter)
-                self.last_pit_limiter = pit_limiter
+                limiter = api.read.instrument.speed_limiter()
+                self.update_limiter(limiter, self.last_limiter)
+                self.last_limiter = limiter
 
             # Blue flag
             if self.wcfg["show_blue_flag"]:
                 #blue_flag = 6  # testing
-                blue_flag = readapi.blue_flag()
+                blue_flag = api.read.state.blue_flag()
                 blue_flag_timer = -1
 
-                if self.last_blue_flag != blue_flag == 6:
-                    self.blue_flag_timer_start = lap_etime
-                elif self.last_blue_flag != blue_flag != 6:
-                    self.blue_flag_timer_start = 0
+                if self.last_blue_flag != blue_flag:
+                    self.blue_flag_timer_start = lap_etime if blue_flag else 0
                 self.last_blue_flag = blue_flag
 
                 if self.blue_flag_timer_start:
@@ -276,21 +278,20 @@ class Draw(Widget):
 
             # Yellow flag
             if self.wcfg["show_yellow_flag"]:
-                #yellow_flag = [1,1,1,0,0,0]# testing
+                #yellow_flag = [1,0,0,0]# testing
+                is_yellow_near = minfo.vehicles.nearestYellow < self.wcfg["yellow_flag_maximum_range"]
+                is_yellow_show = bool(not self.wcfg["show_yellow_flag_for_race_only"] or
+                                      self.wcfg["show_yellow_flag_for_race_only"] and is_race)
                 yellow_flag = (
-                    *readapi.yellow_flag(),  # 0,1,2
-                    minfo.vehicles.NearestYellow,  # 3
-                    bool(minfo.vehicles.NearestYellow  # 4
-                         < self.wcfg["yellow_flag_maximum_range"]),
-                    bool(not self.wcfg["show_yellow_flag_for_race_only"] or  # 5
-                         self.wcfg["show_yellow_flag_for_race_only"] and is_race)
+                    api.read.state.yellow_flag() and is_yellow_near and is_yellow_show,
+                    minfo.vehicles.nearestYellow
                 )
                 self.update_yellowflag(yellow_flag, self.last_yellow_flag)
                 self.last_yellow_flag = yellow_flag
 
             # Start lights
             if self.wcfg["show_startlights"]:
-                if race_phase == 4:
+                if is_countdown:
                     self.last_lap_stime = lap_stime
 
                 green = 1  # enable green flag
@@ -315,8 +316,8 @@ class Draw(Widget):
                     self.traffic_timer_start = 0
 
                 traffic = (
-                    minfo.vehicles.NearestTraffic,
-                    bool(0 < minfo.vehicles.NearestTraffic
+                    minfo.vehicles.nearestTraffic,
+                    bool(0 < minfo.vehicles.nearestTraffic
                          < self.wcfg["traffic_maximum_time_gap"]
                          and (inpits or self.traffic_timer_start)))
                 self.update_traffic(traffic, self.last_traffic)
@@ -385,13 +386,13 @@ class Draw(Widget):
     def update_yellowflag(self, curr, last):
         """Yellow flag"""
         if curr != last:
-            if curr[0] == 1 or curr[1] == 1 or curr[2] == 1:
-                yellow = True
-            else:
-                yellow = False
+            if curr[0]:
+                if self.cfg.units["distance_unit"] == "Feet":
+                    yelw_text = f"{curr[1] * 3.2808399:.0f}ft".rjust(6)
+                else:  # meter
+                    yelw_text = f"{curr[1]:.0f}m".rjust(6)
 
-            if curr[5] and yellow and curr[4]:
-                self.bar_yellowflag.setText(f"Y{curr[3]:5.0f}M")
+                self.bar_yellowflag.setText(f"Y{yelw_text}")
                 self.bar_yellowflag.show()
             else:
                 self.bar_yellowflag.hide()
@@ -401,7 +402,7 @@ class Draw(Widget):
         if curr != last:
             if green == 0:
                 self.bar_startlights.setText(
-                    f"{self.wcfg['red_lights_text'][:6].ljust(6)}{readapi.startlights()}")
+                    f"{self.wcfg['red_lights_text'][:6].ljust(6)}{api.read.state.start_lights()}")
                 self.bar_startlights.setStyleSheet(
                     f"color: {self.wcfg['font_color_startlights']};"
                     f"background: {self.wcfg['bkg_color_red_lights']};")

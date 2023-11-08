@@ -27,7 +27,7 @@ import threading
 from collections import namedtuple
 
 from ..module_info import minfo
-from ..readapi import info, chknm, cs2py, state
+from ..api_control import api
 from .. import calculation as calc
 
 MODULE_NAME = "module_vehicles"
@@ -103,21 +103,21 @@ class Realtime:
         update_interval = idle_interval
 
         while self.running:
-            if state():
+            if api.state:
 
                 if not reset:
                     reset = True
                     update_interval = active_interval
 
-                vehicles_data = list(self.__vehicle_data(minfo.relative.Classes))
+                vehicles_data = list(self.__vehicle_data(minfo.relative.classes))
 
                 # Output
-                minfo.vehicles.Data = vehicles_data
-                minfo.vehicles.NearestStraight = min(
+                minfo.vehicles.dataSet = vehicles_data
+                minfo.vehicles.nearestStraight = min(
                     vehicles_data, key=nearest_line_dist).RelativeStraightDistance
-                minfo.vehicles.NearestTraffic = abs(
+                minfo.vehicles.nearestTraffic = abs(
                     min(vehicles_data, key=nearest_traffic).RelativeTimeGap)
-                minfo.vehicles.NearestYellow = abs(
+                minfo.vehicles.nearestYellow = abs(
                     min(vehicles_data, key=nearest_yellow_dist).RelativeDistance)
                 #minfo.vehicles.nearestTrack = abs(
                 # min(vehicles_data, key=nearest_track_dist).RelativeDistance)
@@ -136,35 +136,30 @@ class Realtime:
     def __vehicle_data(self, class_pos_list):
         """Get vehicle data"""
         # Additional data
-        veh_total = max(chknm(info.rf2Tele.mNumVehicles), 1)
-        track_length = max(chknm(info.rf2Scor.mScoringInfo.mLapDist), 1)
-        is_race = chknm(info.rf2Scor.mScoringInfo.mSession) > 9
+        veh_total = max(api.read.vehicle.total(), 1)
+        track_length = max(api.read.lap.track_length(), 1)
+        is_race = api.read.state.is_race()
         matched_class_list = class_pos_list and len(class_pos_list) == veh_total
 
         # Local player data
-        plr_total_laps = chknm(info.rf2ScorVeh().mTotalLaps)
-        plr_lap_distance = chknm(info.rf2ScorVeh().mLapDist)
+        plr_total_laps = api.read.lap.total()
+        plr_lap_distance = api.read.lap.distance()
         plr_percentage_distance = calc.percentage_distance(plr_lap_distance, track_length, 0.99999)
-        plr_speed = calc.vel2speed(
-            chknm(info.rf2ScorVeh().mLocalVel.x),
-            chknm(info.rf2ScorVeh().mLocalVel.y),
-            chknm(info.rf2ScorVeh().mLocalVel.z))
-        plr_pos_xz = (chknm(info.rf2TeleVeh().mPos.x),
-                     -chknm(info.rf2TeleVeh().mPos.z))
-        plr_ori_rad = calc.oriyaw2rad(
-            chknm(info.rf2TeleVeh().mOri[2].x),
-            chknm(info.rf2TeleVeh().mOri[2].z))
+        plr_speed = api.read.vehicle.speed()
+        plr_pos_xz = (api.read.vehicle.pos_longitudinal(),
+                      api.read.vehicle.pos_lateral())
+        plr_ori_rad = calc.oriyaw2rad(*api.read.vehicle.orientation_yaw())
 
         # Generate data list from all vehicles in current session
         for index in range(veh_total):
-            tele_index = info.find_player_index_tele(index)
-            is_player = info.isPlayer(index)
+            tele_index = api.read.vehicle.sync_index(index)
+            is_player = api.read.vehicle.is_player(index)
 
-            slot_id = chknm(info.rf2ScorVeh(index).mID)
-            position = chknm(info.rf2ScorVeh(index).mPlace)
-            driver_name = cs2py(info.rf2ScorVeh(index).mDriverName)
-            vehicle_name = cs2py(info.rf2ScorVeh(index).mVehicleName)
-            vehicle_class = cs2py(info.rf2ScorVeh(index).mVehicleClass)
+            slot_id = api.read.vehicle.slot_id(index)
+            position = api.read.vehicle.place(index)
+            driver_name = api.read.vehicle.driver_name(index)
+            vehicle_name = api.read.vehicle.vehicle_name(index)
+            vehicle_class = api.read.vehicle.class_name(index)
 
             if matched_class_list:
                 position_in_class = class_pos_list[index][1]
@@ -175,18 +170,15 @@ class Realtime:
                 session_best_laptime = 99999
                 class_best_laptime = 99999
 
-            best_laptime = chknm(info.rf2ScorVeh(index).mBestLapTime)
-            last_laptime = chknm(info.rf2ScorVeh(index).mLastLapTime)
-            elapsed_time = chknm(info.rf2TeleVeh(tele_index).mElapsedTime)
-            speed = calc.vel2speed(
-                chknm(info.rf2ScorVeh(index).mLocalVel.x),
-                chknm(info.rf2ScorVeh(index).mLocalVel.y),
-                chknm(info.rf2ScorVeh(index).mLocalVel.z)
-            )
+            best_laptime = api.read.timing.best_laptime(index)
+            last_laptime = api.read.timing.last_laptime(index)
+            elapsed_time = api.read.timing.elapsed(tele_index)
+            speed = api.read.vehicle.speed(tele_index)
 
             # Distance & time
-            total_laps = chknm(info.rf2ScorVeh(index).mTotalLaps)
-            lap_distance = chknm(info.rf2ScorVeh(index).mLapDist)
+            total_laps = api.read.lap.total(index)
+            lap_distance = api.read.lap.distance(index)
+
             percentage_distance = calc.percentage_distance(lap_distance, track_length, 0.99999)
             relative_distance = calc.circular_relative_distance(
                 track_length, plr_lap_distance, lap_distance
@@ -194,10 +186,12 @@ class Realtime:
             relative_time_gap = calc.relative_time_gap(
                 relative_distance, speed, plr_speed
                 ) if not is_player else 0
-            time_behind_leader = chknm(info.rf2ScorVeh(index).mTimeBehindLeader)
-            laps_behind_leader = chknm(info.rf2ScorVeh(index).mLapsBehindLeader)
-            time_behind_next = chknm(info.rf2ScorVeh(index).mTimeBehindNext)
-            laps_behind_next = chknm(info.rf2ScorVeh(index).mLapsBehindNext)
+
+            time_behind_leader = api.read.timing.behind_leader(index)
+            time_behind_next = api.read.timing.behind_next(index)
+            laps_behind_leader = api.read.lap.behind_leader(index)
+            laps_behind_next = api.read.lap.behind_next(index)
+
             is_lapped = calc.lap_difference(
                 total_laps, plr_total_laps,
                 percentage_distance, plr_percentage_distance,
@@ -206,24 +200,20 @@ class Realtime:
             is_yellow = bool(speed <= 8)
 
             # Pit
-            in_garage = chknm(info.rf2ScorVeh(index).mInGarageStall)
-            in_pit = chknm(info.rf2ScorVeh(index).mInPits)
-            num_pit_stops = chknm(info.rf2ScorVeh(index).mNumPitstops)
-            pit_state = chknm(info.rf2ScorVeh(index).mPitState)
+            in_garage = api.read.state.in_garage(index)
+            in_pit = api.read.state.in_pits(index)
+            num_pit_stops = api.read.vehicle.number_pitstops(index)
+            pit_state = api.read.vehicle.pit_state(index)
             pit_time = self.__calc_pit_time(
                 index, in_pit, in_garage, last_laptime, elapsed_time,
                 in_pit * 1000 + slot_id)
-            tire_compound_index = (
-                chknm(info.rf2TeleVeh(tele_index).mFrontTireCompoundIndex),
-                chknm(info.rf2TeleVeh(tele_index).mRearTireCompoundIndex)
-            )
+            tire_compound_index = api.read.tyre.compound(tele_index)
 
             # Position data
-            pos_xz = (chknm(info.rf2TeleVeh(tele_index).mPos.x),
-                     -chknm(info.rf2TeleVeh(tele_index).mPos.z))
+            pos_xz = (api.read.vehicle.pos_longitudinal(tele_index),
+                      api.read.vehicle.pos_lateral(tele_index))
             orientation_xz_radians = calc.oriyaw2rad(
-                chknm(info.rf2TeleVeh(tele_index).mOri[2].x),
-                chknm(info.rf2TeleVeh(tele_index).mOri[2].z))
+                *api.read.vehicle.orientation_yaw(tele_index))
             relative_rotated_pos_xz = calc.rotate_pos(
                 plr_ori_rad - 3.14159265,   # plr_ori_rad, rotate view
                 pos_xz[0] - plr_pos_xz[0],  # x position related to player

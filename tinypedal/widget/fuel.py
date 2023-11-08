@@ -29,7 +29,7 @@ from PySide2.QtWidgets import (
 
 from .. import calculation as calc
 from .. import formatter as fmt
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -266,57 +266,57 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Estimated end fuel
-            amount_end = f"{self.fuel_units(minfo.fuel.AmountFuelBeforePitstop):.{self.decimals[0]}f}"
+            amount_end = f"{self.fuel_units(minfo.fuel.amountFuelBeforePitstop):.{self.decimals[0]}f}"
             self.update_fuel("end", amount_end, self.last_amount_end)
             self.last_amount_end = amount_end
 
             # Remaining fuel
-            amount_curr = f"{self.fuel_units(minfo.fuel.AmountFuelCurrent):.{self.decimals[1]}f}"
+            amount_curr = f"{self.fuel_units(minfo.fuel.amountFuelCurrent):.{self.decimals[1]}f}"
             self.update_fuel(
-                "curr", amount_curr, self.last_amount_curr, minfo.fuel.EstimatedLaps)
+                "curr", amount_curr, self.last_amount_curr, minfo.fuel.estimatedLaps)
             self.last_amount_curr = amount_curr
 
             # Total needed fuel
-            amount_need = f"{calc.sym_range(self.fuel_units(minfo.fuel.AmountFuelNeeded), 9999):+.{self.decimals[2]}f}"
+            amount_need = f"{calc.sym_range(self.fuel_units(minfo.fuel.amountFuelNeeded), 9999):+.{self.decimals[2]}f}"
             self.update_fuel(
-                "need", amount_need, self.last_amount_need, minfo.fuel.EstimatedLaps)
+                "need", amount_need, self.last_amount_need, minfo.fuel.estimatedLaps)
             self.last_amount_need = amount_need
 
             # Estimated fuel consumption
-            used_last = f"{self.fuel_units(minfo.fuel.EstimatedFuelConsumption):.{self.decimals[3]}f}"
+            used_last = f"{self.fuel_units(minfo.fuel.estimatedFuelConsumption):.{self.decimals[3]}f}"
             self.update_fuel("used", used_last, self.last_used_last)
             self.last_used_last = used_last
 
             # Delta fuel consumption
-            delta_fuel = f"{self.fuel_units(minfo.fuel.DeltaFuelConsumption):+.{self.decimals[4]}f}"
+            delta_fuel = f"{self.fuel_units(minfo.fuel.deltaFuelConsumption):+.{self.decimals[4]}f}"
             self.update_fuel("delta", delta_fuel, self.last_delta_fuel)
             self.last_delta_fuel = delta_fuel
 
             # Estimate pit stop counts when pitting at end of current lap
-            est_pits_early = f"{min(max(minfo.fuel.EstimatedNumPitStopsEarly, 0), 99.99):.{self.decimals[5]}f}"
+            est_pits_early = f"{min(max(minfo.fuel.estimatedNumPitStopsEarly, 0), 99.99):.{self.decimals[5]}f}"
             self.update_fuel("early", est_pits_early, self.last_est_pits_early)
             self.last_est_pits_early = est_pits_early
 
             # Estimated laps current fuel can last
-            est_runlaps = f"{min(minfo.fuel.EstimatedLaps, 9999):.{self.decimals[6]}f}"
+            est_runlaps = f"{min(minfo.fuel.estimatedLaps, 9999):.{self.decimals[6]}f}"
             self.update_fuel("laps", est_runlaps, self.last_est_runlaps)
             self.last_est_runlaps = est_runlaps
 
             # Estimated minutes current fuel can last
-            est_runmins = f"{min(minfo.fuel.EstimatedMinutes, 9999):.{self.decimals[7]}f}"
+            est_runmins = f"{min(minfo.fuel.estimatedMinutes, 9999):.{self.decimals[7]}f}"
             self.update_fuel("mins", est_runmins, self.last_est_runmins)
             self.last_est_runmins = est_runmins
 
             # Estimated one less pit fuel consumption
-            fuel_save = f"{min(max(self.fuel_units(minfo.fuel.OneLessPitFuelConsumption), 0), 99.99):.{self.decimals[8]}f}"
+            fuel_save = f"{min(max(self.fuel_units(minfo.fuel.oneLessPitFuelConsumption), 0), 99.99):.{self.decimals[8]}f}"
             self.update_fuel("save", fuel_save, self.last_fuel_save)
             self.last_fuel_save = fuel_save
 
             # Estimate pit stop counts when pitting at end of current stint
-            est_pits_end = f"{min(max(minfo.fuel.EstimatedNumPitStopsEnd, 0), 99.99):.{self.decimals[9]}f}"
+            est_pits_end = f"{min(max(minfo.fuel.estimatedNumPitStopsEnd, 0), 99.99):.{self.decimals[9]}f}"
             self.update_fuel("pits", est_pits_end, self.last_est_pits_end)
             self.last_est_pits_end = est_pits_end
 
@@ -324,12 +324,12 @@ class Draw(Widget):
             if self.wcfg["show_fuel_level_bar"]:
                 fuel_level = (
                     round((
-                        minfo.fuel.AmountFuelCurrent / max(minfo.fuel.Capacity, 1)), 3),
+                        minfo.fuel.amountFuelCurrent / max(minfo.fuel.tankCapacity, 1)), 3),
                     round((
-                        minfo.fuel.AmountFuelStart / max(minfo.fuel.Capacity, 1)), 3),
+                        minfo.fuel.amountFuelStart / max(minfo.fuel.tankCapacity, 1)), 3),
                     round(((
-                        minfo.fuel.AmountFuelCurrent + minfo.fuel.AmountFuelNeeded)
-                        / max(minfo.fuel.Capacity, 1)), 3),
+                        minfo.fuel.amountFuelCurrent + minfo.fuel.amountFuelNeeded)
+                        / max(minfo.fuel.tankCapacity, 1)), 3),
                 )
                 self.update_fuel_level(fuel_level, self.last_fuel_level)
                 self.last_fuel_level = fuel_level

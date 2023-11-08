@@ -26,7 +26,7 @@ import time
 import threading
 
 from ..module_info import minfo
-from ..readapi import info, chknm, state, combo_identify, session_identify
+from ..api_control import api
 from .. import validator as val
 
 MODULE_NAME = "module_sectors"
@@ -63,25 +63,28 @@ class Realtime:
         update_interval = idle_interval
 
         while self.running:
-            if state():
+            if api.state:
 
                 if not reset:
                     reset = True
                     update_interval = active_interval
 
-                    last_sector_idx = -1                # previous recorded sector index value
-                    combo_id = combo_identify()          # current car & track combo
-                    session_id = session_identify()        # session identity
+                    last_sector_idx = -1  # previous recorded sector index value
+                    combo_id = api.read.identify.combo()  # current car & track combo
+                    session_id = api.read.identify.session()  # session identity
                     best_laptime, best_s_tb, best_s_pb = self.load_sector_data(
                         combo_id, session_id)
-                    delta_s_tb = [0,0,0]                   # deltabest times against all time best sector
-                    delta_s_pb = [0,0,0]           # deltabest times against best laptime sector
+                    delta_s_tb = [0,0,0]  # deltabest times against all time best sector
+                    delta_s_pb = [0,0,0]  # deltabest times against best laptime sector
                     prev_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]  # previous sector times
                     no_delta_s = True
 
                 # Read telemetry
-                (sector_idx, curr_sector1, curr_sector2, last_sector2, last_laptime
-                 ) = self.__telemetry()
+                sector_idx = api.read.lap.sector_index()
+                last_laptime = api.read.timing.last_laptime()
+                curr_sector1 = api.read.timing.curr_sector1()
+                curr_sector2 = api.read.timing.curr_sector2()
+                last_sector2 = api.read.timing.last_sector2()
 
                 # Update previous & best sector time
                 if last_sector_idx != sector_idx:  # keep checking until conditions met
@@ -155,13 +158,13 @@ class Realtime:
                             best_s_tb[1] = prev_s[1]
 
                 # Output sectors data
-                minfo.sectors.SectorIndex = min(max(last_sector_idx, 0), 2)
-                minfo.sectors.DeltaSectorBestPB = delta_s_pb
-                minfo.sectors.DeltaSectorBestTB = delta_s_tb
-                minfo.sectors.SectorBestTB = best_s_tb
-                minfo.sectors.SectorBestPB = best_s_pb
-                minfo.sectors.SectorPrev = prev_s
-                minfo.sectors.NoDeltaSector = no_delta_s
+                minfo.sectors.sectorIndex = min(max(last_sector_idx, 0), 2)
+                minfo.sectors.deltaSectorBestPB = delta_s_pb
+                minfo.sectors.deltaSectorBestTB = delta_s_tb
+                minfo.sectors.sectorBestTB = best_s_tb
+                minfo.sectors.sectorBestPB = best_s_pb
+                minfo.sectors.sectorPrev = prev_s
+                minfo.sectors.noDeltaSector = no_delta_s
 
             else:
                 if reset:
@@ -176,19 +179,6 @@ class Realtime:
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("sectors module closed")
-
-    @staticmethod
-    def __telemetry():
-        """Telemetry data
-
-        Convert game sector index order to 0,1,2 for consistency.
-        """
-        sector_idx = (2,0,1)[min(max(chknm(info.rf2ScorVeh().mSector), 0), 2)]
-        curr_sector1 = chknm(info.rf2ScorVeh().mCurSector1)
-        curr_sector2 = chknm(info.rf2ScorVeh().mCurSector2)
-        last_sector2 = chknm(info.rf2ScorVeh().mLastSector2)
-        last_laptime = chknm(info.rf2ScorVeh().mLastLapTime)
-        return sector_idx, curr_sector1, curr_sector2, last_sector2, last_laptime
 
     def save_sector_data(self, combo_id, session_id, best_s_pb, best_laptime, best_s_tb):
         """Verify and save sector data"""

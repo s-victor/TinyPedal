@@ -31,7 +31,7 @@ from PySide2.QtWidgets import (
 
 from .. import calculation as calc
 from .. import formatter as fmt
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -250,10 +250,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state() and minfo.relative.Standings:
+        if self.wcfg["enable"] and api.state and minfo.relative.standings:
 
-            standings_idx = minfo.relative.Standings
-            vehicles_data = minfo.vehicles.Data
+            standings_idx = minfo.relative.standings
+            vehicles_data = minfo.vehicles.dataSet
             total_idx = len(standings_idx)
 
             # Standings update
@@ -653,7 +653,7 @@ class Draw(Widget):
             # 7 Tyre compound index
             tire_idx = (vehicles_data[index].TireCompoundIndex, is_player)
 
-            if readapi.is_race():
+            if api.read.state.is_race():
                 # 8 Lap time
                 laptime = (
                     self.set_laptime(

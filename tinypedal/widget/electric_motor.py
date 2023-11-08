@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 
 WIDGET_NAME = "electric_motor"
@@ -147,33 +147,29 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
-
-            # Read boost motor data
-            (motor_temp, water_temp, motor_rpm, motor_torque
-             ) = readapi.electric_motor()
+        if self.wcfg["enable"] and api.state:
 
             # Motor temperature
             if self.wcfg["show_boost_motor_temp"]:
-                motor_temp = round(motor_temp, 1)
+                motor_temp = round(api.read.emotor.motor_temperature(), 1)
                 self.update_motor_temp(motor_temp, self.last_motor_temp)
                 self.last_motor_temp = motor_temp
 
             # Water temperature
             if self.wcfg["show_boost_water_temp"]:
-                water_temp = round(water_temp, 1)
+                water_temp = round(api.read.emotor.water_temperature(), 1)
                 self.update_water_temp(water_temp, self.last_water_temp)
                 self.last_water_temp = water_temp
 
             # Motor rpm
             if self.wcfg["show_boost_motor_rpm"]:
-                motor_rpm = int(motor_rpm)
+                motor_rpm = int(api.read.emotor.rpm())
                 self.update_motor_rpm(motor_rpm, self.last_motor_rpm)
                 self.last_motor_rpm = motor_rpm
 
             # Motor torque
             if self.wcfg["show_boost_motor_torque"]:
-                motor_torque = round(motor_torque, 2)
+                motor_torque = round(api.read.emotor.torque(), 2)
                 self.update_motor_torque(motor_torque, self.last_motor_torque)
                 self.last_motor_torque = motor_torque
 

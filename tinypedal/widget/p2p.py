@@ -26,7 +26,7 @@ from PySide2.QtWidgets import (
     QLabel,
 )
 
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -97,26 +97,28 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Read p2p data
-            mgear, speed, throttle = readapi.p2p()
+            gear = api.read.engine.gear()
+            speed = api.read.vehicle.speed()
+            throttle_raw = api.read.pedal.throttle_raw()
 
             alt_active_state = (
-                mgear >= self.wcfg["activation_threshold_gear"] and
+                gear >= self.wcfg["activation_threshold_gear"] and
                 speed * 3.6 > self.wcfg["activation_threshold_speed"] and
-                throttle >= self.wcfg["activation_threshold_throttle"] and
-                minfo.hybrid.MotorState
+                throttle_raw >= self.wcfg["activation_threshold_throttle"] and
+                minfo.hybrid.motorState
             )
 
             # Battery charge
             if self.wcfg["show_battery_charge"]:
                 battery_charge = (
-                    minfo.hybrid.BatteryCharge,
-                    minfo.hybrid.MotorState,
+                    minfo.hybrid.batteryCharge,
+                    minfo.hybrid.motorState,
                     alt_active_state,
-                    minfo.hybrid.MotorActiveTimer,
-                    minfo.hybrid.MotorInActiveTimer
+                    minfo.hybrid.motorActiveTimer,
+                    minfo.hybrid.motorInActiveTimer
                 )
                 self.update_battery_charge(battery_charge, self.last_battery_charge)
                 self.last_battery_charge = battery_charge
@@ -124,8 +126,8 @@ class Draw(Widget):
             # Activation timer
             if self.wcfg["show_activation_timer"]:
                 active_timer = (
-                    minfo.hybrid.MotorActiveTimer,
-                    minfo.hybrid.MotorState
+                    minfo.hybrid.motorActiveTimer,
+                    minfo.hybrid.motorState
                 )
                 self.update_active_timer(active_timer, self.last_active_timer)
                 self.last_active_timer = active_timer

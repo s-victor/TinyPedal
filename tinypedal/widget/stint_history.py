@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -207,18 +207,20 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Reset switch
             if not self.checked:
                 self.checked = True
 
             # Read stint data
-            lap_num = readapi.lap_number()
-            time_curr, inpits, ingarage = readapi.stint()
+            lap_num = api.read.lap.number()
+            time_curr = api.read.session.elapsed()
+            inpits = api.read.state.in_pits()
+            ingarage = api.read.state.in_garage()
 
-            wear_avg = 100 - (sum(readapi.wear()) * 25)
-            fuel_curr = self.fuel_units(minfo.fuel.AmountFuelCurrent)
+            wear_avg = 100 - (sum(api.read.tyre.wear()) * 25)
+            fuel_curr = self.fuel_units(minfo.fuel.amountFuelCurrent)
 
             if not inpits:
                 self.last_fuel_curr = fuel_curr
@@ -234,7 +236,7 @@ class Draw(Widget):
                 self.reset_stint = True
 
             # Current stint data
-            self.stint_data[0][0] = self.set_tyre_cmp(readapi.tyre_compound())
+            self.stint_data[0][0] = self.set_tyre_cmp(api.read.tyre.compound())
             self.stint_data[0][1] = max(lap_num - self.start_laps, 0)
             self.stint_data[0][2] = max(time_curr - self.start_time, 0)
             self.stint_data[0][3] = max(self.start_fuel - fuel_curr, 0)

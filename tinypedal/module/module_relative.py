@@ -26,7 +26,7 @@ import threading
 from itertools import chain
 
 from ..module_info import minfo
-from ..readapi import info, chknm, cs2py, state
+from ..api_control import api
 from .. import calculation as calc
 
 MODULE_NAME = "module_relative"
@@ -62,29 +62,32 @@ class Realtime:
         update_interval = idle_interval
 
         while self.running:
-            if state():
+            if api.state:
 
                 if not reset:
                     reset = True
                     update_interval = active_interval
 
-                veh_total = max(chknm(info.rf2Tele.mNumVehicles), 1)
-                plr_index = info.playerScorIndex
-                plr_place = chknm(info.rf2ScorVeh().mPlace)
+                veh_total = max(api.read.vehicle.total(), 1)
+                plr_index = api.read.vehicle.player_index()
+                plr_place = api.read.vehicle.place()
 
                 # Create relative list
                 rel_dist_list = list(self.__relative_dist_list(veh_total))
-                rel_idx_list = self.__relative_index_list(rel_dist_list, plr_index) if rel_dist_list else None
+                rel_idx_list = self.__relative_index_list(
+                    rel_dist_list, plr_index) if rel_dist_list else None
 
                 # Create standings list
-                class_pos_list, unique_class_list, place_index_list = self.__class_position_list(veh_total)
+                (class_pos_list, unique_class_list, place_index_list
+                 ) = self.__class_position_list(veh_total)
                 stand_idx_list = self.__standings_index_list(
-                    veh_total, plr_index, plr_place, class_pos_list, unique_class_list, place_index_list)
+                    veh_total, plr_index, plr_place,
+                    class_pos_list, unique_class_list, place_index_list)
 
                 # Output data
-                minfo.relative.Classes = class_pos_list
-                minfo.relative.Relative = rel_idx_list
-                minfo.relative.Standings = stand_idx_list
+                minfo.relative.classes = class_pos_list
+                minfo.relative.relative = rel_idx_list
+                minfo.relative.standings = stand_idx_list
 
             else:
                 if reset:
@@ -126,16 +129,16 @@ class Realtime:
 
     def __relative_dist_list(self, veh_total):
         """Calculate relative distance"""
-        track_length = chknm(info.rf2Scor.mScoringInfo.mLapDist)  # track length
-        plr_dist = chknm(info.rf2ScorVeh().mLapDist)
+        track_length = api.read.lap.track_length()  # track length
+        plr_dist = api.read.lap.distance()
         race_check = bool(
-            chknm(info.rf2Scor.mScoringInfo.mSession) > 9 and not
-            self.cfg.setting_user["relative"]["show_vehicle_in_garage_for_race"])
-
+            api.read.state.is_race() and not
+            self.cfg.setting_user["relative"]["show_vehicle_in_garage_for_race"]
+        )
         for index in range(veh_total):
-            ingarage = chknm(info.rf2ScorVeh(index).mInGarageStall)
+            ingarage = api.read.state.in_garage(index)
+            opt_dist = api.read.lap.distance(index)
             if show_vehicles(race_check, ingarage):
-                opt_dist = chknm(info.rf2ScorVeh(index).mLapDist)
                 rel_dist = calc.circular_relative_distance(
                     track_length, plr_dist, opt_dist)
                 yield (rel_dist, index)  # relative distance, player index
@@ -158,14 +161,14 @@ class Realtime:
     def __class_data(veh_total):
         """Get vehicle class data"""
         for index in range(veh_total):
-            vehclass = cs2py(info.rf2ScorVeh(index).mVehicleClass)
-            position = chknm(info.rf2ScorVeh(index).mPlace)
-            bestlaptime = chknm(info.rf2ScorVeh(index).mBestLapTime)
+            vehclass = api.read.vehicle.class_name(index)
+            position = api.read.vehicle.place(index)
+            best_laptime = api.read.timing.best_laptime(index)
             yield (
                 vehclass,  # 0 vehicle class name
                 position,  # 1 overall position/place
                 index,     # 2 player index
-                bestlaptime if bestlaptime > 0 else 99999, # 3 best lap time
+                best_laptime if best_laptime > 0 else 99999, # 3 best lap time
             )
 
     @staticmethod
@@ -196,7 +199,8 @@ class Realtime:
                         class_best_laptime,  # 4 classes best
                     )
 
-    def __standings_index_list(self, veh_total, plr_index, plr_place, class_pos_list, unique_class_list, place_index_list):
+    def __standings_index_list(
+        self, veh_total, plr_index, plr_place, class_pos_list, unique_class_list, place_index_list):
         """Create standings index list"""
         veh_top = min(max(int(self.cfg.setting_user["standings"]["min_top_vehicles"]), 1), 5)
         veh_limit = max(int(

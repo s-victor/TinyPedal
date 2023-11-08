@@ -27,7 +27,7 @@ import threading
 from PySide2.QtCore import QObject, Signal
 
 from .setting import cfg
-from . import readapi
+from .api_control import api
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ class OverlayAutoHide(QObject):
     def __is_hidden(self):
         """Check hide state"""
         if self.cfg.overlay["auto_hide"]:
-            if readapi.state():
+            if api.state:
                 return False
             return True
         return False

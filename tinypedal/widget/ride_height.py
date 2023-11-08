@@ -24,7 +24,7 @@ from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 
 WIDGET_NAME = "ride_height"
@@ -89,10 +89,10 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Read ride height & rake data
-            self.ride_height = tuple(map(calc.meter2millmeter, readapi.ride_height()))
+            self.ride_height = tuple(map(calc.meter2millmeter, api.read.suspension.ride_height()))
             self.update_rideh(self.ride_height, self.last_ride_height)
             self.last_ride_height = self.ride_height
 

@@ -25,7 +25,7 @@ import time
 import threading
 
 from ..module_info import minfo
-from ..readapi import info, chknm, state
+from ..api_control import api
 
 MODULE_NAME = "module_hybrid"
 
@@ -60,7 +60,7 @@ class Realtime:
         update_interval = idle_interval
 
         while self.running:
-            if state():
+            if api.state:
 
                 if not reset:
                     reset = True
@@ -80,8 +80,10 @@ class Realtime:
                     last_lap_stime = -1  # last lap start time
 
                 # Read telemetry
-                (lap_stime, lap_etime, battery_charge, motor_state
-                 ) = self.__telemetry()
+                lap_stime = api.read.timing.start()
+                lap_etime = api.read.timing.elapsed()
+                battery_charge = api.read.emotor.battery_charge() * 100
+                motor_state = api.read.emotor.state()
 
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime != -1:
@@ -120,14 +122,14 @@ class Realtime:
                         motor_inactive_timer = 99999
 
                 # Output hybrid data
-                minfo.hybrid.BatteryCharge = battery_charge
-                minfo.hybrid.BatteryDrain = battery_drain
-                minfo.hybrid.BatteryRegen = battery_regen
-                minfo.hybrid.BatteryDrainLast = battery_drain_last
-                minfo.hybrid.BatteryRegenLast = battery_regen_last
-                minfo.hybrid.MotorActiveTimer = motor_active_timer
-                minfo.hybrid.MotorInActiveTimer = motor_inactive_timer
-                minfo.hybrid.MotorState = motor_state
+                minfo.hybrid.batteryCharge = battery_charge
+                minfo.hybrid.batteryDrain = battery_drain
+                minfo.hybrid.batteryRegen = battery_regen
+                minfo.hybrid.batteryDrainLast = battery_drain_last
+                minfo.hybrid.batteryRegenLast = battery_regen_last
+                minfo.hybrid.motorActiveTimer = motor_active_timer
+                minfo.hybrid.motorInActiveTimer = motor_inactive_timer
+                minfo.hybrid.motorState = motor_state
 
             else:
                 if reset:
@@ -139,12 +141,3 @@ class Realtime:
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("hybrid module closed")
-
-    @staticmethod
-    def __telemetry():
-        """Telemetry data"""
-        lap_stime = chknm(info.rf2TeleVeh().mLapStartET)
-        lap_etime = chknm(info.rf2TeleVeh().mElapsedTime)
-        battery_charge = chknm(info.rf2TeleVeh().mBatteryChargeFraction) * 100
-        motor_state = chknm(info.rf2TeleVeh().mElectricBoostMotorState)
-        return (lap_stime, lap_etime, battery_charge, motor_state)

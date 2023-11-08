@@ -47,7 +47,11 @@ def format_option_name(name):
     """Format option name"""
     name = re.sub("bkg", "background", name)
     name = re.sub("_", " ", name)
-    return name.title()
+    name = name.title()
+    # Special name
+    name = re.sub("Api", "API", name)
+    name = re.sub("Id", "ID", name)
+    return name
 
 
 def strip_invalid_char(name):

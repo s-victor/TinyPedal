@@ -19,5 +19,5 @@
 """
 Data modules
 
-Data module file name must match key name in template_setting.py
+Data module file name must match key name in template/setting_module.py
 """

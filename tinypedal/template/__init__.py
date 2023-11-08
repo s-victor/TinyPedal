@@ -17,7 +17,5 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Widget modules
-
-Widget module file name must match key name in template/setting_widget.py
+Template
 """

@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
     QLabel,
 )
 
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -149,24 +149,25 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
-            lap_stime, lap_etime = readapi.lap_timestamp()
+            lap_stime = api.read.timing.start()
+            lap_etime = api.read.timing.elapsed()
 
             # Battery charge & usage
             if self.wcfg["show_battery_charge"]:
                 self.update_battery_charge(
-                    minfo.hybrid.BatteryCharge, self.last_battery_charge)
+                    minfo.hybrid.batteryCharge, self.last_battery_charge)
 
             if lap_stime != self.last_lap_stime:
-                elapsed_time = lap_etime - lap_stime
-                if elapsed_time >= self.wcfg["freeze_duration"] or elapsed_time < 0:
+                laptime_curr = lap_etime - lap_stime
+                if laptime_curr >= self.wcfg["freeze_duration"] or laptime_curr < 0:
                     self.last_lap_stime = lap_stime
-                battery_drain = minfo.hybrid.BatteryDrainLast
-                battery_regen = minfo.hybrid.BatteryRegenLast
+                battery_drain = minfo.hybrid.batteryDrainLast
+                battery_regen = minfo.hybrid.batteryRegenLast
             else:
-                battery_drain = minfo.hybrid.BatteryDrain
-                battery_regen = minfo.hybrid.BatteryRegen
+                battery_drain = minfo.hybrid.batteryDrain
+                battery_regen = minfo.hybrid.batteryRegen
 
             if self.wcfg["show_battery_drain"]:
                 self.update_battery_drain(battery_drain, self.last_battery_drain)
@@ -176,13 +177,13 @@ class Draw(Widget):
                 self.update_battery_regen(battery_regen, self.last_battery_regen)
                 self.last_battery_regen = battery_regen
 
-            self.last_battery_charge = minfo.hybrid.BatteryCharge
+            self.last_battery_charge = minfo.hybrid.batteryCharge
 
             # Motor activation timer
             if self.wcfg["show_activation_timer"]:
                 self.update_activation_timer(
-                    minfo.hybrid.MotorActiveTimer, self.last_motor_active_timer)
-                self.last_motor_active_timer = minfo.hybrid.MotorActiveTimer
+                    minfo.hybrid.motorActiveTimer, self.last_motor_active_timer)
+                self.last_motor_active_timer = minfo.hybrid.motorActiveTimer
 
     # GUI update methods
     def update_battery_charge(self, curr, last):

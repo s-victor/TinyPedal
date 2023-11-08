@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import formatter as fmt
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -128,23 +128,23 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # G force
             if self.wcfg["show_g_force"]:
                 # Longitudinal g-force
-                gf_lgt = round(minfo.force.LgtGForceRaw, 2)
+                gf_lgt = round(minfo.force.lgtGForceRaw, 2)
                 self.update_gf_lgt(gf_lgt, self.last_gf_lgt)
                 self.last_gf_lgt = gf_lgt
 
                 # Lateral g-force
-                gf_lat = round(minfo.force.LatGForceRaw, 2)
+                gf_lat = round(minfo.force.latGForceRaw, 2)
                 self.update_gf_lat(gf_lat, self.last_gf_lat)
                 self.last_gf_lat = gf_lat
 
             # Downforce ratio
             if self.wcfg["show_downforce_ratio"]:
-                df_ratio = f"{minfo.force.DownForceRatio:04.02f}"[:5]
+                df_ratio = f"{minfo.force.downForceRatio:04.02f}"[:5]
                 self.update_df_ratio(df_ratio, self.last_df_ratio)
                 self.last_df_ratio = df_ratio
 

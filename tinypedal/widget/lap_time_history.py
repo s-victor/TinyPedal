@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -175,26 +175,27 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Read laps data
-            lap_stime, lap_etime = readapi.lap_timestamp()
-            wear_avg = 100 - (sum(readapi.wear()) * 25)
+            lap_stime = api.read.timing.start()
+            lap_etime = api.read.timing.elapsed()
+            wear_avg = 100 - (sum(api.read.tyre.wear()) * 25)
 
             if lap_stime != self.last_lap_stime:  # time stamp difference
                 if 2 < lap_etime - lap_stime < 10:  # update 2s after cross line
                     self.last_wear = wear_avg
                     self.last_lap_stime = lap_stime  # reset time stamp counter
-                    self.laps_data[0][1] = minfo.delta.LaptimeLast
-                    self.laps_data[0][2] = minfo.delta.IsValidLap
-                    self.laps_data[0][3] = minfo.fuel.LastLapFuelConsumption
+                    self.laps_data[0][1] = minfo.delta.lapTimeLast
+                    self.laps_data[0][2] = minfo.delta.isValidLap
+                    self.laps_data[0][3] = minfo.fuel.lastLapFuelConsumption
                     self.store_last_data()
 
             # Current laps data
-            self.laps_data[0][0] = readapi.lap_number()
-            self.laps_data[0][1] = minfo.delta.LaptimeEstimated
+            self.laps_data[0][0] = api.read.lap.number()
+            self.laps_data[0][1] = minfo.delta.lapTimeEstimated
             self.laps_data[0][2] = 0
-            self.laps_data[0][3] = minfo.fuel.EstimatedFuelConsumption
+            self.laps_data[0][3] = minfo.fuel.estimatedFuelConsumption
             self.laps_data[0][4] = max(wear_avg - self.last_wear, 0)
 
             laps_text = f"{self.laps_data[0][0]:03.0f}"[:3].ljust(3)

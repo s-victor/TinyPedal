@@ -24,7 +24,7 @@ from PySide2.QtCore import Qt, Slot, QRectF, QLineF
 from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QPen, QBrush, QColor, QFont, QFontMetrics
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -86,15 +86,15 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Map
-            raw_coords = minfo.mapping.Coordinates
+            raw_coords = minfo.mapping.coordinates
             self.update_map(raw_coords, self.last_raw_coords)
             self.last_raw_coords = raw_coords
 
             # Vehicle
-            self.vehicles_data = minfo.vehicles.Data
+            self.vehicles_data = minfo.vehicles.dataSet
             self.update_veh(self.vehicles_data, self.last_vehicles_data)
             self.last_vehicles_data = self.vehicles_data
 
@@ -223,7 +223,7 @@ class Draw(Widget):
                 painter.drawLine(QLineF(pos_x1, pos_y1, pos_x2, pos_y2))
 
             # Sector lines
-            sector_index = minfo.mapping.Sectors
+            sector_index = minfo.mapping.sectors
             if self.wcfg["show_sector_line"] and sector_index:
                 pen.setWidth(self.wcfg["sector_line_width"])
                 pen.setColor(QColor(self.wcfg["sector_line_color"]))

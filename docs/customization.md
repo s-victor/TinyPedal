@@ -156,14 +156,14 @@ Check whether auto hide is enabled. This setting can be toggled from tray icon m
 ## Display Units
 Display units config dialog can be accessed from `Config` menu in main window.
 
-    elevation_unit
+    distance_unit
 2 unit types are available: `"Meter"`, `"Feet"`.
 
     fuel_unit
 2 unit types are available: `"Liter"`, `"Gallon"`.
 
     odometer_unit
-2 unit types are available: `"Kilometer"`, `"Mile"`, `"Meter"`.
+3 unit types are available: `"Kilometer"`, `"Mile"`, `"Meter"`.
 
     speed_unit
 3 unit types are available: `"KPH"`, `"MPH"`, `"m/s"`.
@@ -488,10 +488,10 @@ Set amount lap threshold to show low fuel indicator when total completable laps 
 Show speed limiter indicator.
 
     speed_limiter_text
-Set custom pit speed limiter text which shows when speed limiter is engaged. 
+Set custom pit speed limiter text which shows when speed limiter is engaged.
 
     show_yellow_flag
-Show yellow flag indicator and distance display which shows nearest yellow flag vehicle distance in meters.
+Show yellow flag indicator and distance display which shows nearest yellow flag vehicle distance.
 
     show_yellow_flag_for_race_only
 Only show yellow flag indicator during race session.
@@ -1024,6 +1024,9 @@ Show your current position against all drivers in a session.
 
 
 ## Speedometer
+    layout
+2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
+
     show_speed
 Show current vehicle speed.
 

@@ -35,7 +35,7 @@ from PySide2.QtGui import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -122,7 +122,7 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Reset switch
             if not self.checked:
@@ -130,8 +130,8 @@ class Draw(Widget):
 
             # Read acceleration data
             self.gforce_raw = self.gforce_orientation(
-                minfo.force.LgtGForceRaw,
-                minfo.force.LatGForceRaw
+                minfo.force.lgtGForceRaw,
+                minfo.force.latGForceRaw
             )
             self.update_gforce(self.gforce_raw, self.last_gforce_raw)
             self.last_gforce_raw = self.gforce_raw
@@ -172,7 +172,7 @@ class Draw(Widget):
             self.draw_circle_mark(
                 painter,
                 self.wcfg["max_average_lateral_g_circle_style"],
-                minfo.force.MaxAvgLatGForce,
+                minfo.force.maxAvgLatGForce,
                 self.wcfg["max_average_lateral_g_circle_width"],
                 self.wcfg["max_average_lateral_g_circle_color"]
             )
@@ -346,12 +346,12 @@ class Draw(Widget):
         painter.drawText(
             self.rect_gforce_bottom.adjusted(0, self.font_offset, 0, 0),
             Qt.AlignCenter,
-            f"{minfo.force.MaxLgtGForce:.2f}"[:4]
+            f"{minfo.force.maxLgtGForce:.2f}"[:4]
         )
         painter.drawText(
             self.rect_gforce_left.adjusted(0, self.font_offset, 0, 0),
             Qt.AlignCenter,
-            f"{minfo.force.MaxLatGForce:.2f}"[:4]
+            f"{minfo.force.maxLatGForce:.2f}"[:4]
         )
 
     # Additional methods

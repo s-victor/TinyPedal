@@ -33,7 +33,7 @@ from PySide2.QtWidgets import (
 )
 
 from .const import APP_NAME, VERSION, APP_ICON
-from . import readapi
+from .api_control import api
 
 COPYRIGHT = "Copyright (C) 2022-2023 Xiang"
 DESCRIPTION = "An open-source overlay application for racing simulation."
@@ -80,11 +80,6 @@ class About(QWidget):
         label_desc.setWordWrap(True)
         label_desc.setStyleSheet("padding: 5px; font-size: 11px;")
 
-        # Additional info
-        label_addinfo = QLabel(f"Loaded API version: {readapi.api_version()}")
-        label_addinfo.setAlignment(Qt.AlignLeft)
-        label_addinfo.setStyleSheet("padding: 5px; font-size: 11px;")
-
         # Add button
         button_lic = QPushButton("License")
         button_lic.setStyleSheet("padding: 4px 6px")
@@ -114,7 +109,6 @@ class About(QWidget):
 
         layout_main.addLayout(layout_logo)
         layout_main.addWidget(label_desc)
-        layout_main.addWidget(label_addinfo)
         layout_main.addLayout(layout_button)
         #layout_main.setSpacing(0)
 

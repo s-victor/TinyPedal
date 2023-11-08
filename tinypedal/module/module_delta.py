@@ -27,7 +27,7 @@ import csv
 
 from ..module_info import minfo
 from ..const import PATH_DELTABEST
-from ..readapi import info, chknm, state, combo_identify
+from ..api_control import api
 from .. import calculation as calc
 from .. import validator as val
 
@@ -66,7 +66,7 @@ class Realtime:
         update_interval = idle_interval
 
         while self.running:
-            if state():
+            if api.state:
 
                 if not reset:
                     reset = True
@@ -75,7 +75,7 @@ class Realtime:
                     recording = False
                     validating = False
 
-                    combo_id = combo_identify()
+                    combo_id = api.read.identify.combo()
                     delta_list_best = self.load_deltabest(combo_id)
                     delta_list_curr = [DELTA_ZERO]  # distance, laptime
                     delta_list_last = [DELTA_ZERO]  # last lap
@@ -91,8 +91,11 @@ class Realtime:
                     meters_driven = self.cfg.setting_user["cruise"]["meters_driven"]
 
                 # Read telemetry
-                (lap_stime, laptime_curr, lastlap_valid, pos_curr, gps_curr
-                 ) = self.__telemetry()
+                lap_stime = api.read.timing.start()
+                laptime_curr = max(api.read.timing.current_laptime(), 0)
+                lastlap_valid = api.read.timing.last_laptime()
+                pos_curr = api.read.lap.distance()
+                gps_curr = api.read.vehicle.pos_xyz()
 
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime != -1:
@@ -151,13 +154,13 @@ class Realtime:
                         meters_driven += moved_distance
 
                 # Output delta time data
-                minfo.delta.LaptimeCurrent = laptime_curr
-                minfo.delta.LaptimeLast = laptime_last
-                minfo.delta.LaptimeBest = laptime_best
-                minfo.delta.LaptimeEstimated = laptime_best + delta_best
-                minfo.delta.DeltaBest = delta_best
-                minfo.delta.IsValidLap = lastlap_valid > 0
-                minfo.delta.MetersDriven = meters_driven
+                minfo.delta.lapTimeCurrent = laptime_curr
+                minfo.delta.lapTimeLast = laptime_last
+                minfo.delta.lapTimeBest = laptime_best
+                minfo.delta.lapTimeEstimated = laptime_best + delta_best
+                minfo.delta.deltaBest = delta_best
+                minfo.delta.isValidLap = lastlap_valid > 0
+                minfo.delta.metersDriven = meters_driven
 
             else:
                 if reset:
@@ -171,18 +174,6 @@ class Realtime:
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("delta module closed")
-
-    @staticmethod
-    def __telemetry():
-        """Telemetry data"""
-        lap_stime = chknm(info.rf2TeleVeh().mLapStartET)
-        laptime_curr = max(chknm(info.rf2TeleVeh().mElapsedTime) - lap_stime, 0)
-        lastlap_valid = chknm(info.rf2ScorVeh().mLastLapTime)
-        pos_curr = chknm(info.rf2ScorVeh().mLapDist)
-        gps_curr = (chknm(info.rf2TeleVeh().mPos.x),
-                    chknm(info.rf2TeleVeh().mPos.y),
-                    chknm(info.rf2TeleVeh().mPos.z))
-        return lap_stime, laptime_curr, lastlap_valid, pos_curr, gps_curr
 
     def load_deltabest(self, combo):
         """Load delta best & best laptime"""

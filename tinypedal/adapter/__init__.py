@@ -17,7 +17,18 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Widget modules
-
-Widget module file name must match key name in template/setting_widget.py
+API data adapter
 """
+
+from .. import calculation as calc
+from .. import formatter as fmt
+from .. import validator as val
+
+chknm = val.infnan2zero
+cs2py = val.cbytes2str
+
+
+class DataFunc:
+    """Read & sort data into groups"""
+    def __init__(self, info):
+        self.info = info

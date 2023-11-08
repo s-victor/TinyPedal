@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 
 WIDGET_NAME = "engine"
@@ -134,8 +134,8 @@ class Draw(Widget):
         # Last data
         self.last_temp_oil = None
         self.last_temp_water = None
-        self.last_e_turbo = None
-        self.last_e_rpm = None
+        self.last_turbo = None
+        self.last_rpm = None
 
         # Set widget state & start update
         self.set_widget_state()
@@ -144,31 +144,31 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
-            # Read Engine data
-            temp_oil, temp_water, e_turbo, e_rpm = readapi.engine()
-
+            # Temperature
             if self.wcfg["show_temperature"]:
                 # Oil temperature
-                temp_oil = round(temp_oil, 1)
+                temp_oil = round(api.read.engine.oil_temperature(), 1)
                 self.update_oil(temp_oil, self.last_temp_oil)
                 self.last_temp_oil = temp_oil
 
                 # Water temperature
-                temp_water = round(temp_water, 1)
+                temp_water = round(api.read.engine.water_temperature(), 1)
                 self.update_water(temp_water, self.last_temp_water)
                 self.last_temp_water = temp_water
 
             # Turbo pressure
             if self.wcfg["show_turbo_pressure"]:
-                self.update_turbo(e_turbo, self.last_e_turbo)
-                self.last_e_turbo = e_turbo
+                turbo = int(api.read.engine.turbo())
+                self.updatturbo(turbo, self.last_turbo)
+                self.last_turbo = turbo
 
             # Engine RPM
             if self.wcfg["show_rpm"]:
-                self.update_rpm(e_rpm, self.last_e_rpm)
-                self.last_e_rpm = e_rpm
+                rpm = int(api.read.engine.rpm())
+                self.updatrpm(rpm, self.last_rpm)
+                self.last_rpm = rpm
 
     # GUI update methods
     def update_oil(self, curr, last):
@@ -207,12 +207,12 @@ class Draw(Widget):
             self.bar_water.setStyleSheet(
                 f"{color}min-width: {self.bar_width}px;")
 
-    def update_turbo(self, curr, last):
+    def updatturbo(self, curr, last):
         """Turbo pressure"""
         if curr != last:
             self.bar_turbo.setText(self.pressure_units(curr * 0.001))
 
-    def update_rpm(self, curr, last):
+    def updatrpm(self, curr, last):
         """Engine RPM"""
         if curr != last:
             self.bar_rpm.setText(f"{curr: =05.0f}rpm")

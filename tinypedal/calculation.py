@@ -57,7 +57,7 @@ def celsius2fahrenheit(temp):
 
 def kelvin2celsius(kelvin):
     """Kelvin to Celsius"""
-    return max(kelvin - 273.15, 0)
+    return kelvin - 273.15
 
 
 def liter2gallon(fuel):

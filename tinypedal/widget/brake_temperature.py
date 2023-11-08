@@ -29,7 +29,7 @@ from PySide2.QtWidgets import (
 
 from .. import calculation as calc
 from .. import validator as val
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 
 WIDGET_NAME = "brake_temperature"
@@ -167,21 +167,22 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Reset switch
             if not self.checked:
                 self.checked = True
 
             # Brake temperature
-            btemp = readapi.brake_temp()
+            btemp = api.read.brake.temperature()
             for idx, suffix in enumerate(self.btemp_set):
                 self.update_btemp(suffix, btemp[idx], self.last_btemp[idx])
             self.last_btemp = btemp
 
             # Brake average temperature
             if self.wcfg["show_average"]:
-                lap_stime, lap_etime = readapi.lap_timestamp()
+                lap_stime = api.read.timing.start()
+                lap_etime = api.read.timing.elapsed()
 
                 if lap_stime != self.last_lap_stime:  # time stamp difference
                     self.last_lap_stime = lap_stime  # reset time stamp counter

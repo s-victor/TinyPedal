@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 
 WIDGET_NAME = "speedometer"
@@ -153,10 +153,12 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Read speed data
-            speed, raw_throttle, mgear, lap_etime = readapi.speedometer()
+            speed = api.read.vehicle.speed()
+            lap_etime = api.read.timing.elapsed()
+            raw_throttle = api.read.pedal.throttle_raw()
 
             # Update current speed
             if self.wcfg["show_speed"]:
@@ -183,7 +185,7 @@ class Draw(Widget):
 
             # Update fastest speed
             if self.wcfg["show_speed_fastest"]:
-                if mgear < 0:  # reset on reverse gear
+                if api.read.engine.gear() < 0:  # reset on reverse gear
                     self.last_speed_fast = 0
                 if speed > self.last_speed_fast:
                     self.update_speed("fast", speed, self.last_speed_fast)

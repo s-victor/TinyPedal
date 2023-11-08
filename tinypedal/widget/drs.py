@@ -23,7 +23,7 @@ DRS Widget
 from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
 
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 
 WIDGET_NAME = "drs"
@@ -77,10 +77,11 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # DRS update
-            self.drs_state = readapi.drs()
+            self.drs_state = (api.read.instrument.drs(),
+                              api.read.instrument.drs_status())
             self.update_drs(self.drs_state, self.last_drs_state)
             self.last_drs_state = self.drs_state
 

@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
 
@@ -115,7 +115,7 @@ class Draw(Widget):
         # Last data
         self.last_track_time = None
         self.last_dir_degree = None
-        self.last_pos_y = None
+        self.last_elevation = None
         self.last_traveled_distance = None
 
         # Set widget state & start update
@@ -125,30 +125,31 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
-
-            # Read cruise data
-            ori_yaw, pos_y, time_start, track_time = readapi.cruise()
+        if self.wcfg["enable"] and api.state:
 
             # Track clock
             if self.wcfg["show_track_clock"]:
+                track_time = int(api.read.session.elapsed())
+                time_start = int(api.read.session.start())
                 self.update_track_clock(track_time, self.last_track_time, time_start)
                 self.last_track_time = track_time
 
             # Compass
             if self.wcfg["show_compass"]:
+                ori_yaw = api.read.vehicle.orientation_yaw()
                 dir_degree = round(180 - calc.rad2deg(calc.oriyaw2rad(*ori_yaw)))
                 self.update_compass(dir_degree, self.last_dir_degree)
                 self.last_dir_degree = dir_degree
 
             # Elevation
             if self.wcfg["show_elevation"]:
-                self.update_elevation(pos_y, self.last_pos_y)
-                self.last_pos_y = pos_y
+                elevation = round(api.read.vehicle.pos_vertical(), 3)
+                self.update_elevation(elevation, self.last_elevation)
+                self.last_elevation = elevation
 
             # Odometer
             if self.wcfg["show_odometer"]:
-                traveled_distance = minfo.delta.MetersDriven
+                traveled_distance = minfo.delta.metersDriven
                 self.update_odometer(traveled_distance, self.last_traveled_distance)
                 self.last_traveled_distance = traveled_distance
 
@@ -176,7 +177,7 @@ class Draw(Widget):
     def update_elevation(self, curr, last):
         """Elevation"""
         if curr != last:
-            if self.cfg.units["elevation_unit"] == "Feet":
+            if self.cfg.units["distance_unit"] == "Feet":
                 elev_text = "↑ " + f"{curr * 3.2808399:.0f}ft".rjust(5)
             else:  # meter
                 elev_text = "↑ " + f"{curr:.0f}m".rjust(4)

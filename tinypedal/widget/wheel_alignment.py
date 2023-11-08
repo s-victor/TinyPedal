@@ -28,7 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 
 WIDGET_NAME = "wheel_alignment"
@@ -168,12 +168,12 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
+        if self.wcfg["enable"] and api.state:
 
             # Camber
             if self.wcfg["show_camber"]:
                 # Read camber data
-                camber = tuple(map(self.round2decimal, readapi.camber()))
+                camber = tuple(map(self.round2decimal, api.read.wheel.camber()))
 
                 self.update_wheel("camber_fl", camber[0], self.last_camber[0])
                 self.update_wheel("camber_fr", camber[1], self.last_camber[1])
@@ -184,7 +184,7 @@ class Draw(Widget):
             # Toe in
             if self.wcfg["show_toe_in"]:
                 # Read toe data
-                toein = tuple(map(self.round2decimal, readapi.toe()))
+                toein = tuple(map(self.round2decimal, api.read.wheel.toe()))
 
                 self.update_wheel("toein_fl", toein[0], self.last_toein[0])
                 self.update_wheel("toein_fr", -toein[1], self.last_toein[1])

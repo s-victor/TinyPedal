@@ -27,7 +27,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import readapi
+from ..api_control import api
 from ..base import Widget
 
 WIDGET_NAME = "weather"
@@ -111,26 +111,25 @@ class Draw(Widget):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and readapi.state():
-
-            # Read Weather data
-            track_temp, ambient_temp, rain_per, wet_road = readapi.weather()
+        if self.wcfg["enable"] and api.state:
 
             # Track temperature
             if self.wcfg["show_temperature"]:
+                track_temp = api.read.weather.track_temp()
+                ambient_temp = api.read.weather.ambient_temp()
                 temp_d = self.temp_units(track_temp, ambient_temp)
                 self.update_temp(temp_d, self.last_temp_d)
                 self.last_temp_d = temp_d
 
             # Rain percentage
             if self.wcfg["show_rain"]:
-                rain_per = int(rain_per)
+                rain_per = api.read.weather.raininess()
                 self.update_rain(rain_per, self.last_rain_per)
                 self.last_rain_per = rain_per
 
             # Surface wetness
             if self.wcfg["show_wetness"]:
-                wet_road = tuple(map(int, wet_road))
+                wet_road = api.read.weather.wetness()
                 self.update_wetness(wet_road, self.last_wet_road)
                 self.last_wet_road = wet_road
 
@@ -143,14 +142,16 @@ class Draw(Widget):
     def update_rain(self, curr, last):
         """Rain percentage"""
         if curr != last:
-            rain_text = f"Rain {curr}{self.sign_text}"
+            rain_text = f"Rain {curr * 100:.0f}{self.sign_text}"
             self.bar_rain.setText(rain_text)
 
     def update_wetness(self, curr, last):
         """Surface wetness"""
         if curr != last:
-            surface = "Wet" if curr[1] > 0 else "Dry"
-            wet_text = f"{surface} {curr[0]}{self.sign_text} < {curr[1]}{self.sign_text} ≈ {curr[2]}{self.sign_text}"
+            surface = "Wet" if curr[1] > 0.01 else "Dry"
+            wet_text = f"{surface} {curr[0] * 100:.0f}{self.sign_text}" \
+                       f" < {curr[1] * 100:.0f}{self.sign_text}" \
+                       f" ≈ {curr[2] * 100:.0f}{self.sign_text}"
             self.bar_wetness.setText(wet_text)
 
     # Additional methods
