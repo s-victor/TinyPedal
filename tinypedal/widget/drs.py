@@ -80,8 +80,8 @@ class Draw(Widget):
         if self.wcfg["enable"] and api.state:
 
             # DRS update
-            self.drs_state = (api.read.instrument.drs(),
-                              api.read.instrument.drs_status())
+            self.drs_state = (api.read.switch.drs(),
+                              api.read.switch.drs_status())
             self.update_drs(self.drs_state, self.last_drs_state)
             self.last_drs_state = self.drs_state
 

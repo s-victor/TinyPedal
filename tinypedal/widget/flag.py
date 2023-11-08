@@ -251,7 +251,7 @@ class Draw(Widget):
 
             # Pit limiter
             if self.wcfg["show_speed_limiter"]:
-                limiter = api.read.instrument.speed_limiter()
+                limiter = api.read.switch.speed_limiter()
                 self.update_limiter(limiter, self.last_limiter)
                 self.last_limiter = limiter
 

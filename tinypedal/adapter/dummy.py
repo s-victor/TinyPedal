@@ -210,10 +210,6 @@ class Input(DataFunc):
         """Clutch raw"""
         return chknm(self.info.rf2TeleVeh(index).mUnfilteredClutch)
 
-    def clutch_auto(self) -> int:
-        """Clutch auto"""
-        return chknm(self.info.rf2Ext.mPhysics.mAutoClutch)
-
     def steering(self, index: int=None) -> float:
         """Steering filtered"""
         return chknm(self.info.rf2TeleVeh(index).mFilteredSteering)
@@ -237,29 +233,6 @@ class Input(DataFunc):
     def force_feedback(self) -> float:
         """Steering force feedback"""
         return chknm(self.info.rf2Ffb.mForceValue)
-
-
-class Instrument(DataFunc):
-    """Instrument"""
-    def headlights(self, index: int=None) -> int:
-        """Headlights"""
-        return chknm(self.info.rf2TeleVeh(index).mHeadlights)
-
-    def ignition_starter(self, index: int=None) -> int:
-        """Ignition"""
-        return chknm(self.info.rf2TeleVeh(index).mIgnitionStarter)
-
-    def speed_limiter(self, index: int=None) -> int:
-        """Speed limiter"""
-        return chknm(self.info.rf2TeleVeh(index).mSpeedLimiter)
-
-    def drs(self, index: int=None) -> int:
-        """DRS"""
-        return chknm(self.info.rf2TeleVeh(index).mRearFlapActivated)
-
-    def drs_status(self, index: int=None) -> int:
-        """DRS status"""
-        return chknm(self.info.rf2TeleVeh(index).mRearFlapLegalStatus)
 
 
 class Lap(DataFunc):
@@ -339,6 +312,33 @@ class Suspension(DataFunc):
         """Suspension force (Newtons)"""
         return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mSuspForce)
                 for data in range(4)]
+
+
+class Switch(DataFunc):
+    """Switch"""
+    def headlights(self, index: int=None) -> int:
+        """Headlights"""
+        return chknm(self.info.rf2TeleVeh(index).mHeadlights)
+
+    def ignition_starter(self, index: int=None) -> int:
+        """Ignition"""
+        return chknm(self.info.rf2TeleVeh(index).mIgnitionStarter)
+
+    def speed_limiter(self, index: int=None) -> int:
+        """Speed limiter"""
+        return chknm(self.info.rf2TeleVeh(index).mSpeedLimiter)
+
+    def drs(self, index: int=None) -> int:
+        """DRS"""
+        return chknm(self.info.rf2TeleVeh(index).mRearFlapActivated)
+
+    def drs_status(self, index: int=None) -> int:
+        """DRS status"""
+        return chknm(self.info.rf2TeleVeh(index).mRearFlapLegalStatus)
+
+    def auto_clutch(self) -> int:
+        """Auto clutch"""
+        return chknm(self.info.rf2Ext.mPhysics.mAutoClutch)
 
 
 class Timing(DataFunc):
@@ -601,10 +601,10 @@ class DataSet:
         self.emotor = ElectricMotor(info)
         self.engine = Engine(info)
         self.input = Input(info)
-        self.instrument = Instrument(info)
         self.lap = Lap(info)
         self.session = Session(info)
         self.suspension = Suspension(info)
+        self.switch = Switch(info)
         self.timing = Timing(info)
         self.tyre = Tyre(info)
         self.vehicle = Vehicle(info)

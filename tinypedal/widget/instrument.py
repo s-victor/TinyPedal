@@ -164,10 +164,10 @@ class Draw(Widget):
                     self.min_samples_r = 320
 
             # Read instrument data
-            headlights = api.read.instrument.headlights()
-            ignition = (api.read.instrument.ignition_starter(),
+            headlights = api.read.switch.headlights()
+            ignition = (api.read.switch.ignition_starter(),
                         api.read.engine.rpm())
-            clutch = (api.read.input.clutch_auto(),
+            clutch = (api.read.switch.auto_clutch(),
                       api.read.input.clutch())
             is_braking = api.read.input.brake() > 0
             wheel_rot = api.read.wheel.rotation()

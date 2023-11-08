@@ -178,7 +178,7 @@ class Draw(Widget):
                 self.checked = True
 
             # Read gauge data
-            limiter = api.read.instrument.speed_limiter()
+            limiter = api.read.switch.speed_limiter()
             rpm = api.read.engine.rpm()
             rpm_max = api.read.engine.rpm_max()
             speed = api.read.vehicle.speed()
