@@ -558,45 +558,45 @@ class Draw(Widget):
         if vehicles_data and 0 <= index < len(vehicles_data):
 
             # check whether is lapped
-            is_lapped = vehicles_data[index].IsLapped
+            is_lapped = vehicles_data[index].isLapped
 
             # 0 Is player
-            is_player = vehicles_data[index].IsPlayer
+            is_player = vehicles_data[index].isPlayer
 
             # 1 Vehicle in pit
-            in_pit = vehicles_data[index].InPit
+            in_pit = vehicles_data[index].inPit
 
             # 2 Driver position
-            position = (f"{vehicles_data[index].Position:02d}", is_lapped)
+            position = (f"{vehicles_data[index].position:02d}", is_lapped)
 
             # 3 Driver name
-            drv_name = (vehicles_data[index].DriverName, is_lapped)
+            drv_name = (vehicles_data[index].driverName, is_lapped)
 
             # 4 Vehicle name
-            veh_name = (vehicles_data[index].VehicleName, is_lapped)
+            veh_name = (vehicles_data[index].vehicleName, is_lapped)
 
             # 5 Vehicle position in class
-            pos_class = f"{vehicles_data[index].PositionInClass:02d}"
+            pos_class = f"{vehicles_data[index].positionInClass:02d}"
 
             # 6 Vehicle class
-            veh_class = vehicles_data[index].VehicleClass
+            veh_class = vehicles_data[index].vehicleClass
 
             # 7 Time gap
-            time_gap = (f"{vehicles_data[index].RelativeTimeGap:.0{self.gap_decimals}f}", is_lapped)
+            time_gap = (f"{vehicles_data[index].relativeTimeGap:.0{self.gap_decimals}f}", is_lapped)
 
             # 8 Tyre compound index
-            tire_idx = vehicles_data[index].TireCompoundIndex
+            tire_idx = vehicles_data[index].tireCompoundIndex
 
             # 9 Lap time
             laptime = self.set_laptime(
-                vehicles_data[index].InPit,
-                vehicles_data[index].LastLaptime,
-                vehicles_data[index].PitTime
+                vehicles_data[index].inPit,
+                vehicles_data[index].lastLapTime,
+                vehicles_data[index].pitTime
             )
 
             # 10 Pitstop count
-            pit_count = (vehicles_data[index].NumPitStops,
-                         vehicles_data[index].PitState)
+            pit_count = (vehicles_data[index].numPitStops,
+                         vehicles_data[index].pitState)
 
             return (is_player, in_pit, position, drv_name, veh_name, pos_class, veh_class,
                     time_gap, tire_idx, laptime, pit_count)

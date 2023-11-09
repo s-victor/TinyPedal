@@ -226,8 +226,8 @@ class Draw(Widget):
         nearest_right = max_range_x
 
         for veh_info in self.vehicles_data:
-            if not veh_info.IsPlayer:
-                raw_pos_x, raw_pos_y = veh_info.RelativeRotatedPosXZ
+            if not veh_info.isPlayer:
+                raw_pos_x, raw_pos_y = veh_info.relativeRotatedPosXZ
                 if abs(raw_pos_x) < max_range_x and abs(raw_pos_y) < max_range_y:
                     if -min_range_x > raw_pos_x > nearest_left:
                         nearest_left = raw_pos_x
@@ -296,19 +296,19 @@ class Draw(Widget):
         radar_range = self.wcfg["radar_radius"] * 3
 
         for veh_info in self.vehicles_data:
-            if not veh_info.IsPlayer and veh_info.RelativeStraightDistance < radar_range:
+            if not veh_info.isPlayer and veh_info.relativeStraightDistance < radar_range:
                 # Rotated position relative to player
-                pos_x, pos_y = tuple(map(self.scale_veh_pos, veh_info.RelativeRotatedPosXZ))
+                pos_x, pos_y = tuple(map(self.scale_veh_pos, veh_info.relativeRotatedPosXZ))
 
                 # Draw vehicle
                 self.brush.setColor(
                     QColor(
                         self.color_lapdiff(
-                            veh_info.Position,
-                            veh_info.InPit,
-                            veh_info.IsYellow,
-                            veh_info.IsLapped,
-                            veh_info.InGarage,
+                            veh_info.position,
+                            veh_info.inPit,
+                            veh_info.isYellow,
+                            veh_info.isLapped,
+                            veh_info.inGarage,
                         )
                     )
                 )
@@ -316,7 +316,7 @@ class Draw(Widget):
 
                 painter.resetTransform()
                 painter.translate(pos_x, pos_y)
-                painter.rotate(calc.rad2deg(-veh_info.RelativeOrientationXZRadians) - 180)
+                painter.rotate(calc.rad2deg(-veh_info.relativeOrientationXZRadians) - 180)
                 painter.drawRoundedRect(
                     self.rect_veh,
                     self.wcfg["vehicle_border_radius"],

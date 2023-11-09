@@ -41,40 +41,40 @@ class Realtime:
     DataSet = namedtuple(
         "DataSet",
         [
-        "SlotID",
-        "Position",
-        "DriverName",
-        "VehicleName",
-        "VehicleClass",
-        "PositionInClass",
-        "SessionBestLaptime",
-        "ClassBestLaptime",
-        "BestLaptime",
-        "LastLaptime",
-        "Speed",
-        "IsPlayer",
-        "TotalLaps",
-        "LapDistance",
-        "PercentageDistance",
-        "RelativeDistance",
-        "RelativeTimeGap",
-        "TimeBehindLeader",
-        "LapsBehindLeader",
-        "TimeBehindNext",
-        "LapsBehindNext",
-        "IsLapped",
-        "IsYellow",
-        "InGarage",
-        "InPit",
-        "NumPitStops",
-        "PitState",
-        "PitTime",
-        "TireCompoundIndex",
-        "PosXZ",
-        "OrientationXZRadians",
-        "RelativeOrientationXZRadians",
-        "RelativeRotatedPosXZ",
-        "RelativeStraightDistance",
+        "slotID",
+        "position",
+        "driverName",
+        "vehicleName",
+        "vehicleClass",
+        "positionInClass",
+        "sessionBestLapTime",
+        "classBestLapTime",
+        "bestLapTime",
+        "lastLapTime",
+        "speed",
+        "isPlayer",
+        "totalLaps",
+        "lapDistance",
+        "percentageDistance",
+        "relativeDistance",
+        "relativeTimeGap",
+        "timeBehindLeader",
+        "lapsBehindLeader",
+        "timeBehindNext",
+        "lapsBehindNext",
+        "isLapped",
+        "isYellow",
+        "inGarage",
+        "inPit",
+        "numPitStops",
+        "pitState",
+        "pitTime",
+        "tireCompoundIndex",
+        "posXZ",
+        "orientationXZRadians",
+        "relativeOrientationXZRadians",
+        "relativeRotatedPosXZ",
+        "relativeStraightDistance",
         ]
     )
 
@@ -114,13 +114,13 @@ class Realtime:
                 # Output
                 minfo.vehicles.dataSet = vehicles_data
                 minfo.vehicles.nearestStraight = min(
-                    vehicles_data, key=nearest_line_dist).RelativeStraightDistance
+                    vehicles_data, key=nearest_line_dist).relativeStraightDistance
                 minfo.vehicles.nearestTraffic = abs(
-                    min(vehicles_data, key=nearest_traffic).RelativeTimeGap)
+                    min(vehicles_data, key=nearest_traffic).relativeTimeGap)
                 minfo.vehicles.nearestYellow = abs(
-                    min(vehicles_data, key=nearest_yellow_dist).RelativeDistance)
+                    min(vehicles_data, key=nearest_yellow_dist).relativeDistance)
                 #minfo.vehicles.nearestTrack = abs(
-                # min(vehicles_data, key=nearest_track_dist).RelativeDistance)
+                # min(vehicles_data, key=nearest_track_dist).relativeDistance)
 
             else:
                 if reset:
@@ -225,40 +225,40 @@ class Realtime:
                 ) if not is_player else 0
 
             yield self.DataSet(
-                SlotID = slot_id,
-                Position = position,
-                DriverName = driver_name,
-                VehicleName = vehicle_name,
-                VehicleClass = vehicle_class,
-                PositionInClass = position_in_class,
-                SessionBestLaptime = laptime_session_best,
-                ClassBestLaptime = laptime_class_best,
-                BestLaptime = laptime_best,
-                LastLaptime = laptime_last,
-                Speed = speed,
-                IsPlayer = is_player,
-                TotalLaps = total_laps,
-                LapDistance = lap_distance,
-                PercentageDistance = percentage_distance,
-                RelativeDistance = relative_distance,
-                RelativeTimeGap = relative_time_gap,
-                TimeBehindLeader = time_behind_leader,
-                LapsBehindLeader = laps_behind_leader,
-                TimeBehindNext = time_behind_next,
-                LapsBehindNext = laps_behind_next,
-                IsLapped = is_lapped,
-                IsYellow = is_yellow,
-                InGarage = in_garage,
-                InPit = in_pit,
-                NumPitStops = num_pit_stops,
-                PitState = pit_state,
-                PitTime = pit_time,
-                TireCompoundIndex = tire_compound_index,
-                PosXZ = pos_xz,
-                OrientationXZRadians = orientation_xz_radians,
-                RelativeOrientationXZRadians = relative_orientation_xz_radians,
-                RelativeRotatedPosXZ = relative_rotated_pos_xz,
-                RelativeStraightDistance = relative_straight_distance,
+                slotID = slot_id,
+                position = position,
+                driverName = driver_name,
+                vehicleName = vehicle_name,
+                vehicleClass = vehicle_class,
+                positionInClass = position_in_class,
+                sessionBestLapTime = laptime_session_best,
+                classBestLapTime = laptime_class_best,
+                bestLapTime = laptime_best,
+                lastLapTime = laptime_last,
+                speed = speed,
+                isPlayer = is_player,
+                totalLaps = total_laps,
+                lapDistance = lap_distance,
+                percentageDistance = percentage_distance,
+                relativeDistance = relative_distance,
+                relativeTimeGap = relative_time_gap,
+                timeBehindLeader = time_behind_leader,
+                lapsBehindLeader = laps_behind_leader,
+                timeBehindNext = time_behind_next,
+                lapsBehindNext = laps_behind_next,
+                isLapped = is_lapped,
+                isYellow = is_yellow,
+                inGarage = in_garage,
+                inPit = in_pit,
+                numPitStops = num_pit_stops,
+                pitState = pit_state,
+                pitTime = pit_time,
+                tireCompoundIndex = tire_compound_index,
+                posXZ = pos_xz,
+                orientationXZRadians = orientation_xz_radians,
+                relativeOrientationXZRadians = relative_orientation_xz_radians,
+                relativeRotatedPosXZ = relative_rotated_pos_xz,
+                relativeStraightDistance = relative_straight_distance,
             )
 
     def __calc_pit_time(self, index, in_pit, in_garage, laptime_last, lap_etime, pit_status):
@@ -286,27 +286,27 @@ class Realtime:
 
 def nearest_line_dist(value):
     """Find nearest straight line distance"""
-    if not value.IsPlayer:
-        return value.RelativeStraightDistance
+    if not value.isPlayer:
+        return value.relativeStraightDistance
     return 999999
 
 
 def nearest_track_dist(value):
     """Find nearest track distance"""
-    if not value.IsPlayer:
-        return abs(value.RelativeDistance)
+    if not value.isPlayer:
+        return abs(value.relativeDistance)
     return 999999
 
 
 def nearest_traffic(value):
     """Find nearest traffic gap"""
-    if 0 == value.InPit > value.RelativeDistance:
-        return value.RelativeTimeGap
+    if 0 == value.inPit > value.relativeDistance:
+        return value.relativeTimeGap
     return 999999
 
 
 def nearest_yellow_dist(value):
     """Find nearest yellow flag distance"""
-    if value.IsYellow:
-        return abs(value.RelativeDistance)
+    if value.isYellow:
+        return abs(value.relativeDistance)
     return 999999

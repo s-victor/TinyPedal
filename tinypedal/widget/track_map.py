@@ -260,13 +260,13 @@ class Draw(Widget):
 
         for veh_info in sorted(self.vehicles_data, key=self.sort_vehicles):
             if self.last_raw_coords:
-                pos_x, pos_y = self.vehicle_scale(*veh_info.PosXZ)
+                pos_x, pos_y = self.vehicle_scale(*veh_info.posXZ)
                 offset = 0
             else:
-                inpit_offset = self.wcfg["font_size"] if veh_info.InPit else 0
+                inpit_offset = self.wcfg["font_size"] if veh_info.inPit else 0
 
                 pos_x, pos_y = calc.rotate_pos(
-                    6.2831853 * veh_info.PercentageDistance,
+                    6.2831853 * veh_info.percentageDistance,
                     self.temp_map_size / -2 + inpit_offset,  # x pos
                     0  # y pos
                 )
@@ -290,12 +290,12 @@ class Draw(Widget):
             self.brush.setColor(
                 QColor(
                     self.color_lapdiff(
-                        veh_info.IsPlayer,
-                        veh_info.Position,
-                        veh_info.InPit,
-                        veh_info.IsYellow,
-                        veh_info.IsLapped,
-                        veh_info.InGarage,
+                        veh_info.isPlayer,
+                        veh_info.position,
+                        veh_info.inPit,
+                        veh_info.isYellow,
+                        veh_info.isLapped,
+                        veh_info.inGarage,
                     )
                 )
             )
@@ -309,7 +309,7 @@ class Draw(Widget):
                 painter.drawText(
                     rect_vehicle.adjusted(0, self.font_offset, 0, 0),
                     Qt.AlignCenter,
-                    f"{veh_info.Position}"
+                    f"{veh_info.position}"
                 )
 
     # Additional methods
@@ -317,10 +317,10 @@ class Draw(Widget):
     def sort_vehicles(veh_info):
         """Sort vehicle standings for drawing order"""
         return (
-            veh_info.IsPlayer,
-            -veh_info.InGarage,  # reversed
-            -veh_info.InPit,     # reversed
-            -veh_info.Position,     # reversed
+            veh_info.isPlayer,
+            -veh_info.inGarage,  # reversed
+            -veh_info.inPit,     # reversed
+            -veh_info.position,     # reversed
         )
 
     @staticmethod

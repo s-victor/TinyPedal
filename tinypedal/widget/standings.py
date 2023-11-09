@@ -630,73 +630,73 @@ class Draw(Widget):
         # Prevent index out of range
         if vehicles_data and 0 <= index < len(vehicles_data):
             # 0 Is player
-            is_player = vehicles_data[index].IsPlayer
+            is_player = vehicles_data[index].isPlayer
 
             # 1 Vehicle in pit
-            in_pit = (vehicles_data[index].InPit, is_player)
+            in_pit = (vehicles_data[index].inPit, is_player)
 
             # 2 Driver position
-            position = (f"{vehicles_data[index].Position:02d}", is_player)
+            position = (f"{vehicles_data[index].position:02d}", is_player)
 
             # 3 Driver name
-            drv_name = (vehicles_data[index].DriverName, is_player)
+            drv_name = (vehicles_data[index].driverName, is_player)
 
             # 4 Vehicle name
-            veh_name = (vehicles_data[index].VehicleName, is_player)
+            veh_name = (vehicles_data[index].vehicleName, is_player)
 
             # 5 Vehicle position in class
-            pos_class = (f"{vehicles_data[index].PositionInClass:02d}", is_player)
+            pos_class = (f"{vehicles_data[index].positionInClass:02d}", is_player)
 
             # 6 Vehicle class
-            veh_class = (vehicles_data[index].VehicleClass, is_player)
+            veh_class = (vehicles_data[index].vehicleClass, is_player)
 
             # 7 Tyre compound index
-            tire_idx = (vehicles_data[index].TireCompoundIndex, is_player)
+            tire_idx = (vehicles_data[index].tireCompoundIndex, is_player)
 
             if api.read.state.in_race():
                 # 8 Lap time
                 laptime = (
                     self.set_laptime(
-                        vehicles_data[index].InPit,
-                        vehicles_data[index].LastLaptime,
-                        vehicles_data[index].PitTime
+                        vehicles_data[index].inPit,
+                        vehicles_data[index].lastLapTime,
+                        vehicles_data[index].pitTime
                     ),
                     is_player)
                 # 9 Time gap
                 time_gap = (
                     self.gap_to_leader_race(
-                        vehicles_data[index].TimeBehindLeader,
-                        vehicles_data[index].LapsBehindLeader,
-                        vehicles_data[index].Position
+                        vehicles_data[index].timeBehindLeader,
+                        vehicles_data[index].lapsBehindLeader,
+                        vehicles_data[index].position
                     ),
                     is_player)
             else:
                 laptime = (
                     self.set_laptime(
                         0,
-                        vehicles_data[index].BestLaptime,
+                        vehicles_data[index].bestLapTime,
                         0
                     ),
                     is_player)
                 time_gap = (
                     self.gap_to_session_bestlap(
-                        vehicles_data[index].BestLaptime,
-                        vehicles_data[index].SessionBestLaptime,
-                        vehicles_data[index].ClassBestLaptime,
+                        vehicles_data[index].bestLapTime,
+                        vehicles_data[index].sessionBestLapTime,
+                        vehicles_data[index].classBestLapTime,
                     ),
                     is_player)
 
             # 10 Pitstop count
-            pit_count = (vehicles_data[index].NumPitStops,
-                         vehicles_data[index].PitState,
+            pit_count = (vehicles_data[index].numPitStops,
+                         vehicles_data[index].pitState,
                          is_player)
 
             # 11 Time interval
             time_int = (
                 self.int_to_next(
-                    vehicles_data[index].TimeBehindNext,
-                    vehicles_data[index].LapsBehindNext,
-                    vehicles_data[index].Position
+                    vehicles_data[index].timeBehindNext,
+                    vehicles_data[index].lapsBehindNext,
+                    vehicles_data[index].position
                 ),
                 is_player)
 
