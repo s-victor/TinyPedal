@@ -152,9 +152,7 @@ class Realtime:
 
         # Generate data list from all vehicles in current session
         for index in range(veh_total):
-            tele_index = api.read.vehicle.sync_index(index)
             is_player = api.read.vehicle.is_player(index)
-
             slot_id = api.read.vehicle.slot_id(index)
             position = api.read.vehicle.place(index)
             driver_name = api.read.vehicle.driver_name(index)
@@ -172,8 +170,8 @@ class Realtime:
 
             laptime_best = api.read.timing.best_laptime(index)
             laptime_last = api.read.timing.last_laptime(index)
-            lap_etime = api.read.timing.elapsed(tele_index)
-            speed = api.read.vehicle.speed(tele_index)
+            lap_etime = api.read.timing.elapsed(index)
+            speed = api.read.vehicle.speed(index)
 
             # Distance & time
             total_laps = api.read.lap.total(index)
@@ -207,13 +205,13 @@ class Realtime:
             pit_time = self.__calc_pit_time(
                 index, in_pit, in_garage, laptime_last, lap_etime,
                 in_pit * 1000 + slot_id)
-            tire_compound_index = api.read.tyre.compound(tele_index)
+            tire_compound_index = api.read.tyre.compound(index)
 
             # Position data
-            pos_xz = (api.read.vehicle.pos_longitudinal(tele_index),
-                      api.read.vehicle.pos_lateral(tele_index))
+            pos_xz = (api.read.vehicle.pos_longitudinal(index),
+                      api.read.vehicle.pos_lateral(index))
             orientation_xz_radians = calc.oriyaw2rad(
-                *api.read.vehicle.orientation_yaw(tele_index))
+                *api.read.vehicle.orientation_yaw(index))
             relative_rotated_pos_xz = calc.rotate_pos(
                 plr_ori_rad - 3.14159265,   # plr_ori_rad, rotate view
                 pos_xz[0] - plr_pos_xz[0],  # x position related to player

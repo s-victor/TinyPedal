@@ -515,10 +515,6 @@ class Vehicle(DataAdapter):
         """Get Local player index"""
         return self.info.playerScorIndex
 
-    def sync_index(self, index: int=0) -> int:
-        """Get synchronized target player index"""
-        return self.info.find_player_index_tele(index)
-
     def slot_id(self, index: int=None) -> int:
         """Vehicle slot id"""
         return chknm(self.info.rf2ScorVeh(index).mID)
