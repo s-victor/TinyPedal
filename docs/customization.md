@@ -96,13 +96,16 @@ Remember last window position.
 
 
 ## Shared Memory API
-Shared Memory API options can be accessed from `Config` menu in main window.
+Shared Memory API options can be accessed from `Config` menu in main window. Some options may only be relevant to certain API.
+
+    api_name
+Set API name for accessing data from supported API.
 
     access_mode
-Set access mode for shared memory API. Mode value `0` uses copy access and additional data check to avoid data desync or interruption issues. Mode value `1` uses direct access, which may result data desync or interruption issues. Default mode is copy access.
+Set access mode for API. Mode value `0` uses copy access and additional data check to avoid data desync or interruption issues. Mode value `1` uses direct access, which may result data desync or interruption issues. Default mode is copy access.
 
     process_id
-Set rF2 process ID string for accessing API from server. Currently this option is a placeholder, and should be left blank.
+Set process ID string for accessing API from server. Currently this option is only relevant to RF2.
 
     enable_active_state_override
 Set `true` to enable `active state` manual override.
@@ -130,6 +133,7 @@ Set `false` to disable translucent background.
 Sets global background color for all widgets.
 
 Note, global background color will only be visible when `enable_translucent_background` option is disabled or translucent background is not supported. Some widgets with own background setting may override this option.
+
 
 ## Spectate mode
 Spectate mode can be accessed from `Spectate` tab in main window.
@@ -1011,7 +1015,7 @@ Show current system clock time.
 Set clock format string. To show seconds, add `%S`, such as `"%H:%M:%S %p"`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
 
     show_session_timer
-Show session timer, accuracy is limited by 200ms refresh rate of rF2 API.
+Show session timer, accuracy may be limited by specific sim API.
 
     show_lapnumber
 Show your current lap number & max laps (if available).
