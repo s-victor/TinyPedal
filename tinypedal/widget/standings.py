@@ -653,7 +653,7 @@ class Draw(Widget):
             # 7 Tyre compound index
             tire_idx = (vehicles_data[index].TireCompoundIndex, is_player)
 
-            if api.read.state.is_race():
+            if api.read.state.in_race():
                 # 8 Lap time
                 laptime = (
                     self.set_laptime(

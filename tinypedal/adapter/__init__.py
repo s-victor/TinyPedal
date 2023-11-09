@@ -28,7 +28,7 @@ chknm = val.infnan2zero
 cs2py = val.cbytes2str
 
 
-class DataFunc:
+class DataAdapter:
     """Read & sort data into groups"""
     def __init__(self, info):
         self.info = info

@@ -1,6 +1,7 @@
 WIP
 -----------------------------
 * General
+  - Add initial implementation of multi API support for different sims.
   - Fixed error in loading a different preset
     while previous preset is in saving process.
   - Change option name "rF2_process_id" to "process_id".

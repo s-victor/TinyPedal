@@ -75,9 +75,9 @@ class Realtime:
                     update_interval = active_interval
 
                     recording = False
-                    pittinglap = False
                     validating = False
                     delayed_save = False
+                    pit_lap = False  # whether pit in or pit out lap
 
                     combo_id = api.read.identify.combo()
                     delta_list_last = self.load_deltafuel(combo_id)
@@ -114,13 +114,13 @@ class Realtime:
                 time_left = api.read.session.remaining()
                 amount_curr = api.read.vehicle.fuel()
                 capacity = max(api.read.vehicle.tank_capacity(), 1)
-                inpits = api.read.state.in_pits()
-                ingarage = api.read.state.in_garage()
+                in_garage = api.read.state.in_garage()
                 pos_curr = api.read.lap.distance()
                 gps_curr = api.read.vehicle.pos_xyz()
                 lap_number = api.read.lap.number()
                 lap_into = api.read.lap.percent()
                 laps_max = api.read.lap.maximum()
+                pit_lap = bool(pit_lap + api.read.state.in_pits())
 
                 # Realtime fuel consumption
                 if amount_last < amount_curr:
@@ -130,11 +130,10 @@ class Realtime:
                     used_curr += amount_last - amount_curr
                     amount_last = amount_curr
 
-                pittinglap = bool(pittinglap + inpits)
 
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime != -1:
-                    if len(delta_list_curr) > 1 and not pittinglap:
+                    if len(delta_list_curr) > 1 and not pit_lap:
                         delta_list_curr.append(  # set end value
                             (round(pos_last + 10, 6),
                              round(used_curr, 6),
@@ -147,7 +146,7 @@ class Realtime:
                     used_last_raw = used_curr
                     used_curr = 0
                     recording = laptime_curr < 1
-                    pittinglap = False
+                    pit_lap = False
                 last_lap_stime = lap_stime  # reset
 
                 # 1 sec position distance check after new lap begins
@@ -184,15 +183,15 @@ class Realtime:
                         pos_estimate,
                         used_curr,
                         delta_list_last,
-                        laptime_curr > 0.3 and not ingarage,  # 300ms delay
+                        laptime_curr > 0.3 and not in_garage,  # 300ms delay
                     )
 
                 # Exclude first lap & pit in & out lap
                 used_est = end_lap_consumption(
-                    used_last, delta_fuel, 0 == pittinglap < lap_number)
+                    used_last, delta_fuel, 0 == pit_lap < lap_number)
 
                 # Total refuel = laps left * last consumption - remaining fuel
-                if api.read.state.is_lap_race():  # lap-type race
+                if api.read.state.lap_finish():  # lap-type race
                     full_laps_left = laps_max - lap_number
                     laps_left = full_laps_left - lap_into
                     amount_need = laps_left * used_est - amount_curr

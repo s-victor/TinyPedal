@@ -33,7 +33,12 @@ logger = logging.getLogger(__name__)
 
 # Value validate
 def infnan2zero(value):
-    """Convert invalid value to zero"""
+    """Convert invalid value to zero
+
+    Some data from API may contain invalid value
+    due to events such as game crash or freeze,
+    use this to correct output value.
+    """
     if isinstance(value, (float, int)) and math.isfinite(value):
         return value
     return 0
@@ -41,7 +46,7 @@ def infnan2zero(value):
 
 def cbytes2str(bytestring):
     """Convert bytes to string"""
-    if type(bytestring) == bytes:
+    if isinstance(bytestring, bytes):
         return bytestring.decode(encoding="iso-8859-1", errors="replace").rstrip()
     return ""
 

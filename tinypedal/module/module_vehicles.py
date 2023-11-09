@@ -138,8 +138,8 @@ class Realtime:
         # Additional data
         veh_total = max(api.read.vehicle.total(), 1)
         track_length = max(api.read.lap.track_length(), 1)
-        is_race = api.read.state.is_race()
-        matched_class_list = class_pos_list and len(class_pos_list) == veh_total
+        in_race = api.read.state.in_race()
+        valid_class_list = class_pos_list and len(class_pos_list) == veh_total
 
         # Local player data
         plr_total_laps = api.read.lap.total()
@@ -161,7 +161,7 @@ class Realtime:
             vehicle_name = api.read.vehicle.vehicle_name(index)
             vehicle_class = api.read.vehicle.class_name(index)
 
-            if matched_class_list:
+            if valid_class_list:
                 position_in_class = class_pos_list[index][1]
                 laptime_session_best = class_pos_list[index][3]
                 laptime_class_best = class_pos_list[index][4]
@@ -195,7 +195,7 @@ class Realtime:
             is_lapped = calc.lap_difference(
                 total_laps, plr_total_laps,
                 percentage_distance, plr_percentage_distance,
-                is_race
+                in_race
                 ) if not is_player else 0
             is_yellow = bool(speed <= 8)
 

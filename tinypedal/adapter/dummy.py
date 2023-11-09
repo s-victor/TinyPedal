@@ -20,10 +20,10 @@
 Data set for Dummy
 """
 
-from . import DataFunc, calc, chknm, cs2py, fmt
+from . import DataAdapter, calc, chknm, cs2py, fmt
 
 
-class Identify(DataFunc):
+class Identify(DataAdapter):
     """Identify"""
     def version(self) -> str:
         """API version"""
@@ -55,33 +55,23 @@ class Identify(DataFunc):
         return session_stamp, session_etime, session_tlaps
 
 
-class State(DataFunc):
+class State(DataAdapter):
     """State check"""
     def is_driving(self) -> bool:
         """Is local player driving or in monitor"""
         return self.info.rf2TeleVeh().mIgnitionStarter
 
-    def is_lap_race(self) -> bool:
-        """Is lap race type"""
+    def lap_finish(self) -> bool:
+        """Is lap finish type race, false for time finish type"""
         return chknm(self.info.rf2Scor.mScoringInfo.mMaxLaps) < 2147483647
 
-    def is_race(self) -> bool:
-        """Is race session"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mSession) > 9
-
-    def is_countdown(self) -> bool:
-        """Is countdown phase before race"""
+    def in_countdown(self) -> bool:
+        """Is in countdown phase before race"""
         return chknm(self.info.rf2Scor.mScoringInfo.mGamePhase) == 4
 
-    def is_pit_open(self) -> bool:
-        """Is pit lane open"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mGamePhase) > 0
-
-    def is_same_class(self, index: int=None) -> bool:
-        """Is same vehicle class"""
-        class_opt = cs2py(self.info.rf2ScorVeh(index).mVehicleClass)
-        class_plr = cs2py(self.info.rf2ScorVeh().mVehicleClass)
-        return class_opt == class_plr
+    def in_race(self) -> bool:
+        """Is in race session"""
+        return chknm(self.info.rf2Scor.mScoringInfo.mSession) > 9
 
     def in_pits(self, index: int=None) -> bool:
         """Is in pits"""
@@ -90,6 +80,16 @@ class State(DataFunc):
     def in_garage(self, index: int=None) -> bool:
         """Is in garage"""
         return chknm(self.info.rf2ScorVeh(index).mInGarageStall)
+
+    def pit_open(self) -> bool:
+        """Is pit lane open"""
+        return chknm(self.info.rf2Scor.mScoringInfo.mGamePhase) > 0
+
+    def same_vehicle_class(self, index: int=None) -> bool:
+        """Is same vehicle class"""
+        class_opt = cs2py(self.info.rf2ScorVeh(index).mVehicleClass)
+        class_plr = cs2py(self.info.rf2ScorVeh().mVehicleClass)
+        return class_opt == class_plr
 
     def blue_flag(self, index: int=None) -> int:
         """Blue flag"""
@@ -108,7 +108,7 @@ class State(DataFunc):
         return lights_number - lights_frame
 
 
-class Brake(DataFunc):
+class Brake(DataAdapter):
     """Brake"""
     def bias(self, index: int=None) -> float:
         """Brake bias"""
@@ -126,16 +126,8 @@ class Brake(DataFunc):
                 for data in range(4)]
 
 
-class ElectricMotor(DataFunc):
+class ElectricMotor(DataAdapter):
     """Electric motor"""
-    def motor_temperature(self, index: int=None) -> float:
-        """Motor temperature"""
-        return chknm(self.info.rf2TeleVeh(index).mElectricBoostMotorTemperature)
-
-    def water_temperature(self, index: int=None) -> float:
-        """Motor water temperature"""
-        return chknm(self.info.rf2TeleVeh(index).mElectricBoostWaterTemperature)
-
     def rpm(self, index: int=None) -> float:
         """Motor RPM"""
         return chknm(self.info.rf2TeleVeh(index).mElectricBoostMotorRPM)
@@ -152,8 +144,16 @@ class ElectricMotor(DataFunc):
         """Battery charge percentage"""
         return chknm(self.info.rf2TeleVeh(index).mBatteryChargeFraction)
 
+    def motor_temperature(self, index: int=None) -> float:
+        """Motor temperature"""
+        return chknm(self.info.rf2TeleVeh(index).mElectricBoostMotorTemperature)
 
-class Engine(DataFunc):
+    def water_temperature(self, index: int=None) -> float:
+        """Motor water temperature"""
+        return chknm(self.info.rf2TeleVeh(index).mElectricBoostWaterTemperature)
+
+
+class Engine(DataAdapter):
     """Engine"""
     def gear(self, index: int=None) -> int:
         """Gear"""
@@ -184,7 +184,7 @@ class Engine(DataFunc):
         return chknm(self.info.rf2TeleVeh(index).mEngineWaterTemp)
 
 
-class Input(DataFunc):
+class Input(DataAdapter):
     """Input"""
     def throttle(self, index: int=None) -> float:
         """Throttle filtered"""
@@ -235,7 +235,7 @@ class Input(DataFunc):
         return chknm(self.info.rf2Ffb.mForceValue)
 
 
-class Lap(DataFunc):
+class Lap(DataAdapter):
     """Lap"""
     def number(self, index: int=None) -> int:
         """Current lap number"""
@@ -277,7 +277,7 @@ class Lap(DataFunc):
         return chknm(self.info.rf2ScorVeh(index).mLapsBehindNext)
 
 
-class Session(DataFunc):
+class Session(DataAdapter):
     """Session"""
     def elapsed(self) -> float:
         """Session elapsed time"""
@@ -296,7 +296,7 @@ class Session(DataFunc):
         return self.end() - self.elapsed()
 
 
-class Suspension(DataFunc):
+class Suspension(DataAdapter):
     """Suspension"""
     def ride_height(self, index: int=None):
         """Ride height"""
@@ -314,7 +314,7 @@ class Suspension(DataFunc):
                 for data in range(4)]
 
 
-class Switch(DataFunc):
+class Switch(DataAdapter):
     """Switch"""
     def headlights(self, index: int=None) -> int:
         """Headlights"""
@@ -341,7 +341,7 @@ class Switch(DataFunc):
         return chknm(self.info.rf2Ext.mPhysics.mAutoClutch)
 
 
-class Timing(DataFunc):
+class Timing(DataAdapter):
     """Timing"""
     def start(self, index: int=None) -> float:
         """Current lap start time"""
@@ -396,7 +396,7 @@ class Timing(DataFunc):
         return chknm(self.info.rf2ScorVeh(index).mTimeBehindNext)
 
 
-class Tyre(DataFunc):
+class Tyre(DataAdapter):
     """Tyre"""
     def compound(self, index: int=None):
         """Tyre compound"""
@@ -431,7 +431,7 @@ class Tyre(DataFunc):
                 for data in range(4)]
 
 
-class Vehicle(DataFunc):
+class Vehicle(DataAdapter):
     """Vehicle"""
     def driver_list(self):
         """Create player name list based on player index order"""
@@ -443,11 +443,11 @@ class Vehicle(DataFunc):
         return self.info.isPlayer(index)
 
     def player_index(self) -> int:
-        """Local player index"""
+        """Get Local player index"""
         return self.info.playerScorIndex
 
     def sync_index(self, index: int=0) -> int:
-        """Sync target player index"""
+        """Get synchronized target player index"""
         return self.info.find_player_index_tele(index)
 
     def slot_id(self, index: int=None) -> int:
@@ -463,7 +463,7 @@ class Vehicle(DataFunc):
         return cs2py(self.info.rf2ScorVeh(index).mVehicleName)
 
     def class_name(self, index: int=None) -> str:
-        """Vehicle classes"""
+        """Vehicle class name"""
         return cs2py(self.info.rf2ScorVeh(index).mVehicleClass)
 
     def total(self) -> int:
@@ -513,15 +513,27 @@ class Vehicle(DataFunc):
 
     def pos_longitudinal(self, index: int=None) -> float:
         """Longitudinal axis position related to world plane"""
-        return self.pos_x(index)  # in RF2's coordinate system
+        return self.pos_x(index)  # in RF2 coord system
 
     def pos_lateral(self, index: int=None) -> float:
         """Lateral axis position related to world plane"""
-        return -self.pos_z(index)  # in RF2's coordinate system
+        return -self.pos_z(index)  # in RF2 coord system
 
     def pos_vertical(self, index: int=None) -> float:
         """Vertical axis position related to world plane"""
-        return self.pos_y(index)  # in RF2's coordinate system
+        return self.pos_y(index)  # in RF2 coord system
+
+    def accel_lateral(self, index: int=None) -> float:
+        """Lateral acceleration"""
+        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.x)  # in RF2 coord system
+
+    def accel_longitudinal(self, index: int=None) -> float:
+        """Longitudinal acceleration"""
+        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.z)  # in RF2 coord system
+
+    def accel_vertical(self, index: int=None) -> float:
+        """Vertical acceleration"""
+        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.y)  # in RF2 coord system
 
     def speed(self, index: int=None) -> float:
         """Speed"""
@@ -529,18 +541,6 @@ class Vehicle(DataFunc):
             chknm(self.info.rf2TeleVeh(index).mLocalVel.x),
             chknm(self.info.rf2TeleVeh(index).mLocalVel.y),
             chknm(self.info.rf2TeleVeh(index).mLocalVel.z))
-
-    def accel_lateral(self, index: int=None) -> float:
-        """Lateral acceleration"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.x)
-
-    def accel_longitudinal(self, index: int=None) -> float:
-        """Longitudinal acceleration"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.z)
-
-    def accel_vertical(self, index: int=None) -> float:
-        """Vertical acceleration"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.y)
 
     def downforce_front(self, index: int=None) -> float:
         """Downforce front"""
@@ -551,7 +551,7 @@ class Vehicle(DataFunc):
         return chknm(self.info.rf2TeleVeh(index).mRearDownforce)
 
 
-class Wheel(DataFunc):
+class Wheel(DataAdapter):
     """Wheel"""
     def camber(self, index: int=None):
         """Wheel camber"""
@@ -569,7 +569,7 @@ class Wheel(DataFunc):
                 for data in range(4)]
 
 
-class Weather(DataFunc):
+class Weather(DataAdapter):
     """Weather"""
     def track_temp(self) -> float:
         """Track temperature"""
@@ -596,7 +596,6 @@ class DataSet:
     def __init__(self, info):
         self.identify = Identify(info)
         self.state = State(info)
-
         self.brake = Brake(info)
         self.emotor = ElectricMotor(info)
         self.engine = Engine(info)

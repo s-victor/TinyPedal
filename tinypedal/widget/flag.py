@@ -182,7 +182,7 @@ class Draw(Widget):
     def set_defaults(self):
         """Initialize variables"""
         self.checked = False
-        self.last_inpits = None
+        self.last_in_pits = None
         self.pit_timer_start = None
         self.last_pit_timer = None
         self.last_fuel_usage = None
@@ -208,22 +208,22 @@ class Draw(Widget):
             # Read flag data
             lap_stime = api.read.timing.start()
             lap_etime = api.read.timing.elapsed()
-            inpits = api.read.state.in_pits()
-            is_pit_open = api.read.state.is_pit_open()
-            is_countdown = api.read.state.is_countdown()
-            is_race = api.read.state.is_race()
+            in_pits = api.read.state.in_pits()
+            pit_open = api.read.state.pit_open()
+            in_countdown = api.read.state.in_countdown()
+            in_race = api.read.state.in_race()
 
             # Pit timer
             if self.wcfg["show_pit_timer"]:
                 pit_timer = -1
                 pit_timer_highlight = False
-                if inpits != self.last_inpits:
-                    if inpits:
+                if in_pits != self.last_in_pits:
+                    if in_pits:
                         self.pit_timer_start = lap_etime
-                    #self.last_inpits = inpits
+                    #self.last_in_pits = in_pits
 
                 if self.pit_timer_start:
-                    if inpits:
+                    if in_pits:
                         pit_timer = min(lap_etime - self.pit_timer_start, 999.99)
                     elif (lap_etime - self.last_pit_timer - self.pit_timer_start
                           <= self.wcfg["pit_time_highlight_duration"]):
@@ -233,7 +233,7 @@ class Draw(Widget):
                         self.pit_timer_start = 0  # stop timer
 
                 self.update_pit_timer(
-                    pit_timer, self.last_pit_timer, is_pit_open, pit_timer_highlight)
+                    pit_timer, self.last_pit_timer, pit_open, pit_timer_highlight)
                 self.last_pit_timer = pit_timer
 
             # Low fuel update
@@ -244,7 +244,7 @@ class Draw(Widget):
                     min(round(minfo.fuel.estimatedLaps, 1),
                         self.wcfg["low_fuel_lap_threshold"]),
                     bool(not self.wcfg["show_low_fuel_for_race_only"] or
-                         self.wcfg["show_low_fuel_for_race_only"] and is_race)
+                         self.wcfg["show_low_fuel_for_race_only"] and in_race)
                 )
                 self.update_lowfuel(fuel_usage, self.last_fuel_usage)
                 self.last_fuel_usage = fuel_usage
@@ -271,7 +271,7 @@ class Draw(Widget):
                 blue_flag_data = (
                     blue_flag_timer,
                     bool(not self.wcfg["show_blue_flag_for_race_only"] or
-                         self.wcfg["show_blue_flag_for_race_only"] and is_race)
+                         self.wcfg["show_blue_flag_for_race_only"] and in_race)
                 )
                 self.update_blueflag(blue_flag_data, self.last_blue_flag_data)
                 self.last_blue_flag_data = blue_flag_data
@@ -281,7 +281,7 @@ class Draw(Widget):
                 #yellow_flag = [1,0,0,0]# testing
                 is_yellow_near = minfo.vehicles.nearestYellow < self.wcfg["yellow_flag_maximum_range"]
                 is_yellow_show = bool(not self.wcfg["show_yellow_flag_for_race_only"] or
-                                      self.wcfg["show_yellow_flag_for_race_only"] and is_race)
+                                      self.wcfg["show_yellow_flag_for_race_only"] and in_race)
                 yellow_flag = (
                     api.read.state.yellow_flag() and is_yellow_near and is_yellow_show,
                     minfo.vehicles.nearestYellow
@@ -291,7 +291,7 @@ class Draw(Widget):
 
             # Start lights
             if self.wcfg["show_startlights"]:
-                if is_countdown:
+                if in_countdown:
                     self.last_lap_stime = lap_stime
 
                 green = 1  # enable green flag
@@ -306,8 +306,8 @@ class Draw(Widget):
 
             # Incoming traffic
             if self.wcfg["show_traffic"]:
-                if inpits != self.last_inpits:
-                    if not inpits and self.last_inpits:
+                if in_pits != self.last_in_pits:
+                    if not in_pits and self.last_in_pits:
                         self.traffic_timer_start = lap_etime
 
                 if (self.traffic_timer_start and
@@ -319,13 +319,13 @@ class Draw(Widget):
                     minfo.vehicles.nearestTraffic,
                     bool(0 < minfo.vehicles.nearestTraffic
                          < self.wcfg["traffic_maximum_time_gap"]
-                         and (inpits or self.traffic_timer_start)))
+                         and (in_pits or self.traffic_timer_start)))
                 self.update_traffic(traffic, self.last_traffic)
                 self.last_traffic = traffic
 
             # Reset
-            if inpits != self.last_inpits:
-                self.last_inpits = inpits
+            if in_pits != self.last_in_pits:
+                self.last_in_pits = in_pits
 
         else:
             if self.checked:

@@ -358,9 +358,9 @@ class Draw(Widget):
     def autohide_radar(self):
         """Auto hide radar if no nearby vehicles"""
         lap_etime = api.read.timing.elapsed()
-        ingarage = api.read.state.in_garage()
+        in_garage = api.read.state.in_garage()
 
-        if self.nearby() or ingarage:
+        if self.nearby() or in_garage:
             if not self.autohide_timer_start:
                 self.show_radar = True
             self.autohide_timer_start = lap_etime

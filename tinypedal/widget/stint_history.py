@@ -216,23 +216,23 @@ class Draw(Widget):
             # Read stint data
             lap_num = api.read.lap.number()
             time_curr = api.read.session.elapsed()
-            inpits = api.read.state.in_pits()
-            ingarage = api.read.state.in_garage()
+            in_pits = api.read.state.in_pits()
+            in_garage = api.read.state.in_garage()
 
             wear_avg = 100 - (sum(api.read.tyre.wear()) * 25)
             fuel_curr = self.fuel_units(minfo.fuel.amountFuelCurrent)
 
-            if not inpits:
+            if not in_pits:
                 self.last_fuel_curr = fuel_curr
                 self.last_wear_avg = wear_avg
                 self.stint_running = True
-            elif inpits and self.stint_running:
+            elif in_pits and self.stint_running:
                 if self.last_wear_avg > wear_avg or self.last_fuel_curr < fuel_curr:
                     self.store_last_data()
                     self.stint_running = False
                     self.reset_stint = True
 
-            if ingarage:
+            if in_garage:
                 self.reset_stint = True
 
             # Current stint data
