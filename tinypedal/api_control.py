@@ -92,7 +92,7 @@ class APIControl:
     def version(self):
         """API version output"""
         version = self._api.version()
-        return version if version else "unknown"
+        return version if version else "unknown ver."
 
 
 api = APIControl()

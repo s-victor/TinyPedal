@@ -217,7 +217,7 @@ class AppWindow(QMainWindow):
 
     def set_status_text(self):
         """Set status text"""
-        self.label_api_version.setText(f"{api.name} API: version {api.version}")
+        self.label_api_version.setText(f"API: {api.name} - {api.version}")
 
     def show_about(self):
         """Show about"""
