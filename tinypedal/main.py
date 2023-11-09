@@ -75,6 +75,11 @@ class AppWindow(QMainWindow):
         # Create menu
         self.main_menubar()
 
+        # Add status bar
+        self.label_api_version = QLabel("")
+        self.statusBar().addPermanentWidget(self.label_api_version)
+        self.set_status_text()
+
         # Create tabs
         self.main_tab = QTabWidget()
         self.widget_tab = WidgetList()
@@ -193,9 +198,9 @@ class AppWindow(QMainWindow):
 
         self.about = About(hideonclose=True)
         self.start_tray_icon()
-        self.set_window_state()
+        self.set_initial_window_state()
 
-    def set_window_state(self):
+    def set_initial_window_state(self):
         """Set initial window state"""
         if cfg.application["show_at_startup"]:
             self.show()
@@ -209,6 +214,10 @@ class AppWindow(QMainWindow):
                 self.move(app_pos_x, app_pos_y)
             else:
                 self.save_window_position()
+
+    def set_status_text(self):
+        """Set status text"""
+        self.label_api_version.setText(f"{api.name} API: {api.version}")
 
     def show_about(self):
         """Show about"""
@@ -248,10 +257,10 @@ class AppWindow(QMainWindow):
             cfg.application["position_y"] = self.y()
             cfg.save(0)
 
-    @staticmethod
-    def restart_api():
+    def restart_api(self):
         """Restart shared memory api"""
         api.restart()
+        self.set_status_text()
 
     @staticmethod
     def is_locked():
