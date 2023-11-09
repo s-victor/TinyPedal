@@ -105,9 +105,9 @@ class State(DataAdapter):
 
 class Brake(DataAdapter):
     """Brake"""
-    def bias(self, index: int=None) -> float:
-        """Brake bias"""
-        return chknm(self.info.rf2TeleVeh(index).mRearBrakeBias)
+    def bias_front(self, index: int=None) -> float:
+        """Brake bias front"""
+        return 1 - chknm(self.info.rf2TeleVeh(index).mRearBrakeBias)
 
     def pressure(self, index: int=None):
         """Brake pressure"""
@@ -123,6 +123,14 @@ class Brake(DataAdapter):
 
 class ElectricMotor(DataAdapter):
     """Electric motor"""
+    def state(self, index: int=None) -> int:
+        """Motor state, 0 = n/a, 1 = off, 2 = drain, 3 = regen"""
+        return chknm(self.info.rf2TeleVeh(index).mElectricBoostMotorState)
+
+    def battery_charge(self, index: int=None) -> float:
+        """Battery charge"""
+        return chknm(self.info.rf2TeleVeh(index).mBatteryChargeFraction)
+
     def rpm(self, index: int=None) -> float:
         """Motor RPM"""
         return chknm(self.info.rf2TeleVeh(index).mElectricBoostMotorRPM)
@@ -130,14 +138,6 @@ class ElectricMotor(DataAdapter):
     def torque(self, index: int=None) -> float:
         """Motor torque"""
         return chknm(self.info.rf2TeleVeh(index).mElectricBoostMotorTorque)
-
-    def state(self, index: int=None) -> int:
-        """Motor state"""
-        return chknm(self.info.rf2TeleVeh(index).mElectricBoostMotorState)
-
-    def battery_charge(self, index: int=None) -> float:
-        """Battery charge percentage"""
-        return chknm(self.info.rf2TeleVeh(index).mBatteryChargeFraction)
 
     def motor_temperature(self, index: int=None) -> float:
         """Motor temperature"""
@@ -548,7 +548,7 @@ class Vehicle(DataAdapter):
         return chknm(self.info.rf2ScorVeh(index).mNumPitstops)
 
     def pit_state(self, index: int=None) -> int:
-        """Pit state"""
+        """Pit state, 0 = none, 1 = request, 2 = entering, 3 = stopped, 4 = exiting"""
         return chknm(self.info.rf2ScorVeh(index).mPitState)
 
     def fuel(self, index: int=None) -> float:

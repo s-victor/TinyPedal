@@ -18,6 +18,8 @@
 
 """
 API data adapter
+
+To create new API adapter, duplicate rfactor2.py and fill in entries.
 """
 
 from .. import calculation as calc

@@ -92,7 +92,7 @@ class Draw(Widget):
         if self.wcfg["enable"] and api.state:
 
             # Brake bias
-            bbias = (1 - api.read.brake.bias()) * 100
+            bbias = api.read.brake.bias_front() * 100
             self.update_bbias(bbias, self.last_bbias)
             self.last_bbias = bbias
 

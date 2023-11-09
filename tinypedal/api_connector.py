@@ -53,7 +53,6 @@ class Connector(ABC):
 
 
 class SimRF2(Connector):
-    """Connect to sim"""
     NAME = "rFactor 2"
 
     def __init__(self):
@@ -82,8 +81,7 @@ class SimRF2(Connector):
 
 
 class SimDummy(Connector):
-    """Connect to sim"""
-    NAME = "Dummy"
+    NAME = "Dummy"  # placeholder
 
     def __init__(self):
         self.info = SimInfoSync("tinypedal")
@@ -91,7 +89,7 @@ class SimDummy(Connector):
 
     def start(self):
         self.info.start()
-        from .adapter.dummy import DataSet
+        from .adapter.rfactor2 import DataSet
         self.read = DataSet(self.info)
 
     def stop(self):
@@ -107,7 +105,7 @@ class SimDummy(Connector):
         return not self.info.paused and self.read.state.is_driving()
 
     def version(self):
-        return self.read.state.version()
+        return "0.0.0"
 
 
 # Add API to dict API_PACK
