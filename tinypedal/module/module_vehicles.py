@@ -136,19 +136,19 @@ class Realtime:
     def __vehicle_data(self, class_pos_list):
         """Get vehicle data"""
         # Additional data
-        veh_total = max(api.read.vehicle.total(), 1)
+        veh_total = max(api.read.vehicle.total_vehicles(), 1)
         track_length = max(api.read.lap.track_length(), 1)
         in_race = api.read.state.in_race()
         valid_class_list = class_pos_list and len(class_pos_list) == veh_total
 
         # Local player data
-        plr_total_laps = api.read.lap.total()
+        plr_total_laps = api.read.lap.total_laps()
         plr_lap_distance = api.read.lap.distance()
         plr_percentage_distance = calc.percentage_distance(plr_lap_distance, track_length, 0.99999)
         plr_speed = api.read.vehicle.speed()
         plr_pos_xz = (api.read.vehicle.pos_longitudinal(),
                       api.read.vehicle.pos_lateral())
-        plr_ori_rad = calc.oriyaw2rad(*api.read.vehicle.orientation_yaw())
+        plr_ori_rad = api.read.vehicle.orientation_yaw_radians()
 
         # Generate data list from all vehicles in current session
         for index in range(veh_total):
@@ -174,7 +174,7 @@ class Realtime:
             speed = api.read.vehicle.speed(index)
 
             # Distance & time
-            total_laps = api.read.lap.total(index)
+            total_laps = api.read.lap.total_laps(index)
             lap_distance = api.read.lap.distance(index)
 
             percentage_distance = calc.percentage_distance(lap_distance, track_length, 0.99999)
@@ -210,8 +210,7 @@ class Realtime:
             # Position data
             pos_xz = (api.read.vehicle.pos_longitudinal(index),
                       api.read.vehicle.pos_lateral(index))
-            orientation_xz_radians = calc.oriyaw2rad(
-                *api.read.vehicle.orientation_yaw(index))
+            orientation_xz_radians = api.read.vehicle.orientation_yaw_radians(index)
             relative_rotated_pos_xz = calc.rotate_pos(
                 plr_ori_rad - 3.14159265,   # plr_ori_rad, rotate view
                 pos_xz[0] - plr_pos_xz[0],  # x position related to player

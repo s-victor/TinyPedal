@@ -136,8 +136,7 @@ class Draw(Widget):
 
             # Compass
             if self.wcfg["show_compass"]:
-                ori_yaw = api.read.vehicle.orientation_yaw()
-                dir_degree = round(180 - calc.rad2deg(calc.oriyaw2rad(*ori_yaw)))
+                dir_degree = round(180 - calc.rad2deg(api.read.vehicle.orientation_yaw_radians()))
                 self.update_compass(dir_degree, self.last_dir_degree)
                 self.last_dir_degree = dir_degree
 

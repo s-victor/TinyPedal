@@ -236,7 +236,7 @@ class Lap(DataAdapter):
         """Current lap number"""
         return chknm(self.info.rf2TeleVeh(index).mLapNumber)
 
-    def total(self, index: int=None) -> int:
+    def total_laps(self, index: int=None) -> int:
         """Total completed laps"""
         return chknm(self.info.rf2ScorVeh(index).mTotalLaps)
 
@@ -531,7 +531,7 @@ class Vehicle(DataAdapter):
         """Vehicle class name"""
         return cs2py(self.info.rf2ScorVeh(index).mVehicleClass)
 
-    def total(self) -> int:
+    def total_vehicles(self) -> int:
         """Total vehicles"""
         return chknm(self.info.rf2Tele.mNumVehicles)
 
@@ -556,9 +556,13 @@ class Vehicle(DataAdapter):
         return chknm(self.info.rf2TeleVeh(index).mFuelCapacity)
 
     def orientation_yaw(self, index: int=None):
-        """Orientation yaw"""
+        """Raw orientation yaw"""
         return (chknm(self.info.rf2TeleVeh(index).mOri[2].x),
                 chknm(self.info.rf2TeleVeh(index).mOri[2].z))
+
+    def orientation_yaw_radians(self, index: int=None):
+        """Orientation yaw in radians"""
+        return calc.oriyaw2rad(*self.orientation_yaw(index))
 
     def pos_x(self, index: int=None) -> float:
         """Raw X position"""

@@ -148,7 +148,7 @@ class Draw(Widget):
 
             # Driver place & total vehicles
             if self.wcfg["show_position"]:
-                place = (api.read.vehicle.place(), api.read.vehicle.total())
+                place = (api.read.vehicle.place(), api.read.vehicle.total_vehicles())
                 self.update_position(place, self.last_place)
                 self.last_place = place
 

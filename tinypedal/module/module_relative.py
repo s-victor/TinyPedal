@@ -68,7 +68,7 @@ class Realtime:
                     reset = True
                     update_interval = active_interval
 
-                veh_total = max(api.read.vehicle.total(), 1)
+                veh_total = max(api.read.vehicle.total_vehicles(), 1)
                 plr_index = api.read.vehicle.player_index()
                 plr_place = api.read.vehicle.place()
 

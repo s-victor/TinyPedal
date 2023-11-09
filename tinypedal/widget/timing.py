@@ -188,7 +188,7 @@ class Draw(Widget):
 
             # Session best laptime
             if self.wcfg["show_session_best"]:
-                veh_total = api.read.vehicle.total()
+                veh_total = api.read.vehicle.total_vehicles()
                 laptime_best_tmp = api.read.timing.best_laptime(self.vehicle_counter)
                 same_vehicle_class = api.read.state.same_vehicle_class(self.vehicle_counter)
 
