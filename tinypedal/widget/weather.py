@@ -115,21 +115,21 @@ class Draw(Widget):
 
             # Track temperature
             if self.wcfg["show_temperature"]:
-                track_temp = api.read.weather.track_temp()
-                ambient_temp = api.read.weather.ambient_temp()
+                track_temp = api.read.session.track_temperature()
+                ambient_temp = api.read.session.ambient_temperature()
                 temp_d = self.temp_units(track_temp, ambient_temp)
                 self.update_temp(temp_d, self.last_temp_d)
                 self.last_temp_d = temp_d
 
             # Rain percentage
             if self.wcfg["show_rain"]:
-                rain_per = api.read.weather.raininess()
+                rain_per = api.read.session.raininess()
                 self.update_rain(rain_per, self.last_rain_per)
                 self.last_rain_per = rain_per
 
             # Surface wetness
             if self.wcfg["show_wetness"]:
-                wet_road = api.read.weather.wetness()
+                wet_road = api.read.session.wetness()
                 self.update_wetness(wet_road, self.last_wet_road)
                 self.last_wet_road = wet_road
 

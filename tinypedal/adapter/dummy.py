@@ -29,23 +29,23 @@ class State(DataAdapter):
         """API version"""
         return "0.0.0"
 
-    def combo(self) -> str:
+    def combo_id(self) -> str:
         """Identify track & vehicle combo"""
         track_name = cs2py(self.info.rf2Scor.mScoringInfo.mTrackName)
         class_name = cs2py(self.info.rf2ScorVeh().mVehicleClass)
         return fmt.strip_invalid_char(f"{track_name} - {class_name}")
 
-    def vehicle(self) -> str:
+    def vehicle_id(self) -> str:
         """Identify vehicle & class"""
         class_name = cs2py(self.info.rf2ScorVeh().mVehicleClass)
         veh_name = cs2py(self.info.rf2ScorVeh().mVehicleName)
         return fmt.strip_invalid_char(f"{class_name} - {veh_name}")
 
-    def track(self) -> str:
+    def track_id(self) -> str:
         """Identify track name"""
         return fmt.strip_invalid_char(cs2py(self.info.rf2Scor.mScoringInfo.mTrackName))
 
-    def session(self):
+    def session_id(self):
         """Identify session"""
         session_length = chknm(self.info.rf2Scor.mScoringInfo.mEndET)
         session_type = chknm(self.info.rf2Scor.mScoringInfo.mSession)
@@ -58,17 +58,17 @@ class State(DataAdapter):
         """Is local player driving or in monitor"""
         return self.info.rf2TeleVeh().mIgnitionStarter
 
-    def lap_finish(self) -> bool:
+    def lap_type_race(self) -> bool:
         """Is lap finish type race, false for time finish type"""
         return chknm(self.info.rf2Scor.mScoringInfo.mMaxLaps) < 2147483647
-
-    def in_countdown(self) -> bool:
-        """Is in countdown phase before race"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mGamePhase) == 4
 
     def in_race(self) -> bool:
         """Is in race session"""
         return chknm(self.info.rf2Scor.mScoringInfo.mSession) > 9
+
+    def in_countdown(self) -> bool:
+        """Is in countdown phase before race"""
+        return chknm(self.info.rf2Scor.mScoringInfo.mGamePhase) == 4
 
     def in_pits(self, index: int=None) -> bool:
         """Is in pits"""
@@ -88,15 +88,13 @@ class State(DataAdapter):
         class_plr = cs2py(self.info.rf2ScorVeh().mVehicleClass)
         return class_opt == class_plr
 
-    def blue_flag(self, index: int=None) -> int:
-        """Blue flag"""
+    def blue_flag(self, index: int=None) -> bool:
+        """Is under blue flag"""
         return chknm(self.info.rf2ScorVeh(index).mFlag) == 6
 
     def yellow_flag(self) -> bool:
-        """Yellow flag in any sectors"""
-        return 1 in (chknm(self.info.rf2Scor.mScoringInfo.mSectorFlag[0]),
-                     chknm(self.info.rf2Scor.mScoringInfo.mSectorFlag[1]),
-                     chknm(self.info.rf2Scor.mScoringInfo.mSectorFlag[2]))
+        """Is there yellow flag in any sectors"""
+        return 1 in [chknm(self.info.rf2Scor.mScoringInfo.mSectorFlag[data]) for data in range(3)]
 
     def start_lights(self) -> int:
         """Start lights countdown sequence"""
@@ -291,6 +289,40 @@ class Session(DataAdapter):
     def remaining(self) -> float:
         """Session time remaining"""
         return self.end() - self.elapsed()
+
+    def track_name(self) -> str:
+        """Track name"""
+        return cs2py(self.info.rf2Scor.mScoringInfo.mTrackName)
+
+    def track_temperature(self) -> float:
+        """Track temperature"""
+        return chknm(self.info.rf2Scor.mScoringInfo.mTrackTemp)
+
+    def ambient_temperature(self) -> float:
+        """Ambient temperature"""
+        return chknm(self.info.rf2Scor.mScoringInfo.mAmbientTemp)
+
+    def raininess(self) -> float:
+        """Rain percentage"""
+        return chknm(self.info.rf2Scor.mScoringInfo.mRaining)
+
+    def wetness_minimum(self) -> float:
+        """Road minimum wetness"""
+        return chknm(self.info.rf2Scor.mScoringInfo.mMinPathWetness)
+
+    def wetness_maximum(self) -> float:
+        """Road maximum wetness"""
+        return chknm(self.info.rf2Scor.mScoringInfo.mMaxPathWetness)
+
+    def wetness_average(self) -> float:
+        """Road average wetness"""
+        return chknm(self.info.rf2Scor.mScoringInfo.mAvgPathWetness)
+
+    def wetness(self):
+        """Road wetness set"""
+        return (self.wetness_minimum(),
+                self.wetness_maximum(),
+                self.wetness_average())
 
 
 class Switch(DataAdapter):
@@ -640,39 +672,6 @@ class Wheel(DataAdapter):
                 for data in range(4)]
 
 
-class Weather(DataAdapter):
-    """Weather"""
-    def track_temp(self) -> float:
-        """Track temperature"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mTrackTemp)
-
-    def ambient_temp(self) -> float:
-        """Ambient temperature"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mAmbientTemp)
-
-    def raininess(self) -> float:
-        """Rain percentage"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mRaining)
-
-    def wetness_minimum(self) -> float:
-        """Road minimum wetness"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mMinPathWetness)
-
-    def wetness_maximum(self) -> float:
-        """Road maximum wetness"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mMaxPathWetness)
-
-    def wetness_average(self) -> float:
-        """Road average wetness"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mAvgPathWetness)
-
-    def wetness(self):
-        """Road wetness set"""
-        return (self.wetness_minimum(),
-                self.wetness_maximum(),
-                self.wetness_average())
-
-
 class DataSet:
     """Data set"""
 
@@ -688,5 +687,4 @@ class DataSet:
         self.timing = Timing(info)
         self.tyre = Tyre(info)
         self.vehicle = Vehicle(info)
-        self.weather = Weather(info)
         self.wheel = Wheel(info)

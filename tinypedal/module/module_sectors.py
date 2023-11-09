@@ -70,8 +70,8 @@ class Realtime:
                     update_interval = active_interval
 
                     last_sector_idx = -1  # previous recorded sector index value
-                    combo_id = api.read.state.combo()  # current car & track combo
-                    session_id = api.read.state.session()  # session identity
+                    combo_id = api.read.state.combo_id()  # current car & track combo
+                    session_id = api.read.state.session_id()  # session identity
                     laptime_best, best_s_tb, best_s_pb = self.load_sector_data(
                         combo_id, session_id)
                     delta_s_tb = [0,0,0]  # deltabest times against all time best sector

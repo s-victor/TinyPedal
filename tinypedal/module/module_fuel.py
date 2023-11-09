@@ -79,7 +79,7 @@ class Realtime:
                     delayed_save = False
                     pit_lap = False  # whether pit in or pit out lap
 
-                    combo_id = api.read.state.combo()
+                    combo_id = api.read.state.combo_id()
                     delta_list_last = self.load_deltafuel(combo_id)
                     delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
                     delta_list_temp = [DELTA_ZERO]  # last lap temp
@@ -193,7 +193,7 @@ class Realtime:
                     used_last, delta_fuel, 0 == pit_lap < lap_number)
 
                 # Total refuel = laps left * last consumption - remaining fuel
-                if api.read.state.lap_finish():  # lap-type race
+                if api.read.state.lap_type_race():  # lap-type race
                     full_laps_left = laps_max - lap_number
                     laps_left = full_laps_left - lap_into
                     amount_need = laps_left * used_est - amount_curr
