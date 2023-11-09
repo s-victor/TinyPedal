@@ -95,7 +95,9 @@ class Realtime:
                 laptime_curr = max(api.read.timing.current_laptime(), 0)
                 laptime_valid = api.read.timing.last_laptime()
                 pos_curr = api.read.lap.distance()
-                gps_curr = api.read.vehicle.pos_xyz()
+                gps_curr = (api.read.vehicle.pos_x(),
+                            api.read.vehicle.pos_y(),
+                            api.read.vehicle.pos_z())
 
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime != -1:

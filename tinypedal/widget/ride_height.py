@@ -92,7 +92,7 @@ class Draw(Widget):
         if self.wcfg["enable"] and api.state:
 
             # Read ride height & rake data
-            self.ride_height = tuple(map(calc.meter2millmeter, api.read.suspension.ride_height()))
+            self.ride_height = tuple(map(calc.meter2millmeter, api.read.wheel.ride_height()))
             self.update_rideh(self.ride_height, self.last_ride_height)
             self.last_ride_height = self.ride_height
 

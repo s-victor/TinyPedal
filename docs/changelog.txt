@@ -10,6 +10,7 @@ WIP
 * Shared memory API
   - Add API control & data adaptor to support different sims API in the future.
   - Add API name selector in Shared memory API config dialog.
+  - Show API name & version info on main window status bar.
 
 * Relative Module
   - Fixed index out of range when returning

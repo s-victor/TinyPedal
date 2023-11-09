@@ -116,7 +116,9 @@ class Realtime:
                 capacity = max(api.read.vehicle.tank_capacity(), 1)
                 in_garage = api.read.state.in_garage()
                 pos_curr = api.read.lap.distance()
-                gps_curr = api.read.vehicle.pos_xyz()
+                gps_curr = (api.read.vehicle.pos_x(),
+                            api.read.vehicle.pos_y(),
+                            api.read.vehicle.pos_z())
                 lap_number = api.read.lap.number()
                 lap_into = api.read.lap.percent()
                 laps_max = api.read.lap.maximum()
