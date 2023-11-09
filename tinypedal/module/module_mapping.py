@@ -71,7 +71,7 @@ class Realtime:
                     reset = True
                     update_interval = active_interval
 
-                    recorder.map.load(api.read.state.track_id())
+                    recorder.map.load(api.read.check.track_id())
                     if recorder.map.exist:
                         update_interval = idle_interval
                         minfo.mapping.coordinates = recorder.map.raw_coords

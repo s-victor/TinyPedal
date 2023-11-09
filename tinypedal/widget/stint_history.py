@@ -216,8 +216,8 @@ class Draw(Widget):
             # Read stint data
             lap_num = api.read.lap.number()
             time_curr = api.read.session.elapsed()
-            in_pits = api.read.state.in_pits()
-            in_garage = api.read.state.in_garage()
+            in_pits = api.read.vehicle.in_pits()
+            in_garage = api.read.vehicle.in_garage()
 
             wear_avg = 100 - (sum(api.read.tyre.wear()) * 25)
             fuel_curr = self.fuel_units(minfo.fuel.amountFuelCurrent)

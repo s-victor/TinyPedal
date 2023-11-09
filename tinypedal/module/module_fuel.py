@@ -79,7 +79,7 @@ class Realtime:
                     delayed_save = False
                     pit_lap = False  # whether pit in or pit out lap
 
-                    combo_id = api.read.state.combo_id()
+                    combo_id = api.read.check.combo_id()
                     delta_list_last = self.load_deltafuel(combo_id)
                     delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
                     delta_list_temp = [DELTA_ZERO]  # last lap temp
@@ -114,7 +114,7 @@ class Realtime:
                 time_left = api.read.session.remaining()
                 amount_curr = api.read.vehicle.fuel()
                 capacity = max(api.read.vehicle.tank_capacity(), 1)
-                in_garage = api.read.state.in_garage()
+                in_garage = api.read.vehicle.in_garage()
                 pos_curr = api.read.lap.distance()
                 gps_curr = (api.read.vehicle.pos_x(),
                             api.read.vehicle.pos_y(),
@@ -122,7 +122,7 @@ class Realtime:
                 lap_number = api.read.lap.number()
                 lap_into = api.read.lap.percent()
                 laps_max = api.read.lap.maximum()
-                pit_lap = bool(pit_lap + api.read.state.in_pits())
+                pit_lap = bool(pit_lap + api.read.vehicle.in_pits())
 
                 # Realtime fuel consumption
                 if amount_last < amount_curr:
@@ -193,7 +193,7 @@ class Realtime:
                     used_last, delta_fuel, 0 == pit_lap < lap_number)
 
                 # Total refuel = laps left * last consumption - remaining fuel
-                if api.read.state.lap_type_race():  # lap-type race
+                if api.read.session.lap_type():  # lap-type
                     full_laps_left = laps_max - lap_number
                     laps_left = full_laps_left - lap_into
                     amount_need = laps_left * used_est - amount_curr

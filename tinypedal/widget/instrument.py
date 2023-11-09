@@ -158,7 +158,7 @@ class Draw(Widget):
             # Save switch
             if not self.checked:
                 self.checked = True
-                self.vehicle_id = api.read.state.vehicle_id()
+                self.vehicle_id = api.read.check.vehicle_id()
                 if self.wcfg["last_vehicle_info"] == self.vehicle_id:
                     self.min_samples_f = 320
                     self.min_samples_r = 320

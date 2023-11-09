@@ -138,7 +138,7 @@ class Realtime:
         # Additional data
         veh_total = max(api.read.vehicle.total_vehicles(), 1)
         track_length = max(api.read.lap.track_length(), 1)
-        in_race = api.read.state.in_race()
+        in_race = api.read.session.in_race()
         valid_class_list = class_pos_list and len(class_pos_list) == veh_total
 
         # Local player data
@@ -198,8 +198,8 @@ class Realtime:
             is_yellow = bool(speed <= 8)
 
             # Pit
-            in_garage = api.read.state.in_garage(index)
-            in_pit = api.read.state.in_pits(index)
+            in_garage = api.read.vehicle.in_garage(index)
+            in_pit = api.read.vehicle.in_pits(index)
             num_pit_stops = api.read.vehicle.number_pitstops(index)
             pit_state = api.read.vehicle.pit_state(index)
             pit_time = self.__calc_pit_time(

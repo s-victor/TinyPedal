@@ -132,11 +132,11 @@ class Realtime:
         track_length = api.read.lap.track_length()  # track length
         plr_dist = api.read.lap.distance()
         race_check = bool(
-            api.read.state.in_race() and not
+            api.read.session.in_race() and not
             self.cfg.setting_user["relative"]["show_vehicle_in_garage_for_race"]
         )
         for index in range(veh_total):
-            in_garage = api.read.state.in_garage(index)
+            in_garage = api.read.vehicle.in_garage(index)
             opt_dist = api.read.lap.distance(index)
             if show_vehicles(race_check, in_garage):
                 rel_dist = calc.circular_relative_distance(

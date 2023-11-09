@@ -208,10 +208,10 @@ class Draw(Widget):
             # Read flag data
             lap_stime = api.read.timing.start()
             lap_etime = api.read.timing.elapsed()
-            in_pits = api.read.state.in_pits()
-            pit_open = api.read.state.pit_open()
-            in_countdown = api.read.state.in_countdown()
-            in_race = api.read.state.in_race()
+            in_pits = api.read.vehicle.in_pits()
+            pit_open = api.read.session.pit_open()
+            in_countdown = api.read.session.in_countdown()
+            in_race = api.read.session.in_race()
 
             # Pit timer
             if self.wcfg["show_pit_timer"]:
@@ -258,7 +258,7 @@ class Draw(Widget):
             # Blue flag
             if self.wcfg["show_blue_flag"]:
                 #blue_flag = 6  # testing
-                blue_flag = api.read.state.blue_flag()
+                blue_flag = api.read.session.blue_flag()
                 blue_flag_timer = -1
 
                 if self.last_blue_flag != blue_flag:
@@ -283,7 +283,7 @@ class Draw(Widget):
                 is_yellow_show = bool(not self.wcfg["show_yellow_flag_for_race_only"] or
                                       self.wcfg["show_yellow_flag_for_race_only"] and in_race)
                 yellow_flag = (
-                    api.read.state.yellow_flag() and is_yellow_near and is_yellow_show,
+                    api.read.session.yellow_flag() and is_yellow_near and is_yellow_show,
                     minfo.vehicles.nearestYellow
                 )
                 self.update_yellowflag(yellow_flag, self.last_yellow_flag)
@@ -402,7 +402,7 @@ class Draw(Widget):
         if curr != last:
             if green == 0:
                 self.bar_startlights.setText(
-                    f"{self.wcfg['red_lights_text'][:6].ljust(6)}{api.read.state.start_lights()}")
+                    f"{self.wcfg['red_lights_text'][:6].ljust(6)}{api.read.session.start_lights()}")
                 self.bar_startlights.setStyleSheet(
                     f"color: {self.wcfg['font_color_startlights']};"
                     f"background: {self.wcfg['bkg_color_red_lights']};")

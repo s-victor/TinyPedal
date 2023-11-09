@@ -74,10 +74,10 @@ class SimRF2(Connector):
         self.info.setPlayerIndex(player_index)
 
     def state(self):
-        return not self.info.paused and self.read.state.is_driving()
+        return not self.info.paused and self.read.vehicle.is_driving()
 
     def version(self):
-        return self.read.state.version()
+        return self.read.check.version()
 
 
 class SimDummy(Connector):
@@ -102,7 +102,7 @@ class SimDummy(Connector):
         self.info.setPlayerIndex(player_index)
 
     def state(self):
-        return not self.info.paused and self.read.state.is_driving()
+        return not self.info.paused and self.read.vehicle.is_driving()
 
     def version(self):
         return "0.0.0"

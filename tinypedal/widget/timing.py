@@ -190,7 +190,7 @@ class Draw(Widget):
             if self.wcfg["show_session_best"]:
                 veh_total = api.read.vehicle.total_vehicles()
                 laptime_best_tmp = api.read.timing.best_laptime(self.vehicle_counter)
-                same_vehicle_class = api.read.state.same_vehicle_class(self.vehicle_counter)
+                same_vehicle_class = api.read.vehicle.same_class(self.vehicle_counter)
 
                 if 0 < laptime_best_tmp < self.laptime_sbest:
                     if self.wcfg["show_session_best_from_same_class_only"] and same_vehicle_class:

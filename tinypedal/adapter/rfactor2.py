@@ -23,8 +23,8 @@ Data set for rFactor 2
 from . import DataAdapter, calc, chknm, cs2py, fmt
 
 
-class State(DataAdapter):
-    """State check"""
+class Check(DataAdapter):
+    """Check"""
     def version(self) -> str:
         """Identify API version"""
         return cs2py(self.info.rf2Ext.mVersion)
@@ -53,54 +53,6 @@ class State(DataAdapter):
         session_etime = int(chknm(self.info.rf2Scor.mScoringInfo.mCurrentET))
         session_tlaps = chknm(self.info.rf2ScorVeh().mTotalLaps)
         return session_stamp, session_etime, session_tlaps
-
-    def is_driving(self) -> bool:
-        """Is local player driving or in monitor"""
-        return self.info.rf2TeleVeh().mIgnitionStarter
-
-    def lap_type_race(self) -> bool:
-        """Is lap finish type race, false for time finish type"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mMaxLaps) < 2147483647
-
-    def in_race(self) -> bool:
-        """Is in race session"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mSession) > 9
-
-    def in_countdown(self) -> bool:
-        """Is in countdown phase before race"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mGamePhase) == 4
-
-    def in_pits(self, index: int=None) -> bool:
-        """Is in pits"""
-        return chknm(self.info.rf2ScorVeh(index).mInPits)
-
-    def in_garage(self, index: int=None) -> bool:
-        """Is in garage"""
-        return chknm(self.info.rf2ScorVeh(index).mInGarageStall)
-
-    def pit_open(self) -> bool:
-        """Is pit lane open"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mGamePhase) > 0
-
-    def same_vehicle_class(self, index: int=None) -> bool:
-        """Is same vehicle class"""
-        class_opt = cs2py(self.info.rf2ScorVeh(index).mVehicleClass)
-        class_plr = cs2py(self.info.rf2ScorVeh().mVehicleClass)
-        return class_opt == class_plr
-
-    def blue_flag(self, index: int=None) -> bool:
-        """Is under blue flag"""
-        return chknm(self.info.rf2ScorVeh(index).mFlag) == 6
-
-    def yellow_flag(self) -> bool:
-        """Is there yellow flag in any sectors"""
-        return 1 in [chknm(self.info.rf2Scor.mScoringInfo.mSectorFlag[data]) for data in range(3)]
-
-    def start_lights(self) -> int:
-        """Start lights countdown sequence"""
-        lights_frame = chknm(self.info.rf2Scor.mScoringInfo.mStartLight)
-        lights_number = chknm(self.info.rf2Scor.mScoringInfo.mNumRedLights) + 1
-        return lights_number - lights_frame
 
 
 class Brake(DataAdapter):
@@ -289,6 +241,36 @@ class Session(DataAdapter):
     def remaining(self) -> float:
         """Session time remaining"""
         return self.end() - self.elapsed()
+
+    def lap_type(self) -> bool:
+        """Is lap type session, false for time type"""
+        return chknm(self.info.rf2Scor.mScoringInfo.mMaxLaps) < 2147483647
+
+    def in_race(self) -> bool:
+        """Is in race session"""
+        return chknm(self.info.rf2Scor.mScoringInfo.mSession) > 9
+
+    def in_countdown(self) -> bool:
+        """Is in countdown phase before race"""
+        return chknm(self.info.rf2Scor.mScoringInfo.mGamePhase) == 4
+
+    def pit_open(self) -> bool:
+        """Is pit lane open"""
+        return chknm(self.info.rf2Scor.mScoringInfo.mGamePhase) > 0
+
+    def blue_flag(self, index: int=None) -> bool:
+        """Is under blue flag"""
+        return chknm(self.info.rf2ScorVeh(index).mFlag) == 6
+
+    def yellow_flag(self) -> bool:
+        """Is there yellow flag in any sectors"""
+        return 1 in [chknm(self.info.rf2Scor.mScoringInfo.mSectorFlag[data]) for data in range(3)]
+
+    def start_lights(self) -> int:
+        """Start lights countdown sequence"""
+        lights_frame = chknm(self.info.rf2Scor.mScoringInfo.mStartLight)
+        lights_number = chknm(self.info.rf2Scor.mScoringInfo.mNumRedLights) + 1
+        return lights_number - lights_frame
 
     def track_name(self) -> str:
         """Track name"""
@@ -511,6 +493,10 @@ class Vehicle(DataAdapter):
         """Is local player"""
         return self.info.isPlayer(index)
 
+    def is_driving(self) -> bool:
+        """Is local player driving or in monitor"""
+        return self.info.rf2TeleVeh().mIgnitionStarter
+
     def player_index(self) -> int:
         """Get Local player index"""
         return self.info.playerScorIndex
@@ -531,6 +517,10 @@ class Vehicle(DataAdapter):
         """Vehicle class name"""
         return cs2py(self.info.rf2ScorVeh(index).mVehicleClass)
 
+    def same_class(self, index: int=None) -> bool:
+        """Is same vehicle class"""
+        return self.class_name(index) == self.class_name()
+
     def total_vehicles(self) -> int:
         """Total vehicles"""
         return chknm(self.info.rf2Tele.mNumVehicles)
@@ -538,6 +528,14 @@ class Vehicle(DataAdapter):
     def place(self, index: int=None) -> int:
         """Vehicle overall place"""
         return chknm(self.info.rf2ScorVeh(index).mPlace)
+
+    def in_pits(self, index: int=None) -> bool:
+        """Is in pits"""
+        return chknm(self.info.rf2ScorVeh(index).mInPits)
+
+    def in_garage(self, index: int=None) -> bool:
+        """Is in garage"""
+        return chknm(self.info.rf2ScorVeh(index).mInGarageStall)
 
     def number_pitstops(self, index: int=None) -> int:
         """Number of pit stops"""
@@ -676,7 +674,7 @@ class DataSet:
     """Data set"""
 
     def __init__(self, info):
-        self.state = State(info)
+        self.check = Check(info)
         self.brake = Brake(info)
         self.emotor = ElectricMotor(info)
         self.engine = Engine(info)
