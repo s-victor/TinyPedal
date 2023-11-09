@@ -48,6 +48,7 @@ from . import validator as val
 from . import formatter as fmt
 from .setting import cfg
 from .const import APP_ICON
+from .api_connector import API_PACK
 from .module_control import mctrl
 from .widget_control import wctrl
 
@@ -250,8 +251,7 @@ class WidgetConfig(QDialog):
         self.option_bool = []
         self.option_color = []
         self.option_fontname = []
-        self.option_fontweight = []
-        self.option_heatmap = []
+        self.option_list = []
         self.option_string = []
         self.option_int = []
         self.option_float = []
@@ -313,13 +313,7 @@ class WidgetConfig(QDialog):
             getattr(self, f"fontedit_{key}").setCurrentFont(
                 cfg.setting_default[self.obj_name][key])
 
-        for key in self.option_fontweight:
-            curr_index = getattr(self, f"combobox_{key}").findText(
-                f"{cfg.setting_default[self.obj_name][key]}", Qt.MatchExactly)
-            if curr_index != -1:
-                getattr(self, f"combobox_{key}").setCurrentIndex(curr_index)
-
-        for key in self.option_heatmap:
+        for key in self.option_list:
             curr_index = getattr(self, f"combobox_{key}").findText(
                 f"{cfg.setting_default[self.obj_name][key]}", Qt.MatchExactly)
             if curr_index != -1:
@@ -351,11 +345,7 @@ class WidgetConfig(QDialog):
             cfg.setting_user[self.obj_name][key] = getattr(
                 self, f"fontedit_{key}").currentFont().family()
 
-        for key in self.option_fontweight:
-            cfg.setting_user[self.obj_name][key] = getattr(
-                self, f"combobox_{key}").currentText()
-
-        for key in self.option_heatmap:
+        for key in self.option_list:
             cfg.setting_user[self.obj_name][key] = getattr(
                 self, f"combobox_{key}").currentText()
 
@@ -422,15 +412,20 @@ class WidgetConfig(QDialog):
                 self.__add_option_fontname(
                     idx, key, option_width, column_index_option)
                 continue
+            # API name string
+            if re.search(rxp.APINAME, key):
+                self.__add_option_combolist(
+                    idx, key, tuple(API_PACK.keys()), option_width, column_index_option)
+                continue
             # Font weight string
             if re.search(rxp.FONTWEIGHT, key):
-                self.__add_option_fontweight(
-                    idx, key, option_width, column_index_option)
+                self.__add_option_combolist(
+                    idx, key, ["normal", "bold"], option_width, column_index_option)
                 continue
             # Heatmap string
             if re.search(rxp.HEATMAP, key):
-                self.__add_option_heatmap(
-                    idx, key, option_width, column_index_option)
+                self.__add_option_combolist(
+                    idx, key, tuple(cfg.heatmap_user), option_width, column_index_option)
                 continue
             # String
             if re.search(rxp.STRING, key):
@@ -548,11 +543,11 @@ class WidgetConfig(QDialog):
             getattr(self, f"fontedit_{key}"), idx, column_index)
         self.option_fontname.append(key)
 
-    def __add_option_fontweight(self, idx, key, width, column_index):
-        """Font weight string"""
+    def __add_option_combolist(self, idx, key, item_list, width, column_index):
+        """List strings"""
         setattr(self, f"combobox_{key}", QComboBox())
         getattr(self, f"combobox_{key}").setFixedWidth(width)
-        getattr(self, f"combobox_{key}").addItems(["normal", "bold"])
+        getattr(self, f"combobox_{key}").addItems(item_list)
         # Load selected option
         curr_index = getattr(self, f"combobox_{key}").findText(
             f"{cfg.setting_user[self.obj_name][key]}", Qt.MatchExactly)
@@ -566,27 +561,7 @@ class WidgetConfig(QDialog):
         # Add layout
         self.layout_option.addWidget(
             getattr(self, f"combobox_{key}"), idx, column_index)
-        self.option_fontweight.append(key)
-
-    def __add_option_heatmap(self, idx, key, width, column_index):
-        """Heatmap string"""
-        setattr(self, f"combobox_{key}", QComboBox())
-        getattr(self, f"combobox_{key}").setFixedWidth(width)
-        getattr(self, f"combobox_{key}").addItems(tuple(cfg.heatmap_user))
-        # Load selected option
-        curr_index = getattr(self, f"combobox_{key}").findText(
-            f"{cfg.setting_user[self.obj_name][key]}", Qt.MatchExactly)
-        if curr_index != -1:
-            getattr(self, f"combobox_{key}").setCurrentIndex(curr_index)
-        # Context menu
-        self.add_context_menu(
-            getattr(self, f"combobox_{key}"),
-            cfg.setting_default[self.obj_name][key],
-            "set_combo")
-        # Add layout
-        self.layout_option.addWidget(
-            getattr(self, f"combobox_{key}"), idx, column_index)
-        self.option_heatmap.append(key)
+        self.option_list.append(key)
 
     def __add_option_string(self, idx, key, width, column_index):
         """String"""

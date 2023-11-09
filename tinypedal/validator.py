@@ -27,6 +27,7 @@ import math
 from functools import wraps
 
 from . import regex_pattern as rxp
+from .api_connector import API_PACK
 
 logger = logging.getLogger(__name__)
 
@@ -156,6 +157,11 @@ def remove_invalid_setting(key_list_def, dict_user):
             # Color string
             if re.search(rxp.COLOR, key):
                 if not color_validator(dict_user[key]):
+                    dict_user.pop(key)
+                continue
+            # API name string
+            if re.search(rxp.APINAME, key):
+                if dict_user[key] not in tuple(API_PACK.keys()):
                     dict_user.pop(key)
                 continue
             # Font weight string

@@ -36,6 +36,7 @@ BOOL = (
     "uppercase"
 )
 # String
+APINAME = "^api_name$"
 COLOR = "color"
 FONTNAME = "font_name"
 FONTWEIGHT = "font_weight"

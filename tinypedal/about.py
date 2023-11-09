@@ -33,7 +33,6 @@ from PySide2.QtWidgets import (
 )
 
 from .const import APP_NAME, VERSION, APP_ICON
-from .api_control import api
 
 COPYRIGHT = "Copyright (C) 2022-2023 Xiang"
 DESCRIPTION = "An open-source overlay application for racing simulation."

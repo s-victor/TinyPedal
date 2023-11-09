@@ -46,8 +46,6 @@ from PySide2.QtWidgets import (
 )
 
 from .setting import cfg
-from . import formatter as fmt
-from . import validator as val
 from .const import APP_NAME, VERSION, APP_ICON, PATH_SETTINGS
 from .about import About
 from .api_control import api
@@ -55,6 +53,8 @@ from .module_control import mctrl
 from .widget_control import wctrl
 from .overlay_control import octrl
 from .config import FontConfig, UnitsConfig, WidgetConfig
+from . import formatter as fmt
+from . import validator as val
 
 
 class AppWindow(QMainWindow):
@@ -189,7 +189,7 @@ class AppWindow(QMainWindow):
 
     def start_app(self):
         """Start modules & widgets"""
-        api.connect(cfg.shared_memory_api["api"])
+        api.connect(cfg.shared_memory_api["api_name"])
         api.start()
 
         mctrl.start()  # 1 start module
@@ -217,7 +217,7 @@ class AppWindow(QMainWindow):
 
     def set_status_text(self):
         """Set status text"""
-        self.label_api_version.setText(f"{api.name} API: {api.version}")
+        self.label_api_version.setText(f"{api.name} API: version {api.version}")
 
     def show_about(self):
         """Show about"""

@@ -21,114 +21,26 @@ API control
 """
 
 import logging
-from abc import ABC, abstractmethod
-
-# Import APIs
-from pyRfactor2SharedMemory.sim_info_sync import SimInfoSync
 
 from .setting import cfg
+from .api_connector import API_PACK
 
 logger = logging.getLogger(__name__)
 
 
-class Connector(ABC):
-    """API Connector"""
-    @abstractmethod
-    def start(self):
-        """Start API & load info access function"""
-
-    @abstractmethod
-    def stop(self):
-        """Stop API"""
-
-    @abstractmethod
-    def setup(self, access_mode, process_id, player_override, player_index):
-        """Setup API parameters"""
-
-    @abstractmethod
-    def state(self):
-        """API state, whether paused or driving"""
-
-    @abstractmethod
-    def version(self):
-        """API version"""
-
-
-class SimRfactor2(Connector):
-    """Connect to sim"""
-    NAME = "rFactor 2"
-
-    def __init__(self):
-        self.info = SimInfoSync("tinypedal")
-        self.read = None
-
-    def start(self):
-        self.info.start()
-        from .adapter.rfactor2 import DataSet
-        self.read = DataSet(self.info)
-
-    def stop(self):
-        self.info.stop()
-
-    def setup(self, access_mode, process_id, player_override, player_index):
-        self.info.setMode(access_mode)
-        self.info.setPID(process_id)
-        self.info.setPlayerOverride(player_override)
-        self.info.setPlayerIndex(player_index)
-
-    def state(self):
-        return not self.info.paused and self.read.state.is_driving()
-
-    def version(self):
-        return self.read.state.version()
-
-
-class SimDummy(Connector):
-    """Connect to sim"""
-    NAME = "Dummy"
-
-    def __init__(self):
-        self.info = SimInfoSync("tinypedal")
-        self.read = None
-
-    def start(self):
-        self.info.start()
-        from .adapter.dummy import DataSet
-        self.read = DataSet(self.info)
-
-    def stop(self):
-        self.info.stop()
-
-    def setup(self, access_mode, process_id, player_override, player_index):
-        self.info.setMode(access_mode)
-        self.info.setPID(process_id)
-        self.info.setPlayerOverride(player_override)
-        self.info.setPlayerIndex(player_index)
-
-    def state(self):
-        return not self.info.paused and self.read.state.is_driving()
-
-    def version(self):
-        return self.read.state.version()
-
-
 class APIControl:
     """API Control"""
-    API_PACK = (
-        SimRfactor2,
-        SimDummy,
-    )
 
     def __init__(self):
         self._api = None
 
-    def connect(self, index: int=0):
+    def connect(self, name):
         """Connect API using index
 
         0 - rFactor 2.
         1 - Dummy.
         """
-        self._api = self.API_PACK[min(max(index, 0), len(self.API_PACK) - 1)]()
+        self._api = API_PACK[name]()
 
     def start(self):
         """Start API"""
@@ -143,7 +55,7 @@ class APIControl:
     def restart(self):
         """Restart API"""
         self.stop()
-        self.connect(cfg.shared_memory_api["api"])
+        self.connect(cfg.shared_memory_api["api_name"])
         self.start()
 
     def setup(self):
@@ -184,4 +96,3 @@ class APIControl:
 
 
 api = APIControl()
-# api.connect(0)

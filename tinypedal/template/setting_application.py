@@ -39,7 +39,7 @@ APPLICATION_DEFAULT = {
         "auto_hide": True,
     },
     "shared_memory_api": {
-        "api": 0,
+        "api_name": "rFactor 2",
         "access_mode": 0,
         "process_id": "",
         "enable_active_state_override": False,
