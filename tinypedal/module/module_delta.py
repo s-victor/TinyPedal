@@ -75,7 +75,7 @@ class Realtime:
                     recording = False
                     validating = False
 
-                    combo_id = api.read.identify.combo()
+                    combo_id = api.read.state.combo()
                     delta_list_best = self.load_deltabest(combo_id)
                     delta_list_curr = [DELTA_ZERO]  # distance, laptime
                     delta_list_last = [DELTA_ZERO]  # last lap

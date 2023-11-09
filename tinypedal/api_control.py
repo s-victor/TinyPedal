@@ -80,7 +80,7 @@ class SimRfactor2(Connector):
         return not self.info.paused and self.read.state.is_driving()
 
     def version(self):
-        return self.read.identify.version()
+        return self.read.state.version()
 
 
 class SimDummy(Connector):
@@ -109,7 +109,7 @@ class SimDummy(Connector):
         return not self.info.paused and self.read.state.is_driving()
 
     def version(self):
-        return self.read.identify.version()
+        return self.read.state.version()
 
 
 class APIControl:

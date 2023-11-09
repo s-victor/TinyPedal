@@ -79,7 +79,7 @@ class Realtime:
                     delayed_save = False
                     pit_lap = False  # whether pit in or pit out lap
 
-                    combo_id = api.read.identify.combo()
+                    combo_id = api.read.state.combo()
                     delta_list_last = self.load_deltafuel(combo_id)
                     delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
                     delta_list_temp = [DELTA_ZERO]  # last lap temp

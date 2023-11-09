@@ -23,8 +23,8 @@ Data set for Dummy
 from . import DataAdapter, calc, chknm, cs2py, fmt
 
 
-class Identify(DataAdapter):
-    """Identify"""
+class State(DataAdapter):
+    """State check"""
     def version(self) -> str:
         """API version"""
         return "0.0.0"
@@ -54,9 +54,6 @@ class Identify(DataAdapter):
         session_tlaps = chknm(self.info.rf2ScorVeh().mTotalLaps)
         return session_stamp, session_etime, session_tlaps
 
-
-class State(DataAdapter):
-    """State check"""
     def is_driving(self) -> bool:
         """Is local player driving or in monitor"""
         return self.info.rf2TeleVeh().mIgnitionStarter
@@ -496,19 +493,19 @@ class Vehicle(DataAdapter):
                 chknm(self.info.rf2TeleVeh(index).mOri[2].z))
 
     def pos_x(self, index: int=None) -> float:
-        """X position"""
+        """Raw X position"""
         return chknm(self.info.rf2TeleVeh(index).mPos.x)
 
     def pos_y(self, index: int=None) -> float:
-        """Y position"""
+        """Raw Y position"""
         return chknm(self.info.rf2TeleVeh(index).mPos.y)
 
     def pos_z(self, index: int=None) -> float:
-        """Z position"""
+        """Raw Z position"""
         return chknm(self.info.rf2TeleVeh(index).mPos.z)
 
     def pos_xyz(self, index: int=None):
-        """XYZ position"""
+        """Raw XYZ position"""
         return self.pos_x(index), self.pos_y(index), self.pos_z(index)
 
     def pos_longitudinal(self, index: int=None) -> float:
@@ -594,7 +591,6 @@ class DataSet:
     """Data set"""
 
     def __init__(self, info):
-        self.identify = Identify(info)
         self.state = State(info)
         self.brake = Brake(info)
         self.emotor = ElectricMotor(info)
