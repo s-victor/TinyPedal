@@ -34,7 +34,7 @@ Also important to note, not every setting allows float point value that contains
 This checks whether a widget or module will be loaded at startup.
 
     update_interval
-This sets refresh rate for widget or module, value is in milliseconds. A value of `20` means refreshing every 20ms, which equals 50fps. Since most data from sharedmemory plugin is capped at 50fps, and most operation system has a roughtly 15ms minimum sleep time, setting value less than `10` will gain no benefit, and extreme low value could result significant increase of CPU usage.
+This sets refresh rate for widget or module, value is in milliseconds. A value of `20` means refreshing every 20ms, which equals 50fps. Since most data from sharedmemory plugin is capped at 50fps, and most operation system has a roughly 15ms minimum sleep time, setting value less than `10` has no benefit, and extreme low value may result significant increase of CPU usage.
 
     idle_update_interval
 This sets refresh rate for module while its idle for conserving resources.
@@ -58,7 +58,7 @@ Set font size, increase or decrease font size will also apply to widget size. Va
 Acceptable value: `normal` or `bold`.
 
     enable_auto_font_offset
-Automatically adjust font vertical offset based on font geometry for better vertical alignment, and sould give good result in most case. This option is enabled by default. Set `false` to disable.
+Automatically adjust font vertical offset based on font geometry for better vertical alignment, and should give good result in most case. This option is enabled by default. Set `false` to disable.
 
     font_offset_vertical
 Manually set font vertical offset. Default value is `0`. Negative value will offset font upward, and position value for downward. This option only takes effect when `enable_auto_font_offset` is set to `false`.
@@ -267,8 +267,8 @@ Set freeze duration (seconds) for max g force reading.
     max_average_g_force_samples
 Set amount samples for calculating max average g force. Minimum value is limited to `3`.
 
-    max_average_g_force_differece
-Set max average g force differece threshold which compares with the standard deviation calculated from max average g force samples. Default is `0.2` g.
+    max_average_g_force_difference
+Set max average g force difference threshold which compares with the standard deviation calculated from max average g force samples. Default is `0.2` g.
 
 
 ## Fuel
@@ -1190,7 +1190,7 @@ Show vehicle standings info on map.
 Set pedal trail plot display width in pixels.
 
     display_height
-Set pedal trail plot display width in pixels.
+Set pedal trail plot display height in pixels.
 
     display_margin
 Set pedal trail plot display margin (vertical relative to pedal) in pixels.

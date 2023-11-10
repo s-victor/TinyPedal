@@ -34,7 +34,7 @@ MODULE_DEFAULT = {
         "gravitational_acceleration": 9.80665,
         "max_g_force_freeze_duration": 5,
         "max_average_g_force_samples": 10,
-        "max_average_g_force_differece": 0.2,
+        "max_average_g_force_difference": 0.2,
     },
     "module_fuel": {
         "enable": True,

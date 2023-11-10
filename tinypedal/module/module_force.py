@@ -142,7 +142,7 @@ class Realtime:
                 g_avg = calc.mean(g_samples)
                 g_std = calc.std_dev(g_samples, g_avg)
                 if (g_avg > g_max_avg and
-                    0 < g_std <= self.mcfg["max_average_g_force_differece"]):
+                    0 < g_std <= self.mcfg["max_average_g_force_difference"]):
                     g_max_avg = g_avg
                     sample_counter = 0
             # Reset sample index
