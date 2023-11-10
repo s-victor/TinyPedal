@@ -231,15 +231,16 @@ class Draw(Widget):
 
     def draw_pedal_trace(self, painter, suffix):
         """Draw pedal trace"""
-        self.pen.setWidth(self.wcfg[f"{suffix}_line_width"])
-        self.pen.setColor(QColor(self.wcfg[f"{suffix}_color"]))
-        self.pen.setStyle(Qt.SolidLine)
-        painter.setPen(self.pen)
-        painter.setBrush(Qt.NoBrush)
-        if self.wcfg[f"{suffix}_line_style"]:
-            painter.drawPoints(QPolygonF(getattr(self, f"trace_{suffix}")))
-        else:
-            painter.drawPolyline(QPolygonF(getattr(self, f"trace_{suffix}")))
+        if getattr(self, f"trace_{suffix}"):
+            self.pen.setWidth(self.wcfg[f"{suffix}_line_width"])
+            self.pen.setColor(QColor(self.wcfg[f"{suffix}_color"]))
+            self.pen.setStyle(Qt.SolidLine)
+            painter.setPen(self.pen)
+            painter.setBrush(Qt.NoBrush)
+            if self.wcfg[f"{suffix}_line_style"]:
+                painter.drawPoints(QPolygonF(getattr(self, f"trace_{suffix}")))
+            else:
+                painter.drawPolyline(QPolygonF(getattr(self, f"trace_{suffix}")))
 
     # Additional methods
     def scale_position(self, position):
