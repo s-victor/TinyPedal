@@ -1185,6 +1185,50 @@ Show sector line mark.
 Show vehicle standings info on map.
 
 
+## Trailing
+    display_width
+Set pedal trail plot display width in pixels.
+
+    display_height
+Set pedal trail plot display width in pixels.
+
+    display_margin
+Set pedal trail plot display margin (vertical relative to pedal) in pixels.
+
+    show_vertical_style
+Show pedal trail plot in vertical style.
+
+    show_inverted_pedal
+Invert pedal range display.
+
+    show_inverted_trailing
+Invert trail plot display.
+
+    show_throttle
+Show throttle trail plot.
+
+    show_raw_throttle
+Show unfiltered throttle instead.
+
+    throttle_line_width
+Set throttle trailing line width in pixels.
+
+    throttle_line_style
+Set throttle trailing line style. `0` for solid line, `1` for dashed line.
+
+    show_reference_line
+Show reference line.
+
+    reference_line_*_style
+Set reference line vertical offset relative to pedal, value in percentage.
+
+    reference_line_*_style
+Set reference line style. `0` for solid line, `1` for dashed line.
+
+    reference_line_*_width
+Set reference line width in pixels. Set value to `0` to hide line.
+
+
 ## Tyre load
 Show visualized tyre load display.
 

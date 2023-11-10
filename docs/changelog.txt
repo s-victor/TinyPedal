@@ -8,9 +8,14 @@ WIP
     and currently is used by elevation & yellow flag distance display.
 
 * Shared memory API
-  - Add API control & data adaptor to support different sims API in the future.
-  - Add API name selector in Shared memory API config dialog.
-  - Show API name & version info on main window status bar.
+  - [New]Add API control & data adaptor to support different sims API in the future.
+  - [New]Add API name selector in Shared memory API config dialog.
+  - [New]Show API name & version info on main window status bar.
+
+* [New]Trailing Widget (designed by DanRZ)
+  - Show pedal trail history plot display,
+    includes throttle, brake, clutch, force feedback.
+  - Customizable plot line style, size, orientation, reference lines.
 
 * Relative Module
   - Fixed index out of range when returning

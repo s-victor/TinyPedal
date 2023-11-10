@@ -295,6 +295,7 @@ class Draw(Widget):
         """Draw trace"""
         self.pen.setWidth(self.wcfg["trace_width"])
         self.pen.setColor(QColor(self.wcfg["trace_color"]))
+        self.pen.setStyle(Qt.SolidLine)
         painter.setPen(self.pen)
         painter.setBrush(Qt.NoBrush)
         if self.wcfg["trace_style"]:
