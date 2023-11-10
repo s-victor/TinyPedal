@@ -35,11 +35,7 @@ class APIControl:
         self._api = None
 
     def connect(self, name):
-        """Connect API using index
-
-        0 - rFactor 2.
-        1 - Dummy.
-        """
+        """Connect to API with matching name in API_PACK"""
         self._api = API_PACK[name]()
 
     def start(self):
