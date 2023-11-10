@@ -1195,6 +1195,9 @@ Set pedal trail plot display height in pixels.
     display_margin
 Set pedal trail plot display margin (vertical relative to pedal) in pixels.
 
+    display_scale
+Set trail plot display scale. Default scale is `2`. Minimum scale is limited to `1`.
+
     show_vertical_style
 Show pedal trail plot in vertical style.
 
@@ -1202,7 +1205,7 @@ Show pedal trail plot in vertical style.
 Invert pedal range display.
 
     show_inverted_trailing
-Invert trail plot display.
+Invert trail plot direction.
 
     show_throttle
 Show throttle trail plot.

@@ -46,21 +46,22 @@ class Draw(Widget):
 
         # Config variable
         self.margin = max(int(self.wcfg["display_margin"]), 0)
-        display_width = max(int(self.wcfg["display_width"]), 2)
-        display_height = max(int(self.wcfg["display_height"]), 2)
+        self.display_width = max(int(self.wcfg["display_width"]), 2)
+        self.display_height = max(int(self.wcfg["display_height"]), 2)
+        self.display_scale = max(self.wcfg["display_scale"], 1)
 
         if self.wcfg["show_vertical_style"]:
-            self.global_scale = display_width / 100
-            self.trace_max_samples = display_height
-            self.pedal_max_range = display_width
-            self.area_width = display_width + self.margin * 2
-            self.area_height = display_height
+            self.global_scale = self.display_width / 100
+            self.trace_max_samples = int(self.display_height / self.display_scale) + 2
+            self.pedal_max_range = self.display_width
+            self.area_width = self.display_width + self.margin * 2
+            self.area_height = self.display_height
         else:
-            self.global_scale = display_height / 100
-            self.trace_max_samples = display_width
-            self.pedal_max_range = display_height
-            self.area_width = display_width
-            self.area_height = display_height + self.margin * 2
+            self.global_scale = self.display_height / 100
+            self.trace_max_samples = int(self.display_width / self.display_scale) + 2
+            self.pedal_max_range = self.display_height
+            self.area_width = self.display_width
+            self.area_height = self.display_height + self.margin * 2
 
         # Config canvas
         self.resize(self.area_width, self.area_height)
@@ -142,23 +143,32 @@ class Draw(Widget):
         """Pedal trace update"""
         if curr != last:
             # Record pedal position
-            if self.wcfg["show_inverted_trailing"]:
-                getattr(self, f"data_{suffix}").appendleft(  # left to right
-                    self.scale_position(getattr(self, suffix)[0]))
-            else:
-                getattr(self, f"data_{suffix}").append(  # right to left
-                    self.scale_position(getattr(self, suffix)[0]))
+            getattr(self, f"data_{suffix}").appendleft(  # left to right
+                self.scale_position(getattr(self, suffix)[0]))
             # Create Q point list
             if self.wcfg["show_vertical_style"]:
-                setattr(self, f"trace_{suffix}",
-                    [QPointF(getattr(self, f"data_{suffix}")[index], index + 1)
-                     for index in range(self.trace_max_samples)]
-                )
+                if self.wcfg["show_inverted_trailing"]:
+                    setattr(self, f"trace_{suffix}",  # bottom alignment for display scale
+                        [QPointF(getattr(self, f"data_{suffix}")[index],
+                                 self.display_height - index * self.display_scale)
+                        for index in range(self.trace_max_samples)])
+                else:
+                    setattr(self, f"trace_{suffix}",  # top alignment
+                        [QPointF(getattr(self, f"data_{suffix}")[index],
+                                 index * self.display_scale + 1)
+                        for index in range(self.trace_max_samples)])
             else:
-                setattr(self, f"trace_{suffix}",
-                    [QPointF(index + 1, getattr(self, f"data_{suffix}")[index])
-                     for index in range(self.trace_max_samples)]
-                )
+                if self.wcfg["show_inverted_trailing"]:
+                    setattr(self, f"trace_{suffix}",  # right alignment for display scale
+                        [QPointF(self.display_width - index * self.display_scale,
+                                 getattr(self, f"data_{suffix}")[index])
+                        for index in range(self.trace_max_samples)])
+                else:
+                    setattr(self, f"trace_{suffix}",  # left alignment
+                        [QPointF(1 + index * self.display_scale,
+                                 getattr(self, f"data_{suffix}")[index])
+                        for index in range(self.trace_max_samples)])
+
             self.delayed_update = True
 
     def paintEvent(self, event):
@@ -219,13 +229,13 @@ class Draw(Widget):
                     self.pedal_max_range * offset + self.margin,
                     0,
                     self.pedal_max_range * offset + self.margin,
-                    self.trace_max_samples,
+                    self.display_height,
                 )
             else:
                 painter.drawLine(
                     0,
                     self.pedal_max_range * offset + self.margin,
-                    self.trace_max_samples,
+                    self.display_width,
                     self.pedal_max_range * offset + self.margin,
                 )
 
