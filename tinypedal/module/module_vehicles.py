@@ -38,45 +38,6 @@ logger = logging.getLogger(__name__)
 class Realtime:
     """Vehicles info"""
     module_name = MODULE_NAME
-    DataSet = namedtuple(
-        "DataSet",
-        [
-        "slotID",
-        "position",
-        "driverName",
-        "vehicleName",
-        "vehicleClass",
-        "positionInClass",
-        "sessionBestLapTime",
-        "classBestLapTime",
-        "bestLapTime",
-        "lastLapTime",
-        "speed",
-        "isPlayer",
-        "totalLaps",
-        "lapDistance",
-        "percentageDistance",
-        "relativeDistance",
-        "relativeTimeGap",
-        "timeBehindLeader",
-        "lapsBehindLeader",
-        "timeBehindNext",
-        "lapsBehindNext",
-        "isLapped",
-        "isYellow",
-        "inGarage",
-        "inPit",
-        "numPitStops",
-        "pitState",
-        "pitTime",
-        "tireCompoundIndex",
-        "posXZ",
-        "orientationXZRadians",
-        "relativeOrientationXZRadians",
-        "relativeRotatedPosXZ",
-        "relativeStraightDistance",
-        ]
-    )
 
     def __init__(self, config):
         self.cfg = config
@@ -223,7 +184,7 @@ class Realtime:
                 plr_pos_xz, pos_xz
                 ) if not is_player else 0
 
-            yield self.DataSet(
+            yield DataSet(
                 slotID = slot_id,
                 position = position,
                 driverName = driver_name,
@@ -309,3 +270,44 @@ def nearest_yellow_dist(value):
     if value.isYellow:
         return abs(value.relativeDistance)
     return 999999
+
+
+DataSet = namedtuple(
+    "DataSet",
+    [
+    "slotID",
+    "position",
+    "driverName",
+    "vehicleName",
+    "vehicleClass",
+    "positionInClass",
+    "sessionBestLapTime",
+    "classBestLapTime",
+    "bestLapTime",
+    "lastLapTime",
+    "speed",
+    "isPlayer",
+    "totalLaps",
+    "lapDistance",
+    "percentageDistance",
+    "relativeDistance",
+    "relativeTimeGap",
+    "timeBehindLeader",
+    "lapsBehindLeader",
+    "timeBehindNext",
+    "lapsBehindNext",
+    "isLapped",
+    "isYellow",
+    "inGarage",
+    "inPit",
+    "numPitStops",
+    "pitState",
+    "pitTime",
+    "tireCompoundIndex",
+    "posXZ",
+    "orientationXZRadians",
+    "relativeOrientationXZRadians",
+    "relativeRotatedPosXZ",
+    "relativeStraightDistance",
+    ]
+)

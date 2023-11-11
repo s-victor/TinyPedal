@@ -5,7 +5,7 @@ TinyPedal is an open-source overlay application for racing simulation.
 Currently supports rFactor 2.
 
 [Download](https://github.com/s-victor/TinyPedal/releases) - [Quick Start](#quick-start) - [FAQ](https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions) - [User Guide](https://github.com/s-victor/TinyPedal/wiki/User-Guide) - [Run on Linux](#running-on-linux)
-
+---
 
 ## Requirements
 1. TinyPedal requires The Iron Wolf’s rF2 Shared Memory Map Plugin, download it from:  

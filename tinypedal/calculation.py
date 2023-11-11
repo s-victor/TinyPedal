@@ -57,7 +57,7 @@ def celsius2fahrenheit(temp):
 
 def kelvin2celsius(kelvin):
     """Kelvin to Celsius"""
-    return kelvin - 273.15
+    return kelvin - 273.15 if kelvin else 0
 
 
 def liter2gallon(fuel):

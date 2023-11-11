@@ -11,16 +11,16 @@
 * [New]Trailing Widget (designed by DanRZ)
   - Show pedal trail history plot display,
     includes throttle, brake, clutch, force feedback.
-  - Customizable size, scale, style, size, orientation, reference lines, etc.
+  - Customizable size, scale, style, orientation, reference lines, etc.
 
 * Relative Module
   - Fixed index out of range when returning
     to monitor while in spectate mode.
 
 * Shared memory API
-  - [New]Add API control & data adaptor to support different sims API in the future.
-  - [New]Add API name selector in Shared memory API config dialog.
-  - [New]Show API name & version info on main window status bar.
+  - Add API control & data adapter to support different sims API in the future.
+  - Add API name selector in Shared memory API config dialog.
+  - Show API name & version info on main window status bar.
 
 * Misc
   - Updated user guide.
