@@ -4,6 +4,8 @@ TinyPedal is an open-source overlay application for racing simulation.
 
 Currently supports rFactor 2.
 
+[Download](https://github.com/s-victor/TinyPedal/releases) - [Quick Start](#quick-start) - [FAQ](https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions) - [User Guide](https://github.com/s-victor/TinyPedal/wiki/User-Guide) - [Run on Linux](#running-on-linux)
+
 
 ## Requirements
 1. TinyPedal requires The Iron Wolf’s rF2 Shared Memory Map Plugin, download it from:  
@@ -13,24 +15,20 @@ The plugin file `rFactor2SharedMemoryMapPlugin64.dll` should be placed in `rFact
 2. Set rFactor 2 display mode to `Borderless` or `Windowed` mode. `Fullscreen` mode is not supported.
 
 
-## Usage
+## Quick Start
 1. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract and run `tinypedal.exe`.  
-Alternatively, run TinyPedal from source, see **Run from source** section for details.  
-For Linux user, please follow **Running on Linux** section for instruction.
+Alternatively, run TinyPedal from source, see [Run from source](#run-from-source) section for details.  
+For Linux user, please follow [Running on Linux](#running-on-linux) section for instruction.
 
 2. A tray icon will appear at system tray. If not shown, check hidden tray icon. `Right Click` on tray icon will bring up context menu.
 
-3. Launch `rFactor 2`, overlay will appear once vehicle is on track, and auto-hide otherwise. Auto-hide can be switched On or Off by clicking `Auto Hide` from tray menu.
+3. Launch `rFactor 2`, overlay will appear once vehicle is on track, and auto-hide otherwise. Auto-hide can be toggled On and Off by clicking `Auto Hide` from tray menu.
 
-4. Click on overlay to drag around. Overlay can be Locked or Unlocked by clicking `Lock Overlay` from tray menu.
+4. Overlay can be Locked or Unlocked by clicking `Lock Overlay` from tray menu. While Unlocked, click on overlay to drag around.
 
-5. Widgets can be Enabled or Disabled by clicking `Config` from tray menu.
+5. Widgets can be Enabled or Disabled by clicking `Config` and open main window from tray menu.
 
-6. To quit APP, `Right Click` on tray icon and select `Quit`.
-
-
-## User Guide
-See [Wiki page](https://github.com/s-victor/TinyPedal/wiki) for details.
+6. To quit APP, `Right Click` on tray icon and select `Quit`; or, click `Overlay` menu from main window and select `Quit`.
 
 
 ## Run from source

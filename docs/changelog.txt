@@ -1,4 +1,4 @@
-WIP
+2.3.0 (2023-11-11)
 -----------------------------
 * General
   - Fixed error in loading a different preset
@@ -6,20 +6,25 @@ WIP
   - Change option name "rF2_process_id" to "process_id".
   - Rename unit option "elevation_unit" to "distance_unit",
     and currently is used by elevation & yellow flag distance display.
+  - Fixed text string decode setting.
+
+* [New]Trailing Widget (designed by DanRZ)
+  - Show pedal trail history plot display,
+    includes throttle, brake, clutch, force feedback.
+  - Customizable size, scale, style, size, orientation, reference lines, etc.
+
+* Relative Module
+  - Fixed index out of range when returning
+    to monitor while in spectate mode.
 
 * Shared memory API
   - [New]Add API control & data adaptor to support different sims API in the future.
   - [New]Add API name selector in Shared memory API config dialog.
   - [New]Show API name & version info on main window status bar.
 
-* [New]Trailing Widget (designed by DanRZ)
-  - Show pedal trail history plot display,
-    includes throttle, brake, clutch, force feedback.
-  - Customizable plot line style, size, orientation, reference lines.
-
-* Relative Module
-  - Fixed index out of range when returning
-    to monitor while in spectate mode.
+* Misc
+  - Updated user guide.
+  - Updated contributors.md with new contributor (DanRZ).
 
 2.2.0 (2023-10-27)
 -----------------------------
