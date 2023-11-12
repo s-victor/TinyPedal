@@ -50,7 +50,6 @@ def format_option_name(name):
     name = name.title()
     # Special name
     name = re.sub("Api", "API", name)
-    name = re.sub("Id", "ID", name)
     name = re.sub("Ffb", "FFB", name)
     name = re.sub("Drs", "DRS", name)
     name = re.sub("Rpm", "RPM", name)
