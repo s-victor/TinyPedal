@@ -7,6 +7,8 @@ Currently supports rFactor 2.
 [Download](https://github.com/s-victor/TinyPedal/releases) - [Quick Start](#quick-start) - [FAQ](https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions) - [User Guide](https://github.com/s-victor/TinyPedal/wiki/User-Guide) - [Run on Linux](#running-on-linux)
 ---
 
+![preview](https://user-images.githubusercontent.com/21177177/282278970-b806bf02-a83d-4baa-8b45-0ca10f28f775.png)
+
 ## Requirements
 1. TinyPedal requires The Iron Wolf’s rF2 Shared Memory Map Plugin, download it from:  
 https://forum.studio-397.com/index.php?threads/rf2-shared-memory-tools-for-developers.54282/  
