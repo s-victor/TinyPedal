@@ -73,15 +73,12 @@ class Draw(Widget):
 
         # Last data
         self.delayed_update = False
+        self.last_lap_etime = -1
 
         self.throttle = 0,0
         self.brake = 0,0
         self.clutch = 0,0
         self.ffb = 0,0
-        self.last_throttle = None
-        self.last_brake = None
-        self.last_clutch = None
-        self.last_ffb = None
         self.data_throttle = deque(
             [self.pedal_max_range + self.margin for _ in range(self.trace_max_samples)],
              self.trace_max_samples)
@@ -102,74 +99,73 @@ class Draw(Widget):
         """Update when vehicle on track"""
         if self.wcfg["enable"] and api.state:
 
-            lap_etime = api.read.timing.elapsed()
+            # Use elapsed time to determine whether paused
+            # add FFB value as it has higher refresh rate
+            lap_etime = api.read.timing.elapsed() + api.read.input.force_feedback()
 
-            if self.wcfg["show_throttle"]:
-                if self.wcfg["show_raw_throttle"]:
-                    self.throttle = api.read.input.throttle_raw(), lap_etime
-                else:
-                    self.throttle = api.read.input.throttle(), lap_etime
-                self.update_trace("throttle", self.throttle, self.last_throttle)
-                self.last_throttle = self.throttle
+            if lap_etime != self.last_lap_etime:
+                if self.wcfg["show_throttle"]:
+                    if self.wcfg["show_raw_throttle"]:
+                        self.throttle = api.read.input.throttle_raw()
+                    else:
+                        self.throttle = api.read.input.throttle()
+                    self.update_trace("throttle")
 
-            if self.wcfg["show_brake"]:
-                if self.wcfg["show_raw_brake"]:
-                    self.brake = api.read.input.brake_raw(), lap_etime
-                else:
-                    self.brake = api.read.input.brake(), lap_etime
-                self.update_trace("brake", self.brake, self.last_brake)
-                self.last_brake = self.brake
+                if self.wcfg["show_brake"]:
+                    if self.wcfg["show_raw_brake"]:
+                        self.brake = api.read.input.brake_raw()
+                    else:
+                        self.brake = api.read.input.brake()
+                    self.update_trace("brake")
 
-            if self.wcfg["show_clutch"]:
-                if self.wcfg["show_raw_clutch"]:
-                    self.clutch = api.read.input.clutch_raw(), lap_etime
-                else:
-                    self.clutch = api.read.input.clutch(), lap_etime
-                self.update_trace("clutch", self.clutch, self.last_clutch)
-                self.last_clutch = self.clutch
+                if self.wcfg["show_clutch"]:
+                    if self.wcfg["show_raw_clutch"]:
+                        self.clutch = api.read.input.clutch_raw()
+                    else:
+                        self.clutch = api.read.input.clutch()
+                    self.update_trace("clutch")
 
-            if self.wcfg["show_ffb"]:
-                self.ffb = abs(api.read.input.force_feedback()), lap_etime
-                self.update_trace("ffb", self.ffb, self.last_ffb)
-                self.last_ffb = self.ffb
+                if self.wcfg["show_ffb"]:
+                    self.ffb = abs(api.read.input.force_feedback())
+                    self.update_trace("ffb")
 
-            # Update after all pedal data set
-            if self.delayed_update:
-                self.update()  # trigger paint event
-                self.delayed_update = False
+                # Update after all pedal data set
+                if self.delayed_update:
+                    self.update()  # trigger paint event
+                    self.delayed_update = False
+                self.last_lap_etime = lap_etime
 
     # GUI update methods
-    def update_trace(self, suffix, curr, last):
+    def update_trace(self, suffix):
         """Pedal trace update"""
-        if curr != last:
-            # Record pedal position
-            getattr(self, f"data_{suffix}").appendleft(  # left to right
-                self.scale_position(getattr(self, suffix)[0]))
-            # Create Q point list
-            if self.wcfg["show_vertical_style"]:
-                if self.wcfg["show_inverted_trailing"]:
-                    setattr(self, f"trace_{suffix}",  # bottom alignment for display scale
-                        [QPointF(getattr(self, f"data_{suffix}")[index],
-                                 self.display_height - index * self.display_scale)
-                        for index in range(self.trace_max_samples)])
-                else:
-                    setattr(self, f"trace_{suffix}",  # top alignment
-                        [QPointF(getattr(self, f"data_{suffix}")[index],
-                                 index * self.display_scale + 1)
-                        for index in range(self.trace_max_samples)])
+        # Record pedal position
+        getattr(self, f"data_{suffix}").appendleft(  # left to right
+            self.scale_position(getattr(self, suffix)))
+        # Create Q point list
+        if self.wcfg["show_vertical_style"]:
+            if self.wcfg["show_inverted_trailing"]:
+                setattr(self, f"trace_{suffix}",  # bottom alignment for display scale
+                    [QPointF(getattr(self, f"data_{suffix}")[index],
+                                self.display_height - index * self.display_scale)
+                    for index in range(self.trace_max_samples)])
             else:
-                if self.wcfg["show_inverted_trailing"]:
-                    setattr(self, f"trace_{suffix}",  # right alignment for display scale
-                        [QPointF(self.display_width - index * self.display_scale,
-                                 getattr(self, f"data_{suffix}")[index])
-                        for index in range(self.trace_max_samples)])
-                else:
-                    setattr(self, f"trace_{suffix}",  # left alignment
-                        [QPointF(1 + index * self.display_scale,
-                                 getattr(self, f"data_{suffix}")[index])
-                        for index in range(self.trace_max_samples)])
+                setattr(self, f"trace_{suffix}",  # top alignment
+                    [QPointF(getattr(self, f"data_{suffix}")[index],
+                                index * self.display_scale + 1)
+                    for index in range(self.trace_max_samples)])
+        else:
+            if self.wcfg["show_inverted_trailing"]:
+                setattr(self, f"trace_{suffix}",  # right alignment for display scale
+                    [QPointF(self.display_width - index * self.display_scale,
+                                getattr(self, f"data_{suffix}")[index])
+                    for index in range(self.trace_max_samples)])
+            else:
+                setattr(self, f"trace_{suffix}",  # left alignment
+                    [QPointF(1 + index * self.display_scale,
+                                getattr(self, f"data_{suffix}")[index])
+                    for index in range(self.trace_max_samples)])
 
-            self.delayed_update = True
+        self.delayed_update = True
 
     def paintEvent(self, event):
         """Draw"""
