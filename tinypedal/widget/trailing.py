@@ -129,7 +129,7 @@ class Draw(Widget):
                 self.last_clutch = self.clutch
 
             if self.wcfg["show_ffb"]:
-                self.ffb = api.read.input.force_feedback(), lap_etime
+                self.ffb = abs(api.read.input.force_feedback()), lap_etime
                 self.update_trace("ffb", self.ffb, self.last_ffb)
                 self.last_ffb = self.ffb
 
