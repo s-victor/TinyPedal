@@ -262,7 +262,7 @@ class Realtime:
                       newline="", encoding="utf-8") as csvfile:
                 deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 lastlist = list(deltaread)
-                int(lastlist[-1][2])  # test read last laptime
+                test = lastlist[-1][2]  # test read last laptime
                 # Validate data
                 if not val.delta_list(lastlist):
                     self.save_deltafuel(combo, lastlist)

@@ -1,3 +1,13 @@
+2.3.1 (2023-11-12) Hotfix
+-----------------------------
+* Trailing Widget
+  - Fixed FFB plot not displaying full range (absolute value).
+  - Fixed small desync issue between different pedal or FFB plots.
+
+* General
+  - Removed string format on "id" key word.
+  - Fixed fuel data loading error in fuel module.
+
 2.3.0 (2023-11-11)
 -----------------------------
 * General
