@@ -108,11 +108,11 @@ class SimDummy(Connector):
         return "0.0.0"
 
 
-# Add API to dict API_PACK
-# Key = API Name, value = API class
-# API_PACK is used to auto-generate API list
-# for setting validator & config option
-API_PACK = {
-    SimRF2.NAME: SimRF2,
-    SimDummy.NAME: SimDummy,
-}
+# Add new API to API_PACK
+# API_PACK is used to generate API_NAME_LIST
+# for API selection, setting validator, config option
+API_PACK = (
+    SimRF2,
+    SimDummy,
+)
+API_NAME_LIST = tuple(_api.NAME for _api in API_PACK)

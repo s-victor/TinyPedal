@@ -48,7 +48,7 @@ from . import validator as val
 from . import formatter as fmt
 from .setting import cfg
 from .const import APP_ICON
-from .api_connector import API_PACK
+from .api_connector import API_NAME_LIST
 from .module_control import mctrl
 from .widget_control import wctrl
 
@@ -415,7 +415,7 @@ class WidgetConfig(QDialog):
             # API name string
             if re.search(rxp.APINAME, key):
                 self.__add_option_combolist(
-                    idx, key, tuple(API_PACK.keys()), option_width, column_index_option)
+                    idx, key, API_NAME_LIST, option_width, column_index_option)
                 continue
             # Font weight string
             if re.search(rxp.FONTWEIGHT, key):
