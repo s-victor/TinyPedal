@@ -146,44 +146,19 @@ class UnitsConfig(QDialog):
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         # Units type
-        self.units_type = [
-            "distance",
-            "fuel",
-            "odometer",
-            "speed",
-            "temperature",
-            "turbo_pressure",
-            "tyre_pressure",
-        ]
+        self.units_type = {
+            "distance": ["Meter", "Feet"],
+            "fuel": ["Liter", "Gallon"],
+            "odometer": ["Kilometer", "Mile", "Meter"],
+            "speed": ["KPH", "MPH", "m/s"],
+            "temperature": ["Celsius", "Fahrenheit"],
+            "turbo_pressure": ["bar", "psi", "kPa"],
+            "tyre_pressure": ["kPa", "psi", "bar"],
+        }
 
-        # Label & combobox
-        self.label_distance = QLabel("Distance")
-        self.combobox_distance = QComboBox()
-        self.combobox_distance.addItems(["Meter", "Feet"])
-
-        self.label_fuel = QLabel("Fuel")
-        self.combobox_fuel = QComboBox()
-        self.combobox_fuel.addItems(["Liter", "Gallon"])
-
-        self.label_odometer = QLabel("Odometer")
-        self.combobox_odometer = QComboBox()
-        self.combobox_odometer.addItems(["Kilometer", "Mile", "Meter"])
-
-        self.label_speed = QLabel("Speed")
-        self.combobox_speed = QComboBox()
-        self.combobox_speed.addItems(["KPH", "MPH", "m/s"])
-
-        self.label_temperature = QLabel("Temperature")
-        self.combobox_temperature = QComboBox()
-        self.combobox_temperature.addItems(["Celsius", "Fahrenheit"])
-
-        self.label_turbo_pressure = QLabel("Turbo Pressure")
-        self.combobox_turbo_pressure = QComboBox()
-        self.combobox_turbo_pressure.addItems(["bar", "psi", "kPa"])
-
-        self.label_tyre_pressure = QLabel("Tyre Pressure")
-        self.combobox_tyre_pressure = QComboBox()
-        self.combobox_tyre_pressure.addItems(["kPa", "psi", "bar"])
+        # Options
+        layout_option = QGridLayout()
+        self.create_options(layout_option)
 
         # Button
         button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
@@ -195,22 +170,30 @@ class UnitsConfig(QDialog):
         button_save.rejected.connect(self.reject)
 
         # Layout
-        layout_main = QGridLayout()
-
-        for idx, unit_type in enumerate(self.units_type):
-            # Load selected units
-            curr_index = getattr(self, f"combobox_{unit_type}").findText(
-                cfg.units[f"{unit_type}_unit"], Qt.MatchExactly)
-            if curr_index != -1:
-                getattr(self, f"combobox_{unit_type}").setCurrentIndex(curr_index)
-
-            # Add layout
-            layout_main.addWidget(getattr(self, f"label_{unit_type}"), idx, 0)
-            layout_main.addWidget(getattr(self, f"combobox_{unit_type}"), idx, 1)
-
-        layout_main.addWidget(button_reset, len(self.units_type), 0)
-        layout_main.addWidget(button_save, len(self.units_type), 1)
+        layout_main = QVBoxLayout()
+        layout_button = QHBoxLayout()
+        layout_button.addWidget(button_reset)
+        layout_button.addWidget(button_save)
+        layout_main.addLayout(layout_option)
+        layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
+
+    def create_options(self, layout_option):
+        """Create options"""
+        column_index_label = 0
+        column_index_option = 1
+        for idx, key in enumerate(self.units_type):
+            setattr(self, f"label_{key}", QLabel(f"{fmt.format_option_name(key)}"))
+            setattr(self, f"combobox_{key}", QComboBox())
+            getattr(self, f"combobox_{key}").addItems(self.units_type[key])
+            # Load selected units
+            curr_index = getattr(self, f"combobox_{key}").findText(
+                cfg.units[f"{key}_unit"], Qt.MatchExactly)
+            if curr_index != -1:
+                getattr(self, f"combobox_{key}").setCurrentIndex(curr_index)
+            # Add layout
+            layout_option.addWidget(getattr(self, f"label_{key}"), idx, column_index_label)
+            layout_option.addWidget(getattr(self, f"combobox_{key}"), idx, column_index_option)
 
     def reset_setting(self):
         """Reset setting"""

@@ -38,7 +38,7 @@ from tinypedal.const import APP_NAME, VERSION
 logger = logging.getLogger("tinypedal")
 
 
-def is_tinypedal_running(app_name):
+def is_tinypedal_running(app_name: str) -> bool:
     """Check if is already running"""
     for app in psutil.process_iter(["name", "pid"]):
         # Compare found APP name
