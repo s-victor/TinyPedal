@@ -111,6 +111,12 @@ class AppWindow(QMainWindow):
         self.overlay_hide.triggered.connect(self.is_hidden)
         menu_overlay.addAction(self.overlay_hide)
 
+        self.overlay_grid = QAction("Enable Grid", self)
+        self.overlay_grid.setCheckable(True)
+        self.overlay_grid.setChecked(cfg.overlay["enable_grid"])
+        self.overlay_grid.triggered.connect(self.has_grid)
+        menu_overlay.addAction(self.overlay_grid)
+
         menu_overlay.aboutToShow.connect(self.refresh_overlay_menu)
 
         reload_preset = QAction("Reload", self)
@@ -271,6 +277,11 @@ class AppWindow(QMainWindow):
     def is_hidden():
         """Check hide state"""
         octrl.overlay_hide.toggle()
+
+    @staticmethod
+    def has_grid():
+        """Check hide state"""
+        octrl.overlay_grid.toggle()
 
     @staticmethod
     def is_show_at_startup():

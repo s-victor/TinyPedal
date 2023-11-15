@@ -54,6 +54,22 @@ class OverlayLock(QObject):
         self.cfg.save()
 
 
+class OverlayGrid(QObject):
+    """Overlay grid state"""
+
+    def __init__(self, config):
+        super().__init__()
+        self.cfg = config
+
+    def toggle(self):
+        """Toggle lock state"""
+        if not self.cfg.overlay["enable_grid"]:
+            self.cfg.overlay["enable_grid"] = True
+        else:
+            self.cfg.overlay["enable_grid"] = False
+        self.cfg.save()
+
+
 class OverlayAutoHide(QObject):
     """Auto hide overlay"""
     hidden = Signal(bool)
@@ -107,6 +123,7 @@ class OverlayControl:
         self.overlay_lock = OverlayLock(cfg)
         self.overlay_hide = OverlayAutoHide(cfg)
         self.overlay_hide.start()
+        self.overlay_grid = OverlayGrid(cfg)
 
     def disable(self):
         """Disable overlay control"""

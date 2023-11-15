@@ -33,10 +33,12 @@ APPLICATION_DEFAULT = {
         "enable_bypass_window_manager": False,
         "enable_translucent_background": True,
         "global_bkg_color": "#000000",
+        "grid_size": 8,
     },
     "overlay": {
         "fixed_position": False,
         "auto_hide": True,
+        "enable_grid": False,
     },
     "shared_memory_api": {
         "api_name": "rFactor 2",

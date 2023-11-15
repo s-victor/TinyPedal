@@ -67,6 +67,13 @@ class TrayIcon(QSystemTrayIcon):
         self.overlay_hide.triggered.connect(self.master.is_hidden)
         menu.addAction(self.overlay_hide)
 
+        # Grid
+        self.overlay_grid = QAction("Enable Grid", self)
+        self.overlay_grid.setCheckable(True)
+        self.overlay_grid.setChecked(self.cfg.overlay["enable_grid"])
+        self.overlay_grid.triggered.connect(self.master.has_grid)
+        menu.addAction(self.overlay_grid)
+
         # Reload preset
         reload_preset = QAction("Reload", self)
         reload_preset.triggered.connect(self.master.reload_preset)
@@ -113,6 +120,7 @@ class TrayIcon(QSystemTrayIcon):
         )
         self.overlay_lock.setChecked(self.cfg.overlay["fixed_position"])
         self.overlay_hide.setChecked(self.cfg.overlay["auto_hide"])
+        self.overlay_grid.setChecked(self.cfg.overlay["enable_grid"])
 
     @staticmethod
     def format_preset_name(filename):

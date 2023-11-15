@@ -65,7 +65,10 @@ class Widget(QWidget):
     def mouseMoveEvent(self, event):
         """Update widget position"""
         if event.buttons() == Qt.LeftButton:
-            self.move(event.globalPos() - self.mouse_pos)
+            pos = (event.globalPos() - self.mouse_pos)
+            if self.cfg.overlay["enable_grid"]:
+                pos = pos / self.cfg.compatibility["grid_size"] * self.cfg.compatibility["grid_size"]
+            self.move(pos)
 
     def mousePressEvent(self, event):
         """Set offset position & press state"""
@@ -85,6 +88,7 @@ class Widget(QWidget):
         """Set initial widget state"""
         # Window flags
         self.setWindowOpacity(self.wcfg["opacity"])
+        self.setAttribute(Qt.WA_X11NetWmWindowTypeDock, True)
         if self.cfg.compatibility["enable_translucent_background"]:
             self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
