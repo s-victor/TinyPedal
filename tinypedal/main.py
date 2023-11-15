@@ -869,50 +869,50 @@ class CreatePreset(QDialog):
 
     def creating(self):
         """Creating new preset"""
-        temp_list = cfg.load_preset_list()
-        valid = True
-        entered_filename = self.preset_entry.text()
-
-        if entered_filename.endswith(".json"):
-            entered_filename = entered_filename[:-5]
+        entered_filename = fmt.format_preset_name(self.preset_entry.text())
 
         if val.setting_filename(entered_filename):
-            for preset in temp_list:
-                if entered_filename.lower() == preset.lower():
-                    valid = False
-                    break
-            if valid:
-                # Duplicate preset
-                if self.edit_mode == "duplicate":
-                    shutil.copy(
-                        f"{PATH_SETTINGS}{self.src_filename}",
-                        f"{PATH_SETTINGS}{entered_filename}.json"
-                    )
-                    self.master.refresh_preset_list()
-                # Rename preset
-                elif self.edit_mode == "rename":
-                    os.rename(
-                        f"{PATH_SETTINGS}{self.src_filename}",
-                        f"{PATH_SETTINGS}{entered_filename}.json"
-                    )
-                    # Reload if renamed file was loaded
-                    if cfg.filename_setting == self.src_filename:
-                        cfg.filename_setting = f"{entered_filename}.json"
-                        self.master.master.reload_preset()
-                    else:
-                        self.master.refresh_preset_list()
-                # Create new preset
-                else:
-                    cfg.filename_setting = f"{entered_filename}.json"
-                    cfg.create()
-                    cfg.save(0)  # save setting
-                    while cfg.is_saving:  # wait saving finish
-                        time.sleep(0.01)
-                    self.master.refresh_preset_list()
-                self.accept()  # close window
-            else:
-                QMessageBox.warning(
-                    self, "Warning", "Preset already exists.")
+            self.__saving(entered_filename)
         else:
             QMessageBox.warning(
                 self, "Warning", "Invalid preset name.")
+
+    def __saving(self, entered_filename):
+        """Saving new preset"""
+        # Check existing preset
+        temp_list = cfg.load_preset_list()
+        for preset in temp_list:
+            if entered_filename.lower() == preset.lower():
+                QMessageBox.warning(
+                    self, "Warning", "Preset already exists.")
+                return None
+        # Duplicate preset
+        if self.edit_mode == "duplicate":
+            shutil.copy(
+                f"{PATH_SETTINGS}{self.src_filename}",
+                f"{PATH_SETTINGS}{entered_filename}.json"
+            )
+            self.master.refresh_preset_list()
+        # Rename preset
+        elif self.edit_mode == "rename":
+            os.rename(
+                f"{PATH_SETTINGS}{self.src_filename}",
+                f"{PATH_SETTINGS}{entered_filename}.json"
+            )
+            # Reload if renamed file was loaded
+            if cfg.filename_setting == self.src_filename:
+                cfg.filename_setting = f"{entered_filename}.json"
+                self.master.master.reload_preset()
+            else:
+                self.master.refresh_preset_list()
+        # Create new preset
+        else:
+            cfg.filename_setting = f"{entered_filename}.json"
+            cfg.create()
+            cfg.save(0)  # save setting
+            while cfg.is_saving:  # wait saving finish
+                time.sleep(0.01)
+            self.master.refresh_preset_list()
+        # Close window
+        self.accept()
+        return None

@@ -56,6 +56,13 @@ def format_option_name(name):
     return name
 
 
+def format_preset_name(name):
+    """Format preset JSON name"""
+    if name.endswith(".json"):
+        return name[:-5]
+    return name
+
+
 def strip_invalid_char(name):
     """Strip invalid characters"""
     return re.sub('[\\\\/:*?"<>|]', "", name)
