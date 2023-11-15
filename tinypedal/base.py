@@ -66,8 +66,8 @@ class Widget(QWidget):
         """Update widget position"""
         if event.buttons() == Qt.LeftButton:
             pos = (event.globalPos() - self.mouse_pos)
-            if self.cfg.overlay["enable_grid"]:
-                pos = pos / self.cfg.compatibility["grid_size"] * self.cfg.compatibility["grid_size"]
+            if self.cfg.overlay["enable_grid_move"]:
+                pos = pos / self.cfg.compatibility["grid_move_size"] * self.cfg.compatibility["grid_move_size"]
             self.move(pos)
 
     def mousePressEvent(self, event):

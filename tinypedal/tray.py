@@ -68,9 +68,9 @@ class TrayIcon(QSystemTrayIcon):
         menu.addAction(self.overlay_hide)
 
         # Grid
-        self.overlay_grid = QAction("Enable Grid", self)
+        self.overlay_grid = QAction("Grid move", self)
         self.overlay_grid.setCheckable(True)
-        self.overlay_grid.setChecked(self.cfg.overlay["enable_grid"])
+        self.overlay_grid.setChecked(self.cfg.overlay["enable_grid_move"])
         self.overlay_grid.triggered.connect(self.master.has_grid)
         menu.addAction(self.overlay_grid)
 
@@ -120,7 +120,7 @@ class TrayIcon(QSystemTrayIcon):
         )
         self.overlay_lock.setChecked(self.cfg.overlay["fixed_position"])
         self.overlay_hide.setChecked(self.cfg.overlay["auto_hide"])
-        self.overlay_grid.setChecked(self.cfg.overlay["enable_grid"])
+        self.overlay_grid.setChecked(self.cfg.overlay["enable_grid_move"])
 
     @staticmethod
     def format_preset_name(filename):

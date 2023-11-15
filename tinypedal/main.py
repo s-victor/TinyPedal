@@ -111,9 +111,9 @@ class AppWindow(QMainWindow):
         self.overlay_hide.triggered.connect(self.is_hidden)
         menu_overlay.addAction(self.overlay_hide)
 
-        self.overlay_grid = QAction("Enable Grid", self)
+        self.overlay_grid = QAction("Grid move", self)
         self.overlay_grid.setCheckable(True)
-        self.overlay_grid.setChecked(cfg.overlay["enable_grid"])
+        self.overlay_grid.setChecked(cfg.overlay["enable_grid_move"])
         self.overlay_grid.triggered.connect(self.has_grid)
         menu_overlay.addAction(self.overlay_grid)
 
@@ -192,6 +192,7 @@ class AppWindow(QMainWindow):
         """Refresh overlay menu"""
         self.overlay_lock.setChecked(cfg.overlay["fixed_position"])
         self.overlay_hide.setChecked(cfg.overlay["auto_hide"])
+        self.overlay_grid.setChecked(cfg.overlay["enable_grid_move"])
 
     def start_app(self):
         """Start modules & widgets"""

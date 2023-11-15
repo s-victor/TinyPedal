@@ -63,10 +63,10 @@ class OverlayGrid(QObject):
 
     def toggle(self):
         """Toggle lock state"""
-        if not self.cfg.overlay["enable_grid"]:
-            self.cfg.overlay["enable_grid"] = True
+        if not self.cfg.overlay["enable_grid_move"]:
+            self.cfg.overlay["enable_grid_move"] = True
         else:
-            self.cfg.overlay["enable_grid"] = False
+            self.cfg.overlay["enable_grid_move"] = False
         self.cfg.save()
 
 
