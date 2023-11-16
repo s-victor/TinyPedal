@@ -108,13 +108,17 @@ class Draw(Widget):
         if self.wcfg["enable"] and api.state:
 
             # Read yaw, position data
+            speed = api.read.vehicle.speed()
             self.yaw_angle = calc.rad2deg(api.read.vehicle.orientation_yaw_radians()) + 180
             pos_curr = (api.read.vehicle.pos_longitudinal(),
                         api.read.vehicle.pos_lateral())
 
-            if self.last_pos != pos_curr and calc.distance(pos_curr, self.last_pos) > 1:
+            if self.last_pos != pos_curr and speed > 1:
                 self.direction_angle = self.yaw_angle - calc.rad2deg(calc.oriyaw2rad(
                      pos_curr[0] - self.last_pos[0], pos_curr[1] - self.last_pos[1])) + 180
+                self.last_pos = pos_curr
+            elif speed <= 1:
+                self.direction_angle = 0
                 self.last_pos = pos_curr
 
             self.update_yaw(self.yaw_angle, self.last_yaw_angle)
