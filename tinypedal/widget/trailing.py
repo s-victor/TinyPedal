@@ -48,7 +48,7 @@ class Draw(Widget):
         self.margin = max(int(self.wcfg["display_margin"]), 0)
         self.display_width = max(int(self.wcfg["display_width"]), 2)
         self.display_height = max(int(self.wcfg["display_height"]), 2)
-        self.display_scale = max(self.wcfg["display_scale"], 1)
+        self.display_scale = max(self.wcfg["update_interval"] / 20 * self.wcfg["display_scale"], 1)
 
         if self.wcfg["show_vertical_style"]:
             self.global_scale = self.display_width / 100
