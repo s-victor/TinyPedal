@@ -737,6 +737,53 @@ Show flickering effects when RPM is above critical range and gear is lower than 
 Set speed/time threshold value for neutral gear color warning, which activates color warning when speed & time-in-neutral is higher than threshold. Speed unit in meters per second, default value is `28`. Time unit in seconds, default value is `0.3` seconds.
 
 
+## Heading
+    display_size
+Set widget size in pixels.
+
+    show_yaw_angle_reading
+Show yaw angle reading in degrees.
+
+    show_degree_sign
+Set `true` to show degree sign for yaw angle reading.
+
+    show_background
+Show background color.
+
+    show_circle_background
+Show circle background color.
+
+    show_direction_line
+Show direction of travel line of the vehicle.
+
+    direction_line_head_scale
+Set line length scale from center to head, value range in `0.0` to `1.0`.
+
+    direction_line_tail_scale
+Set line length scale from center to tail, value range in `0.0` to `1.0`.
+
+    direction_line_width
+Set direction line width in pixels.
+
+    show_yaw_line
+Show yaw line (heading) of the vehicle.
+
+    show_dot
+Show center dot.
+
+    show_center_mark
+Show center mark.
+
+    center_mark_length_scale
+Set center mark length scale, value range in `0.0` to `1.0`.
+
+    center_mark_style
+Set center mark line style. `0` for dashed line, `1` for solid line.
+
+    center_mark_width
+Set center mark line width in pixels.
+
+
 ## Instrument
     icon_size
 Set size of instrument icon in pixel. Minimum value is limited to `16`.

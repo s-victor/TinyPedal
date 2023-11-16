@@ -6,7 +6,11 @@ WIP
     for easy alignment and repositioning.
     "Grid move size" option is accessible from compatibility config dialog.
 
-
+* [New]Heading Widget
+  - Add Heading Widget that similar to flight instrument "heading indicator",
+    which shows vehicle yaw angle & direction of travel lines on compass bearings.
+  - Add new "icon_compass.png" compass bearings background in "images" folder.
+  - Add many customizable options for Heading Widget.
 
 2.3.1 (2023-11-12) Hotfix
 -----------------------------

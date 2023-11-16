@@ -235,10 +235,7 @@ class Draw(Widget):
         painter.resetTransform()
         painter.translate(self.area_center, self.area_center)
         painter.rotate(self.direction_angle)
-        if self.wcfg["direction_line_style"]:
-            painter.drawPoints(QPolygonF(line))
-        else:
-            painter.drawPolyline(QPolygonF(line))
+        painter.drawPolyline(QPolygonF(line))
         painter.resetTransform()
 
     def draw_yaw_line(self, painter):
@@ -255,10 +252,7 @@ class Draw(Widget):
         painter.resetTransform()
         painter.translate(self.area_center, self.area_center)
         painter.rotate(0)
-        if self.wcfg["yaw_line_style"]:
-            painter.drawPoints(QPolygonF(line))
-        else:
-            painter.drawPolyline(QPolygonF(line))
+        painter.drawPolyline(QPolygonF(line))
         painter.resetTransform()
 
     def draw_dot(self, painter):
