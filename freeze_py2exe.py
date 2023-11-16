@@ -31,6 +31,7 @@ excludes = ["_ssl", "difflib", "email", "pdb", "venv", "http", "tkinter"]
 
 image_files = [
     "images/CC-BY-SA-4.0.txt",
+    "images/icon_compass.png",
     "images/icon_instrument.png",
     "images/icon.png",
 ]
