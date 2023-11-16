@@ -1,3 +1,13 @@
+WIP
+-----------------------------
+* General
+  - [New]Add "Grid move" option under overlay menu and tray menu (by Bernat),
+    which enables grid-snap effect while moving widget
+    for easy alignment and repositioning.
+    "Grid move size" option is accessible from compatibility config dialog.
+
+
+
 2.3.1 (2023-11-12) Hotfix
 -----------------------------
 * Trailing Widget

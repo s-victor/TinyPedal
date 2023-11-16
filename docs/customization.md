@@ -95,6 +95,37 @@ Minimize to tray when user clicks `X` close button.
 Remember last window position.
 
 
+## Overlay
+Overlay options can be accessed from `Overlay` menu in main window, or from tray icon menu.
+
+    fixed_position
+Check whether widget is locked at startup. This setting can be toggled from tray icon menu. Valid value: `true`, same as `1`. `false`, same as `0`.
+
+    auto_hide
+Check whether auto hide is enabled. This setting can be toggled from tray icon menu. Valid value: `true`, same as `1`. `false`, same as `0`.
+
+    enable_grid_move
+Enable grid-snap effect while moving widget for easy alignment and repositioning.
+
+
+## Compatibility
+Compatibility options can be accessed from `Config` menu in main window.
+
+    enable_bypass_window_manager
+Set `true` to bypass window manager on X11 system such as linux. This option may only be enabled if overlay widgets fail to stay on top of all windows. Also note that by enabling this option, OBS may not be able to capture overlay widgets in streaming. Default is `false`.
+
+    enable_translucent_background
+Set `false` to disable translucent background.
+
+    global_bkg_color
+Sets global background color for all widgets.
+
+Note, global background color will only be visible when `enable_translucent_background` option is disabled or translucent background is not supported. Some widgets with own background setting may override this option.
+
+    grid_move_size
+Set grid size for grid move, value in pixel. Default value is `8` pixel. Minimum value is limited to `1`.
+
+
 ## Shared Memory API
 Shared Memory API options can be accessed from `Config` menu in main window. Some options may only be relevant to certain API.
 
@@ -120,21 +151,6 @@ Set `true` to enable `player index` manual override.
 Set `player index` override for displaying data from specific player. Valid player index range starts from `0` to max number players minus one, and must not exceed `127`. Set value to `-1` for unspecified player, which can be useful for display general standings and trackmap data (ex. broadcasting). This option works only when `enable_player_index_override` enabled.
 
 
-## Compatibility
-Compatibility options can be accessed from `Config` menu in main window.
-
-    enable_bypass_window_manager
-Set `true` to bypass window manager on X11 system such as linux. This option may only be enabled if overlay widgets fail to stay on top of all windows. Also note that by enabling this option, OBS may not be able to capture overlay widgets in streaming. Default is `false`.
-
-    enable_translucent_background
-Set `false` to disable translucent background.
-
-    global_bkg_color
-Sets global background color for all widgets.
-
-Note, global background color will only be visible when `enable_translucent_background` option is disabled or translucent background is not supported. Some widgets with own background setting may override this option.
-
-
 ## Spectate mode
 Spectate mode can be accessed from `Spectate` tab in main window.
 
@@ -145,16 +161,6 @@ While Spectate mode is enabled, `double-click` on a player name in the list to a
 Select `Anonymous` for unspecified player, which is equivalent to player index `-1` in JSON file.
 
 Click `Refresh` button to manually refresh player name list.
-
-
-## Overlay
-Overlay options can be accessed from `Overlay` menu in main window, or from tray icon menu.
-
-    fixed_position
-Check whether widget is locked at startup. This setting can be toggled from tray icon menu. Valid value: `true`, same as `1`. `false`, same as `0`.
-
-    auto_hide
-Check whether auto hide is enabled. This setting can be toggled from tray icon menu. Valid value: `true`, same as `1`. `false`, same as `0`.
 
 
 ## Display Units
