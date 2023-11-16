@@ -63,6 +63,12 @@ class Draw(Widget):
         self.area_center = self.area_size / 2
         self.dot_size = max(self.wcfg["dot_size"], 1)
 
+        icon_source = QPixmap("images/icon_compass.png")
+        self.icon_inst = icon_source.scaledToWidth(
+            self.area_size * 2,
+            mode=Qt.SmoothTransformation
+        )
+
         text_width = font_w * 5
 
         if self.wcfg["enable_auto_font_offset"]:
@@ -76,11 +82,13 @@ class Draw(Widget):
             text_width,
             font_h * 2
         )
-
-        icon_source = QPixmap("images/icon_compass.png")
-        self.icon_inst = icon_source.scaledToWidth(
-            self.area_size * 2,
-            mode=Qt.SmoothTransformation
+        self.dir_line = (
+            QPointF(0, -self.area_center * self.wcfg["direction_line_head_scale"]),
+            QPointF(0, self.area_center * self.wcfg["direction_line_tail_scale"])
+        )
+        self.yaw_line = (
+            QPointF(0, -self.area_center * self.wcfg["yaw_line_head_scale"]),
+            QPointF(0, self.area_center * self.wcfg["yaw_line_tail_scale"])
         )
 
         # Config canvas
@@ -181,12 +189,7 @@ class Draw(Widget):
         if self.wcfg["show_circle_background"]:
             self.brush.setColor(QColor(self.wcfg["bkg_color_circle"]))
             painter.setBrush(self.brush)
-            painter.drawEllipse(
-                0,
-                0,
-                self.area_size,
-                self.area_size
-            )
+            painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
         # Draw center mark
         if self.wcfg["show_center_mark"]:
@@ -194,9 +197,7 @@ class Draw(Widget):
                 self.pen.setStyle(Qt.SolidLine)
             else:
                 self.pen.setStyle(Qt.DashLine)
-            mark_scale = self.area_center * min(
-                self.wcfg["center_mark_length_scale"], 1
-            )
+            mark_scale = self.area_center * min(self.wcfg["center_mark_length_scale"], 1)
             self.pen.setWidth(self.wcfg["center_mark_width"])
             self.pen.setColor(QColor(self.wcfg["center_mark_color"]))
             painter.setPen(self.pen)
@@ -232,14 +233,10 @@ class Draw(Widget):
         self.pen.setStyle(Qt.SolidLine)
         painter.setPen(self.pen)
         painter.setBrush(Qt.NoBrush)
-        line = [
-            QPointF(0, -self.area_center * self.wcfg["direction_line_head_scale"]),
-            QPointF(0, self.area_center * self.wcfg["direction_line_tail_scale"])
-        ]
         painter.resetTransform()
         painter.translate(self.area_center, self.area_center)
         painter.rotate(self.direction_angle)
-        painter.drawPolyline(QPolygonF(line))
+        painter.drawPolyline(QPolygonF(self.dir_line))
         painter.resetTransform()
 
     def draw_yaw_line(self, painter):
@@ -249,14 +246,10 @@ class Draw(Widget):
         self.pen.setStyle(Qt.SolidLine)
         painter.setPen(self.pen)
         painter.setBrush(Qt.NoBrush)
-        line = [
-            QPointF(0, -self.area_center * self.wcfg["yaw_line_head_scale"]),
-            QPointF(0, self.area_center * self.wcfg["yaw_line_tail_scale"])
-        ]
         painter.resetTransform()
         painter.translate(self.area_center, self.area_center)
         painter.rotate(0)
-        painter.drawPolyline(QPolygonF(line))
+        painter.drawPolyline(QPolygonF(self.yaw_line))
         painter.resetTransform()
 
     def draw_dot(self, painter):
@@ -282,8 +275,15 @@ class Draw(Widget):
         painter.setFont(self.font)
         self.pen.setColor(QColor(self.wcfg["font_color"]))
         painter.setPen(self.pen)
+        painter.drawText(
+            self.rect_angle.adjusted(0, self.font_offset, 0, 0),
+            Qt.AlignCenter,
+            self.format_yaw_angle(self.direction_angle)
+        )
 
-        angle = self.direction_angle
+    # Additional methods
+    def format_yaw_angle(self, angle):
+        """Format yaw angle"""
         if angle < -180:
             angle = 360 + angle
         elif angle > 180:
@@ -293,12 +293,5 @@ class Draw(Widget):
             angle = 360 - abs(angle)
 
         if self.wcfg["show_degree_sign"]:
-            text = f" {abs(angle):.0f}°"
-        else:
-            text = f"{abs(angle):.0f}"
-
-        painter.drawText(
-            self.rect_angle.adjusted(0, self.font_offset, 0, 0),
-            Qt.AlignCenter,
-            text
-        )
+            return f" {abs(angle):.0f}°"
+        return f"{abs(angle):.0f}"
