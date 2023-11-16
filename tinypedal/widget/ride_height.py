@@ -61,7 +61,7 @@ class Draw(Widget):
         self.bar_gap = self.wcfg["bar_gap"]
         self.bar_width = max(self.wcfg["bar_width"], 20)
         self.bar_height = int(font_c + pady * 2)
-        self.max_range = int(max(self.wcfg["ride_height_max_range"], 10))
+        self.max_range = max(int(self.wcfg["ride_height_max_range"]), 10)
         self.ride_height_offset = (
             self.wcfg["ride_height_offset_front_left"],
             self.wcfg["ride_height_offset_front_right"],

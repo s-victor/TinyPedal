@@ -130,7 +130,7 @@ class Realtime:
 
     def calc_max_avg_gforce(self):
         """Calc max average G force"""
-        max_samples = int(max(self.mcfg["max_average_g_force_samples"], 3))
+        max_samples = max(int(self.mcfg["max_average_g_force_samples"]), 3)
         g_samples = array.array("f", [0] * max_samples)
         g_abs = 0
         g_abs_last = 0
