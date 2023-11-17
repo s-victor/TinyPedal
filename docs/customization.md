@@ -112,7 +112,7 @@ Enable grid-snap effect while moving widget for easy alignment and repositioning
 Compatibility options can be accessed from `Config` menu in main window.
 
     enable_bypass_window_manager
-Set `true` to bypass window manager on X11 system such as linux. This option may only be enabled if overlay widgets fail to stay on top of all windows. Also note that by enabling this option, OBS may not be able to capture overlay widgets in streaming. Default is `false`.
+Set `true` to bypass window manager on X11 system, such as linux. This option does not effect windows system. This option is enabled by default on linux. Note, while this option is enabled, OBS may not be able to capture overlay widgets in streaming on linux.
 
     enable_translucent_background
 Set `false` to disable translucent background.
@@ -232,8 +232,9 @@ In case of typo errors within `heatmap.json` file, the APP will automatically fa
 
 To restore all heatmap settings back to default, just delete `heatmap.json` file.
 
+
 ## User files
-TinyPedal generates & saves various user data in specific folders. To reset a data file, simply delete the file from corresponding folder.
+TinyPedal generates & saves various user data in specific folders. Data can be reset by accessing `Reset data` submenu from `Overlay` menu in main window; or, delete data file from corresponding folder.
 
 * Deltabest  
     Deltabest data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
@@ -242,7 +243,7 @@ TinyPedal generates & saves various user data in specific folders. To reset a da
     Fuel delta data is stored as `CSV` format (.fuel extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
 
 * Track map  
-    Track map is stored as `SVG` vector format (.svg extension) under `TinyPedal\trackmap` folder.
+    Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder.
 
     The SVG vector map file contains two coordinate paths:
     * First is the global x,y position path, used for drawing track map.

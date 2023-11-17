@@ -9,6 +9,10 @@ WIP
     which allows user to reset data from active session.
     Current includes deltabest, fuel delta, trackmap data.
 
+* Linux support
+  - "enable_bypass_window_manager" option is now enabled by default
+    for new preset created on Linux (by Bernat).
+
 * [New]Heading Widget
   - Add Heading Widget that similar to flight instrument "heading indicator",
     which shows vehicle yaw angle & direction of travel lines on compass bearings.

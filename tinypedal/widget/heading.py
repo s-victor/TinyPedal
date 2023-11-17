@@ -82,14 +82,14 @@ class Draw(Widget):
             text_width,
             font_h * 2
         )
-        self.dir_line = (
+        self.dir_line = QPolygonF((
             QPointF(0, -self.area_center * self.wcfg["direction_line_head_scale"]),
             QPointF(0, self.area_center * self.wcfg["direction_line_tail_scale"])
-        )
-        self.yaw_line = (
+        ))
+        self.yaw_line = QPolygonF((
             QPointF(0, -self.area_center * self.wcfg["yaw_line_head_scale"]),
             QPointF(0, self.area_center * self.wcfg["yaw_line_tail_scale"])
-        )
+        ))
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
@@ -236,7 +236,7 @@ class Draw(Widget):
         painter.resetTransform()
         painter.translate(self.area_center, self.area_center)
         painter.rotate(self.direction_angle)
-        painter.drawPolyline(QPolygonF(self.dir_line))
+        painter.drawPolyline(self.dir_line)
         painter.resetTransform()
 
     def draw_yaw_line(self, painter):
@@ -249,7 +249,7 @@ class Draw(Widget):
         painter.resetTransform()
         painter.translate(self.area_center, self.area_center)
         painter.rotate(0)
-        painter.drawPolyline(QPolygonF(self.yaw_line))
+        painter.drawPolyline(self.yaw_line)
         painter.resetTransform()
 
     def draw_dot(self, painter):
