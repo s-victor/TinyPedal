@@ -194,11 +194,15 @@ def circular_relative_distance(circle_length, plr_dist, opt_dist):
     return rel_dist
 
 
-def lap_difference(opt_laps, plr_laps, opt_per_dist, plr_per_dist, condition=True):
-    """Calculate lap difference between 2 players"""
-    lap_diff = opt_laps + opt_per_dist - plr_laps - plr_per_dist
-    # Check session and lap difference
-    if condition and abs(lap_diff) > 1:
+def lap_difference(opt_laps, plr_laps, lap_ahead=1, lap_behind=1):
+    """Calculate lap difference between target opponent and player
+
+    Positive: lap(s) ahead.
+    Negative: lap(s) behind.
+    Zero: on same lap.
+    """
+    lap_diff = opt_laps - plr_laps
+    if lap_diff > lap_ahead or lap_diff < -lap_behind:
         return lap_diff
     return 0
 

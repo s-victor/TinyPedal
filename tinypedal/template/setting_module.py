@@ -66,5 +66,7 @@ MODULE_DEFAULT = {
         "enable": True,
         "update_interval": 20,
         "idle_update_interval": 400,
+        "lap_difference_ahead_threshold": 0.9,
+        "lap_difference_behind_threshold": 0.9,
     },
 }

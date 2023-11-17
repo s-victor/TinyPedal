@@ -151,11 +151,12 @@ class Realtime:
             laps_behind_leader = api.read.lap.behind_leader(index)
             laps_behind_next = api.read.lap.behind_next(index)
 
-            is_lapped = calc.lap_difference(
-                total_laps, plr_total_laps,
-                percentage_distance, plr_percentage_distance,
-                in_race
-                ) if not is_player else 0
+            is_lapped = 0 if is_player or not in_race else calc.lap_difference(
+                total_laps + percentage_distance,
+                plr_total_laps + plr_percentage_distance,
+                self.mcfg["lap_difference_ahead_threshold"],
+                self.mcfg["lap_difference_behind_threshold"]
+                )
             is_yellow = bool(speed <= 8)
 
             # Pit

@@ -12,6 +12,14 @@ WIP
   - Add new "icon_compass.png" compass bearings background in "images" folder.
   - Add many customizable options for Heading Widget.
 
+* Vehicles Module
+  - Add "lap_difference_ahead_threshold" & "lap_difference_behind_threshold" options,
+    which sets lap difference (percentage) threshold
+    for tagging opppents as ahead or behind.
+    Default value is `0.9` lap.
+    Those options are used by lap difference color indicator
+    in Trackmap, Relative, Rader Widgets.
+
 2.3.1 (2023-11-12) Hotfix
 -----------------------------
 * Trailing Widget

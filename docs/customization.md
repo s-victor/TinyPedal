@@ -309,6 +309,12 @@ Store last saved sector info string of current session, not recommended for manu
     module_vehicles
 Enable vehicles module. This module provides vehicles data.
 
+    lap_difference_ahead_threshold
+Lap difference (percentage) threshold for tagging opppents as ahead. Default value is `0.9` lap.
+
+    lap_difference_behind_threshold
+Lap difference (percentage) threshold for tagging opppents as behind. Default value is `0.9` lap.
+
 
 # Widgets
 Widget config dialog can be accessed by clicking `Config` button from `Widget` tab in main window.
