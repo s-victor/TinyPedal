@@ -177,6 +177,7 @@ class Setting:
         if PLATFORM != "Windows":
             self.setting_default["application"]["show_at_startup"] = True
             self.setting_default["application"]["minimize_to_tray"] = False
+            self.setting_default["compatibility"]["enable_bypass_window_manager"] = True
 
 
 def load_style_config(filepath, filename, default):
