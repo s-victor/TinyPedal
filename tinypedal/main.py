@@ -46,7 +46,7 @@ from PySide2.QtWidgets import (
 )
 
 from .setting import cfg
-from .const import APP_NAME, VERSION, APP_ICON, PATH_SETTINGS
+from .const import APP_NAME, VERSION, APP_ICON, PATH_SETTINGS, PATH_DELTABEST, PATH_TRACKMAP
 from .about import About
 from .api_control import api
 from .module_control import mctrl
@@ -128,6 +128,24 @@ class AppWindow(QMainWindow):
         restart_api = QAction("Restart API", self)
         restart_api.triggered.connect(self.restart_api)
         menu_overlay.addAction(restart_api)
+
+        # Reset data sub-menu
+        menu_overlay.addSeparator()
+
+        reset_menu = menu_overlay.addMenu("Reset data")
+        reset_user_data = ResetUserData(self)
+
+        reset_deltabest = QAction("Deltabest", self)
+        reset_deltabest.triggered.connect(reset_user_data.reset_deltabest)
+        reset_menu.addAction(reset_deltabest)
+
+        reset_fueldelta = QAction("Fuel delta", self)
+        reset_fueldelta.triggered.connect(reset_user_data.reset_fueldelta)
+        reset_menu.addAction(reset_fueldelta)
+
+        reset_trackmap = QAction("Track map", self)
+        reset_trackmap.triggered.connect(reset_user_data.reset_trackmap)
+        reset_menu.addAction(reset_trackmap)
 
         menu_overlay.addSeparator()
 
@@ -927,4 +945,58 @@ class CreatePreset(QDialog):
             self.master.refresh_preset_list()
         # Close window
         self.accept()
+        return None
+
+
+class ResetUserData(QDialog):
+    """Reset user data"""
+
+    def __init__(self, master):
+        super().__init__(master)
+        self.master = master
+
+    def reset_deltabest(self):
+        """Reset deltabest data"""
+        self.__confirmation(
+            "deltabest", "csv", PATH_DELTABEST, api.read.check.combo_id())
+
+    def reset_fueldelta(self):
+        """Reset fuel delta data"""
+        self.__confirmation(
+            "fuel delta", "fuel", PATH_DELTABEST, api.read.check.combo_id())
+
+    def reset_trackmap(self):
+        """Reset trackmap data"""
+        self.__confirmation(
+            "track map", "svg", PATH_TRACKMAP, api.read.check.track_id())
+
+    def __confirmation(self, data_type, file_ext, file_path, combo_name):
+        """Message confirmation"""
+        # Check if on track
+        if api.state:
+            QMessageBox.warning(
+                self.master, "Warning",
+                "Cannot reset data while on track.")
+            return None
+        # Check if file exist
+        if not os.path.exists(f"{file_path}{combo_name}.{file_ext}"):
+            QMessageBox.warning(
+                self.master, "Warning",
+                f"No {data_type} data found.<br><br>You can only reset data from active session.")
+            return None
+        # Confirm reset
+        message_text = (
+            f"Are you sure you want to reset {data_type} data for<br>"
+            f"<b>{combo_name}</b>"
+            " ?<br><br>This cannot be undone!"
+        )
+        delete_msg = QMessageBox.question(
+            self.master, f"Reset {data_type.title()}", message_text,
+            button=QMessageBox.Yes | QMessageBox.No)
+        if delete_msg == QMessageBox.Yes:
+            os.remove(f"{file_path}{combo_name}.{file_ext}")
+            QMessageBox.information(
+                self.master, f"Reset {data_type.title()}",
+                f"{data_type.capitalize()} data has been reset for<br><b>{combo_name}</b>")
+            combo_name = None
         return None

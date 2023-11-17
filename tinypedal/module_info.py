@@ -31,7 +31,7 @@ class DeltaInfo:
     lapTimeBest: float = 0
     lapTimeEstimated: float = 0
     deltaBest: float = 0
-    isValidLap: bool = 0
+    isValidLap: bool = False
     metersDriven: float = 0
 
 

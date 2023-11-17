@@ -5,6 +5,9 @@ WIP
     which enables grid-snap effect while moving widget
     for easy alignment and repositioning.
     "Grid move size" option is accessible from compatibility config dialog.
+  - Add "Reset data" submenu to "Overlay" menu from main window,
+    which allows user to reset data from active session.
+    Current includes deltabest, fuel delta, trackmap data.
 
 * [New]Heading Widget
   - Add Heading Widget that similar to flight instrument "heading indicator",
