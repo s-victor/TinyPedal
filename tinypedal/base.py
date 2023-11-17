@@ -89,7 +89,6 @@ class Widget(QWidget):
         """Set initial widget state"""
         # Window flags
         self.setWindowOpacity(self.wcfg["opacity"])
-        self.setAttribute(Qt.WA_X11NetWmWindowTypeDock, True)
         if self.cfg.compatibility["enable_translucent_background"]:
             self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
