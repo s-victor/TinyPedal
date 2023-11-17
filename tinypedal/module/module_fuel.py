@@ -80,7 +80,7 @@ class Realtime:
                     pit_lap = False  # whether pit in or pit out lap
 
                     combo_id = api.read.check.combo_id()
-                    delta_list_last = self.load_deltafuel(combo_id)
+                    delta_list_last, used_last, laptime_last = self.load_deltafuel(combo_id)
                     delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
                     delta_list_temp = [DELTA_ZERO]  # last lap temp
                     delta_fuel = 0  # delta fuel consumption compare to last lap
@@ -90,8 +90,7 @@ class Realtime:
                     amount_need = 0  # total additional fuel need to finish race
                     amount_left = 0  # amount fuel left before pitting
                     used_curr = 0  # current lap fuel consumption
-                    used_last = delta_list_last[-1][1]  # exclude first & pit lap
-                    used_last_raw = delta_list_last[-1][1]  # raw usage
+                    used_last_raw = used_last  # raw usage
                     used_est = 0  # estimated fuel consumption, for calculation only
                     est_runlaps = 0  # estimate laps current fuel can last
                     est_runmins = 0  # estimate minutes current fuel can last
@@ -100,7 +99,6 @@ class Realtime:
                     est_pits_early = 0  # estimate end-lap pit stop counts
                     used_est_less = 0  # estimate fuel consumption for one less pit stop
 
-                    laptime_last = delta_list_last[-1][2] # last laptime
                     last_lap_stime = -1  # last lap start time
                     laps_left = 0  # amount laps left at current lap distance
                     pos_last = 0  # last checked vehicle position
@@ -262,14 +260,18 @@ class Realtime:
                       newline="", encoding="utf-8") as csvfile:
                 deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 lastlist = list(deltaread)
-                test = lastlist[-1][2]  # test read last laptime
+                # Test read
+                used_last = lastlist[-1][1]
+                laptime_last = lastlist[-1][2]
                 # Validate data
                 if not val.delta_list(lastlist):
                     self.save_deltafuel(combo, lastlist)
         except (FileNotFoundError, IndexError, ValueError, TypeError):
             logger.info("no valid fuel data file found")
             lastlist = [(99999,0,0)]
-        return lastlist
+            used_last = 0
+            laptime_last = 0
+        return lastlist, used_last, laptime_last
 
     def save_deltafuel(self, combo, listname):
         """Save fuel consumption data"""
