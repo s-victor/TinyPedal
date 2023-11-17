@@ -48,57 +48,21 @@ class TrayIcon(QSystemTrayIcon):
         # Create tray menu
         menu = QMenu()
 
-        # Loaded preset
+        # Loaded preset name
         self.loaded_preset = QAction("", self)
         self.loaded_preset.setDisabled(True)
         menu.addAction(self.loaded_preset)
-
-        # Lock overlay
-        self.overlay_lock = QAction("Lock Overlay", self)
-        self.overlay_lock.setCheckable(True)
-        self.overlay_lock.setChecked(self.cfg.overlay["fixed_position"])
-        self.overlay_lock.triggered.connect(self.master.is_locked)
-        menu.addAction(self.overlay_lock)
-
-        # Auto hide
-        self.overlay_hide = QAction("Auto Hide", self)
-        self.overlay_hide.setCheckable(True)
-        self.overlay_hide.setChecked(self.cfg.overlay["auto_hide"])
-        self.overlay_hide.triggered.connect(self.master.is_hidden)
-        menu.addAction(self.overlay_hide)
-
-        # Grid
-        self.overlay_grid = QAction("Grid move", self)
-        self.overlay_grid.setCheckable(True)
-        self.overlay_grid.setChecked(self.cfg.overlay["enable_grid_move"])
-        self.overlay_grid.triggered.connect(self.master.has_grid)
-        menu.addAction(self.overlay_grid)
-
-        # Reload preset
-        reload_preset = QAction("Reload", self)
-        reload_preset.triggered.connect(self.master.reload_preset)
-        menu.addAction(reload_preset)
-
         menu.addSeparator()
 
-        # Restart API
-        restart_api = QAction("Restart API", self)
-        restart_api.triggered.connect(self.master.restart_api)
-        menu.addAction(restart_api)
-
+        # Overlay menu
+        self.master.overlay_menu(self.master, menu)
         menu.addSeparator()
 
         # Config
         app_config = QAction("Config", self)
         app_config.triggered.connect(self.show_config)
         menu.addAction(app_config)
-
         menu.addSeparator()
-
-        # About
-        app_about = QAction("About", self)
-        app_about.triggered.connect(self.master.show_about)
-        menu.addAction(app_about)
 
         # Quit
         app_quit = QAction("Quit", self)
@@ -116,11 +80,7 @@ class TrayIcon(QSystemTrayIcon):
     def refresh_menu(self):
         """Refresh menu"""
         self.loaded_preset.setText(
-            self.format_preset_name(self.cfg.last_loaded_setting)
-        )
-        self.overlay_lock.setChecked(self.cfg.overlay["fixed_position"])
-        self.overlay_hide.setChecked(self.cfg.overlay["auto_hide"])
-        self.overlay_grid.setChecked(self.cfg.overlay["enable_grid_move"])
+            self.format_preset_name(self.cfg.last_loaded_setting))
 
     @staticmethod
     def format_preset_name(filename):

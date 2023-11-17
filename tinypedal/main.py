@@ -69,11 +69,11 @@ class AppWindow(QMainWindow):
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
         self.setWindowIcon(QIcon(APP_ICON))
 
-        # Start
-        self.start_app()
-
         # Create menu
         self.main_menubar()
+
+        # Start
+        self.start_app()
 
         # Add status bar
         self.label_api_version = QLabel("")
@@ -98,55 +98,13 @@ class AppWindow(QMainWindow):
 
         # Overlay menu
         menu_overlay = menu.addMenu("Overlay")
-
-        self.overlay_lock = QAction("Lock overlay", self)
-        self.overlay_lock.setCheckable(True)
-        self.overlay_lock.setChecked(cfg.overlay["fixed_position"])
-        self.overlay_lock.triggered.connect(self.is_locked)
-        menu_overlay.addAction(self.overlay_lock)
-
-        self.overlay_hide = QAction("Auto hide", self)
-        self.overlay_hide.setCheckable(True)
-        self.overlay_hide.setChecked(cfg.overlay["auto_hide"])
-        self.overlay_hide.triggered.connect(self.is_hidden)
-        menu_overlay.addAction(self.overlay_hide)
-
-        self.overlay_grid = QAction("Grid move", self)
-        self.overlay_grid.setCheckable(True)
-        self.overlay_grid.setChecked(cfg.overlay["enable_grid_move"])
-        self.overlay_grid.triggered.connect(self.has_grid)
-        menu_overlay.addAction(self.overlay_grid)
-
-        menu_overlay.aboutToShow.connect(self.refresh_overlay_menu)
-
-        reload_preset = QAction("Reload", self)
-        reload_preset.triggered.connect(self.reload_preset)
-        menu_overlay.addAction(reload_preset)
-
+        self.overlay_menu = OverlayMenu
+        self.overlay_menu(self, menu_overlay)
         menu_overlay.addSeparator()
 
-        restart_api = QAction("Restart API", self)
-        restart_api.triggered.connect(self.restart_api)
-        menu_overlay.addAction(restart_api)
-
-        # Reset data sub-menu
-        menu_overlay.addSeparator()
-
-        reset_menu = menu_overlay.addMenu("Reset data")
-        reset_user_data = ResetUserData(self)
-
-        reset_deltabest = QAction("Deltabest", self)
-        reset_deltabest.triggered.connect(reset_user_data.reset_deltabest)
-        reset_menu.addAction(reset_deltabest)
-
-        reset_fueldelta = QAction("Fuel delta", self)
-        reset_fueldelta.triggered.connect(reset_user_data.reset_fueldelta)
-        reset_menu.addAction(reset_fueldelta)
-
-        reset_trackmap = QAction("Track map", self)
-        reset_trackmap.triggered.connect(reset_user_data.reset_trackmap)
-        reset_menu.addAction(reset_trackmap)
-
+        # Sub-menu
+        menu_reset_data = menu_overlay.addMenu("Reset data")
+        ResetDataMenu(self, menu_reset_data)
         menu_overlay.addSeparator()
 
         app_quit = QAction("Quit", self)
@@ -155,62 +113,15 @@ class AppWindow(QMainWindow):
 
         # Config menu
         menu_config = menu.addMenu("Config")
-
-        config_units = QAction("Display units", self)
-        config_units.triggered.connect(self.open_config_units)
-        menu_config.addAction(config_units)
-
-        config_font = QAction("Global font override", self)
-        config_font.triggered.connect(self.open_config_font)
-        menu_config.addAction(config_font)
-
-        config_sharedmem = QAction("Shared memory API", self)
-        config_sharedmem.triggered.connect(self.open_config_sharedmemory)
-        menu_config.addAction(config_sharedmem)
-
-        config_compat = QAction("Compatibility", self)
-        config_compat.triggered.connect(self.open_config_compatibility)
-        menu_config.addAction(config_compat)
+        ConfigMenu(self, menu_config)
 
         # Window menu
         menu_window = menu.addMenu("Window")
-        self.show_window = QAction("Show at startup", self)
-        self.show_window.setCheckable(True)
-        self.show_window.setChecked(cfg.application["show_at_startup"])
-        self.show_window.triggered.connect(self.is_show_at_startup)
-        menu_window.addAction(self.show_window)
-
-        self.minimize_to_tray = QAction("Minimize to tray", self)
-        self.minimize_to_tray.setCheckable(True)
-        self.minimize_to_tray.setChecked(cfg.application["minimize_to_tray"])
-        self.minimize_to_tray.triggered.connect(self.is_minimize_to_tray)
-        menu_window.addAction(self.minimize_to_tray)
-
-        self.remember_position = QAction("Remember position", self)
-        self.remember_position.setCheckable(True)
-        self.remember_position.setChecked(cfg.application["remember_position"])
-        self.remember_position.triggered.connect(self.is_remember_position)
-        menu_window.addAction(self.remember_position)
-
-        menu_window.aboutToShow.connect(self.refresh_window_menu)
+        WindowMenu(self, menu_window)
 
         # Help menu
         menu_help = menu.addMenu("Help")
-        app_about = QAction("About", self)
-        app_about.triggered.connect(self.show_about)
-        menu_help.addAction(app_about)
-
-    def refresh_window_menu(self):
-        """Refresh window menu"""
-        self.show_window.setChecked(cfg.application["show_at_startup"])
-        self.minimize_to_tray.setChecked(cfg.application["minimize_to_tray"])
-        self.remember_position.setChecked(cfg.application["remember_position"])
-
-    def refresh_overlay_menu(self):
-        """Refresh overlay menu"""
-        self.overlay_lock.setChecked(cfg.overlay["fixed_position"])
-        self.overlay_hide.setChecked(cfg.overlay["auto_hide"])
-        self.overlay_grid.setChecked(cfg.overlay["enable_grid_move"])
+        HelpMenu(self, menu_help)
 
     def start_app(self):
         """Start modules & widgets"""
@@ -221,9 +132,14 @@ class AppWindow(QMainWindow):
         octrl.enable()  # 2 enable overlay control
         wctrl.start()  # 3 start widget
 
-        self.about = About(hideonclose=True)
         self.start_tray_icon()
         self.set_initial_window_state()
+
+    def start_tray_icon(self):
+        """Start tray icon (for Windows)"""
+        from .tray import TrayIcon
+        self.tray_icon = TrayIcon(self, cfg)
+        self.tray_icon.show()
 
     def set_initial_window_state(self):
         """Set initial window state"""
@@ -243,16 +159,6 @@ class AppWindow(QMainWindow):
     def set_status_text(self):
         """Set status text"""
         self.label_api_version.setText(f"API: {api.name} - {api.version}")
-
-    def show_about(self):
-        """Show about"""
-        self.about.show()
-
-    def start_tray_icon(self):
-        """Start tray icon (for Windows)"""
-        from .tray import TrayIcon
-        self.tray_icon = TrayIcon(self, cfg)
-        self.tray_icon.show()
 
     def quit_app(self):
         """Quit manager"""
@@ -287,89 +193,24 @@ class AppWindow(QMainWindow):
         api.restart()
         self.set_status_text()
 
-    @staticmethod
-    def is_locked():
-        """Check lock state"""
-        octrl.overlay_lock.toggle()
-
-    @staticmethod
-    def is_hidden():
-        """Check hide state"""
-        octrl.overlay_hide.toggle()
-
-    @staticmethod
-    def has_grid():
-        """Check hide state"""
-        octrl.overlay_grid.toggle()
-
-    @staticmethod
-    def is_show_at_startup():
-        """Toggle config window startup state"""
-        if not cfg.application["show_at_startup"]:
-            cfg.application["show_at_startup"] = True
-        else:
-            cfg.application["show_at_startup"] = False
-        cfg.save()
-
-    @staticmethod
-    def is_minimize_to_tray():
-        """Toggle minimize to tray state"""
-        if not cfg.application["minimize_to_tray"]:
-            cfg.application["minimize_to_tray"] = True
-        else:
-            cfg.application["minimize_to_tray"] = False
-        cfg.save()
-
-    @staticmethod
-    def is_remember_position():
-        """Toggle config window remember position state"""
-        if not cfg.application["remember_position"]:
-            cfg.application["remember_position"] = True
-        else:
-            cfg.application["remember_position"] = False
-        cfg.save()
-
     def reload_preset(self):
         """Reload current preset"""
         # Close modules & widgets in order
         mctrl.close()
         octrl.disable()
         wctrl.close()
-
         # Load new setting
         cfg.load()
         self.restart_api()
-
         # Start modules & widgets
         mctrl.start()
         octrl.enable()
         wctrl.start()
-
         # Refresh menu & preset list
         self.preset_tab.refresh_preset_list()
         self.widget_tab.refresh_widget_list()
         self.module_tab.refresh_module_list()
         self.spectate_tab.refresh_spectate_list()
-
-    def open_config_units(self):
-        """Config display units"""
-        _config = UnitsConfig(self)
-        _config.exec_()
-
-    def open_config_font(self):
-        """Config global font"""
-        _config = FontConfig(self)
-        _config.exec_()
-
-    def open_config_sharedmemory(self):
-        """Config sharedmemory"""
-        _config = WidgetConfig(self, "shared_memory_api", "api")
-        _config.exec_()
-
-    def open_config_compatibility(self):
-        """Config compatibility"""
-        _config = WidgetConfig(self, "compatibility", "misc")
-        _config.exec_()
 
 
 class WidgetList(QWidget):
@@ -807,7 +648,7 @@ class PresetList(QWidget):
             self.master.reload_preset()
         else:
             QMessageBox.warning(
-                self, "Warning",
+                self, "Error",
                 "No preset selected.\nPlease select a preset to continue.")
 
     def open_create_window(self):
@@ -903,7 +744,7 @@ class CreatePreset(QDialog):
             self.__saving(entered_filename)
         else:
             QMessageBox.warning(
-                self, "Warning", "Invalid preset name.")
+                self, "Error", "Invalid preset name.")
 
     def __saving(self, entered_filename):
         """Saving new preset"""
@@ -912,7 +753,7 @@ class CreatePreset(QDialog):
         for preset in temp_list:
             if entered_filename.lower() == preset.lower():
                 QMessageBox.warning(
-                    self, "Warning", "Preset already exists.")
+                    self, "Error", "Preset already exists.")
                 return None
         # Duplicate preset
         if self.edit_mode == "duplicate":
@@ -946,12 +787,91 @@ class CreatePreset(QDialog):
         return None
 
 
-class ResetUserData(QDialog):
-    """Reset user data"""
+class OverlayMenu(QMenu):
+    """Overlay menu, shared between main & tray menu"""
 
-    def __init__(self, master):
+    def __init__(self, master, menu):
         super().__init__(master)
         self.master = master
+
+        # Lock overlay
+        self.overlay_lock = QAction("Lock overlay", self)
+        self.overlay_lock.setCheckable(True)
+        self.overlay_lock.setChecked(cfg.overlay["fixed_position"])
+        self.overlay_lock.triggered.connect(self.is_locked)
+        menu.addAction(self.overlay_lock)
+
+        # Auto hide
+        self.overlay_hide = QAction("Auto hide", self)
+        self.overlay_hide.setCheckable(True)
+        self.overlay_hide.setChecked(cfg.overlay["auto_hide"])
+        self.overlay_hide.triggered.connect(self.is_hidden)
+        menu.addAction(self.overlay_hide)
+
+        # Grid move
+        self.overlay_grid = QAction("Grid move", self)
+        self.overlay_grid.setCheckable(True)
+        self.overlay_grid.setChecked(cfg.overlay["enable_grid_move"])
+        self.overlay_grid.triggered.connect(self.has_grid)
+        menu.addAction(self.overlay_grid)
+
+        # Reload preset
+        reload_preset = QAction("Reload", self)
+        reload_preset.triggered.connect(self.master.reload_preset)
+        menu.addAction(reload_preset)
+        menu.addSeparator()
+
+        # Restart API
+        restart_api = QAction("Restart API", self)
+        restart_api.triggered.connect(self.master.restart_api)
+        menu.addAction(restart_api)
+
+        # Refresh menu
+        menu.aboutToShow.connect(self.refresh_overlay_menu)
+
+    def refresh_overlay_menu(self):
+        """Refresh overlay menu"""
+        self.overlay_lock.setChecked(cfg.overlay["fixed_position"])
+        self.overlay_hide.setChecked(cfg.overlay["auto_hide"])
+        self.overlay_grid.setChecked(cfg.overlay["enable_grid_move"])
+
+    @staticmethod
+    def is_locked():
+        """Check lock state"""
+        octrl.overlay_lock.toggle()
+
+    @staticmethod
+    def is_hidden():
+        """Check hide state"""
+        octrl.overlay_hide.toggle()
+
+    @staticmethod
+    def has_grid():
+        """Check hide state"""
+        octrl.overlay_grid.toggle()
+
+
+class ResetDataMenu(QMenu):
+    """Reset user data menu"""
+
+    def __init__(self, master, menu):
+        super().__init__(master)
+        self.master = master
+
+        # Deltabest
+        reset_deltabest = QAction("Deltabest", self)
+        reset_deltabest.triggered.connect(self.reset_deltabest)
+        menu.addAction(reset_deltabest)
+
+        # Fuel delta
+        reset_fueldelta = QAction("Fuel delta", self)
+        reset_fueldelta.triggered.connect(self.reset_fueldelta)
+        menu.addAction(reset_fueldelta)
+
+        # Track map
+        reset_trackmap = QAction("Track map", self)
+        reset_trackmap.triggered.connect(self.reset_trackmap)
+        menu.addAction(reset_trackmap)
 
     def reset_deltabest(self):
         """Reset deltabest data"""
@@ -973,13 +893,13 @@ class ResetUserData(QDialog):
         # Check if on track
         if api.state:
             QMessageBox.warning(
-                self.master, "Warning",
+                self.master, "Error",
                 "Cannot reset data while on track.")
             return None
         # Check if file exist
         if not os.path.exists(f"{file_path}{combo_name}.{file_ext}"):
             QMessageBox.warning(
-                self.master, "Warning",
+                self.master, "Error",
                 f"No {data_type} data found.<br><br>You can only reset data from active session.")
             return None
         # Confirm reset
@@ -998,3 +918,134 @@ class ResetUserData(QDialog):
                 f"{data_type.capitalize()} data has been reset for<br><b>{combo_name}</b>")
             combo_name = None
         return None
+
+
+class ConfigMenu(QMenu):
+    """Config menu"""
+
+    def __init__(self, master, menu):
+        super().__init__(master)
+        self.master = master
+
+        # Display units
+        config_units = QAction("Display units", self)
+        config_units.triggered.connect(self.open_config_units)
+        menu.addAction(config_units)
+
+        # Global font override
+        config_font = QAction("Global font override", self)
+        config_font.triggered.connect(self.open_config_font)
+        menu.addAction(config_font)
+
+        # Shared memory API
+        config_sharedmem = QAction("Shared memory API", self)
+        config_sharedmem.triggered.connect(self.open_config_sharedmemory)
+        menu.addAction(config_sharedmem)
+
+        # Compatibility
+        config_compat = QAction("Compatibility", self)
+        config_compat.triggered.connect(self.open_config_compatibility)
+        menu.addAction(config_compat)
+
+    def open_config_units(self):
+        """Config display units"""
+        _config = UnitsConfig(self.master)
+        _config.exec_()
+
+    def open_config_font(self):
+        """Config global font"""
+        _config = FontConfig(self.master)
+        _config.exec_()
+
+    def open_config_sharedmemory(self):
+        """Config sharedmemory"""
+        _config = WidgetConfig(self.master, "shared_memory_api", "api")
+        _config.exec_()
+
+    def open_config_compatibility(self):
+        """Config compatibility"""
+        _config = WidgetConfig(self.master, "compatibility", "misc")
+        _config.exec_()
+
+
+class WindowMenu(QMenu):
+    """Window menu"""
+
+    def __init__(self, master, menu):
+        super().__init__(master)
+
+        # Show at startup
+        self.show_window = QAction("Show at startup", self)
+        self.show_window.setCheckable(True)
+        self.show_window.setChecked(cfg.application["show_at_startup"])
+        self.show_window.triggered.connect(self.is_show_at_startup)
+        menu.addAction(self.show_window)
+
+        # Minimize to tray
+        self.minimize_to_tray = QAction("Minimize to tray", self)
+        self.minimize_to_tray.setCheckable(True)
+        self.minimize_to_tray.setChecked(cfg.application["minimize_to_tray"])
+        self.minimize_to_tray.triggered.connect(self.is_minimize_to_tray)
+        menu.addAction(self.minimize_to_tray)
+
+        # Remember position
+        self.remember_position = QAction("Remember position", self)
+        self.remember_position.setCheckable(True)
+        self.remember_position.setChecked(cfg.application["remember_position"])
+        self.remember_position.triggered.connect(self.is_remember_position)
+        menu.addAction(self.remember_position)
+
+        # Refresh menu
+        menu.aboutToShow.connect(self.refresh_window_menu)
+
+    def refresh_window_menu(self):
+        """Refresh window menu"""
+        self.show_window.setChecked(cfg.application["show_at_startup"])
+        self.minimize_to_tray.setChecked(cfg.application["minimize_to_tray"])
+        self.remember_position.setChecked(cfg.application["remember_position"])
+
+    @staticmethod
+    def is_show_at_startup():
+        """Toggle config window startup state"""
+        if not cfg.application["show_at_startup"]:
+            cfg.application["show_at_startup"] = True
+        else:
+            cfg.application["show_at_startup"] = False
+        cfg.save()
+
+    @staticmethod
+    def is_minimize_to_tray():
+        """Toggle minimize to tray state"""
+        if not cfg.application["minimize_to_tray"]:
+            cfg.application["minimize_to_tray"] = True
+        else:
+            cfg.application["minimize_to_tray"] = False
+        cfg.save()
+
+    @staticmethod
+    def is_remember_position():
+        """Toggle config window remember position state"""
+        if not cfg.application["remember_position"]:
+            cfg.application["remember_position"] = True
+        else:
+            cfg.application["remember_position"] = False
+        cfg.save()
+
+
+class HelpMenu(QMenu):
+    """Help menu"""
+
+    def __init__(self, master, menu):
+        super().__init__(master)
+
+        # Load about window in background
+        self.about = About(hideonclose=True)
+
+        # About
+        app_about = QAction("About", self)
+        app_about.triggered.connect(self.show_about)
+        menu.addAction(app_about)
+
+    def show_about(self):
+        """Show about"""
+        self.about.show()
