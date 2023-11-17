@@ -353,25 +353,23 @@ class AppWindow(QMainWindow):
 
     def open_config_units(self):
         """Config display units"""
-        window_units_config = UnitsConfig(self)
-        window_units_config.exec_()
+        _config = UnitsConfig(self)
+        _config.exec_()
 
     def open_config_font(self):
         """Config global font"""
-        window_font_config = FontConfig(self)
-        window_font_config.exec_()
+        _config = FontConfig(self)
+        _config.exec_()
 
     def open_config_sharedmemory(self):
         """Config sharedmemory"""
-        window_sharedmemory_config = WidgetConfig(
-            self, "shared_memory_api", "api")
-        window_sharedmemory_config.exec_()
+        _config = WidgetConfig(self, "shared_memory_api", "api")
+        _config.exec_()
 
     def open_config_compatibility(self):
         """Config compatibility"""
-        window_compat_config = WidgetConfig(
-            self, "compatibility", "misc")
-        window_compat_config.exec_()
+        _config = WidgetConfig(self, "compatibility", "misc")
+        _config.exec_()
 
 
 class WidgetList(QWidget):
@@ -500,8 +498,8 @@ class WidgetList(QWidget):
 
     def widget_config_dialog(self, widget_name):
         """Widget config dialog"""
-        window_widget_config = WidgetConfig(self, widget_name, "widget")
-        window_widget_config.exec_()
+        _config = WidgetConfig(self, widget_name, "widget")
+        _config.exec_()
 
 
 class ModuleList(QWidget):
@@ -631,8 +629,8 @@ class ModuleList(QWidget):
 
     def module_config_dialog(self, module_name):
         """Module config dialog"""
-        window_widget_config = WidgetConfig(self, module_name, "module")
-        window_widget_config.exec_()
+        _config = WidgetConfig(self, module_name, "module")
+        _config.exec_()
 
 
 class SpectateList(QWidget):

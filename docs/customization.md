@@ -112,7 +112,7 @@ Enable grid-snap effect while moving widget for easy alignment and repositioning
 Compatibility options can be accessed from `Config` menu in main window.
 
     enable_bypass_window_manager
-Set `true` to bypass window manager on X11 system, such as linux. This option does not effect windows system. This option is enabled by default on linux. Note, while this option is enabled, OBS may not be able to capture overlay widgets in streaming on linux.
+Set `true` to bypass window manager on X11 system, such as linux. This option does not affect windows system. This option is enabled by default on linux. Note, while this option is enabled, OBS may not be able to capture overlay widgets in streaming on linux.
 
     enable_translucent_background
 Set `false` to disable translucent background.
