@@ -74,7 +74,7 @@ class FontConfig(QDialog):
 
         self.label_fontweight = QLabel("Font Weight")
         self.edit_fontweight = QComboBox()
-        self.edit_fontweight.addItems(["no change", "normal", "bold"])
+        self.edit_fontweight.addItems(("no change", "normal", "bold"))
 
         layout_option = QGridLayout()
         layout_option.setAlignment(Qt.AlignLeft | Qt.AlignTop)
@@ -147,13 +147,13 @@ class UnitsConfig(QDialog):
 
         # Units type
         self.units_type = {
-            "distance": ["Meter", "Feet"],
-            "fuel": ["Liter", "Gallon"],
-            "odometer": ["Kilometer", "Mile", "Meter"],
-            "speed": ["KPH", "MPH", "m/s"],
-            "temperature": ["Celsius", "Fahrenheit"],
-            "turbo_pressure": ["bar", "psi", "kPa"],
-            "tyre_pressure": ["kPa", "psi", "bar"],
+            "distance": ("Meter", "Feet"),
+            "fuel": ("Liter", "Gallon"),
+            "odometer": ("Kilometer", "Mile", "Meter"),
+            "speed": ("KPH", "MPH", "m/s"),
+            "temperature": ("Celsius", "Fahrenheit"),
+            "turbo_pressure": ("bar", "psi", "kPa"),
+            "tyre_pressure": ("kPa", "psi", "bar"),
         }
 
         # Options
