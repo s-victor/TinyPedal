@@ -339,8 +339,8 @@ class WidgetList(QWidget):
 
     def widget_config_dialog(self, widget_name):
         """Widget config dialog"""
-        _config = WidgetConfig(self, widget_name, "widget")
-        _config.exec_()
+        _dialog = WidgetConfig(self, widget_name, "widget")
+        _dialog.open()
 
 
 class ModuleList(QWidget):
@@ -470,8 +470,8 @@ class ModuleList(QWidget):
 
     def module_config_dialog(self, module_name):
         """Module config dialog"""
-        _config = WidgetConfig(self, module_name, "module")
-        _config.exec_()
+        _dialog = WidgetConfig(self, module_name, "module")
+        _dialog.open()
 
 
 class SpectateList(QWidget):
@@ -612,7 +612,7 @@ class PresetList(QWidget):
         button_refresh.clicked.connect(self.refresh_preset_list)
 
         button_new = QPushButton("New Preset")
-        button_new.clicked.connect(self.open_create_window)
+        button_new.clicked.connect(self.open_create_preset)
 
         # Layout
         layout_main = QVBoxLayout(self)
@@ -651,10 +651,10 @@ class PresetList(QWidget):
                 self, "Error",
                 "No preset selected.\nPlease select a preset to continue.")
 
-    def open_create_window(self):
+    def open_create_preset(self):
         """Create new preset"""
-        window_preset = CreatePreset(self, title="Create new default preset")
-        window_preset.exec_()
+        _dialog = CreatePreset(self, title="Create new default preset")
+        _dialog.open()
 
     def context_menu(self, position):
         """Preset context menu"""
@@ -670,22 +670,22 @@ class PresetList(QWidget):
 
             # Duplicate preset
             if action == option_duplicate:
-                window_preset = CreatePreset(
+                _dialog = CreatePreset(
                     self,
                     title="Duplicate Preset",
                     mode="duplicate",
                     src_filename=selected_filename
                 )
-                window_preset.exec_()
+                _dialog.open()
             # Rename preset
             elif action == option_rename:
-                window_preset = CreatePreset(
+                _dialog = CreatePreset(
                     self,
                     title="Rename Preset",
                     mode="rename",
                     src_filename=selected_filename
                 )
-                window_preset.exec_()
+                _dialog.open()
             # Delete preset
             elif action == option_delete:
                 message_text = (
@@ -949,23 +949,23 @@ class ConfigMenu(QMenu):
 
     def open_config_units(self):
         """Config display units"""
-        _config = UnitsConfig(self.master)
-        _config.exec_()
+        _dialog = UnitsConfig(self.master)
+        _dialog.open()
 
     def open_config_font(self):
         """Config global font"""
-        _config = FontConfig(self.master)
-        _config.exec_()
+        _dialog = FontConfig(self.master)
+        _dialog.open()
 
     def open_config_sharedmemory(self):
         """Config sharedmemory"""
-        _config = WidgetConfig(self.master, "shared_memory_api", "api")
-        _config.exec_()
+        _dialog = WidgetConfig(self.master, "shared_memory_api", "api")
+        _dialog.open()
 
     def open_config_compatibility(self):
         """Config compatibility"""
-        _config = WidgetConfig(self.master, "compatibility", "misc")
-        _config.exec_()
+        _dialog = WidgetConfig(self.master, "compatibility", "misc")
+        _dialog.open()
 
 
 class WindowMenu(QMenu):
