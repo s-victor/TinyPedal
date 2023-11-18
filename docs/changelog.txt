@@ -7,7 +7,7 @@ WIP
     "Grid move size" option is accessible from compatibility config dialog.
   - Add "Reset data" submenu to "Overlay" menu from main window,
     which allows user to reset data from active session.
-    Current includes deltabest, fuel delta, trackmap data.
+    Currently includes deltabest, fuel delta, trackmap data.
 
 * Linux support
   - "enable_bypass_window_manager" option is now enabled by default
@@ -15,7 +15,7 @@ WIP
 
 * [New]Heading Widget
   - Add Heading Widget that similar to flight instrument "heading indicator",
-    which shows vehicle yaw angle & direction of travel lines on compass bearings.
+    which shows vehicle yaw angle, slip angle, & direction of travel lines on compass bearings.
   - Add new "icon_compass.png" compass bearings background in "images" folder.
   - Add many customizable options for Heading Widget.
 
@@ -26,6 +26,9 @@ WIP
     Default value is `0.9` lap.
     Those options are used by lap difference color indicator
     in Trackmap, Relative, Rader Widgets.
+
+* Misc
+  - Updated user guide.
 
 2.3.1 (2023-11-12) Hotfix
 -----------------------------

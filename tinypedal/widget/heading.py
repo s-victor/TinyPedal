@@ -69,18 +69,25 @@ class Draw(Widget):
             mode=Qt.SmoothTransformation
         )
 
-        text_width = font_w * 5
+        self.decimals = max(int(self.wcfg["decimal_places"]), 0)
+        text_width = font_w * (5 + self.decimals)
 
         if self.wcfg["enable_auto_font_offset"]:
             self.font_offset = font_c + font_d * 2 + font_l * 2 - font_h
         else:
             self.font_offset = self.wcfg["font_offset_vertical"]
 
-        self.rect_angle = QRectF(
-            self.area_center - text_width / 2,
-            self.area_center + self.area_center / 2 - font_h,
+        self.rect_yaw_angle = QRectF(
+            self.area_size * self.wcfg["yaw_angle_offset_x"] - text_width / 2,
+            self.area_size * self.wcfg["yaw_angle_offset_y"] - font_h / 2,
             text_width,
-            font_h * 2
+            font_h
+        )
+        self.rect_slip_angle = QRectF(
+            self.area_size * self.wcfg["slip_angle_offset_x"] - text_width / 2,
+            self.area_size * self.wcfg["slip_angle_offset_y"] - font_h / 2,
+            text_width,
+            font_h
         )
         self.dir_line = QPolygonF((
             QPointF(0, -self.area_center * self.wcfg["direction_line_head_scale"]),
@@ -89,6 +96,10 @@ class Draw(Widget):
         self.yaw_line = QPolygonF((
             QPointF(0, -self.area_center * self.wcfg["yaw_line_head_scale"]),
             QPointF(0, self.area_center * self.wcfg["yaw_line_tail_scale"])
+        ))
+        self.slip_angle_line = QPolygonF((
+            QPointF(0, -self.area_center * self.wcfg["slip_angle_line_head_scale"]),
+            QPointF(0, self.area_center * self.wcfg["slip_angle_line_tail_scale"])
         ))
 
         # Config canvas
@@ -100,11 +111,11 @@ class Draw(Widget):
         self.draw_circle_background()
 
         # Last data
-        self.direction_angle = 0
-        self.last_direction_angle = None
-        self.yaw_angle = 0
-        self.last_yaw_angle = None
+        self.veh_ori_yaw = 0
+        self.last_veh_ori_yaw = None
         self.last_pos = (0,0)
+        self.yaw_angle = 0
+        self.slip_angle = 0
 
         # Set widget state & start update
         self.set_widget_state()
@@ -115,22 +126,32 @@ class Draw(Widget):
         """Update when vehicle on track"""
         if self.wcfg["enable"] and api.state:
 
-            # Read yaw, position data
+            # Read speed, position data
             speed = api.read.vehicle.speed()
-            self.yaw_angle = calc.rad2deg(api.read.vehicle.orientation_yaw_radians()) + 180
             pos_curr = (api.read.vehicle.pos_longitudinal(),
                         api.read.vehicle.pos_lateral())
 
+            # Vehicle orientation yaw
+            self.veh_ori_yaw = calc.rad2deg(api.read.vehicle.orientation_yaw_radians()) + 180
+
+            # Direction of travel yaw angle
             if self.last_pos != pos_curr and speed > 1:
-                self.direction_angle = self.yaw_angle - calc.rad2deg(calc.oriyaw2rad(
+                self.yaw_angle = self.veh_ori_yaw - calc.rad2deg(calc.oriyaw2rad(
                      pos_curr[0] - self.last_pos[0], pos_curr[1] - self.last_pos[1])) + 180
                 self.last_pos = pos_curr
             elif speed <= 1:
-                self.direction_angle = 0
+                self.yaw_angle = 0
                 self.last_pos = pos_curr
 
-            self.update_yaw(self.yaw_angle, self.last_yaw_angle)
-            self.last_yaw_angle = self.yaw_angle
+            # Slip angle
+            if speed > 1:
+                self.slip_angle = calc.rad2deg(
+                    (api.read.wheel.slip_angle_fl() + api.read.wheel.slip_angle_fr()) / 2)
+            else:
+                self.slip_angle = 0
+
+            self.update_yaw(self.veh_ori_yaw, self.last_veh_ori_yaw)
+            self.last_veh_ori_yaw = self.veh_ori_yaw
 
     # GUI update methods
     def update_yaw(self, curr, last):
@@ -151,7 +172,7 @@ class Draw(Widget):
         # Draw compass bearing
         painter.resetTransform()
         painter.translate(self.area_center, self.area_center)
-        painter.rotate(self.yaw_angle)
+        painter.rotate(self.veh_ori_yaw)
         painter.drawPixmap(
             -self.area_center, -self.area_center,
             self.area_size, self.area_size,
@@ -161,6 +182,9 @@ class Draw(Widget):
         # Draw yaw line
         if self.wcfg["show_yaw_line"]:
             self.draw_yaw_line(painter)
+        # Draw slip angle line
+        if self.wcfg["show_slip_angle_line"]:
+            self.draw_slip_angle_line(painter)
         # Draw direction line
         if self.wcfg["show_direction_line"]:
             self.draw_direction_line(painter)
@@ -169,7 +193,9 @@ class Draw(Widget):
             self.draw_dot(painter)
         # Draw text
         if self.wcfg["show_yaw_angle_reading"]:
-            self.draw_text(painter)
+            self.draw_yaw_text(painter)
+        if self.wcfg["show_slip_angle_reading"]:
+            self.draw_slip_angle_text(painter)
 
     def draw_circle_background(self):
         """Draw circle background"""
@@ -235,7 +261,7 @@ class Draw(Widget):
         painter.setBrush(Qt.NoBrush)
         painter.resetTransform()
         painter.translate(self.area_center, self.area_center)
-        painter.rotate(self.direction_angle)
+        painter.rotate(self.yaw_angle)
         painter.drawPolyline(self.dir_line)
         painter.resetTransform()
 
@@ -250,6 +276,19 @@ class Draw(Widget):
         painter.translate(self.area_center, self.area_center)
         painter.rotate(0)
         painter.drawPolyline(self.yaw_line)
+        painter.resetTransform()
+
+    def draw_slip_angle_line(self, painter):
+        """Draw slip angle line"""
+        self.pen.setWidth(self.wcfg["slip_angle_line_width"])
+        self.pen.setColor(QColor(self.wcfg["slip_angle_line_color"]))
+        self.pen.setStyle(Qt.SolidLine)
+        painter.setPen(self.pen)
+        painter.setBrush(Qt.NoBrush)
+        painter.resetTransform()
+        painter.translate(self.area_center, self.area_center)
+        painter.rotate(self.slip_angle)
+        painter.drawPolyline(self.slip_angle_line)
         painter.resetTransform()
 
     def draw_dot(self, painter):
@@ -270,28 +309,42 @@ class Draw(Widget):
             self.dot_size
         )
 
-    def draw_text(self, painter):
-        """Draw text"""
+    def draw_yaw_text(self, painter):
+        """Draw yaw text"""
         painter.setFont(self.font)
-        self.pen.setColor(QColor(self.wcfg["font_color"]))
+        self.pen.setColor(QColor(self.wcfg["font_color_yaw_angle"]))
         painter.setPen(self.pen)
         painter.drawText(
-            self.rect_angle.adjusted(0, self.font_offset, 0, 0),
+            self.rect_yaw_angle.adjusted(0, self.font_offset, 0, 0),
             Qt.AlignCenter,
-            self.format_yaw_angle(self.direction_angle)
+            self.format_angle(self.display_yaw_angle(self.yaw_angle))
+        )
+
+    def draw_slip_angle_text(self, painter):
+        """Draw slip angle text"""
+        painter.setFont(self.font)
+        self.pen.setColor(QColor(self.wcfg["font_color_slip_angle"]))
+        painter.setPen(self.pen)
+        painter.drawText(
+            self.rect_slip_angle.adjusted(0, self.font_offset, 0, 0),
+            Qt.AlignCenter,
+            self.format_angle(self.slip_angle)
         )
 
     # Additional methods
-    def format_yaw_angle(self, angle):
-        """Format yaw angle"""
+    @staticmethod
+    def display_yaw_angle(angle):
+        """Set yaw angle display range"""
         if angle < -180:
             angle = 360 + angle
         elif angle > 180:
             angle = 360 - angle
-
         if abs(angle) > 180:
             angle = 360 - abs(angle)
+        return angle
 
+    def format_angle(self, angle):
+        """Format angle text"""
         if self.wcfg["show_degree_sign"]:
-            return f" {abs(angle):.0f}°"
-        return f"{abs(angle):.0f}"
+            return f" {abs(angle):.0{self.decimals}f}°"
+        return f"{abs(angle):.0{self.decimals}f}"

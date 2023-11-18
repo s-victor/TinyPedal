@@ -308,6 +308,25 @@ def delta_telemetry(position, live_data, delta_list, condition=True, offset=0):
     return 0
 
 
+def zoom_map(map_data, map_scale, margin=0):
+    """Zoom map data to specific scale, then add margin"""
+    # Separate X & Y coordinates
+    x_range, y_range = tuple(zip(*map_data))
+    # Offset X, Y
+    map_offset = min(x_range) * map_scale - margin, min(y_range) * map_scale - margin
+    # Scale map coordinates
+    x_range_scaled = [x_pos * map_scale - map_offset[0] for x_pos in x_range]
+    y_range_scaled = [y_pos * map_scale - map_offset[1] for y_pos in y_range]
+    # Map bounding coordinates
+    map_rect = (
+        0,  # x start pos
+        0,  # y start pos
+        max(x_range_scaled) + margin,  # width
+        max(y_range_scaled) + margin   # height
+    )
+    return tuple(zip(x_range_scaled, y_range_scaled)), map_rect, map_offset
+
+
 def scale_map(map_data, area_size, margin=0):
     """Scale map data"""
     # Separate X & Y coordinates

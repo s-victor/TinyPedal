@@ -751,6 +751,12 @@ Set widget size in pixels.
     show_yaw_angle_reading
 Show yaw angle reading in degrees.
 
+    show_slip_angle_reading
+Show slip angle reading in degrees.
+
+    *_offset_x, *_offset_y
+Set reading text offset position (percentage), value range in `0.0` to `1.0`.
+
     show_degree_sign
 Set `true` to show degree sign for yaw angle reading.
 
@@ -760,20 +766,23 @@ Show background color.
     show_circle_background
 Show circle background color.
 
-    show_direction_line
-Show direction of travel line of the vehicle.
+    show_yaw_line
+Show yaw line (vehicle heading).
 
-    direction_line_head_scale
+    show_direction_line
+Show vehicle's direction of travel line.
+
+    show_slip_angle_line
+Show slip angle (average of the front tyres) line.
+
+    *_line_head_scale
 Set line length scale from center to head, value range in `0.0` to `1.0`.
 
-    direction_line_tail_scale
+    *_line_tail_scale
 Set line length scale from center to tail, value range in `0.0` to `1.0`.
 
-    direction_line_width
-Set direction line width in pixels.
-
-    show_yaw_line
-Show yaw line (heading) of the vehicle.
+    *_line_width
+Set line width in pixels.
 
     show_dot
 Show center dot.
@@ -1273,11 +1282,11 @@ Show throttle trail plot.
     show_raw_throttle
 Show unfiltered throttle instead.
 
-    throttle_line_width
-Set throttle trailing line width in pixels.
+    *_line_width
+Set trailing line width in pixels.
 
-    throttle_line_style
-Set throttle trailing line style. `0` for solid line, `1` for dashed line.
+    *_line_style
+Set trailing line style. `0` for solid line, `1` for dashed line.
 
     show_reference_line
 Show reference line.
