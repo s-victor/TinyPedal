@@ -75,21 +75,22 @@ class Realtime:
                     if recorder.map.exist:
                         update_interval = idle_interval
                         minfo.mapping.coordinates = recorder.map.raw_coords
+                        minfo.mapping.coordinatesHash = hash(minfo.mapping.coordinates)
                         minfo.mapping.elevations = recorder.map.raw_dists
-                        minfo.mapping.sectors = recorder.map.sector_index
+                        minfo.mapping.elevationsHash = hash(minfo.mapping.elevations)
+                        minfo.mapping.sectors = recorder.map.sectors_index
                     else:
                         recorder.reset()
                         minfo.mapping.coordinates = None
+                        minfo.mapping.coordinatesHash = None
                         minfo.mapping.elevations = None
+                        minfo.mapping.elevationsHash = None
                         minfo.mapping.sectors = None
 
                 if not recorder.map.exist:
                     recorder.update()
                     if recorder.map.exist:
-                        update_interval = idle_interval
-                        minfo.mapping.coordinates = recorder.map.raw_coords
-                        minfo.mapping.elevations = recorder.map.raw_dists
-                        minfo.mapping.sectors = recorder.map.sector_index
+                        reset = False  # load recorded map in next loop
             else:
                 if reset:
                     reset = False
@@ -106,20 +107,20 @@ class MapRecorder:
     """Map data recorder"""
 
     def __init__(self):
-        self.recording = False
-        self.validating = False
-        self.last_lap_stime = -1  # last lap start time
-        self.last_sector_idx = -1
-        self.pos_last = 0  # last checked player vehicle position
         self.map = MapData()
+        self._recording = False
+        self._validating = False
+        self._last_lap_stime = -1  # last lap start time
+        self._last_sector_idx = -1
+        self._pos_last = 0  # last checked player vehicle position
 
     def reset(self):
         """Reset to defaults"""
-        self.recording = False
-        self.validating = False
-        self.last_sector_idx = -1
-        self.last_lap_stime = -1
-        self.pos_last = 0
+        self._recording = False
+        self._validating = False
+        self._last_sector_idx = -1
+        self._last_lap_stime = -1
+        self._pos_last = 0
 
     def update(self):
         """Update map data"""
@@ -135,107 +136,108 @@ class MapRecorder:
 
         # Update map data
         self.__start(lap_stime)
-        if self.validating:
+        if self._validating:
             self.__validate(lap_etime, laptime_valid)
-        if self.recording:
+        if self._recording:
             self.__record_sector(sector_idx)
             self.__record_path(pos_curr, gps_curr, elv_curr)
 
     def __start(self, lap_stime):
         """Lap start & finish detection"""
         # Init reset
-        if self.last_lap_stime == -1:
+        if self._last_lap_stime == -1:
             self.map.reset()
-            self.last_lap_stime = lap_stime
+            self._last_lap_stime = lap_stime
         # New lap
-        if lap_stime > self.last_lap_stime:
+        if lap_stime > self._last_lap_stime:
             self.__record_end()
             self.map.reset()
-            self.last_lap_stime = lap_stime
-            self.pos_last = 0
-            self.recording = True
+            self._last_lap_stime = lap_stime
+            self._pos_last = 0
+            self._recording = True
             #logger.info("map recording")
 
     def __validate(self, lap_etime, laptime_valid):
         """Validate map data after crossing finish line"""
-        laptime_curr = lap_etime - self.last_lap_stime
+        laptime_curr = lap_etime - self._last_lap_stime
         if 1 < laptime_curr <= 8 and laptime_valid > 0:
             self.map.save()
             self.map.exist = True
-            self.recording = False
-            self.validating = False
+            self._recording = False
+            self._validating = False
         # Switch off validating after 8s
         elif 8 < laptime_curr < 10:
-            self.validating = False
+            self._validating = False
 
     def __record_sector(self, sector_idx):
         """Record sector index"""
-        if self.last_sector_idx != sector_idx:
+        if self._last_sector_idx != sector_idx:
             if sector_idx == 1:
-                self.map.sector_index[0] = len(self.map.raw_coords) - 1
+                self.map.sectors_index[0] = len(self.map.raw_coords) - 1
             elif sector_idx == 2:
-                self.map.sector_index[1] = len(self.map.raw_coords) - 1
-            self.last_sector_idx = sector_idx
+                self.map.sectors_index[1] = len(self.map.raw_coords) - 1
+            self._last_sector_idx = sector_idx
 
     def __record_path(self, pos_curr, gps_curr, elv_curr):
         """Record driving path"""
         # Update if position value is different & positive
-        if 0 <= pos_curr != self.pos_last:
-            if pos_curr > self.pos_last:  # position further
+        if 0 <= pos_curr != self._pos_last:
+            if pos_curr > self._pos_last:  # position further
                 self.map.raw_coords.append(gps_curr)
                 self.map.raw_dists.append((pos_curr, elv_curr))
-            self.pos_last = pos_curr  # reset last position
+            self._pos_last = pos_curr  # reset last position
 
     def __record_end(self):
         """End recording"""
         if self.map.raw_coords:
             self.map.copy()
-            self.validating = True
+            self._validating = True
 
 
 class MapData:
     """Map data"""
 
     def __init__(self):
-        self.filepath = PATH_TRACKMAP
-        self.filename = None
         self.exist = False
-        # SVG data
-        self.svg_coords = None
-        self.svg_dists = None
         # Raw data
         self.raw_coords = None
         self.raw_dists = None
-        self.sector_index = None
+        self.sectors_index = None
+        # File info
+        self._filepath = PATH_TRACKMAP
+        self._filename = None
+        # SVG data
+        self._svg_coords = None
+        self._svg_dists = None
         # Temp data
-        self.raw_coords_temp = None
-        self.raw_dists_temp = None
-        self.sector_index_temp = None
+        self._temp_raw_coords = None
+        self._temp_raw_dists = None
+        self._temp_sectors_index = None
 
     def reset(self):
         """Reset map data"""
         self.exist = False
-        self.svg_coords = None
-        self.svg_dists = None
         self.raw_coords = []
         self.raw_dists = []
-        self.sector_index = [0,0]
+        self.sectors_index = [0,0]
+        self._svg_coords = None
+        self._svg_dists = None
 
     def copy(self):
-        """Copy (reference) map data"""
-        self.raw_coords_temp = self.raw_coords
-        self.raw_dists_temp = self.raw_dists
-        self.sector_index_temp = self.sector_index
+        """Copy map data to temp and convert to tuple for hash"""
+        self._temp_raw_coords = tuple(self.raw_coords)
+        self._temp_raw_dists = tuple(self.raw_dists)
+        self._temp_sectors_index = tuple(self.sectors_index)
 
     def load(self, filename):
         """Load map data file"""
-        self.filename = filename
+        self._filename = filename
         # Load map file
-        (self.svg_coords, self.svg_dists, self.sector_index
-         ) = load_svg_file(self.filename, self.filepath)
-        if self.svg_coords:
-            self.raw_coords = fmt.points_to_coords(self.svg_coords)
-            self.raw_dists = fmt.points_to_coords(self.svg_dists)
+        (self._svg_coords, self._svg_dists, self.sectors_index
+         ) = load_svg_file(self._filename, self._filepath)
+        if self._svg_coords:
+            self.raw_coords = fmt.points_to_coords(self._svg_coords)
+            self.raw_dists = fmt.points_to_coords(self._svg_dists)
             self.exist = True
             #logger.info("map exist")
         else:
@@ -244,19 +246,20 @@ class MapData:
 
     def save(self):
         """Store & convert raw coordinates to svg points data"""
-        self.raw_coords = self.raw_coords_temp
-        self.raw_dists = self.raw_dists_temp
-        self.svg_coords = fmt.coords_to_points(self.raw_coords)
-        self.svg_dists = fmt.coords_to_points(self.raw_dists)
-        self.sector_index = self.sector_index_temp
+        self.raw_coords = self._temp_raw_coords
+        self.raw_dists = self._temp_raw_dists
+        self.sectors_index = self._temp_sectors_index
+        # Convert to svg coordinates
+        self._svg_coords = fmt.coords_to_points(self.raw_coords)
+        self._svg_dists = fmt.coords_to_points(self.raw_dists)
         # Save to svg file
         save_svg_file(
-            self.filename,
-            self.filepath,
-            self.svg_coords,
-            self.svg_dists,
+            self._filename,
+            self._filepath,
+            self._svg_coords,
+            self._svg_dists,
             calc.map_view_box(self.raw_coords, 20),
-            self.sector_index
+            self.sectors_index
         )
         #logger.info("map saved, stopped map recording")
 

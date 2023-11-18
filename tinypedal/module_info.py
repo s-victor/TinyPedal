@@ -85,9 +85,11 @@ class HybridInfo:
 @dataclass
 class MappingInfo:
     """Mapping module output data"""
-    coordinates: list = None
-    elevations: list = None
-    sectors: list = None
+    coordinates: tuple = None
+    coordinatesHash: int = None
+    elevations: tuple = None
+    elevationsHash: int = None
+    sectors: tuple = None
 
 
 @dataclass
@@ -113,7 +115,8 @@ class SectorsInfo:
 @dataclass
 class VehiclesInfo:
     """Vehicles module output data"""
-    dataSet: list = None
+    dataSet: tuple = None
+    dataSetHash: int = None
     nearestStraight: float = 999999
     nearestTraffic: float = 999999
     nearestYellow: float = 999999

@@ -76,7 +76,7 @@ class Realtime:
                     validating = False
 
                     combo_id = api.read.check.combo_id()
-                    delta_list_best = self.load_deltabest(combo_id)
+                    delta_list_best, laptime_best = self.load_deltabest(combo_id)
                     delta_list_curr = [DELTA_ZERO]  # distance, laptime
                     delta_list_last = [DELTA_ZERO]  # last lap
                     delta_best = 0  # delta time compare to best laptime
@@ -84,7 +84,6 @@ class Realtime:
                     last_lap_stime = -1  # lap-start-time
                     laptime_curr = 0  # current laptime
                     laptime_last = 0  # last laptime
-                    laptime_best = delta_list_best[-1][1]  # best laptime
                     pos_last = 0  # last checked vehicle position
                     pos_estimate = 0  # calculated position
                     gps_last = [0,0,0]  # last global position
@@ -184,13 +183,15 @@ class Realtime:
                       newline="", encoding="utf-8") as csvfile:
                 deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
                 bestlist = list(deltaread)
+                laptime_best = bestlist[-1][1]
                 # Validate data
                 if not val.delta_list(bestlist):
                     self.save_deltabest(combo, bestlist)
         except (FileNotFoundError, IndexError, ValueError, TypeError):
             logger.info("no valid deltabest data file found")
             bestlist = [(99999,99999)]
-        return bestlist
+            laptime_best = 99999
+        return bestlist, laptime_best
 
     def save_deltabest(self, combo, listname):
         """Save delta best"""

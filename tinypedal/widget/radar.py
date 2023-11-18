@@ -65,7 +65,7 @@ class Draw(Widget):
         self.show_radar = True
 
         self.vehicles_data = None
-        self.last_vehicles_data = None
+        self.last_veh_data_hash = None
 
         # Set widget state & start update
         self.set_widget_state()
@@ -80,15 +80,16 @@ class Draw(Widget):
             if self.wcfg["auto_hide"]:
                 self.autohide_radar()
 
-            # Read orientation & position data
-            self.vehicles_data = minfo.vehicles.dataSet
-            self.update_radar(self.vehicles_data, self.last_vehicles_data)
-            self.last_vehicles_data = self.vehicles_data
+            # Vehicles
+            veh_data_hash = minfo.vehicles.dataSetHash
+            self.update_radar(veh_data_hash, self.last_veh_data_hash)
+            self.last_veh_data_hash = veh_data_hash
 
     # GUI update methods
     def update_radar(self, curr, last):
         """Vehicle update"""
         if curr != last:
+            self.vehicles_data = minfo.vehicles.dataSet
             self.update()
 
     def paintEvent(self, event):

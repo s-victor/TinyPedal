@@ -311,7 +311,7 @@ def delta_telemetry(position, live_data, delta_list, condition=True, offset=0):
 def scale_map(map_data, area_size, margin=0):
     """Scale map data"""
     # Separate X & Y coordinates
-    x_range, y_range = list(zip(*map_data))
+    x_range, y_range = tuple(zip(*map_data))
     # Map size: x=width, y=height
     map_range = min(x_range), max(x_range), min(y_range), max(y_range)
     map_size = map_range[1] - map_range[0], map_range[3] - map_range[2]
@@ -326,13 +326,13 @@ def scale_map(map_data, area_size, margin=0):
                         for x_pos in x_range]
     y_range_scaled = [(y_pos - map_range[2]) * map_scale + map_offset[1]
                         for y_pos in y_range]
-    return list(zip(x_range_scaled, y_range_scaled)), map_range, map_scale, map_offset
+    return tuple(zip(x_range_scaled, y_range_scaled)), map_range, map_scale, map_offset
 
 
 def map_view_box(map_data, margin=0):
     """Map bounding box"""
     # Separate X & Y coordinates
-    x_range, y_range = list(zip(*map_data))
+    x_range, y_range = tuple(zip(*map_data))
     # Map size: x=width, y=height
     map_range = min(x_range), max(x_range), min(y_range), max(y_range)
     map_size = map_range[1] - map_range[0], map_range[3] - map_range[2]

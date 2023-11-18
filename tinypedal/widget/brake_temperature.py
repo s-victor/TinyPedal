@@ -64,7 +64,7 @@ class Draw(Widget):
         self.bar_width = font_w * text_width
 
         # Base style
-        self.heatmap = list(self.load_heatmap().items())
+        self.heatmap = tuple(self.load_heatmap().items())
 
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"

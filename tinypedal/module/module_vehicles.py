@@ -70,10 +70,11 @@ class Realtime:
                     reset = True
                     update_interval = active_interval
 
-                vehicles_data = list(self.__vehicle_data(minfo.relative.classes))
+                vehicles_data = tuple(self.__vehicle_data(minfo.relative.classes))
 
                 # Output
                 minfo.vehicles.dataSet = vehicles_data
+                minfo.vehicles.dataSetHash = hash(vehicles_data)
                 minfo.vehicles.nearestStraight = min(
                     vehicles_data, key=nearest_line_dist).relativeStraightDistance
                 minfo.vehicles.nearestTraffic = abs(

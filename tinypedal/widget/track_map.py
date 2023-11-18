@@ -75,8 +75,8 @@ class Draw(Widget):
         self.map_offset = (0,0)
 
         self.vehicles_data = None
-        self.last_raw_coords = -1
-        self.last_vehicles_data = -1
+        self.last_coords_hash = -1
+        self.last_veh_data_hash = None
         self.circular_map = True
 
         # Set widget state & start update
@@ -89,24 +89,26 @@ class Draw(Widget):
         if self.wcfg["enable"] and api.state:
 
             # Map
-            raw_coords = minfo.mapping.coordinates
-            self.update_map(raw_coords, self.last_raw_coords)
-            self.last_raw_coords = raw_coords
+            coords_hash = minfo.mapping.coordinatesHash
+            self.update_map(coords_hash, self.last_coords_hash)
+            self.last_coords_hash = coords_hash
 
-            # Vehicle
-            self.vehicles_data = minfo.vehicles.dataSet
-            self.update_veh(self.vehicles_data, self.last_vehicles_data)
-            self.last_vehicles_data = self.vehicles_data
+            # Vehicles
+            veh_data_hash = minfo.vehicles.dataSetHash
+            self.update_veh(veh_data_hash, self.last_veh_data_hash)
+            self.last_veh_data_hash = veh_data_hash
 
     # GUI update methods
     def update_map(self, curr, last):
         """Map update"""
         if curr != last:
-            self.draw_map_image(self.create_map_path(curr), self.circular_map)
+            self.draw_map_image(
+                self.create_map_path(minfo.mapping.coordinates), self.circular_map)
 
     def update_veh(self, curr, last):
         """Vehicle update"""
         if curr != last:
+            self.vehicles_data = minfo.vehicles.dataSet
             self.update()
 
     def paintEvent(self, event):
@@ -259,7 +261,7 @@ class Draw(Widget):
         painter.setFont(self.font)
 
         for veh_info in sorted(self.vehicles_data, key=self.sort_vehicles):
-            if self.last_raw_coords:
+            if self.last_coords_hash:
                 pos_x, pos_y = self.vehicle_scale(*veh_info.posXZ)
                 offset = 0
             else:

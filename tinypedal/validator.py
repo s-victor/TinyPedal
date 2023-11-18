@@ -126,7 +126,7 @@ def color_validator(color_str):
 
 def verify_heatmap(heatmap_dict):
     """Create color list & verify"""
-    for color in list(heatmap_dict.values()):
+    for color in tuple(heatmap_dict.values()):
         if not color_validator(color):
             return False
     return True

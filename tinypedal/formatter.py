@@ -90,7 +90,7 @@ def string_pair_to_float(string):
 def points_to_coords(points):
     """Convert svg points to raw coordinates"""
     string = re.split(" ", points)
-    return list(map(string_pair_to_float, string))
+    return tuple(map(string_pair_to_float, string))
 
 
 def coords_to_points(coords):

@@ -62,7 +62,7 @@ class Draw(Widget):
             text_width = 3 + len(self.sign_text)
 
         # Base style
-        self.heatmap = list(self.load_heatmap().items())
+        self.heatmap = tuple(self.load_heatmap().items())
 
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"

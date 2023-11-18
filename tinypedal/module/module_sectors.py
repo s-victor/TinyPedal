@@ -222,8 +222,7 @@ class Realtime:
     def parse_save_string(self, save_data):
         """Parse last saved sector data"""
         rex_string = re.split(r"(\|)", save_data)
-        data_gen = self.split_save_string(rex_string)
-        data = list(data_gen)
+        data = tuple(self.split_save_string(rex_string))
 
         try:  # fill in data
             final_list = [
