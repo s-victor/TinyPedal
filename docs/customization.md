@@ -311,10 +311,10 @@ Store last saved sector info string of current session, not recommended for manu
 Enable vehicles module. This module provides vehicles data.
 
     lap_difference_ahead_threshold
-Lap difference (percentage) threshold for tagging opppents as ahead. Default value is `0.9` lap.
+Lap difference (percentage) threshold for tagging opponents as ahead. Default value is `0.9` lap.
 
     lap_difference_behind_threshold
-Lap difference (percentage) threshold for tagging opppents as behind. Default value is `0.9` lap.
+Lap difference (percentage) threshold for tagging opponents as behind. Default value is `0.9` lap.
 
 
 # Widgets
@@ -535,7 +535,7 @@ Set custom text for red lights.
 Set custom text for green flag.
 
     show_traffic
-Show incoming on-track traffic indicator (time gap) while in pitlane or after pit-out.
+Show incoming on-track traffic indicator (time gap) while in pit lane or after pit-out.
 
     traffic_maximum_time_gap
 Set maximum time gap (seconds) of incoming on-track traffic.

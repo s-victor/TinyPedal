@@ -28,10 +28,10 @@
 * Vehicles Module
   - Add "lap_difference_ahead_threshold" & "lap_difference_behind_threshold" options,
     which sets lap difference (percentage) threshold
-    for tagging opppents as ahead or behind.
+    for tagging opponents as ahead or behind.
     Default value is `0.9` lap.
     Those options are used by lap difference color indicator
-    in Trackmap, Relative, Rader, Navigation Widgets.
+    in Trackmap, Relative, Radar, Navigation Widgets.
 
 * Misc
   - Updated user guide.
