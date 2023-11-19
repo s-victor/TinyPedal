@@ -216,7 +216,7 @@ class Draw(Widget):
                 pen.setWidth(self.wcfg["start_line_width"])
                 pen.setColor(QColor(self.wcfg["start_line_color"]))
                 painter.setPen(pen)
-                pos_x1, pos_y1, pos_x2, pos_y2 = self.sector_coords(
+                pos_x1, pos_y1, pos_x2, pos_y2 = calc.line_intersect_coords(
                     self.map_scaled[0],  # point a
                     self.map_scaled[1],  # point b
                     1.57079633,  # 90 degree rotation
@@ -225,16 +225,16 @@ class Draw(Widget):
                 painter.drawLine(QLineF(pos_x1, pos_y1, pos_x2, pos_y2))
 
             # Sector lines
-            sector_index = minfo.mapping.sectors
-            if self.wcfg["show_sector_line"] and sector_index:
+            sectors_index = minfo.mapping.sectors
+            if self.wcfg["show_sector_line"] and sectors_index:
                 pen.setWidth(self.wcfg["sector_line_width"])
                 pen.setColor(QColor(self.wcfg["sector_line_color"]))
                 painter.setPen(pen)
 
                 for idx in range(2):
-                    pos_x1, pos_y1, pos_x2, pos_y2 = self.sector_coords(
-                        self.map_scaled[sector_index[idx]],  # point a
-                        self.map_scaled[sector_index[idx] + 1],  # point b
+                    pos_x1, pos_y1, pos_x2, pos_y2 = calc.line_intersect_coords(
+                        self.map_scaled[sectors_index[idx]],  # point a
+                        self.map_scaled[sectors_index[idx] + 1],  # point b
                         1.57079633,  # 90 degree rotation
                         self.wcfg["sector_line_length"]
                     )
@@ -254,11 +254,10 @@ class Draw(Widget):
                     )
                 )
 
-        painter.end()
-
     def draw_vehicle(self, painter):
         """Draw vehicles"""
-        painter.setFont(self.font)
+        if self.wcfg["show_vehicle_standings"]:
+            painter.setFont(self.font)
 
         for veh_info in sorted(self.vehicles_data, key=self.sort_vehicles):
             if self.last_coords_hash:
@@ -304,7 +303,7 @@ class Draw(Widget):
             painter.setBrush(self.brush)
             painter.drawEllipse(rect_vehicle)
 
-            # Draw text
+            # Draw text standings
             if self.wcfg["show_vehicle_standings"]:
                 self.pen.setColor(QColor(self.wcfg["font_color"]))
                 painter.setPen(self.pen)
@@ -365,19 +364,3 @@ class Draw(Widget):
         if is_lapped < 0:
             return self.wcfg["vehicle_color_laps_behind"]
         return self.wcfg["vehicle_color_same_lap"]
-
-    @staticmethod
-    def sector_coords(point_a, point_b, radians, length):
-        """Sector coordinates"""
-        org_rad = calc.oriyaw2rad(point_b[1] - point_a[1], point_b[0] - point_a[0])
-        pos_x1, pos_y1 = calc.rotate_pos(
-            org_rad + radians,
-            length,  # x pos
-            0  # y pos
-        )
-        pos_x2, pos_y2 = calc.rotate_pos(
-            org_rad - radians,
-            length,  # x pos
-            0  # y pos
-        )
-        return pos_x1 + point_a[0], pos_y1 + point_a[1], pos_x2 + point_a[0], pos_y2 + point_a[1]

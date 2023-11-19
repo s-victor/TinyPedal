@@ -39,9 +39,11 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config variable
-        self.global_scale = self.wcfg["global_scale"]
+        self.global_scale = max(self.wcfg["global_scale"], 0.01)
         self.area_size = max(self.wcfg["radar_radius"], 5) * 2 * self.global_scale
         self.area_center = self.area_size / 2
+        self.radar_range = self.wcfg["radar_radius"] * 2.5
+
         self.veh_width = max(self.wcfg["vehicle_width"], 0.01)
         self.veh_length = max(self.wcfg["vehicle_length"], 0.01)
         self.rect_veh = QRectF(
@@ -82,11 +84,11 @@ class Draw(Widget):
 
             # Vehicles
             veh_data_hash = minfo.vehicles.dataSetHash
-            self.update_radar(veh_data_hash, self.last_veh_data_hash)
+            self.update_vehicle(veh_data_hash, self.last_veh_data_hash)
             self.last_veh_data_hash = veh_data_hash
 
     # GUI update methods
-    def update_radar(self, curr, last):
+    def update_vehicle(self, curr, last):
         """Vehicle update"""
         if curr != last:
             self.vehicles_data = minfo.vehicles.dataSet
@@ -276,7 +278,6 @@ class Draw(Widget):
 
     def draw_vehicle(self, painter):
         """Draw vehicles"""
-        # Draw player vehicle
         if self.wcfg["vehicle_outline_width"]:
             self.pen.setWidth(self.wcfg["vehicle_outline_width"])
             self.pen.setColor(QColor(self.wcfg["vehicle_outline_color"]))
@@ -284,23 +285,15 @@ class Draw(Widget):
         else:
             painter.setPen(Qt.NoPen)
 
-        self.brush.setColor(QColor(self.wcfg["vehicle_color_player"]))
-        painter.setBrush(self.brush)
-        painter.translate(self.area_center, self.area_center)
-        painter.drawRoundedRect(
-            self.rect_veh,
-            self.wcfg["vehicle_border_radius"],
-            self.wcfg["vehicle_border_radius"]
-        )
-
-        # Draw opponent vehicle within radar_range
-        radar_range = self.wcfg["radar_radius"] * 3
-
+        # Draw opponent vehicle within radar range
+        painter.resetTransform()
         for veh_info in self.vehicles_data:
-            if not veh_info.isPlayer and veh_info.relativeStraightDistance < radar_range:
+            if not veh_info.isPlayer and veh_info.relativeStraightDistance < self.radar_range:
                 # Rotated position relative to player
-                pos_x, pos_y = tuple(map(self.scale_veh_pos, veh_info.relativeRotatedPosXZ))
-
+                pos_x, pos_y = (
+                    self.scale_veh_pos(veh_info.relativeRotatedPosXZ[0]),
+                    self.scale_veh_pos(veh_info.relativeRotatedPosXZ[1])
+                )
                 # Draw vehicle
                 self.brush.setColor(
                     QColor(
@@ -315,20 +308,29 @@ class Draw(Widget):
                 )
                 painter.setBrush(self.brush)
 
-                painter.resetTransform()
                 painter.translate(pos_x, pos_y)
-                painter.rotate(calc.rad2deg(-veh_info.relativeOrientationXZRadians) - 180)
-                painter.drawRoundedRect(
-                    self.rect_veh,
-                    self.wcfg["vehicle_border_radius"],
-                    self.wcfg["vehicle_border_radius"]
-                )
+                painter.rotate(calc.rad2deg(-veh_info.relativeOrientationXZRadians))
+                self.draw_vehicle_shape(painter)
+                painter.resetTransform()
 
+        # Draw player vehicle
+        self.brush.setColor(QColor(self.wcfg["vehicle_color_player"]))
+        painter.setBrush(self.brush)
+        painter.translate(self.area_center, self.area_center)
+        self.draw_vehicle_shape(painter)
         painter.resetTransform()
+
+    def draw_vehicle_shape(self, painter):
+        """Draw vehicles shape"""
+        painter.drawRoundedRect(
+            self.rect_veh,
+            self.wcfg["vehicle_border_radius"],
+            self.wcfg["vehicle_border_radius"]
+        )
 
     # Additional methods
     def scale_veh_pos(self, position):
-        """Scale vehicle position coordinate to radar scale"""
+        """Scale vehicle position coordinate to global scale"""
         return position * self.global_scale + self.area_center
 
     def warning_color(self, nearest_x, min_range_x, max_range_x):

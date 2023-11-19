@@ -360,3 +360,31 @@ def map_view_box(map_data, margin=0):
     x2 = round(map_size[0] + margin * 2, 4)
     y2 = round(map_size[1] + margin * 2, 4)
     return f"{x1} {y1} {x2} {y2}"
+
+
+def line_intersect_coords(coord_a, coord_b, radians, length):
+    """Create intersect line coordinates from 2 coordinates
+
+    coord_a: coordinate A
+    coord_b: coordinate B
+    radians: amount rotation to apply
+    length: length between coordinates
+    """
+    yaw_rad = oriyaw2rad(
+        coord_b[1] - coord_a[1],
+        coord_b[0] - coord_a[0]
+    )
+    pos_x1, pos_y1 = rotate_pos(
+        yaw_rad + radians,
+        length,  # x pos
+        0  # y pos
+    )
+    pos_x2, pos_y2 = rotate_pos(
+        yaw_rad - radians,
+        length,  # x pos
+        0  # y pos
+    )
+    return (pos_x1 + coord_a[0],
+            pos_y1 + coord_a[1],
+            pos_x2 + coord_a[0],
+            pos_y2 + coord_a[1])

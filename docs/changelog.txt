@@ -1,4 +1,4 @@
-WIP
+2.4.0 (2023-11-19)
 -----------------------------
 * General
   - [New]Add "Grid move" option under overlay menu and tray menu (by Bernat),
@@ -6,7 +6,7 @@ WIP
     for easy alignment and repositioning.
     "Grid move size" option is accessible from compatibility config dialog.
   - Add "Reset data" submenu to "Overlay" menu from main window,
-    which allows user to reset data from active session.
+    which allows user to reset data from active session only.
     Currently includes deltabest, fuel delta, trackmap data.
 
 * Linux support
@@ -14,10 +14,16 @@ WIP
     for new preset created on Linux (by Bernat).
 
 * [New]Heading Widget
-  - Add Heading Widget that similar to flight instrument "heading indicator",
-    which shows vehicle yaw angle, slip angle, & direction of travel lines on compass bearings.
-  - Add new "icon_compass.png" compass bearings background in "images" folder.
-  - Add many customizable options for Heading Widget.
+  - Show vehicle yaw angle, slip angle, & direction of travel lines on compass bearings
+    that similar to flight instrument "heading indicator".
+  - Show vehicle yaw angle, slip angle readings in degrees.
+  - New "icon_compass.png" compass bearings background in "images" folder.
+  - Many customizable options.
+
+* [New]Navigation Widget
+  - Show navigation map and orientation centered on player's vehicle.
+  - Show optional vehicle standings on navigation map.
+  - Many customizable options.
 
 * Vehicles Module
   - Add "lap_difference_ahead_threshold" & "lap_difference_behind_threshold" options,
@@ -25,7 +31,7 @@ WIP
     for tagging opppents as ahead or behind.
     Default value is `0.9` lap.
     Those options are used by lap difference color indicator
-    in Trackmap, Relative, Rader Widgets.
+    in Trackmap, Relative, Rader, Navigation Widgets.
 
 * Misc
   - Updated user guide.

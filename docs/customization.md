@@ -846,6 +846,50 @@ Set the number of lap time history display. Default is to show `10` most recent 
 Show empty lap time history. Default is `false`, which hides empty rows.
 
 
+## Navigation
+    display_size
+Set widget size in pixels.
+
+    view_radius
+Set viewable area by radius(unit meter). Default value is `500` meters. Minimum value is limited to `5`.
+
+    show_background
+Show background color.
+
+    show_fade_out
+Fade out view edge.
+
+    fade_in_radius, fade_out_radius
+Set fade in/out radius, value range in `0.0` to `1.0`.
+
+    map_width
+Set navigation map line width.
+
+    map_outline_width
+Set navigation map outline width.
+
+    show_start_line
+Show start line mark.
+
+    show_sector_line
+Show sector line mark.
+
+    show_vehicle_standings
+Show vehicle standings info on navigation map.
+
+    show_circle_vehicle_shape
+Set `True` to show vehicle in circle shape, set `False` for arrow shape.
+
+    vehicle_size
+Set vehicle size in pixels.
+
+    vehicle_offset
+Set vehicle vertical position offset (percentage) relative to display size, value range in `0.0` to `1.0`.
+
+    vehicle_outline_width
+Set vehicle outline width.
+
+
 ## P2P
     show_battery_charge
 Show percentage available battery charge.
@@ -909,10 +953,10 @@ Set the radar display area by radius(unit meter). Default value is `30` meters. 
 Set vehicle overall size (length & width), value in meters.
 
     vehicle_border_radius
-Set vehicle visual round border radius.
+Set vehicle round border radius.
 
     vehicle_outline_width
-Set vehicle visual outline width.
+Set vehicle outline width.
 
     show_background
 Show background color.
@@ -930,7 +974,7 @@ Show overlap indicator when there is nearby side by side vehicle.
 Set overlap detection range multiplier that scales with vehicle width.
 
     indicator_size_multiplier
-Set indicator visual size multiplier that scales with vehicle width.
+Set indicator size multiplier that scales with vehicle width.
 
     show_center_mark
 Show center mark on radar.
@@ -1251,7 +1295,7 @@ Show start line mark.
 Show sector line mark.
 
     show_vehicle_standings
-Show vehicle standings info on map.
+Show vehicle standings info on track map.
 
 
 ## Trailing
