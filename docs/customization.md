@@ -1348,6 +1348,23 @@ Set reference line style. `0` for solid line, `1` for dashed line.
 Set reference line width in pixels. Set value to `0` to hide line.
 
 
+## Tyre carcass temperature
+    heatmap_name
+Set heatmap preset name that is defined in `heatmap.json` file.
+
+    show_degree_sign
+Set `true` to show degree sign for each temperature value.
+
+    leading_zero
+Set amount leading zeros for each temperature value. Default is `2`. Minimum value is limited to `1`.
+
+    show_tyre_compound
+Show tyre compound index (front/rear).
+
+    tyre_compound_list
+Set custom tire compound index letter. One letter corresponds to one compound index.
+
+
 ## Tyre load
 Show visualized tyre load display.
 
@@ -1380,23 +1397,6 @@ Set amount leading zeros for each temperature value. Default is `2`. Minimum val
 
     show_innerlayer
 Show tyre inner layer temperature.
-
-    show_tyre_compound
-Show tyre compound index (front/rear).
-
-    tyre_compound_list
-Set custom tire compound index letter. One letter corresponds to one compound index.
-
-
-## Tyre carcass temperature
-    heatmap_name
-Set heatmap preset name that is defined in `heatmap.json` file.
-
-    show_degree_sign
-Set `true` to show degree sign for each temperature value.
-
-    leading_zero
-Set amount leading zeros for each temperature value. Default is `2`. Minimum value is limited to `1`.
 
     show_tyre_compound
 Show tyre compound index (front/rear).

@@ -6,6 +6,7 @@ Thanks to many people for contributing to the development.
 * Xiang (S.Victor) - Original author, coding, documentation
 * Bernat (berarma) - Cross-platform maintainer, coding, documentation
 * DanRZ - Trailing widget implementation, documentation
+* Sasker - Tyre carcass widget implementation, documentation
 
 ## Inactive developers
 * Nibo - Sectors widget implementation, documentation
