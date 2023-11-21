@@ -356,11 +356,11 @@ class Timing(DataAdapter):
         """Best lap time"""
         return chknm(self.info.rf2ScorVeh(index).mBestLapTime)
 
-    def curr_sector1(self, index: int=None) -> float:
+    def current_sector1(self, index: int=None) -> float:
         """Current lap sector 1 time"""
         return chknm(self.info.rf2ScorVeh(index).mCurSector1)
 
-    def curr_sector2(self, index: int=None) -> float:
+    def current_sector2(self, index: int=None) -> float:
         """Current lap sector 1+2 time"""
         return chknm(self.info.rf2ScorVeh(index).mCurSector2)
 
@@ -433,7 +433,7 @@ class Tyre(DataAdapter):
         return [self.surface_temperature_fl(index),
                 self.surface_temperature_fr(index),
                 self.surface_temperature_rl(index),
-                self.surface_temperature_rr(index),]
+                self.surface_temperature_rr(index)]
 
     def inner_temperature_fl(self, index: int=None):
         """Tyre inner temperature - front left"""
@@ -464,7 +464,7 @@ class Tyre(DataAdapter):
         return [self.inner_temperature_fl(index),
                 self.inner_temperature_fr(index),
                 self.inner_temperature_rl(index),
-                self.inner_temperature_rr(index),]
+                self.inner_temperature_rr(index)]
 
     def pressure(self, index: int=None):
         """Tyre pressure"""

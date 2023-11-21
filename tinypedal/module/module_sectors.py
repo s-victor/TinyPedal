@@ -82,8 +82,8 @@ class Realtime:
                 # Read telemetry
                 sector_idx = api.read.lap.sector_index()
                 laptime_valid = api.read.timing.last_laptime()
-                curr_sector1 = api.read.timing.curr_sector1()
-                curr_sector2 = api.read.timing.curr_sector2()
+                curr_sector1 = api.read.timing.current_sector1()
+                curr_sector2 = api.read.timing.current_sector2()
                 last_sector2 = api.read.timing.last_sector2()
 
                 # Update previous & best sector time
