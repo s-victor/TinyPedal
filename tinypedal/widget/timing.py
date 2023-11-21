@@ -53,6 +53,7 @@ class Draw(Widget):
                 len(self.wcfg["prefix_current"]),
                 len(self.wcfg["prefix_estimated"]),
                 len(self.wcfg["prefix_session_best"]),
+                len(self.wcfg["prefix_session_personal_best"]),
             )
         else:
             prefix_w = None
@@ -63,12 +64,9 @@ class Draw(Widget):
         self.prefix_curr = self.wcfg["prefix_current"][:prefix_w].ljust(prefix_just)
         self.prefix_esti = self.wcfg["prefix_estimated"][:prefix_w].ljust(prefix_just)
         self.prefix_sbst = self.wcfg["prefix_session_best"][:prefix_w].ljust(prefix_just)
+        self.prefix_spbt = self.wcfg["prefix_session_personal_best"][:prefix_w].ljust(prefix_just)
 
-        text_best = f"{self.prefix_best}-:--.---"
-        text_last = f"{self.prefix_last}-:--.---"
-        text_curr = f"{self.prefix_curr}-:--.---"
-        text_est = f"{self.prefix_esti}-:--.---"
-        text_sbest = f"{self.prefix_sbst}-:--.---"
+        time_none = "-:--.---"
 
         # Base style
         self.setStyleSheet(
@@ -84,24 +82,25 @@ class Draw(Widget):
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
-        column_sbest = self.wcfg["column_index_session_best"]
+        column_sbst = self.wcfg["column_index_session_best"]
         column_best = self.wcfg["column_index_best"]
         column_last = self.wcfg["column_index_last"]
         column_curr = self.wcfg["column_index_current"]
-        column_est = self.wcfg["column_index_estimated"]
+        column_esti = self.wcfg["column_index_estimated"]
+        column_spbt = self.wcfg["column_index_session_personal_best"]
 
         # Session best laptime
         if self.wcfg["show_session_best"]:
-            self.bar_time_sbest = QLabel(text_sbest)
-            self.bar_time_sbest.setAlignment(Qt.AlignCenter)
-            self.bar_time_sbest.setStyleSheet(
+            self.bar_time_sbst = QLabel(f"{self.prefix_sbst}{time_none}")
+            self.bar_time_sbst.setAlignment(Qt.AlignCenter)
+            self.bar_time_sbst.setStyleSheet(
                 f"color: {self.wcfg['font_color_session_best']};"
                 f"background: {self.wcfg['bkg_color_session_best']};"
             )
 
         # Personal best laptime
         if self.wcfg["show_best"]:
-            self.bar_time_best = QLabel(text_best)
+            self.bar_time_best = QLabel(f"{self.prefix_best}{time_none}")
             self.bar_time_best.setAlignment(Qt.AlignCenter)
             self.bar_time_best.setStyleSheet(
                 f"color: {self.wcfg['font_color_best']};"
@@ -110,7 +109,7 @@ class Draw(Widget):
 
         # Last laptime
         if self.wcfg["show_last"]:
-            self.bar_time_last = QLabel(text_last)
+            self.bar_time_last = QLabel(f"{self.prefix_last}{time_none}")
             self.bar_time_last.setAlignment(Qt.AlignCenter)
             self.bar_time_last.setStyleSheet(
                 f"color: {self.wcfg['font_color_last']};"
@@ -119,7 +118,7 @@ class Draw(Widget):
 
         # Current laptime
         if self.wcfg["show_current"]:
-            self.bar_time_curr = QLabel(text_curr)
+            self.bar_time_curr = QLabel(f"{self.prefix_curr}{time_none}")
             self.bar_time_curr.setAlignment(Qt.AlignCenter)
             self.bar_time_curr.setStyleSheet(
                 f"color: {self.wcfg['font_color_current']};"
@@ -128,18 +127,27 @@ class Draw(Widget):
 
         # Estimated laptime
         if self.wcfg["show_estimated"]:
-            self.bar_time_est = QLabel(text_est)
-            self.bar_time_est.setAlignment(Qt.AlignCenter)
-            self.bar_time_est.setStyleSheet(
+            self.bar_time_esti = QLabel(f"{self.prefix_esti}{time_none}")
+            self.bar_time_esti.setAlignment(Qt.AlignCenter)
+            self.bar_time_esti.setStyleSheet(
                 f"color: {self.wcfg['font_color_estimated']};"
                 f"background: {self.wcfg['bkg_color_estimated']};"
+            )
+
+        # Session personal best laptime
+        if self.wcfg["show_session_personal_best"]:
+            self.bar_time_spbt = QLabel(f"{self.prefix_spbt}{time_none}")
+            self.bar_time_spbt.setAlignment(Qt.AlignCenter)
+            self.bar_time_spbt.setStyleSheet(
+                f"color: {self.wcfg['font_color_session_personal_best']};"
+                f"background: {self.wcfg['bkg_color_session_personal_best']};"
             )
 
         # Set layout
         if self.wcfg["layout"] == 0:
             # Vertical layout
             if self.wcfg["show_session_best"]:
-                layout.addWidget(self.bar_time_sbest, column_sbest, 0)
+                layout.addWidget(self.bar_time_sbst, column_sbst, 0)
             if self.wcfg["show_best"]:
                 layout.addWidget(self.bar_time_best, column_best, 0)
             if self.wcfg["show_last"]:
@@ -147,11 +155,13 @@ class Draw(Widget):
             if self.wcfg["show_current"]:
                 layout.addWidget(self.bar_time_curr, column_curr, 0)
             if self.wcfg["show_estimated"]:
-                layout.addWidget(self.bar_time_est, column_est, 0)
+                layout.addWidget(self.bar_time_esti, column_esti, 0)
+            if self.wcfg["show_session_personal_best"]:
+                layout.addWidget(self.bar_time_spbt, column_spbt, 0)
         else:
             # Horizontal layout
             if self.wcfg["show_session_best"]:
-                layout.addWidget(self.bar_time_sbest, 0, column_sbest)
+                layout.addWidget(self.bar_time_sbst, 0, column_sbst)
             if self.wcfg["show_best"]:
                 layout.addWidget(self.bar_time_best, 0, column_best)
             if self.wcfg["show_last"]:
@@ -159,19 +169,22 @@ class Draw(Widget):
             if self.wcfg["show_current"]:
                 layout.addWidget(self.bar_time_curr, 0, column_curr)
             if self.wcfg["show_estimated"]:
-                layout.addWidget(self.bar_time_est, 0, column_est)
+                layout.addWidget(self.bar_time_esti, 0, column_esti)
+            if self.wcfg["show_session_personal_best"]:
+                layout.addWidget(self.bar_time_spbt, 0, column_spbt)
         self.setLayout(layout)
 
         # Last data
         self.checked = False
         self.vehicle_counter = 0
-        self.laptime_sbest = MAGIC_NUM
+        self.laptime_sbst = MAGIC_NUM
 
-        self.last_laptime_sbest = 0
+        self.last_laptime_sbst = 0
         self.last_laptime_best = 0
         self.last_laptime_last = (0,0)
         self.last_laptime_curr = 0
-        self.last_laptime_est = 0
+        self.last_laptime_esti = 0
+        self.last_laptime_spbt = 0
 
         # Set widget state & start update
         self.set_widget_state()
@@ -192,20 +205,20 @@ class Draw(Widget):
                 laptime_best_tmp = api.read.timing.best_laptime(self.vehicle_counter)
                 same_vehicle_class = api.read.vehicle.same_class(self.vehicle_counter)
 
-                if 0 < laptime_best_tmp < self.laptime_sbest:
+                if 0 < laptime_best_tmp < self.laptime_sbst:
                     if self.wcfg["show_session_best_from_same_class_only"] and same_vehicle_class:
-                        self.laptime_sbest = laptime_best_tmp
+                        self.laptime_sbst = laptime_best_tmp
                     elif not self.wcfg["show_session_best_from_same_class_only"]:
-                        self.laptime_sbest = laptime_best_tmp
+                        self.laptime_sbst = laptime_best_tmp
 
-                if self.vehicle_counter < max(veh_total, 1):
+                if self.vehicle_counter < veh_total:
                     self.vehicle_counter += 1
                 else:
                     self.vehicle_counter = 0
 
-                self.update_laptime(self.laptime_sbest, self.last_laptime_sbest,
-                                    self.prefix_sbst, "sbest")
-                self.last_laptime_sbest = self.laptime_sbest
+                self.update_laptime(self.laptime_sbst, self.last_laptime_sbst,
+                                    self.prefix_sbst, "sbst")
+                self.last_laptime_sbst = self.laptime_sbst
 
             # Personal best laptime
             if self.wcfg["show_best"]:
@@ -231,15 +244,22 @@ class Draw(Widget):
 
             # Estimated laptime
             if self.wcfg["show_estimated"]:
-                laptime_est = minfo.delta.lapTimeEstimated
-                self.update_laptime(laptime_est, self.last_laptime_est,
-                                    self.prefix_esti, "est")
-                self.last_laptime_est = laptime_est
+                laptime_esti = minfo.delta.lapTimeEstimated
+                self.update_laptime(laptime_esti, self.last_laptime_esti,
+                                    self.prefix_esti, "esti")
+                self.last_laptime_esti = laptime_esti
+
+            # Session personal best laptime
+            if self.wcfg["show_session_personal_best"]:
+                laptime_spbt = api.read.timing.best_laptime()
+                self.update_laptime(laptime_spbt, self.last_laptime_spbt,
+                                    self.prefix_spbt, "spbt")
+                self.last_laptime_spbt = laptime_spbt
 
         else:
             if self.checked:
                 self.checked = False
-                self.laptime_sbest = MAGIC_NUM  # reset laptime
+                self.laptime_sbst = MAGIC_NUM  # reset laptime
 
     # GUI update methods
     def update_laptime(self, curr, last, prefix, suffix):

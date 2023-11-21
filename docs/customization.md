@@ -1268,6 +1268,9 @@ Show personal current laptime.
     show_estimated
 Show personal current estimated laptime.
 
+    show_session_personal_best
+Show personal current session best laptime.
+
 
 ## Track map
     show_background
