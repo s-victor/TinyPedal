@@ -51,7 +51,7 @@ class Draw(Widget):
         # Config variable
         text_def = "n/a"
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
+        inner_gap = self.wcfg["inner_gap"]
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
 
@@ -73,18 +73,16 @@ class Draw(Widget):
         # Create layout
         layout = QGridLayout()
         layout.setContentsMargins(0,0,0,0)  # remove border
-        layout_stemp = QGridLayout()
-        layout.setSpacing(bar_gap)
+        layout_ctemp = QGridLayout()
+        layout.setSpacing(inner_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_stemp = self.wcfg["column_index_surface"]
 
         # Tyre compound
         if self.wcfg["show_tyre_compound"]:
             bar_style_tcmpd = (
                 f"color: {self.wcfg['font_color_tyre_compound']};"
                 f"background: {self.wcfg['bkg_color_tyre_compound']};"
-                f"min-width: {font_w}px;"
+                f"min-width: {font_w}px; max-width: {font_w}px;"
             )
             self.bar_tcmpd_f = QLabel("-")
             self.bar_tcmpd_f.setAlignment(Qt.AlignCenter)
@@ -92,44 +90,43 @@ class Draw(Widget):
             self.bar_tcmpd_r = QLabel("-")
             self.bar_tcmpd_r.setAlignment(Qt.AlignCenter)
             self.bar_tcmpd_r.setStyleSheet(bar_style_tcmpd)
-            layout_stemp.addWidget(self.bar_tcmpd_f, 0, 4)
-            layout_stemp.addWidget(self.bar_tcmpd_r, 1, 4)
+            layout_ctemp.addWidget(self.bar_tcmpd_f, 0, 4)
+            layout_ctemp.addWidget(self.bar_tcmpd_r, 1, 4)
 
-        # Tyre temperature
-        self.stemp_set = ("stemp_fl", "stemp_fr", "stemp_rl", "stemp_rr")
+        # Tyre carcass temperature
+        self.ctemp_set = ("ctemp_fl", "ctemp_fr", "ctemp_rl", "ctemp_rr")
 
         self.bar_width_temp = font_w * text_width
-        bar_style_stemp = (
-            f"color: {self.wcfg['font_color_surface']};"
-            f"background: {self.wcfg['bkg_color_surface']};"
+        bar_style_ctemp = (
+            f"color: {self.wcfg['font_color_carcass']};"
+            f"background: {self.wcfg['bkg_color_carcass']};"
             f"min-width: {self.bar_width_temp}px;"
         )
 
-        for suffix in self.stemp_set:
+        for suffix in self.ctemp_set:
             setattr(self, f"bar_{suffix}", QLabel(text_def))
             getattr(self, f"bar_{suffix}").setAlignment(Qt.AlignCenter)
-            getattr(self, f"bar_{suffix}").setStyleSheet(bar_style_stemp)
-            if suffix == "stemp_fl":  # 0
-                layout_stemp.addWidget(
+            getattr(self, f"bar_{suffix}").setStyleSheet(bar_style_ctemp)
+            if suffix == "ctemp_fl":  # 0
+                layout_ctemp.addWidget(
                     getattr(self, f"bar_{suffix}"), 0, 0)
-            if suffix == "stemp_fr":  # 9
-                layout_stemp.addWidget(
+            if suffix == "ctemp_fr":  # 9
+                layout_ctemp.addWidget(
                     getattr(self, f"bar_{suffix}"), 0, 9)
-            if suffix == "stemp_rl":  # 0
-                layout_stemp.addWidget(
+            if suffix == "ctemp_rl":  # 0
+                layout_ctemp.addWidget(
                     getattr(self, f"bar_{suffix}"), 1, 0)
-            if suffix == "stemp_rr":  # 9
-                layout_stemp.addWidget(
+            if suffix == "ctemp_rr":  # 9
+                layout_ctemp.addWidget(
                     getattr(self, f"bar_{suffix}"), 1, 9)
 
         # Set layout
-        # Vertical layout
-        layout.addLayout(layout_stemp, column_stemp, 0)
+        layout.addLayout(layout_ctemp, 0, 0)
         self.setLayout(layout)
 
         # Last data
         self.last_tcmpd = [None] * 2
-        self.last_stemp = [-273.15] * 4
+        self.last_ctemp = [-273.15] * 4
 
         # Set widget state & start update
         self.set_widget_state()
@@ -146,20 +143,22 @@ class Draw(Widget):
                 self.update_tcmpd(tcmpd, self.last_tcmpd)
                 self.last_tcmpd = tcmpd
 
-            # Tyre temperature
-            stemp = tuple(map(self.temp_mode, api.read.tyre.carcass_temperature()))
-
-            # Surface temperature
-            for idx, suffix in enumerate(self.stemp_set):
-                self.update_stemp(suffix, stemp[idx], self.last_stemp[idx])
-            self.last_stemp = stemp
+            # Tyre carcass temperature
+            ctemp = api.read.tyre.carcass_temperature()
+            for idx, suffix in enumerate(self.ctemp_set):
+                self.update_ctemp(suffix, ctemp[idx], self.last_ctemp[idx])
+            self.last_ctemp = ctemp
 
     # GUI update methods
-    def update_stemp(self, suffix, curr, last):
-        """Tyre surface temperature"""
+    def update_ctemp(self, suffix, curr, last):
+        """Tyre carcass temperature"""
         if round(curr) != round(last):
-            color = (f"color: {self.color_heatmap(curr)};"
-                     f"background: {self.wcfg['bkg_color_surface']};")
+            if self.wcfg["swap_style"]:
+                color = (f"color: {self.wcfg['font_color_carcass']};"
+                         f"background: {self.color_heatmap(curr)};")
+            else:
+                color = (f"color: {self.color_heatmap(curr)};"
+                         f"background: {self.wcfg['bkg_color_carcass']};")
 
             getattr(self, f"bar_{suffix}").setText(
                 f"{self.temp_units(curr):0{self.leading_zero}.0f}{self.sign_text}")
@@ -174,9 +173,6 @@ class Draw(Widget):
             self.bar_tcmpd_r.setText(curr[1])
 
     # Additional methods
-    def temp_mode(self, value):
-        return value
-
     def temp_units(self, value):
         """Temperature units"""
         if self.cfg.units["temperature_unit"] == "Fahrenheit":

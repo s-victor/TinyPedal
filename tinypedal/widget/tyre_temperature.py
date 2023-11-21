@@ -89,7 +89,7 @@ class Draw(Widget):
             bar_style_tcmpd = (
                 f"color: {self.wcfg['font_color_tyre_compound']};"
                 f"background: {self.wcfg['bkg_color_tyre_compound']};"
-                f"min-width: {font_w}px;"
+                f"min-width: {font_w}px; max-width: {font_w}px;"
             )
             self.bar_tcmpd_f = QLabel("-")
             self.bar_tcmpd_f.setAlignment(Qt.AlignCenter)
@@ -101,9 +101,9 @@ class Draw(Widget):
             layout_stemp.addWidget(self.bar_tcmpd_r, 1, 4)
 
             if self.wcfg["show_innerlayer"]:
-                bar_blank_1 = QLabel(" ")
+                bar_blank_1 = QLabel("")
                 bar_blank_1.setStyleSheet(bar_style_tcmpd)
-                bar_blank_2 = QLabel(" ")
+                bar_blank_2 = QLabel("")
                 bar_blank_2.setStyleSheet(bar_style_tcmpd)
                 layout_itemp.addWidget(bar_blank_1, 0, 4)
                 layout_itemp.addWidget(bar_blank_2, 1, 4)
