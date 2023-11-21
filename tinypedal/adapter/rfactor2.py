@@ -481,6 +481,12 @@ class Tyre(DataAdapter):
         return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mWear)
                 for data in range(4)]
 
+    def carcass_temperature(self, index: int=None):
+        """Tyre carcass temperature"""
+        return [calc.kelvin2celsius(
+                chknm(self.info.rf2TeleVeh(index).mWheels[data].mTireCarcassTemperature))
+                for data in range(4)]
+
 
 class Vehicle(DataAdapter):
     """Vehicle"""
