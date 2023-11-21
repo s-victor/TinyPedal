@@ -1,3 +1,10 @@
+WIP
+-----------------------------
+* [New]Tire carcass temperature Widget
+  - Based on Tyre temperature Widget, but showing carcass temperature. 
+    This is useful because carcass temperature is more important than peak or average temperatures with respect to grip and wear.
+  - Many customizable options.
+
 2.4.0 (2023-11-19)
 -----------------------------
 * General
