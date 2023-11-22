@@ -1,12 +1,14 @@
 WIP
 -----------------------------
 * [New]Tyre carcass temperature Widget (by Sasker)
-  - Based on Tyre temperature Widget, but showing carcass temperature. 
-    This is useful because carcass temperature is more important than peak or average temperatures with respect to grip and wear.
+  - Show carcass temperature of each tyres
+    based on Tyre temperature Widget design,
+    which helps analyzing and managing tyre grip
+    and wear relative to carcass temperature change.
   - Many customizable options.
 
 * Timing Widget
-  - Add optional "show_session_personal_best" option (not enabled by default),
+  - Add "show_session_personal_best" option (disabled by default),
     which shows personal best lap time from current session.
 
 * Misc

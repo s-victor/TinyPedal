@@ -1,4 +1,4 @@
-*Note: the guide is for version 2.0 or higher.*
+**Note: the guide is for version 2.0 or higher.**
 
 TinyPedal offers a wide range of customization options for widget & module controls, as well as preset management, which can be accessed from main window. Manual editing is also possible via `JSON` setting file with text editor.
 
@@ -7,7 +7,7 @@ All `JSON` setting files are located in `TinyPedal\settings` folder. Preset can 
 TinyPedal automatically saves setting when user makes any changes to widget position, or has toggled widget visibility, auto-hide, overlay-lock, etc. Any changes will only take effect after `Reload` preset, or clicked save button in `Config` dialog, or `Restart` APP.
 
 
-## Backup file 
+## Backup file
 TinyPedal will automatically create backup file with time stamp suffix if old setting file fails to load, and new default `JSON` with same filename will be generated.
 
 A newer released version will auto-update old setting and add new setting after loading. It may still be a good idea to manually backup files before updating.
@@ -30,6 +30,8 @@ Also important to note, not every setting allows float point value that contains
 
 
 ## Common Setting
+**These are the commonly used setting terms and keywords.**
+
     enable
 This checks whether a widget or module will be loaded at startup.
 
@@ -40,10 +42,10 @@ This sets refresh rate for widget or module, value is in milliseconds. A value o
 This sets refresh rate for module while its idle for conserving resources.
 
     position_x, position_y
-Defines widget position on screen. Those values will be auto-saved.
+Defines widget position on screen (in pixels). Those values will be auto updated and saved.
 
     opacity
-By default, all widgets have a 90% opacity setting, which equals value `0.9`. Lower value adds more transparency to widget. Acceptable value range is `0.0` to `1.0`.
+By default, all widgets have a 90% opacity setting, which equals value `0.9`. Lower value adds more transparency to widget. Acceptable value range in `0.0` to `1.0`.
 
     bar_gap, inner_gap
 Set gap (screen pixel) between elements in a widget, only accept integer, `1` = 1 pixel.
@@ -58,7 +60,7 @@ Set font size, increase or decrease font size will also apply to widget size. Va
 Acceptable value: `normal` or `bold`.
 
     enable_auto_font_offset
-Automatically adjust font vertical offset based on font geometry for better vertical alignment, and should give good result in most case. This option is enabled by default. Set `false` to disable.
+Automatically adjust font vertical offset based on font geometry for better vertical alignment, and should give good result in most case. This option is enabled by default, and only available to certain widgets. Set `false` to disable.
 
     font_offset_vertical
 Manually set font vertical offset. Default value is `0`. Negative value will offset font upward, and position value for downward. This option only takes effect when `enable_auto_font_offset` is set to `false`.
@@ -83,7 +85,7 @@ Set amount decimal places to keep.
 
 
 ## Application
-Application options can be accessed from `Window` menu in main window.
+**Application options can be accessed from `Window` menu in main window.**
 
     show_at_startup
 Show main window at startup, otherwise hides to tray icon.
@@ -96,7 +98,7 @@ Remember last window position.
 
 
 ## Overlay
-Overlay options can be accessed from `Overlay` menu in main window, or from tray icon menu.
+**Overlay options can be accessed from `Overlay` menu in main window, or from tray icon menu.**
 
     fixed_position
 Check whether widget is locked at startup. This setting can be toggled from tray icon menu. Valid value: `true`, same as `1`. `false`, same as `0`.
@@ -109,7 +111,7 @@ Enable grid-snap effect while moving widget for easy alignment and repositioning
 
 
 ## Compatibility
-Compatibility options can be accessed from `Config` menu in main window.
+**Compatibility options can be accessed from `Config` menu in main window.**
 
     enable_bypass_window_manager
 Set `true` to bypass window manager on X11 system, such as linux. This option does not affect windows system. This option is enabled by default on linux. Note, while this option is enabled, OBS may not be able to capture overlay widgets in streaming on linux.
@@ -127,13 +129,13 @@ Set grid size for grid move, value in pixel. Default value is `8` pixel. Minimum
 
 
 ## Shared Memory API
-Shared Memory API options can be accessed from `Config` menu in main window. Some options may only be relevant to certain API.
+**Shared Memory API options can be accessed from `Config` menu in main window. Some options may only be relevant to certain API.**
 
     api_name
 Set API name for accessing data from supported API.
 
     access_mode
-Set access mode for API. Mode value `0` uses copy access and additional data check to avoid data desync or interruption issues. Mode value `1` uses direct access, which may result data desync or interruption issues. Default mode is copy access.
+Set access mode for API. Mode value `0` uses copy access and additional data check to avoid data desynchronized or interruption issues. Mode value `1` uses direct access, which may result data desynchronized or interruption issues. Default mode is copy access.
 
     process_id
 Set process ID string for accessing API from server. Currently this option is only relevant to RF2.
@@ -152,7 +154,7 @@ Set `player index` override for displaying data from specific player. Valid play
 
 
 ## Spectate mode
-Spectate mode can be accessed from `Spectate` tab in main window.
+**Spectate mode can be accessed from `Spectate` tab in main window. This feature has nothing to do with game's spectator mode.**
 
 Click `Enabled` or `Disabled` button to toggle spectate mode on & off. Note, spectate mode can also be enabled by setting `enable_player_index_override` option to `true` in `Shared Memory API` config.
 
@@ -164,7 +166,7 @@ Click `Refresh` button to manually refresh player name list.
 
 
 ## Display Units
-Display units config dialog can be accessed from `Config` menu in main window.
+**Display units options can be accessed from `Config` menu in main window.**
 
     distance_unit
 2 unit types are available: `"Meter"`, `"Feet"`.
@@ -189,7 +191,7 @@ Display units config dialog can be accessed from `Config` menu in main window.
 
 
 ## Global Font Override
-Global font override config dialog can be accessed from `Config` menu in main window, which provides options to change font setting globally for all widgets.
+**Global font override options can be accessed from `Config` menu in main window, which allow changing font setting globally for all widgets.**
 
     Font Name
 Select a font name to replace `font_name` setting of all widgets. Default selection is `no change`, which no changes will be applied.
@@ -202,7 +204,7 @@ Set font weight to replace `font_weight` setting of all widgets. Default selecti
 
 
 ## Classes preset
-Classes preset file is used for displaying name & color that matches specific vehicle classes.
+**Classes preset file is used for displaying name & color that matches specific vehicle classes.**
 
 Classes preset can be customized by editing `classes.json` file in `TinyPedal\settings` folder. This file will be generated only once after first time launch of the APP.
 
@@ -222,19 +224,19 @@ To restore all classes settings back to default, just delete `classes.json` file
 
 
 ## Heatmap preset
-Heatmap preset file `heatmap.json` is used for displaying color that matches specific value range of telemetry data, such as brake and tyre temperature.
+**Heatmap preset file `heatmap.json` is used for displaying color that matches specific value range of telemetry data, such as brake and tyre temperature.**
 
 Heatmap preset can be customized by editing `heatmap.json` file in `TinyPedal\settings` folder. This file will be generated only once after first time launch of the APP.
 
 To assign a heatmap preset to a specific widget, set `heatmap_name` value of the widget to the corresponding name defined in `heatmap.json` file.
 
-In case of typo errors within `heatmap.json` file, the APP will automatically fall back to use default heatmap preset. User will need to manually correct those typo errors in `heatmap.json` file.
+In case of typo errors within `heatmap.json` file, the APP will automatically fall back to use built-in default heatmap preset. User will need to manually correct those typo errors in `heatmap.json` file in order to use customized heatmap.
 
 To restore all heatmap settings back to default, just delete `heatmap.json` file.
 
 
 ## User files
-TinyPedal generates & saves various user data in specific folders. Data can be reset by accessing `Reset data` submenu from `Overlay` menu in main window; or, delete data file from corresponding folder.
+TinyPedal generates & saves user session data in specific folders. Session data can be reset by accessing `Reset data` submenu from `Overlay` menu in main window; or, delete data file from corresponding folder.
 
 * Deltabest  
     Deltabest data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
@@ -253,17 +255,21 @@ TinyPedal generates & saves various user data in specific folders. Data can be r
 
 
 # Modules
-Modules here provide important data that updated in real-time for other widgets. Widgets may stop updating if corresponding modules were turned off. Module config dialog can be accessed by clicking `Config` button from `Module` tab in main window. 
+Modules provide important data that updated in real-time for other widgets. Widgets may stop updating or receiving readings if corresponding modules were turned off. Each module can be configured by accessing `Config` button from `Module` tab in main window.
 
 
 ## Delta
+**This module provides deltabest & timing data.**
+
     module_delta
-Enable delta module. This module provides deltabest & timing data.
+Enable delta module.
 
 
 ## Force
+**This module provides vehicle g force and downforce data.**
+
     module_force
-Enable force module. This module provides vehicle g force and downforce data.
+Enable force module.
 
     gravitational_acceleration
 Set gravitational acceleration value (on earth).
@@ -279,36 +285,48 @@ Set max average g force difference threshold which compares with the standard de
 
 
 ## Fuel
+**This module provides vehicle fuel usage data.**
+
     module_fuel
-Enable fuel module. This module provides vehicle fuel usage data.
+Enable fuel module.
 
 
 ## Hybrid
+**This module provides vehicle battery usage & electric motor data.**
+
     module_hybrid
-Enable hybrid module. This module provides vehicle battery usage & electric motor data.
+Enable hybrid module.
 
 
 ## Mapping
+**This module records and processes track map data.**
+
     module_mapping
-Enable mapping module. This module records and processes track map data.
+Enable mapping module.
 
 
 ## Relative
+**This module provides vehicle relative & standings data.**
+
     module_relative
-Enable relative module. This module provides vehicle relative data.
+Enable relative module.
 
 
 ## Sectors
+**This module provides sectors timing data.**
+
     module_sectors
-Enable sectors module. This module provides sectors timing data.
+Enable sectors module.
 
     sector_info
-Store last saved sector info string of current session, not recommended for manual editing.
+Store last saved sector info string of current session, not for manual editing.
 
 
 ## Vehicles
+**This module provides additional processed vehicles data.**
+
     module_vehicles
-Enable vehicles module. This module provides vehicles data.
+Enable vehicles module.
 
     lap_difference_ahead_threshold
 Lap difference (percentage) threshold for tagging opponents as ahead. Default value is `0.9` lap.
@@ -318,10 +336,12 @@ Lap difference (percentage) threshold for tagging opponents as behind. Default v
 
 
 # Widgets
-Widget config dialog can be accessed by clicking `Config` button from `Widget` tab in main window.
+Each widget can be configured by accessing `Config` button from `Widget` tab in main window.
 
 
 ## Battery
+**This widget displays battery usage info.**
+
     show_battery_charge
 Show percentage available battery charge.
 
@@ -342,6 +362,8 @@ Set freeze duration (seconds) for previous lap drained/regenerated battery charg
 
 
 ## Brake bias
+**This widget displays brake bias info.**
+
     show_front_and_rear
 Show both front and rear bias. Default is `false`.
 
@@ -350,10 +372,12 @@ Set `true` to show percentage sign for brake bias value.
 
 
 ## Brake pressure
-Show visualized percentage brake pressure of each wheel.
+**This widget displays visualized percentage brake pressure info.**
 
 
 ## Brake temperature
+**This widget displays brake temperature info.**
+
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
@@ -377,6 +401,8 @@ Set duration (seconds) for highlighting average brake temperature from previous 
 
 
 ## Cruise
+**This widget displays track clock, compass, elevation, odometer info.**
+
     show_track_clock
 Show current in-game clock time of the circuit.
 
@@ -400,6 +426,8 @@ This value holds the total distance(meters) that local player has driven. Accept
 
 
 ## Deltabest
+**This widget displays deltabest info.**
+
     layout
 2 layouts are available: `0` = delta bar above deltabest text, `1` = delta bar below deltabest text.
 
@@ -423,6 +451,8 @@ Deltabest display follows delta bar progress.
 
 
 ## DRS
+**This widget displays DRS(rear flap) usage info.**
+
     font_color_activated, bkg_color_activated
 Set color when DRS is activated by player.
 
@@ -437,6 +467,8 @@ Set color when DRS is unavailable for current track or car.
 
 
 ## Electric motor
+**This widget displays electric motor usage info.**
+
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
@@ -457,6 +489,8 @@ Set temperature threshold for boost motor & water overheat color indicator, unit
 
 
 ## Engine
+**This widget displays engine usage info.**
+
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
@@ -474,6 +508,8 @@ Show engine RPM.
 
 
 ## Flag
+**This widget displays flags, pit state, warnings, start lights info.**
+
     layout
 2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
 
@@ -545,17 +581,21 @@ Set traffic indicator extended duration (seconds) after pit-out.
 
 
 ## Force
+**This widget displays g force and downforce info.**
+
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
     show_g_force
-Show longitudinal & lateral G force with direction indicator.
+Show longitudinal & lateral g force with direction indicator.
 
     show_downforce_ratio
 Show front vs rear downforce ratio. 50% means equal downforce; higher than 50% means front has more downforce.
 
 
 ## Friction circle
+**This widget displays g force in circle diagram.**
+
     display_size
 Set widget size in pixels.
 
@@ -633,6 +673,8 @@ Set reference circle line width in pixels.
 
 
 ## Fuel
+**This widget displays fuel usage info.**
+
     *end
 Estimated remaining fuel reading at the end of current stint before pit.
 
@@ -698,6 +740,8 @@ Set custom caption text.
 
 
 ## Gear
+**This widget displays gear, RPM, speed, battery info.**
+
     inner_gap
 Set inner gap between gear & speed readings. Negative value reduces gap, while positive value increases gap. Default value is `0`.
 
@@ -745,6 +789,8 @@ Set speed/time threshold value for neutral gear color warning, which activates c
 
 
 ## Heading
+**This widget displays vehicle yaw angle, slip angle, heading info.**
+
     display_size
 Set widget size in pixels.
 
@@ -801,6 +847,8 @@ Set center mark line width in pixels.
 
 
 ## Instrument
+**This widget displays vehicle instruments info.**
+
     icon_size
 Set size of instrument icon in pixel. Minimum value is limited to `16`.
 
@@ -836,6 +884,8 @@ Set minimum speed threshold for calculating wheel radius samples. Default value 
 
 
 ## Lap time history
+**This widget displays lap time history info.**
+
     layout
 2 layouts are available: `0` = vertical layout, `1` = reversed vertical layout.
 
@@ -847,6 +897,8 @@ Show empty lap time history. Default is `false`, which hides empty rows.
 
 
 ## Navigation
+**This widget displays navigation map.**
+
     display_size
 Set widget size in pixels.
 
@@ -891,6 +943,8 @@ Set vehicle outline width.
 
 
 ## P2P
+**This widget displays push to pass usage info.**
+
     show_battery_charge
 Show percentage available battery charge.
 
@@ -914,6 +968,8 @@ Set maximum P2P activation time per lap, unit in seconds.
 
 
 ## Pedal
+**This widget displays pedal input and force feedback info.**
+
     enable_horizontal_style
 Show pedal bar in horizontal style.
 
@@ -943,6 +999,8 @@ Show Force Feedback meter.
 
 
 ## Radar
+**This widget displays vehicle radar info.**
+
     global_scale
 Sets global scale of radar display. Default value is `6`, which is 6 times of original size.
 
@@ -1011,6 +1069,8 @@ Set minimum straight line distance(unit meter) before triggering auto hide. Set 
 
 
 ## Rake angle
+**This widget displays vehicle rake info.**
+
     wheelbase
 Set wheelbase in millimeters, for used in rake angle calculation.
 
@@ -1022,6 +1082,8 @@ Show average front & rear ride height difference in millimeters.
 
 
 ## Relative
+**This widget displays relative standings info.**
+
     show_player_highlighted
 Highlight player row with customizable specific color.
 
@@ -1099,6 +1161,8 @@ Set additional players shown on relative list. Each value is limited to a maximu
 
 
 ## Ride height
+**This widget displays ride height info.**
+
     ride_height_max_range
 Set visualized maximum ride height range (millimeter).
 
@@ -1107,6 +1171,8 @@ Set ride height offset for bottoming indicator. Value in millimeters, but withou
 
 
 ## Sectors
+**This widget displays sectors timing info.**
+
     layout
 2 layouts are available: `0` = target & current sectors above deltabest sectors, `1` = deltabest sectors above target & current sectors.
 
@@ -1121,6 +1187,8 @@ Set `true` to always show sector/laptime gap bar. Set `false` to show only in fr
 
 
 ## Session
+**This widget displays session timing, lap number, overall position info.**
+
     show_system_clock
 Show current system clock time.
 
@@ -1141,6 +1209,8 @@ Show your current position against all drivers in a session.
 
 
 ## Speedometer
+**This widget displays conditional speed info.**
+
     layout
 2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
 
@@ -1170,13 +1240,13 @@ Set cooldown duration (seconds) before resetting maximum speed value.
 
 
 ## Standings
-Most options are inherited from relative widget, with some additions noted below.
+**This widget displays standings info. Most options are inherited from relative widget, with some additions noted below.**
 
     max_vehicles_combined_mode
 Set maximum amount vehicles to display, which takes effect when `enable_multi_class_split_mode` is not enabled. When total vehicle number is lower than this value, extra rows will auto-hide. When total vehicle number is above this value, the top 3 vehicles will always show, and rest of the vehicles will be selected from the nearest front and behind places related to player.
 
     max_vehicles_split_mode
-Set maximum amount vehicles to display, which takes effect when in multi-class session and `enable_multi_class_split_mode` is enabled. If total vehicle number is above this value, any extra vehicles will not be shown. Default value is `50`, which is sufficient in most case. 
+Set maximum amount vehicles to display, which takes effect when in multi-class session and `enable_multi_class_split_mode` is enabled. If total vehicle number is above this value, any extra vehicles will not be shown. Default value is `50`, which is sufficient in most case.
 
     min_top_vehicles
 Set minimum amount top place vehicles to display. This value has higher priority than other `max_vehicles` settings. Default value is `3`, which always shows top 3 vehicles if present.
@@ -1213,6 +1283,8 @@ For race session, this option shows driver's last lap time or pit timer if avail
 
 
 ## Steering
+**This widget displays steering input info.**
+
     bar_width, bar_height
 Set steering bar width & height in pixels.
 
@@ -1230,6 +1302,8 @@ Set gap between each scale mark in degree. Default is `90` degree. Minimum value
 
 
 ## Stint history
+**This widget displays stint history info.**
+
     layout
 2 layouts are available: `0` = vertical layout, `1` = reversed vertical layout.
 
@@ -1247,6 +1321,8 @@ Set custom tire compound index letter. One letter corresponds to one compound in
 
 
 ## Timing
+**This widget displays lap time info.**
+
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
@@ -1273,6 +1349,8 @@ Show personal current session best laptime.
 
 
 ## Track map
+**This widget displays track map and standings.**
+
     show_background
 Show widget background.
 
@@ -1302,29 +1380,31 @@ Show vehicle standings info on track map.
 
 
 ## Trailing
+**This widget displays pedal input and force feedback plots.**
+
     display_width
-Set pedal trail plot display width in pixels.
+Set pedal plot display width in pixels.
 
     display_height
-Set pedal trail plot display height in pixels.
+Set pedal plot display height in pixels.
 
     display_margin
-Set pedal trail plot display margin (vertical relative to pedal) in pixels.
+Set pedal plot display margin (vertical relative to pedal) in pixels.
 
     display_scale
-Set trail plot display scale. Default scale is `2`. Minimum scale is limited to `1`.
+Set plot display scale. Default scale is `2`. Minimum scale is limited to `1`.
 
     show_vertical_style
-Show pedal trail plot in vertical style.
+Show pedal plot in vertical style.
 
     show_inverted_pedal
 Invert pedal range display.
 
     show_inverted_trailing
-Invert trail plot direction.
+Invert trailing direction.
 
     show_throttle
-Show throttle trail plot.
+Show throttle plot.
 
     show_raw_throttle
 Show unfiltered throttle instead.
@@ -1349,6 +1429,8 @@ Set reference line width in pixels. Set value to `0` to hide line.
 
 
 ## Tyre carcass temperature
+**This widget displays tyre carcass temperature info.**
+
     heatmap_name
 Set heatmap preset name that is defined in `heatmap.json` file.
 
@@ -1366,17 +1448,19 @@ Set custom tire compound index letter. One letter corresponds to one compound in
 
 
 ## Tyre load
-Show visualized tyre load display.
+**This widget displays visualized tyre load info.**
 
     show_tyre_load_ratio
 Show percentage ratio of tyre load between each and total tyre load. Set `false` to show individual tyre load in Newtons.
 
 
 ## Tyre pressure
-Show tyre pressure of each wheel.
+**This widget displays tyre pressure info.**
 
 
 ## Tyre temperature
+**This widget displays tyre surface and inner layer temperature info.**
+
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
@@ -1406,6 +1490,8 @@ Set custom tire compound index letter. One letter corresponds to one compound in
 
 
 ## Tyre wear
+**This widget displays tyre wear info.**
+
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
@@ -1435,6 +1521,8 @@ Set warning threshold for estimated tyre lifespan in laps. Default is `5` laps.
 
 
 ## Weather
+**This widget displays weather info.**
+
     show_percentage_sign
 Set `true` to show percentage sign for rain & wetness display.
 
@@ -1449,6 +1537,8 @@ Show surface condition, minimum, maximum, and average wetness.
 
 
 ## Wheel alignment
+**This widget displays camber and toe-in info.**
+
     show_camber
 Show camber in degree.
 
