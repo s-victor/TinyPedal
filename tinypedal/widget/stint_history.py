@@ -27,6 +27,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
+from .. import formatter as fmt
 from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
@@ -335,8 +336,8 @@ class Draw(Widget):
 
     def set_tyre_cmp(self, tc_index):
         """Substitute tyre compound index with custom chars"""
-        ftire = self.wcfg["tyre_compound_list"][tc_index[0]:(tc_index[0]+1)]
-        rtire = self.wcfg["tyre_compound_list"][tc_index[1]:(tc_index[1]+1)]
+        ftire, rtire = fmt.format_tyre_compound(
+            tc_index, self.cfg.units["tyre_compound_symbol"])
         return f"{ftire}{rtire}"
 
     def store_last_data(self):

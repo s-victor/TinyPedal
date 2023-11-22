@@ -47,6 +47,7 @@ def format_option_name(name):
     """Format option name"""
     name = re.sub("bkg", "background", name)
     name = re.sub("_", " ", name)
+    name = re.sub("units", "units and symbols", name)
     name = name.title()
     # Special name
     name = re.sub("Api", "API", name)
@@ -61,6 +62,14 @@ def format_preset_name(name):
     if name.endswith(".json"):
         return name[:-5]
     return name
+
+
+def format_tyre_compound(tc_index, tc_list):
+    """Substitute tyre compound index with custom char symbols"""
+    if max(tc_index) >= len(tc_list):
+        tc_list = "ABCDEFGH"
+    return (tc_list[tc_index[0]:(tc_index[0]+1)],  # front
+            tc_list[tc_index[1]:(tc_index[1]+1)])  # rear
 
 
 def strip_invalid_char(name):

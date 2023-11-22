@@ -28,6 +28,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
+from .. import formatter as fmt
 from .. import validator as val
 from ..api_control import api
 from ..base import Widget
@@ -139,7 +140,8 @@ class Draw(Widget):
 
             # Tyre compound
             if self.wcfg["show_tyre_compound"]:
-                tcmpd = self.set_tyre_cmp(api.read.tyre.compound())
+                tcmpd = fmt.format_tyre_compound(
+                    api.read.tyre.compound(), self.cfg.units["tyre_compound_symbol"])
                 self.update_tcmpd(tcmpd, self.last_tcmpd)
                 self.last_tcmpd = tcmpd
 
@@ -178,12 +180,6 @@ class Draw(Widget):
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
             return calc.celsius2fahrenheit(value)
         return value
-
-    def set_tyre_cmp(self, tc_index):
-        """Substitute tyre compound index with custom chars"""
-        ftire = self.wcfg["tyre_compound_list"][tc_index[0]:(tc_index[0]+1)]
-        rtire = self.wcfg["tyre_compound_list"][tc_index[1]:(tc_index[1]+1)]
-        return ftire, rtire
 
     def load_heatmap(self):
         """Load heatmap dict"""

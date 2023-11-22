@@ -57,5 +57,6 @@ APPLICATION_DEFAULT = {
         "temperature_unit": "Celsius",
         "turbo_pressure_unit": "bar",
         "tyre_pressure_unit": "kPa",
+        "tyre_compound_symbol": "ABCDEFGH",
     },
 }

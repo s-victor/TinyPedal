@@ -44,6 +44,7 @@ HEATMAP = "heatmap"
 STRING = (
     # Exact match
     "^process_id$|"
+    "^tyre_compound_symbol$|"
     # Partial match
     "format|"
     "info|"

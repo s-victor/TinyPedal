@@ -52,7 +52,7 @@ from .api_control import api
 from .module_control import mctrl
 from .widget_control import wctrl
 from .overlay_control import octrl
-from .config import FontConfig, UnitsConfig, WidgetConfig
+from .config import FontConfig, UserConfig
 from . import formatter as fmt
 from . import validator as val
 
@@ -339,7 +339,7 @@ class WidgetList(QWidget):
 
     def widget_config_dialog(self, widget_name):
         """Widget config dialog"""
-        _dialog = WidgetConfig(self, widget_name, "widget")
+        _dialog = UserConfig(self, widget_name, "widget")
         _dialog.open()
 
 
@@ -470,7 +470,7 @@ class ModuleList(QWidget):
 
     def module_config_dialog(self, module_name):
         """Module config dialog"""
-        _dialog = WidgetConfig(self, module_name, "module")
+        _dialog = UserConfig(self, module_name, "module")
         _dialog.open()
 
 
@@ -928,7 +928,7 @@ class ConfigMenu(QMenu):
         self.master = master
 
         # Display units
-        config_units = QAction("Display units", self)
+        config_units = QAction("Units and symbols", self)
         config_units.triggered.connect(self.open_config_units)
         menu.addAction(config_units)
 
@@ -947,24 +947,24 @@ class ConfigMenu(QMenu):
         config_compat.triggered.connect(self.open_config_compatibility)
         menu.addAction(config_compat)
 
-    def open_config_units(self):
-        """Config display units"""
-        _dialog = UnitsConfig(self.master)
-        _dialog.open()
-
     def open_config_font(self):
         """Config global font"""
         _dialog = FontConfig(self.master)
         _dialog.open()
 
+    def open_config_units(self):
+        """Config display units"""
+        _dialog = UserConfig(self.master, "units", "misc")
+        _dialog.open()
+
     def open_config_sharedmemory(self):
         """Config sharedmemory"""
-        _dialog = WidgetConfig(self.master, "shared_memory_api", "api")
+        _dialog = UserConfig(self.master, "shared_memory_api", "api")
         _dialog.open()
 
     def open_config_compatibility(self):
         """Config compatibility"""
-        _dialog = WidgetConfig(self.master, "compatibility", "misc")
+        _dialog = UserConfig(self.master, "compatibility", "misc")
         _dialog.open()
 
 
