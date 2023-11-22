@@ -1,5 +1,11 @@
 WIP
 -----------------------------
+* General
+  - Rename "Display units" config dialog to "Units and symbols",
+    which is now used for unified units and symbols configuration.
+  - Moved all (five) "tyre_compound_list" options to "Units and symbols"
+    config dialog, and is now called "tyre_compound_symbol".
+
 * [New]Tyre carcass temperature Widget (by Sasker)
   - Show carcass temperature of each tyres
     based on Tyre temperature Widget design,

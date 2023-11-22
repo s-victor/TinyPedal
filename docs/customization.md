@@ -165,8 +165,8 @@ Select `Anonymous` for unspecified player, which is equivalent to player index `
 Click `Refresh` button to manually refresh player name list.
 
 
-## Display Units
-**Display units options can be accessed from `Config` menu in main window.**
+## Units and symbols
+**Units and symbols options can be accessed from `Config` menu in main window.**
 
     distance_unit
 2 unit types are available: `"Meter"`, `"Feet"`.
@@ -188,6 +188,9 @@ Click `Refresh` button to manually refresh player name list.
 
     tyre_pressure_unit
 3 unit types are available: `"kPa"`, `"psi"`, `"bar"`.
+
+    tyre_compound_symbol
+Set custom tire compound index letter. One letter corresponds to one compound index. Note: since most vehicle mods don't share a common tire compound types or list order, it is impossible to have a tyre compound letter list that matches every vehicle.
 
 
 ## Global Font Override
@@ -1144,9 +1147,6 @@ Set custom pit status text which shows when driver is in pit.
     show_tyre_compound
 Show tyre compound index (front/rear).
 
-    tyre_compound_list
-Set custom tire compound index letter. One letter corresponds to one compound index. Note: since most vehicle mods don't share a common tire compound types or list order, it is impossible to have a tyre compound letter list that matches every car.
-
     show_pitstop_count
 Show each driver's pitstop count.
 
@@ -1316,9 +1316,6 @@ Show empty stint history. Default is `false`, which hides empty rows.
     minimum_stint_threshold_minutes
 Set the minimum stint time threshold in minutes for updating stint history. This only affects ESC.
 
-    tyre_compound_list
-Set custom tire compound index letter. One letter corresponds to one compound index.
-
 
 ## Timing
 **This widget displays lap time info.**
@@ -1443,9 +1440,6 @@ Set amount leading zeros for each temperature value. Default is `2`. Minimum val
     show_tyre_compound
 Show tyre compound index (front/rear).
 
-    tyre_compound_list
-Set custom tire compound index letter. One letter corresponds to one compound index.
-
 
 ## Tyre load
 **This widget displays visualized tyre load info.**
@@ -1484,9 +1478,6 @@ Show tyre inner layer temperature.
 
     show_tyre_compound
 Show tyre compound index (front/rear).
-
-    tyre_compound_list
-Set custom tire compound index letter. One letter corresponds to one compound index.
 
 
 ## Tyre wear
