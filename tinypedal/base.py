@@ -37,6 +37,7 @@ class Widget(QWidget):
 
         # Base config
         self.cfg = config
+        self.cfg.active_widget_list.append(self)  # add to active widget list
 
         # Widget config
         self.wcfg = self.cfg.setting_user[self.widget_name]
@@ -46,16 +47,18 @@ class Widget(QWidget):
         self.move(int(self.wcfg["position_x"]), int(self.wcfg["position_y"]))
 
         # Base window background color
-        pal_base = QPalette()
-        pal_base.setColor(QPalette.Window, QColor(self.cfg.compatibility["global_bkg_color"]))
-        self.setPalette(pal_base)
+        _pal_base = QPalette()
+        _pal_base.setColor(
+            QPalette.Window,
+            QColor(self.cfg.compatibility["global_bkg_color"]))
+        self.setPalette(_pal_base)
 
         # Widget mouse event
-        self.mouse_pos = (0, 0)
-        self.mouse_pressed = 0
+        self._mouse_pos = (0, 0)
+        self._mouse_pressed = 0
 
-        # Connect overlay-lock signal and slot
-        self.connect_signal_slot()
+        # Connect overlay-lock signal to slot
+        self.__connect_signal()
 
         # Set update timer
         self.update_timer = QTimer(self)
@@ -65,7 +68,7 @@ class Widget(QWidget):
     def mouseMoveEvent(self, event):
         """Update widget position"""
         if event.buttons() == Qt.LeftButton:
-            pos = (event.globalPos() - self.mouse_pos)
+            pos = event.globalPos() - self._mouse_pos
             if self.cfg.overlay["enable_grid_move"]:
                 move_size = max(int(self.cfg.compatibility["grid_move_size"]), 1)
                 pos = pos / move_size * move_size
@@ -74,20 +77,25 @@ class Widget(QWidget):
     def mousePressEvent(self, event):
         """Set offset position & press state"""
         if event.buttons() == Qt.LeftButton:
-            self.mouse_pos = event.pos()
-            self.mouse_pressed = 1
+            self._mouse_pos = event.pos()
+            self._mouse_pressed = 1
 
     def mouseReleaseEvent(self, event):
         """Save position on release"""
-        if self.mouse_pressed:
-            self.mouse_pressed = 0
+        if self._mouse_pressed:
+            self._mouse_pressed = 0
             self.wcfg["position_x"] = self.x()
             self.wcfg["position_y"] = self.y()
             self.cfg.save()
 
     def set_widget_state(self):
         """Set initial widget state"""
-        # Window flags
+        self.__set_attribute_flag()     # window state
+        octrl.overlay_lock.set_state()  # lock state
+        #self.show()
+
+    def __set_attribute_flag(self):
+        """Set window flags & widget attributes"""
         self.setWindowOpacity(self.wcfg["opacity"])
         if self.cfg.compatibility["enable_translucent_background"]:
             self.setAttribute(Qt.WA_TranslucentBackground, True)
@@ -98,22 +106,18 @@ class Widget(QWidget):
         if self.cfg.compatibility["enable_bypass_window_manager"]:
             self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
 
-        self.cfg.active_widget_list.append(self)  # add to active widget list
-        self.show()
-        octrl.overlay_lock.set_state()  # load overlay lock state
-
     @Slot(bool)
-    def toggle_lock(self, locked):
+    def __toggle_lock(self, locked):
         """Toggle widget lock"""
         if locked:
             self.setWindowFlag(Qt.WindowTransparentForInput, True)
         else:
             self.setWindowFlag(Qt.WindowTransparentForInput, False)
-        if not self.cfg.overlay["auto_hide"]:
-            self.show()
+        #if not self.cfg.overlay["auto_hide"]:
+        #    self.show()
 
     @Slot(bool)
-    def toggle_hide(self, hidden):
+    def __toggle_hide(self, hidden):
         """Toggle widget hide"""
         if hidden:
             if self.isVisible():
@@ -122,18 +126,18 @@ class Widget(QWidget):
             if not self.isVisible():
                 self.show()
 
-    def connect_signal_slot(self):
-        """Connect overlay-lock signal and slot"""
-        octrl.overlay_lock.locked.connect(self.toggle_lock)
-        octrl.overlay_hide.hidden.connect(self.toggle_hide)
+    def __connect_signal(self):
+        """Connect overlay-lock signal to slot"""
+        octrl.overlay_lock.locked.connect(self.__toggle_lock)
+        octrl.overlay_hide.hidden.connect(self.__toggle_hide)
 
-    def break_signal(self):
+    def __break_signal(self):
         """Disconnect signal"""
-        octrl.overlay_lock.locked.disconnect(self.toggle_lock)
-        octrl.overlay_hide.hidden.disconnect(self.toggle_hide)
+        octrl.overlay_lock.locked.disconnect(self.__toggle_lock)
+        octrl.overlay_hide.hidden.disconnect(self.__toggle_hide)
 
     def closing(self):
         """Close widget"""
-        self.break_signal()
+        self.__break_signal()
         self.cfg.active_widget_list.remove(self)
         self.close()

@@ -46,10 +46,10 @@ class OverlayLock(QObject):
 
     def toggle(self):
         """Toggle lock state"""
-        if not self.cfg.overlay["fixed_position"]:
-            self.cfg.overlay["fixed_position"] = True
-        else:
+        if self.cfg.overlay["fixed_position"]:
             self.cfg.overlay["fixed_position"] = False
+        else:
+            self.cfg.overlay["fixed_position"] = True
         self.set_state()
         self.cfg.save()
 
@@ -63,10 +63,10 @@ class OverlayGrid(QObject):
 
     def toggle(self):
         """Toggle lock state"""
-        if not self.cfg.overlay["enable_grid_move"]:
-            self.cfg.overlay["enable_grid_move"] = True
-        else:
+        if self.cfg.overlay["enable_grid_move"]:
             self.cfg.overlay["enable_grid_move"] = False
+        else:
+            self.cfg.overlay["enable_grid_move"] = True
         self.cfg.save()
 
 
@@ -100,18 +100,16 @@ class OverlayAutoHide(QObject):
 
     def __is_hidden(self):
         """Check hide state"""
-        if self.cfg.overlay["auto_hide"]:
-            if api.state:
-                return False
-            return True
-        return False
+        if not self.cfg.overlay["auto_hide"] or api.state:
+            return False
+        return True
 
     def toggle(self):
         """Toggle hide state"""
-        if not self.cfg.overlay["auto_hide"]:
-            self.cfg.overlay["auto_hide"] = True
-        else:
+        if self.cfg.overlay["auto_hide"]:
             self.cfg.overlay["auto_hide"] = False
+        else:
+            self.cfg.overlay["auto_hide"] = True
         self.cfg.save()
 
 
