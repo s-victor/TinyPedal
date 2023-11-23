@@ -158,7 +158,7 @@ class Realtime:
                 self.mcfg["lap_difference_ahead_threshold"],
                 self.mcfg["lap_difference_behind_threshold"]
                 )
-            is_yellow = bool(speed <= 8)
+            is_yellow = speed <= 8
 
             # Pit
             in_garage = api.read.vehicle.in_garage(index)
@@ -187,7 +187,7 @@ class Realtime:
                 ) if not is_player else 0
 
             yield DataSet(
-                slotID = slot_id,
+                #slotID = slot_id,
                 position = position,
                 driverName = driver_name,
                 vehicleName = vehicle_name,
@@ -197,10 +197,10 @@ class Realtime:
                 classBestLapTime = laptime_class_best,
                 bestLapTime = laptime_best,
                 lastLapTime = laptime_last,
-                speed = speed,
+                #speed = speed,
                 isPlayer = is_player,
-                totalLaps = total_laps,
-                lapDistance = lap_distance,
+                #totalLaps = total_laps,
+                #lapDistance = lap_distance,
                 percentageDistance = percentage_distance,
                 relativeDistance = relative_distance,
                 relativeTimeGap = relative_time_gap,
@@ -217,7 +217,7 @@ class Realtime:
                 pitTime = pit_time,
                 tireCompoundIndex = tire_compound_index,
                 posXZ = pos_xz,
-                orientationXZRadians = orientation_xz_radians,
+                #orientationXZRadians = orientation_xz_radians,
                 relativeOrientationXZRadians = relative_orientation_xz_radians,
                 relativeRotatedPosXZ = relative_rotated_pos_xz,
                 relativeStraightDistance = relative_straight_distance,
@@ -235,13 +235,13 @@ class Realtime:
         if in_garage:
             self.pit_time_list[idx_start] = -1
             self.pit_time_list[idx_timer] = 0
-        # Start counting pit time
-        if self.pit_time_list[idx_start] >= 0:
-            pit_time = min(max(lap_etime - self.pit_time_list[idx_start], 0), 999.9)
-            if in_pit:
-                self.pit_time_list[idx_timer] = pit_time
-        # Reset pit time if made a valid lap time after pit
-        if not in_pit and self.pit_time_list[idx_timer] > 0 and laptime_last > 0:
+            return 0
+        # Calculating pit time while in pit
+        if in_pit and self.pit_time_list[idx_start] >= 0:
+            self.pit_time_list[idx_timer] = min(
+                max(lap_etime - self.pit_time_list[idx_start], 0), 999.9)
+        # Reset pit time if made a valid lap time after pitting
+        if not in_pit and self.pit_time_list[idx_timer] and laptime_last > 0:
             self.pit_time_list[idx_timer] = 0
         return self.pit_time_list[idx_timer]
 
@@ -277,7 +277,7 @@ def nearest_yellow_dist(value):
 DataSet = namedtuple(
     "DataSet",
     [
-    "slotID",
+    #"slotID",
     "position",
     "driverName",
     "vehicleName",
@@ -287,10 +287,10 @@ DataSet = namedtuple(
     "classBestLapTime",
     "bestLapTime",
     "lastLapTime",
-    "speed",
+    #"speed",
     "isPlayer",
-    "totalLaps",
-    "lapDistance",
+    #"totalLaps",
+    #"lapDistance",
     "percentageDistance",
     "relativeDistance",
     "relativeTimeGap",
@@ -307,7 +307,7 @@ DataSet = namedtuple(
     "pitTime",
     "tireCompoundIndex",
     "posXZ",
-    "orientationXZRadians",
+    #"orientationXZRadians",
     "relativeOrientationXZRadians",
     "relativeRotatedPosXZ",
     "relativeStraightDistance",
