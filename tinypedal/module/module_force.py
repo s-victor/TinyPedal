@@ -68,8 +68,8 @@ class Realtime:
                     reset = True
                     update_interval = active_interval
 
-                    gen_max_avg_lgt = self.calc_max_avg_gforce()
-                    max_avg_lgt_gforce = next(gen_max_avg_lgt)
+                    #gen_max_avg_lgt = self.calc_max_avg_gforce()
+                    #max_avg_lgt_gforce = next(gen_max_avg_lgt)
                     gen_max_avg_lat = self.calc_max_avg_gforce()
                     max_avg_lat_gforce = next(gen_max_avg_lat)
 
@@ -92,7 +92,7 @@ class Realtime:
                     lat_accel, self.mcfg["gravitational_acceleration"])
 
                 # Max average G
-                max_avg_lgt_gforce = gen_max_avg_lgt.send(lgt_gforce_raw)
+                #max_avg_lgt_gforce = gen_max_avg_lgt.send(lgt_gforce_raw)
                 max_avg_lat_gforce = gen_max_avg_lat.send(lat_gforce_raw)
 
                 # Max G
@@ -100,7 +100,7 @@ class Realtime:
                 max_lat_gforce = gen_max_lat.send((lat_gforce_raw, lap_etime))
 
                 # G Vector
-                gforce_vector = calc.distance((lgt_gforce_raw, lat_gforce_raw),(0,0))
+                #gforce_vector = calc.distance((lgt_gforce_raw, lat_gforce_raw),(0,0))
 
                 # Downforce
                 dforce_ratio = calc.force_ratio(dforce_f, dforce_f + dforce_r)
@@ -108,11 +108,11 @@ class Realtime:
                 # Output force data
                 minfo.force.lgtGForceRaw = lgt_gforce_raw
                 minfo.force.latGForceRaw = lat_gforce_raw
-                minfo.force.maxAvgLgtGForce = max_avg_lgt_gforce
+                #minfo.force.maxAvgLgtGForce = max_avg_lgt_gforce
                 minfo.force.maxAvgLatGForce = max_avg_lat_gforce
                 minfo.force.maxLgtGForce = max_lgt_gforce
                 minfo.force.maxLatGForce = max_lat_gforce
-                minfo.force.gForceVector = gforce_vector
+                #minfo.force.gForceVector = gforce_vector
                 minfo.force.downForceFront = dforce_f
                 minfo.force.downForceRear = dforce_r
                 minfo.force.downForceRatio = dforce_ratio

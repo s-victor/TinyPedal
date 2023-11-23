@@ -170,9 +170,10 @@ def oriyaw2rad(value1, value2):
 
 def rotate_pos(ori_rad, value1, value2):
     """Rotate x y coordinates"""
-    new_pos_x = (math.cos(ori_rad) * value1) - (math.sin(ori_rad) * value2)
-    new_pos_z = (math.cos(ori_rad) * value2) + (math.sin(ori_rad) * value1)
-    return new_pos_x, new_pos_z
+    sin_rad = math.sin(ori_rad)
+    cos_rad = math.cos(ori_rad)
+    return (cos_rad * value1 - sin_rad * value2,
+            cos_rad * value2 + sin_rad * value1)
 
 
 def percentage_distance(dist, length, max_range=1, min_range=0):
@@ -294,8 +295,8 @@ def delta_telemetry(position, live_data, delta_list, condition=True, offset=0):
     index_higher = binary_search_hi(
         delta_list, position, 0, len(delta_list) - 1, 0)
     # At least 2 data pieces & additional condition
-    if index_higher != 0 and condition:
-        index_lower = max(index_higher - 1, 0)
+    if index_higher > 0 and condition:
+        index_lower = index_higher - 1
         return (
             live_data + offset - linear_interp(
                 position,
