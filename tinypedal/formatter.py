@@ -28,7 +28,7 @@ from . import regex_pattern as rxp
 logger = logging.getLogger(__name__)
 
 
-def format_widget_name(name):
+def format_widget_name(name: str) -> str:
     """Format widget name"""
     name = re.sub("_", " ", name)
     if re.search(rxp.UPPERCASE, name):
@@ -36,14 +36,14 @@ def format_widget_name(name):
     return name.capitalize()
 
 
-def format_module_name(name):
+def format_module_name(name: str) -> str:
     """Format module name"""
     name = re.sub("module_", "", name)
     name = re.sub("_", " ", name)
     return name.capitalize()
 
 
-def format_option_name(name):
+def format_option_name(name: str) -> str:
     """Format option name"""
     name = re.sub("bkg", "background", name)
     name = re.sub("_", " ", name)
@@ -57,52 +57,52 @@ def format_option_name(name):
     return name
 
 
-def format_preset_name(name):
-    """Format preset JSON name"""
-    if name.endswith(".json"):
-        return name[:-5]
+def strip_filename_extension(name: str, extension: str) -> str:
+    """Strip file name extension"""
+    if name.endswith(extension):
+        return name[:-len(extension)]
     return name
 
 
-def format_tyre_compound(tc_index, tc_list):
-    """Substitute tyre compound index with custom char symbols"""
-    if max(tc_index) >= len(tc_list):
-        tc_list = "ABCDEFGH"
-    return (tc_list[tc_index[0]:(tc_index[0]+1)],  # front
-            tc_list[tc_index[1]:(tc_index[1]+1)])  # rear
+def format_tyre_compound(tc_indices: tuple, tc_string: str):
+    """Substitute tyre compound indices with custom string"""
+    if max(tc_indices) >= len(tc_string):
+        tc_string = "ABCDEFGH"
+    return (tc_string[tc_indices[0]:(tc_indices[0]+1)],  # front
+            tc_string[tc_indices[1]:(tc_indices[1]+1)])  # rear
 
 
-def strip_invalid_char(name):
+def strip_invalid_char(name: str) -> str:
     """Strip invalid characters"""
     return re.sub('[\\\\/:*?"<>|]', "", name)
 
 
-def strip_decimal_pt(value):
+def strip_decimal_pt(value: str) -> str:
     """Strip decimal point"""
     if value and value[-1] == ".":
         return value[:-1]
     return value
 
 
-def string_pair_to_int(string):
+def string_pair_to_int(string: str):
     """Convert string "x,y" to int"""
     value = re.split(",", string)
     return int(value[0]), int(value[1])
 
 
-def string_pair_to_float(string):
+def string_pair_to_float(string: str):
     """Convert string "x,y" to float"""
     value = re.split(",", string)
     return float(value[0]), float(value[1])
 
 
-def points_to_coords(points):
+def points_to_coords(points: str):
     """Convert svg points to raw coordinates"""
     string = re.split(" ", points)
     return tuple(map(string_pair_to_float, string))
 
 
-def coords_to_points(coords):
+def coords_to_points(coords: tuple) -> str:
     """Convert raw coordinates (x,y),(x,y) to svg points (x,y x,y)"""
     output = ""
     for data in coords:

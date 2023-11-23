@@ -738,7 +738,7 @@ class CreatePreset(QDialog):
 
     def creating(self):
         """Creating new preset"""
-        entered_filename = fmt.format_preset_name(self.preset_entry.text())
+        entered_filename = fmt.strip_filename_extension(self.preset_entry.text(), ".json")
 
         if val.setting_filename(entered_filename):
             self.__saving(entered_filename)
