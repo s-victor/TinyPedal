@@ -6,16 +6,22 @@ WIP
   - Moved all (five) "tyre_compound_list" options to "Units and symbols"
     config dialog, and is now called "tyre_compound_symbol".
 
+* Force Widget
+  - Add "show_front_downforce" & "show_rear_downforce" options,
+    which show front & rear downforce reading in Newtons.
+  - Add "warning_color_liftforce" that shows color indicator
+    when generating lift force.
+
+* Timing Widget
+  - Add "show_session_personal_best" option (disabled by default),
+    which shows personal best lap time from current session.
+
 * [New]Tyre carcass temperature Widget (by Sasker)
   - Show carcass temperature of each tyres
     based on Tyre temperature Widget design,
     which helps analyzing and managing tyre grip
     and wear relative to carcass temperature change.
   - Many customizable options.
-
-* Timing Widget
-  - Add "show_session_personal_best" option (disabled by default),
-    which shows personal best lap time from current session.
 
 * Misc
   - Updated user guide.

@@ -595,6 +595,12 @@ Show longitudinal & lateral g force with direction indicator.
     show_downforce_ratio
 Show front vs rear downforce ratio. 50% means equal downforce; higher than 50% means front has more downforce.
 
+    show_front_downforce, show_rear_downforce
+Show front & rear downforce reading in Newtons.
+
+    warning_color_liftforce
+Set lift force indicator color.
+
 
 ## Friction circle
 **This widget displays g force in circle diagram.**

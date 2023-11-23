@@ -69,7 +69,9 @@ class Draw(Widget):
 
         column_lg = self.wcfg["column_index_long_gforce"]
         column_lt = self.wcfg["column_index_lat_gforce"]
-        column_df = self.wcfg["column_index_downforce"]
+        column_dr = self.wcfg["column_index_downforce_ratio"]
+        column_fd = self.wcfg["column_index_front_downforce"]
+        column_rd = self.wcfg["column_index_rear_downforce"]
 
         # G force
         if self.wcfg["show_g_force"]:
@@ -91,11 +93,31 @@ class Draw(Widget):
 
         # Downforce ratio
         if self.wcfg["show_downforce_ratio"]:
-            self.bar_dforce = QLabel("n/a")
-            self.bar_dforce.setAlignment(Qt.AlignCenter)
-            self.bar_dforce.setStyleSheet(
-                f"color: {self.wcfg['font_color_downforce']};"
-                f"background: {self.wcfg['bkg_color_downforce']};"
+            self.bar_df_ratio = QLabel("n/a")
+            self.bar_df_ratio.setAlignment(Qt.AlignCenter)
+            self.bar_df_ratio.setStyleSheet(
+                f"color: {self.wcfg['font_color_downforce_ratio']};"
+                f"background: {self.wcfg['bkg_color_downforce_ratio']};"
+                f"min-width: {self.bar_width}px;"
+            )
+
+        # Front downforce
+        if self.wcfg["show_front_downforce"]:
+            self.bar_df_front = QLabel("n/a")
+            self.bar_df_front.setAlignment(Qt.AlignCenter)
+            self.bar_df_front.setStyleSheet(
+                f"color: {self.wcfg['font_color_front_downforce']};"
+                f"background: {self.wcfg['bkg_color_front_downforce']};"
+                f"min-width: {self.bar_width}px;"
+            )
+
+        # Rear downforce
+        if self.wcfg["show_rear_downforce"]:
+            self.bar_df_rear = QLabel("n/a")
+            self.bar_df_rear.setAlignment(Qt.AlignCenter)
+            self.bar_df_rear.setStyleSheet(
+                f"color: {self.wcfg['font_color_rear_downforce']};"
+                f"background: {self.wcfg['bkg_color_rear_downforce']};"
                 f"min-width: {self.bar_width}px;"
             )
 
@@ -106,20 +128,30 @@ class Draw(Widget):
                 layout.addWidget(self.bar_gforce_lgt, column_lg, 0)
                 layout.addWidget(self.bar_gforce_lat, column_lt, 0)
             if self.wcfg["show_downforce_ratio"]:
-                layout.addWidget(self.bar_dforce, column_df, 0)
+                layout.addWidget(self.bar_df_ratio, column_dr, 0)
+            if self.wcfg["show_front_downforce"]:
+                layout.addWidget(self.bar_df_front, column_fd, 0)
+            if self.wcfg["show_rear_downforce"]:
+                layout.addWidget(self.bar_df_rear, column_rd, 0)
         else:
             # Horizontal layout
             if self.wcfg["show_g_force"]:
                 layout.addWidget(self.bar_gforce_lgt, 0, column_lg)
                 layout.addWidget(self.bar_gforce_lat, 0, column_lt)
             if self.wcfg["show_downforce_ratio"]:
-                layout.addWidget(self.bar_dforce, 0, column_df)
+                layout.addWidget(self.bar_df_ratio, 0, column_dr)
+            if self.wcfg["show_front_downforce"]:
+                layout.addWidget(self.bar_df_front, 0, column_fd)
+            if self.wcfg["show_rear_downforce"]:
+                layout.addWidget(self.bar_df_rear, 0, column_rd)
         self.setLayout(layout)
 
         # Last data
         self.last_gf_lgt = None
         self.last_gf_lat = None
         self.last_df_ratio = None
+        self.last_df_front = None
+        self.last_df_rear = None
 
         # Set widget state & start update
         self.set_widget_state()
@@ -144,9 +176,21 @@ class Draw(Widget):
 
             # Downforce ratio
             if self.wcfg["show_downforce_ratio"]:
-                df_ratio = f"{minfo.force.downForceRatio:04.02f}"[:5]
+                df_ratio = f"{minfo.force.downForceRatio:.02f}"[:5]
                 self.update_df_ratio(df_ratio, self.last_df_ratio)
                 self.last_df_ratio = df_ratio
+
+            # Front downforce
+            if self.wcfg["show_front_downforce"]:
+                df_front = round(minfo.force.downForceFront)
+                self.update_df_front(df_front, self.last_df_front)
+                self.last_df_front = df_front
+
+            # Rear downforce
+            if self.wcfg["show_rear_downforce"]:
+                df_rear = round(minfo.force.downForceRear)
+                self.update_df_rear(df_rear, self.last_df_rear)
+                self.last_df_rear = df_rear
 
     # GUI update methods
     def update_gf_lgt(self, curr, last):
@@ -162,7 +206,35 @@ class Draw(Widget):
     def update_df_ratio(self, curr, last):
         """Downforce ratio"""
         if curr != last:
-            self.bar_dforce.setText(f"{fmt.strip_decimal_pt(curr)}%")
+            self.bar_df_ratio.setText(f"{fmt.strip_decimal_pt(curr)}%")
+
+    def update_df_front(self, curr, last):
+        """Downforce front"""
+        if curr != last:
+            if curr >= 0:
+                color = (f"color: {self.wcfg['font_color_front_downforce']};"
+                         f"background: {self.wcfg['bkg_color_front_downforce']};")
+            else:
+                color = (f"color: {self.wcfg['font_color_front_downforce']};"
+                         f"background: {self.wcfg['warning_color_liftforce']};")
+
+            self.bar_df_front.setText(f"F{abs(curr):5.0f}"[:6])
+            self.bar_df_front.setStyleSheet(
+                f"{color}min-width: {self.bar_width}px;")
+
+    def update_df_rear(self, curr, last):
+        """Downforce rear"""
+        if curr != last:
+            if curr >= 0:
+                color = (f"color: {self.wcfg['font_color_rear_downforce']};"
+                         f"background: {self.wcfg['bkg_color_rear_downforce']};")
+            else:
+                color = (f"color: {self.wcfg['font_color_rear_downforce']};"
+                         f"background: {self.wcfg['warning_color_liftforce']};")
+
+            self.bar_df_rear.setText(f"R{abs(curr):5.0f}"[:6])
+            self.bar_df_rear.setStyleSheet(
+                f"{color}min-width: {self.bar_width}px;")
 
     # Additional methods
     @staticmethod
