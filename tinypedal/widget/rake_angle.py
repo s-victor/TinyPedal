@@ -84,7 +84,6 @@ class Draw(Widget):
 
         # Set widget state & start update
         self.set_widget_state()
-        self.update_timer.start()
 
     @Slot()
     def update_data(self):

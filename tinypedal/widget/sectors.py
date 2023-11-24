@@ -153,7 +153,6 @@ class Draw(Widget):
 
         # Set widget state & start update
         self.set_widget_state()
-        self.update_timer.start()
 
     def set_defaults(self):
         """Initialize variables"""

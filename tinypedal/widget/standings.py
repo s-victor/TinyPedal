@@ -229,7 +229,6 @@ class Draw(Widget):
 
         # Set widget state & start update
         self.set_widget_state()
-        self.update_timer.start()
 
     def generate_bar(self, suffix, style, column_idx):
         """Generate data bar"""

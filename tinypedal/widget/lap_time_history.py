@@ -164,7 +164,6 @@ class Draw(Widget):
 
         # Set widget state & start update
         self.set_widget_state()
-        self.update_timer.start()
 
     def set_row_index(self, index):
         """Set row index"""

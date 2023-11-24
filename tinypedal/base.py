@@ -44,7 +44,7 @@ class Widget(QWidget):
 
         # Base setting
         self.setWindowTitle(f"{APP_NAME} - {self.widget_name.capitalize()}")
-        self.move(int(self.wcfg["position_x"]), int(self.wcfg["position_y"]))
+        self.move(self.wcfg["position_x"], self.wcfg["position_y"])
 
         # Base window background color
         _pal_base = QPalette()
@@ -61,9 +61,28 @@ class Widget(QWidget):
         self.__connect_signal()
 
         # Set update timer
-        self.update_timer = QTimer(self)
-        self.update_timer.setInterval(self.wcfg["update_interval"])
-        self.update_timer.timeout.connect(self.update_data)
+        self._update_timer = QTimer(self)
+        self._update_timer.setInterval(self.wcfg["update_interval"])
+        self._update_timer.timeout.connect(self.update_data)
+
+    def set_widget_state(self):
+        """Set initial widget state"""
+        self.__set_attribute_flag()     # window state
+        octrl.overlay_lock.set_state()  # load lock state
+        self._update_timer.start()      # start update
+        #self.show()
+
+    def __set_attribute_flag(self):
+        """Set window flags & widget attributes"""
+        self.setWindowOpacity(self.wcfg["opacity"])
+        if self.cfg.compatibility["enable_translucent_background"]:
+            self.setAttribute(Qt.WA_TranslucentBackground, True)
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        self.setWindowFlag(Qt.FramelessWindowHint, True)
+        self.setWindowFlag(Qt.Tool, True)  # remove taskbar icon
+        self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+        if self.cfg.compatibility["enable_bypass_window_manager"]:
+            self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
 
     def mouseMoveEvent(self, event):
         """Update widget position"""
@@ -87,24 +106,6 @@ class Widget(QWidget):
             self.wcfg["position_x"] = self.x()
             self.wcfg["position_y"] = self.y()
             self.cfg.save()
-
-    def set_widget_state(self):
-        """Set initial widget state"""
-        self.__set_attribute_flag()     # window state
-        octrl.overlay_lock.set_state()  # lock state
-        #self.show()
-
-    def __set_attribute_flag(self):
-        """Set window flags & widget attributes"""
-        self.setWindowOpacity(self.wcfg["opacity"])
-        if self.cfg.compatibility["enable_translucent_background"]:
-            self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
-        self.setWindowFlag(Qt.FramelessWindowHint, True)
-        self.setWindowFlag(Qt.Tool, True)  # remove taskbar icon
-        self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
-        if self.cfg.compatibility["enable_bypass_window_manager"]:
-            self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
 
     @Slot(bool)
     def __toggle_lock(self, locked):
