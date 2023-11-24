@@ -1167,7 +1167,7 @@ Set additional players shown on relative list. Each value is limited to a maximu
 
 
 ## Ride height
-**This widget displays ride height info.**
+**This widget displays visualized ride height info.**
 
     ride_height_max_range
 Set visualized maximum ride height range (millimeter).
@@ -1321,6 +1321,13 @@ Show empty stint history. Default is `false`, which hides empty rows.
 
     minimum_stint_threshold_minutes
 Set the minimum stint time threshold in minutes for updating stint history. This only affects ESC.
+
+
+## Suspension position
+**This widget displays visualized suspension position info.**
+
+    position_max_range
+Set visualized maximum suspension position range (millimeter).
 
 
 ## Timing

@@ -17,17 +17,16 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Tyre load Widget
+Suspension position Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPen, QColor, QFont, QFontMetrics
 
-from .. import calculation as calc
 from ..api_control import api
 from ..base import Widget
 
-WIDGET_NAME = "tyre_load"
+WIDGET_NAME = "suspension_position"
 
 
 class Draw(Widget):
@@ -61,7 +60,8 @@ class Draw(Widget):
         self.bar_gap = self.wcfg["bar_gap"]
         self.bar_width = max(self.wcfg["bar_width"], 20)
         self.bar_height = int(font_c + pady * 2)
-        self.width_scale = self.bar_width * 0.01
+        self.max_range = max(int(self.wcfg["position_max_range"]), 10)
+        self.width_scale = self.bar_width / self.max_range
 
         # Config canvas
         self.resize(
@@ -73,9 +73,8 @@ class Draw(Widget):
         self.pen.setColor(QColor(self.wcfg["font_color"]))
 
         # Last data
-        self.tload = [0] * 4
-        self.tratio = [0] * 4
-        self.last_tload = None
+        self.pos_raw = [0] * 4
+        self.last_pos_raw = [0] * 4
 
         # Set widget state & start update
         self.set_widget_state()
@@ -85,17 +84,14 @@ class Draw(Widget):
         """Update when vehicle on track"""
         if self.wcfg["enable"] and api.state:
 
-            # Read tyre load data
-            raw_load = api.read.tyre.load()
-            self.tload = tuple(map(round, raw_load))
-            self.tratio = tuple(map(self.tyre_load_ratio, raw_load, [sum(raw_load)] * 4))
-
-            self.update_tyre_load(self.tload, self.last_tload)
-            self.last_tload = self.tload
+            # Suspension position
+            self.pos_raw = api.read.wheel.suspension_deflection()
+            self.update_susp_pos(self.pos_raw, self.last_pos_raw)
+            self.last_pos_raw = self.pos_raw
 
     # GUI update methods
-    def update_tyre_load(self, curr, last):
-        """Tyre load update"""
+    def update_susp_pos(self, curr, last):
+        """Suspension position update"""
         if curr != last:
             self.update()
 
@@ -104,11 +100,11 @@ class Draw(Widget):
         painter = QPainter(self)
         #painter.setRenderHint(QPainter.Antialiasing, True)
 
-        # Draw tyre load
-        self.draw_tyre_load(painter)
+        # Draw suspension position
+        self.draw_susp_pos(painter)
 
-    def draw_tyre_load(self, painter):
-        """Tyre load"""
+    def draw_susp_pos(self, painter):
+        """Suspension position"""
         # Background size
         rect_bg_fl = QRectF(
             0,
@@ -134,29 +130,31 @@ class Draw(Widget):
             self.bar_width,
             self.bar_height
         )
-        # Tyre load size
-        rect_load_fl = QRectF(
-            self.bar_width - self.tratio[0] * self.width_scale,
+        # Suspension position size
+        pos_fl_abs = abs(self.pos_raw[0]) * self.width_scale
+        susp_pos_fl = QRectF(
+            self.bar_width - pos_fl_abs,
             0,
-            self.tratio[0] * self.width_scale,
+            pos_fl_abs,
             self.bar_height
         )
-        rect_load_fr = QRectF(
+        susp_pos_fr = QRectF(
             self.bar_width + self.bar_gap,
             0,
-            self.tratio[1] * self.width_scale,
+            abs(self.pos_raw[1]) * self.width_scale,
             self.bar_height
         )
-        rect_load_rl = QRectF(
-            self.bar_width - self.tratio[2] * self.width_scale,
+        pos_rl_abs = abs(self.pos_raw[2]) * self.width_scale
+        susp_pos_rl = QRectF(
+            self.bar_width - pos_rl_abs,
             self.bar_height + self.bar_gap,
-            self.tratio[2] * self.width_scale,
+            pos_rl_abs,
             self.bar_height
         )
-        rect_load_rr = QRectF(
+        susp_pos_rr = QRectF(
             self.bar_width + self.bar_gap,
             self.bar_height + self.bar_gap,
-            self.tratio[3] * self.width_scale,
+            abs(self.pos_raw[3]) * self.width_scale,
             self.bar_height
         )
 
@@ -168,43 +166,38 @@ class Draw(Widget):
         painter.fillRect(rect_bg_rl, bkg_color)
         painter.fillRect(rect_bg_rr, bkg_color)
 
-        hi_color = QColor(self.wcfg["highlight_color"])
-        painter.fillRect(rect_load_fl, hi_color)
-        painter.fillRect(rect_load_fr, hi_color)
-        painter.fillRect(rect_load_rl, hi_color)
-        painter.fillRect(rect_load_rr, hi_color)
+        painter.fillRect(susp_pos_fl, QColor(self.color_pos(self.pos_raw[0])))
+        painter.fillRect(susp_pos_fr, QColor(self.color_pos(self.pos_raw[1])))
+        painter.fillRect(susp_pos_rl, QColor(self.color_pos(self.pos_raw[2])))
+        painter.fillRect(susp_pos_rr, QColor(self.color_pos(self.pos_raw[3])))
 
         # Update text
-        if self.wcfg["show_tyre_load_ratio"]:
-            display_text = self.tratio
-        else:
-            display_text = self.tload
-
         painter.setPen(self.pen)
         painter.setFont(self.font)
         painter.drawText(
             rect_bg_fl.adjusted(self.padx, self.font_offset, 0, 0),
             Qt.AlignLeft | Qt.AlignVCenter,
-            f"{display_text[0]:.0f}"
+            f"{self.pos_raw[0]:.0f}"
         )
         painter.drawText(
             rect_bg_fr.adjusted(0, self.font_offset, -self.padx, 0),
             Qt.AlignRight | Qt.AlignVCenter,
-            f"{display_text[1]:.0f}"
+            f"{self.pos_raw[1]:.0f}"
         )
         painter.drawText(
             rect_bg_rl.adjusted(self.padx, self.font_offset, 0, 0),
             Qt.AlignLeft | Qt.AlignVCenter,
-            f"{display_text[2]:.0f}"
+            f"{self.pos_raw[2]:.0f}"
         )
         painter.drawText(
             rect_bg_rr.adjusted(0, self.font_offset, -self.padx, 0),
             Qt.AlignRight | Qt.AlignVCenter,
-            f"{display_text[3]:.0f}"
+            f"{self.pos_raw[3]:.0f}"
         )
 
     # Additional methods
-    @staticmethod
-    def tyre_load_ratio(value, total):
-        """Tyre load ratio"""
-        return round(calc.force_ratio(value, total), 2)
+    def color_pos(self, value):
+        """Set suspension position color"""
+        if value < 0:
+            return self.wcfg["negative_position_color"]
+        return self.wcfg["positive_position_color"]

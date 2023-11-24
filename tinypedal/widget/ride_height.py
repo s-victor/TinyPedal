@@ -21,9 +21,8 @@ Ride height Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
-from PySide2.QtGui import QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
+from PySide2.QtGui import QPainter, QPen, QColor, QFont, QFontMetrics
 
-from .. import calculation as calc
 from ..api_control import api
 from ..base import Widget
 
@@ -62,6 +61,7 @@ class Draw(Widget):
         self.bar_width = max(self.wcfg["bar_width"], 20)
         self.bar_height = int(font_c + pady * 2)
         self.max_range = max(int(self.wcfg["ride_height_max_range"]), 10)
+        self.width_scale = self.bar_width / self.max_range
         self.ride_height_offset = (
             self.wcfg["ride_height_offset_front_left"],
             self.wcfg["ride_height_offset_front_right"],
@@ -76,7 +76,7 @@ class Draw(Widget):
         )
 
         self.pen = QPen()
-        self.brush = QBrush(Qt.SolidPattern)
+        self.pen.setColor(QColor(self.wcfg["font_color"]))
 
         # Last data
         self.ride_height = [0] * 4
@@ -91,7 +91,7 @@ class Draw(Widget):
         if self.wcfg["enable"] and api.state:
 
             # Read ride height & rake data
-            self.ride_height = tuple(map(calc.meter2millmeter, api.read.wheel.ride_height()))
+            self.ride_height = api.read.wheel.ride_height()
             self.update_rideh(self.ride_height, self.last_ride_height)
             self.last_ride_height = self.ride_height
 
@@ -137,28 +137,30 @@ class Draw(Widget):
             self.bar_height
         )
         # Ride height size
+        rideh_fl_min = max(self.ride_height[0], 0) * self.width_scale
         rect_rideh_fl = QRectF(
-            self.bar_width - self.ride_height[0] * self.bar_width / self.max_range,
+            self.bar_width - rideh_fl_min,
             0,
-            self.ride_height[0] * self.bar_width / self.max_range,
+            rideh_fl_min,
             self.bar_height
         )
         rect_rideh_fr = QRectF(
             self.bar_width + self.bar_gap,
             0,
-            self.ride_height[1] * self.bar_width / self.max_range,
+            max(self.ride_height[1], 0) * self.width_scale,
             self.bar_height
         )
+        rideh_rl_min = max(self.ride_height[2], 0) * self.width_scale
         rect_rideh_rl = QRectF(
-            self.bar_width - self.ride_height[2] * self.bar_width / self.max_range,
+            self.bar_width - rideh_rl_min,
             self.bar_height + self.bar_gap,
-            self.ride_height[2] * self.bar_width / self.max_range,
+            rideh_rl_min,
             self.bar_height
         )
         rect_rideh_rr = QRectF(
             self.bar_width + self.bar_gap,
             self.bar_height + self.bar_gap,
-            self.ride_height[3] * self.bar_width / self.max_range,
+            max(self.ride_height[3], 0) * self.width_scale,
             self.bar_height
         )
 
@@ -181,15 +183,13 @@ class Draw(Widget):
             QColor(self.color_rideh(self.ride_height[3], self.ride_height_offset[3]))
         )
 
-        self.brush.setColor(QColor(self.wcfg["highlight_color"]))
-        painter.setBrush(self.brush)
-        painter.drawRect(rect_rideh_fl)
-        painter.drawRect(rect_rideh_fr)
-        painter.drawRect(rect_rideh_rl)
-        painter.drawRect(rect_rideh_rr)
+        hi_color = QColor(self.wcfg["highlight_color"])
+        painter.fillRect(rect_rideh_fl, hi_color)
+        painter.fillRect(rect_rideh_fr, hi_color)
+        painter.fillRect(rect_rideh_rl, hi_color)
+        painter.fillRect(rect_rideh_rr, hi_color)
 
         # Update text
-        self.pen.setColor(QColor(self.wcfg["font_color"]))
         painter.setPen(self.pen)
         painter.setFont(self.font)
         painter.drawText(

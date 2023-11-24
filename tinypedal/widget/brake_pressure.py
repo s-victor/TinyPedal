@@ -21,7 +21,7 @@ Brake pressure Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
-from PySide2.QtGui import QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
+from PySide2.QtGui import QPainter, QPen, QColor, QFont, QFontMetrics
 
 from ..api_control import api
 from ..base import Widget
@@ -60,6 +60,7 @@ class Draw(Widget):
         self.bar_gap = self.wcfg["bar_gap"]
         self.bar_width = max(self.wcfg["bar_width"], 20)
         self.bar_height = int(font_c + pady * 2)
+        self.width_scale = self.bar_width * 0.01
 
         # Config canvas
         self.resize(
@@ -68,7 +69,7 @@ class Draw(Widget):
         )
 
         self.pen = QPen()
-        self.brush = QBrush(Qt.SolidPattern)
+        self.pen.setColor(QColor(self.wcfg["font_color"]))
 
         # Last data
         self.bpres = [0] * 4
@@ -130,48 +131,45 @@ class Draw(Widget):
         )
         # Brake pressure size
         rect_bpres_fl = QRectF(
-            self.bar_width - self.bpres[0] * self.bar_width * 0.01,
+            self.bar_width - self.bpres[0] * self.width_scale,
             0,
-            self.bpres[0] * self.bar_width * 0.01,
+            self.bpres[0] * self.width_scale,
             self.bar_height
         )
         rect_bpres_fr = QRectF(
             self.bar_width + self.bar_gap,
             0,
-            self.bpres[1] * self.bar_width * 0.01,
+            self.bpres[1] * self.width_scale,
             self.bar_height
         )
         rect_bpres_rl = QRectF(
-            self.bar_width - self.bpres[2] * self.bar_width * 0.01,
+            self.bar_width - self.bpres[2] * self.width_scale,
             self.bar_height + self.bar_gap,
-            self.bpres[2] * self.bar_width * 0.01,
+            self.bpres[2] * self.width_scale,
             self.bar_height
         )
         rect_bpres_rr = QRectF(
             self.bar_width + self.bar_gap,
             self.bar_height + self.bar_gap,
-            self.bpres[3] * self.bar_width * 0.01,
+            self.bpres[3] * self.width_scale,
             self.bar_height
         )
 
         # Update background
-        self.brush.setColor(QColor(self.wcfg["bkg_color"]))
         painter.setPen(Qt.NoPen)
-        painter.setBrush(self.brush)
-        painter.drawRect(rect_bg_fl)
-        painter.drawRect(rect_bg_fr)
-        painter.drawRect(rect_bg_rl)
-        painter.drawRect(rect_bg_rr)
+        bkg_color = QColor(self.wcfg["bkg_color"])
+        painter.fillRect(rect_bg_fl, bkg_color)
+        painter.fillRect(rect_bg_fr, bkg_color)
+        painter.fillRect(rect_bg_rl, bkg_color)
+        painter.fillRect(rect_bg_rr, bkg_color)
 
-        self.brush.setColor(QColor(self.wcfg["highlight_color"]))
-        painter.setBrush(self.brush)
-        painter.drawRect(rect_bpres_fl)
-        painter.drawRect(rect_bpres_fr)
-        painter.drawRect(rect_bpres_rl)
-        painter.drawRect(rect_bpres_rr)
+        hi_color = QColor(self.wcfg["highlight_color"])
+        painter.fillRect(rect_bpres_fl, hi_color)
+        painter.fillRect(rect_bpres_fr, hi_color)
+        painter.fillRect(rect_bpres_rl, hi_color)
+        painter.fillRect(rect_bpres_rr, hi_color)
 
         # Update text
-        self.pen.setColor(QColor(self.wcfg["font_color"]))
         painter.setPen(self.pen)
         painter.setFont(self.font)
         painter.drawText(

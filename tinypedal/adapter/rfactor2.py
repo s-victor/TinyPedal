@@ -695,13 +695,13 @@ class Wheel(DataAdapter):
             self.info.rf2TeleVeh(index).mWheels[3].mLongitudinalGroundVel)
 
     def ride_height(self, index: int=None):
-        """Ride height"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mRideHeight)
+        """Ride height (millmeters)"""
+        return [calc.meter2millmeter(chknm(self.info.rf2TeleVeh(index).mWheels[data].mRideHeight))
                 for data in range(4)]
 
     def suspension_deflection(self, index: int=None):
-        """Suspension deflection (meters)"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mSuspensionDeflection)
+        """Suspension deflection (millmeters)"""
+        return [calc.meter2millmeter(chknm(self.info.rf2TeleVeh(index).mWheels[data].mSuspensionDeflection))
                 for data in range(4)]
 
     def suspension_force(self, index: int=None):

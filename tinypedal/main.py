@@ -63,7 +63,7 @@ class AppWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.resize(290,450)
-        self.setMinimumWidth(290)
+        self.setMinimumWidth(300)
         self.setMinimumHeight(450)
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)  # disable maximize
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
