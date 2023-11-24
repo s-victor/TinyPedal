@@ -100,9 +100,7 @@ class OverlayAutoHide(QObject):
 
     def __is_hidden(self):
         """Check hide state"""
-        if not self.cfg.overlay["auto_hide"] or api.state:
-            return False
-        return True
+        return self.cfg.overlay["auto_hide"] and not api.state
 
     def toggle(self):
         """Toggle hide state"""
