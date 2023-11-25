@@ -21,7 +21,7 @@ Navigation Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF, QLineF, QPointF
-from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QRadialGradient, QPen, QBrush, QColor, QFont, QFontMetrics
+from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QRadialGradient, QPen, QBrush, QColor
 
 from .. import calculation as calc
 from ..api_control import api
@@ -39,22 +39,15 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        self.font = QFont()
-        self.font.setFamily(self.wcfg['font_name'])
-        self.font.setPixelSize(self.wcfg['font_size'])
-        self.font.setWeight(getattr(QFont, self.wcfg['font_weight'].capitalize()))
-
-        font_h = QFontMetrics(self.font).height()
-        font_l = QFontMetrics(self.font).leading()
-        font_c = QFontMetrics(self.font).capHeight()
-        font_d = QFontMetrics(self.font).descent()
+        self.font = self.config_font(
+            self.wcfg["font_name"],
+            self.wcfg["font_size"],
+            self.wcfg["font_weight"]
+        )
+        font_m = self.get_font_metrics(self.font)
+        self.font_offset = self.calc_font_offset(font_m)
 
         # Config variable
-        if self.wcfg["enable_auto_font_offset"]:
-            self.font_offset = font_c + font_d * 2 + font_l * 2 - font_h
-        else:
-            self.font_offset = self.wcfg["font_offset_vertical"]
-
         self.area_size = max(int(self.wcfg["display_size"]), 20)
         self.global_scale = self.area_size / max(self.wcfg["view_radius"], 5)
         self.area_center = self.area_size / 2

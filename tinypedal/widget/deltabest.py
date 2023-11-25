@@ -21,7 +21,7 @@ Deltabest Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
-from PySide2.QtGui import QPainter, QPen, QBrush, QColor, QFont, QFontMetrics
+from PySide2.QtGui import QPainter, QPen, QBrush, QColor
 
 from .. import calculation as calc
 from ..api_control import api
@@ -39,31 +39,23 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        self.font = QFont()
-        self.font.setFamily(self.wcfg['font_name'])
-        self.font.setPixelSize(self.wcfg['font_size'])
-        self.font.setWeight(getattr(QFont, self.wcfg['font_weight'].capitalize()))
-
-        font_w = QFontMetrics(self.font).averageCharWidth()
-        font_h = QFontMetrics(self.font).height()
-        font_l = QFontMetrics(self.font).leading()
-        font_c = QFontMetrics(self.font).capHeight()
-        font_d = QFontMetrics(self.font).descent()
+        self.font = self.config_font(
+            self.wcfg["font_name"],
+            self.wcfg["font_size"],
+            self.wcfg["font_weight"]
+        )
+        font_m = self.get_font_metrics(self.font)
+        self.font_offset = self.calc_font_offset(font_m)
 
         # Config variable
         self.dbar_length = int(self.wcfg["bar_length"] / 2)
         self.dbar_height = int(self.wcfg["bar_height"])
         self.bar_gap = self.wcfg["bar_gap"]
-        padx = round(font_w * self.wcfg["bar_padding_horizontal"])
-        pady = round(font_c * self.wcfg["bar_padding_vertical"])
+        padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
+        pady = round(font_m.capital * self.wcfg["bar_padding_vertical"])
 
-        if self.wcfg["enable_auto_font_offset"]:
-            self.font_offset = font_c + font_d * 2 + font_l * 2 - font_h
-        else:
-            self.font_offset = self.wcfg["font_offset_vertical"]
-
-        self.delta_width = font_w * 7 + padx * 2
-        self.delta_height = int(font_c + pady * 2)
+        self.delta_width = font_m.width * 7 + padx * 2
+        self.delta_height = int(font_m.capital + pady * 2)
 
         # Config canvas
         if self.wcfg["show_delta_bar"]:

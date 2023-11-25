@@ -22,14 +22,7 @@ Trailing Widget
 
 from collections import deque
 from PySide2.QtCore import Qt, Slot, QPointF
-from PySide2.QtGui import (
-    QPainter,
-    QPixmap,
-    QPen,
-    QBrush,
-    QColor,
-    QPolygonF
-)
+from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor, QPolygonF
 
 from ..api_control import api
 from ..base import Widget

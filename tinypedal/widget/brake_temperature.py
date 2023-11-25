@@ -21,10 +21,7 @@ Brake temperature Widget
 """
 
 from PySide2.QtCore import Qt, Slot
-from PySide2.QtWidgets import (
-    QGridLayout,
-    QLabel,
-)
+from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import calculation as calc
 from .. import validator as val
@@ -42,7 +39,7 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        font_w = self.calc_font_width(self.wcfg['font_name'], self.wcfg['font_size'])
+        font_w = self.calc_font_width(self.wcfg["font_name"], self.wcfg["font_size"])
 
         # Config variable
         text_def = "n/a"

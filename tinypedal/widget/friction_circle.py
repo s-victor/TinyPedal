@@ -22,17 +22,7 @@ Friction circle Widget
 
 from collections import deque
 from PySide2.QtCore import Qt, Slot, QPointF, QRectF
-from PySide2.QtGui import (
-    QPainter,
-    QPixmap,
-    QRadialGradient,
-    QPen,
-    QBrush,
-    QColor,
-    QPolygonF,
-    QFont,
-    QFontMetrics
-)
+from PySide2.QtGui import QPainter, QPixmap, QRadialGradient, QPen, QBrush, QColor, QPolygonF
 
 from .. import calculation as calc
 from ..api_control import api
@@ -50,54 +40,46 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        self.font = QFont()
-        self.font.setFamily(self.wcfg['font_name'])
-        self.font.setPixelSize(self.wcfg['font_size'])
-        self.font.setWeight(getattr(QFont, self.wcfg['font_weight'].capitalize()))
-
-        font_w = QFontMetrics(self.font).averageCharWidth()
-        font_h = QFontMetrics(self.font).height()
-        font_l = QFontMetrics(self.font).leading()
-        font_c = QFontMetrics(self.font).capHeight()
-        font_d = QFontMetrics(self.font).descent()
+        self.font = self.config_font(
+            self.wcfg["font_name"],
+            self.wcfg["font_size"],
+            self.wcfg["font_weight"]
+        )
+        font_m = self.get_font_metrics(self.font)
+        self.font_offset = self.calc_font_offset(font_m)
 
         # Config variable
-        text_width = font_w * 4
+        text_width = font_m.width * 4
         display_size = max(int(self.wcfg["display_size"]), 20)
         self.display_radius_g = max(self.wcfg["display_radius_g"], 1)
         self.global_scale = (display_size / 2) / self.display_radius_g
-        self.area_size = display_size + font_h * 2
+        self.area_size = display_size + font_m.height * 2
         self.area_center = self.area_size / 2
         self.dot_size = max(self.wcfg["dot_size"], 1)
-
-        if self.wcfg["enable_auto_font_offset"]:
-            self.font_offset = font_c + font_d * 2 + font_l * 2 - font_h
-        else:
-            self.font_offset = self.wcfg["font_offset_vertical"]
 
         self.rect_gforce_top = QRectF(
             self.area_center - text_width / 2,
             0,
             text_width,
-            font_h
+            font_m.height
         )
         self.rect_gforce_bottom = QRectF(
             self.area_center - text_width / 2,
-            self.area_size - font_h,
+            self.area_size - font_m.height,
             text_width,
-            font_h
+            font_m.height
         )
         self.rect_gforce_left = QRectF(
             0,
-            self.area_center - font_h,
+            self.area_center - font_m.height,
             text_width,
-            font_h
+            font_m.height
         )
         self.rect_gforce_right = QRectF(
             self.area_size - text_width,
-            self.area_center - font_h,
+            self.area_center - font_m.height,
             text_width,
-            font_h
+            font_m.height
         )
 
         # Config canvas

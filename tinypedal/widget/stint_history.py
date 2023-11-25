@@ -21,10 +21,7 @@ Stint history Widget
 """
 
 from PySide2.QtCore import Qt, Slot
-from PySide2.QtWidgets import (
-    QGridLayout,
-    QLabel,
-)
+from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import calculation as calc
 from .. import formatter as fmt

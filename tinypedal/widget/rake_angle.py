@@ -21,10 +21,7 @@ Rake angle Widget
 """
 
 from PySide2.QtCore import Qt, Slot
-from PySide2.QtWidgets import (
-    QGridLayout,
-    QLabel,
-)
+from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import calculation as calc
 from ..api_control import api
@@ -41,7 +38,7 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        self.font_w = self.calc_font_width(self.wcfg['font_name'], self.wcfg['font_size'])
+        self.font_w = self.calc_font_width(self.wcfg["font_name"], self.wcfg["font_size"])
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])

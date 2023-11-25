@@ -20,6 +20,8 @@
 GUI window, events.
 """
 
+from collections import namedtuple
+
 from PySide2.QtCore import Qt, QTimer, Slot
 from PySide2.QtGui import QColor, QPalette, QFont, QFontMetrics
 from PySide2.QtWidgets import QWidget
@@ -144,9 +146,47 @@ class Widget(QWidget):
         self.close()
 
     @staticmethod
-    def calc_font_width(name, size):
+    def config_font(name="", size=1, weight=400):
+        """Config font"""
+        font = QFont()
+        font.setFamily(name)
+        font.setPixelSize(size)
+        font.setWeight(getattr(QFont, weight.capitalize()))
+        return font
+
+    @staticmethod
+    def calc_font_width(name="", size=1):
         """Calculate font(char) width"""
         font = QFont()
         font.setFamily(name)
         font.setPixelSize(size)
         return QFontMetrics(font).averageCharWidth()
+
+    @staticmethod
+    def get_font_metrics(name):
+        """Calculate font metrics"""
+        return FontMetrics(
+            width = QFontMetrics(name).averageCharWidth(),
+            height = QFontMetrics(name).height(),
+            leading = QFontMetrics(name).leading(),
+            capital = QFontMetrics(name).capHeight(),
+            descent = QFontMetrics(name).descent(),
+        )
+
+    def calc_font_offset(self, metrics):
+        """Calculate font vertical offset"""
+        if self.wcfg["enable_auto_font_offset"]:
+            return metrics.capital + metrics.descent * 2 + metrics.leading * 2 - metrics.height
+        return self.wcfg["font_offset_vertical"]
+
+
+FontMetrics = namedtuple(
+    "FontMetrics",
+    [
+    "width",
+    "height",
+    "leading",
+    "capital",
+    "descent",
+    ]
+)

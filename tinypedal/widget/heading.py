@@ -21,16 +21,7 @@ Heading Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QPointF, QRectF
-from PySide2.QtGui import (
-    QPainter,
-    QPixmap,
-    QPen,
-    QBrush,
-    QColor,
-    QPolygonF,
-    QFont,
-    QFontMetrics
-)
+from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor, QPolygonF
 
 from .. import calculation as calc
 from ..api_control import api
@@ -47,16 +38,13 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        self.font = QFont()
-        self.font.setFamily(self.wcfg['font_name'])
-        self.font.setPixelSize(self.wcfg['font_size'])
-        self.font.setWeight(getattr(QFont, self.wcfg['font_weight'].capitalize()))
-
-        font_w = QFontMetrics(self.font).averageCharWidth()
-        font_h = QFontMetrics(self.font).height()
-        font_l = QFontMetrics(self.font).leading()
-        font_c = QFontMetrics(self.font).capHeight()
-        font_d = QFontMetrics(self.font).descent()
+        self.font = self.config_font(
+            self.wcfg["font_name"],
+            self.wcfg["font_size"],
+            self.wcfg["font_weight"]
+        )
+        font_m = self.get_font_metrics(self.font)
+        self.font_offset = self.calc_font_offset(font_m)
 
         # Config variable
         self.area_size = max(int(self.wcfg["display_size"]), 20)
@@ -70,24 +58,19 @@ class Draw(Widget):
         )
 
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
-        text_width = font_w * (5 + self.decimals)
-
-        if self.wcfg["enable_auto_font_offset"]:
-            self.font_offset = font_c + font_d * 2 + font_l * 2 - font_h
-        else:
-            self.font_offset = self.wcfg["font_offset_vertical"]
+        text_width = font_m.width * (5 + self.decimals)
 
         self.rect_yaw_angle = QRectF(
             self.area_size * self.wcfg["yaw_angle_offset_x"] - text_width / 2,
-            self.area_size * self.wcfg["yaw_angle_offset_y"] - font_h / 2,
+            self.area_size * self.wcfg["yaw_angle_offset_y"] - font_m.height / 2,
             text_width,
-            font_h
+            font_m.height
         )
         self.rect_slip_angle = QRectF(
             self.area_size * self.wcfg["slip_angle_offset_x"] - text_width / 2,
-            self.area_size * self.wcfg["slip_angle_offset_y"] - font_h / 2,
+            self.area_size * self.wcfg["slip_angle_offset_y"] - font_m.height / 2,
             text_width,
-            font_h
+            font_m.height
         )
         self.dir_line = QPolygonF((
             QPointF(0, -self.area_center * self.wcfg["direction_line_head_scale"]),

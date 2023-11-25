@@ -22,10 +22,7 @@ Pedal Widget
 
 from PySide2.QtCore import Qt, Slot, QRectF, QSize
 from PySide2.QtGui import QPixmap, QPainter, QColor
-from PySide2.QtWidgets import (
-    QLabel,
-    QGridLayout,
-)
+from PySide2.QtWidgets import QLabel, QGridLayout
 
 from ..api_control import api
 from ..base import Widget

@@ -22,10 +22,7 @@ Instrument Widget
 
 from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPixmap, QPainter, QPen, QColor
-from PySide2.QtWidgets import (
-    QLabel,
-    QGridLayout,
-)
+from PySide2.QtWidgets import QLabel, QGridLayout
 
 from .. import calculation as calc
 from ..api_control import api

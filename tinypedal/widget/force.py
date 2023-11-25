@@ -21,10 +21,7 @@ Force Widget
 """
 
 from PySide2.QtCore import Qt, Slot
-from PySide2.QtWidgets import (
-    QGridLayout,
-    QLabel,
-)
+from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import formatter as fmt
 from ..api_control import api
@@ -42,7 +39,7 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        font_w = self.calc_font_width(self.wcfg['font_name'], self.wcfg['font_size'])
+        font_w = self.calc_font_width(self.wcfg["font_name"], self.wcfg["font_size"])
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])

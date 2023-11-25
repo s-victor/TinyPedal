@@ -22,10 +22,7 @@ Fuel Widget
 
 from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPixmap, QColor
-from PySide2.QtWidgets import (
-    QLabel,
-    QGridLayout,
-)
+from PySide2.QtWidgets import QLabel, QGridLayout
 
 from .. import calculation as calc
 from .. import formatter as fmt
@@ -44,7 +41,7 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        font_w = self.calc_font_width(self.wcfg['font_name'], self.wcfg['font_size'])
+        font_w = self.calc_font_width(self.wcfg["font_name"], self.wcfg["font_size"])
 
         # Config variable
         text_def = "-.--"

@@ -21,11 +21,8 @@ Gear Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
-from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor, QFont, QFontMetrics
-from PySide2.QtWidgets import (
-    QLabel,
-    QGridLayout,
-)
+from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor
+from PySide2.QtWidgets import QLabel, QGridLayout
 
 from .. import calculation as calc
 from ..api_control import api
@@ -43,43 +40,35 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        self.font = QFont()
-        self.font.setFamily(self.wcfg['font_name'])
-        self.font.setPixelSize(self.wcfg['font_size'])
+        self.font_gear = self.config_font(
+            self.wcfg["font_name"],
+            self.wcfg["font_size"],
+            self.wcfg["font_weight_gear"]
+        )
+        font_m = self.get_font_metrics(self.font_gear)
+        self.font_offset = self.calc_font_offset(font_m)
 
-        font_w = QFontMetrics(self.font).averageCharWidth()
-        font_h = QFontMetrics(self.font).height()
-        font_l = QFontMetrics(self.font).leading()
-        font_c = QFontMetrics(self.font).capHeight()
-        font_d = QFontMetrics(self.font).descent()
-
-        self.font_gear = self.font
-        self.font_gear.setWeight(getattr(QFont, self.wcfg['font_weight_gear'].capitalize()))
-
+        self.font_speed = self.config_font(
+            self.wcfg["font_name"],
+            self.wcfg["font_size"],
+            self.wcfg["font_weight_speed"]
+        )
         font_scale_speed = self.wcfg["font_scale_speed"] if self.wcfg["show_speed_below_gear"] else 1
-        self.font_speed = QFont()
-        self.font_speed.setFamily(self.wcfg['font_name'])
-        self.font_speed.setWeight(getattr(QFont, self.wcfg['font_weight_speed'].capitalize()))
-        self.font_speed.setPixelSize(round(self.wcfg['font_size'] * font_scale_speed))
+        self.font_speed.setPixelSize(round(self.wcfg["font_size"] * font_scale_speed))
 
         # Config variable
         bar_gap = self.wcfg["bar_gap"]
         self.inner_gap = self.wcfg["inner_gap"]
-        padx = round(font_w * self.wcfg["bar_padding_horizontal"])
-        pady = round(font_c * self.wcfg["bar_padding_vertical"])
+        padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
+        pady = round(font_m.capital * self.wcfg["bar_padding_vertical"])
 
-        if self.wcfg["enable_auto_font_offset"]:
-            self.font_offset = font_c + font_d * 2 + font_l * 2 - font_h
-        else:
-            self.font_offset = self.wcfg["font_offset_vertical"]
-
-        self.gear_width = font_w + padx * 2
-        self.gear_height = font_c + pady * 2
-        self.speed_width = round(font_w * 3 * font_scale_speed) + padx * 2
-        self.speed_height = round(font_c * font_scale_speed) + pady * 2
+        self.gear_width = font_m.width + padx * 2
+        self.gear_height = font_m.capital + pady * 2
+        self.speed_width = round(font_m.width * 3 * font_scale_speed) + padx * 2
+        self.speed_height = round(font_m.capital * font_scale_speed) + pady * 2
         self.limiter_width = (
-            font_w * len(self.wcfg["speed_limiter_text"])
-            + round(font_w * self.wcfg["speed_limiter_padding_horizontal"]) * 2)
+            font_m.width * len(self.wcfg["speed_limiter_text"])
+            + round(font_m.width * self.wcfg["speed_limiter_padding_horizontal"]) * 2)
 
         if self.wcfg["show_speed_below_gear"]:
             self.gauge_width = self.gear_width
