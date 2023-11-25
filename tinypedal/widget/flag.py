@@ -38,7 +38,8 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        font_w = self.calc_font_width(self.wcfg["font_name"], self.wcfg["font_size"])
+        font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
@@ -50,7 +51,7 @@ class Draw(Widget):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
-            f"min-width: {font_w * 7}px;"
+            f"min-width: {font_m.width * 7}px;"
         )
 
         # Create layout

@@ -38,7 +38,8 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        font_w = self.calc_font_width(self.wcfg["font_name"], self.wcfg["font_size"])
+        font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
@@ -46,10 +47,10 @@ class Draw(Widget):
 
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
         if self.decimals > 0:
-            bar_width = font_w * (4 + self.decimals)
+            bar_width = font_m.width * (4 + self.decimals)
             zero_offset = 1
         else:
-            bar_width = font_w * 3
+            bar_width = font_m.width * 3
             zero_offset = 0
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3) + zero_offset + self.decimals
 

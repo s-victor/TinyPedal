@@ -40,7 +40,8 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        font_w = self.calc_font_width(self.wcfg["font_name"], self.wcfg["font_size"])
+        font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
         text_def = "n/a"
@@ -83,7 +84,7 @@ class Draw(Widget):
             bar_style_tcmpd = (
                 f"color: {self.wcfg['font_color_tyre_compound']};"
                 f"background: {self.wcfg['bkg_color_tyre_compound']};"
-                f"min-width: {font_w}px; max-width: {font_w}px;"
+                f"min-width: {font_m.width}px; max-width: {font_m.width}px;"
             )
             self.bar_tcmpd_f = QLabel("-")
             self.bar_tcmpd_f.setAlignment(Qt.AlignCenter)
@@ -106,7 +107,7 @@ class Draw(Widget):
         self.stemp_set = ("stemp_fl", "stemp_fr", "stemp_rl", "stemp_rr")
         self.itemp_set = ("itemp_fl", "itemp_fr", "itemp_rl", "itemp_rr")
 
-        self.bar_width_temp = font_w * text_width
+        self.bar_width_temp = font_m.width * text_width
         bar_style_stemp = (
             f"color: {self.wcfg['font_color_surface']};"
             f"background: {self.wcfg['bkg_color_surface']};"

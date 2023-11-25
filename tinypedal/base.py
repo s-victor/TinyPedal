@@ -146,25 +146,23 @@ class Widget(QWidget):
         self.close()
 
     @staticmethod
-    def config_font(name="", size=1, weight=400):
-        """Config font"""
+    def config_font(name="", size=1, weight=None):
+        """Config font
+
+        Two main uses:
+            1. Draw text in widget that uses QPainter.
+            2. Get font metrics reading for sizing elements.
+        """
         font = QFont()
         font.setFamily(name)
         font.setPixelSize(size)
-        font.setWeight(getattr(QFont, weight.capitalize()))
+        if weight:
+            font.setWeight(getattr(QFont, weight.capitalize()))
         return font
 
     @staticmethod
-    def calc_font_width(name="", size=1):
-        """Calculate font(char) width"""
-        font = QFont()
-        font.setFamily(name)
-        font.setPixelSize(size)
-        return QFontMetrics(font).averageCharWidth()
-
-    @staticmethod
     def get_font_metrics(name):
-        """Calculate font metrics"""
+        """Get font metrics"""
         return FontMetrics(
             width = QFontMetrics(name).averageCharWidth(),
             height = QFontMetrics(name).height(),
@@ -174,7 +172,11 @@ class Widget(QWidget):
         )
 
     def calc_font_offset(self, metrics):
-        """Calculate font vertical offset"""
+        """Calculate auto font vertical offset
+
+        Find center vertical alignment position offset
+        for even space between top & bottom.
+        """
         if self.wcfg["enable_auto_font_offset"]:
             return metrics.capital + metrics.descent * 2 + metrics.leading * 2 - metrics.height
         return self.wcfg["font_offset_vertical"]

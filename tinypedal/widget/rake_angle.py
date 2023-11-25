@@ -38,7 +38,8 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        self.font_w = self.calc_font_width(self.wcfg["font_name"], self.wcfg["font_size"])
+        self.font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
@@ -64,8 +65,8 @@ class Draw(Widget):
         self.bar_rake.setStyleSheet(
             f"color: {self.wcfg['font_color_rake_angle']};"
             f"background: {self.wcfg['bkg_color_rake_angle']};"
-            f"min-width: {self.font_w * 8}px;"
-            f"max-width: {self.font_w * 8}px;"
+            f"min-width: {self.font_m.width * 8}px;"
+            f"max-width: {self.font_m.width * 8}px;"
         )
 
         # Set layout
@@ -108,6 +109,6 @@ class Draw(Widget):
             self.bar_rake.setStyleSheet(
                 f"color: {self.wcfg['font_color_rake_angle']};"
                 f"background: {bgcolor};"
-                f"min-width: {self.font_w * len(text)}px;"
-                f"max-width: {self.font_w * len(text)}px;"
+                f"min-width: {self.font_m.width * len(text)}px;"
+                f"max-width: {self.font_m.width * len(text)}px;"
             )

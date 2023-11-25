@@ -41,7 +41,8 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        font_w = self.calc_font_width(self.wcfg["font_name"], self.wcfg["font_size"])
+        font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
@@ -66,7 +67,7 @@ class Draw(Widget):
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         # Target time
-        self.bar_width_laptime = font_w * 11
+        self.bar_width_laptime = font_m.width * 11
         self.bar_time_target = QLabel("  --:--.---")
         self.bar_time_target.setAlignment(Qt.AlignCenter)
         self.bar_time_target.setStyleSheet(
@@ -85,7 +86,7 @@ class Draw(Widget):
         )
 
         # Gap to best lap laptime
-        self.bar_width_gap = font_w * 7
+        self.bar_width_gap = font_m.width * 7
         self.bar_time_gap = QLabel("--.---")
         self.bar_time_gap.setAlignment(Qt.AlignCenter)
         self.bar_time_gap.setStyleSheet(

@@ -38,13 +38,14 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        font_w = self.calc_font_width(self.wcfg["font_name"], self.wcfg["font_size"])
+        font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
         text_def = "n/a"
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
-        self.bar_width = font_w * 4
+        self.bar_width = font_m.width * 4
 
         # Base style
         self.setStyleSheet(

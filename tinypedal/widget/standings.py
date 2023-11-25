@@ -42,7 +42,8 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        font_w = self.calc_font_width(self.wcfg["font_name"], self.wcfg["font_size"])
+        font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
@@ -106,7 +107,7 @@ class Draw(Widget):
 
         # Driver position
         if self.wcfg["show_position"]:
-            self.bar_width_pos = f"min-width: {font_w * 2}px;"
+            self.bar_width_pos = f"min-width: {font_m.width * 2}px;"
             bar_style_pos = (
                 f"color: {self.wcfg['font_color_position']};"
                 f"background: {self.wcfg['bkg_color_position']};"
@@ -116,7 +117,7 @@ class Draw(Widget):
 
         # Driver name
         if self.wcfg["show_driver_name"]:
-            self.bar_width_drv = f"min-width: {font_w * self.drv_width}px;"
+            self.bar_width_drv = f"min-width: {font_m.width * self.drv_width}px;"
             bar_style_drv = (
                 f"color: {self.wcfg['font_color_driver_name']};"
                 f"background: {self.wcfg['bkg_color_driver_name']};"
@@ -126,7 +127,7 @@ class Draw(Widget):
 
         # Vehicle name
         if self.wcfg["show_vehicle_name"]:
-            self.bar_width_veh = f"min-width: {font_w * self.veh_width}px;"
+            self.bar_width_veh = f"min-width: {font_m.width * self.veh_width}px;"
             bar_style_veh = (
                 f"color: {self.wcfg['font_color_vehicle_name']};"
                 f"background: {self.wcfg['bkg_color_vehicle_name']};"
@@ -136,7 +137,7 @@ class Draw(Widget):
 
         # Time gap
         if self.wcfg["show_time_gap"]:
-            self.bar_width_gap = f"min-width: {font_w * self.gap_width}px;"
+            self.bar_width_gap = f"min-width: {font_m.width * self.gap_width}px;"
             bar_style_gap = (
                 f"color: {self.wcfg['font_color_time_gap']};"
                 f"background: {self.wcfg['bkg_color_time_gap']};"
@@ -146,7 +147,7 @@ class Draw(Widget):
 
         # Time interval
         if self.wcfg["show_time_interval"]:
-            self.bar_width_int = f"min-width: {font_w * self.int_width}px;"
+            self.bar_width_int = f"min-width: {font_m.width * self.int_width}px;"
             bar_style_int = (
                 f"color: {self.wcfg['font_color_time_interval']};"
                 f"background: {self.wcfg['bkg_color_time_interval']};"
@@ -156,7 +157,7 @@ class Draw(Widget):
 
         # Vehicle laptime
         if self.wcfg["show_laptime"]:
-            self.bar_width_lpt = f"min-width: {font_w * 8}px;"
+            self.bar_width_lpt = f"min-width: {font_m.width * 8}px;"
             bar_style_lpt = (
                 f"color: {self.wcfg['font_color_laptime']};"
                 f"background: {self.wcfg['bkg_color_laptime']};"
@@ -166,7 +167,7 @@ class Draw(Widget):
 
         # Vehicle position in class
         if self.wcfg["show_position_in_class"]:
-            self.bar_width_pic = f"min-width: {font_w * 2}px;"
+            self.bar_width_pic = f"min-width: {font_m.width * 2}px;"
             bar_style_pic = (
                 f"color: {self.wcfg['font_color_position_in_class']};"
                 f"background: {self.wcfg['bkg_color_position_in_class']};"
@@ -176,7 +177,7 @@ class Draw(Widget):
 
         # Vehicle class
         if self.wcfg["show_class"]:
-            self.bar_width_cls = f"min-width: {font_w * self.cls_width}px;"
+            self.bar_width_cls = f"min-width: {font_m.width * self.cls_width}px;"
             bar_style_cls = (
                 f"color: {self.wcfg['font_color_class']};"
                 f"background: {self.wcfg['bkg_color_class']};"
@@ -186,7 +187,7 @@ class Draw(Widget):
 
         # Vehicle in pit
         if self.wcfg["show_pit_status"]:
-            self.bar_width_pit = f"min-width: {font_w * len(self.wcfg['pit_status_text'])}px;"
+            self.bar_width_pit = f"min-width: {font_m.width * len(self.wcfg['pit_status_text'])}px;"
             bar_style_pit = (
                 f"color: {self.wcfg['font_color_pit']};"
                 f"background: {self.wcfg['bkg_color_pit']};"
@@ -196,7 +197,7 @@ class Draw(Widget):
 
         # Tyre compound index
         if self.wcfg["show_tyre_compound"]:
-            self.bar_width_tcp = f"min-width: {font_w * 2}px;"
+            self.bar_width_tcp = f"min-width: {font_m.width * 2}px;"
             bar_style_tcp = (
                 f"color: {self.wcfg['font_color_tyre_compound']};"
                 f"background: {self.wcfg['bkg_color_tyre_compound']};"
@@ -206,7 +207,7 @@ class Draw(Widget):
 
         # Pitstop count
         if self.wcfg["show_pitstop_count"]:
-            self.bar_width_psc = f"min-width: {font_w * 2}px;"
+            self.bar_width_psc = f"min-width: {font_m.width * 2}px;"
             bar_style_psc = (
                 f"color: {self.wcfg['font_color_pitstop_count']};"
                 f"background: {self.wcfg['bkg_color_pitstop_count']};"

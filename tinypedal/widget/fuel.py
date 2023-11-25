@@ -41,7 +41,8 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        font_w = self.calc_font_width(self.wcfg["font_name"], self.wcfg["font_size"])
+        font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
         text_def = "-.--"
@@ -69,8 +70,8 @@ class Draw(Widget):
             f"padding: 0 {bar_padx}px;"
         )
         self.style_font_size = f"font-size: {self.wcfg['font_size']}px;"
-        self.style_width = f"min-width: {font_w * self.bar_width}px; \
-                             max-width: {font_w * self.bar_width}px;"
+        self.style_width = f"min-width: {font_m.width * self.bar_width}px; \
+                             max-width: {font_m.width * self.bar_width}px;"
 
         # Create layout
         layout = QGridLayout()
@@ -213,7 +214,7 @@ class Draw(Widget):
 
         # Fuel level bar
         if self.wcfg["show_fuel_level_bar"]:
-            self.fuel_level_width = (font_w * self.bar_width + bar_padx * 2) * 5
+            self.fuel_level_width = (font_m.width * self.bar_width + bar_padx * 2) * 5
             self.fuel_level_height = self.wcfg["fuel_level_bar_height"]
             blank_fuel_level = QPixmap(self.fuel_level_width, self.fuel_level_height)
 
