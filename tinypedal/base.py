@@ -21,7 +21,7 @@ GUI window, events.
 """
 
 from PySide2.QtCore import Qt, QTimer, Slot
-from PySide2.QtGui import QColor, QPalette
+from PySide2.QtGui import QColor, QPalette, QFont, QFontMetrics
 from PySide2.QtWidgets import QWidget
 
 from .const import APP_NAME
@@ -142,3 +142,11 @@ class Widget(QWidget):
         self.__break_signal()
         self.cfg.active_widget_list.remove(self)
         self.close()
+
+    @staticmethod
+    def calc_font_width(name, size):
+        """Calculate font(char) width"""
+        font = QFont()
+        font.setFamily(name)
+        font.setPixelSize(size)
+        return QFontMetrics(font).averageCharWidth()

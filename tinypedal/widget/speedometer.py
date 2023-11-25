@@ -21,7 +21,6 @@ Speedometer Widget
 """
 
 from PySide2.QtCore import Qt, Slot
-from PySide2.QtGui import QFont, QFontMetrics
 from PySide2.QtWidgets import (
     QGridLayout,
     QLabel,
@@ -42,20 +41,18 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        self.font = QFont()
-        self.font.setFamily(self.wcfg['font_name'])
-        self.font.setPixelSize(self.wcfg['font_size'])
-        font_w = QFontMetrics(self.font).averageCharWidth()
+        font_w = self.calc_font_width(self.wcfg['font_name'], self.wcfg['font_size'])
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
+
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
         if self.decimals > 0:
-            self.bar_width_speed = font_w * (4 + self.decimals)
+            bar_width = font_w * (4 + self.decimals)
             zero_offset = 1
         else:
-            self.bar_width_speed = font_w * 3
+            bar_width = font_w * 3
             zero_offset = 0
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3) + zero_offset + self.decimals
 
@@ -85,7 +82,7 @@ class Draw(Widget):
             self.bar_speed_curr.setStyleSheet(
                 f"color: {self.wcfg['font_color_speed']};"
                 f"background: {self.wcfg['bkg_color_speed']};"
-                f"min-width: {self.bar_width_speed}px;"
+                f"min-width: {bar_width}px;"
             )
 
         if self.wcfg["show_speed_minimum"]:
@@ -94,7 +91,7 @@ class Draw(Widget):
             self.bar_speed_min.setStyleSheet(
                 f"color: {self.wcfg['font_color_speed_minimum']};"
                 f"background: {self.wcfg['bkg_color_speed_minimum']};"
-                f"min-width: {self.bar_width_speed}px;"
+                f"min-width: {bar_width}px;"
             )
 
         if self.wcfg["show_speed_maximum"]:
@@ -103,7 +100,7 @@ class Draw(Widget):
             self.bar_speed_max.setStyleSheet(
                 f"color: {self.wcfg['font_color_speed_maximum']};"
                 f"background: {self.wcfg['bkg_color_speed_maximum']};"
-                f"min-width: {self.bar_width_speed}px;"
+                f"min-width: {bar_width}px;"
             )
 
         if self.wcfg["show_speed_fastest"]:
@@ -112,7 +109,7 @@ class Draw(Widget):
             self.bar_speed_fast.setStyleSheet(
                 f"color: {self.wcfg['font_color_speed_fastest']};"
                 f"background: {self.wcfg['bkg_color_speed_fastest']};"
-                f"min-width: {self.bar_width_speed}px;"
+                f"min-width: {bar_width}px;"
             )
 
         # Set layout

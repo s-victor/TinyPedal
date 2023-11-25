@@ -21,7 +21,6 @@ Sectors Widget
 """
 
 from PySide2.QtCore import Qt, Slot
-from PySide2.QtGui import QFont, QFontMetrics
 from PySide2.QtWidgets import (
     QGridLayout,
     QHBoxLayout,
@@ -46,10 +45,7 @@ class Draw(Widget):
         Widget.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        self.font = QFont()
-        self.font.setFamily(self.wcfg['font_name'])
-        self.font.setPixelSize(self.wcfg['font_size'])
-        font_w = QFontMetrics(self.font).averageCharWidth()
+        font_w = self.calc_font_width(self.wcfg['font_name'], self.wcfg['font_size'])
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
