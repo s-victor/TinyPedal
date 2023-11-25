@@ -183,19 +183,14 @@ class Realtime:
     def save_sector_data(self, combo_id, session_id, best_s_pb, laptime_best, best_s_tb):
         """Verify and save sector data"""
         if session_id and val.sector_time(best_s_pb):
-            self.mcfg["sector_info"] = (
-                str(combo_id)
-                + "|" + str(session_id[0])
-                + "|" + str(session_id[1])
-                + "|" + str(session_id[2])
-                + "|" + str(laptime_best)
-                + "|" + str(best_s_tb[0])
-                + "|" + str(best_s_tb[1])
-                + "|" + str(best_s_tb[2])
-                + "|" + str(best_s_pb[0])
-                + "|" + str(best_s_pb[1])
-                + "|" + str(best_s_pb[2])
-                )
+            data = (
+                combo_id,      # 0
+                *session_id,   # 1 2 3
+                laptime_best,  # 4
+                *best_s_tb,    # 5 6 7
+                *best_s_pb     # 8 9 10
+            )
+            self.mcfg["sector_info"] = "|".join(map(str, data))
             self.cfg.save()
 
     def load_sector_data(self, combo_id, session_id):
