@@ -257,6 +257,7 @@ class Draw(Widget):
     def draw_instrument(self, canvas, h_offset, v_offset, hicolor=None):
         """Instrument"""
         icon = canvas.pixmap()
+        icon.fill(QColor(self.wcfg["bkg_color"] if not hicolor else hicolor))
         painter = QPainter(icon)
 
         # Set size
@@ -267,13 +268,6 @@ class Draw(Widget):
             self.icon_size,
             self.icon_size
         )
-
-        # Background
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        rect_bg = QColor(self.wcfg["bkg_color"] if not hicolor else hicolor)
-        painter.setPen(Qt.NoPen)
-        painter.fillRect(rect_size, rect_bg)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # Icon
         painter.drawPixmap(rect_size, self.icon_inst, rect_offset)

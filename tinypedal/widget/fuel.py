@@ -353,20 +353,13 @@ class Draw(Widget):
     def draw_fuel_level(self, canvas, fuel_data):
         """Fuel level"""
         fuel_level = canvas.pixmap()
+        fuel_level.fill(QColor(self.wcfg["bkg_color_fuel_level"]))
         painter = QPainter(fuel_level)
         #painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
-
-        # Set fuel level size
-        rect_fuel_level = QRectF(0, 0, self.fuel_level_width, self.fuel_level_height)
-        rect_fuel_left = QRectF(0, 0, fuel_data[0] * self.fuel_level_width, self.fuel_level_height)
-
-        # Update fuel level background
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        painter.fillRect(rect_fuel_level, QColor(self.wcfg["bkg_color_fuel_level"]))
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # Update fuel level highlight
+        painter.setPen(Qt.NoPen)
+        rect_fuel_left = QRectF(0, 0, fuel_data[0] * self.fuel_level_width, self.fuel_level_height)
         painter.fillRect(rect_fuel_left, QColor(self.wcfg["highlight_color_fuel_level"]))
 
         # Update starting fuel level mark

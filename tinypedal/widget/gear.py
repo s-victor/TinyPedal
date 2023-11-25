@@ -266,21 +266,9 @@ class Draw(Widget):
     def draw_gauge(self, canvas, gauge_data):
         """Gauge"""
         gauge = canvas.pixmap()
+        gauge.fill(QColor(gauge_data[2][1]))
         painter = QPainter(gauge)
         #painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
-
-        self.brush.setColor(QColor(gauge_data[2][1]))
-
-        # Set gauge size
-        rect_gauge = QRectF(0, 0, self.gauge_width, self.gauge_height)
-
-        # Update gauge background
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(self.brush)
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        painter.drawRect(rect_gauge)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # Update gauge text
         self.pen.setColor(QColor(gauge_data[2][0]))
@@ -321,18 +309,13 @@ class Draw(Widget):
     def draw_rpmbar(self, canvas, rpm_scale):
         """RPM bar"""
         rpmbar = canvas.pixmap()
+        rpmbar.fill(Qt.transparent)
         painter = QPainter(rpmbar)
         #painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
-
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        painter.fillRect(
-            0, 0, self.gauge_width, self.rpmbar_height, Qt.transparent)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-
-        self.brush.setColor(QColor(self.wcfg["rpm_bar_color"]))
 
         # Draw rpm
+        painter.setPen(Qt.NoPen)
+        self.brush.setColor(QColor(self.wcfg["rpm_bar_color"]))
         painter.setBrush(self.brush)
         painter.drawRect(0, 0, rpm_scale, self.rpmbar_height)
 
@@ -341,18 +324,13 @@ class Draw(Widget):
     def draw_battbar(self, canvas, battery):
         """Battery bar"""
         battbar = canvas.pixmap()
+        battbar.fill(Qt.transparent)
         painter = QPainter(battbar)
         #painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
-
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        painter.fillRect(
-            0, 0, self.gauge_width, self.battbar_height, Qt.transparent)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-
-        self.brush.setColor(QColor(self.wcfg["battery_bar_color"]))
 
         # Draw battery
+        painter.setPen(Qt.NoPen)
+        self.brush.setColor(QColor(self.wcfg["battery_bar_color"]))
         painter.setBrush(self.brush)
         painter.drawRect(0, 0, battery * 0.01 * self.gauge_width, self.battbar_height)
 
@@ -361,24 +339,12 @@ class Draw(Widget):
     def draw_limiter(self, canvas):
         """Limiter"""
         limiter = canvas.pixmap()
+        limiter.fill(QColor(self.wcfg["bkg_color_speed_limiter"]))
         painter = QPainter(limiter)
         #painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
-        self.brush.setColor(QColor(self.wcfg["bkg_color_speed_limiter"]))
-
-        # Set limiter size
-        rect_limiter = QRectF(0, 0, self.limiter_width, self.gauge_height)
-        rect_text = QRectF(
-            0, 0, self.limiter_width, self.gauge_height)
-
-        # Update limiter background
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(self.brush)
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        painter.drawRect(rect_limiter)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # Update limiter text
+        rect_text = QRectF(0, 0, self.limiter_width, self.gauge_height)
         self.pen.setColor(QColor(self.wcfg["font_color_speed_limiter"]))
         painter.setPen(self.pen)
         painter.setFont(self.font_gear)

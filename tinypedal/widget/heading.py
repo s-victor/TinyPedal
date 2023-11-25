@@ -199,19 +199,16 @@ class Draw(Widget):
     def draw_circle_background(self):
         """Draw circle background"""
         self.circle_background = QPixmap(self.area_size, self.area_size)
+        if self.wcfg["show_background"]:
+            self.circle_background.fill(self.wcfg["bkg_color"])
+        else:
+            self.circle_background.fill(Qt.transparent)
         painter = QPainter(self.circle_background)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
-        # Draw background
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        painter.setPen(Qt.NoPen)
-        if self.wcfg["show_background"]:
-            painter.fillRect(0, 0, self.area_size, self.area_size, self.wcfg["bkg_color"])
-        else:
-            painter.fillRect(0, 0, self.area_size, self.area_size, Qt.transparent)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-
+        # Draw circle background
         if self.wcfg["show_circle_background"]:
+            painter.setPen(Qt.NoPen)
             self.brush.setColor(QColor(self.wcfg["bkg_color_circle"]))
             painter.setBrush(self.brush)
             painter.drawEllipse(0, 0, self.area_size, self.area_size)

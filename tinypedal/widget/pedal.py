@@ -207,29 +207,21 @@ class Draw(Widget):
     def draw_pedal(self, canvas, input_raw, input_filter, color=None):
         """Instrument"""
         pedal = canvas.pixmap()
+        pedal.fill(QColor(self.wcfg["bkg_color"]))
         painter = QPainter(pedal)
         painter.setPen(Qt.NoPen)
 
         # Set size
         if self.wcfg["enable_horizontal_style"]:
-            rect_size = QRectF(
-                0, 0, self.pbar_length, self.pbar_width)
             rect_raw = QRectF(
                 0, 0, input_raw, self.pedal_uwidth)
             rect_filtered = QRectF(
                 0, self.pedal_uwidth, input_filter, self.pedal_fwidth)
         else:
-            rect_size = QRectF(
-                0, 0, self.pbar_width, self.pbar_length)
             rect_raw = QRectF(
                 0, input_raw, self.pedal_uwidth, self.pbar_length)
             rect_filtered = QRectF(
                 self.pedal_uwidth, input_filter, self.pedal_fwidth, self.pbar_length)
-
-        # Background
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        painter.fillRect(rect_size, QColor(self.wcfg["bkg_color"]))
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # Pedal
         if self.wcfg["enable_horizontal_style"]:
@@ -250,15 +242,10 @@ class Draw(Widget):
 
     def draw_ffb(self, canvas, input_raw):
         """FFB"""
-        pedal = canvas.pixmap()
-        painter = QPainter(pedal)
+        ffb_meter = canvas.pixmap()
+        ffb_meter.fill(QColor(self.wcfg["bkg_color"]))
+        painter = QPainter(ffb_meter)
         painter.setPen(Qt.NoPen)
-
-        # Set size
-        if self.wcfg["enable_horizontal_style"]:
-            rect_size = QRectF(0, 0, self.pbar_length, self.pbar_width)
-        else:
-            rect_size = QRectF(0, 0, self.pbar_width, self.pbar_length)
 
         # FFB position
         if self.wcfg["enable_horizontal_style"]:
@@ -276,14 +263,9 @@ class Draw(Widget):
                 color = self.wcfg["ffb_clipping_color"]
                 rect_raw = QRectF(0, 0, self.pbar_width, self.pbar_length)
 
-        # Background
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        painter.fillRect(rect_size, QColor(self.wcfg["bkg_color"]))
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-
         # FFB
         painter.fillRect(rect_raw, QColor(color))
-        canvas.setPixmap(pedal)
+        canvas.setPixmap(ffb_meter)
 
     # Additional methods
     def scale_input(self, value):

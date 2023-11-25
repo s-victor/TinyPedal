@@ -188,19 +188,15 @@ class Draw(Widget):
     def draw_circle_background(self):
         """Draw g circle background"""
         self.circle_background = QPixmap(self.area_size, self.area_size)
+        if self.wcfg["show_background"]:
+            self.circle_background.fill(self.wcfg["bkg_color"])
+        else:
+            self.circle_background.fill(Qt.transparent)
         painter = QPainter(self.circle_background)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
-        # Draw background
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        painter.setPen(Qt.NoPen)
-        if self.wcfg["show_background"]:
-            painter.fillRect(0, 0, self.area_size, self.area_size, self.wcfg["bkg_color"])
-        else:
-            painter.fillRect(0, 0, self.area_size, self.area_size, Qt.transparent)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-
         if self.wcfg["show_circle_background"]:
+            painter.setPen(Qt.NoPen)
             circle_scale = round(self.display_radius_g * self.global_scale)
             if self.wcfg["show_fade_out"]:
                 rad_gra = QRadialGradient(
@@ -210,8 +206,12 @@ class Draw(Widget):
                     self.area_center,
                     self.area_center
                 )
-                rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_in_radius"]), QColor(self.wcfg["bkg_color_circle"]))
-                rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_out_radius"]), Qt.transparent)
+                rad_gra.setColorAt(
+                    calc.zero_one_range(self.wcfg["fade_in_radius"]),
+                    QColor(self.wcfg["bkg_color_circle"]))
+                rad_gra.setColorAt(
+                    calc.zero_one_range(self.wcfg["fade_out_radius"]),
+                    Qt.transparent)
                 painter.setBrush(rad_gra)
             else:
                 self.brush.setColor(QColor(self.wcfg["bkg_color_circle"]))

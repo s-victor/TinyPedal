@@ -188,14 +188,9 @@ class Draw(Widget):
     def draw_background(self):
         """Draw background"""
         self.plot_background = QPixmap(self.area_width, self.area_height)
+        self.plot_background.fill(QColor(self.wcfg["bkg_color"]))
         painter = QPainter(self.plot_background)
         painter.setRenderHint(QPainter.Antialiasing, True)
-
-        # Draw background
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        painter.setPen(Qt.NoPen)
-        painter.fillRect(0, 0, self.area_width, self.area_height, self.wcfg["bkg_color"])
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # Draw reference line
         if self.wcfg["show_reference_line"]:

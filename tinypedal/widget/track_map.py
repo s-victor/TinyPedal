@@ -170,14 +170,10 @@ class Draw(Widget):
     def draw_map_image(self, map_path, circular_map=True):
         """Draw map image separately"""
         self.map_image = QPixmap(self.area_size, self.area_size)
+        self.map_image.fill(Qt.transparent)
         painter = QPainter(self.map_image)
         painter.setRenderHint(QPainter.Antialiasing, True)
-
-        # Draw transparent background to avoid visual artifacts
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
         painter.setPen(Qt.NoPen)
-        painter.fillRect(0, 0, self.area_size, self.area_size, Qt.transparent)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # Draw map outer background
         if self.wcfg["show_background"]:
