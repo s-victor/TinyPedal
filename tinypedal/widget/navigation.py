@@ -156,7 +156,7 @@ class Draw(Widget):
         """Draw background"""
         self.rect_background = QPixmap(self.area_size, self.area_size)
         if self.wcfg["show_background"]:
-            self.rect_background.fill(self.wcfg["bkg_color"])
+            self.rect_background.fill(QColor(self.wcfg["bkg_color"]))
         else:
             self.rect_background.fill(Qt.transparent)
 
@@ -287,7 +287,7 @@ class Draw(Widget):
         painter.setPen(Qt.NoPen)
 
         # Draw map mask
-        painter.fillRect(0, 0, self.area_size, self.area_size, QColor(0,0,0))
+        painter.fillRect(0, 0, self.area_size, self.area_size, Qt.black)
         painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
         rad_gra = QRadialGradient(
             self.area_center,
@@ -297,7 +297,7 @@ class Draw(Widget):
             self.area_center
         )
         rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_in_radius"]), Qt.transparent)
-        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_out_radius"]), QColor(0,0,0))
+        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_out_radius"]), Qt.black)
         painter.setBrush(rad_gra)
         painter.drawEllipse(0, 0, self.area_size, self.area_size)
 

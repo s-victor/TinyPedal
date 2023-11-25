@@ -200,7 +200,7 @@ class Draw(Widget):
         """Draw circle background"""
         self.circle_background = QPixmap(self.area_size, self.area_size)
         if self.wcfg["show_background"]:
-            self.circle_background.fill(self.wcfg["bkg_color"])
+            self.circle_background.fill(QColor(self.wcfg["bkg_color"]))
         else:
             self.circle_background.fill(Qt.transparent)
         painter = QPainter(self.circle_background)
