@@ -135,7 +135,7 @@ def verify_heatmap(heatmap_dict):
 # Setting validate
 def setting_filename(filename):
     """Validate setting filename"""
-    return re.search(rxp.INVALID_SETTING_FILENAME, filename.lower()) is None
+    return re.search(rxp.CFG_INVALID_FILENAME, filename.lower()) is None
 
 
 def remove_invalid_setting(key_list_def, dict_user):
@@ -150,36 +150,36 @@ def remove_invalid_setting(key_list_def, dict_user):
         # Non-dict sub_level values
         if type(dict_user[key]) != dict:
             # Bool
-            if re.search(rxp.BOOL, key):
+            if re.search(rxp.CFG_BOOL, key):
                 if type(dict_user[key]) != bool:
                     dict_user[key] = bool(dict_user[key])
                 continue
             # Color string
-            if re.search(rxp.COLOR, key):
+            if re.search(rxp.CFG_COLOR, key):
                 if not color_validator(dict_user[key]):
                     dict_user.pop(key)
                 continue
             # API name string
-            if re.search(rxp.APINAME, key):
+            if re.search(rxp.CFG_API_NAME, key):
                 if dict_user[key] not in API_NAME_LIST:
                     dict_user.pop(key)
                 continue
             # Font weight string
-            if re.search(rxp.FONTWEIGHT, key):
+            if re.search(rxp.CFG_FONT_WEIGHT, key):
                 if dict_user[key].lower() not in ("normal", "bold"):
                     dict_user.pop(key)
                 continue
             # String
             if re.search(
-                rxp.FONTNAME + "|" +
-                rxp.HEATMAP + "|" +
-                rxp.STRING,
+                rxp.CFG_FONT_NAME + "|" +
+                rxp.CFG_HEATMAP + "|" +
+                rxp.CFG_STRING,
                 key):
                 if type(dict_user[key]) != str:
                     dict_user.pop(key)
                 continue
             # Int
-            if re.search(rxp.INTEGER, key):
+            if re.search(rxp.CFG_INTEGER, key):
                 if type(dict_user[key]) != int:
                     try:
                         dict_user[key] = int(dict_user[key])

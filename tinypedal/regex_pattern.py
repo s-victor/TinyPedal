@@ -22,7 +22,7 @@ Regex pattern
 
 
 # Bool
-BOOL = (
+CFG_BOOL = (
     # Exact match
     "^active_state$|"
     "^auto_hide$|"
@@ -36,12 +36,12 @@ BOOL = (
     "uppercase"
 )
 # String
-APINAME = "^api_name$"
-COLOR = "color"
-FONTNAME = "font_name"
-FONTWEIGHT = "font_weight"
-HEATMAP = "heatmap"
-STRING = (
+CFG_API_NAME = "^api_name$"
+CFG_COLOR = "color"
+CFG_FONT_NAME = "font_name"
+CFG_FONT_WEIGHT = "font_weight"
+CFG_HEATMAP = "heatmap"
+CFG_STRING = (
     # Exact match
     "^process_id$|"
     "^tyre_compound_symbol$|"
@@ -54,7 +54,7 @@ STRING = (
     "unit"
 )
 # Integer
-INTEGER = (
+CFG_INTEGER = (
     # Exact match
     "^access_mode$|"
     "^grid_move_size$|"
@@ -84,7 +84,7 @@ INTEGER = (
     "vehicles"
 )
 # Filename
-INVALID_SETTING_FILENAME = (
+CFG_INVALID_FILENAME = (
     # Exact match
     "^$|"
     "^classes$|"
@@ -92,9 +92,12 @@ INVALID_SETTING_FILENAME = (
     # Partial match
     "backup"
 )
-# Formatting
-UPPERCASE = (
-    # Partial match
-    "drs|"
-    "p2p"
+# Abbreviation
+ABBR_LIST = (
+    "api",
+    "drs",
+    "ffb",
+    "p2p",
+    "rpm",
 )
+ABBR_PATTERN = "|".join(ABBR_LIST)

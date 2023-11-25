@@ -666,7 +666,7 @@ WIDGET_DEFAULT = {
         "view_radius": 500,
         "show_background": False,
         "bkg_color": "#222222",
-        "show_circle_background": False,
+        "show_circle_background": True,
         "bkg_color_circle": "#66222222",
         "circle_outline_color": "#CCFFFFFF",
         "circle_outline_width": 0,

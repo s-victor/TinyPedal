@@ -28,12 +28,20 @@ from . import regex_pattern as rxp
 logger = logging.getLogger(__name__)
 
 
+def uppercase_abbr(name: str) -> str:
+    """Convert abbreviation name to uppercase"""
+    # Special name
+    for abbr in rxp.ABBR_LIST:
+        if re.search(rxp.ABBR_PATTERN, name, flags=re.IGNORECASE):
+            name = re.sub(abbr, abbr.upper(), name, flags=re.IGNORECASE)
+    return name
+
+
 def format_widget_name(name: str) -> str:
     """Format widget name"""
     name = re.sub("_", " ", name)
-    if re.search(rxp.UPPERCASE, name):
-        return name.upper()
-    return name.capitalize()
+    name = name.capitalize()
+    return uppercase_abbr(name)
 
 
 def format_module_name(name: str) -> str:
@@ -49,12 +57,7 @@ def format_option_name(name: str) -> str:
     name = re.sub("_", " ", name)
     name = re.sub("units", "units and symbols", name)
     name = name.title()
-    # Special name
-    name = re.sub("Api", "API", name)
-    name = re.sub("Ffb", "FFB", name)
-    name = re.sub("Drs", "DRS", name)
-    name = re.sub("Rpm", "RPM", name)
-    return name
+    return uppercase_abbr(name)
 
 
 def strip_filename_extension(name: str, extension: str) -> str:

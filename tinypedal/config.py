@@ -136,10 +136,10 @@ class FontConfig(QDialog):
         for item in dict_user.keys():
             key_list_user = tuple(dict_user[item])
             for key in key_list_user:
-                if (re.search(rxp.FONTNAME, key) and
+                if (re.search(rxp.CFG_FONT_NAME, key) and
                     self.edit_fontname.currentText() != "no change"):
                     dict_user[item][key] = self.edit_fontname.currentFont().family()
-                if (re.search(rxp.FONTWEIGHT, key) and
+                if (re.search(rxp.CFG_FONT_WEIGHT, key) and
                     self.edit_fontweight.currentText() != "no change"):
                     dict_user[item][key] = self.edit_fontweight.currentText()
                 if key == "font_size":
@@ -325,17 +325,17 @@ class UserConfig(QDialog):
             self.__add_option_label(
                 idx, key, layout)
             # Bool
-            if re.search(rxp.BOOL, key):
+            if re.search(rxp.CFG_BOOL, key):
                 self.__add_option_bool(
                     idx, key, layout)
                 continue
             # Color string
-            if re.search(rxp.COLOR, key):
+            if re.search(rxp.CFG_COLOR, key):
                 self.__add_option_color(
                     idx, key, layout)
                 continue
             # Font name string
-            if re.search(rxp.FONTNAME, key):
+            if re.search(rxp.CFG_FONT_NAME, key):
                 self.__add_option_fontname(
                     idx, key, layout)
                 continue
@@ -345,27 +345,27 @@ class UserConfig(QDialog):
                     idx, key, layout, COMBO_UNITS[key])
                 continue
             # API name string
-            if re.search(rxp.APINAME, key):
+            if re.search(rxp.CFG_API_NAME, key):
                 self.__add_option_combolist(
                     idx, key, layout, API_NAME_LIST)
                 continue
             # Font weight string
-            if re.search(rxp.FONTWEIGHT, key):
+            if re.search(rxp.CFG_FONT_WEIGHT, key):
                 self.__add_option_combolist(
                     idx, key, layout, COMBO_FONTWEIGHT)
                 continue
             # Heatmap string
-            if re.search(rxp.HEATMAP, key):
+            if re.search(rxp.CFG_HEATMAP, key):
                 self.__add_option_combolist(
                     idx, key, layout, tuple(cfg.heatmap_user))
                 continue
             # String
-            if re.search(rxp.STRING, key):
+            if re.search(rxp.CFG_STRING, key):
                 self.__add_option_string(
                     idx, key, layout)
                 continue
             # Int
-            if re.search(rxp.INTEGER, key):
+            if re.search(rxp.CFG_INTEGER, key):
                 self.__add_option_integer(
                     idx, key, layout)
                 continue

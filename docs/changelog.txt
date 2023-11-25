@@ -16,7 +16,7 @@ WIP
     when generating lift force.
 
 * Navigation Widget
-  - Add "show_circle_background" & "bkg_color_circle" options (disabled by default),
+  - Add "show_circle_background" & "bkg_color_circle" options (enabled by default),
     which shows circle background color below navigation map.
   - Add "circle_outline_color" & "circle_outline_width" options,
     which draw outline for circle background.
