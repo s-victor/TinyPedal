@@ -132,11 +132,6 @@ class Draw(Widget):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
-        # Draw background
-        if self.wcfg["show_background"]:
-            painter.drawPixmap(
-                0, 0, self.area_size, self.area_size, self.rect_background)
-
         # Draw map
         self.rotate_map(painter)
 
@@ -144,26 +139,48 @@ class Draw(Widget):
         if self.vehicles_data:
             self.draw_vehicle(painter)
 
-        # Apply map mask
+        # Apply mask
         if self.wcfg["show_fade_out"]:
             painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)
             painter.drawPixmap(0, 0, self.area_size, self.area_size, self.map_mask)
-            painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+            #painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+
+        # Draw background
+        if self.wcfg["show_background"] or self.wcfg["show_circle_background"]:
+            # Insert below map & mask
+            painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
+            painter.drawPixmap(0, 0, self.area_size, self.area_size, self.rect_background)
+            #painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
     def draw_background(self):
         """Draw background"""
         self.rect_background = QPixmap(self.area_size, self.area_size)
-        painter = QPainter(self.rect_background)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-
-        # Draw background
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        painter.setPen(Qt.NoPen)
         if self.wcfg["show_background"]:
-            painter.fillRect(0, 0, self.area_size, self.area_size, self.wcfg["bkg_color"])
+            self.rect_background.fill(self.wcfg["bkg_color"])
         else:
-            painter.fillRect(0, 0, self.area_size, self.area_size, Qt.transparent)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+            self.rect_background.fill(Qt.transparent)
+
+        # Draw circle background
+        if self.wcfg["show_circle_background"]:
+            painter = QPainter(self.rect_background)
+            painter.setRenderHint(QPainter.Antialiasing, True)
+
+            if self.wcfg["circle_outline_width"] > 0:
+                pen = QPen()
+                pen.setWidth(self.wcfg["circle_outline_width"])
+                pen.setColor(QColor(self.wcfg["circle_outline_color"]))
+                painter.setPen(pen)
+            else:
+                painter.setPen(Qt.NoPen)
+
+            self.brush.setColor(QColor(self.wcfg["bkg_color_circle"]))
+            painter.setBrush(self.brush)
+            painter.drawEllipse(
+                self.wcfg["circle_outline_width"],
+                self.wcfg["circle_outline_width"],
+                (self.area_center - self.wcfg["circle_outline_width"]) * 2,
+                (self.area_center - self.wcfg["circle_outline_width"]) * 2
+            )
 
     def rotate_map(self, painter):
         """Rotate map"""
@@ -210,17 +227,9 @@ class Draw(Widget):
     def draw_map_image(self, map_path):
         """Draw map image separately"""
         self.map_image = QPixmap(self.map_rect[2], self.map_rect[3])
+        self.map_image.fill(Qt.transparent)
         painter = QPainter(self.map_image)
         painter.setRenderHint(QPainter.Antialiasing, True)
-
-        # Draw background
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        painter.setPen(Qt.NoPen)
-        if self.wcfg["show_background"]:
-            painter.fillRect(*self.map_rect, self.wcfg["bkg_color"])
-        else:
-            painter.fillRect(*self.map_rect, Qt.transparent)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # Set pen style
         pen = QPen()

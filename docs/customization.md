@@ -816,7 +816,7 @@ Set reading text offset position (percentage), value range in `0.0` to `1.0`.
 Set `true` to show degree sign for yaw angle reading.
 
     show_background
-Show background color.
+Show background color that covers entire widget.
 
     show_circle_background
 Show circle background color.
@@ -915,7 +915,13 @@ Set widget size in pixels.
 Set viewable area by radius(unit meter). Default value is `500` meters. Minimum value is limited to `5`.
 
     show_background
-Show background color.
+Show background color that covers entire widget.
+
+    show_circle_background
+Show circle background color.
+
+    circle_outline_width
+Set circle background outline width. Set value to `0` to hide outline.
 
     show_fade_out
 Fade out view edge.
@@ -1026,7 +1032,10 @@ Set vehicle round border radius.
 Set vehicle outline width.
 
     show_background
-Show background color.
+Show background color that covers entire widget.
+
+    show_circle_background
+Show circle background color.
 
     show_fade_out
 Fade out Radar edge.

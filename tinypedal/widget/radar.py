@@ -60,6 +60,7 @@ class Draw(Widget):
         self.pen = QPen()
         self.brush = QBrush(Qt.SolidPattern)
         self.draw_radar_background()
+        self.draw_radar_marks()
         self.draw_radar_mask()
 
         # Last data
@@ -99,8 +100,8 @@ class Draw(Widget):
         painter.setRenderHint(QPainter.Antialiasing, True)
 
         if self.show_radar:
-            # Draw radar background
-            painter.drawPixmap(0, 0, self.area_size, self.area_size, self.radar_background)
+            # Draw marks
+            painter.drawPixmap(0, 0, self.area_size, self.area_size, self.radar_marks)
 
             # Draw vehicles
             if self.vehicles_data:
@@ -108,11 +109,18 @@ class Draw(Widget):
                     self.draw_warning_indicator(painter, *self.indicator_dimention)
                 self.draw_vehicle(painter)
 
-            # Apply radar mask
+            # Apply mask
             if self.wcfg["show_fade_out"]:
                 painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)
                 painter.drawPixmap(0, 0, self.area_size, self.area_size, self.radar_mask)
-                painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+                #painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+
+            # Draw background
+            if self.wcfg["show_background"] or self.wcfg["show_circle_background"]:
+                # Insert below map & mask
+                painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
+                painter.drawPixmap(0, 0, self.area_size, self.area_size, self.radar_background)
+                #painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
     def draw_radar_mask(self):
         """radar mask"""
@@ -139,17 +147,26 @@ class Draw(Widget):
     def draw_radar_background(self):
         """Draw radar background"""
         self.radar_background = QPixmap(self.area_size, self.area_size)
+        if self.wcfg["show_background"]:
+            self.radar_background.fill(self.wcfg["bkg_color"])
+        else:
+            self.radar_background.fill(Qt.transparent)
         painter = QPainter(self.radar_background)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
-        # Draw background
-        painter.setCompositionMode(QPainter.CompositionMode_Source)
-        painter.setPen(Qt.NoPen)
-        if self.wcfg["show_background"]:
-            painter.fillRect(0, 0, self.area_size, self.area_size, self.wcfg["bkg_color"])
-        else:
-            painter.fillRect(0, 0, self.area_size, self.area_size, Qt.transparent)
-        painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+        # Draw circle background
+        if self.wcfg["show_circle_background"]:
+            painter.setPen(Qt.NoPen)
+            self.brush.setColor(QColor(self.wcfg["bkg_color_circle"]))
+            painter.setBrush(self.brush)
+            painter.drawEllipse(0, 0, self.area_size, self.area_size)
+
+    def draw_radar_marks(self):
+        """Draw radar marks"""
+        self.radar_marks = QPixmap(self.area_size, self.area_size)
+        self.radar_marks.fill(Qt.transparent)
+        painter = QPainter(self.radar_marks)
+        painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Draw center mark
         pen = QPen()
