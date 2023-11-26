@@ -20,13 +20,13 @@
 Sectors module
 """
 
-import re
 import logging
 import time
 import threading
 
 from ..module_info import minfo
 from ..api_control import api
+from .. import formatter as fmt
 from .. import validator as val
 
 MODULE_NAME = "module_sectors"
@@ -183,14 +183,13 @@ class Realtime:
     def save_sector_data(self, combo_id, session_id, best_s_pb, laptime_best, best_s_tb):
         """Verify and save sector data"""
         if session_id and val.sector_time(best_s_pb):
-            data = (
+            self.mcfg["sector_info"] = fmt.pipe_join(
                 combo_id,      # 0
                 *session_id,   # 1 2 3
                 laptime_best,  # 4
                 *best_s_tb,    # 5 6 7
                 *best_s_pb     # 8 9 10
             )
-            self.mcfg["sector_info"] = "|".join(map(str, data))
             self.cfg.save()
 
     def load_sector_data(self, combo_id, session_id):
@@ -216,8 +215,8 @@ class Realtime:
 
     def parse_save_string(self, save_data):
         """Parse last saved sector data"""
-        rex_string = re.split(r"(\|)", save_data)
-        data = tuple(self.split_save_string(rex_string))
+        string_list = fmt.pipe_split(save_data)
+        data = self.convert_value(string_list)
 
         try:  # fill in data
             final_list = [
@@ -235,11 +234,6 @@ class Realtime:
         return final_list
 
     @staticmethod
-    def split_save_string(rex_string):
-        """Split save string"""
-        for index, value in enumerate(rex_string):
-            if value != "|":
-                if index <= 1:
-                    yield value
-                else:
-                    yield float(value)
+    def convert_value(string_list):
+        """Convert string list to str, float"""
+        return string_list[0], *tuple(map(float, string_list[1:]))

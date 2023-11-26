@@ -75,6 +75,17 @@ def format_tyre_compound(tc_indices: tuple, tc_string: str):
             tc_string[tc_indices[1]:(tc_indices[1]+1)])  # rear
 
 
+def pipe_join(*args) -> str:
+    """Convert value to str & join with pipe symbol"""
+    return "|".join(map(str, args))
+
+
+def pipe_split(string) -> list:
+    """Split string to list by pipe symbol"""
+    rex_string = re.split(r"(\|)", string)
+    return [value for value in rex_string if value != "|"]
+
+
 def strip_invalid_char(name: str) -> str:
     """Strip invalid characters"""
     return re.sub('[\\\\/:*?"<>|]', "", name)

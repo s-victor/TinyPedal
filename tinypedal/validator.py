@@ -26,6 +26,7 @@ import re
 import math
 from functools import wraps
 
+from . import formatter as fmt
 from . import regex_pattern as rxp
 from .api_connector import API_NAME_LIST
 
@@ -148,10 +149,10 @@ def remove_invalid_setting(key_list_def, dict_user):
             continue
 
         # Non-dict sub_level values
-        if type(dict_user[key]) != dict:
+        if not isinstance(dict_user[key], dict):
             # Bool
             if re.search(rxp.CFG_BOOL, key):
-                if type(dict_user[key]) != bool:
+                if not isinstance(dict_user[key], bool):
                     dict_user[key] = bool(dict_user[key])
                 continue
             # Color string
@@ -171,16 +172,17 @@ def remove_invalid_setting(key_list_def, dict_user):
                 continue
             # String
             if re.search(
-                rxp.CFG_FONT_NAME + "|" +
-                rxp.CFG_HEATMAP + "|" +
-                rxp.CFG_STRING,
-                key):
-                if type(dict_user[key]) != str:
+                fmt.pipe_join(
+                    rxp.CFG_FONT_NAME,
+                    rxp.CFG_HEATMAP,
+                    rxp.CFG_STRING
+                ), key):
+                if not isinstance(dict_user[key], str):
                     dict_user.pop(key)
                 continue
             # Int
             if re.search(rxp.CFG_INTEGER, key):
-                if type(dict_user[key]) != int:
+                if not isinstance(dict_user[key], int) or isinstance(dict_user[key], bool):
                     try:
                         dict_user[key] = int(dict_user[key])
                     except ValueError:
@@ -188,7 +190,7 @@ def remove_invalid_setting(key_list_def, dict_user):
                 continue
             # Anything int or float
             if not isinstance(dict_user[key], float):
-                if type(dict_user[key]) != int:  # exclude bool
+                if not isinstance(dict_user[key], int) or isinstance(dict_user[key], bool):
                     #print(key, dict_user[key])
                     dict_user.pop(key)
 
