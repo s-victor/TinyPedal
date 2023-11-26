@@ -1,13 +1,30 @@
-**Note: the guide is for version 2.0 or higher.**
+**Note: following guide is for version 2.0 or higher.**
 
-TinyPedal offers a wide range of customization options for widget & module controls, as well as preset management, which can be accessed from main window. Manual editing is also possible via `JSON` setting file with text editor.
-
-All `JSON` setting files are located in `TinyPedal\settings` folder. Preset can be loaded or created via `Preset` tab in main window, and additional preset file management can be accessed from `Right-Click` context menu.
-
-TinyPedal automatically saves setting when user makes any changes to widget position, or has toggled widget visibility, auto-hide, overlay-lock, etc. Any changes will only take effect after `Reload` preset, or clicked save button in `Config` dialog, or `Restart` APP.
+TinyPedal offers a wide range of customization options for widget & module controls, which can be accessed from corresponding tabs in main window.
 
 
-## Backup file
+# Preset management
+TinyPedal stores all customization options in `JSON` format preset files, and can be managed from `Preset` tab in main window.
+
+All `JSON` preset files are located in `TinyPedal\settings` folder. Those `JSON` files can also be manually edited with text editor.
+
+`Right-Click` on a preset name in `Preset` tab opens up a context menu that provides additional preset file management options:
+
+* Duplicate  
+    Duplicate selected preset with a new name.
+
+* Rename  
+    Rename selected preset with a new name.
+
+* Delete  
+    Delete selected preset with confirmation.
+
+
+## Saving JSON file
+TinyPedal automatically saves setting when user makes changes to widget position, or has toggled widget visibility, auto-hide, overlay-lock, etc. Changes will only take effect after `Reload` preset, or clicked `save` or `apply` button in `Config` dialog, or `Restart` APP.
+
+
+## Backup JSON file
 TinyPedal will automatically create backup file with time stamp suffix if old setting file fails to load, and new default `JSON` with same filename will be generated.
 
 A newer released version will auto-update old setting and add new setting after loading. It may still be a good idea to manually backup files before updating.
@@ -29,7 +46,61 @@ Any boolean type value (true or false) will only accept: `true`, which can be su
 Also important to note, not every setting allows float point value that contains decimal places. Usually if a number (default value) does not contain any decimal place, that means it only accepts `integer`. Make sure not to add any decimal place, otherwise error may occur.
 
 
-## Common Setting
+## Classes preset file
+**Classes preset JSON file is used for displaying name & color that matches specific vehicle classes.**
+
+Classes preset can be customized by editing `classes.json` file in `TinyPedal\settings` folder. This file will be generated only once after first time launch of the APP.
+
+To modify or add new class, first find full class name of a vehicle, this can be done by a few ways:
+* Looking at laptime data file located in `deltabest` folder, see `README.txt` in `deltabest` folder.
+* Looking at class section of a mod's VEH file in MAS
+
+Then, replace `WriteMatchedNameHere` with the found class name, and change `ReplaceClassNameHere` text to a desired class short name (better keep name less than 4 chars).
+
+Last, set `color code` for the class, save and restart app.
+
+More classes can be added following the JSON format, make sure that second last bracket doesn't have a comma after.
+
+In case of typo errors within `classes.json` file, user will need to manually correct those typo errors in `classes.json` file.
+
+To restore all classes settings back to default, just delete `classes.json` file.
+
+
+## Heatmap preset file
+**Heatmap preset JSON file is used for displaying color that matches specific value range of telemetry data, such as brake and tyre temperature.**
+
+Heatmap preset can be customized by editing `heatmap.json` file in `TinyPedal\settings` folder. This file will be generated only once after first time launch of the APP.
+
+To assign a heatmap preset to a specific widget, set `heatmap_name` value of the widget to the corresponding name defined in `heatmap.json` file.
+
+In case of typo errors within `heatmap.json` file, the APP will automatically fall back to use built-in default heatmap preset. User will need to manually correct those typo errors in `heatmap.json` file in order to use customized heatmap.
+
+To restore all heatmap settings back to default, just delete `heatmap.json` file.
+
+
+## User files
+TinyPedal generates & saves user session data in specific folders. Session data can be reset by accessing `Reset data` submenu from `Overlay` menu in main window; or, delete data file from corresponding folder.
+
+* Deltabest  
+    Deltabest data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
+
+* Fuel delta  
+    Fuel delta data is stored as `CSV` format (.fuel extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
+
+* Track map  
+    Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder.
+
+    The SVG vector map file contains two coordinate paths:
+    * First is the global x,y position path, used for drawing track map.
+    * Second is the corresponding track distance & elevation path, which is recorded for future use.
+
+    Each sector position index is also stored in SVG file for finding sector coordinates.
+
+
+# General options
+**General options can be accessed from main window menu.**
+
+## Common terms and keywords
 **These are the commonly used setting terms and keywords.**
 
     enable
@@ -128,7 +199,7 @@ Note, global background color will only be visible when `enable_translucent_back
 Set grid size for grid move, value in pixel. Default value is `8` pixel. Minimum value is limited to `1`.
 
 
-## Shared Memory API
+## Shared memory API
 **Shared Memory API options can be accessed from `Config` menu in main window. Some options may only be relevant to certain API.**
 
     api_name
@@ -151,18 +222,6 @@ Set `true` to enable `player index` manual override.
 
     player_index
 Set `player index` override for displaying data from specific player. Valid player index range starts from `0` to max number players minus one, and must not exceed `127`. Set value to `-1` for unspecified player, which can be useful for display general standings and trackmap data (ex. broadcasting). This option works only when `enable_player_index_override` enabled.
-
-
-## Spectate mode
-**Spectate mode can be accessed from `Spectate` tab in main window. This feature has nothing to do with game's spectator mode.**
-
-Click `Enabled` or `Disabled` button to toggle spectate mode on & off. Note, spectate mode can also be enabled by setting `enable_player_index_override` option to `true` in `Shared Memory API` config.
-
-While Spectate mode is enabled, `double-click` on a player name in the list to access telemetry data and overlay readings from selected player; alternatively, select a player name and click `Spectate` button. Current spectating player name is displayed on top of player name list.
-
-Select `Anonymous` for unspecified player, which is equivalent to player index `-1` in JSON file.
-
-Click `Refresh` button to manually refresh player name list.
 
 
 ## Units and symbols
@@ -193,7 +252,7 @@ Click `Refresh` button to manually refresh player name list.
 Set custom tire compound index letter. One letter corresponds to one compound index. Note: since most vehicle mods don't share a common tire compound types or list order, it is impossible to have a tyre compound letter list that matches every vehicle.
 
 
-## Global Font Override
+## Global font override
 **Global font override options can be accessed from `Config` menu in main window, which allow changing font setting globally for all widgets.**
 
     Font Name
@@ -206,55 +265,16 @@ Set a value that will be added (or subtracted if negative) to `font_size` value 
 Set font weight to replace `font_weight` setting of all widgets. Default selection is `no change`, which no changes will be applied.
 
 
-## Classes preset
-**Classes preset file is used for displaying name & color that matches specific vehicle classes.**
+## Spectate mode
+**Spectate mode can be accessed from `Spectate` tab in main window.**
 
-Classes preset can be customized by editing `classes.json` file in `TinyPedal\settings` folder. This file will be generated only once after first time launch of the APP.
+Click `Enabled` or `Disabled` button to toggle spectate mode on & off. Note, spectate mode can also be enabled by setting `enable_player_index_override` option to `true` in `Shared Memory API` config.
 
-To modify or add new class, first find full class name of a vehicle, this can be done by a few ways:
-* Looking at laptime data file located in `deltabest` folder, see `README.txt` in `deltabest` folder.
-* Looking at class section of a mod's VEH file in MAS
+While Spectate mode is enabled, `double-click` on a player name in the list to access telemetry data and overlay readings from selected player; alternatively, select a player name and click `Spectate` button. Current spectating player name is displayed on top of player name list.
 
-Then, replace `WriteMatchedNameHere` with the found class name, and change `ReplaceClassNameHere` text to a desired class short name (better keep name less than 4 chars).
+Select `Anonymous` for unspecified player, which is equivalent to player index `-1` in JSON file.
 
-Last, set `color code` for the class, save and restart app.
-
-More classes can be added following the JSON format, make sure that second last bracket doesn't have a comma after.
-
-In case of typo errors within `classes.json` file, user will need to manually correct those typo errors in `classes.json` file.
-
-To restore all classes settings back to default, just delete `classes.json` file.
-
-
-## Heatmap preset
-**Heatmap preset file `heatmap.json` is used for displaying color that matches specific value range of telemetry data, such as brake and tyre temperature.**
-
-Heatmap preset can be customized by editing `heatmap.json` file in `TinyPedal\settings` folder. This file will be generated only once after first time launch of the APP.
-
-To assign a heatmap preset to a specific widget, set `heatmap_name` value of the widget to the corresponding name defined in `heatmap.json` file.
-
-In case of typo errors within `heatmap.json` file, the APP will automatically fall back to use built-in default heatmap preset. User will need to manually correct those typo errors in `heatmap.json` file in order to use customized heatmap.
-
-To restore all heatmap settings back to default, just delete `heatmap.json` file.
-
-
-## User files
-TinyPedal generates & saves user session data in specific folders. Session data can be reset by accessing `Reset data` submenu from `Overlay` menu in main window; or, delete data file from corresponding folder.
-
-* Deltabest  
-    Deltabest data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
-
-* Fuel delta  
-    Fuel delta data is stored as `CSV` format (.fuel extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
-
-* Track map  
-    Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder.
-
-    The SVG vector map file contains two coordinate paths:
-    * First is the global x,y position path, used for drawing track map.
-    * Second is the corresponding track distance & elevation path, which is recorded for future use.
-
-    Each sector position index is also stored in SVG file for finding sector coordinates.
+Click `Refresh` button to manually refresh player name list.
 
 
 # Modules
