@@ -25,13 +25,13 @@ from . import validator as val
 
 
 def select_color(heatmap: tuple, temperature: float) -> str:
-    """Select color from heatmap"""
-    last_color = heatmap[0][1]
+    """Select color from heatmap list"""
+    last_color = heatmap[0][1]  # set color from 1st row
     for temp in heatmap:
         if temperature < float(temp[0]):
             return last_color
-        last_color = temp[1]
-    return heatmap[-1][1]
+        last_color = temp[1]  # set color from next row
+    return heatmap[-1][1]  # set color from last row if exceeded max range
 
 
 def verify_heatmap(heatmap_dict: dict) -> bool:

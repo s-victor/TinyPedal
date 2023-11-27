@@ -180,7 +180,7 @@ class Setting:
             self.setting_default["compatibility"]["enable_bypass_window_manager"] = True
 
 
-def load_style_config(filepath, filename, default):
+def load_style_config(filepath: str, filename: str, default: dict) -> dict:
     """Load config file"""
     try:
         # Read JSON file
@@ -196,7 +196,7 @@ def load_style_config(filepath, filename, default):
         return new_dict
 
 
-def verify_setting(dict_user, dict_def):
+def verify_setting(dict_user: dict, dict_def: dict) -> None:
     """Verify setting"""
     # Check top-level key
     val.setting_validator(dict_user, dict_def)
@@ -205,7 +205,7 @@ def verify_setting(dict_user, dict_def):
         val.setting_validator(dict_user[item], dict_def[item])
 
 
-def copy_setting(dict_user):
+def copy_setting(dict_user: dict) -> dict:
     """Copy setting"""
     return {key: item.copy() for key, item in dict_user.items()}
 
