@@ -22,6 +22,7 @@ Config window
 
 import re
 import time
+import copy
 
 from PySide2.QtCore import Qt, QRegExp, QLocale
 from PySide2.QtGui import QIcon, QRegExpValidator, QIntValidator, QDoubleValidator, QColor
@@ -40,17 +41,23 @@ from PySide2.QtWidgets import (
     QColorDialog,
     QFontComboBox,
     QSpinBox,
-    QMenu
+    QMenu,
+    QPushButton,
+    QListWidget,
+    QListWidgetItem,
+    QMessageBox
 )
 
 from . import regex_pattern as rxp
 from . import validator as val
 from . import formatter as fmt
+from .api_control import api
 from .setting import cfg
 from .const import APP_ICON
 from .api_connector import API_NAME_LIST
 from .module_control import mctrl
 from .widget_control import wctrl
+
 
 OPTION_WIDTH = 120
 COLUMN_LABEL = 0  # grid layout column index
@@ -67,6 +74,182 @@ COMBO_UNITS = {
 COMBO_FONTWEIGHT = "normal", "bold"
 GLOBAL_FONTWEIGHT = "no change", "normal", "bold"
 
+# Option validator
+number_locale = QLocale(QLocale.C)
+number_locale.setNumberOptions(QLocale.RejectGroupSeparator)
+int_valid = QIntValidator(-999999, 999999)
+int_valid.setLocale(number_locale)
+float_valid = QDoubleValidator(-999999.9999, 999999.9999, 4)
+float_valid.setLocale(number_locale)
+color_valid = QRegExpValidator(QRegExp('^#[0-9a-fA-F]*'))
+
+
+class VehicleClassEditor(QDialog):
+    """Vehicle class editor"""
+
+    def __init__(self, master):
+        super().__init__(master)
+        self.setWindowTitle("Vehicle Class Editor")
+        self.setWindowIcon(QIcon(APP_ICON))
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        self.setMinimumHeight(400)
+
+        self.option_classes = []
+        self.classes_temp = copy.deepcopy(cfg.classes_user)
+
+        # List box
+        self.listbox_classes = QListWidget(self)
+        self.refresh_classes_list()
+        self.listbox_classes.setStyleSheet(
+            "QListView {outline: none;}"
+            "QListView::item {height: 32px;border-radius: 0;}"
+            "QListView::item:selected {background-color: transparent;}"
+            "QListView::item:hover {background-color: transparent;}"
+        )
+
+        # Button
+        button_add = QPushButton("Add Class")
+        button_add.clicked.connect(self.add_class)
+
+        button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
+        button_reset.clicked.connect(self.reset_setting)
+
+        button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
+        button_apply.clicked.connect(self.applying)
+
+        button_save = QDialogButtonBox(
+            QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+        button_save.accepted.connect(self.saving)
+        button_save.rejected.connect(self.reject)
+
+        # Set layout
+        layout_main = QVBoxLayout()
+        layout_button = QHBoxLayout()
+
+        layout_main.addWidget(self.listbox_classes)
+        layout_button.addWidget(button_add)
+        layout_button.addWidget(button_reset)
+        layout_button.addWidget(button_apply)
+        layout_button.addWidget(button_save)
+        layout_main.addLayout(layout_button)
+        self.setLayout(layout_main)
+        self.setMinimumWidth(self.sizeHint().width() + 20)
+
+    def refresh_classes_list(self):
+        """Refresh classes list"""
+        self.listbox_classes.clear()
+        self.option_classes.clear()
+
+        for idx, key in enumerate(self.classes_temp):
+            layout_item = QHBoxLayout()
+            layout_item.setContentsMargins(4,4,4,4)
+            layout_item.setSpacing(4)
+
+            line_edit_key = self.__add_key_string(key, layout_item)
+            for sub_key, sub_item in self.classes_temp[key].items():
+                line_edit_sub_key = self.__add_key_string(sub_key, layout_item)
+                color_edit = self.__add_option_color(sub_item, layout_item, 80)
+                self.__add_delete_button(idx, layout_item)
+                self.option_classes.append((line_edit_key, line_edit_sub_key, color_edit))
+
+            classes_item = QWidget()
+            classes_item.setLayout(layout_item)
+            item = QListWidgetItem()
+            self.listbox_classes.addItem(item)
+            self.listbox_classes.setItemWidget(item, classes_item)
+
+    def __add_key_string(self, key, layout):
+        """Key string"""
+        line_edit = QLineEdit()
+        # Load selected option
+        line_edit.setText(key)
+        # Add layout
+        layout.addWidget(line_edit)
+        return line_edit
+
+    def __add_option_color(self, key, layout, width):
+        """Color string"""
+        color_edit = ColorEdit(key)
+        color_edit.setFixedWidth(width)
+        color_edit.setMaxLength(9)
+        color_edit.setValidator(color_valid)
+        color_edit.textChanged.connect(
+            lambda color_str, option=color_edit:
+            update_preview_color(color_str, option))
+        # Load selected option
+        color_edit.setText(key)
+        # Add layout
+        layout.addWidget(color_edit)
+        return color_edit
+
+    def __add_delete_button(self, idx, layout):
+        """Delete button"""
+        button = QPushButton("X")
+        button.setFixedWidth(20)
+        button.pressed.connect(
+            lambda index=idx: self.delete_class(index))
+        layout.addWidget(button)
+
+    def delete_class(self, index):
+        """Delete class entry"""
+        self.update_classes_temp()
+        for idx, key in enumerate(self.classes_temp):
+            if index == idx:
+                self.classes_temp.pop(key)
+                break
+        self.refresh_classes_list()
+
+    def add_class(self):
+        """Add new class entry"""
+        self.update_classes_temp()
+        current_class_name = api.read.vehicle.class_name()
+        # Check if class already exist
+        if self.classes_temp.get(current_class_name):
+            current_class_name = "New Class Name"
+        self.classes_temp[current_class_name] = {"NAME": "#00AAFF"}
+        self.refresh_classes_list()
+
+    def reset_setting(self):
+        """Reset setting"""
+        message_text = (
+            "Are you sure you want to reset class preset to default? <br><br>"
+            "Changes are only saved after clicking Apply or Save Button."
+        )
+        reset_msg = QMessageBox.question(
+            self, "Delete Preset", message_text,
+            button=QMessageBox.Yes | QMessageBox.No)
+        if reset_msg == QMessageBox.Yes:
+            self.classes_temp = copy.deepcopy(cfg.classes_default)
+            self.refresh_classes_list()
+
+    def applying(self):
+        """Save & apply"""
+        self.save_setting()
+
+    def saving(self):
+        """Save & close"""
+        self.save_setting()
+        self.accept()  # close
+
+    def update_classes_temp(self):
+        """Update classes temp"""
+        self.classes_temp.clear()
+        for edit in self.option_classes:
+            key_name = edit[0].text()
+            sub_key_name = edit[1].text()
+            sub_item_name = edit[2].text()
+            self.classes_temp[key_name] = {sub_key_name: sub_item_name}
+
+    def save_setting(self):
+        """Save setting"""
+        self.update_classes_temp()
+        self.refresh_classes_list()
+        cfg.classes_user = copy.deepcopy(self.classes_temp)
+        cfg.save(0, "classes")
+        while cfg.is_saving:  # wait saving finish
+            time.sleep(0.01)
+        wctrl.close()
+        wctrl.start()
 
 
 class FontConfig(QDialog):
@@ -162,14 +345,6 @@ class UserConfig(QDialog):
         self.key_name = key_name
         self.cfg_type = cfg_type
 
-        self.number_locale = QLocale(QLocale.C)
-        self.number_locale.setNumberOptions(QLocale.RejectGroupSeparator)
-        self.int_valid = QIntValidator(-999999, 999999)
-        self.int_valid.setLocale(self.number_locale)
-        self.float_valid = QDoubleValidator(-999999.9999, 999999.9999, 4)
-        self.float_valid.setLocale(self.number_locale)
-        self.color_valid = QRegExpValidator(QRegExp('^#[0-9a-fA-F]*'))
-
         self.setWindowTitle(f"{fmt.format_option_name(key_name)}")
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
@@ -230,35 +405,44 @@ class UserConfig(QDialog):
 
     def reset_setting(self):
         """Reset setting"""
-        for key in self.option_bool:
-            getattr(self, f"checkbox_{key}").setChecked(
-                cfg.setting_default[self.key_name][key])
+        message_text = (
+            "Are you sure you want to reset options to default? <br><br>"
+            "Changes are only saved after clicking Apply or Save Button."
+        )
+        reset_msg = QMessageBox.question(
+            self, "Delete Preset", message_text,
+            button=QMessageBox.Yes | QMessageBox.No)
 
-        for key in self.option_color:
-            getattr(self, f"lineedit_{key}").setText(
-                cfg.setting_default[self.key_name][key])
+        if reset_msg == QMessageBox.Yes:
+            for key in self.option_bool:
+                getattr(self, f"checkbox_{key}").setChecked(
+                    cfg.setting_default[self.key_name][key])
 
-        for key in self.option_fontname:
-            getattr(self, f"fontedit_{key}").setCurrentFont(
-                cfg.setting_default[self.key_name][key])
+            for key in self.option_color:
+                getattr(self, f"lineedit_{key}").setText(
+                    cfg.setting_default[self.key_name][key])
 
-        for key in self.option_droplist:
-            curr_index = getattr(self, f"combobox_{key}").findText(
-                f"{cfg.setting_default[self.key_name][key]}", Qt.MatchExactly)
-            if curr_index != -1:
-                getattr(self, f"combobox_{key}").setCurrentIndex(curr_index)
+            for key in self.option_fontname:
+                getattr(self, f"fontedit_{key}").setCurrentFont(
+                    cfg.setting_default[self.key_name][key])
 
-        for key in self.option_string:
-            getattr(self, f"lineedit_{key}").setText(
-                cfg.setting_default[self.key_name][key])
+            for key in self.option_droplist:
+                curr_index = getattr(self, f"combobox_{key}").findText(
+                    f"{cfg.setting_default[self.key_name][key]}", Qt.MatchExactly)
+                if curr_index != -1:
+                    getattr(self, f"combobox_{key}").setCurrentIndex(curr_index)
 
-        for key in self.option_integer:
-            getattr(self, f"lineedit_{key}").setText(
-                str(cfg.setting_default[self.key_name][key]))
+            for key in self.option_string:
+                getattr(self, f"lineedit_{key}").setText(
+                    cfg.setting_default[self.key_name][key])
 
-        for key in self.option_float:
-            getattr(self, f"lineedit_{key}").setText(
-                str(cfg.setting_default[self.key_name][key]))
+            for key in self.option_integer:
+                getattr(self, f"lineedit_{key}").setText(
+                    str(cfg.setting_default[self.key_name][key]))
+
+            for key in self.option_float:
+                getattr(self, f"lineedit_{key}").setText(
+                    str(cfg.setting_default[self.key_name][key]))
 
     def save_setting(self):
         """Save setting"""
@@ -398,7 +582,7 @@ class UserConfig(QDialog):
         setattr(self, f"lineedit_{key}", ColorEdit(cfg.setting_user[self.key_name][key]))
         getattr(self, f"lineedit_{key}").setFixedWidth(OPTION_WIDTH)
         getattr(self, f"lineedit_{key}").setMaxLength(9)
-        getattr(self, f"lineedit_{key}").setValidator(self.color_valid)
+        getattr(self, f"lineedit_{key}").setValidator(color_valid)
         getattr(self, f"lineedit_{key}").textChanged.connect(
             lambda color_str, option=getattr(self, f"lineedit_{key}"):
             update_preview_color(color_str, option))
@@ -473,7 +657,7 @@ class UserConfig(QDialog):
         """Integer"""
         setattr(self, f"lineedit_{key}", QLineEdit())
         getattr(self, f"lineedit_{key}").setFixedWidth(OPTION_WIDTH)
-        getattr(self, f"lineedit_{key}").setValidator(self.int_valid)
+        getattr(self, f"lineedit_{key}").setValidator(int_valid)
         # Load selected option
         getattr(self, f"lineedit_{key}").setText(
             str(cfg.setting_user[self.key_name][key]))
@@ -491,7 +675,7 @@ class UserConfig(QDialog):
         """Float"""
         setattr(self, f"lineedit_{key}", QLineEdit())
         getattr(self, f"lineedit_{key}").setFixedWidth(OPTION_WIDTH)
-        getattr(self, f"lineedit_{key}").setValidator(self.float_valid)
+        getattr(self, f"lineedit_{key}").setValidator(float_valid)
         # Load selected option
         getattr(self, f"lineedit_{key}").setText(
             str(cfg.setting_user[self.key_name][key]))

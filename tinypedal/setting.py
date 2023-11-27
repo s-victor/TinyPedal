@@ -47,6 +47,7 @@ class Setting:
     last_loaded_setting = "None.json"
     setting_default = {**APPLICATION_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT}
     heatmap_default = HEATMAP_DEFAULT
+    classes_default = CLASSES_DEFAULT
 
     def __init__(self):
         self.platform_default()
@@ -93,7 +94,7 @@ class Setting:
             self.save(0)
         except (FileNotFoundError, json.decoder.JSONDecodeError):
             logger.error("setting loading failed, create backup & revert to default")
-            self.__backup(filename)
+            backup_json_file(filename, self.filepath)
             self.create()
             self.save(0)
 
@@ -109,7 +110,7 @@ class Setting:
         """Create default setting"""
         self.setting_user = copy_setting(self.setting_default)
 
-    def save(self, count=66):
+    def save(self, count=66, file_type="setting"):
         """Save trigger
 
         Limit to one save operation for a given period.
@@ -120,14 +121,21 @@ class Setting:
 
         if not self.is_saving:
             self.is_saving = True
-            threading.Thread(target=self.__saving).start()
+            if file_type == "classes":
+                threading.Thread(
+                    target=self.__saving,
+                    args=(self.filename_classes, self.filepath, self.classes_user)
+                ).start()
+            else:
+                threading.Thread(
+                    target=self.__saving,
+                    args=(self.filename_setting, self.filepath, self.setting_user)
+                ).start()
             #logger.info("saving setting")
 
-    def __saving(self):
+    def __saving(self, filename, filepath, dict_user):
         """Saving thread"""
         attempts = 5
-        # Make sure file name does not change during saving
-        filename = self.filename_setting
 
         # Update save delay
         while self._save_delay > 0:
@@ -137,8 +145,8 @@ class Setting:
 
         # Start saving attempts
         while attempts > 0:
-            self.__save_file(filename)
-            if self.__verify_file(filename):
+            save_json_file(filename, filepath, dict_user)
+            if verify_json_file(filename, filepath, dict_user):
                 attempts = 0
                 #logger.info("verified save file")
             else:
@@ -149,35 +157,38 @@ class Setting:
         self.is_saving = False
         logger.info("setting saved")
 
-    def __save_file(self, filename):
-        """Save setting to file"""
-        with open(f"{self.filepath}{filename}", "w", encoding="utf-8") as jsonfile:
-            json.dump(self.setting_user, jsonfile, indent=4)
-
-    def __verify_file(self, filename):
-        """Verify save file"""
-        try:
-            with open(f"{self.filepath}{filename}", "r", encoding="utf-8") as jsonfile:
-                return json.load(jsonfile) == self.setting_user
-        except (FileNotFoundError, json.decoder.JSONDecodeError):
-            logger.error("setting verification failed")
-            return False
-
-    def __backup(self, filename):
-        """Backup invalid file"""
-        try:
-            time_stamp = time.strftime("%Y-%m-%d %H-%M-%S", time.localtime())
-            shutil.copy(f"{self.filepath}{filename}",
-                        f"{self.filepath}{filename[:-5]}-backup {time_stamp}.json")
-        except FileNotFoundError:
-            logger.error("setting backup failed")
-
     def platform_default(self):
         """Platform specific default setting"""
         if PLATFORM != "Windows":
             self.setting_default["application"]["show_at_startup"] = True
             self.setting_default["application"]["minimize_to_tray"] = False
             self.setting_default["compatibility"]["enable_bypass_window_manager"] = True
+
+
+def save_json_file(filename: str, filepath: str, dict_user: dict):
+    """Save setting to json file"""
+    with open(f"{filepath}{filename}", "w", encoding="utf-8") as jsonfile:
+        json.dump(dict_user, jsonfile, indent=4)
+
+
+def verify_json_file(filename: str, filepath: str, dict_user: dict):
+    """Verify saved json file"""
+    try:
+        with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
+            return json.load(jsonfile) == dict_user
+    except (FileNotFoundError, json.decoder.JSONDecodeError):
+        logger.error("save file verification failed")
+        return False
+
+
+def backup_json_file(filename: str, filepath: str):
+    """Backup invalid json file"""
+    try:
+        time_stamp = time.strftime("%Y-%m-%d %H-%M-%S", time.localtime())
+        shutil.copy(f"{filepath}{filename}",
+                    f"{filepath}{filename[:-5]}-backup {time_stamp}.json")
+    except FileNotFoundError:
+        logger.error("setting backup failed")
 
 
 def load_style_config(filepath: str, filename: str, default: dict) -> dict:

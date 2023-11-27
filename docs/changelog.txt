@@ -8,6 +8,18 @@ WIP
   - Adjusted & unified default value for "bkg_color_circle" options
     that used in Friction circle, Heading, Navigation, Radar Widgets.
   - "show_fade_out" option no longer crops background.
+  - Add option reset confirmation to various config dialog.
+    Note, option reset will still only be saved and take effect
+    after clicking apply or save button.
+
+* [New]Vehicle class editor
+  - Add "Vehicle class editor" that can be accessed from "Config" menu in main window,
+    which provides easy-to-use vehicle class customization.
+  - The new editor can auto-detect and fill-in "full vehicle class name"
+    from current active session.
+    It is recommended to join or start a session with corresponding vehicle
+    before adding new class entries.
+    See user guide for details.
 
 * Force Widget
   - Add "show_front_downforce" & "show_rear_downforce" options,

@@ -49,21 +49,17 @@ Also important to note, not every setting allows float point value that contains
 ## Classes preset file
 **Classes preset JSON file is used for displaying name & color that matches specific vehicle classes.**
 
-Classes preset can be customized by editing `classes.json` file in `TinyPedal\settings` folder. This file will be generated only once after first time launch of the APP.
+Classes preset can be customized by accessing `Vehicle class editor` from `Config` menu in main window. Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
-To modify or add new class, first find full class name of a vehicle, this can be done by a few ways:
-* Looking at laptime data file located in `deltabest` folder, see `README.txt` in `deltabest` folder.
-* Looking at class section of a mod's VEH file in MAS
+`classes.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
 
-Then, replace `WriteMatchedNameHere` with the found class name, and change `ReplaceClassNameHere` text to a desired class short name (better keep name less than 4 chars).
+To modify class setting, open `Vehicle class editor` and edit entries from each rows and columns. Each row represents a vehicle class. First column is full vehicle class name that must match in-game vehicle class name. Second column is abbreviation name. Third column is color code.
 
-Last, set `color code` for the class, save and restart app.
+To add new class, click `Add Class` button. Note, the editor can auto-detect and fill-in full vehicle class name from current active session. It is recommended to join or start a session with corresponding vehicle before adding new class entries.
 
-More classes can be added following the JSON format, make sure that second last bracket doesn't have a comma after.
+To remove a class, click `X` button of a class row.
 
-In case of typo errors within `classes.json` file, user will need to manually correct those typo errors in `classes.json` file.
-
-To restore all classes settings back to default, just delete `classes.json` file.
+To reset all classes setting to default, click `Reset` button; or manually delete `classes.json` file.
 
 
 ## Heatmap preset file

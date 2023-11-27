@@ -49,7 +49,4 @@ CLASSES_DEFAULT = {
     "Formula Pro": {
         "FPro": "#FF3300"
     },
-    "WriteMatchedNameHere": {
-        "ReplaceClassNameHere": "#FFFFFF"
-    },
 }

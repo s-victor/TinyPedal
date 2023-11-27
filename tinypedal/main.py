@@ -52,7 +52,7 @@ from .api_control import api
 from .module_control import mctrl
 from .widget_control import wctrl
 from .overlay_control import octrl
-from .config import FontConfig, UserConfig
+from .config import VehicleClassEditor, FontConfig, UserConfig
 from . import formatter as fmt
 from . import validator as val
 
@@ -927,25 +927,25 @@ class ConfigMenu(QMenu):
         super().__init__(master)
         self.master = master
 
-        # Display units
         config_units = QAction("Units and symbols", self)
         config_units.triggered.connect(self.open_config_units)
         menu.addAction(config_units)
 
-        # Global font override
         config_font = QAction("Global font override", self)
         config_font.triggered.connect(self.open_config_font)
         menu.addAction(config_font)
 
-        # Shared memory API
         config_sharedmem = QAction("Shared memory API", self)
         config_sharedmem.triggered.connect(self.open_config_sharedmemory)
         menu.addAction(config_sharedmem)
 
-        # Compatibility
         config_compat = QAction("Compatibility", self)
         config_compat.triggered.connect(self.open_config_compatibility)
         menu.addAction(config_compat)
+
+        config_classes = QAction("Vehicle class editor", self)
+        config_classes.triggered.connect(self.open_config_classes)
+        menu.addAction(config_classes)
 
     def open_config_font(self):
         """Config global font"""
@@ -965,6 +965,11 @@ class ConfigMenu(QMenu):
     def open_config_compatibility(self):
         """Config compatibility"""
         _dialog = UserConfig(self.master, "compatibility", "misc")
+        _dialog.open()
+
+    def open_config_classes(self):
+        """Config classes preset"""
+        _dialog = VehicleClassEditor(self.master)
         _dialog.open()
 
 
