@@ -571,7 +571,7 @@ def adaptive_foreground_color(color_str):
 
 def update_preview_color(color_str, option):
     """Update preview background color"""
-    if val.color_validator(color_str):
+    if val.hex_color(color_str):
         option.setStyleSheet(
             f"color: {adaptive_foreground_color(color_str)};"
             f"background-color: {color_str};"

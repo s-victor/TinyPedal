@@ -241,16 +241,6 @@ def sec2stinttime(seconds):
     return f"{seconds // 60:02.0f}:{min(divmod(seconds, 60)[1],59):02.0f}"
 
 
-def color_heatmap(heatmap, temperature):
-    """Set color from heatmap"""
-    last_color = heatmap[0][1]
-    for temp in heatmap:
-        if temperature < float(temp[0]):
-            return last_color
-        last_color = temp[1]
-    return heatmap[-1][1]
-
-
 def linear_interp(x, x1, y1, x2, y2):
     """Linear interpolation"""
     x_diff = x2 - x1

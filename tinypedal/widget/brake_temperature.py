@@ -24,7 +24,7 @@ from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import calculation as calc
-from .. import validator as val
+from .. import heatmap as hmp
 from ..api_control import api
 from ..base import Widget
 
@@ -58,7 +58,7 @@ class Draw(Widget):
         self.bar_width = font_m.width * text_width
 
         # Base style
-        self.heatmap = tuple(self.load_heatmap().items())
+        self.heatmap = hmp.load_heatmap(self.wcfg["heatmap_name"], "brake_default")
 
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
@@ -219,11 +219,11 @@ class Draw(Widget):
         """Brake temperature"""
         if round(curr) != round(last):
             if self.wcfg["swap_style"]:
-                color = (f"color: {self.color_heatmap(curr)};"
+                color = (f"color: {hmp.select_color(self.heatmap, curr)};"
                          f"background: {self.wcfg['bkg_color_temperature']};")
             else:
                 color = (f"color: {self.wcfg['font_color_temperature']};"
-                         f"background: {self.color_heatmap(curr)};")
+                         f"background: {hmp.select_color(self.heatmap, curr)};")
 
             getattr(self, f"bar_{suffix}").setText(
                 f"{self.temp_units(curr):0{self.leading_zero}.0f}{self.sign_text}")
@@ -252,15 +252,3 @@ class Draw(Widget):
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
             return calc.celsius2fahrenheit(value)
         return value
-
-    def load_heatmap(self):
-        """Load heatmap dict"""
-        if self.wcfg["heatmap_name"] in self.cfg.heatmap_user:
-            heatmap = self.cfg.heatmap_user[self.wcfg["heatmap_name"]]
-            if val.verify_heatmap(heatmap):
-                return heatmap
-        return self.cfg.heatmap_default["brake_default"]
-
-    def color_heatmap(self, temp):
-        """Heatmap color"""
-        return calc.color_heatmap(self.heatmap, temp)

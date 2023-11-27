@@ -116,21 +116,13 @@ def delta_list(listname):
 
 
 # Color validate
-def color_validator(color_str):
-    """Validate color value"""
+def hex_color(color_str):
+    """Validate HEX color string"""
     if isinstance(color_str, str) and bool(re.match("#", color_str)):
         color = re.sub("#", "", color_str)
         if len(color) in [3,6,8]:
             return re.search(r'[^0-9A-F]', color, re.I) is None
     return False
-
-
-def verify_heatmap(heatmap_dict):
-    """Create color list & verify"""
-    for color in tuple(heatmap_dict.values()):
-        if not color_validator(color):
-            return False
-    return True
 
 
 # Setting validate
@@ -157,7 +149,7 @@ def remove_invalid_setting(key_list_def, dict_user):
                 continue
             # Color string
             if re.search(rxp.CFG_COLOR, key):
-                if not color_validator(dict_user[key]):
+                if not hex_color(dict_user[key]):
                     dict_user.pop(key)
                 continue
             # API name string

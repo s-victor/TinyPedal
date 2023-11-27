@@ -73,7 +73,7 @@ Heatmap preset can be customized by editing `heatmap.json` file in `TinyPedal\se
 
 To assign a heatmap preset to a specific widget, set `heatmap_name` value of the widget to the corresponding name defined in `heatmap.json` file.
 
-In case of typo errors within `heatmap.json` file, the APP will automatically fall back to use built-in default heatmap preset. User will need to manually correct those typo errors in `heatmap.json` file in order to use customized heatmap.
+A heatmap preset consists of heatmap name, temperature (Celsius), color (HEX code). In case of typo errors within `heatmap.json` file, the APP will automatically fall back to use built-in default heatmap preset. User will need to manually correct those typo errors in `heatmap.json` file in order to use customized heatmap.
 
 To restore all heatmap settings back to default, just delete `heatmap.json` file.
 

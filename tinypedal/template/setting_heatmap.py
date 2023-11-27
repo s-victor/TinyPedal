@@ -20,7 +20,8 @@
 Default heatmap template
 """
 
-
+# key = temperature in Celsius
+# value = HEX color code
 HEATMAP_DEFAULT = {
     "tyre_default": {
         "-273": "#44F",
