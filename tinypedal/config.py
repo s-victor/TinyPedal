@@ -691,7 +691,7 @@ class UserConfig(QDialog):
 
 
 class ColorEdit(QLineEdit):
-    """Color & line edit"""
+    """Line edit with color dialog"""
 
     def __init__(self, color_str):
         super().__init__()
@@ -701,17 +701,20 @@ class ColorEdit(QLineEdit):
         """Double click to open color dialog"""
         if event.buttons() == Qt.LeftButton:
             color_dialog = QColorDialog()
+            # Add loaded color to custom color slot 0
             color_dialog.setCustomColor(0, QColor(self.color_str))
+            # Open color selector dialog
             color_get = color_dialog.getColor(
                 initial=QColor(self.color_str),
                 options=QColorDialog.ShowAlphaChannel
             )
             # Update color to edit box
             if color_get.isValid():
+                # Add new color to custom color slot 1
                 color_dialog.setCustomColor(1, color_get)
-                if color_get.alpha() == 255:
+                if color_get.alpha() == 255:  # without alpha value
                     color = color_get.name(QColor.HexRgb).upper()
-                else:
+                else:  # with alpha value
                     color = color_get.name(QColor.HexArgb).upper()
                 self.setText(color)
 
@@ -726,6 +729,7 @@ def add_context_menu(target, default, mode):
         mode=mode:
         context_menu(pos, target, default, mode)
     )
+
 
 def context_menu(pos, target, default, mode):
     """Context menu"""
