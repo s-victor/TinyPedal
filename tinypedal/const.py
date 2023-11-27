@@ -25,7 +25,7 @@ from .validator import is_folder_exist
 
 
 APP_NAME = "TinyPedal"
-VERSION = "2.4.0"
+VERSION = "2.5.0"
 PLATFORM = platform.system()
 APP_ICON = "images/icon.png"
 

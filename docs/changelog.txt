@@ -1,4 +1,4 @@
-WIP
+2.5.0 (2023-11-27)
 -----------------------------
 * General
   - Rename "Display units" config dialog to "Units and symbols",
@@ -14,7 +14,7 @@ WIP
 
 * [New]Vehicle class editor
   - Add "Vehicle class editor" that can be accessed from "Config" menu in main window,
-    which provides easy-to-use vehicle class customization.
+    which provides easy-to-use vehicle class name customization.
   - The new editor can auto-detect and fill-in "full vehicle class name"
     from current active session.
     It is recommended to join or start a session with corresponding vehicle
