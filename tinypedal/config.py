@@ -203,7 +203,7 @@ class VehicleClassEditor(QDialog):
         self.update_classes_temp()
         current_class_name = api.read.vehicle.class_name()
         # Check if class already exist
-        if self.classes_temp.get(current_class_name):
+        if self.classes_temp.get(current_class_name) or not current_class_name:
             current_class_name = "New Class Name"
         self.classes_temp[current_class_name] = {"NAME": "#00AAFF"}
         self.refresh_classes_list()
