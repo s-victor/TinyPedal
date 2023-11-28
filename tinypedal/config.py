@@ -22,7 +22,6 @@ Config window
 
 import re
 import time
-import copy
 
 from PySide2.QtCore import Qt, QRegExp, QLocale
 from PySide2.QtGui import QIcon, QRegExpValidator, QIntValidator, QDoubleValidator, QColor
@@ -52,7 +51,7 @@ from . import regex_pattern as rxp
 from . import validator as val
 from . import formatter as fmt
 from .api_control import api
-from .setting import cfg
+from .setting import cfg, copy_setting
 from .const import APP_ICON
 from .api_connector import API_NAME_LIST
 from .module_control import mctrl
@@ -95,7 +94,7 @@ class VehicleClassEditor(QDialog):
         self.setMinimumHeight(400)
 
         self.option_classes = []
-        self.classes_temp = copy.deepcopy(cfg.classes_user)
+        self.classes_temp = copy_setting(cfg.classes_user)
 
         # List box
         self.listbox_classes = QListWidget(self)
@@ -219,7 +218,7 @@ class VehicleClassEditor(QDialog):
             self, "Delete Preset", message_text,
             button=QMessageBox.Yes | QMessageBox.No)
         if reset_msg == QMessageBox.Yes:
-            self.classes_temp = copy.deepcopy(cfg.classes_default)
+            self.classes_temp = copy_setting(cfg.classes_default)
             self.refresh_classes_list()
 
     def applying(self):
@@ -244,7 +243,7 @@ class VehicleClassEditor(QDialog):
         """Save setting"""
         self.update_classes_temp()
         self.refresh_classes_list()
-        cfg.classes_user = copy.deepcopy(self.classes_temp)
+        cfg.classes_user = copy_setting(self.classes_temp)
         cfg.save(0, "classes")
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)

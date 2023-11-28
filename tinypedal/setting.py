@@ -46,8 +46,8 @@ class Setting:
     filename_heatmap = "heatmap.json"
     last_loaded_setting = "None.json"
     setting_default = {**APPLICATION_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT}
-    heatmap_default = HEATMAP_DEFAULT
     classes_default = CLASSES_DEFAULT
+    heatmap_default = HEATMAP_DEFAULT
 
     def __init__(self):
         self.platform_default()
@@ -62,11 +62,22 @@ class Setting:
 
     def load(self):
         """Load all setting files"""
-        self.__load_setting()
-        self.classes_user = load_style_config(
-            self.filepath, self.filename_classes, CLASSES_DEFAULT)
-        self.heatmap_user = load_style_config(
-            self.filepath, self.filename_heatmap, HEATMAP_DEFAULT)
+        self.setting_user = load_setting_json_file(
+            self.filename_setting, self.filepath, self.setting_default)
+        # Save setting to JSON file
+        self.save(0)
+        # Assign base setting
+        self.application = self.setting_user["application"]
+        self.compatibility = self.setting_user["compatibility"]
+        self.overlay = self.setting_user["overlay"]
+        self.shared_memory_api = self.setting_user["shared_memory_api"]
+        self.units = self.setting_user["units"]
+        self.last_loaded_setting = self.filename_setting
+        # Load style JSON file
+        self.classes_user = load_style_json_file(
+            self.filename_classes, self.filepath, self.classes_default)
+        self.heatmap_user = load_style_json_file(
+            self.filename_heatmap, self.filepath, self.heatmap_default)
 
     def load_preset_list(self):
         """Load preset list"""
@@ -79,32 +90,6 @@ class Setting:
             if cfg_list:
                 return cfg_list
         return ["default"]
-
-    def __load_setting(self):
-        """Load & verify setting"""
-        filename = self.filename_setting
-        try:
-            # Read JSON file
-            with open(f"{self.filepath}{filename}", "r", encoding="utf-8") as jsonfile:
-                temp_setting_user = json.load(jsonfile)
-            # Verify & assign setting
-            verify_setting(temp_setting_user, self.setting_default)
-            self.setting_user = copy_setting(temp_setting_user)
-            # Save setting to JSON file
-            self.save(0)
-        except (FileNotFoundError, json.decoder.JSONDecodeError):
-            logger.error("setting loading failed, create backup & revert to default")
-            backup_json_file(filename, self.filepath)
-            self.create()
-            self.save(0)
-
-        # Assign base setting
-        self.application = self.setting_user["application"]
-        self.compatibility = self.setting_user["compatibility"]
-        self.overlay = self.setting_user["overlay"]
-        self.shared_memory_api = self.setting_user["shared_memory_api"]
-        self.units = self.setting_user["units"]
-        self.last_loaded_setting = filename
 
     def create(self):
         """Create default setting"""
@@ -151,7 +136,7 @@ class Setting:
                 #logger.info("verified save file")
             else:
                 attempts -= 1
-                logger.info("setting saving failed, %s attempt(s) left", attempts)
+                logger.error("setting saving failed, %s attempt(s) left", attempts)
             time.sleep(0.05)
 
         self.is_saving = False
@@ -165,13 +150,13 @@ class Setting:
             self.setting_default["compatibility"]["enable_bypass_window_manager"] = True
 
 
-def save_json_file(filename: str, filepath: str, dict_user: dict):
+def save_json_file(filename: str, filepath: str, dict_user: dict) -> None:
     """Save setting to json file"""
     with open(f"{filepath}{filename}", "w", encoding="utf-8") as jsonfile:
         json.dump(dict_user, jsonfile, indent=4)
 
 
-def verify_json_file(filename: str, filepath: str, dict_user: dict):
+def verify_json_file(filename: str, filepath: str, dict_user: dict) -> bool:
     """Verify saved json file"""
     try:
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
@@ -181,7 +166,7 @@ def verify_json_file(filename: str, filepath: str, dict_user: dict):
         return False
 
 
-def backup_json_file(filename: str, filepath: str):
+def backup_json_file(filename: str, filepath: str) -> None:
     """Backup invalid json file"""
     try:
         time_stamp = time.strftime("%Y-%m-%d %H-%M-%S", time.localtime())
@@ -191,20 +176,37 @@ def backup_json_file(filename: str, filepath: str):
         logger.error("setting backup failed")
 
 
-def load_style_config(filepath: str, filename: str, default: dict) -> dict:
-    """Load config file"""
+def load_setting_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
+    """Load setting json file & verify"""
     try:
         # Read JSON file
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
-            return json.load(jsonfile)
+            temp_setting_user = json.load(jsonfile)
+        # Verify & assign setting
+        verify_setting(temp_setting_user, dict_def)
+        setting_user = copy_setting(temp_setting_user)
     except (FileNotFoundError, json.decoder.JSONDecodeError):
-        logger.error("setting loading failed, fall back to default instead")
-        new_dict = copy_setting(default)
+        logger.error("%s setting loading failed, create backup & revert to default", filename)
+        backup_json_file(filename, filepath)
+        setting_user = copy_setting(dict_def)
+    return setting_user
+
+
+def load_style_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
+    """Load style json file"""
+    try:
+        # Read JSON file
+        with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
+            style_user = json.load(jsonfile)
+    except (FileNotFoundError, json.decoder.JSONDecodeError):
+        style_user = copy_setting(dict_def)
         # Save to file if not found
         if not os.path.exists(f"{filepath}{filename}"):
-            with open(f"{filepath}{filename}", "w", encoding="utf-8") as jsonfile:
-                json.dump(new_dict, jsonfile, indent=4)
-        return new_dict
+            logger.error("%s setting not found, create new default", filename)
+            save_json_file(filename, filepath, style_user)
+        else:
+            logger.error("%s setting loading failed, fall back to default", filename)
+    return style_user
 
 
 def verify_setting(dict_user: dict, dict_def: dict) -> None:
