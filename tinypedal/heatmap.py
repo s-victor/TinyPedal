@@ -24,14 +24,14 @@ from .setting import cfg
 from . import validator as val
 
 
-def select_color(heatmap: tuple, temperature: float) -> str:
+def select_color(heatmap_list: list, temperature: float) -> str:
     """Select color from heatmap list"""
-    last_color = heatmap[0][1]  # set color from 1st row
-    for temp in heatmap:
+    last_color = heatmap_list[0][1]  # set color from 1st row
+    for temp in heatmap_list:
         if temperature < float(temp[0]):
             return last_color
         last_color = temp[1]  # set color from next row
-    return heatmap[-1][1]  # set color from last row if exceeded max range
+    return heatmap_list[-1][1]  # set color from last row if exceeded max range
 
 
 def verify_heatmap(heatmap_dict: dict) -> bool:
@@ -42,10 +42,15 @@ def verify_heatmap(heatmap_dict: dict) -> bool:
     return True
 
 
-def load_heatmap(name: str, default: str) -> tuple:
-    """Load heatmap preset and convert to tuple list"""
-    if name in cfg.heatmap_user:
-        heatmap = cfg.heatmap_user[name]
-        if verify_heatmap(heatmap):
-            return tuple(heatmap.items())
-    return tuple(cfg.heatmap_default[default].items())
+def sort_heatmap(heatmap_dict: dict) -> list:
+    """Sort heatmap entries by first column (key: str to float)"""
+    return sorted(heatmap_dict.items(), key=lambda col: float(col[0]))
+
+
+def load_heatmap(heatmap_name: str, default_name: str) -> list:
+    """Load heatmap preset"""
+    if heatmap_name in cfg.heatmap_user:
+        heatmap_dict = cfg.heatmap_user[heatmap_name]
+        if verify_heatmap(heatmap_dict):
+            return sort_heatmap(heatmap_dict)
+    return sort_heatmap(cfg.heatmap_default[default_name])
