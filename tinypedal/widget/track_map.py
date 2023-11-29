@@ -308,7 +308,7 @@ class Draw(Widget):
             veh_info.isPlayer,
             -veh_info.inGarage,  # reversed
             -veh_info.inPit,     # reversed
-            -veh_info.position,     # reversed
+            -veh_info.position,  # reversed
         )
 
     @staticmethod

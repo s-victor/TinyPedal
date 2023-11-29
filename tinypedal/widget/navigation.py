@@ -175,9 +175,8 @@ class Draw(Widget):
                 (self.area_center - self.wcfg["circle_outline_width"]) * 2
             )
 
-    def rotate_map(self, painter):
-        """Rotate map"""
-        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+    def transform_map_coords(self):
+        """Transform map coordinates"""
         # player vehicle orientation yaw radians + 180 deg rotation correction
         plr_ori_rad = api.read.vehicle.orientation_yaw_radians() + 3.14159265
         # x, y position & offset relative to player
@@ -186,12 +185,18 @@ class Draw(Widget):
             api.read.vehicle.pos_longitudinal() * self.global_scale - self.map_offset[0],
             api.read.vehicle.pos_lateral() * self.global_scale - self.map_offset[1]
         )
+        plr_ori_deg = calc.rad2deg(plr_ori_rad)
+        center_offset_x = self.area_center - rot_pos_x
+        center_offset_y = self.veh_offset_y - rot_pos_y
+        return plr_ori_deg, center_offset_x, center_offset_y
+
+    def rotate_map(self, painter):
+        """Rotate map"""
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
+        plr_ori_deg, center_offset_x, center_offset_y = self.transform_map_coords()
         painter.resetTransform()
-        painter.translate(
-            self.area_center - rot_pos_x,  # center offset x
-            self.veh_offset_y - rot_pos_y   # center offset y
-        )
-        painter.rotate(calc.rad2deg(plr_ori_rad))
+        painter.translate(center_offset_x, center_offset_y)
+        painter.rotate(plr_ori_deg)
         painter.drawPixmap(*self.map_rect, self.map_image)
         painter.resetTransform()
 
@@ -306,16 +311,27 @@ class Draw(Widget):
         else:
             painter.setPen(Qt.NoPen)
 
-        # Draw opponent vehicle within view range
+        # Draw vehicle within view range
         painter.resetTransform()
         for veh_info in sorted(self.vehicles_data, key=self.sort_vehicles):
-            if not veh_info.isPlayer and veh_info.relativeStraightDistance < self.view_range:
+            # Draw player vehicle
+            if veh_info.isPlayer:
+                self.brush.setColor(QColor(self.wcfg["vehicle_color_player"]))
+                painter.setBrush(self.brush)
+                painter.translate(self.area_center, self.veh_offset_y)
+                self.draw_vehicle_shape(painter)
+                painter.resetTransform()
+                if self.wcfg["show_vehicle_standings"]:
+                    self.draw_text_standings(
+                        painter, self.area_center, self.veh_offset_y, veh_info.position)
+
+            # Draw opponent vehicle
+            elif veh_info.relativeStraightDistance < self.view_range:
                 # Rotated position relative to player
                 pos_x, pos_y = (
                     self.scale_veh_pos(veh_info.relativeRotatedPosXZ[0], self.area_center),
                     self.scale_veh_pos(veh_info.relativeRotatedPosXZ[1], self.veh_offset_y)
                 )
-                # Draw vehicle
                 self.brush.setColor(
                     QColor(
                         self.color_lapdiff(
@@ -328,26 +344,13 @@ class Draw(Widget):
                     )
                 )
                 painter.setBrush(self.brush)
-
                 painter.translate(pos_x, pos_y)
                 painter.rotate(calc.rad2deg(-veh_info.relativeOrientationXZRadians))
                 self.draw_vehicle_shape(painter)
                 painter.resetTransform()
-
-                # Draw text standings
                 if self.wcfg["show_vehicle_standings"]:
                     self.draw_text_standings(
                         painter, pos_x, pos_y, veh_info.position)
-
-        # Draw player vehicle
-        self.brush.setColor(QColor(self.wcfg["vehicle_color_player"]))
-        painter.setBrush(self.brush)
-        painter.translate(self.area_center, self.veh_offset_y)
-        self.draw_vehicle_shape(painter)
-        painter.resetTransform()
-        if self.wcfg["show_vehicle_standings"]:
-            self.draw_text_standings(
-                painter, self.area_center, self.veh_offset_y, api.read.vehicle.place())
 
     def draw_vehicle_shape(self, painter):
         """Draw vehicles shape"""
@@ -398,5 +401,5 @@ class Draw(Widget):
             veh_info.isPlayer,
             -veh_info.inGarage,  # reversed
             -veh_info.inPit,     # reversed
-            -veh_info.position,     # reversed
+            -veh_info.position,  # reversed
         )
