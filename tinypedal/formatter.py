@@ -37,18 +37,12 @@ def uppercase_abbr(name: str) -> str:
     return name
 
 
-def format_widget_name(name: str) -> str:
-    """Format widget name"""
+def format_module_name(name: str) -> str:
+    """Format widget & module name"""
+    name = re.sub("module_", "", name)
     name = re.sub("_", " ", name)
     name = name.capitalize()
     return uppercase_abbr(name)
-
-
-def format_module_name(name: str) -> str:
-    """Format module name"""
-    name = re.sub("module_", "", name)
-    name = re.sub("_", " ", name)
-    return name.capitalize()
 
 
 def format_option_name(name: str) -> str:

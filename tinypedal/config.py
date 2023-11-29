@@ -78,7 +78,7 @@ number_locale = QLocale(QLocale.C)
 number_locale.setNumberOptions(QLocale.RejectGroupSeparator)
 int_valid = QIntValidator(-999999, 999999)
 int_valid.setLocale(number_locale)
-float_valid = QDoubleValidator(-999999.9999, 999999.9999, 4)
+float_valid = QDoubleValidator(-999999.9999, 999999.9999, 6)
 float_valid.setLocale(number_locale)
 color_valid = QRegExpValidator(QRegExp('^#[0-9a-fA-F]*'))
 
@@ -202,11 +202,13 @@ class VehicleClassEditor(QDialog):
         """Add new class entry"""
         self.update_classes_temp()
         current_class_name = api.read.vehicle.class_name()
-        # Check if class already exist
+        # Check if class already exist or empty
         if self.classes_temp.get(current_class_name) or not current_class_name:
             current_class_name = "New Class Name"
         self.classes_temp[current_class_name] = {"NAME": "#00AAFF"}
         self.refresh_classes_list()
+        # Move focus to new class row
+        self.listbox_classes.setCurrentRow(len(self.classes_temp) - 1)
 
     def reset_setting(self):
         """Reset setting"""
@@ -231,7 +233,7 @@ class VehicleClassEditor(QDialog):
         self.accept()  # close
 
     def update_classes_temp(self):
-        """Update classes temp"""
+        """Update temporary changes to classes temp first"""
         self.classes_temp.clear()
         for edit in self.option_classes:
             key_name = edit[0].text()
