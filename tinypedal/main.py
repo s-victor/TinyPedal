@@ -364,7 +364,7 @@ class ListItemControl(QWidget):
         self.obj_name = obj_name
 
         label_obj = QLabel(fmt.format_module_name(self.obj_name))
-        button_toggle = self.add_toggle_button(obj)
+        button_toggle = self.add_toggle_button(obj, cfg.setting_user[self.obj_name]["enable"])
         button_config = self.add_config_button()
 
         layout_item = QHBoxLayout()
@@ -377,18 +377,14 @@ class ListItemControl(QWidget):
         self.setStyleSheet("font-size: 16px;")
         self.setLayout(layout_item)
 
-    def add_toggle_button(self, obj):
+    def add_toggle_button(self, obj, state):
         """Add toggle button"""
         button = QPushButton("")
         button.setCheckable(True)
-        button.setChecked(cfg.setting_user[self.obj_name]["enable"])
-
-        self.set_toggle_state(
-            cfg.setting_user[self.obj_name]["enable"], button)
+        button.setChecked(state)
+        self.set_toggle_state(state, button)
         button.toggled.connect(
-            lambda checked=cfg.setting_user[self.obj_name]["enable"]:
-            self.set_toggle_state(checked, button, obj))
-
+            lambda checked=state: self.set_toggle_state(checked, button, obj))
         button.setStyleSheet(
             "QPushButton {color: #555;background-color: #CCC;font-size: 14px;"
             "min-width: 30px;max-width: 30px;padding: 2px 3px;border-radius: 3px;}"
@@ -396,7 +392,7 @@ class ListItemControl(QWidget):
             "QPushButton::pressed {color: #FFF;background-color: #555;}"
             "QPushButton::checked {color: #FFF;background-color: #555;}"
             "QPushButton::checked:hover {color: #FFF;background-color: #F20;}"
-            )
+        )
         return button
 
     def add_config_button(self):
@@ -410,16 +406,13 @@ class ListItemControl(QWidget):
             "QPushButton::pressed {color: #FFF;background-color: #555;}"
             "QPushButton::checked {color: #FFF;background-color: #555;}"
             "QPushButton::checked:hover {color: #FFF;background-color: #F20;}"
-            )
+        )
         return button
 
     def set_toggle_state(self, checked, button, obj=None):
         """Set toggle state"""
         self.master.toggle_control(obj)
-        if checked:
-            button.setText("ON")
-        else:
-            button.setText("OFF")
+        button.setText("ON" if checked else "OFF")
 
     def open_config_dialog(self):
         """Config dialog"""
