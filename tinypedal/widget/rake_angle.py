@@ -84,11 +84,8 @@ class Draw(Widget):
         """Update when vehicle on track"""
         if self.wcfg["enable"] and api.state:
 
-            # Read ride height & rake data
-            ride_height = api.read.wheel.ride_height()
-
             # Rake angle
-            rake = round(calc.rake(*ride_height), 2)
+            rake = round(calc.rake(*api.read.wheel.ride_height()), 2)
             self.update_rakeangle(rake, self.last_rake)
             self.last_rake = rake
 
