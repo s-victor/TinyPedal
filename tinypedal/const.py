@@ -28,6 +28,9 @@ APP_NAME = "TinyPedal"
 VERSION = "2.5.0"
 PLATFORM = platform.system()
 APP_ICON = "images/icon.png"
+COPYRIGHT = "Copyright (C) 2022-2023 Xiang"
+DESCRIPTION = "An open-source overlay application for racing simulation."
+LICENSE = "Licensed under the GNU General Public License v3.0 or later."
 
 
 # User data path

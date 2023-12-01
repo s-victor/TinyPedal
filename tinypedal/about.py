@@ -32,11 +32,7 @@ from PySide2.QtWidgets import (
     QPushButton,
 )
 
-from .const import APP_NAME, VERSION, APP_ICON
-
-COPYRIGHT = "Copyright (C) 2022-2023 Xiang"
-DESCRIPTION = "An open-source overlay application for racing simulation."
-LICENSE = "Licensed under the GNU General Public License v3.0 or later."
+from .const import APP_NAME, VERSION, APP_ICON, COPYRIGHT, DESCRIPTION, LICENSE
 
 
 class About(QWidget):

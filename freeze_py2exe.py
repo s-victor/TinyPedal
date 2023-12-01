@@ -1,25 +1,21 @@
 """
 py2exe build script
 """
+
+import re
 import os
+import shutil
 import sys
 from glob import glob
 from py2exe import freeze
 
-from tinypedal.const import APP_NAME, VERSION
-from tinypedal.about import COPYRIGHT
+from tinypedal.const import APP_NAME, VERSION, PLATFORM, COPYRIGHT
+
 
 PYTHON_PATH = sys.exec_prefix
 DIST_FOLDER = "dist/"
 
-
-if not os.path.exists(DIST_FOLDER):
-    try:
-        os.mkdir(DIST_FOLDER)
-    except (PermissionError, FileExistsError):
-        pass
-
-app_setting = [
+EXECUTABLE_SETTING = [
     {
     "script": "run.py",
     "icon_resources": [(1, "images/icon.ico")],
@@ -27,45 +23,55 @@ app_setting = [
     }
 ]
 
-excludes = ["_ssl", "difflib", "email", "pdb", "venv", "http", "tkinter"]
+EXCLUDE_MODULES = [
+    "_ssl",
+    "difflib",
+    "email",
+    "http",
+    "pdb",
+    "venv",
+    "tkinter",
+]
 
-image_files = [
+IMAGE_FILES = [
     "images/CC-BY-SA-4.0.txt",
     "images/icon_compass.png",
     "images/icon_instrument.png",
     "images/icon.png",
 ]
 
-document_files = [
+DOCUMENT_FILES = [
     "docs/changelog.txt",
     "docs/customization.md",
     "docs/contributors.md",
 ]
 
-licenses_files = glob("docs/licenses/*")
+LICENSES_FILES = glob("docs/licenses/*")
 
-qt_dll = [f"{PYTHON_PATH}/Lib/site-packages/PySide2/plugins/platforms/qwindows.dll"]
-
-data_files = [
-    ("", ["LICENSE.txt", "README.md"]),
-    ("docs", document_files),
-    ("docs/licenses", licenses_files),
-    ("deltabest", ["deltabest/README.txt"]),
-    ("settings", []),
-    ("images", image_files),
-    ("platforms", qt_dll),
+QT_FILES = [
+    f"{PYTHON_PATH}/Lib/site-packages/PySide2/plugins/platforms/qwindows.dll"
 ]
 
-options = {
+BUILD_DATA_FILES = [
+    ("", ["LICENSE.txt", "README.md"]),
+    ("docs", DOCUMENT_FILES),
+    ("docs/licenses", LICENSES_FILES),
+    ("deltabest", ["deltabest/README.txt"]),
+    ("settings", []),
+    ("images", IMAGE_FILES),
+    ("platforms", QT_FILES),
+]
+
+BUILD_OPTIONS = {
     "dist_dir": f"{DIST_FOLDER}/{APP_NAME}",
-    "excludes": excludes,
+    "excludes": EXCLUDE_MODULES,
     "dll_excludes": ["libcrypto-1_1.dll"],
     "optimize": 2,
     #"bundle_files": 2,
     "compressed": 1,
 }
 
-app_info = {
+BUILD_VERSION = {
     "version": VERSION,
     "description": APP_NAME,
     "copyright": COPYRIGHT,
@@ -73,10 +79,70 @@ app_info = {
     "product_version": VERSION,
 }
 
-freeze(
-    version_info = app_info,
-    windows = app_setting,
-    options = options,
-    data_files = data_files,
-    zipfile = "lib/library.zip",
-)
+
+def check_dist(build_ready=False) -> bool:
+    """Check whether dist folder exist"""
+    if not os.path.exists(DIST_FOLDER):
+        print("INFO:dist folder not found, creating")
+        try:
+            os.mkdir(DIST_FOLDER)
+            build_ready = True
+            print("INFO:dist folder created")
+        except (PermissionError, FileExistsError):
+            build_ready = False
+            print("ERROR:Cannot create dist folder")
+
+    if os.path.exists(DIST_FOLDER):
+        build_ready = True
+    return build_ready
+
+
+def check_old_build(build_ready=False) -> bool:
+    """Check whether old build folder exist"""
+    if os.path.exists(f"{DIST_FOLDER}{APP_NAME}"):
+        build_ready = False
+        is_remove = input("INFO:Found old build files, remove before building? Yes/No/Quit \n")
+
+        if re.match("y", is_remove, flags=re.IGNORECASE):
+            try:
+                shutil.rmtree(f"{DIST_FOLDER}{APP_NAME}/")
+                print("INFO:Old build files removed")
+                build_ready = True
+            except (PermissionError, OSError):
+                build_ready = False
+                print("ERROR:Cannot delete build folder")
+        elif re.match("q", is_remove, flags=re.IGNORECASE):
+            build_ready = False
+        else:
+            build_ready = True
+            print("WARNING:Building without removing old files")
+    return build_ready
+
+
+def build_exe() -> None:
+    """Building executable file"""
+    freeze(
+        version_info = BUILD_VERSION,
+        windows = EXECUTABLE_SETTING,
+        options = BUILD_OPTIONS,
+        data_files = BUILD_DATA_FILES,
+        zipfile = "lib/library.zip",
+    )
+
+
+def build_start() -> None:
+    """Start building"""
+    print(f"INFO:version:{VERSION}")
+    print(f"INFO:platform:{PLATFORM}")
+    if PLATFORM == "Windows":
+        if check_old_build(check_dist()):
+            build_exe()
+            print("INFO:Building finished")
+        else:
+            print("INFO:Building canceled")
+    else:
+        print("ERROR:Build script does not support none Windows platform")
+        print("INFO:Building canceled")
+
+
+build_start()
