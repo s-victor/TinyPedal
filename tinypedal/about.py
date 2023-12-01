@@ -20,7 +20,7 @@
 About window
 """
 
-import os
+import logging
 
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QIcon, QPixmap
@@ -30,9 +30,12 @@ from PySide2.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QPushButton,
+    QTextBrowser,
 )
 
 from .const import APP_NAME, VERSION, APP_ICON, COPYRIGHT, DESCRIPTION, LICENSE
+
+logger = logging.getLogger(__name__)
 
 
 class About(QWidget):
@@ -46,81 +49,115 @@ class About(QWidget):
         self.hideonclose = hideonclose
 
         # Base setting
-        self.setFixedWidth(226)
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)
         self.setWindowIcon(QIcon(APP_ICON))
-        self.setWindowTitle("About")
+        self.setWindowTitle(f"About {APP_NAME}")
 
         # Logo
+        icon_size = 100
         logo_image = QPixmap(APP_ICON)
-        logo_image = logo_image.scaled(64,64, mode=Qt.SmoothTransformation)
+        logo_image = logo_image.scaled(icon_size,icon_size, mode=Qt.SmoothTransformation)
+
         label_logo = QLabel(self)
         label_logo.setPixmap(logo_image)
-        label_logo.setFixedSize(74,74)
-        label_logo.setStyleSheet("padding: 5px 0 5px 10px;")
-
-        # Title
-        label_title = QLabel(APP_NAME)
-        label_title.setAlignment(Qt.AlignLeft)
-        label_title.setStyleSheet("padding: 12px 0 0 3px; font-size: 20px;")
-        label_title.setFixedHeight(34)
-
-        label_version = QLabel(f"Version: {VERSION}")
-        label_version.setAlignment(Qt.AlignLeft)
-        label_version.setStyleSheet("padding: 0 0 0 6px; font-size: 11px;")
-        label_version.setFixedHeight(30)
+        label_logo.setFixedSize(icon_size+10,icon_size+10)
+        label_logo.setStyleSheet("padding: 5px;")
 
         # Description
+        label_name = QLabel(f"{APP_NAME}  v{VERSION}")
+        label_name.setStyleSheet("font-size: 16px;padding:5px 0 2px 0;")
+
         label_desc = QLabel(f"<p>{COPYRIGHT}</p><p>{DESCRIPTION}</p><p>{LICENSE}</p>")
-        label_desc.setWordWrap(True)
-        label_desc.setStyleSheet("padding: 5px; font-size: 11px;")
+        label_desc.setStyleSheet("font-size: 11px;padding:2px 0 10px 0;")
+
+        self._last_text = None
+        self._lics_text = ""
+        self._thrd_text = ""
+        self._ctrb_text = ""
+        self.load_text_files()
 
         # Add button
-        button_lic = QPushButton("License")
-        button_lic.setStyleSheet("padding: 4px 6px")
-        button_lic.clicked.connect(self.open_license_text)
+        button_ctrb = QPushButton("Contributors")
+        button_ctrb.clicked.connect(self.open_contributors_text)
 
-        button_3rd = QPushButton("Third-Party Notices")
-        button_3rd.setStyleSheet("padding: 4px 6px")
-        button_3rd.clicked.connect(self.open_thirdparty_text)
+        button_lics = QPushButton("License")
+        button_lics.clicked.connect(self.open_license_text)
+
+        button_thrd = QPushButton("Third-Party Notices")
+        button_thrd.clicked.connect(self.open_thirdparty_text)
+
+        # Text view box
+        self.text_view = QTextBrowser(self)
+        self.text_view.setStyleSheet("font-size: 11px;")
+        self.text_view.setMinimumHeight(300)
+        self.text_view.hide()
 
         # Create layout
         layout_main = QVBoxLayout()
-        layout_logo = QHBoxLayout()
         layout_title = QVBoxLayout()
+        layout_about = QHBoxLayout()
         layout_button = QHBoxLayout()
-        layout_button.setContentsMargins(5,5,5,5)
+        #layout_button.setContentsMargins(5,5,5,5)
 
         # Add to layout
-        layout_title.addWidget(label_title)
-        layout_title.addWidget(label_version)
+        layout_title.addWidget(label_name)
+        layout_title.addWidget(label_desc)
 
-        layout_logo.addWidget(label_logo)
-        layout_logo.addLayout(layout_title)
+        layout_about.addWidget(label_logo)
+        layout_about.addLayout(layout_title)
+        layout_about.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
-        layout_button.addWidget(button_lic, stretch=1)
-        layout_button.addStretch(stretch=1)
-        layout_button.addWidget(button_3rd, stretch=2)
+        layout_button.addWidget(button_lics)
+        layout_button.addWidget(button_thrd)
+        #layout_button.addStretch(stretch=1)
+        layout_button.addWidget(button_ctrb)
 
-        layout_main.addLayout(layout_logo)
-        layout_main.addWidget(label_desc)
+        layout_main.addLayout(layout_about)
         layout_main.addLayout(layout_button)
+        layout_main.addWidget(self.text_view)
         #layout_main.setSpacing(0)
 
         self.setLayout(layout_main)
+        self.setFixedWidth(self.sizeHint().width())
 
-    @staticmethod
-    def open_license_text():
+    def load_text_files(self):
+        """Load text file"""
+        try:
+            with open("LICENSE.txt", "r", encoding="utf-8") as text_file:
+                self._lics_text = text_file.read()
+            with open("docs\\licenses\\THIRDPARTYNOTICES.txt", "r", encoding="utf-8") as text_file:
+                self._thrd_text = text_file.read()
+            with open("docs\\contributors.md", "r", encoding="utf-8") as text_file:
+                self._ctrb_text = text_file.read()
+        except FileNotFoundError:
+            logger.error("file not found")
+
+    def open_license_text(self):
         """Open LICENSE file"""
-        os.startfile("LICENSE.txt")
+        self.set_text_view(self._lics_text, "licence")
 
-    @staticmethod
-    def open_thirdparty_text():
+    def open_thirdparty_text(self):
         """Open THIRDPARTYNOTICES file"""
-        os.startfile("docs\\licenses\\THIRDPARTYNOTICES.txt")
+        self.set_text_view(self._thrd_text, "notices")
+
+    def open_contributors_text(self):
+        """Open CONTRIBUTORS file"""
+        self.set_text_view(self._ctrb_text, "contributors")
+
+    def set_text_view(self, text, name):
+        """Set text"""
+        if self._last_text != name or not self.text_view.isVisible():
+            self._last_text = name
+            self.text_view.setText(text)
+            self.text_view.show()
+        else:
+            self.text_view.hide()
+            self.adjustSize()
 
     def closeEvent(self, event):
         """Minimize to tray"""
         if self.hideonclose:
             event.ignore()
+            self.text_view.hide()
+            self.adjustSize()
             self.hide()
