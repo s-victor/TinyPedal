@@ -1,5 +1,6 @@
 # Contributors to TinyPedal
 TinyPedal is created by Xiang (S.Victor) and released in March 2022.
+
 Thanks to many people for contributing to the development.
 
 ## Developers
@@ -7,8 +8,6 @@ Thanks to many people for contributing to the development.
 * Bernat (berarma) - Cross-platform maintainer, coding, documentation
 * DanRZ - Trailing widget implementation, documentation
 * Sasker - Tyre carcass widget implementation, documentation
-
-## Inactive developers
 * Nibo - Sectors widget implementation, documentation
 * Erik Jacobs (thoraxe) - Features, bug fixes
 * Sergio Rafael Lemke (srlemke) - Features, bug fixes
