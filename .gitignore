@@ -23,3 +23,4 @@ test*.py
 *.7z
 *.zip
 *.log
+*.db
