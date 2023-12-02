@@ -20,7 +20,15 @@
 Data set for rFactor 2
 """
 
-from . import DataAdapter, calc, chknm, cs2py, fmt
+from functools import partial
+
+from . import DataAdapter
+from .. import calculation as calc
+from .. import formatter as fmt
+from .. import validator as val
+
+chknm = val.infnan2zero
+cs2py = partial(val.cbytes2str, char_encoding="iso-8859-1")
 
 
 class Check(DataAdapter):
@@ -708,21 +716,3 @@ class Wheel(DataAdapter):
         """Suspension force (Newtons)"""
         return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mSuspForce)
                 for data in range(4)]
-
-
-class DataSet:
-    """Data set"""
-
-    def __init__(self, info):
-        self.check = Check(info)
-        self.brake = Brake(info)
-        self.emotor = ElectricMotor(info)
-        self.engine = Engine(info)
-        self.input = Input(info)
-        self.lap = Lap(info)
-        self.session = Session(info)
-        self.switch = Switch(info)
-        self.timing = Timing(info)
-        self.tyre = Tyre(info)
-        self.vehicle = Vehicle(info)
-        self.wheel = Wheel(info)

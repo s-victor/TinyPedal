@@ -61,17 +61,6 @@ from .widget_control import wctrl
 OPTION_WIDTH = 120
 COLUMN_LABEL = 0  # grid layout column index
 COLUMN_OPTION = 1
-COMBO_UNITS = {
-    "distance_unit": ("Meter", "Feet"),
-    "fuel_unit": ("Liter", "Gallon"),
-    "odometer_unit": ("Kilometer", "Mile", "Meter"),
-    "speed_unit": ("KPH", "MPH", "m/s"),
-    "temperature_unit": ("Celsius", "Fahrenheit"),
-    "turbo_pressure_unit": ("bar", "psi", "kPa"),
-    "tyre_pressure_unit": ("kPa", "psi", "bar"),
-}
-COMBO_FONTWEIGHT = "normal", "bold"
-GLOBAL_FONTWEIGHT = "no change", "normal", "bold"
 
 # Option validator
 number_locale = QLocale(QLocale.C)
@@ -275,7 +264,7 @@ class FontConfig(QDialog):
 
         self.label_fontweight = QLabel("Font Weight")
         self.edit_fontweight = QComboBox()
-        self.edit_fontweight.addItems(GLOBAL_FONTWEIGHT)
+        self.edit_fontweight.addItems(("no change", *rxp.FONT_WEIGHT_LIST))
         self.edit_fontweight.setFixedWidth(OPTION_WIDTH)
 
         layout_option = QGridLayout()
@@ -525,9 +514,9 @@ class UserConfig(QDialog):
                     idx, key, layout)
                 continue
             # Units list string
-            if key in COMBO_UNITS:
+            if key in rxp.UNITS_DICT:
                 self.__add_option_combolist(
-                    idx, key, layout, COMBO_UNITS[key])
+                    idx, key, layout, rxp.UNITS_DICT[key])
                 continue
             # API name string
             if re.search(rxp.CFG_API_NAME, key):
@@ -537,7 +526,7 @@ class UserConfig(QDialog):
             # Font weight string
             if re.search(rxp.CFG_FONT_WEIGHT, key):
                 self.__add_option_combolist(
-                    idx, key, layout, COMBO_FONTWEIGHT)
+                    idx, key, layout, rxp.FONT_WEIGHT_LIST)
                 continue
             # Heatmap string
             if re.search(rxp.CFG_HEATMAP, key):

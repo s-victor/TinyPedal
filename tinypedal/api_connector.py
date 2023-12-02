@@ -20,13 +20,29 @@
 API connector
 """
 
-import logging
 from abc import ABC, abstractmethod
 
 # Import APIs
 from pyRfactor2SharedMemory.sim_info_sync import SimInfoSync
+from .adapter import rfactor2
 
-logger = logging.getLogger(__name__)
+
+class DataSet:
+    """Data set"""
+
+    def __init__(self, info, data_set=rfactor2):
+        self.check = data_set.Check(info)
+        self.brake = data_set.Brake(info)
+        self.emotor = data_set.ElectricMotor(info)
+        self.engine = data_set.Engine(info)
+        self.input = data_set.Input(info)
+        self.lap = data_set.Lap(info)
+        self.session = data_set.Session(info)
+        self.switch = data_set.Switch(info)
+        self.timing = data_set.Timing(info)
+        self.tyre = data_set.Tyre(info)
+        self.vehicle = data_set.Vehicle(info)
+        self.wheel = data_set.Wheel(info)
 
 
 class Connector(ABC):
@@ -53,6 +69,7 @@ class Connector(ABC):
 
 
 class SimRF2(Connector):
+    """rFactor 2"""
     NAME = "rFactor 2"
 
     def __init__(self):
@@ -61,8 +78,7 @@ class SimRF2(Connector):
 
     def start(self):
         self.info.start()
-        from .adapter.rfactor2 import DataSet
-        self.read = DataSet(self.info)
+        self.read = DataSet(self.info, rfactor2)
 
     def stop(self):
         self.info.stop()
@@ -81,7 +97,8 @@ class SimRF2(Connector):
 
 
 class SimDummy(Connector):
-    NAME = "Dummy"  # placeholder
+    """Placeholder"""
+    NAME = "Dummy"
 
     def __init__(self):
         self.info = SimInfoSync("tinypedal")
@@ -89,8 +106,7 @@ class SimDummy(Connector):
 
     def start(self):
         self.info.start()
-        from .adapter.rfactor2 import DataSet
-        self.read = DataSet(self.info)
+        self.read = DataSet(self.info, rfactor2)
 
     def stop(self):
         self.info.stop()
@@ -105,7 +121,7 @@ class SimDummy(Connector):
         return not self.info.paused and self.read.vehicle.is_driving()
 
     def version(self):
-        return "0.0.0"
+        return "0.0.1"
 
 
 # Add new API to API_PACK

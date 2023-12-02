@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Regex pattern
+Regular expression & pattern
 """
 
 
@@ -101,3 +101,13 @@ ABBR_LIST = (
     "rpm",
 )
 ABBR_PATTERN = "|".join(ABBR_LIST)
+FONT_WEIGHT_LIST = "normal", "bold"
+UNITS_DICT = {
+    "distance_unit": ("Meter", "Feet"),
+    "fuel_unit": ("Liter", "Gallon"),
+    "odometer_unit": ("Kilometer", "Mile", "Meter"),
+    "speed_unit": ("KPH", "MPH", "m/s"),
+    "temperature_unit": ("Celsius", "Fahrenheit"),
+    "turbo_pressure_unit": ("bar", "psi", "kPa"),
+    "tyre_pressure_unit": ("kPa", "psi", "bar"),
+}

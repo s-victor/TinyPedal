@@ -26,10 +26,6 @@ import re
 import math
 from functools import wraps
 
-from . import formatter as fmt
-from . import regex_pattern as rxp
-from .api_connector import API_NAME_LIST
-
 logger = logging.getLogger(__name__)
 
 
@@ -46,33 +42,11 @@ def infnan2zero(value):
     return 0
 
 
-def cbytes2str(bytestring):
+def cbytes2str(bytestring, char_encoding="utf-8"):
     """Convert bytes to string"""
     if isinstance(bytestring, bytes):
-        return bytestring.decode(encoding="iso-8859-1", errors="replace").rstrip()
+        return bytestring.decode(encoding=char_encoding, errors="replace").rstrip()
     return ""
-
-
-def numeric_filter(func):
-    """Numeric filter decorator"""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        value = func(*args, **kwargs)
-        if isinstance(value, (list, tuple)):
-            return tuple(map(infnan2zero, value))
-        return infnan2zero(value)
-    return wrapper
-
-
-def string_filter(func):
-    """String filter decorator"""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        string = func(*args, **kwargs)
-        if isinstance(string, (list, tuple)):
-            return list(map(cbytes2str, string))
-        return cbytes2str(string)
-    return wrapper
 
 
 def sector_time(sec_time, magic_num=99999):
@@ -84,6 +58,11 @@ def sector_time(sec_time, magic_num=99999):
         if magic_num != sec_time:
             return True
     return False
+
+
+def allowed_filename(invalid_filename: str, filename: str) -> bool:
+    """Validate setting filename"""
+    return re.search(invalid_filename, filename.lower()) is None
 
 
 # Folder validate
@@ -121,96 +100,28 @@ def hex_color(color_str):
     if isinstance(color_str, str) and bool(re.match("#", color_str)):
         color = re.sub("#", "", color_str)
         if len(color) in [3,6,8]:
-            return re.search(r'[^0-9A-F]', color, re.I) is None
+            return re.search(r'[^0-9A-F]', color, flags=re.IGNORECASE) is None
     return False
 
 
-# Setting validate
-def setting_filename(filename):
-    """Validate setting filename"""
-    return re.search(rxp.CFG_INVALID_FILENAME, filename.lower()) is None
+# Decorator
+def numeric_filter(func):
+    """Numeric filter decorator"""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        value = func(*args, **kwargs)
+        if isinstance(value, (list, tuple)):
+            return tuple(map(infnan2zero, value))
+        return infnan2zero(value)
+    return wrapper
 
 
-def remove_invalid_setting(key_list_def, dict_user):
-    """Remove invalid key & value from user dictionary"""
-    key_list_user = tuple(dict_user)  # create user key list
-
-    for key in key_list_user:  # loop through user key list
-        if key not in key_list_def:  # check each user key in default list
-            dict_user.pop(key)  # remove invalid key
-            continue
-
-        # Non-dict sub_level values
-        if not isinstance(dict_user[key], dict):
-            # Bool
-            if re.search(rxp.CFG_BOOL, key):
-                if not isinstance(dict_user[key], bool):
-                    dict_user[key] = bool(dict_user[key])
-                continue
-            # Color string
-            if re.search(rxp.CFG_COLOR, key):
-                if not hex_color(dict_user[key]):
-                    dict_user.pop(key)
-                continue
-            # API name string
-            if re.search(rxp.CFG_API_NAME, key):
-                if dict_user[key] not in API_NAME_LIST:
-                    dict_user.pop(key)
-                continue
-            # Font weight string
-            if re.search(rxp.CFG_FONT_WEIGHT, key):
-                if dict_user[key].lower() not in ("normal", "bold"):
-                    dict_user.pop(key)
-                continue
-            # String
-            if re.search(
-                fmt.pipe_join(
-                    rxp.CFG_FONT_NAME,
-                    rxp.CFG_HEATMAP,
-                    rxp.CFG_STRING
-                ), key):
-                if not isinstance(dict_user[key], str):
-                    dict_user.pop(key)
-                continue
-            # Int
-            if re.search(rxp.CFG_INTEGER, key):
-                if not isinstance(dict_user[key], int) or isinstance(dict_user[key], bool):
-                    try:
-                        dict_user[key] = int(dict_user[key])
-                    except ValueError:
-                        dict_user.pop(key)
-                continue
-            # Anything int or float
-            if not isinstance(dict_user[key], float):
-                if not isinstance(dict_user[key], int) or isinstance(dict_user[key], bool):
-                    #print(key, dict_user[key])
-                    dict_user.pop(key)
-
-
-def add_missing_setting(key_list_def, dict_user, dict_def):
-    """Adding missing default key to user list"""
-    key_list_user = tuple(dict_user)  # create user key list
-
-    for key in key_list_def:  # loop through default key list
-        if key not in key_list_user:  # check each default key in user list
-            dict_user[key] = dict_def[key]  # add missing item to user
-
-
-def sort_setting(key_list_def, dict_user):
-    """Sort user key order according to default key list"""
-    for d_key in key_list_def:  # loop through default key list
-        for u_key in dict_user:  # loop through user key
-            if u_key == d_key:
-                temp_key = u_key  # store user key
-                temp_value = dict_user[u_key]  # store user value
-                dict_user.pop(u_key)  # delete user key
-                dict_user[temp_key] = temp_value  # append user key at the end
-                break
-
-
-def setting_validator(dict_user, dict_def):
-    """Create key-only check list to avoid error, then validate key"""
-    key_list_def = tuple(dict_def)
-    remove_invalid_setting(key_list_def, dict_user)
-    add_missing_setting(key_list_def, dict_user, dict_def)
-    sort_setting(key_list_def, dict_user)
+def string_filter(func):
+    """String filter decorator"""
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        string = func(*args, **kwargs)
+        if isinstance(string, (list, tuple)):
+            return list(map(cbytes2str, string))
+        return cbytes2str(string)
+    return wrapper

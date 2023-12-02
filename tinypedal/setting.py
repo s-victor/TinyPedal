@@ -33,6 +33,8 @@ from .template.setting_module import MODULE_DEFAULT
 from .template.setting_widget import WIDGET_DEFAULT
 from .template.setting_classes import CLASSES_DEFAULT
 from .template.setting_heatmap import HEATMAP_DEFAULT
+from .setting_validator import validate_key_pair
+from . import regex_pattern as rxp
 from . import validator as val
 
 logger = logging.getLogger(__name__)
@@ -53,9 +55,9 @@ class Setting:
         self.platform_default()
         self.active_widget_list = []
         self.active_module_list = []
-        self.setting_user = {}
-        self.classes_user = {}
-        self.heatmap_user = {}
+        self.setting_user = None
+        self.classes_user = None
+        self.heatmap_user = None
 
         self.is_saving = False
         self._save_delay = 0
@@ -86,7 +88,8 @@ class Setting:
                         for fname in os.listdir(self.filepath) if fname.endswith(".json")]
         if raw_cfg_list:
             raw_cfg_list.sort(reverse=True)  # sort by file modified date
-            cfg_list = [fname[1] for fname in raw_cfg_list if val.setting_filename(fname[1])]
+            cfg_list = [fname[1] for fname in raw_cfg_list
+                        if val.allowed_filename(rxp.CFG_INVALID_FILENAME, fname[1])]
             if cfg_list:
                 return cfg_list
         return ["default"]
@@ -212,10 +215,10 @@ def load_style_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
 def verify_setting(dict_user: dict, dict_def: dict) -> None:
     """Verify setting"""
     # Check top-level key
-    val.setting_validator(dict_user, dict_def)
+    validate_key_pair(dict_user, dict_def)
     # Check sub-level key
     for item in dict_user.keys():  # list each key lists
-        val.setting_validator(dict_user[item], dict_def[item])
+        validate_key_pair(dict_user[item], dict_def[item])
 
 
 def copy_setting(dict_user: dict) -> dict:

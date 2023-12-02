@@ -45,15 +45,16 @@ from PySide2.QtWidgets import (
     QListWidgetItem,
 )
 
-from .setting import cfg
 from .const import APP_NAME, VERSION, APP_ICON, PATH_SETTINGS, PATH_DELTABEST, PATH_TRACKMAP
 from .about import About
+from .setting import cfg
 from .api_control import api
 from .module_control import mctrl
 from .widget_control import wctrl
 from .overlay_control import octrl
 from .config import VehicleClassEditor, FontConfig, UserConfig
 from . import formatter as fmt
+from . import regex_pattern as rxp
 from . import validator as val
 
 
@@ -686,7 +687,7 @@ class CreatePreset(QDialog):
         """Creating new preset"""
         entered_filename = fmt.strip_filename_extension(self.preset_entry.text(), ".json")
 
-        if val.setting_filename(entered_filename):
+        if val.allowed_filename(rxp.CFG_INVALID_FILENAME, entered_filename):
             self.__saving(entered_filename)
         else:
             QMessageBox.warning(

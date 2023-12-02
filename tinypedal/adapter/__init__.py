@@ -22,13 +22,6 @@ API data adapter
 To create new API adapter, duplicate rfactor2.py and fill in entries.
 """
 
-from .. import calculation as calc
-from .. import formatter as fmt
-from .. import validator as val
-
-chknm = val.infnan2zero
-cs2py = val.cbytes2str
-
 
 class DataAdapter:
     """Read & sort data into groups"""
