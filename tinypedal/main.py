@@ -25,7 +25,7 @@ import shutil
 import time
 
 from PySide2.QtCore import Qt, QRegExp
-from PySide2.QtGui import QIcon, QRegExpValidator
+from PySide2.QtGui import QIcon, QRegExpValidator, QDesktopServices
 from PySide2.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -889,6 +889,7 @@ class ConfigMenu(QMenu):
         config_compat.triggered.connect(self.open_config_compatibility)
         menu.addAction(config_compat)
 
+        menu.addSeparator()
         config_classes = QAction("Vehicle class editor", self)
         config_classes.triggered.connect(self.open_config_classes)
         menu.addAction(config_classes)
@@ -989,10 +990,17 @@ class HelpMenu(QMenu):
     def __init__(self, master, menu):
         super().__init__(master)
 
+        app_guide = QAction("User guide", self)
+        app_guide.triggered.connect(self.open_user_guide)
+        menu.addAction(app_guide)
+
+        app_faq = QAction("FAQ", self)
+        app_faq.triggered.connect(self.open_faq)
+        menu.addAction(app_faq)
+
+        menu.addSeparator()
         # Load about window in background
         self.about = About(hideonclose=True)
-
-        # About
         app_about = QAction("About", self)
         app_about.triggered.connect(self.show_about)
         menu.addAction(app_about)
@@ -1000,3 +1008,15 @@ class HelpMenu(QMenu):
     def show_about(self):
         """Show about"""
         self.about.show()
+
+    def open_user_guide(self):
+        """Open user guide link"""
+        QDesktopServices.openUrl(
+            "https://github.com/s-victor/TinyPedal/wiki/User-Guide"
+        )
+
+    def open_faq(self):
+        """Open FAQ link"""
+        QDesktopServices.openUrl(
+            "https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions"
+        )
