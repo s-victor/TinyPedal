@@ -23,7 +23,7 @@ Default application setting template
 
 APPLICATION_DEFAULT = {
     "application": {
-        "show_at_startup": False,
+        "show_at_startup": True,
         "minimize_to_tray": True,
         "remember_position": True,
         "position_x": 0,
