@@ -31,11 +31,66 @@ from PySide2.QtWidgets import (
     QLabel,
     QPushButton,
     QTextBrowser,
+    QTabWidget,
 )
 
 from .const import APP_NAME, VERSION, APP_ICON, COPYRIGHT, DESCRIPTION, LICENSE
 
 logger = logging.getLogger(__name__)
+
+
+class AboutTab(QWidget):
+    """About info"""
+
+    def __init__(self):
+        super().__init__()
+
+        # Logo
+        icon_size = 128
+        logo_image = QPixmap(APP_ICON)
+        logo_image = logo_image.scaled(icon_size,icon_size, mode=Qt.SmoothTransformation)
+
+        label_logo = QLabel(self)
+        label_logo.setPixmap(logo_image)
+        label_logo.setFixedSize(icon_size+20,icon_size+20)
+        label_logo.setAlignment(Qt.AlignCenter)
+        label_logo.setStyleSheet("padding: 10px;")
+
+        # Description
+        label_name = QLabel(APP_NAME)
+        label_name.setStyleSheet("font-size: 18px;")
+        label_name.setAlignment(Qt.AlignCenter)
+
+        label_version = QLabel(f"v{VERSION}\n")
+        label_version.setStyleSheet("font-size: 13px;")
+        label_version.setAlignment(Qt.AlignCenter)
+
+        label_desc = QLabel(f"<p>{COPYRIGHT}</p><p>{DESCRIPTION}</p><p>{LICENSE}</p>")
+        label_desc.setStyleSheet("font-size: 11px;")
+        label_desc.setAlignment(Qt.AlignCenter)
+
+        # Layout
+        layout_logo = QHBoxLayout()
+        layout_logo.addWidget(label_logo)
+        layout_logo.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+
+        layout_about = QVBoxLayout()
+        layout_about.addLayout(layout_logo)
+        layout_about.addWidget(label_name)
+        layout_about.addWidget(label_version)
+        layout_about.addWidget(label_desc)
+        layout_about.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
+        self.setLayout(layout_about)
+
+
+class TextTab(QTextBrowser):
+    """Text info"""
+
+    def __init__(self, text):
+        super().__init__()
+        self.setText(text)
+        self.setStyleSheet("font-size: 11px;")
+        self.setMinimumSize(400, 300)
 
 
 class About(QWidget):
@@ -53,111 +108,48 @@ class About(QWidget):
         self.setWindowIcon(QIcon(APP_ICON))
         self.setWindowTitle(f"About {APP_NAME}")
 
-        # Logo
-        icon_size = 100
-        logo_image = QPixmap(APP_ICON)
-        logo_image = logo_image.scaled(icon_size,icon_size, mode=Qt.SmoothTransformation)
+        # Tab
+        self.main_tab = QTabWidget()
+        info_tab = AboutTab()
+        ctrb_tab = TextTab(self.load_text_files("docs/contributors.md"))
+        lics_tab = TextTab(self.load_text_files("LICENSE.txt"))
+        tpan_tab = TextTab(self.load_text_files("docs/licenses/THIRDPARTYNOTICES.txt"))
+        self.main_tab.addTab(info_tab, "About")
+        self.main_tab.addTab(ctrb_tab, "Contributors")
+        self.main_tab.addTab(lics_tab, "License")
+        self.main_tab.addTab(tpan_tab, "Third-Party Notices")
 
-        label_logo = QLabel(self)
-        label_logo.setPixmap(logo_image)
-        label_logo.setFixedSize(icon_size+10,icon_size+10)
-        label_logo.setStyleSheet("padding: 5px;")
+        # Button
+        button_close = QPushButton("Close")
+        button_close.clicked.connect(self.close)
 
-        # Description
-        label_name = QLabel(f"{APP_NAME}  v{VERSION}")
-        label_name.setStyleSheet("font-size: 16px;padding:5px 0 2px 0;")
-
-        label_desc = QLabel(f"<p>{COPYRIGHT}</p><p>{DESCRIPTION}</p><p>{LICENSE}</p>")
-        label_desc.setStyleSheet("font-size: 11px;padding:2px 0 10px 0;")
-
-        self._last_text = None
-        self._lics_text = ""
-        self._thrd_text = ""
-        self._ctrb_text = ""
-        self.load_text_files()
-
-        # Add button
-        button_ctrb = QPushButton("Contributors")
-        button_ctrb.clicked.connect(self.open_contributors_text)
-
-        button_lics = QPushButton("License")
-        button_lics.clicked.connect(self.open_license_text)
-
-        button_thrd = QPushButton("Third-Party Notices")
-        button_thrd.clicked.connect(self.open_thirdparty_text)
-
-        # Text view box
-        self.text_view = QTextBrowser(self)
-        self.text_view.setStyleSheet("font-size: 11px;")
-        self.text_view.setMinimumHeight(300)
-        self.text_view.hide()
-
-        # Create layout
-        layout_main = QVBoxLayout()
-        layout_title = QVBoxLayout()
-        layout_about = QHBoxLayout()
+        # Layout
         layout_button = QHBoxLayout()
-        #layout_button.setContentsMargins(5,5,5,5)
+        layout_button.addStretch(stretch=1)
+        layout_button.addWidget(button_close)
+        layout_button.setContentsMargins(3,3,7,7)
 
-        # Add to layout
-        layout_title.addWidget(label_name)
-        layout_title.addWidget(label_desc)
-
-        layout_about.addWidget(label_logo)
-        layout_about.addLayout(layout_title)
-        layout_about.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        layout_button.addWidget(button_lics)
-        layout_button.addWidget(button_thrd)
-        #layout_button.addStretch(stretch=1)
-        layout_button.addWidget(button_ctrb)
-
-        layout_main.addLayout(layout_about)
+        layout_main = QVBoxLayout()
+        layout_main.addWidget(self.main_tab)
         layout_main.addLayout(layout_button)
-        layout_main.addWidget(self.text_view)
-        #layout_main.setSpacing(0)
-
+        layout_main.setContentsMargins(3,3,3,3)
         self.setLayout(layout_main)
-        self.setFixedWidth(self.sizeHint().width())
+        self.setFixedSize(self.sizeHint().width(), self.sizeHint().height())
 
-    def load_text_files(self):
+    def load_text_files(self, filepath):
         """Load text file"""
         try:
-            with open("LICENSE.txt", "r", encoding="utf-8") as text_file:
-                self._lics_text = text_file.read()
-            with open("docs\\licenses\\THIRDPARTYNOTICES.txt", "r", encoding="utf-8") as text_file:
-                self._thrd_text = text_file.read()
-            with open("docs\\contributors.md", "r", encoding="utf-8") as text_file:
-                self._ctrb_text = text_file.read()
+            with open(filepath, "r", encoding="utf-8") as text_file:
+                return text_file.read()
         except FileNotFoundError:
-            logger.error("file not found")
-
-    def open_license_text(self):
-        """Open LICENSE file"""
-        self.set_text_view(self._lics_text, "licence")
-
-    def open_thirdparty_text(self):
-        """Open THIRDPARTYNOTICES file"""
-        self.set_text_view(self._thrd_text, "notices")
-
-    def open_contributors_text(self):
-        """Open CONTRIBUTORS file"""
-        self.set_text_view(self._ctrb_text, "contributors")
-
-    def set_text_view(self, text, name):
-        """Set text"""
-        if self._last_text != name or not self.text_view.isVisible():
-            self._last_text = name
-            self.text_view.setText(text)
-            self.text_view.show()
-        else:
-            self.text_view.hide()
-            self.adjustSize()
+            logger.error("%s file not found", filepath)
+            error_text = "Error: file not found."
+            link_text = "See link: https://github.com/s-victor/TinyPedal/blob/master/"
+            return f"{error_text} \n{link_text}{filepath}"
 
     def closeEvent(self, event):
         """Minimize to tray"""
         if self.hideonclose:
             event.ignore()
-            self.text_view.hide()
-            self.adjustSize()
+            self.main_tab.setCurrentIndex(0)
             self.hide()
