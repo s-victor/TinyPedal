@@ -263,7 +263,7 @@ class Draw(Widget):
 
             # Sector lines
             sectors_index = minfo.mapping.sectors
-            if self.wcfg["show_sector_line"] and sectors_index:
+            if self.wcfg["show_sector_line"] and sectors_index and all(sectors_index):
                 pen.setWidth(self.wcfg["sector_line_width"])
                 pen.setColor(QColor(self.wcfg["sector_line_color"]))
                 painter.setPen(pen)
