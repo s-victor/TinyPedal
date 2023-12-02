@@ -34,7 +34,7 @@ from PySide2.QtWidgets import (
     QTabWidget,
 )
 
-from .const import APP_NAME, VERSION, APP_ICON, COPYRIGHT, DESCRIPTION, LICENSE
+from .const import APP_NAME, VERSION, APP_ICON, COPYRIGHT, DESCRIPTION, LICENSE, WEBSITE
 
 logger = logging.getLogger(__name__)
 
@@ -65,9 +65,13 @@ class AboutTab(QWidget):
         label_version.setStyleSheet("font-size: 13px;")
         label_version.setAlignment(Qt.AlignCenter)
 
-        label_desc = QLabel(f"<p>{COPYRIGHT}</p><p>{DESCRIPTION}</p><p>{LICENSE}</p>")
+        label_desc = QLabel(
+            f"<p>{COPYRIGHT}</p><p>{DESCRIPTION}</p><p>{LICENSE}</p>"
+            f"<p><a href={WEBSITE}>{WEBSITE}</a><br></p>"
+        )
         label_desc.setStyleSheet("font-size: 11px;")
         label_desc.setAlignment(Qt.AlignCenter)
+        label_desc.setOpenExternalLinks(True)
 
         # Layout
         layout_logo = QHBoxLayout()
@@ -136,7 +140,8 @@ class About(QWidget):
         self.setLayout(layout_main)
         self.setFixedSize(self.sizeHint().width(), self.sizeHint().height())
 
-    def load_text_files(self, filepath):
+    @staticmethod
+    def load_text_files(filepath):
         """Load text file"""
         try:
             with open(filepath, "r", encoding="utf-8") as text_file:
