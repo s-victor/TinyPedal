@@ -63,7 +63,6 @@ class AppWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
-        self.resize(290,450)
         self.setMinimumWidth(300)
         self.setMinimumHeight(450)
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)  # disable maximize
@@ -82,16 +81,16 @@ class AppWindow(QMainWindow):
         self.set_status_text()
 
         # Create tabs
-        self.main_tab = QTabWidget()
+        main_tab = QTabWidget()
         self.widget_tab = WidgetList()
         self.module_tab = ModuleList()
         self.preset_tab = PresetList(self)
         self.spectate_tab = SpectateList(self)
-        self.main_tab.addTab(self.widget_tab, 'Widget')
-        self.main_tab.addTab(self.module_tab, 'Module')
-        self.main_tab.addTab(self.preset_tab, 'Preset')
-        self.main_tab.addTab(self.spectate_tab, 'Spectate')
-        self.setCentralWidget(self.main_tab)
+        main_tab.addTab(self.widget_tab, "Widget")
+        main_tab.addTab(self.module_tab, "Module")
+        main_tab.addTab(self.preset_tab, "Preset")
+        main_tab.addTab(self.spectate_tab, "Spectate")
+        self.setCentralWidget(main_tab)
 
     def main_menubar(self):
         """Create menu bar"""
@@ -144,18 +143,18 @@ class AppWindow(QMainWindow):
 
     def set_initial_window_state(self):
         """Set initial window state"""
-        if cfg.application["show_at_startup"]:
-            self.show()
-        elif not cfg.application["minimize_to_tray"]:
-            self.showMinimized()
-
         if cfg.application["remember_position"]:
-            app_pos_x = int(cfg.application["position_x"])
-            app_pos_y = int(cfg.application["position_y"])
+            app_pos_x = cfg.application["position_x"]
+            app_pos_y = cfg.application["position_y"]
             if app_pos_x + app_pos_y:
                 self.move(app_pos_x, app_pos_y)
             else:
                 self.save_window_position()
+
+        if cfg.application["show_at_startup"]:
+            self.show()
+        elif not cfg.application["minimize_to_tray"]:
+            self.showMinimized()
 
     def set_status_text(self):
         """Set status text"""
