@@ -203,7 +203,9 @@ class AppWindow(QMainWindow):
         wctrl.close()
         # Load new setting
         cfg.load()
-        self.restart_api()
+        # Restart api
+        api.restart()
+        self.set_status_text()
         # Start modules & widgets
         mctrl.start()
         octrl.enable()
