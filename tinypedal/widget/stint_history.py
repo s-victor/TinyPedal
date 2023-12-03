@@ -189,9 +189,6 @@ class Draw(Widget):
         self.last_cmpd_text = None
         self.last_wear_text = None
 
-        # Start updating
-        self.update_data()
-
         # Set widget state & start update
         self.set_widget_state()
 

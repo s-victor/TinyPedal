@@ -218,9 +218,6 @@ class Draw(Widget):
         # Set layout
         self.setLayout(self.layout)
 
-        # Start updating
-        self.update_data()
-
         # Set widget state & start update
         self.set_widget_state()
 
