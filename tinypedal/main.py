@@ -190,7 +190,9 @@ class AppWindow(QMainWindow):
 
     def restart_api(self):
         """Restart shared memory api"""
+        mctrl.close()
         api.restart()
+        mctrl.start()
         self.set_status_text()
 
     def reload_preset(self):
