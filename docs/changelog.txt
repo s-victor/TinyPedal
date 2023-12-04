@@ -1,3 +1,13 @@
+2.5.1 (2023-12-05)
+-----------------------------
+* General
+  - Fixed APP malfunction while switching API or reloading under rare cases.
+  - Sort heatmap on load.
+  - Add User guide & FAQ link to main window Help menu.
+  - Reworked About window, add contributors tab.
+  - Don't draw sector line on map if not available.
+  - Various corrections & fixes.
+
 2.5.0 (2023-11-27)
 -----------------------------
 * General
