@@ -52,7 +52,7 @@ class Realtime:
             _thread = threading.Thread(target=self.__calculation, daemon=True)
             _thread.start()
             self.cfg.active_module_list.append(self)
-            logger.info("relative module started")
+            logger.info("ACTIVE: module relative")
 
     def __calculation(self):
         """Create relative list with vehicle class info"""
@@ -98,7 +98,7 @@ class Realtime:
 
         self.cfg.active_module_list.remove(self)
         self.stopped = True
-        logger.info("relative module closed")
+        logger.info("CLOSED: module relative")
 
     def __relative_index_list(self, rel_dist_list, plr_index):
         """Create player-centered relative index list"""

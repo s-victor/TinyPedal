@@ -87,7 +87,7 @@ class OverlayAutoHide(QObject):
             self.running = True
             _thread = threading.Thread(target=self.__autohide, daemon=True)
             _thread.start()
-            logger.info("auto-hide module started")
+            logger.info("ACTIVE: overlay auto-hide")
 
     def __autohide(self):
         """Auto hide overlay"""
@@ -96,7 +96,7 @@ class OverlayAutoHide(QObject):
             time.sleep(0.4)
 
         self.stopped = True
-        logger.info("auto-hide module closed")
+        logger.info("CLOSED: overlay auto-hide")
 
     def __is_hidden(self):
         """Check hide state"""

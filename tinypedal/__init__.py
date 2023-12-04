@@ -24,7 +24,7 @@ import logging
 
 logger = logging.getLogger("tinypedal")
 
-log_format = logging.Formatter("%(asctime)s [%(levelname)s] %(message)s", datefmt="%H:%M:%S")
+log_format = logging.Formatter("%(asctime)s %(levelname)s: %(message)s", datefmt="%H:%M:%S")
 cli_handler = logging.StreamHandler(sys.stdout)
 
 #logger.setLevel(logging.NOTSET)

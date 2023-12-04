@@ -50,7 +50,7 @@ class Realtime:
             _thread = threading.Thread(target=self.__calculation, daemon=True)
             _thread.start()
             self.cfg.active_module_list.append(self)
-            logger.info("hybrid module started")
+            logger.info("ACTIVE: module hybrid")
 
     def __calculation(self):
         """Hybrid calculation"""
@@ -140,4 +140,4 @@ class Realtime:
 
         self.cfg.active_module_list.remove(self)
         self.stopped = True
-        logger.info("hybrid module closed")
+        logger.info("CLOSED: module hybrid")

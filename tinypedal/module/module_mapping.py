@@ -54,7 +54,7 @@ class Realtime:
             _thread = threading.Thread(target=self.__calculation, daemon=True)
             _thread.start()
             self.cfg.active_module_list.append(self)
-            logger.info("mapping module started")
+            logger.info("ACTIVE: module mapping")
 
     def __calculation(self):
         """Mapping calculation"""
@@ -100,7 +100,7 @@ class Realtime:
 
         self.cfg.active_module_list.remove(self)
         self.stopped = True
-        logger.info("mapping module closed")
+        logger.info("CLOSED: module mapping")
 
 
 class MapRecorder:
@@ -282,7 +282,7 @@ def load_svg_file(filename, pathname):
 
         return svg_coords, svg_dists, sector_index
     except (FileNotFoundError, IndexError, xml.parsers.expat.ExpatError):
-        logger.info("no valid map data file found")
+        logger.info("MISSING: track map data")
         return None, None, None
 
 

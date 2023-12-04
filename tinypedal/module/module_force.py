@@ -52,7 +52,7 @@ class Realtime:
             _thread = threading.Thread(target=self.__calculation, daemon=True)
             _thread.start()
             self.cfg.active_module_list.append(self)
-            logger.info("force module started")
+            logger.info("ACTIVE: module force")
 
     def __calculation(self):
         """Force calculation"""
@@ -126,7 +126,7 @@ class Realtime:
 
         self.cfg.active_module_list.remove(self)
         self.stopped = True
-        logger.info("force module closed")
+        logger.info("CLOSED: module force")
 
     def calc_max_avg_gforce(self):
         """Calc max average G force"""

@@ -148,7 +148,7 @@ class WidgetControl:
                 cfg.setting_user[obj.WIDGET_NAME]["enable"] = True
                 self.__create_instance(obj)
         cfg.save()
-        logger.info("all widgets enabled")
+        logger.info("ACTIVE: all widgets")
 
     def disable_all(self):
         """Disable all widgets"""
@@ -156,7 +156,7 @@ class WidgetControl:
             cfg.setting_user[obj.WIDGET_NAME]["enable"] = False
         self.close()
         cfg.save()
-        logger.info("all widgets disabled")
+        logger.info("CLOSED: all widgets")
 
     def start_selected(self, widget_name):
         """Start selected widget"""

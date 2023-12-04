@@ -43,18 +43,21 @@ class APIControl:
                 name_found = True
                 break
         if not name_found:
-            logger.info("Invalid API name, fall back to default API")
+            logger.warning("CONNECTING: Invalid API name, fall back to default")
             self._api = API_PACK[0]()
 
     def start(self):
         """Start API"""
+        logger.info("CONNECTING: %s API", self._api.NAME)
         self.setup()
         self._api.start()
-        logger.info("activated API: %s (%s)", self._api.NAME, self.version)
+        logger.info("CONNECTED: %s API (%s)", self._api.NAME, self.version)
 
     def stop(self):
         """Stop API"""
+        logger.info("DISCONNECTING: %s API (%s)", self._api.NAME, self.version)
         self._api.stop()
+        logger.info("DISCONNECTED: %s API", self._api.NAME)
 
     def restart(self):
         """Restart API"""

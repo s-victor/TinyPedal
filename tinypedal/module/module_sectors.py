@@ -53,7 +53,7 @@ class Realtime:
             _thread = threading.Thread(target=self.__calculation, daemon=True)
             _thread.start()
             self.cfg.active_module_list.append(self)
-            logger.info("sectors module started")
+            logger.info("ACTIVE: module sectors")
 
     def __calculation(self):
         """Sectors calculation"""
@@ -178,7 +178,7 @@ class Realtime:
 
         self.cfg.active_module_list.remove(self)
         self.stopped = True
-        logger.info("sectors module closed")
+        logger.info("CLOSED: module sectors")
 
     def save_sector_data(self, combo_id, session_id, best_s_pb, laptime_best, best_s_tb):
         """Verify and save sector data"""
@@ -207,7 +207,7 @@ class Realtime:
             best_s_tb = saved_data[5]     # theory best sector times
             best_s_pb = saved_data[6]     # personal best sector times
         else:
-            logger.info("no valid sectors data found")
+            logger.info("MISSING: sectors data")
             laptime_best = MAGIC_NUM
             best_s_tb = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]
             best_s_pb = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]

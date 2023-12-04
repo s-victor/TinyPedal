@@ -20,12 +20,9 @@
 Formatter function
 """
 
-import logging
 import re
 
 from . import regex_pattern as rxp
-
-logger = logging.getLogger(__name__)
 
 
 def uppercase_abbr(name: str) -> str:

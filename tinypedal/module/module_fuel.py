@@ -57,7 +57,7 @@ class Realtime:
             _thread = threading.Thread(target=self.__calculation, daemon=True)
             _thread.start()
             self.cfg.active_module_list.append(self)
-            logger.info("fuel module started")
+            logger.info("ACTIVE: module fuel")
 
     def __calculation(self):
         """Fuel calculation"""
@@ -251,7 +251,7 @@ class Realtime:
 
         self.cfg.active_module_list.remove(self)
         self.stopped = True
-        logger.info("fuel module closed")
+        logger.info("CLOSED: module fuel")
 
     def load_deltafuel(self, combo):
         """Load last saved fuel consumption data"""
@@ -267,7 +267,7 @@ class Realtime:
                 if not val.delta_list(lastlist):
                     self.save_deltafuel(combo, lastlist)
         except (FileNotFoundError, IndexError, ValueError, TypeError):
-            logger.info("no valid fuel data file found")
+            logger.info("MISSING: fuel data")
             lastlist = [(99999,0,0)]
             used_last = 0
             laptime_last = 0

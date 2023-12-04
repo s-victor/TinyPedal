@@ -54,7 +54,7 @@ class Realtime:
             _thread = threading.Thread(target=self.__calculation, daemon=True)
             _thread.start()
             self.cfg.active_module_list.append(self)
-            logger.info("vehicles module started")
+            logger.info("ACTIVE: module vehicles")
 
     def __calculation(self):
         """Create vehicles data list"""
@@ -93,7 +93,7 @@ class Realtime:
 
         self.cfg.active_module_list.remove(self)
         self.stopped = True
-        logger.info("vehicles module closed")
+        logger.info("CLOSED: module vehicles")
 
     def __vehicle_data(self, class_pos_list):
         """Get vehicle data"""

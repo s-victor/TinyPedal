@@ -84,7 +84,7 @@ class ModuleControl:
                 cfg.setting_user[obj.MODULE_NAME]["enable"] = True
                 self.__create_instance(obj)
         cfg.save()
-        logger.info("all modules enabled")
+        logger.info("ACTIVE: all modules")
 
     def disable_all(self):
         """Disable all modules"""
@@ -92,7 +92,7 @@ class ModuleControl:
             cfg.setting_user[obj.MODULE_NAME]["enable"] = False
         self.close()
         cfg.save()
-        logger.info("all modules disabled")
+        logger.info("CLOSED: all modules")
 
     def start_selected(self, module_name):
         """Start selected module"""

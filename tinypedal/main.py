@@ -20,6 +20,7 @@
 Main window
 """
 
+import logging
 import os
 import shutil
 import time
@@ -53,9 +54,12 @@ from .module_control import mctrl
 from .widget_control import wctrl
 from .overlay_control import octrl
 from .config import VehicleClassEditor, FontConfig, UserConfig
+from .tray import TrayIcon
 from . import formatter as fmt
 from . import regex_pattern as rxp
 from . import validator as val
+
+logger = logging.getLogger(__name__)
 
 
 class AppWindow(QMainWindow):
@@ -137,7 +141,6 @@ class AppWindow(QMainWindow):
 
     def start_tray_icon(self):
         """Start tray icon (for Windows)"""
-        from .tray import TrayIcon
         self.tray_icon = TrayIcon(self, cfg)
         self.tray_icon.show()
 
@@ -162,6 +165,7 @@ class AppWindow(QMainWindow):
 
     def quit_app(self):
         """Quit manager"""
+        logger.info("closing tinypedal")
         self.save_window_position()
         mctrl.close()  # stop module
         octrl.disable()  # disable overlay control

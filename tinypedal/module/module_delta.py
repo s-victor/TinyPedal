@@ -56,7 +56,7 @@ class Realtime:
             _thread = threading.Thread(target=self.__calculation, daemon=True)
             _thread.start()
             self.cfg.active_module_list.append(self)
-            logger.info("delta module started")
+            logger.info("ACTIVE: module delta")
 
     def __calculation(self):
         """Delta calculation"""
@@ -174,7 +174,7 @@ class Realtime:
 
         self.cfg.active_module_list.remove(self)
         self.stopped = True
-        logger.info("delta module closed")
+        logger.info("CLOSED: module delta")
 
     def load_deltabest(self, combo):
         """Load delta best & best laptime"""
@@ -188,7 +188,7 @@ class Realtime:
                 if not val.delta_list(bestlist):
                     self.save_deltabest(combo, bestlist)
         except (FileNotFoundError, IndexError, ValueError, TypeError):
-            logger.info("no valid deltabest data file found")
+            logger.info("MISSING: deltabest data")
             bestlist = [(99999,99999)]
             laptime_best = 99999
         return bestlist, laptime_best

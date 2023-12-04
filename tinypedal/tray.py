@@ -21,11 +21,7 @@ Tray icon
 """
 
 from PySide2.QtGui import QIcon
-from PySide2.QtWidgets import (
-    QSystemTrayIcon,
-    QMenu,
-    QAction,
-)
+from PySide2.QtWidgets import QSystemTrayIcon, QMenu, QAction
 
 from .const import APP_NAME, VERSION, APP_ICON
 

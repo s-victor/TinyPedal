@@ -147,7 +147,7 @@ class About(QWidget):
             with open(filepath, "r", encoding="utf-8") as text_file:
                 return text_file.read()
         except FileNotFoundError:
-            logger.error("%s file not found", filepath)
+            logger.error("MISSING: %s file not found", filepath)
             error_text = "Error: file not found."
             link_text = "See link: https://github.com/s-victor/TinyPedal/blob/master/"
             return f"{error_text} \n{link_text}{filepath}"
