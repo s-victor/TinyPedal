@@ -39,7 +39,7 @@ class Check(DataAdapter):
 
     def combo_id(self) -> str:
         """Identify track & vehicle combo"""
-        track_name = cs2py(self.info.rf2Scor.mScoringInfo.mTrackName)
+        track_name = cs2py(self.info.rf2ScorInfo.mTrackName)
         class_name = cs2py(self.info.rf2ScorVeh().mVehicleClass)
         return fmt.strip_invalid_char(f"{track_name} - {class_name}")
 
@@ -51,14 +51,14 @@ class Check(DataAdapter):
 
     def track_id(self) -> str:
         """Identify track name"""
-        return fmt.strip_invalid_char(cs2py(self.info.rf2Scor.mScoringInfo.mTrackName))
+        return fmt.strip_invalid_char(cs2py(self.info.rf2ScorInfo.mTrackName))
 
     def session_id(self):
         """Identify session"""
-        session_length = chknm(self.info.rf2Scor.mScoringInfo.mEndET)
-        session_type = chknm(self.info.rf2Scor.mScoringInfo.mSession)
+        session_length = chknm(self.info.rf2ScorInfo.mEndET)
+        session_type = chknm(self.info.rf2ScorInfo.mSession)
         session_stamp = int(session_length * 100 + session_type)
-        session_etime = int(chknm(self.info.rf2Scor.mScoringInfo.mCurrentET))
+        session_etime = int(chknm(self.info.rf2ScorInfo.mCurrentET))
         session_tlaps = chknm(self.info.rf2ScorVeh().mTotalLaps)
         return session_stamp, session_etime, session_tlaps
 
@@ -202,7 +202,7 @@ class Lap(DataAdapter):
 
     def track_length(self) -> float:
         """Full lap or track length"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mLapDist)
+        return chknm(self.info.rf2ScorInfo.mLapDist)
 
     def distance(self, index: int=None) -> float:
         """Distance into lap"""
@@ -217,7 +217,7 @@ class Lap(DataAdapter):
 
     def maximum(self) -> int:
         """Maximum lap"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mMaxLaps)
+        return chknm(self.info.rf2ScorInfo.mMaxLaps)
 
     def sector_index(self, index: int=None) -> int:
         """Sector index - convert to 0,1,2 order"""
@@ -236,15 +236,15 @@ class Session(DataAdapter):
     """Session"""
     def elapsed(self) -> float:
         """Session elapsed time"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mCurrentET)
+        return chknm(self.info.rf2ScorInfo.mCurrentET)
 
     def start(self) -> float:
         """Session start time"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mStartET)
+        return chknm(self.info.rf2ScorInfo.mStartET)
 
     def end(self) -> float:
         """Session end time"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mEndET)
+        return chknm(self.info.rf2ScorInfo.mEndET)
 
     def remaining(self) -> float:
         """Session time remaining"""
@@ -252,19 +252,19 @@ class Session(DataAdapter):
 
     def lap_type(self) -> bool:
         """Is lap type session, false for time type"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mMaxLaps) < 2147483647
+        return chknm(self.info.rf2ScorInfo.mMaxLaps) < 2147483647
 
     def in_race(self) -> bool:
         """Is in race session"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mSession) > 9
+        return chknm(self.info.rf2ScorInfo.mSession) > 9
 
     def in_countdown(self) -> bool:
         """Is in countdown phase before race"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mGamePhase) == 4
+        return chknm(self.info.rf2ScorInfo.mGamePhase) == 4
 
     def pit_open(self) -> bool:
         """Is pit lane open"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mGamePhase) > 0
+        return chknm(self.info.rf2ScorInfo.mGamePhase) > 0
 
     def blue_flag(self, index: int=None) -> bool:
         """Is under blue flag"""
@@ -272,41 +272,41 @@ class Session(DataAdapter):
 
     def yellow_flag(self) -> bool:
         """Is there yellow flag in any sectors"""
-        return 1 in [chknm(self.info.rf2Scor.mScoringInfo.mSectorFlag[data]) for data in range(3)]
+        return 1 in [chknm(self.info.rf2ScorInfo.mSectorFlag[data]) for data in range(3)]
 
     def start_lights(self) -> int:
         """Start lights countdown sequence"""
-        lights_frame = chknm(self.info.rf2Scor.mScoringInfo.mStartLight)
-        lights_number = chknm(self.info.rf2Scor.mScoringInfo.mNumRedLights) + 1
+        lights_frame = chknm(self.info.rf2ScorInfo.mStartLight)
+        lights_number = chknm(self.info.rf2ScorInfo.mNumRedLights) + 1
         return lights_number - lights_frame
 
     def track_name(self) -> str:
         """Track name"""
-        return cs2py(self.info.rf2Scor.mScoringInfo.mTrackName)
+        return cs2py(self.info.rf2ScorInfo.mTrackName)
 
     def track_temperature(self) -> float:
         """Track temperature"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mTrackTemp)
+        return chknm(self.info.rf2ScorInfo.mTrackTemp)
 
     def ambient_temperature(self) -> float:
         """Ambient temperature"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mAmbientTemp)
+        return chknm(self.info.rf2ScorInfo.mAmbientTemp)
 
     def raininess(self) -> float:
         """Rain percentage"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mRaining)
+        return chknm(self.info.rf2ScorInfo.mRaining)
 
     def wetness_minimum(self) -> float:
         """Road minimum wetness"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mMinPathWetness)
+        return chknm(self.info.rf2ScorInfo.mMinPathWetness)
 
     def wetness_maximum(self) -> float:
         """Road maximum wetness"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mMaxPathWetness)
+        return chknm(self.info.rf2ScorInfo.mMaxPathWetness)
 
     def wetness_average(self) -> float:
         """Road average wetness"""
-        return chknm(self.info.rf2Scor.mScoringInfo.mAvgPathWetness)
+        return chknm(self.info.rf2ScorInfo.mAvgPathWetness)
 
     def wetness(self):
         """Road wetness set"""
@@ -498,11 +498,6 @@ class Tyre(DataAdapter):
 
 class Vehicle(DataAdapter):
     """Vehicle"""
-    def driver_list(self):
-        """Create player name list based on player index order"""
-        return [cs2py(self.info.rf2ScorVeh(index).mDriverName)
-                for index in range(max(chknm(self.info.rf2Tele.mNumVehicles), 1))]
-
     def is_player(self, index: int=0) -> bool:
         """Is local player"""
         return self.info.isPlayer(index)
@@ -513,7 +508,7 @@ class Vehicle(DataAdapter):
 
     def player_index(self) -> int:
         """Get Local player index"""
-        return self.info.playerScorIndex
+        return self.info.playerIndex
 
     def slot_id(self, index: int=None) -> int:
         """Vehicle slot id"""
@@ -537,7 +532,7 @@ class Vehicle(DataAdapter):
 
     def total_vehicles(self) -> int:
         """Total vehicles"""
-        return chknm(self.info.rf2Tele.mNumVehicles)
+        return chknm(self.info.rf2ScorInfo.mNumVehicles)
 
     def place(self, index: int=None) -> int:
         """Vehicle overall place"""

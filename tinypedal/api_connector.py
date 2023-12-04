@@ -20,10 +20,11 @@
 API connector
 """
 
+import logging
 from abc import ABC, abstractmethod
 
 # Import APIs
-from pyRfactor2SharedMemory.sim_info_sync import SimInfoSync
+from pyRfactor2SharedMemory import rF2MMap
 from .adapter import rfactor2
 
 
@@ -73,7 +74,8 @@ class SimRF2(Connector):
     NAME = "rFactor 2"
 
     def __init__(self):
-        self.info = SimInfoSync("tinypedal")
+        rF2MMap.logger = logging.getLogger(__name__)
+        self.info = rF2MMap.RF2SM()
         self.read = None
 
     def start(self):
@@ -90,7 +92,7 @@ class SimRF2(Connector):
         self.info.setPlayerIndex(player_index)
 
     def state(self):
-        return not self.info.paused and self.read.vehicle.is_driving()
+        return not self.info.isPaused and self.read.vehicle.is_driving()
 
     def version(self):
         return self.read.check.version()
@@ -101,7 +103,8 @@ class SimDummy(Connector):
     NAME = "Dummy"
 
     def __init__(self):
-        self.info = SimInfoSync("tinypedal")
+        rF2MMap.logger = logging.getLogger(__name__)
+        self.info = rF2MMap.RF2SM()
         self.read = None
 
     def start(self):
@@ -118,7 +121,7 @@ class SimDummy(Connector):
         self.info.setPlayerIndex(player_index)
 
     def state(self):
-        return not self.info.paused and self.read.vehicle.is_driving()
+        return not self.info.isPaused and self.read.vehicle.is_driving()
 
     def version(self):
         return "0.0.1"

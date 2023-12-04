@@ -500,7 +500,7 @@ class SpectateList(QWidget):
     def refresh_spectate_list(self):
         """Refresh spectate list"""
         if cfg.shared_memory_api["enable_player_index_override"]:
-            temp_list = ["Anonymous", *api.read.vehicle.driver_list()]
+            temp_list = ["Anonymous", *self.driver_list()]
             if temp_list != self.spectate_list:
                 self.spectate_list = temp_list
                 self.listbox_spectate.clear()
@@ -530,6 +530,11 @@ class SpectateList(QWidget):
         self.refresh_spectate_list()
         cfg.save()  # save only if selected
 
+    @staticmethod
+    def driver_list():
+        """Create driver list"""
+        return [api.read.vehicle.driver_name(index)
+                for index in range(api.read.vehicle.total_vehicles())]
 
 class PresetList(QWidget):
     """Preset list box"""
