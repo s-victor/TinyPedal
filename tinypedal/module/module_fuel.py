@@ -117,7 +117,7 @@ class Realtime:
                 gps_curr = (api.read.vehicle.pos_x(),
                             api.read.vehicle.pos_y(),
                             api.read.vehicle.pos_z())
-                lap_number = api.read.lap.number()
+                lap_number = api.read.lap.total_laps()
                 lap_into = api.read.lap.percent()
                 laps_max = api.read.lap.maximum()
                 pit_lap = bool(pit_lap + api.read.vehicle.in_pits())

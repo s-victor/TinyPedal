@@ -210,10 +210,7 @@ class Lap(DataAdapter):
 
     def percent(self, index: int=None) -> float:
         """Lap percentage completion"""
-        return calc.percentage_distance(
-            self.distance(index),
-            self.track_length(),
-            0.99999)
+        return calc.percentage_distance(self.distance(index), self.track_length())
 
     def maximum(self) -> int:
         """Maximum lap"""
@@ -252,7 +249,7 @@ class Session(DataAdapter):
 
     def lap_type(self) -> bool:
         """Is lap type session, false for time type"""
-        return chknm(self.info.rf2ScorInfo.mMaxLaps) < 2147483647
+        return chknm(self.info.rf2ScorInfo.mMaxLaps) < 99999
 
     def in_race(self) -> bool:
         """Is in race session"""
