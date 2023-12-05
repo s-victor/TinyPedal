@@ -98,6 +98,7 @@ class About(QDialog):
         super().__init__(master)
         # Base setting
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setWindowIcon(QIcon(APP_ICON))
         self.setWindowTitle(f"About {APP_NAME}")
         self.setAttribute(Qt.WA_DeleteOnClose, True)

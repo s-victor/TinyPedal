@@ -672,6 +672,8 @@ class CreatePreset(QDialog):
         self.master = master
         self.edit_mode = mode
         self.src_filename = src_filename
+
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setFixedWidth(280)
         self.setWindowTitle(title)
         self.setWindowIcon(QIcon(APP_ICON))

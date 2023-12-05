@@ -77,6 +77,7 @@ class VehicleClassEditor(QDialog):
 
     def __init__(self, master):
         super().__init__(master)
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle("Vehicle Class Editor")
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
@@ -247,6 +248,7 @@ class FontConfig(QDialog):
 
     def __init__(self, master):
         super().__init__(master)
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle("Global Font Override")
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
@@ -335,6 +337,7 @@ class UserConfig(QDialog):
         self.key_name = key_name
         self.cfg_type = cfg_type
 
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle(f"{fmt.format_option_name(key_name)}")
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
