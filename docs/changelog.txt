@@ -7,6 +7,11 @@
   - Reworked About window, add contributors tab.
   - Don't draw sector line on map if not available.
   - Various corrections & fixes.
+  - Removed additional index check methods (introduced in 2.3.0 update)
+    in API access module that may potentially cause issues.
+
+* Fuel Module
+  - Fixed several incorrect lap number reference (introduced in 2.3.0 update).
 
 2.5.0 (2023-11-27)
 -----------------------------
