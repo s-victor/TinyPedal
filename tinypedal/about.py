@@ -26,10 +26,11 @@ from PySide2.QtCore import Qt
 from PySide2.QtGui import QIcon, QPixmap
 from PySide2.QtWidgets import (
     QWidget,
+    QDialog,
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
-    QPushButton,
+    QDialogButtonBox,
     QTextBrowser,
     QTabWidget,
 )
@@ -87,49 +88,30 @@ class AboutTab(QWidget):
         self.setLayout(layout_about)
 
 
-class TextTab(QTextBrowser):
-    """Text info"""
-
-    def __init__(self, text):
-        super().__init__()
-        self.setText(text)
-        self.setStyleSheet("font-size: 11px;")
-        self.setMinimumSize(400, 300)
-
-
-class About(QWidget):
+class About(QDialog):
     """Create about window
 
     Hide window at startup.
     """
 
-    def __init__(self, hideonclose=False):
-        super().__init__()
-        self.hideonclose = hideonclose
-
+    def __init__(self, master):
+        super().__init__(master)
         # Base setting
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)
         self.setWindowIcon(QIcon(APP_ICON))
         self.setWindowTitle(f"About {APP_NAME}")
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         # Tab
         self.main_tab = QTabWidget()
-        info_tab = AboutTab()
-        ctrb_tab = TextTab(self.load_text_files("docs/contributors.md"))
-        lics_tab = TextTab(self.load_text_files("LICENSE.txt"))
-        tpan_tab = TextTab(self.load_text_files("docs/licenses/THIRDPARTYNOTICES.txt"))
-        self.main_tab.addTab(info_tab, "About")
-        self.main_tab.addTab(ctrb_tab, "Contributors")
-        self.main_tab.addTab(lics_tab, "License")
-        self.main_tab.addTab(tpan_tab, "Third-Party Notices")
+        self.add_tabs()
 
         # Button
-        button_close = QPushButton("Close")
-        button_close.clicked.connect(self.close)
+        button_close = QDialogButtonBox(QDialogButtonBox.Close)
+        button_close.rejected.connect(self.reject)
 
         # Layout
         layout_button = QHBoxLayout()
-        layout_button.addStretch(stretch=1)
         layout_button.addWidget(button_close)
         layout_button.setContentsMargins(3,3,7,7)
 
@@ -152,9 +134,22 @@ class About(QWidget):
             link_text = "See link: https://github.com/s-victor/TinyPedal/blob/master/"
             return f"{error_text} \n{link_text}{filepath}"
 
-    def closeEvent(self, event):
-        """Minimize to tray"""
-        if self.hideonclose:
-            event.ignore()
-            self.main_tab.setCurrentIndex(0)
-            self.hide()
+    @staticmethod
+    def new_text_tab(text):
+        """New text tab"""
+        new_tab = QTextBrowser()
+        new_tab.setText(text)
+        new_tab.setStyleSheet("font-size: 11px;")
+        new_tab.setMinimumSize(400, 300)
+        return new_tab
+
+    def add_tabs(self):
+        """Add tabs"""
+        info_tab = AboutTab()
+        ctrb_tab = self.new_text_tab(self.load_text_files("docs/contributors.md"))
+        lics_tab = self.new_text_tab(self.load_text_files("LICENSE.txt"))
+        tpan_tab = self.new_text_tab(self.load_text_files("docs/licenses/THIRDPARTYNOTICES.txt"))
+        self.main_tab.addTab(info_tab, "About")
+        self.main_tab.addTab(ctrb_tab, "Contributors")
+        self.main_tab.addTab(lics_tab, "License")
+        self.main_tab.addTab(tpan_tab, "Third-Party Notices")

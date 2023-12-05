@@ -1002,6 +1002,7 @@ class HelpMenu(QMenu):
 
     def __init__(self, master, menu):
         super().__init__(master)
+        self.master = master
 
         app_guide = QAction("User guide", self)
         app_guide.triggered.connect(self.open_user_guide)
@@ -1012,15 +1013,14 @@ class HelpMenu(QMenu):
         menu.addAction(app_faq)
 
         menu.addSeparator()
-        # Load about window in background
-        self.about = About(hideonclose=True)
         app_about = QAction("About", self)
         app_about.triggered.connect(self.show_about)
         menu.addAction(app_about)
 
     def show_about(self):
         """Show about"""
-        self.about.show()
+        _dialog = About(self.master)
+        _dialog.open()
 
     def open_user_guide(self):
         """Open user guide link"""
