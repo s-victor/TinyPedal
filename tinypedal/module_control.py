@@ -62,14 +62,14 @@ class ModuleControl:
         """Close module"""
         while cfg.active_module_list:
             for module in cfg.active_module_list:
-                module.running = False
+                module.stop()
             time.sleep(0.01)
 
     def toggle(self, module):
         """Toggle module"""
         if cfg.setting_user[module.MODULE_NAME]["enable"]:
             cfg.setting_user[module.MODULE_NAME]["enable"] = False
-            getattr(self, module.MODULE_NAME).running = False
+            getattr(self, module.MODULE_NAME).stop()
             while not getattr(self, module.MODULE_NAME).stopped:
                 time.sleep(0.01)
         else:
@@ -109,7 +109,7 @@ class ModuleControl:
             return None
         for module in cfg.active_module_list:
             if module.module_name == module_name:
-                module.running = False
+                module.stop()
                 while not module.stopped:
                     time.sleep(0.01)
                 return None

@@ -21,7 +21,6 @@ Relative module
 """
 
 import logging
-import time
 import threading
 from itertools import chain
 
@@ -42,26 +41,30 @@ class Realtime:
         self.cfg = config
         self.mcfg = self.cfg.setting_user[self.module_name]
         self.stopped = True
-        self.running = False
+        self.event = threading.Event()
 
     def start(self):
-        """Start calculation thread"""
+        """Start update thread"""
         if self.stopped:
             self.stopped = False
-            self.running = True
-            _thread = threading.Thread(target=self.__calculation, daemon=True)
+            self.event.clear()
+            _thread = threading.Thread(target=self.__update_data, daemon=True)
             _thread.start()
             self.cfg.active_module_list.append(self)
             logger.info("ACTIVE: module relative")
 
-    def __calculation(self):
-        """Create relative list with vehicle class info"""
+    def stop(self):
+        """Stop thread"""
+        self.event.set()
+
+    def __update_data(self):
+        """Update module data"""
         reset = False
         active_interval = self.mcfg["update_interval"] / 1000
         idle_interval = self.mcfg["idle_update_interval"] / 1000
         update_interval = idle_interval
 
-        while self.running:
+        while not self.event.wait(update_interval):
             if api.state:
 
                 if not reset:
@@ -93,8 +96,6 @@ class Realtime:
                 if reset:
                     reset = False
                     update_interval = idle_interval
-
-            time.sleep(update_interval)
 
         self.cfg.active_module_list.remove(self)
         self.stopped = True

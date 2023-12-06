@@ -78,22 +78,25 @@ class OverlayAutoHide(QObject):
         super().__init__()
         self.cfg = config
         self.stopped = True
-        self.running = False
+        self.event = threading.Event()
 
     def start(self):
         """Start auto hide thread"""
         if self.stopped:
             self.stopped = False
-            self.running = True
+            self.event.clear()
             _thread = threading.Thread(target=self.__autohide, daemon=True)
             _thread.start()
             logger.info("ACTIVE: overlay auto-hide")
 
+    def stop(self):
+        """Stop thread"""
+        self.event.set()
+
     def __autohide(self):
         """Auto hide overlay"""
-        while self.running:
+        while not self.event.wait(0.4):
             self.hidden.emit(self.__is_hidden())
-            time.sleep(0.4)
 
         self.stopped = True
         logger.info("CLOSED: overlay auto-hide")
@@ -123,7 +126,7 @@ class OverlayControl:
 
     def disable(self):
         """Disable overlay control"""
-        self.overlay_hide.running = False
+        self.overlay_hide.stop()
         while not self.overlay_hide.stopped:
             time.sleep(0.01)
 
