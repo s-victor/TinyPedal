@@ -194,9 +194,9 @@ class AppWindow(QMainWindow):
 
     def restart_api(self):
         """Restart shared memory api"""
-        mctrl.close()
+        #mctrl.close()
         api.restart()
-        mctrl.start()
+        #mctrl.start()
         self.set_status_text()
 
     def reload_preset(self):
@@ -208,8 +208,7 @@ class AppWindow(QMainWindow):
         # Load new setting
         cfg.load()
         # Restart api
-        api.restart()
-        self.set_status_text()
+        self.restart_api()
         # Start modules & widgets
         mctrl.start()
         octrl.enable()

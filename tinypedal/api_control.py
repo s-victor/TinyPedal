@@ -33,6 +33,7 @@ class APIControl:
 
     def __init__(self):
         self._api = None
+        self._restarting = False
 
     def connect(self, name):
         """Connect to API with matching name in API_PACK"""
@@ -61,9 +62,11 @@ class APIControl:
 
     def restart(self):
         """Restart API"""
+        self._restarting = True
         self.stop()
         self.connect(cfg.shared_memory_api["api_name"])
         self.start()
+        self._restarting = False
 
     def setup(self):
         """Setup & apply API changes"""
@@ -91,6 +94,8 @@ class APIControl:
     @property
     def state(self):
         """API state output"""
+        if self._restarting:
+            return False
         if cfg.shared_memory_api["enable_active_state_override"]:
             return cfg.shared_memory_api["active_state"]
         return self._api.state()
