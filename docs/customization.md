@@ -922,7 +922,7 @@ Show empty lap time history. Default is `false`, which hides empty rows.
 
 
 ## Navigation
-**This widget displays navigation map.**
+**This widget displays a zoomed navigation map that centered on player's vehicle. Note: at least one complete & valid lap is required to generate track map.**
 
     display_size
 Set widget size in pixels.
@@ -1384,7 +1384,7 @@ Show personal current session best laptime.
 
 
 ## Track map
-**This widget displays track map and standings.**
+**This widget displays track map and standings. Note: at least one complete & valid lap is required to generate track map.**
 
     show_background
 Show widget background.
