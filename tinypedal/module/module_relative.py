@@ -62,7 +62,7 @@ class Realtime:
         reset = False
         active_interval = self.mcfg["update_interval"] / 1000
         idle_interval = self.mcfg["idle_update_interval"] / 1000
-        update_interval = idle_interval
+        update_interval = active_interval
 
         while not self.event.wait(update_interval):
             if api.state:
