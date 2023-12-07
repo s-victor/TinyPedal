@@ -106,6 +106,7 @@ class About(QDialog):
         # Tab
         self.main_tab = QTabWidget()
         self.add_tabs()
+        self.setStyleSheet("QTextEdit {border: 0;}")
 
         # Button
         button_close = QDialogButtonBox(QDialogButtonBox.Close)
