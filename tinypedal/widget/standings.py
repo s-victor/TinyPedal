@@ -559,18 +559,11 @@ class Draw(Widget):
 
     def set_class_style(self, vehclass_name):
         """Compare vehicle class name with user defined dictionary"""
-        if not vehclass_name:
-            return "", self.wcfg["bkg_color_class"]
-
-        for full_name, short_name in self.cfg.classes_user.items():
-            if vehclass_name == full_name:
-                return tuple(*short_name.items())  # sub_name, sub_color
-
-        if self.wcfg["show_random_color_for_unknown_class"]:
-            color = calc.random_color_class(vehclass_name)
-        else:
-            color = self.wcfg["bkg_color_class"]
-        return vehclass_name, color
+        if vehclass_name in self.cfg.classes_user:
+            return tuple(*self.cfg.classes_user[vehclass_name].items())  # sub_name, sub_color
+        if vehclass_name and self.wcfg["show_random_color_for_unknown_class"]:
+            return vehclass_name, calc.random_color_class(vehclass_name)
+        return vehclass_name, self.wcfg["bkg_color_class"]
 
     @staticmethod
     def set_laptime(inpit, laptime_last, pit_time):
