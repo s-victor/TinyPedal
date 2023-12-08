@@ -28,7 +28,7 @@ def select_color(heatmap_list: list, temperature: float) -> str:
     """Select color from heatmap list"""
     last_color = heatmap_list[0][1]  # set color from 1st row
     for temp in heatmap_list:
-        if temperature < float(temp[0]):
+        if temperature < temp[0]:
             return last_color
         last_color = temp[1]  # set color from next row
     return heatmap_list[-1][1]  # set color from last row if exceeded max range
@@ -43,9 +43,12 @@ def verify_heatmap(heatmap_dict: dict) -> bool:
 
 
 def sort_heatmap(heatmap_dict: dict) -> list:
-    """Sort heatmap entries by first column (key: str to float)"""
-    return sorted(heatmap_dict.items(), key=lambda col: float(col[0]))
-
+    """Sort heatmap entries by first column (convert key string to float)"""
+    #return sorted(heatmap_dict.items(), key=lambda col: float(col[0]))
+    return sorted(
+        ((float(value), color) for value, color in heatmap_dict.items()),
+        key=lambda col: col[0]
+    )
 
 def load_heatmap(heatmap_name: str, default_name: str) -> list:
     """Load heatmap preset"""
