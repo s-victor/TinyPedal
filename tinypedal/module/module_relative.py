@@ -139,7 +139,8 @@ class Realtime:
         for index in range(veh_total):
             in_garage = api.read.vehicle.in_garage(index)
             opt_dist = api.read.lap.distance(index)
-            if show_vehicles(race_check, in_garage):
+            # Whether to hide vehicle in garage during race (ex. retired)
+            if not race_check or not in_garage:
                 rel_dist = calc.circular_relative_distance(
                     track_length, plr_dist, opt_dist)
                 yield (rel_dist, index)  # relative distance, player index
@@ -298,15 +299,6 @@ class Realtime:
                     yield veh[1]  # 1 vehicle index
                     break
         yield -1  # append an empty index as gap between classes
-
-
-def show_vehicles(race_check, in_garage):
-    """Vehicle filter"""
-    if race_check:
-        if not in_garage:
-            return True  # not in garage, show
-        return False  # in garage, hide
-    return True  # not in race or off, show
 
 
 def sort_class(class_list):
