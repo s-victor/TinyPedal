@@ -20,8 +20,6 @@
 Standings Widget
 """
 
-import random
-
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QGridLayout, QLabel
 
@@ -466,7 +464,7 @@ class Draw(Widget):
             color = (f"color: {self.wcfg['font_color_class']};"
                      f"background: {bg_color};")
 
-            getattr(self, f"row_{suffix}").setText(text)
+            getattr(self, f"row_{suffix}").setText(text[:self.cls_width])
             getattr(self, f"row_{suffix}").setStyleSheet(
                 f"{color}{self.bar_width_cls}"
             )
@@ -566,17 +564,13 @@ class Draw(Widget):
 
         for full_name, short_name in self.cfg.classes_user.items():
             if vehclass_name == full_name:
-                for sub_name, sub_color in short_name.items():
-                    return sub_name[:self.cls_width], sub_color
+                return tuple(*short_name.items())  # sub_name, sub_color
 
         if self.wcfg["show_random_color_for_unknown_class"]:
-            random.seed(vehclass_name)
-            rgb = [30,180,random.randrange(30,180)]
-            random.shuffle(rgb)
-            color = f"#{rgb[0]:02X}{rgb[1]:02X}{rgb[2]:02X}"
+            color = calc.random_color_class(vehclass_name)
         else:
             color = self.wcfg["bkg_color_class"]
-        return vehclass_name[:self.cls_width], color
+        return vehclass_name, color
 
     @staticmethod
     def set_laptime(inpit, laptime_last, pit_time):
