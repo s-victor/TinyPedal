@@ -551,6 +551,10 @@ class Vehicle(DataAdapter):
         """Pit state, 0 = none, 1 = request, 2 = entering, 3 = stopped, 4 = exiting"""
         return chknm(self.info.rf2ScorVeh(index).mPitState)
 
+    def finish_state(self, index: int=None) -> int:
+        """Finish state, 0 = none, 1 = finished, 2 = DNF, 3 = DQ"""
+        return chknm(self.info.rf2ScorVeh(index).mFinishStatus)
+
     def fuel(self, index: int=None) -> float:
         """Remaining fuel"""
         return chknm(self.info.rf2TeleVeh(index).mFuel)
