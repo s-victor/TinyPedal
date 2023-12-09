@@ -30,7 +30,7 @@ logger = logging.getLogger(__name__)
 
 
 # Value validate
-def infnan2zero(value):
+def infnan2zero(value: any):
     """Convert invalid value to zero
 
     Some data from API may contain invalid value
@@ -42,22 +42,18 @@ def infnan2zero(value):
     return 0
 
 
-def cbytes2str(bytestring, char_encoding="utf-8"):
+def cbytes2str(bytestring: any, char_encoding: str = "utf-8") -> str:
     """Convert bytes to string"""
     if isinstance(bytestring, bytes):
         return bytestring.decode(encoding=char_encoding, errors="replace").rstrip()
     return ""
 
 
-def sector_time(sec_time, magic_num=99999):
+def sector_time(sec_time: any, magic_num: int = 99999) -> bool:
     """Validate sector time"""
     if isinstance(sec_time, list):
-        if magic_num not in sec_time:
-            return True
-    else:
-        if magic_num != sec_time:
-            return True
-    return False
+        return magic_num not in sec_time
+    return magic_num != sec_time
 
 
 def allowed_filename(invalid_filename: str, filename: str) -> bool:
@@ -66,7 +62,7 @@ def allowed_filename(invalid_filename: str, filename: str) -> bool:
 
 
 # Folder validate
-def is_folder_exist(folder_name):
+def is_folder_exist(folder_name: str) -> None:
     """Create folder if not exist"""
     if not os.path.exists(folder_name):
         logger.info("%s folder does not exist, attemp to create", folder_name)
@@ -77,25 +73,25 @@ def is_folder_exist(folder_name):
 
 
 # Delta list validate
-def delta_list(listname):
+def delta_list(data_list: list) -> bool:
     """Validate delta data list"""
     # Compare second column last 2 row values
-    if listname[-1][1] < listname[-2][1]:
+    if data_list[-1][1] < data_list[-2][1]:
         raise ValueError
     # Remove distance greater than half of track length
-    max_dist = listname[-1][0] * 0.5  # half of track length
+    max_dist = data_list[-1][0] * 0.5  # half of track length
     pop_index = tuple(  # add invalid index in reverse order
-        (idx for idx in range(11, 0, -1) if listname[idx][0] > max_dist)
+        (idx for idx in range(11, 0, -1) if data_list[idx][0] > max_dist)
     )
     if pop_index:
         for idx in pop_index:
-            listname.pop(idx)  # del invalid row
+            data_list.pop(idx)  # del invalid row
         return False  # list modified
     return True  # list no change
 
 
 # Color validate
-def hex_color(color_str):
+def hex_color(color_str: any) -> bool:
     """Validate HEX color string"""
     if isinstance(color_str, str) and bool(re.match("#", color_str)):
         color = re.sub("#", "", color_str)

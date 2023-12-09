@@ -182,12 +182,14 @@ class Realtime:
         try:
             with open(f"{self.filepath}{combo}.csv",
                       newline="", encoding="utf-8") as csvfile:
-                deltaread = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
-                bestlist = list(deltaread)
+                bestlist = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
+                # Assign & test read
                 laptime_best = bestlist[-1][1]
                 # Validate data
                 if not val.delta_list(bestlist):
                     self.save_deltabest(combo, bestlist)
+                    laptime_best = bestlist[-1][1]  # re-test on modified list
+                    logger.info("CORRECTED: deltabest data")
         except (FileNotFoundError, IndexError, ValueError, TypeError):
             logger.info("MISSING: deltabest data")
             bestlist = [(99999,99999)]
