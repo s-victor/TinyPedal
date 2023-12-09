@@ -41,12 +41,10 @@ logger = logging.getLogger("tinypedal")
 def is_tinypedal_running(app_name: str) -> bool:
     """Check if is already running"""
     for app in psutil.process_iter(["name", "pid"]):
-        # Compare found APP name
-        if app.info["name"] == app_name:
-            # Compare with current APP pid
-            if app.info["pid"] != os.getpid():
-                return True
-    return None
+        # Compare found APP name & pid
+        if app.info["name"] == app_name and app.info["pid"] != os.getpid():
+            return True
+    return False
 
 
 def load_tinypedal():
