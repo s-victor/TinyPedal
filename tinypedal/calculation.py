@@ -162,7 +162,9 @@ def gforce(value, g_accel):
 
 def force_ratio(value1, value2):
     """Force ratio from Newtons"""
-    return abs(value1 / (value2 + 0.01) * 100)
+    if round(value2):
+        return abs(100 * value1 / value2)
+    return 0
 
 
 def oriyaw2rad(value1, value2):
