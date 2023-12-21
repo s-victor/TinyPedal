@@ -38,7 +38,7 @@ from tinypedal.const import APP_NAME, VERSION
 logger = logging.getLogger("tinypedal")
 
 
-def is_tinypedal_running(app_name: str) -> bool:
+def is_app_running(app_name: str) -> bool:
     """Check if is already running"""
     for app in psutil.process_iter(["name", "pid"]):
         # Compare found APP name & pid
@@ -47,33 +47,45 @@ def is_tinypedal_running(app_name: str) -> bool:
     return False
 
 
-def load_tinypedal():
-    """Start tinypedal"""
+def init_gui():
+    """Init gui"""
     root = QApplication(sys.argv)
     root.setApplicationName(APP_NAME)
     font = QFont("sans-serif", 10)
     font.setStyleHint(QFont.SansSerif)
     root.setFont(font)
     root.setStyle('Fusion')
+    return root
 
-    if is_tinypedal_running("tinypedal.exe"):
-        QMessageBox.warning(
-            None,
-            f"{APP_NAME} v{VERSION}",
-            "TinyPedal is already running.\n\n"
-            "Only one TinyPedal may be run at a time.\n"
-            "Check system tray for hidden icon."
-        )
-    else:
-        logger.info("starting tinypedal")
-        # Start main window
-        from tinypedal.main import AppWindow
-        config_window = AppWindow()
-        signal.signal(signal.SIGINT, config_window.int_signal_handler)
-        # Start mainloop
-        sys.exit(root.exec_())
+
+def prelaunch_check():
+    """Multiple execute warning"""
+    if not is_app_running("tinypedal.exe"):
+        return None
+    init_gui()
+    QMessageBox.warning(
+        None,
+        f"{APP_NAME} v{VERSION}",
+        "TinyPedal is already running.\n\n"
+        "Only one TinyPedal may be run at a time.\n"
+        "Check system tray for hidden icon."
+    )
+    sys.exit()
+
+
+def start_app():
+    """Init main window"""
+    logger.info("starting tinypedal")
+    root = init_gui()
+    # Start main window
+    from tinypedal.main import AppWindow
+    config_window = AppWindow()
+    signal.signal(signal.SIGINT, config_window.int_signal_handler)
+    # Start mainloop
+    sys.exit(root.exec_())
 
 
 if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
-    load_tinypedal()
+    prelaunch_check()
+    start_app()
