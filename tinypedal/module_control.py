@@ -31,9 +31,16 @@ logger = logging.getLogger(__name__)
 
 
 class ModuleControl:
-    """Module control"""
-    MODULE_PACK = tuple(
-        getattr(module, name) for _, name, _ in pkgutil.iter_modules(module.__path__))
+    """Module control
+
+    MODULE_PACK:
+        key: name string
+        value: module
+    """
+    MODULE_PACK = {
+        name: getattr(module, name)
+        for _, name, _ in pkgutil.iter_modules(module.__path__)
+    }
 
     def start(self, name: str = None):
         """Start module
@@ -64,46 +71,40 @@ class ModuleControl:
             #    time.sleep(0.01)
         else:
             cfg.setting_user[name]["enable"] = True
-            for obj in self.MODULE_PACK:
-                if obj.MODULE_NAME == name:
-                    self.__create_instance(obj)
-                    break
+            self.__create_instance(self.MODULE_PACK[name])
         cfg.save()
 
     def enable_all(self):
         """Enable all modules"""
-        for obj in self.MODULE_PACK:
-            if not cfg.setting_user[obj.MODULE_NAME]["enable"]:
-                cfg.setting_user[obj.MODULE_NAME]["enable"] = True
-                self.__create_instance(obj)
+        for _name, _module in self.MODULE_PACK.items():
+            if not cfg.setting_user[_name]["enable"]:
+                cfg.setting_user[_name]["enable"] = True
+                self.__create_instance(_module)
         cfg.save()
         logger.info("ACTIVE: all modules")
 
     def disable_all(self):
         """Disable all modules"""
-        for obj in self.MODULE_PACK:
-            cfg.setting_user[obj.MODULE_NAME]["enable"] = False
+        for _name in self.MODULE_PACK.keys():
+            cfg.setting_user[_name]["enable"] = False
         self.close()
         cfg.save()
         logger.info("CLOSED: all modules")
 
     def start_enabled(self):
-        """Start enabled module"""
-        for obj in self.MODULE_PACK:
-            if cfg.setting_user[obj.MODULE_NAME]["enable"]:
-                self.__create_instance(obj)
+        """Start all enabled module"""
+        for _name, _module in self.MODULE_PACK.items():
+            if cfg.setting_user[_name]["enable"]:
+                self.__create_instance(_module)
 
     def start_selected(self, name: str):
         """Start selected module"""
-        for obj in self.MODULE_PACK:
-            if (cfg.setting_user[name]["enable"]
-                and obj.MODULE_NAME == name):
-                self.__create_instance(obj)
-                break
+        if cfg.setting_user[name]["enable"]:
+            self.__create_instance(self.MODULE_PACK[name])
 
     @staticmethod
     def close_enabled():
-        """Close enabled module"""
+        """Close all enabled module"""
         while cfg.active_module_list:
             for _module in cfg.active_module_list:
                 _module.stop()

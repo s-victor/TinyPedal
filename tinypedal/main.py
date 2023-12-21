@@ -272,8 +272,8 @@ class WidgetList(QWidget):
         """Refresh preset list"""
         self.listbox_widget.clear()
 
-        for obj in wctrl.WIDGET_PACK:
-            widget_item = ListItemControl(self, obj.WIDGET_NAME)
+        for _name in wctrl.WIDGET_PACK.keys():
+            widget_item = ListItemControl(self, _name)
             item = QListWidgetItem()
             self.listbox_widget.addItem(item)
             self.listbox_widget.setItemWidget(item, widget_item)
@@ -343,8 +343,8 @@ class ModuleList(QWidget):
         """Refresh module list"""
         self.listbox_module.clear()
 
-        for obj in mctrl.MODULE_PACK:
-            module_item = ListItemControl(self, obj.MODULE_NAME)
+        for _name in mctrl.MODULE_PACK.keys():
+            module_item = ListItemControl(self, _name)
             item = QListWidgetItem()
             self.listbox_module.addItem(item)
             self.listbox_module.setItemWidget(item, module_item)
