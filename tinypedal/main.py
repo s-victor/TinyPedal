@@ -261,10 +261,10 @@ class WidgetList(QWidget):
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
 
-    def toggle_control(self, obj=None):
+    def toggle_control(self, obj_name=None):
         """Toggle control & update label"""
-        if obj:
-            wctrl.toggle(obj)
+        if obj_name:
+            wctrl.toggle(obj_name)
         self.label_loaded.setText(
             f"Enabled: <b>{len(cfg.active_widget_list)}/{len(wctrl.WIDGET_PACK)}</b>")
 
@@ -273,7 +273,7 @@ class WidgetList(QWidget):
         self.listbox_widget.clear()
 
         for obj in wctrl.WIDGET_PACK:
-            widget_item = ListItemControl(self, obj, obj.WIDGET_NAME)
+            widget_item = ListItemControl(self, obj.WIDGET_NAME)
             item = QListWidgetItem()
             self.listbox_widget.addItem(item)
             self.listbox_widget.setItemWidget(item, widget_item)
@@ -332,10 +332,10 @@ class ModuleList(QWidget):
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
 
-    def toggle_control(self, obj=None):
+    def toggle_control(self, obj_name=None):
         """Toggle control & update label"""
-        if obj:
-            mctrl.toggle(obj)
+        if obj_name:
+            mctrl.toggle(obj_name)
         self.label_loaded.setText(
             f"Enabled: <b>{len(cfg.active_module_list)}/{len(mctrl.MODULE_PACK)}</b>")
 
@@ -344,7 +344,7 @@ class ModuleList(QWidget):
         self.listbox_module.clear()
 
         for obj in mctrl.MODULE_PACK:
-            module_item = ListItemControl(self, obj, obj.MODULE_NAME)
+            module_item = ListItemControl(self, obj.MODULE_NAME)
             item = QListWidgetItem()
             self.listbox_module.addItem(item)
             self.listbox_module.setItemWidget(item, module_item)
@@ -365,13 +365,13 @@ class ModuleList(QWidget):
 class ListItemControl(QWidget):
     """List box item control"""
 
-    def __init__(self, master, obj, obj_name):
+    def __init__(self, master, obj_name):
         super().__init__()
         self.master = master
         self.obj_name = obj_name
 
         label_obj = QLabel(fmt.format_module_name(self.obj_name))
-        button_toggle = self.add_toggle_button(obj, cfg.setting_user[self.obj_name]["enable"])
+        button_toggle = self.add_toggle_button(obj_name, cfg.setting_user[self.obj_name]["enable"])
         button_config = self.add_config_button()
 
         layout_item = QHBoxLayout()
@@ -384,14 +384,14 @@ class ListItemControl(QWidget):
         self.setStyleSheet("font-size: 16px;")
         self.setLayout(layout_item)
 
-    def add_toggle_button(self, obj, state):
+    def add_toggle_button(self, obj_name, state):
         """Add toggle button"""
         button = QPushButton("")
         button.setCheckable(True)
         button.setChecked(state)
         self.set_toggle_state(state, button)
         button.toggled.connect(
-            lambda checked=state: self.set_toggle_state(checked, button, obj))
+            lambda checked=state: self.set_toggle_state(checked, button, obj_name))
         button.setStyleSheet(
             "QPushButton {color: #555;background-color: #CCC;font-size: 14px;"
             "min-width: 30px;max-width: 30px;padding: 2px 3px;border-radius: 3px;}"
@@ -416,9 +416,9 @@ class ListItemControl(QWidget):
         )
         return button
 
-    def set_toggle_state(self, checked, button, obj=None):
+    def set_toggle_state(self, checked, button, obj_name=None):
         """Set toggle state"""
-        self.master.toggle_control(obj)
+        self.master.toggle_control(obj_name)
         button.setText("ON" if checked else "OFF")
 
     def open_config_dialog(self):

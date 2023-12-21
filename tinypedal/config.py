@@ -479,12 +479,12 @@ class UserConfig(QDialog):
         """Reloading depends on setting types"""
         # Select type
         if self.cfg_type == "widget":
-            wctrl.close_selected(self.key_name)
-            wctrl.start_selected(self.key_name)
+            wctrl.close(self.key_name)
+            wctrl.start(self.key_name)
             self.master.refresh_widget_list()
         elif self.cfg_type == "module":
-            mctrl.close_selected(self.key_name)
-            mctrl.start_selected(self.key_name)
+            mctrl.close(self.key_name)
+            mctrl.start(self.key_name)
             self.master.refresh_module_list()
         elif self.cfg_type == "misc":
             wctrl.close()

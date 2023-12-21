@@ -19,5 +19,18 @@
 """
 Data modules
 
-Data module file name must match key name in template/setting_module.py
+Add new module to import list below in ascending order,
+file name must match corresponding key name
+in template/setting_module.py dictionary.
 """
+
+from . import (
+    module_delta,
+    module_force,
+    module_fuel,
+    module_hybrid,
+    module_mapping,
+    module_relative,
+    module_sectors,
+    module_vehicles,
+)

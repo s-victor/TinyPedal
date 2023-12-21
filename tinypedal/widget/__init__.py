@@ -19,5 +19,51 @@
 """
 Widget modules
 
-Widget module file name must match key name in template/setting_widget.py
+Add new widget to import list below in ascending order,
+file name must match corresponding key name
+in template/setting_widget.py dictionary.
 """
+
+from . import (
+    battery,
+    brake_bias,
+    brake_pressure,
+    brake_temperature,
+    cruise,
+    deltabest,
+    drs,
+    electric_motor,
+    engine,
+    flag,
+    force,
+    friction_circle,
+    fuel,
+    gear,
+    heading,
+    instrument,
+    lap_time_history,
+    navigation,
+    p2p,
+    pedal,
+    radar,
+    rake_angle,
+    relative,
+    ride_height,
+    sectors,
+    session,
+    speedometer,
+    standings,
+    steering,
+    stint_history,
+    suspension_position,
+    timing,
+    track_map,
+    trailing,
+    tyre_carcass,
+    tyre_load,
+    tyre_pressure,
+    tyre_temperature,
+    tyre_wear,
+    weather,
+    wheel_alignment,
+)

@@ -37,15 +37,14 @@ class APIControl:
 
     def connect(self, name):
         """Connect to API with matching name in API_PACK"""
-        name_found = False
         for _api in API_PACK:
             if _api.NAME == name:
                 self._api = _api()
-                name_found = True
-                break
-        if not name_found:
-            logger.warning("CONNECTING: Invalid API name, fall back to default")
-            self._api = API_PACK[0]()
+                return None
+
+        logger.warning("CONNECTING: Invalid API name, fall back to default")
+        self._api = API_PACK[0]()
+        return None
 
     def start(self):
         """Start API"""

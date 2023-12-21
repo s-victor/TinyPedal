@@ -22,123 +22,50 @@ Widget control
 
 import logging
 import time
+import pkgutil
 
 from .setting import cfg
-from .widget import (
-    battery,
-    brake_bias,
-    brake_pressure,
-    brake_temperature,
-    cruise,
-    deltabest,
-    drs,
-    electric_motor,
-    engine,
-    flag,
-    force,
-    friction_circle,
-    fuel,
-    gear,
-    heading,
-    instrument,
-    lap_time_history,
-    navigation,
-    p2p,
-    pedal,
-    radar,
-    rake_angle,
-    relative,
-    ride_height,
-    sectors,
-    session,
-    speedometer,
-    standings,
-    steering,
-    stint_history,
-    suspension_position,
-    timing,
-    track_map,
-    trailing,
-    tyre_carcass,
-    tyre_load,
-    tyre_pressure,
-    tyre_temperature,
-    tyre_wear,
-    weather,
-    wheel_alignment,
-)
+from . import widget
 
 logger = logging.getLogger(__name__)
 
 
 class WidgetControl:
     """Widget control"""
-    WIDGET_PACK = (
-        battery,
-        brake_bias,
-        brake_pressure,
-        brake_temperature,
-        cruise,
-        deltabest,
-        drs,
-        electric_motor,
-        engine,
-        flag,
-        force,
-        friction_circle,
-        fuel,
-        gear,
-        heading,
-        instrument,
-        lap_time_history,
-        navigation,
-        p2p,
-        pedal,
-        radar,
-        rake_angle,
-        relative,
-        ride_height,
-        sectors,
-        session,
-        speedometer,
-        standings,
-        steering,
-        stint_history,
-        suspension_position,
-        timing,
-        track_map,
-        trailing,
-        tyre_carcass,
-        tyre_load,
-        tyre_pressure,
-        tyre_temperature,
-        tyre_wear,
-        weather,
-        wheel_alignment,
-    )
+    WIDGET_PACK = tuple(
+        getattr(widget, name) for _, name, _ in pkgutil.iter_modules(widget.__path__))
 
-    def start(self):
-        """Start widget"""
-        for obj in self.WIDGET_PACK:
-            if cfg.setting_user[obj.WIDGET_NAME]["enable"]:
-                self.__create_instance(obj)
+    def start(self, name: str = None):
+        """Start widget
 
-    @staticmethod
-    def close():
-        """Close widget"""
-        while cfg.active_widget_list:
-            for widget in cfg.active_widget_list:
-                widget.closing()
-            time.sleep(0.01)
-
-    def toggle(self, widget):
-        """Toggle widget"""
-        if cfg.setting_user[widget.WIDGET_NAME]["enable"]:
-            cfg.setting_user[widget.WIDGET_NAME]["enable"] = False
-            getattr(self, f"widget_{widget.WIDGET_NAME}").closing()
+        Specify name for selected widget
+        """
+        if name:
+            self.start_selected(name)
         else:
-            cfg.setting_user[widget.WIDGET_NAME]["enable"] = True
-            self.__create_instance(widget)
+            self.start_enabled()
+
+    def close(self, name: str = None):
+        """Close widget
+
+        Specify name for selected widget
+        """
+        if name:
+            self.close_selected(name)
+        else:
+            self.close_enabled()
+
+    def toggle(self, name: str):
+        """Toggle widget"""
+        if cfg.setting_user[name]["enable"]:
+            cfg.setting_user[name]["enable"] = False
+            getattr(self, f"widget_{name}").closing()
+        else:
+            cfg.setting_user[name]["enable"] = True
+            for obj in self.WIDGET_PACK:
+                if obj.WIDGET_NAME == name:
+                    self.__create_instance(obj)
+                    break
         cfg.save()
 
     def enable_all(self):
@@ -158,23 +85,38 @@ class WidgetControl:
         cfg.save()
         logger.info("CLOSED: all widgets")
 
-    def start_selected(self, widget_name):
+    def start_enabled(self):
+        """Start enabled widget"""
+        for obj in self.WIDGET_PACK:
+            if cfg.setting_user[obj.WIDGET_NAME]["enable"]:
+                self.__create_instance(obj)
+
+    def start_selected(self, name: str):
         """Start selected widget"""
         for obj in self.WIDGET_PACK:
-            if (cfg.setting_user[widget_name]["enable"]
-                and obj.WIDGET_NAME == widget_name):
+            if (cfg.setting_user[name]["enable"]
+                and obj.WIDGET_NAME == name):
                 self.__create_instance(obj)
                 break
 
     @staticmethod
-    def close_selected(widget_name):
+    def close_enabled():
+        """Close enabled widget"""
+        while cfg.active_widget_list:
+            for _widget in cfg.active_widget_list:
+                _widget.closing()
+            time.sleep(0.01)
+
+    @staticmethod
+    def close_selected(name: str):
         """Close selected widget"""
         if not cfg.active_widget_list:
             return None
-        for widget in cfg.active_widget_list:
-            if widget.widget_name == widget_name:
-                widget.closing()
-                return None
+        for _widget in cfg.active_widget_list:
+            if _widget.widget_name == name:
+                _widget.closing()
+                break
+        return None
 
     def __create_instance(self, obj):
         """Create widget instance"""

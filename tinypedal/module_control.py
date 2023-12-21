@@ -22,59 +22,52 @@ Module control
 
 import logging
 import time
+import pkgutil
 
 from .setting import cfg
-from .module import (
-    module_delta,
-    module_force,
-    module_fuel,
-    module_hybrid,
-    module_mapping,
-    module_relative,
-    module_sectors,
-    module_vehicles,
-)
+from . import module
 
 logger = logging.getLogger(__name__)
 
 
 class ModuleControl:
     """Module control"""
-    MODULE_PACK = (
-        module_delta,
-        module_force,
-        module_fuel,
-        module_hybrid,
-        module_mapping,
-        module_relative,
-        module_sectors,
-        module_vehicles,
-    )
+    MODULE_PACK = tuple(
+        getattr(module, name) for _, name, _ in pkgutil.iter_modules(module.__path__))
 
-    def start(self):
-        """Start module"""
-        for obj in self.MODULE_PACK:
-            if cfg.setting_user[obj.MODULE_NAME]["enable"]:
-                self.__create_instance(obj)
+    def start(self, name: str = None):
+        """Start module
 
-    @staticmethod
-    def close():
-        """Close module"""
-        while cfg.active_module_list:
-            for module in cfg.active_module_list:
-                module.stop()
-            time.sleep(0.01)
-
-    def toggle(self, module):
-        """Toggle module"""
-        if cfg.setting_user[module.MODULE_NAME]["enable"]:
-            cfg.setting_user[module.MODULE_NAME]["enable"] = False
-            getattr(self, module.MODULE_NAME).stop()
-            while not getattr(self, module.MODULE_NAME).stopped:
-                time.sleep(0.01)
+        Specify name for selected module
+        """
+        if name:
+            self.start_selected(name)
         else:
-            cfg.setting_user[module.MODULE_NAME]["enable"] = True
-            self.__create_instance(module)
+            self.start_enabled()
+
+    def close(self, name: str = None):
+        """Close module
+
+        Specify name for selected module
+        """
+        if name:
+            self.close_selected(name)
+        else:
+            self.close_enabled()
+
+    def toggle(self, name: str):
+        """Toggle module"""
+        if cfg.setting_user[name]["enable"]:
+            cfg.setting_user[name]["enable"] = False
+            getattr(self, name).stop()
+            #while not getattr(self, name).stopped:
+            #    time.sleep(0.01)
+        else:
+            cfg.setting_user[name]["enable"] = True
+            for obj in self.MODULE_PACK:
+                if obj.MODULE_NAME == name:
+                    self.__create_instance(obj)
+                    break
         cfg.save()
 
     def enable_all(self):
@@ -94,25 +87,40 @@ class ModuleControl:
         cfg.save()
         logger.info("CLOSED: all modules")
 
-    def start_selected(self, module_name):
+    def start_enabled(self):
+        """Start enabled module"""
+        for obj in self.MODULE_PACK:
+            if cfg.setting_user[obj.MODULE_NAME]["enable"]:
+                self.__create_instance(obj)
+
+    def start_selected(self, name: str):
         """Start selected module"""
         for obj in self.MODULE_PACK:
-            if (cfg.setting_user[module_name]["enable"]
-                and obj.MODULE_NAME == module_name):
+            if (cfg.setting_user[name]["enable"]
+                and obj.MODULE_NAME == name):
                 self.__create_instance(obj)
                 break
 
     @staticmethod
-    def close_selected(module_name):
+    def close_enabled():
+        """Close enabled module"""
+        while cfg.active_module_list:
+            for _module in cfg.active_module_list:
+                _module.stop()
+            time.sleep(0.01)
+
+    @staticmethod
+    def close_selected(name: str):
         """Close selected module"""
         if not cfg.active_module_list:
             return None
-        for module in cfg.active_module_list:
-            if module.module_name == module_name:
-                module.stop()
-                while not module.stopped:
+        for _module in cfg.active_module_list:
+            if _module.module_name == name:
+                _module.stop()
+                while not _module.stopped:
                     time.sleep(0.01)
-                return None
+                break
+        return None
 
     def __create_instance(self, obj):
         """Create module instance"""
