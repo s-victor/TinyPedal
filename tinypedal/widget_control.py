@@ -26,6 +26,7 @@ import pkgutil
 
 from .setting import cfg
 from . import widget
+from . import validator as val
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,7 @@ class WidgetControl:
     WIDGET_PACK = {
         name: getattr(widget, name)
         for _, name, _ in pkgutil.iter_modules(widget.__path__)
+        if val.is_valid_module(widget, name)
     }
 
     def start(self, name: str = None):

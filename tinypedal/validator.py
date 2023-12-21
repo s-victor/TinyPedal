@@ -100,6 +100,16 @@ def hex_color(color_str: any) -> bool:
     return False
 
 
+# Module validate
+def is_valid_module(module: any, name: str) -> bool:
+    """Validate module or widget"""
+    try:
+        return getattr(module, name)
+    except AttributeError:
+        logger.warning("detected invalid module file: %s.py", name)
+    return False
+
+
 # Decorator
 def numeric_filter(func):
     """Numeric filter decorator"""
