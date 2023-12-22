@@ -53,7 +53,7 @@ def format_option_name(name: str) -> str:
 
 def strip_filename_extension(name: str, extension: str) -> str:
     """Strip file name extension"""
-    if name.endswith(extension):
+    if name.lower().endswith(extension):
         return name[:-len(extension)]
     return name
 

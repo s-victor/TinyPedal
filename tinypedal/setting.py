@@ -85,7 +85,8 @@ class Setting:
         """Load preset list"""
         # Create json file list: modified date, filename
         raw_cfg_list = [(os.path.getmtime(f"{self.filepath}{fname}"), fname[:-5])
-                        for fname in os.listdir(self.filepath) if fname.endswith(".json")]
+                        for fname in os.listdir(self.filepath)
+                        if fname.lower().endswith(".json")]
         if raw_cfg_list:
             raw_cfg_list.sort(reverse=True)  # sort by file modified date
             cfg_list = [fname[1] for fname in raw_cfg_list
