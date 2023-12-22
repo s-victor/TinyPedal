@@ -70,7 +70,7 @@ class TrayIcon(QSystemTrayIcon):
 
     def show_config(self):
         """Show config window"""
-        self.master.show()
+        self.master.showNormal()
         self.master.activateWindow()
 
     def refresh_menu(self):
