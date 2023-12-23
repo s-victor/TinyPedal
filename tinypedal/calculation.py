@@ -133,7 +133,7 @@ def rot2radius(speed, angular_speed):
 
 def slip_ratio(w_rot, w_radius, v_speed):
     """Slip ratio (percentage), speed unit in m/s"""
-    if v_speed > 0.1:  # set minimum to avoid flickering while stationary
+    if int(v_speed):  # set minimum to avoid flickering while stationary
         return abs((v_speed - abs(w_rot * w_radius)) / v_speed)
     return 0
 
@@ -162,7 +162,7 @@ def gforce(value, g_accel):
 
 def force_ratio(value1, value2):
     """Force ratio from Newtons"""
-    if round(value2):
+    if int(value2):
         return abs(100 * value1 / value2)
     return 0
 

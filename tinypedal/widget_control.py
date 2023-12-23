@@ -41,7 +41,7 @@ class WidgetControl:
     WIDGET_PACK = {
         name: getattr(widget, name)
         for _, name, _ in pkgutil.iter_modules(widget.__path__)
-        if val.is_valid_module(widget, name)
+        if val.is_imported_module(widget, name)
     }
 
     def start(self, name: str = None):

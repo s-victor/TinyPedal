@@ -1,3 +1,19 @@
+WIP
+-----------------------------
+* General
+  - Improved APP, API and modules closing speed.
+  - Improved vehicle-class color selection function.
+  - Improved heatmap color selection function.
+  - Re-verify delta data after auto-correction.
+  - Added minimum threshold for force ratio calculation.
+  - Simplified module import & toggle function.
+  - Ignore JSON file extension name case when loading.
+  - Correctly restore minimized config window when accessing from tray menu.
+  - simplified tyre compound selection function.
+
+* User guide
+  - Updated Navigation & Track map info.
+
 2.5.1 (2023-12-05)
 -----------------------------
 * General

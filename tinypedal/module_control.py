@@ -41,7 +41,7 @@ class ModuleControl:
     MODULE_PACK = {
         name: getattr(module, name)
         for _, name, _ in pkgutil.iter_modules(module.__path__)
-        if val.is_valid_module(module, name)
+        if val.is_imported_module(module, name)
     }
 
     def start(self, name: str = None):
