@@ -69,8 +69,8 @@ class ModuleControl:
         if cfg.setting_user[name]["enable"]:
             cfg.setting_user[name]["enable"] = False
             getattr(self, name).stop()
-            #while not getattr(self, name).stopped:
-            #    time.sleep(0.01)
+            while not getattr(self, name).stopped:  # make sure stopped
+                time.sleep(0.01)
         else:
             cfg.setting_user[name]["enable"] = True
             self.__create_instance(self.MODULE_PACK[name])
