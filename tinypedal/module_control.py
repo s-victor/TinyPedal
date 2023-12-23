@@ -106,10 +106,13 @@ class ModuleControl:
 
     @staticmethod
     def close_enabled():
-        """Close all enabled module"""
+        """Close all enabled module
+
+        Reverse iterate over active list.
+        """
+        for _module in reversed(cfg.active_module_list):
+            _module.stop()
         while cfg.active_module_list:
-            for _module in cfg.active_module_list:
-                _module.stop()
             time.sleep(0.01)
 
     @staticmethod

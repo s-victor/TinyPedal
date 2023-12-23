@@ -104,10 +104,13 @@ class WidgetControl:
 
     @staticmethod
     def close_enabled():
-        """Close all enabled widget"""
+        """Close all enabled widget
+
+        Reverse iterate over active list.
+        """
+        for _widget in reversed(cfg.active_widget_list):
+            _widget.closing()
         while cfg.active_widget_list:
-            for _widget in cfg.active_widget_list:
-                _widget.closing()
             time.sleep(0.01)
 
     @staticmethod
