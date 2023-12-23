@@ -9,7 +9,8 @@ WIP
   - Simplified module import & toggle function.
   - Ignore JSON file extension name case when loading.
   - Correctly restore minimized config window when accessing from tray menu.
-  - simplified tyre compound selection function.
+  - Simplified tyre compound selection function.
+  - Accessing "Restart API" will no longer trigger auto-hide while driving.
 
 * User guide
   - Updated Navigation & Track map info.
