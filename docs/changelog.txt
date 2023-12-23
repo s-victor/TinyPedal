@@ -1,4 +1,4 @@
-WIP
+2.5.2 (2023-12-23)
 -----------------------------
 * General
   - Improved APP, API and modules closing speed.
