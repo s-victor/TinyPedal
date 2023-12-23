@@ -51,6 +51,7 @@ class Draw(Widget):
         self.cls_width = max(int(self.wcfg["class_width"]), 1)
         self.gap_width = max(int(self.wcfg["time_gap_width"]), 1)
         self.gap_decimals = max(int(self.wcfg["time_gap_decimal_places"]), 0)
+        self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
 
         # Base style
         self.setStyleSheet(
@@ -489,12 +490,10 @@ class Draw(Widget):
             return self.wcfg["font_color_laps_behind"]
         return self.wcfg["font_color_same_lap"]
 
-    def set_tyre_cmp(self, tc_index):
+    def set_tyre_cmp(self, tc_indices):
         """Substitute tyre compound index with custom chars"""
-        if tc_index:
-            ftire, rtire = fmt.format_tyre_compound(
-                tc_index, self.cfg.units["tyre_compound_symbol"])
-            return f"{ftire}{rtire}"
+        if tc_indices:
+            return "".join((self.tyre_compound_string[idx] for idx in tc_indices))
         return ""
 
     def set_pitstatus(self, pits):

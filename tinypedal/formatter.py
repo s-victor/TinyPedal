@@ -58,12 +58,12 @@ def strip_filename_extension(name: str, extension: str) -> str:
     return name
 
 
-def format_tyre_compound(tc_indices: tuple, tc_string: str):
-    """Substitute tyre compound indices with custom string"""
-    if max(tc_indices) >= len(tc_string):
-        tc_string = "ABCDEFGH"
-    return (tc_string[tc_indices[0]:(tc_indices[0]+1)],  # front
-            tc_string[tc_indices[1]:(tc_indices[1]+1)])  # rear
+#def format_tyre_compound(tc_indices: tuple, tc_string: str):
+#    """Substitute tyre compound indices with custom string"""
+#    if max(tc_indices) >= len(tc_string):
+#        tc_string = "ABCDEFGH"
+#    return (tc_string[tc_indices[0]:(tc_indices[0]+1)],  # front
+#            tc_string[tc_indices[1]:(tc_indices[1]+1)])  # rear
 
 
 def pipe_join(*args) -> str:

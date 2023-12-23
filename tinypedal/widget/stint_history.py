@@ -24,7 +24,6 @@ from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import calculation as calc
-from .. import formatter as fmt
 from ..api_control import api
 from ..base import Widget
 from ..module_info import minfo
@@ -42,6 +41,7 @@ class Draw(Widget):
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
+        self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
 
         # Base style
         self.setStyleSheet(
@@ -327,11 +327,9 @@ class Draw(Widget):
             return calc.liter2gallon(fuel)
         return fuel
 
-    def set_tyre_cmp(self, tc_index):
+    def set_tyre_cmp(self, tc_indices):
         """Substitute tyre compound index with custom chars"""
-        ftire, rtire = fmt.format_tyre_compound(
-            tc_index, self.cfg.units["tyre_compound_symbol"])
-        return f"{ftire}{rtire}"
+        return "".join((self.tyre_compound_string[idx] for idx in tc_indices))
 
     def store_last_data(self):
         """Store last stint data"""

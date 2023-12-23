@@ -24,7 +24,6 @@ from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import calculation as calc
-from .. import formatter as fmt
 from .. import heatmap as hmp
 from ..api_control import api
 from ..base import Widget
@@ -49,6 +48,7 @@ class Draw(Widget):
         inner_gap = self.wcfg["inner_gap"]
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
+        self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
 
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
             text_width = 4 + len(self.sign_text)
@@ -133,8 +133,7 @@ class Draw(Widget):
 
             # Tyre compound
             if self.wcfg["show_tyre_compound"]:
-                tcmpd = fmt.format_tyre_compound(
-                    api.read.tyre.compound(), self.cfg.units["tyre_compound_symbol"])
+                tcmpd = [self.tyre_compound_string[idx] for idx in api.read.tyre.compound()]
                 self.update_tcmpd(tcmpd, self.last_tcmpd)
                 self.last_tcmpd = tcmpd
 
