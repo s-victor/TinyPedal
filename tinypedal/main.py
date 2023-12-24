@@ -96,6 +96,9 @@ class AppWindow(QMainWindow):
         main_tab.addTab(self.spectate_tab, "Spectate")
         self.setCentralWidget(main_tab)
 
+        self.start_tray_icon()
+        self.set_initial_window_state()
+
     def main_menubar(self):
         """Create menu bar"""
         menu = self.menuBar()
@@ -136,9 +139,6 @@ class AppWindow(QMainWindow):
         octrl.enable()  # 2 enable overlay control
         wctrl.start()  # 3 start widget
 
-        self.start_tray_icon()
-        self.set_initial_window_state()
-
     def start_tray_icon(self):
         """Start tray icon (for Windows)"""
         self.tray_icon = TrayIcon(self, cfg)
@@ -147,17 +147,29 @@ class AppWindow(QMainWindow):
     def set_initial_window_state(self):
         """Set initial window state"""
         if cfg.application["remember_position"]:
-            app_pos_x = cfg.application["position_x"]
-            app_pos_y = cfg.application["position_y"]
+            screen_geo = self.screen().geometry()
+            app_pos_x = min(
+                max(cfg.application["position_x"], screen_geo.left()),
+                screen_geo.right() - self.sizeHint().width())
+            app_pos_y = min(
+                max(cfg.application["position_y"], screen_geo.top()),
+                screen_geo.bottom() - self.sizeHint().height())
             if app_pos_x + app_pos_y:
                 self.move(app_pos_x, app_pos_y)
             else:
                 self.save_window_position()
 
         if cfg.application["show_at_startup"]:
-            self.show()
+            self.showNormal()
         elif not cfg.application["minimize_to_tray"]:
             self.showMinimized()
+
+    def save_window_position(self):
+        """Save window position"""
+        if cfg.application["remember_position"]:
+            cfg.application["position_x"] = self.x()
+            cfg.application["position_y"] = self.y()
+            cfg.save(0)
 
     def set_status_text(self):
         """Set status text"""
@@ -184,13 +196,6 @@ class AppWindow(QMainWindow):
             self.hide()
         else:
             self.quit_app()
-
-    def save_window_position(self):
-        """Save window position"""
-        if cfg.application["remember_position"]:
-            cfg.application["position_x"] = self.x()
-            cfg.application["position_y"] = self.y()
-            cfg.save(0)
 
     def restart_api(self):
         """Restart shared memory api"""
