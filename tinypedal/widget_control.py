@@ -34,11 +34,11 @@ logger = logging.getLogger(__name__)
 class WidgetControl:
     """Widget control
 
-    WIDGET_PACK:
+    PACK:
         key: name string
         value: widget
     """
-    WIDGET_PACK = {
+    PACK = {
         name: getattr(widget, name)
         for _, name, _ in pkgutil.iter_modules(widget.__path__)
         if val.is_imported_module(widget, name)
@@ -71,12 +71,12 @@ class WidgetControl:
             getattr(self, f"widget_{name}").closing()
         else:
             cfg.setting_user[name]["enable"] = True
-            self.__create_instance(self.WIDGET_PACK[name])
+            self.__create_instance(self.PACK[name])
         cfg.save()
 
     def enable_all(self):
         """Enable all widgets"""
-        for _name, _module in self.WIDGET_PACK.items():
+        for _name, _module in self.PACK.items():
             if not cfg.setting_user[_name]["enable"]:
                 cfg.setting_user[_name]["enable"] = True
                 self.__create_instance(_module)
@@ -85,7 +85,7 @@ class WidgetControl:
 
     def disable_all(self):
         """Disable all widgets"""
-        for _name in self.WIDGET_PACK.keys():
+        for _name in self.PACK.keys():
             cfg.setting_user[_name]["enable"] = False
         self.close()
         cfg.save()
@@ -93,14 +93,14 @@ class WidgetControl:
 
     def start_enabled(self):
         """Start all enabled widget"""
-        for _name, _module in self.WIDGET_PACK.items():
+        for _name, _module in self.PACK.items():
             if cfg.setting_user[_name]["enable"]:
                 self.__create_instance(_module)
 
     def start_selected(self, name: str):
         """Start selected widget"""
         if cfg.setting_user[name]["enable"]:
-            self.__create_instance(self.WIDGET_PACK[name])
+            self.__create_instance(self.PACK[name])
 
     @staticmethod
     def close_enabled():

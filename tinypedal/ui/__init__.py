@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 #  TinyPedal is an open-source overlay application for racing simulation.
 #  Copyright (C) 2022-2023 TinyPedal developers, see contributors.md file
 #
@@ -19,15 +17,5 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Run program
+Application UI
 """
-
-import os
-import sys
-
-from tinypedal.main import start_app
-
-
-if __name__ == "__main__":
-    os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
-    start_app()

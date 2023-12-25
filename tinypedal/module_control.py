@@ -34,11 +34,11 @@ logger = logging.getLogger(__name__)
 class ModuleControl:
     """Module control
 
-    MODULE_PACK:
+    PACK:
         key: name string
         value: module
     """
-    MODULE_PACK = {
+    PACK = {
         name: getattr(module, name)
         for _, name, _ in pkgutil.iter_modules(module.__path__)
         if val.is_imported_module(module, name)
@@ -73,12 +73,12 @@ class ModuleControl:
                 time.sleep(0.01)
         else:
             cfg.setting_user[name]["enable"] = True
-            self.__create_instance(self.MODULE_PACK[name])
+            self.__create_instance(self.PACK[name])
         cfg.save()
 
     def enable_all(self):
         """Enable all modules"""
-        for _name, _module in self.MODULE_PACK.items():
+        for _name, _module in self.PACK.items():
             if not cfg.setting_user[_name]["enable"]:
                 cfg.setting_user[_name]["enable"] = True
                 self.__create_instance(_module)
@@ -87,7 +87,7 @@ class ModuleControl:
 
     def disable_all(self):
         """Disable all modules"""
-        for _name in self.MODULE_PACK.keys():
+        for _name in self.PACK.keys():
             cfg.setting_user[_name]["enable"] = False
         self.close()
         cfg.save()
@@ -95,14 +95,14 @@ class ModuleControl:
 
     def start_enabled(self):
         """Start all enabled module"""
-        for _name, _module in self.MODULE_PACK.items():
+        for _name, _module in self.PACK.items():
             if cfg.setting_user[_name]["enable"]:
                 self.__create_instance(_module)
 
     def start_selected(self, name: str):
         """Start selected module"""
         if cfg.setting_user[name]["enable"]:
-            self.__create_instance(self.MODULE_PACK[name])
+            self.__create_instance(self.PACK[name])
 
     @staticmethod
     def close_enabled():

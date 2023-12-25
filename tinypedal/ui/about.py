@@ -35,7 +35,7 @@ from PySide2.QtWidgets import (
     QTabWidget,
 )
 
-from .const import APP_NAME, VERSION, APP_ICON, COPYRIGHT, DESCRIPTION, LICENSE, WEBSITE
+from ..const import APP_NAME, VERSION, APP_ICON, COPYRIGHT, DESCRIPTION, LICENSE, WEBSITE
 
 logger = logging.getLogger(__name__)
 

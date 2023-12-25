@@ -47,15 +47,15 @@ from PySide2.QtWidgets import (
     QMessageBox
 )
 
-from . import regex_pattern as rxp
-from . import validator as val
-from . import formatter as fmt
-from .api_control import api
-from .setting import cfg, copy_setting
-from .const import APP_ICON
-from .api_connector import API_NAME_LIST
-from .module_control import mctrl
-from .widget_control import wctrl
+from .. import regex_pattern as rxp
+from .. import validator as val
+from .. import formatter as fmt
+from ..api_control import api
+from ..setting import cfg, copy_setting
+from ..const import APP_ICON
+from ..api_connector import API_NAME_LIST
+from ..module_control import mctrl
+from ..widget_control import wctrl
 
 
 OPTION_WIDTH = 120
@@ -88,7 +88,7 @@ class VehicleClassEditor(QDialog):
 
         # List box
         self.listbox_classes = QListWidget(self)
-        self.refresh_classes_list()
+        self.refresh_list()
         self.listbox_classes.setStyleSheet(
             "QListView {outline: none;}"
             "QListView::item {height: 32px;border-radius: 0;}"
@@ -124,7 +124,7 @@ class VehicleClassEditor(QDialog):
         self.setLayout(layout_main)
         self.setMinimumWidth(self.sizeHint().width() + 20)
 
-    def refresh_classes_list(self):
+    def refresh_list(self):
         """Refresh classes list"""
         self.listbox_classes.clear()
         self.option_classes.clear()
@@ -186,7 +186,7 @@ class VehicleClassEditor(QDialog):
             if index == idx:
                 self.classes_temp.pop(key)
                 break
-        self.refresh_classes_list()
+        self.refresh_list()
 
     def add_class(self):
         """Add new class entry"""
@@ -196,7 +196,7 @@ class VehicleClassEditor(QDialog):
         if self.classes_temp.get(current_class_name) or not current_class_name:
             current_class_name = "New Class Name"
         self.classes_temp[current_class_name] = {"NAME": "#00AAFF"}
-        self.refresh_classes_list()
+        self.refresh_list()
         # Move focus to new class row
         self.listbox_classes.setCurrentRow(len(self.classes_temp) - 1)
 
@@ -211,7 +211,7 @@ class VehicleClassEditor(QDialog):
             button=QMessageBox.Yes | QMessageBox.No)
         if reset_msg == QMessageBox.Yes:
             self.classes_temp = copy_setting(cfg.classes_default)
-            self.refresh_classes_list()
+            self.refresh_list()
 
     def applying(self):
         """Save & apply"""
@@ -234,7 +234,7 @@ class VehicleClassEditor(QDialog):
     def save_setting(self):
         """Save setting"""
         self.update_classes_temp()
-        self.refresh_classes_list()
+        self.refresh_list()
         cfg.classes_user = copy_setting(self.classes_temp)
         cfg.save(0, "classes")
         while cfg.is_saving:  # wait saving finish
@@ -481,17 +481,17 @@ class UserConfig(QDialog):
         if self.cfg_type == "widget":
             wctrl.close(self.key_name)
             wctrl.start(self.key_name)
-            self.master.refresh_widget_list()
+            self.master.refresh_list()
         elif self.cfg_type == "module":
             mctrl.close(self.key_name)
             mctrl.start(self.key_name)
-            self.master.refresh_module_list()
+            self.master.refresh_list()
         elif self.cfg_type == "misc":
             wctrl.close()
             wctrl.start()
         elif self.cfg_type == "api":
             self.master.restart_api()
-            self.master.spectate_tab.refresh_spectate_list()
+            self.master.spectate_tab.refresh_list()
 
     def create_options(self, layout):
         """Create options"""
