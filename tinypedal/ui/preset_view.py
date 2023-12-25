@@ -64,7 +64,7 @@ class PresetList(QWidget):
         self.listbox_preset.setStyleSheet(
             "QListView {font-size: 16px;outline: none;}"
             "QListView::item {height: 28px;border-radius: 0;}"
-            "QListView::item:selected {selection-color:#FFF;background-color: #F20;}"
+            "QListView::item:selected {selection-color: #FFF;background-color: #F20;}"
         )
         self.refresh_list()
         self.listbox_preset.setCurrentRow(0)
@@ -174,7 +174,7 @@ class PresetList(QWidget):
 class CreatePreset(QDialog):
     """Create preset"""
 
-    def __init__(self, master, title="", mode=None, src_filename=None):
+    def __init__(self, master, title: str = "", mode: str = None, src_filename: str = None):
         super().__init__(master)
         self.master = master
         self.edit_mode = mode
@@ -214,7 +214,7 @@ class CreatePreset(QDialog):
             QMessageBox.warning(
                 self, "Error", "Invalid preset name.")
 
-    def __saving(self, entered_filename):
+    def __saving(self, entered_filename: str):
         """Saving new preset"""
         # Check existing preset
         temp_list = cfg.load_preset_list()

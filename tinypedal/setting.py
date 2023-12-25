@@ -99,7 +99,7 @@ class Setting:
         """Create default setting"""
         self.setting_user = copy_setting(self.setting_default)
 
-    def save(self, count=66, file_type="setting"):
+    def save(self, count: int = 66, file_type: str = "setting"):
         """Save trigger
 
         Limit to one save operation for a given period.
@@ -122,7 +122,7 @@ class Setting:
                 ).start()
             #logger.info("saving setting")
 
-    def __saving(self, filename, filepath, dict_user):
+    def __saving(self, filename: str, filepath: str, dict_user: dict):
         """Saving thread"""
         attempts = 5
 

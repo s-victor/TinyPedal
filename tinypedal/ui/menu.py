@@ -138,7 +138,7 @@ class ResetDataMenu(QMenu):
         self.__confirmation(
             "track map", "svg", PATH_TRACKMAP, api.read.check.track_id())
 
-    def __confirmation(self, data_type, file_ext, file_path, combo_name):
+    def __confirmation(self, data_type: str, file_ext: str, file_path: str, combo_name: str):
         """Message confirmation"""
         # Check if on track
         if api.state:

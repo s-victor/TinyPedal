@@ -45,7 +45,8 @@ class CoreControl:
         octrl.enable()  # 2 enable overlay control
         wctrl.start()  # 3 start widget
 
-    def reload(self):
+    @staticmethod
+    def reload():
         """Reload current preset"""
         # Close modules & widgets in order
         logger.info("RELOADING............")

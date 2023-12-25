@@ -36,7 +36,12 @@ from .config import UserConfig
 
 
 class ModuleList(QWidget):
-    """Module & widget list view"""
+    """Module & widget list view
+
+    module: module (or widget) object
+    module_list: active_module_list (or active_widget_list) that contains module instances
+    module_type: "module" (or "widget")
+    """
 
     def __init__(self, module: any, module_list: list, module_type: str = ""):
         super().__init__()
@@ -78,10 +83,10 @@ class ModuleList(QWidget):
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
 
-    def toggle_control(self, obj_name=None):
+    def toggle_control(self, module_name: str = None):
         """Toggle control & update label"""
-        if obj_name:
-            self.module.toggle(obj_name)
+        if module_name:
+            self.module.toggle(module_name)
         self.label_loaded.setText(
             f"Enabled: <b>{len(self.module_list)}/{len(self.module.PACK)}</b>")
 
@@ -111,18 +116,19 @@ class ModuleList(QWidget):
 class ListItemControl(QWidget):
     """List box item control"""
 
-    def __init__(self, master, obj_name):
+    def __init__(self, master, module_name: str):
         super().__init__()
         self.master = master
-        self.obj_name = obj_name
+        self.module_name = module_name
 
-        label_obj = QLabel(fmt.format_module_name(self.obj_name))
-        button_toggle = self.add_toggle_button(obj_name, cfg.setting_user[self.obj_name]["enable"])
+        label_module = QLabel(fmt.format_module_name(self.module_name))
+        button_toggle = self.add_toggle_button(
+            module_name, cfg.setting_user[self.module_name]["enable"])
         button_config = self.add_config_button()
 
         layout_item = QHBoxLayout()
         layout_item.setContentsMargins(4,0,4,0)
-        layout_item.addWidget(label_obj, stretch=1)
+        layout_item.addWidget(label_module, stretch=1)
         layout_item.addWidget(button_config)
         layout_item.addWidget(button_toggle)
         layout_item.setSpacing(4)
@@ -130,14 +136,14 @@ class ListItemControl(QWidget):
         self.setStyleSheet("font-size: 16px;")
         self.setLayout(layout_item)
 
-    def add_toggle_button(self, obj_name, state):
+    def add_toggle_button(self, module_name: str, state: bool):
         """Add toggle button"""
         button = QPushButton("")
         button.setCheckable(True)
         button.setChecked(state)
         self.set_toggle_state(state, button)
         button.toggled.connect(
-            lambda checked=state: self.set_toggle_state(checked, button, obj_name))
+            lambda checked=state: self.set_toggle_state(checked, button, module_name))
         button.setStyleSheet(
             "QPushButton {color: #555;background-color: #CCC;font-size: 14px;"
             "min-width: 30px;max-width: 30px;padding: 2px 3px;border-radius: 3px;}"
@@ -162,12 +168,12 @@ class ListItemControl(QWidget):
         )
         return button
 
-    def set_toggle_state(self, checked, button, obj_name=None):
+    def set_toggle_state(self, checked, button, module_name: str = None):
         """Set toggle state"""
-        self.master.toggle_control(obj_name)
+        self.master.toggle_control(module_name)
         button.setText("ON" if checked else "OFF")
 
     def open_config_dialog(self):
         """Config dialog"""
-        _dialog = UserConfig(self.master, self.obj_name, self.master.module_type)
+        _dialog = UserConfig(self.master, self.module_name, self.master.module_type)
         _dialog.open()

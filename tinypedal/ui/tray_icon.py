@@ -79,7 +79,7 @@ class TrayIcon(QSystemTrayIcon):
             self.format_preset_name(self.cfg.last_loaded_setting))
 
     @staticmethod
-    def format_preset_name(filename):
+    def format_preset_name(filename: str) -> str:
         """Format preset name"""
         loaded_preset = filename[:-5]
         if len(loaded_preset) > 16:
