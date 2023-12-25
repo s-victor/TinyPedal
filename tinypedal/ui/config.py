@@ -207,7 +207,7 @@ class VehicleClassEditor(QDialog):
             "Changes are only saved after clicking Apply or Save Button."
         )
         reset_msg = QMessageBox.question(
-            self, "Delete Preset", message_text,
+            self, "Reset Class Preset", message_text,
             button=QMessageBox.Yes | QMessageBox.No)
         if reset_msg == QMessageBox.Yes:
             self.classes_temp = copy_setting(cfg.classes_default)
@@ -403,7 +403,7 @@ class UserConfig(QDialog):
             "Changes are only saved after clicking Apply or Save Button."
         )
         reset_msg = QMessageBox.question(
-            self, "Delete Preset", message_text,
+            self, "Reset Options", message_text,
             button=QMessageBox.Yes | QMessageBox.No)
 
         if reset_msg == QMessageBox.Yes:
