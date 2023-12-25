@@ -26,8 +26,8 @@ from PySide2.QtWidgets import QGridLayout, QLabel
 from .. import calculation as calc
 from .. import formatter as fmt
 from ..api_control import api
-from . import Overlay
 from ..module_info import minfo
+from ._base import Overlay
 
 WIDGET_NAME = "relative"
 

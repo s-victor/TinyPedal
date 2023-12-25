@@ -25,7 +25,7 @@ from PySide2.QtGui import QPainter, QPen, QColor
 
 from .. import calculation as calc
 from ..api_control import api
-from . import Overlay
+from ._base import Overlay
 
 WIDGET_NAME = "tyre_load"
 

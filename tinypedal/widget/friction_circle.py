@@ -26,8 +26,8 @@ from PySide2.QtGui import QPainter, QPixmap, QRadialGradient, QPen, QBrush, QCol
 
 from .. import calculation as calc
 from ..api_control import api
-from . import Overlay
 from ..module_info import minfo
+from ._base import Overlay
 
 WIDGET_NAME = "friction_circle"
 

@@ -25,7 +25,7 @@ from PySide2.QtGui import QPixmap, QPainter, QColor
 from PySide2.QtWidgets import QLabel, QGridLayout
 
 from ..api_control import api
-from . import Overlay
+from ._base import Overlay
 
 WIDGET_NAME = "pedal"
 

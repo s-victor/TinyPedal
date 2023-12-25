@@ -25,8 +25,8 @@ from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QPen, QBrush, QColor
 
 from .. import calculation as calc
 from ..api_control import api
-from . import Overlay
 from ..module_info import minfo
+from ._base import Overlay
 
 WIDGET_NAME = "track_map"
 

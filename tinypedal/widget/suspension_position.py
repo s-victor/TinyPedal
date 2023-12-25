@@ -24,7 +24,7 @@ from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPen, QColor
 
 from ..api_control import api
-from . import Overlay
+from ._base import Overlay
 
 WIDGET_NAME = "suspension_position"
 

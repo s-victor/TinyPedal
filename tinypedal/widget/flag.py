@@ -24,8 +24,8 @@ from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QGridLayout, QLabel
 
 from ..api_control import api
-from . import Overlay
 from ..module_info import minfo
+from ._base import Overlay
 
 WIDGET_NAME = "flag"
 

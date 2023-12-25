@@ -26,7 +26,7 @@ from PySide2.QtWidgets import QLabel, QGridLayout
 
 from .. import calculation as calc
 from ..api_control import api
-from . import Overlay
+from ._base import Overlay
 
 WIDGET_NAME = "instrument"
 

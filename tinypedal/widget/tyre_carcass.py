@@ -26,7 +26,7 @@ from PySide2.QtWidgets import QGridLayout, QLabel
 from .. import calculation as calc
 from .. import heatmap as hmp
 from ..api_control import api
-from . import Overlay
+from ._base import Overlay
 
 WIDGET_NAME = "tyre_carcass"
 

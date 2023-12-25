@@ -26,8 +26,8 @@ from PySide2.QtWidgets import QGridLayout, QHBoxLayout, QLabel
 from .. import calculation as calc
 from .. import validator as val
 from ..api_control import api
-from . import Overlay
 from ..module_info import minfo
+from ._base import Overlay
 
 WIDGET_NAME = "sectors"
 MAGIC_NUM = 99999  # magic number for default variable not updated by rF2

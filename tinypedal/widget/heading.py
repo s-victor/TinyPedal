@@ -25,7 +25,7 @@ from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor, QPolygonF
 
 from .. import calculation as calc
 from ..api_control import api
-from . import Overlay
+from ._base import Overlay
 
 WIDGET_NAME = "heading"
 
