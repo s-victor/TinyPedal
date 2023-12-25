@@ -25,19 +25,19 @@ from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import calculation as calc
 from ..api_control import api
-from ..base import Widget
+from . import Overlay
 from ..module_info import minfo
 
 WIDGET_NAME = "timing"
 MAGIC_NUM = 99999  # magic number for default variable not updated by rF2
 
 
-class Draw(Widget):
+class Draw(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self, config, WIDGET_NAME)
+        Overlay.__init__(self, config, WIDGET_NAME)
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])

@@ -25,18 +25,18 @@ from PySide2.QtGui import QPainter, QPixmap, QLinearGradient, QRadialGradient, Q
 
 from .. import calculation as calc
 from ..api_control import api
-from ..base import Widget
+from . import Overlay
 from ..module_info import minfo
 
 WIDGET_NAME = "radar"
 
 
-class Draw(Widget):
+class Draw(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self, config, WIDGET_NAME)
+        Overlay.__init__(self, config, WIDGET_NAME)
 
         # Config variable
         self.global_scale = max(self.wcfg["global_scale"], 0.01)

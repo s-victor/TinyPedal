@@ -17,21 +17,21 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-GUI window, events.
+Overlay window, events.
 """
 
-from collections import namedtuple
+from dataclasses import dataclass
 
 from PySide2.QtCore import Qt, QTimer, Slot
 from PySide2.QtGui import QColor, QPalette, QFont, QFontMetrics
 from PySide2.QtWidgets import QWidget
 
-from .const import APP_NAME
-from .overlay_control import octrl
+from ..const import APP_NAME
+from ..overlay_control import octrl
 
 
-class Widget(QWidget):
-    """Widget window"""
+class Overlay(QWidget):
+    """Overlay window"""
 
     def __init__(self, config, widget_name):
         super().__init__()
@@ -182,13 +182,11 @@ class Widget(QWidget):
         return self.wcfg["font_offset_vertical"]
 
 
-FontMetrics = namedtuple(
-    "FontMetrics",
-    [
-    "width",
-    "height",
-    "leading",
-    "capital",
-    "descent",
-    ]
-)
+@dataclass(frozen=True)
+class FontMetrics:
+    """Font metrics info"""
+    width: int = 0
+    height: int = 0
+    leading: int = 0
+    capital: int = 0
+    descent: int = 0

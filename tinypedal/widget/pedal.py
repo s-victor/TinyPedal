@@ -25,17 +25,17 @@ from PySide2.QtGui import QPixmap, QPainter, QColor
 from PySide2.QtWidgets import QLabel, QGridLayout
 
 from ..api_control import api
-from ..base import Widget
+from . import Overlay
 
 WIDGET_NAME = "pedal"
 
 
-class Draw(Widget):
+class Draw(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self, config, WIDGET_NAME)
+        Overlay.__init__(self, config, WIDGET_NAME)
 
         # Config variable
         bar_gap = self.wcfg["bar_gap"]

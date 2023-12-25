@@ -25,17 +25,17 @@ from PySide2.QtCore import Qt, Slot, QPointF
 from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor, QPolygonF
 
 from ..api_control import api
-from ..base import Widget
+from . import Overlay
 
 WIDGET_NAME = "trailing"
 
 
-class Draw(Widget):
+class Draw(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self, config, WIDGET_NAME)
+        Overlay.__init__(self, config, WIDGET_NAME)
 
         # Config variable
         self.margin = max(int(self.wcfg["display_margin"]), 0)

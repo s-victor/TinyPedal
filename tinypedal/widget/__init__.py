@@ -24,6 +24,8 @@ file name must match corresponding key name
 in template/setting_widget.py dictionary.
 """
 
+from ._base import Overlay
+
 from . import (
     battery,
     brake_bias,

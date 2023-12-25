@@ -24,17 +24,17 @@ from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPen, QBrush, QColor
 
 from ..api_control import api
-from ..base import Widget
+from . import Overlay
 
 WIDGET_NAME = "drs"
 
 
-class Draw(Widget):
+class Draw(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self, config, WIDGET_NAME)
+        Overlay.__init__(self, config, WIDGET_NAME)
 
         # Config font
         self.font = self.config_font(

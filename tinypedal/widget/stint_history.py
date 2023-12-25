@@ -25,18 +25,18 @@ from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import calculation as calc
 from ..api_control import api
-from ..base import Widget
+from . import Overlay
 from ..module_info import minfo
 
 WIDGET_NAME = "stint_history"
 
 
-class Draw(Widget):
+class Draw(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self, config, WIDGET_NAME)
+        Overlay.__init__(self, config, WIDGET_NAME)
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])

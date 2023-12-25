@@ -24,17 +24,17 @@ from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QGridLayout, QLabel
 
 from ..api_control import api
-from ..base import Widget
+from . import Overlay
 
 WIDGET_NAME = "tyre_wear"
 
 
-class Draw(Widget):
+class Draw(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
         # Assign base setting
-        Widget.__init__(self, config, WIDGET_NAME)
+        Overlay.__init__(self, config, WIDGET_NAME)
 
         # Config font
         font_m = self.get_font_metrics(
