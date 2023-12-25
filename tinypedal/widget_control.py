@@ -50,9 +50,9 @@ class WidgetControl:
         Specify name for selected widget
         """
         if name:
-            self.start_selected(name)
+            self.__start_selected(name)
         else:
-            self.start_enabled()
+            self.__start_enabled()
 
     def close(self, name: str = None):
         """Close widget
@@ -60,9 +60,14 @@ class WidgetControl:
         Specify name for selected widget
         """
         if name:
-            self.close_selected(name)
+            self.__close_selected(name)
         else:
-            self.close_enabled()
+            self.__close_enabled()
+
+    def reload(self, name: str = None):
+        """Reload widget"""
+        self.close(name)
+        self.start(name)
 
     def toggle(self, name: str):
         """Toggle widget"""
@@ -91,19 +96,19 @@ class WidgetControl:
         cfg.save()
         logger.info("CLOSED: all widgets")
 
-    def start_enabled(self):
+    def __start_enabled(self):
         """Start all enabled widget"""
         for _name, _module in self.PACK.items():
             if cfg.setting_user[_name]["enable"]:
                 self.__create_instance(_module)
 
-    def start_selected(self, name: str):
+    def __start_selected(self, name: str):
         """Start selected widget"""
         if cfg.setting_user[name]["enable"]:
             self.__create_instance(self.PACK[name])
 
     @staticmethod
-    def close_enabled():
+    def __close_enabled():
         """Close all enabled widget
 
         Reverse iterate over active list.
@@ -114,7 +119,7 @@ class WidgetControl:
             time.sleep(0.01)
 
     @staticmethod
-    def close_selected(name: str):
+    def __close_selected(name: str):
         """Close selected widget"""
         if not cfg.active_widget_list:
             return None

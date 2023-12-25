@@ -37,7 +37,7 @@ from ..setting import cfg
 from ..api_control import api
 from ..module_control import mctrl
 from ..widget_control import wctrl
-from ..core_control import cctrl
+from .. import loader
 from .tray_icon import TrayIcon
 from .module_view import ModuleList
 from .spectate_view import SpectateList
@@ -160,7 +160,7 @@ class AppWindow(QMainWindow):
     def quit_app(self):
         """Quit manager"""
         self.save_window_position()
-        cctrl.quit()
+        loader.unload()
         QApplication.quit()  # close app
 
     def int_signal_handler(self, sign, frame):
@@ -182,7 +182,7 @@ class AppWindow(QMainWindow):
 
     def reload_preset(self):
         """Reload current preset"""
-        cctrl.reload()
+        loader.reload()
         self.set_status_text()
         # Refresh menu & preset list
         self.preset_tab.refresh_list()

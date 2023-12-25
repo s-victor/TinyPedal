@@ -479,16 +479,13 @@ class UserConfig(QDialog):
         """Reloading depends on setting types"""
         # Select type
         if self.cfg_type == "widget":
-            wctrl.close(self.key_name)
-            wctrl.start(self.key_name)
+            wctrl.reload(self.key_name)
             self.master.refresh_list()
         elif self.cfg_type == "module":
-            mctrl.close(self.key_name)
-            mctrl.start(self.key_name)
+            mctrl.reload(self.key_name)
             self.master.refresh_list()
         elif self.cfg_type == "misc":
-            wctrl.close()
-            wctrl.start()
+            wctrl.reload()
         elif self.cfg_type == "api":
             self.master.restart_api()
             self.master.spectate_tab.refresh_list()
@@ -720,12 +717,12 @@ def add_context_menu(target, default, mode):
         target=target,
         default=default,
         mode=mode:
-        context_menu(pos, target, default, mode)
+        context_menu_reset_option(pos, target, default, mode)
     )
 
 
-def context_menu(pos, target, default, mode):
-    """Context menu"""
+def context_menu_reset_option(pos, target, default, mode):
+    """Context menu reset option"""
     menu = QMenu()
     option_reset = menu.addAction("Reset to Default")
     action = menu.exec_(target.mapToGlobal(pos))

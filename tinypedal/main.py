@@ -79,8 +79,8 @@ def start_app():
     prelaunch_check()
 
     # Start core control
-    from .core_control import cctrl
-    cctrl.start()
+    from . import loader
+    loader.load()
 
     # Start main window
     from tinypedal.ui.app import AppWindow
