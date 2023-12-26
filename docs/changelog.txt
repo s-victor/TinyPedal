@@ -1,3 +1,15 @@
+2.5.3 (2023-12-26)
+-----------------------------
+* General
+  - Fixed a main APP window disappearing issue
+    when using with multiple screens setup.
+    Added auto position correction function to force
+    main APP window stay on visible screen area.
+    Thanks to @Capeta for helping with test.
+  - Fixed incorrect enabled module count display on Module tab.
+    Further improved module load/reload functions.
+  - Fixed Reset dialog title text.
+
 2.5.2 (2023-12-23)
 -----------------------------
 * General
