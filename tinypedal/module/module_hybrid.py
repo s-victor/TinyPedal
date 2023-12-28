@@ -46,8 +46,7 @@ class Realtime:
         if self.stopped:
             self.stopped = False
             self.event.clear()
-            _thread = threading.Thread(target=self.__update_data, daemon=True)
-            _thread.start()
+            threading.Thread(target=self.__update_data, daemon=True).start()
             self.cfg.active_module_list.append(self)
             logger.info("ACTIVE: module hybrid")
 

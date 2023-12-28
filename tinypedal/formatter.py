@@ -66,12 +66,12 @@ def strip_filename_extension(name: str, extension: str) -> str:
 #            tc_string[tc_indices[1]:(tc_indices[1]+1)])  # rear
 
 
-def pipe_join(*args) -> str:
+def pipe_join(*args: any) -> str:
     """Convert value to str & join with pipe symbol"""
     return "|".join(map(str, args))
 
 
-def pipe_split(string) -> list:
+def pipe_split(string: str) -> list:
     """Split string to list by pipe symbol"""
     rex_string = re.split(r"(\|)", string)
     return [value for value in rex_string if value != "|"]

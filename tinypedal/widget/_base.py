@@ -30,10 +30,20 @@ from ..const import APP_NAME
 from ..overlay_control import octrl
 
 
+@dataclass(frozen=True)
+class FontMetrics:
+    """Font metrics info"""
+    width: int = 0
+    height: int = 0
+    leading: int = 0
+    capital: int = 0
+    descent: int = 0
+
+
 class Overlay(QWidget):
     """Overlay window"""
 
-    def __init__(self, config, widget_name):
+    def __init__(self, config: object, widget_name: str):
         super().__init__()
         self.widget_name = widget_name
 
@@ -110,7 +120,7 @@ class Overlay(QWidget):
             self.cfg.save()
 
     @Slot(bool)
-    def __toggle_lock(self, locked):
+    def __toggle_lock(self, locked: bool):
         """Toggle widget lock"""
         if locked:
             self.setWindowFlag(Qt.WindowTransparentForInput, True)
@@ -120,14 +130,12 @@ class Overlay(QWidget):
         #    self.show()
 
     @Slot(bool)
-    def __toggle_hide(self, hidden):
+    def __toggle_hide(self, hidden: bool):
         """Toggle widget hide"""
-        if hidden:
-            if self.isVisible():
-                self.hide()
-        else:
-            if not self.isVisible():
-                self.show()
+        if hidden and self.isVisible():
+            self.hide()
+        elif not hidden and not self.isVisible():
+            self.show()
 
     def __connect_signal(self):
         """Connect overlay-lock signal to slot"""
@@ -146,7 +154,7 @@ class Overlay(QWidget):
         self.close()
 
     @staticmethod
-    def config_font(name="", size=1, weight=None):
+    def config_font(name: str = "", size: int = 1, weight: str = None) -> QFont:
         """Config font
 
         Two main uses:
@@ -161,17 +169,17 @@ class Overlay(QWidget):
         return font
 
     @staticmethod
-    def get_font_metrics(name):
+    def get_font_metrics(font: QFont) -> FontMetrics:
         """Get font metrics"""
         return FontMetrics(
-            width = QFontMetrics(name).averageCharWidth(),
-            height = QFontMetrics(name).height(),
-            leading = QFontMetrics(name).leading(),
-            capital = QFontMetrics(name).capHeight(),
-            descent = QFontMetrics(name).descent(),
+            width = QFontMetrics(font).averageCharWidth(),
+            height = QFontMetrics(font).height(),
+            leading = QFontMetrics(font).leading(),
+            capital = QFontMetrics(font).capHeight(),
+            descent = QFontMetrics(font).descent(),
         )
 
-    def calc_font_offset(self, metrics):
+    def calc_font_offset(self, metrics: FontMetrics) -> int:
         """Calculate auto font vertical offset
 
         Find center vertical alignment position offset
@@ -180,13 +188,3 @@ class Overlay(QWidget):
         if self.wcfg["enable_auto_font_offset"]:
             return metrics.capital + metrics.descent * 2 + metrics.leading * 2 - metrics.height
         return self.wcfg["font_offset_vertical"]
-
-
-@dataclass(frozen=True)
-class FontMetrics:
-    """Font metrics info"""
-    width: int = 0
-    height: int = 0
-    leading: int = 0
-    capital: int = 0
-    descent: int = 0

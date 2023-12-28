@@ -101,12 +101,11 @@ def hex_color(color_str: any) -> bool:
 
 
 # Module validate
-def is_imported_module(module: any, name: str) -> bool:
+def is_imported_module(module: object, name: str) -> bool:
     """Validate module or widget"""
     try:
-        if name.startswith("_"):
-            return False
-        return getattr(module, name)
+        if not name.startswith("_") and getattr(module, name):
+            return True
     except AttributeError:
         logger.warning("found unimported file in %s: %s.py", module.__name__, name)
     return False

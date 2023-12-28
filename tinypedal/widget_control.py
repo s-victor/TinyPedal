@@ -81,10 +81,10 @@ class WidgetControl:
 
     def enable_all(self):
         """Enable all widgets"""
-        for _name, _module in self.PACK.items():
+        for _name, _widget in self.PACK.items():
             if not cfg.setting_user[_name]["enable"]:
                 cfg.setting_user[_name]["enable"] = True
-                self.__create_instance(_module)
+                self.__create_instance(_widget)
         cfg.save()
         logger.info("ACTIVE: all widgets")
 
@@ -98,9 +98,9 @@ class WidgetControl:
 
     def __start_enabled(self):
         """Start all enabled widget"""
-        for _name, _module in self.PACK.items():
+        for _name, _widget in self.PACK.items():
             if cfg.setting_user[_name]["enable"]:
-                self.__create_instance(_module)
+                self.__create_instance(_widget)
 
     def __start_selected(self, name: str):
         """Start selected widget"""
@@ -129,9 +129,9 @@ class WidgetControl:
                 break
         return None
 
-    def __create_instance(self, obj):
+    def __create_instance(self, _widget: object):
         """Create widget instance"""
-        setattr(self, f"widget_{obj.WIDGET_NAME}", obj.Draw(cfg))
+        setattr(self, f"widget_{_widget.WIDGET_NAME}", _widget.Draw(cfg))
 
 
 wctrl = WidgetControl()

@@ -3,7 +3,7 @@ import sys
 sys.path.append(".")
 
 from PySide2.QtWidgets import QApplication, QWidget
-from tinypedal.about import About
+from tinypedal.ui.about import About
 
 
 if __name__ == "__main__":

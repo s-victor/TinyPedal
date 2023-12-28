@@ -133,10 +133,10 @@ class ModuleControl:
                 break
         return None
 
-    def __create_instance(self, obj):
+    def __create_instance(self, _module: object):
         """Create module instance"""
-        setattr(self, obj.MODULE_NAME, obj.Realtime(cfg))
-        getattr(self, obj.MODULE_NAME).start()
+        setattr(self, _module.MODULE_NAME, _module.Realtime(cfg))
+        getattr(self, _module.MODULE_NAME).start()
 
 
 mctrl = ModuleControl()

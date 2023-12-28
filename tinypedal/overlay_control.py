@@ -36,7 +36,7 @@ class OverlayLock(QObject):
     """Overlay lock state"""
     locked = Signal(bool)
 
-    def __init__(self, config):
+    def __init__(self, config: object):
         super().__init__()
         self.cfg = config
 
@@ -57,7 +57,7 @@ class OverlayLock(QObject):
 class OverlayGrid(QObject):
     """Overlay grid state"""
 
-    def __init__(self, config):
+    def __init__(self, config: object):
         super().__init__()
         self.cfg = config
 
@@ -74,7 +74,7 @@ class OverlayAutoHide(QObject):
     """Auto hide overlay"""
     hidden = Signal(bool)
 
-    def __init__(self, config):
+    def __init__(self, config: object):
         super().__init__()
         self.cfg = config
         self.stopped = True
@@ -85,8 +85,7 @@ class OverlayAutoHide(QObject):
         if self.stopped:
             self.stopped = False
             self.event.clear()
-            _thread = threading.Thread(target=self.__autohide, daemon=True)
-            _thread.start()
+            threading.Thread(target=self.__autohide, daemon=True).start()
             logger.info("ACTIVE: overlay auto-hide")
 
     def stop(self):
