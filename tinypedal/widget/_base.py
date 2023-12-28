@@ -132,10 +132,12 @@ class Overlay(QWidget):
     @Slot(bool)
     def __toggle_hide(self, hidden: bool):
         """Toggle widget hide"""
-        if hidden and self.isVisible():
-            self.hide()
-        elif not hidden and not self.isVisible():
-            self.show()
+        if hidden:
+            if self.isVisible():
+                self.hide()
+        else:
+            if not self.isVisible():
+                self.show()
 
     def __connect_signal(self):
         """Connect overlay-lock signal to slot"""
