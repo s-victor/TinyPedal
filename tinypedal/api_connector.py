@@ -57,7 +57,7 @@ class Connector(ABC):
         """Stop API"""
 
     @abstractmethod
-    def setup(self, access_mode, process_id, player_override, player_index):
+    def setup(self, access_mode: int, process_id: str, player_override: bool, player_index: int):
         """Setup API parameters"""
 
     @abstractmethod

@@ -34,7 +34,7 @@ logger = logging.getLogger(__name__)
 def load():
     """Load api, modules, widgets"""
     logger.info("STARTING............")
-    api.connect(cfg.shared_memory_api["api_name"])
+    api.connect()
     api.start()     # 1 start api
     load_modules()  # 2 load modules
 

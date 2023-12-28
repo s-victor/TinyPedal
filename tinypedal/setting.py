@@ -80,17 +80,24 @@ class Setting:
             self.filename_classes, self.filepath, self.classes_default)
         self.heatmap_user = load_style_json_file(
             self.filename_heatmap, self.filepath, self.heatmap_default)
+        logger.info("SETTING: %s preset loaded", self.last_loaded_setting)
 
     def load_preset_list(self):
-        """Load preset list"""
-        # Create json file list: modified date, filename
-        raw_cfg_list = [(os.path.getmtime(f"{self.filepath}{fname}"), fname[:-5])
-                        for fname in os.listdir(self.filepath)
-                        if fname.lower().endswith(".json")]
+        """Load preset list
+
+        JSON file list: modified date, filename
+        """
+        raw_cfg_list = [
+            (os.path.getmtime(f"{self.filepath}{_filename}"), _filename[:-5])
+            for _filename in os.listdir(self.filepath)
+            if _filename.lower().endswith(".json")
+        ]
         if raw_cfg_list:
             raw_cfg_list.sort(reverse=True)  # sort by file modified date
-            cfg_list = [fname[1] for fname in raw_cfg_list
-                        if val.allowed_filename(rxp.CFG_INVALID_FILENAME, fname[1])]
+            cfg_list = [
+                _filename[1] for _filename in raw_cfg_list
+                if val.allowed_filename(rxp.CFG_INVALID_FILENAME, _filename[1])
+            ]
             if cfg_list:
                 return cfg_list
         return ["default"]
@@ -120,7 +127,6 @@ class Setting:
                     target=self.__saving,
                     args=(self.filename_setting, self.filepath, self.setting_user)
                 ).start()
-            #logger.info("saving setting")
 
     def __saving(self, filename: str, filepath: str, dict_user: dict):
         """Saving thread"""
@@ -129,7 +135,6 @@ class Setting:
         # Update save delay
         while self._save_delay > 0:
             self._save_delay -= 1
-            #logger.info(f"saving time delay {self._save_delay}")
             time.sleep(0.01)
 
         # Start saving attempts
@@ -137,14 +142,13 @@ class Setting:
             save_json_file(filename, filepath, dict_user)
             if verify_json_file(filename, filepath, dict_user):
                 attempts = 0
-                #logger.info("verified save file")
             else:
                 attempts -= 1
-                logger.error("setting saving failed, %s attempt(s) left", attempts)
+                logger.error("SETTING: saving failed, %s attempt(s) left", attempts)
             time.sleep(0.05)
 
         self.is_saving = False
-        logger.info("setting saved")
+        logger.info("SETTING: preset saved")
 
     def platform_default(self):
         """Platform specific default setting"""
@@ -166,7 +170,7 @@ def verify_json_file(filename: str, filepath: str, dict_user: dict) -> bool:
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
             return json.load(jsonfile) == dict_user
     except (FileNotFoundError, json.decoder.JSONDecodeError):
-        logger.error("save file verification failed")
+        logger.error("SETTING: saving verification failed")
         return False
 
 
@@ -177,7 +181,7 @@ def backup_json_file(filename: str, filepath: str) -> None:
         shutil.copy(f"{filepath}{filename}",
                     f"{filepath}{filename[:-5]}-backup {time_stamp}.json")
     except FileNotFoundError:
-        logger.error("setting backup failed")
+        logger.error("SETTING: backup failed")
 
 
 def load_setting_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
@@ -190,7 +194,7 @@ def load_setting_json_file(filename: str, filepath: str, dict_def: dict) -> dict
         verify_setting(temp_setting_user, dict_def)
         setting_user = copy_setting(temp_setting_user)
     except (FileNotFoundError, json.decoder.JSONDecodeError):
-        logger.error("%s setting loading failed, create backup & revert to default", filename)
+        logger.error("SETTING: %s failed loading, create backup & revert to default", filename)
         backup_json_file(filename, filepath)
         setting_user = copy_setting(dict_def)
     return setting_user
@@ -206,10 +210,10 @@ def load_style_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
         style_user = copy_setting(dict_def)
         # Save to file if not found
         if not os.path.exists(f"{filepath}{filename}"):
-            logger.error("%s setting not found, create new default", filename)
+            logger.info("SETTING: %s not found, create new default", filename)
             save_json_file(filename, filepath, style_user)
         else:
-            logger.error("%s setting loading failed, fall back to default", filename)
+            logger.error("SETTING: %s failed loading, fall back to default", filename)
     return style_user
 
 

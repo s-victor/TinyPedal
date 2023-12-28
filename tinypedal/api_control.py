@@ -35,8 +35,14 @@ class APIControl:
         self._api = None
         self._restarting = False
 
-    def connect(self, name):
-        """Connect to API with matching name in API_PACK"""
+    def connect(self, name: str = None):
+        """Connect to API
+
+        name: match api name in API_PACK
+        """
+        if name is None:
+            name = cfg.shared_memory_api["api_name"]
+
         for _api in API_PACK:
             if _api.NAME == name:
                 self._api = _api()
@@ -63,21 +69,17 @@ class APIControl:
         """Restart API"""
         self._restarting = True
         self.stop()
-        self.connect(cfg.shared_memory_api["api_name"])
+        self.connect()
         self.start()
         self._restarting = False
 
     def setup(self):
         """Setup & apply API changes"""
-        access_mode = cfg.shared_memory_api["access_mode"]
-        process_id = cfg.shared_memory_api["process_id"]
-        player_override = cfg.shared_memory_api["enable_player_index_override"]
-        player_index = cfg.shared_memory_api["player_index"]
         self._api.setup(
-            access_mode,
-            process_id,
-            player_override,
-            player_index
+            access_mode = cfg.shared_memory_api["access_mode"],
+            process_id = cfg.shared_memory_api["process_id"],
+            player_override = cfg.shared_memory_api["enable_player_index_override"],
+            player_index = cfg.shared_memory_api["player_index"]
         )
 
     @property
