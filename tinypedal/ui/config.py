@@ -735,7 +735,7 @@ def context_menu_reset_option(pos, target, default, mode):
         elif mode == "set_text":
             target.setText(default)
         elif mode == "set_combo":
-            curr_index = target.findText(f"{default}", Qt.MatchExactly)
+            curr_index = target.findText(default, Qt.MatchExactly)
             if curr_index != -1:
                 target.setCurrentIndex(curr_index)
 
