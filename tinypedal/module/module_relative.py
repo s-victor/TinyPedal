@@ -76,15 +76,16 @@ class Realtime:
                 plr_place = api.read.vehicle.place()
 
                 # Create relative list
-                rel_dist_list = list(self.__relative_dist_list(veh_total))
+                rel_dist_list = sorted(  # reverse-sort by relative distance
+                    self.__relative_dist_list(veh_total), reverse=True)
                 rel_idx_list = self.__relative_index_list(rel_dist_list, plr_index)
 
                 # Create standings list
-                (class_pos_list, unique_class_list, place_index_list
+                (class_pos_list, place_index_list, is_multi_class
                  ) = self.__class_position_list(veh_total)
                 stand_idx_list = self.__standings_index_list(
                     veh_total, plr_index, plr_place,
-                    class_pos_list, unique_class_list, place_index_list)
+                    class_pos_list, place_index_list, is_multi_class)
 
                 # Output data
                 minfo.relative.classes = class_pos_list
@@ -108,8 +109,6 @@ class Realtime:
         max_rel_veh, add_front, add_behind = max_relative_vehicles(
             self.cfg.setting_user["relative"]["additional_players_front"],
             self.cfg.setting_user["relative"]["additional_players_behind"])
-        # Reverse-sort by relative distance
-        rel_dist_list.sort(reverse=True)
         # Extract vehicle index to create new sorted vehicle list
         sorted_veh_list = [_dist[1] for _dist in rel_dist_list]
         # Locate player index position in list
@@ -154,20 +153,20 @@ class Realtime:
 
     def __class_position_list(self, veh_total):
         """Create vehicle class position list"""
-        raw_veh_class = list(self.__class_data(veh_total))
+        raw_veh_class = list(self.__raw_class_data(veh_total))
         split_veh_list = tuple(zip(*raw_veh_class))
-        # Create unique vehicle class list
-        unique_class_list = list(set(split_veh_list[0]))
+        # Multi-class check
+        is_multi_class = len(set(split_veh_list[0])) > 1
         # Create overall vehicle place, player index list
-        place_index_list = sorted(list(zip(split_veh_list[1], split_veh_list[2])))
-        # Sort & group different vehicle class list
-        sorted_veh_class = sorted(raw_veh_class)
-        class_position_list = list(self.__sort_class_data(sorted_veh_class))
-        return sorted(class_position_list), unique_class_list, place_index_list
+        place_index_list = sorted(zip(split_veh_list[1], split_veh_list[2]))
+        # Create class position list
+        raw_veh_class.sort()  # sort by vehicle class
+        class_position_list = sorted(self.__sort_class_data(raw_veh_class))
+        return class_position_list, place_index_list, is_multi_class
 
     @staticmethod
-    def __class_data(veh_total):
-        """Get vehicle class data"""
+    def __raw_class_data(veh_total):
+        """Raw vehicle class data"""
         for index in range(veh_total):
             vehclass = api.read.vehicle.class_name(index)
             position = api.read.vehicle.place(index)
@@ -181,7 +180,7 @@ class Realtime:
 
     @staticmethod
     def __sort_class_data(sorted_veh_class):
-        """Get vehicle class position data"""
+        """Sort vehicle class position data"""
         laptime_session_best = sorted(sorted_veh_class, key=lambda laptime:laptime[3])[0][3]
         laptime_class_best = 99999
         initial_class = sorted_veh_class[0][0]
@@ -206,17 +205,16 @@ class Realtime:
             )
 
     def __standings_index_list(
-        self, veh_total, plr_index, plr_place, class_pos_list, unique_class_list, place_index_list):
+        self, veh_total, plr_index, plr_place, class_pos_list, place_index_list, is_multi_class):
         """Create standings index list"""
         veh_top = min(max(int(self.cfg.setting_user["standings"]["min_top_vehicles"]), 1), 5)
         veh_limit = max(int(
             self.cfg.setting_user["standings"]["max_vehicles_combined_mode"]), veh_top + 2)
 
-        if (self.cfg.setting_user["standings"]["enable_multi_class_split_mode"] and
-           len(unique_class_list) > 1):
+        if self.cfg.setting_user["standings"]["enable_multi_class_split_mode"] and is_multi_class:
             sorted_class_pos_list = sorted(class_pos_list, key=sort_class)
-            class_collection = sorted(list(
-                split_class_list(sorted_class_pos_list)),
+            class_collection = sorted(
+                split_class_list(sorted_class_pos_list),
                 key=lambda laptime:laptime[0][4])  # sort by class best laptime
             standing_index = list(chain(*list(  # combine class index lists group
                 self.__class_standings_index(veh_top, plr_index, class_collection))))
