@@ -64,6 +64,7 @@ class Draw(Overlay):
         column_water = self.wcfg["column_index_water"]
         column_turbo = self.wcfg["column_index_turbo"]
         column_rpm = self.wcfg["column_index_rpm"]
+        column_rpmmax = self.wcfg["column_index_rpm_maximum"]
 
         # Oil temperature
         if self.wcfg["show_temperature"]:
@@ -104,6 +105,16 @@ class Draw(Overlay):
                 f"min-width: {self.bar_width}px;"
             )
 
+        # RPM maximum
+        if self.wcfg["show_rpm_maximum"]:
+            self.bar_rpm_max = QLabel("RPM MAX")
+            self.bar_rpm_max.setAlignment(Qt.AlignCenter)
+            self.bar_rpm_max.setStyleSheet(
+                f"color: {self.wcfg['font_color_rpm_maximum']};"
+                f"background: {self.wcfg['bkg_color_rpm_maximum']};"
+                f"min-width: {self.bar_width}px;"
+            )
+
         # Set layout
         if self.wcfg["layout"] == 0:
             # Vertical layout
@@ -114,6 +125,8 @@ class Draw(Overlay):
                 layout.addWidget(self.bar_turbo, column_turbo, 0)
             if self.wcfg["show_rpm"]:
                 layout.addWidget(self.bar_rpm, column_rpm, 0)
+            if self.wcfg["show_rpm_maximum"]:
+                layout.addWidget(self.bar_rpm_max, column_rpmmax, 0)
         else:
             # Horizontal layout
             if self.wcfg["show_temperature"]:
@@ -123,6 +136,8 @@ class Draw(Overlay):
                 layout.addWidget(self.bar_turbo, 0, column_turbo)
             if self.wcfg["show_rpm"]:
                 layout.addWidget(self.bar_rpm, 0, column_rpm)
+            if self.wcfg["show_rpm_maximum"]:
+                layout.addWidget(self.bar_rpm_max, 0, column_rpmmax)
         self.setLayout(layout)
 
         # Last data
@@ -130,6 +145,7 @@ class Draw(Overlay):
         self.last_temp_water = None
         self.last_turbo = None
         self.last_rpm = None
+        self.last_rpm_max = None
 
         # Set widget state & start update
         self.set_widget_state()
@@ -154,14 +170,20 @@ class Draw(Overlay):
             # Turbo pressure
             if self.wcfg["show_turbo_pressure"]:
                 turbo = int(api.read.engine.turbo())
-                self.updatturbo(turbo, self.last_turbo)
+                self.update_turbo(turbo, self.last_turbo)
                 self.last_turbo = turbo
 
             # Engine RPM
             if self.wcfg["show_rpm"]:
                 rpm = int(api.read.engine.rpm())
-                self.updatrpm(rpm, self.last_rpm)
+                self.update_rpm(rpm, self.last_rpm)
                 self.last_rpm = rpm
+
+            # Engine RPM maximum
+            if self.wcfg["show_rpm_maximum"]:
+                rpm_max = int(api.read.engine.rpm_max())
+                self.update_rpm_max(rpm_max, self.last_rpm_max)
+                self.last_rpm_max = rpm_max
 
     # GUI update methods
     def update_oil(self, curr, last):
@@ -200,15 +222,20 @@ class Draw(Overlay):
             self.bar_water.setStyleSheet(
                 f"{color}min-width: {self.bar_width}px;")
 
-    def updatturbo(self, curr, last):
+    def update_turbo(self, curr, last):
         """Turbo pressure"""
         if curr != last:
             self.bar_turbo.setText(self.pressure_units(curr * 0.001))
 
-    def updatrpm(self, curr, last):
+    def update_rpm(self, curr, last):
         """Engine RPM"""
         if curr != last:
             self.bar_rpm.setText(f"{curr: =05.0f}rpm")
+
+    def update_rpm_max(self, curr, last):
+        """Engine RPM maximum"""
+        if curr != last:
+            self.bar_rpm_max.setText(f"{curr: =05.0f}max")
 
     # Additional methods
     def pressure_units(self, pres):

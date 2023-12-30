@@ -1,3 +1,9 @@
+WIP
+-----------------------------
+* Engine Widget
+  - Added "show_rpm_maximum" option,
+    which shows maximum engine RPM (rev limit).
+
 2.5.3 (2023-12-26)
 -----------------------------
 * General

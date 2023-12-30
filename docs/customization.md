@@ -525,6 +525,9 @@ Show turbo pressure.
     show_rpm
 Show engine RPM.
 
+    show_rpm_maximum
+shows maximum engine RPM (rev limit).
+
 
 ## Flag
 **This widget displays flags, pit state, warnings, start lights info.**
