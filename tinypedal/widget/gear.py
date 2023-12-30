@@ -25,6 +25,7 @@ from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor
 from PySide2.QtWidgets import QLabel, QGridLayout
 
 from .. import calculation as calc
+from .. import formatter as fmt
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
@@ -185,7 +186,7 @@ class Draw(Overlay):
             self.shifting_timer = lap_etime - self.shifting_timer_start
 
             gauge_data = (
-                self.format_gear(gear),
+                fmt.select_gear(gear),
                 round(self.speed_units(speed)),
                 self.color_rpm(
                     rpm, rpm_safe, rpm_red, rpm_crit, rpm_max, gear, gear_max, speed)
@@ -346,15 +347,6 @@ class Draw(Overlay):
         canvas.setPixmap(limiter)
 
     # Additional methods
-    @staticmethod
-    def format_gear(gear_index):
-        """Convert gear index to text string"""
-        if gear_index > 0:
-            return str(gear_index)
-        if gear_index == 0:
-            return "N"
-        return "R"
-
     def speed_units(self, value):
         """Speed units"""
         if self.cfg.units["speed_unit"] == "MPH":

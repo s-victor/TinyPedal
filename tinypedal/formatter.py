@@ -58,6 +58,11 @@ def strip_filename_extension(name: str, extension: str) -> str:
     return name
 
 
+def select_gear(index: int) -> str:
+    """Select gear string"""
+    return rxp.GEAR_SEQUENCE.get(index, "N")
+
+
 #def format_tyre_compound(tc_indices: tuple, tc_string: str):
 #    """Substitute tyre compound indices with custom string"""
 #    if max(tc_indices) >= len(tc_string):

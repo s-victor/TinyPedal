@@ -35,6 +35,7 @@ CFG_BOOL = (
     "swap_style|"
     "uppercase"
 )
+
 # String
 CFG_API_NAME = "^api_name$"
 CFG_COLOR = "color"
@@ -53,6 +54,7 @@ CFG_STRING = (
     "text|"
     "unit"
 )
+
 # Integer
 CFG_INTEGER = (
     # Exact match
@@ -83,6 +85,7 @@ CFG_INTEGER = (
     "update_interval|"
     "vehicles"
 )
+
 # Filename
 CFG_INVALID_FILENAME = (
     # Exact match
@@ -92,6 +95,7 @@ CFG_INVALID_FILENAME = (
     # Partial match
     "backup"
 )
+
 # Abbreviation
 ABBR_LIST = (
     "api",
@@ -101,6 +105,8 @@ ABBR_LIST = (
     "rpm",
 )
 ABBR_PATTERN = "|".join(ABBR_LIST)
+
+# Option list & dictionary
 FONT_WEIGHT_LIST = "normal", "bold"
 UNITS_DICT = {
     "distance_unit": ("Meter", "Feet"),
@@ -110,4 +116,17 @@ UNITS_DICT = {
     "temperature_unit": ("Celsius", "Fahrenheit"),
     "turbo_pressure_unit": ("bar", "psi", "kPa"),
     "tyre_pressure_unit": ("kPa", "psi", "bar"),
+}
+GEAR_SEQUENCE = {
+    -1: "R",
+    0: "N",
+    1: "1",
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5",
+    6: "6",
+    7: "7",
+    8: "8",
+    9: "9",
 }
