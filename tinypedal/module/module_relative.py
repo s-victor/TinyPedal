@@ -22,6 +22,7 @@ Relative module
 
 import logging
 import threading
+from functools import lru_cache
 from itertools import chain
 
 from ..module_info import minfo
@@ -76,8 +77,7 @@ class Realtime:
 
                 # Create relative list
                 rel_dist_list = list(self.__relative_dist_list(veh_total))
-                rel_idx_list = self.__relative_index_list(
-                    rel_dist_list, plr_index) if rel_dist_list else None
+                rel_idx_list = self.__relative_index_list(rel_dist_list, plr_index)
 
                 # Create standings list
                 (class_pos_list, unique_class_list, place_index_list
@@ -102,30 +102,38 @@ class Realtime:
 
     def __relative_index_list(self, rel_dist_list, plr_index):
         """Create player-centered relative index list"""
-        add_front = min(max(int(
-            self.cfg.setting_user["relative"]["additional_players_front"]), 0), 60)
-        add_behind = min(max(int(
-            self.cfg.setting_user["relative"]["additional_players_behind"]), 0), 60)
+        if not rel_dist_list:
+            return None
+        # Get vehicle number from relative widget
+        max_rel_veh, add_front, add_behind = max_relative_vehicles(
+            self.cfg.setting_user["relative"]["additional_players_front"],
+            self.cfg.setting_user["relative"]["additional_players_behind"])
         # Reverse-sort by relative distance
-        reverse_dist_list = sorted(rel_dist_list, reverse=True)
+        rel_dist_list.sort(reverse=True)
         # Extract vehicle index to create new sorted vehicle list
-        sorted_veh_list = list(list(zip(*reverse_dist_list))[1])
-        # Append with -1 if sorted vehicle list has less than max_veh items
-        max_veh = 7 + add_front + add_behind
-        if len(sorted_veh_list) < max_veh:
-            for _ in range(max_veh - len(sorted_veh_list)):
-                sorted_veh_list.append(-1)
-        # Double extend list
-        sorted_veh_list *= 2
-        # Locate player vehicle index in list
+        sorted_veh_list = [_dist[1] for _dist in rel_dist_list]
+        # Locate player index position in list
         if plr_index in sorted_veh_list:
-            plr_num = sorted_veh_list.index(plr_index)
+            plr_pos = sorted_veh_list.index(plr_index)
         else:
-            plr_num = 0  # prevent index not found in list error
-        # Center selection range on player index from sorted vehicle list
-        selected_index = [sorted_veh_list[index] for index in range(
-            int(plr_num - 3 - add_front), int(plr_num + 4 + add_behind))]
-        return selected_index
+            plr_pos = 0  # prevent index not found in list error
+        # Append with -1 if less than max number of vehicles
+        num_diff = max_rel_veh - len(sorted_veh_list)
+        if num_diff > 0:
+            sorted_veh_list += [-1] * num_diff
+        # Slice: max number of front players -> player index position
+        front_cut = sorted_veh_list[max(plr_pos - 3 - add_front, 0):plr_pos]
+        # Find number of missing front players (which is located at the end of list)
+        front_miss = 3 + add_front - len(front_cut)
+        front_list = sorted_veh_list[len(sorted_veh_list) - front_miss:] + front_cut
+        # Slice: player index position -> max number of behind players
+        behind_cut = sorted_veh_list[plr_pos:plr_pos + 4 + add_behind]
+        # Find number of missing behind players (which is located at the beginning of list)
+        behind_miss = 4 + add_behind - len(behind_cut)
+        behind_list = behind_cut + sorted_veh_list[:behind_miss]
+        # Combine index list
+        front_list.extend(behind_list)
+        return front_list
 
     def __relative_dist_list(self, veh_total):
         """Calculate relative distance"""
@@ -324,3 +332,11 @@ def split_class_list(input_list):
             index_end +=1
     # Final split
     yield input_list[index_start:index_end]
+
+
+@lru_cache(maxsize=1)
+def max_relative_vehicles(add_front: int, add_behind: int, min_veh: int = 7) -> tuple:
+    """Maximum number of vehicles in relative list"""
+    add_front = min(max(int(add_front), 0), 60)
+    add_behind = min(max(int(add_behind), 0), 60)
+    return min_veh + add_front + add_behind, add_front, add_behind

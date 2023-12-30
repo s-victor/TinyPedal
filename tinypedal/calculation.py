@@ -386,7 +386,7 @@ def line_intersect_coords(coord_a, coord_b, radians, length):
 
 
 @lru_cache(maxsize=20)
-def random_color_class(name):
+def random_color_class(name: str) -> str:
     """Generate random color for vehicle class"""
     random.seed(name)
     rgb = [30,180,random.randrange(30,180)]
