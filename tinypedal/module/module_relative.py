@@ -162,8 +162,7 @@ class Realtime:
         place_index_list = sorted(list(zip(split_veh_list[1], split_veh_list[2])))
         # Sort & group different vehicle class list
         sorted_veh_class = sorted(raw_veh_class)
-        class_position_list = list(
-            self.__sort_class_data(sorted_veh_class, unique_class_list))
+        class_position_list = list(self.__sort_class_data(sorted_veh_class))
         return sorted(class_position_list), unique_class_list, place_index_list
 
     @staticmethod
@@ -181,32 +180,30 @@ class Realtime:
             )
 
     @staticmethod
-    def __sort_class_data(sorted_veh_class, unique_class_list):
+    def __sort_class_data(sorted_veh_class):
         """Get vehicle class position data"""
         laptime_session_best = sorted(sorted_veh_class, key=lambda laptime:laptime[3])[0][3]
         laptime_class_best = 99999
-        initial_class = unique_class_list[0]
-        position_counter = 0  # position in class
+        initial_class = sorted_veh_class[0][0]
+        position_in_class = 0
 
         for veh_sort in sorted_veh_class:  # loop through sorted vehicle class list
-            for veh_uniq in unique_class_list:  # unique vehicle class range
-                if veh_sort[0] == veh_uniq:
-                    if initial_class == veh_uniq:
-                        position_counter += 1
-                    else:
-                        initial_class = veh_uniq  # reset init name
-                        position_counter = 1  # reset position counter
+            if veh_sort[0] == initial_class:
+                position_in_class += 1
+            else:
+                initial_class = veh_sort[0]  # reset init name
+                position_in_class = 1  # reset position counter
 
-                    if position_counter == 1:
-                        laptime_class_best = veh_sort[3]
+            if position_in_class == 1:
+                laptime_class_best = veh_sort[3]
 
-                    yield (
-                        veh_sort[2],       # 0 - 2 player index
-                        position_counter,  # 1 - position in class
-                        veh_sort[0],       # 2 - 0 class name
-                        laptime_session_best,  # 3 session best
-                        laptime_class_best,  # 4 classes best
-                    )
+            yield (
+                veh_sort[2],       # 0 - 2 player index
+                position_in_class,  # 1 - position in class
+                veh_sort[0],       # 2 - 0 class name
+                laptime_session_best,  # 3 session best
+                laptime_class_best,  # 4 classes best
+            )
 
     def __standings_index_list(
         self, veh_total, plr_index, plr_place, class_pos_list, unique_class_list, place_index_list):
