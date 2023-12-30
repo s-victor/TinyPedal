@@ -392,3 +392,11 @@ def random_color_class(name: str) -> str:
     rgb = [30,180,random.randrange(30,180)]
     random.shuffle(rgb)
     return f"#{rgb[0]:02X}{rgb[1]:02X}{rgb[2]:02X}"
+
+
+def session_best_laptime(data_list: list, column: int, laptime: int = 99999):
+    """Find session best lap time from data list"""
+    for data in data_list:
+        if 0 < data[column] < laptime:
+            laptime = data[column]
+    return laptime

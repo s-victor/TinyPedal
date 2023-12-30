@@ -181,12 +181,12 @@ class Realtime:
     @staticmethod
     def __sort_class_data(sorted_veh_class):
         """Sort vehicle class position data"""
-        laptime_session_best = sorted(sorted_veh_class, key=lambda laptime:laptime[3])[0][3]
+        laptime_session_best = calc.session_best_laptime(sorted_veh_class, 3)
         laptime_class_best = 99999
         initial_class = sorted_veh_class[0][0]
         position_in_class = 0
 
-        for veh_sort in sorted_veh_class:  # loop through sorted vehicle class list
+        for veh_sort in sorted_veh_class:
             if veh_sort[0] == initial_class:
                 position_in_class += 1
             else:
