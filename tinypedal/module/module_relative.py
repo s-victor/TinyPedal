@@ -24,6 +24,7 @@ import logging
 import threading
 from functools import lru_cache
 from itertools import chain
+from operator import itemgetter
 
 from ..module_info import minfo
 from ..api_control import api
@@ -212,12 +213,17 @@ class Realtime:
             self.cfg.setting_user["standings"]["max_vehicles_combined_mode"]), veh_top + 2)
 
         if self.cfg.setting_user["standings"]["enable_multi_class_split_mode"] and is_multi_class:
-            sorted_class_pos_list = sorted(class_pos_list, key=sort_class)
+            sorted_class_pos_list = sorted(
+                class_pos_list,        # sort by:
+                key=itemgetter(2,4,1)  # 2 class name, 4 class best laptime, 1 class position
+            )
             class_collection = sorted(
                 split_class_list(sorted_class_pos_list),
-                key=lambda laptime:laptime[0][4])  # sort by class best laptime
+                key=sort_class_collection  # sort by class best laptime
+            )
             standing_index = list(chain(*list(  # combine class index lists group
-                self.__class_standings_index(veh_top, plr_index, class_collection))))
+                self.__class_standings_index(veh_top, plr_index, class_collection)))
+            )
         else:
             standing_index = self.__calc_standings_index(
                 veh_top, veh_total, veh_limit, plr_place, place_index_list)
@@ -303,17 +309,8 @@ class Realtime:
         yield -1  # append an empty index as gap between classes
 
 
-def sort_class(class_list):
-    """Sort class list"""
-    return (
-        class_list[2], # class name
-        class_list[4], # class best laptime
-        class_list[1], # class position
-    )
-
-
 def split_class_list(input_list):
-    """Split class list collection"""
+    """Split class list into class collection"""
     class_name = input_list[0][2]
     index_start = 0
     index_end = 0
@@ -335,3 +332,17 @@ def max_relative_vehicles(add_front: int, add_behind: int, min_veh: int = 7) -> 
     add_front = min(max(int(add_front), 0), 60)
     add_behind = min(max(int(add_behind), 0), 60)
     return min_veh + add_front + add_behind, add_front, add_behind
+
+
+def sort_class_collection(collection):
+    """Sort class collection list"""
+    return collection[0][4]  # 4 class best laptime
+
+
+#def sort_class(class_list):
+#    """Sort class list"""
+#    return (
+#        class_list[2], # class name
+#        class_list[4], # class best laptime
+#        class_list[1], # class position
+#    )

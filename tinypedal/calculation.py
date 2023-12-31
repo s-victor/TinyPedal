@@ -255,7 +255,9 @@ def linear_interp(x, x1, y1, x2, y2):
 
 def search_column_key(key, column=None):
     """Search column key"""
-    return key if column is None else key[column]
+    if column is None:
+        return key
+    return key[column]
 
 
 def linear_search_hi(data, target, column=None):

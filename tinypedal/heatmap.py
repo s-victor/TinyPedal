@@ -20,6 +20,8 @@
 Heatmap function
 """
 
+from operator import itemgetter
+
 from .setting import cfg
 from . import validator as val
 
@@ -47,7 +49,7 @@ def sort_heatmap(heatmap_dict: dict) -> list:
     #return sorted(heatmap_dict.items(), key=lambda col: float(col[0]))
     return sorted(
         ((float(value), color) for value, color in heatmap_dict.items()),
-        key=lambda col: col[0]
+        key=itemgetter(0)
     )
 
 def load_heatmap(heatmap_name: str, default_name: str) -> list:

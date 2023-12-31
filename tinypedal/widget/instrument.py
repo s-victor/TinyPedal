@@ -289,18 +289,18 @@ class Draw(Overlay):
 
             # Calc average wheel radius reading
             if len(self.list_radius_f) >= self.min_samples_f:
-                radius_samples_f = sorted(
-                    self.list_radius_f)[int(self.min_samples_f*0.25):int(self.min_samples_f*0.75)]
+                self.list_radius_f.sort()
+                radius_samples_f = self.list_radius_f[int(self.min_samples_f*0.25):int(self.min_samples_f*0.75)]
                 self.avg_wheel_radius_f = round(calc.mean(radius_samples_f), 3)
-                self.list_radius_f = []  # reset list
+                self.list_radius_f.clear()  # reset list
                 if self.min_samples_f < 320:
                     self.min_samples_f *= 2  # double sample counts
 
             if len(self.list_radius_r) >= self.min_samples_r:
-                radius_samples_r = sorted(
-                    self.list_radius_r)[int(self.min_samples_r*0.25):int(self.min_samples_r*0.75)]
+                self.list_radius_r.sort()
+                radius_samples_r = self.list_radius_r[int(self.min_samples_r*0.25):int(self.min_samples_r*0.75)]
                 self.avg_wheel_radius_r = round(calc.mean(radius_samples_r), 3)
-                self.list_radius_r = []
+                self.list_radius_r.clear()
                 if self.min_samples_r < 320:
                     self.min_samples_r *= 2
 
