@@ -215,7 +215,7 @@ class Realtime:
             veh_limit_other = max_vehicles_in_class(
                 self.cfg.setting_user["standings"]["max_vehicles_per_split_others"], veh_top)
             veh_limit_player = max_vehicles_in_class(
-                self.cfg.setting_user["standings"]["max_vehicles_per_split_player"], veh_top + 2)
+                self.cfg.setting_user["standings"]["max_vehicles_per_split_player"], veh_top, 2)
 
             sorted_class_pos_list = sorted(
                 class_pos_list,        # sort by:
@@ -232,7 +232,7 @@ class Realtime:
             )))
         else:
             veh_limit = max_vehicles_in_class(
-                self.cfg.setting_user["standings"]["max_vehicles_combined_mode"], veh_top + 2)
+                self.cfg.setting_user["standings"]["max_vehicles_combined_mode"], veh_top, 2)
             standing_index = self.__calc_standings_index(
                 veh_top, veh_total, veh_limit, plr_place, place_index_list)
 
@@ -338,15 +338,23 @@ def max_relative_vehicles(add_front: int, add_behind: int, min_veh: int = 7) -> 
 
 
 @lru_cache(maxsize=1)
-def min_top_vehicles_in_class(top_veh: int) -> int:
-    """Minimum number of top vehicles in class list"""
-    return  min(max(int(top_veh), 1), 5)
+def min_top_vehicles_in_class(min_top_veh: int) -> int:
+    """Minimum number of top vehicles in class list
+
+    min_top_veh: value range limited in 1 to 5
+    """
+    return  min(max(int(min_top_veh), 1), 5)
 
 
 @lru_cache(maxsize=2)
-def max_vehicles_in_class(max_veh: int, top_veh: int) -> int:
-    """Maximum number of vehicles in class list"""
-    return max(int(max_veh), top_veh)
+def max_vehicles_in_class(max_cls_veh: int, min_top_veh: int, min_add_veh: int = 0) -> int:
+    """Maximum number of vehicles in class list
+
+    max_veh: maximum vehicles per class limit
+    min_top_veh: minimum top vehicles limit
+    min_add_veh: minimum addition vehicles limit (for class has local player)
+    """
+    return max(int(max_cls_veh), min_top_veh + min_add_veh)
 
 
 def sort_class_collection(collection):
