@@ -208,11 +208,14 @@ class Realtime:
     def __standings_index_list(
         self, veh_total, plr_index, plr_place, class_pos_list, place_index_list, is_multi_class):
         """Create standings index list"""
-        veh_top = min(max(int(self.cfg.setting_user["standings"]["min_top_vehicles"]), 1), 5)
-        veh_limit = max(int(
-            self.cfg.setting_user["standings"]["max_vehicles_combined_mode"]), veh_top + 2)
+        veh_top = min_top_vehicles_in_class(self.cfg.setting_user["standings"]["min_top_vehicles"])
 
         if self.cfg.setting_user["standings"]["enable_multi_class_split_mode"] and is_multi_class:
+            veh_limit_other = max_vehicles_in_class(
+                self.cfg.setting_user["standings"]["max_vehicles_per_split_others"], veh_top)
+            veh_limit_player = max_vehicles_in_class(
+                self.cfg.setting_user["standings"]["max_vehicles_per_split_player"], veh_top + 2)
+
             sorted_class_pos_list = sorted(
                 class_pos_list,        # sort by:
                 key=itemgetter(2,4,1)  # 2 class name, 4 class best laptime, 1 class position
@@ -222,28 +225,30 @@ class Realtime:
                 key=sort_class_collection  # sort by class best laptime
             )
             standing_index = list(chain(*list(  # combine class index lists group
-                self.__class_standings_index(veh_top, plr_index, class_collection)))
-            )
+                self.__class_standings_index(
+                    veh_top, plr_index, class_collection, veh_limit_other, veh_limit_player
+                )
+            )))
         else:
+            veh_limit = max_vehicles_in_class(
+                self.cfg.setting_user["standings"]["max_vehicles_combined_mode"], veh_top + 2)
             standing_index = self.__calc_standings_index(
                 veh_top, veh_total, veh_limit, plr_place, place_index_list)
 
         return standing_index
 
-    def __class_standings_index(self, veh_top, plr_index, class_collection):
+    def __class_standings_index(
+            self, veh_top, plr_index, class_collection, veh_limit_other, veh_limit_player):
         """Generate class standings index list from class list collection"""
         for class_list in class_collection:
             # 0 index, 1 class pos, 2 class name, 3 session best, 4 classes best
             class_split = list(zip(*class_list))
             veh_total = class_split[1][-1]  # last pos in class
-            veh_limit = max(int(
-                self.cfg.setting_user["standings"]["max_vehicles_per_split_others"]), veh_top)
+            veh_limit = veh_limit_other
             plr_place = 0
             place_index_list = list(zip(class_split[1], class_split[0]))
             if plr_index in class_split[0]:
-                veh_limit = max(
-                    int(self.cfg.setting_user["standings"]["max_vehicles_per_split_player"]),
-                    veh_top + 2)
+                veh_limit = veh_limit_player
                 local_index = class_split[0].index(plr_index)
                 plr_place = class_split[1][local_index]
 
@@ -332,6 +337,18 @@ def max_relative_vehicles(add_front: int, add_behind: int, min_veh: int = 7) -> 
     add_front = min(max(int(add_front), 0), 60)
     add_behind = min(max(int(add_behind), 0), 60)
     return min_veh + add_front + add_behind, add_front, add_behind
+
+
+@lru_cache(maxsize=1)
+def min_top_vehicles_in_class(top_veh: int) -> int:
+    """Minimum number of top vehicles in class list"""
+    return  min(max(int(top_veh), 1), 5)
+
+
+@lru_cache(maxsize=2)
+def max_vehicles_in_class(max_veh: int, top_veh: int) -> int:
+    """Maximum number of vehicles in class list"""
+    return max(int(max_veh), top_veh)
 
 
 def sort_class_collection(collection):
