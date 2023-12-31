@@ -68,7 +68,7 @@ class Draw(Overlay):
         self.show_radar = True
 
         self.vehicles_data = None
-        self.last_veh_data_hash = None
+        self.last_veh_data_version = None
 
         # Set widget state & start update
         self.set_widget_state()
@@ -83,9 +83,9 @@ class Draw(Overlay):
                 self.autohide_radar()
 
             # Vehicles
-            veh_data_hash = minfo.vehicles.dataSetHash
-            self.update_vehicle(veh_data_hash, self.last_veh_data_hash)
-            self.last_veh_data_hash = veh_data_hash
+            veh_data_version = minfo.vehicles.dataSetVersion
+            self.update_vehicle(veh_data_version, self.last_veh_data_version)
+            self.last_veh_data_version = veh_data_version
 
     # GUI update methods
     def update_vehicle(self, curr, last):

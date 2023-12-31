@@ -350,7 +350,7 @@ def min_top_vehicles_in_class(min_top_veh: int) -> int:
 def max_vehicles_in_class(max_cls_veh: int, min_top_veh: int, min_add_veh: int = 0) -> int:
     """Maximum number of vehicles in class list
 
-    max_veh: maximum vehicles per class limit
+    max_cls_veh: maximum vehicles per class limit
     min_top_veh: minimum top vehicles limit
     min_add_veh: minimum addition vehicles limit (for class has local player)
     """

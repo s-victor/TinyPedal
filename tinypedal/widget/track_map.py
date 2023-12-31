@@ -68,7 +68,7 @@ class Draw(Overlay):
 
         self.vehicles_data = None
         self.last_coords_hash = -1
-        self.last_veh_data_hash = None
+        self.last_veh_data_version = None
         self.circular_map = True
 
         # Set widget state & start update
@@ -85,9 +85,9 @@ class Draw(Overlay):
             self.last_coords_hash = coords_hash
 
             # Vehicles
-            veh_data_hash = minfo.vehicles.dataSetHash
-            self.update_veh(veh_data_hash, self.last_veh_data_hash)
-            self.last_veh_data_hash = veh_data_hash
+            veh_data_version = minfo.vehicles.dataSetVersion
+            self.update_veh(veh_data_version, self.last_veh_data_version)
+            self.last_veh_data_version = veh_data_version
 
     # GUI update methods
     def update_map(self, curr, last):
@@ -246,7 +246,7 @@ class Draw(Overlay):
         if self.wcfg["show_vehicle_standings"]:
             painter.setFont(self.font)
 
-        for veh_info in sorted(self.vehicles_data, key=self.sort_vehicles):
+        for veh_info in sorted(self.vehicles_data, reverse=True):
             if self.last_coords_hash:
                 pos_x, pos_y = self.vehicle_scale(*veh_info.posXZ)
                 offset = 0
@@ -301,16 +301,6 @@ class Draw(Overlay):
                 )
 
     # Additional methods
-    @staticmethod
-    def sort_vehicles(veh_info):
-        """Sort vehicle standings for drawing order"""
-        return (
-            veh_info.isPlayer,
-            -veh_info.inGarage,  # reversed
-            -veh_info.inPit,     # reversed
-            -veh_info.position,  # reversed
-        )
-
     @staticmethod
     def coords_scale(coords, min_range, scale, offset):
         """Coordinates scale & offset"""

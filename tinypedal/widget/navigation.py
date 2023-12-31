@@ -81,7 +81,7 @@ class Draw(Overlay):
 
         # Last data
         self.vehicles_data = None
-        self.last_veh_data_hash = None
+        self.last_veh_data_version = None
 
         self.last_coords_hash = -1
         self.map_scaled = None
@@ -98,9 +98,9 @@ class Draw(Overlay):
         if self.wcfg["enable"] and api.state:
 
             # Vehicles
-            veh_data_hash = minfo.vehicles.dataSetHash
-            self.update_vehicle(veh_data_hash, self.last_veh_data_hash)
-            self.last_veh_data_hash = veh_data_hash
+            veh_data_version = minfo.vehicles.dataSetVersion
+            self.update_vehicle(veh_data_version, self.last_veh_data_version)
+            self.last_veh_data_version = veh_data_version
 
             # Map
             coords_hash = minfo.mapping.coordinatesHash
@@ -313,7 +313,7 @@ class Draw(Overlay):
 
         # Draw vehicle within view range
         painter.resetTransform()
-        for veh_info in sorted(self.vehicles_data, key=self.sort_vehicles):
+        for veh_info in sorted(self.vehicles_data, reverse=True):
             # Draw player vehicle
             if veh_info.isPlayer:
                 self.brush.setColor(QColor(self.wcfg["vehicle_color_player"]))
@@ -393,13 +393,3 @@ class Draw(Overlay):
         if is_lapped < 0:
             return self.wcfg["vehicle_color_laps_behind"]
         return self.wcfg["vehicle_color_same_lap"]
-
-    @staticmethod
-    def sort_vehicles(veh_info):
-        """Sort vehicle standings for drawing order"""
-        return (
-            veh_info.isPlayer,
-            -veh_info.inGarage,  # reversed
-            -veh_info.inPit,     # reversed
-            -veh_info.position,  # reversed
-        )

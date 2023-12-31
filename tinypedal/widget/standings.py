@@ -627,7 +627,7 @@ class Draw(Overlay):
             veh_class = (vehicles_data[index].vehicleClass, is_player)
 
             # 7 Tyre compound index
-            tire_idx = (vehicles_data[index].tireCompoundIndex, is_player)
+            tire_idx = (vehicles_data[index].tireCompound, is_player)
 
             if api.read.session.in_race():
                 # 8 Lap time

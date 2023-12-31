@@ -561,7 +561,7 @@ class Draw(Overlay):
             time_gap = (f"{vehicles_data[index].relativeTimeGap:.0{self.gap_decimals}f}", is_lapped)
 
             # 8 Tyre compound index
-            tire_idx = vehicles_data[index].tireCompoundIndex
+            tire_idx = vehicles_data[index].tireCompound
 
             # 9 Lap time
             laptime = self.set_laptime(
