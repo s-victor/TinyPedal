@@ -208,7 +208,8 @@ class Realtime:
     def __standings_index_list(
         self, veh_total, plr_index, plr_place, class_pos_list, place_index_list, is_multi_class):
         """Create standings index list"""
-        veh_top = min_top_vehicles_in_class(self.cfg.setting_user["standings"]["min_top_vehicles"])
+        veh_top = min_top_vehicles_in_class(
+            self.cfg.setting_user["standings"]["min_top_vehicles"])
 
         if self.cfg.setting_user["standings"]["enable_multi_class_split_mode"] and is_multi_class:
             veh_limit_other = max_vehicles_in_class(
@@ -258,7 +259,7 @@ class Realtime:
     def __calc_standings_index(
             self, veh_top, veh_total, veh_limit, plr_place, place_index_list):
         """Create vehicle standings index list"""
-        # All vehicles place list
+        # All vehicles place list, start from 1
         all_veh_place_list = list(range(1, veh_total+1))
 
         # Create reference place list
@@ -272,7 +273,7 @@ class Realtime:
 
         # Create final standing index list
         standing_index_list = list(
-            self.__place_index_from_reference(ref_place_list, place_index_list))
+            self.__player_index_from_place_reference(ref_place_list, place_index_list))
         #print(standings_index_list)
         return standing_index_list
 
@@ -302,15 +303,12 @@ class Realtime:
                     break
 
     @staticmethod
-    def __place_index_from_reference(ref_place_list, place_index_list):
-        """Generate matched place index from reference list"""
-        count = 0
-        for veh in place_index_list:
-            for place_index in ref_place_list:
-                if place_index == veh[0]:  # 0 vehicle place
-                    count += 1
-                    yield veh[1]  # 1 vehicle index
-                    break
+    def __player_index_from_place_reference(ref_place_list, place_index_list):
+        """Match place from reference list to generate player index list"""
+        max_places = len(place_index_list)
+        for ref_idx in ref_place_list:
+            if 0 < ref_idx <= max_places:  # prevent out of range
+                yield place_index_list[ref_idx-1][1]  # 1 vehicle index
         yield -1  # append an empty index as gap between classes
 
 
