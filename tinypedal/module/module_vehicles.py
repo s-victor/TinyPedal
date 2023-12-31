@@ -73,18 +73,14 @@ class Realtime:
                     update_interval = active_interval
 
                 vehicles_data = tuple(self.__vehicle_data(minfo.relative.classes))
+                dist_line, dist_time, dist_yellow = nearest_distance_data(vehicles_data)
 
                 # Output
                 minfo.vehicles.dataSet = vehicles_data
                 minfo.vehicles.dataSetHash = hash(vehicles_data)
-                minfo.vehicles.nearestStraight = min(
-                    vehicles_data, key=nearest_line_dist).relativeStraightDistance
-                minfo.vehicles.nearestTraffic = abs(
-                    min(vehicles_data, key=nearest_traffic).relativeTimeGap)
-                minfo.vehicles.nearestYellow = abs(
-                    min(vehicles_data, key=nearest_yellow_dist).relativeDistance)
-                #minfo.vehicles.nearestTrack = abs(
-                # min(vehicles_data, key=nearest_track_dist).relativeDistance)
+                minfo.vehicles.nearestStraight = dist_line
+                minfo.vehicles.nearestTraffic = dist_time
+                minfo.vehicles.nearestYellow = dist_yellow
 
             else:
                 if reset:
@@ -101,7 +97,7 @@ class Realtime:
         veh_total = max(api.read.vehicle.total_vehicles(), 1)
         track_length = max(api.read.lap.track_length(), 1)
         in_race = api.read.session.in_race()
-        valid_class_list = class_pos_list and len(class_pos_list) == veh_total
+        valid_class_list = bool(class_pos_list and len(class_pos_list) == veh_total)
 
         # Local player data
         plr_total_laps = api.read.lap.total_laps()
@@ -246,32 +242,25 @@ class Realtime:
         return self.pit_time_list[idx_timer]
 
 
-def nearest_line_dist(value):
-    """Find nearest straight line distance"""
-    if not value.isPlayer:
-        return value.relativeStraightDistance
-    return 999999
-
-
-def nearest_track_dist(value):
-    """Find nearest track distance"""
-    if not value.isPlayer:
-        return abs(value.relativeDistance)
-    return 999999
-
-
-def nearest_traffic(value):
-    """Find nearest traffic gap"""
-    if 0 == value.inPit > value.relativeDistance:
-        return value.relativeTimeGap
-    return 999999
-
-
-def nearest_yellow_dist(value):
-    """Find nearest yellow flag distance"""
-    if value.isYellow:
-        return abs(value.relativeDistance)
-    return 999999
+def nearest_distance_data(
+        data_list: list,
+        dist_line: int = 999999,
+        dist_time: int = 999999,
+        dist_yellow: int = 999999):
+    """Calculate nearest distance data"""
+    for data in data_list:
+        # Find nearest straight line distance
+        if not data.isPlayer and data.relativeStraightDistance < dist_line:
+            dist_line = data.relativeStraightDistance
+        # Find nearest traffic time gap
+        if 0 == data.inPit > data.relativeDistance and data.relativeTimeGap < dist_time:
+            dist_time = data.relativeTimeGap
+        # Find nearest yellow flag (on track) distance
+        if data.isYellow:
+            rel_dist = abs(data.relativeDistance)
+            if rel_dist < dist_yellow:
+                dist_yellow = rel_dist
+    return dist_line, dist_time, dist_yellow
 
 
 DataSet = namedtuple(
