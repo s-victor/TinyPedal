@@ -86,7 +86,7 @@ class Draw(Overlay):
 
             # Vehicles
             veh_data_version = minfo.vehicles.dataSetVersion
-            self.update_veh(veh_data_version, self.last_veh_data_version)
+            self.update_vehicle(veh_data_version, self.last_veh_data_version)
             self.last_veh_data_version = veh_data_version
 
     # GUI update methods
@@ -96,7 +96,7 @@ class Draw(Overlay):
             self.draw_map_image(
                 self.create_map_path(minfo.mapping.coordinates), self.circular_map)
 
-    def update_veh(self, curr, last):
+    def update_vehicle(self, curr, last):
         """Vehicle update"""
         if curr != last:
             self.vehicles_data = minfo.vehicles.dataSet

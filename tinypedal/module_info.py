@@ -21,7 +21,7 @@ Module info
 """
 
 from __future__ import annotations
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 
 
 @dataclass
@@ -96,9 +96,9 @@ class MappingInfo:
 @dataclass
 class RelativeInfo:
     """Relative module output data"""
-    relative: list | None = None
-    standings: list | None = None
-    classes: list | None = None
+    relative: list = field(default_factory=list)
+    standings: list = field(default_factory=list)
+    classes: list = field(default_factory=list)
 
 
 @dataclass
@@ -116,7 +116,7 @@ class SectorsInfo:
 @dataclass
 class VehiclesInfo:
     """Vehicles module output data"""
-    dataSet: list | None = None
+    dataSet: list = field(default_factory=list)
     dataSetVersion: int = -1
     nearestStraight: float = 999999
     nearestTraffic: float = 999999

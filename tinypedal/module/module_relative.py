@@ -105,7 +105,7 @@ class Realtime:
     def __relative_index_list(self, rel_dist_list, plr_index):
         """Create player-centered relative index list"""
         if not rel_dist_list:
-            return None
+            return rel_dist_list
         # Get vehicle number from relative widget
         max_rel_veh, add_front, add_behind = max_relative_vehicles(
             self.cfg.setting_user["relative"]["additional_players_front"],
