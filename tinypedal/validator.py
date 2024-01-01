@@ -20,6 +20,7 @@
 Validator function
 """
 
+from __future__ import annotations
 import logging
 import os
 import re
@@ -30,7 +31,7 @@ logger = logging.getLogger(__name__)
 
 
 # Value validate
-def infnan2zero(value: any):
+def infnan2zero(value: any) -> (float | int):
     """Convert invalid value to zero
 
     Some data from API may contain invalid value

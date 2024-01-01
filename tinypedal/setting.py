@@ -107,11 +107,14 @@ class Setting:
         self.setting_user = copy_setting(self.setting_default)
 
     def save(self, count: int = 66, file_type: str = "setting"):
-        """Save trigger
+        """Save trigger, limit to one save operation for a given period.
 
-        Limit to one save operation for a given period.
-        Set time delay(count) that can be refreshed before trigger saving thread.
-        Default is roughly one sec delay, use 0 for instant saving.
+        Args:
+            count:
+                Set time delay(count) that can be refreshed before start saving thread.
+                Default is roughly one sec delay, use 0 for instant saving.
+            file_type:
+                Set type of setting file, either "setting" or "classes".
         """
         self._save_delay = count
 

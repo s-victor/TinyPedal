@@ -36,16 +36,18 @@ from .config import UserConfig
 
 
 class ModuleList(QWidget):
-    """Module & widget list view
+    """Module & widget list view"""
 
-    module: module (or widget) object
-    module_list: active_module_list (or active_widget_list) that contains module instances
-    module_type: "module" (or "widget")
-    """
+    def __init__(self, module_control: object, module_list: list, module_type: str = ""):
+        """Initialize module list setting
 
-    def __init__(self, module: any, module_list: list, module_type: str = ""):
+        Args:
+            module_control: Module control (or widget) object.
+            module_list: Active list that contains module (or widget) instances.
+            module_type: "module" (or "widget").
+        """
         super().__init__()
-        self.module = module
+        self.module_control = module_control
         self.module_list = module_list
         self.module_type = module_type
 
@@ -83,18 +85,18 @@ class ModuleList(QWidget):
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
 
-    def toggle_control(self, module_name: str = None):
+    def toggle_control(self, module_name: str = ""):
         """Toggle control & update label"""
         if module_name:
-            self.module.toggle(module_name)
+            self.module_control.toggle(module_name)
         self.label_loaded.setText(
-            f"Enabled: <b>{len(self.module_list)}/{len(self.module.PACK)}</b>")
+            f"Enabled: <b>{len(self.module_list)}/{len(self.module_control.PACK)}</b>")
 
     def refresh_list(self):
         """Refresh module list"""
         self.listbox_module.clear()
 
-        for _name in self.module.PACK.keys():
+        for _name in self.module_control.PACK.keys():
             module_item = ListItemControl(self, _name)
             item = QListWidgetItem()
             self.listbox_module.addItem(item)
@@ -102,14 +104,14 @@ class ModuleList(QWidget):
 
     def module_button_enable_all(self):
         """Enable all modules"""
-        if len(self.module_list) != len(self.module.PACK):
-            self.module.enable_all()
+        if len(self.module_list) != len(self.module_control.PACK):
+            self.module_control.enable_all()
             self.refresh_list()
 
     def module_button_disable_all(self):
         """Disable all modules"""
         if self.module_list:
-            self.module.disable_all()
+            self.module_control.disable_all()
             self.refresh_list()
 
 
@@ -117,6 +119,11 @@ class ListItemControl(QWidget):
     """List box item control"""
 
     def __init__(self, master, module_name: str):
+        """Initialize list box setting
+
+        Args:
+            module_name: Module (or widget) name string.
+        """
         super().__init__()
         self.master = master
         self.module_name = module_name
@@ -168,7 +175,7 @@ class ListItemControl(QWidget):
         )
         return button
 
-    def set_toggle_state(self, checked, button, module_name: str = None):
+    def set_toggle_state(self, checked, button, module_name: str = ""):
         """Set toggle state"""
         self.master.toggle_control(module_name)
         button.setText("ON" if checked else "OFF")

@@ -34,9 +34,9 @@ logger = logging.getLogger(__name__)
 class WidgetControl:
     """Widget control
 
-    PACK:
-        key: name string
-        value: widget
+    Attributes:
+        PACK: widget module reference dictionary.
+        key = module name string. value = module.
     """
     PACK = {
         name: getattr(widget, name)
@@ -44,7 +44,7 @@ class WidgetControl:
         if val.is_imported_module(widget, name)
     }
 
-    def start(self, name: str = None):
+    def start(self, name: str = ""):
         """Start widget
 
         Specify name for selected widget
@@ -54,7 +54,7 @@ class WidgetControl:
         else:
             self.__start_enabled()
 
-    def close(self, name: str = None):
+    def close(self, name: str = ""):
         """Close widget
 
         Specify name for selected widget
@@ -64,7 +64,7 @@ class WidgetControl:
         else:
             self.__close_enabled()
 
-    def reload(self, name: str = None):
+    def reload(self, name: str = ""):
         """Reload widget"""
         self.close(name)
         self.start(name)

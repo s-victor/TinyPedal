@@ -31,4 +31,9 @@ class DataAdapter:
     """
 
     def __init__(self, info: object) -> None:
+        """Initialize API setting
+
+        Args:
+            info: API object.
+        """
         self.info = info

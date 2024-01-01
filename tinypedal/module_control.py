@@ -34,9 +34,9 @@ logger = logging.getLogger(__name__)
 class ModuleControl:
     """Module control
 
-    PACK:
-        key: name string
-        value: module
+    Attributes:
+        PACK: Data module reference dictionary.
+        key = module name string. value = module.
     """
     PACK = {
         name: getattr(module, name)
@@ -44,7 +44,7 @@ class ModuleControl:
         if val.is_imported_module(module, name)
     }
 
-    def start(self, name: str = None):
+    def start(self, name: str = ""):
         """Start module
 
         Specify name for selected module
@@ -54,7 +54,7 @@ class ModuleControl:
         else:
             self.__start_enabled()
 
-    def close(self, name: str = None):
+    def close(self, name: str = ""):
         """Close module
 
         Specify name for selected module
@@ -64,7 +64,7 @@ class ModuleControl:
         else:
             self.__close_enabled()
 
-    def reload(self, name: str = None):
+    def reload(self, name: str = ""):
         """Reload module"""
         self.close(name)
         self.start(name)

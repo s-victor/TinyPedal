@@ -32,7 +32,7 @@ class TrayIcon(QSystemTrayIcon):
     Activate overlay widgets via system tray icon.
     """
 
-    def __init__(self, master, config):
+    def __init__(self, master, config: object):
         super().__init__()
         self.cfg = config
         self.master = master

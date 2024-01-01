@@ -35,12 +35,12 @@ class APIControl:
         self._api = None
         self._restarting = False
 
-    def connect(self, name: str = None):
+    def connect(self, name: str = ""):
         """Connect to API
 
         name: match api name in API_PACK
         """
-        if name is None:
+        if not name:
             name = cfg.shared_memory_api["api_name"]
 
         for _api in API_PACK:

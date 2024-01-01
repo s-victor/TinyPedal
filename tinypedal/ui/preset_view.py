@@ -174,7 +174,14 @@ class PresetList(QWidget):
 class CreatePreset(QDialog):
     """Create preset"""
 
-    def __init__(self, master, title: str = "", mode: str = None, src_filename: str = None):
+    def __init__(self, master, title: str = "", mode: str = "", src_filename: str = ""):
+        """Initialize create preset dialog setting
+
+        Args:
+            title: Dialog title string.
+            mode: Edit mode, either "duplicate", "rename", or "" for new preset.
+            src_filename: Source setting filename.
+        """
         super().__init__(master)
         self.master = master
         self.edit_mode = mode

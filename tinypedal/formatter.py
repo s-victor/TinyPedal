@@ -20,6 +20,7 @@
 Formatter function
 """
 
+from __future__ import annotations
 import re
 
 from . import regex_pattern as rxp
@@ -27,7 +28,6 @@ from . import regex_pattern as rxp
 
 def uppercase_abbr(name: str) -> str:
     """Convert abbreviation name to uppercase"""
-    # Special name
     for abbr in rxp.ABBR_LIST:
         if re.search(rxp.ABBR_PATTERN, name, flags=re.IGNORECASE):
             name = re.sub(abbr, abbr.upper(), name, flags=re.IGNORECASE)
@@ -63,14 +63,6 @@ def select_gear(index: int) -> str:
     return rxp.GEAR_SEQUENCE.get(index, "N")
 
 
-#def format_tyre_compound(tc_indices: tuple, tc_string: str):
-#    """Substitute tyre compound indices with custom string"""
-#    if max(tc_indices) >= len(tc_string):
-#        tc_string = "ABCDEFGH"
-#    return (tc_string[tc_indices[0]:(tc_indices[0]+1)],  # front
-#            tc_string[tc_indices[1]:(tc_indices[1]+1)])  # rear
-
-
 def pipe_join(*args: any) -> str:
     """Convert value to str & join with pipe symbol"""
     return "|".join(map(str, args))
@@ -94,26 +86,40 @@ def strip_decimal_pt(value: str) -> str:
     return value
 
 
-def string_pair_to_int(string: str):
-    """Convert string "x,y" to int"""
+def string_pair_to_int(string: str) -> tuple[int]:
+    """Convert string pair "x,y" to int"""
     value = re.split(",", string)
     return int(value[0]), int(value[1])
 
 
-def string_pair_to_float(string: str):
-    """Convert string "x,y" to float"""
+def string_pair_to_float(string: str) -> tuple[float]:
+    """Convert string pair "x,y" to float"""
     value = re.split(",", string)
     return float(value[0]), float(value[1])
 
 
-def points_to_coords(points: str):
-    """Convert svg points to raw coordinates"""
+def points_to_coords(points: str) -> tuple[tuple[float]]:
+    """Convert svg points strings to raw coordinates
+
+    Args:
+        points: "x,y x,y ..." svg points strings.
+
+    Returns:
+        ((x,y),(x,y) ...) raw coordinates.
+    """
     string = re.split(" ", points)
     return tuple(map(string_pair_to_float, string))
 
 
 def coords_to_points(coords: tuple) -> str:
-    """Convert raw coordinates (x,y),(x,y) to svg points (x,y x,y)"""
+    """Convert raw coordinates to svg points strings
+
+    Args:
+        coords: ((x,y),(x,y) ...) raw coordinates.
+
+    Returns:
+        "x,y x,y ..." svg points strings.
+    """
     output = ""
     for data in coords:
         if output:
