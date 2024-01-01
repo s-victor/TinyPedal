@@ -23,7 +23,7 @@ Vehicles module
 import array
 import logging
 import threading
-from dataclasses import dataclass
+from collections import namedtuple
 
 from ..module_info import minfo
 from ..api_control import api
@@ -64,7 +64,6 @@ class Realtime:
         active_interval = self.mcfg["update_interval"] / 1000
         idle_interval = self.mcfg["idle_update_interval"] / 1000
         update_interval = active_interval
-        vehicles_data = []
 
         while not self.event.wait(update_interval):
             if api.state:
@@ -74,22 +73,11 @@ class Realtime:
                     update_interval = active_interval
                     minfo.vehicles.dataSetVersion = -1
 
-                veh_total = min(max(api.read.vehicle.total_vehicles(), 1), 128)
-                veh_data_size = len(vehicles_data)
-
-                if veh_data_size != veh_total:
-                    if veh_data_size < veh_total:
-                        for _ in range(veh_total - veh_data_size):
-                            vehicles_data.append(DataSet())
-                    else:
-                        for _ in range(veh_data_size - veh_total):
-                            vehicles_data.pop()
-
-                self.__update_vehicle_data(vehicles_data, minfo.relative.classes)
+                vehicles_data = tuple(self.__update_vehicle_data(minfo.relative.classes))
                 dist_line, dist_time, dist_yellow = nearest_distance_data(vehicles_data)
 
                 # Output
-                minfo.vehicles.dataSet = vehicles_data[:veh_total]
+                minfo.vehicles.dataSet = vehicles_data
                 minfo.vehicles.dataSetVersion += 1
                 minfo.vehicles.nearestStraight = dist_line
                 minfo.vehicles.nearestTraffic = dist_time
@@ -104,9 +92,10 @@ class Realtime:
         self.stopped = True
         logger.info("CLOSED: module vehicles")
 
-    def __update_vehicle_data(self, data_set, class_pos_list):
+    def __update_vehicle_data(self, class_pos_list):
         """Update vehicle data"""
         # Additional data
+        veh_total = max(api.read.vehicle.total_vehicles(), 1)
         track_length = api.read.lap.track_length()
         in_race = api.read.session.in_race()
         class_list_size = len(class_pos_list)
@@ -114,90 +103,123 @@ class Realtime:
         # Local player data
         plr_total_laps = api.read.lap.total_laps()
         plr_lap_distance = api.read.lap.distance()
-        plr_percentage_distance = calc.percentage_distance(plr_lap_distance, track_length, 0.99999)
+        plr_percentage_distance = calc.percentage_distance(plr_lap_distance, track_length)
         plr_speed = api.read.vehicle.speed()
         plr_pos_xz = (api.read.vehicle.pos_longitudinal(),
                       api.read.vehicle.pos_lateral())
         plr_ori_rad = api.read.vehicle.orientation_yaw_radians()
 
-        # Update data from all vehicles in current session
-        for _idx, _data in enumerate(data_set):
-            slot_id = api.read.vehicle.slot_id(_idx)
-            lap_etime = api.read.timing.elapsed(_idx)
-            speed = api.read.vehicle.speed(_idx)
-            total_laps = api.read.lap.total_laps(_idx)
-            lap_distance = api.read.lap.distance(_idx)
-            orientation_xz_radians = api.read.vehicle.orientation_yaw_radians(_idx)
+        # Generate data list from all vehicles in current session
+        for index in range(veh_total):
+            is_player = api.read.vehicle.is_player(index)
+            slot_id = api.read.vehicle.slot_id(index)
+            position = api.read.vehicle.place(index)
+            driver_name = api.read.vehicle.driver_name(index)
+            vehicle_name = api.read.vehicle.vehicle_name(index)
+            vehicle_class = api.read.vehicle.class_name(index)
 
-            _data.isPlayer = api.read.vehicle.is_player(_idx)
-            _data.isNotPlayer = not _data.isPlayer
-            _data.position = api.read.vehicle.place(_idx)
-            _data.driverName = api.read.vehicle.driver_name(_idx)
-            _data.vehicleName = api.read.vehicle.vehicle_name(_idx)
-            _data.vehicleClass = api.read.vehicle.class_name(_idx)
+            if index < class_list_size:
+                position_in_class = class_pos_list[index][1]
+                laptime_session_best = class_pos_list[index][3]
+                laptime_class_best = class_pos_list[index][4]
+            else:
+                position_in_class = 0
+                laptime_session_best = 99999
+                laptime_class_best = 99999
 
-            if _idx < class_list_size:
-                _data.positionInClass = class_pos_list[_idx][1]
-                _data.sessionBestLapTime = class_pos_list[_idx][3]
-                _data.classBestLapTime = class_pos_list[_idx][4]
-
-            _data.bestLapTime = api.read.timing.best_laptime(_idx)
-            _data.lastLapTime = api.read.timing.last_laptime(_idx)
+            laptime_best = api.read.timing.best_laptime(index)
+            laptime_last = api.read.timing.last_laptime(index)
+            lap_etime = api.read.timing.elapsed(index)
+            speed = api.read.vehicle.speed(index)
 
             # Distance & time
-            _data.percentageDistance = calc.percentage_distance(
-                lap_distance, track_length, 0.99999)
-            _data.relativeDistance = calc.circular_relative_distance(
+            total_laps = api.read.lap.total_laps(index)
+            lap_distance = api.read.lap.distance(index)
+
+            percentage_distance = calc.percentage_distance(lap_distance, track_length)
+            relative_distance = calc.circular_relative_distance(
                 track_length, plr_lap_distance, lap_distance
-                ) if not _data.isPlayer else 0
-            _data.relativeTimeGap = calc.relative_time_gap(
-                _data.relativeDistance, speed, plr_speed
-                ) if not _data.isPlayer else 0
+                ) if not is_player else 0
+            relative_time_gap = calc.relative_time_gap(
+                relative_distance, speed, plr_speed
+                ) if not is_player else 0
 
-            _data.timeBehindLeader = api.read.timing.behind_leader(_idx)
-            _data.timeBehindNext = api.read.timing.behind_next(_idx)
-            _data.lapsBehindLeader = api.read.lap.behind_leader(_idx)
-            _data.lapsBehindNext = api.read.lap.behind_next(_idx)
+            time_behind_leader = api.read.timing.behind_leader(index)
+            time_behind_next = api.read.timing.behind_next(index)
+            laps_behind_leader = api.read.lap.behind_leader(index)
+            laps_behind_next = api.read.lap.behind_next(index)
 
-            _data.isLapped = 0 if _data.isPlayer or not in_race else calc.lap_difference(
-                total_laps + _data.percentageDistance,
+            is_lapped = 0 if is_player or not in_race else calc.lap_difference(
+                total_laps + percentage_distance,
                 plr_total_laps + plr_percentage_distance,
                 self.mcfg["lap_difference_ahead_threshold"],
                 self.mcfg["lap_difference_behind_threshold"]
                 )
-            _data.isYellow = speed < 8
+            is_yellow = speed < 8
 
             # Pit
-            _data.inGarage = api.read.vehicle.in_garage(_idx)
-            _data.inPit = api.read.vehicle.in_pits(_idx)
-            _data.numPitStops = api.read.vehicle.number_pitstops(_idx)
-            _data.pitState = api.read.vehicle.pit_state(_idx)
-            _data.pitTime = self.__calc_pit_time(
-                _idx, _data.inPit, _data.inGarage, _data.lastLapTime, lap_etime,
-                _data.inPit * 1000 + slot_id)
-            _data.tireCompound = api.read.tyre.compound(_idx)
+            in_garage = api.read.vehicle.in_garage(index)
+            in_pit = api.read.vehicle.in_pits(index)
+            num_pit_stops = api.read.vehicle.number_pitstops(index)
+            pit_state = api.read.vehicle.pit_state(index)
+            pit_time = self.__calc_pit_time(
+                index, in_pit, in_garage, laptime_last, lap_etime,
+                in_pit * 1000 + slot_id)
+            tire_compound = api.read.tyre.compound(index)
 
             # Position data
-            _data.posXZ = (api.read.vehicle.pos_longitudinal(_idx),
-                      api.read.vehicle.pos_lateral(_idx))
-            _data.relativeRotatedPosXZ = calc.rotate_pos(
+            pos_xz = (api.read.vehicle.pos_longitudinal(index),
+                      api.read.vehicle.pos_lateral(index))
+            orientation_xz_radians = api.read.vehicle.orientation_yaw_radians(index)
+            relative_rotated_pos_xz = calc.rotate_pos(
                 plr_ori_rad - 3.14159265,   # plr_ori_rad, rotate view
-                _data.posXZ[0] - plr_pos_xz[0],  # x position related to player
-                _data.posXZ[1] - plr_pos_xz[1]   # y position related to player
-                ) if not _data.isPlayer else (0,0)
-            _data.relativeOrientationXZRadians = (
+                pos_xz[0] - plr_pos_xz[0],  # x position related to player
+                pos_xz[1] - plr_pos_xz[1]   # y position related to player
+                ) if not is_player else (0,0)
+            relative_orientation_xz_radians = (
                 orientation_xz_radians - plr_ori_rad
-                ) if not _data.isPlayer else 0
-            _data.relativeStraightDistance = calc.distance(
-                plr_pos_xz, _data.posXZ
-                ) if not _data.isPlayer else 0
+                ) if not is_player else 0
+            relative_straight_distance = calc.distance(
+                plr_pos_xz, pos_xz
+                ) if not is_player else 0
 
-            # Unused data set
-            #_data.slotID = slot_id
-            #_data.speed = speed
-            #_data.totalLaps = total_laps
-            #_data.lapDistance = lap_distance
-            #_data.orientationXZRadians = orientation_xz_radians
+            yield DataSet(
+                position = position,
+                driverName = driver_name,
+                vehicleName = vehicle_name,
+                vehicleClass = vehicle_class,
+                positionInClass = position_in_class,
+                sessionBestLapTime = laptime_session_best,
+                classBestLapTime = laptime_class_best,
+                bestLapTime = laptime_best,
+                lastLapTime = laptime_last,
+                isPlayer = is_player,
+                isNotPlayer = not is_player,
+                percentageDistance = percentage_distance,
+                relativeDistance = relative_distance,
+                relativeTimeGap = relative_time_gap,
+                timeBehindLeader = time_behind_leader,
+                lapsBehindLeader = laps_behind_leader,
+                timeBehindNext = time_behind_next,
+                lapsBehindNext = laps_behind_next,
+                isLapped = is_lapped,
+                isYellow = is_yellow,
+                inGarage = in_garage,
+                inPit = in_pit,
+                numPitStops = num_pit_stops,
+                pitState = pit_state,
+                pitTime = pit_time,
+                tireCompound = tire_compound,
+                posXZ = pos_xz,
+                relativeOrientationXZRadians = relative_orientation_xz_radians,
+                relativeRotatedPosXZ = relative_rotated_pos_xz,
+                relativeStraightDistance = relative_straight_distance,
+                #slotID = slot_id,
+                #speed = speed,
+                #totalLaps = total_laps,
+                #lapDistance = lap_distance,
+                #orientationXZRadians = orientation_xz_radians,
+            )
 
     def __calc_pit_time(self, index, in_pit, in_garage, laptime_last, lap_etime, pit_status):
         """Calculate lap & pit time"""
@@ -243,43 +265,45 @@ def nearest_distance_data(
     return dist_line, dist_time, dist_yellow
 
 
-@dataclass(order=True)
-class DataSet:
-    """Vehicle data set"""
+DataSet = namedtuple(
+    "DataSet",
+    [
     # Sorting priority section (for track map display, set reverse sort)
-    isNotPlayer: bool = True
-    inGarage: bool = False
-    inPit: bool = False
-    position: int = 0
+    "isNotPlayer",
+    "inGarage",
+    "inPit",
+    "position",
     # End of sorting priority section
-    driverName: str = ""
-    vehicleName: str = ""
-    vehicleClass: str = ""
-    positionInClass: int = 0
-    sessionBestLapTime: float = 99999
-    classBestLapTime: float = 99999
-    bestLapTime: float = 99999
-    lastLapTime: float = 99999
-    isPlayer: bool = False
-    percentageDistance: float = 0
-    relativeDistance: float = 0
-    relativeTimeGap: float = 0
-    timeBehindLeader: float = 0
-    lapsBehindLeader: float = 0
-    timeBehindNext: float = 0
-    lapsBehindNext: float = 0
-    isLapped: bool = False
-    isYellow: bool = False
-    numPitStops: int = 0
-    pitState: int = 0
-    pitTime: float = 0
-    tireCompound: tuple = 0, 0
-    posXZ: tuple = 0, 0
-    relativeOrientationXZRadians: float = 0
-    relativeRotatedPosXZ: tuple = 0, 0
-    relativeStraightDistance: float = 0
-    #slotID: int = 0
-    #speed: float = 0
-    #totalLaps: int = 0
-    #lapDistance: float = 0
-    #orientationXZRadians: float
+    "driverName",
+    "vehicleName",
+    "vehicleClass",
+    "positionInClass",
+    "sessionBestLapTime",
+    "classBestLapTime",
+    "bestLapTime",
+    "lastLapTime",
+    "isPlayer",
+    "percentageDistance",
+    "relativeDistance",
+    "relativeTimeGap",
+    "timeBehindLeader",
+    "lapsBehindLeader",
+    "timeBehindNext",
+    "lapsBehindNext",
+    "isLapped",
+    "isYellow",
+    "numPitStops",
+    "pitState",
+    "pitTime",
+    "tireCompound",
+    "posXZ",
+    "relativeOrientationXZRadians",
+    "relativeRotatedPosXZ",
+    "relativeStraightDistance",
+    #"slotID",
+    #"speed",
+    #"totalLaps",
+    #"lapDistance",
+    #"orientationXZRadians",
+    ]
+)
