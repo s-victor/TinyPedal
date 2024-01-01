@@ -57,13 +57,10 @@ class Overlay(QWidget):
         # Base setting
         self.setWindowTitle(f"{APP_NAME} - {self.widget_name.capitalize()}")
         self.move(self.wcfg["position_x"], self.wcfg["position_y"])
-
-        # Base window background color
-        _pal_base = QPalette()
-        _pal_base.setColor(
-            QPalette.Window,
-            QColor(self.cfg.compatibility["global_bkg_color"]))
-        self.setPalette(_pal_base)
+        background_color = QPalette()
+        background_color.setColor(
+            QPalette.Window, QColor(self.cfg.compatibility["global_bkg_color"]))
+        self.setPalette(background_color)
 
         # Widget mouse event
         self._mouse_pos = (0, 0)
@@ -79,17 +76,21 @@ class Overlay(QWidget):
 
     def set_widget_state(self):
         """Set initial widget state"""
-        self.__set_attribute_flag()     # window state
-        octrl.overlay_lock.set_state()  # load lock state
-        self._update_timer.start()      # start update
+        self.__set_window_attributes()  # 1 window state
+        self.__set_window_flags()       # 2 window state
+        octrl.overlay_lock.set_state()  # 3 load lock state
+        self._update_timer.start()      # 4 start update
         #self.show()
 
-    def __set_attribute_flag(self):
-        """Set window flags & widget attributes"""
+    def __set_window_attributes(self):
+        """Set window attributes"""
         self.setWindowOpacity(self.wcfg["opacity"])
         if self.cfg.compatibility["enable_translucent_background"]:
             self.setAttribute(Qt.WA_TranslucentBackground, True)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
+
+    def __set_window_flags(self):
+        """Set window flags"""
         self.setWindowFlag(Qt.FramelessWindowHint, True)
         self.setWindowFlag(Qt.Tool, True)  # remove taskbar icon
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
@@ -121,7 +122,7 @@ class Overlay(QWidget):
 
     @Slot(bool)
     def __toggle_lock(self, locked: bool):
-        """Toggle widget lock"""
+        """Toggle widget lock state"""
         if locked:
             self.setWindowFlag(Qt.WindowTransparentForInput, True)
         else:
@@ -131,7 +132,7 @@ class Overlay(QWidget):
 
     @Slot(bool)
     def __toggle_hide(self, hidden: bool):
-        """Toggle widget hide"""
+        """Toggle widget hidden state"""
         if hidden:
             if self.isVisible():
                 self.hide()
@@ -140,12 +141,12 @@ class Overlay(QWidget):
                 self.show()
 
     def __connect_signal(self):
-        """Connect overlay-lock signal to slot"""
+        """Connect overlay lock and hide signal"""
         octrl.overlay_lock.locked.connect(self.__toggle_lock)
         octrl.overlay_hide.hidden.connect(self.__toggle_hide)
 
     def __break_signal(self):
-        """Disconnect signal"""
+        """Disconnect overlay lock and hide signal"""
         octrl.overlay_lock.locked.disconnect(self.__toggle_lock)
         octrl.overlay_hide.hidden.disconnect(self.__toggle_hide)
 
@@ -156,12 +157,19 @@ class Overlay(QWidget):
         self.close()
 
     @staticmethod
-    def config_font(name: str = "", size: int = 1, weight: str = None) -> QFont:
+    def config_font(name: str = "", size: int = 1, weight: str = "") -> object:
         """Config font
 
-        Two main uses:
-            1. Draw text in widget that uses QPainter.
-            2. Get font metrics reading for sizing elements.
+        Used for draw text in widget that uses QPainter,
+        or get font metrics reading for sizing elements.
+
+        Args:
+            name: font name string.
+            size: font size in pixels.
+            weight (optional): font weight name string, convert name to capital.
+
+        Returns:
+            QFont object.
         """
         font = QFont()
         font.setFamily(name)
@@ -171,21 +179,35 @@ class Overlay(QWidget):
         return font
 
     @staticmethod
-    def get_font_metrics(font: QFont) -> FontMetrics:
-        """Get font metrics"""
+    def get_font_metrics(qfont: object) -> object:
+        """Get font metrics
+
+        Args:
+            qfont: QFont object.
+
+        Returns:
+            FontMetrics object.
+        """
         return FontMetrics(
-            width = QFontMetrics(font).averageCharWidth(),
-            height = QFontMetrics(font).height(),
-            leading = QFontMetrics(font).leading(),
-            capital = QFontMetrics(font).capHeight(),
-            descent = QFontMetrics(font).descent(),
+            width = QFontMetrics(qfont).averageCharWidth(),
+            height = QFontMetrics(qfont).height(),
+            leading = QFontMetrics(qfont).leading(),
+            capital = QFontMetrics(qfont).capHeight(),
+            descent = QFontMetrics(qfont).descent(),
         )
 
-    def calc_font_offset(self, metrics: FontMetrics) -> int:
+    def calc_font_offset(self, metrics: object) -> int:
         """Calculate auto font vertical offset
 
-        Find center vertical alignment position offset
-        for even space between top & bottom.
+        Find difference between actual height and height reading
+        and use as offset for center vertical alignment position
+        for overlay that uses QPainter drawing.
+
+        Args:
+            metrics: FontMetrics object.
+
+        Returns:
+            Calculated font offset in pixels.
         """
         if self.wcfg["enable_auto_font_offset"]:
             return metrics.capital + metrics.descent * 2 + metrics.leading * 2 - metrics.height

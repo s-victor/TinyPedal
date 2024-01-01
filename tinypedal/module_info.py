@@ -20,6 +20,7 @@
 Module info
 """
 
+from __future__ import annotations
 from dataclasses import dataclass
 
 
@@ -85,37 +86,37 @@ class HybridInfo:
 @dataclass
 class MappingInfo:
     """Mapping module output data"""
-    coordinates: tuple = None
-    coordinatesHash: int = None
-    elevations: tuple = None
-    elevationsHash: int = None
-    sectors: tuple = None
+    coordinates: tuple | None = None
+    coordinatesHash: int | None = None
+    elevations: tuple | None = None
+    elevationsHash: int | None = None
+    sectors: tuple | None = None
 
 
 @dataclass
 class RelativeInfo:
     """Relative module output data"""
-    relative: list = None
-    standings: list = None
-    classes: list = None
+    relative: list | None = None
+    standings: list | None = None
+    classes: list | None = None
 
 
 @dataclass
 class SectorsInfo:
     """Sectors module output data"""
     sectorIndex: int = -1
-    deltaSectorBestPB: list = None
-    deltaSectorBestTB: list = None
-    sectorBestTB: list = None
-    sectorBestPB: list = None
-    sectorPrev: list = None
+    deltaSectorBestPB: list | None = None
+    deltaSectorBestTB: list | None = None
+    sectorBestTB: list | None = None
+    sectorBestPB: list | None = None
+    sectorPrev: list | None = None
     noDeltaSector: bool = True
 
 
 @dataclass
 class VehiclesInfo:
     """Vehicles module output data"""
-    dataSet: list = None
+    dataSet: list | None = None
     dataSetVersion: int = -1
     nearestStraight: float = 999999
     nearestTraffic: float = 999999

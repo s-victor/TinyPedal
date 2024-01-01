@@ -24,6 +24,11 @@ To create new API adapter, duplicate rfactor2.py and fill in entries.
 
 
 class DataAdapter:
-    """Read & sort data into groups"""
-    def __init__(self, info):
+    """Read & sort data into groups
+
+    Attributes:
+        info: API object.
+    """
+
+    def __init__(self, info: object) -> None:
         self.info = info
