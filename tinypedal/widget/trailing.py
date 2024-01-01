@@ -22,7 +22,7 @@ Trailing Widget
 
 from collections import deque
 from PySide2.QtCore import Qt, Slot, QPointF
-from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor, QPolygonF
+from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor
 
 from ..api_control import api
 from ._base import Overlay
@@ -231,9 +231,9 @@ class Draw(Overlay):
             painter.setPen(self.pen)
             painter.setBrush(Qt.NoBrush)
             if self.wcfg[f"{suffix}_line_style"]:
-                painter.drawPoints(QPolygonF(getattr(self, f"trace_{suffix}")))
+                painter.drawPoints(getattr(self, f"trace_{suffix}"))
             else:
-                painter.drawPolyline(QPolygonF(getattr(self, f"trace_{suffix}")))
+                painter.drawPolyline(getattr(self, f"trace_{suffix}"))
 
     # Additional methods
     def scale_position(self, position):

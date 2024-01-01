@@ -22,7 +22,7 @@ Friction circle Widget
 
 from collections import deque
 from PySide2.QtCore import Qt, Slot, QPointF, QRectF
-from PySide2.QtGui import QPainter, QPixmap, QRadialGradient, QPen, QBrush, QColor, QPolygonF
+from PySide2.QtGui import QPainter, QPixmap, QRadialGradient, QPen, QBrush, QColor
 
 from .. import calculation as calc
 from ..api_control import api
@@ -280,9 +280,9 @@ class Draw(Overlay):
         painter.setPen(self.pen)
         painter.setBrush(Qt.NoBrush)
         if self.wcfg["trace_style"]:
-            painter.drawPoints(QPolygonF(self.gforce_trace))
+            painter.drawPoints(self.gforce_trace)
         else:
-            painter.drawPolyline(QPolygonF(self.gforce_trace))
+            painter.drawPolyline(self.gforce_trace)
 
     def draw_dot(self, painter):
         """Draw dot"""

@@ -21,7 +21,7 @@ Heading Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QPointF, QRectF
-from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor, QPolygonF
+from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor
 
 from .. import calculation as calc
 from ..api_control import api
@@ -72,18 +72,18 @@ class Draw(Overlay):
             text_width,
             font_m.height
         )
-        self.dir_line = QPolygonF((
+        self.dir_line = (
             QPointF(0, -self.area_center * self.wcfg["direction_line_head_scale"]),
             QPointF(0, self.area_center * self.wcfg["direction_line_tail_scale"])
-        ))
-        self.yaw_line = QPolygonF((
+        )
+        self.yaw_line = (
             QPointF(0, -self.area_center * self.wcfg["yaw_line_head_scale"]),
             QPointF(0, self.area_center * self.wcfg["yaw_line_tail_scale"])
-        ))
-        self.slip_angle_line = QPolygonF((
+        )
+        self.slip_angle_line = (
             QPointF(0, -self.area_center * self.wcfg["slip_angle_line_head_scale"]),
             QPointF(0, self.area_center * self.wcfg["slip_angle_line_tail_scale"])
-        ))
+        )
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
