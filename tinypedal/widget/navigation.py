@@ -109,9 +109,9 @@ class Draw(Overlay):
 
     # GUI update methods
     def update_vehicle(self, curr, last):
-        """Vehicle update"""
+        """Vehicle sort & update"""
         if curr != last:
-            self.vehicles_data = minfo.vehicles.dataSet
+            self.vehicles_data = sorted(minfo.vehicles.dataSet, reverse=True)
             self.update()
 
     def update_map(self, curr, last):
@@ -313,7 +313,7 @@ class Draw(Overlay):
 
         # Draw vehicle within view range
         painter.resetTransform()
-        for veh_info in sorted(self.vehicles_data, reverse=True):
+        for veh_info in self.vehicles_data:
             # Draw player vehicle
             if veh_info.isPlayer:
                 self.brush.setColor(QColor(self.wcfg["vehicle_color_player"]))

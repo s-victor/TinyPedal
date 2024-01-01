@@ -97,9 +97,9 @@ class Draw(Overlay):
                 self.create_map_path(minfo.mapping.coordinates), self.circular_map)
 
     def update_vehicle(self, curr, last):
-        """Vehicle update"""
+        """Vehicle sort & update"""
         if curr != last:
-            self.vehicles_data = minfo.vehicles.dataSet
+            self.vehicles_data = sorted(minfo.vehicles.dataSet, reverse=True)
             self.update()
 
     def paintEvent(self, event):
@@ -246,7 +246,7 @@ class Draw(Overlay):
         if self.wcfg["show_vehicle_standings"]:
             painter.setFont(self.font)
 
-        for veh_info in sorted(self.vehicles_data, reverse=True):
+        for veh_info in self.vehicles_data:
             if self.last_coords_hash:
                 pos_x, pos_y = self.vehicle_scale(*veh_info.posXZ)
                 offset = 0
