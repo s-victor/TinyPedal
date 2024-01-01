@@ -60,6 +60,32 @@ class Draw(Overlay):
         self.pen = QPen()
         self.brush = QBrush(Qt.SolidPattern)
 
+        # Config rect size
+        self.rect_bg_l = QRectF(
+            self.bar_edge,
+            0,
+            self.bar_width,
+            self.bar_height
+        )
+        self.rect_bg_r = QRectF(
+            self.bar_edge + self.bar_width,
+            0,
+            self.bar_width,
+            self.bar_height
+        )
+        self.rect_edge_l = QRectF(
+            0,
+            0,
+            self.bar_edge,
+            self.bar_height
+        )
+        self.rect_edge_r = QRectF(
+            self.bar_edge + self.bar_width * 2,
+            0,
+            self.bar_edge,
+            self.bar_height
+        )
+
         # Last data
         self.raw_steering = 0
         self.last_raw_steering = None
@@ -95,39 +121,35 @@ class Draw(Overlay):
         painter = QPainter(self)
         #painter.setRenderHint(QPainter.Antialiasing, True)
 
-        # Draw steering
+        self.draw_background(painter)
+
         self.draw_steering(painter)
 
+        if self.wcfg["show_scale_mark"]:
+            self.draw_scale_mark(painter)
+
+        if self.wcfg["show_steering_angle"]:
+            self.draw_readings(painter)
+
+    def draw_background(self, painter):
+        """Draw background"""
+        painter.setPen(Qt.NoPen)
+        self.brush.setColor(QColor(self.wcfg["bkg_color"]))
+        painter.setBrush(self.brush)
+        painter.drawRect(self.rect_bg_l)
+        painter.drawRect(self.rect_bg_r)
+
+        # Edge mark
+        self.brush.setColor(QColor(self.wcfg["bar_edge_color"]))
+        painter.setBrush(self.brush)
+        painter.drawRect(self.rect_edge_l)
+        painter.drawRect(self.rect_edge_r)
+
+        # Center mark
+        painter.drawRect(self.bar_edge + self.bar_width - 1, 0, 2, self.bar_height)
+
     def draw_steering(self, painter):
-        """Steering"""
-        # Background size
-        rect_bg_l = QRectF(
-            self.bar_edge,
-            0,
-            self.bar_width,
-            self.bar_height
-        )
-        rect_bg_r = QRectF(
-            self.bar_edge + self.bar_width,
-            0,
-            self.bar_width,
-            self.bar_height
-        )
-
-        # Edge size
-        rect_edge_l = QRectF(
-            0,
-            0,
-            self.bar_edge,
-            self.bar_height
-        )
-        rect_edge_r = QRectF(
-            self.bar_edge + self.bar_width * 2,
-            0,
-            self.bar_edge,
-            self.bar_height
-        )
-
+        """Draw steering"""
         # Steering size
         rect_steering_l = QRectF(
             self.bar_edge + self.bar_width + min(self.raw_steering, 0) * self.bar_width,
@@ -142,66 +164,50 @@ class Draw(Overlay):
             self.bar_height
         )
 
-        # Update background
-        painter.setPen(Qt.NoPen)
-        self.brush.setColor(QColor(self.wcfg["bkg_color"]))
-        painter.setBrush(self.brush)
-        painter.drawRect(rect_bg_l)
-        painter.drawRect(rect_bg_r)
-
-        # Edge mark
-        self.brush.setColor(QColor(self.wcfg["bar_edge_color"]))
-        painter.setBrush(self.brush)
-        painter.drawRect(rect_edge_l)
-        painter.drawRect(rect_edge_r)
-
-        # Center mark
-        painter.drawRect(self.bar_edge + self.bar_width - 1, 0, 2, self.bar_height)
-
         # Update steering
         self.brush.setColor(QColor(self.wcfg["steering_color"]))
         painter.setBrush(self.brush)
         painter.drawRect(rect_steering_l)
         painter.drawRect(rect_steering_r)
 
-        # Scale mark
-        if self.wcfg["show_scale_mark"]:
-            if self.sw_rot_range != self.last_sw_rot_range:  # recalc if changed
-                self.last_sw_rot_range = self.sw_rot_range
-                self.mark_gap, self.mark_num = self.scale_mark(
-                    max(self.wcfg["scale_mark_degree"], 10),
-                    self.sw_rot_range,
-                    self.bar_width
+    def draw_scale_mark(self, painter):
+        """Draw scale mark"""
+        if self.sw_rot_range != self.last_sw_rot_range:  # recalc if changed
+            self.last_sw_rot_range = self.sw_rot_range
+            self.mark_gap, self.mark_num = self.scale_mark(
+                max(self.wcfg["scale_mark_degree"], 10),
+                self.sw_rot_range,
+                self.bar_width
+            )
+        self.brush.setColor(QColor(self.wcfg["scale_mark_color"]))
+        painter.setBrush(self.brush)
+        if self.mark_num:
+            for idx in range(self.mark_num):
+                painter.drawRect(
+                    self.bar_edge + self.bar_width - self.mark_gap * (idx + 1),
+                    0, 1, self.bar_height
                 )
-            self.brush.setColor(QColor(self.wcfg["scale_mark_color"]))
-            painter.setBrush(self.brush)
-            if self.mark_num:
-                for idx in range(self.mark_num):
-                    painter.drawRect(
-                        self.bar_edge + self.bar_width - self.mark_gap * (idx + 1),
-                        0, 1, self.bar_height
-                    )
-                    painter.drawRect(
-                        self.bar_edge + self.bar_width + self.mark_gap * (idx + 1),
-                        0, 1, self.bar_height
-                    )
+                painter.drawRect(
+                    self.bar_edge + self.bar_width + self.mark_gap * (idx + 1),
+                    0, 1, self.bar_height
+                )
 
-        # Update text
-        if self.wcfg["show_steering_angle"]:
-            angle = round(self.raw_steering * self.sw_rot_range / 2)
-            self.pen.setColor(QColor(self.wcfg["font_color"]))
-            painter.setPen(self.pen)
-            painter.setFont(self.font)
-            painter.drawText(
-                rect_bg_l.adjusted(self.padx, self.font_offset, 0, 0),
-                Qt.AlignLeft | Qt.AlignVCenter,
-                f"{abs(angle)}" if min(angle, 0) else ""
-            )
-            painter.drawText(
-                rect_bg_r.adjusted(0, self.font_offset, -self.padx, 0),
-                Qt.AlignRight | Qt.AlignVCenter,
-                f"{abs(angle)}" if max(angle, 0) else ""
-            )
+    def draw_readings(self, painter):
+        """Draw readings"""
+        angle = round(self.raw_steering * self.sw_rot_range / 2)
+        self.pen.setColor(QColor(self.wcfg["font_color"]))
+        painter.setPen(self.pen)
+        painter.setFont(self.font)
+        painter.drawText(
+            self.rect_bg_l.adjusted(self.padx, self.font_offset, 0, 0),
+            Qt.AlignLeft | Qt.AlignVCenter,
+            f"{abs(angle)}" if min(angle, 0) else ""
+        )
+        painter.drawText(
+            self.rect_bg_r.adjusted(0, self.font_offset, -self.padx, 0),
+            Qt.AlignRight | Qt.AlignVCenter,
+            f"{abs(angle)}" if max(angle, 0) else ""
+        )
 
     # Additional methods
     @staticmethod

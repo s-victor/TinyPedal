@@ -150,17 +150,8 @@ class Draw(Overlay):
         # Draw circle background
         painter.drawPixmap(
             0, 0, self.area_size, self.area_size, self.circle_background)
-
         # Draw compass bearing
-        painter.resetTransform()
-        painter.translate(self.area_center, self.area_center)
-        painter.rotate(self.veh_ori_yaw)
-        painter.drawPixmap(
-            -self.area_center, -self.area_center,
-            self.area_size, self.area_size,
-            self.icon_inst)
-        painter.resetTransform()
-
+        self.draw_compass_bearing(painter)
         # Draw yaw line
         if self.wcfg["show_yaw_line"]:
             self.draw_yaw_line(painter)
@@ -175,9 +166,9 @@ class Draw(Overlay):
             self.draw_dot(painter)
         # Draw text
         if self.wcfg["show_yaw_angle_reading"]:
-            self.draw_yaw_text(painter)
+            self.draw_yaw_readings(painter)
         if self.wcfg["show_slip_angle_reading"]:
-            self.draw_slip_angle_text(painter)
+            self.draw_slip_angle_readings(painter)
 
     def draw_circle_background(self):
         """Draw circle background"""
@@ -231,17 +222,15 @@ class Draw(Overlay):
                 self.area_center
             )
 
-    def draw_direction_line(self, painter):
-        """Draw direction line"""
-        self.pen.setWidth(self.wcfg["direction_line_width"])
-        self.pen.setColor(QColor(self.wcfg["direction_line_color"]))
-        self.pen.setStyle(Qt.SolidLine)
-        painter.setPen(self.pen)
-        painter.setBrush(Qt.NoBrush)
+    def draw_compass_bearing(self, painter):
+        """Draw compass bearing"""
         painter.resetTransform()
         painter.translate(self.area_center, self.area_center)
-        painter.rotate(self.yaw_angle)
-        painter.drawPolyline(self.dir_line)
+        painter.rotate(self.veh_ori_yaw)
+        painter.drawPixmap(
+            -self.area_center, -self.area_center,
+            self.area_size, self.area_size,
+            self.icon_inst)
         painter.resetTransform()
 
     def draw_yaw_line(self, painter):
@@ -270,6 +259,19 @@ class Draw(Overlay):
         painter.drawPolyline(self.slip_angle_line)
         painter.resetTransform()
 
+    def draw_direction_line(self, painter):
+        """Draw direction line"""
+        self.pen.setWidth(self.wcfg["direction_line_width"])
+        self.pen.setColor(QColor(self.wcfg["direction_line_color"]))
+        self.pen.setStyle(Qt.SolidLine)
+        painter.setPen(self.pen)
+        painter.setBrush(Qt.NoBrush)
+        painter.resetTransform()
+        painter.translate(self.area_center, self.area_center)
+        painter.rotate(self.yaw_angle)
+        painter.drawPolyline(self.dir_line)
+        painter.resetTransform()
+
     def draw_dot(self, painter):
         """Draw dot"""
         if self.wcfg["dot_outline_width"]:
@@ -288,8 +290,8 @@ class Draw(Overlay):
             self.dot_size
         )
 
-    def draw_yaw_text(self, painter):
-        """Draw yaw text"""
+    def draw_yaw_readings(self, painter):
+        """Draw yaw readings"""
         painter.setFont(self.font)
         self.pen.setColor(QColor(self.wcfg["font_color_yaw_angle"]))
         painter.setPen(self.pen)
@@ -299,8 +301,8 @@ class Draw(Overlay):
             self.format_angle(self.display_yaw_angle(self.yaw_angle))
         )
 
-    def draw_slip_angle_text(self, painter):
-        """Draw slip angle text"""
+    def draw_slip_angle_readings(self, painter):
+        """Draw slip angle readings"""
         painter.setFont(self.font)
         self.pen.setColor(QColor(self.wcfg["font_color_slip_angle"]))
         painter.setPen(self.pen)

@@ -58,6 +58,9 @@ class Draw(Overlay):
         self.pen = QPen()
         self.brush = QBrush(Qt.SolidPattern)
 
+        # Config rect size
+        self.rect_drs = QRectF(0, 0, self.drs_width, self.drs_height)
+
         # Last data
         self.drs_state = (0, 0)
         self.last_drs_state = None
@@ -87,28 +90,26 @@ class Draw(Overlay):
         painter = QPainter(self)
         #painter.setRenderHint(QPainter.Antialiasing, True)
 
-        # Draw DRS
-        self.draw_drs(painter)
-
-    def draw_drs(self, painter):
-        """DRS"""
         fg_color, bg_color = self.color_drs(self.drs_state)
+
+        self.draw_background(painter, bg_color)
+
+        self.draw_drs(painter, fg_color)
+
+    def draw_background(self, painter, bg_color):
+        """Draw background"""
         self.brush.setColor(QColor(bg_color))
-        self.pen.setColor(QColor(fg_color))
-
-        # Set gauge size
-        rect_drs = QRectF(0, 0, self.drs_width, self.drs_height)
-
-        # Update DRS background
         painter.setPen(Qt.NoPen)
         painter.setBrush(self.brush)
-        painter.drawRect(rect_drs)
+        painter.drawRect(self.rect_drs)
 
-        # Update DRS text
+    def draw_drs(self, painter, fg_color):
+        """Draw DRS"""
+        self.pen.setColor(QColor(fg_color))
         painter.setPen(self.pen)
         painter.setFont(self.font)
         painter.drawText(
-            rect_drs.adjusted(0, self.font_offset, 0, 0),
+            self.rect_drs.adjusted(0, self.font_offset, 0, 0),
             Qt.AlignCenter,
             "DRS"
         )

@@ -64,6 +64,32 @@ class Draw(Overlay):
         self.pen = QPen()
         self.pen.setColor(QColor(self.wcfg["font_color"]))
 
+        # Config rect size
+        self.rect_bg_fl = QRectF(
+            0,
+            0,
+            self.bar_width,
+            self.bar_height
+        )
+        self.rect_bg_fr = QRectF(
+            self.bar_width + self.bar_gap,
+            0,
+            self.bar_width,
+            self.bar_height
+        )
+        self.rect_bg_rl = QRectF(
+            0,
+            self.bar_height + self.bar_gap,
+            self.bar_width,
+            self.bar_height
+        )
+        self.rect_bg_rr = QRectF(
+            self.bar_width + self.bar_gap,
+            self.bar_height + self.bar_gap,
+            self.bar_width,
+            self.bar_height
+        )
+
         # Last data
         self.pos_raw = [0] * 4
         self.last_pos_raw = [0] * 4
@@ -92,36 +118,23 @@ class Draw(Overlay):
         painter = QPainter(self)
         #painter.setRenderHint(QPainter.Antialiasing, True)
 
-        # Draw suspension position
+        self.draw_background(painter)
+
         self.draw_susp_pos(painter)
 
+        self.draw_readings(painter)
+
+    def draw_background(self, painter):
+        """Draw background"""
+        painter.setPen(Qt.NoPen)
+        bkg_color = QColor(self.wcfg["bkg_color"])
+        painter.fillRect(self.rect_bg_fl, bkg_color)
+        painter.fillRect(self.rect_bg_fr, bkg_color)
+        painter.fillRect(self.rect_bg_rl, bkg_color)
+        painter.fillRect(self.rect_bg_rr, bkg_color)
+
     def draw_susp_pos(self, painter):
-        """Suspension position"""
-        # Background size
-        rect_bg_fl = QRectF(
-            0,
-            0,
-            self.bar_width,
-            self.bar_height
-        )
-        rect_bg_fr = QRectF(
-            self.bar_width + self.bar_gap,
-            0,
-            self.bar_width,
-            self.bar_height
-        )
-        rect_bg_rl = QRectF(
-            0,
-            self.bar_height + self.bar_gap,
-            self.bar_width,
-            self.bar_height
-        )
-        rect_bg_rr = QRectF(
-            self.bar_width + self.bar_gap,
-            self.bar_height + self.bar_gap,
-            self.bar_width,
-            self.bar_height
-        )
+        """Draw suspension position"""
         # Suspension position size
         pos_fl_abs = abs(self.pos_raw[0]) * self.width_scale
         susp_pos_fl = QRectF(
@@ -150,39 +163,32 @@ class Draw(Overlay):
             self.bar_height
         )
 
-        # Update background
-        painter.setPen(Qt.NoPen)
-        bkg_color = QColor(self.wcfg["bkg_color"])
-        painter.fillRect(rect_bg_fl, bkg_color)
-        painter.fillRect(rect_bg_fr, bkg_color)
-        painter.fillRect(rect_bg_rl, bkg_color)
-        painter.fillRect(rect_bg_rr, bkg_color)
-
         painter.fillRect(susp_pos_fl, QColor(self.color_pos(self.pos_raw[0])))
         painter.fillRect(susp_pos_fr, QColor(self.color_pos(self.pos_raw[1])))
         painter.fillRect(susp_pos_rl, QColor(self.color_pos(self.pos_raw[2])))
         painter.fillRect(susp_pos_rr, QColor(self.color_pos(self.pos_raw[3])))
 
-        # Update text
+    def draw_readings(self, painter):
+        """Draw readings"""
         painter.setPen(self.pen)
         painter.setFont(self.font)
         painter.drawText(
-            rect_bg_fl.adjusted(self.padx, self.font_offset, 0, 0),
+            self.rect_bg_fl.adjusted(self.padx, self.font_offset, 0, 0),
             Qt.AlignLeft | Qt.AlignVCenter,
             f"{self.pos_raw[0]:.0f}"
         )
         painter.drawText(
-            rect_bg_fr.adjusted(0, self.font_offset, -self.padx, 0),
+            self.rect_bg_fr.adjusted(0, self.font_offset, -self.padx, 0),
             Qt.AlignRight | Qt.AlignVCenter,
             f"{self.pos_raw[1]:.0f}"
         )
         painter.drawText(
-            rect_bg_rl.adjusted(self.padx, self.font_offset, 0, 0),
+            self.rect_bg_rl.adjusted(self.padx, self.font_offset, 0, 0),
             Qt.AlignLeft | Qt.AlignVCenter,
             f"{self.pos_raw[2]:.0f}"
         )
         painter.drawText(
-            rect_bg_rr.adjusted(0, self.font_offset, -self.padx, 0),
+            self.rect_bg_rr.adjusted(0, self.font_offset, -self.padx, 0),
             Qt.AlignRight | Qt.AlignVCenter,
             f"{self.pos_raw[3]:.0f}"
         )

@@ -102,15 +102,13 @@ class Draw(Overlay):
             self.delta_best,
             self.dbar_length)
 
-        # Draw deltabar
         if self.wcfg["show_delta_bar"]:
             self.draw_deltabar(painter, delta_pos)
 
-        # Draw deltabest
-        self.draw_deltabest(painter, delta_pos)
+        self.draw_readings(painter, delta_pos)
 
     def draw_deltabar(self, painter, delta_pos):
-        """Deltabar"""
+        """Draw deltabar"""
         painter.setPen(Qt.NoPen)
 
         if self.delta_best > 0:
@@ -135,8 +133,8 @@ class Draw(Overlay):
         painter.setBrush(self.brush)
         painter.drawRect(rect_deltapos)
 
-    def draw_deltabest(self, painter, delta_pos):
-        """Deltabest"""
+    def draw_readings(self, painter, delta_pos):
+        """Draw readings"""
         if self.wcfg["swap_style"]:
             self.pen.setColor(QColor(self.wcfg["bkg_color_deltabest"]))
             self.brush.setColor(QColor(self.color_delta(self.delta_best)))

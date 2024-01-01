@@ -64,6 +64,32 @@ class Draw(Overlay):
         self.pen = QPen()
         self.pen.setColor(QColor(self.wcfg["font_color"]))
 
+        # Config rect size
+        self.rect_bg_fl = QRectF(
+            0,
+            0,
+            self.bar_width,
+            self.bar_height
+        )
+        self.rect_bg_fr = QRectF(
+            self.bar_width + self.bar_gap,
+            0,
+            self.bar_width,
+            self.bar_height
+        )
+        self.rect_bg_rl = QRectF(
+            0,
+            self.bar_height + self.bar_gap,
+            self.bar_width,
+            self.bar_height
+        )
+        self.rect_bg_rr = QRectF(
+            self.bar_width + self.bar_gap,
+            self.bar_height + self.bar_gap,
+            self.bar_width,
+            self.bar_height
+        )
+
         # Last data
         self.tload = [0] * 4
         self.tratio = [0] * 4
@@ -96,36 +122,24 @@ class Draw(Overlay):
         painter = QPainter(self)
         #painter.setRenderHint(QPainter.Antialiasing, True)
 
-        # Draw tyre load
+        self.draw_background(painter)
+
         self.draw_tyre_load(painter)
 
+        self.draw_readings(painter)
+
+    def draw_background(self, painter):
+        """Draw background"""
+        # Update background
+        painter.setPen(Qt.NoPen)
+        bkg_color = QColor(self.wcfg["bkg_color"])
+        painter.fillRect(self.rect_bg_fl, bkg_color)
+        painter.fillRect(self.rect_bg_fr, bkg_color)
+        painter.fillRect(self.rect_bg_rl, bkg_color)
+        painter.fillRect(self.rect_bg_rr, bkg_color)
+
     def draw_tyre_load(self, painter):
-        """Tyre load"""
-        # Background size
-        rect_bg_fl = QRectF(
-            0,
-            0,
-            self.bar_width,
-            self.bar_height
-        )
-        rect_bg_fr = QRectF(
-            self.bar_width + self.bar_gap,
-            0,
-            self.bar_width,
-            self.bar_height
-        )
-        rect_bg_rl = QRectF(
-            0,
-            self.bar_height + self.bar_gap,
-            self.bar_width,
-            self.bar_height
-        )
-        rect_bg_rr = QRectF(
-            self.bar_width + self.bar_gap,
-            self.bar_height + self.bar_gap,
-            self.bar_width,
-            self.bar_height
-        )
+        """Draw tyre load"""
         # Tyre load size
         rect_load_fl = QRectF(
             self.bar_width - self.tratio[0] * self.width_scale,
@@ -152,21 +166,14 @@ class Draw(Overlay):
             self.bar_height
         )
 
-        # Update background
-        painter.setPen(Qt.NoPen)
-        bkg_color = QColor(self.wcfg["bkg_color"])
-        painter.fillRect(rect_bg_fl, bkg_color)
-        painter.fillRect(rect_bg_fr, bkg_color)
-        painter.fillRect(rect_bg_rl, bkg_color)
-        painter.fillRect(rect_bg_rr, bkg_color)
-
         hi_color = QColor(self.wcfg["highlight_color"])
         painter.fillRect(rect_load_fl, hi_color)
         painter.fillRect(rect_load_fr, hi_color)
         painter.fillRect(rect_load_rl, hi_color)
         painter.fillRect(rect_load_rr, hi_color)
 
-        # Update text
+    def draw_readings(self, painter):
+        """Draw readings"""
         if self.wcfg["show_tyre_load_ratio"]:
             display_text = self.tratio
         else:
@@ -175,22 +182,22 @@ class Draw(Overlay):
         painter.setPen(self.pen)
         painter.setFont(self.font)
         painter.drawText(
-            rect_bg_fl.adjusted(self.padx, self.font_offset, 0, 0),
+            self.rect_bg_fl.adjusted(self.padx, self.font_offset, 0, 0),
             Qt.AlignLeft | Qt.AlignVCenter,
             f"{display_text[0]:.0f}"
         )
         painter.drawText(
-            rect_bg_fr.adjusted(0, self.font_offset, -self.padx, 0),
+            self.rect_bg_fr.adjusted(0, self.font_offset, -self.padx, 0),
             Qt.AlignRight | Qt.AlignVCenter,
             f"{display_text[1]:.0f}"
         )
         painter.drawText(
-            rect_bg_rl.adjusted(self.padx, self.font_offset, 0, 0),
+            self.rect_bg_rl.adjusted(self.padx, self.font_offset, 0, 0),
             Qt.AlignLeft | Qt.AlignVCenter,
             f"{display_text[2]:.0f}"
         )
         painter.drawText(
-            rect_bg_rr.adjusted(0, self.font_offset, -self.padx, 0),
+            self.rect_bg_rr.adjusted(0, self.font_offset, -self.padx, 0),
             Qt.AlignRight | Qt.AlignVCenter,
             f"{display_text[3]:.0f}"
         )
