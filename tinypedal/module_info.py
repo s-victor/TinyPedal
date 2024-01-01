@@ -116,7 +116,7 @@ class SectorsInfo:
 @dataclass
 class VehiclesInfo:
     """Vehicles module output data"""
-    dataSet: list = field(default_factory=list)
+    dataSet: tuple = field(default_factory=tuple)
     dataSetVersion: int = -1
     nearestStraight: float = 999999
     nearestTraffic: float = 999999
