@@ -64,10 +64,10 @@ class Draw(Overlay):
             )
         else:
             self.veh_shape = (
-                QPointF(0,-self.veh_size),
-                QPointF(self.veh_size,self.veh_size),
-                QPointF(0,self.veh_size * 0.6),
-                QPointF(-self.veh_size,self.veh_size),
+                QPointF(0, -self.veh_size),
+                QPointF(self.veh_size, self.veh_size),
+                QPointF(0, self.veh_size * 0.6),
+                QPointF(-self.veh_size, self.veh_size),
             )
 
         # Config canvas
@@ -124,6 +124,7 @@ class Draw(Overlay):
         """Draw"""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
 
         # Draw map
         self.rotate_map(painter)
@@ -175,9 +176,10 @@ class Draw(Overlay):
                 (self.area_center - self.wcfg["circle_outline_width"]) * 2
             )
 
-    def transform_map_coords(self):
-        """Transform map coordinates"""
-        # player vehicle orientation yaw radians + 180 deg rotation correction
+    def rotate_map(self, painter):
+        """Rotate map"""
+        # Transform map coordinates
+        # Player vehicle orientation yaw radians + 180 deg rotation correction
         plr_ori_rad = api.read.vehicle.orientation_yaw_radians() + 3.14159265
         # x, y position & offset relative to player
         rot_pos_x, rot_pos_y = calc.rotate_pos(
@@ -188,12 +190,7 @@ class Draw(Overlay):
         plr_ori_deg = calc.rad2deg(plr_ori_rad)
         center_offset_x = self.area_center - rot_pos_x
         center_offset_y = self.veh_offset_y - rot_pos_y
-        return plr_ori_deg, center_offset_x, center_offset_y
-
-    def rotate_map(self, painter):
-        """Rotate map"""
-        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
-        plr_ori_deg, center_offset_x, center_offset_y = self.transform_map_coords()
+        # Draw rotated map
         painter.resetTransform()
         painter.translate(center_offset_x, center_offset_y)
         painter.rotate(plr_ori_deg)
@@ -219,7 +216,7 @@ class Draw(Overlay):
             self.map_scaled = None
             self.map_rect = 0,0,1,1
             self.map_offset = 0,0
-            map_path.addRect(QRectF(-99999,-99999,0,0))
+            map_path.addRect(QRectF(-99999, -99999, 0, 0))
         return map_path
 
     def draw_map_image(self, map_path):

@@ -60,6 +60,15 @@ class Draw(Overlay):
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
         text_width = font_m.width * (5 + self.decimals)
 
+        # Config canvas
+        self.resize(self.area_size, self.area_size)
+
+        self.pen = QPen()
+        self.pen.setCapStyle(Qt.RoundCap)
+        self.brush = QBrush(Qt.SolidPattern)
+        self.draw_circle_background()
+
+        # Config rect size
         self.rect_yaw_angle = QRectF(
             self.area_size * self.wcfg["yaw_angle_offset_x"] - text_width / 2,
             self.area_size * self.wcfg["yaw_angle_offset_y"] - font_m.height / 2,
@@ -84,19 +93,17 @@ class Draw(Overlay):
             QPointF(0, -self.area_center * self.wcfg["slip_angle_line_head_scale"]),
             QPointF(0, self.area_center * self.wcfg["slip_angle_line_tail_scale"])
         )
-
-        # Config canvas
-        self.resize(self.area_size, self.area_size)
-
-        self.pen = QPen()
-        self.pen.setCapStyle(Qt.RoundCap)
-        self.brush = QBrush(Qt.SolidPattern)
-        self.draw_circle_background()
+        self.rect_dot = QRectF(
+            (self.area_size - self.dot_size) / 2,
+            (self.area_size - self.dot_size) / 2,
+            self.dot_size,
+            self.dot_size
+        )
 
         # Last data
         self.veh_ori_yaw = 0
         self.last_veh_ori_yaw = None
-        self.last_pos = (0,0)
+        self.last_pos = 0,0
         self.yaw_angle = 0
         self.slip_angle = 0
 
@@ -283,12 +290,7 @@ class Draw(Overlay):
 
         self.brush.setColor(QColor(self.wcfg["dot_color"]))
         painter.setBrush(self.brush)
-        painter.drawEllipse(
-            (self.area_size - self.dot_size) / 2,
-            (self.area_size - self.dot_size) / 2,
-            self.dot_size,
-            self.dot_size
-        )
+        painter.drawEllipse(self.rect_dot)
 
     def draw_yaw_readings(self, painter):
         """Draw yaw readings"""

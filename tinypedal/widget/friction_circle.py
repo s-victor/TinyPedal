@@ -93,7 +93,7 @@ class Draw(Overlay):
         # Last data
         self.checked = False
 
-        self.gforce_raw = [0,0]
+        self.gforce_raw = 0,0
         self.last_gforce_raw = None
         self.gforce_trace = deque([], max(self.wcfg["trace_max_samples"], 5))
 
@@ -257,6 +257,8 @@ class Draw(Overlay):
         """Draw circle mark"""
         if radius <= self.display_radius_g and width:
             circle_scale = round(radius * self.global_scale)
+            circle_pos = self.area_center - circle_scale
+            circle_size = circle_scale * 2
             if style:
                 self.pen.setStyle(Qt.SolidLine)
             else:
@@ -265,12 +267,7 @@ class Draw(Overlay):
             self.pen.setColor(QColor(color))
             painter.setPen(self.pen)
             painter.setBrush(Qt.NoBrush)
-            painter.drawEllipse(
-                self.area_center - circle_scale,
-                self.area_center - circle_scale,
-                circle_scale * 2,
-                circle_scale * 2
-            )
+            painter.drawEllipse(circle_pos, circle_pos, circle_size, circle_size)
 
     def draw_trace(self, painter):
         """Draw trace"""
