@@ -239,7 +239,7 @@ class Draw(Overlay):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and api.state and minfo.relative.standings:
+        if api.state and minfo.relative.standings:
 
             standings_idx = minfo.relative.standings
             vehicles_data = minfo.vehicles.dataSet

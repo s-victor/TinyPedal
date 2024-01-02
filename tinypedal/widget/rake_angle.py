@@ -82,7 +82,7 @@ class Draw(Overlay):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and api.state:
+        if api.state:
 
             # Rake angle
             rake = round(calc.rake(*api.read.wheel.ride_height()), 2)

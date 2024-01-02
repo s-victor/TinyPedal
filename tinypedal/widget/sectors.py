@@ -160,7 +160,7 @@ class Draw(Overlay):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and api.state and minfo.sectors.sectorPrev:
+        if api.state and minfo.sectors.sectorPrev:
 
             # Read Sector data
             lap_stime = api.read.timing.start()

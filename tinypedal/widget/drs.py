@@ -71,7 +71,7 @@ class Draw(Overlay):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and api.state:
+        if api.state:
 
             # DRS update
             self.drs_state = (api.read.switch.drs(),

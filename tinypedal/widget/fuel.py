@@ -260,7 +260,7 @@ class Draw(Overlay):
     @Slot()
     def update_data(self):
         """Update when vehicle on track"""
-        if self.wcfg["enable"] and api.state:
+        if api.state:
 
             # Estimated end fuel
             amount_end = f"{self.fuel_units(minfo.fuel.amountFuelBeforePitstop):.{self.decimals[0]}f}"
