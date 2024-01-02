@@ -22,7 +22,7 @@ Friction circle Widget
 
 from collections import deque
 from PySide2.QtCore import Qt, Slot, QPointF, QRectF
-from PySide2.QtGui import QPainter, QPixmap, QRadialGradient, QPen, QBrush, QColor
+from PySide2.QtGui import QPainter, QPixmap, QRadialGradient, QPen, QBrush
 
 from .. import calculation as calc
 from ..api_control import api
@@ -171,7 +171,7 @@ class Draw(Overlay):
         """Draw g circle background"""
         self.circle_background = QPixmap(self.area_size, self.area_size)
         if self.wcfg["show_background"]:
-            self.circle_background.fill(QColor(self.wcfg["bkg_color"]))
+            self.circle_background.fill(self.wcfg["bkg_color"])
         else:
             self.circle_background.fill(Qt.transparent)
         painter = QPainter(self.circle_background)
@@ -190,13 +190,13 @@ class Draw(Overlay):
                 )
                 rad_gra.setColorAt(
                     calc.zero_one_range(self.wcfg["fade_in_radius"]),
-                    QColor(self.wcfg["bkg_color_circle"]))
+                    self.wcfg["bkg_color_circle"])
                 rad_gra.setColorAt(
                     calc.zero_one_range(self.wcfg["fade_out_radius"]),
                     Qt.transparent)
                 painter.setBrush(rad_gra)
             else:
-                self.brush.setColor(QColor(self.wcfg["bkg_color_circle"]))
+                self.brush.setColor(self.wcfg["bkg_color_circle"])
                 painter.setBrush(self.brush)
             painter.drawEllipse(
                 self.area_center - circle_scale,
@@ -215,7 +215,7 @@ class Draw(Overlay):
                 self.wcfg["center_mark_radius_g"], self.display_radius_g
             )
             self.pen.setWidth(self.wcfg["center_mark_width"])
-            self.pen.setColor(QColor(self.wcfg["center_mark_color"]))
+            self.pen.setColor(self.wcfg["center_mark_color"])
             painter.setPen(self.pen)
             painter.drawLine(
                 self.area_center,
@@ -264,7 +264,7 @@ class Draw(Overlay):
             else:
                 self.pen.setStyle(Qt.DashLine)
             self.pen.setWidth(width)
-            self.pen.setColor(QColor(color))
+            self.pen.setColor(color)
             painter.setPen(self.pen)
             painter.setBrush(Qt.NoBrush)
             painter.drawEllipse(circle_pos, circle_pos, circle_size, circle_size)
@@ -272,7 +272,7 @@ class Draw(Overlay):
     def draw_trace(self, painter):
         """Draw trace"""
         self.pen.setWidth(self.wcfg["trace_width"])
-        self.pen.setColor(QColor(self.wcfg["trace_color"]))
+        self.pen.setColor(self.wcfg["trace_color"])
         self.pen.setStyle(Qt.SolidLine)
         painter.setPen(self.pen)
         painter.setBrush(Qt.NoBrush)
@@ -285,12 +285,12 @@ class Draw(Overlay):
         """Draw dot"""
         if self.wcfg["dot_outline_width"]:
             self.pen.setWidth(self.wcfg["dot_outline_width"])
-            self.pen.setColor(QColor(self.wcfg["dot_outline_color"]))
+            self.pen.setColor(self.wcfg["dot_outline_color"])
             painter.setPen(self.pen)
         else:
             painter.setPen(Qt.NoPen)
 
-        self.brush.setColor(QColor(self.wcfg["dot_color"]))
+        self.brush.setColor(self.wcfg["dot_color"])
         painter.setBrush(self.brush)
         painter.drawEllipse(
             self.scale_position(self.gforce_raw[1]) - self.dot_size / 2,
@@ -305,7 +305,7 @@ class Draw(Overlay):
         painter.setFont(self.font)
 
         # Current G reading
-        self.pen.setColor(QColor(self.wcfg["font_color"]))
+        self.pen.setColor(self.wcfg["font_color"])
         painter.setPen(self.pen)
 
         painter.drawText(
@@ -320,7 +320,7 @@ class Draw(Overlay):
         )
 
         # Max G reading
-        self.pen.setColor(QColor(self.wcfg["font_color_highlight"]))
+        self.pen.setColor(self.wcfg["font_color_highlight"])
         painter.setPen(self.pen)
         painter.drawText(
             self.rect_gforce_bottom.adjusted(0, self.font_offset, 0, 0),

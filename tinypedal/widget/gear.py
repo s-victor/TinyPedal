@@ -21,7 +21,7 @@ Gear Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
-from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor
+from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush
 from PySide2.QtWidgets import QLabel, QGridLayout
 
 from .. import calculation as calc
@@ -256,12 +256,12 @@ class Draw(Overlay):
     def draw_gauge(self, canvas, gauge_data):
         """Gauge"""
         gauge = canvas.pixmap()
-        gauge.fill(QColor(gauge_data[2][1]))
+        gauge.fill(gauge_data[2][1])
         painter = QPainter(gauge)
         #painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Update gauge text
-        self.pen.setColor(QColor(gauge_data[2][0]))
+        self.pen.setColor(gauge_data[2][0])
         painter.setPen(self.pen)
 
         rect_gear = QRectF(0, 0, self.gear_width, self.gear_height)
@@ -305,7 +305,7 @@ class Draw(Overlay):
 
         # Draw rpm
         painter.setPen(Qt.NoPen)
-        self.brush.setColor(QColor(self.wcfg["rpm_bar_color"]))
+        self.brush.setColor(self.wcfg["rpm_bar_color"])
         painter.setBrush(self.brush)
         painter.drawRect(0, 0, rpm_scale, self.rpmbar_height)
 
@@ -320,7 +320,7 @@ class Draw(Overlay):
 
         # Draw battery
         painter.setPen(Qt.NoPen)
-        self.brush.setColor(QColor(self.wcfg["battery_bar_color"]))
+        self.brush.setColor(self.wcfg["battery_bar_color"])
         painter.setBrush(self.brush)
         painter.drawRect(0, 0, battery * 0.01 * self.gauge_width, self.battbar_height)
 
@@ -329,13 +329,13 @@ class Draw(Overlay):
     def draw_limiter(self, canvas):
         """Limiter"""
         limiter = canvas.pixmap()
-        limiter.fill(QColor(self.wcfg["bkg_color_speed_limiter"]))
+        limiter.fill(self.wcfg["bkg_color_speed_limiter"])
         painter = QPainter(limiter)
         #painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Update limiter text
         rect_text = QRectF(0, 0, self.limiter_width, self.gauge_height)
-        self.pen.setColor(QColor(self.wcfg["font_color_speed_limiter"]))
+        self.pen.setColor(self.wcfg["font_color_speed_limiter"])
         painter.setPen(self.pen)
         painter.setFont(self.font_gear)
         painter.drawText(

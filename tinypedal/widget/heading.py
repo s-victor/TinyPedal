@@ -21,7 +21,7 @@ Heading Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QPointF, QRectF
-from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor
+from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush
 
 from .. import calculation as calc
 from ..api_control import api
@@ -181,7 +181,7 @@ class Draw(Overlay):
         """Draw circle background"""
         self.circle_background = QPixmap(self.area_size, self.area_size)
         if self.wcfg["show_background"]:
-            self.circle_background.fill(QColor(self.wcfg["bkg_color"]))
+            self.circle_background.fill(self.wcfg["bkg_color"])
         else:
             self.circle_background.fill(Qt.transparent)
         painter = QPainter(self.circle_background)
@@ -190,7 +190,7 @@ class Draw(Overlay):
         # Draw circle background
         if self.wcfg["show_circle_background"]:
             painter.setPen(Qt.NoPen)
-            self.brush.setColor(QColor(self.wcfg["bkg_color_circle"]))
+            self.brush.setColor(self.wcfg["bkg_color_circle"])
             painter.setBrush(self.brush)
             painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
@@ -202,7 +202,7 @@ class Draw(Overlay):
                 self.pen.setStyle(Qt.DashLine)
             mark_scale = self.area_center * min(self.wcfg["center_mark_length_scale"], 1)
             self.pen.setWidth(self.wcfg["center_mark_width"])
-            self.pen.setColor(QColor(self.wcfg["center_mark_color"]))
+            self.pen.setColor(self.wcfg["center_mark_color"])
             painter.setPen(self.pen)
             painter.drawLine(
                 self.area_center,
@@ -243,7 +243,7 @@ class Draw(Overlay):
     def draw_yaw_line(self, painter):
         """Draw yaw line"""
         self.pen.setWidth(self.wcfg["yaw_line_width"])
-        self.pen.setColor(QColor(self.wcfg["yaw_line_color"]))
+        self.pen.setColor(self.wcfg["yaw_line_color"])
         self.pen.setStyle(Qt.SolidLine)
         painter.setPen(self.pen)
         painter.setBrush(Qt.NoBrush)
@@ -256,7 +256,7 @@ class Draw(Overlay):
     def draw_slip_angle_line(self, painter):
         """Draw slip angle line"""
         self.pen.setWidth(self.wcfg["slip_angle_line_width"])
-        self.pen.setColor(QColor(self.wcfg["slip_angle_line_color"]))
+        self.pen.setColor(self.wcfg["slip_angle_line_color"])
         self.pen.setStyle(Qt.SolidLine)
         painter.setPen(self.pen)
         painter.setBrush(Qt.NoBrush)
@@ -269,7 +269,7 @@ class Draw(Overlay):
     def draw_direction_line(self, painter):
         """Draw direction line"""
         self.pen.setWidth(self.wcfg["direction_line_width"])
-        self.pen.setColor(QColor(self.wcfg["direction_line_color"]))
+        self.pen.setColor(self.wcfg["direction_line_color"])
         self.pen.setStyle(Qt.SolidLine)
         painter.setPen(self.pen)
         painter.setBrush(Qt.NoBrush)
@@ -283,19 +283,19 @@ class Draw(Overlay):
         """Draw dot"""
         if self.wcfg["dot_outline_width"]:
             self.pen.setWidth(self.wcfg["dot_outline_width"])
-            self.pen.setColor(QColor(self.wcfg["dot_outline_color"]))
+            self.pen.setColor(self.wcfg["dot_outline_color"])
             painter.setPen(self.pen)
         else:
             painter.setPen(Qt.NoPen)
 
-        self.brush.setColor(QColor(self.wcfg["dot_color"]))
+        self.brush.setColor(self.wcfg["dot_color"])
         painter.setBrush(self.brush)
         painter.drawEllipse(self.rect_dot)
 
     def draw_yaw_readings(self, painter):
         """Draw yaw readings"""
         painter.setFont(self.font)
-        self.pen.setColor(QColor(self.wcfg["font_color_yaw_angle"]))
+        self.pen.setColor(self.wcfg["font_color_yaw_angle"])
         painter.setPen(self.pen)
         painter.drawText(
             self.rect_yaw_angle.adjusted(0, self.font_offset, 0, 0),
@@ -306,7 +306,7 @@ class Draw(Overlay):
     def draw_slip_angle_readings(self, painter):
         """Draw slip angle readings"""
         painter.setFont(self.font)
-        self.pen.setColor(QColor(self.wcfg["font_color_slip_angle"]))
+        self.pen.setColor(self.wcfg["font_color_slip_angle"])
         painter.setPen(self.pen)
         painter.drawText(
             self.rect_slip_angle.adjusted(0, self.font_offset, 0, 0),

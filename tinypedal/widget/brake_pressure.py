@@ -21,7 +21,7 @@ Brake pressure Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
-from PySide2.QtGui import QPainter, QPen, QColor
+from PySide2.QtGui import QPainter, QPen
 
 from ..api_control import api
 from ._base import Overlay
@@ -61,7 +61,7 @@ class Draw(Overlay):
         )
 
         self.pen = QPen()
-        self.pen.setColor(QColor(self.wcfg["font_color"]))
+        self.pen.setColor(self.wcfg["font_color"])
 
         # Config rect size
         self.rect_bg_fl = QRectF(
@@ -126,7 +126,7 @@ class Draw(Overlay):
     def draw_background(self, painter):
         """Draw background"""
         painter.setPen(Qt.NoPen)
-        bkg_color = QColor(self.wcfg["bkg_color"])
+        bkg_color = self.wcfg["bkg_color"]
         painter.fillRect(self.rect_bg_fl, bkg_color)
         painter.fillRect(self.rect_bg_fr, bkg_color)
         painter.fillRect(self.rect_bg_rl, bkg_color)
@@ -160,7 +160,7 @@ class Draw(Overlay):
             self.bar_height
         )
 
-        hi_color = QColor(self.wcfg["highlight_color"])
+        hi_color = self.wcfg["highlight_color"]
         painter.fillRect(rect_bpres_fl, hi_color)
         painter.fillRect(rect_bpres_fr, hi_color)
         painter.fillRect(rect_bpres_rl, hi_color)

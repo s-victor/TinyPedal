@@ -21,7 +21,7 @@ Fuel Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
-from PySide2.QtGui import QPainter, QPixmap, QColor
+from PySide2.QtGui import QPainter, QPixmap
 from PySide2.QtWidgets import QLabel, QGridLayout
 
 from .. import calculation as calc
@@ -348,14 +348,14 @@ class Draw(Overlay):
     def draw_fuel_level(self, canvas, fuel_data):
         """Fuel level"""
         fuel_level = canvas.pixmap()
-        fuel_level.fill(QColor(self.wcfg["bkg_color_fuel_level"]))
+        fuel_level.fill(self.wcfg["bkg_color_fuel_level"])
         painter = QPainter(fuel_level)
         #painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Update fuel level highlight
         painter.setPen(Qt.NoPen)
         rect_fuel_left = QRectF(0, 0, fuel_data[0] * self.fuel_level_width, self.fuel_level_height)
-        painter.fillRect(rect_fuel_left, QColor(self.wcfg["highlight_color_fuel_level"]))
+        painter.fillRect(rect_fuel_left, self.wcfg["highlight_color_fuel_level"])
 
         # Update starting fuel level mark
         if self.wcfg["show_starting_fuel_level_mark"]:
@@ -365,7 +365,7 @@ class Draw(Overlay):
                 max(self.wcfg["starting_fuel_level_mark_width"], 1),
                 self.fuel_level_height
             )
-            painter.fillRect(rect_fuel_start, QColor(self.wcfg["starting_fuel_level_mark_color"]))
+            painter.fillRect(rect_fuel_start, self.wcfg["starting_fuel_level_mark_color"])
 
         if self.wcfg["show_refueling_level_mark"]:
             rect_fuel_add = QRectF(
@@ -374,7 +374,7 @@ class Draw(Overlay):
                 max(self.wcfg["refueling_level_mark_width"], 1),
                 self.fuel_level_height
             )
-            painter.fillRect(rect_fuel_add, QColor(self.wcfg["refueling_level_mark_color"]))
+            painter.fillRect(rect_fuel_add, self.wcfg["refueling_level_mark_color"])
 
         canvas.setPixmap(fuel_level)
 

@@ -21,7 +21,7 @@ Track map Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF, QLineF
-from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QPen, QBrush, QColor
+from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QPen, QBrush
 
 from .. import calculation as calc
 from ..api_control import api
@@ -169,12 +169,12 @@ class Draw(Overlay):
 
         # Draw map outer background
         if self.wcfg["show_background"]:
-            painter.fillRect(0, 0, self.area_size, self.area_size, QColor(self.wcfg["bkg_color"]))
+            painter.fillRect(0, 0, self.area_size, self.area_size, self.wcfg["bkg_color"])
 
         # Draw map inner background
         if self.wcfg["show_map_background"] and circular_map:
             brush = QBrush(Qt.SolidPattern)
-            brush.setColor(QColor(self.wcfg["bkg_color_map"]))
+            brush.setColor(self.wcfg["bkg_color_map"])
             painter.setBrush(brush)
             painter.drawPath(map_path)
             painter.setBrush(Qt.NoBrush)
@@ -186,13 +186,13 @@ class Draw(Overlay):
         # Draw map outline
         if self.wcfg["map_outline_width"]:
             pen.setWidth(self.wcfg["map_width"] + self.wcfg["map_outline_width"])
-            pen.setColor(QColor(self.wcfg["map_outline_color"]))
+            pen.setColor(self.wcfg["map_outline_color"])
             painter.setPen(pen)
             painter.drawPath(map_path)
 
         # Draw map
         pen.setWidth(self.wcfg["map_width"])
-        pen.setColor(QColor(self.wcfg["map_color"]))
+        pen.setColor(self.wcfg["map_color"])
         painter.setPen(pen)
         painter.drawPath(map_path)
 
@@ -201,7 +201,7 @@ class Draw(Overlay):
             # SF line
             if self.wcfg["show_start_line"]:
                 pen.setWidth(self.wcfg["start_line_width"])
-                pen.setColor(QColor(self.wcfg["start_line_color"]))
+                pen.setColor(self.wcfg["start_line_color"])
                 painter.setPen(pen)
                 pos_x1, pos_y1, pos_x2, pos_y2 = calc.line_intersect_coords(
                     self.map_scaled[0],  # point a
@@ -215,7 +215,7 @@ class Draw(Overlay):
             sectors_index = minfo.mapping.sectors
             if self.wcfg["show_sector_line"] and sectors_index and all(sectors_index):
                 pen.setWidth(self.wcfg["sector_line_width"])
-                pen.setColor(QColor(self.wcfg["sector_line_color"]))
+                pen.setColor(self.wcfg["sector_line_color"])
                 painter.setPen(pen)
 
                 for idx in range(2):
@@ -230,7 +230,7 @@ class Draw(Overlay):
             # SF line
             if self.wcfg["show_start_line"]:
                 pen.setWidth(self.wcfg["start_line_width"])
-                pen.setColor(QColor(self.wcfg["start_line_color"]))
+                pen.setColor(self.wcfg["start_line_color"])
                 painter.setPen(pen)
                 painter.drawLine(
                     QLineF(
@@ -270,21 +270,19 @@ class Draw(Overlay):
             # Draw circle
             if self.wcfg["vehicle_outline_width"]:
                 self.pen.setWidth(self.wcfg["vehicle_outline_width"])
-                self.pen.setColor(QColor(self.wcfg["vehicle_outline_color"]))
+                self.pen.setColor(self.wcfg["vehicle_outline_color"])
                 painter.setPen(self.pen)
             else:
                 painter.setPen(Qt.NoPen)
 
             self.brush.setColor(
-                QColor(
-                    self.color_lapdiff(
-                        veh_info.isPlayer,
-                        veh_info.position,
-                        veh_info.inPit,
-                        veh_info.isYellow,
-                        veh_info.isLapped,
-                        veh_info.inGarage,
-                    )
+                self.color_lapdiff(
+                    veh_info.isPlayer,
+                    veh_info.position,
+                    veh_info.inPit,
+                    veh_info.isYellow,
+                    veh_info.isLapped,
+                    veh_info.inGarage,
                 )
             )
             painter.setBrush(self.brush)
@@ -292,7 +290,7 @@ class Draw(Overlay):
 
             # Draw text standings
             if self.wcfg["show_vehicle_standings"]:
-                self.pen.setColor(QColor(self.wcfg["font_color"]))
+                self.pen.setColor(self.wcfg["font_color"])
                 painter.setPen(self.pen)
                 painter.drawText(
                     rect_vehicle.adjusted(0, self.font_offset, 0, 0),

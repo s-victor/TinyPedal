@@ -21,7 +21,7 @@ Deltabest Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
-from PySide2.QtGui import QPainter, QPen, QBrush, QColor
+from PySide2.QtGui import QPainter, QPen, QBrush
 
 from .. import calculation as calc
 from ..api_control import api
@@ -124,23 +124,23 @@ class Draw(Overlay):
             pos_y = self.delta_height + self.bar_gap
 
         rect_deltabar = QRectF(0, pos_y, self.dbar_length * 2, self.dbar_height)
-        self.brush.setColor(QColor(self.wcfg["bkg_color_deltabar"]))
+        self.brush.setColor(self.wcfg["bkg_color_deltabar"])
         painter.setBrush(self.brush)
         painter.drawRect(rect_deltabar)
 
         rect_deltapos = QRectF(pos_x, pos_y, size, self.dbar_height)
-        self.brush.setColor(QColor(self.color_delta(self.delta_best)))
+        self.brush.setColor(self.color_delta(self.delta_best))
         painter.setBrush(self.brush)
         painter.drawRect(rect_deltapos)
 
     def draw_readings(self, painter, delta_pos):
         """Draw readings"""
         if self.wcfg["swap_style"]:
-            self.pen.setColor(QColor(self.wcfg["bkg_color_deltabest"]))
-            self.brush.setColor(QColor(self.color_delta(self.delta_best)))
+            self.pen.setColor(self.wcfg["bkg_color_deltabest"])
+            self.brush.setColor(self.color_delta(self.delta_best))
         else:
-            self.pen.setColor(QColor(self.color_delta(self.delta_best)))
-            self.brush.setColor(QColor(self.wcfg["bkg_color_deltabest"]))
+            self.pen.setColor(self.color_delta(self.delta_best))
+            self.brush.setColor(self.wcfg["bkg_color_deltabest"])
 
         if self.wcfg["layout"] == 0 and self.wcfg["show_delta_bar"]:
             pos_y = self.dbar_height + self.bar_gap

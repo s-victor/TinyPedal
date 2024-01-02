@@ -21,7 +21,7 @@ DRS Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
-from PySide2.QtGui import QPainter, QPen, QBrush, QColor
+from PySide2.QtGui import QPainter, QPen, QBrush
 
 from ..api_control import api
 from ._base import Overlay
@@ -98,14 +98,14 @@ class Draw(Overlay):
 
     def draw_background(self, painter, bg_color):
         """Draw background"""
-        self.brush.setColor(QColor(bg_color))
+        self.brush.setColor(bg_color)
         painter.setPen(Qt.NoPen)
         painter.setBrush(self.brush)
         painter.drawRect(self.rect_drs)
 
     def draw_drs(self, painter, fg_color):
         """Draw DRS"""
-        self.pen.setColor(QColor(fg_color))
+        self.pen.setColor(fg_color)
         painter.setPen(self.pen)
         painter.setFont(self.font)
         painter.drawText(

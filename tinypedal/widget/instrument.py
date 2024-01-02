@@ -21,7 +21,7 @@ Instrument Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
-from PySide2.QtGui import QPixmap, QPainter, QPen, QColor
+from PySide2.QtGui import QPixmap, QPainter, QPen
 from PySide2.QtWidgets import QLabel, QGridLayout
 
 from .. import calculation as calc
@@ -254,7 +254,7 @@ class Draw(Overlay):
     def draw_instrument(self, canvas, h_offset, v_offset, hicolor=None):
         """Instrument"""
         icon = canvas.pixmap()
-        icon.fill(QColor(self.wcfg["bkg_color"] if not hicolor else hicolor))
+        icon.fill(self.wcfg["bkg_color"] if not hicolor else hicolor)
         painter = QPainter(icon)
 
         # Set size

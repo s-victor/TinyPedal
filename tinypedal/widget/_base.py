@@ -23,7 +23,7 @@ Overlay window, events.
 from dataclasses import dataclass
 
 from PySide2.QtCore import Qt, QTimer, Slot
-from PySide2.QtGui import QColor, QPalette, QFont, QFontMetrics
+from PySide2.QtGui import QPalette, QFont, QFontMetrics
 from PySide2.QtWidgets import QWidget
 
 from ..const import APP_NAME
@@ -59,7 +59,7 @@ class Overlay(QWidget):
         self.move(self.wcfg["position_x"], self.wcfg["position_y"])
         background_color = QPalette()
         background_color.setColor(
-            QPalette.Window, QColor(self.cfg.compatibility["global_bkg_color"]))
+            QPalette.Window, self.cfg.compatibility["global_bkg_color"])
         self.setPalette(background_color)
 
         # Widget mouse event

@@ -21,7 +21,7 @@ Pedal Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF, QSize
-from PySide2.QtGui import QPixmap, QPainter, QColor
+from PySide2.QtGui import QPixmap, QPainter
 from PySide2.QtWidgets import QLabel, QGridLayout
 
 from ..api_control import api
@@ -204,7 +204,7 @@ class Draw(Overlay):
     def draw_pedal(self, canvas, input_raw, input_filter, color=None):
         """Instrument"""
         pedal = canvas.pixmap()
-        pedal.fill(QColor(self.wcfg["bkg_color"]))
+        pedal.fill(self.wcfg["bkg_color"])
         painter = QPainter(pedal)
         painter.setPen(Qt.NoPen)
 
@@ -226,21 +226,21 @@ class Draw(Overlay):
                 rect_max = QRectF(
                     self.pedal_length + self.max_gap, 0,
                     self.pedal_extend - self.max_gap, self.pbar_width)
-                painter.fillRect(rect_max, QColor(color))
+                painter.fillRect(rect_max, color)
         else:
             if input_raw <= self.pedal_extend:
                 rect_max = QRectF(
                     0, 0, self.pbar_width, self.pedal_extend - self.max_gap)
-                painter.fillRect(rect_max, QColor(color))
+                painter.fillRect(rect_max, color)
 
-        painter.fillRect(rect_raw, QColor(color))
-        painter.fillRect(rect_filtered, QColor(color))
+        painter.fillRect(rect_raw, color)
+        painter.fillRect(rect_filtered, color)
         canvas.setPixmap(pedal)
 
     def draw_ffb(self, canvas, input_raw):
         """FFB"""
         ffb_meter = canvas.pixmap()
-        ffb_meter.fill(QColor(self.wcfg["bkg_color"]))
+        ffb_meter.fill(self.wcfg["bkg_color"])
         painter = QPainter(ffb_meter)
         painter.setPen(Qt.NoPen)
 
@@ -261,7 +261,7 @@ class Draw(Overlay):
                 rect_raw = QRectF(0, 0, self.pbar_width, self.pbar_length)
 
         # FFB
-        painter.fillRect(rect_raw, QColor(color))
+        painter.fillRect(rect_raw, color)
         canvas.setPixmap(ffb_meter)
 
     # Additional methods

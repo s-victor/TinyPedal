@@ -21,7 +21,7 @@ Steering Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
-from PySide2.QtGui import QPainter, QPen, QBrush, QColor
+from PySide2.QtGui import QPainter, QPen, QBrush
 
 from ..api_control import api
 from ._base import Overlay
@@ -134,13 +134,13 @@ class Draw(Overlay):
     def draw_background(self, painter):
         """Draw background"""
         painter.setPen(Qt.NoPen)
-        self.brush.setColor(QColor(self.wcfg["bkg_color"]))
+        self.brush.setColor(self.wcfg["bkg_color"])
         painter.setBrush(self.brush)
         painter.drawRect(self.rect_bg_l)
         painter.drawRect(self.rect_bg_r)
 
         # Edge mark
-        self.brush.setColor(QColor(self.wcfg["bar_edge_color"]))
+        self.brush.setColor(self.wcfg["bar_edge_color"])
         painter.setBrush(self.brush)
         painter.drawRect(self.rect_edge_l)
         painter.drawRect(self.rect_edge_r)
@@ -165,7 +165,7 @@ class Draw(Overlay):
         )
 
         # Update steering
-        self.brush.setColor(QColor(self.wcfg["steering_color"]))
+        self.brush.setColor(self.wcfg["steering_color"])
         painter.setBrush(self.brush)
         painter.drawRect(rect_steering_l)
         painter.drawRect(rect_steering_r)
@@ -179,7 +179,7 @@ class Draw(Overlay):
                 self.sw_rot_range,
                 self.bar_width
             )
-        self.brush.setColor(QColor(self.wcfg["scale_mark_color"]))
+        self.brush.setColor(self.wcfg["scale_mark_color"])
         painter.setBrush(self.brush)
         if self.mark_num:
             for idx in range(self.mark_num):
@@ -195,7 +195,7 @@ class Draw(Overlay):
     def draw_readings(self, painter):
         """Draw readings"""
         angle = round(self.raw_steering * self.sw_rot_range / 2)
-        self.pen.setColor(QColor(self.wcfg["font_color"]))
+        self.pen.setColor(self.wcfg["font_color"])
         painter.setPen(self.pen)
         painter.setFont(self.font)
         painter.drawText(

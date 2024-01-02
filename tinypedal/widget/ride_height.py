@@ -21,7 +21,7 @@ Ride height Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
-from PySide2.QtGui import QPainter, QPen, QColor
+from PySide2.QtGui import QPainter, QPen
 
 from ..api_control import api
 from ._base import Overlay
@@ -68,7 +68,7 @@ class Draw(Overlay):
         )
 
         self.pen = QPen()
-        self.pen.setColor(QColor(self.wcfg["font_color"]))
+        self.pen.setColor(self.wcfg["font_color"])
 
         # Config rect size
         self.rect_bg_fl = QRectF(
@@ -136,19 +136,19 @@ class Draw(Overlay):
         painter.setPen(Qt.NoPen)
         painter.fillRect(
             self.rect_bg_fl,
-            QColor(self.color_rideh(self.ride_height[0], self.ride_height_offset[0]))
+            self.color_rideh(self.ride_height[0], self.ride_height_offset[0])
         )
         painter.fillRect(
             self.rect_bg_fr,
-            QColor(self.color_rideh(self.ride_height[1], self.ride_height_offset[1]))
+            self.color_rideh(self.ride_height[1], self.ride_height_offset[1])
         )
         painter.fillRect(
             self.rect_bg_rl,
-            QColor(self.color_rideh(self.ride_height[2], self.ride_height_offset[2]))
+            self.color_rideh(self.ride_height[2], self.ride_height_offset[2])
         )
         painter.fillRect(
             self.rect_bg_rr,
-            QColor(self.color_rideh(self.ride_height[3], self.ride_height_offset[3]))
+            self.color_rideh(self.ride_height[3], self.ride_height_offset[3])
         )
 
     def draw_ride_height(self, painter):
@@ -180,7 +180,7 @@ class Draw(Overlay):
             self.bar_height
         )
 
-        hi_color = QColor(self.wcfg["highlight_color"])
+        hi_color = self.wcfg["highlight_color"]
         painter.fillRect(rect_rideh_fl, hi_color)
         painter.fillRect(rect_rideh_fr, hi_color)
         painter.fillRect(rect_rideh_rl, hi_color)

@@ -22,7 +22,7 @@ Trailing Widget
 
 from collections import deque
 from PySide2.QtCore import Qt, Slot, QPointF
-from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush, QColor
+from PySide2.QtGui import QPainter, QPixmap, QPen
 
 from ..api_control import api
 from ._base import Overlay
@@ -153,7 +153,7 @@ class Draw(Overlay):
     def draw_background(self):
         """Draw background"""
         self.plot_background = QPixmap(self.area_width, self.area_height)
-        self.plot_background.fill(QColor(self.wcfg["bkg_color"]))
+        self.plot_background.fill(self.wcfg["bkg_color"])
         painter = QPainter(self.plot_background)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
@@ -176,7 +176,7 @@ class Draw(Overlay):
             else:
                 self.pen.setStyle(Qt.SolidLine)
             self.pen.setWidth(width)
-            self.pen.setColor(QColor(color))
+            self.pen.setColor(color)
             painter.setPen(self.pen)
             painter.setBrush(Qt.NoBrush)
             if self.wcfg["show_vertical_style"]:
@@ -198,7 +198,7 @@ class Draw(Overlay):
         """Draw plot"""
         if getattr(self, f"data_{suffix}"):
             self.pen.setWidth(self.wcfg[f"{suffix}_line_width"])
-            self.pen.setColor(QColor(self.wcfg[f"{suffix}_color"]))
+            self.pen.setColor(self.wcfg[f"{suffix}_color"])
             self.pen.setStyle(Qt.SolidLine)
             painter.setPen(self.pen)
             painter.setBrush(Qt.NoBrush)

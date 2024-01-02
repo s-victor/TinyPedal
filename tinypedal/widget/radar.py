@@ -53,6 +53,8 @@ class Draw(Overlay):
             self.veh_length * self.global_scale
         )
         self.indicator_dimention = self.calc_indicator_dimention(self.veh_width, self.veh_length)
+        self.indicator_color = QColor(self.wcfg["indicator_color"])
+        self.indicator_color_critical = QColor(self.wcfg["indicator_color_critical"])
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
@@ -148,7 +150,7 @@ class Draw(Overlay):
         """Draw radar background"""
         self.radar_background = QPixmap(self.area_size, self.area_size)
         if self.wcfg["show_background"]:
-            self.radar_background.fill(QColor(self.wcfg["bkg_color"]))
+            self.radar_background.fill(self.wcfg["bkg_color"])
         else:
             self.radar_background.fill(Qt.transparent)
         painter = QPainter(self.radar_background)
@@ -157,7 +159,7 @@ class Draw(Overlay):
         # Draw circle background
         if self.wcfg["show_circle_background"]:
             painter.setPen(Qt.NoPen)
-            self.brush.setColor(QColor(self.wcfg["bkg_color_circle"]))
+            self.brush.setColor(self.wcfg["bkg_color_circle"])
             painter.setBrush(self.brush)
             painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
@@ -178,7 +180,7 @@ class Draw(Overlay):
                 pen.setStyle(Qt.SolidLine)
             mark_scale = self.wcfg["center_mark_radius"] * self.global_scale
             pen.setWidth(self.wcfg["center_mark_width"])
-            pen.setColor(QColor(self.wcfg["center_mark_color"]))
+            pen.setColor(self.wcfg["center_mark_color"])
             painter.setPen(pen)
             painter.drawLine(
                 self.area_center,
@@ -214,7 +216,7 @@ class Draw(Overlay):
             circle_scale1 = self.wcfg["distance_circle_1_radius"] * self.global_scale
             if self.wcfg["distance_circle_1_radius"] < self.wcfg["radar_radius"]:
                 pen.setWidth(self.wcfg["distance_circle_1_width"])
-                pen.setColor(QColor(self.wcfg["distance_circle_1_color"]))
+                pen.setColor(self.wcfg["distance_circle_1_color"])
                 painter.setPen(pen)
                 painter.drawEllipse(
                     self.area_center - circle_scale1,
@@ -226,7 +228,7 @@ class Draw(Overlay):
             circle_scale2 = self.wcfg["distance_circle_2_radius"] * self.global_scale
             if self.wcfg["distance_circle_2_radius"] < self.wcfg["radar_radius"]:
                 pen.setWidth(self.wcfg["distance_circle_2_width"])
-                pen.setColor(QColor(self.wcfg["distance_circle_2_color"]))
+                pen.setColor(self.wcfg["distance_circle_2_color"])
                 painter.setPen(pen)
                 painter.drawEllipse(
                     self.area_center - circle_scale2,
@@ -296,7 +298,7 @@ class Draw(Overlay):
         """Draw vehicles"""
         if self.wcfg["vehicle_outline_width"]:
             self.pen.setWidth(self.wcfg["vehicle_outline_width"])
-            self.pen.setColor(QColor(self.wcfg["vehicle_outline_color"]))
+            self.pen.setColor(self.wcfg["vehicle_outline_color"])
             painter.setPen(self.pen)
         else:
             painter.setPen(Qt.NoPen)
@@ -312,14 +314,12 @@ class Draw(Overlay):
                 )
                 # Draw vehicle
                 self.brush.setColor(
-                    QColor(
-                        self.color_lapdiff(
-                            veh_info.position,
-                            veh_info.inPit,
-                            veh_info.isYellow,
-                            veh_info.isLapped,
-                            veh_info.inGarage,
-                        )
+                    self.color_lapdiff(
+                        veh_info.position,
+                        veh_info.inPit,
+                        veh_info.isYellow,
+                        veh_info.isLapped,
+                        veh_info.inGarage,
                     )
                 )
                 painter.setBrush(self.brush)
@@ -330,7 +330,7 @@ class Draw(Overlay):
                 painter.resetTransform()
 
         # Draw player vehicle
-        self.brush.setColor(QColor(self.wcfg["vehicle_color_player"]))
+        self.brush.setColor(self.wcfg["vehicle_color_player"])
         painter.setBrush(self.brush)
         painter.translate(self.area_center, self.area_center)
         self.draw_vehicle_shape(painter)
@@ -353,12 +353,10 @@ class Draw(Overlay):
         """Overtaking warning color"""
         alpha = 1 - (nearest_x - min_range_x) / max_range_x
         if nearest_x < min_range_x * 1.7:
-            color = QColor(self.wcfg["indicator_color_critical"])
-            color.setAlphaF(alpha)  # alpha changes with nearest distance
-        else:
-            color = QColor(self.wcfg["indicator_color"])
-            color.setAlphaF(alpha)
-        return color
+            self.indicator_color_critical.setAlphaF(alpha)  # alpha changes with nearest distance
+            return self.indicator_color_critical
+        self.indicator_color.setAlphaF(alpha)
+        return self.indicator_color
 
     def color_lapdiff(self, position, in_pit, is_yellow, is_lapped, in_garage):
         """Compare lap differences & set color"""
