@@ -45,7 +45,7 @@ class Draw(Overlay):
             self.wcfg["font_weight"]
         )
         font_m = self.get_font_metrics(self.font)
-        self.font_offset = self.calc_font_offset(font_m)
+        font_offset = self.calc_font_offset(font_m)
 
         # Config variable
         self.area_size = max(int(self.wcfg["display_size"]), 20)
@@ -69,6 +69,12 @@ class Draw(Overlay):
                 QPointF(0, self.veh_size * 0.6),
                 QPointF(-self.veh_size, self.veh_size),
             )
+        self.veh_text_shape = QRectF(
+            -self.veh_size,
+            -self.veh_size + font_offset,
+            self.veh_size * 2,
+            self.veh_size * 2
+        )
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
@@ -317,35 +323,27 @@ class Draw(Overlay):
                 painter.setBrush(self.brush)
                 painter.translate(self.area_center, self.veh_offset_y)
                 self.draw_vehicle_shape(painter)
-                painter.resetTransform()
                 if self.wcfg["show_vehicle_standings"]:
-                    self.draw_text_standings(
-                        painter, self.area_center, self.veh_offset_y, veh_info.position)
+                    self.draw_text_standings(painter, veh_info.position)
+                painter.resetTransform()
 
-            # Draw opponent vehicle
+            # Draw opponent vehicle in view range
             elif veh_info.relativeStraightDistance < self.view_range:
                 # Rotated position relative to player
-                pos_x, pos_y = (
-                    self.scale_veh_pos(veh_info.relativeRotatedPosXZ[0], self.area_center),
-                    self.scale_veh_pos(veh_info.relativeRotatedPosXZ[1], self.veh_offset_y)
-                )
-                self.brush.setColor(
-                    self.color_lapdiff(
-                        veh_info.position,
-                        veh_info.inPit,
-                        veh_info.isYellow,
-                        veh_info.isLapped,
-                        veh_info.inGarage,
-                    )
-                )
+                pos_x = self.scale_veh_pos(veh_info.relativeRotatedPosXZ[0], self.area_center)
+                pos_y = self.scale_veh_pos(veh_info.relativeRotatedPosXZ[1], self.veh_offset_y)
+
+                self.brush.setColor(self.color_lap_diff(veh_info))
                 painter.setBrush(self.brush)
                 painter.translate(pos_x, pos_y)
                 painter.rotate(calc.rad2deg(-veh_info.relativeOrientationXZRadians))
                 self.draw_vehicle_shape(painter)
-                painter.resetTransform()
+
                 if self.wcfg["show_vehicle_standings"]:
-                    self.draw_text_standings(
-                        painter, pos_x, pos_y, veh_info.position)
+                    painter.resetTransform()  # need reset rotation
+                    painter.translate(pos_x, pos_y)
+                    self.draw_text_standings(painter, veh_info.position)
+                painter.resetTransform()
 
     def draw_vehicle_shape(self, painter):
         """Draw vehicles shape"""
@@ -354,18 +352,12 @@ class Draw(Overlay):
         else:
             painter.drawPolygon(self.veh_shape)
 
-    def draw_text_standings(self, painter, pos_x, pos_y, veh_pos):
+    def draw_text_standings(self, painter, veh_pos):
         """Draw vehicles standings text"""
-        rect_vehicle = QRectF(
-            pos_x - self.veh_size,
-            pos_y - self.veh_size,
-            self.veh_size * 2,
-            self.veh_size * 2
-        )
         self.pen.setColor(self.wcfg["font_color"])
         painter.setPen(self.pen)
         painter.drawText(
-            rect_vehicle.adjusted(0, self.font_offset, 0, 0),
+            self.veh_text_shape,
             Qt.AlignCenter,
             f"{veh_pos}"
         )
@@ -375,16 +367,16 @@ class Draw(Overlay):
         """Scale vehicle position coordinate to global scale"""
         return position * self.global_scale + offset
 
-    def color_lapdiff(self, position, in_pit, is_yellow, is_lapped, in_garage):
+    def color_lap_diff(self, veh_info):
         """Compare lap differences & set color"""
-        if position == 1:
+        if veh_info.position == 1:
             return self.wcfg["vehicle_color_leader"]
-        if in_pit:
+        if veh_info.inPit:
             return self.wcfg["vehicle_color_in_pit"]
-        if is_yellow and not in_pit + in_garage:
+        if veh_info.isYellow and not veh_info.inPit + veh_info.inGarage:
             return self.wcfg["vehicle_color_yellow"]
-        if is_lapped > 0:
+        if veh_info.isLapped > 0:
             return self.wcfg["vehicle_color_laps_ahead"]
-        if is_lapped < 0:
+        if veh_info.isLapped < 0:
             return self.wcfg["vehicle_color_laps_behind"]
         return self.wcfg["vehicle_color_same_lap"]

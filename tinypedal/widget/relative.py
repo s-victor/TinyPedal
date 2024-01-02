@@ -319,7 +319,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['bkg_color_player_position']};")
             else:
                 if self.wcfg["show_lap_difference"]:
-                    fgcolor = self.color_lapdiff(curr[1])
+                    fgcolor = self.color_lap_diff(curr[1])
                 else:
                     fgcolor = self.wcfg["font_color_position"]
                 color = (f"color: {fgcolor};"
@@ -338,7 +338,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['bkg_color_player_driver_name']};")
             else:
                 if self.wcfg["show_lap_difference"]:
-                    fgcolor = self.color_lapdiff(curr[1])
+                    fgcolor = self.color_lap_diff(curr[1])
                 else:
                     fgcolor = self.wcfg["font_color_driver_name"]
                 color = (f"color: {fgcolor};"
@@ -360,7 +360,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['bkg_color_player_vehicle_name']};")
             else:
                 if self.wcfg["show_lap_difference"]:
-                    fgcolor = self.color_lapdiff(curr[1])
+                    fgcolor = self.color_lap_diff(curr[1])
                 else:
                     fgcolor = self.wcfg["font_color_vehicle_name"]
                 color = (f"color: {fgcolor};"
@@ -382,7 +382,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['bkg_color_player_time_gap']};")
             else:
                 if self.wcfg["show_lap_difference"]:
-                    fgcolor = self.color_lapdiff(curr[1])
+                    fgcolor = self.color_lap_diff(curr[1])
                 else:
                     fgcolor = self.wcfg["font_color_time_gap"]
                 color = (f"color: {fgcolor};"
@@ -482,7 +482,7 @@ class Draw(Overlay):
             )
 
     # Additional methods
-    def color_lapdiff(self, is_lapped):
+    def color_lap_diff(self, is_lapped):
         """Compare lap differences & set color"""
         if is_lapped > 0:
             return self.wcfg["font_color_laps_ahead"]

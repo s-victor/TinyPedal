@@ -46,7 +46,7 @@ class Draw(Overlay):
 
         self.veh_width = max(self.wcfg["vehicle_width"], 0.01)
         self.veh_length = max(self.wcfg["vehicle_length"], 0.01)
-        self.rect_veh = QRectF(
+        self.veh_shape = QRectF(
             -self.veh_width * self.global_scale / 2,
             -self.veh_length * self.global_scale / 2,
             self.veh_width * self.global_scale,
@@ -308,20 +308,11 @@ class Draw(Overlay):
         for veh_info in self.vehicles_data:
             if not veh_info.isPlayer and veh_info.relativeStraightDistance < self.radar_range:
                 # Rotated position relative to player
-                pos_x, pos_y = (
-                    self.scale_veh_pos(veh_info.relativeRotatedPosXZ[0]),
-                    self.scale_veh_pos(veh_info.relativeRotatedPosXZ[1])
-                )
+                pos_x = self.scale_veh_pos(veh_info.relativeRotatedPosXZ[0])
+                pos_y = self.scale_veh_pos(veh_info.relativeRotatedPosXZ[1])
+
                 # Draw vehicle
-                self.brush.setColor(
-                    self.color_lapdiff(
-                        veh_info.position,
-                        veh_info.inPit,
-                        veh_info.isYellow,
-                        veh_info.isLapped,
-                        veh_info.inGarage,
-                    )
-                )
+                self.brush.setColor(self.color_lap_diff(veh_info))
                 painter.setBrush(self.brush)
 
                 painter.translate(pos_x, pos_y)
@@ -339,7 +330,7 @@ class Draw(Overlay):
     def draw_vehicle_shape(self, painter):
         """Draw vehicles shape"""
         painter.drawRoundedRect(
-            self.rect_veh,
+            self.veh_shape,
             self.wcfg["vehicle_border_radius"],
             self.wcfg["vehicle_border_radius"]
         )
@@ -358,17 +349,17 @@ class Draw(Overlay):
         self.indicator_color.setAlphaF(alpha)
         return self.indicator_color
 
-    def color_lapdiff(self, position, in_pit, is_yellow, is_lapped, in_garage):
+    def color_lap_diff(self, veh_info):
         """Compare lap differences & set color"""
-        if position == 1:
+        if veh_info.position == 1:
             return self.wcfg["vehicle_color_leader"]
-        if in_pit:
+        if veh_info.inPit:
             return self.wcfg["vehicle_color_in_pit"]
-        if is_yellow and not in_pit + in_garage:
+        if veh_info.isYellow and not veh_info.inPit + veh_info.inGarage:
             return self.wcfg["vehicle_color_yellow"]
-        if is_lapped > 0:
+        if veh_info.isLapped > 0:
             return self.wcfg["vehicle_color_laps_ahead"]
-        if is_lapped < 0:
+        if veh_info.isLapped < 0:
             return self.wcfg["vehicle_color_laps_behind"]
         return self.wcfg["vehicle_color_same_lap"]
 
