@@ -76,8 +76,9 @@ class Overlay(QWidget):
 
     def set_widget_state(self):
         """Set initial widget state"""
-        self.__set_window_attributes()  # 1 window state
-        self.__set_window_flags()       # 2 window state
+        self.__set_window_attributes()  # 1
+        self.__set_window_flags()       # 2
+        self.show()                     # 3 show before update
         octrl.overlay_lock.set_state()  # 3 load lock state
         self._update_timer.start()      # 4 start update
         #self.show()
