@@ -44,7 +44,7 @@ class Draw(Overlay):
             self.wcfg["font_weight"]
         )
         font_m = self.get_font_metrics(self.font)
-        self.font_offset = self.calc_font_offset(font_m)
+        font_offset = self.calc_font_offset(font_m)
 
         # Config variable
         self.area_size = max(int(self.wcfg["display_size"]), 20)
@@ -81,6 +81,9 @@ class Draw(Overlay):
             text_width,
             font_m.height
         )
+        self.rect_text_yaw_angle = self.rect_yaw_angle.adjusted(0, font_offset, 0, 0)
+        self.rect_text_slip_angle = self.rect_slip_angle.adjusted(0, font_offset, 0, 0)
+
         self.dir_line = (
             QPointF(0, -self.area_center * self.wcfg["direction_line_head_scale"]),
             QPointF(0, self.area_center * self.wcfg["direction_line_tail_scale"])
@@ -298,7 +301,7 @@ class Draw(Overlay):
         self.pen.setColor(self.wcfg["font_color_yaw_angle"])
         painter.setPen(self.pen)
         painter.drawText(
-            self.rect_yaw_angle.adjusted(0, self.font_offset, 0, 0),
+            self.rect_text_yaw_angle,
             Qt.AlignCenter,
             self.format_angle(self.display_yaw_angle(self.yaw_angle))
         )
@@ -309,7 +312,7 @@ class Draw(Overlay):
         self.pen.setColor(self.wcfg["font_color_slip_angle"])
         painter.setPen(self.pen)
         painter.drawText(
-            self.rect_slip_angle.adjusted(0, self.font_offset, 0, 0),
+            self.rect_text_slip_angle,
             Qt.AlignCenter,
             self.format_angle(self.slip_angle)
         )

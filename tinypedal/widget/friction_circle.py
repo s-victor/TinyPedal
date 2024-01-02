@@ -46,7 +46,7 @@ class Draw(Overlay):
             self.wcfg["font_weight"]
         )
         font_m = self.get_font_metrics(self.font)
-        self.font_offset = self.calc_font_offset(font_m)
+        font_offset = self.calc_font_offset(font_m)
 
         # Config variable
         text_width = font_m.width * 4
@@ -81,6 +81,10 @@ class Draw(Overlay):
             text_width,
             font_m.height
         )
+        self.rect_text_gforce_top = self.rect_gforce_top.adjusted(0, font_offset, 0, 0)
+        self.rect_text_gforce_bottom = self.rect_gforce_bottom.adjusted(0, font_offset, 0, 0)
+        self.rect_text_gforce_left = self.rect_gforce_left.adjusted(0, font_offset, 0, 0)
+        self.rect_text_gforce_right = self.rect_gforce_right.adjusted(0, font_offset, 0, 0)
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
@@ -309,12 +313,12 @@ class Draw(Overlay):
         painter.setPen(self.pen)
 
         painter.drawText(
-            self.rect_gforce_top.adjusted(0, self.font_offset, 0, 0),
+            self.rect_text_gforce_top,
             Qt.AlignCenter,
             f"{abs(self.gforce_raw[0]):.2f}"[:4]
         )
         painter.drawText(
-            self.rect_gforce_right.adjusted(0, self.font_offset, 0, 0),
+            self.rect_text_gforce_right,
             Qt.AlignCenter,
             f"{abs(self.gforce_raw[1]):.2f}"[:4]
         )
@@ -323,12 +327,12 @@ class Draw(Overlay):
         self.pen.setColor(self.wcfg["font_color_highlight"])
         painter.setPen(self.pen)
         painter.drawText(
-            self.rect_gforce_bottom.adjusted(0, self.font_offset, 0, 0),
+            self.rect_text_gforce_bottom,
             Qt.AlignCenter,
             f"{minfo.force.maxLgtGForce:.2f}"[:4]
         )
         painter.drawText(
-            self.rect_gforce_left.adjusted(0, self.font_offset, 0, 0),
+            self.rect_text_gforce_left,
             Qt.AlignCenter,
             f"{minfo.force.maxLatGForce:.2f}"[:4]
         )

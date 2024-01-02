@@ -43,7 +43,7 @@ class Draw(Overlay):
             self.wcfg["font_weight"]
         )
         font_m = self.get_font_metrics(self.font)
-        self.font_offset = self.calc_font_offset(font_m)
+        font_offset = self.calc_font_offset(font_m)
 
         # Config variable
         self.padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
@@ -89,6 +89,10 @@ class Draw(Overlay):
             self.bar_width,
             self.bar_height
         )
+        self.rect_text_bg_fl = self.rect_bg_fl.adjusted(self.padx, font_offset, 0, 0)
+        self.rect_text_bg_fr = self.rect_bg_fr.adjusted(0, font_offset, -self.padx, 0)
+        self.rect_text_bg_rl = self.rect_bg_rl.adjusted(self.padx, font_offset, 0, 0)
+        self.rect_text_bg_rr = self.rect_bg_rr.adjusted(0, font_offset, -self.padx, 0)
 
         # Last data
         self.pos_raw = [0] * 4
@@ -173,22 +177,22 @@ class Draw(Overlay):
         painter.setPen(self.pen)
         painter.setFont(self.font)
         painter.drawText(
-            self.rect_bg_fl.adjusted(self.padx, self.font_offset, 0, 0),
+            self.rect_text_bg_fl,
             Qt.AlignLeft | Qt.AlignVCenter,
             f"{self.pos_raw[0]:.0f}"
         )
         painter.drawText(
-            self.rect_bg_fr.adjusted(0, self.font_offset, -self.padx, 0),
+            self.rect_text_bg_fr,
             Qt.AlignRight | Qt.AlignVCenter,
             f"{self.pos_raw[1]:.0f}"
         )
         painter.drawText(
-            self.rect_bg_rl.adjusted(self.padx, self.font_offset, 0, 0),
+            self.rect_text_bg_rl,
             Qt.AlignLeft | Qt.AlignVCenter,
             f"{self.pos_raw[2]:.0f}"
         )
         painter.drawText(
-            self.rect_bg_rr.adjusted(0, self.font_offset, -self.padx, 0),
+            self.rect_text_bg_rr,
             Qt.AlignRight | Qt.AlignVCenter,
             f"{self.pos_raw[3]:.0f}"
         )

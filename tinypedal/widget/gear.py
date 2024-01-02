@@ -47,7 +47,7 @@ class Draw(Overlay):
             self.wcfg["font_weight_gear"]
         )
         font_m = self.get_font_metrics(self.font_gear)
-        self.font_offset = self.calc_font_offset(font_m)
+        font_offset = self.calc_font_offset(font_m)
 
         self.font_speed = self.config_font(
             self.wcfg["font_name"],
@@ -86,6 +86,23 @@ class Draw(Overlay):
 
         self.rpmbar_height = self.wcfg["rpm_bar_height"]
         self.battbar_height = self.wcfg["battery_bar_height"]
+
+        self.rect_text_gear = QRectF(0, font_offset, self.gear_width, self.gear_height)
+        self.rect_text_limiter = QRectF(0, font_offset, self.limiter_width, self.gauge_height)
+        if self.wcfg["show_speed_below_gear"]:
+            self.rect_text_speed = QRectF(
+                0,
+                self.gear_height + self.inner_gap + font_offset,
+                self.gear_width,
+                self.speed_height
+            )
+        else:
+            self.rect_text_speed = QRectF(
+                self.gear_width + self.inner_gap,
+                font_offset,
+                self.speed_width,
+                self.gear_height
+            )
 
         # Create layout
         layout = QGridLayout()
@@ -258,38 +275,22 @@ class Draw(Overlay):
         gauge = canvas.pixmap()
         gauge.fill(gauge_data[2][1])
         painter = QPainter(gauge)
-        #painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Update gauge text
         self.pen.setColor(gauge_data[2][0])
         painter.setPen(self.pen)
 
-        rect_gear = QRectF(0, 0, self.gear_width, self.gear_height)
         painter.setFont(self.font_gear)
         painter.drawText(
-            rect_gear.adjusted(0, self.font_offset, 0, 0),
+            self.rect_text_gear,
             Qt.AlignCenter,
             f"{gauge_data[0]}"
         )
 
         if self.wcfg["show_speed"]:
-            if self.wcfg["show_speed_below_gear"]:
-                rect_speed = QRectF(
-                    0,
-                    self.gear_height + self.inner_gap,
-                    self.gear_width,
-                    self.speed_height
-                )
-            else:
-                rect_speed = QRectF(
-                    self.gear_width + self.inner_gap,
-                    0,
-                    self.speed_width,
-                    self.gear_height
-                )
             painter.setFont(self.font_speed)
             painter.drawText(
-                rect_speed.adjusted(0, self.font_offset, 0, 0),
+                self.rect_text_speed,
                 Qt.AlignCenter,
                 f"{gauge_data[1]:03.0f}"
             )
@@ -301,7 +302,6 @@ class Draw(Overlay):
         rpmbar = canvas.pixmap()
         rpmbar.fill(Qt.transparent)
         painter = QPainter(rpmbar)
-        #painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Draw rpm
         painter.setPen(Qt.NoPen)
@@ -316,7 +316,6 @@ class Draw(Overlay):
         battbar = canvas.pixmap()
         battbar.fill(Qt.transparent)
         painter = QPainter(battbar)
-        #painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Draw battery
         painter.setPen(Qt.NoPen)
@@ -331,15 +330,13 @@ class Draw(Overlay):
         limiter = canvas.pixmap()
         limiter.fill(self.wcfg["bkg_color_speed_limiter"])
         painter = QPainter(limiter)
-        #painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Update limiter text
-        rect_text = QRectF(0, 0, self.limiter_width, self.gauge_height)
         self.pen.setColor(self.wcfg["font_color_speed_limiter"])
         painter.setPen(self.pen)
         painter.setFont(self.font_gear)
         painter.drawText(
-            rect_text.adjusted(0, self.font_offset, 0, 0),
+            self.rect_text_limiter,
             Qt.AlignCenter,
             self.wcfg["speed_limiter_text"]
         )

@@ -43,7 +43,7 @@ class Draw(Overlay):
             self.wcfg["font_weight"]
         )
         font_m = self.get_font_metrics(self.font)
-        self.font_offset = self.calc_font_offset(font_m)
+        font_offset = self.calc_font_offset(font_m)
 
         # Config variable
         padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
@@ -60,6 +60,7 @@ class Draw(Overlay):
 
         # Config rect size
         self.rect_drs = QRectF(0, 0, self.drs_width, self.drs_height)
+        self.rect_text_drs = self.rect_drs.adjusted(0, font_offset, 0, 0)
 
         # Last data
         self.drs_state = (0, 0)
@@ -109,7 +110,7 @@ class Draw(Overlay):
         painter.setPen(self.pen)
         painter.setFont(self.font)
         painter.drawText(
-            self.rect_drs.adjusted(0, self.font_offset, 0, 0),
+            self.rect_text_drs,
             Qt.AlignCenter,
             "DRS"
         )

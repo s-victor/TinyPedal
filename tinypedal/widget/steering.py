@@ -43,7 +43,7 @@ class Draw(Overlay):
             self.wcfg["font_weight"]
         )
         font_m = self.get_font_metrics(self.font)
-        self.font_offset = self.calc_font_offset(font_m)
+        font_offset = self.calc_font_offset(font_m)
 
         # Config variable
         self.padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
@@ -85,6 +85,8 @@ class Draw(Overlay):
             self.bar_edge,
             self.bar_height
         )
+        self.rect_text_bg_l = self.rect_bg_l.adjusted(self.padx, font_offset, 0, 0)
+        self.rect_text_bg_r = self.rect_bg_r.adjusted(0, font_offset, -self.padx, 0)
 
         # Last data
         self.raw_steering = 0
@@ -199,12 +201,12 @@ class Draw(Overlay):
         painter.setPen(self.pen)
         painter.setFont(self.font)
         painter.drawText(
-            self.rect_bg_l.adjusted(self.padx, self.font_offset, 0, 0),
+            self.rect_text_bg_l,
             Qt.AlignLeft | Qt.AlignVCenter,
             f"{abs(angle)}" if min(angle, 0) else ""
         )
         painter.drawText(
-            self.rect_bg_r.adjusted(0, self.font_offset, -self.padx, 0),
+            self.rect_text_bg_r,
             Qt.AlignRight | Qt.AlignVCenter,
             f"{abs(angle)}" if max(angle, 0) else ""
         )
