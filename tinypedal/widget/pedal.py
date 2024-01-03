@@ -39,18 +39,36 @@ class Draw(Overlay):
 
         # Config variable
         bar_gap = self.wcfg["bar_gap"]
-        self.max_gap = max(self.wcfg["inner_gap"], 0)
-        self.pedal_uwidth = max(int(self.wcfg["bar_width_unfiltered"]), 1)
-        self.pedal_fwidth = max(int(self.wcfg["bar_width_filtered"]), 1)
-        self.pedal_extend = max(int(self.wcfg["max_indicator_height"]), 0) + self.max_gap
+        max_gap = max(self.wcfg["inner_gap"], 0)
+        pedal_uwidth = max(int(self.wcfg["bar_width_unfiltered"]), 1)
+        pedal_fwidth = max(int(self.wcfg["bar_width_filtered"]), 1)
+
+        self.pedal_extend = max(int(self.wcfg["max_indicator_height"]), 0) + max_gap
         self.pedal_length = max(int(self.wcfg["bar_length"]), 10)
-        self.pbar_width = self.pedal_uwidth + self.pedal_fwidth
+        self.pbar_width = pedal_uwidth + pedal_fwidth
         self.pbar_length = self.pedal_length + self.pedal_extend
 
         if self.wcfg["enable_horizontal_style"]:
             pedal_size = QSize(self.pbar_length, self.pbar_width)
+            raw_size = (0, 0, 0, pedal_uwidth)
+            filtered_size = (0, pedal_uwidth, 0, pedal_fwidth)
+            ffb_size = (0, 0, 0, self.pbar_width)
+            max_size = (self.pedal_length + max_gap, 0, self.pedal_extend - max_gap, self.pbar_width)
         else:
             pedal_size = QSize(self.pbar_width, self.pbar_length)
+            raw_size = (0, 0, pedal_uwidth, self.pbar_length)
+            filtered_size = (pedal_uwidth, 0, pedal_fwidth, self.pbar_length)
+            ffb_size = (0, 0, self.pbar_width, self.pbar_length)
+            max_size = (0, 0, self.pbar_width, self.pedal_extend - max_gap)
+
+        self.rect_throttle_raw = QRectF(*raw_size)
+        self.rect_throttle_filtered = QRectF(*filtered_size)
+        self.rect_brake_raw = QRectF(*raw_size)
+        self.rect_brake_filtered = QRectF(*filtered_size)
+        self.rect_clutch_raw = QRectF(*raw_size)
+        self.rect_clutch_filtered = QRectF(*filtered_size)
+        self.rect_ffb = QRectF(*ffb_size)
+        self.rect_max = QRectF(*max_size)
 
         # Create layout
         layout = QGridLayout()
@@ -77,6 +95,7 @@ class Draw(Overlay):
             self.pixmap_clutch = QPixmap(pedal_size)
             self.draw_pedal(
                 self.bar_clutch, self.pixmap_clutch,
+                self.rect_clutch_raw, self.rect_clutch_filtered,
                 0, 0, self.wcfg["clutch_color"])
 
         # Brake
@@ -86,6 +105,7 @@ class Draw(Overlay):
             self.pixmap_brake = QPixmap(pedal_size)
             self.draw_pedal(
                 self.bar_brake, self.pixmap_brake,
+                self.rect_brake_raw, self.rect_brake_filtered,
                 0, 0, self.wcfg["brake_color"])
 
         # Throttle
@@ -95,6 +115,7 @@ class Draw(Overlay):
             self.pixmap_throttle = QPixmap(pedal_size)
             self.draw_pedal(
                 self.bar_throttle, self.pixmap_throttle,
+                self.rect_throttle_raw, self.rect_throttle_filtered,
                 0, 0, self.wcfg["throttle_color"])
 
         # Set layout & style
@@ -188,6 +209,7 @@ class Draw(Overlay):
         if curr != last:
             self.draw_pedal(
                 self.bar_throttle, self.pixmap_throttle,
+                self.rect_throttle_raw, self.rect_throttle_filtered,
                 curr[0], curr[1], self.wcfg["throttle_color"])
 
     def update_brake(self, curr, last):
@@ -195,6 +217,7 @@ class Draw(Overlay):
         if curr != last:
             self.draw_pedal(
                 self.bar_brake, self.pixmap_brake,
+                self.rect_brake_raw, self.rect_brake_filtered,
                 curr[0], curr[1], self.wcfg["brake_color"])
 
     def update_clutch(self, curr, last):
@@ -202,6 +225,7 @@ class Draw(Overlay):
         if curr != last:
             self.draw_pedal(
                 self.bar_clutch, self.pixmap_clutch,
+                self.rect_clutch_raw, self.rect_clutch_filtered,
                 curr[0], curr[1], self.wcfg["clutch_color"])
 
     def update_ffb(self, curr, last):
@@ -210,36 +234,24 @@ class Draw(Overlay):
             self.draw_ffb(
                 self.bar_ffb, self.pixmap_ffb, curr)
 
-    def draw_pedal(self, canvas, pixmap, input_raw, input_filter, color=None):
+    def draw_pedal(
+        self, canvas, pixmap, rect_raw, rect_filtered,
+        input_raw, input_filter, color=None):
         """Instrument"""
         pixmap.fill(self.wcfg["bkg_color"])
         painter = QPainter(pixmap)
         painter.setPen(Qt.NoPen)
 
-        # Set size
         if self.wcfg["enable_horizontal_style"]:
-            rect_raw = QRectF(
-                0, 0, input_raw, self.pedal_uwidth)
-            rect_filtered = QRectF(
-                0, self.pedal_uwidth, input_filter, self.pedal_fwidth)
-        else:
-            rect_raw = QRectF(
-                0, input_raw, self.pedal_uwidth, self.pbar_length)
-            rect_filtered = QRectF(
-                self.pedal_uwidth, input_filter, self.pedal_fwidth, self.pbar_length)
-
-        # Pedal
-        if self.wcfg["enable_horizontal_style"]:
+            rect_raw.setWidth(input_raw)
+            rect_filtered.setWidth(input_filter)
             if input_raw >= self.pedal_length:
-                rect_max = QRectF(
-                    self.pedal_length + self.max_gap, 0,
-                    self.pedal_extend - self.max_gap, self.pbar_width)
-                painter.fillRect(rect_max, color)
-        else:
+                painter.fillRect(self.rect_max, color)
+        else:  # vertical scale
+            rect_raw.setTop(input_raw)
+            rect_filtered.setTop(input_filter)
             if input_raw <= self.pedal_extend:
-                rect_max = QRectF(
-                    0, 0, self.pbar_width, self.pedal_extend - self.max_gap)
-                painter.fillRect(rect_max, color)
+                painter.fillRect(self.rect_max, color)
 
         painter.fillRect(rect_raw, color)
         painter.fillRect(rect_filtered, color)
@@ -251,24 +263,22 @@ class Draw(Overlay):
         painter = QPainter(pixmap)
         painter.setPen(Qt.NoPen)
 
-        # FFB position
         if self.wcfg["enable_horizontal_style"]:
             if input_raw < self.pedal_length:
                 color = self.wcfg["ffb_color"]
-                rect_raw = QRectF(0, 0, input_raw, self.pbar_width)
+                self.rect_ffb.setWidth(input_raw)
             else:
                 color = self.wcfg["ffb_clipping_color"]
-                rect_raw = QRectF(0, 0, self.pbar_length, self.pbar_width)
-        else:
+                self.rect_ffb.setWidth(self.pbar_length)
+        else:  # vertical scale
             if input_raw > self.pedal_extend:
                 color = self.wcfg["ffb_color"]
-                rect_raw = QRectF(0, input_raw, self.pbar_width, self.pbar_length)
+                self.rect_ffb.setTop(input_raw)
             else:
                 color = self.wcfg["ffb_clipping_color"]
-                rect_raw = QRectF(0, 0, self.pbar_width, self.pbar_length)
+                self.rect_ffb.setTop(0)
 
-        # FFB
-        painter.fillRect(rect_raw, color)
+        painter.fillRect(self.rect_ffb, color)
         canvas.setPixmap(pixmap)
 
     # Additional methods
