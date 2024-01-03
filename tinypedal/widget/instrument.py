@@ -42,6 +42,7 @@ class Draw(Overlay):
         bar_gap = self.wcfg["bar_gap"]
         self.icon_size = int(max(self.wcfg["icon_size"], 16) / 2) * 2
         self.rect_size = QRectF(0, 0, self.icon_size, self.icon_size)
+        self.rect_offset = QRectF(0, 0, self.icon_size, self.icon_size)
 
         # Create layout
         layout = QGridLayout()
@@ -257,15 +258,12 @@ class Draw(Overlay):
         painter = QPainter(pixmap)
 
         # Set size
-        rect_offset = QRectF(
-            self.icon_size * h_offset,  # x pos
-            self.icon_size * v_offset,  # y pos
-            self.icon_size,
-            self.icon_size
-        )
+        self.rect_offset.setX(self.icon_size * h_offset)
+        self.rect_offset.setY(self.icon_size * v_offset)
+        self.rect_offset.setHeight(self.icon_size)
 
         # Icon
-        painter.drawPixmap(self.rect_size, self.icon_inst, rect_offset)
+        painter.drawPixmap(self.rect_size, self.icon_inst, self.rect_offset)
         canvas.setPixmap(pixmap)
 
     # Additional methods
