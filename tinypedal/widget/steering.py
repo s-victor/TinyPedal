@@ -21,7 +21,7 @@ Steering Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF
-from PySide2.QtGui import QPainter, QPen, QBrush
+from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush
 
 from ..api_control import api
 from ._base import Overlay
@@ -53,26 +53,8 @@ class Draw(Overlay):
         self.bar_width = max(self.wcfg["bar_width"], 20)
         self.bar_height = max(self.wcfg["bar_height"], text_height)
         self.bar_edge = max(self.wcfg["bar_edge_width"], 0)
+        self.full_width = (self.bar_width + self.bar_edge) * 2
 
-        # Config canvas
-        self.resize((self.bar_width + self.bar_edge) * 2, self.bar_height)
-
-        self.pen = QPen()
-        self.brush = QBrush(Qt.SolidPattern)
-
-        # Config rect size
-        self.rect_bg_l = QRectF(
-            self.bar_edge,
-            0,
-            self.bar_width,
-            self.bar_height
-        )
-        self.rect_bg_r = QRectF(
-            self.bar_edge + self.bar_width,
-            0,
-            self.bar_width,
-            self.bar_height
-        )
         self.rect_edge_l = QRectF(
             0,
             0,
@@ -85,16 +67,32 @@ class Draw(Overlay):
             self.bar_edge,
             self.bar_height
         )
-        self.rect_text_bg_l = self.rect_bg_l.adjusted(self.padx, font_offset, 0, 0)
-        self.rect_text_bg_r = self.rect_bg_r.adjusted(0, font_offset, -self.padx, 0)
+        self.rect_text_bg_l = QRectF(
+            self.bar_edge + self.padx,
+            font_offset,
+            self.bar_width,
+            self.bar_height
+        )
+        self.rect_text_bg_r = QRectF(
+            self.bar_edge + self.bar_width,
+            font_offset,
+            self.bar_width - self.padx,
+            self.bar_height
+        )
+
+        # Config canvas
+        self.resize(self.full_width, self.bar_height)
+
+        self.pen = QPen()
+        self.brush = QBrush(Qt.SolidPattern)
+        self.draw_background()
+        self.draw_scale_mark()
 
         # Last data
         self.raw_steering = 0
         self.last_raw_steering = None
         self.sw_rot_range = 1
         self.last_sw_rot_range = 0
-        self.mark_gap = 0
-        self.mark_num = 0
 
         # Set widget state & start update
         self.set_widget_state()
@@ -107,6 +105,16 @@ class Draw(Overlay):
             # Read steering data
             self.raw_steering = api.read.input.steering_raw()
             self.sw_rot_range = api.read.input.steering_range_physical()
+
+            # Recalculate scale mark
+            if self.wcfg["show_scale_mark"] and self.sw_rot_range != self.last_sw_rot_range:
+                self.last_sw_rot_range = self.sw_rot_range
+                mark_gap, mark_num = self.scale_mark(
+                    max(self.wcfg["scale_mark_degree"], 10),
+                    self.sw_rot_range,
+                    self.bar_width
+                )
+                self.draw_scale_mark(mark_gap, mark_num)
 
             # Steering
             self.update_steering(self.raw_steering, self.last_raw_steering)
@@ -123,76 +131,70 @@ class Draw(Overlay):
         painter = QPainter(self)
         #painter.setRenderHint(QPainter.Antialiasing, True)
 
-        self.draw_background(painter)
+        painter.drawPixmap(
+            0, 0, self.full_width, self.bar_height, self.rect_background)
 
         self.draw_steering(painter)
 
         if self.wcfg["show_scale_mark"]:
-            self.draw_scale_mark(painter)
+            painter.drawPixmap(
+                0, 0, self.full_width, self.bar_height, self.rect_mark)
 
         if self.wcfg["show_steering_angle"]:
             self.draw_readings(painter)
 
-    def draw_background(self, painter):
+    def draw_background(self):
         """Draw background"""
+        self.rect_background = QPixmap(self.full_width, self.bar_height)
+        self.rect_background.fill(self.wcfg["bkg_color"])
+        painter = QPainter(self.rect_background)
         painter.setPen(Qt.NoPen)
-        self.brush.setColor(self.wcfg["bkg_color"])
-        painter.setBrush(self.brush)
-        painter.drawRect(self.rect_bg_l)
-        painter.drawRect(self.rect_bg_r)
-
         # Edge mark
-        self.brush.setColor(self.wcfg["bar_edge_color"])
-        painter.setBrush(self.brush)
+        brush = QBrush(Qt.SolidPattern)
+        brush.setColor(self.wcfg["bar_edge_color"])
+        painter.setBrush(brush)
         painter.drawRect(self.rect_edge_l)
         painter.drawRect(self.rect_edge_r)
-
         # Center mark
         painter.drawRect(self.bar_edge + self.bar_width - 1, 0, 2, self.bar_height)
 
+    def draw_scale_mark(self, mark_gap=90, mark_num=0):
+        """Draw scale mark"""
+        self.rect_mark = QPixmap(self.full_width, self.bar_height)
+        self.rect_mark.fill(Qt.transparent)
+        painter = QPainter(self.rect_mark)
+        painter.setPen(Qt.NoPen)
+        brush = QBrush(Qt.SolidPattern)
+        brush.setColor(self.wcfg["scale_mark_color"])
+        painter.setBrush(brush)
+        if mark_num:
+            for idx in range(mark_num):
+                painter.drawRect(
+                    self.bar_edge + self.bar_width - mark_gap * (idx + 1),
+                    0, 1, self.bar_height
+                )
+                painter.drawRect(
+                    self.bar_edge + self.bar_width + mark_gap * (idx + 1),
+                    0, 1, self.bar_height
+                )
+
     def draw_steering(self, painter):
         """Draw steering"""
-        # Steering size
-        rect_steering_l = QRectF(
+        painter.setPen(Qt.NoPen)
+        self.brush.setColor(self.wcfg["steering_color"])
+        painter.setBrush(self.brush)
+        painter.drawRect(
             self.bar_edge + self.bar_width + min(self.raw_steering, 0) * self.bar_width,
             0,
             -min(self.raw_steering, 0) * self.bar_width,
             self.bar_height
         )
-        rect_steering_r = QRectF(
+        painter.drawRect(
             self.bar_edge + self.bar_width,
             0,
             max(self.raw_steering, 0) * self.bar_width,
             self.bar_height
         )
-
-        # Update steering
-        self.brush.setColor(self.wcfg["steering_color"])
-        painter.setBrush(self.brush)
-        painter.drawRect(rect_steering_l)
-        painter.drawRect(rect_steering_r)
-
-    def draw_scale_mark(self, painter):
-        """Draw scale mark"""
-        if self.sw_rot_range != self.last_sw_rot_range:  # recalc if changed
-            self.last_sw_rot_range = self.sw_rot_range
-            self.mark_gap, self.mark_num = self.scale_mark(
-                max(self.wcfg["scale_mark_degree"], 10),
-                self.sw_rot_range,
-                self.bar_width
-            )
-        self.brush.setColor(self.wcfg["scale_mark_color"])
-        painter.setBrush(self.brush)
-        if self.mark_num:
-            for idx in range(self.mark_num):
-                painter.drawRect(
-                    self.bar_edge + self.bar_width - self.mark_gap * (idx + 1),
-                    0, 1, self.bar_height
-                )
-                painter.drawRect(
-                    self.bar_edge + self.bar_width + self.mark_gap * (idx + 1),
-                    0, 1, self.bar_height
-                )
 
     def draw_readings(self, painter):
         """Draw readings"""
