@@ -55,8 +55,14 @@ class Draw(Overlay):
         self.global_scale = (display_size / 2) / self.display_radius_g
         self.area_size = display_size + font_m.height * 2
         self.area_center = self.area_size / 2
-        self.dot_size = max(self.wcfg["dot_size"], 1)
 
+        dot_size = max(self.wcfg["dot_size"], 1)
+        self.rect_dot = QRectF(
+            -dot_size / 2,
+            -dot_size / 2,
+            dot_size,
+            dot_size
+        )
         self.rect_gforce_top = QRectF(
             self.area_center - text_width / 2,
             0,
@@ -99,7 +105,9 @@ class Draw(Overlay):
 
         self.gforce_raw = 0,0
         self.last_gforce_raw = None
-        self.gforce_trace = deque([], max(self.wcfg["trace_max_samples"], 5))
+        self.data_gforce = deque([], max(self.wcfg["trace_max_samples"], 5))
+        self.last_x = 0
+        self.last_y = 0
 
         # Set widget state & start update
         self.set_widget_state()
@@ -124,24 +132,17 @@ class Draw(Overlay):
         else:
             if self.checked:
                 self.checked = False
-                self.gforce_trace.clear()
+                self.data_gforce.clear()
 
     # GUI update methods
     def update_gforce(self, curr, last):
         """G force update"""
         if curr != last:
+            self.last_x = self.scale_position(self.gforce_raw[1])
+            self.last_y = self.scale_position(self.gforce_raw[0])
             if self.wcfg["show_trace"]:
-                self.update_gforce_trace()
+                self.data_gforce.append(QPointF(self.last_x, self.last_y))
             self.update()
-
-    def update_gforce_trace(self):
-        """G force trace update"""
-        self.gforce_trace.append(
-            QPointF(
-                self.scale_position(self.gforce_raw[1]),
-                self.scale_position(self.gforce_raw[0])
-            )
-        )
 
     def paintEvent(self, event):
         """Draw"""
@@ -162,7 +163,7 @@ class Draw(Overlay):
                 self.wcfg["max_average_lateral_g_circle_color"]
             )
         # Draw trace
-        if self.wcfg["show_trace"] and self.gforce_trace:
+        if self.wcfg["show_trace"] and self.data_gforce:
             self.draw_trace(painter)
         # Draw dot
         if self.wcfg["show_dot"]:
@@ -281,9 +282,9 @@ class Draw(Overlay):
         painter.setPen(self.pen)
         painter.setBrush(Qt.NoBrush)
         if self.wcfg["trace_style"]:
-            painter.drawPoints(self.gforce_trace)
+            painter.drawPoints(self.data_gforce)
         else:
-            painter.drawPolyline(self.gforce_trace)
+            painter.drawPolyline(self.data_gforce)
 
     def draw_dot(self, painter):
         """Draw dot"""
@@ -296,12 +297,9 @@ class Draw(Overlay):
 
         self.brush.setColor(self.wcfg["dot_color"])
         painter.setBrush(self.brush)
-        painter.drawEllipse(
-            self.scale_position(self.gforce_raw[1]) - self.dot_size / 2,
-            self.scale_position(self.gforce_raw[0]) - self.dot_size / 2,
-            self.dot_size,
-            self.dot_size
-        )
+        painter.translate(self.last_x, self.last_y)
+        painter.drawEllipse(self.rect_dot)
+        painter.resetTransform()
 
     def draw_text(self, painter):
         """Draw text"""
@@ -339,11 +337,11 @@ class Draw(Overlay):
 
     # Additional methods
     def gforce_orientation(self, lgt, lat):
-        """G force orientation"""
+        """G force orientation, round to 3 digits"""
         if self.wcfg["display_orientation"]:
-            return (round(lgt, 3), round(-lat, 3),)  # accel top, brake bottom
-        return (round(-lgt, 3), round(lat, 3),)
+            return round(lgt, 3), round(-lat, 3)  # accel top, brake bottom
+        return round(-lgt, 3), round(lat, 3)
 
     def scale_position(self, position, offset=0):
-        """Scale position coordinate to global scale"""
-        return position * self.global_scale + self.area_center - offset
+        """Scale position coordinate to global scale, round to 3 digits"""
+        return round(position * self.global_scale + self.area_center - offset, 3)
