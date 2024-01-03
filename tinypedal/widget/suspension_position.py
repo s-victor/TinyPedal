@@ -55,16 +55,6 @@ class Draw(Overlay):
         self.max_range = max(int(self.wcfg["position_max_range"]), 10)
         self.width_scale = self.bar_width / self.max_range
 
-        # Config canvas
-        self.resize(
-            self.bar_width * 2 + self.bar_gap,
-            self.bar_height * 2 + self.bar_gap
-        )
-
-        self.pen = QPen()
-        self.pen.setColor(self.wcfg["font_color"])
-
-        # Config rect size
         self.rect_bg_fl = QRectF(
             0,
             0,
@@ -89,10 +79,25 @@ class Draw(Overlay):
             self.bar_width,
             self.bar_height
         )
+
+        self.susp_pos_fl = self.rect_bg_fl.adjusted(0,0,0,0)
+        self.susp_pos_fr = self.rect_bg_fr.adjusted(0,0,0,0)
+        self.susp_pos_rl = self.rect_bg_rl.adjusted(0,0,0,0)
+        self.susp_pos_rr = self.rect_bg_rr.adjusted(0,0,0,0)
+
         self.rect_text_bg_fl = self.rect_bg_fl.adjusted(self.padx, font_offset, 0, 0)
         self.rect_text_bg_fr = self.rect_bg_fr.adjusted(0, font_offset, -self.padx, 0)
         self.rect_text_bg_rl = self.rect_bg_rl.adjusted(self.padx, font_offset, 0, 0)
         self.rect_text_bg_rr = self.rect_bg_rr.adjusted(0, font_offset, -self.padx, 0)
+
+        # Config canvas
+        self.resize(
+            self.bar_width * 2 + self.bar_gap,
+            self.bar_height * 2 + self.bar_gap
+        )
+
+        self.pen = QPen()
+        self.pen.setColor(self.wcfg["font_color"])
 
         # Last data
         self.pos_raw = [0] * 4
@@ -139,38 +144,15 @@ class Draw(Overlay):
 
     def draw_susp_pos(self, painter):
         """Draw suspension position"""
-        # Suspension position size
-        pos_fl_abs = abs(self.pos_raw[0]) * self.width_scale
-        susp_pos_fl = QRectF(
-            self.bar_width - pos_fl_abs,
-            0,
-            pos_fl_abs,
-            self.bar_height
-        )
-        susp_pos_fr = QRectF(
-            self.bar_width + self.bar_gap,
-            0,
-            abs(self.pos_raw[1]) * self.width_scale,
-            self.bar_height
-        )
-        pos_rl_abs = abs(self.pos_raw[2]) * self.width_scale
-        susp_pos_rl = QRectF(
-            self.bar_width - pos_rl_abs,
-            self.bar_height + self.bar_gap,
-            pos_rl_abs,
-            self.bar_height
-        )
-        susp_pos_rr = QRectF(
-            self.bar_width + self.bar_gap,
-            self.bar_height + self.bar_gap,
-            abs(self.pos_raw[3]) * self.width_scale,
-            self.bar_height
-        )
+        self.susp_pos_fl.setX(self.bar_width - abs(self.pos_raw[0]) * self.width_scale)
+        self.susp_pos_fr.setWidth(abs(self.pos_raw[1]) * self.width_scale)
+        self.susp_pos_rl.setX(self.bar_width - abs(self.pos_raw[2]) * self.width_scale)
+        self.susp_pos_rr.setWidth(abs(self.pos_raw[3]) * self.width_scale)
 
-        painter.fillRect(susp_pos_fl, self.color_pos(self.pos_raw[0]))
-        painter.fillRect(susp_pos_fr, self.color_pos(self.pos_raw[1]))
-        painter.fillRect(susp_pos_rl, self.color_pos(self.pos_raw[2]))
-        painter.fillRect(susp_pos_rr, self.color_pos(self.pos_raw[3]))
+        painter.fillRect(self.susp_pos_fl, self.color_pos(self.pos_raw[0]))
+        painter.fillRect(self.susp_pos_fr, self.color_pos(self.pos_raw[1]))
+        painter.fillRect(self.susp_pos_rl, self.color_pos(self.pos_raw[2]))
+        painter.fillRect(self.susp_pos_rr, self.color_pos(self.pos_raw[3]))
 
     def draw_readings(self, painter):
         """Draw readings"""

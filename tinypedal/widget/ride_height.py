@@ -61,16 +61,6 @@ class Draw(Overlay):
             self.wcfg["ride_height_offset_rear_right"]
         )
 
-        # Config canvas
-        self.resize(
-            self.bar_width * 2 + self.bar_gap,
-            self.bar_height * 2 + self.bar_gap
-        )
-
-        self.pen = QPen()
-        self.pen.setColor(self.wcfg["font_color"])
-
-        # Config rect size
         self.rect_bg_fl = QRectF(
             0,
             0,
@@ -95,10 +85,25 @@ class Draw(Overlay):
             self.bar_width,
             self.bar_height
         )
+
+        self.rect_rideh_fl = self.rect_bg_fl.adjusted(0,0,0,0)
+        self.rect_rideh_fr = self.rect_bg_fr.adjusted(0,0,0,0)
+        self.rect_rideh_rl = self.rect_bg_rl.adjusted(0,0,0,0)
+        self.rect_rideh_rr = self.rect_bg_rr.adjusted(0,0,0,0)
+
         self.rect_text_bg_fl = self.rect_bg_fl.adjusted(self.padx, font_offset, 0, 0)
         self.rect_text_bg_fr = self.rect_bg_fr.adjusted(0, font_offset, -self.padx, 0)
         self.rect_text_bg_rl = self.rect_bg_rl.adjusted(self.padx, font_offset, 0, 0)
         self.rect_text_bg_rr = self.rect_bg_rr.adjusted(0, font_offset, -self.padx, 0)
+
+        # Config canvas
+        self.resize(
+            self.bar_width * 2 + self.bar_gap,
+            self.bar_height * 2 + self.bar_gap
+        )
+
+        self.pen = QPen()
+        self.pen.setColor(self.wcfg["font_color"])
 
         # Last data
         self.ride_height = [0] * 4
@@ -157,38 +162,16 @@ class Draw(Overlay):
 
     def draw_ride_height(self, painter):
         """Draw ride height"""
-        rideh_fl_min = max(self.ride_height[0], 0) * self.width_scale
-        rect_rideh_fl = QRectF(
-            self.bar_width - rideh_fl_min,
-            0,
-            rideh_fl_min,
-            self.bar_height
-        )
-        rect_rideh_fr = QRectF(
-            self.bar_width + self.bar_gap,
-            0,
-            max(self.ride_height[1], 0) * self.width_scale,
-            self.bar_height
-        )
-        rideh_rl_min = max(self.ride_height[2], 0) * self.width_scale
-        rect_rideh_rl = QRectF(
-            self.bar_width - rideh_rl_min,
-            self.bar_height + self.bar_gap,
-            rideh_rl_min,
-            self.bar_height
-        )
-        rect_rideh_rr = QRectF(
-            self.bar_width + self.bar_gap,
-            self.bar_height + self.bar_gap,
-            max(self.ride_height[3], 0) * self.width_scale,
-            self.bar_height
-        )
+        self.rect_rideh_fl.setX(self.bar_width - max(self.ride_height[0], 0) * self.width_scale)
+        self.rect_rideh_fr.setWidth(max(self.ride_height[1], 0) * self.width_scale)
+        self.rect_rideh_rl.setX(self.bar_width - max(self.ride_height[2], 0) * self.width_scale)
+        self.rect_rideh_rr.setWidth(max(self.ride_height[3], 0) * self.width_scale)
 
         hi_color = self.wcfg["highlight_color"]
-        painter.fillRect(rect_rideh_fl, hi_color)
-        painter.fillRect(rect_rideh_fr, hi_color)
-        painter.fillRect(rect_rideh_rl, hi_color)
-        painter.fillRect(rect_rideh_rr, hi_color)
+        painter.fillRect(self.rect_rideh_fl, hi_color)
+        painter.fillRect(self.rect_rideh_fr, hi_color)
+        painter.fillRect(self.rect_rideh_rl, hi_color)
+        painter.fillRect(self.rect_rideh_rr, hi_color)
 
     def draw_readings(self, painter):
         """Draw readings"""
