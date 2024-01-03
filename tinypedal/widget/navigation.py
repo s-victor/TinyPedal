@@ -193,11 +193,10 @@ class Draw(Overlay):
             api.read.vehicle.pos_longitudinal() * self.global_scale - self.map_offset[0],
             api.read.vehicle.pos_lateral() * self.global_scale - self.map_offset[1]
         )
-        plr_ori_deg = calc.rad2deg(plr_ori_rad)
+        plr_ori_deg = round(calc.rad2deg(plr_ori_rad), 3)
         center_offset_x = self.area_center - rot_pos_x
         center_offset_y = self.veh_offset_y - rot_pos_y
         # Draw rotated map
-        painter.resetTransform()
         painter.translate(center_offset_x, center_offset_y)
         painter.rotate(plr_ori_deg)
         painter.drawPixmap(*self.map_rect, self.map_image)
@@ -315,7 +314,6 @@ class Draw(Overlay):
             painter.setPen(Qt.NoPen)
 
         # Draw vehicle within view range
-        painter.resetTransform()
         for veh_info in self.vehicles_data:
             # Draw player vehicle
             if veh_info.isPlayer:
@@ -332,16 +330,16 @@ class Draw(Overlay):
                 # Rotated position relative to player
                 pos_x = self.scale_veh_pos(veh_info.relativeRotatedPosXZ[0], self.area_center)
                 pos_y = self.scale_veh_pos(veh_info.relativeRotatedPosXZ[1], self.veh_offset_y)
+                angle_deg = round(calc.rad2deg(-veh_info.relativeOrientationXZRadians), 3)
 
                 self.brush.setColor(self.color_lap_diff(veh_info))
                 painter.setBrush(self.brush)
                 painter.translate(pos_x, pos_y)
-                painter.rotate(calc.rad2deg(-veh_info.relativeOrientationXZRadians))
+                painter.rotate(angle_deg)
                 self.draw_vehicle_shape(painter)
 
                 if self.wcfg["show_vehicle_standings"]:
-                    painter.resetTransform()  # need reset rotation
-                    painter.translate(pos_x, pos_y)
+                    painter.rotate(-angle_deg)  # undo rotation
                     self.draw_text_standings(painter, veh_info.position)
                 painter.resetTransform()
 

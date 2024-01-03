@@ -49,26 +49,35 @@ class Draw(Overlay):
         # Config variable
         self.area_size = max(int(self.wcfg["display_size"]), 20)
         self.area_center = self.area_size / 2
-        self.dot_size = max(self.wcfg["dot_size"], 1)
 
         icon_source = QPixmap("images/icon_compass.png")
         self.icon_inst = icon_source.scaledToWidth(
-            self.area_size * 2,
+            self.area_size * 1.5,
             mode=Qt.SmoothTransformation
         )
 
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
         text_width = font_m.width * (5 + self.decimals)
 
-        # Config canvas
-        self.resize(self.area_size, self.area_size)
-
-        self.pen = QPen()
-        self.pen.setCapStyle(Qt.RoundCap)
-        self.brush = QBrush(Qt.SolidPattern)
-        self.draw_circle_background()
-
-        # Config rect size
+        dot_size = max(self.wcfg["dot_size"], 1)
+        self.rect_dot = QRectF(
+            (self.area_size - dot_size) / 2,
+            (self.area_size - dot_size) / 2,
+            dot_size,
+            dot_size
+        )
+        self.dir_line = (
+            QPointF(0, -self.area_center * self.wcfg["direction_line_head_scale"]),
+            QPointF(0, self.area_center * self.wcfg["direction_line_tail_scale"])
+        )
+        self.yaw_line = (
+            QPointF(0, -self.area_center * self.wcfg["yaw_line_head_scale"]),
+            QPointF(0, self.area_center * self.wcfg["yaw_line_tail_scale"])
+        )
+        self.slip_angle_line = (
+            QPointF(0, -self.area_center * self.wcfg["slip_angle_line_head_scale"]),
+            QPointF(0, self.area_center * self.wcfg["slip_angle_line_tail_scale"])
+        )
         self.rect_yaw_angle = QRectF(
             self.area_size * self.wcfg["yaw_angle_offset_x"] - text_width / 2,
             self.area_size * self.wcfg["yaw_angle_offset_y"] - font_m.height / 2,
@@ -84,24 +93,13 @@ class Draw(Overlay):
         self.rect_text_yaw_angle = self.rect_yaw_angle.adjusted(0, font_offset, 0, 0)
         self.rect_text_slip_angle = self.rect_slip_angle.adjusted(0, font_offset, 0, 0)
 
-        self.dir_line = (
-            QPointF(0, -self.area_center * self.wcfg["direction_line_head_scale"]),
-            QPointF(0, self.area_center * self.wcfg["direction_line_tail_scale"])
-        )
-        self.yaw_line = (
-            QPointF(0, -self.area_center * self.wcfg["yaw_line_head_scale"]),
-            QPointF(0, self.area_center * self.wcfg["yaw_line_tail_scale"])
-        )
-        self.slip_angle_line = (
-            QPointF(0, -self.area_center * self.wcfg["slip_angle_line_head_scale"]),
-            QPointF(0, self.area_center * self.wcfg["slip_angle_line_tail_scale"])
-        )
-        self.rect_dot = QRectF(
-            (self.area_size - self.dot_size) / 2,
-            (self.area_size - self.dot_size) / 2,
-            self.dot_size,
-            self.dot_size
-        )
+        # Config canvas
+        self.resize(self.area_size, self.area_size)
+
+        self.pen = QPen()
+        self.pen.setCapStyle(Qt.RoundCap)
+        self.brush = QBrush(Qt.SolidPattern)
+        self.draw_circle_background()
 
         # Last data
         self.veh_ori_yaw = 0
@@ -129,7 +127,7 @@ class Draw(Overlay):
             # Direction of travel yaw angle
             if self.last_pos != pos_curr and speed > 1:
                 self.yaw_angle = self.veh_ori_yaw - calc.rad2deg(calc.oriyaw2rad(
-                     pos_curr[0] - self.last_pos[0], pos_curr[1] - self.last_pos[1])) + 180
+                    pos_curr[0] - self.last_pos[0], pos_curr[1] - self.last_pos[1])) + 180
                 self.last_pos = pos_curr
             elif speed <= 1:
                 self.yaw_angle = 0
@@ -234,7 +232,6 @@ class Draw(Overlay):
 
     def draw_compass_bearing(self, painter):
         """Draw compass bearing"""
-        painter.resetTransform()
         painter.translate(self.area_center, self.area_center)
         painter.rotate(self.veh_ori_yaw)
         painter.drawPixmap(
@@ -250,9 +247,7 @@ class Draw(Overlay):
         self.pen.setStyle(Qt.SolidLine)
         painter.setPen(self.pen)
         painter.setBrush(Qt.NoBrush)
-        painter.resetTransform()
         painter.translate(self.area_center, self.area_center)
-        painter.rotate(0)
         painter.drawPolyline(self.yaw_line)
         painter.resetTransform()
 
@@ -263,7 +258,6 @@ class Draw(Overlay):
         self.pen.setStyle(Qt.SolidLine)
         painter.setPen(self.pen)
         painter.setBrush(Qt.NoBrush)
-        painter.resetTransform()
         painter.translate(self.area_center, self.area_center)
         painter.rotate(self.slip_angle)
         painter.drawPolyline(self.slip_angle_line)
@@ -276,7 +270,6 @@ class Draw(Overlay):
         self.pen.setStyle(Qt.SolidLine)
         painter.setPen(self.pen)
         painter.setBrush(Qt.NoBrush)
-        painter.resetTransform()
         painter.translate(self.area_center, self.area_center)
         painter.rotate(self.yaw_angle)
         painter.drawPolyline(self.dir_line)

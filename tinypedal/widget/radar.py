@@ -304,19 +304,18 @@ class Draw(Overlay):
             painter.setPen(Qt.NoPen)
 
         # Draw opponent vehicle within radar range
-        painter.resetTransform()
         for veh_info in self.vehicles_data:
             if not veh_info.isPlayer and veh_info.relativeStraightDistance < self.radar_range:
                 # Rotated position relative to player
                 pos_x = self.scale_veh_pos(veh_info.relativeRotatedPosXZ[0])
                 pos_y = self.scale_veh_pos(veh_info.relativeRotatedPosXZ[1])
+                angle_deg = round(calc.rad2deg(-veh_info.relativeOrientationXZRadians), 3)
 
                 # Draw vehicle
                 self.brush.setColor(self.color_lap_diff(veh_info))
                 painter.setBrush(self.brush)
-
                 painter.translate(pos_x, pos_y)
-                painter.rotate(calc.rad2deg(-veh_info.relativeOrientationXZRadians))
+                painter.rotate(angle_deg)
                 self.draw_vehicle_shape(painter)
                 painter.resetTransform()
 

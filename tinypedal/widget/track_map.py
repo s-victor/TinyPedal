@@ -258,12 +258,11 @@ class Draw(Overlay):
         if self.wcfg["show_vehicle_standings"]:
             painter.setFont(self.font)
 
-        painter.resetTransform()
         for veh_info in self.vehicles_data:
             if self.last_coords_hash:
                 pos_x, pos_y = self.vehicle_scale(*veh_info.posXZ)
                 offset = 0
-            else:
+            else:  # vehicles on temp map
                 inpit_offset = self.wcfg["font_size"] if veh_info.inPit else 0
 
                 pos_x, pos_y = calc.rotate_pos(
