@@ -57,6 +57,21 @@ class Draw(Overlay):
         self.delta_width = font_m.width * 7 + padx * 2
         self.delta_height = int(font_m.capital + pady * 2)
 
+        if self.wcfg["layout"] == 0:
+            pos_y1 = 0
+        else:
+            pos_y1 = self.delta_height + self.bar_gap
+
+        if self.wcfg["layout"] == 0 and self.wcfg["show_delta_bar"]:
+            pos_y2 = self.dbar_height + self.bar_gap
+        else:
+            pos_y2 = 0
+
+        self.rect_deltabar = QRectF(0, pos_y1, self.dbar_length * 2, self.dbar_height)
+        self.rect_deltapos = QRectF(0, pos_y1, 0, self.dbar_height)
+        self.rect_delta = QRectF(0, pos_y2, self.delta_width, self.delta_height)
+        self.rect_text_delta = self.rect_delta.adjusted(0, self.font_offset, 0, 0)
+
         # Config canvas
         if self.wcfg["show_delta_bar"]:
             self.resize(self.dbar_length * 2,
@@ -88,7 +103,7 @@ class Draw(Overlay):
 
     # GUI update methods
     def update_deltabest(self, curr, last):
-        """Deltabest"""
+        """Deltabest update"""
         if curr != last:
             self.update()
 
@@ -97,7 +112,7 @@ class Draw(Overlay):
         painter = QPainter(self)
         #painter.setRenderHint(QPainter.Antialiasing, True)
 
-        delta_pos = self.deltabar_pos(
+        delta_pos = self.delta_position(
             self.wcfg["bar_display_range"],
             self.delta_best,
             self.dbar_length)
@@ -109,29 +124,24 @@ class Draw(Overlay):
 
     def draw_deltabar(self, painter, delta_pos):
         """Draw deltabar"""
-        painter.setPen(Qt.NoPen)
-
         if self.delta_best > 0:
             pos_x = delta_pos
-            size = self.dbar_length - delta_pos
+            width = self.dbar_length - delta_pos
         else:
             pos_x = self.dbar_length
-            size = delta_pos - self.dbar_length
+            width = delta_pos - self.dbar_length
 
-        if self.wcfg["layout"] == 0:
-            pos_y = 0
-        else:
-            pos_y = self.delta_height + self.bar_gap
+        self.rect_deltapos.moveLeft(pos_x)
+        self.rect_deltapos.setWidth(width)
 
-        rect_deltabar = QRectF(0, pos_y, self.dbar_length * 2, self.dbar_height)
+        painter.setPen(Qt.NoPen)
         self.brush.setColor(self.wcfg["bkg_color_deltabar"])
         painter.setBrush(self.brush)
-        painter.drawRect(rect_deltabar)
+        painter.drawRect(self.rect_deltabar)
 
-        rect_deltapos = QRectF(pos_x, pos_y, size, self.dbar_height)
         self.brush.setColor(self.color_delta(self.delta_best))
         painter.setBrush(self.brush)
-        painter.drawRect(rect_deltapos)
+        painter.drawRect(self.rect_deltapos)
 
     def draw_readings(self, painter, delta_pos):
         """Draw readings"""
@@ -142,35 +152,32 @@ class Draw(Overlay):
             self.pen.setColor(self.color_delta(self.delta_best))
             self.brush.setColor(self.wcfg["bkg_color_deltabest"])
 
-        if self.wcfg["layout"] == 0 and self.wcfg["show_delta_bar"]:
-            pos_y = self.dbar_height + self.bar_gap
-        else:
-            pos_y = 0
-
         if self.wcfg["show_delta_bar"] and self.wcfg["show_animated_deltabest"]:
             pos_x = min(max(delta_pos - self.delta_width / 2, 0),
-                        self.dbar_length * 2 - self.delta_width)
+                            self.dbar_length * 2 - self.delta_width)
         elif self.wcfg["show_delta_bar"]:
             pos_x = self.dbar_length - self.delta_width / 2
         else:
             pos_x = 0
 
+        self.rect_delta.moveLeft(pos_x)
+        self.rect_text_delta.moveLeft(pos_x)
+
         painter.setPen(Qt.NoPen)
-        rect = QRectF(pos_x, pos_y, self.delta_width, self.delta_height)
         painter.setBrush(self.brush)
-        painter.drawRect(rect)
+        painter.drawRect(self.rect_delta)
 
         painter.setFont(self.font)
         painter.setPen(self.pen)
         painter.drawText(
-            rect.adjusted(0, self.font_offset, 0, 0),
+            self.rect_text_delta,
             Qt.AlignCenter,
             f"{self.delta_best:+.03f}"[:7]
         )
 
     # Additional methods
     @staticmethod
-    def deltabar_pos(rng, delta, length):
+    def delta_position(rng, delta, length):
         """Delta position"""
         return (rng - calc.sym_range(delta, rng)) * length / rng
 
