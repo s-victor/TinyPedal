@@ -216,13 +216,12 @@ class Draw(Overlay):
         if self.wcfg["show_fuel_level_bar"]:
             self.fuel_level_width = (font_m.width * self.bar_width + bar_padx * 2) * 5
             self.fuel_level_height = self.wcfg["fuel_level_bar_height"]
-            blank_fuel_level = QPixmap(self.fuel_level_width, self.fuel_level_height)
 
             self.fuel_level = QLabel()
             self.fuel_level.setFixedSize(self.fuel_level_width, self.fuel_level_height)
             self.fuel_level.setStyleSheet("padding: 0;")
-            self.fuel_level.setPixmap(blank_fuel_level)
-            self.draw_fuel_level(self.fuel_level, [0,0,0])
+            self.pixmap_fuel_level = QPixmap(self.fuel_level_width, self.fuel_level_height)
+            self.draw_fuel_level(self.fuel_level, self.pixmap_fuel_level, [0,0,0])
 
         # Set layout
         layout_upper.addWidget(self.bar_fuel_end, 1, 0)
@@ -316,14 +315,11 @@ class Draw(Overlay):
 
             # Fuel level bar
             if self.wcfg["show_fuel_level_bar"]:
+                fuel_capacity = max(minfo.fuel.tankCapacity, 1)
                 fuel_level = (
-                    round((
-                        minfo.fuel.amountFuelCurrent / max(minfo.fuel.tankCapacity, 1)), 3),
-                    round((
-                        minfo.fuel.amountFuelStart / max(minfo.fuel.tankCapacity, 1)), 3),
-                    round(((
-                        minfo.fuel.amountFuelCurrent + minfo.fuel.amountFuelNeeded)
-                        / max(minfo.fuel.tankCapacity, 1)), 3),
+                    round(minfo.fuel.amountFuelCurrent / fuel_capacity, 3),
+                    round(minfo.fuel.amountFuelStart / fuel_capacity, 3),
+                    round((minfo.fuel.amountFuelCurrent + minfo.fuel.amountFuelNeeded) / fuel_capacity, 3),
                 )
                 self.update_fuel_level(fuel_level, self.last_fuel_level)
                 self.last_fuel_level = fuel_level
@@ -343,14 +339,12 @@ class Draw(Overlay):
     def update_fuel_level(self, curr, last):
         """Fuel level update"""
         if curr != last:
-            self.draw_fuel_level(self.fuel_level, curr)
+            self.draw_fuel_level(self.fuel_level, self.pixmap_fuel_level, curr)
 
-    def draw_fuel_level(self, canvas, fuel_data):
+    def draw_fuel_level(self, canvas, pixmap, fuel_data):
         """Fuel level"""
-        fuel_level = canvas.pixmap()
-        fuel_level.fill(self.wcfg["bkg_color_fuel_level"])
-        painter = QPainter(fuel_level)
-        #painter.setRenderHint(QPainter.Antialiasing, True)
+        pixmap.fill(self.wcfg["bkg_color_fuel_level"])
+        painter = QPainter(pixmap)
 
         # Update fuel level highlight
         painter.setPen(Qt.NoPen)
@@ -376,7 +370,7 @@ class Draw(Overlay):
             )
             painter.fillRect(rect_fuel_add, self.wcfg["refueling_level_mark_color"])
 
-        canvas.setPixmap(fuel_level)
+        canvas.setPixmap(pixmap)
 
     # Additional methods
     def fuel_units(self, fuel):

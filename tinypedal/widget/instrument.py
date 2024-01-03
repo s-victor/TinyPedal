@@ -56,7 +56,6 @@ class Draw(Overlay):
         column_ws = self.wcfg["column_index_wheel_slip"]
 
         # Config canvas
-        blank_image = QPixmap(self.icon_size, self.icon_size)
         icon_source = QPixmap("images/icon_instrument.png")
         self.icon_inst = icon_source.scaledToWidth(
             self.icon_size * 2,
@@ -69,36 +68,36 @@ class Draw(Overlay):
         if self.wcfg["show_headlights"]:
             self.bar_headlights = QLabel()
             self.bar_headlights.setFixedSize(self.icon_size, self.icon_size)
-            self.bar_headlights.setPixmap(blank_image)
-            self.draw_instrument(self.bar_headlights, 1, 0)
+            self.pixmap_headlights = QPixmap(self.icon_size, self.icon_size)
+            self.draw_instrument(self.bar_headlights, self.pixmap_headlights, 1, 0)
 
         # Ignition
         if self.wcfg["show_ignition"]:
             self.bar_ignition = QLabel()
             self.bar_ignition.setFixedSize(self.icon_size, self.icon_size)
-            self.bar_ignition.setPixmap(blank_image)
-            self.draw_instrument(self.bar_ignition, 1, 1)
+            self.pixmap_ignition = QPixmap(self.icon_size, self.icon_size)
+            self.draw_instrument(self.bar_ignition, self.pixmap_ignition, 1, 1)
 
         # Clutch
         if self.wcfg["show_clutch"]:
             self.bar_clutch = QLabel()
             self.bar_clutch.setFixedSize(self.icon_size, self.icon_size)
-            self.bar_clutch.setPixmap(blank_image)
-            self.draw_instrument(self.bar_clutch, 1, 2)
+            self.pixmap_clutch = QPixmap(self.icon_size, self.icon_size)
+            self.draw_instrument(self.bar_clutch, self.pixmap_clutch, 1, 2)
 
         # Lock
         if self.wcfg["show_wheel_lock"]:
             self.bar_wlock = QLabel()
             self.bar_wlock.setFixedSize(self.icon_size, self.icon_size)
-            self.bar_wlock.setPixmap(blank_image)
-            self.draw_instrument(self.bar_wlock, 1, 3)
+            self.pixmap_wlock = QPixmap(self.icon_size, self.icon_size)
+            self.draw_instrument(self.bar_wlock, self.pixmap_wlock, 1, 3)
 
         # Slip
         if self.wcfg["show_wheel_slip"]:
             self.bar_wslip = QLabel()
             self.bar_wslip.setFixedSize(self.icon_size, self.icon_size)
-            self.bar_wslip.setPixmap(blank_image)
-            self.draw_instrument(self.bar_wslip, 1, 4)
+            self.pixmap_wslip = QPixmap(self.icon_size, self.icon_size)
+            self.draw_instrument(self.bar_wslip, self.pixmap_wslip, 1, 4)
 
         # Set layout
         if self.wcfg["layout"] == 0:
@@ -214,21 +213,21 @@ class Draw(Overlay):
         """Headlights update"""
         if curr != last:
             state = 0 if curr == 1 else 1
-            self.draw_instrument(self.bar_headlights, state, 0)
+            self.draw_instrument(self.bar_headlights, self.pixmap_headlights, state, 0)
 
     def update_ignition(self, curr, last):
         """Ignition update"""
         if curr != last:
             state = 0 if curr[0] > 0 else 1
             color = self.wcfg["warning_color_ignition"] if curr[1] < 10 else None
-            self.draw_instrument(self.bar_ignition, state, 1, color)
+            self.draw_instrument(self.bar_ignition, self.pixmap_ignition, state, 1, color)
 
     def update_clutch(self, curr, last):
         """Clutch update"""
         if curr != last:
             state = 0 if curr[0] > 0 else 1
             color = self.wcfg["warning_color_clutch"] if curr[1] > 0.01 else None
-            self.draw_instrument(self.bar_clutch, state, 2, color)
+            self.draw_instrument(self.bar_clutch, self.pixmap_clutch, state, 2, color)
 
     def update_wlock(self, curr, last):
         """Wheel lock update"""
@@ -239,7 +238,7 @@ class Draw(Overlay):
             else:
                 state = 1
                 color = None
-            self.draw_instrument(self.bar_wlock, state, 3, color)
+            self.draw_instrument(self.bar_wlock, self.pixmap_wlock, state, 3, color)
 
     def update_wslip(self, curr, last):
         """Wheel slip update"""
@@ -250,13 +249,12 @@ class Draw(Overlay):
             else:
                 state = 1
                 color = None
-            self.draw_instrument(self.bar_wslip, state, 4, color)
+            self.draw_instrument(self.bar_wslip, self.pixmap_wslip, state, 4, color)
 
-    def draw_instrument(self, canvas, h_offset, v_offset, hicolor=None):
+    def draw_instrument(self, canvas, pixmap, h_offset, v_offset, hicolor=None):
         """Instrument"""
-        icon = canvas.pixmap()
-        icon.fill(self.wcfg["bkg_color"] if not hicolor else hicolor)
-        painter = QPainter(icon)
+        pixmap.fill(self.wcfg["bkg_color"] if not hicolor else hicolor)
+        painter = QPainter(pixmap)
 
         # Set size
         rect_offset = QRectF(
@@ -268,7 +266,7 @@ class Draw(Overlay):
 
         # Icon
         painter.drawPixmap(self.rect_size, self.icon_inst, rect_offset)
-        canvas.setPixmap(icon)
+        canvas.setPixmap(pixmap)
 
     # Additional methods
     def calc_slipratio(self, wheel_rot, speed):

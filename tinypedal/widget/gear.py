@@ -54,7 +54,10 @@ class Draw(Overlay):
             self.wcfg["font_size"],
             self.wcfg["font_weight_speed"]
         )
-        font_scale_speed = self.wcfg["font_scale_speed"] if self.wcfg["show_speed_below_gear"] else 1
+        if self.wcfg["show_speed_below_gear"]:
+            font_scale_speed = self.wcfg["font_scale_speed"]
+        else:
+            font_scale_speed = 1
         self.font_speed.setPixelSize(round(self.wcfg["font_size"] * font_scale_speed))
 
         # Config variable
@@ -118,35 +121,31 @@ class Draw(Overlay):
         self.pen = QPen()
         self.brush = QBrush(Qt.SolidPattern)
 
-        blank_gauge = QPixmap(self.gauge_width, self.gauge_height)
         self.bar_gauge = QLabel()
         self.bar_gauge.setFixedSize(self.gauge_width, self.gauge_height)
-        self.bar_gauge.setPixmap(blank_gauge)
+        self.pixmap_gauge = QPixmap(self.gauge_width, self.gauge_height)
         self.draw_gauge(
-            self.bar_gauge,
+            self.bar_gauge, self.pixmap_gauge,
             (0,0,(self.wcfg["font_color"],self.wcfg["bkg_color"]))
         )
 
         if self.wcfg["show_speed_limiter"]:
-            blank_limiter = QPixmap(self.limiter_width, self.gauge_height)
             self.bar_limiter = QLabel()
             self.bar_limiter.setFixedSize(self.limiter_width, self.gauge_height)
-            self.bar_limiter.setPixmap(blank_limiter)
-            self.draw_limiter(self.bar_limiter)
+            self.pixmap_limiter = QPixmap(self.limiter_width, self.gauge_height)
+            self.draw_limiter(self.bar_limiter, self.pixmap_limiter)
 
         if self.wcfg["show_rpm_bar"]:
-            blank_rpmbar = QPixmap(self.gauge_width, self.rpmbar_height)
             self.bar_rpmbar = QLabel()
             self.bar_rpmbar.setFixedSize(self.gauge_width, self.rpmbar_height)
-            self.bar_rpmbar.setPixmap(blank_rpmbar)
-            self.draw_rpmbar(self.bar_rpmbar, 0)
+            self.pixmap_rpmbar = QPixmap(self.gauge_width, self.rpmbar_height)
+            self.draw_rpmbar(self.bar_rpmbar, self.pixmap_rpmbar, 0)
 
         if self.wcfg["show_battery_bar"]:
-            blank_battbar = QPixmap(self.gauge_width, self.battbar_height)
             self.bar_battbar = QLabel()
             self.bar_battbar.setFixedSize(self.gauge_width, self.battbar_height)
-            self.bar_battbar.setPixmap(blank_battbar)
-            self.draw_battbar(self.bar_battbar, 0)
+            self.pixmap_battbar = QPixmap(self.gauge_width, self.battbar_height)
+            self.draw_battbar(self.bar_battbar, self.pixmap_battbar, 0)
 
         # Set layout
         layout.addWidget(self.bar_gauge, column_gauge, 0)
@@ -250,17 +249,17 @@ class Draw(Overlay):
     def update_gauge(self, curr, last):
         """Gauge update"""
         if curr != last:
-            self.draw_gauge(self.bar_gauge, curr)
+            self.draw_gauge(self.bar_gauge, self.pixmap_gauge, curr)
 
     def update_rpmbar(self, curr, last):
         """RPM bar update"""
         if curr != last:
-            self.draw_rpmbar(self.bar_rpmbar, curr)
+            self.draw_rpmbar(self.bar_rpmbar, self.pixmap_rpmbar, curr)
 
     def update_battbar(self, curr, last):
         """Battery bar update"""
         if curr != last:
-            self.draw_battbar(self.bar_battbar, curr)
+            self.draw_battbar(self.bar_battbar, self.pixmap_battbar, curr)
 
     def update_state(self, suffix, curr, last):
         """State update"""
@@ -270,11 +269,10 @@ class Draw(Overlay):
             else:
                 getattr(self, f"bar_{suffix}").hide()
 
-    def draw_gauge(self, canvas, gauge_data):
+    def draw_gauge(self, canvas, pixmap, gauge_data):
         """Gauge"""
-        gauge = canvas.pixmap()
-        gauge.fill(gauge_data[2][1])
-        painter = QPainter(gauge)
+        pixmap.fill(gauge_data[2][1])
+        painter = QPainter(pixmap)
 
         # Update gauge text
         self.pen.setColor(gauge_data[2][0])
@@ -295,13 +293,12 @@ class Draw(Overlay):
                 f"{gauge_data[1]:03.0f}"
             )
 
-        canvas.setPixmap(gauge)
+        canvas.setPixmap(pixmap)
 
-    def draw_rpmbar(self, canvas, rpm_scale):
+    def draw_rpmbar(self, canvas, pixmap, rpm_scale):
         """RPM bar"""
-        rpmbar = canvas.pixmap()
-        rpmbar.fill(Qt.transparent)
-        painter = QPainter(rpmbar)
+        pixmap.fill(Qt.transparent)
+        painter = QPainter(pixmap)
 
         # Draw rpm
         painter.setPen(Qt.NoPen)
@@ -309,13 +306,12 @@ class Draw(Overlay):
         painter.setBrush(self.brush)
         painter.drawRect(0, 0, rpm_scale, self.rpmbar_height)
 
-        canvas.setPixmap(rpmbar)
+        canvas.setPixmap(pixmap)
 
-    def draw_battbar(self, canvas, battery):
+    def draw_battbar(self, canvas, pixmap, battery):
         """Battery bar"""
-        battbar = canvas.pixmap()
-        battbar.fill(Qt.transparent)
-        painter = QPainter(battbar)
+        pixmap.fill(Qt.transparent)
+        painter = QPainter(pixmap)
 
         # Draw battery
         painter.setPen(Qt.NoPen)
@@ -323,13 +319,12 @@ class Draw(Overlay):
         painter.setBrush(self.brush)
         painter.drawRect(0, 0, battery * 0.01 * self.gauge_width, self.battbar_height)
 
-        canvas.setPixmap(battbar)
+        canvas.setPixmap(pixmap)
 
-    def draw_limiter(self, canvas):
+    def draw_limiter(self, canvas, pixmap):
         """Limiter"""
-        limiter = canvas.pixmap()
-        limiter.fill(self.wcfg["bkg_color_speed_limiter"])
-        painter = QPainter(limiter)
+        pixmap.fill(self.wcfg["bkg_color_speed_limiter"])
+        painter = QPainter(pixmap)
 
         # Update limiter text
         self.pen.setColor(self.wcfg["font_color_speed_limiter"])
@@ -341,7 +336,7 @@ class Draw(Overlay):
             self.wcfg["speed_limiter_text"]
         )
 
-        canvas.setPixmap(limiter)
+        canvas.setPixmap(pixmap)
 
     # Additional methods
     def speed_units(self, value):

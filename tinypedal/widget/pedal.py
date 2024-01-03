@@ -63,36 +63,39 @@ class Draw(Overlay):
         column_brk = self.wcfg["column_index_brake"]
         column_tht = self.wcfg["column_index_throttle"]
 
-        # Config canvas
-        blank_image = QPixmap(pedal_size)
-
         # Force feedback
         if self.wcfg["show_ffb_meter"]:
             self.bar_ffb = QLabel()
             self.bar_ffb.setFixedSize(pedal_size)
-            self.bar_ffb.setPixmap(blank_image)
-            self.draw_ffb(self.bar_ffb, 0)
+            self.pixmap_ffb = QPixmap(pedal_size)
+            self.draw_ffb(self.bar_ffb, self.pixmap_ffb, 0)
 
         # Clutch
         if self.wcfg["show_clutch"]:
             self.bar_clutch = QLabel()
             self.bar_clutch.setFixedSize(pedal_size)
-            self.bar_clutch.setPixmap(blank_image)
-            self.draw_pedal(self.bar_clutch, 0, 0, self.wcfg["clutch_color"])
+            self.pixmap_clutch = QPixmap(pedal_size)
+            self.draw_pedal(
+                self.bar_clutch, self.pixmap_clutch,
+                0, 0, self.wcfg["clutch_color"])
 
         # Brake
         if self.wcfg["show_brake"]:
             self.bar_brake = QLabel()
             self.bar_brake.setFixedSize(pedal_size)
-            self.bar_brake.setPixmap(blank_image)
-            self.draw_pedal(self.bar_brake, 0, 0, self.wcfg["brake_color"])
+            self.pixmap_brake = QPixmap(pedal_size)
+            self.draw_pedal(
+                self.bar_brake, self.pixmap_brake,
+                0, 0, self.wcfg["brake_color"])
 
         # Throttle
         if self.wcfg["show_throttle"]:
             self.bar_throttle = QLabel()
             self.bar_throttle.setFixedSize(pedal_size)
-            self.bar_throttle.setPixmap(blank_image)
-            self.draw_pedal(self.bar_throttle, 0, 0, self.wcfg["throttle_color"])
+            self.pixmap_throttle = QPixmap(pedal_size)
+            self.draw_pedal(
+                self.bar_throttle, self.pixmap_throttle,
+                0, 0, self.wcfg["throttle_color"])
 
         # Set layout & style
         if self.wcfg["enable_horizontal_style"]:
@@ -137,7 +140,6 @@ class Draw(Overlay):
                 self.checked = True
 
             # Read pedal data
-            # Throttle, brake, clutch, raw_throttle, raw_brake, raw_clutch, ffb
             f_throttle = self.scale_input(api.read.input.throttle())
             f_brake = self.scale_input(api.read.input.brake())
             f_clutch = self.scale_input(api.read.input.clutch())
@@ -184,28 +186,34 @@ class Draw(Overlay):
     def update_throttle(self, curr, last):
         """Throttle update"""
         if curr != last:
-            self.draw_pedal(self.bar_throttle, curr[0], curr[1], self.wcfg["throttle_color"])
+            self.draw_pedal(
+                self.bar_throttle, self.pixmap_throttle,
+                curr[0], curr[1], self.wcfg["throttle_color"])
 
     def update_brake(self, curr, last):
         """Brake update"""
         if curr != last:
-            self.draw_pedal(self.bar_brake, curr[0], curr[1], self.wcfg["brake_color"])
+            self.draw_pedal(
+                self.bar_brake, self.pixmap_brake,
+                curr[0], curr[1], self.wcfg["brake_color"])
 
     def update_clutch(self, curr, last):
         """Clutch update"""
         if curr != last:
-            self.draw_pedal(self.bar_clutch, curr[0], curr[1], self.wcfg["clutch_color"])
+            self.draw_pedal(
+                self.bar_clutch, self.pixmap_clutch,
+                curr[0], curr[1], self.wcfg["clutch_color"])
 
     def update_ffb(self, curr, last):
         """FFB update"""
         if curr != last:
-            self.draw_ffb(self.bar_ffb, curr)
+            self.draw_ffb(
+                self.bar_ffb, self.pixmap_ffb, curr)
 
-    def draw_pedal(self, canvas, input_raw, input_filter, color=None):
+    def draw_pedal(self, canvas, pixmap, input_raw, input_filter, color=None):
         """Instrument"""
-        pedal = canvas.pixmap()
-        pedal.fill(self.wcfg["bkg_color"])
-        painter = QPainter(pedal)
+        pixmap.fill(self.wcfg["bkg_color"])
+        painter = QPainter(pixmap)
         painter.setPen(Qt.NoPen)
 
         # Set size
@@ -235,13 +243,12 @@ class Draw(Overlay):
 
         painter.fillRect(rect_raw, color)
         painter.fillRect(rect_filtered, color)
-        canvas.setPixmap(pedal)
+        canvas.setPixmap(pixmap)
 
-    def draw_ffb(self, canvas, input_raw):
+    def draw_ffb(self, canvas, pixmap, input_raw):
         """FFB"""
-        ffb_meter = canvas.pixmap()
-        ffb_meter.fill(self.wcfg["bkg_color"])
-        painter = QPainter(ffb_meter)
+        pixmap.fill(self.wcfg["bkg_color"])
+        painter = QPainter(pixmap)
         painter.setPen(Qt.NoPen)
 
         # FFB position
@@ -262,7 +269,7 @@ class Draw(Overlay):
 
         # FFB
         painter.fillRect(rect_raw, color)
-        canvas.setPixmap(ffb_meter)
+        canvas.setPixmap(pixmap)
 
     # Additional methods
     def scale_input(self, value):
