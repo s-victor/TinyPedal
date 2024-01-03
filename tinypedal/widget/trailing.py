@@ -67,10 +67,6 @@ class Draw(Overlay):
         self.delayed_update = False
         self.last_lap_etime = -1
 
-        self.throttle = 0
-        self.brake = 0
-        self.clutch = 0
-        self.ffb = 0
         self.data_throttle = self.create_data_samples(self.max_samples)
         self.data_brake = self.create_data_samples(self.max_samples)
         self.data_clutch = self.create_data_samples(self.max_samples)
@@ -91,28 +87,28 @@ class Draw(Overlay):
             if lap_etime != self.last_lap_etime:
                 if self.wcfg["show_throttle"]:
                     if self.wcfg["show_raw_throttle"]:
-                        self.throttle = api.read.input.throttle_raw()
+                        throttle = api.read.input.throttle_raw()
                     else:
-                        self.throttle = api.read.input.throttle()
-                    self.append_sample("throttle")
+                        throttle = api.read.input.throttle()
+                    self.append_sample("throttle", throttle)
 
                 if self.wcfg["show_brake"]:
                     if self.wcfg["show_raw_brake"]:
-                        self.brake = api.read.input.brake_raw()
+                        brake = api.read.input.brake_raw()
                     else:
-                        self.brake = api.read.input.brake()
-                    self.append_sample("brake")
+                        brake = api.read.input.brake()
+                    self.append_sample("brake", brake)
 
                 if self.wcfg["show_clutch"]:
                     if self.wcfg["show_raw_clutch"]:
-                        self.clutch = api.read.input.clutch_raw()
+                        clutch = api.read.input.clutch_raw()
                     else:
-                        self.clutch = api.read.input.clutch()
-                    self.append_sample("clutch")
+                        clutch = api.read.input.clutch()
+                    self.append_sample("clutch", clutch)
 
                 if self.wcfg["show_ffb"]:
-                    self.ffb = abs(api.read.input.force_feedback())
-                    self.append_sample("ffb")
+                    ffb = abs(api.read.input.force_feedback())
+                    self.append_sample("ffb", ffb)
 
                 # Translate samples in single loop
                 for index in range(self.max_samples):
@@ -196,16 +192,15 @@ class Draw(Overlay):
 
     def draw_plot(self, painter, suffix):
         """Draw plot"""
-        if getattr(self, f"data_{suffix}"):
-            self.pen.setWidth(self.wcfg[f"{suffix}_line_width"])
-            self.pen.setColor(self.wcfg[f"{suffix}_color"])
-            self.pen.setStyle(Qt.SolidLine)
-            painter.setPen(self.pen)
-            painter.setBrush(Qt.NoBrush)
-            if self.wcfg[f"{suffix}_line_style"]:
-                painter.drawPoints(getattr(self, f"data_{suffix}"))
-            else:
-                painter.drawPolyline(getattr(self, f"data_{suffix}"))
+        self.pen.setWidth(self.wcfg[f"{suffix}_line_width"])
+        self.pen.setColor(self.wcfg[f"{suffix}_color"])
+        self.pen.setStyle(Qt.SolidLine)
+        painter.setPen(self.pen)
+        painter.setBrush(Qt.NoBrush)
+        if self.wcfg[f"{suffix}_line_style"]:
+            painter.drawPoints(getattr(self, f"data_{suffix}"))
+        else:
+            painter.drawPolyline(getattr(self, f"data_{suffix}"))
 
     # Additional methods
     def create_data_samples(self, samples):
@@ -218,9 +213,9 @@ class Draw(Overlay):
             return position * 100 * self.global_scale + self.margin
         return (100 - position * 100) * self.global_scale + self.margin
 
-    def append_sample(self, suffix):
-        """Append new input sample to data list"""
-        input_pos = self.scale_position(getattr(self, suffix))
+    def append_sample(self, suffix, value):
+        """Append input position sample to data list, round to 3 digits"""
+        input_pos = round(self.scale_position(value), 3)
         if self.wcfg["show_vertical_style"]:
             getattr(self, f"data_{suffix}").appendleft(QPointF(input_pos, 0))
         else:
@@ -229,17 +224,14 @@ class Draw(Overlay):
 
     def translate_samples(self, index, suffix):
         """Translate sample position"""
+        index_scale = index * self.display_scale
         if self.wcfg["show_vertical_style"]:
-            if self.wcfg["show_inverted_trailing"]:  # bottom alignment for display scale
-                getattr(self, f"data_{suffix}")[index].setY(
-                    self.display_height - index * self.display_scale)
-            else:  # top alignment
-                getattr(self, f"data_{suffix}")[index].setY(
-                    index * self.display_scale + 1)
-        else:  # right alignment for display scale
-            if self.wcfg["show_inverted_trailing"]:
-                getattr(self, f"data_{suffix}")[index].setX(
-                    self.display_width - index * self.display_scale)
-            else:  # left alignment
-                getattr(self, f"data_{suffix}")[index].setX(
-                    index * self.display_scale + 1)
+            if self.wcfg["show_inverted_trailing"]:  # bottom alignment
+                getattr(self, f"data_{suffix}")[index].setY(self.display_height - index_scale)
+            else:                                    # top alignment
+                getattr(self, f"data_{suffix}")[index].setY(index_scale + 1)
+        else:
+            if self.wcfg["show_inverted_trailing"]:  # right alignment
+                getattr(self, f"data_{suffix}")[index].setX(self.display_width - index_scale)
+            else:                                    # left alignment
+                getattr(self, f"data_{suffix}")[index].setX(index_scale + 1)
