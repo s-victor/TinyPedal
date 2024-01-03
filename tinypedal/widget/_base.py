@@ -75,13 +75,12 @@ class Overlay(QWidget):
         self._update_timer.timeout.connect(self.update_data)
 
     def set_widget_state(self):
-        """Set initial widget state"""
+        """Set initial widget state in orders"""
         self.__set_window_attributes()  # 1
         self.__set_window_flags()       # 2
-        self.show()                     # 3 show before update
-        octrl.overlay_lock.set_state()  # 3 load lock state
+        self.show()                     # 3 show before starting update
         self._update_timer.start()      # 4 start update
-        #self.show()
+        #octrl.overlay_lock.set_state()  # load lock state in __set_window_flags instead
 
     def __set_window_attributes(self):
         """Set window attributes"""
@@ -97,6 +96,8 @@ class Overlay(QWidget):
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
         if self.cfg.compatibility["enable_bypass_window_manager"]:
             self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
+        if self.cfg.overlay["fixed_position"]:  # lock overlay
+            self.setWindowFlag(Qt.WindowTransparentForInput, True)
 
     def mouseMoveEvent(self, event):
         """Update widget position"""
