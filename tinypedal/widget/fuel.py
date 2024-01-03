@@ -216,6 +216,15 @@ class Draw(Overlay):
         if self.wcfg["show_fuel_level_bar"]:
             self.fuel_level_width = (font_m.width * self.bar_width + bar_padx * 2) * 5
             self.fuel_level_height = self.wcfg["fuel_level_bar_height"]
+            self.rect_fuel_left = QRectF(0, 0, 0, self.fuel_level_height)
+            self.rect_fuel_start = QRectF(
+                0, 0,
+                max(self.wcfg["starting_fuel_level_mark_width"], 1),
+                self.fuel_level_height)
+            self.rect_fuel_refuel = QRectF(
+                0, 0,
+                max(self.wcfg["refueling_level_mark_width"], 1),
+                self.fuel_level_height)
 
             self.fuel_level = QLabel()
             self.fuel_level.setFixedSize(self.fuel_level_width, self.fuel_level_height)
@@ -348,27 +357,17 @@ class Draw(Overlay):
 
         # Update fuel level highlight
         painter.setPen(Qt.NoPen)
-        rect_fuel_left = QRectF(0, 0, fuel_data[0] * self.fuel_level_width, self.fuel_level_height)
-        painter.fillRect(rect_fuel_left, self.wcfg["highlight_color_fuel_level"])
+        self.rect_fuel_left.setWidth(fuel_data[0] * self.fuel_level_width)
+        painter.fillRect(self.rect_fuel_left, self.wcfg["highlight_color_fuel_level"])
 
         # Update starting fuel level mark
         if self.wcfg["show_starting_fuel_level_mark"]:
-            rect_fuel_start = QRectF(
-                fuel_data[1] * self.fuel_level_width,
-                0,
-                max(self.wcfg["starting_fuel_level_mark_width"], 1),
-                self.fuel_level_height
-            )
-            painter.fillRect(rect_fuel_start, self.wcfg["starting_fuel_level_mark_color"])
+            self.rect_fuel_start.moveLeft(fuel_data[1] * self.fuel_level_width)
+            painter.fillRect(self.rect_fuel_start, self.wcfg["starting_fuel_level_mark_color"])
 
         if self.wcfg["show_refueling_level_mark"]:
-            rect_fuel_add = QRectF(
-                fuel_data[2] * self.fuel_level_width,
-                0,
-                max(self.wcfg["refueling_level_mark_width"], 1),
-                self.fuel_level_height
-            )
-            painter.fillRect(rect_fuel_add, self.wcfg["refueling_level_mark_color"])
+            self.rect_fuel_refuel.moveLeft(fuel_data[2] * self.fuel_level_width)
+            painter.fillRect(self.rect_fuel_refuel, self.wcfg["refueling_level_mark_color"])
 
         canvas.setPixmap(pixmap)
 
