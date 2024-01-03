@@ -258,9 +258,8 @@ class Draw(Overlay):
         painter = QPainter(pixmap)
 
         # Set size
-        self.rect_offset.setX(self.icon_size * h_offset)
-        self.rect_offset.setY(self.icon_size * v_offset)
-        self.rect_offset.setHeight(self.icon_size)
+        self.rect_offset.moveLeft(self.icon_size * h_offset)
+        self.rect_offset.moveTop(self.icon_size * v_offset)
 
         # Icon
         painter.drawPixmap(self.rect_size, self.icon_inst, self.rect_offset)
