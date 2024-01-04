@@ -103,7 +103,7 @@ class Draw(Overlay):
 
         if self.show_radar:
             # Draw marks
-            painter.drawPixmap(0, 0, self.area_size, self.area_size, self.radar_marks)
+            painter.drawPixmap(0, 0, self.radar_marks)
 
             # Draw vehicles
             if self.vehicles_data:
@@ -114,14 +114,14 @@ class Draw(Overlay):
             # Apply mask
             if self.wcfg["show_fade_out"]:
                 painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)
-                painter.drawPixmap(0, 0, self.area_size, self.area_size, self.radar_mask)
+                painter.drawPixmap(0, 0, self.radar_mask)
                 #painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
             # Draw background
             if self.wcfg["show_background"] or self.wcfg["show_circle_background"]:
                 # Insert below map & mask
                 painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
-                painter.drawPixmap(0, 0, self.area_size, self.area_size, self.radar_background)
+                painter.drawPixmap(0, 0, self.radar_background)
                 #painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
     def draw_radar_mask(self):

@@ -150,8 +150,7 @@ class Draw(Overlay):
         painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Draw g circle background
-        painter.drawPixmap(
-            0, 0, self.area_size, self.area_size, self.circle_background)
+        painter.drawPixmap(0, 0, self.circle_background)
 
         # Draw max g circle
         if self.wcfg["show_max_average_lateral_g_circle"]:

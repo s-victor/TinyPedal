@@ -120,7 +120,7 @@ class Draw(Overlay):
         painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Draw map
-        painter.drawPixmap(0, 0, self.area_size, self.area_size, self.map_image)
+        painter.drawPixmap(0, 0, self.map_image)
 
         # Draw vehicles
         if self.vehicles_data:

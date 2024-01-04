@@ -131,14 +131,12 @@ class Draw(Overlay):
         painter = QPainter(self)
         #painter.setRenderHint(QPainter.Antialiasing, True)
 
-        painter.drawPixmap(
-            0, 0, self.full_width, self.bar_height, self.rect_background)
+        painter.drawPixmap(0, 0, self.rect_background)
 
         self.draw_steering(painter)
 
         if self.wcfg["show_scale_mark"]:
-            painter.drawPixmap(
-                0, 0, self.full_width, self.bar_height, self.rect_mark)
+            painter.drawPixmap(0, 0, self.rect_mark)
 
         if self.wcfg["show_steering_angle"]:
             self.draw_readings(painter)

@@ -134,8 +134,7 @@ class Draw(Overlay):
         painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Draw background
-        painter.drawPixmap(
-            0, 0, self.area_width, self.area_height, self.plot_background)
+        painter.drawPixmap(0, 0, self.plot_background)
 
         if self.wcfg["show_ffb"]:
             self.draw_plot(painter, "ffb")

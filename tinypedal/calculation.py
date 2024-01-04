@@ -314,14 +314,9 @@ def zoom_map(map_data, map_scale, margin=0):
     # Scale map coordinates
     x_range_scaled = [x_pos * map_scale - map_offset[0] for x_pos in x_range]
     y_range_scaled = [y_pos * map_scale - map_offset[1] for y_pos in y_range]
-    # Map bounding coordinates
-    map_rect = (
-        0,  # x start pos
-        0,  # y start pos
-        max(x_range_scaled) + margin,  # width
-        max(y_range_scaled) + margin   # height
-    )
-    return tuple(zip(x_range_scaled, y_range_scaled)), map_rect, map_offset
+    # Map width, height
+    map_size = max(x_range_scaled) + margin, max(y_range_scaled) + margin
+    return tuple(zip(x_range_scaled, y_range_scaled)), map_size, map_offset
 
 
 def scale_map(map_data, area_size, margin=0):

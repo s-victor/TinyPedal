@@ -156,8 +156,7 @@ class Draw(Overlay):
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
 
         # Draw circle background
-        painter.drawPixmap(
-            0, 0, self.area_size, self.area_size, self.circle_background)
+        painter.drawPixmap(0, 0, self.circle_background)
         # Draw compass bearing
         self.draw_compass_bearing(painter)
         # Draw yaw line

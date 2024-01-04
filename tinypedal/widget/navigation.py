@@ -92,7 +92,7 @@ class Draw(Overlay):
         self.last_coords_hash = -1
         self.map_scaled = None
         self.map_margin = self.wcfg["map_width"] + self.wcfg["map_outline_width"]
-        self.map_rect = 0,0,1,1
+        self.map_size = 1,1
         self.map_offset = 0,0
 
         # Set widget state & start update
@@ -142,14 +142,14 @@ class Draw(Overlay):
         # Apply mask
         if self.wcfg["show_fade_out"]:
             painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)
-            painter.drawPixmap(0, 0, self.area_size, self.area_size, self.map_mask)
+            painter.drawPixmap(0, 0, self.map_mask)
             #painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
         # Draw background
         if self.wcfg["show_background"] or self.wcfg["show_circle_background"]:
             # Insert below map & mask
             painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
-            painter.drawPixmap(0, 0, self.area_size, self.area_size, self.rect_background)
+            painter.drawPixmap(0, 0, self.rect_background)
             #painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
 
     def draw_background(self):
@@ -199,7 +199,7 @@ class Draw(Overlay):
         # Draw rotated map
         painter.translate(center_offset_x, center_offset_y)
         painter.rotate(plr_ori_deg)
-        painter.drawPixmap(*self.map_rect, self.map_image)
+        painter.drawPixmap(0, 0, self.map_image)
         painter.resetTransform()
 
     def create_map_path(self, raw_coords):
@@ -207,7 +207,7 @@ class Draw(Overlay):
         map_path = QPainterPath()
         if raw_coords:
             dist = calc.distance(raw_coords[0], raw_coords[-1])
-            (self.map_scaled, self.map_rect, self.map_offset
+            (self.map_scaled, self.map_size, self.map_offset
              ) = calc.zoom_map(raw_coords, self.global_scale, self.map_margin)
             for index, coords in enumerate(self.map_scaled):
                 if index == 0:
@@ -219,14 +219,14 @@ class Draw(Overlay):
                 map_path.closeSubpath()
         else:
             self.map_scaled = None
-            self.map_rect = 0,0,1,1
+            self.map_size = 1,1
             self.map_offset = 0,0
             map_path.addRect(QRectF(-99999, -99999, 0, 0))
         return map_path
 
     def draw_map_image(self, map_path):
         """Draw map image separately"""
-        self.map_image = QPixmap(self.map_rect[2], self.map_rect[3])
+        self.map_image = QPixmap(self.map_size[0], self.map_size[1])
         self.map_image.fill(Qt.transparent)
         painter = QPainter(self.map_image)
         painter.setRenderHint(QPainter.Antialiasing, True)
