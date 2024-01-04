@@ -82,6 +82,8 @@ class Draw(Overlay):
 
         # Config canvas
         self.resize(self.full_width, self.bar_height)
+        self.pixmap_background = QPixmap(self.full_width, self.bar_height)
+        self.pixmap_mark = QPixmap(self.full_width, self.bar_height)
 
         self.pen = QPen()
         self.brush = QBrush(Qt.SolidPattern)
@@ -129,23 +131,20 @@ class Draw(Overlay):
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
-        #painter.setRenderHint(QPainter.Antialiasing, True)
-
-        painter.drawPixmap(0, 0, self.rect_background)
-
+        painter.drawPixmap(0, 0, self.pixmap_background)
+        # Draw steering
         self.draw_steering(painter)
-
+        # Draw scale marks
         if self.wcfg["show_scale_mark"]:
-            painter.drawPixmap(0, 0, self.rect_mark)
-
+            painter.drawPixmap(0, 0, self.pixmap_mark)
+        # Draw readings
         if self.wcfg["show_steering_angle"]:
             self.draw_readings(painter)
 
     def draw_background(self):
         """Draw background"""
-        self.rect_background = QPixmap(self.full_width, self.bar_height)
-        self.rect_background.fill(self.wcfg["bkg_color"])
-        painter = QPainter(self.rect_background)
+        self.pixmap_background.fill(self.wcfg["bkg_color"])
+        painter = QPainter(self.pixmap_background)
         painter.setPen(Qt.NoPen)
         # Edge mark
         brush = QBrush(Qt.SolidPattern)
@@ -158,9 +157,8 @@ class Draw(Overlay):
 
     def draw_scale_mark(self, mark_gap=90, mark_num=0):
         """Draw scale mark"""
-        self.rect_mark = QPixmap(self.full_width, self.bar_height)
-        self.rect_mark.fill(Qt.transparent)
-        painter = QPainter(self.rect_mark)
+        self.pixmap_mark.fill(Qt.transparent)
+        painter = QPainter(self.pixmap_mark)
         painter.setPen(Qt.NoPen)
         brush = QBrush(Qt.SolidPattern)
         brush.setColor(self.wcfg["scale_mark_color"])

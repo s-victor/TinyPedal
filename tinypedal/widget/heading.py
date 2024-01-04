@@ -95,11 +95,12 @@ class Draw(Overlay):
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
+        self.pixmap_background = QPixmap(self.area_size, self.area_size)
 
         self.pen = QPen()
         self.pen.setCapStyle(Qt.RoundCap)
         self.brush = QBrush(Qt.SolidPattern)
-        self.draw_circle_background()
+        self.draw_background()
 
         # Last data
         self.veh_ori_yaw = 0
@@ -154,9 +155,8 @@ class Draw(Overlay):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
-
         # Draw circle background
-        painter.drawPixmap(0, 0, self.circle_background)
+        painter.drawPixmap(0, 0, self.pixmap_background)
         # Draw compass bearing
         self.draw_compass_bearing(painter)
         # Draw yaw line
@@ -177,14 +177,13 @@ class Draw(Overlay):
         if self.wcfg["show_slip_angle_reading"]:
             self.draw_slip_angle_readings(painter)
 
-    def draw_circle_background(self):
+    def draw_background(self):
         """Draw circle background"""
-        self.circle_background = QPixmap(self.area_size, self.area_size)
         if self.wcfg["show_background"]:
-            self.circle_background.fill(self.wcfg["bkg_color"])
+            self.pixmap_background.fill(self.wcfg["bkg_color"])
         else:
-            self.circle_background.fill(Qt.transparent)
-        painter = QPainter(self.circle_background)
+            self.pixmap_background.fill(Qt.transparent)
+        painter = QPainter(self.pixmap_background)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Draw circle background

@@ -129,17 +129,12 @@ class Draw(Overlay):
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
-        #painter.setRenderHint(QPainter.Antialiasing, True)
-
         self.draw_background(painter)
-
         self.draw_tyre_load(painter)
-
         self.draw_readings(painter)
 
     def draw_background(self, painter):
         """Draw background"""
-        # Update background
         painter.setPen(Qt.NoPen)
         bkg_color = self.wcfg["bkg_color"]
         painter.fillRect(self.rect_bg_fl, bkg_color)

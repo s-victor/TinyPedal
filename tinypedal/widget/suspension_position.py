@@ -125,12 +125,8 @@ class Draw(Overlay):
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
-        #painter.setRenderHint(QPainter.Antialiasing, True)
-
         self.draw_background(painter)
-
         self.draw_susp_pos(painter)
-
         self.draw_readings(painter)
 
     def draw_background(self, painter):

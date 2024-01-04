@@ -58,6 +58,7 @@ class Draw(Overlay):
 
         # Config canvas
         self.resize(self.area_width, self.area_height)
+        self.pixmap_background = QPixmap(self.area_width, self.area_height)
 
         self.pen = QPen()
         self.pen.setCapStyle(Qt.RoundCap)
@@ -132,10 +133,7 @@ class Draw(Overlay):
         """Draw"""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-
-        # Draw background
-        painter.drawPixmap(0, 0, self.plot_background)
-
+        painter.drawPixmap(0, 0, self.pixmap_background)
         if self.wcfg["show_ffb"]:
             self.draw_plot(painter, "ffb")
         if self.wcfg["show_clutch"]:
@@ -147,9 +145,8 @@ class Draw(Overlay):
 
     def draw_background(self):
         """Draw background"""
-        self.plot_background = QPixmap(self.area_width, self.area_height)
-        self.plot_background.fill(self.wcfg["bkg_color"])
-        painter = QPainter(self.plot_background)
+        self.pixmap_background.fill(self.wcfg["bkg_color"])
+        painter = QPainter(self.pixmap_background)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Draw reference line

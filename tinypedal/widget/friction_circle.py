@@ -94,11 +94,12 @@ class Draw(Overlay):
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
+        self.pixmap_background = QPixmap(self.area_size, self.area_size)
 
         self.pen = QPen()
         self.pen.setCapStyle(Qt.RoundCap)
         self.brush = QBrush(Qt.SolidPattern)
-        self.draw_circle_background()
+        self.draw_background()
 
         # Last data
         self.checked = False
@@ -148,10 +149,8 @@ class Draw(Overlay):
         """Draw"""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-
         # Draw g circle background
-        painter.drawPixmap(0, 0, self.circle_background)
-
+        painter.drawPixmap(0, 0, self.pixmap_background)
         # Draw max g circle
         if self.wcfg["show_max_average_lateral_g_circle"]:
             self.draw_circle_mark(
@@ -171,14 +170,13 @@ class Draw(Overlay):
         if self.wcfg["show_readings"]:
             self.draw_text(painter)
 
-    def draw_circle_background(self):
+    def draw_background(self):
         """Draw g circle background"""
-        self.circle_background = QPixmap(self.area_size, self.area_size)
         if self.wcfg["show_background"]:
-            self.circle_background.fill(self.wcfg["bkg_color"])
+            self.pixmap_background.fill(self.wcfg["bkg_color"])
         else:
-            self.circle_background.fill(Qt.transparent)
-        painter = QPainter(self.circle_background)
+            self.pixmap_background.fill(Qt.transparent)
+        painter = QPainter(self.pixmap_background)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
         if self.wcfg["show_circle_background"]:

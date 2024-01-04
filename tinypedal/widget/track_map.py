@@ -66,11 +66,13 @@ class Draw(Overlay):
         self.area_size = max(self.wcfg["area_size"], 100)
         self.area_margin = min(max(self.wcfg["area_margin"], 0), int(self.area_size/4))
         self.temp_map_size = self.area_size - self.area_margin * 2
+
         self.resize(self.area_size, self.area_size)
+        self.pixmap_map = QPixmap(self.area_size, self.area_size)
 
         self.pen = QPen()
         self.brush = QBrush(Qt.SolidPattern)
-        self.draw_map_image(self.create_map_path(None))
+        self.draw_map_image(self.create_map_path())
 
         # Last data
         self.map_scaled = None
@@ -118,15 +120,13 @@ class Draw(Overlay):
         """Draw"""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-
         # Draw map
-        painter.drawPixmap(0, 0, self.map_image)
-
+        painter.drawPixmap(0, 0, self.pixmap_map)
         # Draw vehicles
         if self.vehicles_data:
             self.draw_vehicle(painter)
 
-    def create_map_path(self, raw_coords):
+    def create_map_path(self, raw_coords=None):
         """Create map path"""
         map_path = QPainterPath()
         if raw_coords:
@@ -173,9 +173,8 @@ class Draw(Overlay):
 
     def draw_map_image(self, map_path, circular_map=True):
         """Draw map image separately"""
-        self.map_image = QPixmap(self.area_size, self.area_size)
-        self.map_image.fill(Qt.transparent)
-        painter = QPainter(self.map_image)
+        self.pixmap_map.fill(Qt.transparent)
+        painter = QPainter(self.pixmap_map)
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setPen(Qt.NoPen)
 

@@ -78,12 +78,15 @@ class Draw(Overlay):
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
+        self.pixmap_background = QPixmap(self.area_size, self.area_size)
+        self.pixmap_map = QPixmap(1, 1)
+        self.pixmap_mask = QPixmap(self.area_size, self.area_size)
 
         self.pen = QPen()
         self.brush = QBrush(Qt.SolidPattern)
         self.draw_background()
         self.draw_map_mask()
-        self.draw_map_image(self.create_map_path(None))
+        self.draw_map_image(self.create_map_path())
 
         # Last data
         self.vehicles_data = None
@@ -131,38 +134,30 @@ class Draw(Overlay):
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
-
         # Draw map
         self.rotate_map(painter)
-
         # Draw vehicles
         if self.vehicles_data:
             self.draw_vehicle(painter)
-
         # Apply mask
         if self.wcfg["show_fade_out"]:
             painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)
-            painter.drawPixmap(0, 0, self.map_mask)
-            #painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-
-        # Draw background
+            painter.drawPixmap(0, 0, self.pixmap_mask)
+        # Draw background below map & mask
         if self.wcfg["show_background"] or self.wcfg["show_circle_background"]:
-            # Insert below map & mask
             painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
-            painter.drawPixmap(0, 0, self.rect_background)
-            #painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+            painter.drawPixmap(0, 0, self.pixmap_background)
 
     def draw_background(self):
         """Draw background"""
-        self.rect_background = QPixmap(self.area_size, self.area_size)
         if self.wcfg["show_background"]:
-            self.rect_background.fill(self.wcfg["bkg_color"])
+            self.pixmap_background.fill(self.wcfg["bkg_color"])
         else:
-            self.rect_background.fill(Qt.transparent)
+            self.pixmap_background.fill(Qt.transparent)
 
         # Draw circle background
         if self.wcfg["show_circle_background"]:
-            painter = QPainter(self.rect_background)
+            painter = QPainter(self.pixmap_background)
             painter.setRenderHint(QPainter.Antialiasing, True)
 
             if self.wcfg["circle_outline_width"] > 0:
@@ -199,10 +194,10 @@ class Draw(Overlay):
         # Draw rotated map
         painter.translate(center_offset_x, center_offset_y)
         painter.rotate(plr_ori_deg)
-        painter.drawPixmap(0, 0, self.map_image)
+        painter.drawPixmap(0, 0, self.pixmap_map)
         painter.resetTransform()
 
-    def create_map_path(self, raw_coords):
+    def create_map_path(self, raw_coords=None):
         """Create map path"""
         map_path = QPainterPath()
         if raw_coords:
@@ -226,9 +221,9 @@ class Draw(Overlay):
 
     def draw_map_image(self, map_path):
         """Draw map image separately"""
-        self.map_image = QPixmap(self.map_size[0], self.map_size[1])
-        self.map_image.fill(Qt.transparent)
-        painter = QPainter(self.map_image)
+        self.pixmap_map = QPixmap(self.map_size[0], self.map_size[1])
+        self.pixmap_map.fill(Qt.transparent)
+        painter = QPainter(self.pixmap_map)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Set pen style
@@ -281,8 +276,7 @@ class Draw(Overlay):
 
     def draw_map_mask(self):
         """Map mask"""
-        self.map_mask = QPixmap(self.area_size, self.area_size)
-        painter = QPainter(self.map_mask)
+        painter = QPainter(self.pixmap_mask)
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setPen(Qt.NoPen)
 

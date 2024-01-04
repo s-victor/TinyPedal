@@ -89,12 +89,8 @@ class Draw(Overlay):
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
-        #painter.setRenderHint(QPainter.Antialiasing, True)
-
         fg_color, bg_color = self.color_drs(self.drs_state)
-
         self.draw_background(painter, bg_color)
-
         self.draw_drs(painter, fg_color)
 
     def draw_background(self, painter, bg_color):

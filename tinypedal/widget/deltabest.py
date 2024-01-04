@@ -110,16 +110,14 @@ class Draw(Overlay):
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
-        #painter.setRenderHint(QPainter.Antialiasing, True)
-
         delta_pos = self.delta_position(
             self.wcfg["bar_display_range"],
             self.delta_best,
             self.dbar_length)
-
+        # Draw deltabar
         if self.wcfg["show_delta_bar"]:
             self.draw_deltabar(painter, delta_pos)
-
+        # Draw delta readings
         self.draw_readings(painter, delta_pos)
 
     def draw_deltabar(self, painter, delta_pos):

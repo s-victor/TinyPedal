@@ -131,17 +131,12 @@ class Draw(Overlay):
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
-        #painter.setRenderHint(QPainter.Antialiasing, True)
-
         self.draw_background(painter)
-
         self.draw_ride_height(painter)
-
         self.draw_readings(painter)
 
     def draw_background(self, painter):
         """Draw background"""
-        # Update background
         painter.setPen(Qt.NoPen)
         painter.fillRect(
             self.rect_bg_fl,

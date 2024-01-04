@@ -58,10 +58,13 @@ class Draw(Overlay):
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
+        self.pixmap_background = QPixmap(self.area_size, self.area_size)
+        self.pixmap_mask = QPixmap(self.area_size, self.area_size)
+        self.pixmap_marks = QPixmap(self.area_size, self.area_size)
 
         self.pen = QPen()
         self.brush = QBrush(Qt.SolidPattern)
-        self.draw_radar_background()
+        self.draw_background()
         self.draw_radar_marks()
         self.draw_radar_mask()
 
@@ -98,36 +101,44 @@ class Draw(Overlay):
 
     def paintEvent(self, event):
         """Draw"""
-        painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-
         if self.show_radar:
+            painter = QPainter(self)
+            painter.setRenderHint(QPainter.Antialiasing, True)
             # Draw marks
-            painter.drawPixmap(0, 0, self.radar_marks)
-
+            painter.drawPixmap(0, 0, self.pixmap_marks)
             # Draw vehicles
             if self.vehicles_data:
                 if self.wcfg["show_overlap_indicator"]:
                     self.draw_warning_indicator(painter, *self.indicator_dimention)
                 self.draw_vehicle(painter)
-
             # Apply mask
             if self.wcfg["show_fade_out"]:
                 painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)
-                painter.drawPixmap(0, 0, self.radar_mask)
-                #painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
-
-            # Draw background
+                painter.drawPixmap(0, 0, self.pixmap_mask)
+            # Draw background below map & mask
             if self.wcfg["show_background"] or self.wcfg["show_circle_background"]:
-                # Insert below map & mask
                 painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
-                painter.drawPixmap(0, 0, self.radar_background)
-                #painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
+                painter.drawPixmap(0, 0, self.pixmap_background)
+
+    def draw_background(self):
+        """Draw radar background"""
+        if self.wcfg["show_background"]:
+            self.pixmap_background.fill(self.wcfg["bkg_color"])
+        else:
+            self.pixmap_background.fill(Qt.transparent)
+        painter = QPainter(self.pixmap_background)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+
+        # Draw circle background
+        if self.wcfg["show_circle_background"]:
+            painter.setPen(Qt.NoPen)
+            self.brush.setColor(self.wcfg["bkg_color_circle"])
+            painter.setBrush(self.brush)
+            painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
     def draw_radar_mask(self):
         """radar mask"""
-        self.radar_mask = QPixmap(self.area_size, self.area_size)
-        painter = QPainter(self.radar_mask)
+        painter = QPainter(self.pixmap_mask)
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setPen(Qt.NoPen)
 
@@ -146,28 +157,10 @@ class Draw(Overlay):
         painter.setBrush(rad_gra)
         painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
-    def draw_radar_background(self):
-        """Draw radar background"""
-        self.radar_background = QPixmap(self.area_size, self.area_size)
-        if self.wcfg["show_background"]:
-            self.radar_background.fill(self.wcfg["bkg_color"])
-        else:
-            self.radar_background.fill(Qt.transparent)
-        painter = QPainter(self.radar_background)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-
-        # Draw circle background
-        if self.wcfg["show_circle_background"]:
-            painter.setPen(Qt.NoPen)
-            self.brush.setColor(self.wcfg["bkg_color_circle"])
-            painter.setBrush(self.brush)
-            painter.drawEllipse(0, 0, self.area_size, self.area_size)
-
     def draw_radar_marks(self):
         """Draw radar marks"""
-        self.radar_marks = QPixmap(self.area_size, self.area_size)
-        self.radar_marks.fill(Qt.transparent)
-        painter = QPainter(self.radar_marks)
+        self.pixmap_marks.fill(Qt.transparent)
+        painter = QPainter(self.pixmap_marks)
         painter.setRenderHint(QPainter.Antialiasing, True)
 
         # Draw center mark
