@@ -48,7 +48,7 @@ class Draw(Overlay):
 
         # Config variable
         self.area_size = max(int(self.wcfg["display_size"]), 20)
-        self.area_center = self.area_size / 2
+        self.area_center = self.area_size * 0.5
 
         icon_source = QPixmap("images/icon_compass.png")
         self.icon_inst = icon_source.scaledToWidth(
@@ -61,8 +61,8 @@ class Draw(Overlay):
 
         dot_size = max(self.wcfg["dot_size"], 1)
         self.rect_dot = QRectF(
-            (self.area_size - dot_size) / 2,
-            (self.area_size - dot_size) / 2,
+            (self.area_size - dot_size) * 0.5,
+            (self.area_size - dot_size) * 0.5,
             dot_size,
             dot_size
         )
@@ -79,14 +79,14 @@ class Draw(Overlay):
             QPointF(0, self.area_center * self.wcfg["slip_angle_line_tail_scale"])
         )
         self.rect_yaw_angle = QRectF(
-            self.area_size * self.wcfg["yaw_angle_offset_x"] - text_width / 2,
-            self.area_size * self.wcfg["yaw_angle_offset_y"] - font_m.height / 2,
+            self.area_size * self.wcfg["yaw_angle_offset_x"] - text_width * 0.5,
+            self.area_size * self.wcfg["yaw_angle_offset_y"] - font_m.height * 0.5,
             text_width,
             font_m.height
         )
         self.rect_slip_angle = QRectF(
-            self.area_size * self.wcfg["slip_angle_offset_x"] - text_width / 2,
-            self.area_size * self.wcfg["slip_angle_offset_y"] - font_m.height / 2,
+            self.area_size * self.wcfg["slip_angle_offset_x"] - text_width * 0.5,
+            self.area_size * self.wcfg["slip_angle_offset_y"] - font_m.height * 0.5,
             text_width,
             font_m.height
         )
@@ -137,7 +137,7 @@ class Draw(Overlay):
             # Slip angle
             if speed > 1:
                 self.slip_angle = calc.rad2deg(
-                    (api.read.wheel.slip_angle_fl() + api.read.wheel.slip_angle_fr()) / 2)
+                    (api.read.wheel.slip_angle_fl() + api.read.wheel.slip_angle_fr()) * 0.5)
             else:
                 self.slip_angle = 0
 

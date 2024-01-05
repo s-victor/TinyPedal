@@ -48,7 +48,7 @@ class Draw(Overlay):
         self.font_offset = self.calc_font_offset(font_m)
 
         # Config variable
-        self.dbar_length = int(self.wcfg["bar_length"] / 2)
+        self.dbar_length = int(self.wcfg["bar_length"] * 0.5)
         self.dbar_height = int(self.wcfg["bar_height"])
         self.bar_gap = self.wcfg["bar_gap"]
         padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
@@ -151,10 +151,10 @@ class Draw(Overlay):
             self.brush.setColor(self.wcfg["bkg_color_deltabest"])
 
         if self.wcfg["show_delta_bar"] and self.wcfg["show_animated_deltabest"]:
-            pos_x = min(max(delta_pos - self.delta_width / 2, 0),
+            pos_x = min(max(delta_pos - self.delta_width * 0.5, 0),
                             self.dbar_length * 2 - self.delta_width)
         elif self.wcfg["show_delta_bar"]:
-            pos_x = self.dbar_length - self.delta_width / 2
+            pos_x = self.dbar_length - self.delta_width * 0.5
         else:
             pos_x = 0
 

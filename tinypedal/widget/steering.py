@@ -194,7 +194,7 @@ class Draw(Overlay):
 
     def draw_readings(self, painter):
         """Draw readings"""
-        angle = round(self.raw_steering * self.sw_rot_range / 2)
+        angle = round(self.raw_steering * self.sw_rot_range * 0.5)
         self.pen.setColor(self.wcfg["font_color"])
         painter.setPen(self.pen)
         painter.setFont(self.font)
@@ -213,7 +213,7 @@ class Draw(Overlay):
     @staticmethod
     def scale_mark(degree, rot_range, width):
         """mark gap(degree) divide half of full steering range (degree) and multiply scale"""
-        mark_num = max(int(rot_range / max(degree, 10) / 2), 0)
+        mark_num = max(int(rot_range / max(degree, 10) * 0.5), 0)
         if rot_range != 0:
-            return degree / (rot_range / 2) * width, mark_num
+            return degree / (rot_range * 0.5) * width, mark_num
         return 0, mark_num

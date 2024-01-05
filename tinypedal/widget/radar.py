@@ -41,14 +41,14 @@ class Draw(Overlay):
         # Config variable
         self.global_scale = max(self.wcfg["global_scale"], 0.01)
         self.area_size = max(self.wcfg["radar_radius"], 5) * 2 * self.global_scale
-        self.area_center = self.area_size / 2
+        self.area_center = self.area_size * 0.5
         self.radar_range = self.wcfg["radar_radius"] * 2.5
 
         self.veh_width = max(self.wcfg["vehicle_width"], 0.01)
         self.veh_length = max(self.wcfg["vehicle_length"], 0.01)
         self.veh_shape = QRectF(
-            -self.veh_width * self.global_scale / 2,
-            -self.veh_length * self.global_scale / 2,
+            -self.veh_width * self.global_scale * 0.5,
+            -self.veh_length * self.global_scale * 0.5,
             self.veh_width * self.global_scale,
             self.veh_length * self.global_scale
         )
@@ -389,5 +389,5 @@ class Draw(Overlay):
         max_range_y = veh_length * 1.2  # safe range for ahead & behind opponents
         indicator_width = veh_width * self.wcfg["indicator_size_multiplier"] * self.global_scale
         indicator_edge = max((indicator_width - 3) / indicator_width, 0.001)  # for antialiasing
-        center_offset = veh_width * self.global_scale / 2
+        center_offset = veh_width * self.global_scale * 0.5
         return min_range_x, max_range_x, max_range_y, indicator_width, indicator_edge, center_offset

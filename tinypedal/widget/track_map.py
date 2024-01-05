@@ -50,14 +50,14 @@ class Draw(Overlay):
         # Config variable
         self.veh_size = self.wcfg["font_size"] + round(font_m.width * self.wcfg["bar_padding"])
         self.veh_shape = QRectF(
-            self.veh_size / 2,
-            self.veh_size / 2,
+            self.veh_size * 0.5,
+            self.veh_size * 0.5,
             self.veh_size,
             self.veh_size
         )
         self.veh_text_shape = QRectF(
-            self.veh_size / 2,
-            self.veh_size / 2 + font_offset,
+            -self.veh_size * 0.5,
+            -self.veh_size * 0.5 + font_offset,
             self.veh_size,
             self.veh_size
         )
@@ -253,9 +253,9 @@ class Draw(Overlay):
                 painter.drawLine(
                     QLineF(
                         self.area_margin - self.wcfg["start_line_length"],
-                        self.area_size / 2,
+                        self.area_size * 0.5,
                         self.area_margin + self.wcfg["start_line_length"],
-                        self.area_size / 2
+                        self.area_size * 0.5
                     )
                 )
 
@@ -269,27 +269,21 @@ class Draw(Overlay):
         for veh_info in self.vehicles_data:
             if self.last_coords_hash:
                 pos_x, pos_y = self.vehicle_coords_scale(*veh_info.posXZ)
-                offset = -self.veh_size
+                offset = 0
             else:  # vehicles on temp map
                 inpit_offset = self.wcfg["font_size"] if veh_info.inPit else 0
-
                 pos_x, pos_y = calc.rotate_pos(
                     6.2831853 * veh_info.percentageDistance,
                     self.temp_map_size / -2 + inpit_offset,  # x pos
-                    0  # y pos
-                )
-                offset = self.area_size / 2 - self.veh_size
+                    0)  # y pos
+                offset = self.area_size * 0.5
 
             painter.translate(offset + pos_x, offset + pos_y)
-            painter.drawPixmap(0, 0, self.color_veh_pixmap(veh_info))
+            painter.drawPixmap(-self.veh_size, -self.veh_size, self.color_veh_pixmap(veh_info))
 
             # Draw text standings
             if self.wcfg["show_vehicle_standings"]:
-                painter.drawText(
-                    self.veh_text_shape,
-                    Qt.AlignCenter,
-                    f"{veh_info.position}"
-                )
+                painter.drawText(self.veh_text_shape, Qt.AlignCenter, f"{veh_info.position}")
             painter.resetTransform()
 
     def draw_vehicle_pixmap(self, suffix):

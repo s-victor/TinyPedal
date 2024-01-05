@@ -52,25 +52,25 @@ class Draw(Overlay):
         text_width = font_m.width * 4
         display_size = max(int(self.wcfg["display_size"]), 20)
         self.display_radius_g = max(self.wcfg["display_radius_g"], 1)
-        self.global_scale = (display_size / 2) / self.display_radius_g
+        self.global_scale = (display_size * 0.5) / self.display_radius_g
         self.area_size = display_size + font_m.height * 2
-        self.area_center = self.area_size / 2
+        self.area_center = self.area_size * 0.5
 
         dot_size = max(self.wcfg["dot_size"], 1)
         self.rect_dot = QRectF(
-            -dot_size / 2,
-            -dot_size / 2,
+            -dot_size * 0.5,
+            -dot_size * 0.5,
             dot_size,
             dot_size
         )
         self.rect_gforce_top = QRectF(
-            self.area_center - text_width / 2,
+            self.area_center - text_width * 0.5,
             0,
             text_width,
             font_m.height
         )
         self.rect_gforce_bottom = QRectF(
-            self.area_center - text_width / 2,
+            self.area_center - text_width * 0.5,
             self.area_size - font_m.height,
             text_width,
             font_m.height

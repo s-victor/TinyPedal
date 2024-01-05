@@ -40,7 +40,7 @@ class Draw(Overlay):
 
         # Config variable
         bar_gap = self.wcfg["bar_gap"]
-        self.icon_size = int(max(self.wcfg["icon_size"], 16) / 2) * 2
+        self.icon_size = int(max(self.wcfg["icon_size"], 16) * 0.5) * 2
         self.rect_size = QRectF(0, 0, self.icon_size, self.icon_size)
         self.rect_offset = QRectF(0, 0, self.icon_size, self.icon_size)
 
