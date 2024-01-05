@@ -173,14 +173,13 @@ class Draw(Overlay):
 
     def draw_map_image(self, map_path, circular_map=True):
         """Draw map image separately"""
-        self.pixmap_map.fill(Qt.transparent)
+        if self.wcfg["show_background"]:
+            self.pixmap_map.fill(self.wcfg["bkg_color"])
+        else:
+            self.pixmap_map.fill(Qt.transparent)
         painter = QPainter(self.pixmap_map)
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setPen(Qt.NoPen)
-
-        # Draw map outer background
-        if self.wcfg["show_background"]:
-            painter.fillRect(0, 0, self.area_size, self.area_size, self.wcfg["bkg_color"])
 
         # Draw map inner background
         if self.wcfg["show_map_background"] and circular_map:
@@ -257,6 +256,14 @@ class Draw(Overlay):
         if self.wcfg["show_vehicle_standings"]:
             painter.setFont(self.font)
 
+        # Draw vehicle
+        if self.wcfg["vehicle_outline_width"]:
+            self.pen.setWidth(self.wcfg["vehicle_outline_width"])
+            self.pen.setColor(self.wcfg["vehicle_outline_color"])
+            painter.setPen(self.pen)
+        else:
+            painter.setPen(Qt.NoPen)
+
         for veh_info in self.vehicles_data:
             if self.last_coords_hash:
                 pos_x, pos_y = self.vehicle_scale(*veh_info.posXZ)
@@ -270,14 +277,6 @@ class Draw(Overlay):
                     0  # y pos
                 )
                 offset = self.area_size / 2
-
-            # Draw vehicle
-            if self.wcfg["vehicle_outline_width"]:
-                self.pen.setWidth(self.wcfg["vehicle_outline_width"])
-                self.pen.setColor(self.wcfg["vehicle_outline_color"])
-                painter.setPen(self.pen)
-            else:
-                painter.setPen(Qt.NoPen)
 
             self.brush.setColor(self.color_lap_diff(veh_info))
             painter.setBrush(self.brush)

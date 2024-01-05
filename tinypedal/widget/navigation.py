@@ -276,12 +276,12 @@ class Draw(Overlay):
 
     def draw_map_mask(self):
         """Map mask"""
+        self.pixmap_mask.fill(Qt.black)
         painter = QPainter(self.pixmap_mask)
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setPen(Qt.NoPen)
 
         # Draw map mask
-        painter.fillRect(0, 0, self.area_size, self.area_size, Qt.black)
         painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
         rad_gra = QRadialGradient(
             self.area_center,
