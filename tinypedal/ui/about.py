@@ -62,7 +62,7 @@ class AboutTab(QWidget):
         label_name.setStyleSheet("font-size: 18px;")
         label_name.setAlignment(Qt.AlignCenter)
 
-        label_version = QLabel(f"v{VERSION}\n")
+        label_version = QLabel(f"Version {VERSION}\n")
         label_version.setStyleSheet("font-size: 13px;")
         label_version.setAlignment(Qt.AlignCenter)
 
@@ -70,7 +70,7 @@ class AboutTab(QWidget):
             f"<p>{COPYRIGHT}</p><p>{DESCRIPTION}</p><p>{LICENSE}</p>"
             f"<p><a href={WEBSITE}>{WEBSITE}</a><br></p>"
         )
-        label_desc.setStyleSheet("font-size: 11px;")
+        label_desc.setStyleSheet("font-size: 12px;")
         label_desc.setAlignment(Qt.AlignCenter)
         label_desc.setOpenExternalLinks(True)
 
@@ -141,7 +141,7 @@ class About(QDialog):
         """New text tab"""
         new_tab = QTextBrowser()
         new_tab.setText(text)
-        new_tab.setStyleSheet("font-size: 11px;")
+        new_tab.setStyleSheet("font-size: 12px;")
         new_tab.setMinimumSize(400, 300)
         return new_tab
 
