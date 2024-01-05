@@ -50,30 +50,30 @@ class Draw(Overlay):
         # Config variable
         self.area_size = max(int(self.wcfg["display_size"]), 20)
         self.global_scale = self.area_size / max(self.wcfg["view_radius"], 5)
-        self.area_center = self.area_size / 2
+        self.area_center = self.area_size * 0.5
         self.view_range = self.wcfg["view_radius"] * 2.5
 
         self.veh_offset_y = self.area_size * max(self.wcfg["vehicle_offset"], 0)
-        self.veh_size = max(self.wcfg["vehicle_size"] / 2, 1)
+        self.veh_size = max(int(self.wcfg["vehicle_size"]), 1)
         if self.wcfg["show_circle_vehicle_shape"]:
             self.veh_shape = QRectF(
-                -self.veh_size,
-                -self.veh_size,
-                self.veh_size * 2,
-                self.veh_size * 2
+                self.veh_size * 0.5,
+                self.veh_size * 0.5,
+                self.veh_size,
+                self.veh_size
             )
         else:
             self.veh_shape = (
-                QPointF(0, -self.veh_size),
-                QPointF(self.veh_size, self.veh_size),
-                QPointF(0, self.veh_size * 0.6),
-                QPointF(-self.veh_size, self.veh_size),
+                QPointF(self.veh_size, self.veh_size * 0.5),
+                QPointF(self.veh_size * 1.5, self.veh_size * 1.5),
+                QPointF(self.veh_size, self.veh_size * 1.3),
+                QPointF(self.veh_size * 0.5, self.veh_size * 1.5),
             )
         self.veh_text_shape = QRectF(
-            -self.veh_size,
-            -self.veh_size + font_offset,
-            self.veh_size * 2,
-            self.veh_size * 2
+            -self.veh_size * 0.5,
+            -self.veh_size * 0.5 + font_offset,
+            self.veh_size,
+            self.veh_size
         )
 
         # Config canvas
@@ -87,6 +87,14 @@ class Draw(Overlay):
         self.draw_background()
         self.draw_map_mask()
         self.draw_map_image(self.create_map_path())
+
+        self.pixmap_veh_player = self.draw_vehicle_pixmap("player")
+        self.pixmap_veh_leader = self.draw_vehicle_pixmap("leader")
+        self.pixmap_veh_in_pit = self.draw_vehicle_pixmap("in_pit")
+        self.pixmap_veh_yellow = self.draw_vehicle_pixmap("yellow")
+        self.pixmap_veh_laps_ahead = self.draw_vehicle_pixmap("laps_ahead")
+        self.pixmap_veh_laps_behind = self.draw_vehicle_pixmap("laps_behind")
+        self.pixmap_veh_same_lap = self.draw_vehicle_pixmap("same_lap")
 
         # Last data
         self.vehicles_data = None
@@ -188,7 +196,7 @@ class Draw(Overlay):
             api.read.vehicle.pos_longitudinal() * self.global_scale - self.map_offset[0],
             api.read.vehicle.pos_lateral() * self.global_scale - self.map_offset[1]
         )
-        plr_ori_deg = round(calc.rad2deg(plr_ori_rad), 3)
+        plr_ori_deg = calc.rad2deg(plr_ori_rad)
         center_offset_x = self.area_center - rot_pos_x
         center_offset_y = self.veh_offset_y - rot_pos_y
         # Draw rotated map
@@ -299,22 +307,15 @@ class Draw(Overlay):
         """Draw vehicles"""
         if self.wcfg["show_vehicle_standings"]:
             painter.setFont(self.font)
-
-        if self.wcfg["vehicle_outline_width"] > 0:
-            self.pen.setWidth(self.wcfg["vehicle_outline_width"])
-            self.pen.setColor(self.wcfg["vehicle_outline_color"])
+            self.pen.setColor(self.wcfg["font_color"])
             painter.setPen(self.pen)
-        else:
-            painter.setPen(Qt.NoPen)
 
         # Draw vehicle within view range
         for veh_info in self.vehicles_data:
             # Draw player vehicle
             if veh_info.isPlayer:
-                self.brush.setColor(self.wcfg["vehicle_color_player"])
-                painter.setBrush(self.brush)
                 painter.translate(self.area_center, self.veh_offset_y)
-                self.draw_vehicle_shape(painter)
+                painter.drawPixmap(-self.veh_size, -self.veh_size, self.pixmap_veh_player)
                 if self.wcfg["show_vehicle_standings"]:
                     self.draw_text_standings(painter, veh_info.position)
                 painter.resetTransform()
@@ -324,51 +325,59 @@ class Draw(Overlay):
                 # Rotated position relative to player
                 pos_x = self.scale_veh_pos(veh_info.relativeRotatedPosXZ[0], self.area_center)
                 pos_y = self.scale_veh_pos(veh_info.relativeRotatedPosXZ[1], self.veh_offset_y)
-                angle_deg = round(calc.rad2deg(-veh_info.relativeOrientationXZRadians), 3)
 
-                self.brush.setColor(self.color_lap_diff(veh_info))
-                painter.setBrush(self.brush)
                 painter.translate(pos_x, pos_y)
-                painter.rotate(angle_deg)
-                self.draw_vehicle_shape(painter)
+                if not self.wcfg["show_circle_vehicle_shape"]:
+                    painter.rotate(calc.rad2deg(-veh_info.relativeOrientationXZRadians))
+                painter.drawPixmap(-self.veh_size, -self.veh_size, self.color_veh_pixmap(veh_info))
 
                 if self.wcfg["show_vehicle_standings"]:
-                    painter.rotate(-angle_deg)  # undo rotation
+                    painter.resetTransform()
+                    painter.translate(pos_x, pos_y)
                     self.draw_text_standings(painter, veh_info.position)
                 painter.resetTransform()
 
-    def draw_vehicle_shape(self, painter):
-        """Draw vehicles shape"""
+    def draw_text_standings(self, painter, veh_pos):
+        """Draw vehicles standings text"""
+        painter.drawText(self.veh_text_shape, Qt.AlignCenter, f"{veh_pos}")
+
+    def draw_vehicle_pixmap(self, suffix):
+        """Draw vehicles pixmap"""
+        pixmap_veh = QPixmap(self.veh_size * 2, self.veh_size * 2)
+        pixmap_veh.fill(Qt.transparent)
+        painter = QPainter(pixmap_veh)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        if self.wcfg["vehicle_outline_width"] > 0:
+            pen = QPen()
+            pen.setWidth(self.wcfg["vehicle_outline_width"])
+            pen.setColor(self.wcfg["vehicle_outline_color"])
+            painter.setPen(pen)
+        else:
+            painter.setPen(Qt.NoPen)
+        brush = QBrush(Qt.SolidPattern)
+        brush.setColor(self.wcfg[f"vehicle_color_{suffix}"])
+        painter.setBrush(brush)
         if self.wcfg["show_circle_vehicle_shape"]:
             painter.drawEllipse(self.veh_shape)
         else:
             painter.drawPolygon(self.veh_shape)
-
-    def draw_text_standings(self, painter, veh_pos):
-        """Draw vehicles standings text"""
-        self.pen.setColor(self.wcfg["font_color"])
-        painter.setPen(self.pen)
-        painter.drawText(
-            self.veh_text_shape,
-            Qt.AlignCenter,
-            f"{veh_pos}"
-        )
+        return pixmap_veh
 
     # Additional methods
     def scale_veh_pos(self, position, offset):
         """Scale vehicle position coordinate to global scale"""
         return position * self.global_scale + offset
 
-    def color_lap_diff(self, veh_info):
+    def color_veh_pixmap(self, veh_info):
         """Compare lap differences & set color"""
         if veh_info.position == 1:
-            return self.wcfg["vehicle_color_leader"]
+            return self.pixmap_veh_leader
         if veh_info.inPit:
-            return self.wcfg["vehicle_color_in_pit"]
+            return self.pixmap_veh_in_pit
         if veh_info.isYellow and not veh_info.inPit + veh_info.inGarage:
-            return self.wcfg["vehicle_color_yellow"]
+            return self.pixmap_veh_yellow
         if veh_info.isLapped > 0:
-            return self.wcfg["vehicle_color_laps_ahead"]
+            return self.pixmap_veh_laps_ahead
         if veh_info.isLapped < 0:
-            return self.wcfg["vehicle_color_laps_behind"]
-        return self.wcfg["vehicle_color_same_lap"]
+            return self.pixmap_veh_laps_behind
+        return self.pixmap_veh_same_lap

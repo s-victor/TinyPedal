@@ -3,8 +3,9 @@ WIP
 * General
   - Optimized and improved performance of most modules and widgets,
     with roughly 50-100% less overall CPU usage than previously.
-  - Significantly optimized some resource-heavy widgets such as
-    Trailing & Track map widgets with 5-10 times less CPU usage than previously.
+  - Significantly optimized some resource-heavy Widgets
+    with 5-10 times less CPU usage than previously, notably:
+    Navigation, Trailing, Track map Widgets.
 
 * Engine Widget
   - Added "show_rpm_maximum" option,
