@@ -4,6 +4,10 @@ WIP
   - Added "show_rpm_maximum" option,
     which shows maximum engine RPM (rev limit).
 
+* Trailing Widget
+  - Significantly improved & optimized plotting methods.
+  - Removed "show_vertical_style" option.
+
 2.5.3 (2023-12-26)
 -----------------------------
 * General

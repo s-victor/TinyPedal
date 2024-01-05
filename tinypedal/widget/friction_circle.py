@@ -340,5 +340,5 @@ class Draw(Overlay):
         return round(-lgt, 3), round(lat, 3)
 
     def scale_position(self, position, offset=0):
-        """Scale position coordinate to global scale, round to 3 digits"""
-        return round(position * self.global_scale + self.area_center - offset, 3)
+        """Scale position coordinate to global scale"""
+        return position * self.global_scale + self.area_center - offset

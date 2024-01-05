@@ -41,37 +41,44 @@ class Draw(Overlay):
         self.margin = max(int(self.wcfg["display_margin"]), 0)
         self.display_width = max(int(self.wcfg["display_width"]), 2)
         self.display_height = max(int(self.wcfg["display_height"]), 2)
-        self.display_scale = max(self.wcfg["update_interval"] / 20 * self.wcfg["display_scale"], 1)
+        self.display_scale = max(int(
+            self.wcfg["update_interval"] / 20 * self.wcfg["display_scale"]), 1)
 
-        if self.wcfg["show_vertical_style"]:
-            self.max_samples = int(self.display_height / self.display_scale) + 2
-            self.global_scale = self.display_width / 100
-            self.pedal_max_range = self.display_width
-            self.area_width = self.display_width + self.margin * 2
-            self.area_height = self.display_height
-        else:
-            self.max_samples = int(self.display_width / self.display_scale) + 2
-            self.global_scale = self.display_height / 100
-            self.pedal_max_range = self.display_height
-            self.area_width = self.display_width
-            self.area_height = self.display_height + self.margin * 2
+        max_line_width = int(max(
+            1,
+            self.wcfg["throttle_line_width"],
+            self.wcfg["brake_line_width"],
+            self.wcfg["clutch_line_width"],
+            self.wcfg["ffb_line_width"],
+        ))
+        self.max_samples = 2 + max_line_width  # 2 offset + max line width
+        self.pedal_scale = self.display_height / 100
+        self.pedal_max_range = self.display_height
+        self.area_width = self.display_width
+        self.area_height = self.display_height + self.margin * 2
 
         # Config canvas
         self.resize(self.area_width, self.area_height)
         self.pixmap_background = QPixmap(self.area_width, self.area_height)
-
-        self.pen = QPen()
-        self.pen.setCapStyle(Qt.RoundCap)
-        self.draw_background()
-
-        # Last data
-        self.delayed_update = False
-        self.last_lap_etime = -1
+        self.pixmap_plot = QPixmap(self.area_width, self.area_height)
+        self.pixmap_plot_section = QPixmap(self.area_width, self.area_height)
+        self.pixmap_plot_last = QPixmap(self.area_width, self.area_height)
+        self.pixmap_plot_last.fill(Qt.transparent)
 
         self.data_throttle = self.create_data_samples(self.max_samples)
         self.data_brake = self.create_data_samples(self.max_samples)
         self.data_clutch = self.create_data_samples(self.max_samples)
         self.data_ffb = self.create_data_samples(self.max_samples)
+
+        self.pen = QPen()
+        self.pen.setCapStyle(Qt.RoundCap)
+        self.draw_background()
+        self.draw_plot_section()
+        self.draw_plot()
+
+        # Last data
+        self.delayed_update = False
+        self.last_lap_etime = -1
 
         # Set widget state & start update
         self.set_widget_state()
@@ -111,20 +118,14 @@ class Draw(Overlay):
                     ffb = abs(api.read.input.force_feedback())
                     self.append_sample("ffb", ffb)
 
-                # Translate samples in single loop
-                for index in range(self.max_samples):
-                    if self.wcfg["show_throttle"]:
-                        self.translate_samples(index, "throttle")
-                    if self.wcfg["show_brake"]:
-                        self.translate_samples(index, "brake")
-                    if self.wcfg["show_clutch"]:
-                        self.translate_samples(index, "clutch")
-                    if self.wcfg["show_ffb"]:
-                        self.translate_samples(index, "ffb")
-
                 # Update after all pedal data set
                 if self.delayed_update:
                     self.delayed_update = False
+                    self.translate_samples()
+                    self.draw_plot_section()
+                    self.draw_plot()
+                    self.pixmap_plot_last = self.pixmap_plot.copy(
+                        0, 0, self.area_width, self.area_height)
                     self.update()  # trigger paint event
                 self.last_lap_etime = lap_etime
 
@@ -132,22 +133,17 @@ class Draw(Overlay):
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
-        painter.setRenderHint(QPainter.Antialiasing, True)
+        if self.wcfg["show_inverted_trailing"]:  # right alignment
+            painter.setViewport(self.area_width, 0, -self.area_width, self.area_height)
         painter.drawPixmap(0, 0, self.pixmap_background)
-        if self.wcfg["show_ffb"]:
-            self.draw_plot(painter, "ffb")
-        if self.wcfg["show_clutch"]:
-            self.draw_plot(painter, "clutch")
-        if self.wcfg["show_brake"]:
-            self.draw_plot(painter, "brake")
-        if self.wcfg["show_throttle"]:
-            self.draw_plot(painter, "throttle")
+        painter.drawPixmap(0, 0, self.pixmap_plot)
 
     def draw_background(self):
         """Draw background"""
         self.pixmap_background.fill(self.wcfg["bkg_color"])
         painter = QPainter(self.pixmap_background)
         painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setBrush(Qt.NoBrush)
 
         # Draw reference line
         if self.wcfg["show_reference_line"]:
@@ -162,7 +158,7 @@ class Draw(Overlay):
 
     def draw_reference_line(self, painter, style, offset, width, color):
         """Draw reference line"""
-        if width:  # draw if line width > 0
+        if width > 0:
             if style:
                 self.pen.setStyle(Qt.DashLine)
             else:
@@ -170,64 +166,79 @@ class Draw(Overlay):
             self.pen.setWidth(width)
             self.pen.setColor(color)
             painter.setPen(self.pen)
-            painter.setBrush(Qt.NoBrush)
-            if self.wcfg["show_vertical_style"]:
-                painter.drawLine(
-                    self.pedal_max_range * offset + self.margin,
-                    0,
-                    self.pedal_max_range * offset + self.margin,
-                    self.display_height,
-                )
-            else:
-                painter.drawLine(
-                    0,
-                    self.pedal_max_range * offset + self.margin,
-                    self.display_width,
-                    self.pedal_max_range * offset + self.margin,
-                )
+            painter.drawLine(
+                0,
+                self.pedal_max_range * offset + self.margin,
+                self.display_width,
+                self.pedal_max_range * offset + self.margin,
+            )
 
-    def draw_plot(self, painter, suffix):
+    def draw_plot(self):
+        """Draw final plot"""
+        self.pixmap_plot.fill(Qt.transparent)
+        painter = QPainter(self.pixmap_plot)
+        # Draw section plot, -2 sample offset
+        painter.drawPixmap(-self.display_scale * 2, 0, self.pixmap_plot_section)
+        # Avoid overlapping previous frame
+        painter.setCompositionMode(QPainter.CompositionMode_Source)
+        # Draw last plot, +1 sample offset
+        painter.translate(self.display_scale, 0)
+        painter.drawPixmap(0, 0, self.pixmap_plot_last)
+
+    def draw_plot_section(self):
+        """Draw section plot"""
+        self.pixmap_plot_section.fill(Qt.transparent)
+        painter = QPainter(self.pixmap_plot_section)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setBrush(Qt.NoBrush)
+        self.pen.setStyle(Qt.SolidLine)
+
+        if self.wcfg["show_ffb"]:
+            self.draw_line(painter, "ffb")
+        if self.wcfg["show_clutch"]:
+            self.draw_line(painter, "clutch")
+        if self.wcfg["show_brake"]:
+            self.draw_line(painter, "brake")
+        if self.wcfg["show_throttle"]:
+            self.draw_line(painter, "throttle")
+
+    def draw_line(self, painter, suffix):
         """Draw plot"""
         self.pen.setWidth(self.wcfg[f"{suffix}_line_width"])
         self.pen.setColor(self.wcfg[f"{suffix}_color"])
-        self.pen.setStyle(Qt.SolidLine)
         painter.setPen(self.pen)
-        painter.setBrush(Qt.NoBrush)
         if self.wcfg[f"{suffix}_line_style"]:
             painter.drawPoints(getattr(self, f"data_{suffix}"))
         else:
             painter.drawPolyline(getattr(self, f"data_{suffix}"))
 
     # Additional methods
-    def create_data_samples(self, samples):
+    @staticmethod
+    def create_data_samples(samples):
         """Create data sample list"""
-        return deque([QPointF(0, 0) for _ in range(samples)], self.max_samples)
+        return deque([QPointF(0, 0) for _ in range(samples)], samples)
 
     def scale_position(self, position):
         """Scale pedal value"""
         if self.wcfg["show_inverted_pedal"]:
-            return position * 100 * self.global_scale + self.margin
-        return (100 - position * 100) * self.global_scale + self.margin
+            return position * 100 * self.pedal_scale + self.margin
+        return (100 - position * 100) * self.pedal_scale + self.margin
 
     def append_sample(self, suffix, value):
-        """Append input position sample to data list, round to 3 digits"""
-        input_pos = round(self.scale_position(value), 3)
-        if self.wcfg["show_vertical_style"]:
-            getattr(self, f"data_{suffix}").appendleft(QPointF(input_pos, 0))
-        else:
-            getattr(self, f"data_{suffix}").appendleft(QPointF(0, input_pos))
+        """Append input position sample to data list"""
+        input_pos = self.scale_position(value)
+        getattr(self, f"data_{suffix}").appendleft(QPointF(0, input_pos))
         self.delayed_update = True
 
-    def translate_samples(self, index, suffix):
+    def translate_samples(self):
         """Translate sample position"""
-        index_scale = index * self.display_scale
-        if self.wcfg["show_vertical_style"]:
-            if self.wcfg["show_inverted_trailing"]:  # bottom alignment
-                getattr(self, f"data_{suffix}")[index].setY(self.display_height - index_scale)
-            else:                                    # top alignment
-                getattr(self, f"data_{suffix}")[index].setY(index_scale + 1)
-        else:
-            if self.wcfg["show_inverted_trailing"]:  # right alignment
-                getattr(self, f"data_{suffix}")[index].setX(self.display_width - index_scale)
-            else:                                    # left alignment
-                getattr(self, f"data_{suffix}")[index].setX(index_scale + 1)
+        for index in range(self.max_samples):
+            index_offset = index * self.display_scale + 1
+            if self.wcfg["show_throttle"]:
+                self.data_throttle[index].setX(index_offset)
+            if self.wcfg["show_brake"]:
+                self.data_brake[index].setX(index_offset)
+            if self.wcfg["show_clutch"]:
+                self.data_clutch[index].setX(index_offset)
+            if self.wcfg["show_ffb"]:
+                self.data_ffb[index].setX(index_offset)

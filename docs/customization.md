@@ -1432,9 +1432,6 @@ Set pedal plot display margin (vertical relative to pedal) in pixels.
     display_scale
 Set plot display scale. Default scale is `2`. Minimum scale is limited to `1`.
 
-    show_vertical_style
-Show pedal plot in vertical style.
-
     show_inverted_pedal
 Invert pedal range display.
 
