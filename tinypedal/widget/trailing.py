@@ -182,8 +182,7 @@ class Draw(Overlay):
         # Avoid overlapping previous frame
         painter.setCompositionMode(QPainter.CompositionMode_Source)
         # Draw last plot, +1 sample offset
-        painter.translate(self.display_scale, 0)
-        painter.drawPixmap(0, 0, self.pixmap_plot_last)
+        painter.drawPixmap(self.display_scale, 0, self.pixmap_plot_last)
 
     def draw_plot_section(self):
         """Draw section plot"""

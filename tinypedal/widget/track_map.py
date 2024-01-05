@@ -71,7 +71,6 @@ class Draw(Overlay):
         self.pixmap_map = QPixmap(self.area_size, self.area_size)
 
         self.pen = QPen()
-        self.brush = QBrush(Qt.SolidPattern)
         self.draw_map_image(self.create_map_path())
 
         self.pixmap_veh_player = self.draw_vehicle_pixmap("player")

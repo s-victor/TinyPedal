@@ -83,7 +83,6 @@ class Draw(Overlay):
         self.pixmap_mask = QPixmap(self.area_size, self.area_size)
 
         self.pen = QPen()
-        self.brush = QBrush(Qt.SolidPattern)
         self.draw_background()
         self.draw_map_mask()
         self.draw_map_image(self.create_map_path())
@@ -176,8 +175,9 @@ class Draw(Overlay):
             else:
                 painter.setPen(Qt.NoPen)
 
-            self.brush.setColor(self.wcfg["bkg_color_circle"])
-            painter.setBrush(self.brush)
+            brush = QBrush(Qt.SolidPattern)
+            brush.setColor(self.wcfg["bkg_color_circle"])
+            painter.setBrush(brush)
             painter.drawEllipse(
                 self.wcfg["circle_outline_width"],
                 self.wcfg["circle_outline_width"],

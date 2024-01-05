@@ -96,11 +96,12 @@ class Draw(Overlay):
         # Config canvas
         self.resize(self.area_size, self.area_size)
         self.pixmap_background = QPixmap(self.area_size, self.area_size)
+        self.pixmap_dot = QPixmap(self.area_size, self.area_size)
 
         self.pen = QPen()
         self.pen.setCapStyle(Qt.RoundCap)
-        self.brush = QBrush(Qt.SolidPattern)
         self.draw_background()
+        self.draw_dot()
 
         # Last data
         self.veh_ori_yaw = 0
@@ -170,7 +171,7 @@ class Draw(Overlay):
             self.draw_direction_line(painter)
         # Draw dot
         if self.wcfg["show_dot"]:
-            self.draw_dot(painter)
+            painter.drawPixmap(0, 0, self.pixmap_dot)
         # Draw text
         if self.wcfg["show_yaw_angle_reading"]:
             self.draw_yaw_readings(painter)
@@ -189,8 +190,9 @@ class Draw(Overlay):
         # Draw circle background
         if self.wcfg["show_circle_background"]:
             painter.setPen(Qt.NoPen)
-            self.brush.setColor(self.wcfg["bkg_color_circle"])
-            painter.setBrush(self.brush)
+            brush = QBrush(Qt.SolidPattern)
+            brush.setColor(self.wcfg["bkg_color_circle"])
+            painter.setBrush(brush)
             painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
         # Draw center mark
@@ -273,17 +275,20 @@ class Draw(Overlay):
         painter.drawPolyline(self.dir_line)
         painter.resetTransform()
 
-    def draw_dot(self, painter):
+    def draw_dot(self):
         """Draw dot"""
+        self.pixmap_dot.fill(Qt.transparent)
+        painter = QPainter(self.pixmap_dot)
+        painter.setRenderHint(QPainter.Antialiasing, True)
         if self.wcfg["dot_outline_width"] > 0:
             self.pen.setWidth(self.wcfg["dot_outline_width"])
             self.pen.setColor(self.wcfg["dot_outline_color"])
             painter.setPen(self.pen)
         else:
             painter.setPen(Qt.NoPen)
-
-        self.brush.setColor(self.wcfg["dot_color"])
-        painter.setBrush(self.brush)
+        brush = QBrush(Qt.SolidPattern)
+        brush.setColor(self.wcfg["dot_color"])
+        painter.setBrush(brush)
         painter.drawEllipse(self.rect_dot)
 
     def draw_yaw_readings(self, painter):

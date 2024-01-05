@@ -56,12 +56,12 @@ class Draw(Overlay):
         self.area_size = display_size + font_m.height * 2
         self.area_center = self.area_size * 0.5
 
-        dot_size = max(self.wcfg["dot_size"], 1)
+        self.dot_size = max(self.wcfg["dot_size"], 1)
         self.rect_dot = QRectF(
-            -dot_size * 0.5,
-            -dot_size * 0.5,
-            dot_size,
-            dot_size
+            self.dot_size * 0.5,
+            self.dot_size * 0.5,
+            self.dot_size,
+            self.dot_size
         )
         self.rect_gforce_top = QRectF(
             self.area_center - text_width * 0.5,
@@ -95,11 +95,12 @@ class Draw(Overlay):
         # Config canvas
         self.resize(self.area_size, self.area_size)
         self.pixmap_background = QPixmap(self.area_size, self.area_size)
+        self.pixmap_dot = QPixmap(self.dot_size * 2, self.dot_size * 2)
 
         self.pen = QPen()
         self.pen.setCapStyle(Qt.RoundCap)
-        self.brush = QBrush(Qt.SolidPattern)
         self.draw_background()
+        self.draw_dot()
 
         # Last data
         self.checked = False
@@ -165,7 +166,8 @@ class Draw(Overlay):
             self.draw_trace(painter)
         # Draw dot
         if self.wcfg["show_dot"]:
-            self.draw_dot(painter)
+            painter.drawPixmap(
+                self.last_x - self.dot_size, self.last_y - self.dot_size, self.pixmap_dot)
         # Draw text
         if self.wcfg["show_readings"]:
             self.draw_text(painter)
@@ -198,8 +200,9 @@ class Draw(Overlay):
                     Qt.transparent)
                 painter.setBrush(rad_gra)
             else:
-                self.brush.setColor(self.wcfg["bkg_color_circle"])
-                painter.setBrush(self.brush)
+                brush = QBrush(Qt.SolidPattern)
+                brush.setColor(self.wcfg["bkg_color_circle"])
+                painter.setBrush(brush)
             painter.drawEllipse(
                 self.area_center - circle_scale,
                 self.area_center - circle_scale,
@@ -283,8 +286,11 @@ class Draw(Overlay):
         else:
             painter.drawPolyline(self.data_gforce)
 
-    def draw_dot(self, painter):
+    def draw_dot(self):
         """Draw dot"""
+        self.pixmap_dot.fill(Qt.transparent)
+        painter = QPainter(self.pixmap_dot)
+        painter.setRenderHint(QPainter.Antialiasing, True)
         if self.wcfg["dot_outline_width"] > 0:
             self.pen.setWidth(self.wcfg["dot_outline_width"])
             self.pen.setColor(self.wcfg["dot_outline_color"])
@@ -292,11 +298,10 @@ class Draw(Overlay):
         else:
             painter.setPen(Qt.NoPen)
 
-        self.brush.setColor(self.wcfg["dot_color"])
-        painter.setBrush(self.brush)
-        painter.translate(self.last_x, self.last_y)
+        brush = QBrush(Qt.SolidPattern)
+        brush.setColor(self.wcfg["dot_color"])
+        painter.setBrush(brush)
         painter.drawEllipse(self.rect_dot)
-        painter.resetTransform()
 
     def draw_text(self, painter):
         """Draw text"""

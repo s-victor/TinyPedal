@@ -132,8 +132,9 @@ class Draw(Overlay):
         # Draw circle background
         if self.wcfg["show_circle_background"]:
             painter.setPen(Qt.NoPen)
-            self.brush.setColor(self.wcfg["bkg_color_circle"])
-            painter.setBrush(self.brush)
+            brush = QBrush(Qt.SolidPattern)
+            brush.setColor(self.wcfg["bkg_color_circle"])
+            painter.setBrush(brush)
             painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
     def draw_radar_mask(self):
