@@ -51,7 +51,7 @@ class Draw(Overlay):
             self.wcfg["clutch_line_width"],
             self.wcfg["ffb_line_width"],
         ))
-        self.max_samples = 2 + max_line_width  # 2 offset + max line width
+        self.max_samples = 3 + max_line_width  # 3 offset + max line width
         self.pedal_scale = self.display_height / 100
         self.pedal_max_range = self.display_height
         self.area_width = self.display_width
@@ -203,7 +203,7 @@ class Draw(Overlay):
             self.draw_line(painter, "throttle")
 
     def draw_line(self, painter, suffix):
-        """Draw plot"""
+        """Draw plot line"""
         self.pen.setWidth(self.wcfg[f"{suffix}_line_width"])
         self.pen.setColor(self.wcfg[f"{suffix}_color"])
         painter.setPen(self.pen)
