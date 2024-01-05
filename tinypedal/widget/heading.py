@@ -275,7 +275,7 @@ class Draw(Overlay):
 
     def draw_dot(self, painter):
         """Draw dot"""
-        if self.wcfg["dot_outline_width"]:
+        if self.wcfg["dot_outline_width"] > 0:
             self.pen.setWidth(self.wcfg["dot_outline_width"])
             self.pen.setColor(self.wcfg["dot_outline_color"])
             painter.setPen(self.pen)

@@ -1,15 +1,16 @@
 WIP
 -----------------------------
 * General
-  - Improved & optimized overall modules and widgets,
-    roughly 50-100% less overall CPU usage.
+  - Optimized and improved performance of most modules and widgets,
+    with roughly 50-100% less overall CPU usage than previously.
+  - Significantly optimized some resource-heavy widgets such as
+    Trailing & Track map widgets with 5-10 times less CPU usage than previously.
 
 * Engine Widget
   - Added "show_rpm_maximum" option,
     which shows maximum engine RPM (rev limit).
 
 * Trailing Widget
-  - Optimized & more efficient plotting methods.
   - Removed "show_vertical_style" option.
 
 2.5.3 (2023-12-26)

@@ -231,7 +231,7 @@ class Draw(Overlay):
         pen.setJoinStyle(Qt.RoundJoin)
 
         # Draw map outline
-        if self.wcfg["map_outline_width"]:
+        if self.wcfg["map_outline_width"] > 0:
             pen.setWidth(self.wcfg["map_width"] + self.wcfg["map_outline_width"])
             pen.setColor(self.wcfg["map_outline_color"])
             painter.setPen(pen)
@@ -300,7 +300,7 @@ class Draw(Overlay):
         if self.wcfg["show_vehicle_standings"]:
             painter.setFont(self.font)
 
-        if self.wcfg["vehicle_outline_width"]:
+        if self.wcfg["vehicle_outline_width"] > 0:
             self.pen.setWidth(self.wcfg["vehicle_outline_width"])
             self.pen.setColor(self.wcfg["vehicle_outline_color"])
             painter.setPen(self.pen)

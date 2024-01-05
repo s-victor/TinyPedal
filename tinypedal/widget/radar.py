@@ -289,7 +289,7 @@ class Draw(Overlay):
 
     def draw_vehicle(self, painter):
         """Draw vehicles"""
-        if self.wcfg["vehicle_outline_width"]:
+        if self.wcfg["vehicle_outline_width"] > 0:
             self.pen.setWidth(self.wcfg["vehicle_outline_width"])
             self.pen.setColor(self.wcfg["vehicle_outline_color"])
             painter.setPen(self.pen)

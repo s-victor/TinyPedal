@@ -257,7 +257,7 @@ class Draw(Overlay):
 
     def draw_circle_mark(self, painter, style, radius, width, color):
         """Draw circle mark"""
-        if radius <= self.display_radius_g and width:
+        if radius <= self.display_radius_g and width > 0:
             circle_scale = round(radius * self.global_scale)
             circle_pos = self.area_center - circle_scale
             circle_size = circle_scale * 2
@@ -285,7 +285,7 @@ class Draw(Overlay):
 
     def draw_dot(self, painter):
         """Draw dot"""
-        if self.wcfg["dot_outline_width"]:
+        if self.wcfg["dot_outline_width"] > 0:
             self.pen.setWidth(self.wcfg["dot_outline_width"])
             self.pen.setColor(self.wcfg["dot_outline_color"])
             painter.setPen(self.pen)
