@@ -465,7 +465,7 @@ class UserConfig(QDialog):
 
         for key in self.option_float:
             value = float(getattr(self, f"lineedit_{key}").text())
-            if divmod(value, 1)[1] == 0:
+            if value % 1 == 0:  # remove unnecessary decimal points
                 value = int(value)
             cfg.setting_user[self.key_name][key] = value
 

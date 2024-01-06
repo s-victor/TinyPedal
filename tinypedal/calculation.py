@@ -222,27 +222,24 @@ def relative_time_gap(rel_dist, plr_speed, opt_speed):
 
 def sec2sessiontime(seconds):
     """Session time (hour/min/sec/ms)"""
-    hours = seconds // 3600
-    mins = divmod(seconds // 60, 60)[1]
-    secs = min(divmod(seconds, 60)[1], 59)
-    return f"{hours:01.0f}:{mins:02.0f}:{secs:02.0f}"
+    return f"{seconds // 3600:01.0f}:{seconds // 60 % 60:02.0f}:{min(seconds % 60, 59):02.0f}"
 
 
 def sec2laptime(seconds):
     """Lap time (min/sec/ms)"""
     if seconds > 60:
-        return f"{seconds // 60:.0f}:{divmod(seconds, 60)[1]:06.03f}"
-    return f"{divmod(seconds, 60)[1]:.03f}"
+        return f"{seconds // 60:.0f}:{seconds % 60:06.03f}"
+    return f"{seconds % 60:.03f}"
 
 
 def sec2laptime_full(seconds):
     """Lap time (min/sec/ms) full"""
-    return f"{seconds // 60:.0f}:{divmod(seconds, 60)[1]:06.03f}"
+    return f"{seconds // 60:.0f}:{seconds % 60:06.03f}"
 
 
 def sec2stinttime(seconds):
     """Lap time (min/sec/ms)"""
-    return f"{seconds // 60:02.0f}:{min(divmod(seconds, 60)[1],59):02.0f}"
+    return f"{seconds // 60:02.0f}:{min(seconds % 60, 59):02.0f}"
 
 
 def linear_interp(x, x1, y1, x2, y2):
