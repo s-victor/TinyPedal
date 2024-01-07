@@ -20,7 +20,7 @@
 Track map Widget
 """
 
-from PySide2.QtCore import Qt, Slot, QRectF, QLineF
+from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QPen, QBrush
 
 from .. import calculation as calc
@@ -154,7 +154,7 @@ class Draw(Overlay):
             else:
                 self.circular_map = False
 
-        # Temp map
+        # Temp(circular) map
         else:
             temp_coords = (
                 (self.area_margin, self.area_margin),
@@ -168,12 +168,10 @@ class Draw(Overlay):
             self.map_scaled = None
 
             map_path.addEllipse(
-                QRectF(
-                    self.area_margin,
-                    self.area_margin,
-                    self.temp_map_size,
-                    self.temp_map_size,
-                )
+                self.area_margin,
+                self.area_margin,
+                self.temp_map_size,
+                self.temp_map_size,
             )
             self.circular_map = True
         return map_path
@@ -226,7 +224,7 @@ class Draw(Overlay):
                     1.57079633,  # 90 degree rotation
                     self.wcfg["start_line_length"]
                 )
-                painter.drawLine(QLineF(pos_x1, pos_y1, pos_x2, pos_y2))
+                painter.drawLine(pos_x1, pos_y1, pos_x2, pos_y2)
 
             # Sector lines
             sectors_index = minfo.mapping.sectors
@@ -242,7 +240,7 @@ class Draw(Overlay):
                         1.57079633,  # 90 degree rotation
                         self.wcfg["sector_line_length"]
                     )
-                    painter.drawLine(QLineF(pos_x1, pos_y1, pos_x2, pos_y2))
+                    painter.drawLine(pos_x1, pos_y1, pos_x2, pos_y2)
         else:
             # SF line
             if self.wcfg["show_start_line"]:
@@ -250,12 +248,10 @@ class Draw(Overlay):
                 pen.setColor(self.wcfg["start_line_color"])
                 painter.setPen(pen)
                 painter.drawLine(
-                    QLineF(
-                        self.area_margin - self.wcfg["start_line_length"],
-                        self.area_size * 0.5,
-                        self.area_margin + self.wcfg["start_line_length"],
-                        self.area_size * 0.5
-                    )
+                    self.area_margin - self.wcfg["start_line_length"],
+                    self.area_size * 0.5,
+                    self.area_margin + self.wcfg["start_line_length"],
+                    self.area_size * 0.5
                 )
 
     def draw_vehicle(self, painter):

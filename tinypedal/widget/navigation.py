@@ -20,7 +20,7 @@
 Navigation Widget
 """
 
-from PySide2.QtCore import Qt, Slot, QRectF, QLineF, QPointF
+from PySide2.QtCore import Qt, Slot, QRectF, QPointF
 from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QRadialGradient, QPen, QBrush
 
 from .. import calculation as calc
@@ -264,7 +264,7 @@ class Draw(Overlay):
                     1.57079633,  # 90 degree rotation
                     self.wcfg["start_line_length"]
                 )
-                painter.drawLine(QLineF(pos_x1, pos_y1, pos_x2, pos_y2))
+                painter.drawLine(pos_x1, pos_y1, pos_x2, pos_y2)
 
             # Sector lines
             sectors_index = minfo.mapping.sectors
@@ -280,7 +280,7 @@ class Draw(Overlay):
                         1.57079633,  # 90 degree rotation
                         self.wcfg["sector_line_length"]
                     )
-                    painter.drawLine(QLineF(pos_x1, pos_y1, pos_x2, pos_y2))
+                    painter.drawLine(pos_x1, pos_y1, pos_x2, pos_y2)
 
     def draw_map_mask(self):
         """Map mask"""
