@@ -208,7 +208,7 @@ class VehicleClassEditor(QDialog):
         )
         reset_msg = QMessageBox.question(
             self, "Reset Class Preset", message_text,
-            button=QMessageBox.Yes | QMessageBox.No)
+            buttons=QMessageBox.Yes | QMessageBox.No)
         if reset_msg == QMessageBox.Yes:
             self.classes_temp = copy_setting(cfg.classes_default)
             self.refresh_list()
@@ -404,7 +404,7 @@ class UserConfig(QDialog):
         )
         reset_msg = QMessageBox.question(
             self, "Reset Options", message_text,
-            button=QMessageBox.Yes | QMessageBox.No)
+            buttons=QMessageBox.Yes | QMessageBox.No)
 
         if reset_msg == QMessageBox.Yes:
             for key in self.option_bool:

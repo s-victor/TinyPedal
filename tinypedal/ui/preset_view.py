@@ -163,7 +163,7 @@ class PresetList(QWidget):
                 )
                 delete_msg = QMessageBox.question(
                     self, "Delete Preset", message_text,
-                    button=QMessageBox.Yes | QMessageBox.No)
+                    buttons=QMessageBox.Yes | QMessageBox.No)
 
                 if delete_msg == QMessageBox.Yes:
                     if os.path.exists(f"{PATH_SETTINGS}{selected_filename}"):

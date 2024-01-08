@@ -160,7 +160,7 @@ class ResetDataMenu(QMenu):
         )
         delete_msg = QMessageBox.question(
             self.master, f"Reset {data_type.title()}", message_text,
-            button=QMessageBox.Yes | QMessageBox.No)
+            buttons=QMessageBox.Yes | QMessageBox.No)
         if delete_msg == QMessageBox.Yes:
             os.remove(f"{file_path}{combo_name}.{file_ext}")
             QMessageBox.information(
