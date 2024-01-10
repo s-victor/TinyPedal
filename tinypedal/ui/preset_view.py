@@ -24,8 +24,8 @@ import os
 import shutil
 import time
 
-from PySide2.QtCore import Qt, QRegExp
-from PySide2.QtGui import QIcon, QRegExpValidator
+from PySide2.QtCore import Qt, QRegularExpression
+from PySide2.QtGui import QIcon, QRegularExpressionValidator
 from PySide2.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -45,6 +45,9 @@ from ..setting import cfg
 from .. import formatter as fmt
 from .. import regex_pattern as rxp
 from .. import validator as val
+
+# Option validator
+exclude_char_valid = QRegularExpressionValidator(QRegularExpression('[^\\\\/:*?"<>|]*'))
 
 
 class PresetList(QWidget):
@@ -197,8 +200,7 @@ class CreatePreset(QDialog):
         self.preset_entry = QLineEdit()
         self.preset_entry.setMaxLength(40)
         self.preset_entry.setPlaceholderText("Enter a new preset name")
-        exclude_char = QRegExp('[^\\\\/:*?"<>|]*')
-        self.preset_entry.setValidator(QRegExpValidator(exclude_char))
+        self.preset_entry.setValidator(exclude_char_valid)
 
         # Button
         button_create = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)

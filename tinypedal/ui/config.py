@@ -23,8 +23,8 @@ Config window
 import re
 import time
 
-from PySide2.QtCore import Qt, QRegExp, QLocale
-from PySide2.QtGui import QIcon, QRegExpValidator, QIntValidator, QDoubleValidator, QColor
+from PySide2.QtCore import Qt, QRegularExpression, QLocale
+from PySide2.QtGui import QIcon, QRegularExpressionValidator, QIntValidator, QDoubleValidator, QColor
 from PySide2.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -69,7 +69,7 @@ int_valid = QIntValidator(-999999, 999999)
 int_valid.setLocale(number_locale)
 float_valid = QDoubleValidator(-999999.9999, 999999.9999, 6)
 float_valid.setLocale(number_locale)
-color_valid = QRegExpValidator(QRegExp('^#[0-9a-fA-F]*'))
+color_valid = QRegularExpressionValidator(QRegularExpression('^#[0-9a-fA-F]*'))
 
 
 class VehicleClassEditor(QDialog):
