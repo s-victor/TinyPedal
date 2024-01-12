@@ -235,12 +235,14 @@ class Realtime:
             self.pit_time_list[idx_timer] = 0
             return 0
         # Calculating pit time while in pit
-        if in_pit and self.pit_time_list[idx_start] >= 0:
-            self.pit_time_list[idx_timer] = min(
-                max(lap_etime - self.pit_time_list[idx_start], 0), 999.9)
+        if in_pit:
+            if self.pit_time_list[idx_start] >= 0:
+                self.pit_time_list[idx_timer] = min(
+                    max(lap_etime - self.pit_time_list[idx_start], 0), 999.9)
         # Reset pit time if made a valid lap time after pitting
-        if not in_pit and self.pit_time_list[idx_timer] and laptime_last > 0:
-            self.pit_time_list[idx_timer] = 0
+        else:
+            if self.pit_time_list[idx_timer] and laptime_last > 0:
+                self.pit_time_list[idx_timer] = 0
         return self.pit_time_list[idx_timer]
 
 
