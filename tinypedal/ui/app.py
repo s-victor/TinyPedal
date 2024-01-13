@@ -124,6 +124,7 @@ class AppWindow(QMainWindow):
 
         if cfg.application["remember_position"]:
             self.load_window_position()
+            self.verify_window_position()
 
         if cfg.application["show_at_startup"]:
             self.showNormal()
@@ -134,17 +135,31 @@ class AppWindow(QMainWindow):
     def load_window_position(self):
         """Load window position"""
         logger.info("GUI: loading last window position")
-        screen_geo = self.screen().geometry()
-        app_pos_x = min(
-            max(cfg.application["position_x"], screen_geo.left()),
-            screen_geo.right() - self.sizeHint().width())
-        app_pos_y = min(
-            max(cfg.application["position_y"], screen_geo.top()),
-            screen_geo.bottom() - self.sizeHint().height())
-        if app_pos_x + app_pos_y:
+        # Get position from preset
+        app_pos_x = cfg.application["position_x"]
+        app_pos_y = cfg.application["position_y"]
+        # Check whether x,y position at 0,0 (new preset value)
+        # Ignore moving if at 0,0
+        if 0 != app_pos_x != app_pos_y:
             self.move(app_pos_x, app_pos_y)
         else:
             self.save_window_position()
+
+    def verify_window_position(self):
+        """Verify window position"""
+        # Get screen size from the screen where app window located
+        screen_geo = self.screen().geometry()
+        # Limiting position value if out of screen range
+        app_pos_x = min(
+            max(self.x(), screen_geo.left()),
+            screen_geo.right() - self.sizeHint().width())
+        app_pos_y = min(
+            max(self.y(), screen_geo.top()),
+            screen_geo.bottom() - self.sizeHint().height())
+        # Re-adjust position only if mismatched
+        if self.x() != app_pos_x or self.y() != app_pos_y:
+            self.move(app_pos_x, app_pos_y)
+            logger.info("GUI: auto corrected window position")
 
     def save_window_position(self):
         """Save window position"""
