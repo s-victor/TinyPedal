@@ -140,10 +140,10 @@ class AppWindow(QMainWindow):
         app_pos_y = cfg.application["position_y"]
         # Check whether x,y position at 0,0 (new preset value)
         # Ignore moving if at 0,0
-        if 0 != app_pos_x != app_pos_y:
-            self.move(app_pos_x, app_pos_y)
-        else:
+        if 0 == app_pos_x == app_pos_y:
             self.save_window_position()
+        else:
+            self.move(app_pos_x, app_pos_y)
 
     def verify_window_position(self):
         """Verify window position"""
