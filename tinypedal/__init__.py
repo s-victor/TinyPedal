@@ -20,17 +20,56 @@
 Init
 """
 
+import re
 import sys
 import logging
 
+
+LOGGING_FORMAT = logging.Formatter("%(asctime)s %(levelname)s: %(message)s", datefmt="%H:%M:%S")
 logger = logging.getLogger("tinypedal")
 
-log_format = logging.Formatter("%(asctime)s %(levelname)s: %(message)s", datefmt="%H:%M:%S")
-cli_handler = logging.StreamHandler(sys.stdout)
 
-#logger.setLevel(logging.NOTSET)
-logger.setLevel(logging.INFO)
-logger.addHandler(cli_handler)
+def new_stream_handler(_logger, stream):
+    """Create new stream handler"""
+    _handler = logging.StreamHandler(stream)
+    _handler.setFormatter(LOGGING_FORMAT)
+    _handler.setLevel(logging.INFO)
+    _logger.addHandler(_handler)
+    return _handler
 
-cli_handler.setLevel(logging.INFO)
-cli_handler.setFormatter(log_format)
+
+def new_file_handler(_logger, filename: str):
+    """Create new file handler"""
+    _handler = logging.FileHandler(filename)
+    _handler.setFormatter(LOGGING_FORMAT)
+    _handler.setLevel(logging.INFO)
+    _logger.addHandler(_handler)
+    return _handler
+
+
+def set_logging_level(_logger, log_level="1") -> None:
+    """Set logging level
+
+    Args:
+        _logger: logger instance
+        log_level:
+            0 = no logging output
+            1 = output log to console only
+            2 = output log to both console & file
+    """
+    for _arg in sys.argv:
+        if re.match("^--log-level=", _arg):
+            log_level = _arg.strip("--log-level=")
+            break
+
+    if log_level in ("1", "2"):
+        _logger.setLevel(logging.INFO)
+
+    if log_level == "1":
+        new_stream_handler(_logger, sys.stdout)
+    elif log_level == "2":
+        new_stream_handler(_logger, sys.stdout)
+        new_file_handler(_logger, "tinypedal.log")
+
+
+set_logging_level(logger)
