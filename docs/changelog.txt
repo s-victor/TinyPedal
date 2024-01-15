@@ -9,7 +9,7 @@ WIP
     main window position if necessary.
     Thanks to DanRZ for helping with extensive testing
     and providing valuable feedback.
-  - Add new command line argument "--log-level="
+  - Added new command line argument "--log-level="
     that can be used to set logging output level.
     "--log-level=0" outputs only warning or error log to console.
     "--log-level=1" outputs all log to console.

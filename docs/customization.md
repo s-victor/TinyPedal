@@ -102,6 +102,10 @@ Set logging output level. Supported values are:
   * `--log-level=1` outputs all log to `console`.
   * `--log-level=2` = outputs all log to both `console` and `tinypedal.log` file.
 
+Log file location:
+  * On windows, `tinypedal.log` is located under APP root folder.
+  * On linux, `tinypedal.log` is located under `/home/.config/TinyPedal/` folder.
+
 Default logging output level is set on `1` if argument is not set.
 
 Example usage: `python .\run.py --log-level=2` or `.\tinypedal.exe --log-level=2`
