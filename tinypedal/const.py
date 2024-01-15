@@ -37,6 +37,7 @@ WEBSITE = "https://github.com/s-victor/TinyPedal"
 # User data path
 if PLATFORM == "Windows":
     PATH_SETTINGS = "settings/"
+    PATH_LOG = "./"
     PATH_DELTABEST = "deltabest/"
     PATH_FUEL = PATH_DELTABEST
     PATH_TRACKMAP = "trackmap/"
@@ -46,6 +47,7 @@ if PLATFORM == "Windows":
 else:
     from xdg import BaseDirectory as BD
     PATH_SETTINGS = BD.save_config_path(APP_NAME) + "/"
+    PATH_LOG = PATH_SETTINGS
     PATH_DELTABEST = BD.save_data_path(APP_NAME, "deltabest") + "/"
     PATH_FUEL = PATH_DELTABEST
     PATH_TRACKMAP = BD.save_data_path(APP_NAME, "trackmap") + "/"

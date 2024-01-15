@@ -24,6 +24,7 @@ import re
 import sys
 import logging
 
+from .const import PATH_LOG
 
 LOGGING_FORMAT = logging.Formatter("%(asctime)s %(levelname)s: %(message)s", datefmt="%H:%M:%S")
 logger = logging.getLogger("tinypedal")
@@ -40,7 +41,7 @@ def new_stream_handler(_logger, stream):
 
 def new_file_handler(_logger, filename: str):
     """Create new file handler"""
-    _handler = logging.FileHandler(filename)
+    _handler = logging.FileHandler(f"{PATH_LOG}{filename}")
     _handler.setFormatter(LOGGING_FORMAT)
     _handler.setLevel(logging.INFO)
     _logger.addHandler(_handler)
@@ -67,9 +68,11 @@ def set_logging_level(_logger, log_level="1") -> None:
 
     if log_level == "1":
         new_stream_handler(_logger, sys.stdout)
+        logger.info("LOGGING: output log to console")
     elif log_level == "2":
         new_stream_handler(_logger, sys.stdout)
         new_file_handler(_logger, "tinypedal.log")
+        logger.info("LOGGING: output log to tinypedal.log")
 
 
 set_logging_level(logger)
