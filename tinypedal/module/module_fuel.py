@@ -258,16 +258,15 @@ class Realtime:
         try:
             with open(f"{self.filepath}{combo}.fuel",
                       newline="", encoding="utf-8") as csvfile:
-                lastlist = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
-                # Assign & test read
+                temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
+                temp_list_size = len(temp_list)
+                # Validate data
+                lastlist = val.delta_list(temp_list)
                 used_last = lastlist[-1][1]
                 laptime_last = lastlist[-1][2]
-                # Validate data
-                if not val.delta_list(lastlist):
+                # Save data if modified
+                if temp_list_size != len(lastlist):
                     self.save_deltafuel(combo, lastlist)
-                    used_last = lastlist[-1][1]  # re-test on modified list
-                    laptime_last = lastlist[-1][2]
-                    logger.info("CORRECTED: fuel data")
         except (FileNotFoundError, IndexError, ValueError, TypeError):
             logger.info("MISSING: fuel data")
             lastlist = [(99999,0,0)]
@@ -277,7 +276,7 @@ class Realtime:
 
     def save_deltafuel(self, combo, listname):
         """Save fuel consumption data"""
-        if len(listname) > 1:
+        if len(listname) >= 10:
             with open(f"{self.filepath}{combo}.fuel",
                       "w", newline="", encoding="utf-8") as csvfile:
                 deltawrite = csv.writer(csvfile)

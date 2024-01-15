@@ -74,21 +74,20 @@ def is_folder_exist(folder_name: str) -> None:
 
 
 # Delta list validate
-def delta_list(data_list: list) -> bool:
+def delta_list(data_list: list) -> list:
     """Validate delta data list"""
-    # Compare second column last 2 row values
+    # Final row value(second column) must be higher than previous row
     if data_list[-1][1] < data_list[-2][1]:
         raise ValueError
     # Remove distance greater than half of track length
-    max_dist = data_list[-1][0] * 0.5  # half of track length
-    pop_index = tuple(  # add invalid index in reverse order
-        (idx for idx in range(11, 0, -1) if data_list[idx][0] > max_dist)
-    )
-    if pop_index:
-        for idx in pop_index:
-            data_list.pop(idx)  # del invalid row
-        return False  # list modified
-    return True  # list no change
+    half_distance = data_list[-1][0] * 0.5
+    for idx in range(11, 0, -1):
+        if data_list[idx][0] > half_distance:
+            data_list.pop(idx)
+    # Delta list must have at least 10 lines of samples
+    if len(data_list) < 10:
+        raise ValueError
+    return data_list
 
 
 # Color validate
