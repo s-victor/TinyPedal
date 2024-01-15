@@ -93,6 +93,20 @@ TinyPedal generates & saves user session data in specific folders. Session data 
     Each sector position index is also stored in SVG file for finding sector coordinates.
 
 
+# Command line arguments
+**Command line arguments can be passed to script or executable to enable additional features.**
+
+    --log-level
+Set logging output level. Supported values are:
+  * `--log-level=0` outputs only warning or error log to `console`.
+  * `--log-level=1` outputs all log to `console`.
+  * `--log-level=2` = outputs all log to both `console` and `tinypedal.log` file.
+
+Default logging output level is set on `1` if argument is not set.
+
+Example usage: `python .\run.py --log-level=2` or `.\tinypedal.exe --log-level=2`
+
+
 # General options
 **General options can be accessed from main window menu.**
 

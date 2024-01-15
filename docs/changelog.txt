@@ -1,3 +1,32 @@
+WIP
+-----------------------------
+* General
+  - Added new window position verification function
+    that fixed the issue with main window being forced
+    to move to first screen.
+    The new verification function will now correctly detect
+    multi-screen monitors, verifying and auto-correcting
+    main window position if necessary.
+    Thanks to DanRZ for helping with extensive testing
+    and providing valuable feedback.
+  - Add new command line argument "--log-level="
+    that can be used to set logging output level.
+    "--log-level=0" outputs only warning or error log to console.
+    "--log-level=1" outputs all log to console.
+    "--log-level=2" outputs all log to both console & tinypedal.log file.
+    Default logging output level is set on "1" if argument is not set.
+    Example usage:
+    ".\tinypedal.exe --log-level=2"
+    Note:
+    On windows, tinypedal.log is located under APP root folder.
+    On linux, tinypedal.log is located under /home/.config/TinyPedal/ folder.
+
+* Linux
+  - Fixed wrong "button" argument that breaks "Reset" button in config dialog.
+
+* User guide
+  - Add "Command line arguments" section guide.
+
 2.6.0 (2024-01-06)
 -----------------------------
 * General
@@ -146,7 +175,7 @@
   - Add "lap_difference_ahead_threshold" & "lap_difference_behind_threshold" options,
     which sets lap difference (percentage) threshold
     for tagging opponents as ahead or behind.
-    Default value is `0.9` lap.
+    Default value is "0.9" lap.
     Those options are used by lap difference color indicator
     in Trackmap, Relative, Radar, Navigation Widgets.
 
