@@ -20,6 +20,8 @@ WIP
     Note:
     On windows, tinypedal.log is located under APP root folder.
     On linux, tinypedal.log is located under /home/.config/TinyPedal/ folder.
+  - Added "Show log" option in Help menu for easy accessing to application log.
+  - "Reset data" option is now also accessible from tray menu.
 
 * Linux
   - Fixed wrong "button" argument that breaks "Reset" button in config dialog.

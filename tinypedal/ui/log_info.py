@@ -41,7 +41,6 @@ class LogInfo(QDialog):
     def __init__(self, master):
         super().__init__(master)
         # Base setting
-        self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setWindowIcon(QIcon(APP_ICON))
         self.setWindowTitle(f"{APP_NAME} Log")
