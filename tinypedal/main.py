@@ -47,6 +47,7 @@ def init_gui():
     """Initialize Qt Gui"""
     root = QApplication(sys.argv)
     root.setApplicationName(APP_NAME)
+    root.setQuitOnLastWindowClosed(False)
     font = QFont("sans-serif", 10)
     font.setStyleHint(QFont.SansSerif)
     root.setFont(font)
