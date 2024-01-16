@@ -42,7 +42,7 @@ from .tray_icon import TrayIcon
 from .module_view import ModuleList
 from .spectate_view import SpectateList
 from .preset_view import PresetList
-from .menu import OverlayMenu, ResetDataMenu, ConfigMenu, WindowMenu, HelpMenu
+from .menu import OverlayMenu, ConfigMenu, WindowMenu, HelpMenu
 
 
 WINDOW_MIN_WIDTH = 300
@@ -91,11 +91,6 @@ class AppWindow(QMainWindow):
         menu_overlay = menu.addMenu("Overlay")
         self.overlay_menu = OverlayMenu
         self.overlay_menu(self, menu_overlay)
-        menu_overlay.addSeparator()
-
-        # Reset submenu
-        menu_reset_data = menu_overlay.addMenu("Reset data")
-        ResetDataMenu(self, menu_reset_data)
         menu_overlay.addSeparator()
 
         app_quit = QAction("Quit", self)

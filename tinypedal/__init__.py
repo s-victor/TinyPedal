@@ -20,6 +20,7 @@
 Init
 """
 
+import io
 import logging
 
 from .log_handler import set_logging_level
@@ -27,4 +28,5 @@ from .log_handler import set_logging_level
 
 # Create logger
 logger = logging.getLogger("tinypedal")
-set_logging_level(logger)
+log_stream = io.StringIO()
+set_logging_level(logger, log_stream)

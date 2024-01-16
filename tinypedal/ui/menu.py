@@ -23,11 +23,7 @@ Menu
 import os
 
 from PySide2.QtGui import QDesktopServices
-from PySide2.QtWidgets import (
-    QMenu,
-    QAction,
-    QMessageBox,
-)
+from PySide2.QtWidgets import QMenu, QAction, QMessageBox
 
 from ..const import PATH_DELTABEST, PATH_TRACKMAP
 from ..setting import cfg
@@ -35,6 +31,7 @@ from ..api_control import api
 from ..overlay_control import octrl
 from .about import About
 from .config import VehicleClassEditor, FontConfig, UserConfig
+from .log_info import LogInfo
 
 
 class OverlayMenu(QMenu):
@@ -75,6 +72,12 @@ class OverlayMenu(QMenu):
         restart_api = QAction("Restart API", self)
         restart_api.triggered.connect(self.master.restart_api)
         menu.addAction(restart_api)
+        menu.addSeparator()
+
+        # Reset submenu
+        menu_reset_data = menu.addMenu("Reset data")
+        ResetDataMenu(self.master, menu_reset_data)
+        menu.addSeparator()
 
         # Refresh menu
         menu.aboutToShow.connect(self.refresh_overlay_menu)
@@ -303,6 +306,10 @@ class HelpMenu(QMenu):
         app_faq.triggered.connect(self.open_faq)
         menu.addAction(app_faq)
 
+        app_log = QAction("Show log", self)
+        app_log.triggered.connect(self.show_log)
+        menu.addAction(app_log)
+
         menu.addSeparator()
         app_about = QAction("About", self)
         app_about.triggered.connect(self.show_about)
@@ -311,7 +318,12 @@ class HelpMenu(QMenu):
     def show_about(self):
         """Show about"""
         _dialog = About(self.master)
-        _dialog.open()
+        _dialog.show()
+
+    def show_log(self):
+        """Show log"""
+        _dialog = LogInfo(self.master)
+        _dialog.show()
 
     def open_user_guide(self):
         """Open user guide link"""

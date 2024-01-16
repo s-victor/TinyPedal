@@ -31,6 +31,7 @@ LOGGING_FORMAT_CONSOLE = logging.Formatter(
     "%(asctime)s %(levelname)s: %(message)s", datefmt="%H:%M:%S")
 LOGGING_FORMAT_FILE = logging.Formatter(
     "%(asctime)s %(levelname)s: %(message)s")
+LOGGING_FILENAME = "tinypedal.log"
 
 
 def new_stream_handler(_logger, stream):
@@ -46,7 +47,6 @@ def new_stream_handler(_logger, stream):
     _handler.setFormatter(LOGGING_FORMAT_CONSOLE)
     _handler.setLevel(logging.INFO)
     _logger.addHandler(_handler)
-    _logger.info("LOGGING: output to console")
     return _handler
 
 
@@ -64,15 +64,15 @@ def new_file_handler(_logger, filepath: str, filename: str):
     _handler.setFormatter(LOGGING_FORMAT_FILE)
     _handler.setLevel(logging.INFO)
     _logger.addHandler(_handler)
-    _logger.info("LOGGING: output to tinypedal.log")
     return _handler
 
 
-def set_logging_level(_logger, log_level="1") -> None:
+def set_logging_level(_logger, log_stream=None, log_level="1") -> None:
     """Set logging level
 
     Args:
         _logger: logger instance.
+        log_stream: log stream object.
         log_level:
             0 = no logging output.
             1 = output log to console only.
@@ -83,11 +83,15 @@ def set_logging_level(_logger, log_level="1") -> None:
             log_level = _arg.strip("--log-level=")
             break
 
-    if log_level in ("1", "2"):
-        _logger.setLevel(logging.INFO)
+    _logger.setLevel(logging.INFO)
+    if log_stream is not None:
+        new_stream_handler(_logger, log_stream)
 
     if log_level == "1":
         new_stream_handler(_logger, sys.stdout)
+        _logger.info("LOGGING: output to console")
     elif log_level == "2":
         new_stream_handler(_logger, sys.stdout)
-        new_file_handler(_logger, PATH_LOG, "tinypedal.log")
+        _logger.info("LOGGING: output to console")
+        new_file_handler(_logger, PATH_LOG, LOGGING_FILENAME)
+        _logger.info("LOGGING: output to %s", LOGGING_FILENAME)
