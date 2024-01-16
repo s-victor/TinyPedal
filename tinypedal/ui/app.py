@@ -44,6 +44,10 @@ from .spectate_view import SpectateList
 from .preset_view import PresetList
 from .menu import OverlayMenu, ResetDataMenu, ConfigMenu, WindowMenu, HelpMenu
 
+
+WINDOW_MIN_WIDTH = 300
+WINDOW_MIN_HEIGHT = 450
+
 logger = logging.getLogger("tinypedal")
 
 
@@ -118,8 +122,8 @@ class AppWindow(QMainWindow):
 
     def set_window_state(self):
         """Set initial window state"""
-        self.setMinimumWidth(300)
-        self.setMinimumHeight(450)
+        self.setMinimumWidth(WINDOW_MIN_WIDTH)
+        self.setMinimumHeight(WINDOW_MIN_HEIGHT)
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)  # disable maximize
 
         if cfg.application["remember_position"]:
@@ -152,10 +156,10 @@ class AppWindow(QMainWindow):
         # Limiting position value if out of screen range
         app_pos_x = min(
             max(self.x(), screen_geo.left()),
-            screen_geo.right() - self.sizeHint().width())
+            screen_geo.right() - WINDOW_MIN_WIDTH)
         app_pos_y = min(
             max(self.y(), screen_geo.top()),
-            screen_geo.bottom() - self.sizeHint().height())
+            screen_geo.bottom() - WINDOW_MIN_HEIGHT)
         # Re-adjust position only if mismatched
         if self.x() != app_pos_x or self.y() != app_pos_y:
             self.move(app_pos_x, app_pos_y)
