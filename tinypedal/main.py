@@ -26,6 +26,7 @@ import signal
 import logging
 import psutil
 
+from PySide2.QtCore import qVersion
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QApplication, QMessageBox
 
@@ -74,10 +75,20 @@ def prelaunch_check():
     sys.exit()
 
 
+def version_check():
+    """Check version"""
+    python_version = ".".join(str(num) for num in sys.version_info[0:3])
+    qt_version = qVersion()
+    logger.info("TinyPedal %s", VERSION)
+    logger.info("Python %s", python_version)
+    logger.info("Qt %s", qt_version)
+
+
 def start_app():
     """Init main window"""
     root = init_gui()
     prelaunch_check()
+    version_check()
 
     # Load core modules
     from . import loader
