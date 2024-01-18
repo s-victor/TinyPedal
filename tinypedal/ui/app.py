@@ -84,7 +84,7 @@ class AppWindow(QMainWindow):
 
     def main_menubar(self):
         """Create menu bar"""
-        logger.info("GUI: loading menu")
+        logger.info("GUI: loading main menu")
         menu = self.menuBar()
 
         # Overlay menu
@@ -123,17 +123,18 @@ class AppWindow(QMainWindow):
 
         if cfg.application["remember_position"]:
             self.load_window_position()
-            self.verify_window_position()
+            if cfg.compatibility["enable_window_position_correction"]:
+                self.verify_window_position()
 
         if cfg.application["show_at_startup"]:
             self.showNormal()
         elif not cfg.application["minimize_to_tray"]:
             self.showMinimized()
-        logger.info("GUI: loaded")
+        logger.info("GUI: loading finished")
 
     def load_window_position(self):
         """Load window position"""
-        logger.info("GUI: loading last window position")
+        logger.info("GUI: loading window position")
         # Get position from preset
         app_pos_x = cfg.application["position_x"]
         app_pos_y = cfg.application["position_y"]
@@ -158,7 +159,7 @@ class AppWindow(QMainWindow):
         # Re-adjust position only if mismatched
         if self.x() != app_pos_x or self.y() != app_pos_y:
             self.move(app_pos_x, app_pos_y)
-            logger.info("GUI: auto corrected window position")
+            logger.info("GUI: window position corrected")
 
     def save_window_position(self):
         """Save window position"""

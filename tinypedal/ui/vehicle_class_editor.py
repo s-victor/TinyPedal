@@ -75,21 +75,21 @@ class VehicleClassEditor(QDialog):
         # Button
         button_add = QPushButton("Add")
         button_add.clicked.connect(self.add_class)
-        button_add.setStyleSheet("padding: 3px 9px;")
+        button_add.setStyleSheet("padding: 3px 7px;")
 
         button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
         button_reset.clicked.connect(self.reset_setting)
-        button_reset.setStyleSheet("padding: 3px 9px;")
+        button_reset.setStyleSheet("padding: 3px 7px;")
 
         button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
         button_apply.clicked.connect(self.applying)
-        button_apply.setStyleSheet("padding: 3px 9px;")
+        button_apply.setStyleSheet("padding: 3px 7px;")
 
         button_save = QDialogButtonBox(
             QDialogButtonBox.Save | QDialogButtonBox.Cancel)
         button_save.accepted.connect(self.saving)
         button_save.rejected.connect(self.reject)
-        button_save.setStyleSheet("padding: 3px 9px;")
+        button_save.setStyleSheet("padding: 3px 7px;")
 
         # Set layout
         layout_main = QVBoxLayout()

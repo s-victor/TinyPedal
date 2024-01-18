@@ -71,14 +71,6 @@ class HeatmapEditor(QDialog):
         self.heatmap_list.addItems(self.heatmap_temp.keys())
         self.heatmap_list.currentIndexChanged.connect(self.select_heatmap)
 
-        button_create = QPushButton("New")
-        button_create.clicked.connect(self.create_heatmap)
-        button_create.setFixedWidth(self.fontMetrics().boundingRect("New").width() + 10)
-
-        button_delete = QPushButton("Delete")
-        button_delete.clicked.connect(self.delete_heatmap)
-        button_delete.setFixedWidth(self.fontMetrics().boundingRect("Delete").width() + 10)
-
         # Heatmap list box
         self.listbox_heatmap = QListWidget(self)
         self.refresh_list()
@@ -90,27 +82,35 @@ class HeatmapEditor(QDialog):
         )
 
         # Button
+        button_create = QPushButton("New")
+        button_create.clicked.connect(self.create_heatmap)
+        button_create.setFixedWidth(self.fontMetrics().boundingRect("New").width() + 12)
+
+        button_delete = QPushButton("Delete")
+        button_delete.clicked.connect(self.delete_heatmap)
+        button_delete.setFixedWidth(self.fontMetrics().boundingRect("Delete").width() + 12)
+
         button_add = QPushButton("Add")
         button_add.clicked.connect(self.add_temperature)
-        button_add.setStyleSheet("padding: 3px 9px;")
+        button_add.setStyleSheet("padding: 3px 7px;")
 
         button_sort = QPushButton("Sort")
         button_sort.clicked.connect(self.sorting)
-        button_sort.setStyleSheet("padding: 3px 9px;")
+        button_sort.setStyleSheet("padding: 3px 7px;")
 
         button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
         button_reset.clicked.connect(self.reset_heatmap)
-        button_reset.setStyleSheet("padding: 3px 9px;")
+        button_reset.setStyleSheet("padding: 3px 7px;")
 
         button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
         button_apply.clicked.connect(self.applying)
-        button_apply.setStyleSheet("padding: 3px 9px;")
+        button_apply.setStyleSheet("padding: 3px 7px;")
 
         button_save = QDialogButtonBox(
             QDialogButtonBox.Save | QDialogButtonBox.Cancel)
         button_save.accepted.connect(self.saving)
         button_save.rejected.connect(self.reject)
-        button_save.setStyleSheet("padding: 3px 9px;")
+        button_save.setStyleSheet("padding: 3px 7px;")
 
         # Set layout
         layout_main = QVBoxLayout()

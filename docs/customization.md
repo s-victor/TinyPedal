@@ -222,6 +222,9 @@ Set `true` to bypass window manager on X11 system, such as linux. This option do
     enable_translucent_background
 Set `false` to disable translucent background.
 
+    enable_window_position_correction
+Set `true` to enable main application window position correction, which is used to correct window-off-screen issue with multi-screen. This option is enabled by default.
+
     global_bkg_color
 Sets global background color for all widgets.
 

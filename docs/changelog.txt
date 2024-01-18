@@ -1,14 +1,17 @@
 WIP
 -----------------------------
 * General
-  - Added new window position verification function
+  - Added new main window position correction function
     that fixed the issue with main window being forced
     to move to first screen.
-    The new verification function will now correctly detect
+    The new correction function will now correctly detect
     multi-screen monitors, verifying and auto-correcting
     main window position if necessary.
     Thanks to DanRZ for helping with extensive testing
     and providing valuable feedback.
+  - Added "enable_window_position_correction" option in Compatibility,
+    which user can enable or disable main window position correction.
+    This option is enabled by default.
   - Added new command line argument "--log-level="
     that can be used to set logging output level.
     "--log-level=0" outputs only warning or error log to console.
