@@ -220,5 +220,4 @@ class VehicleClassEditor(QDialog):
         cfg.save(0, "classes")
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
-        wctrl.close()
-        wctrl.start()
+        wctrl.reload()

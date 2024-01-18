@@ -23,11 +23,16 @@ WIP
   - Added "Show log" option in Help menu for easy accessing to application log.
   - "Reset data" option is now also accessible from tray menu.
 
+* [New]Heatmap Editor
+  - "Heatmap editor" can now be accessed from "Config" menu in main window,
+    see User Guide "Heatmap preset" section for details.
+
 * Linux
   - Fixed wrong "button" argument that breaks "Reset" button in config dialog.
 
 * User guide
-  - Add "Command line arguments" section guide.
+  - Added "Heatmap Editor" info in "Heatmap preset" section.
+  - Added "Command line arguments" section guide.
 
 2.6.0 (2024-01-06)
 -----------------------------

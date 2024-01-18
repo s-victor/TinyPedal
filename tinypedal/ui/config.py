@@ -150,8 +150,7 @@ class FontConfig(QDialog):
         cfg.save(0)
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
-        wctrl.close()
-        wctrl.start()
+        wctrl.reload()
 
 
 class UserConfig(QDialog):

@@ -46,14 +46,14 @@ Any boolean type value (true or false) will only accept: `true`, which can be su
 Also important to note, not every setting allows float point value that contains decimal places. Usually if a number (default value) does not contain any decimal place, that means it only accepts `integer`. Make sure not to add any decimal place, otherwise error may occur.
 
 
-## Classes preset file
-**Classes preset JSON file is used for displaying name & color that matches specific vehicle classes.**
+## Classes preset
+**Classes preset is used for displaying name & color that matches specific vehicle classes.**
 
 Classes preset can be customized by accessing `Vehicle class editor` from `Config` menu in main window. Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
 `classes.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
 
-To modify class setting, open `Vehicle class editor` and edit entries from each rows and columns. Each row represents a vehicle class. First column is full vehicle class name that must match in-game vehicle class name. Second column is abbreviation name. Third column is color code.
+To modify class setting, open `Vehicle class editor` and edit entries from each rows and columns. Each row represents a vehicle class. First column is full vehicle class name that must match in-game vehicle class name. Second column is abbreviation name. Third column is color (HEX code). Double-click on color to open color dialog.
 
 To add new class, click `Add Class` button. Note, the editor can auto-detect and fill-in full vehicle class name from current active session. It is recommended to join or start a session with corresponding vehicle before adding new class entries.
 
@@ -62,14 +62,32 @@ To remove a class, click `X` button of a class row.
 To reset all classes setting to default, click `Reset` button; or manually delete `classes.json` file.
 
 
-## Heatmap preset file
-**Heatmap preset JSON file is used for displaying color that matches specific value range of telemetry data, such as brake and tyre temperature.**
+## Heatmap preset
+**Heatmap preset is used for displaying color that matches specific value range of telemetry data, such as brake and tyre temperature.**
 
-Heatmap preset can be customized by editing `heatmap.json` file in `TinyPedal\settings` folder. This file will be generated only once after first time launch of the APP.
+Heatmap preset can be customized by accessing `Heatmap editor` from `Config` menu in main window. Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
-To assign a heatmap preset to a specific widget, set `heatmap_name` value of the widget to the corresponding name defined in `heatmap.json` file.
+`heatmap.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
 
-A heatmap preset consists of heatmap name, temperature (Celsius), color (HEX code). In case of typo errors within `heatmap.json` file, the APP will automatically fall back to use built-in default heatmap preset. User will need to manually correct those typo errors in `heatmap.json` file in order to use customized heatmap.
+To modify heatmap setting, open `Heatmap editor` and edit entries from each rows and columns. Each row represents a target temperature and corresponding color. First column is temperature degree value in Celsius. Second column is corresponding color (HEX code). Double-click on color to open color dialog.
+
+To add temperature, click `Add` button.
+
+To sort temperature list in orders, click `Sort` button.
+
+To remove a temperature, click `X` button of a temperature row.
+
+To select a different heatmap preset, click `drop-down list` at top, and select a preset name. Note: by selecting a different preset, any changes to previously selected heatmap will be saved in cache, and only be saved to file after clicking `Apply` or `Save` Button.
+
+To create a new heatmap preset, click `New` button. Note: only alphabetic characters, numbers, underscores are accepted in preset name, and renaming preset is not supported.
+
+To delete selected heatmap preset, click `Delete` button. Note: built-in presets cannot be deleted.
+
+To reset selected heatmap preset, click `Reset` button. Note: only built-in presets can be reset.
+
+To assign a heatmap preset to specific widget, select corresponding `heatmap name` in widget config dialog.
+
+In case of errors found in `heatmap.json` file, the APP will automatically fall back to built-in default heatmap preset.
 
 To restore all heatmap settings back to default, just delete `heatmap.json` file.
 
