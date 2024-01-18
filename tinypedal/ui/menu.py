@@ -30,7 +30,9 @@ from ..setting import cfg
 from ..api_control import api
 from ..overlay_control import octrl
 from .about import About
-from .config import VehicleClassEditor, FontConfig, UserConfig
+from .config import FontConfig, UserConfig
+from .heatmap_editor import HeatmapEditor
+from .vehicle_class_editor import VehicleClassEditor
 from .log_info import LogInfo
 
 
@@ -197,6 +199,11 @@ class ConfigMenu(QMenu):
         menu.addAction(config_compat)
 
         menu.addSeparator()
+
+        config_heatmap = QAction("Heatmap editor", self)
+        config_heatmap.triggered.connect(self.open_config_heatmap)
+        menu.addAction(config_heatmap)
+
         config_classes = QAction("Vehicle class editor", self)
         config_classes.triggered.connect(self.open_config_classes)
         menu.addAction(config_classes)
@@ -219,6 +226,11 @@ class ConfigMenu(QMenu):
     def open_config_compatibility(self):
         """Config compatibility"""
         _dialog = UserConfig(self.master, "compatibility", "misc")
+        _dialog.open()
+
+    def open_config_heatmap(self):
+        """Config heatmap preset"""
+        _dialog = HeatmapEditor(self.master)
         _dialog.open()
 
     def open_config_classes(self):
