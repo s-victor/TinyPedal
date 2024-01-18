@@ -47,7 +47,7 @@ from .. import regex_pattern as rxp
 from .. import validator as val
 
 # Option validator
-exclude_char_valid = QRegularExpressionValidator(QRegularExpression('[^\\\\/:*?"<>|]*'))
+preset_name_valid = QRegularExpressionValidator(QRegularExpression('[^\\\\/:*?"<>|]*'))
 
 
 class PresetList(QWidget):
@@ -200,7 +200,7 @@ class CreatePreset(QDialog):
         self.preset_entry = QLineEdit()
         self.preset_entry.setMaxLength(40)
         self.preset_entry.setPlaceholderText("Enter a new preset name")
-        self.preset_entry.setValidator(exclude_char_valid)
+        self.preset_entry.setValidator(preset_name_valid)
 
         # Button
         button_create = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)
