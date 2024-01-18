@@ -125,6 +125,11 @@ class Setting:
                     target=self.__saving,
                     args=(self.filename_classes, self.filepath, self.classes_user)
                 ).start()
+            elif file_type == "heatmap":
+                threading.Thread(
+                    target=self.__saving,
+                    args=(self.filename_heatmap, self.filepath, self.heatmap_user)
+                ).start()
             else:
                 threading.Thread(
                     target=self.__saving,
