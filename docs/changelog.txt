@@ -1,3 +1,16 @@
+WIP
+-----------------------------
+* Session Widget
+  - Added "show_session_name" option,
+    which show current session name that includes
+    testday, practice, qualify, warmup, race.
+  - Added "session_text_*" options
+    for customizing session name text.
+  - Added "column_index_session_name" option.
+    Default value is set to 0.
+    Note, user may still need to check the new "column_index_session_name" value
+    to ensure no overlapping with other column_index values.
+
 2.6.1 (2024-01-18)
 -----------------------------
 * General

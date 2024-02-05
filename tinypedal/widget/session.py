@@ -56,10 +56,20 @@ class Draw(Overlay):
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
+        column_sesn = self.wcfg["column_index_session_name"]
         column_sysc = self.wcfg["column_index_system_clock"]
         column_sest = self.wcfg["column_index_session_time"]
         column_lapn = self.wcfg["column_index_lapnumber"]
         column_plac = self.wcfg["column_index_position"]
+
+        # Session name
+        if self.wcfg["show_session_name"]:
+            self.bar_session_name = QLabel("NAME")
+            self.bar_session_name.setAlignment(Qt.AlignCenter)
+            self.bar_session_name.setStyleSheet(
+                f"color: {self.wcfg['font_color_session_name']};"
+                f"background: {self.wcfg['bkg_color_session_name']};"
+            )
 
         # System clock
         if self.wcfg["show_system_clock"]:
@@ -72,9 +82,9 @@ class Draw(Overlay):
 
         # Session time
         if self.wcfg["show_session_time"]:
-            self.bar_session = QLabel("SESSION")
-            self.bar_session.setAlignment(Qt.AlignCenter)
-            self.bar_session.setStyleSheet(
+            self.bar_session_time = QLabel("SESSION")
+            self.bar_session_time.setAlignment(Qt.AlignCenter)
+            self.bar_session_time.setStyleSheet(
                 f"color: {self.wcfg['font_color_session_time']};"
                 f"background: {self.wcfg['bkg_color_session_time']};"
             )
@@ -98,10 +108,12 @@ class Draw(Overlay):
             )
 
         # Set layout
+        if self.wcfg["show_session_name"]:
+            layout.addWidget(self.bar_session_name, 0, column_sesn)
         if self.wcfg["show_system_clock"]:
             layout.addWidget(self.bar_system_clock, 0, column_sysc)
         if self.wcfg["show_session_time"]:
-            layout.addWidget(self.bar_session, 0, column_sest)
+            layout.addWidget(self.bar_session_time, 0, column_sest)
         if self.wcfg["show_lapnumber"]:
             layout.addWidget(self.bar_lapnumber, 0, column_lapn)
         if self.wcfg["show_position"]:
@@ -109,8 +121,9 @@ class Draw(Overlay):
         self.setLayout(layout)
 
         # Last data
+        self.last_session_name = None
         self.last_system_time = None
-        self.last_time_left = None
+        self.last_session_time = None
         self.last_lap_into = None
         self.last_place = None
 
@@ -122,6 +135,12 @@ class Draw(Overlay):
         """Update when vehicle on track"""
         if api.state:
 
+            # Session name
+            if self.wcfg["show_session_name"]:
+                session_name = self.set_session_name(api.read.session.session_type())
+                self.update_session_name(session_name, self.last_session_name)
+                self.last_session_name = session_name
+
             # System Clock
             if self.wcfg["show_system_clock"]:
                 system_time = time.strftime(self.wcfg["system_clock_format"])
@@ -130,9 +149,9 @@ class Draw(Overlay):
 
             # Session time
             if self.wcfg["show_session_time"]:
-                time_left = api.read.session.remaining()
-                self.update_session_time(time_left, self.last_time_left)
-                self.last_time_left = time_left
+                session_time = api.read.session.remaining()
+                self.update_session_time(session_time, self.last_session_time)
+                self.last_session_time = session_time
 
             # Lap number
             if self.wcfg["show_lapnumber"]:
@@ -149,6 +168,11 @@ class Draw(Overlay):
                 self.last_place = place
 
     # GUI update methods
+    def update_session_name(self, curr, last):
+        """Session name"""
+        if curr != last:
+            self.bar_session_name.setText(curr)
+
     def update_system_clock(self, curr, last):
         """System Clock"""
         if curr != last:
@@ -157,7 +181,7 @@ class Draw(Overlay):
     def update_session_time(self, curr, last):
         """Session time"""
         if curr != last:
-            self.bar_session.setText(calc.sec2sessiontime(max(curr, 0)))
+            self.bar_session_time.setText(calc.sec2sessiontime(max(curr, 0)))
 
     def update_lapnumber(self, curr, last, lap_num, lap_max):
         """Lap number"""
@@ -184,3 +208,15 @@ class Draw(Overlay):
         if lap_diff >= -1:
             return self.wcfg["bkg_color_maxlap_warn"]
         return self.wcfg["bkg_color_lapnumber"]
+
+    def set_session_name(self, session_id):
+        """Set session name"""
+        if session_id == 1:
+            return self.wcfg["session_text_practice"]
+        if session_id == 2:
+            return self.wcfg["session_text_qualify"]
+        if session_id == 3:
+            return self.wcfg["session_text_warmup"]
+        if session_id == 4:
+            return self.wcfg["session_text_race"]
+        return self.wcfg["session_text_testday"]

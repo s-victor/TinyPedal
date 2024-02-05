@@ -1215,7 +1215,7 @@ Set class name display width, value is in chars, 4 = 4 chars wide.
 Show indicator whether driver is currently in pit.
 
     pit_status_text
-Set custom pit status text which shows when driver is in pit. 
+Set custom pit status text which shows when driver is in pit.
 
     show_tyre_compound
 Show tyre compound index (front/rear).
@@ -1260,7 +1260,13 @@ Set `true` to always show sector/laptime gap bar. Set `false` to show only in fr
 
 
 ## Session
-**This widget displays session timing, lap number, overall position info.**
+**This widget displays system clock, session name, timing, lap number, overall position info.**
+
+    show_session_name
+Show current session name that includes testday, practice, qualify, warmup, race.
+
+    session_text_*
+Set custom session name text.
 
     show_system_clock
 Show current system clock time.
