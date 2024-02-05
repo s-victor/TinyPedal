@@ -21,7 +21,7 @@ Data set for rFactor 2
 """
 
 from __future__ import annotations
-from functools import partial
+from functools import lru_cache, partial
 
 from . import DataAdapter
 from .. import calculation as calc
@@ -247,6 +247,10 @@ class Session(DataAdapter):
     def remaining(self) -> float:
         """Session time remaining"""
         return self.end() - self.elapsed()
+
+    def session_type(self) -> int:
+        """Session type"""
+        return sort_session_type(chknm(self.info.rf2ScorInfo.mSession))
 
     def lap_type(self) -> bool:
         """Is lap type session, false for time type"""
@@ -713,3 +717,25 @@ class Wheel(DataAdapter):
         """Suspension force (Newtons)"""
         return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mSuspForce)
                 for data in range(4)]
+
+
+# Additional function
+@lru_cache(maxsize=5)
+def sort_session_type(session_id: int) -> int:
+    """Sort session type to unified orders
+
+    0 = TESTDAY
+    1 = PRACTICE
+    2 = QUALIFY
+    3 = WARMUP
+    4 = RACE
+    """
+    if 1 <= session_id <= 4:
+        return 1  # PRACTICE
+    if 5 <= session_id <= 8:
+        return 2  # QUALIFY
+    if session_id == 9:
+        return 3  # WARMUP
+    if 10 <= session_id <= 13:
+        return 4  # RACE
+    return 0  # TESTDAY
