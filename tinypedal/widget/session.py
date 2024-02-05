@@ -41,6 +41,13 @@ class Draw(Overlay):
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
+        self.session_name_list = (
+            self.wcfg["session_text_testday"],
+            self.wcfg["session_text_practice"],
+            self.wcfg["session_text_qualify"],
+            self.wcfg["session_text_warmup"],
+            self.wcfg["session_text_race"]
+            )
 
         # Base style
         self.setStyleSheet(
@@ -137,7 +144,7 @@ class Draw(Overlay):
 
             # Session name
             if self.wcfg["show_session_name"]:
-                session_name = self.set_session_name(api.read.session.session_type())
+                session_name = self.session_name_list[api.read.session.session_type()]
                 self.update_session_name(session_name, self.last_session_name)
                 self.last_session_name = session_name
 
@@ -208,15 +215,3 @@ class Draw(Overlay):
         if lap_diff >= -1:
             return self.wcfg["bkg_color_maxlap_warn"]
         return self.wcfg["bkg_color_lapnumber"]
-
-    def set_session_name(self, session_id):
-        """Set session name"""
-        if session_id == 1:
-            return self.wcfg["session_text_practice"]
-        if session_id == 2:
-            return self.wcfg["session_text_qualify"]
-        if session_id == 3:
-            return self.wcfg["session_text_warmup"]
-        if session_id == 4:
-            return self.wcfg["session_text_race"]
-        return self.wcfg["session_text_testday"]
