@@ -508,6 +508,22 @@ Set max display range (gain or loss) in seconds for delta reading, accepts decim
 Deltabest display follows delta bar progress.
 
 
+## Deltabest extended
+**This widget displays deltabest info against multiple lap time sources.**
+
+    show_all_time_deltabest
+Show deltabest against personal all time best lap time.
+
+    show_session_deltabest
+Show deltabest against current personal session best lap time.
+
+    show_stint_deltabest
+Show deltabest against current personal stint best lap time.
+
+    show_deltalast
+Show delta against personal last lap time (deltalast).
+
+
 ## DRS
 **This widget displays DRS(rear flap) usage info.**
 
@@ -1250,13 +1266,13 @@ Set ride height offset for bottoming indicator. Value in millimeters, but withou
 2 layouts are available: `0` = target & current sectors above deltabest sectors, `1` = deltabest sectors above target & current sectors.
 
     target_time_mode
-Set mode for accumulated target sector time. Set `0` to show theoretical best sector time from session best sectors. Set `1` to show sector time from personal best laptime.
+Set mode for accumulated target sector time. Set `0` to show theoretical best sector time from session best sectors. Set `1` to show sector time from personal best lap time.
 
     freeze_duration
 Set freeze duration (seconds) for previous sector time display. Default value is `5` seconds.
 
     always_show_laptime_gap
-Set `true` to always show sector/laptime gap bar. Set `false` to show only in freeze duration.
+Set `true` to always show sector/lap time gap bar. Set `false` to show only in freeze duration.
 
 
 ## Session
@@ -1410,25 +1426,28 @@ Set visualized maximum suspension position range (millimeter).
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
     show_session_best
-Show current session best laptime from all vehicle classes.
+Show current session best lap time from all vehicle classes.
 
     show_session_best_from_same_class_only
-Show current session best laptime from same vehicle class only.
+Show current session best lap time from same vehicle class only.
 
     show_best
-Show personal best laptime.
+Show personal best lap time.
 
     show_last
-Show personal last laptime.
+Show personal last lap time.
 
     show_current
-Show personal current laptime.
+Show personal current lap time.
 
     show_estimated
-Show personal current estimated laptime.
+Show personal current estimated lap time.
 
     show_session_personal_best
-Show personal current session best laptime.
+Show personal current session best lap time.
+
+    show_stint_best
+Show personal current stint best lap time.
 
 
 ## Track map

@@ -1,5 +1,19 @@
-WIP
+2.7.0 (2024-02-05)
 -----------------------------
+* [New]Deltabest extended Widget
+  - Added new Deltabest extended widget that shows deltabest
+    against multiple lap time sources.
+    Note: default layout is set on horizontal.
+    Set layout value to 0 to show vertical layout.
+  - Show deltabest against personal all time best lap time.
+  - Show deltabest against current personal session best lap time.
+    Note: session deltabest will be reset upon
+    changing session, or reload preset/restart APP.
+  - Show deltabest against current personal stint best lap time.
+    Note: stint deltabest will be reset upon entering pit.
+  - Show delta against personal last lap time (deltalast).
+    Note: deltalast will be reset upon ESC.
+
 * Session Widget
   - Added "show_session_name" option,
     which show current session name that includes
@@ -10,6 +24,20 @@ WIP
     Default value is set to 0.
     Note, user may still need to check the new "column_index_session_name" value
     to ensure no overlapping with other column_index values.
+
+* Timing Widget
+  - Added "show_stint_best" option,
+    which shows personal stint best lap time.
+    Note: stint best lap time will be reset upon entering pit.
+
+* Delta Module
+  - Added session deltabest, stint deltabest, delta last data output.
+  - Added new laptime validation method,
+    which fixed best lap time sometimes failed to validate.
+    Extended validation duration to 10s.
+
+* User guide
+  - Added new entries in Deltabest extended, Session, Timing Widget sections.
 
 2.6.1 (2024-01-18)
 -----------------------------

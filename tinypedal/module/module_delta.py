@@ -67,6 +67,12 @@ class Realtime:
         idle_interval = self.mcfg["idle_update_interval"] / 1000
         update_interval = active_interval
 
+        last_session_id = ("",-1,-1,-1)
+        delta_list_session = [DELTA_ZERO]
+        delta_list_stint = [DELTA_ZERO]
+        laptime_session_best = 99999
+        laptime_stint_best = 99999
+
         while not self.event.wait(update_interval):
             if api.state:
 
@@ -75,17 +81,30 @@ class Realtime:
                     update_interval = active_interval
 
                     recording = False
-                    validating = False
+                    validating = 0
 
                     combo_id = api.read.check.combo_id()
+                    session_id = api.read.check.session_id()
+
+                    # Reset delta session best if not same session
+                    if not self.is_same_session(combo_id, session_id, last_session_id):
+                        delta_list_session = [DELTA_ZERO]
+                        laptime_session_best = 99999
+                        last_session_id = (combo_id, *session_id)
+
                     delta_list_best, laptime_best = self.load_deltabest(combo_id)
                     delta_list_curr = [DELTA_ZERO]  # distance, laptime
                     delta_list_last = [DELTA_ZERO]  # last lap
-                    delta_best = 0  # delta time compare to best laptime
 
-                    last_lap_stime = -1  # lap-start-time
+                    delta_best = 0  # delta time compare to best laptime
+                    delta_last = 0
+                    session_delta_best = 0
+                    stint_delta_best = 0
+
                     laptime_curr = 0  # current laptime
                     laptime_last = 0  # last laptime
+
+                    last_lap_stime = -1  # lap-start-time
                     pos_last = 0  # last checked vehicle position
                     pos_estimate = 0  # calculated position
                     gps_last = [0,0,0]  # last global position
@@ -99,6 +118,12 @@ class Realtime:
                 gps_curr = (api.read.vehicle.pos_x(),
                             api.read.vehicle.pos_y(),
                             api.read.vehicle.pos_z())
+                in_pits = api.read.vehicle.in_pits()
+
+                # Reset delta stint best if in pit
+                if in_pits and delta_list_stint[-1][0]:
+                    delta_list_stint = [DELTA_ZERO]
+                    laptime_stint_best = 99999
 
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime != -1:
@@ -108,7 +133,7 @@ class Realtime:
                             (round(pos_last + 10, 6), round(laptime_last, 6))
                         )
                         delta_list_last = delta_list_curr
-                        validating = True
+                        validating = api.read.timing.elapsed()
                     delta_list_curr = [DELTA_ZERO]  # reset
                     pos_last = pos_curr
                     recording = laptime_curr < 1
@@ -129,15 +154,27 @@ class Realtime:
 
                 # Validating 1s after passing finish line
                 if validating:
-                    if 1 < laptime_curr <= 8:  # compare current time
-                        if laptime_last < laptime_best and abs(laptime_valid - laptime_last) < 1:
-                            laptime_best = laptime_last
-                            delta_list_best = delta_list_last
-                            delta_list_last = [DELTA_ZERO]
-                            self.save_deltabest(combo_id, delta_list_best)
-                            validating = False
-                    elif 8 < laptime_curr < 10:  # switch off after 8s
-                        validating = False
+                    timer = api.read.timing.elapsed() - validating
+                    if 1 < timer <= 10:  # compare current time
+                        if laptime_valid > 0 and abs(laptime_valid - laptime_last) < 2:
+                            # Update delta best list
+                            if laptime_last < laptime_best:
+                                laptime_best = laptime_last
+                                delta_list_best = delta_list_last.copy()
+                                self.save_deltabest(combo_id, delta_list_best)
+                            # Update delta session best list
+                            if laptime_last < laptime_session_best:
+                                laptime_session_best = laptime_last
+                                delta_list_session = delta_list_last.copy()
+                            # Update delta stint best list
+                            if laptime_last < laptime_stint_best:
+                                laptime_stint_best = laptime_last
+                                delta_list_stint = delta_list_last.copy()
+                            # Reset delta last list
+                            # delta_list_last = [DELTA_ZERO]
+                            validating = 0
+                    elif timer > 10:  # switch off after 8s
+                        validating = 0
 
                 # Calc delta
                 if gps_last != gps_curr:
@@ -152,6 +189,27 @@ class Realtime:
                         laptime_curr > 0.3,  # 300ms delay
                         0.02,  # add 20ms offset
                     )
+                    delta_last = calc.delta_telemetry(
+                        pos_estimate,
+                        laptime_curr,
+                        delta_list_last,
+                        laptime_curr > 0.3,  # 300ms delay
+                        0.02,  # add 20ms offset
+                    )
+                    session_delta_best = calc.delta_telemetry(
+                        pos_estimate,
+                        laptime_curr,
+                        delta_list_session,
+                        laptime_curr > 0.3,  # 300ms delay
+                        0.02,  # add 20ms offset
+                    )
+                    stint_delta_best = calc.delta_telemetry(
+                        pos_estimate,
+                        laptime_curr,
+                        delta_list_stint,
+                        laptime_curr > 0.3,  # 300ms delay
+                        0.02,  # add 20ms offset
+                    )
                     # Update driven distance
                     if moved_distance < 1500 * active_interval:
                         meters_driven += moved_distance
@@ -161,7 +219,11 @@ class Realtime:
                 minfo.delta.lapTimeLast = laptime_last
                 minfo.delta.lapTimeBest = laptime_best
                 minfo.delta.lapTimeEstimated = laptime_best + delta_best
+                minfo.delta.lapTimeStintBest = laptime_stint_best
                 minfo.delta.deltaBest = delta_best
+                minfo.delta.deltaLast = delta_last
+                minfo.delta.sessionDeltaBest = session_delta_best
+                minfo.delta.stintDeltaBest = stint_delta_best
                 minfo.delta.isValidLap = laptime_valid > 0
                 minfo.delta.metersDriven = meters_driven
 
@@ -169,6 +231,7 @@ class Realtime:
                 if reset:
                     reset = False
                     update_interval = idle_interval
+                    last_session_id = (combo_id, *session_id)
                     self.cfg.setting_user["cruise"]["meters_driven"] = int(meters_driven)
                     self.cfg.save()
 
@@ -202,3 +265,13 @@ class Realtime:
                     "w", newline="", encoding="utf-8") as csvfile:
                 deltawrite = csv.writer(csvfile)
                 deltawrite.writerows(listname)
+
+    @staticmethod
+    def is_same_session(combo_id, session_id, last_session_id):
+        """Check if same session, car, track combo"""
+        return bool(
+            combo_id == last_session_id[0] and
+            last_session_id[1] == session_id[0] and
+            last_session_id[2] <= session_id[1] and
+            last_session_id[3] <= session_id[2]
+        )

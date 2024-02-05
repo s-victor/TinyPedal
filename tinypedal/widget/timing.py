@@ -51,6 +51,7 @@ class Draw(Overlay):
                 len(self.wcfg["prefix_estimated"]),
                 len(self.wcfg["prefix_session_best"]),
                 len(self.wcfg["prefix_session_personal_best"]),
+                len(self.wcfg["prefix_stint_best"]),
             )
         else:
             prefix_w = None
@@ -62,6 +63,7 @@ class Draw(Overlay):
         self.prefix_esti = self.wcfg["prefix_estimated"][:prefix_w].ljust(prefix_just)
         self.prefix_sbst = self.wcfg["prefix_session_best"][:prefix_w].ljust(prefix_just)
         self.prefix_spbt = self.wcfg["prefix_session_personal_best"][:prefix_w].ljust(prefix_just)
+        self.prefix_stbt = self.wcfg["prefix_stint_best"][:prefix_w].ljust(prefix_just)
 
         time_none = "-:--.---"
 
@@ -85,6 +87,7 @@ class Draw(Overlay):
         column_curr = self.wcfg["column_index_current"]
         column_esti = self.wcfg["column_index_estimated"]
         column_spbt = self.wcfg["column_index_session_personal_best"]
+        column_stbt = self.wcfg["column_index_stint_best"]
 
         # Session best laptime
         if self.wcfg["show_session_best"]:
@@ -140,6 +143,15 @@ class Draw(Overlay):
                 f"background: {self.wcfg['bkg_color_session_personal_best']};"
             )
 
+        # Stint personal best laptime
+        if self.wcfg["show_stint_best"]:
+            self.bar_time_stbt = QLabel(f"{self.prefix_stbt}{time_none}")
+            self.bar_time_stbt.setAlignment(Qt.AlignCenter)
+            self.bar_time_stbt.setStyleSheet(
+                f"color: {self.wcfg['font_color_stint_best']};"
+                f"background: {self.wcfg['bkg_color_stint_best']};"
+            )
+
         # Set layout
         if self.wcfg["layout"] == 0:
             # Vertical layout
@@ -155,6 +167,8 @@ class Draw(Overlay):
                 layout.addWidget(self.bar_time_esti, column_esti, 0)
             if self.wcfg["show_session_personal_best"]:
                 layout.addWidget(self.bar_time_spbt, column_spbt, 0)
+            if self.wcfg["show_stint_best"]:
+                layout.addWidget(self.bar_time_stbt, column_stbt, 0)
         else:
             # Horizontal layout
             if self.wcfg["show_session_best"]:
@@ -169,6 +183,8 @@ class Draw(Overlay):
                 layout.addWidget(self.bar_time_esti, 0, column_esti)
             if self.wcfg["show_session_personal_best"]:
                 layout.addWidget(self.bar_time_spbt, 0, column_spbt)
+            if self.wcfg["show_stint_best"]:
+                layout.addWidget(self.bar_time_stbt, 0, column_stbt)
         self.setLayout(layout)
 
         # Last data
@@ -182,6 +198,7 @@ class Draw(Overlay):
         self.last_laptime_curr = 0
         self.last_laptime_esti = 0
         self.last_laptime_spbt = 0
+        self.last_laptime_stbt = 0
 
         # Set widget state & start update
         self.set_widget_state()
@@ -251,6 +268,13 @@ class Draw(Overlay):
                 self.update_laptime(laptime_spbt, self.last_laptime_spbt,
                                     self.prefix_spbt, "spbt")
                 self.last_laptime_spbt = laptime_spbt
+
+            # Stint personal best laptime
+            if self.wcfg["show_stint_best"]:
+                laptime_stbt = minfo.delta.lapTimeStintBest
+                self.update_laptime(laptime_stbt, self.last_laptime_stbt,
+                                    self.prefix_stbt, "stbt")
+                self.last_laptime_stbt = laptime_stbt
 
         else:
             if self.checked:

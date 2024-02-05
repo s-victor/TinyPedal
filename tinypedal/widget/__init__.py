@@ -31,6 +31,7 @@ from . import (
     brake_temperature,
     cruise,
     deltabest,
+    deltabest_extended,
     drs,
     electric_motor,
     engine,
