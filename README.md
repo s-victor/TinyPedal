@@ -10,8 +10,8 @@ Currently supports rFactor 2.
 ![preview](https://user-images.githubusercontent.com/21177177/282278970-b806bf02-a83d-4baa-8b45-0ca10f28f775.png)
 
 ## Requirements
-1. TinyPedal requires The Iron Wolf’s rF2 Shared Memory Map Plugin, download it from:  
-https://forum.studio-397.com/index.php?threads/rf2-shared-memory-tools-for-developers.54282/  
+1. TinyPedal requires The Iron Wolf’s `rF2 Shared Memory Map Plugin` from `Download` section of following page:  
+https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin  
 The plugin file `rFactor2SharedMemoryMapPlugin64.dll` should be placed in `rFactor 2\Bin64\Plugins` folder. This plugin also comes with some of the popular rF2 Apps, check `rFactor 2\Bin64\Plugins` folder first to see if it was installed already.
 
 2. Set rFactor 2 display mode to `Borderless` or `Windowed` mode. `Fullscreen` mode is not supported.
