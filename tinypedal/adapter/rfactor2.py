@@ -186,7 +186,7 @@ class Input(DataAdapter):
         return chknm(self.info.rf2TeleVeh(index).mPhysicalSteeringWheelRange)
 
     def steering_range_visual(self, index: int | None = None) -> float:
-        """Steering physical rotation range"""
+        """Steering visual rotation range"""
         return chknm(self.info.rf2TeleVeh(index).mVisualSteeringWheelRange)
 
     def force_feedback(self) -> float:

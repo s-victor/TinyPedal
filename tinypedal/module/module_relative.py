@@ -186,6 +186,7 @@ class Realtime:
         laptime_class_best = 99999
         initial_class = sorted_veh_class[0][0]
         position_in_class = 0
+        player_index_ahead = -1
 
         for veh_sort in sorted_veh_class:
             if veh_sort[0] == initial_class:
@@ -196,6 +197,7 @@ class Realtime:
 
             if position_in_class == 1:
                 laptime_class_best = veh_sort[3]
+                player_index_ahead = -1  # no player ahead
 
             yield (
                 veh_sort[2],       # 0 - 2 player index
@@ -203,7 +205,9 @@ class Realtime:
                 veh_sort[0],       # 2 - 0 class name
                 laptime_session_best,  # 3 session best
                 laptime_class_best,  # 4 classes best
+                player_index_ahead,  # 5 player index ahead
             )
+            player_index_ahead = veh_sort[2]
 
     def __standings_index_list(
         self, veh_total, plr_index, plr_place, class_pos_list, place_index_list, is_multi_class):

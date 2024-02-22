@@ -122,10 +122,12 @@ class Realtime:
                 position_in_class = class_pos_list[index][1]
                 laptime_session_best = class_pos_list[index][3]
                 laptime_class_best = class_pos_list[index][4]
+                opt_index_ahead = class_pos_list[index][5]
             else:
                 position_in_class = 0
                 laptime_session_best = 99999
                 laptime_class_best = 99999
+                opt_index_ahead = -1
 
             laptime_best = api.read.timing.best_laptime(index)
             laptime_last = api.read.timing.last_laptime(index)
@@ -144,10 +146,10 @@ class Realtime:
                 relative_distance, speed, plr_speed
                 ) if not is_player else 0
 
-            time_behind_leader = api.read.timing.behind_leader(index)
-            time_behind_next = api.read.timing.behind_next(index)
-            laps_behind_leader = api.read.lap.behind_leader(index)
-            laps_behind_next = api.read.lap.behind_next(index)
+            gap_behind_next_in_class = self.__calc_gap_behind_next_in_class(
+                opt_index_ahead, track_length, speed, total_laps, percentage_distance)
+            gap_behind_next = self.__calc_gap_behind_next(index)
+            gap_behind_leader = self.__calc_gap_behind_leader(index)
 
             is_lapped = 0 if is_player or not in_race else calc.lap_difference(
                 total_laps + percentage_distance,
@@ -198,10 +200,9 @@ class Realtime:
                 percentageDistance = percentage_distance,
                 relativeDistance = relative_distance,
                 relativeTimeGap = relative_time_gap,
-                timeBehindLeader = time_behind_leader,
-                lapsBehindLeader = laps_behind_leader,
-                timeBehindNext = time_behind_next,
-                lapsBehindNext = laps_behind_next,
+                gapBehindNextInClass = gap_behind_next_in_class,
+                gapBehindNext = gap_behind_next,
+                gapBehindLeader = gap_behind_leader,
                 isLapped = is_lapped,
                 isYellow = is_yellow,
                 inGarage = in_garage,
@@ -244,6 +245,38 @@ class Realtime:
             if self.pit_time_list[idx_timer] and laptime_last > 0:
                 self.pit_time_list[idx_timer] = 0
         return self.pit_time_list[idx_timer]
+
+    @staticmethod
+    def __calc_gap_behind_next_in_class(
+        opt_index, track_length, speed, total_laps, percentage_distance):
+        """Calculate interval behind next in class"""
+        if opt_index < 0:
+            return 0.0
+        opt_total_laps = api.read.lap.total_laps(opt_index)
+        opt_lap_distance = api.read.lap.distance(opt_index)
+        opt_percentage_distance = calc.percentage_distance(opt_lap_distance, track_length)
+        lap_diff = abs(opt_total_laps + opt_percentage_distance - total_laps - percentage_distance)
+        if lap_diff > 1:
+            return int(lap_diff)
+        return calc.relative_time_gap(
+            lap_diff * track_length, api.read.vehicle.speed(opt_index), speed
+        )
+
+    @staticmethod
+    def __calc_gap_behind_next(index):
+        """Calculate interval behind next"""
+        laps_behind_next = api.read.lap.behind_next(index)
+        if laps_behind_next > 0:
+            return laps_behind_next
+        return api.read.timing.behind_next(index)
+
+    @staticmethod
+    def __calc_gap_behind_leader(index):
+        """Calculate interval behind leader"""
+        laps_behind_leader = api.read.lap.behind_leader(index)
+        if laps_behind_leader > 0:
+            return laps_behind_leader
+        return api.read.timing.behind_leader(index)
 
 
 def nearest_distance_data(
@@ -288,10 +321,9 @@ DataSet = namedtuple(
     "percentageDistance",
     "relativeDistance",
     "relativeTimeGap",
-    "timeBehindLeader",
-    "lapsBehindLeader",
-    "timeBehindNext",
-    "lapsBehindNext",
+    "gapBehindNextInClass",
+    "gapBehindNext",
+    "gapBehindLeader",
     "isLapped",
     "isYellow",
     "numPitStops",

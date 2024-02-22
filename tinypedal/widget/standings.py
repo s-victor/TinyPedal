@@ -573,14 +573,6 @@ class Draw(Overlay):
             return "OUT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
         return calc.sec2laptime_full(laptime_last)[:8].rjust(8)
 
-    def gap_to_leader_race(self, time_behind, laps_behind, position):
-        """Gap to race leader"""
-        if position == 1:
-            return self.wcfg["time_gap_leader_text"]
-        if time_behind == 0 and laps_behind > 0:
-            return f"{laps_behind:.0f}L"
-        return f"{time_behind:.0{self.gap_decimals}f}"
-
     def gap_to_session_bestlap(self, bestlap, sbestlap, cbestlap):
         """Gap to session best laptime"""
         if self.wcfg["show_time_gap_from_class_best"]:
@@ -593,13 +585,28 @@ class Draw(Overlay):
             return "0.0"
         return f"{time:.0{self.gap_decimals}f}"
 
-    def int_to_next(self, time_behind, laps_behind, position):
-        """Interval to next"""
+    def gap_to_leader_race(self, gap_behind, position):
+        """Gap to race leader"""
         if position == 1:
+            return self.wcfg["time_gap_leader_text"]
+        if isinstance(gap_behind, int):
+            return f"{gap_behind:.0f}L"
+        return f"{gap_behind:.0{self.gap_decimals}f}"
+
+    def int_to_next(self, gap_behind_class, gap_behind, position_class, position):
+        """Interval to next"""
+        if (self.wcfg["enable_multi_class_split_mode"]
+            and self.wcfg["show_time_interval_from_same_class"]):
+            pos = position_class
+            gap = gap_behind_class
+        else:
+            pos = position
+            gap = gap_behind
+        if pos == 1:
             return self.wcfg["time_interval_leader_text"]
-        if time_behind == 0 and laps_behind > 0:
-            return f"{laps_behind:.0f}L"
-        return f"{time_behind:.0{self.int_decimals}f}"
+        if isinstance(gap, int):
+            return f"{gap:.0f}L"
+        return f"{gap:.0{self.int_decimals}f}"
 
     def get_data(self, index, vehicles_data):
         """Standings data"""
@@ -641,8 +648,7 @@ class Draw(Overlay):
                 # 9 Time gap
                 time_gap = (
                     self.gap_to_leader_race(
-                        vehicles_data[index].timeBehindLeader,
-                        vehicles_data[index].lapsBehindLeader,
+                        vehicles_data[index].gapBehindLeader,
                         vehicles_data[index].position
                     ),
                     is_player)
@@ -670,9 +676,10 @@ class Draw(Overlay):
             # 11 Time interval
             time_int = (
                 self.int_to_next(
-                    vehicles_data[index].timeBehindNext,
-                    vehicles_data[index].lapsBehindNext,
-                    vehicles_data[index].position
+                    vehicles_data[index].gapBehindNextInClass,
+                    vehicles_data[index].gapBehindNext,
+                    vehicles_data[index].positionInClass,
+                    vehicles_data[index].position,
                 ),
                 is_player)
 
