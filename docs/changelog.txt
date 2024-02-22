@@ -1,3 +1,13 @@
+WIP
+-----------------------------
+* [New]Damage Widget
+  - Show visualized vehicle body damage, wheel damage info.
+  - Show vehicle body integrity percentage reading.
+
+* Documentation
+  - Updated "rF2 Shared Memory Map Plugin" download link in README file.
+  - Added new entries in Damage Widget section.
+
 2.7.0 (2024-02-05)
 -----------------------------
 * [New]Deltabest extended Widget

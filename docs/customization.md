@@ -483,6 +483,31 @@ Show odometer that displays total driven distance of local player.
 This value holds the total distance(meters) that local player has driven. Accept manual editing.
 
 
+## Damage
+**This widget displays visualized vehicle damage info.**
+
+    display_margin
+Set display margin in pixels.
+
+    inner_gap
+Set body parts inner gap in pixels.
+
+    part_width
+Set body parts width in pixels.
+
+    parts_max_width, parts_max_height
+Set maximum body parts width, height in pixels.
+
+    show_background
+Show widget background.
+
+    show_integrity_reading
+Show vehicle body integrity reading in percentage.
+
+    show_inverted_integrity
+Invert vehicle body integrity reading.
+
+
 ## Deltabest
 **This widget displays deltabest info.**
 
