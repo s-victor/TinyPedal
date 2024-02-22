@@ -654,6 +654,14 @@ class Vehicle(DataAdapter):
         """Downforce rear"""
         return chknm(self.info.rf2TeleVeh(index).mRearDownforce)
 
+    def damage_severity(self, index: int | None = None) -> tuple:
+        """Damage severity"""
+        return tuple(self.info.rf2TeleVeh(index).mDentSeverity)
+
+    def is_detached(self, index: int | None = None) -> bool:
+        """Whether any vehicle parts are detached"""
+        return chknm(self.info.rf2TeleVeh(index).mDetached)
+
 
 class Wheel(DataAdapter):
     """Wheel & suspension"""
@@ -719,4 +727,9 @@ class Wheel(DataAdapter):
     def suspension_force(self, index: int | None = None) -> list[float]:
         """Suspension force (Newtons)"""
         return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mSuspForce)
+                for data in range(4)]
+
+    def is_detached(self, index: int | None = None) -> list[float]:
+        """Whether wheel is detached"""
+        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mDetached)
                 for data in range(4)]
