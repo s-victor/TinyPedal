@@ -106,7 +106,10 @@ class Draw(Overlay):
 
             # Read steering data
             self.raw_steering = api.read.input.steering_raw()
-            self.sw_rot_range = api.read.input.steering_range_physical()
+            if self.wcfg["manual_steering_range"] > 0:
+                self.sw_rot_range = self.wcfg["manual_steering_range"]
+            else:
+                self.sw_rot_range = api.read.input.steering_range_physical()
 
             # Recalculate scale mark
             if self.wcfg["show_scale_mark"] and self.sw_rot_range != self.last_sw_rot_range:
