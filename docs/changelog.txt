@@ -1,12 +1,26 @@
-WIP
+2.8.0 (2024-02-23)
 -----------------------------
 * [New]Damage Widget
   - Show visualized vehicle body damage, wheel damage info.
   - Show vehicle body integrity percentage reading.
 
-* Documentation
+* Standings Widget
+  - Added "show_time_interval_from_same_class" option,
+    which shows time interval from same class instead.
+    This option is enabled by default, and only takes effect
+    while "enable_multi_class_split_mode" is enabled.
+
+* Steering Widget
+  - Added "manual_steering_range" option,
+    which sets steering display range in degrees.
+    Set to "0" to read physical steering range from API.
+    This option may be useful when steering range value
+    is not provided by some vehicles.
+
+* Misc
+  - Added "Hyper" class to default classes.json setting.
   - Updated "rF2 Shared Memory Map Plugin" download link in README file.
-  - Added new entries in Damage Widget section.
+  - Added new entries in Damage, Standings, Steering Widget sections in User Guide.
 
 2.7.0 (2024-02-05)
 -----------------------------

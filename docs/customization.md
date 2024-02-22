@@ -1395,6 +1395,9 @@ Set text indicator for race leader in time gap column.
     show_time_interval
 Show time interval between each closest driver in order.
 
+    show_time_interval_from_same_class
+Show time interval from same class. This option only takes effect while `enable_multi_class_split_mode` is enabled.
+
     time_interval_leader_text
 Set text indicator for race leader in time interval column.
 
@@ -1410,6 +1413,9 @@ Set steering bar width & height in pixels.
 
     bar_edge_width
 Set left and right edge boundary width.
+
+    manual_steering_range
+Manually set steering display range in degrees. Set to `0` to read physical steering range from API. This option may be useful when steering range value is not provided by some vehicles.
 
     show_steering_angle
 Show steering angle text in degree.
