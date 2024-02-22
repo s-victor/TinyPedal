@@ -22,6 +22,9 @@ Default classes template
 
 
 CLASSES_DEFAULT = {
+    "Hyper": {
+        "LMH": "#FF4400"
+    },
     "Hypercar": {
         "LMH": "#FF4400"
     },
