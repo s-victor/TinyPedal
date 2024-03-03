@@ -95,6 +95,7 @@ CFG_INTEGER = (
 CFG_INVALID_FILENAME = (
     # Exact match
     "^$|"
+    "^brands$|"
     "^classes$|"
     "^heatmap$|"
     # Partial match

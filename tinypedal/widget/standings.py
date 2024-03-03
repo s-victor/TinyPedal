@@ -400,7 +400,12 @@ class Draw(Overlay):
                 color = (f"color: {self.wcfg['font_color_vehicle_name']};"
                          f"background: {self.wcfg['bkg_color_vehicle_name']};")
 
-            text = curr[0].upper() if self.wcfg["vehicle_name_uppercase"] else curr[0]
+            if self.wcfg["show_vehicle_brand_as_name"]:
+                vname = self.cfg.brands_user.get(curr[0], curr[0])
+            else:
+                vname = curr[0]
+
+            text = vname.upper() if self.wcfg["vehicle_name_uppercase"] else vname
 
             getattr(self, f"row_{suffix}").setText(
                 text[:self.veh_width].ljust(self.veh_width))

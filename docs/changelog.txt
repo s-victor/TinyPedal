@@ -1,5 +1,10 @@
 WIP
 -----------------------------
+* Relative Widget
+  - Added "show_vehicle_brand_as_name" option,
+    which shows vehicle brand name instead of vehicle name.
+    Vehicle brand names are definded in "brands.json" file in "Settings" folder.
+
 * Standings Widget
   - Added "show_best_laptime" option,
     which shows driver's session best lap time.
@@ -7,6 +12,8 @@ WIP
     Note: when this option is disabled,
     the other "show_laptime" option will
     show best lap time in none-race sessions.
+  - Added "show_vehicle_brand_as_name" option,
+    same as Relative Widget.
 
 * Tyre carcass Widget
   - [New]Added "show_rate_of_change" option,
@@ -17,6 +24,7 @@ WIP
   - Added "layout" & "column_index_*" options.
 
 * Misc
+  - "brands" filename is now reserved for vehicle brands preset.
   - Updated Tyre carcass Widget entries in user guide.
   - Updated README info for LMU.
 

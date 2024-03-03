@@ -1225,6 +1225,9 @@ Set drive name display width, value in chars, such as 10 = 10 chars.
     show_vehicle_name
 Show vehicle name.
 
+    show_vehicle_brand_as_name
+Show vehicle brand name instead of vehicle name.
+
     vehicle_name_uppercase
 Set vehicle name to uppercase.
 

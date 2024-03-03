@@ -46,10 +46,12 @@ class Setting:
     filename_setting = "default.json"
     filename_classes = "classes.json"
     filename_heatmap = "heatmap.json"
+    filename_brands = "brands.json"
     last_loaded_setting = "None.json"
     setting_default = {**APPLICATION_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT}
     classes_default = CLASSES_DEFAULT
     heatmap_default = HEATMAP_DEFAULT
+    brands_default = {}
 
     def __init__(self):
         self.platform_default()
@@ -58,6 +60,7 @@ class Setting:
         self.setting_user = None
         self.classes_user = None
         self.heatmap_user = None
+        self.brands_user = None
 
         self.is_saving = False
         self._save_delay = 0
@@ -76,6 +79,8 @@ class Setting:
         self.units = self.setting_user["units"]
         self.last_loaded_setting = self.filename_setting
         # Load style JSON file
+        self.brands_user = load_style_json_file(
+            self.filename_brands, self.filepath, self.brands_default)
         self.classes_user = load_style_json_file(
             self.filename_classes, self.filepath, self.classes_default)
         self.heatmap_user = load_style_json_file(
