@@ -1570,6 +1570,12 @@ Set `true` to show degree sign for each temperature value.
     leading_zero
 Set amount leading zeros for each temperature value. Default is `2`. Minimum value is limited to `1`.
 
+    show_rate_of_change
+Show carcass temeperature rate of change for a specific time interval.
+
+    rate_of_change_interval
+Set time interval (in seconds) for rate of change calculation. Default interval is `5` seconds. Minimum interval is limited to `1` second, maximum interval is limited to `60` seconds.
+
     show_tyre_compound
 Show tyre compound index (front/rear).
 

@@ -20,6 +20,7 @@
 Tyre carcass temperature Widget
 """
 
+from collections import deque
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QGridLayout, QLabel
 
@@ -45,6 +46,7 @@ class Draw(Overlay):
         # Config variable
         text_def = "n/a"
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_gap = self.wcfg["bar_gap"]
         inner_gap = self.wcfg["inner_gap"]
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
@@ -54,6 +56,11 @@ class Draw(Overlay):
             text_width = 4 + len(self.sign_text)
         else:
             text_width = 3 + len(self.sign_text)
+
+        max_samples = int(
+            min(max(self.wcfg["rate_of_change_interval"], 1), 60)
+            / (max(self.wcfg["update_interval"], 10) * 0.001)
+        )
 
         # Base style
         self.heatmap = hmp.load_heatmap(self.wcfg["heatmap_name"], "tyre_default")
@@ -69,8 +76,14 @@ class Draw(Overlay):
         layout = QGridLayout()
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout_ctemp = QGridLayout()
-        layout.setSpacing(inner_gap)
+        layout_rtemp = QGridLayout()
+        layout_ctemp.setSpacing(inner_gap)
+        layout_rtemp.setSpacing(inner_gap)
+        layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+
+        column_ctemp = self.wcfg["column_index_carcass"]
+        column_rtemp = self.wcfg["column_index_rate_of_change"]
 
         # Tyre compound
         if self.wcfg["show_tyre_compound"]:
@@ -87,6 +100,14 @@ class Draw(Overlay):
             self.bar_tcmpd_r.setStyleSheet(bar_style_tcmpd)
             layout_ctemp.addWidget(self.bar_tcmpd_f, 0, 4)
             layout_ctemp.addWidget(self.bar_tcmpd_r, 1, 4)
+
+            if self.wcfg["show_rate_of_change"]:
+                bar_blank_1 = QLabel("")
+                bar_blank_1.setStyleSheet(bar_style_tcmpd)
+                bar_blank_2 = QLabel("")
+                bar_blank_2.setStyleSheet(bar_style_tcmpd)
+                layout_rtemp.addWidget(bar_blank_1, 0, 4)
+                layout_rtemp.addWidget(bar_blank_2, 1, 4)
 
         # Tyre carcass temperature
         self.ctemp_set = ("ctemp_fl", "ctemp_fr", "ctemp_rl", "ctemp_rr")
@@ -115,13 +136,50 @@ class Draw(Overlay):
                 layout_ctemp.addWidget(
                     getattr(self, f"bar_{suffix}"), 1, 9)
 
+        # Rate of change
+        if self.wcfg["show_rate_of_change"]:
+            self.rtemp_set = ("rtemp_fl", "rtemp_fr", "rtemp_rl", "rtemp_rr")
+            bar_style_rtemp = (
+                f"color: {self.wcfg['font_color_rate_of_change']};"
+                f"background: {self.wcfg['bkg_color_rate_of_change']};"
+                f"min-width: {self.bar_width_temp}px;"
+            )
+            for suffix in self.rtemp_set:
+                setattr(self, f"bar_{suffix}", QLabel(text_def))
+                getattr(self, f"bar_{suffix}").setAlignment(Qt.AlignCenter)
+                getattr(self, f"bar_{suffix}").setStyleSheet(bar_style_rtemp)
+                if suffix == "rtemp_fl":  # 0
+                    layout_rtemp.addWidget(
+                        getattr(self, f"bar_{suffix}"), 0, 0)
+                if suffix == "rtemp_fr":  # 9
+                    layout_rtemp.addWidget(
+                        getattr(self, f"bar_{suffix}"), 0, 9)
+                if suffix == "rtemp_rl":  # 0
+                    layout_rtemp.addWidget(
+                        getattr(self, f"bar_{suffix}"), 1, 0)
+                if suffix == "rtemp_rr":  # 9
+                    layout_rtemp.addWidget(
+                        getattr(self, f"bar_{suffix}"), 1, 9)
+
         # Set layout
-        layout.addLayout(layout_ctemp, 0, 0)
+        if self.wcfg["layout"] == 0:
+            # Vertical layout
+            layout.addLayout(layout_ctemp, column_ctemp, 0)
+            if self.wcfg["show_rate_of_change"]:
+                layout.addLayout(layout_rtemp, column_rtemp, 0)
+        else:
+            # Horizontal layout
+            layout.addLayout(layout_ctemp, 0, column_ctemp)
+            if self.wcfg["show_rate_of_change"]:
+                layout.addLayout(layout_rtemp, 0, column_rtemp)
         self.setLayout(layout)
 
         # Last data
         self.last_tcmpd = [None] * 2
         self.last_ctemp = [-273.15] * 4
+        self.last_rtemp = [0] * 4
+        self.last_lap_etime = 0
+        self.rtemp_samples = deque([(0,0,0,0) for _ in range(max_samples)], max_samples)
 
         # Set widget state & start update
         self.set_widget_state()
@@ -143,6 +201,19 @@ class Draw(Overlay):
                 self.update_ctemp(suffix, ctemp[idx], self.last_ctemp[idx])
             self.last_ctemp = ctemp
 
+            # Rate of change
+            if self.wcfg["show_rate_of_change"]:
+                lap_etime = api.read.timing.elapsed()
+
+                if lap_etime != self.last_lap_etime:  # time stamp difference
+                    self.last_lap_etime = lap_etime  # reset time stamp counter
+                    self.rtemp_samples.append(ctemp)
+
+                rtemp = tuple(map(lambda x,y: x-y, ctemp, self.rtemp_samples[0]))
+                for idx, suffix in enumerate(self.rtemp_set):
+                    self.update_rtemp(suffix, rtemp[idx], self.last_rtemp[idx])
+                self.last_rtemp = rtemp
+
     # GUI update methods
     def update_ctemp(self, suffix, curr, last):
         """Tyre carcass temperature"""
@@ -156,6 +227,33 @@ class Draw(Overlay):
 
             getattr(self, f"bar_{suffix}").setText(
                 f"{self.temp_units(curr):0{self.leading_zero}.0f}{self.sign_text}")
+
+            getattr(self, f"bar_{suffix}").setStyleSheet(
+                f"{color}min-width: {self.bar_width_temp}px;")
+
+    def update_rtemp(self, suffix, curr, last):
+        """Rate of change"""
+        if curr != last:
+            if curr > 0:
+                hicolor = self.wcfg["font_color_rate_gain"]
+            else:
+                hicolor = self.wcfg["font_color_rate_loss"]
+
+            if self.wcfg["swap_style"]:
+                color = (f"color: {self.wcfg['font_color_rate_of_change']};"
+                         f"background: {hicolor};")
+            else:
+                color = (f"color: {hicolor};"
+                         f"background: {self.wcfg['bkg_color_rate_of_change']};")
+
+            temp = abs(curr)
+            if temp < 10:
+                temp_text = f"{self.temp_units(temp):.01f}"
+            else:
+                temp_text = f"{self.temp_units(temp):.0f}"
+
+            getattr(self, f"bar_{suffix}").setText(
+                f"{temp_text}{self.sign_text}")
 
             getattr(self, f"bar_{suffix}").setStyleSheet(
                 f"{color}min-width: {self.bar_width_temp}px;")

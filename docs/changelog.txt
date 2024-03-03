@@ -1,3 +1,16 @@
+WIP
+-----------------------------
+* Tyre carcass Widget
+  - [New]Added "show_rate_of_change" option,
+    which shows carcass temeperature rate of change for a specific time interval.
+  - Added "rate_of_change_interval" option,
+    which sets time interval (in seconds) for rate of change calculation.
+    Default is 5 seconds.
+  - Added "layout" & "column_index_*" options.
+
+* Misc
+  - Updated Tyre carcass Widget entries in user guide.
+
 2.8.0 (2024-02-23)
 -----------------------------
 * [New]Damage Widget
