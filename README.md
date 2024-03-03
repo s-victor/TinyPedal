@@ -2,7 +2,7 @@
 
 TinyPedal is an open-source overlay application for racing simulation.
 
-Currently supports rFactor 2.
+Currently supports `rFactor 2` and `Le Mans Ultimate`.
 
 [Download](https://github.com/s-victor/TinyPedal/releases) - [Quick Start](#quick-start) - [FAQ](https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions) - [User Guide](https://github.com/s-victor/TinyPedal/wiki/User-Guide) - [Run on Linux](#running-on-linux)
 ---
@@ -10,11 +10,18 @@ Currently supports rFactor 2.
 ![preview](https://user-images.githubusercontent.com/21177177/282278970-b806bf02-a83d-4baa-8b45-0ca10f28f775.png)
 
 ## Requirements
-1. TinyPedal requires The Iron Wolf’s `rF2 Shared Memory Map Plugin` from `Download` section of following page:  
-https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin  
-The plugin file `rFactor2SharedMemoryMapPlugin64.dll` should be placed in `rFactor 2\Bin64\Plugins` folder. This plugin also comes with some of the popular rF2 Apps, check `rFactor 2\Bin64\Plugins` folder first to see if it was installed already.
+TinyPedal requires The Iron Wolf’s `rF2 Shared Memory Map Plugin` from `Download` section of following page:  
+https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin
 
-2. Set rFactor 2 display mode to `Borderless` or `Windowed` mode. `Fullscreen` mode is not supported.
+The plugin file `rFactor2SharedMemoryMapPlugin64.dll` should be placed in:
+1. For `rFactor 2`, it is `rFactor 2\Bin64\Plugins` folder.
+2. For `Le Mans Ultimate`, it is `Le Mans Ultimate\Plugins` folder.
+
+This plugin also comes with some of the popular rF2/LMU Apps, check corresponding game's plugins folder first to see if it was installed already.
+
+In-game setup:
+1. Enabled `rFactor2SharedMemoryMapPlugin64` plugin in game option. For `Le Mans Ultimate`, user may have to manually enable plugin by editing `CustomPluginVariables.JSON` file (set `" Enabled"` value to `1` ) under `Le Mans Ultimate\UserData\player` folder. After plugin enabled, must restart game to take effect.
+2. Set game display mode to `Borderless` or `Windowed` mode. `Fullscreen` mode is not supported.
 
 
 ## Quick Start
@@ -24,7 +31,7 @@ For Linux user, please follow [Running on Linux](#running-on-linux) section for 
 
 2. A tray icon will appear at system tray. If not shown, check hidden tray icon. `Right Click` on tray icon will bring up context menu.
 
-3. Launch `rFactor 2`, overlay will appear once vehicle is on track, and auto-hide otherwise. Auto-hide can be toggled On and Off by clicking `Auto Hide` from tray menu.
+3. Launch game, overlay will appear once vehicle is on track, and auto-hide otherwise. Auto-hide can be toggled On and Off by clicking `Auto Hide` from tray menu.
 
 4. Overlay can be Locked or Unlocked by clicking `Lock Overlay` from tray menu. While Unlocked, click on overlay to drag around.
 

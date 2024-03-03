@@ -1,4 +1,4 @@
-**Note: following guide is for version 2.0 or higher.**
+**Note: following guide is updated to match latest released version.**
 
 TinyPedal offers a wide range of customization options for widget & module controls, which can be accessed from corresponding tabs in main window.
 

@@ -10,6 +10,7 @@ WIP
 
 * Misc
   - Updated Tyre carcass Widget entries in user guide.
+  - Updated README info for LMU.
 
 2.8.0 (2024-02-23)
 -----------------------------
