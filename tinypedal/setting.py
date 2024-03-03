@@ -135,6 +135,11 @@ class Setting:
                     target=self.__saving,
                     args=(self.filename_heatmap, self.filepath, self.heatmap_user)
                 ).start()
+            elif file_type == "brands":
+                threading.Thread(
+                    target=self.__saving,
+                    args=(self.filename_brands, self.filepath, self.brands_user)
+                ).start()
             else:
                 threading.Thread(
                     target=self.__saving,
@@ -241,7 +246,11 @@ def verify_setting(dict_user: dict, dict_def: dict) -> None:
 
 def copy_setting(dict_user: dict) -> dict:
     """Copy setting"""
-    return {key: item.copy() for key, item in dict_user.items()}
+    for _, item in dict_user.items():
+        if isinstance(item, dict):
+            return {key: item.copy() for key, item in dict_user.items()}
+        return dict_user.copy()
+    return dict_user.copy()
 
 
 # Assign config setting

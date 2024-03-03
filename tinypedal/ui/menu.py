@@ -32,6 +32,7 @@ from ..overlay_control import octrl
 from .about import About
 from .config import FontConfig, UserConfig
 from .heatmap_editor import HeatmapEditor
+from .vehicle_brand_editor import VehicleBrandEditor
 from .vehicle_class_editor import VehicleClassEditor
 from .log_info import LogInfo
 
@@ -204,6 +205,10 @@ class ConfigMenu(QMenu):
         config_heatmap.triggered.connect(self.open_config_heatmap)
         menu.addAction(config_heatmap)
 
+        config_brands = QAction("Vehicle brand editor", self)
+        config_brands.triggered.connect(self.open_config_brands)
+        menu.addAction(config_brands)
+
         config_classes = QAction("Vehicle class editor", self)
         config_classes.triggered.connect(self.open_config_classes)
         menu.addAction(config_classes)
@@ -231,6 +236,11 @@ class ConfigMenu(QMenu):
     def open_config_heatmap(self):
         """Config heatmap preset"""
         _dialog = HeatmapEditor(self.master)
+        _dialog.open()
+
+    def open_config_brands(self):
+        """Config brands preset"""
+        _dialog = VehicleBrandEditor(self.master)
         _dialog.open()
 
     def open_config_classes(self):

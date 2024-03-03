@@ -1,5 +1,17 @@
 WIP
 -----------------------------
+* [New]Vehicle Brand Editor
+  - Added a new Vehicle Brand Editor,
+    which can be used for substituting vehicle names
+    with custom vehicle brand names.
+    Basic usage & functions are very similar to Vehicle Class Editor.
+    The new editor also supports importing
+    vehicle JSON data file that exported from game's REST API.
+    However the importing feature is experimental,
+    and currently only works with LMU,
+    and max importing file size is limited to 512kb.
+    See "Brands preset" section in user guide for details.
+
 * Relative Widget
   - Added "show_vehicle_brand_as_name" option,
     which shows vehicle brand name instead of vehicle name.
@@ -25,7 +37,8 @@ WIP
 
 * Misc
   - "brands" filename is now reserved for vehicle brands preset.
-  - Updated Tyre carcass Widget entries in user guide.
+  - Added "Brands preset" section in user guide.
+  - Updated Relative, Standings, Tyre carcass Widget entries in user guide.
   - Updated README info for LMU.
 
 2.8.0 (2024-02-23)

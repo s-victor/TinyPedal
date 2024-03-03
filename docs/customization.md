@@ -46,6 +46,29 @@ Any boolean type value (true or false) will only accept: `true`, which can be su
 Also important to note, not every setting allows float point value that contains decimal places. Usually if a number (default value) does not contain any decimal place, that means it only accepts `integer`. Make sure not to add any decimal place, otherwise error may occur.
 
 
+## Brands preset
+**Brands preset is used for displaying brand name that matches specific vehicle name.**
+
+Brands preset can be customized by accessing `Vehicle brand editor` from `Config` menu in main window. Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
+
+`brands.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
+
+To modify brands setting, open `Vehicle brand editor` and edit entries from each rows and columns. Each row represents a vehicle. First column is full vehicle name that must match in-game vehicle name. Second column is brand name.
+
+To import vehicle brand data, click `Import` button. Note, the importing feature is experimental, and currently only works with LMU, and maximum importing file size is limited to 512kb.
+
+    How to export vehicle brand data from game API:
+    1. Start game, then open following link in web browser:
+    localhost:6397/rest/sessions/getAllAvailableVehicles
+    2. Click "Save" button which saves vehicle data to JSON file.
+
+To add new brand name, click `Add` button. Note, the editor can auto-detect and fill-in player's full vehicle name from current active session.
+
+To remove a brand name, click `X` button of a row.
+
+To reset all brands setting to default, click `Reset` button; or manually delete `brands.json` file.
+
+
 ## Classes preset
 **Classes preset is used for displaying name & color that matches specific vehicle classes.**
 
@@ -55,9 +78,9 @@ Classes preset can be customized by accessing `Vehicle class editor` from `Confi
 
 To modify class setting, open `Vehicle class editor` and edit entries from each rows and columns. Each row represents a vehicle class. First column is full vehicle class name that must match in-game vehicle class name. Second column is abbreviation name. Third column is color (HEX code). Double-click on color to open color dialog.
 
-To add new class, click `Add Class` button. Note, the editor can auto-detect and fill-in full vehicle class name from current active session. It is recommended to join or start a session with corresponding vehicle before adding new class entries.
+To add new class, click `Add Class` button. Note, the editor can auto-detect and fill-in player's full vehicle class name from current active session.
 
-To remove a class, click `X` button of a class row.
+To remove a class, click `X` button of a row.
 
 To reset all classes setting to default, click `Reset` button; or manually delete `classes.json` file.
 
