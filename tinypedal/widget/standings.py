@@ -80,6 +80,7 @@ class Draw(Overlay):
             ("",0),  # veh_class
             (0,0),  # tire_idx
             ("",0),  # laptime
+            ("",0),  # best laptime
             ("",0),  # time_gap
             (-1,0),  # pit_count
             ("",0),  # time_int
@@ -96,6 +97,7 @@ class Draw(Overlay):
         column_drv = self.wcfg["column_index_driver"]
         column_veh = self.wcfg["column_index_vehicle"]
         column_lpt = self.wcfg["column_index_laptime"]
+        column_blp = self.wcfg["column_index_best_laptime"]
         column_pic = self.wcfg["column_index_position_in_class"]
         column_cls = self.wcfg["column_index_class"]
         column_tcp = self.wcfg["column_index_tyre_compound"]
@@ -163,6 +165,16 @@ class Draw(Overlay):
                 f"{self.bar_width_lpt}"
             )
             self.generate_bar("lpt", bar_style_lpt, column_lpt)
+
+        # Vehicle best laptime
+        if self.wcfg["show_best_laptime"]:
+            self.bar_width_blp = f"min-width: {font_m.width * 8}px;"
+            bar_style_blp = (
+                f"color: {self.wcfg['font_color_best_laptime']};"
+                f"background: {self.wcfg['bkg_color_best_laptime']};"
+                f"{self.bar_width_blp}"
+            )
+            self.generate_bar("blp", bar_style_blp, column_blp)
 
         # Vehicle position in class
         if self.wcfg["show_position_in_class"]:
@@ -281,15 +293,15 @@ class Draw(Overlay):
                 # Time gap
                 if self.wcfg["show_time_gap"]:
                     self.update_gap(f"{idx}_gap",
-                                    getattr(self, f"veh_{idx}")[9],
-                                    getattr(self, f"last_veh_{idx}")[9],
+                                    getattr(self, f"veh_{idx}")[10],
+                                    getattr(self, f"last_veh_{idx}")[10],
                                     getattr(self, f"veh_{idx}")[0]  # is_player
                                     )
                 # Time interval
                 if self.wcfg["show_time_interval"]:
                     self.update_int(f"{idx}_int",
-                                    getattr(self, f"veh_{idx}")[11],
-                                    getattr(self, f"last_veh_{idx}")[11],
+                                    getattr(self, f"veh_{idx}")[12],
+                                    getattr(self, f"last_veh_{idx}")[12],
                                     getattr(self, f"veh_{idx}")[0]  # is_player
                                     )
                 # Vehicle laptime
@@ -297,6 +309,13 @@ class Draw(Overlay):
                     self.update_lpt(f"{idx}_lpt",
                                     getattr(self, f"veh_{idx}")[8],
                                     getattr(self, f"last_veh_{idx}")[8],
+                                    getattr(self, f"veh_{idx}")[0]  # is_player
+                                    )
+                # Vehicle best laptime
+                if self.wcfg["show_best_laptime"]:
+                    self.update_blp(f"{idx}_blp",
+                                    getattr(self, f"veh_{idx}")[9],
+                                    getattr(self, f"last_veh_{idx}")[9],
                                     getattr(self, f"veh_{idx}")[0]  # is_player
                                     )
                 # Vehicle position in class
@@ -328,8 +347,8 @@ class Draw(Overlay):
                 # Pitstop count
                 if self.wcfg["show_pitstop_count"]:
                     self.update_psc(f"{idx}_psc",
-                                    getattr(self, f"veh_{idx}")[10],
-                                    getattr(self, f"last_veh_{idx}")[10],
+                                    getattr(self, f"veh_{idx}")[11],
+                                    getattr(self, f"last_veh_{idx}")[11],
                                     getattr(self, f"veh_{idx}")[0]  # is_player
                                     )
                 # Store last data reading
@@ -439,6 +458,22 @@ class Draw(Overlay):
             getattr(self, f"row_{suffix}").setText(curr[0])
             getattr(self, f"row_{suffix}").setStyleSheet(
                 f"{color}{self.bar_width_lpt}"
+            )
+            self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
+
+    def update_blp(self, suffix, curr, last, isplayer):
+        """Vehicle best laptime"""
+        if curr != last:
+            if self.wcfg["show_player_highlighted"] and isplayer:
+                color = (f"color: {self.wcfg['font_color_player_best_laptime']};"
+                         f"background: {self.wcfg['bkg_color_player_best_laptime']};")
+            else:
+                color = (f"color: {self.wcfg['font_color_best_laptime']};"
+                         f"background: {self.wcfg['bkg_color_best_laptime']};")
+
+            getattr(self, f"row_{suffix}").setText(curr[0])
+            getattr(self, f"row_{suffix}").setStyleSheet(
+                f"{color}{self.bar_width_blp}"
             )
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 
@@ -573,6 +608,13 @@ class Draw(Overlay):
             return "OUT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
         return calc.sec2laptime_full(laptime_last)[:8].rjust(8)
 
+    @staticmethod
+    def set_best_laptime(laptime_best):
+        """Set best lap time"""
+        if laptime_best <= 0:
+            return "-:--.---"
+        return calc.sec2laptime_full(laptime_best)[:8].rjust(8)
+
     def gap_to_session_bestlap(self, bestlap, sbestlap, cbestlap):
         """Gap to session best laptime"""
         if self.wcfg["show_time_gap_from_class_best"]:
@@ -636,20 +678,15 @@ class Draw(Overlay):
             # 7 Tyre compound index
             tire_idx = (vehicles_data[index].tireCompound, is_player)
 
-            if api.read.session.in_race():
-                # 8 Lap time
+            in_race = api.read.session.in_race()
+
+            # 8 Lap time (last)
+            if self.wcfg["show_best_laptime"] or in_race:
                 laptime = (
                     self.set_laptime(
                         vehicles_data[index].inPit,
                         vehicles_data[index].lastLapTime,
                         vehicles_data[index].pitTime
-                    ),
-                    is_player)
-                # 9 Time gap
-                time_gap = (
-                    self.gap_to_leader_race(
-                        vehicles_data[index].gapBehindLeader,
-                        vehicles_data[index].position
                     ),
                     is_player)
             else:
@@ -660,6 +697,21 @@ class Draw(Overlay):
                         0
                     ),
                     is_player)
+
+            # 9 Best lap time
+            best_laptime = (
+                self.set_best_laptime(vehicles_data[index].bestLapTime),
+                is_player)
+
+            # 10 Time gap
+            if in_race:
+                time_gap = (
+                    self.gap_to_leader_race(
+                        vehicles_data[index].gapBehindLeader,
+                        vehicles_data[index].position
+                    ),
+                    is_player)
+            else:
                 time_gap = (
                     self.gap_to_session_bestlap(
                         vehicles_data[index].bestLapTime,
@@ -668,12 +720,12 @@ class Draw(Overlay):
                     ),
                     is_player)
 
-            # 10 Pitstop count
+            # 11 Pitstop count
             pit_count = (vehicles_data[index].numPitStops,
                          vehicles_data[index].pitState,
                          is_player)
 
-            # 11 Time interval
+            # 12 Time interval
             time_int = (
                 self.int_to_next(
                     vehicles_data[index].gapBehindNextInClass,
@@ -684,6 +736,6 @@ class Draw(Overlay):
                 is_player)
 
             return (is_player, in_pit, position, drv_name, veh_name, pos_class, veh_class,
-                    tire_idx, laptime, time_gap, pit_count, time_int)
+                    tire_idx, laptime, best_laptime, time_gap, pit_count, time_int)
         # Assign empty value to -1 index
         return self.empty_vehicles_data

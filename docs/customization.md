@@ -1402,7 +1402,10 @@ Show time interval from same class. This option only takes effect while `enable_
 Set text indicator for race leader in time interval column.
 
     show_laptime
-For race session, this option shows driver's last lap time or pit timer if available. For other none race sessions, this option shows driver's session best lap time.
+Show driver's last lap time or pit timer if available. If `show_best_laptime` is not enabled, this option will show driver's session best lap time in none-race sessions.
+
+    show_best_laptime
+Show driver's session best lap time.
 
 
 ## Steering

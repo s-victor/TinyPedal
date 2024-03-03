@@ -1,5 +1,13 @@
 WIP
 -----------------------------
+* Standings Widget
+  - Added "show_best_laptime" option,
+    which shows driver's session best lap time.
+    This option is disabled by default.
+    Note: when this option is disabled,
+    the other "show_laptime" option will
+    show best lap time in none-race sessions.
+
 * Tyre carcass Widget
   - [New]Added "show_rate_of_change" option,
     which shows carcass temeperature rate of change for a specific time interval.
