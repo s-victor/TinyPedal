@@ -381,10 +381,17 @@ class Draw(Overlay):
                 color = (f"color: {self.wcfg['font_color_driver_name']};"
                          f"background: {self.wcfg['bkg_color_driver_name']};")
 
-            text = curr[0].upper() if self.wcfg["driver_name_uppercase"] else curr[0]
+            if self.wcfg["driver_name_uppercase"]:
+                text = curr[0].upper()
+            else:
+                text = curr[0]
 
-            getattr(self, f"row_{suffix}").setText(
-                text[:self.drv_width].ljust(self.drv_width))
+            if self.wcfg["driver_name_align_center"]:
+                text = text[:self.drv_width]
+            else:
+                text = text[:self.drv_width].ljust(self.drv_width)
+
+            getattr(self, f"row_{suffix}").setText(text)
             getattr(self, f"row_{suffix}").setStyleSheet(
                 f"{color}{self.bar_width_drv}"
             )
@@ -405,10 +412,17 @@ class Draw(Overlay):
             else:
                 vname = curr[0]
 
-            text = vname.upper() if self.wcfg["vehicle_name_uppercase"] else vname
+            if self.wcfg["vehicle_name_uppercase"]:
+                text = vname.upper()
+            else:
+                text = vname
 
-            getattr(self, f"row_{suffix}").setText(
-                text[:self.veh_width].ljust(self.veh_width))
+            if self.wcfg["vehicle_name_align_center"]:
+                text = text[:self.veh_width]
+            else:
+                text = text[:self.veh_width].ljust(self.veh_width)
+
+            getattr(self, f"row_{suffix}").setText(text)
             getattr(self, f"row_{suffix}").setStyleSheet(
                 f"{color}{self.bar_width_veh}"
             )

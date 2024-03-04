@@ -30,6 +30,7 @@ CFG_BOOL = (
     "^minimize_to_tray$|"
     "^remember_position$|"
     # Partial match
+    "align_center|"
     "enable|"
     "show|"
     "swap_style|"

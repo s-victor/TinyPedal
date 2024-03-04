@@ -1,3 +1,17 @@
+2.9.1 (2024-03-04)
+-----------------------------
+* Relative Widget
+  - Added "driver_name_align_center" & "vehicle_name_align_center" options,
+    which align driver or vehicle name in the center when enabled.
+    Default is left alignment when disabled.
+
+* Standings Widget
+  - Added "driver_name_align_center" & "vehicle_name_align_center" options,
+    same as Relative Widget.
+
+* Misc
+  - Updated Relative, Standings Widget entries in user guide.
+
 2.9.0 (2024-03-04)
 -----------------------------
 * [New]Vehicle Brand Editor
