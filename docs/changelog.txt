@@ -1,4 +1,4 @@
-WIP
+2.9.0 (2024-03-04)
 -----------------------------
 * [New]Vehicle Brand Editor
   - Added a new Vehicle Brand Editor,
