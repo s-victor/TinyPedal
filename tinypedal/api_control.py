@@ -54,6 +54,7 @@ class APIControl:
 
     def start(self):
         """Start API"""
+        logger.info("ENCODING: %s", cfg.shared_memory_api["character_encoding"])
         logger.info("CONNECTING: %s API", self._api.NAME)
         self.setup()
         self._api.start()
@@ -79,7 +80,8 @@ class APIControl:
             access_mode = cfg.shared_memory_api["access_mode"],
             process_id = cfg.shared_memory_api["process_id"],
             player_override = cfg.shared_memory_api["enable_player_index_override"],
-            player_index = cfg.shared_memory_api["player_index"]
+            player_index = cfg.shared_memory_api["player_index"],
+            encoding = cfg.shared_memory_api["character_encoding"].lower(),
         )
 
     @property

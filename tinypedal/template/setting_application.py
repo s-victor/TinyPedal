@@ -49,6 +49,7 @@ APPLICATION_DEFAULT = {
         "active_state": True,
         "enable_player_index_override": False,
         "player_index": -1,
+        "character_encoding": "UTF-8",
     },
     "units": {
         "distance_unit": "Meter",

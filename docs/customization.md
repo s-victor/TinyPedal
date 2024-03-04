@@ -287,6 +287,9 @@ Set `true` to enable `player index` manual override.
     player_index
 Set `player index` override for displaying data from specific player. Valid player index range starts from `0` to max number players minus one, and must not exceed `127`. Set value to `-1` for unspecified player, which can be useful for display general standings and trackmap data (ex. broadcasting). This option works only when `enable_player_index_override` enabled.
 
+    character_encoding
+Set character encoding for displaying text in correct encoding. Available encoding: `UTF-8`, `ISO-8859-1`. Default encoding is `UTF-8`, which works best in LMU game. Note, `UTF-8` may not work well for some Latin characters in RF2, try use "ISO-8859-1" instead.
+
 
 ## Units and symbols
 **Units and symbols options can be accessed from `Config` menu in main window.**
@@ -1261,7 +1264,7 @@ Set drive name display width, value in chars, such as 10 = 10 chars.
 Show vehicle name.
 
     show_vehicle_brand_as_name
-Show vehicle brand name instead of vehicle name.
+Show vehicle brand name instead of vehicle name. If brand name does not exist, vehicle name will be displayed instead.
 
     vehicle_name_uppercase
 Set vehicle name to uppercase.

@@ -20,6 +20,7 @@ WIP
   - [New]Added "show_vehicle_brand_as_name" option,
     which shows vehicle brand name instead of vehicle name.
     Vehicle brand names are defined in "brands.json" file in "Settings" folder.
+    If brand name does not exist, vehicle name will be displayed instead.
 
 * Standings Widget
   - [New]Added "show_best_laptime" option,
@@ -39,10 +40,18 @@ WIP
     Default is 5 seconds.
   - Added "layout" & "column_index_*" options.
 
+* Shared memory API Config
+  - Added "character_encoding" option,
+    which sets character encoding for displaying text in correct encoding.
+    Default encoding is "UTF-8", which fixed some wrong text in LMU game.
+    Note, "UTF-8" may not work well for some Latin characters in RF2,
+    try use "ISO-8859-1" instead.
+
 * Misc
   - "brands" filename is now reserved for vehicle brands preset.
   - Added "Brands preset" section in user guide.
-  - Updated Flag, Relative, Standings, Tyre carcass Widget entries in user guide.
+  - Updated Shared memory API, Flag, Relative, Standings,
+    Tyre carcass Widget entries in user guide.
   - Updated README info for LMU.
 
 2.8.0 (2024-02-23)

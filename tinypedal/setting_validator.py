@@ -59,6 +59,11 @@ def remove_invalid_key(key_list_def: tuple, dict_user: dict):
                 if dict_user[key].lower() not in rxp.FONT_WEIGHT_LIST:
                     dict_user.pop(key)
                 continue
+            # Encoding string
+            if re.search(rxp.CFG_ENCODING, key):
+                if dict_user[key] not in rxp.ENCODING_LIST:
+                    dict_user.pop(key)
+                continue
             # String
             if re.search(
                 fmt.pipe_join(

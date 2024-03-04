@@ -22,10 +22,12 @@ API connector
 
 import logging
 from abc import ABC, abstractmethod
+from functools import partial
 
 # Import APIs
 from pyRfactor2SharedMemory import rF2MMap
 from .adapter import rfactor2
+from . import validator as val
 
 
 class DataSet:
@@ -57,7 +59,9 @@ class Connector(ABC):
         """Stop API"""
 
     @abstractmethod
-    def setup(self, access_mode: int, process_id: str, player_override: bool, player_index: int):
+    def setup(
+        self, access_mode: int, process_id: str, player_override: bool,
+        player_index: int, encoding: str):
         """Setup API parameters"""
 
     @abstractmethod
@@ -85,11 +89,12 @@ class SimRF2(Connector):
     def stop(self):
         self.info.stop()
 
-    def setup(self, access_mode, process_id, player_override, player_index):
+    def setup(self, access_mode, process_id, player_override, player_index, encoding):
         self.info.setMode(access_mode)
         self.info.setPID(process_id)
         self.info.setPlayerOverride(player_override)
         self.info.setPlayerIndex(player_index)
+        rfactor2.cs2py = partial(val.cbytes2str, char_encoding=encoding)
 
     def state(self):
         return not self.info.isPaused and self.read.vehicle.is_driving()
@@ -114,11 +119,12 @@ class SimDummy(Connector):
     def stop(self):
         self.info.stop()
 
-    def setup(self, access_mode, process_id, player_override, player_index):
+    def setup(self, access_mode, process_id, player_override, player_index, encoding):
         self.info.setMode(access_mode)
         self.info.setPID(process_id)
         self.info.setPlayerOverride(player_override)
         self.info.setPlayerIndex(player_index)
+        rfactor2.cs2py = partial(val.cbytes2str, char_encoding=encoding)
 
     def state(self):
         return not self.info.isPaused and self.read.vehicle.is_driving()
