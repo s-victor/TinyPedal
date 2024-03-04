@@ -55,14 +55,20 @@ Brands preset can be customized by accessing `Vehicle brand editor` from `Config
 
 To modify brands setting, open `Vehicle brand editor` and edit entries from each rows and columns. Each row represents a vehicle. First column is full vehicle name that must match in-game vehicle name. Second column is brand name.
 
-To import vehicle brand data, click `Import` button. Note, the importing feature is experimental, and currently only works with LMU, and maximum importing file size is limited to 512kb.
+To import vehicle brand data, click `Import` button. Imported data will be appended on top of existing data, and same existing data will be updated with new name.
 
     How to export vehicle brand data from game API:
     1. Start game, then open following link in web browser:
     localhost:6397/rest/sessions/getAllAvailableVehicles
     2. Click "Save" button which saves vehicle data to JSON file.
 
+Note, the importing feature is experimental, and currently only tested with LMU. Maximum importing file size is limited to 512kb.
+
 To add new brand name, click `Add` button. Note, the editor can auto-detect and fill-in player's full vehicle name from current active session.
+
+To sort brand name in orders, click `Sort` button.
+
+To batch rename brand name, click `Rename` button.
 
 To remove a brand name, click `X` button of a row.
 

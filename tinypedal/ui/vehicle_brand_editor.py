@@ -38,7 +38,8 @@ from PySide2.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QMessageBox,
-    QFileDialog
+    QFileDialog,
+    QComboBox
 )
 
 from ..api_control import api
@@ -58,7 +59,7 @@ class VehicleBrandEditor(QDialog):
         self.setWindowTitle("Vehicle Brand Editor")
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
-        self.setMinimumSize(400, 400)
+        self.setMinimumSize(500, 500)
 
         self.option_brands = []
         self.brands_temp = copy_setting(cfg.brands_user)
@@ -82,6 +83,14 @@ class VehicleBrandEditor(QDialog):
         button_add.clicked.connect(self.add_brand)
         button_add.setStyleSheet("padding: 3px 7px;")
 
+        button_sort = QPushButton("Sort")
+        button_sort.clicked.connect(self.sort_brand)
+        button_sort.setStyleSheet("padding: 3px 7px;")
+
+        button_rename = QPushButton("Rename")
+        button_rename.clicked.connect(self.open_rename_brand)
+        button_rename.setStyleSheet("padding: 3px 7px;")
+
         button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
         button_reset.clicked.connect(self.reset_setting)
         button_reset.setStyleSheet("padding: 3px 7px;")
@@ -102,6 +111,8 @@ class VehicleBrandEditor(QDialog):
 
         layout_button.addWidget(button_import)
         layout_button.addWidget(button_add)
+        layout_button.addWidget(button_sort)
+        layout_button.addWidget(button_rename)
         layout_button.addWidget(button_reset)
         layout_button.addStretch(1)
         layout_button.addWidget(button_apply)
@@ -160,40 +171,64 @@ class VehicleBrandEditor(QDialog):
                 break
         self.refresh_list()
 
+    def open_rename_brand(self):
+        """Open rename brand dialog"""
+        _dialog = BatchRenameBrand(self)
+        _dialog.open()
+
+    def batch_renaming(self, source, target):
+        """rename brand entries"""
+        for key, item in self.brands_temp.items():
+            if item == source:
+                self.brands_temp[key] = target
+        self.refresh_list()
+
+    def sort_brand(self):
+        """Sort brands in ascending order"""
+        self.update_brands_temp()
+        self.brands_temp = dict(
+            sorted(self.brands_temp.items(), key=lambda keys: keys[1]))
+        self.refresh_list()
+
     def import_brand(self):
         """Import brand entries"""
         veh_file_data = QFileDialog.getOpenFileName(self, filter="*.json")
-        if veh_file_data[0]:
-            try:
-                if os.path.getsize(veh_file_data[0]) > 512000:
-                    raise TypeError
+        if not veh_file_data[0]:
+            return None
 
-                with open(veh_file_data[0], "r", encoding="utf-8") as jsonfile:
-                    dict_vehicles = json.load(jsonfile)
-                    dict_type = 0
+        try:
+            # Limit import file size under 512kb
+            if os.path.getsize(veh_file_data[0]) > 512000:
+                raise TypeError
 
-                    for veh in dict_vehicles:
-                        if veh.get("desc"):
-                            dict_type = 1
-                            break
-                        if veh.get("name"):
-                            dict_type = 2
-                            break
+            # Load JSON
+            with open(veh_file_data[0], "r", encoding="utf-8") as jsonfile:
+                dict_vehicles = json.load(jsonfile)
+                dict_type = 0
 
-                    if dict_type == 1:
-                        brands_db = {veh["desc"]: veh["manufacturer"] for veh in dict_vehicles}
-                    else:
-                        raise KeyError
+                for veh in dict_vehicles:
+                    if veh.get("desc"):
+                        dict_type = 1
+                        break
+                    if veh.get("name"):
+                        dict_type = 2
+                        break
 
-                    self.brands_temp.update(brands_db)
-                    self.refresh_list()
-                    QMessageBox.information(
-                        self, "Data Imported", "Vehicle brand data imported.")
-            except (KeyError, TypeError, FileNotFoundError, json.decoder.JSONDecodeError):
-                logger.error("Failed importing %s", veh_file_data[0])
-                QMessageBox.warning(
-                    self, "Error",
-                    "Cannot import selected file.\n\nInvalid vehicle data file.")
+                if dict_type == 1:
+                    brands_db = {veh["desc"]: veh["manufacturer"] for veh in dict_vehicles}
+                else:
+                    raise KeyError
+
+                self.brands_temp.update(brands_db)
+                self.refresh_list()
+                QMessageBox.information(
+                    self, "Data Imported", "Vehicle brand data imported.")
+        except (KeyError, TypeError, FileNotFoundError, json.decoder.JSONDecodeError):
+            logger.error("Failed importing %s", veh_file_data[0])
+            QMessageBox.warning(
+                self, "Error",
+                "Cannot import selected file.\n\nInvalid vehicle data file.")
+        return None
 
     def add_brand(self):
         """Add new brand entry"""
@@ -246,3 +281,61 @@ class VehicleBrandEditor(QDialog):
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
         wctrl.reload()
+
+
+class BatchRenameBrand(QDialog):
+    """Batch rename brand"""
+
+    def __init__(self, master):
+        super().__init__(master)
+        self.master = master
+        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
+        self.setWindowTitle("Batch Rename Brand")
+        self.setWindowIcon(QIcon(APP_ICON))
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        self.setMinimumWidth(340)
+
+        # Label & combobox
+        brands_list = sorted(set(self.master.brands_temp.values()))
+
+        self.brands_selector = QComboBox()
+        self.brands_selector.addItems(brands_list)
+        self.brand_entry = QLineEdit()
+        self.brand_entry.setPlaceholderText("Enter a new name")
+
+        layout_option = QHBoxLayout()
+        layout_option.setAlignment(Qt.AlignTop)
+        layout_option.addWidget(self.brands_selector, stretch=2)
+        layout_option.addWidget(self.brand_entry, stretch=3)
+
+        # Button
+        button_rename = QPushButton("Rename")
+        button_rename.clicked.connect(self.renaming)
+
+        button_cancel = QDialogButtonBox(QDialogButtonBox.Cancel)
+        button_cancel.rejected.connect(self.reject)
+
+        layout_button = QHBoxLayout()
+        layout_button.addStretch(1)
+        layout_button.addWidget(button_rename)
+        layout_button.addWidget(button_cancel)
+
+        # Set layout
+        layout_main = QVBoxLayout()
+        layout_main.addLayout(layout_option)
+        layout_main.addLayout(layout_button)
+        self.setLayout(layout_main)
+
+    def renaming(self):
+        """Rename"""
+        if not self.brand_entry.text():
+            QMessageBox.warning(
+                self, "Error", "Invalid name.")
+            return None
+
+        self.master.batch_renaming(
+            self.brands_selector.currentText(),
+            self.brand_entry.text()
+        )
+        self.accept()  # close
+        return None

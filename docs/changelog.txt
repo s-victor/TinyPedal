@@ -4,18 +4,16 @@ WIP
   - Added a new Vehicle Brand Editor,
     which can be used for substituting vehicle names
     with custom vehicle brand names.
-    Basic usage & functions are very similar to Vehicle Class Editor.
-    The new editor also supports importing
-    vehicle JSON data file that exported from game's REST API.
-    However the importing feature is experimental,
-    and currently only works with LMU,
-    and max importing file size is limited to 512kb.
+    The new editor supports functions including:
+    import, add, sort, batch rename, reset.
+    The import function allows user to import
+    vehicle JSON data file that exported from game API.
     See "Brands preset" section in user guide for details.
 
 * Relative Widget
   - Added "show_vehicle_brand_as_name" option,
     which shows vehicle brand name instead of vehicle name.
-    Vehicle brand names are definded in "brands.json" file in "Settings" folder.
+    Vehicle brand names are defined in "brands.json" file in "Settings" folder.
 
 * Standings Widget
   - Added "show_best_laptime" option,
@@ -29,7 +27,7 @@ WIP
 
 * Tyre carcass Widget
   - [New]Added "show_rate_of_change" option,
-    which shows carcass temeperature rate of change for a specific time interval.
+    which shows carcass temperature rate of change for a specific time interval.
   - Added "rate_of_change_interval" option,
     which sets time interval (in seconds) for rate of change calculation.
     Default is 5 seconds.
