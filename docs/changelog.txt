@@ -10,19 +10,25 @@ WIP
     vehicle JSON data file that exported from game API.
     See "Brands preset" section in user guide for details.
 
+* Flag Widget
+  - [New]Added "show_pit_request" option,
+    which shows pit request state.
+  - [New]Added "show_finish_state" option,
+    which shows finish or disqualify state.
+
 * Relative Widget
-  - Added "show_vehicle_brand_as_name" option,
+  - [New]Added "show_vehicle_brand_as_name" option,
     which shows vehicle brand name instead of vehicle name.
     Vehicle brand names are defined in "brands.json" file in "Settings" folder.
 
 * Standings Widget
-  - Added "show_best_laptime" option,
+  - [New]Added "show_best_laptime" option,
     which shows driver's session best lap time.
     This option is disabled by default.
     Note: when this option is disabled,
     the other "show_laptime" option will
     show best lap time in none-race sessions.
-  - Added "show_vehicle_brand_as_name" option,
+  - [New]Added "show_vehicle_brand_as_name" option,
     same as Relative Widget.
 
 * Tyre carcass Widget
@@ -36,7 +42,7 @@ WIP
 * Misc
   - "brands" filename is now reserved for vehicle brands preset.
   - Added "Brands preset" section in user guide.
-  - Updated Relative, Standings, Tyre carcass Widget entries in user guide.
+  - Updated Flag, Relative, Standings, Tyre carcass Widget entries in user guide.
   - Updated README info for LMU.
 
 2.8.0 (2024-02-23)

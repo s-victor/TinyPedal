@@ -67,6 +67,8 @@ class Draw(Overlay):
         column_blue = self.wcfg["column_index_blue_flag"]
         column_slit = self.wcfg["column_index_startlights"]
         column_icom = self.wcfg["column_index_traffic"]
+        column_preq = self.wcfg["column_index_pit_request"]
+        column_fins = self.wcfg["column_index_finish_state"]
 
         # Pit status
         if self.wcfg["show_pit_timer"]:
@@ -131,6 +133,24 @@ class Draw(Overlay):
                 f"background: {self.wcfg['bkg_color_traffic']};"
             )
 
+        # Pit request
+        if self.wcfg["show_pit_request"]:
+            self.bar_pit_request = QLabel("PIT REQ")
+            self.bar_pit_request.setAlignment(Qt.AlignCenter)
+            self.bar_pit_request.setStyleSheet(
+                f"color: {self.wcfg['font_color_pit_request']};"
+                f"background: {self.wcfg['bkg_color_pit_request']};"
+            )
+
+        # Finish state
+        if self.wcfg["show_finish_state"]:
+            self.bar_finish_state = QLabel("FINISH")
+            self.bar_finish_state.setAlignment(Qt.AlignCenter)
+            self.bar_finish_state.setStyleSheet(
+                f"color: {self.wcfg['font_color_finish']};"
+                f"background: {self.wcfg['bkg_color_finish']};"
+            )
+
         # Set layout
         if self.wcfg["layout"] == 0:
             # Vertical layout
@@ -148,6 +168,10 @@ class Draw(Overlay):
                 layout.addWidget(self.bar_startlights, column_slit, 0)
             if self.wcfg["show_traffic"]:
                 layout.addWidget(self.bar_traffic, column_icom, 0)
+            if self.wcfg["show_pit_request"]:
+                layout.addWidget(self.bar_pit_request, column_preq, 0)
+            if self.wcfg["show_finish_state"]:
+                layout.addWidget(self.bar_finish_state, column_fins, 0)
         else:
             # Horizontal layout
             if self.wcfg["show_pit_timer"]:
@@ -164,6 +188,10 @@ class Draw(Overlay):
                 layout.addWidget(self.bar_startlights, 0, column_slit)
             if self.wcfg["show_traffic"]:
                 layout.addWidget(self.bar_traffic, 0, column_icom)
+            if self.wcfg["show_pit_request"]:
+                layout.addWidget(self.bar_pit_request, 0, column_preq)
+            if self.wcfg["show_finish_state"]:
+                layout.addWidget(self.bar_finish_state, 0, column_fins)
         self.setLayout(layout)
 
         # Last data
@@ -188,6 +216,8 @@ class Draw(Overlay):
         self.last_lap_stime = 0
         self.last_traffic = None
         self.traffic_timer_start = None
+        self.last_pit_request = None
+        self.last_finish_state = None
 
     @Slot()
     def update_data(self):
@@ -316,6 +346,18 @@ class Draw(Overlay):
                 self.update_traffic(traffic, self.last_traffic)
                 self.last_traffic = traffic
 
+            # Pit request
+            if self.wcfg["show_pit_request"]:
+                pit_request = api.read.vehicle.pit_state()
+                self.update_pit_request(pit_request, self.last_pit_request)
+                self.last_pit_request = pit_request
+
+            # Finish state
+            if self.wcfg["show_finish_state"]:
+                finish_state = api.read.vehicle.finish_state()
+                self.update_finish_state(finish_state, self.last_finish_state)
+                self.last_finish_state = finish_state
+
             # Reset
             if in_pits != self.last_in_pits:
                 self.last_in_pits = in_pits
@@ -418,3 +460,29 @@ class Draw(Overlay):
                 self.bar_traffic.show()
             else:
                 self.bar_traffic.hide()
+
+    def update_pit_request(self, curr, last):
+        """Pit request"""
+        if curr != last:
+            if curr == 1:
+                self.bar_pit_request.show()
+            else:
+                self.bar_pit_request.hide()
+
+    def update_finish_state(self, curr, last):
+        """Finish state"""
+        if curr != last:
+            if curr == 1:
+                self.bar_finish_state.setText(self.wcfg["finish_text"])
+                self.bar_finish_state.setStyleSheet(
+                    f"color: {self.wcfg['font_color_finish']};"
+                    f"background: {self.wcfg['bkg_color_finish']};")
+                self.bar_finish_state.show()
+            elif curr == 3:
+                self.bar_finish_state.setText(self.wcfg["disqualify_text"])
+                self.bar_finish_state.setStyleSheet(
+                    f"color: {self.wcfg['font_color_disqualify']};"
+                    f"background: {self.wcfg['bkg_color_disqualify']};")
+                self.bar_finish_state.show()
+            else:
+                self.bar_finish_state.hide()

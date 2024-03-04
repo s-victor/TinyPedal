@@ -710,6 +710,12 @@ Set maximum time gap (seconds) of incoming on-track traffic.
     traffic_pitout_duration
 Set traffic indicator extended duration (seconds) after pit-out.
 
+    show_pit_request
+Show pit request state.
+
+    show_finish_state
+Show finish or disqualify state.
+
 
 ## Force
 **This widget displays g force and downforce info.**
