@@ -1,3 +1,19 @@
+2.9.3 (2024-03-05)
+-----------------------------
+* [New]Rivals Widget
+  - Added new Rivals Widget, which displays standings info
+    from opponent ahead and behind local player from same vehicle class.
+    Most options are same as from Standings or Relative Widget.
+  - Added "*_color_time_interval_ahead" & "*_color_time_interval_behind"
+    color options for customize time interval display.
+
+* Relative Module
+  - Added addition calculation for finding opponent ahead and behind
+    local player from same vehicle class.
+
+* Misc
+  - Added Rivals Widget entries in user guide.
+
 2.9.2 (2024-03-05)
 -----------------------------
 * Vehicle Brand Editor

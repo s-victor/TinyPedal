@@ -187,8 +187,10 @@ class Realtime:
         initial_class = sorted_veh_class[0][0]
         position_in_class = 0
         player_index_ahead = -1
+        player_index_behind = -1
+        total_veh = len(sorted_veh_class)
 
-        for veh_sort in sorted_veh_class:
+        for idx, veh_sort in enumerate(sorted_veh_class):
             if veh_sort[0] == initial_class:
                 position_in_class += 1
             else:
@@ -199,6 +201,12 @@ class Realtime:
                 laptime_class_best = veh_sort[3]
                 player_index_ahead = -1  # no player ahead
 
+            if (idx + 1 < total_veh  # check next index within range
+                and sorted_veh_class[idx + 1][0] == veh_sort[0]):  # next player is in same class
+                player_index_behind = sorted_veh_class[idx + 1][2]
+            else:
+                player_index_behind = -1
+
             yield (
                 veh_sort[2],       # 0 - 2 player index
                 position_in_class,  # 1 - position in class
@@ -206,6 +214,7 @@ class Realtime:
                 laptime_session_best,  # 3 session best
                 laptime_class_best,  # 4 classes best
                 player_index_ahead,  # 5 player index ahead
+                player_index_behind,  # 6 player index behind
             )
             player_index_ahead = veh_sort[2]
 

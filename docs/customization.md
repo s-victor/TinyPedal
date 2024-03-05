@@ -1284,7 +1284,7 @@ Set vehicle name display width, value in chars, such as 10 = 10 chars.
 Align vehicle name in the center when enabled. Default is left alignment when disabled.
 
     show_time_gap
-Show relative time gap between player and opponents. 
+Show relative time gap between player and opponents.
 
     time_gap_width
 Set time gap display width, value is in chars, 5 = 5 chars wide.
@@ -1334,6 +1334,13 @@ Set visualized maximum ride height range (millimeter).
 
     rideheight_offset*
 Set ride height offset for bottoming indicator. Value in millimeters, but without decimal place.
+
+
+## Rivals
+**This widget displays standings info from opponent ahead and behind local player from same vehicle class. Most options are inherited from relative widget, with some additions noted below.**
+
+    *_color_time_interval_ahead, *_color_time_interval_behind
+Set custom time interval color of opponent ahead and behind.
 
 
 ## Sectors

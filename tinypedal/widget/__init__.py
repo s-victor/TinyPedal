@@ -51,6 +51,7 @@ from . import (
     rake_angle,
     relative,
     ride_height,
+    rivals,
     sectors,
     session,
     speedometer,
