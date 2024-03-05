@@ -1,3 +1,18 @@
+2.9.2 (2024-03-05)
+-----------------------------
+* Vehicle Brand Editor
+  - Added support for importing vehicle data from RF2.
+    How to export vehicle brand data from RF2 API:
+    1. Start RF2, then open following link in web browser:
+    localhost:5397/rest/race/car
+    2. Click "Save" button which saves vehicle data to JSON file.
+    Max importing file size is limited to 5mb.
+  - Replaced editor List view with Table view,
+    which is more efficient when processing large data set.
+
+* Misc
+  - Updated Brands preset entries in user guide.
+
 2.9.1 (2024-03-04)
 -----------------------------
 * Relative Widget

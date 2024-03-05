@@ -57,12 +57,17 @@ To modify brands setting, open `Vehicle brand editor` and edit entries from each
 
 To import vehicle brand data, click `Import` button. Imported data will be appended on top of existing data, and same existing data will be updated with new name.
 
-    How to export vehicle brand data from game API:
-    1. Start game, then open following link in web browser:
+    How to export vehicle brand data from RF2 API:
+    1. Start RF2, then open following link in web browser:
+    localhost:5397/rest/race/car
+    2. Click "Save" button which saves vehicle data to JSON file.
+
+    How to export vehicle brand data from LMU API:
+    1. Start LMU, then open following link in web browser:
     localhost:6397/rest/sessions/getAllAvailableVehicles
     2. Click "Save" button which saves vehicle data to JSON file.
 
-Note, the importing feature is experimental, and currently only tested with LMU. Maximum importing file size is limited to 512kb.
+Note, the importing feature is experimental, and currently only tested with LMU. Maximum importing file size is limited to 5mb.
 
 To add new brand name, click `Add` button. Note, the editor can auto-detect and fill-in player's full vehicle name from current active session.
 
