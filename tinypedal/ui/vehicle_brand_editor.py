@@ -68,7 +68,6 @@ class VehicleBrandEditor(QDialog):
         # Brands table
         self.table_brands = QTableWidget(self)
         self.table_brands.setColumnCount(2)
-        self.table_brands.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
         self.table_brands.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_brands.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.table_brands.setSelectionMode(QAbstractItemView.SingleSelection)
@@ -134,10 +133,6 @@ class VehicleBrandEditor(QDialog):
         row_index = 0
 
         for key, item in self.brands_temp.items():
-            layout_item = QHBoxLayout()
-            layout_item.setContentsMargins(4,4,4,4)
-            layout_item.setSpacing(4)
-
             item_key = QTableWidgetItem()
             item_key.setText(key)
             item_item = QTableWidgetItem()
