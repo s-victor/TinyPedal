@@ -1,5 +1,8 @@
 """
 py2exe build script
+
+Args:
+    -c, --clean: force remove old build folder before building.
 """
 
 import re
@@ -100,23 +103,34 @@ def check_dist(build_ready=False) -> bool:
 def check_old_build(build_ready=False) -> bool:
     """Check whether old build folder exist"""
     if os.path.exists(f"{DIST_FOLDER}{APP_NAME}"):
-        build_ready = False
-        is_remove = input("INFO:Found old build files, remove before building? Yes/No/Quit \n")
+        print("INFO:Found old build folder")
+
+        for _arg in sys.argv:
+            if re.match("^-c$|^--clean$", _arg):
+                build_ready = delete_old_build()
+                return build_ready
+
+        is_remove = input("INFO:Remove old build folder before building? Yes/No/Quit \n")
 
         if re.match("y", is_remove, flags=re.IGNORECASE):
-            try:
-                shutil.rmtree(f"{DIST_FOLDER}{APP_NAME}/")
-                print("INFO:Old build files removed")
-                build_ready = True
-            except (PermissionError, OSError):
-                build_ready = False
-                print("ERROR:Cannot delete build folder")
+            build_ready = delete_old_build()
         elif re.match("q", is_remove, flags=re.IGNORECASE):
             build_ready = False
         else:
             build_ready = True
             print("WARNING:Building without removing old files")
     return build_ready
+
+
+def delete_old_build() -> bool:
+    """Delete old build folder"""
+    try:
+        shutil.rmtree(f"{DIST_FOLDER}{APP_NAME}/")
+        print("INFO:Old build files removed")
+        return True
+    except (PermissionError, OSError):
+        print("ERROR:Cannot delete build folder")
+        return False
 
 
 def build_exe() -> None:
