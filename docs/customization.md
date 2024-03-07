@@ -1259,6 +1259,9 @@ Show overall position standings.
     show_driver_name
 Show driver name.
 
+    driver_name_shorten
+Shorten driver's first name to a single letter. Note, if a driver is using nickname that consists only a single word, the name will not be shortened.
+
     driver_name_uppercase
 Set driver name to uppercase.
 
@@ -1337,7 +1340,7 @@ Set ride height offset for bottoming indicator. Value in millimeters, but withou
 
 
 ## Rivals
-**This widget displays standings info from opponent ahead and behind local player from same vehicle class. Most options are inherited from relative widget, with some additions noted below.**
+**This widget displays standings info from opponent ahead and behind local player from same vehicle class. Most options are inherited from relative & standings widget, with some additions noted below.**
 
     *_color_time_interval_ahead, *_color_time_interval_behind
 Set custom time interval color of opponent ahead and behind.

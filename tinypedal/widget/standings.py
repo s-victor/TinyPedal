@@ -381,10 +381,13 @@ class Draw(Overlay):
                 color = (f"color: {self.wcfg['font_color_driver_name']};"
                          f"background: {self.wcfg['bkg_color_driver_name']};")
 
-            if self.wcfg["driver_name_uppercase"]:
-                text = curr[0].upper()
+            if self.wcfg["driver_name_shorten"]:
+                text = fmt.shorten_driver_name(curr[0])
             else:
                 text = curr[0]
+
+            if self.wcfg["driver_name_uppercase"]:
+                text = text.upper()
 
             if self.wcfg["driver_name_align_center"]:
                 text = text[:self.drv_width]
@@ -615,7 +618,7 @@ class Draw(Overlay):
         if vehclass_name in self.cfg.classes_user:
             return tuple(*self.cfg.classes_user[vehclass_name].items())  # sub_name, sub_color
         if vehclass_name and self.wcfg["show_random_color_for_unknown_class"]:
-            return vehclass_name, calc.random_color_class(vehclass_name)
+            return vehclass_name, fmt.random_color_class(vehclass_name)
         return vehclass_name, self.wcfg["bkg_color_class"]
 
     @staticmethod

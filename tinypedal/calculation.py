@@ -21,9 +21,7 @@ Calculation function
 """
 
 import math
-import random
 import statistics
-from functools import lru_cache
 
 
 def vel2speed(vel_x, vel_y, vel_z):
@@ -377,15 +375,6 @@ def line_intersect_coords(coord_a, coord_b, radians, length):
             pos_y1 + coord_a[1],
             pos_x2 + coord_a[0],
             pos_y2 + coord_a[1])
-
-
-@lru_cache(maxsize=20)
-def random_color_class(name: str) -> str:
-    """Generate random color for vehicle class"""
-    random.seed(name)
-    rgb = [30,180,random.randrange(30,180)]
-    random.shuffle(rgb)
-    return f"#{rgb[0]:02X}{rgb[1]:02X}{rgb[2]:02X}"
 
 
 def session_best_laptime(data_list: list, column: int, laptime: int = 99999):

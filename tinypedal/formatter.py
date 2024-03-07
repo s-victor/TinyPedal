@@ -21,7 +21,9 @@ Formatter function
 """
 
 from __future__ import annotations
+import random
 import re
+from functools import lru_cache
 
 from . import regex_pattern as rxp
 
@@ -61,6 +63,24 @@ def strip_filename_extension(name: str, extension: str) -> str:
 def select_gear(index: int) -> str:
     """Select gear string"""
     return rxp.GEAR_SEQUENCE.get(index, "N")
+
+
+@lru_cache(maxsize=20)
+def random_color_class(name: str) -> str:
+    """Generate random color for vehicle class"""
+    random.seed(name)
+    rgb = [30,180,random.randrange(30,180)]
+    random.shuffle(rgb)
+    return f"#{rgb[0]:02X}{rgb[1]:02X}{rgb[2]:02X}"
+
+
+@lru_cache(maxsize=128)
+def shorten_driver_name(name: str) -> str:
+    """Shorten driver name"""
+    rex_string = re.split(r"( )", name)
+    if len(rex_string) > 1:
+        return f"{rex_string[0][:1]}.{rex_string[-1]}".title()
+    return rex_string[-1]
 
 
 def pipe_join(*args: any) -> str:

@@ -32,6 +32,7 @@ CFG_BOOL = (
     # Partial match
     "align_center|"
     "enable|"
+    "shorten|"
     "show|"
     "swap_style|"
     "uppercase"

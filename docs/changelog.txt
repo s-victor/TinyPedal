@@ -1,3 +1,18 @@
+WIP
+-----------------------------
+* General
+  - Added "driver_name_shorten" option for
+    Relative, Rivals, Standings Widgets,
+    which shortens driver's first name to a single letter.
+    Note, if a driver is using nickname that consists only a single word,
+    the name will not be shortened.
+
+* Vehicle Brand Editor
+  - Removed some obsolete code.
+
+* Misc
+  - Updated Relative Widget entries in user guide.
+
 2.9.3 (2024-03-05)
 -----------------------------
 * [New]Rivals Widget
