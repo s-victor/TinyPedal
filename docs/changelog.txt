@@ -1,9 +1,11 @@
-WIP
+2.9.4 (2024-03-07)
 -----------------------------
 * General
   - Added "driver_name_shorten" option for
     Relative, Rivals, Standings Widgets,
-    which shortens driver's first name to a single letter.
+    which shortens driver's first name to a single letter
+    with a period separating driver's last name,
+    and any middle names will not be displayed.
     Note, if a driver is using nickname that consists only a single word,
     the name will not be shortened.
 

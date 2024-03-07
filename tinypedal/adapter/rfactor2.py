@@ -21,7 +21,6 @@ Data set for rFactor 2
 """
 
 from __future__ import annotations
-from functools import partial
 
 from . import DataAdapter
 from .. import calculation as calc
@@ -29,7 +28,7 @@ from .. import formatter as fmt
 from .. import validator as val
 
 chknm = val.infnan2zero
-cs2py = partial(val.cbytes2str, char_encoding="iso-8859-1")
+cs2py = val.cbytes2str
 
 # 0 = TESTDAY, 1 = PRACTICE, 2 = QUALIFY, 3 = WARMUP, 4 = RACE
 RF2_SESSION_TYPE = (0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4, 4, 4, 0, 0, 0, 0)

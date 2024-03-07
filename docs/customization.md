@@ -1260,7 +1260,7 @@ Show overall position standings.
 Show driver name.
 
     driver_name_shorten
-Shorten driver's first name to a single letter. Note, if a driver is using nickname that consists only a single word, the name will not be shortened.
+Shorten driver's first name to a single letter with a period separating driver's last name, and any middle names will not be displayed. Note, if a driver is using nickname that consists only a single word, the name will not be shortened.
 
     driver_name_uppercase
 Set driver name to uppercase.
