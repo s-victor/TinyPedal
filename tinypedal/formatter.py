@@ -77,8 +77,8 @@ def random_color_class(name: str) -> str:
 @lru_cache(maxsize=128)
 def shorten_driver_name(name: str) -> str:
     """Shorten driver name"""
-    rex_string = re.split(r"( )", name)
-    if len(rex_string) > 1:
+    rex_string = re.split(r"( )", name.strip(" "))
+    if len(rex_string) > 2:
         return f"{rex_string[0][:1]}.{rex_string[-1]}".title()
     return rex_string[-1]
 
