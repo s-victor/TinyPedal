@@ -1702,8 +1702,11 @@ Show tyre wear difference of current lap that constantly updated.
     freeze_duration
 Set freeze duration (seconds) for previous lap tyre wear info if `show_live_wear_difference` is enabled.
 
-    show_lifespan
+    show_lifespan_laps
 Show estimated tyre lifespan in laps.
+
+    show_lifespan_mins
+Show estimated tyre lifespan in minutes.
 
     warning_threshold_remaining
 Set warning threshold for total remaining tyre in percentage. Default is `30` percent.
@@ -1713,6 +1716,9 @@ Set warning threshold for total amount tyre wear of last lap in percentage. Defa
 
     warning_threshold_laps
 Set warning threshold for estimated tyre lifespan in laps. Default is `5` laps.
+
+    warning_threshold_mins
+Set warning threshold for estimated tyre lifespan in minutes. Default is `5` laps.
 
 
 ## Weather

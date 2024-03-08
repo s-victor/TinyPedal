@@ -1,3 +1,14 @@
+WIP
+-----------------------------
+* Tyre wear Widget
+  - Added "show_lifespan_mins" option,
+    which shows tyre lifespan in minutes.
+  - Added "warning_threshold_mins" option,
+    which sets warning threshold for
+    estimated tyre lifespan in minutes.
+    Default is `6` minutes.
+  - Renamed "show_lifespan" option to "show_lifespan_laps".
+
 2.9.4 (2024-03-07)
 -----------------------------
 * General
