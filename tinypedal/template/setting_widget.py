@@ -1671,7 +1671,7 @@ WIDGET_DEFAULT = {
         "bkg_color_caption": "#777777",
         "column_index_remaining": 1,
         "column_index_wear_difference": 2,
-        "column_index_life_span": 3,
+        "column_index_lifespan": 3,
     },
     "weather": {
         "enable": True,

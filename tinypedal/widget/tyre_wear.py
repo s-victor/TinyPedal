@@ -68,7 +68,7 @@ class Draw(Overlay):
 
         column_twear = self.wcfg["column_index_remaining"]
         column_tdiff = self.wcfg["column_index_wear_difference"]
-        column_tlaps = self.wcfg["column_index_life_span"]
+        column_tlaps = self.wcfg["column_index_lifespan"]
 
         # Caption
         if self.wcfg["show_caption"]:
@@ -218,7 +218,7 @@ class Draw(Overlay):
 
             # Update tyre wear differences
             self.wear_last, self.wear_live = zip(
-                *tuple(map(self.wear_diff, wear_curr, self.wear_last, self.wear_live)))
+                *map(self.wear_diff, wear_curr, self.wear_last, self.wear_live))
 
             if lap_stime != self.last_lap_stime:  # time stamp difference
                 self.wear_per = self.wear_live
