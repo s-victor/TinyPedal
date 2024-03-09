@@ -692,26 +692,26 @@ class Wheel(DataAdapter):
     def slip_angle_fl(self, index: int | None = None) -> float:
         """Slip angle (radians) front left"""
         return calc.slip_angle(
-            self.info.rf2TeleVeh(index).mWheels[0].mLateralGroundVel,
-            self.info.rf2TeleVeh(index).mWheels[0].mLongitudinalGroundVel)
+            chknm(self.info.rf2TeleVeh(index).mWheels[0].mLateralGroundVel),
+            chknm(self.info.rf2TeleVeh(index).mWheels[0].mLongitudinalGroundVel))
 
     def slip_angle_fr(self, index: int | None = None) -> float:
         """Slip angle (radians) front right"""
         return calc.slip_angle(
-            self.info.rf2TeleVeh(index).mWheels[1].mLateralGroundVel,
-            self.info.rf2TeleVeh(index).mWheels[1].mLongitudinalGroundVel)
+            chknm(self.info.rf2TeleVeh(index).mWheels[1].mLateralGroundVel),
+            chknm(self.info.rf2TeleVeh(index).mWheels[1].mLongitudinalGroundVel))
 
     def slip_angle_rl(self, index: int | None = None) -> float:
         """Slip angle (radians) rear left"""
         return calc.slip_angle(
-            self.info.rf2TeleVeh(index).mWheels[2].mLateralGroundVel,
-            self.info.rf2TeleVeh(index).mWheels[2].mLongitudinalGroundVel)
+            chknm(self.info.rf2TeleVeh(index).mWheels[2].mLateralGroundVel),
+            chknm(self.info.rf2TeleVeh(index).mWheels[2].mLongitudinalGroundVel))
 
     def slip_angle_rr(self, index: int | None = None) -> float:
         """Slip angle (radians) rear right"""
         return calc.slip_angle(
-            self.info.rf2TeleVeh(index).mWheels[3].mLateralGroundVel,
-            self.info.rf2TeleVeh(index).mWheels[3].mLongitudinalGroundVel)
+            chknm(self.info.rf2TeleVeh(index).mWheels[3].mLateralGroundVel),
+            chknm(self.info.rf2TeleVeh(index).mWheels[3].mLongitudinalGroundVel))
 
     def ride_height(self, index: int | None = None) -> list[float]:
         """Ride height (millmeters)"""
