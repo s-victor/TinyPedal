@@ -1,9 +1,13 @@
 WIP
 -----------------------------
+* Fuel Widget
+  - Renamed all "*_mins" options to "*_minutes"
+    for better readability & consistancy.
+
 * Tyre wear Widget
-  - Added "show_lifespan_mins" option,
+  - [New]Added "show_lifespan_minutes" option,
     which shows tyre lifespan in minutes.
-  - Added "warning_threshold_mins" option,
+  - Added "warning_threshold_minutes" option,
     which sets warning threshold for
     estimated tyre lifespan in minutes.
     Default is `6` minutes.

@@ -58,7 +58,7 @@ class Draw(Overlay):
             self.wcfg["decimal_places_delta"],  # 4
             self.wcfg["decimal_places_early"],  # 5
             self.wcfg["decimal_places_laps"],  # 6
-            self.wcfg["decimal_places_mins"],  # 7
+            self.wcfg["decimal_places_minutes"],  # 7
             self.wcfg["decimal_places_save"],  # 8
             self.wcfg["decimal_places_pits"],  # 9
         )))
@@ -99,7 +99,7 @@ class Draw(Overlay):
                 self.wcfg["caption_text_delta"],
                 self.wcfg["caption_text_early"],
                 self.wcfg["caption_text_laps"],
-                self.wcfg["caption_text_mins"],
+                self.wcfg["caption_text_minutes"],
                 self.wcfg["caption_text_save"],
                 self.wcfg["caption_text_pits"],
             )
@@ -186,8 +186,8 @@ class Draw(Overlay):
         self.bar_fuel_mins = QLabel(text_def)
         self.bar_fuel_mins.setAlignment(Qt.AlignCenter)
         self.bar_fuel_mins.setStyleSheet(
-            f"color: {self.wcfg['font_color_mins']};"
-            f"background: {self.wcfg['bkg_color_mins']};"
+            f"color: {self.wcfg['font_color_minutes']};"
+            f"background: {self.wcfg['bkg_color_minutes']};"
             f"{self.style_width}"
             f"{self.style_font_size}"
         )

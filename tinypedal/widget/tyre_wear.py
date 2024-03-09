@@ -72,7 +72,7 @@ class Draw(Overlay):
         column_twear = self.wcfg["column_index_remaining"]
         column_tdiff = self.wcfg["column_index_wear_difference"]
         column_tlaps = self.wcfg["column_index_lifespan_laps"]
-        column_tmins = self.wcfg["column_index_lifespan_mins"]
+        column_tmins = self.wcfg["column_index_lifespan_minutes"]
 
         # Caption
         if self.wcfg["show_caption"]:
@@ -177,10 +177,10 @@ class Draw(Overlay):
             layout_tlaps.addWidget(self.bar_tlaps_rr, 2, 1)
 
         # Estimated tyre lifespan in minutes
-        if self.wcfg["show_lifespan_mins"]:
+        if self.wcfg["show_lifespan_minutes"]:
             bar_style_tmins = (
-                f"color: {self.wcfg['font_color_lifespan_mins']};"
-                f"background: {self.wcfg['bkg_color_lifespan_mins']};"
+                f"color: {self.wcfg['font_color_lifespan_minutes']};"
+                f"background: {self.wcfg['bkg_color_lifespan_minutes']};"
                 f"min-width: {self.bar_width}px;"
             )
             self.bar_tmins_fl = QLabel(text_def)
@@ -210,7 +210,7 @@ class Draw(Overlay):
                 layout.addLayout(layout_tdiff, column_tdiff, 0)
             if self.wcfg["show_lifespan_laps"]:
                 layout.addLayout(layout_tlaps, column_tlaps, 0)
-            if self.wcfg["show_lifespan_mins"]:
+            if self.wcfg["show_lifespan_minutes"]:
                 layout.addLayout(layout_tmins, column_tmins, 0)
         else:
             # Horizontal layout
@@ -220,7 +220,7 @@ class Draw(Overlay):
                 layout.addLayout(layout_tdiff, 0, column_tdiff)
             if self.wcfg["show_lifespan_laps"]:
                 layout.addLayout(layout_tlaps, 0, column_tlaps)
-            if self.wcfg["show_lifespan_mins"]:
+            if self.wcfg["show_lifespan_minutes"]:
                 layout.addLayout(layout_tmins, 0, column_tmins)
         self.setLayout(layout)
 
@@ -231,7 +231,7 @@ class Draw(Overlay):
         self.wear_live = [0,0,0,0]  # live tyre wear update of current lap
         self.wear_last = [0,0,0,0]  # total tyre wear of last lap
         self.wear_laps = [0,0,0,0]  # estimated tyre lifespan in laps
-        self.wear_mins = [0,0,0,0]  # estimated tyre lifespan in mins
+        self.wear_mins = [0,0,0,0]  # estimated tyre lifespan in minutes
 
         self.last_wear_curr = [None] * 4
         self.last_wear_live = [None] * 4
@@ -305,7 +305,8 @@ class Draw(Overlay):
 
             # Estimated tyre lifespan in laps
             if self.wcfg["show_lifespan_laps"]:
-                self.wear_laps = tuple(map(self.estimated_laps, wear_curr, self.wear_last, self.wear_live))
+                self.wear_laps = tuple(
+                    map(self.estimated_laps, wear_curr, self.wear_last, self.wear_live))
                 self.update_laps("fl", self.wear_laps[0], self.last_wear_laps[0],
                                  self.wcfg["warning_threshold_laps"])
                 self.update_laps("fr", self.wear_laps[1], self.last_wear_laps[1],
@@ -316,17 +317,18 @@ class Draw(Overlay):
                                  self.wcfg["warning_threshold_laps"])
                 self.last_wear_laps = self.wear_laps
 
-            # Estimated tyre lifespan in mins
-            if self.wcfg["show_lifespan_mins"]:
-                self.wear_mins = tuple(map(self.estimated_mins, wear_curr, self.wear_last, self.wear_live))
+            # Estimated tyre lifespan in minutes
+            if self.wcfg["show_lifespan_minutes"]:
+                self.wear_mins = tuple(
+                    map(self.estimated_mins, wear_curr, self.wear_last, self.wear_live))
                 self.update_mins("fl", self.wear_mins[0], self.last_wear_mins[0],
-                                 self.wcfg["warning_threshold_mins"])
+                                 self.wcfg["warning_threshold_minutes"])
                 self.update_mins("fr", self.wear_mins[1], self.last_wear_mins[1],
-                                 self.wcfg["warning_threshold_mins"])
+                                 self.wcfg["warning_threshold_minutes"])
                 self.update_mins("rl", self.wear_mins[2], self.last_wear_mins[2],
-                                 self.wcfg["warning_threshold_mins"])
+                                 self.wcfg["warning_threshold_minutes"])
                 self.update_mins("rr", self.wear_mins[3], self.last_wear_mins[3],
-                                 self.wcfg["warning_threshold_mins"])
+                                 self.wcfg["warning_threshold_minutes"])
                 self.last_wear_mins = self.wear_mins
 
         else:
@@ -370,12 +372,12 @@ class Draw(Overlay):
             )
 
     def update_mins(self, suffix, curr, last, color):
-        """Estimated tyre lifespan in mins"""
+        """Estimated tyre lifespan in minutes"""
         if curr != last:
             getattr(self, f"bar_tmins_{suffix}").setText(self.format_num(curr))
             getattr(self, f"bar_tmins_{suffix}").setStyleSheet(
                 f"color: {self.color_mins(curr, color)};"
-                f"background: {self.wcfg['bkg_color_lifespan_mins']};"
+                f"background: {self.wcfg['bkg_color_lifespan_minutes']};"
                 f"min-width: {self.bar_width}px;"
             )
 
@@ -403,7 +405,7 @@ class Draw(Overlay):
 
     @staticmethod
     def estimated_mins(wear_curr, wear_last, wear_live):
-        """Estimated tyre lifespan in mins
+        """Estimated tyre lifespan in minutes
 
         = remaining / last lap wear * est laptime / 60"""
         if wear_live > wear_last > 0:
@@ -446,7 +448,7 @@ class Draw(Overlay):
         return self.wcfg["font_color_lifespan_laps"]
 
     def color_mins(self, tyre_wear, threshold):
-        """Warning color for estimated tyre lifespan mins"""
+        """Warning color for estimated tyre lifespan minutes"""
         if tyre_wear <= threshold:
             return self.wcfg["font_color_warning"]
-        return self.wcfg["font_color_lifespan_mins"]
+        return self.wcfg["font_color_lifespan_minutes"]

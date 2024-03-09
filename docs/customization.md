@@ -853,7 +853,7 @@ Example 3: If this value is one or more integers higher than `pits` value, then 
     *laps
 Estimated laps reading that current fuel can last.
 
-    *mins
+    *minutes
 Estimated minutes reading that current fuel can last.
 
     *save
@@ -1705,7 +1705,7 @@ Set freeze duration (seconds) for previous lap tyre wear info if `show_live_wear
     show_lifespan_laps
 Show estimated tyre lifespan in laps.
 
-    show_lifespan_mins
+    show_lifespan_minutes
 Show estimated tyre lifespan in minutes.
 
     warning_threshold_remaining
@@ -1717,7 +1717,7 @@ Set warning threshold for total amount tyre wear of last lap in percentage. Defa
     warning_threshold_laps
 Set warning threshold for estimated tyre lifespan in laps. Default is `5` laps.
 
-    warning_threshold_mins
+    warning_threshold_minutes
 Set warning threshold for estimated tyre lifespan in minutes. Default is `5` laps.
 
 
