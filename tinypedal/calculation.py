@@ -126,7 +126,9 @@ def rake2angle(v_rake, wheelbase):
 
 def rot2radius(speed, angular_speed):
     """Angular speed to radius"""
-    return abs(speed / angular_speed)
+    if angular_speed:
+        return abs(speed / angular_speed)
+    return 0
 
 
 def slip_ratio(w_rot, w_radius, v_speed):
