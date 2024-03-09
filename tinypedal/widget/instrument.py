@@ -315,9 +315,9 @@ class Draw(Overlay):
                     self.min_samples_r *= 2
                     self.samples_slice_r = self.sample_slice_indices(self.min_samples_r)
 
-        return max(tuple(map(
+        return max(map(
             calc.slip_ratio,
             wheel_rot,
             (self.avg_wheel_radius_f, self.avg_wheel_radius_f, self.avg_wheel_radius_r, self.avg_wheel_radius_r),
-            [speed] * 4
-        )))
+            (speed, speed, speed, speed)
+        ))
