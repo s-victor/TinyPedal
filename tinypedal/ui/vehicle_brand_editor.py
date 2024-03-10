@@ -203,7 +203,8 @@ class VehicleBrandEditor(QDialog):
                 else:
                     raise KeyError
 
-                self.brands_temp.update(brands_db)
+                brands_db.update(self.brands_temp)
+                self.brands_temp = brands_db
                 self.refresh_table()
                 QMessageBox.information(
                     self, "Data Imported", "Vehicle brand data imported.")
