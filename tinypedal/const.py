@@ -25,7 +25,7 @@ from .validator import is_folder_exist
 
 
 APP_NAME = "TinyPedal"
-VERSION = "2.9.4"
+VERSION = "2.10.0"
 PLATFORM = platform.system()
 APP_ICON = "images/icon.png"
 COPYRIGHT = "Copyright (C) 2022-2024 TinyPedal developers"
@@ -41,9 +41,11 @@ if PLATFORM == "Windows":
     PATH_DELTABEST = "deltabest/"
     PATH_FUEL = PATH_DELTABEST
     PATH_TRACKMAP = "trackmap/"
+    PATH_BRANDLOGO = "brandlogo/"
     is_folder_exist(PATH_SETTINGS)
     is_folder_exist(PATH_DELTABEST)
     is_folder_exist(PATH_TRACKMAP)
+    is_folder_exist(PATH_BRANDLOGO)
 else:
     from xdg import BaseDirectory as BD
     PATH_SETTINGS = BD.save_config_path(APP_NAME) + "/"
@@ -51,3 +53,4 @@ else:
     PATH_DELTABEST = BD.save_data_path(APP_NAME, "deltabest") + "/"
     PATH_FUEL = PATH_DELTABEST
     PATH_TRACKMAP = BD.save_data_path(APP_NAME, "trackmap") + "/"
+    PATH_BRANDLOGO = BD.save_data_path(APP_NAME, "brandlogo") + "/"

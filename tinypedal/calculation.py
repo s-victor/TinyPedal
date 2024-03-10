@@ -385,3 +385,13 @@ def session_best_laptime(data_list: list, column: int, laptime: int = 99999):
         if 0 < data[column] < laptime:
             laptime = data[column]
     return laptime
+
+
+def image_size_adaption(org_width, org_height, target_width, target_height):
+    """Whether adapt image size to width or height
+
+    Returns:
+        True: adapt to height
+        False: adapt to width
+    """
+    return org_width * target_height / max(org_height, 1) > target_width

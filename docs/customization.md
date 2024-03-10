@@ -55,7 +55,7 @@ Brands preset can be customized by accessing `Vehicle brand editor` from `Config
 
 To modify brands setting, open `Vehicle brand editor` and edit entries from each rows and columns. Each row represents a vehicle. First column is full vehicle name that must match in-game vehicle name. Second column is brand name.
 
-To import vehicle brand data, click `Import` button. Imported data will be appended on top of existing data, and same existing data will be updated with imported data.
+To import vehicle brand data, click `Import` button. Imported data will be appended on top of existing data, and existing data will not be changed.
 
     How to export vehicle brand data from RF2 API:
     1. Start RF2, then open following link in web browser:
@@ -67,7 +67,7 @@ To import vehicle brand data, click `Import` button. Imported data will be appen
     localhost:6397/rest/sessions/getAllAvailableVehicles
     2. Click "Save" button which saves vehicle data to JSON file.
 
-Note, the importing feature is experimental. Maximum importing file size is limited to 5mb.
+Note: the importing feature is experimental. Maximum importing file size is limited to `5MB`.
 
 To add new brand name, click `Add` button. Note, the editor can auto-detect and fill-in player's full vehicle name from current active session.
 
@@ -126,23 +126,38 @@ In case of errors found in `heatmap.json` file, the APP will automatically fall 
 To restore all heatmap settings back to default, just delete `heatmap.json` file.
 
 
-## User files
+# User files
 TinyPedal generates & saves user session data in specific folders. Session data can be reset by accessing `Reset data` submenu from `Overlay` menu in main window; or, delete data file from corresponding folder.
 
-* Deltabest  
-    Deltabest data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
 
-* Fuel delta  
-    Fuel delta data is stored as `CSV` format (.fuel extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
+## Deltabest
+Deltabest data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
 
-* Track map  
-    Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder.
 
-    The SVG vector map file contains two coordinate paths:
-    * First is the global x,y position path, used for drawing track map.
-    * Second is the corresponding track distance & elevation path, which is recorded for future use.
+## Fuel delta
+Fuel delta data is stored as `CSV` format (.fuel extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
 
-    Each sector position index is also stored in SVG file for finding sector coordinates.
+
+## Track map
+Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder.
+
+The SVG vector map file contains two coordinate paths:
+* First is the global x,y position path, used for drawing track map.
+* Second is the corresponding track distance & elevation path, which is recorded for future use.
+
+Each sector position index is also stored in SVG file for finding sector coordinates.
+
+
+## Brand logo
+TinyPedal supports user-defined brand logo image in `PNG` format (.png extension) which is placed under `TinyPedal\brandlogo` folder.
+
+Note: TinyPedal does not provide brand logo image assets, it is up to user to prepare images. Maximum `PNG` file size is limited to `1MB`.
+
+How to prepare brand logo image:  
+1. Brand logo image should have all transparent borders cropped. For example, in `GIMP` this can be done by selecting `Image` > `Crop to Content`.
+2. Make sure image dimension is not too big, usually around 100 pixel width or height is good enough. Bigger dimension may consume more RAM or exceed maximum supported file size.
+3. Save image to `TinyPedal\brandlogo` folder, image filename must match corresponding `brand name` that defined in `Vehicle brand editor`. For cross-platform compatibility, filename matching is set to be case-sensitive, make sure filename has the same upper or lower case as set in `brand name`.
+4. `Reload` preset to load newly added brand logo images for displaying in overlay.
 
 
 # Command line arguments
@@ -179,7 +194,7 @@ This sets refresh rate for widget or module, value is in milliseconds. A value o
 This sets refresh rate for module while its idle for conserving resources.
 
     position_x, position_y
-Defines widget position on screen (in pixels). Those values will be auto updated and saved.
+Defines widget position on screen in pixels. Those values will be auto updated and saved.
 
     opacity
 By default, all widgets have a 90% opacity setting, which equals value `0.9`. Lower value adds more transparency to widget. Acceptable value range in `0.0` to `1.0`.
@@ -1285,6 +1300,12 @@ Set vehicle name display width, value in chars, such as 10 = 10 chars.
 
     vehicle_name_align_center
 Align vehicle name in the center when enabled. Default is left alignment when disabled.
+
+    show_brand_logo
+Show user-defined brand logo if available.
+
+    brand_logo_width
+Set maximum brand logo display width in pixels. Note, maximum brand logo display height is automatically adapted to `font_size`.
 
     show_time_gap
 Show relative time gap between player and opponents.

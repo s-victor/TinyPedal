@@ -21,11 +21,13 @@ Rivals Widget
 """
 
 from PySide2.QtCore import Qt, Slot
+from PySide2.QtGui import QPixmap
 from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import calculation as calc
 from .. import formatter as fmt
 from ..api_control import api
+from ..const import PATH_BRANDLOGO
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -48,6 +50,8 @@ class Draw(Overlay):
         bar_gap = self.wcfg["bar_gap"]
         self.drv_width = max(int(self.wcfg["driver_name_width"]), 1)
         self.veh_width = max(int(self.wcfg["vehicle_name_width"]), 1)
+        self.brd_width = max(int(self.wcfg["brand_logo_width"]), 1)
+        self.brd_height = max(self.wcfg["font_size"], 1)
         self.cls_width = max(int(self.wcfg["class_width"]), 1)
         self.int_width = max(int(self.wcfg["time_interval_width"]), 1)
         self.int_decimals = max(int(self.wcfg["time_interval_decimal_places"]), 0)
@@ -89,6 +93,7 @@ class Draw(Overlay):
         column_pos = self.wcfg["column_index_position"]
         column_drv = self.wcfg["column_index_driver"]
         column_veh = self.wcfg["column_index_vehicle"]
+        column_brd = self.wcfg["column_index_brand_logo"]
         column_lpt = self.wcfg["column_index_laptime"]
         column_blp = self.wcfg["column_index_best_laptime"]
         column_pic = self.wcfg["column_index_position_in_class"]
@@ -127,6 +132,15 @@ class Draw(Overlay):
                 f"{self.bar_width_veh}"
             )
             self.generate_bar("veh", bar_style_veh, column_veh)
+
+        # Brand logo
+        if self.wcfg["show_brand_logo"]:
+            self.bar_width_brd = f"min-width: {self.brd_width}px;"
+            bar_style_brd = (
+                f"background: {self.wcfg['bkg_color_brand_logo']};"
+                f"{self.bar_width_brd}"
+            )
+            self.generate_bar("brd", bar_style_brd, column_brd)
 
         # Time interval
         if self.wcfg["show_time_interval"]:
@@ -269,6 +283,12 @@ class Draw(Overlay):
                                     getattr(self, f"veh_{idx}")[3],
                                     getattr(self, f"last_veh_{idx}")[3],
                                     )
+                # Brand logo
+                if self.wcfg["show_brand_logo"]:
+                    self.update_brd(f"{idx}_brd",
+                                    getattr(self, f"veh_{idx}")[3],
+                                    getattr(self, f"last_veh_{idx}")[3]
+                                    )
                 # Time interval
                 if self.wcfg["show_time_interval"]:
                     self.update_int(f"{idx}_int",
@@ -382,6 +402,19 @@ class Draw(Overlay):
             getattr(self, f"row_{suffix}").setText(text)
             getattr(self, f"row_{suffix}").setStyleSheet(
                 f"{color}{self.bar_width_veh}"
+            )
+            self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
+
+    def update_brd(self, suffix, curr, last):
+        """Brand logo"""
+        if curr != last:
+            brand_name = self.cfg.brands_user.get(curr[0], curr[0])
+            # Draw brand logo
+            if brand_name in self.cfg.brands_logo_user:
+                getattr(self, f"row_{suffix}").setPixmap(self.load_brand_logo(brand_name))
+            # Draw background
+            getattr(self, f"row_{suffix}").setStyleSheet(
+                f"background: {self.wcfg['bkg_color_brand_logo']};{self.bar_width_brd}"
             )
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 
@@ -506,6 +539,16 @@ class Draw(Overlay):
         else:
             if not row_bar.isHidden():
                 row_bar.hide()
+
+    def load_brand_logo(self, brand_name):
+        """Load brand logo"""
+        logo_image = QPixmap(f"{PATH_BRANDLOGO}{brand_name}.png")
+        if calc.image_size_adaption(
+            logo_image.width(), logo_image.height(), self.brd_width, self.brd_height):
+            return logo_image.scaledToWidth(  # adapt to width
+                self.brd_width, mode=Qt.SmoothTransformation)
+        return logo_image.scaledToHeight(  # adapt to height
+            self.brd_height, mode=Qt.SmoothTransformation)
 
     def set_tyre_cmp(self, tc_indices):
         """Substitute tyre compound index with custom chars"""

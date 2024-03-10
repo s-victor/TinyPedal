@@ -1,5 +1,6 @@
 # ignore list
 
+/brandlogo/
 /dist/
 /dist/TinyPedal/
 /trackmap/

@@ -27,7 +27,7 @@ import threading
 import json
 import shutil
 
-from .const import PLATFORM, PATH_SETTINGS
+from .const import PLATFORM, PATH_SETTINGS, PATH_BRANDLOGO
 from .template.setting_application import APPLICATION_DEFAULT
 from .template.setting_module import MODULE_DEFAULT
 from .template.setting_widget import WIDGET_DEFAULT
@@ -61,6 +61,7 @@ class Setting:
         self.classes_user = None
         self.heatmap_user = None
         self.brands_user = None
+        self.brands_logo_user = None
 
         self.is_saving = False
         self._save_delay = 0
@@ -85,7 +86,17 @@ class Setting:
             self.filename_classes, self.filepath, self.classes_default)
         self.heatmap_user = load_style_json_file(
             self.filename_heatmap, self.filepath, self.heatmap_default)
+        self.brands_logo_user = self.load_brands_logo_list()
         logger.info("SETTING: %s preset loaded", self.last_loaded_setting)
+
+    @staticmethod
+    def load_brands_logo_list():
+        """Load brands logo list"""
+        return [
+            _filename[:-4] for _filename in os.listdir(PATH_BRANDLOGO)
+            if _filename.lower().endswith(".png")
+            and os.path.getsize(f"{PATH_BRANDLOGO}{_filename}") < 1024000
+        ]
 
     def load_preset_list(self):
         """Load preset list
