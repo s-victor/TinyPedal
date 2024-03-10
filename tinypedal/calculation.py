@@ -24,7 +24,7 @@ import math
 import statistics
 
 
-def vel2speed(vel_x, vel_y, vel_z):
+def vel2speed(vel_x, vel_y, vel_z=0):
     """Convert velocity to Speed"""
     # (vel_x ** 2 + vel_y ** 2 + vel_z ** 2) ** 0.5
     return math.hypot(vel_x, vel_y, vel_z)
@@ -50,9 +50,9 @@ def mps2mph(meter):
     return meter * 2.23693629
 
 
-def celsius2fahrenheit(temp):
+def celsius2fahrenheit(temperature):
     """Celsius to Fahrenheit"""
-    return temp * 1.8 + 32
+    return temperature * 1.8 + 32
 
 
 def kelvin2celsius(kelvin):
@@ -60,9 +60,9 @@ def kelvin2celsius(kelvin):
     return kelvin - 273.15 if kelvin else 0
 
 
-def liter2gallon(fuel):
+def liter2gallon(liter):
     """Liter to Gallon"""
-    return fuel * 0.2641729
+    return liter * 0.2641729
 
 
 def sym_range(value, rng):
@@ -113,12 +113,12 @@ def rad2deg(radian):
 
 
 def rake(height_fl, height_fr, height_rl, height_rr):
-    """Raw rake"""
+    """Raw rake (millmeters)"""
     return (height_rr + height_rl - height_fr - height_fl) * 0.5
 
 
 def rake2angle(v_rake, wheelbase):
-    """Rake angle based on wheelbase value set in JSON"""
+    """Rake angle based on wheelbase value (millmeters) set in JSON"""
     if wheelbase:
         return math.atan(rad2deg(v_rake / wheelbase))
     return 0
@@ -145,14 +145,14 @@ def slip_angle(v_lat, v_lgt):
     return 0
 
 
-def kpa2psi(pressure):
+def kpa2psi(kilopascal):
     """Kilopascal to psi"""
-    return pressure * 0.14503774
+    return kilopascal * 0.14503774
 
 
-def kpa2bar(pressure):
+def kpa2bar(kilopascal):
     """Kilopascal to bar"""
-    return pressure * 0.01
+    return kilopascal * 0.01
 
 
 def gforce(value, g_accel):
