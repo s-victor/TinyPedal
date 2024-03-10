@@ -464,6 +464,8 @@ class Draw(Overlay):
             # Draw brand logo
             if brand_name in self.cfg.brands_logo_user:
                 getattr(self, f"row_{suffix}").setPixmap(self.load_brand_logo(brand_name))
+            else:
+                getattr(self, f"row_{suffix}").setPixmap(QPixmap())
             # Draw background
             getattr(self, f"row_{suffix}").setStyleSheet(
                 f"{color}{self.bar_width_brd}"
