@@ -1,6 +1,12 @@
 name: Build executable for Windows
 
-on: push
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Build version"
+        required: true
+        type: string
 
 jobs:
   build:
@@ -28,7 +34,7 @@ jobs:
         python freeze_py2exe.py -c
 
     - name: Upload artifacts
-    - uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v4
       with:
-        name: TinyPedal-test-win
+        name: TinyPedal-${{ github.event.inputs.version }}-win
         path: dist/
