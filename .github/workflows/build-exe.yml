@@ -5,8 +5,8 @@ on:
     inputs:
       version:
         description: "Build version"
-        default: ""
         required: true
+        type: string
 
 jobs:
   build:
