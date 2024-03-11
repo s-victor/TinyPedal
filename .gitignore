@@ -1,8 +1,10 @@
 # ignore list
 
 /brandlogo/
+/deltabest/
 /dist/
 /dist/TinyPedal/
+/settings/
 /trackmap/
 
 __pycache__/
