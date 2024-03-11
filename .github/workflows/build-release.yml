@@ -1,4 +1,4 @@
-name: Build executable for Windows
+name: Build release files
 
 on:
   workflow_dispatch:
@@ -39,7 +39,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: TinyPedal-${{ github.event.inputs.version }}-windows
-        path: dist/
+        path: ./dist/
 
   linux:
 
@@ -55,4 +55,4 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: TinyPedal-${{ github.event.inputs.version }}-linux
-        path: /
+        path: ./
