@@ -1,12 +1,6 @@
 name: Build executable for Windows
 
-on:
-  workflow_dispatch:
-    inputs:
-      version:
-        description: "Build version"
-        required: true
-        type: string
+on: push
 
 jobs:
   build:
@@ -36,5 +30,5 @@ jobs:
     - name: Upload artifacts
     - uses: actions/upload-artifact@v4
       with:
-        name: TinyPedal-${{ github.event.inputs.version }}-win
+        name: TinyPedal-test-win
         path: dist/
