@@ -9,7 +9,7 @@ on:
         type: string
 
 jobs:
-  build:
+  windows:
 
     runs-on: windows-latest
 
@@ -38,5 +38,21 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: TinyPedal-${{ github.event.inputs.version }}-win
+        name: TinyPedal-${{ github.event.inputs.version }}-windows
         path: dist/
+
+  linux:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout master and submodules
+      uses: actions/checkout@v4
+      with:
+        submodules: "recursive"
+
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: TinyPedal-${{ github.event.inputs.version }}-linux
+        path: /
