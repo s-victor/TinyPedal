@@ -59,8 +59,6 @@ BUILD_DATA_FILES = [
     ("", ["LICENSE.txt", "README.md"]),
     ("docs", DOCUMENT_FILES),
     ("docs/licenses", LICENSES_FILES),
-    ("deltabest", ["deltabest/README.txt"]),
-    ("settings", []),
     ("images", IMAGE_FILES),
     ("platforms", QT_FILES),
 ]
