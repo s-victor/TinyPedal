@@ -14,8 +14,10 @@ jobs:
     runs-on: windows-latest
 
     steps:
-    - name: Checkout
+    - name: Checkout master and submodules
       uses: actions/checkout@v4
+      with:
+        submodules: "recursive"
 
     - name: Set up Python 3.8
       uses: actions/setup-python@v5
