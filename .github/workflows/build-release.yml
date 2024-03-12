@@ -21,7 +21,7 @@ jobs:
       run: |
         $tp_ver_str = Select-String -Path "./tinypedal/const.py" -Pattern "VERSION = "
         $tp_ver = ("$tp_ver_str" -split " = ")[1]
-        echo "app_ver=$tp_ver" >> $GITHUB_OUTPUT
+        echo "app_ver=$tp_ver" >> "$GITHUB_OUTPUT"
 
     # Create & upload Linux release file
     - name: Upload Linux artifacts
@@ -32,27 +32,3 @@ jobs:
           ./
           !.git
           !pyRfactor2SharedMemory/.git
-
-    # Setup environment for Windows build
-    - name: Set up Python 3.8
-      uses: actions/setup-python@v5
-      with:
-        python-version: "3.8"
-        architecture: "x64"
-
-    - name: Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install py2exe
-
-    - name: Build Windows executable
-      run: |
-        python freeze_py2exe.py -c
-
-    # Create & upload Windows release file
-    - name: Upload Windows artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows
-        path: ./dist/
