@@ -1,17 +1,16 @@
-name: Build and Release
+name: Build release files
 
 on:
   workflow_dispatch:
     inputs:
       version:
         description: "Build version"
-        default: ""
         required: true
         type: string
 
 jobs:
-  # Create release file
-  release-file:
+  # Create windows release file
+  windows:
     runs-on: windows-latest
 
     steps:
@@ -20,19 +19,6 @@ jobs:
       with:
         submodules: "recursive"
 
-    # ZIP linux release file
-    - name: ZIP Linux release file
-      shell: pwsh
-      run: |
-        Compress-Archive -Path . -DestinationPath ./TinyPedal-${{ inputs.version }}-linux.zip
-
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: TinyPedal-${{ inputs.version }}-linux
-        path: ./TinyPedal-${{ inputs.version }}-linux.zip
-
-    # Build windows release file
     - name: Set up Python 3.8
       uses: actions/setup-python@v5
       with:
@@ -49,25 +35,24 @@ jobs:
       run: |
         python freeze_py2exe.py -c
 
-    # ZIP windows release file
-    - name: ZIP Windows release file
-      shell: pwsh
-      run: |
-        Compress-Archive -Path ./dist/TinyPedal -DestinationPath ./TinyPedal-${{ inputs.version }}-windows.zip
+    - name: Upload artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: TinyPedal-${{ github.event.inputs.version }}-windows
+        path: ./dist/
+
+  # Create linux release file
+  linux:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout master and submodules
+      uses: actions/checkout@v4
+      with:
+        submodules: "recursive"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: TinyPedal-${{ inputs.version }}-windows
-        path: ./TinyPedal-${{ inputs.version }}-windows.zip
-
-    # Upload release files to release page
-    - name: Upload release files
-      uses: softprops/action-gh-release@v2
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        draft: true
-        tag_name: v${{ inputs.version }}
-        files: |
-          TinyPedal-${{ inputs.version }}-windows.zip
-          TinyPedal-${{ inputs.version }}-linux.zip
+        name: TinyPedal-${{ github.event.inputs.version }}-linux
+        path: ./
