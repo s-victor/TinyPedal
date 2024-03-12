@@ -31,11 +31,11 @@ jobs:
       with:
         submodules: "true"
 
-    - name: Get version number
-      id: get_ver
+    - name: Get version number & filename
       run: |
         tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/\"//g' | sed 's/VERSION = //g')
-        echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
+        echo "app_version=$tp_ver" >> $GITHUB_ENV
+        echo "zip_filename=TinyPedal-$tp_ver-windows.zip" >> $GITHUB_ENV
 
     - name: Set up Python 3.8 environment for Windows build
       uses: actions/setup-python@v5
@@ -53,21 +53,23 @@ jobs:
       run: |
         python freeze_py2exe.py -c
 
-    - name: ZIP Windows file & print checksum
+    - name: ZIP Windows file
       shell: pwsh
       run: |
-        $file_name="TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows.zip"
-        Compress-Archive -Path ./dist/TinyPedal -DestinationPath ./$file_name
-        Get-FileHash ./$file_name | Format-List
+        Compress-Archive -Path ./dist/TinyPedal -DestinationPath ./$zip_filename
+
+    - name: Check hash sum
+      run: |
+        echo "SHA256:" $(sha256sum ./$zip_filename)
 
     - name: Upload release files
       uses: softprops/action-gh-release@v2
       if: ${{ !inputs.test_build }}
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: v${{ steps.get_ver.outputs.app_ver }}
+        tag_name: v${{ $app_version }}
         files: |
-          TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows.zip
+          $zip_filename
 
   # Create linux release file
   linux:
@@ -79,23 +81,25 @@ jobs:
       with:
         submodules: "true"
 
-    - name: Get version number
-      id: get_ver
+    - name: Get version number & filename
       run: |
         tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/\"//g' | sed 's/VERSION = //g')
-        echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
+        echo "app_version=$tp_ver" >> $GITHUB_ENV
+        echo "zip_filename=TinyPedal-$tp_ver-linux.zip" >> $GITHUB_ENV
 
-    - name: ZIP Linux file & print checksum
+    - name: ZIP Linux file
       run: |
-        file_name=TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux.zip
-        zip -r $file_name . -x *.git*
-        echo "SHA256:" $(sha256sum ./$file_name)
+        zip -r $zip_filename . -x *.git*
+
+    - name: Check hash sum
+      run: |
+        echo "SHA256:" $(sha256sum ./$zip_filename)
 
     - name: Upload release files
       uses: softprops/action-gh-release@v2
       if: ${{ !inputs.test_build }}
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: v${{ steps.get_ver.outputs.app_ver }}
+        tag_name: v${{ $app_version }}
         files: |
-          TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux.zip
+          $zip_filename
