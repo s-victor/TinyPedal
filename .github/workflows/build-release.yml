@@ -18,10 +18,10 @@ jobs:
 
     - name: Get version number
       id: get_ver
+      shell: bash
       run: |
-        $tp_ver_str = Select-String -Path "./tinypedal/const.py" -Pattern "VERSION = "
-        $tp_ver = ("$tp_ver_str" -split " = ")[1]
-        echo "app_ver=$(echo "$tp_ver")" >> $GITHUB_OUTPUT
+        tp_ver=$(grep "VERSION = " "./tinypedal/const.py" | sed 's/VERSION = //')
+        echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
 
     # Create & upload Linux release file
     - name: Upload Linux artifacts
