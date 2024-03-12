@@ -16,14 +16,13 @@ on:
 
 run-name: ${{ inputs.build_name }}
 
-defaults:
-  run:
-    shell: bash
-
 jobs:
   # Create windows release file
   windows:
     runs-on: windows-latest
+    defaults:
+      run:
+        shell: bash
 
     steps:
     - name: Checkout master and submodules
@@ -57,7 +56,7 @@ jobs:
       run: |
         file_name=TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows.zip
         zip -r $file_name ./dist/TinyPedal
-        echo $(sha256sum ./$file_name)
+        echo "SHA256:" $(sha256sum ./$file_name)
 
     - name: Upload release files
       uses: softprops/action-gh-release@v2
@@ -71,6 +70,9 @@ jobs:
   # Create linux release file
   linux:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
 
     steps:
     - name: Checkout master and submodules
@@ -88,7 +90,7 @@ jobs:
       run: |
         file_name=TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux.zip
         zip -r $file_name . -x *.git*
-        echo $(sha256sum ./$file_name)
+        echo "SHA256:" $(sha256sum ./$file_name)
 
     - name: Upload release files
       uses: softprops/action-gh-release@v2
