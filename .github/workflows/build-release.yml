@@ -67,7 +67,7 @@ jobs:
       if: ${{ !inputs.test_build }}
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: v${{ $app_version }}
+        tag_name: v$app_version
         files: |
           $zip_filename
 
@@ -100,6 +100,6 @@ jobs:
       if: ${{ !inputs.test_build }}
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: v${{ $app_version }}
+        tag_name: v$app_version
         files: |
           $zip_filename
