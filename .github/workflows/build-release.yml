@@ -19,7 +19,8 @@ jobs:
     - name: Get version number
       id: get_ver
       run:
-        $tp_ver_str = Get-ChildItem -Path "./tinypedal/const.py" | Select-String -Pattern "VERSION = "
+        $ver_path = "./tinypedal/const.py"
+        $tp_ver_str = Select-String -Path $ver_path -Pattern "VERSION = "
         $tp_ver = ("$tp_ver_str" -split " = ")[1]
         echo "app_ver=$tp_ver" >> $GITHUB_OUTPUT
 
