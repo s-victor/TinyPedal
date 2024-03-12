@@ -1,11 +1,10 @@
-name: Build and Release
+name: Build release files
 
 on:
   workflow_dispatch:
     inputs:
       version:
         description: "Build version"
-        default: ""
         required: true
         type: string
 
@@ -57,25 +56,3 @@ jobs:
       with:
         name: TinyPedal-${{ github.event.inputs.version }}-linux
         path: ./
-
-  # Upload release files to release page
-  upload-release:
-    needs: [windows, linux]
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Download all workflow run artifacts
-      uses: actions/download-artifact@v4
-      with:
-        path: ./
-        merge-multiple: true
-
-    - name: Upload release files
-      uses: softprops/action-gh-release@v2
-      with:
-        token: ${{ secrets.GITHUB_TOKEN }}
-        draft: true
-        tag_name: v${{ github.event.inputs.version }}
-        files: |
-          TinyPedal-${{ github.event.inputs.version }}-windows.zip
-          TinyPedal-${{ github.event.inputs.version }}-linux.zip
