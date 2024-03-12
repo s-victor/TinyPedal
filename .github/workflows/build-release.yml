@@ -35,7 +35,7 @@ jobs:
       id: get_ver
       run: |
         tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/\"//g' | sed 's/VERSION = //g')
-        echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
+        echo "app_ver=${tp_ver}" >> $GITHUB_OUTPUT
 
     - name: Set up Python 3.8 environment for Windows build
       uses: actions/setup-python@v5
@@ -86,7 +86,7 @@ jobs:
       id: get_ver
       run: |
         tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/\"//g' | sed 's/VERSION = //g')
-        echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
+        echo "app_ver=${tp_ver}" >> $GITHUB_OUTPUT
 
     - name: ZIP Linux file
       run: |
