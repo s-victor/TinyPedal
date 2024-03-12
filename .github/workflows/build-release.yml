@@ -1,24 +1,40 @@
 name: Build release files
 
 on:
+  push:
+    tags:
+      - "v*"
   workflow_dispatch:
-    inputs:
-      version:
-        description: "Build version"
-        required: true
-        type: string
 
 jobs:
-  # Create windows release file
-  windows:
+  build:
     runs-on: windows-latest
 
     steps:
     - name: Checkout master and submodules
       uses: actions/checkout@v4
       with:
-        submodules: "recursive"
+        submodules: "true"
 
+    - name: Get version number
+      id: get_ver
+      shell: pwsh
+      run:
+        $tp_ver_str = Select-String -Path "./TinyPedal/tinypedal/const.py" -Pattern "VERSION = "
+        $tp_ver = ("$tp_ver_str" -split " = ")[1]
+        echo "app_ver=$tp_ver" >> $GITHUB_OUTPUT
+
+    # Create & upload Linux release file
+    - name: Upload Linux artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux
+        path: |
+          ./
+          !.git
+          !pyRfactor2SharedMemory/.git
+
+    # Setup environment for Windows build
     - name: Set up Python 3.8
       uses: actions/setup-python@v5
       with:
@@ -31,31 +47,13 @@ jobs:
         pip install -r requirements.txt
         pip install py2exe
 
-    - name: Build executable
+    - name: Build Windows executable
       run: |
         python freeze_py2exe.py -c
 
-    - name: Upload artifacts
+    # Create & upload Windows release file
+    - name: Upload Windows artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: TinyPedal-${{ github.event.inputs.version }}-windows
+        name: TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows
         path: ./dist/
-
-  # Create linux release file
-  linux:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Checkout master and submodules
-      uses: actions/checkout@v4
-      with:
-        submodules: "true"
-
-    - name: Upload artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: TinyPedal-${{ github.event.inputs.version }}-linux
-        path: |
-          ./
-          !.git
-          !pyRfactor2SharedMemory/.git
