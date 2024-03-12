@@ -20,7 +20,7 @@ jobs:
       id: get_ver
       shell: bash
       run: |
-        tp_ver=$(grep "VERSION = " "./tinypedal/const.py" | sed 's/VERSION = //')
+        tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/\"//g' | sed 's/VERSION = //g')
         echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
 
     # Create & upload Linux release file
