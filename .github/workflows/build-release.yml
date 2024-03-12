@@ -1,10 +1,24 @@
-name: Build release files
+name: Build and Release
 
 on:
-  push:
-    tags:
-      - "v*"
   workflow_dispatch:
+    inputs:
+      build_name:
+        description: "Build name"
+        default: ""
+        required: false
+        type: string
+      test_build:
+        description: "Test build"
+        default: false
+        required: false
+        type: boolean
+
+run-name: ${{ !inputs.build_name }}
+
+defaults:
+  run:
+    shell: bash
 
 jobs:
   # Create windows release file
@@ -19,7 +33,6 @@ jobs:
 
     - name: Get version number
       id: get_ver
-      shell: bash
       run: |
         tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/\"//g' | sed 's/VERSION = //g')
         echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
@@ -40,11 +53,20 @@ jobs:
       run: |
         python freeze_py2exe.py -c
 
-    - name: Upload Windows artifacts
-      uses: actions/upload-artifact@v4
+    - name: ZIP Windows release file
+      run: |
+        file_name=TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows.zip
+        zip -r $file_name ./dist/TinyPedal
+        echo $(sha256sum ./$file_name)
+
+    - name: Upload release files
+      uses: softprops/action-gh-release@v2
+      if: ${{ !inputs.test_build }}
       with:
-        name: TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows
-        path: ./dist/
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: v${{ inputs.version }}
+        files: |
+          TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows.zip
 
   # Create linux release file
   linux:
@@ -58,16 +80,21 @@ jobs:
 
     - name: Get version number
       id: get_ver
-      shell: bash
       run: |
         tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/\"//g' | sed 's/VERSION = //g')
         echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
 
-    - name: Upload Linux artifacts
-      uses: actions/upload-artifact@v4
+    - name: ZIP Linux release file
+      run: |
+        file_name=TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux.zip
+        zip -r $file_name . -x *.git*
+        echo $(sha256sum ./$file_name)
+
+    - name: Upload release files
+      uses: softprops/action-gh-release@v2
+      if: ${{ !inputs.test_build }}
       with:
-        name: TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux
-        path: |
-          ./
-          !.git
-          !pyRfactor2SharedMemory/.git
+        token: ${{ secrets.GITHUB_TOKEN }}
+        tag_name: v${{ inputs.version }}
+        files: |
+          TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux.zip
