@@ -20,7 +20,7 @@ jobs:
       id: get_ver
       shell: pwsh
       run:
-        $tp_ver_str = Select-String -Path "./TinyPedal/tinypedal/const.py" -Pattern "VERSION = "
+        $tp_ver_str = Select-String -Path "./tinypedal/const.py" -Pattern "VERSION = "
         $tp_ver = ("$tp_ver_str" -split " = ")[1]
         echo "app_ver=$tp_ver" >> $GITHUB_OUTPUT
 
