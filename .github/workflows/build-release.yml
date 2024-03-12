@@ -49,10 +49,13 @@ jobs:
     - name: Checkout master and submodules
       uses: actions/checkout@v4
       with:
-        submodules: "recursive"
+        submodules: "true"
 
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
         name: TinyPedal-${{ github.event.inputs.version }}-linux
-        path: ./
+        path: |
+          ./
+          !.git
+          !pyRfactor2SharedMemory/.git
