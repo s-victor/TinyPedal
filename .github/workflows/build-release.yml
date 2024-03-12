@@ -31,11 +31,11 @@ jobs:
       with:
         submodules: "true"
 
-    - name: Get version number & filename
+    - name: Get version number
+      id: get_ver
       run: |
         tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/\"//g' | sed 's/VERSION = //g')
-        echo "app_version=$tp_ver" >> $GITHUB_ENV
-        echo "zip_filename=TinyPedal-$tp_ver-windows.zip" >> $GITHUB_ENV
+        echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
 
     - name: Set up Python 3.8 environment for Windows build
       uses: actions/setup-python@v5
@@ -56,20 +56,21 @@ jobs:
     - name: ZIP Windows file
       shell: pwsh
       run: |
-        Compress-Archive -Path ./dist/TinyPedal -DestinationPath ./$zip_filename
+        $file_name="TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows.zip"
+        Compress-Archive -Path ./dist/TinyPedal -DestinationPath ./$file_name
 
     - name: Check hash sum
       run: |
-        echo "SHA256:" $(sha256sum ./$zip_filename)
+        echo "SHA256:" $(sha256sum ./TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows.zip)
 
     - name: Upload release files
       uses: softprops/action-gh-release@v2
       if: ${{ !inputs.test_build }}
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: v$app_version
+        tag_name: v${{ steps.get_ver.outputs.app_ver }}
         files: |
-          $zip_filename
+          TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows.zip
 
   # Create linux release file
   linux:
@@ -81,25 +82,26 @@ jobs:
       with:
         submodules: "true"
 
-    - name: Get version number & filename
+    - name: Get version number
+      id: get_ver
       run: |
         tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/\"//g' | sed 's/VERSION = //g')
-        echo "app_version=$tp_ver" >> $GITHUB_ENV
-        echo "zip_filename=TinyPedal-$tp_ver-linux.zip" >> $GITHUB_ENV
+        echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
 
     - name: ZIP Linux file
       run: |
-        zip -r $zip_filename . -x *.git*
+        file_name=TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux.zip
+        zip -r $file_name . -x *.git*
 
     - name: Check hash sum
       run: |
-        echo "SHA256:" $(sha256sum ./$zip_filename)
+        echo "SHA256:" $(sha256sum ./TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux.zip)
 
     - name: Upload release files
       uses: softprops/action-gh-release@v2
       if: ${{ !inputs.test_build }}
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: v$app_version
+        tag_name: v${{ steps.get_ver.outputs.app_ver }}
         files: |
-          $zip_filename
+          TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux.zip
