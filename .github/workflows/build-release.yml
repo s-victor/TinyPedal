@@ -3,10 +3,11 @@ name: Build and Release
 on:
   workflow_dispatch:
     inputs:
-      tags:
-        description: 'Build tags'
+      version:
+        description: "Build version"
+        default: ""
         required: true
-        type: boolean
+        type: string
 
 jobs:
   # Create windows release file
@@ -38,7 +39,7 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: TinyPedal-${{ github.event.inputs.tags }}-windows
+        name: TinyPedal-${{ github.event.inputs.version }}-windows
         path: ./dist/
 
   # Create linux release file
@@ -54,7 +55,7 @@ jobs:
     - name: Upload artifacts
       uses: actions/upload-artifact@v4
       with:
-        name: TinyPedal-${{ github.event.inputs.tags }}-linux
+        name: TinyPedal-${{ github.event.inputs.version }}-linux
         path: ./
 
   # Upload release files to release page
@@ -73,7 +74,7 @@ jobs:
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
         draft: true
-        tag_name: ${{ github.event.inputs.tags }}
+        tag_name: v${{ github.event.inputs.version }}
         files: |
-          TinyPedal-${{ github.event.inputs.tags }}-windows.zip
-          TinyPedal-${{ github.event.inputs.tags }}-linux.zip
+          TinyPedal-${{ github.event.inputs.version }}-windows.zip
+          TinyPedal-${{ github.event.inputs.version }}-linux.zip
