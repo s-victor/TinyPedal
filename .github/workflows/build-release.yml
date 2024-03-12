@@ -16,6 +16,10 @@ on:
 
 run-name: ${{ inputs.build_name }}
 
+defaults:
+  run:
+    shell: bash
+
 jobs:
   # Create windows release file
   windows:
@@ -29,7 +33,6 @@ jobs:
 
     - name: Get version number
       id: get_ver
-      shell: bash
       run: |
         tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/\"//g' | sed 's/VERSION = //g')
         echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
@@ -50,12 +53,12 @@ jobs:
       run: |
         python freeze_py2exe.py -c
 
-    - name: ZIP Windows release file
-      shell: bash
+    - name: ZIP Windows file & print checksum
+      shell: pwsh
       run: |
-        file_name=TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows.zip
-        zip -r $file_name ./dist/TinyPedal
-        echo "SHA256:" $(sha256sum ./$file_name)
+        $file_name="TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows.zip"
+        Compress-Archive -Path ./dist/TinyPedal -DestinationPath ./$file_name
+        Get-FileHash ./$file_name | Format-List
 
     - name: Upload release files
       uses: softprops/action-gh-release@v2
@@ -69,9 +72,6 @@ jobs:
   # Create linux release file
   linux:
     runs-on: ubuntu-latest
-    defaults:
-      run:
-        shell: bash
 
     steps:
     - name: Checkout master and submodules
@@ -81,13 +81,11 @@ jobs:
 
     - name: Get version number
       id: get_ver
-      shell: bash
       run: |
         tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/\"//g' | sed 's/VERSION = //g')
         echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
 
-    - name: ZIP Linux release file
-      shell: bash
+    - name: ZIP Linux file & print checksum
       run: |
         file_name=TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux.zip
         zip -r $file_name . -x *.git*
