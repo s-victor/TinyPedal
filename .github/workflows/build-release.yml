@@ -20,9 +20,6 @@ jobs:
   # Create windows release file
   windows:
     runs-on: windows-latest
-    defaults:
-      run:
-        shell: bash
 
     steps:
     - name: Checkout master and submodules
@@ -32,6 +29,7 @@ jobs:
 
     - name: Get version number
       id: get_ver
+      shell: bash
       run: |
         tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/\"//g' | sed 's/VERSION = //g')
         echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
@@ -53,6 +51,7 @@ jobs:
         python freeze_py2exe.py -c
 
     - name: ZIP Windows release file
+      shell: bash
       run: |
         file_name=TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows.zip
         zip -r $file_name ./dist/TinyPedal
@@ -82,11 +81,13 @@ jobs:
 
     - name: Get version number
       id: get_ver
+      shell: bash
       run: |
         tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/\"//g' | sed 's/VERSION = //g')
         echo "app_ver=$(echo $tp_ver)" >> $GITHUB_OUTPUT
 
     - name: ZIP Linux release file
+      shell: bash
       run: |
         file_name=TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux.zip
         zip -r $file_name . -x *.git*
