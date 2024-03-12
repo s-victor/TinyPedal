@@ -65,7 +65,7 @@ jobs:
       if: ${{ !inputs.test_build }}
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: v${{ inputs.version }}
+        tag_name: v${{ steps.get_ver.outputs.app_ver }}
         files: |
           TinyPedal-${{ steps.get_ver.outputs.app_ver }}-windows.zip
 
@@ -96,6 +96,6 @@ jobs:
       if: ${{ !inputs.test_build }}
       with:
         token: ${{ secrets.GITHUB_TOKEN }}
-        tag_name: v${{ inputs.version }}
+        tag_name: v${{ steps.get_ver.outputs.app_ver }}
         files: |
           TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux.zip
