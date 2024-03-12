@@ -18,6 +18,7 @@ jobs:
 
     - name: Get version number
       id: get_ver
+      shell: pwsh
       run:
         $ver_path = "./tinypedal/const.py"
         $tp_ver_str = Select-String -Path $ver_path -Pattern "VERSION = "
