@@ -14,7 +14,7 @@
     speed is below 1m/s while in pit lane.
 
 * Vehicle Brand Editor & Vehicle Class Editor
-  - "Add" button will now add all vehicle classes
+  - "Add" button will now add all vehicle data
     found from current active session.
     Note, existing data will not be changed.
 

@@ -103,9 +103,9 @@ class SimRF2(Connector):
         return self.read.check.version()
 
 
-class SimDummy(Connector):
-    """Placeholder"""
-    NAME = "Dummy"
+class SimLMU(Connector):
+    """Le Mans Ultimate"""
+    NAME = "Le Mans Ultimate"
 
     def __init__(self):
         rF2MMap.logger = logging.getLogger(__name__)
@@ -130,7 +130,7 @@ class SimDummy(Connector):
         return not self.info.isPaused and self.read.vehicle.is_driving()
 
     def version(self):
-        return "0.0.1"
+        return self.read.check.version()
 
 
 # Add new API to API_PACK
@@ -138,6 +138,6 @@ class SimDummy(Connector):
 # for API selection, setting validator, config option
 API_PACK = (
     SimRF2,
-    SimDummy,
+    SimLMU,
 )
 API_NAME_LIST = tuple(_api.NAME for _api in API_PACK)
