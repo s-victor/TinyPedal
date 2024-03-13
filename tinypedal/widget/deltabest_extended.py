@@ -161,14 +161,14 @@ class Draw(Overlay):
 
             # Session deltabest
             if self.wcfg["show_session_deltabest"]:
-                session_deltabest = minfo.delta.sessionDeltaBest
+                session_deltabest = minfo.delta.deltaSession
                 self.update_deltabest(session_deltabest, self.last_session_deltabest,
                                       self.prefix_ssbest, "ssbest")
                 self.last_session_deltabest = session_deltabest
 
             # Stint deltabest
             if self.wcfg["show_stint_deltabest"]:
-                stint_deltabest = minfo.delta.stintDeltaBest
+                stint_deltabest = minfo.delta.deltaStint
                 self.update_deltabest(stint_deltabest, self.last_stint_deltabest,
                                       self.prefix_stbest, "stbest")
                 self.last_stint_deltabest = stint_deltabest

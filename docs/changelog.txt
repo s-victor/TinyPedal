@@ -1,3 +1,14 @@
+2.10.1 (WIP)
+-----------------------------
+* Deltabest Widget
+  - Add "deltabest_source" option,
+    which sets lap time source for deltabest display.
+    Available values are:
+      "Best" = all time best lap time,
+      "Session" = session best lap time,
+      "Stint" = stint best lap time,
+      "Last" = last lap time.
+
 2.10.0 (2024-03-10)
 -----------------------------
 * Relative, Rivals, Standings Widget
@@ -7,7 +18,7 @@
     which is used for storing brand logo image.
     Note: TinyPedal does not provide brand logo image assets,
     it is up to user to prepare images.
-    Maximum `PNG` file size is limited to `1MB`.
+    Maximum "PNG" file size is limited to "1MB".
     See "Brand logo" section in User Guide for customization guide.
   - Added "brand_logo_width" option,
     which sets maximum brand logo display width in pixels.
@@ -24,7 +35,7 @@
   - Added "warning_threshold_minutes" option,
     which sets warning threshold for
     estimated tyre lifespan in minutes.
-    Default is `6` minutes.
+    Default is "6" minutes.
   - Renamed "show_lifespan" option to "show_lifespan_laps".
 
 * Instrument Widget

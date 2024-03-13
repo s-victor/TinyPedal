@@ -96,7 +96,7 @@ class Draw(Overlay):
 
             # Deltabest
             self.delta_best = calc.sym_range(
-                minfo.delta.deltaBest,
+                getattr(minfo.delta, f"delta{self.wcfg['deltabest_source']}"),
                 self.wcfg["delta_display_range"])
             self.update_deltabest(self.delta_best, self.last_delta_best)
             self.last_delta_best = self.delta_best

@@ -566,8 +566,11 @@ Invert vehicle body integrity reading.
     layout
 2 layouts are available: `0` = delta bar above deltabest text, `1` = delta bar below deltabest text.
 
-    color_swap
+    swap_style
 Swap time gain & loss color between font & background color.
+
+    deltabest_source
+Set lap time source for deltabest display. Available values are: `Best` = all time best lap time, `Session` = session best lap time, `Stint` = stint best lap time, `Last` = last lap time.
 
     show_delta_bar
 Show visualized delta bar.

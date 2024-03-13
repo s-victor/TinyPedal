@@ -192,6 +192,7 @@ WIDGET_DEFAULT = {
         "bar_padding_horizontal": 0.5,
         "bar_padding_vertical": 0.4,
         "bar_gap": 2,
+        "deltabest_source": "Best",
         "font_color_deltabest": "#000000",
         "bkg_color_deltabest": "#222222",
         "bkg_color_time_gain": "#44FF00",

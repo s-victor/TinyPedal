@@ -34,8 +34,8 @@ class DeltaInfo:
     lapTimeStintBest: float = 0
     deltaBest: float = 0
     deltaLast: float = 0
-    sessionDeltaBest: float = 0
-    stintDeltaBest: float = 0
+    deltaSession: float = 0
+    deltaStint: float = 0
     isValidLap: bool = False
     metersDriven: float = 0
 

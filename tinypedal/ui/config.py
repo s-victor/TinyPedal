@@ -358,6 +358,11 @@ class UserConfig(QDialog):
                 self.__add_option_combolist(
                     idx, key, layout, rxp.ENCODING_LIST)
                 continue
+            # Deltabest string
+            if re.search(rxp.CFG_DELTABEST, key):
+                self.__add_option_combolist(
+                    idx, key, layout, rxp.DELTABEST_LIST)
+                continue
             # Heatmap string
             if re.search(rxp.CFG_HEATMAP, key):
                 self.__add_option_combolist(

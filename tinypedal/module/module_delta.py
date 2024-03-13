@@ -222,8 +222,8 @@ class Realtime:
                 minfo.delta.lapTimeStintBest = laptime_stint_best
                 minfo.delta.deltaBest = delta_best
                 minfo.delta.deltaLast = delta_last
-                minfo.delta.sessionDeltaBest = session_delta_best
-                minfo.delta.stintDeltaBest = stint_delta_best
+                minfo.delta.deltaSession = session_delta_best
+                minfo.delta.deltaStint = stint_delta_best
                 minfo.delta.isValidLap = laptime_valid > 0
                 minfo.delta.metersDriven = meters_driven
 

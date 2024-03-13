@@ -64,6 +64,11 @@ def remove_invalid_key(key_list_def: tuple, dict_user: dict):
                 if dict_user[key] not in rxp.ENCODING_LIST:
                     dict_user.pop(key)
                 continue
+            # Deltabest string
+            if re.search(rxp.CFG_DELTABEST, key):
+                if dict_user[key] not in rxp.DELTABEST_LIST:
+                    dict_user.pop(key)
+                continue
             # String
             if re.search(
                 fmt.pipe_join(

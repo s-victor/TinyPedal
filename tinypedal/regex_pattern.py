@@ -44,6 +44,7 @@ CFG_COLOR = "color"
 CFG_FONT_NAME = "font_name"
 CFG_FONT_WEIGHT = "font_weight"
 CFG_ENCODING = "character_encoding"
+CFG_DELTABEST = "deltabest_source"
 CFG_HEATMAP = "heatmap"
 CFG_STRING = (
     # Exact match
@@ -116,8 +117,9 @@ ABBR_LIST = (
 ABBR_PATTERN = "|".join(ABBR_LIST)
 
 # Option list & dictionary
-ENCODING_LIST = "UTF-8", "ISO-8859-1"
-FONT_WEIGHT_LIST = "normal", "bold"
+DELTABEST_LIST = ("Best", "Session", "Stint", "Last")
+ENCODING_LIST = ("UTF-8", "ISO-8859-1")
+FONT_WEIGHT_LIST = ("normal", "bold")
 UNITS_DICT = {
     "distance_unit": ("Meter", "Feet"),
     "fuel_unit": ("Liter", "Gallon"),
