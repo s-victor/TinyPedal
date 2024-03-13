@@ -598,7 +598,7 @@ Show deltabest against personal all time best lap time.
 Show deltabest against current personal session best lap time. Note: session deltabest will be reset upon changing session, or reload preset/restart APP.
 
     show_stint_deltabest
-Show deltabest against current personal stint best lap time. Note: stint deltabest will be reset when stopping in pit lane.
+Show deltabest against current personal stint best lap time. Note: stint deltabest will be reset if vehicle stops in pit lane.
 
     show_deltalast
 Show delta against personal last lap time (deltalast). Note: deltalast will be reset upon ESC.

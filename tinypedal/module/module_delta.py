@@ -122,7 +122,7 @@ class Realtime:
                 speed = api.read.vehicle.speed()
 
                 # Reset delta stint best if in pit
-                if in_pits and delta_list_stint[-1][0] and speed < 1:
+                if in_pits and delta_list_stint[-1][0] and speed < 0.1:
                     delta_list_stint = [DELTA_ZERO]
                     laptime_stint_best = 99999
 

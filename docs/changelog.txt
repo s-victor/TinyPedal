@@ -1,4 +1,4 @@
-2.10.1 (WIP)
+2.10.1 (2024-03-13)
 -----------------------------
 * Deltabest Widget
   - Add "deltabest_source" option,
@@ -11,12 +11,16 @@
 
 * Delta Module
   - Stint deltabest now only resets if
-    speed is below 1m/s while in pit lane.
+    vehicle stops in pit lane.
 
 * Vehicle Brand Editor & Vehicle Class Editor
   - "Add" button will now add all vehicle data
     found from current active session.
     Note, existing data will not be changed.
+
+* Misc
+  - Updated Deltabest Widget, Brands preset, Classes preset
+    sections in User Guide.
 
 2.10.0 (2024-03-10)
 -----------------------------
