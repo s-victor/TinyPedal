@@ -303,10 +303,10 @@ class BatchRenameBrand(QDialog):
         self.brand_entry = QLineEdit()
         self.brand_entry.setPlaceholderText("Enter a new name")
 
-        layout_option = QHBoxLayout()
+        layout_option = QVBoxLayout()
         layout_option.setAlignment(Qt.AlignTop)
-        layout_option.addWidget(self.brands_selector, stretch=2)
-        layout_option.addWidget(self.brand_entry, stretch=3)
+        layout_option.addWidget(self.brands_selector)
+        layout_option.addWidget(self.brand_entry)
 
         # Button
         button_rename = QPushButton("Rename")
@@ -316,8 +316,8 @@ class BatchRenameBrand(QDialog):
         button_cancel.rejected.connect(self.reject)
 
         layout_button = QHBoxLayout()
-        layout_button.addStretch(1)
         layout_button.addWidget(button_rename)
+        layout_button.addStretch(1)
         layout_button.addWidget(button_cancel)
 
         # Set layout
