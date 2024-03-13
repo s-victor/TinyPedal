@@ -13,6 +13,11 @@
   - Stint deltabest now only resets if
     speed is below 1m/s while in pit lane.
 
+* Vehicle Brand Editor & Vehicle Class Editor
+  - "Add" button will now add all vehicle classes
+    found from current active session.
+    Note, existing data will not be changed.
+
 2.10.0 (2024-03-10)
 -----------------------------
 * Relative, Rivals, Standings Widget

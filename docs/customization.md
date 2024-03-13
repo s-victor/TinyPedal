@@ -69,7 +69,7 @@ To import vehicle brand data, click `Import` button. Imported data will be appen
 
 Note: the importing feature is experimental. Maximum importing file size is limited to `5MB`.
 
-To add new brand name, click `Add` button. Note, the editor can auto-detect and fill-in player's full vehicle name from current active session.
+To add new brand name, click `Add` button. Note, the editor can auto-detect and fill-in all vehicle names found from current active session, existing data will not be changed.
 
 To sort brand name in orders, click `Sort` button.
 
@@ -89,7 +89,7 @@ Classes preset can be customized by accessing `Vehicle class editor` from `Confi
 
 To modify class setting, open `Vehicle class editor` and edit entries from each rows and columns. Each row represents a vehicle class. First column is full vehicle class name that must match in-game vehicle class name. Second column is abbreviation name. Third column is color (HEX code). Double-click on color to open color dialog.
 
-To add new class, click `Add Class` button. Note, the editor can auto-detect and fill-in player's full vehicle class name from current active session.
+To add new class, click `Add` button. Note, the editor can auto-detect and fill-in all vehicle classes found from current active session, existing data will not be changed.
 
 To remove a class, click `X` button of a row.
 

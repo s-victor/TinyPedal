@@ -21,6 +21,7 @@ Vehicle class editor
 """
 
 import time
+import random
 
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QIcon
@@ -41,6 +42,7 @@ from ..api_control import api
 from ..setting import cfg, copy_setting
 from ..const import APP_ICON
 from ..widget_control import wctrl
+from .. import formatter as fmt
 from .config import (
     ColorEdit,
     update_preview_color,
@@ -172,11 +174,25 @@ class VehicleClassEditor(QDialog):
     def add_class(self):
         """Add new class entry"""
         self.update_classes_temp()
-        current_class_name = api.read.vehicle.class_name()
-        # Check if class already exist or empty
-        if self.classes_temp.get(current_class_name) or not current_class_name:
-            current_class_name = "New Class Name"
-        self.classes_temp[current_class_name] = {"NAME": "#00AAFF"}
+        # New class entry
+        new_veh_class = {
+            "New Class Name":
+            {"NAME": fmt.random_color_class(str(random.random()))}
+        }
+        # Get all vehicle class from active session
+        veh_total = api.read.vehicle.total_vehicles()
+        if veh_total > 0:
+            session_veh_class = {
+                api.read.vehicle.class_name(index):
+                {"NAME": fmt.random_color_class(api.read.vehicle.class_name(index))}
+                for index in range(veh_total)
+            }
+            # Update new class to class temp
+            for key, item in session_veh_class.items():
+                if key not in self.classes_temp:
+                    self.classes_temp.update({key: item})
+        # Add new class entry
+        self.classes_temp.update(new_veh_class)
         self.refresh_list()
         # Move focus to new class row
         self.listbox_classes.setCurrentRow(len(self.classes_temp) - 1)

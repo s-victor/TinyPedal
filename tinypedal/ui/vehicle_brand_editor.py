@@ -216,24 +216,31 @@ class VehicleBrandEditor(QDialog):
         return None
 
     def add_brand(self):
-        """Add new brand entry"""
+        """Add new brand"""
         new_row_idx = len(self.brands_temp)
-        self.table_brands.insertRow(new_row_idx)
-        self.table_brands.setCurrentCell(new_row_idx - 1, 0)
-
-        current_vehicle_name = api.read.vehicle.vehicle_name()
-        # Check if brand already exist or empty
-        if self.brands_temp.get(current_vehicle_name) or not current_vehicle_name:
-            current_vehicle_name = "New Vehicle Name"
-
-        item_key = QTableWidgetItem()
-        item_key.setText(current_vehicle_name)
-        item_item = QTableWidgetItem()
-        item_item.setText("")
-        self.table_brands.setItem(new_row_idx, 0, item_key)
-        self.table_brands.setItem(new_row_idx, 1, item_item)
-
+        # Get all vehicle name from active session
+        veh_total = api.read.vehicle.total_vehicles()
+        if veh_total > 0:
+            for index in range(veh_total):
+                current_vehicle_name = api.read.vehicle.vehicle_name(index)
+                # Update new vehicle name to table
+                if current_vehicle_name not in self.brands_temp:
+                    self.add_vehicle_entry(new_row_idx, current_vehicle_name)
+                    new_row_idx += 1
+        # Add new name entry
+        self.add_vehicle_entry(new_row_idx, "New Vehicle Name")
         self.update_brands_temp()
+
+    def add_vehicle_entry(self, row_idx, veh_name):
+        """Add new brand entry to table"""
+        self.table_brands.insertRow(row_idx)
+        self.table_brands.setCurrentCell(row_idx - 1, 0)
+        item_key = QTableWidgetItem()
+        item_key.setText(veh_name)
+        item_item = QTableWidgetItem()
+        item_item.setText("Unknown")
+        self.table_brands.setItem(row_idx, 0, item_key)
+        self.table_brands.setItem(row_idx, 1, item_item)
 
     def reset_setting(self):
         """Reset setting"""
