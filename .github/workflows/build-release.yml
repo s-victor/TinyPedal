@@ -39,6 +39,7 @@ jobs:
       run: |
         tp_ver=$(grep "VERSION" "./tinypedal/const.py" | sed 's/[A-Z\ \=\"]//g')
         echo "app_ver=${tp_ver}" >> $GITHUB_OUTPUT
+        echo "TinyPedal Version:" $tp_ver
 
     - name: ZIP Linux file
       run: |
@@ -50,6 +51,7 @@ jobs:
       run: |
         sha256hash=$(sha256sum TinyPedal-${{ steps.get_ver.outputs.app_ver }}-linux.zip)
         echo "hash_output=${sha256hash}" >> $GITHUB_OUTPUT
+        echo $sha256hash
 
     - name: Upload release files
       uses: softprops/action-gh-release@v2
@@ -98,8 +100,9 @@ jobs:
     - name: Check hash sum
       id: get_hash
       run: |
-        sha256hash=$(sha256sum TinyPedal-${{ needs.linux.outputs.app_ver }}-windows.zip)
+        sha256hash=$(sha256sum TinyPedal-${{ needs.linux.outputs.app_ver }}-windows.zip | sed 's/\*//g')
         echo "hash_output=${sha256hash}" >> $GITHUB_OUTPUT
+        echo $sha256hash
 
     - name: Upload release files
       uses: softprops/action-gh-release@v2
@@ -123,6 +126,8 @@ jobs:
       run: |
         prev_line_num=$(grep -n "^\----*$" "./docs/changelog.txt" | sed -n "2,2p" | sed 's/[\:\-]//g')
         sed -n "1,$(expr $prev_line_num - 2)p" "./docs/changelog.txt" >> release.txt
+        echo "Hash sum" >> release.txt
+        echo "---" >> release.txt
         echo "SHA256:" ${{ needs.linux.outputs.sha256 }} >> release.txt
         echo "SHA256:" ${{ needs.windows.outputs.sha256 }} >> release.txt
         cat release.txt
