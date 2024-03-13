@@ -9,6 +9,10 @@
       "Stint" = stint best lap time,
       "Last" = last lap time.
 
+* Delta Module
+  - Stint deltabest now only resets if
+    speed is below 1m/s while in pit lane.
+
 2.10.0 (2024-03-10)
 -----------------------------
 * Relative, Rivals, Standings Widget
