@@ -29,7 +29,7 @@ VERSION = "2.10.1"
 PLATFORM = platform.system()
 APP_ICON = "images/icon.png"
 COPYRIGHT = "Copyright (C) 2022-2024 TinyPedal developers"
-DESCRIPTION = "An open-source overlay application for racing simulation."
+DESCRIPTION = "A Free and Open Source telemetry overlay application for racing simulation."
 LICENSE = "Licensed under the GNU General Public License v3.0 or later."
 WEBSITE = "https://github.com/s-victor/TinyPedal"
 

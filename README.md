@@ -1,6 +1,6 @@
 # TinyPedal
 
-TinyPedal is an open-source overlay application for racing simulation.
+TinyPedal is a Free and Open Source telemetry overlay application for racing simulation.
 
 Currently supports `rFactor 2` and `Le Mans Ultimate`.
 
