@@ -88,6 +88,7 @@ class SpectateList(QWidget):
             self.button_spectate.setDisabled(False)
             self.button_refresh.setDisabled(False)
             self.label_spectateed.setDisabled(False)
+            self.master.notify_spectate.show()
         else:
             self.button_toggle.setChecked(False)
             self.button_toggle.setText("Disabled")
@@ -95,6 +96,7 @@ class SpectateList(QWidget):
             self.button_spectate.setDisabled(True)
             self.button_refresh.setDisabled(True)
             self.label_spectateed.setDisabled(True)
+            self.master.notify_spectate.hide()
 
     def spectate_toggle_state(self):
         """Spectate state toggle"""

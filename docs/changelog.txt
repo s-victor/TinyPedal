@@ -1,3 +1,9 @@
+WIP
+-----------------------------
+* Config Window
+  - Add "Spectate Mode Enabled" status notification,
+    which shows when spectate mode is enabled.
+
 2.10.1 (2024-03-13)
 -----------------------------
 * Deltabest Widget

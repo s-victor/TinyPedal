@@ -27,9 +27,11 @@ from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import (
     QApplication,
     QMainWindow,
+    QWidget,
     QLabel,
     QAction,
     QTabWidget,
+    QVBoxLayout,
 )
 
 from ..const import APP_NAME, VERSION, APP_ICON
@@ -59,15 +61,21 @@ class AppWindow(QMainWindow):
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
         self.setWindowIcon(QIcon(APP_ICON))
 
-        # Create menu
+        # Menu bar
         self.main_menubar()
 
-        # Add status bar
+        # Status bar & notification
         self.label_api_version = QLabel("")
         self.statusBar().addPermanentWidget(self.label_api_version)
         self.set_status_text()
 
-        # Create tabs
+        self.notify_spectate = QLabel("Spectate Mode Enabled")
+        self.notify_spectate.setAlignment(Qt.AlignCenter)
+        self.notify_spectate.setStyleSheet(
+            "font-weight: bold;color: #fff;background: #09C;padding: 4px;"
+        )
+
+        # Controller tabs
         main_tab = QTabWidget()
         self.widget_tab = ModuleList(wctrl, cfg.active_widget_list, "widget")
         self.module_tab = ModuleList(mctrl, cfg.active_module_list, "module")
@@ -77,8 +85,17 @@ class AppWindow(QMainWindow):
         main_tab.addTab(self.module_tab, "Module")
         main_tab.addTab(self.preset_tab, "Preset")
         main_tab.addTab(self.spectate_tab, "Spectate")
-        self.setCentralWidget(main_tab)
 
+        # Main view
+        main_view = QWidget()
+        layout = QVBoxLayout(main_view)
+        layout.setContentsMargins(0,0,0,0)
+        layout.setSpacing(0)
+        layout.addWidget(main_tab)
+        layout.addWidget(self.notify_spectate)
+        self.setCentralWidget(main_view)
+
+        # Tray icon & window state
         self.start_tray_icon()
         self.set_window_state()
 
