@@ -177,12 +177,14 @@ class Draw(Overlay):
         """Draw final plot"""
         self.pixmap_plot.fill(Qt.transparent)
         painter = QPainter(self.pixmap_plot)
-        # Draw section plot, -2 sample offset
-        painter.drawPixmap(-self.display_scale * 2, 0, self.pixmap_plot_section)
+        # Draw section plot
+        painter.drawPixmap(0, 0, self.pixmap_plot_section)
         # Avoid overlapping previous frame
         painter.setCompositionMode(QPainter.CompositionMode_Source)
-        # Draw last plot, +1 sample offset
-        painter.drawPixmap(self.display_scale, 0, self.pixmap_plot_last)
+        # Draw last plot, +3 sample offset, -2 sample crop
+        painter.drawPixmap(
+            self.display_scale * 3, 0, self.pixmap_plot_last,
+            self.display_scale * 2, 0, 0 ,0)
 
     def draw_plot_section(self):
         """Draw section plot"""
