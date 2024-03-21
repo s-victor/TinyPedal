@@ -105,8 +105,8 @@ class Realtime:
         plr_lap_distance = api.read.lap.distance()
         plr_percentage_distance = calc.percentage_distance(plr_lap_distance, track_length)
         plr_speed = api.read.vehicle.speed()
-        plr_pos_xz = (api.read.vehicle.pos_longitudinal(),
-                      api.read.vehicle.pos_lateral())
+        plr_pos_xz = (api.read.vehicle.position_longitudinal(),
+                      api.read.vehicle.position_lateral())
         plr_ori_rad = api.read.vehicle.orientation_yaw_radians()
 
         # Generate data list from all vehicles in current session
@@ -170,8 +170,8 @@ class Realtime:
             tire_compound = api.read.tyre.compound(index)
 
             # Position data
-            pos_xz = (api.read.vehicle.pos_longitudinal(index),
-                      api.read.vehicle.pos_lateral(index))
+            pos_xz = (api.read.vehicle.position_longitudinal(index),
+                      api.read.vehicle.position_lateral(index))
             orientation_xz_radians = api.read.vehicle.orientation_yaw_radians(index)
             relative_rotated_pos_xz = calc.rotate_pos(
                 plr_ori_rad - 3.14159265,   # plr_ori_rad, rotate view

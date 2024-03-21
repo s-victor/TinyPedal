@@ -120,8 +120,8 @@ class Draw(Overlay):
 
             # Read speed, position data
             speed = api.read.vehicle.speed()
-            pos_curr = (api.read.vehicle.pos_longitudinal(),
-                        api.read.vehicle.pos_lateral())
+            pos_curr = (api.read.vehicle.position_longitudinal(),
+                        api.read.vehicle.position_lateral())
 
             # Vehicle orientation yaw
             self.veh_ori_yaw = calc.rad2deg(api.read.vehicle.orientation_yaw_radians()) + 180

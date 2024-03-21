@@ -138,7 +138,7 @@ class Draw(Overlay):
 
             # Elevation
             if self.wcfg["show_elevation"]:
-                elevation = round(api.read.vehicle.pos_vertical(), 3)
+                elevation = round(api.read.vehicle.position_vertical(), 3)
                 self.update_elevation(elevation, self.last_elevation)
                 self.last_elevation = elevation
 

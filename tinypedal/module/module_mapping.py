@@ -130,9 +130,9 @@ class MapRecorder:
         laptime_valid = api.read.timing.last_laptime()
         sector_idx = api.read.lap.sector_index()
         pos_curr = round(api.read.lap.distance(), 4)
-        gps_curr = (round(api.read.vehicle.pos_longitudinal(), 4),
-                    round(api.read.vehicle.pos_lateral(), 4))
-        elv_curr = round(api.read.vehicle.pos_vertical(), 4)
+        gps_curr = (round(api.read.vehicle.position_longitudinal(), 4),
+                    round(api.read.vehicle.position_lateral(), 4))
+        elv_curr = round(api.read.vehicle.position_vertical(), 4)
 
         # Update map data
         self.__start(lap_stime)

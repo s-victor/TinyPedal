@@ -193,8 +193,8 @@ class Draw(Overlay):
         # x, y position & offset relative to player
         rot_pos_x, rot_pos_y = calc.rotate_pos(
             plr_ori_rad,   # plr_ori_rad, rotate view
-            api.read.vehicle.pos_longitudinal() * self.global_scale - self.map_offset[0],
-            api.read.vehicle.pos_lateral() * self.global_scale - self.map_offset[1]
+            api.read.vehicle.position_longitudinal() * self.global_scale - self.map_offset[0],
+            api.read.vehicle.position_lateral() * self.global_scale - self.map_offset[1]
         )
         plr_ori_deg = calc.rad2deg(plr_ori_rad)
         center_offset_x = self.area_center - rot_pos_x

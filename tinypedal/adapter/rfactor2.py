@@ -579,71 +579,59 @@ class Vehicle(DataAdapter):
         """Orientation yaw in radians"""
         return calc.oriyaw2rad(*self.orientation_yaw(index))
 
-    def pos_x(self, index: int | None = None) -> float:
+    def position_x(self, index: int | None = None) -> float:
         """Raw X position"""
         return chknm(self.info.rf2TeleVeh(index).mPos.x)
 
-    def pos_y(self, index: int | None = None) -> float:
+    def position_y(self, index: int | None = None) -> float:
         """Raw Y position"""
         return chknm(self.info.rf2TeleVeh(index).mPos.y)
 
-    def pos_z(self, index: int | None = None) -> float:
+    def position_z(self, index: int | None = None) -> float:
         """Raw Z position"""
         return chknm(self.info.rf2TeleVeh(index).mPos.z)
 
-    def pos_longitudinal(self, index: int | None = None) -> float:
+    def position_longitudinal(self, index: int | None = None) -> float:
         """Longitudinal axis position related to world plane"""
-        return self.pos_x(index)  # in RF2 coord system
+        return self.position_x(index)  # in RF2 coord system
 
-    def pos_lateral(self, index: int | None = None) -> float:
+    def position_lateral(self, index: int | None = None) -> float:
         """Lateral axis position related to world plane"""
-        return -self.pos_z(index)  # in RF2 coord system
+        return -self.position_z(index)  # in RF2 coord system
 
-    def pos_vertical(self, index: int | None = None) -> float:
+    def position_vertical(self, index: int | None = None) -> float:
         """Vertical axis position related to world plane"""
-        return self.pos_y(index)  # in RF2 coord system
-
-    def accel_x(self, index: int | None = None) -> float:
-        """Raw X acceleration"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.x)
-
-    def accel_y(self, index: int | None = None) -> float:
-        """Raw Y acceleration"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.y)
-
-    def accel_z(self, index: int | None = None) -> float:
-        """Raw Z acceleration"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.z)
+        return self.position_y(index)  # in RF2 coord system
 
     def accel_lateral(self, index: int | None = None) -> float:
         """Lateral acceleration"""
-        return self.accel_x(index)  # in RF2 coord system
+        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.x)  # X in RF2 coord system
 
     def accel_longitudinal(self, index: int | None = None) -> float:
         """Longitudinal acceleration"""
-        return self.accel_z(index)  # in RF2 coord system
+        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.z)  # Z in RF2 coord system
 
     def accel_vertical(self, index: int | None = None) -> float:
         """Vertical acceleration"""
-        return self.accel_y(index)  # in RF2 coord system
+        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.y)  # Y in RF2 coord system
 
-    def velocity_x(self, index: int | None = None) -> float:
+    def velocity_lateral(self, index: int | None = None) -> float:
         """Raw X Velocity"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalVel.x)
+        return chknm(self.info.rf2TeleVeh(index).mLocalVel.x)  # X in RF2 coord system
 
-    def velocity_y(self, index: int | None = None) -> float:
-        """Raw Y Velocity"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalVel.y)
-
-    def velocity_z(self, index: int | None = None) -> float:
+    def velocity_longitudinal(self, index: int | None = None) -> float:
         """Raw Z Velocity"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalVel.z)
+        return chknm(self.info.rf2TeleVeh(index).mLocalVel.z)  # Z in RF2 coord system
+
+    def velocity_vertical(self, index: int | None = None) -> float:
+        """Raw Y Velocity"""
+        return chknm(self.info.rf2TeleVeh(index).mLocalVel.y)  # Y in RF2 coord system
 
     def speed(self, index: int | None = None) -> float:
         """Speed"""
-        return calc.vel2speed(self.velocity_x(index),
-                              self.velocity_y(index),
-                              self.velocity_z(index))
+        return calc.vel2speed(self.velocity_lateral(index),
+                              self.velocity_longitudinal(index),
+                              self.velocity_vertical(index))
 
     def downforce_front(self, index: int | None = None) -> float:
         """Downforce front"""
