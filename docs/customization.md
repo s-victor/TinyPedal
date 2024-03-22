@@ -449,6 +449,16 @@ Lap difference (percentage) threshold for tagging opponents as ahead. Default is
 Lap difference (percentage) threshold for tagging opponents as behind. Default is `0.9` lap.
 
 
+## Wheels
+**This module provides wheel radius and slip ratio data.**
+
+    last_vehicle_info
+Last saved vehicle identifier. This option is not for manual editing.
+
+    last_wheel_radius_front, last_wheel_radius_rear
+Last saved radius of front and rear wheels. This option is not for manual editing.
+
+
 # Widgets
 Each widget can be configured by accessing `Config` button from `Widget` tab in main window.
 
@@ -1048,12 +1058,6 @@ Set percentage threshold for triggering wheel lock warning under braking. `0.2` 
 
     wheel_slip_threshold
 Set percentage threshold for triggering wheel slip warning. `0.1` means 10% of tyre slip ratio.
-
-    last_wheel_radius_front, last_wheel_radius_rear
-Set radius for front and rear wheels, which is used to calculate tyre slip ratio. Manual editing is not required, as this value will be automatically calculated during driving, and will be auto-saved to `JSON` file.
-
-    minimum_speed
-Set minimum speed threshold for calculating wheel radius samples. Default is `16.5` (m/s),
 
 
 ## Lap time history

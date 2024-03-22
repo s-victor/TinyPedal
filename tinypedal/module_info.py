@@ -128,6 +128,17 @@ class VehiclesInfo:
     nearestYellow: float = 999999
 
 
+@dataclass
+class WheelsInfo:
+    """Wheels module output data"""
+    radiusFront: float = 0
+    radiusRear: float = 0
+    slipRatio: tuple = field(default_factory=tuple)
+
+    def __post_init__(self):
+        self.slipRatio = 0,0,0,0
+
+
 class ModuleInfo:
     """Modules output data"""
 
@@ -140,6 +151,7 @@ class ModuleInfo:
         self.relative = RelativeInfo()
         self.sectors = SectorsInfo()
         self.vehicles = VehiclesInfo()
+        self.wheels = WheelsInfo()
 
 
 minfo = ModuleInfo()

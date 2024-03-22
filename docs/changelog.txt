@@ -12,6 +12,10 @@ WIP
   - Renamed "max_g_force_freeze_duration" option
     to "max_g_force_reset_delay" for consistency.
 
+* [New]Wheels Module
+  - "Wheels Module" now calculates and outputs wheel radius
+    and slip ratio data for other modules and widgets.
+
 * Config Window
   - Add "Spectate Mode Enabled" status notification,
     which shows when spectate mode is enabled.

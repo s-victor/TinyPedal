@@ -33,4 +33,5 @@ from . import (
     module_relative,
     module_sectors,
     module_vehicles,
+    module_wheels,
 )

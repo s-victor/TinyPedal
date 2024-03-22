@@ -45,7 +45,7 @@ MODULE_DEFAULT = {
     },
     "module_hybrid": {
         "enable": True,
-        "update_interval": 20,
+        "update_interval": 10,
         "idle_update_interval": 400,
     },
     "module_mapping": {
@@ -70,5 +70,13 @@ MODULE_DEFAULT = {
         "idle_update_interval": 400,
         "lap_difference_ahead_threshold": 0.9,
         "lap_difference_behind_threshold": 0.9,
+    },
+    "module_wheels": {
+        "enable": True,
+        "update_interval": 10,
+        "idle_update_interval": 400,
+        "last_vehicle_info": "unknown",
+        "last_wheel_radius_front": 0,
+        "last_wheel_radius_rear": 0,
     },
 }

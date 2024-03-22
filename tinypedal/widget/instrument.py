@@ -20,17 +20,15 @@
 Instrument Widget
 """
 
-from collections import deque
 from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPixmap, QPainter, QPen
 from PySide2.QtWidgets import QLabel, QGridLayout
 
-from .. import calculation as calc
 from ..api_control import api
+from ..module_info import minfo
 from ._base import Overlay
 
 WIDGET_NAME = "instrument"
-MAX_SAMPLES = 320
 
 
 class Draw(Overlay):
@@ -130,17 +128,6 @@ class Draw(Overlay):
         self.setLayout(layout)
 
         # Last data
-        self.checked = False
-        self.vehicle_id = None
-        self.min_samples_f = 20
-        self.min_samples_r = 20
-        self.samples_slice_f = self.sample_slice_indices(self.min_samples_f)
-        self.samples_slice_r = self.sample_slice_indices(self.min_samples_r)
-        self.list_radius_f = deque([], MAX_SAMPLES)
-        self.list_radius_r = deque([], MAX_SAMPLES)
-        self.avg_wheel_radius_f = self.wcfg["last_wheel_radius_front"]
-        self.avg_wheel_radius_r = self.wcfg["last_wheel_radius_rear"]
-
         self.last_headlights = None
         self.last_ignition = None
         self.last_clutch = None
@@ -156,21 +143,6 @@ class Draw(Overlay):
         """Update when vehicle on track"""
         if api.state:
 
-            # Save switch
-            if not self.checked:
-                self.checked = True
-                self.vehicle_id = api.read.check.vehicle_id()
-                if self.wcfg["last_vehicle_info"] == self.vehicle_id:
-                    self.min_samples_f = MAX_SAMPLES
-                    self.min_samples_r = MAX_SAMPLES
-                else:
-                    self.min_samples_f = 20
-                    self.min_samples_r = 20
-                self.samples_slice_f = self.sample_slice_indices(self.min_samples_f)
-                self.samples_slice_r = self.sample_slice_indices(self.min_samples_r)
-                self.list_radius_f.clear()
-                self.list_radius_r.clear()
-
             # Read instrument data
             headlights = api.read.switch.headlights()
             ignition = (api.read.switch.ignition_starter(),
@@ -178,10 +150,8 @@ class Draw(Overlay):
             clutch = (api.read.switch.auto_clutch(),
                       api.read.input.clutch())
             is_braking = api.read.input.brake() > 0
-            wheel_rot = api.read.wheel.rotation()
-            speed = api.read.vehicle.speed()
 
-            slipratio = round(self.calc_slipratio(wheel_rot, speed), 3)
+            slipratio = round(max(minfo.wheels.slipRatio), 3)
             self.flicker = bool(not self.flicker)
 
             # Headlights
@@ -209,16 +179,6 @@ class Draw(Overlay):
             if self.wcfg["show_wheel_slip"]:
                 self.update_wslip(slipratio, self.last_slipratio)
                 self.last_slipratio = slipratio
-
-        else:
-            if self.checked:
-                self.checked = False
-
-                if self.min_samples_f == self.min_samples_r == MAX_SAMPLES:
-                    self.wcfg["last_vehicle_info"] = self.vehicle_id
-                    self.wcfg["last_wheel_radius_front"] = self.avg_wheel_radius_f
-                    self.wcfg["last_wheel_radius_rear"] = self.avg_wheel_radius_r
-                self.cfg.save()
 
     # GUI update methods
     def update_headlights(self, curr, last):
@@ -275,49 +235,3 @@ class Draw(Overlay):
         # Icon
         painter.drawPixmap(self.rect_size, self.icon_inst, self.rect_offset)
         canvas.setPixmap(pixmap)
-
-    # Additional methods
-    @staticmethod
-    def sample_slice_indices(min_samples):
-        """Calculate sample slice indices from minimum samples"""
-        return int(min_samples * 0.25), int(min_samples * 0.75)
-
-    def calc_slipratio(self, wheel_rot, speed):
-        """Calculate slip ratio"""
-        if speed > self.wcfg["minimum_speed"]:
-            # Get wheel rotation difference
-            # Max rotation vs average, negative = forward, so use min instead of max
-            diff_rot_f = calc.min_vs_avg(wheel_rot[0:2])
-            diff_rot_r = calc.min_vs_avg(wheel_rot[2:4])
-            # Record radius value for targeted rotation difference
-            if 0 < diff_rot_f < 0.1:
-                self.list_radius_f.append(
-                    calc.rot2radius(speed, calc.mean(wheel_rot[0:2])))
-            if 0 < diff_rot_r < 0.1:
-                self.list_radius_r.append(
-                    calc.rot2radius(speed, calc.mean(wheel_rot[2:4])))
-
-            # Front average wheel radius
-            if len(self.list_radius_f) >= self.min_samples_f:
-                self.avg_wheel_radius_f = round(
-                    calc.mean(sorted(self.list_radius_f)[self.samples_slice_f[0]:self.samples_slice_f[1]])
-                    , 3)
-                if self.min_samples_f < MAX_SAMPLES:
-                    self.min_samples_f *= 2  # double sample counts
-                    self.samples_slice_f = self.sample_slice_indices(self.min_samples_f)
-
-            # Rear average wheel radius
-            if len(self.list_radius_r) >= self.min_samples_r:
-                self.avg_wheel_radius_r = round(
-                    calc.mean(sorted(self.list_radius_r)[self.samples_slice_r[0]:self.samples_slice_r[1]])
-                    , 3)
-                if self.min_samples_r < MAX_SAMPLES:
-                    self.min_samples_r *= 2
-                    self.samples_slice_r = self.sample_slice_indices(self.min_samples_r)
-
-        return max(map(
-            calc.slip_ratio,
-            wheel_rot,
-            (self.avg_wheel_radius_f, self.avg_wheel_radius_f, self.avg_wheel_radius_r, self.avg_wheel_radius_r),
-            (speed, speed, speed, speed)
-        ))
