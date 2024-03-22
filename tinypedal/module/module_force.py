@@ -211,21 +211,22 @@ class Realtime:
         braking_rate = 0
         max_braking_rate = 0       # max rate
         max_braking_rate_alt = 0   # secondary max rate
-        max_braking_rate_temp = 0  # current max rate
+        max_braking_rate_current = 0  # current max rate
         delta_braking_rate = 0     # delta rate between best max & current max rate
         freeze_timer = 0
         reset_timer = 0
         reset_max = False
         while True:
             if last_etime != etime:
-                if api.read.input.brake_raw() > 0:
+                if api.read.input.brake_raw() > 0 and speed > 1:
                     braking_decel = max(last_speed - speed, 0) / (etime - last_etime)
                     braking_rate = braking_decel / self.mcfg["gravitational_acceleration"]
                     freeze_timer = etime
-                    # Update max braking rate
-                    if braking_rate > max_braking_rate_temp:
-                        max_braking_rate_temp = braking_rate
-                        # Reset
+                    # Update current max braking rate
+                    if braking_rate > max_braking_rate_current:
+                        max_braking_rate_current = braking_rate
+                    # Update secondary max braking rate
+                    if braking_rate > max_braking_rate:  # reset timer trigger
                         max_braking_rate_alt = 0
                         reset_timer = 0
                         reset_max = False
@@ -241,13 +242,19 @@ class Realtime:
                 reset_max = False
             # Start timer
             if freeze_timer:
-                delta_braking_rate = max_braking_rate_temp - max_braking_rate
+                delta_braking_rate = max_braking_rate_current - max_braking_rate
+                # Reset if impacted within past 2 seconds
+                if etime - api.read.vehicle.impact_time() < 2:
+                    freeze_timer = 0
+                    max_braking_rate_current = 0
+                    delta_braking_rate = 0
+                # Update current max rate to max rate, 3 seconds after brake released
                 if etime - freeze_timer > 3:
-                    if max_braking_rate_temp > max_braking_rate:
-                        max_braking_rate = max_braking_rate_temp
+                    if max_braking_rate_current > max_braking_rate:
+                        max_braking_rate = max_braking_rate_current
                         delta_braking_rate = 0
                     freeze_timer = 0
-                    max_braking_rate_temp = 0
+                    max_braking_rate_current = 0
             if reset_timer:
                 if etime - reset_timer > self.mcfg["max_braking_rate_reset_delay"]:
                     reset_timer = 0

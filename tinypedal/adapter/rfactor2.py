@@ -649,6 +649,10 @@ class Vehicle(DataAdapter):
         """Whether any vehicle parts are detached"""
         return chknm(self.info.rf2TeleVeh(index).mDetached)
 
+    def impact_time(self, index: int | None = None) -> float:
+        """Last impact time stamp"""
+        return chknm(self.info.rf2TeleVeh(index).mLastImpactET)
+
 
 class Wheel(DataAdapter):
     """Wheel & suspension"""
