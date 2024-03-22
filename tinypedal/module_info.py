@@ -45,14 +45,15 @@ class ForceInfo:
     """Force module output data"""
     lgtGForceRaw: float = 0
     latGForceRaw: float = 0
-    maxAvgLgtGForce: float = 0
     maxAvgLatGForce: float = 0
     maxLgtGForce: float = 0
     maxLatGForce: float = 0
-    gForceVector: float = 0
     downForceFront: float = 0
     downForceRear: float = 0
     downForceRatio: float = 0
+    brakingRate: float = 0
+    maxBrakingRate: float = 0
+    deltaBrakingRate: float = 0
 
 
 @dataclass

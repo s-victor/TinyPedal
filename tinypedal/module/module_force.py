@@ -70,8 +70,6 @@ class Realtime:
                     reset = True
                     update_interval = active_interval
 
-                    #gen_max_avg_lgt = self.calc_max_avg_gforce()
-                    #max_avg_lgt_gforce = next(gen_max_avg_lgt)
                     gen_max_avg_lat = self.calc_max_avg_gforce()
                     max_avg_lat_gforce = next(gen_max_avg_lat)
 
@@ -79,6 +77,8 @@ class Realtime:
                     max_lgt_gforce = next(gen_max_lgt)
                     gen_max_lat = self.calc_max_gforce()
                     max_lat_gforce = next(gen_max_lat)
+                    gen_braking_rate = self.calc_braking_rate()
+                    braking_rate, max_braking_rate, delta_braking_rate = next(gen_braking_rate)
 
                 # Read telemetry
                 lap_etime = api.read.timing.elapsed()
@@ -86,6 +86,7 @@ class Realtime:
                 lgt_accel = api.read.vehicle.accel_longitudinal()
                 dforce_f = api.read.vehicle.downforce_front()
                 dforce_r = api.read.vehicle.downforce_rear()
+                speed = api.read.vehicle.speed()
 
                 # G raw
                 lgt_gforce_raw = calc.gforce(
@@ -93,9 +94,8 @@ class Realtime:
                 lat_gforce_raw = calc.gforce(
                     lat_accel, self.mcfg["gravitational_acceleration"])
 
-                # Max average G
-                #max_avg_lgt_gforce = gen_max_avg_lgt.send(lgt_gforce_raw)
-                max_avg_lat_gforce = gen_max_avg_lat.send(lat_gforce_raw)
+                # Max average lateral G
+                max_avg_lat_gforce = gen_max_avg_lat.send((lat_gforce_raw, lap_etime))
 
                 # Max G
                 max_lgt_gforce = gen_max_lgt.send((lgt_gforce_raw, lap_etime))
@@ -107,17 +107,22 @@ class Realtime:
                 # Downforce
                 dforce_ratio = calc.force_ratio(dforce_f, dforce_f + dforce_r)
 
+                # Braking rate
+                (braking_rate, max_braking_rate, delta_braking_rate
+                 ) = gen_braking_rate.send((speed, lap_etime))
+
                 # Output force data
                 minfo.force.lgtGForceRaw = lgt_gforce_raw
                 minfo.force.latGForceRaw = lat_gforce_raw
-                #minfo.force.maxAvgLgtGForce = max_avg_lgt_gforce
                 minfo.force.maxAvgLatGForce = max_avg_lat_gforce
                 minfo.force.maxLgtGForce = max_lgt_gforce
                 minfo.force.maxLatGForce = max_lat_gforce
-                #minfo.force.gForceVector = gforce_vector
                 minfo.force.downForceFront = dforce_f
                 minfo.force.downForceRear = dforce_r
                 minfo.force.downForceRatio = dforce_ratio
+                minfo.force.brakingRate = braking_rate
+                minfo.force.maxBrakingRate = max_braking_rate
+                minfo.force.deltaBrakingRate = delta_braking_rate
 
             else:
                 if reset:
@@ -134,17 +139,36 @@ class Realtime:
         g_samples = array.array("f", [0] * max_samples)
         g_abs = 0
         g_abs_last = 0
-        g_max_avg = 0
+        g_max_avg = 0       # max average g
+        g_max_avg_alt = 0   # secondary max average g
         sample_counter = 0
         sample_idx = 0
+        etime = 0
+        reset_timer = 0
+        reset_max = False
         while True:
             if sample_counter >= max_samples:
                 g_avg = calc.mean(g_samples)
                 g_std = calc.std_dev(g_samples, g_avg)
-                if (g_avg > g_max_avg and
-                    0 < g_std <= self.mcfg["max_average_g_force_difference"]):
+                valid_range = 0 < g_std <= self.mcfg["max_average_g_force_difference"]
+                if g_avg > g_max_avg and valid_range:
                     g_max_avg = g_avg
                     sample_counter = 0
+                    reset_timer = 0
+                    reset_max = False
+                elif g_avg > g_max_avg_alt and valid_range:
+                    g_max_avg_alt = g_avg
+                    reset_timer = etime
+            # Reset max avg g
+            if reset_max:
+                g_max_avg = g_max_avg_alt
+                g_max_avg_alt = 0
+                reset_max = False
+            # Start reset timer
+            if reset_timer:
+                if etime - reset_timer > self.mcfg["max_average_g_force_reset_delay"]:
+                    reset_timer = 0
+                    reset_max = True
             # Reset sample index
             if sample_idx >= max_samples:
                 sample_idx = 0
@@ -154,23 +178,80 @@ class Realtime:
                 sample_idx += 1
                 if sample_counter < max_samples:
                     sample_counter += 1
-            g_raw = yield g_max_avg
+            # Output
+            g_raw, etime = yield g_max_avg
             g_abs = abs(g_raw)
 
     def calc_max_gforce(self):
         """Calc max G force"""
         g_abs = 0
         g_max_abs = 0
-        g_timer = 0
         etime = 0
+        reset_timer = 0
         while True:
             if g_abs > g_max_abs:
                 g_max_abs = g_abs
-                g_timer = etime
-            if g_timer:
-                time_diff = etime - g_timer
-                if time_diff > self.mcfg["max_g_force_freeze_duration"]:
+                reset_timer = etime
+            # Start reset timer
+            if reset_timer:
+                time_diff = etime - reset_timer
+                if time_diff > self.mcfg["max_g_force_reset_delay"]:
                     g_max_abs = g_abs
-                    g_timer = 0
+                    reset_timer = 0
+            # Output
             g_raw, etime = yield g_max_abs
             g_abs = abs(g_raw)
+
+    def calc_braking_rate(self):
+        """Calc braking rate"""
+        speed = 0
+        etime = 0
+        last_speed = 0
+        last_etime = 0
+        braking_rate = 0
+        max_braking_rate = 0       # max rate
+        max_braking_rate_alt = 0   # secondary max rate
+        max_braking_rate_temp = 0  # current max rate
+        delta_braking_rate = 0     # delta rate between best max & current max rate
+        freeze_timer = 0
+        reset_timer = 0
+        reset_max = False
+        while True:
+            if last_etime != etime:
+                if api.read.input.brake_raw() > 0:
+                    braking_decel = max(last_speed - speed, 0) / (etime - last_etime)
+                    braking_rate = braking_decel / self.mcfg["gravitational_acceleration"]
+                    freeze_timer = etime
+                    # Update max braking rate
+                    if braking_rate > max_braking_rate_temp:
+                        max_braking_rate_temp = braking_rate
+                        # Reset
+                        max_braking_rate_alt = 0
+                        reset_timer = 0
+                        reset_max = False
+                    elif braking_rate > max_braking_rate_alt:
+                        max_braking_rate_alt = braking_rate
+                        reset_timer = etime
+                last_speed = speed
+                last_etime = etime
+            # Reset max braking rate
+            if reset_max:
+                max_braking_rate = max_braking_rate_alt
+                max_braking_rate_alt = 0
+                reset_max = False
+            # Start timer
+            if freeze_timer:
+                delta_braking_rate = max_braking_rate_temp - max_braking_rate
+                if etime - freeze_timer > 3:
+                    if max_braking_rate_temp > max_braking_rate:
+                        max_braking_rate = max_braking_rate_temp
+                        delta_braking_rate = 0
+                    freeze_timer = 0
+                    max_braking_rate_temp = 0
+            if reset_timer:
+                if etime - reset_timer > self.mcfg["max_braking_rate_reset_delay"]:
+                    reset_timer = 0
+                    reset_max = True
+            # Output
+            # print(f"{braking_rate:.03f} {max_braking_rate:.03f} {delta_braking_rate:.03f}")
+            speed, etime = yield braking_rate, max_braking_rate, delta_braking_rate

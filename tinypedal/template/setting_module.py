@@ -32,9 +32,11 @@ MODULE_DEFAULT = {
         "update_interval": 10,
         "idle_update_interval": 400,
         "gravitational_acceleration": 9.80665,
-        "max_g_force_freeze_duration": 5,
+        "max_g_force_reset_delay": 5,
         "max_average_g_force_samples": 10,
         "max_average_g_force_difference": 0.2,
+        "max_average_g_force_reset_delay": 30,
+        "max_braking_rate_reset_delay": 60,
     },
     "module_fuel": {
         "enable": True,

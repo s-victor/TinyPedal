@@ -41,9 +41,7 @@ If APP fails to launch after editing `JSON`, check for typo error or invalid val
 
 If a value is surrounded by quotation marks, make sure not to remove those quotation marks, otherwise may cause error.
 
-Any boolean type value (true or false) will only accept: `true`, which can be substituted with `1`. And `false`, which can be substituted with `0`. All words must be in `lowercase`, otherwise will cause error.
-
-Also important to note, not every setting allows float point value that contains decimal places. Usually if a number (default value) does not contain any decimal place, that means it only accepts `integer`. Make sure not to add any decimal place, otherwise error may occur.
+Any boolean type value will only accept: `true` or `false` in lowercase.
 
 
 ## Brands preset
@@ -215,7 +213,7 @@ Acceptable value: `normal` or `bold`.
 Automatically adjust font vertical offset based on font geometry for better vertical alignment, and should give good result in most case. This option is enabled by default, and only available to certain widgets. Set `false` to disable.
 
     font_offset_vertical
-Manually set font vertical offset. Default value is `0`. Negative value will offset font upward, and position value for downward. This option only takes effect when `enable_auto_font_offset` is set to `false`.
+Manually set font vertical offset. Default is `0`. Negative value will offset font upward, and position value for downward. This option only takes effect when `enable_auto_font_offset` is set to `false`.
 
     bar_padding
 Set widget edge padding value that multiplies & scales with `font_size`. Default is `0.2` for most widgets.
@@ -280,7 +278,7 @@ Sets global background color for all widgets.
 Note, global background color will only be visible when `enable_translucent_background` option is disabled or translucent background is not supported. Some widgets with own background setting may override this option.
 
     grid_move_size
-Set grid size for grid move, value in pixel. Default value is `8` pixel. Minimum value is limited to `1`.
+Set grid size for grid move, value in pixel. Default is `8` pixel. Minimum value is limited to `1`.
 
 
 ## Shared memory API
@@ -346,7 +344,7 @@ Set custom tire compound index letter. One letter corresponds to one compound in
 Select a font name to replace `font_name` setting of all widgets. Default selection is `no change`, which no changes will be applied.
 
     Font Size Addend
-Set a value that will be added (or subtracted if negative) to `font_size` value of all widgets. Default value is `0`, which no changes will be applied.
+Set a value that will be added (or subtracted if negative) to `font_size` value of all widgets. Default is `0`, which no changes will be applied.
 
     Font Weight
 Set font weight to replace `font_weight` setting of all widgets. Default selection is `no change`, which no changes will be applied.
@@ -376,7 +374,7 @@ Enable delta module.
 
 
 ## Force
-**This module provides vehicle g force and downforce data.**
+**This module provides vehicle g force, downforce, braking rate data.**
 
     module_force
 Enable force module.
@@ -384,14 +382,20 @@ Enable force module.
     gravitational_acceleration
 Set gravitational acceleration value (on earth).
 
-    max_g_force_freeze_duration
-Set freeze duration (seconds) for max g force reading.
+    max_g_force_reset_delay
+Set time delay (in seconds) for resetting max g force reading.
 
     max_average_g_force_samples
 Set amount samples for calculating max average g force. Minimum value is limited to `3`.
 
     max_average_g_force_difference
 Set max average g force difference threshold which compares with the standard deviation calculated from max average g force samples. Default is `0.2` g.
+
+    max_average_g_force_reset_delay
+Set time delay (in seconds) for resetting max average g force. Default is `30` seconds.
+
+    max_braking_rate_reset_delay
+Set time delay (in seconds) for resetting max braking rate. Default is `60` seconds.
 
 
 ## Fuel
@@ -439,10 +443,10 @@ Store last saved sector info string of current session, not for manual editing.
 Enable vehicles module.
 
     lap_difference_ahead_threshold
-Lap difference (percentage) threshold for tagging opponents as ahead. Default value is `0.9` lap.
+Lap difference (percentage) threshold for tagging opponents as ahead. Default is `0.9` lap.
 
     lap_difference_behind_threshold
-Lap difference (percentage) threshold for tagging opponents as behind. Default value is `0.9` lap.
+Lap difference (percentage) threshold for tagging opponents as behind. Default is `0.9` lap.
 
 
 # Widgets
@@ -468,7 +472,7 @@ Show electric boost motor activation timer.
 Set percentage threshold for low battery charge warning indicator.
 
     freeze_duration
-Set freeze duration (seconds) for previous lap drained/regenerated battery charge display. Default value is `10` seconds.
+Set freeze duration (seconds) for previous lap drained/regenerated battery charge display. Default is `10` seconds.
 
 
 ## Brake bias
@@ -507,7 +511,7 @@ Set amount leading zeros for each temperature value. Default is `2`. Minimum val
 Show average brake temperature calculated from a full lap.
 
     highlight_duration
-Set duration (seconds) for highlighting average brake temperature from previous lap after crossing start/finish line. Default value is `5` seconds.
+Set duration (seconds) for highlighting average brake temperature from previous lap after crossing start/finish line. Default is `5` seconds.
 
 
 ## Cruise
@@ -517,7 +521,7 @@ Set duration (seconds) for highlighting average brake temperature from previous 
 Show current in-game clock time of the circuit.
 
     track_clock_time_scale
-Set time multiplier for time-scaled session. Default value is `1`, which matches `Time Scale: Normal` setting in-game.
+Set time multiplier for time-scaled session. Default is `1`, which matches `Time Scale: Normal` setting in-game.
 
     track_clock_format
 Set track clock format string. To show seconds, add `%S`, such as `"%H:%M:%S %p"`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
@@ -579,10 +583,10 @@ Show visualized delta bar.
 Set delta bar length & height in pixels.
 
     bar_display_range
-Set max display range (gain or loss) in seconds for delta bar, accepts decimal place. Default value is `2` seconds.
+Set max display range (gain or loss) in seconds for delta bar, accepts decimal place. Default is `2` seconds.
 
     delta_display_range
-Set max display range (gain or loss) in seconds for delta reading, accepts decimal place. Default value is `99.999` seconds.
+Set max display range (gain or loss) in seconds for delta reading, accepts decimal place. Default is `99.999` seconds.
 
     show_animated_deltabest
 Deltabest display follows delta bar progress.
@@ -689,10 +693,10 @@ Show low fuel indicator when fuel level is below certain amount value.
 Only show low fuel indicator during race session.
 
     low_fuel_volume_threshold
-Set fuel volume threshold to show low fuel indicator when total amount of remaining fuel is equal or less than this value. This value takes consideration from `fuel_unit` setting of Fuel Widget. For example, if `fuel_unit` is set to gallon, then this value should also be set using gallon unit. The purpose of this setting is to limit low fuel warning when racing on lengthy tracks, where fuel tank may only hold for a lap or two. Default value is `20`.
+Set fuel volume threshold to show low fuel indicator when total amount of remaining fuel is equal or less than this value. This value takes consideration from `fuel_unit` setting of Fuel Widget. For example, if `fuel_unit` is set to gallon, then this value should also be set using gallon unit. The purpose of this setting is to limit low fuel warning when racing on lengthy tracks, where fuel tank may only hold for a lap or two. Default is `20`.
 
     low_fuel_lap_threshold
-Set amount lap threshold to show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default value is `2` laps before running out of fuel.
+Set amount lap threshold to show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default is `2` laps before running out of fuel.
 
     show_speed_limiter
 Show speed limiter indicator.
@@ -719,7 +723,7 @@ Only show blue flag indicator during race session.
 Show race start lights indicator with light frame number for standing-type start.
 
     green_flag_duration
-Set display duration(seconds) for green flag text before it disappears. Default value is `3`.
+Set display duration(seconds) for green flag text before it disappears. Default is `3`.
 
     red_lights_text
 Set custom text for red lights.
@@ -772,7 +776,7 @@ Set widget size in pixels.
 Set viewable g force range by radius(g).
 
     display_orientation
-Set display orientation for longitudinal & lateral g force axis. Default value is `0`, which shows brake at top, acceleration at bottom, right-turn at left, left-turn at right. Set to `1` to inverted orientation.
+Set display orientation for longitudinal & lateral g force axis. Default is `0`, which shows brake at top, acceleration at bottom, right-turn at left, left-turn at right. Set to `1` to inverted orientation.
 
     show_readings
 Show values from g force reading. Value at top is current longitudinal g force, and value at bottom is max longitudinal g force. Value at left is max lateral g force, and value at right is current lateral g force.
@@ -881,10 +885,10 @@ Estimated fuel consumption reading for one less pit stop.
 Estimate number of pit stop counts when making a pit stop at end of current stint. Any non-zero decimal places would be considered for an additional pit stop.
 
     bar_width
-Set each column width, value in chars, such as 10 = 10 chars. Default value is `5`. Minimum width is limited to `3`.
+Set each column width, value in chars, such as 10 = 10 chars. Default is `5`. Minimum width is limited to `3`.
 
     low_fuel_lap_threshold
-Set amount lap threshold to show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default value is `2` laps before running out of fuel.
+Set amount lap threshold to show low fuel indicator when total completable laps of remaining fuel is equal or less than this value. Default is `2` laps before running out of fuel.
 
     warning_color_low_fuel
 Set low fuel color indicator, which changes widget background color when there is just 2 laps of fuel left.
@@ -912,7 +916,7 @@ Set custom caption text.
 **This widget displays gear, RPM, speed, battery info.**
 
     inner_gap
-Set inner gap between gear & speed readings. Negative value reduces gap, while positive value increases gap. Default value is `0`.
+Set inner gap between gear & speed readings. Negative value reduces gap, while positive value increases gap. Default is `0`.
 
     show_speed
 Show speed reading.
@@ -921,7 +925,7 @@ Show speed reading.
 Show speed reading below gear.
 
     font_scale_speed
-Set font scale for speed reading. This option only takes effect when `show_speed_below_gear` is enabled. Default value is `0.5`.
+Set font scale for speed reading. This option only takes effect when `show_speed_below_gear` is enabled. Default is `0.5`.
 
     show_battery_bar
 Show battery bar, which is only visible if electric motor available.
@@ -954,7 +958,7 @@ This value multiplies max RPM value, which sets critical RPM range for RPM color
 Show flickering effects when RPM is above critical range and gear is lower than max gear.
 
     neutral_warning_speed_threshold, neutral_warning_time_threshold
-Set speed/time threshold value for neutral gear color warning, which activates color warning when speed & time-in-neutral is higher than threshold. Speed unit in meters per second, default value is `28`. Time unit in seconds, default value is `0.3` seconds.
+Set speed/time threshold value for neutral gear color warning, which activates color warning when speed & time-in-neutral is higher than threshold. Speed unit in meters per second, Default is `28`. Time unit in seconds, Default is `0.3` seconds.
 
 
 ## Heading
@@ -1049,7 +1053,7 @@ Set percentage threshold for triggering wheel slip warning. `0.1` means 10% of t
 Set radius for front and rear wheels, which is used to calculate tyre slip ratio. Manual editing is not required, as this value will be automatically calculated during driving, and will be auto-saved to `JSON` file.
 
     minimum_speed
-Set minimum speed threshold for calculating wheel radius samples. Default value is `16.5` (m/s),
+Set minimum speed threshold for calculating wheel radius samples. Default is `16.5` (m/s),
 
 
 ## Lap time history
@@ -1072,7 +1076,7 @@ Show empty lap time history. Default is `false`, which hides empty rows.
 Set widget size in pixels.
 
     view_radius
-Set viewable area by radius(unit meter). Default value is `500` meters. Minimum value is limited to `5`.
+Set viewable area by radius(unit meter). Default is `500` meters. Minimum value is limited to `5`.
 
     show_background
 Show background color that covers entire widget.
@@ -1177,10 +1181,10 @@ Show Force Feedback meter.
 **This widget displays vehicle radar info.**
 
     global_scale
-Sets global scale of radar display. Default value is `6`, which is 6 times of original size.
+Sets global scale of radar display. Default is `6`, which is 6 times of original size.
 
     radar_radius
-Set the radar display area by radius(unit meter). Default value is `30` meters. Minimum value is limited to `5`.
+Set the radar display area by radius(unit meter). Default is `30` meters. Minimum value is limited to `5`.
 
     vehicle_length, vehicle_width
 Set vehicle overall size (length & width), value in meters.
@@ -1240,10 +1244,10 @@ Set distance circle line width in pixels.
 Auto hides radar display when no nearby vehicles.
 
     auto_hide_time_threshold
-Set amount time(unit second) before triggering auto hide. Default value is `1` second.
+Set amount time(unit second) before triggering auto hide. Default is `1` second.
 
     minimum_auto_hide_distance
-Set minimum straight line distance(unit meter) before triggering auto hide. Set `-1` value to auto scale with `radar_radius` value. Default value is `-1`.
+Set minimum straight line distance(unit meter) before triggering auto hide. Set `-1` value to auto scale with `radar_radius` value. Default is `-1`.
 
 
 ## Rake angle
@@ -1350,7 +1354,7 @@ Show pit request color indicator on pitstop count column.
 Show vehicles that are stored in garage stall during race (for example, DNF or DQ). Default is `false`.
 
     additional_players_front, additional_players_behind
-Set additional players shown on relative list. Each value is limited to a maximum of 60 additional players (for a total of 120 additional players). Default value is `0`.
+Set additional players shown on relative list. Each value is limited to a maximum of 60 additional players (for a total of 120 additional players). Default is `0`.
 
 
 ## Ride height
@@ -1380,7 +1384,7 @@ Set custom time interval color of opponent ahead and behind.
 Set mode for accumulated target sector time. Set `0` to show theoretical best sector time from session best sectors. Set `1` to show sector time from personal best lap time.
 
     freeze_duration
-Set freeze duration (seconds) for previous sector time display. Default value is `5` seconds.
+Set freeze duration (seconds) for previous sector time display. Default is `5` seconds.
 
     always_show_laptime_gap
 Set `true` to always show sector/lap time gap bar. Set `false` to show only in freeze duration.
@@ -1452,19 +1456,19 @@ Set cooldown duration (seconds) before resetting maximum speed value.
 Set maximum amount vehicles to display, which takes effect when `enable_multi_class_split_mode` is not enabled. When total vehicle number is lower than this value, extra rows will auto-hide. When total vehicle number is above this value, the top 3 vehicles will always show, and rest of the vehicles will be selected from the nearest front and behind places related to player.
 
     max_vehicles_split_mode
-Set maximum amount vehicles to display, which takes effect when in multi-class session and `enable_multi_class_split_mode` is enabled. If total vehicle number is above this value, any extra vehicles will not be shown. Default value is `50`, which is sufficient in most case.
+Set maximum amount vehicles to display, which takes effect when in multi-class session and `enable_multi_class_split_mode` is enabled. If total vehicle number is above this value, any extra vehicles will not be shown. Default is `50`, which is sufficient in most case.
 
     min_top_vehicles
-Set minimum amount top place vehicles to display. This value has higher priority than other `max_vehicles` settings. Default value is `3`, which always shows top 3 vehicles if present.
+Set minimum amount top place vehicles to display. This value has higher priority than other `max_vehicles` settings. Default is `3`, which always shows top 3 vehicles if present.
 
     enable_multi_class_split_mode
 Enable multi-class split mode, which splits and displays each vehicle class in separated groups. This mode will only take effect when there is more than one vehicle class present in a session, otherwise it will automatically fall back to normal single class mode.
 
     max_vehicles_per_split_player
-Set maximum amount vehicles to display for class where player is in. Default value is `7`. Note that, if player is not in first place, then at least one opponent ahead of player will always be displayed, even if this value sets lower.
+Set maximum amount vehicles to display for class where player is in. Default is `7`. Note that, if player is not in first place, then at least one opponent ahead of player will always be displayed, even if this value sets lower.
 
     max_vehicles_per_split_others
-Set maximum amount vehicles to display for classes where player is not in. Default value is `3`.
+Set maximum amount vehicles to display for classes where player is not in. Default is `3`.
 
     split_gap
 Set split gap between each class.

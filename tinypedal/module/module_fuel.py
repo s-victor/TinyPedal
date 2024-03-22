@@ -132,7 +132,6 @@ class Realtime:
                     used_curr += amount_last - amount_curr
                     amount_last = amount_curr
 
-
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime != -1:
                     if len(delta_list_curr) > 1 and not pit_lap:

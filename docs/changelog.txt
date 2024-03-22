@@ -1,5 +1,17 @@
 WIP
 -----------------------------
+* Force Module
+  - Add "braking rate", "delta braking rate", "max braking rate",
+    which outputs braking deceleration rate in g.
+  - Add "max_average_g_force_reset_delay" option,
+    which sets time delay (in seconds) for resetting
+    max average g force. Default is "30" seconds.
+  - Add "max_braking_rate_reset_delay" option,
+    which sets time delay (in seconds) for resetting
+    max braking rate. Default is "60" seconds.
+  - Renamed "max_g_force_freeze_duration" option
+    to "max_g_force_reset_delay" for consistency.
+
 * Config Window
   - Add "Spectate Mode Enabled" status notification,
     which shows when spectate mode is enabled.
