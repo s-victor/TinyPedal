@@ -73,9 +73,9 @@ WIDGET_DEFAULT = {
     },
     "brake_performance": {
         "enable": True,
-        "update_interval": 100,
+        "update_interval": 20,
         "position_x": 57,
-        "position_y": 98,
+        "position_y": 753,
         "opacity": 0.9,
         "layout": 0,
         "font_name": "Consolas",
