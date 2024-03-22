@@ -191,7 +191,7 @@ class Draw(Overlay):
                     self.last_lap_stime = lap_stime
                     self.reset_lock_duration = True  # trigger reset on next braking
 
-                if api.read.input.brake_raw() > 0:
+                if api.read.input.brake_raw() > 0.03:
                     if self.reset_lock_duration:
                         self.lock_time_f = 0
                         self.lock_time_r = 0

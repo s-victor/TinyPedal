@@ -217,7 +217,7 @@ class Realtime:
         reset_max = False
         while True:
             if last_etime != etime:
-                if api.read.input.brake_raw() > 0 and speed > 1:
+                if api.read.input.brake_raw() > 0.03 and speed > 1:
                     braking_decel = max(last_speed - speed, 0) / (etime - last_etime)
                     braking_rate = braking_decel / self.mcfg["gravitational_acceleration"]
                     freeze_timer = etime
