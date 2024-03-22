@@ -151,7 +151,7 @@ class Draw(Overlay):
                       api.read.input.clutch())
             is_braking = api.read.input.brake() > 0
 
-            slipratio = round(max(minfo.wheels.slipRatio), 3)
+            slip_ratio = round(max(minfo.wheels.slipRatio), 3)
             self.flicker = bool(not self.flicker)
 
             # Headlights
@@ -171,14 +171,14 @@ class Draw(Overlay):
 
             # Wheel lock
             if self.wcfg["show_wheel_lock"]:
-                wlock = (is_braking, slipratio)
+                wlock = (is_braking, slip_ratio)
                 self.update_wlock(wlock, self.last_wlock)
                 self.last_wlock = wlock
 
             # Wheel slip
             if self.wcfg["show_wheel_slip"]:
-                self.update_wslip(slipratio, self.last_slipratio)
-                self.last_slipratio = slipratio
+                self.update_wslip(slip_ratio, self.last_slipratio)
+                self.last_slipratio = slip_ratio
 
     # GUI update methods
     def update_headlights(self, curr, last):

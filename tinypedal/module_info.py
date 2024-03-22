@@ -52,6 +52,7 @@ class ForceInfo:
     downForceRear: float = 0
     downForceRatio: float = 0
     brakingRate: float = 0
+    transientMaxBrakingRate: float = 0
     maxBrakingRate: float = 0
     deltaBrakingRate: float = 0
 

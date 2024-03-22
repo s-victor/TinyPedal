@@ -1,8 +1,24 @@
 WIP
 -----------------------------
+* [New]Brake performance Widget
+  - Show transient max braking rate (g) from last braking input,
+    and resets after 3 seconds.
+  - Show max braking rate (g), and resets after a set period of time
+    that defined by "max_braking_rate_reset_delay" value in Force Module.
+  - Show max braking rate difference (g) against
+    transient max braking rate, and resets on the next braking.
+  - Show max braking rate difference (g) in percentage (%) instead.
+  - Show front and rear wheel lock duration (seconds)
+    per lap under braking.
+    Duration increases when tyre slip ratio has exceeded
+    "wheel_lock_threshold" value, and resets on first
+    braking input of a new lap.
+
+* Instrument Widget
+  - Changed "wheel_lock_threshold" default value to "0.3".
+
 * Force Module
-  - Add "braking rate", "delta braking rate", "max braking rate",
-    which outputs braking deceleration rate in g.
+  - Add "braking rate" calculation and output.
   - Add "max_average_g_force_reset_delay" option,
     which sets time delay (in seconds) for resetting
     max average g force. Default is "30" seconds.

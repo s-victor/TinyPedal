@@ -495,6 +495,28 @@ Show both front and rear bias. Default is `false`.
 Set `true` to show percentage sign for brake bias value.
 
 
+## Brake performance
+**This widget displays brake performance info.**
+
+    show_transient_max_braking_rate
+Show transient max braking rate (g) from last braking input, and resets after 3 seconds.
+
+    show_max_braking_rate
+Show max braking rate (g), and resets after a set period of time that defined by `max_braking_rate_reset_delay` value in Force Module.
+
+    show_delta_braking_rate
+Show max braking rate difference (g) against transient max braking rate, and resets on the next braking.
+
+    show_delta_braking_rate_in_percentage
+Show max braking rate difference (g) in percentage (%) instead.
+
+    show_front_wheel_lock_duration, show_rear_wheel_lock_duration
+Show front and rear wheel lock duration (seconds) per lap under braking. Duration increases when tyre slip ratio has exceeded "wheel_lock_threshold" value, and resets on first braking input of a new lap.
+
+    wheel_lock_threshold
+Set percentage threshold for counting wheel lock duration under braking. `0.3` means 30% of tyre slip ratio.
+
+
 ## Brake pressure
 **This widget displays visualized percentage brake pressure info.**
 
@@ -1054,7 +1076,7 @@ Show Wheel Lock state.
 Show Wheel Slip state.
 
     wheel_lock_threshold
-Set percentage threshold for triggering wheel lock warning under braking. `0.2` means 20% of tyre slip ratio.
+Set percentage threshold for triggering wheel lock warning under braking. `0.3` means 30% of tyre slip ratio.
 
     wheel_slip_threshold
 Set percentage threshold for triggering wheel slip warning. `0.1` means 10% of tyre slip ratio.

@@ -78,7 +78,8 @@ class Realtime:
                     gen_max_lat = self.calc_max_gforce()
                     max_lat_gforce = next(gen_max_lat)
                     gen_braking_rate = self.calc_braking_rate()
-                    braking_rate, max_braking_rate, delta_braking_rate = next(gen_braking_rate)
+                    (braking_rate, max_braking_rate_transient, max_braking_rate, delta_braking_rate
+                     ) = next(gen_braking_rate)
 
                 # Read telemetry
                 lap_etime = api.read.timing.elapsed()
@@ -108,7 +109,7 @@ class Realtime:
                 dforce_ratio = calc.force_ratio(dforce_f, dforce_f + dforce_r)
 
                 # Braking rate
-                (braking_rate, max_braking_rate, delta_braking_rate
+                (braking_rate, max_braking_rate_transient, max_braking_rate, delta_braking_rate
                  ) = gen_braking_rate.send((speed, lap_etime))
 
                 # Output force data
@@ -121,6 +122,7 @@ class Realtime:
                 minfo.force.downForceRear = dforce_r
                 minfo.force.downForceRatio = dforce_ratio
                 minfo.force.brakingRate = braking_rate
+                minfo.force.transientMaxBrakingRate = max_braking_rate_transient
                 minfo.force.maxBrakingRate = max_braking_rate
                 minfo.force.deltaBrakingRate = delta_braking_rate
 
@@ -165,10 +167,9 @@ class Realtime:
                 g_max_avg_alt = 0
                 reset_max = False
             # Start reset timer
-            if reset_timer:
-                if etime - reset_timer > self.mcfg["max_average_g_force_reset_delay"]:
-                    reset_timer = 0
-                    reset_max = True
+            if reset_timer and etime - reset_timer > self.mcfg["max_average_g_force_reset_delay"]:
+                reset_timer = 0
+                reset_max = True
             # Reset sample index
             if sample_idx >= max_samples:
                 sample_idx = 0
@@ -193,11 +194,9 @@ class Realtime:
                 g_max_abs = g_abs
                 reset_timer = etime
             # Start reset timer
-            if reset_timer:
-                time_diff = etime - reset_timer
-                if time_diff > self.mcfg["max_g_force_reset_delay"]:
-                    g_max_abs = g_abs
-                    reset_timer = 0
+            if reset_timer and etime - reset_timer > self.mcfg["max_g_force_reset_delay"]:
+                g_max_abs = g_abs
+                reset_timer = 0
             # Output
             g_raw, etime = yield g_max_abs
             g_abs = abs(g_raw)
@@ -211,8 +210,8 @@ class Realtime:
         braking_rate = 0
         max_braking_rate = 0       # max rate
         max_braking_rate_alt = 0   # secondary max rate
-        max_braking_rate_current = 0  # current max rate
-        delta_braking_rate = 0     # delta rate between best max & current max rate
+        max_braking_rate_transient = 0  # transient max rate
+        delta_braking_rate = 0     # delta rate between best max & transient max rate
         freeze_timer = 0
         reset_timer = 0
         reset_max = False
@@ -222,9 +221,9 @@ class Realtime:
                     braking_decel = max(last_speed - speed, 0) / (etime - last_etime)
                     braking_rate = braking_decel / self.mcfg["gravitational_acceleration"]
                     freeze_timer = etime
-                    # Update current max braking rate
-                    if braking_rate > max_braking_rate_current:
-                        max_braking_rate_current = braking_rate
+                    # Update transient max braking rate
+                    if braking_rate > max_braking_rate_transient:
+                        max_braking_rate_transient = braking_rate
                     # Update secondary max braking rate
                     if braking_rate > max_braking_rate:  # reset timer trigger
                         max_braking_rate_alt = 0
@@ -242,23 +241,22 @@ class Realtime:
                 reset_max = False
             # Start timer
             if freeze_timer:
-                delta_braking_rate = max_braking_rate_current - max_braking_rate
+                delta_braking_rate = max_braking_rate_transient - max_braking_rate
                 # Reset if impacted within past 2 seconds
                 if etime - api.read.vehicle.impact_time() < 2:
                     freeze_timer = 0
-                    max_braking_rate_current = 0
+                    max_braking_rate_transient = 0
                     delta_braking_rate = 0
-                # Update current max rate to max rate, 3 seconds after brake released
+                # Update transient max rate to max rate, 3 seconds after brake released
                 if etime - freeze_timer > 3:
-                    if max_braking_rate_current > max_braking_rate:
-                        max_braking_rate = max_braking_rate_current
-                        delta_braking_rate = 0
+                    if max_braking_rate_transient > max_braking_rate:
+                        max_braking_rate = max_braking_rate_transient
                     freeze_timer = 0
-                    max_braking_rate_current = 0
-            if reset_timer:
-                if etime - reset_timer > self.mcfg["max_braking_rate_reset_delay"]:
-                    reset_timer = 0
-                    reset_max = True
+                    max_braking_rate_transient = 0
+            if reset_timer and etime - reset_timer > self.mcfg["max_braking_rate_reset_delay"]:
+                reset_timer = 0
+                reset_max = True
             # Output
             # print(f"{braking_rate:.03f} {max_braking_rate:.03f} {delta_braking_rate:.03f}")
-            speed, etime = yield braking_rate, max_braking_rate, delta_braking_rate
+            speed, etime = yield (
+                braking_rate, max_braking_rate_transient, max_braking_rate, delta_braking_rate)

@@ -27,6 +27,7 @@ in template/setting_widget.py dictionary.
 from . import (
     battery,
     brake_bias,
+    brake_performance,
     brake_pressure,
     brake_temperature,
     cruise,
