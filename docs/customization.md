@@ -1664,6 +1664,12 @@ Set trailing line width in pixels.
     *_line_style
 Set trailing line style. `0` for solid line, `1` for dashed line.
 
+    show_wheel_lock
+Show wheel lock (slip ratio) plot under braking when slip ratio has exceeded `wheel_lock_threshold` value.
+
+    wheel_lock_threshold
+Set percentage threshold for triggering wheel lock warning under braking. `0.3` means 30% of tyre slip ratio.
+
     show_reference_line
 Show reference line.
 

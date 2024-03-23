@@ -17,6 +17,12 @@ WIP
 * Instrument Widget
   - Changed "wheel_lock_threshold" default value to "0.3".
 
+* Trailing Widget
+  - Add "show_wheel_lock" option,
+    which shows wheel lock (slip ratio) plot under braking
+    when slip ratio has exceeded "wheel_lock_threshold" value.
+    Default "wheel_lock_threshold" value is "0.3".
+
 * Force Module
   - Add "braking rate" calculation and output.
   - Add "max_average_g_force_reset_delay" option,

@@ -21,10 +21,11 @@ Trailing Widget
 """
 
 from collections import deque
-from PySide2.QtCore import Qt, Slot, QPointF
+from PySide2.QtCore import Qt, Slot, QPointF, QRect
 from PySide2.QtGui import QPainter, QPixmap, QPen
 
 from ..api_control import api
+from ..module_info import minfo
 from ._base import Overlay
 
 WIDGET_NAME = "trailing"
@@ -59,6 +60,8 @@ class Draw(Overlay):
 
         # Config canvas
         self.resize(self.area_width, self.area_height)
+        self.rect_viewport = self.set_viewport_orientation()
+
         self.pixmap_background = QPixmap(self.area_width, self.area_height)
         self.pixmap_plot = QPixmap(self.area_width, self.area_height)
         self.pixmap_plot_section = QPixmap(self.area_width, self.area_height)
@@ -69,6 +72,7 @@ class Draw(Overlay):
         self.data_brake = self.create_data_samples(self.max_samples)
         self.data_clutch = self.create_data_samples(self.max_samples)
         self.data_ffb = self.create_data_samples(self.max_samples)
+        self.data_wheel_lock = self.create_data_samples(self.max_samples)
 
         self.pen = QPen()
         self.pen.setCapStyle(Qt.RoundCap)
@@ -118,6 +122,13 @@ class Draw(Overlay):
                     ffb = abs(api.read.input.force_feedback())
                     self.append_sample("ffb", ffb)
 
+                if self.wcfg["show_wheel_lock"]:
+                    wheel_lock = min(abs(min(minfo.wheels.slipRatio)), 1)
+                    if wheel_lock >= 0.3 and api.read.input.brake_raw() > 0.03:
+                        self.append_sample("wheel_lock", wheel_lock)
+                    else:
+                        self.append_sample("wheel_lock", -999)
+
                 # Update after all pedal data set
                 if self.delayed_update:
                     self.delayed_update = False
@@ -133,8 +144,7 @@ class Draw(Overlay):
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
-        if self.wcfg["show_inverted_trailing"]:  # right alignment
-            painter.setViewport(self.area_width, 0, -self.area_width, self.area_height)
+        painter.setViewport(self.rect_viewport)
         painter.drawPixmap(0, 0, self.pixmap_background)
         painter.drawPixmap(0, 0, self.pixmap_plot)
 
@@ -198,6 +208,8 @@ class Draw(Overlay):
             self.draw_line(painter, "ffb")
         if self.wcfg["show_clutch"]:
             self.draw_line(painter, "clutch")
+        if self.wcfg["show_wheel_lock"]:
+            self.draw_line(painter, "wheel_lock")
         if self.wcfg["show_brake"]:
             self.draw_line(painter, "brake")
         if self.wcfg["show_throttle"]:
@@ -221,9 +233,7 @@ class Draw(Overlay):
 
     def scale_position(self, position):
         """Scale pedal value"""
-        if self.wcfg["show_inverted_pedal"]:
-            return position * 100 * self.pedal_scale + self.margin
-        return (100 - position * 100) * self.pedal_scale + self.margin
+        return position * 100 * self.pedal_scale + self.margin
 
     def append_sample(self, suffix, value):
         """Append input position sample to data list"""
@@ -243,3 +253,21 @@ class Draw(Overlay):
                 self.data_clutch[index].setX(index_offset)
             if self.wcfg["show_ffb"]:
                 self.data_ffb[index].setX(index_offset)
+            if self.wcfg["show_wheel_lock"]:
+                self.data_wheel_lock[index].setX(index_offset)
+
+    def set_viewport_orientation(self):
+        """Set viewport orientation"""
+        if self.wcfg["show_inverted_pedal"]:
+            y_pos = 0
+            height = self.area_height
+        else:
+            y_pos = self.area_height
+            height = -self.area_height
+        if self.wcfg["show_inverted_trailing"]:  # right alignment
+            x_pos = self.area_width
+            width = -self.area_width
+        else:
+            x_pos = 0
+            width = self.area_width
+        return QRect(x_pos, y_pos, width, height)
