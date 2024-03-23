@@ -196,10 +196,10 @@ class Draw(Overlay):
                         self.lock_time_f = 0
                         self.lock_time_r = 0
                         self.reset_lock_duration = False
-                    if max(minfo.wheels.slipRatio[0:2]) >= self.wcfg["wheel_lock_threshold"]:
+                    if min(minfo.wheels.slipRatio[0:2]) < -self.wcfg["wheel_lock_threshold"]:
                         if self.last_lap_etime < lap_etime:
                             self.lock_time_f += lap_etime - self.last_lap_etime
-                    if max(minfo.wheels.slipRatio[2:4]) >= self.wcfg["wheel_lock_threshold"]:
+                    if min(minfo.wheels.slipRatio[2:4]) < -self.wcfg["wheel_lock_threshold"]:
                         if self.last_lap_etime < lap_etime:
                             self.lock_time_r += lap_etime - self.last_lap_etime
                 self.last_lap_etime = lap_etime

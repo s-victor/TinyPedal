@@ -132,7 +132,7 @@ class Draw(Overlay):
         self.last_ignition = None
         self.last_clutch = None
         self.last_wlock = None
-        self.last_slipratio = None
+        self.last_wslip = None
         self.flicker = 0
 
         # Set widget state & start update
@@ -151,7 +151,6 @@ class Draw(Overlay):
                       api.read.input.clutch())
             is_braking = api.read.input.brake() > 0
 
-            slip_ratio = round(max(minfo.wheels.slipRatio), 3)
             self.flicker = bool(not self.flicker)
 
             # Headlights
@@ -171,14 +170,15 @@ class Draw(Overlay):
 
             # Wheel lock
             if self.wcfg["show_wheel_lock"]:
-                wlock = (is_braking, slip_ratio)
+                wlock = (is_braking, round(min(minfo.wheels.slipRatio), 3))
                 self.update_wlock(wlock, self.last_wlock)
                 self.last_wlock = wlock
 
             # Wheel slip
             if self.wcfg["show_wheel_slip"]:
-                self.update_wslip(slip_ratio, self.last_slipratio)
-                self.last_slipratio = slip_ratio
+                wslip = round(max(minfo.wheels.slipRatio), 3)
+                self.update_wslip(wslip, self.last_wslip)
+                self.last_wslip = wslip
 
     # GUI update methods
     def update_headlights(self, curr, last):
@@ -204,7 +204,7 @@ class Draw(Overlay):
     def update_wlock(self, curr, last):
         """Wheel lock update"""
         if curr != last:
-            if self.flicker and curr[0] > 0 and curr[1] >= self.wcfg["wheel_lock_threshold"]:
+            if self.flicker and curr[0] > 0 and curr[1] < -self.wcfg["wheel_lock_threshold"]:
                 state = 0
                 color = self.wcfg["warning_color_wheel_lock"]
             else:

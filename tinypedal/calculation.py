@@ -134,7 +134,7 @@ def rot2radius(speed, angular_speed):
 def slip_ratio(w_rot, w_radius, v_speed):
     """Slip ratio (percentage), speed unit in m/s"""
     if int(v_speed):  # set minimum to avoid flickering while stationary
-        return abs((v_speed - abs(w_rot * w_radius)) / v_speed)
+        return (abs(w_rot) * w_radius - v_speed) / v_speed
     return 0
 
 
