@@ -193,17 +193,14 @@ class Realtime:
 
                 # Total refuel = laps left * last consumption - remaining fuel
                 if api.read.session.lap_type():  # lap-type
-                    full_laps_left = laps_max - lap_number
-                    laps_left = full_laps_left - lap_into
-                    amount_need = laps_left * used_est - amount_curr
+                    full_laps_left = lap_type_full_left(laps_max, lap_number)
+                    laps_left = lap_type_laps_left(full_laps_left, lap_into)
+                    amount_need = total_fuel_to_add(laps_left, used_est, amount_curr)
                 elif laptime_last > 0:  # time-type race
-                    # Make sure time into lap is not greater than last laptime
-                    rel_lap_into = math.modf(laptime_curr / laptime_last)[0] * laptime_last
-                    # Full laps left value counts from start line of current lap
-                    full_laps_left = math.ceil((time_left + rel_lap_into) / laptime_last)
-                    if laptime_curr > 0.2:  # 200ms delay check to avoid lap number desync
-                        laps_left = max(full_laps_left - lap_into, 0)
-                    amount_need = full_laps_left * used_est - used_curr - amount_curr
+                    full_laps_left = time_type_full_left(laptime_curr, laptime_last, time_left)
+                    laps_left = time_type_laps_left(full_laps_left, lap_into, laps_left, laptime_curr < 0.2)
+                    amount_need = total_fuel_to_add(laps_left, used_est, amount_curr)
+                    #amount_need = total_fuel_to_add(full_laps_left, used_est, used_curr + amount_curr)
 
                 amount_left = end_stint_fuel(
                     amount_curr, used_curr, used_est)
@@ -282,6 +279,36 @@ class Realtime:
                 deltawrite.writerows(listname)
 
 
+def lap_type_full_left(laps_max, lap_number):
+    """Lap type race full remaining laps"""
+    return laps_max - lap_number
+
+
+def lap_type_laps_left(full_laps_left, lap_into):
+    """Lap type race remaining laps"""
+    return full_laps_left - lap_into
+
+
+def time_type_full_left(laptime_curr, laptime_last, time_left):
+    """Time type race full remaining laps"""
+    # Relative time into lap based on last laptime
+    rel_lap_into = math.modf(laptime_curr / laptime_last)[0] * laptime_last
+    # Full laps left value counts from start line of current lap
+    return math.ceil((time_left + rel_lap_into) / laptime_last)
+
+
+def time_type_laps_left(full_laps_left, lap_into, laps_left, delay=False):
+    """Time type race full remaining laps"""
+    if delay:  # delay check to avoid lap number desync
+        return laps_left
+    return max(full_laps_left - lap_into, 0)
+
+
+def total_fuel_to_add(laps_left, used_est, amount_curr):
+    """Total additional fuel needed"""
+    return laps_left * used_est - amount_curr
+
+
 def end_lap_consumption(used_last, delta_fuel, condition):
     """Estimate fuel consumption"""
     if condition:
@@ -337,3 +364,11 @@ def less_pit_stop_consumption(est_pits_late, capacity, amount_curr, laps_left):
         # Consumption = total fuel / laps
         return (pit_counts * capacity + amount_curr) / laps_left
     return 0
+
+
+def estimate_starting_fuel(total_laps, used_est, laptime_avg, race_time):
+    """Estimate race starting fuel"""
+    if total_laps > 0:
+        return total_fuel_to_add(total_laps, used_est, 0)
+    total_laps = time_type_full_left(0, laptime_avg, race_time)
+    return total_fuel_to_add(total_laps, used_est, 0)
