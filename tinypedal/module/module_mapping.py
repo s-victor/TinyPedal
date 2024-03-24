@@ -258,7 +258,7 @@ class MapData:
             self._filepath,
             self._svg_coords,
             self._svg_dists,
-            calc.map_view_box(self.raw_coords, 20),
+            calc.svg_view_box(self.raw_coords, 20),
             self.sectors_index
         )
         #logger.info("map saved, stopped map recording")

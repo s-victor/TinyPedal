@@ -24,17 +24,7 @@ import math
 import statistics
 
 
-def vel2speed(vel_x, vel_y, vel_z=0):
-    """Convert velocity to Speed"""
-    # (vel_x ** 2 + vel_y ** 2 + vel_z ** 2) ** 0.5
-    return math.hypot(vel_x, vel_y, vel_z)
-
-
-def distance(value1, value2):
-    """Coordinates distance"""
-    return math.dist(value1, value2)
-
-
+# Unit conversion
 def meter2millmeter(meter):
     """Convert meter to millimeter"""
     return meter * 1000
@@ -55,14 +45,36 @@ def celsius2fahrenheit(temperature):
     return temperature * 1.8 + 32
 
 
-def kelvin2celsius(kelvin):
-    """Kelvin to Celsius"""
-    return kelvin - 273.15 if kelvin else 0
-
-
 def liter2gallon(liter):
     """Liter to Gallon"""
     return liter * 0.2641729
+
+
+def kelvin2celsius(kelvin):
+    """Kelvin to Celsius"""
+    return max(kelvin - 273.15, -99)
+
+
+def kpa2psi(kilopascal):
+    """Kilopascal to psi"""
+    return kilopascal * 0.14503774
+
+
+def kpa2bar(kilopascal):
+    """Kilopascal to bar"""
+    return kilopascal * 0.01
+
+
+# Common
+def vel2speed(vel_x, vel_y, vel_z=0):
+    """Convert velocity to Speed"""
+    # (vel_x ** 2 + vel_y ** 2 + vel_z ** 2) ** 0.5
+    return math.hypot(vel_x, vel_y, vel_z)
+
+
+def distance(value1, value2):
+    """Coordinates distance"""
+    return math.dist(value1, value2)
 
 
 def sym_range(value, rng):
@@ -145,19 +157,11 @@ def slip_angle(v_lat, v_lgt):
     return 0
 
 
-def kpa2psi(kilopascal):
-    """Kilopascal to psi"""
-    return kilopascal * 0.14503774
-
-
-def kpa2bar(kilopascal):
-    """Kilopascal to bar"""
-    return kilopascal * 0.01
-
-
 def gforce(value, g_accel):
     """G force"""
-    return value / g_accel
+    if g_accel:
+        return value / g_accel
+    return 0
 
 
 def force_ratio(value1, value2):
@@ -220,6 +224,15 @@ def relative_time_gap(rel_dist, plr_speed, opt_speed):
     return 0
 
 
+def linear_interp(x, x1, y1, x2, y2):
+    """Linear interpolation"""
+    x_diff = x2 - x1
+    if x_diff:
+        return y1 + (x - x1) * (y2 - y1) / x_diff
+    return y1
+
+
+# Timing
 def sec2sessiontime(seconds):
     """Session time (hour/min/sec/ms)"""
     return f"{seconds // 3600:01.0f}:{seconds // 60 % 60:02.0f}:{min(seconds % 60, 59):02.0f}"
@@ -242,14 +255,26 @@ def sec2stinttime(seconds):
     return f"{seconds // 60:02.0f}:{min(seconds % 60, 59):02.0f}"
 
 
-def linear_interp(x, x1, y1, x2, y2):
-    """Linear interpolation"""
-    x_diff = x2 - x1
-    if x_diff:
-        return y1 + (x - x1) * (y2 - y1) / x_diff
-    return y1
+def delta_telemetry(position, live_data, delta_list, condition=True, offset=0):
+    """Calculate delta telemetry data"""
+    index_higher = binary_search_hi(
+        delta_list, position, 0, len(delta_list) - 1, 0)
+    # At least 2 data pieces & additional condition
+    if index_higher > 0 and condition:
+        index_lower = index_higher - 1
+        return (
+            live_data + offset - linear_interp(
+                position,
+                delta_list[index_lower][0],
+                delta_list[index_lower][1],
+                delta_list[index_higher][0],
+                delta_list[index_higher][1],
+            )
+        )
+    return 0
 
 
+# Search
 def search_column_key(key, column=None):
     """Search column key"""
     if column is None:
@@ -283,29 +308,11 @@ def binary_search_hi(data, target, start, end, column=None):
     return end
 
 
-def delta_telemetry(position, live_data, delta_list, condition=True, offset=0):
-    """Calculate delta telemetry data"""
-    index_higher = binary_search_hi(
-        delta_list, position, 0, len(delta_list) - 1, 0)
-    # At least 2 data pieces & additional condition
-    if index_higher > 0 and condition:
-        index_lower = index_higher - 1
-        return (
-            live_data + offset - linear_interp(
-                position,
-                delta_list[index_lower][0],
-                delta_list[index_lower][1],
-                delta_list[index_higher][0],
-                delta_list[index_higher][1],
-            )
-        )
-    return 0
-
-
-def zoom_map(map_data, map_scale, margin=0):
+# Plot
+def zoom_map(coords, map_scale, margin=0):
     """Zoom map data to specific scale, then add margin"""
     # Separate X & Y coordinates
-    x_range, y_range = tuple(zip(*map_data))
+    x_range, y_range = tuple(zip(*coords))
     # Offset X, Y
     map_offset = min(x_range) * map_scale - margin, min(y_range) * map_scale - margin
     # Scale map coordinates
@@ -316,10 +323,10 @@ def zoom_map(map_data, map_scale, margin=0):
     return tuple(zip(x_range_scaled, y_range_scaled)), map_size, map_offset
 
 
-def scale_map(map_data, area_size, margin=0):
+def scale_map(coords, area_size, margin=0):
     """Scale map data"""
     # Separate X & Y coordinates
-    x_range, y_range = tuple(zip(*map_data))
+    x_range, y_range = tuple(zip(*coords))
     # Map size: x=width, y=height
     map_range = min(x_range), max(x_range), min(y_range), max(y_range)
     map_size = map_range[1] - map_range[0], map_range[3] - map_range[2]
@@ -337,10 +344,10 @@ def scale_map(map_data, area_size, margin=0):
     return tuple(zip(x_range_scaled, y_range_scaled)), map_range, map_scale, map_offset
 
 
-def map_view_box(map_data, margin=0):
+def svg_view_box(coords, margin=0):
     """Map bounding box"""
     # Separate X & Y coordinates
-    x_range, y_range = tuple(zip(*map_data))
+    x_range, y_range = tuple(zip(*coords))
     # Map size: x=width, y=height
     map_range = min(x_range), max(x_range), min(y_range), max(y_range)
     map_size = map_range[1] - map_range[0], map_range[3] - map_range[2]
@@ -387,6 +394,103 @@ def session_best_laptime(data_list: list, column: int, laptime: int = 99999):
     return laptime
 
 
+# Fuel
+def lap_type_full_left(laps_max, lap_number):
+    """Lap type race full remaining laps"""
+    return laps_max - lap_number
+
+
+def lap_type_laps_left(full_laps_left, lap_into):
+    """Lap type race remaining laps"""
+    return full_laps_left - lap_into
+
+
+def time_type_full_left(laptime_curr, laptime_last, time_left):
+    """Time type race full remaining laps"""
+    # Relative time into lap based on last laptime
+    rel_lap_into = math.modf(laptime_curr / laptime_last)[0] * laptime_last
+    # Full laps left value counts from start line of current lap
+    return math.ceil((time_left + rel_lap_into) / laptime_last)
+
+
+def time_type_laps_left(full_laps_left, lap_into, laps_left, delay=False):
+    """Time type race full remaining laps"""
+    if delay:  # delay check to avoid lap number desync
+        return laps_left
+    return max(full_laps_left - lap_into, 0)
+
+
+def total_fuel_to_add(laps_left, used_est, amount_curr):
+    """Total additional fuel needed"""
+    return laps_left * used_est - amount_curr
+
+
+def end_lap_consumption(used_last, delta_fuel, condition):
+    """Estimate fuel consumption"""
+    if condition:
+        return used_last + delta_fuel
+    return used_last
+
+
+def end_stint_fuel(amount_curr, used_curr, used_est):
+    """Estimate end-stint remaining fuel before pitting"""
+    if used_est:
+        # Total fuel at start of current lap
+        total_fuel = amount_curr + used_curr
+        # Fraction of lap counts * estimate fuel consumption
+        return math.modf(total_fuel / used_est)[0] * used_est
+    return 0
+
+
+def end_stint_laps(amount_curr, used_est):
+    """Estimate laps current fuel can last"""
+    if used_est:
+        # Laps = remaining fuel / estimate fuel consumption
+        return amount_curr / used_est
+    return 0
+
+
+def end_lap_empty_capacity(capacity, fuel_remain, fuel_consumption):
+    """Estimate empty capacity at end of current lap"""
+    return capacity - fuel_remain + fuel_consumption
+
+
+def end_stint_pit_counts(amount_need, capacity):
+    """Estimate end-stint pit stop counts"""
+    # Pit counts = required fuel / empty capacity
+    return amount_need / capacity
+
+
+def end_lap_pit_counts(amount_need, est_empty, capacity):
+    """Estimate end-lap pit stop counts"""
+    # Amount fuel can be added without exceeding capacity
+    max_add_curr = min(amount_need, est_empty)
+    # Pit count of current stint, 1 if exceed empty capacity or no empty space
+    est_pits_curr = max_add_curr / est_empty if est_empty else 1
+    # Pit counts after current stint
+    est_pits_end = (amount_need - max_add_curr) / capacity
+    # Total pit counts add together
+    return est_pits_curr + est_pits_end
+
+
+def less_pit_stop_consumption(est_pits_late, capacity, amount_curr, laps_left):
+    """Estimate fuel consumption for one less pit stop"""
+    if laps_left:
+        pit_counts = math.ceil(est_pits_late) - 1
+        # Consumption = total fuel / laps
+        return (pit_counts * capacity + amount_curr) / laps_left
+    return 0
+
+
+def estimate_starting_fuel(total_laps, used_est, laptime_avg, race_time):
+    """Estimate race starting fuel"""
+    if total_laps > 0:
+        return total_fuel_to_add(total_laps, used_est, 0)
+    total_laps = time_type_full_left(0, laptime_avg, race_time)
+    return total_fuel_to_add(total_laps, used_est, 0)
+
+
+# Misc
 def image_size_adaption(org_width, org_height, target_width, target_height):
     """Whether adapt image size to width or height
 
