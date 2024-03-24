@@ -32,6 +32,7 @@ from PySide2.QtWidgets import (
     QAction,
     QTabWidget,
     QVBoxLayout,
+    QPushButton,
 )
 
 from ..const import APP_NAME, VERSION, APP_ICON
@@ -48,7 +49,7 @@ from .menu import OverlayMenu, ConfigMenu, WindowMenu, HelpMenu
 
 
 WINDOW_MIN_WIDTH = 300
-WINDOW_MIN_HEIGHT = 450
+WINDOW_MIN_HEIGHT = 454
 
 logger = logging.getLogger("tinypedal")
 
@@ -69,35 +70,39 @@ class AppWindow(QMainWindow):
         self.statusBar().addPermanentWidget(self.label_api_version)
         self.set_status_text()
 
-        self.notify_spectate = QLabel("Spectate Mode Enabled")
-        self.notify_spectate.setAlignment(Qt.AlignCenter)
+        self.notify_spectate = QPushButton("Spectate Mode Enabled")
+        self.notify_spectate.clicked.connect(self.goto_spectate_tab)
         self.notify_spectate.setStyleSheet(
-            "font-weight: bold;color: #fff;background: #09C;padding: 4px;"
+            "font-weight: bold;color: #fff;background: #09C;padding: 4px;border-radius: 0;"
         )
 
         # Controller tabs
-        main_tab = QTabWidget()
+        self.tab_bar = QTabWidget()
         self.widget_tab = ModuleList(wctrl, cfg.active_widget_list, "widget")
         self.module_tab = ModuleList(mctrl, cfg.active_module_list, "module")
         self.preset_tab = PresetList(self)
         self.spectate_tab = SpectateList(self)
-        main_tab.addTab(self.widget_tab, "Widget")
-        main_tab.addTab(self.module_tab, "Module")
-        main_tab.addTab(self.preset_tab, "Preset")
-        main_tab.addTab(self.spectate_tab, "Spectate")
+        self.tab_bar.addTab(self.widget_tab, "Widget")
+        self.tab_bar.addTab(self.module_tab, "Module")
+        self.tab_bar.addTab(self.preset_tab, "Preset")
+        self.tab_bar.addTab(self.spectate_tab, "Spectate")
 
         # Main view
         main_view = QWidget()
         layout = QVBoxLayout(main_view)
         layout.setContentsMargins(0,0,0,0)
         layout.setSpacing(0)
-        layout.addWidget(main_tab)
+        layout.addWidget(self.tab_bar)
         layout.addWidget(self.notify_spectate)
         self.setCentralWidget(main_view)
 
         # Tray icon & window state
         self.start_tray_icon()
         self.set_window_state()
+
+    def goto_spectate_tab(self):
+        """Go to spectate tab"""
+        self.tab_bar.setCurrentWidget(self.spectate_tab)
 
     def main_menubar(self):
         """Create menu bar"""

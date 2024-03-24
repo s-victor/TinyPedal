@@ -41,6 +41,7 @@ WIP
 * Config Window
   - Add "Spectate Mode Enabled" status notification,
     which shows when spectate mode is enabled.
+    Click on the notification will show Spectate tab.
 
 2.10.1 (2024-03-13)
 -----------------------------
