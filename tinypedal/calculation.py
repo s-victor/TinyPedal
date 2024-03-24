@@ -407,10 +407,12 @@ def lap_type_laps_left(full_laps_left, lap_into):
 
 def time_type_full_left(laptime_curr, laptime_last, time_left):
     """Time type race full remaining laps"""
-    # Relative time into lap based on last laptime
-    rel_lap_into = math.modf(laptime_curr / laptime_last)[0] * laptime_last
-    # Full laps left value counts from start line of current lap
-    return math.ceil((time_left + rel_lap_into) / laptime_last)
+    if laptime_last:
+        # Relative time into lap based on last laptime
+        rel_lap_into = math.modf(laptime_curr / laptime_last)[0] * laptime_last
+        # Full laps left value counts from start line of current lap
+        return math.ceil((time_left + rel_lap_into) / laptime_last)
+    return 0
 
 
 def time_type_laps_left(full_laps_left, lap_into, laps_left, delay=False):
@@ -457,8 +459,10 @@ def end_lap_empty_capacity(capacity, fuel_remain, fuel_consumption):
 
 def end_stint_pit_counts(amount_need, capacity):
     """Estimate end-stint pit stop counts"""
-    # Pit counts = required fuel / empty capacity
-    return amount_need / capacity
+    if capacity:
+        # Pit counts = required fuel / empty capacity
+        return amount_need / capacity
+    return 0
 
 
 def end_lap_pit_counts(amount_need, est_empty, capacity):
@@ -480,14 +484,6 @@ def less_pit_stop_consumption(est_pits_late, capacity, amount_curr, laps_left):
         # Consumption = total fuel / laps
         return (pit_counts * capacity + amount_curr) / laps_left
     return 0
-
-
-def estimate_starting_fuel(total_laps, used_est, laptime_avg, race_time):
-    """Estimate race starting fuel"""
-    if total_laps > 0:
-        return total_fuel_to_add(total_laps, used_est, 0)
-    total_laps = time_type_full_left(0, laptime_avg, race_time)
-    return total_fuel_to_add(total_laps, used_est, 0)
 
 
 # Misc
