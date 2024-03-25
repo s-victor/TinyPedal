@@ -47,7 +47,7 @@ Any boolean type value will only accept: `true` or `false` in lowercase.
 ## Brands preset
 **Brands preset is used for displaying brand name that matches specific vehicle name.**
 
-Brands preset can be customized by accessing `Vehicle brand editor` from `Config` menu in main window. Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
+Brands preset can be customized by accessing `Vehicle brand editor` from `Tools` menu in main window. Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
 `brands.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
 
@@ -81,7 +81,7 @@ To reset all brands setting to default, click `Reset` button; or manually delete
 ## Classes preset
 **Classes preset is used for displaying name & color that matches specific vehicle classes.**
 
-Classes preset can be customized by accessing `Vehicle class editor` from `Config` menu in main window. Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
+Classes preset can be customized by accessing `Vehicle class editor` from `Tools` menu in main window. Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
 `classes.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
 
@@ -97,7 +97,7 @@ To reset all classes setting to default, click `Reset` button; or manually delet
 ## Heatmap preset
 **Heatmap preset is used for displaying color that matches specific value range of telemetry data, such as brake and tyre temperature.**
 
-Heatmap preset can be customized by accessing `Heatmap editor` from `Config` menu in main window. Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
+Heatmap preset can be customized by accessing `Heatmap editor` from `Tools` menu in main window. Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
 `heatmap.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
 
@@ -360,6 +360,62 @@ While Spectate mode is enabled, `double-click` on a player name in the list to a
 Select `Anonymous` for unspecified player, which is equivalent to player index `-1` in JSON file.
 
 Click `Refresh` button to manually refresh player name list.
+
+
+## Fuel calculator
+**Fuel calculator can be accessed from `Tools` menu in main window.**
+
+On the left side is calculation panel, which handles fuel usage calculation and results display.
+
+Fuel value and unit symbol depend on `Fuel Unit` setting from `Units and symbols` config dialog, `L` = liter, `gal` = gallon.
+
+On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `remaining fuel` data from recent sessions.
+Invalid lap time or fuel consumption data is highlighted in red.
+
+Click `Reload` button to reload history table and automatically fill in last data to calculator.
+
+Select any `lap time` or `fuel consumption` values and click `Add selected data` button to send value to calculator.
+
+Select multiple values from same column and click `Add selected data` button to calculate average reading of selected values and send to calculator.
+
+    Lap time
+Set lap time in `minutes` : `seconds` : `milliseconds` format.
+
+    Capacity
+Set vehicle fuel tank capacity.
+
+    Consumption
+Set fuel consumption per lap.
+
+    Race minutes
+Set race length in minutes for time-based race.
+
+    Race laps
+Set race length in laps for lap-based race. Note, **MUST** set `Race minutes` to `0` in order to calculate fuel usage for lap-based race.
+
+    Formation laps
+Set number of formation laps.
+
+    Average pit seconds
+Set average pit stop time in seconds.
+
+    Total fuel
+Show total required fuel to finish race.
+
+    End stint fuel
+Show remaining fuel at the end of stint or race.
+
+    Pit stops
+Show total number of pit stops required to finish race.
+
+    One less pit
+Show fuel consumption in order to make one less pit stop.
+
+    Laps
+Show total laps can run according to `Total fuel` value.
+
+    Minutes
+Show total minutes can run according to `Total fuel` value.
 
 
 # Modules

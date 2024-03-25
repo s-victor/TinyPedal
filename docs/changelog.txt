@@ -1,5 +1,22 @@
 WIP
 -----------------------------
+* [New]Fuel calculator
+  - New "Fuel Calculator" can be accessed from Tools menu in main window.
+    Editable options:
+    Lap time, Tank capacity, Fuel consumption, Race length in minutes,
+    Race length in laps, Formation laps, Average pit stop in seconds.
+  - "Reload" button to load fuel usage & stint data from recent sessions
+    into calculator without having to manually set values.
+  - "History" table which lists "lap number", "lap time", "fuel consumption",
+    "remaining fuel" data from recent sessions.
+    Invalid lap time or fuel consumption data is highlighted in red.
+  - Select any "lap time" or "fuel consumption" values from history table,
+    and click "Add selected data" to send value to calculator.
+    Select multiple values of same column and click "Add selected data" button
+    to calculate average reading of selected values and send to calculator,
+    which can be useful for planning long race.
+    See user guide "Fuel calculator" section for details.
+
 * [New]Brake performance Widget
   - Show transient max braking rate (g) from last braking input,
     and resets after 3 seconds.
@@ -34,6 +51,10 @@ WIP
   - Renamed "max_g_force_freeze_duration" option
     to "max_g_force_reset_delay" for consistency.
 
+* Fuel Module
+  - Add fuel "consumption history" logging and output for Fuel Calculator.
+    Currently fuel log is not saved to user file, which resets after APP closed.
+
 * [New]Wheels Module
   - "Wheels Module" now calculates and outputs wheel radius
     and slip ratio data for other modules and widgets.
@@ -42,6 +63,7 @@ WIP
   - Add "Spectate Mode Enabled" status notification,
     which shows when spectate mode is enabled.
     Click on the notification will show Spectate tab.
+  - Add "Tools" menu, moved all editors to "Tools" menu.
 
 2.10.1 (2024-03-13)
 -----------------------------
