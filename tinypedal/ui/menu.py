@@ -31,10 +31,11 @@ from ..api_control import api
 from ..overlay_control import octrl
 from .about import About
 from .config import FontConfig, UserConfig
+from .log_info import LogInfo
+from .fuel_calculator import FuelCalculator
 from .heatmap_editor import HeatmapEditor
 from .vehicle_brand_editor import VehicleBrandEditor
 from .vehicle_class_editor import VehicleClassEditor
-from .log_info import LogInfo
 
 
 class OverlayMenu(QMenu):
@@ -199,20 +200,6 @@ class ConfigMenu(QMenu):
         config_compat.triggered.connect(self.open_config_compatibility)
         menu.addAction(config_compat)
 
-        menu.addSeparator()
-
-        config_heatmap = QAction("Heatmap editor", self)
-        config_heatmap.triggered.connect(self.open_config_heatmap)
-        menu.addAction(config_heatmap)
-
-        config_brands = QAction("Vehicle brand editor", self)
-        config_brands.triggered.connect(self.open_config_brands)
-        menu.addAction(config_brands)
-
-        config_classes = QAction("Vehicle class editor", self)
-        config_classes.triggered.connect(self.open_config_classes)
-        menu.addAction(config_classes)
-
     def open_config_font(self):
         """Config global font"""
         _dialog = FontConfig(self.master)
@@ -233,18 +220,47 @@ class ConfigMenu(QMenu):
         _dialog = UserConfig(self.master, "compatibility", "misc")
         _dialog.open()
 
-    def open_config_heatmap(self):
-        """Config heatmap preset"""
+
+class ToolsMenu(QMenu):
+    """Tools menu"""
+
+    def __init__(self, master, menu):
+        super().__init__(master)
+        self.master = master
+
+        editor_fuel = QAction("Fuel calculator", self)
+        editor_fuel.triggered.connect(self.open_editor_fuel)
+        menu.addAction(editor_fuel)
+
+        editor_heatmap = QAction("Heatmap editor", self)
+        editor_heatmap.triggered.connect(self.open_editor_heatmap)
+        menu.addAction(editor_heatmap)
+
+        editor_brands = QAction("Vehicle brand editor", self)
+        editor_brands.triggered.connect(self.open_editor_brands)
+        menu.addAction(editor_brands)
+
+        editor_classes = QAction("Vehicle class editor", self)
+        editor_classes.triggered.connect(self.open_editor_classes)
+        menu.addAction(editor_classes)
+
+    def open_editor_fuel(self):
+        """Fuel calculator"""
+        _dialog = FuelCalculator(self.master)
+        _dialog.show()
+
+    def open_editor_heatmap(self):
+        """Edit heatmap preset"""
         _dialog = HeatmapEditor(self.master)
         _dialog.open()
 
-    def open_config_brands(self):
-        """Config brands preset"""
+    def open_editor_brands(self):
+        """Edit brands preset"""
         _dialog = VehicleBrandEditor(self.master)
         _dialog.open()
 
-    def open_config_classes(self):
-        """Config classes preset"""
+    def open_editor_classes(self):
+        """Edit classes preset"""
         _dialog = VehicleClassEditor(self.master)
         _dialog.open()
 

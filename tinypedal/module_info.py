@@ -22,6 +22,7 @@ Module info
 
 from __future__ import annotations
 from dataclasses import dataclass, field
+from collections import deque
 
 
 @dataclass
@@ -74,6 +75,10 @@ class FuelInfo:
     estimatedNumPitStopsEarly: float = 0
     deltaFuelConsumption: float = 0
     oneLessPitFuelConsumption: float = 0
+    consumptionHistory: deque = field(default_factory=deque)
+
+    def __post_init__(self):
+        self.consumptionHistory = deque([(0,0,0,0,0,0)], 100)
 
 
 @dataclass

@@ -47,7 +47,7 @@ def celsius2fahrenheit(temperature):
 
 def liter2gallon(liter):
     """Liter to Gallon"""
-    return liter * 0.2641729
+    return liter * 0.26417205
 
 
 def kelvin2celsius(kelvin):
@@ -395,94 +395,99 @@ def session_best_laptime(data_list: list, column: int, laptime: int = 99999):
 
 
 # Fuel
-def lap_type_full_left(laps_max, lap_number):
-    """Lap type race full remaining laps"""
-    return laps_max - lap_number
+def lap_type_full_laps_remain(laps_total, laps_finished):
+    """Lap type race remaining laps count from finish line"""
+    return laps_total - laps_finished
 
 
-def lap_type_laps_left(full_laps_left, lap_into):
-    """Lap type race remaining laps"""
-    return full_laps_left - lap_into
+def lap_type_laps_remain(laps_full_remain, lap_into):
+    """Lap type race remaining laps count from current on track position"""
+    return laps_full_remain - lap_into
 
 
-def time_type_full_left(laptime_curr, laptime_last, time_left):
-    """Time type race full remaining laps"""
+def time_type_full_laps_remain(laptime_current, laptime_last, seconds_remain):
+    """Time type race remaining laps count from finish line"""
     if laptime_last:
-        # Relative time into lap based on last laptime
-        rel_lap_into = math.modf(laptime_curr / laptime_last)[0] * laptime_last
+        # Estimated seconds into lap after race time ended
+        seconds_into_lap = laptime_current / laptime_last % 1 * laptime_last
         # Full laps left value counts from start line of current lap
-        return math.ceil((time_left + rel_lap_into) / laptime_last)
+        return math.ceil((seconds_remain + seconds_into_lap) / laptime_last)
     return 0
 
 
-def time_type_laps_left(full_laps_left, lap_into, laps_left, delay=False):
-    """Time type race full remaining laps"""
+def time_type_laps_remain(laps_full_remain, lap_into, laps_remain, delay=False):
+    """Time type race remaining laps count from current on track position"""
     if delay:  # delay check to avoid lap number desync
-        return laps_left
-    return max(full_laps_left - lap_into, 0)
+        return laps_remain
+    return max(laps_full_remain - lap_into, 0)
 
 
-def total_fuel_to_add(laps_left, used_est, amount_curr):
+def total_fuel_needed(laps_remain, consumption, fuel_in_tank):
     """Total additional fuel needed"""
-    return laps_left * used_est - amount_curr
+    return laps_remain * consumption - fuel_in_tank
 
 
-def end_lap_consumption(used_last, delta_fuel, condition):
+def end_lap_consumption(consumption, consumption_delta, condition):
     """Estimate fuel consumption"""
     if condition:
-        return used_last + delta_fuel
-    return used_last
+        return consumption + consumption_delta
+    return consumption
 
 
-def end_stint_fuel(amount_curr, used_curr, used_est):
+def end_stint_fuel(fuel_in_tank, consumption_into_lap, consumption):
     """Estimate end-stint remaining fuel before pitting"""
-    if used_est:
+    if consumption:
         # Total fuel at start of current lap
-        total_fuel = amount_curr + used_curr
+        fuel_at_lap_start = fuel_in_tank + consumption_into_lap
         # Fraction of lap counts * estimate fuel consumption
-        return math.modf(total_fuel / used_est)[0] * used_est
+        return fuel_at_lap_start / consumption % 1 * consumption
     return 0
 
 
-def end_stint_laps(amount_curr, used_est):
-    """Estimate laps current fuel can last"""
-    if used_est:
+def end_stint_laps(fuel_in_tank, consumption):
+    """Estimate laps current fuel can last to end of stint"""
+    if consumption:
         # Laps = remaining fuel / estimate fuel consumption
-        return amount_curr / used_est
+        return fuel_in_tank / consumption
     return 0
 
 
-def end_lap_empty_capacity(capacity, fuel_remain, fuel_consumption):
+def end_stint_minutes(laps_total, laptime_last):
+    """Estimate minutes current fuel can last to end of stint"""
+    return laps_total * laptime_last / 60
+
+
+def end_lap_empty_capacity(capacity_total, fuel_in_tank, consumption):
     """Estimate empty capacity at end of current lap"""
-    return capacity - fuel_remain + fuel_consumption
+    return capacity_total - fuel_in_tank + consumption
 
 
-def end_stint_pit_counts(amount_need, capacity):
+def end_stint_pit_counts(fuel_needed, capacity_total):
     """Estimate end-stint pit stop counts"""
-    if capacity:
+    if capacity_total:
         # Pit counts = required fuel / empty capacity
-        return amount_need / capacity
+        return fuel_needed / capacity_total
     return 0
 
 
-def end_lap_pit_counts(amount_need, est_empty, capacity):
+def end_lap_pit_counts(fuel_needed, capacity_empty, capacity_total):
     """Estimate end-lap pit stop counts"""
     # Amount fuel can be added without exceeding capacity
-    max_add_curr = min(amount_need, est_empty)
+    fuel_addable = min(fuel_needed, capacity_empty)
     # Pit count of current stint, 1 if exceed empty capacity or no empty space
-    est_pits_curr = max_add_curr / est_empty if est_empty else 1
+    pit_counts_before = fuel_addable / capacity_empty if capacity_empty else 1
     # Pit counts after current stint
-    est_pits_end = (amount_need - max_add_curr) / capacity
+    pit_counts_after = (fuel_needed - fuel_addable) / capacity_total
     # Total pit counts add together
-    return est_pits_curr + est_pits_end
+    return pit_counts_before + pit_counts_after
 
 
-def less_pit_stop_consumption(est_pits_late, capacity, amount_curr, laps_left):
+def one_less_pit_stop_consumption(pit_counts_late, capacity_total, fuel_in_tank, laps_remain):
     """Estimate fuel consumption for one less pit stop"""
-    if laps_left:
-        pit_counts = math.ceil(est_pits_late) - 1
+    if laps_remain:
+        pit_counts = math.ceil(pit_counts_late) - 1
         # Consumption = total fuel / laps
-        return (pit_counts * capacity + amount_curr) / laps_left
+        return (pit_counts * capacity_total + fuel_in_tank) / laps_remain
     return 0
 
 

@@ -45,7 +45,7 @@ from .tray_icon import TrayIcon
 from .module_view import ModuleList
 from .spectate_view import SpectateList
 from .preset_view import PresetList
-from .menu import OverlayMenu, ConfigMenu, WindowMenu, HelpMenu
+from .menu import OverlayMenu, ConfigMenu, ToolsMenu, WindowMenu, HelpMenu
 
 
 WINDOW_MIN_WIDTH = 300
@@ -122,6 +122,10 @@ class AppWindow(QMainWindow):
         # Config menu
         menu_config = menu.addMenu("Config")
         ConfigMenu(self, menu_config)
+
+        # Tools menu
+        menu_tools = menu.addMenu("Tools")
+        ToolsMenu(self, menu_tools)
 
         # Window menu
         menu_window = menu.addMenu("Window")

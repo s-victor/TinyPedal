@@ -192,13 +192,19 @@ class Realtime:
 
                 # Total refuel = laps left * last consumption - remaining fuel
                 if api.read.session.lap_type():  # lap-type
-                    full_laps_left = calc.lap_type_full_left(laps_max, lap_number)
-                    laps_left = calc.lap_type_laps_left(full_laps_left, lap_into)
-                    amount_need = calc.total_fuel_to_add(laps_left, used_est, amount_curr)
+                    full_laps_left = calc.lap_type_full_laps_remain(
+                        laps_max, lap_number)
+                    laps_left = calc.lap_type_laps_remain(
+                        full_laps_left, lap_into)
+                    amount_need = calc.total_fuel_needed(
+                        laps_left, used_est, amount_curr)
                 elif laptime_last > 0:  # time-type race
-                    full_laps_left = calc.time_type_full_left(laptime_curr, laptime_last, time_left)
-                    laps_left = calc.time_type_laps_left(full_laps_left, lap_into, laps_left, laptime_curr < 0.2)
-                    amount_need = calc.total_fuel_to_add(laps_left, used_est, amount_curr)
+                    full_laps_left = calc.time_type_full_laps_remain(
+                        laptime_curr, laptime_last, time_left)
+                    laps_left = calc.time_type_laps_remain(
+                        full_laps_left, lap_into, laps_left, laptime_curr < 0.2)
+                    amount_need = calc.total_fuel_needed(
+                        laps_left, used_est, amount_curr)
                     # full_laps_left, used_est, used_curr + amount_curr
 
                 amount_left = calc.end_stint_fuel(
@@ -207,7 +213,8 @@ class Realtime:
                 est_runlaps = calc.end_stint_laps(
                     amount_curr, used_est)
 
-                est_runmins = est_runlaps * laptime_last / 60
+                est_runmins = calc.end_stint_minutes(
+                    est_runlaps, laptime_last)
 
                 est_empty = calc.end_lap_empty_capacity(
                     capacity, amount_curr + used_curr, used_last + delta_fuel)
@@ -218,7 +225,7 @@ class Realtime:
                 est_pits_early = calc.end_lap_pit_counts(
                     amount_need, est_empty, capacity - amount_left)
 
-                used_est_less = calc.less_pit_stop_consumption(
+                used_est_less = calc.one_less_pit_stop_consumption(
                     est_pits_late, capacity, amount_curr, laps_left)
 
                 # Output fuel data
@@ -236,6 +243,17 @@ class Realtime:
                 minfo.fuel.estimatedNumPitStopsEarly = est_pits_early
                 minfo.fuel.deltaFuelConsumption = delta_fuel
                 minfo.fuel.oneLessPitFuelConsumption = used_est_less
+
+                if (minfo.fuel.consumptionHistory[0][1] != minfo.delta.lapTimeLast
+                    > laptime_curr > 2):  # record 2s after pass finish line
+                    minfo.fuel.consumptionHistory.appendleft((
+                        lap_number - 1,
+                        minfo.delta.lapTimeLast,
+                        used_last,
+                        amount_curr,
+                        capacity,
+                        laptime_valid > 0,
+                    ))
 
             else:
                 if reset:
