@@ -50,7 +50,7 @@ class SpectateList(QWidget):
         self.listbox_spectate.setStyleSheet(
             "QListView {font-size: 14px;outline: none;}"
             "QListView::item {height: 26px;border-radius: 0;}"
-            "QListView::item:selected {selection-color:#FFF;background-color: #F20;}"
+            "QListView::item:selected {selection-color:#FFF;background: #F20;}"
         )
         self.listbox_spectate.itemDoubleClicked.connect(self.spectate_selected)
 

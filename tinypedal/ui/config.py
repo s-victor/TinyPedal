@@ -587,5 +587,5 @@ def update_preview_color(color_str, option):
     if val.hex_color(color_str):
         option.setStyleSheet(
             f"color: {adaptive_foreground_color(color_str)};"
-            f"background-color: {color_str};"
+            f"background: {color_str};"
         )

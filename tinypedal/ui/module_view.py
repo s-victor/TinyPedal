@@ -60,8 +60,8 @@ class ModuleList(QWidget):
         self.listbox_module.setStyleSheet(
             "QListView {outline: none;}"
             "QListView::item {height: 28px;border-radius: 0;}"
-            "QListView::item:selected {background-color: transparent;}"
-            "QListView::item:hover {background-color: transparent;}"
+            "QListView::item:selected {background: transparent;}"
+            "QListView::item:hover {background: transparent;}"
         )
         self.refresh_list()
         self.listbox_module.setCurrentRow(0)
@@ -152,12 +152,12 @@ class ListItemControl(QWidget):
         button.toggled.connect(
             lambda checked=state: self.set_toggle_state(checked, button, module_name))
         button.setStyleSheet(
-            "QPushButton {color: #555;background-color: #CCC;font-size: 14px;"
+            "QPushButton {color: #555;background: #CCC;font-size: 14px;"
             "min-width: 30px;max-width: 30px;padding: 2px 3px;border-radius: 3px;}"
-            "QPushButton::hover {color: #FFF;background-color: #F20;}"
-            "QPushButton::pressed {color: #FFF;background-color: #555;}"
-            "QPushButton::checked {color: #FFF;background-color: #555;}"
-            "QPushButton::checked:hover {color: #FFF;background-color: #F20;}"
+            "QPushButton::hover {color: #FFF;background: #F20;}"
+            "QPushButton::pressed {color: #FFF;background: #555;}"
+            "QPushButton::checked {color: #FFF;background: #555;}"
+            "QPushButton::checked:hover {color: #FFF;background: #F20;}"
         )
         return button
 
@@ -168,10 +168,10 @@ class ListItemControl(QWidget):
         button.setStyleSheet(
             "QPushButton {color: #AAA;font-size: 14px;"
             "padding: 2px 5px;border-radius: 3px;}"
-            "QPushButton::hover {color: #FFF;background-color: #F20;}"
-            "QPushButton::pressed {color: #FFF;background-color: #555;}"
-            "QPushButton::checked {color: #FFF;background-color: #555;}"
-            "QPushButton::checked:hover {color: #FFF;background-color: #F20;}"
+            "QPushButton::hover {color: #FFF;background: #F20;}"
+            "QPushButton::pressed {color: #FFF;background: #555;}"
+            "QPushButton::checked {color: #FFF;background: #555;}"
+            "QPushButton::checked:hover {color: #FFF;background: #F20;}"
         )
         return button
 

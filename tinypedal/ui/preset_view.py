@@ -67,7 +67,7 @@ class PresetList(QWidget):
         self.listbox_preset.setStyleSheet(
             "QListView {font-size: 16px;outline: none;}"
             "QListView::item {height: 28px;border-radius: 0;}"
-            "QListView::item:selected {selection-color: #FFF;background-color: #F20;}"
+            "QListView::item:selected {selection-color: #FFF;background: #F20;}"
         )
         self.refresh_list()
         self.listbox_preset.setCurrentRow(0)

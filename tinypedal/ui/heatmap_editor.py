@@ -77,8 +77,8 @@ class HeatmapEditor(QDialog):
         self.listbox_heatmap.setStyleSheet(
             "QListView {outline: none;}"
             "QListView::item {height: 32px;border-radius: 0;}"
-            "QListView::item:selected {background-color: transparent;}"
-            "QListView::item:hover {background-color: transparent;}"
+            "QListView::item:selected {background: transparent;}"
+            "QListView::item:hover {background: transparent;}"
         )
 
         # Button
