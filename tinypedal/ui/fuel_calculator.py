@@ -226,9 +226,9 @@ class FuelCalculator(QDialog):
         layout_calculator.addWidget(frame_output)
 
         layout_button = QHBoxLayout()
-        layout_button.addWidget(button_reload)
+        layout_button.addWidget(button_reload, stretch=1)
         layout_button.addStretch(stretch=1)
-        layout_button.addWidget(self.button_toggle)
+        layout_button.addWidget(self.button_toggle, stretch=1)
 
         layout_panel = QVBoxLayout()
         layout_panel.setContentsMargins(0,0,0,0)
