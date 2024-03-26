@@ -68,11 +68,18 @@ class Draw(Overlay):
         self.pixmap_plot_last = QPixmap(self.area_width, self.area_height)
         self.pixmap_plot_last.fill(Qt.transparent)
 
-        self.data_throttle = self.create_data_samples(self.max_samples)
-        self.data_brake = self.create_data_samples(self.max_samples)
-        self.data_clutch = self.create_data_samples(self.max_samples)
-        self.data_ffb = self.create_data_samples(self.max_samples)
-        self.data_wheel_lock = self.create_data_samples(self.max_samples)
+        if self.wcfg["show_throttle"]:
+            self.data_throttle = self.create_data_samples(self.max_samples)
+        if self.wcfg["show_brake"]:
+            self.data_brake = self.create_data_samples(self.max_samples)
+        if self.wcfg["show_clutch"]:
+            self.data_clutch = self.create_data_samples(self.max_samples)
+        if self.wcfg["show_ffb"]:
+            self.data_ffb = self.create_data_samples(self.max_samples)
+        if self.wcfg["show_wheel_lock"]:
+            self.data_wheel_lock = self.create_data_samples(self.max_samples)
+        if self.wcfg["show_wheel_slip"]:
+            self.data_wheel_slip = self.create_data_samples(self.max_samples)
 
         self.pen = QPen()
         self.pen.setCapStyle(Qt.RoundCap)
@@ -124,10 +131,17 @@ class Draw(Overlay):
 
                 if self.wcfg["show_wheel_lock"]:
                     wheel_lock = min(abs(min(minfo.wheels.slipRatio)), 1)
-                    if wheel_lock >= 0.3 and api.read.input.brake_raw() > 0.03:
+                    if wheel_lock >= self.wcfg["wheel_lock_threshold"] and api.read.input.brake_raw() > 0.02:
                         self.append_sample("wheel_lock", wheel_lock)
                     else:
                         self.append_sample("wheel_lock", -999)
+
+                if self.wcfg["show_wheel_slip"]:
+                    wheel_slip = min(max(minfo.wheels.slipRatio), 1)
+                    if wheel_slip >= self.wcfg["wheel_slip_threshold"] and api.read.input.throttle_raw() > 0.02:
+                        self.append_sample("wheel_slip", wheel_slip)
+                    else:
+                        self.append_sample("wheel_slip", -999)
 
                 # Update after all pedal data set
                 if self.delayed_update:
@@ -212,6 +226,8 @@ class Draw(Overlay):
             self.draw_line(painter, "wheel_lock")
         if self.wcfg["show_brake"]:
             self.draw_line(painter, "brake")
+        if self.wcfg["show_wheel_slip"]:
+            self.draw_line(painter, "wheel_slip")
         if self.wcfg["show_throttle"]:
             self.draw_line(painter, "throttle")
 
@@ -255,6 +271,8 @@ class Draw(Overlay):
                 self.data_ffb[index].setX(index_offset)
             if self.wcfg["show_wheel_lock"]:
                 self.data_wheel_lock[index].setX(index_offset)
+            if self.wcfg["show_wheel_slip"]:
+                self.data_wheel_slip[index].setX(index_offset)
 
     def set_viewport_orientation(self):
         """Set viewport orientation"""

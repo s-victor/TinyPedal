@@ -1732,6 +1732,12 @@ Show wheel lock (slip ratio) plot under braking when slip ratio has exceeded `wh
     wheel_lock_threshold
 Set percentage threshold for triggering wheel lock warning under braking. `0.3` means 30% of tyre slip ratio.
 
+    show_wheel_slip
+Show wheel slip (slip ratio) plot under acceleration when slip ratio has exceeded `wheel_slip_threshold` value.
+
+    wheel_slip_threshold
+Set percentage threshold for triggering wheel slip warning under acceleration. `0.1` means 10% of tyre slip ratio.
+
     show_reference_line
 Show reference line.
 
