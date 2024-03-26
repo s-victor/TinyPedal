@@ -418,10 +418,10 @@ Show total laps can run based on `Total race fuel` value.
 Show total minutes can run based on `Total race fuel` value.
 
     Starting fuel
-Set starting fuel for calculating `Average refueling` per pit stop. If the value is set to `0`, `Tank capacity` will be used instead. Maximum value cannot exceed `Tank capacity`.
+Set starting fuel. This value is only used for calculating `Average refueling` per pit stop. Maximum value cannot exceed `Tank capacity`. If value is set to `0`, `Tank capacity` value will be used as starting fuel for `Average refueling` calculation.
 
     Average refueling
-Show average refueling per pit stop and warning color if value exceeds `Tank capacity`.
+Show average refueling per pit stop, and display warning color if value exceeds `Tank capacity`.
 
 
 # Modules
