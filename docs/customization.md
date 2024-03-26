@@ -381,11 +381,14 @@ Select multiple values from same column and click `Add selected data` button to 
     Lap time
 Set lap time in `minutes` : `seconds` : `milliseconds` format.
 
-    Capacity
+    Tank capacity
 Set vehicle fuel tank capacity.
 
-    Consumption
+    Fuel consumption
 Set fuel consumption per lap.
+
+    Starting fuel
+Set starting fuel for calculating `Average refueling` per pit stop. If the value is set to `0`, `Tank capacity` will be used instead. Maximum value cannot exceed `Tank capacity`.
 
     Race minutes
 Set race length in minutes for time-based race. Note, option is disabled if `Race laps` is set.
@@ -399,23 +402,26 @@ Set number of formation or rolling start laps.
     Average pit seconds
 Set average pit stop time in seconds.
 
-    Total fuel
+    Total race fuel
 Show total required fuel to finish race.
 
     End stint fuel
 Show remaining fuel at the end of stint or race.
 
-    Pit stops
+    Total Pit stops
 Show total number of pit stops required to finish race.
 
-    One less pit
+    One less pit stop
 Show fuel consumption in order to make one less pit stop.
 
-    Laps
-Show total laps can run according to `Total fuel` value.
+    Total laps
+Show total laps can run based on `Total race fuel` value.
 
-    Minutes
-Show total minutes can run according to `Total fuel` value.
+    Total minutes
+Show total minutes can run based on `Total race fuel` value.
+
+    Average refueling
+Show average refueling per pit stop and warning color if value exceeds `Tank capacity`.
 
 
 # Modules

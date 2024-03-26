@@ -3,8 +3,22 @@ WIP
 * [New]Fuel calculator
   - New "Fuel Calculator" can be accessed from Tools menu in main window.
     Editable options:
-    Lap time, Tank capacity, Fuel consumption, Race length in minutes,
-    Race length in laps, Formation/Rolling, Average pit stop in seconds.
+      * Lap time (minute:second:millisecond), can be auto-filled by Reload.
+      * Tank capacity (liter or gallon), can be auto-filled by Reload.
+      * Fuel consumption (liter or gallon), can be auto-filled by Reload.
+      * Starting fuel (liter or gallon).
+      * Race length in minutes.
+      * Race length in laps.
+      * Formation/Rolling.
+      * Average pit stop in seconds.
+    Output values:
+      * Total required race fuel (liter or gallon).
+      * End stint remaining fuel (liter or gallon).
+      * Total required pit stops.
+      * One less pit stop fuel consumption (liter or gallon).
+      * Total laps can run based on "Total fuel" value.
+      * Total minutes can run based on "Total fuel" value.
+      * Average refueling (liter or gallon) per pit stop.
   - "Reload" button to load fuel usage & stint data from recent sessions
     into calculator without having to manually set values.
   - "History" table which lists "lap number", "lap time", "fuel consumption",
