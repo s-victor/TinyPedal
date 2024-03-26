@@ -176,7 +176,12 @@ class FuelCalculator(QDialog):
             self.table_history.setItem(row_index, 3, fuel_in_tank)
             row_index += 1
 
-        self.table_history.setHorizontalHeaderLabels(("Lap","Time","Used","Remain"))
+        self.table_history.setHorizontalHeaderLabels((
+            "Lap",
+            "Time",
+            f"Used({self.fuel_unit_text()})",
+            f"Remain({self.fuel_unit_text()})"
+        ))
 
     def set_panel_calculator(self, panel):
         """Set panel calculator"""
