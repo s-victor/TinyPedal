@@ -106,6 +106,13 @@ def strip_decimal_pt(value: str) -> str:
     return value
 
 
+def laptime_string_to_seconds(laptime: str) -> float:
+    """Convert laptime "minutes:seconds" string to seconds"""
+    rstring = re.split(r":", laptime)
+    split = [0] * (2 - len(rstring)) + rstring
+    return float(split[0]) * 60 + float(split[1])
+
+
 def string_pair_to_int(string: str) -> tuple[int]:
     """Convert string pair "x,y" to int"""
     value = re.split(",", string)

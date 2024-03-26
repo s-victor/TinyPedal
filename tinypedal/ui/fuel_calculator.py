@@ -46,6 +46,7 @@ from ..const import APP_ICON
 from ..setting import cfg
 from ..module_info import minfo
 from .. import calculation as calc
+from .. import formatter as fmt
 
 PANEL_LEFT_WIDTH = 300
 
@@ -106,19 +107,17 @@ class FuelCalculator(QDialog):
                 self, "Error",
                 "No data selected.")
             return None
-        # Add selected values
-        dataset = [float(data.text()) for data in selected_data]
-        if len(dataset) > 1:
-            output_value = calc.mean(dataset)
-        else:
-            output_value = dataset[0]
         # Send data to calculator
         column_index = list(column_indices)[0]
         if column_index == 1:  # laptime
+            dataset = [fmt.laptime_string_to_seconds(data.text()) for data in selected_data]
+            output_value = calc.mean(dataset) if len(selected_data) > 1 else dataset[0]
             self.spinbox_minutes.setValue(output_value // 60)
             self.spinbox_seconds.setValue(output_value % 60)
             self.spinbox_mseconds.setValue(output_value % 1 * 1000)
         elif column_index == 2:  # used fuel
+            dataset = [float(data.text()) for data in selected_data]
+            output_value = calc.mean(dataset) if len(selected_data) > 1 else dataset[0]
             self.spinbox_consumption.setValue(output_value)
         return None
 
@@ -153,7 +152,7 @@ class FuelCalculator(QDialog):
             lapnumber.setFlags(Qt.ItemFlags(0))
 
             laptime = QTableWidgetItem()
-            laptime.setText(f"{lap[1]:.03f}")
+            laptime.setText(calc.sec2laptime(lap[1]))
             laptime.setTextAlignment(Qt.AlignCenter)
             laptime.setFlags(Qt.ItemFlags(33))
 
@@ -297,11 +296,13 @@ class FuelCalculator(QDialog):
         self.spinbox_race_minutes.setRange(0, 9999)
         self.spinbox_race_minutes.setAlignment(Qt.AlignRight)
         self.spinbox_race_minutes.valueChanged.connect(self.output_results)
+        self.spinbox_race_minutes.valueChanged.connect(self.disable_race_lap)
 
         self.spinbox_race_laps = QSpinBox()
         self.spinbox_race_laps.setRange(0, 9999)
         self.spinbox_race_laps.setAlignment(Qt.AlignRight)
         self.spinbox_race_laps.valueChanged.connect(self.output_results)
+        self.spinbox_race_laps.valueChanged.connect(self.disable_race_minute)
 
         self.spinbox_formation = QDoubleSpinBox()
         self.spinbox_formation.setRange(0, 9999)
@@ -336,7 +337,7 @@ class FuelCalculator(QDialog):
         layout_grid.addWidget(self.spinbox_race_laps, 3, 2)
         layout_grid.addWidget(QLabel("lap"), 3, 3)
 
-        layout_grid.addWidget(QLabel("Formation laps:"), 4, 0, 1, 2)
+        layout_grid.addWidget(QLabel("Formation/Rolling:"), 4, 0, 1, 2)
         layout_grid.addWidget(self.spinbox_formation, 5, 0)
         layout_grid.addWidget(QLabel("lap"), 5, 1)
 
@@ -455,6 +456,24 @@ class FuelCalculator(QDialog):
             f"{est_runlaps:.03f}")
         self.lineedit_estmins.setText(
             f"{est_runmins:.03f}")
+
+    def disable_race_lap(self):
+        """Disable race laps if race minutes is set"""
+        if self.spinbox_race_minutes.value() > 0:
+            if self.spinbox_race_laps.isEnabled():
+                self.spinbox_race_laps.setValue(0)
+                self.spinbox_race_laps.setDisabled(True)
+        else:
+            self.spinbox_race_laps.setDisabled(False)
+
+    def disable_race_minute(self):
+        """Disable race minutes if race laps is set"""
+        if self.spinbox_race_laps.value() > 0:
+            if self.spinbox_race_minutes.isEnabled():
+                self.spinbox_race_minutes.setValue(0)
+                self.spinbox_race_minutes.setDisabled(True)
+        else:
+            self.spinbox_race_minutes.setDisabled(False)
 
     @staticmethod
     def fuel_unit_text():

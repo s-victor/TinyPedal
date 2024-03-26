@@ -388,13 +388,13 @@ Set vehicle fuel tank capacity.
 Set fuel consumption per lap.
 
     Race minutes
-Set race length in minutes for time-based race.
+Set race length in minutes for time-based race. Note, option is disabled if `Race laps` is set.
 
     Race laps
-Set race length in laps for lap-based race. Note, **MUST** set `Race minutes` to `0` in order to calculate fuel usage for lap-based race.
+Set race length in laps for lap-based race. Note, option is disabled if `Race minutes` is set.
 
-    Formation laps
-Set number of formation laps.
+    Formation/Rolling
+Set number of formation or rolling start laps.
 
     Average pit seconds
 Set average pit stop time in seconds.
