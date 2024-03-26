@@ -410,24 +410,35 @@ class FuelCalculator(QDialog):
 
     def output_results(self):
         """Calculate and output results"""
+        tank_capacity = self.spinbox_capacity.value()
         consumption = self.spinbox_consumption.value()
         total_race_seconds = self.spinbox_race_minutes.value() * 60
+        total_race_laps = self.spinbox_race_laps.value()
+        total_formation_laps = self.spinbox_formation.value()
+        average_pit_seconds = self.spinbox_pit_seconds.value()
         laptime = (
             self.spinbox_minutes.value() * 60
             + self.spinbox_seconds.value()
             + self.spinbox_mseconds.value() * 0.001
         )
-        tank_capacity = self.spinbox_capacity.value()
-        avg_pit_seconds = self.spinbox_pit_seconds.value()
-        est_pit_counts = 0
+        # Skip if required values not filled
+        if not all((tank_capacity, consumption, total_race_seconds + total_race_laps)):
+            return None
 
-        for _ in range(1 + bool(avg_pit_seconds)):
+        estimate_pit_counts = 0
+        minimum_pit_counts = 0  # minimum pit stop required to finish race
+        loop_counts = 10  # max loop limit
+
+        # Total pit seconds depends on estimated pit counts
+        # Recalculate and find nearest minimum pit counts on previous loop
+        while loop_counts:
+            minimum_pit_counts = math.ceil(estimate_pit_counts)
             if total_race_seconds:  # time-type race
-                total_pit_seconds = math.ceil(est_pit_counts) * avg_pit_seconds
-                total_race_laps = self.spinbox_formation.value() + calc.time_type_full_laps_remain(
+                total_pit_seconds = minimum_pit_counts * average_pit_seconds
+                total_race_laps = total_formation_laps + calc.time_type_full_laps_remain(
                     0, laptime, total_race_seconds - total_pit_seconds)
-            else:
-                total_race_laps = self.spinbox_formation.value() + self.spinbox_race_laps.value()
+            else:  # lap-type race
+                total_race_laps = total_formation_laps + total_race_laps
 
             total_need_frac = calc.total_fuel_needed(total_race_laps, consumption, 0)
 
@@ -439,28 +450,40 @@ class FuelCalculator(QDialog):
 
             end_stint_fuel = calc.end_stint_fuel(amount_curr, 0, consumption)
 
-            est_pit_counts = calc.end_stint_pit_counts(
+            estimate_pit_counts = calc.end_stint_pit_counts(
                 amount_refuel, tank_capacity - end_stint_fuel)
 
-        est_runlaps = calc.end_stint_laps(total_need_full, consumption)
+            print(loop_counts, estimate_pit_counts, minimum_pit_counts)
+            loop_counts -= 1
+            # Set one last loop to revert back to last minimum pit counts
+            # If new rounded up minimum pit counts is not enough to finish race
+            if (minimum_pit_counts < estimate_pit_counts and
+                minimum_pit_counts == math.floor(estimate_pit_counts)):
+                loop_counts = 1
 
-        est_runmins = calc.end_stint_minutes(est_runlaps, laptime)
+            if minimum_pit_counts == math.ceil(estimate_pit_counts):
+                break
 
-        used_est_less = calc.one_less_pit_stop_consumption(
-            est_pit_counts, tank_capacity, amount_curr, total_race_laps)
+        estimate_runlaps = calc.end_stint_laps(total_need_full, consumption)
+
+        estimate_runmins = calc.end_stint_minutes(estimate_runlaps, laptime)
+
+        used_one_less = calc.one_less_pit_stop_consumption(
+            estimate_pit_counts, tank_capacity, amount_curr, total_race_laps)
 
         self.lineedit_totalfuel.setText(
             f"{total_need_frac:.03f} ≈ {total_need_full}")
         self.lineedit_endfuel.setText(
             f"{end_stint_fuel:.03f}")
         self.lineedit_pitstops.setText(
-            f"{max(est_pit_counts, 0):.03f} ≈ {max(math.ceil(est_pit_counts), 0)}")
+            f"{max(estimate_pit_counts, 0):.03f} ≈ {max(math.ceil(minimum_pit_counts), 0)}")
         self.lineedit_oneless.setText(
-            f"{max(used_est_less, 0):.03f}")
+            f"{max(used_one_less, 0):.03f}")
         self.lineedit_estlaps.setText(
-            f"{est_runlaps:.03f}")
+            f"{estimate_runlaps:.03f}")
         self.lineedit_estmins.setText(
-            f"{est_runmins:.03f}")
+            f"{estimate_runmins:.03f}")
+        return None
 
     def disable_race_lap(self):
         """Disable race laps if race minutes is set"""
