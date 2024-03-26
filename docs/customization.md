@@ -387,9 +387,6 @@ Set vehicle fuel tank capacity.
     Fuel consumption
 Set fuel consumption per lap.
 
-    Starting fuel
-Set starting fuel for calculating `Average refueling` per pit stop. If the value is set to `0`, `Tank capacity` will be used instead. Maximum value cannot exceed `Tank capacity`.
-
     Race minutes
 Set race length in minutes for time-based race. Note, option is disabled if `Race laps` is set.
 
@@ -419,6 +416,9 @@ Show total laps can run based on `Total race fuel` value.
 
     Total minutes
 Show total minutes can run based on `Total race fuel` value.
+
+    Starting fuel
+Set starting fuel for calculating `Average refueling` per pit stop. If the value is set to `0`, `Tank capacity` will be used instead. Maximum value cannot exceed `Tank capacity`.
 
     Average refueling
 Show average refueling per pit stop and warning color if value exceeds `Tank capacity`.

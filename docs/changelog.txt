@@ -6,11 +6,11 @@ WIP
       * Lap time (minute:second:millisecond), can be auto-filled by Reload.
       * Tank capacity (liter or gallon), can be auto-filled by Reload.
       * Fuel consumption (liter or gallon), can be auto-filled by Reload.
-      * Starting fuel (liter or gallon).
       * Race length in minutes.
       * Race length in laps.
       * Formation/Rolling.
       * Average pit stop in seconds.
+      * Starting fuel (liter or gallon).
     Output values:
       * Total required race fuel (liter or gallon).
       * End stint remaining fuel (liter or gallon).

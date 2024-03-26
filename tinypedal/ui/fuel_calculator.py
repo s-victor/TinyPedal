@@ -22,7 +22,7 @@ Fuel calculator
 
 import math
 from PySide2.QtCore import Qt
-from PySide2.QtGui import QIcon, QBrush
+from PySide2.QtGui import QIcon, QBrush, QColor
 from PySide2.QtWidgets import (
     QWidget,
     QDialog,
@@ -61,6 +61,7 @@ class FuelCalculator(QDialog):
         self.setWindowIcon(QIcon(APP_ICON))
         self.setWindowTitle("Fuel Calculator")
         self.setAttribute(Qt.WA_DeleteOnClose, True)
+        self.read_only_color = self.palette().window().color().name(QColor.HexRgb)
         self.history_data = minfo.fuel.consumptionHistory
 
         # Set view
@@ -189,10 +190,6 @@ class FuelCalculator(QDialog):
         frame_laptime.setFrameShape(QFrame.StyledPanel)
         frame_laptime.setFixedWidth(PANEL_LEFT_WIDTH)
 
-        frame_input = QFrame()
-        frame_input.setFrameShape(QFrame.StyledPanel)
-        frame_input.setFixedWidth(PANEL_LEFT_WIDTH)
-
         frame_fuel = QFrame()
         frame_fuel.setFrameShape(QFrame.StyledPanel)
         frame_fuel.setFixedWidth(PANEL_LEFT_WIDTH)
@@ -201,14 +198,19 @@ class FuelCalculator(QDialog):
         frame_race.setFrameShape(QFrame.StyledPanel)
         frame_race.setFixedWidth(PANEL_LEFT_WIDTH)
 
-        frame_output = QFrame()
-        frame_output.setFrameShape(QFrame.StyledPanel)
-        frame_output.setFixedWidth(PANEL_LEFT_WIDTH)
+        frame_output1 = QFrame()
+        frame_output1.setFrameShape(QFrame.StyledPanel)
+        frame_output1.setFixedWidth(PANEL_LEFT_WIDTH)
+
+        frame_output2 = QFrame()
+        frame_output2.setFrameShape(QFrame.StyledPanel)
+        frame_output2.setFixedWidth(PANEL_LEFT_WIDTH)
 
         self.set_input_laptime(frame_laptime)
         self.set_input_fuel(frame_fuel)
         self.set_input_race(frame_race)
-        self.set_output(frame_output)
+        self.set_output1(frame_output1)
+        self.set_output2(frame_output2)
 
         button_reload = QPushButton("Reload")
         button_reload.clicked.connect(self.reload_data)
@@ -223,7 +225,8 @@ class FuelCalculator(QDialog):
         layout_calculator.addWidget(frame_laptime)
         layout_calculator.addWidget(frame_fuel)
         layout_calculator.addWidget(frame_race)
-        layout_calculator.addWidget(frame_output)
+        layout_calculator.addWidget(frame_output1)
+        layout_calculator.addWidget(frame_output2)
 
         layout_button = QHBoxLayout()
         layout_button.addWidget(button_reload, stretch=1)
@@ -307,13 +310,6 @@ class FuelCalculator(QDialog):
         self.spinbox_consumption.setAlignment(Qt.AlignRight)
         self.spinbox_consumption.valueChanged.connect(self.output_results)
 
-        self.spinbox_fuel_start = QDoubleSpinBox()
-        self.spinbox_fuel_start.setRange(0, 9999)
-        self.spinbox_fuel_start.setDecimals(2)
-        self.spinbox_fuel_start.setAlignment(Qt.AlignRight)
-        self.spinbox_fuel_start.valueChanged.connect(self.validate_starting_fuel)
-        self.spinbox_fuel_start.valueChanged.connect(self.output_results)
-
         layout_grid = QGridLayout()
         layout_grid.setColumnStretch(0, 1)
         layout_grid.setColumnStretch(2, 1)
@@ -325,10 +321,6 @@ class FuelCalculator(QDialog):
         layout_grid.addWidget(QLabel("Fuel Consumption:"), 0, 2, 1, 2)
         layout_grid.addWidget(self.spinbox_consumption, 1, 2)
         layout_grid.addWidget(QLabel(self.fuel_unit_text()), 1, 3)
-
-        layout_grid.addWidget(QLabel("Starting Fuel:"), 2, 0, 1, 2)
-        layout_grid.addWidget(self.spinbox_fuel_start, 3, 0)
-        layout_grid.addWidget(QLabel(self.fuel_unit_text()), 3, 1)
 
         frame.setLayout(layout_grid)
 
@@ -381,67 +373,93 @@ class FuelCalculator(QDialog):
 
         frame.setLayout(layout_grid)
 
-    def set_output(self, frame):
+    def set_output1(self, frame):
         """Set output display"""
-        self.lineedit_totalfuel = QLineEdit("0.000 ≈ 0")
-        self.lineedit_totalfuel.setAlignment(Qt.AlignRight)
-        self.lineedit_totalfuel.setReadOnly(True)
+        self.lineedit_total_fuel = QLineEdit("0.000 ≈ 0")
+        self.lineedit_total_fuel.setAlignment(Qt.AlignRight)
+        self.lineedit_total_fuel.setReadOnly(True)
+        self.set_read_only_style(self.lineedit_total_fuel)
 
-        self.lineedit_endfuel = QLineEdit("0.000")
-        self.lineedit_endfuel.setAlignment(Qt.AlignRight)
-        self.lineedit_endfuel.setReadOnly(True)
+        self.lineedit_end_fuel = QLineEdit("0.000")
+        self.lineedit_end_fuel.setAlignment(Qt.AlignRight)
+        self.lineedit_end_fuel.setReadOnly(True)
+        self.set_read_only_style(self.lineedit_end_fuel)
 
-        self.lineedit_pitstops = QLineEdit("0.000 ≈ 0")
-        self.lineedit_pitstops.setAlignment(Qt.AlignRight)
-        self.lineedit_pitstops.setReadOnly(True)
+        self.lineedit_pit_stops = QLineEdit("0.000 ≈ 0")
+        self.lineedit_pit_stops.setAlignment(Qt.AlignRight)
+        self.lineedit_pit_stops.setReadOnly(True)
+        self.set_read_only_style(self.lineedit_pit_stops)
 
-        self.lineedit_oneless = QLineEdit("0.000")
-        self.lineedit_oneless.setAlignment(Qt.AlignRight)
-        self.lineedit_oneless.setReadOnly(True)
+        self.lineedit_one_less = QLineEdit("0.000")
+        self.lineedit_one_less.setAlignment(Qt.AlignRight)
+        self.lineedit_one_less.setReadOnly(True)
+        self.set_read_only_style(self.lineedit_one_less)
 
-        self.lineedit_estlaps = QLineEdit("0.000")
-        self.lineedit_estlaps.setAlignment(Qt.AlignRight)
-        self.lineedit_estlaps.setReadOnly(True)
+        self.lineedit_total_laps = QLineEdit("0.000")
+        self.lineedit_total_laps.setAlignment(Qt.AlignRight)
+        self.lineedit_total_laps.setReadOnly(True)
+        self.set_read_only_style(self.lineedit_total_laps)
 
-        self.lineedit_estmins = QLineEdit("0.000")
-        self.lineedit_estmins.setAlignment(Qt.AlignRight)
-        self.lineedit_estmins.setReadOnly(True)
-
-        self.lineedit_average_refuel = QLineEdit("0.000")
-        self.lineedit_average_refuel.setAlignment(Qt.AlignRight)
-        self.lineedit_average_refuel.setReadOnly(True)
+        self.lineedit_total_minutes = QLineEdit("0.000")
+        self.lineedit_total_minutes.setAlignment(Qt.AlignRight)
+        self.lineedit_total_minutes.setReadOnly(True)
+        self.set_read_only_style(self.lineedit_total_minutes)
 
         layout_output = QGridLayout()
         layout_output.setColumnStretch(0, 1)
         layout_output.setColumnStretch(2, 1)
 
         layout_output.addWidget(QLabel("Total Race Fuel:"), 5, 0, 1, 2)
-        layout_output.addWidget(self.lineedit_totalfuel, 6, 0)
+        layout_output.addWidget(self.lineedit_total_fuel, 6, 0)
         layout_output.addWidget(QLabel(self.fuel_unit_text()), 6, 1)
 
         layout_output.addWidget(QLabel("End Stint Fuel:"), 5, 2, 1, 2)
-        layout_output.addWidget(self.lineedit_endfuel, 6, 2)
+        layout_output.addWidget(self.lineedit_end_fuel, 6, 2)
         layout_output.addWidget(QLabel(self.fuel_unit_text()), 6, 3)
 
         layout_output.addWidget(QLabel("Total Pit Stops:"), 7, 0, 1, 2)
-        layout_output.addWidget(self.lineedit_pitstops, 8, 0)
+        layout_output.addWidget(self.lineedit_pit_stops, 8, 0)
         layout_output.addWidget(QLabel("pit"), 8, 1)
 
         layout_output.addWidget(QLabel("One Less Pit Stop:"), 7, 2, 1, 2)
-        layout_output.addWidget(self.lineedit_oneless, 8, 2)
+        layout_output.addWidget(self.lineedit_one_less, 8, 2)
         layout_output.addWidget(QLabel(self.fuel_unit_text()), 8, 3)
 
         layout_output.addWidget(QLabel("Total Laps:"), 9, 0, 1, 2)
-        layout_output.addWidget(self.lineedit_estlaps, 10, 0)
+        layout_output.addWidget(self.lineedit_total_laps, 10, 0)
         layout_output.addWidget(QLabel("lap"), 10, 1)
 
         layout_output.addWidget(QLabel("Total Minutes:"), 9, 2, 1, 2)
-        layout_output.addWidget(self.lineedit_estmins, 10, 2)
+        layout_output.addWidget(self.lineedit_total_minutes, 10, 2)
         layout_output.addWidget(QLabel("min"), 10, 3)
 
-        layout_output.addWidget(QLabel("Average Refueling:"), 11, 0, 1, 2)
-        layout_output.addWidget(self.lineedit_average_refuel, 12, 0)
-        layout_output.addWidget(QLabel(self.fuel_unit_text()), 12, 1)
+        frame.setLayout(layout_output)
+
+    def set_output2(self, frame):
+        """Set output display"""
+        self.spinbox_start_fuel = QDoubleSpinBox()
+        self.spinbox_start_fuel.setRange(0, 9999)
+        self.spinbox_start_fuel.setDecimals(2)
+        self.spinbox_start_fuel.setAlignment(Qt.AlignRight)
+        self.spinbox_start_fuel.valueChanged.connect(self.validate_starting_fuel)
+        self.spinbox_start_fuel.valueChanged.connect(self.output_results)
+
+        self.lineedit_average_refuel = QLineEdit("0.000")
+        self.lineedit_average_refuel.setAlignment(Qt.AlignRight)
+        self.lineedit_average_refuel.setReadOnly(True)
+        self.set_read_only_style(self.lineedit_average_refuel)
+
+        layout_output = QGridLayout()
+        layout_output.setColumnStretch(0, 1)
+        layout_output.setColumnStretch(2, 1)
+
+        layout_output.addWidget(QLabel("Starting Fuel:"), 0, 0, 1, 2)
+        layout_output.addWidget(self.spinbox_start_fuel, 1, 0)
+        layout_output.addWidget(QLabel(self.fuel_unit_text()), 1, 1)
+
+        layout_output.addWidget(QLabel("Average Refueling:"), 0, 2, 1, 2)
+        layout_output.addWidget(self.lineedit_average_refuel, 1, 2)
+        layout_output.addWidget(QLabel(self.fuel_unit_text()), 1, 3)
 
         frame.setLayout(layout_output)
 
@@ -449,7 +467,7 @@ class FuelCalculator(QDialog):
         """Calculate and output results"""
         tank_capacity = self.spinbox_capacity.value()
         consumption = self.spinbox_consumption.value()
-        fuel_start = self.spinbox_fuel_start.value() if self.spinbox_fuel_start.value() else tank_capacity
+        fuel_start = self.spinbox_start_fuel.value() if self.spinbox_start_fuel.value() else tank_capacity
         total_race_seconds = self.spinbox_race_minutes.value() * 60
         total_race_laps = self.spinbox_race_laps.value()
         total_formation_laps = self.spinbox_formation.value()
@@ -515,31 +533,26 @@ class FuelCalculator(QDialog):
         else:
             average_refuel = 0
         # Output
-        self.lineedit_totalfuel.setText(
+        self.lineedit_total_fuel.setText(
             f"{total_need_frac:.03f} ≈ {total_need_full}")
-        self.lineedit_endfuel.setText(
+        self.lineedit_end_fuel.setText(
             f"{end_stint_fuel:.03f}")
-        self.lineedit_pitstops.setText(
+        self.lineedit_pit_stops.setText(
             f"{max(estimate_pit_counts, 0):.03f} ≈ {max(math.ceil(minimum_pit_counts), 0)}")
-        self.lineedit_oneless.setText(
+        self.lineedit_one_less.setText(
             f"{max(used_one_less, 0):.03f}")
-        self.lineedit_estlaps.setText(
+        self.lineedit_total_laps.setText(
             f"{total_runlaps:.03f}")
-        self.lineedit_estmins.setText(
+        self.lineedit_total_minutes.setText(
             f"{total_runmins:.03f}")
         self.lineedit_average_refuel.setText(
             f"{average_refuel:.03f}")
         # Set warning color
         if average_refuel > tank_capacity:  # exceeded tank capacity
-            self.lineedit_average_refuel.setStyleSheet("color: #000;background: #F40;")
+            self.lineedit_average_refuel.setStyleSheet("background: #F40;")
         else:
-            self.lineedit_average_refuel.setStyleSheet("")
+            self.set_read_only_style(self.lineedit_average_refuel)
         return None
-
-    def validate_starting_fuel(self):
-        """Validate starting fuel"""
-        if self.spinbox_fuel_start.value() > self.spinbox_capacity.value():
-            self.spinbox_fuel_start.setValue(self.spinbox_capacity.value())
 
     def disable_race_lap(self):
         """Disable race laps if race minutes is set"""
@@ -571,3 +584,12 @@ class FuelCalculator(QDialog):
         if cfg.units["fuel_unit"] == "Gallon":
             return calc.liter2gallon(fuel)
         return fuel
+
+    def validate_starting_fuel(self):
+        """Validate starting fuel"""
+        if self.spinbox_start_fuel.value() > self.spinbox_capacity.value():
+            self.spinbox_start_fuel.setValue(self.spinbox_capacity.value())
+
+    def set_read_only_style(self, line_edit):
+        """Set read only style"""
+        line_edit.setStyleSheet(f"background: {self.read_only_color};")
