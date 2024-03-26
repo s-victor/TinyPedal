@@ -403,13 +403,13 @@ Set number of formation or rolling start laps.
 Set average pit stop time in seconds.
 
     Total race fuel
-Show total required fuel to finish race.
+Show total required fuel to finish race. First value is raw reading with decimal places, second value behind `≈` sign is rounded up integer reading.
 
     End stint fuel
 Show remaining fuel at the end of stint or race.
 
     Total Pit stops
-Show total number of pit stops required to finish race.
+Show total number of pit stops required to finish race. First value is raw reading with decimal places, second value behind `≈` sign is rounded up integer reading. Note, sometimes when `Average pit seconds` is set to longer duration, ceiling integer reading may be rounded up `2` units higher than raw reading, this is not an error. For example, it may show `5.978 ≈ 7` instead of `5.978 ≈ 6`, this is because when calculating from `6` pit stops, due to less amount time spent in pit stop compare to `7`, more fuel is required per pit stop which would exceed tank capacity, hence calculator adds 1 more pit stop.
 
     One less pit stop
 Show fuel consumption in order to make one less pit stop.
