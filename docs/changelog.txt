@@ -63,6 +63,7 @@ WIP
     when slip ratio has exceeded "wheel_slip_threshold" value.
     Default plot style is purple dots.
     Default "wheel_lock_threshold" value is "0.3".
+  - Fixed plot lines that kept drawing after game paused.
 
 * Force Module
   - Add "braking rate" calculation and output.
@@ -88,6 +89,11 @@ WIP
     which shows when spectate mode is enabled.
     Click on the notification will show Spectate tab.
   - Add "Tools" menu, moved all editors to "Tools" menu.
+
+* Shared Memory API
+  - Always use direct access for "rF2ForceFeedback" and "rF2Extended"
+    which don't require synchronizing.
+  - Reduced "pause" detection timeout duration from 5s to 2s.
 
 2.10.1 (2024-03-13)
 -----------------------------
