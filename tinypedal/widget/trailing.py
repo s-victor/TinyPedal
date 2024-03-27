@@ -90,6 +90,7 @@ class Draw(Overlay):
         # Last data
         self.delayed_update = False
         self.last_lap_etime = -1
+        self.update_plot = 1
 
         # Set widget state & start update
         self.set_widget_state()
@@ -99,11 +100,16 @@ class Draw(Overlay):
         """Update when vehicle on track"""
         if api.state:
 
-            # Use elapsed time to determine whether paused
-            # add FFB value which has higher refresh rate
-            lap_etime = api.read.timing.elapsed() + api.read.input.force_feedback()
-
+            # Use elapsed time to determine whether data paused
+            # Add 1 extra update compensation
+            lap_etime = api.read.timing.elapsed()
             if lap_etime != self.last_lap_etime:
+                self.update_plot = 2
+            elif self.update_plot:
+                self.update_plot -= 1
+            self.last_lap_etime = lap_etime
+
+            if self.update_plot:
                 if self.wcfg["show_throttle"]:
                     if self.wcfg["show_raw_throttle"]:
                         throttle = api.read.input.throttle_raw()
@@ -152,7 +158,6 @@ class Draw(Overlay):
                     self.pixmap_plot_last = self.pixmap_plot.copy(
                         0, 0, self.area_width, self.area_height)
                     self.update()  # trigger paint event
-                self.last_lap_etime = lap_etime
 
     # GUI update methods
     def paintEvent(self, event):
