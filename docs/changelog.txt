@@ -45,6 +45,10 @@ WIP
     "wheel_lock_threshold" value, and resets on first
     braking input of a new lap.
 
+* Gear Widget
+  - Add "battery_bar_color_regen" option,
+    which shows regen color indicator for battery bar.
+
 * Instrument Widget
   - Changed "wheel_lock_threshold" default value to "0.3".
 

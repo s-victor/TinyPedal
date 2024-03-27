@@ -626,6 +626,7 @@ WIDGET_DEFAULT = {
         "show_battery_bar": True,
         "battery_bar_height": 4,
         "battery_bar_color": "#00CCFF",
+        "battery_bar_color_regen": "##44FF00",
         "show_speed_limiter": True,
         "speed_limiter_text": "LIMIT",
         "speed_limiter_padding_horizontal": 0.3,

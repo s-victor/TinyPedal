@@ -145,7 +145,7 @@ class Draw(Overlay):
             self.bar_battbar = QLabel()
             self.bar_battbar.setFixedSize(self.gauge_width, self.battbar_height)
             self.pixmap_battbar = QPixmap(self.gauge_width, self.battbar_height)
-            self.draw_battbar(self.bar_battbar, self.pixmap_battbar, 0)
+            self.draw_battbar(self.bar_battbar, self.pixmap_battbar, 0, 0)
 
         # Set layout
         layout.addWidget(self.bar_gauge, column_gauge, 0)
@@ -225,7 +225,7 @@ class Draw(Overlay):
                 self.last_motor_state = motor_state
 
                 if motor_state:
-                    battery = minfo.hybrid.batteryCharge
+                    battery = minfo.hybrid.batteryCharge, motor_state
                     self.update_battbar(battery, self.last_battery)
                     self.last_battery = battery
 
@@ -259,7 +259,7 @@ class Draw(Overlay):
     def update_battbar(self, curr, last):
         """Battery bar update"""
         if curr != last:
-            self.draw_battbar(self.bar_battbar, self.pixmap_battbar, curr)
+            self.draw_battbar(self.bar_battbar, self.pixmap_battbar, *curr)
 
     def update_state(self, suffix, curr, last):
         """State update"""
@@ -308,14 +308,17 @@ class Draw(Overlay):
 
         canvas.setPixmap(pixmap)
 
-    def draw_battbar(self, canvas, pixmap, battery):
+    def draw_battbar(self, canvas, pixmap, battery, state):
         """Battery bar"""
         pixmap.fill(Qt.transparent)
         painter = QPainter(pixmap)
 
         # Draw battery
         painter.setPen(Qt.NoPen)
-        self.brush.setColor(self.wcfg["battery_bar_color"])
+        if state == 3:
+            self.brush.setColor(self.wcfg["battery_bar_color_regen"])
+        else:
+            self.brush.setColor(self.wcfg["battery_bar_color"])
         painter.setBrush(self.brush)
         painter.drawRect(0, 0, battery * 0.01 * self.gauge_width, self.battbar_height)
 
