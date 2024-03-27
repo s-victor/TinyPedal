@@ -1,4 +1,4 @@
-WIP
+2.11.0 (2024-03-28)
 -----------------------------
 * [New]Fuel calculator
   - New "Fuel Calculator" can be accessed from Tools menu in main window.
@@ -47,7 +47,7 @@ WIP
 
 * Gear Widget
   - Add "battery_bar_color_regen" option,
-    which shows regen color indicator for battery bar.
+    which shows energy regeneration color indicator for battery bar.
 
 * Instrument Widget
   - Changed "wheel_lock_threshold" default value to "0.3".
@@ -94,6 +94,12 @@ WIP
   - Always use direct access for "rF2ForceFeedback" and "rF2Extended"
     which don't require synchronizing.
   - Reduced "pause" detection timeout duration from 5s to 2s.
+
+* Misc
+  - Added Fuel calculator, Brake performance Widget, Wheels Module info in User Guide.
+  - Updated Trailing Widget, Force Module info in User Guide.
+
+Thanks to @DanRZ for suggestions and testing feedback.
 
 2.10.1 (2024-03-13)
 -----------------------------

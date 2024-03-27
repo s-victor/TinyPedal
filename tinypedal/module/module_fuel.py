@@ -249,7 +249,7 @@ class Realtime:
                     minfo.fuel.consumptionHistory.appendleft((
                         lap_number - 1,
                         minfo.delta.lapTimeLast,
-                        used_last,
+                        used_last_raw,
                         amount_curr,
                         capacity,
                         laptime_valid > 0,
