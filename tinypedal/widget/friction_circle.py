@@ -108,8 +108,8 @@ class Draw(Overlay):
         self.gforce_raw = 0,0
         self.last_gforce_raw = None
         self.data_gforce = deque([], max(self.wcfg["trace_max_samples"], 5))
-        self.last_x = 0
-        self.last_y = 0
+        self.last_x = self.scale_position(0)
+        self.last_y = self.scale_position(0)
 
         # Set widget state & start update
         self.set_widget_state()
