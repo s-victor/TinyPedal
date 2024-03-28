@@ -62,7 +62,7 @@
     which shows wheel slip (slip ratio) plot under acceleration
     when slip ratio has exceeded "wheel_slip_threshold" value.
     Default plot style is purple dots.
-    Default "wheel_lock_threshold" value is "0.3".
+    Default "wheel_slip_threshold" value is "0.1".
   - Fixed plot lines that kept drawing after game paused.
 
 * Force Module
