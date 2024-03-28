@@ -57,6 +57,7 @@ class Draw(Overlay):
         self.pedal_max_range = self.display_height
         self.area_width = self.display_width
         self.area_height = self.display_height + self.margin * 2
+        self.draw_queue = self.config_draw_order()
 
         # Config canvas
         self.resize(self.area_width, self.area_height)
@@ -223,18 +224,9 @@ class Draw(Overlay):
         painter.setBrush(Qt.NoBrush)
         self.pen.setStyle(Qt.SolidLine)
 
-        if self.wcfg["show_ffb"]:
-            self.draw_line(painter, "ffb")
-        if self.wcfg["show_clutch"]:
-            self.draw_line(painter, "clutch")
-        if self.wcfg["show_wheel_lock"]:
-            self.draw_line(painter, "wheel_lock")
-        if self.wcfg["show_brake"]:
-            self.draw_line(painter, "brake")
-        if self.wcfg["show_wheel_slip"]:
-            self.draw_line(painter, "wheel_slip")
-        if self.wcfg["show_throttle"]:
-            self.draw_line(painter, "throttle")
+        for plot_name in self.draw_queue:
+            if self.wcfg[f"show_{plot_name}"]:
+                self.draw_line(painter, plot_name)
 
     def draw_line(self, painter, suffix):
         """Draw plot line"""
@@ -294,3 +286,15 @@ class Draw(Overlay):
             x_pos = 0
             width = self.area_width
         return QRect(x_pos, y_pos, width, height)
+
+    def config_draw_order(self):
+        """Config plot draw order"""
+        plot_list = (
+            (self.wcfg["draw_order_index_throttle"], "throttle"),
+            (self.wcfg["draw_order_index_brake"], "brake"),
+            (self.wcfg["draw_order_index_clutch"], "clutch"),
+            (self.wcfg["draw_order_index_ffb"], "ffb"),
+            (self.wcfg["draw_order_index_wheel_lock"], "wheel_lock"),
+            (self.wcfg["draw_order_index_wheel_slip"], "wheel_slip"),
+        )
+        return tuple(zip(*sorted(plot_list, reverse=True)))[1]

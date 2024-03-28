@@ -1600,6 +1600,12 @@ WIDGET_DEFAULT = {
         "reference_line_5_offset": 0,
         "reference_line_5_width": 0,
         "reference_line_5_color": "#666666",
+        "draw_order_index_throttle": 2,
+        "draw_order_index_brake": 1,
+        "draw_order_index_clutch": 5,
+        "draw_order_index_ffb": 6,
+        "draw_order_index_wheel_lock": 4,
+        "draw_order_index_wheel_slip": 3,
     },
     "tyre_carcass": {
         "enable": True,

@@ -1,3 +1,9 @@
+2.11.1 (2024-03-28)
+-----------------------------
+* Trailing Widget
+  - Add "draw_order_index_*" options,
+    which sets draw order of plot lines.
+
 2.11.0 (2024-03-28)
 -----------------------------
 * [New]Fuel calculator

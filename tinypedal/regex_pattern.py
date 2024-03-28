@@ -85,6 +85,7 @@ CFG_INTEGER = (
     "decimal_places|"
     "display_margin|"
     "display_size|"
+    "draw_order_index|"
     "font_size|"
     "icon_size|"
     "inner_gap|"

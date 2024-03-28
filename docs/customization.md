@@ -1750,6 +1750,9 @@ Set reference line style. `0` for solid line, `1` for dashed line.
     reference_line_*_width
 Set reference line width in pixels. Set value to `0` to hide line.
 
+    draw_order_index_*
+Set draw order of plot lines.
+
 
 ## Tyre carcass temperature
 **This widget displays tyre carcass temperature info.**
