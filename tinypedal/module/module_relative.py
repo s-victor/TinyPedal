@@ -41,7 +41,7 @@ class Realtime:
 
     def __init__(self, config):
         self.cfg = config
-        self.mcfg = self.cfg.setting_user[self.module_name]
+        self.mcfg = self.cfg.user.setting[self.module_name]
         self.stopped = True
         self.event = threading.Event()
 
@@ -108,8 +108,8 @@ class Realtime:
             return rel_dist_list
         # Get vehicle number from relative widget
         max_rel_veh, add_front, add_behind = max_relative_vehicles(
-            self.cfg.setting_user["relative"]["additional_players_front"],
-            self.cfg.setting_user["relative"]["additional_players_behind"])
+            self.cfg.user.setting["relative"]["additional_players_front"],
+            self.cfg.user.setting["relative"]["additional_players_behind"])
         # Extract vehicle index to create new sorted vehicle list
         sorted_veh_list = [_dist[1] for _dist in rel_dist_list]
         # Locate player index position in list
@@ -141,7 +141,7 @@ class Realtime:
         plr_dist = api.read.lap.distance()
         race_check = bool(
             api.read.session.in_race() and not
-            self.cfg.setting_user["relative"]["show_vehicle_in_garage_for_race"]
+            self.cfg.user.setting["relative"]["show_vehicle_in_garage_for_race"]
         )
         for index in range(veh_total):
             in_garage = api.read.vehicle.in_garage(index)
@@ -222,13 +222,13 @@ class Realtime:
         self, veh_total, plr_index, plr_place, class_pos_list, place_index_list, is_multi_class):
         """Create standings index list"""
         veh_top = min_top_vehicles_in_class(
-            self.cfg.setting_user["standings"]["min_top_vehicles"])
+            self.cfg.user.setting["standings"]["min_top_vehicles"])
 
-        if self.cfg.setting_user["standings"]["enable_multi_class_split_mode"] and is_multi_class:
+        if self.cfg.user.setting["standings"]["enable_multi_class_split_mode"] and is_multi_class:
             veh_limit_other = max_vehicles_in_class(
-                self.cfg.setting_user["standings"]["max_vehicles_per_split_others"], veh_top)
+                self.cfg.user.setting["standings"]["max_vehicles_per_split_others"], veh_top)
             veh_limit_player = max_vehicles_in_class(
-                self.cfg.setting_user["standings"]["max_vehicles_per_split_player"], veh_top, 2)
+                self.cfg.user.setting["standings"]["max_vehicles_per_split_player"], veh_top, 2)
 
             sorted_class_pos_list = sorted(
                 class_pos_list,        # sort by:
@@ -245,7 +245,7 @@ class Realtime:
             )))
         else:
             veh_limit = max_vehicles_in_class(
-                self.cfg.setting_user["standings"]["max_vehicles_combined_mode"], veh_top, 2)
+                self.cfg.user.setting["standings"]["max_vehicles_combined_mode"], veh_top, 2)
             standing_index = self.__calc_standings_index(
                 veh_top, veh_total, veh_limit, plr_place, place_index_list)
 

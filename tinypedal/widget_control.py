@@ -71,19 +71,19 @@ class WidgetControl:
 
     def toggle(self, name: str):
         """Toggle widget"""
-        if cfg.setting_user[name]["enable"]:
-            cfg.setting_user[name]["enable"] = False
+        if cfg.user.setting[name]["enable"]:
+            cfg.user.setting[name]["enable"] = False
             getattr(self, f"widget_{name}").closing()
         else:
-            cfg.setting_user[name]["enable"] = True
+            cfg.user.setting[name]["enable"] = True
             self.__create_instance(self.PACK[name])
         cfg.save()
 
     def enable_all(self):
         """Enable all widgets"""
         for _name, _widget in self.PACK.items():
-            if not cfg.setting_user[_name]["enable"]:
-                cfg.setting_user[_name]["enable"] = True
+            if not cfg.user.setting[_name]["enable"]:
+                cfg.user.setting[_name]["enable"] = True
                 self.__create_instance(_widget)
         cfg.save()
         logger.info("ACTIVE: all widgets")
@@ -91,7 +91,7 @@ class WidgetControl:
     def disable_all(self):
         """Disable all widgets"""
         for _name in self.PACK.keys():
-            cfg.setting_user[_name]["enable"] = False
+            cfg.user.setting[_name]["enable"] = False
         self.close()
         cfg.save()
         logger.info("CLOSED: all widgets")
@@ -99,12 +99,12 @@ class WidgetControl:
     def __start_enabled(self):
         """Start all enabled widget"""
         for _name, _widget in self.PACK.items():
-            if cfg.setting_user[_name]["enable"]:
+            if cfg.user.setting[_name]["enable"]:
                 self.__create_instance(_widget)
 
     def __start_selected(self, name: str):
         """Start selected widget"""
-        if cfg.setting_user[name]["enable"]:
+        if cfg.user.setting[name]["enable"]:
             self.__create_instance(self.PACK[name])
 
     @staticmethod

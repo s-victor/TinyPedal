@@ -385,7 +385,7 @@ class Draw(Overlay):
                         f"background: {self.wcfg['bkg_color_vehicle_name']};")
 
             if self.wcfg["show_vehicle_brand_as_name"]:
-                vname = self.cfg.brands_user.get(curr[0], curr[0])
+                vname = self.cfg.user.brands.get(curr[0], curr[0])
             else:
                 vname = curr[0]
 
@@ -408,7 +408,7 @@ class Draw(Overlay):
     def update_brd(self, suffix, curr, last):
         """Brand logo"""
         if curr != last:
-            brand_name = self.cfg.brands_user.get(curr[0], curr[0])
+            brand_name = self.cfg.user.brands.get(curr[0], curr[0])
             # Draw brand logo
             if brand_name in self.cfg.brands_logo_user:
                 getattr(self, f"row_{suffix}").setPixmap(self.load_brand_logo(brand_name))
@@ -575,8 +575,8 @@ class Draw(Overlay):
 
     def set_class_style(self, vehclass_name):
         """Compare vehicle class name with user defined dictionary"""
-        if vehclass_name in self.cfg.classes_user:
-            return tuple(*self.cfg.classes_user[vehclass_name].items())  # sub_name, sub_color
+        if vehclass_name in self.cfg.user.classes:
+            return tuple(*self.cfg.user.classes[vehclass_name].items())  # sub_name, sub_color
         if vehclass_name and self.wcfg["show_random_color_for_unknown_class"]:
             return vehclass_name, fmt.random_color_class(vehclass_name)
         return vehclass_name, self.wcfg["bkg_color_class"]

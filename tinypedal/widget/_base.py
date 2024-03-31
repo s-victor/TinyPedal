@@ -52,7 +52,7 @@ class Overlay(QWidget):
         self.cfg.active_widget_list.append(self)  # add to active widget list
 
         # Widget config
-        self.wcfg = self.cfg.setting_user[self.widget_name]
+        self.wcfg = self.cfg.user.setting[self.widget_name]
 
         # Base setting
         self.setWindowTitle(f"{APP_NAME} - {self.widget_name.capitalize()}")

@@ -62,7 +62,7 @@ class VehicleClassEditor(QDialog):
         self.setMinimumSize(400, 400)
 
         self.option_classes = []
-        self.classes_temp = copy_setting(cfg.classes_user)
+        self.classes_temp = copy_setting(cfg.user.classes)
 
         # Classes list box
         self.listbox_classes = QListWidget(self)
@@ -207,7 +207,7 @@ class VehicleClassEditor(QDialog):
             self, "Reset Class Preset", message_text,
             buttons=QMessageBox.Yes | QMessageBox.No)
         if reset_msg == QMessageBox.Yes:
-            self.classes_temp = copy_setting(cfg.classes_default)
+            self.classes_temp = copy_setting(cfg.default.classes)
             self.refresh_list()
 
     def applying(self):
@@ -232,7 +232,7 @@ class VehicleClassEditor(QDialog):
         """Save setting"""
         self.update_classes_temp()
         self.refresh_list()
-        cfg.classes_user = copy_setting(self.classes_temp)
+        cfg.user.classes = copy_setting(self.classes_temp)
         cfg.save(0, "classes")
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)

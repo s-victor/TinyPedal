@@ -76,7 +76,7 @@ class TrayIcon(QSystemTrayIcon):
     def refresh_menu(self):
         """Refresh menu"""
         self.loaded_preset.setText(
-            self.format_preset_name(self.cfg.last_loaded_setting))
+            self.format_preset_name(self.cfg.filename.last_setting))
 
     @staticmethod
     def format_preset_name(filename: str) -> str:

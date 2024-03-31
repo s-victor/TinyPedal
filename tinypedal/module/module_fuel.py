@@ -43,7 +43,7 @@ class Realtime:
 
     def __init__(self, config):
         self.cfg = config
-        self.mcfg = self.cfg.setting_user[self.module_name]
+        self.mcfg = self.cfg.user.setting[self.module_name]
         self.stopped = True
         self.event = threading.Event()
 

@@ -43,7 +43,7 @@ class Realtime:
 
     def __init__(self, config):
         self.cfg = config
-        self.mcfg = self.cfg.setting_user[self.module_name]
+        self.mcfg = self.cfg.user.setting[self.module_name]
         self.stopped = True
         self.event = threading.Event()
 
@@ -108,7 +108,7 @@ class Realtime:
                     pos_last = 0  # last checked vehicle position
                     pos_estimate = 0  # calculated position
                     gps_last = [0,0,0]  # last global position
-                    meters_driven = self.cfg.setting_user["cruise"]["meters_driven"]
+                    meters_driven = self.cfg.user.setting["cruise"]["meters_driven"]
 
                 # Read telemetry
                 lap_stime = api.read.timing.start()
@@ -233,7 +233,7 @@ class Realtime:
                     reset = False
                     update_interval = idle_interval
                     last_session_id = (combo_id, *session_id)
-                    self.cfg.setting_user["cruise"]["meters_driven"] = int(meters_driven)
+                    self.cfg.user.setting["cruise"]["meters_driven"] = int(meters_driven)
                     self.cfg.save()
 
         self.cfg.active_module_list.remove(self)

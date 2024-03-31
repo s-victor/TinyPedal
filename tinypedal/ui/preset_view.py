@@ -107,13 +107,13 @@ class PresetList(QWidget):
             self.listbox_preset.clear()
             self.listbox_preset.addItems(self.preset_list)
         self.label_loaded.setText(
-            f"Loaded: <b>{cfg.last_loaded_setting[:-5]}</b>")
+            f"Loaded: <b>{cfg.filename.last_setting[:-5]}</b>")
 
     def load_preset(self):
         """Load selected preset"""
         selected_index = self.listbox_preset.currentRow()
         if selected_index >= 0:
-            cfg.filename_setting = f"{self.preset_list[selected_index]}.json"
+            cfg.filename.setting = f"{self.preset_list[selected_index]}.json"
             self.master.reload_preset()
         else:
             QMessageBox.warning(
@@ -246,14 +246,14 @@ class CreatePreset(QDialog):
                 f"{PATH_SETTINGS}{entered_filename}.json"
             )
             # Reload if renamed file was loaded
-            if cfg.filename_setting == self.src_filename:
-                cfg.filename_setting = f"{entered_filename}.json"
+            if cfg.filename.setting == self.src_filename:
+                cfg.filename.setting = f"{entered_filename}.json"
                 self.master.master.reload_preset()
             else:
                 self.master.refresh_list()
         # Create new preset
         else:
-            cfg.filename_setting = f"{entered_filename}.json"
+            cfg.filename.setting = f"{entered_filename}.json"
             cfg.create()
             cfg.save(0)  # save setting
             while cfg.is_saving:  # wait saving finish

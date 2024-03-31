@@ -71,21 +71,21 @@ class ModuleControl:
 
     def toggle(self, name: str):
         """Toggle module"""
-        if cfg.setting_user[name]["enable"]:
-            cfg.setting_user[name]["enable"] = False
+        if cfg.user.setting[name]["enable"]:
+            cfg.user.setting[name]["enable"] = False
             getattr(self, name).stop()
             while not getattr(self, name).stopped:  # make sure stopped
                 time.sleep(0.01)
         else:
-            cfg.setting_user[name]["enable"] = True
+            cfg.user.setting[name]["enable"] = True
             self.__create_instance(self.PACK[name])
         cfg.save()
 
     def enable_all(self):
         """Enable all modules"""
         for _name, _module in self.PACK.items():
-            if not cfg.setting_user[_name]["enable"]:
-                cfg.setting_user[_name]["enable"] = True
+            if not cfg.user.setting[_name]["enable"]:
+                cfg.user.setting[_name]["enable"] = True
                 self.__create_instance(_module)
         cfg.save()
         logger.info("ACTIVE: all modules")
@@ -93,7 +93,7 @@ class ModuleControl:
     def disable_all(self):
         """Disable all modules"""
         for _name in self.PACK.keys():
-            cfg.setting_user[_name]["enable"] = False
+            cfg.user.setting[_name]["enable"] = False
         self.close()
         cfg.save()
         logger.info("CLOSED: all modules")
@@ -101,12 +101,12 @@ class ModuleControl:
     def __start_enabled(self):
         """Start all enabled module"""
         for _name, _module in self.PACK.items():
-            if cfg.setting_user[_name]["enable"]:
+            if cfg.user.setting[_name]["enable"]:
                 self.__create_instance(_module)
 
     def __start_selected(self, name: str):
         """Start selected module"""
-        if cfg.setting_user[name]["enable"]:
+        if cfg.user.setting[name]["enable"]:
             self.__create_instance(self.PACK[name])
 
     @staticmethod

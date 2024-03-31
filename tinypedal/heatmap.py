@@ -54,8 +54,8 @@ def sort_heatmap(heatmap_dict: dict) -> list:
 
 def load_heatmap(heatmap_name: str, default_name: str) -> list:
     """Load heatmap preset"""
-    if heatmap_name in cfg.heatmap_user:
-        heatmap_dict = cfg.heatmap_user[heatmap_name]
+    if heatmap_name in cfg.user.heatmap:
+        heatmap_dict = cfg.user.heatmap[heatmap_name]
         if verify_heatmap(heatmap_dict):
             return sort_heatmap(heatmap_dict)
-    return sort_heatmap(cfg.heatmap_default[default_name])
+    return sort_heatmap(cfg.default.heatmap[default_name])

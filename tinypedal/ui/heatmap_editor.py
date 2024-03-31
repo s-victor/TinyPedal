@@ -62,7 +62,7 @@ class HeatmapEditor(QDialog):
         self.setMinimumHeight(400)
 
         self.option_heatmap = []
-        self.heatmap_temp = copy_setting(cfg.heatmap_user)
+        self.heatmap_temp = copy_setting(cfg.user.heatmap)
         self.selected_heatmap_name = "tyre_default"
         self.selected_heatmap = self.heatmap_temp[self.selected_heatmap_name]
 
@@ -229,7 +229,7 @@ class HeatmapEditor(QDialog):
 
     def delete_heatmap(self):
         """Delete heatmap"""
-        if self.selected_heatmap_name in cfg.heatmap_default:
+        if self.selected_heatmap_name in cfg.default.heatmap:
             message_text = (
                 "Cannot delete built-in default heatmap preset."
             )
@@ -251,7 +251,7 @@ class HeatmapEditor(QDialog):
 
     def reset_heatmap(self):
         """Reset heatmap"""
-        if cfg.heatmap_default.get(self.selected_heatmap_name, None) is None:
+        if cfg.default.heatmap.get(self.selected_heatmap_name, None) is None:
             message_text = (
                 "Cannot reset selected heatmap preset. <br><br>"
                 "Default preset does not exist."
@@ -267,7 +267,7 @@ class HeatmapEditor(QDialog):
             self, "Reset Heatmap Preset", message_text,
             buttons=QMessageBox.Yes | QMessageBox.No)
         if reset_msg == QMessageBox.Yes:
-            self.selected_heatmap = cfg.heatmap_default[self.selected_heatmap_name].copy()
+            self.selected_heatmap = cfg.default.heatmap[self.selected_heatmap_name].copy()
             self.refresh_list()
         return None
 
@@ -305,7 +305,7 @@ class HeatmapEditor(QDialog):
         self.refresh_list()
         # Apply changes to heatmap preset dictionary
         self.heatmap_temp[self.selected_heatmap_name] = self.selected_heatmap
-        cfg.heatmap_user = copy_setting(self.heatmap_temp)
+        cfg.user.heatmap = copy_setting(self.heatmap_temp)
         cfg.save(0, "heatmap")
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
@@ -353,7 +353,7 @@ class CreateHeatmapPreset(QDialog):
     def __saving(self, entered_name: str):
         """Saving new preset"""
         # Check existing preset
-        if entered_name in cfg.heatmap_user:
+        if entered_name in cfg.user.heatmap:
             QMessageBox.warning(
                 self, "Error", "Preset already exists.")
             return None

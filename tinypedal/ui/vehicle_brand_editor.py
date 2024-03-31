@@ -63,7 +63,7 @@ class VehicleBrandEditor(QDialog):
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setMinimumSize(550, 500)
 
-        self.brands_temp = copy_setting(cfg.brands_user)
+        self.brands_temp = copy_setting(cfg.user.brands)
 
         # Brands table
         self.table_brands = QTableWidget(self)
@@ -252,7 +252,7 @@ class VehicleBrandEditor(QDialog):
             self, "Reset Brand Preset", message_text,
             buttons=QMessageBox.Yes | QMessageBox.No)
         if reset_msg == QMessageBox.Yes:
-            self.brands_temp = copy_setting(cfg.brands_default)
+            self.brands_temp = copy_setting(cfg.default.brands)
             self.refresh_table()
 
     def applying(self):
@@ -276,7 +276,7 @@ class VehicleBrandEditor(QDialog):
         """Save setting"""
         self.update_brands_temp()
         self.refresh_table()
-        cfg.brands_user = copy_setting(self.brands_temp)
+        cfg.user.brands = copy_setting(self.brands_temp)
         cfg.save(0, "brands")
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)

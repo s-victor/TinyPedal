@@ -130,7 +130,7 @@ class ListItemControl(QWidget):
 
         label_module = QLabel(fmt.format_module_name(self.module_name))
         button_toggle = self.add_toggle_button(
-            module_name, cfg.setting_user[self.module_name]["enable"])
+            module_name, cfg.user.setting[self.module_name]["enable"])
         button_config = self.add_config_button()
 
         layout_item = QHBoxLayout()

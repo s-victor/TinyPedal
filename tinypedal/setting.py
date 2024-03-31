@@ -20,12 +20,14 @@
 Setting
 """
 
+from __future__ import annotations
 import logging
 import os
 import time
 import threading
 import json
 import shutil
+from dataclasses import dataclass
 
 from .const import PLATFORM, PATH_SETTINGS, PATH_BRANDLOGO
 from .template.setting_application import APPLICATION_DEFAULT
@@ -40,27 +42,53 @@ from . import validator as val
 logger = logging.getLogger(__name__)
 
 
+@dataclass
+class FileName:
+    """File name"""
+    setting: str = "default.json"
+    classes: str = "classes.json"
+    heatmap: str = "heatmap.json"
+    brands: str = "brands.json"
+    last_setting: str = "None.json"
+
+
+class Preset:
+    """Preset setting"""
+
+    def __init__(self):
+        self.setting: dict | None = None
+        self.classes: dict | None = None
+        self.heatmap: dict | None = None
+        self.brands: dict | None = None
+
+    def set_default(self):
+        """Set default setting"""
+        self.setting = {**APPLICATION_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT}
+        self.classes = CLASSES_DEFAULT
+        self.heatmap = HEATMAP_DEFAULT
+        self.brands = {}
+        self.set_platform_default()
+
+    def set_platform_default(self):
+        """Platform default setting"""
+        if PLATFORM != "Windows":
+            self.setting["application"]["show_at_startup"] = True
+            self.setting["application"]["minimize_to_tray"] = False
+            self.setting["compatibility"]["enable_bypass_window_manager"] = True
+
+
 class Setting:
     """Overlay setting"""
     filepath = PATH_SETTINGS
-    filename_setting = "default.json"
-    filename_classes = "classes.json"
-    filename_heatmap = "heatmap.json"
-    filename_brands = "brands.json"
-    last_loaded_setting = "None.json"
-    setting_default = {**APPLICATION_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT}
-    classes_default = CLASSES_DEFAULT
-    heatmap_default = HEATMAP_DEFAULT
-    brands_default = {}
 
     def __init__(self):
-        self.platform_default()
+        self.filename = FileName()
+        self.default = Preset()
+        self.default.set_default()
+        self.user = Preset()
+
         self.active_widget_list = []
         self.active_module_list = []
-        self.setting_user = None
-        self.classes_user = None
-        self.heatmap_user = None
-        self.brands_user = None
         self.brands_logo_user = None
 
         self.is_saving = False
@@ -68,26 +96,26 @@ class Setting:
 
     def load(self):
         """Load all setting files"""
-        self.setting_user = load_setting_json_file(
-            self.filename_setting, self.filepath, self.setting_default)
+        self.user.setting = load_setting_json_file(
+            self.filename.setting, self.filepath, self.default.setting)
         # Save setting to JSON file
         self.save(0)
         # Assign base setting
-        self.application = self.setting_user["application"]
-        self.compatibility = self.setting_user["compatibility"]
-        self.overlay = self.setting_user["overlay"]
-        self.shared_memory_api = self.setting_user["shared_memory_api"]
-        self.units = self.setting_user["units"]
-        self.last_loaded_setting = self.filename_setting
+        self.application = self.user.setting["application"]
+        self.compatibility = self.user.setting["compatibility"]
+        self.overlay = self.user.setting["overlay"]
+        self.shared_memory_api = self.user.setting["shared_memory_api"]
+        self.units = self.user.setting["units"]
+        self.filename.last_setting = self.filename.setting
         # Load style JSON file
-        self.brands_user = load_style_json_file(
-            self.filename_brands, self.filepath, self.brands_default)
-        self.classes_user = load_style_json_file(
-            self.filename_classes, self.filepath, self.classes_default)
-        self.heatmap_user = load_style_json_file(
-            self.filename_heatmap, self.filepath, self.heatmap_default)
+        self.user.brands = load_style_json_file(
+            self.filename.brands, self.filepath, self.default.brands)
+        self.user.classes = load_style_json_file(
+            self.filename.classes, self.filepath, self.default.classes)
+        self.user.heatmap = load_style_json_file(
+            self.filename.heatmap, self.filepath, self.default.heatmap)
         self.brands_logo_user = self.load_brands_logo_list()
-        logger.info("SETTING: %s preset loaded", self.last_loaded_setting)
+        logger.info("SETTING: %s preset loaded", self.filename.last_setting)
 
     @staticmethod
     def load_brands_logo_list():
@@ -120,7 +148,7 @@ class Setting:
 
     def create(self):
         """Create default setting"""
-        self.setting_user = copy_setting(self.setting_default)
+        self.user.setting = copy_setting(self.default.setting)
 
     def save(self, count: int = 66, file_type: str = "setting"):
         """Save trigger, limit to one save operation for a given period.
@@ -130,32 +158,20 @@ class Setting:
                 Set time delay(count) that can be refreshed before start saving thread.
                 Default is roughly one sec delay, use 0 for instant saving.
             file_type:
-                Set type of setting file, either "setting" or "classes".
+                Available type: "setting", "brands", "classes", "heatmap".
         """
         self._save_delay = count
 
         if not self.is_saving:
             self.is_saving = True
-            if file_type == "classes":
-                threading.Thread(
-                    target=self.__saving,
-                    args=(self.filename_classes, self.filepath, self.classes_user)
-                ).start()
-            elif file_type == "heatmap":
-                threading.Thread(
-                    target=self.__saving,
-                    args=(self.filename_heatmap, self.filepath, self.heatmap_user)
-                ).start()
-            elif file_type == "brands":
-                threading.Thread(
-                    target=self.__saving,
-                    args=(self.filename_brands, self.filepath, self.brands_user)
-                ).start()
-            else:
-                threading.Thread(
-                    target=self.__saving,
-                    args=(self.filename_setting, self.filepath, self.setting_user)
-                ).start()
+            threading.Thread(
+                target=self.__saving,
+                args=(
+                    getattr(self.filename, file_type),
+                    self.filepath,
+                    getattr(self.user, file_type)
+                )
+            ).start()
 
     def __saving(self, filename: str, filepath: str, dict_user: dict):
         """Saving thread"""
@@ -177,14 +193,7 @@ class Setting:
             time.sleep(0.05)
 
         self.is_saving = False
-        logger.info("SETTING: preset saved")
-
-    def platform_default(self):
-        """Platform specific default setting"""
-        if PLATFORM != "Windows":
-            self.setting_default["application"]["show_at_startup"] = True
-            self.setting_default["application"]["minimize_to_tray"] = False
-            self.setting_default["compatibility"]["enable_bypass_window_manager"] = True
+        logger.info("SETTING: %s saved", filename)
 
 
 def save_json_file(filename: str, filepath: str, dict_user: dict) -> None:
@@ -266,5 +275,5 @@ def copy_setting(dict_user: dict) -> dict:
 
 # Assign config setting
 cfg = Setting()
-cfg.filename_setting = f"{cfg.load_preset_list()[0]}.json"
+cfg.filename.setting = f"{cfg.load_preset_list()[0]}.json"
 cfg.load()
