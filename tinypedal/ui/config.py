@@ -269,8 +269,9 @@ class UserConfig(QDialog):
             cfg.user.setting[self.key_name][key] = bool(value)
 
         for key in self.option_color:
-            cfg.user.setting[self.key_name][key] = getattr(
-                self, f"lineedit_{key}").text()
+            value = getattr(self, f"lineedit_{key}").text()
+            if val.hex_color(value):
+                cfg.user.setting[self.key_name][key] = value
 
         for key in self.option_fontname:
             cfg.user.setting[self.key_name][key] = getattr(

@@ -1,3 +1,13 @@
+WIP
+-----------------------------
+* General
+  - Improved color validation.
+  - Fixed an issue where invalid color could be saved.
+
+* Gear Widget
+  - Fixed a typo in "battery_bar_color_regen" default value,
+    which would not show regen color.
+
 2.11.1 (2024-03-28)
 -----------------------------
 * Trailing Widget

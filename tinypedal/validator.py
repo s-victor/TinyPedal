@@ -94,7 +94,7 @@ def delta_list(data_list: list) -> list:
 def hex_color(color_str: any) -> bool:
     """Validate HEX color string"""
     if isinstance(color_str, str) and bool(re.match("#", color_str)):
-        color = re.sub("#", "", color_str)
+        color = color_str[1:]  # remove left-most sharp sign
         if len(color) in [3,6,8]:
             return re.search(r'[^0-9A-F]', color, flags=re.IGNORECASE) is None
     return False
