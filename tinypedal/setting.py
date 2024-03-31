@@ -60,6 +60,7 @@ class Preset:
         self.classes: dict | None = None
         self.heatmap: dict | None = None
         self.brands: dict | None = None
+        self.brands_logo: list | None = None
 
     def set_default(self):
         """Set default setting"""
@@ -70,7 +71,7 @@ class Preset:
         self.set_platform_default()
 
     def set_platform_default(self):
-        """Platform default setting"""
+        """Set platform default setting"""
         if PLATFORM != "Windows":
             self.setting["application"]["show_at_startup"] = True
             self.setting["application"]["minimize_to_tray"] = False
@@ -89,7 +90,6 @@ class Setting:
 
         self.active_widget_list = []
         self.active_module_list = []
-        self.brands_logo_user = None
 
         self.is_saving = False
         self._save_delay = 0
@@ -114,17 +114,8 @@ class Setting:
             self.filename.classes, self.filepath, self.default.classes)
         self.user.heatmap = load_style_json_file(
             self.filename.heatmap, self.filepath, self.default.heatmap)
-        self.brands_logo_user = self.load_brands_logo_list()
+        self.user.brands_logo = load_brands_logo_list()
         logger.info("SETTING: %s preset loaded", self.filename.last_setting)
-
-    @staticmethod
-    def load_brands_logo_list():
-        """Load brands logo list"""
-        return [
-            _filename[:-4] for _filename in os.listdir(PATH_BRANDLOGO)
-            if _filename.lower().endswith(".png")
-            and os.path.getsize(f"{PATH_BRANDLOGO}{_filename}") < 1024000
-        ]
 
     def load_preset_list(self):
         """Load preset list
@@ -253,6 +244,14 @@ def load_style_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
         else:
             logger.error("SETTING: %s failed loading, fall back to default", filename)
     return style_user
+
+
+def load_brands_logo_list():
+    """Load brands logo list"""
+    return [
+        _filename[:-4] for _filename in os.listdir(PATH_BRANDLOGO)
+        if _filename.lower().endswith(".png")
+        and os.path.getsize(f"{PATH_BRANDLOGO}{_filename}") < 1024000]
 
 
 def verify_setting(dict_user: dict, dict_def: dict) -> None:

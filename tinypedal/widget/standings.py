@@ -462,7 +462,7 @@ class Draw(Overlay):
 
             brand_name = self.cfg.user.brands.get(curr[0], curr[0])
             # Draw brand logo
-            if brand_name in self.cfg.brands_logo_user:
+            if brand_name in self.cfg.user.brands_logo:
                 getattr(self, f"row_{suffix}").setPixmap(self.load_brand_logo(brand_name))
             else:
                 getattr(self, f"row_{suffix}").setPixmap(QPixmap())

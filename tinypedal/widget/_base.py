@@ -57,14 +57,11 @@ class Overlay(QWidget):
         # Base setting
         self.setWindowTitle(f"{APP_NAME} - {self.widget_name.capitalize()}")
         self.move(self.wcfg["position_x"], self.wcfg["position_y"])
-        background_color = QPalette()
-        background_color.setColor(
-            QPalette.Window, self.cfg.compatibility["global_bkg_color"])
-        self.setPalette(background_color)
 
         # Widget mouse event
         self._mouse_pos = (0, 0)
         self._mouse_pressed = 0
+        self._move_size = max(int(self.cfg.compatibility["grid_move_size"]), 1)
 
         # Connect overlay-lock signal to slot
         self.__connect_signal()
@@ -76,6 +73,7 @@ class Overlay(QWidget):
 
     def set_widget_state(self):
         """Set initial widget state in orders"""
+        self.__set_window_style()
         self.__set_window_attributes()  # 1
         self.__set_window_flags()       # 2
         self.show()                     # 3 show before starting update
@@ -99,13 +97,19 @@ class Overlay(QWidget):
         if self.cfg.overlay["fixed_position"]:  # lock overlay
             self.setWindowFlag(Qt.WindowTransparentForInput, True)
 
+    def __set_window_style(self):
+        """Set window style"""
+        background_color = QPalette()
+        background_color.setColor(
+            QPalette.Window, self.cfg.compatibility["global_bkg_color"])
+        self.setPalette(background_color)
+
     def mouseMoveEvent(self, event):
         """Update widget position"""
         if event.buttons() == Qt.LeftButton:
             pos = event.globalPos() - self._mouse_pos
             if self.cfg.overlay["enable_grid_move"]:
-                move_size = max(int(self.cfg.compatibility["grid_move_size"]), 1)
-                pos = pos / move_size * move_size
+                pos = pos / self._move_size * self._move_size
             self.move(pos)
 
     def mousePressEvent(self, event):
