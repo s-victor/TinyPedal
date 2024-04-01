@@ -68,10 +68,6 @@ class Connector(ABC):
     def state(self):
         """API state, whether paused or driving"""
 
-    @abstractmethod
-    def version(self):
-        """API version"""
-
 
 class SimRF2(Connector):
     """rFactor 2"""
@@ -99,9 +95,6 @@ class SimRF2(Connector):
     def state(self):
         return not self.info.isPaused and self.read.vehicle.is_driving()
 
-    def version(self):
-        return self.read.check.version()
-
 
 class SimLMU(Connector):
     """Le Mans Ultimate"""
@@ -128,9 +121,6 @@ class SimLMU(Connector):
 
     def state(self):
         return not self.info.isPaused and self.read.vehicle.is_driving()
-
-    def version(self):
-        return self.read.check.version()
 
 
 # Add new API to API_PACK

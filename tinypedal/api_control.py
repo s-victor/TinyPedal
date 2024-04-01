@@ -106,7 +106,7 @@ class APIControl:
     @property
     def version(self):
         """API version output"""
-        version = self._api.version()
+        version = self._api.read.check.version()
         return version if version else "not running"
 
 
