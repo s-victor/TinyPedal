@@ -31,6 +31,7 @@ from ..api_control import api
 from .. import calculation as calc
 
 MODULE_NAME = "module_relative"
+ALL_PLACES = list(range(1, 128))
 
 logger = logging.getLogger(__name__)
 
@@ -76,9 +77,8 @@ class Realtime:
                 plr_index = api.read.vehicle.player_index()
                 plr_place = api.read.vehicle.place()
 
-                # Create relative list
-                rel_dist_list = sorted(  # reverse-sort by relative distance
-                    self.__relative_dist_list(veh_total), reverse=True)
+                # Create relative list, reverse-sort by relative distance
+                rel_dist_list = sorted(self.__relative_dist_list(veh_total), reverse=True)
                 rel_idx_list = self.__relative_index_list(rel_dist_list, plr_index)
 
                 # Create standings list
@@ -272,17 +272,14 @@ class Realtime:
     def __calc_standings_index(
             self, veh_top, veh_total, veh_limit, plr_place, place_index_list):
         """Create vehicle standings index list"""
-        # All vehicles place list, start from 1
-        all_veh_place_list = list(range(1, veh_total+1))
-
         # Create reference place list
         if plr_place <= veh_top or veh_total <= veh_limit:
-            ref_place_list = all_veh_place_list[:veh_limit]
+            ref_place_list = ALL_PLACES[:veh_limit]
         else:
             # Create player centered place list
             plr_center_list = list(self.__relative_nearby_place_index(
                 veh_top, veh_total, plr_place, veh_limit))
-            ref_place_list = sorted(all_veh_place_list[:veh_top] + plr_center_list)
+            ref_place_list = sorted(ALL_PLACES[:veh_top] + plr_center_list)
 
         # Create final standing index list
         standing_index_list = list(
@@ -373,12 +370,3 @@ def max_vehicles_in_class(max_cls_veh: int, min_top_veh: int, min_add_veh: int =
 def sort_class_collection(collection):
     """Sort class collection list"""
     return collection[0][4]  # 4 class best laptime
-
-
-#def sort_class(class_list):
-#    """Sort class list"""
-#    return (
-#        class_list[2], # class name
-#        class_list[4], # class best laptime
-#        class_list[1], # class position
-#    )

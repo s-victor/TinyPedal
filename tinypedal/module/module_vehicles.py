@@ -43,7 +43,7 @@ class Realtime:
         self.mcfg = self.cfg.user.setting[self.module_name]
         self.stopped = True
         self.event = threading.Event()
-        self.pit_time_list = array.array("f", [0,-1,0] * 128)
+        self.pit_timer = tuple(array.array("f", [0,-1,0]) for _ in range(128))
 
     def start(self):
         """Start update thread"""
@@ -165,7 +165,7 @@ class Realtime:
             num_pit_stops = api.read.vehicle.number_pitstops(index)
             pit_state = api.read.vehicle.pit_state(index)
             pit_time = self.__calc_pit_time(
-                index, in_pit, in_garage, laptime_last, lap_etime,
+                self.pit_timer[index], in_pit, in_garage, laptime_last, lap_etime,
                 in_pit * 1000 + slot_id)
             tire_compound = api.read.tyre.compound(index)
 
@@ -222,29 +222,34 @@ class Realtime:
                 #orientationXZRadians = orientation_xz_radians,
             )
 
-    def __calc_pit_time(self, index, in_pit, in_garage, laptime_last, lap_etime, pit_status):
-        """Calculate lap & pit time"""
-        index *= 3
-        idx_inpit, idx_start, idx_timer = index, index + 1, index + 2
+    @staticmethod
+    def __calc_pit_time(pit_timer, in_pit, in_garage, laptime_last, lap_etime, pit_status):
+        """Calculate lap & pit time
+
+        Index:
+            0 = in pit state
+            1 = pit start time
+            2 = pit timer
+        """
         # Pit status check
-        if pit_status != self.pit_time_list[idx_inpit]:
-            self.pit_time_list[idx_inpit] = pit_status  # last pit status
-            self.pit_time_list[idx_start] = lap_etime  # last etime stamp
+        if pit_status != pit_timer[0]:
+            pit_timer[0] = pit_status  # last pit status
+            pit_timer[1] = lap_etime  # last etime stamp
         # Ignore pit timer in garage
         if in_garage:
-            self.pit_time_list[idx_start] = -1
-            self.pit_time_list[idx_timer] = 0
+            pit_timer[1] = -1
+            pit_timer[2] = 0
             return 0
         # Calculating pit time while in pit
         if in_pit:
-            if self.pit_time_list[idx_start] >= 0:
-                self.pit_time_list[idx_timer] = min(
-                    max(lap_etime - self.pit_time_list[idx_start], 0), 999.9)
+            if pit_timer[1] >= 0:
+                pit_timer[2] = min(
+                    max(lap_etime - pit_timer[1], 0), 999.9)
         # Reset pit time if made a valid lap time after pitting
         else:
-            if self.pit_time_list[idx_timer] and laptime_last > 0:
-                self.pit_time_list[idx_timer] = 0
-        return self.pit_time_list[idx_timer]
+            if pit_timer[2] and laptime_last > 0:
+                pit_timer[2] = 0
+        return pit_timer[2]
 
     @staticmethod
     def __calc_gap_behind_next_in_class(
