@@ -20,6 +20,8 @@
 Radar Widget
 """
 
+from dataclasses import dataclass
+
 from PySide2.QtCore import Qt, Slot, QRectF
 from PySide2.QtGui import QPainter, QPixmap, QLinearGradient, QRadialGradient, QPen, QBrush, QColor
 
@@ -52,7 +54,7 @@ class Draw(Overlay):
             self.veh_width * self.global_scale,
             self.veh_length * self.global_scale
         )
-        self.indicator_dimention = self.calc_indicator_dimention(self.veh_width, self.veh_length)
+        self.indicator_dimension = self.calc_indicator_dimension(self.veh_width, self.veh_length)
         self.indicator_color = QColor(self.wcfg["indicator_color"])
         self.indicator_color_critical = QColor(self.wcfg["indicator_color_critical"])
 
@@ -109,7 +111,7 @@ class Draw(Overlay):
             # Draw vehicles
             if self.vehicles_data:
                 if self.wcfg["show_overlap_indicator"]:
-                    self.draw_warning_indicator(painter, *self.indicator_dimention)
+                    self.draw_warning_indicator(painter, self.indicator_dimension)
                 self.draw_vehicle(painter)
             # Apply mask
             if self.wcfg["show_fade_out"]:
@@ -231,61 +233,63 @@ class Draw(Overlay):
                     circle_scale2 * 2
                 )
 
-    def draw_warning_indicator(
-        self, painter, min_range_x, max_range_x, max_range_y,
-        indicator_width, indicator_edge, center_offset):
+    def draw_warning_indicator(self, painter, indicator):
         """Draw warning indicator"""
         painter.setPen(Qt.NoPen)
         # Real size in meters
-        nearest_left = -max_range_x
-        nearest_right = max_range_x
+        nearest_left = -indicator.max_range_x
+        nearest_right = indicator.max_range_x
 
         for veh_info in self.vehicles_data:
             if not veh_info.isPlayer:
                 raw_pos_x, raw_pos_y = veh_info.relativeRotatedPosXZ
-                if abs(raw_pos_x) < max_range_x and abs(raw_pos_y) < max_range_y:
-                    if -min_range_x > raw_pos_x > nearest_left:
+                if (abs(raw_pos_x) < indicator.max_range_x and
+                    abs(raw_pos_y) < indicator.max_range_y):
+                    if -indicator.min_range_x > raw_pos_x > nearest_left:
                         nearest_left = raw_pos_x
-                    if min_range_x < raw_pos_x < nearest_right:
+                    if indicator.min_range_x < raw_pos_x < nearest_right:
                         nearest_right = raw_pos_x
 
+        # Scale to display size
         x_left = self.scale_veh_pos(nearest_left)
         x_right = self.scale_veh_pos(nearest_right)
 
-        if nearest_left > -max_range_x:
+        # Draw left side indicator
+        if nearest_left > -indicator.max_range_x:
             lin_gra = QLinearGradient(
-                x_left - indicator_width + center_offset,
+                x_left - indicator.width + indicator.offset,
                 0,
-                x_left + center_offset,
+                x_left + indicator.offset,
                 0
             )
             color_center = self.warning_color(
-                abs(nearest_left), min_range_x, max_range_x)
+                abs(nearest_left), indicator.min_range_x, indicator.max_range_x)
             lin_gra.setColorAt(0, Qt.transparent)
-            lin_gra.setColorAt(indicator_edge, color_center)
+            lin_gra.setColorAt(indicator.edge, color_center)
             lin_gra.setColorAt(1, Qt.transparent)
             painter.setBrush(lin_gra)
             painter.drawRect(
-                x_left - indicator_width + center_offset,
-                0, indicator_width, self.area_size
+                x_left - indicator.width + indicator.offset,
+                0, indicator.width, self.area_size
             )
 
-        if nearest_right < max_range_x:
+        # Draw right side indicator
+        if nearest_right < indicator.max_range_x:
             lin_gra = QLinearGradient(
-                x_right - center_offset,
+                x_right - indicator.offset,
                 0,
-                x_right + indicator_width - center_offset,
+                x_right + indicator.width - indicator.offset,
                 0
             )
             color_center = self.warning_color(
-                abs(nearest_right), min_range_x, max_range_x)
+                abs(nearest_right), indicator.min_range_x, indicator.max_range_x)
             lin_gra.setColorAt(0, Qt.transparent)
-            lin_gra.setColorAt(1 - indicator_edge, color_center)
+            lin_gra.setColorAt(1 - indicator.edge, color_center)
             lin_gra.setColorAt(1, Qt.transparent)
             painter.setBrush(lin_gra)
             painter.drawRect(
-                x_right - center_offset,
-                0, indicator_width, self.area_size
+                x_right - indicator.offset,
+                0, indicator.width, self.area_size
             )
 
     def draw_vehicle(self, painter):
@@ -378,8 +382,8 @@ class Draw(Overlay):
             return 0 < minfo.vehicles.nearestStraight < self.wcfg["radar_radius"]
         return 0 < minfo.vehicles.nearestStraight < self.wcfg["minimum_auto_hide_distance"]
 
-    def calc_indicator_dimention(self, veh_width, veh_length):
-        """Calculate indicator dimention
+    def calc_indicator_dimension(self, veh_width, veh_length):
+        """Calculate indicator dimension
 
         Range between player & opponents to show indicator.
         x is left to right range.
@@ -388,7 +392,19 @@ class Draw(Overlay):
         min_range_x = veh_width * 0.9  # slightly overlapped
         max_range_x = veh_width * self.wcfg["overlap_detection_range_multiplier"]
         max_range_y = veh_length * 1.2  # safe range for ahead & behind opponents
-        indicator_width = veh_width * self.wcfg["indicator_size_multiplier"] * self.global_scale
-        indicator_edge = max((indicator_width - 3) / indicator_width, 0.001)  # for antialiasing
-        center_offset = veh_width * self.global_scale * 0.5
-        return min_range_x, max_range_x, max_range_y, indicator_width, indicator_edge, center_offset
+        width = veh_width * self.wcfg["indicator_size_multiplier"] * self.global_scale
+        edge = max((width - 3) / width, 0.001)  # for antialiasing
+        offset = veh_width * self.global_scale * 0.5
+        return IndicatorDimension(
+            min_range_x, max_range_x, max_range_y, width, edge, offset)
+
+
+@dataclass
+class IndicatorDimension:
+    """Indicator dimension"""
+    min_range_x: float = 0
+    max_range_x: float = 0
+    max_range_y: float = 0
+    width: float = 0
+    edge: float = 0
+    offset: float = 0
