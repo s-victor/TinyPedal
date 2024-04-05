@@ -37,61 +37,62 @@ def remove_invalid_key(key_list_def: tuple, dict_user: dict):
             dict_user.pop(key)  # remove invalid key
             continue
 
-        # Non-dict sub_level values
-        if not isinstance(dict_user[key], dict):
-            # Bool
-            if re.search(rxp.CFG_BOOL, key):
-                if not isinstance(dict_user[key], bool):
-                    dict_user[key] = bool(dict_user[key])
-                continue
-            # Color string
-            if re.search(rxp.CFG_COLOR, key):
-                if not val.hex_color(dict_user[key]):
+        # Skip sub_level dict
+        if isinstance(dict_user[key], dict):
+            continue
+
+        # Bool
+        if re.search(rxp.CFG_BOOL, key):
+            if not isinstance(dict_user[key], bool):
+                dict_user[key] = bool(dict_user[key])
+            continue
+        # Color string
+        if re.search(rxp.CFG_COLOR, key):
+            if not val.hex_color(dict_user[key]):
+                dict_user.pop(key)
+            continue
+        # API name string
+        if re.search(rxp.CFG_API_NAME, key):
+            if dict_user[key] not in API_NAME_LIST:
+                dict_user.pop(key)
+            continue
+        # Font weight string
+        if re.search(rxp.CFG_FONT_WEIGHT, key):
+            if dict_user[key].lower() not in rxp.FONT_WEIGHT_LIST:
+                dict_user.pop(key)
+            continue
+        # Encoding string
+        if re.search(rxp.CFG_ENCODING, key):
+            if dict_user[key] not in rxp.ENCODING_LIST:
+                dict_user.pop(key)
+            continue
+        # Deltabest string
+        if re.search(rxp.CFG_DELTABEST, key):
+            if dict_user[key] not in rxp.DELTABEST_LIST:
+                dict_user.pop(key)
+            continue
+        # String
+        if re.search(
+            fmt.pipe_join(
+                rxp.CFG_FONT_NAME,
+                rxp.CFG_HEATMAP,
+                rxp.CFG_STRING
+            ), key):
+            if not isinstance(dict_user[key], str):
+                dict_user.pop(key)
+            continue
+        # Int
+        if re.search(rxp.CFG_INTEGER, key):
+            if not isinstance(dict_user[key], int) or isinstance(dict_user[key], bool):
+                try:
+                    dict_user[key] = int(dict_user[key])
+                except ValueError:
                     dict_user.pop(key)
-                continue
-            # API name string
-            if re.search(rxp.CFG_API_NAME, key):
-                if dict_user[key] not in API_NAME_LIST:
-                    dict_user.pop(key)
-                continue
-            # Font weight string
-            if re.search(rxp.CFG_FONT_WEIGHT, key):
-                if dict_user[key].lower() not in rxp.FONT_WEIGHT_LIST:
-                    dict_user.pop(key)
-                continue
-            # Encoding string
-            if re.search(rxp.CFG_ENCODING, key):
-                if dict_user[key] not in rxp.ENCODING_LIST:
-                    dict_user.pop(key)
-                continue
-            # Deltabest string
-            if re.search(rxp.CFG_DELTABEST, key):
-                if dict_user[key] not in rxp.DELTABEST_LIST:
-                    dict_user.pop(key)
-                continue
-            # String
-            if re.search(
-                fmt.pipe_join(
-                    rxp.CFG_FONT_NAME,
-                    rxp.CFG_HEATMAP,
-                    rxp.CFG_STRING
-                ), key):
-                if not isinstance(dict_user[key], str):
-                    dict_user.pop(key)
-                continue
-            # Int
-            if re.search(rxp.CFG_INTEGER, key):
-                if not isinstance(dict_user[key], int) or isinstance(dict_user[key], bool):
-                    try:
-                        dict_user[key] = int(dict_user[key])
-                    except ValueError:
-                        dict_user.pop(key)
-                continue
-            # Anything int or float
-            if not isinstance(dict_user[key], float):
-                if not isinstance(dict_user[key], int) or isinstance(dict_user[key], bool):
-                    #print(key, dict_user[key])
-                    dict_user.pop(key)
+            continue
+        # Anything int or float
+        if not isinstance(dict_user[key], (float, int)) or isinstance(dict_user[key], bool):
+            #print(key, dict_user[key])
+            dict_user.pop(key)
 
 
 def add_missing_key(key_list_def: tuple, dict_user: dict, dict_def: dict):
@@ -106,13 +107,9 @@ def add_missing_key(key_list_def: tuple, dict_user: dict, dict_def: dict):
 def sort_key_order(key_list_def: tuple, dict_user: dict):
     """Sort user key order according to default key list"""
     for d_key in key_list_def:  # loop through default key list
-        for u_key in dict_user:  # loop through user key
-            if u_key == d_key:
-                temp_key = u_key  # store user key
-                temp_value = dict_user[u_key]  # store user value
-                dict_user.pop(u_key)  # delete user key
-                dict_user[temp_key] = temp_value  # append user key at the end
-                break
+        temp_value = dict_user[d_key]  # store user value
+        dict_user.pop(d_key)  # delete user key
+        dict_user[d_key] = temp_value  # append user key at the end
 
 
 def validate_key_pair(dict_user: dict, dict_def: dict):
