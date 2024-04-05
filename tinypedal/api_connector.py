@@ -58,15 +58,12 @@ class Connector(ABC):
     def stop(self):
         """Stop API"""
 
-    @abstractmethod
-    def setup(
-        self, access_mode: int, process_id: str, player_override: bool,
-        player_index: int, encoding: str):
-        """Setup API parameters"""
+    def dataset(self):
+        """Dateset"""
 
     @abstractmethod
-    def state(self):
-        """API state, whether paused or driving"""
+    def setup(self, config: tuple):
+        """Setup API parameters"""
 
 
 class SimRF2(Connector):
@@ -76,24 +73,22 @@ class SimRF2(Connector):
     def __init__(self):
         rF2MMap.logger = logging.getLogger(__name__)
         self.info = rF2MMap.RF2SM()
-        self.read = None
 
     def start(self):
         self.info.start()
-        self.read = DataSet(self.info, rfactor2)
 
     def stop(self):
         self.info.stop()
 
-    def setup(self, access_mode, process_id, player_override, player_index, encoding):
-        self.info.setMode(access_mode)
-        self.info.setPID(process_id)
-        self.info.setPlayerOverride(player_override)
-        self.info.setPlayerIndex(player_index)
-        rfactor2.cs2py = partial(val.cbytes2str, char_encoding=encoding)
+    def dataset(self):
+        return DataSet(self.info, rfactor2)
 
-    def state(self):
-        return not self.info.isPaused and self.read.vehicle.is_driving()
+    def setup(self, config):
+        self.info.setMode(config[0])
+        self.info.setPID(config[1])
+        self.info.setPlayerOverride(config[2])
+        self.info.setPlayerIndex(config[3])
+        rfactor2.cs2py = partial(val.cbytes2str, char_encoding=config[4])
 
 
 class SimLMU(Connector):
@@ -103,24 +98,22 @@ class SimLMU(Connector):
     def __init__(self):
         rF2MMap.logger = logging.getLogger(__name__)
         self.info = rF2MMap.RF2SM()
-        self.read = None
 
     def start(self):
         self.info.start()
-        self.read = DataSet(self.info, rfactor2)
 
     def stop(self):
         self.info.stop()
 
-    def setup(self, access_mode, process_id, player_override, player_index, encoding):
-        self.info.setMode(access_mode)
-        self.info.setPID(process_id)
-        self.info.setPlayerOverride(player_override)
-        self.info.setPlayerIndex(player_index)
-        rfactor2.cs2py = partial(val.cbytes2str, char_encoding=encoding)
+    def dataset(self):
+        return DataSet(self.info, rfactor2)
 
-    def state(self):
-        return not self.info.isPaused and self.read.vehicle.is_driving()
+    def setup(self, config):
+        self.info.setMode(config[0])
+        self.info.setPID(config[1])
+        self.info.setPlayerOverride(config[2])
+        self.info.setPlayerIndex(config[3])
+        rfactor2.cs2py = partial(val.cbytes2str, char_encoding=config[4])
 
 
 # Add new API to API_PACK

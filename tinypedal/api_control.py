@@ -33,7 +33,8 @@ class APIControl:
 
     def __init__(self):
         self._api = None
-        self._restarting = False
+        self._read = None
+        self._state = None
 
     def connect(self, name: str = ""):
         """Connect to API
@@ -58,6 +59,7 @@ class APIControl:
         logger.info("CONNECTING: %s API", self._api.NAME)
         self.setup()
         self._api.start()
+        self._read = self._api.dataset()
         logger.info("CONNECTED: %s API (%s)", self._api.NAME, self.version)
 
     def stop(self):
@@ -68,26 +70,37 @@ class APIControl:
 
     def restart(self):
         """Restart API"""
-        self._restarting = True
         self.stop()
         self.connect()
         self.start()
-        self._restarting = False
 
     def setup(self):
         """Setup & apply API changes"""
-        self._api.setup(
-            access_mode = cfg.shared_memory_api["access_mode"],
-            process_id = cfg.shared_memory_api["process_id"],
-            player_override = cfg.shared_memory_api["enable_player_index_override"],
-            player_index = cfg.shared_memory_api["player_index"],
-            encoding = cfg.shared_memory_api["character_encoding"].lower(),
+        api_config = (
+            cfg.shared_memory_api["access_mode"],
+            cfg.shared_memory_api["process_id"],
+            cfg.shared_memory_api["enable_player_index_override"],
+            cfg.shared_memory_api["player_index"],
+            cfg.shared_memory_api["character_encoding"].lower(),
         )
+        self._api.setup(api_config)
+        if cfg.shared_memory_api["enable_active_state_override"]:
+            self._state = self.__state_override
+        else:
+            self._state = self.__state_driving
+
+    def __state_override(self):
+        """API state override"""
+        return cfg.shared_memory_api["active_state"]
+
+    def __state_driving(self):
+        """API state driving"""
+        return not self._api.info.isPaused and self._read.vehicle.is_driving()
 
     @property
     def read(self):
         """API info reader"""
-        return self._api.read
+        return self._read
 
     @property
     def name(self):
@@ -97,16 +110,12 @@ class APIControl:
     @property
     def state(self):
         """API state output"""
-        if self._restarting:
-            return False
-        if cfg.shared_memory_api["enable_active_state_override"]:
-            return cfg.shared_memory_api["active_state"]
-        return self._api.state()
+        return self._state()
 
     @property
     def version(self):
         """API version output"""
-        version = self._api.read.check.version()
+        version = self._read.check.version()
         return version if version else "not running"
 
 
