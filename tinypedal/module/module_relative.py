@@ -53,7 +53,7 @@ class Realtime:
             self.event.clear()
             threading.Thread(target=self.__update_data, daemon=True).start()
             self.cfg.active_module_list.append(self)
-            logger.info("ACTIVE: module relative")
+            logger.info("ACTIVE: %s", MODULE_NAME)
 
     def stop(self):
         """Stop thread"""
@@ -100,7 +100,7 @@ class Realtime:
 
         self.cfg.active_module_list.remove(self)
         self.stopped = True
-        logger.info("CLOSED: module relative")
+        logger.info("CLOSED: %s", MODULE_NAME)
 
     def __relative_index_list(self, rel_dist_list, plr_index):
         """Create player-centered relative index list"""

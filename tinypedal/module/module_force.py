@@ -50,7 +50,7 @@ class Realtime:
             self.event.clear()
             threading.Thread(target=self.__update_data, daemon=True).start()
             self.cfg.active_module_list.append(self)
-            logger.info("ACTIVE: module force")
+            logger.info("ACTIVE: %s", MODULE_NAME)
 
     def stop(self):
         """Stop thread"""
@@ -133,7 +133,7 @@ class Realtime:
 
         self.cfg.active_module_list.remove(self)
         self.stopped = True
-        logger.info("CLOSED: module force")
+        logger.info("CLOSED: %s", MODULE_NAME)
 
     def calc_max_avg_gforce(self):
         """Calc max average G force"""

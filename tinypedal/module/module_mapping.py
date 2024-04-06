@@ -52,7 +52,7 @@ class Realtime:
             self.event.clear()
             threading.Thread(target=self.__update_data, daemon=True).start()
             self.cfg.active_module_list.append(self)
-            logger.info("ACTIVE: module mapping")
+            logger.info("ACTIVE: %s", MODULE_NAME)
 
     def stop(self):
         """Stop thread"""
@@ -100,7 +100,7 @@ class Realtime:
 
         self.cfg.active_module_list.remove(self)
         self.stopped = True
-        logger.info("CLOSED: module mapping")
+        logger.info("CLOSED: %s", MODULE_NAME)
 
 
 class MapRecorder:
