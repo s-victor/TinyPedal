@@ -35,7 +35,7 @@ from .template.setting_module import MODULE_DEFAULT
 from .template.setting_widget import WIDGET_DEFAULT
 from .template.setting_classes import CLASSES_DEFAULT
 from .template.setting_heatmap import HEATMAP_DEFAULT
-from .setting_validator import validate_key_pair
+from .setting_validator import preset_validator
 from . import regex_pattern as rxp
 from . import validator as val
 
@@ -218,10 +218,9 @@ def load_setting_json_file(filename: str, filepath: str, dict_def: dict) -> dict
     try:
         # Read JSON file
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
-            temp_setting_user = json.load(jsonfile)
+            setting_user = json.load(jsonfile)
         # Verify & assign setting
-        verify_setting(temp_setting_user, dict_def)
-        setting_user = copy_setting(temp_setting_user)
+        setting_user = preset_validator.validate(setting_user, dict_def)
     except (FileNotFoundError, json.decoder.JSONDecodeError):
         logger.error("SETTING: %s failed loading, create backup & revert to default", filename)
         backup_json_file(filename, filepath)
@@ -246,21 +245,12 @@ def load_style_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
     return style_user
 
 
-def load_brands_logo_list():
+def load_brands_logo_list() -> list[str]:
     """Load brands logo list"""
     return [
         _filename[:-4] for _filename in os.listdir(PATH_BRANDLOGO)
         if _filename.lower().endswith(".png")
         and os.path.getsize(f"{PATH_BRANDLOGO}{_filename}") < 1024000]
-
-
-def verify_setting(dict_user: dict, dict_def: dict) -> None:
-    """Verify setting"""
-    # Check top-level key
-    validate_key_pair(dict_user, dict_def)
-    # Check sub-level key
-    for item in dict_user.keys():  # list each key lists
-        validate_key_pair(dict_user[item], dict_def[item])
 
 
 def copy_setting(dict_user: dict) -> dict:
