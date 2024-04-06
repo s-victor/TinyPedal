@@ -21,11 +21,11 @@ Relative module
 """
 
 import logging
-import threading
 from functools import lru_cache
 from itertools import chain
 from operator import itemgetter
 
+from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
 from .. import calculation as calc
@@ -36,42 +36,23 @@ ALL_PLACES = list(range(1, 128))
 logger = logging.getLogger(__name__)
 
 
-class Realtime:
+class Realtime(DataModule):
     """Relative info"""
-    module_name = MODULE_NAME
 
     def __init__(self, config):
-        self.cfg = config
-        self.mcfg = self.cfg.user.setting[self.module_name]
-        self.stopped = True
-        self.event = threading.Event()
+        DataModule.__init__(self, config, MODULE_NAME, self.update_data)
 
-    def start(self):
-        """Start update thread"""
-        if self.stopped:
-            self.stopped = False
-            self.event.clear()
-            threading.Thread(target=self.__update_data, daemon=True).start()
-            self.cfg.active_module_list.append(self)
-            logger.info("ACTIVE: %s", MODULE_NAME)
-
-    def stop(self):
-        """Stop thread"""
-        self.event.set()
-
-    def __update_data(self):
+    def update_data(self):
         """Update module data"""
         reset = False
-        active_interval = self.mcfg["update_interval"] / 1000
-        idle_interval = self.mcfg["idle_update_interval"] / 1000
-        update_interval = active_interval
+        update_interval = self.active_interval
 
         while not self.event.wait(update_interval):
             if api.state:
 
                 if not reset:
                     reset = True
-                    update_interval = active_interval
+                    update_interval = self.active_interval
 
                 veh_total = max(api.read.vehicle.total_vehicles(), 1)
                 plr_index = api.read.vehicle.player_index()
@@ -96,11 +77,7 @@ class Realtime:
             else:
                 if reset:
                     reset = False
-                    update_interval = idle_interval
-
-        self.cfg.active_module_list.remove(self)
-        self.stopped = True
-        logger.info("CLOSED: %s", MODULE_NAME)
+                    update_interval = self.idle_interval
 
     def __relative_index_list(self, rel_dist_list, plr_index):
         """Create player-centered relative index list"""

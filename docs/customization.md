@@ -183,19 +183,19 @@ Example usage: `python .\run.py --log-level=2` or `.\tinypedal.exe --log-level=2
 **These are the commonly used setting terms and keywords.**
 
     enable
-This checks whether a widget or module will be loaded at startup.
+Check whether a widget or module will be loaded at startup.
 
     update_interval
-This sets refresh rate for widget or module, value is in milliseconds. A value of `20` means refreshing every 20ms, which equals 50fps. Since most data from sharedmemory plugin is capped at 50fps, and most operation system has a roughly 15ms minimum sleep time, setting value less than `10` has no benefit, and extreme low value may result significant increase of CPU usage.
+Set refresh rate for widget or module in milliseconds. A value of `20` means refreshing every 20ms, which equals 50fps. Since most data from sharedmemory plugin is capped at 50fps, and most operation system has a roughly 15ms minimum sleep time, setting value less than `10` has no benefit, and extreme low value may result significant increase of CPU usage.
 
     idle_update_interval
-This sets refresh rate for module while its idle for conserving resources.
+Set refresh rate for module while idling for conserving resources.
 
     position_x, position_y
-Defines widget position on screen in pixels. Those values will be auto updated and saved.
+Define widget position on screen in pixels. Those values will be auto updated and saved.
 
     opacity
-By default, all widgets have a 90% opacity setting, which equals value `0.9`. Lower value adds more transparency to widget. Acceptable value range in `0.0` to `1.0`.
+Set opacity for entire widget. By default, all widgets have a 90% opacity setting, which equals value `0.9`. Lower value adds more transparency to widget. Acceptable value range in `0.0` to `1.0`. Note, opacity can also be set by adjusting alpha value in `color` options for individual elements.
 
     bar_gap, inner_gap
 Set gap (screen pixel) between elements in a widget, only accept integer, `1` = 1 pixel.
@@ -219,7 +219,7 @@ Manually set font vertical offset. Default is `0`. Negative value will offset fo
 Set widget edge padding value that multiplies & scales with `font_size`. Default is `0.2` for most widgets.
 
     color
-Set color in hexadecimal color codes with alpha channel support (optional and can be omitted). The color code format starts with `#`, then follows by two-digit hexadecimal numbers for each channel in the order of alpha, red, green, blue. User can select a new color without manual editing, by double-clicking on color entry box in `Config` dialog.
+Set color in hexadecimal color codes with alpha value (opacity). The color code format starts with `#`, then follows by two-digit hexadecimal numbers for each channel in the order of `alpha`, `red`, `green`, `blue`. Note, `alpha` is optional and can be omitted. User can select a new color without manual editing, by double-clicking on color entry box in `Config` dialog.
 
     prefix
 Set prefix text that displayed beside corresponding data. Set to `""` to hide prefix text.
@@ -279,6 +279,9 @@ Note, global background color will only be visible when `enable_translucent_back
 
     grid_move_size
 Set grid size for grid move, value in pixel. Default is `8` pixel. Minimum value is limited to `1`.
+
+    minimum_update_interval
+Set minimum refresh rate limit for widget and module in milliseconds. This option is used for preventing extremely low refresh rate that may cause performance issues in case user incorrectly sets `update_interval` and `idle_update_interval` values. Default value is `10`, and should not be modified.
 
 
 ## Shared memory API

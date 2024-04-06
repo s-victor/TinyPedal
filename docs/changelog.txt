@@ -3,10 +3,16 @@ WIP
 * General
   - Improved color validation.
   - Fixed an issue where invalid color could be saved.
+  - Add "minimum_update_interval" option in Compatibility config,
+    which sets minimum refresh rate limit for widget and module in milliseconds.
+    This option is used for preventing extremely low refresh rate
+    that may cause performance issues in case user incorrectly sets
+    "update_interval" and "idle_update_interval" values.
+    Default value is `10`, and should not be modified.
 
 * Gear Widget
   - Fixed a typo in "battery_bar_color_regen" default value,
-    which would not show regen color.
+    which would not show regeneration color.
 
 2.11.1 (2024-03-28)
 -----------------------------

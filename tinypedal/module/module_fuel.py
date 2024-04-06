@@ -21,9 +21,9 @@ Fuel module
 """
 
 import logging
-import threading
 import csv
 
+from ._base import DataModule
 from ..module_info import minfo
 from ..const import PATH_FUEL
 from ..api_control import api
@@ -36,44 +36,25 @@ DELTA_ZERO = 0.0,0.0
 logger = logging.getLogger(__name__)
 
 
-class Realtime:
+class Realtime(DataModule):
     """Fuel usage data"""
-    module_name = MODULE_NAME
     filepath = PATH_FUEL
 
     def __init__(self, config):
-        self.cfg = config
-        self.mcfg = self.cfg.user.setting[self.module_name]
-        self.stopped = True
-        self.event = threading.Event()
+        DataModule.__init__(self, config, MODULE_NAME, self.update_data)
 
-    def start(self):
-        """Start update thread"""
-        if self.stopped:
-            self.stopped = False
-            self.event.clear()
-            threading.Thread(target=self.__update_data, daemon=True).start()
-            self.cfg.active_module_list.append(self)
-            logger.info("ACTIVE: %s", MODULE_NAME)
-
-    def stop(self):
-        """Stop thread"""
-        self.event.set()
-
-    def __update_data(self):
+    def update_data(self):
         """Update module data"""
         reset = False
         delayed_save = False
-        active_interval = self.mcfg["update_interval"] / 1000
-        idle_interval = self.mcfg["idle_update_interval"] / 1000
-        update_interval = active_interval
+        update_interval = self.active_interval
 
         while not self.event.wait(update_interval):
             if api.state:
 
                 if not reset:
                     reset = True
-                    update_interval = active_interval
+                    update_interval = self.active_interval
 
                     recording = False
                     validating = False
@@ -258,13 +239,9 @@ class Realtime:
             else:
                 if reset:
                     reset = False
-                    update_interval = idle_interval
+                    update_interval = self.idle_interval
                     if delayed_save:
                         self.save_deltafuel(combo_id, delta_list_last)
-
-        self.cfg.active_module_list.remove(self)
-        self.stopped = True
-        logger.info("CLOSED: %s", MODULE_NAME)
 
     def load_deltafuel(self, combo):
         """Load last saved fuel consumption data"""

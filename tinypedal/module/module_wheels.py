@@ -22,8 +22,8 @@ Wheels module
 
 from collections import deque
 import logging
-import threading
 
+from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
 from .. import calculation as calc
@@ -33,42 +33,23 @@ MODULE_NAME = "module_wheels"
 logger = logging.getLogger(__name__)
 
 
-class Realtime:
-    """Force data"""
-    module_name = MODULE_NAME
+class Realtime(DataModule):
+    """Wheels data"""
 
     def __init__(self, config):
-        self.cfg = config
-        self.mcfg = self.cfg.user.setting[self.module_name]
-        self.stopped = True
-        self.event = threading.Event()
+        DataModule.__init__(self, config, MODULE_NAME, self.update_data)
 
-    def start(self):
-        """Start update thread"""
-        if self.stopped:
-            self.stopped = False
-            self.event.clear()
-            threading.Thread(target=self.__update_data, daemon=True).start()
-            self.cfg.active_module_list.append(self)
-            logger.info("ACTIVE: %s", MODULE_NAME)
-
-    def stop(self):
-        """Stop thread"""
-        self.event.set()
-
-    def __update_data(self):
+    def update_data(self):
         """Update module data"""
         reset = False
-        active_interval = self.mcfg["update_interval"] / 1000
-        idle_interval = self.mcfg["idle_update_interval"] / 1000
-        update_interval = active_interval
+        update_interval = self.active_interval
 
         while not self.event.wait(update_interval):
             if api.state:
 
                 if not reset:
                     reset = True
-                    update_interval = active_interval
+                    update_interval = self.active_interval
 
                     gen_wheel_radius = self.calc_wheel_radius()
                     radius_front, radius_rear = next(gen_wheel_radius)
@@ -96,16 +77,12 @@ class Realtime:
             else:
                 if reset:
                     reset = False
-                    update_interval = idle_interval
+                    update_interval = self.idle_interval
                     if radius_front != 0 and radius_rear != 0:
                         self.mcfg["last_vehicle_info"] = api.read.check.vehicle_id()
                         self.mcfg["last_wheel_radius_front"] = radius_front
                         self.mcfg["last_wheel_radius_rear"] = radius_rear
                     self.cfg.save()
-
-        self.cfg.active_module_list.remove(self)
-        self.stopped = True
-        logger.info("CLOSED: %s", MODULE_NAME)
 
     def calc_wheel_radius(self):
         """Calc wheel radius"""

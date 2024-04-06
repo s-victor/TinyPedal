@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Overlay window, events.
+Overlay base window, events.
 """
 
 from dataclasses import dataclass
@@ -68,7 +68,9 @@ class Overlay(QWidget):
 
         # Set update timer
         self._update_timer = QTimer(self)
-        self._update_timer.setInterval(self.wcfg["update_interval"])
+        self._update_timer.setInterval(max(
+            self.wcfg["update_interval"],
+            self.cfg.compatibility["minimum_update_interval"]))
         self._update_timer.timeout.connect(self.update_data)
 
     def set_widget_state(self):

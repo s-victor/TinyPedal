@@ -22,9 +22,9 @@ Vehicles module
 
 import array
 import logging
-import threading
 from collections import namedtuple
 
+from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
 from .. import calculation as calc
@@ -34,43 +34,24 @@ MODULE_NAME = "module_vehicles"
 logger = logging.getLogger(__name__)
 
 
-class Realtime:
+class Realtime(DataModule):
     """Vehicles info"""
-    module_name = MODULE_NAME
 
     def __init__(self, config):
-        self.cfg = config
-        self.mcfg = self.cfg.user.setting[self.module_name]
-        self.stopped = True
-        self.event = threading.Event()
+        DataModule.__init__(self, config, MODULE_NAME, self.update_data)
         self.pit_timer = tuple(array.array("f", [0,-1,0]) for _ in range(128))
 
-    def start(self):
-        """Start update thread"""
-        if self.stopped:
-            self.stopped = False
-            self.event.clear()
-            threading.Thread(target=self.__update_data, daemon=True).start()
-            self.cfg.active_module_list.append(self)
-            logger.info("ACTIVE: %s", MODULE_NAME)
-
-    def stop(self):
-        """Stop thread"""
-        self.event.set()
-
-    def __update_data(self):
+    def update_data(self):
         """Update module data"""
         reset = False
-        active_interval = self.mcfg["update_interval"] / 1000
-        idle_interval = self.mcfg["idle_update_interval"] / 1000
-        update_interval = active_interval
+        update_interval = self.active_interval
 
         while not self.event.wait(update_interval):
             if api.state:
 
                 if not reset:
                     reset = True
-                    update_interval = active_interval
+                    update_interval = self.active_interval
                     minfo.vehicles.dataSetVersion = -1
 
                 vehicles_data = tuple(self.__update_vehicle_data(minfo.relative.classes))
@@ -86,11 +67,7 @@ class Realtime:
             else:
                 if reset:
                     reset = False
-                    update_interval = idle_interval
-
-        self.cfg.active_module_list.remove(self)
-        self.stopped = True
-        logger.info("CLOSED: %s", MODULE_NAME)
+                    update_interval = self.idle_interval
 
     def __update_vehicle_data(self, class_pos_list):
         """Update vehicle data"""
