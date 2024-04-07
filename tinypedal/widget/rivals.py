@@ -414,10 +414,6 @@ class Draw(Overlay):
                 getattr(self, f"row_{suffix}").setPixmap(self.load_brand_logo(brand_name))
             else:
                 getattr(self, f"row_{suffix}").setPixmap(QPixmap())
-            # Draw background
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"background: {self.wcfg['bkg_color_brand_logo']};{self.bar_width_brd}"
-            )
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 
     def update_int(self, suffix, curr, last):

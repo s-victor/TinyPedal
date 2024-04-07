@@ -66,10 +66,10 @@ class Draw(Overlay):
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
+            f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
         )
-        self.style_font_size = f"font-size: {self.wcfg['font_size']}px;"
         self.style_width = f"min-width: {font_m.width * self.bar_width}px; \
                              max-width: {font_m.width * self.bar_width}px;"
 
@@ -119,7 +119,6 @@ class Draw(Overlay):
             f"color: {self.wcfg['font_color_end']};"
             f"background: {self.wcfg['bkg_color_end']};"
             f"{self.style_width}"
-            f"{self.style_font_size}"
         )
 
         # Remaining fuel
@@ -129,7 +128,6 @@ class Draw(Overlay):
             f"color: {self.wcfg['font_color_remain']};"
             f"background: {self.wcfg['bkg_color_remain']};"
             f"{self.style_width}"
-            f"{self.style_font_size}"
         )
 
         # Total needed fuel
@@ -139,7 +137,6 @@ class Draw(Overlay):
             f"color: {self.wcfg['font_color_refuel']};"
             f"background: {self.wcfg['bkg_color_refuel']};"
             f"{self.style_width}"
-            f"{self.style_font_size}"
         )
 
         # Estimated fuel consumption
@@ -149,7 +146,6 @@ class Draw(Overlay):
             f"color: {self.wcfg['font_color_used']};"
             f"background: {self.wcfg['bkg_color_used']};"
             f"{self.style_width}"
-            f"{self.style_font_size}"
         )
 
         # Delta fuel consumption
@@ -159,7 +155,6 @@ class Draw(Overlay):
             f"color: {self.wcfg['font_color_delta']};"
             f"background: {self.wcfg['bkg_color_delta']};"
             f"{self.style_width}"
-            f"{self.style_font_size}"
         )
 
         # Estimate pit stop counts when pitting at end of current lap
@@ -169,7 +164,6 @@ class Draw(Overlay):
             f"color: {self.wcfg['font_color_early']};"
             f"background: {self.wcfg['bkg_color_early']};"
             f"{self.style_width}"
-            f"{self.style_font_size}"
         )
 
         # Estimated laps current fuel can last
@@ -179,7 +173,6 @@ class Draw(Overlay):
             f"color: {self.wcfg['font_color_laps']};"
             f"background: {self.wcfg['bkg_color_laps']};"
             f"{self.style_width}"
-            f"{self.style_font_size}"
         )
 
         # Estimated minutes current fuel can last
@@ -189,7 +182,6 @@ class Draw(Overlay):
             f"color: {self.wcfg['font_color_minutes']};"
             f"background: {self.wcfg['bkg_color_minutes']};"
             f"{self.style_width}"
-            f"{self.style_font_size}"
         )
 
         # Estimated one less pit fuel consumption
@@ -199,7 +191,6 @@ class Draw(Overlay):
             f"color: {self.wcfg['font_color_save']};"
             f"background: {self.wcfg['bkg_color_save']};"
             f"{self.style_width}"
-            f"{self.style_font_size}"
         )
 
         # Estimate pit stop counts when pitting at end of current stint
@@ -209,7 +200,6 @@ class Draw(Overlay):
             f"color: {self.wcfg['font_color_pits']};"
             f"background: {self.wcfg['bkg_color_pits']};"
             f"{self.style_width}"
-            f"{self.style_font_size}"
         )
 
         # Fuel level bar
@@ -339,8 +329,7 @@ class Draw(Overlay):
         if curr != last:
             if state:  # low fuel warning
                 getattr(self, f"bar_fuel_{suffix}").setStyleSheet(
-                    f"{self.color_lowfuel(state, suffix)}"
-                    f"{self.style_width}{self.style_font_size}"
+                    f"{self.color_lowfuel(state, suffix)}{self.style_width}"
                 )
             getattr(self, f"bar_fuel_{suffix}").setText(
                 fmt.strip_decimal_pt(curr[:self.bar_width]))

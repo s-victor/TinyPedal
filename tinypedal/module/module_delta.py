@@ -162,34 +162,35 @@ class Realtime(DataModule):
                 if gps_last != gps_curr:
                     moved_distance = calc.distance(gps_last, gps_curr)
                     gps_last = gps_curr
-                    # Update delta
                     pos_estimate += moved_distance
+                    delay_update = laptime_curr > 0.3
+                    # Update delta
                     delta_best = calc.delta_telemetry(
                         pos_estimate,
                         laptime_curr,
                         delta_list_best,
-                        laptime_curr > 0.3,  # 300ms delay
+                        delay_update,  # 300ms delay
                         0.02,  # add 20ms offset
                     )
                     delta_last = calc.delta_telemetry(
                         pos_estimate,
                         laptime_curr,
                         delta_list_last,
-                        laptime_curr > 0.3,  # 300ms delay
+                        delay_update,  # 300ms delay
                         0.02,  # add 20ms offset
                     )
                     session_delta_best = calc.delta_telemetry(
                         pos_estimate,
                         laptime_curr,
                         delta_list_session,
-                        laptime_curr > 0.3,  # 300ms delay
+                        delay_update,  # 300ms delay
                         0.02,  # add 20ms offset
                     )
                     stint_delta_best = calc.delta_telemetry(
                         pos_estimate,
                         laptime_curr,
                         delta_list_stint,
-                        laptime_curr > 0.3,  # 300ms delay
+                        delay_update,  # 300ms delay
                         0.02,  # add 20ms offset
                     )
                     # Update driven distance
