@@ -14,6 +14,9 @@ WIP
   - Fixed a typo in "battery_bar_color_regen" default value,
     which would not show regeneration color.
 
+* Lap time history Widget
+  - Fixed missing fuel unit conversion for gallon.
+
 2.11.1 (2024-03-28)
 -----------------------------
 * Trailing Widget
