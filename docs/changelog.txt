@@ -16,6 +16,10 @@ WIP
 
 * Lap time history Widget
   - Fixed missing fuel unit conversion for gallon.
+  - Optimized lap history update.
+
+* Stint history Widget
+  - Optimized stint history update.
 
 2.11.1 (2024-03-28)
 -----------------------------

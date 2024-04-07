@@ -20,6 +20,8 @@
 Stint history Widget
 """
 
+from collections import deque
+
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QGridLayout, QLabel
 
@@ -52,7 +54,7 @@ class Draw(Overlay):
         )
 
         # Max display stint
-        self.stint_count = max(self.wcfg["stint_history_count"], 1) + 1
+        self.stint_count = max(self.wcfg["stint_history_count"], 1)
 
         # Create layout
         layout = QGridLayout()
@@ -109,7 +111,7 @@ class Draw(Overlay):
         layout.addWidget(self.bar_wear, self.set_row_index(0), column_wr)
 
         # History stint
-        for index in range(1, self.stint_count):
+        for index in range(1, self.stint_count + 1):
             setattr(self, f"bar_last_laps{index}", QLabel("---"))
             getattr(self, f"bar_last_laps{index}").setAlignment(Qt.AlignCenter)
             getattr(self, f"bar_last_laps{index}").setStyleSheet(
@@ -171,9 +173,9 @@ class Draw(Overlay):
         self.checked = False
         self.stint_running = False  # check whether current stint running
         self.reset_stint = True  # reset stint stats
-
-        self.stint_data = [["--",0,0,0,0] for _ in range(self.stint_count)]
-        self.last_stint_data = [data.copy() for data in self.stint_data]
+        # 0 - tyre compound, 1 - total laps, 2 - total time, 3 - total fuel, 4 - total tyre wear
+        self.stint_data = ["--",0,0,0,0]
+        self.history_data = deque([["--",0,0,0,0] for _ in range(self.stint_count)], self.stint_count)
 
         self.start_laps = 0
         self.start_time = 0
@@ -196,7 +198,7 @@ class Draw(Overlay):
         """Set row index"""
         if self.wcfg["layout"] == 0:
             return index
-        return self.stint_count - index
+        return self.stint_count - index + 1
 
     @Slot()
     def update_data(self):
@@ -206,6 +208,8 @@ class Draw(Overlay):
             # Reset switch
             if not self.checked:
                 self.checked = True
+                for index in range(self.stint_count):
+                    self.update_stint_history(self.history_data[index], index + 1)
 
             # Read stint data
             lap_num = api.read.lap.number()
@@ -222,19 +226,22 @@ class Draw(Overlay):
                 self.stint_running = True
             elif in_pits and self.stint_running:
                 if self.last_wear_avg > wear_avg or self.last_fuel_curr < fuel_curr:
-                    self.store_last_data()
                     self.stint_running = False
                     self.reset_stint = True
+                    # Update stint history
+                    self.history_data.appendleft(self.stint_data.copy())
+                    for index in range(self.stint_count):
+                        self.update_stint_history(self.history_data[index], index + 1)
 
             if in_garage:
                 self.reset_stint = True
 
             # Current stint data
-            self.stint_data[0][0] = self.set_tyre_cmp(api.read.tyre.compound())
-            self.stint_data[0][1] = max(lap_num - self.start_laps, 0)
-            self.stint_data[0][2] = max(time_curr - self.start_time, 0)
-            self.stint_data[0][3] = max(self.start_fuel - fuel_curr, 0)
-            self.stint_data[0][4] = max(wear_avg - self.start_wear, 0)
+            self.stint_data[0] = self.set_tyre_cmp(api.read.tyre.compound())
+            self.stint_data[1] = max(lap_num - self.start_laps, 0)
+            self.stint_data[2] = max(time_curr - self.start_time, 0)
+            self.stint_data[3] = max(self.start_fuel - fuel_curr, 0)
+            self.stint_data[4] = max(wear_avg - self.start_wear, 0)
 
             if self.reset_stint:
                 self.start_laps = lap_num
@@ -247,31 +254,25 @@ class Draw(Overlay):
                 self.start_fuel = fuel_curr
 
             # Stint current
-            laps_text = f"{self.stint_data[0][1]:03.0f}"[:3].ljust(3)
+            laps_text = f"{self.stint_data[1]:03.0f}"[:3].ljust(3)
             self.update_stint("laps", laps_text, self.last_laps_text)
             self.last_laps_text = laps_text
 
-            time_text = calc.sec2stinttime(self.stint_data[0][2])[:5].ljust(5)
+            time_text = calc.sec2stinttime(self.stint_data[2])[:5].ljust(5)
             self.update_stint("time", time_text, self.last_time_text)
             self.last_time_text = time_text
 
-            fuel_text = f"{self.stint_data[0][3]:05.01f}"[:5].ljust(5)
+            fuel_text = f"{self.stint_data[3]:05.01f}"[:5].ljust(5)
             self.update_stint("fuel", fuel_text, self.last_fuel_text)
             self.last_fuel_text = fuel_text
 
-            cmpd_text = f"{self.stint_data[0][0]}"[:2].ljust(2)
+            cmpd_text = f"{self.stint_data[0]}"[:2].ljust(2)
             self.update_stint("cmpd", cmpd_text, self.last_cmpd_text)
             self.last_cmpd_text = cmpd_text
 
-            wear_text = f"{self.stint_data[0][4]:02.0f}%"[:3].ljust(3)
+            wear_text = f"{self.stint_data[4]:02.0f}%"[:3].ljust(3)
             self.update_stint("wear", wear_text, self.last_wear_text)
             self.last_wear_text = wear_text
-
-            # Stint history
-            for index in range(1, self.stint_count):
-                self.update_stint_history(
-                    self.stint_data[-index], self.last_stint_data[-index], index)
-            self.last_stint_data = [data.copy() for data in self.stint_data]
 
         else:
             if self.checked:
@@ -279,8 +280,8 @@ class Draw(Overlay):
                 self.stint_running = False
                 self.reset_stint = True
 
-                if self.stint_data[0][2] >= self.wcfg["minimum_stint_threshold_minutes"] * 60:
-                    self.store_last_data()
+                if self.stint_data[2] >= self.wcfg["minimum_stint_threshold_minutes"] * 60:
+                    self.history_data.appendleft(self.stint_data.copy())
 
     # GUI update methods
     def update_stint(self, suffix, curr, last):
@@ -288,37 +289,36 @@ class Draw(Overlay):
         if curr != last:
             getattr(self, f"bar_{suffix}").setText(curr)
 
-    def update_stint_history(self, curr, last, index):
+    def update_stint_history(self, curr, index):
         """Stint history data"""
-        if curr != last:
-            if curr[2]:
-                getattr(self, f"bar_last_laps{index}").setText(
-                    f"{curr[1]:03.0f}"[:3].ljust(3)
-                )
-                getattr(self, f"bar_last_time{index}").setText(
-                    calc.sec2stinttime(curr[2])[:5].ljust(5)
-                )
-                getattr(self, f"bar_last_fuel{index}").setText(
-                    f"{curr[3]:05.01f}"[:5].ljust(5)
-                )
-                getattr(self, f"bar_last_cmpd{index}").setText(
-                    f"{curr[0]}"[:2].ljust(2)
-                )
-                getattr(self, f"bar_last_wear{index}").setText(
-                    f"{curr[4]:02.0f}%"[:3].ljust(3)
-                )
-                getattr(self, f"bar_last_laps{index}").show()
-                getattr(self, f"bar_last_time{index}").show()
-                getattr(self, f"bar_last_fuel{index}").show()
-                getattr(self, f"bar_last_cmpd{index}").show()
-                getattr(self, f"bar_last_wear{index}").show()
+        if curr[2]:
+            getattr(self, f"bar_last_laps{index}").setText(
+                f"{curr[1]:03.0f}"[:3].ljust(3)
+            )
+            getattr(self, f"bar_last_time{index}").setText(
+                calc.sec2stinttime(curr[2])[:5].ljust(5)
+            )
+            getattr(self, f"bar_last_fuel{index}").setText(
+                f"{curr[3]:05.01f}"[:5].ljust(5)
+            )
+            getattr(self, f"bar_last_cmpd{index}").setText(
+                f"{curr[0]}"[:2].ljust(2)
+            )
+            getattr(self, f"bar_last_wear{index}").setText(
+                f"{curr[4]:02.0f}%"[:3].ljust(3)
+            )
+            getattr(self, f"bar_last_laps{index}").show()
+            getattr(self, f"bar_last_time{index}").show()
+            getattr(self, f"bar_last_fuel{index}").show()
+            getattr(self, f"bar_last_cmpd{index}").show()
+            getattr(self, f"bar_last_wear{index}").show()
 
-            elif not self.wcfg["show_empty_history"]:
-                getattr(self, f"bar_last_laps{index}").hide()
-                getattr(self, f"bar_last_time{index}").hide()
-                getattr(self, f"bar_last_fuel{index}").hide()
-                getattr(self, f"bar_last_cmpd{index}").hide()
-                getattr(self, f"bar_last_wear{index}").hide()
+        elif not self.wcfg["show_empty_history"]:
+            getattr(self, f"bar_last_laps{index}").hide()
+            getattr(self, f"bar_last_time{index}").hide()
+            getattr(self, f"bar_last_fuel{index}").hide()
+            getattr(self, f"bar_last_cmpd{index}").hide()
+            getattr(self, f"bar_last_wear{index}").hide()
 
     # Additional methods
     def fuel_units(self, fuel):
@@ -330,8 +330,3 @@ class Draw(Overlay):
     def set_tyre_cmp(self, tc_indices):
         """Substitute tyre compound index with custom chars"""
         return "".join((self.tyre_compound_string[idx] for idx in tc_indices))
-
-    def store_last_data(self):
-        """Store last stint data"""
-        self.stint_data.pop(1)  # remove old data
-        self.stint_data.append(self.stint_data[0].copy())
