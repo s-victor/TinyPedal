@@ -20,6 +20,8 @@
 Lap time history Widget
 """
 
+from collections import deque
+
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QGridLayout, QLabel
 
@@ -51,7 +53,7 @@ class Draw(Overlay):
         )
 
         # Max display laps
-        self.laps_count = max(self.wcfg["lap_time_history_count"], 1) + 1
+        self.laps_count = max(self.wcfg["lap_time_history_count"], 1)
 
         # Create layout
         layout = QGridLayout()
@@ -99,7 +101,7 @@ class Draw(Overlay):
         layout.addWidget(self.bar_wear, self.set_row_index(0), column_wr)
 
         # History laps
-        for index in range(1, self.laps_count):
+        for index in range(1, self.laps_count + 1):
             setattr(self, f"bar_last_laps{index}", QLabel("---"))
             getattr(self, f"bar_last_laps{index}").setAlignment(Qt.AlignCenter)
             getattr(self, f"bar_last_laps{index}").setStyleSheet(
@@ -146,8 +148,8 @@ class Draw(Overlay):
         # Last data
         self.last_lap_stime = 0  # last lap start time
         # 0 - lap number, 1 - est lap time, 2 - is valid lap, 3 - last fuel usage, 4 - tyre wear
-        self.laps_data = [[0,0,0,0,0] for _ in range(self.laps_count)]
-        self.last_data = [data.copy() for data in self.laps_data]
+        self.laps_data = [0,0,0,0,0]
+        self.history_data = deque([[0,0,0,0,0] for _ in range(self.laps_count)], self.laps_count)
 
         self.last_wear = 0
 
@@ -163,7 +165,7 @@ class Draw(Overlay):
         """Set row index"""
         if self.wcfg["layout"] == 0:
             return index
-        return self.laps_count - index
+        return self.laps_count - index + 1
 
     @Slot()
     def update_data(self):
@@ -179,39 +181,36 @@ class Draw(Overlay):
                 if 2 < lap_etime - lap_stime < 10:  # update 2s after cross line
                     self.last_wear = wear_avg
                     self.last_lap_stime = lap_stime  # reset time stamp counter
-                    self.laps_data[0][1] = minfo.delta.lapTimeLast
-                    self.laps_data[0][2] = minfo.delta.isValidLap
-                    self.laps_data[0][3] = self.fuel_units(minfo.fuel.lastLapFuelConsumption)
-                    self.store_last_data()
+                    self.laps_data[1] = minfo.delta.lapTimeLast
+                    self.laps_data[2] = minfo.delta.isValidLap
+                    self.laps_data[3] = self.fuel_units(minfo.fuel.lastLapFuelConsumption)
+                    # Update lap time history while on track
+                    if not api.read.vehicle.in_garage():
+                        self.history_data.appendleft(self.laps_data.copy())
+                        for index in range(self.laps_count):
+                            self.update_laps_history(self.history_data[index], index + 1)
 
             # Current laps data
-            self.laps_data[0][0] = api.read.lap.number()
-            self.laps_data[0][1] = minfo.delta.lapTimeEstimated
-            self.laps_data[0][2] = 0
-            self.laps_data[0][3] = self.fuel_units(minfo.fuel.estimatedFuelConsumption)
-            self.laps_data[0][4] = max(wear_avg - self.last_wear, 0)
+            self.laps_data[0] = api.read.lap.number()
+            self.laps_data[1] = minfo.delta.lapTimeEstimated
+            self.laps_data[3] = self.fuel_units(minfo.fuel.estimatedFuelConsumption)
+            self.laps_data[4] = max(wear_avg - self.last_wear, 0)
 
-            laps_text = f"{self.laps_data[0][0]:03.0f}"[:3].ljust(3)
+            laps_text = f"{self.laps_data[0]:03.0f}"[:3].ljust(3)
             self.update_laps("laps", laps_text, self.last_laps_text)
             self.last_laps_text = laps_text
 
-            time_text = calc.sec2laptime_full(self.laps_data[0][1])[:8].rjust(8)
+            time_text = calc.sec2laptime_full(self.laps_data[1])[:8].rjust(8)
             self.update_laps("time", time_text, self.last_time_text)
             self.last_time_text = time_text
 
-            fuel_text = f"{self.laps_data[0][3]:04.02f}"[:4].rjust(4)
+            fuel_text = f"{self.laps_data[3]:04.02f}"[:4].rjust(4)
             self.update_laps("fuel", fuel_text, self.last_fuel_text)
             self.last_fuel_text = fuel_text
 
-            wear_text = f"{self.laps_data[0][4]:.01f}"[:3].rjust(3)
+            wear_text = f"{self.laps_data[4]:.01f}"[:3].rjust(3)
             self.update_laps("wear", wear_text, self.last_wear_text)
             self.last_wear_text = wear_text
-
-            # Lap time history
-            for index in range(1, self.laps_count):
-                self.update_laps_history(
-                    self.laps_data[-index], self.last_data[-index], index)
-            self.last_data = [data.copy() for data in self.laps_data]
 
     # GUI update methods
     def update_laps(self, suffix, curr, last):
@@ -219,42 +218,41 @@ class Draw(Overlay):
         if curr != last:
             getattr(self, f"bar_{suffix}").setText(curr)
 
-    def update_laps_history(self, curr, last, index):
+    def update_laps_history(self, curr, index):
         """Laps history data"""
-        if curr != last:
-            if curr[1] and curr[0] != last[0]:
-                getattr(self, f"bar_last_laps{index}").setText(
-                    f"{max(curr[0] - 1, 0):03.0f}"[:3].ljust(3)
-                )
-                getattr(self, f"bar_last_time{index}").setText(
-                    calc.sec2laptime_full(curr[1])[:8].rjust(8)
-                )
-                getattr(self, f"bar_last_fuel{index}").setText(
-                    f"{curr[3]:04.02f}"[:4].rjust(4)
-                )
-                getattr(self, f"bar_last_wear{index}").setText(
-                    f"{curr[4]:.01f}"[:3].rjust(3)
-                )
+        if curr[1]:
+            getattr(self, f"bar_last_laps{index}").setText(
+                f"{max(curr[0] - 1, 0):03.0f}"[:3].ljust(3)
+            )
+            getattr(self, f"bar_last_time{index}").setText(
+                calc.sec2laptime_full(curr[1])[:8].rjust(8)
+            )
+            getattr(self, f"bar_last_fuel{index}").setText(
+                f"{curr[3]:04.02f}"[:4].rjust(4)
+            )
+            getattr(self, f"bar_last_wear{index}").setText(
+                f"{curr[4]:.01f}"[:3].rjust(3)
+            )
 
-                if curr[2]:
-                    fgcolor = self.wcfg["font_color_last_time"]
-                else:
-                    fgcolor = self.wcfg["font_color_invalid_laptime"]
-                getattr(self, f"bar_last_time{index}").setStyleSheet(
-                    f"color: {fgcolor};"
-                    f"background: {self.wcfg['bkg_color_last_time']};"
-                )
+            if curr[2]:
+                fgcolor = self.wcfg["font_color_last_time"]
+            else:
+                fgcolor = self.wcfg["font_color_invalid_laptime"]
+            getattr(self, f"bar_last_time{index}").setStyleSheet(
+                f"color: {fgcolor};"
+                f"background: {self.wcfg['bkg_color_last_time']};"
+            )
 
-                getattr(self, f"bar_last_laps{index}").show()
-                getattr(self, f"bar_last_time{index}").show()
-                getattr(self, f"bar_last_fuel{index}").show()
-                getattr(self, f"bar_last_wear{index}").show()
+            getattr(self, f"bar_last_laps{index}").show()
+            getattr(self, f"bar_last_time{index}").show()
+            getattr(self, f"bar_last_fuel{index}").show()
+            getattr(self, f"bar_last_wear{index}").show()
 
-            elif not self.wcfg["show_empty_history"]:
-                getattr(self, f"bar_last_laps{index}").hide()
-                getattr(self, f"bar_last_time{index}").hide()
-                getattr(self, f"bar_last_fuel{index}").hide()
-                getattr(self, f"bar_last_wear{index}").hide()
+        elif not self.wcfg["show_empty_history"]:
+            getattr(self, f"bar_last_laps{index}").hide()
+            getattr(self, f"bar_last_time{index}").hide()
+            getattr(self, f"bar_last_fuel{index}").hide()
+            getattr(self, f"bar_last_wear{index}").hide()
 
     # Additional methods
     def fuel_units(self, fuel):
@@ -262,8 +260,3 @@ class Draw(Overlay):
         if self.cfg.units["fuel_unit"] == "Gallon":
             return calc.liter2gallon(fuel)
         return fuel
-
-    def store_last_data(self):
-        """Store last laps data"""
-        self.laps_data.pop(1)  # remove old data
-        self.laps_data.append(self.laps_data[0].copy())
