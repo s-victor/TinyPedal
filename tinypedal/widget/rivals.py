@@ -344,21 +344,12 @@ class Draw(Overlay):
     def update_pos(self, suffix, curr, last):
         """Driver position"""
         if curr != last:
-            color = (f"color: {self.wcfg['font_color_position']};"
-                        f"background: {self.wcfg['bkg_color_position']};")
-
             getattr(self, f"row_{suffix}").setText(curr[0])
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_pos}"
-            )
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 
     def update_drv(self, suffix, curr, last):
         """Driver name"""
         if curr != last:
-            color = (f"color: {self.wcfg['font_color_driver_name']};"
-                        f"background: {self.wcfg['bkg_color_driver_name']};")
-
             if self.wcfg["driver_name_shorten"]:
                 text = fmt.shorten_driver_name(curr[0])
             else:
@@ -373,17 +364,11 @@ class Draw(Overlay):
                 text = text[:self.drv_width].ljust(self.drv_width)
 
             getattr(self, f"row_{suffix}").setText(text)
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_drv}"
-            )
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 
     def update_veh(self, suffix, curr, last):
         """Vehicle name"""
         if curr != last:
-            color = (f"color: {self.wcfg['font_color_vehicle_name']};"
-                        f"background: {self.wcfg['bkg_color_vehicle_name']};")
-
             if self.wcfg["show_vehicle_brand_as_name"]:
                 vname = self.cfg.user.brands.get(curr[0], curr[0])
             else:
@@ -400,9 +385,6 @@ class Draw(Overlay):
                 text = text[:self.veh_width].ljust(self.veh_width)
 
             getattr(self, f"row_{suffix}").setText(text)
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_veh}"
-            )
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 
     def update_brd(self, suffix, curr, last):
@@ -439,37 +421,19 @@ class Draw(Overlay):
     def update_lpt(self, suffix, curr, last):
         """Vehicle laptime"""
         if curr != last:
-            color = (f"color: {self.wcfg['font_color_laptime']};"
-                        f"background: {self.wcfg['bkg_color_laptime']};")
-
             getattr(self, f"row_{suffix}").setText(curr[0])
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_lpt}"
-            )
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 
     def update_blp(self, suffix, curr, last):
         """Vehicle best laptime"""
         if curr != last:
-            color = (f"color: {self.wcfg['font_color_best_laptime']};"
-                        f"background: {self.wcfg['bkg_color_best_laptime']};")
-
             getattr(self, f"row_{suffix}").setText(curr[0])
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_blp}"
-            )
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 
     def update_pic(self, suffix, curr, last):
         """Position in class"""
         if curr != last:
-            color = (f"color: {self.wcfg['font_color_position_in_class']};"
-                        f"background: {self.wcfg['bkg_color_position_in_class']};")
-
             getattr(self, f"row_{suffix}").setText(curr[0])
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_pic}"
-            )
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 
     def update_cls(self, suffix, curr, last):
@@ -501,14 +465,8 @@ class Draw(Overlay):
     def update_tcp(self, suffix, curr, last):
         """Tyre compound index"""
         if curr != last:
-            color = (f"color: {self.wcfg['font_color_tyre_compound']};"
-                        f"background: {self.wcfg['bkg_color_tyre_compound']};")
-
             text = self.set_tyre_cmp(curr[0])
             getattr(self, f"row_{suffix}").setText(text)
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_tcp}"
-            )
             self.toggle_visibility(text, getattr(self, f"row_{suffix}"))
 
     def update_psc(self, suffix, curr, last):
