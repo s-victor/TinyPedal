@@ -10,6 +10,9 @@ WIP
     "update_interval" and "idle_update_interval" values.
     Default value is `10`, and should not be modified.
 
+* Flag Widget
+  - Optimized flag update.
+
 * Gear Widget
   - Fixed a typo in "battery_bar_color_regen" default value,
     which would not show regeneration color.

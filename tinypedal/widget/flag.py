@@ -203,19 +203,19 @@ class Draw(Overlay):
     def set_defaults(self):
         """Initialize variables"""
         self.checked = False
-        self.last_in_pits = None
+        self.last_in_pits = -1
         self.pit_timer_start = None
         self.last_pit_timer = None
         self.last_fuel_usage = None
         self.last_limiter = None
-        self.last_blue_flag = None
+        self.last_any_blue = None
         self.blue_flag_timer_start = None
-        self.last_blue_flag_data = None
+        self.last_blue_flag = None
         self.last_yellow_flag = None
         self.last_start_timer = None
         self.last_lap_stime = 0
         self.last_traffic = None
-        self.traffic_timer_start = None
+        self.pitout_timer_start = None
         self.last_pit_request = None
         self.last_finish_state = None
 
@@ -228,26 +228,21 @@ class Draw(Overlay):
             if not self.checked:
                 self.checked = True
 
-            # Read flag data
-            lap_stime = api.read.timing.start()
+            # Read state data
             lap_etime = api.read.timing.elapsed()
             in_pits = api.read.vehicle.in_pits()
-            pit_open = api.read.session.pit_open()
-            in_countdown = api.read.session.in_countdown()
             in_race = api.read.session.in_race()
 
             # Pit timer
             if self.wcfg["show_pit_timer"]:
                 pit_timer = -1
                 pit_timer_highlight = False
-                if in_pits != self.last_in_pits:
-                    if in_pits:
-                        self.pit_timer_start = lap_etime
-                    #self.last_in_pits = in_pits
+                if in_pits > self.last_in_pits:
+                    self.pit_timer_start = lap_etime
 
                 if self.pit_timer_start:
                     if in_pits:
-                        pit_timer = min(lap_etime - self.pit_timer_start, 999.99)
+                        pit_timer = round(lap_etime - self.pit_timer_start, 2)
                     elif (lap_etime - self.last_pit_timer - self.pit_timer_start
                           <= self.wcfg["pit_time_highlight_duration"]):
                         pit_timer = self.last_pit_timer + 0.000001
@@ -256,19 +251,21 @@ class Draw(Overlay):
                         self.pit_timer_start = 0  # stop timer
 
                 self.update_pit_timer(
-                    pit_timer, self.last_pit_timer, pit_open, pit_timer_highlight)
+                    pit_timer, self.last_pit_timer, api.read.session.pit_open(), pit_timer_highlight)
                 self.last_pit_timer = pit_timer
 
             # Low fuel update
             if self.wcfg["show_low_fuel"]:
-                fuel_usage = (
-                    min(round(minfo.fuel.amountFuelCurrent, 2),
-                        self.wcfg["low_fuel_volume_threshold"]),
-                    min(round(minfo.fuel.estimatedLaps, 1),
-                        self.wcfg["low_fuel_lap_threshold"]),
-                    bool(not self.wcfg["show_low_fuel_for_race_only"] or
-                         self.wcfg["show_low_fuel_for_race_only"] and in_race)
-                )
+                is_lowfuel = (
+                    minfo.fuel.amountFuelCurrent < self.wcfg["low_fuel_volume_threshold"] and
+                    minfo.fuel.estimatedLaps < self.wcfg["low_fuel_lap_threshold"] and
+                    (not self.wcfg["show_low_fuel_for_race_only"] or
+                    self.wcfg["show_low_fuel_for_race_only"] and in_race))
+
+                if is_lowfuel:
+                    fuel_usage = (round(minfo.fuel.amountFuelCurrent, 2), is_lowfuel)
+                else:
+                    fuel_usage = (99999, is_lowfuel)
                 self.update_lowfuel(fuel_usage, self.last_fuel_usage)
                 self.last_fuel_usage = fuel_usage
 
@@ -280,42 +277,39 @@ class Draw(Overlay):
 
             # Blue flag
             if self.wcfg["show_blue_flag"]:
-                #blue_flag = 6  # testing
-                blue_flag = api.read.session.blue_flag()
-                blue_flag_timer = -1
+                any_blue = (
+                    api.read.session.blue_flag() and
+                    (not self.wcfg["show_blue_flag_for_race_only"] or
+                     self.wcfg["show_blue_flag_for_race_only"] and in_race))
 
-                if self.last_blue_flag != blue_flag:
-                    self.blue_flag_timer_start = lap_etime if blue_flag else 0
+                if any_blue:
+                    if self.last_any_blue != any_blue:
+                        self.blue_flag_timer_start = lap_etime
+                    blue_flag = (round(lap_etime - self.blue_flag_timer_start), any_blue)
+                else:
+                    blue_flag = (-1, any_blue)
+                self.update_blueflag(blue_flag, self.last_blue_flag)
                 self.last_blue_flag = blue_flag
-
-                if self.blue_flag_timer_start:
-                    blue_flag_timer = min(round(lap_etime - self.blue_flag_timer_start, 1), 999)
-
-                blue_flag_data = (
-                    blue_flag_timer,
-                    bool(not self.wcfg["show_blue_flag_for_race_only"] or
-                         self.wcfg["show_blue_flag_for_race_only"] and in_race)
-                )
-                self.update_blueflag(blue_flag_data, self.last_blue_flag_data)
-                self.last_blue_flag_data = blue_flag_data
+                self.last_any_blue = any_blue
 
             # Yellow flag
             if self.wcfg["show_yellow_flag"]:
-                #yellow_flag = [1,0,0,0]# testing
-                is_yellow_near = minfo.vehicles.nearestYellow < self.wcfg["yellow_flag_maximum_range"]
-                is_yellow_show = bool(not self.wcfg["show_yellow_flag_for_race_only"] or
-                                      self.wcfg["show_yellow_flag_for_race_only"] and in_race)
-                yellow_flag = (
-                    api.read.session.yellow_flag() and is_yellow_near and is_yellow_show,
-                    minfo.vehicles.nearestYellow
-                )
+                any_yellow = (
+                    api.read.session.yellow_flag()
+                    and minfo.vehicles.nearestYellow < self.wcfg["yellow_flag_maximum_range"]
+                    and (not self.wcfg["show_yellow_flag_for_race_only"] or self.wcfg["show_yellow_flag_for_race_only"] and in_race))
+
+                if any_yellow:
+                    yellow_flag = (round(minfo.vehicles.nearestYellow), any_yellow)
+                else:
+                    yellow_flag = (99999, any_yellow)
                 self.update_yellowflag(yellow_flag, self.last_yellow_flag)
                 self.last_yellow_flag = yellow_flag
 
             # Start lights
             if self.wcfg["show_startlights"]:
-                if in_countdown:
-                    self.last_lap_stime = lap_stime
+                if api.read.session.in_countdown():
+                    self.last_lap_stime = api.read.timing.start()
 
                 green = 1  # enable green flag
                 start_timer = max(self.last_lap_stime - lap_etime,
@@ -329,20 +323,21 @@ class Draw(Overlay):
 
             # Incoming traffic
             if self.wcfg["show_traffic"]:
-                if in_pits != self.last_in_pits:
-                    if not in_pits and self.last_in_pits:
-                        self.traffic_timer_start = lap_etime
+                if self.last_in_pits > in_pits:
+                    self.pitout_timer_start = lap_etime
 
-                if (self.traffic_timer_start and
-                    self.wcfg["traffic_pitout_duration"]
-                    < lap_etime - self.traffic_timer_start):
-                    self.traffic_timer_start = 0
+                if (self.pitout_timer_start and
+                    self.wcfg["traffic_pitout_duration"] < lap_etime - self.pitout_timer_start):
+                    self.pitout_timer_start = 0
 
-                traffic = (
-                    minfo.vehicles.nearestTraffic,
-                    bool(0 < minfo.vehicles.nearestTraffic
-                         < self.wcfg["traffic_maximum_time_gap"]
-                         and (in_pits or self.traffic_timer_start)))
+                any_traffic = bool(
+                    0 < minfo.vehicles.nearestTraffic < self.wcfg["traffic_maximum_time_gap"]
+                    and (in_pits or self.pitout_timer_start))
+
+                if any_traffic:
+                    traffic = (round(minfo.vehicles.nearestTraffic, 1), any_traffic)
+                else:
+                    traffic = (99999, any_traffic)
                 self.update_traffic(traffic, self.last_traffic)
                 self.last_traffic = traffic
 
@@ -374,11 +369,11 @@ class Draw(Overlay):
                 if highlight:
                     color = (f"color: {self.wcfg['font_color_pit_timer_stopped']};"
                              f"background: {self.wcfg['bkg_color_pit_timer_stopped']};")
-                    state = "F " + f"{curr:.02f}"[:5].rjust(5)
+                    state = "F " + f"{min(curr, 999.99):.02f}"[:5].rjust(5)
                 elif pitopen:
                     color = (f"color: {self.wcfg['font_color_pit_timer']};"
                                 f"background: {self.wcfg['bkg_color_pit_timer']};")
-                    state = "P " + f"{curr:.02f}"[:5].rjust(5)
+                    state = "P " + f"{min(curr, 999.99):.02f}"[:5].rjust(5)
                 else:
                     color = (f"color: {self.wcfg['font_color_pit_closed']};"
                                 f"background: {self.wcfg['bkg_color_pit_closed']};")
@@ -393,9 +388,7 @@ class Draw(Overlay):
     def update_lowfuel(self, curr, last):
         """Low fuel warning"""
         if curr != last:
-            if (curr[2] and
-                curr[0] < self.wcfg["low_fuel_volume_threshold"] and
-                curr[1] < self.wcfg["low_fuel_lap_threshold"]):
+            if curr[1]:
                 self.bar_lowfuel.setText("LF" + f"{curr[0]:.02f}"[:4].rjust(5))
                 self.bar_lowfuel.show()
             else:
@@ -413,7 +406,7 @@ class Draw(Overlay):
         """Blue flag"""
         if curr != last:
             if curr[1] and curr[0] != -1:
-                self.bar_blueflag.setText(f"BLUE{curr[0]:3.0f}")
+                self.bar_blueflag.setText(f"BLUE{min(curr[0], 999):3.0f}")
                 self.bar_blueflag.show()
             else:
                 self.bar_blueflag.hide()
@@ -421,11 +414,11 @@ class Draw(Overlay):
     def update_yellowflag(self, curr, last):
         """Yellow flag"""
         if curr != last:
-            if curr[0]:
+            if curr[1]:
                 if self.cfg.units["distance_unit"] == "Feet":
-                    yelw_text = f"{curr[1] * 3.2808399:.0f}ft".rjust(6)
+                    yelw_text = f"{curr[0] * 3.2808399:.0f}ft".rjust(6)
                 else:  # meter
-                    yelw_text = f"{curr[1]:.0f}m".rjust(6)
+                    yelw_text = f"{curr[0]:.0f}m".rjust(6)
 
                 self.bar_yellowflag.setText(f"Y{yelw_text}")
                 self.bar_yellowflag.show()

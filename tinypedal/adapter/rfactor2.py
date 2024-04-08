@@ -276,7 +276,7 @@ class Session(DataAdapter):
 
     def yellow_flag(self) -> bool:
         """Is there yellow flag in any sectors"""
-        return 1 in [chknm(self.info.rf2ScorInfo.mSectorFlag[data]) for data in range(3)]
+        return any(chknm(self.info.rf2ScorInfo.mSectorFlag[data]) == 1 for data in range(3))
 
     def start_lights(self) -> int:
         """Start lights countdown sequence"""
