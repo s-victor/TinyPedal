@@ -111,9 +111,8 @@ class Draw(Overlay):
 
             # Track temperature
             if self.wcfg["show_temperature"]:
-                track_temp = api.read.session.track_temperature()
-                ambient_temp = api.read.session.ambient_temperature()
-                temp_d = self.temp_units(track_temp, ambient_temp)
+                temp_d = (api.read.session.track_temperature(),
+                          api.read.session.ambient_temperature())
                 self.update_temp(temp_d, self.last_temp_d)
                 self.last_temp_d = temp_d
 
@@ -133,13 +132,17 @@ class Draw(Overlay):
     def update_temp(self, curr, last):
         """Track & ambient temperature"""
         if curr != last:
-            self.bar_temp.setText(curr)
+            if self.cfg.units["temperature_unit"] == "Fahrenheit":
+                temp = f"{calc.celsius2fahrenheit(curr[0]):.01f}" \
+                       f"({calc.celsius2fahrenheit(curr[1]):.01f})°F"
+            else:
+                temp = f"{curr[0]:.01f}({curr[1]:.01f})°C"
+            self.bar_temp.setText(temp)
 
     def update_rain(self, curr, last):
         """Rain percentage"""
         if curr != last:
-            rain_text = f"Rain {curr * 100:.0f}{self.sign_text}"
-            self.bar_rain.setText(rain_text)
+            self.bar_rain.setText(f"Rain {curr * 100:.0f}{self.sign_text}")
 
     def update_wetness(self, curr, last):
         """Surface wetness"""
@@ -149,11 +152,3 @@ class Draw(Overlay):
                        f" < {curr[1] * 100:.0f}{self.sign_text}" \
                        f" ≈ {curr[2] * 100:.0f}{self.sign_text}"
             self.bar_wetness.setText(wet_text)
-
-    # Additional methods
-    def temp_units(self, track_temp, ambient_temp):
-        """Track & ambient temperature"""
-        if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            return f"{calc.celsius2fahrenheit(track_temp):.01f}" \
-                   f"({calc.celsius2fahrenheit(ambient_temp):.01f})°F"
-        return f"{track_temp:.01f}({ambient_temp:.01f})°C"
