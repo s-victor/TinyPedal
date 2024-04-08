@@ -38,12 +38,16 @@ class Draw(Overlay):
         Overlay.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        self.font_m = self.get_font_metrics(
+        font_m = self.get_font_metrics(
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        self.prefix_text = self.wcfg["prefix_rake_angle"]
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
+        ride_diff = "(00)" if self.wcfg["show_ride_height_difference"] else ""
+        text_default = f"{self.prefix_text}+0.00{self.sign_text}{ride_diff}"
+        bar_width = font_m.width * len(text_default)
 
         # Base style
         self.setStyleSheet(
@@ -51,6 +55,7 @@ class Draw(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
+            f"min-width: {bar_width}px;"
         )
 
         # Create layout
@@ -60,13 +65,11 @@ class Draw(Overlay):
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         # Rake angle
-        self.bar_rake = QLabel("RAKE")
+        self.bar_rake = QLabel(text_default)
         self.bar_rake.setAlignment(Qt.AlignCenter)
         self.bar_rake.setStyleSheet(
             f"color: {self.wcfg['font_color_rake_angle']};"
             f"background: {self.wcfg['bkg_color_rake_angle']};"
-            f"min-width: {self.font_m.width * 8}px;"
-            f"max-width: {self.font_m.width * 8}px;"
         )
 
         # Set layout
@@ -94,18 +97,14 @@ class Draw(Overlay):
         """Rake angle data"""
         if curr != last:
             if curr >= 0:
-                bgcolor = self.wcfg["bkg_color_rake_angle"]
+                color = (f"color: {self.wcfg['font_color_rake_angle']};"
+                         f"background: {self.wcfg['bkg_color_rake_angle']};")
             else:
-                bgcolor = self.wcfg["warning_color_negative_rake"]
+                color = (f"color: {self.wcfg['font_color_rake_angle']};"
+                         f"background: {self.wcfg['warning_color_negative_rake']};")
 
-            rake_angle = calc.rake2angle(curr, self.wcfg["wheelbase"])
+            rake_angle = f"{calc.rake2angle(curr, self.wcfg['wheelbase']):+.02f}"[:5]
             ride_diff = f"({abs(curr):02.0f})" if self.wcfg["show_ride_height_difference"] else ""
-            text = f"{self.wcfg['prefix_rake_angle']}{rake_angle:+.02f}{self.sign_text}{ride_diff}"
 
-            self.bar_rake.setText(text)
-            self.bar_rake.setStyleSheet(
-                f"color: {self.wcfg['font_color_rake_angle']};"
-                f"background: {bgcolor};"
-                f"min-width: {self.font_m.width * len(text)}px;"
-                f"max-width: {self.font_m.width * len(text)}px;"
-            )
+            self.bar_rake.setText(f"{self.prefix_text}{rake_angle}{self.sign_text}{ride_diff}")
+            self.bar_rake.setStyleSheet(color)

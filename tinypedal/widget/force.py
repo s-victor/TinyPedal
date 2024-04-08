@@ -45,7 +45,7 @@ class Draw(Overlay):
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
-        self.bar_width = font_m.width * 6
+        bar_width = font_m.width * 6
 
         # Base style
         self.setStyleSheet(
@@ -53,6 +53,7 @@ class Draw(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
+            f"min-width: {bar_width}px;"
         )
 
         # Create layout
@@ -74,7 +75,6 @@ class Draw(Overlay):
             self.bar_gforce_lgt.setStyleSheet(
                 f"color: {self.wcfg['font_color_g_force']};"
                 f"background: {self.wcfg['bkg_color_g_force']};"
-                f"min-width: {self.bar_width}px;"
             )
 
             self.bar_gforce_lat = QLabel("n/a")
@@ -82,7 +82,6 @@ class Draw(Overlay):
             self.bar_gforce_lat.setStyleSheet(
                 f"color: {self.wcfg['font_color_g_force']};"
                 f"background: {self.wcfg['bkg_color_g_force']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Downforce ratio
@@ -92,7 +91,6 @@ class Draw(Overlay):
             self.bar_df_ratio.setStyleSheet(
                 f"color: {self.wcfg['font_color_downforce_ratio']};"
                 f"background: {self.wcfg['bkg_color_downforce_ratio']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Front downforce
@@ -102,7 +100,6 @@ class Draw(Overlay):
             self.bar_df_front.setStyleSheet(
                 f"color: {self.wcfg['font_color_front_downforce']};"
                 f"background: {self.wcfg['bkg_color_front_downforce']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Rear downforce
@@ -112,7 +109,6 @@ class Draw(Overlay):
             self.bar_df_rear.setStyleSheet(
                 f"color: {self.wcfg['font_color_rear_downforce']};"
                 f"background: {self.wcfg['bkg_color_rear_downforce']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Set layout
@@ -212,8 +208,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['warning_color_liftforce']};")
 
             self.bar_df_front.setText(f"F{abs(curr):5.0f}"[:6])
-            self.bar_df_front.setStyleSheet(
-                f"{color}min-width: {self.bar_width}px;")
+            self.bar_df_front.setStyleSheet(color)
 
     def update_df_rear(self, curr, last):
         """Downforce rear"""
@@ -226,28 +221,23 @@ class Draw(Overlay):
                          f"background: {self.wcfg['warning_color_liftforce']};")
 
             self.bar_df_rear.setText(f"R{abs(curr):5.0f}"[:6])
-            self.bar_df_rear.setStyleSheet(
-                f"{color}min-width: {self.bar_width}px;")
+            self.bar_df_rear.setStyleSheet(color)
 
     # Additional methods
     @staticmethod
     def gforce_lgt(g_force):
         """Longitudinal g-force direction symbol"""
         if g_force > 0.1:
-            text = "▼"
-        elif g_force < -0.1:
-            text = "▲"
-        else:
-            text = "●"
-        return text
+            return "▼"
+        if g_force < -0.1:
+            return "▲"
+        return "●"
 
     @staticmethod
     def gforce_lat(g_force):
         """Lateral g-force direction symbol"""
         if g_force > 0.1:
-            text = "◀"
-        elif g_force < -0.1:
-            text = "▶"
-        else:
-            text = "●"
-        return text
+            return "◀"
+        if g_force < -0.1:
+            return "▶"
+        return "●"

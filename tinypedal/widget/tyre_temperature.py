@@ -58,12 +58,12 @@ class Draw(Overlay):
 
         # Base style
         self.heatmap = hmp.load_heatmap(self.wcfg["heatmap_name"], "tyre_default")
-
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
+            f"min-width: {font_m.width * text_width}px;"
         )
 
         # Create layout
@@ -84,7 +84,7 @@ class Draw(Overlay):
             bar_style_tcmpd = (
                 f"color: {self.wcfg['font_color_tyre_compound']};"
                 f"background: {self.wcfg['bkg_color_tyre_compound']};"
-                f"min-width: {font_m.width}px; max-width: {font_m.width}px;"
+                f"min-width: {font_m.width}px;"
             )
             self.bar_tcmpd_f = QLabel("-")
             self.bar_tcmpd_f.setAlignment(Qt.AlignCenter)
@@ -107,16 +107,13 @@ class Draw(Overlay):
         self.stemp_set = ("stemp_fl", "stemp_fr", "stemp_rl", "stemp_rr")
         self.itemp_set = ("itemp_fl", "itemp_fr", "itemp_rl", "itemp_rr")
 
-        self.bar_width_temp = font_m.width * text_width
         bar_style_stemp = (
             f"color: {self.wcfg['font_color_surface']};"
             f"background: {self.wcfg['bkg_color_surface']};"
-            f"min-width: {self.bar_width_temp}px;"
         )
         bar_style_itemp = (
             f"color: {self.wcfg['font_color_innerlayer']};"
             f"background: {self.wcfg['bkg_color_innerlayer']};"
-            f"min-width: {self.bar_width_temp}px;"
         )
 
         if self.wcfg["show_inner_center_outer"]:
@@ -322,8 +319,7 @@ class Draw(Overlay):
             getattr(self, f"bar_{suffix}").setText(
                 f"{self.temp_units(curr):0{self.leading_zero}.0f}{self.sign_text}")
 
-            getattr(self, f"bar_{suffix}").setStyleSheet(
-                f"{color}min-width: {self.bar_width_temp}px;")
+            getattr(self, f"bar_{suffix}").setStyleSheet(color)
 
     def update_itemp(self, suffix, curr, last):
         """Tyre inner temperature"""
@@ -338,8 +334,7 @@ class Draw(Overlay):
             getattr(self, f"bar_{suffix}").setText(
                 f"{self.temp_units(curr):0{self.leading_zero}.0f}{self.sign_text}")
 
-            getattr(self, f"bar_{suffix}").setStyleSheet(
-                f"{color}min-width: {self.bar_width_temp}px;")
+            getattr(self, f"bar_{suffix}").setStyleSheet(color)
 
     def update_tcmpd(self, curr, last):
         """Tyre compound"""
@@ -352,7 +347,7 @@ class Draw(Overlay):
         """Temperature inner/center/outer mode"""
         if self.wcfg["show_inner_center_outer"]:
             return value
-        return sum(value) / 3
+        return calc.mean(value)
 
     def temp_units(self, value):
         """Temperature units"""

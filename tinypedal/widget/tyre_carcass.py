@@ -64,12 +64,12 @@ class Draw(Overlay):
 
         # Base style
         self.heatmap = hmp.load_heatmap(self.wcfg["heatmap_name"], "tyre_default")
-
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
+            f"min-width: {font_m.width * text_width}px;"
         )
 
         # Create layout
@@ -90,7 +90,7 @@ class Draw(Overlay):
             bar_style_tcmpd = (
                 f"color: {self.wcfg['font_color_tyre_compound']};"
                 f"background: {self.wcfg['bkg_color_tyre_compound']};"
-                f"min-width: {font_m.width}px; max-width: {font_m.width}px;"
+                f"min-width: {font_m.width}px;"
             )
             self.bar_tcmpd_f = QLabel("-")
             self.bar_tcmpd_f.setAlignment(Qt.AlignCenter)
@@ -112,11 +112,9 @@ class Draw(Overlay):
         # Tyre carcass temperature
         self.ctemp_set = ("ctemp_fl", "ctemp_fr", "ctemp_rl", "ctemp_rr")
 
-        self.bar_width_temp = font_m.width * text_width
         bar_style_ctemp = (
             f"color: {self.wcfg['font_color_carcass']};"
             f"background: {self.wcfg['bkg_color_carcass']};"
-            f"min-width: {self.bar_width_temp}px;"
         )
 
         for suffix in self.ctemp_set:
@@ -142,7 +140,6 @@ class Draw(Overlay):
             bar_style_rtemp = (
                 f"color: {self.wcfg['font_color_rate_of_change']};"
                 f"background: {self.wcfg['bkg_color_rate_of_change']};"
-                f"min-width: {self.bar_width_temp}px;"
             )
             for suffix in self.rtemp_set:
                 setattr(self, f"bar_{suffix}", QLabel(text_def))
@@ -228,8 +225,7 @@ class Draw(Overlay):
             getattr(self, f"bar_{suffix}").setText(
                 f"{self.temp_units(curr):0{self.leading_zero}.0f}{self.sign_text}")
 
-            getattr(self, f"bar_{suffix}").setStyleSheet(
-                f"{color}min-width: {self.bar_width_temp}px;")
+            getattr(self, f"bar_{suffix}").setStyleSheet(color)
 
     def update_rtemp(self, suffix, curr, last):
         """Rate of change"""
@@ -255,8 +251,7 @@ class Draw(Overlay):
             getattr(self, f"bar_{suffix}").setText(
                 f"{temp_text}{self.sign_text}")
 
-            getattr(self, f"bar_{suffix}").setStyleSheet(
-                f"{color}min-width: {self.bar_width_temp}px;")
+            getattr(self, f"bar_{suffix}").setStyleSheet(color)
 
     def update_tcmpd(self, curr, last):
         """Tyre compound"""

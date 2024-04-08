@@ -37,13 +37,20 @@ class Draw(Overlay):
         Overlay.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        self.font_m = self.get_font_metrics(
+        font_m = self.get_font_metrics(
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
-        self.sign_text = "%" if self.wcfg["show_percentage_sign"] else ""
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
+        self.prefix_text = self.wcfg["prefix_brake_bias"]
+        self.sign_text = "%" if self.wcfg["show_percentage_sign"] else ""
+
+        if self.wcfg["show_front_and_rear"]:
+            text_default = f"{self.prefix_text}{50:02.0{self.decimals}f}:{50:02.0{self.decimals}f}"
+        else:
+            text_default = f"{self.prefix_text}{50:02.0{self.decimals}f}{self.sign_text}"
+        bar_width = font_m.width * len(text_default)
 
         # Base style
         self.setStyleSheet(
@@ -51,6 +58,7 @@ class Draw(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
+            f"min-width: {bar_width}px;"
         )
 
         # Create layout
@@ -60,13 +68,11 @@ class Draw(Overlay):
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         # Brake bias
-        self.bar_bbias = QLabel("BBIAS")
+        self.bar_bbias = QLabel(text_default)
         self.bar_bbias.setAlignment(Qt.AlignCenter)
         self.bar_bbias.setStyleSheet(
             f"color: {self.wcfg['font_color_brake_bias']};"
             f"background: {self.wcfg['bkg_color_brake_bias']};"
-            f"min-width: {self.font_m.width * 8}px;"
-            f"max-width: {self.font_m.width * 8}px;"
         )
 
         # Set layout
@@ -94,19 +100,8 @@ class Draw(Overlay):
         """Brake bias"""
         if curr != last:
             if self.wcfg["show_front_and_rear"]:
-                text = (
-                    f"{self.wcfg['prefix_brake_bias']}"
-                    f"{curr:02.0{self.decimals}f}:{100 - curr:02.0{self.decimals}f}"
-                )
+                text = f"{self.prefix_text}{curr:02.0{self.decimals}f}:{100 - curr:02.0{self.decimals}f}"
             else:
-                text = (
-                    f"{self.wcfg['prefix_brake_bias']}"
-                    f"{curr:02.0{self.decimals}f}{self.sign_text}"
-                )
+                text = f"{self.prefix_text}{curr:02.0{self.decimals}f}{self.sign_text}"
+
             self.bar_bbias.setText(text)
-            self.bar_bbias.setStyleSheet(
-                f"color: {self.wcfg['font_color_brake_bias']};"
-                f"background: {self.wcfg['bkg_color_brake_bias']};"
-                f"min-width: {self.font_m.width * len(text)}px;"
-                f"max-width: {self.font_m.width * len(text)}px;"
-            )

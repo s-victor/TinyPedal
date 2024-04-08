@@ -196,12 +196,13 @@ class Overlay(QWidget):
         Returns:
             FontMetrics object.
         """
+        font_metrics = QFontMetrics(qfont)
         return FontMetrics(
-            width = QFontMetrics(qfont).averageCharWidth(),
-            height = QFontMetrics(qfont).height(),
-            leading = QFontMetrics(qfont).leading(),
-            capital = QFontMetrics(qfont).capHeight(),
-            descent = QFontMetrics(qfont).descent(),
+            width = font_metrics.averageCharWidth(),
+            height = font_metrics.height(),
+            leading = font_metrics.leading(),
+            capital = font_metrics.capHeight(),
+            descent = font_metrics.descent(),
         )
 
     def calc_font_offset(self, metrics: object) -> int:

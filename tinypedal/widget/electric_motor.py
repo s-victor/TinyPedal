@@ -44,7 +44,7 @@ class Draw(Overlay):
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
-        self.bar_width = font_m.width * 8
+        bar_width = font_m.width * 8
 
         # Base style
         self.setStyleSheet(
@@ -52,6 +52,7 @@ class Draw(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
+            f"min-width: {bar_width}px;"
         )
 
         # Create layout
@@ -72,7 +73,6 @@ class Draw(Overlay):
             self.bar_motor_temp.setStyleSheet(
                 f"color: {self.wcfg['font_color_boost_motor_temp']};"
                 f"background: {self.wcfg['bkg_color_boost_motor_temp']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Motor water temperature
@@ -82,7 +82,6 @@ class Draw(Overlay):
             self.bar_water_temp.setStyleSheet(
                 f"color: {self.wcfg['font_color_boost_water_temp']};"
                 f"background: {self.wcfg['bkg_color_boost_water_temp']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Motor rpm
@@ -92,7 +91,6 @@ class Draw(Overlay):
             self.bar_motor_rpm.setStyleSheet(
                 f"color: {self.wcfg['font_color_boost_motor_rpm']};"
                 f"background: {self.wcfg['bkg_color_boost_motor_rpm']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Motor torque
@@ -102,7 +100,6 @@ class Draw(Overlay):
             self.bar_motor_torque.setStyleSheet(
                 f"color: {self.wcfg['font_color_boost_motor_torque']};"
                 f"background: {self.wcfg['bkg_color_boost_motor_torque']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Set layout
@@ -182,8 +179,7 @@ class Draw(Overlay):
 
             format_text = f"{curr:.01f}°"[:7].rjust(7)
             self.bar_motor_temp.setText(f"M{format_text}")
-            self.bar_motor_temp.setStyleSheet(
-                f"{color}min-width: {self.bar_width}px;")
+            self.bar_motor_temp.setStyleSheet(color)
 
     def update_water_temp(self, curr, last):
         """Water temperature"""
@@ -200,8 +196,7 @@ class Draw(Overlay):
 
             format_text = f"{curr:.01f}°"[:7].rjust(7)
             self.bar_water_temp.setText(f"W{format_text}")
-            self.bar_water_temp.setStyleSheet(
-                f"{color}min-width: {self.bar_width}px;")
+            self.bar_water_temp.setStyleSheet(color)
 
     def update_motor_rpm(self, curr, last):
         """Motor rpm"""

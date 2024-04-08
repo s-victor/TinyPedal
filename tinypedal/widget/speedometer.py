@@ -60,6 +60,7 @@ class Draw(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
+            f"min-width: {bar_width}px;"
         )
 
         # Create layout
@@ -80,7 +81,6 @@ class Draw(Overlay):
             self.bar_speed_curr.setStyleSheet(
                 f"color: {self.wcfg['font_color_speed']};"
                 f"background: {self.wcfg['bkg_color_speed']};"
-                f"min-width: {bar_width}px;"
             )
 
         if self.wcfg["show_speed_minimum"]:
@@ -89,7 +89,6 @@ class Draw(Overlay):
             self.bar_speed_min.setStyleSheet(
                 f"color: {self.wcfg['font_color_speed_minimum']};"
                 f"background: {self.wcfg['bkg_color_speed_minimum']};"
-                f"min-width: {bar_width}px;"
             )
 
         if self.wcfg["show_speed_maximum"]:
@@ -98,7 +97,6 @@ class Draw(Overlay):
             self.bar_speed_max.setStyleSheet(
                 f"color: {self.wcfg['font_color_speed_maximum']};"
                 f"background: {self.wcfg['bkg_color_speed_maximum']};"
-                f"min-width: {bar_width}px;"
             )
 
         if self.wcfg["show_speed_fastest"]:
@@ -107,7 +105,6 @@ class Draw(Overlay):
             self.bar_speed_fast.setStyleSheet(
                 f"color: {self.wcfg['font_color_speed_fastest']};"
                 f"background: {self.wcfg['bkg_color_speed_fastest']};"
-                f"min-width: {bar_width}px;"
             )
 
         # Set layout

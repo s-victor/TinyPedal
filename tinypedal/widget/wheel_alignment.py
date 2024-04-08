@@ -45,7 +45,7 @@ class Draw(Overlay):
         text_def = "n/a"
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
-        self.bar_width = font_m.width * 5
+        bar_width = font_m.width * 5
 
         # Base style
         self.setStyleSheet(
@@ -53,6 +53,7 @@ class Draw(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
+            f"min-width: {bar_width}px;"
         )
 
         # Create layout
@@ -91,7 +92,6 @@ class Draw(Overlay):
             bar_style_camber = (
                 f"color: {self.wcfg['font_color_camber']};"
                 f"background: {self.wcfg['bkg_color_camber']};"
-                f"min-width: {self.bar_width}px;"
             )
             self.bar_camber_fl = QLabel(text_def)
             self.bar_camber_fl.setAlignment(Qt.AlignCenter)
@@ -116,7 +116,6 @@ class Draw(Overlay):
             bar_style_toein = (
                 f"color: {self.wcfg['font_color_toe_in']};"
                 f"background: {self.wcfg['bkg_color_toe_in']};"
-                f"min-width: {self.bar_width}px;"
             )
             self.bar_toein_fl = QLabel(text_def)
             self.bar_toein_fl.setAlignment(Qt.AlignCenter)

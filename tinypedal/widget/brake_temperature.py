@@ -55,16 +55,16 @@ class Draw(Overlay):
         else:
             text_width = 3 + len(self.sign_text)
 
-        self.bar_width = font_m.width * text_width
+        bar_width = font_m.width * text_width
 
         # Base style
         self.heatmap = hmp.load_heatmap(self.wcfg["heatmap_name"], "brake_default")
-
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
+            f"min-width: {bar_width}px;"
         )
 
         # Create layout
@@ -85,7 +85,6 @@ class Draw(Overlay):
         bar_style_btemp = (
             f"color: {self.wcfg['font_color_temperature']};"
             f"background: {self.wcfg['bkg_color_temperature']};"
-            f"min-width: {self.bar_width}px;"
         )
         self.bar_btemp_fl = QLabel(text_def)
         self.bar_btemp_fl.setAlignment(Qt.AlignCenter)
@@ -111,7 +110,6 @@ class Draw(Overlay):
             bar_style_btavg = (
                 f"color: {self.wcfg['font_color_average']};"
                 f"background: {self.wcfg['bkg_color_average']};"
-                f"min-width: {self.bar_width}px;"
             )
             self.bar_btavg_fl = QLabel(text_def)
             self.bar_btavg_fl.setAlignment(Qt.AlignCenter)
@@ -227,9 +225,7 @@ class Draw(Overlay):
 
             getattr(self, f"bar_{suffix}").setText(
                 f"{self.temp_units(curr):0{self.leading_zero}.0f}{self.sign_text}")
-
-            getattr(self, f"bar_{suffix}").setStyleSheet(
-                f"{color}min-width: {self.bar_width}px;")
+            getattr(self, f"bar_{suffix}").setStyleSheet(color)
 
     def update_btavg(self, suffix, curr, last, highlighted=0):
         """Brake average temperature"""
@@ -243,7 +239,6 @@ class Draw(Overlay):
 
             getattr(self, f"bar_{suffix}").setText(
                 f"{self.temp_units(curr):02.0f}{self.sign_text}")
-
             getattr(self, f"bar_{suffix}").setStyleSheet(color)
 
     # Additional methods

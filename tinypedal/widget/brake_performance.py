@@ -45,7 +45,7 @@ class Draw(Overlay):
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
-        self.bar_width = font_m.width * 5
+        bar_width = font_m.width * 5
 
         # Base style
         self.setStyleSheet(
@@ -53,6 +53,7 @@ class Draw(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
+            f"min-width: {bar_width}px;"
         )
 
         # Create layout
@@ -74,7 +75,6 @@ class Draw(Overlay):
             self.bar_transient_rate.setStyleSheet(
                 f"color: {self.wcfg['font_color_transient_max_braking_rate']};"
                 f"background: {self.wcfg['bkg_color_transient_max_braking_rate']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Max braking rate
@@ -84,7 +84,6 @@ class Draw(Overlay):
             self.bar_max_rate.setStyleSheet(
                 f"color: {self.wcfg['font_color_max_braking_rate']};"
                 f"background: {self.wcfg['bkg_color_max_braking_rate']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Delta braking rate
@@ -94,7 +93,6 @@ class Draw(Overlay):
             self.bar_delta_rate.setStyleSheet(
                 f"color: {self.wcfg['font_color_delta_braking_rate']};"
                 f"background: {self.wcfg['bkg_color_delta_braking_rate']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Front wheel lock duration
@@ -104,7 +102,6 @@ class Draw(Overlay):
             self.bar_lock_time_f.setStyleSheet(
                 f"color: {self.wcfg['font_color_front_wheel_lock_duration']};"
                 f"background: {self.wcfg['bkg_color_front_wheel_lock_duration']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Front wheel lock duration
@@ -114,7 +111,6 @@ class Draw(Overlay):
             self.bar_lock_time_r.setStyleSheet(
                 f"color: {self.wcfg['font_color_rear_wheel_lock_duration']};"
                 f"background: {self.wcfg['bkg_color_rear_wheel_lock_duration']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Set layout
@@ -243,8 +239,7 @@ class Draw(Overlay):
             else:
                 format_text = f"{curr:+.02f}"
             self.bar_delta_rate.setText(format_text[:5])
-            self.bar_delta_rate.setStyleSheet(
-                f"{color}min-width: {self.bar_width}px;")
+            self.bar_delta_rate.setStyleSheet(color)
 
     def update_lock_time_f(self, curr, last):
         """Front wheel lock duration"""

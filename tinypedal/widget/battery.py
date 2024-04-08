@@ -44,7 +44,7 @@ class Draw(Overlay):
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
-        self.bar_width = font_m.width * 8
+        bar_width = font_m.width * 8
 
         # Base style
         self.setStyleSheet(
@@ -52,6 +52,7 @@ class Draw(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
             f"padding: 0 {bar_padx}px;"
+            f"min-width: {bar_width}px;"
         )
 
         # Create layout
@@ -72,7 +73,6 @@ class Draw(Overlay):
             self.bar_battery_charge.setStyleSheet(
                 f"color: {self.wcfg['font_color_battery_charge']};"
                 f"background: {self.wcfg['bkg_color_battery_charge']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Battery drain
@@ -82,7 +82,6 @@ class Draw(Overlay):
             self.bar_battery_drain.setStyleSheet(
                 f"color: {self.wcfg['font_color_battery_drain']};"
                 f"background: {self.wcfg['bkg_color_battery_drain']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Battery regen
@@ -92,7 +91,6 @@ class Draw(Overlay):
             self.bar_battery_regen.setStyleSheet(
                 f"color: {self.wcfg['font_color_battery_regen']};"
                 f"background: {self.wcfg['bkg_color_battery_regen']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Activation timer
@@ -102,7 +100,6 @@ class Draw(Overlay):
             self.bar_activation_timer.setStyleSheet(
                 f"color: {self.wcfg['font_color_activation_timer']};"
                 f"background: {self.wcfg['bkg_color_activation_timer']};"
-                f"min-width: {self.bar_width}px;"
             )
 
         # Set layout
@@ -191,8 +188,7 @@ class Draw(Overlay):
 
             format_text = f"{curr:.02f}"[:7].rjust(7)
             self.bar_battery_charge.setText(f"B{format_text}")
-            self.bar_battery_charge.setStyleSheet(
-                f"{color}min-width: {self.bar_width}px;")
+            self.bar_battery_charge.setStyleSheet(color)
 
     def update_battery_drain(self, curr, last):
         """Battery drain"""
