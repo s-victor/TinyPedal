@@ -62,6 +62,15 @@ def allowed_filename(invalid_filename: str, filename: str) -> bool:
     return re.search(invalid_filename, filename.lower()) is None
 
 
+def string_number(value: str) -> bool:
+    """Validate string number"""
+    try:
+        float(value)
+        return True
+    except ValueError:
+        return False
+
+
 # Folder validate
 def is_folder_exist(folder_name: str) -> None:
     """Create folder if not exist"""

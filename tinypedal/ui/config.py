@@ -214,12 +214,11 @@ class UserConfig(QDialog):
 
     def applying(self):
         """Save & apply"""
-        self.save_setting()
+        self.save_setting(is_apply=True)
 
     def saving(self):
         """Save & close"""
-        self.save_setting()
-        self.accept()  # close
+        self.save_setting(is_apply=False)
 
     def reset_setting(self):
         """Reset setting"""
@@ -262,8 +261,9 @@ class UserConfig(QDialog):
                 getattr(self, f"lineedit_{key}").setText(
                     str(cfg.default.setting[self.key_name][key]))
 
-    def save_setting(self):
+    def save_setting(self, is_apply):
         """Save setting"""
+        error_found = False
         for key in self.option_bool:
             value = getattr(self, f"checkbox_{key}").checkState()
             cfg.user.setting[self.key_name][key] = bool(value)
@@ -272,6 +272,9 @@ class UserConfig(QDialog):
             value = getattr(self, f"lineedit_{key}").text()
             if val.hex_color(value):
                 cfg.user.setting[self.key_name][key] = value
+            else:
+                self.value_error_message("color", key)
+                error_found = True
 
         for key in self.option_fontname:
             cfg.user.setting[self.key_name][key] = getattr(
@@ -286,20 +289,42 @@ class UserConfig(QDialog):
                 self, f"lineedit_{key}").text()
 
         for key in self.option_integer:
-            cfg.user.setting[self.key_name][key] = int(getattr(
-                self, f"lineedit_{key}").text())
+            value = getattr(self, f"lineedit_{key}").text()
+            if val.string_number(value):
+                cfg.user.setting[self.key_name][key] = int(value)
+            else:
+                self.value_error_message("number", key)
+                error_found = True
 
         for key in self.option_float:
-            value = float(getattr(self, f"lineedit_{key}").text())
-            if value % 1 == 0:  # remove unnecessary decimal points
-                value = int(value)
-            cfg.user.setting[self.key_name][key] = value
-
-        # Save changes
+            value = getattr(self, f"lineedit_{key}").text()
+            if val.string_number(value):
+                value = float(value)
+                if value % 1 == 0:  # remove unnecessary decimal points
+                    value = int(value)
+                cfg.user.setting[self.key_name][key] = value
+            else:
+                self.value_error_message("number", key)
+                error_found = True
+        # Abort saving if error found
+        if error_found:
+            return None
+        # Save & apply changes
         cfg.save(0)
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
         self.reloading()
+        # Close
+        if not is_apply:
+            self.accept()
+        return None
+
+    def value_error_message(self, value_type, option_name):
+        """Value error message"""
+        message = (
+            f"Invalid {value_type} for <b>{fmt.format_option_name(option_name)}</b> option."
+            "<br><br>Changes are not saved.")
+        QMessageBox.warning(self, "Error", message)
 
     def reloading(self):
         """Reloading depends on setting types"""
