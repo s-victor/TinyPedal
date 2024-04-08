@@ -203,19 +203,19 @@ class Draw(Overlay):
     def set_defaults(self):
         """Initialize variables"""
         self.checked = False
-        self.last_in_pits = -1
-        self.pit_timer_start = None
-        self.last_pit_timer = None
+        self.last_in_pits = 0
+        self.pit_timer_start = 0
+        self.last_pit_timer = 0
         self.last_fuel_usage = None
         self.last_limiter = None
         self.last_any_blue = None
-        self.blue_flag_timer_start = None
+        self.blue_flag_timer_start = 0
         self.last_blue_flag = None
         self.last_yellow_flag = None
         self.last_start_timer = None
         self.last_lap_stime = 0
         self.last_traffic = None
-        self.pitout_timer_start = None
+        self.pitout_timer_start = 0
         self.last_pit_request = None
         self.last_finish_state = None
 
