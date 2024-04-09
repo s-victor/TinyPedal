@@ -30,6 +30,21 @@ def meter2millmeter(meter):
     return meter * 1000
 
 
+def meter2feet(meter):
+    """Convert meter to feet"""
+    return meter * 3.2808399
+
+
+def meter2kilometer(meter):
+    """Convert meter to kilometer"""
+    return meter * 0.001
+
+
+def meter2mile(meter):
+    """Convert meter to mile"""
+    return meter / 1609.344
+
+
 def mps2kph(meter):
     """meter per sec to kilometers per hour"""
     return meter * 3.6
@@ -257,8 +272,8 @@ def sec2stinttime(seconds):
 
 def delta_telemetry(position, live_data, delta_list, condition=True, offset=0):
     """Calculate delta telemetry data"""
-    index_higher = binary_search_hi(
-        delta_list, position, 0, len(delta_list) - 1, 0)
+    index_higher = binary_search_higher_column(
+        delta_list, position, 0, len(delta_list) - 1)
     # At least 2 data pieces & additional condition
     if index_higher > 0 and condition:
         index_lower = index_higher - 1
@@ -282,7 +297,7 @@ def search_column_key(key, column=None):
     return key[column]
 
 
-def linear_search_hi(data, target, column=None):
+def linear_search_higher(data, target, column=None):
     """linear search nearest value higher index from unordered list"""
     #key = lambda x:x[column] if column >= 0 else x
     end = len(data) - 1
@@ -294,14 +309,52 @@ def linear_search_hi(data, target, column=None):
     return end
 
 
-def binary_search_hi(data, target, start, end, column=None):
+def binary_search_lower(data, target, start, end):
+    """Binary search nearest value lower index from ordered list"""
+    while start <= end:
+        center = (start + end) // 2
+        if target == data[center]:
+            return center
+        if target > data[center]:
+            start = center + 1
+        else:
+            end = center - 1
+    return end
+
+
+def binary_search_higher(data, target, start, end):
     """Binary search nearest value higher index from ordered list"""
-    #key = lambda x:x[column] if column >= 0 else x
     while start < end:
         center = (start + end) // 2
-        if target == search_column_key(data[center], column):
+        if target == data[center]:
             return center
-        if target > search_column_key(data[center], column):
+        if target > data[center]:
+            start = center + 1
+        else:
+            end = center
+    return end
+
+
+def binary_search_lower_column(data, target, start, end, column=0):
+    """Binary search nearest value lower index from ordered list with column index"""
+    while start <= end:
+        center = (start + end) // 2
+        if target == data[center][column]:
+            return center
+        if target > data[center][column]:
+            start = center + 1
+        else:
+            end = center - 1
+    return end
+
+
+def binary_search_higher_column(data, target, start, end, column=0):
+    """Binary search nearest value higher index from ordered list with column index"""
+    while start < end:
+        center = (start + end) // 2
+        if target == data[center][column]:
+            return center
+        if target > data[center][column]:
             start = center + 1
         else:
             end = center
