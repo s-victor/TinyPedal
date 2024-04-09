@@ -248,6 +248,12 @@ def linear_interp(x, x1, y1, x2, y2):
 
 
 # Timing
+def clock_time(seconds, start=0, scale=1):
+    """Clock time (seconds) looped in full 24 hours, 0 to 86400"""
+    time_curr = start + seconds * scale
+    return time_curr - time_curr // 86400 * 86400
+
+
 def sec2sessiontime(seconds):
     """Session time (hour/min/sec/ms)"""
     return f"{seconds // 3600:01.0f}:{seconds // 60 % 60:02.0f}:{min(seconds % 60, 59):02.0f}"
@@ -545,6 +551,11 @@ def one_less_pit_stop_consumption(pit_counts_late, capacity_total, fuel_in_tank,
 
 
 # Misc
+def qss_min_width(text="", style="", font_width=1, padding=0):
+    """Set QSS minimum width with style, use functools.partial to preconfig"""
+    return f"{style}min-width: {len(text) * font_width + padding}px;"
+
+
 def image_size_adaption(org_width, org_height, target_width, target_height):
     """Whether adapt image size to width or height
 

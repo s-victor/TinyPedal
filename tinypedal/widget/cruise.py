@@ -21,6 +21,8 @@ Cruise Widget
 """
 
 import time
+from functools import partial
+
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QGridLayout, QLabel
 
@@ -39,8 +41,12 @@ class Draw(Overlay):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
 
+        # Config font
+        font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
+
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
 
         # Base style
@@ -48,7 +54,6 @@ class Draw(Overlay):
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
         )
 
         # Create layout
@@ -64,39 +69,49 @@ class Draw(Overlay):
 
         # Track clock
         if self.wcfg["show_track_clock"]:
-            self.bar_track_clock = QLabel("T CLOCK")
+            clock_text = self.format_clock(0)
+            self.bar_track_clock = QLabel(clock_text)
             self.bar_track_clock.setAlignment(Qt.AlignCenter)
             self.bar_track_clock.setStyleSheet(
                 f"color: {self.wcfg['font_color_track_clock']};"
                 f"background: {self.wcfg['bkg_color_track_clock']};"
+                f"min-width: {font_m.width * len(clock_text) + bar_padx}px;"
             )
 
         # Compass
         if self.wcfg["show_compass"]:
-            self.bar_compass = QLabel("COMPASS")
+            compass_text = self.format_compass(0)
+            self.bar_compass = QLabel(compass_text)
             self.bar_compass.setAlignment(Qt.AlignCenter)
             self.bar_compass.setStyleSheet(
                 f"color: {self.wcfg['font_color_compass']};"
                 f"background: {self.wcfg['bkg_color_compass']};"
+                f"min-width: {font_m.width * len(compass_text) + bar_padx}px;"
             )
 
         # Elevation
         if self.wcfg["show_elevation"]:
-            self.bar_elevation = QLabel("ELEVATION")
+            elevation_text = self.format_elevation(0)
+            self.bar_elevation = QLabel(elevation_text)
             self.bar_elevation.setAlignment(Qt.AlignCenter)
             self.bar_elevation.setStyleSheet(
                 f"color: {self.wcfg['font_color_elevation']};"
                 f"background: {self.wcfg['bkg_color_elevation']};"
+                f"min-width: {font_m.width * len(elevation_text) + bar_padx}px;"
             )
 
         # Odometer
         if self.wcfg["show_odometer"]:
-            self.bar_odometer = QLabel("ODOMETER")
-            self.bar_odometer.setAlignment(Qt.AlignCenter)
-            self.bar_odometer.setStyleSheet(
-                f"color: {self.wcfg['font_color_odometer']};"
-                f"background: {self.wcfg['bkg_color_odometer']};"
+            odometer_text = self.format_odometer(0)
+            self.odometer_width = partial(
+                calc.qss_min_width,
+                style=f"color: {self.wcfg['font_color_odometer']};background: {self.wcfg['bkg_color_odometer']};",
+                font_width=font_m.width,
+                padding=bar_padx,
             )
+            self.bar_odometer = QLabel(odometer_text)
+            self.bar_odometer.setAlignment(Qt.AlignCenter)
+            self.bar_odometer.setStyleSheet(self.odometer_width(odometer_text))
 
         # Set layout
         if self.wcfg["show_track_clock"]:
@@ -125,71 +140,76 @@ class Draw(Overlay):
 
             # Track clock
             if self.wcfg["show_track_clock"]:
-                track_time = int(api.read.session.elapsed())
-                time_start = int(api.read.session.start())
-                self.update_track_clock(track_time, self.last_track_time, time_start)
+                track_time = int(calc.clock_time(
+                    api.read.session.elapsed(),
+                    api.read.session.start(),
+                    self.wcfg["track_clock_time_scale"]))
+                self.update_track_clock(track_time, self.last_track_time)
                 self.last_track_time = track_time
 
             # Compass
             if self.wcfg["show_compass"]:
-                dir_degree = round(180 - calc.rad2deg(api.read.vehicle.orientation_yaw_radians()))
+                dir_degree = self.format_compass(180 - calc.rad2deg(api.read.vehicle.orientation_yaw_radians()))
                 self.update_compass(dir_degree, self.last_dir_degree)
                 self.last_dir_degree = dir_degree
 
             # Elevation
             if self.wcfg["show_elevation"]:
-                elevation = round(api.read.vehicle.position_vertical(), 3)
+                elevation = self.format_elevation(api.read.vehicle.position_vertical())
                 self.update_elevation(elevation, self.last_elevation)
                 self.last_elevation = elevation
 
             # Odometer
             if self.wcfg["show_odometer"]:
-                traveled_distance = minfo.delta.metersDriven
+                traveled_distance = self.format_odometer(minfo.delta.metersDriven)
                 self.update_odometer(traveled_distance, self.last_traveled_distance)
                 self.last_traveled_distance = traveled_distance
 
     # GUI update methods
-    def update_track_clock(self, curr, last, start):
+    def update_track_clock(self, curr, last):
         """Track clock"""
         if curr != last:
-            time_offset = curr * self.wcfg["track_clock_time_scale"]
-
-            time_diff = (1440 - start) + time_offset
-            while time_diff <= -start:
-                time_offset += time_diff
-
-            track_clock = start + time_offset
-
-            clock_text = time.strftime(
-                self.wcfg["track_clock_format"], time.gmtime(track_clock))
-            self.bar_track_clock.setText(clock_text)
+            self.bar_track_clock.setText(self.format_clock(curr))
 
     def update_compass(self, curr, last):
         """Compass"""
         if curr != last:
-            self.bar_compass.setText(f"{curr:03.0f}°{self.deg2direction(curr)}")
+            self.bar_compass.setText(curr)
 
     def update_elevation(self, curr, last):
         """Elevation"""
         if curr != last:
-            if self.cfg.units["distance_unit"] == "Feet":
-                elev_text = "↑ " + f"{curr * 3.2808399:.0f}ft".rjust(5)
-            else:  # meter
-                elev_text = "↑ " + f"{curr:.0f}m".rjust(4)
-            self.bar_elevation.setText(elev_text)
+            self.bar_elevation.setText(curr)
 
     def update_odometer(self, curr, last):
         """Odometer"""
         if curr != last:
-            if self.cfg.units["odometer_unit"] == "Mile":
-                dist_text = f"{curr / 1609.344:06.01f}mi"
-            elif self.cfg.units["odometer_unit"] == "Meter":
-                dist_text = f"{curr:07.0f}m"
-            else:  # kilometer
-                dist_text = f"{curr * 0.001:06.01f}km"
-            self.bar_odometer.setText(dist_text)
+            self.bar_odometer.setText(curr)
+            self.bar_odometer.setStyleSheet(self.odometer_width(curr))
 
     # Additional methods
+    def format_clock(self, second):
+        """Format clock"""
+        return time.strftime(self.wcfg["track_clock_format"], time.gmtime(second))
+
+    def format_compass(self, degree):
+        """Format compass"""
+        return f"{degree:03.0f}°{self.deg2direction(degree)}"
+
+    def format_elevation(self, meter):
+        """Format elevation"""
+        if self.cfg.units["distance_unit"] == "Feet":
+            return f"↑{calc.meter2feet(meter):5.0f}ft".rjust(8)
+        return f"↑{meter:4.0f}m".rjust(6)
+
+    def format_odometer(self, meter):
+        """Format odometer"""
+        if self.cfg.units["odometer_unit"] == "Kilometer":
+            return f"{calc.meter2kilometer(meter):6.01f}km"
+        if self.cfg.units["odometer_unit"] == "Mile":
+            return f"{calc.meter2mile(meter):6.01f}mi"
+        return f"{meter:7.0f}m"
+
     @staticmethod
     def deg2direction(degrees):
         """Convert degree to direction"""
