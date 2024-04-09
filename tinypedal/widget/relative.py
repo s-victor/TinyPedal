@@ -20,6 +20,8 @@
 Relative Widget
 """
 
+from functools import partial
+
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtGui import QPixmap
 from PySide2.QtWidgets import QGridLayout, QLabel
@@ -46,7 +48,7 @@ class Draw(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
         self.drv_width = max(int(self.wcfg["driver_name_width"]), 1)
         self.veh_width = max(int(self.wcfg["vehicle_name_width"]), 1)
@@ -62,13 +64,13 @@ class Draw(Overlay):
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
         )
+        self.bar_min_width = partial(calc.qss_min_width, font_width=font_m.width, padding=bar_padx)
 
         # Max display players
-        self.veh_add_front = min(max(int(self.wcfg["additional_players_front"]), 0), 60)
-        self.veh_add_behind = min(max(int(self.wcfg["additional_players_behind"]), 0), 60)
-        self.veh_range = max(7 + self.veh_add_front + self.veh_add_behind, 7)
+        veh_add_front = min(max(int(self.wcfg["additional_players_front"]), 0), 60)
+        veh_add_behind = min(max(int(self.wcfg["additional_players_behind"]), 0), 60)
+        self.veh_range = max(7 + veh_add_front + veh_add_behind, 7)
 
         # Empty data set
         self.empty_vehicles_data = (
@@ -106,110 +108,99 @@ class Draw(Overlay):
 
         # Driver position
         if self.wcfg["show_position"]:
-            self.bar_width_pos = f"min-width: {font_m.width * 2}px;"
-            bar_style_pos = (
+            bar_style_pos = self.bar_min_width(
+                2,
                 f"color: {self.wcfg['font_color_position']};"
                 f"background: {self.wcfg['bkg_color_position']};"
-                f"{self.bar_width_pos}"
             )
             self.generate_bar("pos", bar_style_pos, column_pos)
 
         # Driver name
         if self.wcfg["show_driver_name"]:
-            self.bar_width_drv = f"min-width: {font_m.width * self.drv_width}px;"
-            bar_style_drv = (
+            bar_style_drv = self.bar_min_width(
+                self.drv_width,
                 f"color: {self.wcfg['font_color_driver_name']};"
                 f"background: {self.wcfg['bkg_color_driver_name']};"
-                f"{self.bar_width_drv}"
             )
             self.generate_bar("drv", bar_style_drv, column_drv)
 
         # Vehicle name
         if self.wcfg["show_vehicle_name"]:
-            self.bar_width_veh = f"min-width: {font_m.width * self.veh_width}px;"
-            bar_style_veh = (
+            bar_style_veh = self.bar_min_width(
+                self.veh_width,
                 f"color: {self.wcfg['font_color_vehicle_name']};"
                 f"background: {self.wcfg['bkg_color_vehicle_name']};"
-                f"{self.bar_width_veh}"
             )
             self.generate_bar("veh", bar_style_veh, column_veh)
 
         # Brand logo
         if self.wcfg["show_brand_logo"]:
-            self.bar_width_brd = f"min-width: {self.brd_width}px;"
             bar_style_brd = (
                 f"background: {self.wcfg['bkg_color_brand_logo']};"
-                f"{self.bar_width_brd}"
+                f"min-width: {self.brd_width}px;"
             )
             self.generate_bar("brd", bar_style_brd, column_brd)
 
         # Time gap
         if self.wcfg["show_time_gap"]:
-            self.bar_width_gap = f"min-width: {font_m.width * self.gap_width}px;"
-            bar_style_gap = (
+            bar_style_gap = self.bar_min_width(
+                self.gap_width,
                 f"color: {self.wcfg['font_color_time_gap']};"
                 f"background: {self.wcfg['bkg_color_time_gap']};"
-                f"{self.bar_width_gap}"
             )
             self.generate_bar("gap", bar_style_gap, column_gap)
 
         # Vehicle laptime
         if self.wcfg["show_laptime"]:
-            self.bar_width_lpt = f"min-width: {font_m.width * 8}px;"
-            bar_style_lpt = (
+            bar_style_lpt = self.bar_min_width(
+                8,
                 f"color: {self.wcfg['font_color_laptime']};"
                 f"background: {self.wcfg['bkg_color_laptime']};"
-                f"{self.bar_width_lpt}"
             )
             self.generate_bar("lpt", bar_style_lpt, column_lpt)
 
         # Vehicle position in class
         if self.wcfg["show_position_in_class"]:
-            self.bar_width_pic = f"min-width: {font_m.width * 2}px;"
-            bar_style_pic = (
+            bar_style_pic = self.bar_min_width(
+                2,
                 f"color: {self.wcfg['font_color_position_in_class']};"
                 f"background: {self.wcfg['bkg_color_position_in_class']};"
-                f"{self.bar_width_pic}"
             )
             self.generate_bar("pic", bar_style_pic, column_pic)
 
         # Vehicle class
         if self.wcfg["show_class"]:
-            self.bar_width_cls = f"min-width: {font_m.width * self.cls_width}px;"
-            bar_style_cls = (
+            bar_style_cls = self.bar_min_width(
+                self.cls_width,
                 f"color: {self.wcfg['font_color_class']};"
                 f"background: {self.wcfg['bkg_color_class']};"
-                f"{self.bar_width_cls}"
             )
             self.generate_bar("cls", bar_style_cls, column_cls)
 
         # Vehicle in pit
         if self.wcfg["show_pit_status"]:
-            self.bar_width_pit = f"min-width: {font_m.width * len(self.wcfg['pit_status_text'])}px;"
-            bar_style_pit = (
+            bar_style_pit = self.bar_min_width(
+                len(self.wcfg['pit_status_text']),
                 f"color: {self.wcfg['font_color_pit']};"
                 f"background: {self.wcfg['bkg_color_pit']};"
-                f"{self.bar_width_pit}"
             )
             self.generate_bar("pit", bar_style_pit, column_pit)
 
         # Tyre compound index
         if self.wcfg["show_tyre_compound"]:
-            self.bar_width_tcp = f"min-width: {font_m.width * 2}px;"
-            bar_style_tcp = (
+            bar_style_tcp = self.bar_min_width(
+                2,
                 f"color: {self.wcfg['font_color_tyre_compound']};"
                 f"background: {self.wcfg['bkg_color_tyre_compound']};"
-                f"{self.bar_width_tcp}"
             )
             self.generate_bar("tcp", bar_style_tcp, column_tcp)
 
         # Pitstop count
         if self.wcfg["show_pitstop_count"]:
-            self.bar_width_psc = f"min-width: {font_m.width * 2}px;"
-            bar_style_psc = (
+            bar_style_psc = self.bar_min_width(
+                2,
                 f"color: {self.wcfg['font_color_pitstop_count']};"
                 f"background: {self.wcfg['bkg_color_pitstop_count']};"
-                f"{self.bar_width_psc}"
             )
             self.generate_bar("psc", bar_style_psc, column_psc)
 
@@ -240,12 +231,13 @@ class Draw(Overlay):
             relative_idx = minfo.relative.relative
             vehicles_data = minfo.vehicles.dataSet
             total_idx = len(relative_idx)
+            total_veh_idx = len(vehicles_data)
 
             # Relative update
             for idx in range(self.veh_range):
 
                 # Get vehicle data
-                if idx < total_idx:
+                if idx < total_idx and 0 <= relative_idx[idx] < total_veh_idx:
                     setattr(self, f"veh_{idx}",
                             self.get_data(relative_idx[idx], vehicles_data)
                             )
@@ -347,9 +339,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['bkg_color_position']};")
 
             getattr(self, f"row_{suffix}").setText(curr[0])
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_pos}"
-            )
+            getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(2, color))
 
     def update_drv(self, suffix, curr, last, isplayer):
         """Driver name"""
@@ -379,9 +369,7 @@ class Draw(Overlay):
                 text = text[:self.drv_width].ljust(self.drv_width)
 
             getattr(self, f"row_{suffix}").setText(text)
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_drv}"
-            )
+            getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(self.drv_width, color))
 
     def update_veh(self, suffix, curr, last, isplayer):
         """Vehicle name"""
@@ -413,9 +401,7 @@ class Draw(Overlay):
                 text = text[:self.veh_width].ljust(self.veh_width)
 
             getattr(self, f"row_{suffix}").setText(text)
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_veh}"
-            )
+            getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(self.veh_width, color))
 
     def update_brd(self, suffix, curr, last, isplayer):
         """Brand logo"""
@@ -432,9 +418,7 @@ class Draw(Overlay):
             else:
                 getattr(self, f"row_{suffix}").setPixmap(QPixmap())
             # Draw background
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_brd}"
-            )
+            getattr(self, f"row_{suffix}").setStyleSheet(f"{color}min-width: {self.brd_width}px;")
 
     def update_gap(self, suffix, curr, last, isplayer):
         """Time gap"""
@@ -452,9 +436,7 @@ class Draw(Overlay):
 
             getattr(self, f"row_{suffix}").setText(
                 fmt.strip_decimal_pt(curr[0][:self.gap_width]).rjust(self.gap_width))
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_gap}"
-            )
+            getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(self.gap_width, color))
 
     def update_lpt(self, suffix, curr, last, isplayer):
         """Vehicle laptime"""
@@ -467,9 +449,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['bkg_color_laptime']};")
 
             getattr(self, f"row_{suffix}").setText(curr)
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_lpt}"
-            )
+            getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(8, color))
 
     def update_pic(self, suffix, curr, last, isplayer):
         """Position in class"""
@@ -482,9 +462,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['bkg_color_position_in_class']};")
 
             getattr(self, f"row_{suffix}").setText(curr)
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_pic}"
-            )
+            getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(2, color))
 
     def update_cls(self, suffix, curr, last):
         """Vehicle class"""
@@ -494,9 +472,7 @@ class Draw(Overlay):
                      f"background: {bg_color};")
 
             getattr(self, f"row_{suffix}").setText(text[:self.cls_width])
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_cls}"
-            )
+            getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(self.cls_width, color))
 
     def update_pit(self, suffix, curr, last):
         """Vehicle in pit"""
@@ -506,9 +482,7 @@ class Draw(Overlay):
                      f"background: {bg_color};")
 
             getattr(self, f"row_{suffix}").setText(text)
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_pit}"
-            )
+            getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(len(text), color))
 
     def update_tcp(self, suffix, curr, last, isplayer):
         """Tyre compound index"""
@@ -521,9 +495,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['bkg_color_tyre_compound']};")
 
             getattr(self, f"row_{suffix}").setText(self.set_tyre_cmp(curr))
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_tcp}"
-            )
+            getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(2, color))
 
     def update_psc(self, suffix, curr, last, isplayer):
         """Pitstop count"""
@@ -539,9 +511,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['bkg_color_pitstop_count']};")
 
             getattr(self, f"row_{suffix}").setText(self.set_pitcount(curr[0]))
-            getattr(self, f"row_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_psc}"
-            )
+            getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(2, color))
 
     # Additional methods
     def color_lap_diff(self, is_lapped):
@@ -602,51 +572,46 @@ class Draw(Overlay):
 
     def get_data(self, index, vehicles_data):
         """Relative data"""
-        # Prevent index out of range
-        if vehicles_data and 0 <= index < len(vehicles_data):
+        # check whether is lapped
+        is_lapped = vehicles_data[index].isLapped
 
-            # check whether is lapped
-            is_lapped = vehicles_data[index].isLapped
+        # 0 Is player
+        is_player = vehicles_data[index].isPlayer
 
-            # 0 Is player
-            is_player = vehicles_data[index].isPlayer
+        # 1 Vehicle in pit
+        in_pit = vehicles_data[index].inPit
 
-            # 1 Vehicle in pit
-            in_pit = vehicles_data[index].inPit
+        # 2 Driver position
+        position = (f"{vehicles_data[index].position:02d}", is_lapped)
 
-            # 2 Driver position
-            position = (f"{vehicles_data[index].position:02d}", is_lapped)
+        # 3 Driver name
+        drv_name = (vehicles_data[index].driverName, is_lapped)
 
-            # 3 Driver name
-            drv_name = (vehicles_data[index].driverName, is_lapped)
+        # 4 Vehicle name
+        veh_name = (vehicles_data[index].vehicleName, is_lapped)
 
-            # 4 Vehicle name
-            veh_name = (vehicles_data[index].vehicleName, is_lapped)
+        # 5 Vehicle position in class
+        pos_class = f"{vehicles_data[index].positionInClass:02d}"
 
-            # 5 Vehicle position in class
-            pos_class = f"{vehicles_data[index].positionInClass:02d}"
+        # 6 Vehicle class
+        veh_class = vehicles_data[index].vehicleClass
 
-            # 6 Vehicle class
-            veh_class = vehicles_data[index].vehicleClass
+        # 7 Time gap
+        time_gap = (f"{vehicles_data[index].relativeTimeGap:.0{self.gap_decimals}f}", is_lapped)
 
-            # 7 Time gap
-            time_gap = (f"{vehicles_data[index].relativeTimeGap:.0{self.gap_decimals}f}", is_lapped)
+        # 8 Tyre compound index
+        tire_idx = vehicles_data[index].tireCompound
 
-            # 8 Tyre compound index
-            tire_idx = vehicles_data[index].tireCompound
+        # 9 Lap time
+        laptime = self.set_laptime(
+            vehicles_data[index].inPit,
+            vehicles_data[index].lastLapTime,
+            vehicles_data[index].pitTime
+        )
 
-            # 9 Lap time
-            laptime = self.set_laptime(
-                vehicles_data[index].inPit,
-                vehicles_data[index].lastLapTime,
-                vehicles_data[index].pitTime
-            )
+        # 10 Pitstop count
+        pit_count = (vehicles_data[index].numPitStops,
+                    vehicles_data[index].pitState)
 
-            # 10 Pitstop count
-            pit_count = (vehicles_data[index].numPitStops,
-                         vehicles_data[index].pitState)
-
-            return (is_player, in_pit, position, drv_name, veh_name, pos_class, veh_class,
-                    time_gap, tire_idx, laptime, pit_count)
-        # Assign empty value to -1 index
-        return self.empty_vehicles_data
+        return (is_player, in_pit, position, drv_name, veh_name, pos_class, veh_class,
+                time_gap, tire_idx, laptime, pit_count)

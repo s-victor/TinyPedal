@@ -551,9 +551,15 @@ def one_less_pit_stop_consumption(pit_counts_late, capacity_total, fuel_in_tank,
 
 
 # Misc
-def qss_min_width(text="", style="", font_width=1, padding=0):
+def qss_min_width(text_width=1, style="", font_width=1, padding=0):
     """Set QSS minimum width with style, use functools.partial to preconfig"""
-    return f"{style}min-width: {len(text) * font_width + padding}px;"
+    return f"{style}min-width: {text_width * font_width + padding}px;"
+
+
+def qss_fixed_width(text_width=1, style="", font_width=1, padding=0):
+    """Set QSS fixed width with style, use functools.partial to preconfig"""
+    fixed_width = text_width * font_width + padding
+    return f"{style}min-width: {fixed_width}px;max-width: {fixed_width}px;"
 
 
 def image_size_adaption(org_width, org_height, target_width, target_height):

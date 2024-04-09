@@ -111,7 +111,7 @@ class Draw(Overlay):
             )
             self.bar_odometer = QLabel(odometer_text)
             self.bar_odometer.setAlignment(Qt.AlignCenter)
-            self.bar_odometer.setStyleSheet(self.odometer_width(odometer_text))
+            self.bar_odometer.setStyleSheet(self.odometer_width(len(odometer_text)))
 
         # Set layout
         if self.wcfg["show_track_clock"]:
@@ -185,7 +185,7 @@ class Draw(Overlay):
         """Odometer"""
         if curr != last:
             self.bar_odometer.setText(curr)
-            self.bar_odometer.setStyleSheet(self.odometer_width(curr))
+            self.bar_odometer.setStyleSheet(self.odometer_width(len(curr)))
 
     # Additional methods
     def format_clock(self, second):
