@@ -38,7 +38,7 @@ class Realtime(DataModule):
     """Vehicles info"""
 
     def __init__(self, config):
-        DataModule.__init__(self, config, MODULE_NAME, self.update_data)
+        super().__init__(config, MODULE_NAME)
         self.pit_timer = tuple(array.array("f", [0,-1,0]) for _ in range(128))
 
     def update_data(self):

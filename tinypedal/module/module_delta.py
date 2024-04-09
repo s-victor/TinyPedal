@@ -41,7 +41,7 @@ class Realtime(DataModule):
     filepath = PATH_DELTABEST
 
     def __init__(self, config):
-        DataModule.__init__(self, config, MODULE_NAME, self.update_data)
+        super().__init__(config, MODULE_NAME)
 
     def update_data(self):
         """Update module data"""

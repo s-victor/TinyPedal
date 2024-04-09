@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 class DataModule:
     """Data module base"""
 
-    def __init__(self, config: object, module_name: str, module_thread: object):
+    def __init__(self, config: object, module_name: str):
         super().__init__()
         self.module_name = module_name
 
@@ -40,7 +40,6 @@ class DataModule:
         self.mcfg = self.cfg.user.setting[module_name]
 
         # Module update thread
-        self.module_thread = module_thread
         self.stopped = True
         self.event = threading.Event()
 
@@ -58,7 +57,7 @@ class DataModule:
         if self.stopped:
             self.stopped = False
             self.event.clear()
-            threading.Thread(target=self.module_thread, daemon=True).start()
+            threading.Thread(target=self.update_data, daemon=True).start()
             self.cfg.active_module_list.append(self)
             logger.info("ACTIVE: %s", self.module_name.replace("_", " "))
 
@@ -68,3 +67,6 @@ class DataModule:
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("CLOSED: %s", self.module_name.replace("_", " "))
+
+    def update_data(self):
+        """Update module data, rewrite in child class"""
