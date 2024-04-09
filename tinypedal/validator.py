@@ -25,6 +25,7 @@ import logging
 import os
 import re
 import math
+import time
 from functools import wraps
 
 logger = logging.getLogger(__name__)
@@ -118,6 +119,16 @@ def is_imported_module(module: object, name: str) -> bool:
     except AttributeError:
         logger.warning("found unimported file in %s: %s.py", module.__name__, name)
     return False
+
+
+# Time format validate
+def clock_format(_format: str) -> bool:
+    """Validate clock time format"""
+    try:
+        time.strftime(_format, time.gmtime(0))
+        return True
+    except ValueError:
+        return False
 
 
 # Decorator

@@ -285,8 +285,12 @@ class UserConfig(QDialog):
                 self, f"combobox_{key}").currentText()
 
         for key in self.option_string:
-            cfg.user.setting[self.key_name][key] = getattr(
-                self, f"lineedit_{key}").text()
+            value = getattr(self, f"lineedit_{key}").text()
+            if re.search(rxp.CFG_CLOCK_FORMAT, key) and not val.clock_format(value):
+                self.value_error_message("clock format", key)
+                error_found = True
+                continue
+            cfg.user.setting[self.key_name][key] = value
 
         for key in self.option_integer:
             value = getattr(self, f"lineedit_{key}").text()
@@ -393,6 +397,11 @@ class UserConfig(QDialog):
             if re.search(rxp.CFG_HEATMAP, key):
                 self.__add_option_combolist(
                     idx, key, layout, tuple(cfg.user.heatmap))
+                continue
+            # Clock format string
+            if re.search(rxp.CFG_CLOCK_FORMAT, key):
+                self.__add_option_string(
+                    idx, key, layout)
                 continue
             # String
             if re.search(rxp.CFG_STRING, key):

@@ -1,8 +1,12 @@
 WIP
 -----------------------------
 * General
+  - Config dialog now validates values before saving,
+    and shows error prompt for incorrect values.
   - Improved color validation.
   - Fixed an issue where invalid color could be saved.
+  - Add clock time format validation.
+  - Improved track clock time calculation.
   - Add "minimum_update_interval" option in Compatibility config,
     which sets minimum refresh rate limit for widget and module in milliseconds.
     This option is used for preventing extremely low refresh rate
@@ -23,6 +27,9 @@ WIP
 
 * Stint history Widget
   - Optimized stint history update.
+
+* Shared Memory API
+  - Fixed a rare issue where rapidly restarting API could freeze the APP.
 
 2.11.1 (2024-03-28)
 -----------------------------

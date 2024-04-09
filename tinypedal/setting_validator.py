@@ -42,6 +42,7 @@ class ValueValidator:
             self.font_weight,
             self.encoding,
             self.deltabest,
+            self.clock_format,
             self.string,
             self.integer,
             self.numeric,
@@ -98,6 +99,15 @@ class ValueValidator:
         if not re.search(rxp.CFG_DELTABEST, key):
             return False
         if dict_user[key] not in rxp.DELTABEST_LIST:
+            dict_user.pop(key)
+        return True
+
+    @staticmethod
+    def clock_format(key: str, dict_user: dict) -> bool:
+        """Value - clock format string"""
+        if not re.search(rxp.CFG_CLOCK_FORMAT, key):
+            return False
+        if not val.clock_format(dict_user[key]):
             dict_user.pop(key)
         return True
 

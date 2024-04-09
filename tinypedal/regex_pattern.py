@@ -38,20 +38,22 @@ CFG_BOOL = (
     "uppercase"
 )
 
-# String
-CFG_API_NAME = "^api_name$"
+# String with different validators
+CFG_API_NAME = "api_name"
 CFG_COLOR = "color"
-CFG_FONT_NAME = "font_name"
 CFG_FONT_WEIGHT = "font_weight"
 CFG_ENCODING = "character_encoding"
 CFG_DELTABEST = "deltabest_source"
+CFG_CLOCK_FORMAT = "clock_format"
+
+# String common
+CFG_FONT_NAME = "font_name"
 CFG_HEATMAP = "heatmap"
 CFG_STRING = (
     # Exact match
     "^process_id$|"
     "^tyre_compound_symbol$|"
     # Partial match
-    "format|"
     "info|"
     "list|"
     "prefix|"
