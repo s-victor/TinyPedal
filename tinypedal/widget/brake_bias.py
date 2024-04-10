@@ -41,7 +41,7 @@ class Draw(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
         self.prefix_text = self.wcfg["prefix_brake_bias"]
         self.sign_text = "%" if self.wcfg["show_percentage_sign"] else ""
@@ -50,15 +50,15 @@ class Draw(Overlay):
             text_default = f"{self.prefix_text}{50:02.0{self.decimals}f}:{50:02.0{self.decimals}f}"
         else:
             text_default = f"{self.prefix_text}{50:02.0{self.decimals}f}{self.sign_text}"
-        bar_width = font_m.width * len(text_default)
+
+        bar_width = f"min-width: {font_m.width * len(text_default) + bar_padx}px;"
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
-            f"min-width: {bar_width}px;"
+            f"{bar_width}"
         )
 
         # Create layout

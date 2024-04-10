@@ -80,7 +80,7 @@ class Realtime(DataModule):
 
                         # Update (time gap) deltabest bestlap sector 3 text
                         if val.sector_time(best_s_pb[2]):
-                            delta_s_pb[2] = prev_s[2] - best_s_pb[2] + delta_s_pb[1]
+                            delta_s_pb[2] = prev_s[2] - best_s_pb[2]
 
                         # Update deltabest sector 3 text
                         if val.sector_time(best_s_tb[2]):
@@ -127,7 +127,7 @@ class Realtime(DataModule):
 
                         # Update (time gap) deltabest bestlap sector 2 text
                         if val.sector_time(best_s_pb[1]):
-                            delta_s_pb[1] = prev_s[1] - best_s_pb[1] + delta_s_pb[0]
+                            delta_s_pb[1] = prev_s[1] - best_s_pb[1]
 
                         # Update deltabest sector 2 text
                         if val.sector_time(best_s_tb[1]):

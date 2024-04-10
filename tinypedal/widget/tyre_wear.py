@@ -43,17 +43,15 @@ class Draw(Overlay):
 
         # Config variable
         text_def = "n/a"
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        bar_width = font_m.width * 4
+        self.bar_width = f"min-width: {font_m.width * 4 + bar_padx}px;"
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
-            f"min-width: {bar_width}px;"
         )
 
         # Create layout
@@ -107,6 +105,7 @@ class Draw(Overlay):
             bar_style_twear = (
                 f"color: {self.wcfg['font_color_remaining']};"
                 f"background: {self.wcfg['bkg_color_remaining']};"
+                f"{self.bar_width}"
             )
             self.bar_twear_fl = QLabel(text_def)
             self.bar_twear_fl.setAlignment(Qt.AlignCenter)
@@ -131,6 +130,7 @@ class Draw(Overlay):
             bar_style_tdiff = (
                 f"color: {self.wcfg['font_color_wear_difference']};"
                 f"background: {self.wcfg['bkg_color_wear_difference']};"
+                f"{self.bar_width}"
             )
             self.bar_tdiff_fl = QLabel(text_def)
             self.bar_tdiff_fl.setAlignment(Qt.AlignCenter)
@@ -155,6 +155,7 @@ class Draw(Overlay):
             bar_style_tlaps = (
                 f"color: {self.wcfg['font_color_lifespan_laps']};"
                 f"background: {self.wcfg['bkg_color_lifespan_laps']};"
+                f"{self.bar_width}"
             )
             self.bar_tlaps_fl = QLabel(text_def)
             self.bar_tlaps_fl.setAlignment(Qt.AlignCenter)
@@ -179,6 +180,7 @@ class Draw(Overlay):
             bar_style_tmins = (
                 f"color: {self.wcfg['font_color_lifespan_minutes']};"
                 f"background: {self.wcfg['bkg_color_lifespan_minutes']};"
+                f"{self.bar_width}"
             )
             self.bar_tmins_fl = QLabel(text_def)
             self.bar_tmins_fl.setAlignment(Qt.AlignCenter)
@@ -345,6 +347,7 @@ class Draw(Overlay):
             getattr(self, f"bar_twear_{suffix}").setStyleSheet(
                 f"color: {self.color_wear(curr, color)};"
                 f"background: {self.wcfg['bkg_color_remaining']};"
+                f"{self.bar_width}"
             )
 
     def update_diff(self, suffix, curr, last, color):
@@ -354,6 +357,7 @@ class Draw(Overlay):
             getattr(self, f"bar_tdiff_{suffix}").setStyleSheet(
                 f"color: {self.color_diff(curr, color)};"
                 f"background: {self.wcfg['bkg_color_wear_difference']};"
+                f"{self.bar_width}"
             )
 
     def update_laps(self, suffix, curr, last, color):
@@ -363,6 +367,7 @@ class Draw(Overlay):
             getattr(self, f"bar_tlaps_{suffix}").setStyleSheet(
                 f"color: {self.color_laps(curr, color)};"
                 f"background: {self.wcfg['bkg_color_lifespan_laps']};"
+                f"{self.bar_width}"
             )
 
     def update_mins(self, suffix, curr, last, color):
@@ -372,6 +377,7 @@ class Draw(Overlay):
             getattr(self, f"bar_tmins_{suffix}").setStyleSheet(
                 f"color: {self.color_mins(curr, color)};"
                 f"background: {self.wcfg['bkg_color_lifespan_minutes']};"
+                f"{self.bar_width}"
             )
 
     # Additional methods

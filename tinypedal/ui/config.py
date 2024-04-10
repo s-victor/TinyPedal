@@ -393,6 +393,11 @@ class UserConfig(QDialog):
                 self.__add_option_combolist(
                     idx, key, layout, rxp.DELTABEST_LIST)
                 continue
+            # Target laptime string
+            if re.search(rxp.CFG_TARGET_LAPTIME, key):
+                self.__add_option_combolist(
+                    idx, key, layout, rxp.TARGET_LAPTIME_LIST)
+                continue
             # Heatmap string
             if re.search(rxp.CFG_HEATMAP, key):
                 self.__add_option_combolist(

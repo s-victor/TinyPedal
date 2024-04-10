@@ -39,8 +39,12 @@ class Draw(Overlay):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
 
+        # Config font
+        font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
+
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
 
         if self.wcfg["layout"] == 0:
@@ -72,7 +76,6 @@ class Draw(Overlay):
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
         )
 
         # Create layout
@@ -91,65 +94,80 @@ class Draw(Overlay):
 
         # Session best laptime
         if self.wcfg["show_session_best"]:
-            self.bar_time_sbst = QLabel(f"{self.prefix_sbst}{time_none}")
+            sbst_text = f"{self.prefix_sbst}{time_none}"
+            self.bar_time_sbst = QLabel(sbst_text)
             self.bar_time_sbst.setAlignment(Qt.AlignCenter)
             self.bar_time_sbst.setStyleSheet(
                 f"color: {self.wcfg['font_color_session_best']};"
                 f"background: {self.wcfg['bkg_color_session_best']};"
+                f"min-width: {font_m.width * len(sbst_text) + bar_padx}px;"
             )
 
         # Personal best laptime
         if self.wcfg["show_best"]:
-            self.bar_time_best = QLabel(f"{self.prefix_best}{time_none}")
+            best_text = f"{self.prefix_best}{time_none}"
+            self.bar_time_best = QLabel(best_text)
             self.bar_time_best.setAlignment(Qt.AlignCenter)
             self.bar_time_best.setStyleSheet(
                 f"color: {self.wcfg['font_color_best']};"
                 f"background: {self.wcfg['bkg_color_best']};"
+                f"min-width: {font_m.width * len(best_text) + bar_padx}px;"
             )
 
         # Last laptime
         if self.wcfg["show_last"]:
-            self.bar_time_last = QLabel(f"{self.prefix_last}{time_none}")
+            last_text = f"{self.prefix_last}{time_none}"
+            self.bar_width_time_last = f"min-width: {font_m.width * len(last_text) + bar_padx}px;"
+            self.bar_time_last = QLabel(last_text)
             self.bar_time_last.setAlignment(Qt.AlignCenter)
             self.bar_time_last.setStyleSheet(
                 f"color: {self.wcfg['font_color_last']};"
                 f"background: {self.wcfg['bkg_color_last']};"
+                f"{self.bar_width_time_last}"
             )
 
         # Current laptime
         if self.wcfg["show_current"]:
-            self.bar_time_curr = QLabel(f"{self.prefix_curr}{time_none}")
+            curr_text = f"{self.prefix_curr}{time_none}"
+            self.bar_time_curr = QLabel(curr_text)
             self.bar_time_curr.setAlignment(Qt.AlignCenter)
             self.bar_time_curr.setStyleSheet(
                 f"color: {self.wcfg['font_color_current']};"
                 f"background: {self.wcfg['bkg_color_current']};"
+                f"min-width: {font_m.width * len(curr_text) + bar_padx}px;"
             )
 
         # Estimated laptime
         if self.wcfg["show_estimated"]:
-            self.bar_time_esti = QLabel(f"{self.prefix_esti}{time_none}")
+            esti_text = f"{self.prefix_esti}{time_none}"
+            self.bar_time_esti = QLabel(esti_text)
             self.bar_time_esti.setAlignment(Qt.AlignCenter)
             self.bar_time_esti.setStyleSheet(
                 f"color: {self.wcfg['font_color_estimated']};"
                 f"background: {self.wcfg['bkg_color_estimated']};"
+                f"min-width: {font_m.width * len(esti_text) + bar_padx}px;"
             )
 
         # Session personal best laptime
         if self.wcfg["show_session_personal_best"]:
-            self.bar_time_spbt = QLabel(f"{self.prefix_spbt}{time_none}")
+            spbt_text = f"{self.prefix_spbt}{time_none}"
+            self.bar_time_spbt = QLabel(spbt_text)
             self.bar_time_spbt.setAlignment(Qt.AlignCenter)
             self.bar_time_spbt.setStyleSheet(
                 f"color: {self.wcfg['font_color_session_personal_best']};"
                 f"background: {self.wcfg['bkg_color_session_personal_best']};"
+                f"min-width: {font_m.width * len(spbt_text) + bar_padx}px;"
             )
 
         # Stint personal best laptime
         if self.wcfg["show_stint_best"]:
-            self.bar_time_stbt = QLabel(f"{self.prefix_stbt}{time_none}")
+            stbt_text = f"{self.prefix_stbt}{time_none}"
+            self.bar_time_stbt = QLabel(stbt_text)
             self.bar_time_stbt.setAlignment(Qt.AlignCenter)
             self.bar_time_stbt.setStyleSheet(
                 f"color: {self.wcfg['font_color_stint_best']};"
                 f"background: {self.wcfg['bkg_color_stint_best']};"
+                f"min-width: {font_m.width * len(stbt_text) + bar_padx}px;"
             )
 
         # Set layout
@@ -305,5 +323,4 @@ class Draw(Overlay):
                 color = (f"color: {self.wcfg['font_color_invalid_laptime']};"
                          f"background: {self.wcfg['bkg_color_last']};")
             self.bar_time_last.setText(text)
-            self.bar_time_last.setStyleSheet(
-                f"{color}")
+            self.bar_time_last.setStyleSheet(f"{color}{self.bar_width_time_last}")

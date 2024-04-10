@@ -1,6 +1,11 @@
 WIP
 -----------------------------
 * General
+  - "bar_padding" option will no longer crop text edge from
+    none "mono" type fonts.
+    "bar_padding" option can now be used to further increase
+    each element width in widget for none "mono" type fonts
+    that exceeded default widget width.
   - Config dialog now validates values before saving,
     and shows error prompt for incorrect values.
   - Improved color validation.
@@ -24,6 +29,17 @@ WIP
 * Lap time history Widget
   - Fixed missing fuel unit conversion for gallon.
   - Optimized lap history update.
+
+* Sectors Widget
+  - Now shows laptime "time gap" on "target time" bar,
+    which shows laptime difference between current laptime and target laptime.
+    Target laptime source depends on new "target_laptime" option.
+  - Add new "target_laptime" option,
+    which sets target laptime for display target reference lap and sector time.
+    Set `Theoretical` to show theoretical best sector time from session best sectors.
+    Set `Personal` to show sector time from personal best lap time.
+  - Removed old "target_time_mode" options.
+  - Removed old "always_show_laptime_gap" options.
 
 * Stint history Widget
   - Optimized stint history update.

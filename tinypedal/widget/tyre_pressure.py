@@ -43,17 +43,15 @@ class Draw(Overlay):
 
         # Config variable
         text_def = "n/a"
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        bar_width = font_m.width * 4
+        bar_width = f"min-width: {font_m.width * 4 + bar_padx}px;"
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
-            f"min-width: {bar_width}px;"
         )
 
         # Create layout
@@ -80,6 +78,7 @@ class Draw(Overlay):
         bar_style_tpres = (
             f"color: {self.wcfg['font_color_tyre_pressure']};"
             f"background: {self.wcfg['bkg_color_tyre_pressure']};"
+            f"{bar_width}"
         )
         self.bar_tpres_fl = QLabel(text_def)
         self.bar_tpres_fl.setAlignment(Qt.AlignCenter)

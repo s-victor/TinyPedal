@@ -42,20 +42,19 @@ class Draw(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         self.prefix_text = self.wcfg["prefix_rake_angle"]
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
         ride_diff = "(00)" if self.wcfg["show_ride_height_difference"] else ""
         text_default = f"{self.prefix_text}+0.00{self.sign_text}{ride_diff}"
-        bar_width = font_m.width * len(text_default)
+        bar_width = f"min-width: {font_m.width * len(text_default) + bar_padx}px;"
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
-            f"min-width: {bar_width}px;"
+            f"{bar_width}"
         )
 
         # Create layout

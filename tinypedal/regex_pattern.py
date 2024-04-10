@@ -44,6 +44,7 @@ CFG_COLOR = "color"
 CFG_FONT_WEIGHT = "font_weight"
 CFG_ENCODING = "character_encoding"
 CFG_DELTABEST = "deltabest_source"
+CFG_TARGET_LAPTIME = "target_laptime"
 CFG_CLOCK_FORMAT = "clock_format"
 
 # String common
@@ -123,6 +124,7 @@ ABBR_PATTERN = "|".join(ABBR_LIST)
 DELTABEST_LIST = ("Best", "Session", "Stint", "Last")
 ENCODING_LIST = ("UTF-8", "ISO-8859-1")
 FONT_WEIGHT_LIST = ("normal", "bold")
+TARGET_LAPTIME_LIST = ("Theoretical", "Personal")
 UNITS_DICT = {
     "distance_unit": ("Meter", "Feet"),
     "fuel_unit": ("Liter", "Gallon"),

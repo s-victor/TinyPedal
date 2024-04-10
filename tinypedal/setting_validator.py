@@ -42,6 +42,7 @@ class ValueValidator:
             self.font_weight,
             self.encoding,
             self.deltabest,
+            self.target_laptime,
             self.clock_format,
             self.string,
             self.integer,
@@ -99,6 +100,15 @@ class ValueValidator:
         if not re.search(rxp.CFG_DELTABEST, key):
             return False
         if dict_user[key] not in rxp.DELTABEST_LIST:
+            dict_user.pop(key)
+        return True
+
+    @staticmethod
+    def target_laptime(key: str, dict_user: dict) -> bool:
+        """Value - target laptime string"""
+        if not re.search(rxp.CFG_TARGET_LAPTIME, key):
+            return False
+        if dict_user[key] not in rxp.TARGET_LAPTIME_LIST:
             dict_user.pop(key)
         return True
 

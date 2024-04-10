@@ -20,6 +20,8 @@
 Session Widget
 """
 
+from functools import partial
+
 import time
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QGridLayout, QLabel
@@ -38,8 +40,12 @@ class Draw(Overlay):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
 
+        # Config font
+        font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
+
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
         self.session_name_list = (
             self.wcfg["session_text_testday"],
@@ -48,13 +54,13 @@ class Draw(Overlay):
             self.wcfg["session_text_warmup"],
             self.wcfg["session_text_race"]
             )
+        self.bar_min_width = partial(calc.qss_min_width, font_width=font_m.width, padding=bar_padx)
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
         )
 
         # Create layout
@@ -71,48 +77,63 @@ class Draw(Overlay):
 
         # Session name
         if self.wcfg["show_session_name"]:
-            self.bar_session_name = QLabel("NAME")
-            self.bar_session_name.setAlignment(Qt.AlignCenter)
-            self.bar_session_name.setStyleSheet(
+            name_text = self.wcfg["session_text_testday"]
+            bar_style_name = self.bar_min_width(
+                len(name_text),
                 f"color: {self.wcfg['font_color_session_name']};"
                 f"background: {self.wcfg['bkg_color_session_name']};"
             )
+            self.bar_session_name = QLabel(name_text)
+            self.bar_session_name.setAlignment(Qt.AlignCenter)
+            self.bar_session_name.setStyleSheet(bar_style_name)
 
         # System clock
         if self.wcfg["show_system_clock"]:
-            self.bar_system_clock = QLabel("S CLOCK")
-            self.bar_system_clock.setAlignment(Qt.AlignCenter)
-            self.bar_system_clock.setStyleSheet(
+            clock_text = time.strftime(self.wcfg["system_clock_format"])
+            bar_style_clock = self.bar_min_width(
+                len(clock_text),
                 f"color: {self.wcfg['font_color_system_clock']};"
                 f"background: {self.wcfg['bkg_color_system_clock']};"
             )
+            self.bar_system_clock = QLabel(clock_text)
+            self.bar_system_clock.setAlignment(Qt.AlignCenter)
+            self.bar_system_clock.setStyleSheet(bar_style_clock)
 
         # Session time
         if self.wcfg["show_session_time"]:
-            self.bar_session_time = QLabel("SESSION")
-            self.bar_session_time.setAlignment(Qt.AlignCenter)
-            self.bar_session_time.setStyleSheet(
+            time_text = calc.sec2sessiontime(0)
+            bar_style_time = self.bar_min_width(
+                len(time_text),
                 f"color: {self.wcfg['font_color_session_time']};"
                 f"background: {self.wcfg['bkg_color_session_time']};"
             )
+            self.bar_session_time = QLabel(time_text)
+            self.bar_session_time.setAlignment(Qt.AlignCenter)
+            self.bar_session_time.setStyleSheet(bar_style_time)
 
         # Lap number
         if self.wcfg["show_lapnumber"]:
-            self.bar_lapnumber = QLabel("LAPS")
-            self.bar_lapnumber.setAlignment(Qt.AlignCenter)
-            self.bar_lapnumber.setStyleSheet(
+            lapnumber_text = f"{self.wcfg['prefix_lap_number']}0.00/-"
+            bar_style_lapnumber = self.bar_min_width(
+                len(lapnumber_text),
                 f"color: {self.wcfg['font_color_lapnumber']};"
                 f"background: {self.wcfg['bkg_color_lapnumber']};"
             )
+            self.bar_lapnumber = QLabel(lapnumber_text)
+            self.bar_lapnumber.setAlignment(Qt.AlignCenter)
+            self.bar_lapnumber.setStyleSheet(bar_style_lapnumber)
 
         # Driver place & total vehicles
         if self.wcfg["show_position"]:
-            self.bar_position = QLabel("PLACE")
-            self.bar_position.setAlignment(Qt.AlignCenter)
-            self.bar_position.setStyleSheet(
+            position_text = f"{self.wcfg['prefix_position']}00/00"
+            bar_style_position = self.bar_min_width(
+                len(position_text),
                 f"color: {self.wcfg['font_color_position']};"
                 f"background: {self.wcfg['bkg_color_position']};"
             )
+            self.bar_position = QLabel(position_text)
+            self.bar_position.setAlignment(Qt.AlignCenter)
+            self.bar_position.setStyleSheet(bar_style_position)
 
         # Set layout
         if self.wcfg["show_session_name"]:
@@ -179,11 +200,15 @@ class Draw(Overlay):
         """Session name"""
         if curr != last:
             self.bar_session_name.setText(curr)
+            self.bar_session_name.setStyleSheet(self.bar_min_width(
+                len(curr),
+                f"color: {self.wcfg['font_color_session_name']};"
+                f"background: {self.wcfg['bkg_color_session_name']};"))
 
     def update_system_clock(self, curr, last):
         """System Clock"""
         if curr != last:
-            self.bar_system_clock.setText(f"{curr}")
+            self.bar_system_clock.setText(curr)
 
     def update_session_time(self, curr, last):
         """Session time"""
@@ -193,15 +218,14 @@ class Draw(Overlay):
     def update_lapnumber(self, curr, last, lap_num, lap_max):
         """Lap number"""
         if curr != last:
-            lap_text = "-" if lap_max > 100000 else lap_max
+            lap_total = lap_max if api.read.session.lap_type() else "-"
+            lap_text = f"{self.wcfg['prefix_lap_number']}{lap_num}.{curr:02.0f}/{lap_total}"
 
-            self.bar_lapnumber.setText(
-                f"{self.wcfg['prefix_lap_number']}{lap_num}.{curr:02.0f}/{lap_text}"
-            )
-            self.bar_lapnumber.setStyleSheet(
+            self.bar_lapnumber.setText(lap_text)
+            self.bar_lapnumber.setStyleSheet(self.bar_min_width(
+                len(lap_text),
                 f"color: {self.wcfg['font_color_lapnumber']};"
-                f"background: {self.maxlap_warning(lap_num - lap_max)};"
-            )
+                f"background: {self.maxlap_warning(lap_num - lap_max)};"))
 
     def update_position(self, curr, last):
         """Driver place & total vehicles"""

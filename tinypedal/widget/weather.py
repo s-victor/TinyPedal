@@ -20,6 +20,8 @@
 Weather Widget
 """
 
+from functools import partial
+
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QGridLayout, QLabel
 
@@ -37,18 +39,23 @@ class Draw(Overlay):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
 
+        # Config font
+        font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
+
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        self.sign_text = "%" if self.wcfg["show_percentage_sign"] else ""
+        self.sign_temp = "°F" if self.cfg.units["temperature_unit"] == "Fahrenheit" else "°C"
+        self.sign_rain = "%" if self.wcfg["show_percentage_sign"] else ""
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
         )
+        self.bar_min_width = partial(calc.qss_min_width, font_width=font_m.width, padding=bar_padx)
 
         # Create layout
         layout = QGridLayout()
@@ -62,30 +69,39 @@ class Draw(Overlay):
 
         # Track temperature
         if self.wcfg["show_temperature"]:
-            self.bar_temp = QLabel("TRACK")
-            self.bar_temp.setAlignment(Qt.AlignCenter)
-            self.bar_temp.setStyleSheet(
+            temp_text = self.format_temperature(0,0)
+            bar_style_temp = self.bar_min_width(
+                len(temp_text),
                 f"color: {self.wcfg['font_color_temperature']};"
                 f"background: {self.wcfg['bkg_color_temperature']};"
             )
+            self.bar_temp = QLabel(temp_text)
+            self.bar_temp.setAlignment(Qt.AlignCenter)
+            self.bar_temp.setStyleSheet(bar_style_temp)
 
         # Rain percentage
         if self.wcfg["show_rain"]:
-            self.bar_rain = QLabel("RAIN")
-            self.bar_rain.setAlignment(Qt.AlignCenter)
-            self.bar_rain.setStyleSheet(
+            rain_text = self.format_rain(0)
+            bar_style_rain = self.bar_min_width(
+                len(rain_text),
                 f"color: {self.wcfg['font_color_rain']};"
                 f"background: {self.wcfg['bkg_color_rain']};"
             )
+            self.bar_rain = QLabel(rain_text)
+            self.bar_rain.setAlignment(Qt.AlignCenter)
+            self.bar_rain.setStyleSheet(bar_style_rain)
 
         # Surface wetness
         if self.wcfg["show_wetness"]:
-            self.bar_wetness = QLabel("WETNESS")
-            self.bar_wetness.setAlignment(Qt.AlignCenter)
-            self.bar_wetness.setStyleSheet(
+            wetness_text = self.format_wetness(0,0,0)
+            bar_style_wetness = self.bar_min_width(
+                len(wetness_text),
                 f"color: {self.wcfg['font_color_wetness']};"
                 f"background: {self.wcfg['bkg_color_wetness']};"
             )
+            self.bar_wetness = QLabel(wetness_text)
+            self.bar_wetness.setAlignment(Qt.AlignCenter)
+            self.bar_wetness.setStyleSheet(bar_style_wetness)
 
         # Set layout
         if self.wcfg["show_temperature"]:
@@ -132,23 +148,53 @@ class Draw(Overlay):
     def update_temp(self, curr, last):
         """Track & ambient temperature"""
         if curr != last:
-            if self.cfg.units["temperature_unit"] == "Fahrenheit":
-                temp = f"{calc.celsius2fahrenheit(curr[0]):.01f}" \
-                       f"({calc.celsius2fahrenheit(curr[1]):.01f})°F"
-            else:
-                temp = f"{curr[0]:.01f}({curr[1]:.01f})°C"
-            self.bar_temp.setText(temp)
+            temp_text = self.format_temperature(*curr)
+            self.bar_temp.setText(temp_text)
+            self.bar_temp.setStyleSheet(self.bar_min_width(
+                len(temp_text),
+                f"color: {self.wcfg['font_color_temperature']};"
+                f"background: {self.wcfg['bkg_color_temperature']};"
+            ))
 
     def update_rain(self, curr, last):
         """Rain percentage"""
         if curr != last:
-            self.bar_rain.setText(f"Rain {curr * 100:.0f}{self.sign_text}")
+            rain_text = self.format_rain(curr)
+            self.bar_rain.setText(rain_text)
+            self.bar_rain.setStyleSheet(self.bar_min_width(
+                len(rain_text),
+                f"color: {self.wcfg['font_color_rain']};"
+                f"background: {self.wcfg['bkg_color_rain']};"
+            ))
 
     def update_wetness(self, curr, last):
         """Surface wetness"""
         if curr != last:
-            surface = "Wet" if curr[1] > 0.01 else "Dry"
-            wet_text = f"{surface} {curr[0] * 100:.0f}{self.sign_text}" \
-                       f" < {curr[1] * 100:.0f}{self.sign_text}" \
-                       f" ≈ {curr[2] * 100:.0f}{self.sign_text}"
-            self.bar_wetness.setText(wet_text)
+            wetness_text = self.format_wetness(*curr)
+            self.bar_wetness.setText(wetness_text)
+            self.bar_wetness.setStyleSheet(self.bar_min_width(
+                len(wetness_text),
+                f"color: {self.wcfg['font_color_wetness']};"
+                f"background: {self.wcfg['bkg_color_wetness']};"
+            ))
+
+    def format_temperature(self, track_deg, air_deg):
+        """Format track & ambient temperature"""
+        if self.cfg.units["temperature_unit"] == "Fahrenheit":
+            track_deg = f"{calc.celsius2fahrenheit(track_deg):.02f}"[:4].ljust(4)
+            air_deg = f"{calc.celsius2fahrenheit(air_deg):.02f}"[:4].ljust(4)
+        else:
+            track_deg = f"{track_deg:.02f}"[:4].ljust(4)
+            air_deg = f"{air_deg:.02f}"[:4].ljust(4)
+        return f"{track_deg}({air_deg}){self.sign_temp}"
+
+    def format_rain(self, percentage):
+        """Format rain percentage"""
+        return f"Rain {percentage * 100:.0f}{self.sign_rain}"
+
+    def format_wetness(self, min_wet, max_wet, avg_wet):
+        """Format wetness"""
+        surface = "Wet" if max_wet > 0.01 else "Dry"
+        return (f"{surface} {min_wet * 100:.0f}{self.sign_rain}"
+                f" < {max_wet * 100:.0f}{self.sign_rain}"
+                f" ≈ {avg_wet * 100:.0f}{self.sign_rain}")

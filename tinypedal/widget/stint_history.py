@@ -40,17 +40,25 @@ class Draw(Overlay):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
 
+        # Config font
+        font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
+
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
         self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
+        self.bar_width_laps = f"min-width: {font_m.width * 3 + bar_padx}px;"
+        self.bar_width_time = f"min-width: {font_m.width * 5 + bar_padx}px;"
+        self.bar_width_fuel = f"min-width: {font_m.width * 5 + bar_padx}px;"
+        self.bar_width_cmpd = f"min-width: {font_m.width * 2 + bar_padx}px;"
+        self.bar_width_wear = f"min-width: {font_m.width * 3 + bar_padx}px;"
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
         )
 
         # Max display stint
@@ -75,6 +83,7 @@ class Draw(Overlay):
         self.bar_laps.setStyleSheet(
             f"color: {self.wcfg['font_color_laps']};"
             f"background: {self.wcfg['bkg_color_laps']};"
+            f"{self.bar_width_laps}"
         )
         # Time
         self.bar_time = QLabel("--:--")
@@ -82,6 +91,7 @@ class Draw(Overlay):
         self.bar_time.setStyleSheet(
             f"color: {self.wcfg['font_color_time']};"
             f"background: {self.wcfg['bkg_color_time']};"
+            f"{self.bar_width_time}"
         )
         # Fuel
         self.bar_fuel = QLabel("---.-")
@@ -89,6 +99,7 @@ class Draw(Overlay):
         self.bar_fuel.setStyleSheet(
             f"color: {self.wcfg['font_color_fuel']};"
             f"background: {self.wcfg['bkg_color_fuel']};"
+            f"{self.bar_width_fuel}"
         )
         # Tyre compound
         self.bar_cmpd = QLabel("--")
@@ -96,6 +107,7 @@ class Draw(Overlay):
         self.bar_cmpd.setStyleSheet(
             f"color: {self.wcfg['font_color_tyre']};"
             f"background: {self.wcfg['bkg_color_tyre']};"
+            f"{self.bar_width_cmpd}"
         )
         # Tyre wear
         self.bar_wear = QLabel("--%")
@@ -103,6 +115,7 @@ class Draw(Overlay):
         self.bar_wear.setStyleSheet(
             f"color: {self.wcfg['font_color_wear']};"
             f"background: {self.wcfg['bkg_color_wear']};"
+            f"{self.bar_width_wear}"
         )
         layout.addWidget(self.bar_laps, self.set_row_index(0), column_lp)
         layout.addWidget(self.bar_time, self.set_row_index(0), column_tm)
@@ -117,30 +130,35 @@ class Draw(Overlay):
             getattr(self, f"bar_last_laps{index}").setStyleSheet(
                 f"color: {self.wcfg['font_color_last_stint_laps']};"
                 f"background: {self.wcfg['bkg_color_last_stint_laps']};"
+                f"{self.bar_width_laps}"
             )
             setattr(self, f"bar_last_time{index}", QLabel("--:--"))
             getattr(self, f"bar_last_time{index}").setAlignment(Qt.AlignCenter)
             getattr(self, f"bar_last_time{index}").setStyleSheet(
                 f"color: {self.wcfg['font_color_last_stint_time']};"
                 f"background: {self.wcfg['bkg_color_last_stint_time']};"
+                f"{self.bar_width_time}"
             )
             setattr(self, f"bar_last_fuel{index}", QLabel("---.-"))
             getattr(self, f"bar_last_fuel{index}").setAlignment(Qt.AlignCenter)
             getattr(self, f"bar_last_fuel{index}").setStyleSheet(
                 f"color: {self.wcfg['font_color_last_stint_fuel']};"
                 f"background: {self.wcfg['bkg_color_last_stint_fuel']};"
+                f"{self.bar_width_fuel}"
             )
             setattr(self, f"bar_last_cmpd{index}", QLabel("--"))
             getattr(self, f"bar_last_cmpd{index}").setAlignment(Qt.AlignCenter)
             getattr(self, f"bar_last_cmpd{index}").setStyleSheet(
                 f"color: {self.wcfg['font_color_last_stint_tyre']};"
                 f"background: {self.wcfg['bkg_color_last_stint_tyre']};"
+                f"{self.bar_width_cmpd}"
             )
             setattr(self, f"bar_last_wear{index}", QLabel("---"))
             getattr(self, f"bar_last_wear{index}").setAlignment(Qt.AlignCenter)
             getattr(self, f"bar_last_wear{index}").setStyleSheet(
                 f"color: {self.wcfg['font_color_last_stint_wear']};"
                 f"background: {self.wcfg['bkg_color_last_stint_wear']};"
+                f"{self.bar_width_wear}"
             )
 
             if not self.wcfg["show_empty_history"]:

@@ -216,7 +216,7 @@ Automatically adjust font vertical offset based on font geometry for better vert
 Manually set font vertical offset. Default is `0`. Negative value will offset font upward, and position value for downward. This option only takes effect when `enable_auto_font_offset` is set to `false`.
 
     bar_padding
-Set widget edge padding value that multiplies & scales with `font_size`. Default is `0.2` for most widgets.
+Set widget edge padding value that multiplies & scales with `font_size`. Default is `0.2` for most widgets. Increase padding value will further increase each element width in widget.
 
     color
 Set color in hexadecimal color codes with alpha value (opacity). The color code format starts with `#`, then follows by two-digit hexadecimal numbers for each channel in the order of `alpha`, `red`, `green`, `blue`. Note, `alpha` is optional and can be omitted. User can select a new color without manual editing, by double-clicking on color entry box in `Config` dialog.
@@ -1471,14 +1471,11 @@ Set custom time interval color of opponent ahead and behind.
     layout
 2 layouts are available: `0` = target & current sectors above deltabest sectors, `1` = deltabest sectors above target & current sectors.
 
-    target_time_mode
-Set mode for accumulated target sector time. Set `0` to show theoretical best sector time from session best sectors. Set `1` to show sector time from personal best lap time.
+    target_laptime
+Set target laptime for display target reference lap and sector time. Set `Theoretical` to show theoretical best sector time from session best sectors. Set `Personal` to show sector time from personal best lap time.
 
     freeze_duration
 Set freeze duration (seconds) for previous sector time display. Default is `5` seconds.
-
-    always_show_laptime_gap
-Set `true` to always show sector/lap time gap bar. Set `false` to show only in freeze duration.
 
 
 ## Session

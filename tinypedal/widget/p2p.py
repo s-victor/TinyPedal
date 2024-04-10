@@ -37,16 +37,21 @@ class Draw(Overlay):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
 
+        # Config font
+        font_m = self.get_font_metrics(
+            self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
+
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
+        self.bar_width_battery = f"min-width: {font_m.width * 3 + bar_padx}px;"
+        self.bar_width_timer = f"min-width: {font_m.width * 4 + bar_padx}px;"
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
         )
 
         # Create layout
@@ -65,15 +70,17 @@ class Draw(Overlay):
             self.bar_battery_charge.setStyleSheet(
                 f"color: {self.wcfg['font_color_battery_charge']};"
                 f"background: {self.wcfg['bkg_color_battery_charge']};"
+                f"{self.bar_width_battery}"
             )
 
         # Activation timer
         if self.wcfg["show_activation_timer"]:
-            self.bar_active_timer = QLabel("TIMER")
+            self.bar_active_timer = QLabel("0.00")
             self.bar_active_timer.setAlignment(Qt.AlignCenter)
             self.bar_active_timer.setStyleSheet(
                 f"color: {self.wcfg['font_color_activation_timer']};"
                 f"background: {self.wcfg['bkg_color_activation_timer']};"
+                f"{self.bar_width_timer}"
             )
 
         # Set layout
@@ -95,20 +102,14 @@ class Draw(Overlay):
         """Update when vehicle on track"""
         if api.state:
 
-            # Read p2p data
-            gear = api.read.engine.gear()
-            speed = api.read.vehicle.speed()
-            throttle_raw = api.read.input.throttle_raw()
-
-            alt_active_state = (
-                gear >= self.wcfg["activation_threshold_gear"] and
-                speed * 3.6 > self.wcfg["activation_threshold_speed"] and
-                throttle_raw >= self.wcfg["activation_threshold_throttle"] and
-                minfo.hybrid.motorState
-            )
-
             # Battery charge
             if self.wcfg["show_battery_charge"]:
+                alt_active_state = (
+                    api.read.engine.gear() >= self.wcfg["activation_threshold_gear"] and
+                    api.read.vehicle.speed() * 3.6 > self.wcfg["activation_threshold_speed"] and
+                    api.read.input.throttle_raw() >= self.wcfg["activation_threshold_throttle"] and
+                    minfo.hybrid.motorState
+                )
                 battery_charge = (
                     minfo.hybrid.batteryCharge,
                     minfo.hybrid.motorState,
@@ -155,6 +156,7 @@ class Draw(Overlay):
             self.bar_battery_charge.setStyleSheet(
                 f"color: {self.wcfg['font_color_battery_charge']};"
                 f"background: {bgcolor};"
+                f"{self.bar_width_battery}"
             )
 
     def update_active_timer(self, curr, last):
@@ -165,9 +167,10 @@ class Draw(Overlay):
             else:
                 fgcolor = self.wcfg["bkg_color_inactive"]
 
-            format_text = f"{curr[0]:.01f}"
+            format_text = f"{curr[0]:.02f}"[:4]
             self.bar_active_timer.setText(format_text)
             self.bar_active_timer.setStyleSheet(
                 f"color: {fgcolor};"
                 f"background: {self.wcfg['bkg_color_activation_timer']};"
+                f"{self.bar_width_timer}"
             )

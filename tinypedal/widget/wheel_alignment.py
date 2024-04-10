@@ -43,17 +43,15 @@ class Draw(Overlay):
 
         # Config variable
         text_def = "n/a"
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        bar_width = font_m.width * 5
+        bar_width = f"min-width: {font_m.width * 5 + bar_padx}px;"
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
-            f"min-width: {bar_width}px;"
         )
 
         # Create layout
@@ -92,6 +90,7 @@ class Draw(Overlay):
             bar_style_camber = (
                 f"color: {self.wcfg['font_color_camber']};"
                 f"background: {self.wcfg['bkg_color_camber']};"
+                f"{bar_width}"
             )
             self.bar_camber_fl = QLabel(text_def)
             self.bar_camber_fl.setAlignment(Qt.AlignCenter)
@@ -116,6 +115,7 @@ class Draw(Overlay):
             bar_style_toein = (
                 f"color: {self.wcfg['font_color_toe_in']};"
                 f"background: {self.wcfg['bkg_color_toe_in']};"
+                f"{bar_width}"
             )
             self.bar_toein_fl = QLabel(text_def)
             self.bar_toein_fl.setAlignment(Qt.AlignCenter)
@@ -164,9 +164,7 @@ class Draw(Overlay):
 
             # Camber
             if self.wcfg["show_camber"]:
-                # Read camber data
                 camber = tuple(map(self.round2decimal, api.read.wheel.camber()))
-
                 self.update_wheel("camber_fl", camber[0], self.last_camber[0])
                 self.update_wheel("camber_fr", camber[1], self.last_camber[1])
                 self.update_wheel("camber_rl", camber[2], self.last_camber[2])
@@ -175,9 +173,7 @@ class Draw(Overlay):
 
             # Toe in
             if self.wcfg["show_toe_in"]:
-                # Read toe data
                 toein = tuple(map(self.round2decimal, api.read.wheel.toe()))
-
                 self.update_wheel("toein_fl", toein[0], self.last_toein[0])
                 self.update_wheel("toein_fr", -toein[1], self.last_toein[1])
                 self.update_wheel("toein_rl", toein[2], self.last_toein[2])

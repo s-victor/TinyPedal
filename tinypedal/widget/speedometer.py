@@ -42,15 +42,15 @@ class Draw(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
 
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
         if self.decimals > 0:
-            bar_width = font_m.width * (4 + self.decimals)
+            bar_width = f"min-width: {font_m.width * (4 + self.decimals) + bar_padx}px;"
             zero_offset = 1
         else:
-            bar_width = font_m.width * 3
+            bar_width = f"min-width: {font_m.width * 3 + bar_padx}px;"
             zero_offset = 0
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3) + zero_offset + self.decimals
 
@@ -59,8 +59,7 @@ class Draw(Overlay):
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
-            f"min-width: {bar_width}px;"
+            f"{bar_width}"
         )
 
         # Create layout

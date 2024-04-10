@@ -47,7 +47,7 @@ class Draw(Overlay):
         # Config variable
         text_def = "-.--"
         self.bar_width = max(self.wcfg["bar_width"], 3)
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"])
+        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
         self.decimals = tuple(
             map(self.decimal_range, (
@@ -68,10 +68,9 @@ class Draw(Overlay):
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"padding: 0 {bar_padx}px;"
         )
-        self.style_width = f"min-width: {font_m.width * self.bar_width}px; \
-                             max-width: {font_m.width * self.bar_width}px;"
+        self.style_width = (f"min-width: {font_m.width * self.bar_width + bar_padx}px;"
+                            f"max-width: {font_m.width * self.bar_width + bar_padx}px;")
 
         # Create layout
         layout = QGridLayout()
@@ -204,7 +203,7 @@ class Draw(Overlay):
 
         # Fuel level bar
         if self.wcfg["show_fuel_level_bar"]:
-            self.fuel_level_width = (font_m.width * self.bar_width + bar_padx * 2) * 5
+            self.fuel_level_width = (font_m.width * self.bar_width + bar_padx) * 5
             self.fuel_level_height = self.wcfg["fuel_level_bar_height"]
             self.rect_fuel_left = QRectF(0, 0, 0, self.fuel_level_height)
             self.rect_fuel_start = QRectF(
@@ -218,7 +217,7 @@ class Draw(Overlay):
 
             self.fuel_level = QLabel()
             self.fuel_level.setFixedSize(self.fuel_level_width, self.fuel_level_height)
-            self.fuel_level.setStyleSheet("padding: 0;")
+            #self.fuel_level.setStyleSheet("padding: 0;")
             self.pixmap_fuel_level = QPixmap(self.fuel_level_width, self.fuel_level_height)
             self.draw_fuel_level(self.fuel_level, self.pixmap_fuel_level, [0,0,0])
 
