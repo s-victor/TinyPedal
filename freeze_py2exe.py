@@ -12,7 +12,7 @@ import sys
 from glob import glob
 from py2exe import freeze
 
-from tinypedal.const import APP_NAME, VERSION, PLATFORM, COPYRIGHT
+from tinypedal.const import APP_NAME, VERSION, PLATFORM, COPYRIGHT, PYTHON_VERSION, QT_VERSION
 
 
 PYTHON_PATH = sys.exec_prefix
@@ -144,8 +144,10 @@ def build_exe() -> None:
 
 def build_start() -> None:
     """Start building"""
-    print(f"INFO:version:{VERSION}")
-    print(f"INFO:platform:{PLATFORM}")
+    print(f"INFO:platform: {PLATFORM}")
+    print(f"INFO:TinyPedal: {VERSION}")
+    print(f"INFO:Python: {PYTHON_VERSION}")
+    print(f"INFO:Qt: {QT_VERSION}")
     if PLATFORM == "Windows":
         if check_old_build(check_dist()):
             build_exe()

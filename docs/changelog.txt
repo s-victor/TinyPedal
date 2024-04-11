@@ -1,4 +1,4 @@
-WIP
+2.11.2 (2024-04-11)
 -----------------------------
 * General
   - "bar_padding" option will no longer crop text between edge and padding from
@@ -15,13 +15,13 @@ WIP
     This option is used for preventing extremely low refresh rate
     that may cause performance issues in case user incorrectly sets
     "update_interval" and "idle_update_interval" values.
-    Default value is `10`, and should not be modified.
+    Default value is "10", and should not be modified.
 
 * Deltabest & Deltabest extended Widgets
   - Add "freeze_duration" option, which sets freeze duration (seconds)
     for displaying previous lap time difference against best lap time source
     after crossing finish line. Value range in "0" to "30" seconds.
-    Default is `3` seconds. Set to `0` to disable.
+    Default is "3" seconds. Set to "0" to disable.
 
 * Flag Widget
   - Optimized flag update methods.
@@ -46,8 +46,8 @@ WIP
     Target laptime source depends on new "target_laptime" option.
   - Add new "target_laptime" option,
     which sets target laptime for display target reference lap and sector time.
-    Set `Theoretical` to show theoretical best sector time from session best sectors.
-    Set `Personal` to show sector time from personal best lap time.
+    Set "Theoretical" to show theoretical best sector time from session best sectors.
+    Set "Personal" to show sector time from personal best lap time.
   - Removed old "target_time_mode" options.
   - Removed old "always_show_laptime_gap" options.
 
@@ -56,6 +56,10 @@ WIP
 
 * Shared Memory API
   - Fixed a rare issue where rapidly restarting API could freeze the APP.
+
+* Misc
+  - Updated User Guide info for General options, Compatibility, Deltabest Widget,
+    Deltabest extended Widget, Pedal Widget, Sectors Widget.
 
 2.11.1 (2024-03-28)
 -----------------------------

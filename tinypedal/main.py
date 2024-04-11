@@ -26,11 +26,10 @@ import signal
 import logging
 import psutil
 
-from PySide2.QtCore import qVersion
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QApplication, QMessageBox
 
-from .const import APP_NAME, VERSION
+from .const import APP_NAME, VERSION, PYTHON_VERSION, QT_VERSION
 
 logger = logging.getLogger("tinypedal")
 
@@ -77,11 +76,9 @@ def prelaunch_check():
 
 def version_check():
     """Check version"""
-    python_version = ".".join(str(num) for num in sys.version_info[0:3])
-    qt_version = qVersion()
     logger.info("TinyPedal %s", VERSION)
-    logger.info("Python %s", python_version)
-    logger.info("Qt %s", qt_version)
+    logger.info("Python %s", PYTHON_VERSION)
+    logger.info("Qt %s", QT_VERSION)
 
 
 def start_app():

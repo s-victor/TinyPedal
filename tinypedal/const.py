@@ -20,12 +20,15 @@
 Constants
 """
 
+import sys
 import platform
 from .validator import is_folder_exist
 
+from PySide2.QtCore import qVersion
 
+
+VERSION = "2.11.2"
 APP_NAME = "TinyPedal"
-VERSION = "2.11.1"
 PLATFORM = platform.system()
 APP_ICON = "images/icon.png"
 COPYRIGHT = "Copyright (C) 2022-2024 TinyPedal developers"
@@ -33,6 +36,9 @@ DESCRIPTION = "A Free and Open Source telemetry overlay application for racing s
 LICENSE = "Licensed under the GNU General Public License v3.0 or later."
 WEBSITE = "https://github.com/s-victor/TinyPedal"
 
+# Library version
+PYTHON_VERSION = ".".join(str(num) for num in sys.version_info[0:3])
+QT_VERSION = qVersion()
 
 # User data path
 if PLATFORM == "Windows":
