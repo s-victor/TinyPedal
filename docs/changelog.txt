@@ -1,17 +1,15 @@
 WIP
 -----------------------------
 * General
-  - "bar_padding" option will no longer crop text edge from
-    none "mono" type fonts.
+  - "bar_padding" option will no longer crop text between edge and padding from
+    some none "mono" type fonts.
     "bar_padding" option can now be used to further increase
-    each element width in widget for none "mono" type fonts
-    that exceeded default widget width.
+    each element width in widget for some none "mono" type fonts
+    that exceeds default widget width.
   - Config dialog now validates values before saving,
     and shows error prompt for incorrect values.
-  - Improved color validation.
-  - Fixed an issue where invalid color could be saved.
-  - Add clock time format validation.
-  - Improved track clock time calculation.
+  - Improved color validation, fixed an issue where invalid color could be saved.
+  - Add clock time format validation, improved track clock time calculation.
   - Add "minimum_update_interval" option in Compatibility config,
     which sets minimum refresh rate limit for widget and module in milliseconds.
     This option is used for preventing extremely low refresh rate
@@ -26,7 +24,7 @@ WIP
     Default is `3` seconds. Set to `0` to disable.
 
 * Flag Widget
-  - Optimized flag update.
+  - Optimized flag update methods.
 
 * Gear Widget
   - Fixed a typo in "battery_bar_color_regen" default value,
@@ -34,7 +32,7 @@ WIP
 
 * Lap time history Widget
   - Fixed missing fuel unit conversion for gallon.
-  - Optimized lap history update.
+  - Optimized lap history update methods.
 
 * Sectors Widget
   - Now shows laptime "time gap" on "target time" bar,
@@ -48,7 +46,7 @@ WIP
   - Removed old "always_show_laptime_gap" options.
 
 * Stint history Widget
-  - Optimized stint history update.
+  - Optimized stint history update methods.
 
 * Shared Memory API
   - Fixed a rare issue where rapidly restarting API could freeze the APP.

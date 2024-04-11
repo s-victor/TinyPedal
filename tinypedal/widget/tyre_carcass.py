@@ -208,7 +208,7 @@ class Draw(Overlay):
                     self.last_lap_etime = lap_etime  # reset time stamp counter
                     self.rtemp_samples.append(ctemp)
 
-                rtemp = tuple(map(lambda x,y: x-y, ctemp, self.rtemp_samples[0]))
+                rtemp = tuple(map(self.temp_difference, ctemp, self.rtemp_samples[0]))
                 for idx, suffix in enumerate(self.rtemp_set):
                     self.update_rtemp(suffix, rtemp[idx], self.last_rtemp[idx])
                 self.last_rtemp = rtemp
@@ -265,3 +265,8 @@ class Draw(Overlay):
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
             return calc.celsius2fahrenheit(value)
         return value
+
+    @staticmethod
+    def temp_difference(value1, value2):
+        """Temperature difference"""
+        return value1 - value2

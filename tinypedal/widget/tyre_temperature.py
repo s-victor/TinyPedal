@@ -126,13 +126,13 @@ class Draw(Overlay):
                     getattr(self, f"bar_{suffix}_{idx}").setStyleSheet(bar_style_stemp)
                     if suffix == "stemp_fl":  # 2 1 0
                         layout_stemp.addWidget(
-                            getattr(self, f"bar_{suffix}_{idx}"), 0, 2 - idx)
+                            getattr(self, f"bar_{suffix}_{idx}"), 0, idx)
                     if suffix == "stemp_fr":  # 7 8 9
                         layout_stemp.addWidget(
                             getattr(self, f"bar_{suffix}_{idx}"), 0, 7 + idx)
                     if suffix == "stemp_rl":  # 2 1 0
                         layout_stemp.addWidget(
-                            getattr(self, f"bar_{suffix}_{idx}"), 1, 2 - idx)
+                            getattr(self, f"bar_{suffix}_{idx}"), 1, idx)
                     if suffix == "stemp_rr":  # 7 8 9
                         layout_stemp.addWidget(
                             getattr(self, f"bar_{suffix}_{idx}"), 1, 7 + idx)
@@ -145,13 +145,13 @@ class Draw(Overlay):
                         getattr(self, f"bar_{suffix}_{idx}").setStyleSheet(bar_style_itemp)
                         if suffix == "itemp_fl":  # 2 1 0
                             layout_itemp.addWidget(
-                                getattr(self, f"bar_{suffix}_{idx}"), 0, 2 - idx)
+                                getattr(self, f"bar_{suffix}_{idx}"), 0, idx)
                         if suffix == "itemp_fr":  # 7 8 9
                             layout_itemp.addWidget(
                                 getattr(self, f"bar_{suffix}_{idx}"), 0, 7 + idx)
                         if suffix == "itemp_rl":  # 2 1 0
                             layout_itemp.addWidget(
-                                getattr(self, f"bar_{suffix}_{idx}"), 1, 2 - idx)
+                                getattr(self, f"bar_{suffix}_{idx}"), 1, idx)
                         if suffix == "itemp_rr":  # 7 8 9
                             layout_itemp.addWidget(
                                 getattr(self, f"bar_{suffix}_{idx}"), 1, 7 + idx)
@@ -228,83 +228,42 @@ class Draw(Overlay):
                 self.update_tcmpd(tcmpd, self.last_tcmpd)
                 self.last_tcmpd = tcmpd
 
-            # Tyre temperature
-            stemp = tuple(map(self.temp_mode, api.read.tyre.surface_temperature()))
-
             # Inner, center, outer mode
             if self.wcfg["show_inner_center_outer"]:
                 # Surface temperature
-                for suffix in self.stemp_set:
-                    for idx in range(3):
-                        if suffix == "stemp_fl":  # 2 1 0
-                            self.update_stemp(
-                                f"{suffix}_{idx}",
-                                stemp[0][2 - idx],
-                                self.last_stemp[0][2 - idx]
-                            )
-                        if suffix == "stemp_fr":  # 0 1 2
-                            self.update_stemp(
-                                f"{suffix}_{idx}",
-                                stemp[1][idx],
-                                self.last_stemp[1][idx]
-                            )
-                        if suffix == "stemp_rl":  # 2 1 0
-                            self.update_stemp(
-                                f"{suffix}_{idx}",
-                                stemp[2][2 - idx],
-                                self.last_stemp[2][2 - idx]
-                            )
-                        if suffix == "stemp_rr":  # 0 1 2
-                            self.update_stemp(
-                                f"{suffix}_{idx}",
-                                stemp[3][idx],
-                                self.last_stemp[3][idx]
-                            )
+                stemp = api.read.tyre.surface_temperature()
+                for patch_idx in range(3):  # 0 1 2
+                    for tyre_idx, suffix in enumerate(self.stemp_set):
+                        self.update_stemp(
+                            f"{suffix}_{patch_idx}",
+                            stemp[tyre_idx][patch_idx],
+                            self.last_stemp[tyre_idx][patch_idx]
+                        )
                 self.last_stemp = stemp
 
                 # Inner layer temperature
                 if self.wcfg["show_innerlayer"]:
-                    itemp = tuple(map(
-                        self.temp_mode, api.read.tyre.inner_temperature()))
-                    for suffix in self.itemp_set:
-                        for idx in range(3):
-                            if suffix == "itemp_fl":  # 2 1 0
-                                self.update_itemp(
-                                    f"{suffix}_{idx}",
-                                    itemp[0][2 - idx],
-                                    self.last_itemp[0][2 - idx]
-                                )
-                            if suffix == "itemp_fr":  # 0 1 2
-                                self.update_itemp(
-                                    f"{suffix}_{idx}",
-                                    itemp[1][idx],
-                                    self.last_itemp[1][idx]
-                                )
-                            if suffix == "itemp_rl":  # 2 1 0
-                                self.update_itemp(
-                                    f"{suffix}_{idx}",
-                                    itemp[2][2 - idx],
-                                    self.last_itemp[2][2 - idx]
-                                )
-                            if suffix == "itemp_rr":  # 0 1 2
-                                self.update_itemp(
-                                    f"{suffix}_{idx}",
-                                    itemp[3][idx],
-                                    self.last_itemp[3][idx]
-                                )
+                    itemp = api.read.tyre.inner_temperature()
+                    for patch_idx in range(3):
+                        for tyre_idx, suffix in enumerate(self.itemp_set):
+                            self.update_itemp(
+                                f"{suffix}_{patch_idx}",
+                                itemp[tyre_idx][patch_idx],
+                                self.last_itemp[tyre_idx][patch_idx]
+                            )
                     self.last_itemp = itemp
             # Average mode
             else:
                 # Surface temperature
-                for idx, suffix in enumerate(self.stemp_set):
-                    self.update_stemp(suffix, stemp[idx], self.last_stemp[idx])
+                stemp = tuple(map(calc.mean, api.read.tyre.surface_temperature()))
+                for patch_idx, suffix in enumerate(self.stemp_set):
+                    self.update_stemp(suffix, stemp[patch_idx], self.last_stemp[patch_idx])
                 self.last_stemp = stemp
                 # Inner layer temperature
                 if self.wcfg["show_innerlayer"]:
-                    itemp = tuple(map(
-                        self.temp_mode, api.read.tyre.inner_temperature()))
-                    for idx, suffix in enumerate(self.itemp_set):
-                        self.update_itemp(suffix, itemp[idx], self.last_itemp[idx])
+                    itemp = tuple(map(calc.mean, api.read.tyre.inner_temperature()))
+                    for patch_idx, suffix in enumerate(self.itemp_set):
+                        self.update_itemp(suffix, itemp[patch_idx], self.last_itemp[patch_idx])
                     self.last_itemp = itemp
 
     # GUI update methods
@@ -345,12 +304,6 @@ class Draw(Overlay):
             self.bar_tcmpd_r.setText(curr[1])
 
     # Additional methods
-    def temp_mode(self, value):
-        """Temperature inner/center/outer mode"""
-        if self.wcfg["show_inner_center_outer"]:
-            return value
-        return calc.mean(value)
-
     def temp_units(self, value):
         """Temperature units"""
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
