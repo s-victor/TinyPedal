@@ -202,7 +202,8 @@ class Realtime(DataModule):
                 minfo.delta.lapTimeLast = laptime_last
                 minfo.delta.lapTimeBest = laptime_best
                 minfo.delta.lapTimeEstimated = laptime_best + delta_best
-                minfo.delta.lapTimeStintBest = laptime_stint_best
+                minfo.delta.lapTimeSession = laptime_session_best
+                minfo.delta.lapTimeStint = laptime_stint_best
                 minfo.delta.deltaBest = delta_best
                 minfo.delta.deltaLast = delta_last
                 minfo.delta.deltaSession = session_delta_best

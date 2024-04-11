@@ -77,7 +77,6 @@ CFG_INTEGER = (
     "^position_x$|"
     "^position_y$|"
     "^stint_history_count$|"
-    "^target_time_mode$|"
     # Partial match
     "bar_gap|"
     "bar_edge_width|"

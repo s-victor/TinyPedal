@@ -240,6 +240,7 @@ WIDGET_DEFAULT = {
         "bar_height": 16,
         "bar_display_range": 2,
         "delta_display_range": 99.999,
+        "freeze_duration": 3,
         "show_animated_deltabest": True,
     },
     "deltabest_extended": {
@@ -267,6 +268,7 @@ WIDGET_DEFAULT = {
         "font_color_deltalast": "#BBBBBB",
         "bkg_color_deltalast": "#222222",
         "delta_display_range": 99.999,
+        "freeze_duration": 3,
         "prefix_all_time_deltabest": "B ",
         "prefix_session_deltabest": "S ",
         "prefix_stint_deltabest": "T ",

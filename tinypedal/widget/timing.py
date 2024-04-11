@@ -289,7 +289,7 @@ class Draw(Overlay):
 
             # Stint personal best laptime
             if self.wcfg["show_stint_best"]:
-                laptime_stbt = minfo.delta.lapTimeStintBest
+                laptime_stbt = minfo.delta.lapTimeStint
                 self.update_laptime(laptime_stbt, self.last_laptime_stbt,
                                     self.prefix_stbt, "stbt")
                 self.last_laptime_stbt = laptime_stbt

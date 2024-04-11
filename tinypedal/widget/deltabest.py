@@ -72,6 +72,8 @@ class Draw(Overlay):
         self.rect_delta = QRectF(0, pos_y2, self.delta_width, self.delta_height)
         self.rect_text_delta = self.rect_delta.adjusted(0, self.font_offset, 0, 0)
 
+        self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 10)
+
         # Config canvas
         if self.wcfg["show_delta_bar"]:
             self.resize(self.dbar_length * 2,
@@ -84,7 +86,9 @@ class Draw(Overlay):
 
         # Last data
         self.delta_best = 0
-        self.last_delta_best = None
+        self.last_delta_best = 0
+        self.last_laptime = 0
+        self.new_lap = True
 
         # Set widget state & start update
         self.set_widget_state()
@@ -95,9 +99,16 @@ class Draw(Overlay):
         if api.state:
 
             # Deltabest
-            self.delta_best = calc.sym_range(
-                getattr(minfo.delta, f"delta{self.wcfg['deltabest_source']}"),
-                self.wcfg["delta_display_range"])
+            if minfo.delta.lapTimeCurrent < self.freeze_duration:
+                self.delta_best = minfo.delta.lapTimeLast - self.last_laptime
+                self.new_lap = True
+            else:
+                if self.new_lap:
+                    self.last_laptime = getattr(minfo.delta, f"lapTime{self.wcfg['deltabest_source']}")
+                    self.new_lap = False
+
+                self.delta_best = getattr(minfo.delta, f"delta{self.wcfg['deltabest_source']}")
+
             self.update_deltabest(self.delta_best, self.last_delta_best)
             self.last_delta_best = self.delta_best
 
@@ -170,7 +181,7 @@ class Draw(Overlay):
         painter.drawText(
             self.rect_text_delta,
             Qt.AlignCenter,
-            f"{self.delta_best:+.03f}"[:7]
+            f"{calc.sym_range(self.delta_best, self.wcfg['delta_display_range']):+.03f}"[:7]
         )
 
     # Additional methods

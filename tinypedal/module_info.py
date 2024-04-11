@@ -32,7 +32,8 @@ class DeltaInfo:
     lapTimeLast: float = 0
     lapTimeBest: float = 0
     lapTimeEstimated: float = 0
-    lapTimeStintBest: float = 0
+    lapTimeSession: float = 0
+    lapTimeStint: float = 0
     deltaBest: float = 0
     deltaLast: float = 0
     deltaSession: float = 0

@@ -547,7 +547,7 @@ Show electric boost motor activation timer.
 Set percentage threshold for low battery charge warning indicator.
 
     freeze_duration
-Set freeze duration (seconds) for previous lap drained/regenerated battery charge display. Default is `10` seconds.
+Set freeze duration (seconds) for displaying previous lap total drained/regenerated battery charge after crossing finish line. Default is `10` seconds.
 
 
 ## Brake bias
@@ -608,7 +608,7 @@ Set amount leading zeros for each temperature value. Default is `2`. Minimum val
 Show average brake temperature calculated from a full lap.
 
     highlight_duration
-Set duration (seconds) for highlighting average brake temperature from previous lap after crossing start/finish line. Default is `5` seconds.
+Set duration (seconds) for highlighting average brake temperature from previous lap after crossing finish line. Default is `5` seconds.
 
 
 ## Cruise
@@ -684,6 +684,9 @@ Set max display range (gain or loss) in seconds for delta bar, accepts decimal p
 
     delta_display_range
 Set max display range (gain or loss) in seconds for delta reading, accepts decimal place. Default is `99.999` seconds.
+
+    freeze_duration
+Set freeze duration (seconds) for displaying previous lap time difference against best lap time source after crossing finish line. Value range in `0` to `10` seconds. Default is `3` seconds. Set to `0` to disable.
 
     show_animated_deltabest
 Deltabest display follows delta bar progress.
@@ -1475,7 +1478,7 @@ Set custom time interval color of opponent ahead and behind.
 Set target laptime for display target reference lap and sector time. Set `Theoretical` to show theoretical best sector time from session best sectors. Set `Personal` to show sector time from personal best lap time.
 
     freeze_duration
-Set freeze duration (seconds) for previous sector time display. Default is `5` seconds.
+Set freeze duration (seconds) for displaying previous sector time. Default is `5` seconds.
 
 
 ## Session
@@ -1831,7 +1834,7 @@ Show total tyre wear difference of previous lap.
 Show tyre wear difference of current lap that constantly updated.
 
     freeze_duration
-Set freeze duration (seconds) for previous lap tyre wear info if `show_live_wear_difference` is enabled.
+Set freeze duration (seconds) for displaying previous lap tyre wear if `show_live_wear_difference` is enabled.
 
     show_lifespan_laps
 Show estimated tyre lifespan in laps.
