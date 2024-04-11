@@ -547,7 +547,7 @@ Show electric boost motor activation timer.
 Set percentage threshold for low battery charge warning indicator.
 
     freeze_duration
-Set freeze duration (seconds) for displaying previous lap total drained/regenerated battery charge after crossing finish line. Default is `10` seconds.
+Set freeze duration (seconds) for displaying previous lap total drained/regenerated battery charge after crossing finish line. Value range in `0` to `30` seconds. Default is `10` seconds.
 
 
 ## Brake bias
@@ -686,7 +686,7 @@ Set max display range (gain or loss) in seconds for delta bar, accepts decimal p
 Set max display range (gain or loss) in seconds for delta reading, accepts decimal place. Default is `99.999` seconds.
 
     freeze_duration
-Set freeze duration (seconds) for displaying previous lap time difference against best lap time source after crossing finish line. Value range in `0` to `10` seconds. Default is `3` seconds. Set to `0` to disable.
+Set freeze duration (seconds) for displaying previous lap time difference against best lap time source after crossing finish line. Value range in `0` to `30` seconds. Default is `3` seconds. Set to `0` to disable.
 
     show_animated_deltabest
 Deltabest display follows delta bar progress.
@@ -1834,7 +1834,7 @@ Show total tyre wear difference of previous lap.
 Show tyre wear difference of current lap that constantly updated.
 
     freeze_duration
-Set freeze duration (seconds) for displaying previous lap tyre wear if `show_live_wear_difference` is enabled.
+Set freeze duration (seconds) for displaying previous lap tyre wear if `show_live_wear_difference` is enabled. Value range in `0` to `30` seconds. Default is `10` seconds.
 
     show_lifespan_laps
 Show estimated tyre lifespan in laps.

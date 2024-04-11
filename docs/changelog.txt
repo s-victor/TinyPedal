@@ -22,7 +22,7 @@ WIP
 * Deltabest & Deltabest extended Widgets
   - Add "freeze_duration" option, which sets freeze duration (seconds)
     for displaying previous lap time difference against best lap time source
-    after crossing finish line. Value range in "0" to "10" seconds.
+    after crossing finish line. Value range in "0" to "30" seconds.
     Default is `3` seconds. Set to `0` to disable.
 
 * Flag Widget

@@ -63,7 +63,7 @@ class Draw(Overlay):
         self.prefix_labest = self.wcfg["prefix_deltalast"][:prefix_w].ljust(prefix_just)
 
         time_none = "--.---"
-        self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 10)
+        self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
 
         # Base style
         self.setStyleSheet(

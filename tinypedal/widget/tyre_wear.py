@@ -46,6 +46,7 @@ class Draw(Overlay):
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
         self.bar_width = f"min-width: {font_m.width * 4 + bar_padx}px;"
+        self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
 
         # Base style
         self.setStyleSheet(
@@ -280,7 +281,7 @@ class Draw(Overlay):
             if self.wcfg["show_wear_difference"]:
                 # Realtime diff
                 if (self.wcfg["show_live_wear_difference"] and
-                    lap_etime - lap_stime > self.wcfg["freeze_duration"]):
+                    lap_etime - lap_stime > self.freeze_duration):
                     self.update_diff("fl", self.wear_live[0], self.last_wear_live[0],
                                      self.wcfg["warning_threshold_wear"])
                     self.update_diff("fr", self.wear_live[1], self.last_wear_live[1],

@@ -72,7 +72,7 @@ class Draw(Overlay):
         self.rect_delta = QRectF(0, pos_y2, self.delta_width, self.delta_height)
         self.rect_text_delta = self.rect_delta.adjusted(0, self.font_offset, 0, 0)
 
-        self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 10)
+        self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
 
         # Config canvas
         if self.wcfg["show_delta_bar"]:

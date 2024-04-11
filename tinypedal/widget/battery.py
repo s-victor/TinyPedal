@@ -45,6 +45,7 @@ class Draw(Overlay):
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
         bar_width = f"min-width: {font_m.width * 8 + bar_padx}px;"
+        self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
 
         # Base style
         self.setStyleSheet(
@@ -150,7 +151,7 @@ class Draw(Overlay):
 
             if lap_stime != self.last_lap_stime:
                 laptime_curr = lap_etime - lap_stime
-                if laptime_curr >= self.wcfg["freeze_duration"] or laptime_curr < 0:
+                if laptime_curr >= self.freeze_duration or laptime_curr < 0:
                     self.last_lap_stime = lap_stime
                 battery_drain = minfo.hybrid.batteryDrainLast
                 battery_regen = minfo.hybrid.batteryRegenLast
