@@ -34,6 +34,12 @@ WIP
   - Fixed missing fuel unit conversion for gallon.
   - Optimized lap history update methods.
 
+* Pedal Widget
+  - Add "show_throttle_filtered" "show_brake_filtered" "show_clutch_filtered" options,
+    which set visibility of filtered pedal input.
+    For vehicle that does not provide filtered pedal API data,
+    turn off those options to show raw pedal input only.
+
 * Sectors Widget
   - Now shows laptime "time gap" on "target time" bar,
     which shows laptime difference between current laptime and target laptime.

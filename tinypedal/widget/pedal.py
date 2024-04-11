@@ -160,41 +160,45 @@ class Draw(Overlay):
             if not self.checked:
                 self.checked = True
 
-            # Read pedal data
-            f_throttle = self.scale_input(api.read.input.throttle())
-            f_brake = self.scale_input(api.read.input.brake())
-            f_clutch = self.scale_input(api.read.input.clutch())
-            raw_throttle = self.scale_input(api.read.input.throttle_raw())
-            raw_brake = self.scale_input(api.read.input.brake_raw())
-            raw_clutch = self.scale_input(api.read.input.clutch_raw())
-            ffb = self.scale_input(api.read.input.force_feedback())
-
             # Throttle
             if self.wcfg["show_throttle"]:
-                throttle = (raw_throttle, f_throttle)
+                raw_throttle = self.scale_input(api.read.input.throttle_raw())
+                if self.wcfg["show_throttle_filtered"]:
+                    f_throttle = self.scale_input(api.read.input.throttle())
+                    throttle = (raw_throttle, f_throttle)
+                else:
+                    throttle = (raw_throttle, raw_throttle)
                 self.update_throttle(throttle, self.last_throttle)
                 self.last_throttle = throttle
 
             # Brake
             if self.wcfg["show_brake"]:
-                if self.wcfg["show_brake_pressure"]:
-                    brake_pres = sum(api.read.brake.pressure())
-                    if brake_pres > self.max_brake_pres:
-                        self.max_brake_pres = brake_pres
-                    f_brake = self.scale_input(brake_pres / max(self.max_brake_pres, 0.001))
-
-                brake = (raw_brake, f_brake)
+                raw_brake = self.scale_input(api.read.input.brake_raw())
+                if self.wcfg["show_brake_filtered"]:
+                    if self.wcfg["show_brake_pressure"]:
+                        f_brake = self.filtered_brake_pressure(api.read.brake.pressure())
+                    else:
+                        f_brake = self.scale_input(api.read.input.brake())
+                    brake = (raw_brake, f_brake)
+                else:
+                    brake = (raw_brake, raw_brake)
                 self.update_brake(brake, self.last_brake)
                 self.last_brake = brake
 
             # Clutch
             if self.wcfg["show_clutch"]:
-                clutch = (raw_clutch, f_clutch)
+                raw_clutch = self.scale_input(api.read.input.clutch_raw())
+                if self.wcfg["show_clutch_filtered"]:
+                    f_clutch = self.scale_input(api.read.input.clutch())
+                    clutch = (raw_clutch, f_clutch)
+                else:
+                    clutch = (raw_clutch, raw_clutch)
                 self.update_clutch(clutch, self.last_clutch)
                 self.last_clutch = clutch
 
             # Force feedback
             if self.wcfg["show_ffb_meter"]:
+                ffb = self.scale_input(api.read.input.force_feedback())
                 self.update_ffb(ffb, self.last_ffb)
                 self.last_ffb = ffb
 
@@ -287,3 +291,10 @@ class Draw(Overlay):
         if self.wcfg["enable_horizontal_style"]:
             return abs(int(value * self.pedal_length))
         return self.pbar_length - abs(int(value * self.pedal_length))
+
+    def filtered_brake_pressure(self, value):
+        """Percentage filtered brake pressure"""
+        brake_pres = sum(value)
+        if brake_pres > self.max_brake_pres:
+            self.max_brake_pres = brake_pres
+        return self.scale_input(brake_pres / max(self.max_brake_pres, 0.001))
