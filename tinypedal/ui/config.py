@@ -265,8 +265,8 @@ class UserConfig(QDialog):
         """Save setting"""
         error_found = False
         for key in self.option_bool:
-            value = getattr(self, f"checkbox_{key}").checkState()
-            cfg.user.setting[self.key_name][key] = bool(value)
+            cfg.user.setting[self.key_name][key] = getattr(
+                self, f"checkbox_{key}").isChecked()
 
         for key in self.option_color:
             value = getattr(self, f"lineedit_{key}").text()
