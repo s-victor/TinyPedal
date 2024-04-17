@@ -80,6 +80,16 @@ def kpa2bar(kilopascal):
     return kilopascal * 0.01
 
 
+def kw2hp(kilowatt):
+    """Kilowatt to imperial horsepower (hp)"""
+    return kilowatt * 1.341
+
+
+def kw2ps(kilowatt):
+    """Kilowatt to metric horsepower (ps)"""
+    return kilowatt * 1.3596
+
+
 # Common
 def vel2speed(vel_x, vel_y, vel_z=0):
     """Convert velocity to Speed"""
@@ -132,6 +142,13 @@ def std_dev(data, avg):
     """Sample standard deviation"""
     # math.sqrt(sum(map(lambda x:(x-avg)**2, data)) / (len(data) - k))
     return statistics.stdev(data, avg)
+
+
+def engine_power(torque, rpm):
+    """Engine power (kW)"""
+    if torque > 0:
+        return torque * rpm / 9549.3
+    return 0
 
 
 def rad2deg(radian):

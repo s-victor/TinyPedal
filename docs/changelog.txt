@@ -1,7 +1,17 @@
 WIP
 -----------------------------
+* General
+  - Add "power_unit" option in "Units and symbols" dialog,
+    which sets power unit for Electric motor & Engine Widgets.
+    Available units: "Kilowatt", "Horsepower", "Metric Horsepower".
+
+* Electric motor Widget
+  - Add "show_power" option, which shows motor power.
+  - Renamed some old option names for better readability & consistency.
+
 * Engine Widget
   - Add "show_torque" option, which shows engine torque.
+  - Add "show_power" option, which shows engine power.
 
 2.11.2 (2024-04-11)
 -----------------------------

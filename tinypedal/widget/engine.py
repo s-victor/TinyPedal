@@ -66,6 +66,7 @@ class Draw(Overlay):
         column_rpm = self.wcfg["column_index_rpm"]
         column_rpm_max = self.wcfg["column_index_rpm_maximum"]
         column_torque = self.wcfg["column_index_torque"]
+        column_power = self.wcfg["column_index_power"]
 
         # Oil temperature
         if self.wcfg["show_temperature"]:
@@ -93,7 +94,7 @@ class Draw(Overlay):
                 f"background: {self.wcfg['bkg_color_turbo']};"
             )
 
-        # RPM
+        # Engine RPM
         if self.wcfg["show_rpm"]:
             self.bar_rpm = QLabel("RPM")
             self.bar_rpm.setAlignment(Qt.AlignCenter)
@@ -102,7 +103,7 @@ class Draw(Overlay):
                 f"background: {self.wcfg['bkg_color_rpm']};"
             )
 
-        # RPM maximum
+        # Engine RPM maximum
         if self.wcfg["show_rpm_maximum"]:
             self.bar_rpm_max = QLabel("MAX RPM")
             self.bar_rpm_max.setAlignment(Qt.AlignCenter)
@@ -111,13 +112,22 @@ class Draw(Overlay):
                 f"background: {self.wcfg['bkg_color_rpm_maximum']};"
             )
 
-        # Torque
+        # Engine torque
         if self.wcfg["show_torque"]:
             self.bar_torque = QLabel("TORQUE")
             self.bar_torque.setAlignment(Qt.AlignCenter)
             self.bar_torque.setStyleSheet(
                 f"color: {self.wcfg['font_color_torque']};"
                 f"background: {self.wcfg['bkg_color_torque']};"
+            )
+
+        # Engine power
+        if self.wcfg["show_power"]:
+            self.bar_power = QLabel("POWER")
+            self.bar_power.setAlignment(Qt.AlignCenter)
+            self.bar_power.setStyleSheet(
+                f"color: {self.wcfg['font_color_power']};"
+                f"background: {self.wcfg['bkg_color_power']};"
             )
 
         # Set layout
@@ -134,6 +144,8 @@ class Draw(Overlay):
                 layout.addWidget(self.bar_rpm_max, column_rpm_max, 0)
             if self.wcfg["show_torque"]:
                 layout.addWidget(self.bar_torque, column_torque, 0)
+            if self.wcfg["show_power"]:
+                layout.addWidget(self.bar_power, column_power, 0)
         else:
             # Horizontal layout
             if self.wcfg["show_temperature"]:
@@ -147,6 +159,8 @@ class Draw(Overlay):
                 layout.addWidget(self.bar_rpm_max, 0, column_rpm_max)
             if self.wcfg["show_torque"]:
                 layout.addWidget(self.bar_torque, 0, column_torque)
+            if self.wcfg["show_power"]:
+                layout.addWidget(self.bar_power, 0, column_power)
         self.setLayout(layout)
 
         # Last data
@@ -156,6 +170,7 @@ class Draw(Overlay):
         self.last_rpm = None
         self.last_rpm_max = None
         self.last_torque = None
+        self.last_power = None
 
         # Set widget state & start update
         self.set_widget_state()
@@ -200,6 +215,13 @@ class Draw(Overlay):
                 torque = round(api.read.engine.torque(), 2)
                 self.update_torque(torque, self.last_torque)
                 self.last_torque = torque
+
+            # Engine power
+            if self.wcfg["show_power"]:
+                power = round(calc.engine_power(
+                    api.read.engine.torque(), api.read.engine.rpm()), 2)
+                self.update_power(power, self.last_power)
+                self.last_power = power
 
     # GUI update methods
     def update_oil(self, curr, last):
@@ -257,6 +279,11 @@ class Draw(Overlay):
             format_text = f"{curr:.02f}"[:6].rjust(6)
             self.bar_torque.setText(f"{format_text}Nm")
 
+    def update_power(self, curr, last):
+        """Engine power"""
+        if curr != last:
+            self.bar_power.setText(self.power_units(curr))
+
     # Additional methods
     def pressure_units(self, pres):
         """Pressure units"""
@@ -265,3 +292,14 @@ class Draw(Overlay):
         if self.cfg.units["turbo_pressure_unit"] == "kPa":
             return f"{pres:03.01f}kPa"
         return f"{calc.kpa2bar(pres):03.03f}bar"
+
+    def power_units(self, power):
+        """Power units"""
+        if self.cfg.units["power_unit"] == "Kilowatt":
+            text = f"{power:.02f}"[:6].rjust(6)
+            return f"{text}kW"
+        if self.cfg.units["power_unit"] == "Horsepower":
+            text = f"{calc.kw2hp(power):.02f}"[:6].rjust(6)
+            return f"{text}hp"
+        text = f"{calc.kw2ps(power):.02f}"[:6].rjust(6)
+        return f"{text}ps"

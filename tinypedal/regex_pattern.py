@@ -128,6 +128,7 @@ UNITS_DICT = {
     "distance_unit": ("Meter", "Feet"),
     "fuel_unit": ("Liter", "Gallon"),
     "odometer_unit": ("Kilometer", "Mile", "Meter"),
+    "power_unit": ("Kilowatt", "Horsepower", "Metric Horsepower"),
     "speed_unit": ("KPH", "MPH", "m/s"),
     "temperature_unit": ("Celsius", "Fahrenheit"),
     "turbo_pressure_unit": ("bar", "psi", "kPa"),

@@ -56,6 +56,7 @@ APPLICATION_DEFAULT = {
         "distance_unit": "Meter",
         "fuel_unit": "Liter",
         "odometer_unit": "Kilometer",
+        "power_unit": "Kilowatt",
         "speed_unit": "KPH",
         "temperature_unit": "Celsius",
         "turbo_pressure_unit": "bar",

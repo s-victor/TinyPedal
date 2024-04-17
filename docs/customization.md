@@ -324,6 +324,9 @@ Set character encoding for displaying text in correct encoding. Available encodi
     odometer_unit
 3 unit types are available: `"Kilometer"`, `"Mile"`, `"Meter"`.
 
+    power_unit
+3 unit types are available: `"Kilowatt"`, `"Horsepower"`, `"Metric Horsepower"`.
+
     speed_unit
 3 unit types are available: `"KPH"`, `"MPH"`, `"m/s"`.
 
@@ -730,20 +733,23 @@ Set color when DRS is unavailable for current track or car.
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
-    show_boost_motor_temp
-Show boost motor temperature.
+    show_motor_temperature
+Show electric motor temperature.
 
-    show_boost_water_temp
-Show boost motor cooler water temperature.
-
-    show_boost_motor_rpm
-Show boost motor RPM.
-
-    show_boost_motor_torque
-Show boost motor torque.
+    show_water_temperature
+Show electric motor cooler water temperature.
 
     overheat_threshold_motor, overheat_threshold_water
-Set temperature threshold for boost motor & water overheat color indicator, unit in Celsius.
+Set temperature threshold for electric motor & water overheat color indicator, unit in Celsius.
+
+    show_rpm
+Show electric motor RPM.
+
+    show_torque
+Show electric motor torque.
+
+    show_power
+Show electric motor power.
 
 
 ## Engine
@@ -769,6 +775,9 @@ shows maximum engine RPM (rev limit).
 
     show_torque
 Show engine torque.
+
+    show_power
+Show engine power.
 
 
 ## Flag
