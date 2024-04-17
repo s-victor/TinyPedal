@@ -111,8 +111,7 @@ class AppWindow(QMainWindow):
 
         # Overlay menu
         menu_overlay = menu.addMenu("Overlay")
-        self.overlay_menu = OverlayMenu
-        self.overlay_menu(self, menu_overlay)
+        OverlayMenu(self, menu_overlay)
         menu_overlay.addSeparator()
 
         app_quit = QAction("Quit", self)

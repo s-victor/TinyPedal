@@ -24,6 +24,7 @@ from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import QSystemTrayIcon, QMenu, QAction
 
 from ..const import APP_NAME, VERSION, APP_ICON
+from .menu import OverlayMenu
 
 
 class TrayIcon(QSystemTrayIcon):
@@ -51,7 +52,7 @@ class TrayIcon(QSystemTrayIcon):
         menu.addSeparator()
 
         # Overlay menu
-        self.master.overlay_menu(self.master, menu)
+        OverlayMenu(self.master, menu)
         menu.addSeparator()
 
         # Config
