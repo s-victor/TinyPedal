@@ -767,6 +767,9 @@ Show engine RPM.
     show_rpm_maximum
 shows maximum engine RPM (rev limit).
 
+    show_torque
+Show engine torque.
+
 
 ## Flag
 **This widget displays flags, pit state, warnings, start lights info.**

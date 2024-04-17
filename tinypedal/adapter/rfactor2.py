@@ -129,6 +129,10 @@ class Engine(DataAdapter):
         """Max RPM"""
         return chknm(self.info.rf2TeleVeh(index).mEngineMaxRPM)
 
+    def torque(self, index: int | None = None) -> float:
+        """Torque"""
+        return chknm(self.info.rf2TeleVeh(index).mEngineTorque)
+
     def turbo(self, index: int | None = None) -> float:
         """Turbo"""
         return chknm(self.info.rf2TeleVeh(index).mTurboBoostPressure)

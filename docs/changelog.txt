@@ -1,3 +1,8 @@
+WIP
+-----------------------------
+* Engine Widget
+  - Add "show_torque" option, which shows engine torque.
+
 2.11.2 (2024-04-11)
 -----------------------------
 * General
