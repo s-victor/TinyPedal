@@ -30,16 +30,18 @@ import shutil
 from dataclasses import dataclass
 
 from .const import PLATFORM, PATH_SETTINGS, PATH_BRANDLOGO
+from .setting_validator import PresetValidator
+from . import regex_pattern as rxp
+from . import validator as val
+
 from .template.setting_application import APPLICATION_DEFAULT
 from .template.setting_module import MODULE_DEFAULT
 from .template.setting_widget import WIDGET_DEFAULT
 from .template.setting_classes import CLASSES_DEFAULT
 from .template.setting_heatmap import HEATMAP_DEFAULT
-from .setting_validator import preset_validator
-from . import regex_pattern as rxp
-from . import validator as val
 
 logger = logging.getLogger(__name__)
+preset_validator = PresetValidator()
 
 
 @dataclass

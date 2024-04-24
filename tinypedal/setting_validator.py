@@ -201,6 +201,3 @@ class PresetValidator:
         for item in dict_user.keys():  # list each key lists
             self.validate_key_pair(dict_user[item], dict_def[item])
         return dict_user
-
-
-preset_validator = PresetValidator()
