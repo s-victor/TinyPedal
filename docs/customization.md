@@ -1400,7 +1400,7 @@ Set drive name display width, value in chars, such as 10 = 10 chars.
 Align driver name in the center when enabled. Default is left alignment when disabled.
 
     show_vehicle_name
-Show vehicle name.
+Show vehicle name. Note, game API outputs `skin livery name` as `vehicle name`, which means actual displayed name depends on what skin livery name is called. For example, some vehicles may add `team name` and/or `class name` in `skin livery name`, some may not.
 
     show_vehicle_brand_as_name
 Show vehicle brand name instead of vehicle name. If brand name does not exist, vehicle name will be displayed instead.
