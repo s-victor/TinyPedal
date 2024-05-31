@@ -29,8 +29,8 @@ EXECUTABLE_SETTING = [
 EXCLUDE_MODULES = [
     "_ssl",
     "difflib",
-    "email",
-    "http",
+    #"email",
+    #"http",
     "pdb",
     "venv",
     "tkinter",
