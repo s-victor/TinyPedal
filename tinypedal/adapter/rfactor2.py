@@ -40,6 +40,12 @@ class Check(DataAdapter):
         """Identify API version"""
         return cs2py(self.info.rf2Ext.mVersion)
 
+    def sim_name(self) -> str:
+        """Identify sim name"""
+        if cs2py(self.info.rf2ScorInfo.mPlrFileName) == "Settings":
+            return "LMU"
+        return "RF2"
+
     def combo_id(self) -> str:
         """Identify track & vehicle combo"""
         track_name = cs2py(self.info.rf2ScorInfo.mTrackName)

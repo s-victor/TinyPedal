@@ -933,6 +933,7 @@ WIDGET_DEFAULT = {
         "distance_circle_1_color": "#888888",
         "distance_circle_2_color": "#888888",
         "auto_hide": True,
+        "auto_hide_in_private_qualifying": True,
         "auto_hide_time_threshold": 1,
         "minimum_auto_hide_distance": -1,
     },

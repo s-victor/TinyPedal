@@ -140,10 +140,17 @@ class Draw(Overlay):
 
             # Track clock
             if self.wcfg["show_track_clock"]:
+                if self.cfg.user.setting["module_rest_api"]["enable"]:
+                    time_scale = minfo.session.timeScale
+                    if time_scale < 0:
+                        time_scale = self.wcfg["track_clock_time_scale"]
+                else:
+                    time_scale = self.wcfg["track_clock_time_scale"]
+
                 track_time = int(calc.clock_time(
                     api.read.session.elapsed(),
                     api.read.session.start(),
-                    self.wcfg["track_clock_time_scale"]))
+                    time_scale))
                 self.update_track_clock(track_time, self.last_track_time)
                 self.last_track_time = track_time
 

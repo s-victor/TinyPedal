@@ -68,7 +68,7 @@ class Realtime(DataModule):
                     session_id = api.read.check.session_id()
 
                     # Reset delta session best if not same session
-                    if not self.is_same_session(combo_id, session_id, last_session_id):
+                    if not val.same_session(combo_id, session_id, last_session_id):
                         delta_list_session = [DELTA_ZERO]
                         laptime_session_best = 99999
                         last_session_id = (combo_id, *session_id)
@@ -245,13 +245,3 @@ class Realtime(DataModule):
                     "w", newline="", encoding="utf-8") as csvfile:
                 deltawrite = csv.writer(csvfile)
                 deltawrite.writerows(listname)
-
-    @staticmethod
-    def is_same_session(combo_id, session_id, last_session_id):
-        """Check if same session, car, track combo"""
-        return bool(
-            combo_id == last_session_id[0] and
-            last_session_id[1] == session_id[0] and
-            last_session_id[2] <= session_id[1] and
-            last_session_id[3] <= session_id[2]
-        )

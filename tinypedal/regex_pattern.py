@@ -26,6 +26,7 @@ CFG_BOOL = (
     # Exact match
     "^active_state$|"
     "^auto_hide$|"
+    "^auto_hide_in_private_qualifying$|"
     "^fixed_position$|"
     "^minimize_to_tray$|"
     "^remember_position$|"
@@ -54,6 +55,7 @@ CFG_STRING = (
     # Exact match
     "^process_id$|"
     "^tyre_compound_symbol$|"
+    "^url_host$|"
     # Partial match
     "info|"
     "list|"
@@ -95,6 +97,7 @@ CFG_INTEGER = (
     "samples|"
     "split_gap|"
     "update_interval|"
+    "url_port|"
     "vehicles"
 )
 
@@ -114,8 +117,11 @@ ABBR_LIST = (
     "api",
     "drs",
     "ffb",
+    "lmu",
     "p2p",
     "rpm",
+    "rf2",
+    "url",
 )
 ABBR_PATTERN = "|".join(ABBR_LIST)
 

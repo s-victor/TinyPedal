@@ -126,6 +126,13 @@ class SectorsInfo:
 
 
 @dataclass
+class SessionInfo:
+    """Session output data"""
+    timeScale: int = 1
+    privateQualifying: int = 0
+
+
+@dataclass
 class VehiclesInfo:
     """Vehicles module output data"""
     dataSet: tuple = field(default_factory=tuple)
@@ -157,6 +164,7 @@ class ModuleInfo:
         self.mapping = MappingInfo()
         self.relative = RelativeInfo()
         self.sectors = SectorsInfo()
+        self.session = SessionInfo()
         self.vehicles = VehiclesInfo()
         self.wheels = WheelsInfo()
 

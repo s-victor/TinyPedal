@@ -448,10 +448,10 @@ Enable delta module.
 Enable force module.
 
     gravitational_acceleration
-Set gravitational acceleration value (on earth).
+Set gravitational acceleration value on earth.
 
     max_g_force_reset_delay
-Set time delay (in seconds) for resetting max g force reading.
+Set time delay in seconds for resetting max g force reading.
 
     max_average_g_force_samples
 Set amount samples for calculating max average g force. Minimum value is limited to `3`.
@@ -460,10 +460,10 @@ Set amount samples for calculating max average g force. Minimum value is limited
 Set max average g force difference threshold which compares with the standard deviation calculated from max average g force samples. Default is `0.2` g.
 
     max_average_g_force_reset_delay
-Set time delay (in seconds) for resetting max average g force. Default is `30` seconds.
+Set time delay in seconds for resetting max average g force. Default is `30` seconds.
 
     max_braking_rate_reset_delay
-Set time delay (in seconds) for resetting max braking rate. Default is `60` seconds.
+Set time delay in seconds for resetting max braking rate. Default is `60` seconds.
 
 
 ## Fuel
@@ -492,6 +492,22 @@ Enable mapping module.
 
     module_relative
 Enable relative module.
+
+
+## Rest API
+**This module connects to game's Rest API for accessing additional data that is not available through Sharedmemory API.**
+
+    module_rest_api
+Enable Rest API module.
+
+    url_host*
+Set RF2 or LMU Rest API host address. Default is `localhost`.
+
+    url_port*
+Set port for host address. The port value for RF2 is `5397`, and `6397` for LMU.
+
+    connection_timeout
+Set connection timeout duration in seconds. Default is `1` second.
 
 
 ## Sectors
@@ -621,7 +637,7 @@ Set duration (seconds) for highlighting average brake temperature from previous 
 Show current in-game clock time of the circuit.
 
     track_clock_time_scale
-Set time multiplier for time-scaled session. Default is `1`, which matches `Time Scale: Normal` setting in-game.
+Set time multiplier for time-scaled session. Default is `1`, which matches `Time Scale: Normal` setting in-game. Note, this option will only be used if Rest API module is disabled or Rest API data is not available.
 
     track_clock_format
 Set track clock format string. To show seconds, add `%S`, such as `"%H:%M:%S %p"`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
@@ -1349,6 +1365,9 @@ Set distance circle line width in pixels.
     auto_hide
 Auto hides radar display when no nearby vehicles.
 
+    auto_hide_in_private_qualifying
+Auto hides radar in private qualifying session, requires both `auto_hide` and `Rest API Module` enabled.
+
     auto_hide_time_threshold
 Set amount time(unit second) before triggering auto hide. Default is `1` second.
 
@@ -1785,7 +1804,7 @@ Set amount leading zeros for each temperature value. Default is `2`. Minimum val
 Show carcass temeperature rate of change for a specific time interval.
 
     rate_of_change_interval
-Set time interval (in seconds) for rate of change calculation. Default interval is `5` seconds. Minimum interval is limited to `1` second, maximum interval is limited to `60` seconds.
+Set time interval in seconds for rate of change calculation. Default interval is `5` seconds. Minimum interval is limited to `1` second, maximum interval is limited to `60` seconds.
 
     show_tyre_compound
 Show tyre compound index (front/rear).

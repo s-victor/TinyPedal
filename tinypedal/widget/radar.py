@@ -361,12 +361,19 @@ class Draw(Overlay):
         return self.wcfg["vehicle_color_same_lap"]
 
     def autohide_radar(self):
-        """Auto hide radar if no nearby vehicles"""
+        """Auto hide radar if in private qualifying or no nearby vehicles"""
+        if (self.wcfg["auto_hide_in_private_qualifying"] and
+            self.cfg.user.setting["module_rest_api"]["enable"] and
+            api.read.session.session_type() == 2 and
+            minfo.session.privateQualifying == 1):
+            self.show_radar = False
+            return None
+
         lap_etime = api.read.timing.elapsed()
         in_garage = api.read.vehicle.in_garage()
 
         if self.nearby() or in_garage:
-            if not self.autohide_timer_start:
+            if not self.show_radar:
                 self.show_radar = True
             self.autohide_timer_start = lap_etime
 
@@ -375,6 +382,7 @@ class Draw(Overlay):
             if autohide_timer > self.wcfg["auto_hide_time_threshold"]:
                 self.show_radar = False
                 self.autohide_timer_start = 0
+        return None
 
     def nearby(self):
         """Check nearby vehicles, add 0 limit to ignore local player"""

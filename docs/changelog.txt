@@ -1,9 +1,25 @@
-WIP
+2.12.0 (2024-05-31)
 -----------------------------
 * General
   - Add "power_unit" option in "Units and symbols" dialog,
     which sets power unit for Electric motor & Engine Widgets.
     Available units: "Kilowatt", "Horsepower", "Metric Horsepower".
+
+* [New]Rest API Module
+  - Add Rest API Module, which connects to RF2 or LMU Rest API
+    for accessing data that is not available through Sharedmemory API.
+    Note, the APP auto detects RF2 or LMU.
+    This module is enabled by default.
+  - Add "module_rest_api" section in JSON preset.
+  - Add "url_host" option, which sets RF2 or LMU Rest API host address.
+  - Add "url_port_rf2" and "url_port_lmu" options, which set port for host address.
+  - Add "connection_timeout" option, which sets connection timeout duration in seconds.
+
+* Cruise Widget
+  - Now reads session "time scale" value from Rest API
+    for calculating correct in game track clock time.
+    Note, if Rest API Module is disabled or Rest API data is not available,
+    "track_clock_time_scale" option value will be used instead.
 
 * Electric motor Widget
   - Add "show_power" option, which shows motor power.
@@ -12,6 +28,19 @@ WIP
 * Engine Widget
   - Add "show_torque" option, which shows engine torque.
   - Add "show_power" option, which shows engine power.
+
+* Radar Widget
+  - Add "auto_hide_in_private_qualifying" option,
+    which auto hides Radar in private qualifying session.
+    This option is enabled by default.
+  - Now reads "private qualifying" value from Rest API
+    for used in "auto_hide_in_private_qualifying".
+    Note, if Rest API Module is disabled or Rest API data is not available,
+    "auto_hide_in_private_qualifying" option will not take effect.
+
+* Misc
+  - Updated User Guide info for Units and symbols, Rest API Module,
+    Cruise Widget, Electric motor Widget, Engine Widget, Radar Widget.
 
 2.11.2 (2024-04-11)
 -----------------------------

@@ -51,13 +51,6 @@ def cbytes2str(bytestring: any, char_encoding: str = "utf-8") -> str:
     return ""
 
 
-def sector_time(sec_time: any, magic_num: int = 99999) -> bool:
-    """Validate sector time"""
-    if isinstance(sec_time, list):
-        return magic_num not in sec_time
-    return magic_num != sec_time
-
-
 def allowed_filename(invalid_filename: str, filename: str) -> bool:
     """Validate setting filename"""
     return re.search(invalid_filename, filename.lower()) is None
@@ -70,6 +63,23 @@ def string_number(value: str) -> bool:
         return True
     except ValueError:
         return False
+
+
+def sector_time(sec_time: any, magic_num: int = 99999) -> bool:
+    """Validate sector time"""
+    if isinstance(sec_time, list):
+        return magic_num not in sec_time
+    return magic_num != sec_time
+
+
+def same_session(combo_id, session_id, last_session_id) -> bool:
+    """Check if same session, car, track combo"""
+    return (
+        combo_id == last_session_id[0] and
+        last_session_id[1] == session_id[0] and
+        last_session_id[2] <= session_id[1] and
+        last_session_id[3] <= session_id[2]
+    )
 
 
 # Folder validate
