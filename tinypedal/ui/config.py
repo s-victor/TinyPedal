@@ -335,10 +335,10 @@ class UserConfig(QDialog):
         # Select type
         if self.cfg_type == "widget":
             wctrl.reload(self.key_name)
-            self.master.refresh_list()
+            self.master.refresh_state()
         elif self.cfg_type == "module":
             mctrl.reload(self.key_name)
-            self.master.refresh_list()
+            self.master.refresh_state()
         elif self.cfg_type == "misc":
             wctrl.reload()
         elif self.cfg_type == "api":
