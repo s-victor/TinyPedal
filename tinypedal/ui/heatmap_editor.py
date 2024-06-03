@@ -49,6 +49,14 @@ from .config import (
     heatmap_name_valid,
 )
 
+QSS_LISTBOX = (
+    "QListView {outline: none;}"
+    "QListView::item {height: 32px;border-radius: 0;}"
+    "QListView::item:selected {background: transparent;}"
+    "QListView::item:hover {background: transparent;}"
+)
+QSS_BUTTON = "padding: 3px 7px;"
+
 
 class HeatmapEditor(QDialog):
     """Heatmap editor"""
@@ -74,12 +82,7 @@ class HeatmapEditor(QDialog):
         # Heatmap list box
         self.listbox_heatmap = QListWidget(self)
         self.refresh_list()
-        self.listbox_heatmap.setStyleSheet(
-            "QListView {outline: none;}"
-            "QListView::item {height: 32px;border-radius: 0;}"
-            "QListView::item:selected {background: transparent;}"
-            "QListView::item:hover {background: transparent;}"
-        )
+        self.listbox_heatmap.setStyleSheet(QSS_LISTBOX)
 
         # Button
         button_create = QPushButton("New")
@@ -92,25 +95,25 @@ class HeatmapEditor(QDialog):
 
         button_add = QPushButton("Add")
         button_add.clicked.connect(self.add_temperature)
-        button_add.setStyleSheet("padding: 3px 7px;")
+        button_add.setStyleSheet(QSS_BUTTON)
 
         button_sort = QPushButton("Sort")
         button_sort.clicked.connect(self.sorting)
-        button_sort.setStyleSheet("padding: 3px 7px;")
+        button_sort.setStyleSheet(QSS_BUTTON)
 
         button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
         button_reset.clicked.connect(self.reset_heatmap)
-        button_reset.setStyleSheet("padding: 3px 7px;")
+        button_reset.setStyleSheet(QSS_BUTTON)
 
         button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
         button_apply.clicked.connect(self.applying)
-        button_apply.setStyleSheet("padding: 3px 7px;")
+        button_apply.setStyleSheet(QSS_BUTTON)
 
         button_save = QDialogButtonBox(
             QDialogButtonBox.Save | QDialogButtonBox.Cancel)
         button_save.accepted.connect(self.saving)
         button_save.rejected.connect(self.reject)
-        button_save.setStyleSheet("padding: 3px 7px;")
+        button_save.setStyleSheet(QSS_BUTTON)
 
         # Set layout
         layout_main = QVBoxLayout()

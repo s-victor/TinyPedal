@@ -226,6 +226,6 @@ class AppWindow(QMainWindow):
         self.set_status_text()
         # Refresh menu & preset list
         self.preset_tab.refresh_list()
-        self.widget_tab.refresh_list()
-        self.module_tab.refresh_list()
+        self.widget_tab.refresh_state()
+        self.module_tab.refresh_state()
         self.spectate_tab.refresh_list()

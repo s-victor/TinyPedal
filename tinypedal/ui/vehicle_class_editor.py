@@ -49,6 +49,14 @@ from .config import (
     color_valid,
 )
 
+QSS_LISTBOX = (
+    "QListView {outline: none;}"
+    "QListView::item {height: 32px;border-radius: 0;}"
+    "QListView::item:selected {background: transparent;}"
+    "QListView::item:hover {background: transparent;}"
+)
+QSS_BUTTON = "padding: 3px 7px;"
+
 
 class VehicleClassEditor(QDialog):
     """Vehicle class editor"""
@@ -67,31 +75,26 @@ class VehicleClassEditor(QDialog):
         # Classes list box
         self.listbox_classes = QListWidget(self)
         self.refresh_list()
-        self.listbox_classes.setStyleSheet(
-            "QListView {outline: none;}"
-            "QListView::item {height: 32px;border-radius: 0;}"
-            "QListView::item:selected {background: transparent;}"
-            "QListView::item:hover {background: transparent;}"
-        )
+        self.listbox_classes.setStyleSheet(QSS_LISTBOX)
 
         # Button
         button_add = QPushButton("Add")
         button_add.clicked.connect(self.add_class)
-        button_add.setStyleSheet("padding: 3px 7px;")
+        button_add.setStyleSheet(QSS_BUTTON)
 
         button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
         button_reset.clicked.connect(self.reset_setting)
-        button_reset.setStyleSheet("padding: 3px 7px;")
+        button_reset.setStyleSheet(QSS_BUTTON)
 
         button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
         button_apply.clicked.connect(self.applying)
-        button_apply.setStyleSheet("padding: 3px 7px;")
+        button_apply.setStyleSheet(QSS_BUTTON)
 
         button_save = QDialogButtonBox(
             QDialogButtonBox.Save | QDialogButtonBox.Cancel)
         button_save.accepted.connect(self.saving)
         button_save.rejected.connect(self.reject)
-        button_save.setStyleSheet("padding: 3px 7px;")
+        button_save.setStyleSheet(QSS_BUTTON)
 
         # Set layout
         layout_main = QVBoxLayout()

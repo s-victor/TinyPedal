@@ -46,7 +46,11 @@ from .. import formatter as fmt
 from .. import regex_pattern as rxp
 from .. import validator as val
 
-# Option validator
+QSS_LISTBOX = (
+    "QListView {font-size: 16px;outline: none;}"
+    "QListView::item {height: 28px;border-radius: 0;}"
+    "QListView::item:selected {selection-color: #FFF;background: #F20;}"
+)
 preset_name_valid = QRegularExpressionValidator(QRegularExpression('[^\\\\/:*?"<>|]*'))
 
 
@@ -64,11 +68,7 @@ class PresetList(QWidget):
         # List box
         self.listbox_preset = QListWidget(self)
         self.listbox_preset.setAlternatingRowColors(True)
-        self.listbox_preset.setStyleSheet(
-            "QListView {font-size: 16px;outline: none;}"
-            "QListView::item {height: 28px;border-radius: 0;}"
-            "QListView::item:selected {selection-color: #FFF;background: #F20;}"
-        )
+        self.listbox_preset.setStyleSheet(QSS_LISTBOX)
         self.refresh_list()
         self.listbox_preset.setCurrentRow(0)
         self.listbox_preset.itemDoubleClicked.connect(self.load_preset)

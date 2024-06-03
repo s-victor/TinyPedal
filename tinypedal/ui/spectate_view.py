@@ -32,6 +32,12 @@ from PySide2.QtWidgets import (
 from ..setting import cfg
 from ..api_control import api
 
+QSS_LISTBOX = (
+    "QListView {font-size: 14px;outline: none;}"
+    "QListView::item {height: 26px;border-radius: 0;}"
+    "QListView::item:selected {selection-color:#FFF;background: #F20;}"
+)
+
 
 class SpectateList(QWidget):
     """Spectate list view"""
@@ -47,11 +53,7 @@ class SpectateList(QWidget):
         # List box
         self.listbox_spectate = QListWidget(self)
         self.listbox_spectate.setAlternatingRowColors(True)
-        self.listbox_spectate.setStyleSheet(
-            "QListView {font-size: 14px;outline: none;}"
-            "QListView::item {height: 26px;border-radius: 0;}"
-            "QListView::item:selected {selection-color:#FFF;background: #F20;}"
-        )
+        self.listbox_spectate.setStyleSheet(QSS_LISTBOX)
         self.listbox_spectate.itemDoubleClicked.connect(self.spectate_selected)
 
         # Button

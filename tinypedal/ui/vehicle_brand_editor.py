@@ -51,6 +51,8 @@ from ..widget_control import wctrl
 
 logger = logging.getLogger(__name__)
 
+QSS_BUTTON = "padding: 3px 7px;"
+
 
 class VehicleBrandEditor(QDialog):
     """Vehicle brand editor"""
@@ -76,37 +78,37 @@ class VehicleBrandEditor(QDialog):
         # Button
         button_import = QPushButton("Import")
         button_import.clicked.connect(self.import_brand)
-        button_import.setStyleSheet("padding: 3px 7px;")
+        button_import.setStyleSheet(QSS_BUTTON)
 
         button_add = QPushButton("Add")
         button_add.clicked.connect(self.add_brand)
-        button_add.setStyleSheet("padding: 3px 7px;")
+        button_add.setStyleSheet(QSS_BUTTON)
 
         button_sort = QPushButton("Sort")
         button_sort.clicked.connect(self.sort_brand)
-        button_sort.setStyleSheet("padding: 3px 7px;")
+        button_sort.setStyleSheet(QSS_BUTTON)
 
         button_delete = QPushButton("Delete")
         button_delete.clicked.connect(self.delete_brand)
-        button_delete.setStyleSheet("padding: 3px 7px;")
+        button_delete.setStyleSheet(QSS_BUTTON)
 
         button_rename = QPushButton("Rename")
         button_rename.clicked.connect(self.open_rename_brand)
-        button_rename.setStyleSheet("padding: 3px 7px;")
+        button_rename.setStyleSheet(QSS_BUTTON)
 
         button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
         button_reset.clicked.connect(self.reset_setting)
-        button_reset.setStyleSheet("padding: 3px 7px;")
+        button_reset.setStyleSheet(QSS_BUTTON)
 
         button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
         button_apply.clicked.connect(self.applying)
-        button_apply.setStyleSheet("padding: 3px 7px;")
+        button_apply.setStyleSheet(QSS_BUTTON)
 
         button_save = QDialogButtonBox(
             QDialogButtonBox.Save | QDialogButtonBox.Cancel)
         button_save.accepted.connect(self.saving)
         button_save.rejected.connect(self.reject)
-        button_save.setStyleSheet("padding: 3px 7px;")
+        button_save.setStyleSheet(QSS_BUTTON)
 
         # Set layout
         layout_main = QVBoxLayout()
