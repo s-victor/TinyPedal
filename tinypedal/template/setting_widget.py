@@ -429,6 +429,7 @@ WIDGET_DEFAULT = {
         "show_traffic": True,
         "traffic_maximum_time_gap": 15,
         "traffic_pitout_duration": 10,
+        "traffic_low_speed_threshold": 8,
         "font_color_traffic": "#FFFFFF",
         "bkg_color_traffic": "#4444FF",
         "show_pit_request": True,

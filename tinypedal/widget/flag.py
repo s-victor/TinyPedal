@@ -330,9 +330,14 @@ class Draw(Overlay):
                     self.wcfg["traffic_pitout_duration"] < lap_etime - self.pitout_timer_start):
                     self.pitout_timer_start = 0
 
+                if self.wcfg["traffic_low_speed_threshold"]:
+                    is_low_speed = api.read.vehicle.speed() < self.wcfg["traffic_low_speed_threshold"]
+                else:
+                    is_low_speed = False
+
                 any_traffic = bool(
                     0 < minfo.vehicles.nearestTraffic < self.wcfg["traffic_maximum_time_gap"]
-                    and (in_pits or self.pitout_timer_start))
+                    and (is_low_speed or in_pits or self.pitout_timer_start))
 
                 if any_traffic:
                     traffic = (round(minfo.vehicles.nearestTraffic, 1), any_traffic)

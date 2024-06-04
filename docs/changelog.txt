@@ -1,3 +1,14 @@
+WIP
+-----------------------------
+* Flag Widget
+  - Add "traffic_low_speed_threshold" option,
+    which sets low speed threshold for showing
+    nearest incoming traffic indicator (time gap).
+    Default is "8" m/s (roughly 28kph).
+    Set to "0" to disable.
+    This option can be useful to quickly determine
+    nearby traffic situation after a spin or crash.
+
 2.12.0 (2024-05-31)
 -----------------------------
 * General

@@ -860,13 +860,16 @@ Set custom text for red lights.
 Set custom text for green flag.
 
     show_traffic
-Show incoming on-track traffic indicator (time gap) while in pit lane or after pit-out.
+Show nearest incoming on-track traffic indicator (time gap) while in pit lane or after pit-out.
 
     traffic_maximum_time_gap
 Set maximum time gap (seconds) of incoming on-track traffic.
 
     traffic_pitout_duration
 Set traffic indicator extended duration (seconds) after pit-out.
+
+    traffic_low_speed_threshold
+Set low speed threshold for showing nearest incoming traffic indicator. Default is `8` m/s (roughly 28kph). Set to `0` to disable. This option can be useful to quickly determine nearby traffic situation after a spin or crash.
 
     show_pit_request
 Show pit request state.
