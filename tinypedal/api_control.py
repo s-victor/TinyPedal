@@ -59,7 +59,8 @@ class APIControl:
         logger.info("CONNECTING: %s API", self._api.NAME)
         self.setup()
         self._api.start()
-        self._read = self._api.dataset()
+        init_read = self._api.dataset()
+        self._read = init_read
         logger.info("CONNECTED: %s API (%s)", self._api.NAME, self.version)
 
     def stop(self):
