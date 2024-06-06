@@ -183,9 +183,6 @@ class MapData:
         # File info
         self._filepath = PATH_TRACKMAP
         self._filename = None
-        # SVG data
-        self._svg_coords = None
-        self._svg_dists = None
         # Temp data
         self._temp_raw_coords = None
         self._temp_raw_dists = None
@@ -197,8 +194,6 @@ class MapData:
         self.raw_coords = []
         self.raw_dists = []
         self.sectors_index = [0,0]
-        self._svg_coords = None
-        self._svg_dists = None
 
     def copy(self):
         """Copy map data to temp and convert to tuple for hash"""
@@ -210,11 +205,11 @@ class MapData:
         """Load map data file"""
         self._filename = filename
         # Load map file
-        (self._svg_coords, self._svg_dists, self.sectors_index
-         ) = load_svg_file(self._filename, self._filepath)
-        if self._svg_coords:
-            self.raw_coords = fmt.points_to_coords(self._svg_coords)
-            self.raw_dists = fmt.points_to_coords(self._svg_dists)
+        raw_coords, raw_dists, sectors_index = load_svg_file(self._filename, self._filepath)
+        if raw_coords and raw_dists:
+            self.raw_coords = raw_coords
+            self.raw_dists = raw_dists
+            self.sectors_index = sectors_index
             self.exist = True
             #logger.info("map exist")
         else:
@@ -226,15 +221,12 @@ class MapData:
         self.raw_coords = self._temp_raw_coords
         self.raw_dists = self._temp_raw_dists
         self.sectors_index = self._temp_sectors_index
-        # Convert to svg coordinates
-        self._svg_coords = fmt.coords_to_points(self.raw_coords)
-        self._svg_dists = fmt.coords_to_points(self.raw_dists)
         # Save to svg file
         save_svg_file(
             self._filename,
             self._filepath,
-            self._svg_coords,
-            self._svg_dists,
+            self.raw_coords,
+            self.raw_dists,
             calc.svg_view_box(self.raw_coords, 20),
             self.sectors_index
         )
@@ -247,7 +239,6 @@ def load_svg_file(filename, pathname):
         dom = xml.dom.minidom.parse(f"{pathname}{filename}.svg")
         desc_col = dom.documentElement.getElementsByTagName("desc")
         path_col = dom.documentElement.getElementsByTagName("polyline")
-        sector_index = fmt.string_pair_to_int(desc_col[0].childNodes[0].nodeValue)
 
         for tags in path_col:
             if tags.getAttribute("id") == "map":
@@ -257,14 +248,23 @@ def load_svg_file(filename, pathname):
                 svg_dists = tags.getAttribute("points")
                 continue
 
-        return svg_coords, svg_dists, sector_index
-    except (FileNotFoundError, IndexError, xml.parsers.expat.ExpatError):
+        # Convert to coordinates list
+        raw_coords = fmt.points_to_coords(svg_coords)
+        raw_dists = fmt.points_to_coords(svg_dists)
+        sector_index = fmt.string_pair_to_int(desc_col[0].childNodes[0].nodeValue)
+
+        return raw_coords, raw_dists, sector_index
+    except (FileNotFoundError, IndexError, ValueError, xml.parsers.expat.ExpatError):
         logger.info("MISSING: track map data")
         return None, None, None
 
 
-def save_svg_file(filename, pathname, svg_coords, svg_dists, view_box, sector_index):
+def save_svg_file(filename, pathname, raw_coords, raw_dists, view_box, sector_index):
     """Save svg file"""
+    # Convert to svg coordinates
+    svg_coords = fmt.coords_to_points(raw_coords)
+    svg_dists = fmt.coords_to_points(raw_dists)
+
     # Create new svg file
     new_svg = xml.dom.minidom.Document()
 
