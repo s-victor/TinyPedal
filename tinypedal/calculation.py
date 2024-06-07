@@ -417,7 +417,23 @@ def scale_map(coords, area_size, margin=0):
                         for x_pos in x_range]
     y_range_scaled = [(y_pos - map_range[2]) * map_scale + map_offset[1]
                         for y_pos in y_range]
-    return tuple(zip(x_range_scaled, y_range_scaled)), map_range, map_scale, map_offset
+    return list(zip(x_range_scaled, y_range_scaled)), map_range, map_scale, map_offset
+
+
+def scale_elevation(coords, area_width, area_height):
+    """Scale elevation data"""
+    # Separate X & Y coordinates
+    x_range, y_range = tuple(zip(*coords))
+    # Map size: x=width, y=height
+    map_range = min(x_range), max(x_range), min(y_range), max(y_range)
+    map_size = map_range[1] - map_range[0], map_range[3] - map_range[2]
+    # Display area / map_size
+    map_scale = area_width / map_size[0], area_height / map_size[1]
+    x_range_scaled = [(x_pos - map_range[0]) * map_scale[0]
+                        for x_pos in x_range]
+    y_range_scaled = [(y_pos - map_range[2]) * map_scale[1]
+                        for y_pos in y_range]
+    return list(zip(x_range_scaled, y_range_scaled)), map_range, map_scale
 
 
 def svg_view_box(coords, margin=0):

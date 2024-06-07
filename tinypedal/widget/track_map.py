@@ -48,6 +48,7 @@ class Draw(Overlay):
         font_offset = self.calc_font_offset(font_m)
 
         # Config variable
+        self.display_detail_level = max(self.wcfg["display_detail_level"], 0)
         self.veh_size = self.wcfg["font_size"] + round(font_m.width * self.wcfg["bar_padding"])
         self.veh_shape = QRectF(
             self.veh_size * 0.5,
@@ -141,11 +142,15 @@ class Draw(Overlay):
             (self.map_scaled, self.map_range, self.map_scale, self.map_offset
              ) = calc.scale_map(raw_coords, self.area_size, self.area_margin)
 
+            skip_node = len(self.map_scaled) // (self.temp_map_size * 3) * self.display_detail_level
+            last_skip = 0
             for index, coords in enumerate(self.map_scaled):
                 if index == 0:
                     map_path.moveTo(*coords)
-                else:
+                elif last_skip >= skip_node:
                     map_path.lineTo(*coords)
+                    last_skip = 0
+                last_skip += 1
 
             # Close map loop if start & end distance less than 500 meters
             if dist < 500:
