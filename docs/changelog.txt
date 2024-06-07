@@ -1,5 +1,15 @@
 WIP
 -----------------------------
+* Rest API Module
+  - Add "connection_retry" option, which sets
+    number of attempts to retry connection.
+    Value range in "0" to "10".
+    Default is "3" retries.
+  - Add "connection_retry_delay" option, which sets
+    time delay in seconds to retry connection.
+    Value range in "0" to "60".
+    Default is "1" second.
+
 * Flag Widget
   - Add "traffic_low_speed_threshold" option,
     which sets low speed threshold for showing

@@ -66,6 +66,8 @@ MODULE_DEFAULT = {
         "url_port_rf2": 5397,
         "url_port_lmu": 6397,
         "connection_timeout": 1,
+        "connection_retry": 3,
+        "connection_retry_delay": 1,
     },
     "module_sectors": {
         "enable": True,

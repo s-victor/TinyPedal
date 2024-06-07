@@ -509,6 +509,12 @@ Set port for host address. The port value for RF2 is `5397`, and `6397` for LMU.
     connection_timeout
 Set connection timeout duration in seconds. Default is `1` second.
 
+    connection_retry
+Set number of attempts to retry connection. Value range in `0` to `10`. Default is `3` retries.
+
+    connection_retry_delay
+Set time delay in seconds to retry connection. Value range in `0` to `60`. Default is `1` second.
+
 
 ## Sectors
 **This module provides sectors timing data.**

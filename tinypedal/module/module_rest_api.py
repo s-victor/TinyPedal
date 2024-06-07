@@ -40,6 +40,7 @@ class Realtime(DataModule):
 
     def __init__(self, config):
         super().__init__(config, MODULE_NAME)
+        self._updated = False
 
     def update_data(self):
         """Update module data"""
@@ -57,7 +58,7 @@ class Realtime(DataModule):
 
                     combo_id = api.read.check.combo_id()
                     session_id = api.read.check.session_id()
-                    if not val.same_session(combo_id, session_id, last_session_id):
+                    if not self._updated or not val.same_session(combo_id, session_id, last_session_id):
                         self.__fetch_data()
                         last_session_id = (combo_id, *session_id)
 
@@ -77,6 +78,21 @@ class Realtime(DataModule):
         else:
             url_port = self.mcfg["url_port_lmu"]
 
+        retry = min(max(self.mcfg["connection_retry"], 0), 10)
+        retry_delay = min(max(self.mcfg["connection_retry_delay"], 0), 60)
+        while not self.event.wait(retry_delay) and retry >= 0:
+            self._updated = self.__connect_api(url_host, url_port, time_out, sim_name, retry)
+            retry -= 1
+            if self._updated:
+                break
+
+    def __connect_api(self, url_host, url_port, time_out, sim_name, retry):
+        """Connect api"""
+        if retry > 0:
+            retry_text = f"{retry} retry"
+        else:
+            retry_text = "abort"
+
         try:
             with urlopen(f"http://{url_host}:{url_port}/rest/sessions", timeout=time_out
                 ) as session:
@@ -84,12 +100,15 @@ class Realtime(DataModule):
                     _session_info = json.loads(session.read().decode("utf-8"))
                     self.__output(_session_info)
                     logger.info("Rest API: %s data updated", sim_name)
-                else:
-                    logger.error("Rest API: no matched data found")
+
+                    return True
+
+        except (URLError, TimeoutError):
+            logger.error("Rest API: connection timed out, %s", retry_text)
         except KeyError:
-            logger.error("Rest API: no matched data found")
-        except URLError:
-            logger.error("Rest API: connection timed out")
+            logger.error("Rest API: no matched data found, %s", retry_text)
+
+        return False
 
     def __output(self, _session_info):
         """Output data"""
