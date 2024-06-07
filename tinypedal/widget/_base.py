@@ -221,3 +221,12 @@ class Overlay(QWidget):
         if self.wcfg["enable_auto_font_offset"]:
             return metrics.capital + metrics.descent * 2 + metrics.leading * 2 - metrics.height
         return self.wcfg["font_offset_vertical"]
+
+    @staticmethod
+    def set_text_alignment(alignment: str):
+        """Set text alignment"""
+        if alignment == "Left":
+            return Qt.AlignLeft
+        if alignment == "Right":
+            return Qt.AlignRight
+        return Qt.AlignCenter

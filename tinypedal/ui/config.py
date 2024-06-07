@@ -398,6 +398,11 @@ class UserConfig(QDialog):
                 self.__add_option_combolist(
                     idx, key, layout, rxp.TARGET_LAPTIME_LIST)
                 continue
+            # Text alignment string
+            if re.search(rxp.CFG_TEXT_ALIGNMENT, key):
+                self.__add_option_combolist(
+                    idx, key, layout, rxp.TEXT_ALIGNMENT_LIST)
+                continue
             # Heatmap string
             if re.search(rxp.CFG_HEATMAP, key):
                 self.__add_option_combolist(
