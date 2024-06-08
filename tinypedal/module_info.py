@@ -61,7 +61,11 @@ class ForceInfo:
 
 @dataclass
 class FuelInfo:
-    """Fuel module output data"""
+    """Fuel module output data
+
+    consumptionHistory list:
+        0 lapnumber, 1 laptime, 2 consumption, 3 remaining, 4 capacity, 5 is valid laptime
+    """
     tankCapacity: float = 0
     amountFuelStart: float = 0
     amountFuelCurrent: float = 0
