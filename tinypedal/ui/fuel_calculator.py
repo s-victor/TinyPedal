@@ -260,6 +260,28 @@ class FuelCalculator(QDialog):
         layout_panel.addWidget(button_add)
         panel.setLayout(layout_panel)
 
+    def carry_over_laptime(self):
+        """Carry over lap time value"""
+        if self.spinbox_seconds.value() > 59:
+            self.spinbox_seconds.setValue(0)
+            self.spinbox_minutes.setValue(self.spinbox_minutes.value() + 1)
+        elif self.spinbox_seconds.value() < 0:
+            if self.spinbox_minutes.value() > 0:
+                self.spinbox_seconds.setValue(59)
+                self.spinbox_minutes.setValue(self.spinbox_minutes.value() - 1)
+            else:
+                self.spinbox_seconds.setValue(0)
+
+        if self.spinbox_mseconds.value() > 999:
+            self.spinbox_mseconds.setValue(0)
+            self.spinbox_seconds.setValue(self.spinbox_seconds.value() + 1)
+        elif self.spinbox_mseconds.value() < 0:
+            if self.spinbox_seconds.value() > 0 or self.spinbox_minutes.value() > 0:
+                self.spinbox_mseconds.setValue(900)
+                self.spinbox_seconds.setValue(self.spinbox_seconds.value() - 1)
+            else:
+                self.spinbox_mseconds.setValue(0)
+
     def set_input_laptime(self, frame):
         """Set input laptime"""
         self.spinbox_minutes = QSpinBox()
@@ -269,12 +291,12 @@ class FuelCalculator(QDialog):
 
         self.spinbox_seconds = QSpinBox()
         self.spinbox_seconds.setAlignment(Qt.AlignRight)
-        self.spinbox_seconds.setRange(0, 59)
+        self.spinbox_seconds.setRange(-1, 60)
         self.spinbox_seconds.valueChanged.connect(self.output_results)
 
         self.spinbox_mseconds = QSpinBox()
         self.spinbox_mseconds.setAlignment(Qt.AlignRight)
-        self.spinbox_mseconds.setRange(0, 999)
+        self.spinbox_mseconds.setRange(-1, 1000)
         self.spinbox_mseconds.setSingleStep(100)
         self.spinbox_mseconds.valueChanged.connect(self.output_results)
 
@@ -466,6 +488,7 @@ class FuelCalculator(QDialog):
 
     def output_results(self):
         """Calculate and output results"""
+        self.carry_over_laptime()
         tank_capacity = self.spinbox_capacity.value()
         consumption = self.spinbox_consumption.value()
         fuel_start = self.spinbox_start_fuel.value() if self.spinbox_start_fuel.value() else tank_capacity
