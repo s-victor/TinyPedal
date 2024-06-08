@@ -83,9 +83,6 @@ class Draw(Overlay):
         self.pixmap_mask = QPixmap(self.area_size, self.area_size)
 
         self.pen = QPen()
-        self.draw_background()
-        self.draw_map_mask()
-        self.draw_map_image(self.create_map_path())
 
         self.pixmap_veh_player = self.draw_vehicle_pixmap("player")
         self.pixmap_veh_leader = self.draw_vehicle_pixmap("leader")
@@ -106,6 +103,9 @@ class Draw(Overlay):
         self.map_offset = 0,0
 
         # Set widget state & start update
+        self.draw_background()
+        self.draw_map_mask()
+        self.update_map(0, 1)
         self.set_widget_state()
 
     @Slot()
@@ -133,8 +133,8 @@ class Draw(Overlay):
     def update_map(self, curr, last):
         """Map update"""
         if curr != last:
-            self.draw_map_image(
-                self.create_map_path(minfo.mapping.coordinates))
+            map_path = self.create_map_path(minfo.mapping.coordinates)
+            self.draw_map_image(map_path)
 
     def paintEvent(self, event):
         """Draw"""

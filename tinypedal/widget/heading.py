@@ -51,7 +51,7 @@ class Draw(Overlay):
         self.area_center = self.area_size * 0.5
 
         icon_source = QPixmap("images/icon_compass.png")
-        self.icon_inst = icon_source.scaledToWidth(
+        self.pixmap_icon = icon_source.scaledToWidth(
             self.area_size * 1.5,
             mode=Qt.SmoothTransformation
         )
@@ -237,7 +237,7 @@ class Draw(Overlay):
         painter.drawPixmap(
             -self.area_center, -self.area_center,
             self.area_size, self.area_size,
-            self.icon_inst)
+            self.pixmap_icon)
         painter.resetTransform()
 
     def draw_yaw_line(self, painter):

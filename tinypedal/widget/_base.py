@@ -20,6 +20,7 @@
 Overlay base window, events.
 """
 
+import re
 from dataclasses import dataclass
 
 from PySide2.QtCore import Qt, QTimer, Slot
@@ -160,8 +161,10 @@ class Overlay(QWidget):
 
     def closing(self):
         """Close widget"""
+        self._update_timer.stop()
         self.__break_signal()
         self.cfg.active_widget_list.remove(self)
+        self.unload_resource()
         self.close()
 
     @staticmethod
@@ -230,3 +233,12 @@ class Overlay(QWidget):
         if alignment == "Right":
             return Qt.AlignRight
         return Qt.AlignCenter
+
+    def unload_resource(self):
+        """Unload resource (such as images) on close, can re-implement in widget"""
+        instance_var_list = dir(self)
+        for var in instance_var_list:
+            # Unload all pixmap
+            if re.search("pixmap_", var):
+                setattr(self, var, None)
+                print("unloaded", var)

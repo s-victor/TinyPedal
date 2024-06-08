@@ -1,5 +1,8 @@
 WIP
 -----------------------------
+* General
+  - Now unloads all image resources on widget close to free up RAM.
+
 * Rest API Module
   - Add "connection_retry" option, which sets
     number of attempts to retry connection.

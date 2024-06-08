@@ -58,7 +58,7 @@ class Draw(Overlay):
 
         # Config canvas
         icon_source = QPixmap("images/icon_instrument.png")
-        self.icon_inst = icon_source.scaledToWidth(
+        self.pixmap_icon = icon_source.scaledToWidth(
             self.icon_size * 2,
             mode=Qt.SmoothTransformation
         )
@@ -233,5 +233,5 @@ class Draw(Overlay):
         self.rect_offset.moveTop(self.icon_size * v_offset)
 
         # Icon
-        painter.drawPixmap(self.rect_size, self.icon_inst, self.rect_offset)
+        painter.drawPixmap(self.rect_size, self.pixmap_icon, self.rect_offset)
         canvas.setPixmap(pixmap)
