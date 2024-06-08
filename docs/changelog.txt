@@ -9,6 +9,19 @@ WIP
     time delay in seconds to retry connection.
     Value range in "0" to "60".
     Default is "1" second.
+  - Fixed a timeout error.
+
+* [New]Elevation Widget
+  - Add Elevation Widget that displays track elevation plot.
+    Note: elevation plot data is recorded together with track map.
+    At least one complete & valid lap is required to generate elevation plot,
+  - Show elevation reading in either meters or feet,
+    depends on distance unit setting.
+  - Show elevation progress bar & line according player's current position.
+  - Show reference lines and marks.
+  - Fully customizable plot display size, margin,
+    detail level, text position and alignment.
+    See user guide "Elevation" section for details.
 
 * Flag Widget
   - Add "traffic_low_speed_threshold" option,
@@ -18,6 +31,19 @@ WIP
     Set to "0" to disable.
     This option can be useful to quickly determine
     nearby traffic situation after a spin or crash.
+
+* Track map Widget
+  - Add "display_detail_level" option,
+    which sets detail level for track map.
+    Default value is "1", which auto adjusts
+    map detail according to display size.
+    Higher value reduces map detail and RAM usage,
+    and may also help reduce rough edges from large map.
+    Set to "0" for full detail.
+
+* Misc
+  - Updated User Guide info for Rest API Module,
+    Elevation Widget, Flag Widget, Track map Widget.
 
 2.12.0 (2024-05-31)
 -----------------------------
@@ -839,7 +865,7 @@ Thanks to @DanRZ for suggestions and testing feedback.
 * Force Widget
   - Fixed a display issue with very large readings.
 
-* Trackmap Widget
+* Track map Widget
   - Add "show_map_background" & "bkg_color_map" options,
     which shows background of the inner map area.
     This option only works for circular type tracks.

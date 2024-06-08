@@ -140,8 +140,8 @@ Fuel delta data is stored as `CSV` format (.fuel extension) under `TinyPedal\del
 Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder.
 
 The SVG vector map file contains two coordinate paths:
-* First is the global x,y position path, used for drawing track map.
-* Second is the corresponding track distance & elevation path, which is recorded for future use.
+* First is global x,y position path, used for drawing track map.
+* Second is corresponding track distance & elevation path, used for drawing elevation plot.
 
 Each sector position index is also stored in SVG file for finding sector coordinates.
 
@@ -309,35 +309,35 @@ Set `true` to enable `player index` manual override.
 Set `player index` override for displaying data from specific player. Valid player index range starts from `0` to max number players minus one, and must not exceed `127`. Set value to `-1` for unspecified player, which can be useful for display general standings and trackmap data (ex. broadcasting). This option works only when `enable_player_index_override` enabled.
 
     character_encoding
-Set character encoding for displaying text in correct encoding. Available encoding: `UTF-8`, `ISO-8859-1`. Default encoding is `UTF-8`, which works best in LMU game. Note, `UTF-8` may not work well for some Latin characters in RF2, try use "ISO-8859-1" instead.
+Set character encoding for displaying text in correct encoding. Available encoding: `UTF-8`, `ISO-8859-1`. Default encoding is `UTF-8`, which works best in LMU game. Note, `UTF-8` may not work well for some Latin characters in RF2, try use `ISO-8859-1` instead.
 
 
 ## Units and symbols
 **Units and symbols options can be accessed from `Config` menu in main window.**
 
     distance_unit
-2 unit types are available: `"Meter"`, `"Feet"`.
+2 unit types are available: `Meter`, `Feet`.
 
     fuel_unit
-2 unit types are available: `"Liter"`, `"Gallon"`.
+2 unit types are available: `Liter`, `Gallon`.
 
     odometer_unit
-3 unit types are available: `"Kilometer"`, `"Mile"`, `"Meter"`.
+3 unit types are available: `Kilometer`, `Mile`, `Meter`.
 
     power_unit
-3 unit types are available: `"Kilowatt"`, `"Horsepower"`, `"Metric Horsepower"`.
+3 unit types are available: `Kilowatt`, `Horsepower`, `Metric Horsepower`.
 
     speed_unit
-3 unit types are available: `"KPH"`, `"MPH"`, `"m/s"`.
+3 unit types are available: `KPH`, `MPH`, `m/s`.
 
     temperature_unit
-2 unit types are available: `"Celsius"`, `"Fahrenheit"`.
+2 unit types are available: `Celsius`, `Fahrenheit`.
 
     turbo_pressure_unit
-3 unit types are available: `"bar"`, `"psi"`, `"kPa"`.
+3 unit types are available: `bar`, `psi`, `kPa`.
 
     tyre_pressure_unit
-3 unit types are available: `"kPa"`, `"psi"`, `"bar"`.
+3 unit types are available: `kPa`, `psi`, `bar`.
 
     tyre_compound_symbol
 Set custom tire compound index letter. One letter corresponds to one compound index. Note: since most vehicle mods don't share a common tire compound types or list order, it is impossible to have a tyre compound letter list that matches every vehicle.
@@ -601,7 +601,7 @@ Show max braking rate difference (g) against transient max braking rate, and res
 Show max braking rate difference (g) in percentage (%) instead.
 
     show_front_wheel_lock_duration, show_rear_wheel_lock_duration
-Show front and rear wheel lock duration (seconds) per lap under braking. Duration increases when tyre slip ratio has exceeded "wheel_lock_threshold" value, and resets on first braking input of a new lap.
+Show front and rear wheel lock duration (seconds) per lap under braking. Duration increases when tyre slip ratio has exceeded `wheel_lock_threshold` value, and resets on first braking input of a new lap.
 
     wheel_lock_threshold
 Set percentage threshold for counting wheel lock duration under braking. `0.3` means 30% of tyre slip ratio.
@@ -646,7 +646,7 @@ Show current in-game clock time of the circuit.
 Set time multiplier for time-scaled session. Default is `1`, which matches `Time Scale: Normal` setting in-game. Note, this option will only be used if Rest API module is disabled or Rest API data is not available.
 
     track_clock_format
-Set track clock format string. To show seconds, add `%S`, such as `"%H:%M:%S %p"`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
+Set track clock format string. To show seconds, add `%S`, such as `%H:%M:%S %p`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
 
     show_compass
 Show compass directions with three-figure bearings that matches game's cardinal directions.
@@ -772,6 +772,61 @@ Show electric motor torque.
 
     show_power
 Show electric motor power.
+
+
+## Elevation
+**This widget displays elevation plot. Note: elevation plot data is recorded together with track map. At least one complete & valid lap is required to generate elevation plot.**
+
+    display_detail_level
+Sets detail level for track map. Default value is `1`, which auto adjusts map detail according to display size. Higher value reduces map detail and RAM usage, and may also help reduce rough edges from large map. Set to `0` for full detail.
+
+    display_width
+Set widget display width in pixels. Minimum width is limited to `20`.
+
+    display_height
+Set widget display height in pixels. Minimum height is limited to `10`.
+
+    display_margin_*
+Set widget display margin in pixels. Maximum margin is limited to half of `display_height` value.
+
+    show_elevation_reading
+Show elevation difference in game's coordinate system.
+
+    show_elevation_scale
+Show elevation plot scale reading, which is ratio between screen pixel and real world elevation. A `1:10.5` reading means 1 pixel equals 10.5 meters (or feet, depends on distance unit setting).
+
+    *_offset_x, *_offset_y
+Set reading text offset position (percentage), value range in `0.0` to `1.0`.
+
+    *_text_alignment
+Set reading text alignment. Acceptable value: `Left`, `Center`, `Right`.
+
+    show_background
+Show widget background.
+
+    show_elevation_background
+Show background of elevation plot.
+
+    show_elevation_progress
+Show elevation progress bar according player's current position.
+
+    show_elevation_progress_line
+Show elevation progress line according player's current position.
+
+    show_elevation_line
+Show elevation reference line.
+
+    show_zero_elevation_line
+Show zero elevation reference line in game's coordinate system.
+
+    show_start_line
+Show start line mark.
+
+    show_sector_line
+Show sector line mark.
+
+    show_position_mark
+Show player's current position line mark.
 
 
 ## Engine
@@ -1534,7 +1589,7 @@ Set custom session name text.
 Show current system clock time.
 
     system_clock_format
-Set clock format string. To show seconds, add `%S`, such as `"%H:%M:%S %p"`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
+Set clock format string. To show seconds, add `%S`, such as `%H:%M:%S %p`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
 
     show_session_timer
 Show session timer, accuracy may be limited by specific sim API.
@@ -1708,17 +1763,20 @@ Show personal current stint best lap time.
 ## Track map
 **This widget displays track map and standings. Note: at least one complete & valid lap is required to generate track map.**
 
-    show_background
-Show widget background.
-
-    show_map_background
-Show background of the inner map area. This option only works for circular type tracks.
+    display_detail_level
+Sets detail level for track map. Default value is `1`, which auto adjusts map detail according to display size. Higher value reduces map detail and RAM usage, and may also help reduce rough edges from large map. Set to `0` for full detail.
 
     area_size
 Set area display size.
 
     area_margin
 Set area margin size.
+
+    show_background
+Show widget background.
+
+    show_map_background
+Show background of the inner map area. This option only works for circular type tracks.
 
     map_width
 Set track map line width.

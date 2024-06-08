@@ -100,8 +100,8 @@ class Realtime(DataModule):
                     _session_info = json.loads(session.read().decode("utf-8"))
                     self.__output(_session_info)
                     logger.info("Rest API: %s data updated", sim_name)
-
                     return True
+                logger.error("Rest API: no matched data found, %s", retry_text)
 
         except (URLError, TimeoutError):
             logger.error("Rest API: connection timed out, %s", retry_text)
