@@ -339,8 +339,8 @@ WIDGET_DEFAULT = {
     "elevation": {
         "enable": True,
         "update_interval": 20,
-        "position_x": 663,
-        "position_y": 25,
+        "position_x": 115,
+        "position_y": 753,
         "opacity": 0.9,
         "font_name": "Consolas",
         "font_size": 15,

@@ -241,4 +241,3 @@ class Overlay(QWidget):
             # Unload all pixmap
             if re.search("pixmap_", var):
                 setattr(self, var, None)
-                print("unloaded", var)

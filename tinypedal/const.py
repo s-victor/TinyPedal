@@ -27,7 +27,7 @@ from .validator import is_folder_exist
 from PySide2.QtCore import qVersion
 
 
-VERSION = "2.12.0"
+VERSION = "2.13.0"
 APP_NAME = "TinyPedal"
 PLATFORM = platform.system()
 APP_ICON = "images/icon.png"
