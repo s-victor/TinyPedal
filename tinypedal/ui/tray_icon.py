@@ -41,6 +41,7 @@ class TrayIcon(QSystemTrayIcon):
         # Config tray icon
         self.setIcon(QIcon(APP_ICON))
         self.setToolTip(f"{APP_NAME} v{VERSION}")
+        self.activated.connect(self.show_config_via_doubleclick)
 
         # Create tray menu
         menu = QMenu()
@@ -73,6 +74,11 @@ class TrayIcon(QSystemTrayIcon):
         """Show config window"""
         self.master.showNormal()
         self.master.activateWindow()
+
+    def show_config_via_doubleclick(self, active_reason):
+        """Show config window via doubleclick"""
+        if active_reason == QSystemTrayIcon.ActivationReason.DoubleClick:
+            self.show_config()
 
     def refresh_menu(self):
         """Refresh menu"""

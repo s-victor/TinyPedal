@@ -1,3 +1,19 @@
+WIP
+-----------------------------
+* General
+  - Config window can now be opened by double-clicking on tray icon.
+
+* Fuel calculator
+  - Lap time values are now carried over between spin boxes
+    when exceeded min or max value range.
+    It is now quicker and easier to adjust lap time by
+    mouse clicking or scrolling.
+  - "Reload" button now only updates valid lap time data
+    to lap time spin boxes.
+
+* Rest API Module
+  - Fixed a timeout error while game is loading.
+
 2.13.0 (2024-06-08)
 -----------------------------
 * General

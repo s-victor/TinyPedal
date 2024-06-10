@@ -127,7 +127,7 @@ class FuelCalculator(QDialog):
         self.refresh_table()
         # Load laptime if exists
         laptime = self.history_data[0][1]
-        if laptime > 0:
+        if laptime > 0 and self.history_data[0][5]:
             self.spinbox_minutes.setValue(laptime // 60)
             self.spinbox_seconds.setValue(laptime % 60)
             self.spinbox_mseconds.setValue(laptime % 1 * 1000)
