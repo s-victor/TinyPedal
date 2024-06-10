@@ -82,6 +82,13 @@ def same_session(combo_id, session_id, last_session_id) -> bool:
     )
 
 
+def value_type(value, default):
+    """Validate if value is same type as default, return default value if False"""
+    if type(value) == type(default):
+        return value
+    return default
+
+
 # Folder validate
 def is_folder_exist(folder_name: str) -> None:
     """Create folder if not exist"""

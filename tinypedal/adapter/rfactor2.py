@@ -42,9 +42,12 @@ class Check(DataAdapter):
 
     def sim_name(self) -> str:
         """Identify sim name"""
-        if cs2py(self.info.rf2ScorInfo.mPlrFileName) == "Settings":
+        name = cs2py(self.info.rf2ScorInfo.mPlrFileName)
+        if name == "Settings":
             return "LMU"
-        return "RF2"
+        if name:
+            return "RF2"
+        return ""
 
     def combo_id(self) -> str:
         """Identify track & vehicle combo"""
