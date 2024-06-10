@@ -167,7 +167,9 @@ class Draw(Overlay):
             map_path.moveTo(-999, self.map_scaled[-2][1])  # 2nd last node y pos
 
             # Set middle nodes
-            skip_node = len(self.map_scaled) // self.display_width * self.display_detail_level
+            total_nodes = len(self.map_scaled)
+            skip_node = total_nodes // self.display_width * self.display_detail_level
+            skipped_last_node = (total_nodes - 1) % skip_node if skip_node else 0
             last_dist = 0
             last_skip = 0
             for coords in self.map_scaled:
@@ -176,6 +178,9 @@ class Draw(Overlay):
                     last_skip = 0
                 last_dist = coords[0]
                 last_skip += 1
+
+            if skipped_last_node:  # set last node if skipped
+                map_path.lineTo(*self.map_scaled[-1])
 
             # Set boundary end node
             map_path.lineTo(self.display_width + 999, self.map_scaled[1][1])  # 2nd node y pos

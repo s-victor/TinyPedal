@@ -142,7 +142,9 @@ class Draw(Overlay):
             (self.map_scaled, self.map_range, self.map_scale, self.map_offset
              ) = calc.scale_map(raw_coords, self.area_size, self.area_margin)
 
-            skip_node = len(self.map_scaled) // (self.temp_map_size * 3) * self.display_detail_level
+            total_nodes = len(self.map_scaled)
+            skip_node = total_nodes // (self.temp_map_size * 3) * self.display_detail_level
+            skipped_last_node = (total_nodes - 1) % skip_node if skip_node else 0
             last_skip = 0
             for index, coords in enumerate(self.map_scaled):
                 if index == 0:
@@ -151,6 +153,9 @@ class Draw(Overlay):
                     map_path.lineTo(*coords)
                     last_skip = 0
                 last_skip += 1
+
+            if skipped_last_node:  # set last node if skipped
+                map_path.lineTo(*self.map_scaled[-1])
 
             # Close map loop if start & end distance less than 500 meters
             if dist < 500:
