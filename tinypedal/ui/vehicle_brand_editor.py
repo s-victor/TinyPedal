@@ -25,6 +25,7 @@ import logging
 import json
 import re
 import time
+from urllib.request import urlopen
 
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QIcon
@@ -41,7 +42,9 @@ from PySide2.QtWidgets import (
     QFileDialog,
     QComboBox,
     QHeaderView,
-    QAbstractItemView
+    QAbstractItemView,
+    QMenu,
+    QAction
 )
 
 from ..api_control import api
@@ -75,10 +78,25 @@ class VehicleBrandEditor(QDialog):
         self.table_brands.setSelectionMode(QAbstractItemView.SingleSelection)
         self.refresh_table()
 
+        # Menu
+        import_menu = QMenu(self)
+
+        import_rf2 = QAction("RF2 Rest API", self)
+        import_rf2.triggered.connect(self.import_from_rf2)
+        import_menu.addAction(import_rf2)
+
+        import_lmu = QAction("LMU Rest API", self)
+        import_lmu.triggered.connect(self.import_from_lmu)
+        import_menu.addAction(import_lmu)
+
+        import_json = QAction("JSON file", self)
+        import_json.triggered.connect(self.import_from_file)
+        import_menu.addAction(import_json)
+
         # Button
-        button_import = QPushButton("Import")
-        button_import.clicked.connect(self.import_brand)
+        button_import = QPushButton("Import from")
         button_import.setStyleSheet(QSS_BUTTON)
+        button_import.setMenu(import_menu)
 
         button_add = QPushButton("Add")
         button_add.clicked.connect(self.add_brand)
@@ -168,8 +186,45 @@ class VehicleBrandEditor(QDialog):
         self.table_brands.sortItems(1)
         self.update_brands_temp()
 
-    def import_brand(self):
-        """Import brand entries"""
+    def import_from_rf2(self):
+        """Import brand from RF2"""
+        self.import_from_restapi("RF2")
+
+    def import_from_lmu(self):
+        """Import brand from LMU"""
+        self.import_from_restapi("LMU")
+
+    def import_from_restapi(self, sim_name):
+        """Import brand from Rest API"""
+        config = cfg.user.setting["module_rest_api"]
+        url_host = config["url_host"]
+
+        if sim_name == "LMU":
+            url_port = config["url_port_lmu"]
+            resource_name = "sessions/getAllAvailableVehicles"
+        elif sim_name == "RF2":
+            url_port = config["url_port_rf2"]
+            resource_name = "race/car"
+        else:
+            return None
+
+        url = f"http://{url_host}:{url_port}/rest/{resource_name}"
+
+        try:
+            with urlopen(url, timeout=3) as raw_resource:
+                if raw_resource.getcode() != 200:
+                    raise ValueError
+                dict_vehicles = json.loads(raw_resource.read().decode("utf-8"))
+                self.parse_brand_data(dict_vehicles)
+        except:
+            logger.error("Failed importing vehicle data from %s Rest API", sim_name)
+            msg_text = (f"Unable to import vehicle data from {sim_name} Rest API."
+                        "\n\nMake sure game is running and try again.")
+            QMessageBox.warning(self, "Error", msg_text)
+        return None
+
+    def import_from_file(self):
+        """Import brand from file"""
         veh_file_data = QFileDialog.getOpenFileName(self, filter="*.json")
         if not veh_file_data[0]:
             return None
@@ -178,44 +233,47 @@ class VehicleBrandEditor(QDialog):
             # Limit import file size under 5120kb
             if os.path.getsize(veh_file_data[0]) > 5120000:
                 raise TypeError
-
             # Load JSON
             with open(veh_file_data[0], "r", encoding="utf-8") as jsonfile:
                 dict_vehicles = json.load(jsonfile)
-                data_type = ""
-
-                for veh in dict_vehicles:
-                    if veh.get("desc"):
-                        data_type = "LMU"
-                        break
-                    if veh.get("name"):
-                        data_type = "RF2"
-                        break
-
-                if data_type == "LMU":
-                    brands_db = {
-                        veh["desc"]: veh["manufacturer"]
-                        for veh in dict_vehicles
-                    }
-                elif data_type == "RF2":
-                    brands_db = {
-                        parse_vehicle_name(veh): veh["manufacturer"]
-                        for veh in dict_vehicles
-                    }
-                else:
-                    raise KeyError
-
-                brands_db.update(self.brands_temp)
-                self.brands_temp = brands_db
-                self.refresh_table()
-                QMessageBox.information(
-                    self, "Data Imported", "Vehicle brand data imported.")
-        except (IndexError, KeyError, TypeError, FileNotFoundError, json.decoder.JSONDecodeError):
+                self.parse_brand_data(dict_vehicles)
+        #(AttributeError, IndexError, KeyError, TypeError, FileNotFoundError, json.decoder.JSONDecodeError)
+        except:
             logger.error("Failed importing %s", veh_file_data[0])
-            QMessageBox.warning(
-                self, "Error",
-                "Cannot import selected file.\n\nInvalid vehicle data file.")
+            msg_text = "Cannot import selected file.\n\nInvalid vehicle data file."
+            QMessageBox.warning(self, "Error", msg_text)
         return None
+
+    def parse_brand_data(self, vehicles: dict):
+        """Parse brand data"""
+        data_type = ""
+
+        for veh in vehicles:
+            if veh.get("desc"):
+                data_type = "LMU"
+                break
+            if veh.get("name"):
+                data_type = "RF2"
+                break
+
+        if data_type == "LMU":
+            brands_db = {
+                veh["desc"]: veh["manufacturer"]
+                for veh in vehicles
+            }
+        elif data_type == "RF2":
+            brands_db = {
+                parse_vehicle_name(veh): veh["manufacturer"]
+                for veh in vehicles
+            }
+        else:
+            raise KeyError
+
+        brands_db.update(self.brands_temp)
+        self.brands_temp = brands_db
+        self.refresh_table()
+        QMessageBox.information(
+            self, "Data Imported", "Vehicle brand data imported.")
 
     def add_brand(self):
         """Add new brand"""

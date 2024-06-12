@@ -3,6 +3,13 @@ WIP
 * General
   - Config window can now be opened by double-clicking on tray icon.
 
+* Vehicle Brand Editor
+  - Add new "import from" menu, which allows importing
+    brand info directly from Rest API.
+    To import from Rest API, just make sure game is running,
+    then click either "RF2 Rest API" or "LMU Rest API" from menu, done.
+    Note, import function uses connection setting from "Rest API Module".
+
 * Fuel calculator
   - Lap time values are now carried over between spin boxes
     when exceeded min or max value range.
