@@ -130,15 +130,10 @@ class SectorsInfo:
 
 
 @dataclass
-class SessionInfo:
-    """Session output data"""
+class RestAPIInfo:
+    """Rest API module output data"""
     timeScale: int = 1
     privateQualifying: int = 0
-
-
-@dataclass
-class SetupInfo:
-    """Setup (vehicle) output data"""
     steeringWheelRange: float = 0
 
 
@@ -173,9 +168,8 @@ class ModuleInfo:
         self.hybrid = HybridInfo()
         self.mapping = MappingInfo()
         self.relative = RelativeInfo()
+        self.restapi = RestAPIInfo()
         self.sectors = SectorsInfo()
-        self.session = SessionInfo()
-        self.setup = SetupInfo()
         self.vehicles = VehiclesInfo()
         self.wheels = WheelsInfo()
 

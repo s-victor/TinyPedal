@@ -49,13 +49,18 @@ class Realtime(DataModule):
         reset = False
         update_interval = self.active_interval
 
+        task_list = (
+            ("COMMON", "sessions", output_sessions),
+            ("LMU", "garage/chassis", output_garage),
+        )
+
         while not self.event.wait(update_interval):
             if api.state:
 
                 if not reset:
                     reset = True
                     update_interval = self.active_interval
-                    asyncio.run(self.__tasks())
+                    asyncio.run(self.__tasks(task_list))
 
             else:
                 if reset:
@@ -80,25 +85,20 @@ class Realtime(DataModule):
             return None
         return url_host, url_port, time_out, retry, retry_delay
 
-
-    async def __tasks(self) -> None:
+    async def __tasks(self, task_list) -> None:
         """Update tasks"""
         sim_name = api.read.check.sim_name()
         connection_info = self.__connection_setup(sim_name)
         if not connection_info:
             return None
-        # Common tasks
-        task_session = asyncio.create_task(self.fetch_data(*connection_info, "sessions", update_session))
-        await task_session
-        # Sim-specific tasks
-        if sim_name == "LMU":
-            task_setup = asyncio.create_task(self.fetch_data(*connection_info, "garage/chassis", update_setup))
-            await task_setup
+
+        for task in task_list:
+            if task[0] == "COMMON" or task[0] == sim_name:
+                await asyncio.create_task(self.__fetch(*connection_info, task[1], task[2]))
         return None
 
-
-    async def fetch_data(self, host: str, port: int, time_out: int, retry: int,
-        retry_delay: float, resource_name: str, update_func=None) -> None:
+    async def __fetch(self, host: str, port: int, time_out: int, retry: int,
+        retry_delay: float, resource_name: str, update_func: object) -> None:
         """Fetch data"""
         url = f"http://{host}:{port}/rest/{resource_name}"
         while not self.event.wait(0) and retry >= 0:
@@ -111,15 +111,15 @@ class Realtime(DataModule):
             await asyncio.sleep(retry_delay)
 
 
-def update_setup(data: dict) -> None:
-    """Update setup data"""
-    minfo.setup.steeringWheelRange = get_value(data, "VM_STEER_LOCK", "stringValue", 0.0, steerlock_to_number)
+def output_sessions(data: dict) -> None:
+    """Output sessions data"""
+    minfo.restapi.timeScale = get_value(data, "SESSSET_race_timescale", "currentValue", 1)
+    minfo.restapi.privateQualifying = get_value(data, "SESSSET_private_qual", "currentValue", 0)
 
 
-def update_session(data: dict) -> None:
-    """Update session data"""
-    minfo.session.timeScale = get_value(data, "SESSSET_race_timescale", "currentValue", 1)
-    minfo.session.privateQualifying = get_value(data, "SESSSET_private_qual", "currentValue", 0)
+def output_garage(data: dict) -> None:
+    """Output garage data"""
+    minfo.restapi.steeringWheelRange = get_value(data, "VM_STEER_LOCK", "stringValue", 0.0, steerlock_to_number)
 
 
 def get_resource(url: str, time_out: int, retry_text: str, resource_name: str) -> (dict | None):
