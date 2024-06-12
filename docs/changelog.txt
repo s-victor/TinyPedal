@@ -12,6 +12,9 @@ WIP
     to lap time spin boxes.
 
 * Rest API Module
+  - Read "steering wheel range" value from Rest API for used in Steering widget.
+    This value is only used when "steering wheel range" value
+    cannot be read from sharedmemory API.
   - Fixed a timeout error while game is loading.
 
 2.13.0 (2024-06-08)

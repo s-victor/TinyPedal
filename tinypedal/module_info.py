@@ -137,6 +137,12 @@ class SessionInfo:
 
 
 @dataclass
+class SetupInfo:
+    """Setup (vehicle) output data"""
+    steeringWheelRange: float = 0
+
+
+@dataclass
 class VehiclesInfo:
     """Vehicles module output data"""
     dataSet: tuple = field(default_factory=tuple)
@@ -169,6 +175,7 @@ class ModuleInfo:
         self.relative = RelativeInfo()
         self.sectors = SectorsInfo()
         self.session = SessionInfo()
+        self.setup = SetupInfo()
         self.vehicles = VehiclesInfo()
         self.wheels = WheelsInfo()
 

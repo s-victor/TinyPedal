@@ -20,8 +20,11 @@
 Rest API module
 """
 
+from __future__ import annotations
+import asyncio
 import logging
 import json
+import re
 from urllib.request import urlopen
 from urllib.error import URLError, HTTPError
 
@@ -40,14 +43,11 @@ class Realtime(DataModule):
 
     def __init__(self, config):
         super().__init__(config, MODULE_NAME)
-        self._updated = False
 
     def update_data(self):
         """Update module data"""
         reset = False
         update_interval = self.active_interval
-
-        last_session_id = ("",-1,-1,-1)
 
         while not self.event.wait(update_interval):
             if api.state:
@@ -55,74 +55,109 @@ class Realtime(DataModule):
                 if not reset:
                     reset = True
                     update_interval = self.active_interval
-
-                    combo_id = api.read.check.combo_id()
-                    session_id = api.read.check.session_id()
-                    if not self._updated or not val.same_session(combo_id, session_id, last_session_id):
-                        self.__fetch_data()
-                        last_session_id = (combo_id, *session_id)
+                    asyncio.run(self.__tasks())
 
             else:
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
 
-    def __fetch_data(self):
-        """Fetch data"""
+    def __connection_setup(self, sim_name: str) -> tuple:
+        """Connection setup"""
         url_host = self.mcfg["url_host"]
-        time_out = self.mcfg["connection_timeout"]
-        sim_name = api.read.check.sim_name()
+        time_out = min(max(self.mcfg["connection_timeout"], 0.1), 10)
+        retry = min(max(self.mcfg["connection_retry"], 0), 10)
+        retry_delay = min(max(self.mcfg["connection_retry_delay"], 0), 60)
 
         if sim_name == "LMU":
             url_port = self.mcfg["url_port_lmu"]
-            logger.info("Rest API: LMU session found")
+            #logger.info("Rest API: LMU session found")
         elif sim_name == "RF2":
             url_port = self.mcfg["url_port_rf2"]
-            logger.info("Rest API: RF2 session found")
+            #logger.info("Rest API: RF2 session found")
         else:
             logger.info("Rest API: game session not found, abort")
-            self._updated = False
             return None
+        return url_host, url_port, time_out, retry, retry_delay
 
-        retry = min(max(self.mcfg["connection_retry"], 0), 10)
-        retry_delay = min(max(self.mcfg["connection_retry_delay"], 0), 60)
-        while not self.event.wait(retry_delay) and retry >= 0:
-            self._updated = self.__connect_api(url_host, url_port, time_out, retry)
-            retry -= 1
-            if self._updated:
-                break
+
+    async def __tasks(self) -> None:
+        """Update tasks"""
+        sim_name = api.read.check.sim_name()
+        connection_info = self.__connection_setup(sim_name)
+        if not connection_info:
+            return None
+        # Common tasks
+        task_session = asyncio.create_task(self.fetch_data(*connection_info, "sessions", update_session))
+        await task_session
+        # Sim-specific tasks
+        if sim_name == "LMU":
+            task_setup = asyncio.create_task(self.fetch_data(*connection_info, "garage/chassis", update_setup))
+            await task_setup
         return None
 
-    def __connect_api(self, url_host, url_port, time_out, retry):
-        """Connect api"""
-        if retry > 0:
-            retry_text = f"{retry} retry"
-        else:
-            retry_text = "abort"
 
-        try:
-            with urlopen(f"http://{url_host}:{url_port}/rest/sessions", timeout=time_out
-                ) as session:
-                if session.getcode() == 200:
-                    _session_info = json.loads(session.read().decode("utf-8"))
-                    self.__output(_session_info)
-                    logger.info("Rest API: data updated")
-                    return True
+    async def fetch_data(self, host: str, port: int, time_out: int, retry: int,
+        retry_delay: float, resource_name: str, update_func=None) -> None:
+        """Fetch data"""
+        url = f"http://{host}:{port}/rest/{resource_name}"
+        while not self.event.wait(0) and retry >= 0:
+            retry_text = f"{retry} retry" if retry > 0 else "abort"
+            resource_data = get_resource(url, time_out, retry_text, resource_name)
+            if resource_data:
+                update_func(resource_data)
+                break
+            retry -= 1
+            await asyncio.sleep(retry_delay)
 
+
+def update_setup(data: dict) -> None:
+    """Update setup data"""
+    minfo.setup.steeringWheelRange = get_value(data, "VM_STEER_LOCK", "stringValue", 0.0, steerlock_to_number)
+
+
+def update_session(data: dict) -> None:
+    """Update session data"""
+    minfo.session.timeScale = get_value(data, "SESSSET_race_timescale", "currentValue", 1)
+    minfo.session.privateQualifying = get_value(data, "SESSSET_private_qual", "currentValue", 0)
+
+
+def get_resource(url: str, time_out: int, retry_text: str, resource_name: str) -> (dict | None):
+    """Get resource from REST API"""
+    try:
+        with urlopen(url, timeout=time_out) as raw_resource:
+            if raw_resource.getcode() != 200:
                 raise HTTPError
+            output = json.loads(raw_resource.read().decode("utf-8"))
+            logger.info("Rest API: %s data updated", resource_name.upper())
+            return output
+    except (TypeError, AttributeError, KeyError, ValueError, HTTPError):
+        logger.info("Rest API: %s data not found, %s", resource_name.upper(), retry_text)
+    except URLError:
+        logger.info("Rest API: %s connection timed out, %s", resource_name.upper(), retry_text)
+    except:
+        logger.error("Rest API: %s connection failed, %s", resource_name.upper(), retry_text)
+    return None
 
-        except (TypeError, AttributeError, KeyError, ValueError, HTTPError):
-            logger.error("Rest API: no data found, %s", retry_text)
-        except URLError:
-            logger.error("Rest API: connection timed out, %s", retry_text)
-        except:
-            logger.error("Rest API: connection failed, %s", retry_text)
 
-        return False
+def get_value(
+    data: dict, key: str, sub_key:str, default: any, mod_func: object | None = None) -> any:
+    """Get value from resource dictionary, fallback to default value if invalid"""
+    info = data.get(key, None)
+    if not info:
+        logger.info("Rest API: %s value not found, fallback to default", key)
+        return default
 
-    def __output(self, data):
-        """Output data"""
-        minfo.session.timeScale = val.value_type(
-            data["SESSSET_race_timescale"]["currentValue"], 1)
-        minfo.session.privateQualifying = val.value_type(
-            data["SESSSET_private_qual"]["currentValue"], 0)
+    value = info.get(sub_key, None)
+    if mod_func:
+        return val.value_type(mod_func(value), default)
+    return val.value_type(value, default)
+
+
+def steerlock_to_number(value: str) -> float:
+    """Convert steerlock string to float value"""
+    try:
+        deg = re.split(" ", value)[0]
+        return float(deg)
+    except ValueError:
+        return 0.0
