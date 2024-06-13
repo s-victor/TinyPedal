@@ -198,7 +198,7 @@ class Draw(Overlay):
                     self.last_lap_stime = lap_stime  # reset time stamp counter
                     self.laps_data[1] = minfo.delta.lapTimeLast
                     self.laps_data[2] = minfo.delta.isValidLap
-                    self.laps_data[3] = self.fuel_units(minfo.fuel.lastLapFuelConsumption)
+                    self.laps_data[3] = self.fuel_units(minfo.fuel.lastLapConsumption)
                     # Update lap time history while on track
                     if not api.read.vehicle.in_garage():
                         self.history_data.appendleft(self.laps_data.copy())
@@ -208,7 +208,7 @@ class Draw(Overlay):
             # Current laps data
             self.laps_data[0] = api.read.lap.number()
             self.laps_data[1] = minfo.delta.lapTimeEstimated
-            self.laps_data[3] = self.fuel_units(minfo.fuel.estimatedFuelConsumption)
+            self.laps_data[3] = self.fuel_units(minfo.fuel.estimatedConsumption)
             self.laps_data[4] = max(wear_avg - self.last_wear, 0)
 
             laps_text = f"{self.laps_data[0]:03.0f}"[:3].ljust(3)

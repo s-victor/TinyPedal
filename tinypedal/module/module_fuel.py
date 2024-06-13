@@ -210,20 +210,20 @@ class Realtime(DataModule):
                     est_pits_late, capacity, amount_curr, laps_left)
 
                 # Output fuel data
-                minfo.fuel.tankCapacity = capacity
-                minfo.fuel.amountFuelStart = amount_start
-                minfo.fuel.amountFuelCurrent = amount_curr
-                minfo.fuel.amountFuelNeeded = amount_need
-                minfo.fuel.amountFuelBeforePitstop = amount_left
-                minfo.fuel.lastLapFuelConsumption = used_last_raw
-                minfo.fuel.estimatedFuelConsumption = used_last + delta_fuel
+                minfo.fuel.capacity = capacity
+                minfo.fuel.amountStart = amount_start
+                minfo.fuel.amountCurrent = amount_curr
+                minfo.fuel.amountNeeded = amount_need
+                minfo.fuel.amountBeforePitstop = amount_left
+                minfo.fuel.lastLapConsumption = used_last_raw
+                minfo.fuel.estimatedConsumption = used_last + delta_fuel
                 minfo.fuel.estimatedLaps = est_runlaps
                 minfo.fuel.estimatedMinutes = est_runmins
                 minfo.fuel.estimatedEmptyCapacity = est_empty
                 minfo.fuel.estimatedNumPitStopsEnd = est_pits_late
                 minfo.fuel.estimatedNumPitStopsEarly = est_pits_early
-                minfo.fuel.deltaFuelConsumption = delta_fuel
-                minfo.fuel.oneLessPitFuelConsumption = used_est_less
+                minfo.fuel.deltaConsumption = delta_fuel
+                minfo.fuel.oneLessPitConsumption = used_est_less
 
                 if (minfo.fuel.consumptionHistory[0][1] != minfo.delta.lapTimeLast
                     > laptime_curr > 2):  # record 2s after pass finish line

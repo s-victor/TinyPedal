@@ -66,20 +66,20 @@ class FuelInfo:
     consumptionHistory list:
         0 lapnumber, 1 laptime, 2 consumption, 3 remaining, 4 capacity, 5 is valid laptime
     """
-    tankCapacity: float = 0
-    amountFuelStart: float = 0
-    amountFuelCurrent: float = 0
-    amountFuelNeeded: float = 0
-    amountFuelBeforePitstop: float = 0
-    lastLapFuelConsumption: float = 0
-    estimatedFuelConsumption: float = 0
+    capacity: float = 0
+    amountStart: float = 0
+    amountCurrent: float = 0
+    amountNeeded: float = 0
+    amountBeforePitstop: float = 0
+    lastLapConsumption: float = 0
+    estimatedConsumption: float = 0
     estimatedLaps: float = 0
     estimatedMinutes: float = 0
     estimatedEmptyCapacity: float = 0
     estimatedNumPitStopsEnd: float = 0
     estimatedNumPitStopsEarly: float = 0
-    deltaFuelConsumption: float = 0
-    oneLessPitFuelConsumption: float = 0
+    deltaConsumption: float = 0
+    oneLessPitConsumption: float = 0
     consumptionHistory: deque = field(default_factory=deque)
 
     def __post_init__(self):

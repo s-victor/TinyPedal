@@ -260,29 +260,29 @@ class Draw(Overlay):
         if api.state:
 
             # Estimated end fuel
-            amount_end = f"{self.fuel_units(minfo.fuel.amountFuelBeforePitstop):.{self.decimals[0]}f}"
+            amount_end = f"{self.fuel_units(minfo.fuel.amountBeforePitstop):.{self.decimals[0]}f}"
             self.update_fuel("end", amount_end, self.last_amount_end)
             self.last_amount_end = amount_end
 
             # Remaining fuel
-            amount_curr = f"{self.fuel_units(minfo.fuel.amountFuelCurrent):.{self.decimals[1]}f}"
+            amount_curr = f"{self.fuel_units(minfo.fuel.amountCurrent):.{self.decimals[1]}f}"
             self.update_fuel(
                 "curr", amount_curr, self.last_amount_curr, minfo.fuel.estimatedLaps)
             self.last_amount_curr = amount_curr
 
             # Total needed fuel
-            amount_need = f"{calc.sym_range(self.fuel_units(minfo.fuel.amountFuelNeeded), 9999):+.{self.decimals[2]}f}"
+            amount_need = f"{calc.sym_range(self.fuel_units(minfo.fuel.amountNeeded), 9999):+.{self.decimals[2]}f}"
             self.update_fuel(
                 "need", amount_need, self.last_amount_need, minfo.fuel.estimatedLaps)
             self.last_amount_need = amount_need
 
             # Estimated fuel consumption
-            used_last = f"{self.fuel_units(minfo.fuel.estimatedFuelConsumption):.{self.decimals[3]}f}"
+            used_last = f"{self.fuel_units(minfo.fuel.estimatedConsumption):.{self.decimals[3]}f}"
             self.update_fuel("used", used_last, self.last_used_last)
             self.last_used_last = used_last
 
             # Delta fuel consumption
-            delta_fuel = f"{self.fuel_units(minfo.fuel.deltaFuelConsumption):+.{self.decimals[4]}f}"
+            delta_fuel = f"{self.fuel_units(minfo.fuel.deltaConsumption):+.{self.decimals[4]}f}"
             self.update_fuel("delta", delta_fuel, self.last_delta_fuel)
             self.last_delta_fuel = delta_fuel
 
@@ -302,7 +302,7 @@ class Draw(Overlay):
             self.last_est_runmins = est_runmins
 
             # Estimated one less pit fuel consumption
-            fuel_save = f"{min(max(self.fuel_units(minfo.fuel.oneLessPitFuelConsumption), 0), 99.99):.{self.decimals[8]}f}"
+            fuel_save = f"{min(max(self.fuel_units(minfo.fuel.oneLessPitConsumption), 0), 99.99):.{self.decimals[8]}f}"
             self.update_fuel("save", fuel_save, self.last_fuel_save)
             self.last_fuel_save = fuel_save
 
@@ -313,11 +313,11 @@ class Draw(Overlay):
 
             # Fuel level bar
             if self.wcfg["show_fuel_level_bar"]:
-                fuel_capacity = max(minfo.fuel.tankCapacity, 1)
+                fuel_capacity = max(minfo.fuel.capacity, 1)
                 fuel_level = (
-                    round(minfo.fuel.amountFuelCurrent / fuel_capacity, 3),
-                    round(minfo.fuel.amountFuelStart / fuel_capacity, 3),
-                    round((minfo.fuel.amountFuelCurrent + minfo.fuel.amountFuelNeeded) / fuel_capacity, 3),
+                    round(minfo.fuel.amountCurrent / fuel_capacity, 3),
+                    round(minfo.fuel.amountStart / fuel_capacity, 3),
+                    round((minfo.fuel.amountCurrent + minfo.fuel.amountNeeded) / fuel_capacity, 3),
                 )
                 self.update_fuel_level(fuel_level, self.last_fuel_level)
                 self.last_fuel_level = fuel_level

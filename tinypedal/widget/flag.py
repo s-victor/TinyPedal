@@ -257,13 +257,13 @@ class Draw(Overlay):
             # Low fuel update
             if self.wcfg["show_low_fuel"]:
                 is_lowfuel = (
-                    minfo.fuel.amountFuelCurrent < self.wcfg["low_fuel_volume_threshold"] and
+                    minfo.fuel.amountCurrent < self.wcfg["low_fuel_volume_threshold"] and
                     minfo.fuel.estimatedLaps < self.wcfg["low_fuel_lap_threshold"] and
                     (not self.wcfg["show_low_fuel_for_race_only"] or
                     self.wcfg["show_low_fuel_for_race_only"] and in_race))
 
                 if is_lowfuel:
-                    fuel_usage = (round(minfo.fuel.amountFuelCurrent, 2), is_lowfuel)
+                    fuel_usage = (round(minfo.fuel.amountCurrent, 2), is_lowfuel)
                 else:
                     fuel_usage = (99999, is_lowfuel)
                 self.update_lowfuel(fuel_usage, self.last_fuel_usage)

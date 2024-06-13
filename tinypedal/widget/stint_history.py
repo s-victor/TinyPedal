@@ -236,7 +236,7 @@ class Draw(Overlay):
             in_garage = api.read.vehicle.in_garage()
 
             wear_avg = 100 - (sum(api.read.tyre.wear()) * 25)
-            fuel_curr = self.fuel_units(minfo.fuel.amountFuelCurrent)
+            fuel_curr = self.fuel_units(minfo.fuel.amountCurrent)
 
             if not in_pits:
                 self.last_fuel_curr = fuel_curr
