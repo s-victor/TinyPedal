@@ -602,30 +602,28 @@ class FuelCalculator(QDialog):
             + self.spinbox_seconds.value()
             + self.spinbox_mseconds.value() * 0.001
         )
-        # Calc fuel
-        if all((laptime, tank_capacity, fuel_used, total_race_seconds + total_race_laps)):
-            total_need_fuel = self.run_calculation(
-                "fuel", tank_capacity, fuel_used, fuel_start, total_race_seconds,
-                total_race_laps, total_formation_laps, average_pit_seconds, laptime)
-        else:
-            total_need_fuel = 0
-        # Calc energy
         energy_used = self.spinbox_energy_used.value()
         energy_start = self.spinbox_start_energy.value() if self.spinbox_start_energy.value() else 100
-        if all((laptime, energy_used, total_race_seconds + total_race_laps)):
-            total_need_energy = self.run_calculation(
-                "energy", 100, energy_used, energy_start, total_race_seconds,
-                total_race_laps, total_formation_laps, average_pit_seconds, laptime)
-        else:
-            total_need_energy = 0
         # Calc fuel ratio
-        if total_need_fuel and total_need_energy:
+        if fuel_used and energy_used:
             if cfg.units["fuel_unit"] == "Gallon":
-                total_need_fuel *= 3.785411784
-            fuel_ratio = total_need_fuel / total_need_energy
-            self.lineedit_fuel_ratio.setText(f"{fuel_ratio:.03f} ≈ {math.ceil(fuel_ratio * 100) / 100}")
+                fuel_used *= 3.785411784
+            fuel_ratio = fuel_used / energy_used
+            self.lineedit_fuel_ratio.setText(f"{fuel_ratio:.03f}")
         else:
             self.lineedit_fuel_ratio.setText("0.000")
+
+        # Calc fuel
+        if all((laptime, tank_capacity, fuel_used, total_race_seconds + total_race_laps)):
+            self.run_calculation(
+                "fuel", tank_capacity, fuel_used, fuel_start, total_race_seconds,
+                total_race_laps, total_formation_laps, average_pit_seconds, laptime)
+
+        # Calc energy
+        if all((laptime, energy_used, total_race_seconds + total_race_laps)):
+            self.run_calculation(
+                "energy", 100, energy_used, energy_start, total_race_seconds,
+                total_race_laps, total_formation_laps, average_pit_seconds, laptime)
 
     def run_calculation(self, output_type, tank_capacity, consumption, fuel_start,
         total_race_seconds, total_race_laps, total_formation_laps, average_pit_seconds, laptime):
@@ -727,7 +725,6 @@ class FuelCalculator(QDialog):
                 self.lineedit_average_replenish.setStyleSheet("background: #F40;")
             else:
                 self.set_read_only_style(self.lineedit_average_replenish)
-        return total_need_full
 
     def disable_race_lap(self):
         """Disable race laps if race minutes is set"""

@@ -12,11 +12,11 @@ WIP
 
 * Fuel calculator
   - Add "Virtual Energy" history data and calculation.
-    All fuel calculation outputs are now aligned on left side,
-    while virtual energy outputs are aligned on right side for easy comparison.
+    All fuel calculation outputs are now aligned on the left side,
+    and virtual energy outputs on the right side for easy comparison.
     See user guide "Fuel calculator" section for details.
   - Add "Fuel ratio" output, which is automatically calculated from
-    fuel and virtual energy calculation outputs.
+    fuel and virtual energy consumption values.
   - Lap time values are now automatically carried over between spin boxes
     when exceeded min or max value range.
     It is now quicker and easier to adjust lap time by
