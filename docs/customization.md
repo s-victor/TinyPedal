@@ -377,27 +377,33 @@ Click `Refresh` button to manually refresh player name list.
 ## Fuel calculator
 **Fuel calculator can be accessed from `Tools` menu in main window.**
 
-On the left side is calculation panel, which handles fuel usage calculation and results display.
+On the left side is calculation panel, which handles `fuel` and `virtual energy` usage calculation and results display.
 
-Fuel value and unit symbol depend on `Fuel Unit` setting from `Units and symbols` config dialog, `L` = liter, `gal` = gallon.
+Fuel value and unit symbol depend on `Fuel Unit` setting from `Units and symbols` config dialog, `L` = liter, `gal` = gallon. Virtual energy unit is `%` = percentage.
 
-On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `remaining fuel` data from recent sessions.
-Invalid lap time or fuel consumption data is highlighted in red.
+On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `virtual energy consumption` data from recent sessions.
+Invalid lap time or consumption data is highlighted in red.
 
 Click `Reload` button to reload history table and automatically fill in last data to calculator.
 
-Select any `lap time` or `fuel consumption` values and click `Add selected data` button to send value to calculator.
+Select any `lap time` or `consumption` values and click `Add selected data` button to send value to calculator.
 
 Select multiple values from same column and click `Add selected data` button to calculate average reading of selected values and send to calculator.
 
     Lap time
-Set lap time in `minutes` : `seconds` : `milliseconds` format.
+Set lap time in `minutes` : `seconds` : `milliseconds` format. Values are automatically carried over between spin boxes when exceeded min or max value range.
 
     Tank capacity
 Set vehicle fuel tank capacity.
 
     Fuel consumption
 Set fuel consumption per lap.
+
+    Energy consumption
+Set energy consumption per lap.
+
+    Fuel ratio
+Show fuel to energy ratio based on `Total race fuel` and `Total race energy` values.
 
     Race minutes
 Set race length in minutes for time-based race. Note, option is disabled if `Race laps` is set.
@@ -411,29 +417,29 @@ Set number of formation or rolling start laps.
     Average pit seconds
 Set average pit stop time in seconds.
 
-    Total race fuel
-Show total required fuel to finish race. First value is raw reading with decimal places, second value behind `≈` sign is rounded up integer reading.
+    Total race fuel, Total race energy
+Show total required fuel or energy to finish race. First value is raw reading with decimal places, second value behind `≈` sign is rounded up integer reading.
 
-    End stint fuel
-Show remaining fuel at the end of stint or race.
+    End stint fuel, End stint energy
+Show remaining fuel or energy at the end of stint or race.
 
     Total Pit stops
 Show total number of pit stops required to finish race. First value is raw reading with decimal places, second value behind `≈` sign is rounded up integer reading. Note, sometimes when `Average pit seconds` is set to longer duration, ceiling integer reading may be rounded up `2` units higher than raw reading, this is not an error. For example, it may show `5.978 ≈ 7` instead of `5.978 ≈ 6`, this is because when calculating from `6` pit stops, due to less amount time spent in pit stop compare to `7`, more fuel is required per pit stop which would exceed tank capacity, hence calculator adds 1 more pit stop.
 
     One less pit stop
-Show fuel consumption in order to make one less pit stop.
+Show theoretical fuel or energy consumption in order to make one less pit stop.
 
     Total laps
-Show total laps can run based on `Total race fuel` value.
+Show total laps can run based on `Total race fuel` or `Total race energy` value.
 
     Total minutes
-Show total minutes can run based on `Total race fuel` value.
+Show total minutes can run based on `Total race fuel` or `Total race energy` value.
 
-    Starting fuel
-Set starting fuel. This value is only used for calculating `Average refueling` per pit stop. Maximum value cannot exceed `Tank capacity`. If value is set to `0`, `Tank capacity` value will be used as starting fuel for `Average refueling` calculation.
+    Starting fuel, Starting energy
+Set starting fuel or energy. This value is only used for calculating `Average refueling` or `Average replenishing` per pit stop. Maximum value cannot exceed `Tank capacity` for fuel, or `100%` for energy. If value is set to `0`, `Tank capacity` value will be used as starting fuel for `Average refueling` calculation.
 
-    Average refueling
-Show average refueling per pit stop, and display warning color if value exceeds `Tank capacity`.
+    Average refueling, Average replenishing
+Show average refueling or replenishing per pit stop, and display warning color if value exceeds `Tank capacity` for fuel, or `100%` for energy.
 
 
 # Modules

@@ -61,11 +61,7 @@ class ForceInfo:
 
 @dataclass
 class FuelInfo:
-    """Fuel module output data
-
-    consumptionHistory list:
-        0 lapnumber, 1 laptime, 2 consumption, 3 remaining, 4 capacity, 5 is valid laptime
-    """
+    """Fuel module output data"""
     capacity: float = 0
     amountStart: float = 0
     amountCurrent: float = 0
@@ -80,10 +76,19 @@ class FuelInfo:
     estimatedNumPitStopsEarly: float = 0
     deltaConsumption: float = 0
     oneLessPitConsumption: float = 0
-    consumptionHistory: deque = field(default_factory=deque)
+
+
+@dataclass
+class HistoryInfo:
+    """History output data
+
+    consumption list:
+        0 lapnumber, 1 laptime, 2 fuel, 3 energy, 4 fuel capacity, 5 is valid laptime
+    """
+    consumption: deque = field(default_factory=deque)
 
     def __post_init__(self):
-        self.consumptionHistory = deque([(0,0,0,0,0,0)], 100)
+        self.consumption = deque([(0,0,0,0,0,0)], 100)
 
 
 @dataclass
@@ -168,6 +173,7 @@ class ModuleInfo:
         self.energy = FuelInfo()
         self.force = ForceInfo()
         self.fuel = FuelInfo()
+        self.history = HistoryInfo()
         self.hybrid = HybridInfo()
         self.mapping = MappingInfo()
         self.relative = RelativeInfo()

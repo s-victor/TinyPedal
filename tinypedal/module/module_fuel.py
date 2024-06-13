@@ -63,6 +63,18 @@ class Realtime(DataModule):
                 # Run calculation
                 gen_calc_fuel.send(True)
 
+                # Update consumption history
+                if (minfo.history.consumption[0][1] != minfo.delta.lapTimeLast
+                    > minfo.delta.lapTimeCurrent > 2):  # record 2s after pass finish line
+                    minfo.history.consumption.appendleft((
+                        api.read.lap.total_laps() - 1,
+                        minfo.delta.lapTimeLast,
+                        minfo.fuel.lastLapConsumption,
+                        minfo.energy.lastLapConsumption,
+                        minfo.fuel.capacity,
+                        minfo.delta.isValidLap,
+                    ))
+
             else:
                 if reset:
                     reset = False
@@ -254,17 +266,6 @@ def calc_data(info, telemetry_func, filepath, combo_id, extension):
         info.estimatedNumPitStopsEarly = est_pits_early
         info.deltaConsumption = delta_fuel
         info.oneLessPitConsumption = used_est_less
-
-        if (info.consumptionHistory[0][1] != minfo.delta.lapTimeLast
-            > laptime_curr > 2):  # record 2s after pass finish line
-            minfo.fuel.consumptionHistory.appendleft((
-                lap_number - 1,
-                minfo.delta.lapTimeLast,
-                used_last_raw,
-                amount_curr,
-                capacity,
-                laptime_valid > 0,
-            ))
 
 
 def save_delta(listname, filepath, combo, extension):

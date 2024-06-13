@@ -11,7 +11,13 @@ WIP
     Note, import function uses connection setting from "Rest API Module".
 
 * Fuel calculator
-  - Lap time values are now carried over between spin boxes
+  - Add "Virtual Energy" history data and calculation.
+    All fuel calculation outputs are now aligned on left side,
+    while virtual energy outputs are aligned on right side for easy comparison.
+    See user guide "Fuel calculator" section for details.
+  - Add "Fuel ratio" output, which is automatically calculated from
+    fuel and virtual energy calculation outputs.
+  - Lap time values are now automatically carried over between spin boxes
     when exceeded min or max value range.
     It is now quicker and easier to adjust lap time by
     mouse clicking or scrolling.
@@ -50,8 +56,8 @@ WIP
     which range from 0 to 100.
 
 * Misc
-  - Updated User Guide info for Brands preset, Energy Module, Rest API Module,
-    Fuel Widget, Virtual Energy Widget.
+  - Updated User Guide info for Brands preset, Fuel calculator, Energy Module,
+    Rest API Module, Fuel Widget, Virtual Energy Widget.
 
 2.13.0 (2024-06-08)
 -----------------------------
