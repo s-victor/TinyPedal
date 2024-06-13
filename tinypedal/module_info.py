@@ -135,6 +135,8 @@ class RestAPIInfo:
     timeScale: int = 1
     privateQualifying: int = 0
     steeringWheelRange: float = 0
+    currentVirtualEnergy: float = 0
+    maxVirtualEnergy: float = 0
 
 
 @dataclass
@@ -163,6 +165,7 @@ class ModuleInfo:
 
     def __init__(self):
         self.delta = DeltaInfo()
+        self.energy = FuelInfo()
         self.force = ForceInfo()
         self.fuel = FuelInfo()
         self.hybrid = HybridInfo()

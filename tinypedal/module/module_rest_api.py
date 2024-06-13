@@ -49,9 +49,13 @@ class Realtime(DataModule):
         reset = False
         update_interval = self.active_interval
 
-        task_list = (
+        task_once = (
             ("COMMON", "sessions", output_sessions),
-            ("LMU", "garage/chassis", output_garage),
+            ("LMU", "garage/chassis", output_garage_chassis),
+        )
+
+        task_repeat = (
+            ("LMU", "garage/UIScreen/DriverHandOffStintEnd", output_garage_fuel),
         )
 
         while not self.event.wait(update_interval):
@@ -60,52 +64,81 @@ class Realtime(DataModule):
                 if not reset:
                     reset = True
                     update_interval = self.active_interval
-                    asyncio.run(self.__tasks(task_list))
+
+                    (sim_name, url_rest, time_out, retry, retry_delay
+                     ) = self.__connection_setup()
+                    sorted_task_once = self.__sort_task(sim_name, task_once)
+                    sorted_task_repeat = self.__sort_task(sim_name, task_repeat)
+                    # Run task once per garage out
+                    asyncio.run(self.__task_once(sorted_task_once, url_rest, time_out, retry, retry_delay))
+
+                # Run repeatedly while on track
+                asyncio.run(self.__task_repeat(sorted_task_repeat, url_rest, time_out))
 
             else:
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
 
-    def __connection_setup(self, sim_name: str) -> tuple:
+    def __connection_setup(self) -> tuple:
         """Connection setup"""
         url_host = self.mcfg["url_host"]
         time_out = min(max(self.mcfg["connection_timeout"], 0.1), 10)
         retry = min(max(self.mcfg["connection_retry"], 0), 10)
         retry_delay = min(max(self.mcfg["connection_retry_delay"], 0), 60)
+        sim_name = api.read.check.sim_name()
 
         if sim_name == "LMU":
             url_port = self.mcfg["url_port_lmu"]
+            url_rest = f"http://{url_host}:{url_port}/rest/"
         elif sim_name == "RF2":
             url_port = self.mcfg["url_port_rf2"]
+            url_rest = f"http://{url_host}:{url_port}/rest/"
         else:
-            logger.info("Rest API: game session not found, abort")
-            return None
-        return url_host, url_port, time_out, retry, retry_delay
+            logger.info("Rest API: game session not found")
+            url_rest = ""
+        return sim_name, url_rest, time_out, retry, retry_delay
 
-    async def __tasks(self, task_list) -> None:
-        """Update tasks"""
-        sim_name = api.read.check.sim_name()
-        connection_info = self.__connection_setup(sim_name)
-        if not connection_info:
-            return None
+    def __sort_task(self, sim_name: str, task_list: tuple) -> list:
+        """Sort task list"""
+        return [task for task in task_list if task[0] == "COMMON" or task[0] == sim_name]
 
-        async_tasks = set()
-        for task in task_list:
-            if task[0] == "COMMON" or task[0] == sim_name:
-                async_tasks.add(self.__fetch(*connection_info, task[1], task[2]))
-        await asyncio.gather(*async_tasks)
+    async def __task_once(self, task_list: tuple, url: str,
+        time_out: int, retry: int, retry_delay: float) -> None:
+        """Update task once"""
+        if not url:
+            return None
+        tasks = (self.__fetch_retry(url, time_out, retry, retry_delay, task[1], task[2])
+                 for task in task_list)
+        await asyncio.gather(*tasks)
         return None
 
-    async def __fetch(self, host: str, port: int, time_out: int, retry: int,
+    async def __task_repeat(self, task_list: tuple, url: str, time_out: int) -> None:
+        """Update task repeatedly"""
+        if not url:
+            return None
+        tasks = (self.__fetch(url, time_out, task[1], task[2]) for task in task_list)
+        await asyncio.gather(*tasks)
+        return None
+
+    async def __fetch(self, url_rest: str, time_out: int,
+        resource_name: str, update_func: object) -> None:
+        """Fetch data without retry"""
+        resource_output = get_resource(f"{url_rest}{resource_name}", time_out)
+        if isinstance(resource_output, dict):
+            update_func(resource_output)
+
+    async def __fetch_retry(self, url_rest: str, time_out: int, retry: int,
         retry_delay: float, resource_name: str, update_func: object) -> None:
-        """Fetch data"""
-        url = f"http://{host}:{port}/rest/{resource_name}"
+        """Fetch data with retry"""
+        full_url = f"{url_rest}{resource_name}"
         while not self.event.wait(0) and retry >= 0:
-            resource_data = get_resource(url, time_out, retry, resource_name)
-            if resource_data:
-                update_func(resource_data)
+            resource_output = get_resource(full_url, time_out)
+            if isinstance(resource_output, dict):
+                update_func(resource_output)
+                logger.info("Rest API: %s data updated", resource_name.upper())
                 break
+            logger.info("Rest API: %s %s, %s retry", resource_name.upper(), resource_output, retry)
             retry -= 1
             await asyncio.sleep(retry_delay)
 
@@ -116,29 +149,28 @@ def output_sessions(data: dict) -> None:
     minfo.restapi.privateQualifying = get_value(data, "SESSSET_private_qual", "currentValue", 0)
 
 
-def output_garage(data: dict) -> None:
-    """Output garage data"""
+def output_garage_chassis(data: dict) -> None:
+    """Output garage chassis data"""
     minfo.restapi.steeringWheelRange = get_value(data, "VM_STEER_LOCK", "stringValue", 0.0, steerlock_to_number)
 
 
-def get_resource(url: str, time_out: int, retry: int, resource_name: str) -> (dict | None):
+def output_garage_fuel(data: dict) -> None:
+    """Output garage fuel data"""
+    minfo.restapi.currentVirtualEnergy = get_value(data, "fuelInfo", "currentVirtualEnergy", 0.0)
+    minfo.restapi.maxVirtualEnergy = get_value(data, "fuelInfo", "maxVirtualEnergy", 0.0)
+
+
+def get_resource(url: str, time_out: int) -> (dict | str):
     """Get resource from REST API"""
     try:
         with urlopen(url, timeout=time_out) as raw_resource:
             if raw_resource.getcode() != 200:
                 raise ValueError
-            output = json.loads(raw_resource.read().decode("utf-8"))
-            if not isinstance(output, dict):
-                raise AttributeError
-            logger.info("Rest API: %s data updated", resource_name.upper())
-            return output
+            return json.loads(raw_resource.read().decode("utf-8"))
     except (TypeError, AttributeError, KeyError, ValueError):
-        retry_text = f"{retry} retry" if retry > 0 else "abort"
-        logger.info("Rest API: %s data not found, %s", resource_name.upper(), retry_text)
+        return "data not found"
     except (OSError, TimeoutError, socket.timeout):
-        retry_text = f"{retry} retry" if retry > 0 else "abort"
-        logger.info("Rest API: %s connection timed out, %s", resource_name.upper(), retry_text)
-    return None
+        return "connection failed"
 
 
 def get_value(

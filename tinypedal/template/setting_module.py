@@ -27,6 +27,11 @@ MODULE_DEFAULT = {
         "update_interval": 10,
         "idle_update_interval": 400,
     },
+    "module_energy": {
+        "enable": True,
+        "update_interval": 10,
+        "idle_update_interval": 400,
+    },
     "module_force": {
         "enable": True,
         "update_interval": 10,

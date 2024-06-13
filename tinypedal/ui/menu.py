@@ -25,7 +25,7 @@ import os
 from PySide2.QtGui import QDesktopServices
 from PySide2.QtWidgets import QMenu, QAction, QMessageBox
 
-from ..const import PATH_DELTABEST, PATH_TRACKMAP
+from ..const import PATH_DELTABEST, PATH_ENERGY, PATH_FUEL, PATH_TRACKMAP
 from ..setting import cfg
 from ..api_control import api
 from ..overlay_control import octrl
@@ -120,6 +120,11 @@ class ResetDataMenu(QMenu):
         reset_deltabest.triggered.connect(self.reset_deltabest)
         menu.addAction(reset_deltabest)
 
+        # Energy delta
+        reset_energydelta = QAction("Energy delta", self)
+        reset_energydelta.triggered.connect(self.reset_energydelta)
+        menu.addAction(reset_energydelta)
+
         # Fuel delta
         reset_fueldelta = QAction("Fuel delta", self)
         reset_fueldelta.triggered.connect(self.reset_fueldelta)
@@ -135,10 +140,15 @@ class ResetDataMenu(QMenu):
         self.__confirmation(
             "deltabest", "csv", PATH_DELTABEST, api.read.check.combo_id())
 
+    def reset_energydelta(self):
+        """Reset energy delta data"""
+        self.__confirmation(
+            "energy delta", "energy", PATH_ENERGY, api.read.check.combo_id())
+
     def reset_fueldelta(self):
         """Reset fuel delta data"""
         self.__confirmation(
-            "fuel delta", "fuel", PATH_DELTABEST, api.read.check.combo_id())
+            "fuel delta", "fuel", PATH_FUEL, api.read.check.combo_id())
 
     def reset_trackmap(self):
         """Reset trackmap data"""

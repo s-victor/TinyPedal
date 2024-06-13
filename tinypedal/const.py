@@ -45,6 +45,7 @@ if PLATFORM == "Windows":
     PATH_SETTINGS = "settings/"
     PATH_LOG = "./"
     PATH_DELTABEST = "deltabest/"
+    PATH_ENERGY = PATH_DELTABEST
     PATH_FUEL = PATH_DELTABEST
     PATH_TRACKMAP = "trackmap/"
     PATH_BRANDLOGO = "brandlogo/"
@@ -57,6 +58,7 @@ else:
     PATH_SETTINGS = BD.save_config_path(APP_NAME) + "/"
     PATH_LOG = PATH_SETTINGS
     PATH_DELTABEST = BD.save_data_path(APP_NAME, "deltabest") + "/"
+    PATH_ENERGY = PATH_DELTABEST
     PATH_FUEL = PATH_DELTABEST
     PATH_TRACKMAP = BD.save_data_path(APP_NAME, "trackmap") + "/"
     PATH_BRANDLOGO = BD.save_data_path(APP_NAME, "brandlogo") + "/"

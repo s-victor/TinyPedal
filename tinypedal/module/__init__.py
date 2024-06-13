@@ -26,6 +26,7 @@ in template/setting_module.py dictionary.
 
 from . import (
     module_delta,
+    module_energy,
     module_force,
     module_fuel,
     module_hybrid,
