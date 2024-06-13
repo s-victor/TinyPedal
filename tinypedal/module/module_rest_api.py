@@ -25,8 +25,8 @@ import asyncio
 import logging
 import json
 import re
+import socket
 from urllib.request import urlopen
-from urllib.error import URLError, HTTPError
 
 from ._base import DataModule
 from ..module_info import minfo
@@ -76,10 +76,8 @@ class Realtime(DataModule):
 
         if sim_name == "LMU":
             url_port = self.mcfg["url_port_lmu"]
-            #logger.info("Rest API: LMU session found")
         elif sim_name == "RF2":
             url_port = self.mcfg["url_port_rf2"]
-            #logger.info("Rest API: RF2 session found")
         else:
             logger.info("Rest API: game session not found, abort")
             return None
@@ -92,9 +90,11 @@ class Realtime(DataModule):
         if not connection_info:
             return None
 
+        async_tasks = set()
         for task in task_list:
             if task[0] == "COMMON" or task[0] == sim_name:
-                await asyncio.create_task(self.__fetch(*connection_info, task[1], task[2]))
+                async_tasks.add(self.__fetch(*connection_info, task[1], task[2]))
+        await asyncio.gather(*async_tasks)
         return None
 
     async def __fetch(self, host: str, port: int, time_out: int, retry: int,
@@ -102,8 +102,7 @@ class Realtime(DataModule):
         """Fetch data"""
         url = f"http://{host}:{port}/rest/{resource_name}"
         while not self.event.wait(0) and retry >= 0:
-            retry_text = f"{retry} retry" if retry > 0 else "abort"
-            resource_data = get_resource(url, time_out, retry_text, resource_name)
+            resource_data = get_resource(url, time_out, retry, resource_name)
             if resource_data:
                 update_func(resource_data)
                 break
@@ -122,21 +121,23 @@ def output_garage(data: dict) -> None:
     minfo.restapi.steeringWheelRange = get_value(data, "VM_STEER_LOCK", "stringValue", 0.0, steerlock_to_number)
 
 
-def get_resource(url: str, time_out: int, retry_text: str, resource_name: str) -> (dict | None):
+def get_resource(url: str, time_out: int, retry: int, resource_name: str) -> (dict | None):
     """Get resource from REST API"""
     try:
         with urlopen(url, timeout=time_out) as raw_resource:
             if raw_resource.getcode() != 200:
-                raise HTTPError
+                raise ValueError
             output = json.loads(raw_resource.read().decode("utf-8"))
+            if not isinstance(output, dict):
+                raise AttributeError
             logger.info("Rest API: %s data updated", resource_name.upper())
             return output
-    except (TypeError, AttributeError, KeyError, ValueError, HTTPError):
+    except (TypeError, AttributeError, KeyError, ValueError):
+        retry_text = f"{retry} retry" if retry > 0 else "abort"
         logger.info("Rest API: %s data not found, %s", resource_name.upper(), retry_text)
-    except URLError:
+    except (OSError, TimeoutError, socket.timeout):
+        retry_text = f"{retry} retry" if retry > 0 else "abort"
         logger.info("Rest API: %s connection timed out, %s", resource_name.upper(), retry_text)
-    except:
-        logger.error("Rest API: %s connection failed, %s", resource_name.upper(), retry_text)
     return None
 
 

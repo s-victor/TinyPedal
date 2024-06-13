@@ -200,7 +200,7 @@ def verify_json_file(filename: str, filepath: str, dict_user: dict) -> bool:
     try:
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
             return json.load(jsonfile) == dict_user
-    except (FileNotFoundError, json.decoder.JSONDecodeError):
+    except (FileNotFoundError, ValueError):
         logger.error("SETTING: saving verification failed")
         return False
 
@@ -223,7 +223,7 @@ def load_setting_json_file(filename: str, filepath: str, dict_def: dict) -> dict
             setting_user = json.load(jsonfile)
         # Verify & assign setting
         setting_user = preset_validator.validate(setting_user, dict_def)
-    except (FileNotFoundError, json.decoder.JSONDecodeError):
+    except (FileNotFoundError, ValueError):
         logger.error("SETTING: %s failed loading, create backup & revert to default", filename)
         backup_json_file(filename, filepath)
         setting_user = copy_setting(dict_def)
@@ -236,7 +236,7 @@ def load_style_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
         # Read JSON file
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
             style_user = json.load(jsonfile)
-    except (FileNotFoundError, json.decoder.JSONDecodeError):
+    except (FileNotFoundError, ValueError):
         style_user = copy_setting(dict_def)
         # Save to file if not found
         if not os.path.exists(f"{filepath}{filename}"):

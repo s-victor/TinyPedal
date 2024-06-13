@@ -25,6 +25,7 @@ import logging
 import json
 import re
 import time
+import socket
 from urllib.request import urlopen
 
 from PySide2.QtCore import Qt
@@ -216,7 +217,8 @@ class VehicleBrandEditor(QDialog):
                     raise ValueError
                 dict_vehicles = json.loads(raw_resource.read().decode("utf-8"))
                 self.parse_brand_data(dict_vehicles)
-        except:
+        except (TypeError, AttributeError, KeyError, ValueError,
+                OSError, TimeoutError, socket.timeout):
             logger.error("Failed importing vehicle data from %s Rest API", sim_name)
             msg_text = (f"Unable to import vehicle data from {sim_name} Rest API."
                         "\n\nMake sure game is running and try again.")
@@ -237,8 +239,8 @@ class VehicleBrandEditor(QDialog):
             with open(veh_file_data[0], "r", encoding="utf-8") as jsonfile:
                 dict_vehicles = json.load(jsonfile)
                 self.parse_brand_data(dict_vehicles)
-        #(AttributeError, IndexError, KeyError, TypeError, FileNotFoundError, json.decoder.JSONDecodeError)
-        except:
+        except (AttributeError, IndexError, KeyError, TypeError,
+                FileNotFoundError, ValueError, OSError):
             logger.error("Failed importing %s", veh_file_data[0])
             msg_text = "Cannot import selected file.\n\nInvalid vehicle data file."
             QMessageBox.warning(self, "Error", msg_text)
