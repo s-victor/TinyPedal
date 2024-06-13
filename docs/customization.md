@@ -134,6 +134,10 @@ TinyPedal generates & saves user session data in specific folders. Session data 
 Deltabest data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
 
 
+## Energy delta
+Energy delta data is stored as `CSV` format (.energy extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
+
+
 ## Fuel delta
 Fuel delta data is stored as `CSV` format (.fuel extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
 
@@ -441,6 +445,13 @@ Modules provide important data that updated in real-time for other widgets. Widg
 
     module_delta
 Enable delta module.
+
+
+## Energy
+**This module provides vehicle virtual energy usage data.**
+
+    module_energy
+Enable energy module.
 
 
 ## Force
@@ -1104,6 +1115,9 @@ Set fuel level mark width in pixels.
 
     caption_text
 Set custom caption text.
+
+    swap_upper_caption, swap_lower_caption
+Swap caption row position.
 
 
 ## Gear
@@ -1953,6 +1967,10 @@ Set warning threshold for estimated tyre lifespan in laps. Default is `5` laps.
 
     warning_threshold_minutes
 Set warning threshold for estimated tyre lifespan in minutes. Default is `5` laps.
+
+
+## Virtual energy
+**This widget displays virtual energy usage info. Most options are inherited from fuel widget, see fuel widget for details.**
 
 
 ## Weather

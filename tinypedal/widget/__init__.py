@@ -69,6 +69,7 @@ from . import (
     tyre_pressure,
     tyre_temperature,
     tyre_wear,
+    virtual_energy,
     weather,
     wheel_alignment,
 )

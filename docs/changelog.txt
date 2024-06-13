@@ -18,11 +18,40 @@ WIP
   - "Reload" button now only updates valid lap time data
     to lap time spin boxes.
 
+* [New]Energy Module
+  - Add Energy Module for calculating virtual energy usage in LMU.
+  - Add new "energy delta" user data file that stored as "CSV" format
+    (.energy extension) under "TinyPedal\deltabest" folder.
+    Energy delta data can be reset by accessing "Reset" menu.
+
 * Rest API Module
-  - Read "steering wheel range" value from Rest API for used in Steering widget.
+  - Read "virtual energy" values from LMU's Rest API
+    for used in Energy Module.
+  - Read "steering wheel range" value from LMU's Rest API
+    for used in Steering Widget.
     This value is only used when "steering wheel range" value
     cannot be read from sharedmemory API.
-  - Fixed a timeout error while game is loading.
+  - Adjusted default "update_interval" value to "100".
+    Adjusted default "idle_update_interval" value to "400".
+    User may have to manually reset "Rest API Module" setting
+    to update old values to new ones.
+  - Fixed a timeout error.
+
+* Fuel Widget
+  - Add "swap_upper_caption" and "swap_lower_caption" options,
+    which swap caption row position.
+  - Add "column_index_*" options, which set display order for
+    upper, middle, and lower rows.
+
+* [New]Virtual Energy Widget
+  - Show Virtual Energy usage data, which all settings and functionalities
+    work the same way as Fuel Widget.
+  - Virtual Energy usage readings are displayed in percentage,
+    which range from 0 to 100.
+
+* Misc
+  - Updated User Guide info for Brands preset, Energy Module, Rest API Module,
+    Fuel Widget, Virtual Energy Widget.
 
 2.13.0 (2024-06-08)
 -----------------------------

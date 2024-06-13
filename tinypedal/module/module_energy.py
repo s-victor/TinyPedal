@@ -53,13 +53,15 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
 
+                    sim_name = api.read.check.sim_name()
                     combo_id = api.read.check.combo_id()
                     gen_calc_energy = calc_data(
                         minfo.energy, telemetry_energy, self.filepath, combo_id, "energy")
                     next(gen_calc_energy)
 
                 # Run calculation
-                gen_calc_energy.send(True)
+                if sim_name == "LMU":
+                    gen_calc_energy.send(True)
 
             else:
                 if reset:

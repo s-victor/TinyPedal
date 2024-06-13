@@ -65,8 +65,8 @@ MODULE_DEFAULT = {
     },
     "module_rest_api": {
         "enable": True,
-        "update_interval": 500,
-        "idle_update_interval": 1000,
+        "update_interval": 100,
+        "idle_update_interval": 400,
         "url_host": "localhost",
         "url_port_rf2": 5397,
         "url_port_lmu": 6397,

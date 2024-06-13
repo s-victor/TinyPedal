@@ -35,6 +35,8 @@ CFG_BOOL = (
     "enable|"
     "shorten|"
     "show|"
+    "swap_upper_caption|"
+    "swap_lower_caption|"
     "swap_style|"
     "uppercase"
 )

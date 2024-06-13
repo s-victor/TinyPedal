@@ -73,7 +73,8 @@ class Realtime(DataModule):
                     asyncio.run(self.__task_once(sorted_task_once, url_rest, time_out, retry, retry_delay))
 
                 # Run repeatedly while on track
-                asyncio.run(self.__task_repeat(sorted_task_repeat, url_rest, time_out))
+                if sorted_task_repeat:
+                    asyncio.run(self.__task_repeat(sorted_task_repeat, url_rest, time_out))
 
             else:
                 if reset:
@@ -178,7 +179,6 @@ def get_value(
     """Get value from resource dictionary, fallback to default value if invalid"""
     info = data.get(key, None)
     if not info:
-        logger.info("Rest API: %s value not found, fallback to default", key)
         return default
 
     value = info.get(sub_key, None)

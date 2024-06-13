@@ -82,6 +82,10 @@ class Draw(Overlay):
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
+        column_upr = self.wcfg["column_index_upper"]
+        column_mid = self.wcfg["column_index_middle"]
+        column_lwr = self.wcfg["column_index_lower"]
+
         # Caption
         if self.wcfg["show_caption"]:
             bar_style_desc = (
@@ -107,9 +111,11 @@ class Draw(Overlay):
                 getattr(self, f"bar_desc_{caption}").setAlignment(Qt.AlignCenter)
                 getattr(self, f"bar_desc_{caption}").setStyleSheet(bar_style_desc)
                 if index < 5:
-                    layout_upper.addWidget(getattr(self, f"bar_desc_{caption}"), 0, index)
+                    row_idx = 2 if self.wcfg["swap_upper_caption"] else 0
+                    layout_upper.addWidget(getattr(self, f"bar_desc_{caption}"), row_idx, index)
                 else:
-                    layout_lower.addWidget(getattr(self, f"bar_desc_{caption}"), 1, index - 5)
+                    row_idx = 0 if self.wcfg["swap_lower_caption"] else 2
+                    layout_lower.addWidget(getattr(self, f"bar_desc_{caption}"), row_idx, index - 5)
 
         # Estimated end fuel
         self.bar_fuel_end = QLabel(text_def)
@@ -217,7 +223,6 @@ class Draw(Overlay):
 
             self.fuel_level = QLabel()
             self.fuel_level.setFixedSize(self.fuel_level_width, self.fuel_level_height)
-            #self.fuel_level.setStyleSheet("padding: 0;")
             self.pixmap_fuel_level = QPixmap(self.fuel_level_width, self.fuel_level_height)
             self.draw_fuel_level(self.fuel_level, self.pixmap_fuel_level, [0,0,0])
 
@@ -227,15 +232,15 @@ class Draw(Overlay):
         layout_upper.addWidget(self.bar_fuel_need, 1, 2)
         layout_upper.addWidget(self.bar_fuel_used, 1, 3)
         layout_upper.addWidget(self.bar_fuel_delta, 1, 4)
-        layout_lower.addWidget(self.bar_fuel_early, 0, 0)
-        layout_lower.addWidget(self.bar_fuel_laps, 0, 1)
-        layout_lower.addWidget(self.bar_fuel_mins, 0, 2)
-        layout_lower.addWidget(self.bar_fuel_save, 0, 3)
-        layout_lower.addWidget(self.bar_fuel_pits, 0, 4)
-        layout.addLayout(layout_upper, 0, 0)
+        layout_lower.addWidget(self.bar_fuel_early, 1, 0)
+        layout_lower.addWidget(self.bar_fuel_laps, 1, 1)
+        layout_lower.addWidget(self.bar_fuel_mins, 1, 2)
+        layout_lower.addWidget(self.bar_fuel_save, 1, 3)
+        layout_lower.addWidget(self.bar_fuel_pits, 1, 4)
+        layout.addLayout(layout_upper, column_upr, 0)
         if self.wcfg["show_fuel_level_bar"]:
-            layout.addWidget(self.fuel_level, 1, 0)
-        layout.addLayout(layout_lower, 2, 0)
+            layout.addWidget(self.fuel_level, column_mid, 0)
+        layout.addLayout(layout_lower, column_lwr, 0)
         self.setLayout(layout)
 
         # Last data
