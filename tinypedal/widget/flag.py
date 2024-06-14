@@ -23,6 +23,7 @@ Flag Widget
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import QGridLayout, QLabel
 
+from .. import calculation as calc
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
@@ -476,6 +477,13 @@ class Draw(Overlay):
             else:
                 self.bar_finish_state.hide()
 
+    # Additional methods
+    def fuel_units(self, fuel):
+        """2 different fuel unit conversion, default is Liter"""
+        if self.cfg.units["fuel_unit"] == "Gallon":
+            return calc.liter2gallon(fuel)
+        return fuel
+
     def is_lowfuel(self, in_race):
         """Is low fuel"""
         if minfo.restapi.maxVirtualEnergy and minfo.energy.estimatedLaps < minfo.fuel.estimatedLaps:
@@ -491,6 +499,8 @@ class Draw(Overlay):
             est_laps < self.wcfg["low_fuel_lap_threshold"] and
             (not self.wcfg["show_low_fuel_for_race_only"] or
             self.wcfg["show_low_fuel_for_race_only"] and in_race))
-        if low_fuel:
-            return round(amount_curr, 2), low_fuel, prefix
-        return 99999, low_fuel, prefix
+        if not low_fuel:
+            return 99999, low_fuel, prefix
+        if prefix == "LF":
+            return round(self.fuel_units(amount_curr), 2), low_fuel, prefix
+        return round(amount_curr, 2), low_fuel, prefix

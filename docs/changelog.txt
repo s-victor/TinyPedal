@@ -1,4 +1,4 @@
-WIP
+2.14.0 (2024-06-14)
 -----------------------------
 * General
   - Config window can now be opened by double-clicking on tray icon.
@@ -44,6 +44,7 @@ WIP
     when below certain amount value.
     Only one indicator will be displayed for low fuel (LF) or low virtual energy (LE),
     depends on which one would deplete sooner.
+  - Now shows low fuel value in "liter" or "gallon" based on fuel unit setting.
 
 * Fuel Widget
   - Add "swap_upper_caption" and "swap_lower_caption" options,
