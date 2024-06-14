@@ -39,6 +39,12 @@ WIP
     cannot be read from sharedmemory API.
   - Fixed a timeout error.
 
+* Flag Widget
+  - Now shows low fuel (or low virtual energy if available) indicator
+    when below certain amount value.
+    Only one indicator will be displayed for low fuel (LF) or low virtual energy (LE),
+    depends on which one would deplete sooner.
+
 * Fuel Widget
   - Add "swap_upper_caption" and "swap_lower_caption" options,
     which swap caption row position.
@@ -63,8 +69,8 @@ WIP
 
 * Misc
   - Updated User Guide info for Brands preset, Fuel calculator, Energy Module,
-    RestAPI Module, Fuel Widget, Lap time history Widget, Stint history Widget,
-    Virtual Energy Widget.
+    RestAPI Module, Flag Widget, Fuel Widget, Lap time history Widget,
+    Stint history Widget, Virtual Energy Widget.
 
 2.13.0 (2024-06-08)
 -----------------------------

@@ -256,16 +256,7 @@ class Draw(Overlay):
 
             # Low fuel update
             if self.wcfg["show_low_fuel"]:
-                is_lowfuel = (
-                    minfo.fuel.amountCurrent < self.wcfg["low_fuel_volume_threshold"] and
-                    minfo.fuel.estimatedLaps < self.wcfg["low_fuel_lap_threshold"] and
-                    (not self.wcfg["show_low_fuel_for_race_only"] or
-                    self.wcfg["show_low_fuel_for_race_only"] and in_race))
-
-                if is_lowfuel:
-                    fuel_usage = (round(minfo.fuel.amountCurrent, 2), is_lowfuel)
-                else:
-                    fuel_usage = (99999, is_lowfuel)
+                fuel_usage = self.is_lowfuel(in_race)
                 self.update_lowfuel(fuel_usage, self.last_fuel_usage)
                 self.last_fuel_usage = fuel_usage
 
@@ -394,7 +385,7 @@ class Draw(Overlay):
         """Low fuel warning"""
         if curr != last:
             if curr[1]:
-                self.bar_lowfuel.setText("LF" + f"{curr[0]:.02f}"[:4].rjust(5))
+                self.bar_lowfuel.setText(curr[2] + f"{curr[0]:.02f}"[:4].rjust(5))
                 self.bar_lowfuel.show()
             else:
                 self.bar_lowfuel.hide()
@@ -484,3 +475,22 @@ class Draw(Overlay):
                 self.bar_finish_state.show()
             else:
                 self.bar_finish_state.hide()
+
+    def is_lowfuel(self, in_race):
+        """Is low fuel"""
+        if minfo.restapi.maxVirtualEnergy and minfo.energy.estimatedLaps < minfo.fuel.estimatedLaps:
+            prefix = "LE"
+            amount_curr = minfo.energy.amountCurrent
+            est_laps = minfo.energy.estimatedLaps
+        else:
+            prefix = "LF"
+            amount_curr = minfo.fuel.amountCurrent
+            est_laps = minfo.fuel.estimatedLaps
+
+        low_fuel = (amount_curr < self.wcfg["low_fuel_volume_threshold"] and
+            est_laps < self.wcfg["low_fuel_lap_threshold"] and
+            (not self.wcfg["show_low_fuel_for_race_only"] or
+            self.wcfg["show_low_fuel_for_race_only"] and in_race))
+        if low_fuel:
+            return round(amount_curr, 2), low_fuel, prefix
+        return 99999, low_fuel, prefix

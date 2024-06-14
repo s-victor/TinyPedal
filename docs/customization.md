@@ -895,7 +895,7 @@ Set custom pit closed text.
 Set color indicator on pit timer when pit lane is closed.
 
     show_low_fuel
-Show low fuel indicator when fuel level is below certain amount value.
+Show low fuel (or low virtual energy if available) indicator when below certain amount value. Only one indicator will be displayed for low fuel (LF) or low virtual energy (LE), depends on which one would deplete sooner.
 
     show_low_fuel_for_race_only
 Only show low fuel indicator during race session.
