@@ -192,13 +192,21 @@ class Draw(Overlay):
             lap_etime = api.read.timing.elapsed()
             wear_avg = 100 - (sum(api.read.tyre.wear()) * 25)
 
+            # Check if virtual energy available
+            if self.wcfg["show_virtual_energy_if_available"] and minfo.restapi.maxVirtualEnergy:
+                temp_fuel_last = minfo.energy.lastLapConsumption
+                temp_fuel_est = minfo.energy.estimatedConsumption
+            else:
+                temp_fuel_last = self.fuel_units(minfo.fuel.lastLapConsumption)
+                temp_fuel_est = self.fuel_units(minfo.fuel.estimatedConsumption)
+
             if lap_stime != self.last_lap_stime:  # time stamp difference
                 if 2 < lap_etime - lap_stime < 10:  # update 2s after cross line
                     self.last_wear = wear_avg
                     self.last_lap_stime = lap_stime  # reset time stamp counter
                     self.laps_data[1] = minfo.delta.lapTimeLast
                     self.laps_data[2] = minfo.delta.isValidLap
-                    self.laps_data[3] = self.fuel_units(minfo.fuel.lastLapConsumption)
+                    self.laps_data[3] = temp_fuel_last
                     # Update lap time history while on track
                     if not api.read.vehicle.in_garage():
                         self.history_data.appendleft(self.laps_data.copy())
@@ -208,7 +216,7 @@ class Draw(Overlay):
             # Current laps data
             self.laps_data[0] = api.read.lap.number()
             self.laps_data[1] = minfo.delta.lapTimeEstimated
-            self.laps_data[3] = self.fuel_units(minfo.fuel.estimatedConsumption)
+            self.laps_data[3] = temp_fuel_est
             self.laps_data[4] = max(wear_avg - self.last_wear, 0)
 
             laps_text = f"{self.laps_data[0]:03.0f}"[:3].ljust(3)

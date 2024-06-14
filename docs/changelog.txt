@@ -49,6 +49,12 @@ WIP
   - Add "column_index_*" options, which set display order for
     upper, middle, and lower rows.
 
+* Lap time history Widget, Stint history Widget
+  - Add "show_virtual_energy_if_available" option,
+    which shows virtual energy consumption instead of
+    fuel consumption if available.
+    This option is enabled by default.
+
 * [New]Virtual Energy Widget
   - Show Virtual Energy usage data, which all settings and functionalities
     work the same way as Fuel Widget.

@@ -1273,6 +1273,9 @@ Set percentage threshold for triggering wheel slip warning. `0.1` means 10% of t
     lap_time_history_count
 Set the number of lap time history display. Default is to show `10` most recent lap times.
 
+    show_virtual_energy_if_available
+Show virtual energy consumption instead of fuel consumption if available. This option is enabled by default.
+
     show_empty_history
 Show empty lap time history. Default is `false`, which hides empty rows.
 
@@ -1736,6 +1739,9 @@ Set gap between each scale mark in degree. Default is `90` degree. Minimum value
 
     stint_history_count
 Set the number of stint history display. Default is to show `2` most recent stints.
+
+    show_virtual_energy_if_available
+Show virtual energy consumption instead of fuel consumption if available. This option is enabled by default.
 
     show_empty_history
 Show empty stint history. Default is `false`, which hides empty rows.
