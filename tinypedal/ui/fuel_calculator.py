@@ -48,7 +48,7 @@ from ..module_info import minfo
 from .. import calculation as calc
 from .. import formatter as fmt
 
-PANEL_LEFT_WIDTH = 300
+PANEL_LEFT_WIDTH = 350
 
 
 class FuelCalculator(QDialog):
@@ -208,19 +208,26 @@ class FuelCalculator(QDialog):
         frame_race.setFrameShape(QFrame.StyledPanel)
         frame_race.setFixedWidth(PANEL_LEFT_WIDTH)
 
-        frame_output1 = QFrame()
-        frame_output1.setFrameShape(QFrame.StyledPanel)
-        frame_output1.setFixedWidth(PANEL_LEFT_WIDTH)
+        frame_output_fuel = QFrame()
+        frame_output_fuel.setFrameShape(QFrame.StyledPanel)
 
-        frame_output2 = QFrame()
-        frame_output2.setFrameShape(QFrame.StyledPanel)
-        frame_output2.setFixedWidth(PANEL_LEFT_WIDTH)
+        frame_output_energy = QFrame()
+        frame_output_energy.setFrameShape(QFrame.StyledPanel)
+
+        frame_output_start_fuel = QFrame()
+        frame_output_start_fuel.setFrameShape(QFrame.StyledPanel)
+
+        frame_output_start_energy = QFrame()
+        frame_output_start_energy.setFrameShape(QFrame.StyledPanel)
 
         self.set_input_laptime(frame_laptime)
         self.set_input_fuel(frame_fuel)
         self.set_input_race(frame_race)
-        self.set_output1(frame_output1)
-        self.set_output2(frame_output2)
+
+        self.set_output_fuel(frame_output_fuel)
+        self.set_output_energy(frame_output_energy)
+        self.set_output_start_fuel(frame_output_start_fuel)
+        self.set_output_start_energy(frame_output_start_energy)
 
         button_reload = QPushButton("Reload")
         button_reload.clicked.connect(self.reload_data)
@@ -230,13 +237,21 @@ class FuelCalculator(QDialog):
         self.button_toggle.clicked.connect(self.toggle_history_panel)
         self.button_toggle.setFocusPolicy(Qt.NoFocus)
 
+        layout_split1 = QHBoxLayout()
+        layout_split1.addWidget(frame_output_fuel)
+        layout_split1.addWidget(frame_output_energy)
+
+        layout_split2 = QHBoxLayout()
+        layout_split2.addWidget(frame_output_start_fuel)
+        layout_split2.addWidget(frame_output_start_energy)
+
         layout_calculator = QVBoxLayout()
         layout_calculator.setAlignment(Qt.AlignTop)
         layout_calculator.addWidget(frame_laptime)
         layout_calculator.addWidget(frame_fuel)
         layout_calculator.addWidget(frame_race)
-        layout_calculator.addWidget(frame_output1)
-        layout_calculator.addWidget(frame_output2)
+        layout_calculator.addLayout(layout_split1)
+        layout_calculator.addLayout(layout_split2)
 
         layout_button = QHBoxLayout()
         layout_button.addWidget(button_reload, stretch=1)
@@ -424,7 +439,7 @@ class FuelCalculator(QDialog):
 
         frame.setLayout(layout_grid)
 
-    def set_output1(self, frame):
+    def set_output_fuel(self, frame):
         """Set output display"""
         self.lineedit_total_fuel = QLineEdit("0.000 ≈ 0")
         self.lineedit_total_fuel.setAlignment(Qt.AlignRight)
@@ -456,6 +471,36 @@ class FuelCalculator(QDialog):
         self.lineedit_one_less_fuel.setReadOnly(True)
         self.set_read_only_style(self.lineedit_one_less_fuel)
 
+        layout_output = QGridLayout()
+
+        layout_output.addWidget(QLabel("Total Race Fuel:"), 0, 0, 1, 2)
+        layout_output.addWidget(self.lineedit_total_fuel, 1, 0)
+        layout_output.addWidget(QLabel(self.fuel_unit_text()), 1, 1)
+
+        layout_output.addWidget(QLabel("Total Pit Stops:"), 2, 0, 1, 2)
+        layout_output.addWidget(self.lineedit_pit_stops_fuel, 3, 0)
+        layout_output.addWidget(QLabel("pit"), 3, 1)
+
+        layout_output.addWidget(QLabel("Total Laps:"), 4, 0, 1, 2)
+        layout_output.addWidget(self.lineedit_total_laps_fuel, 5, 0)
+        layout_output.addWidget(QLabel("lap"), 5, 1)
+
+        layout_output.addWidget(QLabel("Total Minutes:"), 6, 0, 1, 2)
+        layout_output.addWidget(self.lineedit_total_minutes_fuel, 7, 0)
+        layout_output.addWidget(QLabel("min"), 7, 1)
+
+        layout_output.addWidget(QLabel("End Stint Fuel:"), 8, 0, 1, 2)
+        layout_output.addWidget(self.lineedit_end_fuel, 9, 0)
+        layout_output.addWidget(QLabel(self.fuel_unit_text()), 9, 1)
+
+        layout_output.addWidget(QLabel("One Less Pit Stop:"), 10, 0, 1, 2)
+        layout_output.addWidget(self.lineedit_one_less_fuel, 11, 0)
+        layout_output.addWidget(QLabel(self.fuel_unit_text()), 11, 1)
+
+        frame.setLayout(layout_output)
+
+    def set_output_energy(self, frame):
+        """Set output display"""
         self.lineedit_total_energy = QLineEdit("0.000 ≈ 0")
         self.lineedit_total_energy.setAlignment(Qt.AlignRight)
         self.lineedit_total_energy.setReadOnly(True)
@@ -487,32 +532,6 @@ class FuelCalculator(QDialog):
         self.set_read_only_style(self.lineedit_one_less_energy)
 
         layout_output = QGridLayout()
-        layout_output.setColumnStretch(0, 1)
-        layout_output.setColumnStretch(2, 1)
-
-        layout_output.addWidget(QLabel("Total Race Fuel:"), 0, 0, 1, 2)
-        layout_output.addWidget(self.lineedit_total_fuel, 1, 0)
-        layout_output.addWidget(QLabel(self.fuel_unit_text()), 1, 1)
-
-        layout_output.addWidget(QLabel("Total Pit Stops:"), 2, 0, 1, 2)
-        layout_output.addWidget(self.lineedit_pit_stops_fuel, 3, 0)
-        layout_output.addWidget(QLabel("pit"), 3, 1)
-
-        layout_output.addWidget(QLabel("Total Laps:"), 4, 0, 1, 2)
-        layout_output.addWidget(self.lineedit_total_laps_fuel, 5, 0)
-        layout_output.addWidget(QLabel("lap"), 5, 1)
-
-        layout_output.addWidget(QLabel("Total Minutes:"), 6, 0, 1, 2)
-        layout_output.addWidget(self.lineedit_total_minutes_fuel, 7, 0)
-        layout_output.addWidget(QLabel("min"), 7, 1)
-
-        layout_output.addWidget(QLabel("End Stint Fuel:"), 8, 0, 1, 2)
-        layout_output.addWidget(self.lineedit_end_fuel, 9, 0)
-        layout_output.addWidget(QLabel(self.fuel_unit_text()), 9, 1)
-
-        layout_output.addWidget(QLabel("One Less Pit Stop:"), 10, 0, 1, 2)
-        layout_output.addWidget(self.lineedit_one_less_fuel, 11, 0)
-        layout_output.addWidget(QLabel(self.fuel_unit_text()), 11, 1)
 
         layout_output.addWidget(QLabel("Total Race Energy:"), 0, 2, 1, 2)
         layout_output.addWidget(self.lineedit_total_energy, 1, 2)
@@ -540,7 +559,7 @@ class FuelCalculator(QDialog):
 
         frame.setLayout(layout_output)
 
-    def set_output2(self, frame):
+    def set_output_start_fuel(self, frame):
         """Set output display"""
         self.spinbox_start_fuel = QDoubleSpinBox()
         self.spinbox_start_fuel.setRange(0, 9999)
@@ -554,6 +573,20 @@ class FuelCalculator(QDialog):
         self.lineedit_average_refuel.setReadOnly(True)
         self.set_read_only_style(self.lineedit_average_refuel)
 
+        layout_output = QGridLayout()
+
+        layout_output.addWidget(QLabel("Starting Fuel:"), 0, 0, 1, 2)
+        layout_output.addWidget(self.spinbox_start_fuel, 1, 0)
+        layout_output.addWidget(QLabel(self.fuel_unit_text()), 1, 1)
+
+        layout_output.addWidget(QLabel("Average Refueling:"), 2, 0, 1, 2)
+        layout_output.addWidget(self.lineedit_average_refuel, 3, 0)
+        layout_output.addWidget(QLabel(self.fuel_unit_text()), 3, 1)
+
+        frame.setLayout(layout_output)
+
+    def set_output_start_energy(self, frame):
+        """Set output display"""
         self.spinbox_start_energy = QDoubleSpinBox()
         self.spinbox_start_energy.setRange(0, 100)
         self.spinbox_start_energy.setDecimals(2)
@@ -566,16 +599,6 @@ class FuelCalculator(QDialog):
         self.set_read_only_style(self.lineedit_average_replenish)
 
         layout_output = QGridLayout()
-        layout_output.setColumnStretch(0, 1)
-        layout_output.setColumnStretch(2, 1)
-
-        layout_output.addWidget(QLabel("Starting Fuel:"), 0, 0, 1, 2)
-        layout_output.addWidget(self.spinbox_start_fuel, 1, 0)
-        layout_output.addWidget(QLabel(self.fuel_unit_text()), 1, 1)
-
-        layout_output.addWidget(QLabel("Average Refueling:"), 2, 0, 1, 2)
-        layout_output.addWidget(self.lineedit_average_refuel, 3, 0)
-        layout_output.addWidget(QLabel(self.fuel_unit_text()), 3, 1)
 
         layout_output.addWidget(QLabel("Starting Energy:"), 0, 2, 1, 2)
         layout_output.addWidget(self.spinbox_start_energy, 1, 2)

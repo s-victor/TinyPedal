@@ -439,7 +439,7 @@ Show total minutes can run based on `Total race fuel` or `Total race energy` val
 Set starting fuel or energy. This value is only used for calculating `Average refueling` or `Average replenishing` per pit stop. Maximum value cannot exceed `Tank capacity` for fuel, or `100%` for energy. If value is set to `0`, `Tank capacity` value will be used as starting fuel for `Average refueling` calculation.
 
     Average refueling, Average replenishing
-Show average refueling or replenishing per pit stop, and display warning color if value exceeds `Tank capacity` for fuel, or `100%` for energy.
+Show average refueling or replenishing per pit stop, and display warning color if value exceeds `Tank capacity` (fuel) or `100%` (energy).
 
 
 # Modules
