@@ -403,7 +403,7 @@ Set fuel consumption per lap.
 Set energy consumption per lap.
 
     Fuel ratio
-Show fuel ratio based on fuel and energy consumption.
+Show fuel ratio between fuel and energy consumption.
 
     Race minutes
 Set race length in minutes for time-based race. Note, option is disabled if `Race laps` is set.

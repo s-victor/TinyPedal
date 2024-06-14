@@ -627,14 +627,12 @@ class FuelCalculator(QDialog):
         )
         energy_used = self.spinbox_energy_used.value()
         energy_start = self.spinbox_start_energy.value() if self.spinbox_start_energy.value() else 100
+
         # Calc fuel ratio
-        if fuel_used and energy_used:
-            if cfg.units["fuel_unit"] == "Gallon":
-                fuel_used *= 3.785411784
-            fuel_ratio = fuel_used / energy_used
-            self.lineedit_fuel_ratio.setText(f"{fuel_ratio:.03f}")
-        else:
-            self.lineedit_fuel_ratio.setText("0.000")
+        if cfg.units["fuel_unit"] == "Gallon":
+            fuel_used *= 3.785411784
+        fuel_ratio = calc.fuel_to_energy_ratio(fuel_used, energy_used)
+        self.lineedit_fuel_ratio.setText(f"{fuel_ratio:.03f}")
 
         # Calc fuel
         if all((laptime, tank_capacity, fuel_used, total_race_seconds + total_race_laps)):

@@ -63,7 +63,11 @@ class Realtime(DataModule):
                 # Run calculation
                 gen_calc_fuel.send(True)
 
-                # Update consumption history
+                # Update fuel ratio & consumption history
+                minfo.hybrid.fuelEnergyRatio = calc.fuel_to_energy_ratio(
+                    minfo.fuel.estimatedConsumption,
+                    minfo.energy.estimatedConsumption)
+
                 if (minfo.history.consumption[0][1] != minfo.delta.lapTimeLast
                     > minfo.delta.lapTimeCurrent > 2):  # record 2s after pass finish line
                     minfo.history.consumption.appendleft((

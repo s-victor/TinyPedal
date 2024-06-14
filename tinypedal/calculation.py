@@ -583,6 +583,13 @@ def one_less_pit_stop_consumption(pit_counts_late, capacity_total, fuel_in_tank,
     return 0
 
 
+def fuel_to_energy_ratio(fuel, energy):
+    """Fuel to energy ratio"""
+    if energy:
+        return fuel / energy
+    return 0
+
+
 # Misc
 def qss_min_width(text_width=1, style="", font_width=1, padding=0):
     """Set QSS minimum width with style, use functools.partial to preconfig"""

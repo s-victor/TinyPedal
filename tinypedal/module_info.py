@@ -102,6 +102,7 @@ class HybridInfo:
     motorActiveTimer: float = 0
     motorInActiveTimer: float = 0
     motorState: int = 0
+    fuelEnergyRatio: float = 0
 
 
 @dataclass
