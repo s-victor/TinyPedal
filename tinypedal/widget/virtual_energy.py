@@ -55,7 +55,7 @@ class Draw(Overlay):
             self.wcfg["decimal_places_remain"],  # 1
             self.wcfg["decimal_places_refill"],  # 2
             self.wcfg["decimal_places_used"],  # 3
-            self.wcfg["decimal_places_delta"],  # 4
+            self.wcfg["decimal_places_ratio"],  # 4
             self.wcfg["decimal_places_early"],  # 5
             self.wcfg["decimal_places_laps"],  # 6
             self.wcfg["decimal_places_minutes"],  # 7
@@ -99,7 +99,7 @@ class Draw(Overlay):
                 self.wcfg["caption_text_remain"],
                 self.wcfg["caption_text_refill"],
                 self.wcfg["caption_text_used"],
-                self.wcfg["caption_text_delta"],
+                self.wcfg["caption_text_ratio"],
                 self.wcfg["caption_text_early"],
                 self.wcfg["caption_text_laps"],
                 self.wcfg["caption_text_minutes"],
@@ -153,12 +153,12 @@ class Draw(Overlay):
             f"{self.style_width}"
         )
 
-        # Delta energy consumption
-        self.bar_energy_delta = QLabel(text_def)
-        self.bar_energy_delta.setAlignment(Qt.AlignCenter)
-        self.bar_energy_delta.setStyleSheet(
-            f"color: {self.wcfg['font_color_delta']};"
-            f"background: {self.wcfg['bkg_color_delta']};"
+        # Fuel ratio energy consumption
+        self.bar_energy_ratio = QLabel(text_def)
+        self.bar_energy_ratio.setAlignment(Qt.AlignCenter)
+        self.bar_energy_ratio.setStyleSheet(
+            f"color: {self.wcfg['font_color_ratio']};"
+            f"background: {self.wcfg['bkg_color_ratio']};"
             f"{self.style_width}"
         )
 
@@ -231,7 +231,7 @@ class Draw(Overlay):
         layout_upper.addWidget(self.bar_energy_curr, 1, 1)
         layout_upper.addWidget(self.bar_energy_need, 1, 2)
         layout_upper.addWidget(self.bar_energy_used, 1, 3)
-        layout_upper.addWidget(self.bar_energy_delta, 1, 4)
+        layout_upper.addWidget(self.bar_energy_ratio, 1, 4)
         layout_lower.addWidget(self.bar_energy_early, 1, 0)
         layout_lower.addWidget(self.bar_energy_laps, 1, 1)
         layout_lower.addWidget(self.bar_energy_mins, 1, 2)
@@ -248,7 +248,7 @@ class Draw(Overlay):
         self.last_amount_curr = None
         self.last_amount_need = None
         self.last_used_last = None
-        self.last_delta_energy = None
+        self.last_fuel_ratio = None
         self.last_est_pits_early = None
         self.last_est_runlaps = None
         self.last_est_runmins = None
@@ -286,10 +286,10 @@ class Draw(Overlay):
             self.update_energy("used", used_last, self.last_used_last)
             self.last_used_last = used_last
 
-            # Delta energy consumption
-            delta_energy = f"{minfo.energy.deltaConsumption:+.{self.decimals[4]}f}"
-            self.update_energy("delta", delta_energy, self.last_delta_energy)
-            self.last_delta_energy = delta_energy
+            # Fuel ratio
+            fuel_ratio = f"{minfo.hybrid.fuelEnergyRatio:.{self.decimals[4]}f}"
+            self.update_energy("ratio", fuel_ratio, self.last_fuel_ratio)
+            self.last_fuel_ratio = fuel_ratio
 
             # Estimate pit stop counts when pitting at end of current lap
             est_pits_early = f"{min(max(minfo.energy.estimatedNumPitStopsEarly, 0), 99.99):.{self.decimals[5]}f}"

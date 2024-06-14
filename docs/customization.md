@@ -1982,7 +1982,10 @@ Set warning threshold for estimated tyre lifespan in minutes. Default is `5` lap
 
 
 ## Virtual energy
-**This widget displays virtual energy usage info. Most options are inherited from fuel widget, see fuel widget for details.**
+**This widget displays virtual energy usage info. Most options are inherited from fuel widget, with some additions noted below.**
+
+    *ratio
+Show fuel ratio between estimated fuel and energy consumption, which can help balance fuel and energy usage, as well as providing refueling reference for adjusting pitstop `Fuel ratio` during race.
 
 
 ## Weather

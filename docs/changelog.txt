@@ -52,14 +52,19 @@ WIP
     This option is enabled by default.
 
 * [New]Virtual Energy Widget
-  - Show Virtual Energy usage data, which all settings and functionalities
+  - Show Virtual Energy usage data. Most settings and functionalities
     work the same way as Fuel Widget.
+  - Show "fuel ratio" between estimated fuel and energy consumption,
+    which can help balance fuel and energy usage,
+    as well as providing refueling reference for adjusting
+    pitstop `Fuel ratio` during race.
   - Virtual Energy usage readings are displayed in percentage,
     which range from 0 to 100.
 
 * Misc
   - Updated User Guide info for Brands preset, Fuel calculator, Energy Module,
-    RestAPI Module, Fuel Widget, Virtual Energy Widget.
+    RestAPI Module, Fuel Widget, Lap time history Widget, Stint history Widget,
+    Virtual Energy Widget.
 
 2.13.0 (2024-06-08)
 -----------------------------
