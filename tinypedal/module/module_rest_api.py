@@ -80,7 +80,10 @@ class Realtime(DataModule):
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
-                    self.cleanup()
+                    self.reset_to_default()
+
+        # Reset to default on close
+        self.reset_to_default()
 
     def __connection_setup(self) -> tuple:
         """Connection setup"""
@@ -144,7 +147,7 @@ class Realtime(DataModule):
             retry -= 1
             await asyncio.sleep(retry_delay)
 
-    def cleanup(self):
+    def reset_to_default(self):
         """Reset data to default"""
         minfo.restapi.timeScale = 1
         minfo.restapi.privateQualifying = 0

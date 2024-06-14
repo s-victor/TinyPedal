@@ -64,13 +64,9 @@ class DataModule:
     def stop(self):
         """Stop update thread"""
         self.event.set()
-        self.cleanup()
         self.cfg.active_module_list.remove(self)
         self.stopped = True
         logger.info("CLOSED: %s", self.module_name.replace("_", " "))
 
     def update_data(self):
         """Update module data, rewrite in child class"""
-
-    def cleanup(self):
-        """Run cleanup before close"""
