@@ -363,7 +363,7 @@ class Draw(Overlay):
     def autohide_radar(self):
         """Auto hide radar if in private qualifying or no nearby vehicles"""
         if (self.wcfg["auto_hide_in_private_qualifying"] and
-            self.cfg.user.setting["module_rest_api"]["enable"] and
+            self.cfg.user.setting["module_restapi"]["enable"] and
             api.read.session.session_type() == 2 and
             minfo.restapi.privateQualifying == 1):
             self.show_radar = False

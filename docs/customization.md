@@ -513,11 +513,11 @@ Enable mapping module.
 Enable relative module.
 
 
-## Rest API
+## RestAPI
 **This module connects to game's Rest API for accessing additional data that is not available through Sharedmemory API.**
 
-    module_rest_api
-Enable Rest API module.
+    module_restapi
+Enable RestAPI module.
 
     url_host*
 Set RF2 or LMU Rest API host address. Default is `localhost`.
@@ -662,7 +662,7 @@ Set duration (seconds) for highlighting average brake temperature from previous 
 Show current in-game clock time of the circuit.
 
     track_clock_time_scale
-Set time multiplier for time-scaled session. Default is `1`, which matches `Time Scale: Normal` setting in-game. Note, this option will only be used if Rest API module is disabled or Rest API data is not available.
+Set time multiplier for time-scaled session. Default is `1`, which matches `Time Scale: Normal` setting in-game. Note, this option will only be used if RestAPI module is disabled or Rest API data is not available.
 
     track_clock_format
 Set track clock format string. To show seconds, add `%S`, such as `%H:%M:%S %p`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
@@ -1455,7 +1455,7 @@ Set distance circle line width in pixels.
 Auto hides radar display when no nearby vehicles.
 
     auto_hide_in_private_qualifying
-Auto hides radar in private qualifying session, requires both `auto_hide` and `Rest API Module` enabled.
+Auto hides radar in private qualifying session, requires both `auto_hide` and `RestAPI Module` enabled.
 
     auto_hide_time_threshold
 Set amount time(unit second) before triggering auto hide. Default is `1` second.

@@ -197,7 +197,7 @@ class VehicleBrandEditor(QDialog):
 
     def import_from_restapi(self, sim_name):
         """Import brand from Rest API"""
-        config = cfg.user.setting["module_rest_api"]
+        config = cfg.user.setting["module_restapi"]
         url_host = config["url_host"]
 
         if sim_name == "LMU":

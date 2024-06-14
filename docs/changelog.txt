@@ -8,7 +8,7 @@ WIP
     brand info directly from Rest API.
     To import from Rest API, just make sure game is running,
     then click either "RF2 Rest API" or "LMU Rest API" from menu, done.
-    Note, import function uses connection setting from "Rest API Module".
+    Note, import function uses connection setting from "RestAPI Module".
 
 * Fuel calculator
   - Add "Virtual Energy" history data and calculation.
@@ -30,17 +30,13 @@ WIP
     (.energy extension) under "TinyPedal\deltabest" folder.
     Energy delta data can be reset by accessing "Reset" menu.
 
-* Rest API Module
+* RestAPI Module
   - Read "virtual energy" values from LMU's Rest API
     for used in Energy Module.
   - Read "steering wheel range" value from LMU's Rest API
     for used in Steering Widget.
     This value is only used when "steering wheel range" value
     cannot be read from sharedmemory API.
-  - Adjusted default "update_interval" value to "100".
-    Adjusted default "idle_update_interval" value to "400".
-    User may have to manually reset "Rest API Module" setting
-    to update old values to new ones.
   - Fixed a timeout error.
 
 * Fuel Widget
@@ -63,14 +59,14 @@ WIP
 
 * Misc
   - Updated User Guide info for Brands preset, Fuel calculator, Energy Module,
-    Rest API Module, Fuel Widget, Virtual Energy Widget.
+    RestAPI Module, Fuel Widget, Virtual Energy Widget.
 
 2.13.0 (2024-06-08)
 -----------------------------
 * General
   - Now unloads all image resources on widget close to free up RAM.
 
-* Rest API Module
+* RestAPI Module
   - Add "connection_retry" option, which sets
     number of attempts to retry connection.
     Value range in "0" to "10".
@@ -112,7 +108,7 @@ WIP
     Set to "0" for full detail.
 
 * Misc
-  - Updated User Guide info for Rest API Module,
+  - Updated User Guide info for RestAPI Module,
     Elevation Widget, Flag Widget, Track map Widget.
 
 2.12.0 (2024-05-31)
@@ -122,12 +118,12 @@ WIP
     which sets power unit for Electric motor & Engine Widgets.
     Available units: "Kilowatt", "Horsepower", "Metric Horsepower".
 
-* [New]Rest API Module
-  - Add Rest API Module, which connects to RF2 or LMU Rest API
+* [New]RestAPI Module
+  - Add RestAPI Module, which connects to RF2 or LMU Rest API
     for accessing data that is not available through Sharedmemory API.
     Note, the APP auto detects RF2 or LMU.
     This module is enabled by default.
-  - Add "module_rest_api" section in JSON preset.
+  - Add "module_restapi" section in JSON preset.
   - Add "url_host" option, which sets RF2 or LMU Rest API host address.
   - Add "url_port_rf2" and "url_port_lmu" options, which set port for host address.
   - Add "connection_timeout" option, which sets connection timeout duration in seconds.
@@ -135,7 +131,7 @@ WIP
 * Cruise Widget
   - Now reads session "time scale" value from Rest API
     for calculating correct in game track clock time.
-    Note, if Rest API Module is disabled or Rest API data is not available,
+    Note, if RestAPI Module is disabled or Rest API data is not available,
     "track_clock_time_scale" option value will be used instead.
 
 * Electric motor Widget
@@ -152,11 +148,11 @@ WIP
     This option is enabled by default.
   - Now reads "private qualifying" value from Rest API
     for used in "auto_hide_in_private_qualifying".
-    Note, if Rest API Module is disabled or Rest API data is not available,
+    Note, if RestAPI Module is disabled or Rest API data is not available,
     "auto_hide_in_private_qualifying" option will not take effect.
 
 * Misc
-  - Updated User Guide info for Units and symbols, Rest API Module,
+  - Updated User Guide info for Units and symbols, RestAPI Module,
     Cruise Widget, Electric motor Widget, Engine Widget, Radar Widget.
 
 2.11.2 (2024-04-11)

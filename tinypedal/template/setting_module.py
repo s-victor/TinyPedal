@@ -63,7 +63,7 @@ MODULE_DEFAULT = {
         "update_interval": 100,
         "idle_update_interval": 400,
     },
-    "module_rest_api": {
+    "module_restapi": {
         "enable": True,
         "update_interval": 100,
         "idle_update_interval": 400,

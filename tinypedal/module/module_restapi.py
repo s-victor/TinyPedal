@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Rest API module
+RestAPI module
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ from ..module_info import minfo
 from ..api_control import api
 from .. import validator as val
 
-MODULE_NAME = "module_rest_api"
+MODULE_NAME = "module_restapi"
 
 logger = logging.getLogger(__name__)
 

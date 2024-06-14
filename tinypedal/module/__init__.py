@@ -32,7 +32,7 @@ from . import (
     module_hybrid,
     module_mapping,
     module_relative,
-    module_rest_api,
+    module_restapi,
     module_sectors,
     module_vehicles,
     module_wheels,
