@@ -129,7 +129,7 @@ class FuelCalculator(QDialog):
     def reload_data(self):
         """Reload history data"""
         self.refresh_table()
-        # Load laptime if exists
+        # Load laptime from last valid lap
         laptime = self.history_data[0][1]
         if laptime > 0 and self.history_data[0][5]:
             self.spinbox_minutes.setValue(laptime // 60)
@@ -139,12 +139,11 @@ class FuelCalculator(QDialog):
         capacity = max(api.read.vehicle.tank_capacity(), self.history_data[0][4])
         if capacity:
             self.spinbox_capacity.setValue(self.fuel_units(capacity))
-        # Load consumption
-        fuel_used = self.history_data[0][2]
-        if fuel_used:
+        # Load consumption from last valid lap
+        if self.history_data[0][5]:
+            fuel_used = self.history_data[0][2]
             self.spinbox_fuel_used.setValue(self.fuel_units(fuel_used))
-        energy_used = self.history_data[0][3]
-        if energy_used:
+            energy_used = self.history_data[0][3]
             self.spinbox_energy_used.setValue(energy_used)
 
     def refresh_table(self):

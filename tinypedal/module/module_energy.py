@@ -27,6 +27,7 @@ from .module_fuel import calc_data
 from ..module_info import minfo
 from ..const import PATH_ENERGY
 from ..api_control import api
+from .. import calculation as calc
 
 MODULE_NAME = "module_energy"
 DELTA_ZERO = 0.0,0.0
@@ -53,15 +54,21 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
 
-                    sim_name = api.read.check.sim_name()
                     combo_id = api.read.check.combo_id()
                     gen_calc_energy = calc_data(
                         minfo.energy, telemetry_energy, self.filepath, combo_id, "energy")
+                    # Initial run to reset module output
                     next(gen_calc_energy)
-
-                # Run calculation
-                if sim_name == "LMU":
                     gen_calc_energy.send(True)
+
+                # Run calculation if virtual energy available
+                if minfo.restapi.maxVirtualEnergy:
+                    gen_calc_energy.send(True)
+
+                # Update fuel to energy ratio
+                minfo.hybrid.fuelEnergyRatio = calc.fuel_to_energy_ratio(
+                    minfo.fuel.estimatedConsumption,
+                    minfo.energy.estimatedConsumption)
 
             else:
                 if reset:

@@ -80,6 +80,7 @@ class Realtime(DataModule):
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
+                    self.cleanup()
 
     def __connection_setup(self) -> tuple:
         """Connection setup"""
@@ -142,6 +143,14 @@ class Realtime(DataModule):
             logger.info("Rest API: %s %s, %s retry", resource_name.upper(), resource_output, retry)
             retry -= 1
             await asyncio.sleep(retry_delay)
+
+    def cleanup(self):
+        """Reset data to default"""
+        minfo.restapi.timeScale = 1
+        minfo.restapi.privateQualifying = 0
+        minfo.restapi.steeringWheelRange = 0
+        minfo.restapi.currentVirtualEnergy = 0
+        minfo.restapi.maxVirtualEnergy = 0
 
 
 def output_sessions(data: dict) -> None:

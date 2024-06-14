@@ -58,16 +58,14 @@ class Realtime(DataModule):
                     combo_id = api.read.check.combo_id()
                     gen_calc_fuel = calc_data(
                         minfo.fuel, telemetry_fuel, self.filepath, combo_id, "fuel")
+                    # Initial run to reset module output
                     next(gen_calc_fuel)
+                    gen_calc_fuel.send(True)
 
                 # Run calculation
                 gen_calc_fuel.send(True)
 
-                # Update fuel ratio & consumption history
-                minfo.hybrid.fuelEnergyRatio = calc.fuel_to_energy_ratio(
-                    minfo.fuel.estimatedConsumption,
-                    minfo.energy.estimatedConsumption)
-
+                # Update consumption history
                 if (minfo.history.consumption[0][1] != minfo.delta.lapTimeLast
                     > minfo.delta.lapTimeCurrent > 2):  # record 2s after pass finish line
                     minfo.history.consumption.appendleft((
@@ -76,8 +74,7 @@ class Realtime(DataModule):
                         minfo.fuel.lastLapConsumption,
                         minfo.energy.lastLapConsumption,
                         minfo.fuel.capacity,
-                        minfo.delta.isValidLap,
-                    ))
+                        minfo.delta.isValidLap))
 
             else:
                 if reset:
