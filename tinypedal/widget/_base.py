@@ -47,10 +47,10 @@ class Overlay(QWidget):
     def __init__(self, config: object, widget_name: str):
         super().__init__()
         self.widget_name = widget_name
+        self.closed = False
 
         # Base config
         self.cfg = config
-        self.cfg.active_widget_list.append(self)  # add to active widget list
 
         # Widget config
         self.wcfg = self.cfg.user.setting[self.widget_name]
@@ -163,9 +163,9 @@ class Overlay(QWidget):
         """Close widget"""
         self._update_timer.stop()
         self.__break_signal()
-        self.cfg.active_widget_list.remove(self)
         self.unload_resource()
-        self.close()
+        self.cfg.active_widget_list.pop(self.widget_name)
+        self.closed = self.close()
 
     @staticmethod
     def config_font(name: str = "", size: int = 1, weight: str = "") -> object:

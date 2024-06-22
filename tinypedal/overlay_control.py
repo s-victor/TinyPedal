@@ -54,11 +54,10 @@ class OverlayLock(QObject):
         self.cfg.save()
 
 
-class OverlayGrid(QObject):
+class OverlayGrid():
     """Overlay grid state"""
 
     def __init__(self, config: object):
-        super().__init__()
         self.cfg = config
 
     def toggle(self):

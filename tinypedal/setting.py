@@ -90,8 +90,8 @@ class Setting:
         self.default.set_default()
         self.user = Preset()
 
-        self.active_widget_list = []
-        self.active_module_list = []
+        self.active_widget_list = {}
+        self.active_module_list = {}
 
         self.is_saving = False
         self._save_delay = 0
@@ -176,17 +176,18 @@ class Setting:
             time.sleep(0.01)
 
         # Start saving attempts
+        timer_start = time.perf_counter()
         while attempts > 0:
             save_json_file(filename, filepath, dict_user)
             if verify_json_file(filename, filepath, dict_user):
-                attempts = 0
-            else:
-                attempts -= 1
-                logger.error("SETTING: saving failed, %s attempt(s) left", attempts)
+                break
+            attempts -= 1
+            logger.error("SETTING: saving failed, %s attempt(s) left", attempts)
             time.sleep(0.05)
+        timer_end = round((time.perf_counter() - timer_start) * 1000)
 
         self.is_saving = False
-        logger.info("SETTING: %s saved", filename)
+        logger.info("SETTING: %s saved (%sms)", filename, timer_end)
 
 
 def save_json_file(filename: str, filepath: str, dict_user: dict) -> None:

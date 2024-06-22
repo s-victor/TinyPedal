@@ -63,7 +63,7 @@ QSS_BUTTON_CONFIG = (
 class ModuleList(QWidget):
     """Module & widget list view"""
 
-    def __init__(self, module_control: object, module_list: list, module_type: str = ""):
+    def __init__(self, module_control: object, module_list: dict, module_type: str = ""):
         """Initialize module list setting
 
         Args:

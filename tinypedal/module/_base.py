@@ -58,13 +58,12 @@ class DataModule:
             self.stopped = False
             self.event.clear()
             threading.Thread(target=self.update_data, daemon=True).start()
-            self.cfg.active_module_list.append(self)
             logger.info("ACTIVE: %s", self.module_name.replace("_", " "))
 
     def stop(self):
         """Stop update thread"""
         self.event.set()
-        self.cfg.active_module_list.remove(self)
+        self.cfg.active_module_list.pop(self.module_name)
         self.stopped = True
         logger.info("CLOSED: %s", self.module_name.replace("_", " "))
 

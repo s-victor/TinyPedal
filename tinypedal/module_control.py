@@ -45,20 +45,14 @@ class ModuleControl:
     }
 
     def start(self, name: str = ""):
-        """Start module
-
-        Specify name for selected module
-        """
+        """Start module, specify name for selected module"""
         if name:
             self.__start_selected(name)
         else:
             self.__start_enabled()
 
     def close(self, name: str = ""):
-        """Close module
-
-        Specify name for selected module
-        """
+        """Close module, specify name for selected module"""
         if name:
             self.__close_selected(name)
         else:
@@ -73,20 +67,17 @@ class ModuleControl:
         """Toggle module"""
         if cfg.user.setting[name]["enable"]:
             cfg.user.setting[name]["enable"] = False
-            getattr(self, name).stop()
-            while not getattr(self, name).stopped:  # make sure stopped
-                time.sleep(0.01)
+            self.__close_selected(name)
         else:
             cfg.user.setting[name]["enable"] = True
-            self.__create_instance(self.PACK[name])
+            self.__start_selected(name)
         cfg.save()
 
     def enable_all(self):
         """Enable all modules"""
-        for _name, _module in self.PACK.items():
-            if not cfg.user.setting[_name]["enable"]:
-                cfg.user.setting[_name]["enable"] = True
-                self.__create_instance(_module)
+        for _name in self.PACK.keys():
+            cfg.user.setting[_name]["enable"] = True
+        self.start()
         cfg.save()
         logger.info("ACTIVE: all modules")
 
@@ -100,43 +91,38 @@ class ModuleControl:
 
     def __start_enabled(self):
         """Start all enabled module"""
-        for _name, _module in self.PACK.items():
-            if cfg.user.setting[_name]["enable"]:
-                self.__create_instance(_module)
+        for _name in self.PACK.keys():
+            self.__start_selected(_name)
 
     def __start_selected(self, name: str):
         """Start selected module"""
         if cfg.user.setting[name]["enable"]:
-            self.__create_instance(self.PACK[name])
+            self.__create_instance(name)
 
     @staticmethod
     def __close_enabled():
-        """Close all enabled module
-
-        Reverse iterate over active list.
-        """
-        for _module in reversed(cfg.active_module_list):
-            _module.stop()
-        while cfg.active_module_list:
+        """Close all enabled module"""
+        name_list = tuple(cfg.active_module_list)
+        for _name in name_list:
+            if cfg.active_module_list.get(_name, False):
+                cfg.active_module_list[_name].stop()
+        while cfg.active_module_list:  # make sure stopped
             time.sleep(0.01)
 
     @staticmethod
     def __close_selected(name: str):
         """Close selected module"""
-        if not cfg.active_module_list:
-            return None
-        for _module in cfg.active_module_list:
-            if _module.module_name == name:
-                _module.stop()
-                while not _module.stopped:
-                    time.sleep(0.01)
-                break
-        return None
+        _module = cfg.active_module_list.get(name, False)
+        if _module:
+            _module.stop()
+            while not _module.stopped:  # make sure stopped
+                time.sleep(0.01)
 
-    def __create_instance(self, _module: object):
+    def __create_instance(self, name: str):
         """Create module instance"""
-        setattr(self, _module.MODULE_NAME, _module.Realtime(cfg))
-        getattr(self, _module.MODULE_NAME).start()
+        if not cfg.active_module_list.get(name, False):
+            cfg.active_module_list[name] = self.PACK[name].Realtime(cfg)
+            cfg.active_module_list[name].start()
 
 
 mctrl = ModuleControl()
