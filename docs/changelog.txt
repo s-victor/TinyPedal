@@ -1,3 +1,22 @@
+WIP
+-----------------------------
+* Radar Widget
+  - Add 3 new "auto_hide_minimum_distance" options (ahead, behind, side),
+    which define an invisible rectangle area(unit meter) that auto hides radar
+    if no vehicle is within the rectangle area.
+    Default value is "-1", which auto scales with "radar_radius" value.
+    Set to any positive value to customize radar auto-hide range.
+  - Add 3 new "vehicle_maximum_visible_distance" options (ahead, behind, side),
+    which define an invisible rectangle area(unit meter) that
+    hides any vehicle outside the rectangle area.
+    Default value is "-1", which auto scales with "radar_radius" value.
+    Set to any positive value to customize vehicle visible range.
+  - Add 3 additional distance circle marks (total of 5 marks)
+    that can be used to determine nearby vehicle relative distance.
+    Each circle's default radius value is "10" meter apart.
+    Note, circle marks are only displayed if "distance_circle_*_radius" values
+    are within "radar_radius" value.
+
 2.14.0 (2024-06-14)
 -----------------------------
 * General

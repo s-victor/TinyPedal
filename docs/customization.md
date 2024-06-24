@@ -1442,13 +1442,13 @@ Set center mark line width in pixels.
     show_distance_circle
 Show distance circle line on radar for distance reference.
 
-    distance_circle_style
+    distance_circle_*_style
 Set distance circle line style. `0` for dashed line, `1` for solid line.
 
-    distance_circle_1_radius, distance_circle_2_radius
+    distance_circle_*_radius
 Set distance circle size by radius(unit meter). Circle will not be displayed if radius is bigger than `radar_radius`.
 
-    distance_circle_1_width, distance_circle_2_width
+    distance_circle_*_width
 Set distance circle line width in pixels.
 
     auto_hide
@@ -1460,8 +1460,11 @@ Auto hides radar in private qualifying session, requires both `auto_hide` and `R
     auto_hide_time_threshold
 Set amount time(unit second) before triggering auto hide. Default is `1` second.
 
-    minimum_auto_hide_distance
-Set minimum straight line distance(unit meter) before triggering auto hide. Set `-1` value to auto scale with `radar_radius` value. Default is `-1`.
+    auto_hide_minimum_distance_ahead, behind, side
+The three values define an invisible rectangle area(unit meter) that auto hides radar if no vehicle is within the rectangle area. Default value is `-1`, which auto scales with `radar_radius` value. Set to any positive value to customize radar auto-hide range. Note, each value is measured from center of player's vehicle position.
+
+    vehicle_maximum_visible_distance_ahead, behind, side
+The three values define an invisible rectangle area(unit meter) that hides any vehicle outside the rectangle area. Default value is `-1`, which auto scales with `radar_radius` value. Set to any positive value to customize vehicle visible range. Note, each value is measured from center of player's vehicle position.
 
 
 ## Rake angle
