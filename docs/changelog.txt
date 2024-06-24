@@ -1,4 +1,4 @@
-WIP
+2.14.1 (2024-06-24)
 -----------------------------
 * Radar Widget
   - Add 3 new "auto_hide_minimum_distance" options (ahead, behind, side),
