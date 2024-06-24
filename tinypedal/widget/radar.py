@@ -58,6 +58,11 @@ class Draw(Overlay):
         self.indicator_color = QColor(self.wcfg["indicator_color"])
         self.indicator_color_critical = QColor(self.wcfg["indicator_color_critical"])
 
+        if self.wcfg["minimum_auto_hide_distance"] < 0:
+            self.minimum_auto_hide_distance = self.wcfg["radar_radius"]
+        else:
+            self.minimum_auto_hide_distance = self.wcfg["minimum_auto_hide_distance"]
+
         # Config canvas
         self.resize(self.area_size, self.area_size)
         self.pixmap_background = QPixmap(self.area_size, self.area_size)
@@ -87,7 +92,7 @@ class Draw(Overlay):
 
             # Auto hide radar if no nearby vehicles
             if self.wcfg["auto_hide"]:
-                self.autohide_radar()
+                self.set_autohide_state()
 
             # Vehicles
             veh_data_version = minfo.vehicles.dataSetVersion
@@ -360,7 +365,7 @@ class Draw(Overlay):
             return self.wcfg["vehicle_color_laps_behind"]
         return self.wcfg["vehicle_color_same_lap"]
 
-    def autohide_radar(self):
+    def set_autohide_state(self):
         """Auto hide radar if in private qualifying or no nearby vehicles"""
         if (self.wcfg["auto_hide_in_private_qualifying"] and
             self.cfg.user.setting["module_restapi"]["enable"] and
@@ -372,7 +377,7 @@ class Draw(Overlay):
         lap_etime = api.read.timing.elapsed()
         in_garage = api.read.vehicle.in_garage()
 
-        if self.nearby() or in_garage:
+        if self.is_nearby() or in_garage:
             if not self.show_radar:
                 self.show_radar = True
             self.autohide_timer_start = lap_etime
@@ -384,11 +389,9 @@ class Draw(Overlay):
                 self.autohide_timer_start = 0
         return None
 
-    def nearby(self):
+    def is_nearby(self):
         """Check nearby vehicles, add 0 limit to ignore local player"""
-        if self.wcfg["minimum_auto_hide_distance"] == -1:
-            return 0 < minfo.vehicles.nearestStraight < self.wcfg["radar_radius"]
-        return 0 < minfo.vehicles.nearestStraight < self.wcfg["minimum_auto_hide_distance"]
+        return 0 < minfo.vehicles.nearestStraight < self.minimum_auto_hide_distance
 
     def calc_indicator_dimension(self, veh_width, veh_length):
         """Calculate indicator dimension
