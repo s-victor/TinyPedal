@@ -17,6 +17,9 @@ WIP
     Note, circle marks are only displayed if "distance_circle_*_radius" values
     are within "radar_radius" value.
 
+* Relative, Rivals, Standings Widget
+  - Now draws logo only once per unique brand and stores image in cache.
+
 2.14.0 (2024-06-14)
 -----------------------------
 * General

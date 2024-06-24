@@ -84,6 +84,7 @@ class Draw(Overlay):
             (-1,0),  # pit_count
             ("",0),  # time_int
         )
+        self.pixmap_brandlogo = {"blank": QPixmap()}
 
         # Create layout
         self.layout = QGridLayout()
@@ -386,12 +387,12 @@ class Draw(Overlay):
     def update_brd(self, suffix, curr, last):
         """Brand logo"""
         if curr != last:
-            brand_name = self.cfg.user.brands.get(curr[0], curr[0])
-            # Draw brand logo
-            if brand_name in self.cfg.user.brands_logo:
-                getattr(self, f"row_{suffix}").setPixmap(self.load_brand_logo(brand_name))
+            if curr[0]:
+                brand_name = self.cfg.user.brands.get(curr[0], curr[0])
             else:
-                getattr(self, f"row_{suffix}").setPixmap(QPixmap())
+                brand_name = "blank"
+            # Draw brand logo
+            getattr(self, f"row_{suffix}").setPixmap(self.load_brand_logo(brand_name))
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 
     def update_int(self, suffix, curr, last):
@@ -486,13 +487,23 @@ class Draw(Overlay):
 
     def load_brand_logo(self, brand_name):
         """Load brand logo"""
-        logo_image = QPixmap(f"{PATH_BRANDLOGO}{brand_name}.png")
-        if calc.image_size_adaption(
-            logo_image.width(), logo_image.height(), self.brd_width, self.brd_height):
-            return logo_image.scaledToWidth(  # adapt to width
-                self.brd_width, mode=Qt.SmoothTransformation)
-        return logo_image.scaledToHeight(  # adapt to height
-            self.brd_height, mode=Qt.SmoothTransformation)
+        # Load cached logo
+        if brand_name in self.pixmap_brandlogo:
+            return self.pixmap_brandlogo[brand_name]
+        # Add available logo to cached
+        if brand_name in self.cfg.user.brands_logo:
+            logo_temp = QPixmap(f"{PATH_BRANDLOGO}{brand_name}.png")
+            if calc.image_size_adaption(
+                logo_temp.width(), logo_temp.height(), self.brd_width, self.brd_height):
+                logo_image = logo_temp.scaledToWidth(  # adapt to width
+                    self.brd_width, mode=Qt.SmoothTransformation)
+            else:
+                logo_image = logo_temp.scaledToHeight(  # adapt to height
+                    self.brd_height, mode=Qt.SmoothTransformation)
+            self.pixmap_brandlogo[brand_name] = logo_image
+            return self.pixmap_brandlogo[brand_name]
+        # Load blank logo if unavailable
+        return self.pixmap_brandlogo["blank"]
 
     def set_tyre_cmp(self, tc_indices):
         """Substitute tyre compound index with custom chars"""
