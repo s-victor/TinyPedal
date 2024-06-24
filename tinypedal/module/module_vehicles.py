@@ -55,13 +55,12 @@ class Realtime(DataModule):
                     minfo.vehicles.dataSetVersion = -1
 
                 vehicles_data = tuple(self.__update_vehicle_data(minfo.relative.classes))
-                nearest_dist, nearest_time, nearest_yellow = nearest_distance_data(vehicles_data)
+                nearest_timegap, nearest_yellow = nearest_distance_data(vehicles_data)
 
                 # Output
                 minfo.vehicles.dataSet = vehicles_data
                 minfo.vehicles.dataSetVersion += 1
-                minfo.vehicles.nearestStraight = nearest_dist
-                minfo.vehicles.nearestTraffic = nearest_time
+                minfo.vehicles.nearestTraffic = nearest_timegap
                 minfo.vehicles.nearestYellow = nearest_yellow
 
             else:
@@ -263,23 +262,22 @@ class Realtime(DataModule):
 
 def nearest_distance_data(
     vehicle_data: tuple,
-    nearest_dist: int = 999999,
-    nearest_time: int = 999999,
+    nearest_timegap: int = 999999,
     nearest_yellow: int = 999999):
     """Calculate nearest distance data"""
     for data in vehicle_data:
         # Find nearest straight line distance
-        if not data.isPlayer and data.relativeStraightDistance < nearest_dist:
-            nearest_dist = data.relativeStraightDistance
+        #if not data.isPlayer and data.relativeStraightDistance < nearest_dist:
+        #    nearest_dist = data.relativeStraightDistance
         # Find nearest traffic time gap
-        if 0 == data.inPit > data.relativeDistance and data.relativeTimeGap < nearest_time:
-            nearest_time = data.relativeTimeGap
+        if 0 == data.inPit > data.relativeDistance and data.relativeTimeGap < nearest_timegap:
+            nearest_timegap = data.relativeTimeGap
         # Find nearest yellow flag (on track) distance
         if data.isYellow:
             rel_dist = abs(data.relativeDistance)
             if rel_dist < nearest_yellow:
                 nearest_yellow = rel_dist
-    return nearest_dist, nearest_time, nearest_yellow
+    return nearest_timegap, nearest_yellow
 
 
 DataSet = namedtuple(

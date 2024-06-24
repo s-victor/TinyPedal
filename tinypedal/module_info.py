@@ -150,7 +150,6 @@ class VehiclesInfo:
     """Vehicles module output data"""
     dataSet: tuple = field(default_factory=tuple)
     dataSetVersion: int = -1
-    nearestStraight: float = 999999
     nearestTraffic: float = 999999
     nearestYellow: float = 999999
 
