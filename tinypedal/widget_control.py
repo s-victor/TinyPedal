@@ -104,7 +104,7 @@ class WidgetControl:
         """Close all enabled widget"""
         name_list = tuple(cfg.active_widget_list)
         for _name in name_list:
-            if cfg.active_widget_list.get(_name, False):
+            if _name in cfg.active_widget_list:
                 cfg.active_widget_list[_name].closing()
         while cfg.active_widget_list:  # make sure closed
             time.sleep(0.01)
@@ -120,7 +120,7 @@ class WidgetControl:
 
     def __create_instance(self, name: str):
         """Create widget instance"""
-        if not cfg.active_widget_list.get(name, False):
+        if name not in cfg.active_widget_list:
             cfg.active_widget_list[name] = self.PACK[name].Draw(cfg)
 
 

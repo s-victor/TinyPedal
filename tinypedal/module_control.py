@@ -104,7 +104,7 @@ class ModuleControl:
         """Close all enabled module"""
         name_list = tuple(cfg.active_module_list)
         for _name in name_list:
-            if cfg.active_module_list.get(_name, False):
+            if _name in cfg.active_module_list:
                 cfg.active_module_list[_name].stop()
         while cfg.active_module_list:  # make sure stopped
             time.sleep(0.01)
@@ -120,7 +120,7 @@ class ModuleControl:
 
     def __create_instance(self, name: str):
         """Create module instance"""
-        if not cfg.active_module_list.get(name, False):
+        if name not in cfg.active_module_list:
             cfg.active_module_list[name] = self.PACK[name].Realtime(cfg)
             cfg.active_module_list[name].start()
 

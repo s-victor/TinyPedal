@@ -20,6 +20,9 @@ WIP
 * Relative, Rivals, Standings Widget
   - Now draws logo only once per unique brand and stores image in cache.
 
+* Misc
+  - Updated User Guide info for Radar Widget.
+
 2.14.0 (2024-06-14)
 -----------------------------
 * General
