@@ -33,19 +33,19 @@ from . import validator as val
 class DataSet:
     """Data set"""
 
-    def __init__(self, info, data_set=rfactor2):
-        self.check = data_set.Check(info)
-        self.brake = data_set.Brake(info)
-        self.emotor = data_set.ElectricMotor(info)
-        self.engine = data_set.Engine(info)
-        self.input = data_set.Input(info)
-        self.lap = data_set.Lap(info)
-        self.session = data_set.Session(info)
-        self.switch = data_set.Switch(info)
-        self.timing = data_set.Timing(info)
-        self.tyre = data_set.Tyre(info)
-        self.vehicle = data_set.Vehicle(info)
-        self.wheel = data_set.Wheel(info)
+    def __init__(self, info, dataset=rfactor2):
+        self.check = dataset.Check(info)
+        self.brake = dataset.Brake(info)
+        self.emotor = dataset.ElectricMotor(info)
+        self.engine = dataset.Engine(info)
+        self.input = dataset.Input(info)
+        self.lap = dataset.Lap(info)
+        self.session = dataset.Session(info)
+        self.switch = dataset.Switch(info)
+        self.timing = dataset.Timing(info)
+        self.tyre = dataset.Tyre(info)
+        self.vehicle = dataset.Vehicle(info)
+        self.wheel = dataset.Wheel(info)
 
 
 class Connector(ABC):

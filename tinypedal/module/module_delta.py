@@ -73,7 +73,7 @@ class Realtime(DataModule):
                         laptime_session_best = 99999
                         last_session_id = (combo_id, *session_id)
 
-                    delta_list_best, laptime_best = self.load_deltabest(combo_id)
+                    delta_list_best, laptime_best = load_deltabest(self.filepath, combo_id)
                     delta_list_curr = [DELTA_ZERO]  # distance, laptime
                     delta_list_last = [DELTA_ZERO]  # last lap
 
@@ -143,7 +143,7 @@ class Realtime(DataModule):
                             if laptime_last < laptime_best:
                                 laptime_best = laptime_last
                                 delta_list_best = delta_list_last.copy()
-                                self.save_deltabest(combo_id, delta_list_best)
+                                save_deltabest(delta_list_best, self.filepath, combo_id)
                             # Update delta session best list
                             if laptime_last < laptime_session_best:
                                 laptime_session_best = laptime_last
@@ -219,29 +219,31 @@ class Realtime(DataModule):
                     self.cfg.user.setting["cruise"]["meters_driven"] = int(meters_driven)
                     self.cfg.save()
 
-    def load_deltabest(self, combo):
-        """Load delta best & best laptime"""
-        try:
-            with open(f"{self.filepath}{combo}.csv",
-                      newline="", encoding="utf-8") as csvfile:
-                temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
-                temp_list_size = len(temp_list)
-                # Validate data
-                bestlist = val.delta_list(temp_list)
-                laptime_best = bestlist[-1][1]
-                # Save data if modified
-                if temp_list_size != len(bestlist):
-                    self.save_deltabest(combo, bestlist)
-        except (FileNotFoundError, IndexError, ValueError, TypeError):
-            logger.info("MISSING: deltabest data")
-            bestlist = [(99999,99999)]
-            laptime_best = 99999
-        return bestlist, laptime_best
 
-    def save_deltabest(self, combo, listname):
-        """Save delta best"""
-        if len(listname) >= 10:
-            with open(f"{self.filepath}{combo}.csv",
-                    "w", newline="", encoding="utf-8") as csvfile:
-                deltawrite = csv.writer(csvfile)
-                deltawrite.writerows(listname)
+def load_deltabest(filepath:str, combo: str):
+    """Load delta best & best laptime"""
+    try:
+        with open(f"{filepath}{combo}.csv",
+                    newline="", encoding="utf-8") as csvfile:
+            temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
+            temp_list_size = len(temp_list)
+            # Validate data
+            bestlist = val.delta_list(temp_list)
+            laptime_best = bestlist[-1][1]
+            # Save data if modified
+            if temp_list_size != len(bestlist):
+                save_deltabest(bestlist, filepath, combo)
+    except (FileNotFoundError, IndexError, ValueError, TypeError):
+        logger.info("MISSING: deltabest data")
+        bestlist = [(99999,99999)]
+        laptime_best = 99999
+    return bestlist, laptime_best
+
+
+def save_deltabest(dataset: list, filepath: str, combo: str):
+    """Save delta best"""
+    if len(dataset) >= 10:
+        with open(f"{filepath}{combo}.csv",
+                "w", newline="", encoding="utf-8") as csvfile:
+            deltawrite = csv.writer(csvfile)
+            deltawrite.writerows(dataset)

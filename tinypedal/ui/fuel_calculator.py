@@ -96,33 +96,30 @@ class FuelCalculator(QDialog):
     def add_selected_data(self):
         """Add selected history data"""
         selected_data = self.table_history.selectedItems()
-        # Check index of selected column
-        column_indices = set(data.column() for data in selected_data)
-        if len(column_indices) > 1:
-            QMessageBox.warning(
-                self, "Error",
-                "Cannot add data from different columns.\n\nPlease select data from same column.")
-            return None
-        if len(column_indices) < 1:
+        if not selected_data:
             QMessageBox.warning(
                 self, "Error",
                 "No data selected.")
             return None
+
+        data_laptime = [data for data in selected_data if data.column() == 1]
+        data_fuel = [data for data in selected_data if data.column() == 2]
+        data_energy = [data for data in selected_data if data.column() == 3]
+
         # Send data to calculator
-        column_index = list(column_indices)[0]
-        if column_index == 1:  # laptime
-            dataset = [fmt.laptime_string_to_seconds(data.text()) for data in selected_data]
-            output_value = calc.mean(dataset) if len(selected_data) > 1 else dataset[0]
+        if data_laptime:
+            dataset = [fmt.laptime_string_to_seconds(data.text()) for data in data_laptime]
+            output_value = calc.mean(dataset) if len(data_laptime) > 1 else dataset[0]
             self.spinbox_minutes.setValue(output_value // 60)
             self.spinbox_seconds.setValue(output_value % 60)
             self.spinbox_mseconds.setValue(output_value % 1 * 1000)
-        elif column_index == 2:  # used fuel
-            dataset = [float(data.text()) for data in selected_data]
-            output_value = calc.mean(dataset) if len(selected_data) > 1 else dataset[0]
+        if data_fuel:
+            dataset = [float(data.text()) for data in data_fuel]
+            output_value = calc.mean(dataset) if len(data_fuel) > 1 else dataset[0]
             self.spinbox_fuel_used.setValue(output_value)
-        elif column_index == 3:  # used energy
-            dataset = [float(data.text()) for data in selected_data]
-            output_value = calc.mean(dataset) if len(selected_data) > 1 else dataset[0]
+        if data_energy:
+            dataset = [float(data.text()) for data in data_energy]
+            output_value = calc.mean(dataset) if len(data_energy) > 1 else dataset[0]
             self.spinbox_energy_used.setValue(output_value)
         return None
 
@@ -130,20 +127,20 @@ class FuelCalculator(QDialog):
         """Reload history data"""
         self.refresh_table()
         # Load laptime from last valid lap
-        laptime = self.history_data[0][1]
-        if laptime > 0 and self.history_data[0][5]:
+        laptime = self.history_data[0][2]
+        if laptime > 0 and self.history_data[0][1]:
             self.spinbox_minutes.setValue(laptime // 60)
             self.spinbox_seconds.setValue(laptime % 60)
             self.spinbox_mseconds.setValue(laptime % 1 * 1000)
         # Load tank capacity
-        capacity = max(api.read.vehicle.tank_capacity(), self.history_data[0][4])
+        capacity = api.read.vehicle.tank_capacity()
         if capacity:
             self.spinbox_capacity.setValue(self.fuel_units(capacity))
         # Load consumption from last valid lap
-        if self.history_data[0][5]:
-            fuel_used = self.history_data[0][2]
+        if self.history_data[0][1]:
+            fuel_used = self.history_data[0][3]
             self.spinbox_fuel_used.setValue(self.fuel_units(fuel_used))
-            energy_used = self.history_data[0][3]
+            energy_used = self.history_data[0][4]
             self.spinbox_energy_used.setValue(energy_used)
 
     def refresh_table(self):
@@ -161,21 +158,31 @@ class FuelCalculator(QDialog):
             lapnumber.setFlags(Qt.ItemFlags(0))
 
             laptime = QTableWidgetItem()
-            laptime.setText(calc.sec2laptime(lap[1]))
+            laptime.setText(calc.sec2laptime(lap[2]))
             laptime.setTextAlignment(Qt.AlignCenter)
             laptime.setFlags(Qt.ItemFlags(33))
 
             used_fuel = QTableWidgetItem()
-            used_fuel.setText(f"{self.fuel_units(lap[2]):.03f}")
+            used_fuel.setText(f"{self.fuel_units(lap[3]):.03f}")
             used_fuel.setTextAlignment(Qt.AlignCenter)
             used_fuel.setFlags(Qt.ItemFlags(33))
 
             used_energy = QTableWidgetItem()
-            used_energy.setText(f"{lap[3]:.03f}")
+            used_energy.setText(f"{lap[4]:.03f}")
             used_energy.setTextAlignment(Qt.AlignCenter)
             used_energy.setFlags(Qt.ItemFlags(33))
 
-            if not lap[5]:  # set invalid lap text color
+            battery_drain = QTableWidgetItem()
+            battery_drain.setText(f"{lap[5]:.03f}")
+            battery_drain.setTextAlignment(Qt.AlignCenter)
+            battery_drain.setFlags(Qt.ItemFlags(0))
+
+            battery_regen = QTableWidgetItem()
+            battery_regen.setText(f"{lap[6]:.03f}")
+            battery_regen.setTextAlignment(Qt.AlignCenter)
+            battery_regen.setFlags(Qt.ItemFlags(0))
+
+            if not lap[1]:  # set invalid lap text color
                 laptime.setForeground(style_invalid)
                 used_fuel.setForeground(style_invalid)
                 used_energy.setForeground(style_invalid)
@@ -184,13 +191,17 @@ class FuelCalculator(QDialog):
             self.table_history.setItem(row_index, 1, laptime)
             self.table_history.setItem(row_index, 2, used_fuel)
             self.table_history.setItem(row_index, 3, used_energy)
+            self.table_history.setItem(row_index, 4, battery_drain)
+            self.table_history.setItem(row_index, 5, battery_regen)
             row_index += 1
 
         self.table_history.setHorizontalHeaderLabels((
             "Lap",
             "Time",
             f"Fuel({self.fuel_unit_text()})",
-            "Energy(%)"
+            "Energy(%)",
+            "Drain(%)",
+            "Regen(%)"
         ))
 
     def set_panel_calculator(self, panel):
@@ -266,12 +277,12 @@ class FuelCalculator(QDialog):
     def set_panel_table(self, panel):
         """Set panel table"""
         self.table_history = QTableWidget(self)
-        self.table_history.setColumnCount(4)
+        self.table_history.setColumnCount(6)
         self.table_history.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_history.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
         self.table_history.verticalHeader().setVisible(False)
         self.table_history.setColumnWidth(0, 40)
-        self.table_history.setFixedWidth(self.table_history.sizeHint().width())
+        self.table_history.setFixedWidth(380)
 
         button_add = QPushButton("Add selected data")
         button_add.clicked.connect(self.add_selected_data)

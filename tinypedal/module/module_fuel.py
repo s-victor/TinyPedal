@@ -66,15 +66,16 @@ class Realtime(DataModule):
                 gen_calc_fuel.send(True)
 
                 # Update consumption history
-                if (minfo.history.consumption[0][1] != minfo.delta.lapTimeLast
+                if (minfo.history.consumption[0][2] != minfo.delta.lapTimeLast
                     > minfo.delta.lapTimeCurrent > 2):  # record 2s after pass finish line
                     minfo.history.consumption.appendleft((
                         api.read.lap.total_laps() - 1,
+                        minfo.delta.isValidLap,
                         minfo.delta.lapTimeLast,
                         minfo.fuel.lastLapConsumption,
                         minfo.energy.lastLapConsumption,
-                        minfo.fuel.capacity,
-                        minfo.delta.isValidLap))
+                        minfo.hybrid.batteryDrainLast,
+                        minfo.hybrid.batteryRegenLast))
 
             else:
                 if reset:
@@ -91,7 +92,7 @@ def telemetry_fuel():
     return capacity, amount_curr
 
 
-def calc_data(info, telemetry_func, filepath, combo_id, extension):
+def calc_data(output, telemetry_func, filepath, combo_id, extension):
     """Calculate data"""
     recording = False
     validating = False
@@ -253,32 +254,32 @@ def calc_data(info, telemetry_func, filepath, combo_id, extension):
         used_est_less = calc.one_less_pit_stop_consumption(
             est_pits_late, capacity, amount_curr, laps_left)
 
-        info.capacity = capacity
-        info.amountStart = amount_start
-        info.amountCurrent = amount_curr
-        info.amountNeeded = amount_need
-        info.amountBeforePitstop = amount_left
-        info.lastLapConsumption = used_last_raw
-        info.estimatedConsumption = used_last + delta_fuel
-        info.estimatedLaps = est_runlaps
-        info.estimatedMinutes = est_runmins
-        info.estimatedEmptyCapacity = est_empty
-        info.estimatedNumPitStopsEnd = est_pits_late
-        info.estimatedNumPitStopsEarly = est_pits_early
-        info.deltaConsumption = delta_fuel
-        info.oneLessPitConsumption = used_est_less
+        output.capacity = capacity
+        output.amountStart = amount_start
+        output.amountCurrent = amount_curr
+        output.amountNeeded = amount_need
+        output.amountBeforePitstop = amount_left
+        output.lastLapConsumption = used_last_raw
+        output.estimatedConsumption = used_last + delta_fuel
+        output.estimatedLaps = est_runlaps
+        output.estimatedMinutes = est_runmins
+        output.estimatedEmptyCapacity = est_empty
+        output.estimatedNumPitStopsEnd = est_pits_late
+        output.estimatedNumPitStopsEarly = est_pits_early
+        output.deltaConsumption = delta_fuel
+        output.oneLessPitConsumption = used_est_less
 
 
-def save_delta(listname, filepath, combo, extension):
+def save_delta(dataset: list, filepath: str, combo: str, extension: str):
     """Save consumption data"""
-    if len(listname) >= 10:
+    if len(dataset) >= 10:
         with open(f"{filepath}{combo}.{extension}",
                     "w", newline="", encoding="utf-8") as csvfile:
             deltawrite = csv.writer(csvfile)
-            deltawrite.writerows(listname)
+            deltawrite.writerows(dataset)
 
 
-def load_delta(filepath, combo, extension):
+def load_delta(filepath: str, combo: str, extension: str):
     """Load consumption data"""
     try:
         with open(f"{filepath}{combo}.{extension}",

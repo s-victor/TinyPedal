@@ -83,12 +83,13 @@ class HistoryInfo:
     """History output data
 
     consumption list:
-        0 lapnumber, 1 laptime, 2 fuel, 3 energy, 4 fuel capacity, 5 is valid laptime
+        0 lapnumber, 1 is valid laptime, 2 laptime,
+        3 fuel, 4 energy, 5 batter drain, 6 battery regen
     """
     consumption: deque = field(default_factory=deque)
 
     def __post_init__(self):
-        self.consumption = deque([(0,0,0,0,0,0)], 100)
+        self.consumption = deque([(0,0,0,0,0,0,0)], 100)
 
 
 @dataclass
