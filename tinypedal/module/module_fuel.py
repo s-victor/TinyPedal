@@ -145,7 +145,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
                     api.read.vehicle.position_y(),
                     api.read.vehicle.position_z())
         lap_number = api.read.lap.total_laps()
-        lap_into = api.read.lap.percent()
+        lap_into = api.read.lap.progress()
         laps_max = api.read.lap.maximum()
         pit_lap = bool(pit_lap + api.read.vehicle.in_pits())
 
@@ -226,12 +226,12 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
                 laps_left, used_est, amount_curr)
         elif laptime_last > 0:  # time-type race
             full_laps_left = calc.time_type_full_laps_remain(
-                laptime_curr, laptime_last, time_left)
-            laps_left = calc.time_type_laps_remain(
-                full_laps_left, lap_into, laps_left, laptime_curr < 0.2)
+                lap_into, laptime_last, time_left)
+            if laptime_curr > 0.2:
+                laps_left = calc.time_type_laps_remain(
+                    full_laps_left, lap_into)
             amount_need = calc.total_fuel_needed(
                 laps_left, used_est, amount_curr)
-            # full_laps_left, used_est, used_curr + amount_curr
 
         amount_left = calc.end_stint_fuel(
             amount_curr, used_curr, used_est)

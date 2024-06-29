@@ -278,7 +278,7 @@ class Draw(Overlay):
             else:  # vehicles on temp map
                 inpit_offset = self.wcfg["font_size"] if veh_info.inPit else 0
                 pos_x, pos_y = calc.rotate_pos(
-                    6.2831853 * veh_info.percentageDistance,
+                    6.2831853 * veh_info.lapProgress,
                     self.temp_map_size / -2 + inpit_offset,  # x pos
                     0)  # y pos
                 offset = self.area_size * 0.5

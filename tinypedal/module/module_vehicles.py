@@ -79,7 +79,7 @@ class Realtime(DataModule):
         # Local player data
         plr_total_laps = api.read.lap.total_laps()
         plr_lap_distance = api.read.lap.distance()
-        plr_percentage_distance = calc.percentage_distance(plr_lap_distance, track_length)
+        plr_lap_progress = calc.lap_distance_progress(plr_lap_distance, track_length)
         plr_speed = api.read.vehicle.speed()
         plr_pos_xz = (api.read.vehicle.position_longitudinal(),
                       api.read.vehicle.position_lateral())
@@ -114,7 +114,7 @@ class Realtime(DataModule):
             total_laps = api.read.lap.total_laps(index)
             lap_distance = api.read.lap.distance(index)
 
-            percentage_distance = calc.percentage_distance(lap_distance, track_length)
+            lap_progress = calc.lap_distance_progress(lap_distance, track_length)
             relative_distance = calc.circular_relative_distance(
                 track_length, plr_lap_distance, lap_distance
                 ) if not is_player else 0
@@ -123,13 +123,13 @@ class Realtime(DataModule):
                 ) if not is_player else 0
 
             gap_behind_next_in_class = self.__calc_gap_behind_next_in_class(
-                opt_index_ahead, track_length, speed, total_laps, percentage_distance)
+                opt_index_ahead, track_length, speed, total_laps, lap_progress)
             gap_behind_next = self.__calc_gap_behind_next(index)
             gap_behind_leader = self.__calc_gap_behind_leader(index)
 
             is_lapped = 0 if is_player or not in_race else calc.lap_difference(
-                total_laps + percentage_distance,
-                plr_total_laps + plr_percentage_distance,
+                total_laps + lap_progress,
+                plr_total_laps + plr_lap_progress,
                 self.mcfg["lap_difference_ahead_threshold"],
                 self.mcfg["lap_difference_behind_threshold"]
                 )
@@ -173,7 +173,7 @@ class Realtime(DataModule):
                 lastLapTime = laptime_last,
                 isPlayer = is_player,
                 isNotPlayer = not is_player,
-                percentageDistance = percentage_distance,
+                lapProgress = lap_progress,
                 relativeDistance = relative_distance,
                 relativeTimeGap = relative_time_gap,
                 gapBehindNextInClass = gap_behind_next_in_class,
@@ -229,14 +229,14 @@ class Realtime(DataModule):
 
     @staticmethod
     def __calc_gap_behind_next_in_class(
-        opt_index, track_length, speed, total_laps, percentage_distance):
+        opt_index, track_length, speed, total_laps, lap_progress):
         """Calculate interval behind next in class"""
         if opt_index < 0:
             return 0.0
         opt_total_laps = api.read.lap.total_laps(opt_index)
         opt_lap_distance = api.read.lap.distance(opt_index)
-        opt_percentage_distance = calc.percentage_distance(opt_lap_distance, track_length)
-        lap_diff = abs(opt_total_laps + opt_percentage_distance - total_laps - percentage_distance)
+        opt_lap_progress = calc.lap_distance_progress(opt_lap_distance, track_length)
+        lap_diff = abs(opt_total_laps + opt_lap_progress - total_laps - lap_progress)
         if lap_diff > 1:
             return int(lap_diff)
         return calc.relative_time_gap(
@@ -298,7 +298,7 @@ DataSet = namedtuple(
     "bestLapTime",
     "lastLapTime",
     "isPlayer",
-    "percentageDistance",
+    "lapProgress",
     "relativeDistance",
     "relativeTimeGap",
     "gapBehindNextInClass",

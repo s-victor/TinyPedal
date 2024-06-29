@@ -216,11 +216,18 @@ def rotate_pos(ori_rad, value1, value2):
             cos_rad * value2 + sin_rad * value1)
 
 
-def percentage_distance(dist, length, max_range=1, min_range=0):
-    """Current distance in percentage relative to length"""
+def lap_distance_progress(dist, length):
+    """Current lap (distance into lap) progress fraction"""
     if length:
-        return min(max(dist / length, min_range), max_range)
+        return min(max(dist / length, 0), 1)
     return 0
+
+
+def lap_progress_correction(percent, laptime):
+    """Lap progress desync correction"""
+    if percent > 0.5 > laptime:
+        return 0
+    return percent
 
 
 def circular_relative_distance(circle_length, plr_dist, opt_dist):
@@ -497,20 +504,21 @@ def lap_type_laps_remain(laps_full_remain, lap_into):
     return laps_full_remain - lap_into
 
 
-def time_type_full_laps_remain(laptime_current, laptime_last, seconds_remain):
-    """Time type race remaining laps count from finish line"""
-    if laptime_last:
-        # Estimated seconds into lap after race time ended
-        seconds_into_lap = laptime_current / laptime_last % 1 * laptime_last
-        # Full laps left value counts from start line of current lap
-        return math.ceil((seconds_remain + seconds_into_lap) / laptime_last)
+def end_timer_laps_remain(lap_into, laptime_last, seconds_remain):
+    """Estimated remaining laps(fraction) count from finish line after race timer ended"""
+    if laptime_last and seconds_remain >= 0:
+        return seconds_remain / laptime_last + lap_into
     return 0
 
 
-def time_type_laps_remain(laps_full_remain, lap_into, laps_remain, delay=False):
+def time_type_full_laps_remain(lap_into, laptime_last, seconds_remain):
+    """Estimated full remaining laps count from finish line after race timer ended"""
+    # alternative-lap-into = laptime_current / laptime_last % 1
+    return math.ceil(end_timer_laps_remain(lap_into, laptime_last, seconds_remain))
+
+
+def time_type_laps_remain(laps_full_remain, lap_into):
     """Time type race remaining laps count from current on track position"""
-    if delay:  # delay check to avoid lap number desync
-        return laps_remain
     return max(laps_full_remain - lap_into, 0)
 
 

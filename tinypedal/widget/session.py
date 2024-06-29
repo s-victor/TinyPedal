@@ -183,10 +183,11 @@ class Draw(Overlay):
 
             # Lap number
             if self.wcfg["show_lapnumber"]:
-                lap_into = api.read.lap.percent() * 100
-                lap_num = api.read.lap.number()
+                lap_number = api.read.lap.number()
                 lap_max = api.read.lap.maximum()
-                self.update_lapnumber(lap_into, self.last_lap_into, lap_num, lap_max)
+                lap_into = lap_number + calc.lap_progress_correction(
+                    api.read.lap.progress(), api.read.timing.current_laptime())
+                self.update_lapnumber(lap_into, self.last_lap_into, lap_number, lap_max)
                 self.last_lap_into = lap_into
 
             # Driver place & total vehicles
@@ -219,7 +220,7 @@ class Draw(Overlay):
         """Lap number"""
         if curr != last:
             lap_total = lap_max if api.read.session.lap_type() else "-"
-            lap_text = f"{self.wcfg['prefix_lap_number']}{lap_num}.{curr:02.0f}/{lap_total}"
+            lap_text = f"{self.wcfg['prefix_lap_number']}{curr:02.02f}/{lap_total}"
 
             self.bar_lapnumber.setText(lap_text)
             self.bar_lapnumber.setStyleSheet(self.bar_min_width(

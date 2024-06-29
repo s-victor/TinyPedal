@@ -224,9 +224,9 @@ class Lap(DataAdapter):
         """Distance into lap"""
         return chknm(self.info.rf2ScorVeh(index).mLapDist)
 
-    def percent(self, index: int | None = None) -> float:
-        """Lap percentage completion"""
-        return calc.percentage_distance(self.distance(index), self.track_length())
+    def progress(self, index: int | None = None) -> float:
+        """Lap progress fraction (distance into lap)"""
+        return calc.lap_distance_progress(self.distance(index), self.track_length())
 
     def maximum(self) -> int:
         """Maximum lap"""

@@ -106,7 +106,7 @@ class Draw(Overlay):
             self.veh_pos = (
                 api.read.lap.distance(),
                 api.read.vehicle.position_vertical(),
-                self.display_width * api.read.lap.percent()
+                self.display_width * api.read.lap.progress()
             )
             self.update_vehicle(self.veh_pos, self.last_veh_pos)
             self.last_veh_pos = self.veh_pos
