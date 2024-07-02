@@ -160,11 +160,11 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
         # Lap start & finish detection
         if lap_stime > last_lap_stime != -1:
             if len(delta_list_curr) > 1 and not pit_lap:
-                delta_list_curr.append(  # set end value
-                    (round(pos_last + 10, 6),
-                        round(used_curr, 6),
-                        round(lap_stime - last_lap_stime, 6))
-                )
+                delta_list_curr.append((  # set end value
+                    round(pos_last + 10, 6),
+                    round(used_curr, 6),
+                    round(lap_stime - last_lap_stime, 6)
+                ))
                 delta_list_temp = delta_list_curr
                 validating = True
             delta_list_curr = [DELTA_ZERO]  # reset
@@ -175,8 +175,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
             pit_lap = False
         last_lap_stime = lap_stime  # reset
 
-        # 1 sec position distance check after new lap begins
-        # Reset to 0 if higher than normal distance
+        # Distance desync check at start of new lap, reset if higher than normal distance
         if 0 < laptime_curr < 1 and pos_curr > 300:
             pos_last = pos_curr = 0
 
@@ -212,7 +211,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
                 laptime_curr > 0.3 and not in_garage,  # 300ms delay
             )
 
-        # Exclude first lap & pit in & out lap
+        # Exclude first lap & pit in/out lap
         used_est = calc.end_lap_consumption(
             used_last, delta_fuel, 0 == pit_lap < lap_number)
 

@@ -153,3 +153,12 @@ def coords_to_points(coords: tuple) -> str:
             output += " "
         output += f"{data[0]},{data[1]}"
     return output
+
+
+def steerlock_to_number(value: str) -> float:
+    """Convert steerlock string to float value"""
+    try:
+        deg = re.split(" ", value)[0]
+        return float(deg)
+    except ValueError:
+        return 0.0
