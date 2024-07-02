@@ -381,14 +381,14 @@ On the left side is calculation panel, which handles `fuel` and `virtual energy`
 
 Fuel value and unit symbol depend on `Fuel Unit` setting from `Units and symbols` config dialog, `L` = liter, `gal` = gallon. Virtual energy unit is `%` = percentage.
 
-On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `virtual energy consumption` data from recent sessions.
+On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `virtual energy consumption`, `battery drain`, `battery regen` data from recent sessions.
 Invalid lap time or consumption data is highlighted in red.
 
 Click `Reload` button to reload history table and automatically fill in last data to calculator.
 
-Select any `lap time` or `consumption` values and click `Add selected data` button to send value to calculator.
+Select any `lap time` or `consumption` values from history table and click `Add selected data` button to send value to calculator.
 
-Select multiple values from same column and click `Add selected data` button to calculate average reading of selected values and send to calculator.
+Select multiple values from history table and click `Add selected data` button to calculate average reading of selected values and send to calculator.
 
     Lap time
 Set lap time in `minutes` : `seconds` : `milliseconds` format. Values are automatically carried over between spin boxes when exceeded min or max value range.

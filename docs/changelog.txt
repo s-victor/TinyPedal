@@ -1,3 +1,14 @@
+WIP
+-----------------------------
+* Fuel Calculator
+  - Add Battery charge drain & regen (%) per lap to history log.
+  - History table now supports multi-selection that adds data from any columns at once.
+
+* RestAPI Module
+  - Improved and optimized accessing methods.
+  - Updated session info accessing paths that work in
+    both single-player and multi-player sessions.
+
 2.14.1 (2024-06-24)
 -----------------------------
 * Radar Widget
