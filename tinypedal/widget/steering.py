@@ -47,7 +47,7 @@ class Draw(Overlay):
         font_offset = self.calc_font_offset(font_m)
 
         # Config variable
-        self.padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
+        padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
         pady = round(font_m.capital * self.wcfg["bar_padding_vertical"])
 
         text_height = int(font_m.capital + pady * 2) if self.wcfg["show_steering_angle"] else 0
@@ -69,7 +69,7 @@ class Draw(Overlay):
             self.bar_height
         )
         self.rect_text_bg_l = QRectF(
-            self.bar_edge + self.padx,
+            self.bar_edge + padx,
             font_offset,
             self.bar_width,
             self.bar_height
@@ -77,7 +77,7 @@ class Draw(Overlay):
         self.rect_text_bg_r = QRectF(
             self.bar_edge + self.bar_width,
             font_offset,
-            self.bar_width - self.padx,
+            self.bar_width - padx,
             self.bar_height
         )
 

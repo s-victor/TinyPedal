@@ -46,10 +46,10 @@ class Draw(Overlay):
         font_offset = self.calc_font_offset(font_m)
 
         # Config variable
-        self.padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
+        padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
         pady = round(font_m.capital * self.wcfg["bar_padding_vertical"])
 
-        self.bar_gap = self.wcfg["bar_gap"]
+        bar_gap = self.wcfg["bar_gap"]
         self.bar_width = max(self.wcfg["bar_width"], 20)
         self.bar_height = int(font_m.capital + pady * 2)
         self.max_range = max(int(self.wcfg["ride_height_max_range"]), 10)
@@ -68,20 +68,20 @@ class Draw(Overlay):
             self.bar_height
         )
         self.rect_bg_fr = QRectF(
-            self.bar_width + self.bar_gap,
+            self.bar_width + bar_gap,
             0,
             self.bar_width,
             self.bar_height
         )
         self.rect_bg_rl = QRectF(
             0,
-            self.bar_height + self.bar_gap,
+            self.bar_height + bar_gap,
             self.bar_width,
             self.bar_height
         )
         self.rect_bg_rr = QRectF(
-            self.bar_width + self.bar_gap,
-            self.bar_height + self.bar_gap,
+            self.bar_width + bar_gap,
+            self.bar_height + bar_gap,
             self.bar_width,
             self.bar_height
         )
@@ -91,15 +91,15 @@ class Draw(Overlay):
         self.rect_rideh_rl = self.rect_bg_rl.adjusted(0,0,0,0)
         self.rect_rideh_rr = self.rect_bg_rr.adjusted(0,0,0,0)
 
-        self.rect_text_bg_fl = self.rect_bg_fl.adjusted(self.padx, font_offset, 0, 0)
-        self.rect_text_bg_fr = self.rect_bg_fr.adjusted(0, font_offset, -self.padx, 0)
-        self.rect_text_bg_rl = self.rect_bg_rl.adjusted(self.padx, font_offset, 0, 0)
-        self.rect_text_bg_rr = self.rect_bg_rr.adjusted(0, font_offset, -self.padx, 0)
+        self.rect_text_bg_fl = self.rect_bg_fl.adjusted(padx, font_offset, 0, 0)
+        self.rect_text_bg_fr = self.rect_bg_fr.adjusted(0, font_offset, -padx, 0)
+        self.rect_text_bg_rl = self.rect_bg_rl.adjusted(padx, font_offset, 0, 0)
+        self.rect_text_bg_rr = self.rect_bg_rr.adjusted(0, font_offset, -padx, 0)
 
         # Config canvas
         self.resize(
-            self.bar_width * 2 + self.bar_gap,
-            self.bar_height * 2 + self.bar_gap
+            self.bar_width * 2 + bar_gap,
+            self.bar_height * 2 + bar_gap
         )
 
         self.pen = QPen()

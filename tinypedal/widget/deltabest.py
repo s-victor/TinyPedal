@@ -45,12 +45,12 @@ class Draw(Overlay):
             self.wcfg["font_weight"]
         )
         font_m = self.get_font_metrics(self.font)
-        self.font_offset = self.calc_font_offset(font_m)
+        font_offset = self.calc_font_offset(font_m)
 
         # Config variable
         self.dbar_length = int(self.wcfg["bar_length"] * 0.5)
         self.dbar_height = int(self.wcfg["bar_height"])
-        self.bar_gap = self.wcfg["bar_gap"]
+        bar_gap = self.wcfg["bar_gap"]
         padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
         pady = round(font_m.capital * self.wcfg["bar_padding_vertical"])
 
@@ -60,24 +60,24 @@ class Draw(Overlay):
         if self.wcfg["layout"] == 0:
             pos_y1 = 0
         else:
-            pos_y1 = self.delta_height + self.bar_gap
+            pos_y1 = self.delta_height + bar_gap
 
         if self.wcfg["layout"] == 0 and self.wcfg["show_delta_bar"]:
-            pos_y2 = self.dbar_height + self.bar_gap
+            pos_y2 = self.dbar_height + bar_gap
         else:
             pos_y2 = 0
 
         self.rect_deltabar = QRectF(0, pos_y1, self.dbar_length * 2, self.dbar_height)
         self.rect_deltapos = QRectF(0, pos_y1, 0, self.dbar_height)
         self.rect_delta = QRectF(0, pos_y2, self.delta_width, self.delta_height)
-        self.rect_text_delta = self.rect_delta.adjusted(0, self.font_offset, 0, 0)
+        self.rect_text_delta = self.rect_delta.adjusted(0, font_offset, 0, 0)
 
         self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
 
         # Config canvas
         if self.wcfg["show_delta_bar"]:
             self.resize(self.dbar_length * 2,
-                        self.dbar_height + self.bar_gap + self.delta_height)
+                        self.dbar_height + bar_gap + self.delta_height)
         else:
             self.resize(self.delta_width, self.delta_height)
 

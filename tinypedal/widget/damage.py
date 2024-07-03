@@ -43,7 +43,7 @@ class Draw(Overlay):
             self.wcfg["font_weight"]
         )
         font_m = self.get_font_metrics(self.font)
-        self.font_offset = self.calc_font_offset(font_m)
+        font_offset = self.calc_font_offset(font_m)
 
         # Config variable
         display_margin = max(int(self.wcfg["display_margin"]), 0)
@@ -121,7 +121,7 @@ class Draw(Overlay):
             parts_max_width, parts_max_height)
 
         # Text rect
-        self.rect_integrity = QRectF(0, 0, self.display_width, self.display_height)
+        self.rect_integrity = QRectF(0, font_offset, self.display_width, self.display_height)
 
         # Config canvas
         self.resize(self.display_width, self.display_height)
