@@ -90,12 +90,15 @@ class Realtime(DataModule):
                      ) = self.__connection_setup()
                     sorted_task_once = sort_tasks(sim_name, TASK_ONCE)
                     sorted_task_repeat = sort_tasks(sim_name, TASK_REPEAT)
-                    # Run task once per garage out, and check availability
-                    asyncio.run(self.__task_once(sorted_task_once, url_rest, time_out, retry, retry_delay))
-                    asyncio.run(self.__task_once(sorted_task_repeat, url_rest, time_out, retry, retry_delay))
-                    # Remove unavailable task
-                    self.__remove_unavailable_task(sorted_task_once)
-                    self.__remove_unavailable_task(sorted_task_repeat)
+                    # Run all tasks once per garage out, and check availability
+                    if sorted_task_once:
+                        asyncio.run(self.__task_once(
+                            sorted_task_once, url_rest, time_out, retry, retry_delay))
+                        self.__remove_unavailable_task(sorted_task_once)
+                    if sorted_task_repeat:
+                        asyncio.run(self.__task_once(
+                            sorted_task_repeat, url_rest, time_out, retry, retry_delay))
+                        self.__remove_unavailable_task(sorted_task_repeat)
 
                 # Run repeatedly while on track
                 if sorted_task_repeat:
@@ -228,6 +231,6 @@ def get_value(
 
 
 def sort_tasks(sim_name: str, task_set: tuple) -> dict:
-    """Sort task set into dictionary"""
+    """Sort task set into dictionary, key - resource_name, value - output_set"""
     return {task[1]:task[2] for task in task_set
             if re.search(task[0], sim_name)}
