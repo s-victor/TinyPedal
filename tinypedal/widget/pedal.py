@@ -21,7 +21,7 @@ Pedal Widget
 """
 
 from PySide2.QtCore import Qt, Slot, QRectF, QSize
-from PySide2.QtGui import QPixmap, QPainter
+from PySide2.QtGui import QPixmap, QPainter, QPen
 from PySide2.QtWidgets import QLabel, QGridLayout
 
 from ..api_control import api
@@ -36,6 +36,15 @@ class Draw(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+
+        # Config font
+        self.font = self.config_font(
+            self.wcfg["font_name"],
+            self.wcfg["font_size"],
+            self.wcfg["font_weight"]
+        )
+        font_m = self.get_font_metrics(self.font)
+        font_offset = self.calc_font_offset(font_m)
 
         # Config variable
         bar_gap = self.wcfg["bar_gap"]
@@ -54,12 +63,24 @@ class Draw(Overlay):
             filtered_size = (0, pedal_uwidth, 0, pedal_fwidth)
             ffb_size = (0, 0, 0, self.pbar_width)
             max_size = (self.pedal_length + max_gap, 0, self.pedal_extend - max_gap, self.pbar_width)
+            reading_size = (
+                self.pbar_length * self.wcfg["readings_offset"] - self.pbar_length * 0.5,
+                self.pbar_width * 0.5 - font_m.height * 0.5 + font_offset,
+                self.pbar_length,
+                font_m.height
+            )
         else:
             pedal_size = QSize(self.pbar_width, self.pbar_length)
             raw_size = (0, 0, pedal_uwidth, self.pbar_length)
             filtered_size = (pedal_uwidth, 0, pedal_fwidth, self.pbar_length)
             ffb_size = (0, 0, self.pbar_width, self.pbar_length)
             max_size = (0, 0, self.pbar_width, self.pedal_extend - max_gap)
+            reading_size = (
+                self.pbar_width * 0.5 - self.pbar_width * 0.5,
+                self.pbar_length * self.wcfg["readings_offset"] - font_m.height * 0.5 + font_offset,
+                self.pbar_width,
+                font_m.height
+            )
 
         self.rect_throttle_raw = QRectF(*raw_size)
         self.rect_throttle_filtered = QRectF(*filtered_size)
@@ -69,6 +90,9 @@ class Draw(Overlay):
         self.rect_clutch_filtered = QRectF(*filtered_size)
         self.rect_ffb = QRectF(*ffb_size)
         self.rect_max = QRectF(*max_size)
+        self.rect_readings = QRectF(*reading_size)
+
+        self.pen = QPen()
 
         # Create layout
         layout = QGridLayout()
@@ -86,7 +110,7 @@ class Draw(Overlay):
             self.bar_ffb = QLabel()
             self.bar_ffb.setFixedSize(pedal_size)
             self.pixmap_ffb = QPixmap(pedal_size)
-            self.draw_ffb(self.bar_ffb, self.pixmap_ffb, 0)
+            self.draw_ffb(self.bar_ffb, self.pixmap_ffb, 0, 0)
 
         # Clutch
         if self.wcfg["show_clutch"]:
@@ -96,7 +120,7 @@ class Draw(Overlay):
             self.draw_pedal(
                 self.bar_clutch, self.pixmap_clutch,
                 self.rect_clutch_raw, self.rect_clutch_filtered,
-                0, 0, self.wcfg["clutch_color"])
+                0, 0, 0, self.wcfg["font_color_clutch"], self.wcfg["clutch_color"])
 
         # Brake
         if self.wcfg["show_brake"]:
@@ -106,7 +130,7 @@ class Draw(Overlay):
             self.draw_pedal(
                 self.bar_brake, self.pixmap_brake,
                 self.rect_brake_raw, self.rect_brake_filtered,
-                0, 0, self.wcfg["brake_color"])
+                0, 0, 0, self.wcfg["font_color_brake"], self.wcfg["brake_color"])
 
         # Throttle
         if self.wcfg["show_throttle"]:
@@ -116,7 +140,7 @@ class Draw(Overlay):
             self.draw_pedal(
                 self.bar_throttle, self.pixmap_throttle,
                 self.rect_throttle_raw, self.rect_throttle_filtered,
-                0, 0, self.wcfg["throttle_color"])
+                0, 0, 0, self.wcfg["font_color_throttle"], self.wcfg["throttle_color"])
 
         # Set layout & style
         if self.wcfg["enable_horizontal_style"]:
@@ -162,43 +186,41 @@ class Draw(Overlay):
 
             # Throttle
             if self.wcfg["show_throttle"]:
-                raw_throttle = self.scale_input(api.read.input.throttle_raw())
+                raw_throttle = api.read.input.throttle_raw()
                 if self.wcfg["show_throttle_filtered"]:
-                    f_throttle = self.scale_input(api.read.input.throttle())
-                    throttle = (raw_throttle, f_throttle)
+                    throttle = raw_throttle, api.read.input.throttle()
                 else:
-                    throttle = (raw_throttle, raw_throttle)
+                    throttle = raw_throttle, raw_throttle
                 self.update_throttle(throttle, self.last_throttle)
                 self.last_throttle = throttle
 
             # Brake
             if self.wcfg["show_brake"]:
-                raw_brake = self.scale_input(api.read.input.brake_raw())
+                raw_brake = api.read.input.brake_raw()
                 if self.wcfg["show_brake_filtered"]:
                     if self.wcfg["show_brake_pressure"]:
                         f_brake = self.filtered_brake_pressure(api.read.brake.pressure())
                     else:
-                        f_brake = self.scale_input(api.read.input.brake())
-                    brake = (raw_brake, f_brake)
+                        f_brake = api.read.input.brake()
+                    brake = raw_brake, f_brake
                 else:
-                    brake = (raw_brake, raw_brake)
+                    brake = raw_brake, raw_brake
                 self.update_brake(brake, self.last_brake)
                 self.last_brake = brake
 
             # Clutch
             if self.wcfg["show_clutch"]:
-                raw_clutch = self.scale_input(api.read.input.clutch_raw())
+                raw_clutch = api.read.input.clutch_raw()
                 if self.wcfg["show_clutch_filtered"]:
-                    f_clutch = self.scale_input(api.read.input.clutch())
-                    clutch = (raw_clutch, f_clutch)
+                    clutch = raw_clutch, api.read.input.clutch()
                 else:
-                    clutch = (raw_clutch, raw_clutch)
+                    clutch = raw_clutch, raw_clutch
                 self.update_clutch(clutch, self.last_clutch)
                 self.last_clutch = clutch
 
             # Force feedback
             if self.wcfg["show_ffb_meter"]:
-                ffb = self.scale_input(api.read.input.force_feedback())
+                ffb = api.read.input.force_feedback()
                 self.update_ffb(ffb, self.last_ffb)
                 self.last_ffb = ffb
 
@@ -214,7 +236,8 @@ class Draw(Overlay):
             self.draw_pedal(
                 self.bar_throttle, self.pixmap_throttle,
                 self.rect_throttle_raw, self.rect_throttle_filtered,
-                curr[0], curr[1], self.wcfg["throttle_color"])
+                self.scale_input(curr[0]), self.scale_input(curr[1]), max(curr),
+                self.wcfg["font_color_throttle"], self.wcfg["throttle_color"])
 
     def update_brake(self, curr, last):
         """Brake update"""
@@ -222,7 +245,8 @@ class Draw(Overlay):
             self.draw_pedal(
                 self.bar_brake, self.pixmap_brake,
                 self.rect_brake_raw, self.rect_brake_filtered,
-                curr[0], curr[1], self.wcfg["brake_color"])
+                self.scale_input(curr[0]), self.scale_input(curr[1]), max(curr),
+                self.wcfg["font_color_brake"], self.wcfg["brake_color"])
 
     def update_clutch(self, curr, last):
         """Clutch update"""
@@ -230,17 +254,19 @@ class Draw(Overlay):
             self.draw_pedal(
                 self.bar_clutch, self.pixmap_clutch,
                 self.rect_clutch_raw, self.rect_clutch_filtered,
-                curr[0], curr[1], self.wcfg["clutch_color"])
+                self.scale_input(curr[0]), self.scale_input(curr[1]), max(curr),
+                self.wcfg["font_color_clutch"], self.wcfg["clutch_color"])
 
     def update_ffb(self, curr, last):
         """FFB update"""
         if curr != last:
             self.draw_ffb(
-                self.bar_ffb, self.pixmap_ffb, curr)
+                self.bar_ffb, self.pixmap_ffb,
+                self.scale_input(curr), abs(curr))
 
     def draw_pedal(
         self, canvas, pixmap, rect_raw, rect_filtered,
-        input_raw, input_filter, color=None):
+        input_raw, input_filter, input_reading, fgcolor, bgcolor):
         """Instrument"""
         pixmap.fill(self.wcfg["bkg_color"])
         painter = QPainter(pixmap)
@@ -250,18 +276,22 @@ class Draw(Overlay):
             rect_raw.setWidth(input_raw)
             rect_filtered.setWidth(input_filter)
             if input_raw >= self.pedal_length:
-                painter.fillRect(self.rect_max, color)
+                painter.fillRect(self.rect_max, bgcolor)
         else:  # vertical scale
             rect_raw.setTop(input_raw)
             rect_filtered.setTop(input_filter)
             if input_raw <= self.pedal_extend:
-                painter.fillRect(self.rect_max, color)
+                painter.fillRect(self.rect_max, bgcolor)
 
-        painter.fillRect(rect_raw, color)
-        painter.fillRect(rect_filtered, color)
+        painter.fillRect(rect_raw, bgcolor)
+        painter.fillRect(rect_filtered, bgcolor)
+
+        if self.wcfg["show_readings"]:
+            self.draw_readings(painter, input_reading, fgcolor)
+
         canvas.setPixmap(pixmap)
 
-    def draw_ffb(self, canvas, pixmap, input_raw):
+    def draw_ffb(self, canvas, pixmap, input_raw, input_reading):
         """FFB"""
         pixmap.fill(self.wcfg["bkg_color"])
         painter = QPainter(pixmap)
@@ -283,7 +313,22 @@ class Draw(Overlay):
                 self.rect_ffb.setTop(0)
 
         painter.fillRect(self.rect_ffb, color)
+
+        if self.wcfg["show_readings"]:
+            self.draw_readings(painter, input_reading, self.wcfg["font_color_ffb"])
+
         canvas.setPixmap(pixmap)
+
+    def draw_readings(self, painter, value, fgcolor):
+        """Draw readings"""
+        self.pen.setColor(fgcolor)
+        painter.setFont(self.font)
+        painter.setPen(self.pen)
+        painter.drawText(
+            self.rect_readings,
+            Qt.AlignCenter,
+            f"{value * 100:.0f}"
+        )
 
     # Additional methods
     def scale_input(self, value):
@@ -297,4 +342,6 @@ class Draw(Overlay):
         brake_pres = sum(value)
         if brake_pres > self.max_brake_pres:
             self.max_brake_pres = brake_pres
-        return self.scale_input(brake_pres / max(self.max_brake_pres, 0.001))
+        if self.max_brake_pres:
+            return brake_pres / self.max_brake_pres
+        return 0

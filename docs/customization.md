@@ -1360,6 +1360,12 @@ Set maximum P2P activation time per lap, unit in seconds.
 ## Pedal
 **This widget displays pedal input and force feedback info.**
 
+    show_readings
+Show pedal input and force feedback readings. Note, while `show_*_filtered` option is enabled, only the highest reading between filtered & raw input is displayed.
+
+    readings_offset
+Set reading text offset position (percentage), value range in `0.0` to `1.0`.
+
     enable_horizontal_style
 Show pedal bar in horizontal style.
 
