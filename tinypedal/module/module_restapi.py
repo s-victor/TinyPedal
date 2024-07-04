@@ -212,7 +212,7 @@ def get_resource(url: str, time_out: int) -> (dict | str):
 def get_value(
     data: dict, output: str, default: any,
     key: str | None = None, sub_key: str | None = None,
-    mod_func: object | None = None) -> any:
+    mod_func: object | None = None) -> bool:
     """Get value from resource dictionary, fallback to default value if invalid"""
     value = data.get(key, None)
 
