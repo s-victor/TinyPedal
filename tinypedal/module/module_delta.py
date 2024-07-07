@@ -22,6 +22,7 @@ Delta module
 
 import logging
 import csv
+from functools import partial
 
 from ._base import DataModule
 from ..module_info import minfo
@@ -34,6 +35,7 @@ MODULE_NAME = "module_delta"
 DELTA_ZERO = 0.0,0.0
 
 logger = logging.getLogger(__name__)
+round6 = partial(round, ndigits=6)
 
 
 class Realtime(DataModule):
@@ -110,10 +112,8 @@ class Realtime(DataModule):
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime != -1:
                     laptime_last = lap_stime - last_lap_stime
-                    if len(delta_list_curr) > 1:
-                        delta_list_curr.append(  # set end value
-                            (round(pos_last + 10, 6), round(laptime_last, 6))
-                        )
+                    if len(delta_list_curr) > 1:  # set end value
+                        delta_list_curr.append((round6(pos_last + 10), round6(laptime_last)))
                         delta_list_last = delta_list_curr
                         validating = api.read.timing.elapsed()
                     delta_list_curr = [DELTA_ZERO]  # reset
@@ -129,9 +129,7 @@ class Realtime(DataModule):
                 # Update if position value is different & positive
                 if 0 <= pos_curr != pos_last:
                     if recording and pos_curr > pos_last:  # position further
-                        delta_list_curr.append(  # keep 6 decimals
-                            (round(pos_curr, 6), round(laptime_curr, 6))
-                        )
+                        delta_list_curr.append((round6(pos_curr), round6(laptime_curr)))
                     pos_estimate = pos_last = pos_curr  # reset last position
 
                 # Validating 1s after passing finish line

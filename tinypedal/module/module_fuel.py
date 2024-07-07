@@ -22,6 +22,7 @@ Fuel module
 
 import logging
 import csv
+from functools import partial
 
 from ._base import DataModule
 from ..module_info import minfo
@@ -34,6 +35,7 @@ MODULE_NAME = "module_fuel"
 DELTA_ZERO = 0.0,0.0
 
 logger = logging.getLogger(__name__)
+round6 = partial(round, ndigits=6)
 
 
 class Realtime(DataModule):
@@ -161,9 +163,9 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
         if lap_stime > last_lap_stime != -1:
             if len(delta_list_curr) > 1 and not pit_lap:
                 delta_list_curr.append((  # set end value
-                    round(pos_last + 10, 6),
-                    round(used_curr, 6),
-                    round(lap_stime - last_lap_stime, 6)
+                    round6(pos_last + 10),
+                    round6(used_curr),
+                    round6(lap_stime - last_lap_stime)
                 ))
                 delta_list_temp = delta_list_curr
                 validating = True
@@ -182,9 +184,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
         # Update if position value is different & positive
         if 0 <= pos_curr != pos_last:
             if recording and pos_curr > pos_last:  # position further
-                delta_list_curr.append(  # keep 6 decimals
-                    (round(pos_curr, 6), round(used_curr, 6))
-                )
+                delta_list_curr.append((round6(pos_curr), round6(used_curr)))
             pos_estimate = pos_last = pos_curr  # reset last position
 
         # Validating 1s after passing finish line

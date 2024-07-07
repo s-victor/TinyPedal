@@ -22,6 +22,7 @@ Mapping module
 
 import logging
 import xml.dom.minidom
+from functools import partial
 
 from ._base import DataModule
 from ..module_info import minfo
@@ -33,6 +34,7 @@ from .. import formatter as fmt
 MODULE_NAME = "module_mapping"
 
 logger = logging.getLogger(__name__)
+round4 = partial(round, ndigits=4)
 
 
 class Realtime(DataModule):
@@ -106,10 +108,10 @@ class MapRecorder:
         lap_etime = api.read.timing.elapsed()
         laptime_valid = api.read.timing.last_laptime()
         sector_idx = api.read.lap.sector_index()
-        pos_curr = round(api.read.lap.distance(), 4)
-        gps_curr = (round(api.read.vehicle.position_longitudinal(), 4),
-                    round(api.read.vehicle.position_lateral(), 4))
-        elv_curr = round(api.read.vehicle.position_vertical(), 4)
+        pos_curr = round4(api.read.lap.distance())
+        gps_curr = (round4(api.read.vehicle.position_longitudinal()),
+                    round4(api.read.vehicle.position_lateral()))
+        elv_curr = round4(api.read.vehicle.position_vertical())
 
         # Update map data
         self.__start(lap_stime)
