@@ -142,6 +142,10 @@ Energy delta data is stored as `CSV` format (.energy extension) under `TinyPedal
 Fuel delta data is stored as `CSV` format (.fuel extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
 
 
+## Sector best
+Sector best data is stored as `CSV` format (.sector extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
+
+
 ## Track map
 Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder.
 
@@ -541,8 +545,8 @@ Set time delay in seconds to retry connection. Value range in `0` to `60`. Defau
     module_sectors
 Enable sectors module.
 
-    sector_info
-Store last saved sector info string of current session, not for manual editing.
+    enable_all_time_best_sectors
+Calculate sectors timing based on all time best sectors and affects `Sectors Widget` display. This option is enabled by default. Set `false` to calculate sectors timing from current session only. Note, both session best and all time best sectors data are saved no matter the setting.
 
 
 ## Vehicles

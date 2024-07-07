@@ -25,7 +25,7 @@ import os
 from PySide2.QtGui import QDesktopServices
 from PySide2.QtWidgets import QMenu, QAction, QMessageBox
 
-from ..const import PATH_DELTABEST, PATH_ENERGY, PATH_FUEL, PATH_TRACKMAP
+from ..const import PATH_DELTABEST, PATH_ENERGY, PATH_FUEL, PATH_SECTORBEST, PATH_TRACKMAP
 from ..setting import cfg
 from ..api_control import api
 from ..overlay_control import octrl
@@ -130,6 +130,11 @@ class ResetDataMenu(QMenu):
         reset_fueldelta.triggered.connect(self.reset_fueldelta)
         menu.addAction(reset_fueldelta)
 
+        # Sector best
+        reset_sectorbest = QAction("Sector best", self)
+        reset_sectorbest.triggered.connect(self.reset_sectorbest)
+        menu.addAction(reset_sectorbest)
+
         # Track map
         reset_trackmap = QAction("Track map", self)
         reset_trackmap.triggered.connect(self.reset_trackmap)
@@ -149,6 +154,11 @@ class ResetDataMenu(QMenu):
         """Reset fuel delta data"""
         self.__confirmation(
             "fuel delta", "fuel", PATH_FUEL, api.read.check.combo_id())
+
+    def reset_sectorbest(self):
+        """Reset sector best data"""
+        self.__confirmation(
+            "sector best", "sector", PATH_SECTORBEST, api.read.check.combo_id())
 
     def reset_trackmap(self):
         """Reset trackmap data"""

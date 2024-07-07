@@ -47,6 +47,7 @@ if PLATFORM == "Windows":
     PATH_DELTABEST = "deltabest/"
     PATH_ENERGY = PATH_DELTABEST
     PATH_FUEL = PATH_DELTABEST
+    PATH_SECTORBEST = PATH_DELTABEST
     PATH_TRACKMAP = "trackmap/"
     PATH_BRANDLOGO = "brandlogo/"
     is_folder_exist(PATH_SETTINGS)
@@ -60,5 +61,6 @@ else:
     PATH_DELTABEST = BD.save_data_path(APP_NAME, "deltabest") + "/"
     PATH_ENERGY = PATH_DELTABEST
     PATH_FUEL = PATH_DELTABEST
+    PATH_SECTORBEST = PATH_DELTABEST
     PATH_TRACKMAP = BD.save_data_path(APP_NAME, "trackmap") + "/"
     PATH_BRANDLOGO = BD.save_data_path(APP_NAME, "brandlogo") + "/"

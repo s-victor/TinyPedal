@@ -10,6 +10,18 @@ WIP
   - Updated session info accessing paths that work in
     both single-player and multi-player sessions.
 
+* Sectors Module
+  - Now records both "session best" and "all time best" sectors timing data
+    and saved as ".sector" file under "deltabest" folder.
+  - Add "enable_all_time_best_sectors" option,
+    which calculates sectors timing based on all time best sectors
+    and affects "Sectors Widget" display.
+    This option is enabled by default.
+    Set "false" to calculate sectors timing from current session only.
+    Note, both session best and all time best sectors data
+    are saved no matter the setting.
+  - Add reset "Sector best" option to "Reset data" menu.
+
 * Pedal Widget
   - Add "show_readings" option, which shows pedal input
     and force feedback readings.
@@ -109,7 +121,7 @@ WIP
   - Show "fuel ratio" between estimated fuel and energy consumption,
     which can help balance fuel and energy usage,
     as well as providing refueling reference for adjusting
-    pitstop `Fuel ratio` during race.
+    pitstop "Fuel ratio" during race.
   - Virtual Energy usage readings are displayed in percentage,
     which range from 0 to 100.
 
