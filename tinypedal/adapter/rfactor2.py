@@ -33,7 +33,7 @@ cs2py = val.cbytes2str
 # 0 = TESTDAY, 1 = PRACTICE, 2 = QUALIFY, 3 = WARMUP, 4 = RACE
 RF2_SESSION_TYPE = (0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4, 4, 4, 0, 0, 0, 0)
 # Sector index 0 = S3, index 1 = S1, index 2 = S2
-RF2_SECTORS = (2, 0, 1)
+RF2_SECTORS = (2, 0, 1, 0, 0, 0, 0)
 
 
 class Check(DataAdapter):
@@ -236,7 +236,7 @@ class Lap(DataAdapter):
 
     def sector_index(self, index: int | None = None) -> int:
         """Sector index - convert to 0,1,2 order"""
-        return RF2_SECTORS[min(max(chknm(self.info.rf2ScorVeh(index).mSector), 0), 2)]
+        return RF2_SECTORS[chknm(self.info.rf2ScorVeh(index).mSector)]
 
     def behind_leader(self, index: int | None = None) -> int:
         """Laps behind leader"""

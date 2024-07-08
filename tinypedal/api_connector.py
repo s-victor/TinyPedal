@@ -58,6 +58,7 @@ class Connector(ABC):
     def stop(self):
         """Stop API"""
 
+    @abstractmethod
     def dataset(self):
         """Dateset"""
 
