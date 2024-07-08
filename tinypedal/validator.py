@@ -24,9 +24,11 @@ from __future__ import annotations
 import logging
 import os
 import re
-import math
 import time
 from functools import wraps
+from math import isfinite
+
+TYPE_NUMBER = float, int
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +41,7 @@ def infnan2zero(value: any) -> (float | int):
     due to events such as game crash or freeze,
     use this to correct output value.
     """
-    if isinstance(value, (float, int)) and math.isfinite(value):
+    if isinstance(value, TYPE_NUMBER) and isfinite(value):
         return value
     return 0
 

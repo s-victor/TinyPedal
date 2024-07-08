@@ -80,5 +80,7 @@ class Realtime(DataModule):
 
 def telemetry_energy():
     """Telemetry energy, output in percentage"""
-    amount_curr = minfo.restapi.currentVirtualEnergy / max(minfo.restapi.maxVirtualEnergy, 1) * 100
-    return 100, amount_curr
+    max_energy = minfo.restapi.maxVirtualEnergy
+    if max_energy:
+        return 100, minfo.restapi.currentVirtualEnergy / max_energy * 100
+    return 100, 0

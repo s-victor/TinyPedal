@@ -59,7 +59,7 @@ class Realtime(DataModule):
                     combo_id = api.read.check.combo_id()  # current car & track combo
                     session_id = api.read.check.session_id()  # session identity
                     (best_s_tb, best_s_pb, all_best_s_tb, all_best_s_pb
-                     ) = load_sector_alltime(self.filepath, combo_id, session_id)
+                     ) = load_sectors(self.filepath, combo_id, session_id)
 
                     if self.mcfg["enable_all_time_best_sectors"]:
                         gen_calc_sectors_session = calc_sectors(None, best_s_tb, best_s_pb)
@@ -83,7 +83,7 @@ class Realtime(DataModule):
                     best_s_tb, best_s_pb, new_best_session = gen_calc_sectors_session.send(tele_sectors)
                     all_best_s_tb, all_best_s_pb, new_best_all = gen_calc_sectors_alltime.send(tele_sectors)
                     if new_best_all or new_best_session:
-                        save_sector_alltime((
+                        save_sectors((
                             session_id,
                             list(map(round6, best_s_tb)),
                             list(map(round6, best_s_pb)),
@@ -193,7 +193,7 @@ def calc_sectors(output, best_s_tb, best_s_pb):
 
             # Output sectors data
             if output:
-                output.sectorIndex = min(max(last_sector_idx, 0), 2)
+                output.sectorIndex = sector_idx
                 output.deltaSectorBestPB = delta_s_pb
                 output.deltaSectorBestTB = delta_s_tb
                 output.sectorBestTB = best_s_tb
@@ -202,12 +202,11 @@ def calc_sectors(output, best_s_tb, best_s_pb):
                 output.noDeltaSector = no_delta_s
 
 
-def load_sector_alltime(filepath:str, combo: str, session_id: tuple):
-    """Load sector all time best data"""
+def load_sectors(filepath:str, combo: str, session_id: tuple):
+    """Load sectors data"""
     temp_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]
     try:
-        with open(f"{filepath}{combo}.sector",
-                    newline="", encoding="utf-8") as csvfile:
+        with open(f"{filepath}{combo}.sector", newline="", encoding="utf-8") as csvfile:
             temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
             # Check if same session
             if (temp_list[0][0] == session_id[0] and  # session_stamp
@@ -231,10 +230,17 @@ def load_sector_alltime(filepath:str, combo: str, session_id: tuple):
     return best_s_tb, best_s_pb, all_best_s_tb, all_best_s_pb
 
 
-def save_sector_alltime(dataset: tuple, filepath: str, combo: str):
-    """Save sector all time best"""
+def save_sectors(dataset: tuple, filepath: str, combo: str):
+    """Save sectors best
+
+    sector(CSV) file structure:
+        Line 0: session stamp, session elapsed time, session total laps
+        Line 1: session theoretical best sector time
+        Line 2: session personal best sector time
+        Line 3: all time theoretical best sector time
+        Line 4: all time personal best sector time
+    """
     if len(dataset) == 5:
-        with open(f"{filepath}{combo}.sector",
-            "w", newline="", encoding="utf-8") as csvfile:
+        with open(f"{filepath}{combo}.sector", "w", newline="", encoding="utf-8") as csvfile:
             sectorwrite = csv.writer(csvfile)
             sectorwrite.writerows(dataset)

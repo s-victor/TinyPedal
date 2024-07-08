@@ -272,8 +272,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
 def save_delta(dataset: list, filepath: str, combo: str, extension: str):
     """Save consumption data"""
     if len(dataset) >= 10:
-        with open(f"{filepath}{combo}.{extension}",
-                    "w", newline="", encoding="utf-8") as csvfile:
+        with open(f"{filepath}{combo}.{extension}", "w", newline="", encoding="utf-8") as csvfile:
             deltawrite = csv.writer(csvfile)
             deltawrite.writerows(dataset)
 
@@ -281,8 +280,7 @@ def save_delta(dataset: list, filepath: str, combo: str, extension: str):
 def load_delta(filepath: str, combo: str, extension: str):
     """Load consumption data"""
     try:
-        with open(f"{filepath}{combo}.{extension}",
-                    newline="", encoding="utf-8") as csvfile:
+        with open(f"{filepath}{combo}.{extension}", newline="", encoding="utf-8") as csvfile:
             temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
             temp_list_size = len(temp_list)
             # Validate data

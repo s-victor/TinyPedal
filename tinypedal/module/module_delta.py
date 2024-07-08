@@ -221,8 +221,7 @@ class Realtime(DataModule):
 def load_deltabest(filepath:str, combo: str):
     """Load delta best & best laptime"""
     try:
-        with open(f"{filepath}{combo}.csv",
-                    newline="", encoding="utf-8") as csvfile:
+        with open(f"{filepath}{combo}.csv", newline="", encoding="utf-8") as csvfile:
             temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
             temp_list_size = len(temp_list)
             # Validate data
@@ -241,7 +240,6 @@ def load_deltabest(filepath:str, combo: str):
 def save_deltabest(dataset: list, filepath: str, combo: str):
     """Save delta best"""
     if len(dataset) >= 10:
-        with open(f"{filepath}{combo}.csv",
-                "w", newline="", encoding="utf-8") as csvfile:
+        with open(f"{filepath}{combo}.csv", "w", newline="", encoding="utf-8") as csvfile:
             deltawrite = csv.writer(csvfile)
             deltawrite.writerows(dataset)

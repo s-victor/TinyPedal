@@ -219,8 +219,7 @@ class Realtime(DataModule):
         # Calculating pit time while in pit
         if in_pit:
             if pit_timer[1] >= 0:
-                pit_timer[2] = min(
-                    max(lap_etime - pit_timer[1], 0), 999.9)
+                pit_timer[2] = min(max(lap_etime - pit_timer[1], 0), 999.9)
         # Reset pit time if made a valid lap time after pitting
         else:
             if pit_timer[2] and laptime_last > 0:

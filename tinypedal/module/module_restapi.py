@@ -108,10 +108,10 @@ class Realtime(DataModule):
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
-                    self.reset_to_default()
+                    reset_to_default()
 
         # Reset to default on close
-        self.reset_to_default()
+        reset_to_default()
 
     def __remove_unavailable_task(self, active_task: dict) -> None:
         """Remove unavailable task"""
@@ -140,7 +140,7 @@ class Realtime(DataModule):
         return sim_name, url_rest, time_out, retry, retry_delay
 
     async def __task_once(self, active_task: dict, url: str,
-        time_out: int, retry: int, retry_delay: float) -> None:
+        time_out: int, retry: int, retry_delay: float) -> any:
         """Update task once"""
         if not url:
             return None
@@ -148,7 +148,7 @@ class Realtime(DataModule):
                  for resource_name in active_task)
         return await asyncio.gather(*tasks)
 
-    async def __task_repeat(self, active_task: dict, url: str, time_out: int) -> None:
+    async def __task_repeat(self, active_task: dict, url: str, time_out: int) -> any:
         """Update task repeatedly"""
         if not url:
             return None
@@ -187,13 +187,14 @@ class Realtime(DataModule):
             logger.info("Rest API: %s data updated", resource_name.upper())
             break
 
-    def reset_to_default(self):
-        """Reset data to default"""
-        minfo.restapi.timeScale = 1
-        minfo.restapi.privateQualifying = 0
-        minfo.restapi.steeringWheelRange = 0
-        minfo.restapi.currentVirtualEnergy = 0
-        minfo.restapi.maxVirtualEnergy = 0
+
+def reset_to_default():
+    """Reset data to default"""
+    minfo.restapi.timeScale = 1
+    minfo.restapi.privateQualifying = 0
+    minfo.restapi.steeringWheelRange = 0
+    minfo.restapi.currentVirtualEnergy = 0
+    minfo.restapi.maxVirtualEnergy = 0
 
 
 def get_resource(url: str, time_out: int) -> (dict | str):
