@@ -39,19 +39,19 @@ MODULE_NAME = "module_restapi"
 logger = logging.getLogger(__name__)
 
 # Define output set
-# 0 - minfo.restapi, 1 - default value, 2 - key, 3 - sub key, 4 - function
+# 0 - minfo, 1 - output, 2 - default value, 3 - key, 4 - sub key, 5 - function
 SET_TIMESCALE = (
-    ("timeScale", 1, "currentValue"),
+    (minfo.restapi, "timeScale", 1, "currentValue"),
 )
 SET_PRIVATEQUALIFY = (
-    ("privateQualifying", 0, "currentValue"),
+    (minfo.restapi, "privateQualifying", 0, "currentValue"),
 )
 SET_CHASSIS = (
-    ("steeringWheelRange", 0.0, "VM_STEER_LOCK", "stringValue", fmt.steerlock_to_number),
+    (minfo.restapi, "steeringWheelRange", 0.0, "VM_STEER_LOCK", "stringValue", fmt.steerlock_to_number),
 )
 SET_CONSUMPTION = (
-    ("currentVirtualEnergy", 0.0, "fuelInfo", "currentVirtualEnergy"),
-    ("maxVirtualEnergy", 0.0, "fuelInfo", "maxVirtualEnergy"),
+    (minfo.restapi, "currentVirtualEnergy", 0.0, "fuelInfo", "currentVirtualEnergy"),
+    (minfo.restapi, "maxVirtualEnergy", 0.0, "fuelInfo", "maxVirtualEnergy"),
 )
 
 # Define task set
@@ -108,10 +108,10 @@ class Realtime(DataModule):
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
-                    reset_to_default()
+                    reset_to_default((sorted_task_once, sorted_task_repeat))
 
         # Reset to default on close
-        reset_to_default()
+        reset_to_default((sorted_task_once, sorted_task_repeat))
 
     def __remove_unavailable_task(self, active_task: dict) -> None:
         """Remove unavailable task"""
@@ -188,13 +188,12 @@ class Realtime(DataModule):
             break
 
 
-def reset_to_default():
-    """Reset data to default"""
-    minfo.restapi.timeScale = 1
-    minfo.restapi.privateQualifying = 0
-    minfo.restapi.steeringWheelRange = 0
-    minfo.restapi.currentVirtualEnergy = 0
-    minfo.restapi.maxVirtualEnergy = 0
+def reset_to_default(task_dict_list: tuple):
+    """Reset active task data to default"""
+    for active_task in task_dict_list:
+        for output_set in active_task.values():
+            for output in output_set:
+                setattr(output[0], output[1], output[2])
 
 
 def get_resource(url: str, time_out: int) -> (dict | str):
@@ -211,7 +210,7 @@ def get_resource(url: str, time_out: int) -> (dict | str):
 
 
 def get_value(
-    data: dict, output: str, default: any,
+    data: dict, target: object, output: str, default: any,
     key: str | None = None, sub_key: str | None = None,
     mod_func: object | None = None) -> bool:
     """Get value from resource dictionary, fallback to default value if invalid"""
@@ -221,13 +220,13 @@ def get_value(
         value = value.get(sub_key, None)
 
     if value is None:
-        setattr(minfo.restapi, output, default)
+        setattr(target, output, default)
         return False
 
     if mod_func:
-        setattr(minfo.restapi, output, val.value_type(mod_func(value), default))
+        setattr(target, output, val.value_type(mod_func(value), default))
     else:
-        setattr(minfo.restapi, output, val.value_type(value, default))
+        setattr(target, output, val.value_type(value, default))
     return True
 
 
