@@ -530,7 +530,7 @@ Set RF2 or LMU Rest API host address. Default is `localhost`.
 Set port for host address. The port value for RF2 is `5397`, and `6397` for LMU.
 
     connection_timeout
-Set connection timeout duration in seconds. Value range in `0.1` to `10`. Default is `1` second.
+Set connection timeout duration in seconds. Value range in `0.5` to `10`. Default is `1` second.
 
     connection_retry
 Set number of attempts to retry connection. Value range in `0` to `10`. Default is `3` retries.
@@ -2015,6 +2015,22 @@ Show rain percentage.
 
     show_wetness
 Show surface condition, minimum, maximum, and average wetness.
+
+
+## Weather forecast
+**This widget displays weather forecast info.**
+
+    show_estimated_time
+Show estimated time reading for upcoming weather. Note, estimated time reading only works in time-based race. Other race type such as lap-based race shows `n/a` instead.
+
+    show_ambient_temperature
+Show estimated ambient temperature reading for upcoming weather.
+
+    show_rain_chance_bar
+Show visualized rain chance bar reading for upcoming weather.
+
+    show_unavailable_data
+Show columns with unavailable weather data. Set `False` to auto hide columns with unavailable data. Note, auto hide only works for time-based race.
 
 
 ## Wheel alignment

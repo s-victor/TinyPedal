@@ -40,6 +40,7 @@ IMAGE_FILES = [
     "images/CC-BY-SA-4.0.txt",
     "images/icon_compass.png",
     "images/icon_instrument.png",
+    "images/icon_weather.png",
     "images/icon.png",
 ]
 

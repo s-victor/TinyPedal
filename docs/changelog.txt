@@ -1,14 +1,19 @@
 WIP
 -----------------------------
+* General
+  - Added new weather icon set in "images" folder.
+
 * Fuel Calculator
   - Add Battery charge drain & regen (%) per lap to history log.
   - History table now supports multi-selection that adds data
     from any columns at once.
 
 * RestAPI Module
+  - Read "weather forecast" data from RF2 and LMU Rest API.
   - Improved and optimized accessing methods.
   - Updated session info accessing paths that work in
     both single-player and multi-player sessions.
+  - Minimum "connection_timeout" value changed to "0.5".
 
 * Sectors Module
   - Now records both "session best" and "all time best" sectors timing data
@@ -35,6 +40,24 @@ WIP
     reading between filtered & raw input is displayed.
     Text position can be adjusted by "readings_offset" option,
     default value is 0.5, which sets position in the middle.
+
+* [New]Weather forecast Widget
+  - Show weather forecast info from RF2 or LMU, which includes:
+    * Show weather icons corresponds to 11 in-game "sky types".
+    * Show estimated time reading, ambient temperature reading,
+      and visualized rain chance bar for upcoming weather.
+    Note:
+    Weather forecast currently only support in-game weather.
+    The first column (with "now" label) always shows live weather condition & temperature.
+    The first column always shows live rain severity instead of rain chance.
+    Estimated time reading only works in time-based race.
+  - Each forecast info (except weather icon) can be individually toggled on or off.
+  - Auto hide unavailable weather data column.
+    Note, auto hide only works for time-based race.
+
+* Misc
+  - Updated User Guide info for Fuel Calculator, RestAPI Module, Sectors Module,
+    Pedal Widget, Weather forecast Widget.
 
 2.14.1 (2024-06-24)
 -----------------------------

@@ -144,6 +144,9 @@ class RestAPIInfo:
     steeringWheelRange: float = 0
     currentVirtualEnergy: float = 0
     maxVirtualEnergy: float = 0
+    forecastPractice: list | None = None
+    forecastQualify: list | None = None
+    forecastRace: list | None = None
 
 
 @dataclass

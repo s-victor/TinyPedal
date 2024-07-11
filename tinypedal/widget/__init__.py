@@ -71,5 +71,6 @@ from . import (
     tyre_wear,
     virtual_energy,
     weather,
+    weather_forecast,
     wheel_alignment,
 )

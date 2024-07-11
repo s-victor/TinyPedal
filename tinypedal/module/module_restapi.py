@@ -33,6 +33,7 @@ from ..module_info import minfo
 from ..api_control import api
 from .. import formatter as fmt
 from .. import validator as val
+from .. import weather as wthr
 
 MODULE_NAME = "module_restapi"
 
@@ -53,12 +54,17 @@ SET_CONSUMPTION = (
     (minfo.restapi, "currentVirtualEnergy", 0.0, "fuelInfo", "currentVirtualEnergy"),
     (minfo.restapi, "maxVirtualEnergy", 0.0, "fuelInfo", "maxVirtualEnergy"),
 )
-
+SET_WEATHERFORECAST = (
+    (minfo.restapi, "forecastPractice", wthr.DEFAULT, "PRACTICE", None, wthr.forecast_rf2),
+    (minfo.restapi, "forecastQualify", wthr.DEFAULT, "QUALIFY", None, wthr.forecast_rf2),
+    (minfo.restapi, "forecastRace", wthr.DEFAULT, "RACE", None, wthr.forecast_rf2),
+)
 # Define task set
 # 0 - regex pattern (sim name), 1 - url path, 2 - output set
 TASK_ONCE = (
     ("LMU|RF2", "sessions/setting/SESSSET_race_timescale", SET_TIMESCALE),
     ("LMU|RF2", "sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY),
+    ("LMU|RF2", "sessions/weather", SET_WEATHERFORECAST),
     ("LMU", "garage/chassis", SET_CHASSIS),
 )
 TASK_REPEAT = (
@@ -77,6 +83,8 @@ class Realtime(DataModule):
         """Update module data"""
         reset = False
         update_interval = self.active_interval
+        sorted_task_once = {}
+        sorted_task_repeat = {}
 
         while not self.event.wait(update_interval):
             if api.state:
@@ -123,7 +131,7 @@ class Realtime(DataModule):
     def __connection_setup(self) -> tuple:
         """Connection setup"""
         url_host = self.mcfg["url_host"]
-        time_out = min(max(self.mcfg["connection_timeout"], 0.1), 10)
+        time_out = min(max(self.mcfg["connection_timeout"], 0.5), 10)
         retry = min(max(self.mcfg["connection_retry"], 0), 10)
         retry_delay = min(max(self.mcfg["connection_retry_delay"], 0), 60)
         sim_name = api.read.check.sim_name()
@@ -214,7 +222,10 @@ def get_value(
     key: str | None = None, sub_key: str | None = None,
     mod_func: object | None = None) -> bool:
     """Get value from resource dictionary, fallback to default value if invalid"""
-    value = data.get(key, None)
+    if key is None:  # read entire json
+        value = data
+    else:  # read key only
+        value = data.get(key, None)
 
     if sub_key and isinstance(value, dict):
         value = value.get(sub_key, None)
