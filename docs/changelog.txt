@@ -22,6 +22,12 @@ WIP
     are saved no matter the setting.
   - Add reset "Sector best" option to "Reset data" menu.
 
+* Gear Widget
+  - Add "rpm_bar_bkg_color" option, which sets RPM bar background color.
+    Default color is full transparent.
+  - Add "battery_bar_bkg_color" option, which sets RPM bar background color.
+    Default color is semi-transparent.
+
 * Pedal Widget
   - Add "show_readings" option, which shows pedal input
     and force feedback readings.

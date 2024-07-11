@@ -210,7 +210,7 @@ class Draw(Overlay):
         # Energy level bar
         if self.wcfg["show_energy_level_bar"]:
             self.energy_level_width = (font_m.width * self.bar_width + bar_padx) * 5
-            self.energy_level_height = self.wcfg["energy_level_bar_height"]
+            self.energy_level_height = max(self.wcfg["energy_level_bar_height"], 1)
             self.rect_energy_left = QRectF(0, 0, 0, self.energy_level_height)
             self.rect_energy_start = QRectF(
                 0, 0,

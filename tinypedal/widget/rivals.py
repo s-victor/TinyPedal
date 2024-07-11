@@ -476,7 +476,8 @@ class Draw(Overlay):
             self.toggle_visibility(text, getattr(self, f"row_{suffix}"))
 
     # Additional methods
-    def toggle_visibility(self, state, row_bar):
+    @staticmethod
+    def toggle_visibility(state, row_bar):
         """Hide row bar if empty data"""
         if state:
             if row_bar.isHidden():

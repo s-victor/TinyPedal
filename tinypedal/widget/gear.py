@@ -87,8 +87,8 @@ class Draw(Overlay):
                 self.gauge_width = self.gear_width
             self.gauge_height = self.gear_height
 
-        self.rpmbar_height = self.wcfg["rpm_bar_height"]
-        self.battbar_height = self.wcfg["battery_bar_height"]
+        self.rpmbar_height = max(self.wcfg["rpm_bar_height"], 1)
+        self.battbar_height = max(self.wcfg["battery_bar_height"], 1)
 
         self.rect_text_gear = QRectF(0, font_offset, self.gear_width, self.gear_height)
         self.rect_text_limiter = QRectF(0, font_offset, self.limiter_width, self.gauge_height)
@@ -138,12 +138,14 @@ class Draw(Overlay):
         if self.wcfg["show_rpm_bar"]:
             self.bar_rpmbar = QLabel()
             self.bar_rpmbar.setFixedSize(self.gauge_width, self.rpmbar_height)
+            self.bar_rpmbar.setStyleSheet(f"background: {self.wcfg['rpm_bar_bkg_color']};")
             self.pixmap_rpmbar = QPixmap(self.gauge_width, self.rpmbar_height)
             self.draw_rpmbar(self.bar_rpmbar, self.pixmap_rpmbar, 0)
 
         if self.wcfg["show_battery_bar"]:
             self.bar_battbar = QLabel()
             self.bar_battbar.setFixedSize(self.gauge_width, self.battbar_height)
+            self.bar_battbar.setStyleSheet(f"background: {self.wcfg['battery_bar_bkg_color']};")
             self.pixmap_battbar = QPixmap(self.gauge_width, self.battbar_height)
             self.draw_battbar(self.bar_battbar, self.pixmap_battbar, 0, 0)
 

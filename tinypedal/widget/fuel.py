@@ -210,7 +210,7 @@ class Draw(Overlay):
         # Fuel level bar
         if self.wcfg["show_fuel_level_bar"]:
             self.fuel_level_width = (font_m.width * self.bar_width + bar_padx) * 5
-            self.fuel_level_height = self.wcfg["fuel_level_bar_height"]
+            self.fuel_level_height = max(self.wcfg["fuel_level_bar_height"], 1)
             self.rect_fuel_left = QRectF(0, 0, 0, self.fuel_level_height)
             self.rect_fuel_start = QRectF(
                 0, 0,
