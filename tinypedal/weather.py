@@ -26,18 +26,18 @@ from functools import lru_cache
 MAX_MINUTES = 9999
 MIN_TEMPERATURE = -273
 DEFAULT = [(MAX_MINUTES, -1, MIN_TEMPERATURE, -1)]
+WEATHER_NODES = ("START", "NODE_25", "NODE_50", "NODE_75", "FINISH")
 
 
 def forecast_rf2(data: dict) -> list[tuple]:
     """Get value from weather forecast dictionary, output 5 api data + 5 padding data"""
-    weather_nodes = ("START", "NODE_25", "NODE_50", "NODE_75", "FINISH")
     try:
         output = [
             (round(index * 0.2, 1),                                   # 0 - fraction start time
             data[weather]["WNV_SKY"]["currentValue"],                 # 1 - sky type index
             round(data[weather]["WNV_TEMPERATURE"]["currentValue"]),  # 2 - temperature
             round(data[weather]["WNV_RAIN_CHANCE"]["currentValue"]),  # 3 - rain chance
-            ) for index, weather in enumerate(weather_nodes)]
+            ) for index, weather in enumerate(WEATHER_NODES)]
         output.extend(DEFAULT * 5)
     except (KeyError, TypeError):
         output = DEFAULT * 10
@@ -65,6 +65,8 @@ def sky_type_correction(sky_type, raininess):
         10 Overcast & Storm
     """
     if raininess <= 0:
+        if sky_type > 4:
+            return 4
         return sky_type
     if 0 < raininess <= 10:
         return 5

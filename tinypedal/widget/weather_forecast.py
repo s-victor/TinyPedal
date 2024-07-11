@@ -48,15 +48,14 @@ class Draw(Overlay):
         text_def = "n/a"
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        bar_width = font_m.width * 4 + bar_padx
         self.icon_size = int(max(self.wcfg["icon_size"], 16) * 0.5) * 2
+        bar_width = max(font_m.width * 4 + bar_padx, self.icon_size)
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"min-width: {bar_width}px;"
         )
 
         # Create layout
@@ -84,6 +83,7 @@ class Draw(Overlay):
             bar_style_time = (
                 f"color: {self.wcfg['font_color_estimated_time']};"
                 f"background: {self.wcfg['bkg_color_estimated_time']};"
+                f"min-width: {bar_width}px;"
             )
             self.bar_time_0 = QLabel("now")
             self.bar_time_0.setAlignment(Qt.AlignCenter)
@@ -115,6 +115,7 @@ class Draw(Overlay):
             bar_style_temp = (
                 f"color: {self.wcfg['font_color_ambient_temperature']};"
                 f"background: {self.wcfg['bkg_color_ambient_temperature']};"
+                f"min-width: {bar_width}px;"
             )
             self.bar_temp_0 = QLabel(text_def)
             self.bar_temp_0.setAlignment(Qt.AlignCenter)
@@ -143,8 +144,11 @@ class Draw(Overlay):
 
         # Rain chance
         if self.wcfg["show_rain_chance_bar"]:
-            bar_style_rain = f"background: {self.wcfg['rain_chance_bar_bkg_color']};"
-            self.bar_rain_width = max(bar_width, self.icon_size)
+            bar_style_rain = (
+                f"background: {self.wcfg['rain_chance_bar_bkg_color']};"
+                f"min-width: {bar_width}px;"
+            )
+            self.bar_rain_width = bar_width
             self.bar_rain_height = max(self.wcfg["rain_chance_bar_height"], 1)
             self.pixmap_rainchance = QPixmap(self.bar_rain_width, self.bar_rain_height)
 
@@ -174,7 +178,10 @@ class Draw(Overlay):
             layout_4.addWidget(self.bar_rain_4, 3, 0)
 
         # Forecast icon
-        bar_style_icon = f"background: {self.wcfg['bkg_color']};"
+        bar_style_icon = (
+            f"background: {self.wcfg['bkg_color']};"
+            f"min-width: {bar_width}px;"
+        )
         self.bar_icon_0 = QLabel()
         self.bar_icon_0.setAlignment(Qt.AlignCenter)
         self.bar_icon_0.setStyleSheet(bar_style_icon)
@@ -295,7 +302,7 @@ class Draw(Overlay):
     def update_estimated_time(self, curr, last, index):
         """Estimated time"""
         if curr != last:
-            if curr >= wthr.MAX_MINUTES:
+            if curr >= wthr.MAX_MINUTES or curr < 0:
                 time_text = "n/a"
             elif curr >= 60:
                 time_text = f"{curr / 60:.1f}h"

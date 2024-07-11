@@ -1,7 +1,7 @@
-WIP
+2.15.0 (2024-07-11)
 -----------------------------
 * General
-  - Added new weather icon set in "images" folder.
+  - Added new weather icon set (by S.Victor) in "images" folder.
 
 * Fuel Calculator
   - Add Battery charge drain & regen (%) per lap to history log.
