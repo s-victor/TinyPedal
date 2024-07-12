@@ -385,6 +385,10 @@ class Draw(Overlay):
                 self.show_radar = True
             self.autohide_timer_start = lap_etime
 
+        # Timer start should be smaller than elapsed time, reset if not
+        if self.autohide_timer_start > lap_etime:
+            self.autohide_timer_start = 1
+
         if self.autohide_timer_start:
             autohide_timer = lap_etime - self.autohide_timer_start
             if autohide_timer > self.wcfg["auto_hide_time_threshold"]:
