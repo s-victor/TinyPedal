@@ -189,9 +189,12 @@ class AppWindow(QMainWindow):
     def save_window_position(self):
         """Save window position"""
         if cfg.application["remember_position"]:
-            cfg.application["position_x"] = self.x()
-            cfg.application["position_y"] = self.y()
-            cfg.save(0)
+            last_pos = cfg.application["position_x"], cfg.application["position_y"]
+            new_pos = self.x(), self.y()
+            if last_pos != new_pos:
+                cfg.application["position_x"] = self.x()
+                cfg.application["position_y"] = self.y()
+                cfg.save(0)
 
     def set_status_text(self):
         """Set status text"""

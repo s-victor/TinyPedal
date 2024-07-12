@@ -81,7 +81,6 @@ class Overlay(QWidget):
         self.__set_window_flags()       # 2
         self.show()                     # 3 show before starting update
         self._update_timer.start()      # 4 start update
-        #octrl.overlay_lock.set_state()  # load lock state in __set_window_flags instead
 
     def __set_window_attributes(self):
         """Set window attributes"""
@@ -97,14 +96,13 @@ class Overlay(QWidget):
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
         if self.cfg.compatibility["enable_bypass_window_manager"]:
             self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
-        if self.cfg.overlay["fixed_position"]:  # lock overlay
+        if self.cfg.overlay["fixed_position"]:  # load overlay lock state
             self.setWindowFlag(Qt.WindowTransparentForInput, True)
 
     def __set_window_style(self):
         """Set window style"""
         background_color = QPalette()
-        background_color.setColor(
-            QPalette.Window, self.cfg.compatibility["global_bkg_color"])
+        background_color.setColor(QPalette.Window, self.cfg.compatibility["global_bkg_color"])
         self.setPalette(background_color)
 
     def mouseMoveEvent(self, event):
@@ -132,12 +130,7 @@ class Overlay(QWidget):
     @Slot(bool)
     def __toggle_lock(self, locked: bool):
         """Toggle widget lock state"""
-        if locked:
-            self.setWindowFlag(Qt.WindowTransparentForInput, True)
-        else:
-            self.setWindowFlag(Qt.WindowTransparentForInput, False)
-        #if not self.cfg.overlay["auto_hide"]:
-        #    self.show()
+        self.setWindowFlag(Qt.WindowTransparentForInput, locked)
 
     @Slot(bool)
     def __toggle_hide(self, hidden: bool):
