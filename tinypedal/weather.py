@@ -49,7 +49,7 @@ def sky_type_correction(sky_type, raininess):
     """Correct current sky type index based on current raininess
 
     Rain percent:
-        1-10 drizzle, 11-20 light rain, 21-40 rain, 41-60 heavy rain, 60-100 storm
+        1-10 drizzle, 11-20 light rain, 21-40 rain, 41-60 heavy rain, 61-100 storm
 
     Sky type:
         0 Clear

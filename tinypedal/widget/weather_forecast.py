@@ -213,11 +213,20 @@ class Draw(Overlay):
         layout_4.addWidget(self.bar_icon_4, 1, 0)
 
         # Set layout
-        layout.addLayout(layout_0, 0, 0)
-        layout.addLayout(layout_1, 0, 1)
-        layout.addLayout(layout_2, 0, 2)
-        layout.addLayout(layout_3, 0, 3)
-        layout.addLayout(layout_4, 0, 4)
+        if self.wcfg["layout"] == 0:
+            # Left to right layout
+            layout.addLayout(layout_0, 0, 0)
+            layout.addLayout(layout_1, 0, 1)
+            layout.addLayout(layout_2, 0, 2)
+            layout.addLayout(layout_3, 0, 3)
+            layout.addLayout(layout_4, 0, 4)
+        else:
+            # Right to left layout
+            layout.addLayout(layout_0, 0, 4)
+            layout.addLayout(layout_1, 0, 3)
+            layout.addLayout(layout_2, 0, 2)
+            layout.addLayout(layout_3, 0, 1)
+            layout.addLayout(layout_4, 0, 0)
         self.setLayout(layout)
 
         # Last data
@@ -338,9 +347,8 @@ class Draw(Overlay):
             else:
                 getattr(self, f"bar_icon_{index}").setPixmap(self.pixmap_weather[-1])
 
-            if not self.wcfg["show_unavailable_data"]:
-                if index > 0:  # skip first slot
-                    self.toggle_visibility(curr, getattr(self, f"bar_icon_{index}"))
+            if not self.wcfg["show_unavailable_data"] and index > 0:  # skip first slot
+                self.toggle_visibility(curr, getattr(self, f"bar_icon_{index}"))
                 if self.wcfg["show_estimated_time"]:
                     self.toggle_visibility(curr, getattr(self, f"bar_time_{index}"))
                 if self.wcfg["show_ambient_temperature"]:
