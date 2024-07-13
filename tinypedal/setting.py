@@ -100,8 +100,6 @@ class Setting:
         """Load all setting files"""
         self.user.setting = load_setting_json_file(
             self.filename.setting, self.filepath, self.default.setting)
-        # Save setting to JSON file
-        self.save(0)
         # Assign base setting
         self.application = self.user.setting["application"]
         self.compatibility = self.user.setting["compatibility"]
@@ -117,6 +115,8 @@ class Setting:
         self.user.heatmap = load_style_json_file(
             self.filename.heatmap, self.filepath, self.default.heatmap)
         self.user.brands_logo = load_brands_logo_list()
+        # Save setting to JSON file
+        self.save(0)
         logger.info("SETTING: %s preset loaded", self.filename.last_setting)
 
     def load_preset_list(self):
@@ -168,7 +168,7 @@ class Setting:
 
     def __saving(self, filename: str, filepath: str, dict_user: dict):
         """Saving thread"""
-        attempts = 5
+        attempts = max_attempts = max(self.compatibility["maximum_saving_attempts"], 5)
 
         # Update save delay
         while self._save_delay > 0:
@@ -187,8 +187,14 @@ class Setting:
         timer_end = round((time.perf_counter() - timer_start) * 1000)
 
         self.is_saving = False
-        logger.info("SETTING: %s saved (%sms)", filename, timer_end)
-
+        if attempts > 0:
+            logger.info(
+                "SETTING: %s saved (took %sms, %s/%s attempts)",
+                filename, timer_end, max_attempts - attempts, attempts)
+        else:
+            logger.info(
+                "SETTING: saving failed (took %sms, %s/%s attempts)",
+                timer_end, max_attempts - attempts, attempts)
 
 def save_json_file(filename: str, filepath: str, dict_user: dict) -> None:
     """Save setting to json file"""
