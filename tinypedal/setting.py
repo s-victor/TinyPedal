@@ -168,7 +168,7 @@ class Setting:
 
     def __saving(self, filename: str, filepath: str, dict_user: dict):
         """Saving thread"""
-        attempts = max_attempts = max(self.compatibility["maximum_saving_attempts"], 5)
+        attempts = max_attempts = max(self.compatibility["maximum_saving_attempts"], 3)
 
         # Update save delay
         while self._save_delay > 0:
@@ -177,24 +177,30 @@ class Setting:
 
         # Start saving attempts
         timer_start = time.perf_counter()
+        backup_old_json_file(filename, filepath)
+
         while attempts > 0:
             save_json_file(filename, filepath, dict_user)
             if verify_json_file(filename, filepath, dict_user):
                 break
             attempts -= 1
-            logger.error("SETTING: saving failed, %s attempt(s) left", attempts)
+            logger.error("SETTING: failed saving, %s attempt(s) left", attempts)
             time.sleep(0.05)
         timer_end = round((time.perf_counter() - timer_start) * 1000)
 
-        self.is_saving = False
+        # Finalize
         if attempts > 0:
             logger.info(
                 "SETTING: %s saved (took %sms, %s/%s attempts)",
                 filename, timer_end, max_attempts - attempts, attempts)
         else:
+            restore_old_json_file(filename, filepath)
             logger.info(
-                "SETTING: saving failed (took %sms, %s/%s attempts)",
-                timer_end, max_attempts - attempts, attempts)
+                "SETTING: %s failed saving (took %sms, %s/%s attempts)",
+                filename, timer_end, max_attempts - attempts, attempts)
+        delete_old_json_file(filename, filepath)
+        self.is_saving = False
+
 
 def save_json_file(filename: str, filepath: str, dict_user: dict) -> None:
     """Save setting to json file"""
@@ -208,18 +214,43 @@ def verify_json_file(filename: str, filepath: str, dict_user: dict) -> bool:
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
             return json.load(jsonfile) == dict_user
     except (FileNotFoundError, ValueError):
-        logger.error("SETTING: saving verification failed")
+        logger.error("SETTING: failed saving verification")
         return False
 
 
-def backup_json_file(filename: str, filepath: str) -> None:
-    """Backup invalid json file"""
+def backup_invalid_json_file(filename: str, filepath: str) -> None:
+    """Backup invalid json file before revert to default"""
     try:
         time_stamp = time.strftime("%Y-%m-%d %H-%M-%S", time.localtime())
-        shutil.copy(f"{filepath}{filename}",
-                    f"{filepath}{filename[:-5]}-backup {time_stamp}.json")
-    except FileNotFoundError:
-        logger.error("SETTING: backup failed")
+        shutil.copyfile(f"{filepath}{filename}",
+                        f"{filepath}{filename[:-5]}-backup {time_stamp}.json")
+    except (FileNotFoundError, OSError):
+        logger.error("SETTING: failed invalid preset backup")
+
+
+def backup_old_json_file(filename: str, filepath: str) -> None:
+    """Backup old json file before saving"""
+    try:
+        shutil.copyfile(f"{filepath}{filename}",
+                        f"{filepath}{filename}.bak")
+    except (FileNotFoundError, OSError):
+        logger.error("SETTING: failed old preset backup")
+
+
+def restore_old_json_file(filename: str, filepath: str) -> None:
+    """Restore old json file if saving failed"""
+    try:
+        shutil.copyfile(f"{filepath}{filename}.bak",
+                        f"{filepath}{filename}")
+    except (FileNotFoundError, OSError):
+        logger.error("SETTING: failed old preset restoration")
+
+
+def delete_old_json_file(filename: str, filepath: str) -> None:
+    """Delete old (backup) json file"""
+    file_path = f"{filepath}{filename}.bak"
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
 
 def load_setting_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
@@ -232,7 +263,7 @@ def load_setting_json_file(filename: str, filepath: str, dict_def: dict) -> dict
         setting_user = preset_validator.validate(setting_user, dict_def)
     except (FileNotFoundError, ValueError):
         logger.error("SETTING: %s failed loading, create backup & revert to default", filename)
-        backup_json_file(filename, filepath)
+        backup_invalid_json_file(filename, filepath)
         setting_user = copy_setting(dict_def)
     return setting_user
 
