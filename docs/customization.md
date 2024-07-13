@@ -293,6 +293,9 @@ Set grid size for grid move, value in pixel. Default is `8` pixel. Minimum value
     minimum_update_interval
 Set minimum refresh rate limit for widget and module in milliseconds. This option is used for preventing extremely low refresh rate that may cause performance issues in case user incorrectly sets `update_interval` and `idle_update_interval` values. Default value is `10`, and should not be modified.
 
+    maximum_saving_attempts
+Set maximum retry attempts for preset saving. Default value is `10`. Minimum value is limited to `3` maximum attempts. Note, each attempt has a roughly 50ms delay. If all saving attempts failed, saving will be aborted, and old preset file will be restored to avoid preset file corruption.
+
 
 ## Shared memory API
 **Shared Memory API options can be accessed from `Config` menu in main window. Some options may only be relevant to certain API.**
@@ -1608,7 +1611,7 @@ Set custom time interval color of opponent ahead and behind.
 2 layouts are available: `0` = target & current sectors above deltabest sectors, `1` = deltabest sectors above target & current sectors.
 
     target_laptime
-Set target laptime for display target reference lap and sector time. Set `Theoretical` to show theoretical best sector time from session best sectors. Set `Personal` to show sector time from personal best lap time.
+Set target laptime for display target reference lap and sector time. Set `Theoretical` to show theoretical best sector time. Set `Personal` to show sector time from personal best lap time. Note, if `enable_all_time_best_sectors` option is enabled in `Sectors Module`, all time best sectors data will be displayed instead, otherwise only current session best sectors data will be displayed.
 
     freeze_duration
 Set freeze duration (seconds) for displaying previous sector time. Default is `5` seconds.
@@ -2019,6 +2022,9 @@ Show surface condition, minimum, maximum, and average wetness.
 
 ## Weather forecast
 **This widget displays weather forecast info.**
+
+    layout
+2 layouts are available: `0` = show columns from left to right, `1` = show columns from right to left.
 
     show_estimated_time
 Show estimated time reading for upcoming weather. Note, estimated time reading only works in time-based race. Other race type such as lap-based race shows `n/a` instead.

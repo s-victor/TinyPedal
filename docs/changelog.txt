@@ -1,3 +1,29 @@
+2.15.1 (2024-07-13)
+-----------------------------
+* General
+  - Reworked preset saving system to prevent preset file corruption in rare case.
+    Saving system now creates temporary backup for old preset file before saving.
+    If all saving attempts failed, saving will be aborted,
+    and old preset file will be restored to avoid preset file corruption.
+  - Add "maximum_saving_attempts" option in Compatibility dialog,
+    which sets maximum retry attempts for preset saving.
+    Default value is "10". Minimum value is limited to "3" maximum attempts.
+    Note, each attempt has a roughly 50ms delay.
+
+* Radar Widget
+  - Fixed an issue where radar would not auto hide under certain condition.
+
+* Sectors Widget
+  - Fixed incorrect PB sector time display if "target time" is set on "Personal".
+
+* Weather forecast Widget
+  - Add "layout" option, which sets columns display order.
+    "0" = show columns from left to right.
+    "1" = show columns from right to left.
+
+* Misc
+  - Updated User Guide info for Compatibility, Sectors Module, Weather forecast Widget.
+
 2.15.0 (2024-07-11)
 -----------------------------
 * General
