@@ -212,7 +212,7 @@ class Draw(Overlay):
                     self.update_time_target(self.time_target_text)
                     # Restore best sector time when cross finish line
                     if minfo.sectors.sectorIndex == 0:
-                        self.restore_best_sector(minfo.sectors.sectorBestTB)
+                        self.restore_best_sector()
             else:
                 # Update current sector time
                 self.update_time_curr(
@@ -276,8 +276,12 @@ class Draw(Overlay):
         self.bar_time_target.setText(time_text)
         self.bar_time_target.setStyleSheet(f"{color}{self.bar_width_laptime}")
 
-    def restore_best_sector(self, sector_time):
+    def restore_best_sector(self):
         """Restore best sector time"""
+        if self.wcfg["target_laptime"] == "Theoretical":
+            sector_time = minfo.sectors.sectorBestTB
+        else:
+            sector_time = minfo.sectors.sectorBestPB
         for idx in range(3):
             text_s = f"S{idx+1}"
             if val.sector_time(sector_time[idx]):
