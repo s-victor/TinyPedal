@@ -23,7 +23,7 @@ Overlay base window, events.
 import re
 from dataclasses import dataclass
 
-from PySide2.QtCore import Qt, QTimer, Slot
+from PySide2.QtCore import Qt, Slot, QBasicTimer
 from PySide2.QtGui import QPalette, QFont, QFontMetrics
 from PySide2.QtWidgets import QWidget
 
@@ -68,11 +68,10 @@ class Overlay(QWidget):
         self.__connect_signal()
 
         # Set update timer
-        self._update_timer = QTimer(self)
-        self._update_timer.setInterval(max(
+        self._update_timer = QBasicTimer()
+        self._update_interval = max(
             self.wcfg["update_interval"],
-            self.cfg.compatibility["minimum_update_interval"]))
-        self._update_timer.timeout.connect(self.update_data)
+            self.cfg.compatibility["minimum_update_interval"])
 
     def set_widget_state(self):
         """Set initial widget state in orders"""
@@ -80,7 +79,7 @@ class Overlay(QWidget):
         self.__set_window_attributes()  # 1
         self.__set_window_flags()       # 2
         self.show()                     # 3 show before starting update
-        self._update_timer.start()      # 4 start update
+        self._update_timer.start(self._update_interval, self)
 
     def __set_window_attributes(self):
         """Set window attributes"""

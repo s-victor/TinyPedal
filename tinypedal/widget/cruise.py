@@ -23,7 +23,7 @@ Cruise Widget
 import time
 from functools import partial
 
-from PySide2.QtCore import Qt, Slot
+from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import calculation as calc
@@ -133,8 +133,7 @@ class Draw(Overlay):
         # Set widget state & start update
         self.set_widget_state()
 
-    @Slot()
-    def update_data(self):
+    def timerEvent(self, event):
         """Update when vehicle on track"""
         if api.state:
 

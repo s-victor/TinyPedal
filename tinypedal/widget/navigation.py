@@ -20,7 +20,7 @@
 Navigation Widget
 """
 
-from PySide2.QtCore import Qt, Slot, QRectF, QPointF
+from PySide2.QtCore import Qt, QRectF, QPointF
 from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QRadialGradient, QPen, QBrush
 
 from .. import calculation as calc
@@ -108,8 +108,7 @@ class Draw(Overlay):
         self.update_map(0, 1)
         self.set_widget_state()
 
-    @Slot()
-    def update_data(self):
+    def timerEvent(self, event):
         """Update when vehicle on track"""
         if api.state:
 

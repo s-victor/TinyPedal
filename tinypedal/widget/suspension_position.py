@@ -20,7 +20,7 @@
 Suspension position Widget
 """
 
-from PySide2.QtCore import Qt, Slot, QRectF
+from PySide2.QtCore import Qt, QRectF
 from PySide2.QtGui import QPainter, QPen
 
 from ..api_control import api
@@ -106,8 +106,7 @@ class Draw(Overlay):
         # Set widget state & start update
         self.set_widget_state()
 
-    @Slot()
-    def update_data(self):
+    def timerEvent(self, event):
         """Update when vehicle on track"""
         if api.state:
 

@@ -20,7 +20,7 @@
 Pedal Widget
 """
 
-from PySide2.QtCore import Qt, Slot, QRectF, QSize
+from PySide2.QtCore import Qt, QRectF, QSize
 from PySide2.QtGui import QPixmap, QPainter, QPen
 from PySide2.QtWidgets import QLabel, QGridLayout
 
@@ -175,8 +175,7 @@ class Draw(Overlay):
         # Set widget state & start update
         self.set_widget_state()
 
-    @Slot()
-    def update_data(self):
+    def timerEvent(self, event):
         """Update when vehicle on track"""
         if api.state:
 

@@ -20,7 +20,7 @@
 Sectors Widget
 """
 
-from PySide2.QtCore import Qt, Slot
+from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QGridLayout, QHBoxLayout, QLabel
 
 from .. import calculation as calc
@@ -142,8 +142,7 @@ class Draw(Overlay):
         self.time_target_text = ""    # target time text
         self.update_time_target(self.time_target_text)
 
-    @Slot()
-    def update_data(self):
+    def timerEvent(self, event):
         """Update when vehicle on track"""
         if api.state and minfo.sectors.sectorPrev:
 

@@ -22,7 +22,7 @@ Stint history Widget
 
 from collections import deque
 
-from PySide2.QtCore import Qt, Slot
+from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import calculation as calc
@@ -218,8 +218,7 @@ class Draw(Overlay):
             return index
         return self.stint_count - index + 1
 
-    @Slot()
-    def update_data(self):
+    def timerEvent(self, event):
         """Update when vehicle on track"""
         if api.state:
 

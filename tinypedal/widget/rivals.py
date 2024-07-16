@@ -22,7 +22,7 @@ Rivals Widget
 
 from functools import partial
 
-from PySide2.QtCore import Qt, Slot
+from PySide2.QtCore import Qt
 from PySide2.QtGui import QPixmap
 from PySide2.QtWidgets import QGridLayout, QLabel
 
@@ -233,8 +233,7 @@ class Draw(Overlay):
             # Last data
             setattr(self, f"last_veh_{idx}", [None] * data_slots)
 
-    @Slot()
-    def update_data(self):
+    def timerEvent(self, event):
         """Update when vehicle on track"""
         if api.state and minfo.relative.classes:
 

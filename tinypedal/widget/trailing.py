@@ -21,7 +21,7 @@ Trailing Widget
 """
 
 from collections import deque
-from PySide2.QtCore import Qt, Slot, QPointF, QRect
+from PySide2.QtCore import Qt, QPointF, QRect
 from PySide2.QtGui import QPainter, QPixmap, QPen
 
 from ..api_control import api
@@ -96,8 +96,7 @@ class Draw(Overlay):
         # Set widget state & start update
         self.set_widget_state()
 
-    @Slot()
-    def update_data(self):
+    def timerEvent(self, event):
         """Update when vehicle on track"""
         if api.state:
 
