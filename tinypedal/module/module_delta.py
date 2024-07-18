@@ -56,6 +56,8 @@ class Realtime(DataModule):
         laptime_session_best = 99999
         laptime_stint_best = 99999
 
+        exp_mov_avg = partial(calc.exp_mov_avg, self.set_smoothing_factor())
+
         while not self.event.wait(update_interval):
             if api.state:
 
@@ -81,8 +83,13 @@ class Realtime(DataModule):
 
                     delta_best = 0  # delta time compare to best laptime
                     delta_last = 0
-                    session_delta_best = 0
-                    stint_delta_best = 0
+                    delta_session = 0
+                    delta_stint = 0
+
+                    delta_best_ema = 0
+                    delta_last_ema = 0
+                    delta_session_ema = 0
+                    delta_stint_ema = 0
 
                     laptime_curr = 0  # current laptime
                     laptime_last = 0  # last laptime
@@ -90,6 +97,7 @@ class Realtime(DataModule):
                     last_lap_stime = -1  # lap-start-time
                     pos_last = 0  # last checked vehicle position
                     pos_estimate = 0  # calculated position
+                    pos_synced = False  # whether estimated position synced
                     gps_last = [0,0,0]  # last global position
                     meters_driven = self.cfg.user.setting["cruise"]["meters_driven"]
 
@@ -130,7 +138,8 @@ class Realtime(DataModule):
                 if 0 <= pos_curr != pos_last:
                     if recording and pos_curr > pos_last:  # position further
                         delta_list_curr.append((round6(pos_curr), round6(laptime_curr)))
-                    pos_estimate = pos_last = pos_curr  # reset last position
+                    pos_last = pos_curr  # reset last position
+                    pos_synced = True
 
                 # Validating 1s after passing finish line
                 if validating:
@@ -160,53 +169,59 @@ class Realtime(DataModule):
                 if gps_last != gps_curr:
                     moved_distance = calc.distance(gps_last, gps_curr)
                     gps_last = gps_curr
-                    pos_estimate += moved_distance
-                    delay_update = laptime_curr > 0.3
+                    # Estimate distance
+                    if pos_synced:
+                        pos_estimate = pos_curr
+                        pos_synced = False
+                    else:
+                        pos_estimate += moved_distance
                     # Update delta
+                    delay_update = laptime_curr > 0.3
                     delta_best = calc.delta_telemetry(
                         pos_estimate,
                         laptime_curr,
                         delta_list_best,
-                        delay_update,  # 300ms delay
-                        0.02,  # add 20ms offset
+                        delay_update,
                     )
                     delta_last = calc.delta_telemetry(
                         pos_estimate,
                         laptime_curr,
                         delta_list_last,
-                        delay_update,  # 300ms delay
-                        0.02,  # add 20ms offset
+                        delay_update,
                     )
-                    session_delta_best = calc.delta_telemetry(
+                    delta_session = calc.delta_telemetry(
                         pos_estimate,
                         laptime_curr,
                         delta_list_session,
-                        delay_update,  # 300ms delay
-                        0.02,  # add 20ms offset
+                        delay_update,
                     )
-                    stint_delta_best = calc.delta_telemetry(
+                    delta_stint = calc.delta_telemetry(
                         pos_estimate,
                         laptime_curr,
                         delta_list_stint,
-                        delay_update,  # 300ms delay
-                        0.02,  # add 20ms offset
+                        delay_update,
                     )
+                    # Smooth delta
+                    delta_best_ema = exp_mov_avg(delta_best_ema, delta_best)
+                    delta_last_ema = exp_mov_avg(delta_last_ema, delta_last)
+                    delta_session_ema = exp_mov_avg(delta_session_ema, delta_session)
+                    delta_stint_ema = exp_mov_avg(delta_stint_ema, delta_stint)
                     # Update driven distance
                     if moved_distance < 1500 * self.active_interval:
                         meters_driven += moved_distance
 
                 # Output delta time data
+                minfo.delta.deltaBest = delta_best_ema
+                minfo.delta.deltaLast = delta_last_ema
+                minfo.delta.deltaSession = delta_session_ema
+                minfo.delta.deltaStint = delta_stint_ema
+                minfo.delta.isValidLap = laptime_valid > 0
                 minfo.delta.lapTimeCurrent = laptime_curr
                 minfo.delta.lapTimeLast = laptime_last
                 minfo.delta.lapTimeBest = laptime_best
-                minfo.delta.lapTimeEstimated = laptime_best + delta_best
+                minfo.delta.lapTimeEstimated = laptime_best + delta_best_ema
                 minfo.delta.lapTimeSession = laptime_session_best
                 minfo.delta.lapTimeStint = laptime_stint_best
-                minfo.delta.deltaBest = delta_best
-                minfo.delta.deltaLast = delta_last
-                minfo.delta.deltaSession = session_delta_best
-                minfo.delta.deltaStint = stint_delta_best
-                minfo.delta.isValidLap = laptime_valid > 0
                 minfo.delta.metersDriven = meters_driven
 
             else:
@@ -216,6 +231,12 @@ class Realtime(DataModule):
                     last_session_id = (combo_id, *session_id)
                     self.cfg.user.setting["cruise"]["meters_driven"] = int(meters_driven)
                     self.cfg.save()
+
+    def set_smoothing_factor(self):
+        """Set smoothing factor"""
+        samples = min(max(self.mcfg["number_of_smoothing_samples"], 1), 100)
+        factor = calc.ema_factor(samples)
+        return factor
 
 
 def load_deltabest(filepath:str, combo: str):

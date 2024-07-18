@@ -62,12 +62,12 @@ class Realtime(DataModule):
                 radius_front, radius_rear = gen_wheel_radius.send((speed, wheel_rot))
 
                 # Wheel slip ratio
-                slip_ratio = tuple(map(
-                    calc.slip_ratio,
-                    wheel_rot,
-                    (radius_front, radius_front, radius_rear, radius_rear),
-                    (speed, speed, speed, speed)
-                ))
+                slip_ratio = (
+                    calc.slip_ratio(wheel_rot[0], radius_front, speed),
+                    calc.slip_ratio(wheel_rot[1], radius_front, speed),
+                    calc.slip_ratio(wheel_rot[2], radius_rear, speed),
+                    calc.slip_ratio(wheel_rot[3], radius_rear, speed)
+                )
 
                 # Output wheels data
                 minfo.wheels.radiusFront = radius_front
@@ -120,7 +120,7 @@ class Realtime(DataModule):
                 # Front average wheel radius
                 if len(list_radius_f) >= min_samples_f:
                     radius_front = round(
-                        calc.mean(sorted(list_radius_f)[samples_slice_f[0]:samples_slice_f[1]])
+                        calc.mean(sorted(list_radius_f)[samples_slice_f])
                         , 3)
                     if min_samples_f < 160:
                         min_samples_f *= 2  # double sample counts
@@ -128,7 +128,7 @@ class Realtime(DataModule):
                 # Rear average wheel radius
                 if len(list_radius_r) >= min_samples_r:
                     radius_rear = round(
-                        calc.mean(sorted(list_radius_r)[samples_slice_r[0]:samples_slice_r[1]])
+                        calc.mean(sorted(list_radius_r)[samples_slice_r])
                         , 3)
                     if min_samples_r < 160:
                         min_samples_r *= 2
@@ -139,4 +139,4 @@ class Realtime(DataModule):
 
 def sample_slice_indices(min_samples):
     """Calculate sample slice indices from minimum samples"""
-    return int(min_samples * 0.25), int(min_samples * 0.75)
+    return slice(int(min_samples * 0.25), int(min_samples * 0.75))

@@ -459,6 +459,9 @@ Modules provide important data that updated in real-time for other widgets. Widg
     module_delta
 Enable delta module.
 
+    number_of_smoothing_samples
+Set number of samples for data smoothing calculation (exponential moving average). Value range in `1` to `100`. Higher value results more smoothness, but may lose accuracy. Default is `30` samples.
+
 
 ## Energy
 **This module provides vehicle virtual energy usage data.**

@@ -24,6 +24,14 @@ import math
 import statistics
 
 
+distance = math.dist  # coordinates distance
+mean = statistics.fmean
+vel2speed = math.hypot  # velocity to speed
+std_dev = statistics.stdev  # sample standard deviation
+rad2deg = math.degrees  # radians to degrees
+oriyaw2rad = math.atan2  # orientation yaw to radians
+
+
 # Unit conversion
 def meter2millmeter(meter):
     """Convert meter to millimeter"""
@@ -91,17 +99,6 @@ def kw2ps(kilowatt):
 
 
 # Common
-def vel2speed(vel_x, vel_y, vel_z=0):
-    """Convert velocity to Speed"""
-    # (vel_x ** 2 + vel_y ** 2 + vel_z ** 2) ** 0.5
-    return math.hypot(vel_x, vel_y, vel_z)
-
-
-def distance(value1, value2):
-    """Coordinates distance"""
-    return math.dist(value1, value2)
-
-
 def sym_range(value, rng):
     """Symmetric range"""
     return min(max(value, -rng), rng)
@@ -110,12 +107,6 @@ def sym_range(value, rng):
 def zero_one_range(value):
     """Limit value in range 0 to 1 """
     return min(max(value, 0), 1)
-
-
-def mean(data):
-    """Average value"""
-    # sum(data) / len(data)
-    return statistics.fmean(data)
 
 
 def mean_iter(avg, value, num_samples):
@@ -138,22 +129,11 @@ def max_vs_min(data):
     return max(data) - min(data)
 
 
-def std_dev(data, avg):
-    """Sample standard deviation"""
-    # math.sqrt(sum(map(lambda x:(x-avg)**2, data)) / (len(data) - k))
-    return statistics.stdev(data, avg)
-
-
 def engine_power(torque, rpm):
     """Engine power (kW)"""
     if torque > 0:
         return torque * rpm / 9549.3
     return 0
-
-
-def rad2deg(radian):
-    """Radians to degrees"""
-    return math.degrees(radian)
 
 
 def rake(height_fl, height_fr, height_rl, height_rr):
@@ -201,11 +181,6 @@ def force_ratio(value1, value2):
     if int(value2):
         return abs(100 * value1 / value2)
     return 0
-
-
-def oriyaw2rad(value1, value2):
-    """Orientation yaw to radians"""
-    return math.atan2(value1, value2)
 
 
 def rotate_pos(ori_rad, value1, value2):
@@ -272,43 +247,45 @@ def linear_interp(x, x1, y1, x2, y2):
 
 
 # Timing
-def clock_time(seconds, start=0, scale=1):
+def clock_time(seconds: float, start: int = 0, scale: int = 1) -> float:
     """Clock time (seconds) looped in full 24 hours, 0 to 86400"""
     time_curr = start + seconds * scale
     return time_curr - time_curr // 86400 * 86400
 
 
-def sec2sessiontime(seconds):
+def sec2sessiontime(seconds: float) -> str:
     """Session time (hour/min/sec/ms)"""
     return f"{seconds // 3600:01.0f}:{seconds // 60 % 60:02.0f}:{min(seconds % 60, 59):02.0f}"
 
 
-def sec2laptime(seconds):
+def sec2laptime(seconds: float) -> str:
     """Lap time (min/sec/ms)"""
     if seconds > 60:
         return f"{seconds // 60:.0f}:{seconds % 60:06.03f}"
     return f"{seconds % 60:.03f}"
 
 
-def sec2laptime_full(seconds):
+def sec2laptime_full(seconds: float) -> str:
     """Lap time (min/sec/ms) full"""
     return f"{seconds // 60:.0f}:{seconds % 60:06.03f}"
 
 
-def sec2stinttime(seconds):
+def sec2stinttime(seconds: float) -> str:
     """Lap time (min/sec/ms)"""
     return f"{seconds // 60:02.0f}:{min(seconds % 60, 59):02.0f}"
 
 
-def delta_telemetry(position, live_data, delta_list, condition=True, offset=0):
+def delta_telemetry(position: float, target: float, delta_list: list,
+    condition: bool = True) -> float:
     """Calculate delta telemetry data"""
+    if not condition:
+        return 0
     index_higher = binary_search_higher_column(
         delta_list, position, 0, len(delta_list) - 1)
-    # At least 2 data pieces & additional condition
-    if index_higher > 0 and condition:
+    if index_higher > 0:
         index_lower = index_higher - 1
         return (
-            live_data + offset - linear_interp(
+            target - linear_interp(
                 position,
                 delta_list[index_lower][0],
                 delta_list[index_lower][1],
@@ -317,6 +294,24 @@ def delta_telemetry(position, live_data, delta_list, condition=True, offset=0):
             )
         )
     return 0
+
+
+def mov_avg(sample_set: any, source: float) -> float:
+    """Calculate moving average"""
+    if not sample_set:
+        return source
+    sample_set.append(source)  # use deque
+    return mean(sample_set)
+
+
+def exp_mov_avg(factor: float, ema_last: float, source: float) -> float:
+    """Calculate exponential moving average"""
+    return ema_last + factor * (source - ema_last)
+
+
+def ema_factor(samples: int) -> float:
+    """Calculate smoothing factor for exponential moving average"""
+    return 2 / (samples + 1)
 
 
 # Search

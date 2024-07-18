@@ -124,6 +124,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
     laps_left = 0  # amount laps left at current lap distance
     pos_last = 0  # last checked vehicle position
     pos_estimate = 0  # calculated position
+    pos_synced = False  # whether estimated position synced
     gps_last = [0,0,0]  # last global position
 
     while True:
@@ -185,7 +186,8 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
         if 0 <= pos_curr != pos_last:
             if recording and pos_curr > pos_last:  # position further
                 delta_list_curr.append((round6(pos_curr), round6(used_curr)))
-            pos_estimate = pos_last = pos_curr  # reset last position
+            pos_last = pos_curr  # reset last position
+            pos_synced = True
 
         # Validating 1s after passing finish line
         if validating:
@@ -202,8 +204,13 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
 
         # Calc delta
         if gps_last != gps_curr:
-            pos_estimate += calc.distance(gps_last, gps_curr)
+            if pos_synced:
+                pos_estimate = pos_curr
+                pos_synced = False
+            else:
+                pos_estimate += calc.distance(gps_last, gps_curr)
             gps_last = gps_curr
+            # Update delta
             delta_fuel = calc.delta_telemetry(
                 pos_estimate,
                 used_curr,

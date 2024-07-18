@@ -26,6 +26,7 @@ MODULE_DEFAULT = {
         "enable": True,
         "update_interval": 10,
         "idle_update_interval": 400,
+        "number_of_smoothing_samples": 30,
     },
     "module_energy": {
         "enable": True,

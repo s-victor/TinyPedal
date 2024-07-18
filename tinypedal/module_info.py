@@ -28,17 +28,17 @@ from collections import deque
 @dataclass
 class DeltaInfo:
     """Delta module output data"""
+    deltaBest: float = 0
+    deltaLast: float = 0
+    deltaSession: float = 0
+    deltaStint: float = 0
+    isValidLap: bool = False
     lapTimeCurrent: float = 0
     lapTimeLast: float = 0
     lapTimeBest: float = 0
     lapTimeEstimated: float = 0
     lapTimeSession: float = 0
     lapTimeStint: float = 0
-    deltaBest: float = 0
-    deltaLast: float = 0
-    deltaSession: float = 0
-    deltaStint: float = 0
-    isValidLap: bool = False
     metersDriven: float = 0
 
 
