@@ -45,11 +45,12 @@ class Draw(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        text_def = "n/a"
+        self.forecast_count = min(max(self.wcfg["number_of_forecasts"], 1), 4) + 1
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
         self.icon_size = int(max(self.wcfg["icon_size"], 16) * 0.5) * 2
-        bar_width = max(font_m.width * 4 + bar_padx, self.icon_size)
+        self.bar_width = max(font_m.width * 4 + bar_padx, self.icon_size)
+        self.bar_rain_height = max(self.wcfg["rain_chance_bar_height"], 1)
 
         # Base style
         self.setStyleSheet(
@@ -61,172 +62,17 @@ class Draw(Overlay):
         # Create layout
         layout = QGridLayout()
         layout.setContentsMargins(0,0,0,0)  # remove border
-        layout_0 = QGridLayout()
-        layout_1 = QGridLayout()
-        layout_2 = QGridLayout()
-        layout_3 = QGridLayout()
-        layout_4 = QGridLayout()
-        layout_0.setSpacing(0)
-        layout_1.setSpacing(0)
-        layout_2.setSpacing(0)
-        layout_3.setSpacing(0)
-        layout_4.setSpacing(0)
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         # Config canvas
         self.pixmap_weather = self.create_weather_icon_set()
+        self.pixmap_rainchance = QPixmap(self.bar_width, self.bar_rain_height)
         self.brush = QBrush(Qt.SolidPattern)
 
-        # Estimated time
-        if self.wcfg["show_estimated_time"]:
-            bar_style_time = (
-                f"color: {self.wcfg['font_color_estimated_time']};"
-                f"background: {self.wcfg['bkg_color_estimated_time']};"
-                f"min-width: {bar_width}px;"
-            )
-            self.bar_time_0 = QLabel("now")
-            self.bar_time_0.setAlignment(Qt.AlignCenter)
-            self.bar_time_0.setStyleSheet(bar_style_time)
-            layout_0.addWidget(self.bar_time_0, 0, 0)
-
-            self.bar_time_1 = QLabel(text_def)
-            self.bar_time_1.setAlignment(Qt.AlignCenter)
-            self.bar_time_1.setStyleSheet(bar_style_time)
-            layout_1.addWidget(self.bar_time_1, 0, 0)
-
-            self.bar_time_2 = QLabel(text_def)
-            self.bar_time_2.setAlignment(Qt.AlignCenter)
-            self.bar_time_2.setStyleSheet(bar_style_time)
-            layout_2.addWidget(self.bar_time_2, 0, 0)
-
-            self.bar_time_3 = QLabel(text_def)
-            self.bar_time_3.setAlignment(Qt.AlignCenter)
-            self.bar_time_3.setStyleSheet(bar_style_time)
-            layout_3.addWidget(self.bar_time_3, 0, 0)
-
-            self.bar_time_4 = QLabel(text_def)
-            self.bar_time_4.setAlignment(Qt.AlignCenter)
-            self.bar_time_4.setStyleSheet(bar_style_time)
-            layout_4.addWidget(self.bar_time_4, 0, 0)
-
-        # Ambient temperature
-        if self.wcfg["show_ambient_temperature"]:
-            bar_style_temp = (
-                f"color: {self.wcfg['font_color_ambient_temperature']};"
-                f"background: {self.wcfg['bkg_color_ambient_temperature']};"
-                f"min-width: {bar_width}px;"
-            )
-            self.bar_temp_0 = QLabel(text_def)
-            self.bar_temp_0.setAlignment(Qt.AlignCenter)
-            self.bar_temp_0.setStyleSheet(bar_style_temp)
-            layout_0.addWidget(self.bar_temp_0, 2, 0)
-
-            self.bar_temp_1 = QLabel(text_def)
-            self.bar_temp_1.setAlignment(Qt.AlignCenter)
-            self.bar_temp_1.setStyleSheet(bar_style_temp)
-            layout_1.addWidget(self.bar_temp_1, 2, 0)
-
-            self.bar_temp_2 = QLabel(text_def)
-            self.bar_temp_2.setAlignment(Qt.AlignCenter)
-            self.bar_temp_2.setStyleSheet(bar_style_temp)
-            layout_2.addWidget(self.bar_temp_2, 2, 0)
-
-            self.bar_temp_3 = QLabel(text_def)
-            self.bar_temp_3.setAlignment(Qt.AlignCenter)
-            self.bar_temp_3.setStyleSheet(bar_style_temp)
-            layout_3.addWidget(self.bar_temp_3, 2, 0)
-
-            self.bar_temp_4 = QLabel(text_def)
-            self.bar_temp_4.setAlignment(Qt.AlignCenter)
-            self.bar_temp_4.setStyleSheet(bar_style_temp)
-            layout_4.addWidget(self.bar_temp_4, 2, 0)
-
-        # Rain chance
-        if self.wcfg["show_rain_chance_bar"]:
-            bar_style_rain = (
-                f"background: {self.wcfg['rain_chance_bar_bkg_color']};"
-                f"min-width: {bar_width}px;"
-            )
-            self.bar_rain_width = bar_width
-            self.bar_rain_height = max(self.wcfg["rain_chance_bar_height"], 1)
-            self.pixmap_rainchance = QPixmap(self.bar_rain_width, self.bar_rain_height)
-
-            self.bar_rain_0 = QLabel()
-            self.bar_rain_0.setFixedHeight(self.bar_rain_height)
-            self.bar_rain_0.setStyleSheet(bar_style_rain)
-            layout_0.addWidget(self.bar_rain_0, 3, 0)
-
-            self.bar_rain_1 = QLabel()
-            self.bar_rain_1.setFixedHeight(self.bar_rain_height)
-            self.bar_rain_1.setStyleSheet(bar_style_rain)
-            layout_1.addWidget(self.bar_rain_1, 3, 0)
-
-            self.bar_rain_2 = QLabel()
-            self.bar_rain_2.setFixedHeight(self.bar_rain_height)
-            self.bar_rain_2.setStyleSheet(bar_style_rain)
-            layout_2.addWidget(self.bar_rain_2, 3, 0)
-
-            self.bar_rain_3 = QLabel()
-            self.bar_rain_3.setFixedHeight(self.bar_rain_height)
-            self.bar_rain_3.setStyleSheet(bar_style_rain)
-            layout_3.addWidget(self.bar_rain_3, 3, 0)
-
-            self.bar_rain_4 = QLabel()
-            self.bar_rain_4.setFixedHeight(self.bar_rain_height)
-            self.bar_rain_4.setStyleSheet(bar_style_rain)
-            layout_4.addWidget(self.bar_rain_4, 3, 0)
-
-        # Forecast icon
-        bar_style_icon = (
-            f"background: {self.wcfg['bkg_color']};"
-            f"min-width: {bar_width}px;"
-        )
-        self.bar_icon_0 = QLabel()
-        self.bar_icon_0.setAlignment(Qt.AlignCenter)
-        self.bar_icon_0.setStyleSheet(bar_style_icon)
-        self.bar_icon_0.setPixmap(self.pixmap_weather[-1])
-        layout_0.addWidget(self.bar_icon_0, 1, 0)
-
-        self.bar_icon_1 = QLabel()
-        self.bar_icon_1.setAlignment(Qt.AlignCenter)
-        self.bar_icon_1.setStyleSheet(bar_style_icon)
-        self.bar_icon_1.setPixmap(self.pixmap_weather[-1])
-        layout_1.addWidget(self.bar_icon_1, 1, 0)
-
-        self.bar_icon_2 = QLabel()
-        self.bar_icon_2.setAlignment(Qt.AlignCenter)
-        self.bar_icon_2.setStyleSheet(bar_style_icon)
-        self.bar_icon_2.setPixmap(self.pixmap_weather[-1])
-        layout_2.addWidget(self.bar_icon_2, 1, 0)
-
-        self.bar_icon_3 = QLabel()
-        self.bar_icon_3.setAlignment(Qt.AlignCenter)
-        self.bar_icon_3.setStyleSheet(bar_style_icon)
-        self.bar_icon_3.setPixmap(self.pixmap_weather[-1])
-        layout_3.addWidget(self.bar_icon_3, 1, 0)
-
-        self.bar_icon_4 = QLabel()
-        self.bar_icon_4.setAlignment(Qt.AlignCenter)
-        self.bar_icon_4.setStyleSheet(bar_style_icon)
-        self.bar_icon_4.setPixmap(self.pixmap_weather[-1])
-        layout_4.addWidget(self.bar_icon_4, 1, 0)
+        self.generate_bar(layout)
 
         # Set layout
-        if self.wcfg["layout"] == 0:
-            # Left to right layout
-            layout.addLayout(layout_0, 0, 0)
-            layout.addLayout(layout_1, 0, 1)
-            layout.addLayout(layout_2, 0, 2)
-            layout.addLayout(layout_3, 0, 3)
-            layout.addLayout(layout_4, 0, 4)
-        else:
-            # Right to left layout
-            layout.addLayout(layout_0, 0, 4)
-            layout.addLayout(layout_1, 0, 3)
-            layout.addLayout(layout_2, 0, 2)
-            layout.addLayout(layout_3, 0, 1)
-            layout.addLayout(layout_4, 0, 0)
         self.setLayout(layout)
 
         # Last data
@@ -238,6 +84,79 @@ class Draw(Overlay):
 
         # Set widget state & start update
         self.set_widget_state()
+
+    def generate_bar(self, layout):
+        """Generate data bar"""
+        text_def = "n/a"
+        bar_style_time = (
+            f"color: {self.wcfg['font_color_estimated_time']};"
+            f"background: {self.wcfg['bkg_color_estimated_time']};"
+            f"min-width: {self.bar_width}px;"
+        )
+        bar_style_temp = (
+            f"color: {self.wcfg['font_color_ambient_temperature']};"
+            f"background: {self.wcfg['bkg_color_ambient_temperature']};"
+            f"min-width: {self.bar_width}px;"
+        )
+        bar_style_rain = (
+            f"background: {self.wcfg['rain_chance_bar_bkg_color']};"
+            f"min-width: {self.bar_width}px;"
+        )
+        bar_style_icon = (
+            f"background: {self.wcfg['bkg_color']};"
+            f"min-width: {self.bar_width}px;"
+        )
+        column_time = self.wcfg["column_index_estimated_time"]
+        column_icon = self.wcfg["column_index_weather_icon"]
+        column_temp = self.wcfg["column_index_ambient_temperature"]
+        column_rain = self.wcfg["column_index_rain_chance_bar"]
+
+        for index in range(self.forecast_count):
+            # Create column layout
+            setattr(self, f"layout_{index}", QGridLayout())
+            getattr(self, f"layout_{index}").setSpacing(0)
+
+            # Estimated time
+            if self.wcfg["show_estimated_time"]:
+                setattr(self, f"bar_time_{index}", QLabel(text_def))
+                getattr(self, f"bar_time_{index}").setAlignment(Qt.AlignCenter)
+                getattr(self, f"bar_time_{index}").setStyleSheet(bar_style_time)
+                if index == 0:
+                    getattr(self, f"bar_time_{index}").setText("now")
+                getattr(self, f"layout_{index}").addWidget(
+                    getattr(self, f"bar_time_{index}"), column_time, 0)
+
+            # Ambient temperature
+            if self.wcfg["show_ambient_temperature"]:
+                setattr(self, f"bar_temp_{index}", QLabel(text_def))
+                getattr(self, f"bar_temp_{index}").setAlignment(Qt.AlignCenter)
+                getattr(self, f"bar_temp_{index}").setStyleSheet(bar_style_temp)
+                getattr(self, f"layout_{index}").addWidget(
+                    getattr(self, f"bar_temp_{index}"), column_temp, 0)
+
+            # Rain chance
+            if self.wcfg["show_rain_chance_bar"]:
+                setattr(self, f"bar_rain_{index}", QLabel())
+                getattr(self, f"bar_rain_{index}").setFixedHeight(self.bar_rain_height)
+                getattr(self, f"bar_rain_{index}").setStyleSheet(bar_style_rain)
+                getattr(self, f"layout_{index}").addWidget(
+                    getattr(self, f"bar_rain_{index}"), column_rain, 0)
+
+            # Forecast icon
+            setattr(self, f"bar_icon_{index}", QLabel())
+            getattr(self, f"bar_icon_{index}").setAlignment(Qt.AlignCenter)
+            getattr(self, f"bar_icon_{index}").setStyleSheet(bar_style_icon)
+            getattr(self, f"bar_icon_{index}").setPixmap(self.pixmap_weather[-1])
+            getattr(self, f"layout_{index}").addWidget(
+                getattr(self, f"bar_icon_{index}"), column_icon, 0)
+
+            # Set layout
+            if self.wcfg["layout"] == 0:  # left to right layout
+                layout.addLayout(
+                    getattr(self, f"layout_{index}"), 0, index)
+            else:  # right to left layout
+                layout.addLayout(
+                    getattr(self, f"layout_{index}"), 0, self.forecast_count - 1 - index)
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -269,7 +188,7 @@ class Draw(Overlay):
                             index_offset = index - 1
                         break
 
-            for index in range(5):
+            for index in range(self.forecast_count):
                 index_bias = index + index_offset
 
                 if index == 0:
@@ -335,7 +254,7 @@ class Draw(Overlay):
             painter.setPen(Qt.NoPen)
             self.brush.setColor(self.wcfg["rain_chance_bar_color"])
             painter.setBrush(self.brush)
-            painter.drawRect(0, 0, curr * 0.01 * self.bar_rain_width, self.bar_rain_height)
+            painter.drawRect(0, 0, curr * 0.01 * self.bar_width, self.bar_rain_height)
             getattr(self, f"bar_rain_{index}").setPixmap(self.pixmap_rainchance)
 
     def update_weather_icon(self, curr, last, index):
@@ -371,12 +290,10 @@ class Draw(Overlay):
         """Get forecast info, 5 api data + 5 padding data"""
         session_type = api.read.session.session_type()
         if session_type <= 1:  # practice session
-            info = minfo.restapi.forecastPractice
-        elif session_type == 2:  # qualify session
-            info = minfo.restapi.forecastQualify
-        else:  # race session
-            info = minfo.restapi.forecastRace
-        return info
+            return minfo.restapi.forecastPractice
+        if session_type == 2:  # qualify session
+            return minfo.restapi.forecastQualify
+        return minfo.restapi.forecastRace  # race session
 
     def format_temperature(self, air_deg):
         """Format ambient temperature"""

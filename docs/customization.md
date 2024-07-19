@@ -2038,6 +2038,9 @@ Show estimated ambient temperature reading for upcoming weather.
     show_rain_chance_bar
 Show visualized rain chance bar reading for upcoming weather.
 
+    number_of_forecasts
+Set number of forecasts to display. Value range in `1` to `4`. Default is `4` forecasts.
+
     show_unavailable_data
 Show columns with unavailable weather data. Set `False` to auto hide columns with unavailable data. Note, auto hide only works for time-based race.
 

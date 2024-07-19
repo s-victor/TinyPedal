@@ -8,6 +8,12 @@ WIP
     Value range in "1" to "100". Default is "30" samples.
     Higher value results more smoothness, but may lose accuracy.
 
+* Weather forecast Widget
+  - Add "number_of_forecasts" option,
+    which sets number of forecasts to display.
+    Value range in "1" to "4". Default is "4" forecasts.
+  - Add "column_index_*" options for customizing data display order of each forecast.
+
 2.15.1 (2024-07-13)
 -----------------------------
 * General

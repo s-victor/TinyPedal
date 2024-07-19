@@ -1970,7 +1970,12 @@ WIDGET_DEFAULT = {
         "rain_chance_bar_height": 5,
         "rain_chance_bar_color": "#FF00FF",
         "rain_chance_bar_bkg_color": "#88222222",
+        "number_of_forecasts": 4,
         "show_unavailable_data": False,
+        "column_index_estimated_time": 1,
+        "column_index_weather_icon": 2,
+        "column_index_ambient_temperature": 3,
+        "column_index_rain_chance_bar": 4,
     },
     "wheel_alignment": {
         "enable": True,
