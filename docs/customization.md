@@ -962,7 +962,7 @@ Set traffic indicator extended duration (seconds) after pit-out.
 Set low speed threshold for showing nearest incoming traffic indicator. Default is `8` m/s (roughly 28kph). Set to `0` to disable. This option can be useful to quickly determine nearby traffic situation after a spin or crash.
 
     show_pit_request
-Show pit request state.
+Show pit request indicator and pit-in countdown (laps) reading. Note, countdown (laps) value is always calculated towards the finish line of current stint's final lap rather than estimated remaining laps that current fuel or energy can run. If countdown drops below 1.0 (laps), it indicates the final lap of current stint, and driver should pit in before the end of current lap to refuel. If countdown reaches zero or negative, there may still be some fuel or energy left in tank, however it will not be enough to complete another full lap before pit stop.
 
     show_finish_state
 Show finish or disqualify state.
