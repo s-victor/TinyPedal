@@ -208,8 +208,7 @@ class Draw(Overlay):
         self.pit_timer_start = 0
         self.last_pitting_state = 0
         self.last_fuel_usage = None
-        self.last_limiter = None
-        self.last_any_blue = None
+        self.last_limiter_state = None
         self.blue_flag_timer_start = 0
         self.last_blue_state = None
         self.last_yellow_state = None
@@ -247,16 +246,15 @@ class Draw(Overlay):
 
             # Pit limiter
             if self.wcfg["show_speed_limiter"]:
-                limiter = api.read.switch.speed_limiter()
-                self.update_limiter(limiter, self.last_limiter)
-                self.last_limiter = limiter
+                limiter_state = api.read.switch.speed_limiter()
+                self.update_limiter(limiter_state, self.last_limiter_state)
+                self.last_limiter_state = limiter_state
 
             # Blue flag
             if self.wcfg["show_blue_flag"]:
                 blue_state = self.blue_flag_state(in_race, lap_etime)
                 self.update_blueflag(blue_state, self.last_blue_state)
                 self.last_blue_state = blue_state
-                self.last_any_blue = blue_state[1]
 
             # Yellow flag
             if self.wcfg["show_yellow_flag"]:
@@ -531,7 +529,7 @@ class Draw(Overlay):
         if not hide_blue:
             any_blue = api.read.session.blue_flag()
             if any_blue:
-                if self.last_any_blue != any_blue:
+                if self.last_blue_state[1] != any_blue:
                     self.blue_flag_timer_start = lap_etime
                 return round(lap_etime - self.blue_flag_timer_start), any_blue
         return -1, False
