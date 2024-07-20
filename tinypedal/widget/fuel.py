@@ -264,7 +264,7 @@ class Draw(Overlay):
         if api.state:
 
             # Estimated end fuel
-            amount_end = f"{self.fuel_units(minfo.fuel.amountBeforePitstop):.{self.decimals[0]}f}"
+            amount_end = f"{self.fuel_units(minfo.fuel.amountEndStint):.{self.decimals[0]}f}"
             self.update_fuel("end", amount_end, self.last_amount_end)
             self.last_amount_end = amount_end
 

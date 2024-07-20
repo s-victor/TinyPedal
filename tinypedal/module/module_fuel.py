@@ -23,6 +23,7 @@ Fuel module
 import logging
 import csv
 from functools import partial
+from math import ceil as roundup
 
 from ._base import DataModule
 from ..module_info import minfo
@@ -109,7 +110,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
     amount_start = 0  # start fuel reading
     amount_last = 0  # last fuel reading
     amount_need = 0  # total additional fuel need to finish race
-    amount_left = 0  # amount fuel left before pitting
+    amount_end = 0  # amount fuel left at the end of stint before pitting
     used_curr = 0  # current lap fuel consumption
     used_last_raw = used_last  # raw usage
     used_est = 0  # estimated fuel consumption, for calculation only
@@ -122,6 +123,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
 
     last_lap_stime = -1  # last lap start time
     laps_left = 0  # amount laps left at current lap distance
+    end_timer_laps_left = 0  # amount laps left from start of current lap to end of race timer
     pos_last = 0  # last checked vehicle position
     pos_estimate = 0  # calculated position
     pos_synced = False  # whether estimated position synced
@@ -231,15 +233,16 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
             amount_need = calc.total_fuel_needed(
                 laps_left, used_est, amount_curr)
         elif laptime_last > 0:  # time-type race
-            full_laps_left = calc.time_type_full_laps_remain(
+            end_timer_laps_left = calc.end_timer_laps_remain(
                 lap_into, laptime_last, time_left)
+            full_laps_left = roundup(end_timer_laps_left)
             if laptime_curr > 0.2:
                 laps_left = calc.time_type_laps_remain(
                     full_laps_left, lap_into)
             amount_need = calc.total_fuel_needed(
                 laps_left, used_est, amount_curr)
 
-        amount_left = calc.end_stint_fuel(
+        amount_end = calc.end_stint_fuel(
             amount_curr, used_curr, used_est)
 
         est_runlaps = calc.end_stint_laps(
@@ -252,10 +255,10 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
             capacity, amount_curr + used_curr, used_last + delta_fuel)
 
         est_pits_late = calc.end_stint_pit_counts(
-            amount_need, capacity - amount_left)
+            amount_need, capacity - amount_end)
 
         est_pits_early = calc.end_lap_pit_counts(
-            amount_need, est_empty, capacity - amount_left)
+            amount_need, est_empty, capacity - amount_end)
 
         used_est_less = calc.one_less_pit_stop_consumption(
             est_pits_late, capacity, amount_curr, laps_left)
@@ -264,7 +267,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
         output.amountStart = amount_start
         output.amountCurrent = amount_curr
         output.amountNeeded = amount_need
-        output.amountBeforePitstop = amount_left
+        output.amountEndStint = amount_end
         output.lastLapConsumption = used_last_raw
         output.estimatedConsumption = used_last + delta_fuel
         output.estimatedLaps = est_runlaps

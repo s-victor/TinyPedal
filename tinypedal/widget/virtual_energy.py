@@ -264,7 +264,7 @@ class Draw(Overlay):
         if api.state:
 
             # Estimated end energy
-            amount_end = f"{minfo.energy.amountBeforePitstop:.{self.decimals[0]}f}"
+            amount_end = f"{minfo.energy.amountEndStint:.{self.decimals[0]}f}"
             self.update_energy("end", amount_end, self.last_amount_end)
             self.last_amount_end = amount_end
 

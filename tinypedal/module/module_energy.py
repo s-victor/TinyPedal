@@ -65,10 +65,10 @@ class Realtime(DataModule):
                 if minfo.restapi.maxVirtualEnergy:
                     gen_calc_energy.send(True)
 
-                # Update fuel to energy ratio
-                minfo.hybrid.fuelEnergyRatio = calc.fuel_to_energy_ratio(
-                    minfo.fuel.estimatedConsumption,
-                    minfo.energy.estimatedConsumption)
+                    # Update fuel to energy ratio
+                    minfo.hybrid.fuelEnergyRatio = calc.fuel_to_energy_ratio(
+                        minfo.fuel.estimatedConsumption,
+                        minfo.energy.estimatedConsumption)
 
             else:
                 if reset:
