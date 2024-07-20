@@ -106,9 +106,7 @@ class Realtime(DataModule):
                 laptime_curr = max(api.read.timing.current_laptime(), 0)
                 laptime_valid = api.read.timing.last_laptime()
                 pos_curr = api.read.lap.distance()
-                gps_curr = (api.read.vehicle.position_x(),
-                            api.read.vehicle.position_y(),
-                            api.read.vehicle.position_z())
+                gps_curr = api.read.vehicle.position_xyz()
                 in_pits = api.read.vehicle.in_pits()
                 speed = api.read.vehicle.speed()
 

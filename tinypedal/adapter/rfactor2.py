@@ -594,29 +594,23 @@ class Vehicle(DataAdapter):
         """Orientation yaw in radians"""
         return calc.oriyaw2rad(*self.orientation_yaw(index))
 
-    def position_x(self, index: int | None = None) -> float:
-        """Raw X position"""
-        return chknm(self.info.rf2TeleVeh(index).mPos.x)
-
-    def position_y(self, index: int | None = None) -> float:
-        """Raw Y position"""
-        return chknm(self.info.rf2TeleVeh(index).mPos.y)
-
-    def position_z(self, index: int | None = None) -> float:
-        """Raw Z position"""
-        return chknm(self.info.rf2TeleVeh(index).mPos.z)
+    def position_xyz(self, index: int | None = None) -> tuple[float]:
+        """Raw XYZ position"""
+        return (chknm(self.info.rf2TeleVeh(index).mPos.x),
+                chknm(self.info.rf2TeleVeh(index).mPos.y),
+                chknm(self.info.rf2TeleVeh(index).mPos.z))
 
     def position_longitudinal(self, index: int | None = None) -> float:
         """Longitudinal axis position related to world plane"""
-        return self.position_x(index)  # in RF2 coord system
+        return chknm(self.info.rf2TeleVeh(index).mPos.x)  # in RF2 coord system
 
     def position_lateral(self, index: int | None = None) -> float:
         """Lateral axis position related to world plane"""
-        return -self.position_z(index)  # in RF2 coord system
+        return -chknm(self.info.rf2TeleVeh(index).mPos.z)  # in RF2 coord system
 
     def position_vertical(self, index: int | None = None) -> float:
         """Vertical axis position related to world plane"""
-        return self.position_y(index)  # in RF2 coord system
+        return chknm(self.info.rf2TeleVeh(index).mPos.y)  # in RF2 coord system
 
     def accel_lateral(self, index: int | None = None) -> float:
         """Lateral acceleration"""
