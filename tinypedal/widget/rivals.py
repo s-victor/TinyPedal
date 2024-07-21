@@ -407,8 +407,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['bkg_color_time_interval_behind']};")
 
             getattr(self, f"row_{suffix}").setText(
-                fmt.strip_decimal_pt(text[:self.int_width].rjust(self.int_width))
-            )
+                text[:self.int_width].strip(".").rjust(self.int_width))
             getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(self.int_width, color))
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 

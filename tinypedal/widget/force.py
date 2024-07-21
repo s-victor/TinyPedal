@@ -23,7 +23,6 @@ Force Widget
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QGridLayout, QLabel
 
-from .. import formatter as fmt
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
@@ -163,7 +162,7 @@ class Draw(Overlay):
 
             # Downforce ratio
             if self.wcfg["show_downforce_ratio"]:
-                df_ratio = f"{minfo.force.downForceRatio:.02f}"[:5]
+                df_ratio = f"{minfo.force.downForceRatio:.02f}"[:5].strip(".")
                 self.update_df_ratio(df_ratio, self.last_df_ratio)
                 self.last_df_ratio = df_ratio
 
@@ -193,7 +192,7 @@ class Draw(Overlay):
     def update_df_ratio(self, curr, last):
         """Downforce ratio"""
         if curr != last:
-            self.bar_df_ratio.setText(f"{fmt.strip_decimal_pt(curr)}%")
+            self.bar_df_ratio.setText(f"{curr}%")
 
     def update_df_front(self, curr, last):
         """Downforce front"""

@@ -101,9 +101,7 @@ def strip_invalid_char(name: str) -> str:
 
 def strip_decimal_pt(value: str) -> str:
     """Strip decimal point"""
-    if value and value[-1] == ".":
-        return value[:-1]
-    return value
+    return value.strip(".")
 
 
 def laptime_string_to_seconds(laptime: str) -> float:

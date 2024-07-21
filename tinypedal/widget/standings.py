@@ -465,8 +465,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['bkg_color_time_gap']};")
 
             getattr(self, f"row_{suffix}").setText(
-                fmt.strip_decimal_pt(curr[0][:self.gap_width])
-            )
+                curr[0][:self.gap_width].strip("."))
             getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(self.gap_width, color))
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 
@@ -481,8 +480,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['bkg_color_time_interval']};")
 
             getattr(self, f"row_{suffix}").setText(
-                fmt.strip_decimal_pt(curr[0][:self.int_width])
-            )
+                curr[0][:self.int_width].strip("."))
             getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(self.int_width, color))
             self.toggle_visibility(curr[0], getattr(self, f"row_{suffix}"))
 

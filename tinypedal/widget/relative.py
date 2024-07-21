@@ -435,7 +435,7 @@ class Draw(Overlay):
                          f"background: {self.wcfg['bkg_color_time_gap']};")
 
             getattr(self, f"row_{suffix}").setText(
-                fmt.strip_decimal_pt(curr[0][:self.gap_width]).rjust(self.gap_width))
+                curr[0][:self.gap_width].strip(".").rjust(self.gap_width))
             getattr(self, f"row_{suffix}").setStyleSheet(self.bar_min_width(self.gap_width, color))
 
     def update_lpt(self, suffix, curr, last, isplayer):

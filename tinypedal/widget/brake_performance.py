@@ -23,7 +23,6 @@ Brake performance Widget
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QGridLayout, QLabel
 
-from .. import formatter as fmt
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
@@ -242,11 +241,11 @@ class Draw(Overlay):
     def update_lock_time_f(self, curr, last):
         """Front wheel lock duration"""
         if curr != last:
-            format_text = fmt.strip_decimal_pt(f"{curr:.01f}"[:3]).rjust(3)
+            format_text = f"{curr:.01f}"[:3].strip(".").rjust(3)
             self.bar_lock_time_f.setText(f"F {format_text}")
 
     def update_lock_time_r(self, curr, last):
         """Rear wheel lock duration"""
         if curr != last:
-            format_text = fmt.strip_decimal_pt(f"{curr:.01f}"[:3]).rjust(3)
+            format_text = f"{curr:.01f}"[:3].strip(".").rjust(3)
             self.bar_lock_time_r.setText(f"R {format_text}")

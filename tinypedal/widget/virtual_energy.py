@@ -335,7 +335,7 @@ class Draw(Overlay):
                     f"{self.color_lowenergy(state, suffix)}{self.style_width}"
                 )
             getattr(self, f"bar_energy_{suffix}").setText(
-                fmt.strip_decimal_pt(curr[:self.bar_width]))
+                curr[:self.bar_width].strip("."))
 
     def update_energy_level(self, curr, last):
         """Energy level update"""

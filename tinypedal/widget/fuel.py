@@ -25,7 +25,6 @@ from PySide2.QtGui import QPainter, QPixmap
 from PySide2.QtWidgets import QLabel, QGridLayout
 
 from .. import calculation as calc
-from .. import formatter as fmt
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
@@ -335,7 +334,7 @@ class Draw(Overlay):
                     f"{self.color_lowfuel(state, suffix)}{self.style_width}"
                 )
             getattr(self, f"bar_fuel_{suffix}").setText(
-                fmt.strip_decimal_pt(curr[:self.bar_width]))
+                curr[:self.bar_width].strip("."))
 
     def update_fuel_level(self, curr, last):
         """Fuel level update"""
