@@ -65,7 +65,7 @@ class Realtime(DataModule):
             calc.exp_mov_avg,
             calc.ema_factor(min(max(self.mcfg["laptime_pace_samples"], 1), 20))
         )
-        laptime_pace_max = max(self.mcfg["laptime_pace_max_margin"], 0.1)
+        laptime_pace_margin = max(self.mcfg["laptime_pace_margin"], 0.1)
 
         while not self.event.wait(update_interval):
             if api.state:
@@ -163,7 +163,7 @@ class Realtime(DataModule):
                                     laptime_pace = laptime_valid
                                 else:
                                     laptime_pace = calc_ema_laptime(laptime_pace,
-                                        min(laptime_valid, laptime_pace + laptime_pace_max))
+                                        min(laptime_valid, laptime_pace + laptime_pace_margin))
                             # Update delta best list
                             if laptime_last < laptime_best:
                                 laptime_best = laptime_last

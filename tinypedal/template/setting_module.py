@@ -28,7 +28,7 @@ MODULE_DEFAULT = {
         "idle_update_interval": 400,
         "delta_smoothing_samples": 30,
         "laptime_pace_samples": 6,
-        "laptime_pace_max_margin": 5,
+        "laptime_pace_margin": 5,
     },
     "module_energy": {
         "enable": True,
