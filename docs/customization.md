@@ -459,8 +459,14 @@ Modules provide important data that updated in real-time for other widgets. Widg
     module_delta
 Enable delta module.
 
-    number_of_smoothing_samples
-Set number of samples for data smoothing calculation (exponential moving average). Value range in `1` to `100`. Higher value results more smoothness, but may lose accuracy. Default is `30` samples.
+    delta_smoothing_samples
+Set number of samples for delta data smoothing calculation using exponential moving average (EMA) method. Value range in `1` to `100`. Higher value results more smoothness, but may lose accuracy. Default is `30` samples. Set to `1` to disable smoothing.
+
+    laptime_pace_samples
+Set number of samples for average laptime pace calculation (EMA). Initial laptime sample is always based on player's all time personal best laptime if available. Value range in `1` to `20`. Default is `6` samples. Set to `1` to disable averaging.
+
+    laptime_pace_max_limit
+Set additional maximum laptime margin of current lap. New laptime sample cannot exceed the sum of `laptime pace` and `maximum margin`. This option is used to minimize the impact of unusually slow laptime. Default value is `5` seconds. Minimum value is limited to `0.1`.
 
 
 ## Energy
@@ -962,7 +968,7 @@ Set traffic indicator extended duration (seconds) after pit-out.
 Set low speed threshold for showing nearest incoming traffic indicator. Default is `8` m/s (roughly 28kph). Set to `0` to disable. This option can be useful to quickly determine nearby traffic situation after a spin or crash.
 
     show_pit_request
-Show pit request indicator and pit-in countdown (laps) reading. Note, countdown (laps) value is always calculated towards the finish line of current stint's final lap rather than estimated remaining laps that current fuel or energy can run. If countdown drops below 1.0 (laps), it indicates the final lap of current stint, and driver should pit in before the end of current lap to refuel. If countdown reaches zero or negative, there may still be some fuel or energy left in tank, however it will not be enough to complete another full lap before pit stop.
+Show pit request indicator and `pit-in laps countdown` alongside `estimated remaining laps` reading that current fuel or energy can run. Note, `pit-in laps countdown` value is always calculated towards the finish line of current stint's final lap, and thus is always less than or equal to `estimated remaining laps` reading. If countdown drops below 1.0 (laps), it indicates the final lap of current stint, and driver should pit in before the end of current lap to refuel. If countdown reaches zero or negative, there may still be some fuel or energy left in tank, however it will not be enough to complete another full lap.
 
     show_finish_state
 Show finish or disqualify state.
@@ -1789,7 +1795,7 @@ Show current session best lap time from all vehicle classes.
 Show current session best lap time from same vehicle class only.
 
     show_best
-Show personal best lap time.
+Show personal all time best lap time.
 
     show_last
 Show personal last lap time.
@@ -1805,6 +1811,9 @@ Show personal current session best lap time.
 
     show_stint_best
 Show personal current stint best lap time.
+
+    show_average_pace
+Show personal current average lap time pace, this reading is also used in real-time fuel calculation. Note, additional `average lap time pace` calculation setting can be found in `Delta Module` config. After ESC or session ended, lap time pace reading will be reset, and aligned to `all time personal best lap time` if available.
 
 
 ## Track map

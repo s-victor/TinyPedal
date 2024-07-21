@@ -1,22 +1,39 @@
 WIP
 -----------------------------
 * Delta Module
-  - Add data smoothing calculation using "exponential moving average" method
-    for deltabest reading to filter out unusual data noise.
-  - Add "number_of_smoothing_samples" option,
-    which sets number of samples for data smoothing calculation.
-    Value range in "1" to "100". Default is "30" samples.
+  - Add data smoothing function to filter out unusual data noise.
+  - Add "delta_smoothing_samples" option, which sets number of samples
+    for delta data smoothing calculation using exponential moving average (EMA) method.
+    Value range in "1" to "100". Default is "30" samples. Set to "1" to disable smoothing.
     Higher value results more smoothness, but may lose accuracy.
+  - Add average laptime pace calculation and output,
+    which is now used in real-time fuel calculation for increased consistency and accuracy.
+  - Add "laptime_pace_samples" option, which sets number of samples
+    for average laptime pace calculation (EMA).
+    Initial laptime sample is always based on player's all time personal best laptime if available.
+    Value range in "1" to "20". Default is "6" samples. Set to "1" to disable averaging.
+  - Add "laptime_pace_max_limit" option, which sets additional maximum laptime margin of current lap.
+    New laptime sample cannot exceed the sum of "laptime pace" and "maximum margin".
+    This option is used to minimize the impact of unusually slow laptime.
+    Default value is "5" seconds. Minimum value is limited to "0.1".
 
 * Flag Widget
-  - "Pit Request" indicator now shows pit-in countdown (laps) reading.
-    Note, countdown (laps) value is always calculated towards
-    the finish line of current stint's final lap rather than
-    estimated remaining laps that current fuel or energy can run.
+  - "Pit Request" indicator now shows "pit-in laps countdown" alongside
+    "estimated remaining laps" reading that current fuel or energy can run.
+    Note, "pit-in laps countdown" value is always calculated towards
+    the finish line of current stint's final lap, and thus is always
+    less than or equal to "estimated remaining laps" reading.
     If countdown drops below 1.0 (laps), it indicates the final lap of current stint,
     and driver should pit in before the end of current lap to refuel.
     If countdown reaches zero or negative, there may still be some fuel or energy left in tank,
-    however it will not be enough to complete another full lap before pit stop.
+    however it will not be enough to complete another full lap.
+
+* Timing Widget
+  - Add "show_average_pace" option, which shows personal current average lap time pace,
+    this reading is also used in real-time fuel calculation.
+    Note, additional "average lap time pace" calculation setting can be found in "Delta Module" config.
+    After ESC or session ended, lap time pace reading will be reset,
+    and aligned to "all time personal best lap time" if available.
 
 * Weather forecast Widget
   - Add "number_of_forecasts" option,

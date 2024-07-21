@@ -33,6 +33,7 @@ from .. import validator as val
 
 MODULE_NAME = "module_delta"
 DELTA_ZERO = 0.0,0.0
+MAGIC_NUM = 99999
 
 logger = logging.getLogger(__name__)
 round6 = partial(round, ndigits=6)
@@ -53,10 +54,18 @@ class Realtime(DataModule):
         last_session_id = ("",-1,-1,-1)
         delta_list_session = [DELTA_ZERO]
         delta_list_stint = [DELTA_ZERO]
-        laptime_session_best = 99999
-        laptime_stint_best = 99999
+        laptime_session_best = MAGIC_NUM
+        laptime_stint_best = MAGIC_NUM
 
-        exp_mov_avg = partial(calc.exp_mov_avg, self.set_smoothing_factor())
+        calc_ema_delta = partial(
+            calc.exp_mov_avg,
+            calc.ema_factor(min(max(self.mcfg["delta_smoothing_samples"], 1), 100))
+        )
+        calc_ema_laptime = partial(
+            calc.exp_mov_avg,
+            calc.ema_factor(min(max(self.mcfg["laptime_pace_samples"], 1), 20))
+        )
+        laptime_pace_max = max(self.mcfg["laptime_pace_max_margin"], 0.1)
 
         while not self.event.wait(update_interval):
             if api.state:
@@ -67,6 +76,7 @@ class Realtime(DataModule):
 
                     recording = False
                     validating = 0
+                    pit_lap = 0  # whether pit in or pit out lap
 
                     combo_id = api.read.check.combo_id()
                     session_id = api.read.check.session_id()
@@ -74,7 +84,7 @@ class Realtime(DataModule):
                     # Reset delta session best if not same session
                     if not val.same_session(combo_id, session_id, last_session_id):
                         delta_list_session = [DELTA_ZERO]
-                        laptime_session_best = 99999
+                        laptime_session_best = MAGIC_NUM
                         last_session_id = (combo_id, *session_id)
 
                     delta_list_best, laptime_best = load_deltabest(self.filepath, combo_id)
@@ -93,6 +103,7 @@ class Realtime(DataModule):
 
                     laptime_curr = 0  # current laptime
                     laptime_last = 0  # last laptime
+                    laptime_pace = laptime_best  # avearge laptime pace
 
                     last_lap_stime = -1  # lap-start-time
                     pos_last = 0  # last checked vehicle position
@@ -109,11 +120,12 @@ class Realtime(DataModule):
                 gps_curr = api.read.vehicle.position_xyz()
                 in_pits = api.read.vehicle.in_pits()
                 speed = api.read.vehicle.speed()
+                pit_lap = bool(pit_lap + in_pits)
 
                 # Reset delta stint best if in pit
                 if in_pits and delta_list_stint[-1][0] and speed < 0.1:
                     delta_list_stint = [DELTA_ZERO]
-                    laptime_stint_best = 99999
+                    laptime_stint_best = MAGIC_NUM
 
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime != -1:
@@ -125,6 +137,7 @@ class Realtime(DataModule):
                     delta_list_curr = [DELTA_ZERO]  # reset
                     pos_last = pos_curr
                     recording = laptime_curr < 1
+                    pit_lap = 0
                 last_lap_stime = lap_stime  # reset
 
                 # 1 sec position distance check after new lap begins
@@ -144,6 +157,13 @@ class Realtime(DataModule):
                     timer = api.read.timing.elapsed() - validating
                     if 1 < timer <= 10:  # compare current time
                         if laptime_valid > 0 and abs(laptime_valid - laptime_last) < 2:
+                            # Update laptime pace
+                            if not pit_lap:
+                                if laptime_pace <= 0 or laptime_pace >= MAGIC_NUM:
+                                    laptime_pace = laptime_valid
+                                else:
+                                    laptime_pace = calc_ema_laptime(laptime_pace,
+                                        min(laptime_valid, laptime_pace + laptime_pace_max))
                             # Update delta best list
                             if laptime_last < laptime_best:
                                 laptime_best = laptime_last
@@ -200,10 +220,10 @@ class Realtime(DataModule):
                         delay_update,
                     )
                     # Smooth delta
-                    delta_best_ema = exp_mov_avg(delta_best_ema, delta_best)
-                    delta_last_ema = exp_mov_avg(delta_last_ema, delta_last)
-                    delta_session_ema = exp_mov_avg(delta_session_ema, delta_session)
-                    delta_stint_ema = exp_mov_avg(delta_stint_ema, delta_stint)
+                    delta_best_ema = calc_ema_delta(delta_best_ema, delta_best)
+                    delta_last_ema = calc_ema_delta(delta_last_ema, delta_last)
+                    delta_session_ema = calc_ema_delta(delta_session_ema, delta_session)
+                    delta_stint_ema = calc_ema_delta(delta_stint_ema, delta_stint)
                     # Update driven distance
                     if moved_distance < 1500 * self.active_interval:
                         meters_driven += moved_distance
@@ -220,6 +240,7 @@ class Realtime(DataModule):
                 minfo.delta.lapTimeEstimated = laptime_best + delta_best_ema
                 minfo.delta.lapTimeSession = laptime_session_best
                 minfo.delta.lapTimeStint = laptime_stint_best
+                minfo.delta.lapTimePace = laptime_pace
                 minfo.delta.metersDriven = meters_driven
 
             else:
@@ -229,12 +250,6 @@ class Realtime(DataModule):
                     last_session_id = (combo_id, *session_id)
                     self.cfg.user.setting["cruise"]["meters_driven"] = int(meters_driven)
                     self.cfg.save()
-
-    def set_smoothing_factor(self):
-        """Set smoothing factor"""
-        samples = min(max(self.mcfg["number_of_smoothing_samples"], 1), 100)
-        factor = calc.ema_factor(samples)
-        return factor
 
 
 def load_deltabest(filepath:str, combo: str):
@@ -251,8 +266,8 @@ def load_deltabest(filepath:str, combo: str):
                 save_deltabest(bestlist, filepath, combo)
     except (FileNotFoundError, IndexError, ValueError, TypeError):
         logger.info("MISSING: deltabest data")
-        bestlist = [(99999,99999)]
-        laptime_best = 99999
+        bestlist = [(MAGIC_NUM,MAGIC_NUM)]
+        laptime_best = MAGIC_NUM
     return bestlist, laptime_best
 
 

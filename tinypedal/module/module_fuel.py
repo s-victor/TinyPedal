@@ -100,7 +100,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
     recording = False
     validating = False
     delayed_save = False
-    pit_lap = False  # whether pit in or pit out lap
+    pit_lap = 0  # whether pit in or pit out lap
 
     delta_list_last, used_last, laptime_last = load_delta(filepath, combo_id, extension)
     delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
@@ -149,6 +149,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
         lap_number = api.read.lap.total_laps()
         lap_into = api.read.lap.progress()
         pit_lap = bool(pit_lap + api.read.vehicle.in_pits())
+        laptime_last = minfo.delta.lapTimePace
 
         # Realtime fuel consumption
         if amount_last < amount_curr:
@@ -173,7 +174,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
             used_last_raw = used_curr
             used_curr = 0
             recording = laptime_curr < 1
-            pit_lap = False
+            pit_lap = 0
         last_lap_stime = lap_stime  # reset
 
         # Distance desync check at start of new lap, reset if higher than normal distance
@@ -190,10 +191,8 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
         # Validating 1s after passing finish line
         if validating:
             if 0.2 < laptime_curr <= 3:  # compare current time
-                laptime_valid = api.read.timing.last_laptime()
-                if laptime_valid > 0:
+                if api.read.timing.last_laptime() > 0:
                     used_last = used_last_raw
-                    laptime_last = laptime_valid
                     delta_list_last = delta_list_temp
                     delta_list_temp = [DELTA_ZERO]
                     validating = False

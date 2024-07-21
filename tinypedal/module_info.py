@@ -39,6 +39,7 @@ class DeltaInfo:
     lapTimeEstimated: float = 0
     lapTimeSession: float = 0
     lapTimeStint: float = 0
+    lapTimePace: float = 0
     metersDriven: float = 0
 
 

@@ -56,6 +56,7 @@ class Draw(Overlay):
                 len(self.wcfg["prefix_session_best"]),
                 len(self.wcfg["prefix_session_personal_best"]),
                 len(self.wcfg["prefix_stint_best"]),
+                len(self.wcfg["prefix_average_pace"]),
             )
         else:
             prefix_w = None
@@ -68,6 +69,7 @@ class Draw(Overlay):
         self.prefix_sbst = self.wcfg["prefix_session_best"][:prefix_w].ljust(prefix_just)
         self.prefix_spbt = self.wcfg["prefix_session_personal_best"][:prefix_w].ljust(prefix_just)
         self.prefix_stbt = self.wcfg["prefix_stint_best"][:prefix_w].ljust(prefix_just)
+        self.prefix_avpc = self.wcfg["prefix_average_pace"][:prefix_w].ljust(prefix_just)
 
         time_none = "-:--.---"
 
@@ -91,6 +93,7 @@ class Draw(Overlay):
         column_esti = self.wcfg["column_index_estimated"]
         column_spbt = self.wcfg["column_index_session_personal_best"]
         column_stbt = self.wcfg["column_index_stint_best"]
+        column_avpc = self.wcfg["column_index_average_pace"]
 
         # Session best laptime
         if self.wcfg["show_session_best"]:
@@ -170,6 +173,17 @@ class Draw(Overlay):
                 f"min-width: {font_m.width * len(stbt_text) + bar_padx}px;"
             )
 
+        # Average pace laptime
+        if self.wcfg["show_average_pace"]:
+            avpc_text = f"{self.prefix_avpc}{time_none}"
+            self.bar_time_avpc = QLabel(avpc_text)
+            self.bar_time_avpc.setAlignment(Qt.AlignCenter)
+            self.bar_time_avpc.setStyleSheet(
+                f"color: {self.wcfg['font_color_average_pace']};"
+                f"background: {self.wcfg['bkg_color_average_pace']};"
+                f"min-width: {font_m.width * len(avpc_text) + bar_padx}px;"
+            )
+
         # Set layout
         if self.wcfg["layout"] == 0:
             # Vertical layout
@@ -187,6 +201,8 @@ class Draw(Overlay):
                 layout.addWidget(self.bar_time_spbt, column_spbt, 0)
             if self.wcfg["show_stint_best"]:
                 layout.addWidget(self.bar_time_stbt, column_stbt, 0)
+            if self.wcfg["show_average_pace"]:
+                layout.addWidget(self.bar_time_avpc, column_avpc, 0)
         else:
             # Horizontal layout
             if self.wcfg["show_session_best"]:
@@ -203,6 +219,8 @@ class Draw(Overlay):
                 layout.addWidget(self.bar_time_spbt, 0, column_spbt)
             if self.wcfg["show_stint_best"]:
                 layout.addWidget(self.bar_time_stbt, 0, column_stbt)
+            if self.wcfg["show_average_pace"]:
+                layout.addWidget(self.bar_time_avpc, 0, column_avpc)
         self.setLayout(layout)
 
         # Last data
@@ -217,6 +235,7 @@ class Draw(Overlay):
         self.last_laptime_esti = 0
         self.last_laptime_spbt = 0
         self.last_laptime_stbt = 0
+        self.last_laptime_avpc = 0
 
         # Set widget state & start update
         self.set_widget_state()
@@ -292,6 +311,13 @@ class Draw(Overlay):
                 self.update_laptime(laptime_stbt, self.last_laptime_stbt,
                                     self.prefix_stbt, "stbt")
                 self.last_laptime_stbt = laptime_stbt
+
+            # Average pace laptime
+            if self.wcfg["show_average_pace"]:
+                laptime_avpc = minfo.delta.lapTimePace
+                self.update_laptime(laptime_avpc, self.last_laptime_avpc,
+                                    self.prefix_avpc, "avpc")
+                self.last_laptime_avpc = laptime_avpc
 
         else:
             if self.checked:
