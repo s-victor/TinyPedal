@@ -391,7 +391,9 @@ class Draw(Overlay):
         """Pit request"""
         if curr != last:
             if curr[0] == 1:
-                self.bar_pit_request.setText(f"PIT<{curr[1]:3.01f}"[:7])
+                countdown = f"{curr[1]:3.02f}"[:3].strip(".").ljust(3)
+                est_laps = f"{curr[2]:3.02f}"[:3].strip(".").rjust(3)
+                self.bar_pit_request.setText(f"{countdown}≤{est_laps}")
                 self.bar_pit_request.show()
             else:
                 self.bar_pit_request.hide()
@@ -472,9 +474,9 @@ class Draw(Overlay):
                 est_laps = min(minfo.fuel.estimatedLaps, minfo.energy.estimatedLaps)
             else:
                 est_laps = minfo.fuel.estimatedLaps
-            laps_countdown = round(est_laps - (est_laps + api.read.lap.progress()) % 1, 1)
-            return pit_state, laps_countdown
-        return pit_state, 99999
+            laps_countdown = round(est_laps - (est_laps + api.read.lap.progress()) % 1, 2)
+            return pit_state, laps_countdown, est_laps
+        return pit_state, 99999, 99999
 
     def pit_timer_state(self, in_pits, lap_etime):
         """Pit timer state"""

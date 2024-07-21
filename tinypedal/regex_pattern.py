@@ -103,7 +103,6 @@ CFG_INTEGER = (
     "icon_size|"
     "inner_gap|"
     "layout|"
-    "number_of|"
     "samples|"
     "split_gap|"
     "update_interval|"
