@@ -36,8 +36,7 @@ WIP
     and aligned to "all time personal best lap time" if available.
 
 * Weather forecast Widget
-  - Add "number_of_forecasts" option,
-    which sets number of forecasts to display.
+  - Add "number_of_forecasts" option, which sets number of forecasts to display.
     Value range in "1" to "4". Default is "4" forecasts.
   - Add "column_index_*" options for customizing data display order of each forecast.
 

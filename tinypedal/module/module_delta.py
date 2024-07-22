@@ -119,11 +119,10 @@ class Realtime(DataModule):
                 pos_curr = api.read.lap.distance()
                 gps_curr = api.read.vehicle.position_xyz()
                 in_pits = api.read.vehicle.in_pits()
-                speed = api.read.vehicle.speed()
                 pit_lap = bool(pit_lap + in_pits)
 
-                # Reset delta stint best if in pit
-                if in_pits and delta_list_stint[-1][0] and speed < 0.1:
+                # Reset delta stint best if in pit and stopped
+                if in_pits and delta_list_stint[-1][0] and api.read.vehicle.speed() < 0.1:
                     delta_list_stint = [DELTA_ZERO]
                     laptime_stint_best = MAGIC_NUM
 
@@ -225,7 +224,7 @@ class Realtime(DataModule):
                     delta_session_ema = calc_ema_delta(delta_session_ema, delta_session)
                     delta_stint_ema = calc_ema_delta(delta_stint_ema, delta_stint)
                     # Update driven distance
-                    if moved_distance < 1500 * self.active_interval:
+                    if moved_distance < 1500 * update_interval:
                         meters_driven += moved_distance
 
                 # Output delta time data

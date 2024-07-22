@@ -474,8 +474,8 @@ class Draw(Overlay):
                 est_laps = min(minfo.fuel.estimatedLaps, minfo.energy.estimatedLaps)
             else:
                 est_laps = minfo.fuel.estimatedLaps
-            laps_countdown = round(est_laps - (est_laps + api.read.lap.progress()) % 1, 2)
-            return pit_state, laps_countdown, est_laps
+            cd_laps = calc.pit_in_countdown_laps(est_laps, api.read.lap.progress())
+            return pit_state, round(cd_laps, 2), round(est_laps, 2)
         return pit_state, 99999, 99999
 
     def pit_timer_state(self, in_pits, lap_etime):

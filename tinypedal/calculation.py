@@ -552,6 +552,11 @@ def end_stint_minutes(laps_total, laptime_last):
     return laps_total * laptime_last / 60
 
 
+def pit_in_countdown_laps(laps_remain, lap_into):
+    """Estimate countdown laps till last chance to pit-in"""
+    return laps_remain - (laps_remain + lap_into) % 1
+
+
 def end_lap_empty_capacity(capacity_total, fuel_in_tank, consumption):
     """Estimate empty capacity at end of current lap"""
     return capacity_total - fuel_in_tank + consumption
