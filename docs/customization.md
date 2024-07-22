@@ -466,7 +466,10 @@ Set number of samples for delta data smoothing calculation using exponential mov
 Set number of samples for average laptime pace calculation (EMA). Initial laptime sample is always based on player's all time personal best laptime if available. Value range in `1` to `20`. Default is `6` samples. Set to `1` to disable averaging.
 
     laptime_pace_margin
-Set additional margin for current lap time that cannot exceed the sum of `laptime pace` and `margin`. This option is used to minimize the impact of unusually slow laptime. Default value is `5` seconds. Minimum value is limited to `0.1`.
+Set additional margin for current laptime that cannot exceed the sum of `laptime pace` and `margin`. This option is used to minimize the impact of unusually slow laptime. Default value is `5` seconds. Minimum value is limited to `0.1`.
+
+    laptime_pace_exclusion_multiplier
+Set laptime multiplier for laptime pace exclusion check. Current laptime will be excluded from laptime pace calculation if it has exceeded the product of `laptime pace` and `exclusion multiplier`. Default value is `1.2` (120% of laptime pace). Minimum value is limited to `1`. This option can be useful for preventing extremely slow laptime from affecting laptime pace, such as during safety-car or yellow flag period. Note, this option is checked before `laptime_pace_margin`. Invalid lap, pit-in and pit-out laps are always excluded from laptime pace calculation.
 
 
 ## Energy

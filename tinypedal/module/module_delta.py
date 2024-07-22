@@ -66,6 +66,7 @@ class Realtime(DataModule):
             calc.ema_factor(min(max(self.mcfg["laptime_pace_samples"], 1), 20))
         )
         laptime_pace_margin = max(self.mcfg["laptime_pace_margin"], 0.1)
+        laptime_pace_multiplier = max(self.mcfg["laptime_pace_exclusion_multiplier"], 1)
 
         while not self.event.wait(update_interval):
             if api.state:
@@ -160,7 +161,7 @@ class Realtime(DataModule):
                             if not pit_lap:
                                 if laptime_pace <= 0 or laptime_pace >= MAGIC_NUM:
                                     laptime_pace = laptime_valid
-                                else:
+                                elif laptime_valid <= laptime_pace_multiplier * laptime_pace:
                                     laptime_pace = calc_ema_laptime(laptime_pace,
                                         min(laptime_valid, laptime_pace + laptime_pace_margin))
                             # Update delta best list
