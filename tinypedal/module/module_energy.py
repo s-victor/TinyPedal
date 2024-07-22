@@ -30,7 +30,6 @@ from ..api_control import api
 from .. import calculation as calc
 
 MODULE_NAME = "module_energy"
-DELTA_ZERO = 0.0,0.0
 
 logger = logging.getLogger(__name__)
 

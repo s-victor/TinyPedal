@@ -33,6 +33,7 @@ from .. import validator as val
 
 MODULE_NAME = "module_delta"
 DELTA_ZERO = 0.0,0.0
+DELTA_DEFAULT = (DELTA_ZERO,)
 MAGIC_NUM = 99999
 
 logger = logging.getLogger(__name__)
@@ -52,8 +53,8 @@ class Realtime(DataModule):
         update_interval = self.active_interval
 
         last_session_id = ("",-1,-1,-1)
-        delta_list_session = [DELTA_ZERO]
-        delta_list_stint = [DELTA_ZERO]
+        delta_list_session = DELTA_DEFAULT
+        delta_list_stint = DELTA_DEFAULT
         laptime_session_best = MAGIC_NUM
         laptime_stint_best = MAGIC_NUM
 
@@ -84,13 +85,13 @@ class Realtime(DataModule):
 
                     # Reset delta session best if not same session
                     if not val.same_session(combo_id, session_id, last_session_id):
-                        delta_list_session = [DELTA_ZERO]
+                        delta_list_session = DELTA_DEFAULT
                         laptime_session_best = MAGIC_NUM
                         last_session_id = (combo_id, *session_id)
 
                     delta_list_best, laptime_best = load_deltabest(self.filepath, combo_id)
                     delta_list_curr = [DELTA_ZERO]  # distance, laptime
-                    delta_list_last = [DELTA_ZERO]  # last lap
+                    delta_list_last = DELTA_DEFAULT  # last lap
 
                     delta_best = 0  # delta time compare to best laptime
                     delta_last = 0
@@ -124,7 +125,7 @@ class Realtime(DataModule):
 
                 # Reset delta stint best if in pit and stopped
                 if in_pits and delta_list_stint[-1][0] and api.read.vehicle.speed() < 0.1:
-                    delta_list_stint = [DELTA_ZERO]
+                    delta_list_stint = DELTA_DEFAULT
                     laptime_stint_best = MAGIC_NUM
 
                 # Lap start & finish detection
@@ -177,8 +178,6 @@ class Realtime(DataModule):
                             if laptime_last < laptime_stint_best:
                                 laptime_stint_best = laptime_last
                                 delta_list_stint = delta_list_last.copy()
-                            # Reset delta last list
-                            # delta_list_last = [DELTA_ZERO]
                             validating = 0
                     elif timer > 10:  # switch off after 8s
                         validating = 0
@@ -266,7 +265,7 @@ def load_deltabest(filepath:str, combo: str):
                 save_deltabest(bestlist, filepath, combo)
     except (FileNotFoundError, IndexError, ValueError, TypeError):
         logger.info("MISSING: deltabest data")
-        bestlist = [(MAGIC_NUM,MAGIC_NUM)]
+        bestlist = DELTA_DEFAULT
         laptime_best = MAGIC_NUM
     return bestlist, laptime_best
 

@@ -34,6 +34,7 @@ from .. import validator as val
 
 MODULE_NAME = "module_fuel"
 DELTA_ZERO = 0.0,0.0
+DELTA_DEFAULT = (DELTA_ZERO,)
 
 logger = logging.getLogger(__name__)
 round6 = partial(round, ndigits=6)
@@ -104,7 +105,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
 
     delta_list_last, used_last, laptime_last = load_delta(filepath, combo_id, extension)
     delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
-    delta_list_temp = [DELTA_ZERO]  # last lap temp
+    delta_list_temp = DELTA_DEFAULT  # last lap temp
     delta_fuel = 0  # delta fuel consumption compare to last lap
 
     amount_start = 0  # start fuel reading
@@ -194,7 +195,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
                 if api.read.timing.last_laptime() > 0:
                     used_last = used_last_raw
                     delta_list_last = delta_list_temp
-                    delta_list_temp = [DELTA_ZERO]
+                    delta_list_temp = DELTA_DEFAULT
                     validating = False
                     delayed_save = True
             elif 3 < laptime_curr < 5:  # switch off after 3s
@@ -297,7 +298,7 @@ def load_delta(filepath: str, combo: str, extension: str):
                 save_delta(lastlist, filepath, combo, extension)
     except (FileNotFoundError, IndexError, ValueError, TypeError):
         logger.info("MISSING: %s data", extension)
-        lastlist = [(99999,0,0)]
+        lastlist = DELTA_DEFAULT
         used_last = 0
         laptime_last = 0
     return lastlist, used_last, laptime_last
