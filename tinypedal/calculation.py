@@ -191,8 +191,8 @@ def rotate_pos(ori_rad, value1, value2):
             cos_rad * value2 + sin_rad * value1)
 
 
-def lap_distance_progress(dist, length):
-    """Current lap (distance into lap) progress fraction"""
+def lap_progress_distance(dist, length):
+    """Current lap progress (distance into lap) fraction"""
     if length:
         return min(max(dist / length, 0), 1)
     return 0
@@ -203,6 +203,20 @@ def lap_progress_correction(percent, laptime):
     if percent > 0.5 > laptime:
         return 0
     return percent
+
+
+def lap_progress_offset(laptime, lap_into, seconds_delay):
+    """Lap progress offset (fraction) by seconds delay, such as pit stop"""
+    if laptime:
+        return 1 - (seconds_delay / laptime - lap_into) % 1
+    return 0
+
+
+def lap_progress_difference(ahead_laptime, behind_laptime):
+    """Lap progress difference (fraction) between player ahead & behind"""
+    if behind_laptime > 0:
+        return (behind_laptime - ahead_laptime) / behind_laptime
+    return 0
 
 
 def circular_relative_distance(circle_length, plr_dist, opt_dist):
@@ -501,7 +515,9 @@ def lap_type_laps_remain(laps_full_remain, lap_into):
 
 def end_timer_laps_remain(lap_into, laptime_last, seconds_remain):
     """Estimated remaining laps(fraction) count from finish line after race timer ended"""
-    if laptime_last and seconds_remain >= 0:
+    if laptime_last:
+        if seconds_remain <= 0:
+            return lap_into
         return seconds_remain / laptime_last + lap_into
     return 0
 

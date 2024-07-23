@@ -228,7 +228,7 @@ class Lap(DataAdapter):
 
     def progress(self, index: int | None = None) -> float:
         """Lap progress fraction (distance into lap)"""
-        return calc.lap_distance_progress(self.distance(index), self.track_length())
+        return calc.lap_progress_distance(self.distance(index), self.track_length())
 
     def maximum(self) -> int:
         """Maximum lap"""

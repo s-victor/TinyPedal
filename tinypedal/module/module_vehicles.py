@@ -79,7 +79,7 @@ class Realtime(DataModule):
         # Local player data
         plr_total_laps = api.read.lap.total_laps()
         plr_lap_distance = api.read.lap.distance()
-        plr_lap_progress = calc.lap_distance_progress(plr_lap_distance, track_length)
+        plr_lap_progress = calc.lap_progress_distance(plr_lap_distance, track_length)
         plr_speed = api.read.vehicle.speed()
         plr_pos_xz = (api.read.vehicle.position_longitudinal(),
                       api.read.vehicle.position_lateral())
@@ -114,7 +114,7 @@ class Realtime(DataModule):
             total_laps = api.read.lap.total_laps(index)
             lap_distance = api.read.lap.distance(index)
 
-            lap_progress = calc.lap_distance_progress(lap_distance, track_length)
+            lap_progress = calc.lap_progress_distance(lap_distance, track_length)
             relative_distance = calc.circular_relative_distance(
                 track_length, plr_lap_distance, lap_distance
                 ) if not is_player else 0
@@ -234,7 +234,7 @@ class Realtime(DataModule):
             return 0.0
         opt_total_laps = api.read.lap.total_laps(opt_index)
         opt_lap_distance = api.read.lap.distance(opt_index)
-        opt_lap_progress = calc.lap_distance_progress(opt_lap_distance, track_length)
+        opt_lap_progress = calc.lap_progress_distance(opt_lap_distance, track_length)
         lap_diff = abs(opt_total_laps + opt_lap_progress - total_laps - lap_progress)
         if lap_diff > 1:
             return int(lap_diff)
