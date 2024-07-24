@@ -20,7 +20,6 @@
 Vehicles module
 """
 
-import array
 import logging
 from collections import namedtuple
 
@@ -39,7 +38,6 @@ class Realtime(DataModule):
 
     def __init__(self, config):
         super().__init__(config, MODULE_NAME)
-        self.pit_timer = tuple(array.array("f", [0,-1,0]) for _ in range(128))
 
     def update_data(self):
         """Update module data"""
@@ -141,7 +139,7 @@ class Realtime(DataModule):
             num_pit_stops = api.read.vehicle.number_pitstops(index)
             pit_state = api.read.vehicle.pit_state(index)
             pit_time = self.__calc_pit_time(
-                self.pit_timer[index], in_pit, in_garage, laptime_last, lap_etime,
+                minfo.vehicles.pitTimer[index], in_pit, in_garage, lap_etime,
                 in_pit * 1000 + slot_id)
             tire_compound = api.read.tyre.compound(index)
 
@@ -199,7 +197,7 @@ class Realtime(DataModule):
             )
 
     @staticmethod
-    def __calc_pit_time(pit_timer, in_pit, in_garage, laptime_last, lap_etime, pit_status):
+    def __calc_pit_time(pit_timer, in_pit, in_garage, lap_etime, pit_status):
         """Calculate lap & pit time
 
         Index:
@@ -211,6 +209,8 @@ class Realtime(DataModule):
         if pit_status != pit_timer[0]:
             pit_timer[0] = pit_status  # last pit status
             pit_timer[1] = lap_etime  # last etime stamp
+            if in_pit:  # reset pit time if just entered pit
+                pit_timer[2] = 0
         # Ignore pit timer in garage
         if in_garage:
             pit_timer[1] = -1
@@ -220,10 +220,6 @@ class Realtime(DataModule):
         if in_pit:
             if pit_timer[1] >= 0:
                 pit_timer[2] = min(max(lap_etime - pit_timer[1], 0), 999.9)
-        # Reset pit time if made a valid lap time after pitting
-        else:
-            if pit_timer[2] and laptime_last > 0:
-                pit_timer[2] = 0
         return pit_timer[2]
 
     @staticmethod

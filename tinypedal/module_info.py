@@ -21,6 +21,8 @@ Module info
 """
 
 from __future__ import annotations
+import array
+
 from dataclasses import dataclass, field
 from collections import deque
 
@@ -70,6 +72,7 @@ class FuelInfo:
     amountEndStint: float = 0
     lastLapConsumption: float = 0
     estimatedConsumption: float = 0
+    estimatedValidConsumption: float = 0
     estimatedLaps: float = 0
     estimatedMinutes: float = 0
     estimatedEmptyCapacity: float = 0
@@ -152,11 +155,21 @@ class RestAPIInfo:
 
 @dataclass
 class VehiclesInfo:
-    """Vehicles module output data"""
+    """Vehicles module output data
+
+    pitTimer list:
+        0 = in pit state
+        1 = pit start time
+        2 = pit timer
+    """
     dataSet: tuple = field(default_factory=tuple)
     dataSetVersion: int = -1
+    pitTimer: tuple = field(default_factory=tuple)
     nearestTraffic: float = 999999
     nearestYellow: float = 999999
+
+    def __post_init__(self):
+        self.pitTimer = tuple(array.array("f", [0,-1,0]) for _ in range(128))
 
 
 @dataclass

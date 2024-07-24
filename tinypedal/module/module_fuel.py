@@ -266,6 +266,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
         output.amountEndStint = amount_end
         output.lastLapConsumption = used_last_raw
         output.estimatedConsumption = used_last + delta_fuel
+        output.estimatedValidConsumption = used_est
         output.estimatedLaps = est_runlaps
         output.estimatedMinutes = est_runmins
         output.estimatedEmptyCapacity = est_empty

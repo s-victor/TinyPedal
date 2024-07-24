@@ -45,7 +45,7 @@ class Draw(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        self.forecast_count = min(max(self.wcfg["number_of_forecasts"], 1), 4) + 1
+        self.total_slot = min(max(self.wcfg["number_of_forecasts"], 1), 4) + 1
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
         self.icon_size = int(max(self.wcfg["icon_size"], 16) * 0.5) * 2
@@ -111,7 +111,7 @@ class Draw(Overlay):
         column_temp = self.wcfg["column_index_ambient_temperature"]
         column_rain = self.wcfg["column_index_rain_chance_bar"]
 
-        for index in range(self.forecast_count):
+        for index in range(self.total_slot):
             # Create column layout
             setattr(self, f"layout_{index}", QGridLayout())
             getattr(self, f"layout_{index}").setSpacing(0)
@@ -156,7 +156,7 @@ class Draw(Overlay):
                     getattr(self, f"layout_{index}"), 0, index)
             else:  # right to left layout
                 layout.addLayout(
-                    getattr(self, f"layout_{index}"), 0, self.forecast_count - 1 - index)
+                    getattr(self, f"layout_{index}"), 0, self.total_slot - 1 - index)
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -188,7 +188,7 @@ class Draw(Overlay):
                             index_offset = index - 1
                         break
 
-            for index in range(self.forecast_count):
+            for index in range(self.total_slot):
                 index_bias = index + index_offset
 
                 if index == 0:

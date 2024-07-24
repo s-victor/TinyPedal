@@ -160,8 +160,13 @@ class Realtime(DataModule):
                         if laptime_valid > 0 and abs(laptime_valid - laptime_last) < 2:
                             # Update laptime pace
                             if not pit_lap:
+                                # Set initial laptime
                                 if laptime_pace <= 0 or laptime_pace >= MAGIC_NUM:
                                     laptime_pace = laptime_valid
+                                # Align to faster laptime if possible
+                                elif laptime_valid < laptime_pace:
+                                    laptime_pace = laptime_valid
+                                # Update laptime pace using EMA
                                 elif laptime_valid <= laptime_pace_multiplier * laptime_pace:
                                     laptime_pace = calc_ema_laptime(laptime_pace,
                                         min(laptime_valid, laptime_pace + laptime_pace_margin))

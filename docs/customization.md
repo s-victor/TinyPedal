@@ -463,7 +463,7 @@ Enable delta module.
 Set number of samples for delta data smoothing calculation using exponential moving average (EMA) method. Value range in `1` to `100`. Higher value results more smoothness, but may lose accuracy. Default is `30` samples. Set to `1` to disable smoothing.
 
     laptime_pace_samples
-Set number of samples for average laptime pace calculation (EMA). Initial laptime sample is always based on player's all time personal best laptime if available. Value range in `1` to `20`. Default is `6` samples. Set to `1` to disable averaging.
+Set number of samples for average laptime pace calculation (EMA). Value range in `1` to `20`. Default is `6` samples. Set to `1` to disable averaging. Note, initial laptime pace is always based on player's all time personal best laptime if available. If a new laptime is faster than current laptime pace, it will replace current laptime pace without calculating average.
 
     laptime_pace_margin
 Set additional margin for current laptime that cannot exceed the sum of `laptime pace` and `margin`. This option is used to minimize the impact of unusually slow laptime. Default value is `5` seconds. Minimum value is limited to `0.1`.

@@ -208,14 +208,16 @@ def lap_progress_correction(percent, laptime):
 def lap_progress_offset(laptime, lap_into, seconds_delay):
     """Lap progress offset (fraction) by seconds delay, such as pit stop"""
     if laptime:
-        return 1 - (seconds_delay / laptime - lap_into) % 1
+        return lap_into - seconds_delay / laptime
     return 0
 
 
 def lap_progress_difference(ahead_laptime, behind_laptime):
     """Lap progress difference (fraction) between player ahead & behind"""
-    if behind_laptime > 0:
+    if behind_laptime > ahead_laptime > 0:
         return (behind_laptime - ahead_laptime) / behind_laptime
+    if ahead_laptime > ahead_laptime > 0:
+        return (ahead_laptime - behind_laptime) / ahead_laptime
     return 0
 
 
