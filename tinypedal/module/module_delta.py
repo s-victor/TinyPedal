@@ -156,35 +156,36 @@ class Realtime(DataModule):
                 # Validating 1s after passing finish line
                 if validating:
                     timer = api.read.timing.elapsed() - validating
-                    if 1 < timer <= 10:  # compare current time
-                        if laptime_valid > 0 and abs(laptime_valid - laptime_last) < 2:
-                            # Update laptime pace
-                            if not pit_lap:
-                                # Set initial laptime
-                                if laptime_pace <= 0 or laptime_pace >= MAGIC_NUM:
-                                    laptime_pace = laptime_valid
-                                # Align to faster laptime if possible
-                                elif laptime_valid < laptime_pace:
-                                    laptime_pace = laptime_valid
-                                # Update laptime pace using EMA
-                                elif laptime_valid <= laptime_pace_multiplier * laptime_pace:
-                                    laptime_pace = calc_ema_laptime(laptime_pace,
-                                        min(laptime_valid, laptime_pace + laptime_pace_margin))
-                            # Update delta best list
-                            if laptime_last < laptime_best:
-                                laptime_best = laptime_last
-                                delta_list_best = delta_list_last.copy()
-                                save_deltabest(delta_list_best, self.filepath, combo_id)
-                            # Update delta session best list
-                            if laptime_last < laptime_session_best:
-                                laptime_session_best = laptime_last
-                                delta_list_session = delta_list_last.copy()
-                            # Update delta stint best list
-                            if laptime_last < laptime_stint_best:
-                                laptime_stint_best = laptime_last
-                                delta_list_stint = delta_list_last.copy()
-                            validating = 0
-                    elif timer > 10:  # switch off after 8s
+                    if (1 < timer <= 10 and  # compare current time
+                        laptime_valid > 0 and  # is valid laptime
+                        int(laptime_valid - laptime_last) == 0):  # is matched laptime
+                        # Update laptime pace
+                        if not pit_lap:
+                            # Set initial laptime
+                            if laptime_pace <= 0 or laptime_pace >= MAGIC_NUM:
+                                laptime_pace = laptime_valid
+                            # Align to faster laptime if possible
+                            elif laptime_valid < laptime_pace:
+                                laptime_pace = laptime_valid
+                            # Update laptime pace using EMA
+                            elif laptime_valid <= laptime_pace_multiplier * laptime_pace:
+                                laptime_pace = calc_ema_laptime(laptime_pace,
+                                    min(laptime_valid, laptime_pace + laptime_pace_margin))
+                        # Update delta best list
+                        if laptime_last < laptime_best:
+                            laptime_best = laptime_last
+                            delta_list_best = delta_list_last.copy()
+                            save_deltabest(delta_list_best, self.filepath, combo_id)
+                        # Update delta session best list
+                        if laptime_last < laptime_session_best:
+                            laptime_session_best = laptime_last
+                            delta_list_session = delta_list_last.copy()
+                        # Update delta stint best list
+                        if laptime_last < laptime_stint_best:
+                            laptime_stint_best = laptime_last
+                            delta_list_stint = delta_list_last.copy()
+                        validating = 0
+                    elif timer > 10:  # switch off after 10s
                         validating = 0
 
                 # Calc delta

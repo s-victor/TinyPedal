@@ -99,8 +99,8 @@ def telemetry_fuel():
 def calc_data(output, telemetry_func, filepath, combo_id, extension):
     """Calculate data"""
     recording = False
-    validating = False
     delayed_save = False
+    validating = 0
     pit_lap = 0  # whether pit in or pit out lap
 
     delta_list_last, used_last, laptime_last = load_delta(filepath, combo_id, extension)
@@ -169,7 +169,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
                     round6(lap_stime - last_lap_stime)
                 ))
                 delta_list_temp = delta_list_curr
-                validating = True
+                validating = api.read.timing.elapsed()
             delta_list_curr = [DELTA_ZERO]  # reset
             pos_last = pos_curr
             used_last_raw = used_curr
@@ -191,15 +191,16 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
 
         # Validating 1s after passing finish line
         if validating:
-            if 0.2 < laptime_curr <= 3:  # compare current time
-                if api.read.timing.last_laptime() > 0:
-                    used_last = used_last_raw
-                    delta_list_last = delta_list_temp
-                    delta_list_temp = DELTA_DEFAULT
-                    validating = False
-                    delayed_save = True
-            elif 3 < laptime_curr < 5:  # switch off after 3s
-                validating = False
+            timer = api.read.timing.elapsed() - validating
+            if (0.3 < timer <= 3 and  # compare current time
+                api.read.timing.last_laptime() > 0):  # is valid laptime
+                used_last = used_last_raw
+                delta_list_last = delta_list_temp
+                delta_list_temp = DELTA_DEFAULT
+                delayed_save = True
+                validating = 0
+            elif timer > 3:  # switch off after 3s
+                validating = 0
 
         # Calc delta
         if gps_last != gps_curr:
