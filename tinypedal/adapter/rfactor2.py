@@ -214,7 +214,7 @@ class Lap(DataAdapter):
         """Current lap number"""
         return chknm(self.info.rf2TeleVeh(index).mLapNumber)
 
-    def total_laps(self, index: int | None = None) -> int:
+    def completed_laps(self, index: int | None = None) -> int:
         """Total completed laps"""
         return chknm(self.info.rf2ScorVeh(index).mTotalLaps)
 

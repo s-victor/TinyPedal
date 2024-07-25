@@ -73,7 +73,7 @@ class Realtime(DataModule):
                 if (minfo.history.consumption[0][2] != minfo.delta.lapTimeLast
                     > minfo.delta.lapTimeCurrent > 2):  # record 2s after pass finish line
                     minfo.history.consumption.appendleft((
-                        api.read.lap.total_laps() - 1,
+                        api.read.lap.completed_laps() - 1,
                         minfo.delta.isValidLap,
                         minfo.delta.lapTimeLast,
                         minfo.fuel.lastLapConsumption,
@@ -147,7 +147,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
         in_garage = api.read.vehicle.in_garage()
         pos_curr = api.read.lap.distance()
         gps_curr = api.read.vehicle.position_xyz()
-        lap_number = api.read.lap.total_laps()
+        laps_done = api.read.lap.completed_laps()
         lap_into = api.read.lap.progress()
         pit_lap = bool(pit_lap + api.read.vehicle.in_pits())
         laptime_last = minfo.delta.lapTimePace
@@ -220,12 +220,12 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
 
         # Exclude first lap & pit in/out lap
         used_est = calc.end_lap_consumption(
-            used_last, delta_fuel, 0 == pit_lap < lap_number)
+            used_last, delta_fuel, 0 == pit_lap < laps_done)
 
         # Total refuel = laps left * last consumption - remaining fuel
         if api.read.session.lap_type():  # lap-type
             full_laps_left = calc.lap_type_full_laps_remain(
-                api.read.lap.maximum(), lap_number)
+                api.read.lap.maximum(), laps_done)
             laps_left = calc.lap_type_laps_remain(
                 full_laps_left, lap_into)
         elif laptime_last > 0:  # time-type race

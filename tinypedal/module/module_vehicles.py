@@ -75,7 +75,7 @@ class Realtime(DataModule):
         class_list_size = len(class_pos_list)
 
         # Local player data
-        plr_total_laps = api.read.lap.total_laps()
+        plr_laps_done = api.read.lap.completed_laps()
         plr_lap_distance = api.read.lap.distance()
         plr_lap_progress = calc.lap_progress_distance(plr_lap_distance, track_length)
         plr_speed = api.read.vehicle.speed()
@@ -109,7 +109,7 @@ class Realtime(DataModule):
             speed = api.read.vehicle.speed(index)
 
             # Distance & time
-            total_laps = api.read.lap.total_laps(index)
+            laps_done = api.read.lap.completed_laps(index)
             lap_distance = api.read.lap.distance(index)
 
             lap_progress = calc.lap_progress_distance(lap_distance, track_length)
@@ -121,13 +121,13 @@ class Realtime(DataModule):
                 ) if not is_player else 0
 
             gap_behind_next_in_class = self.__calc_gap_behind_next_in_class(
-                opt_index_ahead, track_length, speed, total_laps, lap_progress)
+                opt_index_ahead, track_length, speed, laps_done, lap_progress)
             gap_behind_next = self.__calc_gap_behind_next(index)
             gap_behind_leader = self.__calc_gap_behind_leader(index)
 
             is_lapped = 0 if is_player or not in_race else calc.lap_difference(
-                total_laps + lap_progress,
-                plr_total_laps + plr_lap_progress,
+                laps_done + lap_progress,
+                plr_laps_done + plr_lap_progress,
                 self.mcfg["lap_difference_ahead_threshold"],
                 self.mcfg["lap_difference_behind_threshold"]
                 )
@@ -224,14 +224,14 @@ class Realtime(DataModule):
 
     @staticmethod
     def __calc_gap_behind_next_in_class(
-        opt_index, track_length, speed, total_laps, lap_progress):
+        opt_index, track_length, speed, laps_done, lap_progress):
         """Calculate interval behind next in class"""
         if opt_index < 0:
             return 0.0
-        opt_total_laps = api.read.lap.total_laps(opt_index)
+        opt_laps_done = api.read.lap.completed_laps(opt_index)
         opt_lap_distance = api.read.lap.distance(opt_index)
         opt_lap_progress = calc.lap_progress_distance(opt_lap_distance, track_length)
-        lap_diff = abs(opt_total_laps + opt_lap_progress - total_laps - lap_progress)
+        lap_diff = abs(opt_laps_done + opt_lap_progress - laps_done - lap_progress)
         if lap_diff > 1:
             return int(lap_diff)
         return calc.relative_time_gap(

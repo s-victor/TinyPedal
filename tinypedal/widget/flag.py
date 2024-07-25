@@ -206,11 +206,11 @@ class Draw(Overlay):
         self.checked = False
         self.last_in_pits = 0
         self.pit_timer_start = 0
-        self.last_pitting_state = 0
+        self.last_pitting_state = 0, -1
         self.last_fuel_usage = None
         self.last_limiter_state = None
         self.blue_flag_timer_start = 0
-        self.last_blue_state = None
+        self.last_blue_state = -1, -1
         self.last_yellow_state = None
         self.last_green_state = None
         self.last_lap_stime = 0
