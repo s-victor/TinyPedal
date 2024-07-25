@@ -232,9 +232,8 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
             end_timer_laps_left = calc.end_timer_laps_remain(
                 lap_into, laptime_last, time_left)
             full_laps_left = roundup(end_timer_laps_left)
-            if laptime_curr > 0.2:
-                laps_left = calc.time_type_laps_remain(
-                    full_laps_left, lap_into)
+            laps_left = calc.time_type_laps_remain(
+                full_laps_left, lap_into)
 
         amount_need = calc.total_fuel_needed(
             laps_left, used_est, amount_curr)
