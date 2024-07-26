@@ -575,9 +575,9 @@ class Draw(Overlay):
     def set_laptime(inpit, laptime_last, pit_time):
         """Set lap time"""
         if inpit:
-            return "PIT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
+            return "PIT" + f"{pit_time:.1f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
         if laptime_last <= 0:
-            return "OUT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
+            return "OUT" + f"{pit_time:.1f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
         return calc.sec2laptime_full(laptime_last)[:8].rjust(8)
 
     def get_data(self, index, vehicles_data):
@@ -607,7 +607,7 @@ class Draw(Overlay):
         veh_class = vehicles_data[index].vehicleClass
 
         # 7 Time gap
-        time_gap = (f"{vehicles_data[index].relativeTimeGap:.0{self.gap_decimals}f}", is_lapped)
+        time_gap = (f"{vehicles_data[index].relativeTimeGap:.{self.gap_decimals}f}", is_lapped)
 
         # 8 Tyre compound index
         tire_idx = vehicles_data[index].tireCompound

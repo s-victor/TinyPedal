@@ -327,5 +327,5 @@ class Draw(Overlay):
     def format_angle(self, angle):
         """Format angle text"""
         if self.wcfg["show_degree_sign"]:
-            return f" {abs(angle):.0{self.decimals}f}°"
-        return f"{abs(angle):.0{self.decimals}f}"
+            return f" {abs(angle):.{self.decimals}f}°"
+        return f"{abs(angle):.{self.decimals}f}"

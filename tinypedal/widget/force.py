@@ -162,7 +162,7 @@ class Draw(Overlay):
 
             # Downforce ratio
             if self.wcfg["show_downforce_ratio"]:
-                df_ratio = f"{minfo.force.downForceRatio:.02f}"[:5].strip(".")
+                df_ratio = f"{minfo.force.downForceRatio:.2f}"[:5].strip(".")
                 self.update_df_ratio(df_ratio, self.last_df_ratio)
                 self.last_df_ratio = df_ratio
 

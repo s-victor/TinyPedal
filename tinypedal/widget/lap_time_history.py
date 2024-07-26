@@ -226,11 +226,11 @@ class Draw(Overlay):
             self.update_laps("time", time_text, self.last_time_text)
             self.last_time_text = time_text
 
-            fuel_text = f"{self.laps_data[3]:04.02f}"[:4].rjust(4)
+            fuel_text = f"{self.laps_data[3]:04.2f}"[:4].rjust(4)
             self.update_laps("fuel", fuel_text, self.last_fuel_text)
             self.last_fuel_text = fuel_text
 
-            wear_text = f"{self.laps_data[4]:.01f}"[:3].rjust(3)
+            wear_text = f"{self.laps_data[4]:.1f}"[:3].rjust(3)
             self.update_laps("wear", wear_text, self.last_wear_text)
             self.last_wear_text = wear_text
 
@@ -250,10 +250,10 @@ class Draw(Overlay):
                 calc.sec2laptime_full(curr[1])[:8].rjust(8)
             )
             getattr(self, f"bar_last_fuel{index}").setText(
-                f"{curr[3]:04.02f}"[:4].rjust(4)
+                f"{curr[3]:04.2f}"[:4].rjust(4)
             )
             getattr(self, f"bar_last_wear{index}").setText(
-                f"{curr[4]:.01f}"[:3].rjust(3)
+                f"{curr[4]:.1f}"[:3].rjust(3)
             )
 
             if curr[2]:

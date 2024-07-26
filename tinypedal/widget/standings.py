@@ -648,9 +648,9 @@ class Draw(Overlay):
     def set_laptime(inpit, laptime_last, pit_time):
         """Set lap time"""
         if inpit:
-            return "PIT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
+            return "PIT" + f"{pit_time:.1f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
         if laptime_last <= 0:
-            return "OUT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
+            return "OUT" + f"{pit_time:.1f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
         return calc.sec2laptime_full(laptime_last)[:8].rjust(8)
 
     @staticmethod
@@ -670,7 +670,7 @@ class Draw(Overlay):
             return self.wcfg["time_gap_leader_text"]
         if time < 0 or bestlap < 1:  # no time set
             return "0.0"
-        return f"{time:.0{self.gap_decimals}f}"
+        return f"{time:.{self.gap_decimals}f}"
 
     def gap_to_leader_race(self, gap_behind, position):
         """Gap to race leader"""
@@ -678,7 +678,7 @@ class Draw(Overlay):
             return self.wcfg["time_gap_leader_text"]
         if isinstance(gap_behind, int):
             return f"{gap_behind:.0f}L"
-        return f"{gap_behind:.0{self.gap_decimals}f}"
+        return f"{gap_behind:.{self.gap_decimals}f}"
 
     def int_to_next(self, gap_behind_class, gap_behind, position_class, position):
         """Interval to next"""
@@ -693,7 +693,7 @@ class Draw(Overlay):
             return self.wcfg["time_interval_leader_text"]
         if isinstance(gap, int):
             return f"{gap:.0f}L"
-        return f"{gap:.0{self.int_decimals}f}"
+        return f"{gap:.{self.int_decimals}f}"
 
     def get_data(self, index, vehicles_data):
         """Standings data"""

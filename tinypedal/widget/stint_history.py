@@ -284,7 +284,7 @@ class Draw(Overlay):
             self.update_stint("time", time_text, self.last_time_text)
             self.last_time_text = time_text
 
-            fuel_text = f"{self.stint_data[3]:05.01f}"[:5].ljust(5)
+            fuel_text = f"{self.stint_data[3]:05.1f}"[:5].ljust(5)
             self.update_stint("fuel", fuel_text, self.last_fuel_text)
             self.last_fuel_text = fuel_text
 
@@ -321,7 +321,7 @@ class Draw(Overlay):
                 calc.sec2stinttime(curr[2])[:5].ljust(5)
             )
             getattr(self, f"bar_last_fuel{index}").setText(
-                f"{curr[3]:05.01f}"[:5].ljust(5)
+                f"{curr[3]:05.1f}"[:5].ljust(5)
             )
             getattr(self, f"bar_last_cmpd{index}").setText(
                 f"{curr[0]}"[:2].ljust(2)

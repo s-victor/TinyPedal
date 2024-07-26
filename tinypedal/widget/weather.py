@@ -180,11 +180,11 @@ class Draw(Overlay):
     def format_temperature(self, track_deg, air_deg):
         """Format track & ambient temperature"""
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            track_deg = f"{calc.celsius2fahrenheit(track_deg):.02f}"[:4].ljust(4)
-            air_deg = f"{calc.celsius2fahrenheit(air_deg):.02f}"[:4].ljust(4)
+            track_deg = f"{calc.celsius2fahrenheit(track_deg):.2f}"[:4].ljust(4)
+            air_deg = f"{calc.celsius2fahrenheit(air_deg):.2f}"[:4].ljust(4)
         else:
-            track_deg = f"{track_deg:.02f}"[:4].ljust(4)
-            air_deg = f"{air_deg:.02f}"[:4].ljust(4)
+            track_deg = f"{track_deg:.2f}"[:4].ljust(4)
+            air_deg = f"{air_deg:.2f}"[:4].ljust(4)
         return f"{track_deg}({air_deg}){self.sign_temp}"
 
     def format_rain(self, percentage):

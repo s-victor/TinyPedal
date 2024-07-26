@@ -197,7 +197,7 @@ class Draw(Overlay):
             if self.cfg.units["temperature_unit"] == "Fahrenheit":
                 curr = calc.celsius2fahrenheit(curr)
 
-            format_text = f"{curr:.01f}°"[:7].rjust(7)
+            format_text = f"{curr:.1f}°"[:7].rjust(7)
             self.bar_motor.setText(f"M{format_text}")
             self.bar_motor.setStyleSheet(color)
 
@@ -214,7 +214,7 @@ class Draw(Overlay):
             if self.cfg.units["temperature_unit"] == "Fahrenheit":
                 curr = calc.celsius2fahrenheit(curr)
 
-            format_text = f"{curr:.01f}°"[:7].rjust(7)
+            format_text = f"{curr:.1f}°"[:7].rjust(7)
             self.bar_water.setText(f"W{format_text}")
             self.bar_water.setStyleSheet(color)
 
@@ -227,7 +227,7 @@ class Draw(Overlay):
     def update_torque(self, curr, last):
         """Motor torque"""
         if curr != last:
-            format_text = f"{curr:.02f}"[:6].rjust(6)
+            format_text = f"{curr:.2f}"[:6].rjust(6)
             self.bar_torque.setText(f"{format_text}Nm")
 
     def update_power(self, curr, last):
@@ -239,10 +239,10 @@ class Draw(Overlay):
     def power_units(self, power):
         """Power units"""
         if self.cfg.units["power_unit"] == "Kilowatt":
-            text = f"{power:.02f}"[:6].rjust(6)
+            text = f"{power:.2f}"[:6].rjust(6)
             return f"{text}kW"
         if self.cfg.units["power_unit"] == "Horsepower":
-            text = f"{calc.kw2hp(power):.02f}"[:6].rjust(6)
+            text = f"{calc.kw2hp(power):.2f}"[:6].rjust(6)
             return f"{text}hp"
-        text = f"{calc.kw2ps(power):.02f}"[:6].rjust(6)
+        text = f"{calc.kw2ps(power):.2f}"[:6].rjust(6)
         return f"{text}ps"

@@ -302,11 +302,11 @@ class Draw(Overlay):
                 if curr[1]:  # highlight state
                     color = (f"color: {self.wcfg['font_color_pit_timer_stopped']};"
                              f"background: {self.wcfg['bkg_color_pit_timer_stopped']};")
-                    state = "F " + f"{min(curr[0], 999.99):.02f}"[:5].rjust(5)
+                    state = "F " + f"{min(curr[0], 999.99):.2f}"[:5].rjust(5)
                 elif api.read.session.pit_open():
                     color = (f"color: {self.wcfg['font_color_pit_timer']};"
                              f"background: {self.wcfg['bkg_color_pit_timer']};")
-                    state = "P " + f"{min(curr[0], 999.99):.02f}"[:5].rjust(5)
+                    state = "P " + f"{min(curr[0], 999.99):.2f}"[:5].rjust(5)
                 else:
                     color = (f"color: {self.wcfg['font_color_pit_closed']};"
                              f"background: {self.wcfg['bkg_color_pit_closed']};")
@@ -322,7 +322,7 @@ class Draw(Overlay):
         """Low fuel warning"""
         if curr != last:
             if curr[1]:
-                self.bar_lowfuel.setText(curr[2] + f"{curr[0]:.02f}"[:4].rjust(5))
+                self.bar_lowfuel.setText(curr[2] + f"{curr[0]:.2f}"[:4].rjust(5))
                 self.bar_lowfuel.show()
             else:
                 self.bar_lowfuel.hide()
@@ -382,7 +382,7 @@ class Draw(Overlay):
         """Incoming traffic"""
         if curr != last:
             if curr[1]:
-                self.bar_traffic.setText(f"≥{curr[0]:6.01f}")
+                self.bar_traffic.setText(f"≥{curr[0]:6.1f}")
                 self.bar_traffic.show()
             else:
                 self.bar_traffic.hide()
@@ -391,8 +391,8 @@ class Draw(Overlay):
         """Pit request"""
         if curr != last:
             if curr[0] == 1:
-                countdown = f"{curr[1]:3.02f}"[:3].strip(".").ljust(3)
-                est_laps = f"{curr[2]:3.02f}"[:3].strip(".").rjust(3)
+                countdown = f"{curr[1]:3.2f}"[:3].strip(".").ljust(3)
+                est_laps = f"{curr[2]:3.2f}"[:3].strip(".").rjust(3)
                 self.bar_pit_request.setText(f"{countdown}≤{est_laps}")
                 self.bar_pit_request.show()
             else:

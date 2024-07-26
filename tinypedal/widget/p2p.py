@@ -166,7 +166,7 @@ class Draw(Overlay):
             else:
                 fgcolor = self.wcfg["bkg_color_inactive"]
 
-            format_text = f"{curr[0]:.02f}"[:4]
+            format_text = f"{curr[0]:.2f}"[:4]
             self.bar_active_timer.setText(format_text)
             self.bar_active_timer.setStyleSheet(
                 f"color: {fgcolor};"

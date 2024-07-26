@@ -185,24 +185,24 @@ class Draw(Overlay):
                 color = (f"color: {self.wcfg['font_color_battery_charge']};"
                          f"background: {self.wcfg['warning_color_low_battery']};")
 
-            format_text = f"{curr:.02f}"[:7].rjust(7)
+            format_text = f"{curr:.2f}"[:7].rjust(7)
             self.bar_battery_charge.setText(f"B{format_text}")
             self.bar_battery_charge.setStyleSheet(color)
 
     def update_battery_drain(self, curr, last):
         """Battery drain"""
         if curr != last:
-            format_text = f"{curr:.02f}"[:7].rjust(7)
+            format_text = f"{curr:.2f}"[:7].rjust(7)
             self.bar_battery_drain.setText(f"-{format_text}")
 
     def update_battery_regen(self, curr, last):
         """Battery regen"""
         if curr != last:
-            format_text = f"{curr:.02f}"[:7].rjust(7)
+            format_text = f"{curr:.2f}"[:7].rjust(7)
             self.bar_battery_regen.setText(f"+{format_text}")
 
     def update_activation_timer(self, curr, last):
         """Motor activation timer"""
         if curr != last:
-            format_text = f"{curr:.02f}"[:7].rjust(7)
+            format_text = f"{curr:.2f}"[:7].rjust(7)
             self.bar_activation_timer.setText(f"{format_text}s")

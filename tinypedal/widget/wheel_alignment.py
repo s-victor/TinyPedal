@@ -183,7 +183,7 @@ class Draw(Overlay):
     def update_wheel(self, suffix, curr, last):
         """Wheel data"""
         if curr != last:
-            getattr(self, f"bar_{suffix}").setText(f"{curr:+.02f}"[:5].rjust(5))
+            getattr(self, f"bar_{suffix}").setText(f"{curr:+.2f}"[:5].rjust(5))
 
     @staticmethod
     def round2decimal(value):

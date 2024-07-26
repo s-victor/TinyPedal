@@ -233,7 +233,7 @@ class Draw(Overlay):
             time_diff = self.calc_sector_time(delta_pb, sec_index)
             prefix = "PB"
 
-        text = f"{time_diff:+.03f}"[:8].rjust(9)
+        text = f"{time_diff:+.3f}"[:8].rjust(9)
         color = (f"color: {self.color_delta(time_diff, 1)};"
                  f"background: {self.wcfg['bkg_color_target_time']};")
         return f"{prefix}{text}", color
@@ -241,7 +241,7 @@ class Draw(Overlay):
     def update_sector_gap(self, suffix, curr, last, no_time_set=True):
         """Gap to best sector time"""
         if curr != last and not no_time_set:
-            text = f"{curr:+.03f}"[:7]
+            text = f"{curr:+.3f}"[:7]
             color = (f"color: {self.wcfg['font_color_sector_highlighted']};"
                      f"background: {self.color_delta(curr, 0)};")
             getattr(self, f"bar_{suffix}").setText(text)
@@ -284,7 +284,7 @@ class Draw(Overlay):
         for idx in range(3):
             text_s = f"S{idx+1}"
             if val.sector_time(sector_time[idx]):
-                text_s = f"{sector_time[idx]:.03f}"[:7]
+                text_s = f"{sector_time[idx]:.3f}"[:7]
 
             getattr(self, f"bar_s{idx+1}_gap").setText(text_s)
             getattr(self, f"bar_s{idx+1}_gap").setStyleSheet(

@@ -277,13 +277,13 @@ def sec2sessiontime(seconds: float) -> str:
 def sec2laptime(seconds: float) -> str:
     """Lap time (min/sec/ms)"""
     if seconds > 60:
-        return f"{seconds // 60:.0f}:{seconds % 60:06.03f}"
-    return f"{seconds % 60:.03f}"
+        return f"{seconds // 60:.0f}:{seconds % 60:06.3f}"
+    return f"{seconds % 60:.3f}"
 
 
 def sec2laptime_full(seconds: float) -> str:
     """Lap time (min/sec/ms) full"""
-    return f"{seconds // 60:.0f}:{seconds % 60:06.03f}"
+    return f"{seconds // 60:.0f}:{seconds % 60:06.3f}"
 
 
 def sec2stinttime(seconds: float) -> str:

@@ -219,7 +219,7 @@ class Draw(Overlay):
         """Lap number"""
         if curr != last:
             lap_total = lap_max if api.read.session.lap_type() else "-"
-            lap_text = f"{self.wcfg['prefix_lap_number']}{curr:02.02f}/{lap_total}"
+            lap_text = f"{self.wcfg['prefix_lap_number']}{curr:02.2f}/{lap_total}"
 
             self.bar_lapnumber.setText(lap_text)
             self.bar_lapnumber.setStyleSheet(self.bar_min_width(

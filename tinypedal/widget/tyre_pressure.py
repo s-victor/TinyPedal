@@ -131,7 +131,7 @@ class Draw(Overlay):
     def tyre_pressure_units(self, value):
         """Tyre pressure units"""
         if self.cfg.units["tyre_pressure_unit"] == "psi":
-            return f"{calc.kpa2psi(value):.01f}"
+            return f"{calc.kpa2psi(value):.1f}"
         if self.cfg.units["tyre_pressure_unit"] == "bar":
-            return f"{calc.kpa2bar(value):.02f}"
+            return f"{calc.kpa2bar(value):.2f}"
         return f"{value:.0f}"  # kPa

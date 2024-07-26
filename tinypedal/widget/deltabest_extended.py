@@ -212,5 +212,5 @@ class Draw(Overlay):
     def update_deltabest(self, curr, last, prefix, suffix):
         """Update deltabest"""
         if curr != last:
-            text = f"{calc.sym_range(curr, self.wcfg['delta_display_range']):+.03f}"[:6].rjust(6)
+            text = f"{calc.sym_range(curr, self.wcfg['delta_display_range']):+.3f}"[:6].rjust(6)
             getattr(self, f"bar_time_{suffix}").setText(f"{prefix}{text}")

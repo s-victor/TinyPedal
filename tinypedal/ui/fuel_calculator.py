@@ -163,22 +163,22 @@ class FuelCalculator(QDialog):
             laptime.setFlags(Qt.ItemFlags(33))
 
             used_fuel = QTableWidgetItem()
-            used_fuel.setText(f"{self.fuel_units(lap[3]):.03f}")
+            used_fuel.setText(f"{self.fuel_units(lap[3]):.3f}")
             used_fuel.setTextAlignment(Qt.AlignCenter)
             used_fuel.setFlags(Qt.ItemFlags(33))
 
             used_energy = QTableWidgetItem()
-            used_energy.setText(f"{lap[4]:.03f}")
+            used_energy.setText(f"{lap[4]:.3f}")
             used_energy.setTextAlignment(Qt.AlignCenter)
             used_energy.setFlags(Qt.ItemFlags(33))
 
             battery_drain = QTableWidgetItem()
-            battery_drain.setText(f"{lap[5]:.03f}")
+            battery_drain.setText(f"{lap[5]:.3f}")
             battery_drain.setTextAlignment(Qt.AlignCenter)
             battery_drain.setFlags(Qt.ItemFlags(0))
 
             battery_regen = QTableWidgetItem()
-            battery_regen.setText(f"{lap[6]:.03f}")
+            battery_regen.setText(f"{lap[6]:.3f}")
             battery_regen.setTextAlignment(Qt.AlignCenter)
             battery_regen.setFlags(Qt.ItemFlags(0))
 
@@ -642,7 +642,7 @@ class FuelCalculator(QDialog):
         if cfg.units["fuel_unit"] == "Gallon":
             fuel_used *= 3.785411784
         fuel_ratio = calc.fuel_to_energy_ratio(fuel_used, energy_used)
-        self.lineedit_fuel_ratio.setText(f"{fuel_ratio:.03f}")
+        self.lineedit_fuel_ratio.setText(f"{fuel_ratio:.3f}")
 
         # Calc fuel
         if all((laptime, tank_capacity, fuel_used, total_race_seconds + total_race_laps)):
@@ -718,19 +718,19 @@ class FuelCalculator(QDialog):
         # Output
         if output_type == "fuel":
             self.lineedit_total_fuel.setText(
-                f"{total_need_frac:.03f} ≈ {total_need_full}")
+                f"{total_need_frac:.3f} ≈ {total_need_full}")
             self.lineedit_end_fuel.setText(
-                f"{end_stint_fuel:.03f}")
+                f"{end_stint_fuel:.3f}")
             self.lineedit_pit_stops_fuel.setText(
-                f"{max(estimate_pit_counts, 0):.03f} ≈ {max(math.ceil(minimum_pit_counts), 0)}")
+                f"{max(estimate_pit_counts, 0):.3f} ≈ {max(math.ceil(minimum_pit_counts), 0)}")
             self.lineedit_one_less_fuel.setText(
-                f"{max(used_one_less, 0):.03f}")
+                f"{max(used_one_less, 0):.3f}")
             self.lineedit_total_laps_fuel.setText(
-                f"{total_runlaps:.03f}")
+                f"{total_runlaps:.3f}")
             self.lineedit_total_minutes_fuel.setText(
-                f"{total_runmins:.03f}")
+                f"{total_runmins:.3f}")
             self.lineedit_average_refuel.setText(
-                f"{average_refuel:.03f}")
+                f"{average_refuel:.3f}")
             # Set warning color
             if average_refuel > tank_capacity:  # exceeded tank capacity
                 self.lineedit_average_refuel.setStyleSheet("background: #F40;")
@@ -738,19 +738,19 @@ class FuelCalculator(QDialog):
                 self.set_read_only_style(self.lineedit_average_refuel)
         else:
             self.lineedit_total_energy.setText(
-                f"{total_need_frac:.03f} ≈ {total_need_full}")
+                f"{total_need_frac:.3f} ≈ {total_need_full}")
             self.lineedit_end_energy.setText(
-                f"{end_stint_fuel:.03f}")
+                f"{end_stint_fuel:.3f}")
             self.lineedit_pit_stops_energy.setText(
-                f"{max(estimate_pit_counts, 0):.03f} ≈ {max(math.ceil(minimum_pit_counts), 0)}")
+                f"{max(estimate_pit_counts, 0):.3f} ≈ {max(math.ceil(minimum_pit_counts), 0)}")
             self.lineedit_one_less_energy.setText(
-                f"{max(used_one_less, 0):.03f}")
+                f"{max(used_one_less, 0):.3f}")
             self.lineedit_total_laps_energy.setText(
-                f"{total_runlaps:.03f}")
+                f"{total_runlaps:.3f}")
             self.lineedit_total_minutes_energy.setText(
-                f"{total_runmins:.03f}")
+                f"{total_runmins:.3f}")
             self.lineedit_average_replenish.setText(
-                f"{average_refuel:.03f}")
+                f"{average_refuel:.3f}")
             # Set warning color
             if average_refuel > tank_capacity:  # exceeded tank capacity
                 self.lineedit_average_replenish.setStyleSheet("background: #F40;")

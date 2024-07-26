@@ -211,9 +211,9 @@ class Draw(Overlay):
     def format_odometer(self, meter):
         """Format odometer"""
         if self.cfg.units["odometer_unit"] == "Kilometer":
-            return f"{calc.meter2kilometer(meter):6.01f}km"
+            return f"{calc.meter2kilometer(meter):6.1f}km"
         if self.cfg.units["odometer_unit"] == "Mile":
-            return f"{calc.meter2mile(meter):6.01f}mi"
+            return f"{calc.meter2mile(meter):6.1f}mi"
         return f"{meter:7.0f}m"
 
     @staticmethod

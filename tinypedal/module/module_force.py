@@ -234,6 +234,5 @@ class Realtime(DataModule):
                 reset_timer = 0
                 reset_max = True
             # Output
-            # print(f"{braking_rate:.03f} {max_braking_rate:.03f} {delta_braking_rate:.03f}")
             speed, etime = yield (
                 braking_rate, max_braking_rate_transient, max_braking_rate, delta_braking_rate)

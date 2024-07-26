@@ -244,7 +244,7 @@ class Draw(Overlay):
 
             temp = abs(curr)
             if temp < 10:
-                temp_text = f"{self.temp_units(temp):.01f}"
+                temp_text = f"{self.temp_units(temp):.1f}"
             else:
                 temp_text = f"{self.temp_units(temp):.0f}"
 

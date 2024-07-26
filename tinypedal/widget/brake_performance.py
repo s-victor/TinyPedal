@@ -209,13 +209,13 @@ class Draw(Overlay):
     def update_transient_rate(self, curr, last):
         """Transient max braking rate"""
         if curr != last:
-            format_text = f"{curr:.02f}"[:4]
+            format_text = f"{curr:.2f}"[:4]
             self.bar_transient_rate.setText(f"{format_text}g")
 
     def update_max_rate(self, curr, last):
         """Max braking rate"""
         if curr != last:
-            format_text = f"{curr:.02f}"[:4]
+            format_text = f"{curr:.2f}"[:4]
             self.bar_max_rate.setText(f"{format_text}g")
 
     def update_delta_rate(self, curr, last):
@@ -234,18 +234,18 @@ class Draw(Overlay):
             if self.wcfg["show_delta_braking_rate_in_percentage"] and minfo.force.maxBrakingRate:
                 format_text = f"{curr / minfo.force.maxBrakingRate:+.0%}"
             else:
-                format_text = f"{curr:+.02f}"
+                format_text = f"{curr:+.2f}"
             self.bar_delta_rate.setText(format_text[:5])
             self.bar_delta_rate.setStyleSheet(color)
 
     def update_lock_time_f(self, curr, last):
         """Front wheel lock duration"""
         if curr != last:
-            format_text = f"{curr:.01f}"[:3].strip(".").rjust(3)
+            format_text = f"{curr:.1f}"[:3].strip(".").rjust(3)
             self.bar_lock_time_f.setText(f"F {format_text}")
 
     def update_lock_time_r(self, curr, last):
         """Rear wheel lock duration"""
         if curr != last:
-            format_text = f"{curr:.01f}"[:3].strip(".").rjust(3)
+            format_text = f"{curr:.1f}"[:3].strip(".").rjust(3)
             self.bar_lock_time_r.setText(f"R {format_text}")

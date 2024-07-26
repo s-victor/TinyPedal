@@ -101,7 +101,7 @@ class Draw(Overlay):
                 color = (f"color: {self.wcfg['font_color_rake_angle']};"
                          f"background: {self.wcfg['warning_color_negative_rake']};")
 
-            rake_angle = f"{calc.rake2angle(curr, self.wcfg['wheelbase']):+.02f}"[:5]
+            rake_angle = f"{calc.rake2angle(curr, self.wcfg['wheelbase']):+.2f}"[:5]
             ride_diff = f"({abs(curr):02.0f})" if self.wcfg["show_ride_height_difference"] else ""
 
             self.bar_rake.setText(f"{self.prefix_text}{rake_angle}{self.sign_text}{ride_diff}")

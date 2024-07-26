@@ -353,7 +353,7 @@ class Draw(Overlay):
     def update_diff(self, suffix, curr, last, color):
         """Tyre wear differences"""
         if curr != last:
-            getattr(self, f"bar_tdiff_{suffix}").setText(f"{curr:.02f}"[:4].rjust(4))
+            getattr(self, f"bar_tdiff_{suffix}").setText(f"{curr:.2f}"[:4].rjust(4))
             getattr(self, f"bar_tdiff_{suffix}").setStyleSheet(
                 f"color: {self.color_diff(curr, color)};"
                 f"background: {self.wcfg['bkg_color_wear_difference']};"
@@ -426,7 +426,7 @@ class Draw(Overlay):
         """Format number"""
         if value > 99.9:
             return f"{value:.0f}"
-        return f"{value:.01f}"
+        return f"{value:.1f}"
 
     def color_wear(self, tyre_wear, threshold):
         """Warning color for remaining tyre"""

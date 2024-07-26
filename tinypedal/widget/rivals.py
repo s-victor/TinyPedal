@@ -537,9 +537,9 @@ class Draw(Overlay):
     def set_laptime(inpit, laptime_last, pit_time):
         """Set lap time"""
         if inpit:
-            return "PIT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
+            return "PIT" + f"{pit_time:.1f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
         if laptime_last <= 0:
-            return "OUT" + f"{pit_time:.01f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
+            return "OUT" + f"{pit_time:.1f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
         return calc.sec2laptime_full(laptime_last)[:8].rjust(8)
 
     @staticmethod
@@ -553,7 +553,7 @@ class Draw(Overlay):
         """Interval to next"""
         if isinstance(gap_behind_class, int):
             return f"{gap_behind_class:.0f}L"
-        return f"{gap_behind_class:.0{self.int_decimals}f}"
+        return f"{gap_behind_class:.{self.int_decimals}f}"
 
     def get_data(self, index, player_idx, vehicles_data):
         """Standings data"""

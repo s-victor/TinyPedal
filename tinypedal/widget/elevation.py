@@ -349,8 +349,8 @@ class Draw(Overlay):
     def format_elevation(self, meter):
         """Format elevation"""
         if self.cfg.units["distance_unit"] == "Feet":
-            return f"{calc.meter2feet(meter):.01f}ft"
-        return f"{meter:.01f}m"
+            return f"{calc.meter2feet(meter):.1f}ft"
+        return f"{meter:.1f}m"
 
     def format_scale(self, scale):
         """Format elevation scale (meter or feet per pixel)"""

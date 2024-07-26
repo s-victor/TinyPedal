@@ -180,7 +180,7 @@ class Draw(Overlay):
         painter.drawText(
             self.rect_text_delta,
             Qt.AlignCenter,
-            f"{calc.sym_range(self.delta_best, self.wcfg['delta_display_range']):+.03f}"[:7]
+            f"{calc.sym_range(self.delta_best, self.wcfg['delta_display_range']):+.3f}"[:7]
         )
 
     # Additional methods
