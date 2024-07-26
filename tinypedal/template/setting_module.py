@@ -29,7 +29,6 @@ MODULE_DEFAULT = {
         "delta_smoothing_samples": 30,
         "laptime_pace_samples": 6,
         "laptime_pace_margin": 5,
-        "laptime_pace_exclusion_multiplier": 1.2,
     },
     "module_energy": {
         "enable": True,
