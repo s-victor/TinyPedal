@@ -568,6 +568,8 @@ WIDGET_DEFAULT = {
         "trace_style": 0,
         "trace_width": 3,
         "trace_color": "#CCFF2200",
+        "show_trace_fade_out": True,
+        "trace_fade_out_step": 0.2,
         "show_max_average_lateral_g_circle": True,
         "max_average_lateral_g_circle_style": 1,
         "max_average_lateral_g_circle_width": 3,

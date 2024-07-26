@@ -96,6 +96,11 @@ class Draw(Overlay):
         self.resize(self.area_size, self.area_size)
         self.pixmap_background = QPixmap(self.area_size, self.area_size)
         self.pixmap_dot = QPixmap(self.dot_size * 2, self.dot_size * 2)
+        self.pixmap_trace = QPixmap(self.area_size, self.area_size)
+        self.pixmap_trace.fill(Qt.transparent)
+        if self.wcfg["show_trace_fade_out"]:
+            self.pixmap_trace_last = self.pixmap_trace.copy(0, 0, self.area_size, self.area_size)
+            self.trace_fade_out_step = 1 - min(max(self.wcfg["trace_fade_out_step"], 0.1), 0.9) / 2
 
         self.pen = QPen()
         self.pen.setCapStyle(Qt.RoundCap)
@@ -143,6 +148,10 @@ class Draw(Overlay):
             self.last_y = self.scale_position(self.gforce_raw[0])
             if self.wcfg["show_trace"]:
                 self.data_gforce.append(QPointF(self.last_x, self.last_y))
+                self.draw_trace()
+                if self.wcfg["show_trace_fade_out"]:
+                    self.pixmap_trace_last = self.pixmap_trace.copy(
+                        0, 0, self.area_size, self.area_size)
             self.update()
 
     def paintEvent(self, event):
@@ -161,8 +170,8 @@ class Draw(Overlay):
                 self.wcfg["max_average_lateral_g_circle_color"]
             )
         # Draw trace
-        if self.wcfg["show_trace"] and self.data_gforce:
-            self.draw_trace(painter)
+        if self.wcfg["show_trace"]:
+            painter.drawPixmap(0, 0, self.pixmap_trace)
         # Draw dot
         if self.wcfg["show_dot"]:
             painter.drawPixmap(
@@ -273,8 +282,15 @@ class Draw(Overlay):
             painter.setBrush(Qt.NoBrush)
             painter.drawEllipse(circle_pos, circle_pos, circle_size, circle_size)
 
-    def draw_trace(self, painter):
+    def draw_trace(self):
         """Draw trace"""
+        self.pixmap_trace.fill(Qt.transparent)
+        painter = QPainter(self.pixmap_trace)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        if self.wcfg["show_trace_fade_out"]:
+            painter.setOpacity(self.trace_fade_out_step)
+            painter.drawPixmap(0, 0, self.pixmap_trace_last)
+            painter.setOpacity(1.0)
         self.pen.setWidth(self.wcfg["trace_width"])
         self.pen.setColor(self.wcfg["trace_color"])
         self.pen.setStyle(Qt.SolidLine)

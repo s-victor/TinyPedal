@@ -34,6 +34,12 @@ WIP
     If countdown reaches zero or negative, there may still be some fuel or energy left in tank,
     however it will not be enough to complete another full lap.
 
+* Friction circle Widget
+  - Add "show_trace_fade_out" option, which enables trace fade out effect.
+  - Add "trace_fade_out_step" option, which sets trace fade out speed.
+    Value range in "0.1" to "0.9", higher value increases trace fade out speed.
+    Default value is "0.2". This option is enabled by default.
+
 * Timing Widget
   - Add "show_average_pace" option, which shows personal current average laptime pace,
     this reading is also used in real-time fuel calculation.

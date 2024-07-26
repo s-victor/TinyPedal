@@ -1047,6 +1047,12 @@ Set g force trace style. `0` for line style. `1` for point style.
     trace_width
 Set g force trace width in pixels.
 
+    show_trace_fade_out
+Show trace fade out effect.
+
+    trace_fade_out_step
+Set trace fade out speed. Value range in `0.1` to `0.9`, higher value increases trace fade out speed. Default value is `0.2`.
+
     show_center_mark
 Show center mark.
 
