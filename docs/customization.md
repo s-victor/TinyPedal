@@ -1602,6 +1602,131 @@ Show vehicles that are stored in garage stall during race (for example, DNF or D
 Set additional players shown on relative list. Each value is limited to a maximum of 60 additional players (for a total of 120 additional players). Default is `0`.
 
 
+## Relative finish order
+**This widget displays estimated relative finish order between leader and local player with corresponding refilling estimate in a table view.**
+
+The table consists of 5 fixed rows, 3 fixed columns, and 10 optional predication columns that can be customized. Example:
+
+| TIME |   0s  |  30s  |  40s  |  50s  |  60s  |  54s  |
+|:----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
+|  LDR |  0.49 |  0.20 |  0.11 |  0.02 |  0.92 |  0.98 |
+| 0.04 |  0.91 |  0.64 |  0.55 |  0.46 |  0.37 |  0.51 |
+| DIFF |   0s  |  30s  |  40s  |  50s  |  60s  |  43s  |
+|  NRG | +18.1 | +18.1 | +18.1 | +18.1 | +18.1 | +18.1 |
+
+First and fourth rows, starting from second cell, show estimated `leader's pit time` and `local player's pit time`, where first row first cell shows current session type in `TIME` or `LAPS`. Last cell shows last recorded total time that leader and local player had spent in pit. Note, last recorded total pit time counts from pit entry to pit exit point, it doesn't include the extra few seconds that spent while approaching or exiting from pit.
+
+Second and third rows, starting from second cell, show estimated `leader's final lap progress` (fraction of lap) and `local player's final lap progress` that depend on current session type:
+* For `TIME` type race, it shows final lap progress at the moment when session timer ended.
+* For `LAPS` type race, it shows relative final total lap difference between leader and local player.  
+Leader's value from second row second cell always shows `integer value`, because laps-type race has no timer, and the end of race is determined at the moment when leader crossed finish line, which can only be full laps.  
+Local player's value from third row second cell always shows final lap progress relative to leader's value from second row second cell.  
+Both leader's and local player's `final lap progress` values starting from third cell are offset from second cell of same row.
+
+Third row, first cell shows `relative lap difference` between leader and local player that is calculated from lap time pace difference of both players, which can be used to determine whether leader has the chance to overtake local player on final lap. For example:
+* If relative lap difference value shows 0.25, that means for every full lap, leader is faster than local player by 0.25 lap. If leader is at start line and player is just within 0.25 lap distance from leader, that means leader can catch up and overtake player before the end of lap.
+* If relative lap difference value shows 0.25 and leader is at middle of current lap (0.5 lap), that means leader now only has roughly half of the lap distance (0.12 lap) to make successful overtake before the end of lap. If player is not within this 0.12 lap distance, then leader may not be able to overtake.
+
+Fifth row, first cell shows refilling type in `FUEL` or `NRG` (if virtual energy available). Starting from second cell, shows estimated `local player's refilling` that depends on current session type:
+* For `TIME` type race, refilling value from each column is calculated based on local player's current `laptime pace`, `consumption`, and `local player's final lap progress` from third row of same column. Note, each refilling value has no relation to `leader's final lap progress` value from same column. Refilling value from `0s` column gives same reading as seen from `Fuel` or `Virtual Energy` Widget in time-type race.
+* For `LAPS` type race, only refilling value from `0s` column is calculated and displayed according to leader's `leader's final lap progress` value.  
+Other column values are not displayed, this is done to avoid confusion. Because unlike `TIME` type race where all `final lap progress` values are within `0.0` to `1.0` range, in `LAPS` type race values can exceed `1.0` or below `0.0` (negative), which the number of possible lap differences would increase exponentially and not possible to list all of them in the widget.
+
+See `TIME` or `LAPS` type race example usages below for details.
+
+---
+
+**Important notes**
+
+* Predication accuracy depends on many variables and is meant for final stint estimate. Such as laptime pace, pit time, penalties, weather condition, safety car, yellow flag, can all affect predication accuracy. It requires at least 2-3 laps to get sensible readings, and more laps to have better accuracy. **Do not expect accurate readings or plan fuel strategy from first few laps.**
+
+* `Final lap progress` values will not be displayed if no corresponding vaild lap time pace data found, which requires at least 1 or 2 laps to record. If local player is the leader, then all values from leader's row will not be displayed. Refilling values will not be displayed during formation lap for the reasons mentioned in first note.
+
+* Refilling estimate calculation is different between `TIME` and `LAPS` type races, make sure to look at the correct value, check out `example usage` below for details.
+
+* `LMU` currently uses `absolute-refueling` mechanism (how much `total` fuel to fill tank up to), as opposite to relative fuel (how much to `add` on top of remaining fuel in tank). This means user has to manually add up both "remaining" and "refuel/refill" values for total fuel/energy refill.
+
+* This widget is meant for used in complex and endurance race situations. To avoid human error, it is necessary to have a good understanding of this widget and practicing proficiency before attempting to use any provided data in actual race. Once with enough practicing, it should be fairly easy to make the most out of it.
+
+* **Avoid using this widget if unfamiliar or unsure any of the usage or data it provides.**
+
+---
+
+**Time-type race example usage**
+
+| TIME | 0s   | 30s  | 40s  | 50s  | 60s  | 0s   |
+|:----:|:----:|:----:|:----:|:----:|:----:|:----:|
+| LDR  | 0.38 | 0.10 | 0.01 | 0.91 | 0.82 | 0.38 |
+| 0.11 | 0.72 | 0.47 | 0.39 | 0.31 | 0.22 | 0.37 |
+| DIFF | 0s   | 30s  | 40s  | 50s  | 60s  | 43s  |
+| FUEL | +7.4 | +7.4 | +7.4 | +7.4 | +7.4 | +7.4 |
+
+1. Determine leader's next pit time and select `leader's final lap progress` (second row) value from corresponding pit time (first row) column. `0s` column means no pit stop.
+
+2. Determine local player's next pit time and select `local player's final lap progress` (third row) value from corresponding pit time (fourth row) column.
+
+3. Compare the two `final lap progress` values from leader and local player:
+
+    * If leader's `final lap progress` value is greater than local player, such as leader's 0.91 (50s column) vs player's 0.47 (30s column), it indicates that leader will be ahead of local player when timer ended, and there will be no extra final lap. So `local player's refilling` value from corresponding `30s` column can be used, in this case, it's `+7.4` fuel to add.  
+    However, if leader is closer to finish line (as show in orange color indicator), there is a chance that leader may be fast enough to cross finish line before the end of timer, which would result an extra final lap for local player, and requires adding an extra lap of fuel on top of `+7.4` fuel in this case.
+
+    * If local player's `final lap progress` value is greater than leader, such as leader's 0.10 (30s column) vs player's 0.72 (0s column), it indicates that local player will be ahead of leader when timer ended, and there will be an extra final lap for local player, and requires adding an extra lap of fuel on top of `+7.4` fuel from `0s` column.  
+    However, if the difference between the two `final lap progress` values is smaller than `relative lap difference` (from third row first cell) value, it may indicate that leader could overtake local player on final lap, which would result no extra final lap.
+
+4. To sum up, if comparison shows no extra final lap, then just refill according to `local player's refilling` (fifth row) value from the same column of `local player's final lap progress` (third row). If comparison shows an extra final lap, then just add an extra lap of fuel on top of `local player's refilling` value.
+
+
+**Laps-type race example usage**
+
+Note, there is generally no reason to use this widget in `LAPS` type race unless you are doing multi-class laps-type race which is very rarely seen.
+
+| LAPS | 0s    | 30s  | 40s   | 50s   | 60s   | 0s   |
+|:----:|:-----:|:----:|:-----:|:-----:|:-----:|:----:|
+| LDR  | 2.00  | 1.57 | 1.43  | 1.28  | 1.14  | 2.00 |
+| 0.11 | 0.40  | 0.02 | -0.11 | -0.24 | -0.37 | 0.40 |
+| DIFF | 0s    | 30s  | 40s   | 50s   | 60s   | 43s  |
+| FUEL | +12.8 | -    | -     | -     | -     | -    |
+
+1. Determine leader's next pit time and select `leader's final lap progress` (second row) value from corresponding pit time (first row) column. `0s` means no pit stop.
+
+2. Determine local player's next pit time and select `local player's final lap progress` (third row) value from corresponding pit time (fourth row) column.
+
+3. Subtract `local player's final lap progress` value from `leader's final lap progress`, then round down value:
+
+    * If leader's `final lap progress` value is 2.00 (0s column), and local player's `final lap progress` value is 0.40 (0s column), then after subtracting (2 - 0.4 = 1.6) and rounding down, the final value is `1` lap difference, which means local player will do `one less lap` than leader.  
+    As mentioned earlier, for laps-type race, refilling value from `0s column` is calculated according to leader's `leader's final lap progress` value, which any lap difference is already included in the result from `local player's refilling` value (fifth row second cell), in this case, it's `+12.8` fuel to add.  
+
+    * If leader's `final lap progress` value is 1.43 (40s column), and local player's `final lap progress` value is -0.24 (50s column), then after subtracting (1.43 - -0.24 = 1.67) and rounding down, the final value is also `1` lap difference, which means local player will do the same `one less lap` than leader. So in this case, it's still `+12.8` fuel to add.  
+
+    * If leader's `final lap progress` value is 2.00 (0s column), and local player's `final lap progress` value is -0.11 (40s column), then after subtracting (2 - -0.11 = 2.11) and rounding down, the final value is `2` lap difference, which means local player will do `two less laps` than leader. So an extra lap of fuel may be removed from `local player's refilling` value from fifth row second cell, in this case, it's `12.8` minus one lap of fuel `2.2`, equals `+10.6` fuel to add. Alternatively, it can be calculated from full lap refuel (as show in Fuel Widget), which will be `15.0` minus two lap of fuel `4.4`, and equals `+10.6` fuel to add.  
+    Be aware that carrying less fuel is risky in laps-type race due to reasons below.
+
+4. Last note, since the end of laps-type race is determined by the moment that leader completed all race laps, leader can greatly affect final predication outcome. To give an extreme example, if leader is ahead of everyone by a few laps, and decides to wait a few minutes on his final lap before finish line, then everyone else will be catching up and do a few `extra laps` which would require more fuel. Thus it is always risky to carry less fuel in laps-type race.
+
+---
+
+    layout
+2 layouts are available: `0` = show columns from left to right, `1` = show columns from right to left.
+
+    near_start_range
+Set detection range (in seconds) near (after) start/finish line to show color indicator when vehicle is within the range (or less). Default is `20` seconds. Default color is green.
+
+    near_finish_range
+Set detection range (in seconds) near (before) start/finish line to show color indicator when vehicle is within the range (or less). Default is `20` seconds. Default color is orange.
+
+    leader_laptime_pace_samples
+Set number of samples for average laptime pace calculation (EMA). Value range in `1` to `20`. Default is `6` samples. Set to `1` to disable averaging. Note, initial laptime pace is always based on leader's session personal best laptime if available. If a new laptime is faster than current laptime pace, it will replace current laptime pace without calculating average. Invalid lap, pit-in/out laps are always excluded from laptime pace calculation.
+
+    leader_laptime_pace_margin
+Set additional margin for current laptime that cannot exceed the sum of `laptime pace` and `margin`. This option is used to minimize the impact of unusually slow laptime. Default value is `5` seconds. Minimum value is limited to `0.1`.
+
+    number_of_predication
+Set number of optional predication columns with customizable pit time. Value range in `0` to `10`. Default is `4` extra customizable columns.
+
+    predication_*_leader_pit_time, predication_*_player_pit_time
+Set predication pit time for leader or local player.
+
+
 ## Ride height
 **This widget displays visualized ride height info.**
 

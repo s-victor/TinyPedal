@@ -281,9 +281,18 @@ class Session(DataAdapter):
         """Is in countdown phase before race"""
         return chknm(self.info.rf2ScorInfo.mGamePhase) == 4
 
+    def in_formation(self) -> bool:
+        """Is in formation phase before race"""
+        return chknm(self.info.rf2ScorInfo.mGamePhase) == 3
+
     def pit_open(self) -> bool:
         """Is pit lane open"""
         return chknm(self.info.rf2ScorInfo.mGamePhase) > 0
+
+    def green_flag(self) -> bool:
+        """Green flag"""
+        # Inaccurate due to 5FPS refresh rate from API
+        return chknm(self.info.rf2ScorInfo.mGamePhase) == 5
 
     def blue_flag(self, index: int | None = None) -> bool:
         """Is under blue flag"""

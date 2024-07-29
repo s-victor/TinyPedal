@@ -1,4 +1,4 @@
-WIP
+2.16.0 (2024-07-29)
 -----------------------------
 * Delta Module
   - Add data smoothing function to filter out unusual data noise.
@@ -6,8 +6,7 @@ WIP
     for delta data smoothing calculation using exponential moving average (EMA) method.
     Value range in "1" to "100". Default is "30" samples. Set to "1" to disable smoothing.
     Higher value results more smoothness, but may lose accuracy.
-  - Add average laptime pace calculation and output,
-    which is now used in real-time fuel calculation for increased consistency and accuracy.
+  - Add average laptime pace calculation and output.
   - Add "laptime_pace_samples" option, which sets number of samples
     for average laptime pace calculation (EMA).
     Value range in "1" to "20". Default is "6" samples. Set to "1" to disable averaging.
@@ -19,6 +18,10 @@ WIP
     that cannot exceed the sum of "laptime pace" and "margin".
     This option is used to minimize the impact of unusually slow laptime.
     Default value is "5" seconds. Minimum value is limited to "0.1".
+
+* Fuel Module
+  - Now uses laptime pace value from Delta Module for real-time fuel calculation
+    for increased consistency and accuracy.
 
 * Vehicles Module
   - Fixed pit timer incorrectly reset after pit out.
@@ -40,6 +43,21 @@ WIP
     Value range in "0.1" to "0.9", higher value increases trace fade out speed.
     Default value is "0.2". This option is enabled by default.
 
+* [New]Relative finish order Widget
+  - New Relative finish order Widget that displays estimated relative finish order
+    between leader and local player with corresponding refilling estimate.
+    This widget auto-switches display mode ("TIME" or "LAPS") depends on current session type.
+  - Show both predefined and customizable "leader's pit time" and "local player's pit time",
+    as well as last pit stop time from leader and local player.
+  - Show "leader's final lap progress" and "local player's final lap progress"
+    that depend on current session type.
+  - Show "relative lap difference" between leader and local player that is calculated from
+    lap time pace difference of both players, which can be used to determine whether leader
+    has the chance to overtake local player on final lap.
+  - Show refilling type in "FUEL" or "NRG" (if virtual energy available).
+  - Show estimated "local player's refilling" that depends on current session type.
+  - For complete customizable options, usage examples, see User Guide "Relative finish order" section.
+
 * Timing Widget
   - Add "show_average_pace" option, which shows personal current average laptime pace,
     this reading is also used in real-time fuel calculation.
@@ -51,6 +69,10 @@ WIP
   - Add "number_of_forecasts" option, which sets number of forecasts to display.
     Value range in "1" to "4". Default is "4" forecasts.
   - Add "column_index_*" options for customizing data display order of each forecast.
+
+* Misc
+  - Updated User Guide info for Delta Module, Flag Widget, Friction circle Widget,
+    Relative finish order Widget, Timing Widget, Weather forecast Widget.
 
 2.15.1 (2024-07-13)
 -----------------------------

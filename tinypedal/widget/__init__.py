@@ -52,6 +52,7 @@ from . import (
     radar,
     rake_angle,
     relative,
+    relative_finish_order,
     ride_height,
     rivals,
     sectors,
