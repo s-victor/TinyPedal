@@ -66,6 +66,10 @@ class Connector(ABC):
     def setup(self, config: tuple):
         """Setup API parameters"""
 
+    @abstractmethod
+    def state(self):
+        """Check run/pause state"""
+
 
 class SimRF2(Connector):
     """rFactor 2"""
@@ -91,6 +95,13 @@ class SimRF2(Connector):
         self.info.setPlayerIndex(config[3])
         rfactor2.cs2py = partial(val.cbytes2str, char_encoding=config[4])
 
+    def state(self) -> bool:
+        return (
+            not self.info.isPaused and
+            (self.info.rf2ScorInfo.mInRealtime
+            or self.info.rf2TeleVeh().mIgnitionStarter)
+        )
+
 
 class SimLMU(Connector):
     """Le Mans Ultimate"""
@@ -115,6 +126,13 @@ class SimLMU(Connector):
         self.info.setPlayerOverride(config[2])
         self.info.setPlayerIndex(config[3])
         rfactor2.cs2py = partial(val.cbytes2str, char_encoding=config[4])
+
+    def state(self) -> bool:
+        return (
+            not self.info.isPaused and
+            (self.info.rf2ScorVeh().mInRealtime
+            or self.info.rf2TeleVeh().mIgnitionStarter)
+        )
 
 
 # Add new API to API_PACK

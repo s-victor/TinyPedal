@@ -88,15 +88,11 @@ class APIControl:
         if cfg.shared_memory_api["enable_active_state_override"]:
             self._state = self.__state_override
         else:
-            self._state = self.__state_driving
+            self._state = self._api.state
 
     def __state_override(self):
         """API state override"""
         return cfg.shared_memory_api["active_state"]
-
-    def __state_driving(self):
-        """API state driving"""
-        return not self._api.info.isPaused and self._read.vehicle.is_driving()
 
     @property
     def read(self):

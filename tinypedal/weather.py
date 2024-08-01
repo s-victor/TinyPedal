@@ -45,7 +45,7 @@ def forecast_rf2(data: dict) -> list[tuple]:
 
 
 @lru_cache(maxsize=2)
-def sky_type_correction(sky_type, raininess):
+def sky_type_correction(sky_type: int, raininess: float) -> int:
     """Correct current sky type index based on current raininess
 
     Rain percent:
