@@ -51,7 +51,7 @@ class Draw(Overlay):
         bar_gap = self.wcfg["bar_gap"]
         self.bar_width = max(self.wcfg["bar_width"], 4)
         self.less_slot = min(max(self.wcfg["number_of_less_laps"], 0), 5) + 1  # plus 1 offset
-        self.total_slot = min(max(self.wcfg["number_of_more_laps"], 0), 10) + 1 + self.less_slot
+        self.total_slot = min(max(self.wcfg["number_of_more_laps"], 1), 10) + 1 + self.less_slot
         self.lap_difference_set = [0] * self.total_slot
         self.decimals_consumption = max(self.wcfg["decimal_places_consumption"], 0)
         self.decimals_delta = max(self.wcfg["decimal_places_delta"], 0)

@@ -1,3 +1,33 @@
+2.17.0 (2024-08-02)
+-----------------------------
+* [New]Fuel energy saver Widget
+  - Show current stint estimated total completable laps and completed laps
+    based on current consumption.
+  - Show estimated target lap consumption to save (extend) one or more total
+    stint laps, with customizable number of target slots (10 for more, 5 for less).
+  - Show delta consumption against target lap consumption, which allows
+    fuel or energy saving to be visualized and easily controlled in real-time.
+  - Show consumption type in "FUEL" or "NRG" (if virtual energy available).
+  - Show last lap consumption.
+  - For complete customizable options, usage examples, see User Guide "Fuel energy saver" section.
+
+* Virtual energy Widget
+  - Add "delta energy consumption" display (to be in line with Fuel Widget),
+    which shows "delta consumption" against last lap energy consumption.
+  - Add "fuel bias" display, which shows estimated laps difference between
+    fuel and virtual energy.
+    Positive value means more laps can be run on fuel than energy;
+    in other words, energy is drained faster than fuel.
+    General speaking, it is a good idea to keep bias close to 0.0 so that
+    fuel and energy drains at same pace, and slightly towards positive side
+    to avoid running out of fuel before energy does.
+  - Set new default low energy warning color to purple instead of red, which helps
+    distinguish from Fuel Widget.
+    Existing setting won't be affected, use Config "reset" to set new default.
+
+* Misc
+  - Updated User Guide info for Fuel energy saver Widget, Virtual energy Widget.
+
 2.16.0 (2024-07-29)
 -----------------------------
 * Delta Module

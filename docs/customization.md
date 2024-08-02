@@ -1148,6 +1148,29 @@ Set custom caption text.
 Swap caption row position.
 
 
+## Fuel energy saver
+**This widget displays fuel or virtual energy saving info.**
+
+Show current stint estimated total completable laps and completed laps based on current consumption.
+
+Show estimated target lap consumption to save (extend) one or more total stint laps.
+
+Show delta consumption against target lap consumption, which allows fuel or energy saving to be visualized and easily controlled in real-time.
+
+Show consumption type in `FUEL` or `NRG` (if virtual energy available).
+
+Show last lap consumption.
+
+    minimum_reserve
+Set minimum amount fuel or virtual energy in tank that is excluded from saving calculation and reserved for the end of stint. Default is `0.2` Liter for fuel (or % for virtual energy).
+
+    number_of_more_laps
+Set number of target slots for more completable laps. Default is `3`. Range in `1` to `10`.
+
+    number_of_less_laps
+Set number of target slots for less completable laps. Default is `0`. Range in `0` to `5`.
+
+
 ## Gear
 **This widget displays gear, RPM, speed, battery info.**
 
@@ -1644,7 +1667,7 @@ See `TIME` or `LAPS` type race example usages below for details.
 
 * Refilling estimate calculation is different between `TIME` and `LAPS` type races, make sure to look at the correct value, check out `example usage` below for details.
 
-* `LMU` currently uses `absolute-refueling` mechanism (how much `total` fuel to fill tank up to), as opposite to relative fuel (how much to `add` on top of remaining fuel in tank). This means user has to manually add up both "remaining" and "refuel/refill" values for total fuel/energy refill.
+* `LMU` currently uses `absolute-refueling` mechanism (how much `total` fuel to fill tank up to), as opposite to relative fuel (how much to `add` on top of remaining fuel in tank). This means user has to manually add up both `remaining` and `refuel/refill` values for total fuel/energy refill.
 
 * This widget is meant for used in complex and endurance race situations. To avoid human error, it is necessary to have a good understanding of this widget and practicing proficiency before attempting to use any provided data in actual race. Once with enough practicing, it should be fairly easy to make the most out of it.
 
@@ -2145,6 +2168,9 @@ Set warning threshold for estimated tyre lifespan in minutes. Default is `5` lap
 
     *ratio
 Show fuel ratio between estimated fuel and energy consumption, which can help balance fuel and energy usage, as well as providing refueling reference for adjusting pitstop `Fuel ratio` during race.
+
+    *bias
+Show fuel bias (estimated laps difference) between fuel and virtual energy. Positive value means more laps can be run on fuel than energy; in other words, energy is drained faster than fuel. General speaking, it is a good idea to keep bias close to `0.0` so that fuel and energy drains at same pace, and slightly towards positive side to avoid running out of fuel before energy does.
 
 
 ## Weather

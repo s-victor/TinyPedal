@@ -25,7 +25,6 @@ from PySide2.QtGui import QPainter, QPixmap
 from PySide2.QtWidgets import QLabel, QGridLayout
 
 from .. import calculation as calc
-from .. import formatter as fmt
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
@@ -55,12 +54,14 @@ class Draw(Overlay):
             self.wcfg["decimal_places_remain"],  # 1
             self.wcfg["decimal_places_refill"],  # 2
             self.wcfg["decimal_places_used"],  # 3
-            self.wcfg["decimal_places_ratio"],  # 4
-            self.wcfg["decimal_places_early"],  # 5
-            self.wcfg["decimal_places_laps"],  # 6
-            self.wcfg["decimal_places_minutes"],  # 7
-            self.wcfg["decimal_places_save"],  # 8
-            self.wcfg["decimal_places_pits"],  # 9
+            self.wcfg["decimal_places_delta"],  # 4
+            self.wcfg["decimal_places_ratio"],  # 5
+            self.wcfg["decimal_places_early"],  # 6
+            self.wcfg["decimal_places_laps"],  # 7
+            self.wcfg["decimal_places_minutes"],  # 8
+            self.wcfg["decimal_places_save"],  # 9
+            self.wcfg["decimal_places_pits"],  # 10
+            self.wcfg["decimal_places_bias"],  # 11
         )))
 
         # Base style
@@ -99,23 +100,25 @@ class Draw(Overlay):
                 self.wcfg["caption_text_remain"],
                 self.wcfg["caption_text_refill"],
                 self.wcfg["caption_text_used"],
+                self.wcfg["caption_text_delta"],
                 self.wcfg["caption_text_ratio"],
                 self.wcfg["caption_text_early"],
                 self.wcfg["caption_text_laps"],
                 self.wcfg["caption_text_minutes"],
                 self.wcfg["caption_text_save"],
                 self.wcfg["caption_text_pits"],
+                self.wcfg["caption_text_bias"],
             )
             for index, caption in enumerate(caption_list):
                 setattr(self, f"bar_desc_{caption}", QLabel(caption))
                 getattr(self, f"bar_desc_{caption}").setAlignment(Qt.AlignCenter)
                 getattr(self, f"bar_desc_{caption}").setStyleSheet(bar_style_desc)
-                if index < 5:
+                if index < 6:
                     row_idx = 2 if self.wcfg["swap_upper_caption"] else 0
                     layout_upper.addWidget(getattr(self, f"bar_desc_{caption}"), row_idx, index)
                 else:
                     row_idx = 0 if self.wcfg["swap_lower_caption"] else 2
-                    layout_lower.addWidget(getattr(self, f"bar_desc_{caption}"), row_idx, index - 5)
+                    layout_lower.addWidget(getattr(self, f"bar_desc_{caption}"), row_idx, index - 6)
 
         # Estimated end energy
         self.bar_energy_end = QLabel(text_def)
@@ -150,6 +153,15 @@ class Draw(Overlay):
         self.bar_energy_used.setStyleSheet(
             f"color: {self.wcfg['font_color_used']};"
             f"background: {self.wcfg['bkg_color_used']};"
+            f"{self.style_width}"
+        )
+
+        # Delta energy consumption
+        self.bar_energy_delta = QLabel(text_def)
+        self.bar_energy_delta.setAlignment(Qt.AlignCenter)
+        self.bar_energy_delta.setStyleSheet(
+            f"color: {self.wcfg['font_color_delta']};"
+            f"background: {self.wcfg['bkg_color_delta']};"
             f"{self.style_width}"
         )
 
@@ -207,9 +219,18 @@ class Draw(Overlay):
             f"{self.style_width}"
         )
 
+        # Fuel bias
+        self.bar_energy_bias = QLabel(text_def)
+        self.bar_energy_bias.setAlignment(Qt.AlignCenter)
+        self.bar_energy_bias.setStyleSheet(
+            f"color: {self.wcfg['font_color_bias']};"
+            f"background: {self.wcfg['bkg_color_bias']};"
+            f"{self.style_width}"
+        )
+
         # Energy level bar
         if self.wcfg["show_energy_level_bar"]:
-            self.energy_level_width = (font_m.width * self.bar_width + bar_padx) * 5
+            self.energy_level_width = (font_m.width * self.bar_width + bar_padx) * 6
             self.energy_level_height = max(self.wcfg["energy_level_bar_height"], 1)
             self.rect_energy_left = QRectF(0, 0, 0, self.energy_level_height)
             self.rect_energy_start = QRectF(
@@ -231,12 +252,14 @@ class Draw(Overlay):
         layout_upper.addWidget(self.bar_energy_curr, 1, 1)
         layout_upper.addWidget(self.bar_energy_need, 1, 2)
         layout_upper.addWidget(self.bar_energy_used, 1, 3)
-        layout_upper.addWidget(self.bar_energy_ratio, 1, 4)
+        layout_upper.addWidget(self.bar_energy_delta, 1, 4)
+        layout_upper.addWidget(self.bar_energy_ratio, 1, 5)
         layout_lower.addWidget(self.bar_energy_early, 1, 0)
         layout_lower.addWidget(self.bar_energy_laps, 1, 1)
         layout_lower.addWidget(self.bar_energy_mins, 1, 2)
         layout_lower.addWidget(self.bar_energy_save, 1, 3)
         layout_lower.addWidget(self.bar_energy_pits, 1, 4)
+        layout_lower.addWidget(self.bar_energy_bias, 1, 5)
         layout.addLayout(layout_upper, column_upr, 0)
         if self.wcfg["show_energy_level_bar"]:
             layout.addWidget(self.energy_level, column_mid, 0)
@@ -248,12 +271,14 @@ class Draw(Overlay):
         self.last_amount_curr = None
         self.last_amount_need = None
         self.last_used_last = None
+        self.last_delta_energy = None
         self.last_fuel_ratio = None
         self.last_est_pits_early = None
         self.last_est_runlaps = None
         self.last_est_runmins = None
         self.last_energy_save = None
         self.last_est_pits_end = None
+        self.last_fuel_bias = None
         self.last_energy_level = None
 
         # Set widget state & start update
@@ -285,35 +310,49 @@ class Draw(Overlay):
             self.update_energy("used", used_last, self.last_used_last)
             self.last_used_last = used_last
 
+            # Delta energy
+            delta_energy = f"{minfo.energy.deltaConsumption:+.{self.decimals[4]}f}"
+            self.update_energy("delta", delta_energy, self.last_delta_energy)
+            self.last_delta_energy = delta_energy
+
             # Fuel ratio
-            fuel_ratio = f"{minfo.hybrid.fuelEnergyRatio:.{self.decimals[4]}f}"
+            fuel_ratio = f"{minfo.hybrid.fuelEnergyRatio:.{self.decimals[5]}f}"
             self.update_energy("ratio", fuel_ratio, self.last_fuel_ratio)
             self.last_fuel_ratio = fuel_ratio
 
             # Estimate pit stop counts when pitting at end of current lap
-            est_pits_early = f"{min(max(minfo.energy.estimatedNumPitStopsEarly, 0), 99.99):.{self.decimals[5]}f}"
+            est_pits_early = f"{min(max(minfo.energy.estimatedNumPitStopsEarly, 0), 99.99):.{self.decimals[6]}f}"
             self.update_energy("early", est_pits_early, self.last_est_pits_early)
             self.last_est_pits_early = est_pits_early
 
             # Estimated laps current energy can last
-            est_runlaps = f"{min(minfo.energy.estimatedLaps, 9999):.{self.decimals[6]}f}"
+            est_runlaps = f"{min(minfo.energy.estimatedLaps, 9999):.{self.decimals[7]}f}"
             self.update_energy("laps", est_runlaps, self.last_est_runlaps)
             self.last_est_runlaps = est_runlaps
 
             # Estimated minutes current energy can last
-            est_runmins = f"{min(minfo.energy.estimatedMinutes, 9999):.{self.decimals[7]}f}"
+            est_runmins = f"{min(minfo.energy.estimatedMinutes, 9999):.{self.decimals[8]}f}"
             self.update_energy("mins", est_runmins, self.last_est_runmins)
             self.last_est_runmins = est_runmins
 
             # Estimated one less pit energy consumption
-            energy_save = f"{min(max(minfo.energy.oneLessPitConsumption, 0), 99.99):.{self.decimals[8]}f}"
+            energy_save = f"{min(max(minfo.energy.oneLessPitConsumption, 0), 99.99):.{self.decimals[9]}f}"
             self.update_energy("save", energy_save, self.last_energy_save)
             self.last_energy_save = energy_save
 
             # Estimate pit stop counts when pitting at end of current stint
-            est_pits_end = f"{min(max(minfo.energy.estimatedNumPitStopsEnd, 0), 99.99):.{self.decimals[9]}f}"
+            est_pits_end = f"{min(max(minfo.energy.estimatedNumPitStopsEnd, 0), 99.99):.{self.decimals[10]}f}"
             self.update_energy("pits", est_pits_end, self.last_est_pits_end)
             self.last_est_pits_end = est_pits_end
+
+            # Estimate pit stop counts when pitting at end of current stint
+            if minfo.restapi.maxVirtualEnergy:
+                bias = minfo.fuel.estimatedLaps - minfo.energy.estimatedLaps
+            else:
+                bias = 0
+            fuel_bias = f"{bias:+.{self.decimals[10]}f}"
+            self.update_energy("bias", fuel_bias, self.last_fuel_bias)
+            self.last_fuel_bias = fuel_bias
 
             # Energy level bar
             if self.wcfg["show_energy_level_bar"]:
