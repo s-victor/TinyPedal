@@ -68,9 +68,11 @@ class FuelInfo:
     capacity: float = 0
     amountStart: float = 0
     amountCurrent: float = 0
+    amountUsedCurrent: float = 0
     amountNeeded: float = 0
     amountEndStint: float = 0
     lastLapConsumption: float = 0
+    lastLapValidConsumption: float = 0
     estimatedConsumption: float = 0
     estimatedValidConsumption: float = 0
     estimatedLaps: float = 0

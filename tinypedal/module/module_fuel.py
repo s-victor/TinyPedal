@@ -262,9 +262,11 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
         output.capacity = capacity
         output.amountStart = amount_start
         output.amountCurrent = amount_curr
+        output.amountUsedCurrent = used_curr
         output.amountNeeded = amount_need
         output.amountEndStint = amount_end
         output.lastLapConsumption = used_last_raw
+        output.lastLapValidConsumption = used_last
         output.estimatedConsumption = used_last + delta_fuel
         output.estimatedValidConsumption = used_est
         output.estimatedLaps = est_runlaps

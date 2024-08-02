@@ -234,7 +234,7 @@ class Draw(Overlay):
             in_pits = api.read.vehicle.in_pits()
             in_garage = api.read.vehicle.in_garage()
 
-            wear_avg = 100 - (sum(api.read.tyre.wear()) * 25)
+            wear_avg = 100 - sum(api.read.tyre.wear()) * 25
 
             # Check if virtual energy available
             if self.wcfg["show_virtual_energy_if_available"] and minfo.restapi.maxVirtualEnergy:

@@ -42,6 +42,7 @@ from . import (
     force,
     friction_circle,
     fuel,
+    fuel_energy_saver,
     gear,
     heading,
     instrument,
