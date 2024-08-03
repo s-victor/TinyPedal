@@ -86,17 +86,13 @@ class Draw(Overlay):
         self.setLayout(layout)
 
         # Last data
+        self.reset_stint = True  # reset stint stats
+        self.start_laps = 0  # laps number at start of current stint
+        self.last_tyre_life = 0
+        self.last_fuel_curr = 0
         self.last_target_use = [-MAGIC_NUM] * self.total_slot
         self.last_delta = [-MAGIC_NUM] * self.total_slot
         self.last_target_laps = [-MAGIC_NUM] * self.total_slot
-        self.stint_best_laptime = MAGIC_NUM
-        self.stint_refer_consumption = 0
-
-        self.reset_stint = True  # reset stint stats
-        self.last_tyre_life = 0
-        self.last_fuel_curr = 0
-        self.start_fuel = 0  # fuel at start of current stint
-        self.start_laps = 0  # laps number at start of current stint
 
         # Set widget state & start update
         self.set_widget_state()
@@ -175,31 +171,18 @@ class Draw(Overlay):
         in_pits = api.read.vehicle.in_pits()
         tyre_life = sum(api.read.tyre.wear())
         lap_num = api.read.lap.number()
-        laptime_valid = api.read.timing.last_laptime()
         is_energy = minfo.restapi.maxVirtualEnergy
 
         if is_energy:
             fuel_curr = minfo.energy.amountCurrent
             fuel_est = minfo.energy.estimatedConsumption
             fuel_used_curr = minfo.energy.amountUsedCurrent
-            fuel_used_last = minfo.energy.lastLapValidConsumption
             fuel_used_last_raw = minfo.energy.lastLapConsumption
         else:
             fuel_curr = minfo.fuel.amountCurrent
             fuel_est = minfo.fuel.estimatedConsumption
             fuel_used_curr = minfo.fuel.amountUsedCurrent
-            fuel_used_last = minfo.fuel.lastLapValidConsumption
             fuel_used_last_raw = minfo.fuel.lastLapConsumption
-
-        # Update reference consumption
-        if 0 < fuel_used_last:  # wait for valid consumption data
-            # Initialize
-            if self.stint_refer_consumption <= 0:
-                self.stint_refer_consumption = fuel_used_last
-            # If set new stint best laptime
-            elif 0 < laptime_valid < self.stint_best_laptime:
-                self.stint_best_laptime = laptime_valid
-                self.stint_refer_consumption = fuel_used_last
 
         # Check stint status
         if not in_pits:
@@ -212,20 +195,11 @@ class Draw(Overlay):
 
         if self.reset_stint:
             self.reset_stint = False
-            self.start_fuel = fuel_curr
             self.start_laps = lap_num
-            self.stint_best_laptime = MAGIC_NUM
-            if 0 < fuel_used_last:
-                self.stint_refer_consumption = fuel_used_last
-
-        if self.start_fuel < fuel_curr:
-            self.start_fuel = fuel_curr
 
         # Total fuel used count from start of current lap
-        total_stint_laps = floor(calc.end_stint_laps(
-            self.start_fuel - self.min_reserve, self.stint_refer_consumption))
         laps_done = max(lap_num - self.start_laps, 0)
-        total_fuel_remaining = fuel_curr + fuel_used_curr
+        total_fuel_remaining = max(fuel_curr + fuel_used_curr - self.min_reserve, 0)
         # Round to 1 decimal to reduce sensitivity
         saved_laps = floor(round(calc.end_stint_laps(total_fuel_remaining, fuel_est), 1)) - self.less_slot
 
@@ -252,7 +226,7 @@ class Draw(Overlay):
             self.last_target_laps[index] = target_laps
 
             # Target consumption
-            if total_laps_target > 0 and total_stint_laps > 0 and fuel_est > 0:
+            if total_laps_target > 0 and fuel_est > 0:
                 target_use = total_fuel_remaining / total_laps_target
             else:
                 target_use = -MAGIC_NUM
@@ -260,7 +234,7 @@ class Draw(Overlay):
             self.last_target_use[index] = target_use
 
             # Delta consumption
-            if total_laps_target > 0 and total_stint_laps > 0 and fuel_est > 0:
+            if total_laps_target > 0 and fuel_est > 0:
                 delta = fuel_est - target_use
             else:
                 delta = -MAGIC_NUM
