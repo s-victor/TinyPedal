@@ -1,3 +1,14 @@
+2.17.1 (2024-08-04)
+-----------------------------
+* Fuel energy saver Widget
+  - Fixed "minimum_reserve" setting not taking effect.
+
+* Navigation Widget
+  - Reworked map path drawing methods which completely eliminated high memory usage issue with this widget.
+    Map drawing now uses around 1MB memory for normal tracks,
+    and at most 3 or 4MB memory for very large tracks, such as Isle of Man.
+    There is also a slightly increase in map display quality.
+
 2.17.0 (2024-08-02)
 -----------------------------
 * [New]Fuel energy saver Widget

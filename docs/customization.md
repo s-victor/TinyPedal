@@ -1326,7 +1326,7 @@ Show empty lap time history. Default is `false`, which hides empty rows.
 
 
 ## Navigation
-**This widget displays a zoomed navigation map that centered on player's vehicle. Note: at least one complete & valid lap is required to generate map. Depends on track length, longer track may consume more RAM for drawing map.**
+**This widget displays a zoomed navigation map that centered on player's vehicle. Note: at least one complete & valid lap is required to generate map.**
 
     display_size
 Set widget size in pixels.

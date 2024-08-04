@@ -21,7 +21,7 @@ Navigation Widget
 """
 
 from PySide2.QtCore import Qt, QRectF, QPointF
-from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QRadialGradient, QPen, QBrush
+from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QRadialGradient, QPen, QBrush, QPolygonF
 
 from .. import calculation as calc
 from ..api_control import api
@@ -29,6 +29,7 @@ from ..module_info import minfo
 from ._base import Overlay
 
 WIDGET_NAME = "navigation"
+POLYGON_NONE = QPolygonF((QPointF(-99999,-99999),QPointF(-99999,-99999)))
 
 
 class Draw(Overlay):
@@ -76,13 +77,19 @@ class Draw(Overlay):
             self.veh_size
         )
 
+        self.map_path = None
+        self.sector_path_sfline = None
+        self.sector_path_sector1 = None
+        self.sector_path_sector2 = None
+        self.create_map_path()
+
         # Config canvas
         self.resize(self.area_size, self.area_size)
         self.pixmap_background = QPixmap(self.area_size, self.area_size)
-        self.pixmap_map = QPixmap(1, 1)
         self.pixmap_mask = QPixmap(self.area_size, self.area_size)
 
         self.pen = QPen()
+        self.pen.setJoinStyle(Qt.RoundJoin)
 
         self.pixmap_veh_player = self.draw_vehicle_pixmap("player")
         self.pixmap_veh_leader = self.draw_vehicle_pixmap("leader")
@@ -104,7 +111,7 @@ class Draw(Overlay):
 
         # Set widget state & start update
         self.draw_background()
-        self.draw_map_mask()
+        self.draw_map_mask_pixmap()
         self.update_map(0, 1)
         self.set_widget_state()
 
@@ -132,16 +139,14 @@ class Draw(Overlay):
     def update_map(self, curr, last):
         """Map update"""
         if curr != last:
-            map_path = self.create_map_path(minfo.mapping.coordinates)
-            self.draw_map_image(map_path)
+            self.create_map_path(minfo.mapping.coordinates)
 
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         # Draw map
-        self.rotate_map(painter)
+        self.draw_map_image(painter)
         # Draw vehicles
         if self.vehicles_data:
             self.draw_vehicle(painter)
@@ -184,29 +189,13 @@ class Draw(Overlay):
                 (self.area_center - self.wcfg["circle_outline_width"]) * 2
             )
 
-    def rotate_map(self, painter):
-        """Rotate map"""
-        # Transform map coordinates
-        # Player vehicle orientation yaw radians + 180 deg rotation correction
-        plr_ori_rad = api.read.vehicle.orientation_yaw_radians() + 3.14159265
-        # x, y position & offset relative to player
-        rot_pos_x, rot_pos_y = calc.rotate_pos(
-            plr_ori_rad,   # plr_ori_rad, rotate view
-            api.read.vehicle.position_longitudinal() * self.global_scale - self.map_offset[0],
-            api.read.vehicle.position_lateral() * self.global_scale - self.map_offset[1]
-        )
-        plr_ori_deg = calc.rad2deg(plr_ori_rad)
-        center_offset_x = self.area_center - rot_pos_x
-        center_offset_y = self.veh_offset_y - rot_pos_y
-        # Draw rotated map
-        painter.translate(center_offset_x, center_offset_y)
-        painter.rotate(plr_ori_deg)
-        painter.drawPixmap(0, 0, self.pixmap_map)
-        painter.resetTransform()
-
     def create_map_path(self, raw_coords=None):
         """Create map path"""
         map_path = QPainterPath()
+        sector_path_sfline = QPainterPath()
+        sector_path_sector1 = QPainterPath()
+        sector_path_sector2 = QPainterPath()
+
         if raw_coords:
             dist = calc.distance(raw_coords[0], raw_coords[-1])
             (self.map_scaled, self.map_size, self.map_offset
@@ -219,91 +208,88 @@ class Draw(Overlay):
             # Close map loop if start & end distance less than 500 meters
             if dist < 500:
                 map_path.closeSubpath()
+            # Create start/finish path
+            sector_path_sfline = self.create_sector_line(
+                sector_path_sfline, self.wcfg["start_line_length"], 0, 1)
+            # Create sectors paths
+            sectors_index = minfo.mapping.sectors
+            if sectors_index and all(sectors_index):
+                sector_path_sector1 = self.create_sector_line(
+                    sector_path_sector1, self.wcfg["sector_line_length"],
+                    sectors_index[0], sectors_index[0] + 1)
+                sector_path_sector2 = self.create_sector_line(
+                    sector_path_sector2, self.wcfg["sector_line_length"],
+                    sectors_index[1], sectors_index[1] + 1)
+            else:
+                sector_path_sector1.addPolygon(POLYGON_NONE)
+                sector_path_sector2.addPolygon(POLYGON_NONE)
         else:
             self.map_scaled = None
             self.map_size = 1,1
             self.map_offset = 0,0
-            map_path.addRect(QRectF(-99999, -99999, 0, 0))
-        return map_path
+            map_path.addPolygon(POLYGON_NONE)
+            sector_path_sfline.addPolygon(POLYGON_NONE)
+            sector_path_sector1.addPolygon(POLYGON_NONE)
+            sector_path_sector2.addPolygon(POLYGON_NONE)
 
-    def draw_map_image(self, map_path):
-        """Draw map image separately"""
-        self.pixmap_map = QPixmap(self.map_size[0], self.map_size[1])
-        self.pixmap_map.fill(Qt.transparent)
-        painter = QPainter(self.pixmap_map)
-        painter.setRenderHint(QPainter.Antialiasing, True)
+        self.map_path = map_path
+        self.sector_path_sfline = sector_path_sfline
+        self.sector_path_sector1 = sector_path_sector1
+        self.sector_path_sector2 = sector_path_sector2
 
-        # Set pen style
-        pen = QPen()
-        pen.setJoinStyle(Qt.RoundJoin)
+    def draw_map_image(self, painter):
+        """Draw map image"""
+        # Transform map coordinates
+        # Player vehicle orientation yaw radians + 180 deg rotation correction
+        plr_ori_rad = api.read.vehicle.orientation_yaw_radians() + 3.14159265
+        # x, y position & offset relative to player
+        rot_pos_x, rot_pos_y = calc.rotate_pos(
+            plr_ori_rad,   # plr_ori_rad, rotate view
+            api.read.vehicle.position_longitudinal() * self.global_scale - self.map_offset[0],
+            api.read.vehicle.position_lateral() * self.global_scale - self.map_offset[1]
+        )
+        plr_ori_deg = calc.rad2deg(plr_ori_rad)
+        center_offset_x = self.area_center - rot_pos_x
+        center_offset_y = self.veh_offset_y - rot_pos_y
+
+        # Apply transform rotation
+        painter.resetTransform()
+        painter.translate(center_offset_x, center_offset_y)
+        painter.rotate(plr_ori_deg)
 
         # Draw map outline
         if self.wcfg["map_outline_width"] > 0:
-            pen.setWidth(self.wcfg["map_width"] + self.wcfg["map_outline_width"])
-            pen.setColor(self.wcfg["map_outline_color"])
-            painter.setPen(pen)
-            painter.drawPath(map_path)
+            self.pen.setWidth(self.map_margin)
+            self.pen.setColor(self.wcfg["map_outline_color"])
+            painter.setPen(self.pen)
+            painter.drawPath(self.map_path)
 
         # Draw map
-        pen.setWidth(self.wcfg["map_width"])
-        pen.setColor(self.wcfg["map_color"])
-        painter.setPen(pen)
-        painter.drawPath(map_path)
+        self.pen.setWidth(self.wcfg["map_width"])
+        self.pen.setColor(self.wcfg["map_color"])
+        painter.setPen(self.pen)
+        painter.drawPath(self.map_path)
 
-        # Draw sector
-        if self.map_scaled:
-            # SF line
-            if self.wcfg["show_start_line"]:
-                pen.setWidth(self.wcfg["start_line_width"])
-                pen.setColor(self.wcfg["start_line_color"])
-                painter.setPen(pen)
-                pos_x1, pos_y1, pos_x2, pos_y2 = calc.line_intersect_coords(
-                    self.map_scaled[0],  # point a
-                    self.map_scaled[1],  # point b
-                    1.57079633,  # 90 degree rotation
-                    self.wcfg["start_line_length"]
-                )
-                painter.drawLine(pos_x1, pos_y1, pos_x2, pos_y2)
+        # Draw start/finish line
+        if self.wcfg["show_start_line"]:
+            self.pen.setWidth(self.wcfg["start_line_width"])
+            self.pen.setColor(self.wcfg["start_line_color"])
+            painter.setPen(self.pen)
+            painter.drawPath(self.sector_path_sfline)
 
-            # Sector lines
-            sectors_index = minfo.mapping.sectors
-            if self.wcfg["show_sector_line"] and sectors_index and all(sectors_index):
-                pen.setWidth(self.wcfg["sector_line_width"])
-                pen.setColor(self.wcfg["sector_line_color"])
-                painter.setPen(pen)
+        # Draw sectors line
+        if self.wcfg["show_sector_line"]:
+            self.pen.setWidth(self.wcfg["sector_line_width"])
+            self.pen.setColor(self.wcfg["sector_line_color"])
+            painter.setPen(self.pen)
+            painter.drawPath(self.sector_path_sector1)
+            painter.drawPath(self.sector_path_sector2)
 
-                for idx in range(2):
-                    pos_x1, pos_y1, pos_x2, pos_y2 = calc.line_intersect_coords(
-                        self.map_scaled[sectors_index[idx]],  # point a
-                        self.map_scaled[sectors_index[idx] + 1],  # point b
-                        1.57079633,  # 90 degree rotation
-                        self.wcfg["sector_line_length"]
-                    )
-                    painter.drawLine(pos_x1, pos_y1, pos_x2, pos_y2)
-
-    def draw_map_mask(self):
-        """Map mask"""
-        self.pixmap_mask.fill(Qt.black)
-        painter = QPainter(self.pixmap_mask)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
-
-        # Draw map mask
-        painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
-        rad_gra = QRadialGradient(
-            self.area_center,
-            self.area_center,
-            self.area_center,
-            self.area_center,
-            self.area_center
-        )
-        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_in_radius"]), Qt.transparent)
-        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_out_radius"]), Qt.black)
-        painter.setBrush(rad_gra)
-        painter.drawEllipse(0, 0, self.area_size, self.area_size)
+        painter.resetTransform()
 
     def draw_vehicle(self, painter):
         """Draw vehicles"""
+        painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         if self.wcfg["show_vehicle_standings"]:
             painter.setFont(self.font)
             self.pen.setColor(self.wcfg["font_color"])
@@ -339,6 +325,27 @@ class Draw(Overlay):
     def draw_text_standings(self, painter, veh_pos):
         """Draw vehicles standings text"""
         painter.drawText(self.veh_text_shape, Qt.AlignCenter, f"{veh_pos}")
+
+    def draw_map_mask_pixmap(self):
+        """Map mask pixmap"""
+        self.pixmap_mask.fill(Qt.black)
+        painter = QPainter(self.pixmap_mask)
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        painter.setPen(Qt.NoPen)
+
+        # Draw map mask
+        painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
+        rad_gra = QRadialGradient(
+            self.area_center,
+            self.area_center,
+            self.area_center,
+            self.area_center,
+            self.area_center
+        )
+        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_in_radius"]), Qt.transparent)
+        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_out_radius"]), Qt.black)
+        painter.setBrush(rad_gra)
+        painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
     def draw_vehicle_pixmap(self, suffix):
         """Draw vehicles pixmap"""
@@ -380,3 +387,15 @@ class Draw(Overlay):
         if veh_info.isLapped < 0:
             return self.pixmap_veh_laps_behind
         return self.pixmap_veh_same_lap
+
+    def create_sector_line(self, sector_path, length, node_idx1, node_idx2):
+        """Create sector line"""
+        pos_x1, pos_y1, pos_x2, pos_y2 = calc.line_intersect_coords(
+            self.map_scaled[node_idx1],  # point a
+            self.map_scaled[node_idx2],  # point b
+            1.57079633,  # 90 degree rotation
+            length
+        )
+        sector_path.moveTo(pos_x1, pos_y1)
+        sector_path.lineTo(pos_x2, pos_y2)
+        return sector_path
