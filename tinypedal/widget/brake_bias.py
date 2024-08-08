@@ -24,6 +24,7 @@ from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QGridLayout, QLabel
 
 from ..api_control import api
+from ..module_info import minfo
 from ._base import Overlay
 
 WIDGET_NAME = "brake_bias"
@@ -42,45 +43,64 @@ class Draw(Overlay):
 
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
-        self.decimals = max(int(self.wcfg["decimal_places"]), 0)
-        self.prefix_text = self.wcfg["prefix_brake_bias"]
+        bar_gap = self.wcfg["bar_gap"]
+        self.decimals_bias = max(self.wcfg["decimal_places_brake_bias"], 0)
+        self.decimals_migt = max(self.wcfg["decimal_places_brake_migration"], 1)
+        self.prefix_bias = self.wcfg["prefix_brake_bias"]
+        self.prefix_migt = self.wcfg["prefix_brake_migration"]
+        self.suffix_migt = self.wcfg["suffix_brake_migration"]
         self.sign_text = "%" if self.wcfg["show_percentage_sign"] else ""
-
-        if self.wcfg["show_front_and_rear"]:
-            text_default = f"{self.prefix_text}{50:02.0{self.decimals}f}:{50:02.0{self.decimals}f}"
-        else:
-            text_default = f"{self.prefix_text}{50:02.0{self.decimals}f}{self.sign_text}"
-
-        bar_width = f"min-width: {font_m.width * len(text_default) + bar_padx}px;"
+        text_default_bias = self.format_brake_bias(50)
+        text_default_migt = self.format_brake_migt(0)
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"{bar_width}"
         )
 
         # Create layout
         layout = QGridLayout()
         layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(0)
+        layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
+        column_bb = self.wcfg["column_index_brake_bias"]
+        column_bm = self.wcfg["column_index_brake_migration"]
+
         # Brake bias
-        self.bar_bbias = QLabel(text_default)
+        self.bar_bbias = QLabel(text_default_bias)
         self.bar_bbias.setAlignment(Qt.AlignCenter)
         self.bar_bbias.setStyleSheet(
             f"color: {self.wcfg['font_color_brake_bias']};"
             f"background: {self.wcfg['bkg_color_brake_bias']};"
+            f"min-width: {font_m.width * len(text_default_bias) + bar_padx}px;"
         )
 
+        # Brake migration
+        if self.wcfg["show_brake_migration"]:
+            self.bar_bmigt = QLabel(text_default_migt)
+            self.bar_bmigt.setAlignment(Qt.AlignCenter)
+            self.bar_bmigt.setStyleSheet(
+                f"color: {self.wcfg['font_color_brake_migration']};"
+                f"background: {self.wcfg['bkg_color_brake_migration']};"
+                f"min-width: {font_m.width * len(text_default_migt) + bar_padx}px;"
+            )
+
         # Set layout
-        layout.addWidget(self.bar_bbias, 0, 0)
+        layout.addWidget(self.bar_bbias, 0, column_bb)
+        if self.wcfg["show_brake_migration"]:
+            layout.addWidget(self.bar_bmigt, 0, column_bm)
         self.setLayout(layout)
 
         # Last data
+        self.checked = False
         self.last_bbias = None
+        self.last_bmigt = None
+        self.bpres_max = 0
+        self.bpres_scale = 1
+        self.ebrake_alloc = self.wcfg["electric_braking_allocation"]  # -1 = auto detect, 0 = front, 1 = rear
 
         # Set widget state & start update
         self.set_widget_state()
@@ -89,18 +109,77 @@ class Draw(Overlay):
         """Update when vehicle on track"""
         if api.state:
 
+            # Reset switch
+            if not self.checked:
+                self.checked = True
+
             # Brake bias
             bbias = api.read.brake.bias_front() * 100
             self.update_bbias(bbias, self.last_bbias)
             self.last_bbias = bbias
 
+            # Brake migration
+            if self.wcfg["show_brake_migration"]:
+                raw_brake = api.read.input.brake_raw()
+                bpres = api.read.brake.pressure()
+                bpres_sum = sum(bpres)
+
+                if self.bpres_max < bpres_sum:
+                    self.bpres_max = bpres_sum
+                    self.bpres_scale = 2 / bpres_sum
+
+                if raw_brake > max(bpres) > 0:
+                    max_front = max(bpres[:2])
+                    max_rear = max(bpres[2:])
+
+                    # Auto detect electric braking allocation
+                    if (self.wcfg["electric_braking_allocation"] == -1 and
+                        minfo.hybrid.motorState == 3 and max_rear > 0):
+                        if max_front / max_rear < 0.25:
+                            self.ebrake_alloc = 0  # front ebrake
+                        elif max_front / max_rear > 4:
+                            self.ebrake_alloc = 1  # rear ebrake
+
+                    if self.ebrake_alloc == 0:
+                        bias_rear = max_rear * self.bpres_scale
+                        bias_front_live = 100 - bias_rear / raw_brake * 100
+                    else:
+                        bias_front = max_front * self.bpres_scale
+                        bias_front_live = bias_front / raw_brake * 100
+
+                    bmigt = max(bias_front_live - bbias, +0)
+                else:
+                    bmigt = 0
+                self.update_bmigt(bmigt, self.last_bmigt)
+                self.last_bmigt = bmigt
+
+        else:
+            if self.checked:
+                self.checked = False
+                self.bpres_max = 0
+                self.bpres_scale = 1
+                if self.wcfg["electric_braking_allocation"] == -1:
+                    self.ebrake_alloc = -1
+
     # GUI update methods
     def update_bbias(self, curr, last):
         """Brake bias"""
         if curr != last:
-            if self.wcfg["show_front_and_rear"]:
-                text = f"{self.prefix_text}{curr:02.0{self.decimals}f}:{100 - curr:02.0{self.decimals}f}"
-            else:
-                text = f"{self.prefix_text}{curr:02.0{self.decimals}f}{self.sign_text}"
+            self.bar_bbias.setText(self.format_brake_bias(curr))
 
-            self.bar_bbias.setText(text)
+    def update_bmigt(self, curr, last):
+        """Brake migration"""
+        if curr != last:
+            self.bar_bmigt.setText(self.format_brake_migt(curr))
+
+    # Additional methods
+    def format_brake_bias(self, value):
+        """Format brake bias"""
+        if self.wcfg["show_front_and_rear"]:
+            return f"{self.prefix_bias}{value:02.{self.decimals_bias}f}:{100 - value:02.{self.decimals_bias}f}"
+        return f"{self.prefix_bias}{value:02.{self.decimals_bias}f}{self.sign_text}"
+
+    def format_brake_migt(self, value):
+        """Format brake migration"""
+        reading = f"{value:.{self.decimals_migt}f}"[:2 + self.decimals_migt]
+        return f"{self.prefix_migt}{reading}{self.suffix_migt}"

@@ -63,6 +63,7 @@ CFG_STRING = (
     "info|"
     "list|"
     "prefix|"
+    "suffix|"
     "text|"
     "unit"
 )
@@ -71,6 +72,7 @@ CFG_STRING = (
 CFG_INTEGER = (
     # Exact match
     "^access_mode$|"
+    "^electric_braking_allocation$|"
     "^grid_move_size$|"
     "^lap_time_history_count$|"
     "^leading_zero$|"

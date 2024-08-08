@@ -185,7 +185,7 @@ class Draw(Overlay):
         """Vehicle speed"""
         if curr != last:
             getattr(self, f"bar_speed_{suffix}").setText(
-                f"{self.speed_units(curr):0{self.leading_zero}.0{self.decimals}f}")
+                f"{self.speed_units(curr):0{self.leading_zero}.{self.decimals}f}")
 
     # Additional methods
     def speed_units(self, value):
