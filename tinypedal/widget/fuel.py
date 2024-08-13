@@ -25,7 +25,6 @@ from PySide2.QtGui import QPainter, QPixmap
 from PySide2.QtWidgets import QLabel, QGridLayout
 
 from .. import calculation as calc
-from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -260,7 +259,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
 
             # Estimated end fuel
             amount_end = f"{self.fuel_units(minfo.fuel.amountEndStint):.{self.decimals[0]}f}"

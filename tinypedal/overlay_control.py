@@ -32,101 +32,120 @@ from .api_control import api
 logger = logging.getLogger(__name__)
 
 
-class OverlayLock(QObject):
-    """Overlay lock state"""
+class StateTimer:
+    """State timer"""
+
+    def __init__(self, interval: float, last: float = 0) -> None:
+        self._interval = interval
+        self._last = last
+
+    def timeout(self, now: float) -> bool:
+        """Check time out"""
+        if now - self._last < self._interval:
+            return False
+        self._last = now
+        return True
+
+    def reset(self, now: float = 0) -> None:
+        """Reset timer"""
+        self._last = now
+
+    def set_interval(self, interval: float) -> None:
+        """Set timer interval"""
+        self._interval = interval
+
+    @property
+    def interval(self) -> float:
+        """Timer interval"""
+        return self._interval
+
+    @property
+    def last(self) -> float:
+        """Timer last time stamp"""
+        return self._last
+
+
+class OverlayState(QObject):
+    """Set and update overlay global state
+
+    Available states:
+        * Active: True if vehicle is on track
+        * Lock position
+        * Auto hide
+        * Grid move
+    """
+    hidden = Signal(bool)
     locked = Signal(bool)
 
-    def __init__(self, config: object):
+    def __init__(self):
         super().__init__()
-        self.cfg = config
-
-    def set_state(self):
-        """Set lock state"""
-        self.locked.emit(self.cfg.overlay["fixed_position"])
-
-    def toggle(self):
-        """Toggle lock state"""
-        if self.cfg.overlay["fixed_position"]:
-            self.cfg.overlay["fixed_position"] = False
-        else:
-            self.cfg.overlay["fixed_position"] = True
-        self.set_state()
-        self.cfg.save()
-
-
-class OverlayGrid():
-    """Overlay grid state"""
-
-    def __init__(self, config: object):
-        self.cfg = config
-
-    def toggle(self):
-        """Toggle lock state"""
-        if self.cfg.overlay["enable_grid_move"]:
-            self.cfg.overlay["enable_grid_move"] = False
-        else:
-            self.cfg.overlay["enable_grid_move"] = True
-        self.cfg.save()
-
-
-class OverlayAutoHide(QObject):
-    """Auto hide overlay"""
-    hidden = Signal(bool)
-
-    def __init__(self, config: object):
-        super().__init__()
-        self.cfg = config
         self.stopped = True
+        self.active = False
         self.event = threading.Event()
+        self._auto_hide_timer = StateTimer(0.4)
 
     def start(self):
-        """Start auto hide thread"""
+        """Start state update thread"""
         if self.stopped:
             self.stopped = False
             self.event.clear()
-            threading.Thread(target=self.__autohide, daemon=True).start()
-            logger.info("ACTIVE: overlay auto-hide")
+            threading.Thread(target=self.__updating, daemon=True).start()
+            logger.info("ACTIVE: overlay control")
 
     def stop(self):
         """Stop thread"""
         self.event.set()
 
-    def __autohide(self):
-        """Auto hide overlay"""
-        while not self.event.wait(0.4):
-            self.hidden.emit(self.__is_hidden())
+    def __updating(self):
+        """Update global state"""
+        self._auto_hide_timer.reset()
+
+        while not self.event.wait(0.01):
+            self.active = api.state
+            self.__auto_hide_state()
 
         self.stopped = True
-        logger.info("CLOSED: overlay auto-hide")
+        logger.info("CLOSED: overlay control")
 
-    def __is_hidden(self):
-        """Check hide state"""
-        return self.cfg.overlay["auto_hide"] and not api.state
-
-    def toggle(self):
-        """Toggle hide state"""
-        if self.cfg.overlay["auto_hide"]:
-            self.cfg.overlay["auto_hide"] = False
-        else:
-            self.cfg.overlay["auto_hide"] = True
-        self.cfg.save()
+    def __auto_hide_state(self):
+        """Update auto hide state"""
+        if self._auto_hide_timer.timeout(time.perf_counter()):
+            self.hidden.emit(cfg.overlay["auto_hide"] and not self.active)
 
 
 class OverlayControl:
     """Overlay control"""
 
+    def __init__(self):
+        self.state = OverlayState()
+
     def enable(self):
         """Enable overlay control"""
-        self.overlay_lock = OverlayLock(cfg)
-        self.overlay_hide = OverlayAutoHide(cfg)
-        self.overlay_hide.start()
-        self.overlay_grid = OverlayGrid(cfg)
+        self.state.start()
 
     def disable(self):
         """Disable overlay control"""
-        self.overlay_hide.stop()
-        while not self.overlay_hide.stopped:
+        self.state.stop()
+        while not self.state.stopped:
             time.sleep(0.01)
 
+    def toggle_lock(self):
+        """Toggle lock state"""
+        self.__toggle_option("fixed_position")
+        self.state.locked.emit(cfg.overlay["fixed_position"])
+
+    def toggle_hide(self):
+        """Toggle hide state"""
+        self.__toggle_option("auto_hide")
+
+    def toggle_grid(self):
+        """Toggle grid move state"""
+        self.__toggle_option("enable_grid_move")
+
+    @staticmethod
+    def __toggle_option(option_name: str):
+        """Toggle option"""
+        cfg.overlay[option_name] = not cfg.overlay[option_name]
+        cfg.save()
 
 octrl = OverlayControl()

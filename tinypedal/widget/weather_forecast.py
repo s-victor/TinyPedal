@@ -160,7 +160,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
             self.update_weather_forecast_restapi()
 
     def update_weather_forecast_restapi(self):

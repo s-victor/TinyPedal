@@ -28,7 +28,6 @@ from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import calculation as calc
 from .. import formatter as fmt
-from ..api_control import api
 from ..const import PATH_BRANDLOGO
 from ..module_info import minfo
 from ._base import Overlay
@@ -226,7 +225,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state and minfo.relative.relative:
+        if self.state.active and minfo.relative.relative:
 
             relative_idx = minfo.relative.relative
             vehicles_data = minfo.vehicles.dataSet

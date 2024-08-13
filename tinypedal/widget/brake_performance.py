@@ -155,7 +155,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
 
             # Transient max braking rate
             if self.wcfg["show_transient_max_braking_rate"]:

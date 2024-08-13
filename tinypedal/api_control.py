@@ -47,11 +47,10 @@ class APIControl:
         for _api in API_PACK:
             if _api.NAME == name:
                 self._api = _api()
-                return None
-
-        logger.warning("CONNECTING: Invalid API name, fall back to default")
-        self._api = API_PACK[0]()
-        return None
+                break
+        else:
+            logger.warning("CONNECTING: Invalid API name, fall back to default")
+            self._api = API_PACK[0]()
 
     def start(self):
         """Start API"""
@@ -90,27 +89,27 @@ class APIControl:
         else:
             self._state = self._api.state
 
-    def __state_override(self):
+    def __state_override(self) -> bool:
         """API state override"""
         return cfg.shared_memory_api["active_state"]
 
     @property
-    def read(self):
+    def read(self) -> object:
         """API info reader"""
         return self._read
 
     @property
-    def name(self):
+    def name(self) -> str:
         """API name output"""
         return self._api.NAME
 
     @property
-    def state(self):
+    def state(self) -> bool:
         """API state output"""
         return self._state()
 
     @property
-    def version(self):
+    def version(self) -> str:
         """API version output"""
         version = self._read.check.version()
         return version if version else "not running"

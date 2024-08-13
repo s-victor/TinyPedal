@@ -95,17 +95,17 @@ class OverlayMenu(QMenu):
     @staticmethod
     def is_locked():
         """Check lock state"""
-        octrl.overlay_lock.toggle()
+        octrl.toggle_lock()
 
     @staticmethod
     def is_hidden():
         """Check hide state"""
-        octrl.overlay_hide.toggle()
+        octrl.toggle_hide()
 
     @staticmethod
     def has_grid():
-        """Check hide state"""
-        octrl.overlay_grid.toggle()
+        """Check grid move state"""
+        octrl.toggle_grid()
 
 
 class ResetDataMenu(QMenu):

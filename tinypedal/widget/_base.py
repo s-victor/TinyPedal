@@ -48,6 +48,7 @@ class Overlay(QWidget):
         super().__init__()
         self.widget_name = widget_name
         self.closed = False
+        self.state = octrl.state
 
         # Base config
         self.cfg = config
@@ -143,13 +144,13 @@ class Overlay(QWidget):
 
     def __connect_signal(self):
         """Connect overlay lock and hide signal"""
-        octrl.overlay_lock.locked.connect(self.__toggle_lock)
-        octrl.overlay_hide.hidden.connect(self.__toggle_hide)
+        octrl.state.locked.connect(self.__toggle_lock)
+        octrl.state.hidden.connect(self.__toggle_hide)
 
     def __break_signal(self):
         """Disconnect overlay lock and hide signal"""
-        octrl.overlay_lock.locked.disconnect(self.__toggle_lock)
-        octrl.overlay_hide.hidden.disconnect(self.__toggle_hide)
+        octrl.state.locked.disconnect(self.__toggle_lock)
+        octrl.state.hidden.disconnect(self.__toggle_hide)
 
     def closing(self):
         """Close widget"""

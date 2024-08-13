@@ -114,7 +114,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
 
             # Read ride height & rake data
             self.ride_height = api.read.wheel.ride_height()

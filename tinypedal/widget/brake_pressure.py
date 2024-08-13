@@ -107,7 +107,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
 
             # Brake pressure
             self.bpres = tuple(map(self.brake_pressure_units, api.read.brake.pressure()))

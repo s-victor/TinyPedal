@@ -150,7 +150,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
 
             # Motor temperature
             if self.wcfg["show_motor_temperature"]:

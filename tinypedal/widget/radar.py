@@ -84,7 +84,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
 
             # Auto hide radar if no nearby vehicles
             if self.wcfg["auto_hide"]:

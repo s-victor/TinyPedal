@@ -254,7 +254,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state and minfo.relative.standings:
+        if self.state.active and minfo.relative.standings:
 
             standings_idx = minfo.relative.standings
             vehicles_data = minfo.vehicles.dataSet

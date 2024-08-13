@@ -25,7 +25,6 @@ from PySide2.QtCore import Qt, QPointF, QRectF
 from PySide2.QtGui import QPainter, QPixmap, QRadialGradient, QPen, QBrush
 
 from .. import calculation as calc
-from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -121,7 +120,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
 
             # Reset switch
             if not self.checked:

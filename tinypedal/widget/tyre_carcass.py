@@ -185,7 +185,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
 
             # Tyre compound
             if self.wcfg["show_tyre_compound"]:

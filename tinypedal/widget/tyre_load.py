@@ -109,7 +109,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
 
             # Read tyre load data
             raw_load = api.read.tyre.load()

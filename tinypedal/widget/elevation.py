@@ -94,7 +94,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
 
             # Elevation map
             elevation_hash = minfo.mapping.elevationsHash

@@ -83,7 +83,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
 
             # Rake angle
             rake = round(calc.rake(*api.read.wheel.ride_height()), 2)

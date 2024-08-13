@@ -24,7 +24,6 @@ from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QGridLayout, QLabel
 
 from .. import calculation as calc
-from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -163,7 +162,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
 
             if minfo.delta.lapTimeCurrent < self.freeze_duration:
                 all_time_deltabest = minfo.delta.lapTimeLast - self.last_laptimes[0]

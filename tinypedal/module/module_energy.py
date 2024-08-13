@@ -47,7 +47,7 @@ class Realtime(DataModule):
         update_interval = self.active_interval
 
         while not self.event.wait(update_interval):
-            if api.state:
+            if self.state.active:
 
                 if not reset:
                     reset = True

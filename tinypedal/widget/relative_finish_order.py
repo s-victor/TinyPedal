@@ -181,7 +181,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
             self.update_predication()
 
     def update_predication(self):

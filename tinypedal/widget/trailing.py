@@ -98,7 +98,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state:
+        if self.state.active:
 
             # Use elapsed time to determine whether data paused
             # Add 1 extra update compensation

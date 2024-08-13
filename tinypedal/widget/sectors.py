@@ -144,7 +144,7 @@ class Draw(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if api.state and minfo.sectors.sectorPrev:
+        if self.state.active and minfo.sectors.sectorPrev:
 
             # Read Sector data
             lap_stime = api.read.timing.start()

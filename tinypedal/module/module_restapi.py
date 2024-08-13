@@ -87,7 +87,7 @@ class Realtime(DataModule):
         sorted_task_repeats = {}
 
         while not self.event.wait(update_interval):
-            if api.state:
+            if self.state.active:
 
                 if not reset:
                     reset = True
