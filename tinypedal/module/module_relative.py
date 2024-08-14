@@ -259,39 +259,29 @@ def create_class_standings_index(min_top_veh: int, plr_index: int, class_collect
 def calc_standings_index(min_top_veh: int, veh_total: int, veh_limit: int,
     plr_place: int, place_index_list: list):
     """Calculate vehicle standings index list"""
-    # Create reference place list
-    if plr_place <= min_top_veh or veh_total <= veh_limit:
-        ref_place_list = ALL_PLACES[:veh_limit]
-    else:
-        # Create player centered place list
-        plr_center_list = list(relative_nearby_place_index(
-            min_top_veh, veh_total, plr_place, veh_limit))
-        ref_place_list = sorted(ALL_PLACES[:min_top_veh] + plr_center_list)
+    ref_place_list = create_reference_place(min_top_veh, veh_total, plr_place, veh_limit)
     # Create final standing index list
     return list(player_index_from_place_reference(ref_place_list, place_index_list))
 
 
-def relative_nearby_place_index(min_top_veh: int, veh_total: int, plr_place: int, veh_limit: int):
-    """Create nearby place index list relative to player"""
-    max_range = veh_limit - min_top_veh
-    counter = 0
-    if plr_place:  # if player exist
-        yield plr_place  # add player slot first
-        counter += 1
-
-    for veh in range(max_range):
-        front = plr_place - 1 - veh
-        rear = plr_place + 1 + veh
-        if min_top_veh < front:
-            yield front  # add front first
-            counter += 1
-            if counter >= max_range:
-                break
-        if rear <= veh_total:
-            yield rear
-            counter += 1
-            if counter >= max_range:
-                break
+def create_reference_place(min_top_veh: int, veh_total: int, plr_place: int, veh_limit: int):
+    """Create reference place list"""
+    if veh_total <= veh_limit:
+        return ALL_PLACES[:veh_total]
+    if plr_place <= min_top_veh:
+        return ALL_PLACES[:veh_limit]
+    # Find nearby slice range relative to player
+    max_cut_range = veh_limit - min_top_veh
+    # Number of rear slots, should be equal or less than front slots (exclude player slot)
+    rear_cut_count = (max_cut_range - 1) // 2  # exclude player slot, then floor divide
+    front_cut_count = max_cut_range - rear_cut_count  # include player slot
+    # Find front slice limit
+    front_cut_raw = max(plr_place - front_cut_count, min_top_veh)
+    rear_cut_raw = front_cut_raw + max_cut_range
+    # Find rear slice limit
+    rear_cut_max = min(rear_cut_raw, veh_total)
+    front_cut_max = rear_cut_max - max_cut_range
+    return ALL_PLACES[:min_top_veh] + ALL_PLACES[front_cut_max:rear_cut_max]
 
 
 def player_index_from_place_reference(ref_place_list: list, place_index_list: list):
@@ -300,6 +290,8 @@ def player_index_from_place_reference(ref_place_list: list, place_index_list: li
     for ref_idx in ref_place_list:
         if 0 < ref_idx <= max_places:  # prevent out of range
             yield place_index_list[ref_idx-1][1]  # 1 vehicle index
+        else:
+            break
     yield -1  # append an empty index as gap between classes
 
 
