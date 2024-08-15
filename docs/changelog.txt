@@ -1,3 +1,13 @@
+WIP
+-----------------------------
+* Command line arguments
+  - Add "-h, --help" argument, which shows all available command line arguments.
+  - Add "-s, --single-instance" argument, which allows multiple instances of TinyPedal
+    to be running at same time by use "-s 0" or "--single-instance 0".
+    Default is single instance only.
+  - Add "Single instance mode" info to log output.
+  - See User Guide "Command line arguments" section for details.
+
 2.17.2 (2024-08-08)
 -----------------------------
 * Brake bias Widget

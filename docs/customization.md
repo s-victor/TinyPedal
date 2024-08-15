@@ -171,11 +171,16 @@ How to prepare brand logo image:
 # Command line arguments
 **Command line arguments can be passed to script or executable to enable additional features.**
 
-    --log-level
+    -h, --help
+List all available command line arguments.
+
+Usage: `python .\run.py -h` or `.\tinypedal.exe --help`
+
+    -l, --log-level
 Set logging output level. Supported values are:
-  * `--log-level=0` outputs only warning or error log to `console`.
-  * `--log-level=1` outputs all log to `console`.
-  * `--log-level=2` = outputs all log to both `console` and `tinypedal.log` file.
+  * `--log-level 0` outputs only warning or error log to `console`.
+  * `--log-level 1` outputs all log to `console`.
+  * `--log-level 2` outputs all log to both `console` and `tinypedal.log` file.
 
 Log file location:
   * On windows, `tinypedal.log` is located under APP root folder.
@@ -183,7 +188,12 @@ Log file location:
 
 Default logging output level is set on `1` if argument is not set.
 
-Example usage: `python .\run.py --log-level=2` or `.\tinypedal.exe --log-level=2`
+Usage: `python .\run.py -l 2` or `.\tinypedal.exe --log-level 2`
+
+    -s, --single-instance
+Set running mode. `0` allows running multiple instances of TinyPedal. `1` allows only single instance (default).
+
+To run multiple copy of TinyPedal at same time: `python .\run.py -s 0` or `.\tinypedal.exe --single-instance 0`
 
 
 # General options

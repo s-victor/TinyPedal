@@ -17,19 +17,19 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Init
+Command line argument
 """
 
-import io
-import logging
+import argparse
 
-from .cli_argument import get_cli_argument
-from .log_handler import set_logging_level
 
-# Get command line arguments
-cli_args = get_cli_argument()
-
-# Create logger
-logger = logging.getLogger("tinypedal")
-log_stream = io.StringIO()
-set_logging_level(logger, log_stream, cli_args.log_level)
+def get_cli_argument():
+    """Get command line argument"""
+    parse = argparse.ArgumentParser(description="TinyPedal command line arguments")
+    parse.add_argument(
+        "-l", "--log-level", choices=range(3), default=1, type=int,
+        help="set logging output level: 0 - warning and error only; 1 - all levels (default); 2 - output to file")
+    parse.add_argument(
+        "-s", "--single-instance", choices=range(2), default=1, type=int,
+        help="set running mode: 0 - allow running multiple instances; 1 - single instance (default)")
+    return parse.parse_args()

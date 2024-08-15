@@ -29,6 +29,7 @@ import psutil
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QApplication, QMessageBox
 
+from . import cli_args
 from .const import APP_NAME, VERSION, PYTHON_VERSION, QT_VERSION
 
 logger = logging.getLogger("tinypedal")
@@ -56,7 +57,12 @@ def init_gui():
 
 
 def prelaunch_check():
-    """Prelaunch check & initialize Qt"""
+    """Prelaunch check"""
+    if not cli_args.single_instance:
+        logger.info("Single instance mode: False")
+        return None
+
+    logger.info("Single instance mode: True")
     if not is_app_running("tinypedal.exe"):
         return None
 

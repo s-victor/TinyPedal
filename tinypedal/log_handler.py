@@ -20,7 +20,6 @@
 Log handler setup
 """
 
-import re
 import sys
 import logging
 
@@ -67,30 +66,25 @@ def new_file_handler(_logger, filepath: str, filename: str):
     return _handler
 
 
-def set_logging_level(_logger, log_stream=None, log_level="1") -> None:
+def set_logging_level(_logger, log_stream=None, log_level=1) -> None:
     """Set logging level
 
     Args:
         _logger: logger instance.
         log_stream: log stream object.
         log_level:
-            0 = no logging output.
-            1 = output log to console only.
-            2 = output log to both console & file.
+            0 = output only warning or error to console.
+            1 = output all log to console.
+            2 = output all log to both console & file.
     """
-    for _arg in sys.argv:
-        if re.match("^--log-level=", _arg):
-            log_level = _arg.strip("--log-level=")
-            break
-
     _logger.setLevel(logging.INFO)
     if log_stream is not None:
         new_stream_handler(_logger, log_stream)
 
-    if log_level == "1":
+    if log_level == 1:
         new_stream_handler(_logger, sys.stdout)
         _logger.info("LOGGING: output to console")
-    elif log_level == "2":
+    elif log_level == 2:
         new_stream_handler(_logger, sys.stdout)
         _logger.info("LOGGING: output to console")
         new_file_handler(_logger, PATH_LOG, LOGGING_FILENAME)
