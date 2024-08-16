@@ -195,6 +195,8 @@ Set running mode. `0` allows running multiple instances of TinyPedal. `1` allows
 
 To run multiple copy of TinyPedal at same time: `python .\run.py -s 0` or `.\tinypedal.exe --single-instance 0`
 
+Note, this argument has no effect under liunx.
+
 
 # General options
 **General options can be accessed from main window menu.**

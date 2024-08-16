@@ -5,6 +5,7 @@ WIP
   - Add "-s, --single-instance" argument, which allows multiple instances of TinyPedal
     to be running at same time by use "-s 0" or "--single-instance 0".
     Default is single instance only.
+    Note, this argument has no effect under liunx.
   - Add "Single instance mode" info to log output.
   - See User Guide "Command line arguments" section for details.
 
