@@ -22,7 +22,6 @@ Constants
 
 import sys
 import platform
-from .validator import is_folder_exist
 
 from PySide2.QtCore import qVersion
 
@@ -42,18 +41,15 @@ QT_VERSION = qVersion()
 
 # User data path
 if PLATFORM == "Windows":
-    PATH_SETTINGS = "settings/"
+    from .validator import user_data_path
+    PATH_SETTINGS = user_data_path("settings/")
     PATH_LOG = "./"
-    PATH_DELTABEST = "deltabest/"
+    PATH_DELTABEST = user_data_path("deltabest/")
     PATH_ENERGY = PATH_DELTABEST
     PATH_FUEL = PATH_DELTABEST
     PATH_SECTORBEST = PATH_DELTABEST
-    PATH_TRACKMAP = "trackmap/"
-    PATH_BRANDLOGO = "brandlogo/"
-    is_folder_exist(PATH_SETTINGS)
-    is_folder_exist(PATH_DELTABEST)
-    is_folder_exist(PATH_TRACKMAP)
-    is_folder_exist(PATH_BRANDLOGO)
+    PATH_TRACKMAP = user_data_path("trackmap/")
+    PATH_BRANDLOGO = user_data_path("brandlogo/")
 else:
     from xdg import BaseDirectory as BD
     PATH_SETTINGS = BD.save_config_path(APP_NAME) + "/"

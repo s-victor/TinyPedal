@@ -92,14 +92,15 @@ def value_type(value, default):
 
 
 # Folder validate
-def is_folder_exist(folder_name: str) -> None:
-    """Create folder if not exist"""
+def user_data_path(folder_name: str) -> str:
+    """Set user data path, create if not exist"""
     if not os.path.exists(folder_name):
         logger.info("%s folder does not exist, attemp to create", folder_name)
         try:
             os.mkdir(folder_name)
         except (PermissionError, FileExistsError):
             logger.error("failed to create %s folder", folder_name)
+    return folder_name
 
 
 # Delta list validate
