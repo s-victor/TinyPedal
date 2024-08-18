@@ -182,7 +182,7 @@ Set logging output level. Supported values are:
   * `--log-level 1` outputs all log to `console`.
   * `--log-level 2` outputs all log to both `console` and `tinypedal.log` file.
 
-Log file location:
+Log location:
   * On windows, `tinypedal.log` is located under APP root folder.
   * On linux, `tinypedal.log` is located under `/home/.config/TinyPedal/` folder.
 
@@ -191,11 +191,11 @@ Default logging output level is set on `1` if argument is not set.
 Usage: `python .\run.py -l 2` or `.\tinypedal.exe --log-level 2`
 
     -s, --single-instance
-Set running mode. `0` allows running multiple instances of TinyPedal. `1` allows only single instance (default).
+Set running mode. `0` allows running multiple instances (copies) of TinyPedal. `1` allows only single instance (default).
 
-To run multiple copy of TinyPedal at same time: `python .\run.py -s 0` or `.\tinypedal.exe --single-instance 0`
+To run multiple copies of TinyPedal at same time: `python .\run.py -s 0` or `.\tinypedal.exe --single-instance 0`
 
-Note, this argument has no effect under liunx.
+Single instance mode saves `pid.log` file in the same folder as `tinypedal.log`, which is used for instance identification.
 
 
 # General options

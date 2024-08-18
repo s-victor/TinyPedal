@@ -2,11 +2,13 @@ WIP
 -----------------------------
 * Command line arguments
   - Add "-h, --help" argument, which shows all available command line arguments.
-  - Add "-s, --single-instance" argument, which allows multiple instances of TinyPedal
-    to be running at same time by use "-s 0" or "--single-instance 0".
-    Default is single instance only.
-    Note, this argument has no effect under liunx.
+  - Add "-s, --single-instance" argument for toggling single instance mode,
+    which allows multiple instances of TinyPedal to be running at same time
+    by adding "-s 0" or "--single-instance 0" argument.
+    Default is single instance only, which only one TinyPedal may be run at a time.
+  - Single instance mode now works under liunx, or running from source script.
   - Add "Single instance mode" info to log output.
+  - Add "pid.log" output file in log folder when "Single instance mode" is enabled.
   - See User Guide "Command line arguments" section for details.
 
 2.17.2 (2024-08-08)

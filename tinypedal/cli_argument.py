@@ -31,5 +31,5 @@ def get_cli_argument():
         help="set logging output level: 0 - warning and error only; 1 - all levels (default); 2 - output to file")
     parse.add_argument(
         "-s", "--single-instance", choices=range(2), default=1, type=int,
-        help="set running mode (windows only): 0 - allow running multiple instances; 1 - single instance (default)")
+        help="set running mode: 0 - allow running multiple instances; 1 - single instance (default)")
     return parse.parse_args()

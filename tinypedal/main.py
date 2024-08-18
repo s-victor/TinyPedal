@@ -30,18 +30,81 @@ from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QApplication, QMessageBox
 
 from . import cli_args
-from .const import APP_NAME, PLATFORM, VERSION, PYTHON_VERSION, QT_VERSION
+from .const import APP_NAME, PLATFORM, VERSION, PYTHON_VERSION, QT_VERSION, PATH_LOG
+
+EXE_NAME = "tinypedal.exe"
+PID_FILE = "pid.log"
 
 logger = logging.getLogger("tinypedal")
 
 
-def is_app_running(app_name: str) -> bool:
-    """Check if is already running"""
+def save_pid_file():
+    """Save PID info to file"""
+    with open(f"{PATH_LOG}{PID_FILE}", "w", encoding="utf-8") as f:
+        current_pid = os.getpid()
+        pid_create_time = psutil.Process(current_pid).create_time()
+        pid_str = f"{current_pid},{pid_create_time}"
+        f.write(pid_str)
+
+
+def is_pid_exist() -> bool:
+    """Check and verify PID existence"""
+    try:
+        # Load last recorded PID and creation time from pid log file
+        with open(f"{PATH_LOG}{PID_FILE}", "r", encoding="utf-8") as f:
+            pid_read = f.readline()
+        pid = pid_read.split(",")
+        pid_last = int(pid[0])
+        pid_last_create_time = pid[1]
+        # Verify if last PID is running and belongs to TinyPedal
+        if psutil.pid_exists(pid_last):
+            if str(psutil.Process(pid_last).create_time()) == pid_last_create_time:
+                return True  # already running
+    except (ValueError, IndexError, FileNotFoundError):
+        logger.info("PID not found or invalid")
+    return False  # no running
+
+
+def is_exe_running() -> bool:
+    """Check running executable (windows only), this is only used as fallback"""
+    # Skip exe check if not on windows system
+    if PLATFORM != "Windows":
+        return False
+    app_pid = os.getpid()
     for app in psutil.process_iter(["name", "pid"]):
         # Compare found APP name & pid
-        if app.info["name"] == app_name and app.info["pid"] != os.getpid():
+        if app.info["name"] == EXE_NAME and app.info["pid"] != app_pid:
             return True
     return False
+
+
+def single_instance_check():
+    """Single instance check"""
+    # Check if single instance mode enabled
+    if not cli_args.single_instance:
+        logger.info("Single instance mode: OFF")
+        return None
+    logger.info("Single instance mode: ON")
+    # Check existing PID file first, then exe PID
+    if not (is_pid_exist() or is_exe_running()):
+        save_pid_file()
+        return None
+    # Show warning to console and popup dialog
+    warning_text = (
+        "TinyPedal is already running.\n\n"
+        "Only one TinyPedal may be run at a time.\n"
+        "Check system tray for hidden icon."
+    )
+    logger.warning(warning_text)
+    QMessageBox.warning(None, f"{APP_NAME} v{VERSION}", warning_text)
+    sys.exit()
+
+
+def version_check():
+    """Check version"""
+    logger.info("TinyPedal %s", VERSION)
+    logger.info("Python %s", PYTHON_VERSION)
+    logger.info("Qt %s", QT_VERSION)
 
 
 def init_gui():
@@ -56,45 +119,10 @@ def init_gui():
     return root
 
 
-def prelaunch_check():
-    """Prelaunch check"""
-    # Single instance check via psutil does not work under linux, so skip
-    if PLATFORM != "Windows":
-        return None
-
-    if not cli_args.single_instance:
-        logger.info("Single instance mode: False")
-        return None
-
-    logger.info("Single instance mode: True")
-    if not is_app_running("tinypedal.exe"):
-        return None
-
-    warning_text = (
-        "TinyPedal is already running.\n\n"
-        "Only one TinyPedal may be run at a time.\n"
-        "Check system tray for hidden icon."
-    )
-    logger.warning(warning_text)
-    QMessageBox.warning(
-        None,
-        f"{APP_NAME} v{VERSION}",
-        warning_text
-    )
-    sys.exit()
-
-
-def version_check():
-    """Check version"""
-    logger.info("TinyPedal %s", VERSION)
-    logger.info("Python %s", PYTHON_VERSION)
-    logger.info("Qt %s", QT_VERSION)
-
-
 def start_app():
     """Init main window"""
     root = init_gui()
-    prelaunch_check()
+    single_instance_check()
     version_check()
 
     # Load core modules
