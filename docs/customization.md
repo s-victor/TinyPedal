@@ -315,6 +315,11 @@ Set maximum retry attempts for preset saving. Default value is `10`. Minimum val
     api_name
 Set API name for accessing data from supported API.
 
+| API name | Requirement |
+|:-:|---|
+| rFactor 2 | Requires `rF2 Shared Memory Map Plugin` to work. |
+| Le Mans Ultimate | Currently a placehoder, the underlying code uses the same RF2 API which requires `rF2 Shared Memory Map Plugin` to work. |
+
     access_mode
 Set access mode for API. Mode value `0` uses copy access and additional data check to avoid data desynchronized or interruption issues. Mode value `1` uses direct access, which may result data desynchronized or interruption issues. Default mode is copy access.
 

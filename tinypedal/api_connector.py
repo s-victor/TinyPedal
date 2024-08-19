@@ -130,7 +130,7 @@ class SimLMU(Connector):
     def state(self) -> bool:
         return (
             not self.info.isPaused and
-            (self.info.rf2ScorVeh().mInRealtime
+            (self.info.rf2ScorInfo.mInRealtime
             or self.info.rf2TeleVeh().mIgnitionStarter)
         )
 

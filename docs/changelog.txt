@@ -1,15 +1,26 @@
-WIP
+2.17.3 (2024-08-19)
 -----------------------------
+* General
+  - Fixed a bug (introduced in v2.17.0) in API connector that would cause TinyPedal to stop work
+    when user selected "LMU API" in Shared Memory API config dialog.
+    Note, LMU API option is currently only a placeholder which uses the same underlying
+    RF2 API and "rF2 Shared Memory Plugin" and works exactly same as RF2.
+    Updated "User Guide" info regarding API selector.
+  - Optimized overlay state check to avoid unnecessary function calls.
+
 * Command line arguments
   - Add "-h, --help" argument, which shows all available command line arguments.
   - Add "-s, --single-instance" argument for toggling single instance mode,
     which allows multiple instances of TinyPedal to be running at same time
     by adding "-s 0" or "--single-instance 0" argument.
     Default is single instance only, which only one TinyPedal may be run at a time.
-  - Single instance mode now works under liunx, or running from source script.
+  - Single instance mode now works under Linux, or running from source script.
   - Add "Single instance mode" info to log output.
   - Add "pid.log" output file in log folder when "Single instance mode" is enabled.
   - See User Guide "Command line arguments" section for details.
+
+* Misc
+  - Added new contributor (ebeninca) to contributors.md.
 
 2.17.2 (2024-08-08)
 -----------------------------
