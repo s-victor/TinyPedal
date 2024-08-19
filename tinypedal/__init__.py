@@ -23,13 +23,6 @@ Init
 import io
 import logging
 
-from .cli_argument import get_cli_argument
-from .log_handler import set_logging_level
-
-# Get command line arguments
-cli_args = get_cli_argument()
-
 # Create logger
 logger = logging.getLogger("tinypedal")
 log_stream = io.StringIO()
-set_logging_level(logger, log_stream, cli_args.log_level)

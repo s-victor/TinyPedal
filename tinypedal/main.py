@@ -29,13 +29,17 @@ import psutil
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QApplication, QMessageBox
 
-from . import cli_args
+from . import log_stream
+from .cli_argument import get_cli_argument
 from .const import APP_NAME, PLATFORM, VERSION, PYTHON_VERSION, QT_VERSION, PATH_LOG
+from .log_handler import set_logging_level
 
 EXE_NAME = "tinypedal.exe"
 PID_FILE = "pid.log"
 
+cli_args = get_cli_argument()
 logger = logging.getLogger("tinypedal")
+set_logging_level(logger, log_stream, cli_args.log_level)
 
 
 def save_pid_file():

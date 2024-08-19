@@ -5,6 +5,7 @@ Args:
     -c, --clean: force remove old build folder before building.
 """
 
+import argparse
 import re
 import os
 import shutil
@@ -13,7 +14,6 @@ from glob import glob
 from py2exe import freeze
 
 from tinypedal.const import APP_NAME, VERSION, PLATFORM, COPYRIGHT, PYTHON_VERSION, QT_VERSION
-
 
 PYTHON_PATH = sys.exec_prefix
 DIST_FOLDER = "dist/"
@@ -82,7 +82,16 @@ BUILD_VERSION = {
 }
 
 
-def check_dist(build_ready=False) -> bool:
+def get_cli_argument():
+    """Get command line argument"""
+    parse = argparse.ArgumentParser(description="TinyPedal windows excutable build command line arguments")
+    parse.add_argument(
+        "-c", "--clean", action="store_true",
+        help="force remove old build folder before building")
+    return parse.parse_args()
+
+
+def check_dist(build_ready: bool = False) -> bool:
     """Check whether dist folder exist"""
     if not os.path.exists(DIST_FOLDER):
         print("INFO:dist folder not found, creating")
@@ -99,15 +108,14 @@ def check_dist(build_ready=False) -> bool:
     return build_ready
 
 
-def check_old_build(build_ready=False) -> bool:
+def check_old_build(clean_build: bool = False, build_ready: bool = False) -> bool:
     """Check whether old build folder exist"""
     if os.path.exists(f"{DIST_FOLDER}{APP_NAME}"):
         print("INFO:Found old build folder")
 
-        for _arg in sys.argv:
-            if re.match("^-c$|^--clean$", _arg):
-                build_ready = delete_old_build()
-                return build_ready
+        if clean_build:
+            build_ready = delete_old_build()
+            return build_ready
 
         is_remove = input("INFO:Remove old build folder before building? Yes/No/Quit \n")
 
@@ -150,7 +158,8 @@ def build_start() -> None:
     print(f"INFO:Python: {PYTHON_VERSION}")
     print(f"INFO:Qt: {QT_VERSION}")
     if PLATFORM == "Windows":
-        if check_old_build(check_dist()):
+        cli_args = get_cli_argument()
+        if check_old_build(cli_args.clean, check_dist()):
             build_exe()
             print("INFO:Building finished")
         else:
