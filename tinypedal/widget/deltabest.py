@@ -30,7 +30,7 @@ from ._base import Overlay
 WIDGET_NAME = "deltabest"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -88,9 +88,6 @@ class Draw(Overlay):
         self.last_delta_best = 0
         self.last_laptime = 0
         self.new_lap = True
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

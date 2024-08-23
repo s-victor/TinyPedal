@@ -31,7 +31,7 @@ from ._base import Overlay
 WIDGET_NAME = "flag"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -197,9 +197,6 @@ class Draw(Overlay):
 
         # Last data
         self.set_defaults()
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def set_defaults(self):
         """Initialize variables"""

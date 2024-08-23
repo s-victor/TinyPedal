@@ -30,7 +30,7 @@ from ._base import Overlay
 WIDGET_NAME = "brake_performance"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -149,9 +149,6 @@ class Draw(Overlay):
         self.last_lap_etime = 0
         self.last_lap_stime = 0
         self.reset_lock_duration = False
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

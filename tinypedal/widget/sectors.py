@@ -33,7 +33,7 @@ WIDGET_NAME = "sectors"
 MAGIC_NUM = 99999  # magic number for default variable not updated by rF2
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -129,9 +129,6 @@ class Draw(Overlay):
 
         # Last data
         self.verified = False  # load & save switch
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def set_defaults(self):
         """Initialize variables"""

@@ -30,7 +30,7 @@ from ._base import Overlay
 WIDGET_NAME = "p2p"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -93,9 +93,6 @@ class Draw(Overlay):
         # Last data
         self.last_battery_charge = None
         self.last_active_timer = None
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

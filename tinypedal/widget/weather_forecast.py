@@ -33,7 +33,7 @@ from ._base import Overlay
 WIDGET_NAME = "weather_forecast"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -81,9 +81,6 @@ class Draw(Overlay):
         self.last_estimated_temp = [None] * 10
         self.last_rain_chance = [None] * 10
         self.last_icon_index = [None] * 10
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def generate_bar(self, layout):
         """Generate data bar"""

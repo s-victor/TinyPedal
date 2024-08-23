@@ -34,7 +34,7 @@ from ._base import Overlay
 WIDGET_NAME = "cruise"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -129,9 +129,6 @@ class Draw(Overlay):
         self.last_dir_degree = None
         self.last_elevation = None
         self.last_traveled_distance = None
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

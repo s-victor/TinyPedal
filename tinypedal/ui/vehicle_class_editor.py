@@ -41,7 +41,7 @@ from PySide2.QtWidgets import (
 from ..api_control import api
 from ..setting import cfg, copy_setting
 from ..const import APP_ICON
-from ..widget_control import wctrl
+from ..module_control import wctrl
 from .. import formatter as fmt
 from .config import (
     ColorEdit,

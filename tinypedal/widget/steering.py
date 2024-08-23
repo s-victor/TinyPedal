@@ -30,7 +30,7 @@ from ._base import Overlay
 WIDGET_NAME = "steering"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -96,9 +96,6 @@ class Draw(Overlay):
         self.last_raw_steering = None
         self.sw_rot_range = 1
         self.last_sw_rot_range = 0
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

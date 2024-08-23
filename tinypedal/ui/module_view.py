@@ -63,16 +63,14 @@ QSS_BUTTON_CONFIG = (
 class ModuleList(QWidget):
     """Module & widget list view"""
 
-    def __init__(self, module_control: object, module_type: str = ""):
+    def __init__(self, module_control: object):
         """Initialize module list setting
 
         Args:
             module_control: Module control (or widget) object.
-            module_type: "module" (or "widget").
         """
         super().__init__()
         self.module_control = module_control
-        self.module_type = module_type
 
         # Label
         self.label_loaded = QLabel("")
@@ -199,5 +197,5 @@ class ListItemControl(QWidget):
 
     def open_config_dialog(self):
         """Config dialog"""
-        _dialog = UserConfig(self.master, self.module_name, self.master.module_type)
+        _dialog = UserConfig(self.master, self.module_name, self.module_control.type_id)
         _dialog.open()

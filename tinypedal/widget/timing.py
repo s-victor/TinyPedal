@@ -32,7 +32,7 @@ WIDGET_NAME = "timing"
 MAGIC_NUM = 99999  # magic number for default variable not updated by rF2
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -236,9 +236,6 @@ class Draw(Overlay):
         self.last_laptime_spbt = 0
         self.last_laptime_stbt = 0
         self.last_laptime_avpc = 0
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

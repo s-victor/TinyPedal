@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Module control
+Module and widget control
 """
 
 import logging
@@ -26,25 +26,43 @@ import pkgutil
 
 from .setting import cfg
 from . import module
+from . import widget
 from . import validator as val
 
 logger = logging.getLogger(__name__)
 
 
+def create_module_pack(target: any) -> dict:
+    """Create module reference pack as dictionary
+
+    Args:
+        target: module.
+
+    Returns:
+        Dictionary, key = module name. value = module.
+    """
+    return {
+        name: getattr(target, name)
+        for _, name, _ in pkgutil.iter_modules(target.__path__)
+        if val.is_imported_module(target, name)
+    }
+
+
 class ModuleControl:
-    """Module control
+    """Module and widget control
+
+    Args:
+        target: module.
 
     Attributes:
-        PACK:
-            Data module reference dictionary.
-            key = module name. value = module.
+        pack: module reference pack (dictionary)
+        active_list: list of active modules.
+        type_id: module type indentifier, either "module" or "widget".
     """
-    PACK = {
-        name: getattr(module, name)
-        for _, name, _ in pkgutil.iter_modules(module.__path__)
-        if val.is_imported_module(module, name)
-    }
-    active_list = {}
+    def __init__(self, target: any, type_id: str):
+        self.pack = create_module_pack(target)
+        self.active_list = {}
+        self.type_id = type_id
 
     def start(self, name: str = ""):
         """Start module, specify name for selected module"""
@@ -77,30 +95,30 @@ class ModuleControl:
 
     def enable_all(self):
         """Enable all modules"""
-        for _name in self.PACK.keys():
+        for _name in self.pack.keys():
             cfg.user.setting[_name]["enable"] = True
         self.start()
         cfg.save()
-        logger.info("ACTIVE: all modules")
+        logger.info("ACTIVE: all %s(s)", self.type_id)
 
     def disable_all(self):
         """Disable all modules"""
-        for _name in self.PACK.keys():
+        for _name in self.pack.keys():
             cfg.user.setting[_name]["enable"] = False
         self.close()
         cfg.save()
-        logger.info("CLOSED: all modules")
+        logger.info("CLOSED: all %s(s)", self.type_id)
 
     def __start_enabled(self):
         """Start all enabled module"""
-        for _name in self.PACK.keys():
+        for _name in self.pack.keys():
             self.__start_selected(_name)
 
     def __start_selected(self, name: str):
         """Start selected module"""
         if cfg.user.setting[name]["enable"] and name not in self.active_list:
             # Create module instance and add to dict
-            self.active_list[name] = self.PACK[name].Realtime(cfg)
+            self.active_list[name] = self.pack[name].Realtime(cfg)
             self.active_list[name].start()
 
     def __close_enabled(self):
@@ -114,7 +132,7 @@ class ModuleControl:
             _module = self.active_list[name]  # get instance
             self.active_list.pop(name)  # remove active reference
             _module.stop()  # close module
-            while not _module.stopped:  # wait finish
+            while not _module.closed:  # wait finish
                 time.sleep(0.01)
             _module = None  # remove final reference
 
@@ -126,12 +144,13 @@ class ModuleControl:
     @property
     def count_total(self) -> int:
         """Count total modules"""
-        return len(self.PACK)
+        return len(self.pack)
 
     @property
     def name_list(self) -> set:
         """List of module names"""
-        return self.PACK.keys()
+        return self.pack.keys()
 
 
-mctrl = ModuleControl()
+mctrl = ModuleControl(module, "module")
+wctrl = ModuleControl(widget, "widget")

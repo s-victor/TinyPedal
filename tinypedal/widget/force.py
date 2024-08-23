@@ -29,7 +29,7 @@ from ._base import Overlay
 WIDGET_NAME = "force"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -139,9 +139,6 @@ class Draw(Overlay):
         self.last_df_ratio = None
         self.last_df_front = None
         self.last_df_rear = None
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

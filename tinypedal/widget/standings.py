@@ -36,7 +36,7 @@ from ._base import Overlay
 WIDGET_NAME = "standings"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -232,9 +232,6 @@ class Draw(Overlay):
 
         # Set layout
         self.setLayout(self.layout)
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def generate_bar(self, suffix, style, column_idx):
         """Generate data bar"""

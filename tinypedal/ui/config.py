@@ -50,8 +50,7 @@ from .. import formatter as fmt
 from ..setting import cfg
 from ..const import APP_ICON
 from ..api_connector import API_NAME_LIST
-from ..module_control import mctrl
-from ..widget_control import wctrl
+from ..module_control import mctrl, wctrl
 
 
 OPTION_WIDTH = 120
@@ -333,10 +332,10 @@ class UserConfig(QDialog):
     def reloading(self):
         """Reloading depends on setting types"""
         # Select type
-        if self.cfg_type == "widget":
+        if self.cfg_type == wctrl.type_id:
             wctrl.reload(self.key_name)
             self.master.refresh_state()
-        elif self.cfg_type == "module":
+        elif self.cfg_type == mctrl.type_id:
             mctrl.reload(self.key_name)
             self.master.refresh_state()
         elif self.cfg_type == "misc":

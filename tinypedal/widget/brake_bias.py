@@ -30,7 +30,7 @@ from ._base import Overlay
 WIDGET_NAME = "brake_bias"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -101,9 +101,6 @@ class Draw(Overlay):
         self.bpres_max = 0
         self.bpres_scale = 1
         self.ebrake_alloc = self.wcfg["electric_braking_allocation"]  # -1 = auto detect, 0 = front, 1 = rear
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

@@ -29,7 +29,7 @@ from ._base import Overlay
 WIDGET_NAME = "damage"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -134,9 +134,6 @@ class Draw(Overlay):
         self.last_damage_body = None
         self.damage_wheel = [0] * 4
         self.last_damage_wheel = None
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

@@ -30,7 +30,7 @@ from ._base import Overlay
 WIDGET_NAME = "electric_motor"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -144,9 +144,6 @@ class Draw(Overlay):
         self.last_rpm = None
         self.last_torque = None
         self.last_power = None
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

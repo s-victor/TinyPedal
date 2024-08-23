@@ -31,7 +31,7 @@ from ._base import Overlay
 WIDGET_NAME = "fuel"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -253,9 +253,6 @@ class Draw(Overlay):
         self.last_fuel_save = None
         self.last_est_pits_end = None
         self.last_fuel_level = None
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

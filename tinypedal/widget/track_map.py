@@ -30,7 +30,7 @@ from ._base import Overlay
 WIDGET_NAME = "track_map"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -91,9 +91,7 @@ class Draw(Overlay):
         self.last_veh_data_version = None
         self.circular_map = True
 
-        # Set widget state & start update
         self.update_map(0, 1)
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

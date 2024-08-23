@@ -29,7 +29,7 @@ from ._base import Overlay
 WIDGET_NAME = "suspension_position"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -102,9 +102,6 @@ class Draw(Overlay):
         # Last data
         self.pos_raw = [0] * 4
         self.last_pos_raw = [0] * 4
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

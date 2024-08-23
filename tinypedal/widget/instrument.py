@@ -31,7 +31,7 @@ from ._base import Overlay
 WIDGET_NAME = "instrument"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -134,9 +134,6 @@ class Draw(Overlay):
         self.last_wlock = None
         self.last_wslip = None
         self.flicker = 0
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

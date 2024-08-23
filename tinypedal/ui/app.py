@@ -38,8 +38,7 @@ from PySide2.QtWidgets import (
 from ..const import APP_NAME, VERSION, APP_ICON
 from ..setting import cfg
 from ..api_control import api
-from ..module_control import mctrl
-from ..widget_control import wctrl
+from ..module_control import mctrl, wctrl
 from .. import loader
 from .tray_icon import TrayIcon
 from .module_view import ModuleList
@@ -78,8 +77,8 @@ class AppWindow(QMainWindow):
 
         # Controller tabs
         self.tab_bar = QTabWidget()
-        self.widget_tab = ModuleList(wctrl, "widget")
-        self.module_tab = ModuleList(mctrl, "module")
+        self.widget_tab = ModuleList(wctrl)
+        self.module_tab = ModuleList(mctrl)
         self.preset_tab = PresetList(self)
         self.spectate_tab = SpectateList(self)
         self.tab_bar.addTab(self.widget_tab, "Widget")

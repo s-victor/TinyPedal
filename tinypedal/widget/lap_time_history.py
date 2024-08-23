@@ -33,7 +33,7 @@ from ._base import Overlay
 WIDGET_NAME = "lap_time_history"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -172,9 +172,6 @@ class Draw(Overlay):
         self.last_time_text = None
         self.last_fuel_text = None
         self.last_wear_text = None
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def set_row_index(self, index):
         """Set row index"""

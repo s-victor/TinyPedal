@@ -30,7 +30,7 @@ from ._base import Overlay
 WIDGET_NAME = "rake_angle"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -77,9 +77,6 @@ class Draw(Overlay):
 
         # Last data
         self.last_rake = 0
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

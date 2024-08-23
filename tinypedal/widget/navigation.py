@@ -32,7 +32,7 @@ WIDGET_NAME = "navigation"
 POLYGON_NONE = QPolygonF((QPointF(-99999,-99999),QPointF(-99999,-99999)))
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -109,11 +109,9 @@ class Draw(Overlay):
         self.map_size = 1,1
         self.map_offset = 0,0
 
-        # Set widget state & start update
         self.draw_background()
         self.draw_map_mask_pixmap()
         self.update_map(0, 1)
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

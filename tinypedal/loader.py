@@ -24,8 +24,7 @@ import logging
 
 from .setting import cfg
 from .api_control import api
-from .module_control import mctrl
-from .widget_control import wctrl
+from .module_control import mctrl, wctrl
 from .overlay_control import octrl
 
 logger = logging.getLogger(__name__)

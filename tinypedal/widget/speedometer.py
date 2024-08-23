@@ -30,7 +30,7 @@ from ._base import Overlay
 WIDGET_NAME = "speedometer"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -136,9 +136,6 @@ class Draw(Overlay):
         self.last_speed_fast = -1
         self.off_throttle_timer_start = 0
         self.on_throttle_timer_start = 0
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""

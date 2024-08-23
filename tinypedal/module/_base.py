@@ -34,6 +34,7 @@ class DataModule:
     def __init__(self, config: object, module_name: str):
         super().__init__()
         self.module_name = module_name
+        self.closed = True
         self.state = octrl.state
 
         # Base config
@@ -42,11 +43,8 @@ class DataModule:
         # Module config
         self.mcfg = self.cfg.user.setting[module_name]
 
-        # Module update thread
-        self.stopped = True
-        self.event = threading.Event()
-
         # Module update interval
+        self.event = threading.Event()
         self.active_interval = max(
             self.mcfg["update_interval"],
             self.cfg.compatibility["minimum_update_interval"]) / 1000
@@ -57,8 +55,8 @@ class DataModule:
 
     def start(self):
         """Start update thread"""
-        if self.stopped:
-            self.stopped = False
+        if self.closed:
+            self.closed = False
             self.event.clear()
             threading.Thread(target=self.update_data, daemon=True).start()
             logger.info("ACTIVE: %s", self.module_name.replace("_", " "))
@@ -66,7 +64,7 @@ class DataModule:
     def stop(self):
         """Stop update thread"""
         self.event.set()
-        self.stopped = True
+        self.closed = True
         logger.info("CLOSED: %s", self.module_name.replace("_", " "))
 
     def update_data(self):

@@ -35,7 +35,7 @@ MAGIC_NUM = 99999
 TEXT_NONE = "-"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -106,9 +106,6 @@ class Draw(Overlay):
         self.last_lap_player = [(-MAGIC_NUM, 0, 0)] * self.total_slot
         self.last_refill_player = [-MAGIC_NUM] * self.total_slot
         self.last_pit_time = 0,0
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def generate_bar(self, layout):
         """Generate data bar"""

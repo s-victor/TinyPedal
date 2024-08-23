@@ -63,10 +63,7 @@ class Overlay(QWidget):
         # Widget mouse event
         self._mouse_pos = (0, 0)
         self._mouse_pressed = 0
-        self._move_size = max(int(self.cfg.compatibility["grid_move_size"]), 1)
-
-        # Connect overlay-lock signal to slot
-        self.__connect_signal()
+        self._move_size = max(self.cfg.compatibility["grid_move_size"], 1)
 
         # Set update timer
         self._update_timer = QBasicTimer()
@@ -74,13 +71,21 @@ class Overlay(QWidget):
             self.wcfg["update_interval"],
             self.cfg.compatibility["minimum_update_interval"])
 
-    def set_widget_state(self):
-        """Set initial widget state in orders"""
+    def start(self):
+        """Set initial widget state in orders, and start update"""
+        self.__connect_signal()
         self.__set_window_style()
         self.__set_window_attributes()  # 1
         self.__set_window_flags()       # 2
         self.show()                     # 3 show before starting update
         self._update_timer.start(self._update_interval, self)
+
+    def stop(self):
+        """Stop and close widget"""
+        self._update_timer.stop()
+        self.__break_signal()
+        self.unload_resource()
+        self.closed = self.close()
 
     def __set_window_attributes(self):
         """Set window attributes"""
@@ -151,13 +156,6 @@ class Overlay(QWidget):
         """Disconnect overlay lock and hide signal"""
         octrl.state.locked.disconnect(self.__toggle_lock)
         octrl.state.hidden.disconnect(self.__toggle_hide)
-
-    def closing(self):
-        """Close widget"""
-        self._update_timer.stop()
-        self.__break_signal()
-        self.unload_resource()
-        self.closed = self.close()
 
     @staticmethod
     def config_font(name: str = "", size: int = 1, weight: str = "") -> object:

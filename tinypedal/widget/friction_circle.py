@@ -31,7 +31,7 @@ from ._base import Overlay
 WIDGET_NAME = "friction_circle"
 
 
-class Draw(Overlay):
+class Realtime(Overlay):
     """Draw widget"""
 
     def __init__(self, config):
@@ -114,9 +114,6 @@ class Draw(Overlay):
         self.data_gforce = deque([], max(self.wcfg["trace_max_samples"], 5))
         self.last_x = self.scale_position(0)
         self.last_y = self.scale_position(0)
-
-        # Set widget state & start update
-        self.set_widget_state()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
