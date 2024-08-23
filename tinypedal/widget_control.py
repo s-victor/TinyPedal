@@ -35,14 +35,16 @@ class WidgetControl:
     """Widget control
 
     Attributes:
-        PACK: widget module reference dictionary.
-        key = module name string. value = module.
+        PACK:
+            Widget module reference dictionary.
+            key = module name string. value = module.
     """
     PACK = {
         name: getattr(widget, name)
         for _, name, _ in pkgutil.iter_modules(widget.__path__)
         if val.is_imported_module(widget, name)
     }
+    active_list = {}
 
     def start(self, name: str = ""):
         """Start widget, specify name for selected widget"""
@@ -96,32 +98,39 @@ class WidgetControl:
 
     def __start_selected(self, name: str):
         """Start selected widget"""
-        if cfg.user.setting[name]["enable"]:
-            self.__create_instance(name)
+        if cfg.user.setting[name]["enable"] and name not in self.active_list:
+            # Create widget instance and add to dict
+            self.active_list[name] = self.PACK[name].Draw(cfg)
 
-    @staticmethod
-    def __close_enabled():
+    def __close_enabled(self):
         """Close all enabled widget"""
-        name_list = tuple(cfg.active_widget_list)
-        for _name in name_list:
-            if _name in cfg.active_widget_list:
-                cfg.active_widget_list[_name].closing()
-        while cfg.active_widget_list:  # make sure closed
-            time.sleep(0.01)
+        for _name in tuple(self.active_list):
+            self.__close_selected(_name)
 
-    @staticmethod
-    def __close_selected(name: str):
+    def __close_selected(self, name: str):
         """Close selected widget"""
-        _widget = cfg.active_widget_list.get(name, False)
-        if _widget:
-            _widget.closing()
-            while not _widget.closed:  # make sure stopped
+        if name in self.active_list:
+            _widget = self.active_list[name]  # get instance
+            self.active_list.pop(name)  # remove active reference
+            _widget.closing()  # close widget
+            while not _widget.closed:  # wait finish
                 time.sleep(0.01)
+            _widget = None  # remove final reference
 
-    def __create_instance(self, name: str):
-        """Create widget instance"""
-        if name not in cfg.active_widget_list:
-            cfg.active_widget_list[name] = self.PACK[name].Draw(cfg)
+    @property
+    def count_active(self) -> int:
+        """Count active widgets"""
+        return len(self.active_list)
+
+    @property
+    def count_total(self) -> int:
+        """Count total widgets"""
+        return len(self.PACK)
+
+    @property
+    def name_list(self) -> set:
+        """List of widget names"""
+        return self.PACK.keys()
 
 
 wctrl = WidgetControl()

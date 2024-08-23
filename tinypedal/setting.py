@@ -89,10 +89,6 @@ class Setting:
         self.default = Preset()
         self.default.set_default()
         self.user = Preset()
-
-        self.active_widget_list = {}
-        self.active_module_list = {}
-
         self.is_saving = False
         self._save_delay = 0
 

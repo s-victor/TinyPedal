@@ -35,14 +35,16 @@ class ModuleControl:
     """Module control
 
     Attributes:
-        PACK: Data module reference dictionary.
-        key = module name string. value = module.
+        PACK:
+            Data module reference dictionary.
+            key = module name. value = module.
     """
     PACK = {
         name: getattr(module, name)
         for _, name, _ in pkgutil.iter_modules(module.__path__)
         if val.is_imported_module(module, name)
     }
+    active_list = {}
 
     def start(self, name: str = ""):
         """Start module, specify name for selected module"""
@@ -96,33 +98,40 @@ class ModuleControl:
 
     def __start_selected(self, name: str):
         """Start selected module"""
-        if cfg.user.setting[name]["enable"]:
-            self.__create_instance(name)
+        if cfg.user.setting[name]["enable"] and name not in self.active_list:
+            # Create module instance and add to dict
+            self.active_list[name] = self.PACK[name].Realtime(cfg)
+            self.active_list[name].start()
 
-    @staticmethod
-    def __close_enabled():
+    def __close_enabled(self):
         """Close all enabled module"""
-        name_list = tuple(cfg.active_module_list)
-        for _name in name_list:
-            if _name in cfg.active_module_list:
-                cfg.active_module_list[_name].stop()
-        while cfg.active_module_list:  # make sure stopped
-            time.sleep(0.01)
+        for _name in tuple(self.active_list):
+            self.__close_selected(_name)
 
-    @staticmethod
-    def __close_selected(name: str):
+    def __close_selected(self, name: str):
         """Close selected module"""
-        _module = cfg.active_module_list.get(name, False)
-        if _module:
-            _module.stop()
-            while not _module.stopped:  # make sure stopped
+        if name in self.active_list:
+            _module = self.active_list[name]  # get instance
+            self.active_list.pop(name)  # remove active reference
+            _module.stop()  # close module
+            while not _module.stopped:  # wait finish
                 time.sleep(0.01)
+            _module = None  # remove final reference
 
-    def __create_instance(self, name: str):
-        """Create module instance"""
-        if name not in cfg.active_module_list:
-            cfg.active_module_list[name] = self.PACK[name].Realtime(cfg)
-            cfg.active_module_list[name].start()
+    @property
+    def count_active(self) -> int:
+        """Count active modules"""
+        return len(self.active_list)
+
+    @property
+    def count_total(self) -> int:
+        """Count total modules"""
+        return len(self.PACK)
+
+    @property
+    def name_list(self) -> set:
+        """List of module names"""
+        return self.PACK.keys()
 
 
 mctrl = ModuleControl()

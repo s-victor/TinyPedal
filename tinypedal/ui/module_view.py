@@ -63,17 +63,15 @@ QSS_BUTTON_CONFIG = (
 class ModuleList(QWidget):
     """Module & widget list view"""
 
-    def __init__(self, module_control: object, module_list: dict, module_type: str = ""):
+    def __init__(self, module_control: object, module_type: str = ""):
         """Initialize module list setting
 
         Args:
             module_control: Module control (or widget) object.
-            module_list: Active list that contains module (or widget) instances.
             module_type: "module" (or "widget").
         """
         super().__init__()
         self.module_control = module_control
-        self.module_list = module_list
         self.module_type = module_type
 
         # Label
@@ -108,7 +106,7 @@ class ModuleList(QWidget):
 
     def create_list(self):
         """Create module list"""
-        for _name in self.module_control.PACK.keys():
+        for _name in self.module_control.name_list:
             module_item = ListItemControl(self, _name, self.module_control)
             self.listbox_buttons.append(module_item)
             item = QListWidgetItem()
@@ -123,17 +121,17 @@ class ModuleList(QWidget):
     def refresh_label(self):
         """Refresh label text"""
         self.label_loaded.setText(
-            f"Enabled: <b>{len(self.module_list)}/{len(self.module_control.PACK)}</b>")
+            f"Enabled: <b>{self.module_control.count_active}/{self.module_control.count_total}</b>")
 
     def module_button_enable_all(self):
         """Enable all modules"""
-        if len(self.module_list) != len(self.module_control.PACK):
+        if self.module_control.count_active != self.module_control.count_total:
             self.module_control.enable_all()
             self.refresh_state()
 
     def module_button_disable_all(self):
         """Disable all modules"""
-        if self.module_list:
+        if self.module_control.count_active:
             self.module_control.disable_all()
             self.refresh_state()
 

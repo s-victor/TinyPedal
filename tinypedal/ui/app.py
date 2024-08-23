@@ -78,8 +78,8 @@ class AppWindow(QMainWindow):
 
         # Controller tabs
         self.tab_bar = QTabWidget()
-        self.widget_tab = ModuleList(wctrl, cfg.active_widget_list, "widget")
-        self.module_tab = ModuleList(mctrl, cfg.active_module_list, "module")
+        self.widget_tab = ModuleList(wctrl, "widget")
+        self.module_tab = ModuleList(mctrl, "module")
         self.preset_tab = PresetList(self)
         self.spectate_tab = SpectateList(self)
         self.tab_bar.addTab(self.widget_tab, "Widget")

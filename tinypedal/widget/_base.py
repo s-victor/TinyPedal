@@ -157,7 +157,6 @@ class Overlay(QWidget):
         self._update_timer.stop()
         self.__break_signal()
         self.unload_resource()
-        self.cfg.active_widget_list.pop(self.widget_name)
         self.closed = self.close()
 
     @staticmethod

@@ -66,7 +66,6 @@ class DataModule:
     def stop(self):
         """Stop update thread"""
         self.event.set()
-        self.cfg.active_module_list.pop(self.module_name)
         self.stopped = True
         logger.info("CLOSED: %s", self.module_name.replace("_", " "))
 
