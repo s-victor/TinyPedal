@@ -50,8 +50,8 @@ class Realtime(Overlay):
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
         self.bar_width = max(self.wcfg["bar_width"], 4)
-        self.less_slot = min(max(self.wcfg["number_of_less_laps"], 0), 5) + 1  # plus 1 offset
-        self.total_slot = min(max(self.wcfg["number_of_more_laps"], 1), 10) + 1 + self.less_slot
+        self.center_slot = min(max(self.wcfg["number_of_less_laps"], 0), 5) + 1  # +1 column offset
+        self.total_slot = min(max(self.wcfg["number_of_more_laps"], 1), 10) + 1 + self.center_slot
         self.lap_difference_set = [0] * self.total_slot
         self.decimals_consumption = max(self.wcfg["decimal_places_consumption"], 0)
         self.decimals_delta = max(self.wcfg["decimal_places_delta"], 0)
@@ -126,7 +126,7 @@ class Realtime(Overlay):
                 lap_diff_text = f"{self.lap_difference_set[index]:d}"
             setattr(self, f"bar_target_lap_{index}", QLabel(lap_diff_text))
             getattr(self, f"bar_target_lap_{index}").setAlignment(Qt.AlignCenter)
-            if index == self.less_slot:
+            if index == self.center_slot:
                 getattr(self, f"bar_target_lap_{index}").setStyleSheet(bar_style_current_lap)
             else:
                 getattr(self, f"bar_target_lap_{index}").setStyleSheet(bar_style_target_lap)
@@ -194,11 +194,12 @@ class Realtime(Overlay):
             self.reset_stint = False
             self.start_laps = lap_num
 
-        # Total fuel used count from start of current lap
         laps_done = max(lap_num - self.start_laps, 0)
+        # Total fuel remaining count from start of current lap
         total_fuel_remaining = max(fuel_curr + fuel_used_curr - self.min_reserve, 0)
+        # Estimate laps current fuel can last, minus center slot offset
         # Round to 1 decimal to reduce sensitivity
-        saved_laps = floor(round(calc.end_stint_laps(total_fuel_remaining, fuel_est), 1)) - self.less_slot
+        est_runlaps = floor(round(calc.end_stint_laps(total_fuel_remaining, fuel_est), 1)) - self.center_slot
 
         # Update slots
         for index in range(self.total_slot):
@@ -212,10 +213,10 @@ class Realtime(Overlay):
                 continue
 
             # Progressive fuel saving
-            total_laps_target = saved_laps + index
+            total_laps_target = est_runlaps + index
 
             # Total laps + extra laps
-            if index == self.less_slot:
+            if index == self.center_slot:
                 target_laps = f"{laps_done}/{laps_done + total_laps_target:d}"
             else:
                 target_laps = f"{laps_done + total_laps_target:d}"

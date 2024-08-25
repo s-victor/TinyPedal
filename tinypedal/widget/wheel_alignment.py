@@ -84,7 +84,6 @@ class Realtime(Overlay):
             bar_desc_toein.setStyleSheet(bar_style_desc)
             layout_toein.addWidget(bar_desc_toein, 0, 0, 1, 0)
 
-
         # Camber
         if self.wcfg["show_camber"]:
             bar_style_camber = (
