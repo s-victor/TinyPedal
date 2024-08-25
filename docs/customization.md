@@ -1661,6 +1661,14 @@ Set additional players shown on relative list. Each value is limited to a maximu
 ## Relative finish order
 **This widget displays estimated relative finish order between leader and local player with corresponding refilling estimate in a table view.**
 
+**Overview**
+
+This widget predicts relative final lap progress at the moment when session timer ended in time-type race, or leader crossed finish line in laps-type race, which can be used to determine whether extra laps are required to finish race.
+
+Simple example: in time-type race, at the moment when session timer ended, assume race leader's vehicle is in `Sector 1` (or 20% into lap), and local player is in `Sector 3` (or 80% into lap) which is ahead of leader in terms of relative `lap progress` (0% from start line to 100% at finish line). When local player finishes his current lap, the race does not end for him because leader is behind local player and has not yet crossed finish line. This means local player has to complete another lap in order to finish the race, and needs an extra lap of fuel.
+
+---
+
 The table consists of 5 fixed rows, 3 fixed columns, and 10 optional predication columns that can be customized. Example:
 
 | TIME |   0s  |  30s  |  40s  |  50s  |  60s  |  54s  |
