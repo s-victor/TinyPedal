@@ -155,8 +155,7 @@ class Realtime(Overlay):
                 self.checked = False
                 self.bpres_max = 0
                 self.bpres_scale = 1
-                if self.wcfg["electric_braking_allocation"] == -1:
-                    self.ebrake_alloc = -1
+                self.ebrake_alloc = self.wcfg["electric_braking_allocation"]
 
     # GUI update methods
     def update_bbias(self, curr, last):

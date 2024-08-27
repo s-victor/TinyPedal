@@ -65,8 +65,12 @@ class AppWindow(QMainWindow):
         self.main_menubar()
 
         # Status bar & notification
-        self.label_api_version = QLabel("")
-        self.statusBar().addPermanentWidget(self.label_api_version)
+        label_api = QLabel("API:")
+        self.button_api = QPushButton("")
+        self.button_api.clicked.connect(self.config_menuitem.open_config_sharedmemory)
+        self.button_api.clicked.connect(self.set_status_text)
+        self.statusBar().insertPermanentWidget(0, label_api)
+        self.statusBar().insertPermanentWidget(1, self.button_api)
         self.set_status_text()
 
         self.notify_spectate = QPushButton("Spectate Mode Enabled")
@@ -119,7 +123,7 @@ class AppWindow(QMainWindow):
 
         # Config menu
         menu_config = menu.addMenu("Config")
-        ConfigMenu(self, menu_config)
+        self.config_menuitem = ConfigMenu(self, menu_config)
 
         # Tools menu
         menu_tools = menu.addMenu("Tools")
@@ -197,7 +201,7 @@ class AppWindow(QMainWindow):
 
     def set_status_text(self):
         """Set status text"""
-        self.label_api_version.setText(f"API: {api.name} - {api.version}")
+        self.button_api.setText(f"{api.name} - {api.version}")
 
     def quit_app(self):
         """Quit manager"""
