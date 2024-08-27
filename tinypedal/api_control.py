@@ -35,8 +35,7 @@ class APIControl:
         self._api = None
         self._read = None
         self._state = None
-        self._state_last = False
-        self._restarting = False
+        self._override_state = False
 
     def connect(self, name: str = ""):
         """Connect to API
@@ -72,11 +71,9 @@ class APIControl:
 
     def restart(self):
         """Restart API"""
-        self._restarting = True
         self.stop()
         self.connect()
         self.start()
-        self._restarting = False
 
     def setup(self):
         """Setup & apply API changes"""
@@ -88,12 +85,9 @@ class APIControl:
             cfg.shared_memory_api["character_encoding"].lower(),
         )
         self._api.setup(api_config)
-        if cfg.shared_memory_api["enable_active_state_override"]:
-            self._state = self.__state_override
-        else:
-            self._state = self._api.state
+        self._override_state = cfg.shared_memory_api["enable_active_state_override"]
 
-    def __state_override(self) -> bool:
+    def __api_state_override(self) -> bool:
         """API state override"""
         return cfg.shared_memory_api["active_state"]
 
@@ -110,15 +104,14 @@ class APIControl:
     @property
     def state(self) -> bool:
         """API state output"""
-        if not self._restarting:
-            # Avoid calling state check while restarting
-            self._state_last = self._state()
-        return self._state_last
+        if self._override_state:
+            return self.__api_state_override()
+        return self._read.check.api_state()
 
     @property
     def version(self) -> str:
         """API version output"""
-        version = self._read.check.version()
+        version = self._read.check.api_version()
         return version if version else "not running"
 
 

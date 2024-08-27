@@ -38,7 +38,15 @@ RF2_SECTORS = (2, 0, 1, 0, 0, 0, 0)
 
 class Check(DataAdapter):
     """Check"""
-    def version(self) -> str:
+    def api_state(self) -> bool:
+        """API state"""
+        return (
+            not self.info.isPaused and
+            (self.info.rf2ScorInfo.mInRealtime
+            or self.info.rf2TeleVeh().mIgnitionStarter)
+        )
+
+    def api_version(self) -> str:
         """Identify API version"""
         return cs2py(self.info.rf2Ext.mVersion)
 
