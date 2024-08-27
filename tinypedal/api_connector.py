@@ -63,7 +63,7 @@ class Connector(ABC):
         """Dateset"""
 
     @abstractmethod
-    def setup(self, config: tuple):
+    def setup(self, *config):
         """Setup API parameters"""
 
 
@@ -84,7 +84,7 @@ class SimRF2(Connector):
     def dataset(self):
         return DataSet(self.info, rfactor2)
 
-    def setup(self, config):
+    def setup(self, *config):
         self.info.setMode(config[0])
         self.info.setPID(config[1])
         self.info.setPlayerOverride(config[2])
@@ -109,7 +109,7 @@ class SimLMU(Connector):
     def dataset(self):
         return DataSet(self.info, rfactor2)
 
-    def setup(self, config):
+    def setup(self, *config):
         self.info.setMode(config[0])
         self.info.setPID(config[1])
         self.info.setPlayerOverride(config[2])

@@ -34,8 +34,8 @@ class APIControl:
     def __init__(self):
         self._api = None
         self._read = None
-        self._state = None
-        self._override_state = False
+        self._state_override = False
+        self._active_state = False
 
     def connect(self, name: str = ""):
         """Connect to API
@@ -77,19 +77,15 @@ class APIControl:
 
     def setup(self):
         """Setup & apply API changes"""
-        api_config = (
+        self._api.setup(
             cfg.shared_memory_api["access_mode"],
             cfg.shared_memory_api["process_id"],
             cfg.shared_memory_api["enable_player_index_override"],
             cfg.shared_memory_api["player_index"],
             cfg.shared_memory_api["character_encoding"].lower(),
         )
-        self._api.setup(api_config)
-        self._override_state = cfg.shared_memory_api["enable_active_state_override"]
-
-    def __api_state_override(self) -> bool:
-        """API state override"""
-        return cfg.shared_memory_api["active_state"]
+        self._state_override = cfg.shared_memory_api["enable_active_state_override"]
+        self._active_state = cfg.shared_memory_api["active_state"]
 
     @property
     def read(self) -> object:
@@ -104,8 +100,8 @@ class APIControl:
     @property
     def state(self) -> bool:
         """API state output"""
-        if self._override_state:
-            return self.__api_state_override()
+        if self._state_override:
+            return self._active_state
         return self._read.check.api_state()
 
     @property
