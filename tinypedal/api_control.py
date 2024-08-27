@@ -35,6 +35,8 @@ class APIControl:
         self._api = None
         self._read = None
         self._state = None
+        self._state_last = False
+        self._restarting = False
 
     def connect(self, name: str = ""):
         """Connect to API
@@ -70,9 +72,11 @@ class APIControl:
 
     def restart(self):
         """Restart API"""
+        self._restarting = True
         self.stop()
         self.connect()
         self.start()
+        self._restarting = False
 
     def setup(self):
         """Setup & apply API changes"""
@@ -106,7 +110,10 @@ class APIControl:
     @property
     def state(self) -> bool:
         """API state output"""
-        return self._state()
+        if not self._restarting:
+            # Avoid calling state check while restarting
+            self._state_last = self._state()
+        return self._state_last
 
     @property
     def version(self) -> str:
