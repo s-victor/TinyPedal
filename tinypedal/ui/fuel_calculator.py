@@ -640,8 +640,9 @@ class FuelCalculator(QDialog):
 
         # Calc fuel ratio
         if cfg.units["fuel_unit"] == "Gallon":
-            fuel_used *= 3.785411784
-        fuel_ratio = calc.fuel_to_energy_ratio(fuel_used, energy_used)
+            fuel_ratio = calc.fuel_to_energy_ratio(fuel_used * 3.785411784, energy_used)
+        else:
+            fuel_ratio = calc.fuel_to_energy_ratio(fuel_used, energy_used)
         self.lineedit_fuel_ratio.setText(f"{fuel_ratio:.3f}")
 
         # Calc fuel

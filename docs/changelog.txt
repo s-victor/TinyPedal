@@ -5,6 +5,9 @@ WIP
   - Add clickable API button on main window status bar
     that opens "Shared Memory API" config dialog for easy access.
 
+* Fuel calculator
+  - Fixed an error when calculating with Gallon unit that resulted wrong refuel readings.
+
 2.17.3 (2024-08-19)
 -----------------------------
 * General
