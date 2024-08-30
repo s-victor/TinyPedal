@@ -1663,13 +1663,13 @@ Set additional players shown on relative list. Each value is limited to a maximu
 
 **Overview**
 
-This widget predicts relative final lap progress at the moment when session timer ended in time-type race, or leader crossed finish line in laps-type race, which can be used to determine whether extra laps are required to finish race.
+This widget predicts `relative final lap progress` (percent into lap) at the moment when session timer ended in time-type race, or leader crossed finish line in laps-type race, which can be used to determine whether extra laps are required to finish race.
 
-Simple example: in time-type race, at the moment when session timer ended, assume race leader's vehicle is in `Sector 1` (or 20% into lap), and local player is in `Sector 3` (or 80% into lap) which is ahead of leader in terms of relative `lap progress` (0% from start line to 100% at finish line). When local player finishes his current lap, the race does not end for him because leader is behind local player and has not yet crossed finish line. This means local player has to complete another lap in order to finish the race, and needs an extra lap of fuel.
+Simple example: in time-type race, at the moment when session timer ended, assume race leader's vehicle is in `Sector 1` (or 20% into lap), and local player is in `Sector 3` (or 80% into lap) which is ahead of leader in terms of `relative lap progress` (0% from start line to 100% at finish line). When local player finishes his current lap, the race does not end for him because leader is behind local player and has not yet crossed finish line. This means local player has to complete another lap in order to finish the race, and needs an extra lap of fuel.
 
 ---
 
-The table consists of 5 fixed rows, 3 fixed columns, and 10 optional predication columns that can be customized. Example:
+The table consists of 5 fixed rows, 1 optional row, 3 fixed columns, and 10 optional predication columns that can be customized. Example:
 
 | TIME |   0s  |  30s  |  40s  |  50s  |  60s  |  54s  |
 |:----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
@@ -1677,6 +1677,7 @@ The table consists of 5 fixed rows, 3 fixed columns, and 10 optional predication
 | 0.04 |  0.91 |  0.64 |  0.55 |  0.46 |  0.37 |  0.51 |
 | DIFF |   0s  |  30s  |  40s  |  50s  |  60s  |  43s  |
 |  NRG | +18.1 | +18.1 | +18.1 | +18.1 | +18.1 | +18.1 |
+| EX+1 | +20.3 | +20.3 | +20.3 | +20.3 | +20.3 | +20.3 |
 
 First and fourth rows, starting from second cell, show estimated `leader's pit time` and `local player's pit time`, where first row first cell shows current session type in `TIME` or `LAPS`. Last cell shows last recorded total time that leader and local player had spent in pit. Note, last recorded total pit time counts from pit entry to pit exit point, it doesn't include the extra few seconds that spent while approaching or exiting from pit.
 
@@ -1696,6 +1697,8 @@ Fifth row, first cell shows refilling type in `FUEL` or `NRG` (if virtual energy
 * For `LAPS` type race, only refilling value from `0s` column is calculated and displayed according to leader's `leader's final lap progress` value.  
 Other column values are not displayed, this is done to avoid confusion. Because unlike `TIME` type race where all `final lap progress` values are within `0.0` to `1.0` range, in `LAPS` type race values can exceed `1.0` or below `0.0` (negative), which the number of possible lap differences would increase exponentially and not possible to list all of them in the widget.
 
+Sixth row (optional), first cell shows `number of extra laps` for extra refilling display. Starting from second cell, shows estimated `extra refilling` value that depends on `local player's refilling` value and `number of extra laps` setting. Each extra refilling value equals `extra laps of consumption` plus `local player's refilling` value of same column. Those values save the trouble from manual calculation in case there will be extra laps.
+
 See `TIME` or `LAPS` type race example usages below for details.
 
 ---
@@ -1704,7 +1707,7 @@ See `TIME` or `LAPS` type race example usages below for details.
 
 * Predication accuracy depends on many variables and is meant for final stint estimate. Such as laptime pace, pit time, penalties, weather condition, safety car, yellow flag, can all affect predication accuracy. It requires at least 2-3 laps to get sensible readings, and more laps to have better accuracy. **Do not expect accurate readings or plan fuel strategy from first few laps.**
 
-* `Final lap progress` values will not be displayed if no corresponding vaild lap time pace data found, which requires at least 1 or 2 laps to record. If local player is the leader, then all values from leader's row will not be displayed. Refilling values will not be displayed during formation lap for the reasons mentioned in first note.
+* `Final lap progress` values will not be displayed if no corresponding valid lap time pace data found, which requires at least 1 or 2 laps to record. If local player is the leader, then all values from leader's row will not be displayed. Refilling values will not be displayed during formation lap for the reasons mentioned in first note.
 
 * Refilling estimate calculation is different between `TIME` and `LAPS` type races, make sure to look at the correct value, check out `example usage` below for details.
 
@@ -1724,20 +1727,21 @@ See `TIME` or `LAPS` type race example usages below for details.
 | 0.11 | 0.72 | 0.47 | 0.39 | 0.31 | 0.22 | 0.37 |
 | DIFF | 0s   | 30s  | 40s  | 50s  | 60s  | 43s  |
 | FUEL | +7.4 | +7.4 | +7.4 | +7.4 | +7.4 | +7.4 |
+| EX+1 | +11.2 | +11.2 | +11.2 | +11.2 | +11.2 | +11.2 |
 
 1. Determine leader's next pit time and select `leader's final lap progress` (second row) value from corresponding pit time (first row) column. `0s` column means no pit stop.
 
 2. Determine local player's next pit time and select `local player's final lap progress` (third row) value from corresponding pit time (fourth row) column.
 
-3. Compare the two `final lap progress` values from leader and local player:
+3. Compare the two `final lap progress` values from leader and local player, assume fuel per lap is `3.8`:
 
     * If leader's `final lap progress` value is greater than local player, such as leader's 0.91 (50s column) vs player's 0.47 (30s column), it indicates that leader will be ahead of local player when timer ended, and there will be no extra final lap. So `local player's refilling` value from corresponding `30s` column can be used, in this case, it's `+7.4` fuel to add.  
-    However, if leader is closer to finish line (as show in orange color indicator), there is a chance that leader may be fast enough to cross finish line before the end of timer, which would result an extra final lap for local player, and requires adding an extra lap of fuel on top of `+7.4` fuel in this case.
+    However, if leader is closer to finish line (as show in orange color indicator), there is a chance that leader may be fast enough to cross finish line before the end of timer, which would result an extra final lap for local player, and requires adding an extra lap of fuel (`3.8`) on top of `+7.4` fuel. In this case it would be `+11.2` refuel, or you can simply look at the refuel value from `extra refilling row` of same column.
 
-    * If local player's `final lap progress` value is greater than leader, such as leader's 0.10 (30s column) vs player's 0.72 (0s column), it indicates that local player will be ahead of leader when timer ended, and there will be an extra final lap for local player, and requires adding an extra lap of fuel on top of `+7.4` fuel from `0s` column.  
+    * If local player's `final lap progress` value is greater than leader, such as leader's 0.10 (30s column) vs player's 0.39 (40s column), it indicates that local player will be ahead of leader when timer ended, and there will be an extra final lap for local player, and here again requires adding an extra lap of fuel (`3.8`) on top of `+7.4` fuel from `40s` column, which is `+11.2` refuel.  
     However, if the difference between the two `final lap progress` values is smaller than `relative lap difference` (from third row first cell) value, it may indicate that leader could overtake local player on final lap, which would result no extra final lap.
 
-4. To sum up, if comparison shows no extra final lap, then just refill according to `local player's refilling` (fifth row) value from the same column of `local player's final lap progress` (third row). If comparison shows an extra final lap, then just add an extra lap of fuel on top of `local player's refilling` value.
+4. To sum up, if comparison shows no extra final lap, then just refill according to `local player's refilling` (fifth row) value from the same column of `local player's final lap progress` (third row). If comparison shows an extra final lap, then just add an extra lap of fuel on top of `local player's refilling` value; or, just look at the refuel value from `extra refilling row` of same column.
 
 
 **Laps-type race example usage**
@@ -1750,6 +1754,7 @@ Note, there is generally no reason to use this widget in `LAPS` type race unless
 | 0.11 | 0.40  | 0.02 | -0.11 | -0.24 | -0.37 | 0.40 |
 | DIFF | 0s    | 30s  | 40s   | 50s   | 60s   | 43s  |
 | FUEL | +12.8 | -    | -     | -     | -     | -    |
+| EX+1 | +15.0 | -    | -     | -     | -     | -    |
 
 1. Determine leader's next pit time and select `leader's final lap progress` (second row) value from corresponding pit time (first row) column. `0s` means no pit stop.
 
@@ -1783,6 +1788,14 @@ Set number of samples for average laptime pace calculation (EMA). Value range in
 
     leader_laptime_pace_margin
 Set additional margin for current laptime that cannot exceed the sum of `laptime pace` and `margin`. This option is used to minimize the impact of unusually slow laptime. Default value is `5` seconds. Minimum value is limited to `0.1`.
+
+    show_extra_refilling
+Show readings of extra refilling row below `local player's refilling` row. Each extra refilling value equals `extra laps of consumption` plus `local player's refilling` value of same column. Those values save the trouble from manual calculation in case there will be extra laps.
+
+The first column of extra refilling row shows number of extra laps depends on `number of extra laps` setting, such as `EX+1` for 1 extra lap, or `EX+3` for 3 extra laps.
+
+    number_of_extra_laps
+Set number of extra laps for extra refilling calculation. Default is `1` extra lap.
 
     number_of_predication
 Set number of optional predication columns with customizable pit time. Value range in `0` to `10`. Default is `4` extra customizable columns.

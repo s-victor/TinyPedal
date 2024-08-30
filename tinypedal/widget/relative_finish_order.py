@@ -57,6 +57,7 @@ class Realtime(Overlay):
         self.player_pit_time_set = self.create_pit_time_set(self.total_slot, "player")
         self.decimals_laps = max(self.wcfg["decimal_places_laps"], 0)
         self.decimals_refill = max(self.wcfg["decimal_places_refill"], 0)
+        self.extra_laps = max(self.wcfg["number_of_extra_laps"], 1)
 
         self.leader_pace = LapTimePace(
             min(max(self.wcfg["leader_laptime_pace_samples"], 1), 20),
@@ -105,6 +106,7 @@ class Realtime(Overlay):
         self.last_lap_leader = [(-MAGIC_NUM, 0, 0)] * self.total_slot
         self.last_lap_player = [(-MAGIC_NUM, 0, 0)] * self.total_slot
         self.last_refill_player = [-MAGIC_NUM] * self.total_slot
+        self.last_refill_extra = [-MAGIC_NUM] * self.total_slot
         self.last_pit_time = 0,0
 
     def generate_bar(self, layout):
@@ -167,6 +169,18 @@ class Realtime(Overlay):
             getattr(self, f"bar_refill_{index}").setStyleSheet(bar_style_refill)
             getattr(self, f"layout_{index}").addWidget(
                 getattr(self, f"bar_refill_{index}"), 4, 0)
+
+            # Player extra lap refill row
+            if self.wcfg["show_extra_refilling"]:
+                if index == 0:
+                    refill_extra_text = f"EX+{self.extra_laps}"
+                else:
+                    refill_extra_text = TEXT_NONE
+                setattr(self, f"bar_refill_extra_{index}", QLabel(refill_extra_text))
+                getattr(self, f"bar_refill_extra_{index}").setAlignment(Qt.AlignCenter)
+                getattr(self, f"bar_refill_extra_{index}").setStyleSheet(bar_style_refill)
+                getattr(self, f"layout_{index}").addWidget(
+                    getattr(self, f"bar_refill_extra_{index}"), 5, 0)
 
             # Set layout
             if self.wcfg["layout"] == 0:  # left to right layout
@@ -233,6 +247,7 @@ class Realtime(Overlay):
 
             # Predicate player
             if player_valid:
+                # lap_player, 0 - final lap frac, 1 - remaining laps, 2 highlight range
                 lap_player = self.time_type_final_progress(
                     player_laptime_pace, player_lap_into, time_left,
                     self.player_pit_time_set[index])
@@ -246,17 +261,25 @@ class Realtime(Overlay):
             self.update_lap_player(lap_player, self.last_lap_player[index], index)
             self.last_lap_player[index] = lap_player
 
-            # Refill player
+            # Player refill
             if is_lap_type_session and index != 1:  # disable refilling display in laps type
-                refill_player = -MAGIC_NUM
+                refill_player = refill_extra = -MAGIC_NUM
             elif not in_formation and leader_valid and player_valid:
                 consumption = minfo.energy if refill_type else minfo.fuel
                 refill_player = calc.total_fuel_needed(lap_player[1],
                     consumption.estimatedValidConsumption, consumption.amountCurrent)
+                if self.wcfg["show_extra_refilling"]:
+                    refill_extra = calc.total_fuel_needed(lap_player[1] + self.extra_laps,  # add extra
+                        consumption.estimatedValidConsumption, consumption.amountCurrent)
             else:
-                refill_player = -MAGIC_NUM
+                refill_player = refill_extra = -MAGIC_NUM
             self.update_refill(refill_player, self.last_refill_player[index], index, refill_type)
             self.last_refill_player[index] = refill_player
+
+            # Player refill extra
+            if self.wcfg["show_extra_refilling"]:
+                self.update_refill_extra(refill_extra, self.last_refill_extra[index], index, refill_type)
+                self.last_refill_extra[index] = refill_extra
 
             # Predicate leader
             if leader_valid and player_index != leader_index:
@@ -342,6 +365,17 @@ class Realtime(Overlay):
             else:
                 refill_text = TEXT_NONE
             getattr(self, f"bar_refill_{index}").setText(refill_text)
+
+    def update_refill_extra(self, curr, last, index, refill_type):
+        """Player refill extra lap"""
+        if curr != last:
+            if curr > -MAGIC_NUM:
+                if not refill_type:
+                    curr = self.fuel_units(curr)
+                refill_text = f"{curr:+.{self.decimals_refill}f}"[:self.bar_width].strip(".")
+            else:
+                refill_text = TEXT_NONE
+            getattr(self, f"bar_refill_extra_{index}").setText(refill_text)
 
     # Additional methods
     def fuel_units(self, fuel):

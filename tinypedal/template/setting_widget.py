@@ -1210,6 +1210,8 @@ WIDGET_DEFAULT = {
         "decimal_places_refill": 1,
         "leader_laptime_pace_samples": 6,
         "leader_laptime_pace_margin": 5,
+        "show_extra_refilling": True,
+        "number_of_extra_laps": 1,
         "number_of_predication": 4,
         "predication_1_leader_pit_time": 30,
         "predication_1_player_pit_time": 30,

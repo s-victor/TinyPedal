@@ -1,4 +1,4 @@
-WIP
+2.17.4 (2024-08-30)
 -----------------------------
 * General
   - Fixed state check error while restarting API in rare case.
@@ -6,7 +6,18 @@ WIP
     that opens "Shared Memory API" config dialog for easy access.
 
 * Fuel calculator
-  - Fixed an error when calculating with Gallon unit that resulted wrong refuel readings.
+  - Fixed an error when calculating with Gallon unit.
+
+* Relative finish order Widget
+  - Add "show_extra_refilling" option, which shows readings of extra refilling row
+    below "local player's refilling" row. Each extra refilling value equals "extra laps
+    of consumption" plus "local player's refilling" value of same column.
+    Those values save the trouble from manual calculation in case there will be extra laps.
+    The first column of extra refilling row shows number of extra laps depends on
+    "number of extra laps" setting, such as "EX+1" for 1 extra lap, or "EX+3" for 3 extra laps.
+  - Add "number_of_extra_laps" option, which sets number of extra laps for extra refilling calculation.
+    Default is "1" extra lap.
+  - Updated usage and examples for Relative finish order Widget in User Guide.
 
 2.17.3 (2024-08-19)
 -----------------------------
