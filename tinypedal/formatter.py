@@ -38,19 +38,23 @@ def uppercase_abbr(name: str) -> str:
 
 def format_module_name(name: str) -> str:
     """Format widget & module name"""
-    name = re.sub("module_", "", name)
-    name = re.sub("_", " ", name)
-    name = name.capitalize()
-    return uppercase_abbr(name)
+    return uppercase_abbr(
+        name
+        .replace("module_", "")
+        .replace("_", " ")
+        .capitalize()
+    )
 
 
 def format_option_name(name: str) -> str:
     """Format option name"""
-    name = re.sub("bkg", "background", name)
-    name = re.sub("_", " ", name)
-    name = re.sub("units", "units and symbols", name)
-    name = name.title()
-    return uppercase_abbr(name)
+    return uppercase_abbr(
+        name
+        .replace("bkg", "background")
+        .replace("_", " ")
+        .replace("units", "units and symbols")
+        .title()
+    )
 
 
 def strip_filename_extension(name: str, extension: str) -> str:
@@ -62,7 +66,9 @@ def strip_filename_extension(name: str, extension: str) -> str:
 
 def select_gear(index: int) -> str:
     """Select gear string"""
-    return rxp.GEAR_SEQUENCE.get(index, "N")
+    if -1 <= index <= 9:
+        return rxp.GEAR_SEQUENCE[index]
+    return "N"
 
 
 @lru_cache(maxsize=20)
@@ -77,10 +83,10 @@ def random_color_class(name: str) -> str:
 @lru_cache(maxsize=128)
 def shorten_driver_name(name: str) -> str:
     """Shorten driver name"""
-    rex_string = re.split(r"( )", name.strip(" "))
-    if len(rex_string) > 2:
-        return f"{rex_string[0][:1]}.{rex_string[-1]}".title()
-    return rex_string[-1]
+    name_split = name.strip(" ").split(" ")
+    if len(name_split) > 1:
+        return f"{name_split[0][:1]}.{name_split[-1]}".title()
+    return name_split[-1]
 
 
 def pipe_join(*args: any) -> str:
@@ -90,8 +96,7 @@ def pipe_join(*args: any) -> str:
 
 def pipe_split(string: str) -> list:
     """Split string to list by pipe symbol"""
-    rex_string = re.split(r"(\|)", string)
-    return [value for value in rex_string if value != "|"]
+    return string.split("|")
 
 
 def strip_invalid_char(name: str) -> str:
@@ -106,21 +111,26 @@ def strip_decimal_pt(value: str) -> str:
 
 def laptime_string_to_seconds(laptime: str) -> float:
     """Convert laptime "minutes:seconds" string to seconds"""
-    rstring = re.split(r":", laptime)
-    split = [0] * (2 - len(rstring)) + rstring
+    string = laptime.split(":")
+    split = [0] * (2 - len(string)) + string
     return float(split[0]) * 60 + float(split[1])
 
 
 def string_pair_to_int(string: str) -> tuple[int]:
-    """Convert string pair "x,y" to int"""
-    value = re.split(",", string)
+    """Convert string pair "x,y" to int list"""
+    value = string.split(",")
     return int(value[0]), int(value[1])
 
 
 def string_pair_to_float(string: str) -> tuple[float]:
-    """Convert string pair "x,y" to float"""
-    value = re.split(",", string)
+    """Convert string pair "x,y" to float list"""
+    value = string.split(",")
     return float(value[0]), float(value[1])
+
+
+def list_pair_to_string(data: tuple | list) -> str:
+    """Convert list pair (x,y) to string pair"""
+    return f"{data[0]},{data[1]}"
 
 
 def points_to_coords(points: str) -> tuple[tuple[float]]:
@@ -132,11 +142,10 @@ def points_to_coords(points: str) -> tuple[tuple[float]]:
     Returns:
         ((x,y),(x,y) ...) raw coordinates.
     """
-    string = re.split(" ", points)
-    return tuple(map(string_pair_to_float, string))
+    return tuple(map(string_pair_to_float, points.split(" ")))
 
 
-def coords_to_points(coords: tuple) -> str:
+def coords_to_points(coords: tuple | list) -> str:
     """Convert raw coordinates to svg points strings
 
     Args:
@@ -145,18 +154,12 @@ def coords_to_points(coords: tuple) -> str:
     Returns:
         "x,y x,y ..." svg points strings.
     """
-    output = ""
-    for data in coords:
-        if output:
-            output += " "
-        output += f"{data[0]},{data[1]}"
-    return output
+    return " ".join(map(list_pair_to_string, coords))
 
 
 def steerlock_to_number(value: str) -> float:
-    """Convert steerlock string to float value"""
+    """Convert steerlock (degree) string to float value"""
     try:
-        deg = re.split(" ", value)[0]
-        return float(deg)
+        return float(value.split(" ")[0])
     except ValueError:
         return 0.0

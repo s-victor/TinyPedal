@@ -153,16 +153,4 @@ UNITS_DICT = {
     "turbo_pressure_unit": ("bar", "psi", "kPa"),
     "tyre_pressure_unit": ("kPa", "psi", "bar"),
 }
-GEAR_SEQUENCE = {
-    -1: "R",
-    0: "N",
-    1: "1",
-    2: "2",
-    3: "3",
-    4: "4",
-    5: "5",
-    6: "6",
-    7: "7",
-    8: "8",
-    9: "9",
-}
+GEAR_SEQUENCE = "N123456789R"
