@@ -1,3 +1,9 @@
+WIP
+-----------------------------
+* Vehicle Brand Editor
+  - Fixed an issue where some vehicle info is missing while importing from LMU Rest API.
+    Make sure to import again to update all vehicle brand info from LMU.
+
 2.17.4 (2024-08-30)
 -----------------------------
 * General

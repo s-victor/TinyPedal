@@ -23,7 +23,6 @@ Vehicle brand editor
 import os
 import logging
 import json
-import re
 import time
 import socket
 from urllib.request import urlopen
@@ -202,7 +201,7 @@ class VehicleBrandEditor(QDialog):
 
         if sim_name == "LMU":
             url_port = config["url_port_lmu"]
-            resource_name = "sessions/getAllAvailableVehicles"
+            resource_name = "sessions/getAllVehicles"
         elif sim_name == "RF2":
             url_port = config["url_port_rf2"]
             resource_name = "race/car"
@@ -405,13 +404,13 @@ class BatchRenameBrand(QDialog):
 
 def parse_vehicle_name(vehicle):
     """Parse vehicle name"""
-    version = re.split(r"(\\)", vehicle["vehFile"])  # get version number from VEH path
-
-    if len(version) < 3:  # if VEH path does not contain version number
-        version = re.split(r"( )", vehicle["name"])
-        version_length = len(version[-1]) + 1
+    # Example path string: "D:\\RF2\\Installed\\Vehicles\\SOMECAR\\1.50\\CAR_24.VEH"
+    path_split = vehicle["vehFile"].split("\\")
+    if len(path_split) < 2:
+        # If VEH path does not contain version number, split name by space directly
+        # Example name: "#24 Some Car 1.50"
+        version_length = len(vehicle["name"].split(" ")[-1]) + 1
     else:
-        version_length = len(version[-3]) + 1
-
-    name_length = len(vehicle["name"])
-    return vehicle["name"][:name_length - version_length]
+        # Get version number from last second split of path_split
+        version_length = len(path_split[-2]) + 1
+    return vehicle["name"][:-version_length]
