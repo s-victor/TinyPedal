@@ -68,7 +68,7 @@ def select_gear(index: int) -> str:
     """Select gear string"""
     if -1 <= index <= 9:
         return rxp.GEAR_SEQUENCE[index]
-    return "N"
+    return rxp.GEAR_SEQUENCE[0]
 
 
 @lru_cache(maxsize=20)

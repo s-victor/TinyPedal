@@ -1,6 +1,7 @@
 WIP
 -----------------------------
 * Vehicle Brand Editor
+  - Now allows multi-selection for deleting vehicle brand entries.
   - Fixed an issue where some vehicle info is missing while importing from LMU Rest API.
     Make sure to import again to update all vehicle brand info from LMU.
 

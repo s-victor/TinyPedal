@@ -75,7 +75,6 @@ class VehicleBrandEditor(QDialog):
         self.table_brands.setColumnCount(2)
         self.table_brands.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_brands.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
-        self.table_brands.setSelectionMode(QAbstractItemView.SingleSelection)
         self.refresh_table()
 
         # Menu
@@ -165,7 +164,10 @@ class VehicleBrandEditor(QDialog):
 
     def delete_brand(self):
         """Delete brand entry"""
-        self.table_brands.removeRow(self.table_brands.currentRow())
+        selected_data = self.table_brands.selectedIndexes()
+        deletion_list = sorted(set(data.row() for data in selected_data), reverse=True)
+        for row_index in deletion_list:
+            self.table_brands.removeRow(row_index)
         self.update_brands_temp()
 
     def open_rename_brand(self):
@@ -247,22 +249,14 @@ class VehicleBrandEditor(QDialog):
 
     def parse_brand_data(self, vehicles: dict):
         """Parse brand data"""
-        data_type = ""
-
-        for veh in vehicles:
-            if veh.get("desc"):
-                data_type = "LMU"
-                break
-            if veh.get("name"):
-                data_type = "RF2"
-                break
-
-        if data_type == "LMU":
+        if vehicles[0].get("desc"):
+            # Match LMU data format
             brands_db = {
                 veh["desc"]: veh["manufacturer"]
                 for veh in vehicles
             }
-        elif data_type == "RF2":
+        elif vehicles[0].get("name"):
+            # Match RF2 data format
             brands_db = {
                 parse_vehicle_name(veh): veh["manufacturer"]
                 for veh in vehicles
