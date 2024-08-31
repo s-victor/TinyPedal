@@ -616,6 +616,45 @@ def fuel_to_energy_ratio(fuel, energy):
     return 0
 
 
+# Tyre
+def wear_difference(wear_curr: float, wear_prev: float, wear_curr_lap: float):
+    """Tyre wear difference"""
+    if wear_prev < wear_curr:
+        wear_prev = wear_curr
+    elif wear_prev > wear_curr:
+        wear_curr_lap += wear_prev - wear_curr
+        wear_prev = wear_curr
+    return wear_prev, wear_curr_lap
+
+
+def estimated_laps(wear_curr: float, wear_last_lap: float, wear_curr_lap: float):
+    """Estimated tyre lifespan in laps
+
+    = remaining / last lap wear"""
+    if wear_curr_lap > wear_last_lap > 0:
+        est_laps = wear_curr / wear_curr_lap
+    elif wear_last_lap > 0:
+        est_laps = wear_curr / wear_last_lap
+    else:
+        est_laps = 999
+    return min(est_laps, 999)
+
+
+def estimated_mins(wear_curr: float, wear_last_lap: float, wear_curr_lap: float, laptime: float):
+    """Estimated tyre lifespan in minutes
+
+    = remaining / last lap wear * laptime / 60"""
+    if laptime <= 0:
+        return 999
+    if wear_curr_lap > wear_last_lap > 0:
+        est_mins = wear_curr / wear_curr_lap * laptime / 60
+    elif wear_last_lap > 0:
+        est_mins = wear_curr / wear_last_lap * laptime / 60
+    else:
+        est_mins = 999
+    return min(est_mins, 999)
+
+
 # Misc
 def qss_min_width(text_width=1, style="", font_width=1, padding=0):
     """Set QSS minimum width with style, use functools.partial to preconfig"""
