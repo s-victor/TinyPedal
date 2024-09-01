@@ -100,22 +100,19 @@ class Realtime(Overlay):
         """Update when vehicle on track"""
         if self.state.active:
 
+            # Camber
             if self.wcfg["show_camber"]:
-                camber = tuple(map(self.round2decimal, api.read.wheel.camber()))
-
-            if self.wcfg["show_toe_in"]:
-                toein = tuple(map(self.round2decimal, api.read.wheel.toe_symmetric()))
-
-            for idx in range(4):
-                # Camber
-                if self.wcfg["show_camber"]:
+                camber = tuple(map(calc.rad2deg, api.read.wheel.camber()))
+                for idx in range(4):
                     self.update_wheel(self.bar_camber[idx], camber[idx], self.last_camber[idx])
-                    self.last_camber[idx] = camber[idx]
+                self.last_camber = camber
 
-                # Toe in
-                if self.wcfg["show_toe_in"]:
+            # Toe in
+            if self.wcfg["show_toe_in"]:
+                toein = tuple(map(calc.rad2deg, api.read.wheel.toe_symmetric()))
+                for idx in range(4):
                     self.update_wheel(self.bar_toein[idx], toein[idx], self.last_toein[idx])
-                    self.last_toein[idx] = toein[idx]
+                self.last_toein = toein
 
     # GUI update methods
     def update_wheel(self, target_bar, curr, last):
@@ -148,10 +145,10 @@ class Realtime(Overlay):
         return bar_set
 
     @staticmethod
-    def gen_layout(target_bar):
+    def gen_layout(target_bar, inner_gap=0):
         """Generate layout"""
         layout = QGridLayout()
-        layout.setSpacing(0)
+        layout.setSpacing(inner_gap)
         # Start from row index 1; index 0 reserved for caption
         layout.addWidget(target_bar[0], 1, 0)
         layout.addWidget(target_bar[1], 1, 1)
@@ -165,9 +162,3 @@ class Realtime(Overlay):
             layout_main.addLayout(layout_sub, column_index, 0)
         else:  # Horizontal layout
             layout_main.addLayout(layout_sub, 0, column_index)
-
-    # Additional methods
-    @staticmethod
-    def round2decimal(value):
-        """Round 2 decimal"""
-        return round(calc.rad2deg(value), 2)

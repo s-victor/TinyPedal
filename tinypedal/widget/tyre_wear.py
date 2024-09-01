@@ -236,8 +236,8 @@ class Realtime(Overlay):
     @staticmethod
     def gen_bar_style(fg_color, bg_color, highlight_color):
         """Generate bar style"""
-        return ((f"color: {fg_color};background: {bg_color}"),
-                (f"color: {highlight_color};background: {bg_color}"))
+        return (f"color: {fg_color};background: {bg_color}",
+                f"color: {highlight_color};background: {bg_color}")
 
     @staticmethod
     def gen_bar_caption(bar_style, text):
@@ -258,10 +258,10 @@ class Realtime(Overlay):
         return bar_set
 
     @staticmethod
-    def gen_layout(target_bar):
+    def gen_layout(target_bar, inner_gap=0):
         """Generate layout"""
         layout = QGridLayout()
-        layout.setSpacing(0)
+        layout.setSpacing(inner_gap)
         # Start from row index 1; index 0 reserved for caption
         layout.addWidget(target_bar[0], 1, 0)
         layout.addWidget(target_bar[1], 1, 1)
