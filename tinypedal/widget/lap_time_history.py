@@ -215,19 +215,19 @@ class Realtime(Overlay):
             self.laps_data[3] = temp_fuel_est
             self.laps_data[4] = max(wear_avg - self.last_wear, 0)
 
-            laps_text = f"{self.laps_data[0]:03.0f}"[:3].ljust(3)
+            laps_text = f"{self.laps_data[0]:03.0f}"[:3]
             self.update_laps("laps", laps_text, self.last_laps_text)
             self.last_laps_text = laps_text
 
-            time_text = calc.sec2laptime_full(self.laps_data[1])[:8].rjust(8)
+            time_text = calc.sec2laptime_full(self.laps_data[1])[:8]
             self.update_laps("time", time_text, self.last_time_text)
             self.last_time_text = time_text
 
-            fuel_text = f"{self.laps_data[3]:04.2f}"[:4].rjust(4)
+            fuel_text = f"{self.laps_data[3]:04.2f}"[:4]
             self.update_laps("fuel", fuel_text, self.last_fuel_text)
             self.last_fuel_text = fuel_text
 
-            wear_text = f"{self.laps_data[4]:.1f}"[:3].rjust(3)
+            wear_text = f"{self.laps_data[4]:03.1f}"[:3]
             self.update_laps("wear", wear_text, self.last_wear_text)
             self.last_wear_text = wear_text
 
@@ -240,18 +240,10 @@ class Realtime(Overlay):
     def update_laps_history(self, curr, index):
         """Laps history data"""
         if curr[1]:
-            getattr(self, f"bar_last_laps{index}").setText(
-                f"{max(curr[0] - 1, 0):03.0f}"[:3].ljust(3)
-            )
-            getattr(self, f"bar_last_time{index}").setText(
-                calc.sec2laptime_full(curr[1])[:8].rjust(8)
-            )
-            getattr(self, f"bar_last_fuel{index}").setText(
-                f"{curr[3]:04.2f}"[:4].rjust(4)
-            )
-            getattr(self, f"bar_last_wear{index}").setText(
-                f"{curr[4]:.1f}"[:3].rjust(3)
-            )
+            getattr(self, f"bar_last_laps{index}").setText(f"{max(curr[0] - 1, 0):03.0f}"[:3])
+            getattr(self, f"bar_last_time{index}").setText(calc.sec2laptime_full(curr[1])[:8])
+            getattr(self, f"bar_last_fuel{index}").setText(f"{curr[3]:04.2f}"[:4])
+            getattr(self, f"bar_last_wear{index}").setText(f"{curr[4]:03.1f}"[:3])
 
             if curr[2]:
                 fgcolor = self.wcfg["font_color_last_time"]

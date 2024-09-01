@@ -273,23 +273,23 @@ class Realtime(Overlay):
                 self.start_fuel = fuel_curr
 
             # Stint current
-            laps_text = f"{self.stint_data[1]:03.0f}"[:3].ljust(3)
+            laps_text = f"{self.stint_data[1]:03.0f}"[:3]
             self.update_stint("laps", laps_text, self.last_laps_text)
             self.last_laps_text = laps_text
 
-            time_text = calc.sec2stinttime(self.stint_data[2])[:5].ljust(5)
+            time_text = calc.sec2stinttime(self.stint_data[2])[:5]
             self.update_stint("time", time_text, self.last_time_text)
             self.last_time_text = time_text
 
-            fuel_text = f"{self.stint_data[3]:05.1f}"[:5].ljust(5)
+            fuel_text = f"{self.stint_data[3]:05.1f}"[:5]
             self.update_stint("fuel", fuel_text, self.last_fuel_text)
             self.last_fuel_text = fuel_text
 
-            cmpd_text = f"{self.stint_data[0]}"[:2].ljust(2)
+            cmpd_text = f"{self.stint_data[0]}"[:2]
             self.update_stint("cmpd", cmpd_text, self.last_cmpd_text)
             self.last_cmpd_text = cmpd_text
 
-            wear_text = f"{self.stint_data[4]:02.0f}%"[:3].ljust(3)
+            wear_text = f"{self.stint_data[4]:02.0f}%"[:3]
             self.update_stint("wear", wear_text, self.last_wear_text)
             self.last_wear_text = wear_text
 
@@ -311,21 +311,11 @@ class Realtime(Overlay):
     def update_stint_history(self, curr, index):
         """Stint history data"""
         if curr[2]:
-            getattr(self, f"bar_last_laps{index}").setText(
-                f"{curr[1]:03.0f}"[:3].ljust(3)
-            )
-            getattr(self, f"bar_last_time{index}").setText(
-                calc.sec2stinttime(curr[2])[:5].ljust(5)
-            )
-            getattr(self, f"bar_last_fuel{index}").setText(
-                f"{curr[3]:05.1f}"[:5].ljust(5)
-            )
-            getattr(self, f"bar_last_cmpd{index}").setText(
-                f"{curr[0]}"[:2].ljust(2)
-            )
-            getattr(self, f"bar_last_wear{index}").setText(
-                f"{curr[4]:02.0f}%"[:3].ljust(3)
-            )
+            getattr(self, f"bar_last_laps{index}").setText(f"{curr[1]:03.0f}"[:3])
+            getattr(self, f"bar_last_time{index}").setText(calc.sec2stinttime(curr[2])[:5])
+            getattr(self, f"bar_last_fuel{index}").setText(f"{curr[3]:05.1f}"[:5])
+            getattr(self, f"bar_last_cmpd{index}").setText(f"{curr[0]}"[:2])
+            getattr(self, f"bar_last_wear{index}").setText(f"{curr[4]:02.0f}%"[:3])
             getattr(self, f"bar_last_laps{index}").show()
             getattr(self, f"bar_last_time{index}").show()
             getattr(self, f"bar_last_fuel{index}").show()

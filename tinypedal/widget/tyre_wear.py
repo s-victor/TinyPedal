@@ -226,7 +226,7 @@ class Realtime(Overlay):
     def update_diff(self, target_bar, curr, last):
         """Tyre wear differences"""
         if curr != last:
-            target_bar.setText(f"{curr:.2f}"[:4].rjust(4))
+            target_bar.setText(self.format_num(curr))
             target_bar.setStyleSheet(
                 self.bar_style_tdiff[curr > self.wcfg["warning_threshold_wear"]]
             )
@@ -292,6 +292,4 @@ class Realtime(Overlay):
     @staticmethod
     def format_num(value):
         """Format number"""
-        if value > 99.9:
-            return f"{value:.0f}"
-        return f"{value:.1f}"
+        return f"{value:.2f}"[:4].strip(".")

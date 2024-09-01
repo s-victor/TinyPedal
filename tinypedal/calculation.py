@@ -270,24 +270,24 @@ def clock_time(seconds: float, start: int = 0, scale: int = 1) -> float:
 
 
 def sec2sessiontime(seconds: float) -> str:
-    """Session time (hour/min/sec/ms)"""
+    """Session time (hour:min:sec.ms)"""
     return f"{seconds // 3600:01.0f}:{seconds // 60 % 60:02.0f}:{min(seconds % 60, 59):02.0f}"
 
 
 def sec2laptime(seconds: float) -> str:
-    """Lap time (min/sec/ms)"""
+    """Lap time (min:sec.ms)"""
     if seconds > 60:
         return f"{seconds // 60:.0f}:{seconds % 60:06.3f}"
     return f"{seconds % 60:.3f}"
 
 
 def sec2laptime_full(seconds: float) -> str:
-    """Lap time (min/sec/ms) full"""
+    """Lap time full (min:sec.ms)"""
     return f"{seconds // 60:.0f}:{seconds % 60:06.3f}"
 
 
 def sec2stinttime(seconds: float) -> str:
-    """Lap time (min/sec/ms)"""
+    """Stint time (min:sec)"""
     return f"{seconds // 60:02.0f}:{min(seconds % 60, 59):02.0f}"
 
 
