@@ -21,6 +21,7 @@ Trailing Widget
 """
 
 from collections import deque
+
 from PySide2.QtCore import Qt, QPointF, QRect
 from PySide2.QtGui import QPainter, QPixmap, QPen
 

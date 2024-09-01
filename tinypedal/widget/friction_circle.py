@@ -21,6 +21,7 @@ Friction circle Widget
 """
 
 from collections import deque
+
 from PySide2.QtCore import Qt, QPointF, QRectF
 from PySide2.QtGui import QPainter, QPixmap, QRadialGradient, QPen, QBrush
 

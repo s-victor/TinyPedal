@@ -20,8 +20,8 @@
 Cruise Widget
 """
 
-import time
 from functools import partial
+from time import strftime, gmtime
 
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QGridLayout, QLabel
@@ -193,7 +193,7 @@ class Realtime(Overlay):
     # Additional methods
     def format_clock(self, second):
         """Format clock"""
-        return time.strftime(self.wcfg["track_clock_format"], time.gmtime(second))
+        return strftime(self.wcfg["track_clock_format"], gmtime(second))
 
     def format_compass(self, degree):
         """Format compass"""

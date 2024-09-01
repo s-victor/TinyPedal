@@ -271,11 +271,9 @@ class Realtime(Overlay):
 
     def arrange_layout(self, layout_main, layout_sub, column_index):
         """Arrange layout"""
-        if self.wcfg["layout"] == 0:
-            # Vertical layout
+        if self.wcfg["layout"] == 0:  # Vertical layout
             layout_main.addLayout(layout_sub, column_index, 0)
-        else:
-            # Horizontal layout
+        else:  # Horizontal layout
             layout_main.addLayout(layout_sub, 0, column_index)
 
     # Additional methods

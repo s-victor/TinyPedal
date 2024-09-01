@@ -50,11 +50,7 @@ class Realtime(Overlay):
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
 
-        if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            text_width = 4 + len(self.sign_text)
-        else:
-            text_width = 3 + len(self.sign_text)
-
+        text_width = 3 + len(self.sign_text) + int(self.cfg.units["temperature_unit"] == "Fahrenheit")
         self.bar_width_temp = f"min-width: {font_m.width * text_width + bar_padx}px;"
 
         # Base style

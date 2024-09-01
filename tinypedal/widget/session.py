@@ -21,8 +21,8 @@ Session Widget
 """
 
 from functools import partial
+from time import strftime
 
-import time
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QGridLayout, QLabel
 
@@ -89,7 +89,7 @@ class Realtime(Overlay):
 
         # System clock
         if self.wcfg["show_system_clock"]:
-            clock_text = time.strftime(self.wcfg["system_clock_format"])
+            clock_text = strftime(self.wcfg["system_clock_format"])
             bar_style_clock = self.bar_min_width(
                 len(clock_text),
                 f"color: {self.wcfg['font_color_system_clock']};"
@@ -167,7 +167,7 @@ class Realtime(Overlay):
 
             # System Clock
             if self.wcfg["show_system_clock"]:
-                system_time = time.strftime(self.wcfg["system_clock_format"])
+                system_time = strftime(self.wcfg["system_clock_format"])
                 self.update_system_clock(system_time, self.last_system_time)
                 self.last_system_time = system_time
 
