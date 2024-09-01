@@ -46,7 +46,7 @@ class Realtime(Overlay):
         text_def = "n/a"
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        self.bar_width = f"min-width: {font_m.width * 4 + bar_padx}px;"
+        bar_width = font_m.width * 4 + bar_padx
         self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
 
         # Base style
@@ -72,8 +72,8 @@ class Realtime(Overlay):
         if self.wcfg["show_remaining"]:
             self.bar_style_twear = self.gen_bar_style(
                 self.wcfg["font_color_remaining"], self.wcfg["bkg_color_remaining"],
-                self.wcfg["font_color_warning"], self.bar_width)
-            self.bar_twear = self.gen_bar_set(self.bar_style_twear[0], text_def)
+                self.wcfg["font_color_warning"])
+            self.bar_twear = self.gen_bar_set(self.bar_style_twear[0], bar_width, text_def)
             layout_twear = self.gen_layout(self.bar_twear)
 
             if self.wcfg["show_caption"]:
@@ -86,8 +86,8 @@ class Realtime(Overlay):
         if self.wcfg["show_wear_difference"]:
             self.bar_style_tdiff = self.gen_bar_style(
                 self.wcfg["font_color_wear_difference"], self.wcfg["bkg_color_wear_difference"],
-                self.wcfg["font_color_warning"], self.bar_width)
-            self.bar_tdiff = self.gen_bar_set(self.bar_style_tdiff[0], text_def)
+                self.wcfg["font_color_warning"])
+            self.bar_tdiff = self.gen_bar_set(self.bar_style_tdiff[0], bar_width, text_def)
             layout_tdiff = self.gen_layout(self.bar_tdiff)
 
             if self.wcfg["show_caption"]:
@@ -100,8 +100,8 @@ class Realtime(Overlay):
         if self.wcfg["show_lifespan_laps"]:
             self.bar_style_tlaps = self.gen_bar_style(
                 self.wcfg["font_color_lifespan_laps"], self.wcfg["bkg_color_lifespan_laps"],
-                self.wcfg["font_color_warning"], self.bar_width)
-            self.bar_tlaps = self.gen_bar_set(self.bar_style_tlaps[0], text_def)
+                self.wcfg["font_color_warning"])
+            self.bar_tlaps = self.gen_bar_set(self.bar_style_tlaps[0], bar_width, text_def)
             layout_tlaps = self.gen_layout(self.bar_tlaps)
 
             if self.wcfg["show_caption"]:
@@ -114,8 +114,8 @@ class Realtime(Overlay):
         if self.wcfg["show_lifespan_minutes"]:
             self.bar_style_tmins = self.gen_bar_style(
                 self.wcfg["font_color_lifespan_minutes"], self.wcfg["bkg_color_lifespan_minutes"],
-                self.wcfg["font_color_warning"], self.bar_width)
-            self.bar_tmins = self.gen_bar_set(self.bar_style_tmins[0], text_def)
+                self.wcfg["font_color_warning"])
+            self.bar_tmins = self.gen_bar_set(self.bar_style_tmins[0], bar_width, text_def)
             layout_tmins = self.gen_layout(self.bar_tmins)
 
             if self.wcfg["show_caption"]:
@@ -167,10 +167,14 @@ class Realtime(Overlay):
                 if self.wcfg["show_wear_difference"]:
                     if (self.wcfg["show_live_wear_difference"] and
                         lap_etime - lap_stime > self.freeze_duration):
-                        self.update_diff(self.bar_tdiff[idx], self.wear_curr_lap[idx], self.last_wear_curr_lap[idx])
+                        self.update_diff(
+                            self.bar_tdiff[idx], self.wear_curr_lap[idx],
+                            self.last_wear_curr_lap[idx])
                         self.last_wear_curr_lap[idx] = self.wear_curr_lap[idx]
                     else:  # Last lap diff
-                        self.update_diff(self.bar_tdiff[idx], self.wear_last_lap[idx], self.last_wear_last_lap[idx])
+                        self.update_diff(
+                            self.bar_tdiff[idx], self.wear_last_lap[idx],
+                            self.last_wear_last_lap[idx])
                         self.last_wear_last_lap[idx] = self.wear_last_lap[idx]
 
                 # Estimated tyre lifespan in laps
@@ -230,10 +234,10 @@ class Realtime(Overlay):
 
     # GUI generate methods
     @staticmethod
-    def gen_bar_style(fg_color, bg_color, highlight_color, bar_width):
+    def gen_bar_style(fg_color, bg_color, highlight_color):
         """Generate bar style"""
-        return ((f"color: {fg_color};background: {bg_color};{bar_width}"),
-                (f"color: {highlight_color};background: {bg_color};{bar_width}"))
+        return ((f"color: {fg_color};background: {bg_color}"),
+                (f"color: {highlight_color};background: {bg_color}"))
 
     @staticmethod
     def gen_bar_caption(bar_style, text):
@@ -244,12 +248,13 @@ class Realtime(Overlay):
         return bar_temp
 
     @staticmethod
-    def gen_bar_set(bar_style, text):
+    def gen_bar_set(bar_style, bar_width, text):
         """Generate bar set"""
         bar_set = tuple(QLabel(text) for _ in range(4))
         for bar_temp in bar_set:
             bar_temp.setAlignment(Qt.AlignCenter)
             bar_temp.setStyleSheet(bar_style)
+            bar_temp.setMinimumWidth(bar_width)
         return bar_set
 
     @staticmethod

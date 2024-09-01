@@ -56,7 +56,7 @@ class Realtime(Overlay):
         else:
             text_width = 3 + len(self.sign_text)
 
-        self.bar_width_temp = f"min-width: {font_m.width * text_width + bar_padx}px;"
+        bar_width = font_m.width * text_width + bar_padx
 
         # Base style
         self.heatmap = hmp.load_heatmap(self.wcfg["heatmap_name"], "tyre_default")
@@ -75,9 +75,7 @@ class Realtime(Overlay):
         layout_itemp.setSpacing(inner_gap)
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_stemp = self.wcfg["column_index_surface"]
-        column_itemp = self.wcfg["column_index_innerlayer"]
+        self.setLayout(layout)
 
         # Tyre compound
         if self.wcfg["show_tyre_compound"]:
@@ -86,124 +84,36 @@ class Realtime(Overlay):
                 f"background: {self.wcfg['bkg_color_tyre_compound']};"
                 f"min-width: {font_m.width + bar_padx}px;"
             )
-            self.bar_tcmpd_f = QLabel("-")
-            self.bar_tcmpd_f.setAlignment(Qt.AlignCenter)
-            self.bar_tcmpd_f.setStyleSheet(bar_style_tcmpd)
-            self.bar_tcmpd_r = QLabel("-")
-            self.bar_tcmpd_r.setAlignment(Qt.AlignCenter)
-            self.bar_tcmpd_r.setStyleSheet(bar_style_tcmpd)
-            layout_stemp.addWidget(self.bar_tcmpd_f, 0, 4)
-            layout_stemp.addWidget(self.bar_tcmpd_r, 1, 4)
-
+            self.bar_tcmpd = self.gen_bar_caption(bar_style_tcmpd, "-", layout_stemp)
             if self.wcfg["show_innerlayer"]:
-                bar_blank_1 = QLabel("")
-                bar_blank_1.setStyleSheet(bar_style_tcmpd)
-                bar_blank_2 = QLabel("")
-                bar_blank_2.setStyleSheet(bar_style_tcmpd)
-                layout_itemp.addWidget(bar_blank_1, 0, 4)
-                layout_itemp.addWidget(bar_blank_2, 1, 4)
+                self.gen_bar_caption(bar_style_tcmpd, "", layout_itemp)  # gap fill
 
         # Tyre temperature
-        self.stemp_set = ("stemp_fl", "stemp_fr", "stemp_rl", "stemp_rr")
-        self.itemp_set = ("itemp_fl", "itemp_fr", "itemp_rl", "itemp_rr")
-
         bar_style_stemp = (
             f"color: {self.wcfg['font_color_surface']};"
             f"background: {self.wcfg['bkg_color_surface']};"
-            f"{self.bar_width_temp}"
         )
         bar_style_itemp = (
             f"color: {self.wcfg['font_color_innerlayer']};"
             f"background: {self.wcfg['bkg_color_innerlayer']};"
-            f"{self.bar_width_temp}"
         )
 
         if self.wcfg["show_inner_center_outer"]:
-            for suffix in self.stemp_set:
-                for idx in range(3):
-                    setattr(self, f"bar_{suffix}_{idx}", QLabel(text_def))
-                    getattr(self, f"bar_{suffix}_{idx}").setAlignment(Qt.AlignCenter)
-                    getattr(self, f"bar_{suffix}_{idx}").setStyleSheet(bar_style_stemp)
-                    if suffix == "stemp_fl":  # 2 1 0
-                        layout_stemp.addWidget(
-                            getattr(self, f"bar_{suffix}_{idx}"), 0, idx)
-                    if suffix == "stemp_fr":  # 7 8 9
-                        layout_stemp.addWidget(
-                            getattr(self, f"bar_{suffix}_{idx}"), 0, 7 + idx)
-                    if suffix == "stemp_rl":  # 2 1 0
-                        layout_stemp.addWidget(
-                            getattr(self, f"bar_{suffix}_{idx}"), 1, idx)
-                    if suffix == "stemp_rr":  # 7 8 9
-                        layout_stemp.addWidget(
-                            getattr(self, f"bar_{suffix}_{idx}"), 1, 7 + idx)
-
+            self.bar_stemp = tuple(self.gen_bar_set_ico(
+                bar_style_stemp, bar_width, text_def, layout_stemp, idx) for idx in range(4))
             if self.wcfg["show_innerlayer"]:
-                for suffix in self.itemp_set:
-                    for idx in range(3):
-                        setattr(self, f"bar_{suffix}_{idx}", QLabel(text_def))
-                        getattr(self, f"bar_{suffix}_{idx}").setAlignment(Qt.AlignCenter)
-                        getattr(self, f"bar_{suffix}_{idx}").setStyleSheet(bar_style_itemp)
-                        if suffix == "itemp_fl":  # 2 1 0
-                            layout_itemp.addWidget(
-                                getattr(self, f"bar_{suffix}_{idx}"), 0, idx)
-                        if suffix == "itemp_fr":  # 7 8 9
-                            layout_itemp.addWidget(
-                                getattr(self, f"bar_{suffix}_{idx}"), 0, 7 + idx)
-                        if suffix == "itemp_rl":  # 2 1 0
-                            layout_itemp.addWidget(
-                                getattr(self, f"bar_{suffix}_{idx}"), 1, idx)
-                        if suffix == "itemp_rr":  # 7 8 9
-                            layout_itemp.addWidget(
-                                getattr(self, f"bar_{suffix}_{idx}"), 1, 7 + idx)
-
+                self.bar_itemp = tuple(self.gen_bar_set_ico(
+                    bar_style_itemp, bar_width, text_def, layout_itemp, idx) for idx in range(4))
         else:
-            for suffix in self.stemp_set:
-                setattr(self, f"bar_{suffix}", QLabel(text_def))
-                getattr(self, f"bar_{suffix}").setAlignment(Qt.AlignCenter)
-                getattr(self, f"bar_{suffix}").setStyleSheet(bar_style_stemp)
-                if suffix == "stemp_fl":  # 0
-                    layout_stemp.addWidget(
-                        getattr(self, f"bar_{suffix}"), 0, 0)
-                if suffix == "stemp_fr":  # 9
-                    layout_stemp.addWidget(
-                        getattr(self, f"bar_{suffix}"), 0, 9)
-                if suffix == "stemp_rl":  # 0
-                    layout_stemp.addWidget(
-                        getattr(self, f"bar_{suffix}"), 1, 0)
-                if suffix == "stemp_rr":  # 9
-                    layout_stemp.addWidget(
-                        getattr(self, f"bar_{suffix}"), 1, 9)
+            self.bar_stemp = self.gen_bar_set_avg(
+                bar_style_stemp, bar_width, text_def, layout_stemp)
+            if self.wcfg["show_innerlayer"]:
+                self.bar_itemp = self.gen_bar_set_avg(
+                    bar_style_itemp, bar_width, text_def, layout_itemp)
 
-            if self.wcfg["show_innerlayer"]:
-                for suffix in self.itemp_set:
-                    setattr(self, f"bar_{suffix}", QLabel(text_def))
-                    getattr(self, f"bar_{suffix}").setAlignment(Qt.AlignCenter)
-                    getattr(self, f"bar_{suffix}").setStyleSheet(bar_style_itemp)
-                    if suffix == "itemp_fl":  # 0
-                        layout_itemp.addWidget(
-                            getattr(self, f"bar_{suffix}"), 0, 0)
-                    if suffix == "itemp_fr":  # 9
-                        layout_itemp.addWidget(
-                            getattr(self, f"bar_{suffix}"), 0, 9)
-                    if suffix == "itemp_rl":  # 0
-                        layout_itemp.addWidget(
-                            getattr(self, f"bar_{suffix}"), 1, 0)
-                    if suffix == "itemp_rr":  # 9
-                        layout_itemp.addWidget(
-                            getattr(self, f"bar_{suffix}"), 1, 9)
-
-        # Set layout
-        if self.wcfg["layout"] == 0:
-            # Vertical layout
-            layout.addLayout(layout_stemp, column_stemp, 0)
-            if self.wcfg["show_innerlayer"]:
-                layout.addLayout(layout_itemp, column_itemp, 0)
-        else:
-            # Horizontal layout
-            layout.addLayout(layout_stemp, 0, column_stemp)
-            if self.wcfg["show_innerlayer"]:
-                layout.addLayout(layout_itemp, 0, column_itemp)
-        self.setLayout(layout)
+        self.arrange_layout(layout, layout_stemp, self.wcfg["column_index_surface"])
+        if self.wcfg["show_innerlayer"]:
+            self.arrange_layout(layout, layout_itemp, self.wcfg["column_index_innerlayer"])
 
         # Last data
         self.last_tcmpd = [None] * 2
@@ -220,18 +130,22 @@ class Realtime(Overlay):
 
             # Tyre compound
             if self.wcfg["show_tyre_compound"]:
-                tcmpd = [self.tyre_compound_string[idx] for idx in api.read.tyre.compound()]
-                self.update_tcmpd(tcmpd, self.last_tcmpd)
+                tcmpd = api.read.tyre.compound()
+                for cmpd_idx in range(2):
+                    self.update_tcmpd(
+                        self.bar_tcmpd[cmpd_idx],
+                        tcmpd[cmpd_idx],
+                        self.last_tcmpd[cmpd_idx]
+                    )
                 self.last_tcmpd = tcmpd
 
-            # Inner, center, outer mode
             if self.wcfg["show_inner_center_outer"]:
                 # Surface temperature
                 stemp = api.read.tyre.surface_temperature()
-                for patch_idx in range(3):  # 0 1 2
-                    for tyre_idx, suffix in enumerate(self.stemp_set):
+                for tyre_idx in range(4):  # 0 - fl, 1 - fr, 2 - rl, 3 - rr
+                    for patch_idx in range(3):  # 0 1 2 / 7 8 9
                         self.update_stemp(
-                            f"{suffix}_{patch_idx}",
+                            self.bar_stemp[tyre_idx][patch_idx],
                             stemp[tyre_idx][patch_idx],
                             self.last_stemp[tyre_idx][patch_idx]
                         )
@@ -240,32 +154,40 @@ class Realtime(Overlay):
                 # Inner layer temperature
                 if self.wcfg["show_innerlayer"]:
                     itemp = api.read.tyre.inner_temperature()
-                    for patch_idx in range(3):
-                        for tyre_idx, suffix in enumerate(self.itemp_set):
+                    for tyre_idx in range(4):
+                        for patch_idx in range(3):
                             self.update_itemp(
-                                f"{suffix}_{patch_idx}",
+                                self.bar_itemp[tyre_idx][patch_idx],
                                 itemp[tyre_idx][patch_idx],
                                 self.last_itemp[tyre_idx][patch_idx]
                             )
                     self.last_itemp = itemp
-            # Average mode
             else:
                 # Surface temperature
                 stemp = tuple(map(calc.mean, api.read.tyre.surface_temperature()))
-                for patch_idx, suffix in enumerate(self.stemp_set):
-                    self.update_stemp(suffix, stemp[patch_idx], self.last_stemp[patch_idx])
+                for tyre_idx in range(4):  # 0 - fl, 1 - fr, 2 - rl, 3 - rr
+                    self.update_stemp(
+                        self.bar_stemp[tyre_idx],
+                        stemp[tyre_idx],
+                        self.last_stemp[tyre_idx]
+                    )
                 self.last_stemp = stemp
+
                 # Inner layer temperature
                 if self.wcfg["show_innerlayer"]:
                     itemp = tuple(map(calc.mean, api.read.tyre.inner_temperature()))
-                    for patch_idx, suffix in enumerate(self.itemp_set):
-                        self.update_itemp(suffix, itemp[patch_idx], self.last_itemp[patch_idx])
+                    for tyre_idx in range(4):
+                        self.update_itemp(
+                            self.bar_itemp[tyre_idx],
+                            itemp[tyre_idx],
+                            self.last_itemp[tyre_idx]
+                        )
                     self.last_itemp = itemp
 
     # GUI update methods
-    def update_stemp(self, suffix, curr, last):
+    def update_stemp(self, target_bar, curr, last):
         """Tyre surface temperature"""
-        if round(curr) != round(last):
+        if curr != last:
             if self.wcfg["swap_style"]:
                 color = (f"color: {self.wcfg['font_color_surface']};"
                          f"background: {hmp.select_color(self.heatmap, curr)};")
@@ -273,14 +195,12 @@ class Realtime(Overlay):
                 color = (f"color: {hmp.select_color(self.heatmap, curr)};"
                          f"background: {self.wcfg['bkg_color_surface']};")
 
-            getattr(self, f"bar_{suffix}").setText(
-                f"{self.temp_units(curr):0{self.leading_zero}.0f}{self.sign_text}")
+            target_bar.setText(self.format_temperature(curr))
+            target_bar.setStyleSheet(color)
 
-            getattr(self, f"bar_{suffix}").setStyleSheet(f"{color}{self.bar_width_temp}")
-
-    def update_itemp(self, suffix, curr, last):
+    def update_itemp(self, target_bar, curr, last):
         """Tyre inner temperature"""
-        if round(curr) != round(last):
+        if curr != last:
             if self.wcfg["swap_style"]:
                 color = (f"color: {self.wcfg['font_color_innerlayer']};"
                          f"background: {hmp.select_color(self.heatmap, curr)};")
@@ -288,20 +208,73 @@ class Realtime(Overlay):
                 color = (f"color: {hmp.select_color(self.heatmap, curr)};"
                          f"background: {self.wcfg['bkg_color_innerlayer']};")
 
-            getattr(self, f"bar_{suffix}").setText(
-                f"{self.temp_units(curr):0{self.leading_zero}.0f}{self.sign_text}")
+            target_bar.setText(self.format_temperature(curr))
+            target_bar.setStyleSheet(color)
 
-            getattr(self, f"bar_{suffix}").setStyleSheet(f"{color}{self.bar_width_temp}")
-
-    def update_tcmpd(self, curr, last):
+    def update_tcmpd(self, target_bar, curr, last):
         """Tyre compound"""
         if curr != last:
-            self.bar_tcmpd_f.setText(curr[0])
-            self.bar_tcmpd_r.setText(curr[1])
+            target_bar.setText(self.tyre_compound_string[curr])
+
+    # GUI generate methods
+    @staticmethod
+    def gen_bar_set_avg(bar_style, bar_width, text, layout):
+        """Generate bar set (average)"""
+        bar_set = tuple(QLabel(text) for _ in range(4))
+        for outer_index, bar_temp in enumerate(bar_set):
+            bar_temp.setAlignment(Qt.AlignCenter)
+            bar_temp.setStyleSheet(bar_style)
+            bar_temp.setMinimumWidth(bar_width)
+            if outer_index == 0:  # 0
+                layout.addWidget(bar_temp, 0, 0)
+            elif outer_index == 1:  # 9
+                layout.addWidget(bar_temp, 0, 9)
+            elif outer_index == 2:  # 0
+                layout.addWidget(bar_temp, 1, 0)
+            elif outer_index == 3:  # 9
+                layout.addWidget(bar_temp, 1, 9)
+        return bar_set
+
+    @staticmethod
+    def gen_bar_set_ico(bar_style, bar_width, text, layout, outer_index):
+        """Generate bar set (inner-center-outer)"""
+        bar_set = tuple(QLabel(text) for _ in range(3))
+        for index, bar_temp in enumerate(bar_set):
+            bar_temp.setAlignment(Qt.AlignCenter)
+            bar_temp.setStyleSheet(bar_style)
+            bar_temp.setMinimumWidth(bar_width)
+            if outer_index == 0:  # 2 1 0
+                layout.addWidget(bar_temp, 0, index)
+            elif outer_index == 1:  # 7 8 9
+                layout.addWidget(bar_temp, 0, index + 7)
+            elif outer_index == 2:  # 2 1 0
+                layout.addWidget(bar_temp, 1, index)
+            elif outer_index == 3:  # 7 8 9
+                layout.addWidget(bar_temp, 1, index + 7)
+        return bar_set
+
+    @staticmethod
+    def gen_bar_caption(bar_style, text, layout):
+        """Generate bar caption"""
+        bar_set = tuple(QLabel(text) for _ in range(2))
+        for index, bar_temp in enumerate(bar_set):
+            bar_temp.setAlignment(Qt.AlignCenter)
+            bar_temp.setStyleSheet(bar_style)
+            layout.addWidget(bar_temp, index, 4)
+        return bar_set
+
+    def arrange_layout(self, layout_main, layout_sub, column_index):
+        """Arrange layout"""
+        if self.wcfg["layout"] == 0:
+            # Vertical layout
+            layout_main.addLayout(layout_sub, column_index, 0)
+        else:
+            # Horizontal layout
+            layout_main.addLayout(layout_sub, 0, column_index)
 
     # Additional methods
-    def temp_units(self, value):
-        """Temperature units"""
+    def format_temperature(self, value):
+        """Format temperature"""
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            return calc.celsius2fahrenheit(value)
-        return value
+            return f"{calc.celsius2fahrenheit(value):0{self.leading_zero}.0f}{self.sign_text}"
+        return f"{value:0{self.leading_zero}.0f}{self.sign_text}"

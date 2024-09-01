@@ -30,6 +30,7 @@ from ..api_control import api
 from ._base import Overlay
 
 WIDGET_NAME = "weather"
+PREFIX_WETNESS = "Dry","Wet"
 
 
 class Realtime(Overlay):
@@ -186,7 +187,6 @@ class Realtime(Overlay):
 
     def format_wetness(self, min_wet, max_wet, avg_wet):
         """Format wetness"""
-        surface = "Wet" if max_wet > 0.01 else "Dry"
-        return (f"{surface} {min_wet * 100:.0f}{self.sign_rain}"
+        return (f"{PREFIX_WETNESS[max_wet > 0.01]} {min_wet * 100:.0f}{self.sign_rain}"
                 f" < {max_wet * 100:.0f}{self.sign_rain}"
                 f" ≈ {avg_wet * 100:.0f}{self.sign_rain}")

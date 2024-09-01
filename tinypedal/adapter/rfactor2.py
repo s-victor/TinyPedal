@@ -445,8 +445,7 @@ class Tyre(DataAdapter):
 
     def compound(self, index: int | None = None) -> tuple[int]:
         """Tyre compound set"""
-        return (self.compound_front(index),
-                self.compound_rear(index))
+        return self.compound_front(index), self.compound_rear(index)
 
     def surface_temperature_fl(self, index: int | None = None) -> list[float]:
         """Tyre surface temperature - front left"""
