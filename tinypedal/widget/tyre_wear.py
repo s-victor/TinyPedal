@@ -66,11 +66,7 @@ class Realtime(Overlay):
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_twear = self.wcfg["column_index_remaining"]
-        column_tdiff = self.wcfg["column_index_wear_difference"]
-        column_tlaps = self.wcfg["column_index_lifespan_laps"]
-        column_tmins = self.wcfg["column_index_lifespan_minutes"]
+        self.setLayout(layout)
 
         # Remaining tyre wear
         if self.wcfg["show_remaining"]:
@@ -84,6 +80,8 @@ class Realtime(Overlay):
                 bar_desc_twear = self.gen_bar_caption(bar_style_desc, "tyre wear")
                 layout_twear.addWidget(bar_desc_twear, 0, 0, 1, 0)
 
+            self.arrange_layout(layout, layout_twear, self.wcfg["column_index_remaining"])
+
         # Tyre wear difference
         if self.wcfg["show_wear_difference"]:
             self.bar_style_tdiff = self.gen_bar_style(
@@ -95,6 +93,8 @@ class Realtime(Overlay):
             if self.wcfg["show_caption"]:
                 bar_desc_tdiff = self.gen_bar_caption(bar_style_desc, "wear diff")
                 layout_tdiff.addWidget(bar_desc_tdiff, 0, 0, 1, 0)
+
+            self.arrange_layout(layout, layout_tdiff, self.wcfg["column_index_wear_difference"])
 
         # Estimated tyre lifespan in laps
         if self.wcfg["show_lifespan_laps"]:
@@ -108,6 +108,8 @@ class Realtime(Overlay):
                 bar_desc_tlaps = self.gen_bar_caption(bar_style_desc, "est. laps")
                 layout_tlaps.addWidget(bar_desc_tlaps, 0, 0, 1, 0)
 
+            self.arrange_layout(layout, layout_tlaps, self.wcfg["column_index_lifespan_laps"])
+
         # Estimated tyre lifespan in minutes
         if self.wcfg["show_lifespan_minutes"]:
             self.bar_style_tmins = self.gen_bar_style(
@@ -120,28 +122,7 @@ class Realtime(Overlay):
                 bar_desc_tmins = self.gen_bar_caption(bar_style_desc, "est. mins")
                 layout_tmins.addWidget(bar_desc_tmins, 0, 0, 1, 0)
 
-        # Set layout
-        if self.wcfg["layout"] == 0:
-            # Vertical layout
-            if self.wcfg["show_remaining"]:
-                layout.addLayout(layout_twear, column_twear, 0)
-            if self.wcfg["show_wear_difference"]:
-                layout.addLayout(layout_tdiff, column_tdiff, 0)
-            if self.wcfg["show_lifespan_laps"]:
-                layout.addLayout(layout_tlaps, column_tlaps, 0)
-            if self.wcfg["show_lifespan_minutes"]:
-                layout.addLayout(layout_tmins, column_tmins, 0)
-        else:
-            # Horizontal layout
-            if self.wcfg["show_remaining"]:
-                layout.addLayout(layout_twear, 0, column_twear)
-            if self.wcfg["show_wear_difference"]:
-                layout.addLayout(layout_tdiff, 0, column_tdiff)
-            if self.wcfg["show_lifespan_laps"]:
-                layout.addLayout(layout_tlaps, 0, column_tlaps)
-            if self.wcfg["show_lifespan_minutes"]:
-                layout.addLayout(layout_tmins, 0, column_tmins)
-        self.setLayout(layout)
+            self.arrange_layout(layout, layout_tmins, self.wcfg["column_index_lifespan_minutes"])
 
         # Last data
         self.checked = False
@@ -282,6 +263,15 @@ class Realtime(Overlay):
         layout.addWidget(target_bar[2], 2, 0)
         layout.addWidget(target_bar[3], 2, 1)
         return layout
+
+    def arrange_layout(self, layout_main, layout_sub, column_index):
+        """Arrange layout"""
+        if self.wcfg["layout"] == 0:
+            # Vertical layout
+            layout_main.addLayout(layout_sub, column_index, 0)
+        else:
+            # Horizontal layout
+            layout_main.addLayout(layout_sub, 0, column_index)
 
     # Additional methods
     @staticmethod

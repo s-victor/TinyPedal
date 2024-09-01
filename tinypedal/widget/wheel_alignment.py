@@ -64,9 +64,7 @@ class Realtime(Overlay):
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_camber = self.wcfg["column_index_camber"]
-        column_toein = self.wcfg["column_index_toe_in"]
+        self.setLayout(layout)
 
         # Camber
         if self.wcfg["show_camber"]:
@@ -79,6 +77,8 @@ class Realtime(Overlay):
                 bar_desc_camber = self.gen_bar_caption(bar_style_desc, "camber")
                 layout_camber.addWidget(bar_desc_camber, 0, 0, 1, 0)
 
+            self.arrange_layout(layout, layout_camber, self.wcfg["column_index_camber"])
+
         # Toe in
         if self.wcfg["show_toe_in"]:
             bar_style_toein = self.gen_bar_style(
@@ -90,20 +90,7 @@ class Realtime(Overlay):
                 bar_desc_toein = self.gen_bar_caption(bar_style_desc, "toe in")
                 layout_toein.addWidget(bar_desc_toein, 0, 0, 1, 0)
 
-        # Set layout
-        if self.wcfg["layout"] == 0:
-            # Vertical layout
-            if self.wcfg["show_camber"]:
-                layout.addLayout(layout_camber, column_camber, 0)
-            if self.wcfg["show_toe_in"]:
-                layout.addLayout(layout_toein, column_toein, 0)
-        else:
-            # Horizontal layout
-            if self.wcfg["show_camber"]:
-                layout.addLayout(layout_camber, 0, column_camber)
-            if self.wcfg["show_toe_in"]:
-                layout.addLayout(layout_toein, 0, column_toein)
-        self.setLayout(layout)
+            self.arrange_layout(layout, layout_toein, self.wcfg["column_index_toe_in"])
 
         # Last data
         self.last_camber = [-1] * 4
@@ -170,6 +157,15 @@ class Realtime(Overlay):
         layout.addWidget(target_bar[2], 2, 0)
         layout.addWidget(target_bar[3], 2, 1)
         return layout
+
+    def arrange_layout(self, layout_main, layout_sub, column_index):
+        """Arrange layout"""
+        if self.wcfg["layout"] == 0:
+            # Vertical layout
+            layout_main.addLayout(layout_sub, column_index, 0)
+        else:
+            # Horizontal layout
+            layout_main.addLayout(layout_sub, 0, column_index)
 
     # Additional methods
     @staticmethod
