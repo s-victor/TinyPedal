@@ -55,18 +55,15 @@ class Realtime(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
         )
+        bar_style_desc = (
+            f"color: {self.wcfg['font_color_caption']};"
+            f"background: {self.wcfg['bkg_color_caption']};"
+            f"font-size: {int(self.wcfg['font_size'] * 0.8)}px;"
+        )
 
         # Create layout
         layout = QGridLayout()
         layout.setContentsMargins(0,0,0,0)  # remove border
-        layout_twear = QGridLayout()
-        layout_tdiff = QGridLayout()
-        layout_tlaps = QGridLayout()
-        layout_tmins = QGridLayout()
-        layout_twear.setSpacing(0)
-        layout_tdiff.setSpacing(0)
-        layout_tlaps.setSpacing(0)
-        layout_tmins.setSpacing(0)
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
@@ -75,104 +72,53 @@ class Realtime(Overlay):
         column_tlaps = self.wcfg["column_index_lifespan_laps"]
         column_tmins = self.wcfg["column_index_lifespan_minutes"]
 
-        # Caption
-        if self.wcfg["show_caption"]:
-            bar_style_desc = (
-                f"color: {self.wcfg['font_color_caption']};"
-                f"background: {self.wcfg['bkg_color_caption']};"
-                f"font-size: {int(self.wcfg['font_size'] * 0.8)}px;"
-            )
-            bar_desc_twear = QLabel("tyre wear")
-            bar_desc_twear.setAlignment(Qt.AlignCenter)
-            bar_desc_twear.setStyleSheet(bar_style_desc)
-            layout_twear.addWidget(bar_desc_twear, 0, 0, 1, 0)
-
-            bar_desc_tdiff = QLabel("wear diff")
-            bar_desc_tdiff.setAlignment(Qt.AlignCenter)
-            bar_desc_tdiff.setStyleSheet(bar_style_desc)
-            layout_tdiff.addWidget(bar_desc_tdiff, 0, 0, 1, 0)
-
-            bar_desc_tlaps = QLabel("est. laps")
-            bar_desc_tlaps.setAlignment(Qt.AlignCenter)
-            bar_desc_tlaps.setStyleSheet(bar_style_desc)
-            layout_tlaps.addWidget(bar_desc_tlaps, 0, 0, 1, 0)
-
-            bar_desc_tmins = QLabel("est. mins")
-            bar_desc_tmins.setAlignment(Qt.AlignCenter)
-            bar_desc_tmins.setStyleSheet(bar_style_desc)
-            layout_tmins.addWidget(bar_desc_tmins, 0, 0, 1, 0)
-
         # Remaining tyre wear
         if self.wcfg["show_remaining"]:
-            self.bar_style_twear = (
-                (f"color: {self.wcfg['font_color_remaining']};"
-                f"background: {self.wcfg['bkg_color_remaining']};{self.bar_width}"),
-                (f"color: {self.wcfg['font_color_warning']};"
-                f"background: {self.wcfg['bkg_color_remaining']};{self.bar_width}"),
-            )
-            self.bar_twear = tuple(QLabel(text_def) for _ in range(4))
-            for _bar in self.bar_twear:
-                _bar.setAlignment(Qt.AlignCenter)
-                _bar.setStyleSheet(self.bar_style_twear[0])
+            self.bar_style_twear = self.gen_bar_style(
+                self.wcfg["font_color_remaining"], self.wcfg["bkg_color_remaining"],
+                self.wcfg["font_color_warning"], self.bar_width)
+            self.bar_twear = self.gen_bar_set(self.bar_style_twear[0], text_def)
+            layout_twear = self.gen_layout(self.bar_twear)
 
-            layout_twear.addWidget(self.bar_twear[0], 1, 0)
-            layout_twear.addWidget(self.bar_twear[1], 1, 1)
-            layout_twear.addWidget(self.bar_twear[2], 2, 0)
-            layout_twear.addWidget(self.bar_twear[3], 2, 1)
+            if self.wcfg["show_caption"]:
+                bar_desc_twear = self.gen_bar_caption(bar_style_desc, "tyre wear")
+                layout_twear.addWidget(bar_desc_twear, 0, 0, 1, 0)
 
         # Tyre wear difference
         if self.wcfg["show_wear_difference"]:
-            self.bar_style_tdiff = (
-                (f"color: {self.wcfg['font_color_wear_difference']};"
-                f"background: {self.wcfg['bkg_color_wear_difference']};{self.bar_width}"),
-                (f"color: {self.wcfg['font_color_warning']};"
-                f"background: {self.wcfg['bkg_color_wear_difference']};{self.bar_width}"),
-            )
-            self.bar_tdiff = tuple(QLabel(text_def) for _ in range(4))
-            for _bar in self.bar_tdiff:
-                _bar.setAlignment(Qt.AlignCenter)
-                _bar.setStyleSheet(self.bar_style_tdiff[0])
+            self.bar_style_tdiff = self.gen_bar_style(
+                self.wcfg["font_color_wear_difference"], self.wcfg["bkg_color_wear_difference"],
+                self.wcfg["font_color_warning"], self.bar_width)
+            self.bar_tdiff = self.gen_bar_set(self.bar_style_tdiff[0], text_def)
+            layout_tdiff = self.gen_layout(self.bar_tdiff)
 
-            layout_tdiff.addWidget(self.bar_tdiff[0], 1, 0)
-            layout_tdiff.addWidget(self.bar_tdiff[1], 1, 1)
-            layout_tdiff.addWidget(self.bar_tdiff[2], 2, 0)
-            layout_tdiff.addWidget(self.bar_tdiff[3], 2, 1)
+            if self.wcfg["show_caption"]:
+                bar_desc_tdiff = self.gen_bar_caption(bar_style_desc, "wear diff")
+                layout_tdiff.addWidget(bar_desc_tdiff, 0, 0, 1, 0)
 
         # Estimated tyre lifespan in laps
         if self.wcfg["show_lifespan_laps"]:
-            self.bar_style_tlaps = (
-                (f"color: {self.wcfg['font_color_lifespan_laps']};"
-                f"background: {self.wcfg['bkg_color_lifespan_laps']};{self.bar_width}"),
-                (f"color: {self.wcfg['font_color_warning']};"
-                f"background: {self.wcfg['bkg_color_lifespan_laps']};{self.bar_width}"),
-            )
-            self.bar_tlaps = tuple(QLabel(text_def) for _ in range(4))
-            for _bar in self.bar_tlaps:
-                _bar.setAlignment(Qt.AlignCenter)
-                _bar.setStyleSheet(self.bar_style_tlaps[0])
+            self.bar_style_tlaps = self.gen_bar_style(
+                self.wcfg["font_color_lifespan_laps"], self.wcfg["bkg_color_lifespan_laps"],
+                self.wcfg["font_color_warning"], self.bar_width)
+            self.bar_tlaps = self.gen_bar_set(self.bar_style_tlaps[0], text_def)
+            layout_tlaps = self.gen_layout(self.bar_tlaps)
 
-            layout_tlaps.addWidget(self.bar_tlaps[0], 1, 0)
-            layout_tlaps.addWidget(self.bar_tlaps[1], 1, 1)
-            layout_tlaps.addWidget(self.bar_tlaps[2], 2, 0)
-            layout_tlaps.addWidget(self.bar_tlaps[3], 2, 1)
+            if self.wcfg["show_caption"]:
+                bar_desc_tlaps = self.gen_bar_caption(bar_style_desc, "est. laps")
+                layout_tlaps.addWidget(bar_desc_tlaps, 0, 0, 1, 0)
 
         # Estimated tyre lifespan in minutes
         if self.wcfg["show_lifespan_minutes"]:
-            self.bar_style_tmins = (
-                (f"color: {self.wcfg['font_color_lifespan_minutes']};"
-                f"background: {self.wcfg['bkg_color_lifespan_minutes']};{self.bar_width}"),
-                (f"color: {self.wcfg['font_color_warning']};"
-                f"background: {self.wcfg['bkg_color_lifespan_minutes']};{self.bar_width}"),
-            )
-            self.bar_tmins = tuple(QLabel(text_def) for _ in range(4))
-            for _bar in self.bar_tmins:
-                _bar.setAlignment(Qt.AlignCenter)
-                _bar.setStyleSheet(self.bar_style_tmins[0])
+            self.bar_style_tmins = self.gen_bar_style(
+                self.wcfg["font_color_lifespan_minutes"], self.wcfg["bkg_color_lifespan_minutes"],
+                self.wcfg["font_color_warning"], self.bar_width)
+            self.bar_tmins = self.gen_bar_set(self.bar_style_tmins[0], text_def)
+            layout_tmins = self.gen_layout(self.bar_tmins)
 
-            layout_tmins.addWidget(self.bar_tmins[0], 1, 0)
-            layout_tmins.addWidget(self.bar_tmins[1], 1, 1)
-            layout_tmins.addWidget(self.bar_tmins[2], 2, 0)
-            layout_tmins.addWidget(self.bar_tmins[3], 2, 1)
+            if self.wcfg["show_caption"]:
+                bar_desc_tmins = self.gen_bar_caption(bar_style_desc, "est. mins")
+                layout_tmins.addWidget(bar_desc_tmins, 0, 0, 1, 0)
 
         # Set layout
         if self.wcfg["layout"] == 0:
@@ -230,35 +176,35 @@ class Realtime(Overlay):
             for idx in range(4):
                 # Remaining tyre wear
                 if self.wcfg["show_remaining"]:
-                    self.update_wear(idx, wear_curr[idx], self.wear_prev[idx])
+                    self.update_wear(self.bar_twear[idx], wear_curr[idx], self.wear_prev[idx])
 
                 # Update tyre wear differences
-                self.wear_prev[idx], self.wear_curr_lap[idx] = calc.wear_difference(
+                self.wear_prev[idx], self.wear_curr_lap[idx] = calc.tyre_wear_difference(
                     wear_curr[idx], self.wear_prev[idx], self.wear_curr_lap[idx])
 
                 # Tyre wear differences
                 if self.wcfg["show_wear_difference"]:
                     if (self.wcfg["show_live_wear_difference"] and
                         lap_etime - lap_stime > self.freeze_duration):
-                        self.update_diff(idx, self.wear_curr_lap[idx], self.last_wear_curr_lap[idx])
+                        self.update_diff(self.bar_tdiff[idx], self.wear_curr_lap[idx], self.last_wear_curr_lap[idx])
                         self.last_wear_curr_lap[idx] = self.wear_curr_lap[idx]
                     else:  # Last lap diff
-                        self.update_diff(idx, self.wear_last_lap[idx], self.last_wear_last_lap[idx])
+                        self.update_diff(self.bar_tdiff[idx], self.wear_last_lap[idx], self.last_wear_last_lap[idx])
                         self.last_wear_last_lap[idx] = self.wear_last_lap[idx]
 
                 # Estimated tyre lifespan in laps
                 if self.wcfg["show_lifespan_laps"]:
-                    wear_laps = calc.estimated_laps(
+                    wear_laps = calc.tyre_lifespan_in_laps(
                         wear_curr[idx], self.wear_last_lap[idx], self.wear_curr_lap[idx])
-                    self.update_laps(idx, wear_laps, self.last_wear_laps[idx])
+                    self.update_laps(self.bar_tlaps[idx], wear_laps, self.last_wear_laps[idx])
                     self.last_wear_laps[idx] = wear_laps
 
                 # Estimated tyre lifespan in minutes
                 if self.wcfg["show_lifespan_minutes"]:
-                    wear_mins = calc.estimated_mins(
+                    wear_mins = calc.tyre_lifespan_in_mins(
                         wear_curr[idx], self.wear_last_lap[idx], self.wear_curr_lap[idx],
                         minfo.delta.lapTimePace)
-                    self.update_mins(idx, wear_mins, self.last_wear_mins[idx])
+                    self.update_mins(self.bar_tmins[idx], wear_mins, self.last_wear_mins[idx])
                     self.last_wear_mins[idx] = wear_mins
 
         else:
@@ -269,37 +215,73 @@ class Realtime(Overlay):
                 self.wear_last_lap = [0,0,0,0]
 
     # GUI update methods
-    def update_wear(self, idx, curr, last):
+    def update_wear(self, target_bar, curr, last):
         """Remaining tyre wear"""
         if curr != last:
-            self.bar_twear[idx].setText(self.format_num(curr))
-            self.bar_twear[idx].setStyleSheet(
-                self.bar_style_twear[(curr <= self.wcfg["warning_threshold_remaining"])]
+            target_bar.setText(self.format_num(curr))
+            target_bar.setStyleSheet(
+                self.bar_style_twear[curr <= self.wcfg["warning_threshold_remaining"]]
             )
 
-    def update_diff(self, idx, curr, last):
+    def update_diff(self, target_bar, curr, last):
         """Tyre wear differences"""
         if curr != last:
-            self.bar_tdiff[idx].setText(f"{curr:.2f}"[:4].rjust(4))
-            self.bar_tdiff[idx].setStyleSheet(
-                self.bar_style_tdiff[(curr > self.wcfg["warning_threshold_wear"])]
+            target_bar.setText(f"{curr:.2f}"[:4].rjust(4))
+            target_bar.setStyleSheet(
+                self.bar_style_tdiff[curr > self.wcfg["warning_threshold_wear"]]
             )
 
-    def update_laps(self, idx, curr, last):
+    def update_laps(self, target_bar, curr, last):
         """Estimated tyre lifespan in laps"""
         if curr != last:
-            self.bar_tlaps[idx].setText(self.format_num(curr))
-            self.bar_tlaps[idx].setStyleSheet(
-                self.bar_style_tlaps[(curr <= self.wcfg["warning_threshold_laps"])]
+            target_bar.setText(self.format_num(curr))
+            target_bar.setStyleSheet(
+                self.bar_style_tlaps[curr <= self.wcfg["warning_threshold_laps"]]
             )
 
-    def update_mins(self, idx, curr, last):
+    def update_mins(self, target_bar, curr, last):
         """Estimated tyre lifespan in minutes"""
         if curr != last:
-            self.bar_tmins[idx].setText(self.format_num(curr))
-            self.bar_tmins[idx].setStyleSheet(
-                self.bar_style_tmins[(curr <= self.wcfg["warning_threshold_minutes"])]
+            target_bar.setText(self.format_num(curr))
+            target_bar.setStyleSheet(
+                self.bar_style_tmins[curr <= self.wcfg["warning_threshold_minutes"]]
             )
+
+    # GUI generate methods
+    @staticmethod
+    def gen_bar_style(fg_color, bg_color, highlight_color, bar_width):
+        """Generate bar style"""
+        return ((f"color: {fg_color};background: {bg_color};{bar_width}"),
+                (f"color: {highlight_color};background: {bg_color};{bar_width}"))
+
+    @staticmethod
+    def gen_bar_caption(bar_style, text):
+        """Generate caption"""
+        bar_temp = QLabel(text)
+        bar_temp.setAlignment(Qt.AlignCenter)
+        bar_temp.setStyleSheet(bar_style)
+        return bar_temp
+
+    @staticmethod
+    def gen_bar_set(bar_style, text):
+        """Generate bar set"""
+        bar_set = tuple(QLabel(text) for _ in range(4))
+        for bar_temp in bar_set:
+            bar_temp.setAlignment(Qt.AlignCenter)
+            bar_temp.setStyleSheet(bar_style)
+        return bar_set
+
+    @staticmethod
+    def gen_layout(target_bar):
+        """Generate layout"""
+        layout = QGridLayout()
+        layout.setSpacing(0)
+        # Start from row index 1; index 0 reserved for caption
+        layout.addWidget(target_bar[0], 1, 0)
+        layout.addWidget(target_bar[1], 1, 1)
+        layout.addWidget(target_bar[2], 2, 0)
+        layout.addWidget(target_bar[3], 2, 1)
+        return layout
 
     # Additional methods
     @staticmethod
