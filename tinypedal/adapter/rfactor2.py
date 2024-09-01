@@ -692,6 +692,13 @@ class Wheel(DataAdapter):
         return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mToe)
                 for data in range(4)]
 
+    def toe_symmetric(self, index: int | None = None) -> list[float]:
+        """Wheel toe (symmetric)"""
+        return [chknm(self.info.rf2TeleVeh(index).mWheels[0].mToe),
+                -chknm(self.info.rf2TeleVeh(index).mWheels[1].mToe),
+                chknm(self.info.rf2TeleVeh(index).mWheels[2].mToe),
+                -chknm(self.info.rf2TeleVeh(index).mWheels[3].mToe)]
+
     def rotation(self, index: int | None = None) -> list[float]:
         """Wheel rotation"""
         return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mRotation)

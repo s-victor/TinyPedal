@@ -53,86 +53,42 @@ class Realtime(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
         )
+        bar_style_desc = (
+            f"color: {self.wcfg['font_color_caption']};"
+            f"background: {self.wcfg['bkg_color_caption']};"
+            f"font-size: {int(self.wcfg['font_size'] * 0.8)}px;"
+        )
 
         # Create layout
         layout = QGridLayout()
         layout.setContentsMargins(0,0,0,0)  # remove border
-        layout_camber = QGridLayout()
-        layout_toein = QGridLayout()
-        layout_camber.setSpacing(0)
-        layout_toein.setSpacing(0)
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
 
         column_camber = self.wcfg["column_index_camber"]
         column_toein = self.wcfg["column_index_toe_in"]
 
-        # Caption
-        if self.wcfg["show_caption"]:
-            bar_style_desc = (
-                f"color: {self.wcfg['font_color_caption']};"
-                f"background: {self.wcfg['bkg_color_caption']};"
-                f"font-size: {int(self.wcfg['font_size'] * 0.8)}px;"
-            )
-            bar_desc_camber = QLabel("camber")
-            bar_desc_camber.setAlignment(Qt.AlignCenter)
-            bar_desc_camber.setStyleSheet(bar_style_desc)
-            layout_camber.addWidget(bar_desc_camber, 0, 0, 1, 0)
-
-            bar_desc_toein = QLabel("toe in")
-            bar_desc_toein.setAlignment(Qt.AlignCenter)
-            bar_desc_toein.setStyleSheet(bar_style_desc)
-            layout_toein.addWidget(bar_desc_toein, 0, 0, 1, 0)
-
         # Camber
         if self.wcfg["show_camber"]:
-            bar_style_camber = (
-                f"color: {self.wcfg['font_color_camber']};"
-                f"background: {self.wcfg['bkg_color_camber']};"
-                f"{bar_width}"
-            )
-            self.bar_camber_fl = QLabel(text_def)
-            self.bar_camber_fl.setAlignment(Qt.AlignCenter)
-            self.bar_camber_fl.setStyleSheet(bar_style_camber)
-            self.bar_camber_fr = QLabel(text_def)
-            self.bar_camber_fr.setAlignment(Qt.AlignCenter)
-            self.bar_camber_fr.setStyleSheet(bar_style_camber)
-            self.bar_camber_rl = QLabel(text_def)
-            self.bar_camber_rl.setAlignment(Qt.AlignCenter)
-            self.bar_camber_rl.setStyleSheet(bar_style_camber)
-            self.bar_camber_rr = QLabel(text_def)
-            self.bar_camber_rr.setAlignment(Qt.AlignCenter)
-            self.bar_camber_rr.setStyleSheet(bar_style_camber)
+            bar_style_camber = self.gen_bar_style(
+                self.wcfg["font_color_camber"], self.wcfg["bkg_color_camber"], bar_width)
+            self.bar_camber = self.gen_bar_set(bar_style_camber, text_def)
+            layout_camber = self.gen_layout(self.bar_camber)
 
-            layout_camber.addWidget(self.bar_camber_fl, 1, 0)
-            layout_camber.addWidget(self.bar_camber_fr, 1, 1)
-            layout_camber.addWidget(self.bar_camber_rl, 2, 0)
-            layout_camber.addWidget(self.bar_camber_rr, 2, 1)
+            if self.wcfg["show_caption"]:
+                bar_desc_camber = self.gen_bar_caption(bar_style_desc, "camber")
+                layout_camber.addWidget(bar_desc_camber, 0, 0, 1, 0)
 
         # Toe in
         if self.wcfg["show_toe_in"]:
-            bar_style_toein = (
-                f"color: {self.wcfg['font_color_toe_in']};"
-                f"background: {self.wcfg['bkg_color_toe_in']};"
-                f"{bar_width}"
-            )
-            self.bar_toein_fl = QLabel(text_def)
-            self.bar_toein_fl.setAlignment(Qt.AlignCenter)
-            self.bar_toein_fl.setStyleSheet(bar_style_toein)
-            self.bar_toein_fr = QLabel(text_def)
-            self.bar_toein_fr.setAlignment(Qt.AlignCenter)
-            self.bar_toein_fr.setStyleSheet(bar_style_toein)
-            self.bar_toein_rl = QLabel(text_def)
-            self.bar_toein_rl.setAlignment(Qt.AlignCenter)
-            self.bar_toein_rl.setStyleSheet(bar_style_toein)
-            self.bar_toein_rr = QLabel(text_def)
-            self.bar_toein_rr.setAlignment(Qt.AlignCenter)
-            self.bar_toein_rr.setStyleSheet(bar_style_toein)
+            bar_style_toein = self.gen_bar_style(
+                self.wcfg["font_color_toe_in"], self.wcfg["bkg_color_toe_in"], bar_width)
+            self.bar_toein = self.gen_bar_set(bar_style_toein, text_def)
+            layout_toein = self.gen_layout(self.bar_toein)
 
-            layout_toein.addWidget(self.bar_toein_fl, 1, 0)
-            layout_toein.addWidget(self.bar_toein_fr, 1, 1)
-            layout_toein.addWidget(self.bar_toein_rl, 2, 0)
-            layout_toein.addWidget(self.bar_toein_rr, 2, 1)
+            if self.wcfg["show_caption"]:
+                bar_desc_toein = self.gen_bar_caption(bar_style_desc, "toe in")
+                layout_toein.addWidget(bar_desc_toein, 0, 0, 1, 0)
 
         # Set layout
         if self.wcfg["layout"] == 0:
@@ -157,30 +113,65 @@ class Realtime(Overlay):
         """Update when vehicle on track"""
         if self.state.active:
 
-            # Camber
             if self.wcfg["show_camber"]:
                 camber = tuple(map(self.round2decimal, api.read.wheel.camber()))
-                self.update_wheel("camber_fl", camber[0], self.last_camber[0])
-                self.update_wheel("camber_fr", camber[1], self.last_camber[1])
-                self.update_wheel("camber_rl", camber[2], self.last_camber[2])
-                self.update_wheel("camber_rr", camber[3], self.last_camber[3])
-                self.last_camber = camber
 
-            # Toe in
             if self.wcfg["show_toe_in"]:
-                toein = tuple(map(self.round2decimal, api.read.wheel.toe()))
-                self.update_wheel("toein_fl", toein[0], self.last_toein[0])
-                self.update_wheel("toein_fr", -toein[1], self.last_toein[1])
-                self.update_wheel("toein_rl", toein[2], self.last_toein[2])
-                self.update_wheel("toein_rr", -toein[3], self.last_toein[3])
-                self.last_toein = toein
+                toein = tuple(map(self.round2decimal, api.read.wheel.toe_symmetric()))
+
+            for idx in range(4):
+                # Camber
+                if self.wcfg["show_camber"]:
+                    self.update_wheel(self.bar_camber[idx], camber[idx], self.last_camber[idx])
+                    self.last_camber[idx] = camber[idx]
+
+                # Toe in
+                if self.wcfg["show_toe_in"]:
+                    self.update_wheel(self.bar_toein[idx], toein[idx], self.last_toein[idx])
+                    self.last_toein[idx] = toein[idx]
 
     # GUI update methods
-    def update_wheel(self, suffix, curr, last):
+    def update_wheel(self, target_bar, curr, last):
         """Wheel data"""
         if curr != last:
-            getattr(self, f"bar_{suffix}").setText(f"{curr:+.2f}"[:5].rjust(5))
+            target_bar.setText(f"{curr:+.2f}"[:5])
 
+    # GUI generate methods
+    @staticmethod
+    def gen_bar_style(fg_color, bg_color, bar_width):
+        """Generate bar style"""
+        return f"color: {fg_color};background: {bg_color};{bar_width}"
+
+    @staticmethod
+    def gen_bar_caption(bar_style, text):
+        """Generate caption"""
+        bar_temp = QLabel(text)
+        bar_temp.setAlignment(Qt.AlignCenter)
+        bar_temp.setStyleSheet(bar_style)
+        return bar_temp
+
+    @staticmethod
+    def gen_bar_set(bar_style, text):
+        """Generate bar set"""
+        bar_set = tuple(QLabel(text) for _ in range(4))
+        for bar_temp in bar_set:
+            bar_temp.setAlignment(Qt.AlignCenter)
+            bar_temp.setStyleSheet(bar_style)
+        return bar_set
+
+    @staticmethod
+    def gen_layout(target_bar):
+        """Generate layout"""
+        layout = QGridLayout()
+        layout.setSpacing(0)
+        # Start from row index 1; index 0 reserved for caption
+        layout.addWidget(target_bar[0], 1, 0)
+        layout.addWidget(target_bar[1], 1, 1)
+        layout.addWidget(target_bar[2], 2, 0)
+        layout.addWidget(target_bar[3], 2, 1)
+        return layout
+
+    # Additional methods
     @staticmethod
     def round2decimal(value):
         """Round 2 decimal"""
