@@ -227,7 +227,7 @@ class Overlay(QWidget):
     @staticmethod
     def qss_color(fg_color, bg_color):
         """Set QSS foreground & background color"""
-        return f"color: {fg_color};background: {bg_color};"
+        return f"color:{fg_color};background:{bg_color};"
 
     def unload_resource(self):
         """Unload resource (such as images) on close, can re-implement in widget"""

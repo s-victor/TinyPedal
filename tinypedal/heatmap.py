@@ -20,7 +20,7 @@
 Heatmap function
 """
 
-from operator import itemgetter
+from __future__ import annotations
 
 from .setting import cfg
 from . import validator as val
@@ -33,7 +33,8 @@ def select_color(heatmap_list: list, temperature: float) -> str:
             if idx == 0:
                 return heatmap_list[0][1]
             return heatmap_list[idx - 1][1]
-    return heatmap_list[-1][1]  # set color from last row if exceeded max range
+    # Set color from last row if exceeded max range
+    return heatmap_list[-1][1]
 
 
 def verify_heatmap(heatmap_dict: dict) -> bool:
@@ -46,18 +47,16 @@ def verify_heatmap(heatmap_dict: dict) -> bool:
     return True
 
 
-def sort_heatmap(heatmap_dict: dict) -> list:
-    """Sort heatmap entries by first column (convert key string to float)"""
-    #return sorted(heatmap_dict.items(), key=lambda col: float(col[0]))
-    return sorted(
-        ((float(value), color) for value, color in heatmap_dict.items()),
-        key=itemgetter(0)
-    )
+def load_heatmap(heatmap_name: str, default_name: str) -> list[tuple[float, str]]:
+    """Load heatmap preset (dictionary)
 
-def load_heatmap(heatmap_name: str, default_name: str) -> list:
-    """Load heatmap preset"""
-    if heatmap_name in cfg.user.heatmap:
-        heatmap_dict = cfg.user.heatmap[heatmap_name]
-        if verify_heatmap(heatmap_dict):
-            return sort_heatmap(heatmap_dict)
-    return sort_heatmap(cfg.default.heatmap[default_name])
+    key = temperature string, value = hex color string.
+    Convert key to float, sort by key.
+
+    Returns:
+        list(tuple(temperature value, hex color string))
+    """
+    heatmap_dict = cfg.user.heatmap.get(heatmap_name, None)
+    if not verify_heatmap(heatmap_dict):
+        heatmap_dict = cfg.default.heatmap[default_name]
+    return sorted((float(temp), color) for temp, color in heatmap_dict.items())
