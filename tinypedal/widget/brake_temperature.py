@@ -69,20 +69,26 @@ class Realtime(Overlay):
         self.setLayout(layout)
 
         # Brake temperature
-        bar_style_btemp = self.gen_bar_style(
-            self.wcfg["font_color_temperature"], self.wcfg["bkg_color_temperature"])
-        self.bar_btemp = self.gen_bar_set(bar_style_btemp, bar_width_temp, text_def)
-        layout_btemp = self.gen_layout(self.bar_btemp, inner_gap)
-        self.arrange_layout(layout, layout_btemp, self.wcfg["column_index_temperature"])
+        layout_btemp = QGridLayout()
+        layout_btemp.setSpacing(inner_gap)
+        bar_style_btemp = self.qss_color(
+            self.wcfg["font_color_temperature"], self.wcfg["bkg_color_temperature"]
+        )
+        self.bar_btemp = self.gen_bar_set(4, bar_style_btemp, bar_width_temp, text_def)
+        self.set_layout_quad(layout_btemp, self.bar_btemp)
+        self.set_layout_orient(layout, layout_btemp, self.wcfg["column_index_temperature"])
 
         # Average brake temperature
         if self.wcfg["show_average"]:
-            self.bar_style_btavg = self.gen_bar_style(
-                self.wcfg["font_color_average"], self.wcfg["bkg_color_average"],
-                self.wcfg["font_color_highlighted"], self.wcfg["bkg_color_highlighted"])
-            self.bar_btavg = self.gen_bar_set(self.bar_style_btavg[0], bar_width_temp, text_def)
-            layout_btavg = self.gen_layout(self.bar_btavg, inner_gap)
-            self.arrange_layout(layout, layout_btavg, self.wcfg["column_index_average"])
+            layout_btavg = QGridLayout()
+            layout_btavg.setSpacing(inner_gap)
+            self.bar_style_btavg = (
+                self.qss_color(self.wcfg["font_color_average"], self.wcfg["bkg_color_average"]),
+                self.qss_color(self.wcfg["font_color_highlighted"], self.wcfg["bkg_color_highlighted"])
+            )
+            self.bar_btavg = self.gen_bar_set(4, self.bar_style_btavg[0], bar_width_temp, text_def)
+            self.set_layout_quad(layout_btavg, self.bar_btavg)
+            self.set_layout_orient(layout, layout_btavg, self.wcfg["column_index_average"])
 
         # Last data
         self.checked = False
@@ -147,36 +153,27 @@ class Realtime(Overlay):
     # GUI update methods
     def update_btemp(self, target_bar, curr, last):
         """Brake temperature"""
-        if curr != last:
+        if round(curr) != round(last):
+            color_temp = hmp.select_color(self.heatmap, curr)
             if self.wcfg["swap_style"]:
-                color = (f"color: {hmp.select_color(self.heatmap, curr)};"
-                         f"background: {self.wcfg['bkg_color_temperature']};")
+                color = self.qss_color(color_temp, self.wcfg["bkg_color_temperature"])
             else:
-                color = (f"color: {self.wcfg['font_color_temperature']};"
-                         f"background: {hmp.select_color(self.heatmap, curr)};")
+                color = self.qss_color(self.wcfg["font_color_temperature"], color_temp)
 
             target_bar.setText(self.format_temperature(curr))
             target_bar.setStyleSheet(color)
 
     def update_btavg(self, target_bar, curr, last, highlighted=0):
         """Brake average temperature"""
-        if curr != last:
+        if round(curr) != round(last):
             target_bar.setText(self.format_temperature(curr))
             target_bar.setStyleSheet(self.bar_style_btavg[highlighted])
 
     # GUI generate methods
     @staticmethod
-    def gen_bar_style(fg_color, bg_color, fg_color_hi="", bg_color_hi=""):
-        """Generate bar style"""
-        if fg_color_hi and bg_color_hi:
-            return (f"color: {fg_color};background: {bg_color}",
-                    f"color: {fg_color_hi};background: {bg_color_hi}")
-        return f"color: {fg_color};background: {bg_color}"
-
-    @staticmethod
-    def gen_bar_set(bar_style, bar_width, text):
+    def gen_bar_set(bar_count, bar_style, bar_width, text):
         """Generate bar set"""
-        bar_set = tuple(QLabel(text) for _ in range(4))
+        bar_set = tuple(QLabel(text) for _ in range(bar_count))
         for bar_temp in bar_set:
             bar_temp.setAlignment(Qt.AlignCenter)
             bar_temp.setStyleSheet(bar_style)
@@ -184,19 +181,17 @@ class Realtime(Overlay):
         return bar_set
 
     @staticmethod
-    def gen_layout(target_bar, inner_gap=0):
-        """Generate layout"""
-        layout = QGridLayout()
-        layout.setSpacing(inner_gap)
-        # Start from row index 1; index 0 reserved for caption
-        layout.addWidget(target_bar[0], 1, 0)
-        layout.addWidget(target_bar[1], 1, 1)
-        layout.addWidget(target_bar[2], 2, 0)
-        layout.addWidget(target_bar[3], 2, 1)
-        return layout
+    def set_layout_quad(layout, bar_set, row_start=1, column_left=0, column_right=9):
+        """Set layout - quad
 
-    def arrange_layout(self, layout_main, layout_sub, column_index):
-        """Arrange layout"""
+        Default row index start from 1; reserve row index 0 for caption.
+        """
+        for idx in range(4):
+            layout.addWidget(bar_set[idx], row_start + (idx > 1),
+                column_left + (idx % 2) * column_right)
+
+    def set_layout_orient(self, layout_main, layout_sub, column_index):
+        """Set primary layout orientation"""
         if self.wcfg["layout"] == 0:  # Vertical layout
             layout_main.addLayout(layout_sub, column_index, 0)
         else:  # Horizontal layout

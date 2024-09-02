@@ -62,18 +62,12 @@ class Realtime(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
         )
-        bar_style_tcmpd = (
-            f"color: {self.wcfg['font_color_tyre_compound']};"
-            f"background: {self.wcfg['bkg_color_tyre_compound']};"
-        )
-        bar_style_stemp = (
-            f"color: {self.wcfg['font_color_surface']};"
-            f"background: {self.wcfg['bkg_color_surface']};"
-        )
-        bar_style_itemp = (
-            f"color: {self.wcfg['font_color_innerlayer']};"
-            f"background: {self.wcfg['bkg_color_innerlayer']};"
-        )
+        bar_style_tcmpd = self.qss_color(
+            self.wcfg["font_color_tyre_compound"], self.wcfg["bkg_color_tyre_compound"])
+        bar_style_stemp = self.qss_color(
+            self.wcfg["font_color_surface"], self.wcfg["bkg_color_surface"])
+        bar_style_itemp = self.qss_color(
+            self.wcfg["font_color_innerlayer"], self.wcfg["bkg_color_innerlayer"])
 
         # Create layout
         layout = QGridLayout()
@@ -85,22 +79,23 @@ class Realtime(Overlay):
         # Tyre temperature
         layout_stemp = QGridLayout()
         layout_stemp.setSpacing(inner_gap)
-        self.bar_stemp = self.gen_bar_set(
+        self.bar_stemp = self.gen_bar_set_extra(
             bar_style_stemp, bar_width_temp, text_def, layout_stemp)
         if self.wcfg["show_tyre_compound"]:
-            self.bar_tcmpd = self.gen_bar_caption(
-                bar_style_tcmpd, bar_width_caption, "-", layout_stemp)
-        self.arrange_layout(layout, layout_stemp, self.wcfg["column_index_surface"])
+            self.bar_tcmpd = self.gen_bar_set(2, bar_style_tcmpd, bar_width_caption, "-")
+            self.set_layout_vert(layout_stemp, self.bar_tcmpd)
+        self.set_layout_orient(layout, layout_stemp, self.wcfg["column_index_surface"])
 
         # Tyre inner temperature
         if self.wcfg["show_innerlayer"]:
             layout_itemp = QGridLayout()
             layout_itemp.setSpacing(inner_gap)
-            self.bar_itemp = self.gen_bar_set(
+            self.bar_itemp = self.gen_bar_set_extra(
                 bar_style_itemp, bar_width_temp, text_def, layout_itemp)
             if self.wcfg["show_tyre_compound"]:
-                self.gen_bar_caption(bar_style_tcmpd, bar_width_caption, "", layout_itemp)
-            self.arrange_layout(layout, layout_itemp, self.wcfg["column_index_innerlayer"])
+                bar_blank = self.gen_bar_set(2, bar_style_tcmpd, bar_width_caption, "")
+                self.set_layout_vert(layout_itemp, bar_blank)
+            self.set_layout_orient(layout, layout_itemp, self.wcfg["column_index_innerlayer"])
 
         # Last data
         self.last_tcmpd = [None] * 2
@@ -170,26 +165,24 @@ class Realtime(Overlay):
     # GUI update methods
     def update_stemp(self, target_bar, curr, last):
         """Tyre surface temperature"""
-        if curr != last:
+        if round(curr) != round(last):
+            color_temp = hmp.select_color(self.heatmap, curr)
             if self.wcfg["swap_style"]:
-                color = (f"color: {self.wcfg['font_color_surface']};"
-                         f"background: {hmp.select_color(self.heatmap, curr)};")
+                color = self.qss_color(self.wcfg["font_color_surface"], color_temp)
             else:
-                color = (f"color: {hmp.select_color(self.heatmap, curr)};"
-                         f"background: {self.wcfg['bkg_color_surface']};")
+                color = self.qss_color(color_temp, self.wcfg["bkg_color_surface"])
 
             target_bar.setText(self.format_temperature(curr))
             target_bar.setStyleSheet(color)
 
     def update_itemp(self, target_bar, curr, last):
         """Tyre inner temperature"""
-        if curr != last:
+        if round(curr) != round(last):
+            color_temp = hmp.select_color(self.heatmap, curr)
             if self.wcfg["swap_style"]:
-                color = (f"color: {self.wcfg['font_color_innerlayer']};"
-                         f"background: {hmp.select_color(self.heatmap, curr)};")
+                color = self.qss_color(self.wcfg["font_color_innerlayer"], color_temp)
             else:
-                color = (f"color: {hmp.select_color(self.heatmap, curr)};"
-                         f"background: {self.wcfg['bkg_color_innerlayer']};")
+                color = self.qss_color(color_temp, self.wcfg["bkg_color_innerlayer"])
 
             target_bar.setText(self.format_temperature(curr))
             target_bar.setStyleSheet(color)
@@ -200,62 +193,65 @@ class Realtime(Overlay):
             target_bar.setText(self.tyre_compound_string[curr])
 
     # GUI generate methods
-    def gen_bar_set(self, bar_style, bar_width, text, layout):
+    def gen_bar_set_extra(self, bar_style, bar_width, text, layout):
         """Generate bar set"""
         if self.wcfg["show_inner_center_outer"]:
-            return tuple(self.gen_bar_set_ico(bar_style, bar_width, text, layout, idx)
-                         for idx in range(4))
-        return self.gen_bar_set_avg(bar_style, bar_width, text, layout)
-
-    @staticmethod
-    def gen_bar_set_avg(bar_style, bar_width, text, layout):
-        """Generate bar set (average)"""
-        bar_set = tuple(QLabel(text) for _ in range(4))
-        for outer_index, bar_temp in enumerate(bar_set):
-            bar_temp.setAlignment(Qt.AlignCenter)
-            bar_temp.setStyleSheet(bar_style)
-            bar_temp.setMinimumWidth(bar_width)
-            if outer_index == 0:  # 0
-                layout.addWidget(bar_temp, 0, 0)
-            elif outer_index == 1:  # 9
-                layout.addWidget(bar_temp, 0, 9)
-            elif outer_index == 2:  # 0
-                layout.addWidget(bar_temp, 1, 0)
-            elif outer_index == 3:  # 9
-                layout.addWidget(bar_temp, 1, 9)
+            bar_set = tuple(self.gen_bar_set(3, bar_style, bar_width, text) for _ in range(4))
+            self.set_layout_tri_quad(layout, bar_set)
+        else:
+            bar_set = self.gen_bar_set(4, bar_style, bar_width, text)
+            self.set_layout_quad(layout, bar_set)
         return bar_set
 
     @staticmethod
-    def gen_bar_set_ico(bar_style, bar_width, text, layout, outer_index):
-        """Generate bar set (inner-center-outer)"""
-        bar_set = tuple(QLabel(text) for _ in range(3))
-        for index, bar_temp in enumerate(bar_set):
+    def gen_bar_set(bar_count, bar_style, bar_width, text):
+        """Generate bar set"""
+        bar_set = tuple(QLabel(text) for _ in range(bar_count))
+        for bar_temp in bar_set:
             bar_temp.setAlignment(Qt.AlignCenter)
             bar_temp.setStyleSheet(bar_style)
             bar_temp.setMinimumWidth(bar_width)
-            if outer_index == 0:  # 2 1 0
-                layout.addWidget(bar_temp, 0, index)
-            elif outer_index == 1:  # 7 8 9
-                layout.addWidget(bar_temp, 0, index + 7)
-            elif outer_index == 2:  # 2 1 0
-                layout.addWidget(bar_temp, 1, index)
-            elif outer_index == 3:  # 7 8 9
-                layout.addWidget(bar_temp, 1, index + 7)
         return bar_set
 
     @staticmethod
-    def gen_bar_caption(bar_style, bar_width, text, layout):
-        """Generate bar caption"""
-        bar_set = tuple(QLabel(text) for _ in range(2))
-        for index, bar_temp in enumerate(bar_set):
-            bar_temp.setAlignment(Qt.AlignCenter)
-            bar_temp.setStyleSheet(bar_style)
-            bar_temp.setMinimumWidth(bar_width)
-            layout.addWidget(bar_temp, index, 4)
-        return bar_set
+    def set_layout_quad(layout, bar_set, row_start=1, column_left=0, column_right=9):
+        """Set layout - quad
 
-    def arrange_layout(self, layout_main, layout_sub, column_index):
-        """Arrange layout"""
+        Default row index start from 1; reserve row index 0 for caption.
+        """
+        for idx in range(4):
+            layout.addWidget(bar_set[idx], row_start + (idx > 1),
+                column_left + (idx % 2) * column_right)
+
+    @staticmethod
+    def set_layout_tri_quad(layout, bar_set, row_start=1, column_left=0, column_right=7):
+        """Set layout - tri-quad - (0,1,2) * 4
+
+        Default row index start from 1; reserve row index 0 for caption.
+        Default column left index start from 0, and right start from 7; reserve 3 columns in middle.
+        Example: (0,1,2) to (7,8,9)
+        """
+        for outer_index in range(4):
+            row_index = row_start + int(outer_index > 1)
+            for index in range(3):
+                if outer_index % 2:  # even(right) columns
+                    layout.addWidget(bar_set[outer_index][index],
+                        row_index, index + column_left + column_right)
+                else:  # odd(left) columns
+                    layout.addWidget(bar_set[outer_index][index],
+                        row_index, index + column_left)
+
+    @staticmethod
+    def set_layout_vert(layout, bar_set, row_count=2):
+        """Set layout - vertical
+
+        Start from row index 1; reserve row index 0 for caption.
+        """
+        for index in range(row_count):
+            layout.addWidget(bar_set[index], index + 1, 4)
+
+    def set_layout_orient(self, layout_main, layout_sub, column_index):
+        """Set primary layout orientation"""
         if self.wcfg["layout"] == 0:  # Vertical layout
             layout_main.addLayout(layout_sub, column_index, 0)
         else:  # Horizontal layout

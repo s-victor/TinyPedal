@@ -68,29 +68,29 @@ class Realtime(Overlay):
 
         # Camber
         if self.wcfg["show_camber"]:
-            bar_style_camber = self.gen_bar_style(
-                self.wcfg["font_color_camber"], self.wcfg["bkg_color_camber"])
-            self.bar_camber = self.gen_bar_set(bar_style_camber, bar_width, text_def)
-            layout_camber = self.gen_layout(self.bar_camber)
+            layout_camber = QGridLayout()
+            layout_camber.setSpacing(0)
+            bar_style_camber = self.qss_color(self.wcfg["font_color_camber"], self.wcfg["bkg_color_camber"])
+            self.bar_camber = self.gen_bar_set(4, bar_style_camber, bar_width, text_def)
+            self.set_layout_quad(layout_camber, self.bar_camber)
 
             if self.wcfg["show_caption"]:
-                bar_desc_camber = self.gen_bar_caption(bar_style_desc, "camber")
-                layout_camber.addWidget(bar_desc_camber, 0, 0, 1, 0)
+                self.gen_bar_caption(bar_style_desc, "camber", layout_camber)
 
-            self.arrange_layout(layout, layout_camber, self.wcfg["column_index_camber"])
+            self.set_layout_orient(layout, layout_camber, self.wcfg["column_index_camber"])
 
         # Toe in
         if self.wcfg["show_toe_in"]:
-            bar_style_toein = self.gen_bar_style(
-                self.wcfg["font_color_toe_in"], self.wcfg["bkg_color_toe_in"])
-            self.bar_toein = self.gen_bar_set(bar_style_toein, bar_width, text_def)
-            layout_toein = self.gen_layout(self.bar_toein)
+            layout_toein = QGridLayout()
+            layout_toein.setSpacing(0)
+            bar_style_toein = self.qss_color(self.wcfg["font_color_toe_in"], self.wcfg["bkg_color_toe_in"])
+            self.bar_toein = self.gen_bar_set(4, bar_style_toein, bar_width, text_def)
+            self.set_layout_quad(layout_toein, self.bar_toein)
 
             if self.wcfg["show_caption"]:
-                bar_desc_toein = self.gen_bar_caption(bar_style_desc, "toe in")
-                layout_toein.addWidget(bar_desc_toein, 0, 0, 1, 0)
+                self.gen_bar_caption(bar_style_desc, "toe in", layout_toein)
 
-            self.arrange_layout(layout, layout_toein, self.wcfg["column_index_toe_in"])
+            self.set_layout_orient(layout, layout_toein, self.wcfg["column_index_toe_in"])
 
         # Last data
         self.last_camber = [-1] * 4
@@ -102,14 +102,14 @@ class Realtime(Overlay):
 
             # Camber
             if self.wcfg["show_camber"]:
-                camber = tuple(map(calc.rad2deg, api.read.wheel.camber()))
+                camber = tuple(map(self.round2decimal, api.read.wheel.camber()))
                 for idx in range(4):
                     self.update_wheel(self.bar_camber[idx], camber[idx], self.last_camber[idx])
                 self.last_camber = camber
 
             # Toe in
             if self.wcfg["show_toe_in"]:
-                toein = tuple(map(calc.rad2deg, api.read.wheel.toe_symmetric()))
+                toein = tuple(map(self.round2decimal, api.read.wheel.toe_symmetric()))
                 for idx in range(4):
                     self.update_wheel(self.bar_toein[idx], toein[idx], self.last_toein[idx])
                 self.last_toein = toein
@@ -122,22 +122,19 @@ class Realtime(Overlay):
 
     # GUI generate methods
     @staticmethod
-    def gen_bar_style(fg_color, bg_color):
-        """Generate bar style"""
-        return f"color: {fg_color};background: {bg_color}"
-
-    @staticmethod
-    def gen_bar_caption(bar_style, text):
+    def gen_bar_caption(bar_style, text, layout):
         """Generate caption"""
         bar_temp = QLabel(text)
         bar_temp.setAlignment(Qt.AlignCenter)
         bar_temp.setStyleSheet(bar_style)
+        # Row index 0, row span 1
+        layout.addWidget(bar_temp, 0, 0, 1, 0)
         return bar_temp
 
     @staticmethod
-    def gen_bar_set(bar_style, bar_width, text):
+    def gen_bar_set(bar_count, bar_style, bar_width, text):
         """Generate bar set"""
-        bar_set = tuple(QLabel(text) for _ in range(4))
+        bar_set = tuple(QLabel(text) for _ in range(bar_count))
         for bar_temp in bar_set:
             bar_temp.setAlignment(Qt.AlignCenter)
             bar_temp.setStyleSheet(bar_style)
@@ -145,20 +142,24 @@ class Realtime(Overlay):
         return bar_set
 
     @staticmethod
-    def gen_layout(target_bar, inner_gap=0):
-        """Generate layout"""
-        layout = QGridLayout()
-        layout.setSpacing(inner_gap)
-        # Start from row index 1; index 0 reserved for caption
-        layout.addWidget(target_bar[0], 1, 0)
-        layout.addWidget(target_bar[1], 1, 1)
-        layout.addWidget(target_bar[2], 2, 0)
-        layout.addWidget(target_bar[3], 2, 1)
-        return layout
+    def set_layout_quad(layout, bar_set, row_start=1, column_left=0, column_right=9):
+        """Set layout - quad
 
-    def arrange_layout(self, layout_main, layout_sub, column_index):
-        """Arrange layout"""
+        Default row index start from 1; reserve row index 0 for caption.
+        """
+        for idx in range(4):
+            layout.addWidget(bar_set[idx], row_start + (idx > 1),
+                column_left + (idx % 2) * column_right)
+
+    def set_layout_orient(self, layout_main, layout_sub, column_index):
+        """Set primary layout orientation"""
         if self.wcfg["layout"] == 0:  # Vertical layout
             layout_main.addLayout(layout_sub, column_index, 0)
         else:  # Horizontal layout
             layout_main.addLayout(layout_sub, 0, column_index)
+
+    # Additional methods
+    @staticmethod
+    def round2decimal(value):
+        """Round 2 decimal"""
+        return round(calc.rad2deg(value), 2)
