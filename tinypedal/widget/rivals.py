@@ -82,6 +82,9 @@ class Realtime(Overlay):
             ("",0),  # time_int
         )
         self.pixmap_brandlogo = {"blank": QPixmap()}
+        self.data_bar = {}
+        self.curr_data = [None] * self.veh_range
+        self.last_data = [self.empty_vehicles_data] * self.veh_range
 
         # Create layout
         self.layout = QGridLayout()
@@ -222,19 +225,16 @@ class Realtime(Overlay):
 
     def generate_bar(self, suffix, style, column_idx, bar_width):
         """Generate data bar"""
-        data_slots = len(self.empty_vehicles_data)
         for idx in range(self.veh_range):
-            setattr(self, f"row_{idx}_{suffix}", QLabel(""))
-            getattr(self, f"row_{idx}_{suffix}").setAlignment(Qt.AlignCenter)
-            getattr(self, f"row_{idx}_{suffix}").setStyleSheet(style)
-            getattr(self, f"row_{idx}_{suffix}").setMinimumWidth(bar_width)
+            bar_name = f"row_{idx}_{suffix}"
+            self.data_bar[bar_name] = QLabel("")
+            self.data_bar[bar_name].setAlignment(Qt.AlignCenter)
+            self.data_bar[bar_name].setStyleSheet(style)
+            self.data_bar[bar_name].setMinimumWidth(bar_width)
             self.layout.addWidget(
-                getattr(self, f"row_{idx}_{suffix}"), idx, column_idx)
+                self.data_bar[bar_name], idx, column_idx)
             if idx > 0:  # show only first row initially
-                getattr(self, f"row_{idx}_{suffix}").hide()
-            # Last data
-            setattr(self, f"veh_{idx}", [None] * data_slots)
-            setattr(self, f"last_veh_{idx}", [None] * data_slots)
+                self.data_bar[bar_name].hide()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -257,87 +257,84 @@ class Realtime(Overlay):
 
                 # Get vehicle data
                 if 0 <= opponent_list[idx] < total_veh_idx:
-                    setattr(self, f"veh_{idx}",
-                            self.get_data(opponent_list[idx], player_idx, vehicles_data)
-                            )
+                    self.curr_data[idx] = self.get_data(
+                        opponent_list[idx], player_idx, vehicles_data)
                 else:  # bypass index out range
-                    setattr(self, f"veh_{idx}",
-                            self.empty_vehicles_data
-                            )
+                    self.curr_data[idx] = self.empty_vehicles_data
                 # Driver position
                 if self.wcfg["show_position"]:
-                    self.update_pos(getattr(self, f"row_{idx}_pos"),
-                                    getattr(self, f"veh_{idx}")[1],
-                                    getattr(self, f"last_veh_{idx}")[1],
+                    self.update_pos(self.data_bar[f"row_{idx}_pos"],
+                                    self.curr_data[idx][1],
+                                    self.last_data[idx][1],
                                     )
                 # Driver name
                 if self.wcfg["show_driver_name"]:
-                    self.update_drv(getattr(self, f"row_{idx}_drv"),
-                                    getattr(self, f"veh_{idx}")[2],
-                                    getattr(self, f"last_veh_{idx}")[2],
+                    self.update_drv(self.data_bar[f"row_{idx}_drv"],
+                                    self.curr_data[idx][2],
+                                    self.last_data[idx][2],
                                     )
                 # Vehicle name
                 if self.wcfg["show_vehicle_name"]:
-                    self.update_veh(getattr(self, f"row_{idx}_veh"),
-                                    getattr(self, f"veh_{idx}")[3],
-                                    getattr(self, f"last_veh_{idx}")[3],
+                    self.update_veh(self.data_bar[f"row_{idx}_veh"],
+                                    self.curr_data[idx][3],
+                                    self.last_data[idx][3],
                                     )
                 # Brand logo
                 if self.wcfg["show_brand_logo"]:
-                    self.update_brd(getattr(self, f"row_{idx}_brd"),
-                                    getattr(self, f"veh_{idx}")[3],
-                                    getattr(self, f"last_veh_{idx}")[3]
+                    self.update_brd(self.data_bar[f"row_{idx}_brd"],
+                                    self.curr_data[idx][3],
+                                    self.last_data[idx][3]
                                     )
                 # Time interval
                 if self.wcfg["show_time_interval"]:
-                    self.update_int(getattr(self, f"row_{idx}_int"),
-                                    getattr(self, f"veh_{idx}")[10],
-                                    getattr(self, f"last_veh_{idx}")[10],
+                    self.update_int(self.data_bar[f"row_{idx}_int"],
+                                    self.curr_data[idx][10],
+                                    self.last_data[idx][10],
                                     )
                 # Vehicle laptime
                 if self.wcfg["show_laptime"]:
-                    self.update_lpt(getattr(self, f"row_{idx}_lpt"),
-                                    getattr(self, f"veh_{idx}")[7],
-                                    getattr(self, f"last_veh_{idx}")[7],
+                    self.update_lpt(self.data_bar[f"row_{idx}_lpt"],
+                                    self.curr_data[idx][7],
+                                    self.last_data[idx][7],
                                     )
                 # Vehicle best laptime
                 if self.wcfg["show_best_laptime"]:
-                    self.update_blp(getattr(self, f"row_{idx}_blp"),
-                                    getattr(self, f"veh_{idx}")[8],
-                                    getattr(self, f"last_veh_{idx}")[8],
+                    self.update_blp(self.data_bar[f"row_{idx}_blp"],
+                                    self.curr_data[idx][8],
+                                    self.last_data[idx][8],
                                     )
                 # Vehicle position in class
                 if self.wcfg["show_position_in_class"]:
-                    self.update_pic(getattr(self, f"row_{idx}_pic"),
-                                    getattr(self, f"veh_{idx}")[4],
-                                    getattr(self, f"last_veh_{idx}")[4],
+                    self.update_pic(self.data_bar[f"row_{idx}_pic"],
+                                    self.curr_data[idx][4],
+                                    self.last_data[idx][4],
                                     )
                 # Vehicle class
                 if self.wcfg["show_class"]:
-                    self.update_cls(getattr(self, f"row_{idx}_cls"),
-                                    getattr(self, f"veh_{idx}")[5],
-                                    getattr(self, f"last_veh_{idx}")[5],
+                    self.update_cls(self.data_bar[f"row_{idx}_cls"],
+                                    self.curr_data[idx][5],
+                                    self.last_data[idx][5],
                                     )
                 # Vehicle in pit
                 if self.wcfg["show_pit_status"]:
-                    self.update_pit(getattr(self, f"row_{idx}_pit"),
-                                    getattr(self, f"veh_{idx}")[0],
-                                    getattr(self, f"last_veh_{idx}")[0],
+                    self.update_pit(self.data_bar[f"row_{idx}_pit"],
+                                    self.curr_data[idx][0],
+                                    self.last_data[idx][0],
                                     )
                 # Tyre compound index
                 if self.wcfg["show_tyre_compound"]:
-                    self.update_tcp(getattr(self, f"row_{idx}_tcp"),
-                                    getattr(self, f"veh_{idx}")[6],
-                                    getattr(self, f"last_veh_{idx}")[6],
+                    self.update_tcp(self.data_bar[f"row_{idx}_tcp"],
+                                    self.curr_data[idx][6],
+                                    self.last_data[idx][6],
                                     )
                 # Pitstop count
                 if self.wcfg["show_pitstop_count"]:
-                    self.update_psc(getattr(self, f"row_{idx}_psc"),
-                                    getattr(self, f"veh_{idx}")[9],
-                                    getattr(self, f"last_veh_{idx}")[9],
+                    self.update_psc(self.data_bar[f"row_{idx}_psc"],
+                                    self.curr_data[idx][9],
+                                    self.last_data[idx][9],
                                     )
                 # Store last data reading
-                setattr(self, f"last_veh_{idx}", getattr(self, f"veh_{idx}"))
+                self.last_data[idx] = self.curr_data[idx]
 
     # GUI update methods
     def update_pos(self, target_bar, curr, last):
