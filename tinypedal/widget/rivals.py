@@ -84,7 +84,7 @@ class Realtime(Overlay):
         self.pixmap_brandlogo = {"blank": QPixmap()}
         self.data_bar = {}
         self.curr_data = [None] * self.veh_range
-        self.last_data = [self.empty_vehicles_data] * self.veh_range
+        self.last_data = [tuple(None for _ in self.empty_vehicles_data)] * self.veh_range
 
         # Create layout
         self.layout = QGridLayout()
@@ -231,8 +231,7 @@ class Realtime(Overlay):
             self.data_bar[bar_name].setAlignment(Qt.AlignCenter)
             self.data_bar[bar_name].setStyleSheet(style)
             self.data_bar[bar_name].setMinimumWidth(bar_width)
-            self.layout.addWidget(
-                self.data_bar[bar_name], idx, column_idx)
+            self.layout.addWidget(self.data_bar[bar_name], idx, column_idx)
             if idx > 0:  # show only first row initially
                 self.data_bar[bar_name].hide()
 
@@ -259,7 +258,9 @@ class Realtime(Overlay):
                 if 0 <= opponent_list[idx] < total_veh_idx:
                     self.curr_data[idx] = self.get_data(
                         opponent_list[idx], player_idx, vehicles_data)
-                else:  # bypass index out range
+                elif self.last_data[idx] == self.empty_vehicles_data:
+                    continue  # skip if already empty
+                else:
                     self.curr_data[idx] = self.empty_vehicles_data
                 # Driver position
                 if self.wcfg["show_position"]:
