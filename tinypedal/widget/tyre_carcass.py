@@ -160,9 +160,9 @@ class Realtime(Overlay):
         if round(curr) != round(last):
             color_temp = hmp.select_color(self.heatmap, curr)
             if self.wcfg["swap_style"]:
-                color = self.qss_color(self.wcfg["font_color_carcass"], color_temp)
+                color = f"color: {self.wcfg['font_color_carcass']};background: {color_temp};"
             else:
-                color = self.qss_color(color_temp, self.wcfg["bkg_color_carcass"])
+                color = f"color: {color_temp};background: {self.wcfg['bkg_color_carcass']};"
 
             target_bar.setText(self.format_temperature(curr))
             target_bar.setStyleSheet(color)
@@ -176,11 +176,9 @@ class Realtime(Overlay):
                 hicolor = self.wcfg["font_color_rate_loss"]
 
             if self.wcfg["swap_style"]:
-                color = (f"color: {self.wcfg['font_color_rate_of_change']};"
-                         f"background: {hicolor};")
+                color = f"color: {self.wcfg['font_color_rate_of_change']};background: {hicolor};"
             else:
-                color = (f"color: {hicolor};"
-                         f"background: {self.wcfg['bkg_color_rate_of_change']};")
+                color = f"color: {hicolor};background: {self.wcfg['bkg_color_rate_of_change']};"
 
             target_bar.setText(self.format_rate_change(curr))
             target_bar.setStyleSheet(color)

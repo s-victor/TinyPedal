@@ -156,9 +156,9 @@ class Realtime(Overlay):
         if round(curr) != round(last):
             color_temp = hmp.select_color(self.heatmap, curr)
             if self.wcfg["swap_style"]:
-                color = self.qss_color(color_temp, self.wcfg["bkg_color_temperature"])
+                color = f"color: {color_temp};background: {self.wcfg['bkg_color_temperature']};"
             else:
-                color = self.qss_color(self.wcfg["font_color_temperature"], color_temp)
+                color = f"color: {self.wcfg['font_color_temperature']};background: {color_temp};"
 
             target_bar.setText(self.format_temperature(curr))
             target_bar.setStyleSheet(color)
