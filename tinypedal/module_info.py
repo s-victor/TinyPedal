@@ -129,6 +129,12 @@ class RelativeInfo:
     standings: list = field(default_factory=list)
     classes: list = field(default_factory=list)
 
+    def __post_init__(self):
+        """Initialize list to avoid out of range"""
+        self.relative = [-1]
+        self.standings = [-1]
+        self.classes = []
+
 
 @dataclass
 class SectorsInfo:
