@@ -191,7 +191,7 @@ class Realtime(Overlay):
         # Vehicle in pit
         if self.wcfg["show_pit_status"]:
             self.bar_style_pit = (
-                "",
+                self.qss_color("#00000000", "#00000000"),
                 self.qss_color(
                     self.wcfg["font_color_pit"],
                     self.wcfg["bkg_color_pit"])

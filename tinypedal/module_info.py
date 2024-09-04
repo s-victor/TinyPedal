@@ -133,7 +133,7 @@ class RelativeInfo:
         """Initialize list to avoid out of range"""
         self.relative = [-1]
         self.standings = [-1]
-        self.classes = []
+        self.classes = [[0,1,"",0,0,-1,-1]]
 
 
 @dataclass
