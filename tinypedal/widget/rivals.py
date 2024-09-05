@@ -96,7 +96,7 @@ class Realtime(Overlay):
 
         # Driver position
         if self.wcfg["show_position"]:
-            bar_style_pos = self.qss_color(
+            bar_style_pos = self.set_qss(
                 self.wcfg["font_color_position"],
                 self.wcfg["bkg_color_position"]
             )
@@ -106,7 +106,7 @@ class Realtime(Overlay):
             )
         # Driver name
         if self.wcfg["show_driver_name"]:
-            bar_style_drv = self.qss_color(
+            bar_style_drv = self.set_qss(
                 self.wcfg["font_color_driver_name"],
                 self.wcfg["bkg_color_driver_name"]
             )
@@ -116,7 +116,7 @@ class Realtime(Overlay):
             )
         # Vehicle name
         if self.wcfg["show_vehicle_name"]:
-            bar_style_veh = self.qss_color(
+            bar_style_veh = self.set_qss(
                 self.wcfg["font_color_vehicle_name"],
                 self.wcfg["bkg_color_vehicle_name"]
             )
@@ -126,7 +126,7 @@ class Realtime(Overlay):
             )
         # Brand logo
         if self.wcfg["show_brand_logo"]:
-            bar_style_brd = self.qss_color(bg=self.wcfg["bkg_color_brand_logo"])
+            bar_style_brd = self.set_qss(bg=self.wcfg["bkg_color_brand_logo"])
             self.generate_bar(
                 "brd", bar_style_brd, self.wcfg["column_index_brand_logo"],
                 self.brd_width
@@ -134,10 +134,10 @@ class Realtime(Overlay):
         # Time interval
         if self.wcfg["show_time_interval"]:
             self.bar_style_int = (
-                self.qss_color(
+                self.set_qss(
                     self.wcfg["font_color_time_interval_behind"],
                     self.wcfg["bkg_color_time_interval_behind"]),
-                self.qss_color(
+                self.set_qss(
                     self.wcfg["font_color_time_interval_ahead"],
                     self.wcfg["bkg_color_time_interval_ahead"])
             )
@@ -147,7 +147,7 @@ class Realtime(Overlay):
             )
         # Vehicle laptime
         if self.wcfg["show_laptime"]:
-            bar_style_lpt = self.qss_color(
+            bar_style_lpt = self.set_qss(
                 self.wcfg["font_color_laptime"],
                 self.wcfg["bkg_color_laptime"]
             )
@@ -157,7 +157,7 @@ class Realtime(Overlay):
             )
         # Vehicle best laptime
         if self.wcfg["show_best_laptime"]:
-            bar_style_blp = self.qss_color(
+            bar_style_blp = self.set_qss(
                 self.wcfg["font_color_best_laptime"],
                 self.wcfg["bkg_color_best_laptime"]
             )
@@ -167,7 +167,7 @@ class Realtime(Overlay):
             )
         # Position in class
         if self.wcfg["show_position_in_class"]:
-            bar_style_pic = self.qss_color(
+            bar_style_pic = self.set_qss(
                 self.wcfg["font_color_position_in_class"],
                 self.wcfg["bkg_color_position_in_class"]
             )
@@ -177,7 +177,7 @@ class Realtime(Overlay):
             )
         # Vehicle class
         if self.wcfg["show_class"]:
-            bar_style_cls = self.qss_color(
+            bar_style_cls = self.set_qss(
                 self.wcfg["font_color_class"],
                 self.wcfg["bkg_color_class"]
             )
@@ -188,8 +188,8 @@ class Realtime(Overlay):
         # Vehicle in pit
         if self.wcfg["show_pit_status"]:
             self.bar_style_pit = (
-                self.qss_color("#00000000", "#00000000"),
-                self.qss_color(
+                self.set_qss("#00000000", "#00000000"),
+                self.set_qss(
                     self.wcfg["font_color_pit"],
                     self.wcfg["bkg_color_pit"])
             )
@@ -199,7 +199,7 @@ class Realtime(Overlay):
             )
         # Tyre compound index
         if self.wcfg["show_tyre_compound"]:
-            bar_style_tcp = self.qss_color(
+            bar_style_tcp = self.set_qss(
                 self.wcfg["font_color_tyre_compound"],
                 self.wcfg["bkg_color_tyre_compound"]
             )
@@ -210,10 +210,10 @@ class Realtime(Overlay):
         # Pitstop count
         if self.wcfg["show_pitstop_count"]:
             self.bar_style_psc = (
-                self.qss_color(
+                self.set_qss(
                     self.wcfg["font_color_pitstop_count"],
                     self.wcfg["bkg_color_pitstop_count"]),
-                self.qss_color(
+                self.set_qss(
                     self.wcfg["font_color_pit_request"],
                     self.wcfg["bkg_color_pit_request"])
             )

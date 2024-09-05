@@ -72,7 +72,7 @@ class Realtime(Overlay):
         # Brake temperature
         layout_btemp = QGridLayout()
         layout_btemp.setSpacing(inner_gap)
-        bar_style_btemp = self.qss_color(
+        bar_style_btemp = self.set_qss(
             self.wcfg["font_color_temperature"],
             self.wcfg["bkg_color_temperature"]
         )
@@ -85,10 +85,10 @@ class Realtime(Overlay):
             layout_btavg = QGridLayout()
             layout_btavg.setSpacing(inner_gap)
             self.bar_style_btavg = (
-                self.qss_color(
+                self.set_qss(
                     self.wcfg["font_color_average"],
                     self.wcfg["bkg_color_average"]),
-                self.qss_color(
+                self.set_qss(
                     self.wcfg["font_color_highlighted"],
                     self.wcfg["bkg_color_highlighted"])
             )

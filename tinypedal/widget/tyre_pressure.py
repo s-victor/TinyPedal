@@ -45,7 +45,7 @@ class Realtime(Overlay):
         text_def = "n/a"
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        bar_width = f"min-width: {font_m.width * 4 + bar_padx}px;"
+        bar_width = font_m.width * 4 + bar_padx
 
         # Base style
         self.setStyleSheet(
@@ -53,54 +53,31 @@ class Realtime(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
         )
+        bar_style_desc = self.set_qss(
+            self.wcfg["font_color_caption"],
+            self.wcfg["bkg_color_caption"],
+            int(self.wcfg['font_size'] * 0.8)
+        )
 
         # Create layout
         layout = QGridLayout()
         layout.setContentsMargins(0,0,0,0)  # remove border
-        layout_tpres = QGridLayout()
-        layout_tpres.setSpacing(0)
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        # Caption
-        if self.wcfg["show_caption"]:
-            bar_style_desc = (
-                f"color: {self.wcfg['font_color_caption']};"
-                f"background: {self.wcfg['bkg_color_caption']};"
-                f"font-size: {int(self.wcfg['font_size'] * 0.8)}px;"
-            )
-            bar_desc_tpres = QLabel("tyre pres")
-            bar_desc_tpres.setAlignment(Qt.AlignCenter)
-            bar_desc_tpres.setStyleSheet(bar_style_desc)
-            layout_tpres.addWidget(bar_desc_tpres, 0, 0, 1, 0)
+        self.setLayout(layout)
 
         # Tyre pressure
-        bar_style_tpres = (
-            f"color: {self.wcfg['font_color_tyre_pressure']};"
-            f"background: {self.wcfg['bkg_color_tyre_pressure']};"
-            f"{bar_width}"
-        )
-        self.bar_tpres_fl = QLabel(text_def)
-        self.bar_tpres_fl.setAlignment(Qt.AlignCenter)
-        self.bar_tpres_fl.setStyleSheet(bar_style_tpres)
-        self.bar_tpres_fr = QLabel(text_def)
-        self.bar_tpres_fr.setAlignment(Qt.AlignCenter)
-        self.bar_tpres_fr.setStyleSheet(bar_style_tpres)
-        self.bar_tpres_rl = QLabel(text_def)
-        self.bar_tpres_rl.setAlignment(Qt.AlignCenter)
-        self.bar_tpres_rl.setStyleSheet(bar_style_tpres)
-        self.bar_tpres_rr = QLabel(text_def)
-        self.bar_tpres_rr.setAlignment(Qt.AlignCenter)
-        self.bar_tpres_rr.setStyleSheet(bar_style_tpres)
-
-        layout_tpres.addWidget(self.bar_tpres_fl, 1, 0)
-        layout_tpres.addWidget(self.bar_tpres_fr, 1, 1)
-        layout_tpres.addWidget(self.bar_tpres_rl, 2, 0)
-        layout_tpres.addWidget(self.bar_tpres_rr, 2, 1)
-
-        # Set layout
+        layout_tpres = QGridLayout()
+        layout_tpres.setSpacing(0)
         layout.addLayout(layout_tpres, 0, 0)
-        self.setLayout(layout)
+        bar_style_tpres = self.set_qss(
+            self.wcfg["font_color_tyre_pressure"], self.wcfg["bkg_color_tyre_pressure"])
+
+        self.bar_tpres = self.gen_bar_set(4, bar_style_tpres, bar_width, text_def)
+        self.set_layout_quad(layout_tpres, self.bar_tpres)
+
+        if self.wcfg["show_caption"]:
+            self.gen_bar_caption(bar_style_desc, "tyre pres", layout_tpres)
 
         # Last data
         self.last_tpres = [None] * 4
@@ -110,19 +87,47 @@ class Realtime(Overlay):
         if self.state.active:
 
             # Tyre pressure
-            tpres = tuple(map(self.tyre_pressure_units, api.read.tyre.pressure()))
-
-            self.update_tpres("tpres_fl", tpres[0], self.last_tpres[0])
-            self.update_tpres("tpres_fr", tpres[1], self.last_tpres[1])
-            self.update_tpres("tpres_rl", tpres[2], self.last_tpres[2])
-            self.update_tpres("tpres_rr", tpres[3], self.last_tpres[3])
+            tpres = api.read.tyre.pressure()
+            for idx in range(4):
+                self.update_tpres(self.bar_tpres[idx], tpres[idx], self.last_tpres[idx])
             self.last_tpres = tpres
 
     # GUI update methods
-    def update_tpres(self, suffix, curr, last):
+    def update_tpres(self, target_bar, curr, last):
         """Tyre pressure"""
         if curr != last:
-            getattr(self, f"bar_{suffix}").setText(curr)
+            target_bar.setText(self.tyre_pressure_units(curr))
+
+    # GUI generate methods
+    @staticmethod
+    def gen_bar_caption(bar_style, text, layout):
+        """Generate caption"""
+        bar_temp = QLabel(text)
+        bar_temp.setAlignment(Qt.AlignCenter)
+        bar_temp.setStyleSheet(bar_style)
+        # Row index 0, row span 1
+        layout.addWidget(bar_temp, 0, 0, 1, 0)
+        return bar_temp
+
+    @staticmethod
+    def gen_bar_set(bar_count, bar_style, bar_width, text):
+        """Generate bar set"""
+        bar_set = tuple(QLabel(text) for _ in range(bar_count))
+        for bar_temp in bar_set:
+            bar_temp.setAlignment(Qt.AlignCenter)
+            bar_temp.setStyleSheet(bar_style)
+            bar_temp.setMinimumWidth(bar_width)
+        return bar_set
+
+    @staticmethod
+    def set_layout_quad(layout, bar_set, row_start=1, column_left=0, column_right=9):
+        """Set layout - quad
+
+        Default row index start from 1; reserve row index 0 for caption.
+        """
+        for idx in range(4):
+            layout.addWidget(bar_set[idx], row_start + (idx > 1),
+                column_left + (idx % 2) * column_right)
 
     # Additional methods
     def tyre_pressure_units(self, value):

@@ -53,10 +53,10 @@ class Realtime(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
         )
-        bar_style_desc = (
-            f"color: {self.wcfg['font_color_caption']};"
-            f"background: {self.wcfg['bkg_color_caption']};"
-            f"font-size: {int(self.wcfg['font_size'] * 0.8)}px;"
+        bar_style_desc = self.set_qss(
+            self.wcfg["font_color_caption"],
+            self.wcfg["bkg_color_caption"],
+            int(self.wcfg['font_size'] * 0.8)
         )
 
         # Create layout
@@ -70,7 +70,7 @@ class Realtime(Overlay):
         if self.wcfg["show_camber"]:
             layout_camber = QGridLayout()
             layout_camber.setSpacing(0)
-            bar_style_camber = self.qss_color(
+            bar_style_camber = self.set_qss(
                 self.wcfg["font_color_camber"], self.wcfg["bkg_color_camber"])
             self.bar_camber = self.gen_bar_set(4, bar_style_camber, bar_width, text_def)
             self.set_layout_quad(layout_camber, self.bar_camber)
@@ -84,7 +84,7 @@ class Realtime(Overlay):
         if self.wcfg["show_toe_in"]:
             layout_toein = QGridLayout()
             layout_toein.setSpacing(0)
-            bar_style_toein = self.qss_color(
+            bar_style_toein = self.set_qss(
                 self.wcfg["font_color_toe_in"], self.wcfg["bkg_color_toe_in"])
             self.bar_toein = self.gen_bar_set(4, bar_style_toein, bar_width, text_def)
             self.set_layout_quad(layout_toein, self.bar_toein)

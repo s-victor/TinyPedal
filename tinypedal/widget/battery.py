@@ -63,10 +63,10 @@ class Realtime(Overlay):
         # Battery charge
         if self.wcfg["show_battery_charge"]:
             self.bar_style_charge = (
-                self.qss_color(
+                self.set_qss(
                     self.wcfg["font_color_battery_charge"],
                     self.wcfg["bkg_color_battery_charge"]),
-                self.qss_color(
+                self.set_qss(
                     self.wcfg["font_color_battery_charge"],
                     self.wcfg["warning_color_low_battery"])
             )
@@ -83,7 +83,7 @@ class Realtime(Overlay):
             self.bar_drain.setAlignment(Qt.AlignCenter)
             self.bar_drain.setMinimumWidth(bar_width)
             self.bar_drain.setStyleSheet(
-                self.qss_color(
+                self.set_qss(
                     self.wcfg["font_color_battery_drain"],
                     self.wcfg["bkg_color_battery_drain"])
             )
@@ -96,7 +96,7 @@ class Realtime(Overlay):
             self.bar_regen.setAlignment(Qt.AlignCenter)
             self.bar_regen.setMinimumWidth(bar_width)
             self.bar_regen.setStyleSheet(
-                self.qss_color(
+                self.set_qss(
                     self.wcfg["font_color_battery_regen"],
                     self.wcfg["bkg_color_battery_regen"])
             )
@@ -109,7 +109,7 @@ class Realtime(Overlay):
             self.bar_timer.setAlignment(Qt.AlignCenter)
             self.bar_timer.setMinimumWidth(bar_width)
             self.bar_timer.setStyleSheet(
-                self.qss_color(
+                self.set_qss(
                     self.wcfg["font_color_activation_timer"],
                     self.wcfg["bkg_color_activation_timer"])
             )

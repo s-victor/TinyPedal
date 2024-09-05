@@ -225,13 +225,17 @@ class Overlay(QWidget):
         return Qt.AlignCenter
 
     @staticmethod
-    def qss_color(fg: str = "", bg: str = "") -> str:
-        """Set QSS foreground & background color"""
-        if fg and not bg:
-            return f"color:{fg};"
-        if bg and not fg:
-            return f"background:{bg};"
-        return f"color:{fg};background:{bg};"
+    def set_qss(fg: str = "", bg: str = "", font_size: int = 0) -> str:
+        """Set qt style sheet, foreground & background color, font, etc"""
+        if fg:  # foreground color
+            fg = f"color:{fg};"
+        if bg:  # background color
+            bg = f"background:{bg};"
+        if font_size > 0:  # font size
+            font_size = f"font-size:{font_size}px;"
+        else:
+            font_size = ""
+        return f"{fg}{bg}{font_size}"
 
     def set_layout_orient(
         self, target_type: int, layout_main: object, target: object, column_index: int):

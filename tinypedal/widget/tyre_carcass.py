@@ -70,11 +70,11 @@ class Realtime(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
         )
-        bar_style_tcmpd = self.qss_color(
+        bar_style_tcmpd = self.set_qss(
             self.wcfg["font_color_tyre_compound"], self.wcfg["bkg_color_tyre_compound"])
-        bar_style_ctemp = self.qss_color(
+        bar_style_ctemp = self.set_qss(
             self.wcfg["font_color_carcass"], self.wcfg["bkg_color_carcass"])
-        bar_style_rtemp = self.qss_color(
+        bar_style_rtemp = self.set_qss(
             self.wcfg["font_color_rate_of_change"], self.wcfg["bkg_color_rate_of_change"])
 
         # Create layout

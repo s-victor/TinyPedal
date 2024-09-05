@@ -55,10 +55,10 @@ class Realtime(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
         )
-        bar_style_desc = (
-            f"color: {self.wcfg['font_color_caption']};"
-            f"background: {self.wcfg['bkg_color_caption']};"
-            f"font-size: {int(self.wcfg['font_size'] * 0.8)}px;"
+        bar_style_desc = self.set_qss(
+            self.wcfg["font_color_caption"],
+            self.wcfg["bkg_color_caption"],
+            int(self.wcfg['font_size'] * 0.8)
         )
 
         # Create layout
@@ -73,8 +73,8 @@ class Realtime(Overlay):
             layout_twear = QGridLayout()
             layout_twear.setSpacing(0)
             self.bar_style_twear = (
-                self.qss_color(self.wcfg["font_color_remaining"], self.wcfg["bkg_color_remaining"]),
-                self.qss_color(self.wcfg["font_color_warning"], self.wcfg["bkg_color_remaining"])
+                self.set_qss(self.wcfg["font_color_remaining"], self.wcfg["bkg_color_remaining"]),
+                self.set_qss(self.wcfg["font_color_warning"], self.wcfg["bkg_color_remaining"])
             )
             self.bar_twear = self.gen_bar_set(4, self.bar_style_twear[0], bar_width, text_def)
             self.set_layout_quad(layout_twear, self.bar_twear)
@@ -89,8 +89,8 @@ class Realtime(Overlay):
             layout_tdiff = QGridLayout()
             layout_tdiff.setSpacing(0)
             self.bar_style_tdiff = (
-                self.qss_color(self.wcfg["font_color_wear_difference"], self.wcfg["bkg_color_wear_difference"]),
-                self.qss_color(self.wcfg["font_color_warning"], self.wcfg["bkg_color_wear_difference"])
+                self.set_qss(self.wcfg["font_color_wear_difference"], self.wcfg["bkg_color_wear_difference"]),
+                self.set_qss(self.wcfg["font_color_warning"], self.wcfg["bkg_color_wear_difference"])
             )
             self.bar_tdiff = self.gen_bar_set(4, self.bar_style_tdiff[0], bar_width, text_def)
             self.set_layout_quad(layout_tdiff, self.bar_tdiff)
@@ -105,8 +105,8 @@ class Realtime(Overlay):
             layout_tlaps = QGridLayout()
             layout_tlaps.setSpacing(0)
             self.bar_style_tlaps = (
-                self.qss_color(self.wcfg["font_color_lifespan_laps"], self.wcfg["bkg_color_lifespan_laps"]),
-                self.qss_color(self.wcfg["font_color_warning"], self.wcfg["bkg_color_lifespan_laps"])
+                self.set_qss(self.wcfg["font_color_lifespan_laps"], self.wcfg["bkg_color_lifespan_laps"]),
+                self.set_qss(self.wcfg["font_color_warning"], self.wcfg["bkg_color_lifespan_laps"])
             )
             self.bar_tlaps = self.gen_bar_set(4, self.bar_style_tlaps[0], bar_width, text_def)
             self.set_layout_quad(layout_tlaps, self.bar_tlaps)
@@ -121,8 +121,8 @@ class Realtime(Overlay):
             layout_tmins = QGridLayout()
             layout_tmins.setSpacing(0)
             self.bar_style_tmins = (
-                self.qss_color(self.wcfg["font_color_lifespan_minutes"], self.wcfg["bkg_color_lifespan_minutes"]),
-                self.qss_color(self.wcfg["font_color_warning"], self.wcfg["bkg_color_lifespan_minutes"])
+                self.set_qss(self.wcfg["font_color_lifespan_minutes"], self.wcfg["bkg_color_lifespan_minutes"]),
+                self.set_qss(self.wcfg["font_color_warning"], self.wcfg["bkg_color_lifespan_minutes"])
             )
             self.bar_tmins = self.gen_bar_set(4, self.bar_style_tmins[0], bar_width, text_def)
             self.set_layout_quad(layout_tmins, self.bar_tmins)
