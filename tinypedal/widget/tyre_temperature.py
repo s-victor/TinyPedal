@@ -51,7 +51,7 @@ class Realtime(Overlay):
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
         self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
 
-        text_width = 3 + len(self.sign_text) + int(self.cfg.units["temperature_unit"] == "Fahrenheit")
+        text_width = 3 + len(self.sign_text) + (self.cfg.units["temperature_unit"] == "Fahrenheit")
         bar_width_temp = font_m.width * text_width + bar_padx
         bar_width_caption = font_m.width + bar_padx
 
@@ -84,7 +84,7 @@ class Realtime(Overlay):
         if self.wcfg["show_tyre_compound"]:
             self.bar_tcmpd = self.gen_bar_set(2, bar_style_tcmpd, bar_width_caption, "-")
             self.set_layout_vert(layout_stemp, self.bar_tcmpd)
-        self.set_layout_orient(layout, layout_stemp, self.wcfg["column_index_surface"])
+        self.set_layout_orient(1, layout, layout_stemp, self.wcfg["column_index_surface"])
 
         # Tyre inner temperature
         if self.wcfg["show_innerlayer"]:
@@ -95,7 +95,7 @@ class Realtime(Overlay):
             if self.wcfg["show_tyre_compound"]:
                 bar_blank = self.gen_bar_set(2, bar_style_tcmpd, bar_width_caption, "")
                 self.set_layout_vert(layout_itemp, bar_blank)
-            self.set_layout_orient(layout, layout_itemp, self.wcfg["column_index_innerlayer"])
+            self.set_layout_orient(1, layout, layout_itemp, self.wcfg["column_index_innerlayer"])
 
         # Last data
         self.last_tcmpd = [None] * 2
@@ -249,13 +249,6 @@ class Realtime(Overlay):
         """
         for index in range(row_count):
             layout.addWidget(bar_set[index], index + 1, 4)
-
-    def set_layout_orient(self, layout_main, layout_sub, column_index):
-        """Set primary layout orientation"""
-        if self.wcfg["layout"] == 0:  # Vertical layout
-            layout_main.addLayout(layout_sub, column_index, 0)
-        else:  # Horizontal layout
-            layout_main.addLayout(layout_sub, 0, column_index)
 
     # Additional methods
     def format_temperature(self, value):

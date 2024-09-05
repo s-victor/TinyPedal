@@ -78,7 +78,7 @@ class Realtime(Overlay):
             if self.wcfg["show_caption"]:
                 self.gen_bar_caption(bar_style_desc, "camber", layout_camber)
 
-            self.set_layout_orient(layout, layout_camber, self.wcfg["column_index_camber"])
+            self.set_layout_orient(1, layout, layout_camber, self.wcfg["column_index_camber"])
 
         # Toe in
         if self.wcfg["show_toe_in"]:
@@ -92,7 +92,7 @@ class Realtime(Overlay):
             if self.wcfg["show_caption"]:
                 self.gen_bar_caption(bar_style_desc, "toe in", layout_toein)
 
-            self.set_layout_orient(layout, layout_toein, self.wcfg["column_index_toe_in"])
+            self.set_layout_orient(1, layout, layout_toein, self.wcfg["column_index_toe_in"])
 
         # Last data
         self.last_camber = [-1] * 4
@@ -152,13 +152,6 @@ class Realtime(Overlay):
         for idx in range(4):
             layout.addWidget(bar_set[idx], row_start + (idx > 1),
                 column_left + (idx % 2) * column_right)
-
-    def set_layout_orient(self, layout_main, layout_sub, column_index):
-        """Set primary layout orientation"""
-        if self.wcfg["layout"] == 0:  # Vertical layout
-            layout_main.addLayout(layout_sub, column_index, 0)
-        else:  # Horizontal layout
-            layout_main.addLayout(layout_sub, 0, column_index)
 
     # Additional methods
     @staticmethod

@@ -82,7 +82,7 @@ class Realtime(Overlay):
             if self.wcfg["show_caption"]:
                 self.gen_bar_caption(bar_style_desc, "tyre wear", layout_twear)
 
-            self.set_layout_orient(layout, layout_twear, self.wcfg["column_index_remaining"])
+            self.set_layout_orient(1, layout, layout_twear, self.wcfg["column_index_remaining"])
 
         # Tyre wear difference
         if self.wcfg["show_wear_difference"]:
@@ -98,7 +98,7 @@ class Realtime(Overlay):
             if self.wcfg["show_caption"]:
                 self.gen_bar_caption(bar_style_desc, "wear diff", layout_tdiff)
 
-            self.set_layout_orient(layout, layout_tdiff, self.wcfg["column_index_wear_difference"])
+            self.set_layout_orient(1, layout, layout_tdiff, self.wcfg["column_index_wear_difference"])
 
         # Estimated tyre lifespan in laps
         if self.wcfg["show_lifespan_laps"]:
@@ -114,7 +114,7 @@ class Realtime(Overlay):
             if self.wcfg["show_caption"]:
                 self.gen_bar_caption(bar_style_desc, "est. laps", layout_tlaps)
 
-            self.set_layout_orient(layout, layout_tlaps, self.wcfg["column_index_lifespan_laps"])
+            self.set_layout_orient(1, layout, layout_tlaps, self.wcfg["column_index_lifespan_laps"])
 
         # Estimated tyre lifespan in minutes
         if self.wcfg["show_lifespan_minutes"]:
@@ -130,7 +130,7 @@ class Realtime(Overlay):
             if self.wcfg["show_caption"]:
                 self.gen_bar_caption(bar_style_desc, "est. mins", layout_tmins)
 
-            self.set_layout_orient(layout, layout_tmins, self.wcfg["column_index_lifespan_minutes"])
+            self.set_layout_orient(1, layout, layout_tmins, self.wcfg["column_index_lifespan_minutes"])
 
         # Last data
         self.checked = False
@@ -270,13 +270,6 @@ class Realtime(Overlay):
         for idx in range(4):
             layout.addWidget(bar_set[idx], row_start + (idx > 1),
                 column_left + (idx % 2) * column_right)
-
-    def set_layout_orient(self, layout_main, layout_sub, column_index):
-        """Set primary layout orientation"""
-        if self.wcfg["layout"] == 0:  # Vertical layout
-            layout_main.addLayout(layout_sub, column_index, 0)
-        else:  # Horizontal layout
-            layout_main.addLayout(layout_sub, 0, column_index)
 
     # Additional methods
     @staticmethod

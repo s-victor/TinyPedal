@@ -233,6 +233,27 @@ class Overlay(QWidget):
             return f"background:{bg};"
         return f"color:{fg};background:{bg};"
 
+    def set_layout_orient(
+        self, target_type: int, layout_main: object, target: object, column_index: int):
+        """Set widget or layout orientation in vertical or horizontal
+
+        Args:
+            target_type: 0 (widget), 1 (layout).
+            layout_main: primary layout.
+            target: widget or layout.
+            column_index: column index.
+        """
+        if self.wcfg["layout"] == 0:  # Vertical layout
+            if target_type == 1:
+                layout_main.addLayout(target, column_index, 0)
+            else:
+                layout_main.addWidget(target, column_index, 0)
+        else:  # Horizontal layout
+            if target_type == 1:
+                layout_main.addLayout(target, 0, column_index)
+            else:
+                layout_main.addWidget(target, 0, column_index)
+
     def unload_resource(self):
         """Unload resource (such as images) on close, can re-implement in widget"""
         instance_var_list = dir(self)
