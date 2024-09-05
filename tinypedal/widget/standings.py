@@ -148,8 +148,8 @@ class Realtime(Overlay):
         # Brand logo
         if self.wcfg["show_brand_logo"]:
             self.bar_style_brd = (
-                f"background: {self.wcfg['bkg_color_brand_logo']};",
-                f"background: {self.wcfg['bkg_color_player_brand_logo']};"
+                self.qss_color(bg=self.wcfg["bkg_color_brand_logo"]),
+                self.qss_color(bg=self.wcfg["bkg_color_player_brand_logo"])
             )
             self.generate_bar(
                 "brd", self.bar_style_brd[0], self.wcfg["column_index_brand_logo"],

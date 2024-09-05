@@ -225,9 +225,13 @@ class Overlay(QWidget):
         return Qt.AlignCenter
 
     @staticmethod
-    def qss_color(fg_color, bg_color):
+    def qss_color(fg: str = "", bg: str = "") -> str:
         """Set QSS foreground & background color"""
-        return f"color:{fg_color};background:{bg_color};"
+        if fg and not bg:
+            return f"color:{fg};"
+        if bg and not fg:
+            return f"background:{bg};"
+        return f"color:{fg};background:{bg};"
 
     def unload_resource(self):
         """Unload resource (such as images) on close, can re-implement in widget"""
