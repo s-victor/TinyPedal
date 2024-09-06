@@ -276,10 +276,13 @@ def create_reference_place(min_top_veh: int, veh_total: int, plr_place: int, veh
     rear_cut_count = (max_cut_range - 1) // 2  # exclude player slot, then floor divide
     front_cut_count = max_cut_range - rear_cut_count  # include player slot
     # Find front slice limit
-    front_cut_raw = max(plr_place - front_cut_count, min_top_veh)
-    rear_cut_raw = front_cut_raw + max_cut_range
+    front_cut_raw = plr_place - front_cut_count
+    if front_cut_raw < min_top_veh:
+        front_cut_raw = min_top_veh
     # Find rear slice limit
-    rear_cut_max = min(rear_cut_raw, veh_total)
+    rear_cut_max = front_cut_raw + max_cut_range
+    if rear_cut_max > veh_total:
+        rear_cut_max = veh_total
     front_cut_max = rear_cut_max - max_cut_range
     return ALL_PLACES[:min_top_veh] + ALL_PLACES[front_cut_max:rear_cut_max]
 

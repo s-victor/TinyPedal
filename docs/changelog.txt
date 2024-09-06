@@ -5,6 +5,10 @@ WIP
   - Fixed an issue where some vehicle info is missing while importing from LMU Rest API.
     Make sure to import again to update all vehicle brand info from LMU.
 
+* Brake bias Widget
+  - Add "layout" option, which sets display orientation.
+    Default is horizontal. Set "0" to show vertically.
+
 * Tyre wear Widget
   - Now uses laptime pace for calculating "tyre lifespan in minutes".
 

@@ -50,8 +50,6 @@ class Realtime(Overlay):
         self.prefix_migt = self.wcfg["prefix_brake_migration"]
         self.suffix_migt = self.wcfg["suffix_brake_migration"]
         self.sign_text = "%" if self.wcfg["show_percentage_sign"] else ""
-        text_default_bias = self.format_brake_bias(50)
-        text_default_migt = self.format_brake_migt(0)
 
         # Base style
         self.setStyleSheet(
@@ -65,34 +63,34 @@ class Realtime(Overlay):
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_bb = self.wcfg["column_index_brake_bias"]
-        column_bm = self.wcfg["column_index_brake_migration"]
+        self.setLayout(layout)
 
         # Brake bias
-        self.bar_bbias = QLabel(text_default_bias)
+        text_def_bbias = self.format_brake_bias(50)
+        self.bar_bbias = QLabel(text_def_bbias)
         self.bar_bbias.setAlignment(Qt.AlignCenter)
+        self.bar_bbias.setMinimumWidth(font_m.width * len(text_def_bbias) + bar_padx)
         self.bar_bbias.setStyleSheet(
-            f"color: {self.wcfg['font_color_brake_bias']};"
-            f"background: {self.wcfg['bkg_color_brake_bias']};"
-            f"min-width: {font_m.width * len(text_default_bias) + bar_padx}px;"
+            self.set_qss(
+                self.wcfg["font_color_brake_bias"],
+                self.wcfg["bkg_color_brake_bias"])
         )
+        self.set_layout_orient(
+            0, layout, self.bar_bbias, self.wcfg["column_index_brake_bias"])
 
         # Brake migration
         if self.wcfg["show_brake_migration"]:
-            self.bar_bmigt = QLabel(text_default_migt)
+            text_def_bmigt = self.format_brake_migt(0)
+            self.bar_bmigt = QLabel(text_def_bmigt)
             self.bar_bmigt.setAlignment(Qt.AlignCenter)
+            self.bar_bmigt.setMinimumWidth(font_m.width * len(text_def_bmigt) + bar_padx)
             self.bar_bmigt.setStyleSheet(
-                f"color: {self.wcfg['font_color_brake_migration']};"
-                f"background: {self.wcfg['bkg_color_brake_migration']};"
-                f"min-width: {font_m.width * len(text_default_migt) + bar_padx}px;"
+                self.set_qss(
+                    self.wcfg["font_color_brake_migration"],
+                    self.wcfg["bkg_color_brake_migration"])
             )
-
-        # Set layout
-        layout.addWidget(self.bar_bbias, 0, column_bb)
-        if self.wcfg["show_brake_migration"]:
-            layout.addWidget(self.bar_bmigt, 0, column_bm)
-        self.setLayout(layout)
+            self.set_layout_orient(
+                0, layout, self.bar_bmigt, self.wcfg["column_index_brake_migration"])
 
         # Last data
         self.checked = False
@@ -100,7 +98,8 @@ class Realtime(Overlay):
         self.last_bmigt = None
         self.bpres_max = 0
         self.bpres_scale = 1
-        self.ebrake_alloc = self.wcfg["electric_braking_allocation"]  # -1 = auto detect, 0 = front, 1 = rear
+        # -1 = auto detect, 0 = front, 1 = rear
+        self.ebrake_alloc = self.wcfg["electric_braking_allocation"]
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -171,9 +170,10 @@ class Realtime(Overlay):
     # Additional methods
     def format_brake_bias(self, value):
         """Format brake bias"""
+        front = f"{self.prefix_bias}{value:02.{self.decimals_bias}f}"
         if self.wcfg["show_front_and_rear"]:
-            return f"{self.prefix_bias}{value:02.{self.decimals_bias}f}:{100 - value:02.{self.decimals_bias}f}"
-        return f"{self.prefix_bias}{value:02.{self.decimals_bias}f}{self.sign_text}"
+            return f"{front}:{100 - value:02.{self.decimals_bias}f}"
+        return f"{front}{self.sign_text}"
 
     def format_brake_migt(self, value):
         """Format brake migration"""

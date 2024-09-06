@@ -60,6 +60,7 @@ WIDGET_DEFAULT = {
         "position_x": 593,
         "position_y": 292,
         "opacity": 0.9,
+        "layout": 1,
         "font_name": "Consolas",
         "font_size": 15,
         "font_weight": "bold",
