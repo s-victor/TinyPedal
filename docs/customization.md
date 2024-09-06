@@ -725,6 +725,9 @@ Show elevation difference in game's coordinate system.
     show_odometer
 Show odometer that displays total driven distance of local player. 
 
+    odometer_maximum_digits
+Set maximum number of display digits.
+
     meters_driven
 This value holds the total distance(meters) that local player has driven. Accept manual editing.
 

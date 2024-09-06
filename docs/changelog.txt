@@ -9,6 +9,11 @@ WIP
   - Add "layout" option, which sets display orientation.
     Default is horizontal. Set "0" to show vertically.
 
+* Cruise Widget
+  - Add "layout" option, which sets display orientation.
+    Default is horizontal. Set "0" to show vertically.
+  - Add "odometer_maximum_digits" option, which sets maximum number of display digits.
+
 * Tyre wear Widget
   - Now uses laptime pace for calculating "tyre lifespan in minutes".
 
