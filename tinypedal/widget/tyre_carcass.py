@@ -71,11 +71,17 @@ class Realtime(Overlay):
             f"font-weight: {self.wcfg['font_weight']};"
         )
         bar_style_tcmpd = self.set_qss(
-            self.wcfg["font_color_tyre_compound"], self.wcfg["bkg_color_tyre_compound"])
+            self.wcfg["font_color_tyre_compound"],
+            self.wcfg["bkg_color_tyre_compound"]
+        )
         bar_style_ctemp = self.set_qss(
-            self.wcfg["font_color_carcass"], self.wcfg["bkg_color_carcass"])
+            self.wcfg["font_color_carcass"],
+            self.wcfg["bkg_color_carcass"]
+        )
         bar_style_rtemp = self.set_qss(
-            self.wcfg["font_color_rate_of_change"], self.wcfg["bkg_color_rate_of_change"])
+            self.wcfg["font_color_rate_of_change"],
+            self.wcfg["bkg_color_rate_of_change"]
+        )
 
         # Create layout
         layout = QGridLayout()
@@ -92,7 +98,8 @@ class Realtime(Overlay):
         if self.wcfg["show_tyre_compound"]:
             self.bar_tcmpd = self.gen_bar_set(2, bar_style_tcmpd, bar_width_caption, "-")
             self.set_layout_vert(layout_ctemp, self.bar_tcmpd)
-        self.set_layout_orient(1, layout, layout_ctemp, self.wcfg["column_index_carcass"])
+        self.set_layout_orient(
+            1, layout, layout_ctemp, self.wcfg["column_index_carcass"])
 
         # Rate of change
         if self.wcfg["show_rate_of_change"]:
@@ -103,7 +110,8 @@ class Realtime(Overlay):
             if self.wcfg["show_tyre_compound"]:
                 bar_blank = self.gen_bar_set(2, bar_style_tcmpd, bar_width_caption, "")
                 self.set_layout_vert(layout_rtemp, bar_blank)
-            self.set_layout_orient(1, layout, layout_rtemp, self.wcfg["column_index_rate_of_change"])
+            self.set_layout_orient(
+                1, layout, layout_rtemp, self.wcfg["column_index_rate_of_change"])
 
         # Last data
         self.last_tcmpd = [None] * 2

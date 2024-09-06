@@ -63,11 +63,17 @@ class Realtime(Overlay):
             f"font-weight: {self.wcfg['font_weight']};"
         )
         bar_style_tcmpd = self.set_qss(
-            self.wcfg["font_color_tyre_compound"], self.wcfg["bkg_color_tyre_compound"])
+            self.wcfg["font_color_tyre_compound"],
+            self.wcfg["bkg_color_tyre_compound"]
+        )
         bar_style_stemp = self.set_qss(
-            self.wcfg["font_color_surface"], self.wcfg["bkg_color_surface"])
+            self.wcfg["font_color_surface"],
+            self.wcfg["bkg_color_surface"]
+        )
         bar_style_itemp = self.set_qss(
-            self.wcfg["font_color_innerlayer"], self.wcfg["bkg_color_innerlayer"])
+            self.wcfg["font_color_innerlayer"],
+            self.wcfg["bkg_color_innerlayer"]
+        )
 
         # Create layout
         layout = QGridLayout()
@@ -84,7 +90,8 @@ class Realtime(Overlay):
         if self.wcfg["show_tyre_compound"]:
             self.bar_tcmpd = self.gen_bar_set(2, bar_style_tcmpd, bar_width_caption, "-")
             self.set_layout_vert(layout_stemp, self.bar_tcmpd)
-        self.set_layout_orient(1, layout, layout_stemp, self.wcfg["column_index_surface"])
+        self.set_layout_orient(
+            1, layout, layout_stemp, self.wcfg["column_index_surface"])
 
         # Tyre inner temperature
         if self.wcfg["show_innerlayer"]:
@@ -95,7 +102,8 @@ class Realtime(Overlay):
             if self.wcfg["show_tyre_compound"]:
                 bar_blank = self.gen_bar_set(2, bar_style_tcmpd, bar_width_caption, "")
                 self.set_layout_vert(layout_itemp, bar_blank)
-            self.set_layout_orient(1, layout, layout_itemp, self.wcfg["column_index_innerlayer"])
+            self.set_layout_orient(
+                1, layout, layout_itemp, self.wcfg["column_index_innerlayer"])
 
         # Last data
         self.last_tcmpd = [None] * 2

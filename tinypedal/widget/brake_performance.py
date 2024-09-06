@@ -44,14 +44,13 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        bar_width = f"min-width: {font_m.width * 5 + bar_padx}px;"
+        bar_width = font_m.width * 5 + bar_padx
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"{bar_width}"
         )
 
         # Create layout
@@ -59,84 +58,84 @@ class Realtime(Overlay):
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_tbr = self.wcfg["column_index_transient_max_braking_rate"]
-        column_mbr = self.wcfg["column_index_max_braking_rate"]
-        column_dbr = self.wcfg["column_index_delta_braking_rate"]
-        column_fwl = self.wcfg["column_index_front_wheel_lock_duration"]
-        column_rwl = self.wcfg["column_index_rear_wheel_lock_duration"]
+        self.setLayout(layout)
 
         # Transient max braking rate
         if self.wcfg["show_transient_max_braking_rate"]:
-            self.bar_transient_rate = QLabel("0.00g")
-            self.bar_transient_rate.setAlignment(Qt.AlignCenter)
-            self.bar_transient_rate.setStyleSheet(
-                f"color: {self.wcfg['font_color_transient_max_braking_rate']};"
-                f"background: {self.wcfg['bkg_color_transient_max_braking_rate']};"
+            self.bar_trans_rate = QLabel("0.00g")
+            self.bar_trans_rate.setAlignment(Qt.AlignCenter)
+            self.bar_trans_rate.setMinimumWidth(bar_width)
+            self.bar_trans_rate.setStyleSheet(
+                self.set_qss(
+                    self.wcfg["font_color_transient_max_braking_rate"],
+                    self.wcfg["bkg_color_transient_max_braking_rate"])
             )
+            self.set_layout_orient(
+                0, layout, self.bar_trans_rate,
+                self.wcfg["column_index_transient_max_braking_rate"])
 
         # Max braking rate
         if self.wcfg["show_max_braking_rate"]:
             self.bar_max_rate = QLabel("0.00g")
             self.bar_max_rate.setAlignment(Qt.AlignCenter)
+            self.bar_max_rate.setMinimumWidth(bar_width)
             self.bar_max_rate.setStyleSheet(
-                f"color: {self.wcfg['font_color_max_braking_rate']};"
-                f"background: {self.wcfg['bkg_color_max_braking_rate']};"
+                self.set_qss(
+                    self.wcfg["font_color_max_braking_rate"],
+                    self.wcfg["bkg_color_max_braking_rate"])
             )
+            self.set_layout_orient(
+                0, layout, self.bar_max_rate,
+                self.wcfg["column_index_max_braking_rate"])
 
         # Delta braking rate
         if self.wcfg["show_delta_braking_rate"]:
+            self.bar_style_delta_rate = (
+                self.set_qss(
+                    self.wcfg["font_color_delta_braking_rate"],
+                    self.wcfg["bkg_color_delta_braking_rate"]),
+                self.set_qss(
+                    self.wcfg["font_color_delta_braking_rate"],
+                    self.wcfg["bkg_color_braking_rate_gain"]),
+                self.set_qss(
+                    self.wcfg["font_color_delta_braking_rate"],
+                    self.wcfg["bkg_color_braking_rate_loss"])
+            )
             self.bar_delta_rate = QLabel("+0.00")
             self.bar_delta_rate.setAlignment(Qt.AlignCenter)
-            self.bar_delta_rate.setStyleSheet(
-                f"color: {self.wcfg['font_color_delta_braking_rate']};"
-                f"background: {self.wcfg['bkg_color_delta_braking_rate']};"
-            )
+            self.bar_delta_rate.setMinimumWidth(bar_width)
+            self.bar_delta_rate.setStyleSheet(self.bar_style_delta_rate[0])
+            self.set_layout_orient(
+                0, layout, self.bar_delta_rate,
+                self.wcfg["column_index_delta_braking_rate"])
 
         # Front wheel lock duration
         if self.wcfg["show_front_wheel_lock_duration"]:
-            self.bar_lock_time_f = QLabel("F 0.0")
-            self.bar_lock_time_f.setAlignment(Qt.AlignCenter)
-            self.bar_lock_time_f.setStyleSheet(
-                f"color: {self.wcfg['font_color_front_wheel_lock_duration']};"
-                f"background: {self.wcfg['bkg_color_front_wheel_lock_duration']};"
+            self.bar_lock_f = QLabel("F 0.0")
+            self.bar_lock_f.setAlignment(Qt.AlignCenter)
+            self.bar_lock_f.setMinimumWidth(bar_width)
+            self.bar_lock_f.setStyleSheet(
+                self.set_qss(
+                    self.wcfg["font_color_front_wheel_lock_duration"],
+                    self.wcfg["bkg_color_front_wheel_lock_duration"])
             )
+            self.set_layout_orient(
+                0, layout, self.bar_lock_f,
+                self.wcfg["column_index_front_wheel_lock_duration"])
 
         # Front wheel lock duration
         if self.wcfg["show_rear_wheel_lock_duration"]:
-            self.bar_lock_time_r = QLabel("R 0.0")
-            self.bar_lock_time_r.setAlignment(Qt.AlignCenter)
-            self.bar_lock_time_r.setStyleSheet(
-                f"color: {self.wcfg['font_color_rear_wheel_lock_duration']};"
-                f"background: {self.wcfg['bkg_color_rear_wheel_lock_duration']};"
+            self.bar_lock_r = QLabel("R 0.0")
+            self.bar_lock_r.setAlignment(Qt.AlignCenter)
+            self.bar_lock_r.setMinimumWidth(bar_width)
+            self.bar_lock_r.setStyleSheet(
+                self.set_qss(
+                    self.wcfg["font_color_rear_wheel_lock_duration"],
+                    self.wcfg["bkg_color_rear_wheel_lock_duration"])
             )
-
-        # Set layout
-        if self.wcfg["layout"] == 0:
-            # Vertical layout
-            if self.wcfg["show_transient_max_braking_rate"]:
-                layout.addWidget(self.bar_transient_rate, column_tbr, 0)
-            if self.wcfg["show_max_braking_rate"]:
-                layout.addWidget(self.bar_max_rate, column_mbr, 0)
-            if self.wcfg["show_delta_braking_rate"]:
-                layout.addWidget(self.bar_delta_rate, column_dbr, 0)
-            if self.wcfg["show_front_wheel_lock_duration"]:
-                layout.addWidget(self.bar_lock_time_f, column_fwl, 0)
-            if self.wcfg["show_rear_wheel_lock_duration"]:
-                layout.addWidget(self.bar_lock_time_r, column_rwl, 0)
-        else:
-            # Horizontal layout
-            if self.wcfg["show_transient_max_braking_rate"]:
-                layout.addWidget(self.bar_transient_rate, 0, column_tbr)
-            if self.wcfg["show_max_braking_rate"]:
-                layout.addWidget(self.bar_max_rate, 0, column_mbr)
-            if self.wcfg["show_delta_braking_rate"]:
-                layout.addWidget(self.bar_delta_rate, 0, column_dbr)
-            if self.wcfg["show_front_wheel_lock_duration"]:
-                layout.addWidget(self.bar_lock_time_f, 0, column_fwl)
-            if self.wcfg["show_rear_wheel_lock_duration"]:
-                layout.addWidget(self.bar_lock_time_r, 0, column_rwl)
-        self.setLayout(layout)
+            self.set_layout_orient(
+                0, layout, self.bar_lock_r,
+                self.wcfg["column_index_rear_wheel_lock_duration"])
 
         # Last data
         self.last_transient_rate = 0
@@ -177,7 +176,7 @@ class Realtime(Overlay):
                 lap_stime = api.read.timing.start()
                 lap_etime = api.read.timing.elapsed()
 
-                if lap_stime != self.last_lap_stime:
+                if lap_stime != self.last_lap_stime:  # reset on new lap
                     self.last_lap_stime = lap_stime
                     self.reset_lock_duration = True  # trigger reset on next braking
 
@@ -206,43 +205,41 @@ class Realtime(Overlay):
     def update_transient_rate(self, curr, last):
         """Transient max braking rate"""
         if curr != last:
-            format_text = f"{curr:.2f}"[:4]
-            self.bar_transient_rate.setText(f"{format_text}g")
+            self.bar_trans_rate.setText(f"{curr: >4.2f}g"[:5])
 
     def update_max_rate(self, curr, last):
         """Max braking rate"""
         if curr != last:
-            format_text = f"{curr:.2f}"[:4]
-            self.bar_max_rate.setText(f"{format_text}g")
+            self.bar_max_rate.setText(f"{curr: >4.2f}g"[:5])
 
     def update_delta_rate(self, curr, last):
         """Delta braking rate"""
         if curr != last:
             if curr > 0:
-                color = (f"color: {self.wcfg['font_color_delta_braking_rate']};"
-                         f"background: {self.wcfg['bkg_color_braking_rate_gain']};")
+                color = 1
             elif curr < 0:
-                color = (f"color: {self.wcfg['font_color_delta_braking_rate']};"
-                         f"background: {self.wcfg['bkg_color_braking_rate_loss']};")
+                color = 2
             else:
-                color = (f"color: {self.wcfg['font_color_delta_braking_rate']};"
-                         f"background: {self.wcfg['bkg_color_delta_braking_rate']};")
+                color = 0
 
-            if self.wcfg["show_delta_braking_rate_in_percentage"] and minfo.force.maxBrakingRate:
-                format_text = f"{curr / minfo.force.maxBrakingRate:+.0%}"
+            if self.wcfg["show_delta_braking_rate_in_percentage"]:
+                if minfo.force.maxBrakingRate:
+                    format_text = f"{curr / minfo.force.maxBrakingRate:+.0%}"[:5]
+                else:
+                    format_text = "+0%"
             else:
-                format_text = f"{curr:+.2f}"
-            self.bar_delta_rate.setText(format_text[:5])
-            self.bar_delta_rate.setStyleSheet(color)
+                format_text = f"{curr:+.2f}"[:5]
+            self.bar_delta_rate.setText(format_text)
+            self.bar_delta_rate.setStyleSheet(self.bar_style_delta_rate[color])
 
     def update_lock_time_f(self, curr, last):
         """Front wheel lock duration"""
         if curr != last:
             format_text = f"{curr:.1f}"[:3].strip(".").rjust(3)
-            self.bar_lock_time_f.setText(f"F {format_text}")
+            self.bar_lock_f.setText(f"F {format_text}")
 
     def update_lock_time_r(self, curr, last):
         """Rear wheel lock duration"""
         if curr != last:
             format_text = f"{curr:.1f}"[:3].strip(".").rjust(3)
-            self.bar_lock_time_r.setText(f"R {format_text}")
+            self.bar_lock_r.setText(f"R {format_text}")

@@ -71,28 +71,34 @@ class Realtime(Overlay):
             layout_camber = QGridLayout()
             layout_camber.setSpacing(0)
             bar_style_camber = self.set_qss(
-                self.wcfg["font_color_camber"], self.wcfg["bkg_color_camber"])
+                self.wcfg["font_color_camber"],
+                self.wcfg["bkg_color_camber"]
+            )
             self.bar_camber = self.gen_bar_set(4, bar_style_camber, bar_width, text_def)
             self.set_layout_quad(layout_camber, self.bar_camber)
 
             if self.wcfg["show_caption"]:
                 self.gen_bar_caption(bar_style_desc, "camber", layout_camber)
 
-            self.set_layout_orient(1, layout, layout_camber, self.wcfg["column_index_camber"])
+            self.set_layout_orient(
+                1, layout, layout_camber, self.wcfg["column_index_camber"])
 
         # Toe in
         if self.wcfg["show_toe_in"]:
             layout_toein = QGridLayout()
             layout_toein.setSpacing(0)
             bar_style_toein = self.set_qss(
-                self.wcfg["font_color_toe_in"], self.wcfg["bkg_color_toe_in"])
+                self.wcfg["font_color_toe_in"],
+                self.wcfg["bkg_color_toe_in"]
+            )
             self.bar_toein = self.gen_bar_set(4, bar_style_toein, bar_width, text_def)
             self.set_layout_quad(layout_toein, self.bar_toein)
 
             if self.wcfg["show_caption"]:
                 self.gen_bar_caption(bar_style_desc, "toe in", layout_toein)
 
-            self.set_layout_orient(1, layout, layout_toein, self.wcfg["column_index_toe_in"])
+            self.set_layout_orient(
+                1, layout, layout_toein, self.wcfg["column_index_toe_in"])
 
         # Last data
         self.last_camber = [-1] * 4

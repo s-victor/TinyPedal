@@ -73,8 +73,12 @@ class Realtime(Overlay):
             layout_twear = QGridLayout()
             layout_twear.setSpacing(0)
             self.bar_style_twear = (
-                self.set_qss(self.wcfg["font_color_remaining"], self.wcfg["bkg_color_remaining"]),
-                self.set_qss(self.wcfg["font_color_warning"], self.wcfg["bkg_color_remaining"])
+                self.set_qss(
+                    self.wcfg["font_color_remaining"],
+                    self.wcfg["bkg_color_remaining"]),
+                self.set_qss(
+                    self.wcfg["font_color_warning"],
+                    self.wcfg["bkg_color_remaining"])
             )
             self.bar_twear = self.gen_bar_set(4, self.bar_style_twear[0], bar_width, text_def)
             self.set_layout_quad(layout_twear, self.bar_twear)
@@ -82,15 +86,20 @@ class Realtime(Overlay):
             if self.wcfg["show_caption"]:
                 self.gen_bar_caption(bar_style_desc, "tyre wear", layout_twear)
 
-            self.set_layout_orient(1, layout, layout_twear, self.wcfg["column_index_remaining"])
+            self.set_layout_orient(
+                1, layout, layout_twear, self.wcfg["column_index_remaining"])
 
         # Tyre wear difference
         if self.wcfg["show_wear_difference"]:
             layout_tdiff = QGridLayout()
             layout_tdiff.setSpacing(0)
             self.bar_style_tdiff = (
-                self.set_qss(self.wcfg["font_color_wear_difference"], self.wcfg["bkg_color_wear_difference"]),
-                self.set_qss(self.wcfg["font_color_warning"], self.wcfg["bkg_color_wear_difference"])
+                self.set_qss(
+                    self.wcfg["font_color_wear_difference"],
+                    self.wcfg["bkg_color_wear_difference"]),
+                self.set_qss(
+                    self.wcfg["font_color_warning"],
+                    self.wcfg["bkg_color_wear_difference"])
             )
             self.bar_tdiff = self.gen_bar_set(4, self.bar_style_tdiff[0], bar_width, text_def)
             self.set_layout_quad(layout_tdiff, self.bar_tdiff)
@@ -98,15 +107,20 @@ class Realtime(Overlay):
             if self.wcfg["show_caption"]:
                 self.gen_bar_caption(bar_style_desc, "wear diff", layout_tdiff)
 
-            self.set_layout_orient(1, layout, layout_tdiff, self.wcfg["column_index_wear_difference"])
+            self.set_layout_orient(
+                1, layout, layout_tdiff, self.wcfg["column_index_wear_difference"])
 
         # Estimated tyre lifespan in laps
         if self.wcfg["show_lifespan_laps"]:
             layout_tlaps = QGridLayout()
             layout_tlaps.setSpacing(0)
             self.bar_style_tlaps = (
-                self.set_qss(self.wcfg["font_color_lifespan_laps"], self.wcfg["bkg_color_lifespan_laps"]),
-                self.set_qss(self.wcfg["font_color_warning"], self.wcfg["bkg_color_lifespan_laps"])
+                self.set_qss(
+                    self.wcfg["font_color_lifespan_laps"],
+                    self.wcfg["bkg_color_lifespan_laps"]),
+                self.set_qss(
+                    self.wcfg["font_color_warning"],
+                    self.wcfg["bkg_color_lifespan_laps"])
             )
             self.bar_tlaps = self.gen_bar_set(4, self.bar_style_tlaps[0], bar_width, text_def)
             self.set_layout_quad(layout_tlaps, self.bar_tlaps)
@@ -114,15 +128,20 @@ class Realtime(Overlay):
             if self.wcfg["show_caption"]:
                 self.gen_bar_caption(bar_style_desc, "est. laps", layout_tlaps)
 
-            self.set_layout_orient(1, layout, layout_tlaps, self.wcfg["column_index_lifespan_laps"])
+            self.set_layout_orient(
+                1, layout, layout_tlaps, self.wcfg["column_index_lifespan_laps"])
 
         # Estimated tyre lifespan in minutes
         if self.wcfg["show_lifespan_minutes"]:
             layout_tmins = QGridLayout()
             layout_tmins.setSpacing(0)
             self.bar_style_tmins = (
-                self.set_qss(self.wcfg["font_color_lifespan_minutes"], self.wcfg["bkg_color_lifespan_minutes"]),
-                self.set_qss(self.wcfg["font_color_warning"], self.wcfg["bkg_color_lifespan_minutes"])
+                self.set_qss(
+                    self.wcfg["font_color_lifespan_minutes"],
+                    self.wcfg["bkg_color_lifespan_minutes"]),
+                self.set_qss(
+                    self.wcfg["font_color_warning"],
+                    self.wcfg["bkg_color_lifespan_minutes"])
             )
             self.bar_tmins = self.gen_bar_set(4, self.bar_style_tmins[0], bar_width, text_def)
             self.set_layout_quad(layout_tmins, self.bar_tmins)
@@ -130,7 +149,8 @@ class Realtime(Overlay):
             if self.wcfg["show_caption"]:
                 self.gen_bar_caption(bar_style_desc, "est. mins", layout_tmins)
 
-            self.set_layout_orient(1, layout, layout_tmins, self.wcfg["column_index_lifespan_minutes"])
+            self.set_layout_orient(
+                1, layout, layout_tmins, self.wcfg["column_index_lifespan_minutes"])
 
         # Last data
         self.checked = False

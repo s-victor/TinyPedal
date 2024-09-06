@@ -71,8 +71,9 @@ class Realtime(Overlay):
         layout_tpres.setSpacing(0)
         layout.addLayout(layout_tpres, 0, 0)
         bar_style_tpres = self.set_qss(
-            self.wcfg["font_color_tyre_pressure"], self.wcfg["bkg_color_tyre_pressure"])
-
+            self.wcfg["font_color_tyre_pressure"],
+            self.wcfg["bkg_color_tyre_pressure"]
+        )
         self.bar_tpres = self.gen_bar_set(4, bar_style_tpres, bar_width, text_def)
         self.set_layout_quad(layout_tpres, self.bar_tpres)
 

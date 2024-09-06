@@ -78,7 +78,8 @@ class Realtime(Overlay):
         )
         self.bar_btemp = self.gen_bar_set(4, bar_style_btemp, bar_width_temp, text_def)
         self.set_layout_quad(layout_btemp, self.bar_btemp)
-        self.set_layout_orient(1, layout, layout_btemp, self.wcfg["column_index_temperature"])
+        self.set_layout_orient(
+            1, layout, layout_btemp, self.wcfg["column_index_temperature"])
 
         # Average brake temperature
         if self.wcfg["show_average"]:
@@ -94,7 +95,8 @@ class Realtime(Overlay):
             )
             self.bar_btavg = self.gen_bar_set(4, self.bar_style_btavg[0], bar_width_temp, text_def)
             self.set_layout_quad(layout_btavg, self.bar_btavg)
-            self.set_layout_orient(1, layout, layout_btavg, self.wcfg["column_index_average"])
+            self.set_layout_orient(
+                1, layout, layout_btavg, self.wcfg["column_index_average"])
 
         # Last data
         self.checked = False
