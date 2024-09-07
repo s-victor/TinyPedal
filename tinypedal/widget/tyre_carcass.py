@@ -55,8 +55,8 @@ class Realtime(Overlay):
         self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
 
         text_width = 3 + len(self.sign_text) + (self.cfg.units["temperature_unit"] == "Fahrenheit")
-        bar_width_temp = font_m.width * text_width + bar_padx
-        bar_width_caption = font_m.width + bar_padx
+        bar_width_ttemp = font_m.width * text_width + bar_padx
+        bar_width_tcmpd = font_m.width + bar_padx
 
         max_samples = int(
             min(max(self.wcfg["rate_of_change_interval"], 1), 60)
@@ -96,20 +96,23 @@ class Realtime(Overlay):
         self.bar_ctemp = self.set_qlabel(
             text=text_def,
             style=bar_style_ctemp,
-            width=bar_width_temp,
+            width=bar_width_ttemp,
             count=4,
         )
         self.set_layout_quad(layout_ctemp, self.bar_ctemp)
+        self.set_primary_orient(
+            target=layout_ctemp,
+            column=self.wcfg["column_index_carcass"],
+        )
+
         if self.wcfg["show_tyre_compound"]:
             self.bar_tcmpd = self.set_qlabel(
                 text="-",
                 style=bar_style_tcmpd,
-                width=bar_width_caption,
+                width=bar_width_tcmpd,
                 count=2,
             )
             self.set_layout_vert(layout_ctemp, self.bar_tcmpd)
-        self.set_layout_orient(
-            layout, layout_ctemp, self.wcfg["column_index_carcass"])
 
         # Rate of change
         if self.wcfg["show_rate_of_change"]:
@@ -118,20 +121,23 @@ class Realtime(Overlay):
             self.bar_rtemp = self.set_qlabel(
                 text=text_def,
                 style=bar_style_rtemp,
-                width=bar_width_temp,
+                width=bar_width_ttemp,
                 count=4,
             )
             self.set_layout_quad(layout_rtemp, self.bar_rtemp)
+            self.set_primary_orient(
+                target=layout_rtemp,
+                column=self.wcfg["column_index_rate_of_change"],
+            )
+
             if self.wcfg["show_tyre_compound"]:
                 bar_blank = self.set_qlabel(
                     text="",
                     style=bar_style_tcmpd,
-                    width=bar_width_caption,
+                    width=bar_width_tcmpd,
                     count=2,
                 )
                 self.set_layout_vert(layout_rtemp, bar_blank)
-            self.set_layout_orient(
-                layout, layout_rtemp, self.wcfg["column_index_rate_of_change"])
 
         # Last data
         self.last_tcmpd = [None] * 2

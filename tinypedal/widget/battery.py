@@ -75,8 +75,10 @@ class Realtime(Overlay):
                 style=self.bar_style_charge[0],
                 width=bar_width,
             )
-            self.set_layout_orient(
-                layout, self.bar_charge, self.wcfg["column_index_battery_charge"])
+            self.set_primary_orient(
+                target=self.bar_charge,
+                column=self.wcfg["column_index_battery_charge"],
+            )
 
         # Battery drain
         if self.wcfg["show_battery_drain"]:
@@ -89,8 +91,10 @@ class Realtime(Overlay):
                 style=bar_style_drain,
                 width=bar_width,
             )
-            self.set_layout_orient(
-                layout, self.bar_drain, self.wcfg["column_index_battery_drain"])
+            self.set_primary_orient(
+                target=self.bar_drain,
+                column=self.wcfg["column_index_battery_drain"],
+            )
 
         # Battery regen
         if self.wcfg["show_battery_regen"]:
@@ -103,8 +107,10 @@ class Realtime(Overlay):
                 style=bar_style_regen,
                 width=bar_width,
             )
-            self.set_layout_orient(
-                layout, self.bar_regen, self.wcfg["column_index_battery_regen"])
+            self.set_primary_orient(
+                target=self.bar_regen,
+                column=self.wcfg["column_index_battery_regen"],
+            )
 
         # Activation timer
         if self.wcfg["show_activation_timer"]:
@@ -117,8 +123,10 @@ class Realtime(Overlay):
                 style=bar_style_timer,
                 width=bar_width,
             )
-            self.set_layout_orient(
-                layout, self.bar_timer, self.wcfg["column_index_activation_timer"])
+            self.set_primary_orient(
+                target=self.bar_timer,
+                column=self.wcfg["column_index_activation_timer"],
+            )
 
         # Last data
         self.last_battery_charge = None

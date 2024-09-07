@@ -66,33 +66,37 @@ class Realtime(Overlay):
         self.setLayout(layout)
 
         # Brake bias
-        text_def_bbias = self.format_brake_bias(50)
+        text_bbias = self.format_brake_bias(50)
         bar_style_bbias = self.set_qss(
             self.wcfg["font_color_brake_bias"],
             self.wcfg["bkg_color_brake_bias"]
         )
         self.bar_bbias = self.set_qlabel(
-            text=text_def_bbias,
+            text=text_bbias,
             style=bar_style_bbias,
-            width=font_m.width * len(text_def_bbias) + bar_padx,
+            width=font_m.width * len(text_bbias) + bar_padx,
         )
-        self.set_layout_orient(
-            layout, self.bar_bbias, self.wcfg["column_index_brake_bias"])
+        self.set_primary_orient(
+            target=self.bar_bbias,
+            column=self.wcfg["column_index_brake_bias"],
+        )
 
         # Brake migration
         if self.wcfg["show_brake_migration"]:
-            text_def_bmigt = self.format_brake_migt(0)
+            text_bmigt = self.format_brake_migt(0)
             bar_style_bmigt = self.set_qss(
                 self.wcfg["font_color_brake_migration"],
                 self.wcfg["bkg_color_brake_migration"]
             )
             self.bar_bmigt = self.set_qlabel(
-                text=text_def_bmigt,
+                text=text_bmigt,
                 style=bar_style_bmigt,
-                width=font_m.width * len(text_def_bmigt) + bar_padx,
+                width=font_m.width * len(text_bmigt) + bar_padx,
             )
-            self.set_layout_orient(
-                layout, self.bar_bmigt, self.wcfg["column_index_brake_migration"])
+            self.set_primary_orient(
+                target=self.bar_bmigt,
+                column=self.wcfg["column_index_brake_migration"],
+            )
 
         # Last data
         self.checked = False

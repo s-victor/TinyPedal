@@ -71,9 +71,10 @@ class Realtime(Overlay):
                 style=bar_style_trans_rate,
                 width=bar_width,
             )
-            self.set_layout_orient(
-                layout, self.bar_trans_rate,
-                self.wcfg["column_index_transient_max_braking_rate"])
+            self.set_primary_orient(
+                target=self.bar_trans_rate,
+                column=self.wcfg["column_index_transient_max_braking_rate"],
+            )
 
         # Max braking rate
         if self.wcfg["show_max_braking_rate"]:
@@ -86,9 +87,10 @@ class Realtime(Overlay):
                 style=bar_style_max_rate,
                 width=bar_width,
             )
-            self.set_layout_orient(
-                layout, self.bar_max_rate,
-                self.wcfg["column_index_max_braking_rate"])
+            self.set_primary_orient(
+                target=self.bar_max_rate,
+                column=self.wcfg["column_index_max_braking_rate"],
+            )
 
         # Delta braking rate
         if self.wcfg["show_delta_braking_rate"]:
@@ -108,9 +110,10 @@ class Realtime(Overlay):
                 style=self.bar_style_delta_rate[0],
                 width=bar_width,
             )
-            self.set_layout_orient(
-                layout, self.bar_delta_rate,
-                self.wcfg["column_index_delta_braking_rate"])
+            self.set_primary_orient(
+                target=self.bar_delta_rate,
+                column=self.wcfg["column_index_delta_braking_rate"],
+            )
 
         # Front wheel lock duration
         if self.wcfg["show_front_wheel_lock_duration"]:
@@ -123,9 +126,10 @@ class Realtime(Overlay):
                 style=bar_style_lock_f,
                 width=bar_width,
             )
-            self.set_layout_orient(
-                layout, self.bar_lock_f,
-                self.wcfg["column_index_front_wheel_lock_duration"])
+            self.set_primary_orient(
+                target=self.bar_lock_f,
+                column=self.wcfg["column_index_front_wheel_lock_duration"],
+            )
 
         # Front wheel lock duration
         if self.wcfg["show_rear_wheel_lock_duration"]:
@@ -138,9 +142,10 @@ class Realtime(Overlay):
                 style=bar_style_lock_r,
                 width=bar_width,
             )
-            self.set_layout_orient(
-                layout, self.bar_lock_r,
-                self.wcfg["column_index_rear_wheel_lock_duration"])
+            self.set_primary_orient(
+                target=self.bar_lock_r,
+                column=self.wcfg["column_index_rear_wheel_lock_duration"],
+            )
 
         # Last data
         self.last_transient_rate = 0

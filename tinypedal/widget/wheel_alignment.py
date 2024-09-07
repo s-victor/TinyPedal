@@ -81,6 +81,10 @@ class Realtime(Overlay):
                 count=4,
             )
             self.set_layout_quad(layout_camber, self.bar_camber)
+            self.set_primary_orient(
+                target=layout_camber,
+                column=self.wcfg["column_index_camber"],
+            )
 
             if self.wcfg["show_caption"]:
                 cap_camber = self.set_qlabel(
@@ -88,9 +92,6 @@ class Realtime(Overlay):
                     style=bar_style_desc,
                 )
                 layout_camber.addWidget(cap_camber, 0, 0, 1, 0)
-
-            self.set_layout_orient(
-                layout, layout_camber, self.wcfg["column_index_camber"])
 
         # Toe in
         if self.wcfg["show_toe_in"]:
@@ -107,6 +108,10 @@ class Realtime(Overlay):
                 count=4,
             )
             self.set_layout_quad(layout_toein, self.bar_toein)
+            self.set_primary_orient(
+                target=layout_toein,
+                column=self.wcfg["column_index_toe_in"],
+            )
 
             if self.wcfg["show_caption"]:
                 cap_toein = self.set_qlabel(
@@ -114,9 +119,6 @@ class Realtime(Overlay):
                     style=bar_style_desc,
                 )
                 layout_toein.addWidget(cap_toein, 0, 0, 1, 0)
-
-            self.set_layout_orient(
-                layout, layout_toein, self.wcfg["column_index_toe_in"])
 
         # Last data
         self.last_camber = [-1] * 4

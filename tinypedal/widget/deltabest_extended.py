@@ -21,7 +21,7 @@ Deltabest extended Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from ..module_info import minfo
@@ -42,27 +42,25 @@ class Realtime(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
+        text_def = "--.---"
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
+        self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
 
         if self.wcfg["layout"] == 0:
-            prefix_w = prefix_just = max(
+            prefix_just = max(
                 len(self.wcfg["prefix_all_time_deltabest"]),
                 len(self.wcfg["prefix_session_deltabest"]),
                 len(self.wcfg["prefix_stint_deltabest"]),
                 len(self.wcfg["prefix_deltalast"]),
             )
         else:
-            prefix_w = None
             prefix_just = 0
 
-        self.prefix_atbest = self.wcfg["prefix_all_time_deltabest"][:prefix_w].ljust(prefix_just)
-        self.prefix_ssbest = self.wcfg["prefix_session_deltabest"][:prefix_w].ljust(prefix_just)
-        self.prefix_stbest = self.wcfg["prefix_stint_deltabest"][:prefix_w].ljust(prefix_just)
-        self.prefix_labest = self.wcfg["prefix_deltalast"][:prefix_w].ljust(prefix_just)
-
-        time_none = "--.---"
-        self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
+        self.prefix_atbest = self.wcfg["prefix_all_time_deltabest"].ljust(prefix_just)
+        self.prefix_ssbest = self.wcfg["prefix_session_deltabest"].ljust(prefix_just)
+        self.prefix_stbest = self.wcfg["prefix_stint_deltabest"].ljust(prefix_just)
+        self.prefix_labest = self.wcfg["prefix_deltalast"].ljust(prefix_just)
 
         # Base style
         self.setStyleSheet(
@@ -76,78 +74,75 @@ class Realtime(Overlay):
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_atbest = self.wcfg["column_index_all_time_deltabest"]
-        column_ssbest = self.wcfg["column_index_session_deltabest"]
-        column_stbest = self.wcfg["column_index_stint_deltabest"]
-        column_labest = self.wcfg["column_index_deltalast"]
+        self.setLayout(layout)
 
         # All time deltabest
         if self.wcfg["show_all_time_deltabest"]:
-            atbest_text = f"{self.prefix_atbest}{time_none}"
-            self.bar_time_atbest = QLabel(atbest_text)
-            self.bar_time_atbest.setAlignment(Qt.AlignCenter)
-            self.bar_time_atbest.setStyleSheet(
-                f"color: {self.wcfg['font_color_all_time_deltabest']};"
-                f"background: {self.wcfg['bkg_color_all_time_deltabest']};"
-                f"min-width: {font_m.width * len(atbest_text) + bar_padx}px;"
+            text_atbest = f"{self.prefix_atbest}{text_def}"
+            bar_style_atbest = self.set_qss(
+                self.wcfg["font_color_all_time_deltabest"],
+                self.wcfg["bkg_color_all_time_deltabest"]
+            )
+            self.bar_atbest = self.set_qlabel(
+                text=text_atbest,
+                style=bar_style_atbest,
+                width=font_m.width * len(text_atbest) + bar_padx,
+            )
+            self.set_primary_orient(
+                target=self.bar_atbest,
+                column=self.wcfg["column_index_all_time_deltabest"],
             )
 
         # Session deltabest
         if self.wcfg["show_session_deltabest"]:
-            ssbest_text = f"{self.prefix_ssbest}{time_none}"
-            self.bar_time_ssbest = QLabel(ssbest_text)
-            self.bar_time_ssbest.setAlignment(Qt.AlignCenter)
-            self.bar_time_ssbest.setStyleSheet(
-                f"color: {self.wcfg['font_color_session_deltabest']};"
-                f"background: {self.wcfg['bkg_color_session_deltabest']};"
-                f"min-width: {font_m.width * len(ssbest_text) + bar_padx}px;"
+            text_ssbest = f"{self.prefix_ssbest}{text_def}"
+            bar_style_ssbest = self.set_qss(
+                self.wcfg["font_color_session_deltabest"],
+                self.wcfg["bkg_color_session_deltabest"]
+            )
+            self.bar_ssbest = self.set_qlabel(
+                text=text_ssbest,
+                style=bar_style_ssbest,
+                width=font_m.width * len(text_ssbest) + bar_padx,
+            )
+            self.set_primary_orient(
+                target=self.bar_ssbest,
+                column=self.wcfg["column_index_session_deltabest"],
             )
 
         # Stint deltabest
         if self.wcfg["show_stint_deltabest"]:
-            stbest_text = f"{self.prefix_stbest}{time_none}"
-            self.bar_time_stbest = QLabel(stbest_text)
-            self.bar_time_stbest.setAlignment(Qt.AlignCenter)
-            self.bar_time_stbest.setStyleSheet(
-                f"color: {self.wcfg['font_color_stint_deltabest']};"
-                f"background: {self.wcfg['bkg_color_stint_deltabest']};"
-                f"min-width: {font_m.width * len(stbest_text) + bar_padx}px;"
+            text_stbest = f"{self.prefix_stbest}{text_def}"
+            bar_style_stbest = self.set_qss(
+                self.wcfg["font_color_stint_deltabest"],
+                self.wcfg["bkg_color_stint_deltabest"]
+            )
+            self.bar_stbest = self.set_qlabel(
+                text=text_stbest,
+                style=bar_style_stbest,
+                width=font_m.width * len(text_stbest) + bar_padx,
+            )
+            self.set_primary_orient(
+                target=self.bar_stbest,
+                column=self.wcfg["column_index_stint_deltabest"],
             )
 
         # Deltalast
         if self.wcfg["show_deltalast"]:
-            labest_text = f"{self.prefix_labest}{time_none}"
-            self.bar_time_labest = QLabel(labest_text)
-            self.bar_time_labest.setAlignment(Qt.AlignCenter)
-            self.bar_time_labest.setStyleSheet(
-                f"color: {self.wcfg['font_color_deltalast']};"
-                f"background: {self.wcfg['bkg_color_deltalast']};"
-                f"min-width: {font_m.width * len(labest_text) + bar_padx}px;"
+            text_labest = f"{self.prefix_labest}{text_def}"
+            bar_style_labest = self.set_qss(
+                self.wcfg["font_color_deltalast"],
+                self.wcfg["bkg_color_deltalast"]
             )
-
-        # Set layout
-        if self.wcfg["layout"] == 0:
-            # Vertical layout
-            if self.wcfg["show_all_time_deltabest"]:
-                layout.addWidget(self.bar_time_atbest, column_atbest, 0)
-            if self.wcfg["show_session_deltabest"]:
-                layout.addWidget(self.bar_time_ssbest, column_ssbest, 0)
-            if self.wcfg["show_stint_deltabest"]:
-                layout.addWidget(self.bar_time_stbest, column_stbest, 0)
-            if self.wcfg["show_deltalast"]:
-                layout.addWidget(self.bar_time_labest, column_labest, 0)
-        else:
-            # Horizontal layout
-            if self.wcfg["show_all_time_deltabest"]:
-                layout.addWidget(self.bar_time_atbest, 0, column_atbest)
-            if self.wcfg["show_session_deltabest"]:
-                layout.addWidget(self.bar_time_ssbest, 0, column_ssbest)
-            if self.wcfg["show_stint_deltabest"]:
-                layout.addWidget(self.bar_time_stbest, 0, column_stbest)
-            if self.wcfg["show_deltalast"]:
-                layout.addWidget(self.bar_time_labest, 0, column_labest)
-        self.setLayout(layout)
+            self.bar_labest = self.set_qlabel(
+                text=text_labest,
+                style=bar_style_labest,
+                width=font_m.width * len(text_labest) + bar_padx,
+            )
+            self.set_primary_orient(
+                target=self.bar_labest,
+                column=self.wcfg["column_index_deltalast"],
+            )
 
         # Last data
         self.last_all_time_deltabest = 0
@@ -182,31 +177,39 @@ class Realtime(Overlay):
 
             # All time deltabest
             if self.wcfg["show_all_time_deltabest"]:
-                self.update_deltabest(all_time_deltabest, self.last_all_time_deltabest,
-                                      self.prefix_atbest, "atbest")
+                self.update_deltabest(
+                    self.bar_atbest, all_time_deltabest, self.last_all_time_deltabest,
+                    self.prefix_atbest
+                )
                 self.last_all_time_deltabest = all_time_deltabest
 
             # Session deltabest
             if self.wcfg["show_session_deltabest"]:
-                self.update_deltabest(session_deltabest, self.last_session_deltabest,
-                                      self.prefix_ssbest, "ssbest")
+                self.update_deltabest(
+                    self.bar_ssbest, session_deltabest, self.last_session_deltabest,
+                    self.prefix_ssbest
+                )
                 self.last_session_deltabest = session_deltabest
 
             # Stint deltabest
             if self.wcfg["show_stint_deltabest"]:
-                self.update_deltabest(stint_deltabest, self.last_stint_deltabest,
-                                      self.prefix_stbest, "stbest")
+                self.update_deltabest(
+                    self.bar_stbest, stint_deltabest, self.last_stint_deltabest,
+                    self.prefix_stbest
+                )
                 self.last_stint_deltabest = stint_deltabest
 
             # Deltalast
             if self.wcfg["show_stint_deltabest"]:
-                self.update_deltabest(deltalast, self.last_deltalast,
-                                      self.prefix_labest, "labest")
+                self.update_deltabest(
+                    self.bar_labest, deltalast, self.last_deltalast,
+                    self.prefix_labest
+                )
                 self.last_deltalast = deltalast
 
     # GUI update methods
-    def update_deltabest(self, curr, last, prefix, suffix):
+    def update_deltabest(self, target_bar, curr, last, prefix):
         """Update deltabest"""
         if curr != last:
-            text = f"{calc.sym_range(curr, self.wcfg['delta_display_range']):+.3f}"[:6].rjust(6)
-            getattr(self, f"bar_time_{suffix}").setText(f"{prefix}{text}")
+            text = f"{calc.sym_range(curr, self.wcfg['delta_display_range']): >+6.3f}"[:6]
+            target_bar.setText(f"{prefix}{text}")

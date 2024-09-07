@@ -87,6 +87,10 @@ class Realtime(Overlay):
                 count=4,
             )
             self.set_layout_quad(layout_twear, self.bar_twear)
+            self.set_primary_orient(
+                target=layout_twear,
+                column=self.wcfg["column_index_remaining"],
+            )
 
             if self.wcfg["show_caption"]:
                 cap_twear = self.set_qlabel(
@@ -94,9 +98,6 @@ class Realtime(Overlay):
                     style=bar_style_desc,
                 )
                 layout_twear.addWidget(cap_twear, 0, 0, 1, 0)
-
-            self.set_layout_orient(
-                layout, layout_twear, self.wcfg["column_index_remaining"])
 
         # Tyre wear difference
         if self.wcfg["show_wear_difference"]:
@@ -117,6 +118,10 @@ class Realtime(Overlay):
                 count=4,
             )
             self.set_layout_quad(layout_tdiff, self.bar_tdiff)
+            self.set_primary_orient(
+                target=layout_tdiff,
+                column=self.wcfg["column_index_wear_difference"],
+            )
 
             if self.wcfg["show_caption"]:
                 cap_tdiff = self.set_qlabel(
@@ -124,9 +129,6 @@ class Realtime(Overlay):
                     style=bar_style_desc,
                 )
                 layout_tdiff.addWidget(cap_tdiff, 0, 0, 1, 0)
-
-            self.set_layout_orient(
-                layout, layout_tdiff, self.wcfg["column_index_wear_difference"])
 
         # Estimated tyre lifespan in laps
         if self.wcfg["show_lifespan_laps"]:
@@ -147,6 +149,10 @@ class Realtime(Overlay):
                 count=4,
             )
             self.set_layout_quad(layout_tlaps, self.bar_tlaps)
+            self.set_primary_orient(
+                target=layout_tlaps,
+                column=self.wcfg["column_index_lifespan_laps"],
+            )
 
             if self.wcfg["show_caption"]:
                 cap_tlaps = self.set_qlabel(
@@ -154,9 +160,6 @@ class Realtime(Overlay):
                     style=bar_style_desc,
                 )
                 layout_tlaps.addWidget(cap_tlaps, 0, 0, 1, 0)
-
-            self.set_layout_orient(
-                layout, layout_tlaps, self.wcfg["column_index_lifespan_laps"])
 
         # Estimated tyre lifespan in minutes
         if self.wcfg["show_lifespan_minutes"]:
@@ -177,6 +180,10 @@ class Realtime(Overlay):
                 count=4,
             )
             self.set_layout_quad(layout_tmins, self.bar_tmins)
+            self.set_primary_orient(
+                target=layout_tmins,
+                column=self.wcfg["column_index_lifespan_minutes"],
+            )
 
             if self.wcfg["show_caption"]:
                 cap_tmins = self.set_qlabel(
@@ -184,9 +191,6 @@ class Realtime(Overlay):
                     style=bar_style_desc,
                 )
                 layout_tmins.addWidget(cap_tmins, 0, 0, 1, 0)
-
-            self.set_layout_orient(
-                layout, layout_tmins, self.wcfg["column_index_lifespan_minutes"])
 
         # Last data
         self.checked = False

@@ -320,23 +320,22 @@ class Overlay(QWidget):
             )
         return self.add_qlabel(text, style, width, align)
 
-    def set_layout_orient(
-        self, layout: QLayout, target: QWidget | QLayout, column: int):
-        """Set widget or layout orientation in vertical or horizontal
+    def set_primary_orient(self, target: QWidget | QLayout, column: int):
+        """Set primary layout (QGridLayout) orientation
+
+        Orientation is defined by "layout" option in Widget JSON. 0 = vertical, 1 = horizontal.
 
         Args:
-            target_type: 0 (widget), 1 (layout).
-            layout: primary layout.
-            target: QWidget or QLayout.
-            column: column index.
+            target: QWidget or QLayout that adds to primary layout.
+            column: column index determines display order.
         """
         if self.wcfg["layout"] == 0:  # Vertical layout
             if isinstance(target, QWidget):
-                layout.addWidget(target, column, 0)
+                self.layout().addWidget(target, column, 0)
             else:
-                layout.addLayout(target, column, 0)
+                self.layout().addLayout(target, column, 0)
         else:  # Horizontal layout
             if isinstance(target, QWidget):
-                layout.addWidget(target, 0, column)
+                self.layout().addWidget(target, 0, column)
             else:
-                layout.addLayout(target, 0, column)
+                self.layout().addLayout(target, 0, column)

@@ -49,11 +49,11 @@ class AboutTab(QWidget):
         # Logo
         icon_size = 128
         logo_image = QPixmap(APP_ICON)
-        logo_image = logo_image.scaled(icon_size,icon_size, mode=Qt.SmoothTransformation)
+        logo_image = logo_image.scaled(icon_size, icon_size, mode=Qt.SmoothTransformation)
 
         label_logo = QLabel(self)
         label_logo.setPixmap(logo_image)
-        label_logo.setFixedSize(icon_size+20,icon_size+20)
+        label_logo.setFixedSize(icon_size+20, icon_size+20)
         label_logo.setAlignment(Qt.AlignCenter)
         label_logo.setStyleSheet("padding: 10px;")
 

@@ -87,12 +87,12 @@ class Realtime(Overlay):
         self.last_data = [tuple(None for _ in self.empty_vehicles_data)] * self.veh_range
 
         # Create layout
-        self.layout = QGridLayout()
-        self.layout.setContentsMargins(0,0,0,0)  # remove border
-        self.layout.setHorizontalSpacing(0)
-        self.layout.setVerticalSpacing(bar_gap)
-        self.layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(self.layout)
+        layout = QGridLayout()
+        layout.setContentsMargins(0,0,0,0)  # remove border
+        layout.setHorizontalSpacing(0)
+        layout.setVerticalSpacing(bar_gap)
+        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.setLayout(layout)
 
         # Driver position
         if self.wcfg["show_position"]:
@@ -523,7 +523,7 @@ class Realtime(Overlay):
                 style=style,
                 width=width,
             )
-            self.layout.addWidget(self.data_bar[bar_name], idx, column)
+            self.layout().addWidget(self.data_bar[bar_name], idx, column)
 
     # Additional methods
     def color_lap_diff(self, is_lapped):

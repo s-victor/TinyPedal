@@ -66,63 +66,71 @@ class Realtime(Overlay):
 
         # Track clock
         if self.wcfg["show_track_clock"]:
-            clock_text = self.format_clock(0)
+            text_clock = self.format_clock(0)
             bar_style_track_clock = self.set_qss(
                 self.wcfg["font_color_track_clock"],
                 self.wcfg["bkg_color_track_clock"]
             )
             self.bar_track_clock = self.set_qlabel(
-                text=clock_text,
+                text=text_clock,
                 style=bar_style_track_clock,
-                width=font_m.width * len(clock_text) + bar_padx,
+                width=font_m.width * len(text_clock) + bar_padx,
             )
-            self.set_layout_orient(
-                layout, self.bar_track_clock, self.wcfg["column_index_track_clock"])
+            self.set_primary_orient(
+                target=self.bar_track_clock,
+                column=self.wcfg["column_index_track_clock"],
+            )
 
         # Compass
         if self.wcfg["show_compass"]:
-            compass_text = self.format_compass(0)
+            text_compass = self.format_compass(0)
             bar_style_compass = self.set_qss(
                 self.wcfg["font_color_compass"],
                 self.wcfg["bkg_color_compass"]
             )
             self.bar_compass = self.set_qlabel(
-                text=compass_text,
+                text=text_compass,
                 style=bar_style_compass,
-                width=font_m.width * len(compass_text) + bar_padx,
+                width=font_m.width * len(text_compass) + bar_padx,
             )
-            self.set_layout_orient(
-                layout, self.bar_compass, self.wcfg["column_index_compass"])
+            self.set_primary_orient(
+                target=self.bar_compass,
+                column=self.wcfg["column_index_compass"],
+            )
 
         # Elevation
         if self.wcfg["show_elevation"]:
-            elevation_text = self.format_elevation(0)
+            text_elevation = self.format_elevation(0)
             bar_style_elevation = self.set_qss(
                 self.wcfg["font_color_elevation"],
                 self.wcfg["bkg_color_elevation"]
             )
             self.bar_elevation = self.set_qlabel(
-                text=elevation_text,
+                text=text_elevation,
                 style=bar_style_elevation,
-                width=font_m.width * len(elevation_text) + bar_padx,
+                width=font_m.width * len(text_elevation) + bar_padx,
             )
-            self.set_layout_orient(
-                layout, self.bar_elevation, self.wcfg["column_index_elevation"])
+            self.set_primary_orient(
+                target=self.bar_elevation,
+                column=self.wcfg["column_index_elevation"],
+            )
 
         # Odometer
         if self.wcfg["show_odometer"]:
-            odometer_text = self.format_odometer(0)
+            text_odometer = self.format_odometer(0)
             bar_style_odometer = self.set_qss(
                 self.wcfg["font_color_odometer"],
                 self.wcfg["bkg_color_odometer"]
             )
             self.bar_odometer = self.set_qlabel(
-                text=odometer_text,
+                text=text_odometer,
                 style=bar_style_odometer,
-                width=font_m.width * len(odometer_text) + bar_padx,
+                width=font_m.width * len(text_odometer) + bar_padx,
             )
-            self.set_layout_orient(
-                layout, self.bar_odometer, self.wcfg["column_index_odometer"])
+            self.set_primary_orient(
+                target=self.bar_odometer,
+                column=self.wcfg["column_index_odometer"],
+            )
 
         # Last data
         self.last_track_time = None

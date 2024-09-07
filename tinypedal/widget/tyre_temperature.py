@@ -52,8 +52,8 @@ class Realtime(Overlay):
         self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
 
         text_width = 3 + len(self.sign_text) + (self.cfg.units["temperature_unit"] == "Fahrenheit")
-        bar_width_temp = font_m.width * text_width + bar_padx
-        bar_width_caption = font_m.width + bar_padx
+        bar_width_ttemp = font_m.width * text_width + bar_padx
+        bar_width_tcmpd = font_m.width + bar_padx
 
         # Base style
         self.heatmap = hmp.load_heatmap(self.wcfg["heatmap_name"], "tyre_default")
@@ -86,34 +86,48 @@ class Realtime(Overlay):
         layout_stemp = QGridLayout()
         layout_stemp.setSpacing(inner_gap)
         self.bar_stemp = self.set_table(
-            text_def, bar_style_stemp, bar_width_temp, layout_stemp)
+            text=text_def,
+            style=bar_style_stemp,
+            width=bar_width_ttemp,
+            layout=layout_stemp,
+        )
+        self.set_primary_orient(
+            target=layout_stemp,
+            column=self.wcfg["column_index_surface"],
+        )
+
         if self.wcfg["show_tyre_compound"]:
             self.bar_tcmpd = self.set_qlabel(
                 text="-",
                 style=bar_style_tcmpd,
-                width=bar_width_caption,
+                width=bar_width_tcmpd,
                 count=2,
             )
             self.set_layout_vert(layout_stemp, self.bar_tcmpd)
-        self.set_layout_orient(
-            layout, layout_stemp, self.wcfg["column_index_surface"])
 
         # Tyre inner temperature
         if self.wcfg["show_innerlayer"]:
             layout_itemp = QGridLayout()
             layout_itemp.setSpacing(inner_gap)
             self.bar_itemp = self.set_table(
-                text_def, bar_style_itemp, bar_width_temp, layout_itemp)
+                text=text_def,
+                style=bar_style_itemp,
+                width=bar_width_ttemp,
+                layout=layout_itemp,
+            )
+            self.set_primary_orient(
+                target=layout_itemp,
+                column=self.wcfg["column_index_innerlayer"],
+            )
+
             if self.wcfg["show_tyre_compound"]:
                 bar_blank = self.set_qlabel(
                     text="",
                     style=bar_style_tcmpd,
-                    width=bar_width_caption,
+                    width=bar_width_tcmpd,
                     count=2,
                 )
                 self.set_layout_vert(layout_itemp, bar_blank)
-            self.set_layout_orient(
-                layout, layout_itemp, self.wcfg["column_index_innerlayer"])
 
         # Last data
         self.last_tcmpd = [None] * 2
@@ -211,21 +225,21 @@ class Realtime(Overlay):
             target_bar.setText(self.tyre_compound_string[curr])
 
     # GUI generate methods
-    def set_table(self, text, bar_style, bar_width, layout):
+    def set_table(self, text, style, width, layout):
         """Set table"""
         if self.wcfg["show_inner_center_outer"]:
             bar_set = tuple(self.set_qlabel(
                 text=text,
-                style=bar_style,
-                width=bar_width,
+                style=style,
+                width=width,
                 count=3,
             ) for _ in range(4))  # 3 x 4 array
             self.set_layout_tri_quad(layout, bar_set)
         else:
             bar_set = self.set_qlabel(
                 text=text,
-                style=bar_style,
-                width=bar_width,
+                style=style,
+                width=width,
                 count=4,
             )
             self.set_layout_quad(layout, bar_set)
