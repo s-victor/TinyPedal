@@ -226,7 +226,7 @@ Set gap (screen pixel) between elements in a widget, only accept integer, `1` = 
 Mono type font is highly recommended. To set custom font, write `full font name` inside quotation marks. If a font name is invalid, a default fallback font will be used by program.
 
     font_size
-Set font size, increase or decrease font size will also apply to widget size. Value only accept `integer`, do not put any decimal place.
+Set font size in pixel, increase or decrease font size will also apply to widget size.
 
     font_weight
 Acceptable value: `normal` or `bold`.

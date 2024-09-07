@@ -23,7 +23,7 @@ Cruise Widget
 from time import strftime, gmtime
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from ..api_control import api
@@ -67,58 +67,62 @@ class Realtime(Overlay):
         # Track clock
         if self.wcfg["show_track_clock"]:
             clock_text = self.format_clock(0)
-            self.bar_track_clock = QLabel(clock_text)
-            self.bar_track_clock.setAlignment(Qt.AlignCenter)
-            self.bar_track_clock.setMinimumWidth(font_m.width * len(clock_text) + bar_padx)
-            self.bar_track_clock.setStyleSheet(
-                self.set_qss(
-                    self.wcfg["font_color_track_clock"],
-                    self.wcfg["bkg_color_track_clock"])
+            bar_style_track_clock = self.set_qss(
+                self.wcfg["font_color_track_clock"],
+                self.wcfg["bkg_color_track_clock"]
+            )
+            self.bar_track_clock = self.set_qlabel(
+                text=clock_text,
+                style=bar_style_track_clock,
+                width=font_m.width * len(clock_text) + bar_padx,
             )
             self.set_layout_orient(
-                0, layout, self.bar_track_clock, self.wcfg["column_index_track_clock"])
+                layout, self.bar_track_clock, self.wcfg["column_index_track_clock"])
 
         # Compass
         if self.wcfg["show_compass"]:
             compass_text = self.format_compass(0)
-            self.bar_compass = QLabel(compass_text)
-            self.bar_compass.setAlignment(Qt.AlignCenter)
-            self.bar_compass.setMinimumWidth(font_m.width * len(compass_text) + bar_padx)
-            self.bar_compass.setStyleSheet(
-                self.set_qss(
-                    self.wcfg["font_color_compass"],
-                    self.wcfg["bkg_color_compass"])
+            bar_style_compass = self.set_qss(
+                self.wcfg["font_color_compass"],
+                self.wcfg["bkg_color_compass"]
+            )
+            self.bar_compass = self.set_qlabel(
+                text=compass_text,
+                style=bar_style_compass,
+                width=font_m.width * len(compass_text) + bar_padx,
             )
             self.set_layout_orient(
-                0, layout, self.bar_compass, self.wcfg["column_index_compass"])
+                layout, self.bar_compass, self.wcfg["column_index_compass"])
 
         # Elevation
         if self.wcfg["show_elevation"]:
             elevation_text = self.format_elevation(0)
-            self.bar_elevation = QLabel(elevation_text)
-            self.bar_elevation.setAlignment(Qt.AlignCenter)
-            self.bar_elevation.setMinimumWidth(font_m.width * len(elevation_text) + bar_padx)
-            self.bar_elevation.setStyleSheet(
-                self.set_qss(
-                    self.wcfg["font_color_elevation"],
-                    self.wcfg["bkg_color_elevation"])
+            bar_style_elevation = self.set_qss(
+                self.wcfg["font_color_elevation"],
+                self.wcfg["bkg_color_elevation"]
+            )
+            self.bar_elevation = self.set_qlabel(
+                text=elevation_text,
+                style=bar_style_elevation,
+                width=font_m.width * len(elevation_text) + bar_padx,
             )
             self.set_layout_orient(
-                0, layout, self.bar_elevation, self.wcfg["column_index_elevation"])
+                layout, self.bar_elevation, self.wcfg["column_index_elevation"])
 
         # Odometer
         if self.wcfg["show_odometer"]:
             odometer_text = self.format_odometer(0)
-            self.bar_odometer = QLabel(odometer_text)
-            self.bar_odometer.setAlignment(Qt.AlignCenter)
-            self.bar_odometer.setMinimumWidth(font_m.width * len(odometer_text) + bar_padx)
-            self.bar_odometer.setStyleSheet(
-                self.set_qss(
-                    self.wcfg["font_color_odometer"],
-                    self.wcfg["bkg_color_odometer"])
+            bar_style_odometer = self.set_qss(
+                self.wcfg["font_color_odometer"],
+                self.wcfg["bkg_color_odometer"]
+            )
+            self.bar_odometer = self.set_qlabel(
+                text=odometer_text,
+                style=bar_style_odometer,
+                width=font_m.width * len(odometer_text) + bar_padx,
             )
             self.set_layout_orient(
-                0, layout, self.bar_odometer, self.wcfg["column_index_odometer"])
+                layout, self.bar_odometer, self.wcfg["column_index_odometer"])
 
         # Last data
         self.last_track_time = None

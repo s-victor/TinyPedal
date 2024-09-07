@@ -21,7 +21,7 @@ Tyre pressure Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from ..api_control import api
@@ -54,9 +54,9 @@ class Realtime(Overlay):
             f"font-weight: {self.wcfg['font_weight']};"
         )
         bar_style_desc = self.set_qss(
-            self.wcfg["font_color_caption"],
-            self.wcfg["bkg_color_caption"],
-            int(self.wcfg['font_size'] * 0.8)
+            fg_color=self.wcfg["font_color_caption"],
+            bg_color=self.wcfg["bkg_color_caption"],
+            font_size=int(self.wcfg['font_size'] * 0.8)
         )
 
         # Create layout
@@ -74,11 +74,20 @@ class Realtime(Overlay):
             self.wcfg["font_color_tyre_pressure"],
             self.wcfg["bkg_color_tyre_pressure"]
         )
-        self.bar_tpres = self.gen_bar_set(4, bar_style_tpres, bar_width, text_def)
+        self.bar_tpres = self.set_qlabel(
+            text=text_def,
+            style=bar_style_tpres,
+            width=bar_width,
+            count=4,
+        )
         self.set_layout_quad(layout_tpres, self.bar_tpres)
 
         if self.wcfg["show_caption"]:
-            self.gen_bar_caption(bar_style_desc, "tyre pres", layout_tpres)
+            cap_tpres = self.set_qlabel(
+                text="tyre pres",
+                style=bar_style_desc,
+            )
+            layout_tpres.addWidget(cap_tpres, 0, 0, 1, 0)
 
         # Last data
         self.last_tpres = [None] * 4
@@ -100,26 +109,6 @@ class Realtime(Overlay):
             target_bar.setText(self.tyre_pressure_units(curr))
 
     # GUI generate methods
-    @staticmethod
-    def gen_bar_caption(bar_style, text, layout):
-        """Generate caption"""
-        bar_temp = QLabel(text)
-        bar_temp.setAlignment(Qt.AlignCenter)
-        bar_temp.setStyleSheet(bar_style)
-        # Row index 0, row span 1
-        layout.addWidget(bar_temp, 0, 0, 1, 0)
-        return bar_temp
-
-    @staticmethod
-    def gen_bar_set(bar_count, bar_style, bar_width, text):
-        """Generate bar set"""
-        bar_set = tuple(QLabel(text) for _ in range(bar_count))
-        for bar_temp in bar_set:
-            bar_temp.setAlignment(Qt.AlignCenter)
-            bar_temp.setStyleSheet(bar_style)
-            bar_temp.setMinimumWidth(bar_width)
-        return bar_set
-
     @staticmethod
     def set_layout_quad(layout, bar_set, row_start=1, column_left=0, column_right=9):
         """Set layout - quad

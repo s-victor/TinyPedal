@@ -21,7 +21,7 @@ Tyre temperature Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from .. import heatmap as hmp
@@ -85,25 +85,35 @@ class Realtime(Overlay):
         # Tyre temperature
         layout_stemp = QGridLayout()
         layout_stemp.setSpacing(inner_gap)
-        self.bar_stemp = self.gen_bar_set_extra(
-            bar_style_stemp, bar_width_temp, text_def, layout_stemp)
+        self.bar_stemp = self.set_table(
+            text_def, bar_style_stemp, bar_width_temp, layout_stemp)
         if self.wcfg["show_tyre_compound"]:
-            self.bar_tcmpd = self.gen_bar_set(2, bar_style_tcmpd, bar_width_caption, "-")
+            self.bar_tcmpd = self.set_qlabel(
+                text="-",
+                style=bar_style_tcmpd,
+                width=bar_width_caption,
+                count=2,
+            )
             self.set_layout_vert(layout_stemp, self.bar_tcmpd)
         self.set_layout_orient(
-            1, layout, layout_stemp, self.wcfg["column_index_surface"])
+            layout, layout_stemp, self.wcfg["column_index_surface"])
 
         # Tyre inner temperature
         if self.wcfg["show_innerlayer"]:
             layout_itemp = QGridLayout()
             layout_itemp.setSpacing(inner_gap)
-            self.bar_itemp = self.gen_bar_set_extra(
-                bar_style_itemp, bar_width_temp, text_def, layout_itemp)
+            self.bar_itemp = self.set_table(
+                text_def, bar_style_itemp, bar_width_temp, layout_itemp)
             if self.wcfg["show_tyre_compound"]:
-                bar_blank = self.gen_bar_set(2, bar_style_tcmpd, bar_width_caption, "")
+                bar_blank = self.set_qlabel(
+                    text="",
+                    style=bar_style_tcmpd,
+                    width=bar_width_caption,
+                    count=2,
+                )
                 self.set_layout_vert(layout_itemp, bar_blank)
             self.set_layout_orient(
-                1, layout, layout_itemp, self.wcfg["column_index_innerlayer"])
+                layout, layout_itemp, self.wcfg["column_index_innerlayer"])
 
         # Last data
         self.last_tcmpd = [None] * 2
@@ -201,24 +211,24 @@ class Realtime(Overlay):
             target_bar.setText(self.tyre_compound_string[curr])
 
     # GUI generate methods
-    def gen_bar_set_extra(self, bar_style, bar_width, text, layout):
-        """Generate bar set"""
+    def set_table(self, text, bar_style, bar_width, layout):
+        """Set table"""
         if self.wcfg["show_inner_center_outer"]:
-            bar_set = tuple(self.gen_bar_set(3, bar_style, bar_width, text) for _ in range(4))
+            bar_set = tuple(self.set_qlabel(
+                text=text,
+                style=bar_style,
+                width=bar_width,
+                count=3,
+            ) for _ in range(4))  # 3 x 4 array
             self.set_layout_tri_quad(layout, bar_set)
         else:
-            bar_set = self.gen_bar_set(4, bar_style, bar_width, text)
+            bar_set = self.set_qlabel(
+                text=text,
+                style=bar_style,
+                width=bar_width,
+                count=4,
+            )
             self.set_layout_quad(layout, bar_set)
-        return bar_set
-
-    @staticmethod
-    def gen_bar_set(bar_count, bar_style, bar_width, text):
-        """Generate bar set"""
-        bar_set = tuple(QLabel(text) for _ in range(bar_count))
-        for bar_temp in bar_set:
-            bar_temp.setAlignment(Qt.AlignCenter)
-            bar_temp.setStyleSheet(bar_style)
-            bar_temp.setMinimumWidth(bar_width)
         return bar_set
 
     @staticmethod

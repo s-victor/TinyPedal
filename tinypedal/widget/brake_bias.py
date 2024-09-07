@@ -21,7 +21,7 @@ Brake bias Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from ..api_control import api
 from ..module_info import minfo
@@ -67,30 +67,32 @@ class Realtime(Overlay):
 
         # Brake bias
         text_def_bbias = self.format_brake_bias(50)
-        self.bar_bbias = QLabel(text_def_bbias)
-        self.bar_bbias.setAlignment(Qt.AlignCenter)
-        self.bar_bbias.setMinimumWidth(font_m.width * len(text_def_bbias) + bar_padx)
-        self.bar_bbias.setStyleSheet(
-            self.set_qss(
-                self.wcfg["font_color_brake_bias"],
-                self.wcfg["bkg_color_brake_bias"])
+        bar_style_bbias = self.set_qss(
+            self.wcfg["font_color_brake_bias"],
+            self.wcfg["bkg_color_brake_bias"]
+        )
+        self.bar_bbias = self.set_qlabel(
+            text=text_def_bbias,
+            style=bar_style_bbias,
+            width=font_m.width * len(text_def_bbias) + bar_padx,
         )
         self.set_layout_orient(
-            0, layout, self.bar_bbias, self.wcfg["column_index_brake_bias"])
+            layout, self.bar_bbias, self.wcfg["column_index_brake_bias"])
 
         # Brake migration
         if self.wcfg["show_brake_migration"]:
             text_def_bmigt = self.format_brake_migt(0)
-            self.bar_bmigt = QLabel(text_def_bmigt)
-            self.bar_bmigt.setAlignment(Qt.AlignCenter)
-            self.bar_bmigt.setMinimumWidth(font_m.width * len(text_def_bmigt) + bar_padx)
-            self.bar_bmigt.setStyleSheet(
-                self.set_qss(
-                    self.wcfg["font_color_brake_migration"],
-                    self.wcfg["bkg_color_brake_migration"])
+            bar_style_bmigt = self.set_qss(
+                self.wcfg["font_color_brake_migration"],
+                self.wcfg["bkg_color_brake_migration"]
+            )
+            self.bar_bmigt = self.set_qlabel(
+                text=text_def_bmigt,
+                style=bar_style_bmigt,
+                width=font_m.width * len(text_def_bmigt) + bar_padx,
             )
             self.set_layout_orient(
-                0, layout, self.bar_bmigt, self.wcfg["column_index_brake_migration"])
+                layout, self.bar_bmigt, self.wcfg["column_index_brake_migration"])
 
         # Last data
         self.checked = False

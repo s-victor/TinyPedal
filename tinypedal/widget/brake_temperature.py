@@ -21,7 +21,7 @@ Brake temperature Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from .. import heatmap as hmp
@@ -76,10 +76,15 @@ class Realtime(Overlay):
             self.wcfg["font_color_temperature"],
             self.wcfg["bkg_color_temperature"]
         )
-        self.bar_btemp = self.gen_bar_set(4, bar_style_btemp, bar_width_temp, text_def)
+        self.bar_btemp = self.set_qlabel(
+            text=text_def,
+            style=bar_style_btemp,
+            width=bar_width_temp,
+            count=4,
+        )
         self.set_layout_quad(layout_btemp, self.bar_btemp)
         self.set_layout_orient(
-            1, layout, layout_btemp, self.wcfg["column_index_temperature"])
+            layout, layout_btemp, self.wcfg["column_index_temperature"])
 
         # Average brake temperature
         if self.wcfg["show_average"]:
@@ -93,10 +98,15 @@ class Realtime(Overlay):
                     self.wcfg["font_color_highlighted"],
                     self.wcfg["bkg_color_highlighted"])
             )
-            self.bar_btavg = self.gen_bar_set(4, self.bar_style_btavg[0], bar_width_temp, text_def)
+            self.bar_btavg = self.set_qlabel(
+                text=text_def,
+                style=self.bar_style_btavg[0],
+                width=bar_width_temp,
+                count=4,
+            )
             self.set_layout_quad(layout_btavg, self.bar_btavg)
             self.set_layout_orient(
-                1, layout, layout_btavg, self.wcfg["column_index_average"])
+                layout, layout_btavg, self.wcfg["column_index_average"])
 
         # Last data
         self.checked = False
@@ -165,16 +175,6 @@ class Realtime(Overlay):
             target_bar.setStyleSheet(self.bar_style_btavg[highlighted])
 
     # GUI generate methods
-    @staticmethod
-    def gen_bar_set(bar_count, bar_style, bar_width, text):
-        """Generate bar set"""
-        bar_set = tuple(QLabel(text) for _ in range(bar_count))
-        for bar_temp in bar_set:
-            bar_temp.setAlignment(Qt.AlignCenter)
-            bar_temp.setStyleSheet(bar_style)
-            bar_temp.setMinimumWidth(bar_width)
-        return bar_set
-
     @staticmethod
     def set_layout_quad(layout, bar_set, row_start=1, column_left=0, column_right=9):
         """Set layout - quad

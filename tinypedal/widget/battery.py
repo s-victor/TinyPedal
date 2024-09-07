@@ -21,7 +21,7 @@ Battery Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from ..module_info import minfo
 from ._base import Overlay
@@ -70,51 +70,55 @@ class Realtime(Overlay):
                     self.wcfg["font_color_battery_charge"],
                     self.wcfg["warning_color_low_battery"])
             )
-            self.bar_charge = QLabel("BATTERY")
-            self.bar_charge.setAlignment(Qt.AlignCenter)
-            self.bar_charge.setMinimumWidth(bar_width)
-            self.bar_charge.setStyleSheet(self.bar_style_charge[0])
+            self.bar_charge = self.set_qlabel(
+                text="BATTERY",
+                style=self.bar_style_charge[0],
+                width=bar_width,
+            )
             self.set_layout_orient(
-                0, layout, self.bar_charge, self.wcfg["column_index_battery_charge"])
+                layout, self.bar_charge, self.wcfg["column_index_battery_charge"])
 
         # Battery drain
         if self.wcfg["show_battery_drain"]:
-            self.bar_drain = QLabel("B DRAIN")
-            self.bar_drain.setAlignment(Qt.AlignCenter)
-            self.bar_drain.setMinimumWidth(bar_width)
-            self.bar_drain.setStyleSheet(
-                self.set_qss(
-                    self.wcfg["font_color_battery_drain"],
-                    self.wcfg["bkg_color_battery_drain"])
+            bar_style_drain = self.set_qss(
+                self.wcfg["font_color_battery_drain"],
+                self.wcfg["bkg_color_battery_drain"]
+            )
+            self.bar_drain = self.set_qlabel(
+                text="B DRAIN",
+                style=bar_style_drain,
+                width=bar_width,
             )
             self.set_layout_orient(
-                0, layout, self.bar_drain, self.wcfg["column_index_battery_drain"])
+                layout, self.bar_drain, self.wcfg["column_index_battery_drain"])
 
         # Battery regen
         if self.wcfg["show_battery_regen"]:
-            self.bar_regen = QLabel("B REGEN")
-            self.bar_regen.setAlignment(Qt.AlignCenter)
-            self.bar_regen.setMinimumWidth(bar_width)
-            self.bar_regen.setStyleSheet(
-                self.set_qss(
-                    self.wcfg["font_color_battery_regen"],
-                    self.wcfg["bkg_color_battery_regen"])
+            bar_style_regen = self.set_qss(
+                self.wcfg["font_color_battery_regen"],
+                self.wcfg["bkg_color_battery_regen"]
+            )
+            self.bar_regen = self.set_qlabel(
+                text="B REGEN",
+                style=bar_style_regen,
+                width=bar_width,
             )
             self.set_layout_orient(
-                0, layout, self.bar_regen, self.wcfg["column_index_battery_regen"])
+                layout, self.bar_regen, self.wcfg["column_index_battery_regen"])
 
         # Activation timer
         if self.wcfg["show_activation_timer"]:
-            self.bar_timer = QLabel("B TIMER")
-            self.bar_timer.setAlignment(Qt.AlignCenter)
-            self.bar_timer.setMinimumWidth(bar_width)
-            self.bar_timer.setStyleSheet(
-                self.set_qss(
-                    self.wcfg["font_color_activation_timer"],
-                    self.wcfg["bkg_color_activation_timer"])
+            bar_style_timer = self.set_qss(
+                self.wcfg["font_color_activation_timer"],
+                self.wcfg["bkg_color_activation_timer"]
+            )
+            self.bar_timer = self.set_qlabel(
+                text="B TIMER",
+                style=bar_style_timer,
+                width=bar_width,
             )
             self.set_layout_orient(
-                0, layout, self.bar_timer, self.wcfg["column_index_activation_timer"])
+                layout, self.bar_timer, self.wcfg["column_index_activation_timer"])
 
         # Last data
         self.last_battery_charge = None

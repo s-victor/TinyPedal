@@ -22,7 +22,7 @@ Rivals Widget
 
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QPixmap
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from .. import formatter as fmt
@@ -100,9 +100,11 @@ class Realtime(Overlay):
                 self.wcfg["font_color_position"],
                 self.wcfg["bkg_color_position"]
             )
-            self.generate_bar(
-                "pos", bar_style_pos, self.wcfg["column_index_position"],
-                2 * font_m.width + bar_padx
+            self.set_table(
+                name="pos",
+                style=bar_style_pos,
+                width=2 * font_m.width + bar_padx,
+                column=self.wcfg["column_index_position"],
             )
         # Driver name
         if self.wcfg["show_driver_name"]:
@@ -110,9 +112,11 @@ class Realtime(Overlay):
                 self.wcfg["font_color_driver_name"],
                 self.wcfg["bkg_color_driver_name"]
             )
-            self.generate_bar(
-                "drv", bar_style_drv, self.wcfg["column_index_driver"],
-                self.drv_width * font_m.width + bar_padx
+            self.set_table(
+                name="drv",
+                style=bar_style_drv,
+                width=self.drv_width * font_m.width + bar_padx,
+                column=self.wcfg["column_index_driver"],
             )
         # Vehicle name
         if self.wcfg["show_vehicle_name"]:
@@ -120,16 +124,22 @@ class Realtime(Overlay):
                 self.wcfg["font_color_vehicle_name"],
                 self.wcfg["bkg_color_vehicle_name"]
             )
-            self.generate_bar(
-                "veh", bar_style_veh, self.wcfg["column_index_vehicle"],
-                self.veh_width * font_m.width + bar_padx
+            self.set_table(
+                name="veh",
+                style=bar_style_veh,
+                width=self.veh_width * font_m.width + bar_padx,
+                column=self.wcfg["column_index_vehicle"],
             )
         # Brand logo
         if self.wcfg["show_brand_logo"]:
-            bar_style_brd = self.set_qss(bg=self.wcfg["bkg_color_brand_logo"])
-            self.generate_bar(
-                "brd", bar_style_brd, self.wcfg["column_index_brand_logo"],
-                self.brd_width
+            bar_style_brd = self.set_qss(
+                bg_color=self.wcfg["bkg_color_brand_logo"]
+            )
+            self.set_table(
+                name="brd",
+                style=bar_style_brd,
+                width=self.brd_width,
+                column=self.wcfg["column_index_brand_logo"],
             )
         # Time interval
         if self.wcfg["show_time_interval"]:
@@ -141,9 +151,11 @@ class Realtime(Overlay):
                     self.wcfg["font_color_time_interval_ahead"],
                     self.wcfg["bkg_color_time_interval_ahead"])
             )
-            self.generate_bar(
-                "int", self.bar_style_int[0], self.wcfg["column_index_timeinterval"],
-                self.int_width * font_m.width + bar_padx
+            self.set_table(
+                name="int",
+                style=self.bar_style_int[0],
+                width=self.int_width * font_m.width + bar_padx,
+                column=self.wcfg["column_index_timeinterval"],
             )
         # Vehicle laptime
         if self.wcfg["show_laptime"]:
@@ -151,9 +163,11 @@ class Realtime(Overlay):
                 self.wcfg["font_color_laptime"],
                 self.wcfg["bkg_color_laptime"]
             )
-            self.generate_bar(
-                "lpt", bar_style_lpt, self.wcfg["column_index_laptime"],
-                8 * font_m.width + bar_padx
+            self.set_table(
+                name="lpt",
+                style=bar_style_lpt,
+                width=8 * font_m.width + bar_padx,
+                column=self.wcfg["column_index_laptime"],
             )
         # Vehicle best laptime
         if self.wcfg["show_best_laptime"]:
@@ -161,9 +175,11 @@ class Realtime(Overlay):
                 self.wcfg["font_color_best_laptime"],
                 self.wcfg["bkg_color_best_laptime"]
             )
-            self.generate_bar(
-                "blp", bar_style_blp, self.wcfg["column_index_best_laptime"],
-                8 * font_m.width + bar_padx
+            self.set_table(
+                name="blp",
+                style=bar_style_blp,
+                width=8 * font_m.width + bar_padx,
+                column=self.wcfg["column_index_best_laptime"],
             )
         # Position in class
         if self.wcfg["show_position_in_class"]:
@@ -171,9 +187,11 @@ class Realtime(Overlay):
                 self.wcfg["font_color_position_in_class"],
                 self.wcfg["bkg_color_position_in_class"]
             )
-            self.generate_bar(
-                "pic", bar_style_pic, self.wcfg["column_index_position_in_class"],
-                2 * font_m.width + bar_padx
+            self.set_table(
+                name="pic",
+                style=bar_style_pic,
+                width=2 * font_m.width + bar_padx,
+                column=self.wcfg["column_index_position_in_class"],
             )
         # Vehicle class
         if self.wcfg["show_class"]:
@@ -181,9 +199,11 @@ class Realtime(Overlay):
                 self.wcfg["font_color_class"],
                 self.wcfg["bkg_color_class"]
             )
-            self.generate_bar(
-                "cls", bar_style_cls, self.wcfg["column_index_class"],
-                self.cls_width * font_m.width + bar_padx
+            self.set_table(
+                name="cls",
+                style=bar_style_cls,
+                width=self.cls_width * font_m.width + bar_padx,
+                column=self.wcfg["column_index_class"],
             )
         # Vehicle in pit
         if self.wcfg["show_pit_status"]:
@@ -193,9 +213,11 @@ class Realtime(Overlay):
                     self.wcfg["font_color_pit"],
                     self.wcfg["bkg_color_pit"])
             )
-            self.generate_bar(
-                "pit", self.bar_style_pit[1], self.wcfg["column_index_pitstatus"],
-                len(self.wcfg["pit_status_text"]) * font_m.width + bar_padx
+            self.set_table(
+                name="pit",
+                style=self.bar_style_pit[1],
+                width=len(self.wcfg["pit_status_text"]) * font_m.width + bar_padx,
+                column=self.wcfg["column_index_pitstatus"],
             )
         # Tyre compound index
         if self.wcfg["show_tyre_compound"]:
@@ -203,9 +225,11 @@ class Realtime(Overlay):
                 self.wcfg["font_color_tyre_compound"],
                 self.wcfg["bkg_color_tyre_compound"]
             )
-            self.generate_bar(
-                "tcp", bar_style_tcp, self.wcfg["column_index_tyre_compound"],
-                2 * font_m.width + bar_padx
+            self.set_table(
+                name="tcp",
+                style=bar_style_tcp,
+                width=2 * font_m.width + bar_padx,
+                column=self.wcfg["column_index_tyre_compound"],
             )
         # Pitstop count
         if self.wcfg["show_pitstop_count"]:
@@ -217,9 +241,11 @@ class Realtime(Overlay):
                     self.wcfg["font_color_pit_request"],
                     self.wcfg["bkg_color_pit_request"])
             )
-            self.generate_bar(
-                "psc", self.bar_style_psc[0], self.wcfg["column_index_pitstop_count"],
-                2 * font_m.width + bar_padx
+            self.set_table(
+                name="psc",
+                style=self.bar_style_psc[0],
+                width=2 * font_m.width + bar_padx,
+                column=self.wcfg["column_index_pitstop_count"],
             )
 
     def timerEvent(self, event):
@@ -250,73 +276,73 @@ class Realtime(Overlay):
                     self.curr_data[idx] = self.empty_vehicles_data
                 # Driver position
                 if self.wcfg["show_position"]:
-                    self.update_pos(self.data_bar[f"row_{idx}_pos"],
+                    self.update_pos(self.data_bar[f"{idx}_pos"],
                                     self.curr_data[idx][1],
                                     self.last_data[idx][1],
                                     )
                 # Driver name
                 if self.wcfg["show_driver_name"]:
-                    self.update_drv(self.data_bar[f"row_{idx}_drv"],
+                    self.update_drv(self.data_bar[f"{idx}_drv"],
                                     self.curr_data[idx][2],
                                     self.last_data[idx][2],
                                     )
                 # Vehicle name
                 if self.wcfg["show_vehicle_name"]:
-                    self.update_veh(self.data_bar[f"row_{idx}_veh"],
+                    self.update_veh(self.data_bar[f"{idx}_veh"],
                                     self.curr_data[idx][3],
                                     self.last_data[idx][3],
                                     )
                 # Brand logo
                 if self.wcfg["show_brand_logo"]:
-                    self.update_brd(self.data_bar[f"row_{idx}_brd"],
+                    self.update_brd(self.data_bar[f"{idx}_brd"],
                                     self.curr_data[idx][3],
                                     self.last_data[idx][3]
                                     )
                 # Time interval
                 if self.wcfg["show_time_interval"]:
-                    self.update_int(self.data_bar[f"row_{idx}_int"],
+                    self.update_int(self.data_bar[f"{idx}_int"],
                                     self.curr_data[idx][10],
                                     self.last_data[idx][10],
                                     )
                 # Vehicle laptime
                 if self.wcfg["show_laptime"]:
-                    self.update_lpt(self.data_bar[f"row_{idx}_lpt"],
+                    self.update_lpt(self.data_bar[f"{idx}_lpt"],
                                     self.curr_data[idx][7],
                                     self.last_data[idx][7],
                                     )
                 # Vehicle best laptime
                 if self.wcfg["show_best_laptime"]:
-                    self.update_blp(self.data_bar[f"row_{idx}_blp"],
+                    self.update_blp(self.data_bar[f"{idx}_blp"],
                                     self.curr_data[idx][8],
                                     self.last_data[idx][8],
                                     )
                 # Position in class
                 if self.wcfg["show_position_in_class"]:
-                    self.update_pic(self.data_bar[f"row_{idx}_pic"],
+                    self.update_pic(self.data_bar[f"{idx}_pic"],
                                     self.curr_data[idx][4],
                                     self.last_data[idx][4],
                                     )
                 # Vehicle class
                 if self.wcfg["show_class"]:
-                    self.update_cls(self.data_bar[f"row_{idx}_cls"],
+                    self.update_cls(self.data_bar[f"{idx}_cls"],
                                     self.curr_data[idx][5],
                                     self.last_data[idx][5],
                                     )
                 # Vehicle in pit
                 if self.wcfg["show_pit_status"]:
-                    self.update_pit(self.data_bar[f"row_{idx}_pit"],
+                    self.update_pit(self.data_bar[f"{idx}_pit"],
                                     self.curr_data[idx][0],
                                     self.last_data[idx][0],
                                     )
                 # Tyre compound index
                 if self.wcfg["show_tyre_compound"]:
-                    self.update_tcp(self.data_bar[f"row_{idx}_tcp"],
+                    self.update_tcp(self.data_bar[f"{idx}_tcp"],
                                     self.curr_data[idx][6],
                                     self.last_data[idx][6],
                                     )
                 # Pitstop count
                 if self.wcfg["show_pitstop_count"]:
-                    self.update_psc(self.data_bar[f"row_{idx}_psc"],
+                    self.update_psc(self.data_bar[f"{idx}_psc"],
                                     self.curr_data[idx][9],
                                     self.last_data[idx][9],
                                     )
@@ -470,15 +496,16 @@ class Realtime(Overlay):
             self.toggle_visibility(text, target_bar)
 
     # GUI generate methods
-    def generate_bar(self, suffix, style, column_idx, bar_width):
-        """Generate bar set"""
+    def set_table(self, name: str, style: str, width: int, column: int):
+        """Set table"""
         for idx in range(self.veh_range):
-            bar_name = f"row_{idx}_{suffix}"
-            self.data_bar[bar_name] = QLabel("")
-            self.data_bar[bar_name].setAlignment(Qt.AlignCenter)
-            self.data_bar[bar_name].setStyleSheet(style)
-            self.data_bar[bar_name].setMinimumWidth(bar_width)
-            self.layout.addWidget(self.data_bar[bar_name], idx, column_idx)
+            bar_name = f"{idx}_{name}"
+            self.data_bar[bar_name] = self.set_qlabel(
+                text="",
+                style=style,
+                width=width,
+            )
+            self.layout.addWidget(self.data_bar[bar_name], idx, column)
             if idx > 0:  # show only first row initially
                 self.data_bar[bar_name].hide()
 

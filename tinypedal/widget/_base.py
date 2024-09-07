@@ -20,14 +20,17 @@
 Overlay base window, events.
 """
 
+from __future__ import annotations
+
 import re
 from dataclasses import dataclass
 
 from PySide2.QtCore import Qt, Slot, QBasicTimer
 from PySide2.QtGui import QPalette, QFont, QFontMetrics
-from PySide2.QtWidgets import QWidget
+from PySide2.QtWidgets import QWidget, QLabel, QLayout
 
 from ..const import APP_NAME
+from ..regex_pattern import FONT_WEIGHT_LIST
 from ..overlay_control import octrl
 
 
@@ -86,6 +89,14 @@ class Overlay(QWidget):
         self.__break_signal()
         self.unload_resource()
         self.closed = self.close()
+
+    def unload_resource(self):
+        """Unload resource (such as images) on close, can re-implement in widget"""
+        instance_var_list = dir(self)
+        for var in instance_var_list:
+            # Unload all pixmap
+            if re.search("pixmap_", var):
+                setattr(self, var, None)
 
     def __set_window_attributes(self):
         """Set window attributes"""
@@ -157,8 +168,9 @@ class Overlay(QWidget):
         octrl.state.locked.disconnect(self.__toggle_lock)
         octrl.state.hidden.disconnect(self.__toggle_hide)
 
+    # Common GUI methods
     @staticmethod
-    def config_font(name: str = "", size: int = 1, weight: str = "") -> object:
+    def config_font(name: str = "", size: int = 1, weight: str = "") -> QFont:
         """Config font
 
         Used for draw text in widget that uses QPainter,
@@ -166,7 +178,7 @@ class Overlay(QWidget):
 
         Args:
             name: font name string.
-            size: font size in pixels.
+            size: font size in pixel.
             weight (optional): font weight name string, convert name to capital.
 
         Returns:
@@ -180,7 +192,7 @@ class Overlay(QWidget):
         return font
 
     @staticmethod
-    def get_font_metrics(qfont: object) -> object:
+    def get_font_metrics(qfont: QFont) -> FontMetrics:
         """Get font metrics
 
         Args:
@@ -198,7 +210,7 @@ class Overlay(QWidget):
             descent = font_metrics.descent(),
         )
 
-    def calc_font_offset(self, metrics: object) -> int:
+    def calc_font_offset(self, metrics: FontMetrics) -> int:
         """Calculate auto font vertical offset
 
         Find difference between actual height and height reading
@@ -209,59 +221,122 @@ class Overlay(QWidget):
             metrics: FontMetrics object.
 
         Returns:
-            Calculated font offset in pixels.
+            Calculated font offset in pixel.
         """
         if self.wcfg["enable_auto_font_offset"]:
             return metrics.capital + metrics.descent * 2 + metrics.leading * 2 - metrics.height
         return self.wcfg["font_offset_vertical"]
 
     @staticmethod
-    def set_text_alignment(alignment: str):
-        """Set text alignment"""
-        if alignment == "Left":
+    def set_text_alignment(align: int | str = 0) -> Qt.AlignmentFlag:
+        """Set text alignment
+
+        Args:
+            align:
+            0 (center alignment).
+            1 or "Left" (left alignment).
+            2 or "Right" (right alignment).
+
+        Returns:
+            Qt alignment.
+        """
+        if align in (1, "Left"):
             return Qt.AlignLeft
-        if alignment == "Right":
+        if align in (2, "Right"):
             return Qt.AlignRight
         return Qt.AlignCenter
 
     @staticmethod
-    def set_qss(fg: str = "", bg: str = "", font_size: int = 0) -> str:
-        """Set qt style sheet, foreground & background color, font, etc"""
-        if fg:  # foreground color
-            fg = f"color:{fg};"
-        if bg:  # background color
-            bg = f"background:{bg};"
-        if font_size > 0:  # font size
+    def set_qss(
+        fg_color: str = "", bg_color: str = "",
+        font_family: str = "", font_size: int = -1, font_weight: str = "") -> str:
+        """Set qt style sheet
+
+        Args:
+            fg_color: foreground color.
+            bg_color: background color.
+            font_family: font family name string.
+            font_size: font size in pixel.
+            font_weight: font weight string, "normal" or "bold".
+
+        Returns:
+            Qt style sheet string.
+        """
+        if fg_color:
+            fg_color = f"color:{fg_color};"
+        if bg_color:
+            bg_color = f"background:{bg_color};"
+        if font_family:
+            font_family = f"font-family:{font_family};"
+        if font_size >= 0:
             font_size = f"font-size:{font_size}px;"
         else:
             font_size = ""
-        return f"{fg}{bg}{font_size}"
+        if font_weight in FONT_WEIGHT_LIST:
+            font_weight = f"font-weight:{font_weight};"
+        return f"{fg_color}{bg_color}{font_family}{font_size}{font_weight}"
+
+    def add_qlabel(
+        self, text: str = "", style: str = "", width: int = 0,
+        align: int = 0) -> QLabel:
+        """Add a single qlabel instance
+
+        Args:
+            text: label text.
+            style: qt style sheet.
+            width: label width in pixel.
+            align: 0 (center), 1 (left), 2 (right).
+
+        Returns:
+            QLabel instance.
+        """
+        bar_temp = QLabel(text)
+        bar_temp.setAlignment(self.set_text_alignment(align))
+        bar_temp.setStyleSheet(style)
+        if width > 0:
+            bar_temp.setMinimumWidth(width)
+        return bar_temp
+
+    def set_qlabel(
+        self, text: str = "", style: str = "", width: int = 0,
+        align: int = 0, count: int = 1) -> (tuple[QLabel] | QLabel):
+        """Set qlabel
+
+        Args:
+            text: label text.
+            style: qt style sheet.
+            width: label width in pixel.
+            align: 0 (center), 1 (left), 2 (right)
+            count: number of qlabel to set.
+
+        Returns:
+            A single or multiple(tuple) QLabel instances,
+            depends on count value (default 1).
+        """
+        if count > 1:
+            return tuple(
+                self.add_qlabel(text, style, width, align)
+                for _ in range(count)
+            )
+        return self.add_qlabel(text, style, width, align)
 
     def set_layout_orient(
-        self, target_type: int, layout_main: object, target: object, column_index: int):
+        self, layout: QLayout, target: QWidget | QLayout, column: int):
         """Set widget or layout orientation in vertical or horizontal
 
         Args:
             target_type: 0 (widget), 1 (layout).
-            layout_main: primary layout.
-            target: widget or layout.
-            column_index: column index.
+            layout: primary layout.
+            target: QWidget or QLayout.
+            column: column index.
         """
         if self.wcfg["layout"] == 0:  # Vertical layout
-            if target_type == 1:
-                layout_main.addLayout(target, column_index, 0)
+            if isinstance(target, QWidget):
+                layout.addWidget(target, column, 0)
             else:
-                layout_main.addWidget(target, column_index, 0)
+                layout.addLayout(target, column, 0)
         else:  # Horizontal layout
-            if target_type == 1:
-                layout_main.addLayout(target, 0, column_index)
+            if isinstance(target, QWidget):
+                layout.addWidget(target, 0, column)
             else:
-                layout_main.addWidget(target, 0, column_index)
-
-    def unload_resource(self):
-        """Unload resource (such as images) on close, can re-implement in widget"""
-        instance_var_list = dir(self)
-        for var in instance_var_list:
-            # Unload all pixmap
-            if re.search("pixmap_", var):
-                setattr(self, var, None)
+                layout.addLayout(target, 0, column)
