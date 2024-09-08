@@ -21,7 +21,7 @@ Force Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from ..module_info import minfo
 from ._base import Overlay
@@ -41,16 +41,16 @@ class Realtime(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
+        text_def = "n/a"
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        bar_width = f"min-width: {font_m.width * 6 + bar_padx}px;"
+        bar_width = font_m.width * 6 + bar_padx
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"{bar_width}"
         )
 
         # Create layout
@@ -58,80 +58,93 @@ class Realtime(Overlay):
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_lg = self.wcfg["column_index_long_gforce"]
-        column_lt = self.wcfg["column_index_lat_gforce"]
-        column_dr = self.wcfg["column_index_downforce_ratio"]
-        column_fd = self.wcfg["column_index_front_downforce"]
-        column_rd = self.wcfg["column_index_rear_downforce"]
+        self.setLayout(layout)
 
         # G force
         if self.wcfg["show_g_force"]:
-            self.bar_gforce_lgt = QLabel("n/a")
-            self.bar_gforce_lgt.setAlignment(Qt.AlignCenter)
-            self.bar_gforce_lgt.setStyleSheet(
-                f"color: {self.wcfg['font_color_g_force']};"
-                f"background: {self.wcfg['bkg_color_g_force']};"
+            bar_style_gforce_lgt = self.set_qss(
+                self.wcfg["font_color_g_force"],
+                self.wcfg["bkg_color_g_force"]
+            )
+            self.bar_gforce_lgt = self.set_qlabel(
+                text=text_def,
+                style=bar_style_gforce_lgt,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_gforce_lgt,
+                column=self.wcfg["column_index_long_gforce"],
             )
 
-            self.bar_gforce_lat = QLabel("n/a")
-            self.bar_gforce_lat.setAlignment(Qt.AlignCenter)
-            self.bar_gforce_lat.setStyleSheet(
-                f"color: {self.wcfg['font_color_g_force']};"
-                f"background: {self.wcfg['bkg_color_g_force']};"
+            bar_style_gforce_lat = self.set_qss(
+                self.wcfg["font_color_g_force"],
+                self.wcfg["bkg_color_g_force"]
+            )
+            self.bar_gforce_lat = self.set_qlabel(
+                text=text_def,
+                style=bar_style_gforce_lat,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_gforce_lat,
+                column=self.wcfg["column_index_lat_gforce"],
             )
 
         # Downforce ratio
         if self.wcfg["show_downforce_ratio"]:
-            self.bar_df_ratio = QLabel("n/a")
-            self.bar_df_ratio.setAlignment(Qt.AlignCenter)
-            self.bar_df_ratio.setStyleSheet(
-                f"color: {self.wcfg['font_color_downforce_ratio']};"
-                f"background: {self.wcfg['bkg_color_downforce_ratio']};"
+            bar_style_df_ratio = self.set_qss(
+                self.wcfg["font_color_downforce_ratio"],
+                self.wcfg["bkg_color_downforce_ratio"]
+            )
+            self.bar_df_ratio = self.set_qlabel(
+                text=text_def,
+                style=bar_style_df_ratio,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_df_ratio,
+                column=self.wcfg["column_index_downforce_ratio"],
             )
 
         # Front downforce
         if self.wcfg["show_front_downforce"]:
-            self.bar_df_front = QLabel("n/a")
-            self.bar_df_front.setAlignment(Qt.AlignCenter)
-            self.bar_df_front.setStyleSheet(
-                f"color: {self.wcfg['font_color_front_downforce']};"
-                f"background: {self.wcfg['bkg_color_front_downforce']};"
+            self.bar_style_df_front = (
+                self.set_qss(
+                    self.wcfg["font_color_front_downforce"],
+                    self.wcfg["bkg_color_front_downforce"]),
+                self.set_qss(
+                    self.wcfg["font_color_front_downforce"],
+                    self.wcfg["warning_color_liftforce"])
+            )
+            self.bar_df_front = self.set_qlabel(
+                text=text_def,
+                style=self.bar_style_df_front[0],
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_df_front,
+                column=self.wcfg["column_index_front_downforce"],
             )
 
         # Rear downforce
         if self.wcfg["show_rear_downforce"]:
-            self.bar_df_rear = QLabel("n/a")
-            self.bar_df_rear.setAlignment(Qt.AlignCenter)
-            self.bar_df_rear.setStyleSheet(
-                f"color: {self.wcfg['font_color_rear_downforce']};"
-                f"background: {self.wcfg['bkg_color_rear_downforce']};"
+            self.bar_style_df_rear = (
+                self.set_qss(
+                    self.wcfg["font_color_rear_downforce"],
+                    self.wcfg["bkg_color_rear_downforce"]),
+                self.set_qss(
+                    self.wcfg["font_color_rear_downforce"],
+                    self.wcfg["warning_color_liftforce"])
             )
-
-        # Set layout
-        if self.wcfg["layout"] == 0:
-            # Vertical layout
-            if self.wcfg["show_g_force"]:
-                layout.addWidget(self.bar_gforce_lgt, column_lg, 0)
-                layout.addWidget(self.bar_gforce_lat, column_lt, 0)
-            if self.wcfg["show_downforce_ratio"]:
-                layout.addWidget(self.bar_df_ratio, column_dr, 0)
-            if self.wcfg["show_front_downforce"]:
-                layout.addWidget(self.bar_df_front, column_fd, 0)
-            if self.wcfg["show_rear_downforce"]:
-                layout.addWidget(self.bar_df_rear, column_rd, 0)
-        else:
-            # Horizontal layout
-            if self.wcfg["show_g_force"]:
-                layout.addWidget(self.bar_gforce_lgt, 0, column_lg)
-                layout.addWidget(self.bar_gforce_lat, 0, column_lt)
-            if self.wcfg["show_downforce_ratio"]:
-                layout.addWidget(self.bar_df_ratio, 0, column_dr)
-            if self.wcfg["show_front_downforce"]:
-                layout.addWidget(self.bar_df_front, 0, column_fd)
-            if self.wcfg["show_rear_downforce"]:
-                layout.addWidget(self.bar_df_rear, 0, column_rd)
-        self.setLayout(layout)
+            self.bar_df_rear = self.set_qlabel(
+                text=text_def,
+                style=self.bar_style_df_rear[0],
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_df_rear,
+                column=self.wcfg["column_index_rear_downforce"],
+            )
 
         # Last data
         self.last_gf_lgt = None
@@ -158,7 +171,7 @@ class Realtime(Overlay):
 
             # Downforce ratio
             if self.wcfg["show_downforce_ratio"]:
-                df_ratio = f"{minfo.force.downForceRatio:.2f}"[:5].strip(".")
+                df_ratio = round(minfo.force.downForceRatio, 2)
                 self.update_df_ratio(df_ratio, self.last_df_ratio)
                 self.last_df_ratio = df_ratio
 
@@ -188,33 +201,20 @@ class Realtime(Overlay):
     def update_df_ratio(self, curr, last):
         """Downforce ratio"""
         if curr != last:
-            self.bar_df_ratio.setText(f"{curr}%")
+            text = f"{curr:.2f}"[:5].strip(".")
+            self.bar_df_ratio.setText(f"{text}%")
 
     def update_df_front(self, curr, last):
         """Downforce front"""
         if curr != last:
-            if curr >= 0:
-                color = (f"color: {self.wcfg['font_color_front_downforce']};"
-                         f"background: {self.wcfg['bkg_color_front_downforce']};")
-            else:
-                color = (f"color: {self.wcfg['font_color_front_downforce']};"
-                         f"background: {self.wcfg['warning_color_liftforce']};")
-
             self.bar_df_front.setText(f"F{abs(curr):5.0f}"[:6])
-            self.bar_df_front.setStyleSheet(color)
+            self.bar_df_front.setStyleSheet(self.bar_style_df_front[curr < 0])
 
     def update_df_rear(self, curr, last):
         """Downforce rear"""
         if curr != last:
-            if curr >= 0:
-                color = (f"color: {self.wcfg['font_color_rear_downforce']};"
-                         f"background: {self.wcfg['bkg_color_rear_downforce']};")
-            else:
-                color = (f"color: {self.wcfg['font_color_rear_downforce']};"
-                         f"background: {self.wcfg['warning_color_liftforce']};")
-
             self.bar_df_rear.setText(f"R{abs(curr):5.0f}"[:6])
-            self.bar_df_rear.setStyleSheet(color)
+            self.bar_df_rear.setStyleSheet(self.bar_style_df_rear[curr < 0])
 
     # Additional methods
     @staticmethod
