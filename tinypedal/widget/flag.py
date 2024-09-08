@@ -21,7 +21,7 @@ Flag Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from ..api_control import api
@@ -45,14 +45,13 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        bar_width = f"min-width: {font_m.width * 7 + bar_padx}px;"
+        bar_width = font_m.width * 7 + bar_padx
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"{bar_width}"
         )
 
         # Create layout
@@ -60,140 +59,166 @@ class Realtime(Overlay):
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_ptim = self.wcfg["column_index_pit_timer"]
-        column_fuel = self.wcfg["column_index_low_fuel"]
-        column_slmt = self.wcfg["column_index_speed_limiter"]
-        column_yllw = self.wcfg["column_index_yellow_flag"]
-        column_blue = self.wcfg["column_index_blue_flag"]
-        column_slit = self.wcfg["column_index_startlights"]
-        column_icom = self.wcfg["column_index_traffic"]
-        column_preq = self.wcfg["column_index_pit_request"]
-        column_fins = self.wcfg["column_index_finish_state"]
+        self.setLayout(layout)
 
         # Pit status
         if self.wcfg["show_pit_timer"]:
-            self.bar_pit_timer = QLabel("PITST0P")
-            self.bar_pit_timer.setAlignment(Qt.AlignCenter)
-            self.bar_pit_timer.setStyleSheet(
-                f"color: {self.wcfg['font_color_pit_timer']};"
-                f"background: {self.wcfg['bkg_color_pit_timer']};"
+            self.bar_style_pit_timer = (
+                self.set_qss(
+                    self.wcfg["font_color_pit_timer"],
+                    self.wcfg["bkg_color_pit_timer"]),
+                self.set_qss(
+                    self.wcfg["font_color_pit_timer_stopped"],
+                    self.wcfg["bkg_color_pit_timer_stopped"]),
+                self.set_qss(
+                    self.wcfg["font_color_pit_closed"],
+                    self.wcfg["bkg_color_pit_closed"])
+            )
+            self.bar_pit_timer = self.set_qlabel(
+                text="PITST0P",
+                style=self.bar_style_pit_timer[0],
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_pit_timer,
+                column=self.wcfg["column_index_pit_timer"],
             )
 
         # Low fuel warning
         if self.wcfg["show_low_fuel"]:
-            self.bar_lowfuel = QLabel("LOWFUEL")
-            self.bar_lowfuel.setAlignment(Qt.AlignCenter)
-            self.bar_lowfuel.setStyleSheet(
-                f"color: {self.wcfg['font_color_low_fuel']};"
-                f"background: {self.wcfg['bkg_color_low_fuel']};"
+            bar_style_lowfuel = self.set_qss(
+                self.wcfg["font_color_low_fuel"],
+                self.wcfg["bkg_color_low_fuel"]
+            )
+            self.bar_lowfuel = self.set_qlabel(
+                text="LOWFUEL",
+                style=bar_style_lowfuel,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_lowfuel,
+                column=self.wcfg["column_index_low_fuel"],
             )
 
         # Speed limiter
         if self.wcfg["show_speed_limiter"]:
-            self.bar_limiter = QLabel(self.wcfg["speed_limiter_text"])
-            self.bar_limiter.setAlignment(Qt.AlignCenter)
-            self.bar_limiter.setStyleSheet(
-                f"color: {self.wcfg['font_color_speed_limiter']};"
-                f"background: {self.wcfg['bkg_color_speed_limiter']};"
+            bar_style_limiter = self.set_qss(
+                self.wcfg["font_color_speed_limiter"],
+                self.wcfg["bkg_color_speed_limiter"]
+            )
+            self.bar_limiter = self.set_qlabel(
+                text=self.wcfg["speed_limiter_text"],
+                style=bar_style_limiter,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_limiter,
+                column=self.wcfg["column_index_speed_limiter"],
             )
 
         # Yellow flag
         if self.wcfg["show_yellow_flag"]:
-            self.bar_yellowflag = QLabel("YELLOW")
-            self.bar_yellowflag.setAlignment(Qt.AlignCenter)
-            self.bar_yellowflag.setStyleSheet(
-                f"color: {self.wcfg['font_color_yellow_flag']};"
-                f"background: {self.wcfg['bkg_color_yellow_flag']};"
+            bar_style_yellowflag = self.set_qss(
+                self.wcfg["font_color_yellow_flag"],
+                self.wcfg["bkg_color_yellow_flag"]
+            )
+            self.bar_yellowflag = self.set_qlabel(
+                text="YELLOW",
+                style=bar_style_yellowflag,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_yellowflag,
+                column=self.wcfg["column_index_yellow_flag"],
             )
 
         # Blue flag
         if self.wcfg["show_blue_flag"]:
-            self.bar_blueflag = QLabel("BLUE")
-            self.bar_blueflag.setAlignment(Qt.AlignCenter)
-            self.bar_blueflag.setStyleSheet(
-                f"color: {self.wcfg['font_color_blue_flag']};"
-                f"background: {self.wcfg['bkg_color_blue_flag']};"
+            bar_style_blueflag = self.set_qss(
+                self.wcfg["font_color_blue_flag"],
+                self.wcfg["bkg_color_blue_flag"]
+            )
+            self.bar_blueflag = self.set_qlabel(
+                text="BLUE",
+                style=bar_style_blueflag,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_blueflag,
+                column=self.wcfg["column_index_blue_flag"],
             )
 
         # Start lights
         if self.wcfg["show_startlights"]:
-            self.bar_startlights = QLabel("SLIGHTS")
-            self.bar_startlights.setAlignment(Qt.AlignCenter)
-            self.bar_startlights.setStyleSheet(
-                f"color: {self.wcfg['font_color_startlights']};"
-                f"background: {self.wcfg['bkg_color_red_lights']};"
+            self.bar_style_startlights = (
+                self.set_qss(
+                    self.wcfg["font_color_startlights"],
+                    self.wcfg["bkg_color_red_lights"]),
+                self.set_qss(
+                    self.wcfg["font_color_startlights"],
+                    self.wcfg["bkg_color_green_flag"])
+            )
+            self.bar_startlights = self.set_qlabel(
+                text="SLIGHTS",
+                style=self.bar_style_startlights[0],
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_startlights,
+                column=self.wcfg["column_index_startlights"],
             )
 
         # Incoming traffic
         if self.wcfg["show_traffic"]:
-            self.bar_traffic = QLabel("TRAFFIC")
-            self.bar_traffic.setAlignment(Qt.AlignCenter)
-            self.bar_traffic.setStyleSheet(
-                f"color: {self.wcfg['font_color_traffic']};"
-                f"background: {self.wcfg['bkg_color_traffic']};"
+            bar_style_traffic = self.set_qss(
+                self.wcfg["font_color_traffic"],
+                self.wcfg["bkg_color_traffic"]
+            )
+            self.bar_traffic = self.set_qlabel(
+                text="TRAFFIC",
+                style=bar_style_traffic,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_traffic,
+                column=self.wcfg["column_index_traffic"],
             )
 
         # Pit request
         if self.wcfg["show_pit_request"]:
-            self.bar_pit_request = QLabel("PIT REQ")
-            self.bar_pit_request.setAlignment(Qt.AlignCenter)
-            self.bar_pit_request.setStyleSheet(
-                f"color: {self.wcfg['font_color_pit_request']};"
-                f"background: {self.wcfg['bkg_color_pit_request']};"
+            bar_style_pit_request = self.set_qss(
+                self.wcfg["font_color_pit_request"],
+                self.wcfg["bkg_color_pit_request"]
+            )
+            self.bar_pit_request = self.set_qlabel(
+                text="PIT REQ",
+                style=bar_style_pit_request,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_pit_request,
+                column=self.wcfg["column_index_pit_request"],
             )
 
         # Finish state
         if self.wcfg["show_finish_state"]:
-            self.bar_finish_state = QLabel("FINISH")
-            self.bar_finish_state.setAlignment(Qt.AlignCenter)
-            self.bar_finish_state.setStyleSheet(
-                f"color: {self.wcfg['font_color_finish']};"
-                f"background: {self.wcfg['bkg_color_finish']};"
+            self.bar_style_finish_state = (
+                self.set_qss(
+                    self.wcfg["font_color_finish"],
+                    self.wcfg["bkg_color_finish"]),
+                self.set_qss(
+                    self.wcfg["font_color_disqualify"],
+                    self.wcfg["bkg_color_disqualify"])
             )
-
-        # Set layout
-        if self.wcfg["layout"] == 0:
-            # Vertical layout
-            if self.wcfg["show_pit_timer"]:
-                layout.addWidget(self.bar_pit_timer, column_ptim, 0)
-            if self.wcfg["show_low_fuel"]:
-                layout.addWidget(self.bar_lowfuel, column_fuel, 0)
-            if self.wcfg["show_speed_limiter"]:
-                layout.addWidget(self.bar_limiter, column_slmt, 0)
-            if self.wcfg["show_yellow_flag"]:
-                layout.addWidget(self.bar_yellowflag, column_yllw, 0)
-            if self.wcfg["show_blue_flag"]:
-                layout.addWidget(self.bar_blueflag, column_blue, 0)
-            if self.wcfg["show_startlights"]:
-                layout.addWidget(self.bar_startlights, column_slit, 0)
-            if self.wcfg["show_traffic"]:
-                layout.addWidget(self.bar_traffic, column_icom, 0)
-            if self.wcfg["show_pit_request"]:
-                layout.addWidget(self.bar_pit_request, column_preq, 0)
-            if self.wcfg["show_finish_state"]:
-                layout.addWidget(self.bar_finish_state, column_fins, 0)
-        else:
-            # Horizontal layout
-            if self.wcfg["show_pit_timer"]:
-                layout.addWidget(self.bar_pit_timer, 0, column_ptim)
-            if self.wcfg["show_low_fuel"]:
-                layout.addWidget(self.bar_lowfuel, 0, column_fuel)
-            if self.wcfg["show_speed_limiter"]:
-                layout.addWidget(self.bar_limiter, 0, column_slmt)
-            if self.wcfg["show_yellow_flag"]:
-                layout.addWidget(self.bar_yellowflag, 0, column_yllw)
-            if self.wcfg["show_blue_flag"]:
-                layout.addWidget(self.bar_blueflag, 0, column_blue)
-            if self.wcfg["show_startlights"]:
-                layout.addWidget(self.bar_startlights, 0, column_slit)
-            if self.wcfg["show_traffic"]:
-                layout.addWidget(self.bar_traffic, 0, column_icom)
-            if self.wcfg["show_pit_request"]:
-                layout.addWidget(self.bar_pit_request, 0, column_preq)
-            if self.wcfg["show_finish_state"]:
-                layout.addWidget(self.bar_finish_state, 0, column_fins)
-        self.setLayout(layout)
+            self.bar_finish_state = self.set_qlabel(
+                text="FINISH",
+                style=self.bar_style_finish_state[0],
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_finish_state,
+                column=self.wcfg["column_index_finish_state"],
+            )
 
         # Last data
         self.set_defaults()
@@ -296,17 +321,14 @@ class Realtime(Overlay):
         """Pit timer"""
         if curr != last:  # timer
             if curr[0] != -1:
-                if curr[1]:  # highlight state
-                    color = (f"color: {self.wcfg['font_color_pit_timer_stopped']};"
-                             f"background: {self.wcfg['bkg_color_pit_timer_stopped']};")
+                if curr[1]:  # finished pits
+                    color = self.bar_style_pit_timer[1]
                     state = "F " + f"{min(curr[0], 999.99):.2f}"[:5].rjust(5)
                 elif api.read.session.pit_open():
-                    color = (f"color: {self.wcfg['font_color_pit_timer']};"
-                             f"background: {self.wcfg['bkg_color_pit_timer']};")
+                    color = self.bar_style_pit_timer[0]
                     state = "P " + f"{min(curr[0], 999.99):.2f}"[:5].rjust(5)
-                else:
-                    color = (f"color: {self.wcfg['font_color_pit_closed']};"
-                             f"background: {self.wcfg['bkg_color_pit_closed']};")
+                else:  # pit closed
+                    color = self.bar_style_pit_timer[2]
                     state = self.wcfg["pit_closed_text"]
 
                 self.bar_pit_timer.setText(state)
@@ -361,16 +383,11 @@ class Realtime(Overlay):
             if curr[0] == 0:
                 self.bar_startlights.setText(
                     f"{self.wcfg['red_lights_text'][:6].ljust(6)}{curr[1]}")
-                self.bar_startlights.setStyleSheet(
-                    f"color: {self.wcfg['font_color_startlights']};"
-                    f"background: {self.wcfg['bkg_color_red_lights']};")
+                self.bar_startlights.setStyleSheet(self.bar_style_startlights[0])
                 self.bar_startlights.show()
             elif curr[0] == 1:
-                self.bar_startlights.setText(
-                    self.wcfg["green_flag_text"])
-                self.bar_startlights.setStyleSheet(
-                    f"color: {self.wcfg['font_color_startlights']};"
-                    f"background: {self.wcfg['bkg_color_green_flag']};")
+                self.bar_startlights.setText(self.wcfg["green_flag_text"])
+                self.bar_startlights.setStyleSheet(self.bar_style_startlights[1])
                 self.bar_startlights.show()
             else:
                 self.bar_startlights.hide()
@@ -388,8 +405,8 @@ class Realtime(Overlay):
         """Pit request"""
         if curr != last:
             if curr[0] == 1:
-                countdown = f"{curr[1]:3.2f}"[:3].strip(".").ljust(3)
-                est_laps = f"{curr[2]:3.2f}"[:3].strip(".").rjust(3)
+                countdown = f"{curr[1]:.2f}"[:3].strip(".").ljust(3)
+                est_laps = f"{curr[2]:.2f}"[:3].strip(".").rjust(3)
                 self.bar_pit_request.setText(f"{countdown}≤{est_laps}")
                 self.bar_pit_request.show()
             else:
@@ -400,15 +417,11 @@ class Realtime(Overlay):
         if curr != last:
             if curr == 1:
                 self.bar_finish_state.setText(self.wcfg["finish_text"])
-                self.bar_finish_state.setStyleSheet(
-                    f"color: {self.wcfg['font_color_finish']};"
-                    f"background: {self.wcfg['bkg_color_finish']};")
+                self.bar_finish_state.setStyleSheet(self.bar_style_finish_state[0])
                 self.bar_finish_state.show()
             elif curr == 3:
                 self.bar_finish_state.setText(self.wcfg["disqualify_text"])
-                self.bar_finish_state.setStyleSheet(
-                    f"color: {self.wcfg['font_color_disqualify']};"
-                    f"background: {self.wcfg['bkg_color_disqualify']};")
+                self.bar_finish_state.setStyleSheet(self.bar_style_finish_state[1])
                 self.bar_finish_state.show()
             else:
                 self.bar_finish_state.hide()
@@ -431,7 +444,8 @@ class Realtime(Overlay):
             amount_curr = minfo.fuel.amountCurrent
             est_laps = minfo.fuel.estimatedLaps
 
-        low_fuel = (amount_curr < self.wcfg["low_fuel_volume_threshold"] and
+        low_fuel = (
+            amount_curr < self.wcfg["low_fuel_volume_threshold"] and
             est_laps < self.wcfg["low_fuel_lap_threshold"] and
             (not self.wcfg["show_low_fuel_for_race_only"] or
             self.wcfg["show_low_fuel_for_race_only"] and in_race))

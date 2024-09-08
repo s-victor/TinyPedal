@@ -219,7 +219,7 @@ class Realtime(Overlay):
             if self.wcfg["show_battery_bar"]:
                 # Hide battery bar if electric motor unavailable
                 motor_state = minfo.hybrid.motorState
-                self.update_state("battbar", motor_state, self.last_motor_state)
+                self.update_state(self.bar_battbar, motor_state, self.last_motor_state)
                 self.last_motor_state = motor_state
 
                 if motor_state:
@@ -229,7 +229,7 @@ class Realtime(Overlay):
 
             # Speed limier
             if self.wcfg["show_speed_limiter"]:
-                self.update_state("limiter", limiter, self.last_limiter)
+                self.update_state(self.bar_limiter, limiter, self.last_limiter)
                 self.last_limiter = limiter
 
         else:
@@ -259,13 +259,13 @@ class Realtime(Overlay):
         if curr != last:
             self.draw_battbar(self.bar_battbar, self.pixmap_battbar, *curr)
 
-    def update_state(self, suffix, curr, last):
+    def update_state(self, target_bar, curr, last):
         """State update"""
         if curr != last:
             if curr:
-                getattr(self, f"bar_{suffix}").show()
+                target_bar.show()
             else:
-                getattr(self, f"bar_{suffix}").hide()
+                target_bar.hide()
 
     def draw_gauge(self, canvas, pixmap, gauge_data):
         """Gauge"""
