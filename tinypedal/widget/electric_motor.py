@@ -21,7 +21,7 @@ Electric motor Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from ..api_control import api
@@ -44,14 +44,13 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        bar_width = f"min-width: {font_m.width * 8 + bar_padx}px;"
+        bar_width = font_m.width * 8 + bar_padx
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"{bar_width}"
         )
 
         # Create layout
@@ -59,84 +58,95 @@ class Realtime(Overlay):
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_motor = self.wcfg["column_index_motor_temperature"]
-        column_water = self.wcfg["column_index_water_temperature"]
-        column_rpm = self.wcfg["column_index_rpm"]
-        column_torque = self.wcfg["column_index_torque"]
-        column_power = self.wcfg["column_index_power"]
+        self.setLayout(layout)
 
         # Motor temperature
         if self.wcfg["show_motor_temperature"]:
-            self.bar_motor = QLabel("M TEMP")
-            self.bar_motor.setAlignment(Qt.AlignCenter)
-            self.bar_motor.setStyleSheet(
-                f"color: {self.wcfg['font_color_motor_temperature']};"
-                f"background: {self.wcfg['bkg_color_motor_temperature']};"
+            self.bar_style_motor = (
+                self.set_qss(
+                    self.wcfg["font_color_motor_temperature"],
+                    self.wcfg["bkg_color_motor_temperature"]),
+                self.set_qss(
+                    self.wcfg["font_color_motor_temperature"],
+                    self.wcfg["warning_color_overheat"])
+            )
+            self.bar_motor = self.set_qlabel(
+                text="M TEMP",
+                style=self.bar_style_motor[0],
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_motor,
+                column=self.wcfg["column_index_motor_temperature"],
             )
 
         # Motor water temperature
         if self.wcfg["show_water_temperature"]:
-            self.bar_water = QLabel("W TEMP")
-            self.bar_water.setAlignment(Qt.AlignCenter)
-            self.bar_water.setStyleSheet(
-                f"color: {self.wcfg['font_color_water_temperature']};"
-                f"background: {self.wcfg['bkg_color_water_temperature']};"
+            self.bar_style_water = (
+                self.set_qss(
+                    self.wcfg["font_color_water_temperature"],
+                    self.wcfg["bkg_color_water_temperature"]),
+                self.set_qss(
+                    self.wcfg["font_color_water_temperature"],
+                    self.wcfg["warning_color_overheat"])
+            )
+            self.bar_water = self.set_qlabel(
+                text="W TEMP",
+                style=self.bar_style_water[0],
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_water,
+                column=self.wcfg["column_index_water_temperature"],
             )
 
         # Motor rpm
         if self.wcfg["show_rpm"]:
-            self.bar_rpm = QLabel("RPM")
-            self.bar_rpm.setAlignment(Qt.AlignCenter)
-            self.bar_rpm.setStyleSheet(
-                f"color: {self.wcfg['font_color_rpm']};"
-                f"background: {self.wcfg['bkg_color_rpm']};"
+            bar_style_rpm = self.set_qss(
+                self.wcfg["font_color_rpm"],
+                self.wcfg["bkg_color_rpm"]
+            )
+            self.bar_rpm = self.set_qlabel(
+                text="RPM",
+                style=bar_style_rpm,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_rpm,
+                column=self.wcfg["column_index_rpm"],
             )
 
         # Motor torque
         if self.wcfg["show_torque"]:
-            self.bar_torque = QLabel("TORQUE")
-            self.bar_torque.setAlignment(Qt.AlignCenter)
-            self.bar_torque.setStyleSheet(
-                f"color: {self.wcfg['font_color_torque']};"
-                f"background: {self.wcfg['bkg_color_torque']};"
+            bar_style_torque = self.set_qss(
+                self.wcfg["font_color_torque"],
+                self.wcfg["bkg_color_torque"]
+            )
+            self.bar_torque = self.set_qlabel(
+                text="TORQUE",
+                style=bar_style_torque,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_torque,
+                column=self.wcfg["column_index_torque"],
             )
 
         # Motor power
         if self.wcfg["show_power"]:
-            self.bar_power = QLabel("POWER")
-            self.bar_power.setAlignment(Qt.AlignCenter)
-            self.bar_power.setStyleSheet(
-                f"color: {self.wcfg['font_color_power']};"
-                f"background: {self.wcfg['bkg_color_power']};"
+            bar_style_power = self.set_qss(
+                self.wcfg["font_color_power"],
+                self.wcfg["bkg_color_power"]
             )
-
-        # Set layout
-        if self.wcfg["layout"] == 0:
-            # Vertical layout
-            if self.wcfg["show_motor_temperature"]:
-                layout.addWidget(self.bar_motor, column_motor, 0)
-            if self.wcfg["show_water_temperature"]:
-                layout.addWidget(self.bar_water, column_water, 0)
-            if self.wcfg["show_rpm"]:
-                layout.addWidget(self.bar_rpm, column_rpm, 0)
-            if self.wcfg["show_torque"]:
-                layout.addWidget(self.bar_torque, column_torque, 0)
-            if self.wcfg["show_power"]:
-                layout.addWidget(self.bar_power, column_power, 0)
-        else:
-            # Horizontal layout
-            if self.wcfg["show_motor_temperature"]:
-                layout.addWidget(self.bar_motor, 0, column_motor)
-            if self.wcfg["show_water_temperature"]:
-                layout.addWidget(self.bar_water, 0, column_water)
-            if self.wcfg["show_rpm"]:
-                layout.addWidget(self.bar_rpm, 0, column_rpm)
-            if self.wcfg["show_torque"]:
-                layout.addWidget(self.bar_torque, 0, column_torque)
-            if self.wcfg["show_power"]:
-                layout.addWidget(self.bar_power, 0, column_power)
-        self.setLayout(layout)
+            self.bar_power = self.set_qlabel(
+                text="POWER",
+                style=bar_style_power,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_power,
+                column=self.wcfg["column_index_power"],
+            )
 
         # Last data
         self.last_temp_motor = None
@@ -151,13 +161,13 @@ class Realtime(Overlay):
 
             # Motor temperature
             if self.wcfg["show_motor_temperature"]:
-                temp_motor = round(api.read.emotor.motor_temperature(), 1)
+                temp_motor = round(api.read.emotor.motor_temperature(), 2)
                 self.update_motor(temp_motor, self.last_temp_motor)
                 self.last_temp_motor = temp_motor
 
             # Water temperature
             if self.wcfg["show_water_temperature"]:
-                temp_water = round(api.read.emotor.water_temperature(), 1)
+                temp_water = round(api.read.emotor.water_temperature(), 2)
                 self.update_water(temp_water, self.last_temp_water)
                 self.last_temp_water = temp_water
 
@@ -184,48 +194,35 @@ class Realtime(Overlay):
     def update_motor(self, curr, last):
         """Motor temperature"""
         if curr != last:
-            if curr < self.wcfg["overheat_threshold_motor"]:
-                color = (f"color: {self.wcfg['font_color_motor_temperature']};"
-                         f"background: {self.wcfg['bkg_color_motor_temperature']};")
-            else:
-                color = (f"color: {self.wcfg['font_color_motor_temperature']};"
-                         f"background: {self.wcfg['warning_color_overheat']};")
-
             if self.cfg.units["temperature_unit"] == "Fahrenheit":
                 curr = calc.celsius2fahrenheit(curr)
 
-            format_text = f"{curr:.1f}°"[:7].rjust(7)
-            self.bar_motor.setText(f"M{format_text}")
-            self.bar_motor.setStyleSheet(color)
+            self.bar_motor.setText(f"M{curr: >6.1f}°")
+            self.bar_motor.setStyleSheet(
+                self.bar_style_motor[curr >= self.wcfg["overheat_threshold_motor"]]
+            )
 
     def update_water(self, curr, last):
         """Water temperature"""
         if curr != last:
-            if curr < self.wcfg["overheat_threshold_water"]:
-                color = (f"color: {self.wcfg['font_color_water_temperature']};"
-                         f"background: {self.wcfg['bkg_color_water_temperature']};")
-            else:
-                color = (f"color: {self.wcfg['font_color_water_temperature']};"
-                         f"background: {self.wcfg['warning_color_overheat']};")
-
             if self.cfg.units["temperature_unit"] == "Fahrenheit":
                 curr = calc.celsius2fahrenheit(curr)
 
-            format_text = f"{curr:.1f}°"[:7].rjust(7)
-            self.bar_water.setText(f"W{format_text}")
-            self.bar_water.setStyleSheet(color)
+            self.bar_water.setText(f"W{curr: >6.1f}°")
+            self.bar_water.setStyleSheet(
+                self.bar_style_water[curr >= self.wcfg["overheat_threshold_water"]]
+            )
 
     def update_rpm(self, curr, last):
         """Motor rpm"""
         if curr != last:
-            format_text = f"{curr}"[:5].rjust(5)
-            self.bar_rpm.setText(f"{format_text}rpm")
+            self.bar_rpm.setText(f"{curr: >5}rpm")
 
     def update_torque(self, curr, last):
         """Motor torque"""
         if curr != last:
-            format_text = f"{curr:.2f}"[:6].rjust(6)
-            self.bar_torque.setText(f"{format_text}Nm")
+            text = f"{curr: >6.2f}"[:6]
+            self.bar_torque.setText(f"{text}Nm")
 
     def update_power(self, curr, last):
         """Motor power"""
@@ -236,10 +233,10 @@ class Realtime(Overlay):
     def power_units(self, power):
         """Power units"""
         if self.cfg.units["power_unit"] == "Kilowatt":
-            text = f"{power:.2f}"[:6].rjust(6)
+            text = f"{power: >6.2f}"[:6]
             return f"{text}kW"
         if self.cfg.units["power_unit"] == "Horsepower":
-            text = f"{calc.kw2hp(power):.2f}"[:6].rjust(6)
+            text = f"{calc.kw2hp(power): >6.2f}"[:6]
             return f"{text}hp"
-        text = f"{calc.kw2ps(power):.2f}"[:6].rjust(6)
+        text = f"{calc.kw2ps(power): >6.2f}"[:6]
         return f"{text}ps"
