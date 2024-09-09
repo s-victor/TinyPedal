@@ -107,11 +107,11 @@ class Realtime(Overlay):
         if self.wcfg["show_position"]:
             self.bar_style_pos = (
                 self.set_qss(
-                    self.wcfg["font_color_position"],
-                    self.wcfg["bkg_color_position"]),
+                    fg_color=self.wcfg["font_color_position"],
+                    bg_color=self.wcfg["bkg_color_position"]),
                 self.set_qss(
-                    self.wcfg["font_color_player_position"],
-                    self.wcfg["bkg_color_player_position"])
+                    fg_color=self.wcfg["font_color_player_position"],
+                    bg_color=self.wcfg["bkg_color_player_position"])
             )
             self.set_table(
                 name="pos",
@@ -123,11 +123,11 @@ class Realtime(Overlay):
         if self.wcfg["show_driver_name"]:
             self.bar_style_drv = (
                 self.set_qss(
-                    self.wcfg["font_color_driver_name"],
-                    self.wcfg["bkg_color_driver_name"]),
+                    fg_color=self.wcfg["font_color_driver_name"],
+                    bg_color=self.wcfg["bkg_color_driver_name"]),
                 self.set_qss(
-                    self.wcfg["font_color_player_driver_name"],
-                    self.wcfg["bkg_color_player_driver_name"])
+                    fg_color=self.wcfg["font_color_player_driver_name"],
+                    bg_color=self.wcfg["bkg_color_player_driver_name"])
             )
             self.set_table(
                 name="drv",
@@ -139,11 +139,11 @@ class Realtime(Overlay):
         if self.wcfg["show_vehicle_name"]:
             self.bar_style_veh = (
                 self.set_qss(
-                    self.wcfg["font_color_vehicle_name"],
-                    self.wcfg["bkg_color_vehicle_name"]),
+                    fg_color=self.wcfg["font_color_vehicle_name"],
+                    bg_color=self.wcfg["bkg_color_vehicle_name"]),
                 self.set_qss(
-                    self.wcfg["font_color_player_vehicle_name"],
-                    self.wcfg["bkg_color_player_vehicle_name"])
+                    fg_color=self.wcfg["font_color_player_vehicle_name"],
+                    bg_color=self.wcfg["bkg_color_player_vehicle_name"])
             )
             self.set_table(
                 name="veh",
@@ -154,8 +154,10 @@ class Realtime(Overlay):
         # Brand logo
         if self.wcfg["show_brand_logo"]:
             self.bar_style_brd = (
-                self.set_qss(bg_color=self.wcfg["bkg_color_brand_logo"]),
-                self.set_qss(bg_color=self.wcfg["bkg_color_player_brand_logo"])
+                self.set_qss(
+                    bg_color=self.wcfg["bkg_color_brand_logo"]),
+                self.set_qss(
+                    bg_color=self.wcfg["bkg_color_player_brand_logo"])
             )
             self.set_table(
                 name="brd",
@@ -167,11 +169,11 @@ class Realtime(Overlay):
         if self.wcfg["show_time_gap"]:
             self.bar_style_gap = (
                 self.set_qss(
-                    self.wcfg["font_color_time_gap"],
-                    self.wcfg["bkg_color_time_gap"]),
+                    fg_color=self.wcfg["font_color_time_gap"],
+                    bg_color=self.wcfg["bkg_color_time_gap"]),
                 self.set_qss(
-                    self.wcfg["font_color_player_time_gap"],
-                    self.wcfg["bkg_color_player_time_gap"])
+                    fg_color=self.wcfg["font_color_player_time_gap"],
+                    bg_color=self.wcfg["bkg_color_player_time_gap"])
             )
             self.set_table(
                 name="gap",
@@ -183,11 +185,11 @@ class Realtime(Overlay):
         if self.wcfg["show_time_interval"]:
             self.bar_style_int = (
                 self.set_qss(
-                    self.wcfg["font_color_time_interval"],
-                    self.wcfg["bkg_color_time_interval"]),
+                    fg_color=self.wcfg["font_color_time_interval"],
+                    bg_color=self.wcfg["bkg_color_time_interval"]),
                 self.set_qss(
-                    self.wcfg["font_color_player_time_interval"],
-                    self.wcfg["bkg_color_player_time_interval"])
+                    fg_color=self.wcfg["font_color_player_time_interval"],
+                    bg_color=self.wcfg["bkg_color_player_time_interval"])
             )
             self.set_table(
                 name="int",
@@ -199,11 +201,11 @@ class Realtime(Overlay):
         if self.wcfg["show_laptime"]:
             self.bar_style_lpt = (
                 self.set_qss(
-                    self.wcfg["font_color_laptime"],
-                    self.wcfg["bkg_color_laptime"]),
+                    fg_color=self.wcfg["font_color_laptime"],
+                    bg_color=self.wcfg["bkg_color_laptime"]),
                 self.set_qss(
-                    self.wcfg["font_color_player_laptime"],
-                    self.wcfg["bkg_color_player_laptime"])
+                    fg_color=self.wcfg["font_color_player_laptime"],
+                    bg_color=self.wcfg["bkg_color_player_laptime"])
             )
             self.set_table(
                 name="lpt",
@@ -215,11 +217,11 @@ class Realtime(Overlay):
         if self.wcfg["show_best_laptime"]:
             self.bar_style_blp = (
                 self.set_qss(
-                    self.wcfg["font_color_best_laptime"],
-                    self.wcfg["bkg_color_best_laptime"]),
+                    fg_color=self.wcfg["font_color_best_laptime"],
+                    bg_color=self.wcfg["bkg_color_best_laptime"]),
                 self.set_qss(
-                    self.wcfg["font_color_player_best_laptime"],
-                    self.wcfg["bkg_color_player_best_laptime"])
+                    fg_color=self.wcfg["font_color_player_best_laptime"],
+                    bg_color=self.wcfg["bkg_color_player_best_laptime"])
             )
             self.set_table(
                 name="blp",
@@ -231,11 +233,11 @@ class Realtime(Overlay):
         if self.wcfg["show_position_in_class"]:
             self.bar_style_pic = (
                 self.set_qss(
-                    self.wcfg["font_color_position_in_class"],
-                    self.wcfg["bkg_color_position_in_class"]),
+                    fg_color=self.wcfg["font_color_position_in_class"],
+                    bg_color=self.wcfg["bkg_color_position_in_class"]),
                 self.set_qss(
-                    self.wcfg["font_color_player_position_in_class"],
-                    self.wcfg["bkg_color_player_position_in_class"])
+                    fg_color=self.wcfg["font_color_player_position_in_class"],
+                    bg_color=self.wcfg["bkg_color_player_position_in_class"])
             )
             self.set_table(
                 name="pic",
@@ -246,8 +248,8 @@ class Realtime(Overlay):
         # Vehicle class
         if self.wcfg["show_class"]:
             bar_style_cls = self.set_qss(
-                self.wcfg["font_color_class"],
-                self.wcfg["bkg_color_class"]
+                fg_color=self.wcfg["font_color_class"],
+                bg_color=self.wcfg["bkg_color_class"]
             )
             self.set_table(
                 name="cls",
@@ -258,10 +260,12 @@ class Realtime(Overlay):
         # Vehicle in pit
         if self.wcfg["show_pit_status"]:
             self.bar_style_pit = (
-                self.set_qss("#00000000", "#00000000"),
                 self.set_qss(
-                    self.wcfg["font_color_pit"],
-                    self.wcfg["bkg_color_pit"])
+                    fg_color="#00000000",
+                    bg_color="#00000000"),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_pit"],
+                    bg_color=self.wcfg["bkg_color_pit"])
             )
             self.set_table(
                 name="pit",
@@ -273,11 +277,11 @@ class Realtime(Overlay):
         if self.wcfg["show_tyre_compound"]:
             self.bar_style_tcp = (
                 self.set_qss(
-                    self.wcfg["font_color_tyre_compound"],
-                    self.wcfg["bkg_color_tyre_compound"]),
+                    fg_color=self.wcfg["font_color_tyre_compound"],
+                    bg_color=self.wcfg["bkg_color_tyre_compound"]),
                 self.set_qss(
-                    self.wcfg["font_color_player_tyre_compound"],
-                    self.wcfg["bkg_color_player_tyre_compound"])
+                    fg_color=self.wcfg["font_color_player_tyre_compound"],
+                    bg_color=self.wcfg["bkg_color_player_tyre_compound"])
             )
             self.set_table(
                 name="tcp",
@@ -289,14 +293,14 @@ class Realtime(Overlay):
         if self.wcfg["show_pitstop_count"]:
             self.bar_style_psc = (
                 self.set_qss(
-                    self.wcfg["font_color_pitstop_count"],
-                    self.wcfg["bkg_color_pitstop_count"]),
+                    fg_color=self.wcfg["font_color_pitstop_count"],
+                    bg_color=self.wcfg["bkg_color_pitstop_count"]),
                 self.set_qss(
-                    self.wcfg["font_color_player_pitstop_count"],
-                    self.wcfg["bkg_color_player_pitstop_count"]),
+                    fg_color=self.wcfg["font_color_player_pitstop_count"],
+                    bg_color=self.wcfg["bkg_color_player_pitstop_count"]),
                 self.set_qss(
-                    self.wcfg["font_color_pit_request"],
-                    self.wcfg["bkg_color_pit_request"])
+                    fg_color=self.wcfg["font_color_pit_request"],
+                    bg_color=self.wcfg["bkg_color_pit_request"])
             )
             self.set_table(
                 name="psc",

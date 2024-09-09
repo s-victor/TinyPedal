@@ -71,8 +71,8 @@ class Realtime(Overlay):
             layout_camber = QGridLayout()
             layout_camber.setSpacing(0)
             bar_style_camber = self.set_qss(
-                self.wcfg["font_color_camber"],
-                self.wcfg["bkg_color_camber"]
+                fg_color=self.wcfg["font_color_camber"],
+                bg_color=self.wcfg["bkg_color_camber"]
             )
             self.bar_camber = self.set_qlabel(
                 text=text_def,
@@ -98,8 +98,8 @@ class Realtime(Overlay):
             layout_toein = QGridLayout()
             layout_toein.setSpacing(0)
             bar_style_toein = self.set_qss(
-                self.wcfg["font_color_toe_in"],
-                self.wcfg["bkg_color_toe_in"]
+                fg_color=self.wcfg["font_color_toe_in"],
+                bg_color=self.wcfg["bkg_color_toe_in"]
             )
             self.bar_toein = self.set_qlabel(
                 text=text_def,

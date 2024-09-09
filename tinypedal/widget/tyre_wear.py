@@ -74,11 +74,11 @@ class Realtime(Overlay):
             layout_twear.setSpacing(0)
             self.bar_style_twear = (
                 self.set_qss(
-                    self.wcfg["font_color_remaining"],
-                    self.wcfg["bkg_color_remaining"]),
+                    fg_color=self.wcfg["font_color_remaining"],
+                    bg_color=self.wcfg["bkg_color_remaining"]),
                 self.set_qss(
-                    self.wcfg["font_color_warning"],
-                    self.wcfg["bkg_color_remaining"])
+                    fg_color=self.wcfg["font_color_warning"],
+                    bg_color=self.wcfg["bkg_color_remaining"])
             )
             self.bar_twear = self.set_qlabel(
                 text=text_def,
@@ -105,11 +105,11 @@ class Realtime(Overlay):
             layout_tdiff.setSpacing(0)
             self.bar_style_tdiff = (
                 self.set_qss(
-                    self.wcfg["font_color_wear_difference"],
-                    self.wcfg["bkg_color_wear_difference"]),
+                    fg_color=self.wcfg["font_color_wear_difference"],
+                    bg_color=self.wcfg["bkg_color_wear_difference"]),
                 self.set_qss(
-                    self.wcfg["font_color_warning"],
-                    self.wcfg["bkg_color_wear_difference"])
+                    fg_color=self.wcfg["font_color_warning"],
+                    bg_color=self.wcfg["bkg_color_wear_difference"])
             )
             self.bar_tdiff = self.set_qlabel(
                 text=text_def,
@@ -136,11 +136,11 @@ class Realtime(Overlay):
             layout_tlaps.setSpacing(0)
             self.bar_style_tlaps = (
                 self.set_qss(
-                    self.wcfg["font_color_lifespan_laps"],
-                    self.wcfg["bkg_color_lifespan_laps"]),
+                    fg_color=self.wcfg["font_color_lifespan_laps"],
+                    bg_color=self.wcfg["bkg_color_lifespan_laps"]),
                 self.set_qss(
-                    self.wcfg["font_color_warning"],
-                    self.wcfg["bkg_color_lifespan_laps"])
+                    fg_color=self.wcfg["font_color_warning"],
+                    bg_color=self.wcfg["bkg_color_lifespan_laps"])
             )
             self.bar_tlaps = self.set_qlabel(
                 text=text_def,
@@ -167,11 +167,11 @@ class Realtime(Overlay):
             layout_tmins.setSpacing(0)
             self.bar_style_tmins = (
                 self.set_qss(
-                    self.wcfg["font_color_lifespan_minutes"],
-                    self.wcfg["bkg_color_lifespan_minutes"]),
+                    fg_color=self.wcfg["font_color_lifespan_minutes"],
+                    bg_color=self.wcfg["bkg_color_lifespan_minutes"]),
                 self.set_qss(
-                    self.wcfg["font_color_warning"],
-                    self.wcfg["bkg_color_lifespan_minutes"])
+                    fg_color=self.wcfg["font_color_warning"],
+                    bg_color=self.wcfg["bkg_color_lifespan_minutes"])
             )
             self.bar_tmins = self.set_qlabel(
                 text=text_def,

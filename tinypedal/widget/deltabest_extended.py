@@ -80,8 +80,8 @@ class Realtime(Overlay):
         if self.wcfg["show_all_time_deltabest"]:
             text_atbest = f"{self.prefix_atbest}{text_def}"
             bar_style_atbest = self.set_qss(
-                self.wcfg["font_color_all_time_deltabest"],
-                self.wcfg["bkg_color_all_time_deltabest"]
+                fg_color=self.wcfg["font_color_all_time_deltabest"],
+                bg_color=self.wcfg["bkg_color_all_time_deltabest"]
             )
             self.bar_atbest = self.set_qlabel(
                 text=text_atbest,
@@ -97,8 +97,8 @@ class Realtime(Overlay):
         if self.wcfg["show_session_deltabest"]:
             text_ssbest = f"{self.prefix_ssbest}{text_def}"
             bar_style_ssbest = self.set_qss(
-                self.wcfg["font_color_session_deltabest"],
-                self.wcfg["bkg_color_session_deltabest"]
+                fg_color=self.wcfg["font_color_session_deltabest"],
+                bg_color=self.wcfg["bkg_color_session_deltabest"]
             )
             self.bar_ssbest = self.set_qlabel(
                 text=text_ssbest,
@@ -114,8 +114,8 @@ class Realtime(Overlay):
         if self.wcfg["show_stint_deltabest"]:
             text_stbest = f"{self.prefix_stbest}{text_def}"
             bar_style_stbest = self.set_qss(
-                self.wcfg["font_color_stint_deltabest"],
-                self.wcfg["bkg_color_stint_deltabest"]
+                fg_color=self.wcfg["font_color_stint_deltabest"],
+                bg_color=self.wcfg["bkg_color_stint_deltabest"]
             )
             self.bar_stbest = self.set_qlabel(
                 text=text_stbest,
@@ -131,8 +131,8 @@ class Realtime(Overlay):
         if self.wcfg["show_deltalast"]:
             text_labest = f"{self.prefix_labest}{text_def}"
             bar_style_labest = self.set_qss(
-                self.wcfg["font_color_deltalast"],
-                self.wcfg["bkg_color_deltalast"]
+                fg_color=self.wcfg["font_color_deltalast"],
+                bg_color=self.wcfg["bkg_color_deltalast"]
             )
             self.bar_labest = self.set_qlabel(
                 text=text_labest,

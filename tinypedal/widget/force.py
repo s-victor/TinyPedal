@@ -63,8 +63,8 @@ class Realtime(Overlay):
         # G force
         if self.wcfg["show_g_force"]:
             bar_style_gforce_lgt = self.set_qss(
-                self.wcfg["font_color_g_force"],
-                self.wcfg["bkg_color_g_force"]
+                fg_color=self.wcfg["font_color_g_force"],
+                bg_color=self.wcfg["bkg_color_g_force"]
             )
             self.bar_gforce_lgt = self.set_qlabel(
                 text=text_def,
@@ -77,8 +77,8 @@ class Realtime(Overlay):
             )
 
             bar_style_gforce_lat = self.set_qss(
-                self.wcfg["font_color_g_force"],
-                self.wcfg["bkg_color_g_force"]
+                fg_color=self.wcfg["font_color_g_force"],
+                bg_color=self.wcfg["bkg_color_g_force"]
             )
             self.bar_gforce_lat = self.set_qlabel(
                 text=text_def,
@@ -93,8 +93,8 @@ class Realtime(Overlay):
         # Downforce ratio
         if self.wcfg["show_downforce_ratio"]:
             bar_style_df_ratio = self.set_qss(
-                self.wcfg["font_color_downforce_ratio"],
-                self.wcfg["bkg_color_downforce_ratio"]
+                fg_color=self.wcfg["font_color_downforce_ratio"],
+                bg_color=self.wcfg["bkg_color_downforce_ratio"]
             )
             self.bar_df_ratio = self.set_qlabel(
                 text=text_def,
@@ -110,11 +110,11 @@ class Realtime(Overlay):
         if self.wcfg["show_front_downforce"]:
             self.bar_style_df_front = (
                 self.set_qss(
-                    self.wcfg["font_color_front_downforce"],
-                    self.wcfg["bkg_color_front_downforce"]),
+                    fg_color=self.wcfg["font_color_front_downforce"],
+                    bg_color=self.wcfg["bkg_color_front_downforce"]),
                 self.set_qss(
-                    self.wcfg["font_color_front_downforce"],
-                    self.wcfg["warning_color_liftforce"])
+                    fg_color=self.wcfg["font_color_front_downforce"],
+                    bg_color=self.wcfg["warning_color_liftforce"])
             )
             self.bar_df_front = self.set_qlabel(
                 text=text_def,
@@ -130,11 +130,11 @@ class Realtime(Overlay):
         if self.wcfg["show_rear_downforce"]:
             self.bar_style_df_rear = (
                 self.set_qss(
-                    self.wcfg["font_color_rear_downforce"],
-                    self.wcfg["bkg_color_rear_downforce"]),
+                    fg_color=self.wcfg["font_color_rear_downforce"],
+                    bg_color=self.wcfg["bkg_color_rear_downforce"]),
                 self.set_qss(
-                    self.wcfg["font_color_rear_downforce"],
-                    self.wcfg["warning_color_liftforce"])
+                    fg_color=self.wcfg["font_color_rear_downforce"],
+                    bg_color=self.wcfg["warning_color_liftforce"])
             )
             self.bar_df_rear = self.set_qlabel(
                 text=text_def,

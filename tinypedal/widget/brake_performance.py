@@ -63,8 +63,8 @@ class Realtime(Overlay):
         # Transient max braking rate
         if self.wcfg["show_transient_max_braking_rate"]:
             bar_style_trans_rate = self.set_qss(
-                self.wcfg["font_color_transient_max_braking_rate"],
-                self.wcfg["bkg_color_transient_max_braking_rate"]
+                fg_color=self.wcfg["font_color_transient_max_braking_rate"],
+                bg_color=self.wcfg["bkg_color_transient_max_braking_rate"]
             )
             self.bar_trans_rate = self.set_qlabel(
                 text="0.00g",
@@ -79,8 +79,8 @@ class Realtime(Overlay):
         # Max braking rate
         if self.wcfg["show_max_braking_rate"]:
             bar_style_max_rate = self.set_qss(
-                self.wcfg["font_color_max_braking_rate"],
-                self.wcfg["bkg_color_max_braking_rate"]
+                fg_color=self.wcfg["font_color_max_braking_rate"],
+                bg_color=self.wcfg["bkg_color_max_braking_rate"]
             )
             self.bar_max_rate = self.set_qlabel(
                 text="0.00g",
@@ -96,14 +96,14 @@ class Realtime(Overlay):
         if self.wcfg["show_delta_braking_rate"]:
             self.bar_style_delta_rate = (
                 self.set_qss(
-                    self.wcfg["font_color_delta_braking_rate"],
-                    self.wcfg["bkg_color_delta_braking_rate"]),
+                    fg_color=self.wcfg["font_color_delta_braking_rate"],
+                    bg_color=self.wcfg["bkg_color_delta_braking_rate"]),
                 self.set_qss(
-                    self.wcfg["font_color_delta_braking_rate"],
-                    self.wcfg["bkg_color_braking_rate_gain"]),
+                    fg_color=self.wcfg["font_color_delta_braking_rate"],
+                    bg_color=self.wcfg["bkg_color_braking_rate_gain"]),
                 self.set_qss(
-                    self.wcfg["font_color_delta_braking_rate"],
-                    self.wcfg["bkg_color_braking_rate_loss"])
+                    fg_color=self.wcfg["font_color_delta_braking_rate"],
+                    bg_color=self.wcfg["bkg_color_braking_rate_loss"])
             )
             self.bar_delta_rate = self.set_qlabel(
                 text="+0.00",
@@ -118,8 +118,8 @@ class Realtime(Overlay):
         # Front wheel lock duration
         if self.wcfg["show_front_wheel_lock_duration"]:
             bar_style_lock_f = self.set_qss(
-                self.wcfg["font_color_front_wheel_lock_duration"],
-                self.wcfg["bkg_color_front_wheel_lock_duration"]
+                fg_color=self.wcfg["font_color_front_wheel_lock_duration"],
+                bg_color=self.wcfg["bkg_color_front_wheel_lock_duration"]
             )
             self.bar_lock_f = self.set_qlabel(
                 text="F 0.0",
@@ -134,8 +134,8 @@ class Realtime(Overlay):
         # Front wheel lock duration
         if self.wcfg["show_rear_wheel_lock_duration"]:
             bar_style_lock_r = self.set_qss(
-                self.wcfg["font_color_rear_wheel_lock_duration"],
-                self.wcfg["bkg_color_rear_wheel_lock_duration"]
+                fg_color=self.wcfg["font_color_rear_wheel_lock_duration"],
+                bg_color=self.wcfg["bkg_color_rear_wheel_lock_duration"]
             )
             self.bar_lock_r = self.set_qlabel(
                 text="R 0.0",

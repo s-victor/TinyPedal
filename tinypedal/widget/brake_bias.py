@@ -68,8 +68,8 @@ class Realtime(Overlay):
         # Brake bias
         text_bbias = self.format_brake_bias(50)
         bar_style_bbias = self.set_qss(
-            self.wcfg["font_color_brake_bias"],
-            self.wcfg["bkg_color_brake_bias"]
+            fg_color=self.wcfg["font_color_brake_bias"],
+            bg_color=self.wcfg["bkg_color_brake_bias"]
         )
         self.bar_bbias = self.set_qlabel(
             text=text_bbias,
@@ -85,8 +85,8 @@ class Realtime(Overlay):
         if self.wcfg["show_brake_migration"]:
             text_bmigt = self.format_brake_migt(0)
             bar_style_bmigt = self.set_qss(
-                self.wcfg["font_color_brake_migration"],
-                self.wcfg["bkg_color_brake_migration"]
+                fg_color=self.wcfg["font_color_brake_migration"],
+                bg_color=self.wcfg["bkg_color_brake_migration"]
             )
             self.bar_bmigt = self.set_qlabel(
                 text=text_bmigt,

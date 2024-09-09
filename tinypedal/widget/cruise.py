@@ -68,8 +68,8 @@ class Realtime(Overlay):
         if self.wcfg["show_track_clock"]:
             text_clock = self.format_clock(0)
             bar_style_track_clock = self.set_qss(
-                self.wcfg["font_color_track_clock"],
-                self.wcfg["bkg_color_track_clock"]
+                fg_color=self.wcfg["font_color_track_clock"],
+                bg_color=self.wcfg["bkg_color_track_clock"]
             )
             self.bar_track_clock = self.set_qlabel(
                 text=text_clock,
@@ -85,8 +85,8 @@ class Realtime(Overlay):
         if self.wcfg["show_compass"]:
             text_compass = self.format_compass(0)
             bar_style_compass = self.set_qss(
-                self.wcfg["font_color_compass"],
-                self.wcfg["bkg_color_compass"]
+                fg_color=self.wcfg["font_color_compass"],
+                bg_color=self.wcfg["bkg_color_compass"]
             )
             self.bar_compass = self.set_qlabel(
                 text=text_compass,
@@ -102,8 +102,8 @@ class Realtime(Overlay):
         if self.wcfg["show_elevation"]:
             text_elevation = self.format_elevation(0)
             bar_style_elevation = self.set_qss(
-                self.wcfg["font_color_elevation"],
-                self.wcfg["bkg_color_elevation"]
+                fg_color=self.wcfg["font_color_elevation"],
+                bg_color=self.wcfg["bkg_color_elevation"]
             )
             self.bar_elevation = self.set_qlabel(
                 text=text_elevation,
@@ -119,8 +119,8 @@ class Realtime(Overlay):
         if self.wcfg["show_odometer"]:
             text_odometer = self.format_odometer(0)
             bar_style_odometer = self.set_qss(
-                self.wcfg["font_color_odometer"],
-                self.wcfg["bkg_color_odometer"]
+                fg_color=self.wcfg["font_color_odometer"],
+                bg_color=self.wcfg["bkg_color_odometer"]
             )
             self.bar_odometer = self.set_qlabel(
                 text=text_odometer,

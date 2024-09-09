@@ -65,14 +65,14 @@ class Realtime(Overlay):
         if self.wcfg["show_pit_timer"]:
             self.bar_style_pit_timer = (
                 self.set_qss(
-                    self.wcfg["font_color_pit_timer"],
-                    self.wcfg["bkg_color_pit_timer"]),
+                    fg_color=self.wcfg["font_color_pit_timer"],
+                    bg_color=self.wcfg["bkg_color_pit_timer"]),
                 self.set_qss(
-                    self.wcfg["font_color_pit_timer_stopped"],
-                    self.wcfg["bkg_color_pit_timer_stopped"]),
+                    fg_color=self.wcfg["font_color_pit_timer_stopped"],
+                    bg_color=self.wcfg["bkg_color_pit_timer_stopped"]),
                 self.set_qss(
-                    self.wcfg["font_color_pit_closed"],
-                    self.wcfg["bkg_color_pit_closed"])
+                    fg_color=self.wcfg["font_color_pit_closed"],
+                    bg_color=self.wcfg["bkg_color_pit_closed"])
             )
             self.bar_pit_timer = self.set_qlabel(
                 text="PITST0P",
@@ -87,8 +87,8 @@ class Realtime(Overlay):
         # Low fuel warning
         if self.wcfg["show_low_fuel"]:
             bar_style_lowfuel = self.set_qss(
-                self.wcfg["font_color_low_fuel"],
-                self.wcfg["bkg_color_low_fuel"]
+                fg_color=self.wcfg["font_color_low_fuel"],
+                bg_color=self.wcfg["bkg_color_low_fuel"]
             )
             self.bar_lowfuel = self.set_qlabel(
                 text="LOWFUEL",
@@ -103,8 +103,8 @@ class Realtime(Overlay):
         # Speed limiter
         if self.wcfg["show_speed_limiter"]:
             bar_style_limiter = self.set_qss(
-                self.wcfg["font_color_speed_limiter"],
-                self.wcfg["bkg_color_speed_limiter"]
+                fg_color=self.wcfg["font_color_speed_limiter"],
+                bg_color=self.wcfg["bkg_color_speed_limiter"]
             )
             self.bar_limiter = self.set_qlabel(
                 text=self.wcfg["speed_limiter_text"],
@@ -119,8 +119,8 @@ class Realtime(Overlay):
         # Yellow flag
         if self.wcfg["show_yellow_flag"]:
             bar_style_yellowflag = self.set_qss(
-                self.wcfg["font_color_yellow_flag"],
-                self.wcfg["bkg_color_yellow_flag"]
+                fg_color=self.wcfg["font_color_yellow_flag"],
+                bg_color=self.wcfg["bkg_color_yellow_flag"]
             )
             self.bar_yellowflag = self.set_qlabel(
                 text="YELLOW",
@@ -135,8 +135,8 @@ class Realtime(Overlay):
         # Blue flag
         if self.wcfg["show_blue_flag"]:
             bar_style_blueflag = self.set_qss(
-                self.wcfg["font_color_blue_flag"],
-                self.wcfg["bkg_color_blue_flag"]
+                fg_color=self.wcfg["font_color_blue_flag"],
+                bg_color=self.wcfg["bkg_color_blue_flag"]
             )
             self.bar_blueflag = self.set_qlabel(
                 text="BLUE",
@@ -152,11 +152,11 @@ class Realtime(Overlay):
         if self.wcfg["show_startlights"]:
             self.bar_style_startlights = (
                 self.set_qss(
-                    self.wcfg["font_color_startlights"],
-                    self.wcfg["bkg_color_red_lights"]),
+                    fg_color=self.wcfg["font_color_startlights"],
+                    bg_color=self.wcfg["bkg_color_red_lights"]),
                 self.set_qss(
-                    self.wcfg["font_color_startlights"],
-                    self.wcfg["bkg_color_green_flag"])
+                    fg_color=self.wcfg["font_color_startlights"],
+                    bg_color=self.wcfg["bkg_color_green_flag"])
             )
             self.bar_startlights = self.set_qlabel(
                 text="SLIGHTS",
@@ -171,8 +171,8 @@ class Realtime(Overlay):
         # Incoming traffic
         if self.wcfg["show_traffic"]:
             bar_style_traffic = self.set_qss(
-                self.wcfg["font_color_traffic"],
-                self.wcfg["bkg_color_traffic"]
+                fg_color=self.wcfg["font_color_traffic"],
+                bg_color=self.wcfg["bkg_color_traffic"]
             )
             self.bar_traffic = self.set_qlabel(
                 text="TRAFFIC",
@@ -187,8 +187,8 @@ class Realtime(Overlay):
         # Pit request
         if self.wcfg["show_pit_request"]:
             bar_style_pit_request = self.set_qss(
-                self.wcfg["font_color_pit_request"],
-                self.wcfg["bkg_color_pit_request"]
+                fg_color=self.wcfg["font_color_pit_request"],
+                bg_color=self.wcfg["bkg_color_pit_request"]
             )
             self.bar_pit_request = self.set_qlabel(
                 text="PIT REQ",
@@ -204,11 +204,11 @@ class Realtime(Overlay):
         if self.wcfg["show_finish_state"]:
             self.bar_style_finish_state = (
                 self.set_qss(
-                    self.wcfg["font_color_finish"],
-                    self.wcfg["bkg_color_finish"]),
+                    fg_color=self.wcfg["font_color_finish"],
+                    bg_color=self.wcfg["bkg_color_finish"]),
                 self.set_qss(
-                    self.wcfg["font_color_disqualify"],
-                    self.wcfg["bkg_color_disqualify"])
+                    fg_color=self.wcfg["font_color_disqualify"],
+                    bg_color=self.wcfg["bkg_color_disqualify"])
             )
             self.bar_finish_state = self.set_qlabel(
                 text="FINISH",

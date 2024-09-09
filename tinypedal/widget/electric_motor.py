@@ -64,11 +64,11 @@ class Realtime(Overlay):
         if self.wcfg["show_motor_temperature"]:
             self.bar_style_motor = (
                 self.set_qss(
-                    self.wcfg["font_color_motor_temperature"],
-                    self.wcfg["bkg_color_motor_temperature"]),
+                    fg_color=self.wcfg["font_color_motor_temperature"],
+                    bg_color=self.wcfg["bkg_color_motor_temperature"]),
                 self.set_qss(
-                    self.wcfg["font_color_motor_temperature"],
-                    self.wcfg["warning_color_overheat"])
+                    fg_color=self.wcfg["font_color_motor_temperature"],
+                    bg_color=self.wcfg["warning_color_overheat"])
             )
             self.bar_motor = self.set_qlabel(
                 text="M TEMP",
@@ -84,11 +84,11 @@ class Realtime(Overlay):
         if self.wcfg["show_water_temperature"]:
             self.bar_style_water = (
                 self.set_qss(
-                    self.wcfg["font_color_water_temperature"],
-                    self.wcfg["bkg_color_water_temperature"]),
+                    fg_color=self.wcfg["font_color_water_temperature"],
+                    bg_color=self.wcfg["bkg_color_water_temperature"]),
                 self.set_qss(
-                    self.wcfg["font_color_water_temperature"],
-                    self.wcfg["warning_color_overheat"])
+                    fg_color=self.wcfg["font_color_water_temperature"],
+                    bg_color=self.wcfg["warning_color_overheat"])
             )
             self.bar_water = self.set_qlabel(
                 text="W TEMP",
@@ -103,8 +103,8 @@ class Realtime(Overlay):
         # Motor rpm
         if self.wcfg["show_rpm"]:
             bar_style_rpm = self.set_qss(
-                self.wcfg["font_color_rpm"],
-                self.wcfg["bkg_color_rpm"]
+                fg_color=self.wcfg["font_color_rpm"],
+                bg_color=self.wcfg["bkg_color_rpm"]
             )
             self.bar_rpm = self.set_qlabel(
                 text="RPM",
@@ -119,8 +119,8 @@ class Realtime(Overlay):
         # Motor torque
         if self.wcfg["show_torque"]:
             bar_style_torque = self.set_qss(
-                self.wcfg["font_color_torque"],
-                self.wcfg["bkg_color_torque"]
+                fg_color=self.wcfg["font_color_torque"],
+                bg_color=self.wcfg["bkg_color_torque"]
             )
             self.bar_torque = self.set_qlabel(
                 text="TORQUE",
@@ -135,8 +135,8 @@ class Realtime(Overlay):
         # Motor power
         if self.wcfg["show_power"]:
             bar_style_power = self.set_qss(
-                self.wcfg["font_color_power"],
-                self.wcfg["bkg_color_power"]
+                fg_color=self.wcfg["font_color_power"],
+                bg_color=self.wcfg["bkg_color_power"]
             )
             self.bar_power = self.set_qlabel(
                 text="POWER",

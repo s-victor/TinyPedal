@@ -64,11 +64,11 @@ class Realtime(Overlay):
         if self.wcfg["show_battery_charge"]:
             self.bar_style_charge = (
                 self.set_qss(
-                    self.wcfg["font_color_battery_charge"],
-                    self.wcfg["bkg_color_battery_charge"]),
+                    fg_color=self.wcfg["font_color_battery_charge"],
+                    bg_color=self.wcfg["bkg_color_battery_charge"]),
                 self.set_qss(
-                    self.wcfg["font_color_battery_charge"],
-                    self.wcfg["warning_color_low_battery"])
+                    fg_color=self.wcfg["font_color_battery_charge"],
+                    bg_color=self.wcfg["warning_color_low_battery"])
             )
             self.bar_charge = self.set_qlabel(
                 text="BATTERY",
@@ -83,8 +83,8 @@ class Realtime(Overlay):
         # Battery drain
         if self.wcfg["show_battery_drain"]:
             bar_style_drain = self.set_qss(
-                self.wcfg["font_color_battery_drain"],
-                self.wcfg["bkg_color_battery_drain"]
+                fg_color=self.wcfg["font_color_battery_drain"],
+                bg_color=self.wcfg["bkg_color_battery_drain"]
             )
             self.bar_drain = self.set_qlabel(
                 text="B DRAIN",
@@ -99,8 +99,8 @@ class Realtime(Overlay):
         # Battery regen
         if self.wcfg["show_battery_regen"]:
             bar_style_regen = self.set_qss(
-                self.wcfg["font_color_battery_regen"],
-                self.wcfg["bkg_color_battery_regen"]
+                fg_color=self.wcfg["font_color_battery_regen"],
+                bg_color=self.wcfg["bkg_color_battery_regen"]
             )
             self.bar_regen = self.set_qlabel(
                 text="B REGEN",
@@ -115,8 +115,8 @@ class Realtime(Overlay):
         # Activation timer
         if self.wcfg["show_activation_timer"]:
             bar_style_timer = self.set_qss(
-                self.wcfg["font_color_activation_timer"],
-                self.wcfg["bkg_color_activation_timer"]
+                fg_color=self.wcfg["font_color_activation_timer"],
+                bg_color=self.wcfg["bkg_color_activation_timer"]
             )
             self.bar_timer = self.set_qlabel(
                 text="B TIMER",

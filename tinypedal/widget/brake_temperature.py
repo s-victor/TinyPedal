@@ -73,8 +73,8 @@ class Realtime(Overlay):
         layout_btemp = QGridLayout()
         layout_btemp.setSpacing(inner_gap)
         bar_style_btemp = self.set_qss(
-            self.wcfg["font_color_temperature"],
-            self.wcfg["bkg_color_temperature"]
+            fg_color=self.wcfg["font_color_temperature"],
+            bg_color=self.wcfg["bkg_color_temperature"]
         )
         self.bar_btemp = self.set_qlabel(
             text=text_def,
@@ -94,11 +94,11 @@ class Realtime(Overlay):
             layout_btavg.setSpacing(inner_gap)
             self.bar_style_btavg = (
                 self.set_qss(
-                    self.wcfg["font_color_average"],
-                    self.wcfg["bkg_color_average"]),
+                    fg_color=self.wcfg["font_color_average"],
+                    bg_color=self.wcfg["bkg_color_average"]),
                 self.set_qss(
-                    self.wcfg["font_color_highlighted"],
-                    self.wcfg["bkg_color_highlighted"])
+                    fg_color=self.wcfg["font_color_highlighted"],
+                    bg_color=self.wcfg["bkg_color_highlighted"])
             )
             self.bar_btavg = self.set_qlabel(
                 text=text_def,

@@ -64,14 +64,14 @@ class Realtime(Overlay):
         )
         self.delta_color = (
             self.set_qss(
-                self.wcfg["font_color_lap_gain"],
-                self.wcfg["bkg_color_delta_consumption"]),
+                fg_color=self.wcfg["font_color_lap_gain"],
+                bg_color=self.wcfg["bkg_color_delta_consumption"]),
             self.set_qss(
-                self.wcfg["font_color_lap_loss"],
-                self.wcfg["bkg_color_delta_consumption"]),
+                fg_color=self.wcfg["font_color_lap_loss"],
+                bg_color=self.wcfg["bkg_color_delta_consumption"]),
             self.set_qss(
-                self.wcfg["font_color_delta_consumption"],
-                self.wcfg["bkg_color_delta_consumption"])
+                fg_color=self.wcfg["font_color_delta_consumption"],
+                bg_color=self.wcfg["bkg_color_delta_consumption"])
         )
 
         # Create layout
@@ -108,8 +108,8 @@ class Realtime(Overlay):
                 font_size=int(self.wcfg['font_size'] * 0.8))
         )
         bar_style_target_use = self.set_qss(
-            self.wcfg["font_color_target_consumption"],
-            self.wcfg["bkg_color_target_consumption"]
+            fg_color=self.wcfg["font_color_target_consumption"],
+            bg_color=self.wcfg["bkg_color_target_consumption"]
         )
         layout_inner = [None for _ in range(self.total_slot)]
 
