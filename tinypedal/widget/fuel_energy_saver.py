@@ -33,7 +33,6 @@ from ._base import Overlay
 WIDGET_NAME = "fuel_energy_saver"
 MAGIC_NUM = 99999
 TEXT_NONE = "-"
-REFILL_TYPE = "FUEL", "NRG"
 
 
 class Realtime(Overlay):
@@ -179,9 +178,9 @@ class Realtime(Overlay):
         in_pits = api.read.vehicle.in_pits()
         tyre_life = sum(api.read.tyre.wear())
         lap_num = api.read.lap.number()
-        is_energy = minfo.restapi.maxVirtualEnergy
+        energy_type = minfo.restapi.maxVirtualEnergy
 
-        if is_energy:
+        if energy_type:
             fuel_curr = minfo.energy.amountCurrent
             fuel_est = minfo.energy.estimatedConsumption
             fuel_used_curr = minfo.energy.amountUsedCurrent
@@ -217,11 +216,11 @@ class Realtime(Overlay):
         for index in range(self.total_slot):
             if index == 0:
                 # Fuel or energy
-                self.update_energy_type(is_energy, self.last_delta[index], index)
-                self.last_delta[index] = is_energy
+                self.update_energy_type(energy_type, self.last_delta[index], index)
+                self.last_delta[index] = energy_type
                 # Last lap consumption
                 self.update_target_use(
-                    fuel_used_last_raw, self.last_target_use[index], index, is_energy)
+                    fuel_used_last_raw, self.last_target_use[index], index, energy_type)
                 self.last_target_use[index] = fuel_used_last_raw
                 continue
 
@@ -241,7 +240,7 @@ class Realtime(Overlay):
                 target_use = total_fuel_remaining / total_laps_target
             else:
                 target_use = -MAGIC_NUM
-            self.update_target_use(target_use, self.last_target_use[index], index, is_energy)
+            self.update_target_use(target_use, self.last_target_use[index], index, energy_type)
             self.last_target_use[index] = target_use
 
             # Delta consumption
@@ -249,26 +248,26 @@ class Realtime(Overlay):
                 delta = fuel_est - target_use
             else:
                 delta = -MAGIC_NUM
-            self.update_delta(delta, self.last_delta[index], index, is_energy)
+            self.update_delta(delta, self.last_delta[index], index, energy_type)
             self.last_delta[index] = delta
 
     # GUI update methods
-    def update_target_use(self, curr, last, index, is_energy):
+    def update_target_use(self, curr, last, index, energy_type):
         """Target consumption"""
         if curr != last:
             if curr > -MAGIC_NUM:
-                if not is_energy:
+                if not energy_type:
                     curr = self.fuel_units(curr)
                 use_text = f"{curr:.{self.decimals_consumption}f}"[:self.bar_width]
             else:
                 use_text = TEXT_NONE
             self.data_bar[f"target_use_{index}"].setText(use_text)
 
-    def update_delta(self, curr, last, index, is_energy):
+    def update_delta(self, curr, last, index, energy_type):
         """Delta consumption between target & current"""
         if curr != last:
             if curr > -MAGIC_NUM:
-                if not is_energy:
+                if not energy_type:
                     curr = self.fuel_units(curr)
                 delta_text = f"{curr:+.{self.decimals_delta}f}"[:self.bar_width]
                 style = self.delta_color[curr >= 0]
@@ -287,7 +286,11 @@ class Realtime(Overlay):
     def update_energy_type(self, curr, last, index):
         """Energy type"""
         if curr != last:
-            self.data_bar[f"delta_{index}"].setText(REFILL_TYPE[curr])
+            if curr > 0:
+                type_text = "NRG"
+            else:
+                type_text = "FUEL"
+            self.data_bar[f"delta_{index}"].setText(type_text)
 
     # Additional methods
     def fuel_units(self, fuel):

@@ -102,7 +102,7 @@ class Realtime(Overlay):
         # Last data
         self.last_lap_int = -1
         self.last_session_type = None
-        self.last_refill_type = None
+        self.last_energy_type = None
         self.last_lap_leader = [(-MAGIC_NUM, 0, 0)] * self.total_slot
         self.last_lap_player = [(-MAGIC_NUM, 0, 0)] * self.total_slot
         self.last_refill_player = [-MAGIC_NUM] * self.total_slot
@@ -199,7 +199,7 @@ class Realtime(Overlay):
         """Update predication"""
         is_lap_type_session = api.read.session.lap_type()
         in_formation = api.read.session.in_formation()
-        refill_type = minfo.restapi.maxVirtualEnergy
+        energy_type = minfo.restapi.maxVirtualEnergy
 
         leader_index = self.find_leader_index()
         player_index = api.read.vehicle.player_index()
@@ -228,8 +228,8 @@ class Realtime(Overlay):
         for index in range(self.total_slot):
             # Update lap progress difference & refill type
             if index == 0:
-                self.update_refill_type(refill_type, self.last_refill_type, index)
-                self.last_refill_type = refill_type
+                self.update_energy_type(energy_type, self.last_energy_type, index)
+                self.last_energy_type = energy_type
 
                 self.update_race_type(is_lap_type_session, self.last_session_type, index)
                 self.last_session_type = is_lap_type_session
@@ -265,7 +265,7 @@ class Realtime(Overlay):
             if is_lap_type_session and index != 1:  # disable refilling display in laps type
                 refill_player = refill_extra = -MAGIC_NUM
             elif not in_formation and leader_valid and player_valid:
-                consumption = minfo.energy if refill_type else minfo.fuel
+                consumption = minfo.energy if energy_type else minfo.fuel
                 refill_player = calc.total_fuel_needed(lap_player[1],
                     consumption.estimatedValidConsumption, consumption.amountCurrent)
                 if self.wcfg["show_extra_refilling"]:
@@ -273,12 +273,12 @@ class Realtime(Overlay):
                         consumption.estimatedValidConsumption, consumption.amountCurrent)
             else:
                 refill_player = refill_extra = -MAGIC_NUM
-            self.update_refill(refill_player, self.last_refill_player[index], index, refill_type)
+            self.update_refill(refill_player, self.last_refill_player[index], index, energy_type)
             self.last_refill_player[index] = refill_player
 
             # Player refill extra
             if self.wcfg["show_extra_refilling"]:
-                self.update_refill_extra(refill_extra, self.last_refill_extra[index], index, refill_type)
+                self.update_refill_extra(refill_extra, self.last_refill_extra[index], index, energy_type)
                 self.last_refill_extra[index] = refill_extra
 
             # Predicate leader
@@ -346,31 +346,31 @@ class Realtime(Overlay):
                 type_text = "TIME"
             getattr(self, f"bar_pit_leader_{index}").setText(type_text)
 
-    def update_refill_type(self, curr, last, index):
-        """Refill type"""
+    def update_energy_type(self, curr, last, index):
+        """Energy type"""
         if curr != last:
-            if curr:
+            if curr > 0:
                 type_text = "NRG"
             else:
                 type_text = "FUEL"
             getattr(self, f"bar_refill_{index}").setText(type_text)
 
-    def update_refill(self, curr, last, index, refill_type):
+    def update_refill(self, curr, last, index, energy_type):
         """Player refill"""
         if curr != last:
             if curr > -MAGIC_NUM:
-                if not refill_type:
+                if not energy_type:
                     curr = self.fuel_units(curr)
                 refill_text = f"{curr:+.{self.decimals_refill}f}"[:self.bar_width].strip(".")
             else:
                 refill_text = TEXT_NONE
             getattr(self, f"bar_refill_{index}").setText(refill_text)
 
-    def update_refill_extra(self, curr, last, index, refill_type):
+    def update_refill_extra(self, curr, last, index, energy_type):
         """Player refill extra lap"""
         if curr != last:
             if curr > -MAGIC_NUM:
-                if not refill_type:
+                if not energy_type:
                     curr = self.fuel_units(curr)
                 refill_text = f"{curr:+.{self.decimals_refill}f}"[:self.bar_width].strip(".")
             else:

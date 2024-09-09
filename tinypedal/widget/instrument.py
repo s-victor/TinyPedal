@@ -147,7 +147,7 @@ class Realtime(Overlay):
                       api.read.input.clutch())
             is_braking = api.read.input.brake() > 0
 
-            self.flicker = bool(not self.flicker)
+            self.flicker = not self.flicker
 
             # Headlights
             if self.wcfg["show_headlights"]:
