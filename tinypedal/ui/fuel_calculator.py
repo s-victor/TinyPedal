@@ -84,7 +84,7 @@ class FuelCalculator(QDialog):
 
     def toggle_history_panel(self):
         """Toggle history data panel"""
-        if not self.panel_table.isVisible():
+        if self.panel_table.isHidden():
             self.panel_table.show()
             self.setFixedWidth(self.sizeHint().width())
             self.button_toggle.setText("Hide history")

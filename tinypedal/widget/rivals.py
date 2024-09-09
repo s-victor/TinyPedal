@@ -514,10 +514,10 @@ class Realtime(Overlay):
     def toggle_visibility(state, row_bar):
         """Hide row bar if empty data"""
         if state:
-            if not row_bar.isVisible():
+            if row_bar.isHidden():
                 row_bar.show()
         else:
-            if row_bar.isVisible():
+            if not row_bar.isHidden():
                 row_bar.hide()
 
     def load_brand_logo(self, brand_name):

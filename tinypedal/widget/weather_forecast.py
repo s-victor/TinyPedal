@@ -276,10 +276,10 @@ class Realtime(Overlay):
     def toggle_visibility(icon_index, row_bar):
         """Hide row bar if data unavailable"""
         if icon_index >= 0:
-            if not row_bar.isVisible():
+            if row_bar.isHidden():
                 row_bar.show()
         else:
-            if row_bar.isVisible():
+            if not row_bar.isHidden():
                 row_bar.hide()
 
     @staticmethod

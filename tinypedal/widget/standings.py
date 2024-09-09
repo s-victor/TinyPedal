@@ -593,18 +593,18 @@ class Realtime(Overlay):
     def toggle_visibility(self, state, row_bar):
         """Hide row bar if empty data"""
         if state == 0:
-            if not row_bar.isVisible():
+            if row_bar.isHidden():
                 row_bar.show()
         elif state == 1:
             if self.wcfg["split_gap"] > 0:  # draw gap
                 row_bar.setStyleSheet(self.bar_split_style)
-                if not row_bar.isVisible():
+                if row_bar.isHidden():
                     row_bar.show()
             else:  # hide gap
-                if row_bar.isVisible():
+                if not row_bar.isHidden():
                     row_bar.hide()
         else:
-            if row_bar.isVisible():
+            if not row_bar.isHidden():
                 row_bar.hide()
 
     def load_brand_logo(self, brand_name):
