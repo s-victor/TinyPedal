@@ -17,6 +17,10 @@ WIP
 * Tyre wear Widget
   - Now uses laptime pace for calculating "tyre lifespan in minutes".
 
+* Weather forecast Widget
+  - The "now" column always shows current weather conditon
+    even if RestAPI Module is disabled.
+
 2.17.4 (2024-08-30)
 -----------------------------
 * General

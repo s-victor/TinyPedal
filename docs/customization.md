@@ -2250,16 +2250,16 @@ Show surface condition, minimum, maximum, and average wetness.
 **This widget displays weather forecast info.**
 
     layout
-2 layouts are available: `0` = show columns from left to right, `1` = show columns from right to left.
+2 layouts are available: `0` = show columns from left to right, `1` = show columns from right to left. Note, the `now` column always shows current weather condition.
 
     show_estimated_time
 Show estimated time reading for upcoming weather. Note, estimated time reading only works in time-based race. Other race type such as lap-based race shows `n/a` instead.
 
     show_ambient_temperature
-Show estimated ambient temperature reading for upcoming weather.
+Show estimated ambient temperature reading for upcoming weather. Note, the `now` column always shows current ambient temperature instead.
 
     show_rain_chance_bar
-Show visualized rain chance bar reading for upcoming weather.
+Show visualized rain chance bar reading for upcoming weather. Note, the `now` column always shows current raininess instead.
 
     number_of_forecasts
 Set number of forecasts to display. Value range in `1` to `4`. Default is `4` forecasts.

@@ -31,6 +31,7 @@ from ..module_info import minfo
 from ._base import Overlay
 
 WIDGET_NAME = "weather_forecast"
+MAX_SLOT = 5
 TEXT_NONE = "n/a"
 
 
@@ -76,12 +77,12 @@ class Realtime(Overlay):
         self.set_table(width=self.bar_width)
 
         # Last data
-        self.unknown_estimated_time = [wthr.MAX_MINUTES] * 10
-        self.estimated_time = [wthr.MAX_MINUTES] * 10
-        self.last_estimated_time = [None] * 10
-        self.last_estimated_temp = [None] * 10
-        self.last_rain_chance = [None] * 10
-        self.last_icon_index = [None] * 10
+        self.unknown_estimated_time = [wthr.MAX_MINUTES] * MAX_SLOT
+        self.estimated_time = [wthr.MAX_MINUTES] * MAX_SLOT
+        self.last_estimated_time = [None] * MAX_SLOT
+        self.last_estimated_temp = [None] * MAX_SLOT
+        self.last_rain_chance = [None] * MAX_SLOT
+        self.last_icon_index = [None] * MAX_SLOT
 
     # GUI generate methods
     def set_table(self, width: int):
@@ -177,20 +178,20 @@ class Realtime(Overlay):
         """Update weather forecast from restapi"""
         # Read weather data
         is_lap_type = api.read.session.lap_type()
-        forecast_info = self.get_forecast_info()
-        raininess = api.read.session.raininess() * 100
+        forecast_info = self.get_forecast_info(api.read.session.session_type())
+        forecast_count = len(forecast_info)
 
         # Forecast
-        if forecast_info and len(forecast_info) >= 10:
+        if forecast_count > 0:
             index_offset = 0
             # Lap type race, no index offset, no estimated time
             if is_lap_type:
                 if self.estimated_time != self.unknown_estimated_time:
-                    for index in range(10):
+                    for index in range(forecast_count):
                         self.estimated_time[index] = wthr.MAX_MINUTES
             # Time type race, index offset to ignore negative estimated time
             else:
-                for index in range(10):
+                for index in range(forecast_count):
                     self.estimated_time[index] = min(round(
                         wthr.forecast_time_progress(
                             forecast_info[index][0],
@@ -203,45 +204,42 @@ class Realtime(Overlay):
             for index in range(self.total_slot):
                 index_bias = index + index_offset
 
+                # Update slot 0 with live(now) weather condition
                 if index == 0:
-                    icon_index = wthr.sky_type_correction(forecast_info[index_bias][1], raininess)
-                    self.update_weather_icon(
-                        icon_index, self.last_icon_index[index], index)
-                    self.last_icon_index[index] = icon_index
-
-                    if self.wcfg["show_ambient_temperature"]:
-                        estimated_temp = api.read.session.ambient_temperature()
-                        self.update_estimated_temp(
-                            estimated_temp, self.last_estimated_temp[index], index)
-                        self.last_estimated_temp[index] = estimated_temp
-
-                    if self.wcfg["show_rain_chance_bar"]:
-                        rain_chance = raininess
-                        self.update_rain_chance_bar(
-                            rain_chance, self.last_rain_chance[index], index)
-                        self.last_rain_chance[index] = rain_chance
-
-                else:
+                    rain_chance = api.read.session.raininess() * 100
+                    icon_index = wthr.sky_type_correction(forecast_info[index_bias][1], rain_chance)
+                    estimated_temp = api.read.session.ambient_temperature()
+                # Update slot with available forecast
+                elif index_bias < forecast_count:
+                    rain_chance = forecast_info[index_bias][3]
                     icon_index = forecast_info[index_bias][1]
-                    self.update_weather_icon(icon_index, self.last_icon_index[index], index)
-                    self.last_icon_index[index] = icon_index
+                    estimated_time = self.estimated_time[index_bias]
+                    estimated_temp = forecast_info[index_bias][2]
+                # Update slot with unavailable forecast
+                else:
+                    rain_chance = 0
+                    icon_index = -1
+                    estimated_time = wthr.MAX_MINUTES
+                    estimated_temp = wthr.MIN_TEMPERATURE
 
-                    if self.wcfg["show_estimated_time"]:
-                        self.update_estimated_time(
-                            self.estimated_time[index_bias], self.last_estimated_time[index], index)
-                        self.last_estimated_time[index] = self.estimated_time[index_bias]
+                self.update_weather_icon(
+                    icon_index, self.last_icon_index[index], index)
+                self.last_icon_index[index] = icon_index
 
-                    if self.wcfg["show_ambient_temperature"]:
-                        estimated_temp = forecast_info[index_bias][2]
-                        self.update_estimated_temp(
-                            estimated_temp, self.last_estimated_temp[index], index)
-                        self.last_estimated_temp[index] = estimated_temp
+                if self.wcfg["show_estimated_time"] and index > 0:
+                    self.update_estimated_time(
+                        estimated_time, self.last_estimated_time[index], index)
+                    self.last_estimated_time[index] = estimated_time
 
-                    if self.wcfg["show_rain_chance_bar"]:
-                        rain_chance = forecast_info[index_bias][3]
-                        self.update_rain_chance_bar(
-                            rain_chance, self.last_rain_chance[index], index)
-                        self.last_rain_chance[index] = rain_chance
+                if self.wcfg["show_ambient_temperature"]:
+                    self.update_estimated_temp(
+                        estimated_temp, self.last_estimated_temp[index], index)
+                    self.last_estimated_temp[index] = estimated_temp
+
+                if self.wcfg["show_rain_chance_bar"]:
+                    self.update_rain_chance_bar(
+                        rain_chance, self.last_rain_chance[index], index)
+                    self.last_rain_chance[index] = rain_chance
 
     # GUI update methods
     def update_estimated_time(self, curr, last, index):
@@ -304,14 +302,17 @@ class Realtime(Overlay):
                 row_bar.hide()
 
     @staticmethod
-    def get_forecast_info():
+    def get_forecast_info(session_type):
         """Get forecast info, 5 api data + 5 padding data"""
-        session_type = api.read.session.session_type()
         if session_type <= 1:  # practice session
-            return minfo.restapi.forecastPractice
-        if session_type == 2:  # qualify session
-            return minfo.restapi.forecastQualify
-        return minfo.restapi.forecastRace  # race session
+            info = minfo.restapi.forecastPractice
+        elif session_type == 2:  # qualify session
+            info = minfo.restapi.forecastQualify
+        else:
+            info = minfo.restapi.forecastRace  # race session
+        if not info:  # get default if no valid data
+            return wthr.DEFAULT
+        return info
 
     def format_temperature(self, air_deg):
         """Format ambient temperature"""
