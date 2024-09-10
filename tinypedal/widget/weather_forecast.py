@@ -179,7 +179,7 @@ class Realtime(Overlay):
         # Read weather data
         is_lap_type = api.read.session.lap_type()
         forecast_info = self.get_forecast_info(api.read.session.session_type())
-        forecast_count = len(forecast_info)
+        forecast_count = min(len(forecast_info), MAX_SLOT)
 
         # Forecast
         if forecast_count > 0:
