@@ -135,8 +135,8 @@ class Realtime(Overlay):
         self.brush = QBrush(Qt.SolidPattern)
 
         self.bar_gauge = self.set_qlabel(
-            width=self.gauge_width,
-            height=gauge_height,
+            fixed_width=self.gauge_width,
+            fixed_height=gauge_height,
         )
         self.pixmap_gauge = QPixmap(self.gauge_width, gauge_height)
         self.draw_gauge(
@@ -147,8 +147,8 @@ class Realtime(Overlay):
 
         if self.wcfg["show_speed_limiter"]:
             self.bar_limiter = self.set_qlabel(
-                width=limiter_width,
-                height=gauge_height,
+                fixed_width=limiter_width,
+                fixed_height=gauge_height,
             )
             self.pixmap_limiter = QPixmap(limiter_width, gauge_height)
             self.draw_limiter(self.bar_limiter, self.pixmap_limiter)
@@ -157,8 +157,8 @@ class Realtime(Overlay):
         if self.wcfg["show_rpm_bar"]:
             self.bar_rpmbar = self.set_qlabel(
                 style=self.set_qss(bg_color=self.wcfg["rpm_bar_bkg_color"]),
-                width=self.gauge_width,
-                height=self.rpmbar_height,
+                fixed_width=self.gauge_width,
+                fixed_height=self.rpmbar_height,
             )
             self.pixmap_rpmbar = QPixmap(self.gauge_width, self.rpmbar_height)
             self.draw_rpmbar(self.bar_rpmbar, self.pixmap_rpmbar, 0)
@@ -167,8 +167,8 @@ class Realtime(Overlay):
         if self.wcfg["show_battery_bar"]:
             self.bar_battbar = self.set_qlabel(
                 style=self.set_qss(bg_color=self.wcfg["battery_bar_bkg_color"]),
-                width=self.gauge_width,
-                height=self.battbar_height,
+                fixed_width=self.gauge_width,
+                fixed_height=self.battbar_height,
             )
             self.pixmap_battbar = QPixmap(self.gauge_width, self.battbar_height)
             self.draw_battbar(self.bar_battbar, self.pixmap_battbar, 0)

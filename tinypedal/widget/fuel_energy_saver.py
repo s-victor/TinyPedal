@@ -95,6 +95,7 @@ class Realtime(Overlay):
         self.last_delta = [-MAGIC_NUM] * self.total_slot
         self.last_target_laps = [-MAGIC_NUM] * self.total_slot
 
+    # GUI generate methods
     def set_table(self, width: int):
         """Set table"""
         bar_style_lap = (

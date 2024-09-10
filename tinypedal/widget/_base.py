@@ -278,15 +278,18 @@ class Overlay(QWidget):
         return f"{fg_color}{bg_color}{font_family}{font_size}{font_weight}"
 
     def add_qlabel(
-        self, text: str | None = None, style: str | None = None, width: int = 0, height: int = 0,
+        self, text: str | None = None, style: str | None = None,
+        width: int = 0, height: int = 0, fixed_width: int = 0, fixed_height: int = 0,
         align: int = 0) -> QLabel:
         """Add a single qlabel instance
 
         Args:
             text: label text.
             style: qt style sheet.
-            width: label width in pixel, uses setMinimumWidth if only width is set.
-            height: label height in pixel, uses setFixedSize if width is set, otherwise no effect.
+            width: minimum label width in pixel.
+            height: minimum label height in pixel.
+            fixed_width: fixed label width in pixel, takes priority over width.
+            fixed_height: fixed label height in pixel, takes priority over height.
             align: 0 (center), 1 (left), 2 (right).
 
         Returns:
@@ -300,25 +303,32 @@ class Overlay(QWidget):
         if style is not None:
             bar_temp.setStyleSheet(style)
 
-        if width > 0:
-            if height > 0:
-                bar_temp.setFixedSize(width, height)
-            else:
-                bar_temp.setMinimumWidth(width)
+        if fixed_width > 0:
+            bar_temp.setFixedWidth(fixed_width)
+        elif width > 0:
+            bar_temp.setMinimumWidth(width)
+
+        if fixed_height > 0:
+            bar_temp.setFixedHeight(fixed_height)
+        elif height > 0:
+            bar_temp.setMinimumHeight(height)
 
         bar_temp.setAlignment(self.set_text_alignment(align))
         return bar_temp
 
     def set_qlabel(
-        self, text: str | None = None, style: str | None = None, width: int = 0, height: int = 0,
+        self, text: str | None = None, style: str | None = None,
+        width: int = 0, height: int = 0, fixed_width: int = 0, fixed_height: int = 0,
         align: int = 0, count: int = 1) -> (tuple[QLabel] | QLabel):
         """Set qlabel
 
         Args:
             text: label text.
             style: qt style sheet.
-            width: label width in pixel, uses setMinimumWidth if only width is set.
-            height: label height in pixel, uses setFixedSize if width is set, otherwise no effect.
+            width: minimum label width in pixel.
+            height: minimum label height in pixel.
+            fixed_width: fixed label width in pixel, takes priority over width.
+            fixed_height: fixed label height in pixel, takes priority over height.
             align: 0 (center), 1 (left), 2 (right)
             count: number of qlabel to set.
 
@@ -328,10 +338,10 @@ class Overlay(QWidget):
         """
         if count > 1:
             return tuple(
-                self.add_qlabel(text, style, width, height, align)
+                self.add_qlabel(text, style, width, height, fixed_width, fixed_height, align)
                 for _ in range(count)
             )
-        return self.add_qlabel(text, style, width, height, align)
+        return self.add_qlabel(text, style, width, height, fixed_width, fixed_height, align)
 
     def set_primary_orient(self, target: QWidget | QLayout, column: int):
         """Set primary layout (QGridLayout) orientation

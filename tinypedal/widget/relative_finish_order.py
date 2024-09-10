@@ -115,6 +115,7 @@ class Realtime(Overlay):
         self.last_pit_time_leader = 0
         self.last_pit_time_player = 0
 
+    # GUI generate methods
     def set_table(self, width: int):
         """Set table"""
         bar_style_pit_time = self.set_qss(

@@ -320,13 +320,10 @@ class FuelCalculator(QDialog):
 
     def update_input(self):
         """Calculate and output results"""
-        self.input_laptime.carry_over()
         # Get lap time setup
-        laptime = (
-            self.input_laptime.minutes.value() * 60
-            + self.input_laptime.seconds.value()
-            + self.input_laptime.mseconds.value() * 0.001
-        )
+        self.input_laptime.carry_over()
+        laptime = self.input_laptime.to_seconds()
+
         # Get race setup
         total_race_seconds = self.input_race.minutes.value() * 60
         total_race_laps = self.input_race.laps.value()
@@ -490,6 +487,14 @@ class InputLapTime():
         layout_laptime.addWidget(QLabel("ms"), 1, 5)
 
         frame.setLayout(layout_laptime)
+
+    def to_seconds(self):
+        """Output lap time value to seconds"""
+        return (
+            self.minutes.value() * 60
+            + self.seconds.value()
+            + self.mseconds.value() * 0.001
+        )
 
     def carry_over(self):
         """Carry over lap time value"""

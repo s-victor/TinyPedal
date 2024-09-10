@@ -22,7 +22,7 @@ Weather forecast Widget
 
 from PySide2.QtCore import Qt, QRectF
 from PySide2.QtGui import QPixmap, QPainter, QBrush
-from PySide2.QtWidgets import QLabel, QGridLayout
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from .. import weather as wthr
@@ -31,6 +31,7 @@ from ..module_info import minfo
 from ._base import Overlay
 
 WIDGET_NAME = "weather_forecast"
+TEXT_NONE = "n/a"
 
 
 class Realtime(Overlay):
@@ -48,8 +49,8 @@ class Realtime(Overlay):
         self.total_slot = min(max(self.wcfg["number_of_forecasts"], 1), 4) + 1
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        self.icon_size = int(max(self.wcfg["icon_size"], 16) * 0.5) * 2
-        self.bar_width = max(font_m.width * 4 + bar_padx, self.icon_size)
+        icon_size = int(max(self.wcfg["icon_size"], 16) * 0.5) * 2
+        self.bar_width = max(font_m.width * 4 + bar_padx, icon_size)
         self.bar_rain_height = max(self.wcfg["rain_chance_bar_height"], 1)
 
         # Base style
@@ -64,96 +65,108 @@ class Realtime(Overlay):
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.setLayout(layout)
 
         # Config canvas
-        self.pixmap_weather = self.create_weather_icon_set()
+        self.pixmap_weather = self.create_weather_icon_set(icon_size)
         self.pixmap_rainchance = QPixmap(self.bar_width, self.bar_rain_height)
         self.brush = QBrush(Qt.SolidPattern)
 
-        self.generate_bar(layout)
-
-        # Set layout
-        self.setLayout(layout)
+        self.data_bar = {}
+        self.set_table(width=self.bar_width)
 
         # Last data
         self.unknown_estimated_time = [wthr.MAX_MINUTES] * 10
+        self.estimated_time = [wthr.MAX_MINUTES] * 10
         self.last_estimated_time = [None] * 10
         self.last_estimated_temp = [None] * 10
         self.last_rain_chance = [None] * 10
         self.last_icon_index = [None] * 10
 
-    def generate_bar(self, layout):
-        """Generate data bar"""
-        text_def = "n/a"
-        bar_style_time = (
-            f"color: {self.wcfg['font_color_estimated_time']};"
-            f"background: {self.wcfg['bkg_color_estimated_time']};"
-            f"min-width: {self.bar_width}px;"
+    # GUI generate methods
+    def set_table(self, width: int):
+        """Set table"""
+        bar_style_time = self.set_qss(
+            fg_color=self.wcfg["font_color_estimated_time"],
+            bg_color=self.wcfg["bkg_color_estimated_time"]
         )
-        bar_style_temp = (
-            f"color: {self.wcfg['font_color_ambient_temperature']};"
-            f"background: {self.wcfg['bkg_color_ambient_temperature']};"
-            f"min-width: {self.bar_width}px;"
+        bar_style_temp = self.set_qss(
+            fg_color=self.wcfg["font_color_ambient_temperature"],
+            bg_color=self.wcfg["bkg_color_ambient_temperature"]
         )
-        bar_style_rain = (
-            f"background: {self.wcfg['rain_chance_bar_bkg_color']};"
-            f"min-width: {self.bar_width}px;"
+        bar_style_rain = self.set_qss(
+            bg_color=self.wcfg["rain_chance_bar_bkg_color"]
         )
-        bar_style_icon = (
-            f"background: {self.wcfg['bkg_color']};"
-            f"min-width: {self.bar_width}px;"
+        bar_style_icon = self.set_qss(
+            bg_color=self.wcfg["bkg_color"]
         )
-        column_time = self.wcfg["column_index_estimated_time"]
-        column_icon = self.wcfg["column_index_weather_icon"]
-        column_temp = self.wcfg["column_index_ambient_temperature"]
-        column_rain = self.wcfg["column_index_rain_chance_bar"]
+        layout_inner = [None for _ in range(self.total_slot)]
 
         for index in range(self.total_slot):
             # Create column layout
-            setattr(self, f"layout_{index}", QGridLayout())
-            getattr(self, f"layout_{index}").setSpacing(0)
+            layout_inner[index] = QGridLayout()
+            layout_inner[index].setSpacing(0)
 
             # Estimated time
             if self.wcfg["show_estimated_time"]:
-                setattr(self, f"bar_time_{index}", QLabel(text_def))
-                getattr(self, f"bar_time_{index}").setAlignment(Qt.AlignCenter)
-                getattr(self, f"bar_time_{index}").setStyleSheet(bar_style_time)
                 if index == 0:
-                    getattr(self, f"bar_time_{index}").setText("now")
-                getattr(self, f"layout_{index}").addWidget(
-                    getattr(self, f"bar_time_{index}"), column_time, 0)
+                    time_text = "now"
+                else:
+                    time_text = TEXT_NONE
+                name_time = f"time_{index}"
+                self.data_bar[name_time] = self.set_qlabel(
+                    text=time_text,
+                    style=bar_style_time,
+                    fixed_width=width,
+                )
+                layout_inner[index].addWidget(
+                    self.data_bar[name_time], self.wcfg["column_index_estimated_time"], 0
+                )
 
             # Ambient temperature
             if self.wcfg["show_ambient_temperature"]:
-                setattr(self, f"bar_temp_{index}", QLabel(text_def))
-                getattr(self, f"bar_temp_{index}").setAlignment(Qt.AlignCenter)
-                getattr(self, f"bar_temp_{index}").setStyleSheet(bar_style_temp)
-                getattr(self, f"layout_{index}").addWidget(
-                    getattr(self, f"bar_temp_{index}"), column_temp, 0)
+                name_temp = f"temp_{index}"
+                self.data_bar[name_temp] = self.set_qlabel(
+                    text=TEXT_NONE,
+                    style=bar_style_temp,
+                    fixed_width=width,
+                )
+                layout_inner[index].addWidget(
+                    self.data_bar[name_temp], self.wcfg["column_index_ambient_temperature"], 0
+                )
 
             # Rain chance
             if self.wcfg["show_rain_chance_bar"]:
-                setattr(self, f"bar_rain_{index}", QLabel())
-                getattr(self, f"bar_rain_{index}").setFixedHeight(self.bar_rain_height)
-                getattr(self, f"bar_rain_{index}").setStyleSheet(bar_style_rain)
-                getattr(self, f"layout_{index}").addWidget(
-                    getattr(self, f"bar_rain_{index}"), column_rain, 0)
+                name_rain = f"rain_{index}"
+                self.data_bar[name_rain] = self.set_qlabel(
+                    style=bar_style_rain,
+                    fixed_width=width,
+                    fixed_height=self.bar_rain_height,
+                )
+                layout_inner[index].addWidget(
+                    self.data_bar[name_rain], self.wcfg["column_index_rain_chance_bar"], 0
+                )
 
             # Forecast icon
-            setattr(self, f"bar_icon_{index}", QLabel())
-            getattr(self, f"bar_icon_{index}").setAlignment(Qt.AlignCenter)
-            getattr(self, f"bar_icon_{index}").setStyleSheet(bar_style_icon)
-            getattr(self, f"bar_icon_{index}").setPixmap(self.pixmap_weather[-1])
-            getattr(self, f"layout_{index}").addWidget(
-                getattr(self, f"bar_icon_{index}"), column_icon, 0)
+            name_icon = f"icon_{index}"
+            self.data_bar[name_icon] = self.set_qlabel(
+                style=bar_style_icon,
+                fixed_width=width,
+            )
+            self.data_bar[name_icon].setPixmap(self.pixmap_weather[-1])
+            layout_inner[index].addWidget(
+                self.data_bar[name_icon], self.wcfg["column_index_weather_icon"], 0
+            )
 
             # Set layout
             if self.wcfg["layout"] == 0:  # left to right layout
-                layout.addLayout(
-                    getattr(self, f"layout_{index}"), 0, index)
+                self.layout().addLayout(
+                    layout_inner[index], 0, index
+                )
             else:  # right to left layout
-                layout.addLayout(
-                    getattr(self, f"layout_{index}"), 0, self.total_slot - 1 - index)
+                self.layout().addLayout(
+                    layout_inner[index], 0, self.total_slot - 1 - index
+                )
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -172,35 +185,40 @@ class Realtime(Overlay):
             index_offset = 0
             # Lap type race, no index offset, no estimated time
             if is_lap_type:
-                estimated_time = self.unknown_estimated_time
+                if self.estimated_time != self.unknown_estimated_time:
+                    for index in range(10):
+                        self.estimated_time[index] = wthr.MAX_MINUTES
             # Time type race, index offset to ignore negative estimated time
             else:
-                estimated_time = [min(round(  # fraction start time * session duration - session elapsed time
-                    (forecast_info[index][0] * api.read.session.end() - api.read.session.elapsed()) / 60),
-                    wthr.MAX_MINUTES) for index in range(10)]
-
-                for index, etime in enumerate(estimated_time):
-                    if etime > 0:
-                        if index > 0:
-                            index_offset = index - 1
-                        break
+                for index in range(10):
+                    self.estimated_time[index] = min(round(
+                        wthr.forecast_time_progress(
+                            forecast_info[index][0],
+                            api.read.session.end(),
+                            api.read.session.elapsed()
+                        ) / 60), wthr.MAX_MINUTES)
+                    if self.estimated_time[index] <= 0 < index:
+                        index_offset += 1
 
             for index in range(self.total_slot):
                 index_bias = index + index_offset
 
                 if index == 0:
                     icon_index = wthr.sky_type_correction(forecast_info[index_bias][1], raininess)
-                    self.update_weather_icon(icon_index, self.last_icon_index[index], index)
+                    self.update_weather_icon(
+                        icon_index, self.last_icon_index[index], index)
                     self.last_icon_index[index] = icon_index
 
                     if self.wcfg["show_ambient_temperature"]:
                         estimated_temp = api.read.session.ambient_temperature()
-                        self.update_estimated_temp(estimated_temp, self.last_estimated_temp[index], index)
+                        self.update_estimated_temp(
+                            estimated_temp, self.last_estimated_temp[index], index)
                         self.last_estimated_temp[index] = estimated_temp
 
                     if self.wcfg["show_rain_chance_bar"]:
                         rain_chance = raininess
-                        self.update_rain_chance_bar(rain_chance, self.last_rain_chance[index], index)
+                        self.update_rain_chance_bar(
+                            rain_chance, self.last_rain_chance[index], index)
                         self.last_rain_chance[index] = rain_chance
 
                 else:
@@ -209,17 +227,20 @@ class Realtime(Overlay):
                     self.last_icon_index[index] = icon_index
 
                     if self.wcfg["show_estimated_time"]:
-                        self.update_estimated_time(estimated_time[index_bias], self.last_estimated_time[index], index)
-                        self.last_estimated_time[index] = estimated_time[index_bias]
+                        self.update_estimated_time(
+                            self.estimated_time[index_bias], self.last_estimated_time[index], index)
+                        self.last_estimated_time[index] = self.estimated_time[index_bias]
 
                     if self.wcfg["show_ambient_temperature"]:
                         estimated_temp = forecast_info[index_bias][2]
-                        self.update_estimated_temp(estimated_temp, self.last_estimated_temp[index], index)
+                        self.update_estimated_temp(
+                            estimated_temp, self.last_estimated_temp[index], index)
                         self.last_estimated_temp[index] = estimated_temp
 
                     if self.wcfg["show_rain_chance_bar"]:
                         rain_chance = forecast_info[index_bias][3]
-                        self.update_rain_chance_bar(rain_chance, self.last_rain_chance[index], index)
+                        self.update_rain_chance_bar(
+                            rain_chance, self.last_rain_chance[index], index)
                         self.last_rain_chance[index] = rain_chance
 
     # GUI update methods
@@ -227,12 +248,12 @@ class Realtime(Overlay):
         """Estimated time"""
         if curr != last:
             if curr >= wthr.MAX_MINUTES or curr < 0:
-                time_text = "n/a"
+                time_text = TEXT_NONE
             elif curr >= 60:
                 time_text = f"{curr / 60:.1f}h"
             else:
                 time_text = f"{curr:.0f}m"
-            getattr(self, f"bar_time_{index}").setText(time_text)
+            self.data_bar[f"time_{index}"].setText(time_text)
 
     def update_estimated_temp(self, curr, last, index):
         """Estimated temperature"""
@@ -240,8 +261,8 @@ class Realtime(Overlay):
             if curr > wthr.MIN_TEMPERATURE:
                 temp_text = self.format_temperature(curr)
             else:
-                temp_text = "n/a"
-            getattr(self, f"bar_temp_{index}").setText(temp_text)
+                temp_text = TEXT_NONE
+            self.data_bar[f"temp_{index}"].setText(temp_text)
 
     def update_rain_chance_bar(self, curr, last, index):
         """Rain chance bar"""
@@ -252,24 +273,24 @@ class Realtime(Overlay):
             self.brush.setColor(self.wcfg["rain_chance_bar_color"])
             painter.setBrush(self.brush)
             painter.drawRect(0, 0, curr * 0.01 * self.bar_width, self.bar_rain_height)
-            getattr(self, f"bar_rain_{index}").setPixmap(self.pixmap_rainchance)
+            self.data_bar[f"rain_{index}"].setPixmap(self.pixmap_rainchance)
 
     def update_weather_icon(self, curr, last, index):
         """Weather icon, toggle visibility"""
         if curr != last:
             if 0 <= curr <= 10:
-                getattr(self, f"bar_icon_{index}").setPixmap(self.pixmap_weather[curr])
+                self.data_bar[f"icon_{index}"].setPixmap(self.pixmap_weather[curr])
             else:
-                getattr(self, f"bar_icon_{index}").setPixmap(self.pixmap_weather[-1])
+                self.data_bar[f"icon_{index}"].setPixmap(self.pixmap_weather[-1])
 
             if not self.wcfg["show_unavailable_data"] and index > 0:  # skip first slot
-                self.toggle_visibility(curr, getattr(self, f"bar_icon_{index}"))
+                self.toggle_visibility(curr, self.data_bar[f"icon_{index}"])
                 if self.wcfg["show_estimated_time"]:
-                    self.toggle_visibility(curr, getattr(self, f"bar_time_{index}"))
+                    self.toggle_visibility(curr, self.data_bar[f"time_{index}"])
                 if self.wcfg["show_ambient_temperature"]:
-                    self.toggle_visibility(curr, getattr(self, f"bar_temp_{index}"))
+                    self.toggle_visibility(curr, self.data_bar[f"temp_{index}"])
                 if self.wcfg["show_rain_chance_bar"]:
-                    self.toggle_visibility(curr, getattr(self, f"bar_rain_{index}"))
+                    self.toggle_visibility(curr, self.data_bar[f"rain_{index}"])
 
     # Additional methods
     @staticmethod
@@ -298,22 +319,21 @@ class Realtime(Overlay):
             return f"{calc.celsius2fahrenheit(air_deg):.0f}°"
         return f"{air_deg:.0f}°"
 
-    def create_weather_icon_set(self):
+    def create_weather_icon_set(self, icon_size):
         """Create weather icon set"""
         icon_source = QPixmap("images/icon_weather.png")
-        pixmap_icon = icon_source.scaledToWidth(self.icon_size * 12, mode=Qt.SmoothTransformation)
-        rect_size = QRectF(0, 0, self.icon_size, self.icon_size)
-        rect_offset = QRectF(0, 0, self.icon_size, self.icon_size)
+        pixmap_icon = icon_source.scaledToWidth(icon_size * 12, mode=Qt.SmoothTransformation)
+        rect_size = QRectF(0, 0, icon_size, icon_size)
+        rect_offset = QRectF(0, 0, icon_size, icon_size)
         return tuple(
-            self.draw_weather_icon(pixmap_icon, rect_size, rect_offset, index)
+            self.draw_weather_icon(pixmap_icon, icon_size, rect_size, rect_offset, index)
             for index in range(12))
 
-    def draw_weather_icon(self, pixmap_icon, rect_size, rect_offset, h_offset):
+    def draw_weather_icon(self, pixmap_icon, icon_size, rect_size, rect_offset, h_offset):
         """Draw weather icon"""
-        pixmap = QPixmap(self.icon_size, self.icon_size)
+        pixmap = QPixmap(icon_size, icon_size)
         pixmap.fill(Qt.transparent)
         painter = QPainter(pixmap)
-
-        rect_offset.moveLeft(self.icon_size * h_offset)
+        rect_offset.moveLeft(icon_size * h_offset)
         painter.drawPixmap(rect_size, pixmap_icon, rect_offset)
         return pixmap
