@@ -1,7 +1,6 @@
 from __future__ import annotations
 import logging
 import time
-import threading
 import psutil
 from dataclasses import dataclass
 
@@ -19,7 +18,7 @@ from .setting import cfg
 logger = logging.getLogger(__name__)
 preset_validator = PresetValidator()
 
-def monitor_process(exe_names):
+def monitor_process(exe_names, config_window):
     """
     Monitors processes in real-time and notifies when the specified executable is launched.
 
@@ -27,6 +26,9 @@ def monitor_process(exe_names):
         exe_name: The name of the executable to monitor.
     """
 
+    # set of detected game exe
+    detected = set()
+    
     while True:
         procs = [proc.name() for proc in psutil.process_iter()]
         try:
@@ -35,6 +37,7 @@ def monitor_process(exe_names):
                     # set preset and add exe name to detected if it is running
                     if exe_name not in detected:
                         set_preset(exe_name)
+                        config_window.preset_tab.refresh_list()  # refresh UI
                         detected.add(exe_name)
                 else:
                     # delete exe name from detected if it is not running
@@ -56,10 +59,3 @@ def set_preset(exe_name):
 
 # {exe_name: preset_name} dictionary
 preset_dict = {"Le Mans Ultimate.exe": "Le Mans Ultimate", "rFactor2.exe": "rFactor 2"}
-
-# set of detected game exe
-detected = set()
-
-# Create a thread to run the monitoring function in the background
-monitor_thread = threading.Thread(target=monitor_process, args=(["rFactor2.exe", "Le Mans Ultimate.exe"],))
-monitor_thread.daemon = True
