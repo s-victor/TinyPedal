@@ -33,6 +33,7 @@ from . import log_stream
 from .cli_argument import get_cli_argument
 from .const import APP_NAME, PLATFORM, VERSION, PYTHON_VERSION, QT_VERSION, PATH_LOG
 from .log_handler import set_logging_level
+from .monitoring import monitor_thread
 
 EXE_NAME = "tinypedal.exe"
 PID_FILE = "pid.log"
@@ -132,6 +133,8 @@ def start_app():
     # Load core modules
     from . import loader
     loader.load()
+    # start monitoring game launch
+    monitor_thread.start()
     # Start main window
     from tinypedal.ui.app import AppWindow
     config_window = AppWindow()
