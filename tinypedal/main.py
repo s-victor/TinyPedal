@@ -34,7 +34,6 @@ from . import log_stream
 from .cli_argument import get_cli_argument
 from .const import APP_NAME, PLATFORM, VERSION, PYTHON_VERSION, QT_VERSION, PATH_LOG
 from .log_handler import set_logging_level
-from .monitoring import monitor_process
 
 EXE_NAME = "tinypedal.exe"
 PID_FILE = "pid.log"
@@ -142,10 +141,10 @@ def start_app():
 
     # start monitoring game launch
     # Create a thread to run the monitoring function in the background
+    from .monitoring import monitor_process
     monitor_thread = threading.Thread(target=monitor_process, 
-                                      args=(["rFactor2.exe", "Le Mans Ultimate.exe"], 
-                                            config_window))
-    monitor_thread.daemon = True
+                                      args=(config_window,),
+                                      daemon=True)
     monitor_thread.start()
     
     # Start mainloop
