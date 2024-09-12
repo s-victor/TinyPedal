@@ -191,6 +191,31 @@ def rotate_pos(ori_rad, value1, value2):
             cos_rad * value2 + sin_rad * value1)
 
 
+def wheel_axle_rotation(rot_left, rot_right):
+    """Wheel axle rotation"""
+    # Make sure both wheels rotate towards same direction
+    if rot_left >= 0 <= rot_right or rot_left <= 0 >= rot_right:
+        return (rot_left + rot_right) / 2
+    return 0
+
+
+def wheel_rotation_bias(rot_axle, rot_left, rot_right):
+    """Wheel rotation bias (difference) against axle rotation"""
+    if rot_axle:
+        return abs((rot_left - rot_right) / rot_axle)
+    return 0
+
+
+def wheel_rotation_ratio(rot_axle, rot_left, rot_right):
+    """Calculate wheel rotation ratio between left and right wheel on same axle
+
+    Range from 0 to 2. 1 means both wheels rotate at same speed.
+    """
+    if rot_axle:
+        return rot_left / rot_axle, rot_right / rot_axle
+    return 1, 1
+
+
 def lap_progress_distance(dist, length):
     """Current lap progress (distance into lap) fraction"""
     if length:

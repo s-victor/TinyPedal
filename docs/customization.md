@@ -594,6 +594,9 @@ Lap difference (percentage) threshold for tagging opponents as behind. Default i
 ## Wheels
 **This module provides wheel radius and slip ratio data.**
 
+    maximum_rotation_difference_front, maximum_rotation_difference_rear
+Set maximum rotation difference (percentage) between left or right wheel rotation and same axle rotation for limiting wheel radius calculation. Setting higher difference value may result inaccurate wheel radius reading. Default value is `0.002`.
+
     last_vehicle_info
 Last saved vehicle identifier. This option is not for manual editing.
 

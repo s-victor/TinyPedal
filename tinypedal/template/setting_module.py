@@ -94,6 +94,8 @@ MODULE_DEFAULT = {
         "enable": True,
         "update_interval": 10,
         "idle_update_interval": 400,
+        "maximum_rotation_difference_front": 0.002,
+        "maximum_rotation_difference_rear": 0.002,
         "last_vehicle_info": "unknown",
         "last_wheel_radius_front": 0,
         "last_wheel_radius_rear": 0,

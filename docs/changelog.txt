@@ -5,6 +5,12 @@ WIP
   - Fixed an issue where some vehicle info is missing while importing from LMU Rest API.
     Make sure to import again to update all vehicle brand info from LMU.
 
+* Wheels module
+  - Add "maximum_rotation_difference_*" options, which sets maximum rotation difference (percentage)
+    between left or right wheel and same axle for limiting wheel radius calculation.
+    Setting higher difference value may result inaccurate wheel radius reading.
+    Default value is `0.002`.
+
 * Brake bias Widget
   - Add "layout" option, which sets display orientation.
     Default is horizontal. Set "0" to show vertically.
@@ -13,6 +19,11 @@ WIP
   - Add "layout" option, which sets display orientation.
     Default is horizontal. Set "0" to show vertically.
   - Add "odometer_maximum_digits" option, which sets maximum number of display digits.
+
+* Instrument Widget
+  - Changed default "layout" setting value to "1" for horizontal layout
+    (as opposite to old "0" value) for consistency.
+    User may need to edit old value to "1" to display horizontal layout.
 
 * Tyre wear Widget
   - Now uses laptime pace for calculating "tyre lifespan in minutes".

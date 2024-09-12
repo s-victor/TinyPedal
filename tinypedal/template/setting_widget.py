@@ -825,7 +825,7 @@ WIDGET_DEFAULT = {
         "opacity": 0.9,
         "icon_size": 32,
         "bar_gap": 2,
-        "layout": 0,
+        "layout": 1,
         "bkg_color": "#222222",
         "show_headlights": True,
         "show_ignition": True,

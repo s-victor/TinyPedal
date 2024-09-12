@@ -20,8 +20,8 @@
 Wheels module
 """
 
-from collections import deque
 import logging
+from collections import deque
 
 from ._base import DataModule
 from ..module_info import minfo
@@ -44,6 +44,11 @@ class Realtime(DataModule):
         reset = False
         update_interval = self.active_interval
 
+        list_radius_f = deque([], 160)
+        list_radius_r = deque([], 160)
+        max_rot_bias_f = max(self.mcfg["maximum_rotation_difference_front"], 0.00001)
+        max_rot_bias_r = max(self.mcfg["maximum_rotation_difference_rear"], 0.00001)
+
         while not self.event.wait(update_interval):
             if self.state.active:
 
@@ -51,28 +56,58 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
 
-                    gen_wheel_radius = self.calc_wheel_radius()
-                    radius_front, radius_rear = next(gen_wheel_radius)
+                    if self.mcfg["last_vehicle_info"] == api.read.check.vehicle_id():
+                        radius_front = self.mcfg["last_wheel_radius_front"]
+                        radius_rear = self.mcfg["last_wheel_radius_rear"]
+                        min_samples_f = 160
+                        min_samples_r = 160
+                    else:
+                        list_radius_f.clear()
+                        list_radius_r.clear()
+                        radius_front = 0
+                        radius_rear = 0
+                        min_samples_f = 20
+                        min_samples_r = 20
+
+                    samples_slice_f = sample_slice_indices(min_samples_f)
+                    samples_slice_r = sample_slice_indices(min_samples_r)
 
                 # Read telemetry
                 speed = api.read.vehicle.speed()
                 wheel_rot = api.read.wheel.rotation()
 
-                # Wheel radius
-                radius_front, radius_rear = gen_wheel_radius.send((speed, wheel_rot))
+                # Get wheel axle rotation and difference
+                rot_axle_f = calc.wheel_axle_rotation(wheel_rot[0], wheel_rot[1])
+                rot_axle_r = calc.wheel_axle_rotation(wheel_rot[2], wheel_rot[3])
+                rot_bias_f = calc.wheel_rotation_bias(rot_axle_f, wheel_rot[0], wheel_rot[1])
+                rot_bias_r = calc.wheel_rotation_bias(rot_axle_r, wheel_rot[2], wheel_rot[3])
 
-                # Wheel slip ratio
-                slip_ratio = (
-                    calc.slip_ratio(wheel_rot[0], radius_front, speed),
-                    calc.slip_ratio(wheel_rot[1], radius_front, speed),
-                    calc.slip_ratio(wheel_rot[2], radius_rear, speed),
-                    calc.slip_ratio(wheel_rot[3], radius_rear, speed)
-                )
+                # Record radius value within max rotation difference
+                if rot_axle_f != 0 < rot_bias_f < max_rot_bias_f:
+                    list_radius_f.append(calc.rot2radius(speed, rot_axle_f))
+                    # Front average wheel radius
+                    if len(list_radius_f) >= min_samples_f:
+                        radius_front = calc.mean(sorted(list_radius_f)[samples_slice_f])
+                        if min_samples_f < 160:
+                            min_samples_f *= 2  # double sample counts
+                            samples_slice_f = sample_slice_indices(min_samples_f)
+
+                if rot_axle_r != 0 < rot_bias_r < max_rot_bias_r:
+                    list_radius_r.append(calc.rot2radius(speed, rot_axle_r))
+                    # Rear average wheel radius
+                    if len(list_radius_r) >= min_samples_r:
+                        radius_rear = calc.mean(sorted(list_radius_r)[samples_slice_r])
+                        if min_samples_r < 160:
+                            min_samples_r *= 2
+                            samples_slice_r = sample_slice_indices(min_samples_r)
 
                 # Output wheels data
                 minfo.wheels.radiusFront = radius_front
                 minfo.wheels.radiusRear = radius_rear
-                minfo.wheels.slipRatio = slip_ratio
+                minfo.wheels.slipRatio[0] = calc.slip_ratio(wheel_rot[0], radius_front, speed)
+                minfo.wheels.slipRatio[1] = calc.slip_ratio(wheel_rot[1], radius_front, speed)
+                minfo.wheels.slipRatio[2] = calc.slip_ratio(wheel_rot[2], radius_rear, speed)
+                minfo.wheels.slipRatio[3] = calc.slip_ratio(wheel_rot[3], radius_rear, speed)
 
             else:
                 if reset:
@@ -80,61 +115,9 @@ class Realtime(DataModule):
                     update_interval = self.idle_interval
                     if radius_front != 0 and radius_rear != 0:
                         self.mcfg["last_vehicle_info"] = api.read.check.vehicle_id()
-                        self.mcfg["last_wheel_radius_front"] = radius_front
-                        self.mcfg["last_wheel_radius_rear"] = radius_rear
+                        self.mcfg["last_wheel_radius_front"] = round(radius_front, 3)
+                        self.mcfg["last_wheel_radius_rear"] = round(radius_rear, 3)
                     self.cfg.save()
-
-    def calc_wheel_radius(self):
-        """Calc wheel radius"""
-        if self.mcfg["last_vehicle_info"] == api.read.check.vehicle_id():
-            radius_front = self.mcfg["last_wheel_radius_front"]
-            radius_rear = self.mcfg["last_wheel_radius_rear"]
-            min_samples_f = 160
-            min_samples_r = 160
-        else:
-            radius_front = 0
-            radius_rear = 0
-            min_samples_f = 20
-            min_samples_r = 20
-
-        samples_slice_f = sample_slice_indices(min_samples_f)
-        samples_slice_r = sample_slice_indices(min_samples_r)
-        list_radius_f = deque([], 160)
-        list_radius_r = deque([], 160)
-        speed = 0
-        wheel_rot = 0,0,0,0
-
-        while True:
-            if speed > 3:
-                # Get wheel rotation difference
-                # Max rotation vs average, negative = forward, so use min instead of max
-                diff_rot_f = calc.min_vs_avg(wheel_rot[0:2])
-                diff_rot_r = calc.min_vs_avg(wheel_rot[2:4])
-                # Record radius value for targeted rotation difference
-                if 0 < diff_rot_f < 0.1:
-                    list_radius_f.append(
-                        calc.rot2radius(speed, calc.mean(wheel_rot[0:2])))
-                if 0 < diff_rot_r < 0.1:
-                    list_radius_r.append(
-                        calc.rot2radius(speed, calc.mean(wheel_rot[2:4])))
-                # Front average wheel radius
-                if len(list_radius_f) >= min_samples_f:
-                    radius_front = round(
-                        calc.mean(sorted(list_radius_f)[samples_slice_f])
-                        , 3)
-                    if min_samples_f < 160:
-                        min_samples_f *= 2  # double sample counts
-                        samples_slice_f = sample_slice_indices(min_samples_f)
-                # Rear average wheel radius
-                if len(list_radius_r) >= min_samples_r:
-                    radius_rear = round(
-                        calc.mean(sorted(list_radius_r)[samples_slice_r])
-                        , 3)
-                    if min_samples_r < 160:
-                        min_samples_r *= 2
-                        samples_slice_r = sample_slice_indices(min_samples_r)
-            # Output
-            speed, wheel_rot = yield radius_front, radius_rear
 
 
 def sample_slice_indices(min_samples):
