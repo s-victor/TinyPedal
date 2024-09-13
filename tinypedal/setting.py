@@ -125,8 +125,8 @@ class Preset:
     def set_platform_default(self):
         """Set platform default setting"""
         if PLATFORM != "Windows":
-            self.setting["application"]["show_at_startup"] = True
-            self.setting["application"]["minimize_to_tray"] = False
+            self.config["application"]["show_at_startup"] = True
+            self.config["application"]["minimize_to_tray"] = False
             self.setting["compatibility"]["enable_bypass_window_manager"] = True
 
 
