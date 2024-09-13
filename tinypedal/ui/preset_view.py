@@ -40,7 +40,7 @@ from PySide2.QtWidgets import (
     QDialogButtonBox,
 )
 
-from ..const import APP_ICON, PATH_SETTINGS
+from ..const import APP_ICON
 from ..setting import cfg
 from .. import formatter as fmt
 from .. import regex_pattern as rxp
@@ -127,7 +127,7 @@ class PresetList(QWidget):
 
     def context_menu(self, position):
         """Preset context menu"""
-        if bool(self.listbox_preset.itemAt(position)):
+        if self.listbox_preset.itemAt(position):
             menu = QMenu()
             option_duplicate = menu.addAction("Duplicate")
             option_rename = menu.addAction("Rename")
@@ -143,7 +143,7 @@ class PresetList(QWidget):
                     self,
                     title="Duplicate Preset",
                     mode="duplicate",
-                    src_filename=selected_filename
+                    source_filename=selected_filename
                 )
                 _dialog.open()
             # Rename preset
@@ -152,7 +152,7 @@ class PresetList(QWidget):
                     self,
                     title="Rename Preset",
                     mode="rename",
-                    src_filename=selected_filename
+                    source_filename=selected_filename
                 )
                 _dialog.open()
             # Delete preset
@@ -169,26 +169,26 @@ class PresetList(QWidget):
                     buttons=QMessageBox.Yes | QMessageBox.No)
 
                 if delete_msg == QMessageBox.Yes:
-                    if os.path.exists(f"{PATH_SETTINGS}{selected_filename}"):
-                        os.remove(f"{PATH_SETTINGS}{selected_filename}")
+                    if os.path.exists(f"{cfg.path.settings}{selected_filename}"):
+                        os.remove(f"{cfg.path.settings}{selected_filename}")
                     self.refresh_list()
 
 
 class CreatePreset(QDialog):
     """Create preset"""
 
-    def __init__(self, master, title: str = "", mode: str = "", src_filename: str = ""):
+    def __init__(self, master, title: str = "", mode: str = "", source_filename: str = ""):
         """Initialize create preset dialog setting
 
         Args:
             title: Dialog title string.
             mode: Edit mode, either "duplicate", "rename", or "" for new preset.
-            src_filename: Source setting filename.
+            source_filename: Source setting filename.
         """
         super().__init__(master)
         self.master = master
         self.edit_mode = mode
-        self.src_filename = src_filename
+        self.source_filename = source_filename
 
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setFixedWidth(280)
@@ -218,35 +218,33 @@ class CreatePreset(QDialog):
         entered_filename = fmt.strip_filename_extension(self.preset_entry.text(), ".json")
 
         if val.allowed_filename(rxp.CFG_INVALID_FILENAME, entered_filename):
-            self.__saving(entered_filename)
+            self.__saving(cfg.path.settings, entered_filename, self.source_filename)
         else:
-            QMessageBox.warning(
-                self, "Error", "Invalid preset name.")
+            QMessageBox.warning(self, "Error", "Invalid preset name.")
 
-    def __saving(self, entered_filename: str):
+    def __saving(self, filepath: str, entered_filename: str, source_filename: str):
         """Saving new preset"""
         # Check existing preset
         temp_list = cfg.load_preset_list()
         for preset in temp_list:
             if entered_filename.lower() == preset.lower():
-                QMessageBox.warning(
-                    self, "Error", "Preset already exists.")
+                QMessageBox.warning(self, "Error", "Preset already exists.")
                 return None
         # Duplicate preset
         if self.edit_mode == "duplicate":
             shutil.copy(
-                f"{PATH_SETTINGS}{self.src_filename}",
-                f"{PATH_SETTINGS}{entered_filename}.json"
+                f"{filepath}{source_filename}",
+                f"{filepath}{entered_filename}.json"
             )
             self.master.refresh_list()
         # Rename preset
         elif self.edit_mode == "rename":
             os.rename(
-                f"{PATH_SETTINGS}{self.src_filename}",
-                f"{PATH_SETTINGS}{entered_filename}.json"
+                f"{filepath}{source_filename}",
+                f"{filepath}{entered_filename}.json"
             )
             # Reload if renamed file was loaded
-            if cfg.filename.setting == self.src_filename:
+            if cfg.filename.setting == source_filename:
                 cfg.filename.setting = f"{entered_filename}.json"
                 self.master.master.reload_preset()
             else:

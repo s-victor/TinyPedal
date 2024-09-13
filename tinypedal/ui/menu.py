@@ -25,7 +25,6 @@ import os
 from PySide2.QtGui import QDesktopServices
 from PySide2.QtWidgets import QMenu, QAction, QMessageBox
 
-from ..const import PATH_DELTABEST, PATH_ENERGY, PATH_FUEL, PATH_SECTORBEST, PATH_TRACKMAP
 from ..setting import cfg
 from ..api_control import api
 from ..overlay_control import octrl
@@ -116,7 +115,7 @@ class ResetDataMenu(QMenu):
         self.master = master
 
         # Deltabest
-        reset_deltabest = QAction("Deltabest", self)
+        reset_deltabest = QAction("Delta best", self)
         reset_deltabest.triggered.connect(self.reset_deltabest)
         menu.addAction(reset_deltabest)
 
@@ -143,27 +142,27 @@ class ResetDataMenu(QMenu):
     def reset_deltabest(self):
         """Reset deltabest data"""
         self.__confirmation(
-            "deltabest", "csv", PATH_DELTABEST, api.read.check.combo_id())
+            "delta best", "csv", cfg.path.delta_best, api.read.check.combo_id())
 
     def reset_energydelta(self):
         """Reset energy delta data"""
         self.__confirmation(
-            "energy delta", "energy", PATH_ENERGY, api.read.check.combo_id())
+            "energy delta", "energy", cfg.path.energy_delta, api.read.check.combo_id())
 
     def reset_fueldelta(self):
         """Reset fuel delta data"""
         self.__confirmation(
-            "fuel delta", "fuel", PATH_FUEL, api.read.check.combo_id())
+            "fuel delta", "fuel", cfg.path.fuel_delta, api.read.check.combo_id())
 
     def reset_sectorbest(self):
         """Reset sector best data"""
         self.__confirmation(
-            "sector best", "sector", PATH_SECTORBEST, api.read.check.combo_id())
+            "sector best", "sector", cfg.path.sector_best, api.read.check.combo_id())
 
     def reset_trackmap(self):
         """Reset trackmap data"""
         self.__confirmation(
-            "track map", "svg", PATH_TRACKMAP, api.read.check.track_id())
+            "track map", "svg", cfg.path.track_map, api.read.check.track_id())
 
     def __confirmation(self, data_type: str, file_ext: str, file_path: str, combo_name: str):
         """Message confirmation"""

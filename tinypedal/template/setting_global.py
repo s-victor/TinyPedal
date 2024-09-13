@@ -17,33 +17,27 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Constants
+Default global (config) setting template
 """
 
-import os
-import sys
-import platform
 
-from PySide2.QtCore import qVersion
-
-
-VERSION = "2.18.0-alpha"
-APP_NAME = "TinyPedal"
-PLATFORM = platform.system()
-APP_ICON = "images/icon.png"
-COPYRIGHT = "Copyright (C) 2022-2024 TinyPedal developers"
-DESCRIPTION = "A Free and Open Source telemetry overlay application for racing simulation."
-LICENSE = "Licensed under the GNU General Public License v3.0 or later."
-WEBSITE = "https://github.com/s-victor/TinyPedal"
-
-# Library version
-PYTHON_VERSION = ".".join(str(num) for num in sys.version_info[0:3])
-QT_VERSION = qVersion()
-
-# Global path
-if PLATFORM == "Windows":
-    from .validator import user_data_path
-    PATH_GLOBAL = user_data_path(f"{os.getenv('APPDATA')}/{APP_NAME}/")
-else:
-    from xdg import BaseDirectory as BD
-    PATH_GLOBAL = BD.save_config_path(APP_NAME) + "/"
+GLOBAL_DEFAULT = {
+    "application": {
+        "enable_auto_load_preset": False,
+        "minimum_update_interval": 10,
+        "maximum_saving_attempts": 10,
+    },
+    "user_path": {
+        "settings_path": "settings/",
+        "brand_logo_path": "brandlogo/",
+        "delta_best_path": "deltabest/",
+        "sector_best_path": "deltabest/",
+        "energy_delta_path": "deltabest/",
+        "fuel_delta_path": "deltabest/",
+        "track_map_path": "trackmap/",
+    },
+    "primary_preset": {
+        "LMU": "",
+        "RF2": "",
+    },
+}

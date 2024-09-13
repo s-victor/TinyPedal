@@ -29,11 +29,12 @@ import json
 import shutil
 from dataclasses import dataclass
 
-from .const import PLATFORM, PATH_SETTINGS, PATH_BRANDLOGO
+from .const import APP_NAME, PLATFORM, PATH_GLOBAL
 from .setting_validator import PresetValidator
 from . import regex_pattern as rxp
 from . import validator as val
 
+from .template.setting_global import GLOBAL_DEFAULT
 from .template.setting_application import APPLICATION_DEFAULT
 from .template.setting_module import MODULE_DEFAULT
 from .template.setting_widget import WIDGET_DEFAULT
@@ -47,6 +48,7 @@ preset_validator = PresetValidator()
 @dataclass
 class FileName:
     """File name"""
+    config: str = "config.json"
     setting: str = "default.json"
     classes: str = "classes.json"
     heatmap: str = "heatmap.json"
@@ -54,10 +56,57 @@ class FileName:
     last_setting: str = "None.json"
 
 
+class FilePath:
+    """File path"""
+
+    def __init__(self):
+        self.config: str = PATH_GLOBAL  # reference only, should never change
+        self.settings: str = ""
+        self.brand_logo: str = ""
+        self.delta_best: str = ""
+        self.sector_best: str = ""
+        self.energy_delta: str = ""
+        self.fuel_delta: str = ""
+        self.track_map: str = ""
+
+        if PLATFORM == "Windows":
+            self.update = self.__path_windows
+        else:
+            self.update = self.__path_linux
+
+    def __path_windows(self, user_path: dict, default_path: dict):
+        """Update path from global settings"""
+        for key in user_path.keys():
+            key_name = key.replace("_path", "")
+            # Verify loaded path
+            if not val.user_data_path(user_path[key]):
+                # Reset to default if invalid
+                user_path[key] = default_path[key]
+                # Re-verify
+                val.user_data_path(user_path[key])
+            # Assign path
+            setattr(self, key_name, user_path[key])
+
+    def __path_linux(self, user_path: dict, default_path: dict):
+        """Update path from global settings"""
+        from xdg import BaseDirectory as BD
+        for key in user_path.keys():
+            key_name = key.replace("_path", "")
+            # Verify loaded path
+            if user_path[key] == default_path[key] or not val.user_data_path(user_path[key]):
+                # Reset to linux standard folder if not exist or invalid
+                user_path[key] = BD.save_data_path(APP_NAME, default_path[key])
+                # Re-verify
+                val.user_data_path(user_path[key])
+            # Assign path
+            setattr(self, key_name, user_path[key])
+
+
 class Preset:
     """Preset setting"""
 
     def __init__(self):
+        self.config: dict | None = None
         self.setting: dict | None = None
         self.classes: dict | None = None
         self.heatmap: dict | None = None
@@ -66,6 +115,7 @@ class Preset:
 
     def set_default(self):
         """Set default setting"""
+        self.config = GLOBAL_DEFAULT
         self.setting = {**APPLICATION_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT}
         self.classes = CLASSES_DEFAULT
         self.heatmap = HEATMAP_DEFAULT
@@ -82,23 +132,48 @@ class Preset:
 
 class Setting:
     """Overlay setting"""
-    filepath = PATH_SETTINGS
 
     def __init__(self):
+        self.is_saving = False
+        self._save_delay = 0
+
         self.filename = FileName()
         self.default = Preset()
         self.default.set_default()
         self.user = Preset()
-        self.is_saving = False
-        self._save_delay = 0
+        self.path = FilePath()
+
+        self.app_loaded = False  # set to true after app main window fully loaded
         self.last_detected_sim = None
-        self.sim_specific_preset = {"LMU": "Le Mans Ultimate", 
-                                    "RF2": "rFactor 2"}
+        self.auto_load_preset = False
+
+    def get_primary_preset_name(self, sim_name: str) -> str:
+        """Get primary preset name and verify"""
+        preset_name = self.user.config["primary_preset"].get(sim_name, "")
+        if val.allowed_filename(rxp.CFG_INVALID_FILENAME, preset_name):
+            full_preset_name = f"{preset_name}.json"
+            if os.path.exists(f"{cfg.path.settings}{full_preset_name}"):
+                return full_preset_name
+        return ""
+
+    def load_global(self):
+        """Load global setting files"""
+        self.user.config = load_setting_json_file(
+            self.filename.config, self.path.config, self.default.config)
+        self.auto_load_preset = self.user.config["application"]["enable_auto_load_preset"]
+        self.save_global()
+
+    def save_global(self):
+        """Save global setting files"""
+        self.path.update(self.user.config["user_path"], self.default.config["user_path"])
+        # Call __saving directly here without starting a separate thread
+        self._save_delay = 0
+        self.__saving(self.filename.config, self.path.config, self.user.config)
 
     def load(self):
         """Load all setting files"""
         self.user.setting = load_setting_json_file(
-            self.filename.setting, self.filepath, self.default.setting)
+            self.filename.setting, self.path.settings, self.default.setting)
         # Assign base setting
         self.application = self.user.setting["application"]
         self.compatibility = self.user.setting["compatibility"]
@@ -108,12 +183,12 @@ class Setting:
         self.filename.last_setting = self.filename.setting
         # Load style JSON file
         self.user.brands = load_style_json_file(
-            self.filename.brands, self.filepath, self.default.brands)
+            self.filename.brands, self.path.settings, self.default.brands)
         self.user.classes = load_style_json_file(
-            self.filename.classes, self.filepath, self.default.classes)
+            self.filename.classes, self.path.settings, self.default.classes)
         self.user.heatmap = load_style_json_file(
-            self.filename.heatmap, self.filepath, self.default.heatmap)
-        self.user.brands_logo = load_brands_logo_list()
+            self.filename.heatmap, self.path.settings, self.default.heatmap)
+        self.user.brands_logo = load_brands_logo_list(self.path.brand_logo)
         # Save setting to JSON file
         self.save(0)
         logger.info("SETTING: %s preset loaded", self.filename.last_setting)
@@ -124,8 +199,8 @@ class Setting:
         JSON file list: modified date, filename
         """
         raw_cfg_list = [
-            (os.path.getmtime(f"{self.filepath}{_filename}"), _filename[:-5])
-            for _filename in os.listdir(self.filepath)
+            (os.path.getmtime(f"{self.path.settings}{_filename}"), _filename[:-5])
+            for _filename in os.listdir(self.path.settings)
             if _filename.lower().endswith(".json")
         ]
         if raw_cfg_list:
@@ -150,7 +225,7 @@ class Setting:
                 Set time delay(count) that can be refreshed before start saving thread.
                 Default is roughly one sec delay, use 0 for instant saving.
             file_type:
-                Available type: "setting", "brands", "classes", "heatmap".
+                Available type: "config", "setting", "brands", "classes", "heatmap".
         """
         self._save_delay = count
 
@@ -160,14 +235,15 @@ class Setting:
                 target=self.__saving,
                 args=(
                     getattr(self.filename, file_type),
-                    self.filepath,
+                    self.path.settings,
                     getattr(self.user, file_type)
                 )
             ).start()
 
     def __saving(self, filename: str, filepath: str, dict_user: dict):
         """Saving thread"""
-        attempts = max_attempts = max(self.compatibility["maximum_saving_attempts"], 3)
+        attempts = max_attempts = max(
+            self.user.config["application"]["maximum_saving_attempts"], 3)
 
         # Update save delay
         while self._save_delay > 0:
@@ -284,12 +360,12 @@ def load_style_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
     return style_user
 
 
-def load_brands_logo_list() -> list[str]:
+def load_brands_logo_list(filepath: str) -> list[str]:
     """Load brands logo list"""
     return [
-        _filename[:-4] for _filename in os.listdir(PATH_BRANDLOGO)
+        _filename[:-4] for _filename in os.listdir(filepath)
         if _filename.lower().endswith(".png")
-        and os.path.getsize(f"{PATH_BRANDLOGO}{_filename}") < 1024000]
+        and os.path.getsize(f"{filepath}{_filename}") < 1024000]
 
 
 def copy_setting(dict_user: dict) -> dict:
@@ -303,5 +379,6 @@ def copy_setting(dict_user: dict) -> dict:
 
 # Assign config setting
 cfg = Setting()
+cfg.load_global()
 cfg.filename.setting = f"{cfg.load_preset_list()[0]}.json"
 cfg.load()

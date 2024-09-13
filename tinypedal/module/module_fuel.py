@@ -27,7 +27,6 @@ from math import ceil as roundup
 
 from ._base import DataModule
 from ..module_info import minfo
-from ..const import PATH_FUEL
 from ..api_control import api
 from .. import calculation as calc
 from .. import validator as val
@@ -42,10 +41,10 @@ round6 = partial(round, ndigits=6)
 
 class Realtime(DataModule):
     """Fuel usage data"""
-    filepath = PATH_FUEL
 
     def __init__(self, config):
         super().__init__(config, MODULE_NAME)
+        self.filepath = self.cfg.path.fuel_delta
 
     def update_data(self):
         """Update module data"""

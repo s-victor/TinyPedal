@@ -41,6 +41,8 @@ class StateTimer:
 
     def timeout(self, now: float) -> bool:
         """Check time out"""
+        if self._last > now:  # last time stamp correction
+            self._last = now
         if now - self._last < self._interval:
             return False
         self._last = now
@@ -68,7 +70,12 @@ class StateTimer:
 class OverlayState(QObject):
     """Set and update overlay global state
 
-    Available states:
+    Signals:
+        * hidden: auto hide
+        * locked: overlay lock
+        * reload: reload preset, should only be emitted after app fully loaded
+
+    States:
         * Active: True if vehicle is on track
         * Lock position
         * Auto hide
@@ -76,14 +83,16 @@ class OverlayState(QObject):
     """
     hidden = Signal(bool)
     locked = Signal(bool)
+    reload = Signal(bool)
 
     def __init__(self):
         super().__init__()
         self.stopped = True
         self.active = False
-        # self.autoload = True
         self.event = threading.Event()
-        self._auto_hide_timer = StateTimer(0.4)
+
+        self._auto_hide_timer = StateTimer(interval=0.4)
+        self._auto_load_preset_timer = StateTimer(interval=1.0)
 
     def start(self):
         """Start state update thread"""
@@ -93,33 +102,60 @@ class OverlayState(QObject):
             threading.Thread(target=self.__updating, daemon=True).start()
             logger.info("ACTIVE: overlay control")
 
-        # if self.autoload:
-        #    threading.Thread(target=self.__autoload, daemon=True).start()
-        #    logger.info("ACTIVE: autoload preset")
-
     def stop(self):
         """Stop thread"""
         self.event.set()
 
-    def __autoload(self):
-        """auto-load sim specific preset"""
-        # monitor_process()
-
     def __updating(self):
         """Update global state"""
-        self._auto_hide_timer.reset()
-
         while not self.event.wait(0.01):
             self.active = api.state
             self.__auto_hide_state()
+            self.__auto_load_preset()
 
         self.stopped = True
         logger.info("CLOSED: overlay control")
 
     def __auto_hide_state(self):
-        """Update auto hide state"""
+        """Auto hide state"""
         if self._auto_hide_timer.timeout(time.perf_counter()):
             self.hidden.emit(cfg.overlay["auto_hide"] and not self.active)
+
+    def __auto_load_preset(self):
+        """Auto load primary preset"""
+        if self._auto_load_preset_timer.timeout(time.perf_counter()):
+            if not cfg.auto_load_preset:
+                return
+            # Make sure app is fully loaded before check state
+            if not cfg.app_loaded:
+                return
+            # Get sim_name, returns "" if no game running
+            sim_name = api.read.check.sim_name()
+            # Abort if game not found
+            if not sim_name:
+                # Clear detected name if no game found
+                if cfg.last_detected_sim is not None:
+                    cfg.last_detected_sim = None
+                return
+            # Abort if same as last found game
+            if sim_name == cfg.last_detected_sim:
+                return
+            # Assign sim name to last detected, set preset name
+            cfg.last_detected_sim = sim_name
+            preset_name = cfg.get_primary_preset_name(sim_name)
+            logger.info("SETTING: game detected: %s", sim_name)
+            # Abort if preset file does not exist
+            if preset_name == "":
+                logger.info("SETTING: not found, abort auto loading")
+                return
+            # Check if already loaded
+            if preset_name == cfg.filename.last_setting:
+                logger.info("SETTING: %s already loaded", preset_name)
+                return
+            # Update preset name
+            cfg.filename.setting = preset_name
+            # Do not call cfg.load here as it's handled by loader.reload
+            self.reload.emit(True)
 
 
 class OverlayControl:

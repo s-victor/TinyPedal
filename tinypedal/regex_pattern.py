@@ -59,7 +59,10 @@ CFG_STRING = (
     "^process_id$|"
     "^tyre_compound_symbol$|"
     "^url_host$|"
+    "^LMU$|"
+    "^RF2$|"
     # Partial match
+    "_path|"
     "info|"
     "list|"
     "prefix|"

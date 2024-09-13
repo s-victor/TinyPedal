@@ -22,7 +22,7 @@ Main application window
 
 import logging
 
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Qt, Slot
 from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import (
     QApplication,
@@ -38,6 +38,7 @@ from PySide2.QtWidgets import (
 from ..const import APP_NAME, VERSION, APP_ICON
 from ..setting import cfg
 from ..api_control import api
+from ..overlay_control import octrl
 from ..module_control import mctrl, wctrl
 from .. import loader
 from .tray_icon import TrayIcon
@@ -102,6 +103,8 @@ class AppWindow(QMainWindow):
         # Tray icon & window state
         self.start_tray_icon()
         self.set_window_state()
+        self.__connect_signal()
+        cfg.app_loaded = True
 
     def goto_spectate_tab(self):
         """Go to spectate tab"""
@@ -206,6 +209,7 @@ class AppWindow(QMainWindow):
     def quit_app(self):
         """Quit manager"""
         self.save_window_position()
+        self.__break_signal()
         loader.unload()
         QApplication.quit()  # close app
 
@@ -226,6 +230,7 @@ class AppWindow(QMainWindow):
         api.restart()
         self.set_status_text()
 
+    @Slot(bool)
     def reload_preset(self):
         """Reload current preset"""
         loader.reload()
@@ -235,3 +240,11 @@ class AppWindow(QMainWindow):
         self.widget_tab.refresh_state()
         self.module_tab.refresh_state()
         self.spectate_tab.refresh_list()
+
+    def __connect_signal(self):
+        """Connect overlay reload signal"""
+        octrl.state.reload.connect(self.reload_preset)
+
+    def __break_signal(self):
+        """Disconnect overlay reload signal"""
+        octrl.state.reload.disconnect(self.reload_preset)

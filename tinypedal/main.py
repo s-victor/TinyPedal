@@ -25,14 +25,13 @@ import sys
 import signal
 import logging
 import psutil
-import threading
 
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QApplication, QMessageBox
 
 from . import log_stream
 from .cli_argument import get_cli_argument
-from .const import APP_NAME, PLATFORM, VERSION, PYTHON_VERSION, QT_VERSION, PATH_LOG
+from .const import APP_NAME, PLATFORM, VERSION, PYTHON_VERSION, QT_VERSION, PATH_GLOBAL
 from .log_handler import set_logging_level
 
 EXE_NAME = "tinypedal.exe"
@@ -45,7 +44,7 @@ set_logging_level(logger, log_stream, cli_args.log_level)
 
 def save_pid_file():
     """Save PID info to file"""
-    with open(f"{PATH_LOG}{PID_FILE}", "w", encoding="utf-8") as f:
+    with open(f"{PATH_GLOBAL}{PID_FILE}", "w", encoding="utf-8") as f:
         current_pid = os.getpid()
         pid_create_time = psutil.Process(current_pid).create_time()
         pid_str = f"{current_pid},{pid_create_time}"
@@ -56,7 +55,7 @@ def is_pid_exist() -> bool:
     """Check and verify PID existence"""
     try:
         # Load last recorded PID and creation time from pid log file
-        with open(f"{PATH_LOG}{PID_FILE}", "r", encoding="utf-8") as f:
+        with open(f"{PATH_GLOBAL}{PID_FILE}", "r", encoding="utf-8") as f:
             pid_read = f.readline()
         pid = pid_read.split(",")
         pid_last = int(pid[0])
@@ -133,19 +132,9 @@ def start_app():
     # Load core modules
     from . import loader
     loader.load()
-
     # Start main window
     from tinypedal.ui.app import AppWindow
     config_window = AppWindow()
     signal.signal(signal.SIGINT, config_window.int_signal_handler)
-
-    # start monitoring game launch
-    # Create a thread to run the monitoring function in the background
-    from .monitoring import monitor_process
-    monitor_thread = threading.Thread(target=monitor_process, 
-                                      args=(config_window,),
-                                      daemon=True)
-    monitor_thread.start()
-    
     # Start mainloop
     sys.exit(root.exec_())

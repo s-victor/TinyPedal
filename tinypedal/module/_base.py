@@ -47,11 +47,11 @@ class DataModule:
         self.event = threading.Event()
         self.active_interval = max(
             self.mcfg["update_interval"],
-            self.cfg.compatibility["minimum_update_interval"]) / 1000
+            self.cfg.user.config["application"]["minimum_update_interval"]) / 1000
         self.idle_interval = max(
             self.active_interval,
             self.mcfg["idle_update_interval"],
-            self.cfg.compatibility["minimum_update_interval"]) / 1000
+            self.cfg.user.config["application"]["minimum_update_interval"]) / 1000
 
     def start(self):
         """Start update thread"""

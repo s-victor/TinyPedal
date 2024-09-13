@@ -27,7 +27,6 @@ from PySide2.QtWidgets import QGridLayout
 from .. import calculation as calc
 from .. import formatter as fmt
 from ..api_control import api
-from ..const import PATH_BRANDLOGO
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -529,7 +528,7 @@ class Realtime(Overlay):
             return self.pixmap_brandlogo[brand_name]
         # Add available logo to cached
         if brand_name in self.cfg.user.brands_logo:
-            logo_temp = QPixmap(f"{PATH_BRANDLOGO}{brand_name}.png")
+            logo_temp = QPixmap(f"{self.cfg.path.brand_logo}{brand_name}.png")
             if calc.image_size_adaption(
                 logo_temp.width(), logo_temp.height(), self.brd_width, self.brd_height):
                 logo_image = logo_temp.scaledToWidth(  # adapt to width

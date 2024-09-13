@@ -23,7 +23,7 @@ Log handler setup
 import sys
 import logging
 
-from .const import PATH_LOG
+from .const import PATH_GLOBAL
 
 
 LOGGING_FORMAT_CONSOLE = logging.Formatter(
@@ -87,5 +87,5 @@ def set_logging_level(_logger, log_stream=None, log_level=1) -> None:
     elif log_level == 2:
         new_stream_handler(_logger, sys.stdout)
         _logger.info("LOGGING: output to console")
-        new_file_handler(_logger, PATH_LOG, LOGGING_FILENAME)
+        new_file_handler(_logger, PATH_GLOBAL, LOGGING_FILENAME)
         _logger.info("LOGGING: output to %s", LOGGING_FILENAME)

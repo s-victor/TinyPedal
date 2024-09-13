@@ -35,8 +35,6 @@ APPLICATION_DEFAULT = {
         "enable_window_position_correction": True,
         "global_bkg_color": "#000000",
         "grid_move_size": 8,
-        "minimum_update_interval": 10,
-        "maximum_saving_attempts": 10,
     },
     "overlay": {
         "fixed_position": False,

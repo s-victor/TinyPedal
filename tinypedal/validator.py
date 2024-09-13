@@ -98,8 +98,9 @@ def user_data_path(folder_name: str) -> str:
         logger.info("%s folder does not exist, attemp to create", folder_name)
         try:
             os.mkdir(folder_name)
-        except (PermissionError, FileExistsError):
+        except (PermissionError, FileExistsError, FileNotFoundError):
             logger.error("failed to create %s folder", folder_name)
+            return ""
     return folder_name
 
 

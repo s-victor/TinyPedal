@@ -26,7 +26,6 @@ from functools import partial
 
 from ._base import DataModule
 from ..module_info import minfo
-from ..const import PATH_DELTABEST
 from ..api_control import api
 from .. import calculation as calc
 from .. import validator as val
@@ -42,10 +41,10 @@ round6 = partial(round, ndigits=6)
 
 class Realtime(DataModule):
     """Delta time data"""
-    filepath = PATH_DELTABEST
 
     def __init__(self, config):
         super().__init__(config, MODULE_NAME)
+        self.filepath = self.cfg.path.delta_best
 
     def update_data(self):
         """Update module data"""
