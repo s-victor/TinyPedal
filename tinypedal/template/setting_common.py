@@ -17,18 +17,11 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Default application setting template
+Default common setting template
 """
 
 
-APPLICATION_DEFAULT = {
-    "application": {
-        "show_at_startup": True,
-        "minimize_to_tray": True,
-        "remember_position": True,
-        "position_x": 0,
-        "position_y": 0,
-    },
+COMMON_DEFAULT = {
     "compatibility": {
         "enable_bypass_window_manager": False,
         "enable_translucent_background": True,

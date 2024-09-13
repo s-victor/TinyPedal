@@ -1,5 +1,20 @@
 WIP
 -----------------------------
+* General
+  - Add global user config file as "config.json", which stores global user settings
+    that are independent from user presets.
+    For Windows, "config.json" is stored under "username\AppData\Roaming\TinyPedal" folder.
+    For Linux, "config.json" is stored under "home/.config/TinyPedal" folder.
+  - Log files are now stored in the same folder as global user config file.
+  - All "application" settings are now moved into "config.json".
+
+* [New]Auto load preset system
+  - Add "Auto load preset" system to allow auto loading predefined game-specific preset
+    depends on currently active game (currently either RF2 or LMU).
+    Auto loading preset is triggered when a new or different game is started & active.
+    Auto loading will only trigger once per game change.
+    This option is disabled by default.
+
 * Vehicle Brand Editor
   - Now allows multi-selection for deleting vehicle brand entries.
   - Fixed an issue where some vehicle info is missing while importing from LMU Rest API.

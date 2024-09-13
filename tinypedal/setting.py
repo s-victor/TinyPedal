@@ -35,7 +35,7 @@ from . import regex_pattern as rxp
 from . import validator as val
 
 from .template.setting_global import GLOBAL_DEFAULT
-from .template.setting_application import APPLICATION_DEFAULT
+from .template.setting_common import COMMON_DEFAULT
 from .template.setting_module import MODULE_DEFAULT
 from .template.setting_widget import WIDGET_DEFAULT
 from .template.setting_classes import CLASSES_DEFAULT
@@ -116,7 +116,7 @@ class Preset:
     def set_default(self):
         """Set default setting"""
         self.config = GLOBAL_DEFAULT
-        self.setting = {**APPLICATION_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT}
+        self.setting = {**COMMON_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT}
         self.classes = CLASSES_DEFAULT
         self.heatmap = HEATMAP_DEFAULT
         self.brands = {}
@@ -146,7 +146,6 @@ class Setting:
 
         self.app_loaded = False  # set to true after app main window fully loaded
         self.last_detected_sim = None
-        self.auto_load_preset = False
 
     def get_primary_preset_name(self, sim_name: str) -> str:
         """Get primary preset name and verify"""
@@ -161,7 +160,8 @@ class Setting:
         """Load global setting files"""
         self.user.config = load_setting_json_file(
             self.filename.config, self.path.config, self.default.config)
-        self.auto_load_preset = self.user.config["application"]["enable_auto_load_preset"]
+        # Assign global setting
+        self.application = self.user.config["application"]
         logger.info("SETTING: %s loaded (global settings)", self.filename.config)
         self.save_global()
 
@@ -175,7 +175,6 @@ class Setting:
         self.user.setting = load_setting_json_file(
             self.filename.setting, self.path.settings, self.default.setting)
         # Assign base setting
-        self.application = self.user.setting["application"]
         self.compatibility = self.user.setting["compatibility"]
         self.overlay = self.user.setting["overlay"]
         self.shared_memory_api = self.user.setting["shared_memory_api"]

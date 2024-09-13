@@ -23,6 +23,11 @@ Default global (config) setting template
 
 GLOBAL_DEFAULT = {
     "application": {
+        "show_at_startup": True,
+        "minimize_to_tray": True,
+        "remember_position": True,
+        "position_x": 0,
+        "position_y": 0,
         "enable_auto_load_preset": False,
         "minimum_update_interval": 10,
         "maximum_saving_attempts": 10,

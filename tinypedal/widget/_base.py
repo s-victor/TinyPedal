@@ -72,7 +72,7 @@ class Overlay(QWidget):
         self._update_timer = QBasicTimer()
         self._update_interval = max(
             self.wcfg["update_interval"],
-            self.cfg.user.config["application"]["minimum_update_interval"])
+            self.cfg.application["minimum_update_interval"])
 
     def start(self):
         """Set initial widget state in orders, and start update"""

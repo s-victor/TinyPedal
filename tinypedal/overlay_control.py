@@ -124,7 +124,7 @@ class OverlayState(QObject):
     def __auto_load_preset(self):
         """Auto load primary preset"""
         if self._auto_load_preset_timer.timeout(time.perf_counter()):
-            if not cfg.auto_load_preset:
+            if not cfg.application["enable_auto_load_preset"]:
                 return
             # Make sure app is fully loaded before check state
             if not cfg.app_loaded:
