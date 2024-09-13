@@ -69,12 +69,7 @@ class FilePath:
         self.fuel_delta: str = ""
         self.track_map: str = ""
 
-        if PLATFORM == "Windows":
-            self.update = self.__path_windows
-        else:
-            self.update = self.__path_linux
-
-    def __path_windows(self, user_path: dict, default_path: dict):
+    def update(self, user_path: dict, default_path: dict):
         """Update path from global settings"""
         for key in user_path.keys():
             key_name = key.replace("_path", "")
@@ -82,20 +77,6 @@ class FilePath:
             if not val.user_data_path(user_path[key]):
                 # Reset to default if invalid
                 user_path[key] = default_path[key]
-                # Re-verify
-                val.user_data_path(user_path[key])
-            # Assign path
-            setattr(self, key_name, user_path[key])
-
-    def __path_linux(self, user_path: dict, default_path: dict):
-        """Update path from global settings"""
-        from xdg import BaseDirectory as BD
-        for key in user_path.keys():
-            key_name = key.replace("_path", "")
-            # Verify loaded path
-            if user_path[key] == default_path[key] or not val.user_data_path(user_path[key]):
-                # Reset to linux standard folder if not exist or invalid
-                user_path[key] = BD.save_data_path(APP_NAME, default_path[key])
                 # Re-verify
                 val.user_data_path(user_path[key])
             # Assign path
@@ -125,9 +106,19 @@ class Preset:
     def set_platform_default(self):
         """Set platform default setting"""
         if PLATFORM != "Windows":
+            # Global config
             self.config["application"]["show_at_startup"] = True
             self.config["application"]["minimize_to_tray"] = False
+            # Compatibility
             self.setting["compatibility"]["enable_bypass_window_manager"] = True
+            # Global path
+            from xdg import BaseDirectory as BD
+            for key in self.config["user_path"].keys():
+                default_path = self.config["user_path"][key]
+                if key in ("settings_path", "brand_logo_path"):
+                    self.config["user_path"][key] = BD.save_config_path(APP_NAME, default_path)
+                else:
+                    self.config["user_path"][key] = BD.save_data_path(APP_NAME, default_path)
 
 
 class Setting:
