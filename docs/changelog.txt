@@ -18,6 +18,7 @@ WIP
     "Auto load preset" system.
   - Add "primary preset" tagging function in "Preset" tab, user can "Right" click on a preset
     and select "Set primary for ***" to tag a preset as "primary" for specific game.
+    To clear all tags from selected preset, "Right" click and select "Clear primary tag".
     Primary preset will be auto loaded when "Auto load primary preset" is enabled and
     a new or different game is started & active.
     Note, a single preset can have tags from multiple games.

@@ -55,8 +55,8 @@ QSS_LISTBOX = (
 )
 QSS_TAGGED_ITEM = "font-size: 14px;color: #FFF;"
 QSS_TAGGED_COLOR = (
-    "margin: 4px 4px 4px 0px;background: #F20;",  # LMU
-    "margin: 4px 4px 4px 0px;background: #0AF;",  # RF2
+    "margin: 4px 4px 4px 0px;background: #F20;border-radius: 3px;",  # LMU
+    "margin: 4px 4px 4px 0px;background: #0AF;border-radius: 3px;",  # RF2
 )
 preset_name_valid = QRegularExpressionValidator(QRegularExpression('[^\\\\/:*?"<>|]*'))
 
@@ -155,8 +155,11 @@ class PresetList(QWidget):
         """Preset context menu"""
         if self.listbox_preset.itemAt(position):
             menu = QMenu()
-            option_preset_lmu = menu.addAction("Set primary for LMU")
-            option_preset_rf2 = menu.addAction("Set primary for RF2")
+            option_tag_lmu = menu.addAction("Set primary for LMU")
+            option_tag_rf2 = menu.addAction("Set primary for RF2")
+            menu.addSeparator()
+            option_tag_clear = menu.addAction("Clear primary tag")
+            menu.addSeparator()
             option_duplicate = menu.addAction("Duplicate")
             option_rename = menu.addAction("Rename")
             option_delete = menu.addAction("Delete")
@@ -167,15 +170,25 @@ class PresetList(QWidget):
             selected_filename = f"{selected_preset_name}.json"
 
             # Set primary preset LMU
-            if action == option_preset_lmu:
-                cfg.user.config["primary_preset"]["LMU"] = selected_preset_name
+            if action == option_tag_lmu:
+                cfg.primary_preset["LMU"] = selected_preset_name
                 cfg.save(filetype="config")
                 self.refresh_list()
             # Set primary preset RF2
-            elif action == option_preset_rf2:
-                cfg.user.config["primary_preset"]["RF2"] = selected_preset_name
+            elif action == option_tag_rf2:
+                cfg.primary_preset["RF2"] = selected_preset_name
                 cfg.save(filetype="config")
                 self.refresh_list()
+            # Clear primary preset tag
+            elif action == option_tag_clear:
+                tag_found = False
+                for sim_name, primary_preset in cfg.primary_preset.items():
+                    if selected_preset_name == primary_preset:
+                        cfg.primary_preset[sim_name] = ""
+                        tag_found = True
+                if tag_found:
+                    cfg.save(filetype="config")
+                    self.refresh_list()
             # Duplicate preset
             elif action == option_duplicate:
                 _dialog = CreatePreset(
@@ -311,7 +324,7 @@ class PrimaryPresetTag(QWidget):
         layout_item.setSpacing(0)
         layout_item.addStretch(stretch=1)
 
-        primary_preset_dict = cfg.user.config["primary_preset"].items()
+        primary_preset_dict = cfg.primary_preset.items()
         for sim_name, primary_preset in primary_preset_dict:
             if preset_name == primary_preset:
                 label_sim_name = QLabel(sim_name)

@@ -140,7 +140,7 @@ class Setting:
 
     def get_primary_preset_name(self, sim_name: str) -> str:
         """Get primary preset name and verify"""
-        preset_name = self.user.config["primary_preset"].get(sim_name, "")
+        preset_name = self.primary_preset.get(sim_name, "")
         if val.allowed_filename(rxp.CFG_INVALID_FILENAME, preset_name):
             full_preset_name = f"{preset_name}.json"
             if os.path.exists(f"{cfg.path.settings}{full_preset_name}"):
@@ -155,6 +155,7 @@ class Setting:
         self.path.update(self.user.config["user_path"], self.default.config["user_path"])
         # Assign global setting
         self.application = self.user.config["application"]
+        self.primary_preset = self.user.config["primary_preset"]
         logger.info("SETTING: %s loaded (global settings)", self.filename.config)
         self.save(0, "config")
 
