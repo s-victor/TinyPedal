@@ -136,6 +136,7 @@ class Setting:
     def __init__(self):
         self.is_saving = False
         self._save_delay = 0
+        self._save_queue = set()
 
         self.filename = FileName()
         self.default = Preset()
@@ -161,14 +162,13 @@ class Setting:
         self.user.config = load_setting_json_file(
             self.filename.config, self.path.config, self.default.config)
         self.auto_load_preset = self.user.config["application"]["enable_auto_load_preset"]
+        logger.info("SETTING: %s loaded (global settings)", self.filename.config)
         self.save_global()
 
     def save_global(self):
         """Save global setting files"""
         self.path.update(self.user.config["user_path"], self.default.config["user_path"])
-        # Call __saving directly here without starting a separate thread
-        self._save_delay = 0
-        self.__saving(self.filename.config, self.path.config, self.user.config)
+        self.save(0, "config")
 
     def load(self):
         """Load all setting files"""
@@ -191,7 +191,7 @@ class Setting:
         self.user.brands_logo = load_brands_logo_list(self.path.brand_logo)
         # Save setting to JSON file
         self.save(0)
-        logger.info("SETTING: %s preset loaded", self.filename.last_setting)
+        logger.info("SETTING: %s loaded (user preset)", self.filename.last_setting)
 
     def load_preset_list(self):
         """Load preset list
@@ -217,7 +217,7 @@ class Setting:
         """Create default setting"""
         self.user.setting = copy_setting(self.default.setting)
 
-    def save(self, count: int = 66, file_type: str = "setting"):
+    def save(self, delay: int = 66, file_type: str = "setting"):
         """Save trigger, limit to one save operation for a given period.
 
         Args:
@@ -227,20 +227,22 @@ class Setting:
             file_type:
                 Available type: "config", "setting", "brands", "classes", "heatmap".
         """
-        self._save_delay = count
+        self._save_delay = delay
+        self._save_queue.add(file_type)
 
         if not self.is_saving:
             self.is_saving = True
             threading.Thread(
                 target=self.__saving,
                 args=(
+                    file_type,
                     getattr(self.filename, file_type),
                     self.path.settings,
                     getattr(self.user, file_type)
                 )
             ).start()
 
-    def __saving(self, filename: str, filepath: str, dict_user: dict):
+    def __saving(self, file_type: str, filename: str, filepath: str, dict_user: dict):
         """Saving thread"""
         attempts = max_attempts = max(
             self.user.config["application"]["maximum_saving_attempts"], 3)
@@ -274,7 +276,13 @@ class Setting:
                 "SETTING: %s failed saving (took %sms, %s/%s attempts)",
                 filename, timer_end, max_attempts - attempts, attempts)
         delete_old_json_file(filename, filepath)
+
+        self._save_queue.discard(file_type)
         self.is_saving = False
+
+        for save_task in self._save_queue:
+            self.save(0, save_task)
+            break
 
 
 def save_json_file(filename: str, filepath: str, dict_user: dict) -> None:

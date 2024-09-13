@@ -49,7 +49,7 @@ from .menu import OverlayMenu, ConfigMenu, ToolsMenu, WindowMenu, HelpMenu
 
 
 WINDOW_MIN_WIDTH = 300
-WINDOW_MIN_HEIGHT = 454
+WINDOW_MIN_HEIGHT = 462
 
 logger = logging.getLogger("tinypedal")
 
