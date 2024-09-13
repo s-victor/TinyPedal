@@ -148,17 +148,14 @@ class Setting:
         return ""
 
     def load_global(self):
-        """Load global setting files"""
+        """Load global setting, should only done once per launch"""
         self.user.config = load_setting_json_file(
             self.filename.config, self.path.config, self.default.config)
+        # Assign global path
+        self.path.update(self.user.config["user_path"], self.default.config["user_path"])
         # Assign global setting
         self.application = self.user.config["application"]
         logger.info("SETTING: %s loaded (global settings)", self.filename.config)
-        self.save_global()
-
-    def save_global(self):
-        """Save global setting files"""
-        self.path.update(self.user.config["user_path"], self.default.config["user_path"])
         self.save(0, "config")
 
     def load(self):
