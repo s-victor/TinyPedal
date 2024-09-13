@@ -122,6 +122,7 @@ CFG_INVALID_FILENAME = (
     "^$|"
     "^brands$|"
     "^classes$|"
+    "^config$|"
     "^heatmap$|"
     # Partial match
     "backup"
