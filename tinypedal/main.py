@@ -25,6 +25,7 @@ import sys
 import signal
 import logging
 import psutil
+import threading
 
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QApplication, QMessageBox
@@ -132,9 +133,19 @@ def start_app():
     # Load core modules
     from . import loader
     loader.load()
+
     # Start main window
     from tinypedal.ui.app import AppWindow
     config_window = AppWindow()
     signal.signal(signal.SIGINT, config_window.int_signal_handler)
+
+    # start monitoring game launch
+    # Create a thread to run the monitoring function in the background
+    from .monitoring import monitor_process
+    monitor_thread = threading.Thread(target=monitor_process, 
+                                      args=(config_window,),
+                                      daemon=True)
+    monitor_thread.start()
+    
     # Start mainloop
     sys.exit(root.exec_())

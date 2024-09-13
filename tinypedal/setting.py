@@ -91,6 +91,9 @@ class Setting:
         self.user = Preset()
         self.is_saving = False
         self._save_delay = 0
+        self.last_detected_sim = None
+        self.sim_specific_preset = {"LMU": "Le Mans Ultimate", 
+                                    "RF2": "rFactor 2"}
 
     def load(self):
         """Load all setting files"""
