@@ -323,29 +323,20 @@ class WindowMenu(QMenu):
     @staticmethod
     def is_show_at_startup():
         """Toggle config window startup state"""
-        if not cfg.application["show_at_startup"]:
-            cfg.application["show_at_startup"] = True
-        else:
-            cfg.application["show_at_startup"] = False
-        cfg.save()
+        cfg.application["show_at_startup"] = not cfg.application["show_at_startup"]
+        cfg.save(filetype="config")
 
     @staticmethod
     def is_minimize_to_tray():
         """Toggle minimize to tray state"""
-        if not cfg.application["minimize_to_tray"]:
-            cfg.application["minimize_to_tray"] = True
-        else:
-            cfg.application["minimize_to_tray"] = False
-        cfg.save()
+        cfg.application["minimize_to_tray"] = not cfg.application["minimize_to_tray"]
+        cfg.save(filetype="config")
 
     @staticmethod
     def is_remember_position():
         """Toggle config window remember position state"""
-        if not cfg.application["remember_position"]:
-            cfg.application["remember_position"] = True
-        else:
-            cfg.application["remember_position"] = False
-        cfg.save()
+        cfg.application["remember_position"] = not cfg.application["remember_position"]
+        cfg.save(filetype="config")
 
 
 class HelpMenu(QMenu):

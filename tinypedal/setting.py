@@ -216,32 +216,37 @@ class Setting:
         """Create default setting"""
         self.user.setting = copy_setting(self.default.setting)
 
-    def save(self, delay: int = 66, file_type: str = "setting"):
+    def save(self, delay: int = 66, filetype: str = "setting"):
         """Save trigger, limit to one save operation for a given period.
 
         Args:
             count:
                 Set time delay(count) that can be refreshed before start saving thread.
                 Default is roughly one sec delay, use 0 for instant saving.
-            file_type:
+            filetype:
                 Available type: "config", "setting", "brands", "classes", "heatmap".
         """
         self._save_delay = delay
-        self._save_queue.add(file_type)
+        self._save_queue.add(filetype)
+
+        if filetype == "config":
+            filepath = self.path.config
+        else:
+            filepath = self.path.settings
 
         if not self.is_saving:
             self.is_saving = True
             threading.Thread(
                 target=self.__saving,
                 args=(
-                    file_type,
-                    getattr(self.filename, file_type),
-                    self.path.settings,
-                    getattr(self.user, file_type)
+                    filetype,
+                    getattr(self.filename, filetype),
+                    filepath,
+                    getattr(self.user, filetype)
                 )
             ).start()
 
-    def __saving(self, file_type: str, filename: str, filepath: str, dict_user: dict):
+    def __saving(self, filetype: str, filename: str, filepath: str, dict_user: dict):
         """Saving thread"""
         attempts = max_attempts = max(
             self.user.config["application"]["maximum_saving_attempts"], 3)
@@ -276,7 +281,7 @@ class Setting:
                 filename, timer_end, max_attempts - attempts, attempts)
         delete_old_json_file(filename, filepath)
 
-        self._save_queue.discard(file_type)
+        self._save_queue.discard(filetype)
         self.is_saving = False
 
         for save_task in self._save_queue:

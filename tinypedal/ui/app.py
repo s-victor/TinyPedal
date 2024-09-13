@@ -200,7 +200,7 @@ class AppWindow(QMainWindow):
             if last_pos != new_pos:
                 cfg.application["position_x"] = self.x()
                 cfg.application["position_y"] = self.y()
-                cfg.save(0)
+                cfg.save(0, "config")
 
     def set_status_text(self):
         """Set status text"""
