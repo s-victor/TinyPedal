@@ -28,6 +28,7 @@ from PySide2.QtWidgets import (
     QPushButton,
     QListWidget,
     QListWidgetItem,
+    QMessageBox
 )
 
 from ..setting import cfg
@@ -124,14 +125,29 @@ class ModuleList(QWidget):
     def module_button_enable_all(self):
         """Enable all modules"""
         if self.module_control.count_active != self.module_control.count_total:
-            self.module_control.enable_all()
-            self.refresh_state()
+            if self.confirm_batch_toggle("Enable"):
+                self.module_control.enable_all()
+                self.refresh_state()
 
     def module_button_disable_all(self):
         """Disable all modules"""
         if self.module_control.count_active:
-            self.module_control.disable_all()
-            self.refresh_state()
+            if self.confirm_batch_toggle("Disable"):
+                self.module_control.disable_all()
+                self.refresh_state()
+
+    def confirm_batch_toggle(self, confirm_type: str):
+        """Batch toggle confirmation"""
+        if not cfg.application["show_confirmation_for_batch_toggle"]:
+            return True
+        message_text = (
+            f"Are you sure you want to <b>{confirm_type}</b> all "
+            f"{self.module_control.type_id}s?"
+        )
+        confirm_msg = QMessageBox.question(
+            self, "Confirm", message_text,
+            buttons=QMessageBox.Yes | QMessageBox.No)
+        return confirm_msg == QMessageBox.Yes
 
 
 class ListItemControl(QWidget):

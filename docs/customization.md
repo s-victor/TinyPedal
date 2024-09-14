@@ -282,10 +282,7 @@ Show main window at startup, otherwise hides to tray icon.
 Minimize to tray when user clicks `X` close button.
 
     remember_position
-Remember last window position.
-
-    position_x, position_y
-Define main window position on screen in pixels. Those values will be auto updated and saved.
+Remember main window last position.
 
     enable_auto_load_preset
 Enable `Auto load preset` system to allow auto loading predefined game-specific preset depends on active game (currently supports RF2 and LMU).
@@ -294,11 +291,17 @@ Auto loading preset is triggered when a new or different game is started & activ
 
 This option is disabled by default.
 
+    show_confirmation_for_batch_toggle
+Show confirmation dialog for enabling or disabling all widgets or modules. This option is enabled by default.
+
     minimum_update_interval
 Set minimum refresh rate limit for widget and module in milliseconds. This option is used for preventing extremely low refresh rate that may cause performance issues in case user incorrectly sets `update_interval` and `idle_update_interval` values. Default value is `10`, and should not be modified.
 
     maximum_saving_attempts
 Set maximum retry attempts for preset saving. Default value is `10`. Minimum value is limited to `3` maximum attempts. Note, each attempt has a roughly 50ms delay. If all saving attempts failed, saving will be aborted, and old preset file will be restored to avoid preset file corruption.
+
+    position_x, position_y
+Define main window position on screen in pixels. Those values will be auto updated and saved.
 
 
 ## User path
@@ -306,11 +309,11 @@ Set maximum retry attempts for preset saving. Default value is `10`. Minimum val
 
 User path dialog allows customization to global user path for storing different user data.
 
-To change user path, double-clicking on edit box to bring up `directory selection` dialog; or manually editing path text.
+To change user path, double-clicking on edit box to open `Select folder` dialog; or manually editing path text.
 
 Click `Apply` or `Save` button to verify and apply new paths. Invalid path will not be applied.
 
-Absolute path that sets inside TinyPedal root folder will be automatically converted to relative path, and any `backslash` will be converted to `slash`.
+Absolute path that sets inside TinyPedal root folder will be automatically converted to relative path, any `backslash` will be converted to `slash`.
 
 
 ## Overlay

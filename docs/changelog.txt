@@ -9,18 +9,21 @@ WIP
   - All "application" settings are moved into "config.json".
 
 * [New]Application dialog
-  - Add "Application" to main window "Config" menu, which opens a dialog for customizing global application
-    settings and saved in global user config file.
-  - "minimum_update_interval" & "maximum_saving_attempts" options from "compatibility" are moved to "application".
+  - Add "Application" to main window "Config" menu, which opens a dialog for customizing
+    global application settings and saved in global user config file.
+  - "minimum_update_interval" and "maximum_saving_attempts" options from "compatibility"
+    are moved to "application".
+  - Add "show_confirmation_for_batch_toggle" option, which shows confirmation dialog
+    for enabling or disabling all widgets or modules. This option is enabled by default.
 
 * [New]User path dialog
-  - Add "User path" to main window "Config" menu, which opens a dialog for customizing global user path
-    settings and saved in global user config file.
-    To change user path, double-clicking on edit box to bring up "directory selection" dialog;
+  - Add "User path" to main window "Config" menu, which opens a dialog for customizing
+    global user path settings and saved in global user config file.
+    To change user path, double-clicking on edit box to open "Select folder" dialog;
     or manually editing path text.
-    Click "Apply" or "Save" button to verify and apply new paths. Invalid path will not be applied.
-    Absolute path that sets inside TinyPedal root folder will be automatically converted to relative path,
-    and any "backslash" will be converted to "slash".
+    Click "Apply" or "Save" to verify and apply new paths. Invalid path will not be applied.
+    Absolute path that sets inside TinyPedal root folder will be automatically converted
+    to relative path, any "backslash" will be converted to "slash".
 
 * [New]Auto load preset system
   - Add "Auto load preset" system to allow auto loading predefined game-specific preset
@@ -44,10 +47,10 @@ WIP
     Make sure to import again to update all vehicle brand info from LMU.
 
 * Wheels module
-  - Add "maximum_rotation_difference_*" options, which sets maximum rotation difference (percentage)
+  - Add "maximum_rotation_difference_*" options, which set maximum rotation difference (percentage)
     between left or right wheel and same axle for limiting wheel radius calculation.
     Setting higher difference value may result inaccurate wheel radius reading.
-    Default value is `0.002`.
+    Default value is "0.002".
 
 * Brake bias Widget
   - Add "layout" option, which sets display orientation.
