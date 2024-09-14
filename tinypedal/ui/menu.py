@@ -203,7 +203,11 @@ class ConfigMenu(QMenu):
         super().__init__(master)
         self.master = master
 
-        config_userpath = QAction("Global user path", self)
+        config_app = QAction("Application", self)
+        config_app.triggered.connect(self.open_config_application)
+        menu.addAction(config_app)
+
+        config_userpath = QAction("User path", self)
         config_userpath.triggered.connect(self.open_config_userpath)
         menu.addAction(config_userpath)
 
@@ -224,6 +228,13 @@ class ConfigMenu(QMenu):
         config_compat = QAction("Compatibility", self)
         config_compat.triggered.connect(self.open_config_compatibility)
         menu.addAction(config_compat)
+
+    def open_config_application(self):
+        """Config global application"""
+        _dialog = UserConfig(
+            self.master, "application", "global",
+            cfg.user.config, cfg.default.config)
+        _dialog.open()
 
     def open_config_userpath(self):
         """Config global user path"""

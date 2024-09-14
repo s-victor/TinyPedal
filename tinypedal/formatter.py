@@ -52,7 +52,6 @@ def format_option_name(name: str) -> str:
         name
         .replace("bkg", "background")
         .replace("units", "units and symbols")
-        .replace("user_path", "global user path")
         .replace("_", " ")
         .title()
     )

@@ -6,11 +6,16 @@ WIP
     For Windows, "config.json" is stored under "username\AppData\Roaming\TinyPedal" folder.
     For Linux, "config.json" is stored under "home/.config/TinyPedal" folder.
   - Log files are now stored in the same folder as global user config file.
-  - All "application" settings are now moved into "config.json".
+  - All "application" settings are moved into "config.json".
 
-* [New]Global user path dialog
-  - Add "Global user path" to main window "Config" menu, which opens a dialog for customizing
-    global user path.
+* [New]Application dialog
+  - Add "Application" to main window "Config" menu, which opens a dialog for customizing global application
+    settings and saved in global user config file.
+  - "minimum_update_interval" & "maximum_saving_attempts" options from "compatibility" are moved to "application".
+
+* [New]User path dialog
+  - Add "User path" to main window "Config" menu, which opens a dialog for customizing global user path
+    settings and saved in global user config file.
     To change user path, double-clicking on edit box to bring up "directory selection" dialog;
     or, manually edit path text.
     Click "Apply" or "Save" button to verify and apply new paths. Invalid path will not be applied.

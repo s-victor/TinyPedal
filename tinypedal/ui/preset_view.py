@@ -72,19 +72,6 @@ class PresetList(QWidget):
         # Label
         self.label_loaded = QLabel("")
 
-        # List box
-        self.listbox_preset = QListWidget(self)
-        self.listbox_preset.setAlternatingRowColors(True)
-        self.listbox_preset.setStyleSheet(QSS_LISTBOX)
-        self.refresh_list()
-        self.listbox_preset.setCurrentRow(0)
-        self.listbox_preset.itemDoubleClicked.connect(self.load_preset)
-
-        # Check box
-        self.checkbox_autoload = QCheckBox("Auto load primary preset")
-        self.checkbox_autoload.setChecked(cfg.application["enable_auto_load_preset"])
-        self.checkbox_autoload.toggled.connect(self.toggle_autoload)
-
         # Button
         button_load = QPushButton("Load")
         button_load.clicked.connect(self.load_preset)
@@ -94,6 +81,18 @@ class PresetList(QWidget):
 
         button_new = QPushButton("New Preset")
         button_new.clicked.connect(self.open_create_preset)
+
+        # Check box
+        self.checkbox_autoload = QCheckBox("Auto load primary preset")
+        self.checkbox_autoload.setChecked(cfg.application["enable_auto_load_preset"])
+        self.checkbox_autoload.toggled.connect(self.toggle_autoload)
+
+        # List box
+        self.listbox_preset = QListWidget(self)
+        self.listbox_preset.setAlternatingRowColors(True)
+        self.listbox_preset.setStyleSheet(QSS_LISTBOX)
+        self.listbox_preset.itemDoubleClicked.connect(self.load_preset)
+        self.refresh_list()
 
         # Layout
         layout_main = QVBoxLayout()
@@ -126,8 +125,9 @@ class PresetList(QWidget):
             label_item = PrimaryPresetTag(preset_name)
             self.listbox_preset.setItemWidget(item, label_item)
 
-        self.label_loaded.setText(
-            f"Loaded: <b>{cfg.filename.last_setting[:-5]}</b>")
+        self.listbox_preset.setCurrentRow(0)
+        self.label_loaded.setText(f"Loaded: <b>{cfg.filename.last_setting[:-5]}</b>")
+        self.checkbox_autoload.setChecked(cfg.application["enable_auto_load_preset"])
 
     def load_preset(self):
         """Load selected preset"""
