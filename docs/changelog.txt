@@ -4,7 +4,7 @@ WIP
   - Add global user config file as "config.json", which stores global user settings
     that are independent from user presets.
     For Windows, "config.json" is stored under "username\AppData\Roaming\TinyPedal" folder.
-    For Linux, "config.json" is stored under "home/.config/TinyPedal" folder.
+    For Linux, "config.json" is stored under "home/username/.config/TinyPedal" folder.
   - Log files are now stored in the same folder as global user config file.
   - All "application" settings are moved into "config.json".
 
@@ -22,8 +22,12 @@ WIP
     To change user path, double-clicking on edit box to open "Select folder" dialog;
     or manually editing path text.
     Click "Apply" or "Save" to verify and apply new paths. Invalid path will not be applied.
-    Absolute path that sets inside TinyPedal root folder will be automatically converted
-    to relative path, any "backslash" will be converted to "slash".
+  - Changes to default user paths on linux:
+    * Default "user preset" path is changed to "home/username/.config/TinyPedal/settings/",
+      previously this is set in "home/username/.config/TinyPedal/".
+    * Default "brandlogo" path is changed to "home/username/.config/TinyPedal/brandlogo/",
+      previously this is set in "home/username/.local/share/TinyPedal/brandlogo/".
+  - See User Guide "User path" section for details.
 
 * [New]Auto load preset system
   - Add "Auto load preset" system to allow auto loading predefined game-specific preset

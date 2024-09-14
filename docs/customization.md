@@ -5,7 +5,7 @@ TinyPedal offers a wide range of customization options for widget & module contr
 # Global user configuration
 TinyPedal stores global user configuration in `config.json` file, which is used for none-preset specific options.
 * For Windows, `config.json` is stored under `username\AppData\Roaming\TinyPedal` folder.
-* For Linux, `config.json` is stored under `home/.config/TinyPedal` folder.
+* For Linux, `config.json` is stored under `home/username/.config/TinyPedal` folder.
 
 Available settings:  
 * `Application`, can be accessed from `Config` menu in main window, see `Application` section for details.
@@ -37,7 +37,7 @@ All user preset files, by default, are located in `TinyPedal\settings` folder. T
 
 
 ## Saving JSON file
-TinyPedal automatically saves setting when user makes changes to widget position, or has toggled widget visibility, auto-hide, overlay-lock, etc. Changes will only take effect after `Reload` preset, or clicked `save` or `apply` button in `Config` dialog, or `Restart` APP.
+TinyPedal automatically saves setting when user makes changes to widget position, or has toggled widget visibility, auto-hide, overlay-lock, etc. Changes will only take effect after `Reload` preset, or clicked `Save` or `Apply` button in `Config` dialog, or `Restart` APP.
 
 
 ## Backup JSON file
@@ -313,7 +313,25 @@ To change user path, double-clicking on edit box to open `Select folder` dialog;
 
 Click `Apply` or `Save` button to verify and apply new paths. Invalid path will not be applied.
 
-Absolute path that sets inside TinyPedal root folder will be automatically converted to relative path, any `backslash` will be converted to `slash`.
+**Notes to relative and absolute path**
+
+User path that sets inside TinyPedal root folder will be automatically converted to relative path. Relative path is not considered global path, and does not share data between multiple copies of TinyPedal. This is done to retain portability and compatibility with old version.
+
+To share user path across multiple copies of TinyPedal, user must set path to place outside TinyPedal APP root folder.
+
+**Default user path:**
+
+* On windows, all user paths are set inside TinyPedal root folder as relative paths:
+    * brandlogo/
+    * deltabest/
+    * settings/
+    * trackmap/
+
+* On linux, all user paths are set outside TinyPedal root folder as absolute paths:
+    * home/username/.config/TinyPedal/brandlogo/
+    * home/username/.config/TinyPedal/settings/
+    * home/username/.local/share/TinyPedal/deltabest/
+    * home/username/.local/share/TinyPedal/trackmap/
 
 
 ## Overlay
