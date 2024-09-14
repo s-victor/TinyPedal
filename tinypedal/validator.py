@@ -104,6 +104,19 @@ def user_data_path(folder_name: str) -> str:
     return folder_name
 
 
+def relative_path(full_path: str) -> str:
+    """Convert absolute path to relative if path is inside APP root folder"""
+    try:
+        rel_path = os.path.relpath(full_path)
+        if rel_path.startswith(".."):
+            output_path = full_path
+        else:
+            output_path = rel_path
+    except ValueError:
+        output_path = full_path
+    return output_path.replace("\\", "/")
+
+
 # Delta list validate
 def delta_list(data_list: list) -> list:
     """Validate delta data list"""

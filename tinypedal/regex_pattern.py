@@ -54,6 +54,7 @@ CFG_CLOCK_FORMAT = "clock_format"
 # String common
 CFG_FONT_NAME = "font_name"
 CFG_HEATMAP = "heatmap"
+CFG_USER_PATH = "_path"
 CFG_STRING = (
     # Exact match
     "^process_id$|"
@@ -62,7 +63,6 @@ CFG_STRING = (
     "^LMU$|"
     "^RF2$|"
     # Partial match
-    "_path|"
     "info|"
     "list|"
     "prefix|"

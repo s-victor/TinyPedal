@@ -70,7 +70,7 @@ class FilePath:
         self.track_map: str = ""
 
     def update(self, user_path: dict, default_path: dict):
-        """Update path from global settings"""
+        """Update path variables from global user path dictionary"""
         for key in user_path.keys():
             key_name = key.replace("_path", "")
             # Verify loaded path
@@ -158,6 +158,15 @@ class Setting:
         self.primary_preset = self.user.config["primary_preset"]
         logger.info("SETTING: %s loaded (global settings)", self.filename.config)
         self.save(0, "config")
+
+    def update_path(self):
+        """Update global path, call this if "user_path" changed"""
+        old_settings_path = os.path.abspath(self.path.settings)
+        self.path.update(self.user.config["user_path"], self.default.config["user_path"])
+        new_settings_path = os.path.abspath(self.path.settings)
+        # Update preset name if settings path changed
+        if new_settings_path != old_settings_path:
+            self.filename.setting = f"{self.load_preset_list()[0]}.json"
 
     def load(self):
         """Load all setting files"""

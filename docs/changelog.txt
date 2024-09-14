@@ -8,6 +8,15 @@ WIP
   - Log files are now stored in the same folder as global user config file.
   - All "application" settings are now moved into "config.json".
 
+* [New]Global user path dialog
+  - Add "Global user path" to main window "Config" menu, which opens a dialog for customizing
+    global user path.
+    To change user path, double-clicking on edit box to bring up "directory selection" dialog;
+    or, manually edit path text.
+    Click "Apply" or "Save" button to verify and apply new paths. Invalid path will not be applied.
+    Absolute path that sets inside TinyPedal root folder will automatically converted to relative path,
+    and all "backslash" will be converted to "slash".
+
 * [New]Auto load preset system
   - Add "Auto load preset" system to allow auto loading predefined game-specific preset
     depends on currently active game (currently either RF2 or LMU).

@@ -197,5 +197,7 @@ class ListItemControl(QWidget):
 
     def open_config_dialog(self):
         """Config dialog"""
-        _dialog = UserConfig(self.master, self.module_name, self.module_control.type_id)
+        _dialog = UserConfig(
+            self.master, self.module_name, self.module_control.type_id,
+            cfg.user.setting, cfg.default.setting)
         _dialog.open()

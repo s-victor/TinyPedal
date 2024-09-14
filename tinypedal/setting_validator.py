@@ -27,7 +27,12 @@ from . import regex_pattern as rxp
 from . import validator as val
 from .api_connector import API_NAME_LIST
 
-COMMON_STRINGS = fmt.pipe_join(rxp.CFG_FONT_NAME,rxp.CFG_HEATMAP,rxp.CFG_STRING)
+COMMON_STRINGS = fmt.pipe_join(
+    rxp.CFG_FONT_NAME,
+    rxp.CFG_HEATMAP,
+    rxp.CFG_USER_PATH,
+    rxp.CFG_STRING
+)
 
 
 class ValueValidator:

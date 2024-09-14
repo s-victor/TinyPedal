@@ -203,6 +203,12 @@ class ConfigMenu(QMenu):
         super().__init__(master)
         self.master = master
 
+        config_userpath = QAction("Global user path", self)
+        config_userpath.triggered.connect(self.open_config_userpath)
+        menu.addAction(config_userpath)
+
+        menu.addSeparator()
+
         config_units = QAction("Units and symbols", self)
         config_units.triggered.connect(self.open_config_units)
         menu.addAction(config_units)
@@ -211,32 +217,45 @@ class ConfigMenu(QMenu):
         config_font.triggered.connect(self.open_config_font)
         menu.addAction(config_font)
 
-        config_sharedmem = QAction("Shared memory API", self)
-        config_sharedmem.triggered.connect(self.open_config_sharedmemory)
-        menu.addAction(config_sharedmem)
+        config_sharedmemory = QAction("Shared memory API", self)
+        config_sharedmemory.triggered.connect(self.open_config_sharedmemory)
+        menu.addAction(config_sharedmemory)
 
         config_compat = QAction("Compatibility", self)
         config_compat.triggered.connect(self.open_config_compatibility)
         menu.addAction(config_compat)
 
+    def open_config_userpath(self):
+        """Config global user path"""
+        _dialog = UserConfig(
+            self.master, "user_path", "global",
+            cfg.user.config, cfg.default.config, 300)
+        _dialog.open()
+
     def open_config_font(self):
         """Config global font"""
-        _dialog = FontConfig(self.master)
+        _dialog = FontConfig(self.master, cfg.user.setting)
         _dialog.open()
 
     def open_config_units(self):
         """Config display units"""
-        _dialog = UserConfig(self.master, "units", "misc")
+        _dialog = UserConfig(
+            self.master, "units", "misc",
+            cfg.user.setting, cfg.default.setting)
         _dialog.open()
 
     def open_config_sharedmemory(self):
         """Config sharedmemory"""
-        _dialog = UserConfig(self.master, "shared_memory_api", "api")
+        _dialog = UserConfig(
+            self.master, "shared_memory_api", "api",
+            cfg.user.setting, cfg.default.setting)
         _dialog.open()
 
     def open_config_compatibility(self):
         """Config compatibility"""
-        _dialog = UserConfig(self.master, "compatibility", "misc")
+        _dialog = UserConfig(
+            self.master, "compatibility", "misc",
+            cfg.user.setting, cfg.default.setting)
         _dialog.open()
 
 
