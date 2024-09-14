@@ -17,16 +17,17 @@ WIP
   - Add "User path" to main window "Config" menu, which opens a dialog for customizing global user path
     settings and saved in global user config file.
     To change user path, double-clicking on edit box to bring up "directory selection" dialog;
-    or, manually edit path text.
+    or manually editing path text.
     Click "Apply" or "Save" button to verify and apply new paths. Invalid path will not be applied.
-    Absolute path that sets inside TinyPedal root folder will automatically converted to relative path,
-    and all "backslash" will be converted to "slash".
+    Absolute path that sets inside TinyPedal root folder will be automatically converted to relative path,
+    and any "backslash" will be converted to "slash".
 
 * [New]Auto load preset system
   - Add "Auto load preset" system to allow auto loading predefined game-specific preset
-    depends on currently active game (currently either RF2 or LMU).
+    depends on active game (currently supports RF2 and LMU).
     Auto loading preset is triggered when a new or different game is started & active.
     Auto loading will only trigger once per game change.
+    A preset must be tagged as "primary" for specific game before it can be auto loaded.
     This option is disabled by default.
   - Add "Auto load primary preset" check box in "Preset" tab, which enables or disables
     "Auto load preset" system.

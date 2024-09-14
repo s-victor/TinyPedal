@@ -93,6 +93,7 @@ class PresetList(QWidget):
         self.listbox_preset.setStyleSheet(QSS_LISTBOX)
         self.listbox_preset.itemDoubleClicked.connect(self.load_preset)
         self.refresh_list()
+        self.listbox_preset.setCurrentRow(0)
 
         # Layout
         layout_main = QVBoxLayout()
@@ -125,7 +126,6 @@ class PresetList(QWidget):
             label_item = PrimaryPresetTag(preset_name)
             self.listbox_preset.setItemWidget(item, label_item)
 
-        self.listbox_preset.setCurrentRow(0)
         self.label_loaded.setText(f"Loaded: <b>{cfg.filename.last_setting[:-5]}</b>")
         self.checkbox_autoload.setChecked(cfg.application["enable_auto_load_preset"])
 

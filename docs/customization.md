@@ -2,13 +2,29 @@
 
 TinyPedal offers a wide range of customization options for widget & module controls, which can be accessed from corresponding tabs in main window.
 
+# Global user configuration
+TinyPedal stores global user configuration in `config.json` file, which is used for none-preset specific options.
+* For Windows, `config.json` is stored under `username\AppData\Roaming\TinyPedal` folder.
+* For Linux, `config.json` is stored under `home/.config/TinyPedal` folder.
+
+Available settings:  
+* `Application`, can be accessed from `Config` menu in main window, see `Application` section for details.
+* `User path`, can be accessed from `Config` menu in main window, see `User path` section for details.
+* `Auto load preset`, can be accessed from `Preset` tab in main window, see `Preset management` section for details.
+
 
 # Preset management
 TinyPedal stores all customization options in `JSON` format preset files, and can be managed from `Preset` tab in main window.
 
-All `JSON` preset files are located in `TinyPedal\settings` folder. Those `JSON` files can also be manually edited with text editor.
+All user preset files, by default, are located in `TinyPedal\settings` folder. Those `JSON` files can also be manually edited with text editor.
 
 `Right-Click` on a preset name in `Preset` tab opens up a context menu that provides additional preset file management options:
+
+* Set primary for *  
+    Add `primary sim` tag to selected preset, which will be auto loaded by `Auto load preset` system. Note, a single preset can have tags from multiple games.
+
+* Clear primary tag  
+    Clear all tags from selected preset.
 
 * Duplicate  
     Duplicate selected preset with a new name.
@@ -127,11 +143,11 @@ To restore all heatmap settings back to default, just delete `heatmap.json` file
 
 
 # User files
-TinyPedal generates & saves user session data in specific folders. Session data can be reset by accessing `Reset data` submenu from `Overlay` menu in main window; or, delete data file from corresponding folder.
+TinyPedal generates & saves user session data in specific folders defined in `User path`. Session data can be reset by accessing `Reset data` submenu from `Overlay` menu in main window; or, delete data file from corresponding folder.
 
 
-## Deltabest
-Deltabest data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
+## Delta best
+Delta best data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
 
 
 ## Energy delta
@@ -257,7 +273,7 @@ Set amount decimal places to keep.
 
 
 ## Application
-**Application options can be accessed from `Window` menu in main window.**
+**Application options can be accessed from `Config` and `Window` menu in main window.**
 
     show_at_startup
 Show main window at startup, otherwise hides to tray icon.
@@ -267,6 +283,34 @@ Minimize to tray when user clicks `X` close button.
 
     remember_position
 Remember last window position.
+
+    position_x, position_y
+Define main window position on screen in pixels. Those values will be auto updated and saved.
+
+    enable_auto_load_preset
+Enable `Auto load preset` system to allow auto loading predefined game-specific preset depends on active game (currently supports RF2 and LMU).
+
+Auto loading preset is triggered when a new or different game is started & active. Auto loading will only trigger once per game change. A preset must be tagged as `primary` for specific game before it can be auto loaded, see `Preset management` section for details.
+
+This option is disabled by default.
+
+    minimum_update_interval
+Set minimum refresh rate limit for widget and module in milliseconds. This option is used for preventing extremely low refresh rate that may cause performance issues in case user incorrectly sets `update_interval` and `idle_update_interval` values. Default value is `10`, and should not be modified.
+
+    maximum_saving_attempts
+Set maximum retry attempts for preset saving. Default value is `10`. Minimum value is limited to `3` maximum attempts. Note, each attempt has a roughly 50ms delay. If all saving attempts failed, saving will be aborted, and old preset file will be restored to avoid preset file corruption.
+
+
+## User path
+**User path options can be accessed from `Config` menu in main window.**
+
+User path dialog allows customization to global user path for storing different user data.
+
+To change user path, double-clicking on edit box to bring up `directory selection` dialog; or manually editing path text.
+
+Click `Apply` or `Save` button to verify and apply new paths. Invalid path will not be applied.
+
+Absolute path that sets inside TinyPedal root folder will be automatically converted to relative path, and any `backslash` will be converted to `slash`.
 
 
 ## Overlay
@@ -301,12 +345,6 @@ Note, global background color will only be visible when `enable_translucent_back
 
     grid_move_size
 Set grid size for grid move, value in pixel. Default is `8` pixel. Minimum value is limited to `1`.
-
-    minimum_update_interval
-Set minimum refresh rate limit for widget and module in milliseconds. This option is used for preventing extremely low refresh rate that may cause performance issues in case user incorrectly sets `update_interval` and `idle_update_interval` values. Default value is `10`, and should not be modified.
-
-    maximum_saving_attempts
-Set maximum retry attempts for preset saving. Default value is `10`. Minimum value is limited to `3` maximum attempts. Note, each attempt has a roughly 50ms delay. If all saving attempts failed, saving will be aborted, and old preset file will be restored to avoid preset file corruption.
 
 
 ## Shared memory API
@@ -1324,7 +1362,7 @@ Set center mark line width in pixels.
 Set size of instrument icon in pixel. Minimum value is limited to `16`.
 
     layout
-2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
+2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
     show_headlights
 Show Headlights state.
