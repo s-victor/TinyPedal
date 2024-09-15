@@ -41,15 +41,17 @@ CFG_BOOL = (
     "uppercase"
 )
 
-# String with different validators
-CFG_API_NAME = "api_name"
+# String with unique validator
 CFG_COLOR = "color"
+CFG_CLOCK_FORMAT = "clock_format"
+
+# String choice
+CFG_API_NAME = "api_name"
+CFG_CHARACTER_ENCODING = "character_encoding"
+CFG_DELTABEST_SOURCE = "deltabest_source"
 CFG_FONT_WEIGHT = "font_weight"
-CFG_ENCODING = "character_encoding"
-CFG_DELTABEST = "deltabest_source"
 CFG_TARGET_LAPTIME = "target_laptime"
 CFG_TEXT_ALIGNMENT = "text_alignment"
-CFG_CLOCK_FORMAT = "clock_format"
 
 # String common
 CFG_FONT_NAME = "font_name"
@@ -141,21 +143,25 @@ ABBR_LIST = (
 )
 ABBR_PATTERN = "|".join(ABBR_LIST)
 
-# Option list & dictionary
-API_NAME_LIST = ("rFactor 2", "Le Mans Ultimate")
-DELTABEST_LIST = ("Best", "Session", "Stint", "Last")
-ENCODING_LIST = ("UTF-8", "ISO-8859-1")
-FONT_WEIGHT_LIST = ("normal", "bold")
-TARGET_LAPTIME_LIST = ("Theoretical", "Personal")
-TEXT_ALIGNMENT_LIST = ("Left", "Center", "Right")
-UNITS_DICT = {
-    "distance_unit": ("Meter", "Feet"),
-    "fuel_unit": ("Liter", "Gallon"),
-    "odometer_unit": ("Kilometer", "Mile", "Meter"),
-    "power_unit": ("Kilowatt", "Horsepower", "Metric Horsepower"),
-    "speed_unit": ("KPH", "MPH", "m/s"),
-    "temperature_unit": ("Celsius", "Fahrenheit"),
-    "turbo_pressure_unit": ("bar", "psi", "kPa"),
-    "tyre_pressure_unit": ("kPa", "psi", "bar"),
+# Choice dictionary
+CHOICE_COMMON = {
+    CFG_API_NAME: ["rFactor 2", "Le Mans Ultimate"],
+    CFG_CHARACTER_ENCODING: ["UTF-8", "ISO-8859-1"],
+    CFG_DELTABEST_SOURCE: ["Best", "Session", "Stint", "Last"],
+    CFG_FONT_WEIGHT: ["normal", "bold"],
+    CFG_TARGET_LAPTIME: ["Theoretical", "Personal"],
+    CFG_TEXT_ALIGNMENT: ["Left", "Center", "Right"],
 }
+CHOICE_UNITS = {
+    "distance_unit": ["Meter", "Feet"],
+    "fuel_unit": ["Liter", "Gallon"],
+    "odometer_unit": ["Kilometer", "Mile", "Meter"],
+    "power_unit": ["Kilowatt", "Horsepower", "Metric Horsepower"],
+    "speed_unit": ["KPH", "MPH", "m/s"],
+    "temperature_unit": ["Celsius", "Fahrenheit"],
+    "turbo_pressure_unit": ["bar", "psi", "kPa"],
+    "tyre_pressure_unit": ["kPa", "psi", "bar"],
+}
+
+# Misc
 GEAR_SEQUENCE = "N123456789R"

@@ -30,6 +30,8 @@ from .adapter import rfactor2
 from . import validator as val
 from . import regex_pattern as rxp
 
+API_NAME_LIST = rxp.CHOICE_COMMON[rxp.CFG_API_NAME]
+
 
 class DataSet:
     """Data set"""
@@ -70,7 +72,7 @@ class Connector(ABC):
 
 class SimRF2(Connector):
     """rFactor 2"""
-    NAME = rxp.API_NAME_LIST[0]
+    NAME = API_NAME_LIST[0]
 
     def __init__(self):
         rF2MMap.logger = logging.getLogger(__name__)
@@ -95,7 +97,7 @@ class SimRF2(Connector):
 
 class SimLMU(Connector):
     """Le Mans Ultimate"""
-    NAME = rxp.API_NAME_LIST[1]
+    NAME = API_NAME_LIST[1]
 
     def __init__(self):
         rF2MMap.logger = logging.getLogger(__name__)

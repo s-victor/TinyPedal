@@ -95,7 +95,8 @@ class FontConfig(QDialog):
 
         self.label_fontweight = QLabel("Font Weight")
         self.edit_fontweight = QComboBox()
-        self.edit_fontweight.addItems(("no change", *rxp.FONT_WEIGHT_LIST))
+        self.edit_fontweight.addItems(
+            ("no change", *rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT]))
         self.edit_fontweight.setFixedWidth(OPTION_WIDTH)
 
         layout_option = QGridLayout()
@@ -407,40 +408,15 @@ class UserConfig(QDialog):
                 self.__add_option_fontname(
                     idx, key, layout)
                 continue
-            # Units list string
-            if key in rxp.UNITS_DICT:
+            # Units choice list string
+            if key in rxp.CHOICE_UNITS:
                 self.__add_option_combolist(
-                    idx, key, layout, rxp.UNITS_DICT[key])
+                    idx, key, layout, rxp.CHOICE_UNITS[key])
                 continue
-            # API name string
-            if re.search(rxp.CFG_API_NAME, key):
+            # Common choice list string
+            if key in rxp.CHOICE_COMMON:
                 self.__add_option_combolist(
-                    idx, key, layout, rxp.API_NAME_LIST)
-                continue
-            # Font weight string
-            if re.search(rxp.CFG_FONT_WEIGHT, key):
-                self.__add_option_combolist(
-                    idx, key, layout, rxp.FONT_WEIGHT_LIST)
-                continue
-            # Encoding string
-            if re.search(rxp.CFG_ENCODING, key):
-                self.__add_option_combolist(
-                    idx, key, layout, rxp.ENCODING_LIST)
-                continue
-            # Deltabest string
-            if re.search(rxp.CFG_DELTABEST, key):
-                self.__add_option_combolist(
-                    idx, key, layout, rxp.DELTABEST_LIST)
-                continue
-            # Target laptime string
-            if re.search(rxp.CFG_TARGET_LAPTIME, key):
-                self.__add_option_combolist(
-                    idx, key, layout, rxp.TARGET_LAPTIME_LIST)
-                continue
-            # Text alignment string
-            if re.search(rxp.CFG_TEXT_ALIGNMENT, key):
-                self.__add_option_combolist(
-                    idx, key, layout, rxp.TEXT_ALIGNMENT_LIST)
+                    idx, key, layout, rxp.CHOICE_COMMON[key])
                 continue
             # Heatmap string
             if re.search(rxp.CFG_HEATMAP, key):

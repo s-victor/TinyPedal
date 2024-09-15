@@ -29,9 +29,11 @@ from PySide2.QtCore import Qt, Slot, QBasicTimer
 from PySide2.QtGui import QPalette, QFont, QFontMetrics
 from PySide2.QtWidgets import QWidget, QLabel, QLayout
 
+from .. import regex_pattern as rxp
 from ..const import APP_NAME
-from ..regex_pattern import FONT_WEIGHT_LIST
 from ..overlay_control import octrl
+
+FONT_WEIGHT_LIST = rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT]
 
 
 @dataclass(frozen=True)
