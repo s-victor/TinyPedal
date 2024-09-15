@@ -285,7 +285,7 @@ Minimize to tray when user clicks `X` close button.
 Remember main window last position.
 
     enable_auto_load_preset
-Enable `Auto load preset` system to allow auto loading predefined game-specific preset depends on active game (currently supports RF2 and LMU).
+Enable `Auto load preset` system to allow auto loading user-defined game-specific preset depends on active game (currently supports RF2 and LMU).
 
 Auto loading preset is triggered when a new or different game is started & active. Auto loading will only trigger once per game change. A preset must be tagged as `primary` for specific game before it can be auto loaded, see `Preset management` section for details.
 

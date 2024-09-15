@@ -30,8 +30,8 @@ WIP
   - See User Guide "User path" section for details.
 
 * [New]Auto load preset system
-  - Add "Auto load preset" system to allow auto loading predefined game-specific preset
-    depends on active game (currently supports RF2 and LMU).
+  - Add "Auto load preset" system (implemented by @naturale0) to allow auto loading user-defined
+    game-specific preset depends on active game (currently supports RF2 and LMU).
     Auto loading preset is triggered when a new or different game is started & active.
     Auto loading will only trigger once per game change.
     A preset must be tagged as "primary" for specific game before it can be auto loaded.
@@ -76,6 +76,9 @@ WIP
 * Weather forecast Widget
   - The "now" column always shows current weather conditon
     even if RestAPI Module is disabled.
+
+* Misc
+  - Added new contributor Sihyung Park (naturale0) to contributors.md.
 
 2.17.4 (2024-08-30)
 -----------------------------

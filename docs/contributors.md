@@ -8,6 +8,7 @@ Thanks to many people for contributing to the development.
 * Bernat (berarma) - Cross-platform maintainer, programming
 
 ## Implementation
+* Sihyung Park (naturale0) - Auto load preset system
 * DanRZ - Trailing widget
 * Sasker - Tyre carcass widget
 * Nibo - Sectors widget
