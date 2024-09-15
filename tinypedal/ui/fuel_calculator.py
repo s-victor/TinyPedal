@@ -21,7 +21,7 @@ Fuel calculator
 """
 
 import math
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Qt, QMargins
 from PySide2.QtGui import QIcon, QBrush, QColor, QPalette
 from PySide2.QtWidgets import (
     QWidget,
@@ -48,7 +48,9 @@ from ..module_info import minfo
 from .. import calculation as calc
 from .. import formatter as fmt
 
-PANEL_LEFT_WIDTH = 350
+PANEL_LEFT_WIDTH = 330
+FRAME_MARGIN = QMargins(5, 5, 5, 5)
+FRAME_GAP = 2
 READ_ONLY_COLOR = QPalette().window().color().name(QColor.HexRgb)
 HIGHLIGHT_COLOR = "#F40"
 
@@ -470,23 +472,26 @@ class InputLapTime():
         self.mseconds.setSingleStep(100)
         self.mseconds.valueChanged.connect(master.update_input)
 
-        layout_laptime = QGridLayout()
-        layout_laptime.setColumnStretch(0, 1)
-        layout_laptime.setColumnStretch(2, 1)
-        layout_laptime.setColumnStretch(4, 1)
+        layout = QGridLayout()
+        layout.setSpacing(FRAME_GAP)
+        layout.setContentsMargins(FRAME_MARGIN)
 
-        layout_laptime.addWidget(QLabel("Lap Time:"), 0, 0, 1, 6)
+        layout.setColumnStretch(0, 1)
+        layout.setColumnStretch(2, 1)
+        layout.setColumnStretch(4, 1)
 
-        layout_laptime.addWidget(self.minutes, 1, 0)
-        layout_laptime.addWidget(QLabel("m"), 1, 1)
+        layout.addWidget(QLabel("Lap Time:"), 0, 0, 1, 6)
 
-        layout_laptime.addWidget(self.seconds, 1, 2)
-        layout_laptime.addWidget(QLabel("s"), 1, 3)
+        layout.addWidget(self.minutes, 1, 0)
+        layout.addWidget(QLabel("m"), 1, 1)
 
-        layout_laptime.addWidget(self.mseconds, 1, 4)
-        layout_laptime.addWidget(QLabel("ms"), 1, 5)
+        layout.addWidget(self.seconds, 1, 2)
+        layout.addWidget(QLabel("s"), 1, 3)
 
-        frame.setLayout(layout_laptime)
+        layout.addWidget(self.mseconds, 1, 4)
+        layout.addWidget(QLabel("ms"), 1, 5)
+
+        frame.setLayout(layout)
 
     def to_seconds(self):
         """Output lap time value to seconds"""
@@ -549,26 +554,29 @@ class InputFuel():
         self.energy_used.setAlignment(Qt.AlignRight)
         self.energy_used.valueChanged.connect(master.update_input)
 
-        layout_grid = QGridLayout()
-        layout_grid.setColumnStretch(0, 1)
-        layout_grid.setColumnStretch(2, 1)
+        layout = QGridLayout()
+        layout.setSpacing(FRAME_GAP)
+        layout.setContentsMargins(FRAME_MARGIN)
 
-        layout_grid.addWidget(QLabel("Tank Capacity:"), 0, 0, 1, 2)
-        layout_grid.addWidget(self.capacity, 1, 0)
-        layout_grid.addWidget(QLabel(fuel_unit_text()), 1, 1)
+        layout.setColumnStretch(0, 1)
+        layout.setColumnStretch(2, 1)
 
-        layout_grid.addWidget(QLabel("Fuel Ratio:"), 2, 0, 1, 2)
-        layout_grid.addWidget(self.fuel_ratio, 3, 0)
+        layout.addWidget(QLabel("Tank Capacity:"), 0, 0, 1, 2)
+        layout.addWidget(self.capacity, 1, 0)
+        layout.addWidget(QLabel(fuel_unit_text()), 1, 1)
 
-        layout_grid.addWidget(QLabel("Fuel Consumption:"), 0, 2, 1, 2)
-        layout_grid.addWidget(self.fuel_used, 1, 2)
-        layout_grid.addWidget(QLabel(fuel_unit_text()), 1, 3)
+        layout.addWidget(QLabel("Fuel Ratio:"), 2, 0, 1, 2)
+        layout.addWidget(self.fuel_ratio, 3, 0)
 
-        layout_grid.addWidget(QLabel("Energy Consumption:"), 2, 2, 1, 2)
-        layout_grid.addWidget(self.energy_used, 3, 2)
-        layout_grid.addWidget(QLabel("%"), 3, 3)
+        layout.addWidget(QLabel("Fuel Consumption:"), 0, 2, 1, 2)
+        layout.addWidget(self.fuel_used, 1, 2)
+        layout.addWidget(QLabel(fuel_unit_text()), 1, 3)
 
-        frame.setLayout(layout_grid)
+        layout.addWidget(QLabel("Energy Consumption:"), 2, 2, 1, 2)
+        layout.addWidget(self.energy_used, 3, 2)
+        layout.addWidget(QLabel("%"), 3, 3)
+
+        frame.setLayout(layout)
 
 
 class InputRace():
@@ -601,27 +609,30 @@ class InputRace():
         self.pit_seconds.setAlignment(Qt.AlignRight)
         self.pit_seconds.valueChanged.connect(master.update_input)
 
-        layout_grid = QGridLayout()
-        layout_grid.setColumnStretch(0, 1)
-        layout_grid.setColumnStretch(2, 1)
+        layout = QGridLayout()
+        layout.setSpacing(FRAME_GAP)
+        layout.setContentsMargins(FRAME_MARGIN)
 
-        layout_grid.addWidget(QLabel("Race Minutes:"), 0, 0, 1, 2)
-        layout_grid.addWidget(self.minutes, 1, 0)
-        layout_grid.addWidget(QLabel("min"), 1, 1)
+        layout.setColumnStretch(0, 1)
+        layout.setColumnStretch(2, 1)
 
-        layout_grid.addWidget(QLabel("Race Laps:"), 0, 2, 1, 2)
-        layout_grid.addWidget(self.laps, 1, 2)
-        layout_grid.addWidget(QLabel("lap"), 1, 3)
+        layout.addWidget(QLabel("Race Minutes:"), 0, 0, 1, 2)
+        layout.addWidget(self.minutes, 1, 0)
+        layout.addWidget(QLabel("min"), 1, 1)
 
-        layout_grid.addWidget(QLabel("Formation/Rolling:"), 2, 0, 1, 2)
-        layout_grid.addWidget(self.formation, 3, 0)
-        layout_grid.addWidget(QLabel("lap"), 3, 1)
+        layout.addWidget(QLabel("Race Laps:"), 0, 2, 1, 2)
+        layout.addWidget(self.laps, 1, 2)
+        layout.addWidget(QLabel("lap"), 1, 3)
 
-        layout_grid.addWidget(QLabel("Average Pit Seconds:"), 2, 2, 1, 2)
-        layout_grid.addWidget(self.pit_seconds, 3, 2)
-        layout_grid.addWidget(QLabel("sec"), 3, 3)
+        layout.addWidget(QLabel("Formation/Rolling:"), 2, 0, 1, 2)
+        layout.addWidget(self.formation, 3, 0)
+        layout.addWidget(QLabel("lap"), 3, 1)
 
-        frame.setLayout(layout_grid)
+        layout.addWidget(QLabel("Average Pit Seconds:"), 2, 2, 1, 2)
+        layout.addWidget(self.pit_seconds, 3, 2)
+        layout.addWidget(QLabel("sec"), 3, 3)
+
+        frame.setLayout(layout)
 
     def disable_race_lap(self):
         """Disable race laps if race minutes is set"""
@@ -682,33 +693,35 @@ class OutputUsage():
         self.one_less_stint.setReadOnly(True)
         set_read_only_style(self.one_less_stint)
 
-        layout_output = QGridLayout()
+        layout = QGridLayout()
+        layout.setSpacing(FRAME_GAP)
+        layout.setContentsMargins(FRAME_MARGIN)
 
-        layout_output.addWidget(QLabel(f"Total Race {type_name}:"), 0, 0, 1, 2)
-        layout_output.addWidget(self.total_needed, 1, 0)
-        layout_output.addWidget(QLabel(unit_text), 1, 1)
+        layout.addWidget(QLabel(f"Total Race {type_name}:"), 0, 0, 1, 2)
+        layout.addWidget(self.total_needed, 1, 0)
+        layout.addWidget(QLabel(unit_text), 1, 1)
 
-        layout_output.addWidget(QLabel("Total Pit Stops:"), 2, 0, 1, 2)
-        layout_output.addWidget(self.pit_stops, 3, 0)
-        layout_output.addWidget(QLabel("pit"), 3, 1)
+        layout.addWidget(QLabel("Total Pit Stops:"), 2, 0, 1, 2)
+        layout.addWidget(self.pit_stops, 3, 0)
+        layout.addWidget(QLabel("pit"), 3, 1)
 
-        layout_output.addWidget(QLabel("Total Laps:"), 4, 0, 1, 2)
-        layout_output.addWidget(self.total_laps, 5, 0)
-        layout_output.addWidget(QLabel("lap"), 5, 1)
+        layout.addWidget(QLabel("Total Laps:"), 4, 0, 1, 2)
+        layout.addWidget(self.total_laps, 5, 0)
+        layout.addWidget(QLabel("lap"), 5, 1)
 
-        layout_output.addWidget(QLabel("Total Minutes:"), 6, 0, 1, 2)
-        layout_output.addWidget(self.total_minutes, 7, 0)
-        layout_output.addWidget(QLabel("min"), 7, 1)
+        layout.addWidget(QLabel("Total Minutes:"), 6, 0, 1, 2)
+        layout.addWidget(self.total_minutes, 7, 0)
+        layout.addWidget(QLabel("min"), 7, 1)
 
-        layout_output.addWidget(QLabel(f"End Stint {type_name}:"), 8, 0, 1, 2)
-        layout_output.addWidget(self.end_stint, 9, 0)
-        layout_output.addWidget(QLabel(unit_text), 9, 1)
+        layout.addWidget(QLabel(f"End Stint {type_name}:"), 8, 0, 1, 2)
+        layout.addWidget(self.end_stint, 9, 0)
+        layout.addWidget(QLabel(unit_text), 9, 1)
 
-        layout_output.addWidget(QLabel("One Less Pit Stop:"), 10, 0, 1, 2)
-        layout_output.addWidget(self.one_less_stint, 11, 0)
-        layout_output.addWidget(QLabel(unit_text), 11, 1)
+        layout.addWidget(QLabel("One Less Pit Stop:"), 10, 0, 1, 2)
+        layout.addWidget(self.one_less_stint, 11, 0)
+        layout.addWidget(QLabel(unit_text), 11, 1)
 
-        frame.setLayout(layout_output)
+        frame.setLayout(layout)
 
 
 class OutputRefill():
@@ -735,14 +748,16 @@ class OutputRefill():
         self.average_refill.setReadOnly(True)
         set_read_only_style(self.average_refill)
 
-        layout_output = QGridLayout()
+        layout = QGridLayout()
+        layout.setSpacing(FRAME_GAP)
+        layout.setContentsMargins(FRAME_MARGIN)
 
-        layout_output.addWidget(QLabel(f"Starting {type_name}:"), 0, 0, 1, 2)
-        layout_output.addWidget(self.amount_start, 1, 0)
-        layout_output.addWidget(QLabel(unit_text), 1, 1)
+        layout.addWidget(QLabel(f"Starting {type_name}:"), 0, 0, 1, 2)
+        layout.addWidget(self.amount_start, 1, 0)
+        layout.addWidget(QLabel(unit_text), 1, 1)
 
-        layout_output.addWidget(QLabel("Average Refilling:"), 2, 0, 1, 2)
-        layout_output.addWidget(self.average_refill, 3, 0)
-        layout_output.addWidget(QLabel(unit_text), 3, 1)
+        layout.addWidget(QLabel("Average Refilling:"), 2, 0, 1, 2)
+        layout.addWidget(self.average_refill, 3, 0)
+        layout.addWidget(QLabel(unit_text), 3, 1)
 
-        frame.setLayout(layout_output)
+        frame.setLayout(layout)
