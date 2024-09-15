@@ -25,7 +25,6 @@ import re
 from . import formatter as fmt
 from . import regex_pattern as rxp
 from . import validator as val
-from .api_connector import API_NAME_LIST
 
 COMMON_STRINGS = fmt.pipe_join(
     rxp.CFG_FONT_NAME,
@@ -78,7 +77,7 @@ class ValueValidator:
         """Value - API name string"""
         if not re.search(rxp.CFG_API_NAME, key):
             return False
-        if dict_user[key] not in API_NAME_LIST:
+        if dict_user[key] not in rxp.API_NAME_LIST:
             dict_user.pop(key)
         return True
 

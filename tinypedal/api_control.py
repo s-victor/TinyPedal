@@ -33,25 +33,33 @@ class APIControl:
 
     def __init__(self):
         self._api = None
-        self._read = None
+        self._same_api_loaded = False
         self._state_override = False
         self._active_state = False
+        self.read = None
 
     def connect(self, name: str = ""):
         """Connect to API
 
-        name: match api name in API_PACK
+        Args:
+            name: match API name in API_NAME_LIST
         """
         if not name:
             name = cfg.shared_memory_api["api_name"]
 
+        # Do not create new instance if same API already loaded
+        self._same_api_loaded = bool(self._api is not None and self._api.NAME == name)
+        if self._same_api_loaded:
+            logger.info("CONNECTING: same API detected, fast restarting")
+            return
+
         for _api in API_PACK:
             if _api.NAME == name:
                 self._api = _api()
-                break
-        else:
-            logger.warning("CONNECTING: Invalid API name, fall back to default")
-            self._api = API_PACK[0]()
+                return
+
+        logger.warning("CONNECTING: Invalid API name, fall back to default")
+        self._api = API_PACK[0]()
 
     def start(self):
         """Start API"""
@@ -59,8 +67,13 @@ class APIControl:
         logger.info("CONNECTING: %s API", self._api.NAME)
         self.setup()
         self._api.start()
-        init_read = self._api.dataset()
-        self._read = init_read
+
+        # Reload dataset if API changed
+        if self.read is None or not self._same_api_loaded:
+            init_read = self._api.dataset()
+            self.read = init_read
+            self._same_api_loaded = True
+
         logger.info("CONNECTED: %s API (%s)", self._api.NAME, self.version)
 
     def stop(self):
@@ -88,11 +101,6 @@ class APIControl:
         self._active_state = cfg.shared_memory_api["active_state"]
 
     @property
-    def read(self) -> object:
-        """API info reader"""
-        return self._read
-
-    @property
     def name(self) -> str:
         """API name output"""
         return self._api.NAME
@@ -102,12 +110,12 @@ class APIControl:
         """API state output"""
         if self._state_override:
             return self._active_state
-        return self._read.check.api_state()
+        return self.read.check.api_state()
 
     @property
     def version(self) -> str:
         """API version output"""
-        version = self._read.check.api_version()
+        version = self.read.check.api_version()
         return version if version else "not running"
 
 

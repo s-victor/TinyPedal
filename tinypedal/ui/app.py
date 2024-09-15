@@ -210,7 +210,7 @@ class AppWindow(QMainWindow):
         """Quit manager"""
         self.save_window_position()
         self.__break_signal()
-        loader.unload()
+        loader.close()
         QApplication.quit()  # close app
 
     def int_signal_handler(self, sign, frame):

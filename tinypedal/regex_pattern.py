@@ -142,6 +142,7 @@ ABBR_LIST = (
 ABBR_PATTERN = "|".join(ABBR_LIST)
 
 # Option list & dictionary
+API_NAME_LIST = ("rFactor 2", "Le Mans Ultimate")
 DELTABEST_LIST = ("Best", "Session", "Stint", "Last")
 ENCODING_LIST = ("UTF-8", "ISO-8859-1")
 FONT_WEIGHT_LIST = ("normal", "bold")

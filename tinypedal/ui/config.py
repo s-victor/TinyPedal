@@ -52,7 +52,6 @@ from .. import validator as val
 from .. import formatter as fmt
 from ..setting import cfg
 from ..const import APP_ICON
-from ..api_connector import API_NAME_LIST
 from ..module_control import mctrl, wctrl
 
 
@@ -416,7 +415,7 @@ class UserConfig(QDialog):
             # API name string
             if re.search(rxp.CFG_API_NAME, key):
                 self.__add_option_combolist(
-                    idx, key, layout, API_NAME_LIST)
+                    idx, key, layout, rxp.API_NAME_LIST)
                 continue
             # Font weight string
             if re.search(rxp.CFG_FONT_WEIGHT, key):

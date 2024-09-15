@@ -131,7 +131,7 @@ def start_app():
 
     # Load core modules
     from . import loader
-    loader.load()
+    loader.start()
     # Start main window
     from tinypedal.ui.app import AppWindow
     config_window = AppWindow()

@@ -212,7 +212,7 @@ class PresetList(QWidget):
                 message_text = (
                     "<font style='font-size: 15px;'><b>"
                     "Are you sure you want to delete<br>"
-                    f"\"{self.preset_list[selected_index]}.json\""
+                    f"\"{selected_filename}\""
                     " permanently?</b></font>"
                     "<br><br>This cannot be undone!"
                 )

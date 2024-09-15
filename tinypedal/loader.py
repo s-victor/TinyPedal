@@ -30,12 +30,19 @@ from .overlay_control import octrl
 logger = logging.getLogger(__name__)
 
 
-def load():
-    """Load api, modules, widgets"""
+def start():
+    """Start api, modules, widgets. Call once per launch."""
     logger.info("STARTING............")
     api.connect()
     api.start()     # 1 start api
     load_modules()  # 2 load modules
+
+
+def close():
+    """Close api, modules, widgets. Call before quit APP."""
+    logger.info("CLOSING............")
+    unload_modules()  # 1 unload modules
+    api.stop()        # 2 stop api
 
 
 def reload():
@@ -45,13 +52,6 @@ def reload():
     cfg.load()        # 2 reload setting
     api.restart()     # 3 restart api
     load_modules()    # 4 load modules
-
-
-def unload():
-    """unload api, modules, widgets"""
-    logger.info("CLOSING............")
-    unload_modules()  # 1 unload modules
-    api.stop()        # 2 stop api
 
 
 def load_modules():

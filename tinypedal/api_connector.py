@@ -28,6 +28,7 @@ from functools import partial
 from pyRfactor2SharedMemory import rF2MMap
 from .adapter import rfactor2
 from . import validator as val
+from . import regex_pattern as rxp
 
 
 class DataSet:
@@ -69,7 +70,7 @@ class Connector(ABC):
 
 class SimRF2(Connector):
     """rFactor 2"""
-    NAME = "rFactor 2"
+    NAME = rxp.API_NAME_LIST[0]
 
     def __init__(self):
         rF2MMap.logger = logging.getLogger(__name__)
@@ -94,7 +95,7 @@ class SimRF2(Connector):
 
 class SimLMU(Connector):
     """Le Mans Ultimate"""
-    NAME = "Le Mans Ultimate"
+    NAME = rxp.API_NAME_LIST[1]
 
     def __init__(self):
         rF2MMap.logger = logging.getLogger(__name__)
@@ -118,10 +119,7 @@ class SimLMU(Connector):
 
 
 # Add new API to API_PACK
-# API_PACK is used to generate API_NAME_LIST
-# for API selection, setting validator, config option
 API_PACK = (
     SimRF2,
     SimLMU,
 )
-API_NAME_LIST = tuple(_api.NAME for _api in API_PACK)
