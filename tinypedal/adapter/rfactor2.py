@@ -654,9 +654,10 @@ class Vehicle(DataAdapter):
 
     def speed(self, index: int | None = None) -> float:
         """Speed"""
-        return calc.vel2speed(self.velocity_lateral(index),
-                              self.velocity_longitudinal(index),
-                              self.velocity_vertical(index))
+        return calc.vel2speed(
+            chknm(self.info.rf2TeleVeh(index).mLocalVel.x),
+            chknm(self.info.rf2TeleVeh(index).mLocalVel.y),
+            chknm(self.info.rf2TeleVeh(index).mLocalVel.z))
 
     def downforce_front(self, index: int | None = None) -> float:
         """Downforce front"""

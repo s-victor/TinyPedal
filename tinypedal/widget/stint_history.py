@@ -23,7 +23,7 @@ Stint history Widget
 from collections import deque
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from ..api_control import api
@@ -48,11 +48,6 @@ class Realtime(Overlay):
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
         self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
-        self.bar_width_laps = f"min-width: {font_m.width * 3 + bar_padx}px;"
-        self.bar_width_time = f"min-width: {font_m.width * 5 + bar_padx}px;"
-        self.bar_width_fuel = f"min-width: {font_m.width * 5 + bar_padx}px;"
-        self.bar_width_cmpd = f"min-width: {font_m.width * 2 + bar_padx}px;"
-        self.bar_width_wear = f"min-width: {font_m.width * 3 + bar_padx}px;"
 
         # Base style
         self.setStyleSheet(
@@ -63,6 +58,7 @@ class Realtime(Overlay):
 
         # Max display stint
         self.stint_count = max(self.wcfg["stint_history_count"], 1)
+        self.data_bar = {}
 
         # Create layout
         layout = QGridLayout()
@@ -70,122 +66,92 @@ class Realtime(Overlay):
         layout.setHorizontalSpacing(0)
         layout.setVerticalSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_lp = self.wcfg["column_index_laps"]
-        column_tm = self.wcfg["column_index_time"]
-        column_fu = self.wcfg["column_index_fuel"]
-        column_tr = self.wcfg["column_index_tyre"]
-        column_wr = self.wcfg["column_index_wear"]
+        self.setLayout(layout)
 
         # Laps
-        self.bar_laps = QLabel("---")
-        self.bar_laps.setAlignment(Qt.AlignCenter)
-        self.bar_laps.setStyleSheet(
-            f"color: {self.wcfg['font_color_laps']};"
-            f"background: {self.wcfg['bkg_color_laps']};"
-            f"{self.bar_width_laps}"
+        bar_style_laps = (
+            self.set_qss(
+                fg_color=self.wcfg["font_color_laps"],
+                bg_color=self.wcfg["bkg_color_laps"]),
+            self.set_qss(
+                fg_color=self.wcfg["font_color_last_stint_laps"],
+                bg_color=self.wcfg["bkg_color_last_stint_laps"])
         )
+        self.set_table(
+            name="laps",
+            text="---",
+            style=bar_style_laps,
+            width=font_m.width * 3 + bar_padx,
+            column=self.wcfg["column_index_laps"],
+        )
+
         # Time
-        self.bar_time = QLabel("--:--")
-        self.bar_time.setAlignment(Qt.AlignCenter)
-        self.bar_time.setStyleSheet(
-            f"color: {self.wcfg['font_color_time']};"
-            f"background: {self.wcfg['bkg_color_time']};"
-            f"{self.bar_width_time}"
+        bar_style_time = (
+            self.set_qss(
+                fg_color=self.wcfg["font_color_time"],
+                bg_color=self.wcfg["bkg_color_time"]),
+            self.set_qss(
+                fg_color=self.wcfg["font_color_last_stint_time"],
+                bg_color=self.wcfg["bkg_color_last_stint_time"])
         )
+        self.set_table(
+            name="time",
+            text="--:--",
+            style=bar_style_time,
+            width=font_m.width * 5 + bar_padx,
+            column=self.wcfg["column_index_time"],
+        )
+
         # Fuel
-        self.bar_fuel = QLabel("---.-")
-        self.bar_fuel.setAlignment(Qt.AlignCenter)
-        self.bar_fuel.setStyleSheet(
-            f"color: {self.wcfg['font_color_fuel']};"
-            f"background: {self.wcfg['bkg_color_fuel']};"
-            f"{self.bar_width_fuel}"
+        bar_style_fuel = (
+            self.set_qss(
+                fg_color=self.wcfg["font_color_fuel"],
+                bg_color=self.wcfg["bkg_color_fuel"]),
+            self.set_qss(
+                fg_color=self.wcfg["font_color_last_stint_fuel"],
+                bg_color=self.wcfg["bkg_color_last_stint_fuel"])
         )
+        self.set_table(
+            name="fuel",
+            text="---.-",
+            style=bar_style_fuel,
+            width=font_m.width * 5 + bar_padx,
+            column=self.wcfg["column_index_fuel"],
+        )
+
         # Tyre compound
-        self.bar_cmpd = QLabel("--")
-        self.bar_cmpd.setAlignment(Qt.AlignCenter)
-        self.bar_cmpd.setStyleSheet(
-            f"color: {self.wcfg['font_color_tyre']};"
-            f"background: {self.wcfg['bkg_color_tyre']};"
-            f"{self.bar_width_cmpd}"
+        bar_style_cmpd = (
+            self.set_qss(
+                fg_color=self.wcfg["font_color_tyre"],
+                bg_color=self.wcfg["bkg_color_tyre"]),
+            self.set_qss(
+                fg_color=self.wcfg["font_color_last_stint_tyre"],
+                bg_color=self.wcfg["bkg_color_last_stint_tyre"])
         )
+        self.set_table(
+            name="cmpd",
+            text="--",
+            style=bar_style_cmpd,
+            width=font_m.width * 2 + bar_padx,
+            column=self.wcfg["column_index_tyre"],
+        )
+
         # Tyre wear
-        self.bar_wear = QLabel("--%")
-        self.bar_wear.setAlignment(Qt.AlignCenter)
-        self.bar_wear.setStyleSheet(
-            f"color: {self.wcfg['font_color_wear']};"
-            f"background: {self.wcfg['bkg_color_wear']};"
-            f"{self.bar_width_wear}"
+        bar_style_wear = (
+            self.set_qss(
+                fg_color=self.wcfg["font_color_wear"],
+                bg_color=self.wcfg["bkg_color_wear"]),
+            self.set_qss(
+                fg_color=self.wcfg["font_color_last_stint_wear"],
+                bg_color=self.wcfg["bkg_color_last_stint_wear"])
         )
-        layout.addWidget(self.bar_laps, self.set_row_index(0), column_lp)
-        layout.addWidget(self.bar_time, self.set_row_index(0), column_tm)
-        layout.addWidget(self.bar_fuel, self.set_row_index(0), column_fu)
-        layout.addWidget(self.bar_cmpd, self.set_row_index(0), column_tr)
-        layout.addWidget(self.bar_wear, self.set_row_index(0), column_wr)
-
-        # History stint
-        for index in range(1, self.stint_count + 1):
-            setattr(self, f"bar_last_laps{index}", QLabel("---"))
-            getattr(self, f"bar_last_laps{index}").setAlignment(Qt.AlignCenter)
-            getattr(self, f"bar_last_laps{index}").setStyleSheet(
-                f"color: {self.wcfg['font_color_last_stint_laps']};"
-                f"background: {self.wcfg['bkg_color_last_stint_laps']};"
-                f"{self.bar_width_laps}"
-            )
-            setattr(self, f"bar_last_time{index}", QLabel("--:--"))
-            getattr(self, f"bar_last_time{index}").setAlignment(Qt.AlignCenter)
-            getattr(self, f"bar_last_time{index}").setStyleSheet(
-                f"color: {self.wcfg['font_color_last_stint_time']};"
-                f"background: {self.wcfg['bkg_color_last_stint_time']};"
-                f"{self.bar_width_time}"
-            )
-            setattr(self, f"bar_last_fuel{index}", QLabel("---.-"))
-            getattr(self, f"bar_last_fuel{index}").setAlignment(Qt.AlignCenter)
-            getattr(self, f"bar_last_fuel{index}").setStyleSheet(
-                f"color: {self.wcfg['font_color_last_stint_fuel']};"
-                f"background: {self.wcfg['bkg_color_last_stint_fuel']};"
-                f"{self.bar_width_fuel}"
-            )
-            setattr(self, f"bar_last_cmpd{index}", QLabel("--"))
-            getattr(self, f"bar_last_cmpd{index}").setAlignment(Qt.AlignCenter)
-            getattr(self, f"bar_last_cmpd{index}").setStyleSheet(
-                f"color: {self.wcfg['font_color_last_stint_tyre']};"
-                f"background: {self.wcfg['bkg_color_last_stint_tyre']};"
-                f"{self.bar_width_cmpd}"
-            )
-            setattr(self, f"bar_last_wear{index}", QLabel("---"))
-            getattr(self, f"bar_last_wear{index}").setAlignment(Qt.AlignCenter)
-            getattr(self, f"bar_last_wear{index}").setStyleSheet(
-                f"color: {self.wcfg['font_color_last_stint_wear']};"
-                f"background: {self.wcfg['bkg_color_last_stint_wear']};"
-                f"{self.bar_width_wear}"
-            )
-
-            if not self.wcfg["show_empty_history"]:
-                getattr(self, f"bar_last_laps{index}").hide()
-                getattr(self, f"bar_last_time{index}").hide()
-                getattr(self, f"bar_last_fuel{index}").hide()
-                getattr(self, f"bar_last_cmpd{index}").hide()
-                getattr(self, f"bar_last_wear{index}").hide()
-
-            layout.addWidget(
-                getattr(self, f"bar_last_laps{index}"),
-                        self.set_row_index(index), column_lp)
-            layout.addWidget(
-                getattr(self, f"bar_last_time{index}"),
-                        self.set_row_index(index), column_tm)
-            layout.addWidget(
-                getattr(self, f"bar_last_fuel{index}"),
-                        self.set_row_index(index), column_fu)
-            layout.addWidget(
-                getattr(self, f"bar_last_cmpd{index}"),
-                        self.set_row_index(index), column_tr)
-            layout.addWidget(
-                getattr(self, f"bar_last_wear{index}"),
-                        self.set_row_index(index), column_wr)
-
-        # Set layout
-        self.setLayout(layout)
+        self.set_table(
+            name="wear",
+            text="---",
+            style=bar_style_wear,
+            width=font_m.width * 3 + bar_padx,
+            column=self.wcfg["column_index_wear"],
+        )
 
         # Last data
         self.checked = False
@@ -193,8 +159,9 @@ class Realtime(Overlay):
         self.reset_stint = True  # reset stint stats
         # 0 - tyre compound, 1 - total laps, 2 - total time, 3 - total fuel, 4 - total tyre wear
         self.stint_data = ["--",0,0,0,0]
-        self.history_data = deque([["--",0,0,0,0] for _ in range(self.stint_count)], self.stint_count)
-
+        self.history_data = deque(
+            [self.stint_data[:] for _ in range(self.stint_count)], self.stint_count
+        )
         self.start_laps = 0
         self.start_time = 0
         self.start_fuel = 0
@@ -202,18 +169,35 @@ class Realtime(Overlay):
 
         self.last_wear_avg = 0
         self.last_fuel_curr = 0
-
         self.last_laps_text = None
         self.last_time_text = None
         self.last_fuel_text = None
         self.last_cmpd_text = None
         self.last_wear_text = None
 
-    def set_row_index(self, index):
-        """Set row index"""
-        if self.wcfg["layout"] == 0:
-            return index
-        return self.stint_count - index + 1
+    # GUI generate methods
+    def set_table(self, name: str, text: str, style: str, width: int, column: int):
+        """Set table"""
+        for idx in range(self.stint_count + 1):
+            if idx == 0:
+                style_idx = 0
+            else:
+                style_idx = 1
+            bar_name = f"{idx}_{name}"
+            self.data_bar[bar_name] = self.set_qlabel(
+                text=text,
+                style=style[style_idx],
+                width=width,
+            )
+            if not self.wcfg["show_empty_history"] and idx > 0:
+                self.data_bar[bar_name].hide()
+            # Set layout
+            if self.wcfg["layout"] == 0:
+                row_index = idx
+            else:
+                row_index = self.stint_count - idx + 1
+            self.layout().addWidget(
+                self.data_bar[bar_name], row_index, column)
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -230,7 +214,6 @@ class Realtime(Overlay):
             time_curr = api.read.session.elapsed()
             in_pits = api.read.vehicle.in_pits()
             in_garage = api.read.vehicle.in_garage()
-
             wear_avg = 100 - sum(api.read.tyre.wear()) * 25
 
             # Check if virtual energy available
@@ -248,7 +231,7 @@ class Realtime(Overlay):
                     self.stint_running = False
                     self.reset_stint = True
                     # Update stint history
-                    self.history_data.appendleft(self.stint_data.copy())
+                    self.history_data.appendleft(self.stint_data[:])
                     for index in range(self.stint_count):
                         self.update_stint_history(self.history_data[index], index + 1)
 
@@ -274,23 +257,23 @@ class Realtime(Overlay):
 
             # Stint current
             laps_text = f"{self.stint_data[1]:03.0f}"[:3]
-            self.update_stint("laps", laps_text, self.last_laps_text)
+            self.update_stint(self.data_bar["0_laps"], laps_text, self.last_laps_text)
             self.last_laps_text = laps_text
 
             time_text = calc.sec2stinttime(self.stint_data[2])[:5]
-            self.update_stint("time", time_text, self.last_time_text)
+            self.update_stint(self.data_bar["0_time"], time_text, self.last_time_text)
             self.last_time_text = time_text
 
             fuel_text = f"{self.stint_data[3]:05.1f}"[:5]
-            self.update_stint("fuel", fuel_text, self.last_fuel_text)
+            self.update_stint(self.data_bar["0_fuel"], fuel_text, self.last_fuel_text)
             self.last_fuel_text = fuel_text
 
             cmpd_text = f"{self.stint_data[0]}"[:2]
-            self.update_stint("cmpd", cmpd_text, self.last_cmpd_text)
+            self.update_stint(self.data_bar["0_cmpd"], cmpd_text, self.last_cmpd_text)
             self.last_cmpd_text = cmpd_text
 
             wear_text = f"{self.stint_data[4]:02.0f}%"[:3]
-            self.update_stint("wear", wear_text, self.last_wear_text)
+            self.update_stint(self.data_bar["0_wear"], wear_text, self.last_wear_text)
             self.last_wear_text = wear_text
 
         else:
@@ -300,34 +283,34 @@ class Realtime(Overlay):
                 self.reset_stint = True
 
                 if self.stint_data[2] >= self.wcfg["minimum_stint_threshold_minutes"] * 60:
-                    self.history_data.appendleft(self.stint_data.copy())
+                    self.history_data.appendleft(self.stint_data[:])
 
     # GUI update methods
-    def update_stint(self, suffix, curr, last):
+    def update_stint(self, target_bar, curr, last):
         """Stint data"""
         if curr != last:
-            getattr(self, f"bar_{suffix}").setText(curr)
+            target_bar.setText(curr)
 
     def update_stint_history(self, curr, index):
         """Stint history data"""
         if curr[2]:
-            getattr(self, f"bar_last_laps{index}").setText(f"{curr[1]:03.0f}"[:3])
-            getattr(self, f"bar_last_time{index}").setText(calc.sec2stinttime(curr[2])[:5])
-            getattr(self, f"bar_last_fuel{index}").setText(f"{curr[3]:05.1f}"[:5])
-            getattr(self, f"bar_last_cmpd{index}").setText(f"{curr[0]}"[:2])
-            getattr(self, f"bar_last_wear{index}").setText(f"{curr[4]:02.0f}%"[:3])
-            getattr(self, f"bar_last_laps{index}").show()
-            getattr(self, f"bar_last_time{index}").show()
-            getattr(self, f"bar_last_fuel{index}").show()
-            getattr(self, f"bar_last_cmpd{index}").show()
-            getattr(self, f"bar_last_wear{index}").show()
+            self.data_bar[f"{index}_laps"].setText(f"{curr[1]:03.0f}"[:3])
+            self.data_bar[f"{index}_time"].setText(calc.sec2stinttime(curr[2])[:5])
+            self.data_bar[f"{index}_fuel"].setText(f"{curr[3]:05.1f}"[:5])
+            self.data_bar[f"{index}_cmpd"].setText(f"{curr[0]}"[:2])
+            self.data_bar[f"{index}_wear"].setText(f"{curr[4]:02.0f}%"[:3])
+            self.data_bar[f"{index}_laps"].show()
+            self.data_bar[f"{index}_time"].show()
+            self.data_bar[f"{index}_fuel"].show()
+            self.data_bar[f"{index}_cmpd"].show()
+            self.data_bar[f"{index}_wear"].show()
 
         elif not self.wcfg["show_empty_history"]:
-            getattr(self, f"bar_last_laps{index}").hide()
-            getattr(self, f"bar_last_time{index}").hide()
-            getattr(self, f"bar_last_fuel{index}").hide()
-            getattr(self, f"bar_last_cmpd{index}").hide()
-            getattr(self, f"bar_last_wear{index}").hide()
+            self.data_bar[f"{index}_laps"].hide()
+            self.data_bar[f"{index}_time"].hide()
+            self.data_bar[f"{index}_fuel"].hide()
+            self.data_bar[f"{index}_cmpd"].hide()
+            self.data_bar[f"{index}_wear"].hide()
 
     # Additional methods
     def fuel_units(self, fuel):
