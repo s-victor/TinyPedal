@@ -241,7 +241,7 @@ def lap_progress_difference(ahead_laptime, behind_laptime):
     """Lap progress difference (fraction) between player ahead & behind"""
     if behind_laptime > ahead_laptime > 0:
         return (behind_laptime - ahead_laptime) / behind_laptime
-    if ahead_laptime > ahead_laptime > 0:
+    if ahead_laptime > behind_laptime > 0:
         return (ahead_laptime - behind_laptime) / ahead_laptime
     return 0
 
