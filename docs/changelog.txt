@@ -71,6 +71,11 @@ WIP
     (as opposite to old "0" value) for consistency.
     User may need to edit old value to "1" to display horizontal layout.
 
+* P2P Widget
+  - Replaced old "font_color_inactive" and "bkg_color_inactive" color settings with new cooldown
+    "font_color_battery_cooldown, bkg_color_battery_cooldown" for battery charge, and
+    "font_color_activation_cooldown, bkg_color_activation_cooldown" for activation timer.
+
 * Tyre wear Widget
   - Now uses laptime pace for calculating "tyre lifespan in minutes".
 

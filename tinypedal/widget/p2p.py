@@ -21,7 +21,7 @@ P2P Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from ..api_control import api
 from ..module_info import minfo
@@ -44,8 +44,6 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        self.bar_width_battery = f"min-width: {font_m.width * 3 + bar_padx}px;"
-        self.bar_width_timer = f"min-width: {font_m.width * 4 + bar_padx}px;"
 
         # Base style
         self.setStyleSheet(
@@ -59,36 +57,47 @@ class Realtime(Overlay):
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_bc = self.wcfg["column_index_battery_charge"]
-        column_at = self.wcfg["column_index_activation_timer"]
+        self.setLayout(layout)
 
         # Battery charge
         if self.wcfg["show_battery_charge"]:
-            self.bar_battery_charge = QLabel("P2P")
-            self.bar_battery_charge.setAlignment(Qt.AlignCenter)
-            self.bar_battery_charge.setStyleSheet(
-                f"color: {self.wcfg['font_color_battery_charge']};"
-                f"background: {self.wcfg['bkg_color_battery_charge']};"
-                f"{self.bar_width_battery}"
+            self.bar_style_charge = (
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_battery_cooldown"],  # 0 cooldown
+                    bg_color=self.wcfg["bkg_color_battery_cooldown"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_battery_charge"],  # 1 ready
+                    bg_color=self.wcfg["bkg_color_battery_charge"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_battery_charge"],  # 2 drain
+                    bg_color=self.wcfg["bkg_color_battery_drain"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_battery_charge"],  # 3 regen
+                    bg_color=self.wcfg["bkg_color_battery_regen"])
             )
+            self.bar_charge = self.set_qlabel(
+                text="P2P",
+                style=self.bar_style_charge[1],
+                width=font_m.width * 3 + bar_padx,
+            )
+            layout.addWidget(self.bar_charge, 0, self.wcfg["column_index_battery_charge"])
 
         # Activation timer
         if self.wcfg["show_activation_timer"]:
-            self.bar_active_timer = QLabel("0.00")
-            self.bar_active_timer.setAlignment(Qt.AlignCenter)
-            self.bar_active_timer.setStyleSheet(
-                f"color: {self.wcfg['font_color_activation_timer']};"
-                f"background: {self.wcfg['bkg_color_activation_timer']};"
-                f"{self.bar_width_timer}"
+            self.bar_style_timer = (
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_activation_timer"],
+                    bg_color=self.wcfg["bkg_color_activation_timer"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_activation_cooldown"],
+                    bg_color=self.wcfg["bkg_color_activation_cooldown"])
             )
-
-        # Set layout
-        if self.wcfg["show_battery_charge"]:
-            layout.addWidget(self.bar_battery_charge, 0, column_bc)
-        if self.wcfg["show_activation_timer"]:
-            layout.addWidget(self.bar_active_timer, 0, column_at)
-        self.setLayout(layout)
+            self.bar_timer = self.set_qlabel(
+                text="0.00",
+                style=self.bar_style_timer[0],
+                width=font_m.width * 4 + bar_padx,
+            )
+            layout.addWidget(self.bar_timer, 0, self.wcfg["column_index_activation_timer"])
 
         # Last data
         self.last_battery_charge = None
@@ -100,28 +109,22 @@ class Realtime(Overlay):
 
             # Battery charge
             if self.wcfg["show_battery_charge"]:
-                alt_active_state = (
-                    api.read.engine.gear() >= self.wcfg["activation_threshold_gear"] and
-                    api.read.vehicle.speed() * 3.6 > self.wcfg["activation_threshold_speed"] and
-                    api.read.input.throttle_raw() >= self.wcfg["activation_threshold_throttle"] and
-                    minfo.hybrid.motorState
-                )
-                battery_charge = (
-                    minfo.hybrid.batteryCharge,
-                    minfo.hybrid.motorState,
-                    alt_active_state,
-                    minfo.hybrid.motorActiveTimer,
-                    minfo.hybrid.motorInActiveTimer
-                )
+                state = minfo.hybrid.motorState
+                if state == 1:  # cooldown check
+                    state = (
+                        api.read.engine.gear() >= self.wcfg["activation_threshold_gear"] and
+                        api.read.vehicle.speed() * 3.6 > self.wcfg["activation_threshold_speed"] and
+                        api.read.input.throttle_raw() >= self.wcfg["activation_threshold_throttle"] and
+                        minfo.hybrid.motorInActiveTimer >= self.wcfg["minimum_activation_time_delay"] and
+                        minfo.hybrid.motorActiveTimer < self.wcfg["maximum_activation_time_per_lap"] - 0.05
+                    )
+                battery_charge = minfo.hybrid.batteryCharge, state
                 self.update_battery_charge(battery_charge, self.last_battery_charge)
                 self.last_battery_charge = battery_charge
 
             # Activation timer
             if self.wcfg["show_activation_timer"]:
-                active_timer = (
-                    minfo.hybrid.motorActiveTimer,
-                    minfo.hybrid.motorState
-                )
+                active_timer = minfo.hybrid.motorActiveTimer, minfo.hybrid.motorState
                 self.update_active_timer(active_timer, self.last_active_timer)
                 self.last_active_timer = active_timer
 
@@ -129,44 +132,16 @@ class Realtime(Overlay):
     def update_battery_charge(self, curr, last):
         """Battery charge"""
         if curr != last:
-            # State = active
-            if curr[1] == 2:
-                bgcolor = self.wcfg["bkg_color_battery_drain"]
-            # State = regen
-            elif curr[1] == 3:
-                bgcolor = self.wcfg["bkg_color_battery_regen"]
-            # alt_active_state True, active_timer, inactive_timer
-            elif (curr[2] and
-                  curr[4] >= self.wcfg["minimum_activation_time_delay"] and
-                  curr[3] < self.wcfg["maximum_activation_time_per_lap"] - 0.05):
-                bgcolor = self.wcfg["bkg_color_battery_charge"]
-            else:
-                bgcolor = self.wcfg["bkg_color_inactive"]
-
             if curr[0] < 99.5:
                 format_text = f"±{curr[0]:02.0f}"
             else:
                 format_text = "MAX"
 
-            self.bar_battery_charge.setText(format_text)
-            self.bar_battery_charge.setStyleSheet(
-                f"color: {self.wcfg['font_color_battery_charge']};"
-                f"background: {bgcolor};"
-                f"{self.bar_width_battery}"
-            )
+            self.bar_charge.setText(format_text)
+            self.bar_charge.setStyleSheet(self.bar_style_charge[curr[1]])
 
     def update_active_timer(self, curr, last):
         """P2P activation timer"""
         if curr != last:
-            if curr[1] != 2:
-                fgcolor = self.wcfg["font_color_inactive"]
-            else:
-                fgcolor = self.wcfg["bkg_color_inactive"]
-
-            format_text = f"{curr[0]:.2f}"[:4]
-            self.bar_active_timer.setText(format_text)
-            self.bar_active_timer.setStyleSheet(
-                f"color: {fgcolor};"
-                f"background: {self.wcfg['bkg_color_activation_timer']};"
-                f"{self.bar_width_timer}"
-            )
+            self.bar_timer.setText(f"{curr[0]:.2f}"[:4])
+            self.bar_timer.setStyleSheet(self.bar_style_timer[curr[1] != 2])
