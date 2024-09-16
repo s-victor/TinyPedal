@@ -163,13 +163,21 @@ class Realtime(Overlay):
 
             # Wheel lock
             if self.wcfg["show_wheel_lock"]:
-                wlock = round(min(minfo.wheels.slipRatio), 3), api.read.input.brake()
+                wlock = (
+                    self.flicker and
+                    api.read.input.brake() > 0 and
+                    min(minfo.wheels.slipRatio) < -self.wcfg["wheel_lock_threshold"]
+                )
                 self.update_wlock(wlock, self.last_wlock)
                 self.last_wlock = wlock
 
             # Wheel slip
             if self.wcfg["show_wheel_slip"]:
-                wslip = round(max(minfo.wheels.slipRatio), 3)
+                wslip = (
+                    self.flicker and
+                    api.read.input.throttle() > 0 and
+                    max(minfo.wheels.slipRatio) >= self.wcfg["wheel_slip_threshold"]
+                )
                 self.update_wslip(wslip, self.last_wslip)
                 self.last_wslip = wslip
 
@@ -200,7 +208,7 @@ class Realtime(Overlay):
     def update_wlock(self, curr, last):
         """Wheel lock update"""
         if curr != last:
-            if self.flicker and curr[1] > 0 and curr[0] < -self.wcfg["wheel_lock_threshold"]:
+            if curr:
                 state = 0
                 color = 3
             else:
@@ -211,7 +219,7 @@ class Realtime(Overlay):
     def update_wslip(self, curr, last):
         """Wheel slip update"""
         if curr != last:
-            if self.flicker and curr >= self.wcfg["wheel_slip_threshold"]:
+            if curr:
                 state = 0
                 color = 4
             else:

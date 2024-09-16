@@ -67,9 +67,9 @@ WIP
   - Add "odometer_maximum_digits" option, which sets maximum number of display digits.
 
 * Instrument Widget
-  - Changed default "layout" setting value to "1" for horizontal layout
-    (as opposite to old "0" value) for consistency.
-    User may need to edit old value to "1" to display horizontal layout.
+  - Changed default "layout" setting value to "1" for horizontal layout for consistency.
+    User may need to edit old value "0" to "1" to display horizontal layout.
+  - Wheel slip warning indicator now only shows under acceleration.
 
 * P2P Widget
   - Replaced old "font_color_inactive" and "bkg_color_inactive" color settings with new cooldown
