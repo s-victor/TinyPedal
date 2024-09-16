@@ -21,7 +21,7 @@ Rake angle Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from ..api_control import api
@@ -46,15 +46,13 @@ class Realtime(Overlay):
         self.prefix_text = self.wcfg["prefix_rake_angle"]
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
         ride_diff = "(00)" if self.wcfg["show_ride_height_difference"] else ""
-        text_default = f"{self.prefix_text}+0.00{self.sign_text}{ride_diff}"
-        bar_width = f"min-width: {font_m.width * len(text_default) + bar_padx}px;"
+        text_def = f"{self.prefix_text}+0.00{self.sign_text}{ride_diff}"
 
         # Base style
         self.setStyleSheet(
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"{bar_width}"
         )
 
         # Create layout
@@ -62,18 +60,23 @@ class Realtime(Overlay):
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(0)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.setLayout(layout)
 
         # Rake angle
-        self.bar_rake = QLabel(text_default)
-        self.bar_rake.setAlignment(Qt.AlignCenter)
-        self.bar_rake.setStyleSheet(
-            f"color: {self.wcfg['font_color_rake_angle']};"
-            f"background: {self.wcfg['bkg_color_rake_angle']};"
+        self.bar_style_rake = (
+            self.set_qss(
+                fg_color=self.wcfg["font_color_rake_angle"],
+                bg_color=self.wcfg["bkg_color_rake_angle"]),
+            self.set_qss(
+                fg_color=self.wcfg["font_color_rake_angle"],
+                bg_color=self.wcfg["warning_color_negative_rake"])
         )
-
-        # Set layout
+        self.bar_rake = self.set_qlabel(
+            text=text_def,
+            style=self.bar_style_rake[0],
+            width=font_m.width * len(text_def) + bar_padx,
+        )
         layout.addWidget(self.bar_rake, 0, 0)
-        self.setLayout(layout)
 
         # Last data
         self.last_rake = 0
@@ -91,15 +94,11 @@ class Realtime(Overlay):
     def update_rakeangle(self, curr, last):
         """Rake angle data"""
         if curr != last:
-            if curr >= 0:
-                color = (f"color: {self.wcfg['font_color_rake_angle']};"
-                         f"background: {self.wcfg['bkg_color_rake_angle']};")
-            else:
-                color = (f"color: {self.wcfg['font_color_rake_angle']};"
-                         f"background: {self.wcfg['warning_color_negative_rake']};")
-
             rake_angle = f"{calc.rake2angle(curr, self.wcfg['wheelbase']):+.2f}"[:5]
-            ride_diff = f"({abs(curr):02.0f})" if self.wcfg["show_ride_height_difference"] else ""
+            if self.wcfg["show_ride_height_difference"]:
+                ride_diff = f"({abs(curr):02.0f})"[:4]
+            else:
+                ride_diff = ""
 
             self.bar_rake.setText(f"{self.prefix_text}{rake_angle}{self.sign_text}{ride_diff}")
-            self.bar_rake.setStyleSheet(color)
+            self.bar_rake.setStyleSheet(self.bar_style_rake[curr < 0])
