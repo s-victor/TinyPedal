@@ -7,6 +7,7 @@ WIP
     For Linux, "config.json" is stored under "home/username/.config/TinyPedal" folder.
   - Log files are now stored in the same folder as global user config file.
   - All "application" settings are moved into "config.json".
+  - Color pick dialog now shows up to 16 previously picked colors in "Custom colors" selector.
 
 * [New]Application dialog
   - Add "Application" to main window "Config" menu, which opens a dialog for customizing

@@ -147,23 +147,23 @@ TinyPedal generates & saves user session data in specific folders defined in `Us
 
 
 ## Delta best
-Delta best data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
+Delta best data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
 
 
 ## Energy delta
-Energy delta data is stored as `CSV` format (.energy extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
+Energy delta data is stored as `CSV` format (.energy extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
 
 
 ## Fuel delta
-Fuel delta data is stored as `CSV` format (.fuel extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
+Fuel delta data is stored as `CSV` format (.fuel extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
 
 
 ## Sector best
-Sector best data is stored as `CSV` format (.sector extension) under `TinyPedal\deltabest` folder. Those files can be opened in spreadsheet or notepad programs.
+Sector best data is stored as `CSV` format (.sector extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
 
 
 ## Track map
-Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder.
+Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder (default).
 
 The SVG vector map file contains two coordinate paths:
 * First is global x,y position path, used for drawing track map.
@@ -173,7 +173,7 @@ Each sector position index is also stored in SVG file for finding sector coordin
 
 
 ## Brand logo
-TinyPedal supports user-defined brand logo image in `PNG` format (.png extension) which is placed under `TinyPedal\brandlogo` folder.
+TinyPedal supports user-defined brand logo image in `PNG` format (.png extension) which is placed under `TinyPedal\brandlogo` folder (default).
 
 Note: TinyPedal does not provide brand logo image assets, it is up to user to prepare images. Maximum `PNG` file size is limited to `1MB`.
 
@@ -309,7 +309,7 @@ Define main window position on screen in pixels. Those values will be auto updat
 
 User path dialog allows customization to global user path for storing different user data.
 
-To change user path, double-clicking on edit box to open `Select folder` dialog; or manually editing path text.
+To change user path, double-clicking on edit box to open `Select folder` dialog; or manually editing path text. Folder will be automatically created if does not exist.
 
 Click `Apply` or `Save` button to verify and apply new paths. Invalid path will not be applied.
 

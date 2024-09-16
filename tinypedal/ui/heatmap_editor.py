@@ -42,7 +42,7 @@ from ..setting import cfg, copy_setting
 from ..const import APP_ICON
 from ..module_control import wctrl
 from .config import (
-    ColorEdit,
+    DoubleClickEdit,
     update_preview_color,
     integer_valid,
     color_valid,
@@ -172,7 +172,7 @@ class HeatmapEditor(QDialog):
 
     def __add_option_color(self, key, layout, width):
         """Color string"""
-        color_edit = ColorEdit(key)
+        color_edit = DoubleClickEdit(mode="color", init=key)
         color_edit.setFixedWidth(width)
         color_edit.setMaxLength(9)
         color_edit.setValidator(color_valid)
