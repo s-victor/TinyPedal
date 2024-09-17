@@ -366,13 +366,13 @@ class Realtime(Overlay):
     def update_yellowflag(self, curr, last):
         """Yellow flag"""
         if curr != last:
-            if curr[1]:
+            if curr != 99999:
                 if self.cfg.units["distance_unit"] == "Feet":
-                    yelw_text = f"{curr[0] * 3.2808399:.0f}ft".rjust(6)
+                    yelw_text = f"Y{curr * 3.281: >4.0f}ft"[:7]
                 else:  # meter
-                    yelw_text = f"{curr[0]:.0f}m".rjust(6)
+                    yelw_text = f"Y{curr: >5.0f}m"[:7]
 
-                self.bar_yellowflag.setText(f"Y{yelw_text}")
+                self.bar_yellowflag.setText(yelw_text)
                 self.bar_yellowflag.show()
             else:
                 self.bar_yellowflag.hide()
@@ -527,14 +527,11 @@ class Realtime(Overlay):
 
     def yellow_flag_state(self, in_race):
         """Yellow flag state"""
-        hide_yellow = self.wcfg["show_yellow_flag_for_race_only"] and not in_race
-        if not hide_yellow:
-            any_yellow = (
-                api.read.session.yellow_flag() and
-                minfo.vehicles.nearestYellow < self.wcfg["yellow_flag_maximum_range"])
-            if any_yellow:
-                return round(minfo.vehicles.nearestYellow), any_yellow
-        return 99999, False
+        if in_race or not self.wcfg["show_yellow_flag_for_race_only"]:
+            if (api.read.session.yellow_flag() and
+                abs(minfo.vehicles.nearestYellow) < self.wcfg["yellow_flag_maximum_range"]):
+                return round(abs(minfo.vehicles.nearestYellow))
+        return 99999
 
     def blue_flag_state(self, in_race, lap_etime):
         """Blue flag state"""
