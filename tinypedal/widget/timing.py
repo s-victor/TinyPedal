@@ -232,7 +232,7 @@ class Realtime(Overlay):
 
         self.last_laptime_sbst = 0
         self.last_laptime_best = 0
-        self.last_laptime_last = 0
+        self.last_laptime_last = -1
         self.last_laptime_curr = 0
         self.last_laptime_esti = 0
         self.last_laptime_spbt = 0
@@ -281,6 +281,9 @@ class Realtime(Overlay):
             # Last laptime
             if self.wcfg["show_last"]:
                 laptime_last = minfo.delta.lapTimeLast
+                # Convert invalid laptime to negative for state compare
+                if not minfo.delta.isValidLap:
+                    laptime_last *= -1
                 self.update_laptime(
                     self.bar_last, laptime_last, self.last_laptime_last,
                     self.prefix_last, True
@@ -338,13 +341,15 @@ class Realtime(Overlay):
                 self.laptime_sbst = MAGIC_NUM  # reset laptime
 
     # GUI update methods
-    def update_laptime(self, target_bar, curr, last, prefix, check_time=False):
+    def update_laptime(self, target_bar, curr, last, prefix, check_laptime=False):
         """Update laptime"""
         if curr != last:
+            if check_laptime:
+                target_bar.setStyleSheet(self.bar_style_last[curr > 0])
+                curr = abs(curr)
+
             if 0 < curr < MAGIC_NUM:
                 text = f"{prefix}{calc.sec2laptime(curr)[:8]: >8}"
             else:
                 text = f"{prefix}-:--.---"
             target_bar.setText(text)
-            if check_time:
-                target_bar.setStyleSheet(self.bar_style_last[minfo.delta.isValidLap])

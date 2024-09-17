@@ -111,7 +111,7 @@ class Realtime(DataModule):
                 minfo.hybrid.batteryDrainLast = battery_drain_last
                 minfo.hybrid.batteryRegenLast = battery_regen_last
                 minfo.hybrid.motorActiveTimer = motor_active_timer
-                minfo.hybrid.motorInActiveTimer = motor_inactive_timer
+                minfo.hybrid.motorInactiveTimer = motor_inactive_timer
                 minfo.hybrid.motorState = motor_state
 
             else:

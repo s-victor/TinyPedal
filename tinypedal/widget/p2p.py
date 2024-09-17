@@ -115,7 +115,7 @@ class Realtime(Overlay):
                         api.read.engine.gear() >= self.wcfg["activation_threshold_gear"] and
                         api.read.vehicle.speed() * 3.6 > self.wcfg["activation_threshold_speed"] and
                         api.read.input.throttle_raw() >= self.wcfg["activation_threshold_throttle"] and
-                        minfo.hybrid.motorInActiveTimer >= self.wcfg["minimum_activation_time_delay"] and
+                        minfo.hybrid.motorInactiveTimer >= self.wcfg["minimum_activation_time_delay"] and
                         minfo.hybrid.motorActiveTimer < self.wcfg["maximum_activation_time_per_lap"] - 0.05
                     )
                 battery_charge = minfo.hybrid.batteryCharge, state

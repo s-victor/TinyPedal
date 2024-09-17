@@ -107,7 +107,7 @@ class HybridInfo:
     batteryDrainLast: float = 0
     batteryRegenLast: float = 0
     motorActiveTimer: float = 0
-    motorInActiveTimer: float = 0
+    motorInactiveTimer: float = 0
     motorState: int = 0
     fuelEnergyRatio: float = 0
 
