@@ -232,7 +232,7 @@ class Realtime(Overlay):
         self.last_fuel_usage = None
         self.last_limiter_state = None
         self.blue_flag_timer_start = 0
-        self.last_blue_state = -1, -1
+        self.last_blue_state = None
         self.last_yellow_state = None
         self.last_green_state = None
         self.last_lap_stime = 0
@@ -323,10 +323,10 @@ class Realtime(Overlay):
             if curr[0] != -1:
                 if curr[1]:  # finished pits
                     color = self.bar_style_pit_timer[1]
-                    state = "F " + f"{min(curr[0], 999.99):.2f}"[:5].rjust(5)
+                    state = f"F {curr[0]: >6.2f}"[:7]
                 elif api.read.session.pit_open():
                     color = self.bar_style_pit_timer[0]
-                    state = "P " + f"{min(curr[0], 999.99):.2f}"[:5].rjust(5)
+                    state = f"P {curr[0]: >6.2f}"[:7]
                 else:  # pit closed
                     color = self.bar_style_pit_timer[2]
                     state = self.wcfg["pit_closed_text"]
@@ -340,8 +340,8 @@ class Realtime(Overlay):
     def update_lowfuel(self, curr, last):
         """Low fuel warning"""
         if curr != last:
-            if curr[1]:
-                self.bar_lowfuel.setText(curr[2] + f"{curr[0]:.2f}"[:4].rjust(5))
+            if curr != "":
+                self.bar_lowfuel.setText(curr)
                 self.bar_lowfuel.show()
             else:
                 self.bar_lowfuel.hide()
@@ -357,8 +357,8 @@ class Realtime(Overlay):
     def update_blueflag(self, curr, last):
         """Blue flag"""
         if curr != last:
-            if curr[1] and curr[0] != -1:
-                self.bar_blueflag.setText(f"BLUE{min(curr[0], 999):3.0f}")
+            if curr != 99999:
+                self.bar_blueflag.setText(f"BLUE{curr:3.0f}"[:7])
                 self.bar_blueflag.show()
             else:
                 self.bar_blueflag.hide()
@@ -444,16 +444,15 @@ class Realtime(Overlay):
             amount_curr = minfo.fuel.amountCurrent
             est_laps = minfo.fuel.estimatedLaps
 
-        low_fuel = (
+        if not (  # low fuel
             amount_curr < self.wcfg["low_fuel_volume_threshold"] and
             est_laps < self.wcfg["low_fuel_lap_threshold"] and
             (not self.wcfg["show_low_fuel_for_race_only"] or
-            self.wcfg["show_low_fuel_for_race_only"] and in_race))
-        if not low_fuel:
-            return 99999, low_fuel, prefix
+            self.wcfg["show_low_fuel_for_race_only"] and in_race)):
+            return ""
         if prefix == "LF":
-            return round(self.fuel_units(amount_curr), 2), low_fuel, prefix
-        return round(amount_curr, 2), low_fuel, prefix
+            return f"{prefix}{self.fuel_units(amount_curr): >5.2f}"[:7]
+        return f"{prefix}{amount_curr: >5.2f}"[:7]
 
     def incoming_traffic(self, in_pits, lap_etime):
         """Check incoming traffic and time gap"""
@@ -535,11 +534,9 @@ class Realtime(Overlay):
 
     def blue_flag_state(self, in_race, lap_etime):
         """Blue flag state"""
-        hide_blue = self.wcfg["show_blue_flag_for_race_only"] and not in_race
-        if not hide_blue:
-            any_blue = api.read.session.blue_flag()
-            if any_blue:
-                if self.last_blue_state[1] != any_blue:
+        if in_race or not self.wcfg["show_blue_flag_for_race_only"]:
+            if api.read.session.blue_flag():
+                if self.last_blue_state == 99999:
                     self.blue_flag_timer_start = lap_etime
-                return round(lap_etime - self.blue_flag_timer_start), any_blue
-        return -1, False
+                return round(lap_etime - self.blue_flag_timer_start)
+        return 99999
