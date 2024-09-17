@@ -323,10 +323,10 @@ class Realtime(Overlay):
             if curr[0] != -1:
                 if curr[1]:  # finished pits
                     color = self.bar_style_pit_timer[1]
-                    state = f"F {curr[0]: >6.2f}"[:7]
+                    state = f"F{curr[0]: >6.2f}"[:7]
                 elif api.read.session.pit_open():
                     color = self.bar_style_pit_timer[0]
-                    state = f"P {curr[0]: >6.2f}"[:7]
+                    state = f"P{curr[0]: >6.2f}"[:7]
                 else:  # pit closed
                     color = self.bar_style_pit_timer[2]
                     state = self.wcfg["pit_closed_text"]
@@ -382,7 +382,7 @@ class Realtime(Overlay):
         if curr != last:
             if curr[0] == 0:
                 self.bar_startlights.setText(
-                    f"{self.wcfg['red_lights_text'][:6].ljust(6)}{curr[1]}")
+                    f"{self.wcfg['red_lights_text'][:6]: <6}{curr[1]}")
                 self.bar_startlights.setStyleSheet(self.bar_style_startlights[0])
                 self.bar_startlights.show()
             elif curr[0] == 1:
@@ -396,7 +396,7 @@ class Realtime(Overlay):
         """Incoming traffic"""
         if curr != last:
             if curr[1]:
-                self.bar_traffic.setText(f"≥{curr[0]:6.1f}")
+                self.bar_traffic.setText(f"≥{curr[0]: >6.1f}"[:7])
                 self.bar_traffic.show()
             else:
                 self.bar_traffic.hide()
@@ -405,9 +405,9 @@ class Realtime(Overlay):
         """Pit request"""
         if curr != last:
             if curr[0] == 1:
-                countdown = f"{curr[1]:.2f}"[:3].strip(".").ljust(3)
-                est_laps = f"{curr[2]:.2f}"[:3].strip(".").rjust(3)
-                self.bar_pit_request.setText(f"{countdown}≤{est_laps}")
+                countdown = f"{curr[1]:.2f}"[:3].strip(".")
+                est_laps = f"{curr[2]:.2f}"[:3].strip(".")
+                self.bar_pit_request.setText(f"{countdown: <3}≤{est_laps: >3}")
                 self.bar_pit_request.show()
             else:
                 self.bar_pit_request.hide()

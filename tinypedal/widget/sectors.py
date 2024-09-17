@@ -230,10 +230,10 @@ class Realtime(Overlay):
             time_diff = self.calc_sector_time(delta_pb, sec_index)
             prefix = "PB"
 
-        text = f"{time_diff:+.3f}"[:8].rjust(9)
+        text = f"{prefix}{time_diff: >+9.3f}"[:11]
         color = (f"color: {self.color_delta(time_diff, 1)};"
                  f"background: {self.wcfg['bkg_color_target_time']};")
-        return f"{prefix}{text}", color
+        return text, color
 
     def update_sector_gap(self, suffix, curr, last, no_time_set=True):
         """Gap to best sector time"""
@@ -259,7 +259,7 @@ class Realtime(Overlay):
             prev_sector_idx = sector_idx
         sector_text = ("S1","S2","S3")[prev_sector_idx]
         self.bar_time_curr.setText(
-            f"{sector_text}{calc.sec2laptime(curr_sectortime)[:8].rjust(9)}")
+            f"{sector_text}{calc.sec2laptime(curr_sectortime)[:8]: >9}")
 
     def update_time_target(self, time_text, gap_color=False):
         """Target sector time text"""
@@ -297,12 +297,12 @@ class Realtime(Overlay):
         if self.wcfg["target_laptime"] == "Theoretical":
             sector_time = self.calc_sector_time(sec_tb, sec_index)
             if sector_time < MAGIC_NUM:  # bypass invalid value
-                return f"TB{calc.sec2laptime(sector_time)[:8].rjust(9)}"
+                return f"TB{calc.sec2laptime(sector_time)[:8]: >9}"
             return "TB   --.---"
         # Mode 1 - show personal best lap sector
         sector_time = self.calc_sector_time(sec_pb, sec_index)
         if sector_time < MAGIC_NUM:  # bypass invalid value
-            return f"PB{calc.sec2laptime(sector_time)[:8].rjust(9)}"
+            return f"PB{calc.sec2laptime(sector_time)[:8]: >9}"
         return "PB   --.---"
 
     def freeze_duration(self, seconds):

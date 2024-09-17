@@ -326,7 +326,7 @@ class Realtime(Overlay):
         """Update laptime"""
         if curr != last:
             if 0 < curr < MAGIC_NUM:
-                text = f"{prefix}{calc.sec2laptime(curr)[:8].rjust(8)}"
+                text = f"{prefix}{calc.sec2laptime(curr)[:8]: >8}"
             else:
                 text = f"{prefix}-:--.---"
             getattr(self, f"bar_time_{suffix}").setText(text)
@@ -335,7 +335,7 @@ class Realtime(Overlay):
         """Update last laptime"""
         if curr != last:
             if 0 < curr[0] < MAGIC_NUM:
-                text = f"{prefix}{calc.sec2laptime(curr[0])[:8].rjust(8)}"
+                text = f"{prefix}{calc.sec2laptime(curr[0])[:8]: >8}"
             else:
                 text = f"{prefix}-:--.---"
             if curr[1]:

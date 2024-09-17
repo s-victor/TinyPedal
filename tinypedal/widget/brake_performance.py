@@ -245,11 +245,9 @@ class Realtime(Overlay):
     def update_lock_time_f(self, curr, last):
         """Front wheel lock duration"""
         if curr != last:
-            format_text = f"{curr:.1f}"[:3].strip(".").rjust(3)
-            self.bar_lock_f.setText(f"F {format_text}")
+            self.bar_lock_f.setText(f"F{curr: >4.1f}"[:5])
 
     def update_lock_time_r(self, curr, last):
         """Rear wheel lock duration"""
         if curr != last:
-            format_text = f"{curr:.1f}"[:3].strip(".").rjust(3)
-            self.bar_lock_r.setText(f"R {format_text}")
+            self.bar_lock_r.setText(f"R{curr: >4.1f}"[:5])

@@ -568,9 +568,9 @@ class Realtime(Overlay):
     def set_laptime(inpit, laptime_last, pit_time):
         """Set lap time"""
         if inpit:
-            return "PIT" + f"{pit_time:.1f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
+            return f"PIT{pit_time: >5.1f}"[:8] if pit_time > 0 else "-:--.---"
         if laptime_last <= 0:
-            return "OUT" + f"{pit_time:.1f}"[:5].rjust(5) if pit_time > 0 else "-:--.---"
+            return f"OUT{pit_time: >5.1f}"[:8] if pit_time > 0 else "-:--.---"
         return calc.sec2laptime_full(laptime_last)[:8].rjust(8)
 
     @staticmethod
