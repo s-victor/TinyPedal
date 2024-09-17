@@ -30,7 +30,7 @@ from ..module_info import minfo
 from ._base import Overlay
 
 WIDGET_NAME = "sectors"
-MAGIC_NUM = 99999  # magic number for default variable not updated by rF2
+MAGIC_NUM = 99999
 
 
 class Realtime(Overlay):

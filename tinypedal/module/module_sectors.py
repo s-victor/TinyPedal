@@ -30,7 +30,7 @@ from ..api_control import api
 from .. import validator as val
 
 MODULE_NAME = "module_sectors"
-MAGIC_NUM = 99999  # magic number for default variable not updated by rF2
+MAGIC_NUM = 99999
 
 logger = logging.getLogger(__name__)
 round6 = partial(round, ndigits=6)
