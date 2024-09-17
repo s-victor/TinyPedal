@@ -109,10 +109,7 @@ class Realtime(Overlay):
         if self.state.active:
 
             # Read tyre load data
-            raw_load = api.read.tyre.load()
-            self.tload = tuple(map(round, raw_load))
-            self.tratio = tuple(map(self.tyre_load_ratio, raw_load, [sum(raw_load)] * 4))
-
+            self.tload = api.read.tyre.load()
             self.update_tyre_load(self.tload, self.last_tload)
             self.last_tload = self.tload
 
@@ -120,6 +117,10 @@ class Realtime(Overlay):
     def update_tyre_load(self, curr, last):
         """Tyre load update"""
         if curr != last:
+            # Update load ratio
+            sum_load = sum(self.tload)
+            for idx in range(4):
+                self.tratio[idx] = calc.force_ratio(self.tload[idx], sum_load)
             self.update()
 
     def paintEvent(self, event):
@@ -180,9 +181,3 @@ class Realtime(Overlay):
             Qt.AlignRight | Qt.AlignVCenter,
             f"{display_text[3]:.0f}"
         )
-
-    # Additional methods
-    @staticmethod
-    def tyre_load_ratio(value, total):
-        """Tyre load ratio"""
-        return round(calc.force_ratio(value, total), 2)

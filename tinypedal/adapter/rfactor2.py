@@ -91,10 +91,10 @@ class Brake(DataAdapter):
         """Brake bias front"""
         return 1 - chknm(self.info.rf2TeleVeh(index).mRearBrakeBias)
 
-    def pressure(self, index: int | None = None) -> list[float]:
+    def pressure(self, index: int | None = None, scale: int = 1) -> list[float]:
         """Brake pressure"""
         return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mBrakePressure)
-                for data in range(4)]
+                * scale for data in range(4)]
 
     def temperature(self, index: int | None = None) -> list[float]:
         """Brake temperature"""
@@ -471,8 +471,15 @@ class Tyre(DataAdapter):
                 chknm(self.info.rf2TeleVeh(index).mWheels[3].mTemperature[data]))
                 for data in range(3)]
 
-    def surface_temperature(self, index: int | None = None) -> list[list[float]]:
-        """Tyre surface temperature set"""
+    def surface_temperature_avg(self, index: int | None = None) -> list[float]:
+        """Tyre surface temperature set - average"""
+        return [calc.mean(self.surface_temperature_fl(index)),
+                calc.mean(self.surface_temperature_fr(index)),
+                calc.mean(self.surface_temperature_rl(index)),
+                calc.mean(self.surface_temperature_rr(index))]
+
+    def surface_temperature_ico(self, index: int | None = None) -> list[list[float]]:
+        """Tyre surface temperature set - inner,center,outer"""
         return [self.surface_temperature_fl(index),
                 self.surface_temperature_fr(index),
                 self.surface_temperature_rl(index),
@@ -502,8 +509,15 @@ class Tyre(DataAdapter):
                 chknm(self.info.rf2TeleVeh(index).mWheels[3].mTireInnerLayerTemperature[data]))
                 for data in range(3)]
 
-    def inner_temperature(self, index: int | None = None) -> list[list[float]]:
-        """Tyre inner temperature set"""
+    def inner_temperature_avg(self, index: int | None = None) -> list[float]:
+        """Tyre inner temperature set - average"""
+        return [calc.mean(self.inner_temperature_fl(index)),
+                calc.mean(self.inner_temperature_fr(index)),
+                calc.mean(self.inner_temperature_rl(index)),
+                calc.mean(self.inner_temperature_rr(index))]
+
+    def inner_temperature_ico(self, index: int | None = None) -> list[list[float]]:
+        """Tyre inner temperature set - inner,center,outer"""
         return [self.inner_temperature_fl(index),
                 self.inner_temperature_fr(index),
                 self.inner_temperature_rl(index),
@@ -519,10 +533,10 @@ class Tyre(DataAdapter):
         return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mTireLoad)
                 for data in range(4)]
 
-    def wear(self, index: int | None = None) -> list[float]:
+    def wear(self, index: int | None = None, scale: int = 1) -> list[float]:
         """Tyre wear"""
         return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mWear)
-                for data in range(4)]
+                * scale for data in range(4)]
 
     def carcass_temperature(self, index: int | None = None) -> list[float]:
         """Tyre carcass temperature"""

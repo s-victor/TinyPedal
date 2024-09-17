@@ -132,7 +132,7 @@ class Realtime(Overlay):
             btemp = api.read.brake.temperature()
             for idx in range(4):
                 self.update_btemp(self.bar_btemp[idx], btemp[idx], self.last_btemp[idx])
-            self.last_btemp = btemp
+                self.last_btemp[idx] = btemp[idx]
 
             # Brake average temperature
             if self.wcfg["show_average"]:

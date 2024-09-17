@@ -52,8 +52,7 @@ class Realtime(Overlay):
         bar_gap = self.wcfg["bar_gap"]
         self.bar_width = max(self.wcfg["bar_width"], 20)
         self.bar_height = int(font_m.capital + pady * 2)
-        self.max_range = max(int(self.wcfg["position_max_range"]), 10)
-        self.width_scale = self.bar_width / self.max_range
+        self.width_scale = self.bar_width / max(int(self.wcfg["position_max_range"]), 10)
 
         self.rect_bg_fl = QRectF(
             0,
@@ -141,10 +140,10 @@ class Realtime(Overlay):
         self.susp_pos_rl.setX(self.bar_width - abs(self.pos_raw[2]) * self.width_scale)
         self.susp_pos_rr.setWidth(abs(self.pos_raw[3]) * self.width_scale)
 
-        painter.fillRect(self.susp_pos_fl, self.color_pos(self.pos_raw[0]))
-        painter.fillRect(self.susp_pos_fr, self.color_pos(self.pos_raw[1]))
-        painter.fillRect(self.susp_pos_rl, self.color_pos(self.pos_raw[2]))
-        painter.fillRect(self.susp_pos_rr, self.color_pos(self.pos_raw[3]))
+        painter.fillRect(self.susp_pos_fl, self.color_pos(0))
+        painter.fillRect(self.susp_pos_fr, self.color_pos(1))
+        painter.fillRect(self.susp_pos_rl, self.color_pos(2))
+        painter.fillRect(self.susp_pos_rr, self.color_pos(3))
 
     def draw_readings(self, painter):
         """Draw readings"""
@@ -172,8 +171,8 @@ class Realtime(Overlay):
         )
 
     # Additional methods
-    def color_pos(self, value):
+    def color_pos(self, index):
         """Set suspension position color"""
-        if value < 0:
+        if self.pos_raw[index] < 0:
             return self.wcfg["negative_position_color"]
         return self.wcfg["positive_position_color"]

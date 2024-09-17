@@ -147,11 +147,11 @@ class Realtime(Overlay):
                         tcmpd[cmpd_idx],
                         self.last_tcmpd[cmpd_idx]
                     )
-                self.last_tcmpd = tcmpd
+                    self.last_tcmpd[cmpd_idx] = tcmpd[cmpd_idx]
 
             if self.wcfg["show_inner_center_outer"]:
                 # Surface temperature
-                stemp = api.read.tyre.surface_temperature()
+                stemp = api.read.tyre.surface_temperature_ico()
                 for tyre_idx in range(4):  # 0 - fl, 1 - fr, 2 - rl, 3 - rr
                     for patch_idx in range(3):  # 0 1 2 / 7 8 9
                         self.update_stemp(
@@ -159,11 +159,11 @@ class Realtime(Overlay):
                             stemp[tyre_idx][patch_idx],
                             self.last_stemp[tyre_idx][patch_idx]
                         )
-                self.last_stemp = stemp
+                        self.last_stemp[tyre_idx][patch_idx] = stemp[tyre_idx][patch_idx]
 
                 # Inner layer temperature
                 if self.wcfg["show_innerlayer"]:
-                    itemp = api.read.tyre.inner_temperature()
+                    itemp = api.read.tyre.inner_temperature_ico()
                     for tyre_idx in range(4):
                         for patch_idx in range(3):
                             self.update_itemp(
@@ -171,28 +171,28 @@ class Realtime(Overlay):
                                 itemp[tyre_idx][patch_idx],
                                 self.last_itemp[tyre_idx][patch_idx]
                             )
-                    self.last_itemp = itemp
+                            self.last_itemp[tyre_idx][patch_idx] = itemp[tyre_idx][patch_idx]
             else:
                 # Surface temperature
-                stemp = tuple(map(calc.mean, api.read.tyre.surface_temperature()))
+                stemp = api.read.tyre.surface_temperature_avg()
                 for tyre_idx in range(4):  # 0 - fl, 1 - fr, 2 - rl, 3 - rr
                     self.update_stemp(
                         self.bar_stemp[tyre_idx],
                         stemp[tyre_idx],
                         self.last_stemp[tyre_idx]
                     )
-                self.last_stemp = stemp
+                    self.last_stemp[tyre_idx] = stemp[tyre_idx]
 
                 # Inner layer temperature
                 if self.wcfg["show_innerlayer"]:
-                    itemp = tuple(map(calc.mean, api.read.tyre.inner_temperature()))
+                    itemp = api.read.tyre.inner_temperature_avg()
                     for tyre_idx in range(4):
                         self.update_itemp(
                             self.bar_itemp[tyre_idx],
                             itemp[tyre_idx],
                             self.last_itemp[tyre_idx]
                         )
-                    self.last_itemp = itemp
+                        self.last_itemp[tyre_idx] = itemp[tyre_idx]
 
     # GUI update methods
     def update_stemp(self, target_bar, curr, last):

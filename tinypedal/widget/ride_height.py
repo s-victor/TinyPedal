@@ -52,8 +52,7 @@ class Realtime(Overlay):
         bar_gap = self.wcfg["bar_gap"]
         self.bar_width = max(self.wcfg["bar_width"], 20)
         self.bar_height = int(font_m.capital + pady * 2)
-        self.max_range = max(int(self.wcfg["ride_height_max_range"]), 10)
-        self.width_scale = self.bar_width / self.max_range
+        self.width_scale = self.bar_width / max(int(self.wcfg["ride_height_max_range"]), 10)
         self.ride_height_offset = (
             self.wcfg["ride_height_offset_front_left"],
             self.wcfg["ride_height_offset_front_right"],
@@ -134,22 +133,10 @@ class Realtime(Overlay):
     def draw_background(self, painter):
         """Draw background"""
         painter.setPen(Qt.NoPen)
-        painter.fillRect(
-            self.rect_bg_fl,
-            self.color_rideh(self.ride_height[0], self.ride_height_offset[0])
-        )
-        painter.fillRect(
-            self.rect_bg_fr,
-            self.color_rideh(self.ride_height[1], self.ride_height_offset[1])
-        )
-        painter.fillRect(
-            self.rect_bg_rl,
-            self.color_rideh(self.ride_height[2], self.ride_height_offset[2])
-        )
-        painter.fillRect(
-            self.rect_bg_rr,
-            self.color_rideh(self.ride_height[3], self.ride_height_offset[3])
-        )
+        painter.fillRect(self.rect_bg_fl, self.color_rideh(0))
+        painter.fillRect(self.rect_bg_fr, self.color_rideh(1))
+        painter.fillRect(self.rect_bg_rl, self.color_rideh(2))
+        painter.fillRect(self.rect_bg_rr, self.color_rideh(3))
 
     def draw_ride_height(self, painter):
         """Draw ride height"""
@@ -190,8 +177,8 @@ class Realtime(Overlay):
         )
 
     # Additional methods
-    def color_rideh(self, value, offset):
+    def color_rideh(self, index):
         """Ride height indicator color"""
-        if value > offset:
+        if self.ride_height[index] > self.ride_height_offset[index]:
             return self.wcfg["bkg_color"]
         return self.wcfg["warning_color_bottoming"]

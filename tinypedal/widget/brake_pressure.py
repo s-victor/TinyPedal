@@ -100,14 +100,14 @@ class Realtime(Overlay):
 
         # Last data
         self.bpres = [0] * 4
-        self.last_bpres = [None] * 4
+        self.last_bpres = [0] * 4
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
 
-            # Brake pressure
-            self.bpres = tuple(map(self.brake_pressure_units, api.read.brake.pressure()))
+            # Brake pressure (*100 for output)
+            self.bpres = api.read.brake.pressure(scale=100)
             self.update_bpres(self.bpres, self.last_bpres)
             self.last_bpres = self.bpres
 
@@ -170,9 +170,3 @@ class Realtime(Overlay):
             Qt.AlignRight | Qt.AlignVCenter,
             f"{self.bpres[3]:.0f}"
         )
-
-    # Additional methods
-    @staticmethod
-    def brake_pressure_units(value):
-        """Brake pressure percentage"""
-        return round(value * 100, 1)

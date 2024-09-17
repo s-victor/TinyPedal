@@ -215,7 +215,7 @@ class Realtime(Overlay):
             # Read tyre wear data
             lap_stime = api.read.timing.start()
             lap_etime = api.read.timing.elapsed()
-            wear_curr = tuple(map(self.round2decimal, api.read.tyre.wear()))
+            wear_curr = api.read.tyre.wear(scale=100)
 
             if lap_stime != self.last_lap_stime:
                 self.wear_last_lap = self.wear_curr_lap
@@ -312,11 +312,6 @@ class Realtime(Overlay):
                 column_left + (idx % 2) * column_right)
 
     # Additional methods
-    @staticmethod
-    def round2decimal(value):
-        """Round 2 decimal"""
-        return round(value * 100, 2)
-
     @staticmethod
     def format_num(value):
         """Format number"""

@@ -21,7 +21,6 @@ Tyre carcass temperature Widget
 """
 
 from collections import deque
-from operator import sub as subtract
 
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QGridLayout
@@ -144,7 +143,9 @@ class Realtime(Overlay):
         self.last_ctemp = [-273.15] * 4
         self.last_rtemp = [0] * 4
         self.last_lap_etime = 0
-        self.rtemp_samples = deque([(0,0,0,0) for _ in range(max_samples)], max_samples)
+        self.rtemp_samples = deque(
+            [self.last_rtemp[:] for _ in range(max_samples)], max_samples
+        )
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -159,7 +160,7 @@ class Realtime(Overlay):
                         tcmpd[cmpd_idx],
                         self.last_tcmpd[cmpd_idx]
                     )
-                self.last_tcmpd = tcmpd
+                    self.last_tcmpd[cmpd_idx] = tcmpd[cmpd_idx]
 
             # Tyre carcass temperature
             ctemp = api.read.tyre.carcass_temperature()
@@ -169,7 +170,7 @@ class Realtime(Overlay):
                     ctemp[tyre_idx],
                     self.last_ctemp[tyre_idx]
                 )
-            self.last_ctemp = ctemp
+                self.last_ctemp[tyre_idx] = ctemp[tyre_idx]
 
             # Rate of change
             if self.wcfg["show_rate_of_change"]:
@@ -179,14 +180,14 @@ class Realtime(Overlay):
                     self.last_lap_etime = lap_etime  # reset time stamp counter
                     self.rtemp_samples.append(ctemp)
 
-                rtemp = tuple(map(subtract, ctemp, self.rtemp_samples[0]))
                 for tyre_idx in range(4):
+                    rtemp = ctemp[tyre_idx] - self.rtemp_samples[0][tyre_idx]
                     self.update_rtemp(
                         self.bar_rtemp[tyre_idx],
-                        rtemp[tyre_idx],
+                        rtemp,
                         self.last_rtemp[tyre_idx]
                     )
-                self.last_rtemp = rtemp
+                    self.last_rtemp[tyre_idx] = rtemp
 
     # GUI update methods
     def update_ctemp(self, target_bar, curr, last):

@@ -130,17 +130,19 @@ class Realtime(Overlay):
 
             # Camber
             if self.wcfg["show_camber"]:
-                camber = tuple(map(self.round2decimal, api.read.wheel.camber()))
+                camber = api.read.wheel.camber()
                 for idx in range(4):
+                    camber[idx] = round(calc.rad2deg(camber[idx]), 2)
                     self.update_wheel(self.bar_camber[idx], camber[idx], self.last_camber[idx])
-                self.last_camber = camber
+                    self.last_camber[idx] = camber[idx]
 
             # Toe in
             if self.wcfg["show_toe_in"]:
-                toein = tuple(map(self.round2decimal, api.read.wheel.toe_symmetric()))
+                toein = api.read.wheel.toe_symmetric()
                 for idx in range(4):
+                    toein[idx] = round(calc.rad2deg(toein[idx]), 2)
                     self.update_wheel(self.bar_toein[idx], toein[idx], self.last_toein[idx])
-                self.last_toein = toein
+                    self.last_toein[idx] = toein[idx]
 
     # GUI update methods
     def update_wheel(self, target_bar, curr, last):
@@ -158,9 +160,3 @@ class Realtime(Overlay):
         for idx in range(4):
             layout.addWidget(bar_set[idx], row_start + (idx > 1),
                 column_left + (idx % 2) * column_right)
-
-    # Additional methods
-    @staticmethod
-    def round2decimal(value):
-        """Round 2 decimal"""
-        return round(calc.rad2deg(value), 2)
