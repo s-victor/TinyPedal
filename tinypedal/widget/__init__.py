@@ -47,6 +47,7 @@ from . import (
     heading,
     instrument,
     lap_time_history,
+    laps_and_position,
     navigation,
     p2p,
     pedal,

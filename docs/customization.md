@@ -1423,6 +1423,22 @@ Show virtual energy consumption instead of fuel consumption if available. This o
 Show empty lap time history. Default is `false`, which hides empty rows.
 
 
+## Laps and position
+**This widget displays lap number, driver overall position, position in class info.**
+
+    show_lap_number
+Show your current lap number & max laps (if available).
+
+    bkg_color_maxlap_warn
+Set warning color that shows 1 lap before exceeding max-lap in qualify (or indicates the last lap of a lap-type race).
+
+    show_position_overall
+Show your current overall position against all drivers in a session.
+
+    show_position_in_class
+Show your current position in class against all drivers from the same class.
+
+
 ## Navigation
 **This widget displays a zoomed navigation map that centered on player's vehicle. Note: at least one complete & valid lap is required to generate map.**
 
@@ -1916,15 +1932,6 @@ Set clock format string. To show seconds, add `%S`, such as `%H:%M:%S %p`. See [
 
     show_session_timer
 Show session timer, accuracy may be limited by specific sim API.
-
-    show_lapnumber
-Show your current lap number & max laps (if available).
-
-    bkg_color_maxlap_warn
-Set warning color that shows 1 lap before exceeding max-lap in qualify (or indicates the last lap of a lap-type race).
-
-    show_position
-Show your current position against all drivers in a session.
 
 
 ## Speedometer

@@ -71,10 +71,20 @@ WIP
     User may need to edit old value "0" to "1" to display horizontal layout.
   - Wheel slip warning indicator now only shows under acceleration.
 
+* [New]Laps and position Widget
+  - Add "Laps and position Widget" that shows lap number (progression), driver overall position,
+    and position in class info, with customizable layout and prefix text.
+
 * P2P Widget
   - Replaced old "font_color_inactive" and "bkg_color_inactive" color settings with new cooldown
     "font_color_battery_cooldown, bkg_color_battery_cooldown" for battery charge, and
     "font_color_activation_cooldown, bkg_color_activation_cooldown" for activation timer.
+
+* Session Widget
+  - Removed "lap number" and "driver position" readings. Those two readings are now included in
+    the new "Laps and position Widget".
+  - Add "layout" option, which sets display orientation.
+    Default is horizontal. Set "0" to show vertically.
 
 * Tyre wear Widget
   - Now uses laptime pace for calculating "tyre lifespan in minutes".
