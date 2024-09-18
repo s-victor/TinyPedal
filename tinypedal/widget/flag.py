@@ -29,6 +29,7 @@ from ..module_info import minfo
 from ._base import Overlay
 
 WIDGET_NAME = "flag"
+MAGIC_NUM = 99999
 
 
 class Realtime(Overlay):
@@ -228,7 +229,8 @@ class Realtime(Overlay):
         self.checked = False
         self.last_in_pits = 0
         self.pit_timer_start = 0
-        self.last_pitting_state = 0, -1
+        self.last_pit_time = 0
+        self.last_pitting_state = None
         self.last_fuel_usage = None
         self.last_limiter_state = None
         self.blue_flag_timer_start = 0
@@ -320,13 +322,13 @@ class Realtime(Overlay):
     def update_pit_timer(self, curr, last):
         """Pit timer"""
         if curr != last:  # timer
-            if curr[0] != -1:
-                if curr[1]:  # finished pits
+            if curr != MAGIC_NUM:
+                if curr < 0:  # finished pits
                     color = self.bar_style_pit_timer[1]
-                    state = f"F{curr[0]: >6.2f}"[:7]
+                    state = f"F{-curr: >6.2f}"[:7]
                 elif api.read.session.pit_open():
                     color = self.bar_style_pit_timer[0]
-                    state = f"P{curr[0]: >6.2f}"[:7]
+                    state = f"P{curr: >6.2f}"[:7]
                 else:  # pit closed
                     color = self.bar_style_pit_timer[2]
                     state = self.wcfg["pit_closed_text"]
@@ -357,7 +359,7 @@ class Realtime(Overlay):
     def update_blueflag(self, curr, last):
         """Blue flag"""
         if curr != last:
-            if curr != 99999:
+            if curr != MAGIC_NUM:
                 self.bar_blueflag.setText(f"BLUE{curr:3.0f}"[:7])
                 self.bar_blueflag.show()
             else:
@@ -366,7 +368,7 @@ class Realtime(Overlay):
     def update_yellowflag(self, curr, last):
         """Yellow flag"""
         if curr != last:
-            if curr != 99999:
+            if curr != MAGIC_NUM:
                 if self.cfg.units["distance_unit"] == "Feet":
                     yelw_text = f"Y{curr * 3.281: >4.0f}ft"[:7]
                 else:  # meter
@@ -380,12 +382,12 @@ class Realtime(Overlay):
     def update_startlights(self, curr, last):
         """Start lights"""
         if curr != last:
-            if curr[0] == 0:
+            if curr > 0:
                 self.bar_startlights.setText(
-                    f"{self.wcfg['red_lights_text'][:6]: <6}{curr[1]}")
+                    f"{self.wcfg['red_lights_text'][:6]: <6}{curr}")
                 self.bar_startlights.setStyleSheet(self.bar_style_startlights[0])
                 self.bar_startlights.show()
-            elif curr[0] == 1:
+            elif curr == 0:
                 self.bar_startlights.setText(self.wcfg["green_flag_text"])
                 self.bar_startlights.setStyleSheet(self.bar_style_startlights[1])
                 self.bar_startlights.show()
@@ -395,8 +397,8 @@ class Realtime(Overlay):
     def update_traffic(self, curr, last):
         """Incoming traffic"""
         if curr != last:
-            if curr[1]:
-                self.bar_traffic.setText(f"≥{curr[0]: >6.1f}"[:7])
+            if curr != MAGIC_NUM:
+                self.bar_traffic.setText(f"≥{curr: >6.1f}"[:7])
                 self.bar_traffic.show()
             else:
                 self.bar_traffic.hide()
@@ -404,10 +406,8 @@ class Realtime(Overlay):
     def update_pit_request(self, curr, last):
         """Pit request"""
         if curr != last:
-            if curr[0] == 1:
-                countdown = f"{curr[1]:.2f}"[:3].strip(".")
-                est_laps = f"{curr[2]:.2f}"[:3].strip(".")
-                self.bar_pit_request.setText(f"{countdown: <3}≤{est_laps: >3}")
+            if curr != "":
+                self.bar_pit_request.setText(curr)
                 self.bar_pit_request.show()
             else:
                 self.bar_pit_request.hide()
@@ -450,6 +450,7 @@ class Realtime(Overlay):
             (not self.wcfg["show_low_fuel_for_race_only"] or
             self.wcfg["show_low_fuel_for_race_only"] and in_race)):
             return ""
+
         if prefix == "LF":
             return f"{prefix}{self.fuel_units(amount_curr): >5.2f}"[:7]
         return f"{prefix}{amount_curr: >5.2f}"[:7]
@@ -463,35 +464,33 @@ class Realtime(Overlay):
             self.wcfg["traffic_pitout_duration"] < lap_etime - self.pitout_timer_start):
             self.pitout_timer_start = 0
 
-        if self.wcfg["traffic_low_speed_threshold"]:
-            is_low_speed = api.read.vehicle.speed() < self.wcfg["traffic_low_speed_threshold"]
-        else:
-            is_low_speed = False
-
-        any_traffic = bool(
-            0 < minfo.vehicles.nearestTraffic < self.wcfg["traffic_maximum_time_gap"]
-            and (is_low_speed or in_pits or self.pitout_timer_start))
-
-        if any_traffic:
-            return round(minfo.vehicles.nearestTraffic, 1), any_traffic
-        return 99999, any_traffic
+        is_low_speed = (
+            self.wcfg["traffic_low_speed_threshold"] > 0 and
+            api.read.vehicle.speed() < self.wcfg["traffic_low_speed_threshold"]
+        )
+        if (0 < minfo.vehicles.nearestTraffic < self.wcfg["traffic_maximum_time_gap"] and
+            (is_low_speed or in_pits or self.pitout_timer_start)):
+            return round(minfo.vehicles.nearestTraffic, 1)
+        return MAGIC_NUM
 
     def pit_in_countdown(self):
-        """Pit in countdown(laps)"""
-        pit_state = api.read.vehicle.pit_state()
-        if pit_state:
-            if minfo.restapi.maxVirtualEnergy:
-                est_laps = min(minfo.fuel.estimatedLaps, minfo.energy.estimatedLaps)
-            else:
-                est_laps = minfo.fuel.estimatedLaps
-            cd_laps = calc.pit_in_countdown_laps(est_laps, api.read.lap.progress())
-            return pit_state, round(cd_laps, 2), round(est_laps, 2)
-        return pit_state, 99999, 99999
+        """Pit in countdown (laps)"""
+        if api.read.vehicle.pit_state() != 1:
+            return ""
+
+        if minfo.restapi.maxVirtualEnergy:
+            est_laps = min(minfo.fuel.estimatedLaps, minfo.energy.estimatedLaps)
+        else:
+            est_laps = minfo.fuel.estimatedLaps
+        cd_laps = calc.pit_in_countdown_laps(est_laps, api.read.lap.progress())
+
+        cd_laps = f"{cd_laps:.2f}"[:3].strip(".")
+        est_laps = f"{est_laps:.2f}"[:3].strip(".")
+        return f"{cd_laps: <3}≤{est_laps: >3}"
 
     def pit_timer_state(self, in_pits, lap_etime):
         """Pit timer state"""
-        pit_timer = -1
-        pit_timer_highlight = False
+        pit_timer = MAGIC_NUM
 
         if in_pits > self.last_in_pits:
             self.pit_timer_start = lap_etime
@@ -499,13 +498,13 @@ class Realtime(Overlay):
         if self.pit_timer_start:
             if in_pits:
                 pit_timer = round(lap_etime - self.pit_timer_start, 2)
-            elif (lap_etime - self.last_pitting_state[0] - self.pit_timer_start
+                self.last_pit_time = pit_timer
+            elif (lap_etime - self.last_pit_time - self.pit_timer_start
                 <= self.wcfg["pit_time_highlight_duration"]):
-                pit_timer = self.last_pitting_state[0] + 0.000001
-                pit_timer_highlight = True
+                pit_timer = -self.last_pit_time  # set negative for highlighting
             else:
                 self.pit_timer_start = 0  # stop timer
-        return pit_timer, pit_timer_highlight
+        return pit_timer
 
     def green_flag_state(self, lap_etime):
         """Green flag state"""
@@ -515,14 +514,14 @@ class Realtime(Overlay):
         else:
             start_lights = 0
 
-        start_timer = max(self.last_lap_stime - lap_etime, -self.wcfg["green_flag_duration"])
-        if start_timer > 0:
-            green = 0  # enable red lights
-        elif -start_timer == self.wcfg["green_flag_duration"]:
-            green = 2  # disable green flag
+        start_timer = lap_etime - self.last_lap_stime
+        if start_timer < 0:
+            green = start_lights  # enable red lights
+        elif 0 <= start_timer <= self.wcfg["green_flag_duration"]:
+            green = 0  # enable green flag
         else:
-            green = 1  # enable green flag
-        return green, start_lights
+            green = -1  # disable green flag
+        return green
 
     def yellow_flag_state(self, in_race):
         """Yellow flag state"""
@@ -530,13 +529,13 @@ class Realtime(Overlay):
             if (api.read.session.yellow_flag() and
                 abs(minfo.vehicles.nearestYellow) < self.wcfg["yellow_flag_maximum_range"]):
                 return round(abs(minfo.vehicles.nearestYellow))
-        return 99999
+        return MAGIC_NUM
 
     def blue_flag_state(self, in_race, lap_etime):
         """Blue flag state"""
         if in_race or not self.wcfg["show_blue_flag_for_race_only"]:
             if api.read.session.blue_flag():
-                if self.last_blue_state == 99999:
+                if self.last_blue_state == MAGIC_NUM:
                     self.blue_flag_timer_start = lap_etime
                 return round(lap_etime - self.blue_flag_timer_start)
-        return 99999
+        return MAGIC_NUM
