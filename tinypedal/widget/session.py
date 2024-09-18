@@ -20,11 +20,10 @@
 Session Widget
 """
 
-from functools import partial
 from time import strftime
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from ..api_control import api
@@ -52,9 +51,8 @@ class Realtime(Overlay):
             self.wcfg["session_text_practice"],
             self.wcfg["session_text_qualify"],
             self.wcfg["session_text_warmup"],
-            self.wcfg["session_text_race"]
-            )
-        self.bar_min_width = partial(calc.qss_min_width, font_width=font_m.width, padding=bar_padx)
+            self.wcfg["session_text_race"],
+        )
 
         # Base style
         self.setStyleSheet(
@@ -68,92 +66,63 @@ class Realtime(Overlay):
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_sesn = self.wcfg["column_index_session_name"]
-        column_sysc = self.wcfg["column_index_system_clock"]
-        column_sest = self.wcfg["column_index_session_time"]
-        column_lapn = self.wcfg["column_index_lapnumber"]
-        column_plac = self.wcfg["column_index_position"]
+        self.setLayout(layout)
 
         # Session name
         if self.wcfg["show_session_name"]:
-            name_text = self.wcfg["session_text_testday"]
-            bar_style_name = self.bar_min_width(
-                len(name_text),
-                f"color: {self.wcfg['font_color_session_name']};"
-                f"background: {self.wcfg['bkg_color_session_name']};"
+            text_session_name = self.session_name_list[0]
+            bar_style_session_name = self.set_qss(
+                fg_color=self.wcfg["font_color_session_name"],
+                bg_color=self.wcfg["bkg_color_session_name"]
             )
-            self.bar_session_name = QLabel(name_text)
-            self.bar_session_name.setAlignment(Qt.AlignCenter)
-            self.bar_session_name.setStyleSheet(bar_style_name)
+            self.bar_session_name = self.set_qlabel(
+                text=text_session_name,
+                style=bar_style_session_name,
+                width=font_m.width * max(len(name) for name in self.session_name_list) + bar_padx,
+            )
+            self.set_primary_orient(
+                target=self.bar_session_name,
+                column=self.wcfg["column_index_session_name"],
+            )
 
         # System clock
         if self.wcfg["show_system_clock"]:
-            clock_text = strftime(self.wcfg["system_clock_format"])
-            bar_style_clock = self.bar_min_width(
-                len(clock_text),
-                f"color: {self.wcfg['font_color_system_clock']};"
-                f"background: {self.wcfg['bkg_color_system_clock']};"
+            text_system_clock = strftime(self.wcfg["system_clock_format"])
+            bar_style_system_clock = self.set_qss(
+                fg_color=self.wcfg["font_color_system_clock"],
+                bg_color=self.wcfg["bkg_color_system_clock"]
             )
-            self.bar_system_clock = QLabel(clock_text)
-            self.bar_system_clock.setAlignment(Qt.AlignCenter)
-            self.bar_system_clock.setStyleSheet(bar_style_clock)
+            self.bar_system_clock = self.set_qlabel(
+                text=text_system_clock,
+                style=bar_style_system_clock,
+                width=font_m.width * len(text_system_clock) + bar_padx,
+            )
+            self.set_primary_orient(
+                target=self.bar_system_clock,
+                column=self.wcfg["column_index_system_clock"],
+            )
 
         # Session time
         if self.wcfg["show_session_time"]:
-            time_text = calc.sec2sessiontime(0)
-            bar_style_time = self.bar_min_width(
-                len(time_text),
-                f"color: {self.wcfg['font_color_session_time']};"
-                f"background: {self.wcfg['bkg_color_session_time']};"
+            text_session_time = calc.sec2sessiontime(0)
+            bar_style_session_time = self.set_qss(
+                fg_color=self.wcfg["font_color_session_time"],
+                bg_color=self.wcfg["bkg_color_session_time"]
             )
-            self.bar_session_time = QLabel(time_text)
-            self.bar_session_time.setAlignment(Qt.AlignCenter)
-            self.bar_session_time.setStyleSheet(bar_style_time)
-
-        # Lap number
-        if self.wcfg["show_lapnumber"]:
-            lapnumber_text = f"{self.wcfg['prefix_lap_number']}0.00/-"
-            bar_style_lapnumber = self.bar_min_width(
-                len(lapnumber_text),
-                f"color: {self.wcfg['font_color_lapnumber']};"
-                f"background: {self.wcfg['bkg_color_lapnumber']};"
+            self.bar_session_time = self.set_qlabel(
+                text=text_session_time,
+                style=bar_style_session_time,
+                width=font_m.width * len(text_session_time) + bar_padx,
             )
-            self.bar_lapnumber = QLabel(lapnumber_text)
-            self.bar_lapnumber.setAlignment(Qt.AlignCenter)
-            self.bar_lapnumber.setStyleSheet(bar_style_lapnumber)
-
-        # Driver place & total vehicles
-        if self.wcfg["show_position"]:
-            position_text = f"{self.wcfg['prefix_position']}00/00"
-            bar_style_position = self.bar_min_width(
-                len(position_text),
-                f"color: {self.wcfg['font_color_position']};"
-                f"background: {self.wcfg['bkg_color_position']};"
+            self.set_primary_orient(
+                target=self.bar_session_time,
+                column=self.wcfg["column_index_session_time"],
             )
-            self.bar_position = QLabel(position_text)
-            self.bar_position.setAlignment(Qt.AlignCenter)
-            self.bar_position.setStyleSheet(bar_style_position)
-
-        # Set layout
-        if self.wcfg["show_session_name"]:
-            layout.addWidget(self.bar_session_name, 0, column_sesn)
-        if self.wcfg["show_system_clock"]:
-            layout.addWidget(self.bar_system_clock, 0, column_sysc)
-        if self.wcfg["show_session_time"]:
-            layout.addWidget(self.bar_session_time, 0, column_sest)
-        if self.wcfg["show_lapnumber"]:
-            layout.addWidget(self.bar_lapnumber, 0, column_lapn)
-        if self.wcfg["show_position"]:
-            layout.addWidget(self.bar_position, 0, column_plac)
-        self.setLayout(layout)
 
         # Last data
         self.last_session_name = None
         self.last_system_time = None
         self.last_session_time = None
-        self.last_lap_into = None
-        self.last_place = None
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -177,30 +146,11 @@ class Realtime(Overlay):
                 self.update_session_time(session_time, self.last_session_time)
                 self.last_session_time = session_time
 
-            # Lap number
-            if self.wcfg["show_lapnumber"]:
-                lap_number = api.read.lap.number()
-                lap_max = api.read.lap.maximum()
-                lap_into = lap_number + calc.lap_progress_correction(
-                    api.read.lap.progress(), api.read.timing.current_laptime())
-                self.update_lapnumber(lap_into, self.last_lap_into, lap_number, lap_max)
-                self.last_lap_into = lap_into
-
-            # Driver place & total vehicles
-            if self.wcfg["show_position"]:
-                place = (api.read.vehicle.place(), api.read.vehicle.total_vehicles())
-                self.update_position(place, self.last_place)
-                self.last_place = place
-
     # GUI update methods
     def update_session_name(self, curr, last):
         """Session name"""
         if curr != last:
             self.bar_session_name.setText(curr)
-            self.bar_session_name.setStyleSheet(self.bar_min_width(
-                len(curr),
-                f"color: {self.wcfg['font_color_session_name']};"
-                f"background: {self.wcfg['bkg_color_session_name']};"))
 
     def update_system_clock(self, curr, last):
         """System Clock"""
@@ -210,29 +160,6 @@ class Realtime(Overlay):
     def update_session_time(self, curr, last):
         """Session time"""
         if curr != last:
-            self.bar_session_time.setText(calc.sec2sessiontime(max(curr, 0)))
-
-    def update_lapnumber(self, curr, last, lap_num, lap_max):
-        """Lap number"""
-        if curr != last:
-            lap_total = lap_max if api.read.session.lap_type() else "-"
-            lap_text = f"{self.wcfg['prefix_lap_number']}{curr:02.2f}/{lap_total}"
-
-            self.bar_lapnumber.setText(lap_text)
-            self.bar_lapnumber.setStyleSheet(self.bar_min_width(
-                len(lap_text),
-                f"color: {self.wcfg['font_color_lapnumber']};"
-                f"background: {self.maxlap_warning(lap_num - lap_max)};"))
-
-    def update_position(self, curr, last):
-        """Driver place & total vehicles"""
-        if curr != last:
-            self.bar_position.setText(
-                f"{self.wcfg['prefix_position']}{curr[0]:02.0f}/{curr[1]:02.0f}")
-
-    # Additional methods
-    def maxlap_warning(self, lap_diff):
-        """Max lap warning"""
-        if lap_diff >= -1:
-            return self.wcfg["bkg_color_maxlap_warn"]
-        return self.wcfg["bkg_color_lapnumber"]
+            if curr < 0:
+                curr = 0
+            self.bar_session_time.setText(calc.sec2sessiontime(curr))

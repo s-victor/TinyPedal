@@ -295,8 +295,8 @@ def clock_time(seconds: float, start: int = 0, scale: int = 1) -> float:
 
 
 def sec2sessiontime(seconds: float) -> str:
-    """Session time (hour:min:sec.ms)"""
-    return f"{seconds // 3600:01.0f}:{seconds // 60 % 60:02.0f}:{min(seconds % 60, 59):02.0f}"
+    """Session time (hour:min:sec)"""
+    return f"{seconds // 3600:02.0f}:{seconds // 60 % 60:02.0f}:{min(seconds % 60, 59):02.0f}"
 
 
 def sec2laptime(seconds: float) -> str:
