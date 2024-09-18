@@ -192,13 +192,13 @@ def calc_sectors(output, best_s_tb, best_s_pb):
 
             # Output sectors data
             if output:
+                output.noDeltaSector = no_delta_s
                 output.sectorIndex = sector_idx
-                output.deltaSectorBestPB = delta_s_pb
-                output.deltaSectorBestTB = delta_s_tb
+                output.sectorPrev = prev_s
                 output.sectorBestTB = best_s_tb
                 output.sectorBestPB = best_s_pb
-                output.sectorPrev = prev_s
-                output.noDeltaSector = no_delta_s
+                output.deltaSectorBestPB = delta_s_pb
+                output.deltaSectorBestTB = delta_s_tb
 
 
 def load_sectors(filepath:str, combo: str, session_id: tuple):

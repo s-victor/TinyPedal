@@ -139,13 +139,24 @@ class RelativeInfo:
 @dataclass
 class SectorsInfo:
     """Sectors module output data"""
+    noDeltaSector: bool = True
     sectorIndex: int = -1
-    deltaSectorBestPB: list | None = None
-    deltaSectorBestTB: list | None = None
+    sectorPrev: list | None = None
     sectorBestTB: list | None = None
     sectorBestPB: list | None = None
-    sectorPrev: list | None = None
-    noDeltaSector: bool = True
+    deltaSectorBestPB: list | None = None
+    deltaSectorBestTB: list | None = None
+
+    def __post_init__(self):
+        """Initialize list to avoid out of range
+
+        Those are placehold, will be overwritten by Sectors module, no copy needed.
+        """
+        self.sectorPrev = [99999,99999,99999]
+        self.sectorBestTB = self.sectorPrev
+        self.sectorBestPB = self.sectorPrev
+        self.deltaSectorBestPB = self.sectorPrev
+        self.deltaSectorBestTB = self.sectorPrev
 
 
 @dataclass

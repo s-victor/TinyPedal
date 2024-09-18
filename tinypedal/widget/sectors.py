@@ -21,7 +21,7 @@ Sectors Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QHBoxLayout, QLabel
+from PySide2.QtWidgets import QGridLayout, QHBoxLayout
 
 from .. import calculation as calc
 from .. import validator as val
@@ -31,6 +31,8 @@ from ._base import Overlay
 
 WIDGET_NAME = "sectors"
 MAGIC_NUM = 99999
+PREV_SECTOR_IDX = (2, 0, 1)
+TEXT_SECTOR = ("S1", "S2", "S3")
 
 
 class Realtime(Overlay):
@@ -47,8 +49,10 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
-        self.bar_width_laptime = f"min-width: {font_m.width * 11 + bar_padx}px;"
-        self.bar_width_gap = f"min-width: {font_m.width * 7 + bar_padx}px;"
+        if self.wcfg["target_laptime"] == "Theoretical":
+            self.prefix_best = "TB"
+        else:
+            self.prefix_best = "PB"
 
         # Base style
         self.setStyleSheet(
@@ -60,63 +64,70 @@ class Realtime(Overlay):
         # Create layout
         layout = QGridLayout()
         layout.setContentsMargins(0,0,0,0)  # remove border
-        layout_laptime = QHBoxLayout()
-        layout_sector = QHBoxLayout()
-        layout_laptime.setSpacing(bar_gap)
-        layout_sector.setSpacing(bar_gap)
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
+        self.setLayout(layout)
 
         # Target time
-        self.bar_time_target = QLabel("  --:--.---")
-        self.bar_time_target.setAlignment(Qt.AlignCenter)
-        self.bar_time_target.setStyleSheet(
-            f"color: {self.wcfg['font_color_target_time']};"
-            f"background: {self.wcfg['bkg_color_target_time']};"
-            f"{self.bar_width_laptime}"
+        layout_laptime = QHBoxLayout()
+        layout_laptime.setSpacing(bar_gap)
+
+        self.bar_style_time_target = (
+            self.set_qss(
+                fg_color=self.wcfg["font_color_time_loss"],
+                bg_color=self.wcfg["bkg_color_target_time"]),
+            self.set_qss(
+                fg_color=self.wcfg["font_color_time_gain"],
+                bg_color=self.wcfg["bkg_color_target_time"]),
+            self.set_qss(
+                fg_color=self.wcfg["font_color_target_time"],
+                bg_color=self.wcfg["bkg_color_target_time"])
         )
+        self.bar_time_target = self.set_qlabel(
+            text="  --:--.---",
+            style=self.bar_style_time_target[2],
+            width=font_m.width * 11 + bar_padx,
+        )
+        layout_laptime.addWidget(self.bar_time_target)
 
         # Current time
-        self.bar_time_curr = QLabel("  --:--.---")
-        self.bar_time_curr.setAlignment(Qt.AlignCenter)
-        self.bar_time_curr.setStyleSheet(
-            f"color: {self.wcfg['font_color_current_time']};"
-            f"background: {self.wcfg['bkg_color_current_time']};"
-            f"{self.bar_width_laptime}"
+        bar_style_time_curr = self.set_qss(
+            fg_color=self.wcfg["font_color_current_time"],
+            bg_color=self.wcfg["bkg_color_current_time"]
         )
+        self.bar_time_curr = self.set_qlabel(
+            text="  --:--.---",
+            style=bar_style_time_curr,
+            width=font_m.width * 11 + bar_padx,
+        )
+        layout_laptime.addWidget(self.bar_time_curr)
 
         # Gap to best sector time
-        self.bar_s1_gap = QLabel("S1")
-        self.bar_s1_gap.setAlignment(Qt.AlignCenter)
-        self.bar_s1_gap.setStyleSheet(
-            f"color: {self.wcfg['font_color_sector']};"
-            f"background: {self.wcfg['bkg_color_sector']};"
-            f"{self.bar_width_gap}"
+        layout_sector = QHBoxLayout()
+        layout_sector.setSpacing(bar_gap)
+
+        self.bar_style_gap = (
+            self.set_qss(
+                fg_color=self.wcfg["font_color_sector_highlighted"],
+                bg_color=self.wcfg["bkg_color_time_loss"]),
+            self.set_qss(
+                fg_color=self.wcfg["font_color_sector_highlighted"],
+                bg_color=self.wcfg["bkg_color_time_gain"]),
+            self.set_qss(
+                fg_color=self.wcfg["font_color_sector"],
+                bg_color=self.wcfg["bkg_color_sector"]),
         )
 
-        self.bar_s2_gap = QLabel("S2")
-        self.bar_s2_gap.setAlignment(Qt.AlignCenter)
-        self.bar_s2_gap.setStyleSheet(
-            f"color: {self.wcfg['font_color_sector']};"
-            f"background: {self.wcfg['bkg_color_sector']};"
-            f"{self.bar_width_gap}"
+        self.bar_time_gap = self.set_qlabel(
+            style=self.bar_style_gap[2],
+            width=font_m.width * 7 + bar_padx,
+            count=3
         )
-
-        self.bar_s3_gap = QLabel("S3")
-        self.bar_s3_gap.setAlignment(Qt.AlignCenter)
-        self.bar_s3_gap.setStyleSheet(
-            f"color: {self.wcfg['font_color_sector']};"
-            f"background: {self.wcfg['bkg_color_sector']};"
-            f"{self.bar_width_gap}"
-        )
+        for idx in range(3):
+            self.bar_time_gap[idx].setText(TEXT_SECTOR[idx])
+            layout_sector.addWidget(self.bar_time_gap[idx])
 
         # Set layout
-        layout_laptime.addWidget(self.bar_time_target)
-        layout_laptime.addWidget(self.bar_time_curr)
-        layout_sector.addWidget(self.bar_s1_gap)
-        layout_sector.addWidget(self.bar_s2_gap)
-        layout_sector.addWidget(self.bar_s3_gap)
-
         if self.wcfg["layout"] == 0:
             # Default layout, sector time above delta
             layout.addLayout(layout_laptime, 0, 1)
@@ -125,7 +136,6 @@ class Realtime(Overlay):
             # Horizontal layout
             layout.addLayout(layout_laptime, 1, 1)
             layout.addLayout(layout_sector, 0, 1)
-        self.setLayout(layout)
 
         # Last data
         self.verified = False  # load & save switch
@@ -137,11 +147,10 @@ class Realtime(Overlay):
         self.last_delta_s_tb = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]
         self.freeze_timer_start = 0              # sector timer start
         self.time_target_text = ""    # target time text
-        self.update_time_target(self.time_target_text)
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active and minfo.sectors.sectorPrev:
+        if self.state.active:
 
             # Read Sector data
             lap_stime = api.read.timing.start()
@@ -172,25 +181,23 @@ class Realtime(Overlay):
                     laptime_curr, True)
 
                 # Update previous & best sector time
-                prev_s_idx = (2,0,1)[minfo.sectors.sectorIndex]
+                prev_s_idx = PREV_SECTOR_IDX[minfo.sectors.sectorIndex]
 
-                self.update_time_target(*self.update_time_gap(
-                    minfo.sectors.deltaSectorBestPB,
-                    minfo.sectors.deltaSectorBestTB,
-                    prev_s_idx))
+                self.update_time_target_gap(
+                    minfo.sectors.deltaSectorBestPB, minfo.sectors.deltaSectorBestTB, prev_s_idx
+                )
 
-                if self.wcfg["target_laptime"] == "Theoretical":
-                    self.update_sector_gap(
-                        f"s{prev_s_idx + 1}_gap",
-                        minfo.sectors.deltaSectorBestTB[prev_s_idx],
-                        self.last_delta_s_tb[prev_s_idx],
-                        minfo.sectors.noDeltaSector)
-                else:
-                    self.update_sector_gap(
-                        f"s{prev_s_idx + 1}_gap",
-                        minfo.sectors.deltaSectorBestPB[prev_s_idx],
-                        self.last_delta_s_pb[prev_s_idx],
-                        minfo.sectors.noDeltaSector)
+                if not minfo.sectors.noDeltaSector:
+                    if self.wcfg["target_laptime"] == "Theoretical":
+                        self.update_sector_gap(
+                            self.bar_time_gap[prev_s_idx],
+                            minfo.sectors.deltaSectorBestTB[prev_s_idx],
+                            self.last_delta_s_tb[prev_s_idx])
+                    else:
+                        self.update_sector_gap(
+                            self.bar_time_gap[prev_s_idx],
+                            minfo.sectors.deltaSectorBestPB[prev_s_idx],
+                            self.last_delta_s_pb[prev_s_idx])
 
                 self.last_delta_s_pb[prev_s_idx] = minfo.sectors.deltaSectorBestPB[prev_s_idx]
                 self.last_delta_s_tb[prev_s_idx] = minfo.sectors.deltaSectorBestTB[prev_s_idx]
@@ -221,56 +228,40 @@ class Realtime(Overlay):
                 self.verified = False  # activate verification when enter track next time
 
     # GUI update methods
-    def update_time_gap(self, delta_pb, delta_tb, sec_index):
-        """Gap to best lap time"""
-        if self.wcfg["target_laptime"] == "Theoretical":
-            time_diff = self.calc_sector_time(delta_tb, sec_index)
-            prefix = "TB"
-        else:
-            time_diff = self.calc_sector_time(delta_pb, sec_index)
-            prefix = "PB"
-
-        text = f"{prefix}{time_diff: >+9.3f}"[:11]
-        color = (f"color: {self.color_delta(time_diff, 1)};"
-                 f"background: {self.wcfg['bkg_color_target_time']};")
-        return text, color
-
-    def update_sector_gap(self, suffix, curr, last, no_time_set=True):
+    def update_sector_gap(self, target_bar, curr, last):
         """Gap to best sector time"""
-        if curr != last and not no_time_set:
-            text = f"{curr:+.3f}"[:7]
-            color = (f"color: {self.wcfg['font_color_sector_highlighted']};"
-                     f"background: {self.color_delta(curr, 0)};")
-            getattr(self, f"bar_{suffix}").setText(text)
-            getattr(self, f"bar_{suffix}").setStyleSheet(
-                f"{color}{self.bar_width_gap}")
+        if curr != last:
+            target_bar.setText(f"{curr:+.3f}"[:7])
+            target_bar.setStyleSheet(self.bar_style_gap[curr < 0])
 
     def update_time_curr(self, sector_idx, prev_s, laptime_curr, freeze=False):
         """Current sector time text"""
         curr_sectortime = laptime_curr
         # Freeze current sector time
         if freeze:
-            prev_sector_idx = (2,0,1)[sector_idx]
+            prev_sector_idx = PREV_SECTOR_IDX[sector_idx]
             if val.sector_time(prev_s[prev_sector_idx]):  # valid previous sector time
-                calc_sectortime = self.calc_sector_time(prev_s, prev_sector_idx)
-                if calc_sectortime < MAGIC_NUM:  # bypass invalid value
-                    curr_sectortime = calc_sectortime
+                sum_sectortime = calc.accumulated_sum(prev_s, prev_sector_idx)
+                if sum_sectortime < MAGIC_NUM:  # bypass invalid value
+                    curr_sectortime = sum_sectortime
         else:
             prev_sector_idx = sector_idx
-        sector_text = ("S1","S2","S3")[prev_sector_idx]
         self.bar_time_curr.setText(
-            f"{sector_text}{calc.sec2laptime(curr_sectortime)[:8]: >9}")
+            f"{TEXT_SECTOR[prev_sector_idx]}{calc.sec2laptime(curr_sectortime)[:8]: >9}")
 
-    def update_time_target(self, time_text, gap_color=False):
+    def update_time_target(self, text_laptime):
         """Target sector time text"""
-        if gap_color:
-            color = gap_color
-        else:
-            color = (f"color: {self.wcfg['font_color_target_time']};"
-                     f"background: {self.wcfg['bkg_color_target_time']};")
+        self.bar_time_target.setText(text_laptime)
+        self.bar_time_target.setStyleSheet(self.bar_style_time_target[2])
 
-        self.bar_time_target.setText(time_text)
-        self.bar_time_target.setStyleSheet(f"{color}{self.bar_width_laptime}")
+    def update_time_target_gap(self, delta_pb, delta_tb, sec_index):
+        """Target sector time gap"""
+        if self.wcfg["target_laptime"] == "Theoretical":
+            sector_gap = calc.accumulated_sum(delta_tb, sec_index)
+        else:
+            sector_gap = calc.accumulated_sum(delta_pb, sec_index)
+        self.bar_time_target.setText(f"{self.prefix_best}{sector_gap: >+9.3f}"[:11])
+        self.bar_time_target.setStyleSheet(self.bar_style_time_target[sector_gap < 0])
 
     def restore_best_sector(self):
         """Restore best sector time"""
@@ -279,28 +270,23 @@ class Realtime(Overlay):
         else:
             sector_time = minfo.sectors.sectorBestPB
         for idx in range(3):
-            text_s = f"S{idx+1}"
+            text_s = TEXT_SECTOR[idx]
             if val.sector_time(sector_time[idx]):
                 text_s = f"{sector_time[idx]:.3f}"[:7]
-
-            getattr(self, f"bar_s{idx+1}_gap").setText(text_s)
-            getattr(self, f"bar_s{idx+1}_gap").setStyleSheet(
-                f"color: {self.wcfg['font_color_sector']};"
-                f"background: {self.wcfg['bkg_color_sector']};"
-                f"{self.bar_width_gap}"
-            )
+            self.bar_time_gap[idx].setText(text_s)
+            self.bar_time_gap[idx].setStyleSheet(self.bar_style_gap[2])
 
     # Sector data update methods
     def set_target_time(self, sec_tb, sec_pb, sec_index):
         """Set target sector time text"""
         # Mode 0 - show theoretical best sector, only update if all sector time is valid
         if self.wcfg["target_laptime"] == "Theoretical":
-            sector_time = self.calc_sector_time(sec_tb, sec_index)
+            sector_time = calc.accumulated_sum(sec_tb, sec_index)
             if sector_time < MAGIC_NUM:  # bypass invalid value
                 return f"TB{calc.sec2laptime(sector_time)[:8]: >9}"
             return "TB   --.---"
         # Mode 1 - show personal best lap sector
-        sector_time = self.calc_sector_time(sec_pb, sec_index)
+        sector_time = calc.accumulated_sum(sec_pb, sec_index)
         if sector_time < MAGIC_NUM:  # bypass invalid value
             return f"PB{calc.sec2laptime(sector_time)[:8]: >9}"
         return "PB   --.---"
@@ -312,26 +298,3 @@ class Realtime(Overlay):
         else:
             max_freeze = 3
         return min(max(self.wcfg["freeze_duration"], 0), max_freeze)
-
-    @staticmethod
-    def calc_sector_time(sec_time, sec_index):
-        """Calculate accumulated sector time"""
-        if sec_index == 1:    # sector 2 sum
-            return sec_time[0] + sec_time[1]
-        if sec_index == 2:  # sector 3 sum
-            return sum(sec_time)
-        return sec_time[0]  # sector 1
-
-    def color_delta(self, seconds, types):
-        """Sector delta color"""
-        if types:  # 1 = foreground
-            if seconds < 0:
-                color = self.wcfg["font_color_time_gain"]
-            else:
-                color = self.wcfg["font_color_time_loss"]
-        else:  # 0 = background
-            if seconds < 0:
-                color = self.wcfg["bkg_color_time_gain"]
-            else:
-                color = self.wcfg["bkg_color_time_loss"]
-        return color

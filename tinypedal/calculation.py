@@ -355,6 +355,11 @@ def ema_factor(samples: int) -> float:
     return 2 / (samples + 1)
 
 
+def accumulated_sum(value: float, end_index: int) -> float:
+    """Calculate accumulated sum"""
+    return sum(value[:end_index + 1])
+
+
 # Search
 def search_column_key(key, column=None):
     """Search column key"""
@@ -682,12 +687,6 @@ def tyre_lifespan_in_mins(
 def qss_min_width(text_width=1, style="", font_width=1, padding=0):
     """Set QSS minimum width with style, use functools.partial to preconfig"""
     return f"{style}min-width: {text_width * font_width + padding}px;"
-
-
-def qss_fixed_width(text_width=1, style="", font_width=1, padding=0):
-    """Set QSS fixed width with style, use functools.partial to preconfig"""
-    fixed_width = text_width * font_width + padding
-    return f"{style}min-width: {fixed_width}px;max-width: {fixed_width}px;"
 
 
 def image_size_adaption(org_width, org_height, target_width, target_height):
