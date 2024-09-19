@@ -194,24 +194,24 @@ class Realtime(Overlay):
     def update_motor(self, curr, last):
         """Motor temperature"""
         if curr != last:
+            # Check overheat before conversion
+            is_overheat = (curr >= self.wcfg["overheat_threshold_motor"])
             if self.cfg.units["temperature_unit"] == "Fahrenheit":
                 curr = calc.celsius2fahrenheit(curr)
 
             self.bar_motor.setText(f"M{curr: >6.1f}°")
-            self.bar_motor.setStyleSheet(
-                self.bar_style_motor[curr >= self.wcfg["overheat_threshold_motor"]]
-            )
+            self.bar_motor.setStyleSheet(self.bar_style_motor[is_overheat])
 
     def update_water(self, curr, last):
         """Water temperature"""
         if curr != last:
+            # Check overheat before conversion
+            is_overheat = (curr >= self.wcfg["overheat_threshold_water"])
             if self.cfg.units["temperature_unit"] == "Fahrenheit":
                 curr = calc.celsius2fahrenheit(curr)
 
             self.bar_water.setText(f"W{curr: >6.1f}°")
-            self.bar_water.setStyleSheet(
-                self.bar_style_water[curr >= self.wcfg["overheat_threshold_water"]]
-            )
+            self.bar_water.setStyleSheet(self.bar_style_water[is_overheat])
 
     def update_rpm(self, curr, last):
         """Motor rpm"""

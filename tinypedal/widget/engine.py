@@ -240,24 +240,24 @@ class Realtime(Overlay):
     def update_oil(self, curr, last):
         """Oil temperature"""
         if curr != last:
+            # Check overheat before conversion
+            is_overheat = (curr >= self.wcfg["overheat_threshold_oil"])
             if self.cfg.units["temperature_unit"] == "Fahrenheit":
                 curr = calc.celsius2fahrenheit(curr)
 
             self.bar_oil.setText(f"O{curr: >6.1f}°")
-            self.bar_oil.setStyleSheet(
-                self.bar_style_oil[curr >= self.wcfg["overheat_threshold_oil"]]
-            )
+            self.bar_oil.setStyleSheet(self.bar_style_oil[is_overheat])
 
     def update_water(self, curr, last):
         """Water temperature"""
         if curr != last:
+            # Check overheat before conversion
+            is_overheat = (curr >= self.wcfg["overheat_threshold_water"])
             if self.cfg.units["temperature_unit"] == "Fahrenheit":
                 curr = calc.celsius2fahrenheit(curr)
 
             self.bar_water.setText(f"W{curr: >6.1f}°")
-            self.bar_water.setStyleSheet(
-                self.bar_style_water[curr >= self.wcfg["overheat_threshold_water"]]
-            )
+            self.bar_water.setStyleSheet(self.bar_style_water[is_overheat])
 
     def update_turbo(self, curr, last):
         """Turbo pressure"""
