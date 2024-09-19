@@ -355,9 +355,9 @@ def ema_factor(samples: int) -> float:
     return 2 / (samples + 1)
 
 
-def accumulated_sum(value: float, end_index: int) -> float:
+def accumulated_sum(data: list, end_index: int) -> float:
     """Calculate accumulated sum"""
-    return sum(value[:end_index + 1])
+    return sum(data[:end_index + 1])
 
 
 # Search

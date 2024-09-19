@@ -380,10 +380,10 @@ def load_brands_logo_list(filepath: str) -> list[str]:
 
 def copy_setting(dict_user: dict) -> dict:
     """Copy setting"""
-    for _, item in dict_user.items():
+    for item in dict_user.values():
         if isinstance(item, dict):
             return {key: item.copy() for key, item in dict_user.items()}
-        return dict_user.copy()
+        break
     return dict_user.copy()
 
 

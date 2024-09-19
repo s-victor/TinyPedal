@@ -324,8 +324,7 @@ class PrimaryPresetTag(QWidget):
         layout_item.setSpacing(0)
         layout_item.addStretch(stretch=1)
 
-        primary_preset_dict = cfg.primary_preset.items()
-        for sim_name, primary_preset in primary_preset_dict:
+        for sim_name, primary_preset in cfg.primary_preset.items():
             if preset_name == primary_preset:
                 label_sim_name = QLabel(sim_name)
                 label_sim_name.setStyleSheet(QSS_TAGGED_COLOR[sim_name == "RF2"])

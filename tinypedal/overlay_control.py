@@ -111,7 +111,8 @@ class OverlayState(QObject):
         while not self.event.wait(0.01):
             self.active = api.state
             self.__auto_hide_state()
-            self.__auto_load_preset()
+            if cfg.application["enable_auto_load_preset"]:
+                self.__auto_load_preset()
 
         self.stopped = True
         logger.info("CLOSED: overlay control")
@@ -124,8 +125,6 @@ class OverlayState(QObject):
     def __auto_load_preset(self):
         """Auto load primary preset"""
         if self._auto_load_preset_timer.timeout(time.perf_counter()):
-            if not cfg.application["enable_auto_load_preset"]:
-                return
             # Make sure app is fully loaded before check state
             if not cfg.app_loaded:
                 return
