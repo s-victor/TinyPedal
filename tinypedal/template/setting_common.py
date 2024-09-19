@@ -22,13 +22,6 @@ Default common setting template
 
 
 COMMON_DEFAULT = {
-    "compatibility": {
-        "enable_bypass_window_manager": False,
-        "enable_translucent_background": True,
-        "enable_window_position_correction": True,
-        "global_bkg_color": "#000000",
-        "grid_move_size": 8,
-    },
     "overlay": {
         "fixed_position": False,
         "auto_hide": True,

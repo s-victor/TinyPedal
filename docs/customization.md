@@ -9,6 +9,7 @@ TinyPedal stores global user configuration in `config.json` file, which is used 
 
 Available settings:  
 * `Application`, can be accessed from `Config` menu in main window, see `Application` section for details.
+* `Compatibility`, can be accessed from `Config` menu in main window, see `Compatibility` section for details.
 * `User path`, can be accessed from `Config` menu in main window, see `User path` section for details.
 * `Auto load preset`, can be accessed from `Preset` tab in main window, see `Preset management` section for details.
 
@@ -284,6 +285,9 @@ Minimize to tray when user clicks `X` close button.
     remember_position
 Remember main window last position.
 
+    show_confirmation_for_batch_toggle
+Show confirmation dialog for enabling or disabling all widgets or modules. This option is enabled by default.
+
     enable_auto_load_preset
 Enable `Auto load preset` system to allow auto loading user-defined game-specific preset depends on active game (currently supports RF2 and LMU).
 
@@ -291,8 +295,8 @@ Auto loading preset is triggered when a new or different game is started & activ
 
 This option is disabled by default.
 
-    show_confirmation_for_batch_toggle
-Show confirmation dialog for enabling or disabling all widgets or modules. This option is enabled by default.
+    grid_move_size
+Set grid size for grid move, value in pixel. Default is `8` pixel. Minimum value is limited to `1`.
 
     minimum_update_interval
 Set minimum refresh rate limit for widget and module in milliseconds. This option is used for preventing extremely low refresh rate that may cause performance issues in case user incorrectly sets `update_interval` and `idle_update_interval` values. Default value is `10`, and should not be modified.
@@ -302,6 +306,24 @@ Set maximum retry attempts for preset saving. Default value is `10`. Minimum val
 
     position_x, position_y
 Define main window position on screen in pixels. Those values will be auto updated and saved.
+
+
+## Compatibility
+**Compatibility options can be accessed from `Config` menu in main window.**
+
+    enable_bypass_window_manager
+Set `true` to bypass window manager on X11 system, such as linux. This option does not affect windows system. This option is enabled by default on linux. Note, while this option is enabled, OBS may not be able to capture overlay widgets in streaming on linux.
+
+    enable_translucent_background
+Set `false` to disable translucent background.
+
+    enable_window_position_correction
+Set `true` to enable main application window position correction, which is used to correct window-off-screen issue with multi-screen. This option is enabled by default.
+
+    global_bkg_color
+Sets global background color for all widgets.
+
+Note, global background color will only be visible when `enable_translucent_background` option is disabled or translucent background is not supported. Some widgets with own background setting may override this option.
 
 
 ## User path
@@ -345,27 +367,6 @@ Check whether auto hide is enabled. This setting can be toggled from tray icon m
 
     enable_grid_move
 Enable grid-snap effect while moving widget for easy alignment and repositioning.
-
-
-## Compatibility
-**Compatibility options can be accessed from `Config` menu in main window.**
-
-    enable_bypass_window_manager
-Set `true` to bypass window manager on X11 system, such as linux. This option does not affect windows system. This option is enabled by default on linux. Note, while this option is enabled, OBS may not be able to capture overlay widgets in streaming on linux.
-
-    enable_translucent_background
-Set `false` to disable translucent background.
-
-    enable_window_position_correction
-Set `true` to enable main application window position correction, which is used to correct window-off-screen issue with multi-screen. This option is enabled by default.
-
-    global_bkg_color
-Sets global background color for all widgets.
-
-Note, global background color will only be visible when `enable_translucent_background` option is disabled or translucent background is not supported. Some widgets with own background setting may override this option.
-
-    grid_move_size
-Set grid size for grid move, value in pixel. Default is `8` pixel. Minimum value is limited to `1`.
 
 
 ## Shared memory API

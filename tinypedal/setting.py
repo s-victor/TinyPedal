@@ -110,7 +110,7 @@ class Preset:
             self.config["application"]["show_at_startup"] = True
             self.config["application"]["minimize_to_tray"] = False
             # Compatibility
-            self.setting["compatibility"]["enable_bypass_window_manager"] = True
+            self.config["compatibility"]["enable_bypass_window_manager"] = True
             # Global path
             from xdg import BaseDirectory as BD
             for key in self.config["user_path"].keys():
@@ -155,6 +155,7 @@ class Setting:
         self.path.update(self.user.config["user_path"], self.default.config["user_path"])
         # Assign global setting
         self.application = self.user.config["application"]
+        self.compatibility = self.user.config["compatibility"]
         self.primary_preset = self.user.config["primary_preset"]
         logger.info("SETTING: %s loaded (global settings)", self.filename.config)
         self.save(0, "config")
@@ -173,7 +174,6 @@ class Setting:
         self.user.setting = load_setting_json_file(
             self.filename.setting, self.path.settings, self.default.setting)
         # Assign base setting
-        self.compatibility = self.user.setting["compatibility"]
         self.overlay = self.user.setting["overlay"]
         self.shared_memory_api = self.user.setting["shared_memory_api"]
         self.units = self.user.setting["units"]

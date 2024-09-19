@@ -6,15 +6,15 @@ WIP
     For Windows, "config.json" is stored under "username\AppData\Roaming\TinyPedal" folder.
     For Linux, "config.json" is stored under "home/username/.config/TinyPedal" folder.
   - Log files are now stored in the same folder as global user config file.
-  - All "application" settings are moved into "config.json".
+  - All "Application" and "Compatibility" settings are moved into "config.json".
   - Color pick dialog now shows up to 16 previously picked colors in "Custom colors" selector.
   - Smaller panel size for "Fuel Calculator".
 
 * [New]Application dialog
   - Add "Application" to main window "Config" menu, which opens a dialog for customizing
     global application settings and saved in global user config file.
-  - "minimum_update_interval" and "maximum_saving_attempts" options from "compatibility"
-    are moved to "application".
+  - "grid_move_size, minimum_update_interval, maximum_saving_attempts" options from
+    "compatibility" are moved to "application".
   - Add "show_confirmation_for_batch_toggle" option, which shows confirmation dialog
     for enabling or disabling all widgets or modules. This option is enabled by default.
 

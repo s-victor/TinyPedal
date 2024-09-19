@@ -132,7 +132,7 @@ class Realtime(Overlay):
         self.last_battery_charge = None
         self.last_battery_drain = None
         self.last_battery_regen = None
-        self.last_motor_active_timer = None
+        self.last_active_timer = None
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -140,9 +140,9 @@ class Realtime(Overlay):
 
             # Battery charge & usage
             if self.wcfg["show_battery_charge"]:
-                self.update_charge(
-                    minfo.hybrid.batteryCharge, self.last_battery_charge)
-                self.last_battery_charge = minfo.hybrid.batteryCharge
+                battery_charge = minfo.hybrid.batteryCharge
+                self.update_charge(battery_charge, self.last_battery_charge)
+                self.last_battery_charge = battery_charge
 
             if 0 <= minfo.delta.lapTimeCurrent < self.freeze_duration:
                 battery_drain = minfo.hybrid.batteryDrainLast
@@ -161,9 +161,9 @@ class Realtime(Overlay):
 
             # Motor activation timer
             if self.wcfg["show_activation_timer"]:
-                self.update_timer(
-                    minfo.hybrid.motorActiveTimer, self.last_motor_active_timer)
-                self.last_motor_active_timer = minfo.hybrid.motorActiveTimer
+                active_timer = minfo.hybrid.motorActiveTimer
+                self.update_timer(active_timer, self.last_active_timer)
+                self.last_active_timer = active_timer
 
     # GUI update methods
     def update_charge(self, curr, last):
@@ -186,5 +186,4 @@ class Realtime(Overlay):
     def update_timer(self, curr, last):
         """Motor activation timer"""
         if curr != last:
-            format_text = f"{curr: >7.2f}"[:7]
-            self.bar_timer.setText(f"{format_text}s")
+            self.bar_timer.setText(f"{curr: >7.2f}s"[:8])

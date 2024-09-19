@@ -68,7 +68,7 @@ class Overlay(QWidget):
         # Widget mouse event
         self._mouse_pos = (0, 0)
         self._mouse_pressed = 0
-        self._move_size = max(self.cfg.compatibility["grid_move_size"], 1)
+        self._move_size = max(self.cfg.application["grid_move_size"], 1)
 
         # Set update timer
         self._update_timer = QBasicTimer()

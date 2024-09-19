@@ -28,10 +28,17 @@ GLOBAL_DEFAULT = {
         "remember_position": True,
         "show_confirmation_for_batch_toggle": True,
         "enable_auto_load_preset": False,
+        "grid_move_size": 8,
         "minimum_update_interval": 10,
         "maximum_saving_attempts": 10,
         "position_x": 0,
         "position_y": 0,
+    },
+    "compatibility": {
+        "enable_bypass_window_manager": False,
+        "enable_translucent_background": True,
+        "enable_window_position_correction": True,
+        "global_bkg_color": "#000000",
     },
     "user_path": {
         "settings_path": "settings/",

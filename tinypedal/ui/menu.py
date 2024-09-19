@@ -265,8 +265,8 @@ class ConfigMenu(QMenu):
     def open_config_compatibility(self):
         """Config compatibility"""
         _dialog = UserConfig(
-            self.master, "compatibility", "misc",
-            cfg.user.setting, cfg.default.setting)
+            self.master, "compatibility", "global",
+            cfg.user.config, cfg.default.config)
         _dialog.open()
 
 
