@@ -183,12 +183,18 @@ class Realtime(Overlay):
             layout.addLayout(layout_wetness, 0, self.wcfg["column_index_wetness"])
 
         # Last data
+        self.temp_trend = 0
+        self.rain_trend = 0
+        self.wet_trend = 0
+
+        self.last_temp_trend = 0
+        self.last_rain_trend = 0
+        self.last_wet_trend = 0
+
         self.last_temperature = 0
-        self.last_temperature_trend = 0
         self.last_raininess = 0
-        self.last_raininess_trend = 0
         self.last_wetness = 0
-        self.last_wetness_trend = 0
+
         self.last_temp_timer = 0
         self.last_rain_timer = 0
         self.last_wet_timer = 0
@@ -207,24 +213,24 @@ class Realtime(Overlay):
 
                 if self.last_temperature < temperature:
                     self.last_temp_timer = lap_etime
-                    temperature_trend = 1  # increased
+                    self.temp_trend = 1  # increased
                 elif self.last_temperature > temperature:
                     self.last_temp_timer = lap_etime
-                    temperature_trend = -1  # decreased
+                    self.temp_trend = -1  # decreased
                 elif lap_etime - self.last_temp_timer > self.wcfg["temperature_trend_interval"]:
                     self.last_temp_timer = lap_etime
-                    temperature_trend = 0  # no change
+                    self.temp_trend = 0  # no change
 
                 if self.last_temp_timer > lap_etime:
                     self.last_temp_timer = lap_etime
-                elif self.last_temp_timer == lap_etime:
-                    # Temperature
-                    self.update_temperature(
-                        temperature, self.last_temperature, temp_track, temp_air)
-                    self.last_temperature = temperature
-                    # Temperature trend
-                    self.update_temperature_trend(temperature_trend, self.last_temperature_trend)
-                    self.last_temperature_trend = temperature_trend
+
+                # Temperature
+                self.update_temperature(
+                    temperature, self.last_temperature, temp_track, temp_air)
+                self.last_temperature = temperature
+                # Temperature trend
+                self.update_temperature_trend(self.temp_trend, self.last_temp_trend)
+                self.last_temp_trend = self.temp_trend
 
             # Rain precipitation
             if self.wcfg["show_rain"]:
@@ -232,23 +238,23 @@ class Realtime(Overlay):
 
                 if self.last_raininess < raininess:
                     self.last_rain_timer = lap_etime
-                    raininess_trend = 1  # increased
+                    self.rain_trend = 1  # increased
                 elif self.last_raininess > raininess:
                     self.last_rain_timer = lap_etime
-                    raininess_trend = -1  # decreased
+                    self.rain_trend = -1  # decreased
                 elif lap_etime - self.last_rain_timer > self.wcfg["raininess_trend_interval"]:
                     self.last_rain_timer = lap_etime
-                    raininess_trend = 0  # no change
+                    self.rain_trend = 0  # no change
 
                 if self.last_rain_timer > lap_etime:
                     self.last_rain_timer = lap_etime
-                elif self.last_rain_timer == lap_etime:
-                    # Rain percentage
-                    self.update_raininess(raininess, self.last_raininess)
-                    self.last_raininess = raininess
-                    # Rain trend
-                    self.update_raininess_trend(raininess_trend, self.last_raininess_trend)
-                    self.last_raininess_trend = raininess_trend
+
+                # Rain percentage
+                self.update_raininess(raininess, self.last_raininess)
+                self.last_raininess = raininess
+                # Rain trend
+                self.update_raininess_trend(self.rain_trend, self.last_rain_trend)
+                self.last_rain_trend = self.rain_trend
 
             # Surface wetness
             if self.wcfg["show_wetness"]:
@@ -257,23 +263,23 @@ class Realtime(Overlay):
 
                 if self.last_wetness < wetness:
                     self.last_wet_timer = lap_etime
-                    wetness_trend = 1  # increased
+                    self.wet_trend = 1  # increased
                 elif self.last_wetness > wetness:
                     self.last_wet_timer = lap_etime
-                    wetness_trend = -1  # decreased
+                    self.wet_trend = -1  # decreased
                 elif lap_etime - self.last_wet_timer > self.wcfg["wetness_trend_interval"]:
                     self.last_wet_timer = lap_etime
-                    wetness_trend = 0  # no change
+                    self.wet_trend = 0  # no change
 
                 if self.last_wet_timer > lap_etime:
                     self.last_wet_timer = lap_etime
-                elif self.last_wet_timer == lap_etime:
-                    # Wetness percentage
-                    self.update_wetness(wetness, self.last_wetness, wet_avg)
-                    self.last_wetness = wetness
-                    # Wet trend
-                    self.update_wetness_trend(wetness_trend, self.last_wetness_trend)
-                    self.last_wetness_trend = wetness_trend
+
+                # Wetness percentage
+                self.update_wetness(wetness, self.last_wetness, wet_avg)
+                self.last_wetness = wetness
+                # Wet trend
+                self.update_wetness_trend(self.wet_trend, self.last_wet_trend)
+                self.last_wet_trend = self.wet_trend
 
     # GUI update methods
     def update_temperature(self, curr, last, track, air):
