@@ -994,7 +994,7 @@ Show engine power.
 **This widget displays flags, pit state, warnings, start lights info.**
 
     layout
-2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
+2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
     show_pit_timer
 Show pit timer, and total amount time spent in pit after exit pit.
@@ -1947,7 +1947,7 @@ Show session timer, accuracy may be limited by specific sim API.
 **This widget displays conditional speed info.**
 
     layout
-2 layouts are available: `0` = horizontal layout, `1` = vertical layout.
+2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
     show_speed
 Show current vehicle speed.

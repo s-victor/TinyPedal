@@ -54,7 +54,7 @@ class Realtime(Overlay):
         self.bar_width = max(self.wcfg["bar_width"], 20)
         self.bar_height = max(self.wcfg["bar_height"], text_height)
         self.bar_edge = max(self.wcfg["bar_edge_width"], 0)
-        self.full_width = (self.bar_width + self.bar_edge) * 2
+        full_width = (self.bar_width + self.bar_edge) * 2
 
         self.rect_edge_l = QRectF(
             0,
@@ -82,9 +82,9 @@ class Realtime(Overlay):
         )
 
         # Config canvas
-        self.resize(self.full_width, self.bar_height)
-        self.pixmap_background = QPixmap(self.full_width, self.bar_height)
-        self.pixmap_mark = QPixmap(self.full_width, self.bar_height)
+        self.resize(full_width, self.bar_height)
+        self.pixmap_background = QPixmap(full_width, self.bar_height)
+        self.pixmap_mark = QPixmap(full_width, self.bar_height)
 
         self.pen = QPen()
         self.brush = QBrush(Qt.SolidPattern)

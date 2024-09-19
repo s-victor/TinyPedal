@@ -98,6 +98,9 @@ WIP
   - Add "layout" option, which sets display orientation.
     Default is horizontal. Set "0" to show vertically.
 
+* Speedometer Widget
+  - Changed default "layout" setting value to "1" for horizontal layout for consistency.
+
 * Tyre wear Widget
   - Now uses laptime pace for calculating "tyre lifespan in minutes".
 
@@ -116,6 +119,7 @@ WIP
     even if RestAPI Module is disabled.
 
 * Misc
+  - Updated User Guide for all changes mentioned above and additional usage info.
   - Added new contributor Sihyung Park (naturale0) to contributors.md.
 
 2.17.4 (2024-08-30)

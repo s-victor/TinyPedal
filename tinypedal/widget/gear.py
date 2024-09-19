@@ -330,11 +330,11 @@ class Realtime(Overlay):
     # Additional methods
     def speed_units(self, value):
         """Speed units"""
+        if self.cfg.units["speed_unit"] == "KPH":
+            return calc.mps2kph(value)
         if self.cfg.units["speed_unit"] == "MPH":
             return calc.mps2mph(value)
-        if self.cfg.units["speed_unit"] == "m/s":
-            return value
-        return calc.mps2kph(value)
+        return value
 
     def scale_rpm(self, rpm):
         """Scale rpm"""

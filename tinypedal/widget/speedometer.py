@@ -21,7 +21,7 @@ Speedometer Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from ..api_control import api
@@ -47,10 +47,10 @@ class Realtime(Overlay):
 
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
         if self.decimals > 0:
-            bar_width = f"min-width: {font_m.width * (4 + self.decimals) + bar_padx}px;"
+            bar_width = font_m.width * (4 + self.decimals) + bar_padx
             zero_offset = 1
         else:
-            bar_width = f"min-width: {font_m.width * 3 + bar_padx}px;"
+            bar_width = font_m.width * 3 + bar_padx
             zero_offset = 0
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3) + zero_offset + self.decimals
 
@@ -59,7 +59,6 @@ class Realtime(Overlay):
             f"font-family: {self.wcfg['font_name']};"
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
-            f"{bar_width}"
         )
 
         # Create layout
@@ -67,67 +66,68 @@ class Realtime(Overlay):
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_sc = self.wcfg["column_index_speed"]
-        column_sm = self.wcfg["column_index_speed_minimum"]
-        column_sx = self.wcfg["column_index_speed_maximum"]
-        column_sf = self.wcfg["column_index_speed_fastest"]
+        self.setLayout(layout)
 
         # Speed
         if self.wcfg["show_speed"]:
-            self.bar_speed_curr = QLabel("SPD")
-            self.bar_speed_curr.setAlignment(Qt.AlignCenter)
-            self.bar_speed_curr.setStyleSheet(
-                f"color: {self.wcfg['font_color_speed']};"
-                f"background: {self.wcfg['bkg_color_speed']};"
+            bar_style_speed_curr = self.set_qss(
+                fg_color=self.wcfg["font_color_speed"],
+                bg_color=self.wcfg["bkg_color_speed"]
+            )
+            self.bar_speed_curr = self.set_qlabel(
+                text="SPD",
+                style=bar_style_speed_curr,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_speed_curr,
+                column=self.wcfg["column_index_speed"],
             )
 
         if self.wcfg["show_speed_minimum"]:
-            self.bar_speed_min = QLabel("MIN")
-            self.bar_speed_min.setAlignment(Qt.AlignCenter)
-            self.bar_speed_min.setStyleSheet(
-                f"color: {self.wcfg['font_color_speed_minimum']};"
-                f"background: {self.wcfg['bkg_color_speed_minimum']};"
+            bar_style_speed_min = self.set_qss(
+                fg_color=self.wcfg["font_color_speed_minimum"],
+                bg_color=self.wcfg["bkg_color_speed_minimum"]
+            )
+            self.bar_speed_min = self.set_qlabel(
+                text="MIN",
+                style=bar_style_speed_min,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_speed_min,
+                column=self.wcfg["column_index_speed_minimum"],
             )
 
         if self.wcfg["show_speed_maximum"]:
-            self.bar_speed_max = QLabel("MAX")
-            self.bar_speed_max.setAlignment(Qt.AlignCenter)
-            self.bar_speed_max.setStyleSheet(
-                f"color: {self.wcfg['font_color_speed_maximum']};"
-                f"background: {self.wcfg['bkg_color_speed_maximum']};"
+            bar_style_speed_max = self.set_qss(
+                fg_color=self.wcfg["font_color_speed_maximum"],
+                bg_color=self.wcfg["bkg_color_speed_maximum"]
+            )
+            self.bar_speed_max = self.set_qlabel(
+                text="MAX",
+                style=bar_style_speed_max,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_speed_max,
+                column=self.wcfg["column_index_speed_maximum"],
             )
 
         if self.wcfg["show_speed_fastest"]:
-            self.bar_speed_fast = QLabel("TOP")
-            self.bar_speed_fast.setAlignment(Qt.AlignCenter)
-            self.bar_speed_fast.setStyleSheet(
-                f"color: {self.wcfg['font_color_speed_fastest']};"
-                f"background: {self.wcfg['bkg_color_speed_fastest']};"
+            bar_style_speed_fast = self.set_qss(
+                fg_color=self.wcfg["font_color_speed_fastest"],
+                bg_color=self.wcfg["bkg_color_speed_fastest"]
             )
-
-        # Set layout
-        if self.wcfg["layout"] == 0:
-            # Horizontal layout
-            if self.wcfg["show_speed"]:
-                layout.addWidget(self.bar_speed_curr, 0, column_sc)
-            if self.wcfg["show_speed_minimum"]:
-                layout.addWidget(self.bar_speed_min, 0, column_sm)
-            if self.wcfg["show_speed_maximum"]:
-                layout.addWidget(self.bar_speed_max, 0, column_sx)
-            if self.wcfg["show_speed_fastest"]:
-                layout.addWidget(self.bar_speed_fast, 0, column_sf)
-        else:
-            # Vertical layout
-            if self.wcfg["show_speed"]:
-                layout.addWidget(self.bar_speed_curr, column_sc, 0)
-            if self.wcfg["show_speed_minimum"]:
-                layout.addWidget(self.bar_speed_min, column_sm, 0)
-            if self.wcfg["show_speed_maximum"]:
-                layout.addWidget(self.bar_speed_max, column_sx, 0)
-            if self.wcfg["show_speed_fastest"]:
-                layout.addWidget(self.bar_speed_fast, column_sf, 0)
-        self.setLayout(layout)
+            self.bar_speed_fast = self.set_qlabel(
+                text="TOP",
+                style=bar_style_speed_fast,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_speed_fast,
+                column=self.wcfg["column_index_speed_fastest"],
+            )
 
         # Last data
         self.last_speed_curr = -1
@@ -148,13 +148,13 @@ class Realtime(Overlay):
 
             # Update current speed
             if self.wcfg["show_speed"]:
-                self.update_speed("curr", speed, self.last_speed_curr)
+                self.update_speed(self.bar_speed_curr, speed, self.last_speed_curr)
                 self.last_speed_curr = speed
 
             # Update minimum speed off throttle
             if self.wcfg["show_speed_minimum"] and raw_throttle < self.wcfg["off_throttle_threshold"]:
                 if speed < self.last_speed_min:
-                    self.update_speed("min", speed, self.last_speed_min)
+                    self.update_speed(self.bar_speed_min, speed, self.last_speed_min)
                     self.last_speed_min = speed
                     self.off_throttle_timer_start = lap_etime
                 if lap_etime - self.off_throttle_timer_start > self.wcfg["speed_minimum_reset_cooldown"]:
@@ -163,7 +163,7 @@ class Realtime(Overlay):
             # Update maximum speed on throttle
             if self.wcfg["show_speed_maximum"] and raw_throttle > self.wcfg["on_throttle_threshold"]:
                 if speed > self.last_speed_max:
-                    self.update_speed("max", speed, self.last_speed_max)
+                    self.update_speed(self.bar_speed_max, speed, self.last_speed_max)
                     self.last_speed_max = speed
                     self.on_throttle_timer_start = lap_etime
                 if lap_etime - self.on_throttle_timer_start > self.wcfg["speed_maximum_reset_cooldown"]:
@@ -174,21 +174,21 @@ class Realtime(Overlay):
                 if api.read.engine.gear() < 0:  # reset on reverse gear
                     self.last_speed_fast = 0
                 if speed > self.last_speed_fast:
-                    self.update_speed("fast", speed, self.last_speed_fast)
+                    self.update_speed(self.bar_speed_fast, speed, self.last_speed_fast)
                     self.last_speed_fast = speed
 
     # GUI update methods
-    def update_speed(self, suffix, curr, last):
+    def update_speed(self, target_bar, curr, last):
         """Vehicle speed"""
         if curr != last:
-            getattr(self, f"bar_speed_{suffix}").setText(
+            target_bar.setText(
                 f"{self.speed_units(curr):0{self.leading_zero}.{self.decimals}f}")
 
     # Additional methods
     def speed_units(self, value):
         """Speed units"""
+        if self.cfg.units["speed_unit"] == "KPH":
+            return calc.mps2kph(value)
         if self.cfg.units["speed_unit"] == "MPH":
             return calc.mps2mph(value)
-        if self.cfg.units["speed_unit"] == "m/s":
-            return value
-        return calc.mps2kph(value)
+        return value
