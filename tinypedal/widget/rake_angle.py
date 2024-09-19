@@ -42,17 +42,17 @@ class Realtime(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
+        bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         self.prefix_text = self.wcfg["prefix_rake_angle"]
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
         ride_diff = "(00)" if self.wcfg["show_ride_height_difference"] else ""
         text_def = f"{self.prefix_text}+0.00{self.sign_text}{ride_diff}"
 
         # Base style
-        self.setStyleSheet(
-            f"font-family: {self.wcfg['font_name']};"
-            f"font-size: {self.wcfg['font_size']}px;"
-            f"font-weight: {self.wcfg['font_weight']};"
+        self.setStyleSheet(self.set_qss(
+            font_family=self.wcfg["font_name"],
+            font_size=self.wcfg["font_size"],
+            font_weight=self.wcfg["font_weight"])
         )
 
         # Create layout

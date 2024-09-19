@@ -47,7 +47,7 @@ class Realtime(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
+        bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
         if self.wcfg["target_laptime"] == "Theoretical":
             self.prefix_best = "TB"
@@ -55,10 +55,10 @@ class Realtime(Overlay):
             self.prefix_best = "PB"
 
         # Base style
-        self.setStyleSheet(
-            f"font-family: {self.wcfg['font_name']};"
-            f"font-size: {self.wcfg['font_size']}px;"
-            f"font-weight: {self.wcfg['font_weight']};"
+        self.setStyleSheet(self.set_qss(
+            font_family=self.wcfg["font_name"],
+            font_size=self.wcfg["font_size"],
+            font_weight=self.wcfg["font_weight"])
         )
 
         # Create layout

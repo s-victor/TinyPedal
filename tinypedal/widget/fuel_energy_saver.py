@@ -47,7 +47,7 @@ class Realtime(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
+        bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
         self.bar_width = max(self.wcfg["bar_width"], 4)
         self.center_slot = min(max(self.wcfg["number_of_less_laps"], 0), 5) + 1  # +1 column offset
@@ -57,10 +57,10 @@ class Realtime(Overlay):
         self.min_reserve = max(self.wcfg["minimum_reserve"], 0)
 
         # Base style
-        self.setStyleSheet(
-            f"font-family: {self.wcfg['font_name']};"
-            f"font-size: {self.wcfg['font_size']}px;"
-            f"font-weight: {self.wcfg['font_weight']};"
+        self.setStyleSheet(self.set_qss(
+            font_family=self.wcfg["font_name"],
+            font_size=self.wcfg["font_size"],
+            font_weight=self.wcfg["font_weight"])
         )
         self.delta_color = (
             self.set_qss(

@@ -43,7 +43,7 @@ class Realtime(Overlay):
 
         # Config variable
         text_def = "00/00"
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
+        bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
 
         if self.wcfg["layout"] == 0:
@@ -62,10 +62,10 @@ class Realtime(Overlay):
         self.prefix_pos_inclass = self.wcfg["prefix_position_in_class"].ljust(prefix_just)
 
         # Base style
-        self.setStyleSheet(
-            f"font-family: {self.wcfg['font_name']};"
-            f"font-size: {self.wcfg['font_size']}px;"
-            f"font-weight: {self.wcfg['font_weight']};"
+        self.setStyleSheet(self.set_qss(
+            font_family=self.wcfg["font_name"],
+            font_size=self.wcfg["font_size"],
+            font_weight=self.wcfg["font_weight"])
         )
 
         # Create layout

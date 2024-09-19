@@ -47,7 +47,7 @@ class Realtime(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
+        bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
         self.bar_width = max(self.wcfg["bar_width"], 3)
         self.range_start = max(self.wcfg["near_start_range"], 0)
@@ -64,10 +64,10 @@ class Realtime(Overlay):
             max(self.wcfg["leader_laptime_pace_margin"], 0.1))
 
         # Base style
-        self.setStyleSheet(
-            f"font-family: {self.wcfg['font_name']};"
-            f"font-size: {self.wcfg['font_size']}px;"
-            f"font-weight: {self.wcfg['font_weight']};"
+        self.setStyleSheet(self.set_qss(
+            font_family=self.wcfg["font_name"],
+            font_size=self.wcfg["font_size"],
+            font_weight=self.wcfg["font_weight"])
         )
         self.leader_lap_color = (
             self.set_qss(

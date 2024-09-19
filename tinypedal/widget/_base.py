@@ -231,6 +231,11 @@ class Overlay(QWidget):
         return self.wcfg["font_offset_vertical"]
 
     @staticmethod
+    def set_padding(size: int, scale: float) -> int:
+        """Set padding - (size * scale) * 2"""
+        return round(size * scale) * 2
+
+    @staticmethod
     def set_text_alignment(align: int | str = 0) -> Qt.AlignmentFlag:
         """Set text alignment
 

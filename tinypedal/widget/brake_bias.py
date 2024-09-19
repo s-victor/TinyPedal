@@ -42,7 +42,7 @@ class Realtime(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
+        bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         bar_gap = self.wcfg["bar_gap"]
         self.decimals_bias = max(self.wcfg["decimal_places_brake_bias"], 0)
         self.decimals_migt = max(self.wcfg["decimal_places_brake_migration"], 1)
@@ -52,10 +52,10 @@ class Realtime(Overlay):
         self.sign_text = "%" if self.wcfg["show_percentage_sign"] else ""
 
         # Base style
-        self.setStyleSheet(
-            f"font-family: {self.wcfg['font_name']};"
-            f"font-size: {self.wcfg['font_size']}px;"
-            f"font-weight: {self.wcfg['font_weight']};"
+        self.setStyleSheet(self.set_qss(
+            font_family=self.wcfg["font_name"],
+            font_size=self.wcfg["font_size"],
+            font_weight=self.wcfg["font_weight"])
         )
 
         # Create layout
