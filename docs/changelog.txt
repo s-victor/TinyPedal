@@ -101,6 +101,16 @@ WIP
 * Tyre wear Widget
   - Now uses laptime pace for calculating "tyre lifespan in minutes".
 
+* [Reworked]Weather Widget
+  - Add weather trend indication, which shows whether there has been an increasing or
+    decreasing trend for temperature, raininess, wetness readings for a given period.
+    This can be useful to determine pit stop strategy.
+  - Add "temperature_trend_interval", "raininess_trend_interval", "wetness_trend_interval"
+    options, which set each trend interval in seconds. Default interval is "60" seconds.
+  - Add "prefix_rain", "prefix_dry", "prefix_wet", "font_color_trend_constant",
+    "font_color_trend_decreasing", "font_color_trend_increasing" options.
+  - Improved display formatting for temperature, raininess, wetness readings.
+
 * Weather forecast Widget
   - The "now" column always shows current weather condition
     even if RestAPI Module is disabled.

@@ -2311,17 +2311,19 @@ Show fuel bias (estimated laps difference) between fuel and virtual energy. Posi
 ## Weather
 **This widget displays weather info.**
 
-    show_percentage_sign
-Set `true` to show percentage sign for rain & wetness display.
-
     show_temperature
 Show track & ambient temperature.
 
     show_rain
-Show rain percentage.
+Show rain precipitation in percentage.
 
     show_wetness
-Show surface condition, minimum, maximum, and average wetness.
+Show average surface wetness in percentage.
+
+    temperature_trend_interval, raininess_trend_interval, wetness_trend_interval
+Set weather change trend interval in seconds for temperature, raininess, surface wetness readings. Default interval is `60` seconds.
+
+If weather readings increased within the interval, `▲` uparrow sign will be shown; if readings decreased within the interval, `▼` downarrow sign will be shown; If readings has not changed during the interval, `●` sign will be shown after.
 
 
 ## Weather forecast

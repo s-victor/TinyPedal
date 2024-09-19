@@ -20,17 +20,15 @@
 Weather Widget
 """
 
-from functools import partial
-
 from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout, QLabel
+from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from ..api_control import api
 from ._base import Overlay
 
 WIDGET_NAME = "weather"
-PREFIX_WETNESS = "Dry","Wet"
+TREND_SIGN = "●▲▼"
 
 
 class Realtime(Overlay):
@@ -48,7 +46,16 @@ class Realtime(Overlay):
         bar_padx = round(self.wcfg["font_size"] * self.wcfg["bar_padding"]) * 2
         bar_gap = self.wcfg["bar_gap"]
         self.sign_temp = "°F" if self.cfg.units["temperature_unit"] == "Fahrenheit" else "°C"
-        self.sign_rain = "%" if self.wcfg["show_percentage_sign"] else ""
+
+        prefix_wetness_just = max(
+            len(self.wcfg["prefix_dry"]),
+            len(self.wcfg["prefix_wet"]),
+        )
+        self.prefix_rain = self.wcfg["prefix_rain"]
+        self.prefix_wetness = (
+            self.wcfg["prefix_dry"].ljust(prefix_wetness_just),
+            self.wcfg["prefix_wet"].ljust(prefix_wetness_just)
+        )
 
         # Base style
         self.setStyleSheet(
@@ -56,137 +63,268 @@ class Realtime(Overlay):
             f"font-size: {self.wcfg['font_size']}px;"
             f"font-weight: {self.wcfg['font_weight']};"
         )
-        self.bar_min_width = partial(calc.qss_min_width, font_width=font_m.width, padding=bar_padx)
 
         # Create layout
         layout = QGridLayout()
         layout.setContentsMargins(0,0,0,0)  # remove border
         layout.setSpacing(bar_gap)
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-
-        column_temp = self.wcfg["column_index_temperature"]
-        column_rain = self.wcfg["column_index_rain"]
-        column_wet = self.wcfg["column_index_wetness"]
+        self.setLayout(layout)
 
         # Track temperature
         if self.wcfg["show_temperature"]:
-            temp_text = self.format_temperature(0,0)
-            bar_style_temp = self.bar_min_width(
-                len(temp_text),
-                f"color: {self.wcfg['font_color_temperature']};"
-                f"background: {self.wcfg['bkg_color_temperature']};"
-            )
-            self.bar_temp = QLabel(temp_text)
-            self.bar_temp.setAlignment(Qt.AlignCenter)
-            self.bar_temp.setStyleSheet(bar_style_temp)
+            layout_temp = QGridLayout()
+            layout_temp.setSpacing(0)
 
-        # Rain percentage
-        if self.wcfg["show_rain"]:
-            rain_text = self.format_rain(0)
-            bar_style_rain = self.bar_min_width(
-                len(rain_text),
-                f"color: {self.wcfg['font_color_rain']};"
-                f"background: {self.wcfg['bkg_color_rain']};"
+            text_temp = self.format_temperature(0, 0)
+            bar_style_temp = self.set_qss(
+                fg_color=self.wcfg["font_color_temperature"],
+                bg_color=self.wcfg["bkg_color_temperature"]
             )
-            self.bar_rain = QLabel(rain_text)
-            self.bar_rain.setAlignment(Qt.AlignCenter)
-            self.bar_rain.setStyleSheet(bar_style_rain)
+            self.bar_temp = self.set_qlabel(
+                text=text_temp,
+                style=bar_style_temp,
+                width=font_m.width * len(text_temp) + bar_padx,
+            )
+            layout_temp.addWidget(self.bar_temp, 0, 0)
+
+            self.bar_style_temp_trend = (
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_trend_constant"],
+                    bg_color=self.wcfg["bkg_color_temperature"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_trend_increasing"],
+                    bg_color=self.wcfg["bkg_color_temperature"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_trend_decreasing"],
+                    bg_color=self.wcfg["bkg_color_temperature"]),
+            )
+            self.bar_temp_trend = self.set_qlabel(
+                text=TREND_SIGN[0],
+                style=self.bar_style_temp_trend[0],
+                width=font_m.width + bar_padx,
+            )
+            layout_temp.addWidget(self.bar_temp_trend, 0, 1)
+
+            layout.addLayout(layout_temp, 0, self.wcfg["column_index_temperature"])
+
+        # Rain precipitation
+        if self.wcfg["show_rain"]:
+            layout_rain = QGridLayout()
+            layout_rain.setSpacing(0)
+
+            text_rain = self.format_rain(0)
+            bar_style_rain = self.set_qss(
+                fg_color=self.wcfg["font_color_rain"],
+                bg_color=self.wcfg["bkg_color_rain"]
+            )
+            self.bar_rain = self.set_qlabel(
+                text=text_rain,
+                style=bar_style_rain,
+                width=font_m.width * len(text_rain) + bar_padx,
+            )
+            layout_rain.addWidget(self.bar_rain, 0, 0)
+
+            self.bar_style_raininess_trend = (
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_trend_constant"],
+                    bg_color=self.wcfg["bkg_color_rain"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_trend_increasing"],
+                    bg_color=self.wcfg["bkg_color_rain"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_trend_decreasing"],
+                    bg_color=self.wcfg["bkg_color_rain"]),
+            )
+            self.bar_raininess_trend = self.set_qlabel(
+                text=TREND_SIGN[0],
+                style=self.bar_style_raininess_trend[0],
+                width=font_m.width + bar_padx,
+            )
+            layout_rain.addWidget(self.bar_raininess_trend, 0, 1)
+
+            layout.addLayout(layout_rain, 0, self.wcfg["column_index_rain"])
 
         # Surface wetness
         if self.wcfg["show_wetness"]:
-            wetness_text = self.format_wetness(0,0,0)
-            bar_style_wetness = self.bar_min_width(
-                len(wetness_text),
-                f"color: {self.wcfg['font_color_wetness']};"
-                f"background: {self.wcfg['bkg_color_wetness']};"
-            )
-            self.bar_wetness = QLabel(wetness_text)
-            self.bar_wetness.setAlignment(Qt.AlignCenter)
-            self.bar_wetness.setStyleSheet(bar_style_wetness)
+            layout_wetness = QGridLayout()
+            layout_wetness.setSpacing(0)
 
-        # Set layout
-        if self.wcfg["show_temperature"]:
-            layout.addWidget(self.bar_temp, 0, column_temp)
-        if self.wcfg["show_rain"]:
-            layout.addWidget(self.bar_rain, 0, column_rain)
-        if self.wcfg["show_wetness"]:
-            layout.addWidget(self.bar_wetness, 0, column_wet)
-        self.setLayout(layout)
+            text_wetness = self.format_wetness(0)
+            bar_style_wetness = self.set_qss(
+                fg_color=self.wcfg["font_color_wetness"],
+                bg_color=self.wcfg["bkg_color_wetness"]
+            )
+            self.bar_wetness = self.set_qlabel(
+                text=text_wetness,
+                style=bar_style_wetness,
+                width=font_m.width * len(text_wetness) + bar_padx,
+            )
+            layout_wetness.addWidget(self.bar_wetness, 0, 0)
+
+            self.bar_style_wetness_trend = (
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_trend_constant"],
+                    bg_color=self.wcfg["bkg_color_wetness"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_trend_increasing"],
+                    bg_color=self.wcfg["bkg_color_wetness"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_trend_decreasing"],
+                    bg_color=self.wcfg["bkg_color_wetness"]),
+            )
+            self.bar_wetness_trend = self.set_qlabel(
+                text=TREND_SIGN[0],
+                style=self.bar_style_wetness_trend[0],
+                width=font_m.width + bar_padx,
+            )
+            layout_wetness.addWidget(self.bar_wetness_trend, 0, 1)
+
+            layout.addLayout(layout_wetness, 0, self.wcfg["column_index_wetness"])
 
         # Last data
-        self.last_temp_d = None
-        self.last_rain_per = None
-        self.last_wet_road = None
+        self.last_temperature = 0
+        self.last_temperature_trend = 0
+        self.last_raininess = 0
+        self.last_raininess_trend = 0
+        self.last_wetness = 0
+        self.last_wetness_trend = 0
+        self.last_temp_timer = 0
+        self.last_rain_timer = 0
+        self.last_wet_timer = 0
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
 
+            lap_etime = api.read.timing.elapsed()
+
             # Track temperature
             if self.wcfg["show_temperature"]:
-                temp_d = (api.read.session.track_temperature(),
-                          api.read.session.ambient_temperature())
-                self.update_temp(temp_d, self.last_temp_d)
-                self.last_temp_d = temp_d
+                temp_track = api.read.session.track_temperature()
+                temp_air = api.read.session.ambient_temperature()
+                temperature = temp_track + temp_air
 
-            # Rain percentage
+                if self.last_temperature < temperature:
+                    self.last_temp_timer = lap_etime
+                    temperature_trend = 1  # increased
+                elif self.last_temperature > temperature:
+                    self.last_temp_timer = lap_etime
+                    temperature_trend = -1  # decreased
+                elif lap_etime - self.last_temp_timer > self.wcfg["temperature_trend_interval"]:
+                    self.last_temp_timer = lap_etime
+                    temperature_trend = 0  # no change
+
+                if self.last_temp_timer > lap_etime:
+                    self.last_temp_timer = lap_etime
+                elif self.last_temp_timer == lap_etime:
+                    # Temperature
+                    self.update_temperature(
+                        temperature, self.last_temperature, temp_track, temp_air)
+                    self.last_temperature = temperature
+                    # Temperature trend
+                    self.update_temperature_trend(temperature_trend, self.last_temperature_trend)
+                    self.last_temperature_trend = temperature_trend
+
+            # Rain precipitation
             if self.wcfg["show_rain"]:
-                rain_per = api.read.session.raininess()
-                self.update_rain(rain_per, self.last_rain_per)
-                self.last_rain_per = rain_per
+                raininess = api.read.session.raininess()
+
+                if self.last_raininess < raininess:
+                    self.last_rain_timer = lap_etime
+                    raininess_trend = 1  # increased
+                elif self.last_raininess > raininess:
+                    self.last_rain_timer = lap_etime
+                    raininess_trend = -1  # decreased
+                elif lap_etime - self.last_rain_timer > self.wcfg["raininess_trend_interval"]:
+                    self.last_rain_timer = lap_etime
+                    raininess_trend = 0  # no change
+
+                if self.last_rain_timer > lap_etime:
+                    self.last_rain_timer = lap_etime
+                elif self.last_rain_timer == lap_etime:
+                    # Rain percentage
+                    self.update_raininess(raininess, self.last_raininess)
+                    self.last_raininess = raininess
+                    # Rain trend
+                    self.update_raininess_trend(raininess_trend, self.last_raininess_trend)
+                    self.last_raininess_trend = raininess_trend
 
             # Surface wetness
             if self.wcfg["show_wetness"]:
-                wet_road = api.read.session.wetness()
-                self.update_wetness(wet_road, self.last_wet_road)
-                self.last_wet_road = wet_road
+                wet_min, wet_max, wet_avg = api.read.session.wetness()
+                wetness = wet_min + wet_max + wet_avg
+
+                if self.last_wetness < wetness:
+                    self.last_wet_timer = lap_etime
+                    wetness_trend = 1  # increased
+                elif self.last_wetness > wetness:
+                    self.last_wet_timer = lap_etime
+                    wetness_trend = -1  # decreased
+                elif lap_etime - self.last_wet_timer > self.wcfg["wetness_trend_interval"]:
+                    self.last_wet_timer = lap_etime
+                    wetness_trend = 0  # no change
+
+                if self.last_wet_timer > lap_etime:
+                    self.last_wet_timer = lap_etime
+                elif self.last_wet_timer == lap_etime:
+                    # Wetness percentage
+                    self.update_wetness(wetness, self.last_wetness, wet_avg)
+                    self.last_wetness = wetness
+                    # Wet trend
+                    self.update_wetness_trend(wetness_trend, self.last_wetness_trend)
+                    self.last_wetness_trend = wetness_trend
 
     # GUI update methods
-    def update_temp(self, curr, last):
+    def update_temperature(self, curr, last, track, air):
         """Track & ambient temperature"""
         if curr != last:
-            temp_text = self.format_temperature(*curr)
-            self.bar_temp.setText(temp_text)
-            self.bar_temp.setStyleSheet(self.bar_min_width(
-                len(temp_text),
-                f"color: {self.wcfg['font_color_temperature']};"
-                f"background: {self.wcfg['bkg_color_temperature']};"
-            ))
+            self.bar_temp.setText(self.format_temperature(track, air))
 
-    def update_rain(self, curr, last):
+    def update_temperature_trend(self, curr, last):
+        """Temperature trend"""
+        if curr != last:
+            self.bar_temp_trend.setText(TREND_SIGN[curr])
+            self.bar_temp_trend.setStyleSheet(self.bar_style_temp_trend[curr])
+
+    def update_raininess(self, curr, last):
         """Rain percentage"""
         if curr != last:
-            rain_text = self.format_rain(curr)
-            self.bar_rain.setText(rain_text)
-            self.bar_rain.setStyleSheet(self.bar_min_width(
-                len(rain_text),
-                f"color: {self.wcfg['font_color_rain']};"
-                f"background: {self.wcfg['bkg_color_rain']};"
-            ))
+            self.bar_rain.setText(self.format_rain(curr))
 
-    def update_wetness(self, curr, last):
-        """Surface wetness"""
+    def update_raininess_trend(self, curr, last):
+        """Raininess trend"""
         if curr != last:
-            wetness_text = self.format_wetness(*curr)
-            self.bar_wetness.setText(wetness_text)
-            self.bar_wetness.setStyleSheet(self.bar_min_width(
-                len(wetness_text),
-                f"color: {self.wcfg['font_color_wetness']};"
-                f"background: {self.wcfg['bkg_color_wetness']};"
-            ))
+            self.bar_raininess_trend.setText(TREND_SIGN[curr])
+            self.bar_raininess_trend.setStyleSheet(self.bar_style_raininess_trend[curr])
+
+    def update_wetness(self, curr, last, wet_average):
+        """Surface wetness percentage"""
+        if curr != last:
+            self.bar_wetness.setText(self.format_wetness(wet_average))
+
+    def update_wetness_trend(self, curr, last):
+        """Surface wetness trend"""
+        if curr != last:
+            self.bar_wetness_trend.setText(TREND_SIGN[curr])
+            self.bar_wetness_trend.setStyleSheet(self.bar_style_wetness_trend[curr])
 
     def format_temperature(self, track_deg, air_deg):
         """Format track & ambient temperature"""
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            return f"{calc.celsius2fahrenheit(track_deg):.1f}({calc.celsius2fahrenheit(air_deg):.1f}){self.sign_temp}"
-        return f"{track_deg:.1f}({air_deg:.1f}){self.sign_temp}"
+            track = f"{calc.celsius2fahrenheit(track_deg):05.2f}"[:5]
+            air = f"{calc.celsius2fahrenheit(air_deg):03.0f}"[:3]
+        else:
+            track = f"{track_deg: >4.2f}"[:4]
+            air = f"{air_deg: >4.2f}"[:4]
+        return f"{track}({air}){self.sign_temp}"
 
-    def format_rain(self, percentage):
+    def format_rain(self, rain):
         """Format rain percentage"""
-        return f"Rain {percentage * 100:.0f}{self.sign_rain}"
+        percentage = f"{rain: >3.0%}"[:3]
+        return f"{self.prefix_rain} {percentage}"
 
-    def format_wetness(self, min_wet, max_wet, avg_wet):
-        """Format wetness"""
-        return (f"{PREFIX_WETNESS[max_wet > 0.01]} {min_wet * 100:.0f}{self.sign_rain}"
-                f" < {max_wet * 100:.0f}{self.sign_rain}"
-                f" ≈ {avg_wet * 100:.0f}{self.sign_rain}")
+    def format_wetness(self, wetness):
+        """Format wetness percentage"""
+        percentage = f"{wetness: >3.0%}"[:3]
+        return f"{self.prefix_wetness[wetness > 0.01]} {percentage}"

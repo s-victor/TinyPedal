@@ -684,11 +684,6 @@ def tyre_lifespan_in_mins(
 
 
 # Misc
-def qss_min_width(text_width=1, style="", font_width=1, padding=0):
-    """Set QSS minimum width with style, use functools.partial to preconfig"""
-    return f"{style}min-width: {text_width * font_width + padding}px;"
-
-
 def image_size_adaption(org_width, org_height, target_width, target_height):
     """Whether adapt image size to width or height
 
