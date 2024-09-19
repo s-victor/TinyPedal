@@ -60,12 +60,14 @@ class Realtime(Overlay):
         self.vehicle_hide_range = self.set_range_dimension("vehicle_maximum_visible_distance")
         self.radar_hide_range = self.set_range_dimension("auto_hide_minimum_distance")
         self.radar_fade_factor = self.set_radar_fade_factor(self.radar_radius)
+        self.radar_fade_color = QColor(0, 0, 0)
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
         self.pixmap_background = QPixmap(self.area_size, self.area_size)
         self.pixmap_mask = QPixmap(self.area_size, self.area_size)
         self.pixmap_marks = QPixmap(self.area_size, self.area_size)
+        self.pixmap_fade = QPixmap(self.area_size, self.area_size)
 
         self.pen = QPen()
         self.brush = QBrush(Qt.SolidPattern)
@@ -76,6 +78,7 @@ class Realtime(Overlay):
         # Last data
         self.autohide_timer_start = 1
         self.show_radar = True
+        self.in_garage = False
 
         self.vehicles_data = []
         self.last_veh_data_version = None
@@ -83,6 +86,8 @@ class Realtime(Overlay):
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
+
+            self.in_garage = api.read.vehicle.in_garage()
 
             # Auto hide radar if no nearby vehicles
             if self.wcfg["auto_hide"]:
@@ -105,14 +110,6 @@ class Realtime(Overlay):
         if self.show_radar:
             painter = QPainter(self)
             painter.setRenderHint(QPainter.Antialiasing, True)
-            # Apply radar fade
-            if self.wcfg["enable_radar_fade"]:
-                radar_alpha = (self.radar_radius - minfo.vehicles.nearestLine
-                               ) * self.radar_fade_factor
-                if radar_alpha <= 0:
-                    return
-                if 0 < radar_alpha < 1:
-                    painter.setOpacity(radar_alpha)
             # Draw marks
             painter.drawPixmap(0, 0, self.pixmap_marks)
             # Draw vehicles
@@ -126,6 +123,17 @@ class Realtime(Overlay):
             if self.wcfg["show_background"] or self.wcfg["show_circle_background"]:
                 painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
                 painter.drawPixmap(0, 0, self.pixmap_background)
+            # Apply radar fade mask
+            if self.wcfg["enable_radar_fade"] and not self.in_garage:
+                radar_alpha = (self.radar_radius - minfo.vehicles.nearestLine
+                               ) * self.radar_fade_factor
+                if radar_alpha < 1:
+                    if radar_alpha < 0:
+                        radar_alpha = 0
+                    self.radar_fade_color.setAlphaF(radar_alpha)
+                    self.pixmap_fade.fill(self.radar_fade_color)
+                    painter.setCompositionMode(QPainter.CompositionMode_DestinationIn)
+                    painter.drawPixmap(0, 0, self.pixmap_fade)
 
     def draw_background(self):
         """Draw radar background"""
@@ -375,6 +383,10 @@ class Realtime(Overlay):
 
     def set_autohide_state(self):
         """Auto hide radar if in private qualifying or no nearby vehicles"""
+        if self.in_garage:
+            self.show_radar = True
+            return
+
         if (self.wcfg["auto_hide_in_private_qualifying"] and
             self.cfg.user.setting["module_restapi"]["enable"] and
             api.read.session.session_type() == 2 and
@@ -384,9 +396,8 @@ class Realtime(Overlay):
 
         lap_etime = api.read.timing.elapsed()
 
-        if self.is_nearby() or api.read.vehicle.in_garage():
-            if not self.show_radar:
-                self.show_radar = True
+        if self.is_nearby():
+            self.show_radar = True
             self.autohide_timer_start = lap_etime
 
         # Timer start should be smaller than elapsed time, reset if not
