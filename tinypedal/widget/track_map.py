@@ -86,7 +86,7 @@ class Realtime(Overlay):
         self.map_scale = 1
         self.map_offset = (0,0)
 
-        self.vehicles_data = None
+        self.vehicles_data = []
         self.last_coords_hash = -1
         self.last_veh_data_version = None
         self.circular_map = True

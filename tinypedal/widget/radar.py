@@ -77,7 +77,7 @@ class Realtime(Overlay):
         self.autohide_timer_start = 1
         self.show_radar = True
 
-        self.vehicles_data = None
+        self.vehicles_data = []
         self.last_veh_data_version = None
 
     def timerEvent(self, event):
@@ -380,12 +380,11 @@ class Realtime(Overlay):
             api.read.session.session_type() == 2 and
             minfo.restapi.privateQualifying == 1):
             self.show_radar = False
-            return None
+            return
 
         lap_etime = api.read.timing.elapsed()
-        in_garage = api.read.vehicle.in_garage()
 
-        if self.is_nearby() or in_garage:
+        if self.is_nearby() or api.read.vehicle.in_garage():
             if not self.show_radar:
                 self.show_radar = True
             self.autohide_timer_start = lap_etime
@@ -395,16 +394,12 @@ class Realtime(Overlay):
             self.autohide_timer_start = 1
 
         if self.autohide_timer_start:
-            autohide_timer = lap_etime - self.autohide_timer_start
-            if autohide_timer > self.wcfg["auto_hide_time_threshold"]:
+            if lap_etime - self.autohide_timer_start > self.wcfg["auto_hide_time_threshold"]:
                 self.show_radar = False
                 self.autohide_timer_start = 0
-        return None
 
     def is_nearby(self):
         """Check nearby vehicles"""
-        if not self.vehicles_data:
-            return False
         for veh_info in self.vehicles_data:
             if not veh_info.isPlayer:
                 # -x = left, +x = right, -y = ahead, +y = behind

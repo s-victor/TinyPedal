@@ -102,7 +102,7 @@ WIP
   - Now uses laptime pace for calculating "tyre lifespan in minutes".
 
 * Weather forecast Widget
-  - The "now" column always shows current weather conditon
+  - The "now" column always shows current weather condition
     even if RestAPI Module is disabled.
 
 * Misc

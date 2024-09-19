@@ -100,7 +100,7 @@ class Realtime(Overlay):
         self.pixmap_veh_same_lap = self.draw_vehicle_pixmap("same_lap")
 
         # Last data
-        self.vehicles_data = None
+        self.vehicles_data = []
         self.last_veh_data_version = None
 
         self.last_coords_hash = -1
