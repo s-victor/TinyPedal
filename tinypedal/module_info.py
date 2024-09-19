@@ -184,6 +184,7 @@ class VehiclesInfo:
     dataSet: tuple = field(default_factory=tuple)
     dataSetVersion: int = -1
     pitTimer: tuple = field(default_factory=tuple)
+    nearestLine: float = 999999
     nearestTraffic: float = 999999
     nearestYellow: float = 999999
 

@@ -1571,17 +1571,26 @@ Set vehicle round border radius.
     vehicle_outline_width
 Set vehicle outline width.
 
+    enable_radar_fade
+Enable radar gradually fade in/out effect.
+
+    radar_fade_out_radius
+Set radar fade out radius relative to radar radius. Value range in `0.5` to `1.0`. Default value is `0.98`.
+
+    radar_fade_in_radius
+Set radar fade in radius relative to radar radius. Minimum value is limited to `0.1`, maximum value cannot exceed `radar_fade_out_radius`. Default value is `0.8`.
+
     show_background
 Show background color that covers entire widget.
 
     show_circle_background
 Show circle background color.
 
-    show_fade_out
-Fade out Radar edge.
+    show_edge_fade_out
+Fade out radar edge.
 
-    fade_in_radius, fade_out_radius
-Set fade in/out radius, value range in `0.0` to `1.0`.
+    edge_fade_in_radius, edge_fade_out_radius
+Set fade in/out radius relative to radar radius, value range in `0.0` to `1.0`.
 
     show_overlap_indicator
 Show overlap indicator when there is nearby side by side vehicle.

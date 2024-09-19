@@ -53,11 +53,12 @@ class Realtime(DataModule):
                     minfo.vehicles.dataSetVersion = -1
 
                 vehicles_data = tuple(self.__update_vehicle_data(minfo.relative.classes))
-                nearest_timegap, nearest_yellow = nearest_distance_data(vehicles_data)
+                nearest_line, nearest_timegap, nearest_yellow = nearest_distance_data(vehicles_data)
 
                 # Output
                 minfo.vehicles.dataSet = vehicles_data
                 minfo.vehicles.dataSetVersion += 1
+                minfo.vehicles.nearestLine = nearest_line
                 minfo.vehicles.nearestTraffic = nearest_timegap
                 minfo.vehicles.nearestYellow = nearest_yellow
 
@@ -257,20 +258,21 @@ class Realtime(DataModule):
 
 def nearest_distance_data(
     vehicle_data: tuple,
+    nearest_line: int = 999999,
     nearest_timegap: int = 999999,
     nearest_yellow: int = 999999):
     """Calculate nearest distance data"""
     for data in vehicle_data:
         # Find nearest straight line distance
-        #if not data.isPlayer and data.relativeStraightDistance < nearest_dist:
-        #    nearest_dist = data.relativeStraightDistance
+        if not data.isPlayer and data.relativeStraightDistance < nearest_line:
+            nearest_line = data.relativeStraightDistance
         # Find nearest traffic time gap
         if 0 == data.inPit > data.relativeDistance and data.relativeTimeGap < nearest_timegap:
             nearest_timegap = data.relativeTimeGap
         # Find nearest yellow flag (on track) distance
         if data.isYellow and -nearest_yellow < data.relativeDistance < nearest_yellow:
             nearest_yellow = data.relativeDistance
-    return nearest_timegap, nearest_yellow
+    return nearest_line, nearest_timegap, nearest_yellow
 
 
 DataSet = namedtuple(

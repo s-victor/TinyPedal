@@ -59,6 +59,7 @@ class Realtime(Overlay):
         self.indicator_color_critical = QColor(self.wcfg["indicator_color_critical"])
         self.vehicle_hide_range = self.set_range_dimension("vehicle_maximum_visible_distance")
         self.radar_hide_range = self.set_range_dimension("auto_hide_minimum_distance")
+        self.radar_fade_factor = self.set_radar_fade_factor(self.radar_radius)
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
@@ -104,13 +105,21 @@ class Realtime(Overlay):
         if self.show_radar:
             painter = QPainter(self)
             painter.setRenderHint(QPainter.Antialiasing, True)
+            # Apply radar fade
+            if self.wcfg["enable_radar_fade"]:
+                radar_alpha = (self.radar_radius - minfo.vehicles.nearestLine
+                               ) * self.radar_fade_factor
+                if radar_alpha <= 0:
+                    return
+                if 0 < radar_alpha < 1:
+                    painter.setOpacity(radar_alpha)
             # Draw marks
             painter.drawPixmap(0, 0, self.pixmap_marks)
             # Draw vehicles
             if self.vehicles_data:
                 self.draw_vehicle(painter, self.indicator_dimension)
             # Apply mask
-            if self.wcfg["show_fade_out"]:
+            if self.wcfg["show_edge_fade_out"]:
                 painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)
                 painter.drawPixmap(0, 0, self.pixmap_mask)
             # Draw background below map & mask
@@ -151,8 +160,8 @@ class Realtime(Overlay):
             self.area_center,
             self.area_center
         )
-        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_in_radius"]), Qt.transparent)
-        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_out_radius"]), Qt.black)
+        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["edge_fade_in_radius"]), Qt.transparent)
+        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["edge_fade_out_radius"]), Qt.black)
         painter.setBrush(rad_gra)
         painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
@@ -438,6 +447,15 @@ class Realtime(Overlay):
         else:
             min_side = self.wcfg[f"{prefix}_side"]
         return DistanceRect(min_ahead, min_behind, min_side)
+
+    def set_radar_fade_factor(self, radar_radius):
+        """Set radar fade factor"""
+        range_fade_out = min(max(self.wcfg["radar_fade_out_radius"], 0.5), 1)
+        range_fade_in = min(max(self.wcfg["radar_fade_in_radius"], 0.1),
+                            range_fade_out - 0.01)  # make sure not exceed fade out range
+        range_diff = range_fade_out - range_fade_in
+        range_scale = range_fade_out / range_diff
+        return range_scale / radar_radius
 
 
 @dataclass

@@ -81,6 +81,17 @@ WIP
     "font_color_battery_cooldown, bkg_color_battery_cooldown" for battery charge, and
     "font_color_activation_cooldown, bkg_color_activation_cooldown" for activation timer.
 
+* Radar Widget
+  - Add "enable_radar_fade" option, which enables radar gradually fade in/out effect.
+  - Add "radar_fade_out_radius" option, which sets radar fade out radius relative to radar radius.
+    Value range in "0.5" to "1.0". Default value is "0.98".
+  - Add "radar_fade_in_radius" option, which sets radar fade in radius relative to radar radius.
+    Minimum value is limited to "0.1", maximum value cannot exceed "radar_fade_out_radius".
+    Default value is "0.8".
+  - Renamed options "show_fade_out, fade_in_radius, fade_out_radius" to
+    "show_edge_fade_out, edge_fade_in_radius, edge_fade_out_radius" to
+    distinguish them from new radar fade options.
+
 * Session Widget
   - Removed "lap number" and "driver position" readings. Those two readings are now included in
     the new "Laps and position Widget".
