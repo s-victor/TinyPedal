@@ -149,7 +149,6 @@ class Overlay(QWidget):
     def __toggle_lock(self, locked: bool):
         """Toggle widget lock state"""
         self.setWindowFlag(Qt.WindowTransparentForInput, locked)
-        self.setEnabled(not locked)
 
     @Slot(bool)
     def __toggle_hide(self, hidden: bool):
