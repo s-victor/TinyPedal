@@ -118,7 +118,7 @@ class Realtime(Overlay):
         self.last_rpm_max = 0
         self.last_rpm_scale = 0
         self.last_gear = 0
-        self.last_gauge_data = None
+        self.last_gauge_state = None
         self.last_battery = 0
         self.last_motor_state = -1
         self.last_limiter = -1
@@ -140,8 +140,8 @@ class Realtime(Overlay):
         )
         self.pixmap_gauge = QPixmap(self.gauge_width, gauge_height)
         self.draw_gauge(
-            self.bar_gauge, self.pixmap_gauge,
-            (0, 0, self.wcfg["font_color"], self.wcfg["bkg_color"])
+            self.bar_gauge, self.pixmap_gauge, 0, 0,
+            self.wcfg["font_color"], self.wcfg["bkg_color"],
         )
         layout.addWidget(self.bar_gauge, self.wcfg["column_index_gauge"], 0)
 
@@ -155,8 +155,11 @@ class Realtime(Overlay):
             layout.addWidget(self.bar_limiter, self.wcfg["column_index_gauge"], 1)
 
         if self.wcfg["show_rpm_bar"]:
+            bar_style_rpmbar = self.set_qss(
+                bg_color=self.wcfg["rpm_bar_bkg_color"]
+            )
             self.bar_rpmbar = self.set_qlabel(
-                style=self.set_qss(bg_color=self.wcfg["rpm_bar_bkg_color"]),
+                style=bar_style_rpmbar,
                 fixed_width=self.gauge_width,
                 fixed_height=self.rpmbar_height,
             )
@@ -165,8 +168,11 @@ class Realtime(Overlay):
             layout.addWidget(self.bar_rpmbar, self.wcfg["column_index_rpm"], 0)
 
         if self.wcfg["show_battery_bar"]:
+            bar_style_battbar = self.set_qss(
+                bg_color=self.wcfg["battery_bar_bkg_color"]
+            )
             self.bar_battbar = self.set_qlabel(
-                style=self.set_qss(bg_color=self.wcfg["battery_bar_bkg_color"]),
+                style=bar_style_battbar,
                 fixed_width=self.gauge_width,
                 fixed_height=self.battbar_height,
             )
@@ -187,6 +193,7 @@ class Realtime(Overlay):
             gear_max = api.read.engine.gear_max()
             lap_etime = api.read.timing.elapsed()
 
+            # RPM reference
             if self.last_rpm_max != rpm_max:
                 self.last_rpm_max = rpm_max
                 self.rpm_safe = int(rpm_max * self.wcfg["rpm_multiplier_safe"])
@@ -194,19 +201,21 @@ class Realtime(Overlay):
                 self.rpm_crit = int(rpm_max * self.wcfg["rpm_multiplier_critical"])
                 self.rpm_range = rpm_max - self.rpm_safe
 
-            # Gauge
+            # Shifting timer
             if self.last_gear != gear:
                 self.shifting_timer_start = lap_etime
                 self.last_gear = gear
             self.shifting_timer = lap_etime - self.shifting_timer_start
 
-            gauge_data = (
-                fmt.select_gear(gear),
-                round(self.speed_units(speed)),
-                *self.color_rpm(rpm, gear, gear_max, speed)
-            )
-            self.update_gauge(gauge_data, self.last_gauge_data)
-            self.last_gauge_data = gauge_data
+            # Gauge
+            gauge_state = rpm + gear + speed
+            if gauge_state != self.last_gauge_state:
+                gauge_fg, gauge_bg = self.color_rpm(rpm, gear, gear_max, speed)
+                self.draw_gauge(
+                    self.bar_gauge, self.pixmap_gauge,
+                    gear, speed, gauge_fg, gauge_bg,
+                )
+                self.last_gauge_state = gauge_state
 
             # RPM bar
             if self.wcfg["show_rpm_bar"]:
@@ -232,11 +241,6 @@ class Realtime(Overlay):
                 self.last_limiter = limiter
 
     # GUI update methods
-    def update_gauge(self, curr, last):
-        """Gauge update"""
-        if curr != last:
-            self.draw_gauge(self.bar_gauge, self.pixmap_gauge, curr)
-
     def update_rpmbar(self, curr, last):
         """RPM bar update"""
         if curr != last:
@@ -255,20 +259,20 @@ class Realtime(Overlay):
             else:
                 target_bar.hide()
 
-    def draw_gauge(self, canvas, pixmap, gauge_data):
+    def draw_gauge(self, canvas, pixmap, gear, speed, fg_color, bg_color):
         """Gauge"""
-        pixmap.fill(gauge_data[3])  # bg color
+        pixmap.fill(bg_color)
         painter = QPainter(pixmap)
 
         # Update gauge text
-        self.pen.setColor(gauge_data[2])  # fg color
+        self.pen.setColor(fg_color)
         painter.setPen(self.pen)
 
         painter.setFont(self.font_gear)
         painter.drawText(
             self.rect_text_gear,
             Qt.AlignCenter,
-            f"{gauge_data[0]}"
+            fmt.select_gear(gear)
         )
 
         if self.wcfg["show_speed"]:
@@ -276,7 +280,7 @@ class Realtime(Overlay):
             painter.drawText(
                 self.rect_text_speed,
                 Qt.AlignCenter,
-                f"{gauge_data[1]:03.0f}"
+                f"{self.speed_units(speed):03.0f}"
             )
 
         canvas.setPixmap(pixmap)
