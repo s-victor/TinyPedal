@@ -527,8 +527,8 @@ class Realtime(Overlay):
         """Yellow flag state"""
         if in_race or not self.wcfg["show_yellow_flag_for_race_only"]:
             if (api.read.session.yellow_flag() and
-                abs(minfo.vehicles.nearestYellow) < self.wcfg["yellow_flag_maximum_range"]):
-                return round(abs(minfo.vehicles.nearestYellow))
+                minfo.vehicles.nearestYellow < self.wcfg["yellow_flag_maximum_range"]):
+                return round(minfo.vehicles.nearestYellow)
         return MAGIC_NUM
 
     def blue_flag_state(self, in_race, lap_etime):
