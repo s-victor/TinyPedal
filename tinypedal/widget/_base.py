@@ -319,6 +319,8 @@ class Overlay(QWidget):
         elif height > 0:
             bar_temp.setMinimumHeight(height)
 
+        bar_temp.setTextFormat(Qt.PlainText)
+        bar_temp.setTextInteractionFlags(Qt.NoTextInteraction)
         bar_temp.setAlignment(self.set_text_alignment(align))
         return bar_temp
 

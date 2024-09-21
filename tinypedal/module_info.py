@@ -173,13 +173,7 @@ class RestAPIInfo:
 
 @dataclass
 class VehiclesInfo:
-    """Vehicles module output data
-
-    pitTimer list:
-        0 = in pit state
-        1 = pit start time
-        2 = pit timer
-    """
+    """Vehicles module output data"""
     dataSet: tuple = field(default_factory=tuple)
     dataSetVersion: int = -1
     drawOrder: list = field(default_factory=list)
@@ -236,9 +230,9 @@ class VehicleDataSet:
 
     def __post_init__(self):
         """Initialize sub-list"""
-        self.pitTimer = [0, -1, 0]
+        self.pitTimer = [0, -1, 0]  # 0 in pit state, 1 pit start time, 2 pit timer
         self.posXY = [0, 0]
-        self.tireCompound = [0, 0]
+        self.tireCompound = [0, 0]  # front, rear
         self.relativeRotatedPosXY = [0, 0]
 
 

@@ -20,8 +20,6 @@
 Trailing Widget
 """
 
-from collections import deque
-
 from PySide2.QtCore import Qt, QPointF, QRect
 from PySide2.QtGui import QPainter, QPixmap, QPen
 
@@ -53,8 +51,8 @@ class Realtime(Overlay):
             self.wcfg["clutch_line_width"],
             self.wcfg["ffb_line_width"],
         ))
-        self.max_samples = 3 + max_line_width  # 3 offset + max line width
-        self.pedal_scale = self.display_height / 100
+        max_samples = 3 + max_line_width  # 3 offset + max line width
+        self.samples_offset = max_samples - 2
         self.pedal_max_range = self.display_height
         self.area_width = self.display_width
         self.area_height = self.display_height + self.margin * 2
@@ -71,17 +69,17 @@ class Realtime(Overlay):
         self.pixmap_plot_last.fill(Qt.transparent)
 
         if self.wcfg["show_throttle"]:
-            self.data_throttle = self.create_data_samples(self.max_samples)
+            self.data_throttle = self.create_data_samples(max_samples)
         if self.wcfg["show_brake"]:
-            self.data_brake = self.create_data_samples(self.max_samples)
+            self.data_brake = self.create_data_samples(max_samples)
         if self.wcfg["show_clutch"]:
-            self.data_clutch = self.create_data_samples(self.max_samples)
+            self.data_clutch = self.create_data_samples(max_samples)
         if self.wcfg["show_ffb"]:
-            self.data_ffb = self.create_data_samples(self.max_samples)
+            self.data_ffb = self.create_data_samples(max_samples)
         if self.wcfg["show_wheel_lock"]:
-            self.data_wheel_lock = self.create_data_samples(self.max_samples)
+            self.data_wheel_lock = self.create_data_samples(max_samples)
         if self.wcfg["show_wheel_slip"]:
-            self.data_wheel_slip = self.create_data_samples(self.max_samples)
+            self.data_wheel_slip = self.create_data_samples(max_samples)
 
         self.pen = QPen()
         self.pen.setCapStyle(Qt.RoundCap)
@@ -113,44 +111,41 @@ class Realtime(Overlay):
                         throttle = api.read.input.throttle_raw()
                     else:
                         throttle = api.read.input.throttle()
-                    self.append_sample("throttle", throttle)
+                    self.update_sample(self.data_throttle, throttle)
 
                 if self.wcfg["show_brake"]:
                     if self.wcfg["show_raw_brake"]:
                         brake = api.read.input.brake_raw()
                     else:
                         brake = api.read.input.brake()
-                    self.append_sample("brake", brake)
+                    self.update_sample(self.data_brake, brake)
 
                 if self.wcfg["show_clutch"]:
                     if self.wcfg["show_raw_clutch"]:
                         clutch = api.read.input.clutch_raw()
                     else:
                         clutch = api.read.input.clutch()
-                    self.append_sample("clutch", clutch)
+                    self.update_sample(self.data_clutch, clutch)
 
                 if self.wcfg["show_ffb"]:
                     ffb = abs(api.read.input.force_feedback())
-                    self.append_sample("ffb", ffb)
+                    self.update_sample(self.data_ffb, ffb)
 
                 if self.wcfg["show_wheel_lock"]:
                     wheel_lock = min(abs(min(minfo.wheels.slipRatio)), 1)
-                    if wheel_lock >= self.wcfg["wheel_lock_threshold"] and api.read.input.brake_raw() > 0.02:
-                        self.append_sample("wheel_lock", wheel_lock)
-                    else:
-                        self.append_sample("wheel_lock", -999)
+                    if wheel_lock < self.wcfg["wheel_lock_threshold"] or api.read.input.brake_raw() <= 0.02:
+                        wheel_lock = -999
+                    self.update_sample(self.data_wheel_lock, wheel_lock)
 
                 if self.wcfg["show_wheel_slip"]:
                     wheel_slip = min(max(minfo.wheels.slipRatio), 1)
-                    if wheel_slip >= self.wcfg["wheel_slip_threshold"] and api.read.input.throttle_raw() > 0.02:
-                        self.append_sample("wheel_slip", wheel_slip)
-                    else:
-                        self.append_sample("wheel_slip", -999)
+                    if wheel_slip < self.wcfg["wheel_slip_threshold"] or api.read.input.throttle_raw() <= 0.02:
+                        wheel_slip = -999
+                    self.update_sample(self.data_wheel_slip, wheel_slip)
 
                 # Update after all pedal data set
                 if self.delayed_update:
                     self.delayed_update = False
-                    self.translate_samples()
                     self.draw_plot_section()
                     self.draw_plot()
                     self.pixmap_plot_last = self.pixmap_plot.copy(
@@ -236,37 +231,19 @@ class Realtime(Overlay):
             painter.drawPolyline(getattr(self, f"data_{suffix}"))
 
     # Additional methods
-    @staticmethod
-    def create_data_samples(samples):
+    def create_data_samples(self, max_samples):
         """Create data sample list"""
-        return deque([QPointF(0, 0) for _ in range(samples)], samples)
+        return tuple(QPointF(index * self.display_scale, 0)
+                    for index in range(max_samples))
 
-    def scale_position(self, position):
-        """Scale pedal value"""
-        return position * 100 * self.pedal_scale + self.margin
-
-    def append_sample(self, suffix, value):
-        """Append input position sample to data list"""
-        input_pos = self.scale_position(value)
-        getattr(self, f"data_{suffix}").appendleft(QPointF(0, input_pos))
+    def update_sample(self, dataset, value):
+        """Update input position samples"""
+        # Scale & set new input position
+        dataset[0].setY(value * self.display_height + self.margin)
+        # Move old input data (Y) 1 display unit to right
+        for index in range(self.samples_offset, -1, -1):
+            dataset[index + 1].setY(dataset[index].y())
         self.delayed_update = True
-
-    def translate_samples(self):
-        """Translate sample position"""
-        for index in range(self.max_samples):
-            index_offset = index * self.display_scale + 1
-            if self.wcfg["show_throttle"]:
-                self.data_throttle[index].setX(index_offset)
-            if self.wcfg["show_brake"]:
-                self.data_brake[index].setX(index_offset)
-            if self.wcfg["show_clutch"]:
-                self.data_clutch[index].setX(index_offset)
-            if self.wcfg["show_ffb"]:
-                self.data_ffb[index].setX(index_offset)
-            if self.wcfg["show_wheel_lock"]:
-                self.data_wheel_lock[index].setX(index_offset)
-            if self.wcfg["show_wheel_slip"]:
-                self.data_wheel_slip[index].setX(index_offset)
 
     def set_viewport_orientation(self):
         """Set viewport orientation"""
