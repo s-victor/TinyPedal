@@ -1633,7 +1633,7 @@ Auto hides radar display when no nearby vehicles.
 Auto hides radar in private qualifying session, requires both `auto_hide` and `RestAPI Module` enabled.
 
     auto_hide_time_threshold
-Set amount time(unit second) before triggering auto hide. Default is `1` second.
+Set amount time(unit second) before triggering auto hide. Default is `1` second. Note, this option has no effect while `enable_radar_fade` is enabled.
 
     auto_hide_minimum_distance_ahead, behind, side
 The three values define an invisible rectangle area(unit meter) that auto hides radar if no vehicle is within the rectangle area. Default value is `-1`, which auto scales with `radar_radius` value. Set to any positive value to customize radar auto-hide range. Note, each value is measured from center of player's vehicle position.

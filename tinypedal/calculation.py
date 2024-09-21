@@ -183,7 +183,7 @@ def force_ratio(value1, value2):
     return 0
 
 
-def rotate_pos(ori_rad, value1, value2):
+def rotate_coordinate(ori_rad, value1, value2):
     """Rotate x y coordinates"""
     sin_rad = math.sin(ori_rad)
     cos_rad = math.cos(ori_rad)
@@ -510,12 +510,12 @@ def line_intersect_coords(coord_a, coord_b, radians, length):
         coord_b[1] - coord_a[1],
         coord_b[0] - coord_a[0]
     )
-    pos_x1, pos_y1 = rotate_pos(
+    pos_x1, pos_y1 = rotate_coordinate(
         yaw_rad + radians,
         length,  # x pos
         0  # y pos
     )
-    pos_x2, pos_y2 = rotate_pos(
+    pos_x2, pos_y2 = rotate_coordinate(
         yaw_rad - radians,
         length,  # x pos
         0  # y pos

@@ -100,7 +100,6 @@ class Realtime(Overlay):
         self.pixmap_veh_same_lap = self.draw_vehicle_pixmap("same_lap")
 
         # Last data
-        self.vehicles_data = []
         self.last_veh_data_version = None
 
         self.last_coords_hash = -1
@@ -131,7 +130,6 @@ class Realtime(Overlay):
     def update_vehicle(self, curr, last):
         """Vehicle sort & update"""
         if curr != last:
-            self.vehicles_data = sorted(minfo.vehicles.dataSet, reverse=True)
             self.update()
 
     def update_map(self, curr, last):
@@ -146,8 +144,7 @@ class Realtime(Overlay):
         # Draw map
         self.draw_map_image(painter)
         # Draw vehicles
-        if self.vehicles_data:
-            self.draw_vehicle(painter)
+        self.draw_vehicle(painter, minfo.vehicles.dataSet, minfo.vehicles.drawOrder)
         # Apply mask
         if self.wcfg["show_fade_out"]:
             painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)
@@ -241,7 +238,7 @@ class Realtime(Overlay):
         # Player vehicle orientation yaw radians + 180 deg rotation correction
         plr_ori_rad = api.read.vehicle.orientation_yaw_radians() + 3.14159265
         # x, y position & offset relative to player
-        rot_pos_x, rot_pos_y = calc.rotate_pos(
+        rot_pos_x, rot_pos_y = calc.rotate_coordinate(
             plr_ori_rad,   # plr_ori_rad, rotate view
             api.read.vehicle.position_longitudinal() * self.global_scale - self.map_offset[0],
             api.read.vehicle.position_lateral() * self.global_scale - self.map_offset[1]
@@ -285,7 +282,7 @@ class Realtime(Overlay):
 
         painter.resetTransform()
 
-    def draw_vehicle(self, painter):
+    def draw_vehicle(self, painter, veh_info, veh_draw_order):
         """Draw vehicles"""
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         if self.wcfg["show_vehicle_standings"]:
@@ -294,35 +291,41 @@ class Realtime(Overlay):
             painter.setPen(self.pen)
 
         # Draw vehicle within view range
-        for veh_info in self.vehicles_data:
+        for index in veh_draw_order:
             # Draw player vehicle
-            if veh_info.isPlayer:
+            if veh_info[index].isPlayer:
                 painter.translate(self.area_center, self.veh_offset_y)
                 painter.drawPixmap(-self.veh_size, -self.veh_size, self.pixmap_veh_player)
+
                 if self.wcfg["show_vehicle_standings"]:
-                    self.draw_text_standings(painter, veh_info.position)
+                    painter.drawText(
+                        self.veh_text_shape, Qt.AlignCenter,
+                        f"{veh_info[index].positionOverall}")
                 painter.resetTransform()
 
             # Draw opponent vehicle in view range
-            elif veh_info.relativeStraightDistance < self.view_range:
+            elif veh_info[index].relativeStraightDistance < self.view_range:
                 # Rotated position relative to player
-                pos_x = self.scale_veh_pos(veh_info.relativeRotatedPosXZ[0], self.area_center)
-                pos_y = self.scale_veh_pos(veh_info.relativeRotatedPosXZ[1], self.veh_offset_y)
-
+                pos_x, pos_y = (  # position = raw position * global scale + offset
+                    veh_info[index].relativeRotatedPosXY[0] * self.global_scale + self.area_center,
+                    veh_info[index].relativeRotatedPosXY[1] * self.global_scale + self.veh_offset_y
+                )
                 painter.translate(pos_x, pos_y)
+
                 if not self.wcfg["show_circle_vehicle_shape"]:
-                    painter.rotate(calc.rad2deg(-veh_info.relativeOrientationXZRadians))
-                painter.drawPixmap(-self.veh_size, -self.veh_size, self.color_veh_pixmap(veh_info))
+                    painter.rotate(
+                        calc.rad2deg(-veh_info[index].relativeOrientationXYRadians))
+                painter.drawPixmap(
+                    -self.veh_size, -self.veh_size,
+                    self.color_veh_pixmap(veh_info[index]))
 
                 if self.wcfg["show_vehicle_standings"]:
                     painter.resetTransform()
                     painter.translate(pos_x, pos_y)
-                    self.draw_text_standings(painter, veh_info.position)
+                    painter.drawText(
+                        self.veh_text_shape, Qt.AlignCenter,
+                        f"{veh_info[index].positionOverall}")
                 painter.resetTransform()
-
-    def draw_text_standings(self, painter, veh_pos):
-        """Draw vehicles standings text"""
-        painter.drawText(self.veh_text_shape, Qt.AlignCenter, f"{veh_pos}")
 
     def draw_map_mask_pixmap(self):
         """Map mask pixmap"""
@@ -368,17 +371,13 @@ class Realtime(Overlay):
         return pixmap_veh
 
     # Additional methods
-    def scale_veh_pos(self, position, offset):
-        """Scale vehicle position coordinate to global scale"""
-        return position * self.global_scale + offset
-
     def color_veh_pixmap(self, veh_info):
         """Compare lap differences & set color"""
-        if veh_info.position == 1:
+        if veh_info.positionOverall == 1:
             return self.pixmap_veh_leader
         if veh_info.inPit:
             return self.pixmap_veh_in_pit
-        if veh_info.isYellow and not veh_info.inPit + veh_info.inGarage:
+        if veh_info.isYellow and not veh_info.inPit:
             return self.pixmap_veh_yellow
         if veh_info.isLapped > 0:
             return self.pixmap_veh_laps_ahead

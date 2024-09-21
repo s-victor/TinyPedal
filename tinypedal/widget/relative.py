@@ -25,6 +25,7 @@ from PySide2.QtGui import QPixmap
 from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
+from ..api_control import api
 from .. import formatter as fmt
 from ..module_info import minfo
 from ._base import Overlay
@@ -256,9 +257,8 @@ class Realtime(Overlay):
         if self.state.active:
 
             relative_list = minfo.relative.relative
-            vehicles_data = minfo.vehicles.dataSet
             total_idx = len(relative_list)
-            total_veh_idx = len(vehicles_data)
+            total_veh_idx = api.read.vehicle.total_vehicles()
 
             # Relative update
             for idx in range(self.veh_range):
@@ -266,7 +266,7 @@ class Realtime(Overlay):
                 # Get vehicle data
                 if idx < total_idx and 0 <= relative_list[idx] < total_veh_idx:
                     self.curr_data[idx] = self.get_data(
-                        relative_list[idx], vehicles_data)
+                        relative_list[idx], minfo.vehicles.dataSet)
                 elif self.last_data[idx] == self.empty_vehicles_data:
                     continue  # skip if already empty
                 else:
@@ -589,50 +589,50 @@ class Realtime(Overlay):
             return f"OUT{pit_time: >5.1f}"[:8] if pit_time > 0 else "-:--.---"
         return calc.sec2laptime_full(laptime_last)[:8].rjust(8)
 
-    def get_data(self, index, vehicles_data):
+    def get_data(self, index, veh_info):
         """Relative data"""
         # Check whether is lapped (is_lapped: int)
-        is_lapped = vehicles_data[index].isLapped
+        is_lapped = veh_info[index].isLapped
 
         # Highlighted player (hi_player: bool)
-        hi_player = self.wcfg["show_player_highlighted"] and vehicles_data[index].isPlayer
+        hi_player = self.wcfg["show_player_highlighted"] and veh_info[index].isPlayer
 
         # 0 Vehicle in pit (in_pit: bool)
-        in_pit = vehicles_data[index].inPit
+        in_pit = veh_info[index].inPit
 
         # 1 Driver position (position: int, is_lapped, hi_player)
-        position = (vehicles_data[index].position, is_lapped, hi_player)
+        position = (veh_info[index].positionOverall, is_lapped, hi_player)
 
         # 2 Driver name (drv_name: str, is_lapped, hi_player)
-        drv_name = (vehicles_data[index].driverName, is_lapped, hi_player)
+        drv_name = (veh_info[index].driverName, is_lapped, hi_player)
 
         # 3 Vehicle name (veh_name: str, is_lapped, hi_player)
-        veh_name = (vehicles_data[index].vehicleName, is_lapped, hi_player)
+        veh_name = (veh_info[index].vehicleName, is_lapped, hi_player)
 
         # 4 Position in class (pos_class: int, hi_player)
-        pos_class = (vehicles_data[index].positionInClass, hi_player)
+        pos_class = (veh_info[index].positionInClass, hi_player)
 
         # 5 Vehicle class (veh_class: str)
-        veh_class = vehicles_data[index].vehicleClass
+        veh_class = veh_info[index].vehicleClass
 
         # 6 Time gap (time_gap: float, is_lapped, hi_player)
-        time_gap = (vehicles_data[index].relativeTimeGap, is_lapped, hi_player)
+        time_gap = (veh_info[index].relativeTimeGap, is_lapped, hi_player)
 
         # 7 Tyre compound index (tire_idx: tuple, hi_player)
-        tire_idx = (vehicles_data[index].tireCompound, hi_player)
+        tire_idx = (veh_info[index].tireCompound, hi_player)
 
         # 8 Lap time (laptime: tuple, hi_player)
         laptime = ((
-                vehicles_data[index].inPit,
-                vehicles_data[index].lastLapTime,
-                vehicles_data[index].pitTime
+                veh_info[index].inPit,
+                veh_info[index].lastLapTime,
+                veh_info[index].pitTimer[2]
             ),
             hi_player)
 
         # 9 Pitstop count (pit_count: int, pit_state: int, hi_player)
         pit_count = (
-            vehicles_data[index].numPitStops,
-            vehicles_data[index].pitState,
+            veh_info[index].numPitStops,
+            veh_info[index].pitState,
             hi_player)
 
         return (in_pit, position, drv_name, veh_name, pos_class, veh_class,

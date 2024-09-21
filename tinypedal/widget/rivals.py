@@ -254,9 +254,8 @@ class Realtime(Overlay):
         if self.state.active:
 
             player_idx = api.read.vehicle.player_index()
-            vehicles_data = minfo.vehicles.dataSet
             total_idx = len(minfo.relative.classes)
-            total_veh_idx = len(vehicles_data)
+            total_veh_idx = api.read.vehicle.total_vehicles()
             in_race = api.read.session.in_race()
 
             if player_idx < total_idx:
@@ -270,7 +269,7 @@ class Realtime(Overlay):
                 # Get vehicle data
                 if 0 <= rivals_list[idx] < total_veh_idx:
                     self.curr_data[idx] = self.get_data(
-                        rivals_list[idx], player_idx, vehicles_data, in_race)
+                        rivals_list[idx], player_idx, minfo.vehicles.dataSet, in_race)
                 elif self.last_data[idx] == self.empty_vehicles_data:
                     continue  # skip if already empty
                 else:
@@ -586,54 +585,54 @@ class Realtime(Overlay):
             return f"{'+-'[is_ahead]}{gap_behind_class:.0f}L"
         return f"{'+-'[is_ahead]}{gap_behind_class:.{self.int_decimals}f}"
 
-    def get_data(self, index, player_idx, vehicles_data, in_race):
+    def get_data(self, index, player_idx, veh_info, in_race):
         """Standings data"""
         # 0 Vehicle in pit (in_pit: bool)
-        in_pit = vehicles_data[index].inPit
+        in_pit = veh_info[index].inPit
 
         # 1 Driver position (position: int)
-        position = vehicles_data[index].position
+        position = veh_info[index].positionOverall
 
         # 2 Driver name (drv_name: str)
-        drv_name = vehicles_data[index].driverName
+        drv_name = veh_info[index].driverName
 
         # 3 Vehicle name (veh_name: str)
-        veh_name = vehicles_data[index].vehicleName
+        veh_name = veh_info[index].vehicleName
 
         # 4 Position in class (pos_class: int)
-        pos_class = vehicles_data[index].positionInClass
+        pos_class = veh_info[index].positionInClass
 
         # 5 Vehicle class (veh_class: str)
-        veh_class = vehicles_data[index].vehicleClass
+        veh_class = veh_info[index].vehicleClass
 
         # 6 Tyre compound index (tire_idx: tuple)
-        tire_idx = vehicles_data[index].tireCompound
+        tire_idx = veh_info[index].tireCompound
 
         # 7 Lap time (laptime: tuple)
         if self.wcfg["show_best_laptime"] or in_race:
             laptime = (
-                    vehicles_data[index].inPit,
-                    vehicles_data[index].lastLapTime,
-                    vehicles_data[index].pitTime
+                    veh_info[index].inPit,
+                    veh_info[index].lastLapTime,
+                    veh_info[index].pitTimer[2]
                 )
         else:
             laptime = (
                     0,
-                    vehicles_data[index].bestLapTime,
+                    veh_info[index].bestLapTime,
                     0
                 )
 
         # 8 Best lap time (best_laptime: float)
-        best_laptime = vehicles_data[index].bestLapTime
+        best_laptime = veh_info[index].bestLapTime
 
         # 9 Pitstop count (pit_count: int, pit_state: int)
         pit_count = (
-            vehicles_data[index].numPitStops,
-            vehicles_data[index].pitState)
+            veh_info[index].numPitStops,
+            veh_info[index].pitState)
 
         # 10 Time interval (time_int: float, is_ahead)
-        is_ahead = vehicles_data[index].position < vehicles_data[player_idx].position
-        time_int = (vehicles_data[player_idx if is_ahead else index].gapBehindNextInClass, is_ahead)
+        is_ahead = veh_info[index].positionOverall < veh_info[player_idx].positionOverall
+        time_int = (veh_info[player_idx if is_ahead else index].gapBehindNextInClass, is_ahead)
 
         return (in_pit, position, drv_name, veh_name, pos_class, veh_class,
                 tire_idx, laptime, best_laptime, pit_count, time_int)

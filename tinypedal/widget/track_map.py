@@ -86,7 +86,6 @@ class Realtime(Overlay):
         self.map_scale = 1
         self.map_offset = (0,0)
 
-        self.vehicles_data = []
         self.last_coords_hash = -1
         self.last_veh_data_version = None
         self.circular_map = True
@@ -117,7 +116,6 @@ class Realtime(Overlay):
     def update_vehicle(self, curr, last):
         """Vehicle sort & update"""
         if curr != last:
-            self.vehicles_data = sorted(minfo.vehicles.dataSet, reverse=True)
             self.update()
 
     def paintEvent(self, event):
@@ -127,8 +125,7 @@ class Realtime(Overlay):
         # Draw map
         painter.drawPixmap(0, 0, self.pixmap_map)
         # Draw vehicles
-        if self.vehicles_data:
-            self.draw_vehicle(painter)
+        self.draw_vehicle(painter, minfo.vehicles.dataSet, minfo.vehicles.drawOrder)
 
     def create_map_path(self, raw_coords=None):
         """Create map path"""
@@ -260,31 +257,40 @@ class Realtime(Overlay):
                     self.area_size * 0.5
                 )
 
-    def draw_vehicle(self, painter):
+    def draw_vehicle(self, painter, veh_info, veh_draw_order):
         """Draw vehicles"""
         if self.wcfg["show_vehicle_standings"]:
             painter.setFont(self.font)
             self.pen.setColor(self.wcfg["font_color"])
             painter.setPen(self.pen)
 
-        for veh_info in self.vehicles_data:
+        for index in veh_draw_order:
             if self.last_coords_hash:
-                pos_x, pos_y = self.vehicle_coords_scale(*veh_info.posXZ)
+                pos_x, pos_y = (  # position = (coords - min_range) * scale + offset
+                    round((veh_info[index].posXY[0] - self.map_range[0])
+                        * self.map_scale + self.map_offset[0]),  # min range x, offset x
+                    round((veh_info[index].posXY[1] - self.map_range[2])
+                        * self.map_scale + self.map_offset[1])  # min range y, offset y
+                )  # round to prevent bouncing
                 offset = 0
             else:  # vehicles on temp map
-                inpit_offset = self.wcfg["font_size"] if veh_info.inPit else 0
-                pos_x, pos_y = calc.rotate_pos(
-                    6.2831853 * veh_info.lapProgress,
+                inpit_offset = self.wcfg["font_size"] if veh_info[index].inPit else 0
+                pos_x, pos_y = calc.rotate_coordinate(
+                    6.2831853 * veh_info[index].lapProgress,
                     self.temp_map_size / -2 + inpit_offset,  # x pos
                     0)  # y pos
                 offset = self.area_size * 0.5
 
             painter.translate(offset + pos_x, offset + pos_y)
-            painter.drawPixmap(-self.veh_size, -self.veh_size, self.color_veh_pixmap(veh_info))
+            painter.drawPixmap(
+                -self.veh_size, -self.veh_size,
+                self.color_veh_pixmap(veh_info[index]))
 
             # Draw text standings
             if self.wcfg["show_vehicle_standings"]:
-                painter.drawText(self.veh_text_shape, Qt.AlignCenter, f"{veh_info.position}")
+                painter.drawText(
+                    self.veh_text_shape, Qt.AlignCenter,
+                    f"{veh_info[index].positionOverall}")
             painter.resetTransform()
 
     def draw_vehicle_pixmap(self, suffix):
@@ -307,40 +313,15 @@ class Realtime(Overlay):
         return pixmap_veh
 
     # Additional methods
-    @staticmethod
-    def coords_scale(coords, min_range, scale, offset):
-        """Coordinates scale & offset"""
-        return (coords - min_range) * scale + offset
-
-    def vehicle_coords_scale(self, raw_pos_x, raw_pos_y):
-        """Vehicle coordinates scale, round to prevent bouncing"""
-        veh_pos_x = round(
-            self.coords_scale(
-                raw_pos_x,
-                self.map_range[0],  # min range x
-                self.map_scale,
-                self.map_offset[0]  # offset x
-            )
-        )
-        veh_pos_y = round(
-            self.coords_scale(
-                raw_pos_y,
-                self.map_range[2],  # min range y
-                self.map_scale,
-                self.map_offset[1]  # offset y
-            )
-        )
-        return veh_pos_x, veh_pos_y
-
     def color_veh_pixmap(self, veh_info):
         """Compare lap differences & set color"""
         if veh_info.isPlayer:
             return self.pixmap_veh_player
-        if veh_info.position == 1:
+        if veh_info.positionOverall == 1:
             return self.pixmap_veh_leader
         if veh_info.inPit:
             return self.pixmap_veh_in_pit
-        if veh_info.isYellow and not veh_info.inPit + veh_info.inGarage:
+        if veh_info.isYellow and not veh_info.inPit:
             return self.pixmap_veh_yellow
         if veh_info.isLapped > 0:
             return self.pixmap_veh_laps_ahead

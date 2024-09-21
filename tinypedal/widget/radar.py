@@ -78,9 +78,8 @@ class Realtime(Overlay):
         # Last data
         self.autohide_timer_start = 1
         self.show_radar = True
-        self.in_garage = False
+        self.in_garage = True
 
-        self.vehicles_data = []
         self.last_veh_data_version = None
 
     def timerEvent(self, event):
@@ -102,7 +101,6 @@ class Realtime(Overlay):
     def update_vehicle(self, curr, last):
         """Vehicle update"""
         if curr != last:
-            self.vehicles_data = minfo.vehicles.dataSet
             self.update()
 
     def paintEvent(self, event):
@@ -113,8 +111,7 @@ class Realtime(Overlay):
             # Draw marks
             painter.drawPixmap(0, 0, self.pixmap_marks)
             # Draw vehicles
-            if self.vehicles_data:
-                self.draw_vehicle(painter, self.indicator_dimension)
+            self.draw_vehicle(painter, self.indicator_dimension)
             # Apply mask
             if self.wcfg["show_edge_fade_out"]:
                 painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)
@@ -161,13 +158,7 @@ class Realtime(Overlay):
 
         # Draw radar mask
         painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
-        rad_gra = QRadialGradient(
-            self.area_center,
-            self.area_center,
-            self.area_center,
-            self.area_center,
-            self.area_center
-        )
+        rad_gra = QRadialGradient(*(self.area_center for _ in range(5)))
         rad_gra.setColorAt(calc.zero_one_range(self.wcfg["edge_fade_in_radius"]), Qt.transparent)
         rad_gra.setColorAt(calc.zero_one_range(self.wcfg["edge_fade_out_radius"]), Qt.black)
         painter.setBrush(rad_gra)
@@ -302,12 +293,14 @@ class Realtime(Overlay):
         nearest_right = indicator.max_range_x
 
         # Draw opponent vehicle within radar range
-        for veh_info in self.vehicles_data:
+        veh_total = api.read.vehicle.total_vehicles()
+        for index, veh_info in enumerate(minfo.vehicles.dataSet):
+            if index >= veh_total:
+                break
             if veh_info.isPlayer:
                 continue
-
             # -x = left, +x = right, -y = ahead, +y = behind
-            raw_pos_x, raw_pos_y = veh_info.relativeRotatedPosXZ
+            raw_pos_x, raw_pos_y = veh_info.relativeRotatedPosXY
             if (self.vehicle_hide_range.behind > raw_pos_y > -self.vehicle_hide_range.ahead and
                 -self.vehicle_hide_range.side < raw_pos_x < self.vehicle_hide_range.side):
 
@@ -323,7 +316,7 @@ class Realtime(Overlay):
                 # Rotated position relative to player
                 pos_x = self.scale_veh_pos(raw_pos_x)
                 pos_y = self.scale_veh_pos(raw_pos_y)
-                angle_deg = round(calc.rad2deg(-veh_info.relativeOrientationXZRadians), 3)
+                angle_deg = round(calc.rad2deg(-veh_info.relativeOrientationXYRadians), 3)
 
                 # Draw vehicle
                 self.brush.setColor(self.color_lap_diff(veh_info))
@@ -369,11 +362,11 @@ class Realtime(Overlay):
 
     def color_lap_diff(self, veh_info):
         """Compare lap differences & set color"""
-        if veh_info.position == 1:
+        if veh_info.positionOverall == 1:
             return self.wcfg["vehicle_color_leader"]
         if veh_info.inPit:
             return self.wcfg["vehicle_color_in_pit"]
-        if veh_info.isYellow and not veh_info.inPit + veh_info.inGarage:
+        if veh_info.isYellow and not veh_info.inPit:
             return self.wcfg["vehicle_color_yellow"]
         if veh_info.isLapped > 0:
             return self.wcfg["vehicle_color_laps_ahead"]
@@ -383,38 +376,45 @@ class Realtime(Overlay):
 
     def set_autohide_state(self):
         """Auto hide radar if in private qualifying or no nearby vehicles"""
+        # Always show in garage
         if self.in_garage:
             self.show_radar = True
             return
-
+        # Hide in private qualifying
         if (self.wcfg["auto_hide_in_private_qualifying"] and
             self.cfg.user.setting["module_restapi"]["enable"] and
             api.read.session.session_type() == 2 and
             minfo.restapi.privateQualifying == 1):
             self.show_radar = False
             return
-
+        # Bypass auto hide timer if radar fade enabled
+        is_nearby = self.is_nearby()
+        if self.wcfg["enable_radar_fade"]:
+            self.show_radar = is_nearby
+            return
+        # Start auto hide timer
         lap_etime = api.read.timing.elapsed()
-
-        if self.is_nearby():
+        if is_nearby:
             self.show_radar = True
             self.autohide_timer_start = lap_etime
-
-        # Timer start should be smaller than elapsed time, reset if not
-        if self.autohide_timer_start > lap_etime:
-            self.autohide_timer_start = 1
-
+        # Update auto hide timer
         if self.autohide_timer_start:
             if lap_etime - self.autohide_timer_start > self.wcfg["auto_hide_time_threshold"]:
                 self.show_radar = False
                 self.autohide_timer_start = 0
+            # Timer start should be smaller than elapsed time, reset if not
+            elif self.autohide_timer_start > lap_etime:
+                self.autohide_timer_start = 1
 
     def is_nearby(self):
         """Check nearby vehicles"""
-        for veh_info in self.vehicles_data:
+        veh_total = api.read.vehicle.total_vehicles()
+        for index, veh_info in enumerate(minfo.vehicles.dataSet):
+            if index >= veh_total:
+                break
             if not veh_info.isPlayer:
                 # -x = left, +x = right, -y = ahead, +y = behind
-                raw_pos_x, raw_pos_y = veh_info.relativeRotatedPosXZ
+                raw_pos_x, raw_pos_y = veh_info.relativeRotatedPosXY
                 if (self.radar_hide_range.behind > raw_pos_y > -self.radar_hide_range.ahead and
                     -self.radar_hide_range.side < raw_pos_x < self.radar_hide_range.side):
                     return True

@@ -21,7 +21,6 @@ Module info
 """
 
 from __future__ import annotations
-import array
 
 from dataclasses import dataclass, field
 from collections import deque
@@ -183,13 +182,14 @@ class VehiclesInfo:
     """
     dataSet: tuple = field(default_factory=tuple)
     dataSetVersion: int = -1
-    pitTimer: tuple = field(default_factory=tuple)
+    drawOrder: list = field(default_factory=list)
     nearestLine: float = 999999
     nearestTraffic: float = 999999
     nearestYellow: float = 999999
 
     def __post_init__(self):
-        self.pitTimer = tuple(array.array("f", [0,-1,0]) for _ in range(128))
+        self.dataSet = tuple(VehicleDataSet() for _ in range(128))
+        self.drawOrder = [0]
 
 
 @dataclass
@@ -201,6 +201,45 @@ class WheelsInfo:
 
     def __post_init__(self):
         self.slipRatio = [0,0,0,0]
+
+
+@dataclass
+class VehicleDataSet:
+    """Vehicle data set"""
+    isPlayer: bool = False
+    positionOverall: int = 0
+    positionInClass: int = 0
+    driverName: str = ""
+    vehicleName: str = ""
+    vehicleClass: str = ""
+    sessionBestLapTime: float = 99999
+    classBestLapTime: float = 99999
+    bestLapTime: float = 99999
+    lastLapTime: float = 99999
+    lapProgress: float = 0
+    relativeTimeGap: float = 0
+    gapBehindNextInClass: float = 0
+    gapBehindNext: float = 0
+    gapBehindLeader: float = 0
+    isLapped: bool = False
+    isYellow: bool = False
+    inPit: bool = False
+    numPitStops: int = 0
+    pitState: int = 0
+    relativeOrientationXYRadians: float = 0
+    relativeStraightDistance: float = 0
+    # Sub-list
+    pitTimer: list = field(default_factory=list)
+    posXY: list = field(default_factory=list)
+    tireCompound: list = field(default_factory=list)
+    relativeRotatedPosXY: list = field(default_factory=list)
+
+    def __post_init__(self):
+        """Initialize sub-list"""
+        self.pitTimer = [0, -1, 0]
+        self.posXY = [0, 0]
+        self.tireCompound = [0, 0]
+        self.relativeRotatedPosXY = [0, 0]
 
 
 class ModuleInfo:
