@@ -144,7 +144,6 @@ switchto6() {
 
     sed -i "0,/QAction/{s/QAction//}" "${DESTINATION_PATH}/tinypedal/ui/vehicle_brand_editor.py"
 
-    files=("app.py" "tray_icon.py" "menu.py" "vehicle_brand_editor.py")
     find "${DESTINATION_PATH}/tinypedal/ui/" \( -name "app.py" -o -name "tray_icon.py" -o -name "menu.py" -o -name "vehicle_brand_editor.py" \) -exec sh -c '
 
     # Replace the first occurrence of ", QAction"
