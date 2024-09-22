@@ -92,6 +92,10 @@ WIP
     "show_edge_fade_out, edge_fade_in_radius, edge_fade_out_radius" to
     distinguish them from new radar fade options.
 
+* Relative, Rivals, Standings Widget
+  - "show_pit_status" option now also displays garage status for driver in garage.
+  - Add "garage_status_text" option, which sets custom garage status text for driver in garage.
+
 * Session Widget
   - Removed "lap number" and "driver position" readings. Those two readings are now included in
     the new "Laps and position Widget".

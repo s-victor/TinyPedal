@@ -117,7 +117,6 @@ class Realtime(DataModule):
             data.tireCompound[1] = api.read.tyre.compound_rear(index)
 
             # Temp var only
-            in_garage = api.read.vehicle.in_garage(index)
             lap_etime = api.read.timing.elapsed(index)
             speed = api.read.vehicle.speed(index)
             laps_done = api.read.lap.completed_laps(index)
@@ -126,13 +125,14 @@ class Realtime(DataModule):
             # Temp & output var
             is_player = data.isPlayer = api.read.vehicle.is_player(index)
             position_overall = data.positionOverall = api.read.vehicle.place(index)
-            in_pit = data.inPit = api.read.vehicle.in_pits(index)
+            in_pit = data.inPit = (  #  value 0 = not in pit, 1 = in pit, 2 = in garage
+                api.read.vehicle.in_pits(index) + api.read.vehicle.in_garage(index))
             is_yellow = data.isYellow = speed < 8
             lap_progress = data.lapProgress = calc.lap_progress_distance(lap_distance, track_length)
 
             data.gapBehindNextInClass = calc_gap_behind_next_in_class(
                 opt_index_ahead, track_length, speed, laps_done, lap_progress)
-            calc_pit_time(data.pitTimer, in_pit, in_garage, lap_etime)
+            calc_pit_time(data.pitTimer, in_pit, lap_etime)
 
             # Position & relative data
             if is_player:
@@ -211,11 +211,11 @@ class Realtime(DataModule):
         minfo.vehicles.dataSetVersion += 1
 
 
-def calc_pit_time(pit_timer, in_pit, in_garage, lap_etime):
+def calc_pit_time(pit_timer: list, in_pit: int, lap_etime: float):
     """Calculate lap & pit time
 
-    Index:
-        0 = in pit state
+    Pit timer list indexes:
+        0 = in pit state (value 0 = not in pit, 1 = in pit, 2 = in garage)
         1 = pit start time
         2 = pit timer
     """
@@ -226,7 +226,7 @@ def calc_pit_time(pit_timer, in_pit, in_garage, lap_etime):
         #if in_pit:  # reset pit time if just entered pit
         #    pit_timer[2] = 0
     # Ignore pit timer in garage
-    if in_garage:
+    if in_pit == 2:
         pit_timer[1] = -1
         pit_timer[2] = 0
         return

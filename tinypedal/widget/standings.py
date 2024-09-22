@@ -258,18 +258,25 @@ class Realtime(Overlay):
             )
         # Vehicle in pit
         if self.wcfg["show_pit_status"]:
+            self.pit_status_text = (
+                self.wcfg["pit_status_text"],
+                self.wcfg["garage_status_text"]
+            )
             self.bar_style_pit = (
                 self.set_qss(
                     fg_color="#00000000",
                     bg_color="#00000000"),
                 self.set_qss(
                     fg_color=self.wcfg["font_color_pit"],
-                    bg_color=self.wcfg["bkg_color_pit"])
+                    bg_color=self.wcfg["bkg_color_pit"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_garage"],
+                    bg_color=self.wcfg["bkg_color_garage"])
             )
             self.set_table(
                 name="pit",
                 style=self.bar_style_pit[1],
-                width=len(self.wcfg["pit_status_text"]) * font_m.width + bar_padx,
+                width=max(map(len, self.pit_status_text)) * font_m.width + bar_padx,
                 column=self.wcfg["column_index_pitstatus"],
             )
         # Tyre compound index
@@ -546,7 +553,7 @@ class Realtime(Overlay):
         """Vehicle in pit"""
         if curr != last:
             if curr[0]:
-                text = self.wcfg["pit_status_text"]
+                text = self.pit_status_text[curr[0] - 1]
             else:
                 text = ""
 
