@@ -526,14 +526,6 @@ def line_intersect_coords(coord_a, coord_b, radians, length):
             pos_y2 + coord_a[1])
 
 
-def session_best_laptime(data_list: list, column: int, laptime: int = 99999):
-    """Find session best lap time from data list"""
-    for data in data_list:
-        if 0 < data[column] < laptime:
-            laptime = data[column]
-    return laptime
-
-
 # Fuel
 def lap_type_full_laps_remain(laps_total, laps_finished):
     """Lap type race remaining laps count from finish line"""
