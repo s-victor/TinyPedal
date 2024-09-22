@@ -1,5 +1,5 @@
 [Desktop Entry]
-Exec=env XDG_SESSION_TYPE=x11 /usr/local/share/TinyPedal/run.py
+Exec=/bin/bash -c 'env XDG_SESSION_TYPE=x11 QT_QPA_PLATFORM=xcb /usr/local/share/TinyPedal/run.py'
 GenericName=Overlay for rFactor2
 Icon=/usr/local/share/TinyPedal/images/icon.png
 Name=TinyPedal
