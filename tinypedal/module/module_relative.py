@@ -32,7 +32,6 @@ from .. import calculation as calc
 
 MODULE_NAME = "module_relative"
 ALL_PLACES = list(range(1, 129))
-TEMP_LIST = [None] * 128
 
 logger = logging.getLogger(__name__)
 
@@ -77,13 +76,13 @@ class Realtime(DataModule):
                 plr_place = api.read.vehicle.place()
 
                 # Get vehicles info
-                (distance_list, classes_list, place_index_list,
+                (distance_index_list, classes_list, place_index_list,
                  laptime_session_best, is_multi_class
                  ) = get_vehicles_info(veh_total, show_garage_in_race)
 
                 # Create relative index list
                 relative_index_list = create_relative_index(
-                    distance_list, plr_index, max_rel_veh, add_front, add_behind)
+                    distance_index_list, plr_index, max_rel_veh, add_front, add_behind)
 
                 # Create vehicle class position list
                 class_pos_list = sorted(
@@ -107,9 +106,9 @@ class Realtime(DataModule):
 
 def get_vehicles_info(veh_total: int, show_garage_in_race: bool):
     """Get vehicles info: relative distance, classes, places, laptime"""
-    new_distance = TEMP_LIST[:veh_total]
-    new_classes = TEMP_LIST[:veh_total]
-    new_place_index = TEMP_LIST[:veh_total]
+    new_distance = []  # use append as some vehicles may be ignored
+    new_classes = [None] * veh_total
+    new_place_index = [None] * veh_total
 
     track_length = api.read.lap.track_length()  # track length
     plr_dist = api.read.lap.distance()
@@ -126,7 +125,7 @@ def get_vehicles_info(veh_total: int, show_garage_in_race: bool):
         if not race_check or not in_garage:  # hide check
             rel_dist = calc.circular_relative_distance(
                 track_length, plr_dist, opt_dist)
-            new_distance[index] = (rel_dist, index)  # relative distance, player index
+            new_distance.append((rel_dist, index))  # relative distance, player index
 
         # Update classes list
         class_name = api.read.vehicle.class_name(index)
@@ -160,12 +159,13 @@ def get_vehicles_info(veh_total: int, show_garage_in_race: bool):
 
     # Sort output in-place
     new_distance.sort(reverse=True)  # by reversed distance
+    new_distance_index = [_distance[1] for _distance in new_distance]
     new_classes.sort()     # by vehicle class
     new_place_index.sort() # by overall position/place
 
     return (
-        new_distance,     # -> distance_list
-        new_classes,      # -> classes_list
+        new_distance_index,  # -> distance_index_list
+        new_classes,  # -> classes_list
         new_place_index,  # -> place_index_list
         laptime_session_best,
         classes_count > 1,  # -> is_multi_class
@@ -173,31 +173,29 @@ def get_vehicles_info(veh_total: int, show_garage_in_race: bool):
 
 
 def create_relative_index(
-    distance_list: list, plr_index: int, max_rel_veh: int, add_front: int, add_behind: int):
+    distance_index_list: list, plr_index: int, max_rel_veh: int, add_front: int, add_behind: int):
     """Create player-centered relative index list"""
-    # Extract vehicle index to create new sorted vehicle list
-    sorted_veh_list = [_distance[1] for _distance in distance_list if _distance is not None]
-    if not sorted_veh_list:
-        return sorted_veh_list
+    if not distance_index_list:
+        return distance_index_list
     # Locate player index position in list
-    if plr_index in sorted_veh_list:
-        plr_pos = sorted_veh_list.index(plr_index)
+    if plr_index in distance_index_list:
+        plr_pos = distance_index_list.index(plr_index)
     else:
         plr_pos = 0  # prevent index not found in list error
     # Append with -1 if less than max number of vehicles
-    num_diff = max_rel_veh - len(sorted_veh_list)
+    num_diff = max_rel_veh - len(distance_index_list)
     if num_diff > 0:
-        sorted_veh_list += [-1] * num_diff
+        distance_index_list += [-1] * num_diff
     # Slice: max number of front players -> player index position
-    front_cut = sorted_veh_list[max(plr_pos - 3 - add_front, 0):plr_pos]
+    front_cut = distance_index_list[max(plr_pos - 3 - add_front, 0):plr_pos]
     # Find number of missing front players (which is located at the end of list)
     front_miss = 3 + add_front - len(front_cut)
-    front_list = sorted_veh_list[len(sorted_veh_list) - front_miss:] + front_cut
+    front_list = distance_index_list[len(distance_index_list) - front_miss:] + front_cut
     # Slice: player index position -> max number of behind players
-    behind_cut = sorted_veh_list[plr_pos:plr_pos + 4 + add_behind]
+    behind_cut = distance_index_list[plr_pos:plr_pos + 4 + add_behind]
     # Find number of missing behind players (which is located at the beginning of list)
     behind_miss = 4 + add_behind - len(behind_cut)
-    behind_list = behind_cut + sorted_veh_list[:behind_miss]
+    behind_list = behind_cut + distance_index_list[:behind_miss]
     # Combine index list
     front_list.extend(behind_list)
     return front_list
@@ -234,9 +232,10 @@ def create_position_in_class(sorted_veh_class: list, laptime_session_best: float
     position_in_class = 0
     player_index_ahead = -1
     player_index_behind = -1
+    next_index = 0
     total_veh = len(sorted_veh_class)
 
-    for idx, veh_sort in enumerate(sorted_veh_class):
+    for veh_sort in sorted_veh_class:
         if veh_sort[0] == initial_class:
             position_in_class += 1
         else:
@@ -247,9 +246,10 @@ def create_position_in_class(sorted_veh_class: list, laptime_session_best: float
             laptime_class_best = veh_sort[3]
             player_index_ahead = -1  # no player ahead
 
-        if (idx + 1 < total_veh  # check next index within range
-            and sorted_veh_class[idx + 1][0] == veh_sort[0]):  # next player is in same class
-            player_index_behind = sorted_veh_class[idx + 1][2]
+        # Check next index within range & is in same class
+        next_index += 1
+        if next_index < total_veh and sorted_veh_class[next_index][0] == veh_sort[0]:
+            player_index_behind = sorted_veh_class[next_index][2]
         else:
             player_index_behind = -1
 

@@ -125,8 +125,8 @@ class Realtime(DataModule):
             # Temp & output var
             is_player = data.isPlayer = api.read.vehicle.is_player(index)
             position_overall = data.positionOverall = api.read.vehicle.place(index)
-            in_pit = data.inPit = (  #  value 0 = not in pit, 1 = in pit, 2 = in garage
-                api.read.vehicle.in_pits(index) + api.read.vehicle.in_garage(index))
+            in_pit = data.inPit = min(  #  value 0 = not in pit, 1 = in pit, 2 = in garage
+                api.read.vehicle.in_pits(index) + api.read.vehicle.in_garage(index) * 2, 2)
             is_yellow = data.isYellow = speed < 8
             lap_progress = data.lapProgress = calc.lap_progress_distance(lap_distance, track_length)
 

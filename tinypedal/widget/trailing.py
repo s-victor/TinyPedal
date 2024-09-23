@@ -263,12 +263,13 @@ class Realtime(Overlay):
 
     def config_draw_order(self):
         """Config plot draw order"""
-        plot_list = (
+        plot_list = [
             (self.wcfg["draw_order_index_throttle"], "throttle"),
             (self.wcfg["draw_order_index_brake"], "brake"),
             (self.wcfg["draw_order_index_clutch"], "clutch"),
             (self.wcfg["draw_order_index_ffb"], "ffb"),
             (self.wcfg["draw_order_index_wheel_lock"], "wheel_lock"),
             (self.wcfg["draw_order_index_wheel_slip"], "wheel_slip"),
-        )
-        return tuple(zip(*sorted(plot_list, reverse=True)))[1]
+        ]
+        plot_list.sort(reverse=True)
+        return tuple(plot[1] for plot in plot_list)

@@ -128,7 +128,7 @@ class Realtime(Overlay):
 
     # GUI update methods
     def update_vehicle(self, curr, last):
-        """Vehicle sort & update"""
+        """Vehicle & update"""
         if curr != last:
             self.update()
 

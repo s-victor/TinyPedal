@@ -114,7 +114,7 @@ class Realtime(Overlay):
             self.draw_map_image(map_path, self.circular_map)
 
     def update_vehicle(self, curr, last):
-        """Vehicle sort & update"""
+        """Vehicle & update"""
         if curr != last:
             self.update()
 
