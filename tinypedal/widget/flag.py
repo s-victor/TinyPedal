@@ -464,13 +464,10 @@ class Realtime(Overlay):
             self.wcfg["traffic_pitout_duration"] < lap_etime - self.pitout_timer_start):
             self.pitout_timer_start = 0
 
-        is_low_speed = (
-            self.wcfg["traffic_low_speed_threshold"] > 0 and
-            api.read.vehicle.speed() < self.wcfg["traffic_low_speed_threshold"]
-        )
-        if (0 < minfo.vehicles.nearestTraffic < self.wcfg["traffic_maximum_time_gap"] and
-            (is_low_speed or in_pits or self.pitout_timer_start)):
-            return round(minfo.vehicles.nearestTraffic, 1)
+        if minfo.vehicles.nearestTraffic < self.wcfg["traffic_maximum_time_gap"]:
+            if (api.read.vehicle.speed() < self.wcfg["traffic_low_speed_threshold"] > 0
+                or in_pits or self.pitout_timer_start):
+                return round(minfo.vehicles.nearestTraffic, 1)
         return MAGIC_NUM
 
     def pit_in_countdown(self):

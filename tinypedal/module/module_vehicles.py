@@ -174,7 +174,7 @@ class Realtime(DataModule):
                 if relative_straight_distance < nearest_line:
                     nearest_line = relative_straight_distance
                 # Nearest traffic time gap (non local players)
-                if 0 == in_pit > relative_distance and relative_time_gap < nearest_timegap:
+                if 0 == in_pit > relative_distance and 0 < relative_time_gap < nearest_timegap:
                     nearest_timegap = relative_time_gap
 
             # Nearest yellow flag distance (all players)
