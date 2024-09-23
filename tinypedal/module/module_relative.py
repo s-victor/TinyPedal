@@ -31,7 +31,11 @@ from ..api_control import api
 from .. import calculation as calc
 
 MODULE_NAME = "module_relative"
-ALL_PLACES = list(range(1, 129))
+MAGIC_NUM = 99999
+ALL_PLACES = list(range(1, minfo.MAX_VEHICLES + 1))
+TEMP_DISTANCE = [[-1,-1] for _ in range(minfo.MAX_VEHICLES)]
+TEMP_CLASSES = [["",-1,-1,-1] for _ in range(minfo.MAX_VEHICLES)]
+TEMP_PLACES = [[-1,-1] for _ in range(minfo.MAX_VEHICLES)]
 
 logger = logging.getLogger(__name__)
 
@@ -106,14 +110,10 @@ class Realtime(DataModule):
 
 def get_vehicles_info(veh_total: int, show_garage_in_race: bool):
     """Get vehicles info: relative distance, classes, places, laptime"""
-    new_distance = []  # use append as some vehicles may be ignored
-    new_classes = [None] * veh_total
-    new_place_index = [None] * veh_total
-
     track_length = api.read.lap.track_length()  # track length
     plr_dist = api.read.lap.distance()
     race_check = not show_garage_in_race and api.read.session.in_race()
-    laptime_session_best = 99999
+    laptime_session_best = MAGIC_NUM
     last_class_name = None
     classes_count = 0
 
@@ -125,7 +125,12 @@ def get_vehicles_info(veh_total: int, show_garage_in_race: bool):
         if not race_check or not in_garage:  # hide check
             rel_dist = calc.circular_relative_distance(
                 track_length, plr_dist, opt_dist)
-            new_distance.append((rel_dist, index))  # relative distance, player index
+        else:
+            rel_dist = MAGIC_NUM
+        TEMP_DISTANCE[index][:] = (  # slice assign
+            rel_dist,  # 0 relative distance
+            index,  # 1 player index
+        )
 
         # Update classes list
         class_name = api.read.vehicle.class_name(index)
@@ -137,9 +142,9 @@ def get_vehicles_info(veh_total: int, show_garage_in_race: bool):
             if laptime_best < laptime_session_best:
                 laptime_session_best = laptime_best
         else:
-            laptime_personal_best = 99999
+            laptime_personal_best = MAGIC_NUM
 
-        new_classes[index] = (
+        TEMP_CLASSES[index][:] = (  # slice assign
             class_name,  # 0 vehicle class name
             position,  # 1 overall position/place
             index,  # 2 player index
@@ -147,7 +152,7 @@ def get_vehicles_info(veh_total: int, show_garage_in_race: bool):
         )
 
         # Update place-index list
-        new_place_index[index] = (
+        TEMP_PLACES[index][:] = (  # slice assign
             position,  # 1 overall position/place
             index,     # 2 player index
         )
@@ -158,9 +163,14 @@ def get_vehicles_info(veh_total: int, show_garage_in_race: bool):
             classes_count += 1
 
     # Sort output in-place
+    new_distance = TEMP_DISTANCE[:veh_total]
     new_distance.sort(reverse=True)  # by reversed distance
-    new_distance_index = [_distance[1] for _distance in new_distance]
+    new_distance_index = [_dist[1] for _dist in new_distance if _dist[0] != MAGIC_NUM]
+
+    new_classes = TEMP_CLASSES[:veh_total]
     new_classes.sort()     # by vehicle class
+
+    new_place_index = TEMP_CLASSES[:veh_total]
     new_place_index.sort() # by overall position/place
 
     return (
@@ -227,7 +237,7 @@ def create_standings_index(
 
 def create_position_in_class(sorted_veh_class: list, laptime_session_best: float):
     """Create vehicle position in class list"""
-    laptime_class_best = 99999
+    laptime_class_best = MAGIC_NUM
     initial_class = sorted_veh_class[0][0]
     position_in_class = 0
     player_index_ahead = -1

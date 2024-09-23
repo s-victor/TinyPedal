@@ -238,6 +238,7 @@ class VehicleDataSet:
 
 class ModuleInfo:
     """Modules output data"""
+    MAX_VEHICLES = 128
 
     def __init__(self):
         self.delta = DeltaInfo()

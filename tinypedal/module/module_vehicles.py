@@ -28,7 +28,7 @@ from ..api_control import api
 from .. import calculation as calc
 
 MODULE_NAME = "module_vehicles"
-ALL_INDEXES = list(range(128))
+ALL_INDEXES = list(range(minfo.MAX_VEHICLES))
 
 logger = logging.getLogger(__name__)
 
