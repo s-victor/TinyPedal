@@ -9,6 +9,8 @@ WIP
   - All "Application" and "Compatibility" settings are moved into "config.json".
   - Color pick dialog now shows up to 16 previously picked colors in "Custom colors" selector.
   - Smaller panel size for "Fuel Calculator".
+  - Majority of widgets & modules code (over 7k lines) has been rewritten and optimized
+    for further improved overlay performance and efficiency.
 
 * [New]Application dialog
   - Add "Application" to main window "Config" menu, which opens a dialog for customizing
@@ -73,8 +75,9 @@ WIP
   - Wheel slip warning indicator now only shows under acceleration.
 
 * [New]Laps and position Widget
-  - Add "Laps and position Widget" that shows lap number (progression), driver overall position,
-    and position in class info, with customizable layout and prefix text.
+  - Show your current lap number (lap progression) & max laps if available.
+  - Show your current overall position against all drivers in a session.
+  - Show your current position in class against all drivers from the same class.
 
 * P2P Widget
   - Replaced old "font_color_inactive" and "bkg_color_inactive" color settings with new cooldown
@@ -93,7 +96,7 @@ WIP
     distinguish them from new radar fade options.
 
 * Relative, Rivals, Standings Widget
-  - "show_pit_status" option now also displays garage status for driver in garage.
+  - "show_pit_status" option now also displays garage status (as "G" sign) for driver in garage.
   - Add "garage_status_text" option, which sets custom garage status text for driver in garage.
 
 * Session Widget
@@ -104,6 +107,10 @@ WIP
 
 * Speedometer Widget
   - Changed default "layout" setting value to "1" for horizontal layout for consistency.
+
+* [New]System performance Widget
+  - Show system's overall CPU utilization (percent) and memory usage (GB).
+  - Show TinyPedal's CPU utilization (percent) and memory usage (MB).
 
 * Tyre wear Widget
   - Now uses laptime pace for calculating "tyre lifespan in minutes".

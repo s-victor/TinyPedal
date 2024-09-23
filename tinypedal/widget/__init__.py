@@ -64,6 +64,7 @@ from . import (
     steering,
     stint_history,
     suspension_position,
+    system_performance,
     timing,
     track_map,
     trailing,
