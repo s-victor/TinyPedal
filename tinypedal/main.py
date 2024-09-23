@@ -31,7 +31,9 @@ from PySide2.QtWidgets import QApplication, QMessageBox
 
 from . import log_stream
 from .cli_argument import get_cli_argument
-from .const import APP_NAME, PLATFORM, VERSION, PYTHON_VERSION, QT_VERSION, PATH_GLOBAL
+from .const import (
+    APP_NAME, PLATFORM, VERSION, PATH_GLOBAL, PYTHON_VERSION, QT_VERSION, PSUTIL_VERSION
+)
 from .log_handler import set_logging_level
 
 EXE_NAME = "tinypedal.exe"
@@ -109,6 +111,7 @@ def version_check():
     logger.info("TinyPedal %s", VERSION)
     logger.info("Python %s", PYTHON_VERSION)
     logger.info("Qt %s", QT_VERSION)
+    logger.info("psutil %s", PSUTIL_VERSION)
 
 
 def init_gui():

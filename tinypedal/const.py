@@ -24,6 +24,7 @@ import os
 import sys
 import platform
 
+from psutil import version_info
 from PySide2.QtCore import qVersion
 
 
@@ -37,8 +38,9 @@ LICENSE = "Licensed under the GNU General Public License v3.0 or later."
 WEBSITE = "https://github.com/s-victor/TinyPedal"
 
 # Library version
-PYTHON_VERSION = ".".join(str(num) for num in sys.version_info[0:3])
+PYTHON_VERSION = ".".join(map(str, sys.version_info[0:3]))
 QT_VERSION = qVersion()
+PSUTIL_VERSION = ".".join(map(str, version_info))
 
 # Global path
 if PLATFORM == "Windows":

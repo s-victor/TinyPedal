@@ -13,7 +13,9 @@ import sys
 from glob import glob
 from py2exe import freeze
 
-from tinypedal.const import APP_NAME, VERSION, PLATFORM, COPYRIGHT, PYTHON_VERSION, QT_VERSION
+from tinypedal.const import (
+    APP_NAME, VERSION, PLATFORM, COPYRIGHT, PYTHON_VERSION, QT_VERSION, PSUTIL_VERSION
+)
 
 PYTHON_PATH = sys.exec_prefix
 DIST_FOLDER = "dist/"
@@ -157,6 +159,7 @@ def build_start() -> None:
     print(f"INFO:TinyPedal: {VERSION}")
     print(f"INFO:Python: {PYTHON_VERSION}")
     print(f"INFO:Qt: {QT_VERSION}")
+    print(f"INFO:psutil: {PSUTIL_VERSION}")
     if PLATFORM == "Windows":
         cli_args = get_cli_argument()
         if check_old_build(cli_args.clean, check_dist()):
