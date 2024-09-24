@@ -138,8 +138,7 @@ class Realtime(Overlay):
     def update_system(self, curr, last, prefix):
         """System performance"""
         if curr != last:
-            memory_used = round(
-                psutil.virtual_memory().used / 1024 / 1024 / 1024, 1)
+            memory_used = psutil.virtual_memory().used / 1024 / 1024 / 1024
             cpu = f"{curr: >4.2f}"[:4].strip(".")
             mem = f"{memory_used: >4.2f}"[:4].strip(".")
             self.bar_system.setText(f"{prefix}{cpu: >4}%{mem: >5}GB")
@@ -147,8 +146,7 @@ class Realtime(Overlay):
     def update_app(self, curr, last, prefix):
         """APP performance"""
         if curr != last:
-            memory_used = round(
-                self.app_info.memory_full_info().uss / 1024 / 1024, 1)
+            memory_used = self.app_info.memory_full_info().uss / 1024 / 1024
             cpu = f"{curr: >4.2f}"[:4].strip(".")
             mem = f"{memory_used: >4.2f}"[:4].strip(".")
             self.bar_app.setText(f"{prefix}{cpu: >4}%{mem: >5}MB")

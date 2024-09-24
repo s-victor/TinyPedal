@@ -23,7 +23,6 @@ Relative module
 import logging
 from functools import lru_cache
 from itertools import chain
-from operator import itemgetter
 
 from ._base import DataModule
 from ..module_info import minfo
@@ -88,19 +87,21 @@ class Realtime(DataModule):
                 relative_index_list = create_relative_index(
                     distance_index_list, plr_index, max_rel_veh, add_front, add_behind)
 
-                # Create vehicle class position list
-                class_pos_list = sorted(
-                    create_position_in_class(classes_list, laptime_session_best))
+                # Create vehicle class position list (initially ordered by class name)
+                class_pos_list = list(create_position_in_class(classes_list, laptime_session_best))
 
                 # Create standings index list
                 standings_index_list = create_standings_index(
                     min_top_veh, veh_limit, veh_total, plr_index, plr_place,
                     class_pos_list, place_index_list, is_split_mode and is_multi_class)
 
+                # Sort vehicle class position list (by player index) for output
+                class_pos_list.sort()
+
                 # Output data
-                minfo.relative.classes = class_pos_list
                 minfo.relative.relative = relative_index_list
                 minfo.relative.standings = standings_index_list
+                minfo.relative.classes = class_pos_list
 
             else:
                 if reset:
@@ -170,7 +171,7 @@ def get_vehicles_info(veh_total: int, show_garage_in_race: bool):
     new_classes = TEMP_CLASSES[:veh_total]
     new_classes.sort()     # by vehicle class
 
-    new_place_index = TEMP_CLASSES[:veh_total]
+    new_place_index = TEMP_PLACES[:veh_total]
     new_place_index.sort() # by overall position/place
 
     return (
@@ -211,30 +212,6 @@ def create_relative_index(
     return front_list
 
 
-def create_standings_index(
-    min_top_veh: int, veh_limit: tuple, veh_total: int, plr_index: int, plr_place: int,
-    class_pos_list: list, place_index_list: list, is_multi_class: bool):
-    """Create standings index list"""
-    if is_multi_class:
-        sorted_class_pos_list = sorted(
-            class_pos_list,        # sort by:
-            key=itemgetter(2,4,1)  # 2 class name, 4 class best laptime, 1 class position
-        )
-        class_collection = sorted(
-            split_class_list(sorted_class_pos_list),
-            key=sort_class_collection  # sort by class best laptime
-        )
-        standing_index = list(chain(*list(  # combine class index lists group
-            create_class_standings_index(
-                min_top_veh, plr_index, class_collection, veh_limit[1], veh_limit[2]
-            )
-        )))
-    else:
-        standing_index = calc_standings_index(
-            min_top_veh, veh_total, veh_limit[0], plr_place, place_index_list)
-    return standing_index
-
-
 def create_position_in_class(sorted_veh_class: list, laptime_session_best: float):
     """Create vehicle position in class list"""
     laptime_class_best = MAGIC_NUM
@@ -273,6 +250,26 @@ def create_position_in_class(sorted_veh_class: list, laptime_session_best: float
             player_index_behind,  # 6 player index behind
         )
         player_index_ahead = veh_sort[2]
+
+
+def create_standings_index(
+    min_top_veh: int, veh_limit: tuple, veh_total: int, plr_index: int, plr_place: int,
+    class_pos_list: list, place_index_list: list, is_multi_class: bool):
+    """Create standings index list"""
+    if is_multi_class:
+        class_collection = sorted(
+            split_class_list(class_pos_list),
+            key=sort_class_collection  # sort by class best laptime
+        )
+        standing_index = list(chain(*list(  # combine class index lists group
+            create_class_standings_index(
+                min_top_veh, plr_index, class_collection, veh_limit[1], veh_limit[2]
+            )
+        )))
+    else:
+        standing_index = calc_standings_index(
+            min_top_veh, veh_total, veh_limit[0], plr_place, place_index_list)
+    return standing_index
 
 
 def create_class_standings_index(min_top_veh: int, plr_index: int, class_collection: list,
