@@ -125,36 +125,30 @@ class Realtime(Overlay):
             if self.wcfg["show_system_performance"]:
                 sys_cpu = self.calc_ema_cpu(
                     self.last_sys_cpu, psutil.cpu_percent())
-                self.update_system(
-                    self.bar_system, sys_cpu, self.last_sys_cpu,
-                    self.prefix_sys
-                )
+                self.update_system(sys_cpu, self.last_sys_cpu, self.prefix_sys)
                 self.last_sys_cpu = sys_cpu
 
             if self.wcfg["show_tinypedal_performance"]:
                 app_cpu = self.calc_ema_cpu(
                     self.last_app_cpu, self.app_info.cpu_percent() / self.cpu_count)
-                self.update_app(
-                    self.bar_app, app_cpu, self.last_app_cpu,
-                    self.prefix_app
-                )
+                self.update_app(app_cpu, self.last_app_cpu, self.prefix_app)
                 self.last_app_cpu = app_cpu
 
     # GUI update methods
-    def update_system(self, target_bar, curr, last, prefix):
+    def update_system(self, curr, last, prefix):
         """System performance"""
         if curr != last:
             memory_used = round(
                 psutil.virtual_memory().used / 1024 / 1024 / 1024, 1)
             cpu = f"{curr: >4.2f}"[:4].strip(".")
             mem = f"{memory_used: >4.2f}"[:4].strip(".")
-            target_bar.setText(f"{prefix}{cpu: >4}%{mem: >5}GB")
+            self.bar_system.setText(f"{prefix}{cpu: >4}%{mem: >5}GB")
 
-    def update_app(self, target_bar, curr, last, prefix):
+    def update_app(self, curr, last, prefix):
         """APP performance"""
         if curr != last:
             memory_used = round(
                 self.app_info.memory_full_info().uss / 1024 / 1024, 1)
             cpu = f"{curr: >4.2f}"[:4].strip(".")
             mem = f"{memory_used: >4.2f}"[:4].strip(".")
-            target_bar.setText(f"{prefix}{cpu: >4}%{mem: >5}MB")
+            self.bar_app.setText(f"{prefix}{cpu: >4}%{mem: >5}MB")

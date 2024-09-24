@@ -1878,7 +1878,9 @@ Set detection range (in seconds) near (after) start/finish line to show color in
 Set detection range (in seconds) near (before) start/finish line to show color indicator when vehicle is within the range (or less). Default is `20` seconds. Default color is orange.
 
     leader_laptime_pace_samples
-Set number of samples for average laptime pace calculation (EMA). Value range in `1` to `20`. Default is `6` samples. Set `1` to disable averaging. Note, initial laptime pace is always based on leader's session personal best laptime if available. If a new laptime is faster than current laptime pace, it will replace current laptime pace without calculating average. Invalid lap, pit-in/out laps are always excluded from laptime pace calculation.
+Set number of samples for average laptime pace calculation (EMA). Value range in `1` to `20`. Default is `6` samples. Set `1` to disable averaging.
+
+Note, initial laptime pace is always based on leader's session personal best laptime if available. If a new laptime is faster than current laptime pace, it will replace current laptime pace without calculating average. Invalid lap, pit-in/out laps are always excluded from laptime pace calculation.
 
     leader_laptime_pace_margin
 Set additional margin for current laptime that cannot exceed the sum of `laptime pace` and `margin`. This option is used to minimize the impact of unusually slow laptime. Default value is `5` seconds. Minimum value is limited to `0.1`.
@@ -2085,7 +2087,7 @@ Show system's overall CPU utilization (percent) and memory usage (GB). Note, sam
 Show TinyPedal's CPU utilization (percent) and memory usage (MB).
 
     average_samples
-Set number of samples for average CPU utilization calculation using exponential moving average. Value range in `1` to `500`. Lower value may result more fluctuated reading. Set `1` to disable averaging.
+Set number of samples for average CPU utilization calculation (EMA). Value range in `1` to `500`. Lower value may result more fluctuated reading. Set `1` to disable averaging.
 
 
 ## Timing
@@ -2234,6 +2236,9 @@ Show carcass temeperature rate of change for a specific time interval.
 
     rate_of_change_interval
 Set time interval in seconds for rate of change calculation. Default interval is `5` seconds. Minimum interval is limited to `1` second, maximum interval is limited to `60` seconds.
+
+    rate_of_change_smoothing_samples
+Set number of samples for rate of change data smoothing calculation (EMA). Value range in `1` to `500`. Lower value may result more fluctuated reading. Set `1` to disable smoothing.
 
     show_tyre_compound
 Show tyre compound index (front/rear).

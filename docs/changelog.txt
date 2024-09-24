@@ -112,6 +112,11 @@ WIP
   - Show system's overall CPU utilization (percent) and memory usage (GB).
   - Show TinyPedal's CPU utilization (percent) and memory usage (MB).
 
+* Tyre carcass temperature Widget
+  - Now calculates temperature rate of change at an average base interval of 0.1 seconds
+    which is then scaled to "rate_of_change_interval" value for more responsive estimate.
+  - Add "rate_of_change_smoothing_samples" option for smoothing data and filter out fluctuation.
+
 * Tyre wear Widget
   - Now uses laptime pace for calculating "tyre lifespan in minutes".
 

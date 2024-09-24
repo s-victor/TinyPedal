@@ -20,7 +20,7 @@
 Tyre carcass temperature Widget
 """
 
-from collections import deque
+from functools import partial
 
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import QGridLayout
@@ -52,15 +52,11 @@ class Realtime(Overlay):
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
         self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
+        self.rate_interval = min(max(self.wcfg["rate_of_change_interval"], 1), 60)
 
         text_width = 3 + len(self.sign_text) + (self.cfg.units["temperature_unit"] == "Fahrenheit")
         bar_width_ttemp = font_m.width * text_width + bar_padx
         bar_width_tcmpd = font_m.width + bar_padx
-
-        max_samples = int(
-            min(max(self.wcfg["rate_of_change_interval"], 1), 60)
-            / (max(self.wcfg["update_interval"], 10) * 0.001)
-        )
 
         # Base style
         self.heatmap = hmp.load_heatmap(self.wcfg["heatmap_name"], "tyre_default")
@@ -76,10 +72,6 @@ class Realtime(Overlay):
         bar_style_ctemp = self.set_qss(
             fg_color=self.wcfg["font_color_carcass"],
             bg_color=self.wcfg["bkg_color_carcass"]
-        )
-        bar_style_rtemp = self.set_qss(
-            fg_color=self.wcfg["font_color_rate_of_change"],
-            bg_color=self.wcfg["bkg_color_rate_of_change"]
         )
 
         # Create layout
@@ -117,9 +109,31 @@ class Realtime(Overlay):
         if self.wcfg["show_rate_of_change"]:
             layout_rtemp = QGridLayout()
             layout_rtemp.setSpacing(inner_gap)
+
+            self.bar_style_rtemp = (
+                self.set_qss(
+                    fg_color=self.wcfg["bkg_color_rate_of_change"],
+                    bg_color=self.wcfg["font_color_rate_loss"]),
+                self.set_qss(
+                    fg_color=self.wcfg["bkg_color_rate_of_change"],
+                    bg_color=self.wcfg["font_color_rate_gain"]),
+                self.set_qss(
+                    fg_color=self.wcfg["bkg_color_rate_of_change"],
+                    bg_color=self.wcfg["font_color_rate_of_change"]),
+            ) if self.wcfg["swap_style"] else (
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_rate_loss"],
+                    bg_color=self.wcfg["bkg_color_rate_of_change"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_rate_gain"],
+                    bg_color=self.wcfg["bkg_color_rate_of_change"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_rate_of_change"],
+                    bg_color=self.wcfg["bkg_color_rate_of_change"]),
+            )
             self.bar_rtemp = self.set_qlabel(
                 text=text_def,
-                style=bar_style_rtemp,
+                style=self.bar_style_rtemp[2],
                 width=bar_width_ttemp,
                 count=4,
             )
@@ -142,9 +156,12 @@ class Realtime(Overlay):
         self.last_tcmpd = [None] * 2
         self.last_ctemp = [-273.15] * 4
         self.last_rtemp = [0] * 4
+        self.last_rdiff = [0] * 4
         self.last_lap_etime = 0
-        self.rtemp_samples = deque(
-            [self.last_rtemp[:] for _ in range(max_samples)], max_samples
+
+        self.calc_ema_rdiff = partial(
+            calc.exp_mov_avg,
+            calc.ema_factor(min(max(self.wcfg["rate_of_change_smoothing_samples"], 1), 500))
         )
 
     def timerEvent(self, event):
@@ -176,18 +193,24 @@ class Realtime(Overlay):
             if self.wcfg["show_rate_of_change"]:
                 lap_etime = api.read.timing.elapsed()
 
-                if lap_etime != self.last_lap_etime:  # time stamp difference
-                    self.last_lap_etime = lap_etime  # reset time stamp counter
-                    self.rtemp_samples.append(ctemp)
+                if self.last_lap_etime > lap_etime:
+                    self.last_lap_etime = lap_etime
+                elif lap_etime - self.last_lap_etime >= 0.1:
+                    interval = self.rate_interval / (lap_etime - self.last_lap_etime)
+                    self.last_lap_etime = lap_etime
 
-                for tyre_idx in range(4):
-                    rtemp = ctemp[tyre_idx] - self.rtemp_samples[0][tyre_idx]
-                    self.update_rtemp(
-                        self.bar_rtemp[tyre_idx],
-                        rtemp,
-                        self.last_rtemp[tyre_idx]
-                    )
-                    self.last_rtemp[tyre_idx] = rtemp
+                    for tyre_idx in range(4):
+                        rdiff = self.calc_ema_rdiff(
+                            self.last_rdiff[tyre_idx],
+                            (ctemp[tyre_idx] - self.last_rtemp[tyre_idx]) * interval
+                        )
+                        self.update_rtemp(
+                            self.bar_rtemp[tyre_idx],
+                            rdiff,
+                            self.last_rdiff[tyre_idx]
+                        )
+                        self.last_rtemp[tyre_idx] = ctemp[tyre_idx]
+                        self.last_rdiff[tyre_idx] = rdiff
 
     # GUI update methods
     def update_ctemp(self, target_bar, curr, last):
@@ -205,18 +228,8 @@ class Realtime(Overlay):
     def update_rtemp(self, target_bar, curr, last):
         """Rate of change"""
         if curr != last:
-            if curr > 0:
-                hicolor = self.wcfg["font_color_rate_gain"]
-            else:
-                hicolor = self.wcfg["font_color_rate_loss"]
-
-            if self.wcfg["swap_style"]:
-                color = f"color: {self.wcfg['font_color_rate_of_change']};background: {hicolor};"
-            else:
-                color = f"color: {hicolor};background: {self.wcfg['bkg_color_rate_of_change']};"
-
             target_bar.setText(self.format_rate_change(curr))
-            target_bar.setStyleSheet(color)
+            target_bar.setStyleSheet(self.bar_style_rtemp[curr > 0])
 
     def update_tcmpd(self, target_bar, curr, last):
         """Tyre compound"""

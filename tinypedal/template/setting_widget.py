@@ -1893,6 +1893,7 @@ WIDGET_DEFAULT = {
         "bkg_color_carcass": "#222222",
         "show_rate_of_change": True,
         "rate_of_change_interval": 5,
+        "rate_of_change_smoothing_samples": 20,
         "font_color_rate_of_change": "#000000",
         "bkg_color_rate_of_change": "#222222",
         "font_color_rate_gain": "#FF6600",
