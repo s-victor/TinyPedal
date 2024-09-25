@@ -64,7 +64,7 @@ class VehicleClassEditor(QDialog):
     def __init__(self, master):
         super().__init__(master)
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
-        self.setWindowTitle("Vehicle Class Editor")
+        self.setWindowTitle(f"Vehicle Class Editor - {cfg.filename.classes}")
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setMinimumSize(400, 400)

@@ -7,10 +7,10 @@ WIP
     For Linux, "config.json" is stored under "home/username/.config/TinyPedal" folder.
   - Log files are now stored in the same folder as global user config file.
   - All "Application" and "Compatibility" settings are moved into "config.json".
+  - All Config dialogs now shows preset file name on title bar.
   - Color pick dialog now shows up to 16 previously picked colors in "Custom colors" selector.
   - Smaller panel size for "Fuel Calculator".
-  - Majority of widgets & modules code (over 7k lines) has been rewritten and optimized
-    for further improved overlay performance and efficiency.
+  - Majority of widgets & modules have been rewritten and further optimized.
 
 * [New]Application dialog
   - Add "Application" to main window "Config" menu, which opens a dialog for customizing

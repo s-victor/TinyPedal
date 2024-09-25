@@ -63,7 +63,7 @@ class VehicleBrandEditor(QDialog):
     def __init__(self, master):
         super().__init__(master)
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
-        self.setWindowTitle("Vehicle Brand Editor")
+        self.setWindowTitle(f"Vehicle Brand Editor - {cfg.filename.brands}")
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setMinimumSize(550, 500)

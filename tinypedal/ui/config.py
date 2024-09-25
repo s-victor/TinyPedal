@@ -83,7 +83,7 @@ class FontConfig(QDialog):
         self.user_setting = user_setting
 
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
-        self.setWindowTitle("Global Font Override")
+        self.setWindowTitle(f"Global Font Override - {cfg.filename.last_setting}")
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 
@@ -176,8 +176,13 @@ class UserConfig(QDialog):
         self.default_setting = default_setting
         self.option_width = option_width
 
+        if self.cfg_type == "global":
+            preset_filename = f"{cfg.filename.config} (global)"
+        else:
+            preset_filename = cfg.filename.last_setting
+
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
-        self.setWindowTitle(f"{fmt.format_option_name(key_name)}")
+        self.setWindowTitle(f"{fmt.format_option_name(key_name)} - {preset_filename}")
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 

@@ -64,7 +64,7 @@ class HeatmapEditor(QDialog):
     def __init__(self, master):
         super().__init__(master)
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
-        self.setWindowTitle("Heatmap Editor")
+        self.setWindowTitle(f"Heatmap Editor - {cfg.filename.heatmap}")
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setMinimumHeight(400)
