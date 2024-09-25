@@ -113,8 +113,7 @@ class Realtime(DataModule):
             data.lastLapTime = api.read.timing.last_laptime(index)
             data.numPitStops = api.read.vehicle.number_pitstops(index)
             data.pitState = api.read.vehicle.pit_state(index)
-            data.tireCompound[0] = api.read.tyre.compound_front(index)
-            data.tireCompound[1] = api.read.tyre.compound_rear(index)
+            data.tireCompound[:] = api.read.tyre.compound(index)
 
             # Temp var only
             lap_etime = api.read.timing.elapsed(index)

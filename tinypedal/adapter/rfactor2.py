@@ -18,9 +18,13 @@
 
 """
 Data set for rFactor 2
+
+Notes:
+    Convert all temperature (kelvin) to Celsius before output.
 """
 
 from __future__ import annotations
+from typing import Sequence
 
 from . import DataAdapter
 from .. import validator as val
@@ -28,7 +32,6 @@ from ..formatter import strip_invalid_char
 from ..calculation import (
     mean,
     lap_progress_distance,
-    kelvin2celsius,
     meter2millmeter,
     oriyaw2rad,
     slip_angle,
@@ -101,13 +104,14 @@ class Brake(DataAdapter):
 
     def pressure(self, index: int | None = None, scale: int = 1) -> list[float]:
         """Brake pressure"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mBrakePressure)
-                * scale for data in range(4)]
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[data].mBrakePressure) * scale
+                for data in range(4)]
 
     def temperature(self, index: int | None = None) -> list[float]:
         """Brake temperature"""
-        return [kelvin2celsius(
-                chknm(self.info.rf2TeleVeh(index).mWheels[data].mBrakeTemp))
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[data].mBrakeTemp) - 273.15
                 for data in range(4)]
 
 
@@ -244,7 +248,9 @@ class Lap(DataAdapter):
 
     def progress(self, index: int | None = None) -> float:
         """Lap progress fraction (distance into lap)"""
-        return lap_progress_distance(self.distance(index), self.track_length())
+        return lap_progress_distance(
+            chknm(self.info.rf2ScorVeh(index).mLapDist),
+            chknm(self.info.rf2ScorInfo.mLapDist))
 
     def maximum(self) -> int:
         """Maximum lap"""
@@ -295,11 +301,11 @@ class Session(DataAdapter):
 
     def in_countdown(self) -> bool:
         """Is in countdown phase before race"""
-        return chknm(self.info.rf2ScorInfo.mGamePhase) == 4
+        return self.info.rf2ScorInfo.mGamePhase == 4
 
     def in_formation(self) -> bool:
         """Is in formation phase before race"""
-        return chknm(self.info.rf2ScorInfo.mGamePhase) == 3
+        return self.info.rf2ScorInfo.mGamePhase == 3
 
     def pit_open(self) -> bool:
         """Is pit lane open"""
@@ -308,15 +314,16 @@ class Session(DataAdapter):
     def green_flag(self) -> bool:
         """Green flag"""
         # Inaccurate due to 5FPS refresh rate from API
-        return chknm(self.info.rf2ScorInfo.mGamePhase) == 5
+        return self.info.rf2ScorInfo.mGamePhase == 5
 
     def blue_flag(self, index: int | None = None) -> bool:
         """Is under blue flag"""
-        return chknm(self.info.rf2ScorVeh(index).mFlag) == 6
+        return self.info.rf2ScorVeh(index).mFlag == 6
 
     def yellow_flag(self) -> bool:
         """Is there yellow flag in any sectors"""
-        return any(chknm(self.info.rf2ScorInfo.mSectorFlag[data]) == 1 for data in range(3))
+        sec_flag = self.info.rf2ScorInfo.mSectorFlag
+        return any(sec_flag[data] == 1 for data in range(3))
 
     def start_lights(self) -> int:
         """Start lights countdown sequence"""
@@ -354,9 +361,9 @@ class Session(DataAdapter):
 
     def wetness(self) -> tuple[float]:
         """Road wetness set"""
-        return (self.wetness_minimum(),
-                self.wetness_maximum(),
-                self.wetness_average())
+        return (chknm(self.info.rf2ScorInfo.mMinPathWetness),
+                chknm(self.info.rf2ScorInfo.mMaxPathWetness),
+                chknm(self.info.rf2ScorInfo.mAvgPathWetness))
 
 
 class Switch(DataAdapter):
@@ -398,7 +405,8 @@ class Timing(DataAdapter):
 
     def current_laptime(self, index: int | None = None) -> float:
         """Current lap time"""
-        return self.elapsed(index) - self.start(index)
+        return (chknm(self.info.rf2TeleVeh(index).mElapsedTime)
+                - chknm(self.info.rf2TeleVeh(index).mLapStartET))
 
     def last_laptime(self, index: int | None = None) -> float:
         """Last lap time"""
@@ -453,103 +461,91 @@ class Tyre(DataAdapter):
 
     def compound(self, index: int | None = None) -> tuple[int]:
         """Tyre compound set"""
-        return self.compound_front(index), self.compound_rear(index)
-
-    def surface_temperature_fl(self, index: int | None = None) -> list[float]:
-        """Tyre surface temperature - front left"""
-        return [kelvin2celsius(
-                chknm(self.info.rf2TeleVeh(index).mWheels[0].mTemperature[data]))
-                for data in range(3)]
-
-    def surface_temperature_fr(self, index: int | None = None) -> list[float]:
-        """Tyre surface temperature - front right"""
-        return [kelvin2celsius(
-                chknm(self.info.rf2TeleVeh(index).mWheels[1].mTemperature[data]))
-                for data in range(3)]
-
-    def surface_temperature_rl(self, index: int | None = None) -> list[float]:
-        """Tyre surface temperature - rear left"""
-        return [kelvin2celsius(
-                chknm(self.info.rf2TeleVeh(index).mWheels[2].mTemperature[data]))
-                for data in range(3)]
-
-    def surface_temperature_rr(self, index: int | None = None) -> list[float]:
-        """Tyre surface temperature - rear right"""
-        return [kelvin2celsius(
-                chknm(self.info.rf2TeleVeh(index).mWheels[3].mTemperature[data]))
-                for data in range(3)]
+        return (chknm(self.info.rf2TeleVeh(index).mFrontTireCompoundIndex),
+                chknm(self.info.rf2TeleVeh(index).mRearTireCompoundIndex))
 
     def surface_temperature_avg(self, index: int | None = None) -> list[float]:
         """Tyre surface temperature set - average"""
-        return [mean(self.surface_temperature_fl(index)),
-                mean(self.surface_temperature_fr(index)),
-                mean(self.surface_temperature_rl(index)),
-                mean(self.surface_temperature_rr(index))]
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [mean(chknm(wheel_data[0].mTemperature[data]) - 273.15
+                    for data in range(3)),
+                mean(chknm(wheel_data[1].mTemperature[data]) - 273.15
+                    for data in range(3)),
+                mean(chknm(wheel_data[2].mTemperature[data]) - 273.15
+                    for data in range(3)),
+                mean(chknm(wheel_data[3].mTemperature[data]) - 273.15
+                    for data in range(3))]
 
-    def surface_temperature_ico(self, index: int | None = None) -> list[list[float]]:
+    def surface_temperature_ico(self, index: int | None = None) -> list[float]:
         """Tyre surface temperature set - inner,center,outer"""
-        return [self.surface_temperature_fl(index),
-                self.surface_temperature_fr(index),
-                self.surface_temperature_rl(index),
-                self.surface_temperature_rr(index)]
-
-    def inner_temperature_fl(self, index: int | None = None) -> list[float]:
-        """Tyre inner temperature - front left"""
-        return [kelvin2celsius(
-                chknm(self.info.rf2TeleVeh(index).mWheels[0].mTireInnerLayerTemperature[data]))
-                for data in range(3)]
-
-    def inner_temperature_fr(self, index: int | None = None) -> list[float]:
-        """Tyre inner temperature - front right"""
-        return [kelvin2celsius(
-                chknm(self.info.rf2TeleVeh(index).mWheels[1].mTireInnerLayerTemperature[data]))
-                for data in range(3)]
-
-    def inner_temperature_rl(self, index: int | None = None) -> list[float]:
-        """Tyre inner temperature - rear left"""
-        return [kelvin2celsius(
-                chknm(self.info.rf2TeleVeh(index).mWheels[2].mTireInnerLayerTemperature[data]))
-                for data in range(3)]
-
-    def inner_temperature_rr(self, index: int | None = None) -> list[float]:
-        """Tyre inner temperature - rear right"""
-        return [kelvin2celsius(
-                chknm(self.info.rf2TeleVeh(index).mWheels[3].mTireInnerLayerTemperature[data]))
-                for data in range(3)]
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [
+            chknm(wheel_data[0].mTemperature[0]) - 273.15,
+            chknm(wheel_data[0].mTemperature[1]) - 273.15,
+            chknm(wheel_data[0].mTemperature[2]) - 273.15,
+            chknm(wheel_data[1].mTemperature[0]) - 273.15,
+            chknm(wheel_data[1].mTemperature[1]) - 273.15,
+            chknm(wheel_data[1].mTemperature[2]) - 273.15,
+            chknm(wheel_data[2].mTemperature[0]) - 273.15,
+            chknm(wheel_data[2].mTemperature[1]) - 273.15,
+            chknm(wheel_data[2].mTemperature[2]) - 273.15,
+            chknm(wheel_data[3].mTemperature[0]) - 273.15,
+            chknm(wheel_data[3].mTemperature[1]) - 273.15,
+            chknm(wheel_data[3].mTemperature[2]) - 273.15,
+        ]
 
     def inner_temperature_avg(self, index: int | None = None) -> list[float]:
         """Tyre inner temperature set - average"""
-        return [mean(self.inner_temperature_fl(index)),
-                mean(self.inner_temperature_fr(index)),
-                mean(self.inner_temperature_rl(index)),
-                mean(self.inner_temperature_rr(index))]
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [mean(chknm(wheel_data[0].mTireInnerLayerTemperature[data]) - 273.15
+                    for data in range(3)),
+                mean(chknm(wheel_data[1].mTireInnerLayerTemperature[data]) - 273.15
+                    for data in range(3)),
+                mean(chknm(wheel_data[2].mTireInnerLayerTemperature[data]) - 273.15
+                    for data in range(3)),
+                mean(chknm(wheel_data[3].mTireInnerLayerTemperature[data]) - 273.15
+                    for data in range(3))]
 
-    def inner_temperature_ico(self, index: int | None = None) -> list[list[float]]:
+    def inner_temperature_ico(self, index: int | None = None) -> list[float]:
         """Tyre inner temperature set - inner,center,outer"""
-        return [self.inner_temperature_fl(index),
-                self.inner_temperature_fr(index),
-                self.inner_temperature_rl(index),
-                self.inner_temperature_rr(index)]
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [
+            chknm(wheel_data[0].mTireInnerLayerTemperature[0]) - 273.15,
+            chknm(wheel_data[0].mTireInnerLayerTemperature[1]) - 273.15,
+            chknm(wheel_data[0].mTireInnerLayerTemperature[2]) - 273.15,
+            chknm(wheel_data[1].mTireInnerLayerTemperature[0]) - 273.15,
+            chknm(wheel_data[1].mTireInnerLayerTemperature[1]) - 273.15,
+            chknm(wheel_data[1].mTireInnerLayerTemperature[2]) - 273.15,
+            chknm(wheel_data[2].mTireInnerLayerTemperature[0]) - 273.15,
+            chknm(wheel_data[2].mTireInnerLayerTemperature[1]) - 273.15,
+            chknm(wheel_data[2].mTireInnerLayerTemperature[2]) - 273.15,
+            chknm(wheel_data[3].mTireInnerLayerTemperature[0]) - 273.15,
+            chknm(wheel_data[3].mTireInnerLayerTemperature[1]) - 273.15,
+            chknm(wheel_data[3].mTireInnerLayerTemperature[2]) - 273.15,
+        ]
 
     def pressure(self, index: int | None = None) -> list[float]:
         """Tyre pressure"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mPressure)
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[data].mPressure)
                 for data in range(4)]
 
     def load(self, index: int | None = None) -> list[float]:
         """Tyre load"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mTireLoad)
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[data].mTireLoad)
                 for data in range(4)]
 
     def wear(self, index: int | None = None, scale: int = 1) -> list[float]:
         """Tyre wear"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mWear)
-                * scale for data in range(4)]
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[data].mWear) * scale
+                for data in range(4)]
 
     def carcass_temperature(self, index: int | None = None) -> list[float]:
         """Tyre carcass temperature"""
-        return [kelvin2celsius(
-                chknm(self.info.rf2TeleVeh(index).mWheels[data].mTireCarcassTemperature))
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[data].mTireCarcassTemperature) - 273.15
                 for data in range(4)]
 
 
@@ -689,9 +685,9 @@ class Vehicle(DataAdapter):
         """Downforce rear"""
         return chknm(self.info.rf2TeleVeh(index).mRearDownforce)
 
-    def damage_severity(self, index: int | None = None) -> tuple:
+    def damage_severity(self, index: int | None = None) -> Sequence[int]:
         """Damage severity"""
-        return tuple(self.info.rf2TeleVeh(index).mDentSeverity)
+        return self.info.rf2TeleVeh(index).mDentSeverity
 
     def is_detached(self, index: int | None = None) -> bool:
         """Whether any vehicle parts are detached"""
@@ -706,76 +702,90 @@ class Wheel(DataAdapter):
     """Wheel & suspension"""
     def camber(self, index: int | None = None) -> list[float]:
         """Wheel camber"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mCamber)
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[data].mCamber)
                 for data in range(4)]
 
     def toe(self, index: int | None = None) -> list[float]:
         """Wheel toe"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mToe)
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[data].mToe)
                 for data in range(4)]
 
     def toe_symmetric(self, index: int | None = None) -> list[float]:
         """Wheel toe (symmetric)"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[0].mToe),
-                -chknm(self.info.rf2TeleVeh(index).mWheels[1].mToe),
-                chknm(self.info.rf2TeleVeh(index).mWheels[2].mToe),
-                -chknm(self.info.rf2TeleVeh(index).mWheels[3].mToe)]
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[0].mToe),
+                -chknm(wheel_data[1].mToe),
+                chknm(wheel_data[2].mToe),
+                -chknm(wheel_data[3].mToe)]
 
     def rotation(self, index: int | None = None) -> list[float]:
         """Wheel rotation"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mRotation)
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[data].mRotation)
                 for data in range(4)]
 
     def velocity_longitudinal(self, index: int | None = None) -> list[float]:
         """Longitudinal velocity"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mLongitudinalGroundVel)
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[data].mLongitudinalGroundVel)
                 for data in range(4)]
 
     def velocity_lateral(self, index: int | None = None) -> list[float]:
         """Lateral velocity"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mLateralGroundVel)
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[data].mLateralGroundVel)
                 for data in range(4)]
 
     def slip_angle_fl(self, index: int | None = None) -> float:
         """Slip angle (radians) front left"""
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
         return slip_angle(
-            chknm(self.info.rf2TeleVeh(index).mWheels[0].mLateralGroundVel),
-            chknm(self.info.rf2TeleVeh(index).mWheels[0].mLongitudinalGroundVel))
+            chknm(wheel_data[0].mLateralGroundVel),
+            chknm(wheel_data[0].mLongitudinalGroundVel))
 
     def slip_angle_fr(self, index: int | None = None) -> float:
         """Slip angle (radians) front right"""
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
         return slip_angle(
-            chknm(self.info.rf2TeleVeh(index).mWheels[1].mLateralGroundVel),
-            chknm(self.info.rf2TeleVeh(index).mWheels[1].mLongitudinalGroundVel))
+            chknm(wheel_data[1].mLateralGroundVel),
+            chknm(wheel_data[1].mLongitudinalGroundVel))
 
     def slip_angle_rl(self, index: int | None = None) -> float:
         """Slip angle (radians) rear left"""
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
         return slip_angle(
-            chknm(self.info.rf2TeleVeh(index).mWheels[2].mLateralGroundVel),
-            chknm(self.info.rf2TeleVeh(index).mWheels[2].mLongitudinalGroundVel))
+            chknm(wheel_data[2].mLateralGroundVel),
+            chknm(wheel_data[2].mLongitudinalGroundVel))
 
     def slip_angle_rr(self, index: int | None = None) -> float:
         """Slip angle (radians) rear right"""
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
         return slip_angle(
-            chknm(self.info.rf2TeleVeh(index).mWheels[3].mLateralGroundVel),
-            chknm(self.info.rf2TeleVeh(index).mWheels[3].mLongitudinalGroundVel))
+            chknm(wheel_data[3].mLateralGroundVel),
+            chknm(wheel_data[3].mLongitudinalGroundVel))
 
     def ride_height(self, index: int | None = None) -> list[float]:
         """Ride height (millmeters)"""
-        return [meter2millmeter(chknm(self.info.rf2TeleVeh(index).mWheels[data].mRideHeight))
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [meter2millmeter(chknm(wheel_data[data].mRideHeight))
                 for data in range(4)]
 
     def suspension_deflection(self, index: int | None = None) -> list[float]:
         """Suspension deflection (millmeters)"""
-        return [meter2millmeter(chknm(self.info.rf2TeleVeh(index).mWheels[data].mSuspensionDeflection))
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [meter2millmeter(chknm(wheel_data[data].mSuspensionDeflection))
                 for data in range(4)]
 
     def suspension_force(self, index: int | None = None) -> list[float]:
         """Suspension force (Newtons)"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mSuspForce)
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[data].mSuspForce)
                 for data in range(4)]
 
     def is_detached(self, index: int | None = None) -> list[float]:
         """Whether wheel is detached"""
-        return [chknm(self.info.rf2TeleVeh(index).mWheels[data].mDetached)
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return [chknm(wheel_data[data].mDetached)
                 for data in range(4)]

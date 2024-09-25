@@ -131,8 +131,8 @@ class Realtime(Overlay):
 
         # Last data
         self.last_tcmpd = [None] * 2
-        self.last_stemp = self.create_last_data()
-        self.last_itemp = self.create_last_data()
+        self.last_stemp = [0] * 12
+        self.last_itemp = [0] * 12
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -152,26 +152,24 @@ class Realtime(Overlay):
             if self.wcfg["show_inner_center_outer"]:
                 # Surface temperature
                 stemp = api.read.tyre.surface_temperature_ico()
-                for tyre_idx in range(4):  # 0 - fl, 1 - fr, 2 - rl, 3 - rr
-                    for patch_idx in range(3):  # 0 1 2 / 7 8 9
-                        self.update_stemp(
-                            self.bar_stemp[tyre_idx][patch_idx],
-                            stemp[tyre_idx][patch_idx],
-                            self.last_stemp[tyre_idx][patch_idx]
-                        )
-                        self.last_stemp[tyre_idx][patch_idx] = stemp[tyre_idx][patch_idx]
+                for tyre_idx in range(12):  # 0 - fl, 3 - fr, 6 - rl, 9 - rr
+                    self.update_stemp(
+                        self.bar_stemp[tyre_idx],
+                        stemp[tyre_idx],
+                        self.last_stemp[tyre_idx]
+                    )
+                    self.last_stemp[tyre_idx] = stemp[tyre_idx]
 
                 # Inner layer temperature
                 if self.wcfg["show_innerlayer"]:
                     itemp = api.read.tyre.inner_temperature_ico()
-                    for tyre_idx in range(4):
-                        for patch_idx in range(3):
-                            self.update_itemp(
-                                self.bar_itemp[tyre_idx][patch_idx],
-                                itemp[tyre_idx][patch_idx],
-                                self.last_itemp[tyre_idx][patch_idx]
-                            )
-                            self.last_itemp[tyre_idx][patch_idx] = itemp[tyre_idx][patch_idx]
+                    for tyre_idx in range(12):
+                        self.update_itemp(
+                            self.bar_itemp[tyre_idx],
+                            itemp[tyre_idx],
+                            self.last_itemp[tyre_idx]
+                        )
+                        self.last_itemp[tyre_idx] = itemp[tyre_idx]
             else:
                 # Surface temperature
                 stemp = api.read.tyre.surface_temperature_avg()
@@ -228,12 +226,12 @@ class Realtime(Overlay):
     def set_table(self, text, style, width, layout):
         """Set table"""
         if self.wcfg["show_inner_center_outer"]:
-            bar_set = tuple(self.set_qlabel(
+            bar_set = self.set_qlabel(
                 text=text,
                 style=style,
                 width=width,
-                count=3,
-            ) for _ in range(4))  # 3 x 4 array
+                count=12,  # 3 x 4 tyres
+            )
             self.set_layout_tri_quad(layout, bar_set)
         else:
             bar_set = self.set_qlabel(
@@ -256,22 +254,22 @@ class Realtime(Overlay):
                 column_left + (idx % 2) * column_right)
 
     @staticmethod
-    def set_layout_tri_quad(layout, bar_set, row_start=1, column_left=0, column_right=7):
-        """Set layout - tri-quad - (0,1,2) * 4
+    def set_layout_tri_quad(layout, bar_set, row_start=1, column_left=0, column_right=6):
+        """Set layout - tri-quad - (0,1,2), (3,4,5), (6,7,8), (9,10,11)
 
         Default row index start from 1; reserve row index 0 for caption.
-        Default column left index start from 0, and right start from 7; reserve 3 columns in middle.
-        Example: (0,1,2) to (7,8,9)
+        Default column left index start from 0, and right start from 6; reserve 3 columns in middle.
         """
-        for outer_index in range(4):
-            row_index = row_start + int(outer_index > 1)
-            for index in range(3):
-                if outer_index % 2:  # even(right) columns
-                    layout.addWidget(bar_set[outer_index][index],
-                        row_index, index + column_left + column_right)
-                else:  # odd(left) columns
-                    layout.addWidget(bar_set[outer_index][index],
-                        row_index, index + column_left)
+        row_index = row_start
+        column_index = column_left
+        for index in range(12):
+            if index == 6:
+                row_index +=1
+                column_index = column_left
+            if index in (3, 9):
+                column_index = column_right
+            layout.addWidget(bar_set[index], row_index, column_index)
+            column_index += 1
 
     @staticmethod
     def set_layout_vert(layout, bar_set, row_count=2):
@@ -288,9 +286,3 @@ class Realtime(Overlay):
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
             return f"{calc.celsius2fahrenheit(value):0{self.leading_zero}.0f}{self.sign_text}"
         return f"{value:0{self.leading_zero}.0f}{self.sign_text}"
-
-    def create_last_data(self):
-        """Create last data list"""
-        if self.wcfg["show_inner_center_outer"]:
-            return [[-273.15] * 3 for _ in range(4)]
-        return [-273.15] * 4
