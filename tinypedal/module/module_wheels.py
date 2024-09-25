@@ -48,6 +48,7 @@ class Realtime(DataModule):
         list_radius_r = deque([], 160)
         max_rot_bias_f = max(self.mcfg["maximum_rotation_difference_front"], 0.00001)
         max_rot_bias_r = max(self.mcfg["maximum_rotation_difference_rear"], 0.00001)
+        min_rot_axle = max(self.mcfg["minimum_axle_rotation"], 0)
 
         while not self.event.wait(update_interval):
             if self.state.active:
@@ -71,6 +72,8 @@ class Realtime(DataModule):
 
                     samples_slice_f = sample_slice_indices(min_samples_f)
                     samples_slice_r = sample_slice_indices(min_samples_r)
+                    locking_f = 1
+                    locking_r = 1
 
                 # Read telemetry
                 speed = api.read.vehicle.speed()
@@ -82,8 +85,13 @@ class Realtime(DataModule):
                 rot_bias_f = calc.wheel_rotation_bias(rot_axle_f, wheel_rot[0], wheel_rot[1])
                 rot_bias_r = calc.wheel_rotation_bias(rot_axle_r, wheel_rot[2], wheel_rot[3])
 
+                if rot_axle_f < -min_rot_axle:
+                    locking_f = calc.differential_locking_percent(rot_axle_f, wheel_rot[0])
+                if rot_axle_r < -min_rot_axle:
+                    locking_r = calc.differential_locking_percent(rot_axle_r, wheel_rot[2])
+
                 # Record radius value within max rotation difference
-                if rot_axle_f != 0 < rot_bias_f < max_rot_bias_f:
+                if rot_axle_f < -min_rot_axle and 0 < rot_bias_f < max_rot_bias_f:
                     list_radius_f.append(calc.rot2radius(speed, rot_axle_f))
                     # Front average wheel radius
                     if len(list_radius_f) >= min_samples_f:
@@ -92,7 +100,7 @@ class Realtime(DataModule):
                             min_samples_f *= 2  # double sample counts
                             samples_slice_f = sample_slice_indices(min_samples_f)
 
-                if rot_axle_r != 0 < rot_bias_r < max_rot_bias_r:
+                if rot_axle_r < -min_rot_axle and 0 < rot_bias_r < max_rot_bias_r:
                     list_radius_r.append(calc.rot2radius(speed, rot_axle_r))
                     # Rear average wheel radius
                     if len(list_radius_r) >= min_samples_r:
@@ -104,6 +112,8 @@ class Realtime(DataModule):
                 # Output wheels data
                 minfo.wheels.radiusFront = radius_front
                 minfo.wheels.radiusRear = radius_rear
+                minfo.wheels.lockingPercentFront = locking_f
+                minfo.wheels.lockingPercentRear = locking_r
                 minfo.wheels.slipRatio[0] = calc.slip_ratio(wheel_rot[0], radius_front, speed)
                 minfo.wheels.slipRatio[1] = calc.slip_ratio(wheel_rot[1], radius_front, speed)
                 minfo.wheels.slipRatio[2] = calc.slip_ratio(wheel_rot[2], radius_rear, speed)

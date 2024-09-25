@@ -46,12 +46,8 @@ class Realtime(Overlay):
         bar_gap = self.wcfg["bar_gap"]
 
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
-        if self.decimals > 0:
-            bar_width = font_m.width * (4 + self.decimals) + bar_padx
-            zero_offset = 1
-        else:
-            bar_width = font_m.width * 3 + bar_padx
-            zero_offset = 0
+        zero_offset = (self.decimals > 0)
+        bar_width = font_m.width * (3 + self.decimals + zero_offset) + bar_padx
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3) + zero_offset + self.decimals
 
         # Base style

@@ -191,6 +191,8 @@ class WheelsInfo:
     """Wheels module output data"""
     radiusFront: float = 0
     radiusRear: float = 0
+    lockingPercentFront: float = 0
+    lockingPercentRear: float = 0
     slipRatio: list = field(default_factory=list)
 
     def __post_init__(self):

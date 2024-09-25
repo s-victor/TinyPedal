@@ -10,6 +10,8 @@ WIP
   - All Config dialogs now shows preset file name on title bar.
   - Color pick dialog now shows up to 16 previously picked colors in "Custom colors" selector.
   - Smaller panel size for "Fuel Calculator".
+  - Significantly reduced opponents vehicle position desync (as sometimes noticeable on Radar)
+    when using "direct access" mode from sharedmemory API setting.
   - Majority of widgets & modules have been rewritten and further optimized.
 
 * [New]Application dialog
@@ -26,15 +28,19 @@ WIP
     To change user path, double-clicking on edit box to open "Select folder" dialog;
     or manually editing path text.
     Click "Apply" or "Save" to verify and apply new paths. Invalid path will not be applied.
-  - Changes to default user paths on linux:
+  - For linux, all default user config-type paths are now set according to XDG specification,
+    which is located under "home/username/.config" folder. (thanks to feedback from Bernat)
+    Changes include:
     * Default "user preset" path is changed to "home/username/.config/TinyPedal/settings/",
-      previously this is set in "home/username/.config/TinyPedal/".
+      previously this was set in "home/username/.config/TinyPedal/".
     * Default "brandlogo" path is changed to "home/username/.config/TinyPedal/brandlogo/",
-      previously this is set in "home/username/.local/share/TinyPedal/brandlogo/".
-  - See User Guide "User path" section for details.
+      previously this was set in "home/username/.local/share/TinyPedal/brandlogo/".
+    Note, if you wish to keep using old paths on linux, you can use "User path dialog"
+    to set paths to the old ones as mentioned above.
+  - See User Guide "User path" section for additional info.
 
 * [New]Auto load preset system
-  - Add "Auto load preset" system (implemented by @naturale0) to allow auto loading user-defined
+  - Add "Auto load preset" system (implemented by naturale0) to allow auto loading user-defined
     game-specific preset depends on active game (currently supports RF2 and LMU).
     Auto loading preset is triggered when a new or different game is started & active.
     Auto loading will only trigger once per game change.
@@ -51,10 +57,14 @@ WIP
 
 * Vehicle Brand Editor
   - Now allows multi-selection for deleting vehicle brand entries.
-  - Fixed an issue where some vehicle info is missing while importing from LMU Rest API.
-    Make sure to import again to update all vehicle brand info from LMU.
+  - Fixed some vehicle info that could not be imported from LMU Rest API (issue reported by DanRZ).
+    Make sure to use "import" again from Vehicle Brand Editor to update missing vehicle info from LMU.
 
 * Wheels module
+  - Add differential locking calculation and output for the new Differential Widget.
+  - Add "minimum_axle_rotation" option, which sets minimum axle rotation (radians per second)
+    for calculating wheel radius and differential locking percent.
+    Default value is "4".
   - Add "maximum_rotation_difference_*" options, which set maximum rotation difference (percentage)
     between left or right wheel and same axle for limiting wheel radius calculation.
     Setting higher difference value may result inaccurate wheel radius reading.
@@ -68,6 +78,14 @@ WIP
   - Add "layout" option, which sets display orientation.
     Default is horizontal. Set "0" to show vertically.
   - Add "odometer_maximum_digits" option, which sets maximum number of display digits.
+
+* [New]Differential Widget
+  - Show minimum differential locking percent between left and right wheels on the same axle
+    under power (on throttle) or coasting (off throttle).
+    A "100%" reading indicates two wheels on the same axle are rotating at same speed;
+    while "0%" indicates that one of the wheels is completely spinning or locked.
+    Each reading will reset back to "100%" if minimum locking percent hasn't changed during
+    cooldown period, as defined by "reset_cooldown" option.
 
 * Instrument Widget
   - Changed default "layout" setting value to "1" for horizontal layout for consistency.
@@ -85,7 +103,8 @@ WIP
     "font_color_activation_cooldown, bkg_color_activation_cooldown" for activation timer.
 
 * Radar Widget
-  - Add "enable_radar_fade" option, which enables radar gradually fade in/out effect.
+  - Add "enable_radar_fade" option (feature requested by Jernej Simoncic), which enables
+    gradually fade in/out effect while opponent vehicles approach or leave radar range.
   - Add "radar_fade_out_radius" option, which sets radar fade out radius relative to radar radius.
     Value range in "0.5" to "1.0". Default value is "0.98".
   - Add "radar_fade_in_radius" option, which sets radar fade in radius relative to radar radius.
@@ -136,7 +155,7 @@ WIP
 
 * Misc
   - Updated User Guide for all changes mentioned above and additional usage info.
-  - Added new contributor Sihyung Park (naturale0) to contributors.md.
+  - Added new contributor "Sihyung Park (naturale0)" to contributors.md.
 
 2.17.4 (2024-08-30)
 -----------------------------

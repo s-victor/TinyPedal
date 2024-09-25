@@ -654,6 +654,9 @@ Lap difference (percentage) threshold for tagging opponents as behind. Default i
 ## Wheels
 **This module provides wheel radius and slip ratio data.**
 
+    minimum_axle_rotation
+Set minimum axle rotation (radians per second) for calculating wheel radius and differential locking percent. Default value is `4`.
+
     maximum_rotation_difference_front, maximum_rotation_difference_rear
 Set maximum rotation difference (percentage) between left or right wheel rotation and same axle rotation for limiting wheel radius calculation. Setting higher difference value may result inaccurate wheel radius reading. Default value is `0.002`.
 
@@ -865,6 +868,30 @@ Show deltabest against current personal stint best lap time. Note: stint deltabe
 
     show_deltalast
 Show delta against personal last lap time (deltalast). Note: deltalast will be reset upon ESC.
+
+
+## Differential
+**This widget displays wheel differential locking info.**
+
+    layout
+2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
+
+    show_inverted_locking
+Invert minimum differential locking percent reading.
+
+    show_power_locking_*, show_coast_locking_*
+Show minimum differential locking percent between left and right wheels on the same axle under power (on throttle) or coasting (off throttle).
+
+A "100%" reading indicates two wheels on the same axle are rotating at same speed; while "0%" indicates that one of the wheels is completely spinning or locked.
+
+    off_throttle_threshold
+Set throttle threshold which counts as off throttle if throttle position is lower, value range in `0.0` to `1.0`. Default is `0.01`.
+
+    on_throttle_threshold
+Set throttle threshold which counts as on throttle if throttle position is higher, value range in `0.0` to `1.0`. Default is `0.01`.
+
+    power_locking_reset_cooldown, coast_locking_reset_cooldown
+Set cooldown duration (seconds) before resetting minimum power or coast locking percent value if value hasn't changed during cooldown period. Default is `5` seconds.
 
 
 ## DRS
@@ -1973,11 +2000,8 @@ Set throttle threshold which counts as off throttle if throttle position is lowe
     on_throttle_threshold
 Set throttle threshold which counts as on throttle if throttle position is higher, value range in `0.0` to `1.0`. Default is `0.01`.
 
-    speed_minimum_reset_cooldown
-Set cooldown duration (seconds) before resetting minimum speed value.
-
-    speed_maximum_reset_cooldown
-Set cooldown duration (seconds) before resetting maximum speed value.
+    speed_minimum_reset_cooldown, speed_maximum_reset_cooldown
+Set cooldown duration (seconds) before resetting minimum or maximum speed value.
 
 
 ## Standings

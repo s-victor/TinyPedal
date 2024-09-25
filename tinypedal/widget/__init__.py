@@ -34,6 +34,7 @@ from . import (
     damage,
     deltabest,
     deltabest_extended,
+    differential,
     drs,
     electric_motor,
     elevation,

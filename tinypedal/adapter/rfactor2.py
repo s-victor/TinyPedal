@@ -619,14 +619,11 @@ class Vehicle(DataAdapter):
         """Fuel tank capacity"""
         return chknm(self.info.rf2TeleVeh(index).mFuelCapacity)
 
-    def orientation_yaw(self, index: int | None = None) -> tuple[float]:
-        """Raw orientation yaw"""
-        return (chknm(self.info.rf2TeleVeh(index).mOri[2].x),
-                chknm(self.info.rf2TeleVeh(index).mOri[2].z))
-
     def orientation_yaw_radians(self, index: int | None = None) -> float:
-        """Orientation yaw in radians"""
-        return oriyaw2rad(*self.orientation_yaw(index))
+        """Orientation yaw (radians)"""
+        return oriyaw2rad(
+            chknm(self.info.rf2TeleVeh(index).mOri[2].x),  # X
+            chknm(self.info.rf2TeleVeh(index).mOri[2].z))  # Y
 
     def position_xyz(self, index: int | None = None) -> tuple[float]:
         """Raw XYZ position"""
@@ -701,19 +698,19 @@ class Vehicle(DataAdapter):
 class Wheel(DataAdapter):
     """Wheel & suspension"""
     def camber(self, index: int | None = None) -> list[float]:
-        """Wheel camber"""
+        """Wheel camber (radians)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
         return [chknm(wheel_data[data].mCamber)
                 for data in range(4)]
 
     def toe(self, index: int | None = None) -> list[float]:
-        """Wheel toe"""
+        """Wheel toe (radians)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
         return [chknm(wheel_data[data].mToe)
                 for data in range(4)]
 
     def toe_symmetric(self, index: int | None = None) -> list[float]:
-        """Wheel toe (symmetric)"""
+        """Wheel toe symmetric (radians)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
         return [chknm(wheel_data[0].mToe),
                 -chknm(wheel_data[1].mToe),
@@ -721,7 +718,7 @@ class Wheel(DataAdapter):
                 -chknm(wheel_data[3].mToe)]
 
     def rotation(self, index: int | None = None) -> list[float]:
-        """Wheel rotation"""
+        """Wheel rotation (radians per second)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
         return [chknm(wheel_data[data].mRotation)
                 for data in range(4)]

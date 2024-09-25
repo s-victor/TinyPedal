@@ -165,7 +165,7 @@ class Realtime(Overlay):
             if self.wcfg["show_wheel_lock"]:
                 wlock = (
                     self.flicker and
-                    api.read.input.brake() > 0 and
+                    api.read.input.brake_raw() > 0 and
                     min(minfo.wheels.slipRatio) < -self.wcfg["wheel_lock_threshold"]
                 )
                 self.update_wlock(wlock, self.last_wlock)
@@ -175,7 +175,7 @@ class Realtime(Overlay):
             if self.wcfg["show_wheel_slip"]:
                 wslip = (
                     self.flicker and
-                    api.read.input.throttle() > 0 and
+                    api.read.input.throttle_raw() > 0 and
                     max(minfo.wheels.slipRatio) >= self.wcfg["wheel_slip_threshold"]
                 )
                 self.update_wslip(wslip, self.last_wslip)

@@ -148,27 +148,6 @@ def rake2angle(v_rake, wheelbase):
     return 0
 
 
-def rot2radius(speed, angular_speed):
-    """Angular speed to radius"""
-    if angular_speed:
-        return abs(speed / angular_speed)
-    return 0
-
-
-def slip_ratio(w_rot, w_radius, v_speed):
-    """Slip ratio (percentage), speed unit in m/s"""
-    if int(v_speed):  # set minimum to avoid flickering while stationary
-        return (abs(w_rot) * w_radius - v_speed) / v_speed
-    return 0
-
-
-def slip_angle(v_lat, v_lgt):
-    """Slip angle (radians)"""
-    if v_lgt:
-        return math.atan(v_lat / v_lgt)
-    return 0
-
-
 def gforce(value, g_accel):
     """G force"""
     if g_accel:
@@ -189,31 +168,6 @@ def rotate_coordinate(ori_rad, value1, value2):
     cos_rad = math.cos(ori_rad)
     return (cos_rad * value1 - sin_rad * value2,
             cos_rad * value2 + sin_rad * value1)
-
-
-def wheel_axle_rotation(rot_left, rot_right):
-    """Wheel axle rotation"""
-    # Make sure both wheels rotate towards same direction
-    if rot_left >= 0 <= rot_right or rot_left <= 0 >= rot_right:
-        return (rot_left + rot_right) / 2
-    return 0
-
-
-def wheel_rotation_bias(rot_axle, rot_left, rot_right):
-    """Wheel rotation bias (difference) against axle rotation"""
-    if rot_axle:
-        return abs((rot_left - rot_right) / rot_axle)
-    return 0
-
-
-def wheel_rotation_ratio(rot_axle, rot_left, rot_right):
-    """Calculate wheel rotation ratio between left and right wheel on same axle
-
-    Range from 0 to 2. 1 means both wheels rotate at same speed.
-    """
-    if rot_axle:
-        return rot_left / rot_axle, rot_right / rot_axle
-    return 1, 1
 
 
 def lap_progress_distance(dist, length):
@@ -673,6 +627,60 @@ def tyre_lifespan_in_mins(
     else:
         est_mins = 999
     return min(est_mins, 999)
+
+
+# Wheel
+def rot2radius(speed, angular_speed):
+    """Angular speed to radius"""
+    if angular_speed:
+        return abs(speed / angular_speed)
+    return 0
+
+
+def slip_ratio(w_rot, w_radius, v_speed):
+    """Slip ratio (percentage), speed unit in m/s"""
+    if int(v_speed):  # set minimum to avoid flickering while stationary
+        return (abs(w_rot) * w_radius - v_speed) / v_speed
+    return 0
+
+
+def slip_angle(v_lat, v_lgt):
+    """Slip angle (radians)"""
+    if v_lgt:
+        return math.atan(v_lat / v_lgt)
+    return 0
+
+
+def wheel_axle_rotation(rot_left, rot_right):
+    """Wheel axle rotation"""
+    # Make sure both wheels rotate towards same direction
+    if rot_left >= 0 <= rot_right or rot_left <= 0 >= rot_right:
+        return (rot_left + rot_right) / 2
+    return 0
+
+
+def wheel_rotation_bias(rot_axle, rot_left, rot_right):
+    """Wheel rotation bias (difference) against axle rotation"""
+    if rot_axle:
+        return abs((rot_left - rot_right) / rot_axle)
+    return 0
+
+
+def wheel_rotation_ratio(rot_axle, rot_left):
+    """Calculate wheel rotation ratio between left and right wheel on same axle"""
+    if rot_axle:
+        return rot_left / rot_axle / 2
+    return 0.5
+
+
+def differential_locking_percent(rot_axle, rot_left):
+    """Differential (wheel) locking percent
+
+    0% = one wheel completely spinning or locked, 100% = both wheel rotated at same speed.
+    """
+    if rot_axle:
+        return 1 - abs(rot_left / rot_axle - 1)
+    return 0
 
 
 # Misc
