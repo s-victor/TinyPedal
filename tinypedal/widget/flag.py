@@ -398,7 +398,7 @@ class Realtime(Overlay):
         """Incoming traffic"""
         if curr != last:
             if curr != MAGIC_NUM:
-                self.bar_traffic.setText(f"≥{curr: >6.1f}"[:7])
+                self.bar_traffic.setText(f"≥{curr: >5.1f}s"[:7])
                 self.bar_traffic.show()
             else:
                 self.bar_traffic.hide()

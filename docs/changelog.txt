@@ -1,4 +1,4 @@
-WIP
+2.18.0 (2024-09-26)
 -----------------------------
 * General
   - Add global user config file as "config.json", which stores global user settings
@@ -10,21 +10,25 @@ WIP
   - All Config dialogs now shows preset file name on title bar.
   - Color pick dialog now shows up to 16 previously picked colors in "Custom colors" selector.
   - Smaller panel size for "Fuel Calculator".
-  - Significantly reduced opponents vehicle position desync (as sometimes noticeable on Radar)
-    when using "direct access" mode from sharedmemory API setting.
-  - Majority of widgets & modules have been rewritten and further optimized.
+  - Most of widgets & modules code has been rewritten and optimized for improved efficiency
+    and less CPU and memory usage.
+    Note, currently both "Friction Circle" & "Navigation" Widgets are known to consume more
+    CPU usage for drawing complex plot and animated map, especially with "Navigation" Widget
+    and a lot of vehicles on track. If there is significant increase in APP 's CPU usage,
+    try disable either widgets, which should help lower CPU usage to normal level.
+    The new "System performance Widget" (see below) can be used to monitor performance change.
 
 * [New]Application dialog
-  - Add "Application" to main window "Config" menu, which opens a dialog for customizing
-    global application settings and saved in global user config file.
+  - Add "Application" to main window "Config" menu for customizing global application settings
+    and saved in global user config file.
   - "grid_move_size, minimum_update_interval, maximum_saving_attempts" options from
     "compatibility" are moved to "application".
   - Add "show_confirmation_for_batch_toggle" option, which shows confirmation dialog
     for enabling or disabling all widgets or modules. This option is enabled by default.
 
 * [New]User path dialog
-  - Add "User path" to main window "Config" menu, which opens a dialog for customizing
-    global user path settings and saved in global user config file.
+  - Add "User path" to main window "Config" menu for customizing global user path settings
+    and saved in global user config file.
     To change user path, double-clicking on edit box to open "Select folder" dialog;
     or manually editing path text.
     Click "Apply" or "Save" to verify and apply new paths. Invalid path will not be applied.
@@ -54,6 +58,11 @@ WIP
     Primary preset will be auto loaded when "Auto load primary preset" is enabled and
     a new or different game is started & active.
     Note, a single preset can have tags from multiple games.
+
+* Shared Memory API
+  - Improved accessing efficiency, now uses fast-restart method for same API.
+  - Significantly reduced opponents vehicle position desync issue when using "direct access" mode
+    (as previously was noticeable on Radar Widget sometimes).
 
 * Vehicle Brand Editor
   - Now allows multi-selection for deleting vehicle brand entries.
@@ -112,7 +121,7 @@ WIP
     Default value is "0.8".
   - Renamed options "show_fade_out, fade_in_radius, fade_out_radius" to
     "show_edge_fade_out, edge_fade_in_radius, edge_fade_out_radius" to
-    distinguish them from new radar fade options.
+    distinguish from new radar fade options.
 
 * Relative, Rivals, Standings Widget
   - "show_pit_status" option now also displays garage status (as "G" sign) for driver in garage.
@@ -150,8 +159,7 @@ WIP
   - Improved display formatting for temperature, raininess, wetness readings.
 
 * Weather forecast Widget
-  - The "now" column always shows current weather condition
-    even if RestAPI Module is disabled.
+  - The "now" column always shows current weather condition even if RestAPI Module is disabled.
 
 * Misc
   - Updated User Guide for all changes mentioned above and additional usage info.

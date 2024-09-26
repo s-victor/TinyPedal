@@ -294,8 +294,8 @@ WIDGET_DEFAULT = {
     "differential": {
         "enable": True,
         "update_interval": 20,
-        "position_x": 140,
-        "position_y": 293,
+        "position_x": 57,
+        "position_y": 860,
         "opacity": 0.9,
         "layout": 0,
         "font_name": "Consolas",
