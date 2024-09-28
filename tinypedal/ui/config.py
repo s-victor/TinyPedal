@@ -149,12 +149,15 @@ class FontConfig(QDialog):
                 if (re.search(rxp.CFG_FONT_NAME, key) and
                     self.edit_fontname.currentText() != "no change"):
                     dict_user[item][key] = self.edit_fontname.currentFont().family()
+                    continue
                 if (re.search(rxp.CFG_FONT_WEIGHT, key) and
                     self.edit_fontweight.currentText() != "no change"):
                     dict_user[item][key] = self.edit_fontweight.currentText()
-                if key == "font_size":
+                    continue
+                if re.search("font_size", key):
                     dict_user[item][key] = max(
                         dict_user[item][key] + self.edit_fontsize.value(), 1)
+                    continue
         self.edit_fontsize.setValue(0)
         cfg.save(0)
         while cfg.is_saving:  # wait saving finish

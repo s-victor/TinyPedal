@@ -207,6 +207,10 @@ class ConfigMenu(QMenu):
         config_app.triggered.connect(self.open_config_application)
         menu.addAction(config_app)
 
+        config_compat = QAction("Compatibility", self)
+        config_compat.triggered.connect(self.open_config_compatibility)
+        menu.addAction(config_compat)
+
         config_userpath = QAction("User path", self)
         config_userpath.triggered.connect(self.open_config_userpath)
         menu.addAction(config_userpath)
@@ -224,10 +228,6 @@ class ConfigMenu(QMenu):
         config_sharedmemory = QAction("Shared memory API", self)
         config_sharedmemory.triggered.connect(self.open_config_sharedmemory)
         menu.addAction(config_sharedmemory)
-
-        config_compat = QAction("Compatibility", self)
-        config_compat.triggered.connect(self.open_config_compatibility)
-        menu.addAction(config_compat)
 
     def open_config_application(self):
         """Config global application"""

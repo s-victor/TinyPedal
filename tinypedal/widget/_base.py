@@ -180,7 +180,7 @@ class Overlay(QWidget):
 
         Args:
             name: font name string.
-            size: font size in pixel.
+            size: font size in pixel, minimum limit 1px.
             weight (optional): font weight name string, convert name to capital.
 
         Returns:
@@ -188,7 +188,7 @@ class Overlay(QWidget):
         """
         font = QFont()
         font.setFamily(name)
-        font.setPixelSize(size)
+        font.setPixelSize(max(size, 1))
         if weight:
             font.setWeight(getattr(QFont, weight.capitalize()))
         return font
@@ -263,7 +263,7 @@ class Overlay(QWidget):
             fg_color: foreground color.
             bg_color: background color.
             font_family: font family name string.
-            font_size: font size in pixel.
+            font_size: font size in pixel, minimum limit 1px.
             font_weight: font weight string, "normal" or "bold".
 
         Returns:
@@ -276,7 +276,7 @@ class Overlay(QWidget):
         if font_family:
             font_family = f"font-family:{font_family};"
         if font_size >= 0:
-            font_size = f"font-size:{font_size}px;"
+            font_size = f"font-size:{max(font_size, 1)}px;"
         else:
             font_size = ""
         if font_weight in FONT_WEIGHT_LIST:
