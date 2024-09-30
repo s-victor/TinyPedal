@@ -321,7 +321,7 @@ class Realtime(Overlay):
 
             standings_list = minfo.relative.standings
             total_idx = len(standings_list) - 1  # skip final -1 index
-            total_veh_idx = api.read.vehicle.total_vehicles()
+            total_veh_idx = minfo.vehicles.total
             in_race = api.read.session.in_race()
 
             # Standings update

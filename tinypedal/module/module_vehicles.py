@@ -69,7 +69,7 @@ class Realtime(DataModule):
     def __update_vehicle_data(
         self, veh_info, class_pos_list, max_lap_diff_ahead, max_lap_diff_behind):
         """Update vehicle data"""
-        veh_total = api.read.vehicle.total_vehicles()
+        veh_total = minfo.vehicles.total = api.read.vehicle.total_vehicles()
         if veh_total < 1:
             return
 

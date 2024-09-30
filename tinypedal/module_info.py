@@ -174,6 +174,7 @@ class RestAPIInfo:
 @dataclass
 class VehiclesInfo:
     """Vehicles module output data"""
+    total: int = 0
     dataSet: tuple = field(default_factory=tuple)
     dataSetVersion: int = -1
     drawOrder: list = field(default_factory=list)

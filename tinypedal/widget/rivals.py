@@ -262,7 +262,7 @@ class Realtime(Overlay):
 
             player_idx = api.read.vehicle.player_index()
             total_idx = len(minfo.relative.classes)
-            total_veh_idx = api.read.vehicle.total_vehicles()
+            total_veh_idx = minfo.vehicles.total
             in_race = api.read.session.in_race()
 
             if player_idx < total_idx:

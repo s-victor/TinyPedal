@@ -41,10 +41,12 @@ class Realtime(Overlay):
         Overlay.__init__(self, config, WIDGET_NAME)
 
         # Config variable
-        self.global_scale = max(self.wcfg["global_scale"], 0.01)
         self.radar_radius = max(self.wcfg["radar_radius"], 5)
-        self.area_size = self.radar_radius * 2 * self.global_scale
-        self.area_center = self.area_size * 0.5
+        self.area_center = round(  # limit minimum global scale relative to radar radius
+            self.radar_radius * max(self.wcfg["global_scale"], 5 / self.radar_radius)
+        )  # round to int
+        self.area_size = self.area_center * 2
+        self.global_scale = self.area_center / self.radar_radius  # recalibrate
 
         self.veh_width = max(self.wcfg["vehicle_width"], 0.01)
         self.veh_length = max(self.wcfg["vehicle_length"], 0.01)
@@ -67,10 +69,17 @@ class Realtime(Overlay):
         self.pixmap_background = QPixmap(self.area_size, self.area_size)
         self.pixmap_mask = QPixmap(self.area_size, self.area_size)
         self.pixmap_marks = QPixmap(self.area_size, self.area_size)
-        self.pixmap_fade = QPixmap(self.area_size, self.area_size)
+        self.rect_fade = QRectF(0, 0, self.area_size, self.area_size)
 
-        self.pen = QPen()
-        self.brush = QBrush(Qt.SolidPattern)
+        # Vehicle pen & brush
+        if self.wcfg["vehicle_outline_width"] > 0:
+            self.pen_veh = QPen()
+            self.pen_veh.setWidth(self.wcfg["vehicle_outline_width"])
+            self.pen_veh.setColor(self.wcfg["vehicle_outline_color"])
+        else:
+            self.pen_veh = Qt.NoPen
+        self.brush_veh = QBrush(Qt.SolidPattern)
+
         self.draw_background()
         self.draw_radar_marks()
         self.draw_radar_mask()
@@ -128,9 +137,8 @@ class Realtime(Overlay):
                     if radar_alpha < 0:
                         radar_alpha = 0
                     self.radar_fade_color.setAlphaF(radar_alpha)
-                    self.pixmap_fade.fill(self.radar_fade_color)
                     painter.setCompositionMode(QPainter.CompositionMode_DestinationIn)
-                    painter.drawPixmap(0, 0, self.pixmap_fade)
+                    painter.fillRect(self.rect_fade, self.radar_fade_color)
 
     def draw_background(self):
         """Draw radar background"""
@@ -150,7 +158,7 @@ class Realtime(Overlay):
             painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
     def draw_radar_mask(self):
-        """radar mask"""
+        """Draw radar mask"""
         self.pixmap_mask.fill(Qt.black)
         painter = QPainter(self.pixmap_mask)
         painter.setRenderHint(QPainter.Antialiasing, True)
@@ -165,7 +173,7 @@ class Realtime(Overlay):
         painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
     def draw_radar_marks(self):
-        """Draw radar marks"""
+        """Draw radar marks & player vehicle"""
         self.pixmap_marks.fill(Qt.transparent)
         painter = QPainter(self.pixmap_marks)
         painter.setRenderHint(QPainter.Antialiasing, True)
@@ -217,6 +225,18 @@ class Realtime(Overlay):
                     self.wcfg[f"distance_circle_{idx}_width"],
                     self.wcfg[f"distance_circle_{idx}_color"]
                 )
+
+        # Draw player vehicle (one time only)
+        painter.setPen(self.pen_veh)
+        self.brush_veh.setColor(self.wcfg["vehicle_color_player"])
+        painter.setBrush(self.brush_veh)
+        painter.translate(self.area_center, self.area_center)
+        painter.drawRoundedRect(
+            self.veh_shape,
+            self.wcfg["vehicle_border_radius"],
+            self.wcfg["vehicle_border_radius"]
+        )
+        painter.resetTransform()
 
     def draw_circle_mark(self, painter, pen, style, radius, width, color):
         """Draw circle mark"""
@@ -280,20 +300,15 @@ class Realtime(Overlay):
             )
 
     def draw_vehicle(self, painter, indicator):
-        """Draw vehicles"""
-        if self.wcfg["vehicle_outline_width"] > 0:
-            self.pen.setWidth(self.wcfg["vehicle_outline_width"])
-            self.pen.setColor(self.wcfg["vehicle_outline_color"])
-            painter.setPen(self.pen)
-        else:
-            painter.setPen(Qt.NoPen)
+        """Draw opponents vehicles"""
+        painter.setPen(self.pen_veh)
 
         # Real size in meters
         nearest_left = -indicator.max_range_x
         nearest_right = indicator.max_range_x
 
         # Draw opponent vehicle within radar range
-        veh_total = api.read.vehicle.total_vehicles()
+        veh_total = minfo.vehicles.total
         for index, veh_info in enumerate(minfo.vehicles.dataSet):
             if index >= veh_total:
                 break
@@ -319,32 +334,21 @@ class Realtime(Overlay):
                 angle_deg = round(calc.rad2deg(-veh_info.relativeOrientationXYRadians), 3)
 
                 # Draw vehicle
-                self.brush.setColor(self.color_lap_diff(veh_info))
-                painter.setBrush(self.brush)
+                self.brush_veh.setColor(self.color_lap_diff(veh_info))
+                painter.setBrush(self.brush_veh)
                 painter.translate(pos_x, pos_y)
                 painter.rotate(angle_deg)
-                self.draw_vehicle_shape(painter)
+                painter.drawRoundedRect(
+                    self.veh_shape,
+                    self.wcfg["vehicle_border_radius"],
+                    self.wcfg["vehicle_border_radius"]
+                )
                 painter.resetTransform()
-
-        # Draw player vehicle
-        self.brush.setColor(self.wcfg["vehicle_color_player"])
-        painter.setBrush(self.brush)
-        painter.translate(self.area_center, self.area_center)
-        self.draw_vehicle_shape(painter)
-        painter.resetTransform()
 
         if self.wcfg["show_overlap_indicator"]:
             # Draw overlap indicator below vehicle shape
             painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
             self.draw_warning_indicator(painter, indicator, nearest_left, nearest_right)
-
-    def draw_vehicle_shape(self, painter):
-        """Draw vehicles shape"""
-        painter.drawRoundedRect(
-            self.veh_shape,
-            self.wcfg["vehicle_border_radius"],
-            self.wcfg["vehicle_border_radius"]
-        )
 
     # Additional methods
     def scale_veh_pos(self, position):
@@ -408,7 +412,7 @@ class Realtime(Overlay):
 
     def is_nearby(self):
         """Check nearby vehicles"""
-        veh_total = api.read.vehicle.total_vehicles()
+        veh_total = minfo.vehicles.total
         for index, veh_info in enumerate(minfo.vehicles.dataSet):
             if index >= veh_total:
                 break

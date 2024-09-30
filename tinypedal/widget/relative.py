@@ -25,7 +25,6 @@ from PySide2.QtGui import QPixmap
 from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
-from ..api_control import api
 from .. import formatter as fmt
 from ..module_info import minfo
 from ._base import Overlay
@@ -265,7 +264,7 @@ class Realtime(Overlay):
 
             relative_list = minfo.relative.relative
             total_idx = len(relative_list)
-            total_veh_idx = api.read.vehicle.total_vehicles()
+            total_veh_idx = minfo.vehicles.total
 
             # Relative update
             for idx in range(self.veh_range):
