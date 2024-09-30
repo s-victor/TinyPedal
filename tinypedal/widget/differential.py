@@ -181,6 +181,8 @@ class Realtime(Overlay):
                     self.last_power_f = self.min_power_f
                 elif lap_etime - self.power_timer_f > self.wcfg["power_locking_reset_cooldown"]:
                     self.min_power_f = 1
+                elif self.power_timer_f > lap_etime:  # timer correction
+                    self.power_timer_f = lap_etime
 
             # Coast locking front
             if self.wcfg["show_coast_locking_front"] and raw_throttle < self.wcfg["off_throttle_threshold"]:
@@ -194,6 +196,8 @@ class Realtime(Overlay):
                     self.last_coast_f = self.min_coast_f
                 elif lap_etime - self.coast_timer_f > self.wcfg["coast_locking_reset_cooldown"]:
                     self.min_coast_f = 1
+                elif self.coast_timer_f > lap_etime:
+                    self.coast_timer_f = lap_etime
 
             # Power locking rear
             if self.wcfg["show_power_locking_rear"] and raw_throttle > self.wcfg["on_throttle_threshold"]:
@@ -207,6 +211,8 @@ class Realtime(Overlay):
                     self.last_power_r = self.min_power_r
                 elif lap_etime - self.power_timer_r > self.wcfg["power_locking_reset_cooldown"]:
                     self.min_power_r = 1
+                elif self.power_timer_r > lap_etime:
+                    self.power_timer_r = lap_etime
 
             # Coast locking rear
             if self.wcfg["show_coast_locking_rear"] and raw_throttle < self.wcfg["off_throttle_threshold"]:
@@ -220,6 +226,8 @@ class Realtime(Overlay):
                     self.last_coast_r = self.min_coast_r
                 elif lap_etime - self.coast_timer_r > self.wcfg["coast_locking_reset_cooldown"]:
                     self.min_coast_r = 1
+                elif self.coast_timer_r > lap_etime:
+                    self.coast_timer_r = lap_etime
 
     # GUI update methods
     def update_locking(self, target_bar, curr, last, prefix):

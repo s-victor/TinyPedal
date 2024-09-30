@@ -81,7 +81,7 @@ Alternatively, to import vehicle brand data from vehicle `JSON` file, click `Imp
 
     How to manually export vehicle brand data from LMU Rest API:
     1. Start LMU, then open following link in web browser:
-    localhost:6397/rest/sessions/getAllAvailableVehicles
+    localhost:6397/rest/sessions/getAllVehicles
     2. Click "Save" button which saves vehicle data to JSON file.
 
     Note: importing feature is experimental. Maximum acceptable JSON file size is limited to "5MB".

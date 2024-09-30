@@ -1,3 +1,8 @@
+WIP
+-----------------------------
+* Differential Widget
+  - Fixed cooldown timer did not reset after changed or restarted a session.
+
 2.18.0 (2024-09-26)
 -----------------------------
 * General
