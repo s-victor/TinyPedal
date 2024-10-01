@@ -21,7 +21,7 @@ Instrument Widget
 """
 
 from PySide2.QtCore import Qt, QRectF
-from PySide2.QtGui import QPixmap, QPainter, QPen
+from PySide2.QtGui import QPixmap, QPainter
 from PySide2.QtWidgets import QGridLayout
 
 from ..api_control import api
@@ -62,7 +62,6 @@ class Realtime(Overlay):
         self.pixmap_icon = QPixmap("images/icon_instrument.png").scaledToWidth(
             self.icon_size * 2, mode=Qt.SmoothTransformation
         )
-        self.pen = QPen()
 
         # Headlights
         if self.wcfg["show_headlights"]:

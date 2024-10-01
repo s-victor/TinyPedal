@@ -127,6 +127,7 @@ class Realtime(Overlay):
         self.resize(self.display_width, self.display_height)
 
         self.pen = QPen()
+        self.pen.setColor(self.wcfg["font_color_integrity"])
         self.brush = QBrush(Qt.SolidPattern)
 
         # Last data
@@ -244,7 +245,6 @@ class Realtime(Overlay):
 
     def draw_readings(self, painter, value):
         """Draw body integrity readings"""
-        self.pen.setColor(self.wcfg["font_color_integrity"])
         painter.setFont(self.font)
         painter.setPen(self.pen)
         painter.drawText(

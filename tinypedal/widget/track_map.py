@@ -71,6 +71,7 @@ class Realtime(Overlay):
         self.pixmap_map = QPixmap(self.area_size, self.area_size)
 
         self.pen = QPen()
+        self.pen.setColor(self.wcfg["font_color"])
 
         self.pixmap_veh_player = self.draw_vehicle_pixmap("player")
         self.pixmap_veh_leader = self.draw_vehicle_pixmap("leader")
@@ -261,7 +262,6 @@ class Realtime(Overlay):
         """Draw vehicles"""
         if self.wcfg["show_vehicle_standings"]:
             painter.setFont(self.font)
-            self.pen.setColor(self.wcfg["font_color"])
             painter.setPen(self.pen)
 
         for index in veh_draw_order:

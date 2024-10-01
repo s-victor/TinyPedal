@@ -87,7 +87,10 @@ class Realtime(Overlay):
         self.pixmap_mark = QPixmap(full_width, self.bar_height)
 
         self.pen = QPen()
+        self.pen.setColor(self.wcfg["font_color"])
         self.brush = QBrush(Qt.SolidPattern)
+        self.brush.setColor(self.wcfg["steering_color"])
+
         self.draw_background()
         self.draw_scale_mark()
 
@@ -179,7 +182,6 @@ class Realtime(Overlay):
     def draw_steering(self, painter):
         """Draw steering"""
         painter.setPen(Qt.NoPen)
-        self.brush.setColor(self.wcfg["steering_color"])
         painter.setBrush(self.brush)
         painter.drawRect(
             self.bar_edge + self.bar_width + min(self.raw_steering, 0) * self.bar_width,
@@ -196,20 +198,21 @@ class Realtime(Overlay):
 
     def draw_readings(self, painter):
         """Draw readings"""
-        angle = round(self.raw_steering * self.sw_rot_range * 0.5)
-        self.pen.setColor(self.wcfg["font_color"])
         painter.setPen(self.pen)
         painter.setFont(self.font)
-        painter.drawText(
-            self.rect_text_bg_l,
-            Qt.AlignLeft | Qt.AlignVCenter,
-            f"{abs(angle)}" if min(angle, 0) else ""
-        )
-        painter.drawText(
-            self.rect_text_bg_r,
-            Qt.AlignRight | Qt.AlignVCenter,
-            f"{abs(angle)}" if max(angle, 0) else ""
-        )
+        angle = self.raw_steering * self.sw_rot_range * 0.5
+        if angle < 0:
+            painter.drawText(
+                self.rect_text_bg_l,
+                Qt.AlignLeft | Qt.AlignVCenter,
+                f"{-angle:.0f}"
+            )
+        elif angle > 0:
+            painter.drawText(
+                self.rect_text_bg_r,
+                Qt.AlignRight | Qt.AlignVCenter,
+                f"{angle:.0f}"
+            )
 
     # Additional methods
     @staticmethod
