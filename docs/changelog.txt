@@ -1,5 +1,11 @@
-WIP
+2.18.1 (2024-10-02)
 -----------------------------
+* General
+  - Fixed a font weight verification error that prevents user from saving any changes
+    in "Gear Widget" config dialog.
+  - Fixed missing combo choices (text alignment, font weight options) from
+    Elevation and Gear Widget config dialog.
+
 * Differential Widget
   - Fixed cooldown timer did not reset after changed or restarted a session.
 

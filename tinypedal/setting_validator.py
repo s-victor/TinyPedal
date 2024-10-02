@@ -71,20 +71,22 @@ class ValueValidator:
     @staticmethod
     def choice_units(key: str, dict_user: dict) -> bool:
         """Value - units choice list"""
-        if key not in rxp.CHOICE_UNITS:
-            return False
-        if dict_user[key] not in rxp.CHOICE_UNITS[key]:
-            dict_user.pop(key)
-        return True
+        for ref_key, choice_list in rxp.CHOICE_UNITS.items():
+            if re.search(ref_key, key):
+                if dict_user[key] not in choice_list:
+                    dict_user.pop(key)
+                return True
+        return False
 
     @staticmethod
     def choice_common(key: str, dict_user: dict) -> bool:
         """Value - common choice list"""
-        if key not in rxp.CHOICE_COMMON:
-            return False
-        if dict_user[key] not in rxp.CHOICE_COMMON[key]:
-            dict_user.pop(key)
-        return True
+        for ref_key, choice_list in rxp.CHOICE_COMMON.items():
+            if re.search(ref_key, key):
+                if dict_user[key] not in choice_list:
+                    dict_user.pop(key)
+                return True
+        return False
 
     @staticmethod
     def clock_format(key: str, dict_user: dict) -> bool:

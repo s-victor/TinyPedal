@@ -422,14 +422,10 @@ class UserConfig(QDialog):
                     idx, key, layout)
                 continue
             # Units choice list string
-            if key in rxp.CHOICE_UNITS:
-                self.__add_option_combolist(
-                    idx, key, layout, rxp.CHOICE_UNITS[key])
+            if self.__choice_match(rxp.CHOICE_UNITS, idx, key, layout):
                 continue
             # Common choice list string
-            if key in rxp.CHOICE_COMMON:
-                self.__add_option_combolist(
-                    idx, key, layout, rxp.CHOICE_COMMON[key])
+            if self.__choice_match(rxp.CHOICE_COMMON, idx, key, layout):
                 continue
             # Heatmap string
             if re.search(rxp.CFG_HEATMAP, key):
@@ -454,6 +450,15 @@ class UserConfig(QDialog):
             # Anything else
             self.__add_option_float(
                 idx, key, layout)
+
+    def __choice_match(self, choice_dict, idx, key, layout):
+        """Choice match"""
+        for ref_key, choice_list in choice_dict.items():
+            if re.search(ref_key, key):
+                self.__add_option_combolist(
+                    idx, key, layout, choice_list)
+                return True
+        return False
 
     def __add_option_label(self, idx, key, layout):
         """Option label"""
