@@ -897,6 +897,9 @@ Set cooldown duration (seconds) before resetting minimum power or coast locking 
 ## DRS
 **This widget displays DRS(rear flap) usage info.**
 
+    drs_text
+Set custom DRS text.
+
     font_color_activated, bkg_color_activated
 Set color when DRS is activated by player.
 

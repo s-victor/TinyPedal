@@ -49,21 +49,28 @@ class Realtime(Overlay):
         padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
         pady = round(font_m.capital * self.wcfg["bar_padding_vertical"])
 
-        self.drs_width = font_m.width * 3 + padx * 2
+        self.drs_width = font_m.width * len(self.wcfg["drs_text"]) + padx * 2
         self.drs_height = int(font_m.capital + pady * 2)
+        self.drs_color = (
+            (self.wcfg["font_color_not_available"], self.wcfg["bkg_color_not_available"]),
+            (self.wcfg["font_color_available"], self.wcfg["bkg_color_available"]),
+            (self.wcfg["font_color_allowed"], self.wcfg["bkg_color_allowed"]),
+            (self.wcfg["font_color_activated"], self.wcfg["bkg_color_activated"]),
+        )
 
         # Config canvas
         self.resize(self.drs_width, self.drs_height)
 
         self.pen = QPen()
+        self.pen.setColor(self.drs_color[0][0])
         self.brush = QBrush(Qt.SolidPattern)
+        self.brush.setColor(self.drs_color[0][1])
 
         # Config rect size
         self.rect_drs = QRectF(0, 0, self.drs_width, self.drs_height)
         self.rect_text_drs = self.rect_drs.adjusted(0, font_offset, 0, 0)
 
         # Last data
-        self.drs_state = (0, 0)
         self.last_drs_state = None
 
     def timerEvent(self, event):
@@ -71,56 +78,32 @@ class Realtime(Overlay):
         if self.state.active:
 
             # DRS update
-            self.drs_state = (api.read.switch.drs(),
-                              api.read.switch.drs_status())
-            self.update_drs(self.drs_state, self.last_drs_state)
-            self.last_drs_state = self.drs_state
+            drs_state = api.read.switch.drs_status()
+            self.update_drs(drs_state, self.last_drs_state)
+            self.last_drs_state = drs_state
 
     # GUI update methods
     def update_drs(self, curr, last):
         """DRS update"""
         if curr != last:
+            self.pen.setColor(self.drs_color[curr][0])
+            self.brush.setColor(self.drs_color[curr][1])
             self.update()
 
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
-        fg_color, bg_color = self.color_drs(self.drs_state)
-        self.draw_background(painter, bg_color)
-        self.draw_drs(painter, fg_color)
 
-    def draw_background(self, painter, bg_color):
-        """Draw background"""
-        self.brush.setColor(bg_color)
+        # Draw background
         painter.setPen(Qt.NoPen)
         painter.setBrush(self.brush)
         painter.drawRect(self.rect_drs)
 
-    def draw_drs(self, painter, fg_color):
-        """Draw DRS"""
-        self.pen.setColor(fg_color)
+        # Draw DRS text
         painter.setPen(self.pen)
         painter.setFont(self.font)
         painter.drawText(
             self.rect_text_drs,
             Qt.AlignCenter,
-            "DRS"
+            self.wcfg["drs_text"]
         )
-
-    # Additional methods
-    def color_drs(self, drs_state):
-        """DRS state color"""
-        if drs_state[1] == 1:  # blue
-            color = (self.wcfg["font_color_available"],
-                     self.wcfg["bkg_color_available"])
-        elif drs_state[1] == 2:
-            if drs_state[0]:  # green
-                color = (self.wcfg["font_color_activated"],
-                         self.wcfg["bkg_color_activated"])
-            else:  # orange
-                color = (self.wcfg["font_color_allowed"],
-                         self.wcfg["bkg_color_allowed"])
-        else:  # grey
-            color = (self.wcfg["font_color_not_available"],
-                     self.wcfg["bkg_color_not_available"])
-        return color

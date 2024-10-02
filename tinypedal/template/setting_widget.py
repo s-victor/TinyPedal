@@ -343,6 +343,7 @@ WIDGET_DEFAULT = {
         "font_offset_vertical": 0,
         "bar_padding_horizontal": 0.5,
         "bar_padding_vertical": 0.2,
+        "drs_text": "DRS",
         "font_color_activated": "#000000",
         "bkg_color_activated": "#44FF00",
         "font_color_allowed": "#000000",

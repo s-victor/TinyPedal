@@ -3,6 +3,10 @@ WIP
 * Differential Widget
   - Fixed cooldown timer did not reset after changed or restarted a session.
 
+* DRS Widget
+  - Add "drs_text" option for setting custom DRS display text.
+  - Optimized DRS status check.
+
 2.18.0 (2024-09-26)
 -----------------------------
 * General

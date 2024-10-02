@@ -380,13 +380,16 @@ class Switch(DataAdapter):
         """Speed limiter"""
         return chknm(self.info.rf2TeleVeh(index).mSpeedLimiter)
 
-    def drs(self, index: int | None = None) -> int:
-        """DRS"""
-        return chknm(self.info.rf2TeleVeh(index).mRearFlapActivated)
-
     def drs_status(self, index: int | None = None) -> int:
-        """DRS status"""
-        return chknm(self.info.rf2TeleVeh(index).mRearFlapLegalStatus)
+        """DRS status - 0 not_available, 1 available, 2 allowed(not activated), 3 activated"""
+        status = chknm(self.info.rf2TeleVeh(index).mRearFlapLegalStatus)
+        if status == 1:
+            return 1  # available
+        if status == 2:
+            if chknm(self.info.rf2TeleVeh(index).mRearFlapActivated):
+                return 3  # activated
+            return 2  # allowed
+        return 0  # not_available
 
     def auto_clutch(self) -> int:
         """Auto clutch"""
