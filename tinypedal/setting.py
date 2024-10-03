@@ -143,7 +143,7 @@ class Setting:
         preset_name = self.primary_preset.get(sim_name, "")
         if val.allowed_filename(rxp.CFG_INVALID_FILENAME, preset_name):
             full_preset_name = f"{preset_name}.json"
-            if os.path.exists(f"{cfg.path.settings}{full_preset_name}"):
+            if os.path.exists(f"{self.path.settings}{full_preset_name}"):
                 return full_preset_name
         return ""
 
@@ -157,6 +157,7 @@ class Setting:
         self.application = self.user.config["application"]
         self.compatibility = self.user.config["compatibility"]
         self.primary_preset = self.user.config["primary_preset"]
+        # Save setting to JSON file
         logger.info("SETTING: %s loaded (global settings)", self.filename.config)
         self.save(0, "config")
 
@@ -167,7 +168,7 @@ class Setting:
         new_settings_path = os.path.abspath(self.path.settings)
         # Update preset name if settings path changed
         if new_settings_path != old_settings_path:
-            self.filename.setting = f"{self.load_preset_list()[0]}.json"
+            self.filename.setting = f"{self.preset_list[0]}.json"
 
     def load(self):
         """Load all setting files"""
@@ -187,27 +188,27 @@ class Setting:
             self.filename.heatmap, self.path.settings, self.default.heatmap)
         self.user.brands_logo = load_brands_logo_list(self.path.brand_logo)
         # Save setting to JSON file
-        self.save(0)
         logger.info("SETTING: %s loaded (user preset)", self.filename.last_setting)
+        self.save(0)
 
-    def load_preset_list(self):
-        """Load preset list
+    @property
+    def preset_list(self) -> list[str]:
+        """Load user preset JSON filename list, sort by modified date in descending order
 
-        JSON file list: modified date, filename
+        Returns:
+            JSON filename (without file extension) list.
         """
-        raw_cfg_list = [
+        gen_cfg_list = (
             (os.path.getmtime(f"{self.path.settings}{_filename}"), _filename[:-5])
             for _filename in os.listdir(self.path.settings)
             if _filename.lower().endswith(".json")
+        )
+        valid_cfg_list = [
+            _filename[1] for _filename in sorted(gen_cfg_list, reverse=True)
+            if val.allowed_filename(rxp.CFG_INVALID_FILENAME, _filename[1])
         ]
-        if raw_cfg_list:
-            raw_cfg_list.sort(reverse=True)  # sort by file modified date
-            cfg_list = [
-                _filename[1] for _filename in raw_cfg_list
-                if val.allowed_filename(rxp.CFG_INVALID_FILENAME, _filename[1])
-            ]
-            if cfg_list:
-                return cfg_list
+        if valid_cfg_list:
+            return valid_cfg_list
         return ["default"]
 
     def create(self):
@@ -227,9 +228,9 @@ class Setting:
         self._save_delay = delay
         self._save_queue.add(filetype)
 
-        if filetype == "config":
+        if filetype == "config":  # save to global config path
             filepath = self.path.config
-        else:
+        else:  # save to settings (preset) path
             filepath = self.path.settings
 
         if not self.is_saving:
@@ -246,8 +247,7 @@ class Setting:
 
     def __saving(self, filetype: str, filename: str, filepath: str, dict_user: dict):
         """Saving thread"""
-        attempts = max_attempts = max(
-            self.user.config["application"]["maximum_saving_attempts"], 3)
+        attempts = max_attempts = max(self.application["maximum_saving_attempts"], 3)
 
         # Update save delay
         while self._save_delay > 0:
@@ -282,6 +282,7 @@ class Setting:
         self._save_queue.discard(filetype)
         self.is_saving = False
 
+        # Run next task in save queue if any
         for save_task in self._save_queue:
             self.save(0, save_task)
             break
@@ -390,5 +391,5 @@ def copy_setting(dict_user: dict) -> dict:
 # Assign config setting
 cfg = Setting()
 cfg.load_global()
-cfg.filename.setting = f"{cfg.load_preset_list()[0]}.json"
+cfg.filename.setting = f"{cfg.preset_list[0]}.json"
 cfg.load()

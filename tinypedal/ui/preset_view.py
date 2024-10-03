@@ -114,7 +114,7 @@ class PresetList(QWidget):
 
     def refresh_list(self):
         """Refresh preset list"""
-        self.preset_list = cfg.load_preset_list()
+        self.preset_list = cfg.preset_list
         self.listbox_preset.clear()
 
         for preset_name in self.preset_list:
@@ -277,7 +277,7 @@ class CreatePreset(QDialog):
     def __saving(self, filepath: str, entered_filename: str, source_filename: str):
         """Saving new preset"""
         # Check existing preset
-        temp_list = cfg.load_preset_list()
+        temp_list = cfg.preset_list
         for preset in temp_list:
             if entered_filename.lower() == preset.lower():
                 QMessageBox.warning(self, "Error", "Preset already exists.")

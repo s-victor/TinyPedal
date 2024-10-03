@@ -40,7 +40,7 @@ def new_stream_handler(_logger, stream):
         _logger: logger instance.
         stream: stream object.
     Returns:
-        Stream handler
+        Stream handler.
     """
     _handler = logging.StreamHandler(stream)
     _handler.setFormatter(LOGGING_FORMAT_CONSOLE)
