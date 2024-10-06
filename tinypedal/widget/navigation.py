@@ -306,10 +306,9 @@ class Realtime(Overlay):
             # Draw opponent vehicle in view range
             elif veh_info[index].relativeStraightDistance < self.view_range:
                 # Rotated position relative to player
-                pos_x, pos_y = (  # position = raw position * global scale + offset
-                    veh_info[index].relativeRotatedPosXY[0] * self.global_scale + self.area_center,
-                    veh_info[index].relativeRotatedPosXY[1] * self.global_scale + self.veh_offset_y
-                )
+                # Position = raw position * global scale + offset
+                pos_x = veh_info[index].relativeRotatedPosXY[0] * self.global_scale + self.area_center
+                pos_y = veh_info[index].relativeRotatedPosXY[1] * self.global_scale + self.veh_offset_y
                 painter.translate(pos_x, pos_y)
 
                 if not self.wcfg["show_circle_vehicle_shape"]:

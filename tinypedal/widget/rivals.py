@@ -74,7 +74,7 @@ class Realtime(Overlay):
             "",  # vehicle name
             "",  # pos_class
             "",  # veh_class
-            "",  # tire_idx
+            (-1,-1),  # tire_idx
             "",  # laptime
             "",  # best laptime
             (-1,0),  # pit_count
@@ -489,7 +489,10 @@ class Realtime(Overlay):
     def update_tcp(self, target_bar, curr, last):
         """Tyre compound index"""
         if curr != last:
-            text = self.set_tyre_cmp(curr)
+            if curr[0] != -1:
+                text = f"{self.tyre_compound_string[curr[0]]}{self.tyre_compound_string[curr[1]]}"
+            else:
+                text = ""
             target_bar.setText(text)
             self.toggle_visibility(text, target_bar)
 
@@ -546,12 +549,6 @@ class Realtime(Overlay):
             return self.pixmap_brandlogo[brand_name]
         # Load blank logo if unavailable
         return self.pixmap_brandlogo["blank"]
-
-    def set_tyre_cmp(self, tc_indices):
-        """Substitute tyre compound index with custom chars"""
-        if tc_indices:
-            return "".join((self.tyre_compound_string[idx] for idx in tc_indices))
-        return ""
 
     @staticmethod
     def set_pitcount(pits):
@@ -612,8 +609,8 @@ class Realtime(Overlay):
         # 5 Vehicle class (veh_class: str)
         veh_class = veh_info[index].vehicleClass
 
-        # 6 Tyre compound index (tire_idx: tuple)
-        tire_idx = veh_info[index].tireCompound
+        # 6 Tyre compound index (tire_idx: int)
+        tire_idx = (veh_info[index].tireCompoundFront, veh_info[index].tireCompoundRear)
 
         # 7 Lap time (laptime: tuple)
         if self.wcfg["show_best_laptime"] or in_race:

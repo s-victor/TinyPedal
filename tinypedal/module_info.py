@@ -223,19 +223,19 @@ class VehicleDataSet:
     inPit: bool = False
     numPitStops: int = 0
     pitState: int = 0
+    tireCompoundFront: int = 0
+    tireCompoundRear: int = 0
     relativeOrientationXYRadians: float = 0
     relativeStraightDistance: float = 0
     # Sub-list
     pitTimer: list = field(default_factory=list)
     posXY: list = field(default_factory=list)
-    tireCompound: list = field(default_factory=list)
     relativeRotatedPosXY: list = field(default_factory=list)
 
     def __post_init__(self):
         """Initialize sub-list"""
         self.pitTimer = [0, -1, 0]  # 0 in pit state, 1 pit start time, 2 pit timer
         self.posXY = [0, 0]
-        self.tireCompound = [0, 0]  # front, rear
         self.relativeRotatedPosXY = [0, 0]
 
 

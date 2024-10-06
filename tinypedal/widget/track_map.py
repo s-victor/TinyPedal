@@ -266,12 +266,13 @@ class Realtime(Overlay):
 
         for index in veh_draw_order:
             if self.last_coords_hash:
-                pos_x, pos_y = (  # position = (coords - min_range) * scale + offset
-                    round((veh_info[index].posXY[0] - self.map_range[0])
-                        * self.map_scale + self.map_offset[0]),  # min range x, offset x
-                    round((veh_info[index].posXY[1] - self.map_range[2])
-                        * self.map_scale + self.map_offset[1])  # min range y, offset y
-                )  # round to prevent bouncing
+                # Position = (coords - min_range) * scale + offset, round to prevent bouncing
+                pos_x = round(
+                    (veh_info[index].posXY[0] - self.map_range[0])  # min range x
+                    * self.map_scale + self.map_offset[0])  # offset x
+                pos_y = round(
+                    (veh_info[index].posXY[1] - self.map_range[2])  # min range y
+                    * self.map_scale + self.map_offset[1])  # offset y
                 offset = 0
             else:  # vehicles on temp map
                 inpit_offset = self.wcfg["font_size"] if veh_info[index].inPit else 0

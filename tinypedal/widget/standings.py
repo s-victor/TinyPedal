@@ -82,7 +82,7 @@ class Realtime(Overlay):
             ("",0,2),  # vehicle name
             ("",0,2),  # pos_class
             ("",2),  # veh_class
-            ("",0,2),  # tire_idx
+            (-1,-1,0,2),  # tire_idx
             ("",0,2),  # laptime
             ("",0,2),  # best laptime
             ("",0,2),  # time_gap
@@ -564,10 +564,13 @@ class Realtime(Overlay):
     def update_tcp(self, target_bar, curr, last):
         """Tyre compound index"""
         if curr != last:
-            text = self.set_tyre_cmp(curr[0])
+            if curr[0] != -1:
+                text = f"{self.tyre_compound_string[curr[0]]}{self.tyre_compound_string[curr[1]]}"
+            else:
+                text = ""
             target_bar.setText(text)
-            target_bar.setStyleSheet(self.bar_style_tcp[curr[1]])
-            self.toggle_visibility(curr[2], target_bar)
+            target_bar.setStyleSheet(self.bar_style_tcp[curr[2]])
+            self.toggle_visibility(curr[3], target_bar)
 
     def update_psc(self, target_bar, curr, last):
         """Pitstop count"""
@@ -635,12 +638,6 @@ class Realtime(Overlay):
             return self.pixmap_brandlogo[brand_name]
         # Load blank logo if unavailable
         return self.pixmap_brandlogo["blank"]
-
-    def set_tyre_cmp(self, tc_indices):
-        """Substitute tyre compound index with custom chars"""
-        if tc_indices:
-            return "".join((self.tyre_compound_string[idx] for idx in tc_indices))
-        return ""
 
     @staticmethod
     def set_pitcount(pits):
@@ -726,8 +723,9 @@ class Realtime(Overlay):
         # 5 Vehicle class (veh_class: str, state)
         veh_class = (veh_info[index].vehicleClass, state)
 
-        # 6 Tyre compound index (tire_idx: tuple, hi_player, state)
-        tire_idx = (veh_info[index].tireCompound, hi_player, state)
+        # 6 Tyre compound index (tire_idx: int, hi_player, state)
+        tire_idx = (
+            veh_info[index].tireCompoundFront, veh_info[index].tireCompoundRear, hi_player, state)
 
         # 7 Lap time (laptime: tuple, hi_player, state)
         if self.wcfg["show_best_laptime"] or in_race:

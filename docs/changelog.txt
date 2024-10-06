@@ -1,3 +1,8 @@
+2.18.2 (2024-10-06)
+-----------------------------
+* Relative, Rivals, Standings Widget
+  - Fixed tyre compound info not correctly updated in some cases (issue reported by MarcoSaupe).
+
 2.18.1 (2024-10-02)
 -----------------------------
 * General

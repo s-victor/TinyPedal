@@ -76,7 +76,7 @@ class Realtime(Overlay):
             ("",0),  # pos_class
             "",  # veh_class
             ("",0,0),  # time_gap
-            ("",0),  # tire_idx
+            (-1,-1,0),  # tire_idx
             ("",0),  # laptime
             (-1,0,0)  # pit_count
         )
@@ -506,8 +506,12 @@ class Realtime(Overlay):
     def update_tcp(self, target_bar, curr, last):
         """Tyre compound index"""
         if curr != last:
-            target_bar.setText(self.set_tyre_cmp(curr[0]))
-            target_bar.setStyleSheet(self.bar_style_tcp[curr[1]])
+            if curr[0] != -1:
+                text = f"{self.tyre_compound_string[curr[0]]}{self.tyre_compound_string[curr[1]]}"
+            else:
+                text = ""
+            target_bar.setText(text)
+            target_bar.setStyleSheet(self.bar_style_tcp[curr[2]])
 
     def update_psc(self, target_bar, curr, last):
         """Pitstop count"""
@@ -562,12 +566,6 @@ class Realtime(Overlay):
             return self.pixmap_brandlogo[brand_name]
         # Load blank logo if unavailable
         return self.pixmap_brandlogo["blank"]
-
-    def set_tyre_cmp(self, tc_indices):
-        """Substitute tyre compound index with custom chars"""
-        if tc_indices:
-            return "".join((self.tyre_compound_string[idx] for idx in tc_indices))
-        return ""
 
     @staticmethod
     def set_pitcount(pits):
@@ -624,8 +622,8 @@ class Realtime(Overlay):
         # 6 Time gap (time_gap: float, is_lapped, hi_player)
         time_gap = (veh_info[index].relativeTimeGap, is_lapped, hi_player)
 
-        # 7 Tyre compound index (tire_idx: tuple, hi_player)
-        tire_idx = (veh_info[index].tireCompound, hi_player)
+        # 7 Tyre compound index (tire_idx: int, hi_player)
+        tire_idx = (veh_info[index].tireCompoundFront, veh_info[index].tireCompoundRear, hi_player)
 
         # 8 Lap time (laptime: tuple, hi_player)
         laptime = ((
