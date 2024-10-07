@@ -163,12 +163,17 @@ class RestAPIInfo:
     """Rest API module output data"""
     timeScale: int = 1
     privateQualifying: int = 0
-    steeringWheelRange: float = 0
-    currentVirtualEnergy: float = 0
-    maxVirtualEnergy: float = 0
+    steeringWheelRange: float = 0.0
+    currentVirtualEnergy: float = 0.0
+    maxVirtualEnergy: float = 0.0
+    aeroDamage: float = -1.0
     forecastPractice: list | None = None
     forecastQualify: list | None = None
     forecastRace: list | None = None
+    suspensionDamage: list = field(default_factory=list)
+
+    def __post_init__(self):
+        self.suspensionDamage = [-1] * 4
 
 
 @dataclass

@@ -24,6 +24,7 @@ from PySide2.QtCore import Qt, QRectF
 from PySide2.QtGui import QPainter, QPen, QBrush
 
 from ..api_control import api
+from ..module_info import minfo
 from ._base import Overlay
 
 WIDGET_NAME = "damage"
@@ -50,7 +51,7 @@ class Realtime(Overlay):
         inner_gap = max(int(self.wcfg["inner_gap"]), 0)
 
         parts_max_width = max(int(self.wcfg["parts_max_width"]), 4)
-        parts_max_height = max(int(self.wcfg["parts_max_height"]), parts_max_width)
+        parts_max_height = max(int(self.wcfg["parts_max_height"]), 4)
 
         parts_full_width = parts_max_width * 3 + inner_gap * 2
         parts_full_height = parts_max_height * 3 + inner_gap * 2
@@ -59,8 +60,18 @@ class Realtime(Overlay):
             parts_max_width * 0.5,
             parts_max_height * 0.5), 1)
 
-        self.display_width = parts_full_width + display_margin * 2
-        self.display_height = parts_full_height + display_margin * 2
+        display_width = parts_full_width + display_margin * 2
+        display_height = parts_full_height + display_margin * 2
+
+        # Base style
+        self.color_damage_wheel = (
+            self.wcfg["color_suspension"],
+            self.wcfg["color_suspension_damage_light"],
+            self.wcfg["color_suspension_damage_medium"],
+            self.wcfg["color_suspension_damage_heavy"],
+            self.wcfg["color_suspension_damage_totaled"],
+            self.wcfg["color_wheel_detached"],
+        )
 
         # Parts mask rect
         self.parts_mask = QRectF(
@@ -68,22 +79,24 @@ class Realtime(Overlay):
             parts_full_width - parts_width * 2, parts_full_height - parts_width * 2)
 
         # Wheel parts rect
+        wheel_width = max(int(self.wcfg["wheel_width"]), 1)
+        wheel_height = max(int(self.wcfg["wheel_height"]), 1)
         self.wheel_fl = QRectF(  # front left
             display_margin + parts_width + inner_gap,
             display_margin + parts_width + inner_gap,
-            parts_width, parts_max_width)
+            wheel_width, wheel_height)
         self.wheel_fr = QRectF(  # front right
-            display_margin + parts_full_width - parts_width * 2 - inner_gap,
+            display_margin + parts_full_width - parts_width - wheel_width - inner_gap,
             display_margin + parts_width + inner_gap,
-            parts_width, parts_max_width)
+            wheel_width, wheel_height)
         self.wheel_rl = QRectF(  # rear left
             display_margin + parts_width + inner_gap,
-            display_margin + parts_full_height - parts_width - parts_max_width - inner_gap,
-            parts_width, parts_max_width)
+            display_margin + parts_full_height - parts_width - wheel_height - inner_gap,
+            wheel_width, wheel_height)
         self.wheel_rr = QRectF(  # rear right
-            display_margin + parts_full_width - parts_width * 2 - inner_gap,
-            display_margin + parts_full_height - parts_width - parts_max_width - inner_gap,
-            parts_width, parts_max_width)
+            display_margin + parts_full_width - parts_width - wheel_width - inner_gap,
+            display_margin + parts_full_height - parts_width - wheel_height - inner_gap,
+            wheel_width, wheel_height)
 
         # Body parts rect
         self.part_fl = QRectF(  # front left
@@ -120,11 +133,12 @@ class Realtime(Overlay):
             display_margin + (inner_gap + parts_max_height) * 2,
             parts_max_width, parts_max_height)
 
-        # Text rect
-        self.rect_integrity = QRectF(0, font_offset, self.display_width, self.display_height)
+        # Background & text rect
+        self.rect_background = QRectF(0, 0, display_width, display_height)
+        self.rect_integrity = self.rect_background.adjusted(0, font_offset, 0, 0)
 
         # Config canvas
-        self.resize(self.display_width, self.display_height)
+        self.resize(display_width, display_height)
 
         self.pen = QPen()
         self.pen.setColor(self.wcfg["font_color_integrity"])
@@ -146,7 +160,11 @@ class Realtime(Overlay):
             self.last_damage_body = self.damage_body
 
             # Damage wheel
-            self.damage_wheel = api.read.wheel.is_detached()
+            self.damage_wheel = tuple(map(
+                self.set_damage_level_wheel,
+                api.read.wheel.is_detached(),
+                minfo.restapi.suspensionDamage)
+            )
             self.update_damage(self.damage_wheel, self.last_damage_wheel)
             self.last_damage_wheel = self.damage_wheel
 
@@ -159,38 +177,33 @@ class Realtime(Overlay):
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
+        painter.setPen(Qt.NoPen)
 
         # Draw damage body
         self.draw_damage_body(painter)
         # Draw damage mask
         painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)
-        painter.fillRect(self.parts_mask, "#FFFFFF")
+        painter.fillRect(self.parts_mask, Qt.white)
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
         # Draw damage wheel
         self.draw_damage_wheel(painter)
         # Draw damage readings
         if self.wcfg["show_integrity_reading"]:
-            if self.wcfg["show_inverted_integrity"]:
-                damage_value = sum(self.damage_body) * 6.25
+            if self.wcfg["show_aero_integrity_if_available"] and minfo.restapi.aeroDamage >= 0:
+                damage_value = minfo.restapi.aeroDamage
             else:
-                damage_value = 100 - sum(self.damage_body) * 6.25
+                damage_value = sum(self.damage_body) / 16
+            if not self.wcfg["show_inverted_integrity"]:
+                damage_value = 1 - damage_value
             self.draw_readings(painter, damage_value)
         # Draw background below mask
         if self.wcfg["show_background"]:
             painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
-            self.draw_background(painter)
-
-    def draw_background(self, painter):
-        """Draw background"""
-        painter.setPen(Qt.NoPen)
-        painter.fillRect(
-            0, 0, self.display_width, self.display_height, self.wcfg["bkg_color"]
-        )
+            painter.setPen(Qt.NoPen)
+            painter.fillRect(self.rect_background, self.wcfg["bkg_color"])
 
     def draw_damage_body(self, painter):
         """Draw damage body"""
-        painter.setPen(Qt.NoPen)
-
         self.brush.setColor(self.color_damage_body(self.damage_body[1]))
         painter.setBrush(self.brush)
         painter.drawRect(self.part_fl)
@@ -225,21 +238,19 @@ class Realtime(Overlay):
 
     def draw_damage_wheel(self, painter):
         """Draw damage wheel"""
-        painter.setPen(Qt.NoPen)
-
-        self.brush.setColor(self.color_damage_wheel(self.damage_wheel[0]))
+        self.brush.setColor(self.color_damage_wheel[self.damage_wheel[0]])
         painter.setBrush(self.brush)
         painter.drawRect(self.wheel_fl)
 
-        self.brush.setColor(self.color_damage_wheel(self.damage_wheel[1]))
+        self.brush.setColor(self.color_damage_wheel[self.damage_wheel[1]])
         painter.setBrush(self.brush)
         painter.drawRect(self.wheel_fr)
 
-        self.brush.setColor(self.color_damage_wheel(self.damage_wheel[2]))
+        self.brush.setColor(self.color_damage_wheel[self.damage_wheel[2]])
         painter.setBrush(self.brush)
         painter.drawRect(self.wheel_rl)
 
-        self.brush.setColor(self.color_damage_wheel(self.damage_wheel[3]))
+        self.brush.setColor(self.color_damage_wheel[self.damage_wheel[3]])
         painter.setBrush(self.brush)
         painter.drawRect(self.wheel_rr)
 
@@ -250,20 +261,37 @@ class Realtime(Overlay):
         painter.drawText(
             self.rect_integrity,
             Qt.AlignCenter,
-            f"{value:.0f}%"[:4]
+            f"{value:.0%}"[:4]
         )
 
     # Additional methods
-    def color_damage_body(self, value):
+    def color_damage_body(self, value: int) -> str:
         """Damage body color"""
         if value == 1:
-            return self.wcfg["color_damage_light"]
+            return self.wcfg["color_body_damage_light"]
         if value == 2:
-            return self.wcfg["color_damage_heavy"]
+            return self.wcfg["color_body_damage_heavy"]
         return self.wcfg["color_body"]
 
-    def color_damage_wheel(self, value):
-        """Damage wheel color"""
-        if value:
-            return self.wcfg["color_damage_detached"]
-        return self.wcfg["color_wheel"]
+    def set_damage_level_wheel(self, wheel_detached: bool, susp_wear: float) -> int:
+        """Set damage level for wheel and suspension
+
+        Damage level:
+            0 no damage.
+            1 light suspension damage.
+            2 medium suspension damage.
+            3 heavy suspension damage.
+            4 suspension totaled.
+            5 wheel detached.
+        """
+        if wheel_detached:
+            return 5
+        if susp_wear < self.wcfg["suspension_damage_light_threshold"]:
+            return 0
+        if susp_wear < self.wcfg["suspension_damage_medium_threshold"]:
+            return 1
+        if susp_wear < self.wcfg["suspension_damage_heavy_threshold"]:
+            return 2
+        if susp_wear < self.wcfg["suspension_damage_totaled_threshold"]:
+            return 3
+        return 4

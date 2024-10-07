@@ -341,7 +341,7 @@ User path that sets inside TinyPedal root folder will be automatically converted
 
 To share user path across multiple copies of TinyPedal, user must set path to place outside TinyPedal APP root folder.
 
-**Default user path:**
+**Default user path**
 
 * On windows, all user paths are set inside TinyPedal root folder as relative paths:
     * brandlogo/
@@ -801,6 +801,17 @@ This value holds the total distance(meters) that local player has driven. Accept
 ## Damage
 **This widget displays visualized vehicle damage info.**
 
+**Wheel (suspension) damage levels**
+
+1. No damage to suspension or wheel (default color: green).
+2. Light suspension damage (default damage range: 2% - 15%, default color: yellow).
+3. Medium suspension damage (default damage range: 15% - 40%, default color: orange).
+4. Heavy suspension damage (default damage range: 40% - 80%, default color: purple).
+5. Totaled suspension (default damage range: 80% - 100%, default color: blue).
+6. Wheel detached (default color: black).
+
+Note, body aero integrity and suspension damage display is only available for LMU.
+
     display_margin
 Set display margin in pixels.
 
@@ -808,19 +819,28 @@ Set display margin in pixels.
 Set body parts inner gap in pixels.
 
     part_width
-Set body parts width in pixels.
+Set body parts width in pixels. Minimum value is limited to `1`.
 
     parts_max_width, parts_max_height
-Set maximum body parts width, height in pixels.
+Set maximum body parts width, height in pixels. Minimum value is limited to `4`.
+
+    wheel_width, wheel_height
+Set wheel width, height in pixels. Minimum value is limited to `1`.
 
     show_background
 Show widget background.
 
+    suspension_damage_*_threshold
+Set suspension damage level percentage threshold for suspension damage color indication, which better reflects severity of suspension damage that would affect handling.
+
     show_integrity_reading
-Show vehicle body integrity reading in percentage.
+Show vehicle bodywork integrity reading in percentage. Note, bodywork damage may not necessarily affect aero or handling.
+
+    show_aero_integrity_if_available
+Show vehicle body aero integrity reading in percentage if available, which better reflects severity of bodywork damage that would affect performance.
 
     show_inverted_integrity
-Invert vehicle body integrity reading.
+Invert integrity reading.
 
 
 ## Deltabest

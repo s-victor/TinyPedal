@@ -68,7 +68,7 @@ class Realtime(Overlay):
         layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
         self.setLayout(layout)
 
-        # Remaining tyre wear
+        # Remaining wear
         if self.wcfg["show_remaining"]:
             layout_twear = QGridLayout()
             layout_twear.setSpacing(0)
@@ -99,7 +99,7 @@ class Realtime(Overlay):
                 )
                 layout_twear.addWidget(cap_twear, 0, 0, 1, 0)
 
-        # Tyre wear difference
+        # Wear difference
         if self.wcfg["show_wear_difference"]:
             layout_tdiff = QGridLayout()
             layout_tdiff.setSpacing(0)
@@ -130,7 +130,7 @@ class Realtime(Overlay):
                 )
                 layout_tdiff.addWidget(cap_tdiff, 0, 0, 1, 0)
 
-        # Estimated tyre lifespan in laps
+        # Estimated lifespan in laps
         if self.wcfg["show_lifespan_laps"]:
             layout_tlaps = QGridLayout()
             layout_tlaps.setSpacing(0)
@@ -161,7 +161,7 @@ class Realtime(Overlay):
                 )
                 layout_tlaps.addWidget(cap_tlaps, 0, 0, 1, 0)
 
-        # Estimated tyre lifespan in minutes
+        # Estimated lifespan in minutes
         if self.wcfg["show_lifespan_minutes"]:
             layout_tmins = QGridLayout()
             layout_tmins.setSpacing(0)
@@ -194,10 +194,10 @@ class Realtime(Overlay):
 
         # Last data
         self.checked = False
-        self.last_lap_stime = 0        # last lap start time
-        self.wear_prev = [0,0,0,0]     # previous moment remaining tyre wear
-        self.wear_curr_lap = [0,0,0,0]  # live tyre wear update of current lap
-        self.wear_last_lap = [0,0,0,0]  # total tyre wear of last lap
+        self.last_lap_stime = 0  # last lap start time
+        self.wear_prev = [0] * 4  # previous moment remaining wear
+        self.wear_curr_lap = [0] * 4  # live wear update of current lap
+        self.wear_last_lap = [0] * 4  # total wear of last lap
 
         self.last_wear_curr_lap = [None] * 4
         self.last_wear_last_lap = [None] * 4
@@ -212,7 +212,7 @@ class Realtime(Overlay):
             if not self.checked:
                 self.checked = True
 
-            # Read tyre wear data
+            # Read wear data
             lap_stime = api.read.timing.start()
             lap_etime = api.read.timing.elapsed()
             wear_curr = api.read.tyre.wear(scale=100)
@@ -223,15 +223,15 @@ class Realtime(Overlay):
                 self.last_lap_stime = lap_stime  # reset time stamp counter
 
             for idx in range(4):
-                # Remaining tyre wear
+                # Remaining wear
                 if self.wcfg["show_remaining"]:
                     self.update_wear(self.bar_twear[idx], wear_curr[idx], self.wear_prev[idx])
 
-                # Update tyre wear differences
-                self.wear_prev[idx], self.wear_curr_lap[idx] = calc.tyre_wear_difference(
+                # Update wear differences
+                self.wear_prev[idx], self.wear_curr_lap[idx] = calc.wear_difference(
                     wear_curr[idx], self.wear_prev[idx], self.wear_curr_lap[idx])
 
-                # Tyre wear differences
+                # Wear differences
                 if self.wcfg["show_wear_difference"]:
                     if (self.wcfg["show_live_wear_difference"] and
                         lap_etime - lap_stime > self.freeze_duration):
@@ -245,16 +245,16 @@ class Realtime(Overlay):
                             self.last_wear_last_lap[idx])
                         self.last_wear_last_lap[idx] = self.wear_last_lap[idx]
 
-                # Estimated tyre lifespan in laps
+                # Estimated lifespan in laps
                 if self.wcfg["show_lifespan_laps"]:
-                    wear_laps = calc.tyre_lifespan_in_laps(
+                    wear_laps = calc.wear_lifespan_in_laps(
                         wear_curr[idx], self.wear_last_lap[idx], self.wear_curr_lap[idx])
                     self.update_laps(self.bar_tlaps[idx], wear_laps, self.last_wear_laps[idx])
                     self.last_wear_laps[idx] = wear_laps
 
-                # Estimated tyre lifespan in minutes
+                # Estimated lifespan in minutes
                 if self.wcfg["show_lifespan_minutes"]:
-                    wear_mins = calc.tyre_lifespan_in_mins(
+                    wear_mins = calc.wear_lifespan_in_mins(
                         wear_curr[idx], self.wear_last_lap[idx], self.wear_curr_lap[idx],
                         minfo.delta.lapTimePace)
                     self.update_mins(self.bar_tmins[idx], wear_mins, self.last_wear_mins[idx])
@@ -263,13 +263,13 @@ class Realtime(Overlay):
         else:
             if self.checked:
                 self.checked = False
-                self.wear_prev = [0,0,0,0]
-                self.wear_curr_lap = [0,0,0,0]
-                self.wear_last_lap = [0,0,0,0]
+                self.wear_prev = [0] * 4
+                self.wear_curr_lap = [0] * 4
+                self.wear_last_lap = [0] * 4
 
     # GUI update methods
     def update_wear(self, target_bar, curr, last):
-        """Remaining tyre wear"""
+        """Remaining wear"""
         if curr != last:
             target_bar.setText(self.format_num(curr))
             target_bar.setStyleSheet(
@@ -277,7 +277,7 @@ class Realtime(Overlay):
             )
 
     def update_diff(self, target_bar, curr, last):
-        """Tyre wear differences"""
+        """Wear differences"""
         if curr != last:
             target_bar.setText(self.format_num(curr))
             target_bar.setStyleSheet(
@@ -285,7 +285,7 @@ class Realtime(Overlay):
             )
 
     def update_laps(self, target_bar, curr, last):
-        """Estimated tyre lifespan in laps"""
+        """Estimated lifespan in laps"""
         if curr != last:
             target_bar.setText(self.format_num(curr))
             target_bar.setStyleSheet(
@@ -293,7 +293,7 @@ class Realtime(Overlay):
             )
 
     def update_mins(self, target_bar, curr, last):
-        """Estimated tyre lifespan in minutes"""
+        """Estimated lifespan in minutes"""
         if curr != last:
             target_bar.setText(self.format_num(curr))
             target_bar.setStyleSheet(

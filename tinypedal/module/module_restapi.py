@@ -40,24 +40,26 @@ MODULE_NAME = "module_restapi"
 logger = logging.getLogger(__name__)
 
 # Define output set
-# 0 - minfo, 1 - output, 2 - default value, 3 - key, 4 - sub key, 5 - function
+# 0 - minfo, 1 - output, 2 - default value, 3 - function, 4 - dict keys
 SET_TIMESCALE = (
-    (minfo.restapi, "timeScale", 1, "currentValue"),
+    (minfo.restapi, "timeScale", 1, None, "currentValue"),
 )
 SET_PRIVATEQUALIFY = (
-    (minfo.restapi, "privateQualifying", 0, "currentValue"),
+    (minfo.restapi, "privateQualifying", 0, None, "currentValue"),
 )
 SET_CHASSIS = (
-    (minfo.restapi, "steeringWheelRange", 0.0, "VM_STEER_LOCK", "stringValue", fmt.steerlock_to_number),
+    (minfo.restapi, "steeringWheelRange", 0.0, fmt.steerlock_to_number, "VM_STEER_LOCK", "stringValue"),
 )
-SET_CONSUMPTION = (
-    (minfo.restapi, "currentVirtualEnergy", 0.0, "fuelInfo", "currentVirtualEnergy"),
-    (minfo.restapi, "maxVirtualEnergy", 0.0, "fuelInfo", "maxVirtualEnergy"),
+SET_CURRENTSTINT = (
+    (minfo.restapi, "currentVirtualEnergy", 0.0, None, "fuelInfo", "currentVirtualEnergy"),
+    (minfo.restapi, "maxVirtualEnergy", 0.0, None, "fuelInfo", "maxVirtualEnergy"),
+    (minfo.restapi, "aeroDamage", -1.0, None, "wearables", "body", "aero"),
+    (minfo.restapi, "suspensionDamage", [-1] * 4, None, "wearables", "suspension"),
 )
 SET_WEATHERFORECAST = (
-    (minfo.restapi, "forecastPractice", wthr.DEFAULT, "PRACTICE", None, wthr.forecast_rf2),
-    (minfo.restapi, "forecastQualify", wthr.DEFAULT, "QUALIFY", None, wthr.forecast_rf2),
-    (minfo.restapi, "forecastRace", wthr.DEFAULT, "RACE", None, wthr.forecast_rf2),
+    (minfo.restapi, "forecastPractice", wthr.DEFAULT, wthr.forecast_rf2, "PRACTICE"),
+    (minfo.restapi, "forecastQualify", wthr.DEFAULT, wthr.forecast_rf2, "QUALIFY"),
+    (minfo.restapi, "forecastRace", wthr.DEFAULT, wthr.forecast_rf2, "RACE"),
 )
 # Define task set
 # 0 - regex pattern (sim name), 1 - url path, 2 - output set
@@ -68,7 +70,7 @@ TASK_RUNONCE = (
     ("LMU", "garage/chassis", SET_CHASSIS),
 )
 TASK_REPEATS = (
-    ("LMU", "garage/UIScreen/DriverHandOffStintEnd", SET_CONSUMPTION),
+    ("LMU", "garage/UIScreen/DriverHandOffStintEnd", SET_CURRENTSTINT),
 )
 
 
@@ -175,6 +177,7 @@ class Realtime(DataModule):
     async def __fetch_retry(self, url_rest: str, time_out: int, retry: int,
         retry_delay: float, resource_name: str, output_set: tuple) -> None:
         """Fetch data with retry"""
+        data_available = False
         full_url = f"{url_rest}{resource_name}"
         while not self.event.wait(0) and retry >= 0:
             resource_output = get_resource(full_url, time_out)
@@ -190,8 +193,11 @@ class Realtime(DataModule):
                 continue
             # Output
             for output in output_set:
-                if not get_value(resource_output, *output):
-                    self.task_delete.add(resource_name)
+                if get_value(resource_output, *output):
+                    data_available = True
+            # Add to unavailable task delete list
+            if not data_available:
+                self.task_delete.add(resource_name)
             logger.info("Rest API: %s data updated", resource_name.upper())
             break
 
@@ -219,29 +225,23 @@ def get_resource(url: str, time_out: int) -> (dict | str):
 
 def get_value(
     data: dict, target: object, output: str, default: any,
-    key: str | None = None, sub_key: str | None = None,
-    mod_func: object | None = None) -> bool:
+    mod_func: object | None, *keys) -> bool:
     """Get value from resource dictionary, fallback to default value if invalid"""
-    if key is None:  # read entire json
-        value = data
-    else:  # read key only
-        value = data.get(key, None)
-
-    if sub_key and isinstance(value, dict):
-        value = value.get(sub_key, None)
-
-    if value is None:
-        setattr(target, output, default)
-        return False
+    for key in keys:
+        data = data.get(key, None)
+        if data is None:  # not exist, set to default
+            setattr(target, output, default)
+            return False
+        if not isinstance(data, dict):
+            break
 
     if mod_func:
-        setattr(target, output, val.value_type(mod_func(value), default))
+        setattr(target, output, val.value_type(mod_func(data), default))
     else:
-        setattr(target, output, val.value_type(value, default))
+        setattr(target, output, val.value_type(data, default))
     return True
 
 
 def sort_tasks(sim_name: str, task_set: tuple) -> dict:
     """Sort task set into dictionary, key - resource_name, value - output_set"""
-    return {task[1]:task[2] for task in task_set
-            if re.search(task[0], sim_name)}
+    return {task[1]:task[2] for task in task_set if re.search(task[0], sim_name)}

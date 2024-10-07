@@ -592,9 +592,9 @@ def fuel_to_energy_ratio(fuel, energy):
     return 0
 
 
-# Tyre
-def tyre_wear_difference(wear_curr: float, wear_prev: float, wear_total: float):
-    """Tyre wear difference and accumulated total wear"""
+# Wear
+def wear_difference(wear_curr: float, wear_prev: float, wear_total: float):
+    """Wear difference and accumulated total wear"""
     if wear_prev < wear_curr:
         wear_prev = wear_curr
     elif wear_prev > wear_curr:
@@ -603,9 +603,9 @@ def tyre_wear_difference(wear_curr: float, wear_prev: float, wear_total: float):
     return wear_prev, wear_total
 
 
-def tyre_lifespan_in_laps(
+def wear_lifespan_in_laps(
     wear_curr: float, wear_last_lap: float, wear_curr_lap: float):
-    """Tyre lifespan in laps = remaining / last lap wear"""
+    """Wear lifespan in laps = remaining / last lap wear"""
     if wear_curr_lap > wear_last_lap > 0:
         est_laps = wear_curr / wear_curr_lap
     elif wear_last_lap > 0:
@@ -615,9 +615,9 @@ def tyre_lifespan_in_laps(
     return min(est_laps, 999)
 
 
-def tyre_lifespan_in_mins(
+def wear_lifespan_in_mins(
     wear_curr: float, wear_last_lap: float, wear_curr_lap: float, laptime: float):
-    """Tyre lifespan in minutes = remaining / last lap wear * laptime / 60"""
+    """Wear lifespan in minutes = remaining / last lap wear * laptime / 60"""
     if laptime <= 0:
         return 999
     if wear_curr_lap > wear_last_lap > 0:

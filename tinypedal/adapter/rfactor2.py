@@ -24,7 +24,6 @@ Notes:
 """
 
 from __future__ import annotations
-from typing import Sequence
 
 from . import DataAdapter
 from .. import validator as val
@@ -685,9 +684,9 @@ class Vehicle(DataAdapter):
         """Downforce rear"""
         return chknm(self.info.rf2TeleVeh(index).mRearDownforce)
 
-    def damage_severity(self, index: int | None = None) -> Sequence[int]:
+    def damage_severity(self, index: int | None = None) -> tuple[int]:
         """Damage severity"""
-        return self.info.rf2TeleVeh(index).mDentSeverity
+        return tuple(self.info.rf2TeleVeh(index).mDentSeverity)
 
     def is_detached(self, index: int | None = None) -> bool:
         """Whether any vehicle parts are detached"""
@@ -784,7 +783,7 @@ class Wheel(DataAdapter):
         return [chknm(wheel_data[data].mSuspForce)
                 for data in range(4)]
 
-    def is_detached(self, index: int | None = None) -> list[float]:
+    def is_detached(self, index: int | None = None) -> list[bool]:
         """Whether wheel is detached"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
         return [chknm(wheel_data[data].mDetached)

@@ -161,5 +161,5 @@ def steerlock_to_number(value: str) -> float:
     """Convert steerlock (degree) string to float value"""
     try:
         return float(value.split(" ")[0])
-    except ValueError:
+    except (AttributeError, ValueError):
         return 0.0
