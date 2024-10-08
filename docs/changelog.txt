@@ -1,9 +1,14 @@
-WIP
+2.18.3 (2024-10-08)
 -----------------------------
 * RestAPI Module
-  - Read "body aero and suspension damage" data from LMU Rest API.
+  - Read "body aero" and "suspension damage" data from LMU Rest API.
 
 * [Reworked]Damage Widget
+  - Add "show_last_impact_cone" option that shows cone indicator towards last known impact position.
+    This option can be useful to determine whether there was a collision, even if car was not damaged.
+    Cone indicator display duration can be customized by "last_impact_cone_duration" option.
+    Default display duration for last known impact is 15 seconds.
+    Cone angle (size) can be customized by "last_impact_cone_angle" option.
   - Add "show_aero_integrity_if_available" option that shows body aero integrity reading
     (only available for LMU) instead of bodywork integrity, which better reflects
     severity of bodywork damage that would affect performance.
@@ -17,7 +22,7 @@ WIP
     5. Totaled suspension (default damage range: 80% - 100%, default color: blue).
     6. Wheel detached (default color: black).
   - Add "suspension_damage_*_threshold" options for customizing damage level range.
-  - Add a new set of "color_suspension_damage_*" options.
+  - Add a new set of "suspension_color_damage_*" options.
   - Add "wheel_width, wheel_height" options for customizing wheel display size.
     Removed body parts horizontal size restriction.
     Size of body parts and wheels can now be customized freely.

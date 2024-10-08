@@ -23,6 +23,7 @@ Damage Widget
 from PySide2.QtCore import Qt, QRectF
 from PySide2.QtGui import QPainter, QPen, QBrush
 
+from .. import calculation as calc
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
@@ -62,15 +63,17 @@ class Realtime(Overlay):
 
         display_width = parts_full_width + display_margin * 2
         display_height = parts_full_height + display_margin * 2
+        impact_cone_size = max(display_width, display_height)
+        self.impact_cone_angle = max(min(self.wcfg["last_impact_cone_angle"], 90), 2)
 
         # Base style
         self.color_damage_wheel = (
-            self.wcfg["color_suspension"],
-            self.wcfg["color_suspension_damage_light"],
-            self.wcfg["color_suspension_damage_medium"],
-            self.wcfg["color_suspension_damage_heavy"],
-            self.wcfg["color_suspension_damage_totaled"],
-            self.wcfg["color_wheel_detached"],
+            self.wcfg["suspension_color"],
+            self.wcfg["suspension_color_damage_light"],
+            self.wcfg["suspension_color_damage_medium"],
+            self.wcfg["suspension_color_damage_heavy"],
+            self.wcfg["suspension_color_damage_totaled"],
+            self.wcfg["wheel_color_detached"],
         )
 
         # Parts mask rect
@@ -133,9 +136,15 @@ class Realtime(Overlay):
             display_margin + (inner_gap + parts_max_height) * 2,
             parts_max_width, parts_max_height)
 
-        # Background & text rect
+        # Rect
         self.rect_background = QRectF(0, 0, display_width, display_height)
         self.rect_integrity = self.rect_background.adjusted(0, font_offset, 0, 0)
+        self.rect_impact_cone = QRectF(
+            display_width * 0.5 - impact_cone_size,
+            display_height * 0.5 - impact_cone_size,
+            impact_cone_size * 2,
+            impact_cone_size * 2
+        )
 
         # Config canvas
         self.resize(display_width, display_height)
@@ -149,31 +158,41 @@ class Realtime(Overlay):
         self.last_damage_body = None
         self.damage_wheel = [0] * 4
         self.last_damage_wheel = None
+        self.last_impact_time = None
+        self.last_impact_end = True
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
 
+            # Last impact time & position
+            if self.wcfg["show_last_impact_cone"]:
+                impact_time = api.read.vehicle.impact_time()
+
+                if self.last_impact_time != impact_time:
+                    self.last_impact_time = impact_time
+                    self.last_impact_end = api.read.vehicle.impact_magnitude() < 1
+                    self.update()
+
+                if not self.last_impact_end:
+                    if api.read.timing.elapsed() - self.last_impact_time > self.wcfg["last_impact_cone_duration"]:
+                        self.last_impact_end = True
+                        self.update()
+
             # Damage body
             self.damage_body = api.read.vehicle.damage_severity()
-            self.update_damage(self.damage_body, self.last_damage_body)
-            self.last_damage_body = self.damage_body
+            if self.last_damage_body != self.damage_body:
+                self.last_damage_body = self.damage_body
+                self.update()
 
             # Damage wheel
-            self.damage_wheel = tuple(map(
-                self.set_damage_level_wheel,
-                api.read.wheel.is_detached(),
-                minfo.restapi.suspensionDamage)
-            )
-            self.update_damage(self.damage_wheel, self.last_damage_wheel)
-            self.last_damage_wheel = self.damage_wheel
+            self.damage_wheel = tuple(map(self.set_damage_level_wheel,
+                api.read.wheel.is_detached(), minfo.restapi.suspensionDamage))
+            if self.last_damage_wheel != self.damage_wheel:
+                self.last_damage_wheel = self.damage_wheel
+                self.update()
 
     # GUI update methods
-    def update_damage(self, curr, last):
-        """Damage update"""
-        if curr != last:
-            self.update()
-
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
@@ -187,15 +206,12 @@ class Realtime(Overlay):
         painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
         # Draw damage wheel
         self.draw_damage_wheel(painter)
+        # Draw impact cone
+        if not self.last_impact_end:
+            self.draw_impact_cone(painter)
         # Draw damage readings
         if self.wcfg["show_integrity_reading"]:
-            if self.wcfg["show_aero_integrity_if_available"] and minfo.restapi.aeroDamage >= 0:
-                damage_value = minfo.restapi.aeroDamage
-            else:
-                damage_value = sum(self.damage_body) / 16
-            if not self.wcfg["show_inverted_integrity"]:
-                damage_value = 1 - damage_value
-            self.draw_readings(painter, damage_value)
+            self.draw_readings(painter)
         # Draw background below mask
         if self.wcfg["show_background"]:
             painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
@@ -254,24 +270,45 @@ class Realtime(Overlay):
         painter.setBrush(self.brush)
         painter.drawRect(self.wheel_rr)
 
-    def draw_readings(self, painter, value):
+    def draw_impact_cone(self, painter):
+        """Draw impact cone"""
+        painter.setRenderHint(QPainter.Antialiasing, True)
+        self.brush.setColor(self.wcfg["last_impact_cone_color"])
+        painter.setBrush(self.brush)
+        start_angle = 16 * (
+            calc.rad2deg(
+                calc.oriyaw2rad(*api.read.vehicle.impact_position())
+            ) - 90 - self.impact_cone_angle * 0.5
+        )
+        length_angle = 16 * self.impact_cone_angle
+        painter.drawPie(self.rect_impact_cone, start_angle, length_angle)
+
+    def draw_readings(self, painter):
         """Draw body integrity readings"""
+        if self.wcfg["show_aero_integrity_if_available"] and minfo.restapi.aeroDamage >= 0:
+            damage_value = minfo.restapi.aeroDamage
+        else:
+            damage_value = sum(self.damage_body) / 16
+
+        if not self.wcfg["show_inverted_integrity"]:
+            damage_value = 1 - damage_value
+
         painter.setFont(self.font)
         painter.setPen(self.pen)
         painter.drawText(
             self.rect_integrity,
             Qt.AlignCenter,
-            f"{value:.0%}"[:4]
+            f"{damage_value:.0%}"[:4]
         )
 
     # Additional methods
     def color_damage_body(self, value: int) -> str:
         """Damage body color"""
         if value == 1:
-            return self.wcfg["color_body_damage_light"]
+            return self.wcfg["body_color_damage_light"]
         if value == 2:
-            return self.wcfg["color_body_damage_heavy"]
-        return self.wcfg["color_body"]
+            return self.wcfg["body_color_damage_heavy"]
+        return self.wcfg["body_color"]
 
     def set_damage_level_wheel(self, wheel_detached: bool, susp_wear: float) -> int:
         """Set damage level for wheel and suspension

@@ -101,7 +101,7 @@ class Brake(DataAdapter):
         """Brake bias front"""
         return 1 - chknm(self.info.rf2TeleVeh(index).mRearBrakeBias)
 
-    def pressure(self, index: int | None = None, scale: int = 1) -> list[float]:
+    def pressure(self, index: int | None = None, scale: float = 1) -> list[float]:
         """Brake pressure"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
         return [chknm(wheel_data[data].mBrakePressure) * scale
@@ -538,7 +538,7 @@ class Tyre(DataAdapter):
         return [chknm(wheel_data[data].mTireLoad)
                 for data in range(4)]
 
-    def wear(self, index: int | None = None, scale: int = 1) -> list[float]:
+    def wear(self, index: int | None = None, scale: float = 1) -> list[float]:
         """Tyre wear"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
         return [chknm(wheel_data[data].mWear) * scale
@@ -658,15 +658,15 @@ class Vehicle(DataAdapter):
         return chknm(self.info.rf2TeleVeh(index).mLocalAccel.y)  # Y in RF2 coord system
 
     def velocity_lateral(self, index: int | None = None) -> float:
-        """Raw X Velocity"""
+        """Lateral velocity (x)"""
         return chknm(self.info.rf2TeleVeh(index).mLocalVel.x)  # X in RF2 coord system
 
     def velocity_longitudinal(self, index: int | None = None) -> float:
-        """Raw Z Velocity"""
+        """Longitudinal velocity (y)"""
         return chknm(self.info.rf2TeleVeh(index).mLocalVel.z)  # Z in RF2 coord system
 
     def velocity_vertical(self, index: int | None = None) -> float:
-        """Raw Y Velocity"""
+        """Vertical velocity (z)"""
         return chknm(self.info.rf2TeleVeh(index).mLocalVel.y)  # Y in RF2 coord system
 
     def speed(self, index: int | None = None) -> float:
@@ -695,6 +695,15 @@ class Vehicle(DataAdapter):
     def impact_time(self, index: int | None = None) -> float:
         """Last impact time stamp"""
         return chknm(self.info.rf2TeleVeh(index).mLastImpactET)
+
+    def impact_magnitude(self, index: int | None = None) -> float:
+        """Last impact magnitude"""
+        return chknm(self.info.rf2TeleVeh(index).mLastImpactMagnitude)
+
+    def impact_position(self, index: int | None = None) -> list[float]:
+        """Last impact position - x,y coordinates"""
+        return [-chknm(self.info.rf2TeleVeh(index).mLastImpactPos.x),
+                chknm(self.info.rf2TeleVeh(index).mLastImpactPos.z)]
 
 
 class Wheel(DataAdapter):

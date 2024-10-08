@@ -29,6 +29,7 @@ mean = statistics.fmean
 vel2speed = math.hypot  # velocity to speed
 std_dev = statistics.stdev  # sample standard deviation
 rad2deg = math.degrees  # radians to degrees
+deg2rad = math.radians  # degrees to radians
 oriyaw2rad = math.atan2  # orientation yaw to radians
 
 

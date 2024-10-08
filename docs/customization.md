@@ -833,6 +833,15 @@ Show widget background.
     suspension_damage_*_threshold
 Set suspension damage level percentage threshold for suspension damage color indication, which better reflects severity of suspension damage that would affect handling.
 
+    show_last_impact_cone
+Show cone indicator towards last known impact (collision) position.
+
+    last_impact_cone_angle
+Set cone angle (size) in degree. Value range in `2` to `90`. Default is `15`.
+
+    last_impact_cone_duration
+Set cone indicator display duration (seconds) for last known impact. Default is `15` seconds.
+
     show_integrity_reading
 Show vehicle bodywork integrity reading in percentage. Note, bodywork damage may not necessarily affect aero or handling.
 
@@ -1376,10 +1385,10 @@ Set speed/time threshold value for neutral gear color warning, which activates c
 Set widget size in pixels.
 
     show_yaw_angle_reading
-Show yaw angle reading in degrees.
+Show yaw angle reading in degree.
 
     show_slip_angle_reading
-Show slip angle reading in degrees.
+Show slip angle reading in degree.
 
     *_offset_x, *_offset_y
 Set reading text offset position (percentage), value range in `0.0` to `1.0`.
@@ -2086,7 +2095,7 @@ Set steering bar width & height in pixels.
 Set left and right edge boundary width.
 
     manual_steering_range
-Manually set steering display range in degrees. Set to `0` to read physical steering range from API. This option may be useful when steering range value is not provided by some vehicles.
+Manually set steering display range in degree. Set to `0` to read physical steering range from API. This option may be useful when steering range value is not provided by some vehicles.
 
     show_steering_angle
 Show steering angle text in degree.
