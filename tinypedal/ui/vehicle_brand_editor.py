@@ -42,7 +42,6 @@ from PySide2.QtWidgets import (
     QFileDialog,
     QComboBox,
     QHeaderView,
-    QAbstractItemView,
     QMenu,
     QAction
 )

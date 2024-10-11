@@ -36,6 +36,12 @@ EXCLUDE_MODULES = [
     "pdb",
     "venv",
     "tkinter",
+    "curses",
+    "distutils",
+    "lib2to3",
+    "unittest",
+    "xmlrpc",
+    "multiprocessing",
 ]
 
 IMAGE_FILES = [
