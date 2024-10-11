@@ -50,7 +50,7 @@ class Realtime(DataModule):
 
         recorder = MapRecorder(self.filepath)
 
-        while not self.event.wait(update_interval):
+        while not self._event.wait(update_interval):
             if self.state.active:
 
                 if not reset:

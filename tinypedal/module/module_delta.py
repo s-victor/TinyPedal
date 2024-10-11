@@ -67,7 +67,7 @@ class Realtime(DataModule):
         )
         laptime_pace_margin = max(self.mcfg["laptime_pace_margin"], 0.1)
 
-        while not self.event.wait(update_interval):
+        while not self._event.wait(update_interval):
             if self.state.active:
 
                 if not reset:

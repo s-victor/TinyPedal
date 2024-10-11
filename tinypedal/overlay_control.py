@@ -89,7 +89,7 @@ class OverlayState(QObject):
         super().__init__()
         self.stopped = True
         self.active = False
-        self.event = threading.Event()
+        self._event = threading.Event()
 
         self._auto_hide_timer = StateTimer(interval=0.4)
         self._auto_load_preset_timer = StateTimer(interval=1.0)
@@ -98,17 +98,17 @@ class OverlayState(QObject):
         """Start state update thread"""
         if self.stopped:
             self.stopped = False
-            self.event.clear()
+            self._event.clear()
             threading.Thread(target=self.__updating, daemon=True).start()
             logger.info("ACTIVE: overlay control")
 
     def stop(self):
         """Stop thread"""
-        self.event.set()
+        self._event.set()
 
     def __updating(self):
         """Update global state"""
-        while not self.event.wait(0.01):
+        while not self._event.wait(0.01):
             self.active = api.state
             self.__auto_hide_state()
             if cfg.application["enable_auto_load_preset"]:

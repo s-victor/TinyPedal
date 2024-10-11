@@ -88,7 +88,7 @@ class Realtime(DataModule):
         sorted_task_runonce = {}
         sorted_task_repeats = {}
 
-        while not self.event.wait(update_interval):
+        while not self._event.wait(update_interval):
             if self.state.active:
 
                 if not reset:
@@ -179,7 +179,7 @@ class Realtime(DataModule):
         """Fetch data with retry"""
         data_available = False
         full_url = f"{url_rest}{resource_name}"
-        while not self.event.wait(0) and retry >= 0:
+        while not self._event.wait(0) and retry >= 0:
             resource_output = get_resource(full_url, time_out)
             # Verify & retry
             if not isinstance(resource_output, dict):

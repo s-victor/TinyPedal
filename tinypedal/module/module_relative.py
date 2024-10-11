@@ -52,7 +52,7 @@ class Realtime(DataModule):
         setting_relative = self.cfg.user.setting["relative"]
         setting_standings = self.cfg.user.setting["standings"]
 
-        while not self.event.wait(update_interval):
+        while not self._event.wait(update_interval):
             if self.state.active:
 
                 if not reset:

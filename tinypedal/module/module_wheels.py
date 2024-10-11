@@ -50,7 +50,7 @@ class Realtime(DataModule):
         max_rot_bias_r = max(self.mcfg["maximum_rotation_difference_rear"], 0.00001)
         min_rot_axle = max(self.mcfg["minimum_axle_rotation"], 0)
 
-        while not self.event.wait(update_interval):
+        while not self._event.wait(update_interval):
             if self.state.active:
 
                 if not reset:

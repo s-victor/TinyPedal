@@ -44,7 +44,7 @@ class DataModule:
         self.mcfg = self.cfg.user.setting[module_name]
 
         # Module update interval
-        self.event = threading.Event()
+        self._event = threading.Event()
         self.active_interval = max(
             self.mcfg["update_interval"],
             self.cfg.application["minimum_update_interval"]) / 1000
@@ -57,13 +57,13 @@ class DataModule:
         """Start update thread"""
         if self.closed:
             self.closed = False
-            self.event.clear()
+            self._event.clear()
             threading.Thread(target=self.update_data, daemon=True).start()
             logger.info("ACTIVE: %s", self.module_name.replace("_", " "))
 
     def stop(self):
         """Stop update thread"""
-        self.event.set()
+        self._event.set()
         self.closed = True
         logger.info("CLOSED: %s", self.module_name.replace("_", " "))
 
