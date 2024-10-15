@@ -770,6 +770,50 @@ Show average brake temperature calculated from a full lap.
 Set duration (seconds) for highlighting average brake temperature from previous lap after crossing finish line. Default is `5` seconds.
 
 
+## Brake wear
+**This widget displays brake wear info.**
+
+Important note: Brake wear data is currently only available on LMU. RF2 currently doesn't provide brake wear data. Depends on vehicle, brake may or may not have noticeable wear.
+
+    layout
+2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
+
+    show_thickness
+Show brake thickness (millimeter) instead of percentage, which also affects wear difference readings.
+
+Note, brake maximum thickness (for percentage wear calculation) is retrieved at the moment when car leaves garage or has brake repaired or changed. Reloading a preset or restarting APP in the middle of a running stint could result wrong maximum thickness and percentage wear calculation, which should be avoided.
+
+    show_remaining
+Show total remaining brake in percentage that changes color according to wear.
+
+    show_wear_difference
+Show total brake wear difference of previous lap.
+
+    show_live_wear_difference
+Show brake wear difference of current lap that constantly updated.
+
+    freeze_duration
+Set freeze duration (seconds) for displaying previous lap brake wear if `show_live_wear_difference` is enabled. Value range in `0` to `30` seconds. Default is `10` seconds.
+
+    show_lifespan_laps
+Show estimated brake lifespan in laps.
+
+    show_lifespan_minutes
+Show estimated brake lifespan in minutes.
+
+    warning_threshold_remaining
+Set warning threshold for total remaining brake in percentage. Default is `30` percent.
+
+    warning_threshold_wear
+Set warning threshold for total amount brake wear of last lap in percentage. Default is `1` percent.
+
+    warning_threshold_laps
+Set warning threshold for estimated brake lifespan in laps. Default is `5` laps.
+
+    warning_threshold_minutes
+Set warning threshold for estimated brake lifespan in minutes. Default is `5` laps.
+
+
 ## Cruise
 **This widget displays track clock, compass, elevation, odometer info.**
 

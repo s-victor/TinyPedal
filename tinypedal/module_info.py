@@ -170,9 +170,11 @@ class RestAPIInfo:
     forecastPractice: list | None = None
     forecastQualify: list | None = None
     forecastRace: list | None = None
+    brakeWear: list = field(default_factory=list)
     suspensionDamage: list = field(default_factory=list)
 
     def __post_init__(self):
+        self.brakeWear = [-1] * 4
         self.suspensionDamage = [-1] * 4
 
 

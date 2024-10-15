@@ -1,3 +1,28 @@
+2.19.0 (2024-10-15)
+-----------------------------
+* RestAPI Module
+  - Read "brake wear" data from LMU Rest API.
+
+* [New]Brake wear Widget
+  - Show brake wear data in percentage or millimeter thickness.
+    Important note:
+    Brake wear data is currently only available on LMU.
+    RF2 currently doesn't provide brake wear data.
+    Depends on vehicle, brake may or may not have noticeable wear.
+    Additional Note:
+    Brake maximum thickness (for percentage wear calculation) is retrieved at the moment
+    when car leaves garage or has brake repaired or changed.
+    Reloading a preset or restarting APP in the middle of a running stint could result
+    wrong maximum thickness and percentage wear calculation, which should be avoided.
+  - Show total brake wear difference of previous lap.
+  - Show live brake wear difference of current lap that constantly updated.
+  - Show estimated brake lifespan in laps.
+  - Show estimated brake lifespan in minutes.
+  - Customizable wear warning threshold.
+
+* Misc
+  - Updated User Guide info for Brake wear Widget.
+
 2.18.3 (2024-10-08)
 -----------------------------
 * RestAPI Module

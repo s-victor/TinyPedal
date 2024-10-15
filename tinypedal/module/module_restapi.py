@@ -54,6 +54,7 @@ SET_CURRENTSTINT = (
     (minfo.restapi, "currentVirtualEnergy", 0.0, None, "fuelInfo", "currentVirtualEnergy"),
     (minfo.restapi, "maxVirtualEnergy", 0.0, None, "fuelInfo", "maxVirtualEnergy"),
     (minfo.restapi, "aeroDamage", -1.0, None, "wearables", "body", "aero"),
+    (minfo.restapi, "brakeWear", [-1] * 4, None, "wearables", "brakes"),
     (minfo.restapi, "suspensionDamage", [-1] * 4, None, "wearables", "suspension"),
 )
 SET_WEATHERFORECAST = (

@@ -30,6 +30,7 @@ from . import (
     brake_performance,
     brake_pressure,
     brake_temperature,
+    brake_wear,
     cruise,
     damage,
     deltabest,
