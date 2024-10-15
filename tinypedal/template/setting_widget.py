@@ -179,6 +179,7 @@ WIDGET_DEFAULT = {
         "bar_padding": 0.2,
         "bar_gap": 2,
         "show_thickness": False,
+        "brake_failure_thickness": 0,
         "show_remaining": True,
         "font_color_remaining": "#22CC22",
         "bkg_color_remaining": "#222222",
