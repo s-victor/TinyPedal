@@ -825,8 +825,11 @@ Set warning threshold for estimated brake lifespan in minutes. Default is `5` la
     show_track_clock
 Show current in-game clock time of the circuit.
 
+    enable_track_clock_synchronization
+Enable auto track clock and time scale synchronization. RestAPI module must be enabled to synchronize track clock from Rest API.
+
     track_clock_time_scale
-Set time multiplier for time-scaled session. Default is `1`, which matches `Time Scale: Normal` setting in-game. Note, this option will only be used if RestAPI module is disabled or Rest API data is not available.
+Maually set time multiplier for time-scaled session. Default is `1`, which matches `Time Scale: Normal` setting in-game. Note, this option will only be used if `enable_track_clock_synchronization` option is disabled.
 
     track_clock_format
 Set track clock format string. To show seconds, add `%S`, such as `%H:%M:%S %p`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.

@@ -144,12 +144,13 @@ class Realtime(Overlay):
 
             # Track clock
             if self.wcfg["show_track_clock"]:
-                if self.cfg.user.setting["module_restapi"]["enable"]:
+                if self.wcfg["enable_track_clock_synchronization"]:
                     time_scale = minfo.restapi.timeScale
-                    if time_scale < 0:
-                        time_scale = self.wcfg["track_clock_time_scale"]
                 else:
                     time_scale = self.wcfg["track_clock_time_scale"]
+
+                if time_scale < 0:
+                    time_scale = 0
 
                 track_time = calc.clock_time(
                     api.read.session.elapsed(), api.read.session.start(), time_scale)

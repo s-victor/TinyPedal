@@ -1,3 +1,12 @@
+WIP
+-----------------------------
+* Cruise Widget
+  - Add "enable_track_clock_synchronization" option, which enables auto track clock
+    and time scale synchronization. RestAPI module must be enabled to synchronize
+    track clock from Rest API. This option is enabled by default.
+    Disable this option to manually set and use "track_clock_time_scale" option for
+    track clock display.
+
 2.19.0 (2024-10-15)
 -----------------------------
 * RestAPI Module

@@ -220,6 +220,7 @@ WIDGET_DEFAULT = {
         "bar_padding": 0.2,
         "bar_gap": 2,
         "show_track_clock": True,
+        "enable_track_clock_synchronization": True,
         "track_clock_time_scale": 1,
         "track_clock_format": "%H:%M%p",
         "font_color_track_clock": "#FFFFFF",
