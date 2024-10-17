@@ -783,10 +783,10 @@ Show brake thickness (millimeter) instead of percentage, which also affects wear
 
 Note, brake maximum thickness (for percentage wear calculation) is retrieved at the moment when car leaves garage or has brake repaired or changed. Reloading a preset or restarting APP in the middle of a running stint could result wrong maximum thickness and percentage wear calculation, which should be avoided.
 
-    brake_failure_thickness
+    front_brake_failure_thickness, rear_brake_failure_thickness
 Manually set millimeter thickness threshold at brake failure, this setting affects brake thickness readings and overall brake wear calculation. For example, if brake thickness is `40`mm, and brake failure thickness is `25`mm, then effective thickness is 40 - 25 = 15mm.
 
-Note, brake failure thickness threshold data is not available from game API, it may require testing to find out, and may vary from vehicle to vehicle. Thickness threshold value should not exceed brake maximum thickness, otherwise brake wear readings will not be displayed correctly.
+Note, brake failure thickness threshold data is not available from game API, it may require testing to find out, and may vary from vehicle to vehicle. Front brake failure thickness threshold can be different from rear brake. Thickness threshold value should not exceed brake maximum thickness, otherwise brake wear readings will not be displayed correctly.
 
     show_remaining
 Show total remaining brake in percentage that changes color according to wear.

@@ -48,7 +48,12 @@ class Realtime(Overlay):
         bar_gap = self.wcfg["bar_gap"]
         bar_width = font_m.width * 4 + bar_padx
         self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
-        self.failure_thickness = max(self.wcfg["brake_failure_thickness"], 0)
+        self.failure_thickness = (
+            max(self.wcfg["front_brake_failure_thickness"], 0),
+            max(self.wcfg["front_brake_failure_thickness"], 0),
+            max(self.wcfg["rear_brake_failure_thickness"], 0),
+            max(self.wcfg["rear_brake_failure_thickness"], 0),
+        )
         self.threshold_remaining = min(max(self.wcfg["warning_threshold_remaining"], 0), 100) * 0.01
 
         # Base style
@@ -219,8 +224,7 @@ class Realtime(Overlay):
             lap_stime = api.read.timing.start()
             lap_etime = api.read.timing.elapsed()
             # Brake thickness in millimeter
-            wear_curr = [value * 1000 - self.failure_thickness
-                        for value in minfo.restapi.brakeWear]
+            wear_curr = [value * 1000 for value in minfo.restapi.brakeWear]
 
             if lap_stime != self.last_lap_stime:
                 self.wear_last_lap = self.wear_curr_lap
@@ -228,6 +232,10 @@ class Realtime(Overlay):
                 self.last_lap_stime = lap_stime  # reset time stamp counter
 
             for idx in range(4):
+                # Calculate effective thickness
+                wear_curr[idx] -= self.failure_thickness[idx]
+
+                # Calibrate max thickness
                 if self.wear_stint_start[idx] < wear_curr[idx]:
                     self.wear_stint_start[idx] = wear_curr[idx]
 

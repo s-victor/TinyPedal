@@ -1,5 +1,10 @@
 WIP
 -----------------------------
+* Brake wear Widget
+  - Separated "front_brake_failure_thickness, rear_brake_failure_thickness" options
+    for front and rear brakes.
+    Front brake failure thickness threshold can be different from rear brake.
+
 * Cruise Widget
   - Add "enable_track_clock_synchronization" option, which enables auto track clock
     and time scale synchronization. RestAPI module must be enabled to synchronize
