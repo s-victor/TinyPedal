@@ -788,6 +788,10 @@ Manually set millimeter thickness threshold at brake failure, this setting affec
 
 Note, brake failure thickness threshold data is not available from game API, it may require testing to find out, and may vary from vehicle to vehicle. Front brake failure thickness threshold can be different from rear brake. Thickness threshold value should not exceed brake maximum thickness, otherwise brake wear readings will not be displayed correctly.
 
+Some reference brake failure thickness threshold:
+Hypercar and P2 classes in LMU usually have `25`mm brake failure threshold.
+GTE class in LMU usually has `30`mm brake failure threshold.
+
     show_remaining
 Show total remaining brake in percentage that changes color according to wear.
 

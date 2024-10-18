@@ -1,9 +1,12 @@
-WIP
+2.19.1 (2024-10-18)
 -----------------------------
 * Brake wear Widget
   - Separated "front_brake_failure_thickness, rear_brake_failure_thickness" options
     for front and rear brakes.
     Front brake failure thickness threshold can be different from rear brake.
+  - Some reference brake failure thickness threshold:
+    Hypercar and P2 classes in LMU usually have 25mm brake failure threshold.
+    GTE class in LMU usually has 30mm brake failure threshold.
 
 * Cruise Widget
   - Add "enable_track_clock_synchronization" option, which enables auto track clock
