@@ -13,10 +13,11 @@ Thanks to many people for contributing to the development.
 * Sasker - Tyre carcass widget
 * Nibo - Sectors widget
 
-## Features & bug fixes
+## Features & bug fixes & testing
+* Tanizo Yashima (yashiman)
+* ebeninca
 * Erik Jacobs (thoraxe)
 * Sergio Rafael Lemke (srlemke)
-* ebeninca
 * Xudong Zhang (zxd1997)
 * DumibirdF
 
