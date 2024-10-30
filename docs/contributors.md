@@ -3,28 +3,28 @@ TinyPedal is created by Xiang (S.Victor) and released in March 2022.
 
 Thanks to many people for contributing to the development.
 
-## Developers
-* Xiang (S.Victor) - Original author, programming
-* Bernat (berarma) - Cross-platform maintainer, programming
+## Development
+* Xiang (S.Victor) - Project founder, core development
+* Bernat (berarma) - Cross-platform implementation & maintainer
 
 ## Implementation
 * Sihyung Park (naturale0) - Auto load preset system
-* DanRZ - Trailing widget
+* DanRZ - Trailing widget, various features, bug fixes
 * Sasker - Tyre carcass widget
 * Nibo - Sectors widget
 
-## Features & bug fixes & testing
-* Tanizo Yashima (yashiman)
-* ebeninca
-* Erik Jacobs (thoraxe)
-* Sergio Rafael Lemke (srlemke)
-* Xudong Zhang (zxd1997)
-* DumibirdF
+## Features & Bug fixes
+* Tanizo Yashima (yashiman) - Various features, testing assistance
+* ebeninca - Various features & designs, testing assistance
+* Erik Jacobs (thoraxe) - Various features, bug fixes
+* Sergio Rafael Lemke (srlemke) - Various features, bug fixes, cross-platform assistance
+* Xudong Zhang (zxd1997) - Technical assistance
+* DumibirdF - Technical assistance
 
 ## Graphics
 * Xiang (S.Victor) - TinyPedal icon, widget icons
 
-## Special thanks to
+## Special Thanks
 * Vytautas Leonavičius (The Iron Wolf) - for rF2 Shared Memory Map Plugin
 * Tony Whitley (Seven Smiles) - for pyRfactor2SharedMemory library
 * Alpha testers (Rnzi, chips, derricklu30, DKxiaoming, fatboy, fartman, felixfight, Sendoh, y1Thunder, zxd1997)
