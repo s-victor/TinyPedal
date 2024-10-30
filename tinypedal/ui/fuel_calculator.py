@@ -22,10 +22,9 @@ Fuel calculator
 
 import math
 from PySide2.QtCore import Qt, QMargins
-from PySide2.QtGui import QIcon, QBrush, QColor, QPalette
+from PySide2.QtGui import QBrush, QColor, QPalette
 from PySide2.QtWidgets import (
     QWidget,
-    QDialog,
     QVBoxLayout,
     QHBoxLayout,
     QGridLayout,
@@ -42,11 +41,11 @@ from PySide2.QtWidgets import (
 )
 
 from ..api_control import api
-from ..const import APP_ICON
 from ..setting import cfg
 from ..module_info import minfo
 from .. import calculation as calc
 from .. import formatter as fmt
+from ._common import BaseDialog
 
 PANEL_LEFT_WIDTH = 330
 FRAME_MARGIN = QMargins(5, 5, 5, 5)
@@ -78,16 +77,12 @@ def fuel_unit_text():
     return "L"
 
 
-class FuelCalculator(QDialog):
+class FuelCalculator(BaseDialog):
     """Fuel calculator"""
 
     def __init__(self, master):
         super().__init__(master)
-        # Base setting
-        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
-        self.setWindowIcon(QIcon(APP_ICON))
         self.setWindowTitle("Fuel Calculator")
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.history_data = minfo.history.consumption
 
         # Set view

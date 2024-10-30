@@ -24,8 +24,7 @@ import os
 import shutil
 import time
 
-from PySide2.QtCore import Qt, QRegularExpression
-from PySide2.QtGui import QIcon, QRegularExpressionValidator
+from PySide2.QtCore import Qt
 from PySide2.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -37,16 +36,15 @@ from PySide2.QtWidgets import (
     QListWidget,
     QListWidgetItem,
     QMessageBox,
-    QDialog,
     QLineEdit,
     QDialogButtonBox,
 )
 
-from ..const import APP_ICON
 from ..setting import cfg
 from .. import formatter as fmt
 from .. import regex_pattern as rxp
 from .. import validator as val
+from ._common import BaseDialog, QVAL_PRESET
 
 QSS_LISTBOX = (
     "QListView {font-size: 16px;outline: none;}"
@@ -58,7 +56,6 @@ QSS_TAGGED_COLOR = (
     "margin: 4px 4px 4px 0px;background: #F20;border-radius: 3px;",  # LMU
     "margin: 4px 4px 4px 0px;background: #0AF;border-radius: 3px;",  # RF2
 )
-preset_name_valid = QRegularExpressionValidator(QRegularExpression('[^\\\\/:*?"<>|]*'))
 
 
 class PresetList(QWidget):
@@ -79,8 +76,8 @@ class PresetList(QWidget):
         button_refresh = QPushButton("Refresh")
         button_refresh.clicked.connect(self.refresh_list)
 
-        button_new = QPushButton("New Preset")
-        button_new.clicked.connect(self.open_create_preset)
+        button_create = QPushButton("New Preset")
+        button_create.clicked.connect(self.open_create_preset)
 
         # Check box
         self.checkbox_autoload = QCheckBox("Auto load primary preset")
@@ -105,7 +102,7 @@ class PresetList(QWidget):
         layout_button.addWidget(button_load)
         layout_button.addWidget(button_refresh)
         layout_button.addStretch(stretch=1)
-        layout_button.addWidget(button_new)
+        layout_button.addWidget(button_create)
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
 
@@ -226,7 +223,7 @@ class PresetList(QWidget):
                     self.refresh_list()
 
 
-class CreatePreset(QDialog):
+class CreatePreset(BaseDialog):
     """Create preset"""
 
     def __init__(self, master, title: str = "", mode: str = "", source_filename: str = ""):
@@ -242,17 +239,14 @@ class CreatePreset(QDialog):
         self.edit_mode = mode
         self.source_filename = source_filename
 
-        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
-        self.setFixedWidth(280)
         self.setWindowTitle(title)
-        self.setWindowIcon(QIcon(APP_ICON))
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
+        self.setFixedWidth(280)
 
         # Entry box
         self.preset_entry = QLineEdit()
         self.preset_entry.setMaxLength(40)
         self.preset_entry.setPlaceholderText("Enter a new preset name")
-        self.preset_entry.setValidator(preset_name_valid)
+        self.preset_entry.setValidator(QVAL_PRESET)
 
         # Button
         button_create = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)

@@ -1,3 +1,15 @@
+WIP
+-----------------------------
+* Heatmap editor, Vehicle brand editor, Vehicle class editor
+  - Add "Offset" button for batch offsetting temperature values in Heatmap editor.
+  - Add "Copy" button for duplicate heatmap preset in Heatmap editor.
+  - Keep "Rename" dialog open after renaming for easy access in Vehicle brand editor.
+  - Show close confirmation if changes were not saved.
+  - Show deletion info and confirmation.
+
+* Misc
+  - Updated contributors info, added new contributor "Tanizo Yashima (yashiman)".
+
 2.19.1 (2024-10-18)
 -----------------------------
 * Brake wear Widget

@@ -23,10 +23,9 @@ About window
 import logging
 
 from PySide2.QtCore import Qt
-from PySide2.QtGui import QIcon, QPixmap
+from PySide2.QtGui import QPixmap
 from PySide2.QtWidgets import (
     QWidget,
-    QDialog,
     QVBoxLayout,
     QHBoxLayout,
     QLabel,
@@ -36,22 +35,85 @@ from PySide2.QtWidgets import (
 )
 
 from ..const import APP_NAME, VERSION, APP_ICON, COPYRIGHT, DESCRIPTION, LICENSE, WEBSITE
+from ._common import BaseDialog
 
 logger = logging.getLogger(__name__)
 
 
-class AboutTab(QWidget):
-    """About info"""
+class About(BaseDialog):
+    """Create about window
 
-    def __init__(self):
-        super().__init__()
+    Hide window at startup.
+    """
+
+    def __init__(self, master):
+        super().__init__(master)
+        self.setWindowTitle(f"About {APP_NAME}")
+        self.setStyleSheet("QTextEdit {border: 0;} QTextBrowser {font-size: 12px;}")
+
+        # Tab
+        main_tab = self.add_tabs()
+
+        # Button
+        button_close = QDialogButtonBox(QDialogButtonBox.Close)
+        button_close.rejected.connect(self.reject)
+
+        # Layout
+        layout_button = QHBoxLayout()
+        layout_button.addWidget(button_close)
+        layout_button.setContentsMargins(3,3,7,7)
+
+        layout_main = QVBoxLayout()
+        layout_main.addWidget(main_tab)
+        layout_main.addLayout(layout_button)
+        layout_main.setContentsMargins(3,3,3,3)
+        self.setLayout(layout_main)
+        self.setFixedSize(self.sizeHint().width(), self.sizeHint().height())
+
+    def add_tabs(self):
+        """Add tabs"""
+        info_tab = self.new_about_tab()
+        ctrb_tab = self.new_text_tab(self.load_text_files("docs/contributors.md"))
+        lics_tab = self.new_text_tab(self.load_text_files("LICENSE.txt"))
+        tpan_tab = self.new_text_tab(self.load_text_files("docs/licenses/THIRDPARTYNOTICES.txt"))
+        main_tab = QTabWidget()
+        main_tab.addTab(info_tab, "About")
+        main_tab.addTab(ctrb_tab, "Contributors")
+        main_tab.addTab(lics_tab, "License")
+        main_tab.addTab(tpan_tab, "Third-Party Notices")
+        return main_tab
+
+    @staticmethod
+    def load_text_files(filepath):
+        """Load text file"""
+        try:
+            with open(filepath, "r", encoding="utf-8") as text_file:
+                return text_file.read()
+        except FileNotFoundError:
+            logger.error("MISSING: %s file not found", filepath)
+            error_text = "Error: file not found."
+            link_text = "See link: https://github.com/s-victor/TinyPedal/blob/master/"
+            return f"{error_text} \n{link_text}{filepath}"
+
+    @staticmethod
+    def new_text_tab(text):
+        """New text tab"""
+        new_tab = QTextBrowser()
+        new_tab.setText(text)
+        new_tab.setMinimumSize(400, 300)
+        return new_tab
+
+    @staticmethod
+    def new_about_tab():
+        """New about tab"""
+        new_tab = QWidget()
 
         # Logo
         icon_size = 128
         logo_image = QPixmap(APP_ICON)
         logo_image = logo_image.scaled(icon_size, icon_size, mode=Qt.SmoothTransformation)
 
-        label_logo = QLabel(self)
+        label_logo = QLabel(new_tab)
         label_logo.setPixmap(logo_image)
         label_logo.setFixedSize(icon_size+20, icon_size+20)
         label_logo.setAlignment(Qt.AlignCenter)
@@ -85,72 +147,5 @@ class AboutTab(QWidget):
         layout_about.addWidget(label_version)
         layout_about.addWidget(label_desc)
         layout_about.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
-        self.setLayout(layout_about)
-
-
-class About(QDialog):
-    """Create about window
-
-    Hide window at startup.
-    """
-
-    def __init__(self, master):
-        super().__init__(master)
-        # Base setting
-        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
-        self.setWindowIcon(QIcon(APP_ICON))
-        self.setWindowTitle(f"About {APP_NAME}")
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
-
-        # Tab
-        self.main_tab = QTabWidget()
-        self.add_tabs()
-        self.setStyleSheet("QTextEdit {border: 0;}")
-
-        # Button
-        button_close = QDialogButtonBox(QDialogButtonBox.Close)
-        button_close.rejected.connect(self.reject)
-
-        # Layout
-        layout_button = QHBoxLayout()
-        layout_button.addWidget(button_close)
-        layout_button.setContentsMargins(3,3,7,7)
-
-        layout_main = QVBoxLayout()
-        layout_main.addWidget(self.main_tab)
-        layout_main.addLayout(layout_button)
-        layout_main.setContentsMargins(3,3,3,3)
-        self.setLayout(layout_main)
-        self.setFixedSize(self.sizeHint().width(), self.sizeHint().height())
-
-    @staticmethod
-    def load_text_files(filepath):
-        """Load text file"""
-        try:
-            with open(filepath, "r", encoding="utf-8") as text_file:
-                return text_file.read()
-        except FileNotFoundError:
-            logger.error("MISSING: %s file not found", filepath)
-            error_text = "Error: file not found."
-            link_text = "See link: https://github.com/s-victor/TinyPedal/blob/master/"
-            return f"{error_text} \n{link_text}{filepath}"
-
-    @staticmethod
-    def new_text_tab(text):
-        """New text tab"""
-        new_tab = QTextBrowser()
-        new_tab.setText(text)
-        new_tab.setStyleSheet("font-size: 12px;")
-        new_tab.setMinimumSize(400, 300)
+        new_tab.setLayout(layout_about)
         return new_tab
-
-    def add_tabs(self):
-        """Add tabs"""
-        info_tab = AboutTab()
-        ctrb_tab = self.new_text_tab(self.load_text_files("docs/contributors.md"))
-        lics_tab = self.new_text_tab(self.load_text_files("LICENSE.txt"))
-        tpan_tab = self.new_text_tab(self.load_text_files("docs/licenses/THIRDPARTYNOTICES.txt"))
-        self.main_tab.addTab(info_tab, "About")
-        self.main_tab.addTab(ctrb_tab, "Contributors")
-        self.main_tab.addTab(lics_tab, "License")
-        self.main_tab.addTab(tpan_tab, "Third-Party Notices")

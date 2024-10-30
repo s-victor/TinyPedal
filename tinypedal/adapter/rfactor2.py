@@ -257,7 +257,7 @@ class Lap(DataAdapter):
 
     def sector_index(self, index: int | None = None) -> int:
         """Sector index - convert to 0,1,2 order"""
-        return RF2_SECTORS[chknm(self.info.rf2ScorVeh(index).mSector)]
+        return RF2_SECTORS[int(chknm(self.info.rf2ScorVeh(index).mSector))]
 
     def behind_leader(self, index: int | None = None) -> int:
         """Laps behind leader"""
@@ -288,7 +288,7 @@ class Session(DataAdapter):
 
     def session_type(self) -> int:
         """Session type"""
-        return RF2_SESSION_TYPE[chknm(self.info.rf2ScorInfo.mSession)]
+        return RF2_SESSION_TYPE[int(chknm(self.info.rf2ScorInfo.mSession))]
 
     def lap_type(self) -> bool:
         """Is lap type session, false for time type"""

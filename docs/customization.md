@@ -126,11 +126,15 @@ To add temperature, click `Add` button.
 
 To sort temperature list in orders, click `Sort` button.
 
+To batch offset temperature, click `Offset` button.
+
 To remove a temperature, click `X` button of a temperature row.
 
 To select a different heatmap preset, click `drop-down list` at top, and select a preset name. Note: by selecting a different preset, any changes to previously selected heatmap will be saved in cache, and only be saved to file after clicking `Apply` or `Save` Button.
 
 To create a new heatmap preset, click `New` button. Note: only alphabetic characters, numbers, underscores are accepted in preset name, and renaming preset is not supported.
+
+To duplicate a heatmap preset, click `Copy` button.
 
 To delete selected heatmap preset, click `Delete` button. Note: built-in presets cannot be deleted.
 

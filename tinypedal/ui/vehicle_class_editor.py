@@ -23,13 +23,10 @@ Vehicle class editor
 import time
 import random
 
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
-    QDialog,
     QLineEdit,
     QDialogButtonBox,
     QPushButton,
@@ -40,33 +37,24 @@ from PySide2.QtWidgets import (
 
 from ..api_control import api
 from ..setting import cfg, copy_setting
-from ..const import APP_ICON
 from ..module_control import wctrl
 from .. import formatter as fmt
-from .config import (
+from ._common import (
+    BaseEditor,
     DoubleClickEdit,
+    QVAL_COLOR,
+    QSS_EDITOR_BUTTON,
+    QSS_EDITOR_LISTBOX,
     update_preview_color,
-    color_valid,
 )
 
-QSS_LISTBOX = (
-    "QListView {outline: none;}"
-    "QListView::item {height: 32px;border-radius: 0;}"
-    "QListView::item:selected {background: transparent;}"
-    "QListView::item:hover {background: transparent;}"
-)
-QSS_BUTTON = "padding: 3px 7px;"
 
-
-class VehicleClassEditor(QDialog):
+class VehicleClassEditor(BaseEditor):
     """Vehicle class editor"""
 
     def __init__(self, master):
         super().__init__(master)
-        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle(f"Vehicle Class Editor - {cfg.filename.classes}")
-        self.setWindowIcon(QIcon(APP_ICON))
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
         self.setMinimumSize(400, 400)
 
         self.option_classes = []
@@ -74,27 +62,27 @@ class VehicleClassEditor(QDialog):
 
         # Classes list box
         self.listbox_classes = QListWidget(self)
+        self.listbox_classes.setStyleSheet(QSS_EDITOR_LISTBOX)
         self.refresh_list()
-        self.listbox_classes.setStyleSheet(QSS_LISTBOX)
 
         # Button
         button_add = QPushButton("Add")
         button_add.clicked.connect(self.add_class)
-        button_add.setStyleSheet(QSS_BUTTON)
+        button_add.setStyleSheet(QSS_EDITOR_BUTTON)
 
         button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
         button_reset.clicked.connect(self.reset_setting)
-        button_reset.setStyleSheet(QSS_BUTTON)
+        button_reset.setStyleSheet(QSS_EDITOR_BUTTON)
 
         button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
         button_apply.clicked.connect(self.applying)
-        button_apply.setStyleSheet(QSS_BUTTON)
+        button_apply.setStyleSheet(QSS_EDITOR_BUTTON)
 
         button_save = QDialogButtonBox(
-            QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+            QDialogButtonBox.Save | QDialogButtonBox.Close)
         button_save.accepted.connect(self.saving)
-        button_save.rejected.connect(self.reject)
-        button_save.setStyleSheet(QSS_BUTTON)
+        button_save.rejected.connect(self.close)
+        button_save.setStyleSheet(QSS_EDITOR_BUTTON)
 
         # Set layout
         layout_main = QVBoxLayout()
@@ -114,6 +102,7 @@ class VehicleClassEditor(QDialog):
         """Refresh classes list"""
         self.listbox_classes.clear()
         self.option_classes.clear()
+        already_modified = self.is_modified()
 
         for idx, key in enumerate(self.classes_temp):
             layout_item = QHBoxLayout()
@@ -133,9 +122,13 @@ class VehicleClassEditor(QDialog):
             self.listbox_classes.addItem(item)
             self.listbox_classes.setItemWidget(item, classes_item)
 
+        if not already_modified:
+            self.set_unmodified()
+
     def __add_option_string(self, key, layout):
         """Key string"""
         line_edit = QLineEdit()
+        line_edit.textChanged.connect(self.set_modified)
         # Load selected option
         line_edit.setText(key)
         # Add layout
@@ -147,7 +140,8 @@ class VehicleClassEditor(QDialog):
         color_edit = DoubleClickEdit(mode="color", init=key)
         color_edit.setFixedWidth(width)
         color_edit.setMaxLength(9)
-        color_edit.setValidator(color_valid)
+        color_edit.setValidator(QVAL_COLOR)
+        color_edit.textChanged.connect(self.set_modified)
         color_edit.textChanged.connect(
             lambda color_str, option=color_edit:
             update_preview_color(color_str, option))
@@ -167,11 +161,13 @@ class VehicleClassEditor(QDialog):
 
     def delete_class(self, index):
         """Delete class entry"""
+        target = self.option_classes[index][0].text()
+        if not self.confirm_deletion(f"Delete class '{target}' ?"):
+            return
+
         self.update_classes_temp()
-        for idx, key in enumerate(self.classes_temp):
-            if index == idx:
-                self.classes_temp.pop(key)
-                break
+        self.classes_temp.pop(target)
+        self.set_modified()
         self.refresh_list()
 
     def add_class(self):
@@ -196,6 +192,7 @@ class VehicleClassEditor(QDialog):
                     self.classes_temp.update({key: item})
         # Add new class entry
         self.classes_temp.update(new_veh_class)
+        self.set_modified()
         self.refresh_list()
         # Move focus to new class row
         self.listbox_classes.setCurrentRow(len(self.classes_temp) - 1)
@@ -211,6 +208,7 @@ class VehicleClassEditor(QDialog):
             buttons=QMessageBox.Yes | QMessageBox.No)
         if reset_msg == QMessageBox.Yes:
             self.classes_temp = copy_setting(cfg.default.classes)
+            self.set_modified()
             self.refresh_list()
 
     def applying(self):
@@ -240,3 +238,4 @@ class VehicleClassEditor(QDialog):
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
         wctrl.reload()
+        self.set_unmodified()

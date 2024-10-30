@@ -20,10 +20,8 @@
 Log window
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QIcon, QTextCursor
+from PySide2.QtGui import QTextCursor
 from PySide2.QtWidgets import (
-    QDialog,
     QVBoxLayout,
     QHBoxLayout,
     QDialogButtonBox,
@@ -31,20 +29,17 @@ from PySide2.QtWidgets import (
     QPushButton,
 )
 
-from ..const import APP_NAME, APP_ICON
+from ..const import APP_NAME
 from .. import log_stream
+from ._common import BaseDialog
 
 
-class LogInfo(QDialog):
+class LogInfo(BaseDialog):
     """Create log info dialog"""
 
     def __init__(self, master):
         super().__init__(master)
-        # Base setting
-        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
-        self.setWindowIcon(QIcon(APP_ICON))
         self.setWindowTitle(f"{APP_NAME} Log")
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         # Text view
         self.log_view = QTextBrowser()

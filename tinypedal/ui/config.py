@@ -17,75 +17,56 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Config window
+Config dialog
 """
 
-import os
 import re
 import time
-from collections import deque
 
-from PySide2.QtCore import Qt, QRegularExpression, QLocale
-from PySide2.QtGui import (
-    QIcon, QRegularExpressionValidator, QIntValidator, QDoubleValidator, QColor)
+from PySide2.QtCore import Qt
 from PySide2.QtWidgets import (
     QWidget,
     QVBoxLayout,
     QHBoxLayout,
     QGridLayout,
     QLabel,
-    QDialog,
     QLineEdit,
     QDialogButtonBox,
     QCheckBox,
     QComboBox,
     QScrollArea,
-    QColorDialog,
     QFontComboBox,
     QSpinBox,
     QMenu,
     QMessageBox,
-    QFileDialog
 )
 
 from .. import regex_pattern as rxp
 from .. import validator as val
 from .. import formatter as fmt
 from ..setting import cfg
-from ..const import APP_ICON
 from ..module_control import mctrl, wctrl
-
+from ._common import (
+    BaseDialog,
+    DoubleClickEdit,
+    QVAL_INTEGER,
+    QVAL_FLOAT,
+    QVAL_COLOR,
+    update_preview_color,
+)
 
 OPTION_WIDTH = 120
 COLUMN_LABEL = 0  # grid layout column index
 COLUMN_OPTION = 1
 
-# Option validator
-number_locale = QLocale(QLocale.C)
-number_locale.setNumberOptions(QLocale.RejectGroupSeparator)
-integer_valid = QIntValidator(-999999, 999999)
-integer_valid.setLocale(number_locale)
-float_valid = QDoubleValidator(-999999.9999, 999999.9999, 6)
-float_valid.setLocale(number_locale)
-color_valid = QRegularExpressionValidator(QRegularExpression('^#[0-9a-fA-F]*'))
-heatmap_name_valid = QRegularExpressionValidator(QRegularExpression('[0-9a-zA-Z_]*'))
-color_pick_history = deque(
-    ["#FFF"] * QColorDialog.customCount(),
-    maxlen=QColorDialog.customCount()
-)
 
-
-class FontConfig(QDialog):
+class FontConfig(BaseDialog):
     """Config global font setting"""
 
     def __init__(self, master, user_setting: dict):
         super().__init__(master)
         self.user_setting = user_setting
-
-        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle(f"Global Font Override - {cfg.filename.last_setting}")
-        self.setWindowIcon(QIcon(APP_ICON))
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         # Label & combobox
         self.label_fontname = QLabel("Font Name")
@@ -165,7 +146,7 @@ class FontConfig(QDialog):
         wctrl.reload()
 
 
-class UserConfig(QDialog):
+class UserConfig(BaseDialog):
     """User configuration"""
 
     def __init__(
@@ -184,10 +165,7 @@ class UserConfig(QDialog):
         else:
             preset_filename = cfg.filename.last_setting
 
-        self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setWindowTitle(f"{fmt.format_option_name(key_name)} - {preset_filename}")
-        self.setWindowIcon(QIcon(APP_ICON))
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
 
         # Option type
         self.option_bool = []
@@ -486,7 +464,7 @@ class UserConfig(QDialog):
             mode="color", init=self.user_setting[self.key_name][key]))
         getattr(self, f"lineedit_{key}").setFixedWidth(self.option_width)
         getattr(self, f"lineedit_{key}").setMaxLength(9)
-        getattr(self, f"lineedit_{key}").setValidator(color_valid)
+        getattr(self, f"lineedit_{key}").setValidator(QVAL_COLOR)
         getattr(self, f"lineedit_{key}").textChanged.connect(
             lambda color_str, option=getattr(self, f"lineedit_{key}"):
             update_preview_color(color_str, option))
@@ -579,7 +557,7 @@ class UserConfig(QDialog):
         """Integer"""
         setattr(self, f"lineedit_{key}", QLineEdit())
         getattr(self, f"lineedit_{key}").setFixedWidth(self.option_width)
-        getattr(self, f"lineedit_{key}").setValidator(integer_valid)
+        getattr(self, f"lineedit_{key}").setValidator(QVAL_INTEGER)
         # Load selected option
         getattr(self, f"lineedit_{key}").setText(
             str(self.user_setting[self.key_name][key]))
@@ -597,7 +575,7 @@ class UserConfig(QDialog):
         """Float"""
         setattr(self, f"lineedit_{key}", QLineEdit())
         getattr(self, f"lineedit_{key}").setFixedWidth(self.option_width)
-        getattr(self, f"lineedit_{key}").setValidator(float_valid)
+        getattr(self, f"lineedit_{key}").setValidator(QVAL_FLOAT)
         # Load selected option
         getattr(self, f"lineedit_{key}").setText(
             str(self.user_setting[self.key_name][key]))
@@ -610,60 +588,6 @@ class UserConfig(QDialog):
         layout.addWidget(
             getattr(self, f"lineedit_{key}"), idx, COLUMN_OPTION)
         self.option_float.append(key)
-
-
-class DoubleClickEdit(QLineEdit):
-    """Line edit with double click dialog trigger"""
-
-    def __init__(self, mode: str, init: str):
-        """Set dialog mode and initial value
-
-        Args:
-            mode: "color", "path".
-            init: initial value.
-        """
-        super().__init__()
-        self.open_dialog = getattr(self, f"open_dialog_{mode}")
-        self.init_value = init
-
-    def mouseDoubleClickEvent(self, event):
-        """Double click to open dialog"""
-        if event.buttons() == Qt.LeftButton:
-            self.open_dialog()
-
-    def open_dialog_color(self):
-        """Open color dialog"""
-        color_dialog = QColorDialog()
-        # Load color history to custom color slot
-        for index, old_color in enumerate(color_pick_history):
-            color_dialog.setCustomColor(index, QColor(old_color))
-        # Open color selector dialog
-        color_get = color_dialog.getColor(
-            initial=QColor(self.init_value),
-            options=QColorDialog.ShowAlphaChannel
-        )
-        if color_get.isValid():
-            # Add new color to color history
-            if color_pick_history[0] != color_get:
-                color_pick_history.appendleft(color_get)
-            # Set output format
-            if color_get.alpha() == 255:  # without alpha value
-                color = color_get.name(QColor.HexRgb).upper()
-            else:  # with alpha value
-                color = color_get.name(QColor.HexArgb).upper()
-            # Update edit box and init value
-            self.setText(color)
-            self.init_value = color
-
-    def open_dialog_path(self):
-        """Open file path dialog"""
-        path_selected = QFileDialog.getExistingDirectory(self, dir=self.init_value)
-        if os.path.exists(path_selected):
-            # Convert to relative path if in APP root folder
-            path_valid = f"{val.relative_path(path_selected)}/"
-            # Update edit box and init value
-            self.setText(path_valid)
-            self.init_value = path_valid
 
 
 def add_context_menu(target, default, mode):
@@ -695,19 +619,3 @@ def context_menu_reset_option(pos, target, default, mode):
             curr_index = target.findText(default, Qt.MatchExactly)
             if curr_index != -1:
                 target.setCurrentIndex(curr_index)
-
-
-def adaptive_foreground_color(color_str):
-    """Set foreground color based on background color lightness"""
-    if QColor(color_str).alpha() > 128 > QColor(color_str).lightness():
-        return "#FFF"
-    return "#000"
-
-
-def update_preview_color(color_str, option):
-    """Update preview background color"""
-    if val.hex_color(color_str):
-        option.setStyleSheet(
-            f"color: {adaptive_foreground_color(color_str)};"
-            f"background: {color_str};"
-        )
