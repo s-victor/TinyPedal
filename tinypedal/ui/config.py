@@ -167,15 +167,15 @@ class UserConfig(BaseDialog):
 
         self.setWindowTitle(f"{fmt.format_option_name(key_name)} - {preset_filename}")
 
-        # Option type
-        self.option_bool = []
-        self.option_color = []
-        self.option_path = []
-        self.option_fontname = []
-        self.option_droplist = []
-        self.option_string = []
-        self.option_integer = []
-        self.option_float = []
+        # Option dict (key: option editor)
+        self.option_bool = {}
+        self.option_color = {}
+        self.option_path = {}
+        self.option_fontname = {}
+        self.option_droplist = {}
+        self.option_string = {}
+        self.option_integer = {}
+        self.option_float = {}
 
         # Button
         button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
@@ -232,95 +232,86 @@ class UserConfig(BaseDialog):
             buttons=QMessageBox.Yes | QMessageBox.No)
 
         if reset_msg == QMessageBox.Yes:
-            for key in self.option_bool:
-                getattr(self, f"checkbox_{key}").setChecked(
+            for key, editor in self.option_bool.items():
+                editor.setChecked(
                     self.default_setting[self.key_name][key])
 
-            for key in self.option_color:
-                getattr(self, f"lineedit_{key}").setText(
+            for key, editor in self.option_color.items():
+                editor.setText(
                     self.default_setting[self.key_name][key])
 
-            for key in self.option_path:
-                getattr(self, f"lineedit_{key}").setText(
+            for key, editor in self.option_path.items():
+                editor.setText(
                     self.default_setting[self.key_name][key])
 
-            for key in self.option_fontname:
-                getattr(self, f"fontedit_{key}").setCurrentFont(
+            for key, editor in self.option_fontname.items():
+                editor.setCurrentFont(
                     self.default_setting[self.key_name][key])
 
-            for key in self.option_droplist:
-                curr_index = getattr(self, f"combobox_{key}").findText(
-                    f"{self.default_setting[self.key_name][key]}", Qt.MatchExactly)
-                if curr_index != -1:
-                    getattr(self, f"combobox_{key}").setCurrentIndex(curr_index)
-
-            for key in self.option_string:
-                getattr(self, f"lineedit_{key}").setText(
-                    self.default_setting[self.key_name][key])
-
-            for key in self.option_integer:
-                getattr(self, f"lineedit_{key}").setText(
+            for key, editor in self.option_droplist.items():
+                editor.setCurrentText(
                     str(self.default_setting[self.key_name][key]))
 
-            for key in self.option_float:
-                getattr(self, f"lineedit_{key}").setText(
+            for key, editor in self.option_string.items():
+                editor.setText(
+                    self.default_setting[self.key_name][key])
+
+            for key, editor in self.option_integer.items():
+                editor.setText(
+                    str(self.default_setting[self.key_name][key]))
+
+            for key, editor in self.option_float.items():
+                editor.setText(
                     str(self.default_setting[self.key_name][key]))
 
     def save_setting(self, is_apply):
         """Save setting"""
         error_found = False
-        for key in self.option_bool:
-            self.user_setting[self.key_name][key] = getattr(
-                self, f"checkbox_{key}").isChecked()
+        for key, editor in self.option_bool.items():
+            self.user_setting[self.key_name][key] = editor.isChecked()
 
-        for key in self.option_color:
-            value = getattr(self, f"lineedit_{key}").text()
+        for key, editor in self.option_color.items():
+            value = editor.text()
             if val.hex_color(value):
                 self.user_setting[self.key_name][key] = value
             else:
                 self.value_error_message("color", key)
                 error_found = True
 
-        for key in self.option_path:
+        for key, editor in self.option_path.items():
             # Try convert to relative path again, in case user manually sets path
-            value = val.relative_path(getattr(self, f"lineedit_{key}").text())
+            value = val.relative_path(editor.text())
             if val.user_data_path(value):
-                # Make sure path end with "/"
-                if not value.endswith("/"):
-                    value += "/"
                 self.user_setting[self.key_name][key] = value
-                # Update reformatted path to edit box
-                getattr(self, f"lineedit_{key}").setText(value)
+                editor.setText(value)  # update reformatted path
             else:
                 self.value_error_message("path", key)
                 error_found = True
 
-        for key in self.option_fontname:
-            self.user_setting[self.key_name][key] = getattr(
-                self, f"fontedit_{key}").currentFont().family()
+        for key, editor in self.option_fontname.items():
+            self.user_setting[self.key_name][key] = editor.currentFont().family()
 
-        for key in self.option_droplist:
-            self.user_setting[self.key_name][key] = getattr(
-                self, f"combobox_{key}").currentText()
+        for key, editor in self.option_droplist.items():
+            self.user_setting[self.key_name][key] = editor.currentText()
 
-        for key in self.option_string:
-            value = getattr(self, f"lineedit_{key}").text()
+        for key, editor in self.option_string.items():
+            value = editor.text()
             if re.search(rxp.CFG_CLOCK_FORMAT, key) and not val.clock_format(value):
                 self.value_error_message("clock format", key)
                 error_found = True
                 continue
             self.user_setting[self.key_name][key] = value
 
-        for key in self.option_integer:
-            value = getattr(self, f"lineedit_{key}").text()
+        for key, editor in self.option_integer.items():
+            value = editor.text()
             if val.string_number(value):
                 self.user_setting[self.key_name][key] = int(value)
             else:
                 self.value_error_message("number", key)
                 error_found = True
 
-        for key in self.option_float:
-            value = getattr(self, f"lineedit_{key}").text()
+        for key, editor in self.option_float.items():
+            value = editor.text()
             if val.string_number(value):
                 value = float(value)
                 if value % 1 == 0:  # remove unnecessary decimal points
@@ -441,154 +432,127 @@ class UserConfig(BaseDialog):
 
     def __add_option_label(self, idx, key, layout):
         """Option label"""
-        setattr(self, f"label_{key}", QLabel(f"{fmt.format_option_name(key)}"))
-        layout.addWidget(getattr(self, f"label_{key}"), idx, COLUMN_LABEL)
+        label = QLabel(fmt.format_option_name(key))
+        layout.addWidget(label, idx, COLUMN_LABEL)
 
     def __add_option_bool(self, idx, key, layout):
         """Bool"""
-        setattr(self, f"checkbox_{key}", QCheckBox())
-        getattr(self, f"checkbox_{key}").setFixedWidth(self.option_width)
-        getattr(self, f"checkbox_{key}").setChecked(self.user_setting[self.key_name][key])
+        editor = QCheckBox()
+        editor.setFixedWidth(self.option_width)
+        editor.setChecked(self.user_setting[self.key_name][key])
         # Context menu
         add_context_menu(
-            getattr(self, f"checkbox_{key}"),
-            self.default_setting[self.key_name][key],
-            "set_check")
+            editor, self.default_setting[self.key_name][key], "set_check")
         # Add layout
-        layout.addWidget(
-            getattr(self, f"checkbox_{key}"), idx, COLUMN_OPTION)
-        self.option_bool.append(key)
+        layout.addWidget(editor, idx, COLUMN_OPTION)
+        self.option_bool[key] = editor
 
     def __add_option_color(self, idx, key, layout):
         """Color string"""
-        setattr(self, f"lineedit_{key}", DoubleClickEdit(
-            mode="color", init=self.user_setting[self.key_name][key]))
-        getattr(self, f"lineedit_{key}").setFixedWidth(self.option_width)
-        getattr(self, f"lineedit_{key}").setMaxLength(9)
-        getattr(self, f"lineedit_{key}").setValidator(QVAL_COLOR)
-        getattr(self, f"lineedit_{key}").textChanged.connect(
-            lambda color_str, option=getattr(self, f"lineedit_{key}"):
+        editor = DoubleClickEdit(
+            mode="color", init=self.user_setting[self.key_name][key])
+        editor.setFixedWidth(self.option_width)
+        editor.setMaxLength(9)
+        editor.setValidator(QVAL_COLOR)
+        editor.textChanged.connect(
+            lambda color_str, option=editor:
             update_preview_color(color_str, option))
         # Load selected option
-        getattr(self, f"lineedit_{key}").setText(
+        editor.setText(
             self.user_setting[self.key_name][key])
         # Context menu
         add_context_menu(
-            getattr(self, f"lineedit_{key}"),
-            str(self.default_setting[self.key_name][key]),
-            "set_text")
+            editor, str(self.default_setting[self.key_name][key]), "set_text")
         # Add layout
-        layout.addWidget(
-            getattr(self, f"lineedit_{key}"), idx, COLUMN_OPTION)
-        self.option_color.append(key)
+        layout.addWidget(editor, idx, COLUMN_OPTION)
+        self.option_color[key] = editor
 
     def __add_option_path(self, idx, key, layout):
         """Path string"""
-        setattr(self, f"lineedit_{key}", DoubleClickEdit(
-            mode="path", init=self.user_setting[self.key_name][key]))
-        getattr(self, f"lineedit_{key}").setFixedWidth(self.option_width)
+        editor = DoubleClickEdit(
+            mode="path", init=self.user_setting[self.key_name][key])
+        editor.setFixedWidth(self.option_width)
         # Load selected option
-        getattr(self, f"lineedit_{key}").setText(
+        editor.setText(
             self.user_setting[self.key_name][key])
         # Context menu
         add_context_menu(
-            getattr(self, f"lineedit_{key}"),
-            str(self.default_setting[self.key_name][key]),
-            "set_text")
+            editor, str(self.default_setting[self.key_name][key]), "set_text")
         # Add layout
-        layout.addWidget(
-            getattr(self, f"lineedit_{key}"), idx, COLUMN_OPTION)
-        self.option_path.append(key)
+        layout.addWidget(editor, idx, COLUMN_OPTION)
+        self.option_path[key] = editor
 
     def __add_option_fontname(self, idx, key, layout):
         """Font name string"""
-        setattr(self, f"fontedit_{key}", QFontComboBox())
-        getattr(self, f"fontedit_{key}").setFixedWidth(self.option_width)
+        editor = QFontComboBox()
+        editor.setFixedWidth(self.option_width)
         # Load selected option
-        getattr(self, f"fontedit_{key}").setCurrentFont(
+        editor.setCurrentFont(
             self.user_setting[self.key_name][key])
         # Context menu
         add_context_menu(
-            getattr(self, f"fontedit_{key}"),
-            self.default_setting[self.key_name][key],
-            "set_font")
+            editor, self.default_setting[self.key_name][key], "set_font")
         # Add layout
-        layout.addWidget(
-            getattr(self, f"fontedit_{key}"), idx, COLUMN_OPTION)
-        self.option_fontname.append(key)
+        layout.addWidget(editor, idx, COLUMN_OPTION)
+        self.option_fontname[key] = editor
 
     def __add_option_combolist(self, idx, key, layout, item_list):
         """Combo droplist string"""
-        setattr(self, f"combobox_{key}", QComboBox())
-        getattr(self, f"combobox_{key}").setFixedWidth(self.option_width)
-        getattr(self, f"combobox_{key}").addItems(item_list)
+        editor = QComboBox()
+        editor.setFixedWidth(self.option_width)
+        editor.addItems(item_list)
         # Load selected option
-        curr_index = getattr(self, f"combobox_{key}").findText(
-            f"{self.user_setting[self.key_name][key]}", Qt.MatchExactly)
-        if curr_index != -1:
-            getattr(self, f"combobox_{key}").setCurrentIndex(curr_index)
+        editor.setCurrentText(str(self.user_setting[self.key_name][key]))
         # Context menu
         add_context_menu(
-            getattr(self, f"combobox_{key}"),
-            self.default_setting[self.key_name][key],
-            "set_combo")
+            editor, self.default_setting[self.key_name][key], "set_combo")
         # Add layout
-        layout.addWidget(
-            getattr(self, f"combobox_{key}"), idx, COLUMN_OPTION)
-        self.option_droplist.append(key)
+        layout.addWidget(editor, idx, COLUMN_OPTION)
+        self.option_droplist[key] = editor
 
     def __add_option_string(self, idx, key, layout):
         """String"""
-        setattr(self, f"lineedit_{key}", QLineEdit())
-        getattr(self, f"lineedit_{key}").setFixedWidth(self.option_width)
+        editor = QLineEdit()
+        editor.setFixedWidth(self.option_width)
         # Load selected option
-        getattr(self, f"lineedit_{key}").setText(
+        editor.setText(
             self.user_setting[self.key_name][key])
         # Context menu
         add_context_menu(
-            getattr(self, f"lineedit_{key}"),
-            self.default_setting[self.key_name][key],
-            "set_text")
+            editor, self.default_setting[self.key_name][key], "set_text")
         # Add layout
-        layout.addWidget(getattr(
-            self, f"lineedit_{key}"), idx, COLUMN_OPTION)
-        self.option_string.append(key)
+        layout.addWidget(editor, idx, COLUMN_OPTION)
+        self.option_string[key] = editor
 
     def __add_option_integer(self, idx, key, layout):
         """Integer"""
-        setattr(self, f"lineedit_{key}", QLineEdit())
-        getattr(self, f"lineedit_{key}").setFixedWidth(self.option_width)
-        getattr(self, f"lineedit_{key}").setValidator(QVAL_INTEGER)
+        editor = QLineEdit()
+        editor.setFixedWidth(self.option_width)
+        editor.setValidator(QVAL_INTEGER)
         # Load selected option
-        getattr(self, f"lineedit_{key}").setText(
+        editor.setText(
             str(self.user_setting[self.key_name][key]))
         # Context menu
         add_context_menu(
-            getattr(self, f"lineedit_{key}"),
-            str(self.default_setting[self.key_name][key]),
-            "set_text")
+            editor, str(self.default_setting[self.key_name][key]), "set_text")
         # Add layout
-        layout.addWidget(
-            getattr(self, f"lineedit_{key}"), idx, COLUMN_OPTION)
-        self.option_integer.append(key)
+        layout.addWidget(editor, idx, COLUMN_OPTION)
+        self.option_integer[key] = editor
 
     def __add_option_float(self, idx, key, layout):
         """Float"""
-        setattr(self, f"lineedit_{key}", QLineEdit())
-        getattr(self, f"lineedit_{key}").setFixedWidth(self.option_width)
-        getattr(self, f"lineedit_{key}").setValidator(QVAL_FLOAT)
+        editor = QLineEdit()
+        editor.setFixedWidth(self.option_width)
+        editor.setValidator(QVAL_FLOAT)
         # Load selected option
-        getattr(self, f"lineedit_{key}").setText(
+        editor.setText(
             str(self.user_setting[self.key_name][key]))
         # Context menu
         add_context_menu(
-            getattr(self, f"lineedit_{key}"),
-            str(self.default_setting[self.key_name][key]),
-            "set_text")
+            editor, str(self.default_setting[self.key_name][key]), "set_text")
         # Add layout
-        layout.addWidget(
-            getattr(self, f"lineedit_{key}"), idx, COLUMN_OPTION)
-        self.option_float.append(key)
+        layout.addWidget(editor, idx, COLUMN_OPTION)
+        self.option_float[key] = editor
 
 
 def add_context_menu(target, default, mode):
@@ -617,6 +581,4 @@ def context_menu_reset_option(pos, target, default, mode):
         elif mode == "set_text":
             target.setText(default)
         elif mode == "set_combo":
-            curr_index = target.findText(default, Qt.MatchExactly)
-            if curr_index != -1:
-                target.setCurrentIndex(curr_index)
+            target.setCurrentText(default)

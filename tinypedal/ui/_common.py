@@ -267,7 +267,7 @@ class DoubleClickEdit(QLineEdit):
         path_selected = QFileDialog.getExistingDirectory(self, dir=self.init_value)
         if os.path.exists(path_selected):
             # Convert to relative path if in APP root folder
-            path_valid = f"{val.relative_path(path_selected)}/"
+            path_valid = val.relative_path(path_selected)
             # Update edit box and init value
             self.setText(path_valid)
             self.init_value = path_valid

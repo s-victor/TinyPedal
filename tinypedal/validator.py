@@ -114,7 +114,12 @@ def relative_path(full_path: str) -> str:
             output_path = rel_path
     except ValueError:
         output_path = full_path
-    return output_path.replace("\\", "/")
+    # Convert backslash to slash
+    output_path = output_path.replace("\\", "/")
+    # Make sure path end with "/"
+    if not output_path.endswith("/"):
+        output_path += "/"
+    return output_path
 
 
 # Delta list validate
