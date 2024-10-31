@@ -151,17 +151,17 @@ class VehicleClassEditor(BaseEditor):
         layout.addWidget(color_edit)
         return color_edit
 
-    def __add_delete_button(self, idx, layout):
+    def __add_delete_button(self, row_index, layout):
         """Delete button"""
         button = QPushButton("X")
         button.setFixedWidth(20)
         button.pressed.connect(
-            lambda index=idx: self.delete_class(index))
+            lambda index=row_index: self.delete_class(index))
         layout.addWidget(button)
 
-    def delete_class(self, index):
+    def delete_class(self, row_index):
         """Delete class entry"""
-        target = self.option_classes[index][0].text()
+        target = self.option_classes[row_index][0].text()
         if not self.confirm_deletion(f"Delete class '{target}' ?"):
             return
 
@@ -173,25 +173,18 @@ class VehicleClassEditor(BaseEditor):
     def add_class(self):
         """Add new class entry"""
         self.update_classes_temp()
-        # New class entry
-        new_veh_class = {
-            "New Class Name":
-            {"NAME": fmt.random_color_class(str(random.random()))}
-        }
-        # Get all vehicle class from active session
+        # Add all missing vehicle class from active session
         veh_total = api.read.vehicle.total_vehicles()
-        if veh_total > 0:
-            session_veh_class = {
-                api.read.vehicle.class_name(index):
-                {"NAME": fmt.random_color_class(api.read.vehicle.class_name(index))}
-                for index in range(veh_total)
-            }
-            # Update new class to class temp
-            for key, item in session_veh_class.items():
-                if key not in self.classes_temp:
-                    self.classes_temp.update({key: item})
+        for index in range(veh_total):
+            veh_name = api.read.vehicle.class_name(index)
+            if veh_name not in self.classes_temp:
+                self.classes_temp[veh_name] = {
+                    "NAME": fmt.random_color_class(veh_name)
+                }
         # Add new class entry
-        self.classes_temp.update(new_veh_class)
+        self.classes_temp["New Class Name"] = {
+            "NAME": fmt.random_color_class(str(random.random()))
+        }
         self.set_modified()
         self.refresh_list()
         # Move focus to new class row

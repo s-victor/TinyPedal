@@ -126,7 +126,7 @@ To add temperature, click `Add` button.
 
 To sort temperature list in orders, click `Sort` button.
 
-To batch offset temperature, click `Offset` button.
+To batch offset temperature values, click `Offset` button. Note, offset option will be reset to `0` each time after applying. Last applied offset value is displayed on top of dialog.
 
 To remove a temperature, click `X` button of a temperature row.
 

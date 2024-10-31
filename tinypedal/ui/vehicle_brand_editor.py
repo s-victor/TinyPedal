@@ -244,25 +244,23 @@ class VehicleBrandEditor(BaseEditor):
 
     def add_brand(self):
         """Add new brand"""
-        new_row_idx = self.table_brands.rowCount()
-        # Get all vehicle name from active session
+        row_index = self.table_brands.rowCount()
+        # Add all missing vehicle name from active session
         veh_total = api.read.vehicle.total_vehicles()
-        if veh_total > 0:
-            for index in range(veh_total):
-                current_vehicle_name = api.read.vehicle.vehicle_name(index)
-                # Update new vehicle name to table
-                if current_vehicle_name not in self.brands_temp:
-                    self.add_vehicle_entry(new_row_idx, current_vehicle_name)
-                    new_row_idx += 1
+        for index in range(veh_total):
+            veh_name = api.read.vehicle.vehicle_name(index)
+            if veh_name not in self.brands_temp:
+                self.add_vehicle_entry(row_index, veh_name)
+                row_index += 1
         # Add new name entry
-        self.add_vehicle_entry(new_row_idx, "New Vehicle Name")
+        self.add_vehicle_entry(row_index, "New Vehicle Name")
+        self.table_brands.setCurrentCell(row_index, 0)
 
-    def add_vehicle_entry(self, row_idx, veh_name):
+    def add_vehicle_entry(self, row_index, veh_name):
         """Add new brand entry to table"""
-        self.table_brands.insertRow(row_idx)
-        self.table_brands.setCurrentCell(row_idx, 0)
-        self.table_brands.setItem(row_idx, 0, QTableWidgetItem(veh_name))
-        self.table_brands.setItem(row_idx, 1, QTableWidgetItem("Unknown"))
+        self.table_brands.insertRow(row_index)
+        self.table_brands.setItem(row_index, 0, QTableWidgetItem(veh_name))
+        self.table_brands.setItem(row_index, 1, QTableWidgetItem("Unknown"))
 
     def sort_brand(self):
         """Sort brands in ascending order"""
@@ -277,11 +275,12 @@ class VehicleBrandEditor(BaseEditor):
             QMessageBox.warning(self, "Error", "No data selected.")
             return
 
-        if not self.confirm_deletion():
+        if not self.confirm_deletion("Delete selected rows?"):
             return
 
         for row_index in sorted(selected_rows, reverse=True):
             self.table_brands.removeRow(row_index)
+        self.set_modified()
 
     def reset_setting(self):
         """Reset setting"""

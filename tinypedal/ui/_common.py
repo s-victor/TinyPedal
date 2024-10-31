@@ -33,6 +33,7 @@ from PySide2.QtGui import (
     qGray,
 )
 from PySide2.QtWidgets import (
+    QLabel,
     QDialog,
     QMessageBox,
     QFileDialog,
@@ -161,17 +162,30 @@ class BatchOffset(BaseDialog):
         self.setWindowTitle("Batch Offset")
         self.offset_func = offset_func
         self.edit_offset = None
+        self.last_offset = QLabel("0")
+        self.decimals = 0
 
     def config(self, decimals: int, step: float, min_range: int, max_range: int):
         """Config offset"""
-        if decimals > 0:
+        self.decimals = decimals
+
+        if self.decimals > 0:
             self.edit_offset = QDoubleSpinBox()
-            self.edit_offset.setDecimals(decimals)
+            self.edit_offset.setDecimals(self.decimals)
         else:
             self.edit_offset = QSpinBox()
+
         self.edit_offset.setRange(min_range, max_range)
         self.edit_offset.setSingleStep(step)
         self.edit_offset.setAlignment(Qt.AlignRight)
+
+        # Label
+        last_label = QLabel("Last Offset:")
+
+        layout_label = QHBoxLayout()
+        layout_label.addWidget(last_label)
+        layout_label.addStretch(1)
+        layout_label.addWidget(self.last_offset)
 
         # Button
         button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
@@ -187,6 +201,7 @@ class BatchOffset(BaseDialog):
 
         # Set layout
         layout_main = QVBoxLayout()
+        layout_main.addLayout(layout_label)
         layout_main.addWidget(self.edit_offset)
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
@@ -194,7 +209,11 @@ class BatchOffset(BaseDialog):
 
     def applying(self):
         """Apply offset"""
-        self.offset_func(self.edit_offset.value())
+        value = self.edit_offset.value()
+        if value != 0:
+            self.last_offset.setText(f"{value:+.{self.decimals}f}")
+            self.offset_func(value)
+            self.edit_offset.setValue(0)
 
 
 class DoubleClickEdit(QLineEdit):

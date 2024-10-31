@@ -191,12 +191,12 @@ class HeatmapEditor(BaseEditor):
         layout.addWidget(color_edit)
         return color_edit
 
-    def __add_delete_button(self, idx, layout):
+    def __add_delete_button(self, row_index, layout):
         """Delete button"""
         button = QPushButton("X")
         button.setFixedWidth(20)
         button.pressed.connect(
-            lambda index=idx: self.delete_temperature(index))
+            lambda index=row_index: self.delete_temperature(index))
         layout.addWidget(button)
 
     def open_create_dialog(self):
@@ -216,13 +216,10 @@ class HeatmapEditor(BaseEditor):
         _dialog.config(0, 1, -99999, 99999)
         _dialog.open()
 
-    def set_batch_offset(self, offset):
+    def set_batch_offset(self, offset: int):
         """Set batch offset"""
         for edit in self.option_heatmap:
             edit[0].setText(str(int(edit[0].text()) + offset))
-        self.update_heatmap()
-        self.set_modified()
-        self.refresh_list()
 
     def add_temperature(self):
         """Add new temperature"""
@@ -237,9 +234,9 @@ class HeatmapEditor(BaseEditor):
         # Move focus to new heatmap row
         self.listbox_heatmap.setCurrentRow(len(self.selected_heatmap) - 1)
 
-    def delete_temperature(self, index):
+    def delete_temperature(self, row_index):
         """Delete temperature entry"""
-        target = self.option_heatmap[index][0].text()
+        target = self.option_heatmap[row_index][0].text()
         if not self.confirm_deletion(f"Delete temperature '{target}' ?"):
             return
 
@@ -269,7 +266,7 @@ class HeatmapEditor(BaseEditor):
         """Delete heatmap"""
         if self.selected_heatmap_name in cfg.default.heatmap:
             QMessageBox.warning(self, "Error", "Cannot delete built-in heatmap preset.")
-            return None
+            return
 
         msg_text = (
             "Are you sure you want to delete selected heatmap preset?<br><br>"
@@ -283,7 +280,6 @@ class HeatmapEditor(BaseEditor):
             self.selected_heatmap.clear()
             self.heatmap_list.removeItem(self.heatmap_list.currentIndex())
             self.set_modified()
-        return None
 
     def reset_heatmap(self):
         """Reset heatmap"""
@@ -293,7 +289,7 @@ class HeatmapEditor(BaseEditor):
                 "Default preset does not exist."
             )
             QMessageBox.warning(self, "Error", msg_text)
-            return None
+            return
 
         msg_text = (
             "Are you sure you want to reset selected heatmap preset to default?<br><br>"
@@ -306,7 +302,6 @@ class HeatmapEditor(BaseEditor):
             self.selected_heatmap = cfg.default.heatmap[self.selected_heatmap_name].copy()
             self.set_modified()
             self.refresh_list()
-        return None
 
     def applying(self):
         """Save & apply"""
@@ -327,9 +322,7 @@ class HeatmapEditor(BaseEditor):
         """Update temporary changes to selected heatmap first"""
         self.selected_heatmap.clear()
         for edit in self.option_heatmap:
-            key_name = edit[0].text()
-            item_name = edit[1].text()
-            self.selected_heatmap[key_name] = item_name
+            self.selected_heatmap[edit[0].text()] = edit[1].text()
 
     def save_heatmap(self):
         """Save heatmap"""
