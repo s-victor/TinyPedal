@@ -199,12 +199,12 @@ class VehicleClassEditor(BaseEditor):
 
     def reset_setting(self):
         """Reset setting"""
-        message_text = (
-            "Are you sure you want to reset class preset to default? <br><br>"
+        msg_text = (
+            "Are you sure you want to reset class preset to default?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
         reset_msg = QMessageBox.question(
-            self, "Reset Class Preset", message_text,
+            self, "Reset Class Preset", msg_text,
             buttons=QMessageBox.Yes | QMessageBox.No)
         if reset_msg == QMessageBox.Yes:
             self.classes_temp = copy_setting(cfg.default.classes)

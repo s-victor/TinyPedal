@@ -179,13 +179,13 @@ class ResetDataMenu(QMenu):
                 f"No {data_type} data found.<br><br>You can only reset data from active session.")
             return None
         # Confirm reset
-        message_text = (
+        msg_text = (
             f"Are you sure you want to reset {data_type} data for<br>"
             f"<b>{combo_name}</b>"
             " ?<br><br>This cannot be undone!"
         )
         delete_msg = QMessageBox.question(
-            self.master, f"Reset {data_type.title()}", message_text,
+            self.master, f"Reset {data_type.title()}", msg_text,
             buttons=QMessageBox.Yes | QMessageBox.No)
         if delete_msg == QMessageBox.Yes:
             os.remove(f"{file_path}{combo_name}.{file_ext}")
@@ -281,6 +281,8 @@ class ToolsMenu(QMenu):
         editor_fuel.triggered.connect(self.open_editor_fuel)
         menu.addAction(editor_fuel)
 
+        menu.addSeparator()
+
         editor_heatmap = QAction("Heatmap editor", self)
         editor_heatmap.triggered.connect(self.open_editor_heatmap)
         menu.addAction(editor_heatmap)
@@ -301,17 +303,17 @@ class ToolsMenu(QMenu):
     def open_editor_heatmap(self):
         """Edit heatmap preset"""
         _dialog = HeatmapEditor(self.master)
-        _dialog.open()
+        _dialog.show()
 
     def open_editor_brands(self):
         """Edit brands preset"""
         _dialog = VehicleBrandEditor(self.master)
-        _dialog.open()
+        _dialog.show()
 
     def open_editor_classes(self):
         """Edit classes preset"""
         _dialog = VehicleClassEditor(self.master)
-        _dialog.open()
+        _dialog.show()
 
 
 class WindowMenu(QMenu):
@@ -350,22 +352,22 @@ class WindowMenu(QMenu):
         self.minimize_to_tray.setChecked(cfg.application["minimize_to_tray"])
         self.remember_position.setChecked(cfg.application["remember_position"])
 
-    @staticmethod
-    def is_show_at_startup():
+    def is_show_at_startup(self):
         """Toggle config window startup state"""
-        cfg.application["show_at_startup"] = not cfg.application["show_at_startup"]
-        cfg.save(filetype="config")
+        self.__toggle_application("show_at_startup")
 
-    @staticmethod
-    def is_minimize_to_tray():
+    def is_minimize_to_tray(self):
         """Toggle minimize to tray state"""
-        cfg.application["minimize_to_tray"] = not cfg.application["minimize_to_tray"]
-        cfg.save(filetype="config")
+        self.__toggle_application("minimize_to_tray")
+
+    def is_remember_position(self):
+        """Toggle config window remember position state"""
+        self.__toggle_application("remember_position")
 
     @staticmethod
-    def is_remember_position():
-        """Toggle config window remember position state"""
-        cfg.application["remember_position"] = not cfg.application["remember_position"]
+    def __toggle_application(option_name):
+        """Toggle application option"""
+        cfg.application[option_name] = not cfg.application[option_name]
         cfg.save(filetype="config")
 
 

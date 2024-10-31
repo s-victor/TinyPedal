@@ -268,18 +268,15 @@ class HeatmapEditor(BaseEditor):
     def delete_heatmap(self):
         """Delete heatmap"""
         if self.selected_heatmap_name in cfg.default.heatmap:
-            message_text = (
-                "Cannot delete built-in heatmap preset."
-            )
-            QMessageBox.warning(self, "Error", message_text)
+            QMessageBox.warning(self, "Error", "Cannot delete built-in heatmap preset.")
             return None
 
-        message_text = (
-            "Are you sure you want to delete selected heatmap preset? <br><br>"
+        msg_text = (
+            "Are you sure you want to delete selected heatmap preset?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
         delete_msg = QMessageBox.question(
-            self, "Delete Heatmap Preset", message_text,
+            self, "Delete Heatmap Preset", msg_text,
             buttons=QMessageBox.Yes | QMessageBox.No)
         if delete_msg == QMessageBox.Yes:
             self.heatmap_temp.pop(self.selected_heatmap_name)  # remove from dict
@@ -291,19 +288,19 @@ class HeatmapEditor(BaseEditor):
     def reset_heatmap(self):
         """Reset heatmap"""
         if cfg.default.heatmap.get(self.selected_heatmap_name, None) is None:
-            message_text = (
-                "Cannot reset selected heatmap preset. <br><br>"
+            msg_text = (
+                "Cannot reset selected heatmap preset.<br><br>"
                 "Default preset does not exist."
             )
-            QMessageBox.warning(self, "Error", message_text)
+            QMessageBox.warning(self, "Error", msg_text)
             return None
 
-        message_text = (
-            "Are you sure you want to reset selected heatmap preset to default? <br><br>"
+        msg_text = (
+            "Are you sure you want to reset selected heatmap preset to default?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
         reset_msg = QMessageBox.question(
-            self, "Reset Heatmap Preset", message_text,
+            self, "Reset Heatmap Preset", msg_text,
             buttons=QMessageBox.Yes | QMessageBox.No)
         if reset_msg == QMessageBox.Yes:
             self.selected_heatmap = cfg.default.heatmap[self.selected_heatmap_name].copy()

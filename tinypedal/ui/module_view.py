@@ -140,12 +140,12 @@ class ModuleList(QWidget):
         """Batch toggle confirmation"""
         if not cfg.application["show_confirmation_for_batch_toggle"]:
             return True
-        message_text = (
+        msg_text = (
             f"Are you sure you want to <b>{confirm_type}</b> all "
             f"{self.module_control.type_id}s?"
         )
         confirm_msg = QMessageBox.question(
-            self, "Confirm", message_text,
+            self, "Confirm", msg_text,
             buttons=QMessageBox.Yes | QMessageBox.No)
         return confirm_msg == QMessageBox.Yes
 

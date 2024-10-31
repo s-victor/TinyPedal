@@ -206,15 +206,13 @@ class PresetList(QWidget):
                 _dialog.open()
             # Delete preset
             elif action == option_delete:
-                message_text = (
-                    "<font style='font-size: 15px;'><b>"
-                    "Are you sure you want to delete<br>"
-                    f"\"{selected_filename}\""
-                    " permanently?</b></font>"
-                    "<br><br>This cannot be undone!"
+                msg_text = (
+                    "<font style='font-size: 15px;'><b>Are you sure you want to delete<br>"
+                    f"'{selected_filename}'"
+                    " permanently?</b></font><br><br>This cannot be undone!"
                 )
                 delete_msg = QMessageBox.question(
-                    self, "Delete Preset", message_text,
+                    self, "Delete Preset", msg_text,
                     buttons=QMessageBox.Yes | QMessageBox.No)
 
                 if delete_msg == QMessageBox.Yes:

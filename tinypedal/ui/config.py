@@ -223,12 +223,12 @@ class UserConfig(BaseDialog):
 
     def reset_setting(self):
         """Reset setting"""
-        message_text = (
-            "Are you sure you want to reset options to default? <br><br>"
+        msg_text = (
+            "Are you sure you want to reset options to default?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
         reset_msg = QMessageBox.question(
-            self, "Reset Options", message_text,
+            self, "Reset Options", msg_text,
             buttons=QMessageBox.Yes | QMessageBox.No)
 
         if reset_msg == QMessageBox.Yes:
@@ -350,10 +350,11 @@ class UserConfig(BaseDialog):
 
     def value_error_message(self, value_type, option_name):
         """Value error message"""
-        message = (
+        msg_text = (
             f"Invalid {value_type} for <b>{fmt.format_option_name(option_name)}</b> option."
-            "<br><br>Changes are not saved.")
-        QMessageBox.warning(self, "Error", message)
+            "<br><br>Changes are not saved."
+        )
+        QMessageBox.warning(self, "Error", msg_text)
 
     def reloading(self):
         """Reloading depends on setting types"""

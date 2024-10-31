@@ -186,8 +186,10 @@ class VehicleBrandEditor(BaseEditor):
         except (TypeError, AttributeError, KeyError, ValueError,
                 OSError, TimeoutError, socket.timeout):
             logger.error("Failed importing vehicle data from %s Rest API", sim_name)
-            msg_text = (f"Unable to import vehicle data from {sim_name} Rest API."
-                        "\n\nMake sure game is running and try again.")
+            msg_text = (
+                f"Unable to import vehicle data from {sim_name} Rest API.<br><br>"
+                "Make sure game is running and try again."
+            )
             QMessageBox.warning(self, "Error", msg_text)
 
     def import_from_file(self):
@@ -208,7 +210,7 @@ class VehicleBrandEditor(BaseEditor):
         except (AttributeError, IndexError, KeyError, TypeError,
                 FileNotFoundError, ValueError, OSError):
             logger.error("Failed importing %s", veh_file_data[0])
-            msg_text = "Cannot import selected file.\n\nInvalid vehicle data file."
+            msg_text = "Cannot import selected file.<br><br>Invalid vehicle data file."
             QMessageBox.warning(self, "Error", msg_text)
 
     def parse_brand_data(self, vehicles: dict):
@@ -231,10 +233,8 @@ class VehicleBrandEditor(BaseEditor):
         self.update_brands_temp()
         brands_db.update(self.brands_temp)
         self.brands_temp = brands_db
-        self.set_modified()
         self.refresh_table()
-        QMessageBox.information(
-            self, "Data Imported", "Vehicle brand data imported.")
+        QMessageBox.information(self, "Data Imported", "Vehicle brand data imported.")
 
     def open_rename_dialog(self):
         """Open rename dialog"""
@@ -256,7 +256,6 @@ class VehicleBrandEditor(BaseEditor):
                     new_row_idx += 1
         # Add new name entry
         self.add_vehicle_entry(new_row_idx, "New Vehicle Name")
-        self.set_modified()
 
     def add_vehicle_entry(self, row_idx, veh_name):
         """Add new brand entry to table"""
@@ -267,8 +266,9 @@ class VehicleBrandEditor(BaseEditor):
 
     def sort_brand(self):
         """Sort brands in ascending order"""
-        self.table_brands.sortItems(1)
-        self.set_modified()
+        if self.table_brands.rowCount() > 1:
+            self.table_brands.sortItems(1)
+            self.set_modified()
 
     def delete_brand(self):
         """Delete brand entry"""
@@ -282,20 +282,18 @@ class VehicleBrandEditor(BaseEditor):
 
         for row_index in sorted(selected_rows, reverse=True):
             self.table_brands.removeRow(row_index)
-        self.set_modified()
 
     def reset_setting(self):
         """Reset setting"""
-        message_text = (
-            "Are you sure you want to reset brand preset to default? <br><br>"
+        msg_text = (
+            "Are you sure you want to reset brand preset to default?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
         reset_msg = QMessageBox.question(
-            self, "Reset Brand Preset", message_text,
+            self, "Reset Brand Preset", msg_text,
             buttons=QMessageBox.Yes | QMessageBox.No)
         if reset_msg == QMessageBox.Yes:
             self.brands_temp = copy_setting(cfg.default.brands)
-            self.set_modified()
             self.refresh_table()
 
     def applying(self):
@@ -376,8 +374,7 @@ class BatchRename(BaseDialog):
     def renaming(self):
         """Rename"""
         if not self.replace_entry.text():
-            QMessageBox.warning(
-                self, "Error", "Invalid name.")
+            QMessageBox.warning(self, "Error", "Invalid name.")
             return
 
         source = self.source_selector.currentText()
@@ -387,7 +384,6 @@ class BatchRename(BaseDialog):
             if item == source:
                 self.master.brands_temp[key] = replace
 
-        self.master.set_modified()
         self.master.refresh_table()
         self.update_selector(replace)
 
