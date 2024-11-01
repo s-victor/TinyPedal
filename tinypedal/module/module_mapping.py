@@ -21,14 +21,13 @@ Mapping module
 """
 
 import logging
-import xml.dom.minidom
 from functools import partial
 
 from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
 from .. import calculation as calc
-from .. import formatter as fmt
+from .. import svg
 
 MODULE_NAME = "module_mapping"
 
@@ -208,7 +207,9 @@ class MapData:
         """Load map data file"""
         self._filename = filename
         # Load map file
-        raw_coords, raw_dists, sectors_index = load_svg_file(self._filename, self._filepath)
+        raw_coords, raw_dists, sectors_index = svg.load_track_map_file(
+            f"{self._filepath}{self._filename}.svg"
+        )
         if raw_coords and raw_dists:
             self.raw_coords = raw_coords
             self.raw_dists = raw_dists
@@ -225,7 +226,7 @@ class MapData:
         self.raw_dists = self._temp_raw_dists
         self.sectors_index = self._temp_sectors_index
         # Save to svg file
-        save_svg_file(
+        svg.save_track_map_file(
             self._filename,
             self._filepath,
             self.raw_coords,
@@ -234,93 +235,3 @@ class MapData:
             self.sectors_index
         )
         #logger.info("map saved, stopped map recording")
-
-
-def load_svg_file(filename, pathname):
-    """Load svg file"""
-    try:
-        dom = xml.dom.minidom.parse(f"{pathname}{filename}.svg")
-        desc_col = dom.documentElement.getElementsByTagName("desc")
-        path_col = dom.documentElement.getElementsByTagName("polyline")
-
-        for tags in path_col:
-            if tags.getAttribute("id") == "map":
-                svg_coords = tags.getAttribute("points")
-                continue
-            if tags.getAttribute("id") == "dist":
-                svg_dists = tags.getAttribute("points")
-                continue
-
-        # Convert to coordinates list
-        raw_coords = fmt.points_to_coords(svg_coords)
-        raw_dists = fmt.points_to_coords(svg_dists)
-        sector_index = fmt.string_pair_to_int(desc_col[0].childNodes[0].nodeValue)
-
-        return raw_coords, raw_dists, sector_index
-    except (FileNotFoundError, IndexError, ValueError, xml.parsers.expat.ExpatError):
-        logger.info("MISSING: track map data")
-        return None, None, None
-
-
-def save_svg_file(filename, pathname, raw_coords, raw_dists, view_box, sector_index):
-    """Save svg file"""
-    # Convert to svg coordinates
-    svg_coords = fmt.coords_to_points(raw_coords)
-    svg_dists = fmt.coords_to_points(raw_dists)
-
-    # Create new svg file
-    new_svg = xml.dom.minidom.Document()
-
-    # Create comments
-    root_comment = new_svg.createComment(" Track map generated with TinyPedal ")
-    new_svg.appendChild(root_comment)
-
-    # Create svg
-    root_node = new_svg.createElement("svg")
-    root_node.setAttribute("viewBox", view_box)
-    root_node.setAttribute("version", "1.1")
-    root_node.setAttribute("xmlns", "http://www.w3.org/2000/svg")
-    new_svg.appendChild(root_node)
-
-    # Create title
-    title_node = new_svg.createElement("title")
-    title_text = new_svg.createTextNode(filename)
-    title_node.appendChild(title_text)
-    root_node.appendChild(title_node)
-
-    # Create desc
-    desc_comment = new_svg.createComment(" Sector coordinates index ")
-    root_node.appendChild(desc_comment)
-
-    desc_node = new_svg.createElement("desc")
-    desc_text = new_svg.createTextNode(f"{sector_index[0]},{sector_index[1]}")
-    desc_node.appendChild(desc_text)
-    root_node.appendChild(desc_node)
-
-    # Create map
-    map_comment = new_svg.createComment(" Raw global coordinates ")
-    root_node.appendChild(map_comment)
-
-    map_node = new_svg.createElement("polyline")
-    map_node.setAttribute("id", "map")
-    map_node.setAttribute("fill", "none")
-    map_node.setAttribute("stroke", "black")
-    map_node.setAttribute("stroke-width", "10")
-    map_node.setAttribute("points", svg_coords)
-    root_node.appendChild(map_node)
-
-    # Create distance
-    dist_comment = new_svg.createComment(" Raw distance reference points ")
-    root_node.appendChild(dist_comment)
-
-    dist_node = new_svg.createElement("polyline")
-    dist_node.setAttribute("id", "dist")
-    dist_node.setAttribute("fill", "none")
-    dist_node.setAttribute("stroke", "none")
-    dist_node.setAttribute("stroke-width", "0")
-    dist_node.setAttribute("points", svg_dists)
-    root_node.appendChild(dist_node)
-
-    # Save svg
-    with open(f"{pathname}{filename}.svg", "w", encoding="utf-8") as svgfile:
-        new_svg.writexml(svgfile, indent="", addindent="\t", newl="\n", encoding="utf-8")

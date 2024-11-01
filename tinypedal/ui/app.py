@@ -70,8 +70,8 @@ class AppWindow(QMainWindow):
         self.button_api = QPushButton("")
         self.button_api.clicked.connect(self.config_menuitem.open_config_sharedmemory)
         self.button_api.clicked.connect(self.set_status_text)
-        self.statusBar().insertPermanentWidget(0, label_api)
-        self.statusBar().insertPermanentWidget(1, self.button_api)
+        self.statusBar().addPermanentWidget(label_api)
+        self.statusBar().addPermanentWidget(self.button_api)
         self.set_status_text()
 
         self.notify_spectate = QPushButton("Spectate Mode Enabled")
