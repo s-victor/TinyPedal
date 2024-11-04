@@ -78,9 +78,9 @@ class Realtime(Overlay):
         )
 
         self.map_path = None
-        self.sector_path_sfline = None
-        self.sector_path_sector1 = None
-        self.sector_path_sector2 = None
+        self.sfinish_path = None
+        self.sector1_path = None
+        self.sector2_path = None
         self.create_map_path()
 
         # Config canvas
@@ -187,9 +187,9 @@ class Realtime(Overlay):
     def create_map_path(self, raw_coords=None):
         """Create map path"""
         map_path = QPainterPath()
-        sector_path_sfline = QPainterPath()
-        sector_path_sector1 = QPainterPath()
-        sector_path_sector2 = QPainterPath()
+        sfinish_path = QPainterPath()
+        sector1_path = QPainterPath()
+        sector2_path = QPainterPath()
 
         if raw_coords:
             dist = calc.distance(raw_coords[0], raw_coords[-1])
@@ -204,33 +204,33 @@ class Realtime(Overlay):
             if dist < 500:
                 map_path.closeSubpath()
             # Create start/finish path
-            sector_path_sfline = self.create_sector_line(
-                sector_path_sfline, self.wcfg["start_line_length"], 0, 1)
+            sfinish_path = self.create_sector_line(
+                sfinish_path, self.wcfg["start_line_length"], 0, 1)
             # Create sectors paths
             sectors_index = minfo.mapping.sectors
             if sectors_index and all(sectors_index):
-                sector_path_sector1 = self.create_sector_line(
-                    sector_path_sector1, self.wcfg["sector_line_length"],
+                sector1_path = self.create_sector_line(
+                    sector1_path, self.wcfg["sector_line_length"],
                     sectors_index[0], sectors_index[0] + 1)
-                sector_path_sector2 = self.create_sector_line(
-                    sector_path_sector2, self.wcfg["sector_line_length"],
+                sector2_path = self.create_sector_line(
+                    sector2_path, self.wcfg["sector_line_length"],
                     sectors_index[1], sectors_index[1] + 1)
             else:
-                sector_path_sector1.addPolygon(POLYGON_NONE)
-                sector_path_sector2.addPolygon(POLYGON_NONE)
+                sector1_path.addPolygon(POLYGON_NONE)
+                sector2_path.addPolygon(POLYGON_NONE)
         else:
             self.map_scaled = None
             self.map_size = 1,1
             self.map_offset = 0,0
             map_path.addPolygon(POLYGON_NONE)
-            sector_path_sfline.addPolygon(POLYGON_NONE)
-            sector_path_sector1.addPolygon(POLYGON_NONE)
-            sector_path_sector2.addPolygon(POLYGON_NONE)
+            sfinish_path.addPolygon(POLYGON_NONE)
+            sector1_path.addPolygon(POLYGON_NONE)
+            sector2_path.addPolygon(POLYGON_NONE)
 
         self.map_path = map_path
-        self.sector_path_sfline = sector_path_sfline
-        self.sector_path_sector1 = sector_path_sector1
-        self.sector_path_sector2 = sector_path_sector2
+        self.sfinish_path = sfinish_path
+        self.sector1_path = sector1_path
+        self.sector2_path = sector2_path
 
     def draw_map_image(self, painter):
         """Draw map image"""
@@ -248,7 +248,6 @@ class Realtime(Overlay):
         center_offset_y = self.veh_offset_y - rot_pos_y
 
         # Apply transform rotation
-        painter.resetTransform()
         painter.translate(center_offset_x, center_offset_y)
         painter.rotate(plr_ori_deg)
 
@@ -270,15 +269,15 @@ class Realtime(Overlay):
             self.pen.setWidth(self.wcfg["start_line_width"])
             self.pen.setColor(self.wcfg["start_line_color"])
             painter.setPen(self.pen)
-            painter.drawPath(self.sector_path_sfline)
+            painter.drawPath(self.sfinish_path)
 
         # Draw sectors line
         if self.wcfg["show_sector_line"]:
             self.pen.setWidth(self.wcfg["sector_line_width"])
             self.pen.setColor(self.wcfg["sector_line_color"])
             painter.setPen(self.pen)
-            painter.drawPath(self.sector_path_sector1)
-            painter.drawPath(self.sector_path_sector2)
+            painter.drawPath(self.sector1_path)
+            painter.drawPath(self.sector2_path)
 
         painter.resetTransform()
 
