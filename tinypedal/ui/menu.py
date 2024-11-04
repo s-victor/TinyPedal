@@ -233,40 +233,47 @@ class ConfigMenu(QMenu):
         """Config global application"""
         _dialog = UserConfig(
             self.master, "application", "global",
-            cfg.user.config, cfg.default.config)
+            cfg.user.config, cfg.default.config,
+            self.master.reload_preset)
         _dialog.open()
 
     def open_config_userpath(self):
         """Config global user path"""
         _dialog = UserConfig(
             self.master, "user_path", "global",
-            cfg.user.config, cfg.default.config, 300)
+            cfg.user.config, cfg.default.config,
+            self.master.reload_preset, 300)
         _dialog.open()
 
     def open_config_font(self):
         """Config global font"""
-        _dialog = FontConfig(self.master, cfg.user.setting)
+        _dialog = FontConfig(
+            self.master, cfg.user.setting,
+            self.master.reload_preset)
         _dialog.open()
 
     def open_config_units(self):
         """Config display units"""
         _dialog = UserConfig(
-            self.master, "units", "misc",
-            cfg.user.setting, cfg.default.setting)
+            self.master, "units", "preset",
+            cfg.user.setting, cfg.default.setting,
+            self.master.reload_preset)
         _dialog.open()
 
     def open_config_sharedmemory(self):
         """Config sharedmemory"""
         _dialog = UserConfig(
-            self.master, "shared_memory_api", "api",
-            cfg.user.setting, cfg.default.setting)
+            self.master, "shared_memory_api", "preset",
+            cfg.user.setting, cfg.default.setting,
+            self.master.restart_api)
         _dialog.open()
 
     def open_config_compatibility(self):
         """Config compatibility"""
         _dialog = UserConfig(
             self.master, "compatibility", "global",
-            cfg.user.config, cfg.default.config)
+            cfg.user.config, cfg.default.config,
+            self.master.reload_preset)
         _dialog.open()
 
 

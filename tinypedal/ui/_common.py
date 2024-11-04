@@ -44,6 +44,7 @@ from PySide2.QtWidgets import (
     QDialogButtonBox,
     QHBoxLayout,
     QVBoxLayout,
+    QTableWidgetItem,
 )
 
 from .. import validator as val
@@ -271,3 +272,16 @@ class DoubleClickEdit(QLineEdit):
             # Update edit box and init value
             self.setText(path_valid)
             self.init_value = path_valid
+
+
+class QTableFloatItem(QTableWidgetItem):
+    """QTable float type item"""
+
+    def __init__(self, text):
+        """Convert & set float to string"""
+        super().__init__()
+        self.setText(str(text))
+
+    def __lt__(self, other):
+        """Numeric sort"""
+        return float(self.text()) < float(other.text())

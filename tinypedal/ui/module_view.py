@@ -215,5 +215,10 @@ class ListItemControl(QWidget):
         """Config dialog"""
         _dialog = UserConfig(
             self.master, self.module_name, self.module_control.type_id,
-            cfg.user.setting, cfg.default.setting)
+            cfg.user.setting, cfg.default.setting, self.reload)
         _dialog.open()
+
+    def reload(self):
+        """Reload module & button state"""
+        self.module_control.reload(self.module_name)
+        self.update_state()

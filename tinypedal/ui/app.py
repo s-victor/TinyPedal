@@ -229,13 +229,13 @@ class AppWindow(QMainWindow):
         """Restart shared memory api"""
         api.restart()
         self.set_status_text()
+        self.spectate_tab.refresh_list()
 
     @Slot(bool)
     def reload_preset(self):
         """Reload current preset"""
         loader.reload()
         self.set_status_text()
-        # Refresh menu & preset list
         self.preset_tab.refresh_list()
         self.widget_tab.refresh_state()
         self.module_tab.refresh_state()

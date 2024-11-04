@@ -45,7 +45,6 @@ from .. import regex_pattern as rxp
 from .. import validator as val
 from .. import formatter as fmt
 from ..setting import cfg
-from ..module_control import mctrl, wctrl
 from ._common import (
     BaseDialog,
     DoubleClickEdit,
@@ -63,8 +62,9 @@ COLUMN_OPTION = 1
 class FontConfig(BaseDialog):
     """Config global font setting"""
 
-    def __init__(self, master, user_setting: dict):
+    def __init__(self, master, user_setting: dict, reload_func: object):
         super().__init__(master)
+        self.reloading = reload_func
         self.user_setting = user_setting
         self.setWindowTitle(f"Global Font Override - {cfg.filename.last_setting}")
 
@@ -122,7 +122,7 @@ class FontConfig(BaseDialog):
         self.applying()
         self.accept()  # close
 
-    def save_setting(self, dict_user):
+    def save_setting(self, dict_user: dict):
         """Save setting"""
         for item in dict_user.keys():
             key_list_user = tuple(dict_user[item])
@@ -143,7 +143,7 @@ class FontConfig(BaseDialog):
         cfg.save(0)
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
-        wctrl.reload()
+        self.reloading()
 
 
 class UserConfig(BaseDialog):
@@ -151,16 +151,16 @@ class UserConfig(BaseDialog):
 
     def __init__(
         self, master, key_name: str, cfg_type: str, user_setting: dict,
-        default_setting: dict, option_width: int = OPTION_WIDTH):
+        default_setting: dict, reload_func: object, option_width: int = OPTION_WIDTH):
         super().__init__(master)
-        self.master = master
+        self.reloading = reload_func
         self.key_name = key_name
         self.cfg_type = cfg_type
         self.user_setting = user_setting
         self.default_setting = default_setting
         self.option_width = option_width
 
-        if self.cfg_type == "global":
+        if self.cfg_type in "global":
             preset_filename = f"{cfg.filename.config} (global)"
         else:
             preset_filename = cfg.filename.last_setting
@@ -264,7 +264,7 @@ class UserConfig(BaseDialog):
                 editor.setText(
                     str(self.default_setting[self.key_name][key]))
 
-    def save_setting(self, is_apply):
+    def save_setting(self, is_apply: bool):
         """Save setting"""
         error_found = False
         for key, editor in self.option_bool.items():
@@ -323,7 +323,7 @@ class UserConfig(BaseDialog):
 
         # Abort saving if error found
         if error_found:
-            return None
+            return
         # Save global settings
         if self.cfg_type == "global":
             cfg.update_path()
@@ -331,38 +331,22 @@ class UserConfig(BaseDialog):
         # Save user preset settings
         else:
             cfg.save(0)
-        while cfg.is_saving:  # wait saving finish
+        # Wait saving finish
+        while cfg.is_saving:
             time.sleep(0.01)
+        # Reload
         self.reloading()
         # Close
         if not is_apply:
             self.accept()
-        return None
 
-    def value_error_message(self, value_type, option_name):
+    def value_error_message(self, value_type: str, option_name: str):
         """Value error message"""
         msg_text = (
             f"Invalid {value_type} for <b>{fmt.format_option_name(option_name)}</b> option."
             "<br><br>Changes are not saved."
         )
         QMessageBox.warning(self, "Error", msg_text)
-
-    def reloading(self):
-        """Reloading depends on setting types"""
-        # Select type
-        if self.cfg_type == "global":
-            self.master.reload_preset()
-        elif self.cfg_type == wctrl.type_id:
-            wctrl.reload(self.key_name)
-            self.master.refresh_state()
-        elif self.cfg_type == mctrl.type_id:
-            mctrl.reload(self.key_name)
-            self.master.refresh_state()
-        elif self.cfg_type == "misc":
-            wctrl.reload()
-        elif self.cfg_type == "api":
-            self.master.restart_api()
-            self.master.spectate_tab.refresh_list()
 
     def create_options(self, layout):
         """Create options"""
