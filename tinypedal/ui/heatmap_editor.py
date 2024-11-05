@@ -212,12 +212,12 @@ class HeatmapEditor(BaseEditor):
     def open_offset_dialog(self):
         """Open offset dialog"""
         self.sort_temperature()
-        _dialog = BatchOffset(self, self.set_batch_offset)
+        _dialog = BatchOffset(self, self.apply_batch_offset)
         _dialog.config(0, 1, -99999, 99999)
         _dialog.open()
 
-    def set_batch_offset(self, offset: int):
-        """Set batch offset"""
+    def apply_batch_offset(self, offset: int):
+        """Apply batch offset"""
         for edit in self.option_heatmap:
             edit[0].setText(str(int(edit[0].text()) + offset))
 
