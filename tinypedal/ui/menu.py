@@ -45,21 +45,21 @@ class OverlayMenu(QMenu):
         self.master = master
 
         # Lock overlay
-        self.overlay_lock = QAction("Lock overlay", self)
+        self.overlay_lock = QAction("Lock Overlay", self)
         self.overlay_lock.setCheckable(True)
         self.overlay_lock.setChecked(cfg.overlay["fixed_position"])
         self.overlay_lock.triggered.connect(self.is_locked)
         menu.addAction(self.overlay_lock)
 
         # Auto hide
-        self.overlay_hide = QAction("Auto hide", self)
+        self.overlay_hide = QAction("Auto Hide", self)
         self.overlay_hide.setCheckable(True)
         self.overlay_hide.setChecked(cfg.overlay["auto_hide"])
         self.overlay_hide.triggered.connect(self.is_hidden)
         menu.addAction(self.overlay_hide)
 
         # Grid move
-        self.overlay_grid = QAction("Grid move", self)
+        self.overlay_grid = QAction("Grid Move", self)
         self.overlay_grid.setCheckable(True)
         self.overlay_grid.setChecked(cfg.overlay["enable_grid_move"])
         self.overlay_grid.triggered.connect(self.has_grid)
@@ -78,7 +78,7 @@ class OverlayMenu(QMenu):
         menu.addSeparator()
 
         # Reset submenu
-        menu_reset_data = menu.addMenu("Reset data")
+        menu_reset_data = menu.addMenu("Reset Data")
         ResetDataMenu(self.master, menu_reset_data)
         menu.addSeparator()
 
@@ -115,27 +115,27 @@ class ResetDataMenu(QMenu):
         self.master = master
 
         # Deltabest
-        reset_deltabest = QAction("Delta best", self)
+        reset_deltabest = QAction("Delta Best", self)
         reset_deltabest.triggered.connect(self.reset_deltabest)
         menu.addAction(reset_deltabest)
 
         # Energy delta
-        reset_energydelta = QAction("Energy delta", self)
+        reset_energydelta = QAction("Energy Delta", self)
         reset_energydelta.triggered.connect(self.reset_energydelta)
         menu.addAction(reset_energydelta)
 
         # Fuel delta
-        reset_fueldelta = QAction("Fuel delta", self)
+        reset_fueldelta = QAction("Fuel Delta", self)
         reset_fueldelta.triggered.connect(self.reset_fueldelta)
         menu.addAction(reset_fueldelta)
 
         # Sector best
-        reset_sectorbest = QAction("Sector best", self)
+        reset_sectorbest = QAction("Sector Best", self)
         reset_sectorbest.triggered.connect(self.reset_sectorbest)
         menu.addAction(reset_sectorbest)
 
         # Track map
-        reset_trackmap = QAction("Track map", self)
+        reset_trackmap = QAction("Track Map", self)
         reset_trackmap.triggered.connect(self.reset_trackmap)
         menu.addAction(reset_trackmap)
 
@@ -211,21 +211,21 @@ class ConfigMenu(QMenu):
         config_compat.triggered.connect(self.open_config_compatibility)
         menu.addAction(config_compat)
 
-        config_userpath = QAction("User path", self)
+        config_userpath = QAction("User Path", self)
         config_userpath.triggered.connect(self.open_config_userpath)
         menu.addAction(config_userpath)
 
         menu.addSeparator()
 
-        config_units = QAction("Units and symbols", self)
+        config_units = QAction("Units and Symbols", self)
         config_units.triggered.connect(self.open_config_units)
         menu.addAction(config_units)
 
-        config_font = QAction("Global font override", self)
+        config_font = QAction("Global Font Override", self)
         config_font.triggered.connect(self.open_config_font)
         menu.addAction(config_font)
 
-        config_sharedmemory = QAction("Shared memory API", self)
+        config_sharedmemory = QAction("Shared Memory API", self)
         config_sharedmemory.triggered.connect(self.open_config_sharedmemory)
         menu.addAction(config_sharedmemory)
 
@@ -284,21 +284,21 @@ class ToolsMenu(QMenu):
         super().__init__(master)
         self.master = master
 
-        editor_fuel = QAction("Fuel calculator", self)
+        editor_fuel = QAction("Fuel Calculator", self)
         editor_fuel.triggered.connect(self.open_editor_fuel)
         menu.addAction(editor_fuel)
 
         menu.addSeparator()
 
-        editor_heatmap = QAction("Heatmap editor", self)
+        editor_heatmap = QAction("Heatmap Editor", self)
         editor_heatmap.triggered.connect(self.open_editor_heatmap)
         menu.addAction(editor_heatmap)
 
-        editor_brands = QAction("Vehicle brand editor", self)
+        editor_brands = QAction("Vehicle Brand Editor", self)
         editor_brands.triggered.connect(self.open_editor_brands)
         menu.addAction(editor_brands)
 
-        editor_classes = QAction("Vehicle class editor", self)
+        editor_classes = QAction("Vehicle Class Editor", self)
         editor_classes.triggered.connect(self.open_editor_classes)
         menu.addAction(editor_classes)
 
@@ -330,21 +330,21 @@ class WindowMenu(QMenu):
         super().__init__(master)
 
         # Show at startup
-        self.show_window = QAction("Show at startup", self)
+        self.show_window = QAction("Show at Startup", self)
         self.show_window.setCheckable(True)
         self.show_window.setChecked(cfg.application["show_at_startup"])
         self.show_window.triggered.connect(self.is_show_at_startup)
         menu.addAction(self.show_window)
 
         # Minimize to tray
-        self.minimize_to_tray = QAction("Minimize to tray", self)
+        self.minimize_to_tray = QAction("Minimize to Tray", self)
         self.minimize_to_tray.setCheckable(True)
         self.minimize_to_tray.setChecked(cfg.application["minimize_to_tray"])
         self.minimize_to_tray.triggered.connect(self.is_minimize_to_tray)
         menu.addAction(self.minimize_to_tray)
 
         # Remember position
-        self.remember_position = QAction("Remember position", self)
+        self.remember_position = QAction("Remember Position", self)
         self.remember_position.setCheckable(True)
         self.remember_position.setChecked(cfg.application["remember_position"])
         self.remember_position.triggered.connect(self.is_remember_position)
@@ -385,7 +385,7 @@ class HelpMenu(QMenu):
         super().__init__(master)
         self.master = master
 
-        app_guide = QAction("User guide", self)
+        app_guide = QAction("User Guide", self)
         app_guide.triggered.connect(self.open_user_guide)
         menu.addAction(app_guide)
 
@@ -393,7 +393,7 @@ class HelpMenu(QMenu):
         app_faq.triggered.connect(self.open_faq)
         menu.addAction(app_faq)
 
-        app_log = QAction("Show log", self)
+        app_log = QAction("Show Log", self)
         app_log.triggered.connect(self.show_log)
         menu.addAction(app_log)
 

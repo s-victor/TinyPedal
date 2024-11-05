@@ -80,7 +80,7 @@ class PresetList(QWidget):
         button_create.clicked.connect(self.open_create_preset)
 
         # Check box
-        self.checkbox_autoload = QCheckBox("Auto load primary preset")
+        self.checkbox_autoload = QCheckBox("Auto Load Primary Preset")
         self.checkbox_autoload.setChecked(cfg.application["enable_auto_load_preset"])
         self.checkbox_autoload.toggled.connect(self.toggle_autoload)
 
@@ -106,8 +106,9 @@ class PresetList(QWidget):
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
 
+        self.listbox_context_menu = self.set_context_menu()
         self.listbox_preset.setContextMenuPolicy(Qt.CustomContextMenu)
-        self.listbox_preset.customContextMenuRequested.connect(self.context_menu)
+        self.listbox_preset.customContextMenuRequested.connect(self.open_context_menu)
 
     def refresh_list(self):
         """Refresh preset list"""
@@ -148,77 +149,86 @@ class PresetList(QWidget):
         cfg.application["enable_auto_load_preset"] = checked
         cfg.save(filetype="config")
 
-    def context_menu(self, position):
-        """Preset context menu"""
-        if self.listbox_preset.itemAt(position):
-            menu = QMenu()
-            option_tag_lmu = menu.addAction("Set primary for LMU")
-            option_tag_rf2 = menu.addAction("Set primary for RF2")
-            menu.addSeparator()
-            option_tag_clear = menu.addAction("Clear primary tag")
-            menu.addSeparator()
-            option_duplicate = menu.addAction("Duplicate")
-            option_rename = menu.addAction("Rename")
-            option_delete = menu.addAction("Delete")
+    def set_context_menu(self):
+        """Set context menu"""
+        menu = QMenu()
+        menu.addAction("Set Primary for LMU")
+        menu.addAction("Set Primary for RF2")
+        menu.addSeparator()
+        menu.addAction("Clear Primary Tag")
+        menu.addSeparator()
+        menu.addAction("Duplicate")
+        menu.addAction("Rename")
+        menu.addAction("Delete")
+        return menu
 
-            action = menu.exec_(self.listbox_preset.mapToGlobal(position))
-            selected_index = self.listbox_preset.currentRow()
-            selected_preset_name = self.preset_list[selected_index]
-            selected_filename = f"{selected_preset_name}.json"
+    def open_context_menu(self, position):
+        """Open context menu"""
+        if not self.listbox_preset.itemAt(position):
+            return
 
-            # Set primary preset LMU
-            if action == option_tag_lmu:
-                cfg.primary_preset["LMU"] = selected_preset_name
+        selected_action = self.listbox_context_menu.exec_(
+            self.listbox_preset.mapToGlobal(position))
+        if not selected_action:
+            return
+
+        selected_index = self.listbox_preset.currentRow()
+        selected_preset_name = self.preset_list[selected_index]
+        selected_filename = f"{selected_preset_name}.json"
+        action = selected_action.text()
+
+        # Set primary preset LMU
+        if action == "Set Primary for LMU":
+            cfg.primary_preset["LMU"] = selected_preset_name
+            cfg.save(filetype="config")
+            self.refresh_list()
+        # Set primary preset RF2
+        elif action == "Set Primary for RF2":
+            cfg.primary_preset["RF2"] = selected_preset_name
+            cfg.save(filetype="config")
+            self.refresh_list()
+        # Clear primary preset tag
+        elif action == "Clear Primary Tag":
+            tag_found = False
+            for sim_name, primary_preset in cfg.primary_preset.items():
+                if selected_preset_name == primary_preset:
+                    cfg.primary_preset[sim_name] = ""
+                    tag_found = True
+            if tag_found:
                 cfg.save(filetype="config")
                 self.refresh_list()
-            # Set primary preset RF2
-            elif action == option_tag_rf2:
-                cfg.primary_preset["RF2"] = selected_preset_name
-                cfg.save(filetype="config")
+        # Duplicate preset
+        elif action == "Duplicate":
+            _dialog = CreatePreset(
+                self,
+                title="Duplicate Preset",
+                mode="duplicate",
+                source_filename=selected_filename
+            )
+            _dialog.open()
+        # Rename preset
+        elif action == "Rename":
+            _dialog = CreatePreset(
+                self,
+                title="Rename Preset",
+                mode="rename",
+                source_filename=selected_filename
+            )
+            _dialog.open()
+        # Delete preset
+        elif action == "Delete":
+            msg_text = (
+                "<font style='font-size: 15px;'><b>Are you sure you want to delete<br>"
+                f"'{selected_filename}'"
+                " permanently?</b></font><br><br>This cannot be undone!"
+            )
+            delete_msg = QMessageBox.question(
+                self, "Delete Preset", msg_text,
+                buttons=QMessageBox.Yes | QMessageBox.No)
+            if delete_msg == QMessageBox.Yes:
+                if os.path.exists(f"{cfg.path.settings}{selected_filename}"):
+                    os.remove(f"{cfg.path.settings}{selected_filename}")
                 self.refresh_list()
-            # Clear primary preset tag
-            elif action == option_tag_clear:
-                tag_found = False
-                for sim_name, primary_preset in cfg.primary_preset.items():
-                    if selected_preset_name == primary_preset:
-                        cfg.primary_preset[sim_name] = ""
-                        tag_found = True
-                if tag_found:
-                    cfg.save(filetype="config")
-                    self.refresh_list()
-            # Duplicate preset
-            elif action == option_duplicate:
-                _dialog = CreatePreset(
-                    self,
-                    title="Duplicate Preset",
-                    mode="duplicate",
-                    source_filename=selected_filename
-                )
-                _dialog.open()
-            # Rename preset
-            elif action == option_rename:
-                _dialog = CreatePreset(
-                    self,
-                    title="Rename Preset",
-                    mode="rename",
-                    source_filename=selected_filename
-                )
-                _dialog.open()
-            # Delete preset
-            elif action == option_delete:
-                msg_text = (
-                    "<font style='font-size: 15px;'><b>Are you sure you want to delete<br>"
-                    f"'{selected_filename}'"
-                    " permanently?</b></font><br><br>This cannot be undone!"
-                )
-                delete_msg = QMessageBox.question(
-                    self, "Delete Preset", msg_text,
-                    buttons=QMessageBox.Yes | QMessageBox.No)
-
-                if delete_msg == QMessageBox.Yes:
-                    if os.path.exists(f"{cfg.path.settings}{selected_filename}"):
-                        os.remove(f"{cfg.path.settings}{selected_filename}")
-                    self.refresh_list()
 
 
 class CreatePreset(BaseDialog):
