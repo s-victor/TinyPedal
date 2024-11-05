@@ -94,7 +94,7 @@ class Realtime(Overlay):
     def update_rakeangle(self, curr, last):
         """Rake angle data"""
         if curr != last:
-            rake_angle = f"{calc.rake2angle(curr, self.wcfg['wheelbase']):+.2f}"[:5]
+            rake_angle = f"{calc.slope_angle(curr, self.wcfg['wheelbase']):+.2f}"[:5]
             if self.wcfg["show_ride_height_difference"]:
                 ride_diff = f"({abs(curr):02.0f})"[:4]
             else:

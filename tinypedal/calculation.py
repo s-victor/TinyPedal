@@ -138,15 +138,8 @@ def engine_power(torque, rpm):
 
 
 def rake(height_fl, height_fr, height_rl, height_rr):
-    """Raw rake (millmeters)"""
+    """Raw rake (front & rear ride height difference in millmeters)"""
     return (height_rr + height_rl - height_fr - height_fl) * 0.5
-
-
-def rake2angle(v_rake, wheelbase):
-    """Rake angle based on wheelbase value (millmeters) set in JSON"""
-    if wheelbase:
-        return math.atan(rad2deg(v_rake / wheelbase))
-    return 0
 
 
 def gforce(value, g_accel):
@@ -240,6 +233,64 @@ def linear_interp(x, x1, y1, x2, y2):
     if x_diff:
         return y1 + (x - x1) * (y2 - y1) / x_diff
     return y1
+
+
+def slope_percent(height_diff, length):
+    """Slope percent"""
+    if length:
+        return height_diff / length
+    return 0
+
+
+def slope_angle(height_diff, length):
+    """Slope angle (degree)"""
+    if length:
+        return rad2deg(math.atan(height_diff / length))
+    return 0
+
+
+def arc_length(angle: float, radius: float):
+    """Arc length"""
+    return abs(angle * radius * 3.14159265 / 180)
+
+
+def arc_angle(length: float, radius: float):
+    """Arc angle (degree)"""
+    if radius:
+        return length * 180 / (radius * 3.14159265)
+    return 0
+
+
+def tri_coords_circle_center(x1, y1, x2, y2, x3, y3):
+    """Tri-coordinates circle center x, y"""
+    p = 0.00000001  # bypass zero division
+    k1 = (y2 - y1 + p) / (x2 - x1 + p)
+    k2 = (y3 - y2 + p) / (x3 - x2 + p)
+    s1 = (x1 + x2) / (2 * k1)
+    s2 = 1 / k2 - 1 / k1 + p
+    x = ((x2 + x3) / (2 * k2) + (y3 - y1) / 2 - s1) / s2
+    y =  s1 - x / k1 + (y1 + y2) / 2
+    return x, y
+
+
+def tri_coords_edge_radians(a, b, c):
+    """Tri-coordinates edge radians"""
+    if b > 0 < c:
+        cos_a = (b * b + c * c - a * a) / (2 * b * c)
+        return math.acos(cos_a)
+    return 0
+
+
+def quad_coords_angle(center, start, mid, end):
+    """Quad-coordinates angle (degree)"""
+    center1_edge = distance(start, mid)
+    center2_edge = distance(mid, end)
+    start_edge = distance(center, start)
+    mid_edge = distance(center, mid)
+    end_edge = distance(center, end)
+    rad1 = tri_coords_edge_radians(center1_edge, start_edge, mid_edge)
+    rad2 = tri_coords_edge_radians(center2_edge, mid_edge, end_edge)
+    return rad2deg(rad1 + rad2)
 
 
 # Timing
