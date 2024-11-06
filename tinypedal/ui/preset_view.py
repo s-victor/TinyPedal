@@ -44,7 +44,7 @@ from ..setting import cfg
 from .. import formatter as fmt
 from .. import regex_pattern as rxp
 from .. import validator as val
-from ._common import BaseDialog, QVAL_PRESET
+from ._common import BaseDialog, QVAL_FILENAME
 
 QSS_LISTBOX = (
     "QListView {font-size: 16px;outline: none;}"
@@ -254,7 +254,7 @@ class CreatePreset(BaseDialog):
         self.preset_entry = QLineEdit()
         self.preset_entry.setMaxLength(40)
         self.preset_entry.setPlaceholderText("Enter a new preset name")
-        self.preset_entry.setValidator(QVAL_PRESET)
+        self.preset_entry.setValidator(QVAL_FILENAME)
 
         # Button
         button_create = QDialogButtonBox(QDialogButtonBox.Cancel | QDialogButtonBox.Ok)

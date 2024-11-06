@@ -54,7 +54,7 @@ class VehicleClassEditor(BaseEditor):
 
     def __init__(self, master):
         super().__init__(master)
-        self.setWindowTitle(f"Vehicle Class Editor - {cfg.filename.classes}")
+        self.set_utility_title("Vehicle Class Editor")
         self.setMinimumSize(400, 400)
 
         self.option_classes = []

@@ -56,7 +56,7 @@ class HeatmapEditor(BaseEditor):
 
     def __init__(self, master):
         super().__init__(master)
-        self.setWindowTitle(f"Heatmap Editor - {cfg.filename.heatmap}")
+        self.set_utility_title("Heatmap Editor")
         self.setMinimumHeight(400)
 
         self.option_heatmap = []

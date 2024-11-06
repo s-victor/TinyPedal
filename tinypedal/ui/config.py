@@ -64,9 +64,10 @@ class FontConfig(BaseDialog):
 
     def __init__(self, master, user_setting: dict, reload_func: object):
         super().__init__(master)
+        self.set_config_title("Global Font Override", cfg.filename.last_setting)
+
         self.reloading = reload_func
         self.user_setting = user_setting
-        self.setWindowTitle(f"Global Font Override - {cfg.filename.last_setting}")
 
         # Label & combobox
         self.label_fontname = QLabel("Font Name")
@@ -153,19 +154,14 @@ class UserConfig(BaseDialog):
         self, master, key_name: str, cfg_type: str, user_setting: dict,
         default_setting: dict, reload_func: object, option_width: int = OPTION_WIDTH):
         super().__init__(master)
+        self.set_config_title(fmt.format_option_name(key_name), set_preset_name(cfg_type))
+
         self.reloading = reload_func
         self.key_name = key_name
         self.cfg_type = cfg_type
         self.user_setting = user_setting
         self.default_setting = default_setting
         self.option_width = option_width
-
-        if self.cfg_type in "global":
-            preset_filename = f"{cfg.filename.config} (global)"
-        else:
-            preset_filename = cfg.filename.last_setting
-
-        self.setWindowTitle(f"{fmt.format_option_name(key_name)} - {preset_filename}")
 
         # Option dict (key: option editor)
         self.option_bool = {}
@@ -537,6 +533,13 @@ class UserConfig(BaseDialog):
         # Add layout
         layout.addWidget(editor, idx, COLUMN_OPTION)
         self.option_float[key] = editor
+
+
+def set_preset_name(cfg_type: str):
+    """Set preset name"""
+    if cfg_type == "global":
+        return f"{cfg.filename.config} (global)"
+    return cfg.filename.last_setting
 
 
 def add_context_menu(target, default, mode):

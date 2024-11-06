@@ -82,7 +82,8 @@ class FuelCalculator(BaseDialog):
 
     def __init__(self, master):
         super().__init__(master)
-        self.setWindowTitle("Fuel Calculator")
+        self.set_utility_title("Fuel Calculator")
+
         self.history_data = minfo.history.consumption
 
         # Set view

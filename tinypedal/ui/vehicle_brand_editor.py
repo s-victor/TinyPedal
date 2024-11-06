@@ -57,7 +57,7 @@ class VehicleBrandEditor(BaseEditor):
 
     def __init__(self, master):
         super().__init__(master)
-        self.setWindowTitle(f"Vehicle Brand Editor - {cfg.filename.brands}")
+        self.set_utility_title("Vehicle Brand Editor")
         self.setMinimumSize(600, 500)
 
         self.brands_temp = copy_setting(cfg.user.brands)

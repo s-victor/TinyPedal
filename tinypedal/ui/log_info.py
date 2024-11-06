@@ -29,7 +29,6 @@ from PySide2.QtWidgets import (
     QPushButton,
 )
 
-from ..const import APP_NAME
 from .. import log_stream
 from ._common import BaseDialog
 
@@ -39,7 +38,7 @@ class LogInfo(BaseDialog):
 
     def __init__(self, master):
         super().__init__(master)
-        self.setWindowTitle(f"{APP_NAME} Log")
+        self.set_utility_title("Log")
 
         # Text view
         self.log_view = QTextBrowser()

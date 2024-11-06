@@ -48,7 +48,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import validator as val
-from ..const import APP_ICON
+from ..const import APP_NAME, APP_ICON
 
 # Validator
 QLOC_NUMBER = QLocale(QLocale.C)
@@ -59,7 +59,7 @@ QVAL_FLOAT = QDoubleValidator(-999999.9999, 999999.9999, 6)
 QVAL_FLOAT.setLocale(QLOC_NUMBER)
 QVAL_COLOR = QRegularExpressionValidator(QRegularExpression('^#[0-9a-fA-F]*'))
 QVAL_HEATMAP = QRegularExpressionValidator(QRegularExpression('[0-9a-zA-Z_]*'))
-QVAL_PRESET = QRegularExpressionValidator(QRegularExpression('[^\\\\/:*?"<>|]*'))
+QVAL_FILENAME = QRegularExpressionValidator(QRegularExpression('[^\\\\/:*?"<>|]*'))
 
 # QStyleSheet
 QSS_EDITOR_BUTTON = "padding: 3px 7px;"
@@ -101,6 +101,14 @@ class BaseDialog(QDialog):
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
+
+    def set_config_title(self, option_name: str, preset_name: str):
+        """Set config dialog title"""
+        self.setWindowTitle(f"{option_name} - {preset_name}")
+
+    def set_utility_title(self, name: str):
+        """Set utility dialog title"""
+        self.setWindowTitle(f"{name} - {APP_NAME}")
 
 
 class BaseEditor(BaseDialog):
