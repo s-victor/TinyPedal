@@ -49,6 +49,8 @@ from ..setting import cfg, copy_setting
 from ..module_control import wctrl
 from ._common import BaseDialog, BaseEditor, QSS_EDITOR_BUTTON
 
+HEADER_BRANDS = "Name","Brand"
+
 logger = logging.getLogger(__name__)
 
 
@@ -62,7 +64,7 @@ class VehicleBrandEditor(BaseEditor):
 
         self.brands_temp = copy_setting(cfg.user.brands)
 
-        # Brands table
+        # Set table
         self.table_brands = QTableWidget(self)
         self.table_brands.setColumnCount(2)
         self.table_brands.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
@@ -71,6 +73,17 @@ class VehicleBrandEditor(BaseEditor):
         self.refresh_table()
         self.set_unmodified()
 
+        # Set button
+        layout_button = self.set_layout_button()
+
+        # Set layout
+        layout_main = QVBoxLayout()
+        layout_main.addWidget(self.table_brands)
+        layout_main.addLayout(layout_button)
+        self.setLayout(layout_main)
+
+    def set_layout_button(self):
+        """Set button layout"""
         # Menu
         import_menu = QMenu(self)
 
@@ -122,9 +135,7 @@ class VehicleBrandEditor(BaseEditor):
         button_save.setStyleSheet(QSS_EDITOR_BUTTON)
 
         # Set layout
-        layout_main = QVBoxLayout()
         layout_button = QHBoxLayout()
-
         layout_button.addWidget(button_import)
         layout_button.addWidget(button_add)
         layout_button.addWidget(button_sort)
@@ -134,23 +145,19 @@ class VehicleBrandEditor(BaseEditor):
         layout_button.addStretch(1)
         layout_button.addWidget(button_apply)
         layout_button.addWidget(button_save)
-
-        layout_main.addWidget(self.table_brands)
-        layout_main.addLayout(layout_button)
-        self.setLayout(layout_main)
+        return layout_button
 
     def refresh_table(self):
         """Refresh brands list"""
         self.table_brands.clear()
         self.table_brands.setRowCount(len(self.brands_temp))
+        self.table_brands.setHorizontalHeaderLabels(HEADER_BRANDS)
         row_index = 0
 
         for key, item in self.brands_temp.items():
             self.table_brands.setItem(row_index, 0, QTableWidgetItem(key))
             self.table_brands.setItem(row_index, 1, QTableWidgetItem(item))
             row_index += 1
-
-        self.table_brands.setHorizontalHeaderLabels(("Name","Brand"))
 
     def import_from_rf2(self):
         """Import brand from RF2"""
@@ -293,6 +300,7 @@ class VehicleBrandEditor(BaseEditor):
             buttons=QMessageBox.Yes | QMessageBox.No)
         if reset_msg == QMessageBox.Yes:
             self.brands_temp = copy_setting(cfg.default.brands)
+            self.set_modified()
             self.refresh_table()
 
     def applying(self):
