@@ -168,7 +168,7 @@ Sector best data is stored as `CSV` format (.sector extension) under `TinyPedal\
 
 
 ## Track map
-Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder (default).
+Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder (default). Track map can be viewed with `Track Map Viewer` from `Tools` menu in main window.
 
 The SVG vector map file contains two coordinate paths:
 * First is global x,y position path, used for drawing track map.
@@ -528,6 +528,50 @@ Set starting fuel or energy. This value is only used for calculating `Average re
 
     Average refueling, Average replenishing
 Show average refueling or replenishing per pit stop, and display warning color if value exceeds `Tank capacity` (fuel) or `100%` (energy).
+
+
+## Track Map Viewer
+**Track map viewer can be accessed from `Tools` menu in main window.**
+
+To load a track map, click `Load Map` button. Map file name will be displayed alongside if file is successfully loaded. Note, only track map files (.svg extension) that generated from TinyPedal Mapping Module are supported.
+
+To customize map display, click `Config` button. Note, some display options may require reload track map file to be updated.
+
+To zoom map in or out, scroll mouse wheel in map display area; or adjust `Zoom` spin box value.
+
+To move current position on map, use position slider at bottom of map display; or adjust `Position` spin box value.
+
+To increase or decrease current nodes selection, adjust `Nodes` spin box value. Note, minimum nodes selection is limited to `3` nodes, maximum nodes selection cannot exceed total map nodes.
+
+To toggle on or off specific map display, `Right-Click` on map display area to open context menu, includes:
+* Map info - Show map length, total map nodes.
+* Position info - Show current node position and global XYZ coordinates (Z is elevation).
+* Curve info - Show curve section length, grade, radius, angle, curvature.
+* Slope info - Show slope grade, percent, angle, height delta.
+* Center mark - Mark current node position.
+* Distance circle - Show reference distance circles.
+* Osculating circle - Show osculating circle that calculated from curve section.
+* Curve section - Show curve section from current nodes selection.
+* Marked coordinates - Show marked coordinates if available.
+* Highlighted coordinates - Show highlighted coordinates if available.
+* Dark background - Show dark background color.
+
+---
+
+    inner_margin
+Set inner margin for info display.
+
+    position_increment_step
+Set single increment step for position slider and spin box. Default is `5` meters.
+
+    curve_grade_*
+Set corner curve classification by radius (meters). Set value to `-1` to exclude from grade selection.
+
+    length_grade_*
+Set corner length classification by meters.
+
+    slope_grade_*
+Set road slope classification by slope percent.
 
 
 # Modules

@@ -282,7 +282,7 @@ class VehicleBrandEditor(BaseEditor):
             QMessageBox.warning(self, "Error", "No data selected.")
             return
 
-        if not self.confirm_deletion("Delete selected rows?"):
+        if not self.confirm_operation("<b>Delete selected rows?</b>"):
             return
 
         for row_index in sorted(selected_rows, reverse=True):

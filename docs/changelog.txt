@@ -1,5 +1,24 @@
 WIP
 -----------------------------
+* [New]Track Map Viewer
+  - Add "Track Map Viewer" to "Tools" menu in main window for viewing & analyzing track map.
+    Note, only track map (SVG) files that generated from TinyPedal Mapping Module are supported.
+    The Track Map Viewer consists of three main areas:
+    * At top area, user can "Load Map", view map file name, and "Config" map display.
+    * At center area, track map image and various analytic data are displayed.
+    * At bottom area, user can set map "Zoom", position slider, map nodes selection.
+    Other notable features:
+    * Right-Click on map display area to open a context menu to quickly toggle various
+      displays & analytic options on and off.
+    * Use mouse wheel to quickly zoom in and out map display.
+    * Analytic data are displayed at four corners of map display, which include:
+      - Map length and total nodes.
+      - Curve section length, grade, radius, angle, curvature.
+      - Slope grade, percent, angle, height delta.
+      - Current node position and global XYZ coordinates (Z is elevation).
+  - Add "track_map_viewer" options to global user config file.
+  - See "Track Map Viewer" section in User Guide for details.
+
 * Heatmap editor, Vehicle brand editor, Vehicle class editor
   - Add "Offset" button for batch offsetting temperature values in Heatmap editor.
   - Add "Copy" button for duplicate heatmap preset in Heatmap editor.

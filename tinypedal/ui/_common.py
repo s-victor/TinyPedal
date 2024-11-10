@@ -134,10 +134,10 @@ class BaseEditor(BaseDialog):
 
         return confirm == QMessageBox.Discard
 
-    def confirm_deletion(self, message: str = "Delete selection?") -> bool:
-        """Confirm deletion"""
+    def confirm_operation(self, message: str) -> bool:
+        """Confirm operation"""
         confirm = QMessageBox.question(
-            self, "Confirm", f"<b>{message}</b>",
+            self, "Confirm", message,
             buttons=QMessageBox.Yes | QMessageBox.No)
         return confirm == QMessageBox.Yes
 
@@ -294,11 +294,29 @@ class DoubleClickEdit(QLineEdit):
 class QTableFloatItem(QTableWidgetItem):
     """QTable float type item"""
 
-    def __init__(self, text):
-        """Convert & set float to string"""
+    def __init__(self, value: float):
+        """Convert & set float value to string"""
         super().__init__()
-        self.setText(str(text))
+        self._value = 0
+        self.setValue(value)
+
+    def setValue(self, value: float):
+        """Set value"""
+        self._value = value
+        self.setText(str(value))
+
+    def value(self) -> float:
+        """Get value"""
+        return self._value
+
+    def validate(self):
+        """Validate value, replace invalid value with old value if invalid"""
+        value = self.text()
+        if val.string_number(value):
+            self._value = float(value)
+        else:
+            self.setText(str(self._value))
 
     def __lt__(self, other):
-        """Numeric sort"""
-        return float(self.text()) < float(other.text())
+        """Sort value"""
+        return self.value() < other.value()

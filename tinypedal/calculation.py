@@ -156,12 +156,12 @@ def force_ratio(value1, value2):
     return 0
 
 
-def rotate_coordinate(ori_rad, value1, value2):
+def rotate_coordinate(ori_rad, pos_x, pos_y):
     """Rotate x y coordinates"""
     sin_rad = math.sin(ori_rad)
     cos_rad = math.cos(ori_rad)
-    return (cos_rad * value1 - sin_rad * value2,
-            cos_rad * value2 + sin_rad * value1)
+    return (cos_rad * pos_x - sin_rad * pos_y,
+            cos_rad * pos_y + sin_rad * pos_x)
 
 
 def lap_progress_distance(dist, length):
@@ -235,17 +235,17 @@ def linear_interp(x, x1, y1, x2, y2):
     return y1
 
 
-def slope_percent(height_diff, length):
+def slope_percent(height: float, length: float):
     """Slope percent"""
     if length:
-        return height_diff / length
+        return height / length
     return 0
 
 
-def slope_angle(height_diff, length):
+def slope_angle(height: float, length: float):
     """Slope angle (degree)"""
     if length:
-        return rad2deg(math.atan(height_diff / length))
+        return rad2deg(math.atan(height / length))
     return 0
 
 
@@ -261,6 +261,13 @@ def arc_angle(length: float, radius: float):
     return 0
 
 
+def curvature(radius: float):
+    """Curvature"""
+    if radius:
+        return 1 / radius
+    return 0
+
+
 def tri_coords_circle_center(x1, y1, x2, y2, x3, y3):
     """Tri-coordinates circle center x, y"""
     p = 0.00000001  # bypass zero division
@@ -273,24 +280,39 @@ def tri_coords_circle_center(x1, y1, x2, y2, x3, y3):
     return x, y
 
 
-def tri_coords_edge_radians(a, b, c):
-    """Tri-coordinates edge radians"""
-    if b > 0 < c:
-        cos_a = (b * b + c * c - a * a) / (2 * b * c)
+def tri_coords_angle(a_len, b_len, c_len):
+    """Tri-coordinates angle (radians)"""
+    bc2_len = 2 * b_len * c_len
+    if bc2_len:
+        cos_a = (b_len * b_len + c_len * c_len - a_len * a_len) / bc2_len
         return math.acos(cos_a)
     return 0
 
 
-def quad_coords_angle(center, start, mid, end):
+def quad_coords_angle(coords_center, coords_start, coords_mid, coords_end):
     """Quad-coordinates angle (degree)"""
-    center1_edge = distance(start, mid)
-    center2_edge = distance(mid, end)
-    start_edge = distance(center, start)
-    mid_edge = distance(center, mid)
-    end_edge = distance(center, end)
-    rad1 = tri_coords_edge_radians(center1_edge, start_edge, mid_edge)
-    rad2 = tri_coords_edge_radians(center2_edge, mid_edge, end_edge)
+    center1_edge = distance(coords_start, coords_mid)
+    center2_edge = distance(coords_mid, coords_end)
+    start_edge = distance(coords_center, coords_start)
+    mid_edge = distance(coords_center, coords_mid)
+    end_edge = distance(coords_center, coords_end)
+    rad1 = tri_coords_angle(center1_edge, start_edge, mid_edge)
+    rad2 = tri_coords_angle(center2_edge, mid_edge, end_edge)
     return rad2deg(rad1 + rad2)
+
+
+def turning_direction(yaw_rad, x1, y1, x2, y2) -> int:
+    """Calculate turning direction
+
+    Returns:
+        -1 = left turning, 1 = right turning, 0 = no turning.
+    """
+    point_y = rotate_coordinate(-yaw_rad, x2 - x1, y2 - y1)[1]
+    if point_y > 0:
+        return 1
+    if point_y < 0:
+        return -1
+    return 0
 
 
 # Timing
@@ -436,6 +458,17 @@ def binary_search_higher_column(data, target, start, end, column=0):
         else:
             end = center
     return end
+
+
+def select_grade(data: list, source: float) -> str:
+    """Select grade (linear lower index) from reference list (column: 0 value, 1 string)"""
+    for index, target in enumerate(data):
+        if source < target[0]:
+            if index == 0:
+                return data[0][1]
+            return data[index - 1][1]
+    # Set from last row if exceeded max range
+    return data[-1][1]
 
 
 # Plot

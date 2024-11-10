@@ -33,6 +33,7 @@ from .config import FontConfig, UserConfig
 from .log_info import LogInfo
 from .fuel_calculator import FuelCalculator
 from .heatmap_editor import HeatmapEditor
+from .track_map_viewer import TrackMapViewer
 from .vehicle_brand_editor import VehicleBrandEditor
 from .vehicle_class_editor import VehicleClassEditor
 
@@ -284,9 +285,13 @@ class ToolsMenu(QMenu):
         super().__init__(master)
         self.master = master
 
-        editor_fuel = QAction("Fuel Calculator", self)
-        editor_fuel.triggered.connect(self.open_editor_fuel)
-        menu.addAction(editor_fuel)
+        utility_fuelcalc = QAction("Fuel Calculator", self)
+        utility_fuelcalc.triggered.connect(self.open_utility_fuelcalc)
+        menu.addAction(utility_fuelcalc)
+
+        utility_mapviewer = QAction("Track Map Viewer", self)
+        utility_mapviewer.triggered.connect(self.open_utility_mapviewer)
+        menu.addAction(utility_mapviewer)
 
         menu.addSeparator()
 
@@ -302,9 +307,14 @@ class ToolsMenu(QMenu):
         editor_classes.triggered.connect(self.open_editor_classes)
         menu.addAction(editor_classes)
 
-    def open_editor_fuel(self):
+    def open_utility_fuelcalc(self):
         """Fuel calculator"""
         _dialog = FuelCalculator(self.master)
+        _dialog.show()
+
+    def open_utility_mapviewer(self):
+        """Track map viewer"""
+        _dialog = TrackMapViewer(self.master)
         _dialog.show()
 
     def open_editor_heatmap(self):

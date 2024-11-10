@@ -237,7 +237,7 @@ class HeatmapEditor(BaseEditor):
     def delete_temperature(self, row_index):
         """Delete temperature entry"""
         target = self.option_heatmap[row_index][0].text()
-        if not self.confirm_deletion(f"Delete temperature '{target}' ?"):
+        if not self.confirm_operation(f"<b>Delete temperature '{target}' ?</b>"):
             return
 
         self.update_heatmap()

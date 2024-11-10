@@ -162,7 +162,7 @@ class VehicleClassEditor(BaseEditor):
     def delete_class(self, row_index):
         """Delete class entry"""
         target = self.option_classes[row_index][0].text()
-        if not self.confirm_deletion(f"Delete class '{target}' ?"):
+        if not self.confirm_operation(f"<b>Delete class '{target}' ?</b>"):
             return
 
         self.update_classes_temp()
