@@ -31,6 +31,17 @@ from ..module_info import minfo
 from ._base import Overlay
 
 WIDGET_NAME = "cruise"
+DIRECTIONS = (
+    (0, " N"),
+    (22.5, "NE"),
+    (67.5, " E"),
+    (112.5, "SE"),
+    (157.5, " S"),
+    (202.5, "SW"),
+    (247.5, " W"),
+    (292.5, "NW"),
+    (337.5, " N"),
+)
 
 
 class Realtime(Overlay):
@@ -132,11 +143,29 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_odometer"],
             )
 
+        # Distance into lap
+        if self.wcfg["show_distance_into_lap"]:
+            text_lap_distance = self.format_lap_distance(0)
+            bar_style_lap_distance = self.set_qss(
+                fg_color=self.wcfg["font_color_distance_into_lap"],
+                bg_color=self.wcfg["bkg_color_distance_into_lap"]
+            )
+            self.bar_lap_distance = self.set_qlabel(
+                text=text_lap_distance,
+                style=bar_style_lap_distance,
+                width=font_m.width * len(text_lap_distance) + bar_padx,
+            )
+            self.set_primary_orient(
+                target=self.bar_lap_distance,
+                column=self.wcfg["column_index_distance_into_lap"],
+            )
+
         # Last data
         self.last_track_time = None
         self.last_orientation = None
         self.last_elevation = None
         self.last_traveled_distance = None
+        self.last_lap_distance = None
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -175,6 +204,12 @@ class Realtime(Overlay):
                 self.update_odometer(traveled_distance, self.last_traveled_distance)
                 self.last_traveled_distance = traveled_distance
 
+            # Distance into lap
+            if self.wcfg["show_distance_into_lap"]:
+                lap_distance = api.read.lap.distance()
+                self.update_lap_distance(lap_distance, self.last_lap_distance)
+                self.last_lap_distance = lap_distance
+
     # GUI update methods
     def update_track_clock(self, curr, last):
         """Track clock"""
@@ -196,6 +231,11 @@ class Realtime(Overlay):
         if curr != last:
             self.bar_odometer.setText(self.format_odometer(curr))
 
+    def update_lap_distance(self, curr, last):
+        """Distance into lap"""
+        if curr != last:
+            self.bar_lap_distance.setText(self.format_lap_distance(curr))
+
     # Additional methods
     def format_clock(self, second):
         """Format clock"""
@@ -204,7 +244,7 @@ class Realtime(Overlay):
     def format_compass(self, yaw):
         """Format compass"""
         degree = 180 - calc.rad2deg(yaw)
-        return f"{degree:03.0f}°{self.deg2direction(degree)}"
+        return f"{degree:03.0f}°{calc.select_grade(DIRECTIONS, degree)}"
 
     def format_elevation(self, meter):
         """Format elevation"""
@@ -222,23 +262,8 @@ class Realtime(Overlay):
             return f"{distance: >{self.odm_digits + 2}.1f}mi"
         return f"{min(meter, int(self.odm_range)): >{self.odm_digits}d}m"
 
-    @staticmethod
-    def deg2direction(degrees):
-        """Convert degree to direction"""
-        if degrees <= 22.5 or degrees >= 337.5:
-            text = " N"
-        elif 22.5 < degrees < 67.5:
-            text = "NE"
-        elif 67.5 <= degrees <= 112.5:
-            text = " E"
-        elif 112.5 < degrees < 157.5:
-            text = "SE"
-        elif 157.5 <= degrees <= 202.5:
-            text = " S"
-        elif 202.5 < degrees < 247.5:
-            text = "SW"
-        elif 247.5 <= degrees <= 292.5:
-            text = " W"
-        elif 292.5 < degrees < 337.5:
-            text = "NW"
-        return text
+    def format_lap_distance(self, meter):
+        """Format lap distance"""
+        if self.cfg.units["distance_unit"] == "Feet":
+            return f"{calc.meter2feet(meter): >7.0f}ft"
+        return f"{meter: >6.0f}m"

@@ -898,8 +898,11 @@ Show odometer that displays total driven distance of local player.
     odometer_maximum_digits
 Set maximum number of display digits.
 
+    show_distance_into_lap
+Show distance into current lap.
+
     meters_driven
-This value holds the total distance(meters) that local player has driven. Accept manual editing.
+This value holds the total distance (meters) that local player has driven. Accept manual editing.
 
 
 ## Damage

@@ -22,7 +22,7 @@ Fuel calculator
 
 import math
 from PySide2.QtCore import Qt, QMargins
-from PySide2.QtGui import QBrush, QColor, QPalette
+from PySide2.QtGui import QColor, QPalette
 from PySide2.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -51,13 +51,13 @@ PANEL_LEFT_WIDTH = 330
 FRAME_MARGIN = QMargins(5, 5, 5, 5)
 FRAME_GAP = 2
 READ_ONLY_COLOR = QPalette().window().color().name(QColor.HexRgb)
-HIGHLIGHT_COLOR = "#F40"
+INVALID_COLOR = "#F40"
 
 
-def set_read_only_style(line_edit, highlight=False):
+def set_read_only_style(line_edit, invalid=False):
     """Set read only style"""
-    if highlight:
-        color = HIGHLIGHT_COLOR
+    if invalid:
+        color = INVALID_COLOR
     else:
         color = READ_ONLY_COLOR
     line_edit.setStyleSheet(f"background:{color};")
@@ -171,43 +171,19 @@ class FuelCalculator(BaseDialog):
         self.table_history.clear()
         self.table_history.setRowCount(len(self.history_data))
         row_index = 0
-        style_invalid = QBrush("#C40", Qt.SolidPattern)
 
         for lap in self.history_data:
-            lapnumber = QTableWidgetItem()
-            lapnumber.setText(f"{lap[0]}")
-            lapnumber.setTextAlignment(Qt.AlignCenter)
-            lapnumber.setFlags(Qt.ItemFlags(0))
-
-            laptime = QTableWidgetItem()
-            laptime.setText(calc.sec2laptime(lap[2]))
-            laptime.setTextAlignment(Qt.AlignCenter)
-            laptime.setFlags(Qt.ItemFlags(33))
-
-            used_fuel = QTableWidgetItem()
-            used_fuel.setText(f"{fuel_units(lap[3]):.3f}")
-            used_fuel.setTextAlignment(Qt.AlignCenter)
-            used_fuel.setFlags(Qt.ItemFlags(33))
-
-            used_energy = QTableWidgetItem()
-            used_energy.setText(f"{lap[4]:.3f}")
-            used_energy.setTextAlignment(Qt.AlignCenter)
-            used_energy.setFlags(Qt.ItemFlags(33))
-
-            battery_drain = QTableWidgetItem()
-            battery_drain.setText(f"{lap[5]:.3f}")
-            battery_drain.setTextAlignment(Qt.AlignCenter)
-            battery_drain.setFlags(Qt.ItemFlags(0))
-
-            battery_regen = QTableWidgetItem()
-            battery_regen.setText(f"{lap[6]:.3f}")
-            battery_regen.setTextAlignment(Qt.AlignCenter)
-            battery_regen.setFlags(Qt.ItemFlags(0))
+            lapnumber = self.__add_table_item(f"{lap[0]}", 0)
+            laptime = self.__add_table_item(calc.sec2laptime(lap[2]), 33)
+            used_fuel = self.__add_table_item(f"{fuel_units(lap[3]):.3f}", 33)
+            used_energy = self.__add_table_item(f"{lap[4]:.3f}", 33)
+            battery_drain = self.__add_table_item(f"{lap[5]:.3f}", 0)
+            battery_regen = self.__add_table_item(f"{lap[6]:.3f}", 0)
 
             if not lap[1]:  # set invalid lap text color
-                laptime.setForeground(style_invalid)
-                used_fuel.setForeground(style_invalid)
-                used_energy.setForeground(style_invalid)
+                laptime.setTextColor(INVALID_COLOR)
+                used_fuel.setTextColor(INVALID_COLOR)
+                used_energy.setTextColor(INVALID_COLOR)
 
             self.table_history.setItem(row_index, 0, lapnumber)
             self.table_history.setItem(row_index, 1, laptime)
@@ -225,6 +201,14 @@ class FuelCalculator(BaseDialog):
             "Drain(%)",
             "Regen(%)"
         ))
+
+    def __add_table_item(self, text: str, flags: int):
+        """Add table item"""
+        item = QTableWidgetItem()
+        item.setText(text)
+        item.setTextAlignment(Qt.AlignCenter)
+        item.setFlags(Qt.ItemFlags(flags))
+        return item
 
     def set_panel_calculator(self, panel):
         """Set panel calculator"""

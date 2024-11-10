@@ -26,6 +26,9 @@ WIP
   - Show close confirmation if changes were not saved.
   - Show deletion info and confirmation.
 
+* Cruise Widget
+  - Add "show_distance_into_lap" option which shows distance into current lap.
+
 * Misc
   - Updated contributors info, added new contributor "Tanizo Yashima (yashiman)".
 
