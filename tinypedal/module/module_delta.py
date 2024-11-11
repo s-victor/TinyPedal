@@ -244,6 +244,7 @@ class Realtime(DataModule):
                 minfo.delta.lapTimeSession = laptime_session_best
                 minfo.delta.lapTimeStint = laptime_stint_best
                 minfo.delta.lapTimePace = laptime_pace
+                minfo.delta.lapDistance = pos_estimate
                 minfo.delta.metersDriven = meters_driven
 
             else:

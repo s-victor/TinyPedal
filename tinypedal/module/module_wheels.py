@@ -49,6 +49,8 @@ class Realtime(DataModule):
         max_rot_bias_f = max(self.mcfg["maximum_rotation_difference_front"], 0.00001)
         max_rot_bias_r = max(self.mcfg["maximum_rotation_difference_rear"], 0.00001)
         min_rot_axle = max(self.mcfg["minimum_axle_rotation"], 0)
+        min_coords = min(max(self.mcfg["cornering_radius_sampling_interval"], 5), 100)
+        list_coords = deque([(0,0)] * min_coords * 2, min_coords * 2)
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -74,10 +76,14 @@ class Realtime(DataModule):
                     samples_slice_r = sample_slice_indices(min_samples_r)
                     locking_f = 1
                     locking_r = 1
+                    gps_last = 0
+                    cornering_radius = 0
 
                 # Read telemetry
                 speed = api.read.vehicle.speed()
                 wheel_rot = api.read.wheel.rotation()
+                gps_curr = (api.read.vehicle.position_longitudinal(),
+                            api.read.vehicle.position_lateral())
 
                 # Get wheel axle rotation and difference
                 rot_axle_f = calc.wheel_axle_rotation(wheel_rot[0], wheel_rot[1])
@@ -90,7 +96,7 @@ class Realtime(DataModule):
                 if rot_axle_r < -min_rot_axle:
                     locking_r = calc.differential_locking_percent(rot_axle_r, wheel_rot[2])
 
-                # Record radius value within max rotation difference
+                # Record wheel radius value within max rotation difference
                 if rot_axle_f < -min_rot_axle and 0 < rot_bias_f < max_rot_bias_f:
                     list_radius_f.append(calc.rot2radius(speed, rot_axle_f))
                     # Front average wheel radius
@@ -109,11 +115,20 @@ class Realtime(DataModule):
                             min_samples_r *= 2
                             samples_slice_r = sample_slice_indices(min_samples_r)
 
+                # Calculate cornering radius based on tri-coordinates position
+                if gps_last != gps_curr:
+                    gps_last = gps_curr
+                    list_coords.append(gps_curr)
+                    arc_center_pos = calc.tri_coords_circle_center(
+                        *list_coords[0], *list_coords[min_coords], *list_coords[-1])
+                    cornering_radius = calc.distance(list_coords[0], arc_center_pos)
+
                 # Output wheels data
                 minfo.wheels.radiusFront = radius_front
                 minfo.wheels.radiusRear = radius_rear
                 minfo.wheels.lockingPercentFront = locking_f
                 minfo.wheels.lockingPercentRear = locking_r
+                minfo.wheels.corneringRadius = cornering_radius
                 minfo.wheels.slipRatio[0] = calc.slip_ratio(wheel_rot[0], radius_front, speed)
                 minfo.wheels.slipRatio[1] = calc.slip_ratio(wheel_rot[1], radius_front, speed)
                 minfo.wheels.slipRatio[2] = calc.slip_ratio(wheel_rot[2], radius_rear, speed)

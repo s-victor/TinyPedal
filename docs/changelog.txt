@@ -26,8 +26,17 @@ WIP
   - Show close confirmation if changes were not saved.
   - Show deletion info and confirmation.
 
+* Wheels Module
+  - Add cornering radius calculation.
+  - Add "cornering_radius_sampling_interval" option, which sets position sampling interval
+    for cornering radius calculation.
+    Value range in `5` to `100`. Default sampling interval is `10`, which is roughly 200ms
+    interval between each recorded position. Higher value may result inaccuracy.
+    Note, this option does not affect position recording interval.
+
 * Cruise Widget
   - Add "show_distance_into_lap" option which shows distance into current lap.
+  - Add "show_cornering_radius" option which shows real-time cornering radius.
 
 * Misc
   - Updated contributors info, added new contributor "Tanizo Yashima (yashiman)".

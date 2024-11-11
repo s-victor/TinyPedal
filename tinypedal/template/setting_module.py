@@ -97,6 +97,7 @@ MODULE_DEFAULT = {
         "minimum_axle_rotation": 4,
         "maximum_rotation_difference_front": 0.002,
         "maximum_rotation_difference_rear": 0.002,
+        "cornering_radius_sampling_interval": 10,
         "last_vehicle_info": "unknown",
         "last_wheel_radius_front": 0,
         "last_wheel_radius_rear": 0,

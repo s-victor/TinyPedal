@@ -112,6 +112,7 @@ CFG_INTEGER = (
     "layout|"
     "number_of|"
     "samples|"
+    "sampling_interval|"
     "split_gap|"
     "update_interval|"
     "url_port|"

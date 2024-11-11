@@ -41,6 +41,7 @@ class DeltaInfo:
     lapTimeSession: float = 0
     lapTimeStint: float = 0
     lapTimePace: float = 0
+    lapDistance: float = 0
     metersDriven: float = 0
 
 
@@ -201,6 +202,7 @@ class WheelsInfo:
     radiusRear: float = 0
     lockingPercentFront: float = 0
     lockingPercentRear: float = 0
+    corneringRadius: float = 0
     slipRatio: list = field(default_factory=list)
 
     def __post_init__(self):

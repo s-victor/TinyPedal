@@ -160,12 +160,30 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_distance_into_lap"],
             )
 
+        # Cornering radius
+        if self.wcfg["show_cornering_radius"]:
+            text_cornering_radius = self.format_cornering_radius(0)
+            bar_style_cornering_radius = self.set_qss(
+                fg_color=self.wcfg["font_color_cornering_radius"],
+                bg_color=self.wcfg["bkg_color_cornering_radius"]
+            )
+            self.bar_cornering_radius = self.set_qlabel(
+                text=text_cornering_radius,
+                style=bar_style_cornering_radius,
+                width=font_m.width * len(text_cornering_radius) + bar_padx,
+            )
+            self.set_primary_orient(
+                target=self.bar_cornering_radius,
+                column=self.wcfg["column_index_cornering_radius"],
+            )
+
         # Last data
         self.last_track_time = None
         self.last_orientation = None
         self.last_elevation = None
         self.last_traveled_distance = None
         self.last_lap_distance = None
+        self.last_cornering_radius = None
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -206,9 +224,15 @@ class Realtime(Overlay):
 
             # Distance into lap
             if self.wcfg["show_distance_into_lap"]:
-                lap_distance = api.read.lap.distance()
+                lap_distance = minfo.delta.lapDistance
                 self.update_lap_distance(lap_distance, self.last_lap_distance)
                 self.last_lap_distance = lap_distance
+
+            # Cornering radius
+            if self.wcfg["show_cornering_radius"]:
+                cornering_radius = minfo.wheels.corneringRadius
+                self.update_cornering_radius(cornering_radius, self.last_cornering_radius)
+                self.last_cornering_radius = cornering_radius
 
     # GUI update methods
     def update_track_clock(self, curr, last):
@@ -235,6 +259,11 @@ class Realtime(Overlay):
         """Distance into lap"""
         if curr != last:
             self.bar_lap_distance.setText(self.format_lap_distance(curr))
+
+    def update_cornering_radius(self, curr, last):
+        """Cornering radius"""
+        if curr != last:
+            self.bar_cornering_radius.setText(self.format_cornering_radius(curr))
 
     # Additional methods
     def format_clock(self, second):
@@ -267,3 +296,11 @@ class Realtime(Overlay):
         if self.cfg.units["distance_unit"] == "Feet":
             return f"{calc.meter2feet(meter): >7.0f}ft"
         return f"{meter: >6.0f}m"
+
+    def format_cornering_radius(self, meter):
+        """Format cornering radius"""
+        if meter > 999:
+            meter = 0
+        if self.cfg.units["distance_unit"] == "Feet":
+            return f"r{calc.meter2feet(meter): >4.0f}ft"
+        return f"r{meter: >3.0f}m"

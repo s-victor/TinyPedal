@@ -708,6 +708,9 @@ Set minimum axle rotation (radians per second) for calculating wheel radius and 
     maximum_rotation_difference_front, maximum_rotation_difference_rear
 Set maximum rotation difference (percentage) between left or right wheel rotation and same axle rotation for limiting wheel radius calculation. Setting higher difference value may result inaccurate wheel radius reading. Default value is `0.002`.
 
+    cornering_radius_sampling_interval
+Set position sampling interval for cornering radius calculation. Value range in `5` to `100`. Default sampling interval is `10`, which is roughly 200ms interval between each recorded position. Higher value may result inaccuracy. Note, this option does not affect position recording interval.
+
     last_vehicle_info
 Last saved vehicle identifier. This option is not for manual editing.
 
@@ -900,6 +903,9 @@ Set maximum number of display digits.
 
     show_distance_into_lap
 Show distance into current lap.
+
+    show_cornering_radius
+Show cornering radius calculated in real-time.
 
     meters_driven
 This value holds the total distance (meters) that local player has driven. Accept manual editing.
