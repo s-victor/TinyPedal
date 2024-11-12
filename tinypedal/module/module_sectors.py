@@ -20,19 +20,17 @@
 Sectors module
 """
 
-import logging
-import csv
 from functools import partial
 
 from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
 from .. import validator as val
+from ..userfile.sector_best import load_sector_best_file, save_sector_best_file
 
 MODULE_NAME = "module_sectors"
 MAGIC_NUM = 99999
 
-logger = logging.getLogger(__name__)
 round6 = partial(round, ndigits=6)
 
 
@@ -58,7 +56,12 @@ class Realtime(DataModule):
                     combo_id = api.read.check.combo_id()  # current car & track combo
                     session_id = api.read.check.session_id()  # session identity
                     (best_s_tb, best_s_pb, all_best_s_tb, all_best_s_pb
-                     ) = load_sectors(self.filepath, combo_id, session_id)
+                     ) = load_sector_best_file(
+                        filepath=self.filepath,
+                        filename=combo_id,
+                        session_id=session_id,
+                        defaults=[MAGIC_NUM,MAGIC_NUM,MAGIC_NUM],
+                    )
 
                     if self.mcfg["enable_all_time_best_sectors"]:
                         gen_calc_sectors_session = calc_sectors(None, best_s_tb, best_s_pb)
@@ -82,13 +85,17 @@ class Realtime(DataModule):
                     best_s_tb, best_s_pb, new_best_session = gen_calc_sectors_session.send(tele_sectors)
                     all_best_s_tb, all_best_s_pb, new_best_all = gen_calc_sectors_alltime.send(tele_sectors)
                     if new_best_all or new_best_session:
-                        save_sectors((
-                            session_id,
-                            list(map(round6, best_s_tb)),
-                            list(map(round6, best_s_pb)),
-                            list(map(round6, all_best_s_tb)),
-                            list(map(round6, all_best_s_pb))),
-                            self.filepath, combo_id)
+                        save_sector_best_file(
+                            filepath=self.filepath,
+                            filename=combo_id,
+                            dataset=(
+                                session_id,
+                                list(map(round6, best_s_tb)),
+                                list(map(round6, best_s_pb)),
+                                list(map(round6, all_best_s_tb)),
+                                list(map(round6, all_best_s_pb))
+                            ),
+                        )
 
 
 def telemetry_sectors():
@@ -199,47 +206,3 @@ def calc_sectors(output, best_s_tb, best_s_pb):
                 output.sectorBestPB = best_s_pb
                 output.deltaSectorBestPB = delta_s_pb
                 output.deltaSectorBestTB = delta_s_tb
-
-
-def load_sectors(filepath:str, combo: str, session_id: tuple):
-    """Load sectors data"""
-    temp_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]
-    try:
-        with open(f"{filepath}{combo}.sector", newline="", encoding="utf-8") as csvfile:
-            temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
-            # Check if same session
-            if (temp_list[0][0] == session_id[0] and  # session_stamp
-                temp_list[0][1] <= session_id[1] and  # session_etime
-                temp_list[0][2] <= session_id[2]):    # session_tlaps
-                # Session best data
-                best_s_tb = [temp_list[1][0], temp_list[1][1], temp_list[1][2]]
-                best_s_pb = [temp_list[2][0], temp_list[2][1], temp_list[2][2]]
-            else:
-                best_s_tb = temp_s.copy()
-                best_s_pb = temp_s.copy()
-            # All time best data
-            all_best_s_tb = [temp_list[3][0], temp_list[3][1], temp_list[3][2]]
-            all_best_s_pb = [temp_list[4][0], temp_list[4][1], temp_list[4][2]]
-    except (FileNotFoundError, IndexError, ValueError, TypeError):
-        logger.info("MISSING: sectors best data")
-        best_s_tb = temp_s.copy()
-        best_s_pb = temp_s.copy()
-        all_best_s_tb = temp_s.copy()
-        all_best_s_pb = temp_s.copy()
-    return best_s_tb, best_s_pb, all_best_s_tb, all_best_s_pb
-
-
-def save_sectors(dataset: tuple, filepath: str, combo: str):
-    """Save sectors best
-
-    sector(CSV) file structure:
-        Line 0: session stamp, session elapsed time, session total laps
-        Line 1: session theoretical best sector time
-        Line 2: session personal best sector time
-        Line 3: all time theoretical best sector time
-        Line 4: all time personal best sector time
-    """
-    if len(dataset) == 5:
-        with open(f"{filepath}{combo}.sector", "w", newline="", encoding="utf-8") as csvfile:
-            sectorwrite = csv.writer(csvfile)
-            sectorwrite.writerows(dataset)

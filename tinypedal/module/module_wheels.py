@@ -20,7 +20,6 @@
 Wheels module
 """
 
-import logging
 from collections import deque
 
 from ._base import DataModule
@@ -29,8 +28,6 @@ from ..api_control import api
 from .. import calculation as calc
 
 MODULE_NAME = "module_wheels"
-
-logger = logging.getLogger(__name__)
 
 
 class Realtime(DataModule):
@@ -145,6 +142,6 @@ class Realtime(DataModule):
                     self.cfg.save()
 
 
-def sample_slice_indices(min_samples):
+def sample_slice_indices(samples: int) -> slice:
     """Calculate sample slice indices from minimum samples"""
-    return slice(int(min_samples * 0.25), int(min_samples * 0.75))
+    return slice(int(samples * 0.25), int(samples * 0.75))

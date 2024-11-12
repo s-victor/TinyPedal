@@ -766,14 +766,3 @@ def differential_locking_percent(rot_axle, rot_left):
     if rot_axle:
         return 1 - abs(rot_left / rot_axle - 1)
     return 0
-
-
-# Misc
-def image_size_adaption(org_width, org_height, target_width, target_height):
-    """Whether adapt image size to width or height
-
-    Returns:
-        True: adapt to height
-        False: adapt to width
-    """
-    return org_width * target_height / max(org_height, 1) > target_width

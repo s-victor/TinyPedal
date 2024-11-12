@@ -20,8 +20,6 @@
 Vehicles module
 """
 
-import logging
-
 from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
@@ -29,8 +27,6 @@ from .. import calculation as calc
 
 MODULE_NAME = "module_vehicles"
 ALL_INDEXES = list(range(minfo.MAX_VEHICLES))
-
-logger = logging.getLogger(__name__)
 
 
 class Realtime(DataModule):

@@ -20,7 +20,6 @@
 Relative module
 """
 
-import logging
 from functools import lru_cache
 from itertools import chain
 
@@ -35,8 +34,6 @@ ALL_PLACES = list(range(1, minfo.MAX_VEHICLES + 1))
 TEMP_DISTANCE = [[-1,-1] for _ in range(minfo.MAX_VEHICLES)]
 TEMP_CLASSES = [["",-1,-1,-1] for _ in range(minfo.MAX_VEHICLES)]
 TEMP_PLACES = [[-1,-1] for _ in range(minfo.MAX_VEHICLES)]
-
-logger = logging.getLogger(__name__)
 
 
 class Realtime(DataModule):

@@ -20,18 +20,16 @@
 Mapping module
 """
 
-import logging
 from functools import partial
 
 from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
 from .. import calculation as calc
-from .. import svg
+from ..userfile.track_map import load_track_map_file, save_track_map_file
 
 MODULE_NAME = "module_mapping"
 
-logger = logging.getLogger(__name__)
 round4 = partial(round, ndigits=4)
 
 
@@ -207,8 +205,9 @@ class MapData:
         """Load map data file"""
         self._filename = filename
         # Load map file
-        raw_coords, raw_dists, sectors_index = svg.load_track_map_file(
-            f"{self._filepath}{self._filename}.svg"
+        raw_coords, raw_dists, sectors_index = load_track_map_file(
+            filepath=self._filepath,
+            filename=self._filename,
         )
         if raw_coords and raw_dists:
             self.raw_coords = raw_coords
@@ -226,12 +225,12 @@ class MapData:
         self.raw_dists = self._temp_raw_dists
         self.sectors_index = self._temp_sectors_index
         # Save to svg file
-        svg.save_track_map_file(
-            self._filename,
-            self._filepath,
-            self.raw_coords,
-            self.raw_dists,
-            calc.svg_view_box(self.raw_coords, 20),
-            self.sectors_index
+        save_track_map_file(
+            filepath=self._filepath,
+            filename=self._filename,
+            view_box=calc.svg_view_box(self.raw_coords, 20),
+            raw_coords=self.raw_coords,
+            raw_dists=self.raw_dists,
+            sector_index=self.sectors_index,
         )
         #logger.info("map saved, stopped map recording")

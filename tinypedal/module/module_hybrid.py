@@ -20,15 +20,11 @@
 Hybrid module
 """
 
-import logging
-
 from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
 
 MODULE_NAME = "module_hybrid"
-
-logger = logging.getLogger(__name__)
 
 
 class Realtime(DataModule):

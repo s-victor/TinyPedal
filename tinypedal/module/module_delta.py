@@ -20,8 +20,6 @@
 Delta module
 """
 
-import logging
-import csv
 from functools import partial
 
 from ._base import DataModule
@@ -29,13 +27,13 @@ from ..module_info import minfo
 from ..api_control import api
 from .. import calculation as calc
 from .. import validator as val
+from ..userfile.delta_best import load_delta_best_file, save_delta_best_file
 
 MODULE_NAME = "module_delta"
 DELTA_ZERO = 0.0,0.0
 DELTA_DEFAULT = (DELTA_ZERO,)
 MAGIC_NUM = 99999
 
-logger = logging.getLogger(__name__)
 round6 = partial(round, ndigits=6)
 
 
@@ -87,7 +85,11 @@ class Realtime(DataModule):
                         laptime_session_best = MAGIC_NUM
                         last_session_id = (combo_id, *session_id)
 
-                    delta_list_best, laptime_best = load_deltabest(self.filepath, combo_id)
+                    delta_list_best, laptime_best = load_delta_best_file(
+                        filepath=self.filepath,
+                        filename=combo_id,
+                        defaults=(DELTA_DEFAULT, MAGIC_NUM)
+                    )
                     delta_list_curr = [DELTA_ZERO]  # distance, laptime
                     delta_list_last = DELTA_DEFAULT  # last lap
 
@@ -173,7 +175,11 @@ class Realtime(DataModule):
                         if laptime_last < laptime_best:
                             laptime_best = laptime_last
                             delta_list_best = delta_list_last.copy()
-                            save_deltabest(delta_list_best, self.filepath, combo_id)
+                            save_delta_best_file(
+                                filepath=self.filepath,
+                                filename=combo_id,
+                                dataset=delta_list_best,
+                            )
                         # Update delta session best list
                         if laptime_last < laptime_session_best:
                             laptime_session_best = laptime_last
@@ -254,30 +260,3 @@ class Realtime(DataModule):
                     last_session_id = (combo_id, *session_id)
                     self.cfg.user.setting["cruise"]["meters_driven"] = int(meters_driven)
                     self.cfg.save()
-
-
-def load_deltabest(filepath:str, combo: str):
-    """Load delta best & best laptime"""
-    try:
-        with open(f"{filepath}{combo}.csv", newline="", encoding="utf-8") as csvfile:
-            temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
-            temp_list_size = len(temp_list)
-            # Validate data
-            bestlist = val.delta_list(temp_list)
-            laptime_best = bestlist[-1][1]
-            # Save data if modified
-            if temp_list_size != len(bestlist):
-                save_deltabest(bestlist, filepath, combo)
-    except (FileNotFoundError, IndexError, ValueError, TypeError):
-        logger.info("MISSING: deltabest data")
-        bestlist = DELTA_DEFAULT
-        laptime_best = MAGIC_NUM
-    return bestlist, laptime_best
-
-
-def save_deltabest(dataset: list, filepath: str, combo: str):
-    """Save delta best"""
-    if len(dataset) >= 10:
-        with open(f"{filepath}{combo}.csv", "w", newline="", encoding="utf-8") as csvfile:
-            deltawrite = csv.writer(csvfile)
-            deltawrite.writerows(dataset)

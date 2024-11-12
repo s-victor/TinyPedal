@@ -20,19 +20,11 @@
 Setting
 """
 
-from __future__ import annotations
 import logging
 import os
 import time
 import threading
-import json
-import shutil
 from dataclasses import dataclass
-
-from .const import APP_NAME, PLATFORM, PATH_GLOBAL
-from .setting_validator import PresetValidator
-from . import regex_pattern as rxp
-from . import validator as val
 
 from .template.setting_global import GLOBAL_DEFAULT
 from .template.setting_common import COMMON_DEFAULT
@@ -41,8 +33,22 @@ from .template.setting_widget import WIDGET_DEFAULT
 from .template.setting_classes import CLASSES_DEFAULT
 from .template.setting_heatmap import HEATMAP_DEFAULT
 
+from . import regex_pattern as rxp
+from . import validator as val
+from .const import APP_NAME, PLATFORM, PATH_GLOBAL
+from .userfile.brand_logo import load_brand_logo_list
+from .userfile.json_setting import (
+    copy_setting,
+    save_json_file,
+    verify_json_file,
+    create_backup_file,
+    restore_backup_file,
+    delete_backup_file,
+    load_setting_json_file,
+    load_style_json_file,
+)
+
 logger = logging.getLogger(__name__)
-preset_validator = PresetValidator()
 
 
 @dataclass
@@ -186,13 +192,13 @@ class Setting:
             self.filename.classes, self.path.settings, self.default.classes)
         self.user.heatmap = load_style_json_file(
             self.filename.heatmap, self.path.settings, self.default.heatmap)
-        self.user.brands_logo = load_brands_logo_list(self.path.brand_logo)
+        self.user.brands_logo = load_brand_logo_list(self.path.brand_logo)
         # Save setting to JSON file
         logger.info("SETTING: %s loaded (user preset)", self.filename.last_setting)
         self.save(0)
 
     @property
-    def preset_list(self) -> list[str]:
+    def preset_list(self) -> list:
         """Load user preset JSON filename list, sort by modified date in descending order
 
         Returns:
@@ -256,7 +262,7 @@ class Setting:
 
         # Start saving attempts
         timer_start = time.perf_counter()
-        backup_old_json_file(filename, filepath)
+        create_backup_file(filename, filepath)
 
         while attempts > 0:
             save_json_file(filename, filepath, dict_user)
@@ -273,11 +279,11 @@ class Setting:
                 "SETTING: %s saved (took %sms, %s/%s attempts)",
                 filename, timer_end, max_attempts - attempts, attempts)
         else:
-            restore_old_json_file(filename, filepath)
+            restore_backup_file(filename, filepath)
             logger.info(
                 "SETTING: %s failed saving (took %sms, %s/%s attempts)",
                 filename, timer_end, max_attempts - attempts, attempts)
-        delete_old_json_file(filename, filepath)
+        delete_backup_file(filename, filepath)
 
         self._save_queue.discard(filetype)
         self.is_saving = False
@@ -286,106 +292,6 @@ class Setting:
         for save_task in self._save_queue:
             self.save(0, save_task)
             break
-
-
-def save_json_file(filename: str, filepath: str, dict_user: dict) -> None:
-    """Save setting to json file"""
-    with open(f"{filepath}{filename}", "w", encoding="utf-8") as jsonfile:
-        json.dump(dict_user, jsonfile, indent=4)
-
-
-def verify_json_file(filename: str, filepath: str, dict_user: dict) -> bool:
-    """Verify saved json file"""
-    try:
-        with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
-            return json.load(jsonfile) == dict_user
-    except (FileNotFoundError, ValueError):
-        logger.error("SETTING: failed saving verification")
-        return False
-
-
-def backup_invalid_json_file(filename: str, filepath: str) -> None:
-    """Backup invalid json file before revert to default"""
-    try:
-        time_stamp = time.strftime("%Y-%m-%d %H-%M-%S", time.localtime())
-        shutil.copyfile(f"{filepath}{filename}",
-                        f"{filepath}{filename[:-5]}-backup {time_stamp}.json")
-    except (FileNotFoundError, OSError):
-        logger.error("SETTING: failed invalid preset backup")
-
-
-def backup_old_json_file(filename: str, filepath: str) -> None:
-    """Backup old json file before saving"""
-    try:
-        shutil.copyfile(f"{filepath}{filename}",
-                        f"{filepath}{filename}.bak")
-    except (FileNotFoundError, OSError):
-        logger.error("SETTING: failed old preset backup")
-
-
-def restore_old_json_file(filename: str, filepath: str) -> None:
-    """Restore old json file if saving failed"""
-    try:
-        shutil.copyfile(f"{filepath}{filename}.bak",
-                        f"{filepath}{filename}")
-    except (FileNotFoundError, OSError):
-        logger.error("SETTING: failed old preset restoration")
-
-
-def delete_old_json_file(filename: str, filepath: str) -> None:
-    """Delete old (backup) json file"""
-    file_path = f"{filepath}{filename}.bak"
-    if os.path.exists(file_path):
-        os.remove(file_path)
-
-
-def load_setting_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
-    """Load setting json file & verify"""
-    try:
-        # Read JSON file
-        with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
-            setting_user = json.load(jsonfile)
-        # Verify & assign setting
-        setting_user = preset_validator.validate(setting_user, dict_def)
-    except (FileNotFoundError, ValueError):
-        logger.error("SETTING: %s failed loading, create backup & revert to default", filename)
-        backup_invalid_json_file(filename, filepath)
-        setting_user = copy_setting(dict_def)
-    return setting_user
-
-
-def load_style_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
-    """Load style json file"""
-    try:
-        # Read JSON file
-        with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
-            style_user = json.load(jsonfile)
-    except (FileNotFoundError, ValueError):
-        style_user = copy_setting(dict_def)
-        # Save to file if not found
-        if not os.path.exists(f"{filepath}{filename}"):
-            logger.info("SETTING: %s not found, create new default", filename)
-            save_json_file(filename, filepath, style_user)
-        else:
-            logger.error("SETTING: %s failed loading, fall back to default", filename)
-    return style_user
-
-
-def load_brands_logo_list(filepath: str) -> list[str]:
-    """Load brands logo list"""
-    return [
-        _filename[:-4] for _filename in os.listdir(filepath)
-        if _filename.lower().endswith(".png")
-        and os.path.getsize(f"{filepath}{_filename}") < 1024000]
-
-
-def copy_setting(dict_user: dict) -> dict:
-    """Copy setting"""
-    for item in dict_user.values():
-        if isinstance(item, dict):
-            return {key: item.copy() for key, item in dict_user.items()}
-        break
-    return dict_user.copy()
 
 
 # Assign config setting

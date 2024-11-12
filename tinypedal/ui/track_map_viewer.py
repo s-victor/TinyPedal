@@ -46,7 +46,7 @@ from ._common import BaseDialog, QSS_EDITOR_BUTTON
 from . config import UserConfig
 from .. import calculation as calc
 from .. import formatter as fmt
-from .. import svg
+from ..userfile.track_map import load_track_map_file
 
 
 class TrackMapViewer(BaseDialog):
@@ -339,21 +339,25 @@ class MapView(QWidget):
         if not full_filename:
             return
 
-        self.raw_coords, self.raw_dists, sector_index = svg.load_track_map_file(full_filename)
+        filepath = os.path.dirname(full_filename) + "/"
+        filename = fmt.strip_filename_extension(os.path.basename(full_filename), ".svg")
+        self.raw_coords, self.raw_dists, sector_index = load_track_map_file(
+            filepath=filepath,
+            filename=filename,
+        )
 
         if self.raw_coords and len(self.raw_coords) > 9:
             self.map_length = self.raw_dists[-1][0]
             self.map_nodes = len(self.raw_coords)
-            self.map_filename = fmt.strip_filename_extension(
-                os.path.basename(full_filename), ".svg")
+            self.map_filename = filename
             self.create_map_path(self.raw_coords, sector_index)
         else:
             self.map_length = 0
             self.map_nodes = 0
             self.map_filename = ""
             msg_text = (
-                "Invalid track map file.<br><br>"
-                "Only support file that generated with TinyPedal."
+                f"Unable to load track map file:<br><b>{full_filename}</b><br><br>"
+                "Only support SVG file that generated with TinyPedal."
             )
             QMessageBox.warning(self, "Error", msg_text)
 

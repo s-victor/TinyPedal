@@ -20,8 +20,6 @@
 Energy module
 """
 
-import logging
-
 from ._base import DataModule
 from .module_fuel import calc_data
 from ..module_info import minfo
@@ -29,8 +27,6 @@ from ..api_control import api
 from .. import calculation as calc
 
 MODULE_NAME = "module_energy"
-
-logger = logging.getLogger(__name__)
 
 
 class Realtime(DataModule):

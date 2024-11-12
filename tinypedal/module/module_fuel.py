@@ -20,8 +20,6 @@
 Fuel module
 """
 
-import logging
-import csv
 from functools import partial
 from math import ceil as roundup
 
@@ -29,13 +27,12 @@ from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
 from .. import calculation as calc
-from .. import validator as val
+from ..userfile.fuel_delta import load_fuel_delta_file, save_fuel_delta_file
 
 MODULE_NAME = "module_fuel"
 DELTA_ZERO = 0.0,0.0
 DELTA_DEFAULT = (DELTA_ZERO,)
 
-logger = logging.getLogger(__name__)
 round6 = partial(round, ndigits=6)
 
 
@@ -102,7 +99,12 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
     validating = 0
     pit_lap = 0  # whether pit in or pit out lap
 
-    delta_list_last, used_last, laptime_last = load_delta(filepath, combo_id, extension)
+    delta_list_last, used_last, laptime_last = load_fuel_delta_file(
+        filepath=filepath,
+        filename=combo_id,
+        extension=extension,
+        defaults=(DELTA_DEFAULT, 0, 0)
+    )
     delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
     delta_list_temp = DELTA_DEFAULT  # last lap temp
     delta_fuel = 0  # delta fuel consumption compare to last lap
@@ -135,7 +137,12 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
         # Save check
         if not updating:
             if delayed_save:
-                save_delta(delta_list_last, filepath, combo_id, extension)
+                save_fuel_delta_file(
+                    filepath=filepath,
+                    filename=combo_id,
+                    extension=extension,
+                    dataset=delta_list_last,
+                )
             continue
 
         # Read telemetry
@@ -275,32 +282,3 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
         output.estimatedNumPitStopsEarly = est_pits_early
         output.deltaConsumption = delta_fuel
         output.oneLessPitConsumption = used_est_less
-
-
-def save_delta(dataset: list, filepath: str, combo: str, extension: str):
-    """Save consumption data"""
-    if len(dataset) >= 10:
-        with open(f"{filepath}{combo}.{extension}", "w", newline="", encoding="utf-8") as csvfile:
-            deltawrite = csv.writer(csvfile)
-            deltawrite.writerows(dataset)
-
-
-def load_delta(filepath: str, combo: str, extension: str):
-    """Load consumption data"""
-    try:
-        with open(f"{filepath}{combo}.{extension}", newline="", encoding="utf-8") as csvfile:
-            temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
-            temp_list_size = len(temp_list)
-            # Validate data
-            lastlist = val.delta_list(temp_list)
-            used_last = lastlist[-1][1]
-            laptime_last = lastlist[-1][2]
-            # Save data if modified
-            if temp_list_size != len(lastlist):
-                save_delta(lastlist, filepath, combo, extension)
-    except (FileNotFoundError, IndexError, ValueError, TypeError):
-        logger.info("MISSING: %s data", extension)
-        lastlist = DELTA_DEFAULT
-        used_last = 0
-        laptime_last = 0
-    return lastlist, used_last, laptime_last

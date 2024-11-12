@@ -17,21 +17,21 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-SVG file function
+Track map file function
 """
 
 import logging
 import xml.dom.minidom
 
-from . import formatter as fmt
+from .. import formatter as fmt
 
 logger = logging.getLogger(__name__)
 
 
-def load_track_map_file(filename: str):
-    """Load svg track map file"""
+def load_track_map_file(filepath: str, filename: str):
+    """Load svg track map file (*.svg)"""
     try:
-        dom = xml.dom.minidom.parse(filename)
+        dom = xml.dom.minidom.parse(f"{filepath}{filename}.svg")
         desc_col = dom.documentElement.getElementsByTagName("desc")
         path_col = dom.documentElement.getElementsByTagName("polyline")
         svg_coords = svg_dists = None
@@ -58,8 +58,9 @@ def load_track_map_file(filename: str):
 
 
 def save_track_map_file(
-    filename, pathname, raw_coords, raw_dists, view_box, sector_index):
-    """Save svg track map file"""
+    filepath: str, filename: str, view_box: str,
+    raw_coords: tuple, raw_dists: tuple, sector_index: tuple):
+    """Save track map file (*.svg)"""
     # Convert to svg coordinates
     svg_coords = fmt.coords_to_points(raw_coords)
     svg_dists = fmt.coords_to_points(raw_dists)
@@ -118,5 +119,5 @@ def save_track_map_file(
     root_node.appendChild(dist_node)
 
     # Save svg
-    with open(f"{pathname}{filename}.svg", "w", encoding="utf-8") as svgfile:
+    with open(f"{filepath}{filename}.svg", "w", encoding="utf-8") as svgfile:
         new_svg.writexml(svgfile, indent="", addindent="\t", newl="\n", encoding="utf-8")

@@ -27,6 +27,7 @@ from PySide2.QtWidgets import QGridLayout
 from .. import calculation as calc
 from .. import formatter as fmt
 from ..module_info import minfo
+from ..userfile.brand_logo import load_brand_logo_file
 from ._base import Overlay
 
 WIDGET_NAME = "relative"
@@ -436,7 +437,7 @@ class Realtime(Overlay):
             else:
                 brand_name = "blank"
             # Draw brand logo
-            target_bar.setPixmap(self.load_brand_logo(brand_name))
+            target_bar.setPixmap(self.set_brand_logo(brand_name))
             # Draw background
             target_bar.setStyleSheet(self.bar_style_brd[curr[2]])
 
@@ -547,25 +548,19 @@ class Realtime(Overlay):
             return self.wcfg["font_color_laps_behind"]
         return self.wcfg["font_color_same_lap"]
 
-    def load_brand_logo(self, brand_name):
-        """Load brand logo"""
-        # Load cached logo
-        if brand_name in self.pixmap_brandlogo:
+    def set_brand_logo(self, brand_name):
+        """Set brand logo"""
+        if brand_name in self.pixmap_brandlogo:  # cached logo
             return self.pixmap_brandlogo[brand_name]
-        # Add available logo to cached
-        if brand_name in self.cfg.user.brands_logo:
-            logo_temp = QPixmap(f"{self.cfg.path.brand_logo}{brand_name}.png")
-            if calc.image_size_adaption(
-                logo_temp.width(), logo_temp.height(), self.brd_width, self.brd_height):
-                logo_image = logo_temp.scaledToWidth(  # adapt to width
-                    self.brd_width, mode=Qt.SmoothTransformation)
-            else:
-                logo_image = logo_temp.scaledToHeight(  # adapt to height
-                    self.brd_height, mode=Qt.SmoothTransformation)
-            self.pixmap_brandlogo[brand_name] = logo_image
+        if brand_name in self.cfg.user.brands_logo:  # add to cache
+            self.pixmap_brandlogo[brand_name] = load_brand_logo_file(
+                filepath=self.cfg.path.brand_logo,
+                filename=brand_name,
+                max_width=self.brd_width,
+                max_height=self.brd_height,
+            )
             return self.pixmap_brandlogo[brand_name]
-        # Load blank logo if unavailable
-        return self.pixmap_brandlogo["blank"]
+        return self.pixmap_brandlogo["blank"]  # load blank if unavailable
 
     @staticmethod
     def set_pitcount(pits):
