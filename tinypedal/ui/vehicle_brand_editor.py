@@ -27,27 +27,24 @@ import time
 import socket
 from urllib.request import urlopen
 
-from PySide2.QtCore import Qt
 from PySide2.QtWidgets import (
     QVBoxLayout,
     QHBoxLayout,
-    QLineEdit,
     QDialogButtonBox,
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
     QMessageBox,
     QFileDialog,
-    QComboBox,
     QHeaderView,
     QMenu,
-    QAction
+    QAction,
 )
 
 from ..api_control import api
 from ..setting import cfg, copy_setting
 from ..module_control import wctrl
-from ._common import BaseDialog, BaseEditor, QSS_EDITOR_BUTTON
+from ._common import BaseEditor, TableBatchReplace, QSS_EDITOR_BUTTON
 
 HEADER_BRANDS = "Name","Brand"
 
@@ -116,9 +113,9 @@ class VehicleBrandEditor(BaseEditor):
         button_delete.clicked.connect(self.delete_brand)
         button_delete.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_rename = QPushButton("Rename")
-        button_rename.clicked.connect(self.open_rename_dialog)
-        button_rename.setStyleSheet(QSS_EDITOR_BUTTON)
+        button_replace = QPushButton("Replace")
+        button_replace.clicked.connect(self.open_replace_dialog)
+        button_replace.setStyleSheet(QSS_EDITOR_BUTTON)
 
         button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
         button_reset.clicked.connect(self.reset_setting)
@@ -140,7 +137,7 @@ class VehicleBrandEditor(BaseEditor):
         layout_button.addWidget(button_add)
         layout_button.addWidget(button_sort)
         layout_button.addWidget(button_delete)
-        layout_button.addWidget(button_rename)
+        layout_button.addWidget(button_replace)
         layout_button.addWidget(button_reset)
         layout_button.addStretch(1)
         layout_button.addWidget(button_apply)
@@ -243,10 +240,9 @@ class VehicleBrandEditor(BaseEditor):
         self.refresh_table()
         QMessageBox.information(self, "Data Imported", "Vehicle brand data imported.")
 
-    def open_rename_dialog(self):
-        """Open rename dialog"""
-        self.update_brands_temp()
-        _dialog = BatchRename(self)
+    def open_replace_dialog(self):
+        """Open replace dialog"""
+        _dialog = TableBatchReplace(self, HEADER_BRANDS, self.table_brands, 1)
         _dialog.open()
 
     def add_brand(self):
@@ -323,76 +319,12 @@ class VehicleBrandEditor(BaseEditor):
     def save_setting(self):
         """Save setting"""
         self.update_brands_temp()
-        self.refresh_table()
         cfg.user.brands = copy_setting(self.brands_temp)
         cfg.save(0, "brands")
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
         wctrl.reload()
         self.set_unmodified()
-
-
-class BatchRename(BaseDialog):
-    """Batch rename"""
-
-    def __init__(self, master):
-        super().__init__(master)
-        self.master = master
-        self.setWindowTitle("Batch Rename")
-
-        # Label & combobox
-        self.source_selector = QComboBox()
-        self.update_selector()
-        self.replace_entry = QLineEdit()
-        self.replace_entry.setPlaceholderText("Enter a new name")
-
-        layout_option = QVBoxLayout()
-        layout_option.setAlignment(Qt.AlignTop)
-        layout_option.addWidget(self.source_selector)
-        layout_option.addWidget(self.replace_entry)
-
-        # Button
-        button_rename = QPushButton("Rename")
-        button_rename.clicked.connect(self.renaming)
-
-        button_close = QDialogButtonBox(QDialogButtonBox.Close)
-        button_close.rejected.connect(self.reject)
-
-        layout_button = QHBoxLayout()
-        layout_button.addWidget(button_rename)
-        layout_button.addStretch(1)
-        layout_button.addWidget(button_close)
-
-        # Set layout
-        layout_main = QVBoxLayout()
-        layout_main.addLayout(layout_option)
-        layout_main.addLayout(layout_button)
-        self.setLayout(layout_main)
-        self.setMinimumWidth(200)
-        self.setFixedHeight(self.sizeHint().height())
-
-    def update_selector(self, target: str = ""):
-        """Update selector list"""
-        self.source_selector.clear()
-        selector_list = sorted(set(self.master.brands_temp.values()))
-        self.source_selector.addItems(selector_list)
-        self.source_selector.setCurrentText(target)
-
-    def renaming(self):
-        """Rename"""
-        if not self.replace_entry.text():
-            QMessageBox.warning(self, "Error", "Invalid name.")
-            return
-
-        source = self.source_selector.currentText()
-        replace = self.replace_entry.text()
-
-        for key, item in self.master.brands_temp.items():
-            if item == source:
-                self.master.brands_temp[key] = replace
-
-        self.master.refresh_table()
-        self.update_selector(replace)
 
 
 def parse_vehicle_name(vehicle):

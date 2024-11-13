@@ -21,6 +21,7 @@ Common
 """
 
 import os
+import re
 from collections import deque
 
 from PySide2.QtCore import Qt, QRegularExpression, QLocale
@@ -44,7 +45,13 @@ from PySide2.QtWidgets import (
     QDialogButtonBox,
     QHBoxLayout,
     QVBoxLayout,
+    QTableWidget,
     QTableWidgetItem,
+    QPushButton,
+    QGridLayout,
+    QCheckBox,
+    QComboBox,
+    QCompleter,
 )
 
 from .. import validator as val
@@ -232,6 +239,101 @@ class BatchOffset(BaseDialog):
             self.last_offset.setText(f"{value:+.{self.decimals}f}")
             self.offset_func(value)
             self.edit_offset.setValue(0)
+
+
+class TableBatchReplace(BaseDialog):
+    """Table batch replace"""
+
+    def __init__(
+        self, master, table_header: tuple, table_data: QTableWidget, column_skip: int = 0):
+        super().__init__(master)
+        self.table_data = table_data
+        self.column_skip = column_skip
+        self.setWindowTitle("Batch Replace")
+
+        # Label & combobox
+        self.search_selector = QComboBox()
+        self.search_selector.setEditable(True)
+        self.search_selector.setCompleter(QCompleter())  # disable auto-complete
+
+        self.column_selector = QComboBox()
+        self.column_selector.addItems(table_header[self.column_skip:])
+        self.column_selector.currentIndexChanged.connect(self.update_selector)
+        self.update_selector(0)
+
+        self.replace_entry = QLineEdit()
+
+        self.checkbox_casematch = QCheckBox("Match Case")
+        self.checkbox_casematch.setChecked(False)
+        self.checkbox_exactmatch = QCheckBox("Match Whole Word")
+        self.checkbox_exactmatch.setChecked(False)
+
+        layout_option = QGridLayout()
+        layout_option.setAlignment(Qt.AlignTop)
+        layout_option.addWidget(QLabel("Column:"), 0, 0)
+        layout_option.addWidget(QLabel("Find:"), 1, 0)
+        layout_option.addWidget(QLabel("Replace:"), 2, 0)
+        layout_option.addWidget(self.column_selector, 0, 1)
+        layout_option.addWidget(self.search_selector, 1, 1)
+        layout_option.addWidget(self.replace_entry, 2, 1)
+        layout_option.addWidget(self.checkbox_exactmatch, 3, 1)
+        layout_option.addWidget(self.checkbox_casematch, 4, 1)
+
+        # Button
+        button_replace = QPushButton("Replace")
+        button_replace.clicked.connect(self.replacing)
+
+        button_close = QDialogButtonBox(QDialogButtonBox.Close)
+        button_close.rejected.connect(self.reject)
+
+        layout_button = QHBoxLayout()
+        layout_button.addWidget(button_replace)
+        layout_button.addStretch(1)
+        layout_button.addWidget(button_close)
+
+        # Set layout
+        layout_main = QVBoxLayout()
+        layout_main.addLayout(layout_option)
+        layout_main.addLayout(layout_button)
+        self.setLayout(layout_main)
+        self.setMinimumWidth(300)
+        self.setFixedHeight(self.sizeHint().height())
+
+    def update_selector(self, column_index: int, last_search: str = ""):
+        """Update selector list"""
+        self.search_selector.clear()
+        column_index += self.column_skip
+        selector_list = set(
+            self.table_data.item(row_index, column_index).text()
+            for row_index in range(self.table_data.rowCount())
+        )
+        self.search_selector.addItems(sorted(selector_list))
+        self.search_selector.setCurrentText(last_search)
+
+    def replacing(self):
+        """Replace"""
+        if not self.search_selector.currentText():
+            QMessageBox.warning(self, "Error", "Invalid name.")
+            return
+
+        column_index = self.column_selector.currentIndex() + self.column_skip
+        search = self.search_selector.currentText()
+        replace = self.replace_entry.text()
+
+        pattern = re.escape(search)  # escape special chars
+        if self.checkbox_exactmatch.isChecked():
+            pattern = f"^{pattern}$"
+
+        if self.checkbox_casematch.isChecked():
+            match_flag = 0
+        else:
+            match_flag = re.IGNORECASE
+
+        for row_index in range(self.table_data.rowCount()):
+            item = self.table_data.item(row_index, column_index)
+            item.setText(re.sub(pattern, replace, item.text(), flags=match_flag))
+
+        self.update_selector(column_index - self.column_skip, search)
 
 
 class DoubleClickEdit(QLineEdit):

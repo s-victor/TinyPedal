@@ -92,7 +92,7 @@ To sort brand name in orders, click `Sort` button.
 
 To remove a brand name, select a vehicle name and click `Delete` button.
 
-To batch rename brand name, click `Rename` button.
+To batch replace brand name, click `Replace` button.
 
 To reset all brands setting to default, click `Reset` button; or manually delete `brands.json` file.
 
