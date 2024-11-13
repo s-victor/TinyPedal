@@ -28,10 +28,10 @@ from .. import validator as val
 logger = logging.getLogger(__name__)
 
 
-def load_delta_best_file(filepath:str, filename: str, defaults: tuple):
+def load_delta_best_file(filepath:str, filename: str, defaults: tuple, extension: str = ".csv"):
     """Load delta best file (*.csv)"""
     try:
-        with open(f"{filepath}{filename}.csv", newline="", encoding="utf-8") as csvfile:
+        with open(f"{filepath}{filename}{extension}", newline="", encoding="utf-8") as csvfile:
             temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
             temp_list_size = len(temp_list)
             # Validate data
@@ -43,6 +43,7 @@ def load_delta_best_file(filepath:str, filename: str, defaults: tuple):
                     filepath=filepath,
                     filename=filename,
                     dataset=bestlist,
+                    extension=extension,
                 )
         return bestlist, laptime_best
     except (FileNotFoundError, IndexError, ValueError, TypeError):
@@ -50,10 +51,10 @@ def load_delta_best_file(filepath:str, filename: str, defaults: tuple):
         return defaults
 
 
-def save_delta_best_file(filepath: str, filename: str, dataset: list):
+def save_delta_best_file(filepath: str, filename: str, dataset: list, extension: str = ".csv"):
     """Save delta best file (*.csv)"""
     if len(dataset) < 10:
         return
-    with open(f"{filepath}{filename}.csv", "w", newline="", encoding="utf-8") as csvfile:
+    with open(f"{filepath}{filename}{extension}", "w", newline="", encoding="utf-8") as csvfile:
         deltawrite = csv.writer(csvfile)
         deltawrite.writerows(dataset)

@@ -26,10 +26,11 @@ import csv
 logger = logging.getLogger(__name__)
 
 
-def load_sector_best_file(filepath:str, filename: str, session_id: tuple, defaults: list):
+def load_sector_best_file(
+    filepath:str, filename: str, session_id: tuple, defaults: list, extension: str = ".sector"):
     """Load sector best file (*.sector)"""
     try:
-        with open(f"{filepath}{filename}.sector", newline="", encoding="utf-8") as csvfile:
+        with open(f"{filepath}{filename}{extension}", newline="", encoding="utf-8") as csvfile:
             temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
             # Check if same session
             if (temp_list[0][0] == session_id[0] and  # session_stamp
@@ -53,7 +54,8 @@ def load_sector_best_file(filepath:str, filename: str, session_id: tuple, defaul
     return best_s_tb, best_s_pb, all_best_s_tb, all_best_s_pb
 
 
-def save_sector_best_file(filepath: str, filename: str, dataset: tuple):
+def save_sector_best_file(
+    filepath: str, filename: str, dataset: tuple, extension: str = ".sector"):
     """Save sector best file (*.sector)
 
     sector(CSV) file structure:
@@ -65,6 +67,6 @@ def save_sector_best_file(filepath: str, filename: str, dataset: tuple):
     """
     if len(dataset) != 5:
         return
-    with open(f"{filepath}{filename}.sector", "w", newline="", encoding="utf-8") as csvfile:
+    with open(f"{filepath}{filename}{extension}", "w", newline="", encoding="utf-8") as csvfile:
         sectorwrite = csv.writer(csvfile)
         sectorwrite.writerows(dataset)

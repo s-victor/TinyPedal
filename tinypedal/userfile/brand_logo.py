@@ -26,11 +26,11 @@ from PySide2.QtCore import Qt
 from PySide2.QtGui import QPixmap
 
 
-def load_brand_logo_list(filepath: str) -> list:
+def load_brand_logo_list(filepath: str, extension: str = ".png") -> list:
     """Load brand logo file (*.png) name list"""
     return [
         _filename[:-4] for _filename in os.listdir(filepath)
-        if _filename.lower().endswith(".png")
+        if _filename.lower().endswith(extension)
         and os.path.getsize(f"{filepath}{_filename}") < 1024000]
 
 
@@ -40,9 +40,11 @@ def exceeded_max_logo_width(
     return org_width * max_height / max(org_height, 1) > max_width
 
 
-def load_brand_logo_file(filepath:str, filename: str, max_width: int, max_height: int) -> QPixmap:
+def load_brand_logo_file(
+    filepath:str, filename: str, max_width: int, max_height: int, extension: str = ".png"
+    ) -> QPixmap:
     """Load brand logo file (*.png)"""
-    logo = QPixmap(f"{filepath}{filename}.png")
+    logo = QPixmap(f"{filepath}{filename}{extension}")
     if exceeded_max_logo_width(logo.width(), logo.height(), max_width, max_height):
         logo_scaled = logo.scaledToWidth(
             max_width, mode=Qt.SmoothTransformation)

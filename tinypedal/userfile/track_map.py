@@ -28,10 +28,10 @@ from .. import formatter as fmt
 logger = logging.getLogger(__name__)
 
 
-def load_track_map_file(filepath: str, filename: str):
+def load_track_map_file(filepath: str, filename: str, extension: str = ".svg"):
     """Load svg track map file (*.svg)"""
     try:
-        dom = xml.dom.minidom.parse(f"{filepath}{filename}.svg")
+        dom = xml.dom.minidom.parse(f"{filepath}{filename}{extension}")
         desc_col = dom.documentElement.getElementsByTagName("desc")
         path_col = dom.documentElement.getElementsByTagName("polyline")
         svg_coords = svg_dists = None
@@ -59,7 +59,8 @@ def load_track_map_file(filepath: str, filename: str):
 
 def save_track_map_file(
     filepath: str, filename: str, view_box: str,
-    raw_coords: tuple, raw_dists: tuple, sector_index: tuple):
+    raw_coords: tuple, raw_dists: tuple, sector_index: tuple,
+    extension: str = ".svg"):
     """Save track map file (*.svg)"""
     # Convert to svg coordinates
     svg_coords = fmt.coords_to_points(raw_coords)
@@ -119,5 +120,5 @@ def save_track_map_file(
     root_node.appendChild(dist_node)
 
     # Save svg
-    with open(f"{filepath}{filename}.svg", "w", encoding="utf-8") as svgfile:
+    with open(f"{filepath}{filename}{extension}", "w", encoding="utf-8") as svgfile:
         new_svg.writexml(svgfile, indent="", addindent="\t", newl="\n", encoding="utf-8")

@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 def load_fuel_delta_file(filepath: str, filename: str, extension: str, defaults: tuple):
     """Load fuel/energy delta file (*.fuel, *.energy)"""
     try:
-        with open(f"{filepath}{filename}.{extension}", newline="", encoding="utf-8") as csvfile:
+        with open(f"{filepath}{filename}{extension}", newline="", encoding="utf-8") as csvfile:
             temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
             temp_list_size = len(temp_list)
             # Validate data
@@ -56,6 +56,6 @@ def save_fuel_delta_file(filepath: str, filename: str, extension: str, dataset: 
     """Save fuel/energy delta file (*.fuel, *.energy)"""
     if len(dataset) < 10:
         return
-    with open(f"{filepath}{filename}.{extension}", "w", newline="", encoding="utf-8") as csvfile:
+    with open(f"{filepath}{filename}{extension}", "w", newline="", encoding="utf-8") as csvfile:
         deltawrite = csv.writer(csvfile)
         deltawrite.writerows(dataset)

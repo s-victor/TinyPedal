@@ -50,7 +50,12 @@ class Realtime(DataModule):
 
                     combo_id = api.read.check.combo_id()
                     gen_calc_energy = calc_data(
-                        minfo.energy, telemetry_energy, self.filepath, combo_id, "energy")
+                        output=minfo.energy,
+                        telemetry_func=telemetry_energy,
+                        filepath=self.filepath,
+                        filename=combo_id,
+                        extension=".energy",
+                    )
                     # Initial run to reset module output
                     next(gen_calc_energy)
                     gen_calc_energy.send(True)

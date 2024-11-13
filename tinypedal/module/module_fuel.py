@@ -57,7 +57,12 @@ class Realtime(DataModule):
 
                     combo_id = api.read.check.combo_id()
                     gen_calc_fuel = calc_data(
-                        minfo.fuel, telemetry_fuel, self.filepath, combo_id, "fuel")
+                        output=minfo.fuel,
+                        telemetry_func=telemetry_fuel,
+                        filepath=self.filepath,
+                        filename=combo_id,
+                        extension=".fuel",
+                    )
                     # Initial run to reset module output
                     next(gen_calc_fuel)
                     gen_calc_fuel.send(True)
@@ -92,7 +97,8 @@ def telemetry_fuel():
     return capacity, amount_curr
 
 
-def calc_data(output, telemetry_func, filepath, combo_id, extension):
+def calc_data(
+    output: object, telemetry_func: object, filepath: str, filename: str, extension: str):
     """Calculate data"""
     recording = False
     delayed_save = False
@@ -101,7 +107,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
 
     delta_list_last, used_last, laptime_last = load_fuel_delta_file(
         filepath=filepath,
-        filename=combo_id,
+        filename=filename,
         extension=extension,
         defaults=(DELTA_DEFAULT, 0, 0)
     )
@@ -139,7 +145,7 @@ def calc_data(output, telemetry_func, filepath, combo_id, extension):
             if delayed_save:
                 save_fuel_delta_file(
                     filepath=filepath,
-                    filename=combo_id,
+                    filename=filename,
                     extension=extension,
                     dataset=delta_list_last,
                 )

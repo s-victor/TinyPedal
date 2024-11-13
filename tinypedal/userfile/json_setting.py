@@ -101,30 +101,30 @@ def backup_invalid_json_file(filename: str, filepath: str) -> None:
         logger.error("SETTING: failed invalid preset backup")
 
 
-def create_backup_file(filename: str, filepath: str) -> None:
+def create_backup_file(filename: str, filepath: str, extension: str = ".bak") -> None:
     """Create backup file before saving"""
     try:
         shutil.copyfile(
             f"{filepath}{filename}",
-            f"{filepath}{filename}.bak"
+            f"{filepath}{filename}{extension}"
         )
     except (FileNotFoundError, OSError):
         logger.error("SETTING: failed old preset backup")
 
 
-def restore_backup_file(filename: str, filepath: str) -> None:
+def restore_backup_file(filename: str, filepath: str, extension: str = ".bak") -> None:
     """Restore backup file if saving failed"""
     try:
         shutil.copyfile(
-            f"{filepath}{filename}.bak",
+            f"{filepath}{filename}{extension}",
             f"{filepath}{filename}"
         )
     except (FileNotFoundError, OSError):
         logger.error("SETTING: failed old preset restoration")
 
 
-def delete_backup_file(filename: str, filepath: str) -> None:
+def delete_backup_file(filename: str, filepath: str, extension: str = ".bak") -> None:
     """Delete backup file"""
-    file_path = f"{filepath}{filename}.bak"
+    file_path = f"{filepath}{filename}{extension}"
     if os.path.exists(file_path):
         os.remove(file_path)
