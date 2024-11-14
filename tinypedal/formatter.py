@@ -64,6 +64,15 @@ def strip_filename_extension(name: str, extension: str) -> str:
     return name
 
 
+def qfile_filter(extension: str, description: str) -> str:
+    """File format filter for QFile dialog
+
+    Returns:
+        "File description (*.extension)"
+    """
+    return f"{description} (*{extension})"
+
+
 def select_gear(index: int) -> str:
     """Select gear string"""
     if -1 <= index <= 9:

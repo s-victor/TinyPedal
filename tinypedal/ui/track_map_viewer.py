@@ -45,8 +45,7 @@ from ..setting import cfg
 from ._common import BaseDialog, QSS_EDITOR_BUTTON
 from . config import UserConfig
 from .. import calculation as calc
-from .. import formatter as fmt
-from ..userfile.track_map import load_track_map_file
+from ..userfile.track_map import load_track_map_file, QFILTER_SVG
 
 
 class TrackMapViewer(BaseDialog):
@@ -296,7 +295,7 @@ class MapView(QWidget):
         end_node = self.map_nodes - 1
         self.marked_coords.clear()
         for dist in temp_dists:
-            if dist < self.map_length:
+            if 0 <= dist <= self.map_length:
                 index = calc.binary_search_higher_column(
                     self.raw_dists, dist, 0, end_node)
                 self.marked_coords.append(QPointF(*self.raw_coords[index]))
@@ -334,13 +333,16 @@ class MapView(QWidget):
 
     def open_trackmap(self):
         """Open trackmap"""
-        full_filename = QFileDialog.getOpenFileName(
-            self, dir=cfg.path.track_map, filter="Scalable Vector Graphics (*.svg)")[0]
-        if not full_filename:
+        filename_full = QFileDialog.getOpenFileName(
+            self,
+            dir=cfg.path.track_map,
+            filter=QFILTER_SVG
+        )[0]
+        if not filename_full:
             return
 
-        filepath = os.path.dirname(full_filename) + "/"
-        filename = fmt.strip_filename_extension(os.path.basename(full_filename), ".svg")
+        filepath = os.path.dirname(filename_full) + "/"
+        filename = os.path.splitext(os.path.basename(filename_full))[0]
         self.raw_coords, self.raw_dists, sector_index = load_track_map_file(
             filepath=filepath,
             filename=filename,
@@ -356,7 +358,7 @@ class MapView(QWidget):
             self.map_nodes = 0
             self.map_filename = ""
             msg_text = (
-                f"Unable to load track map file:<br><b>{full_filename}</b><br><br>"
+                f"Unable to load track map file:<br><b>{filename_full}</b><br><br>"
                 "Only support SVG file that generated with TinyPedal."
             )
             QMessageBox.warning(self, "Error", msg_text)

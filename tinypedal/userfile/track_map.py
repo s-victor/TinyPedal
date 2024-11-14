@@ -23,7 +23,14 @@ Track map file function
 import logging
 import xml.dom.minidom
 
-from .. import formatter as fmt
+from ..formatter import (
+    qfile_filter,
+    coords_to_points,
+    points_to_coords,
+    string_pair_to_int,
+)
+
+QFILTER_SVG = qfile_filter(".svg", "Scalable Vector Graphics")
 
 logger = logging.getLogger(__name__)
 
@@ -45,9 +52,9 @@ def load_track_map_file(filepath: str, filename: str, extension: str = ".svg"):
                 continue
 
         # Convert to coordinates list
-        raw_coords = fmt.points_to_coords(svg_coords)
-        raw_dists = fmt.points_to_coords(svg_dists)
-        sector_index = fmt.string_pair_to_int(desc_col[0].childNodes[0].nodeValue)
+        raw_coords = points_to_coords(svg_coords)
+        raw_dists = points_to_coords(svg_dists)
+        sector_index = string_pair_to_int(desc_col[0].childNodes[0].nodeValue)
 
         return raw_coords, raw_dists, sector_index
     except (
@@ -63,8 +70,8 @@ def save_track_map_file(
     extension: str = ".svg"):
     """Save track map file (*.svg)"""
     # Convert to svg coordinates
-    svg_coords = fmt.coords_to_points(raw_coords)
-    svg_dists = fmt.coords_to_points(raw_dists)
+    svg_coords = coords_to_points(raw_coords)
+    svg_dists = coords_to_points(raw_dists)
 
     # Create new svg file
     new_svg = xml.dom.minidom.Document()
