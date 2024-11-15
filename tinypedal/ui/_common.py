@@ -41,7 +41,6 @@ from PySide2.QtWidgets import (
     QLineEdit,
     QColorDialog,
     QDoubleSpinBox,
-    QSpinBox,
     QDialogButtonBox,
     QHBoxLayout,
     QVBoxLayout,
@@ -185,32 +184,34 @@ class BatchOffset(BaseDialog):
     def __init__(self, master, offset_func: object):
         super().__init__(master)
         self.setWindowTitle("Batch Offset")
-        self.offset_func = offset_func
-        self.edit_offset = None
-        self.last_offset = QLabel("0")
         self.decimals = 0
+        self.value_range = 0, 1
+        self.offset_func = offset_func
+        self.edit_offset = QDoubleSpinBox()
+        self.last_offset = QLabel("0")
+        self.last_label = QLabel("Last Offset:")
+        self.checkbox_scale = QCheckBox("Scale Mode")
 
     def config(self, decimals: int, step: float, min_range: int, max_range: int):
         """Config offset"""
         self.decimals = decimals
+        self.value_range = min_range, max_range
 
-        if self.decimals > 0:
-            self.edit_offset = QDoubleSpinBox()
-            self.edit_offset.setDecimals(self.decimals)
-        else:
-            self.edit_offset = QSpinBox()
+        # Label
+        layout_label = QHBoxLayout()
+        layout_label.addWidget(self.last_label)
+        layout_label.addStretch(1)
+        layout_label.addWidget(self.last_offset)
 
-        self.edit_offset.setRange(min_range, max_range)
+        # Edit offset
+        self.edit_offset.setDecimals(self.decimals)
+        self.edit_offset.setRange(*self.value_range)
         self.edit_offset.setSingleStep(step)
         self.edit_offset.setAlignment(Qt.AlignRight)
 
-        # Label
-        last_label = QLabel("Last Offset:")
-
-        layout_label = QHBoxLayout()
-        layout_label.addWidget(last_label)
-        layout_label.addStretch(1)
-        layout_label.addWidget(self.last_offset)
+        # Scale mode
+        self.checkbox_scale.setChecked(False)
+        self.checkbox_scale.toggled.connect(self.toggle_mode)
 
         # Button
         button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
@@ -228,16 +229,30 @@ class BatchOffset(BaseDialog):
         layout_main = QVBoxLayout()
         layout_main.addLayout(layout_label)
         layout_main.addWidget(self.edit_offset)
+        layout_main.addWidget(self.checkbox_scale)
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
         self.setFixedSize(150, self.sizeHint().height())
+
+    def toggle_mode(self, checked: bool):
+        """Toggle mode"""
+        self.last_offset.setText("0")
+        if checked:
+            self.edit_offset.setRange(0, 100)
+            self.edit_offset.setDecimals(6)
+            self.last_label.setText("Last Scale:")
+        else:
+            self.edit_offset.setRange(*self.value_range)
+            self.edit_offset.setDecimals(self.decimals)
+            self.last_label.setText("Last Offset:")
 
     def applying(self):
         """Apply offset"""
         value = self.edit_offset.value()
         if value != 0:
-            self.last_offset.setText(f"{value:+.{self.decimals}f}")
-            self.offset_func(value)
+            self.offset_func(value, self.checkbox_scale.isChecked())
+            offset_text = f"{value:.{self.edit_offset.decimals()}f}"
+            self.last_offset.setText(offset_text.rstrip("0").rstrip("."))
             self.edit_offset.setValue(0)
 
 

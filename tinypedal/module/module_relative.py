@@ -37,7 +37,7 @@ TEMP_PLACES = [[-1,-1] for _ in range(minfo.MAX_VEHICLES)]
 
 
 class Realtime(DataModule):
-    """Relative info"""
+    """Relative & standings data"""
 
     def __init__(self, config):
         super().__init__(config, MODULE_NAME)

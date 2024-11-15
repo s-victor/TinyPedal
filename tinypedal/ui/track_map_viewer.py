@@ -22,7 +22,7 @@ Track map viewer
 
 import os
 
-from PySide2.QtCore import Qt, QPointF, QRect
+from PySide2.QtCore import Qt, Signal, QPointF, QRect
 from PySide2.QtGui import QPainterPath, QPainter, QPen
 from PySide2.QtWidgets import (
     QHBoxLayout,
@@ -90,6 +90,7 @@ class TrackMapViewer(BaseDialog):
 
 class MapView(QWidget):
     """Map view"""
+    reloaded = Signal(bool)
 
     def __init__(self):
         super().__init__()
@@ -365,6 +366,7 @@ class MapView(QWidget):
 
         self.reset_control()
         self.update()
+        self.reloaded.emit(True)
 
     def create_map_path(self, raw_coords, sectors_index):
         """Create map path"""

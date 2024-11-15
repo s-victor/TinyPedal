@@ -76,7 +76,7 @@ TASK_REPEATS = (
 
 
 class Realtime(DataModule):
-    """Wheels data"""
+    """Rest API data"""
 
     def __init__(self, config):
         super().__init__(config, MODULE_NAME)
