@@ -48,6 +48,8 @@ GLOBAL_DEFAULT = {
         "energy_delta_path": "deltabest/",
         "fuel_delta_path": "deltabest/",
         "track_map_path": "trackmap/",
+        "pace_notes_path": "pacenotes/",
+        "track_notes_path": "tracknotes/",
     },
     "primary_preset": {
         "LMU": "",

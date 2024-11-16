@@ -74,6 +74,8 @@ class FilePath:
         self.energy_delta: str = ""
         self.fuel_delta: str = ""
         self.track_map: str = ""
+        self.pace_notes: str = ""
+        self.track_notes: str = ""
 
     def update(self, user_path: dict, default_path: dict):
         """Update path variables from global user path dictionary"""
@@ -121,7 +123,12 @@ class Preset:
             from xdg import BaseDirectory as BD
             for key in self.config["user_path"].keys():
                 default_path = self.config["user_path"][key]
-                if key in ("settings_path", "brand_logo_path"):
+                if key in (
+                    "settings_path",
+                    "brand_logo_path",
+                    "pace_notes_path",
+                    "track_notes_path",
+                    ):
                     self.config["user_path"][key] = BD.save_config_path(APP_NAME, default_path)
                 else:
                     self.config["user_path"][key] = BD.save_data_path(APP_NAME, default_path)
