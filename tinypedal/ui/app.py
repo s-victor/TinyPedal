@@ -45,6 +45,7 @@ from .tray_icon import TrayIcon
 from .module_view import ModuleList
 from .spectate_view import SpectateList
 from .preset_view import PresetList
+from .pace_notes_view import PaceNotesControl
 from .menu import OverlayMenu, ConfigMenu, ToolsMenu, WindowMenu, HelpMenu
 
 
@@ -86,10 +87,12 @@ class AppWindow(QMainWindow):
         self.module_tab = ModuleList(mctrl)
         self.preset_tab = PresetList(self)
         self.spectate_tab = SpectateList(self)
+        self.pacenotes_tab = PaceNotesControl()
         self.tab_bar.addTab(self.widget_tab, "Widget")
         self.tab_bar.addTab(self.module_tab, "Module")
         self.tab_bar.addTab(self.preset_tab, "Preset")
         self.tab_bar.addTab(self.spectate_tab, "Spectate")
+        self.tab_bar.addTab(self.pacenotes_tab, "Pace Notes")
 
         # Main view
         main_view = QWidget()
@@ -240,6 +243,7 @@ class AppWindow(QMainWindow):
         self.widget_tab.refresh_state()
         self.module_tab.refresh_state()
         self.spectate_tab.refresh_list()
+        self.pacenotes_tab.refresh_state()
 
     def __connect_signal(self):
         """Connect overlay reload signal"""

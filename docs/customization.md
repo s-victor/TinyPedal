@@ -482,6 +482,28 @@ Select `Anonymous` for unspecified player, which is equivalent to player index `
 Click `Refresh` button to manually refresh player name list.
 
 
+## Pace Notes Playback
+**Pace notes playback control panel can be accessed from `Pace Notes` tab in main window.**
+
+Note, `Notes Module` must be enabled to allow pace notes playback.
+
+Click `Enabled Playback` or `Disabled Playback` button to quickly enable or disable pace notes playback. Disabling this option does not affect `Notes Module` or `Pace notes Widget`.
+
+Enable `Manually Select Pace Notes File` check box to disable auto-file-name matching, and manually select a pace notes file that can be played on any track. By default, pace notes file is automatically loaded from `pace_notes_path` if a file that matches current track name is found. This option takes immediate effect when changed.
+
+`Sound file path` sets path for loading pace notes sound files that matches value from `pace note` column found in pace notes file. If no sound file found, sound won't be played. This option takes immediate effect when changed.
+
+`Sound format` sets sound format for loading sound file. Wave format is preferred sound format. Other sound format may require additional `audio decoder` application that supports DirectShow API to be played correctly on windows. This option only takes effect after clicked any `Set` button.
+
+`Global offset` adds global position offset (in meters) to current vehicle position on track, which affects when next pace note line will be played. This option only takes effect after clicked any `Set` button.
+
+`Max duration` sets maximum playback duration for each sound file, which can be used to limit sound file maximum playing duration. Default duration is 10 seconds. This option only takes effect after clicked any `Set` button.
+
+`Max Queue` sets maximum number of sound files in playback queues. Default is `5` sound files. This option only takes effect after clicked any `Set` button.
+
+`Playback volume` sets output volume for sound file. This option takes effect when next sound file is played.
+
+
 ## Fuel calculator
 **Fuel calculator can be accessed from `Tools` menu in main window.**
 

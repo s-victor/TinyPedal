@@ -48,4 +48,16 @@ COMMON_DEFAULT = {
         "tyre_pressure_unit": "kPa",
         "tyre_compound_symbol": "ABCDEFGH",
     },
+    "pace_notes_playback": {
+        "enable": True,
+        "update_interval": 10,
+        "enable_manual_file_selector": False,
+        "pace_notes_file_name": "",
+        "pace_notes_sound_path": "/",
+        "pace_notes_sound_format": "wav",
+        "pace_notes_sound_volume": 50,
+        "pace_notes_sound_max_duration": 10,
+        "pace_notes_sound_max_queue": 5,
+        "pace_notes_global_offset": 0,
+    },
 }
