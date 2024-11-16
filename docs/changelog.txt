@@ -43,6 +43,11 @@ WIP
   - Show close confirmation if changes were not saved.
   - Show deletion info and confirmation.
 
+* [New]Notes Module
+  - Add Notes Module for processing track & pace notes data, which is used by
+    Pace Notes playback control panel, Pace notes Widget, Track notes Widget.
+    Note, this module requires Delta Module enabled to function correctly.
+
 * Wheels Module
   - Add cornering radius calculation.
   - Add "cornering_radius_sampling_interval" option, which sets position sampling interval

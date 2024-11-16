@@ -123,6 +123,37 @@ class MappingInfo:
 
 
 @dataclass
+class NotesInfo:
+    """Notes module output data"""
+    paceNoteCurrentIndex: int = 0
+    paceNoteCurrent: dict = field(default_factory=dict)
+    paceNoteNextIndex: int = 0
+    paceNoteNext: dict = field(default_factory=dict)
+    trackNoteCurrentIndex: int = 0
+    trackNoteCurrent: dict = field(default_factory=dict)
+    trackNoteNextIndex: int = 0
+    trackNoteNext: dict = field(default_factory=dict)
+
+    def __post_init__(self):
+        self.reset_pace_notes()
+        self.reset_track_notes()
+
+    def reset_pace_notes(self):
+        """Reset pace notes"""
+        self.paceNoteCurrentIndex = 0
+        self.paceNoteCurrent = {}
+        self.paceNoteNextIndex = 0
+        self.paceNoteNext = {}
+
+    def reset_track_notes(self):
+        """Reset track notes"""
+        self.trackNoteCurrentIndex = 0
+        self.trackNoteCurrent = {}
+        self.trackNoteNextIndex = 0
+        self.trackNoteNext = {}
+
+
+@dataclass
 class RelativeInfo:
     """Relative module output data"""
     relative: list = field(default_factory=list)
@@ -130,7 +161,6 @@ class RelativeInfo:
     classes: list = field(default_factory=list)
 
     def __post_init__(self):
-        """Initialize list to avoid out of range"""
         self.relative = [-1]
         self.standings = [-1]
         self.classes = [[0,1,"",0,0,-1,-1]]
@@ -148,10 +178,7 @@ class SectorsInfo:
     deltaSectorBestTB: list | None = None
 
     def __post_init__(self):
-        """Initialize list to avoid out of range
-
-        Those are placehold, will be overwritten by Sectors module, no copy needed.
-        """
+        """Placehold, will be overwritten by Sectors module"""
         self.sectorPrev = [99999,99999,99999]
         self.sectorBestTB = self.sectorPrev
         self.sectorBestPB = self.sectorPrev
@@ -242,7 +269,6 @@ class VehicleDataSet:
     relativeRotatedPosXY: list = field(default_factory=list)
 
     def __post_init__(self):
-        """Initialize sub-list"""
         self.pitTimer = [0, -1, 0]  # 0 in pit state, 1 pit start time, 2 pit timer
         self.posXY = [0, 0]
         self.relativeRotatedPosXY = [0, 0]
@@ -260,6 +286,7 @@ class ModuleInfo:
         self.history = HistoryInfo()
         self.hybrid = HybridInfo()
         self.mapping = MappingInfo()
+        self.notes = NotesInfo()
         self.relative = RelativeInfo()
         self.restapi = RestAPIInfo()
         self.sectors = SectorsInfo()

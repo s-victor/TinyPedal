@@ -31,6 +31,7 @@ from . import (
     module_fuel,
     module_hybrid,
     module_mapping,
+    module_notes,
     module_relative,
     module_restapi,
     module_sectors,

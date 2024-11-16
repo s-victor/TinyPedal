@@ -717,6 +717,13 @@ Enable hybrid module.
 Enable mapping module.
 
 
+## Notes
+**This module processes track & pace notes data.**
+
+    module_notes
+Enable notes module.
+
+
 ## Relative
 **This module provides vehicle relative & standings data.**
 
