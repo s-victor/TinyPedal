@@ -25,6 +25,8 @@ Thanks to many people for contributing to the development.
 * Xiang (S.Victor) - TinyPedal icon, widget icons
 
 ## Special Thanks
+* Lee Bowden - Author of GPL pace notes system, technical assistance on GPL pace notes system & file specification
+* Jim Pearson - Technical assistance on GPL pacenotes system
 * Vytautas Leonavičius (The Iron Wolf) - for rF2 Shared Memory Map Plugin
 * Tony Whitley (Seven Smiles) - for pyRfactor2SharedMemory library
 * Alpha testers (Rnzi, chips, derricklu30, DKxiaoming, fatboy, fartman, felixfight, Sendoh, y1Thunder, zxd1997)

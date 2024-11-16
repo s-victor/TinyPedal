@@ -177,6 +177,14 @@ The SVG vector map file contains two coordinate paths:
 Each sector position index is also stored in SVG file for finding sector coordinates.
 
 
+## Pace notes
+TinyPedal pace notes is stored as `TPPN` format (.tppn extension) under `TinyPedal\pacenotes` folder (default). Pace notes can be created or edited with `Track Notes Editor` from `Tools` menu in main window.
+
+
+## Track notes
+TinyPedal track notes is stored as `TPTN` format (.tptn extension) under `TinyPedal\tracknotes` folder (default). Track notes can be created or edited with `Track Notes Editor` from `Tools` menu in main window.
+
+
 ## Brand logo
 TinyPedal supports user-defined brand logo image in `PNG` format (.png extension) which is placed under `TinyPedal\brandlogo` folder (default).
 
@@ -352,10 +360,14 @@ To share user path across multiple copies of TinyPedal, user must set path to pl
     * deltabest/
     * settings/
     * trackmap/
+    * pacenotes/
+    * tracknotes/
 
 * On linux, all user paths are set outside TinyPedal root folder as absolute paths:
     * home/username/.config/TinyPedal/brandlogo/
     * home/username/.config/TinyPedal/settings/
+    * home/username/.config/TinyPedal/pacenotes/
+    * home/username/.config/TinyPedal/tracknotes/
     * home/username/.local/share/TinyPedal/deltabest/
     * home/username/.local/share/TinyPedal/trackmap/
 

@@ -1,5 +1,13 @@
 WIP
 -----------------------------
+* General
+  - [New]Implemented track & pace notes system, which allows load & save track & pace notes files.
+  - Add "pace_notes_path" & "track_notes_path" options to global user config file.
+  - Add new ".TPPN" (TinyPedal Pace Notes) & ".TPTN" (TinyPedal Track Notes) file formats.
+  - Add support for load & save GPL pace notes ".ini" file format.
+    Special thanks to "Lee Bowden" (author of GPL pace notes system & file format) and "Jim Pearson"
+    for providing technical assistance.
+
 * [New]Track Map Viewer
   - Add "Track Map Viewer" to "Tools" menu in main window for viewing & analyzing track map.
     Note, only track map (SVG) files that generated from TinyPedal Mapping Module are supported.
@@ -39,7 +47,8 @@ WIP
   - Add "show_cornering_radius" option which shows real-time cornering radius.
 
 * Misc
-  - Updated contributors info, added new contributor "Tanizo Yashima (yashiman)".
+  - Updated contributors info, added new contributors:
+    "Lee Bowden", "Jim Pearson", "Tanizo Yashima (yashiman)".
 
 2.19.1 (2024-10-18)
 -----------------------------
