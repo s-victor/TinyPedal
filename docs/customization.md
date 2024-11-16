@@ -1766,6 +1766,28 @@ Set minimum time delay between each P2P activation, unit in seconds.
 Set maximum P2P activation time per lap, unit in seconds.
 
 
+## Pace notes
+**This widget displays pace notes, comments, debugging info.**
+
+    show_background
+Show background color. Turn off to show text only.
+
+    show_pace_notes
+Show nearest pace notes info behind current vehicle position.
+
+    show_comments
+Show nearest pace notes comments info behind current vehicle position.
+
+    show_debugging
+Show nearest pace notes index number behind current vehicle position, and distance value (meters) behind current position to next index position.
+
+    pace_notes_width, comments_width, debugging_width
+Set maximum display width, value in chars, such as 10 = 10 chars.
+
+    auto_hide_if_not_available
+Auto hide this widget if pace notes data is not available for current track.
+
+
 ## Pedal
 **This widget displays pedal input and force feedback info.**
 
@@ -2402,6 +2424,31 @@ Show sector line mark.
 
     show_vehicle_standings
 Show vehicle standings info on track map.
+
+
+## Track notes
+**This widget displays track notes, comments, debugging info.**
+
+    show_background
+Show background color. Turn off to show text only.
+
+    show_track_notes
+Show nearest track notes info behind current vehicle position.
+
+    track_notes_uppercase
+Set track notes text to uppercase.
+
+    show_comments
+Show nearest track notes comments info behind current vehicle position.
+
+    show_debugging
+Show nearest track notes index number behind current vehicle position, and distance value (meters) behind current position to next index position.
+
+    track_notes_width, comments_width, debugging_width
+Set maximum display width, value in chars, such as 10 = 10 chars.
+
+    auto_hide_if_not_available
+Auto hide this widget if track notes data is not available for current track.
 
 
 ## Trailing

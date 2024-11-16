@@ -60,6 +60,16 @@ WIP
   - Add "show_distance_into_lap" option which shows distance into current lap.
   - Add "show_cornering_radius" option which shows real-time cornering radius.
 
+* [New]Pace notes Widget
+  - Show nearest pace notes, comments, debugging info behind current vehicle position,
+    mainly for pace notes creation and debugging purpose.
+  - Auto hides itself if pace notes data is not available for current track.
+
+* [New]Track notes Widget
+  - Show nearest track notes, comments, debugging info behind current vehicle position,
+    mainly for displaying corner name or section name.
+  - Auto hides itself if track notes data is not available for current track.
+
 * Misc
   - Updated contributors info, added new contributors:
     "Lee Bowden", "Jim Pearson", "Tanizo Yashima (yashiman)".
