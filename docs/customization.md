@@ -178,11 +178,19 @@ Each sector position index is also stored in SVG file for finding sector coordin
 
 
 ## Pace notes
-TinyPedal pace notes is stored as `TPPN` format (.tppn extension) under `TinyPedal\pacenotes` folder (default). Pace notes can be created or edited with `Track Notes Editor` from `Tools` menu in main window.
+`TinyPedal Pace Notes` file is stored as `TPPN` format (.tppn extension) under `TinyPedal\pacenotes` folder (default). Pace notes can be created or edited with `Track Notes Editor` from `Tools` menu in main window.
+
+Pace notes files are mainly used for playback pace notes sounds for specific tracks.
+
+To allow `auto notes loading` function to work, pace notes file name must match same track map file name.
 
 
 ## Track notes
-TinyPedal track notes is stored as `TPTN` format (.tptn extension) under `TinyPedal\tracknotes` folder (default). Track notes can be created or edited with `Track Notes Editor` from `Tools` menu in main window.
+`TinyPedal Track Notes` file is stored as `TPTN` format (.tptn extension) under `TinyPedal\tracknotes` folder (default). Track notes can be created or edited with `Track Notes Editor` from `Tools` menu in main window.
+
+Track notes files are mainly used for displaying corner and section names for specific tracks, or providing additional info at specific track location while driving.
+
+To allow `auto notes loading` function to work, track notes file name must match same track map file name.
 
 
 ## Brand logo
@@ -584,6 +592,56 @@ Set corner length classification by meters.
 
     slope_grade_*
 Set road slope classification by slope percent.
+
+
+## Track Notes Editor
+**Track notes editor allows for creating and editing track or pace notes, which can be accessed from `Tools` menu in main window.**
+
+Note, by default the editor starts in `Pace Notes` edit mode as displayed in status bar.
+
+**Important note, the editor does not provide `undo` function, it is recommended to save file before doing heavy modification.**
+
+The editor consists of two panel views:  
+* Left panel is the `Track Map Viewer`, which can be used to visualize track map and providing analytic info for assisting notes creation. For detailed usage, see `Track Map Viewer` section.
+* Right panel is the track and pace notes editor, which allows to create, open, and save track or pace notes file.
+
+The table view consists of multiple columns: 
+* `distance` column defines track position (in meters) of a note line.
+* `pace note` column (in Pace Notes edit mode) defines `pace note` name that is used to match pace note sound file name. Because windows system excludes some special characters from used in file name, the `pace note` column will automatically strip off invalid characters.
+* `track note` column (in Track Notes edit mode) defines track `corner name` or `section name` or any thing user wish to note.
+* `comment` column defines optional extra info for `pace note` or `track note` column for user.
+
+To create or open pace notes, click `File` and select `New Pace Notes` or `Open Pace Notes`.
+
+To create or open track notes, click `File` and select `New Track Notes` or `Open Track Notes`.
+
+To save notes file, click `Save`. Note, notes file name should exactly match with track name from track map file name for `auto notes loading` function to work. The editor will try to retrieve track name automatically in an active session, or from an opened track map in `Track Map Viewer`.
+
+To save notes file to other formats for used in other games, select a file format name from `save type` in save dialog, such as `GPL Pace Notes (*.ini)` which saves pace notes in GPL pace notes file format. Note, only `TinyPedal` notes file formats are supported for used in TinyPedal.
+
+To hide map viewer, click `Hide Map`. To show map viewer, click `Show Map`.
+
+To edit metadata info, click `Info`. Metadata info provides optional info to notes:  
+* `Title` of notes.
+* `Author` of notes.
+* `Date` when notes created or modified.
+* `Description` about notes.
+
+To set `distance` (position) value, first select one cell from `distance` column, then click `Set Pos` and click either `From Map` or `From Telemetry`. Note, `From Map` retrieves `distance` data from track map that opened in `Track Map Viewer`; `From Telemetry` retrieves `distance` data from current on-track vehicle position.
+
+To add a note line, click `Add`, which adds a new note line at the end of notes table.
+
+To insert a note line, first select a note line from notes table, then click `Insert` to insert a new note line `above` selected note line. To insert below selected note line, right-click on selected note line and click `Insert Row Below` from context menu.
+
+To sort notes table, click `Sort`.
+
+To delete notes, first select one or multiple note lines from notes table, then click `Delete`.
+
+To replace words, click `Replace` and select a column, then use `Find` and `Replace` to find and replace words.
+
+To batch offset `distance` (position) values, first select one or multiple note lines from `distance` column, then click `Offset` button. Click `Scale Mode` check box to scale distance values. Note, offset option will be reset to `0` each time after applying. Last applied offset value is displayed on top of dialog.
+
+To highlight a `distance` value on `Track Map Viewer`, right-click on a note line and click `Highlight on Map`.
 
 
 # Modules
@@ -1036,7 +1094,7 @@ Invert minimum differential locking percent reading.
     show_power_locking_*, show_coast_locking_*
 Show minimum differential locking percent between left and right wheels on the same axle under power (on throttle) or coasting (off throttle).
 
-A "100%" reading indicates two wheels on the same axle are rotating at same speed; while "0%" indicates that one of the wheels is completely spinning or locked.
+A `100%` reading indicates two wheels on the same axle are rotating at same speed; while `0%` indicates that one of the wheels is completely spinning or locked.
 
     off_throttle_threshold
 Set throttle threshold which counts as off throttle if throttle position is lower, value range in `0.0` to `1.0`. Default is `0.01`.

@@ -48,7 +48,7 @@ class SpectateList(QWidget):
         self.spectate_list = []
 
         # Label
-        self.label_spectateed = QLabel("")
+        self.label_spectating = QLabel("")
 
         # List box
         self.listbox_spectate = QListWidget(self)
@@ -72,7 +72,7 @@ class SpectateList(QWidget):
         layout_main = QVBoxLayout()
         layout_button = QHBoxLayout()
 
-        layout_main.addWidget(self.label_spectateed)
+        layout_main.addWidget(self.label_spectating)
         layout_main.addWidget(self.listbox_spectate)
         layout_button.addWidget(self.button_spectate)
         layout_button.addWidget(self.button_refresh)
@@ -89,7 +89,7 @@ class SpectateList(QWidget):
             self.listbox_spectate.setDisabled(False)
             self.button_spectate.setDisabled(False)
             self.button_refresh.setDisabled(False)
-            self.label_spectateed.setDisabled(False)
+            self.label_spectating.setDisabled(False)
             self.master.notify_spectate.show()
         else:
             self.button_toggle.setChecked(False)
@@ -97,7 +97,7 @@ class SpectateList(QWidget):
             self.listbox_spectate.setDisabled(True)
             self.button_spectate.setDisabled(True)
             self.button_refresh.setDisabled(True)
-            self.label_spectateed.setDisabled(True)
+            self.label_spectating.setDisabled(True)
             self.master.notify_spectate.hide()
 
     def spectate_toggle_state(self):
@@ -122,12 +122,12 @@ class SpectateList(QWidget):
             if index >= len(temp_list):  # prevent index out of range
                 index = 0
             self.listbox_spectate.setCurrentRow(index)
-            self.label_spectateed.setText(
+            self.label_spectating.setText(
                 f"Spectating: <b>{self.spectate_list[index]}</b>")
         else:
             self.spectate_list = []
             self.listbox_spectate.clear()
-            self.label_spectateed.setText(
+            self.label_spectating.setText(
                 "Spectating: <b>Disabled</b>")
 
         self.set_button_state()

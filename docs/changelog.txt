@@ -8,6 +8,15 @@ WIP
     Special thanks to "Lee Bowden" (author of GPL pace notes system & file format) and "Jim Pearson"
     for providing technical assistance.
 
+* [New]Track Notes Editor
+  - Add "Track Notes Editor" to "Tools" menu in main window for creating & editing track or pace notes.
+    Note, by default the editor starts in "Pace Notes" edit mode as displayed in status bar.
+    The editor consists of two panel views:
+      - Left panel is the track map viewer, which can be used to visualize track map and providing
+        analytic info for assisting notes creation. For detailed usage, see "Track Map Viewer" section.
+      - Right panel is the notes editor, which allows create, open, save track or pace notes file.
+  - For complete usage, see "Track Notes Editor" section in User Guide.
+
 * [New]Track Map Viewer
   - Add "Track Map Viewer" to "Tools" menu in main window for viewing & analyzing track map.
     Note, only track map (SVG) files that generated from TinyPedal Mapping Module are supported.

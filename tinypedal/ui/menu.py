@@ -34,6 +34,7 @@ from .log_info import LogInfo
 from .fuel_calculator import FuelCalculator
 from .heatmap_editor import HeatmapEditor
 from .track_map_viewer import TrackMapViewer
+from .track_notes_editor import TrackNotesEditor
 from .vehicle_brand_editor import VehicleBrandEditor
 from .vehicle_class_editor import VehicleClassEditor
 
@@ -307,6 +308,10 @@ class ToolsMenu(QMenu):
         editor_classes.triggered.connect(self.open_editor_classes)
         menu.addAction(editor_classes)
 
+        editor_tracknotes = QAction("Track Notes Editor", self)
+        editor_tracknotes.triggered.connect(self.open_editor_tracknotes)
+        menu.addAction(editor_tracknotes)
+
     def open_utility_fuelcalc(self):
         """Fuel calculator"""
         _dialog = FuelCalculator(self.master)
@@ -330,6 +335,11 @@ class ToolsMenu(QMenu):
     def open_editor_classes(self):
         """Edit classes preset"""
         _dialog = VehicleClassEditor(self.master)
+        _dialog.show()
+
+    def open_editor_tracknotes(self):
+        """Edit track notes"""
+        _dialog = TrackNotesEditor(self.master)
         _dialog.show()
 
 
