@@ -28,7 +28,7 @@ from psutil import version_info
 from PySide2.QtCore import qVersion
 
 
-VERSION = "2.19.1"
+VERSION = "2.20.0"
 APP_NAME = "TinyPedal"
 PLATFORM = platform.system()
 APP_ICON = "images/icon.png"

@@ -345,6 +345,11 @@ Sets global background color for all widgets.
 
 Note, global background color will only be visible when `enable_translucent_background` option is disabled or translucent background is not supported. Some widgets with own background setting may override this option.
 
+    multimedia_plugin_on_windows
+Set multimedia plugin for playing sound file on windows. Default is using `WMF` plugin.
+
+Note, if the option is set on `DirectShow`, additional audio decoder software may be required to play certain sound formats, such as `MP3`. This option requires restarting TinyPedal to take effect.
+
 
 ## User path
 **User path options can be accessed from `Config` menu in main window.**
@@ -493,7 +498,7 @@ Enable `Manually Select Pace Notes File` check box to disable auto-file-name mat
 
 `Sound file path` sets path for loading pace notes sound files that matches value from `pace note` column found in pace notes file. If no sound file found, sound won't be played. This option takes immediate effect when changed.
 
-`Sound format` sets sound format for loading sound file. Wave format is preferred sound format. Other sound format may require additional `audio decoder` application that supports DirectShow API to be played correctly on windows. This option only takes effect after clicked any `Set` button.
+`Sound format` sets sound format for loading sound file. This option only takes effect after clicked any `Set` button.
 
 `Global offset` adds global position offset (in meters) to current vehicle position on track, which affects when next pace note line will be played. This option only takes effect after clicked any `Set` button.
 

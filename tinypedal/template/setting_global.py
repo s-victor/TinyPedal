@@ -39,6 +39,7 @@ GLOBAL_DEFAULT = {
         "enable_translucent_background": True,
         "enable_window_position_correction": True,
         "global_bkg_color": "#000000",
+        "multimedia_plugin_on_windows": "WMF",
     },
     "user_path": {
         "settings_path": "settings/",

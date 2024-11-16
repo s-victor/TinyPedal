@@ -60,8 +60,13 @@ DOCUMENT_FILES = [
 
 LICENSES_FILES = glob("docs/licenses/*")
 
-QT_FILES = [
-    f"{PYTHON_PATH}/Lib/site-packages/PySide2/plugins/platforms/qwindows.dll"
+QT_PLATFORMS = [
+    f"{PYTHON_PATH}/Lib/site-packages/PySide2/plugins/platforms/qwindows.dll",
+]
+
+QT_MEDIASERVICE = [
+    f"{PYTHON_PATH}/Lib/site-packages/PySide2/plugins/mediaservice/dsengine.dll",
+    f"{PYTHON_PATH}/Lib/site-packages/PySide2/plugins/mediaservice/wmfengine.dll",
 ]
 
 BUILD_DATA_FILES = [
@@ -69,7 +74,8 @@ BUILD_DATA_FILES = [
     ("docs", DOCUMENT_FILES),
     ("docs/licenses", LICENSES_FILES),
     ("images", IMAGE_FILES),
-    ("platforms", QT_FILES),
+    ("platforms", QT_PLATFORMS),
+    ("mediaservice", QT_MEDIASERVICE),
 ]
 
 BUILD_OPTIONS = {

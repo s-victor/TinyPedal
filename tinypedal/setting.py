@@ -170,9 +170,19 @@ class Setting:
         self.application = self.user.config["application"]
         self.compatibility = self.user.config["compatibility"]
         self.primary_preset = self.user.config["primary_preset"]
+        self.set_environ()
         # Save setting to JSON file
         logger.info("SETTING: %s loaded (global settings)", self.filename.config)
         self.save(0, "config")
+
+    def set_environ(self):
+        """Set environment variable"""
+        if PLATFORM == "Windows":
+            if self.compatibility["multimedia_plugin_on_windows"] == "WMF":
+                multimedia_plugin = "windowsmediafoundation"
+            else:
+                multimedia_plugin = "directshow"
+            os.environ["QT_MULTIMEDIA_PREFERRED_PLUGINS"] = multimedia_plugin
 
     def update_path(self):
         """Update global path, call this if "user_path" changed"""

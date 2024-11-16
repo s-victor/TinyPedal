@@ -53,6 +53,7 @@ CFG_DELTABEST_SOURCE = "deltabest_source"
 CFG_FONT_WEIGHT = "font_weight"
 CFG_TARGET_LAPTIME = "target_laptime"
 CFG_TEXT_ALIGNMENT = "text_alignment"
+CFG_MULTIMEDIA_PLUGIN = "multimedia_plugin"
 
 # String common
 CFG_FONT_NAME = "font_name"
@@ -157,6 +158,7 @@ CHOICE_COMMON = {
     CFG_FONT_WEIGHT: ["normal", "bold"],
     CFG_TARGET_LAPTIME: ["Theoretical", "Personal"],
     CFG_TEXT_ALIGNMENT: ["Left", "Center", "Right"],
+    CFG_MULTIMEDIA_PLUGIN: ["WMF", "DirectShow"],
 }
 CHOICE_UNITS = {
     "distance_unit": ["Meter", "Feet"],

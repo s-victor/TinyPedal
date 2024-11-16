@@ -1,4 +1,4 @@
-WIP
+2.20.0 (2024-11-17)
 -----------------------------
 * General
   - [New]Implemented track & pace notes system, which allows load & save track & pace notes files.
@@ -7,6 +7,8 @@ WIP
   - Add support for load & save GPL pace notes ".ini" file format.
     Special thanks to "Lee Bowden" (author of GPL pace notes system & file format) and "Jim Pearson"
     for providing technical assistance.
+  - Add "multimedia_plugin_on_windows" option in Compatibility dialog, which sets multimedia plugin
+    for playing sound file on windows.
 
 * [New]Pace Notes Playback Tab
   - Add "Pace Notes Playback" control panel that can be accessed from "Pace Notes" tab in main window.
@@ -22,9 +24,7 @@ WIP
   - "Sound file path" sets path for loading pace notes sound files that matches value from
     "pace note" column found in pace notes file. If no sound file found, sound won't be played.
     This option takes immediate effect when changed.
-  - "Sound format" sets sound format for loading sound file. Wave format is preferred sound format.
-    Other sound format may require additional "audio decoder" application that supports DirectShow API
-    to be played correctly on windows.
+  - "Sound format" sets sound format for loading sound file.
     This option only takes effect after clicked any "Set" button.
   - "Global offset" adds global position offset (in meters) to current vehicle position on track,
     which affects when next pace note line will be played.
