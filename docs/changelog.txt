@@ -1,5 +1,8 @@
 WIP
 -----------------------------
+* Pace Notes Playback
+  - Adjusting playback volume now takes immediate effect.
+
 * Pace notes Widget, Track notes Widget
   - Add "enable_comments_line_break" option for enabling multi-line comments display.
     Note, a note comment can be broken into multiple lines by adding "\n" to any part of

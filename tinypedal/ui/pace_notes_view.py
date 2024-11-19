@@ -75,6 +75,7 @@ class PaceNotesPlayer(QMediaPlayer):
         self.last_notes_index = None
         self.play_queue.clear()
         self.stop()
+        self.apply_volume()
 
     def start_playback(self):
         """Start playback"""
@@ -130,11 +131,13 @@ class PaceNotesPlayer(QMediaPlayer):
         play_next_notes = self.play_queue[0]
         sound_path = self.mcfg["pace_notes_sound_path"]
         sound_format = self.mcfg["pace_notes_sound_format"].strip(".")
-        sound_volume = self.mcfg["pace_notes_sound_volume"]
         self.setMedia(QMediaContent(f"{sound_path}{play_next_notes}.{sound_format}"))
-        self.setVolume(sound_volume)
         self.play()
         self.play_queue.pop(0)  # remove playing notes from queue
+
+    def apply_volume(self):
+        """Apply volume change"""
+        self.setVolume(self.mcfg["pace_notes_sound_volume"])
 
 
 class PaceNotesControl(QWidget):
@@ -333,6 +336,7 @@ class PaceNotesControl(QWidget):
         self.label_volume.setText(f"Playback Volume: {value}%")
         if self.mcfg["pace_notes_sound_volume"] != value:
             self.mcfg["pace_notes_sound_volume"] = value
+            self.pace_notes_player.apply_volume()
             cfg.save()
 
     def toggle_selector_state(self, checked: bool):
@@ -362,7 +366,6 @@ class PaceNotesControl(QWidget):
         if enabled:
             self.button_toggle.setChecked(True)
             self.button_toggle.setText("Enabled Playback")
-            self.frame_control.setDisabled(False)
             self.frame_control.setDisabled(False)
             self.pace_notes_player.start_playback()
         else:

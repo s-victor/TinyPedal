@@ -506,7 +506,7 @@ Enable `Manually Select Pace Notes File` check box to disable auto-file-name mat
 
 `Max Queue` sets maximum number of sound files in playback queues. Default is `5` sound files. This option only takes effect after clicked any `Set` button.
 
-`Playback volume` sets output volume for sound file. This option takes effect when next sound file is played.
+`Playback volume` sets output volume for sound file. This option takes immediate effect when adjusted.
 
 
 ## Fuel calculator
