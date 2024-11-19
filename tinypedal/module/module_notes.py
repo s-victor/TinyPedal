@@ -91,18 +91,16 @@ class Realtime(DataModule):
                     if not track_notes:
                         minfo.notes.reset_track_notes()
 
-                # Current position
-                pos_curr = (
-                    minfo.delta.lapDistance
-                    + self.cfg.user.setting["pace_notes_playback"]["pace_notes_global_offset"]
-                )
-
                 # Update pace notes
                 if pace_notes:
+                    pace_pos_curr = (
+                        minfo.delta.lapDistance
+                        + self.cfg.user.setting["pace_notes_playback"]["pace_notes_global_offset"]
+                    )
                     pace_notes_curr_idx = calc.binary_search_lower(
-                        pace_notes_dist_ref, pos_curr, 0, pace_notes_end_idx)
+                        pace_notes_dist_ref, pace_pos_curr, 0, pace_notes_end_idx)
                     pace_notes_next_idx = next_dist_index(
-                        pos_curr, pace_notes_curr_idx, pace_notes_dist_ref)
+                        pace_pos_curr, pace_notes_curr_idx, pace_notes_dist_ref)
 
                     if pace_notes_last_idx != pace_notes_curr_idx:
                         pace_notes_last_idx = pace_notes_curr_idx
@@ -114,10 +112,11 @@ class Realtime(DataModule):
 
                 # Update track notes
                 if track_notes:
+                    track_pos_curr = minfo.delta.lapDistance
                     track_notes_curr_idx = calc.binary_search_lower(
-                        track_notes_dist_ref, pos_curr, 0, track_notes_end_idx)
+                        track_notes_dist_ref, track_pos_curr, 0, track_notes_end_idx)
                     track_notes_next_idx = next_dist_index(
-                        pos_curr, track_notes_curr_idx, track_notes_dist_ref)
+                        track_pos_curr, track_notes_curr_idx, track_notes_dist_ref)
 
                     if track_notes_last_idx != track_notes_curr_idx:
                         track_notes_last_idx = track_notes_curr_idx
@@ -131,6 +130,8 @@ class Realtime(DataModule):
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
+                    minfo.notes.reset_pace_notes()
+                    minfo.notes.reset_track_notes()
 
 
 def next_dist_index(pos_curr: float, curr_idx: int, dist_ref: list):

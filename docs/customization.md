@@ -496,9 +496,9 @@ Click `Enabled Playback` or `Disabled Playback` button to quickly enable or disa
 
 Enable `Manually Select Pace Notes File` check box to disable auto-file-name matching, and manually select a pace notes file that can be played on any track. By default, pace notes file is automatically loaded from `pace_notes_path` if a file that matches current track name is found. This option takes immediate effect when changed.
 
-`Sound file path` sets path for loading pace notes sound files that matches value from `pace note` column found in pace notes file. If no sound file found, sound won't be played. This option takes immediate effect when changed.
+`Sound file path` sets path for loading pace notes sound files that matches name value (exclude file extension) from `pace note` column found in pace notes file. If no sound file found, sound won't be played. This option takes immediate effect when changed.
 
-`Sound format` sets sound format for loading sound file. This option only takes effect after clicked any `Set` button.
+`Sound format` sets sound format for loading sound file, which should match sound file extension. This option only takes effect after clicked any `Set` button.
 
 `Global offset` adds global position offset (in meters) to current vehicle position on track, which affects when next pace note line will be played. This option only takes effect after clicked any `Set` button.
 
@@ -634,9 +634,9 @@ The editor consists of two panel views:
 
 The table view consists of multiple columns: 
 * `distance` column defines track position (in meters) of a note line.
-* `pace note` column (in Pace Notes edit mode) defines `pace note` name that is used to match pace note sound file name. Because windows system excludes some special characters from used in file name, the `pace note` column will automatically strip off invalid characters.
+* `pace note` column (in Pace Notes edit mode) defines `pace note` name that is used to match pace note sound file name. Because windows system excludes some special characters from used in file name, the `pace note` column will automatically strip off invalid characters. Note, DO NOT write file extension (format) in `pace note` column. File extension should be set in `Pace Notes` control panel tab from main window.
 * `track note` column (in Track Notes edit mode) defines track `corner name` or `section name` or any thing user wish to note.
-* `comment` column defines optional extra info for `pace note` or `track note` column for user.
+* `comment` column defines optional extra info for `pace note` or `track note` column for user. Note, a comment can be broken into multiple lines by adding `\n` to any part of the comment.
 
 To create or open pace notes, click `File` and select `New Pace Notes` or `Open Pace Notes`.
 
@@ -1805,6 +1805,9 @@ Show nearest pace notes info behind current vehicle position.
     show_comments
 Show nearest pace notes comments info behind current vehicle position.
 
+    enable_comments_line_break
+Enable line break for displaying multi-line comments. To break a line into multiple lines, add `\n` to any part of the comment.
+
     show_debugging
 Show nearest pace notes index number behind current vehicle position, and distance value (meters) behind current position to next index position.
 
@@ -2467,6 +2470,9 @@ Set track notes text to uppercase.
 
     show_comments
 Show nearest track notes comments info behind current vehicle position.
+
+    enable_comments_line_break
+Enable line break for displaying multi-line comments. To break a line into multiple lines, add `\n` to any part of the comment.
 
     show_debugging
 Show nearest track notes index number behind current vehicle position, and distance value (meters) behind current position to next index position.

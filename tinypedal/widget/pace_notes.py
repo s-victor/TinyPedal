@@ -169,6 +169,8 @@ class Realtime(Overlay):
     def update_comments(self, curr, last):
         """Comments"""
         if curr != last:
+            if self.wcfg["enable_comments_line_break"]:
+                curr = curr.replace("\\n", "\n")
             self.bar_comments.setText(curr)
 
     def update_debugging(self, curr, last):

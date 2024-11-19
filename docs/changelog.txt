@@ -1,3 +1,13 @@
+WIP
+-----------------------------
+* Pace notes Widget, Track notes Widget
+  - Add "enable_comments_line_break" option for enabling multi-line comments display.
+    Note, a note comment can be broken into multiple lines by adding "\n" to any part of
+    the comment in Track Notes Editor.
+
+* Notes Module
+  - "Global offset" option from "Pace Notes" tab no longer affects "track notes".
+
 2.20.0 (2024-11-17)
 -----------------------------
 * General
