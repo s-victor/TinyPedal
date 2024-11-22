@@ -75,7 +75,7 @@ class PaceNotesPlayer(QMediaPlayer):
         self.last_notes_index = None
         self.play_queue.clear()
         self.stop()
-        self.apply_volume()
+        self.setVolume(self.mcfg["pace_notes_sound_volume"])
 
     def start_playback(self):
         """Start playback"""
@@ -102,42 +102,37 @@ class PaceNotesPlayer(QMediaPlayer):
 
             # Playback
             notes_index = minfo.notes.paceNoteCurrentIndex
-            self.update_playback_queue(notes_index, self.last_notes_index)
-            self.last_notes_index = notes_index
-            self.play_notes_sounds()
+            if self.last_notes_index != notes_index:
+                pace_note = minfo.notes.paceNoteCurrent.get(COLUMN_PACENOTE, None)
+                self.__update_queue(pace_note)
+                self.last_notes_index = notes_index
+
+            if self.play_queue:
+                self.__play_next_in_queue()
 
         else:
             if self.checked:
                 self.reset_playback()
 
-    def update_playback_queue(self, curr, last):
-        """Playback queue"""
-        if curr != last:
-            pacenotes = minfo.notes.paceNoteCurrent.get(COLUMN_PACENOTE, None)
-            if pacenotes is None:
-                return
-            if len(self.play_queue) < self.mcfg["pace_notes_sound_max_queue"]:
-                self.play_queue.append(pacenotes)
+    def __update_queue(self, pace_note):
+        """Update playback queue"""
+        if (pace_note is not None
+            and len(self.play_queue) < self.mcfg["pace_notes_sound_max_queue"]):
+            self.play_queue.append(pace_note)
 
-    def play_notes_sounds(self):
-        """Play pace notes sounds"""
-        if not self.play_queue:
-            return
+    def __play_next_in_queue(self):
+        """Play next sound in playback queue"""
         # Wait if is playing & not exceeded max duration
         if self.state() == QMediaPlayer.State.PlayingState:
             if self.position() < self.mcfg["pace_notes_sound_max_duration"] * 1000:
                 return
         # Play next sound in queue
-        play_next_notes = self.play_queue[0]
+        pace_note = self.play_queue[0]
         sound_path = self.mcfg["pace_notes_sound_path"]
         sound_format = self.mcfg["pace_notes_sound_format"].strip(".")
-        self.setMedia(QMediaContent(f"{sound_path}{play_next_notes}.{sound_format}"))
+        self.setMedia(QMediaContent(f"{sound_path}{pace_note}.{sound_format}"))
         self.play()
         self.play_queue.pop(0)  # remove playing notes from queue
-
-    def apply_volume(self):
-        """Apply volume change"""
-        self.setVolume(self.mcfg["pace_notes_sound_volume"])
 
 
 class PaceNotesControl(QWidget):
@@ -336,7 +331,7 @@ class PaceNotesControl(QWidget):
         self.label_volume.setText(f"Playback Volume: {value}%")
         if self.mcfg["pace_notes_sound_volume"] != value:
             self.mcfg["pace_notes_sound_volume"] = value
-            self.pace_notes_player.apply_volume()
+            self.pace_notes_player.setVolume(value)
             cfg.save()
 
     def toggle_selector_state(self, checked: bool):

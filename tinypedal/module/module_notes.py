@@ -48,6 +48,8 @@ class Realtime(DataModule):
         reset = False
         update_interval = self.active_interval
 
+        position_sync = PositionSync()
+
         while not self._event.wait(update_interval):
             if self.state.active:
 
@@ -55,6 +57,7 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
 
+                    position_sync.reset()
                     filename_track = api.read.check.track_id()
 
                     # Load pace notes
@@ -91,19 +94,22 @@ class Realtime(DataModule):
                     if not track_notes:
                         minfo.notes.reset_track_notes()
 
+                # Update position
+                pos_synced = position_sync.sync(minfo.delta.lapDistance)
+
                 # Update pace notes
                 if pace_notes:
                     pace_pos_curr = (
-                        minfo.delta.lapDistance
+                        pos_synced
                         + self.cfg.user.setting["pace_notes_playback"]["pace_notes_global_offset"]
                     )
                     pace_notes_curr_idx = calc.binary_search_lower(
                         pace_notes_dist_ref, pace_pos_curr, 0, pace_notes_end_idx)
-                    pace_notes_next_idx = next_dist_index(
-                        pace_pos_curr, pace_notes_curr_idx, pace_notes_dist_ref)
 
                     if pace_notes_last_idx != pace_notes_curr_idx:
                         pace_notes_last_idx = pace_notes_curr_idx
+                        pace_notes_next_idx = next_dist_index(
+                            pace_pos_curr, pace_notes_curr_idx, pace_notes_dist_ref)
 
                         minfo.notes.paceNoteCurrentIndex = pace_notes_curr_idx
                         minfo.notes.paceNoteCurrent = pace_notes[pace_notes_curr_idx]
@@ -112,14 +118,14 @@ class Realtime(DataModule):
 
                 # Update track notes
                 if track_notes:
-                    track_pos_curr = minfo.delta.lapDistance
+                    track_pos_curr = pos_synced
                     track_notes_curr_idx = calc.binary_search_lower(
                         track_notes_dist_ref, track_pos_curr, 0, track_notes_end_idx)
-                    track_notes_next_idx = next_dist_index(
-                        track_pos_curr, track_notes_curr_idx, track_notes_dist_ref)
 
                     if track_notes_last_idx != track_notes_curr_idx:
                         track_notes_last_idx = track_notes_curr_idx
+                        track_notes_next_idx = next_dist_index(
+                            track_pos_curr, track_notes_curr_idx, track_notes_dist_ref)
 
                         minfo.notes.trackNoteCurrentIndex = track_notes_curr_idx
                         minfo.notes.trackNoteCurrent = track_notes[track_notes_curr_idx]
@@ -132,6 +138,41 @@ class Realtime(DataModule):
                     update_interval = self.idle_interval
                     minfo.notes.reset_pace_notes()
                     minfo.notes.reset_track_notes()
+
+
+class PositionSync:
+    """Position synchronization"""
+
+    def __init__(self, max_diff: float = 200, max_desync: int = 20):
+        self._desync_count = 0
+        self._pos_synced = 0
+        self._max_diff = max_diff
+        self._max_desync = max_desync
+
+    def sync(self, pos_curr: float) -> float:
+        """Sync position"""
+        # Position desynced
+        if self._pos_synced > pos_curr:
+            # Reset if exceeded max desync
+            # Or position diff higher than max diff (new lap)
+            if (self._desync_count > self._max_desync
+                or self._pos_synced - pos_curr > self._max_diff):
+                self._desync_count = 0
+                self._pos_synced = pos_curr
+            # Add to desync count
+            else:
+                self._desync_count += 1
+        # No position desync
+        elif self._pos_synced < pos_curr:
+            self._pos_synced = pos_curr
+            if self._desync_count:
+                self._desync_count = 0
+        return self._pos_synced
+
+    def reset(self):
+        """Reset position & debouce"""
+        self._desync_count = 0
+        self._pos_synced = 0
 
 
 def next_dist_index(pos_curr: float, curr_idx: int, dist_ref: list):

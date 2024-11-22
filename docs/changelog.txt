@@ -10,6 +10,7 @@ WIP
 
 * Notes Module
   - "Global offset" option from "Pace Notes" tab no longer affects "track notes".
+  - Fixed position desync issue that would occasionally trigger previous note again.
 
 2.20.0 (2024-11-17)
 -----------------------------

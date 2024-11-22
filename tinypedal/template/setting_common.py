@@ -49,7 +49,7 @@ COMMON_DEFAULT = {
         "tyre_compound_symbol": "ABCDEFGH",
     },
     "pace_notes_playback": {
-        "enable": True,
+        "enable": False,
         "update_interval": 10,
         "enable_manual_file_selector": False,
         "pace_notes_file_name": "",
