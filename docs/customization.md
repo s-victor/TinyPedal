@@ -1817,6 +1817,9 @@ Set maximum display width, value in chars, such as 10 = 10 chars.
     auto_hide_if_not_available
 Auto hide this widget if pace notes data is not available for current track.
 
+    maximum_display_duration
+Set maximum display duration (seconds) of each note. Set to `-1` to always display notes. Default is `-1`.
+
 
 ## Pedal
 **This widget displays pedal input and force feedback info.**
@@ -2482,6 +2485,9 @@ Set maximum display width, value in chars, such as 10 = 10 chars.
 
     auto_hide_if_not_available
 Auto hide this widget if track notes data is not available for current track.
+
+    maximum_display_duration
+Set maximum display duration (seconds) of each note. Set to `-1` to always display notes. Default is `-1`.
 
 
 ## Trailing

@@ -131,23 +131,35 @@ class Realtime(Overlay):
 
         # Last data
         self.last_notes_index = None
+        self.last_notes = None
         self.last_comments = None
         self.last_debugging = None
         self.last_auto_hide = False
+        self.last_etime = 0
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
 
-            if self.wcfg["auto_hide_if_not_available"]:
-                auto_hide = not api.read.vehicle.in_garage() and not minfo.notes.paceNoteCurrent
-                self.update_auto_hide(auto_hide, self.last_auto_hide)
-                self.last_auto_hide = auto_hide
+            if api.read.vehicle.in_garage():
+                self.update_auto_hide(False)
+            elif self.wcfg["auto_hide_if_not_available"] and not minfo.notes.paceNoteCurrent:
+                self.update_auto_hide(True)
+            elif self.wcfg["maximum_display_duration"] > 0:
+                etime = api.read.timing.elapsed()
+                notes_index = minfo.notes.paceNoteCurrentIndex
+                if self.last_notes_index != notes_index:
+                    self.last_notes_index = notes_index
+                    self.last_etime = etime
+                if self.last_etime > etime:
+                    self.last_etime = etime
+                self.update_auto_hide(
+                    etime - self.last_etime > self.wcfg["maximum_display_duration"])
 
             if self.wcfg["show_pace_notes"]:
-                notes_index = minfo.notes.paceNoteCurrentIndex
-                self.update_notes(notes_index, self.last_notes_index)
-                self.last_notes_index = notes_index
+                notes = minfo.notes.paceNoteCurrent.get(COLUMN_PACENOTE, NA)
+                self.update_notes(notes, self.last_notes)
+                self.last_notes = notes
 
             if self.wcfg["show_comments"]:
                 comments = minfo.notes.paceNoteCurrent.get(COLUMN_COMMENT, NA)
@@ -163,8 +175,7 @@ class Realtime(Overlay):
     def update_notes(self, curr, last):
         """Pace notes"""
         if curr != last:
-            text = minfo.notes.paceNoteCurrent.get(COLUMN_PACENOTE, NA)
-            self.bar_notes.setText(text)
+            self.bar_notes.setText(curr)
 
     def update_comments(self, curr, last):
         """Comments"""
@@ -176,24 +187,23 @@ class Realtime(Overlay):
     def update_debugging(self, curr, last):
         """Debugging info"""
         if curr != last:
-            if curr == NA:
-                text = NA
-            else:
-                text = (
+            if curr != NA:
+                curr = (
                     f"IDX:{minfo.notes.paceNoteCurrentIndex + 1} "
                     f"POS:{curr:.0f}>>{minfo.notes.paceNoteNext.get(COLUMN_DISTANCE, 0):.0f}m"
                 )
-            self.bar_debugging.setText(text)
+            self.bar_debugging.setText(curr)
 
-    def update_auto_hide(self, curr, last):
+    def update_auto_hide(self, auto_hide):
         """Auto hide"""
-        if curr != last:
+        if self.last_auto_hide != auto_hide:
+            self.last_auto_hide = auto_hide
             if self.wcfg["show_pace_notes"]:
-                self.toggle_visibility(curr, self.bar_notes)
+                self.toggle_visibility(auto_hide, self.bar_notes)
             if self.wcfg["show_comments"]:
-                self.toggle_visibility(curr, self.bar_comments)
+                self.toggle_visibility(auto_hide, self.bar_comments)
             if self.wcfg["show_debugging"]:
-                self.toggle_visibility(curr, self.bar_debugging)
+                self.toggle_visibility(auto_hide, self.bar_debugging)
 
     # Additional methods
     def toggle_visibility(self, state, row_bar):

@@ -7,6 +7,8 @@ WIP
   - Add "enable_comments_line_break" option for enabling multi-line comments display.
     Note, a note comment can be broken into multiple lines by adding "\n" to any part of
     the comment in Track Notes Editor.
+  - Add "maximum_display_duration" option, which sets maximum display duration (seconds)
+    of each note. Set to "-1" to always display notes. Default is "-1".
 
 * Notes Module
   - "Global offset" option from "Pace Notes" tab no longer affects "track notes".
