@@ -1,13 +1,15 @@
-WIP
+2.20.1 (2024-11-24)
 -----------------------------
 * Pace Notes Playback
+  - Default "playback" option is now set on "disabled" for new presets.
+    User may click "Disabled Playback" button from "Pace Notes" tab to enable playback.
   - Adjusting playback volume now takes immediate effect.
 
 * Pace notes Widget, Track notes Widget
-  - Add "enable_comments_line_break" option for enabling multi-line comments display.
+  - Add "enable_comments_line_break" option (requested by DanRZ) for enabling multi-line comments display.
     Note, a note comment can be broken into multiple lines by adding "\n" to any part of
     the comment in Track Notes Editor.
-  - Add "maximum_display_duration" option, which sets maximum display duration (seconds)
+  - Add "maximum_display_duration" option (requested by DanRZ), which sets maximum display duration (seconds)
     of each note. Set to "-1" to always display notes. Default is "-1".
 
 * Notes Module
