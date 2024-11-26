@@ -137,6 +137,10 @@ CFG_INVALID_FILENAME = (
     "backup"
 )
 
+# API name
+API_NAME_RF2 = "rFactor 2"
+API_NAME_LMU = "Le Mans Ultimate"
+
 # Abbreviation
 ABBR_LIST = (
     "api",
@@ -152,7 +156,7 @@ ABBR_PATTERN = "|".join(ABBR_LIST)
 
 # Choice dictionary
 CHOICE_COMMON = {
-    CFG_API_NAME: ["rFactor 2", "Le Mans Ultimate"],
+    CFG_API_NAME: [API_NAME_RF2, API_NAME_LMU],
     CFG_CHARACTER_ENCODING: ["UTF-8", "ISO-8859-1"],
     CFG_DELTABEST_SOURCE: ["Best", "Session", "Stint", "Last"],
     CFG_FONT_WEIGHT: ["normal", "bold"],

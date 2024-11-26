@@ -20,6 +20,8 @@
 Default common setting template
 """
 
+from ..regex_pattern import API_NAME_RF2
+
 
 COMMON_DEFAULT = {
     "overlay": {
@@ -28,7 +30,7 @@ COMMON_DEFAULT = {
         "enable_grid_move": False,
     },
     "shared_memory_api": {
-        "api_name": "rFactor 2",
+        "api_name": API_NAME_RF2,
         "access_mode": 0,
         "process_id": "",
         "enable_active_state_override": False,
