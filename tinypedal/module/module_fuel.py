@@ -41,12 +41,13 @@ class Realtime(DataModule):
 
     def __init__(self, config):
         super().__init__(config, MODULE_NAME)
-        self.filepath = self.cfg.path.fuel_delta
 
     def update_data(self):
         """Update module data"""
         reset = False
         update_interval = self.active_interval
+
+        userpath_fuel_delta = self.cfg.path.fuel_delta
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -59,7 +60,7 @@ class Realtime(DataModule):
                     gen_calc_fuel = calc_data(
                         output=minfo.fuel,
                         telemetry_func=telemetry_fuel,
-                        filepath=self.filepath,
+                        filepath=userpath_fuel_delta,
                         filename=combo_id,
                         extension=".fuel",
                     )
@@ -224,9 +225,9 @@ def calc_data(
             gps_last = gps_curr
             # Update delta
             delta_fuel = calc.delta_telemetry(
+                delta_list_last,
                 pos_estimate,
                 used_curr,
-                delta_list_last,
                 laptime_curr > 0.3 and not in_garage,  # 300ms delay
             )
 

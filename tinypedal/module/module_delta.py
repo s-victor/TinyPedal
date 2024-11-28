@@ -42,12 +42,14 @@ class Realtime(DataModule):
 
     def __init__(self, config):
         super().__init__(config, MODULE_NAME)
-        self.filepath = self.cfg.path.delta_best
 
     def update_data(self):
         """Update module data"""
         reset = False
         update_interval = self.active_interval
+
+        userpath_delta_best = self.cfg.path.delta_best
+        output = minfo.delta
 
         last_session_id = ("",-1,-1,-1)
         delta_list_session = DELTA_DEFAULT
@@ -86,17 +88,12 @@ class Realtime(DataModule):
                         last_session_id = (combo_id, *session_id)
 
                     delta_list_best, laptime_best = load_delta_best_file(
-                        filepath=self.filepath,
+                        filepath=userpath_delta_best,
                         filename=combo_id,
                         defaults=(DELTA_DEFAULT, MAGIC_NUM)
                     )
                     delta_list_curr = [DELTA_ZERO]  # distance, laptime
                     delta_list_last = DELTA_DEFAULT  # last lap
-
-                    delta_best = 0  # delta time compare to best laptime
-                    delta_last = 0
-                    delta_session = 0
-                    delta_stint = 0
 
                     delta_best_ema = 0
                     delta_last_ema = 0
@@ -111,7 +108,7 @@ class Realtime(DataModule):
                     pos_last = 0  # last checked vehicle position
                     pos_estimate = 0  # calculated position
                     pos_synced = False  # whether estimated position synced
-                    gps_last = [0,0,0]  # last global position
+                    gps_last = 0,0,0  # last global position
                     meters_driven = self.cfg.user.setting["cruise"]["meters_driven"]
 
                 # Read telemetry
@@ -161,22 +158,20 @@ class Realtime(DataModule):
                         int(laptime_valid - laptime_last) == 0):  # is matched laptime
                         # Update laptime pace
                         if not pit_lap:
-                            # Set initial laptime
-                            if laptime_pace <= 0 or laptime_pace >= MAGIC_NUM:
+                            # Set initial laptime if invalid, or align to faster laptime
+                            if not 0 < laptime_pace < MAGIC_NUM or laptime_valid < laptime_pace:
                                 laptime_pace = laptime_valid
-                            # Align to faster laptime if possible
-                            elif laptime_valid < laptime_pace:
-                                laptime_pace = laptime_valid
-                            # Update laptime pace using EMA
                             else:
-                                laptime_pace = calc_ema_laptime(laptime_pace,
-                                    min(laptime_valid, laptime_pace + laptime_pace_margin))
+                                laptime_pace = calc_ema_laptime(
+                                    laptime_pace,
+                                    min(laptime_valid, laptime_pace + laptime_pace_margin)
+                                )
                         # Update delta best list
                         if laptime_last < laptime_best:
                             laptime_best = laptime_last
                             delta_list_best = delta_list_last.copy()
                             save_delta_best_file(
-                                filepath=self.filepath,
+                                filepath=userpath_delta_best,
                                 filename=combo_id,
                                 dataset=delta_list_best,
                             )
@@ -204,54 +199,54 @@ class Realtime(DataModule):
                         pos_estimate += moved_distance
                     # Update delta
                     delay_update = laptime_curr > 0.3
-                    delta_best = calc.delta_telemetry(
-                        pos_estimate,
-                        laptime_curr,
+                    delta_best_raw = calc.delta_telemetry(
                         delta_list_best,
-                        delay_update,
-                    )
-                    delta_last = calc.delta_telemetry(
                         pos_estimate,
                         laptime_curr,
+                        delay_update,
+                    )
+                    delta_last_raw = calc.delta_telemetry(
                         delta_list_last,
-                        delay_update,
-                    )
-                    delta_session = calc.delta_telemetry(
                         pos_estimate,
                         laptime_curr,
+                        delay_update,
+                    )
+                    delta_session_raw = calc.delta_telemetry(
                         delta_list_session,
-                        delay_update,
-                    )
-                    delta_stint = calc.delta_telemetry(
                         pos_estimate,
                         laptime_curr,
+                        delay_update,
+                    )
+                    delta_stint_raw = calc.delta_telemetry(
                         delta_list_stint,
+                        pos_estimate,
+                        laptime_curr,
                         delay_update,
                     )
                     # Smooth delta
-                    delta_best_ema = calc_ema_delta(delta_best_ema, delta_best)
-                    delta_last_ema = calc_ema_delta(delta_last_ema, delta_last)
-                    delta_session_ema = calc_ema_delta(delta_session_ema, delta_session)
-                    delta_stint_ema = calc_ema_delta(delta_stint_ema, delta_stint)
+                    delta_best_ema = calc_ema_delta(delta_best_ema, delta_best_raw)
+                    delta_last_ema = calc_ema_delta(delta_last_ema, delta_last_raw)
+                    delta_session_ema = calc_ema_delta(delta_session_ema, delta_session_raw)
+                    delta_stint_ema = calc_ema_delta(delta_stint_ema, delta_stint_raw)
                     # Update driven distance
                     if moved_distance < 1500 * update_interval:
                         meters_driven += moved_distance
 
                 # Output delta time data
-                minfo.delta.deltaBest = delta_best_ema
-                minfo.delta.deltaLast = delta_last_ema
-                minfo.delta.deltaSession = delta_session_ema
-                minfo.delta.deltaStint = delta_stint_ema
-                minfo.delta.isValidLap = laptime_valid > 0
-                minfo.delta.lapTimeCurrent = laptime_curr
-                minfo.delta.lapTimeLast = laptime_last
-                minfo.delta.lapTimeBest = laptime_best
-                minfo.delta.lapTimeEstimated = laptime_best + delta_best_ema
-                minfo.delta.lapTimeSession = laptime_session_best
-                minfo.delta.lapTimeStint = laptime_stint_best
-                minfo.delta.lapTimePace = laptime_pace
-                minfo.delta.lapDistance = pos_estimate
-                minfo.delta.metersDriven = meters_driven
+                output.deltaBest = delta_best_ema
+                output.deltaLast = delta_last_ema
+                output.deltaSession = delta_session_ema
+                output.deltaStint = delta_stint_ema
+                output.isValidLap = laptime_valid > 0
+                output.lapTimeCurrent = laptime_curr
+                output.lapTimeLast = laptime_last
+                output.lapTimeBest = laptime_best
+                output.lapTimeEstimated = laptime_best + delta_best_ema
+                output.lapTimeSession = laptime_session_best
+                output.lapTimeStint = laptime_stint_best
+                output.lapTimePace = laptime_pace
+                output.lapDistance = pos_estimate
+                output.metersDriven = meters_driven
 
             else:
                 if reset:

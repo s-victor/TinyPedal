@@ -39,12 +39,13 @@ class Realtime(DataModule):
 
     def __init__(self, config):
         super().__init__(config, MODULE_NAME)
-        self.filepath = self.cfg.path.sector_best
 
     def update_data(self):
         """Update module data"""
         reset = False
         update_interval = self.active_interval
+
+        userpath_sector_best = self.cfg.path.sector_best
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -57,7 +58,7 @@ class Realtime(DataModule):
                     session_id = api.read.check.session_id()  # session identity
                     (best_s_tb, best_s_pb, all_best_s_tb, all_best_s_pb
                      ) = load_sector_best_file(
-                        filepath=self.filepath,
+                        filepath=userpath_sector_best,
                         filename=combo_id,
                         session_id=session_id,
                         defaults=[MAGIC_NUM,MAGIC_NUM,MAGIC_NUM],
@@ -86,7 +87,7 @@ class Realtime(DataModule):
                     all_best_s_tb, all_best_s_pb, new_best_all = gen_calc_sectors_alltime.send(tele_sectors)
                     if new_best_all or new_best_session:
                         save_sector_best_file(
-                            filepath=self.filepath,
+                            filepath=userpath_sector_best,
                             filename=combo_id,
                             dataset=(
                                 session_id,

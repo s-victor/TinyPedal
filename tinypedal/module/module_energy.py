@@ -34,12 +34,13 @@ class Realtime(DataModule):
 
     def __init__(self, config):
         super().__init__(config, MODULE_NAME)
-        self.filepath = self.cfg.path.energy_delta
 
     def update_data(self):
         """Update module data"""
         reset = False
         update_interval = self.active_interval
+
+        userpath_energy_delta = self.cfg.path.energy_delta
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -52,7 +53,7 @@ class Realtime(DataModule):
                     gen_calc_energy = calc_data(
                         output=minfo.energy,
                         telemetry_func=telemetry_energy,
-                        filepath=self.filepath,
+                        filepath=userpath_energy_delta,
                         filename=combo_id,
                         extension=".energy",
                     )

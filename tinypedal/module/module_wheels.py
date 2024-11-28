@@ -41,6 +41,8 @@ class Realtime(DataModule):
         reset = False
         update_interval = self.active_interval
 
+        output = minfo.wheels
+
         list_radius_f = deque([], 160)
         list_radius_r = deque([], 160)
         max_rot_bias_f = max(self.mcfg["maximum_rotation_difference_front"], 0.00001)
@@ -121,15 +123,15 @@ class Realtime(DataModule):
                     cornering_radius = calc.distance(list_coords[0], arc_center_pos)
 
                 # Output wheels data
-                minfo.wheels.radiusFront = radius_front
-                minfo.wheels.radiusRear = radius_rear
-                minfo.wheels.lockingPercentFront = locking_f
-                minfo.wheels.lockingPercentRear = locking_r
-                minfo.wheels.corneringRadius = cornering_radius
-                minfo.wheels.slipRatio[0] = calc.slip_ratio(wheel_rot[0], radius_front, speed)
-                minfo.wheels.slipRatio[1] = calc.slip_ratio(wheel_rot[1], radius_front, speed)
-                minfo.wheels.slipRatio[2] = calc.slip_ratio(wheel_rot[2], radius_rear, speed)
-                minfo.wheels.slipRatio[3] = calc.slip_ratio(wheel_rot[3], radius_rear, speed)
+                output.radiusFront = radius_front
+                output.radiusRear = radius_rear
+                output.lockingPercentFront = locking_f
+                output.lockingPercentRear = locking_r
+                output.corneringRadius = cornering_radius
+                output.slipRatio[0] = calc.slip_ratio(wheel_rot[0], radius_front, speed)
+                output.slipRatio[1] = calc.slip_ratio(wheel_rot[1], radius_front, speed)
+                output.slipRatio[2] = calc.slip_ratio(wheel_rot[2], radius_rear, speed)
+                output.slipRatio[3] = calc.slip_ratio(wheel_rot[3], radius_rear, speed)
 
             else:
                 if reset:

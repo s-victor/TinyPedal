@@ -226,7 +226,7 @@ def get_resource(url: str, time_out: int) -> (dict | str):
 
 def get_value(
     data: dict, target: object, output: str, default: any,
-    mod_func: object | None, *keys) -> bool:
+    mod_func: object | None, *keys: tuple[str]) -> bool:
     """Get value from resource dictionary, fallback to default value if invalid"""
     for key in keys:
         data = data.get(key, None)

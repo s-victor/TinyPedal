@@ -46,6 +46,8 @@ class Realtime(DataModule):
         """Update module data"""
         reset = False
         update_interval = self.active_interval
+
+        output = minfo.relative
         setting_relative = self.cfg.user.setting["relative"]
         setting_standings = self.cfg.user.setting["standings"]
 
@@ -96,9 +98,9 @@ class Realtime(DataModule):
                 class_pos_list.sort()
 
                 # Output data
-                minfo.relative.relative = relative_index_list
-                minfo.relative.standings = standings_index_list
-                minfo.relative.classes = class_pos_list
+                output.relative = relative_index_list
+                output.standings = standings_index_list
+                output.classes = class_pos_list
 
             else:
                 if reset:

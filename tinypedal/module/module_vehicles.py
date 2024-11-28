@@ -40,6 +40,9 @@ class Realtime(DataModule):
         reset = False
         update_interval = self.active_interval
 
+        max_lap_diff_ahead = self.mcfg["lap_difference_ahead_threshold"]
+        max_lap_diff_behind = self.mcfg["lap_difference_behind_threshold"]
+
         while not self._event.wait(update_interval):
             if self.state.active:
 
@@ -47,8 +50,6 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
                     minfo.vehicles.dataSetVersion = -1
-                    max_lap_diff_ahead = self.mcfg["lap_difference_ahead_threshold"]
-                    max_lap_diff_behind = self.mcfg["lap_difference_behind_threshold"]
 
                 self.__update_vehicle_data(
                     minfo.vehicles.dataSet,
@@ -63,7 +64,8 @@ class Realtime(DataModule):
                     update_interval = self.idle_interval
 
     def __update_vehicle_data(
-        self, veh_info, class_pos_list, max_lap_diff_ahead, max_lap_diff_behind):
+        self, veh_info: tuple, class_pos_list: list,
+        max_lap_diff_ahead: float, max_lap_diff_behind: float):
         """Update vehicle data"""
         veh_total = minfo.vehicles.total = api.read.vehicle.total_vehicles()
         if veh_total < 1:
@@ -72,7 +74,6 @@ class Realtime(DataModule):
         # General data
         track_length = api.read.lap.track_length()
         in_race = api.read.session.in_race()
-        class_list_size = len(class_pos_list)
         draw_order = ALL_INDEXES[:veh_total]
 
         # Local player data
@@ -86,18 +87,12 @@ class Realtime(DataModule):
         inpit_idx = 0
 
         # Update dataset from all vehicles in current session
-        for index, data in enumerate(veh_info):
-            if index >= veh_total:
-                break
-
+        for index, data, class_pos in zip(range(veh_total), veh_info, class_pos_list):
             # Vehicle class var
-            if index < class_list_size:
-                data.positionInClass = class_pos_list[index][1]
-                data.sessionBestLapTime = class_pos_list[index][3]
-                data.classBestLapTime = class_pos_list[index][4]
-                opt_index_ahead = class_pos_list[index][5]
-            else:
-                opt_index_ahead = -1
+            data.positionInClass = class_pos[1]
+            data.sessionBestLapTime = class_pos[3]
+            data.classBestLapTime = class_pos[4]
+            opt_index_ahead = class_pos[5]
 
             # Output var only
             data.driverName = api.read.vehicle.driver_name(index)
@@ -131,19 +126,16 @@ class Realtime(DataModule):
             calc_pit_time(data.pitTimer, in_pit, lap_etime)
 
             # Position & relative data
+            opt_pos_x = data.posXY[0] = api.read.vehicle.position_longitudinal(index)
+            opt_pos_y = data.posXY[1] = api.read.vehicle.position_lateral(index)
             if is_player:
                 relative_distance = 0
-                data.posXY[0] = api.read.vehicle.position_longitudinal(index)
-                data.posXY[1] = api.read.vehicle.position_lateral(index)
-
             else:
                 # Relative position & orientation
-                plr_ori_yaw = api.read.vehicle.orientation_yaw_radians()
-                opt_ori_yaw = api.read.vehicle.orientation_yaw_radians(index)
                 plr_pos_x = api.read.vehicle.position_longitudinal()
                 plr_pos_y = api.read.vehicle.position_lateral()
-                opt_pos_x = data.posXY[0] = api.read.vehicle.position_longitudinal(index)
-                opt_pos_y = data.posXY[1] = api.read.vehicle.position_lateral(index)
+                plr_ori_yaw = api.read.vehicle.orientation_yaw_radians()
+                opt_ori_yaw = api.read.vehicle.orientation_yaw_radians(index)
 
                 data.relativeOrientationXYRadians = opt_ori_yaw - plr_ori_yaw
                 data.relativeRotatedPosXY[0], data.relativeRotatedPosXY[1] = calc.rotate_coordinate(

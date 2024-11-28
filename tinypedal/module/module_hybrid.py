@@ -38,6 +38,8 @@ class Realtime(DataModule):
         reset = False
         update_interval = self.active_interval
 
+        output = minfo.hybrid
+
         while not self._event.wait(update_interval):
             if self.state.active:
 
@@ -101,14 +103,14 @@ class Realtime(DataModule):
                         motor_inactive_timer = 99999
 
                 # Output hybrid data
-                minfo.hybrid.batteryCharge = battery_charge
-                minfo.hybrid.batteryDrain = battery_drain
-                minfo.hybrid.batteryRegen = battery_regen
-                minfo.hybrid.batteryDrainLast = battery_drain_last
-                minfo.hybrid.batteryRegenLast = battery_regen_last
-                minfo.hybrid.motorActiveTimer = motor_active_timer
-                minfo.hybrid.motorInactiveTimer = motor_inactive_timer
-                minfo.hybrid.motorState = motor_state
+                output.batteryCharge = battery_charge
+                output.batteryDrain = battery_drain
+                output.batteryRegen = battery_regen
+                output.batteryDrainLast = battery_drain_last
+                output.batteryRegenLast = battery_regen_last
+                output.motorActiveTimer = motor_active_timer
+                output.motorInactiveTimer = motor_inactive_timer
+                output.motorState = motor_state
 
             else:
                 if reset:

@@ -344,23 +344,21 @@ def sec2stinttime(seconds: float) -> str:
     return f"{seconds // 60:02.0f}:{min(seconds % 60, 59):02.0f}"
 
 
-def delta_telemetry(position: float, target: float, delta_list: list,
-    condition: bool = True) -> float:
+def delta_telemetry(
+    dataset: list, position: float, target: float, condition: bool = True) -> float:
     """Calculate delta telemetry data"""
     if not condition:
         return 0
     index_higher = binary_search_higher_column(
-        delta_list, position, 0, len(delta_list) - 1)
+        dataset, position, 0, len(dataset) - 1)
     if index_higher > 0:
         index_lower = index_higher - 1
-        return (
-            target - linear_interp(
-                position,
-                delta_list[index_lower][0],
-                delta_list[index_lower][1],
-                delta_list[index_higher][0],
-                delta_list[index_higher][1],
-            )
+        return target - linear_interp(
+            position,
+            dataset[index_lower][0],
+            dataset[index_lower][1],
+            dataset[index_higher][0],
+            dataset[index_higher][1],
         )
     return 0
 

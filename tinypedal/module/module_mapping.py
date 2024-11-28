@@ -38,14 +38,16 @@ class Realtime(DataModule):
 
     def __init__(self, config):
         super().__init__(config, MODULE_NAME)
-        self.filepath = self.cfg.path.track_map
 
     def update_data(self):
         """Update module data"""
         reset = False
         update_interval = self.active_interval
 
-        recorder = MapRecorder(self.filepath)
+        userpath_track_map = self.cfg.path.track_map
+        output = minfo.mapping
+
+        recorder = MapRecorder(userpath_track_map)
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -57,18 +59,18 @@ class Realtime(DataModule):
                     recorder.map.load(api.read.check.track_id())
                     if recorder.map.exist:
                         update_interval = self.idle_interval
-                        minfo.mapping.coordinates = recorder.map.raw_coords
-                        minfo.mapping.coordinatesHash = hash(minfo.mapping.coordinates)
-                        minfo.mapping.elevations = recorder.map.raw_dists
-                        minfo.mapping.elevationsHash = hash(minfo.mapping.elevations)
-                        minfo.mapping.sectors = recorder.map.sectors_index
+                        output.coordinates = recorder.map.raw_coords
+                        output.coordinatesHash = hash(output.coordinates)
+                        output.elevations = recorder.map.raw_dists
+                        output.elevationsHash = hash(output.elevations)
+                        output.sectors = recorder.map.sectors_index
                     else:
                         recorder.reset()
-                        minfo.mapping.coordinates = None
-                        minfo.mapping.coordinatesHash = None
-                        minfo.mapping.elevations = None
-                        minfo.mapping.elevationsHash = None
-                        minfo.mapping.sectors = None
+                        output.coordinates = None
+                        output.coordinatesHash = None
+                        output.elevations = None
+                        output.elevationsHash = None
+                        output.sectors = None
 
                 if not recorder.map.exist:
                     recorder.update()
@@ -83,7 +85,7 @@ class Realtime(DataModule):
 class MapRecorder:
     """Map data recorder"""
 
-    def __init__(self, filepath):
+    def __init__(self, filepath: str):
         self.map = MapData(filepath)
         self._recording = False
         self._validating = False
@@ -101,25 +103,14 @@ class MapRecorder:
 
     def update(self):
         """Update map data"""
-        # Read telemetry
-        lap_stime = api.read.timing.start()
-        lap_etime = api.read.timing.elapsed()
-        laptime_valid = api.read.timing.last_laptime()
-        sector_idx = api.read.lap.sector_index()
-        pos_curr = round4(api.read.lap.distance())
-        gps_curr = (round4(api.read.vehicle.position_longitudinal()),
-                    round4(api.read.vehicle.position_lateral()))
-        elv_curr = round4(api.read.vehicle.position_vertical())
-
-        # Update map data
-        self.__start(lap_stime)
+        self.__start(api.read.timing.start())
         if self._validating:
-            self.__validate(lap_etime, laptime_valid)
+            self.__validate(api.read.timing.elapsed(), api.read.timing.last_laptime())
         if self._recording:
-            self.__record_sector(sector_idx)
-            self.__record_path(pos_curr, gps_curr, elv_curr)
+            self.__record_sector(api.read.lap.sector_index())
+            self.__record_path(round4(api.read.lap.distance()))
 
-    def __start(self, lap_stime):
+    def __start(self, lap_stime: float):
         """Lap start & finish detection"""
         # Init reset
         if self._last_lap_stime == -1:
@@ -134,7 +125,7 @@ class MapRecorder:
             self._recording = True
             #logger.info("map recording")
 
-    def __validate(self, lap_etime, laptime_valid):
+    def __validate(self, lap_etime: float, laptime_valid: float):
         """Validate map data after crossing finish line"""
         laptime_curr = lap_etime - self._last_lap_stime
         if 1 < laptime_curr <= 8 and laptime_valid > 0:
@@ -146,7 +137,7 @@ class MapRecorder:
         elif 8 < laptime_curr < 10:
             self._validating = False
 
-    def __record_sector(self, sector_idx):
+    def __record_sector(self, sector_idx: int):
         """Record sector index"""
         if self._last_sector_idx != sector_idx:
             if sector_idx == 1:
@@ -155,11 +146,14 @@ class MapRecorder:
                 self.map.sectors_index[1] = len(self.map.raw_coords) - 1
             self._last_sector_idx = sector_idx
 
-    def __record_path(self, pos_curr, gps_curr, elv_curr):
+    def __record_path(self, pos_curr: float):
         """Record driving path"""
         # Update if position value is different & positive
         if 0 <= pos_curr != self._pos_last:
             if pos_curr > self._pos_last:  # position further
+                gps_curr = (round4(api.read.vehicle.position_longitudinal()),
+                            round4(api.read.vehicle.position_lateral()))
+                elv_curr = round4(api.read.vehicle.position_vertical())
                 self.map.raw_coords.append(gps_curr)
                 self.map.raw_dists.append((pos_curr, elv_curr))
             self._pos_last = pos_curr  # reset last position
@@ -174,7 +168,7 @@ class MapRecorder:
 class MapData:
     """Map data"""
 
-    def __init__(self, filepath):
+    def __init__(self, filepath: str):
         self.exist = False
         # Raw data
         self.raw_coords = None
@@ -201,7 +195,7 @@ class MapData:
         self._temp_raw_dists = tuple(self.raw_dists)
         self._temp_sectors_index = tuple(self.sectors_index)
 
-    def load(self, filename):
+    def load(self, filename: str):
         """Load map data file"""
         self._filename = filename
         # Load map file
