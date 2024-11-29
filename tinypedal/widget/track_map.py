@@ -87,7 +87,7 @@ class Realtime(Overlay):
         self.map_scale = 1
         self.map_offset = (0,0)
 
-        self.last_coords_hash = -1
+        self.last_modified = 0
         self.last_veh_data_version = None
         self.circular_map = True
 
@@ -98,9 +98,9 @@ class Realtime(Overlay):
         if self.state.active:
 
             # Map
-            coords_hash = minfo.mapping.coordinatesHash
-            self.update_map(coords_hash, self.last_coords_hash)
-            self.last_coords_hash = coords_hash
+            modified = minfo.mapping.lastModified
+            self.update_map(modified, self.last_modified)
+            self.last_modified = modified
 
             # Vehicles
             veh_data_version = minfo.vehicles.dataSetVersion
@@ -265,7 +265,7 @@ class Realtime(Overlay):
             painter.setPen(self.pen)
 
         for index in veh_draw_order:
-            if self.last_coords_hash:
+            if self.map_scaled:
                 # Position = (coords - min_range) * scale + offset, round to prevent bouncing
                 pos_x = round(
                     (veh_info[index].posXY[0] - self.map_range[0])  # min range x

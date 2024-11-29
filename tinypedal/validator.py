@@ -84,36 +84,44 @@ def same_session(combo_id, session_id, last_session_id) -> bool:
     )
 
 
-def value_type(value, default):
+def value_type(value, default: any) -> any:
     """Validate if value is same type as default, return default value if False"""
-    if type(value) == type(default):
+    if isinstance(value, type(default)):
         return value
     return default
 
 
-# Folder validate
-def user_data_path(folder_name: str) -> str:
+# Path & file validate
+def file_last_modified(filepath: str = "", filename: str = "", extension: str = "") -> float:
+    """Check file last modified time, 0 if file not exist"""
+    filename_full = f"{filepath}{filename}{extension}"
+    if os.path.exists(filename_full):
+        return os.path.getmtime(filename_full)
+    return 0
+
+
+def user_data_path(filepath: str) -> str:
     """Set user data path, create if not exist"""
-    if not os.path.exists(folder_name):
-        logger.info("%s folder does not exist, attemp to create", folder_name)
+    if not os.path.exists(filepath):
+        logger.info("%s folder does not exist, attemp to create", filepath)
         try:
-            os.mkdir(folder_name)
+            os.mkdir(filepath)
         except (PermissionError, FileExistsError, FileNotFoundError):
-            logger.error("failed to create %s folder", folder_name)
+            logger.error("failed to create %s folder", filepath)
             return ""
-    return folder_name
+    return filepath
 
 
-def relative_path(full_path: str) -> str:
+def relative_path(filepath: str) -> str:
     """Convert absolute path to relative if path is inside APP root folder"""
     try:
-        rel_path = os.path.relpath(full_path)
+        rel_path = os.path.relpath(filepath)
         if rel_path.startswith(".."):
-            output_path = full_path
+            output_path = filepath
         else:
             output_path = rel_path
     except ValueError:
-        output_path = full_path
+        output_path = filepath
     # Convert backslash to slash
     output_path = output_path.replace("\\", "/")
     # Make sure path end with "/"
@@ -123,20 +131,20 @@ def relative_path(full_path: str) -> str:
 
 
 # Delta list validate
-def delta_list(data_list: list) -> list:
+def delta_list(data: list) -> list:
     """Validate delta data list"""
     # Final row value(second column) must be higher than previous row
-    if data_list[-1][1] < data_list[-2][1]:
+    if data[-1][1] < data[-2][1]:
         raise ValueError
     # Remove distance greater than half of track length
-    half_distance = data_list[-1][0] * 0.5
+    half_distance = data[-1][0] * 0.5
     for idx in range(11, 0, -1):
-        if data_list[idx][0] > half_distance:
-            data_list.pop(idx)
+        if data[idx][0] > half_distance:
+            data.pop(idx)
     # Delta list must have at least 10 lines of samples
-    if len(data_list) < 10:
+    if len(data) < 10:
         raise ValueError
-    return data_list
+    return data
 
 
 # Color validate

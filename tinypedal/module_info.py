@@ -116,41 +116,35 @@ class HybridInfo:
 class MappingInfo:
     """Mapping module output data"""
     coordinates: tuple | None = None
-    coordinatesHash: int | None = None
     elevations: tuple | None = None
-    elevationsHash: int | None = None
     sectors: tuple | None = None
+    lastModified: float = 0
+
+    def reset(self):
+        """Reset"""
+        self.coordinates = None
+        self.elevations = None
+        self.sectors = None
+        self.lastModified = 0
 
 
 @dataclass
 class NotesInfo:
     """Notes module output data"""
-    paceNoteCurrentIndex: int = 0
-    paceNoteCurrent: dict = field(default_factory=dict)
-    paceNoteNextIndex: int = 0
-    paceNoteNext: dict = field(default_factory=dict)
-    trackNoteCurrentIndex: int = 0
-    trackNoteCurrent: dict = field(default_factory=dict)
-    trackNoteNextIndex: int = 0
-    trackNoteNext: dict = field(default_factory=dict)
+    currentIndex: int = 0
+    currentNote: dict = field(default_factory=dict)
+    nextIndex: int = 0
+    nextNote: dict = field(default_factory=dict)
 
     def __post_init__(self):
-        self.reset_pace_notes()
-        self.reset_track_notes()
+        self.reset()
 
-    def reset_pace_notes(self):
-        """Reset pace notes"""
-        self.paceNoteCurrentIndex = 0
-        self.paceNoteCurrent = {}
-        self.paceNoteNextIndex = 0
-        self.paceNoteNext = {}
-
-    def reset_track_notes(self):
-        """Reset track notes"""
-        self.trackNoteCurrentIndex = 0
-        self.trackNoteCurrent = {}
-        self.trackNoteNextIndex = 0
-        self.trackNoteNext = {}
+    def reset(self):
+        """Reset"""
+        self.currentIndex = 0
+        self.currentNote = {}
+        self.nextIndex = 0
+        self.nextNote = {}
 
 
 @dataclass
@@ -286,10 +280,11 @@ class ModuleInfo:
         self.history = HistoryInfo()
         self.hybrid = HybridInfo()
         self.mapping = MappingInfo()
-        self.notes = NotesInfo()
+        self.pacenotes = NotesInfo()
         self.relative = RelativeInfo()
         self.restapi = RestAPIInfo()
         self.sectors = SectorsInfo()
+        self.tracknotes = NotesInfo()
         self.vehicles = VehiclesInfo()
         self.wheels = WheelsInfo()
 

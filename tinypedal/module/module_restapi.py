@@ -31,8 +31,8 @@ from urllib.request import urlopen
 from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
+from ..validator import value_type
 from .. import formatter as fmt
-from .. import validator as val
 from .. import weather as wthr
 
 MODULE_NAME = "module_restapi"
@@ -237,9 +237,9 @@ def get_value(
             break
 
     if mod_func:
-        setattr(target, output, val.value_type(mod_func(data), default))
+        setattr(target, output, value_type(mod_func(data), default))
     else:
-        setattr(target, output, val.value_type(data, default))
+        setattr(target, output, value_type(data, default))
     return True
 
 

@@ -143,11 +143,11 @@ class Realtime(Overlay):
 
             if api.read.vehicle.in_garage():
                 self.update_auto_hide(False)
-            elif self.wcfg["auto_hide_if_not_available"] and not minfo.notes.paceNoteCurrent:
+            elif self.wcfg["auto_hide_if_not_available"] and not minfo.pacenotes.currentNote:
                 self.update_auto_hide(True)
             elif self.wcfg["maximum_display_duration"] > 0:
                 etime = api.read.timing.elapsed()
-                notes_index = minfo.notes.paceNoteCurrentIndex
+                notes_index = minfo.pacenotes.currentIndex
                 if self.last_notes_index != notes_index:
                     self.last_notes_index = notes_index
                     self.last_etime = etime
@@ -157,17 +157,17 @@ class Realtime(Overlay):
                     etime - self.last_etime > self.wcfg["maximum_display_duration"])
 
             if self.wcfg["show_pace_notes"]:
-                notes = minfo.notes.paceNoteCurrent.get(COLUMN_PACENOTE, NA)
+                notes = minfo.pacenotes.currentNote.get(COLUMN_PACENOTE, NA)
                 self.update_notes(notes, self.last_notes)
                 self.last_notes = notes
 
             if self.wcfg["show_comments"]:
-                comments = minfo.notes.paceNoteCurrent.get(COLUMN_COMMENT, NA)
+                comments = minfo.pacenotes.currentNote.get(COLUMN_COMMENT, NA)
                 self.update_comments(comments, self.last_comments)
                 self.last_comments = comments
 
             if self.wcfg["show_debugging"]:
-                debugging = minfo.notes.paceNoteCurrent.get(COLUMN_DISTANCE, NA)
+                debugging = minfo.pacenotes.currentNote.get(COLUMN_DISTANCE, NA)
                 self.update_debugging(debugging, self.last_debugging)
                 self.last_debugging = debugging
 
@@ -189,8 +189,8 @@ class Realtime(Overlay):
         if curr != last:
             if curr != NA:
                 curr = (
-                    f"IDX:{minfo.notes.paceNoteCurrentIndex + 1} "
-                    f"POS:{curr:.0f}>>{minfo.notes.paceNoteNext.get(COLUMN_DISTANCE, 0):.0f}m"
+                    f"IDX:{minfo.pacenotes.currentIndex + 1} "
+                    f"POS:{curr:.0f}>>{minfo.pacenotes.nextNote.get(COLUMN_DISTANCE, 0):.0f}m"
                 )
             self.bar_debugging.setText(curr)
 

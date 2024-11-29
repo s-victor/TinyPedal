@@ -102,7 +102,7 @@ class Realtime(Overlay):
         # Last data
         self.last_veh_data_version = None
 
-        self.last_coords_hash = -1
+        self.last_modified = 0
         self.map_scaled = None
         self.map_margin = self.wcfg["map_width"] + self.wcfg["map_outline_width"]
         self.map_size = 1,1
@@ -116,26 +116,26 @@ class Realtime(Overlay):
         """Update when vehicle on track"""
         if self.state.active:
 
+            # Map
+            modified = minfo.mapping.lastModified
+            self.update_map(modified, self.last_modified)
+            self.last_modified = modified
+
             # Vehicles
             veh_data_version = minfo.vehicles.dataSetVersion
             self.update_vehicle(veh_data_version, self.last_veh_data_version)
             self.last_veh_data_version = veh_data_version
 
-            # Map
-            coords_hash = minfo.mapping.coordinatesHash
-            self.update_map(coords_hash, self.last_coords_hash)
-            self.last_coords_hash = coords_hash
-
     # GUI update methods
-    def update_vehicle(self, curr, last):
-        """Vehicle & update"""
-        if curr != last:
-            self.update()
-
     def update_map(self, curr, last):
         """Map update"""
         if curr != last:
             self.create_map_path(minfo.mapping.coordinates)
+
+    def update_vehicle(self, curr, last):
+        """Vehicle & update"""
+        if curr != last:
+            self.update()
 
     def paintEvent(self, event):
         """Draw"""

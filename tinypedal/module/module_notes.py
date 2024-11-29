@@ -50,10 +50,11 @@ class Realtime(DataModule):
 
         userpath_pace_notes = self.cfg.path.pace_notes
         userpath_track_notes = self.cfg.path.track_notes
-        output = minfo.notes
+        output_pacenotes = minfo.pacenotes
+        output_tracknotes = minfo.tracknotes
 
         setting_playback = self.cfg.user.setting["pace_notes_playback"]
-        position_sync = PositionSync()
+        gen_position_sync = position_sync()
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -62,136 +63,142 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
 
-                    position_sync.reset()
-                    filename_track = api.read.check.track_id()
+                    gen_position_sync.send(None)
+                    track_name = api.read.check.track_id()
 
                     # Load pace notes
-                    if setting_playback["enable_manual_file_selector"]:
-                        filename_pace = setting_playback["pace_notes_file_name"]
-                        filepath_pace = ""
-                        fileext = ""
-                    else:
-                        filename_pace = filename_track
-                        filepath_pace = userpath_pace_notes
-                        fileext = ".tppn"
-                    pace_notes = load_notes_file(
-                        filepath=filepath_pace,
-                        filename=filename_pace,
+                    pace_notes = load_pace_notes_file(
+                        config=setting_playback,
+                        filepath=userpath_pace_notes,
+                        filename=track_name,
                         table_header=HEADER_PACE_NOTES,
                         parser=parse_csv_notes_only,
-                        extension=fileext
+                        extension=".tppn",
                     )
-                    pace_notes_last_idx = 0
-                    pace_notes_end_idx = end_note_index(pace_notes)
-                    pace_notes_dist_ref = reference_notes_index(pace_notes)
-                    if not pace_notes:
-                        output.reset_pace_notes()
+                    gen_pacenotes = notes_selector(
+                        output=output_pacenotes,
+                        dataset=pace_notes,
+                    )
+                    gen_pacenotes.send(None)
 
                     # Load track notes
                     track_notes = load_notes_file(
                         filepath=userpath_track_notes,
-                        filename=filename_track,
+                        filename=track_name,
                         table_header=HEADER_TRACK_NOTES,
                         parser=parse_csv_notes_only,
                         extension=".tptn"
                     )
-                    track_notes_last_idx = 0
-                    track_notes_end_idx = end_note_index(track_notes)
-                    track_notes_dist_ref = reference_notes_index(track_notes)
-                    if not track_notes:
-                        output.reset_track_notes()
+                    gen_tracknotes = notes_selector(
+                        output=output_tracknotes,
+                        dataset=track_notes,
+                    )
+                    gen_tracknotes.send(None)
 
                 # Update position
-                pos_synced = position_sync.sync(minfo.delta.lapDistance)
+                pos_synced = gen_position_sync.send(minfo.delta.lapDistance)
 
                 # Update pace notes
                 if pace_notes:
-                    pace_pos_curr = pos_synced + setting_playback["pace_notes_global_offset"]
-                    pace_notes_curr_idx = calc.binary_search_lower(
-                        pace_notes_dist_ref, pace_pos_curr, 0, pace_notes_end_idx)
-
-                    if pace_notes_last_idx != pace_notes_curr_idx:
-                        pace_notes_last_idx = pace_notes_curr_idx
-                        pace_notes_next_idx = next_note_index(
-                            pace_pos_curr, pace_notes_curr_idx, pace_notes_dist_ref)
-
-                        output.paceNoteCurrentIndex = pace_notes_curr_idx
-                        output.paceNoteCurrent = pace_notes[pace_notes_curr_idx]
-                        output.paceNoteNextIndex = pace_notes_next_idx
-                        output.paceNoteNext = pace_notes[pace_notes_next_idx]
+                    gen_pacenotes.send(pos_synced + setting_playback["pace_notes_global_offset"])
 
                 # Update track notes
                 if track_notes:
-                    track_pos_curr = pos_synced
-                    track_notes_curr_idx = calc.binary_search_lower(
-                        track_notes_dist_ref, track_pos_curr, 0, track_notes_end_idx)
-
-                    if track_notes_last_idx != track_notes_curr_idx:
-                        track_notes_last_idx = track_notes_curr_idx
-                        track_notes_next_idx = next_note_index(
-                            track_pos_curr, track_notes_curr_idx, track_notes_dist_ref)
-
-                        output.trackNoteCurrentIndex = track_notes_curr_idx
-                        output.trackNoteCurrent = track_notes[track_notes_curr_idx]
-                        output.trackNoteNextIndex = track_notes_next_idx
-                        output.trackNoteNext = track_notes[track_notes_next_idx]
+                    gen_tracknotes.send(pos_synced)
 
             else:
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
-                    output.reset_pace_notes()
-                    output.reset_track_notes()
+                    output_pacenotes.reset()
+                    output_tracknotes.reset()
 
 
-class PositionSync:
-    """Position synchronization"""
+def load_pace_notes_file(
+    config: dict, filepath: str, filename: str,
+    table_header: tuple, parser: object, extension: str):
+    """Load pace notes"""
+    if config["enable_manual_file_selector"]:
+        filepath = ""
+        filename = config["pace_notes_file_name"]
+        extension = ""
+    return load_notes_file(
+        filepath=filepath,
+        filename=filename,
+        table_header=table_header,
+        parser=parser,
+        extension=extension,
+    )
 
-    def __init__(self, max_diff: float = 200, max_desync: int = 20):
-        """
-        Args:
-            max_diff: max delta position (meters). Exceeding max delta counts as new lap.
-            max_desync: max desync counts.
-        """
-        self._max_diff = max_diff
-        self._max_desync = max_desync
-        self._desync_count = 0
-        self._pos_synced = 0
 
-    def sync(self, pos_curr: float) -> float:
-        """Synchronize position
+def notes_selector(output: object, dataset: list[dict] | None):
+    """Notes selector
 
-        Args:
-            pos_curr: current position (meters).
+    Args:
+        output: module info.
+        dataset: list of notes.
+    """
+    last_index = 0
+    end_index = end_note_index(dataset)
+    dist_ref = reference_notes_index(dataset)
 
-        Returns:
-            Synchronized position (meters).
-        """
-        if self._pos_synced > pos_curr:
-            if (self._desync_count > self._max_desync
-                or self._pos_synced - pos_curr > self._max_diff):
-                self._desync_count = 0  # reset
-                self._pos_synced = pos_curr
+    while True:
+        pos_curr = yield
+        curr_index = calc.binary_search_lower(dist_ref, pos_curr, 0, end_index)
+
+        if last_index == curr_index:
+            continue
+
+        last_index = curr_index
+        next_index = next_note_index(pos_curr, curr_index, dist_ref)
+
+        output.currentIndex = curr_index
+        output.currentNote = dataset[curr_index]
+        output.nextIndex = next_index
+        output.nextNote = dataset[next_index]
+
+
+def position_sync(max_diff: float = 200, max_desync: int = 20):
+    """Position synchronization
+
+    Args:
+        max_diff: max delta position (meters). Exceeding max delta counts as new lap.
+        max_desync: max desync counts.
+
+    Sends:
+        pos_curr: current position (meters).
+
+    Yields:
+        Synchronized position (meters).
+    """
+    pos_synced = 0
+    desync_count = 0
+
+    while True:
+        pos_curr = yield pos_synced
+        if pos_curr is None:  # reset
+            pos_curr = 0
+            pos_synced = 0
+            desync_count = 0
+            continue
+        if pos_synced > pos_curr:
+            if desync_count > max_desync or pos_synced - pos_curr > max_diff:
+                desync_count = 0  # reset
+                pos_synced = pos_curr
             else:
-                self._desync_count += 1
-        elif self._pos_synced < pos_curr:
-            self._pos_synced = pos_curr
-            if self._desync_count:
-                self._desync_count = 0
-        return self._pos_synced
-
-    def reset(self):
-        """Reset position & desync count"""
-        self._desync_count = 0
-        self._pos_synced = 0
+                desync_count += 1
+        elif pos_synced < pos_curr:
+            pos_synced = pos_curr
+            if desync_count:
+                desync_count = 0
 
 
-def next_note_index(pos_curr: float, curr_idx: int, dist_ref: list) -> int:
+def next_note_index(pos_curr: float, curr_index: int, dist_ref: list) -> int:
     """Next note line index"""
-    return (curr_idx + 1) * (pos_curr < dist_ref[-1])
+    return (curr_index + 1) * (pos_curr < dist_ref[-1])
 
 
-def end_note_index(notes: list) -> int:
+def end_note_index(notes: list | None) -> int:
     """End note line index"""
     if notes is None:
         return 0

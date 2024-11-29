@@ -25,6 +25,7 @@ from functools import partial
 from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
+from ..validator import file_last_modified
 from .. import calculation as calc
 from ..userfile.track_map import load_track_map_file, save_track_map_file
 
@@ -60,17 +61,12 @@ class Realtime(DataModule):
                     if recorder.map.exist:
                         update_interval = self.idle_interval
                         output.coordinates = recorder.map.raw_coords
-                        output.coordinatesHash = hash(output.coordinates)
                         output.elevations = recorder.map.raw_dists
-                        output.elevationsHash = hash(output.elevations)
                         output.sectors = recorder.map.sectors_index
+                        output.lastModified = recorder.map.last_modified
                     else:
                         recorder.reset()
-                        output.coordinates = None
-                        output.coordinatesHash = None
-                        output.elevations = None
-                        output.elevationsHash = None
-                        output.sectors = None
+                        output.reset()
 
                 if not recorder.map.exist:
                     recorder.update()
@@ -130,11 +126,13 @@ class MapRecorder:
         laptime_curr = lap_etime - self._last_lap_stime
         if 1 < laptime_curr <= 8 and laptime_valid > 0:
             self.map.save()
+            self.map.clear_temp()
             self.map.exist = True
             self._recording = False
             self._validating = False
         # Switch off validating after 8s
         elif 8 < laptime_curr < 10:
+            self.map.clear_temp()
             self._validating = False
 
     def __record_sector(self, sector_idx: int):
@@ -161,7 +159,7 @@ class MapRecorder:
     def __record_end(self):
         """End recording"""
         if self.map.raw_coords:
-            self.map.copy()
+            self.map.copy_temp()
             self._validating = True
 
 
@@ -175,6 +173,7 @@ class MapData:
         self.raw_dists = None
         self.sectors_index = None
         # File info
+        self.last_modified = 0
         self._filepath = filepath
         self._filename = None
         # Temp data
@@ -189,15 +188,36 @@ class MapData:
         self.raw_dists = []
         self.sectors_index = [0,0]
 
-    def copy(self):
+    def copy_temp(self):
         """Copy map data to temp and convert to tuple for hash"""
         self._temp_raw_coords = tuple(self.raw_coords)
         self._temp_raw_dists = tuple(self.raw_dists)
         self._temp_sectors_index = tuple(self.sectors_index)
 
+    def clear_temp(self):
+        """Clear temp"""
+        self._temp_raw_coords = None
+        self._temp_raw_dists = None
+        self._temp_sectors_index = None
+
+    def is_loaded(self) -> bool:
+        """Check if same map loaded"""
+        modified = file_last_modified(
+            filepath=self._filepath,
+            filename=self._filename,
+            extension=".svg",
+        )
+        if self.last_modified == modified > 0:
+            return True
+        self.last_modified = modified
+        return False
+
     def load(self, filename: str):
         """Load map data file"""
         self._filename = filename
+        if self.is_loaded():
+            self.exist = True
+            return
         # Load map file
         raw_coords, raw_dists, sectors_index = load_track_map_file(
             filepath=self._filepath,

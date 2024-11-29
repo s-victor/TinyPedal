@@ -177,10 +177,10 @@ def load_notes_file(
             return parser(temp_file, table_header)
 
     except FileNotFoundError:
-        logger.info("LOADING: notes file not available")
+        logger.info("LOADING: %s notes file not available", extension)
         return None
     except (AttributeError, IndexError, KeyError, TypeError, ValueError, OSError):
-        logger.info("LOADING: invalid notes file")
+        logger.info("LOADING: invalid %s notes file", extension)
         return None
 
 

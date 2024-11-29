@@ -84,7 +84,7 @@ class Realtime(Overlay):
         self.map_range = (0,10,0,10)
         self.map_scale = 1,1
 
-        self.last_elevation_hash = -1
+        self.last_modified = 0
         self.veh_pos = (0,0,0)
         self.last_veh_pos = None
 
@@ -95,9 +95,9 @@ class Realtime(Overlay):
         if self.state.active:
 
             # Elevation map
-            elevation_hash = minfo.mapping.elevationsHash
-            self.update_elevation(elevation_hash, self.last_elevation_hash)
-            self.last_elevation_hash = elevation_hash
+            modified = minfo.mapping.lastModified
+            self.update_elevation(modified, self.last_modified)
+            self.last_modified = modified
 
             # Vehicle position
             self.veh_pos = (
