@@ -20,9 +20,6 @@
 Force Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -35,6 +32,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -43,7 +42,6 @@ class Realtime(Overlay):
         # Config variable
         text_def = "n/a"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         bar_width = font_m.width * 6 + bar_padx
 
         # Base style
@@ -52,13 +50,6 @@ class Realtime(Overlay):
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
 
         # G force
         if self.wcfg["show_g_force"]:
@@ -146,13 +137,6 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_rear_downforce"],
             )
 
-        # Last data
-        self.last_gf_lgt = None
-        self.last_gf_lat = None
-        self.last_df_ratio = None
-        self.last_df_front = None
-        self.last_df_rear = None
-
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
@@ -161,60 +145,60 @@ class Realtime(Overlay):
             if self.wcfg["show_g_force"]:
                 # Longitudinal g-force
                 gf_lgt = round(minfo.force.lgtGForceRaw, 2)
-                self.update_gf_lgt(gf_lgt, self.last_gf_lgt)
-                self.last_gf_lgt = gf_lgt
+                self.update_gf_lgt(self.bar_gforce_lgt, gf_lgt)
 
                 # Lateral g-force
                 gf_lat = round(minfo.force.latGForceRaw, 2)
-                self.update_gf_lat(gf_lat, self.last_gf_lat)
-                self.last_gf_lat = gf_lat
+                self.update_gf_lat(self.bar_gforce_lat, gf_lat)
 
             # Downforce ratio
             if self.wcfg["show_downforce_ratio"]:
                 df_ratio = round(minfo.force.downForceRatio, 2)
-                self.update_df_ratio(df_ratio, self.last_df_ratio)
-                self.last_df_ratio = df_ratio
+                self.update_df_ratio(self.bar_df_ratio, df_ratio)
 
             # Front downforce
             if self.wcfg["show_front_downforce"]:
                 df_front = round(minfo.force.downForceFront)
-                self.update_df_front(df_front, self.last_df_front)
-                self.last_df_front = df_front
+                self.update_df_front(self.bar_df_front, df_front)
 
             # Rear downforce
             if self.wcfg["show_rear_downforce"]:
                 df_rear = round(minfo.force.downForceRear)
-                self.update_df_rear(df_rear, self.last_df_rear)
-                self.last_df_rear = df_rear
+                self.update_df_rear(self.bar_df_rear, df_rear)
 
     # GUI update methods
-    def update_gf_lgt(self, curr, last):
+    def update_gf_lgt(self, target, data):
         """Longitudinal g-force"""
-        if curr != last:
-            self.bar_gforce_lgt.setText(f"{self.gforce_lgt(curr)} {abs(curr):.2f}")
+        if target.last != data:
+            target.last = data
+            target.setText(f"{self.gforce_lgt(data)} {abs(data):.2f}")
 
-    def update_gf_lat(self, curr, last):
+    def update_gf_lat(self, target, data):
         """Lateral g-force"""
-        if curr != last:
-            self.bar_gforce_lat.setText(f"{abs(curr):.2f} {self.gforce_lat(curr)}")
+        if target.last != data:
+            target.last = data
+            target.setText(f"{abs(data):.2f} {self.gforce_lat(data)}")
 
-    def update_df_ratio(self, curr, last):
+    def update_df_ratio(self, target, data):
         """Downforce ratio"""
-        if curr != last:
-            text = f"{curr:.2f}"[:5].strip(".")
-            self.bar_df_ratio.setText(f"{text}%")
+        if target.last != data:
+            target.last = data
+            text = f"{data:.2f}"[:5].strip(".")
+            target.setText(f"{text}%")
 
-    def update_df_front(self, curr, last):
+    def update_df_front(self, target, data):
         """Downforce front"""
-        if curr != last:
-            self.bar_df_front.setText(f"F{abs(curr):5.0f}"[:6])
-            self.bar_df_front.setStyleSheet(self.bar_style_df_front[curr < 0])
+        if target.last != data:
+            target.last = data
+            target.setText(f"F{abs(data):5.0f}"[:6])
+            target.setStyleSheet(self.bar_style_df_front[data < 0])
 
-    def update_df_rear(self, curr, last):
+    def update_df_rear(self, target, data):
         """Downforce rear"""
-        if curr != last:
-            self.bar_df_rear.setText(f"R{abs(curr):5.0f}"[:6])
-            self.bar_df_rear.setStyleSheet(self.bar_style_df_rear[curr < 0])
+        if target.last != data:
+            target.last = data
+            target.setText(f"R{abs(data):5.0f}"[:6])
+            target.setStyleSheet(self.bar_style_df_rear[data < 0])
 
     # Additional methods
     @staticmethod
