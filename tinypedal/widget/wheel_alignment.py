@@ -20,9 +20,6 @@
 Wheel alignment Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from ..api_control import api
 from ._base import Overlay
@@ -36,6 +33,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -44,7 +43,6 @@ class Realtime(Overlay):
         # Config variable
         text_def = "n/a"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         bar_width = font_m.width * 5 + bar_padx
 
         # Base style
@@ -59,28 +57,24 @@ class Realtime(Overlay):
             font_size=int(self.wcfg['font_size'] * 0.8)
         )
 
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
-
         # Camber
         if self.wcfg["show_camber"]:
-            layout_camber = QGridLayout()
-            layout_camber.setSpacing(0)
+            layout_camber = self.set_grid_layout()
             bar_style_camber = self.set_qss(
                 fg_color=self.wcfg["font_color_camber"],
                 bg_color=self.wcfg["bkg_color_camber"]
             )
-            self.bar_camber = self.set_qlabel(
+            self.bars_camber = self.set_qlabel(
                 text=text_def,
                 style=bar_style_camber,
                 width=bar_width,
                 count=4,
+                last=-1,
             )
-            self.set_layout_quad(layout_camber, self.bar_camber)
+            self.set_grid_layout_quad(
+                layout=layout_camber,
+                targets=self.bars_camber,
+            )
             self.set_primary_orient(
                 target=layout_camber,
                 column=self.wcfg["column_index_camber"],
@@ -95,19 +89,22 @@ class Realtime(Overlay):
 
         # Toe in
         if self.wcfg["show_toe_in"]:
-            layout_toein = QGridLayout()
-            layout_toein.setSpacing(0)
+            layout_toein = self.set_grid_layout()
             bar_style_toein = self.set_qss(
                 fg_color=self.wcfg["font_color_toe_in"],
                 bg_color=self.wcfg["bkg_color_toe_in"]
             )
-            self.bar_toein = self.set_qlabel(
+            self.bars_toein = self.set_qlabel(
                 text=text_def,
                 style=bar_style_toein,
                 width=bar_width,
                 count=4,
+                last=-1,
             )
-            self.set_layout_quad(layout_toein, self.bar_toein)
+            self.set_grid_layout_quad(
+                layout=layout_toein,
+                targets=self.bars_toein,
+            )
             self.set_primary_orient(
                 target=layout_toein,
                 column=self.wcfg["column_index_toe_in"],
@@ -120,10 +117,6 @@ class Realtime(Overlay):
                 )
                 layout_toein.addWidget(cap_toein, 0, 0, 1, 0)
 
-        # Last data
-        self.last_camber = [-1] * 4
-        self.last_toein = [-1] * 4
-
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
@@ -131,32 +124,20 @@ class Realtime(Overlay):
             # Camber
             if self.wcfg["show_camber"]:
                 camber = api.read.wheel.camber()
-                for idx in range(4):
+                for idx, bar_camber in enumerate(self.bars_camber):
                     camber[idx] = round(calc.rad2deg(camber[idx]), 2)
-                    self.update_wheel(self.bar_camber[idx], camber[idx], self.last_camber[idx])
-                    self.last_camber[idx] = camber[idx]
+                    self.update_wheel(bar_camber, camber[idx])
 
             # Toe in
             if self.wcfg["show_toe_in"]:
                 toein = api.read.wheel.toe_symmetric()
-                for idx in range(4):
+                for idx, bar_toein in enumerate(self.bars_toein):
                     toein[idx] = round(calc.rad2deg(toein[idx]), 2)
-                    self.update_wheel(self.bar_toein[idx], toein[idx], self.last_toein[idx])
-                    self.last_toein[idx] = toein[idx]
+                    self.update_wheel(bar_toein, toein[idx])
 
     # GUI update methods
-    def update_wheel(self, target_bar, curr, last):
+    def update_wheel(self, target, data):
         """Wheel data"""
-        if curr != last:
-            target_bar.setText(f"{curr:+.2f}"[:5])
-
-    # GUI generate methods
-    @staticmethod
-    def set_layout_quad(layout, bar_set, row_start=1, column_left=0, column_right=9):
-        """Set layout - quad
-
-        Default row index start from 1; reserve row index 0 for caption.
-        """
-        for idx in range(4):
-            layout.addWidget(bar_set[idx], row_start + (idx > 1),
-                column_left + (idx % 2) * column_right)
+        if target.last != data:
+            target.last = data
+            target.setText(f"{data:+.2f}"[:5])
