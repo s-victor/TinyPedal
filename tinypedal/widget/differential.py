@@ -20,9 +20,6 @@
 Differential Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
@@ -36,6 +33,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -43,8 +42,6 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
-
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
         self.leading_space = 3 + self.decimals + (self.decimals > 0)
 
@@ -70,13 +67,6 @@ class Realtime(Overlay):
             font_weight=self.wcfg["font_weight"])
         )
 
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
-
         # Power locking front
         if self.wcfg["show_power_locking_front"]:
             text_power_front = f"{self.prefix_power_f}{self.format_reading(1)}"
@@ -88,6 +78,7 @@ class Realtime(Overlay):
                 text=text_power_front,
                 style=bar_style_power_front,
                 width=font_m.width * len(text_power_front) + bar_padx,
+                last=0,
             )
             self.set_primary_orient(
                 target=self.bar_power_front,
@@ -105,6 +96,7 @@ class Realtime(Overlay):
                 text=text_coast_front,
                 style=bar_style_coast_front,
                 width=font_m.width * len(text_coast_front) + bar_padx,
+                last=0,
             )
             self.set_primary_orient(
                 target=self.bar_coast_front,
@@ -122,6 +114,7 @@ class Realtime(Overlay):
                 text=text_power_rear,
                 style=bar_style_power_rear,
                 width=font_m.width * len(text_power_rear) + bar_padx,
+                last=0,
             )
             self.set_primary_orient(
                 target=self.bar_power_rear,
@@ -139,6 +132,7 @@ class Realtime(Overlay):
                 text=text_coast_rear,
                 style=bar_style_coast_rear,
                 width=font_m.width * len(text_coast_rear) + bar_padx,
+                last=0,
             )
             self.set_primary_orient(
                 target=self.bar_coast_rear,
@@ -146,94 +140,48 @@ class Realtime(Overlay):
             )
 
         # Last data
-        self.power_timer_f = 0
-        self.coast_timer_f = 0
-        self.min_power_f = 1
-        self.min_coast_f = 1
-        self.last_power_f = 0
-        self.last_coast_f = 0
-
-        self.power_timer_r = 0
-        self.coast_timer_r = 0
-        self.min_power_r = 1
-        self.min_coast_r = 1
-        self.last_power_r = 0
-        self.last_coast_r = 0
+        self.power_timer_f = DiffLockingTimer(self.wcfg["power_locking_reset_cooldown"])
+        self.coast_timer_f = DiffLockingTimer(self.wcfg["coast_locking_reset_cooldown"])
+        self.power_timer_r = DiffLockingTimer(self.wcfg["power_locking_reset_cooldown"])
+        self.coast_timer_r = DiffLockingTimer(self.wcfg["coast_locking_reset_cooldown"])
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
 
-            raw_throttle = api.read.input.throttle_raw()
             lap_etime = api.read.timing.elapsed()
+            raw_throttle = api.read.input.throttle_raw()
             locking_front = minfo.wheels.lockingPercentFront
             locking_rear = minfo.wheels.lockingPercentRear
+            on_throttle = raw_throttle > self.wcfg["on_throttle_threshold"]
+            off_throttle = raw_throttle < self.wcfg["off_throttle_threshold"]
 
             # Power locking front
-            if self.wcfg["show_power_locking_front"] and raw_throttle > self.wcfg["on_throttle_threshold"]:
-                if self.min_power_f > locking_front:
-                    self.min_power_f = locking_front
-                    self.power_timer_f = lap_etime
-                    self.update_locking(
-                        self.bar_power_front, self.min_power_f, self.last_power_f,
-                        self.prefix_power_f
-                    )
-                    self.last_power_f = self.min_power_f
-                elif lap_etime - self.power_timer_f > self.wcfg["power_locking_reset_cooldown"]:
-                    self.min_power_f = 1
-                elif self.power_timer_f > lap_etime:  # timer correction
-                    self.power_timer_f = lap_etime
+            if self.wcfg["show_power_locking_front"] and on_throttle:
+                min_power_f = self.power_timer_f.update(locking_front, lap_etime)
+                self.update_locking(self.bar_power_front, min_power_f, self.prefix_power_f)
 
             # Coast locking front
-            if self.wcfg["show_coast_locking_front"] and raw_throttle < self.wcfg["off_throttle_threshold"]:
-                if self.min_coast_f > locking_front:
-                    self.min_coast_f = locking_front
-                    self.coast_timer_f = lap_etime
-                    self.update_locking(
-                        self.bar_coast_front, self.min_coast_f, self.last_coast_f,
-                        self.prefix_coast_f
-                    )
-                    self.last_coast_f = self.min_coast_f
-                elif lap_etime - self.coast_timer_f > self.wcfg["coast_locking_reset_cooldown"]:
-                    self.min_coast_f = 1
-                elif self.coast_timer_f > lap_etime:
-                    self.coast_timer_f = lap_etime
+            if self.wcfg["show_coast_locking_front"] and off_throttle:
+                min_coast_f = self.coast_timer_f.update(locking_front, lap_etime)
+                self.update_locking(self.bar_coast_front, min_coast_f, self.prefix_coast_f)
 
             # Power locking rear
-            if self.wcfg["show_power_locking_rear"] and raw_throttle > self.wcfg["on_throttle_threshold"]:
-                if self.min_power_r > locking_rear:
-                    self.min_power_r = locking_rear
-                    self.power_timer_r = lap_etime
-                    self.update_locking(
-                        self.bar_power_rear, self.min_power_r, self.last_power_r,
-                        self.prefix_power_r
-                    )
-                    self.last_power_r = self.min_power_r
-                elif lap_etime - self.power_timer_r > self.wcfg["power_locking_reset_cooldown"]:
-                    self.min_power_r = 1
-                elif self.power_timer_r > lap_etime:
-                    self.power_timer_r = lap_etime
+            if self.wcfg["show_power_locking_rear"] and on_throttle:
+                min_power_r = self.power_timer_r.update(locking_rear, lap_etime)
+                self.update_locking(self.bar_power_rear, min_power_r, self.prefix_power_r)
 
             # Coast locking rear
-            if self.wcfg["show_coast_locking_rear"] and raw_throttle < self.wcfg["off_throttle_threshold"]:
-                if self.min_coast_r > locking_rear:
-                    self.min_coast_r = locking_rear
-                    self.coast_timer_r = lap_etime
-                    self.update_locking(
-                        self.bar_coast_rear, self.min_coast_r, self.last_coast_r,
-                        self.prefix_coast_r
-                        )
-                    self.last_coast_r = self.min_coast_r
-                elif lap_etime - self.coast_timer_r > self.wcfg["coast_locking_reset_cooldown"]:
-                    self.min_coast_r = 1
-                elif self.coast_timer_r > lap_etime:
-                    self.coast_timer_r = lap_etime
+            if self.wcfg["show_coast_locking_rear"] and off_throttle:
+                min_coast_r = self.coast_timer_r.update(locking_rear, lap_etime)
+                self.update_locking(self.bar_coast_rear, min_coast_r, self.prefix_coast_r)
 
     # GUI update methods
-    def update_locking(self, target_bar, curr, last, prefix):
+    def update_locking(self, target, data, prefix):
         """Differential locking percent"""
-        if curr != last:
-            target_bar.setText(f"{prefix}{self.format_reading(curr)}")
+        if target.last != data:
+            target.last = data
+            target.setText(f"{prefix}{self.format_reading(data)}")
 
     # Additional methods
     def format_reading(self, value):
@@ -241,3 +189,35 @@ class Realtime(Overlay):
         if self.wcfg["show_inverted_locking"]:
             value = 1 - value
         return f"{value: >{self.leading_space}.{self.decimals}%}"[:self.leading_space]
+
+
+class DiffLockingTimer:
+    """Differential locking timer"""
+
+    def __init__(self, cooldown: float) -> None:
+        """
+        Args:
+            cooldown: minimum locking percent reset cooldown (seconds).
+        """
+        self._cooldown = cooldown
+        self._timer = 0
+        self._min_locking = 1
+
+    def update(self, locking: float, elapsed_time: float) -> float:
+        """Update minimum locking percent
+
+        Args:
+            locking: locking percent (fraction).
+            elapsed_time: current lap elapsed time.
+
+        Returns:
+            Minimum locking percent (fraction).
+        """
+        if self._min_locking > locking:
+            self._min_locking = locking
+            self._timer = elapsed_time
+        elif elapsed_time - self._timer > self._cooldown:
+            self._min_locking = 1  # reset
+        elif self._timer > elapsed_time:  # timer correction
+            self._timer = elapsed_time
+        return self._min_locking
