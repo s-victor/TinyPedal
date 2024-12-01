@@ -125,6 +125,9 @@ def restore_backup_file(filename: str, filepath: str, extension: str = ".bak") -
 
 def delete_backup_file(filename: str, filepath: str, extension: str = ".bak") -> None:
     """Delete backup file"""
-    file_path = f"{filepath}{filename}{extension}"
-    if os.path.exists(file_path):
-        os.remove(file_path)
+    try:
+        file_path = f"{filepath}{filename}{extension}"
+        if os.path.exists(file_path):
+            os.remove(file_path)
+    except (FileNotFoundError, OSError):
+        logger.error("SETTING: failed removing backup file")

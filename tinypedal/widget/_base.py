@@ -26,8 +26,8 @@ import re
 from dataclasses import dataclass
 
 from PySide2.QtCore import Qt, Slot, QBasicTimer
-from PySide2.QtGui import QPalette, QFont, QFontMetrics
-from PySide2.QtWidgets import QWidget, QLabel, QLayout
+from PySide2.QtGui import QPalette, QFont, QFontMetrics, QPixmap
+from PySide2.QtWidgets import QWidget, QLabel, QLayout, QGridLayout
 
 from .. import regex_pattern as rxp
 from ..const import APP_NAME
@@ -90,6 +90,9 @@ class Overlay(QWidget):
         self._update_timer.stop()
         self.__break_signal()
         self.unload_resource()
+        self.wcfg = None
+        self.cfg = None
+        self.state = None
         self.closed = self.close()
 
     def unload_resource(self):
@@ -230,9 +233,18 @@ class Overlay(QWidget):
         return self.wcfg["font_offset_vertical"]
 
     @staticmethod
-    def set_padding(size: int, scale: float) -> int:
-        """Set padding - (size * scale) * 2"""
-        return round(size * scale) * 2
+    def set_padding(size: int, scale: float, side: int = 2) -> int:
+        """Set padding
+
+        Args:
+            size: reference font size in pixel.
+            scale: scale font size for relative padding.
+            side: number of sides to add padding.
+
+        Returns:
+            Padding size in pixel.
+        """
+        return round(size * scale) * side
 
     @staticmethod
     def set_text_alignment(align: int | str = 0) -> Qt.AlignmentFlag:
@@ -283,20 +295,22 @@ class Overlay(QWidget):
             font_weight = f"font-weight:{font_weight};"
         return f"{fg_color}{bg_color}{font_family}{font_size}{font_weight}"
 
-    def add_qlabel(
-        self, text: str | None = None, style: str | None = None,
+    def __add_qlabel(
+        self, text: str | None = None, pixmap: QPixmap | None = None, style: str | None = None,
         width: int = 0, height: int = 0, fixed_width: int = 0, fixed_height: int = 0,
-        align: int = 0) -> QLabel:
+        align: int = 0, last: any | None = None) -> QLabel:
         """Add a single qlabel instance
 
         Args:
             text: label text.
+            pixmap: pixmap image.
             style: qt style sheet.
             width: minimum label width in pixel.
             height: minimum label height in pixel.
             fixed_width: fixed label width in pixel, takes priority over width.
             fixed_height: fixed label height in pixel, takes priority over height.
             align: 0 (center), 1 (left), 2 (right).
+            last: cache last data for comparison.
 
         Returns:
             QLabel instance.
@@ -305,6 +319,9 @@ class Overlay(QWidget):
             bar_temp = QLabel(text)
         else:
             bar_temp = QLabel()  # empty label
+
+        if pixmap is not None:
+            bar_temp.setPixmap(pixmap)
 
         if style is not None:
             bar_temp.setStyleSheet(style)
@@ -322,51 +339,153 @@ class Overlay(QWidget):
         bar_temp.setTextFormat(Qt.PlainText)
         bar_temp.setTextInteractionFlags(Qt.NoTextInteraction)
         bar_temp.setAlignment(self.set_text_alignment(align))
+        bar_temp.last = last
         return bar_temp
 
     def set_qlabel(
-        self, text: str | None = None, style: str | None = None,
+        self, text: str | None = None, pixmap: QPixmap | None = None, style: str | None = None,
         width: int = 0, height: int = 0, fixed_width: int = 0, fixed_height: int = 0,
-        align: int = 0, count: int = 1) -> (tuple[QLabel] | QLabel):
+        align: int = 0, last: any | None = None, count: int = 1) -> (tuple[QLabel] | QLabel):
         """Set qlabel
 
         Args:
             text: label text.
+            pixmap: pixmap image.
             style: qt style sheet.
             width: minimum label width in pixel.
             height: minimum label height in pixel.
             fixed_width: fixed label width in pixel, takes priority over width.
             fixed_height: fixed label height in pixel, takes priority over height.
-            align: 0 (center), 1 (left), 2 (right)
+            align: 0 (center), 1 (left), 2 (right).
+            last: cache last data for comparison.
             count: number of qlabel to set.
 
         Returns:
             A single or multiple(tuple) QLabel instances,
             depends on count value (default 1).
         """
-        if count > 1:
-            return tuple(
-                self.add_qlabel(text, style, width, height, fixed_width, fixed_height, align)
-                for _ in range(count)
+        bar_set = (
+            self.__add_qlabel(
+                text=text, pixmap=pixmap, style=style, width=width, height=height,
+                fixed_width=fixed_width, fixed_height=fixed_height,
+                align=align, last=last,
             )
-        return self.add_qlabel(text, style, width, height, fixed_width, fixed_height, align)
+            for _ in range(count)
+        )
+        if count > 1:
+            return tuple(bar_set)
+        return next(bar_set)
 
-    def set_primary_orient(self, target: QWidget | QLayout, column: int):
+    @staticmethod
+    def set_grid_layout_vert(
+        layout: QLayout, targets: tuple[QWidget], row_start: int = 1, column: int = 4):
+        """Set grid layout - vertical
+
+        Default row index start from 1; reserve row index 0 for caption.
+        """
+        for index, target in enumerate(targets):
+            layout.addWidget(target, index + row_start, column)
+
+    @staticmethod
+    def set_grid_layout_quad(
+        layout: QLayout, targets: tuple[QWidget],
+        row_start: int = 1, column_left: int = 0, column_right: int = 9):
+        """Set grid layout - quad - (0,1), (2,3)
+
+        Default row index start from 1; reserve row index 0 for caption.
+        """
+        for index, target in enumerate(targets):
+            layout.addWidget(
+                target,
+                row_start + (index > 1),
+                column_left + (index % 2) * column_right
+            )
+
+    @staticmethod
+    def set_grid_layout_tri_quad(
+        layout: QLayout, targets: tuple[QWidget],
+        row_start: int = 1, column_left: int = 0, column_right: int = 6):
+        """Set grid layout - tri-quad - (0,1,2), (3,4,5), (6,7,8), (9,10,11)
+
+        Default row index start from 1; reserve row index 0 for caption.
+        Default column left index start from 0, and right start from 6; reserve 3 columns in middle.
+        """
+        row_index = row_start
+        column_index = column_left
+        for index, target in enumerate(targets):
+            if index == 6:
+                row_index +=1
+                column_index = column_left
+            if index in (3, 9):
+                column_index = column_right
+            layout.addWidget(target, row_index, column_index)
+            column_index += 1
+
+    @staticmethod
+    def set_grid_layout_table_row(
+        layout: QLayout, targets: tuple[QWidget],
+        row_index: int, right_to_left: bool = False):
+        """Set grid layout - table by keys of each row"""
+        if right_to_left:
+            targets = reversed(targets)
+        for column_index, target in enumerate(targets):
+            layout.addWidget(target, row_index, column_index)
+
+    @staticmethod
+    def set_grid_layout_table_column(
+        layout: QLayout, targets: tuple[QWidget],
+        column_index: int, bottom_to_top: bool = False):
+        """Set grid layout - table by keys of each column"""
+        if bottom_to_top:
+            targets = reversed(targets)
+        for row_index, target in enumerate(targets):
+            layout.addWidget(target, row_index, column_index)
+
+    @staticmethod
+    def set_grid_layout(
+        gap: int = 0, gap_hori: int = -1, gap_vert: int = -1, margin: int = -1,
+        align: Qt.Alignment | None = None) -> QGridLayout:
+        """Set grid layout (QGridLayout)"""
+        layout = QGridLayout()
+        layout.setSpacing(gap)
+        if gap_hori >= 0:
+            layout.setHorizontalSpacing(gap_hori)
+        if gap_vert >= 0:
+            layout.setVerticalSpacing(gap_vert)
+        if margin >= 0:
+            layout.setContentsMargins(margin, margin, margin, margin)
+        if align is not None:
+            layout.setAlignment(align)
+        return layout
+
+    def set_primary_layout(
+        self, layout: QLayout, margin: int = 0,
+        align: Qt.Alignment | None = Qt.AlignLeft | Qt.AlignTop):
+        """Set primary layout"""
+        layout.setContentsMargins(margin, margin, margin, margin)
+        if align is not None:
+            layout.setAlignment(align)
+        self.setLayout(layout)
+
+    def set_primary_orient(
+        self, target: QWidget | QLayout, column: int = 0,
+        option: str = "layout", default: str | int = 0):
         """Set primary layout (QGridLayout) orientation
 
-        Orientation is defined by "layout" option in Widget JSON. 0 = vertical, 1 = horizontal.
+        Orientation is defined by "layout" option in Widget JSON.
+        0 = vertical, 1 = horizontal.
 
         Args:
             target: QWidget or QLayout that adds to primary layout.
             column: column index determines display order.
+            option: layout option name in Widget JSON.
+            default: default layout value.
         """
-        if self.wcfg["layout"] == 0:  # Vertical layout
-            if isinstance(target, QWidget):
-                self.layout().addWidget(target, column, 0)
-            else:
-                self.layout().addLayout(target, column, 0)
-        else:  # Horizontal layout
-            if isinstance(target, QWidget):
-                self.layout().addWidget(target, 0, column)
-            else:
-                self.layout().addLayout(target, 0, column)
+        if self.wcfg.get(option, 0) == default:
+            order = column, 0  # Vertical layout
+        else:
+            order = 0, column  # Horizontal layout
+        if isinstance(target, QWidget):
+            self.layout().addWidget(target, *order)
+        else:
+            self.layout().addLayout(target, *order)
