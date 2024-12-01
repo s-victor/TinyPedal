@@ -22,9 +22,6 @@ Cruise Widget
 
 from time import strftime, gmtime
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from ..api_control import api
 from ..module_info import minfo
@@ -50,6 +47,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -57,7 +56,6 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         self.odm_digits = max(int(self.wcfg["odometer_maximum_digits"]), 1)
         self.odm_range = float(self.odm_digits * "9") + 0.9
 
@@ -67,13 +65,6 @@ class Realtime(Overlay):
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
 
         # Track clock
         if self.wcfg["show_track_clock"]:
@@ -177,14 +168,6 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_cornering_radius"],
             )
 
-        # Last data
-        self.last_track_time = None
-        self.last_orientation = None
-        self.last_elevation = None
-        self.last_traveled_distance = None
-        self.last_lap_distance = None
-        self.last_cornering_radius = None
-
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
@@ -195,75 +178,73 @@ class Realtime(Overlay):
                     time_scale = minfo.restapi.timeScale
                 else:
                     time_scale = self.wcfg["track_clock_time_scale"]
-
                 if time_scale < 0:
                     time_scale = 0
-
                 track_time = calc.clock_time(
                     api.read.session.elapsed(), api.read.session.start(), time_scale)
-                self.update_track_clock(track_time, self.last_track_time)
-                self.last_track_time = track_time
+                self.update_track_clock(self.bar_track_clock, track_time)
 
             # Compass
             if self.wcfg["show_compass"]:
                 orientation = api.read.vehicle.orientation_yaw_radians()
-                self.update_compass(orientation, self.last_orientation)
-                self.last_orientation = orientation
+                self.update_compass(self.bar_compass, orientation)
 
             # Elevation
             if self.wcfg["show_elevation"]:
                 elevation = api.read.vehicle.position_vertical()
-                self.update_elevation(elevation, self.last_elevation)
-                self.last_elevation = elevation
+                self.update_elevation(self.bar_elevation, elevation)
 
             # Odometer
             if self.wcfg["show_odometer"]:
                 traveled_distance = int(minfo.delta.metersDriven)
-                self.update_odometer(traveled_distance, self.last_traveled_distance)
-                self.last_traveled_distance = traveled_distance
+                self.update_odometer(self.bar_odometer, traveled_distance)
 
             # Distance into lap
             if self.wcfg["show_distance_into_lap"]:
                 lap_distance = minfo.delta.lapDistance
-                self.update_lap_distance(lap_distance, self.last_lap_distance)
-                self.last_lap_distance = lap_distance
+                self.update_lap_distance(self.bar_lap_distance, lap_distance)
 
             # Cornering radius
             if self.wcfg["show_cornering_radius"]:
                 cornering_radius = minfo.wheels.corneringRadius
-                self.update_cornering_radius(cornering_radius, self.last_cornering_radius)
-                self.last_cornering_radius = cornering_radius
+                self.update_cornering_radius(self.bar_cornering_radius, cornering_radius)
 
     # GUI update methods
-    def update_track_clock(self, curr, last):
+    def update_track_clock(self, target, data):
         """Track clock"""
-        if curr != last:
-            self.bar_track_clock.setText(self.format_clock(curr))
+        if target.last != data:
+            target.last = data
+            target.setText(self.format_clock(data))
 
-    def update_compass(self, curr, last):
+    def update_compass(self, target, data):
         """Compass"""
-        if curr != last:
-            self.bar_compass.setText(self.format_compass(curr))
+        if target.last != data:
+            target.last = data
+            target.setText(self.format_compass(data))
 
-    def update_elevation(self, curr, last):
+    def update_elevation(self, target, data):
         """Elevation"""
-        if curr != last:
-            self.bar_elevation.setText(self.format_elevation(curr))
+        if target.last != data:
+            target.last = data
+            target.setText(self.format_elevation(data))
 
-    def update_odometer(self, curr, last):
+    def update_odometer(self, target, data):
         """Odometer"""
-        if curr != last:
-            self.bar_odometer.setText(self.format_odometer(curr))
+        if target.last != data:
+            target.last = data
+            target.setText(self.format_odometer(data))
 
-    def update_lap_distance(self, curr, last):
+    def update_lap_distance(self, target, data):
         """Distance into lap"""
-        if curr != last:
-            self.bar_lap_distance.setText(self.format_lap_distance(curr))
+        if target.last != data:
+            target.last = data
+            target.setText(self.format_lap_distance(data))
 
-    def update_cornering_radius(self, curr, last):
+    def update_cornering_radius(self, target, data):
         """Cornering radius"""
-        if curr != last:
-            self.bar_cornering_radius.setText(self.format_cornering_radius(curr))
+        if target.last != data:
+            target.last = data
+            target.setText(self.format_cornering_radius(data))
 
     # Additional methods
     def format_clock(self, second):
