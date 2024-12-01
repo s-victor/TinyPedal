@@ -20,9 +20,6 @@
 Brake Wear Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from ..api_control import api
 from ..module_info import minfo
@@ -37,6 +34,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -45,7 +44,6 @@ class Realtime(Overlay):
         # Config variable
         text_def = "n/a"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         bar_width = font_m.width * 4 + bar_padx
         self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
         self.failure_thickness = (
@@ -68,18 +66,10 @@ class Realtime(Overlay):
             font_size=int(self.wcfg['font_size'] * 0.8)
         )
 
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
-
         # Remaining wear
         if self.wcfg["show_remaining"]:
-            layout_twear = QGridLayout()
-            layout_twear.setSpacing(0)
-            self.bar_style_twear = (
+            layout_wear = self.set_grid_layout()
+            self.bar_style_wear = (
                 self.set_qss(
                     fg_color=self.wcfg["font_color_remaining"],
                     bg_color=self.wcfg["bkg_color_remaining"]),
@@ -87,30 +77,33 @@ class Realtime(Overlay):
                     fg_color=self.wcfg["font_color_warning"],
                     bg_color=self.wcfg["bkg_color_remaining"])
             )
-            self.bar_twear = self.set_qlabel(
+            self.bars_wear = self.set_qlabel(
                 text=text_def,
-                style=self.bar_style_twear[0],
+                style=self.bar_style_wear[0],
                 width=bar_width,
                 count=4,
+                last=0,
             )
-            self.set_layout_quad(layout_twear, self.bar_twear)
+            self.set_grid_layout_quad(
+                layout=layout_wear,
+                targets=self.bars_wear,
+            )
             self.set_primary_orient(
-                target=layout_twear,
+                target=layout_wear,
                 column=self.wcfg["column_index_remaining"],
             )
 
             if self.wcfg["show_caption"]:
-                cap_twear = self.set_qlabel(
+                cap_wear = self.set_qlabel(
                     text="brak wear",
                     style=bar_style_desc,
                 )
-                layout_twear.addWidget(cap_twear, 0, 0, 1, 0)
+                layout_wear.addWidget(cap_wear, 0, 0, 1, 0)
 
         # Wear difference
         if self.wcfg["show_wear_difference"]:
-            layout_tdiff = QGridLayout()
-            layout_tdiff.setSpacing(0)
-            self.bar_style_tdiff = (
+            layout_diff = self.set_grid_layout()
+            self.bar_style_diff = (
                 self.set_qss(
                     fg_color=self.wcfg["font_color_wear_difference"],
                     bg_color=self.wcfg["bkg_color_wear_difference"]),
@@ -118,30 +111,32 @@ class Realtime(Overlay):
                     fg_color=self.wcfg["font_color_warning"],
                     bg_color=self.wcfg["bkg_color_wear_difference"])
             )
-            self.bar_tdiff = self.set_qlabel(
+            self.bars_diff = self.set_qlabel(
                 text=text_def,
-                style=self.bar_style_tdiff[0],
+                style=self.bar_style_diff[0],
                 width=bar_width,
                 count=4,
             )
-            self.set_layout_quad(layout_tdiff, self.bar_tdiff)
+            self.set_grid_layout_quad(
+                layout=layout_diff,
+                targets=self.bars_diff,
+            )
             self.set_primary_orient(
-                target=layout_tdiff,
+                target=layout_diff,
                 column=self.wcfg["column_index_wear_difference"],
             )
 
             if self.wcfg["show_caption"]:
-                cap_tdiff = self.set_qlabel(
+                cap_diff = self.set_qlabel(
                     text="brak diff",
                     style=bar_style_desc,
                 )
-                layout_tdiff.addWidget(cap_tdiff, 0, 0, 1, 0)
+                layout_diff.addWidget(cap_diff, 0, 0, 1, 0)
 
         # Estimated lifespan in laps
         if self.wcfg["show_lifespan_laps"]:
-            layout_tlaps = QGridLayout()
-            layout_tlaps.setSpacing(0)
-            self.bar_style_tlaps = (
+            layout_laps = self.set_grid_layout()
+            self.bar_style_laps = (
                 self.set_qss(
                     fg_color=self.wcfg["font_color_lifespan_laps"],
                     bg_color=self.wcfg["bkg_color_lifespan_laps"]),
@@ -149,30 +144,32 @@ class Realtime(Overlay):
                     fg_color=self.wcfg["font_color_warning"],
                     bg_color=self.wcfg["bkg_color_lifespan_laps"])
             )
-            self.bar_tlaps = self.set_qlabel(
+            self.bars_laps = self.set_qlabel(
                 text=text_def,
-                style=self.bar_style_tlaps[0],
+                style=self.bar_style_laps[0],
                 width=bar_width,
                 count=4,
             )
-            self.set_layout_quad(layout_tlaps, self.bar_tlaps)
+            self.set_grid_layout_quad(
+                layout=layout_laps,
+                targets=self.bars_laps,
+            )
             self.set_primary_orient(
-                target=layout_tlaps,
+                target=layout_laps,
                 column=self.wcfg["column_index_lifespan_laps"],
             )
 
             if self.wcfg["show_caption"]:
-                cap_tlaps = self.set_qlabel(
+                cap_laps = self.set_qlabel(
                     text="est. laps",
                     style=bar_style_desc,
                 )
-                layout_tlaps.addWidget(cap_tlaps, 0, 0, 1, 0)
+                layout_laps.addWidget(cap_laps, 0, 0, 1, 0)
 
         # Estimated lifespan in minutes
         if self.wcfg["show_lifespan_minutes"]:
-            layout_tmins = QGridLayout()
-            layout_tmins.setSpacing(0)
-            self.bar_style_tmins = (
+            layout_mins = self.set_grid_layout()
+            self.bar_style_mins = (
                 self.set_qss(
                     fg_color=self.wcfg["font_color_lifespan_minutes"],
                     bg_color=self.wcfg["bkg_color_lifespan_minutes"]),
@@ -180,24 +177,27 @@ class Realtime(Overlay):
                     fg_color=self.wcfg["font_color_warning"],
                     bg_color=self.wcfg["bkg_color_lifespan_minutes"])
             )
-            self.bar_tmins = self.set_qlabel(
+            self.bars_mins = self.set_qlabel(
                 text=text_def,
-                style=self.bar_style_tmins[0],
+                style=self.bar_style_mins[0],
                 width=bar_width,
                 count=4,
             )
-            self.set_layout_quad(layout_tmins, self.bar_tmins)
+            self.set_grid_layout_quad(
+                layout=layout_mins,
+                targets=self.bars_mins,
+            )
             self.set_primary_orient(
-                target=layout_tmins,
+                target=layout_mins,
                 column=self.wcfg["column_index_lifespan_minutes"],
             )
 
             if self.wcfg["show_caption"]:
-                cap_tmins = self.set_qlabel(
+                cap_mins = self.set_qlabel(
                     text="est. mins",
                     style=bar_style_desc,
                 )
-                layout_tmins.addWidget(cap_tmins, 0, 0, 1, 0)
+                layout_mins.addWidget(cap_mins, 0, 0, 1, 0)
 
         # Last data
         self.checked = False
@@ -207,11 +207,6 @@ class Realtime(Overlay):
         self.wear_last_lap = [0] * 4  # total wear of last lap
         self.wear_stint_start = [0] * 4  # remaining wear at start of stint
 
-        self.last_wear_curr_lap = [None] * 4
-        self.last_wear_last_lap = [None] * 4
-        self.last_wear_laps = [None] * 4
-        self.last_wear_mins = [None] * 4
-
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
@@ -220,7 +215,6 @@ class Realtime(Overlay):
             if not self.checked:
                 self.checked = True
 
-            # Read wear data
             lap_stime = api.read.timing.start()
             lap_etime = api.read.timing.elapsed()
             # Brake thickness in millimeter
@@ -244,48 +238,38 @@ class Realtime(Overlay):
                 elif not self.wcfg["show_thickness"]:  # convert to percent
                     wear_curr[idx] *= 100 / self.wear_stint_start[idx]
 
+                # Update wear differences
+                self.wear_prev[idx], self.wear_curr_lap[idx] = calc.wear_difference(
+                    wear_curr[idx], self.wear_prev[idx], self.wear_curr_lap[idx])
+
                 # Remaining wear
                 if self.wcfg["show_remaining"]:
                     if self.wcfg["show_thickness"]:
                         threshold_remaining = self.threshold_remaining * self.wear_stint_start[idx]
                     else:
                         threshold_remaining = self.threshold_remaining * 100
-                    self.update_wear(
-                        self.bar_twear[idx], wear_curr[idx],
-                        self.wear_prev[idx], threshold_remaining)
-
-                # Update wear differences
-                self.wear_prev[idx], self.wear_curr_lap[idx] = calc.wear_difference(
-                    wear_curr[idx], self.wear_prev[idx], self.wear_curr_lap[idx])
+                    self.update_wear(self.bars_wear[idx], wear_curr[idx], threshold_remaining)
 
                 # Wear differences
                 if self.wcfg["show_wear_difference"]:
                     if (self.wcfg["show_live_wear_difference"] and
                         lap_etime - lap_stime > self.freeze_duration):
-                        self.update_diff(
-                            self.bar_tdiff[idx], self.wear_curr_lap[idx],
-                            self.last_wear_curr_lap[idx])
-                        self.last_wear_curr_lap[idx] = self.wear_curr_lap[idx]
+                        self.update_diff(self.bars_diff[idx], self.wear_curr_lap[idx])
                     else:  # Last lap diff
-                        self.update_diff(
-                            self.bar_tdiff[idx], self.wear_last_lap[idx],
-                            self.last_wear_last_lap[idx])
-                        self.last_wear_last_lap[idx] = self.wear_last_lap[idx]
+                        self.update_diff(self.bars_diff[idx], self.wear_last_lap[idx])
 
                 # Estimated lifespan in laps
                 if self.wcfg["show_lifespan_laps"]:
                     wear_laps = calc.wear_lifespan_in_laps(
                         wear_curr[idx], self.wear_last_lap[idx], self.wear_curr_lap[idx])
-                    self.update_laps(self.bar_tlaps[idx], wear_laps, self.last_wear_laps[idx])
-                    self.last_wear_laps[idx] = wear_laps
+                    self.update_laps(self.bars_laps[idx], wear_laps)
 
                 # Estimated lifespan in minutes
                 if self.wcfg["show_lifespan_minutes"]:
                     wear_mins = calc.wear_lifespan_in_mins(
                         wear_curr[idx], self.wear_last_lap[idx], self.wear_curr_lap[idx],
                         minfo.delta.lapTimePace)
-                    self.update_mins(self.bar_tmins[idx], wear_mins, self.last_wear_mins[idx])
-                    self.last_wear_mins[idx] = wear_mins
+                    self.update_mins(self.bars_mins[idx], wear_mins)
 
         else:
             if self.checked:
@@ -296,48 +280,41 @@ class Realtime(Overlay):
                 self.wear_stint_start = [0] * 4
 
     # GUI update methods
-    def update_wear(self, target_bar, curr, last, threshold_remaining):
+    def update_wear(self, target, data, threshold_remaining):
         """Remaining wear"""
-        if curr != last:
-            target_bar.setText(self.format_num(curr))
-            target_bar.setStyleSheet(
-                self.bar_style_twear[curr <= threshold_remaining]
+        if target.last != data:
+            target.last = data
+            target.setText(self.format_num(data))
+            target.setStyleSheet(
+                self.bar_style_wear[data <= threshold_remaining]
             )
 
-    def update_diff(self, target_bar, curr, last):
+    def update_diff(self, target, data):
         """Wear differences"""
-        if curr != last:
-            target_bar.setText(self.format_num(curr))
-            target_bar.setStyleSheet(
-                self.bar_style_tdiff[curr > self.wcfg["warning_threshold_wear"]]
+        if target.last != data:
+            target.last = data
+            target.setText(self.format_num(data))
+            target.setStyleSheet(
+                self.bar_style_diff[data > self.wcfg["warning_threshold_wear"]]
             )
 
-    def update_laps(self, target_bar, curr, last):
+    def update_laps(self, target, data):
         """Estimated lifespan in laps"""
-        if curr != last:
-            target_bar.setText(self.format_num(curr))
-            target_bar.setStyleSheet(
-                self.bar_style_tlaps[curr <= self.wcfg["warning_threshold_laps"]]
+        if target.last != data:
+            target.last = data
+            target.setText(self.format_num(data))
+            target.setStyleSheet(
+                self.bar_style_laps[data <= self.wcfg["warning_threshold_laps"]]
             )
 
-    def update_mins(self, target_bar, curr, last):
+    def update_mins(self, target, data):
         """Estimated lifespan in minutes"""
-        if curr != last:
-            target_bar.setText(self.format_num(curr))
-            target_bar.setStyleSheet(
-                self.bar_style_tmins[curr <= self.wcfg["warning_threshold_minutes"]]
+        if target.last != data:
+            target.last = data
+            target.setText(self.format_num(data))
+            target.setStyleSheet(
+                self.bar_style_mins[data <= self.wcfg["warning_threshold_minutes"]]
             )
-
-    # GUI generate methods
-    @staticmethod
-    def set_layout_quad(layout, bar_set, row_start=1, column_left=0, column_right=9):
-        """Set layout - quad
-
-        Default row index start from 1; reserve row index 0 for caption.
-        """
-        for idx in range(4):
-            layout.addWidget(bar_set[idx], row_start + (idx > 1),
-                column_left + (idx % 2) * column_right)
 
     # Additional methods
     @staticmethod
