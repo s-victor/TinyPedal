@@ -20,9 +20,6 @@
 Electric motor Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from ..api_control import api
 from ._base import Overlay
@@ -36,6 +33,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -43,7 +42,6 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         bar_width = font_m.width * 8 + bar_padx
 
         # Base style
@@ -52,13 +50,6 @@ class Realtime(Overlay):
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
 
         # Motor temperature
         if self.wcfg["show_motor_temperature"]:
@@ -148,13 +139,6 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_power"],
             )
 
-        # Last data
-        self.last_temp_motor = None
-        self.last_temp_water = None
-        self.last_rpm = None
-        self.last_torque = None
-        self.last_power = None
-
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
@@ -162,72 +146,68 @@ class Realtime(Overlay):
             # Motor temperature
             if self.wcfg["show_motor_temperature"]:
                 temp_motor = round(api.read.emotor.motor_temperature(), 2)
-                self.update_motor(temp_motor, self.last_temp_motor)
-                self.last_temp_motor = temp_motor
+                self.update_motor(self.bar_motor, temp_motor)
 
             # Water temperature
             if self.wcfg["show_water_temperature"]:
                 temp_water = round(api.read.emotor.water_temperature(), 2)
-                self.update_water(temp_water, self.last_temp_water)
-                self.last_temp_water = temp_water
+                self.update_water(self.bar_water, temp_water)
 
             # Motor rpm
             if self.wcfg["show_rpm"]:
                 rpm = int(api.read.emotor.rpm())
-                self.update_rpm(rpm, self.last_rpm)
-                self.last_rpm = rpm
+                self.update_rpm(self.bar_rpm, rpm)
 
             # Motor torque
             if self.wcfg["show_torque"]:
                 torque = round(api.read.emotor.torque(), 2)
-                self.update_torque(torque, self.last_torque)
-                self.last_torque = torque
+                self.update_torque(self.bar_torque, torque)
 
             # Motor power
             if self.wcfg["show_power"]:
                 power = round(calc.engine_power(
                     api.read.emotor.torque(), api.read.emotor.rpm()), 2)
-                self.update_power(power, self.last_power)
-                self.last_power = power
+                self.update_power(self.bar_power, power)
 
     # GUI update methods
-    def update_motor(self, curr, last):
+    def update_motor(self, target, data):
         """Motor temperature"""
-        if curr != last:
-            # Check overheat before conversion
-            is_overheat = (curr >= self.wcfg["overheat_threshold_motor"])
+        if target.last != data:
+            target.last = data
+            is_overheat = data >= self.wcfg["overheat_threshold_motor"]
             if self.cfg.units["temperature_unit"] == "Fahrenheit":
-                curr = calc.celsius2fahrenheit(curr)
+                data = calc.celsius2fahrenheit(data)
+            target.setText(f"M{data: >6.1f}°")
+            target.setStyleSheet(self.bar_style_motor[is_overheat])
 
-            self.bar_motor.setText(f"M{curr: >6.1f}°")
-            self.bar_motor.setStyleSheet(self.bar_style_motor[is_overheat])
-
-    def update_water(self, curr, last):
+    def update_water(self, target, data):
         """Water temperature"""
-        if curr != last:
-            # Check overheat before conversion
-            is_overheat = (curr >= self.wcfg["overheat_threshold_water"])
+        if target.last != data:
+            target.last = data
+            is_overheat = data >= self.wcfg["overheat_threshold_water"]
             if self.cfg.units["temperature_unit"] == "Fahrenheit":
-                curr = calc.celsius2fahrenheit(curr)
+                data = calc.celsius2fahrenheit(data)
+            target.setText(f"W{data: >6.1f}°")
+            target.setStyleSheet(self.bar_style_water[is_overheat])
 
-            self.bar_water.setText(f"W{curr: >6.1f}°")
-            self.bar_water.setStyleSheet(self.bar_style_water[is_overheat])
-
-    def update_rpm(self, curr, last):
+    def update_rpm(self, target, data):
         """Motor rpm"""
-        if curr != last:
-            self.bar_rpm.setText(f"{curr: >5}rpm")
+        if target.last != data:
+            target.last = data
+            target.setText(f"{data: >5}rpm")
 
-    def update_torque(self, curr, last):
+    def update_torque(self, target, data):
         """Motor torque"""
-        if curr != last:
-            text = f"{curr: >6.2f}"[:6]
-            self.bar_torque.setText(f"{text}Nm")
+        if target.last != data:
+            target.last = data
+            text = f"{data: >6.2f}"[:6]
+            target.setText(f"{text}Nm")
 
-    def update_power(self, curr, last):
+    def update_power(self, target, data):
         """Motor power"""
-        if curr != last:
-            self.bar_power.setText(self.power_units(curr))
+        if target.last != data:
+            target.last = data
+            target.setText(self.power_units(data))
 
     # Additional methods
     def power_units(self, power):
