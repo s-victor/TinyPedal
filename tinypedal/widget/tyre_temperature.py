@@ -20,9 +20,6 @@
 Tyre temperature Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from .. import heatmap as hmp
 from ..api_control import api
@@ -37,6 +34,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -45,7 +44,6 @@ class Realtime(Overlay):
         # Config variable
         text_def = "n/a"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         inner_gap = self.wcfg["inner_gap"]
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
@@ -75,17 +73,9 @@ class Realtime(Overlay):
             bg_color=self.wcfg["bkg_color_innerlayer"]
         )
 
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
-
         # Tyre temperature
-        layout_stemp = QGridLayout()
-        layout_stemp.setSpacing(inner_gap)
-        self.bar_stemp = self.set_table(
+        layout_stemp = self.set_grid_layout(gap=inner_gap)
+        self.bars_stemp = self.set_table(
             text=text_def,
             style=bar_style_stemp,
             width=bar_width_ttemp,
@@ -97,19 +87,21 @@ class Realtime(Overlay):
         )
 
         if self.wcfg["show_tyre_compound"]:
-            self.bar_tcmpd = self.set_qlabel(
+            self.bars_tcmpd = self.set_qlabel(
                 text="-",
                 style=bar_style_tcmpd,
                 width=bar_width_tcmpd,
                 count=2,
             )
-            self.set_layout_vert(layout_stemp, self.bar_tcmpd)
+            self.set_grid_layout_vert(
+                layout=layout_stemp,
+                targets=self.bars_tcmpd,
+            )
 
         # Tyre inner temperature
         if self.wcfg["show_innerlayer"]:
-            layout_itemp = QGridLayout()
-            layout_itemp.setSpacing(inner_gap)
-            self.bar_itemp = self.set_table(
+            layout_itemp = self.set_grid_layout(gap=inner_gap)
+            self.bars_itemp = self.set_table(
                 text=text_def,
                 style=bar_style_itemp,
                 width=bar_width_ttemp,
@@ -121,18 +113,16 @@ class Realtime(Overlay):
             )
 
             if self.wcfg["show_tyre_compound"]:
-                bar_blank = self.set_qlabel(
+                bars_blank = self.set_qlabel(
                     text="",
                     style=bar_style_tcmpd,
                     width=bar_width_tcmpd,
                     count=2,
                 )
-                self.set_layout_vert(layout_itemp, bar_blank)
-
-        # Last data
-        self.last_tcmpd = [None] * 2
-        self.last_stemp = [0] * 12
-        self.last_itemp = [0] * 12
+                self.set_grid_layout_vert(
+                    layout=layout_itemp,
+                    targets=bars_blank,
+                )
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -141,86 +131,64 @@ class Realtime(Overlay):
             # Tyre compound
             if self.wcfg["show_tyre_compound"]:
                 tcmpd = api.read.tyre.compound()
-                for cmpd_idx in range(2):
-                    self.update_tcmpd(
-                        self.bar_tcmpd[cmpd_idx],
-                        tcmpd[cmpd_idx],
-                        self.last_tcmpd[cmpd_idx]
-                    )
-                    self.last_tcmpd[cmpd_idx] = tcmpd[cmpd_idx]
+                for cmpd_idx, bar_tcmpd in enumerate(self.bars_tcmpd):
+                    self.update_tcmpd(bar_tcmpd, tcmpd[cmpd_idx])
 
             if self.wcfg["show_inner_center_outer"]:
-                # Surface temperature
+                # Surface temperature: 0 - fl, 3 - fr, 6 - rl, 9 - rr
                 stemp = api.read.tyre.surface_temperature_ico()
-                for tyre_idx in range(12):  # 0 - fl, 3 - fr, 6 - rl, 9 - rr
-                    self.update_stemp(
-                        self.bar_stemp[tyre_idx],
-                        stemp[tyre_idx],
-                        self.last_stemp[tyre_idx]
-                    )
-                    self.last_stemp[tyre_idx] = stemp[tyre_idx]
+                for tyre_idx, bar_stemp in enumerate(self.bars_stemp):
+                    self.update_stemp(bar_stemp, round(stemp[tyre_idx]))
 
                 # Inner layer temperature
                 if self.wcfg["show_innerlayer"]:
                     itemp = api.read.tyre.inner_temperature_ico()
-                    for tyre_idx in range(12):
-                        self.update_itemp(
-                            self.bar_itemp[tyre_idx],
-                            itemp[tyre_idx],
-                            self.last_itemp[tyre_idx]
-                        )
-                        self.last_itemp[tyre_idx] = itemp[tyre_idx]
+                    for tyre_idx, bar_itemp in enumerate(self.bars_itemp):
+                        self.update_itemp(bar_itemp, round(itemp[tyre_idx]))
             else:
-                # Surface temperature
+                # Surface temperature: 0 - fl, 1 - fr, 2 - rl, 3 - rr
                 stemp = api.read.tyre.surface_temperature_avg()
-                for tyre_idx in range(4):  # 0 - fl, 1 - fr, 2 - rl, 3 - rr
-                    self.update_stemp(
-                        self.bar_stemp[tyre_idx],
-                        stemp[tyre_idx],
-                        self.last_stemp[tyre_idx]
-                    )
-                    self.last_stemp[tyre_idx] = stemp[tyre_idx]
+                for tyre_idx, bar_stemp in enumerate(self.bars_stemp):
+                    self.update_stemp(bar_stemp, round(stemp[tyre_idx]))
 
                 # Inner layer temperature
                 if self.wcfg["show_innerlayer"]:
                     itemp = api.read.tyre.inner_temperature_avg()
-                    for tyre_idx in range(4):
-                        self.update_itemp(
-                            self.bar_itemp[tyre_idx],
-                            itemp[tyre_idx],
-                            self.last_itemp[tyre_idx]
-                        )
-                        self.last_itemp[tyre_idx] = itemp[tyre_idx]
+                    for tyre_idx, bar_itemp in enumerate(self.bars_itemp):
+                        self.update_itemp(bar_itemp, round(itemp[tyre_idx]))
 
     # GUI update methods
-    def update_stemp(self, target_bar, curr, last):
+    def update_stemp(self, target, data):
         """Tyre surface temperature"""
-        if round(curr) != round(last):
-            color_temp = hmp.select_color(self.heatmap, curr)
+        if target.last != data:
+            target.last = data
+            color_temp = hmp.select_color(self.heatmap, data)
             if self.wcfg["swap_style"]:
                 color = f"color: {self.wcfg['font_color_surface']};background: {color_temp};"
             else:
                 color = f"color: {color_temp};background: {self.wcfg['bkg_color_surface']};"
 
-            target_bar.setText(self.format_temperature(curr))
-            target_bar.setStyleSheet(color)
+            target.setText(self.format_temperature(data))
+            target.setStyleSheet(color)
 
-    def update_itemp(self, target_bar, curr, last):
+    def update_itemp(self, target, data):
         """Tyre inner temperature"""
-        if round(curr) != round(last):
-            color_temp = hmp.select_color(self.heatmap, curr)
+        if target.last != data:
+            target.last = data
+            color_temp = hmp.select_color(self.heatmap, data)
             if self.wcfg["swap_style"]:
                 color = f"color: {self.wcfg['font_color_innerlayer']};background: {color_temp};"
             else:
                 color = f"color: {color_temp};background: {self.wcfg['bkg_color_innerlayer']};"
 
-            target_bar.setText(self.format_temperature(curr))
-            target_bar.setStyleSheet(color)
+            target.setText(self.format_temperature(data))
+            target.setStyleSheet(color)
 
-    def update_tcmpd(self, target_bar, curr, last):
+    def update_tcmpd(self, target, data):
         """Tyre compound"""
-        if curr != last:
-            target_bar.setText(self.tyre_compound_string[curr])
+        if target.last != data:
+            target.last = data
+            target.setText(self.tyre_compound_string[data])
 
     # GUI generate methods
     def set_table(self, text, style, width, layout):
@@ -231,54 +199,19 @@ class Realtime(Overlay):
                 style=style,
                 width=width,
                 count=12,  # 3 x 4 tyres
+                last=0,
             )
-            self.set_layout_tri_quad(layout, bar_set)
+            self.set_grid_layout_tri_quad(layout, bar_set)
         else:
             bar_set = self.set_qlabel(
                 text=text,
                 style=style,
                 width=width,
                 count=4,
+                last=0,
             )
-            self.set_layout_quad(layout, bar_set)
+            self.set_grid_layout_quad(layout, bar_set)
         return bar_set
-
-    @staticmethod
-    def set_layout_quad(layout, bar_set, row_start=1, column_left=0, column_right=9):
-        """Set layout - quad
-
-        Default row index start from 1; reserve row index 0 for caption.
-        """
-        for idx in range(4):
-            layout.addWidget(bar_set[idx], row_start + (idx > 1),
-                column_left + (idx % 2) * column_right)
-
-    @staticmethod
-    def set_layout_tri_quad(layout, bar_set, row_start=1, column_left=0, column_right=6):
-        """Set layout - tri-quad - (0,1,2), (3,4,5), (6,7,8), (9,10,11)
-
-        Default row index start from 1; reserve row index 0 for caption.
-        Default column left index start from 0, and right start from 6; reserve 3 columns in middle.
-        """
-        row_index = row_start
-        column_index = column_left
-        for index in range(12):
-            if index == 6:
-                row_index +=1
-                column_index = column_left
-            if index in (3, 9):
-                column_index = column_right
-            layout.addWidget(bar_set[index], row_index, column_index)
-            column_index += 1
-
-    @staticmethod
-    def set_layout_vert(layout, bar_set, row_count=2):
-        """Set layout - vertical
-
-        Start from row index 1; reserve row index 0 for caption.
-        """
-        for index in range(row_count):
-            layout.addWidget(bar_set[index], index + 1, 4)
 
     # Additional methods
     def format_temperature(self, value):
