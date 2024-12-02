@@ -39,12 +39,13 @@ class Realtime(Overlay):
         Overlay.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        self.font = self.config_font(
+        font = self.config_font(
             self.wcfg["font_name"],
             self.wcfg["font_size"],
             self.wcfg["font_weight"]
         )
-        font_m = self.get_font_metrics(self.font)
+        self.setFont(font)
+        font_m = self.get_font_metrics(font)
         font_offset = self.calc_font_offset(font_m)
 
         # Config variable
@@ -293,7 +294,6 @@ class Realtime(Overlay):
         if not self.wcfg["show_inverted_integrity"]:
             damage_value = 1 - damage_value
 
-        painter.setFont(self.font)
         painter.setPen(self.pen)
         painter.drawText(
             self.rect_integrity,

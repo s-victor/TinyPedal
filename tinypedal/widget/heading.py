@@ -38,12 +38,13 @@ class Realtime(Overlay):
         Overlay.__init__(self, config, WIDGET_NAME)
 
         # Config font
-        self.font = self.config_font(
+        font = self.config_font(
             self.wcfg["font_name"],
             self.wcfg["font_size"],
             self.wcfg["font_weight"]
         )
-        font_m = self.get_font_metrics(self.font)
+        self.setFont(font)
+        font_m = self.get_font_metrics(font)
         font_offset = self.calc_font_offset(font_m)
 
         # Config variable
@@ -289,7 +290,6 @@ class Realtime(Overlay):
 
     def draw_yaw_readings(self, painter):
         """Draw yaw readings"""
-        painter.setFont(self.font)
         self.pen.setColor(self.wcfg["font_color_yaw_angle"])
         painter.setPen(self.pen)
         painter.drawText(
@@ -300,7 +300,6 @@ class Realtime(Overlay):
 
     def draw_slip_angle_readings(self, painter):
         """Draw slip angle readings"""
-        painter.setFont(self.font)
         self.pen.setColor(self.wcfg["font_color_slip_angle"])
         painter.setPen(self.pen)
         painter.drawText(

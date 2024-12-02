@@ -288,7 +288,7 @@ class Realtime(Overlay):
 
 
 def get_forecast_info(session_type: int):
-    """Get forecast info, 5 api data + 5 padding data"""
+    """Get forecast info"""
     if session_type <= 1:  # practice session
         info = minfo.restapi.forecastPractice
     elif session_type == 2:  # qualify session
