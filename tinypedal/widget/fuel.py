@@ -307,7 +307,7 @@ class Realtime(Overlay):
             self.last_amount_curr = amount_curr
 
             # Total needed fuel
-            amount_need = f"{calc.sym_range(self.fuel_units(minfo.fuel.amountNeeded), 9999):+.{self.decimals[2]}f}"
+            amount_need = f"{calc.sym_max(self.fuel_units(minfo.fuel.amountNeeded), 9999):+.{self.decimals[2]}f}"
             self.update_fuel(
                 self.bar_fuel_need, amount_need, self.last_amount_need,
                 self.bar_style_fuel_need[
@@ -327,7 +327,7 @@ class Realtime(Overlay):
             self.last_delta_fuel = delta_fuel
 
             # Estimate pit stop counts when pitting at end of current lap
-            est_pits_early = f"{min(max(minfo.fuel.estimatedNumPitStopsEarly, 0), 99.99):.{self.decimals[5]}f}"
+            est_pits_early = f"{calc.zero_max(minfo.fuel.estimatedNumPitStopsEarly, 99.99):.{self.decimals[5]}f}"
             self.update_fuel(
                 self.bar_fuel_early, est_pits_early, self.last_est_pits_early)
             self.last_est_pits_early = est_pits_early
@@ -345,13 +345,13 @@ class Realtime(Overlay):
             self.last_est_runmins = est_runmins
 
             # Estimated one less pit fuel consumption
-            fuel_save = f"{min(max(self.fuel_units(minfo.fuel.oneLessPitConsumption), 0), 99.99):.{self.decimals[8]}f}"
+            fuel_save = f"{calc.zero_max(self.fuel_units(minfo.fuel.oneLessPitConsumption), 99.99):.{self.decimals[8]}f}"
             self.update_fuel(
                 self.bar_fuel_save, fuel_save, self.last_fuel_save)
             self.last_fuel_save = fuel_save
 
             # Estimate pit stop counts when pitting at end of current stint
-            est_pits_end = f"{min(max(minfo.fuel.estimatedNumPitStopsEnd, 0), 99.99):.{self.decimals[9]}f}"
+            est_pits_end = f"{calc.zero_max(minfo.fuel.estimatedNumPitStopsEnd, 99.99):.{self.decimals[9]}f}"
             self.update_fuel(
                 self.bar_fuel_pits, est_pits_end, self.last_est_pits_end)
             self.last_est_pits_end = est_pits_end
@@ -411,4 +411,4 @@ class Realtime(Overlay):
     @staticmethod
     def decimal_range(value):
         """Decimal place range"""
-        return min(max(int(value), 0), 3)
+        return calc.zero_max(int(value), 3)

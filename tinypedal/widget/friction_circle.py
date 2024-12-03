@@ -197,10 +197,10 @@ class Realtime(Overlay):
                     self.area_center
                 )
                 rad_gra.setColorAt(
-                    calc.zero_one_range(self.wcfg["fade_in_radius"]),
+                    calc.zero_one(self.wcfg["fade_in_radius"]),
                     self.wcfg["bkg_color_circle"])
                 rad_gra.setColorAt(
-                    calc.zero_one_range(self.wcfg["fade_out_radius"]),
+                    calc.zero_one(self.wcfg["fade_out_radius"]),
                     Qt.transparent)
                 painter.setBrush(rad_gra)
             else:

@@ -352,7 +352,7 @@ class FuelCalculator(BaseDialog):
             if total_race_seconds:  # time-type race
                 total_pit_seconds = minimum_pit_counts * average_pit_seconds
                 total_race_laps = total_formation_laps + calc.time_type_full_laps_remain(
-                    0, laptime, total_race_seconds - total_pit_seconds)
+                    laptime, total_race_seconds - total_pit_seconds)
             else:  # lap-type race
                 total_race_laps = total_formation_laps + total_race_laps
 

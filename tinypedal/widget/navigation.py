@@ -341,8 +341,8 @@ class Realtime(Overlay):
             self.area_center,
             self.area_center
         )
-        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_in_radius"]), Qt.transparent)
-        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_out_radius"]), Qt.black)
+        rad_gra.setColorAt(calc.zero_one(self.wcfg["fade_in_radius"]), Qt.transparent)
+        rad_gra.setColorAt(calc.zero_one(self.wcfg["fade_out_radius"]), Qt.black)
         painter.setBrush(rad_gra)
         painter.drawEllipse(0, 0, self.area_size, self.area_size)
 

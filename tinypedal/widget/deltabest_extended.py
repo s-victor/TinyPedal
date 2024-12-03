@@ -187,5 +187,5 @@ class Realtime(Overlay):
         """Update deltabest"""
         if target.last != data:
             target.last = data
-            text = f"{calc.sym_range(data, self.wcfg['delta_display_range']): >+6.3f}"[:6]
+            text = f"{calc.sym_max(data, self.wcfg['delta_display_range']): >+6.3f}"[:6]
             target.setText(f"{prefix}{text}")

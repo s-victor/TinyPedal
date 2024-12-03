@@ -354,8 +354,8 @@ def split_class_list(class_list: list):
 @lru_cache(maxsize=1)
 def max_relative_vehicles(add_front: int, add_behind: int, min_veh: int = 7) -> tuple:
     """Maximum number of vehicles in relative list"""
-    add_front = min(max(int(add_front), 0), 60)
-    add_behind = min(max(int(add_behind), 0), 60)
+    add_front = calc.zero_max(int(add_front), 60)
+    add_behind = calc.zero_max(int(add_behind), 60)
     max_vehicles = min_veh + add_front + add_behind
     return max_vehicles, add_front, add_behind
 
@@ -366,7 +366,7 @@ def min_top_vehicles_in_class(min_top_veh: int) -> int:
 
     min_top_veh: value range limited in 1 to 5
     """
-    return min(max(int(min_top_veh), 1), 5)
+    return calc.asym_max(int(min_top_veh), 1, 5)
 
 
 def max_vehicles_in_class(max_cls_veh: int, min_top_veh: int, min_add_veh: int = 0) -> int:

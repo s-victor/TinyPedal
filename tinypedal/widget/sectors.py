@@ -297,4 +297,4 @@ class Realtime(Overlay):
             max_freeze = seconds * 0.5
         else:
             max_freeze = 3
-        return min(max(self.wcfg["freeze_duration"], 0), max_freeze)
+        return calc.zero_max(self.wcfg["freeze_duration"], max_freeze)

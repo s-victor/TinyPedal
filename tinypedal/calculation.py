@@ -20,17 +20,17 @@
 Calculation function
 """
 
-import math
-import statistics
+from math import dist, hypot, degrees, radians, atan, atan2, sin, cos, acos, ceil
+from statistics import fmean, stdev
 
 
-distance = math.dist  # coordinates distance
-mean = statistics.fmean
-vel2speed = math.hypot  # velocity to speed
-std_dev = statistics.stdev  # sample standard deviation
-rad2deg = math.degrees  # radians to degrees
-deg2rad = math.radians  # degrees to radians
-oriyaw2rad = math.atan2  # orientation yaw to radians
+distance = dist  # coordinates distance
+mean = fmean
+vel2speed = hypot  # velocity to speed
+rad2deg = degrees  # radians to degrees
+oriyaw2rad = atan2  # orientation yaw to radians
+std_dev = stdev  # sample standard deviation
+deg2rad = radians  # degrees to radians
 
 
 # Unit conversion
@@ -76,7 +76,7 @@ def liter2gallon(liter):
 
 def kelvin2celsius(kelvin):
     """Kelvin to Celsius"""
-    return max(kelvin - 273.15, -99)
+    return kelvin - 273.15
 
 
 def kpa2psi(kilopascal):
@@ -100,14 +100,40 @@ def kw2ps(kilowatt):
 
 
 # Common
-def sym_range(value, rng):
-    """Symmetric range"""
-    return min(max(value, -rng), rng)
+def sym_max(value, rng):
+    """Symmetric min-max value range"""
+    if value > rng:
+        return rng
+    if value < -rng:
+        return -rng
+    return value
 
 
-def zero_one_range(value):
-    """Limit value in range 0 to 1 """
-    return min(max(value, 0), 1)
+def asym_max(value, min_rng, max_rng):
+    """Asymmetric min-max value range"""
+    if value > max_rng:
+        return max_rng
+    if value < min_rng:
+        return min_rng
+    return value
+
+
+def zero_max(value, max_rng):
+    """Zero to max value range"""
+    if value > max_rng:
+        return max_rng
+    if value < 0:
+        return 0
+    return value
+
+
+def zero_one(value):
+    """Zero to one value range"""
+    if value > 1:
+        return 1
+    if value < 0:
+        return 0
+    return value
 
 
 def mean_iter(avg, value, num_samples):
@@ -158,17 +184,22 @@ def force_ratio(value1, value2):
 
 def rotate_coordinate(ori_rad, pos_x, pos_y):
     """Rotate x y coordinates"""
-    sin_rad = math.sin(ori_rad)
-    cos_rad = math.cos(ori_rad)
+    sin_rad = sin(ori_rad)
+    cos_rad = cos(ori_rad)
     return (cos_rad * pos_x - sin_rad * pos_y,
             cos_rad * pos_y + sin_rad * pos_x)
 
 
-def lap_progress_distance(dist, length):
+def lap_progress_distance(dist_into, length):
     """Current lap progress (distance into lap) fraction"""
-    if length:
-        return min(max(dist / length, 0), 1)
-    return 0
+    if length < 1:
+        return 0
+    value = dist_into / length
+    if value > 1:
+        return 1
+    if value < 0:
+        return 0
+    return value
 
 
 def lap_progress_correction(percent, laptime):
@@ -245,7 +276,7 @@ def slope_percent(height: float, length: float):
 def slope_angle(height: float, length: float):
     """Slope angle (degree)"""
     if length:
-        return rad2deg(math.atan(height / length))
+        return rad2deg(atan(height / length))
     return 0
 
 
@@ -285,7 +316,7 @@ def tri_coords_angle(a_len, b_len, c_len):
     bc2_len = 2 * b_len * c_len
     if bc2_len:
         cos_a = (b_len * b_len + c_len * c_len - a_len * a_len) / bc2_len
-        return math.acos(cos_a)
+        return acos(cos_a)
     return 0
 
 
@@ -535,12 +566,12 @@ def svg_view_box(coords, margin=0):
     return f"{x1} {y1} {x2} {y2}"
 
 
-def line_intersect_coords(coord_a, coord_b, radians, length):
+def line_intersect_coords(coord_a, coord_b, rad, length):
     """Create intersect line coordinates from 2 coordinates
 
     coord_a: coordinate A
     coord_b: coordinate B
-    radians: amount rotation to apply
+    rad: amount rotation (radians) to apply
     length: length between coordinates
     """
     yaw_rad = oriyaw2rad(
@@ -548,12 +579,12 @@ def line_intersect_coords(coord_a, coord_b, radians, length):
         coord_b[0] - coord_a[0]
     )
     pos_x1, pos_y1 = rotate_coordinate(
-        yaw_rad + radians,
+        yaw_rad + rad,
         length,  # x pos
         0  # y pos
     )
     pos_x2, pos_y2 = rotate_coordinate(
-        yaw_rad - radians,
+        yaw_rad - rad,
         length,  # x pos
         0  # y pos
     )
@@ -564,17 +595,17 @@ def line_intersect_coords(coord_a, coord_b, radians, length):
 
 
 # Fuel
-def lap_type_full_laps_remain(laps_total, laps_finished):
+def lap_type_full_laps_remain(laps_total: int, laps_finished: int):
     """Lap type race remaining laps count from finish line"""
     return laps_total - laps_finished
 
 
-def lap_type_laps_remain(laps_full_remain, lap_into):
+def lap_type_laps_remain(full_laps_remain: int, lap_into: float):
     """Lap type race remaining laps count from current on track position"""
-    return laps_full_remain - lap_into
+    return full_laps_remain - lap_into
 
 
-def end_timer_laps_remain(lap_into, laptime_last, seconds_remain):
+def end_timer_laps_remain(lap_into: float, laptime_last: float, seconds_remain: float):
     """Estimated remaining laps(fraction) count from finish line after race timer ended"""
     if laptime_last:
         if seconds_remain <= 0:
@@ -583,30 +614,30 @@ def end_timer_laps_remain(lap_into, laptime_last, seconds_remain):
     return 0
 
 
-def time_type_full_laps_remain(lap_into, laptime_last, seconds_remain):
+def time_type_full_laps_remain(laptime_last: float, seconds_remain: float):
     """Estimated full remaining laps count from finish line after race timer ended"""
     # alternative-lap-into = laptime_current / laptime_last % 1
-    return math.ceil(end_timer_laps_remain(lap_into, laptime_last, seconds_remain))
+    return ceil(end_timer_laps_remain(0, laptime_last, seconds_remain))
 
 
-def time_type_laps_remain(laps_full_remain, lap_into):
+def time_type_laps_remain(full_laps_remain: int, lap_into: float):
     """Time type race remaining laps count from current on track position"""
-    return max(laps_full_remain - lap_into, 0)
+    return max(full_laps_remain - lap_into, 0)
 
 
-def total_fuel_needed(laps_remain, consumption, fuel_in_tank):
+def total_fuel_needed(laps_remain: float, consumption: float, fuel_in_tank: float):
     """Total additional fuel needed"""
     return laps_remain * consumption - fuel_in_tank
 
 
-def end_lap_consumption(consumption, consumption_delta, condition):
+def end_lap_consumption(consumption: float, consumption_delta: float, condition: bool):
     """Estimate fuel consumption"""
     if condition:
         return consumption + consumption_delta
     return consumption
 
 
-def end_stint_fuel(fuel_in_tank, consumption_into_lap, consumption):
+def end_stint_fuel(fuel_in_tank: float, consumption_into_lap: float, consumption: float):
     """Estimate end-stint remaining fuel before pitting"""
     if consumption:
         # Total fuel at start of current lap
@@ -616,7 +647,7 @@ def end_stint_fuel(fuel_in_tank, consumption_into_lap, consumption):
     return 0
 
 
-def end_stint_laps(fuel_in_tank, consumption):
+def end_stint_laps(fuel_in_tank: float, consumption: float):
     """Estimate laps current fuel can last to end of stint"""
     if consumption:
         # Laps = remaining fuel / estimate fuel consumption
@@ -624,22 +655,22 @@ def end_stint_laps(fuel_in_tank, consumption):
     return 0
 
 
-def end_stint_minutes(laps_total, laptime_last):
-    """Estimate minutes current fuel can last to end of stint"""
-    return laps_total * laptime_last / 60
+def end_stint_minutes(laps_runnable: float, laptime_last: float):
+    """Estimate minutes current fuel can last (based on estimate laps) to end of stint"""
+    return laps_runnable * laptime_last / 60
 
 
-def pit_in_countdown_laps(laps_remain, lap_into):
+def pit_in_countdown_laps(laps_remain: float, lap_into: float):
     """Estimate countdown laps till last chance to pit-in"""
     return laps_remain - (laps_remain + lap_into) % 1
 
 
-def end_lap_empty_capacity(capacity_total, fuel_in_tank, consumption):
+def end_lap_empty_capacity(capacity_total: float, fuel_in_tank: float, consumption: float):
     """Estimate empty capacity at end of current lap"""
     return capacity_total - fuel_in_tank + consumption
 
 
-def end_stint_pit_counts(fuel_needed, capacity_total):
+def end_stint_pit_counts(fuel_needed: float, capacity_total: float):
     """Estimate end-stint pit stop counts"""
     if capacity_total:
         # Pit counts = required fuel / empty capacity
@@ -647,7 +678,7 @@ def end_stint_pit_counts(fuel_needed, capacity_total):
     return 0
 
 
-def end_lap_pit_counts(fuel_needed, capacity_empty, capacity_total):
+def end_lap_pit_counts(fuel_needed: float, capacity_empty: float, capacity_total: float):
     """Estimate end-lap pit stop counts"""
     # Amount fuel can be added without exceeding capacity
     fuel_addable = min(fuel_needed, capacity_empty)
@@ -659,16 +690,17 @@ def end_lap_pit_counts(fuel_needed, capacity_empty, capacity_total):
     return pit_counts_before + pit_counts_after
 
 
-def one_less_pit_stop_consumption(pit_counts_late, capacity_total, fuel_in_tank, laps_remain):
+def one_less_pit_stop_consumption(
+    pit_counts_late: float, capacity_total: float, fuel_in_tank: float, laps_remain: float):
     """Estimate fuel consumption for one less pit stop"""
     if laps_remain:
-        pit_counts = math.ceil(pit_counts_late) - 1
+        pit_counts = ceil(pit_counts_late) - 1
         # Consumption = total fuel / laps
         return (pit_counts * capacity_total + fuel_in_tank) / laps_remain
     return 0
 
 
-def fuel_to_energy_ratio(fuel, energy):
+def fuel_to_energy_ratio(fuel: float, energy: float):
     """Fuel to energy ratio"""
     if energy:
         return fuel / energy
@@ -713,28 +745,28 @@ def wear_lifespan_in_mins(
 
 
 # Wheel
-def rot2radius(speed, angular_speed):
+def rot2radius(speed: float, angular_speed: float):
     """Angular speed to radius"""
     if angular_speed:
         return abs(speed / angular_speed)
     return 0
 
 
-def slip_ratio(w_rot, w_radius, v_speed):
+def slip_ratio(w_rot: float, w_radius: float, v_speed: float):
     """Slip ratio (percentage), speed unit in m/s"""
-    if int(v_speed):  # set minimum to avoid flickering while stationary
-        return (abs(w_rot) * w_radius - v_speed) / v_speed
+    if v_speed > 1:
+        return abs(w_rot) * w_radius / v_speed - 1
     return 0
 
 
-def slip_angle(v_lat, v_lgt):
+def slip_angle(v_lat: float, v_lgt: float):
     """Slip angle (radians)"""
     if v_lgt:
-        return math.atan(v_lat / v_lgt)
+        return atan(v_lat / v_lgt)
     return 0
 
 
-def wheel_axle_rotation(rot_left, rot_right):
+def wheel_axle_rotation(rot_left: float, rot_right: float):
     """Wheel axle rotation"""
     # Make sure both wheels rotate towards same direction
     if rot_left >= 0 <= rot_right or rot_left <= 0 >= rot_right:
@@ -742,21 +774,21 @@ def wheel_axle_rotation(rot_left, rot_right):
     return 0
 
 
-def wheel_rotation_bias(rot_axle, rot_left, rot_right):
+def wheel_rotation_bias(rot_axle: float, rot_left: float, rot_right: float):
     """Wheel rotation bias (difference) against axle rotation"""
     if rot_axle:
         return abs((rot_left - rot_right) / rot_axle)
     return 0
 
 
-def wheel_rotation_ratio(rot_axle, rot_left):
+def wheel_rotation_ratio(rot_axle: float, rot_left: float):
     """Calculate wheel rotation ratio between left and right wheel on same axle"""
     if rot_axle:
         return rot_left / rot_axle / 2
     return 0.5
 
 
-def differential_locking_percent(rot_axle, rot_left):
+def differential_locking_percent(rot_axle: float, rot_left: float):
     """Differential (wheel) locking percent
 
     0% = one wheel completely spinning or locked, 100% = both wheel rotated at same speed.

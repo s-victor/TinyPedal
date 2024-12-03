@@ -167,8 +167,8 @@ class Realtime(Overlay):
         # Draw radar mask
         painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
         rad_gra = QRadialGradient(*(self.area_center for _ in range(5)))
-        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["edge_fade_in_radius"]), Qt.transparent)
-        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["edge_fade_out_radius"]), Qt.black)
+        rad_gra.setColorAt(calc.zero_one(self.wcfg["edge_fade_in_radius"]), Qt.transparent)
+        rad_gra.setColorAt(calc.zero_one(self.wcfg["edge_fade_out_radius"]), Qt.black)
         painter.setBrush(rad_gra)
         painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
