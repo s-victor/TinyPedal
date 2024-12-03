@@ -158,6 +158,7 @@ class MapView(QWidget):
             for idx in range(1, 9) if self.ecfg[f"curve_grade_{idx}"] >= 0],
             (self.ecfg["curve_grade_straight"], "Straight"),
         ]
+        self.curve_grades.sort()
         self.length_grades = [
             (self.ecfg["length_grade_short"], "Short"),
             (self.ecfg["length_grade_normal"], "Normal"),
@@ -166,6 +167,7 @@ class MapView(QWidget):
             (self.ecfg["length_grade_extra_long"], "Extra Long"),
             (self.ecfg["length_grade_extremely_long"], "Extremely Long"),
         ]
+        self.length_grades.sort()
         self.slope_grades = [
             (self.ecfg["slope_grade_flat"], "Flat"),
             (self.ecfg["slope_grade_gentle"], "Gentle"),
@@ -174,6 +176,7 @@ class MapView(QWidget):
             (self.ecfg["slope_grade_extreme"], "Extreme"),
             (self.ecfg["slope_grade_cliff"], "Cliff"),
         ]
+        self.slope_grades.sort()
         if is_reload:
             self.spinbox_pos_dist.setSingleStep(self.ecfg["position_increment_step"])
             self.slider_pos_dist.setSingleStep(self.ecfg["position_increment_step"])
