@@ -60,14 +60,13 @@ class WheelGaugeBar(QWidget):
 
         self.rect_bg = QRectF(0, 0, bar_width, bar_height)
         self.rect_input = self.rect_bg.adjusted(0,0,0,0)
+        self.rect_text = self.rect_bg.adjusted(padding_x, font_offset, -padding_x, 0)
 
         if right_side:
             self.update_input = self.__update_right
-            self.rect_text = self.rect_bg.adjusted(0, font_offset, -padding_x, 0)
             self.align = Qt.AlignRight | Qt.AlignVCenter
         else:
             self.update_input = self.__update_left
-            self.rect_text = self.rect_bg.adjusted(padding_x, font_offset, 0, 0)
             self.align = Qt.AlignLeft | Qt.AlignVCenter
 
         if negative_color != "":

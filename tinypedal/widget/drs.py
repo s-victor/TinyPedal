@@ -21,7 +21,7 @@ DRS Widget
 """
 
 from PySide2.QtCore import Qt, QRectF
-from PySide2.QtGui import QPainter, QPen, QBrush
+from PySide2.QtGui import QPainter, QPen
 
 from ..api_control import api
 from ._base import Overlay
@@ -49,9 +49,9 @@ class Realtime(Overlay):
         # Config variable
         padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
         pady = round(font_m.capital * self.wcfg["bar_padding_vertical"])
+        drs_width = font_m.width * len(self.wcfg["drs_text"]) + padx * 2
+        drs_height = int(font_m.capital + pady * 2)
 
-        self.drs_width = font_m.width * len(self.wcfg["drs_text"]) + padx * 2
-        self.drs_height = int(font_m.capital + pady * 2)
         self.drs_color = (
             (self.wcfg["font_color_not_available"], self.wcfg["bkg_color_not_available"]),
             (self.wcfg["font_color_available"], self.wcfg["bkg_color_available"]),
@@ -59,20 +59,16 @@ class Realtime(Overlay):
             (self.wcfg["font_color_activated"], self.wcfg["bkg_color_activated"]),
         )
 
+        # Rect
+        self.rect_drs = QRectF(0, 0, drs_width, drs_height)
+        self.rect_text = self.rect_drs.adjusted(0, font_offset, 0, 0)
+
         # Config canvas
-        self.resize(self.drs_width, self.drs_height)
-
-        self.pen = QPen()
-        self.pen.setColor(self.drs_color[0][0])
-        self.brush = QBrush(Qt.SolidPattern)
-        self.brush.setColor(self.drs_color[0][1])
-
-        # Config rect size
-        self.rect_drs = QRectF(0, 0, self.drs_width, self.drs_height)
-        self.rect_text_drs = self.rect_drs.adjusted(0, font_offset, 0, 0)
+        self.resize(drs_width, drs_height)
+        self.pen_drs = QPen()
 
         # Last data
-        self.last_drs_state = None
+        self.drs_state = 0
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -80,30 +76,16 @@ class Realtime(Overlay):
 
             # DRS update
             drs_state = api.read.switch.drs_status()
-            self.update_drs(drs_state, self.last_drs_state)
-            self.last_drs_state = drs_state
+            if self.drs_state != drs_state:
+                self.drs_state = drs_state
+                self.update()
 
     # GUI update methods
-    def update_drs(self, curr, last):
-        """DRS update"""
-        if curr != last:
-            self.pen.setColor(self.drs_color[curr][0])
-            self.brush.setColor(self.drs_color[curr][1])
-            self.update()
-
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
+        painter.fillRect(self.rect_drs, self.drs_color[self.drs_state][1])
 
-        # Draw background
-        painter.setPen(Qt.NoPen)
-        painter.setBrush(self.brush)
-        painter.drawRect(self.rect_drs)
-
-        # Draw DRS text
-        painter.setPen(self.pen)
-        painter.drawText(
-            self.rect_text_drs,
-            Qt.AlignCenter,
-            self.wcfg["drs_text"]
-        )
+        self.pen_drs.setColor(self.drs_color[self.drs_state][0])
+        painter.setPen(self.pen_drs)
+        painter.drawText(self.rect_text, Qt.AlignCenter, self.wcfg["drs_text"])
