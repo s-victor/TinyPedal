@@ -104,14 +104,12 @@ class Brake(DataAdapter):
     def pressure(self, index: int | None = None, scale: float = 1) -> list[float]:
         """Brake pressure"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[data].mBrakePressure) * scale
-                for data in range(4)]
+        return [chknm(data.mBrakePressure) * scale for data in wheel_data]
 
     def temperature(self, index: int | None = None) -> list[float]:
         """Brake temperature"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[data].mBrakeTemp) - 273.15
-                for data in range(4)]
+        return [chknm(data.mBrakeTemp) - 273.15 for data in wheel_data]
 
 
 class ElectricMotor(DataAdapter):
@@ -322,7 +320,7 @@ class Session(DataAdapter):
     def yellow_flag(self) -> bool:
         """Is there yellow flag in any sectors"""
         sec_flag = self.info.rf2ScorInfo.mSectorFlag
-        return any(sec_flag[data] == 1 for data in range(3))
+        return any(data == 1 for data in sec_flag)
 
     def start_lights(self) -> int:
         """Start lights countdown sequence"""
@@ -526,26 +524,22 @@ class Tyre(DataAdapter):
     def pressure(self, index: int | None = None) -> list[float]:
         """Tyre pressure"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[data].mPressure)
-                for data in range(4)]
+        return [chknm(data.mPressure) for data in wheel_data]
 
     def load(self, index: int | None = None) -> list[float]:
         """Tyre load"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[data].mTireLoad)
-                for data in range(4)]
+        return [chknm(data.mTireLoad) for data in wheel_data]
 
     def wear(self, index: int | None = None, scale: float = 1) -> list[float]:
         """Tyre wear"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[data].mWear) * scale
-                for data in range(4)]
+        return [chknm(data.mWear) * scale for data in wheel_data]
 
     def carcass_temperature(self, index: int | None = None) -> list[float]:
         """Tyre carcass temperature"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[data].mTireCarcassTemperature) - 273.15
-                for data in range(4)]
+        return [chknm(data.mTireCarcassTemperature) - 273.15 for data in wheel_data]
 
 
 class Vehicle(DataAdapter):
@@ -678,8 +672,9 @@ class Vehicle(DataAdapter):
         return chknm(self.info.rf2TeleVeh(index).mRearDownforce)
 
     def damage_severity(self, index: int | None = None) -> tuple[int]:
-        """Damage severity"""
-        return tuple(self.info.rf2TeleVeh(index).mDentSeverity)
+        """Damage severity, sort row by row from left to right, top to bottom"""
+        dmg = self.info.rf2TeleVeh(index).mDentSeverity
+        return dmg[1], dmg[0], dmg[7], dmg[2], dmg[6], dmg[3], dmg[4], dmg[5]  # RF2 order
 
     def is_detached(self, index: int | None = None) -> bool:
         """Whether any vehicle parts are detached"""
@@ -704,14 +699,12 @@ class Wheel(DataAdapter):
     def camber(self, index: int | None = None) -> list[float]:
         """Wheel camber (radians)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[data].mCamber)
-                for data in range(4)]
+        return [chknm(data.mCamber) for data in wheel_data]
 
     def toe(self, index: int | None = None) -> list[float]:
         """Wheel toe (radians)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[data].mToe)
-                for data in range(4)]
+        return [chknm(data.mToe) for data in wheel_data]
 
     def toe_symmetric(self, index: int | None = None) -> list[float]:
         """Wheel toe symmetric (radians)"""
@@ -724,75 +717,67 @@ class Wheel(DataAdapter):
     def rotation(self, index: int | None = None) -> list[float]:
         """Wheel rotation (radians per second)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[data].mRotation)
-                for data in range(4)]
+        return [chknm(data.mRotation) for data in wheel_data]
 
     def velocity_longitudinal(self, index: int | None = None) -> list[float]:
         """Longitudinal velocity"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[data].mLongitudinalGroundVel)
-                for data in range(4)]
+        return [chknm(data.mLongitudinalGroundVel) for data in wheel_data]
 
     def velocity_lateral(self, index: int | None = None) -> list[float]:
         """Lateral velocity"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[data].mLateralGroundVel)
-                for data in range(4)]
+        return [chknm(data.mLateralGroundVel) for data in wheel_data]
 
     def slip_angle_fl(self, index: int | None = None) -> float:
         """Slip angle (radians) front left"""
-        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        wheel_data = self.info.rf2TeleVeh(index).mWheels[0]
         return slip_angle(
-            chknm(wheel_data[0].mLateralGroundVel),
-            chknm(wheel_data[0].mLongitudinalGroundVel))
+            chknm(wheel_data.mLateralGroundVel),
+            chknm(wheel_data.mLongitudinalGroundVel))
 
     def slip_angle_fr(self, index: int | None = None) -> float:
         """Slip angle (radians) front right"""
-        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        wheel_data = self.info.rf2TeleVeh(index).mWheels[1]
         return slip_angle(
-            chknm(wheel_data[1].mLateralGroundVel),
-            chknm(wheel_data[1].mLongitudinalGroundVel))
+            chknm(wheel_data.mLateralGroundVel),
+            chknm(wheel_data.mLongitudinalGroundVel))
 
     def slip_angle_rl(self, index: int | None = None) -> float:
         """Slip angle (radians) rear left"""
-        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        wheel_data = self.info.rf2TeleVeh(index).mWheels[2]
         return slip_angle(
-            chknm(wheel_data[2].mLateralGroundVel),
-            chknm(wheel_data[2].mLongitudinalGroundVel))
+            chknm(wheel_data.mLateralGroundVel),
+            chknm(wheel_data.mLongitudinalGroundVel))
 
     def slip_angle_rr(self, index: int | None = None) -> float:
         """Slip angle (radians) rear right"""
-        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        wheel_data = self.info.rf2TeleVeh(index).mWheels[3]
         return slip_angle(
-            chknm(wheel_data[3].mLateralGroundVel),
-            chknm(wheel_data[3].mLongitudinalGroundVel))
+            chknm(wheel_data.mLateralGroundVel),
+            chknm(wheel_data.mLongitudinalGroundVel))
 
     def ride_height(self, index: int | None = None) -> list[float]:
         """Ride height (millmeters)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [meter2millmeter(chknm(wheel_data[data].mRideHeight))
-                for data in range(4)]
+        return [meter2millmeter(chknm(data.mRideHeight)) for data in wheel_data]
 
     def suspension_deflection(self, index: int | None = None) -> list[float]:
         """Suspension deflection (millmeters)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [meter2millmeter(chknm(wheel_data[data].mSuspensionDeflection))
-                for data in range(4)]
+        return [meter2millmeter(chknm(data.mSuspensionDeflection)) for data in wheel_data]
 
     def suspension_force(self, index: int | None = None) -> list[float]:
         """Suspension force (Newtons)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[data].mSuspForce)
-                for data in range(4)]
+        return [chknm(data.mSuspForce) for data in wheel_data]
 
     def is_detached(self, index: int | None = None) -> list[bool]:
         """Whether wheel is detached"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[data].mDetached)
-                for data in range(4)]
+        return [chknm(data.mDetached) for data in wheel_data]
 
     def is_offroad(self, index: int | None = None) -> bool:
         """Whether all wheels are complete offroad"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return all(2 <= chknm(wheel_data[data].mSurfaceType) <= 4
-                   for data in range(4))
+        return all(2 <= chknm(data.mSurfaceType) <= 4 for data in wheel_data)
