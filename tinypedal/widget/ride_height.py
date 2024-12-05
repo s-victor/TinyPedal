@@ -60,6 +60,10 @@ class Realtime(Overlay):
         max_range = max(int(self.wcfg["ride_height_max_range"]), 10)
 
         # Ride height
+        self.rideh_color = (
+            self.wcfg["bkg_color"],
+            self.wcfg["warning_color_bottoming"],
+        )
         self.bars_rideh = tuple(
             WheelGaugeBar(
                 padding_x=padx,
@@ -70,11 +74,11 @@ class Realtime(Overlay):
                 input_color=self.wcfg["highlight_color"],
                 fg_color=self.wcfg["font_color"],
                 bg_color=self.wcfg["bkg_color"],
-                warning_color=self.wcfg["warning_color_bottoming"],
-                warning_offset=ride_height_offset[idx],
                 right_side=idx % 2,
             ) for idx in range(4)
         )
+        for bar_rideh, offset in zip(self.bars_rideh, ride_height_offset):
+            bar_rideh.offset = offset
         self.set_grid_layout_quad(
             layout=layout,
             targets=self.bars_rideh,
@@ -93,4 +97,5 @@ class Realtime(Overlay):
         """Ride height"""
         if target.last != data:
             target.last = data
+            target.bg_color = self.rideh_color[data < target.offset]
             target.update_input(data)

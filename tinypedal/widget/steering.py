@@ -121,15 +121,8 @@ class Realtime(Overlay):
         self.rect_steerpos.setLeft(self.bar_edge + steer_pos)
         painter.fillRect(self.rect_steerpos, self.wcfg["steering_color"])
 
-        # Draw scale marks
-        if self.wcfg["show_scale_mark"]:
-            painter.drawPixmap(0, 0, self.pixmap_mark)
-
-        # Edge center mark
-        edge_color = self.wcfg["bar_edge_color"]
-        painter.fillRect(self.rect_edge_l, edge_color)
-        painter.fillRect(self.rect_edge_r, edge_color)
-        painter.fillRect(self.rect_center, edge_color)
+        # Draw edge & scale marks
+        painter.drawPixmap(0, 0, self.pixmap_mark)
 
         # Draw readings
         if self.wcfg["show_steering_angle"]:
@@ -143,15 +136,19 @@ class Realtime(Overlay):
     def draw_scale_mark(self, mark_gap=90, mark_num=0):
         """Draw scale mark"""
         self.pixmap_mark.fill(Qt.transparent)
-        if not mark_num:
-            return
         painter = QPainter(self.pixmap_mark)
-        mark_color = self.wcfg["scale_mark_color"]
-        offset = self.bar_edge + self.bar_width
-        for idx in range(mark_num):
-            gap = mark_gap * (idx + 1)
-            painter.fillRect(offset - gap, 0, 1, self.bar_height, mark_color)
-            painter.fillRect(offset + gap, 0, 1, self.bar_height, mark_color)
+        if self.wcfg["show_scale_mark"] and mark_num:
+            mark_color = self.wcfg["scale_mark_color"]
+            offset = self.bar_edge + self.bar_width
+            for idx in range(mark_num):
+                gap = mark_gap * (idx + 1)
+                painter.fillRect(offset - gap, 0, 1, self.bar_height, mark_color)
+                painter.fillRect(offset + gap, 0, 1, self.bar_height, mark_color)
+        # Edge center mark
+        edge_color = self.wcfg["bar_edge_color"]
+        painter.fillRect(self.rect_edge_l, edge_color)
+        painter.fillRect(self.rect_edge_r, edge_color)
+        painter.fillRect(self.rect_center, edge_color)
 
     # Additional methods
     @staticmethod

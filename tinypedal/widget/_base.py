@@ -468,7 +468,7 @@ class Overlay(QWidget):
         self.setLayout(layout)
 
     def set_primary_orient(
-        self, target: QWidget | QLayout, column: int = 0,
+        self, target: QWidget | QLayout, column: int = 0, row: int = 0,
         option: str = "layout", default: str | int = 0):
         """Set primary layout (QGridLayout) orientation
 
@@ -478,13 +478,14 @@ class Overlay(QWidget):
         Args:
             target: QWidget or QLayout that adds to primary layout.
             column: column index determines display order.
+            row: row index determines side display order.
             option: layout option name in Widget JSON.
             default: default layout value.
         """
         if self.wcfg.get(option, 0) == default:
-            order = column, 0  # Vertical layout
+            order = column, row  # Vertical layout
         else:
-            order = 0, column  # Horizontal layout
+            order = row, column  # Horizontal layout
         if isinstance(target, QWidget):
             self.layout().addWidget(target, *order)
         else:

@@ -54,6 +54,10 @@ class Realtime(Overlay):
         max_range = max(int(self.wcfg["position_max_range"]), 10)
 
         # Suspension position
+        self.susp_color = (
+            self.wcfg["positive_position_color"],
+            self.wcfg["negative_position_color"],
+        )
         self.bars_susp = tuple(
             WheelGaugeBar(
                 padding_x=padx,
@@ -64,7 +68,6 @@ class Realtime(Overlay):
                 input_color=self.wcfg["positive_position_color"],
                 fg_color=self.wcfg["font_color"],
                 bg_color=self.wcfg["bkg_color"],
-                negative_color=self.wcfg["negative_position_color"],
                 right_side=idx % 2,
             ) for idx in range(4)
         )
@@ -86,4 +89,5 @@ class Realtime(Overlay):
         """Suspension position"""
         if target.last != data:
             target.last = data
+            target.input_color = self.susp_color[data < 0]
             target.update_input(abs(data))

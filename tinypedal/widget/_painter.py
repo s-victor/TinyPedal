@@ -26,6 +26,8 @@ from PySide2.QtCore import Qt, QRectF
 from PySide2.QtGui import QPainter, QPen
 from PySide2.QtWidgets import QWidget
 
+from ..formatter import select_gear
+
 
 class WheelGaugeBar(QWidget):
     """Wheel gauge bar"""
@@ -40,24 +42,14 @@ class WheelGaugeBar(QWidget):
         input_color: str = "",
         fg_color: str = "",
         bg_color: str = "",
-        negative_color: str = "",
-        warning_color: str = "",
-        warning_offset: int | float = -99999,
-        right_side: bool = True,
+        right_side: bool = False,
     ):
-        """
-        Args:
-            negative_color: set a color to enable negative value highlighting,
-                            takes priority over warning color if set.
-            warning_color: set a color to enable warning highlighting if reaches threshold.
-            warning_offset: set warning highlighting threshold (offset from 0).
-        """
         super().__init__()
         self.last = 0
         self.max_range = max_range
         self.width_scale = bar_width / self.max_range
-        self.warn_offset = warning_offset
-
+        self.input_color = input_color
+        self.bg_color = bg_color
         self.rect_bg = QRectF(0, 0, bar_width, bar_height)
         self.rect_input = self.rect_bg.adjusted(0,0,0,0)
         self.rect_text = self.rect_bg.adjusted(padding_x, font_offset, -padding_x, 0)
@@ -68,19 +60,6 @@ class WheelGaugeBar(QWidget):
         else:
             self.update_input = self.__update_left
             self.align = Qt.AlignLeft | Qt.AlignVCenter
-
-        if negative_color != "":
-            self.input_color = input_color, negative_color
-            self.bg_color = bg_color
-            self.paintEvent = self.__paint_negative
-        elif warning_color != "":
-            self.input_color = input_color
-            self.bg_color = bg_color, warning_color
-            self.paintEvent = self.__paint_warning
-        else:
-            self.input_color = input_color
-            self.bg_color = bg_color
-            self.paintEvent = self.__paint_normal
 
         self.pen = QPen()
         self.pen.setColor(fg_color)
@@ -96,26 +75,10 @@ class WheelGaugeBar(QWidget):
         self.rect_input.setWidth(input_value * self.width_scale)
         self.update()
 
-    def __paint_normal(self, event):
+    def paintEvent(self, event):
         """Draw normal without warning or negative highlighting"""
         painter = QPainter(self)
         painter.fillRect(self.rect_bg, self.bg_color)
-        painter.fillRect(self.rect_input, self.input_color)
-        painter.setPen(self.pen)
-        painter.drawText(self.rect_text, self.align, f"{self.last:.0f}")
-
-    def __paint_negative(self, event):
-        """Draw with negative highlighting"""
-        painter = QPainter(self)
-        painter.fillRect(self.rect_bg, self.bg_color)
-        painter.fillRect(self.rect_input, self.input_color[self.last < 0])
-        painter.setPen(self.pen)
-        painter.drawText(self.rect_text, self.align, f"{self.last:.0f}")
-
-    def __paint_warning(self, event):
-        """Draw with warning (background) highlighting"""
-        painter = QPainter(self)
-        painter.fillRect(self.rect_bg, self.bg_color[self.last < self.warn_offset])
         painter.fillRect(self.rect_input, self.input_color)
         painter.setPen(self.pen)
         painter.drawText(self.rect_text, self.align, f"{self.last:.0f}")
@@ -141,12 +104,14 @@ class PedalInputBar(QWidget):
         horizontal_style: bool = False,
     ):
         super().__init__()
-        self.show_reading = show_reading
-        self.is_maxed = False
         self.last = None
+        self.is_maxed = False
+        self.show_reading = show_reading
+        self.input_reading = 0
         self.pedal_length = pedal_length
         self.pedal_extend = pedal_extend
-
+        self.input_color = input_color
+        self.bg_color = bg_color
         self.rect_pedal = QRectF(*pedal_size)
         self.rect_raw = QRectF(*raw_size)
         self.rect_filtered = QRectF(*filtered_size)
@@ -164,14 +129,11 @@ class PedalInputBar(QWidget):
         else:
             self.update_input = self.__update_vertical
 
-        self.input_reading = 0
-        self.input_color = input_color
-        self.bg_color = bg_color
         self.pen = QPen()
         self.pen.setColor(fg_color)
         self.setFixedSize(pedal_size[2], pedal_size[3])
 
-    def __update_horizontal(self, input_raw: float, input_filtered: float):
+    def __update_horizontal(self, input_raw: int | float, input_filtered: int | float):
         """Update input value - horizontal style"""
         self.input_reading = max(input_raw, input_filtered) * 100
         scaled_raw = self.__scale_horizontal(input_raw)
@@ -181,7 +143,7 @@ class PedalInputBar(QWidget):
         self.is_maxed = scaled_raw >= self.pedal_length
         self.update()
 
-    def __update_vertical(self, input_raw: float, input_filtered: float):
+    def __update_vertical(self, input_raw: int | float, input_filtered: int | float):
         """Update input value - vertical style"""
         self.input_reading = max(input_raw, input_filtered) * 100
         scaled_raw = self.__scale_vertical(input_raw)
@@ -191,11 +153,11 @@ class PedalInputBar(QWidget):
         self.is_maxed = scaled_raw <= self.pedal_extend
         self.update()
 
-    def __scale_horizontal(self, input_value: float) -> float:
+    def __scale_horizontal(self, input_value: int | float) -> float:
         """Scale input - horizontal style"""
         return input_value * self.pedal_length
 
-    def __scale_vertical(self, input_value: float) -> float:
+    def __scale_vertical(self, input_value: int | float) -> float:
         """Scale input - vertical style"""
         return (1 - input_value) * self.pedal_length + self.pedal_extend
 
@@ -207,7 +169,6 @@ class PedalInputBar(QWidget):
         painter.fillRect(self.rect_filtered, self.input_color)
         if self.is_maxed:
             painter.fillRect(self.rect_max, self.max_color)
-
         if self.show_reading:
             painter.setPen(self.pen)
             painter.drawText(self.rect_text, Qt.AlignCenter, f"{self.input_reading:.0f}")

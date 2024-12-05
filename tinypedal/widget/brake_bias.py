@@ -189,7 +189,7 @@ class BrakeMigration:
 
             if self._ebrake_alloc == 0:
                 bias_rear = max_rear * self._bpres_scale
-                bias_front_live = 100 - bias_rear / brake_raw
+                bias_front_live = 1 - bias_rear / brake_raw
             else:
                 bias_front = max_front * self._bpres_scale
                 bias_front_live = bias_front / brake_raw
