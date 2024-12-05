@@ -217,6 +217,55 @@ class ProgressBar(QWidget):
         painter.fillRect(self.rect_input, self.input_color)
 
 
+class FuelLevelBar(QWidget):
+    """Fuel level bar"""
+
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        start_mark_width: int,
+        refill_mark_width: int,
+        input_color: str = "",
+        bg_color: str = "",
+        start_mark_color: str = "",
+        refill_mark_color: str = "",
+        show_start_mark: bool = True,
+        show_refill_mark: bool = True,
+    ):
+        super().__init__()
+        self.last = None
+        self.width = width
+        self.rect_bar = QRectF(0, 0, width, height)
+        self.rect_input = QRectF(0, 0, width, height)
+        self.rect_start = QRectF(0, 0, start_mark_width, height)
+        self.rect_refuel = QRectF(0, 0, refill_mark_width, height)
+        self.input_color = input_color
+        self.bg_color = bg_color
+        self.start_mark_color = start_mark_color
+        self.refill_mark_color = refill_mark_color
+        self.show_start_mark = show_start_mark
+        self.show_refill_mark = show_refill_mark
+        self.setFixedSize(width, height)
+
+    def update_input(self, input_value: float, start_value: float, refill_value: float):
+        """Update input"""
+        self.rect_input.setRight(input_value * self.width)
+        self.rect_start.moveLeft(start_value * self.width)
+        self.rect_refuel.moveLeft(refill_value * self.width)
+        self.update()
+
+    def paintEvent(self, event):
+        """Draw"""
+        painter = QPainter(self)
+        painter.fillRect(self.rect_bar, self.bg_color)
+        painter.fillRect(self.rect_input, self.input_color)
+        if self.show_start_mark:
+            painter.fillRect(self.rect_start, self.start_mark_color)
+        if self.show_refill_mark:
+            painter.fillRect(self.rect_refuel, self.refill_mark_color)
+
+
 class GearGaugeBar(QWidget):
     """Gear gauge bar"""
 

@@ -98,7 +98,7 @@ class Realtime(Overlay):
                 bg_color=self.wcfg["battery_bar_bkg_color"],
                 right_side=self.wcfg["show_inverted_battery"],
             )
-            self.bar_battbar.state = 0
+            self.bar_battbar.state = None
             self.set_primary_orient(
                 target=self.bar_battbar,
                 column=self.wcfg["column_index_battery"],
@@ -155,8 +155,7 @@ class Realtime(Overlay):
             # Gauge
             rpm = api.read.engine.rpm()
             speed = api.read.vehicle.speed()
-            gauge_state = rpm + gear + speed
-            self.update_gauge(self.bar_gauge, gauge_state, rpm, gear, speed)
+            self.update_gauge(self.bar_gauge, rpm, gear, speed)
 
             # RPM bar
             if self.wcfg["show_rpm_bar"]:
@@ -174,10 +173,11 @@ class Realtime(Overlay):
                 self.update_limiter(self.bar_limiter, limiter)
 
     # GUI update methods
-    def update_gauge(self, target, data, rpm, gear, speed):
+    def update_gauge(self, target, rpm, gear, speed):
         """Gauge bar"""
-        if target.last != data:
-            target.last = data
+        gauge_state = rpm + gear + speed
+        if target.last != gauge_state:
+            target.last = gauge_state
             color_index = self.color_rpm(rpm, gear, speed)
             target.update_input(
                 gear,
