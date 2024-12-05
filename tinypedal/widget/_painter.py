@@ -172,3 +172,128 @@ class PedalInputBar(QWidget):
         if self.show_reading:
             painter.setPen(self.pen)
             painter.drawText(self.rect_text, Qt.AlignCenter, f"{self.input_reading:.0f}")
+
+
+class ProgressBar(QWidget):
+    """Progress bar"""
+
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        input_color: str = "",
+        bg_color: str = "",
+        right_side: bool = False,
+    ):
+        super().__init__()
+        self.last = -1
+        self.width = width
+        self.rect_bar = QRectF(0, 0, width, height)
+        self.rect_input = QRectF(0, 0, width, height)
+        self.input_color = input_color
+        self.bg_color = bg_color
+
+        if right_side:
+            self.update_input = self.__update_right
+        else:
+            self.update_input = self.__update_left
+
+        self.setFixedSize(width, height)
+
+    def __update_left(self, input_value: int | float):
+        """Update input"""
+        self.rect_input.setRight(input_value)
+        self.update()
+
+    def __update_right(self, input_value: int | float):
+        """Update input"""
+        self.rect_input.setLeft(self.width - input_value)
+        self.update()
+
+    def paintEvent(self, event):
+        """Draw"""
+        painter = QPainter(self)
+        painter.fillRect(self.rect_bar, self.bg_color)
+        painter.fillRect(self.rect_input, self.input_color)
+
+
+class GearGaugeBar(QWidget):
+    """Gear gauge bar"""
+
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        font_speed,
+        gear_size: tuple,
+        speed_size: tuple,
+        fg_color: str,
+        bg_color: str,
+        show_speed: bool = True,
+    ):
+        super().__init__()
+        self.last = -1
+        self.gear = 0
+        self.speed = 0
+        self.color_index = 0
+        self.show_speed = show_speed
+        self.font_speed = font_speed
+        self.bg_color = bg_color
+        self.rect_gear = QRectF(*gear_size)
+        self.rect_speed = QRectF(*speed_size)
+        self.rect_bar = QRectF(0, 0, width, height)
+
+        self.pen = QPen()
+        self.pen.setColor(fg_color)
+        self.setFixedSize(width, height)
+
+    def update_input(self, gear: int, speed: int, color_index: int, bg_color: str):
+        """Update input"""
+        self.gear = gear
+        self.speed = speed
+        self.color_index = color_index
+        self.bg_color = bg_color
+        self.update()
+
+    def paintEvent(self, event):
+        """Draw"""
+        painter = QPainter(self)
+        painter.fillRect(self.rect_bar, self.bg_color)
+        if self.color_index == -4:  # flicker trigger
+            return
+        painter.setPen(self.pen)
+        painter.drawText(self.rect_gear, Qt.AlignCenter, select_gear(self.gear))
+        if self.show_speed:
+            painter.setFont(self.font_speed)
+            painter.drawText(self.rect_speed, Qt.AlignCenter, f"{self.speed:03.0f}")
+
+
+class TextBar(QWidget):
+    """Text bar"""
+
+    def __init__(
+        self,
+        width: int,
+        height: int,
+        font_offset: int,
+        fg_color: str,
+        bg_color: str,
+        text: str = "",
+    ):
+        super().__init__()
+        self.last = -1
+        self.text = text
+        self.fg_color = fg_color
+        self.bg_color = bg_color
+        self.rect_bar = QRectF(0, 0, width, height)
+        self.rect_text = self.rect_bar.adjusted(0, font_offset, 0, 0)
+        self.setFixedSize(width, height)
+
+    def paintEvent(self, event):
+        """Draw"""
+        painter = QPainter(self)
+        painter.fillRect(self.rect_bar, self.bg_color)
+        pen = QPen()
+        pen.setColor(self.fg_color)
+        painter.setPen(pen)
+        painter.drawText(self.rect_text, Qt.AlignCenter, self.text)

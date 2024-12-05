@@ -1561,20 +1561,26 @@ Show speed reading below gear.
     font_scale_speed
 Set font scale for speed reading. This option only takes effect when `show_speed_below_gear` is enabled. Default is `0.5`.
 
-    show_battery_bar
-Show battery bar, which is only visible if electric motor available.
-
-    battery_bar_height
-Set battery bar height in pixels.
-
     show_speed_limiter
 Show pit speed limiter indicator.
 
     speed_limiter_text
 Set custom pit speed limiter text which shows when speed limiter is engaged.
 
+    show_battery_bar
+Show battery bar, which is only visible if electric motor available.
+
+    show_inverted_battery
+Invert battery bar progression.
+
+    battery_bar_height
+Set battery bar height in pixels.
+
     show_rpm_bar
 Show a RPM bar at bottom of gear widget, which moves when RPM reaches range between safe & max RPM.
+
+    show_inverted_rpm
+Invert RPM bar progression.
 
     rpm_bar_height
 RPM bar height, in pixel.
