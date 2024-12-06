@@ -2055,8 +2055,8 @@ Show each driver's pitstop count.
     show_pit_request
 Show pit request color indicator on pitstop count column.
 
-    show_vehicle_in_garage_for_race
-Show vehicles that are stored in garage stall during race (for example, DNF or DQ). Default is `false`.
+    show_vehicle_in_garage
+Show vehicles parked in garage stall. Default is `false`. Note, local player is always displayed.
 
     additional_players_front, additional_players_behind
 Set additional players shown on relative list. Each value is limited to a maximum of 60 additional players (for a total of 120 additional players). Default is `0`.

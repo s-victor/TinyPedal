@@ -1350,7 +1350,7 @@ WIDGET_DEFAULT = {
         "show_pit_request": True,
         "font_color_pit_request": "#000000",
         "bkg_color_pit_request": "#22AA00",
-        "show_vehicle_in_garage_for_race": False,
+        "show_vehicle_in_garage": False,
         "column_index_position": 1,
         "column_index_driver": 2,
         "column_index_vehicle": 6,

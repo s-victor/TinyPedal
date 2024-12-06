@@ -1,5 +1,10 @@
 WIP
 -----------------------------
+* Relative Widget
+  - Renamed "show_vehicle_in_garage_for_race" option to "show_vehicle_in_garage",
+    which now affects all sessions. Default is "False", which hides vehicles in garage.
+    Note, local player (user) is always displayed.
+
 * Gear Widget
   - Add "show_inverted_battery" & "show_inverted_rpm" options that invert battery or rpm bar progression.
 

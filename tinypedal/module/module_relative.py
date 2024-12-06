@@ -59,7 +59,7 @@ class Realtime(DataModule):
                     update_interval = self.active_interval
 
                 # Check setting
-                show_garage_in_race = setting_relative["show_vehicle_in_garage_for_race"]
+                show_in_garage = setting_relative["show_vehicle_in_garage"]
                 is_split_mode = setting_standings["enable_multi_class_split_mode"]
                 max_rel_veh, add_front, add_behind = max_relative_vehicles(
                     setting_relative["additional_players_front"],
@@ -80,7 +80,7 @@ class Realtime(DataModule):
                 # Get vehicles info
                 (distance_index_list, classes_list, place_index_list,
                  laptime_session_best, is_multi_class
-                 ) = get_vehicles_info(veh_total, show_garage_in_race)
+                 ) = get_vehicles_info(veh_total, plr_index, show_in_garage)
 
                 # Create relative index list
                 relative_index_list = create_relative_index(
@@ -108,23 +108,19 @@ class Realtime(DataModule):
                     update_interval = self.idle_interval
 
 
-def get_vehicles_info(veh_total: int, show_garage_in_race: bool):
+def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
     """Get vehicles info: relative distance, classes, places, laptime"""
     track_length = api.read.lap.track_length()  # track length
     plr_dist = api.read.lap.distance()
-    race_check = not show_garage_in_race and api.read.session.in_race()
     laptime_session_best = MAGIC_NUM
     last_class_name = None
     classes_count = 0
 
     for index in range(veh_total):
         # Update relative distance list
-        in_garage = api.read.vehicle.in_garage(index)
-        opt_dist = api.read.lap.distance(index)
-
-        if not race_check or not in_garage:  # hide check
+        if show_in_garage or index == plr_index or not api.read.vehicle.in_garage(index):
             rel_dist = calc.circular_relative_distance(
-                track_length, plr_dist, opt_dist)
+                track_length, plr_dist, api.read.lap.distance(index))
         else:
             rel_dist = MAGIC_NUM
         TEMP_DISTANCE[index][:] = (  # slice assign
