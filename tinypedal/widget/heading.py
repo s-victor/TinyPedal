@@ -60,13 +60,6 @@ class Realtime(Overlay):
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
         text_width = font_m.width * (5 + self.decimals)
 
-        dot_size = max(self.wcfg["dot_size"], 1)
-        self.rect_dot = QRectF(
-            (self.area_size - dot_size) * 0.5,
-            (self.area_size - dot_size) * 0.5,
-            dot_size,
-            dot_size
-        )
         self.dir_line = (
             QPointF(0, -self.area_center * self.wcfg["direction_line_head_scale"]),
             QPointF(0, self.area_center * self.wcfg["direction_line_tail_scale"])
@@ -79,34 +72,46 @@ class Realtime(Overlay):
             QPointF(0, -self.area_center * self.wcfg["slip_angle_line_head_scale"]),
             QPointF(0, self.area_center * self.wcfg["slip_angle_line_tail_scale"])
         )
-        self.rect_yaw_angle = QRectF(
+        self.rect_text_yaw = QRectF(
             self.area_size * self.wcfg["yaw_angle_offset_x"] - text_width * 0.5,
-            self.area_size * self.wcfg["yaw_angle_offset_y"] - font_m.height * 0.5,
+            self.area_size * self.wcfg["yaw_angle_offset_y"] - font_m.height * 0.5 + font_offset,
             text_width,
             font_m.height
         )
-        self.rect_slip_angle = QRectF(
+        self.rect_text_slip = QRectF(
             self.area_size * self.wcfg["slip_angle_offset_x"] - text_width * 0.5,
-            self.area_size * self.wcfg["slip_angle_offset_y"] - font_m.height * 0.5,
+            self.area_size * self.wcfg["slip_angle_offset_y"] - font_m.height * 0.5 + font_offset,
             text_width,
             font_m.height
         )
-        self.rect_text_yaw_angle = self.rect_yaw_angle.adjusted(0, font_offset, 0, 0)
-        self.rect_text_slip_angle = self.rect_slip_angle.adjusted(0, font_offset, 0, 0)
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
         self.pixmap_background = QPixmap(self.area_size, self.area_size)
         self.pixmap_dot = QPixmap(self.area_size, self.area_size)
 
-        self.pen = QPen()
-        self.pen.setCapStyle(Qt.RoundCap)
-        self.draw_background()
-        self.draw_dot()
+        self.pen_yaw = QPen()
+        self.pen_yaw.setCapStyle(Qt.RoundCap)
+        self.pen_yaw.setWidth(self.wcfg["yaw_line_width"])
+        self.pen_yaw.setColor(self.wcfg["yaw_line_color"])
+        self.pen_slip = QPen()
+        self.pen_slip.setCapStyle(Qt.RoundCap)
+        self.pen_slip.setWidth(self.wcfg["slip_angle_line_width"])
+        self.pen_slip.setColor(self.wcfg["slip_angle_line_color"])
+        self.pen_direction = QPen()
+        self.pen_direction.setCapStyle(Qt.RoundCap)
+        self.pen_direction.setWidth(self.wcfg["direction_line_width"])
+        self.pen_direction.setColor(self.wcfg["direction_line_color"])
+        self.pen_text_yaw = QPen()
+        self.pen_text_yaw.setColor(self.wcfg["font_color_yaw_angle"])
+        self.pen_text_slip = QPen()
+        self.pen_text_slip.setColor(self.wcfg["font_color_slip_angle"])
+
+        self.draw_background(self.area_center)
+        self.draw_dot(max(self.wcfg["dot_size"], 1))
 
         # Last data
         self.veh_ori_yaw = 0
-        self.last_veh_ori_yaw = None
         self.last_pos = 0,0
         self.yaw_angle = 0
         self.slip_angle = 0
@@ -121,11 +126,11 @@ class Realtime(Overlay):
                         api.read.vehicle.position_lateral())
 
             # Vehicle orientation yaw
-            self.veh_ori_yaw = calc.rad2deg(api.read.vehicle.orientation_yaw_radians()) + 180
+            temp_veh_ori_yaw = calc.rad2deg(api.read.vehicle.orientation_yaw_radians()) + 180
 
             # Direction of travel yaw angle
             if self.last_pos != pos_curr and speed > 1:
-                self.yaw_angle = self.veh_ori_yaw - calc.rad2deg(calc.oriyaw2rad(
+                self.yaw_angle = temp_veh_ori_yaw - calc.rad2deg(calc.oriyaw2rad(
                     pos_curr[0] - self.last_pos[0], pos_curr[1] - self.last_pos[1])) + 180
                 self.last_pos = pos_curr
             elif speed <= 1:
@@ -139,15 +144,11 @@ class Realtime(Overlay):
             else:
                 self.slip_angle = 0
 
-            self.update_yaw(self.veh_ori_yaw, self.last_veh_ori_yaw)
-            self.last_veh_ori_yaw = self.veh_ori_yaw
+            if self.veh_ori_yaw != temp_veh_ori_yaw:
+                self.veh_ori_yaw = temp_veh_ori_yaw
+                self.update()
 
     # GUI update methods
-    def update_yaw(self, curr, last):
-        """Yaw update"""
-        if curr != last:
-            self.update()
-
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
@@ -156,27 +157,54 @@ class Realtime(Overlay):
         # Draw circle background
         painter.drawPixmap(0, 0, self.pixmap_background)
         # Draw compass bearing
-        self.draw_compass_bearing(painter)
+        painter.translate(self.area_center, self.area_center)
+        painter.rotate(self.veh_ori_yaw)
+        painter.drawPixmap(
+            -self.area_center, -self.area_center,
+            self.area_size, self.area_size,
+            self.pixmap_icon)
+        painter.resetTransform()
         # Draw yaw line
         if self.wcfg["show_yaw_line"]:
-            self.draw_yaw_line(painter)
+            painter.setPen(self.pen_yaw)
+            painter.translate(self.area_center, self.area_center)
+            painter.drawPolyline(self.yaw_line)
+            painter.resetTransform()
         # Draw slip angle line
         if self.wcfg["show_slip_angle_line"]:
-            self.draw_slip_angle_line(painter)
+            painter.setPen(self.pen_slip)
+            painter.translate(self.area_center, self.area_center)
+            painter.rotate(self.slip_angle)
+            painter.drawPolyline(self.slip_angle_line)
+            painter.resetTransform()
         # Draw direction line
         if self.wcfg["show_direction_line"]:
-            self.draw_direction_line(painter)
+            painter.setPen(self.pen_direction)
+            painter.translate(self.area_center, self.area_center)
+            painter.rotate(self.yaw_angle)
+            painter.drawPolyline(self.dir_line)
+            painter.resetTransform()
         # Draw dot
         if self.wcfg["show_dot"]:
             painter.drawPixmap(0, 0, self.pixmap_dot)
         # Draw text
         if self.wcfg["show_yaw_angle_reading"]:
-            self.draw_yaw_readings(painter)
+            painter.setPen(self.pen_text_yaw)
+            painter.drawText(
+                self.rect_text_yaw,
+                Qt.AlignCenter,
+                self.format_angle(self.display_yaw_angle(self.yaw_angle))
+            )
         if self.wcfg["show_slip_angle_reading"]:
-            self.draw_slip_angle_readings(painter)
+            painter.setPen(self.pen_text_slip)
+            painter.drawText(
+                self.rect_text_slip,
+                Qt.AlignCenter,
+                self.format_angle(self.slip_angle)
+            )
 
-    def draw_background(self):
-        """Draw circle background"""
+    def draw_background(self, center):
+        """Draw circle background image"""
         if self.wcfg["show_background"]:
             self.pixmap_background.fill(self.wcfg["bkg_color"])
         else:
@@ -194,119 +222,37 @@ class Realtime(Overlay):
 
         # Draw center mark
         if self.wcfg["show_center_mark"]:
+            pen = QPen()
             if self.wcfg["center_mark_style"]:
-                self.pen.setStyle(Qt.SolidLine)
+                pen.setStyle(Qt.SolidLine)
             else:
-                self.pen.setStyle(Qt.DashLine)
+                pen.setStyle(Qt.DashLine)
             mark_scale = self.area_center * min(self.wcfg["center_mark_length_scale"], 1)
-            self.pen.setWidth(self.wcfg["center_mark_width"])
-            self.pen.setColor(self.wcfg["center_mark_color"])
-            painter.setPen(self.pen)
-            painter.drawLine(
-                self.area_center,
-                self.area_center,
-                self.area_center - mark_scale,
-                self.area_center
-            )
-            painter.drawLine(
-                self.area_center,
-                self.area_center,
-                self.area_center,
-                self.area_center + mark_scale
-            )
-            painter.drawLine(
-                self.area_center,
-                self.area_center,
-                self.area_center,
-                self.area_center - mark_scale
-            )
-            painter.drawLine(
-                self.area_center,
-                self.area_center,
-                self.area_center + mark_scale,
-                self.area_center
-            )
+            pen.setWidth(self.wcfg["center_mark_width"])
+            pen.setColor(self.wcfg["center_mark_color"])
+            painter.setPen(pen)
+            painter.drawLine(center, center, center - mark_scale, center)
+            painter.drawLine(center, center, center, center + mark_scale)
+            painter.drawLine(center, center, center, center - mark_scale)
+            painter.drawLine(center, center, center + mark_scale, center)
 
-    def draw_compass_bearing(self, painter):
-        """Draw compass bearing"""
-        painter.translate(self.area_center, self.area_center)
-        painter.rotate(self.veh_ori_yaw)
-        painter.drawPixmap(
-            -self.area_center, -self.area_center,
-            self.area_size, self.area_size,
-            self.pixmap_icon)
-        painter.resetTransform()
-
-    def draw_yaw_line(self, painter):
-        """Draw yaw line"""
-        self.pen.setWidth(self.wcfg["yaw_line_width"])
-        self.pen.setColor(self.wcfg["yaw_line_color"])
-        self.pen.setStyle(Qt.SolidLine)
-        painter.setPen(self.pen)
-        painter.setBrush(Qt.NoBrush)
-        painter.translate(self.area_center, self.area_center)
-        painter.drawPolyline(self.yaw_line)
-        painter.resetTransform()
-
-    def draw_slip_angle_line(self, painter):
-        """Draw slip angle line"""
-        self.pen.setWidth(self.wcfg["slip_angle_line_width"])
-        self.pen.setColor(self.wcfg["slip_angle_line_color"])
-        self.pen.setStyle(Qt.SolidLine)
-        painter.setPen(self.pen)
-        painter.setBrush(Qt.NoBrush)
-        painter.translate(self.area_center, self.area_center)
-        painter.rotate(self.slip_angle)
-        painter.drawPolyline(self.slip_angle_line)
-        painter.resetTransform()
-
-    def draw_direction_line(self, painter):
-        """Draw direction line"""
-        self.pen.setWidth(self.wcfg["direction_line_width"])
-        self.pen.setColor(self.wcfg["direction_line_color"])
-        self.pen.setStyle(Qt.SolidLine)
-        painter.setPen(self.pen)
-        painter.setBrush(Qt.NoBrush)
-        painter.translate(self.area_center, self.area_center)
-        painter.rotate(self.yaw_angle)
-        painter.drawPolyline(self.dir_line)
-        painter.resetTransform()
-
-    def draw_dot(self):
-        """Draw dot"""
+    def draw_dot(self, dot_size):
+        """Draw dot image"""
         self.pixmap_dot.fill(Qt.transparent)
         painter = QPainter(self.pixmap_dot)
         painter.setRenderHint(QPainter.Antialiasing, True)
         if self.wcfg["dot_outline_width"] > 0:
-            self.pen.setWidth(self.wcfg["dot_outline_width"])
-            self.pen.setColor(self.wcfg["dot_outline_color"])
-            painter.setPen(self.pen)
+            pen = QPen()
+            pen.setWidth(self.wcfg["dot_outline_width"])
+            pen.setColor(self.wcfg["dot_outline_color"])
+            painter.setPen(pen)
         else:
             painter.setPen(Qt.NoPen)
         brush = QBrush(Qt.SolidPattern)
         brush.setColor(self.wcfg["dot_color"])
         painter.setBrush(brush)
-        painter.drawEllipse(self.rect_dot)
-
-    def draw_yaw_readings(self, painter):
-        """Draw yaw readings"""
-        self.pen.setColor(self.wcfg["font_color_yaw_angle"])
-        painter.setPen(self.pen)
-        painter.drawText(
-            self.rect_text_yaw_angle,
-            Qt.AlignCenter,
-            self.format_angle(self.display_yaw_angle(self.yaw_angle))
-        )
-
-    def draw_slip_angle_readings(self, painter):
-        """Draw slip angle readings"""
-        self.pen.setColor(self.wcfg["font_color_slip_angle"])
-        painter.setPen(self.pen)
-        painter.drawText(
-            self.rect_text_slip_angle,
-            Qt.AlignCenter,
-            self.format_angle(self.slip_angle)
-        )
+        pos_offset = (self.area_size - dot_size) * 0.5
+        painter.drawEllipse(pos_offset, pos_offset, dot_size, dot_size)
 
     # Additional methods
     @staticmethod

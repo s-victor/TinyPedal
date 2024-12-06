@@ -39,8 +39,9 @@ class Realtime(Overlay):
 
         # Config variable
         self.margin = max(int(self.wcfg["display_margin"]), 0)
-        self.display_width = max(int(self.wcfg["display_width"]), 2)
         self.display_height = max(int(self.wcfg["display_height"]), 2)
+        self.area_width = max(int(self.wcfg["display_width"]), 2)
+        self.area_height = self.display_height + self.margin * 2
         self.display_scale = max(int(
             self.wcfg["update_interval"] / 20 * self.wcfg["display_scale"]), 1)
 
@@ -53,10 +54,6 @@ class Realtime(Overlay):
         ))
         max_samples = 3 + max_line_width  # 3 offset + max line width
         self.samples_offset = max_samples - 2
-        self.pedal_max_range = self.display_height
-        self.area_width = self.display_width
-        self.area_height = self.display_height + self.margin * 2
-        self.draw_queue = self.config_draw_order()
 
         # Config canvas
         self.resize(self.area_width, self.area_height)
@@ -64,9 +61,9 @@ class Realtime(Overlay):
 
         self.pixmap_background = QPixmap(self.area_width, self.area_height)
         self.pixmap_plot = QPixmap(self.area_width, self.area_height)
-        self.pixmap_plot_section = QPixmap(self.area_width, self.area_height)
-        self.pixmap_plot_last = QPixmap(self.area_width, self.area_height)
-        self.pixmap_plot_last.fill(Qt.transparent)
+        self.pixmap_plot.fill(Qt.transparent)
+        self.pixmap_plot_section = QPixmap(self.display_scale * 3, self.area_height)
+        self.pixmap_plot_section.fill(Qt.transparent)
 
         if self.wcfg["show_throttle"]:
             self.data_throttle = self.create_data_samples(max_samples)
@@ -81,14 +78,10 @@ class Realtime(Overlay):
         if self.wcfg["show_wheel_slip"]:
             self.data_wheel_slip = self.create_data_samples(max_samples)
 
-        self.pen = QPen()
-        self.pen.setCapStyle(Qt.RoundCap)
+        self.draw_queue = self.config_draw_order()
         self.draw_background()
-        self.draw_plot_section()
-        self.draw_plot()
 
         # Last data
-        self.delayed_update = False
         self.last_lap_etime = -1
         self.update_plot = 1
 
@@ -99,23 +92,26 @@ class Realtime(Overlay):
             # Use elapsed time to determine whether data paused
             # Add 1 extra update compensation
             lap_etime = api.read.timing.elapsed()
-            if lap_etime != self.last_lap_etime:
+            if self.last_lap_etime != lap_etime:
+                self.last_lap_etime = lap_etime
                 self.update_plot = 2
-            elif self.update_plot:
+            elif self.update_plot > 0:
                 self.update_plot -= 1
-            self.last_lap_etime = lap_etime
 
             if self.update_plot:
+                throttle_raw = api.read.input.throttle_raw()
+                brake_raw = api.read.input.brake_raw()
+
                 if self.wcfg["show_throttle"]:
                     if self.wcfg["show_raw_throttle"]:
-                        throttle = api.read.input.throttle_raw()
+                        throttle = throttle_raw
                     else:
                         throttle = api.read.input.throttle()
                     self.update_sample(self.data_throttle, throttle)
 
                 if self.wcfg["show_brake"]:
                     if self.wcfg["show_raw_brake"]:
-                        brake = api.read.input.brake_raw()
+                        brake = brake_raw
                     else:
                         brake = api.read.input.brake()
                     self.update_sample(self.data_brake, brake)
@@ -133,108 +129,85 @@ class Realtime(Overlay):
 
                 if self.wcfg["show_wheel_lock"]:
                     wheel_lock = min(abs(min(minfo.wheels.slipRatio)), 1)
-                    if wheel_lock < self.wcfg["wheel_lock_threshold"] or api.read.input.brake_raw() <= 0.02:
+                    if wheel_lock < self.wcfg["wheel_lock_threshold"] or brake_raw <= 0.02:
                         wheel_lock = -999
                     self.update_sample(self.data_wheel_lock, wheel_lock)
 
                 if self.wcfg["show_wheel_slip"]:
                     wheel_slip = min(max(minfo.wheels.slipRatio), 1)
-                    if wheel_slip < self.wcfg["wheel_slip_threshold"] or api.read.input.throttle_raw() <= 0.02:
+                    if wheel_slip < self.wcfg["wheel_slip_threshold"] or throttle_raw <= 0.02:
                         wheel_slip = -999
                     self.update_sample(self.data_wheel_slip, wheel_slip)
 
                 # Update after all pedal data set
-                if self.delayed_update:
-                    self.delayed_update = False
-                    self.draw_plot_section()
-                    self.draw_plot()
-                    self.pixmap_plot_last = self.pixmap_plot.copy(
-                        0, 0, self.area_width, self.area_height)
-                    self.update()  # trigger paint event
+                self.draw_plot_section()
+                self.draw_plot()
+                self.update()  # trigger paint event
 
     # GUI update methods
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
         painter.setViewport(self.rect_viewport)
-        painter.drawPixmap(0, 0, self.pixmap_background)
         painter.drawPixmap(0, 0, self.pixmap_plot)
+        # Draw background below plot
+        painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
+        painter.drawPixmap(0, 0, self.pixmap_background)
 
     def draw_background(self):
         """Draw background"""
         self.pixmap_background.fill(self.wcfg["bkg_color"])
         painter = QPainter(self.pixmap_background)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setBrush(Qt.NoBrush)
-
         # Draw reference line
         if self.wcfg["show_reference_line"]:
+            pen = QPen()
             for idx in range(1, 6):
                 self.draw_reference_line(
-                    painter,
+                    painter, pen,
                     self.wcfg[f"reference_line_{idx}_style"],
                     self.wcfg[f"reference_line_{idx}_offset"],
                     self.wcfg[f"reference_line_{idx}_width"],
                     self.wcfg[f"reference_line_{idx}_color"]
                 )
 
-    def draw_reference_line(self, painter, style, offset, width, color):
+    def draw_reference_line(self, painter, pen, style, offset, width, color):
         """Draw reference line"""
         if width > 0:
-            if style:
-                self.pen.setStyle(Qt.DashLine)
-            else:
-                self.pen.setStyle(Qt.SolidLine)
-            self.pen.setWidth(width)
-            self.pen.setColor(color)
-            painter.setPen(self.pen)
-            painter.drawLine(
-                0,
-                self.pedal_max_range * offset + self.margin,
-                self.display_width,
-                self.pedal_max_range * offset + self.margin,
-            )
+            pen.setStyle(Qt.DashLine if style else Qt.SolidLine)
+            pen.setWidth(width)
+            pen.setColor(color)
+            painter.setPen(pen)
+            pos_offset = self.display_height * offset + self.margin
+            painter.drawLine(0, pos_offset, self.area_width, pos_offset)
 
     def draw_plot(self):
         """Draw final plot"""
-        self.pixmap_plot.fill(Qt.transparent)
         painter = QPainter(self.pixmap_plot)
-        # Draw section plot
-        painter.drawPixmap(0, 0, self.pixmap_plot_section)
-        # Avoid overlapping previous frame
         painter.setCompositionMode(QPainter.CompositionMode_Source)
         # Draw last plot, +3 sample offset, -2 sample crop
         painter.drawPixmap(
-            self.display_scale * 3, 0, self.pixmap_plot_last,
+            self.display_scale * 3, 0, self.pixmap_plot,
             self.display_scale * 2, 0, 0 ,0)
+        # Draw section plot
+        painter.drawPixmap(0, 0, self.pixmap_plot_section)
 
     def draw_plot_section(self):
         """Draw section plot"""
         self.pixmap_plot_section.fill(Qt.transparent)
         painter = QPainter(self.pixmap_plot_section)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setBrush(Qt.NoBrush)
-        self.pen.setStyle(Qt.SolidLine)
-
-        for plot_name in self.draw_queue:
-            if self.wcfg[f"show_{plot_name}"]:
-                self.draw_line(painter, plot_name)
-
-    def draw_line(self, painter, suffix):
-        """Draw plot line"""
-        self.pen.setWidth(self.wcfg[f"{suffix}_line_width"])
-        self.pen.setColor(self.wcfg[f"{suffix}_color"])
-        painter.setPen(self.pen)
-        if self.wcfg[f"{suffix}_line_style"]:
-            painter.drawPoints(getattr(self, f"data_{suffix}"))
-        else:
-            painter.drawPolyline(getattr(self, f"data_{suffix}"))
+        for _, data, pen, line_style in self.draw_queue:
+            painter.setPen(pen)
+            if line_style:
+                painter.drawPoints(data)
+            else:
+                painter.drawPolyline(data)
 
     # Additional methods
     def create_data_samples(self, max_samples):
         """Create data sample list"""
-        return tuple(QPointF(index * self.display_scale, 0)
-                    for index in range(max_samples))
+        return tuple(QPointF(index * self.display_scale, 0) for index in range(max_samples))
 
     def update_sample(self, dataset, value):
         """Update input position samples"""
@@ -243,7 +216,6 @@ class Realtime(Overlay):
         # Move old input data (Y) 1 display unit to right
         for index in range(self.samples_offset, -1, -1):
             dataset[index + 1].setY(dataset[index].y())
-        self.delayed_update = True
 
     def set_viewport_orientation(self):
         """Set viewport orientation"""
@@ -263,13 +235,22 @@ class Realtime(Overlay):
 
     def config_draw_order(self):
         """Config plot draw order"""
-        plot_list = [
-            (self.wcfg["draw_order_index_throttle"], "throttle"),
-            (self.wcfg["draw_order_index_brake"], "brake"),
-            (self.wcfg["draw_order_index_clutch"], "clutch"),
-            (self.wcfg["draw_order_index_ffb"], "ffb"),
-            (self.wcfg["draw_order_index_wheel_lock"], "wheel_lock"),
-            (self.wcfg["draw_order_index_wheel_slip"], "wheel_slip"),
-        ]
+        plot_names = ("throttle", "brake", "clutch", "ffb", "wheel_lock", "wheel_slip")
+        plot_list = []
+        for plot_name in plot_names:
+            if not self.wcfg[f"show_{plot_name}"]:
+                continue
+            pen = QPen()
+            pen.setCapStyle(Qt.RoundCap)
+            pen.setWidth(self.wcfg[f"{plot_name}_line_width"])
+            pen.setColor(self.wcfg[f"{plot_name}_color"])
+            plot_list.append(
+                (
+                    self.wcfg[f"draw_order_index_{plot_name}"],  # index
+                    getattr(self, f"data_{plot_name}"),  # data
+                    pen,  # pen style
+                    self.wcfg[f"{plot_name}_line_style"],  # line style
+                )
+            )
         plot_list.sort(reverse=True)
-        return tuple(plot[1] for plot in plot_list)
+        return plot_list
