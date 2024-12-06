@@ -52,7 +52,13 @@ class Realtime(Overlay):
         bar_width_temp = font_m.width * text_width + bar_padx
 
         # Base style
-        self.heatmap = hmp.load_heatmap(self.wcfg["heatmap_name"], "brake_default")
+        self.heatmap = hmp.load_heatmap_style(
+            heatmap_name=self.wcfg["heatmap_name"],
+            default_name="brake_default",
+            swap_style=not self.wcfg["swap_style"],
+            fg_color=self.wcfg["font_color_temperature"],
+            bg_color=self.wcfg["bkg_color_temperature"],
+        )
         self.setStyleSheet(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
@@ -159,14 +165,8 @@ class Realtime(Overlay):
         """Brake temperature"""
         if target.last != data:
             target.last = data
-            color_temp = hmp.select_color(self.heatmap, data)
-            if self.wcfg["swap_style"]:
-                color = f"color: {color_temp};background: {self.wcfg['bkg_color_temperature']};"
-            else:
-                color = f"color: {self.wcfg['font_color_temperature']};background: {color_temp};"
-
             target.setText(self.format_temperature(data))
-            target.setStyleSheet(color)
+            target.setStyleSheet(hmp.select_color(self.heatmap, data))
 
     def update_btavg(self, target, data, highlighted=False):
         """Brake average temperature"""

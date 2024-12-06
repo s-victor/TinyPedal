@@ -29,9 +29,9 @@ from . import validator as val
 def select_color(heatmap_list: list, temperature: float) -> str:
     """Select color from heatmap list"""
     for idx, temp in enumerate(heatmap_list):
-        if temperature < temp[0]:
+        if temp[0] > temperature:
             if idx == 0:
-                return heatmap_list[0][1]
+                return temp[1]
             return heatmap_list[idx - 1][1]
     # Set color from last row if exceeded max range
     return heatmap_list[-1][1]
@@ -53,10 +53,49 @@ def load_heatmap(heatmap_name: str, default_name: str) -> list[tuple[float, str]
     key = temperature string, value = hex color string.
     Convert key to float, sort by key.
 
+    Args:
+        heatmap_name: heatmap preset name.
+        default_name: default preset name.
+
     Returns:
         list(tuple(temperature value, hex color string))
     """
     heatmap_dict = cfg.user.heatmap.get(heatmap_name, None)
     if not verify_heatmap(heatmap_dict):
         heatmap_dict = cfg.default.heatmap[default_name]
-    return sorted((float(temp), color) for temp, color in heatmap_dict.items())
+    return sorted(
+        (float(temp), heatmap_color)
+        for temp, heatmap_color in heatmap_dict.items()
+    )
+
+
+def load_heatmap_style(
+    heatmap_name: str, default_name: str, swap_style: bool = False,
+    fg_color: str = "", bg_color: str = "") -> list[tuple[float, str]]:
+    """Load heatmap preset (dictionary) & set color style sheet
+
+    key = temperature string, value = hex color string.
+    Convert key to float, sort by key.
+
+    Args:
+        heatmap_name: heatmap preset name.
+        default_name: default preset name.
+        swap_style: assign heatmap color as background color if True, otherwise as foreground.
+        fg_color: assign foreground color if swap_style True.
+        bg_color: assign background color if swap_style False.
+
+    Returns:
+        list(tuple(temperature value, color style sheet string))
+    """
+    heatmap_dict = cfg.user.heatmap.get(heatmap_name, None)
+    if not verify_heatmap(heatmap_dict):
+        heatmap_dict = cfg.default.heatmap[default_name]
+    if swap_style:
+        return sorted(
+            (float(temp), f"color:{fg_color};background:{heatmap_color};")
+            for temp, heatmap_color in heatmap_dict.items()
+        )
+    return sorted(
+        (float(temp), f"color:{heatmap_color};background:{bg_color};")
+        for temp, heatmap_color in heatmap_dict.items()
+    )

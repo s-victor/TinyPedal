@@ -57,7 +57,13 @@ class Realtime(Overlay):
         bar_width_tcmpd = font_m.width + bar_padx
 
         # Base style
-        self.heatmap = hmp.load_heatmap(self.wcfg["heatmap_name"], "tyre_default")
+        self.heatmap = hmp.load_heatmap_style(
+            heatmap_name=self.wcfg["heatmap_name"],
+            default_name="tyre_default",
+            swap_style=self.wcfg["swap_style"],
+            fg_color=self.wcfg["font_color_carcass"],
+            bg_color=self.wcfg["bkg_color_carcass"],
+        )
         self.setStyleSheet(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
@@ -200,14 +206,8 @@ class Realtime(Overlay):
         """Tyre carcass temperature"""
         if target.last != data:
             target.last = data
-            color_temp = hmp.select_color(self.heatmap, data)
-            if self.wcfg["swap_style"]:
-                color = f"color: {self.wcfg['font_color_carcass']};background: {color_temp};"
-            else:
-                color = f"color: {color_temp};background: {self.wcfg['bkg_color_carcass']};"
-
             target.setText(self.format_temperature(data))
-            target.setStyleSheet(color)
+            target.setStyleSheet(hmp.select_color(self.heatmap, data))
 
     def update_rdiff(self, target, data):
         """Rate of change"""

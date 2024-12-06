@@ -54,7 +54,20 @@ class Realtime(Overlay):
         bar_width_tcmpd = font_m.width + bar_padx
 
         # Base style
-        self.heatmap = hmp.load_heatmap(self.wcfg["heatmap_name"], "tyre_default")
+        self.heatmap_s = hmp.load_heatmap_style(
+            heatmap_name=self.wcfg["heatmap_name"],
+            default_name="tyre_default",
+            swap_style=self.wcfg["swap_style"],
+            fg_color=self.wcfg["font_color_surface"],
+            bg_color=self.wcfg["bkg_color_surface"],
+        )
+        self.heatmap_i = hmp.load_heatmap_style(
+            heatmap_name=self.wcfg["heatmap_name"],
+            default_name="tyre_default",
+            swap_style=self.wcfg["swap_style"],
+            fg_color=self.wcfg["font_color_innerlayer"],
+            bg_color=self.wcfg["bkg_color_innerlayer"],
+        )
         self.setStyleSheet(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
@@ -162,27 +175,15 @@ class Realtime(Overlay):
         """Tyre surface temperature"""
         if target.last != data:
             target.last = data
-            color_temp = hmp.select_color(self.heatmap, data)
-            if self.wcfg["swap_style"]:
-                color = f"color: {self.wcfg['font_color_surface']};background: {color_temp};"
-            else:
-                color = f"color: {color_temp};background: {self.wcfg['bkg_color_surface']};"
-
             target.setText(self.format_temperature(data))
-            target.setStyleSheet(color)
+            target.setStyleSheet(hmp.select_color(self.heatmap_s, data))
 
     def update_itemp(self, target, data):
         """Tyre inner temperature"""
         if target.last != data:
             target.last = data
-            color_temp = hmp.select_color(self.heatmap, data)
-            if self.wcfg["swap_style"]:
-                color = f"color: {self.wcfg['font_color_innerlayer']};background: {color_temp};"
-            else:
-                color = f"color: {color_temp};background: {self.wcfg['bkg_color_innerlayer']};"
-
             target.setText(self.format_temperature(data))
-            target.setStyleSheet(color)
+            target.setStyleSheet(hmp.select_color(self.heatmap_i, data))
 
     def update_tcmpd(self, target, data):
         """Tyre compound"""
