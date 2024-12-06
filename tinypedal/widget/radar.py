@@ -81,15 +81,14 @@ class Realtime(Overlay):
         self.brush_veh = QBrush(Qt.SolidPattern)
 
         self.draw_background()
-        self.draw_radar_marks()
+        self.draw_radar_marks(self.area_center)
         self.draw_radar_mask()
 
         # Last data
+        self.last_veh_data_version = None
         self.autohide_timer_start = 1
         self.show_radar = True
         self.in_garage = True
-
-        self.last_veh_data_version = None
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -103,15 +102,11 @@ class Realtime(Overlay):
 
             # Vehicles
             veh_data_version = minfo.vehicles.dataSetVersion
-            self.update_vehicle(veh_data_version, self.last_veh_data_version)
-            self.last_veh_data_version = veh_data_version
+            if self.last_veh_data_version != veh_data_version:
+                self.last_veh_data_version = veh_data_version
+                self.update()
 
     # GUI update methods
-    def update_vehicle(self, curr, last):
-        """Vehicle update"""
-        if curr != last:
-            self.update()
-
     def paintEvent(self, event):
         """Draw"""
         if self.show_radar:
@@ -131,8 +126,8 @@ class Realtime(Overlay):
                 painter.drawPixmap(0, 0, self.pixmap_background)
             # Apply radar fade mask
             if self.wcfg["enable_radar_fade"] and not self.in_garage:
-                radar_alpha = (self.radar_radius - minfo.vehicles.nearestLine
-                               ) * self.radar_fade_factor
+                radar_alpha = self.radar_fade_factor * (
+                    self.radar_radius - minfo.vehicles.nearestLine)
                 if radar_alpha < 1:
                     if radar_alpha < 0:
                         radar_alpha = 0
@@ -151,10 +146,10 @@ class Realtime(Overlay):
 
         # Draw circle background
         if self.wcfg["show_circle_background"]:
-            painter.setPen(Qt.NoPen)
             brush = QBrush(Qt.SolidPattern)
             brush.setColor(self.wcfg["bkg_color_circle"])
             painter.setBrush(brush)
+            painter.setPen(Qt.NoPen)
             painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
     def draw_radar_mask(self):
@@ -162,17 +157,15 @@ class Realtime(Overlay):
         self.pixmap_mask.fill(Qt.black)
         painter = QPainter(self.pixmap_mask)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
-
-        # Draw radar mask
         painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
-        rad_gra = QRadialGradient(*(self.area_center for _ in range(5)))
+        rad_gra = QRadialGradient(self.area_center, self.area_center, self.area_center)
         rad_gra.setColorAt(calc.zero_one(self.wcfg["edge_fade_in_radius"]), Qt.transparent)
         rad_gra.setColorAt(calc.zero_one(self.wcfg["edge_fade_out_radius"]), Qt.black)
         painter.setBrush(rad_gra)
+        painter.setPen(Qt.NoPen)
         painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
-    def draw_radar_marks(self):
+    def draw_radar_marks(self, center):
         """Draw radar marks & player vehicle"""
         self.pixmap_marks.fill(Qt.transparent)
         painter = QPainter(self.pixmap_marks)
@@ -190,33 +183,14 @@ class Realtime(Overlay):
             pen.setWidth(self.wcfg["center_mark_width"])
             pen.setColor(self.wcfg["center_mark_color"])
             painter.setPen(pen)
-            painter.drawLine(
-                self.area_center,
-                self.area_center,
-                self.area_center - mark_scale,
-                self.area_center
-            )
-            painter.drawLine(
-                self.area_center,
-                self.area_center,
-                self.area_center,
-                self.area_center + mark_scale
-            )
-            painter.drawLine(
-                self.area_center,
-                self.area_center,
-                self.area_center,
-                self.area_center - mark_scale
-            )
-            painter.drawLine(
-                self.area_center,
-                self.area_center,
-                self.area_center + mark_scale,
-                self.area_center
-            )
+            painter.drawLine(center, center, center - mark_scale, center)
+            painter.drawLine(center, center, center, center + mark_scale)
+            painter.drawLine(center, center, center, center - mark_scale)
+            painter.drawLine(center, center, center + mark_scale, center)
 
         # Draw circle mark
         if self.wcfg["show_distance_circle"]:
+            painter.setBrush(Qt.NoBrush)
             for idx in range(1, 6):
                 self.draw_circle_mark(
                     painter, pen,
@@ -236,23 +210,18 @@ class Realtime(Overlay):
             self.wcfg["vehicle_border_radius"],
             self.wcfg["vehicle_border_radius"]
         )
-        painter.resetTransform()
 
     def draw_circle_mark(self, painter, pen, style, radius, width, color):
         """Draw circle mark"""
         if radius <= self.radar_radius and width > 0:
-            circle_scale = round(radius * self.global_scale)
-            circle_pos = self.area_center - circle_scale
-            circle_size = circle_scale * 2
-            if style:
-                pen.setStyle(Qt.SolidLine)
-            else:
-                pen.setStyle(Qt.DashLine)
+            scale = round(radius * self.global_scale)
+            pos = self.area_center - scale
+            size = scale * 2
+            pen.setStyle(Qt.SolidLine if style else Qt.DashLine)
             pen.setWidth(width)
             pen.setColor(color)
             painter.setPen(pen)
-            painter.setBrush(Qt.NoBrush)
-            painter.drawEllipse(circle_pos, circle_pos, circle_size, circle_size)
+            painter.drawEllipse(pos, pos, size, size)
 
     def draw_warning_indicator(self, painter, indicator, nearest_left, nearest_right):
         """Draw warning indicator"""
@@ -260,49 +229,43 @@ class Realtime(Overlay):
         x_left = self.scale_veh_pos(nearest_left)
         x_right = self.scale_veh_pos(nearest_right)
 
-        painter.setPen(Qt.NoPen)
         # Draw left side indicator
         if nearest_left > -indicator.max_range_x:
             lin_gra = QLinearGradient(
-                x_left - indicator.width + indicator.offset,
-                0,
-                x_left + indicator.offset,
-                0
+                x_left - indicator.width + indicator.offset, 0,
+                x_left + indicator.offset, 0
             )
             color_center = self.warning_color(
                 abs(nearest_left), indicator.min_range_x, indicator.max_range_x)
             lin_gra.setColorAt(0, Qt.transparent)
             lin_gra.setColorAt(indicator.edge, color_center)
             lin_gra.setColorAt(1, Qt.transparent)
-            painter.setBrush(lin_gra)
-            painter.drawRect(
+            painter.fillRect(
                 x_left - indicator.width + indicator.offset,
-                0, indicator.width, self.area_size
+                0, indicator.width, self.area_size,
+                lin_gra
             )
 
         # Draw right side indicator
         if nearest_right < indicator.max_range_x:
             lin_gra = QLinearGradient(
-                x_right - indicator.offset,
-                0,
-                x_right + indicator.width - indicator.offset,
-                0
+                x_right - indicator.offset, 0,
+                x_right + indicator.width - indicator.offset, 0
             )
             color_center = self.warning_color(
                 abs(nearest_right), indicator.min_range_x, indicator.max_range_x)
             lin_gra.setColorAt(0, Qt.transparent)
             lin_gra.setColorAt(1 - indicator.edge, color_center)
             lin_gra.setColorAt(1, Qt.transparent)
-            painter.setBrush(lin_gra)
-            painter.drawRect(
+            painter.fillRect(
                 x_right - indicator.offset,
-                0, indicator.width, self.area_size
+                0, indicator.width, self.area_size,
+                lin_gra
             )
 
     def draw_vehicle(self, painter, indicator):
         """Draw opponents vehicles"""
         painter.setPen(self.pen_veh)
-
         # Real size in meters
         nearest_left = -indicator.max_range_x
         nearest_right = indicator.max_range_x
@@ -331,7 +294,7 @@ class Realtime(Overlay):
                 # Rotated position relative to player
                 pos_x = self.scale_veh_pos(raw_pos_x)
                 pos_y = self.scale_veh_pos(raw_pos_y)
-                angle_deg = round(calc.rad2deg(-veh_info.relativeOrientationXYRadians), 3)
+                angle_deg = calc.rad2deg(-veh_info.relativeOrientationXYRadians)
 
                 # Draw vehicle
                 self.brush_veh.setColor(self.color_lap_diff(veh_info))
@@ -386,9 +349,8 @@ class Realtime(Overlay):
             return
         # Hide in private qualifying
         if (self.wcfg["auto_hide_in_private_qualifying"] and
-            self.cfg.user.setting["module_restapi"]["enable"] and
-            api.read.session.session_type() == 2 and
-            minfo.restapi.privateQualifying == 1):
+            minfo.restapi.privateQualifying == 1 and
+            api.read.session.session_type() == 2):
             self.show_radar = False
             return
         # Bypass auto hide timer if radar fade enabled

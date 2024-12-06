@@ -88,7 +88,7 @@ class Realtime(Overlay):
         else:
             self.resize(self.delta_width, delta_height)
 
-        self.pen_delta = QPen()
+        self.pen_text = QPen()
 
         # Last data
         self.delta_best = 0
@@ -139,14 +139,14 @@ class Realtime(Overlay):
 
         # Draw delta readings
         if self.wcfg["swap_style"]:
-            self.pen_delta.setColor(self.wcfg["bkg_color_deltabest"])
+            self.pen_text.setColor(self.wcfg["bkg_color_deltabest"])
             bg_color = highlight_color
         else:
-            self.pen_delta.setColor(highlight_color)
+            self.pen_text.setColor(highlight_color)
             bg_color =  self.wcfg["bkg_color_deltabest"]
 
         painter.fillRect(self.rect_delta, bg_color)
-        painter.setPen(self.pen_delta)
+        painter.setPen(self.pen_text)
         painter.drawText(
             self.rect_text_delta,
             Qt.AlignCenter,

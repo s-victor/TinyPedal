@@ -58,40 +58,30 @@ class Realtime(Overlay):
         self.area_center = self.area_size * 0.5
 
         self.dot_size = max(self.wcfg["dot_size"], 1)
-        self.rect_dot = QRectF(
-            self.dot_size * 0.5,
-            self.dot_size * 0.5,
-            self.dot_size,
-            self.dot_size
-        )
-        self.rect_gforce_top = QRectF(
+        self.rect_text_top = QRectF(
             self.area_center - text_width * 0.5,
-            0,
+            font_offset,
             text_width,
             font_m.height
         )
-        self.rect_gforce_bottom = QRectF(
+        self.rect_text_bottom = QRectF(
             self.area_center - text_width * 0.5,
-            self.area_size - font_m.height,
+            self.area_size - font_m.height + font_offset,
             text_width,
             font_m.height
         )
-        self.rect_gforce_left = QRectF(
+        self.rect_text_left = QRectF(
             0,
-            self.area_center - font_m.height,
+            self.area_center - font_m.height + font_offset,
             text_width,
             font_m.height
         )
-        self.rect_gforce_right = QRectF(
+        self.rect_text_right = QRectF(
             self.area_size - text_width,
-            self.area_center - font_m.height,
+            self.area_center - font_m.height + font_offset,
             text_width,
             font_m.height
         )
-        self.rect_text_gforce_top = self.rect_gforce_top.adjusted(0, font_offset, 0, 0)
-        self.rect_text_gforce_bottom = self.rect_gforce_bottom.adjusted(0, font_offset, 0, 0)
-        self.rect_text_gforce_left = self.rect_gforce_left.adjusted(0, font_offset, 0, 0)
-        self.rect_text_gforce_right = self.rect_gforce_right.adjusted(0, font_offset, 0, 0)
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
@@ -104,19 +94,26 @@ class Realtime(Overlay):
             self.pixmap_fademask = QPixmap(self.area_size, self.area_size)
             self.pixmap_fademask.fill(QColor(0, 0, 0, trace_alpha))
 
-        self.pen = QPen()
-        self.pen.setCapStyle(Qt.RoundCap)
-        self.draw_background()
+        self.pen_mark = QPen()
+        self.pen_trace = QPen()
+        self.pen_trace.setWidth(self.wcfg["trace_width"])
+        self.pen_trace.setColor(self.wcfg["trace_color"])
+        self.pen_trace.setStyle(Qt.SolidLine)
+        self.pen_trace.setCapStyle(Qt.RoundCap)
+        self.pen_text_raw = QPen()
+        self.pen_text_raw.setColor(self.wcfg["font_color"])
+        self.pen_text_max = QPen()
+        self.pen_text_max.setColor(self.wcfg["font_color_highlight"])
+
+        self.draw_background(self.area_center)
         self.draw_dot()
 
         # Last data
         self.checked = False
-
         self.gforce_raw = 0,0
-        self.last_gforce_raw = None
         self.data_gforce = deque([], max(self.wcfg["trace_max_samples"], 5))
-        self.last_x = self.scale_position(0)
-        self.last_y = self.scale_position(0)
+        self.last_x = self.area_center
+        self.last_y = self.area_center
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -127,12 +124,19 @@ class Realtime(Overlay):
                 self.checked = True
 
             # Read acceleration data
-            self.gforce_raw = self.gforce_orientation(
+            temp_gforce_raw = self.gforce_orientation(
                 minfo.force.lgtGForceRaw,
-                minfo.force.latGForceRaw
+                minfo.force.latGForceRaw,
             )
-            self.update_gforce(self.gforce_raw, self.last_gforce_raw)
-            self.last_gforce_raw = self.gforce_raw
+            if self.gforce_raw != temp_gforce_raw:
+                self.gforce_raw = temp_gforce_raw
+                # Scale position coordinate to global
+                self.last_x = temp_gforce_raw[1] * self.global_scale + self.area_center
+                self.last_y = temp_gforce_raw[0] * self.global_scale + self.area_center
+                if self.wcfg["show_trace"]:
+                    self.data_gforce.append(QPointF(self.last_x, self.last_y))
+                    self.draw_trace()
+                self.update()
 
         else:
             if self.checked:
@@ -140,23 +144,13 @@ class Realtime(Overlay):
                 self.data_gforce.clear()
 
     # GUI update methods
-    def update_gforce(self, curr, last):
-        """G force update"""
-        if curr != last:
-            self.last_x = self.scale_position(self.gforce_raw[1])
-            self.last_y = self.scale_position(self.gforce_raw[0])
-            if self.wcfg["show_trace"]:
-                self.data_gforce.append(QPointF(self.last_x, self.last_y))
-                self.draw_trace()
-            self.update()
-
     def paintEvent(self, event):
         """Draw"""
         painter = QPainter(self)
         painter.setRenderHint(QPainter.Antialiasing, True)
         # Draw g circle background
         painter.drawPixmap(0, 0, self.pixmap_background)
-        # Draw max g circle
+        # Draw max average g circle
         if self.wcfg["show_max_average_lateral_g_circle"]:
             self.draw_circle_mark(
                 painter,
@@ -176,8 +170,8 @@ class Realtime(Overlay):
         if self.wcfg["show_readings"]:
             self.draw_text(painter)
 
-    def draw_background(self):
-        """Draw g circle background"""
+    def draw_background(self, center):
+        """Draw g circle background (one time)"""
         if self.wcfg["show_background"]:
             self.pixmap_background.fill(self.wcfg["bkg_color"])
         else:
@@ -187,15 +181,9 @@ class Realtime(Overlay):
 
         if self.wcfg["show_circle_background"]:
             painter.setPen(Qt.NoPen)
-            circle_scale = round(self.display_radius_g * self.global_scale)
+            scale = round(self.display_radius_g * self.global_scale)
             if self.wcfg["show_fade_out"]:
-                rad_gra = QRadialGradient(
-                    self.area_center,
-                    self.area_center,
-                    circle_scale,
-                    self.area_center,
-                    self.area_center
-                )
+                rad_gra = QRadialGradient(center, center, scale)
                 rad_gra.setColorAt(
                     calc.zero_one(self.wcfg["fade_in_radius"]),
                     self.wcfg["bkg_color_circle"])
@@ -207,52 +195,28 @@ class Realtime(Overlay):
                 brush = QBrush(Qt.SolidPattern)
                 brush.setColor(self.wcfg["bkg_color_circle"])
                 painter.setBrush(brush)
-            painter.drawEllipse(
-                self.area_center - circle_scale,
-                self.area_center - circle_scale,
-                circle_scale * 2,
-                circle_scale * 2
-            )
+            painter.drawEllipse(center - scale, center - scale, scale * 2, scale * 2)
 
         # Draw center mark
         if self.wcfg["show_center_mark"]:
             if self.wcfg["center_mark_style"]:
-                self.pen.setStyle(Qt.SolidLine)
+                self.pen_mark.setStyle(Qt.SolidLine)
             else:
-                self.pen.setStyle(Qt.DashLine)
-            mark_scale = self.global_scale * min(
+                self.pen_mark.setStyle(Qt.DashLine)
+            scale = self.global_scale * min(
                 self.wcfg["center_mark_radius_g"], self.display_radius_g
             )
-            self.pen.setWidth(self.wcfg["center_mark_width"])
-            self.pen.setColor(self.wcfg["center_mark_color"])
-            painter.setPen(self.pen)
-            painter.drawLine(
-                self.area_center,
-                self.area_center,
-                self.area_center - mark_scale,
-                self.area_center
-            )
-            painter.drawLine(
-                self.area_center,
-                self.area_center,
-                self.area_center,
-                self.area_center + mark_scale
-            )
-            painter.drawLine(
-                self.area_center,
-                self.area_center,
-                self.area_center,
-                self.area_center - mark_scale
-            )
-            painter.drawLine(
-                self.area_center,
-                self.area_center,
-                self.area_center + mark_scale,
-                self.area_center
-            )
+            self.pen_mark.setWidth(self.wcfg["center_mark_width"])
+            self.pen_mark.setColor(self.wcfg["center_mark_color"])
+            painter.setPen(self.pen_mark)
+            painter.drawLine(center, center, center - scale, center)
+            painter.drawLine(center, center, center, center + scale)
+            painter.drawLine(center, center, center, center - scale)
+            painter.drawLine(center, center, center + scale, center)
 
         # Draw circle mark
         if self.wcfg["show_reference_circle"]:
+            painter.setBrush(Qt.NoBrush)
             for idx in range(1, 6):
                 self.draw_circle_mark(
                     painter,
@@ -265,21 +229,17 @@ class Realtime(Overlay):
     def draw_circle_mark(self, painter, style, radius, width, color):
         """Draw circle mark"""
         if radius <= self.display_radius_g and width > 0:
-            circle_scale = round(radius * self.global_scale)
-            circle_pos = self.area_center - circle_scale
-            circle_size = circle_scale * 2
-            if style:
-                self.pen.setStyle(Qt.SolidLine)
-            else:
-                self.pen.setStyle(Qt.DashLine)
-            self.pen.setWidth(width)
-            self.pen.setColor(color)
-            painter.setPen(self.pen)
-            painter.setBrush(Qt.NoBrush)
-            painter.drawEllipse(circle_pos, circle_pos, circle_size, circle_size)
+            scale = round(radius * self.global_scale)
+            pos = self.area_center - scale
+            size = scale * 2
+            self.pen_mark.setStyle(Qt.SolidLine if style else Qt.DashLine)
+            self.pen_mark.setWidth(width)
+            self.pen_mark.setColor(color)
+            painter.setPen(self.pen_mark)
+            painter.drawEllipse(pos, pos, size, size)
 
     def draw_trace(self):
-        """Draw trace"""
+        """Draw trace image"""
         painter = QPainter(self.pixmap_trace)
         painter.setRenderHint(QPainter.Antialiasing, True)
         if self.wcfg["show_trace_fade_out"]:
@@ -288,60 +248,52 @@ class Realtime(Overlay):
             painter.setCompositionMode(QPainter.CompositionMode_SourceOver)
         else:
             self.pixmap_trace.fill(Qt.transparent)
-        self.pen.setWidth(self.wcfg["trace_width"])
-        self.pen.setColor(self.wcfg["trace_color"])
-        self.pen.setStyle(Qt.SolidLine)
-        painter.setPen(self.pen)
-        painter.setBrush(Qt.NoBrush)
+        painter.setPen(self.pen_trace)
         if self.wcfg["trace_style"]:
             painter.drawPoints(self.data_gforce)
         else:
             painter.drawPolyline(self.data_gforce)
 
     def draw_dot(self):
-        """Draw dot"""
+        """Draw dot image (one time)"""
         self.pixmap_dot.fill(Qt.transparent)
         painter = QPainter(self.pixmap_dot)
         painter.setRenderHint(QPainter.Antialiasing, True)
         if self.wcfg["dot_outline_width"] > 0:
-            self.pen.setWidth(self.wcfg["dot_outline_width"])
-            self.pen.setColor(self.wcfg["dot_outline_color"])
-            painter.setPen(self.pen)
+            pen = QPen()
+            pen.setWidth(self.wcfg["dot_outline_width"])
+            pen.setColor(self.wcfg["dot_outline_color"])
+            painter.setPen(pen)
         else:
             painter.setPen(Qt.NoPen)
-
         brush = QBrush(Qt.SolidPattern)
         brush.setColor(self.wcfg["dot_color"])
         painter.setBrush(brush)
-        painter.drawEllipse(self.rect_dot)
+        painter.drawEllipse(self.dot_size * 0.5, self.dot_size * 0.5, self.dot_size, self.dot_size)
 
     def draw_text(self, painter):
         """Draw text"""
         # Current G reading
-        self.pen.setColor(self.wcfg["font_color"])
-        painter.setPen(self.pen)
-
+        painter.setPen(self.pen_text_raw)
         painter.drawText(
-            self.rect_text_gforce_top,
+            self.rect_text_top,
             Qt.AlignCenter,
-            f"{abs(self.gforce_raw[0]):.2f}"[:4]
+            f"{abs(self.gforce_raw[0]):.2f}"
         )
         painter.drawText(
-            self.rect_text_gforce_right,
+            self.rect_text_right,
             Qt.AlignCenter,
-            f"{abs(self.gforce_raw[1]):.2f}"[:4]
+            f"{abs(self.gforce_raw[1]):.2f}"
         )
-
         # Max G reading
-        self.pen.setColor(self.wcfg["font_color_highlight"])
-        painter.setPen(self.pen)
+        painter.setPen(self.pen_text_max)
         painter.drawText(
-            self.rect_text_gforce_bottom,
+            self.rect_text_bottom,
             Qt.AlignCenter,
             f"{minfo.force.maxLgtGForce:.2f}"[:4]
         )
         painter.drawText(
-            self.rect_text_gforce_left,
+            self.rect_text_left,
             Qt.AlignCenter,
             f"{minfo.force.maxLatGForce:.2f}"[:4]
         )
@@ -352,7 +304,3 @@ class Realtime(Overlay):
         if self.wcfg["display_orientation"]:
             return round(lgt, 3), round(-lat, 3)  # accel top, brake bottom
         return round(-lgt, 3), round(lat, 3)
-
-    def scale_position(self, position, offset=0):
-        """Scale position coordinate to global scale"""
-        return position * self.global_scale + self.area_center - offset

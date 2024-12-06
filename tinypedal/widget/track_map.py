@@ -71,9 +71,6 @@ class Realtime(Overlay):
         self.resize(self.area_size, self.area_size)
         self.pixmap_map = QPixmap(self.area_size, self.area_size)
 
-        self.pen = QPen()
-        self.pen.setColor(self.wcfg["font_color"])
-
         self.pixmap_veh_player = self.draw_vehicle_pixmap("player")
         self.pixmap_veh_leader = self.draw_vehicle_pixmap("leader")
         self.pixmap_veh_in_pit = self.draw_vehicle_pixmap("in_pit")
@@ -81,6 +78,9 @@ class Realtime(Overlay):
         self.pixmap_veh_laps_ahead = self.draw_vehicle_pixmap("laps_ahead")
         self.pixmap_veh_laps_behind = self.draw_vehicle_pixmap("laps_behind")
         self.pixmap_veh_same_lap = self.draw_vehicle_pixmap("same_lap")
+
+        self.pen_text = QPen()
+        self.pen_text.setColor(self.wcfg["font_color"])
 
         # Last data
         self.map_scaled = None
@@ -105,8 +105,9 @@ class Realtime(Overlay):
 
             # Vehicles
             veh_data_version = minfo.vehicles.dataSetVersion
-            self.update_vehicle(veh_data_version, self.last_veh_data_version)
-            self.last_veh_data_version = veh_data_version
+            if self.last_veh_data_version != veh_data_version:
+                self.last_veh_data_version = veh_data_version
+                self.update()
 
     # GUI update methods
     def update_map(self, curr, last):
@@ -114,11 +115,6 @@ class Realtime(Overlay):
         if curr != last:
             map_path = self.create_map_path(minfo.mapping.coordinates)
             self.draw_map_image(map_path, self.circular_map)
-
-    def update_vehicle(self, curr, last):
-        """Vehicle & update"""
-        if curr != last:
-            self.update()
 
     def paintEvent(self, event):
         """Draw"""
@@ -189,13 +185,13 @@ class Realtime(Overlay):
             self.pixmap_map.fill(Qt.transparent)
         painter = QPainter(self.pixmap_map)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
 
         # Draw map inner background
         if self.wcfg["show_map_background"] and circular_map:
             brush = QBrush(Qt.SolidPattern)
             brush.setColor(self.wcfg["bkg_color_map"])
             painter.setBrush(brush)
+            painter.setPen(Qt.NoPen)
             painter.drawPath(map_path)
             painter.setBrush(Qt.NoBrush)
 
@@ -233,15 +229,15 @@ class Realtime(Overlay):
 
             # Sector lines
             sectors_index = minfo.mapping.sectors
-            if self.wcfg["show_sector_line"] and sectors_index and all(sectors_index):
+            if self.wcfg["show_sector_line"] and isinstance(sectors_index, tuple):
                 pen.setWidth(self.wcfg["sector_line_width"])
                 pen.setColor(self.wcfg["sector_line_color"])
                 painter.setPen(pen)
 
-                for idx in range(2):
+                for index in sectors_index:
                     pos_x1, pos_y1, pos_x2, pos_y2 = calc.line_intersect_coords(
-                        self.map_scaled[sectors_index[idx]],  # point a
-                        self.map_scaled[sectors_index[idx] + 1],  # point b
+                        self.map_scaled[index],  # point a
+                        self.map_scaled[index + 1],  # point b
                         1.57079633,  # 90 degree rotation
                         self.wcfg["sector_line_length"]
                     )
@@ -262,7 +258,7 @@ class Realtime(Overlay):
     def draw_vehicle(self, painter, veh_info, veh_draw_order):
         """Draw vehicles"""
         if self.wcfg["show_vehicle_standings"]:
-            painter.setPen(self.pen)
+            painter.setPen(self.pen_text)
 
         for index in veh_draw_order:
             if self.map_scaled:

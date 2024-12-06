@@ -101,10 +101,11 @@ class Realtime(Overlay):
 
         # Config canvas
         self.resize(display_width, display_height)
-        self.pen = QPen()
-        self.pen.setColor(self.wcfg["font_color_integrity"])
-        self.brush = QBrush(Qt.SolidPattern)
-        self.brush.setColor(self.wcfg["last_impact_cone_color"])
+
+        self.pen_text = QPen()
+        self.pen_text.setColor(self.wcfg["font_color_integrity"])
+        self.brush_cone = QBrush(Qt.SolidPattern)
+        self.brush_cone.setColor(self.wcfg["last_impact_cone_color"])
 
         # Last data
         self.damage_body = [0] * 8
@@ -179,7 +180,7 @@ class Realtime(Overlay):
         """Draw impact cone"""
         painter.setRenderHint(QPainter.Antialiasing, True)
         painter.setPen(Qt.NoPen)
-        painter.setBrush(self.brush)
+        painter.setBrush(self.brush_cone)
         raw_angle = calc.rad2deg(calc.oriyaw2rad(*api.read.vehicle.impact_position()))
         start_angle = 16 * (raw_angle - 90 - self.impact_cone_angle * 0.5)
         length_angle = 16 * self.impact_cone_angle
@@ -193,7 +194,7 @@ class Realtime(Overlay):
             damage_value = sum(self.damage_body) / 16
         if not self.wcfg["show_inverted_integrity"]:
             damage_value = 1 - damage_value
-        painter.setPen(self.pen)
+        painter.setPen(self.pen_text)
         painter.drawText(self.rect_integrity, Qt.AlignCenter, f"{damage_value:.0%}"[:4])
 
     # Additional methods

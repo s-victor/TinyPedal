@@ -65,7 +65,7 @@ class Realtime(Overlay):
 
         # Config canvas
         self.resize(drs_width, drs_height)
-        self.pen_drs = QPen()
+        self.pen_text = QPen()
 
         # Last data
         self.drs_state = 0
@@ -86,6 +86,6 @@ class Realtime(Overlay):
         painter = QPainter(self)
         painter.fillRect(self.rect_drs, self.drs_color[self.drs_state][1])
 
-        self.pen_drs.setColor(self.drs_color[self.drs_state][0])
-        painter.setPen(self.pen_drs)
+        self.pen_text.setColor(self.drs_color[self.drs_state][0])
+        painter.setPen(self.pen_text)
         painter.drawText(self.rect_text, Qt.AlignCenter, self.wcfg["drs_text"])

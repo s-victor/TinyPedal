@@ -73,8 +73,8 @@ class Realtime(Overlay):
         self.resize(side_width * 2, self.bar_height)
         self.pixmap_mark = QPixmap(side_width * 2, self.bar_height)
 
-        self.pen_steer = QPen()
-        self.pen_steer.setColor(self.wcfg["font_color"])
+        self.pen_text = QPen()
+        self.pen_text.setColor(self.wcfg["font_color"])
 
         self.draw_scale_mark()
 
@@ -126,7 +126,7 @@ class Realtime(Overlay):
 
         # Draw readings
         if self.wcfg["show_steering_angle"]:
-            painter.setPen(self.pen_steer)
+            painter.setPen(self.pen_text)
             angle = self.raw_steering * self.rot_range * 0.5
             if angle < 0:
                 painter.drawText(self.rect_text, Qt.AlignLeft | Qt.AlignVCenter, f"{-angle:.0f}")
