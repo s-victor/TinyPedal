@@ -20,9 +20,8 @@
 Instrument Widget
 """
 
-from PySide2.QtCore import Qt, QRectF
+from PySide2.QtCore import Qt
 from PySide2.QtGui import QPixmap, QPainter
-from PySide2.QtWidgets import QGridLayout
 
 from ..api_control import api
 from ..module_info import minfo
@@ -37,12 +36,11 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config variable
-        bar_gap = self.wcfg["bar_gap"]
         self.icon_size = int(max(self.wcfg["icon_size"], 16) * 0.5) * 2
-        self.rect_size = QRectF(0, 0, self.icon_size, self.icon_size)
-        self.rect_offset = QRectF(0, 0, self.icon_size, self.icon_size)
         self.warning_color = (
             self.wcfg["bkg_color"],                 # 0
             self.wcfg["warning_color_ignition"],    # 1
@@ -51,14 +49,8 @@ class Realtime(Overlay):
             self.wcfg["warning_color_wheel_slip"],  # 4
         )
 
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
-
         # Config canvas
+        self.pixmap_common = QPixmap(self.icon_size, self.icon_size)
         self.pixmap_icon = QPixmap("images/icon_instrument.png").scaledToWidth(
             self.icon_size * 2, mode=Qt.SmoothTransformation
         )
@@ -73,8 +65,7 @@ class Realtime(Overlay):
                 target=self.bar_headlights,
                 column=self.wcfg["column_index_headlights"],
             )
-            self.pixmap_headlights = QPixmap(self.icon_size, self.icon_size)
-            self.draw_instrument(self.bar_headlights, self.pixmap_headlights, 1, 0)
+            self.draw_instrument(self.bar_headlights, 1, 0)
 
         # Ignition
         if self.wcfg["show_ignition"]:
@@ -86,8 +77,7 @@ class Realtime(Overlay):
                 target=self.bar_ignition,
                 column=self.wcfg["column_index_ignition"],
             )
-            self.pixmap_ignition = QPixmap(self.icon_size, self.icon_size)
-            self.draw_instrument(self.bar_ignition, self.pixmap_ignition, 1, 1)
+            self.draw_instrument(self.bar_ignition, 1, 1)
 
         # Clutch
         if self.wcfg["show_clutch"]:
@@ -99,8 +89,7 @@ class Realtime(Overlay):
                 target=self.bar_clutch,
                 column=self.wcfg["column_index_clutch"],
             )
-            self.pixmap_clutch = QPixmap(self.icon_size, self.icon_size)
-            self.draw_instrument(self.bar_clutch, self.pixmap_clutch, 1, 2)
+            self.draw_instrument(self.bar_clutch, 1, 2)
 
         # Lock
         if self.wcfg["show_wheel_lock"]:
@@ -112,8 +101,7 @@ class Realtime(Overlay):
                 target=self.bar_wlock,
                 column=self.wcfg["column_index_wheel_lock"],
             )
-            self.pixmap_wlock = QPixmap(self.icon_size, self.icon_size)
-            self.draw_instrument(self.bar_wlock, self.pixmap_wlock, 1, 3)
+            self.draw_instrument(self.bar_wlock, 1, 3)
 
         # Slip
         if self.wcfg["show_wheel_slip"]:
@@ -125,16 +113,10 @@ class Realtime(Overlay):
                 target=self.bar_wslip,
                 column=self.wcfg["column_index_wheel_slip"],
             )
-            self.pixmap_wslip = QPixmap(self.icon_size, self.icon_size)
-            self.draw_instrument(self.bar_wslip, self.pixmap_wslip, 1, 4)
+            self.draw_instrument(self.bar_wslip, 1, 4)
 
         # Last data
         self.flicker = False
-        self.last_headlights = None
-        self.last_ignition = None
-        self.last_clutch = None
-        self.last_wlock = None
-        self.last_wslip = None
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -145,20 +127,19 @@ class Realtime(Overlay):
             # Headlights
             if self.wcfg["show_headlights"]:
                 headlights = api.read.switch.headlights()
-                self.update_headlights(headlights, self.last_headlights)
-                self.last_headlights = headlights
+                self.update_headlights(self.bar_headlights, headlights)
 
             # Ignition
+            # 0 ignition & engine off, 1 ignition on & engine off, 2 ignition & engine on
             if self.wcfg["show_ignition"]:
-                ignition = api.read.switch.ignition_starter(), api.read.engine.rpm()
-                self.update_ignition(ignition, self.last_ignition)
-                self.last_ignition = ignition
+                ignition = api.read.switch.ignition_starter() * (1 + (api.read.engine.rpm() > 10))
+                self.update_ignition(self.bar_ignition, ignition)
 
             # Clutch
+            # 1 or 11 auto clutch on, 10+ clutch activated
             if self.wcfg["show_clutch"]:
-                clutch = api.read.switch.auto_clutch(), api.read.input.clutch()
-                self.update_clutch(clutch, self.last_clutch)
-                self.last_clutch = clutch
+                clutch = api.read.switch.auto_clutch() + (api.read.input.clutch() > 0.01) * 10
+                self.update_clutch(self.bar_clutch, clutch)
 
             # Wheel lock
             if self.wcfg["show_wheel_lock"]:
@@ -167,8 +148,7 @@ class Realtime(Overlay):
                     api.read.input.brake_raw() > 0 and
                     min(minfo.wheels.slipRatio) < -self.wcfg["wheel_lock_threshold"]
                 )
-                self.update_wlock(wlock, self.last_wlock)
-                self.last_wlock = wlock
+                self.update_wlock(self.bar_wlock, wlock)
 
             # Wheel slip
             if self.wcfg["show_wheel_slip"]:
@@ -177,62 +157,45 @@ class Realtime(Overlay):
                     api.read.input.throttle_raw() > 0 and
                     max(minfo.wheels.slipRatio) >= self.wcfg["wheel_slip_threshold"]
                 )
-                self.update_wslip(wslip, self.last_wslip)
-                self.last_wslip = wslip
+                self.update_wslip(self.bar_wslip, wslip)
 
     # GUI update methods
-    def update_headlights(self, curr, last):
+    def update_headlights(self, target, data):
         """Headlights update"""
-        if curr != last:
-            self.draw_instrument(self.bar_headlights, self.pixmap_headlights, curr == 0, 0)
+        if target.last != data:
+            target.last = data
+            self.draw_instrument(target, data == 0, 0, 0)
 
-    def update_ignition(self, curr, last):
+    def update_ignition(self, target, data):
         """Ignition update"""
-        if curr != last:
-            if curr[1] < 10:
-                color = 1
-            else:
-                color = 0
-            self.draw_instrument(self.bar_ignition, self.pixmap_ignition, curr[0] == 0, 1, color)
+        if target.last != data:
+            target.last = data
+            self.draw_instrument(target, data == 0, 1, data == 1)
 
-    def update_clutch(self, curr, last):
+    def update_clutch(self, target, data):
         """Clutch update"""
-        if curr != last:
-            if curr[1] > 0.01:
-                color = 2
-            else:
-                color = 0
-            self.draw_instrument(self.bar_clutch, self.pixmap_clutch, curr[0] == 0, 2, color)
+        if target.last != data:
+            target.last = data
+            self.draw_instrument(target, 11 != data != 1, 2, 2 * (data >= 10))
 
-    def update_wlock(self, curr, last):
+    def update_wlock(self, target, data):
         """Wheel lock update"""
-        if curr != last:
-            if curr:
-                state = 0
-                color = 3
-            else:
-                state = 1
-                color = 0
-            self.draw_instrument(self.bar_wlock, self.pixmap_wlock, state, 3, color)
+        if target.last != data:
+            target.last = data
+            self.draw_instrument(target, data == 0, 3, 3 * data)
 
-    def update_wslip(self, curr, last):
+    def update_wslip(self, target, data):
         """Wheel slip update"""
-        if curr != last:
-            if curr:
-                state = 0
-                color = 4
-            else:
-                state = 1
-                color = 0
-            self.draw_instrument(self.bar_wslip, self.pixmap_wslip, state, 4, color)
+        if target.last != data:
+            target.last = data
+            self.draw_instrument(target, data == 0, 4, 4 * data)
 
-    def draw_instrument(self, canvas, pixmap, h_offset, v_offset, color_index=0):
+    def draw_instrument(self, target, h_offset, v_offset, color_index=0):
         """Instrument"""
-        pixmap.fill(self.warning_color[color_index])
-        painter = QPainter(pixmap)
-        # Set size
-        self.rect_offset.moveLeft(self.icon_size * h_offset)
-        self.rect_offset.moveTop(self.icon_size * v_offset)
-        # Icon
-        painter.drawPixmap(self.rect_size, self.pixmap_icon, self.rect_offset)
-        canvas.setPixmap(pixmap)
+        self.pixmap_common.fill(self.warning_color[color_index])
+        painter = QPainter(self.pixmap_common)
+        painter.drawPixmap(
+            0, 0, self.pixmap_icon,
+            self.icon_size * h_offset, self.icon_size * v_offset, 0, 0
+        )
+        target.setPixmap(self.pixmap_common)
