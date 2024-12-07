@@ -84,11 +84,11 @@ class Realtime(Overlay):
         self.pen_text.setColor(self.wcfg["font_color"])
 
         # Last data
+        self.last_modified = 0
+        self.veh_pos = 0
         self.map_scaled = None
         self.map_range = (0,10,0,10)
         self.map_scale = 1,1
-        self.last_modified = 0
-        self.veh_pos = 0
 
         self.update_elevation(-1)
 

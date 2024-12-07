@@ -492,12 +492,11 @@ def binary_search_higher_column(data, target, start, end, column=0):
 def select_grade(data: list, source: float) -> str:
     """Select grade (linear lower index) from reference list (column: 0 value, 1 string)"""
     for index, target in enumerate(data):
-        if source < target[0]:
+        if target[0] > source:
             if index == 0:
-                return data[0][1]
+                return target[1]
             return data[index - 1][1]
-    # Set from last row if exceeded max range
-    return data[-1][1]
+    return data[-1][1]  # set from last row if exceeded max range
 
 
 # Plot

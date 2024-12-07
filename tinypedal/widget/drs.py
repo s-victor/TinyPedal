@@ -68,7 +68,7 @@ class Realtime(Overlay):
         self.pen_text = QPen()
 
         # Last data
-        self.drs_state = 0
+        self.drs_state = -1
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -85,7 +85,6 @@ class Realtime(Overlay):
         """Draw"""
         painter = QPainter(self)
         painter.fillRect(self.rect_drs, self.drs_color[self.drs_state][1])
-
         self.pen_text.setColor(self.drs_color[self.drs_state][0])
         painter.setPen(self.pen_text)
         painter.drawText(self.rect_text, Qt.AlignCenter, self.wcfg["drs_text"])

@@ -83,16 +83,15 @@ class Realtime(Overlay):
         self.pen_text.setColor(self.wcfg["font_color"])
 
         # Last data
+        self.last_modified = 0
+        self.last_veh_data_version = None
+        self.circular_map = True
         self.map_scaled = None
         self.map_range = (0,10,0,10)
         self.map_scale = 1
         self.map_offset = (0,0)
 
-        self.last_modified = 0
-        self.last_veh_data_version = None
-        self.circular_map = True
-
-        self.update_map(0, 1)
+        self.update_map(-1)
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -100,8 +99,7 @@ class Realtime(Overlay):
 
             # Map
             modified = minfo.mapping.lastModified
-            self.update_map(modified, self.last_modified)
-            self.last_modified = modified
+            self.update_map(modified)
 
             # Vehicles
             veh_data_version = minfo.vehicles.dataSetVersion
@@ -110,9 +108,10 @@ class Realtime(Overlay):
                 self.update()
 
     # GUI update methods
-    def update_map(self, curr, last):
+    def update_map(self, data):
         """Map update"""
-        if curr != last:
+        if self.last_modified != data:
+            self.last_modified = data
             map_path = self.create_map_path(minfo.mapping.coordinates)
             self.draw_map_image(map_path, self.circular_map)
 

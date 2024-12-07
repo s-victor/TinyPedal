@@ -235,35 +235,25 @@ class Realtime(Overlay):
             )
             target.setPixmap(self.pixmap_rainchance)
 
-    def update_weather_icon(self, target, data, index):
+    def update_weather_icon(self, target, icon_index, slot_index):
         """Weather icon, toggle visibility"""
-        if target.last != data:
-            target.last = data
-            if 0 <= data <= 10:
-                target.setPixmap(self.pixmap_weather[data])
-            else:
-                target.setPixmap(self.pixmap_weather[-1])
+        if target.last != icon_index:
+            target.last = icon_index
+            if not 0 <= icon_index <= 10:
+                icon_index = -1
+            target.setPixmap(self.pixmap_weather[icon_index])
 
-            if not self.wcfg["show_unavailable_data"] and index > 0:  # skip first slot
-                self.toggle_visibility(data, self.bars_icon[index])
+            if not self.wcfg["show_unavailable_data"] and slot_index > 0:  # skip first slot
+                unavailable = icon_index < 0
+                self.bars_icon[slot_index].setHidden(unavailable)
                 if self.wcfg["show_estimated_time"]:
-                    self.toggle_visibility(data, self.bars_time[index])
+                    self.bars_time[slot_index].setHidden(unavailable)
                 if self.wcfg["show_ambient_temperature"]:
-                    self.toggle_visibility(data, self.bars_temp[index])
+                    self.bars_temp[slot_index].setHidden(unavailable)
                 if self.wcfg["show_rain_chance_bar"]:
-                    self.toggle_visibility(data, self.bars_rain[index])
+                    self.bars_rain[slot_index].setHidden(unavailable)
 
     # Additional methods
-    @staticmethod
-    def toggle_visibility(icon_index, row_bar):
-        """Hide row bar if data unavailable"""
-        if icon_index >= 0:
-            if row_bar.isHidden():
-                row_bar.show()
-        else:
-            if not row_bar.isHidden():
-                row_bar.hide()
-
     def format_temperature(self, air_deg):
         """Format ambient temperature"""
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
