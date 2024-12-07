@@ -20,9 +20,6 @@
 Track notes Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
@@ -38,6 +35,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -45,7 +44,6 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         notes_width = max(int(self.wcfg["track_notes_width"]), 1)
         comments_width = max(int(self.wcfg["comments_width"]), 1)
         debugging_width = max(int(self.wcfg["debugging_width"]), 1)
@@ -64,13 +62,6 @@ class Realtime(Overlay):
             bg_color_notes = ""
             bg_color_comments = ""
             bg_color_debugging = ""
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
 
         # Track notes
         if self.wcfg["show_track_notes"]:
@@ -131,9 +122,6 @@ class Realtime(Overlay):
 
         # Last data
         self.last_notes_index = None
-        self.last_notes = None
-        self.last_comments = None
-        self.last_debugging = None
         self.last_auto_hide = False
         self.last_etime = 0
 
@@ -158,61 +146,51 @@ class Realtime(Overlay):
 
             if self.wcfg["show_track_notes"]:
                 notes = minfo.tracknotes.currentNote.get(COLUMN_TRACKNOTE, NA)
-                self.update_notes(notes, self.last_notes)
-                self.last_notes = notes
+                self.update_notes(self.bar_notes, notes)
 
             if self.wcfg["show_comments"]:
                 comments = minfo.tracknotes.currentNote.get(COLUMN_COMMENT, NA)
-                self.update_comments(comments, self.last_comments)
-                self.last_comments = comments
+                self.update_comments(self.bar_comments, comments)
 
             if self.wcfg["show_debugging"]:
                 debugging = minfo.tracknotes.currentNote.get(COLUMN_DISTANCE, NA)
-                self.update_debugging(debugging, self.last_debugging)
-                self.last_debugging = debugging
+                self.update_debugging(self.bar_debugging, debugging)
 
     # GUI update methods
-    def update_notes(self, curr, last):
+    def update_notes(self, target, data):
         """Track notes"""
-        if curr != last:
+        if target.last != data:
+            target.last = data
             if self.wcfg["track_notes_uppercase"]:
-                curr = curr.upper()
-            self.bar_notes.setText(curr)
+                data = data.upper()
+            target.setText(data)
 
-    def update_comments(self, curr, last):
+    def update_comments(self, target, data):
         """Comments"""
-        if curr != last:
+        if target.last != data:
+            target.last = data
             if self.wcfg["enable_comments_line_break"]:
-                curr = curr.replace("\\n", "\n")
-            self.bar_comments.setText(curr)
+                data = data.replace("\\n", "\n")
+            target.setText(data)
 
-    def update_debugging(self, curr, last):
+    def update_debugging(self, target, data):
         """Debugging info"""
-        if curr != last:
-            if curr != NA:
-                curr = (
+        if target.last != data:
+            target.last = data
+            if data != NA:
+                data = (
                     f"IDX:{minfo.tracknotes.currentIndex + 1} "
-                    f"POS:{curr:.0f}>>{minfo.tracknotes.nextNote.get(COLUMN_DISTANCE, 0):.0f}m"
+                    f"POS:{data:.0f}>>{minfo.tracknotes.nextNote.get(COLUMN_DISTANCE, 0):.0f}m"
                 )
-            self.bar_debugging.setText(curr)
+            target.setText(data)
 
     def update_auto_hide(self, auto_hide):
         """Auto hide"""
         if self.last_auto_hide != auto_hide:
             self.last_auto_hide = auto_hide
             if self.wcfg["show_track_notes"]:
-                self.toggle_visibility(auto_hide, self.bar_notes)
+                self.bar_notes.setHidden(auto_hide)
             if self.wcfg["show_comments"]:
-                self.toggle_visibility(auto_hide, self.bar_comments)
+                self.bar_comments.setHidden(auto_hide)
             if self.wcfg["show_debugging"]:
-                self.toggle_visibility(auto_hide, self.bar_debugging)
-
-    # Additional methods
-    def toggle_visibility(self, state, row_bar):
-        """Hide row bar if empty data"""
-        if state:
-            if not row_bar.isHidden():
-                row_bar.hide()
-        else:
-            if row_bar.isHidden():
-                row_bar.show()
+                self.bar_debugging.setHidden(auto_hide)
