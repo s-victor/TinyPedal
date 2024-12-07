@@ -20,9 +20,6 @@
 Laps and position Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from ..api_control import api
 from ._base import Overlay
@@ -36,6 +33,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -44,7 +43,6 @@ class Realtime(Overlay):
         # Config variable
         text_def = "00/00"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
 
         if self.wcfg["layout"] == 0:
             self.just_right = 9
@@ -67,13 +65,6 @@ class Realtime(Overlay):
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
 
         # Lap number
         if self.wcfg["show_lap_number"]:
@@ -131,7 +122,6 @@ class Realtime(Overlay):
             )
 
         # Last data
-        self.last_lap_into = None
         self.last_veh_total = 0
         self.last_plr_place = 0
 
@@ -141,12 +131,9 @@ class Realtime(Overlay):
 
             # Lap number
             if self.wcfg["show_lap_number"]:
-                lap_number = api.read.lap.number()
-                lap_max = api.read.lap.maximum()
-                lap_into = lap_number + calc.lap_progress_correction(
+                lap_into = calc.lap_progress_correction(
                     api.read.lap.progress(), api.read.timing.current_laptime())
-                self.update_lap_number(lap_into, self.last_lap_into, lap_number, lap_max)
-                self.last_lap_into = lap_into
+                self.update_lap_number(self.bar_lap_number, lap_into)
 
             # Position update
             if self.wcfg["show_position_overall"] or self.wcfg["show_position_in_class"]:
@@ -184,16 +171,18 @@ class Realtime(Overlay):
                         )
 
     # GUI update methods
-    def update_lap_number(self, curr, last, lap_num, lap_max):
+    def update_lap_number(self, target, data):
         """Lap number"""
-        if curr != last:
+        if target.last != data:
+            target.last = data
+            lap_num = api.read.lap.number()
+            lap_max = api.read.lap.maximum()
             lap_total = lap_max if api.read.session.lap_type() else "--"
-            text_lap_into = f"{curr:02.2f}/{lap_total}"
+            text_laps = f"{lap_num + data:02.2f}/{lap_total}"[:9]
+            target.setText(f"{self.prefix_lap_number}{text_laps: >9}")
+            target.setStyleSheet(self.bar_style_lap_number[lap_num - lap_max >= -1])
 
-            self.bar_lap_number.setText(f"{self.prefix_lap_number}{text_lap_into[:9]: >9}")
-            self.bar_lap_number.setStyleSheet(self.bar_style_lap_number[lap_num - lap_max >= -1])
-
-    def update_position(self, target_bar, place, total, prefix):
+    def update_position(self, target, place, total, prefix):
         """Driver place & total vehicles"""
         text_pos = f"{place:02.0f}/{total:02.0f}"
-        target_bar.setText(f"{prefix}{text_pos: >{self.just_right}}")
+        target.setText(f"{prefix}{text_pos: >{self.just_right}}")
