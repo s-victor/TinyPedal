@@ -20,9 +20,6 @@
 Speedometer Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from ..api_control import api
 from ._base import Overlay
@@ -36,6 +33,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -43,8 +42,6 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
-
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
         zero_offset = (self.decimals > 0)
         bar_width = font_m.width * (3 + self.decimals + zero_offset) + bar_padx
@@ -56,13 +53,6 @@ class Realtime(Overlay):
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
 
         # Speed
         if self.wcfg["show_speed"]:
@@ -126,10 +116,9 @@ class Realtime(Overlay):
             )
 
         # Last data
-        self.last_speed_curr = -1
-        self.last_speed_min = -1
-        self.last_speed_max = -1
-        self.last_speed_fast = -1
+        self.speed_min = -1
+        self.speed_max = -1
+        self.speed_fast = -1
         self.off_throttle_timer_start = 0
         self.on_throttle_timer_start = 0
 
@@ -144,41 +133,41 @@ class Realtime(Overlay):
 
             # Update current speed
             if self.wcfg["show_speed"]:
-                self.update_speed(self.bar_speed_curr, speed, self.last_speed_curr)
-                self.last_speed_curr = speed
+                self.update_speed(self.bar_speed_curr, speed)
 
             # Update minimum speed off throttle
             if self.wcfg["show_speed_minimum"] and raw_throttle < self.wcfg["off_throttle_threshold"]:
-                if speed < self.last_speed_min:
-                    self.update_speed(self.bar_speed_min, speed, self.last_speed_min)
-                    self.last_speed_min = speed
+                if speed < self.speed_min:
+                    self.speed_min = speed
                     self.off_throttle_timer_start = lap_etime
+                    self.update_speed(self.bar_speed_min, speed)
                 if lap_etime - self.off_throttle_timer_start > self.wcfg["speed_minimum_reset_cooldown"]:
-                    self.last_speed_min = speed
+                    self.speed_min = speed
 
             # Update maximum speed on throttle
             if self.wcfg["show_speed_maximum"] and raw_throttle > self.wcfg["on_throttle_threshold"]:
-                if speed > self.last_speed_max:
-                    self.update_speed(self.bar_speed_max, speed, self.last_speed_max)
-                    self.last_speed_max = speed
+                if speed > self.speed_max:
+                    self.speed_max = speed
                     self.on_throttle_timer_start = lap_etime
+                    self.update_speed(self.bar_speed_max, speed)
                 if lap_etime - self.on_throttle_timer_start > self.wcfg["speed_maximum_reset_cooldown"]:
-                    self.last_speed_max = speed
+                    self.speed_max = speed
 
             # Update fastest speed
             if self.wcfg["show_speed_fastest"]:
                 if api.read.engine.gear() < 0:  # reset on reverse gear
-                    self.last_speed_fast = 0
-                if speed > self.last_speed_fast:
-                    self.update_speed(self.bar_speed_fast, speed, self.last_speed_fast)
-                    self.last_speed_fast = speed
+                    self.speed_fast = 0
+                if speed > self.speed_fast:
+                    self.speed_fast = speed
+                    self.update_speed(self.bar_speed_fast, speed)
 
     # GUI update methods
-    def update_speed(self, target_bar, curr, last):
+    def update_speed(self, target, data):
         """Vehicle speed"""
-        if curr != last:
-            target_bar.setText(
-                f"{self.speed_units(curr):0{self.leading_zero}.{self.decimals}f}")
+        if target.last != data:
+            target.last = data
+            target.setText(
+                f"{self.speed_units(data):0{self.leading_zero}.{self.decimals}f}")
 
     # Additional methods
     def speed_units(self, value):
