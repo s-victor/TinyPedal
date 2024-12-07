@@ -20,9 +20,6 @@
 P2P Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
@@ -36,6 +33,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -43,7 +42,6 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -51,13 +49,6 @@ class Realtime(Overlay):
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
 
         # Battery charge
         if self.wcfg["show_battery_charge"]:
@@ -99,10 +90,6 @@ class Realtime(Overlay):
             )
             layout.addWidget(self.bar_timer, 0, self.wcfg["column_index_activation_timer"])
 
-        # Last data
-        self.last_battery_charge = None
-        self.last_active_timer = None
-
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
@@ -119,29 +106,28 @@ class Realtime(Overlay):
                         minfo.hybrid.motorActiveTimer < self.wcfg["maximum_activation_time_per_lap"] - 0.05
                     )
                 battery_charge = minfo.hybrid.batteryCharge, state
-                self.update_battery_charge(battery_charge, self.last_battery_charge)
-                self.last_battery_charge = battery_charge
+                self.update_battery_charge(self.bar_charge, battery_charge)
 
             # Activation timer
             if self.wcfg["show_activation_timer"]:
                 active_timer = minfo.hybrid.motorActiveTimer, minfo.hybrid.motorState
-                self.update_active_timer(active_timer, self.last_active_timer)
-                self.last_active_timer = active_timer
+                self.update_active_timer(self.bar_timer, active_timer)
 
     # GUI update methods
-    def update_battery_charge(self, curr, last):
+    def update_battery_charge(self, target, data):
         """Battery charge"""
-        if curr != last:
-            if curr[0] < 99.5:
-                format_text = f"±{curr[0]:02.0f}"
+        if target.last != data:
+            target.last = data
+            if data[0] < 99.5:
+                format_text = f"±{data[0]:02.0f}"
             else:
                 format_text = "MAX"
+            target.setText(format_text)
+            target.setStyleSheet(self.bar_style_charge[data[1]])
 
-            self.bar_charge.setText(format_text)
-            self.bar_charge.setStyleSheet(self.bar_style_charge[curr[1]])
-
-    def update_active_timer(self, curr, last):
+    def update_active_timer(self, target, data):
         """P2P activation timer"""
-        if curr != last:
-            self.bar_timer.setText(f"{curr[0]:.2f}"[:4])
-            self.bar_timer.setStyleSheet(self.bar_style_timer[curr[1] != 2])
+        if target.last != data:
+            target.last = data
+            target.setText(f"{data[0]:.2f}"[:4])
+            target.setStyleSheet(self.bar_style_timer[data[1] != 2])
