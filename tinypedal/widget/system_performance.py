@@ -24,8 +24,6 @@ import os
 from functools import partial
 
 import psutil
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
 
 from .. import calculation as calc
 from ._base import Overlay
@@ -39,6 +37,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -46,7 +46,6 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
 
         if self.wcfg["layout"] == 0:
             prefix_just = max(
@@ -65,13 +64,6 @@ class Realtime(Overlay):
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
 
         # System
         if self.wcfg["show_system_performance"]:
@@ -110,43 +102,41 @@ class Realtime(Overlay):
         # Last data
         self.app_info = psutil.Process(os.getpid())
         self.cpu_count = os.cpu_count()
-        self.last_sys_cpu = 0
-        self.last_app_cpu = 0
-
         self.calc_ema_cpu = partial(
             calc.exp_mov_avg,
             calc.ema_factor(min(max(self.wcfg["average_samples"], 1), 500))
         )
+        self.sys_cpu_ema = 0
+        self.app_cpu_ema = 0
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
 
             if self.wcfg["show_system_performance"]:
-                sys_cpu = self.calc_ema_cpu(
-                    self.last_sys_cpu, psutil.cpu_percent())
-                self.update_system(sys_cpu, self.last_sys_cpu, self.prefix_sys)
-                self.last_sys_cpu = sys_cpu
+                self.sys_cpu_ema = self.calc_ema_cpu(self.sys_cpu_ema, psutil.cpu_percent())
+                self.update_system(self.bar_system, self.sys_cpu_ema, self.prefix_sys)
 
             if self.wcfg["show_tinypedal_performance"]:
-                app_cpu = self.calc_ema_cpu(
-                    self.last_app_cpu, self.app_info.cpu_percent() / self.cpu_count)
-                self.update_app(app_cpu, self.last_app_cpu, self.prefix_app)
-                self.last_app_cpu = app_cpu
+                self.app_cpu_ema = self.calc_ema_cpu(
+                    self.app_cpu_ema, self.app_info.cpu_percent() / self.cpu_count)
+                self.update_app(self.bar_app, self.app_cpu_ema, self.prefix_app)
 
     # GUI update methods
-    def update_system(self, curr, last, prefix):
+    def update_system(self, target, data, prefix):
         """System performance"""
-        if curr != last:
+        if target.last != data:
+            target.last = data
             memory_used = psutil.virtual_memory().used / 1024 / 1024 / 1024
-            cpu = f"{curr: >4.2f}"[:4].strip(".")
+            cpu = f"{data: >4.2f}"[:4].strip(".")
             mem = f"{memory_used: >4.2f}"[:4].strip(".")
             self.bar_system.setText(f"{prefix}{cpu: >4}%{mem: >5}GB")
 
-    def update_app(self, curr, last, prefix):
+    def update_app(self, target, data, prefix):
         """APP performance"""
-        if curr != last:
+        if target.last != data:
+            target.last = data
             memory_used = self.app_info.memory_full_info().uss / 1024 / 1024
-            cpu = f"{curr: >4.2f}"[:4].strip(".")
+            cpu = f"{data: >4.2f}"[:4].strip(".")
             mem = f"{memory_used: >4.2f}"[:4].strip(".")
             self.bar_app.setText(f"{prefix}{cpu: >4}%{mem: >5}MB")
