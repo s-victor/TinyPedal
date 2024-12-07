@@ -22,9 +22,6 @@ Session Widget
 
 from time import strftime
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from ..api_control import api
 from ._base import Overlay
@@ -38,6 +35,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -45,7 +44,6 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         self.session_name_list = (
             self.wcfg["session_text_testday"],
             self.wcfg["session_text_practice"],
@@ -61,13 +59,6 @@ class Realtime(Overlay):
             font_weight=self.wcfg["font_weight"])
         )
 
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
-
         # Session name
         if self.wcfg["show_session_name"]:
             text_session_name = self.session_name_list[0]
@@ -78,7 +69,7 @@ class Realtime(Overlay):
             self.bar_session_name = self.set_qlabel(
                 text=text_session_name,
                 style=bar_style_session_name,
-                width=font_m.width * max(len(name) for name in self.session_name_list) + bar_padx,
+                width=font_m.width * max(map(len, self.session_name_list)) + bar_padx,
             )
             self.set_primary_orient(
                 target=self.bar_session_name,
@@ -119,47 +110,42 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_session_time"],
             )
 
-        # Last data
-        self.last_session_name = None
-        self.last_system_time = None
-        self.last_session_time = None
-
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
 
             # Session name
             if self.wcfg["show_session_name"]:
-                session_name = self.session_name_list[api.read.session.session_type()]
-                self.update_session_name(session_name, self.last_session_name)
-                self.last_session_name = session_name
+                session_index = api.read.session.session_type()
+                self.update_session_name(self.bar_session_name, session_index)
 
             # System Clock
             if self.wcfg["show_system_clock"]:
                 system_time = strftime(self.wcfg["system_clock_format"])
-                self.update_system_clock(system_time, self.last_system_time)
-                self.last_system_time = system_time
+                self.update_system_clock(self.bar_system_clock, system_time)
 
             # Session time
             if self.wcfg["show_session_time"]:
                 session_time = api.read.session.remaining()
-                self.update_session_time(session_time, self.last_session_time)
-                self.last_session_time = session_time
+                self.update_session_time(self.bar_session_time, session_time)
 
     # GUI update methods
-    def update_session_name(self, curr, last):
+    def update_session_name(self, target, data):
         """Session name"""
-        if curr != last:
-            self.bar_session_name.setText(curr)
+        if target.last != data:
+            target.last = data
+            target.setText(self.session_name_list[data])
 
-    def update_system_clock(self, curr, last):
+    def update_system_clock(self, target, data):
         """System Clock"""
-        if curr != last:
-            self.bar_system_clock.setText(curr)
+        if target.last != data:
+            target.last = data
+            target.setText(data)
 
-    def update_session_time(self, curr, last):
+    def update_session_time(self, target, data):
         """Session time"""
-        if curr != last:
-            if curr < 0:
-                curr = 0
-            self.bar_session_time.setText(calc.sec2sessiontime(curr))
+        if target.last != data:
+            target.last = data
+            if data < 0:
+                data = 0
+            target.setText(calc.sec2sessiontime(data))
