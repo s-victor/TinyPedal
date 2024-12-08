@@ -153,25 +153,25 @@ class Overlay(QWidget):
         """Toggle widget lock state"""
         self.setWindowFlag(Qt.WindowTransparentForInput, locked)
 
-    @Slot(bool)
-    def __toggle_hide(self, hidden: bool):
-        """Toggle widget hidden state"""
-        if hidden:
-            if not self.isHidden():
-                self.hide()
-        else:
-            if self.isHidden():
-                self.show()
+    #@Slot(bool)
+    #def __toggle_hide(self, hidden: bool):
+    #    """Toggle widget hidden state"""
+    #    if hidden:
+    #        if not self.isHidden():
+    #            self.hide()
+    #    else:
+    #        if self.isHidden():
+    #            self.show()
 
     def __connect_signal(self):
         """Connect overlay lock and hide signal"""
-        octrl.state.locked.connect(self.__toggle_lock)
-        octrl.state.hidden.connect(self.__toggle_hide)
+        self.state.locked.connect(self.__toggle_lock)
+        self.state.hidden.connect(self.setHidden)
 
     def __break_signal(self):
         """Disconnect overlay lock and hide signal"""
-        octrl.state.locked.disconnect(self.__toggle_lock)
-        octrl.state.hidden.disconnect(self.__toggle_hide)
+        self.state.locked.disconnect(self.__toggle_lock)
+        self.state.hidden.disconnect(self.setHidden)
 
     # Common GUI methods
     @staticmethod
@@ -424,22 +424,26 @@ class Overlay(QWidget):
     @staticmethod
     def set_grid_layout_table_row(
         layout: QLayout, targets: tuple[QWidget],
-        row_index: int, right_to_left: bool = False):
+        row_index: int, right_to_left: bool = False, hide_start: int = 99999):
         """Set grid layout - table by keys of each row"""
         if right_to_left:
             targets = reversed(targets)
         for column_index, target in enumerate(targets):
             layout.addWidget(target, row_index, column_index)
+            if hide_start <= column_index:
+                target.hide()
 
     @staticmethod
     def set_grid_layout_table_column(
         layout: QLayout, targets: tuple[QWidget],
-        column_index: int, bottom_to_top: bool = False):
+        column_index: int, bottom_to_top: bool = False, hide_start: int = 99999):
         """Set grid layout - table by keys of each column"""
         if bottom_to_top:
             targets = reversed(targets)
         for row_index, target in enumerate(targets):
             layout.addWidget(target, row_index, column_index)
+            if hide_start <= row_index:
+                target.hide()
 
     @staticmethod
     def set_grid_layout(
