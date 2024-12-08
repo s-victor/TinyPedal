@@ -226,6 +226,8 @@ class Realtime(Overlay):
         """Laps history data"""
         for index, data in enumerate(self.history_data):
             index += 1
+            unavailable = False
+
             if data[1]:
                 self.update_laps(self.bars_laps[index], data[0])
                 self.update_time(self.bars_time[index], data[1])
@@ -233,16 +235,13 @@ class Realtime(Overlay):
                 self.update_wear(self.bars_wear[index], data[4])
                 # Highlight invalid lap time
                 self.bars_time[index].setStyleSheet(self.bar_style_time[2 - data[2]])
-                self.bars_laps[index].show()
-                self.bars_time[index].show()
-                self.bars_fuel[index].show()
-                self.bars_wear[index].show()
-
             elif not self.wcfg["show_empty_history"]:
-                self.bars_laps[index].hide()
-                self.bars_time[index].hide()
-                self.bars_fuel[index].hide()
-                self.bars_wear[index].hide()
+                unavailable = True
+
+            self.bars_laps[index].setHidden(unavailable)
+            self.bars_time[index].setHidden(unavailable)
+            self.bars_fuel[index].setHidden(unavailable)
+            self.bars_wear[index].setHidden(unavailable)
 
     # Additional methods
     def fuel_units(self, fuel):

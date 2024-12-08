@@ -233,7 +233,7 @@ class Realtime(Overlay):
                 self.start_fuel = fuel_curr
 
             # Current stint data
-            self.stint_data[0] = self.set_tyre_cmp(api.read.tyre.compound())
+            self.stint_data[0] = self.set_tyre_cmp(*api.read.tyre.compound())
             self.stint_data[1] = max(lap_num - self.start_laps, 0)
             self.stint_data[2] = max(time_curr - self.start_time, 0)
             self.stint_data[3] = max(self.start_fuel - fuel_curr, 0)
@@ -290,24 +290,22 @@ class Realtime(Overlay):
         """Stint history data"""
         for index, data in enumerate(self.history_data):
             index += 1
+            unavailable = False
+
             if data[2]:
                 self.update_cmpd(self.bars_cmpd[index], data[0])
                 self.update_laps(self.bars_laps[index], data[1])
                 self.update_time(self.bars_time[index], data[2])
                 self.update_fuel(self.bars_fuel[index], data[3])
                 self.update_wear(self.bars_wear[index], data[4])
-                self.bars_cmpd[index].show()
-                self.bars_laps[index].show()
-                self.bars_time[index].show()
-                self.bars_fuel[index].show()
-                self.bars_wear[index].show()
-
             elif not self.wcfg["show_empty_history"]:
-                self.bars_cmpd[index].hide()
-                self.bars_laps[index].hide()
-                self.bars_time[index].hide()
-                self.bars_fuel[index].hide()
-                self.bars_wear[index].hide()
+                unavailable = True
+
+            self.bars_cmpd[index].setHidden(unavailable)
+            self.bars_laps[index].setHidden(unavailable)
+            self.bars_time[index].setHidden(unavailable)
+            self.bars_fuel[index].setHidden(unavailable)
+            self.bars_wear[index].setHidden(unavailable)
 
     # Additional methods
     def fuel_units(self, fuel):
@@ -316,6 +314,6 @@ class Realtime(Overlay):
             return calc.liter2gallon(fuel)
         return fuel
 
-    def set_tyre_cmp(self, tc_indices):
+    def set_tyre_cmp(self, front, rear):
         """Substitute tyre compound index with custom chars"""
-        return "".join((self.tyre_compound_string[idx] for idx in tc_indices))
+        return f"{self.tyre_compound_string[front]}{self.tyre_compound_string[rear]}"
