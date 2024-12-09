@@ -417,6 +417,14 @@ class Timing(DataAdapter):
         """Best lap time"""
         return chknm(self.info.rf2ScorVeh(index).mBestLapTime)
 
+    def estimated_laptime(self, index: int | None = None) -> float:
+        """Estimated lap time"""
+        return chknm(self.info.rf2ScorVeh(index).mEstimatedLapTime)
+
+    def estimated_time_into(self, index: int | None = None) -> float:
+        """Estimated time into lap"""
+        return chknm(self.info.rf2ScorVeh(index).mTimeIntoLap)
+
     def current_sector1(self, index: int | None = None) -> float:
         """Current lap sector 1 time"""
         return chknm(self.info.rf2ScorVeh(index).mCurSector1)

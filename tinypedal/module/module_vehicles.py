@@ -122,7 +122,7 @@ class Realtime(DataModule):
             lap_progress = data.lapProgress = calc.lap_progress_distance(lap_distance, track_length)
 
             data.gapBehindNextInClass = calc_gap_behind_next_in_class(
-                opt_index_ahead, track_length, speed, laps_done, lap_progress)
+                opt_index_ahead, index, track_length, laps_done, lap_progress)
             calc_pit_time(data.pitTimer, in_pit, lap_etime)
 
             # Position & relative data
@@ -155,8 +155,7 @@ class Realtime(DataModule):
                     laps_done + lap_progress, plr_laps_done + plr_lap_progress,
                     max_lap_diff_ahead, max_lap_diff_behind
                 ) if in_race else 0
-                relative_time_gap = data.relativeTimeGap = calc.relative_time_gap(
-                    relative_distance, speed, api.read.vehicle.speed())
+                relative_time_gap = data.relativeTimeGap = abs(relative_interval(index))
 
                 # Nearest straight line distance (non local players)
                 if relative_straight_distance < nearest_line:
@@ -224,8 +223,17 @@ def calc_pit_time(pit_timer: list, in_pit: int, lap_etime: float):
             pit_timer[2] = lap_etime - pit_timer[1]
 
 
+def relative_interval(opt_index: int, index: int = None) -> float:
+    """Estimated relative time interval"""
+    return calc.circular_relative_distance(
+        api.read.timing.estimated_laptime(index),
+        api.read.timing.estimated_time_into(index),
+        api.read.timing.estimated_time_into(opt_index),
+    )
+
+
 def calc_gap_behind_next_in_class(
-    opt_index, track_length, speed, laps_done, lap_progress):
+    opt_index: int, index: int, track_length: float, laps_done: float, lap_progress: float):
     """Calculate interval behind next in class"""
     if opt_index < 0:
         return 0.0
@@ -235,12 +243,10 @@ def calc_gap_behind_next_in_class(
     lap_diff = abs(opt_laps_done + opt_lap_progress - laps_done - lap_progress)
     if lap_diff > 1:
         return int(lap_diff)
-    return calc.relative_time_gap(
-        lap_diff * track_length, api.read.vehicle.speed(opt_index), speed
-    )
+    return abs(relative_interval(opt_index, index))
 
 
-def calc_gap_behind_next(index):
+def calc_gap_behind_next(index: int):
     """Calculate interval behind next"""
     laps_behind_next = api.read.lap.behind_next(index)
     if laps_behind_next > 0:
@@ -248,7 +254,7 @@ def calc_gap_behind_next(index):
     return api.read.timing.behind_next(index)
 
 
-def calc_gap_behind_leader(index):
+def calc_gap_behind_leader(index: int):
     """Calculate interval behind leader"""
     laps_behind_leader = api.read.lap.behind_leader(index)
     if laps_behind_leader > 0:

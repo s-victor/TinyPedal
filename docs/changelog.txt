@@ -1,6 +1,10 @@
 WIP
 -----------------------------
+* General
+  - More optimization to all widgets & modules for further improved efficiency and less resource usage.
+
 * Relative Widget
+  - Improved consistency and accuracy of relative time interval (requested by Hany Alsabti).
   - Renamed "show_vehicle_in_garage_for_race" option to "show_vehicle_in_garage",
     which now affects all sessions. Default is "False", which hides vehicles in garage.
     Note, local player (user) is always displayed.

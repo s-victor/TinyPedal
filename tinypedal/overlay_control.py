@@ -108,7 +108,7 @@ class OverlayState(QObject):
 
     def __updating(self):
         """Update global state"""
-        while not self._event.wait(0.01):
+        while not self._event.wait(0.2):
             self.active = api.state
             self.__auto_hide_state()
             if cfg.application["enable_auto_load_preset"]:
