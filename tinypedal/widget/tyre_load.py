@@ -34,7 +34,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
-        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        bar_gap = self.wcfg["bar_gap"]
+        layout = self.set_grid_layout(gap=bar_gap)
         self.set_primary_layout(layout=layout)
 
         # Config font
@@ -53,7 +54,27 @@ class Realtime(Overlay):
         bar_width = max(self.wcfg["bar_width"], 20)
         bar_height = int(font_m.capital + pady * 2)
 
+        # Caption
+        if self.wcfg["show_caption"]:
+            bar_style_desc = self.set_qss(
+                fg_color=self.wcfg["font_color_caption"],
+                bg_color=self.wcfg["bkg_color_caption"],
+                font_family=self.wcfg["font_name"],
+                font_size=int(self.wcfg['font_size'] * self.wcfg['font_scale_caption']),
+                font_weight=self.wcfg["font_weight"],
+            )
+            cap_bar = self.set_qlabel(
+                text=self.wcfg["caption_text"],
+                style=bar_style_desc,
+                fixed_width=bar_width * 2 + bar_gap,
+            )
+            self.set_primary_orient(
+                target=cap_bar,
+                column=0,
+            )
+
         # Tyre load
+        layout_inner = self.set_grid_layout(gap=bar_gap)
         self.bars_tload = tuple(
             WheelGaugeBar(
                 padding_x=padx,
@@ -67,8 +88,12 @@ class Realtime(Overlay):
             ) for idx in range(4)
         )
         self.set_grid_layout_quad(
-            layout=layout,
+            layout=layout_inner,
             targets=self.bars_tload,
+        )
+        self.set_primary_orient(
+            target=layout_inner,
+            column=1,
         )
 
     def timerEvent(self, event):

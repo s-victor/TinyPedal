@@ -3,6 +3,10 @@ WIP
 * General
   - More optimization to all widgets & modules for further improved efficiency and less resource usage.
 
+* Brake pressure, Ride height, Suspension position, Tyre load Widget
+  - Add "show_caption", "font_scale_caption", "caption_text" options for displaying and customizing
+    caption text (requested by coasting&cruising). This option is disabled by default.
+
 * Relative Widget, Standings Widget
   - Add "show_highlighted_fastest_last_laptime" option (requested by Hany Alsabti), which highlights
     the fastest last lap time within the same class if available.

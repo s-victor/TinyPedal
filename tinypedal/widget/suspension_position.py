@@ -33,7 +33,8 @@ class Realtime(Overlay):
     def __init__(self, config):
         # Assign base setting
         Overlay.__init__(self, config, WIDGET_NAME)
-        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        bar_gap = self.wcfg["bar_gap"]
+        layout = self.set_grid_layout(gap=bar_gap)
         self.set_primary_layout(layout=layout)
 
         # Config font
@@ -53,7 +54,27 @@ class Realtime(Overlay):
         bar_height = int(font_m.capital + pady * 2)
         max_range = max(int(self.wcfg["position_max_range"]), 10)
 
+        # Caption
+        if self.wcfg["show_caption"]:
+            bar_style_desc = self.set_qss(
+                fg_color=self.wcfg["font_color_caption"],
+                bg_color=self.wcfg["bkg_color_caption"],
+                font_family=self.wcfg["font_name"],
+                font_size=int(self.wcfg['font_size'] * self.wcfg['font_scale_caption']),
+                font_weight=self.wcfg["font_weight"],
+            )
+            cap_bar = self.set_qlabel(
+                text=self.wcfg["caption_text"],
+                style=bar_style_desc,
+                fixed_width=bar_width * 2 + bar_gap,
+            )
+            self.set_primary_orient(
+                target=cap_bar,
+                column=0,
+            )
+
         # Suspension position
+        layout_inner = self.set_grid_layout(gap=bar_gap)
         self.susp_color = (
             self.wcfg["positive_position_color"],
             self.wcfg["negative_position_color"],
@@ -72,8 +93,12 @@ class Realtime(Overlay):
             ) for idx in range(4)
         )
         self.set_grid_layout_quad(
-            layout=layout,
+            layout=layout_inner,
             targets=self.bars_susp,
+        )
+        self.set_primary_orient(
+            target=layout_inner,
+            column=1,
         )
 
     def timerEvent(self, event):
