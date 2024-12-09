@@ -77,7 +77,7 @@ class Realtime(Overlay):
             "",  # veh_class
             ("",0,0),  # time_gap
             (-1,-1,0),  # tire_idx
-            ("",0),  # laptime
+            ("",0,0),  # laptime
             (-1,0,0)  # pit_count
         )
         self.pixmap_brandlogo = {"blank": QPixmap()}
@@ -184,7 +184,13 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_laptime"]),
                 self.set_qss(
                     fg_color=self.wcfg["font_color_player_laptime"],
-                    bg_color=self.wcfg["bkg_color_player_laptime"])
+                    bg_color=self.wcfg["bkg_color_player_laptime"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_fastest_last_laptime"],
+                    bg_color=self.wcfg["bkg_color_fastest_last_laptime"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_player_fastest_last_laptime"],
+                    bg_color=self.wcfg["bkg_color_player_fastest_last_laptime"])
             )
             self.bars_lpt = self.set_qlabel(
                 style=self.bar_style_lpt[0],
@@ -460,8 +466,14 @@ class Realtime(Overlay):
                 text = self.set_laptime(*data[0])
             else:
                 text = ""
+            if self.wcfg["show_highlighted_fastest_last_laptime"] and data[1]:
+                color_index = 2 + data[2]
+            elif data[2]:
+                color_index = 1  # player
+            else:
+                color_index = 0
             target.setText(text)
-            target.setStyleSheet(self.bar_style_lpt[data[1]])
+            target.setStyleSheet(self.bar_style_lpt[color_index])
 
     def update_pic(self, target, data):
         """Position in class"""
@@ -613,13 +625,13 @@ class Realtime(Overlay):
         # 7 Tyre compound index (tire_idx: int, hi_player)
         tire_idx = (veh_info.tireCompoundFront, veh_info.tireCompoundRear, hi_player)
 
-        # 8 Lap time (laptime: tuple, hi_player)
+        # 8 Lap time (laptime: tuple, is fastest last: bool, hi_player)
         laptime = ((
                 veh_info.inPit,
                 veh_info.lastLapTime,
                 veh_info.pitTimer[2]
             ),
-            hi_player)
+            veh_info.isClassFastestLastLap, hi_player)
 
         # 9 Pitstop count (pit_count: int, pit_state: int, hi_player)
         pit_count = (

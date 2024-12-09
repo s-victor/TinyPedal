@@ -157,7 +157,7 @@ class RelativeInfo:
     def __post_init__(self):
         self.relative = [-1]
         self.standings = [-1]
-        self.classes = [[0,1,"",0,0,-1,-1]]
+        self.classes = [[0,1,"",0,0,-1,-1,False]]
 
 
 @dataclass
@@ -251,6 +251,7 @@ class VehicleDataSet:
     isLapped: bool = False
     isYellow: bool = False
     inPit: bool = False
+    isClassFastestLastLap: bool = False
     numPitStops: int = 0
     pitState: int = 0
     tireCompoundFront: int = 0

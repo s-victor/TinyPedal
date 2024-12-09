@@ -2025,6 +2025,9 @@ Set time gap display width, value is in chars, 5 = 5 chars wide.
     show_laptime
 Show driver's last lap time & pit timer if available.
 
+    show_highlighted_fastest_last_laptime
+Highlight the fastest last lap time within the same class if available.
+
     show_position_in_class
 Show driver's position standing in class.
 

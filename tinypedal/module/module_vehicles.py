@@ -92,6 +92,7 @@ class Realtime(DataModule):
             data.positionInClass = class_pos[1]
             data.sessionBestLapTime = class_pos[3]
             data.classBestLapTime = class_pos[4]
+            data.isClassFastestLastLap = class_pos[7]
             opt_index_ahead = class_pos[5]
 
             # Output var only

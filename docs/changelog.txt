@@ -3,9 +3,11 @@ WIP
 * General
   - More optimization to all widgets & modules for further improved efficiency and less resource usage.
 
-* Relative Widget
+* Relative Widget, Standings Widget
+  - Add "show_highlighted_fastest_last_laptime" option (requested by Hany Alsabti), which highlights
+    the fastest last lap time within the same class if available.
   - Improved consistency and accuracy of relative time interval (requested by Hany Alsabti).
-  - Renamed "show_vehicle_in_garage_for_race" option to "show_vehicle_in_garage",
+  - Renamed "show_vehicle_in_garage_for_race" option to "show_vehicle_in_garage" in Relative Widget,
     which now affects all sessions. Default is "False", which hides vehicles in garage.
     Note, local player (user) is always displayed.
 

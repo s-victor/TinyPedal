@@ -32,8 +32,9 @@ MODULE_NAME = "module_relative"
 MAGIC_NUM = 99999
 ALL_PLACES = list(range(1, minfo.MAX_VEHICLES + 1))
 TEMP_DISTANCE = [[-1,-1] for _ in range(minfo.MAX_VEHICLES)]
-TEMP_CLASSES = [["",-1,-1,-1] for _ in range(minfo.MAX_VEHICLES)]
+TEMP_CLASSES = [["",-1,-1,-1,-1] for _ in range(minfo.MAX_VEHICLES)]
 TEMP_PLACES = [[-1,-1] for _ in range(minfo.MAX_VEHICLES)]
+TEMP_CLASSES_POS = [[0,1,"",0,0,-1,-1,False] for _ in range(minfo.MAX_VEHICLES)]
 
 
 class Realtime(DataModule):
@@ -87,7 +88,7 @@ class Realtime(DataModule):
                     distance_index_list, plr_index, max_rel_veh, add_front, add_behind)
 
                 # Create vehicle class position list (initially ordered by class name)
-                class_pos_list = list(create_position_in_class(classes_list, laptime_session_best))
+                class_pos_list = create_position_in_class(classes_list, laptime_session_best)
 
                 # Create standings index list
                 standings_index_list = create_standings_index(
@@ -132,6 +133,12 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
         class_name = api.read.vehicle.class_name(index)
         position = api.read.vehicle.place(index)
         laptime_best = api.read.timing.best_laptime(index)
+        laptime_last = api.read.timing.last_laptime(index)
+
+        if laptime_last > 0 and not api.read.vehicle.in_pits(index):
+            laptime_personal_last = laptime_last
+        else:
+            laptime_personal_last = MAGIC_NUM
 
         if laptime_best > 0:
             laptime_personal_best = laptime_best
@@ -145,6 +152,7 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
             position,  # 1 overall position/place
             index,  # 2 player index
             laptime_personal_best,  # 3 best lap time
+            laptime_personal_last,  # 4 last lap time (for fastest last lap check)
         )
 
         # Update place-index list
@@ -164,10 +172,10 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
     new_distance_index = [_dist[1] for _dist in new_distance if _dist[0] != MAGIC_NUM]
 
     new_classes = TEMP_CLASSES[:veh_total]
-    new_classes.sort()     # by vehicle class
+    new_classes.sort()  # by vehicle class
 
     new_place_index = TEMP_PLACES[:veh_total]
-    new_place_index.sort() # by overall position/place
+    new_place_index.sort()  # by overall position/place
 
     return (
         new_distance_index,  # -> distance_index_list
@@ -209,33 +217,42 @@ def create_relative_index(
 
 def create_position_in_class(sorted_veh_class: list, laptime_session_best: float):
     """Create vehicle position in class list"""
-    laptime_class_best = MAGIC_NUM
     initial_class = sorted_veh_class[0][0]
     position_in_class = 0
     player_index_ahead = -1
     player_index_behind = -1
-    next_index = 0
-    total_veh = len(sorted_veh_class)
+    laptime_class_best = MAGIC_NUM
+    last_fastest_laptime = MAGIC_NUM
+    last_fastest_player_index = -1
+    veh_total = len(sorted_veh_class)
 
-    for veh_sort in sorted_veh_class:
+    for index, veh_sort in enumerate(sorted_veh_class):
         if veh_sort[0] == initial_class:
             position_in_class += 1
         else:
+            if last_fastest_player_index != -1:  # mark fastest last lap
+                TEMP_CLASSES_POS[last_fastest_player_index][7] = True
             initial_class = veh_sort[0]  # reset init name
             position_in_class = 1  # reset position counter
+            last_fastest_laptime = MAGIC_NUM  # reset last fastest
+            last_fastest_player_index = -1  # reset player index
 
         if position_in_class == 1:
             laptime_class_best = veh_sort[3]
             player_index_ahead = -1  # no player ahead
 
+        if last_fastest_laptime > veh_sort[4]:
+            last_fastest_laptime = veh_sort[4]
+            last_fastest_player_index = index
+
         # Check next index within range & is in same class
-        next_index += 1
-        if next_index < total_veh and sorted_veh_class[next_index][0] == veh_sort[0]:
+        next_index = index + 1
+        if next_index < veh_total and sorted_veh_class[next_index][0] == veh_sort[0]:
             player_index_behind = sorted_veh_class[next_index][2]
         else:
             player_index_behind = -1
 
-        yield (
+        TEMP_CLASSES_POS[index][:] = (
             veh_sort[2],       # 0 - 2 player index
             position_in_class,  # 1 - position in class
             veh_sort[0],       # 2 - 0 class name
@@ -243,8 +260,14 @@ def create_position_in_class(sorted_veh_class: list, laptime_session_best: float
             laptime_class_best,  # 4 classes best
             player_index_ahead,  # 5 player index ahead
             player_index_behind,  # 6 player index behind
+            False,  # 7 is class fastest last laptime
         )
         player_index_ahead = veh_sort[2]
+
+    if last_fastest_player_index != -1:  # mark for last class
+        TEMP_CLASSES_POS[last_fastest_player_index][7] = True
+
+    return TEMP_CLASSES_POS[:veh_total]
 
 
 def create_standings_index(

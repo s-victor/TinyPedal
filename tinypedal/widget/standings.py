@@ -84,7 +84,7 @@ class Realtime(Overlay):
             ("",0,2),  # pos_class
             ("",2),  # veh_class
             (-1,-1,0,2),  # tire_idx
-            ("",0,2),  # laptime
+            ("",0,0,2),  # laptime
             ("",0,2),  # best laptime
             ("",0,2),  # time_gap
             (-1,0,0,2),  # pit_count
@@ -226,7 +226,13 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_laptime"]),
                 self.set_qss(
                     fg_color=self.wcfg["font_color_player_laptime"],
-                    bg_color=self.wcfg["bkg_color_player_laptime"])
+                    bg_color=self.wcfg["bkg_color_player_laptime"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_fastest_last_laptime"],
+                    bg_color=self.wcfg["bkg_color_fastest_last_laptime"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_player_fastest_last_laptime"],
+                    bg_color=self.wcfg["bkg_color_player_fastest_last_laptime"])
             )
             self.bars_lpt = self.set_qlabel(
                 style=self.bar_style_lpt[0],
@@ -525,8 +531,14 @@ class Realtime(Overlay):
                 text = self.set_laptime(*data[0])
             else:
                 text = ""
+            if self.wcfg["show_highlighted_fastest_last_laptime"] and data[1]:
+                color_index = 2 + data[2]
+            elif data[2]:
+                color_index = 1  # player
+            else:
+                color_index = 0
             target.setText(text)
-            target.setStyleSheet(self.bar_style_lpt[data[1]])
+            target.setStyleSheet(self.bar_style_lpt[color_index])
             self.toggle_visibility(target, data[-1])
 
     def update_blp(self, target, data):
@@ -715,21 +727,21 @@ class Realtime(Overlay):
         tire_idx = (
             veh_info.tireCompoundFront, veh_info.tireCompoundRear, hi_player, state)
 
-        # 7 Lap time (laptime: tuple, hi_player, state)
+        # 7 Lap time (laptime: tuple, is fastest last: bool, hi_player, state)
         if self.wcfg["show_best_laptime"] or in_race:
             laptime = ((
                     veh_info.inPit,
                     veh_info.lastLapTime,
                     veh_info.pitTimer[2]
                 ),
-                hi_player, state)
+                veh_info.isClassFastestLastLap, hi_player, state)
         else:
             laptime = ((
                     0,
                     veh_info.bestLapTime,
                     0
                 ),
-                hi_player, state)
+                False, hi_player, state)
 
         # 8 Best lap time (best_laptime: float, hi_player, state)
         best_laptime = (veh_info.bestLapTime, hi_player, state)
