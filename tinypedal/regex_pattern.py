@@ -111,6 +111,7 @@ CFG_INTEGER = (
     "display_width|"
     "draw_order_index|"
     "font_size|"
+    "horizontal_gap|"
     "icon_size|"
     "inner_gap|"
     "layout|"
@@ -122,7 +123,8 @@ CFG_INTEGER = (
     "split_gap|"
     "update_interval|"
     "url_port|"
-    "vehicles"
+    "vehicles|"
+    "vertical_gap"
 )
 
 # Filename

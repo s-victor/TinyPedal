@@ -12,6 +12,12 @@ WIP
 * Gear Widget
   - Add "show_inverted_battery" & "show_inverted_rpm" options that invert battery or rpm bar progression.
 
+* [New]Tyre inner layer Widget, Tyre temperature Widget
+  - Separated inner layer temperature display from "Tyre temperature Widget" into the new
+    "Tyre inner layer Widget" (requested by H4dro), which can now be configured completely separately.
+    Tip: set color style differently to easier distinguish the two widgets.
+  - Add "horizontal_gap", "vertical_gap" options for enhanced arrangement (requested by doublebidule).
+
 2.20.1 (2024-11-24)
 -----------------------------
 * Pace Notes Playback

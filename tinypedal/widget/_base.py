@@ -402,29 +402,9 @@ class Overlay(QWidget):
             )
 
     @staticmethod
-    def set_grid_layout_tri_quad(
-        layout: QLayout, targets: tuple[QWidget],
-        row_start: int = 1, column_left: int = 0, column_right: int = 6):
-        """Set grid layout - tri-quad - (0,1,2), (3,4,5), (6,7,8), (9,10,11)
-
-        Default row index start from 1; reserve row index 0 for caption.
-        Default column left index start from 0, and right start from 6; reserve 3 columns in middle.
-        """
-        row_index = row_start
-        column_index = column_left
-        for index, target in enumerate(targets):
-            if index == 6:
-                row_index +=1
-                column_index = column_left
-            if index in (3, 9):
-                column_index = column_right
-            layout.addWidget(target, row_index, column_index)
-            column_index += 1
-
-    @staticmethod
     def set_grid_layout_table_row(
         layout: QLayout, targets: tuple[QWidget],
-        row_index: int, right_to_left: bool = False, hide_start: int = 99999):
+        row_index: int = 0, right_to_left: bool = False, hide_start: int = 99999):
         """Set grid layout - table by keys of each row"""
         if right_to_left:
             targets = reversed(targets)
@@ -436,7 +416,7 @@ class Overlay(QWidget):
     @staticmethod
     def set_grid_layout_table_column(
         layout: QLayout, targets: tuple[QWidget],
-        column_index: int, bottom_to_top: bool = False, hide_start: int = 99999):
+        column_index: int = 0, bottom_to_top: bool = False, hide_start: int = 99999):
         """Set grid layout - table by keys of each column"""
         if bottom_to_top:
             targets = reversed(targets)

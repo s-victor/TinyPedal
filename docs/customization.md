@@ -2582,22 +2582,8 @@ Set number of samples for rate of change data smoothing calculation (EMA). Value
 Show tyre compound index (front/rear).
 
 
-## Tyre load
-**This widget displays visualized tyre load info.**
-
-    show_tyre_load_ratio
-Show percentage ratio of tyre load between each and total tyre load. Set `false` to show individual tyre load in Newtons.
-
-
-## Tyre pressure
-**This widget displays tyre pressure info.**
-
-
-## Tyre temperature
-**This widget displays tyre surface and inner layer temperature info.**
-
-    layout
-2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
+## Tyre inner layer
+**This widget displays tyre inner layer temperature info.**
 
     heatmap_name
 Set heatmap preset name that is defined in `heatmap.json` file.
@@ -2614,8 +2600,38 @@ Set `true` to show degree sign for each temperature value.
     leading_zero
 Set amount leading zeros for each temperature value. Default is `2`. Minimum value is limited to `1`.
 
-    show_innerlayer
-Show tyre inner layer temperature.
+    show_tyre_compound
+Show tyre compound index (front/rear).
+
+
+## Tyre load
+**This widget displays visualized tyre load info.**
+
+    show_tyre_load_ratio
+Show percentage ratio of tyre load between each and total tyre load. Set `false` to show individual tyre load in Newtons.
+
+
+## Tyre pressure
+**This widget displays tyre pressure info.**
+
+
+## Tyre temperature
+**This widget displays tyre surface temperature info.**
+
+    heatmap_name
+Set heatmap preset name that is defined in `heatmap.json` file.
+
+    swap_style
+Swap heatmap color between font & background color.
+
+    show_inner_center_outer
+Set inner, center, outer temperature display mode. Set `false` to show average temperature instead.
+
+    show_degree_sign
+Set `true` to show degree sign for each temperature value.
+
+    leading_zero
+Set amount leading zeros for each temperature value. Default is `2`. Minimum value is limited to `1`.
 
     show_tyre_compound
 Show tyre compound index (front/rear).

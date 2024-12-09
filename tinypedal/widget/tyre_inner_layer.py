@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Tyre temperature Widget
+Tyre inner layer temperature Widget
 """
 
 from .. import calculation as calc
@@ -25,7 +25,7 @@ from .. import heatmap as hmp
 from ..api_control import api
 from ._base import Overlay
 
-WIDGET_NAME = "tyre_temperature"
+WIDGET_NAME = "tyre_inner_layer"
 
 
 class Realtime(Overlay):
@@ -58,8 +58,8 @@ class Realtime(Overlay):
             heatmap_name=self.wcfg["heatmap_name"],
             default_name="tyre_default",
             swap_style=self.wcfg["swap_style"],
-            fg_color=self.wcfg["font_color_surface"],
-            bg_color=self.wcfg["bkg_color_surface"],
+            fg_color=self.wcfg["font_color_inner_layer"],
+            bg_color=self.wcfg["bkg_color_inner_layer"],
         )
         self.setStyleSheet(self.set_qss(
             font_family=self.wcfg["font_name"],
@@ -70,15 +70,15 @@ class Realtime(Overlay):
             fg_color=self.wcfg["font_color_tyre_compound"],
             bg_color=self.wcfg["bkg_color_tyre_compound"]
         )
-        bar_style_stemp = self.set_qss(
-            fg_color=self.wcfg["font_color_surface"],
-            bg_color=self.wcfg["bkg_color_surface"]
+        bar_style_itemp = self.set_qss(
+            fg_color=self.wcfg["font_color_inner_layer"],
+            bg_color=self.wcfg["bkg_color_inner_layer"]
         )
 
-        # Tyre temperature
-        self.bars_stemp = self.set_table(
+        # Tyre inner temperature
+        self.bars_itemp = self.set_table(
             text=text_def,
-            style=bar_style_stemp,
+            style=bar_style_itemp,
             width=font_m.width * text_width + bar_padx,
             layout=layout,
             inner_gap=inner_gap,
@@ -107,19 +107,19 @@ class Realtime(Overlay):
                 for cmpd_idx, bar_tcmpd in enumerate(self.bars_tcmpd):
                     self.update_tcmpd(bar_tcmpd, tcmpd[cmpd_idx])
 
-            # Surface temperature: 0 - fl, 3 - fr, 6 - rl, 9 - rr
+            # Inner layer temperature: 0 - fl, 3 - fr, 6 - rl, 9 - rr
             if self.wcfg["show_inner_center_outer"]:
-                stemp = api.read.tyre.surface_temperature_ico()
-                for tyre_idx, bar_stemp in enumerate(self.bars_stemp):
-                    self.update_stemp(bar_stemp, round(stemp[tyre_idx]))
+                itemp = api.read.tyre.inner_temperature_ico()
+                for tyre_idx, bar_itemp in enumerate(self.bars_itemp):
+                    self.update_itemp(bar_itemp, round(itemp[tyre_idx]))
             else:  # 0 - fl, 1 - fr, 2 - rl, 3 - rr
-                stemp = api.read.tyre.surface_temperature_avg()
-                for tyre_idx, bar_stemp in enumerate(self.bars_stemp):
-                    self.update_stemp(bar_stemp, round(stemp[tyre_idx]))
+                itemp = api.read.tyre.inner_temperature_avg()
+                for tyre_idx, bar_itemp in enumerate(self.bars_itemp):
+                    self.update_itemp(bar_itemp, round(itemp[tyre_idx]))
 
     # GUI update methods
-    def update_stemp(self, target, data):
-        """Tyre surface temperature"""
+    def update_itemp(self, target, data):
+        """Tyre inner temperature"""
         if target.last != data:
             target.last = data
             target.setText(self.format_temperature(data))

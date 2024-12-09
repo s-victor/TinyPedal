@@ -73,6 +73,7 @@ from . import (
     track_notes,
     trailing,
     tyre_carcass,
+    tyre_inner_layer,
     tyre_load,
     tyre_pressure,
     tyre_temperature,
