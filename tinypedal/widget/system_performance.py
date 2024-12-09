@@ -130,7 +130,7 @@ class Realtime(Overlay):
             memory_used = psutil.virtual_memory().used / 1024 / 1024 / 1024
             cpu = f"{data: >4.2f}"[:4].strip(".")
             mem = f"{memory_used: >4.2f}"[:4].strip(".")
-            self.bar_system.setText(f"{prefix}{cpu: >4}%{mem: >5}GB")
+            target.setText(f"{prefix}{cpu: >4}%{mem: >5}GB")
 
     def update_app(self, target, data, prefix):
         """APP performance"""
@@ -139,4 +139,4 @@ class Realtime(Overlay):
             memory_used = self.app_info.memory_full_info().uss / 1024 / 1024
             cpu = f"{data: >4.2f}"[:4].strip(".")
             mem = f"{memory_used: >4.2f}"[:4].strip(".")
-            self.bar_app.setText(f"{prefix}{cpu: >4}%{mem: >5}MB")
+            target.setText(f"{prefix}{cpu: >4}%{mem: >5}MB")

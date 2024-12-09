@@ -143,14 +143,9 @@ class Realtime(Overlay):
                 count=12,  # 3 x 4 tyres
                 last=0,
             )
-            self.set_grid_layout_table_row(layout_inner[0], bar_set[:3])
-            self.set_grid_layout_table_row(layout_inner[1], bar_set[3:6])
-            self.set_grid_layout_table_row(layout_inner[2], bar_set[6:9])
-            self.set_grid_layout_table_row(layout_inner[3], bar_set[9:12])
-            layout.addLayout(layout_inner[0], 1, 0)
-            layout.addLayout(layout_inner[1], 1, 9)
-            layout.addLayout(layout_inner[2], 2, 0)
-            layout.addLayout(layout_inner[3], 2, 9)
+            for idx, inner in enumerate(layout_inner):
+                self.set_grid_layout_table_row(inner, bar_set[idx * 3:idx * 3 + 3])
+            self.set_grid_layout_quad(layout, layout_inner)
         else:
             bar_set = self.set_qlabel(
                 text=text,

@@ -388,18 +388,19 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout_quad(
-        layout: QLayout, targets: tuple[QWidget],
+        layout: QLayout, targets: tuple[QWidget | QLayout],
         row_start: int = 1, column_left: int = 0, column_right: int = 9):
         """Set grid layout - quad - (0,1), (2,3)
 
         Default row index start from 1; reserve row index 0 for caption.
         """
         for index, target in enumerate(targets):
-            layout.addWidget(
-                target,
-                row_start + (index > 1),
-                column_left + (index % 2) * column_right
-            )
+            row_index = row_start + (index > 1)
+            column_index = column_left + (index % 2) * column_right
+            if isinstance(target, QWidget):
+                layout.addWidget(target, row_index, column_index)
+            else:
+                layout.addLayout(target, row_index, column_index)
 
     @staticmethod
     def set_grid_layout_table_row(
