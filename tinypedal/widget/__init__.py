@@ -65,6 +65,7 @@ from . import (
     speedometer,
     standings,
     steering,
+    steering_wheel,
     stint_history,
     suspension_position,
     system_performance,

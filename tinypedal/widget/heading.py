@@ -50,13 +50,6 @@ class Realtime(Overlay):
         # Config variable
         self.area_size = max(int(self.wcfg["display_size"]), 20)
         self.area_center = self.area_size * 0.5
-
-        icon_source = QPixmap("images/icon_compass.png")
-        self.pixmap_icon = icon_source.scaledToWidth(
-            self.area_size * 1.5,
-            mode=Qt.SmoothTransformation
-        )
-
         self.decimals = max(int(self.wcfg["decimal_places"]), 0)
         text_width = font_m.width * (5 + self.decimals)
 
@@ -89,6 +82,10 @@ class Realtime(Overlay):
         self.resize(self.area_size, self.area_size)
         self.pixmap_background = QPixmap(self.area_size, self.area_size)
         self.pixmap_dot = QPixmap(self.area_size, self.area_size)
+        self.pixmap_icon = QPixmap("images/icon_compass.png").scaledToWidth(
+            int(self.area_size * 1.5),
+            mode=Qt.SmoothTransformation
+        )
 
         self.pen_yaw = QPen()
         self.pen_yaw.setCapStyle(Qt.RoundCap)

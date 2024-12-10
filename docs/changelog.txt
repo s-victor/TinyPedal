@@ -18,6 +18,11 @@ WIP
 * Gear Widget
   - Add "show_inverted_battery" & "show_inverted_rpm" options that invert battery or rpm bar progression.
 
+* [New]Steering wheel
+  - Show virtual steering wheel with customizable steering wheel image.
+  - Show steering rotation reference line, which can be useful to see if physical steering wheel is misaligned.
+  - See User Guide for details.
+
 * [New]Tyre inner layer Widget, Tyre temperature Widget
   - Separated inner layer temperature display from "Tyre temperature Widget" into the new
     "Tyre inner layer Widget" (requested by H4dro), which can now be configured completely separately.

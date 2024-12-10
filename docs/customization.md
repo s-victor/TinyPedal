@@ -2361,6 +2361,37 @@ This enables scale marks on steering bar.
 Set gap between each scale mark in degree. Default is `90` degree. Minimum value is limited to `10` degree.
 
 
+## Steering wheel
+**This widget displays virtual steering wheel.**
+
+    show_custom_steering_wheel
+Show user-defined custom steering wheel image instead of default image.
+
+    custom_steering_wheel_image_file
+Set custom steering wheel image file path. Double-click this option in widget's `Config` dialog to select an image file. Note, image file must be in `PNG` format. Maximum supported `PNG` file size is limited to `5MB`. Default image will be used if selected image is invalid.
+
+    display_size
+Set widget display size in pixels.
+
+    display_margin
+Set widget display margin in pixels.
+
+    show_steering_angle
+Show steering angle text in degree.
+
+    *_offset_x, *_offset_y
+Set steering angle text offset position (percentage), value range in `0.0` to `1.0`.
+
+    manual_steering_range
+Manually set steering display range in degree. Set to `0` to read physical steering range from API. This option may be useful when steering range value is not provided by some vehicles.
+
+    show_rotation_line
+Show steering rotation reference line, which can be useful to see if physical steering wheel is misaligned.
+
+    show_rotation_line_while_stationary_only
+Show rotation line only while vehicle is stationary (less than 1m/s).
+
+
 ## Stint history
 **This widget displays stint history info.**
 
