@@ -2368,7 +2368,9 @@ Set gap between each scale mark in degree. Default is `90` degree. Minimum value
 Show user-defined custom steering wheel image instead of default image.
 
     custom_steering_wheel_image_file
-Set custom steering wheel image file path. Double-click this option in widget's `Config` dialog to select an image file. Note, image file must be in `PNG` format. Maximum supported `PNG` file size is limited to `5MB`. Default image will be used if selected image is invalid.
+Set custom steering wheel image file path. Double-click this option in widget's `Config` dialog to select an image file.
+
+Note, image file must be in `PNG` format with same width and height. Maximum supported `PNG` file size is limited to `5MB`. Default image will be used if selected image is not valid.
 
     display_size
 Set widget display size in pixels.

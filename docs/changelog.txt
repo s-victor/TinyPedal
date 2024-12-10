@@ -1,4 +1,4 @@
-WIP
+2.21.0 (2024-12-10)
 -----------------------------
 * General
   - More optimization to all widgets & modules for further improved efficiency and less resource usage.
@@ -31,6 +31,9 @@ WIP
     "Tyre inner layer Widget" (requested by H4dro), which can now be configured completely separately.
     Tip: set color style differently to easier distinguish the two widgets.
   - Add "horizontal_gap", "vertical_gap" options for enhanced arrangement (requested by doublebidule).
+
+* Misc
+  - Updated User Guide info for related changes above.
 
 2.20.1 (2024-11-24)
 -----------------------------
