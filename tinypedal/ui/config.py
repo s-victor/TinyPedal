@@ -167,6 +167,7 @@ class UserConfig(BaseDialog):
         self.option_bool = {}
         self.option_color = {}
         self.option_path = {}
+        self.option_image = {}
         self.option_fontname = {}
         self.option_droplist = {}
         self.option_string = {}
@@ -240,6 +241,10 @@ class UserConfig(BaseDialog):
                 editor.setText(
                     self.default_setting[self.key_name][key])
 
+            for key, editor in self.option_image.items():
+                editor.setText(
+                    self.default_setting[self.key_name][key])
+
             for key, editor in self.option_fontname.items():
                 editor.setCurrentFont(
                     self.default_setting[self.key_name][key])
@@ -283,6 +288,9 @@ class UserConfig(BaseDialog):
             else:
                 self.value_error_message("path", key)
                 error_found = True
+
+        for key, editor in self.option_image.items():
+            self.user_setting[self.key_name][key] = editor.text()
 
         for key, editor in self.option_fontname.items():
             self.user_setting[self.key_name][key] = editor.currentFont().family()
@@ -364,6 +372,11 @@ class UserConfig(BaseDialog):
             # User path string
             if re.search(rxp.CFG_USER_PATH, key):
                 self.__add_option_path(
+                    idx, key, layout)
+                continue
+            # User image file path string
+            if re.search(rxp.CFG_USER_IMAGE, key):
+                self.__add_option_image(
                     idx, key, layout)
                 continue
             # Font name string
@@ -461,6 +474,21 @@ class UserConfig(BaseDialog):
         # Add layout
         layout.addWidget(editor, idx, COLUMN_OPTION)
         self.option_path[key] = editor
+
+    def __add_option_image(self, idx, key, layout):
+        """Image file path string"""
+        editor = DoubleClickEdit(
+            mode="image", init=self.user_setting[self.key_name][key])
+        editor.setFixedWidth(self.option_width)
+        # Load selected option
+        editor.setText(
+            self.user_setting[self.key_name][key])
+        # Context menu
+        add_context_menu(
+            editor, str(self.default_setting[self.key_name][key]), "set_text")
+        # Add layout
+        layout.addWidget(editor, idx, COLUMN_OPTION)
+        self.option_image[key] = editor
 
     def __add_option_fontname(self, idx, key, layout):
         """Font name string"""

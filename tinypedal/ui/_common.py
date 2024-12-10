@@ -54,6 +54,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import validator as val
+from .. import formatter as fmt
 from ..const import APP_NAME, APP_ICON
 
 # Validator
@@ -372,6 +373,8 @@ class DoubleClickEdit(QLineEdit):
                 self.open_dialog_color()
             elif self.open_mode == "path":
                 self.open_dialog_path()
+            elif self.open_mode == "image":
+                self.open_dialog_image()
 
     def open_dialog_color(self):
         """Open color dialog"""
@@ -406,6 +409,14 @@ class DoubleClickEdit(QLineEdit):
             # Update edit box and init value
             self.setText(path_valid)
             self.init_value = path_valid
+
+    def open_dialog_image(self):
+        """Open image file name dialog"""
+        path_selected = QFileDialog.getOpenFileName(
+            self, dir=self.init_value, filter=fmt.qfile_filter(".png", "PNG files"))[0]
+        if val.image_file(path_selected):
+            self.setText(path_selected)
+            self.init_value = path_selected
 
 
 class QTableFloatItem(QTableWidgetItem):

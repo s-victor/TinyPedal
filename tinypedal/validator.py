@@ -130,6 +130,15 @@ def relative_path(filepath: str) -> str:
     return output_path
 
 
+def image_file(filepath: str, extension: str = ".png", max_size: int = 5120000) -> bool:
+    """Validate image file path, file format (default PNG), max file size (default < 5MB)"""
+    return (
+        os.path.exists(filepath) and
+        os.path.getsize(filepath) < max_size and
+        filepath.lower().endswith(extension)
+    )
+
+
 # Delta list validate
 def delta_list(data: list) -> list:
     """Validate delta data list"""

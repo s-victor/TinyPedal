@@ -59,6 +59,7 @@ CFG_MULTIMEDIA_PLUGIN = "multimedia_plugin"
 CFG_FONT_NAME = "font_name"
 CFG_HEATMAP = "heatmap"
 CFG_USER_PATH = "_path"
+CFG_USER_IMAGE = "_image_file"
 CFG_STRING = (
     # Exact match
     "^process_id$|"
