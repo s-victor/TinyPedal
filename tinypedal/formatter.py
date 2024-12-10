@@ -169,6 +169,6 @@ def coords_to_points(coords: tuple | list) -> str:
 def steerlock_to_number(value: str) -> float:
     """Convert steerlock (degree) string to float value"""
     try:
-        return float(value.split(" ")[0])
+        return float(re.split(r"[\D]", value)[0])
     except (AttributeError, ValueError):
         return 0.0

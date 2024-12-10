@@ -5,6 +5,8 @@ Thanks to many people for contributing to the development.
 
 ## Development
 * Xiang (S.Victor) - Project founder, core development
+
+## Cross-platform
 * Bernat (berarma) - Cross-platform implementation & maintainer
 
 ## Implementation
