@@ -468,10 +468,8 @@ class Realtime(Overlay):
                 text = ""
             if self.wcfg["show_highlighted_fastest_last_laptime"] and data[1]:
                 color_index = 2 + data[2]
-            elif data[2]:
-                color_index = 1  # player
             else:
-                color_index = 0
+                color_index = data[2]
             target.setText(text)
             target.setStyleSheet(self.bar_style_lpt[color_index])
 

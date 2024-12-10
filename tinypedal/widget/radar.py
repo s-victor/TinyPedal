@@ -66,10 +66,9 @@ class Realtime(Overlay):
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
-        self.pixmap_background = QPixmap(self.area_size, self.area_size)
         self.pixmap_mask = QPixmap(self.area_size, self.area_size)
         self.pixmap_marks = QPixmap(self.area_size, self.area_size)
-        self.rect_fade = QRectF(0, 0, self.area_size, self.area_size)
+        self.rect_radar = QRectF(0, 0, self.area_size, self.area_size)
 
         # Vehicle pen & brush
         if self.wcfg["vehicle_outline_width"] > 0:
@@ -80,7 +79,6 @@ class Realtime(Overlay):
             self.pen_veh = Qt.NoPen
         self.brush_veh = QBrush(Qt.SolidPattern)
 
-        self.draw_background()
         self.draw_radar_marks(self.area_center)
         self.draw_radar_mask()
 
@@ -112,6 +110,9 @@ class Realtime(Overlay):
         if self.show_radar:
             painter = QPainter(self)
             painter.setRenderHint(QPainter.Antialiasing, True)
+            # Draw circle background
+            if self.wcfg["show_circle_background"]:
+                painter.fillRect(self.rect_radar, self.wcfg["bkg_color_circle"])
             # Draw marks
             painter.drawPixmap(0, 0, self.pixmap_marks)
             # Draw vehicles
@@ -121,9 +122,9 @@ class Realtime(Overlay):
                 painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)
                 painter.drawPixmap(0, 0, self.pixmap_mask)
             # Draw background below map & mask
-            if self.wcfg["show_background"] or self.wcfg["show_circle_background"]:
+            if self.wcfg["show_background"]:
                 painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
-                painter.drawPixmap(0, 0, self.pixmap_background)
+                painter.fillRect(self.rect_radar, self.wcfg["bkg_color"])
             # Apply radar fade mask
             if self.wcfg["enable_radar_fade"] and not self.in_garage:
                 radar_alpha = self.radar_fade_factor * (
@@ -133,24 +134,7 @@ class Realtime(Overlay):
                         radar_alpha = 0
                     self.radar_fade_color.setAlphaF(radar_alpha)
                     painter.setCompositionMode(QPainter.CompositionMode_DestinationIn)
-                    painter.fillRect(self.rect_fade, self.radar_fade_color)
-
-    def draw_background(self):
-        """Draw radar background"""
-        if self.wcfg["show_background"]:
-            self.pixmap_background.fill(self.wcfg["bkg_color"])
-        else:
-            self.pixmap_background.fill(Qt.transparent)
-        painter = QPainter(self.pixmap_background)
-        painter.setRenderHint(QPainter.Antialiasing, True)
-
-        # Draw circle background
-        if self.wcfg["show_circle_background"]:
-            brush = QBrush(Qt.SolidPattern)
-            brush.setColor(self.wcfg["bkg_color_circle"])
-            painter.setBrush(brush)
-            painter.setPen(Qt.NoPen)
-            painter.drawEllipse(0, 0, self.area_size, self.area_size)
+                    painter.fillRect(self.rect_radar, self.radar_fade_color)
 
     def draw_radar_mask(self):
         """Draw radar mask"""
