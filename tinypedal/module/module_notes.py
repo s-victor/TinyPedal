@@ -141,6 +141,7 @@ def notes_selector(output: object, dataset: list[dict] | None):
     last_index = 0
     end_index = end_note_index(dataset)
     dist_ref = reference_notes_index(dataset)
+    output.reset()  # initial reset before updating
 
     while True:
         pos_curr = yield

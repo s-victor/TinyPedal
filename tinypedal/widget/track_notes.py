@@ -131,18 +131,21 @@ class Realtime(Overlay):
 
             if api.read.vehicle.in_garage():
                 self.update_auto_hide(False)
-            elif self.wcfg["auto_hide_if_not_available"] and not minfo.tracknotes.currentNote:
+            elif minfo.tracknotes.currentNote:
+                if self.wcfg["maximum_display_duration"] <= 0:
+                    self.update_auto_hide(False)
+                else:
+                    etime = api.read.timing.elapsed()
+                    notes_index = minfo.tracknotes.currentIndex
+                    if self.last_notes_index != notes_index:
+                        self.last_notes_index = notes_index
+                        self.last_etime = etime
+                    if self.last_etime > etime:
+                        self.last_etime = etime
+                    self.update_auto_hide(
+                        etime - self.last_etime > self.wcfg["maximum_display_duration"])
+            elif self.wcfg["auto_hide_if_not_available"]:
                 self.update_auto_hide(True)
-            elif self.wcfg["maximum_display_duration"] > 0:
-                etime = api.read.timing.elapsed()
-                notes_index = minfo.tracknotes.currentIndex
-                if self.last_notes_index != notes_index:
-                    self.last_notes_index = notes_index
-                    self.last_etime = etime
-                if self.last_etime > etime:
-                    self.last_etime = etime
-                self.update_auto_hide(
-                    etime - self.last_etime > self.wcfg["maximum_display_duration"])
 
             if self.wcfg["show_track_notes"]:
                 notes = minfo.tracknotes.currentNote.get(COLUMN_TRACKNOTE, NA)
