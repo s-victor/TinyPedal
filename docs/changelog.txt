@@ -1,3 +1,13 @@
+WIP
+-----------------------------
+* Instrument Widget
+  - Add "stalling_rpm_threshold" option, which sets RPM threshold for triggering engine stalling warning.
+    Default is "100" RPM.
+  - Renamed "warning_color_ignition" option to "warning_color_stalling".
+
+* Pace notes Widget, Track notes Widget
+  - Fixed notes not showing up if game was paused and unpaused again while on track.
+
 2.21.0 (2024-12-10)
 -----------------------------
 * General

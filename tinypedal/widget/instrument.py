@@ -43,7 +43,7 @@ class Realtime(Overlay):
         self.icon_size = int(max(self.wcfg["icon_size"], 16) * 0.5) * 2
         self.warning_color = (
             self.wcfg["bkg_color"],                 # 0
-            self.wcfg["warning_color_ignition"],    # 1
+            self.wcfg["warning_color_stalling"],    # 1
             self.wcfg["warning_color_clutch"],      # 2
             self.wcfg["warning_color_wheel_lock"],  # 3
             self.wcfg["warning_color_wheel_slip"],  # 4
@@ -132,7 +132,8 @@ class Realtime(Overlay):
             # Ignition
             # 0 ignition & engine off, 1 ignition on & engine off, 2 ignition & engine on
             if self.wcfg["show_ignition"]:
-                ignition = api.read.switch.ignition_starter() * (1 + (api.read.engine.rpm() > 10))
+                ignition = api.read.switch.ignition_starter() * (
+                    1 + (api.read.engine.rpm() > self.wcfg["stalling_rpm_threshold"]))
                 self.update_ignition(self.bar_ignition, ignition)
 
             # Clutch

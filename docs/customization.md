@@ -1669,19 +1669,22 @@ Set size of instrument icon in pixel. Minimum value is limited to `16`.
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
     show_headlights
-Show Headlights state.
+Show headlights state.
 
     show_ignition
-Show Ignition & Starter state.
+Show engine ignition, starter, stalling state.
+
+    stalling_rpm_threshold
+Set RPM threshold for triggering engine stalling warning. Default is `100` RPM.
 
     show_clutch
-Show Auto-Clutch state.
+Show auto-clutch and clutch state.
 
     show_wheel_lock
-Show Wheel Lock state.
+Show wheel lock state.
 
     show_wheel_slip
-Show Wheel Slip state.
+Show wheel slip state.
 
     wheel_lock_threshold
 Set percentage threshold for triggering wheel lock warning under braking. `0.3` means 30% of tyre slip ratio.
