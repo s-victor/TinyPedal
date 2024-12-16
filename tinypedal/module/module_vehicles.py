@@ -127,8 +127,8 @@ class Realtime(DataModule):
             calc_pit_time(data.pitTimer, in_pit, lap_etime)
 
             # Position & relative data
-            opt_pos_x = data.posXY[0] = api.read.vehicle.position_longitudinal(index)
-            opt_pos_y = data.posXY[1] = api.read.vehicle.position_lateral(index)
+            opt_pos_x = data.worldPositionX = api.read.vehicle.position_longitudinal(index)
+            opt_pos_y = data.worldPositionY = api.read.vehicle.position_lateral(index)
             if is_player:
                 relative_distance = 0
                 data.relativeTimeGap = 0
@@ -139,8 +139,8 @@ class Realtime(DataModule):
                 plr_ori_yaw = api.read.vehicle.orientation_yaw_radians()
                 opt_ori_yaw = api.read.vehicle.orientation_yaw_radians(index)
 
-                data.relativeOrientationXYRadians = opt_ori_yaw - plr_ori_yaw
-                data.relativeRotatedPosXY[0], data.relativeRotatedPosXY[1] = calc.rotate_coordinate(
+                data.relativeOrientationRadians = opt_ori_yaw - plr_ori_yaw
+                data.relativeRotatedPositionX, data.relativeRotatedPositionY = calc.rotate_coordinate(
                     plr_ori_yaw - 3.14159265,  # plr_ori_rad, rotate view
                     opt_pos_x - plr_pos_x,     # x position related to player
                     opt_pos_y - plr_pos_y)     # y position related to player
@@ -200,29 +200,23 @@ class Realtime(DataModule):
         minfo.vehicles.dataSetVersion += 1
 
 
-def calc_pit_time(pit_timer: list, in_pit: int, lap_etime: float):
-    """Calculate lap & pit time
+def calc_pit_time(pit_timer: object, in_pit: int, elapsed_time: float):
+    """Calculate pit time
 
-    Pit timer list indexes:
-        0 = in pit state (value 0 = not in pit, 1 = in pit, 2 = in garage)
-        1 = pit start time
-        2 = pit timer
+    in pit state (value 0 = not in pit, 1 = in pit, 2 = in garage)
     """
     # Pit status check
-    if in_pit != pit_timer[0]:
-        pit_timer[0] = in_pit  # last pit status
-        pit_timer[1] = lap_etime  # last etime stamp
-        #if in_pit:  # reset pit time if just entered pit
-        #    pit_timer[2] = 0
+    if in_pit != pit_timer.last_state:
+        pit_timer.last_state = in_pit
+        pit_timer.start = elapsed_time
     # Ignore pit timer in garage
     if in_pit == 2:
-        pit_timer[1] = -1
-        pit_timer[2] = 0
+        pit_timer.start = -1
+        pit_timer.elapsed = 0
         return
     # Calculating pit time while in pit
-    if in_pit:
-        if pit_timer[1] >= 0:
-            pit_timer[2] = lap_etime - pit_timer[1]
+    if in_pit > 0 <= pit_timer.start:
+        pit_timer.elapsed = elapsed_time - pit_timer.start
 
 
 def relative_interval(opt_index: int, index: int = None) -> float:

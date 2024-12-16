@@ -603,7 +603,7 @@ class Realtime(Overlay):
 
         # 7 Lap time (laptime: tuple)
         if self.wcfg["show_best_laptime"] or in_race:
-            laptime = (veh_info.inPit, veh_info.lastLapTime, veh_info.pitTimer[2])
+            laptime = (veh_info.inPit, veh_info.lastLapTime, veh_info.pitTimer.elapsed)
         else:
             laptime = (0, veh_info.bestLapTime, 0)
 

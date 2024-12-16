@@ -227,10 +227,10 @@ class Realtime(Overlay):
             laps_diff = 0
 
         # Update last pit time slot
-        self.leader_pit_time_set[-1] = minfo.vehicles.dataSet[leader_index].pitTimer[2]
+        self.leader_pit_time_set[-1] = minfo.vehicles.dataSet[leader_index].pitTimer.elapsed
         self.update_pit_time(self.bars_pit_leader[-1], self.leader_pit_time_set[-1])
 
-        self.player_pit_time_set[-1] = minfo.vehicles.dataSet[player_index].pitTimer[2]
+        self.player_pit_time_set[-1] = minfo.vehicles.dataSet[player_index].pitTimer.elapsed
         self.update_pit_time(self.bars_pit_player[-1], self.player_pit_time_set[-1])
 
         # Update slots

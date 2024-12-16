@@ -209,12 +209,9 @@ class Realtime(Overlay):
 
     def draw_warning_indicator(self, painter, indicator, nearest_left, nearest_right):
         """Draw warning indicator"""
-        # Scale to display size
-        x_left = self.scale_veh_pos(nearest_left)
-        x_right = self.scale_veh_pos(nearest_right)
-
         # Draw left side indicator
         if nearest_left > -indicator.max_range_x:
+            x_left = self.scale_veh_pos(nearest_left)
             lin_gra = QLinearGradient(
                 x_left - indicator.width + indicator.offset, 0,
                 x_left + indicator.offset, 0
@@ -232,6 +229,7 @@ class Realtime(Overlay):
 
         # Draw right side indicator
         if nearest_right < indicator.max_range_x:
+            x_right = self.scale_veh_pos(nearest_right)
             lin_gra = QLinearGradient(
                 x_right - indicator.offset, 0,
                 x_right + indicator.width - indicator.offset, 0
@@ -262,7 +260,8 @@ class Realtime(Overlay):
             if veh_info.isPlayer:
                 continue
             # -x = left, +x = right, -y = ahead, +y = behind
-            raw_pos_x, raw_pos_y = veh_info.relativeRotatedPosXY
+            raw_pos_x = veh_info.relativeRotatedPositionX
+            raw_pos_y = veh_info.relativeRotatedPositionY
             if (self.vehicle_hide_range.behind > raw_pos_y > -self.vehicle_hide_range.ahead and
                 -self.vehicle_hide_range.side < raw_pos_x < self.vehicle_hide_range.side):
 
@@ -278,7 +277,7 @@ class Realtime(Overlay):
                 # Rotated position relative to player
                 pos_x = self.scale_veh_pos(raw_pos_x)
                 pos_y = self.scale_veh_pos(raw_pos_y)
-                angle_deg = calc.rad2deg(-veh_info.relativeOrientationXYRadians)
+                angle_deg = calc.rad2deg(-veh_info.relativeOrientationRadians)
 
                 # Draw vehicle
                 self.brush_veh.setColor(self.color_lap_diff(veh_info))
@@ -364,7 +363,8 @@ class Realtime(Overlay):
                 break
             if not veh_info.isPlayer:
                 # -x = left, +x = right, -y = ahead, +y = behind
-                raw_pos_x, raw_pos_y = veh_info.relativeRotatedPosXY
+                raw_pos_x = veh_info.relativeRotatedPositionX
+                raw_pos_y = veh_info.relativeRotatedPositionY
                 if (self.radar_hide_range.behind > raw_pos_y > -self.radar_hide_range.ahead and
                     -self.radar_hide_range.side < raw_pos_x < self.radar_hide_range.side):
                     return True

@@ -292,13 +292,13 @@ class Realtime(Overlay):
             elif veh_info[index].relativeStraightDistance < self.view_range:
                 # Rotated position relative to player
                 # Position = raw position * global scale + offset
-                pos_x = veh_info[index].relativeRotatedPosXY[0] * self.global_scale + self.area_center
-                pos_y = veh_info[index].relativeRotatedPosXY[1] * self.global_scale + self.veh_offset_y
+                pos_x = veh_info[index].relativeRotatedPositionX * self.global_scale + self.area_center
+                pos_y = veh_info[index].relativeRotatedPositionY * self.global_scale + self.veh_offset_y
                 painter.translate(pos_x, pos_y)
 
                 if not self.wcfg["show_circle_vehicle_shape"]:
                     painter.rotate(
-                        calc.rad2deg(-veh_info[index].relativeOrientationXYRadians))
+                        calc.rad2deg(-veh_info[index].relativeOrientationRadians))
                 painter.drawPixmap(
                     -self.veh_size, -self.veh_size,
                     self.color_veh_pixmap(veh_info[index]))

@@ -231,6 +231,14 @@ class WheelsInfo:
 
 
 @dataclass
+class VehiclePitTimer:
+    """Vehicle pit timer"""
+    last_state: bool = False
+    start: float = 0
+    elapsed: float = 0
+
+
+@dataclass
 class VehicleDataSet:
     """Vehicle data set"""
     isPlayer: bool = False
@@ -256,17 +264,13 @@ class VehicleDataSet:
     pitState: int = 0
     tireCompoundFront: int = 0
     tireCompoundRear: int = 0
-    relativeOrientationXYRadians: float = 0
+    relativeOrientationRadians: float = 0
     relativeStraightDistance: float = 0
-    # Sub-list
-    pitTimer: list = field(default_factory=list)
-    posXY: list = field(default_factory=list)
-    relativeRotatedPosXY: list = field(default_factory=list)
-
-    def __post_init__(self):
-        self.pitTimer = [0, -1, 0]  # 0 in pit state, 1 pit start time, 2 pit timer
-        self.posXY = [0, 0]
-        self.relativeRotatedPosXY = [0, 0]
+    worldPositionX: float = 0
+    worldPositionY: float = 0
+    relativeRotatedPositionX: float = 0
+    relativeRotatedPositionY: float = 0
+    pitTimer: VehiclePitTimer = field(default_factory=VehiclePitTimer)
 
 
 class ModuleInfo:

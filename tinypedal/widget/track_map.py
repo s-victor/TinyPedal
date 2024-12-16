@@ -263,10 +263,10 @@ class Realtime(Overlay):
             if self.map_scaled:
                 # Position = (coords - min_range) * scale + offset, round to prevent bouncing
                 pos_x = round(
-                    (veh_info[index].posXY[0] - self.map_range[0])  # min range x
+                    (veh_info[index].worldPositionX - self.map_range[0])  # min range x
                     * self.map_scale + self.map_offset[0])  # offset x
                 pos_y = round(
-                    (veh_info[index].posXY[1] - self.map_range[2])  # min range y
+                    (veh_info[index].worldPositionY - self.map_range[2])  # min range y
                     * self.map_scale + self.map_offset[1])  # offset y
                 offset = 0
             else:  # vehicles on temp map

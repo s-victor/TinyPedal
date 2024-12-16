@@ -627,7 +627,7 @@ class Realtime(Overlay):
         laptime = ((
                 veh_info.inPit,
                 veh_info.lastLapTime,
-                veh_info.pitTimer[2]
+                veh_info.pitTimer.elapsed
             ),
             veh_info.isClassFastestLastLap, hi_player)
 
