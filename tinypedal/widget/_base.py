@@ -22,7 +22,7 @@ Overlay base window, events.
 
 from __future__ import annotations
 import re
-from typing import NamedTuple
+from typing import Any, NamedTuple
 
 from PySide2.QtCore import Qt, Slot, QBasicTimer
 from PySide2.QtGui import QPalette, QFont, QFontMetrics, QPixmap
@@ -287,7 +287,7 @@ class Overlay(QWidget):
     def __add_qlabel(
         self, text: str | None = None, pixmap: QPixmap | None = None, style: str | None = None,
         width: int = 0, height: int = 0, fixed_width: int = 0, fixed_height: int = 0,
-        align: int = 0, last: any | None = None) -> QLabel:
+        align: int = 0, last: Any | None = None) -> QLabel:
         """Add a single qlabel instance
 
         Args:
@@ -334,7 +334,7 @@ class Overlay(QWidget):
     def set_qlabel(
         self, text: str | None = None, pixmap: QPixmap | None = None, style: str | None = None,
         width: int = 0, height: int = 0, fixed_width: int = 0, fixed_height: int = 0,
-        align: int = 0, last: any | None = None, count: int = 1) -> (tuple[QLabel, ...] | QLabel):
+        align: int = 0, last: Any | None = None, count: int = 1) -> (tuple[QLabel, ...] | QLabel):
         """Set qlabel
 
         Args:

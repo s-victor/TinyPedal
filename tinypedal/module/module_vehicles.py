@@ -209,7 +209,7 @@ def calc_pit_time(pit_timer: VehiclePitTimer, in_pit: int, elapsed_time: float):
     Pit state: 0 = not in pit, 1 = in pit, 2 = in garage.
     """
     # Pit status check
-    if in_pit != pit_timer.last_state:
+    if pit_timer.last_state != in_pit:
         pit_timer.last_state = in_pit
         pit_timer.start = elapsed_time
     # Ignore pit timer in garage

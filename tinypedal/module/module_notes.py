@@ -21,6 +21,7 @@ Notes module
 """
 
 from __future__ import annotations
+from collections.abc import Callable
 
 from ._base import DataModule
 from ..module_info import minfo, NotesInfo
@@ -116,7 +117,7 @@ class Realtime(DataModule):
 
 def load_pace_notes_file(
     config: dict, filepath: str, filename: str,
-    table_header: tuple, parser: object, extension: str):
+    table_header: tuple, parser: Callable, extension: str):
     """Load pace notes"""
     if config["enable_manual_file_selector"]:
         filepath = ""

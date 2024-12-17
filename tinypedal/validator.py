@@ -27,6 +27,7 @@ import re
 import time
 from functools import wraps
 from math import isfinite
+from typing import Any
 
 TYPE_NUMBER = float, int
 
@@ -34,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 # Value validate
-def infnan2zero(value: any) -> (float | int):
+def infnan2zero(value: Any) -> (float | int):
     """Convert invalid value to zero
 
     Some data from API may contain invalid value
@@ -46,7 +47,7 @@ def infnan2zero(value: any) -> (float | int):
     return 0
 
 
-def cbytes2str(bytestring: any, char_encoding: str = "utf-8") -> str:
+def cbytes2str(bytestring: bytes | Any, char_encoding: str = "utf-8") -> str:
     """Convert bytes to string"""
     if isinstance(bytestring, bytes):
         return bytestring.decode(encoding=char_encoding, errors="replace").rstrip()
@@ -67,14 +68,16 @@ def string_number(value: str) -> bool:
         return False
 
 
-def sector_time(sec_time: any, magic_num: int = 99999) -> bool:
+def sector_time(sec_time: list | Any, magic_num: int = 99999) -> bool:
     """Validate sector time"""
     if isinstance(sec_time, list):
         return magic_num not in sec_time
     return magic_num != sec_time
 
 
-def same_session(combo_id, session_id, last_session_id) -> bool:
+def same_session(
+    combo_id: str, session_id: tuple[int, int, int],
+    last_session_id: tuple[str, int, int, int]) -> bool:
     """Check if same session, car, track combo"""
     return (
         combo_id == last_session_id[0] and
@@ -84,7 +87,7 @@ def same_session(combo_id, session_id, last_session_id) -> bool:
     )
 
 
-def value_type(value, default: any) -> any:
+def value_type(value: Any, default: Any) -> Any:
     """Validate if value is same type as default, return default value if False"""
     if isinstance(value, type(default)):
         return value
@@ -157,23 +160,12 @@ def delta_list(data: list) -> list:
 
 
 # Color validate
-def hex_color(color_str: any) -> bool:
+def hex_color(color_str: str | Any) -> bool:
     """Validate HEX color string"""
     if isinstance(color_str, str) and re.match("#", color_str):
         color = color_str[1:]  # remove left-most sharp sign
         if len(color) in [3,6,8]:
             return re.search(r'[^0-9A-F]', color, flags=re.IGNORECASE) is None
-    return False
-
-
-# Module validate
-def is_imported_module(module: object, name: str) -> bool:
-    """Validate module or widget"""
-    try:
-        if not name.startswith("_") and getattr(module, name):
-            return True
-    except AttributeError:
-        logger.warning("found unimported file in %s: %s.py", module.__name__, name)
     return False
 
 

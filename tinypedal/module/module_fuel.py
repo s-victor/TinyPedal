@@ -23,6 +23,7 @@ Fuel module
 from __future__ import annotations
 from functools import partial
 from math import ceil as roundup
+from collections.abc import Callable
 
 from ._base import DataModule
 from ..module_info import minfo, FuelInfo, ConsumptionDataSet
@@ -103,7 +104,7 @@ def telemetry_fuel() -> tuple[float, float]:
 
 
 def calc_data(
-    output: FuelInfo, telemetry_func: object, filepath: str, filename: str, extension: str):
+    output: FuelInfo, telemetry_func: Callable, filepath: str, filename: str, extension: str):
     """Calculate data"""
     recording = False
     delayed_save = False

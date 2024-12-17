@@ -144,7 +144,7 @@ class ConsumptionDataSet(NamedTuple):
     """Consumption history data set"""
     completedLaps: int = 0
     isValidLap: bool = False
-    lapTimeLast: int = 0
+    lapTimeLast: float = 0.0
     lastLapUsedFuel: float = 0.0
     lastLapUsedEnergy: float = 0.0
     batteryDrainLast: float = 0.0
@@ -152,12 +152,7 @@ class ConsumptionDataSet(NamedTuple):
 
 
 class HistoryInfo:
-    """History output data
-
-    consumption list:
-        0 lapnumber, 1 is valid laptime, 2 laptime,
-        3 fuel, 4 energy, 5 batter drain, 6 battery regen
-    """
+    """History output data"""
 
     __slots__ = "consumption"
 
@@ -360,7 +355,7 @@ class VehiclePitTimer:
     )
 
     def __init__(self):
-        self.last_state: bool = False
+        self.last_state: int = 0
         self.start: float = 0.0
         self.elapsed: float = 0.0
 
@@ -417,9 +412,9 @@ class VehicleDataSet:
         self.gapBehindNextInClass: float = 0.0
         self.gapBehindNext: float = 0.0
         self.gapBehindLeader: float = 0.0
-        self.isLapped: bool = False
+        self.isLapped: float = 0.0
         self.isYellow: bool = False
-        self.inPit: bool = False
+        self.inPit: int = 0
         self.isClassFastestLastLap: bool = False
         self.numPitStops: int = 0
         self.pitState: int = 0

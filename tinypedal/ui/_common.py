@@ -23,6 +23,7 @@ Common
 import os
 import re
 from collections import deque
+from collections.abc import Callable
 
 from PySide2.QtCore import Qt, QRegularExpression, QLocale
 from PySide2.QtGui import (
@@ -182,7 +183,7 @@ class BaseEditor(BaseDialog):
 class BatchOffset(BaseDialog):
     """Batch offset"""
 
-    def __init__(self, master, offset_func: object):
+    def __init__(self, master, offset_func: Callable):
         super().__init__(master)
         self.setWindowTitle("Batch Offset")
         self.decimals = 0

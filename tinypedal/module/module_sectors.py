@@ -20,6 +20,7 @@
 Sectors module
 """
 
+from __future__ import annotations
 from functools import partial
 
 from ._base import DataModule
@@ -99,7 +100,7 @@ class Realtime(DataModule):
                         )
 
 
-def telemetry_sectors():
+def telemetry_sectors() -> tuple[int, float, float, float, float]:
     """Telemetry sectors"""
     sector_idx = api.read.lap.sector_index()
     laptime_valid = api.read.timing.last_laptime()

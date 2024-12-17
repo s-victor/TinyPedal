@@ -23,7 +23,6 @@ Calculation function
 from math import dist, hypot, degrees, radians, atan, atan2, sin, cos, acos, ceil
 from statistics import fmean, stdev
 
-
 distance = dist  # coordinates distance
 mean = fmean
 vel2speed = hypot  # velocity to speed
@@ -392,14 +391,6 @@ def delta_telemetry(
             dataset[index_higher][1],
         )
     return 0
-
-
-def mov_avg(sample_set: any, source: float) -> float:
-    """Calculate moving average"""
-    if not sample_set:
-        return source
-    sample_set.append(source)  # use deque
-    return mean(sample_set)
 
 
 def exp_mov_avg(factor: float, ema_last: float, source: float) -> float:

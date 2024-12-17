@@ -20,19 +20,35 @@
 Module and widget control
 """
 
+from __future__ import annotations
 import logging
 from pkgutil import iter_modules
 from time import sleep
+from typing import Any
 
 from .setting import cfg
-from .validator import is_imported_module
 from . import module
 from . import widget
 
 logger = logging.getLogger(__name__)
 
 
-def create_module_pack(target: any) -> dict:
+def is_imported_module(target: Any, name: str) -> bool:
+    """Validate module or widget
+
+    Args:
+        target: module.
+        name: module name.
+    """
+    try:
+        if not name.startswith("_") and getattr(target, name):
+            return True
+    except AttributeError:
+        logger.warning("found unimported file in %s: %s.py", target.__name__, name)
+    return False
+
+
+def create_module_pack(target: Any) -> dict:
     """Create module reference pack as dictionary
 
     Args:
@@ -62,7 +78,7 @@ class ModuleControl:
 
     __slots__ = "pack", "active_list", "type_id"
 
-    def __init__(self, target: any, type_id: str):
+    def __init__(self, target: Any, type_id: str):
         self.pack = create_module_pack(target)
         self.active_list = {}
         self.type_id = type_id
@@ -150,7 +166,7 @@ class ModuleControl:
         return len(self.pack)
 
     @property
-    def name_list(self) -> set:
+    def name_list(self):
         """List of module names"""
         return self.pack.keys()
 

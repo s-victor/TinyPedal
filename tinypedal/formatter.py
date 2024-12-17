@@ -98,9 +98,9 @@ def shorten_driver_name(name: str) -> str:
     return name_split[-1]
 
 
-def pipe_join(*args: any) -> str:
+def pipe_join(*args: str) -> str:
     """Convert value to str & join with pipe symbol"""
-    return "|".join(map(str, args))
+    return "|".join(args)
 
 
 def pipe_split(string: str) -> list:

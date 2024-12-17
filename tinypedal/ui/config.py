@@ -22,6 +22,7 @@ Config dialog
 
 import re
 import time
+from collections.abc import Callable
 
 from PySide2.QtCore import Qt
 from PySide2.QtWidgets import (
@@ -62,7 +63,7 @@ COLUMN_OPTION = 1
 class FontConfig(BaseDialog):
     """Config global font setting"""
 
-    def __init__(self, master, user_setting: dict, reload_func: object):
+    def __init__(self, master, user_setting: dict, reload_func: Callable):
         super().__init__(master)
         self.set_config_title("Global Font Override", cfg.filename.last_setting)
 
@@ -152,7 +153,7 @@ class UserConfig(BaseDialog):
 
     def __init__(
         self, master, key_name: str, cfg_type: str, user_setting: dict,
-        default_setting: dict, reload_func: object, option_width: int = OPTION_WIDTH):
+        default_setting: dict, reload_func: Callable, option_width: int = OPTION_WIDTH):
         super().__init__(master)
         self.set_config_title(fmt.format_option_name(key_name), set_preset_name(cfg_type))
 

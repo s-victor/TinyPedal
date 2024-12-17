@@ -24,6 +24,7 @@ import logging
 import csv
 import os
 import re
+from collections.abc import Callable
 
 from ..formatter import qfile_filter
 
@@ -70,14 +71,14 @@ def set_notes_header(notes_type: str) -> tuple:
     return HEADER_TRACK_NOTES
 
 
-def set_notes_parser(file_filter: str) -> object:
+def set_notes_parser(file_filter: str) -> Callable:
     """Set notes parser"""
     if file_filter == QFILTER_GPLINI:
         return parse_gpl_notes
     return parse_csv_notes
 
 
-def set_notes_writer(file_filter: str) -> object:
+def set_notes_writer(file_filter: str) -> Callable:
     """Set notes writer"""
     if file_filter == QFILTER_GPLINI:
         return write_gpl_notes
@@ -165,7 +166,7 @@ def parse_csv_notes_only(notes_file: object, table_header: tuple):
 
 
 def load_notes_file(
-    filepath: str, filename: str, table_header: tuple, parser: object = parse_csv_notes,
+    filepath: str, filename: str, table_header: tuple, parser: Callable = parse_csv_notes,
     extension: str = ""):
     """Load notes file"""
     try:
@@ -244,7 +245,7 @@ def write_gpl_notes(
 
 def save_notes_file(
     filepath: str, filename: str, table_header: tuple, dataset: list, metadata: dict,
-    writer: object = write_csv_notes, extension: str = ""):
+    writer: Callable = write_csv_notes, extension: str = ""):
     """Save notes file"""
     if len(dataset) < 1:
         return
