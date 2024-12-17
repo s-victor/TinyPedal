@@ -24,7 +24,6 @@ import logging
 import os
 import time
 import threading
-from dataclasses import dataclass
 
 from .template.setting_global import GLOBAL_DEFAULT
 from .template.setting_common import COMMON_DEFAULT
@@ -51,19 +50,42 @@ from .userfile.json_setting import (
 logger = logging.getLogger(__name__)
 
 
-@dataclass
 class FileName:
     """File name"""
-    config: str = "config.json"
-    setting: str = "default.json"
-    classes: str = "classes.json"
-    heatmap: str = "heatmap.json"
-    brands: str = "brands.json"
-    last_setting: str = "None.json"
+
+    __slots__ = (
+        "config",
+        "setting",
+        "classes",
+        "heatmap",
+        "brands",
+        "last_setting",
+    )
+
+    def __init__(self):
+        self.config: str = "config.json"
+        self.setting: str = "default.json"
+        self.classes: str = "classes.json"
+        self.heatmap: str = "heatmap.json"
+        self.brands: str = "brands.json"
+        self.last_setting: str = "None.json"
 
 
 class FilePath:
     """File path"""
+
+    __slots__ = (
+        "config",
+        "settings",
+        "brand_logo",
+        "delta_best",
+        "sector_best",
+        "energy_delta",
+        "fuel_delta",
+        "track_map",
+        "pace_notes",
+        "track_notes",
+    )
 
     def __init__(self):
         self.config: str = PATH_GLOBAL  # reference only, should never change
@@ -80,19 +102,25 @@ class FilePath:
     def update(self, user_path: dict, default_path: dict):
         """Update path variables from global user path dictionary"""
         for key in user_path.keys():
-            key_name = key.replace("_path", "")
-            # Verify loaded path
+            # Reset path if invalid
             if not val.user_data_path(user_path[key]):
-                # Reset to default if invalid
                 user_path[key] = default_path[key]
-                # Re-verify
                 val.user_data_path(user_path[key])
             # Assign path
-            setattr(self, key_name, user_path[key])
+            setattr(self, key.replace("_path", ""), user_path[key])
 
 
 class Preset:
     """Preset setting"""
+
+    __slots__ = (
+        "config",
+        "setting",
+        "classes",
+        "heatmap",
+        "brands",
+        "brands_logo",
+    )
 
     def __init__(self):
         self.config: dict | None = None
@@ -109,47 +137,70 @@ class Preset:
         self.classes = CLASSES_DEFAULT
         self.heatmap = HEATMAP_DEFAULT
         self.brands = {}
-        self.set_platform_default()
+        self.set_platform_default(self.config)
 
-    def set_platform_default(self):
+    @staticmethod
+    def set_platform_default(config_def: dict):
         """Set platform default setting"""
         if PLATFORM != "Windows":
             # Global config
-            self.config["application"]["show_at_startup"] = True
-            self.config["application"]["minimize_to_tray"] = False
-            # Compatibility
-            self.config["compatibility"]["enable_bypass_window_manager"] = True
+            config_def["application"]["show_at_startup"] = True
+            config_def["application"]["minimize_to_tray"] = False
+            config_def["compatibility"]["enable_bypass_window_manager"] = True
             # Global path
             from xdg import BaseDirectory as BD
-            for key in self.config["user_path"].keys():
-                default_path = self.config["user_path"][key]
-                if key in (
-                    "settings_path",
-                    "brand_logo_path",
-                    "pace_notes_path",
-                    "track_notes_path",
-                    ):
-                    self.config["user_path"][key] = BD.save_config_path(APP_NAME, default_path)
+
+            config_paths = (
+                "settings_path",
+                "brand_logo_path",
+                "pace_notes_path",
+                "track_notes_path",
+            )
+            user_path = config_def["user_path"]
+            for key, path in user_path.items():
+                if key in config_paths:
+                    user_path[key] = BD.save_config_path(APP_NAME, path)
                 else:
-                    self.config["user_path"][key] = BD.save_data_path(APP_NAME, default_path)
+                    user_path[key] = BD.save_data_path(APP_NAME, path)
 
 
 class Setting:
     """Overlay setting"""
 
+    __slots__ = (
+        "_save_delay",
+        "_save_queue",
+        "is_saving",
+        "filename",
+        "default",
+        "user",
+        "path",
+        "application",
+        "compatibility",
+        "primary_preset",
+        "overlay",
+        "shared_memory_api",
+        "units",
+    )
+
     def __init__(self):
-        self.is_saving = False
+        # States
         self._save_delay = 0
         self._save_queue = set()
-
+        self.is_saving = False
+        # Settings
         self.filename = FileName()
         self.default = Preset()
         self.default.set_default()
         self.user = Preset()
         self.path = FilePath()
-
-        self.app_loaded = False  # set to true after app main window fully loaded
-        self.last_detected_sim = None
+        # Quick references
+        self.application = None
+        self.compatibility = None
+        self.primary_preset = None
+        self.overlay = None
+        self.shared_memory_api = None
+        self.units = None
 
     def get_primary_preset_name(self, sim_name: str) -> str:
         """Get primary preset name and verify"""
@@ -163,31 +214,27 @@ class Setting:
     def load_global(self):
         """Load global setting, should only done once per launch"""
         self.user.config = load_setting_json_file(
-            self.filename.config, self.path.config, self.default.config)
+            self.filename.config, self.path.config, self.default.config
+        )
         # Assign global path
-        self.path.update(self.user.config["user_path"], self.default.config["user_path"])
+        self.path.update(
+            self.user.config["user_path"], self.default.config["user_path"]
+        )
         # Assign global setting
         self.application = self.user.config["application"]
         self.compatibility = self.user.config["compatibility"]
         self.primary_preset = self.user.config["primary_preset"]
-        self.set_environ()
+        self.__set_environ()
         # Save setting to JSON file
         logger.info("SETTING: %s loaded (global settings)", self.filename.config)
         self.save(0, "config")
 
-    def set_environ(self):
-        """Set environment variable"""
-        if PLATFORM == "Windows":
-            if self.compatibility["multimedia_plugin_on_windows"] == "WMF":
-                multimedia_plugin = "windowsmediafoundation"
-            else:
-                multimedia_plugin = "directshow"
-            os.environ["QT_MULTIMEDIA_PREFERRED_PLUGINS"] = multimedia_plugin
-
     def update_path(self):
         """Update global path, call this if "user_path" changed"""
         old_settings_path = os.path.abspath(self.path.settings)
-        self.path.update(self.user.config["user_path"], self.default.config["user_path"])
+        self.path.update(
+            self.user.config["user_path"], self.default.config["user_path"]
+        )
         new_settings_path = os.path.abspath(self.path.settings)
         # Update preset name if settings path changed
         if new_settings_path != old_settings_path:
@@ -195,21 +242,26 @@ class Setting:
 
     def load(self):
         """Load all setting files"""
+        # Load preset JSON file
         self.user.setting = load_setting_json_file(
-            self.filename.setting, self.path.settings, self.default.setting)
+            self.filename.setting, self.path.settings, self.default.setting
+        )
+        # Load style JSON file
+        self.user.brands = load_style_json_file(
+            self.filename.brands, self.path.settings, self.default.brands
+        )
+        self.user.classes = load_style_json_file(
+            self.filename.classes, self.path.settings, self.default.classes
+        )
+        self.user.heatmap = load_style_json_file(
+            self.filename.heatmap, self.path.settings, self.default.heatmap
+        )
+        self.user.brands_logo = load_brand_logo_list(self.path.brand_logo)
         # Assign base setting
         self.overlay = self.user.setting["overlay"]
         self.shared_memory_api = self.user.setting["shared_memory_api"]
         self.units = self.user.setting["units"]
         self.filename.last_setting = self.filename.setting
-        # Load style JSON file
-        self.user.brands = load_style_json_file(
-            self.filename.brands, self.path.settings, self.default.brands)
-        self.user.classes = load_style_json_file(
-            self.filename.classes, self.path.settings, self.default.classes)
-        self.user.heatmap = load_style_json_file(
-            self.filename.heatmap, self.path.settings, self.default.heatmap)
-        self.user.brands_logo = load_brand_logo_list(self.path.brand_logo)
         # Save setting to JSON file
         logger.info("SETTING: %s loaded (user preset)", self.filename.last_setting)
         self.save(0)
@@ -227,7 +279,8 @@ class Setting:
             if _filename.lower().endswith(".json")
         )
         valid_cfg_list = [
-            _filename[1] for _filename in sorted(gen_cfg_list, reverse=True)
+            _filename[1]
+            for _filename in sorted(gen_cfg_list, reverse=True)
             if val.allowed_filename(rxp.CFG_INVALID_FILENAME, _filename[1])
         ]
         if valid_cfg_list:
@@ -264,8 +317,8 @@ class Setting:
                     filetype,
                     getattr(self.filename, filetype),
                     filepath,
-                    getattr(self.user, filetype)
-                )
+                    getattr(self.user, filetype),
+                ),
             ).start()
 
     def __saving(self, filetype: str, filename: str, filepath: str, dict_user: dict):
@@ -292,14 +345,18 @@ class Setting:
 
         # Finalize
         if attempts > 0:
-            logger.info(
-                "SETTING: %s saved (took %sms, %s/%s attempts)",
-                filename, timer_end, max_attempts - attempts, attempts)
+            state_text = "saved"
         else:
             restore_backup_file(filename, filepath)
-            logger.info(
-                "SETTING: %s failed saving (took %sms, %s/%s attempts)",
-                filename, timer_end, max_attempts - attempts, attempts)
+            state_text = "failed saving"
+        logger.info(
+            "SETTING: %s %s (took %sms, %s/%s attempts)",
+            filename,
+            state_text,
+            timer_end,
+            max_attempts - attempts,
+            attempts,
+        )
         delete_backup_file(filename, filepath)
 
         self._save_queue.discard(filetype)
@@ -310,9 +367,15 @@ class Setting:
             self.save(0, save_task)
             break
 
+    def __set_environ(self):
+        """Set environment variable"""
+        if PLATFORM == "Windows":
+            if self.compatibility["multimedia_plugin_on_windows"] == "WMF":
+                multimedia_plugin = "windowsmediafoundation"
+            else:
+                multimedia_plugin = "directshow"
+            os.environ["QT_MULTIMEDIA_PREFERRED_PLUGINS"] = multimedia_plugin
+
 
 # Assign config setting
 cfg = Setting()
-cfg.load_global()
-cfg.filename.setting = f"{cfg.preset_list[0]}.json"
-cfg.load()

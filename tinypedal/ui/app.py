@@ -107,7 +107,9 @@ class AppWindow(QMainWindow):
         self.start_tray_icon()
         self.set_window_state()
         self.__connect_signal()
-        cfg.app_loaded = True
+
+        # Enable overlay control after app is fully loaded
+        octrl.enable()
 
     def goto_spectate_tab(self):
         """Go to spectate tab"""

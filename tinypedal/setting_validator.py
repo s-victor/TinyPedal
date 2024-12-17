@@ -38,19 +38,6 @@ COMMON_STRINGS = fmt.pipe_join(
 class ValueValidator:
     """Value validator"""
 
-    def __init__(self) -> None:
-        """Set validator methods in ordered list"""
-        self.types = (
-            self.boolean,
-            self.color,
-            self.choice_units,
-            self.choice_common,
-            self.clock_format,
-            self.string,
-            self.integer,
-            self.numeric,
-        )
-
     @staticmethod
     def boolean(key: str, dict_user: dict) -> bool:
         """Value - Boolean"""
@@ -128,7 +115,17 @@ class PresetValidator:
     """Preset validator"""
 
     def __init__(self) -> None:
-        self.value_validator = ValueValidator()
+        """Set validator methods in ordered list"""
+        self._value_validators = (
+            ValueValidator.boolean,
+            ValueValidator.color,
+            ValueValidator.choice_units,
+            ValueValidator.choice_common,
+            ValueValidator.clock_format,
+            ValueValidator.string,
+            ValueValidator.integer,
+            ValueValidator.numeric,
+        )
 
     def remove_invalid_key(self, key_list_def: tuple, dict_user: dict) -> None:
         """Remove invalid key & value from user dictionary"""
@@ -142,7 +139,7 @@ class PresetValidator:
             if isinstance(dict_user[key], dict):
                 continue
             # Validate values
-            for _validator in self.value_validator.types:
+            for _validator in self._value_validators:
                 if _validator(key, dict_user):
                     break
 

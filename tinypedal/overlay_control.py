@@ -21,8 +21,8 @@ Overlay Control
 """
 
 import logging
-import time
 import threading
+from time import sleep, monotonic
 
 from PySide2.QtCore import QObject, Signal
 
@@ -35,15 +35,15 @@ logger = logging.getLogger(__name__)
 class StateTimer:
     """State timer"""
 
+    __slots__ = "_interval", "_last"
+
     def __init__(self, interval: float, last: float = 0) -> None:
         self._interval = interval
         self._last = last
 
     def timeout(self, now: float) -> bool:
         """Check time out"""
-        if self._last > now:  # last time stamp correction
-            self._last = now
-        if now - self._last < self._interval:
+        if self._interval > now - self._last:
             return False
         self._last = now
         return True
@@ -93,6 +93,7 @@ class OverlayState(QObject):
 
         self._auto_hide_timer = StateTimer(interval=0.4)
         self._auto_load_preset_timer = StateTimer(interval=1.0)
+        self._last_detected_sim = None
 
     def start(self):
         """Start state update thread"""
@@ -119,46 +120,44 @@ class OverlayState(QObject):
 
     def __auto_hide_state(self):
         """Auto hide state"""
-        if self._auto_hide_timer.timeout(time.perf_counter()):
+        if self._auto_hide_timer.timeout(monotonic()):
             self.hidden.emit(cfg.overlay["auto_hide"] and not self.active)
 
     def __auto_load_preset(self):
         """Auto load primary preset"""
-        if self._auto_load_preset_timer.timeout(time.perf_counter()):
-            # Make sure app is fully loaded before check state
-            if not cfg.app_loaded:
-                return
+        if self._auto_load_preset_timer.timeout(monotonic()):
             # Get sim_name, returns "" if no game running
             sim_name = api.read.check.sim_name()
             # Abort if game not found
             if not sim_name:
                 # Clear detected name if no game found
-                if cfg.last_detected_sim is not None:
-                    cfg.last_detected_sim = None
+                if self._last_detected_sim is not None:
+                    self._last_detected_sim = None
                 return
             # Abort if same as last found game
-            if sim_name == cfg.last_detected_sim:
+            if sim_name == self._last_detected_sim:
                 return
             # Assign sim name to last detected, set preset name
-            cfg.last_detected_sim = sim_name
+            self._last_detected_sim = sim_name
             preset_name = cfg.get_primary_preset_name(sim_name)
-            logger.info("SETTING: game detected: %s", sim_name)
+            logger.info("SETTING: auto-load: %s", sim_name)
             # Abort if preset file does not exist
             if preset_name == "":
-                logger.info("SETTING: not found, abort auto loading")
+                logger.info("SETTING: auto-load: preset not found, abort")
                 return
             # Check if already loaded
             if preset_name == cfg.filename.last_setting:
                 logger.info("SETTING: %s already loaded", preset_name)
                 return
-            # Update preset name
+            # Update preset name & signal reload
             cfg.filename.setting = preset_name
-            # Do not call cfg.load here as it's handled by loader.reload
             self.reload.emit(True)
 
 
 class OverlayControl:
     """Overlay control"""
+
+    __slots__ = "state"
 
     def __init__(self):
         self.state = OverlayState()
@@ -171,7 +170,7 @@ class OverlayControl:
         """Disable overlay control"""
         self.state.stop()
         while not self.state.stopped:
-            time.sleep(0.01)
+            sleep(0.01)
 
     def toggle_lock(self):
         """Toggle lock state"""

@@ -31,11 +31,15 @@ logger = logging.getLogger(__name__)
 
 
 def start():
-    """Start api, modules, widgets. Call once per launch."""
+    """Start api, modules, widgets. Call once per launch. Skip overlay control."""
     logger.info("STARTING............")
-    api.connect()
-    api.start()     # 1 start api
-    load_modules()  # 2 load modules
+    cfg.load_global()  # 1 load config
+    cfg.filename.setting = f"{cfg.preset_list[0]}.json"
+    cfg.load()
+    api.connect()  # 2 start api
+    api.start()
+    mctrl.start()  # 3 module
+    wctrl.start()  # 4 widget
 
 
 def close():

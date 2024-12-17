@@ -21,8 +21,8 @@ Module and widget control
 """
 
 import logging
-import time
-import pkgutil
+from pkgutil import iter_modules
+from time import sleep
 
 from .setting import cfg
 from . import module
@@ -43,7 +43,7 @@ def create_module_pack(target: any) -> dict:
     """
     return {
         name: getattr(target, name)
-        for _, name, _ in pkgutil.iter_modules(target.__path__)
+        for _, name, _ in iter_modules(target.__path__)
         if val.is_imported_module(target, name)
     }
 
@@ -59,6 +59,7 @@ class ModuleControl:
         active_list: list of active modules.
         type_id: module type indentifier, either "module" or "widget".
     """
+
     def __init__(self, target: any, type_id: str):
         self.pack = create_module_pack(target)
         self.active_list = {}
@@ -133,7 +134,7 @@ class ModuleControl:
             self.active_list.pop(name)  # remove active reference
             _module.stop()  # close module
             while not _module.closed:  # wait finish
-                time.sleep(0.01)
+                sleep(0.01)
             _module = None  # remove final reference
 
     @property
