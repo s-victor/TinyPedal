@@ -20,13 +20,15 @@
 Vehicles module
 """
 
+from __future__ import annotations
+
 from ._base import DataModule
-from ..module_info import minfo
+from ..module_info import minfo, MAX_VEHICLES, VehiclesInfo, VehiclePitTimer
 from ..api_control import api
 from .. import calculation as calc
 
 MODULE_NAME = "module_vehicles"
-ALL_INDEXES = list(range(minfo.MAX_VEHICLES))
+ALL_INDEXES = list(range(MAX_VEHICLES))
 
 
 class Realtime(DataModule):
@@ -40,6 +42,7 @@ class Realtime(DataModule):
         reset = False
         update_interval = self.active_interval
 
+        output = minfo.vehicles
         max_lap_diff_ahead = self.mcfg["lap_difference_ahead_threshold"]
         max_lap_diff_behind = self.mcfg["lap_difference_behind_threshold"]
 
@@ -49,10 +52,10 @@ class Realtime(DataModule):
                 if not reset:
                     reset = True
                     update_interval = self.active_interval
-                    minfo.vehicles.dataSetVersion = -1
+                    output.dataSetVersion = -1
 
                 self.__update_vehicle_data(
-                    minfo.vehicles.dataSet,
+                    output,
                     minfo.relative.classes,
                     max_lap_diff_ahead,
                     max_lap_diff_behind
@@ -64,10 +67,10 @@ class Realtime(DataModule):
                     update_interval = self.idle_interval
 
     def __update_vehicle_data(
-        self, veh_info: tuple, class_pos_list: list,
+        self, output: VehiclesInfo, class_pos_list: list,
         max_lap_diff_ahead: float, max_lap_diff_behind: float):
         """Update vehicle data"""
-        veh_total = minfo.vehicles.total = api.read.vehicle.total_vehicles()
+        veh_total = output.total = api.read.vehicle.total_vehicles()
         if veh_total < 1:
             return
 
@@ -87,7 +90,7 @@ class Realtime(DataModule):
         inpit_idx = 0
 
         # Update dataset from all vehicles in current session
-        for index, data, class_pos in zip(range(veh_total), veh_info, class_pos_list):
+        for index, data, class_pos in zip(range(veh_total), output.dataSet, class_pos_list):
             # Vehicle class var
             data.positionInClass = class_pos[1]
             data.sessionBestLapTime = class_pos[3]
@@ -160,7 +163,7 @@ class Realtime(DataModule):
                 relative_time_gap = data.relativeTimeGap = abs(relative_interval(index))
 
                 # Nearest straight line distance (non local players)
-                if relative_straight_distance < nearest_line:
+                if nearest_line > relative_straight_distance:
                     nearest_line = relative_straight_distance
                 # Nearest traffic time gap (non local players)
                 if 0 == in_pit > relative_distance and 0 < relative_time_gap < nearest_timegap:
@@ -169,7 +172,7 @@ class Realtime(DataModule):
             # Nearest yellow flag distance (all players)
             if is_yellow:
                 rel_dist = abs(relative_distance)
-                if rel_dist < nearest_yellow:
+                if nearest_yellow > rel_dist:
                     nearest_yellow = rel_dist
 
             # Sort draw order list in loop ->
@@ -186,24 +189,24 @@ class Realtime(DataModule):
         if leader_idx != draw_order[-1]:
             leader_pos = draw_order.index(leader_idx)
             draw_order[leader_pos], draw_order[-1] = draw_order[-1], draw_order[leader_pos]
-        # Move local player to 2nd end of draw order, local player could be leader, compare first
-        if player_idx != -1 and player_idx != leader_idx:
+        # Move local player to 2nd end of draw order if exists and not leader
+        if -1 != player_idx != leader_idx:
             player_pos = draw_order.index(player_idx)
             draw_order[player_pos], draw_order[-2] = draw_order[-2], draw_order[player_pos]
         # <- End draw order list
 
         # Output extra info
-        minfo.vehicles.nearestLine = nearest_line
-        minfo.vehicles.nearestTraffic = nearest_timegap
-        minfo.vehicles.nearestYellow = nearest_yellow
-        minfo.vehicles.drawOrder = draw_order
-        minfo.vehicles.dataSetVersion += 1
+        output.nearestLine = nearest_line
+        output.nearestTraffic = nearest_timegap
+        output.nearestYellow = nearest_yellow
+        output.drawOrder = draw_order
+        output.dataSetVersion += 1
 
 
-def calc_pit_time(pit_timer: object, in_pit: int, elapsed_time: float):
+def calc_pit_time(pit_timer: VehiclePitTimer, in_pit: int, elapsed_time: float):
     """Calculate pit time
 
-    in pit state (value 0 = not in pit, 1 = in pit, 2 = in garage)
+    Pit state: 0 = not in pit, 1 = in pit, 2 = in garage.
     """
     # Pit status check
     if in_pit != pit_timer.last_state:
@@ -219,7 +222,7 @@ def calc_pit_time(pit_timer: object, in_pit: int, elapsed_time: float):
         pit_timer.elapsed = elapsed_time - pit_timer.start
 
 
-def relative_interval(opt_index: int, index: int = None) -> float:
+def relative_interval(opt_index: int, index: int | None = None) -> float:
     """Estimated relative time interval"""
     return calc.circular_relative_distance(
         api.read.timing.estimated_laptime(index),

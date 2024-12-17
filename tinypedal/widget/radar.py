@@ -20,7 +20,7 @@
 Radar Widget
 """
 
-from dataclasses import dataclass
+from typing import NamedTuple
 
 from PySide2.QtCore import Qt, QRectF
 from PySide2.QtGui import QPainter, QPixmap, QLinearGradient, QRadialGradient, QPen, QBrush, QColor
@@ -253,10 +253,7 @@ class Realtime(Overlay):
         nearest_right = indicator.max_range_x
 
         # Draw opponent vehicle within radar range
-        veh_total = minfo.vehicles.total
-        for index, veh_info in enumerate(minfo.vehicles.dataSet):
-            if index >= veh_total:
-                break
+        for _, veh_info in zip(range(minfo.vehicles.total), minfo.vehicles.dataSet):
             if veh_info.isPlayer:
                 continue
             # -x = left, +x = right, -y = ahead, +y = behind
@@ -357,17 +354,12 @@ class Realtime(Overlay):
 
     def is_nearby(self):
         """Check nearby vehicles"""
-        veh_total = minfo.vehicles.total
-        for index, veh_info in enumerate(minfo.vehicles.dataSet):
-            if index >= veh_total:
-                break
-            if not veh_info.isPlayer:
-                # -x = left, +x = right, -y = ahead, +y = behind
-                raw_pos_x = veh_info.relativeRotatedPositionX
-                raw_pos_y = veh_info.relativeRotatedPositionY
-                if (self.radar_hide_range.behind > raw_pos_y > -self.radar_hide_range.ahead and
-                    -self.radar_hide_range.side < raw_pos_x < self.radar_hide_range.side):
-                    return True
+        for _, veh_info in zip(range(minfo.vehicles.total), minfo.vehicles.dataSet):
+            # -x = left, +x = right, -y = ahead, +y = behind
+            if (not veh_info.isPlayer and
+                self.radar_hide_range.behind > veh_info.relativeRotatedPositionY > -self.radar_hide_range.ahead and
+                -self.radar_hide_range.side < veh_info.relativeRotatedPositionX < self.radar_hide_range.side):
+                return True
         return False
 
     def calc_indicator_dimension(self, veh_width, veh_length):
@@ -414,8 +406,7 @@ class Realtime(Overlay):
         return range_scale / radar_radius
 
 
-@dataclass
-class IndicatorDimension:
+class IndicatorDimension(NamedTuple):
     """Indicator dimension"""
     min_range_x: float = 0
     max_range_x: float = 0
@@ -425,8 +416,7 @@ class IndicatorDimension:
     offset: float = 0
 
 
-@dataclass
-class DistanceRect:
+class DistanceRect(NamedTuple):
     """Distance rectangle"""
     ahead: float = 0
     behind: float = 0

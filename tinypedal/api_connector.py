@@ -34,6 +34,21 @@ from . import validator as val
 class DataSet:
     """Data set"""
 
+    __slots__ = (
+        "check",
+        "brake",
+        "emotor",
+        "engine",
+        "input",
+        "lap",
+        "session",
+        "switch",
+        "timing",
+        "tyre",
+        "vehicle",
+        "wheel",
+    )
+
     def __init__(self, info, dataset: rfactor2):
         self.check = dataset.Check(info)
         self.brake = dataset.Brake(info)

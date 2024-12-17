@@ -23,7 +23,7 @@ Sectors module
 from functools import partial
 
 from ._base import DataModule
-from ..module_info import minfo
+from ..module_info import minfo, SectorsInfo
 from ..api_control import api
 from .. import validator as val
 from ..userfile.sector_best import load_sector_best_file, save_sector_best_file
@@ -109,13 +109,13 @@ def telemetry_sectors():
     return sector_idx, laptime_valid, curr_sector1, curr_sector2, last_sector2
 
 
-def calc_sectors(output, best_s_tb, best_s_pb):
+def calc_sectors(output: SectorsInfo, best_s_tb: list, best_s_pb: list):
     """Calculate sectors data"""
     no_delta_s = True
     new_best = False  # save check whether new sector best time is set
     last_sector_idx = -1  # previous recorded sector index value
-    delta_s_tb = [0,0,0]  # deltabest times against all time best sector
-    delta_s_pb = [0,0,0]  # deltabest times against best laptime sector
+    delta_s_tb = [0] * 3  # deltabest times against all time best sector
+    delta_s_pb = [0] * 3  # deltabest times against best laptime sector
     prev_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]  # previous sector times
     laptime_best = sum(best_s_pb)
 

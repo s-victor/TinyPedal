@@ -125,13 +125,13 @@ def laptime_string_to_seconds(laptime: str) -> float:
     return float(split[0]) * 60 + float(split[1])
 
 
-def string_pair_to_int(string: str) -> tuple[int]:
+def string_pair_to_int(string: str) -> tuple[int, int]:
     """Convert string pair "x,y" to int list"""
     value = string.split(",")
     return int(value[0]), int(value[1])
 
 
-def string_pair_to_float(string: str) -> tuple[float]:
+def string_pair_to_float(string: str) -> tuple[float, float]:
     """Convert string pair "x,y" to float list"""
     value = string.split(",")
     return float(value[0]), float(value[1])
@@ -142,14 +142,14 @@ def list_pair_to_string(data: tuple | list) -> str:
     return f"{data[0]},{data[1]}"
 
 
-def points_to_coords(points: str) -> tuple[tuple[float]]:
+def points_to_coords(points: str) -> tuple[tuple[float, float], ...]:
     """Convert svg points strings to raw coordinates
 
     Args:
         points: "x,y x,y ..." svg points strings.
 
     Returns:
-        ((x,y),(x,y) ...) raw coordinates.
+        ((x,y), (x,y), ...) raw coordinates.
     """
     return tuple(map(string_pair_to_float, points.split(" ")))
 
@@ -158,7 +158,7 @@ def coords_to_points(coords: tuple | list) -> str:
     """Convert raw coordinates to svg points strings
 
     Args:
-        coords: ((x,y),(x,y) ...) raw coordinates.
+        coords: ((x,y), (x,y), ...) raw coordinates.
 
     Returns:
         "x,y x,y ..." svg points strings.

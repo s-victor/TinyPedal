@@ -24,17 +24,17 @@ from functools import lru_cache
 from itertools import chain
 
 from ._base import DataModule
-from ..module_info import minfo
+from ..module_info import minfo, MAX_VEHICLES
 from ..api_control import api
 from .. import calculation as calc
 
 MODULE_NAME = "module_relative"
 MAGIC_NUM = 99999
-ALL_PLACES = list(range(1, minfo.MAX_VEHICLES + 1))
-TEMP_DISTANCE = [[-1,-1] for _ in range(minfo.MAX_VEHICLES)]
-TEMP_CLASSES = [["",-1,-1,-1,-1] for _ in range(minfo.MAX_VEHICLES)]
-TEMP_PLACES = [[-1,-1] for _ in range(minfo.MAX_VEHICLES)]
-TEMP_CLASSES_POS = [[0,1,"",0,0,-1,-1,False] for _ in range(minfo.MAX_VEHICLES)]
+ALL_PLACES = list(range(1, MAX_VEHICLES + 1))
+TEMP_DISTANCE = [[-1,-1] for _ in range(MAX_VEHICLES)]
+TEMP_CLASSES = [["",-1,-1,-1,-1] for _ in range(MAX_VEHICLES)]
+TEMP_PLACES = [[-1,-1] for _ in range(MAX_VEHICLES)]
+TEMP_CLASSES_POS = [[0,1,"",0,0,-1,-1,False] for _ in range(MAX_VEHICLES)]
 
 
 class Realtime(DataModule):

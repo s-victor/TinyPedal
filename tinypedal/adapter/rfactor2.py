@@ -88,7 +88,7 @@ class Check(DataAdapter):
         """Identify track name"""
         return strip_invalid_char(cs2py(self.info.rf2ScorInfo.mTrackName))
 
-    def session_id(self) -> tuple[int]:
+    def session_id(self) -> tuple[int, int, int]:
         """Identify session"""
         session_length = chknm(self.info.rf2ScorInfo.mEndET)
         session_type = chknm(self.info.rf2ScorInfo.mSession)
@@ -376,7 +376,7 @@ class Session(DataAdapter):
         """Road average wetness"""
         return chknm(self.info.rf2ScorInfo.mAvgPathWetness)
 
-    def wetness(self) -> tuple[float]:
+    def wetness(self) -> tuple[float, float, float]:
         """Road wetness set"""
         scor = self.info.rf2ScorInfo
         return (chknm(scor.mMinPathWetness),
@@ -498,7 +498,7 @@ class Tyre(DataAdapter):
         """Tyre compound - rear"""
         return chknm(self.info.rf2TeleVeh(index).mRearTireCompoundIndex)
 
-    def compound(self, index: int | None = None) -> tuple[int]:
+    def compound(self, index: int | None = None) -> tuple[int, int]:
         """Tyre compound set"""
         tele_veh = self.info.rf2TeleVeh(index)
         return chknm(tele_veh.mFrontTireCompoundIndex), chknm(tele_veh.mRearTireCompoundIndex)
@@ -662,7 +662,7 @@ class Vehicle(DataAdapter):
         ori = self.info.rf2TeleVeh(index).mOri[2]
         return oriyaw2rad(chknm(ori.x), chknm(ori.z))
 
-    def position_xyz(self, index: int | None = None) -> tuple[float]:
+    def position_xyz(self, index: int | None = None) -> tuple[float, float, float]:
         """Raw XYZ position"""
         pos = self.info.rf2TeleVeh(index).mPos
         return chknm(pos.x), chknm(pos.y), chknm(pos.z)
@@ -716,7 +716,7 @@ class Vehicle(DataAdapter):
         """Downforce rear"""
         return chknm(self.info.rf2TeleVeh(index).mRearDownforce)
 
-    def damage_severity(self, index: int | None = None) -> tuple[int]:
+    def damage_severity(self, index: int | None = None) -> tuple[int, ...]:
         """Damage severity, sort row by row from left to right, top to bottom"""
         dmg = self.info.rf2TeleVeh(index).mDentSeverity
         return dmg[1], dmg[0], dmg[7], dmg[2], dmg[6], dmg[3], dmg[4], dmg[5]  # RF2 order

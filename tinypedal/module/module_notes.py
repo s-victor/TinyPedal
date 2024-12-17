@@ -23,7 +23,7 @@ Notes module
 from __future__ import annotations
 
 from ._base import DataModule
-from ..module_info import minfo
+from ..module_info import minfo, NotesInfo
 from ..api_control import api
 from .. import calculation as calc
 from ..userfile.track_notes import (
@@ -131,7 +131,7 @@ def load_pace_notes_file(
     )
 
 
-def notes_selector(output: object, dataset: list[dict] | None):
+def notes_selector(output: NotesInfo, dataset: list[dict] | None):
     """Notes selector
 
     Args:

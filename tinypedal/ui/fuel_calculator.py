@@ -20,7 +20,8 @@
 Fuel calculator
 """
 
-import math
+from math import ceil, floor
+
 from PySide2.QtCore import Qt, QMargins
 from PySide2.QtGui import QColor, QPalette
 from PySide2.QtWidgets import (
@@ -84,8 +85,6 @@ class FuelCalculator(BaseDialog):
         super().__init__(master)
         self.set_utility_title("Fuel Calculator")
 
-        self.history_data = minfo.history.consumption
-
         # Set view
         self.panel_calculator = QWidget()
         self.set_panel_calculator(self.panel_calculator)
@@ -148,9 +147,10 @@ class FuelCalculator(BaseDialog):
     def reload_data(self):
         """Reload history data"""
         self.refresh_table()
+        latest_history = minfo.history.consumption[0]
         # Load laptime from last valid lap
-        laptime = self.history_data[0][2]
-        if laptime > 0 and self.history_data[0][1]:
+        laptime = latest_history.lapTimeLast
+        if laptime > 0 and latest_history.isValidLap:
             self.input_laptime.minutes.setValue(laptime // 60)
             self.input_laptime.seconds.setValue(laptime % 60)
             self.input_laptime.mseconds.setValue(laptime % 1 * 1000)
@@ -159,28 +159,27 @@ class FuelCalculator(BaseDialog):
         if capacity:
             self.input_fuel.capacity.setValue(fuel_units(capacity))
         # Load consumption from last valid lap
-        if self.history_data[0][1]:
-            fuel_used = self.history_data[0][3]
+        if latest_history.isValidLap:
+            fuel_used = latest_history.lastLapUsedFuel
             self.input_fuel.fuel_used.setValue(fuel_units(fuel_used))
-            energy_used = self.history_data[0][4]
+            energy_used = latest_history.lastLapUsedEnergy
             self.input_fuel.energy_used.setValue(energy_used)
 
     def refresh_table(self):
         """Refresh history data table"""
-        self.history_data = minfo.history.consumption
         self.table_history.clear()
-        self.table_history.setRowCount(len(self.history_data))
+        self.table_history.setRowCount(len(minfo.history.consumption))
         row_index = 0
 
-        for lap in self.history_data:
-            lapnumber = self.__add_table_item(f"{lap[0]}", 0)
-            laptime = self.__add_table_item(calc.sec2laptime(lap[2]), 33)
-            used_fuel = self.__add_table_item(f"{fuel_units(lap[3]):.3f}", 33)
-            used_energy = self.__add_table_item(f"{lap[4]:.3f}", 33)
-            battery_drain = self.__add_table_item(f"{lap[5]:.3f}", 0)
-            battery_regen = self.__add_table_item(f"{lap[6]:.3f}", 0)
+        for lap_data in minfo.history.consumption:
+            lapnumber = self.__add_table_item(f"{lap_data.completedLaps}", 0)
+            laptime = self.__add_table_item(calc.sec2laptime(lap_data.lapTimeLast), 33)
+            used_fuel = self.__add_table_item(f"{fuel_units(lap_data.lastLapUsedFuel):.3f}", 33)
+            used_energy = self.__add_table_item(f"{lap_data.lastLapUsedEnergy:.3f}", 33)
+            battery_drain = self.__add_table_item(f"{lap_data.batteryDrainLast:.3f}", 0)
+            battery_regen = self.__add_table_item(f"{lap_data.batteryRegenLast:.3f}", 0)
 
-            if not lap[1]:  # set invalid lap text color
+            if not lap_data.isValidLap:  # set invalid lap text color
                 laptime.setTextColor(INVALID_COLOR)
                 used_fuel.setTextColor(INVALID_COLOR)
                 used_energy.setTextColor(INVALID_COLOR)
@@ -348,7 +347,7 @@ class FuelCalculator(BaseDialog):
         # Total pit seconds depends on estimated pit counts
         # Recalculate and find nearest minimum pit counts on previous loop
         while loop_counts:
-            minimum_pit_counts = math.ceil(estimate_pit_counts)
+            minimum_pit_counts = ceil(estimate_pit_counts)
             if total_race_seconds:  # time-type race
                 total_pit_seconds = minimum_pit_counts * average_pit_seconds
                 total_race_laps = total_formation_laps + calc.time_type_full_laps_remain(
@@ -360,9 +359,9 @@ class FuelCalculator(BaseDialog):
 
             # Keep 1 decimal place for Gallon
             if cfg.units["fuel_unit"] == "Gallon" and output_type == "fuel":
-                total_need_full = math.ceil(total_need_frac * 10) / 10
+                total_need_full = ceil(total_need_frac * 10) / 10
             else:
-                total_need_full = math.ceil(total_need_frac)
+                total_need_full = ceil(total_need_frac)
 
             amount_refuel = total_need_full - tank_capacity
 
@@ -377,10 +376,10 @@ class FuelCalculator(BaseDialog):
             # Set one last loop to revert back to last minimum pit counts
             # If new rounded up minimum pit counts is not enough to finish race
             if (minimum_pit_counts < estimate_pit_counts and
-                minimum_pit_counts == math.floor(estimate_pit_counts)):
+                minimum_pit_counts == floor(estimate_pit_counts)):
                 loop_counts = 1
 
-            if minimum_pit_counts == math.ceil(estimate_pit_counts):
+            if minimum_pit_counts == ceil(estimate_pit_counts):
                 break
 
         total_runlaps = calc.end_stint_laps(total_need_full, consumption)
@@ -412,7 +411,7 @@ class FuelCalculator(BaseDialog):
         output_usage.end_stint.setText(
             f"{end_stint_fuel:.3f}")
         output_usage.pit_stops.setText(
-            f"{max(estimate_pit_counts, 0):.3f} ≈ {max(math.ceil(minimum_pit_counts), 0)}")
+            f"{max(estimate_pit_counts, 0):.3f} ≈ {max(ceil(minimum_pit_counts), 0)}")
         output_usage.one_less_stint.setText(
             f"{max(used_one_less, 0):.3f}")
         output_usage.total_laps.setText(

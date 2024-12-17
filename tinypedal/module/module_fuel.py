@@ -20,11 +20,12 @@
 Fuel module
 """
 
+from __future__ import annotations
 from functools import partial
 from math import ceil as roundup
 
 from ._base import DataModule
-from ..module_info import minfo
+from ..module_info import minfo, FuelInfo, ConsumptionDataSet
 from ..api_control import api
 from .. import calculation as calc
 from ..userfile.fuel_delta import load_fuel_delta_file, save_fuel_delta_file
@@ -74,14 +75,17 @@ class Realtime(DataModule):
                 # Update consumption history
                 if (minfo.history.consumption[0][2] != minfo.delta.lapTimeLast
                     > minfo.delta.lapTimeCurrent > 2):  # record 2s after pass finish line
-                    minfo.history.consumption.appendleft((
-                        api.read.lap.completed_laps() - 1,
-                        minfo.delta.isValidLap,
-                        minfo.delta.lapTimeLast,
-                        minfo.fuel.lastLapConsumption,
-                        minfo.energy.lastLapConsumption,
-                        minfo.hybrid.batteryDrainLast,
-                        minfo.hybrid.batteryRegenLast))
+                    minfo.history.consumption.appendleft(
+                        ConsumptionDataSet(
+                            completedLaps=api.read.lap.completed_laps() - 1,
+                            isValidLap=minfo.delta.isValidLap,
+                            lapTimeLast=minfo.delta.lapTimeLast,
+                            lastLapUsedFuel=minfo.fuel.lastLapConsumption,
+                            lastLapUsedEnergy=minfo.energy.lastLapConsumption,
+                            batteryDrainLast=minfo.hybrid.batteryDrainLast,
+                            batteryRegenLast=minfo.hybrid.batteryRegenLast,
+                        )
+                    )
 
             else:
                 if reset:
@@ -91,7 +95,7 @@ class Realtime(DataModule):
                     gen_calc_fuel.send(False)
 
 
-def telemetry_fuel():
+def telemetry_fuel() -> tuple[float, float]:
     """Telemetry fuel"""
     capacity = max(api.read.vehicle.tank_capacity(), 1)
     amount_curr = api.read.vehicle.fuel()
@@ -99,7 +103,7 @@ def telemetry_fuel():
 
 
 def calc_data(
-    output: object, telemetry_func: object, filepath: str, filename: str, extension: str):
+    output: FuelInfo, telemetry_func: object, filepath: str, filename: str, extension: str):
     """Calculate data"""
     recording = False
     delayed_save = False
@@ -136,7 +140,7 @@ def calc_data(
     pos_last = 0  # last checked vehicle position
     pos_estimate = 0  # calculated position
     pos_synced = False  # whether estimated position synced
-    gps_last = [0,0,0]  # last global position
+    gps_last = [0] * 3  # last global position
 
     while True:
         updating = yield None

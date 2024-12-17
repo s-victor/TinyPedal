@@ -338,11 +338,7 @@ class Realtime(Overlay):
             self.update_energy(self.bar_pits, est_pits_end)
 
             # Fuel bias
-            if minfo.restapi.maxVirtualEnergy:
-                bias = minfo.fuel.estimatedLaps - minfo.energy.estimatedLaps
-            else:
-                bias = 0
-            fuel_bias = f"{bias:+.{self.decimals[10]}f}"
+            fuel_bias = f"{minfo.hybrid.fuelEnergyBias:+.{self.decimals[10]}f}"
             self.update_energy(self.bar_bias, fuel_bias)
 
             # Energy level bar

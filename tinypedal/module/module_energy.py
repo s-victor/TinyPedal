@@ -20,6 +20,8 @@
 Energy module
 """
 
+from __future__ import annotations
+
 from ._base import DataModule
 from .module_fuel import calc_data
 from ..module_info import minfo
@@ -65,10 +67,14 @@ class Realtime(DataModule):
                 if minfo.restapi.maxVirtualEnergy:
                     gen_calc_energy.send(True)
 
-                    # Update fuel to energy ratio
+                    # Update hybrid info
                     minfo.hybrid.fuelEnergyRatio = calc.fuel_to_energy_ratio(
                         minfo.fuel.estimatedConsumption,
-                        minfo.energy.estimatedConsumption)
+                        minfo.energy.estimatedConsumption,
+                    )
+                    minfo.hybrid.fuelEnergyBias = (
+                        minfo.fuel.estimatedLaps - minfo.energy.estimatedLaps
+                    )
 
             else:
                 if reset:
@@ -78,9 +84,9 @@ class Realtime(DataModule):
                     gen_calc_energy.send(False)
 
 
-def telemetry_energy():
+def telemetry_energy() -> tuple[float, float]:
     """Telemetry energy, output in percentage"""
     max_energy = minfo.restapi.maxVirtualEnergy
     if max_energy:
-        return 100, minfo.restapi.currentVirtualEnergy / max_energy * 100
-    return 100, 0
+        return 100.0, minfo.restapi.currentVirtualEnergy / max_energy * 100
+    return 100.0, 0.0

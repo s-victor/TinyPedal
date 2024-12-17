@@ -21,9 +21,8 @@ Overlay base window, events.
 """
 
 from __future__ import annotations
-
 import re
-from dataclasses import dataclass
+from typing import NamedTuple
 
 from PySide2.QtCore import Qt, Slot, QBasicTimer
 from PySide2.QtGui import QPalette, QFont, QFontMetrics, QPixmap
@@ -34,16 +33,6 @@ from ..const import APP_NAME
 from ..overlay_control import octrl
 
 FONT_WEIGHT_LIST = rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT]
-
-
-@dataclass(frozen=True)
-class FontMetrics:
-    """Font metrics info"""
-    width: int = 0
-    height: int = 0
-    leading: int = 0
-    capital: int = 0
-    descent: int = 0
 
 
 class Overlay(QWidget):
@@ -345,7 +334,7 @@ class Overlay(QWidget):
     def set_qlabel(
         self, text: str | None = None, pixmap: QPixmap | None = None, style: str | None = None,
         width: int = 0, height: int = 0, fixed_width: int = 0, fixed_height: int = 0,
-        align: int = 0, last: any | None = None, count: int = 1) -> (tuple[QLabel] | QLabel):
+        align: int = 0, last: any | None = None, count: int = 1) -> (tuple[QLabel, ...] | QLabel):
         """Set qlabel
 
         Args:
@@ -378,7 +367,7 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout_vert(
-        layout: QLayout, targets: tuple[QWidget], row_start: int = 1, column: int = 4):
+        layout: QLayout, targets: tuple[QWidget, ...], row_start: int = 1, column: int = 4):
         """Set grid layout - vertical
 
         Default row index start from 1; reserve row index 0 for caption.
@@ -388,7 +377,7 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout_quad(
-        layout: QLayout, targets: tuple[QWidget | QLayout],
+        layout: QLayout, targets: tuple[QWidget | QLayout, ...],
         row_start: int = 1, column_left: int = 0, column_right: int = 9):
         """Set grid layout - quad - (0,1), (2,3)
 
@@ -404,7 +393,7 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout_table_row(
-        layout: QLayout, targets: tuple[QWidget],
+        layout: QLayout, targets: tuple[QWidget, ...],
         row_index: int = 0, right_to_left: bool = False, hide_start: int = 99999):
         """Set grid layout - table by keys of each row"""
         if right_to_left:
@@ -416,7 +405,7 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout_table_column(
-        layout: QLayout, targets: tuple[QWidget],
+        layout: QLayout, targets: tuple[QWidget, ...],
         column_index: int = 0, bottom_to_top: bool = False, hide_start: int = 99999):
         """Set grid layout - table by keys of each column"""
         if bottom_to_top:
@@ -475,3 +464,12 @@ class Overlay(QWidget):
             self.layout().addWidget(target, *order)
         else:
             self.layout().addLayout(target, *order)
+
+
+class FontMetrics(NamedTuple):
+    """Font metrics info"""
+    width: int = 0
+    height: int = 0
+    leading: int = 0
+    capital: int = 0
+    descent: int = 0

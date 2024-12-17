@@ -154,7 +154,7 @@ class Realtime(Overlay):
         self.last_wear = 0
         self.last_lap_stime = 0
         # 0 - lap number, 1 - est lap time, 2 - is valid lap, 3 - last fuel usage, 4 - tyre wear
-        self.laps_data = [0,0,0,0,0]
+        self.laps_data = [0] * 5
         self.history_data = deque([self.laps_data[:] for _ in range(history_slot)], history_slot)
         self.update_laps_history()
 

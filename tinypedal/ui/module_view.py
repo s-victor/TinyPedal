@@ -32,6 +32,7 @@ from PySide2.QtWidgets import (
 )
 
 from ..setting import cfg
+from ..module_control import ModuleControl
 from .. import formatter as fmt
 from .config import UserConfig
 
@@ -64,7 +65,7 @@ QSS_BUTTON_CONFIG = (
 class ModuleList(QWidget):
     """Module & widget list view"""
 
-    def __init__(self, module_control: object):
+    def __init__(self, module_control: ModuleControl):
         """Initialize module list setting
 
         Args:
@@ -136,7 +137,7 @@ class ModuleList(QWidget):
                 self.module_control.disable_all()
                 self.refresh_state()
 
-    def confirm_batch_toggle(self, confirm_type: str):
+    def confirm_batch_toggle(self, confirm_type: str) -> bool:
         """Batch toggle confirmation"""
         if not cfg.application["show_confirmation_for_batch_toggle"]:
             return True
@@ -153,7 +154,7 @@ class ModuleList(QWidget):
 class ListItemControl(QWidget):
     """List box item control"""
 
-    def __init__(self, master, module_name: str, module_control: object):
+    def __init__(self, master, module_name: str, module_control: ModuleControl):
         """Initialize list box setting
 
         Args:

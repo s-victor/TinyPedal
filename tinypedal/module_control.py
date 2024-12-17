@@ -25,9 +25,9 @@ from pkgutil import iter_modules
 from time import sleep
 
 from .setting import cfg
+from .validator import is_imported_module
 from . import module
 from . import widget
-from . import validator as val
 
 logger = logging.getLogger(__name__)
 
@@ -44,7 +44,7 @@ def create_module_pack(target: any) -> dict:
     return {
         name: getattr(target, name)
         for _, name, _ in iter_modules(target.__path__)
-        if val.is_imported_module(target, name)
+        if is_imported_module(target, name)
     }
 
 
@@ -59,6 +59,8 @@ class ModuleControl:
         active_list: list of active modules.
         type_id: module type indentifier, either "module" or "widget".
     """
+
+    __slots__ = "pack", "active_list", "type_id"
 
     def __init__(self, target: any, type_id: str):
         self.pack = create_module_pack(target)
