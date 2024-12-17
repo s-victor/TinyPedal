@@ -34,7 +34,7 @@ from . import validator as val
 class DataSet:
     """Data set"""
 
-    def __init__(self, info, dataset=rfactor2):
+    def __init__(self, info, dataset: rfactor2):
         self.check = dataset.Check(info)
         self.brake = dataset.Brake(info)
         self.emotor = dataset.ElectricMotor(info)

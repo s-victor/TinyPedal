@@ -31,6 +31,14 @@ logger = logging.getLogger(__name__)
 class APIControl:
     """API Control"""
 
+    __slots__ = (
+        "_api",
+        "_same_api_loaded",
+        "_state_override",
+        "_active_state",
+        "read",
+    )
+
     def __init__(self):
         self._api = None
         self._same_api_loaded = False

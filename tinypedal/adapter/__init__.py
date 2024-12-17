@@ -22,6 +22,8 @@ API data adapter
 To create new API adapter, duplicate rfactor2.py and fill in entries.
 """
 
+from pyRfactor2SharedMemory import rF2MMap
+
 
 class DataAdapter:
     """Read & sort data into groups
@@ -30,7 +32,9 @@ class DataAdapter:
         info: API object.
     """
 
-    def __init__(self, info: object) -> None:
+    __slots__ = "info"
+
+    def __init__(self, info: rF2MMap.RF2SM) -> None:
         """Initialize API setting
 
         Args:

@@ -48,6 +48,9 @@ RF2_SECTORS = (2, 0, 1, 0, 0, 0, 0)
 
 class Check(DataAdapter):
     """Check"""
+
+    __slots__ = ()
+
     def api_state(self) -> bool:
         """API state"""
         return (
@@ -97,6 +100,9 @@ class Check(DataAdapter):
 
 class Brake(DataAdapter):
     """Brake"""
+
+    __slots__ = ()
+
     def bias_front(self, index: int | None = None) -> float:
         """Brake bias front"""
         return 1 - chknm(self.info.rf2TeleVeh(index).mRearBrakeBias)
@@ -114,6 +120,9 @@ class Brake(DataAdapter):
 
 class ElectricMotor(DataAdapter):
     """Electric motor"""
+
+    __slots__ = ()
+
     def state(self, index: int | None = None) -> int:
         """Motor state, 0 = n/a, 1 = off, 2 = drain, 3 = regen"""
         return chknm(self.info.rf2TeleVeh(index).mElectricBoostMotorState)
@@ -141,6 +150,9 @@ class ElectricMotor(DataAdapter):
 
 class Engine(DataAdapter):
     """Engine"""
+
+    __slots__ = ()
+
     def gear(self, index: int | None = None) -> int:
         """Gear"""
         return chknm(self.info.rf2TeleVeh(index).mGear)
@@ -176,6 +188,9 @@ class Engine(DataAdapter):
 
 class Input(DataAdapter):
     """Input"""
+
+    __slots__ = ()
+
     def throttle(self, index: int | None = None) -> float:
         """Throttle filtered"""
         return chknm(self.info.rf2TeleVeh(index).mFilteredThrottle)
@@ -227,6 +242,9 @@ class Input(DataAdapter):
 
 class Lap(DataAdapter):
     """Lap"""
+
+    __slots__ = ()
+
     def number(self, index: int | None = None) -> int:
         """Current lap number"""
         return chknm(self.info.rf2TeleVeh(index).mLapNumber)
@@ -268,6 +286,9 @@ class Lap(DataAdapter):
 
 class Session(DataAdapter):
     """Session"""
+
+    __slots__ = ()
+
     def elapsed(self) -> float:
         """Session elapsed time"""
         return chknm(self.info.rf2ScorInfo.mCurrentET)
@@ -365,6 +386,9 @@ class Session(DataAdapter):
 
 class Switch(DataAdapter):
     """Switch"""
+
+    __slots__ = ()
+
     def headlights(self, index: int | None = None) -> int:
         """Headlights"""
         return chknm(self.info.rf2TeleVeh(index).mHeadlights)
@@ -396,6 +420,9 @@ class Switch(DataAdapter):
 
 class Timing(DataAdapter):
     """Timing"""
+
+    __slots__ = ()
+
     def start(self, index: int | None = None) -> float:
         """Current lap start time"""
         return chknm(self.info.rf2TeleVeh(index).mLapStartET)
@@ -460,6 +487,9 @@ class Timing(DataAdapter):
 
 class Tyre(DataAdapter):
     """Tyre"""
+
+    __slots__ = ()
+
     def compound_front(self, index: int | None = None) -> int:
         """Tyre compound - front"""
         return chknm(self.info.rf2TeleVeh(index).mFrontTireCompoundIndex)
@@ -552,6 +582,9 @@ class Tyre(DataAdapter):
 
 class Vehicle(DataAdapter):
     """Vehicle"""
+
+    __slots__ = ()
+
     def is_player(self, index: int=0) -> bool:
         """Is local player"""
         return self.info.isPlayer(index)
@@ -603,6 +636,10 @@ class Vehicle(DataAdapter):
     def number_pitstops(self, index: int | None = None) -> int:
         """Number of pit stops"""
         return chknm(self.info.rf2ScorVeh(index).mNumPitstops)
+
+    def number_penalties(self, index: int | None = None) -> int:
+        """Number of penalties"""
+        return chknm(self.info.rf2ScorVeh(index).mNumPenalties)
 
     def pit_state(self, index: int | None = None) -> int:
         """Pit state, 0 = none, 1 = request, 2 = entering, 3 = stopped, 4 = exiting"""
@@ -704,6 +741,9 @@ class Vehicle(DataAdapter):
 
 class Wheel(DataAdapter):
     """Wheel & suspension"""
+
+    __slots__ = ()
+
     def camber(self, index: int | None = None) -> list[float]:
         """Wheel camber (radians)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
