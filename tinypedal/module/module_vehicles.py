@@ -80,9 +80,9 @@ class Realtime(DataModule):
         draw_order = ALL_INDEXES[:veh_total]
 
         # Local player data
-        nearest_line = 999999
-        nearest_timegap = 999999
-        nearest_yellow = 999999
+        nearest_line = 999999.0
+        nearest_timegap = 999999.0
+        nearest_yellow = 999999.0
 
         # Sorting reference index
         leader_idx = 0

@@ -31,6 +31,7 @@ from PySide2.QtWidgets import QWidget, QLabel, QLayout, QGridLayout
 from .. import regex_pattern as rxp
 from ..const import APP_NAME
 from ..overlay_control import octrl
+from ..setting import Setting
 
 FONT_WEIGHT_LIST = rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT]
 
@@ -38,7 +39,7 @@ FONT_WEIGHT_LIST = rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT]
 class Overlay(QWidget):
     """Overlay window"""
 
-    def __init__(self, config: object, widget_name: str):
+    def __init__(self, config: Setting, widget_name: str):
         super().__init__()
         self.widget_name = widget_name
         self.closed = False
@@ -236,7 +237,7 @@ class Overlay(QWidget):
         return round(size * scale) * side
 
     @staticmethod
-    def set_text_alignment(align: int | str = 0) -> Qt.AlignmentFlag:
+    def set_text_alignment(align: int | str = 0) -> Qt.Alignment:
         """Set text alignment
 
         Args:
@@ -277,12 +278,12 @@ class Overlay(QWidget):
         if font_family:
             font_family = f"font-family:{font_family};"
         if font_size >= 0:
-            font_size = f"font-size:{max(font_size, 1)}px;"
+            font_size_pixel = f"font-size:{max(font_size, 1)}px;"
         else:
-            font_size = ""
+            font_size_pixel = ""
         if font_weight in FONT_WEIGHT_LIST:
             font_weight = f"font-weight:{font_weight};"
-        return f"{fg_color}{bg_color}{font_family}{font_size}{font_weight}"
+        return f"{fg_color}{bg_color}{font_family}{font_size_pixel}{font_weight}"
 
     def __add_qlabel(
         self, text: str | None = None, pixmap: QPixmap | None = None, style: str | None = None,
@@ -367,7 +368,7 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout_vert(
-        layout: QLayout, targets: tuple[QWidget, ...], row_start: int = 1, column: int = 4):
+        layout: QGridLayout, targets: tuple[QWidget, ...], row_start: int = 1, column: int = 4):
         """Set grid layout - vertical
 
         Default row index start from 1; reserve row index 0 for caption.
@@ -377,7 +378,7 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout_quad(
-        layout: QLayout, targets: tuple[QWidget | QLayout, ...],
+        layout: QGridLayout, targets: tuple[QWidget | QLayout, ...],
         row_start: int = 1, column_left: int = 0, column_right: int = 9):
         """Set grid layout - quad - (0,1), (2,3)
 
@@ -393,7 +394,7 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout_table_row(
-        layout: QLayout, targets: tuple[QWidget, ...],
+        layout: QGridLayout, targets: tuple[QWidget, ...],
         row_index: int = 0, right_to_left: bool = False, hide_start: int = 99999):
         """Set grid layout - table by keys of each row"""
         if right_to_left:
@@ -405,7 +406,7 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout_table_column(
-        layout: QLayout, targets: tuple[QWidget, ...],
+        layout: QGridLayout, targets: tuple[QWidget, ...],
         column_index: int = 0, bottom_to_top: bool = False, hide_start: int = 99999):
         """Set grid layout - table by keys of each column"""
         if bottom_to_top:
@@ -442,7 +443,7 @@ class Overlay(QWidget):
         self.setLayout(layout)
 
     def set_primary_orient(
-        self, target: QWidget | QLayout, column: int = 0, row: int = 0,
+        self, target: QWidget | QGridLayout, column: int = 0, row: int = 0,
         option: str = "layout", default: str | int = 0):
         """Set primary layout (QGridLayout) orientation
 
@@ -450,7 +451,7 @@ class Overlay(QWidget):
         0 = vertical, 1 = horizontal.
 
         Args:
-            target: QWidget or QLayout that adds to primary layout.
+            target: QWidget or QGridLayout that adds to primary layout.
             column: column index determines display order.
             row: row index determines side display order.
             option: layout option name in Widget JSON.

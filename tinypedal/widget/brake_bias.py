@@ -108,7 +108,7 @@ class Realtime(Overlay):
             # Brake migration
             if self.wcfg["show_brake_migration"]:
                 bmigt = self.brake_bmigt.calc(
-                    brake_raw=api.read.input.brake_raw(),
+                    brake_raw=api.read.inputs.brake_raw(),
                     brake_bias=bbias,
                     brake_pres=api.read.brake.pressure()
                 )
@@ -154,8 +154,8 @@ class BrakeMigration:
         Args:
             ebrake_alloc: electric braking allocation, -1 = auto detect, 0 = front, 1 = rear.
         """
-        self._bpres_max = 0
-        self._bpres_scale = 1
+        self._bpres_max = 0.0
+        self._bpres_scale = 1.0
         self._ebrake_alloc = ebrake_alloc
         self._auto_detect = bool(ebrake_alloc == -1)
 
@@ -199,5 +199,5 @@ class BrakeMigration:
 
     def reset(self):
         """Reset"""
-        self._bpres_max = 0
-        self._bpres_scale = 1
+        self._bpres_max = 0.0
+        self._bpres_scale = 1.0

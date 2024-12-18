@@ -81,7 +81,7 @@ class Realtime(DataModule):
                 dforce_f = api.read.vehicle.downforce_front()
                 dforce_r = api.read.vehicle.downforce_rear()
                 speed = api.read.vehicle.speed()
-                brake_raw = api.read.input.brake_raw()
+                brake_raw = api.read.inputs.brake_raw()
                 impact_time = api.read.vehicle.impact_time()
 
                 # G raw
@@ -142,9 +142,9 @@ class TransientMax:
         """
         self._reset_delay = reset_delay
         self._store_recent = store_recent
-        self._reset_timer = 0
-        self._max_value = 0
-        self._stored_value = 0
+        self._reset_timer = 0.0
+        self._max_value = 0.0
+        self._stored_value = 0.0
 
     def update(self, value: float, elapsed_time: float) -> float:
         """Record transient max value, reset periodically
@@ -170,9 +170,9 @@ class TransientMax:
 
     def reset(self):
         """Reset"""
-        self._reset_timer = 0
-        self._max_value = 0
-        self._stored_value = 0
+        self._reset_timer = 0.0
+        self._max_value = 0.0
+        self._stored_value = 0.0
 
 
 class BrakingRate:
@@ -184,8 +184,8 @@ class BrakingRate:
             g_accel: gravitational acceleration.
         """
         self._g_accel = g_accel
-        self._last_speed = 0
-        self._last_time = 0
+        self._last_speed = 0.0
+        self._last_time = 0.0
 
     def calc(
         self, elapsed_time: float, speed: float,
@@ -201,7 +201,7 @@ class BrakingRate:
         Returns:
             Braking rate (G).
         """
-        braking_rate = 0
+        braking_rate = 0.0
         delta_speed = self._last_speed - speed
         delta_time = elapsed_time - self._last_time
         if delta_time:
@@ -213,5 +213,5 @@ class BrakingRate:
 
     def reset(self):
         """Reset"""
-        self._last_speed = 0
-        self._last_time = 0
+        self._last_speed = 0.0
+        self._last_time = 0.0

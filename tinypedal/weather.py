@@ -21,25 +21,29 @@ Weather function
 """
 
 from __future__ import annotations
+from .module_info import WeatherNode
 from functools import lru_cache
 
-MAX_MINUTES = 9999
-MIN_TEMPERATURE = -273
-DEFAULT = [(MAX_MINUTES, -1, MIN_TEMPERATURE, -1)]
+MAX_MINUTES = 9999.0
+MIN_TEMPERATURE = -273.0
+DEFAULT = [WeatherNode(MAX_MINUTES, -1, MIN_TEMPERATURE, -1)]
 RF2_FORECAST_NODES = ("START", "NODE_25", "NODE_50", "NODE_75", "FINISH")
 
 
-def forecast_rf2(data: dict) -> list[tuple]:
+def forecast_rf2(data: dict) -> list[WeatherNode]:
     """Get value from weather forecast dictionary, output 5 api data"""
     try:
         output = [
-            (round(index * 0.2, 1),                                   # 0 - fraction start time
-            data[weather]["WNV_SKY"]["currentValue"],                 # 1 - sky type index
-            round(data[weather]["WNV_TEMPERATURE"]["currentValue"]),  # 2 - temperature
-            round(data[weather]["WNV_RAIN_CHANCE"]["currentValue"]),  # 3 - rain chance
-            ) for index, weather in enumerate(RF2_FORECAST_NODES)]
+            WeatherNode(
+                round(index * 0.2, 1),
+                data[node]["WNV_SKY"]["currentValue"],
+                round(data[node]["WNV_TEMPERATURE"]["currentValue"]),
+                round(data[node]["WNV_RAIN_CHANCE"]["currentValue"]),
+            )
+            for index, node in enumerate(RF2_FORECAST_NODES)
+        ]
     except (KeyError, TypeError):
-        output = DEFAULT * 5
+        output = DEFAULT
     return output
 
 

@@ -129,7 +129,7 @@ class Realtime(Overlay):
             # Read speed data
             speed = api.read.vehicle.speed()
             lap_etime = api.read.timing.elapsed()
-            raw_throttle = api.read.input.throttle_raw()
+            raw_throttle = api.read.inputs.throttle_raw()
 
             # Update current speed
             if self.wcfg["show_speed"]:

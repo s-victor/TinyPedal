@@ -119,6 +119,9 @@ class Realtime(DataModule):
         """Run tasks"""
         self.task_deletion.clear()
         url_rest, time_out, retry, retry_delay = self.__setup_connection(sim_name)
+        if not url_rest:
+            logger.info("RestAPI: game session not found")
+            return
         # Run all tasks once per garage out, and check availability
         if task_runonce:
             asyncio.run(self.__task_runonce(
@@ -145,15 +148,12 @@ class Realtime(DataModule):
             url_port = self.mcfg["url_port_rf2"]
             url_rest = f"http://{url_host}:{url_port}/rest/"
         else:
-            logger.info("RestAPI: game session not found")
             url_rest = ""
         return url_rest, time_out, retry, retry_delay
 
     async def __task_runonce(self, active_task: dict, url_rest: str,
-        time_out: int, retry: int, retry_delay: float):
+        time_out: float, retry: int, retry_delay: float):
         """Update task runonce"""
-        if not url_rest:
-            return None
         tasks = (
             self.__fetch_retry(
                 url_rest, time_out, retry, retry_delay, resource_name, output_set
@@ -162,17 +162,15 @@ class Realtime(DataModule):
         )
         return await asyncio.gather(*tasks)
 
-    async def __task_repeats(self, active_task: dict, url_rest: str, time_out: int):
+    async def __task_repeats(self, active_task: dict, url_rest: str, time_out: float):
         """Update task repeatedly"""
-        if not url_rest:
-            return None
         tasks = (
             self.__fetch(url_rest, time_out, resource_name, output_set)
             for resource_name, output_set in active_task.items()
         )
         return await asyncio.gather(*tasks)
 
-    async def __fetch(self, url_rest: str, time_out: int,
+    async def __fetch(self, url_rest: str, time_out: float,
         resource_name: str, output_set: tuple):
         """Fetch data without retry"""
         full_url = f"{url_rest}{resource_name}"
@@ -183,7 +181,7 @@ class Realtime(DataModule):
                     get_value(resource_output, *output)
             await asyncio.sleep(self.active_interval)
 
-    async def __fetch_retry(self, url_rest: str, time_out: int, retry: int,
+    async def __fetch_retry(self, url_rest: str, time_out: float, retry: int,
         retry_delay: float, resource_name: str, output_set: tuple):
         """Fetch data with retry"""
         data_available = False
@@ -230,7 +228,7 @@ def remove_unavailable_task(active_task: dict, task_deletion: set):
             logger.info("RestAPI: MISSING: %s", resource_name.upper())
 
 
-def get_resource(url: str, time_out: int) -> (dict | str):
+def get_resource(url: str, time_out: float) -> (dict | str):
     """Get resource from REST API"""
     try:
         with urlopen(url, timeout=time_out) as raw_resource:

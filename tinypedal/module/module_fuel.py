@@ -33,7 +33,7 @@ from ..userfile.fuel_delta import load_fuel_delta_file, save_fuel_delta_file
 
 MODULE_NAME = "module_fuel"
 DELTA_ZERO = 0.0,0.0
-DELTA_DEFAULT = (DELTA_ZERO,)
+DELTA_DEFAULT = [DELTA_ZERO]
 
 round6 = partial(round, ndigits=6)
 
@@ -78,13 +78,13 @@ class Realtime(DataModule):
                     > minfo.delta.lapTimeCurrent > 2):  # record 2s after pass finish line
                     minfo.history.consumption.appendleft(
                         ConsumptionDataSet(
-                            completedLaps=api.read.lap.completed_laps() - 1,
-                            isValidLap=minfo.delta.isValidLap,
-                            lapTimeLast=minfo.delta.lapTimeLast,
-                            lastLapUsedFuel=minfo.fuel.lastLapConsumption,
-                            lastLapUsedEnergy=minfo.energy.lastLapConsumption,
-                            batteryDrainLast=minfo.hybrid.batteryDrainLast,
-                            batteryRegenLast=minfo.hybrid.batteryRegenLast,
+                            api.read.lap.completed_laps() - 1,
+                            minfo.delta.isValidLap,
+                            minfo.delta.lapTimeLast,
+                            minfo.fuel.lastLapConsumption,
+                            minfo.energy.lastLapConsumption,
+                            minfo.hybrid.batteryDrainLast,
+                            minfo.hybrid.batteryRegenLast,
                         )
                     )
 
@@ -119,29 +119,29 @@ def calc_data(
     )
     delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
     delta_list_temp = DELTA_DEFAULT  # last lap temp
-    delta_fuel = 0  # delta fuel consumption compare to last lap
+    delta_fuel = 0.0  # delta fuel consumption compare to last lap
 
-    amount_start = 0  # start fuel reading
-    amount_last = 0  # last fuel reading
-    amount_need = 0  # total additional fuel need to finish race
-    amount_end = 0  # amount fuel left at the end of stint before pitting
-    used_curr = 0  # current lap fuel consumption
+    amount_start = 0.0  # start fuel reading
+    amount_last = 0.0  # last fuel reading
+    amount_need = 0.0  # total additional fuel need to finish race
+    amount_end = 0.0  # amount fuel left at the end of stint before pitting
+    used_curr = 0.0  # current lap fuel consumption
     used_last_raw = used_last  # raw usage
-    used_est = 0  # estimated fuel consumption, for calculation only
-    est_runlaps = 0  # estimate laps current fuel can last
-    est_runmins = 0  # estimate minutes current fuel can last
-    est_empty = 0  # estimate empty capacity at end of current lap
-    est_pits_late = 0  # estimate end-stint pit stop counts
-    est_pits_early = 0  # estimate end-lap pit stop counts
-    used_est_less = 0  # estimate fuel consumption for one less pit stop
+    used_est = 0.0  # estimated fuel consumption, for calculation only
+    est_runlaps = 0.0  # estimate laps current fuel can last
+    est_runmins = 0.0  # estimate minutes current fuel can last
+    est_empty = 0.0  # estimate empty capacity at end of current lap
+    est_pits_late = 0.0  # estimate end-stint pit stop counts
+    est_pits_early = 0.0  # estimate end-lap pit stop counts
+    used_est_less = 0.0  # estimate fuel consumption for one less pit stop
 
-    last_lap_stime = -1  # last lap start time
-    laps_left = 0  # amount laps left at current lap distance
-    end_timer_laps_left = 0  # amount laps left from start of current lap to end of race timer
-    pos_last = 0  # last checked vehicle position
-    pos_estimate = 0  # calculated position
+    last_lap_stime = -1.0  # last lap start time
+    laps_left = 0.0  # amount laps left at current lap distance
+    end_timer_laps_left = 0.0  # amount laps left from start of current lap to end of race timer
+    pos_last = 0.0  # last checked vehicle position
+    pos_estimate = 0.0  # calculated position
     pos_synced = False  # whether estimated position synced
-    gps_last = [0] * 3  # last global position
+    gps_last = (0.0,0.0,0.0)  # last global position
 
     while True:
         updating = yield None

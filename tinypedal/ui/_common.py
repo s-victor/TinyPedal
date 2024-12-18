@@ -84,21 +84,6 @@ color_pick_history = deque(
     maxlen=QColorDialog.customCount()
 )
 
-# Function
-def update_preview_color(color_str, option):
-    """Update preview background color"""
-    if val.hex_color(color_str):
-        # Set foreground color based on background color lightness
-        qcolor = QColor(color_str)
-        if qcolor.alpha() > 128 > qGray(qcolor.rgb()):
-            fg_color = "#FFF"
-        else:
-            fg_color = "#000"
-        # Apply style
-        option.setStyleSheet(
-            f"QLineEdit {{color: {fg_color};background: {color_str};}}"
-        )
-
 
 # Class
 class BaseDialog(QDialog):
@@ -419,6 +404,21 @@ class DoubleClickEdit(QLineEdit):
             self.setText(path_selected)
             self.init_value = path_selected
 
+    def preview_color(self):
+        """Update edit preview color"""
+        color_str = self.text()
+        if val.hex_color(color_str):
+            # Set foreground color based on background color lightness
+            qcolor = QColor(color_str)
+            if qcolor.alpha() > 128 > qGray(qcolor.rgb()):
+                fg_color = "#FFF"
+            else:
+                fg_color = "#000"
+            # Apply style
+            self.setStyleSheet(
+                f"QLineEdit {{color: {fg_color};background: {color_str};}}"
+            )
+
 
 class QTableFloatItem(QTableWidgetItem):
     """QTable float type item"""
@@ -426,7 +426,7 @@ class QTableFloatItem(QTableWidgetItem):
     def __init__(self, value: float):
         """Convert & set float value to string"""
         super().__init__()
-        self._value = 0
+        self._value = 0.0
         self.setValue(value)
 
     def setValue(self, value: float):

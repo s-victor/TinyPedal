@@ -99,32 +99,32 @@ class Realtime(Overlay):
                 self.update_plot -= 1
 
             if self.update_plot:
-                throttle_raw = api.read.input.throttle_raw()
-                brake_raw = api.read.input.brake_raw()
+                throttle_raw = api.read.inputs.throttle_raw()
+                brake_raw = api.read.inputs.brake_raw()
 
                 if self.wcfg["show_throttle"]:
                     if self.wcfg["show_raw_throttle"]:
                         throttle = throttle_raw
                     else:
-                        throttle = api.read.input.throttle()
+                        throttle = api.read.inputs.throttle()
                     self.update_sample(self.data_throttle, throttle)
 
                 if self.wcfg["show_brake"]:
                     if self.wcfg["show_raw_brake"]:
                         brake = brake_raw
                     else:
-                        brake = api.read.input.brake()
+                        brake = api.read.inputs.brake()
                     self.update_sample(self.data_brake, brake)
 
                 if self.wcfg["show_clutch"]:
                     if self.wcfg["show_raw_clutch"]:
-                        clutch = api.read.input.clutch_raw()
+                        clutch = api.read.inputs.clutch_raw()
                     else:
-                        clutch = api.read.input.clutch()
+                        clutch = api.read.inputs.clutch()
                     self.update_sample(self.data_clutch, clutch)
 
                 if self.wcfg["show_ffb"]:
-                    ffb = abs(api.read.input.force_feedback())
+                    ffb = abs(api.read.inputs.force_feedback())
                     self.update_sample(self.data_ffb, ffb)
 
                 if self.wcfg["show_wheel_lock"]:

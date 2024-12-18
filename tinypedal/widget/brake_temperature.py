@@ -166,7 +166,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(self.format_temperature(data))
-            target.setStyleSheet(hmp.select_color(self.heatmap, data))
+            target.setStyleSheet(calc.select_grade(self.heatmap, data))
 
     def update_btavg(self, target, data, highlighted=False):
         """Brake average temperature"""

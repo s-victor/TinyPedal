@@ -171,7 +171,7 @@ class Realtime(Overlay):
             # Wheel lock duration
             if self.lock_timer.enabled:
                 self.lock_timer.calc(
-                    brake_raw=api.read.input.brake_raw(),
+                    brake_raw=api.read.inputs.brake_raw(),
                     start_time=api.read.timing.start(),
                     elapsed_time=api.read.timing.elapsed(),
                     slip_ratio=minfo.wheels.slipRatio,
@@ -229,10 +229,10 @@ class WheelLockTimer:
             lock_threshold: wheel lock (slip ratio) detection threshold.
         """
         self.enabled = enabled
-        self.front = 0
-        self.rear = 0
-        self._last_elapsed_time = 0
-        self._last_start_time = 0
+        self.front = 0.0
+        self.rear = 0.0
+        self._last_elapsed_time = 0.0
+        self._last_start_time = 0.0
         self._lock_threshold = lock_threshold
 
     def calc(self, brake_raw: float, start_time: float, elapsed_time: float, slip_ratio: list):

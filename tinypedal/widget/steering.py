@@ -90,7 +90,7 @@ class Realtime(Overlay):
             if self.wcfg["manual_steering_range"] > 0:
                 temp_rot_range = self.wcfg["manual_steering_range"]
             else:
-                temp_rot_range = api.read.input.steering_range_physical()
+                temp_rot_range = api.read.inputs.steering_range_physical()
                 if minfo.restapi.steeringWheelRange > 0 >= temp_rot_range:
                     temp_rot_range = minfo.restapi.steeringWheelRange
 
@@ -105,7 +105,7 @@ class Realtime(Overlay):
                 self.draw_scale_mark(mark_gap, mark_num)
 
             # Steering
-            temp_raw_steering = api.read.input.steering_raw()
+            temp_raw_steering = api.read.inputs.steering_raw()
             if self.raw_steering != temp_raw_steering:
                 self.raw_steering = temp_raw_steering
                 self.update()

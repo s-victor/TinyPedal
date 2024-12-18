@@ -442,7 +442,7 @@ class TrackNotesEditor(BaseEditor):
             self.table_notes.columnCount()
         )
 
-    def insert_notes(self, row_offset: int = 0) -> bool:
+    def insert_notes(self, row_offset: int = 0):
         """Insert new notes entry"""
         self.add_table_row(
             self.table_notes.currentRow() + row_offset,

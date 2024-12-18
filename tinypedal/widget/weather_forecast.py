@@ -20,13 +20,15 @@
 Weather forecast Widget
 """
 
+from __future__ import annotations
+
 from PySide2.QtCore import Qt, QRect
 from PySide2.QtGui import QPixmap, QPainter
 
 from .. import calculation as calc
 from .. import weather as wthr
 from ..api_control import api
-from ..module_info import minfo
+from ..module_info import minfo, WeatherNode
 from ._base import Overlay
 
 WIDGET_NAME = "weather_forecast"
@@ -170,14 +172,14 @@ class Realtime(Overlay):
             # Update slot 0 with live(now) weather condition
             if index == 0:
                 rain_chance = api.read.session.raininess() * 100
-                icon_index = wthr.sky_type_correction(forecast_info[index_bias][1], rain_chance)
+                icon_index = wthr.sky_type_correction(forecast_info[index_bias].sky_type, rain_chance)
                 estimated_temp = api.read.session.ambient_temperature()
                 estimated_time = 0
             # Update slot with available forecast
             elif index_bias < forecast_count:
-                rain_chance = forecast_info[index_bias][3]
-                icon_index = forecast_info[index_bias][1]
-                estimated_temp = forecast_info[index_bias][2]
+                rain_chance = forecast_info[index_bias].rain_chance
+                icon_index = forecast_info[index_bias].sky_type
+                estimated_temp = forecast_info[index_bias].temperature
                 if is_lap_type:
                     estimated_time = wthr.MAX_MINUTES
                 else:
@@ -260,7 +262,7 @@ class Realtime(Overlay):
             return f"{calc.celsius2fahrenheit(air_deg):.0f}°"
         return f"{air_deg:.0f}°"
 
-    def set_forecast_time(self, forecast_info):
+    def set_forecast_time(self, forecast_info: list[WeatherNode]) -> int:
         """Set forecast estimated time"""
         index_offset = 0
         session_length = api.read.session.end()
@@ -270,14 +272,14 @@ class Realtime(Overlay):
                 continue
             _time = self.estimated_time[index] = min(round(
                 wthr.forecast_time_progress(
-                    forecast[0], session_length, elapsed_time,
+                    forecast.start_minute, session_length, elapsed_time,
                 ) / 60), wthr.MAX_MINUTES)
             if _time <= 0:
                 index_offset += 1
         return index_offset
 
 
-def get_forecast_info(session_type: int):
+def get_forecast_info(session_type: int) -> list[WeatherNode]:
     """Get forecast info"""
     if session_type <= 1:  # practice session
         info = minfo.restapi.forecastPractice

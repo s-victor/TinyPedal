@@ -65,12 +65,12 @@ class WheelGaugeBar(QWidget):
         self.pen.setColor(fg_color)
         self.setFixedSize(bar_width, bar_height)
 
-    def __update_left(self, input_value: int | float):
+    def __update_left(self, input_value: float):
         """Update input value"""
         self.rect_input.setX((self.max_range - input_value) * self.width_scale)
         self.update()
 
-    def __update_right(self, input_value: int | float):
+    def __update_right(self, input_value: float):
         """Update input value"""
         self.rect_input.setWidth(input_value * self.width_scale)
         self.update()
@@ -107,7 +107,7 @@ class PedalInputBar(QWidget):
         self.last = None
         self.is_maxed = False
         self.show_reading = show_reading
-        self.input_reading = 0
+        self.input_reading = 0.0
         self.pedal_length = pedal_length
         self.pedal_extend = pedal_extend
         self.input_color = input_color
@@ -133,7 +133,7 @@ class PedalInputBar(QWidget):
         self.pen.setColor(fg_color)
         self.setFixedSize(pedal_size[2], pedal_size[3])
 
-    def __update_horizontal(self, input_raw: int | float, input_filtered: int | float):
+    def __update_horizontal(self, input_raw: float, input_filtered: float):
         """Update input value - horizontal style"""
         self.input_reading = max(input_raw, input_filtered) * 100
         scaled_raw = self.__scale_horizontal(input_raw)
@@ -143,7 +143,7 @@ class PedalInputBar(QWidget):
         self.is_maxed = scaled_raw >= self.pedal_length
         self.update()
 
-    def __update_vertical(self, input_raw: int | float, input_filtered: int | float):
+    def __update_vertical(self, input_raw: float, input_filtered: float):
         """Update input value - vertical style"""
         self.input_reading = max(input_raw, input_filtered) * 100
         scaled_raw = self.__scale_vertical(input_raw)
@@ -153,11 +153,11 @@ class PedalInputBar(QWidget):
         self.is_maxed = scaled_raw <= self.pedal_extend
         self.update()
 
-    def __scale_horizontal(self, input_value: int | float) -> float:
+    def __scale_horizontal(self, input_value: float) -> float:
         """Scale input - horizontal style"""
         return input_value * self.pedal_length
 
-    def __scale_vertical(self, input_value: int | float) -> float:
+    def __scale_vertical(self, input_value: float) -> float:
         """Scale input - vertical style"""
         return (1 - input_value) * self.pedal_length + self.pedal_extend
 
@@ -187,7 +187,7 @@ class ProgressBar(QWidget):
     ):
         super().__init__()
         self.last = -1
-        self.width = width
+        self.bar_width = width
         self.rect_bar = QRectF(0, 0, width, height)
         self.rect_input = QRectF(0, 0, width, height)
         self.input_color = input_color
@@ -200,14 +200,14 @@ class ProgressBar(QWidget):
 
         self.setFixedSize(width, height)
 
-    def __update_left(self, input_value: int | float):
+    def __update_left(self, input_value: float):
         """Update input"""
-        self.rect_input.setRight(input_value)
+        self.rect_input.setRight(input_value * self.bar_width)
         self.update()
 
-    def __update_right(self, input_value: int | float):
+    def __update_right(self, input_value: float):
         """Update input"""
-        self.rect_input.setLeft(self.width - input_value)
+        self.rect_input.setLeft(self.bar_width - input_value * self.bar_width)
         self.update()
 
     def paintEvent(self, event):
@@ -235,7 +235,7 @@ class FuelLevelBar(QWidget):
     ):
         super().__init__()
         self.last = None
-        self.width = width
+        self.bar_width = width
         self.rect_bar = QRectF(0, 0, width, height)
         self.rect_input = QRectF(0, 0, width, height)
         self.rect_start = QRectF(0, 0, start_mark_width, height)
@@ -250,9 +250,9 @@ class FuelLevelBar(QWidget):
 
     def update_input(self, input_value: float, start_value: float, refill_value: float):
         """Update input"""
-        self.rect_input.setRight(input_value * self.width)
-        self.rect_start.moveLeft(start_value * self.width)
-        self.rect_refuel.moveLeft(refill_value * self.width)
+        self.rect_input.setRight(input_value * self.bar_width)
+        self.rect_start.moveLeft(start_value * self.bar_width)
+        self.rect_refuel.moveLeft(refill_value * self.bar_width)
         self.update()
 
     def paintEvent(self, event):

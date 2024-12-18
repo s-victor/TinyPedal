@@ -139,14 +139,14 @@ class Realtime(Overlay):
             # Clutch
             # 1 or 11 auto clutch on, 10+ clutch activated
             if self.wcfg["show_clutch"]:
-                clutch = api.read.switch.auto_clutch() + (api.read.input.clutch() > 0.01) * 10
+                clutch = api.read.switch.auto_clutch() + (api.read.inputs.clutch() > 0.01) * 10
                 self.update_clutch(self.bar_clutch, clutch)
 
             # Wheel lock
             if self.wcfg["show_wheel_lock"]:
                 wlock = (
                     self.flicker and
-                    api.read.input.brake_raw() > 0 and
+                    api.read.inputs.brake_raw() > 0 and
                     min(minfo.wheels.slipRatio) < -self.wcfg["wheel_lock_threshold"]
                 )
                 self.update_wlock(self.bar_wlock, wlock)
@@ -155,7 +155,7 @@ class Realtime(Overlay):
             if self.wcfg["show_wheel_slip"]:
                 wslip = (
                     self.flicker and
-                    api.read.input.throttle_raw() > 0 and
+                    api.read.inputs.throttle_raw() > 0 and
                     max(minfo.wheels.slipRatio) >= self.wcfg["wheel_slip_threshold"]
                 )
                 self.update_wslip(self.bar_wslip, wslip)

@@ -25,6 +25,7 @@ import os
 from PySide2.QtGui import QDesktopServices
 from PySide2.QtWidgets import QMenu, QAction, QMessageBox
 
+from ..const import LINK_USER_GUIDE, LINK_FAQ
 from ..setting import cfg
 from ..api_control import api
 from ..overlay_control import octrl
@@ -173,13 +174,13 @@ class ResetDataMenu(QMenu):
             QMessageBox.warning(
                 self.master, "Error",
                 "Cannot reset data while on track.")
-            return None
+            return
         # Check if file exist
         if not os.path.exists(f"{file_path}{combo_name}.{file_ext}"):
             QMessageBox.warning(
                 self.master, "Error",
                 f"No {data_type} data found.<br><br>You can only reset data from active session.")
-            return None
+            return
         # Confirm reset
         msg_text = (
             f"Are you sure you want to reset {data_type} data for<br>"
@@ -194,8 +195,6 @@ class ResetDataMenu(QMenu):
             QMessageBox.information(
                 self.master, f"Reset {data_type.title()}",
                 f"{data_type.capitalize()} data has been reset for<br><b>{combo_name}</b>")
-            combo_name = None
-        return None
 
 
 class ConfigMenu(QMenu):
@@ -392,7 +391,7 @@ class WindowMenu(QMenu):
         self.__toggle_application("remember_position")
 
     @staticmethod
-    def __toggle_application(option_name):
+    def __toggle_application(option_name: str):
         """Toggle application option"""
         cfg.application[option_name] = not cfg.application[option_name]
         cfg.save(filetype="config")
@@ -434,12 +433,8 @@ class HelpMenu(QMenu):
 
     def open_user_guide(self):
         """Open user guide link"""
-        QDesktopServices.openUrl(
-            "https://github.com/s-victor/TinyPedal/wiki/User-Guide"
-        )
+        QDesktopServices.openUrl(LINK_USER_GUIDE)
 
     def open_faq(self):
         """Open FAQ link"""
-        QDesktopServices.openUrl(
-            "https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions"
-        )
+        QDesktopServices.openUrl(LINK_FAQ)

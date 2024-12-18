@@ -142,6 +142,7 @@ class FuelInfo:
 
 class ConsumptionDataSet(NamedTuple):
     """Consumption history data set"""
+
     completedLaps: int = 0
     isValidLap: bool = False
     lapTimeLast: float = 0.0
@@ -270,6 +271,15 @@ class SectorsInfo:
         self.deltaSectorBestTB: list[float] = temp_sector
 
 
+class WeatherNode(NamedTuple):
+    """Weather forecast node info"""
+
+    start_minute: float = 9999.0
+    sky_type: int = -1
+    temperature: float = -273.0
+    rain_chance: float = -1.0
+
+
 class RestAPIInfo:
     """Rest API module output data"""
 
@@ -294,9 +304,9 @@ class RestAPIInfo:
         self.currentVirtualEnergy: float = 0.0
         self.maxVirtualEnergy: float = 0.0
         self.aeroDamage: float = -1.0
-        self.forecastPractice: list[tuple] | None = None
-        self.forecastQualify: list[tuple] | None = None
-        self.forecastRace: list[tuple] | None = None
+        self.forecastPractice: list[WeatherNode] | None = None
+        self.forecastQualify: list[WeatherNode] | None = None
+        self.forecastRace: list[WeatherNode] | None = None
         self.brakeWear: list[float] = [-1.0] * 4
         self.suspensionDamage: list[float] = [-1.0] * 4
 

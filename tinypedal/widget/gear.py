@@ -190,12 +190,12 @@ class Realtime(Overlay):
         """RPM bar"""
         rpm_offset = data - self.rpm_safe
         if self.rpm_range > 0 <= rpm_offset:  # show only above offset
-            rpm_scale = rpm_offset / self.rpm_range * target.width
+            rpm_percent = rpm_offset / self.rpm_range
         else:
-            rpm_scale = 0
-        if target.last != rpm_scale:
-            target.last = rpm_scale
-            target.update_input(rpm_scale)
+            rpm_percent = 0
+        if target.last != rpm_percent:
+            target.last = rpm_percent
+            target.update_input(rpm_percent)
 
     def update_battbar(self, target, data, state):
         """Battery bar"""
@@ -210,7 +210,7 @@ class Realtime(Overlay):
         if target.last != charge:
             target.last = charge
             target.input_color = self.battbar_color[state == 3]
-            target.update_input(data * 0.01 * target.width)
+            target.update_input(data * 0.01)
 
     def update_limiter(self, target, data):
         """Limiter"""

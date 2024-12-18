@@ -31,7 +31,7 @@ from ..userfile.delta_best import load_delta_best_file, save_delta_best_file
 
 MODULE_NAME = "module_delta"
 DELTA_ZERO = 0.0,0.0
-DELTA_DEFAULT = (DELTA_ZERO,)
+DELTA_DEFAULT = [DELTA_ZERO]
 MAGIC_NUM = 99999
 
 round6 = partial(round, ndigits=6)
@@ -95,20 +95,20 @@ class Realtime(DataModule):
                     delta_list_curr = [DELTA_ZERO]  # distance, laptime
                     delta_list_last = DELTA_DEFAULT  # last lap
 
-                    delta_best_ema = 0
-                    delta_last_ema = 0
-                    delta_session_ema = 0
-                    delta_stint_ema = 0
+                    delta_best_ema = 0.0
+                    delta_last_ema = 0.0
+                    delta_session_ema = 0.0
+                    delta_stint_ema = 0.0
 
-                    laptime_curr = 0  # current laptime
-                    laptime_last = 0  # last laptime
+                    laptime_curr = 0.0  # current laptime
+                    laptime_last = 0.0  # last laptime
                     laptime_pace = laptime_best  # avearge laptime pace
 
-                    last_lap_stime = -1  # lap-start-time
-                    pos_last = 0  # last checked vehicle position
-                    pos_estimate = 0  # calculated position
+                    last_lap_stime = -1.0  # lap-start-time
+                    pos_last = 0.0  # last checked vehicle position
+                    pos_estimate = 0.0  # calculated position
                     pos_synced = False  # whether estimated position synced
-                    gps_last = 0,0,0  # last global position
+                    gps_last = (0.0,0.0,0.0)  # last global position
                     meters_driven = self.cfg.user.setting["cruise"]["meters_driven"]
 
                 # Read telemetry

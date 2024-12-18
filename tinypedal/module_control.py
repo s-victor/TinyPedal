@@ -76,12 +76,12 @@ class ModuleControl:
         type_id: module type indentifier, either "module" or "widget".
     """
 
-    __slots__ = "pack", "active_list", "type_id"
+    __slots__ = "pack", "type_id", "active_list"
 
     def __init__(self, target: Any, type_id: str):
         self.pack = create_module_pack(target)
-        self.active_list = {}
         self.type_id = type_id
+        self.active_list: dict = {}
 
     def start(self, name: str = ""):
         """Start module, specify name for selected module"""

@@ -186,8 +186,8 @@ class Engine(DataAdapter):
         return chknm(self.info.rf2TeleVeh(index).mEngineWaterTemp)
 
 
-class Input(DataAdapter):
-    """Input"""
+class Inputs(DataAdapter):
+    """Inputs"""
 
     __slots__ = ()
 

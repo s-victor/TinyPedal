@@ -20,11 +20,14 @@
 Track & pace notes file function
 """
 
+from __future__ import annotations
 import logging
 import csv
 import os
 import re
+from operator import itemgetter
 from collections.abc import Callable
+from typing import Any, Iterable
 
 from ..formatter import qfile_filter
 
@@ -64,7 +67,7 @@ def set_notes_filter(notes_type: str) -> str:
     )
 
 
-def set_notes_header(notes_type: str) -> tuple:
+def set_notes_header(notes_type: str) -> tuple[str, ...]:
     """Set notes header"""
     if notes_type == NOTESTYPE_PACE:
         return HEADER_PACE_NOTES
@@ -90,7 +93,7 @@ def create_notes_metadata() -> dict:
     return {key: "" for key in METADATA_FIELDNAMES}
 
 
-def parse_csv_notes(notes_file: object, table_header: tuple):
+def parse_csv_notes(notes_file: Iterable[str], table_header: tuple[str, ...]):
     """Parse TinyPedal notes"""
     notes_reader = csv.DictReader(
         notes_file, fieldnames=table_header, restval="", restkey="unknown")
@@ -114,10 +117,10 @@ def parse_csv_notes(notes_file: object, table_header: tuple):
             if not metadata_checked:  # found first valid number, set checked
                 metadata_checked = True
             notes_temp.append(note_line)
-    return sorted(notes_temp, key=lambda x:x[column_key]), meta_info
+    return sorted(notes_temp, key=itemgetter(column_key)), meta_info
 
 
-def parse_gpl_notes(notes_file: object, table_header: tuple):
+def parse_gpl_notes(notes_file: Iterable[str], table_header: tuple[str, ...]):
     """Parse GPL pace notes"""
     meta_info = create_notes_metadata()
     meta_info_keys = meta_info.keys()
@@ -153,21 +156,21 @@ def parse_gpl_notes(notes_file: object, table_header: tuple):
                     table_header[2]: annotation,
                 }
             )
-    return sorted(notes_temp, key=lambda x:x[column_key]), meta_info
+    return sorted(notes_temp, key=itemgetter(column_key)), meta_info
 
 
-def parse_csv_notes_only(notes_file: object, table_header: tuple):
+def parse_csv_notes_only(notes_file: Iterable[str], table_header: tuple[str, ...]):
     """Parse TinyPedal notes without metadata"""
     column_key = table_header[0]
     notes_read = csv.DictReader(
         notes_file, fieldnames=table_header, restval="", restkey="unknown")
     lastlist = (note_line for note_line in notes_read if verify_notes(note_line, column_key))
-    return sorted(lastlist, key=lambda x:x[column_key])
+    return sorted(lastlist, key=itemgetter(column_key))
 
 
 def load_notes_file(
-    filepath: str, filename: str, table_header: tuple, parser: Callable = parse_csv_notes,
-    extension: str = ""):
+    filepath: str, filename: str, table_header: tuple[str, ...],
+    parser: Callable = parse_csv_notes, extension: str = ""):
     """Load notes file"""
     try:
         filename_full = f"{filepath}{filename}{extension}"
@@ -186,7 +189,7 @@ def load_notes_file(
 
 
 def write_csv_notes(
-    notes_file: object, table_header: tuple, dataset: list, metadata: dict, _: str):
+    notes_file: Any, table_header: tuple, dataset: list, metadata: dict, _: str):
     """Write TinyPedal notes format to file"""
     # Write TinyPedal file version
     notes_file.write(f"TINYPEDAL {table_header[1].upper()}S FILE VERSION,1")
@@ -204,7 +207,7 @@ def write_csv_notes(
 
 
 def write_gpl_notes(
-    notes_file: object, table_header: tuple, dataset: list, metadata: dict, filename: str):
+    notes_file: Any, table_header: tuple, dataset: list, metadata: dict, filename: str):
     """Write GPL pace notes format to file
 
     Pace notes formatting follows GPL pace notes 'Version 3' specification by Lee Bowden.

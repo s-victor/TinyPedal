@@ -52,7 +52,6 @@ from ._common import (
     QVAL_INTEGER,
     QVAL_FLOAT,
     QVAL_COLOR,
-    update_preview_color,
 )
 
 OPTION_WIDTH = 120
@@ -165,15 +164,15 @@ class UserConfig(BaseDialog):
         self.option_width = option_width
 
         # Option dict (key: option editor)
-        self.option_bool = {}
-        self.option_color = {}
-        self.option_path = {}
-        self.option_image = {}
-        self.option_fontname = {}
-        self.option_droplist = {}
-        self.option_string = {}
-        self.option_integer = {}
-        self.option_float = {}
+        self.option_bool: dict = {}
+        self.option_color: dict = {}
+        self.option_path: dict = {}
+        self.option_image: dict = {}
+        self.option_fontname: dict = {}
+        self.option_droplist: dict = {}
+        self.option_string: dict = {}
+        self.option_integer: dict = {}
+        self.option_float: dict = {}
 
         # Button
         button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
@@ -448,9 +447,7 @@ class UserConfig(BaseDialog):
         editor.setFixedWidth(self.option_width)
         editor.setMaxLength(9)
         editor.setValidator(QVAL_COLOR)
-        editor.textChanged.connect(
-            lambda color_str, option=editor:
-            update_preview_color(color_str, option))
+        editor.textChanged.connect(editor.preview_color)
         # Load selected option
         editor.setText(
             self.user_setting[self.key_name][key])

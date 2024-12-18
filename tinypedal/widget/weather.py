@@ -204,7 +204,7 @@ class Realtime(Overlay):
                 # Temperature
                 self.update_temperature(self.bar_temp, temperature, temp_track, temp_air)
                 # Temperature trend
-                temp_trend = self.temp_trend.update(temperature, lap_etime)
+                temp_trend = self.temp_trend.update(round(temperature, 1), lap_etime)
                 self.update_temperature_trend(self.bar_temp_trend, temp_trend)
 
             # Rain precipitation
@@ -296,9 +296,9 @@ class TrendTimer:
             trend_interval: trend reset interval (seconds).
         """
         self._trend_interval = trend_interval
-        self._last_reading = 0
+        self._last_reading = 0.0
         self._trend = 0
-        self._timer = 0
+        self._timer = 0.0
 
     def update(self, reading: float, elapsed_time: float) -> int:
         """Update trend

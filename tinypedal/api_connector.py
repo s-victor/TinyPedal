@@ -23,6 +23,7 @@ API connector
 import logging
 from abc import ABC, abstractmethod
 from functools import partial
+from typing import NamedTuple
 
 # Import APIs
 from pyRfactor2SharedMemory import rF2MMap
@@ -31,41 +32,44 @@ from .regex_pattern import API_NAME_RF2, API_NAME_LMU
 from . import validator as val
 
 
-class DataSet:
-    """Data set"""
+class APIDataSet(NamedTuple):
+    """API data set"""
 
-    __slots__ = (
-        "check",
-        "brake",
-        "emotor",
-        "engine",
-        "input",
-        "lap",
-        "session",
-        "switch",
-        "timing",
-        "tyre",
-        "vehicle",
-        "wheel",
+    check: rfactor2.Check
+    brake: rfactor2.Brake
+    emotor: rfactor2.ElectricMotor
+    engine: rfactor2.Engine
+    inputs: rfactor2.Inputs
+    lap: rfactor2.Lap
+    session: rfactor2.Session
+    switch: rfactor2.Switch
+    timing: rfactor2.Timing
+    tyre: rfactor2.Tyre
+    vehicle: rfactor2.Vehicle
+    wheel: rfactor2.Wheel
+
+
+def set_dataset_rf2(info: rF2MMap.RF2SM) -> APIDataSet:
+    """Set API data set - RF2"""
+    return APIDataSet(
+        rfactor2.Check(info),
+        rfactor2.Brake(info),
+        rfactor2.ElectricMotor(info),
+        rfactor2.Engine(info),
+        rfactor2.Inputs(info),
+        rfactor2.Lap(info),
+        rfactor2.Session(info),
+        rfactor2.Switch(info),
+        rfactor2.Timing(info),
+        rfactor2.Tyre(info),
+        rfactor2.Vehicle(info),
+        rfactor2.Wheel(info),
     )
-
-    def __init__(self, info, dataset: rfactor2):
-        self.check = dataset.Check(info)
-        self.brake = dataset.Brake(info)
-        self.emotor = dataset.ElectricMotor(info)
-        self.engine = dataset.Engine(info)
-        self.input = dataset.Input(info)
-        self.lap = dataset.Lap(info)
-        self.session = dataset.Session(info)
-        self.switch = dataset.Switch(info)
-        self.timing = dataset.Timing(info)
-        self.tyre = dataset.Tyre(info)
-        self.vehicle = dataset.Vehicle(info)
-        self.wheel = dataset.Wheel(info)
 
 
 class Connector(ABC):
     """API Connector"""
+
     @abstractmethod
     def start(self):
         """Start API & load info access function"""
@@ -75,7 +79,7 @@ class Connector(ABC):
         """Stop API"""
 
     @abstractmethod
-    def dataset(self):
+    def dataset(self) -> APIDataSet:
         """Dateset"""
 
     @abstractmethod
@@ -85,6 +89,7 @@ class Connector(ABC):
 
 class SimRF2(Connector):
     """rFactor 2"""
+
     NAME = API_NAME_RF2
 
     def __init__(self):
@@ -97,8 +102,8 @@ class SimRF2(Connector):
     def stop(self):
         self.info.stop()
 
-    def dataset(self):
-        return DataSet(self.info, rfactor2)
+    def dataset(self) -> APIDataSet:
+        return set_dataset_rf2(self.info)
 
     def setup(self, *config):
         self.info.setMode(config[0])
@@ -110,6 +115,7 @@ class SimRF2(Connector):
 
 class SimLMU(Connector):
     """Le Mans Ultimate"""
+
     NAME = API_NAME_LMU
 
     def __init__(self):
@@ -122,8 +128,8 @@ class SimLMU(Connector):
     def stop(self):
         self.info.stop()
 
-    def dataset(self):
-        return DataSet(self.info, rfactor2)
+    def dataset(self) -> APIDataSet:
+        return set_dataset_rf2(self.info)
 
     def setup(self, *config):
         self.info.setMode(config[0])

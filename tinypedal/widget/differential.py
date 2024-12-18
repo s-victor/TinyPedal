@@ -150,7 +150,7 @@ class Realtime(Overlay):
         if self.state.active:
 
             lap_etime = api.read.timing.elapsed()
-            raw_throttle = api.read.input.throttle_raw()
+            raw_throttle = api.read.inputs.throttle_raw()
             locking_front = minfo.wheels.lockingPercentFront
             locking_rear = minfo.wheels.lockingPercentRear
             on_throttle = raw_throttle > self.wcfg["on_throttle_threshold"]
@@ -200,8 +200,8 @@ class DiffLockingTimer:
             cooldown: minimum locking percent reset cooldown (seconds).
         """
         self._cooldown = cooldown
-        self._timer = 0
-        self._min_locking = 1
+        self._timer = 0.0
+        self._min_locking = 1.0
 
     def update(self, locking: float, elapsed_time: float) -> float:
         """Update minimum locking percent

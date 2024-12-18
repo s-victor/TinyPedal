@@ -45,7 +45,6 @@ from ._common import (
     QVAL_COLOR,
     QSS_EDITOR_BUTTON,
     QSS_EDITOR_LISTBOX,
-    update_preview_color,
 )
 
 
@@ -142,9 +141,7 @@ class VehicleClassEditor(BaseEditor):
         color_edit.setMaxLength(9)
         color_edit.setValidator(QVAL_COLOR)
         color_edit.textChanged.connect(self.set_modified)
-        color_edit.textChanged.connect(
-            lambda color_str, option=color_edit:
-            update_preview_color(color_str, option))
+        color_edit.textChanged.connect(color_edit.preview_color)
         # Load selected option
         color_edit.setText(key)
         # Add layout

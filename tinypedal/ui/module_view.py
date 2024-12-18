@@ -78,7 +78,7 @@ class ModuleList(QWidget):
         self.label_loaded = QLabel("")
 
         # List box
-        self.listbox_buttons = []
+        self.listbox_buttons: list = []
         self.listbox_module = QListWidget(self)
         self.listbox_module.setAlternatingRowColors(True)
         self.listbox_module.setStyleSheet(QSS_LISTBOX)

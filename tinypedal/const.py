@@ -36,6 +36,8 @@ COPYRIGHT = "Copyright (C) 2022-2024 TinyPedal developers"
 DESCRIPTION = "A Free and Open Source telemetry overlay application for racing simulation."
 LICENSE = "Licensed under the GNU General Public License v3.0 or later."
 WEBSITE = "https://github.com/s-victor/TinyPedal"
+LINK_USER_GUIDE = "https://github.com/s-victor/TinyPedal/wiki/User-Guide"
+LINK_FAQ = "https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions"
 
 # Library version
 PYTHON_VERSION = ".".join(map(str, sys.version_info[0:3]))

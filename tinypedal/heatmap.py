@@ -23,18 +23,7 @@ Heatmap function
 from __future__ import annotations
 
 from .setting import cfg
-from . import validator as val
-
-
-def select_color(heatmap_list: list, temperature: float) -> str:
-    """Select color from heatmap list"""
-    for idx, temp in enumerate(heatmap_list):
-        if temp[0] > temperature:
-            if idx == 0:
-                return temp[1]
-            return heatmap_list[idx - 1][1]
-    # Set color from last row if exceeded max range
-    return heatmap_list[-1][1]
+from .validator import hex_color
 
 
 def verify_heatmap(heatmap_dict: dict) -> bool:
@@ -42,7 +31,7 @@ def verify_heatmap(heatmap_dict: dict) -> bool:
     if not heatmap_dict:
         return False
     for color in tuple(heatmap_dict.values()):
-        if not val.hex_color(color):
+        if not hex_color(color):
             return False
     return True
 

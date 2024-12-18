@@ -24,6 +24,7 @@ import logging
 import threading
 
 from ..overlay_control import octrl
+from ..setting import Setting
 
 logger = logging.getLogger(__name__)
 
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 class DataModule:
     """Data module base"""
 
-    def __init__(self, config: object, module_name: str):
+    def __init__(self, config: Setting, module_name: str):
         super().__init__()
         self.module_name = module_name
         self.closed = True

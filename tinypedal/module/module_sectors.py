@@ -30,7 +30,7 @@ from .. import validator as val
 from ..userfile.sector_best import load_sector_best_file, save_sector_best_file
 
 MODULE_NAME = "module_sectors"
-MAGIC_NUM = 99999
+MAGIC_NUM = 99999.0
 
 round6 = partial(round, ndigits=6)
 
@@ -115,8 +115,8 @@ def calc_sectors(output: SectorsInfo, best_s_tb: list, best_s_pb: list):
     no_delta_s = True
     new_best = False  # save check whether new sector best time is set
     last_sector_idx = -1  # previous recorded sector index value
-    delta_s_tb = [0] * 3  # deltabest times against all time best sector
-    delta_s_pb = [0] * 3  # deltabest times against best laptime sector
+    delta_s_tb = [0.0] * 3  # deltabest times against all time best sector
+    delta_s_pb = [0.0] * 3  # deltabest times against best laptime sector
     prev_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]  # previous sector times
     laptime_best = sum(best_s_pb)
 

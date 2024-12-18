@@ -129,21 +129,21 @@ class Realtime(Overlay):
 
             # Throttle
             if self.wcfg["show_throttle"]:
-                raw_throttle = api.read.input.throttle_raw()
+                raw_throttle = api.read.inputs.throttle_raw()
                 if self.wcfg["show_throttle_filtered"]:
-                    throttle = raw_throttle + api.read.input.throttle()
+                    throttle = raw_throttle + api.read.inputs.throttle()
                 else:
                     throttle = raw_throttle + raw_throttle
                 self.update_pedal(self.bar_throttle, throttle, raw_throttle)
 
             # Brake
             if self.wcfg["show_brake"]:
-                raw_brake = api.read.input.brake_raw()
+                raw_brake = api.read.inputs.brake_raw()
                 if self.wcfg["show_brake_filtered"]:
                     if self.wcfg["show_brake_pressure"]:
                         f_brake = self.filtered_brake_pressure(api.read.brake.pressure())
                     else:
-                        f_brake = api.read.input.brake()
+                        f_brake = api.read.inputs.brake()
                     brake = raw_brake + f_brake
                 else:
                     brake = raw_brake + raw_brake
@@ -151,16 +151,16 @@ class Realtime(Overlay):
 
             # Clutch
             if self.wcfg["show_clutch"]:
-                raw_clutch = api.read.input.clutch_raw()
+                raw_clutch = api.read.inputs.clutch_raw()
                 if self.wcfg["show_clutch_filtered"]:
-                    clutch = raw_clutch + api.read.input.clutch()
+                    clutch = raw_clutch + api.read.inputs.clutch()
                 else:
                     clutch = raw_clutch + raw_clutch
                 self.update_pedal(self.bar_clutch, clutch, raw_clutch)
 
             # Force feedback
             if self.wcfg["show_ffb_meter"]:
-                ffb = abs(api.read.input.force_feedback())
+                ffb = abs(api.read.inputs.force_feedback())
                 self.update_ffb(self.bar_ffb, ffb)
 
         else:

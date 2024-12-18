@@ -85,17 +85,17 @@ class MapRecorder:
         self.map = MapData(filepath)
         self._recording = False
         self._validating = False
-        self._last_lap_stime = -1  # last lap start time
         self._last_sector_idx = -1
-        self._pos_last = 0  # last checked player vehicle position
+        self._last_lap_stime = -1.0  # last lap start time
+        self._pos_last = 0.0  # last checked player vehicle position
 
     def reset(self):
         """Reset to defaults"""
         self._recording = False
         self._validating = False
         self._last_sector_idx = -1
-        self._last_lap_stime = -1
-        self._pos_last = 0
+        self._last_lap_stime = -1.0
+        self._pos_last = 0.0
 
     def update(self):
         """Update map data"""
@@ -173,9 +173,9 @@ class MapData:
         self.raw_dists = None
         self.sectors_index = None
         # File info
-        self.last_modified = 0
+        self.last_modified = 0.0
         self._filepath = filepath
-        self._filename = None
+        self._filename = ""
         # Temp data
         self._temp_raw_coords = None
         self._temp_raw_dists = None

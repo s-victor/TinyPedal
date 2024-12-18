@@ -443,9 +443,9 @@ class Realtime(Overlay):
             est_laps = minfo.fuel.estimatedLaps
         cd_laps = calc.pit_in_countdown_laps(est_laps, api.read.lap.progress())
 
-        cd_laps = f"{cd_laps:.2f}"[:3].strip(".")
+        safe_laps = f"{cd_laps:.2f}"[:3].strip(".")
         est_laps = f"{est_laps:.2f}"[:3].strip(".")
-        return f"{cd_laps: <3}≤{est_laps: >3}"
+        return f"{safe_laps: <3}≤{est_laps: >3}"
 
     def yellow_flag_state(self, in_race: bool) -> int:
         """Yellow flag state"""
@@ -488,7 +488,7 @@ class TrafficTimer:
     """Traffic timer"""
 
     def __init__(self, max_time_gap: bool, pitout_duration: float, low_speed_threshold: float):
-        self._timer_start = 0
+        self._timer_start = 0.0
         self._last_in_pits = 0
         self._max_time_gap = max_time_gap
         self._pitout_duration = pitout_duration
@@ -519,7 +519,7 @@ class BlueFlagTimer:
     """Blue flag timer"""
 
     def __init__(self, race_only: bool):
-        self._timer_start = 0
+        self._timer_start = 0.0
         self._race_only = race_only
 
     def update(self, in_race: bool, elapsed_time: float) -> int:
@@ -541,9 +541,9 @@ class PitTimer:
     """Pit timer"""
 
     def __init__(self, highlight_duration: float):
-        self._timer_start = 0
+        self._timer_start = 0.0
         self._last_in_pits = 0
-        self._last_pit_time = 0
+        self._last_pit_time = 0.0
         self._max_duration = highlight_duration
 
     def update(self, in_pits: bool, elapsed_time: float) -> float:

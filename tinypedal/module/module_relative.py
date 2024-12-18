@@ -31,10 +31,10 @@ from .. import calculation as calc
 MODULE_NAME = "module_relative"
 MAGIC_NUM = 99999
 ALL_PLACES = list(range(1, MAX_VEHICLES + 1))
-TEMP_DISTANCE = [[-1,-1] for _ in range(MAX_VEHICLES)]
-TEMP_CLASSES = [["",-1,-1,-1,-1] for _ in range(MAX_VEHICLES)]
-TEMP_PLACES = [[-1,-1] for _ in range(MAX_VEHICLES)]
-TEMP_CLASSES_POS = [[0,1,"",0,0,-1,-1,False] for _ in range(MAX_VEHICLES)]
+TEMP_DISTANCE = [[-1.0, -1] for _ in range(MAX_VEHICLES)]
+TEMP_CLASSES = [["", -1, -1, -1.0, -1.0] for _ in range(MAX_VEHICLES)]
+TEMP_PLACES = [[-1, -1] for _ in range(MAX_VEHICLES)]
+TEMP_CLASSES_POS = [[0, 1, "", 0.0, 0.0, -1, -1, False] for _ in range(MAX_VEHICLES)]
 
 
 class Realtime(DataModule):
@@ -371,10 +371,10 @@ def split_class_list(class_list: list):
 
 
 @lru_cache(maxsize=1)
-def max_relative_vehicles(add_front: int, add_behind: int, min_veh: int = 7) -> tuple:
+def max_relative_vehicles(add_front: int, add_behind: int, min_veh: int = 7):
     """Maximum number of vehicles in relative list"""
-    add_front = calc.zero_max(int(add_front), 60)
-    add_behind = calc.zero_max(int(add_behind), 60)
+    add_front = int(calc.zero_max(add_front, 60))
+    add_behind = int(calc.zero_max(add_behind, 60))
     max_vehicles = min_veh + add_front + add_behind
     return max_vehicles, add_front, add_behind
 
@@ -385,7 +385,7 @@ def min_top_vehicles_in_class(min_top_veh: int) -> int:
 
     min_top_veh: value range limited in 1 to 5
     """
-    return calc.asym_max(int(min_top_veh), 1, 5)
+    return int(calc.asym_max(min_top_veh, 1, 5))
 
 
 def max_vehicles_in_class(max_cls_veh: int, min_top_veh: int, min_add_veh: int = 0) -> int:
@@ -400,7 +400,7 @@ def max_vehicles_in_class(max_cls_veh: int, min_top_veh: int, min_add_veh: int =
 
 @lru_cache(maxsize=1)
 def max_vehicle_limit_set(
-    min_top_veh: int, max_all: int, max_others: int, max_player: int) -> tuple:
+    min_top_veh: int, max_all: int, max_others: int, max_player: int):
     """Create max vehicle limit set"""
     limit_all = max_vehicles_in_class(max_all, min_top_veh, 2)
     limit_other = max_vehicles_in_class(max_others, min_top_veh)
