@@ -8,6 +8,9 @@ WIP
 * Pace notes Widget, Track notes Widget
   - Fixed notes not showing up if game was paused and unpaused again while on track.
 
+* [New]Slip ratio Widget
+  - Show visualized slip ratio of each tyre with customizable optimal and critical range and color indication.
+
 2.21.0 (2024-12-10)
 -----------------------------
 * General

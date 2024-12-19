@@ -2220,7 +2220,7 @@ Set predication pit time for leader or local player.
 **This widget displays visualized ride height info.**
 
     ride_height_max_range
-Set visualized maximum ride height range (millimeter).
+Set visualized maximum ride height display range (millimeter).
 
     rideheight_offset*
 Set ride height offset for bottoming indicator. Value in millimeters, but without decimal place.
@@ -2263,6 +2263,16 @@ Set clock format string. To show seconds, add `%S`, such as `%H:%M:%S %p`. See [
 
     show_session_timer
 Show session timer, accuracy may be limited by specific sim API.
+
+
+## Slip ratio
+**This widget displays visualized slip ratio info.**
+
+    slip_ratio_optimal_range
+Set optimal slip ratio range (percentage) for optimal and critical slip ratio color indication, value range in `0` to `100`. Default is `30` percent.
+
+    slip_ratio_max_range
+Set visualized maximum slip ratio display range (percentage), value range in `10` to `100`. Default is `50` percent.
 
 
 ## Speedometer
@@ -2420,7 +2430,7 @@ Set the minimum stint time threshold in minutes for updating stint history. This
 **This widget displays visualized suspension position info.**
 
     position_max_range
-Set visualized maximum suspension position range (millimeter).
+Set visualized maximum suspension position display range (millimeter).
 
 
 ## System performance

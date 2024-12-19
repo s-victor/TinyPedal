@@ -62,6 +62,7 @@ __all__ = [
     "rivals",
     "sectors",
     "session",
+    "slip_ratio",
     "speedometer",
     "standings",
     "steering",

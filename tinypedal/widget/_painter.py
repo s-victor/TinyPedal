@@ -45,7 +45,7 @@ class WheelGaugeBar(QWidget):
         right_side: bool = False,
     ):
         super().__init__()
-        self.last = 0
+        self.last = -1
         self.max_range = max_range
         self.width_scale = bar_width / self.max_range
         self.input_color = input_color
