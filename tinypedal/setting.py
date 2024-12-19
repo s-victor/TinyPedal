@@ -25,6 +25,7 @@ import logging
 import os
 import time
 import threading
+from types import MappingProxyType
 
 from .template.setting_global import GLOBAL_DEFAULT
 from .template.setting_common import COMMON_DEFAULT
@@ -133,21 +134,21 @@ class Preset:
 
     def set_default(self):
         """Set default setting"""
-        self.config = GLOBAL_DEFAULT
-        self.setting = {**COMMON_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT}
-        self.classes = CLASSES_DEFAULT
-        self.heatmap = HEATMAP_DEFAULT
-        self.brands = {}
-        self.set_platform_default(self.config)
+        self.set_platform_default(GLOBAL_DEFAULT)
+        self.config = MappingProxyType(GLOBAL_DEFAULT)
+        self.setting = MappingProxyType({**COMMON_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT})
+        self.classes = MappingProxyType(CLASSES_DEFAULT)
+        self.heatmap = MappingProxyType(HEATMAP_DEFAULT)
+        self.brands = MappingProxyType({})
 
     @staticmethod
-    def set_platform_default(config_def: dict):
+    def set_platform_default(global_def: dict):
         """Set platform default setting"""
         if PLATFORM != "Windows":
             # Global config
-            config_def["application"]["show_at_startup"] = True
-            config_def["application"]["minimize_to_tray"] = False
-            config_def["compatibility"]["enable_bypass_window_manager"] = True
+            global_def["application"]["show_at_startup"] = True
+            global_def["application"]["minimize_to_tray"] = False
+            global_def["compatibility"]["enable_bypass_window_manager"] = True
             # Global path
             from xdg import BaseDirectory as BD
 
@@ -157,7 +158,7 @@ class Preset:
                 "pace_notes_path",
                 "track_notes_path",
             )
-            user_path = config_def["user_path"]
+            user_path = global_def["user_path"]
             for key, path in user_path.items():
                 if key in config_paths:
                     user_path[key] = BD.save_config_path(APP_NAME, path)
