@@ -27,15 +27,13 @@ from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
 
-WIDGET_NAME = "trailing"
-
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
 
         # Config variable
         self.margin = max(int(self.wcfg["display_margin"]), 0)

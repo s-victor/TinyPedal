@@ -29,7 +29,6 @@ from .. import calculation as calc
 from .. import validator as val
 from ..userfile.delta_best import load_delta_best_file, save_delta_best_file
 
-MODULE_NAME = "module_delta"
 DELTA_ZERO = 0.0,0.0
 DELTA_DEFAULT = [DELTA_ZERO]
 MAGIC_NUM = 99999
@@ -40,8 +39,8 @@ round6 = partial(round, ndigits=6)
 class Realtime(DataModule):
     """Delta time data"""
 
-    def __init__(self, config):
-        super().__init__(config, MODULE_NAME)
+    def __init__(self, config, module_name):
+        super().__init__(config, module_name)
 
     def update_data(self):
         """Update module data"""

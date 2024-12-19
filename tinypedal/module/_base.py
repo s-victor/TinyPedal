@@ -23,7 +23,7 @@ Data module base
 import logging
 import threading
 
-from ..overlay_control import octrl
+from ..overlay_control import octrl, OverlayState
 from ..setting import Setting
 
 logger = logging.getLogger(__name__)
@@ -36,13 +36,13 @@ class DataModule:
         super().__init__()
         self.module_name = module_name
         self.closed = True
-        self.state = octrl.state
+        self.state: OverlayState = octrl.state
 
         # Base config
         self.cfg = config
 
         # Module config
-        self.mcfg = self.cfg.user.setting[module_name]
+        self.mcfg: dict = self.cfg.user.setting[module_name]
 
         # Module update interval
         self._event = threading.Event()

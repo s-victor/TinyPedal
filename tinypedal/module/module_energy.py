@@ -28,14 +28,12 @@ from ..module_info import minfo
 from ..api_control import api
 from .. import calculation as calc
 
-MODULE_NAME = "module_energy"
-
 
 class Realtime(DataModule):
     """Energy usage data"""
 
-    def __init__(self, config):
-        super().__init__(config, MODULE_NAME)
+    def __init__(self, config, module_name):
+        super().__init__(config, module_name)
 
     def update_data(self):
         """Update module data"""

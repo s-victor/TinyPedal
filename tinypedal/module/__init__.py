@@ -24,17 +24,19 @@ file name must match corresponding key name
 in template/setting_module.py dictionary.
 """
 
-from . import (
-    module_delta,
-    module_energy,
-    module_force,
-    module_fuel,
-    module_hybrid,
-    module_mapping,
-    module_notes,
-    module_relative,
-    module_restapi,
-    module_sectors,
-    module_vehicles,
-    module_wheels,
-)
+__all__ = [
+    "module_delta",
+    "module_energy",
+    "module_force",
+    "module_fuel",
+    "module_hybrid",
+    "module_mapping",
+    "module_notes",
+    "module_relative",
+    "module_restapi",
+    "module_sectors",
+    "module_vehicles",
+    "module_wheels",
+]
+
+from . import *

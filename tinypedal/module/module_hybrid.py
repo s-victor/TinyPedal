@@ -24,14 +24,12 @@ from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
 
-MODULE_NAME = "module_hybrid"
-
 
 class Realtime(DataModule):
     """Hybrid data"""
 
-    def __init__(self, config):
-        super().__init__(config, MODULE_NAME)
+    def __init__(self, config, module_name):
+        super().__init__(config, module_name)
 
     def update_data(self):
         """Update module data"""

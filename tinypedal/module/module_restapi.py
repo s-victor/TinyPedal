@@ -37,8 +37,6 @@ from ..validator import value_type
 from .. import formatter as fmt
 from .. import weather as wthr
 
-MODULE_NAME = "module_restapi"
-
 logger = logging.getLogger(__name__)
 
 # Define output set
@@ -80,8 +78,8 @@ TASK_REPEATS = (
 class Realtime(DataModule):
     """Rest API data"""
 
-    def __init__(self, config):
-        super().__init__(config, MODULE_NAME)
+    def __init__(self, config, module_name):
+        super().__init__(config, module_name)
         self.task_deletion = set()
 
     def update_data(self):

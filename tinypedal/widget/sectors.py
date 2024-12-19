@@ -26,7 +26,6 @@ from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
 
-WIDGET_NAME = "sectors"
 MAGIC_NUM = 99999
 PREV_SECTOR_IDX = (2, 0, 1)
 TEXT_SECTOR = ("S1", "S2", "S3")
@@ -35,9 +34,9 @@ TEXT_SECTOR = ("S1", "S2", "S3")
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
         bar_gap = self.wcfg["bar_gap"]
         layout = self.set_grid_layout(gap=bar_gap)
         self.set_primary_layout(layout=layout)

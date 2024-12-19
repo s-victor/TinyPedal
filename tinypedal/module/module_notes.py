@@ -35,14 +35,12 @@ from ..userfile.track_notes import (
     HEADER_TRACK_NOTES,
 )
 
-MODULE_NAME = "module_notes"
-
 
 class Realtime(DataModule):
     """Notes data"""
 
-    def __init__(self, config):
-        super().__init__(config, MODULE_NAME)
+    def __init__(self, config, module_name):
+        super().__init__(config, module_name)
 
     def update_data(self):
         """Update module data"""

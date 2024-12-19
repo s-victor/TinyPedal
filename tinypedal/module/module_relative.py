@@ -28,7 +28,6 @@ from ..module_info import minfo, MAX_VEHICLES
 from ..api_control import api
 from .. import calculation as calc
 
-MODULE_NAME = "module_relative"
 MAGIC_NUM = 99999
 ALL_PLACES = list(range(1, MAX_VEHICLES + 1))
 TEMP_DISTANCE = [[-1.0, -1] for _ in range(MAX_VEHICLES)]
@@ -40,8 +39,8 @@ TEMP_CLASSES_POS = [[0, 1, "", 0.0, 0.0, -1, -1, False] for _ in range(MAX_VEHIC
 class Realtime(DataModule):
     """Relative & standings data"""
 
-    def __init__(self, config):
-        super().__init__(config, MODULE_NAME)
+    def __init__(self, config, module_name):
+        super().__init__(config, module_name)
 
     def update_data(self):
         """Update module data"""

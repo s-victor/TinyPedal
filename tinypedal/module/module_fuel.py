@@ -31,7 +31,6 @@ from ..api_control import api
 from .. import calculation as calc
 from ..userfile.fuel_delta import load_fuel_delta_file, save_fuel_delta_file
 
-MODULE_NAME = "module_fuel"
 DELTA_ZERO = 0.0,0.0
 DELTA_DEFAULT = [DELTA_ZERO]
 
@@ -41,8 +40,8 @@ round6 = partial(round, ndigits=6)
 class Realtime(DataModule):
     """Fuel usage data"""
 
-    def __init__(self, config):
-        super().__init__(config, MODULE_NAME)
+    def __init__(self, config, module_name):
+        super().__init__(config, module_name)
 
     def update_data(self):
         """Update module data"""

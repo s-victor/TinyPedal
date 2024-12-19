@@ -70,16 +70,12 @@ class StateTimer:
 class OverlayState(QObject):
     """Set and update overlay global state
 
-    Signals:
-        * hidden: auto hide
-        * locked: overlay lock
-        * reload: reload preset, should only be emitted after app fully loaded
-
-    States:
-        * Active: True if vehicle is on track
-        * Lock position
-        * Auto hide
-        * Grid move
+    Attributes:
+        hidden: signal for toggling auto hide state.
+        locked: signal for toggling lock state.
+        reload: signal for reloading preset, should only be emitted after app fully loaded
+        stopped: check whether overlay control thread stopped.
+        active: check whether api state (on track) is active.
     """
     hidden = Signal(bool)
     locked = Signal(bool)

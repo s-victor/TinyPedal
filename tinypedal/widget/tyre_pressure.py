@@ -24,15 +24,13 @@ from .. import calculation as calc
 from ..api_control import api
 from ._base import Overlay
 
-WIDGET_NAME = "tyre_pressure"
-
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
         layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
         self.set_primary_layout(layout=layout)
 

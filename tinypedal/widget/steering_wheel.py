@@ -28,15 +28,13 @@ from ..module_info import minfo
 from .. import validator as val
 from ._base import Overlay
 
-WIDGET_NAME = "steering_wheel"
-
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
 
         # Config font
         font = self.config_font(

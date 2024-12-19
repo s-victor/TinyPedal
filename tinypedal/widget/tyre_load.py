@@ -25,15 +25,13 @@ from ..api_control import api
 from ._base import Overlay
 from ._painter import WheelGaugeBar
 
-WIDGET_NAME = "tyre_load"
-
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
         bar_gap = self.wcfg["bar_gap"]
         layout = self.set_grid_layout(gap=bar_gap)
         self.set_primary_layout(layout=layout)

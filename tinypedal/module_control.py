@@ -22,7 +22,6 @@ Module and widget control
 
 from __future__ import annotations
 import logging
-from pkgutil import iter_modules
 from time import sleep
 from typing import Any
 
@@ -33,21 +32,6 @@ from . import widget
 logger = logging.getLogger(__name__)
 
 
-def is_imported_module(target: Any, name: str) -> bool:
-    """Validate module or widget
-
-    Args:
-        target: module.
-        name: module name.
-    """
-    try:
-        if not name.startswith("_") and getattr(target, name):
-            return True
-    except AttributeError:
-        logger.warning("found unimported file in %s: %s.py", target.__name__, name)
-    return False
-
-
 def create_module_pack(target: Any) -> dict:
     """Create module reference pack as dictionary
 
@@ -55,13 +39,9 @@ def create_module_pack(target: Any) -> dict:
         target: module.
 
     Returns:
-        Dictionary, key = module name. value = module.
+        Dictionary, key = module name. value = imported module.
     """
-    return {
-        name: getattr(target, name)
-        for _, name, _ in iter_modules(target.__path__)
-        if is_imported_module(target, name)
-    }
+    return {name: getattr(target, name) for name in target.__all__}
 
 
 class ModuleControl:
@@ -137,7 +117,7 @@ class ModuleControl:
         """Start selected module"""
         if cfg.user.setting[name]["enable"] and name not in self.active_list:
             # Create module instance and add to dict
-            self.active_list[name] = self.pack[name].Realtime(cfg)
+            self.active_list[name] = self.pack[name].Realtime(cfg, name)
             self.active_list[name].start()
 
     def __close_enabled(self):

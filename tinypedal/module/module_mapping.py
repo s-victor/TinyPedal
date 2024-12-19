@@ -29,16 +29,14 @@ from ..validator import file_last_modified
 from .. import calculation as calc
 from ..userfile.track_map import load_track_map_file, save_track_map_file
 
-MODULE_NAME = "module_mapping"
-
 round4 = partial(round, ndigits=4)
 
 
 class Realtime(DataModule):
     """Mapping data"""
 
-    def __init__(self, config):
-        super().__init__(config, MODULE_NAME)
+    def __init__(self, config, module_name):
+        super().__init__(config, module_name)
 
     def update_data(self):
         """Update module data"""

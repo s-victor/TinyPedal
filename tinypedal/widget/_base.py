@@ -30,7 +30,7 @@ from PySide2.QtWidgets import QWidget, QLabel, QLayout, QGridLayout
 
 from .. import regex_pattern as rxp
 from ..const import APP_NAME
-from ..overlay_control import octrl
+from ..overlay_control import octrl, OverlayState
 from ..setting import Setting
 
 FONT_WEIGHT_LIST = rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT]
@@ -43,13 +43,13 @@ class Overlay(QWidget):
         super().__init__()
         self.widget_name = widget_name
         self.closed = False
-        self.state = octrl.state
+        self.state: OverlayState = octrl.state
 
         # Base config
         self.cfg = config
 
         # Widget config
-        self.wcfg = self.cfg.user.setting[self.widget_name]
+        self.wcfg: dict = self.cfg.user.setting[self.widget_name]
 
         # Base setting
         self.setWindowTitle(f"{APP_NAME} - {self.widget_name.capitalize()}")

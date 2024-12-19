@@ -29,7 +29,6 @@ from ..api_control import api
 from .. import validator as val
 from ..userfile.sector_best import load_sector_best_file, save_sector_best_file
 
-MODULE_NAME = "module_sectors"
 MAGIC_NUM = 99999.0
 
 round6 = partial(round, ndigits=6)
@@ -38,8 +37,8 @@ round6 = partial(round, ndigits=6)
 class Realtime(DataModule):
     """Sectors data"""
 
-    def __init__(self, config):
-        super().__init__(config, MODULE_NAME)
+    def __init__(self, config, module_name):
+        super().__init__(config, module_name)
 
     def update_data(self):
         """Update module data"""

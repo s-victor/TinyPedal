@@ -29,15 +29,13 @@ from .. import calculation as calc
 from ..module_info import minfo
 from ._base import Overlay
 
-WIDGET_NAME = "friction_circle"
-
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
 
         # Config font
         font = self.config_font(

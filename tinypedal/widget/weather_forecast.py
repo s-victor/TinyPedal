@@ -31,7 +31,6 @@ from ..api_control import api
 from ..module_info import minfo, WeatherNode
 from ._base import Overlay
 
-WIDGET_NAME = "weather_forecast"
 MAX_FORECASTS = 5
 TEXT_NONE = "n/a"
 
@@ -39,9 +38,9 @@ TEXT_NONE = "n/a"
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
         layout = self.set_grid_layout(gap_hori=self.wcfg["bar_gap"])
         self.set_primary_layout(layout=layout)
 
