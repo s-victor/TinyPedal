@@ -224,7 +224,7 @@ class VehicleClassEditor(BaseEditor):
         self.update_classes_temp()
         self.refresh_list()
         cfg.user.classes = copy_setting(self.classes_temp)
-        cfg.save(0, "classes")
+        cfg.save(0, filetype="classes")
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
         wctrl.reload()

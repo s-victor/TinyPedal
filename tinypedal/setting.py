@@ -23,8 +23,8 @@ Setting
 from __future__ import annotations
 import logging
 import os
-import time
 import threading
+from time import monotonic, sleep
 from types import MappingProxyType
 
 from .template.setting_global import GLOBAL_DEFAULT
@@ -188,7 +188,7 @@ class Setting:
     def __init__(self):
         # States
         self._save_delay = 0
-        self._save_queue = set()
+        self._save_queue = {}
         self.is_saving = False
         # Settings
         self.filename = FileName()
@@ -289,57 +289,66 @@ class Setting:
         """Create default setting"""
         self.user.setting = copy_setting(self.default.setting)
 
-    def save(self, delay: int = 66, filetype: str = "setting"):
+    def save(self, delay: int = 66, filetype: str = "setting", next_task: bool = False):
         """Save trigger, limit to one save operation for a given period.
 
         Args:
             count:
-                Set time delay(count) that can be refreshed before start saving thread.
+                Set time delay(count) that can be refreshed before starting saving thread.
                 Default is roughly one sec delay, use 0 for instant saving.
             filetype:
-                Available type: "config", "setting", "brands", "classes", "heatmap".
+                Global: "config".
+                Preset: "setting".
+                Styles: "brands", "classes", "heatmap".
+            next_task:
+                Skip adding save task, run next save task in queue.
         """
-        self._save_delay = delay
-        self._save_queue.add(filetype)
+        if not next_task:
+            filename = getattr(self.filename, filetype, None)
+            if filename is None:  # check file name
+                logger.error("SETTING: invalid file type, skipping")
+            elif filename not in self._save_queue:  # add to save queue
+                if filetype == "config":  # save to global config path
+                    filepath = self.path.config
+                else:  # save to settings (preset) path
+                    filepath = self.path.settings
+                dict_user = getattr(self.user, filetype)
+                self._save_queue[filename] = (filepath, dict_user)
 
-        if filetype == "config":  # save to global config path
-            filepath = self.path.config
-        else:  # save to settings (preset) path
-            filepath = self.path.settings
+        for filename in self._save_queue:
+            break  # get next filename in queue
+        else:
+            return
+
+        self._save_delay = delay
 
         if not self.is_saving:
             self.is_saving = True
             threading.Thread(
                 target=self.__saving,
-                args=(
-                    filetype,
-                    getattr(self.filename, filetype),
-                    filepath,
-                    getattr(self.user, filetype),
-                ),
+                args=(filename, *self._save_queue[filename]),
             ).start()
 
-    def __saving(self, filetype: str, filename: str, filepath: str, dict_user: dict):
+    def __saving(self, filename: str, filepath: str, dict_user: dict):
         """Saving thread"""
         attempts = max_attempts = max(self.application["maximum_saving_attempts"], 3)
 
         # Update save delay
         while self._save_delay > 0:
             self._save_delay -= 1
-            time.sleep(0.01)
+            sleep(0.01)
 
         # Start saving attempts
-        timer_start = time.perf_counter()
         create_backup_file(filename, filepath)
-
+        timer_start = monotonic()
         while attempts > 0:
             save_json_file(filename, filepath, dict_user)
             if verify_json_file(filename, filepath, dict_user):
                 break
             attempts -= 1
             logger.error("SETTING: failed saving, %s attempt(s) left", attempts)
-            time.sleep(0.05)
-        timer_end = round((time.perf_counter() - timer_start) * 1000)
+            sleep(0.05)
+        timer_end = round((monotonic() - timer_start) * 1000)
 
         # Finalize
         if attempts > 0:
@@ -357,13 +366,12 @@ class Setting:
         )
         delete_backup_file(filename, filepath)
 
-        self._save_queue.discard(filetype)
+        self._save_queue.pop(filename, None)
         self.is_saving = False
 
-        # Run next task in save queue if any
-        for save_task in self._save_queue:
-            self.save(0, save_task)
-            break
+        # Run next save task in save queue if any
+        if self._save_queue:
+            self.save(0, next_task=True)
 
     def __set_environ(self):
         """Set environment variable"""

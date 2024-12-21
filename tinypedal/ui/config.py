@@ -331,7 +331,7 @@ class UserConfig(BaseDialog):
         # Save global settings
         if self.cfg_type == "global":
             cfg.update_path()
-            cfg.save(0, "config")
+            cfg.save(0, filetype="config")
         # Save user preset settings
         else:
             cfg.save(0)

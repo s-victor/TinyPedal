@@ -333,7 +333,7 @@ class HeatmapEditor(BaseEditor):
         # Apply changes to heatmap preset dictionary
         self.heatmap_temp[self.selected_heatmap_name] = self.selected_heatmap
         cfg.user.heatmap = copy_setting(self.heatmap_temp)
-        cfg.save(0, "heatmap")
+        cfg.save(0, filetype="heatmap")
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
         wctrl.reload()
