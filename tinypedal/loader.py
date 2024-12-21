@@ -33,29 +33,43 @@ logger = logging.getLogger(__name__)
 def start():
     """Start api, modules, widgets. Call once per launch. Skip overlay control."""
     logger.info("STARTING............")
-    cfg.load_global()  # 1 load config
+    # 1 load global
+    cfg.load_global()
+    cfg.save(filetype="config")
+    # 2 load preset
     cfg.filename.setting = f"{cfg.preset_list[0]}.json"
     cfg.load()
-    api.connect()  # 2 start api
+    cfg.save()
+    # 3 start api
+    api.connect()
     api.start()
-    mctrl.start()  # 3 module
-    wctrl.start()  # 4 widget
+    # 4 start modules
+    mctrl.start()
+    # 5 start widgets
+    wctrl.start()
 
 
 def close():
     """Close api, modules, widgets. Call before quit APP."""
     logger.info("CLOSING............")
-    unload_modules()  # 1 unload modules
-    api.stop()        # 2 stop api
+    # 1 unload modules
+    unload_modules()
+    # 2 stop api
+    api.stop()
 
 
 def reload():
     """Reload api, modules, widgets"""
     logger.info("RELOADING............")
-    unload_modules()  # 1 unload modules
-    cfg.load()        # 2 reload setting
-    api.restart()     # 3 restart api
-    load_modules()    # 4 load modules
+    # 1 unload modules
+    unload_modules()
+    # 2 reload setting
+    cfg.load()
+    cfg.save(0)
+    # 3 restart api
+    api.restart()
+    # 4 load modules
+    load_modules()
 
 
 def load_modules():
