@@ -50,6 +50,7 @@ class Overlay(QWidget):
 
         # Widget config
         self.wcfg: dict = self.cfg.user.setting[self.widget_name]
+        validate_column_order(self.wcfg)
 
         # Base setting
         self.setWindowTitle(f"{APP_NAME} - {self.widget_name.capitalize()}")
@@ -465,6 +466,17 @@ class Overlay(QWidget):
             self.layout().addWidget(target, *order)
         else:
             self.layout().addLayout(target, *order)
+
+
+def validate_column_order(config: dict):
+    """Validate column/row index order, correct any overlapping indexes"""
+    column_set = []
+    for key in config.keys():
+        if re.search("column_index", key):
+            while config[key] in column_set:
+                config[key] += 1
+            column_set.append(config[key])
+    column_set = None
 
 
 class FontMetrics(NamedTuple):

@@ -229,7 +229,7 @@ class Setting:
         self.__set_environ()
         # Save setting to JSON file
         logger.info("SETTING: %s loaded (global settings)", self.filename.config)
-        self.save(0, "config")
+        self.save(filetype="config")
 
     def update_path(self):
         """Update global path, call this if "user_path" changed"""
@@ -266,7 +266,7 @@ class Setting:
         self.filename.last_setting = self.filename.setting
         # Save setting to JSON file
         logger.info("SETTING: %s loaded (user preset)", self.filename.last_setting)
-        self.save(0)
+        self.save()
 
     @property
     def preset_list(self) -> list:
