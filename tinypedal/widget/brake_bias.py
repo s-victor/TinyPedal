@@ -41,8 +41,10 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         self.decimals_bias = max(self.wcfg["decimal_places_brake_bias"], 0)
+        self.decimals_delta = max(self.wcfg["decimal_places_baseline_bias_delta"], 0)
         self.decimals_migt = max(self.wcfg["decimal_places_brake_migration"], 1)
         self.prefix_bias = self.wcfg["prefix_brake_bias"]
+        self.prefix_delta = self.wcfg["prefix_baseline_bias_delta"]
         self.prefix_migt = self.wcfg["prefix_brake_migration"]
         self.suffix_migt = self.wcfg["suffix_brake_migration"]
         self.sign_text = "%" if self.wcfg["show_percentage_sign"] else ""
@@ -55,7 +57,7 @@ class Realtime(Overlay):
         )
 
         # Brake bias
-        text_bbias = self.format_brake_bias(50)
+        text_bbias = self.format_brake_bias(0.5)
         bar_style_bbias = self.set_qss(
             fg_color=self.wcfg["font_color_brake_bias"],
             bg_color=self.wcfg["bkg_color_brake_bias"]
@@ -69,6 +71,23 @@ class Realtime(Overlay):
             target=self.bar_bbias,
             column=self.wcfg["column_index_brake_bias"],
         )
+
+        # Baseline bias delta
+        if self.wcfg["show_baseline_bias_delta"]:
+            text_delta = self.format_bias_delta(0)
+            bar_style_delta = self.set_qss(
+                fg_color=self.wcfg["font_color_baseline_bias_delta"],
+                bg_color=self.wcfg["bkg_color_baseline_bias_delta"]
+            )
+            self.bar_delta = self.set_qlabel(
+                text=text_delta,
+                style=bar_style_delta,
+                width=font_m.width * len(text_delta) + bar_padx,
+            )
+            self.set_primary_orient(
+                target=self.bar_delta,
+                column=self.wcfg["column_index_baseline_bias_delta"],
+            )
 
         # Brake migration
         if self.wcfg["show_brake_migration"]:
@@ -89,19 +108,27 @@ class Realtime(Overlay):
 
         # Last data
         self.checked = False
+        self.baseline_bias = 0.5
         self.brake_bmigt = BrakeMigration(self.wcfg["electric_braking_allocation"])
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
 
-            # Reset switch
-            if not self.checked:
-                self.checked = True
-
             # Brake bias
             bbias = api.read.brake.bias_front()
             self.update_bbias(self.bar_bbias, bbias)
+
+            # Reset switch
+            if not self.checked:
+                self.checked = True
+                self.baseline_bias = bbias  # in case not start from pit
+
+            # Baseline bias delta
+            if self.wcfg["show_baseline_bias_delta"]:
+                if api.read.vehicle.in_pits() and api.read.vehicle.speed() < 0.1:
+                    self.baseline_bias = bbias
+                self.update_delta(self.bar_delta, bbias - self.baseline_bias)
 
             # Brake migration
             if self.wcfg["show_brake_migration"]:
@@ -122,25 +149,36 @@ class Realtime(Overlay):
         """Brake bias"""
         if target.last != data:
             target.last = data
-            target.setText(self.format_brake_bias(data * 100))
+            target.setText(self.format_brake_bias(data))
+
+    def update_delta(self, target, data):
+        """Baseline bias delta"""
+        if target.last != data:
+            target.last = data
+            target.setText(self.format_bias_delta(data))
 
     def update_bmigt(self, target, data):
         """Brake migration"""
         if target.last != data:
             target.last = data
-            target.setText(self.format_brake_migt(data * 100))
+            target.setText(self.format_brake_migt(data))
 
     # Additional methods
-    def format_brake_bias(self, value):
+    def format_brake_bias(self, value: float) -> str:
         """Format brake bias"""
+        value *= 100
         front = f"{self.prefix_bias}{value:02.{self.decimals_bias}f}"
         if self.wcfg["show_front_and_rear"]:
             return f"{front}:{100 - value:02.{self.decimals_bias}f}"
         return f"{front}{self.sign_text}"
 
-    def format_brake_migt(self, value):
+    def format_bias_delta(self, value: float) -> str:
+        """Format baseline bias delta"""
+        return f"{self.prefix_delta}{value * 100:+01.{self.decimals_delta}f}"
+
+    def format_brake_migt(self, value: float) -> str:
         """Format brake migration"""
-        reading = f"{value:.{self.decimals_migt}f}"[:2 + self.decimals_migt]
+        reading = f"{value * 100:.{self.decimals_migt}f}"[:2 + self.decimals_migt]
         return f"{self.prefix_migt}{reading}{self.suffix_migt}"
 
 

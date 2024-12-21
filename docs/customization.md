@@ -857,6 +857,9 @@ Show both front and rear bias. Default is `false`.
     show_percentage_sign
 Set `true` to show percentage sign for brake bias value.
 
+    show_baseline_bias_delta
+Show delta between current and baseline brake bias, which can be useful for keeping track of brake bias changes easier during a long race. Baseline brake bias is automatically set (and reset) while vehicle is stationary in pit lane.
+
     show_brake_migration
 Show real-time brake migration change, as commonly seen in LMH and LMDh classes.
 
@@ -945,7 +948,7 @@ Note, brake failure thickness threshold data is not available from game API, it 
 
 Some reference brake failure thickness threshold:
 Hypercar and P2 classes in LMU usually have `25`mm brake failure threshold.
-GTE class in LMU usually has `30`mm brake failure threshold.
+GTE & LMGT3 class in LMU usually has `30`mm brake failure threshold.
 
     show_remaining
 Show total remaining brake in percentage that changes color according to wear.

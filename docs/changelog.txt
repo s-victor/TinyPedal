@@ -1,5 +1,13 @@
 WIP
 -----------------------------
+* General
+  - Auto corrects duplicated "column_index" values in widget options to avoid display overlapping.
+
+* Brake bias Widget
+  - Add "show_baseline_bias_delta" option, which shows delta between current and baseline brake bias.
+    This can be useful for keeping track of brake bias changes easier during a long race.
+    Baseline brake bias is automatically set (and reset) while vehicle is stationary in pit lane.
+
 * Instrument Widget
   - Add "stalling_rpm_threshold" option, which sets RPM threshold for triggering engine stalling warning.
     Default is "100" RPM.
