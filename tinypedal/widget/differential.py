@@ -40,7 +40,7 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        self.decimals = max(int(self.wcfg["decimal_places"]), 0)
+        self.decimals = max(self.wcfg["decimal_places"], 0)
         self.leading_space = 3 + self.decimals + (self.decimals > 0)
 
         if self.wcfg["layout"] == 0:

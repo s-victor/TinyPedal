@@ -72,9 +72,7 @@ class Realtime(Overlay):
                 text="TRACK NOTES",
                 style=bar_style_notes,
                 width=font_m.width * notes_width + bar_padx,
-            )
-            self.bar_notes.setAlignment(
-                self.set_text_alignment(self.wcfg["track_notes_text_alignment"])
+                align=self.wcfg["track_notes_text_alignment"],
             )
             self.set_primary_orient(
                 target=self.bar_notes,
@@ -91,9 +89,7 @@ class Realtime(Overlay):
                 text="COMMENTS",
                 style=bar_style_comments,
                 width=font_m.width * comments_width + bar_padx,
-            )
-            self.bar_comments.setAlignment(
-                self.set_text_alignment(self.wcfg["comments_text_alignment"])
+                align=self.wcfg["comments_text_alignment"],
             )
             self.set_primary_orient(
                 target=self.bar_comments,
@@ -110,9 +106,7 @@ class Realtime(Overlay):
                 text="DEBUGGING",
                 style=bar_style_debugging,
                 width=font_m.width * debugging_width + bar_padx,
-            )
-            self.bar_debugging.setAlignment(
-                self.set_text_alignment(self.wcfg["debugging_text_alignment"])
+                align=self.wcfg["debugging_text_alignment"],
             )
             self.set_primary_orient(
                 target=self.bar_debugging,

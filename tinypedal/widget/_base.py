@@ -65,15 +65,15 @@ class Overlay(QWidget):
         self._update_timer = QBasicTimer()
         self._update_interval = max(
             self.wcfg["update_interval"],
-            self.cfg.application["minimum_update_interval"])
+            self.cfg.application["minimum_update_interval"],
+        )
 
     def start(self):
         """Set initial widget state in orders, and start update"""
         self.__connect_signal()
         self.__set_window_style()
         self.__set_window_attributes()  # 1
-        self.__set_window_flags()       # 2
-        #self.show()                     # 3 show before starting update
+        self.__set_window_flags()  # 2
         self._update_timer.start(self._update_interval, self)
 
     def stop(self):
@@ -90,8 +90,7 @@ class Overlay(QWidget):
         """Unload resource (such as images) on close, can re-implement in widget"""
         instance_var_list = dir(self)
         for var in instance_var_list:
-            # Unload all pixmap
-            if re.search("pixmap_", var):
+            if re.search("pixmap_", var):  # unload all pixmap
                 setattr(self, var, None)
 
     def __set_window_attributes(self):
@@ -114,7 +113,10 @@ class Overlay(QWidget):
     def __set_window_style(self):
         """Set window style"""
         background_color = QPalette()
-        background_color.setColor(QPalette.Window, self.cfg.compatibility["global_bkg_color"])
+        background_color.setColor(
+            QPalette.Window,
+            self.cfg.compatibility["global_bkg_color"],
+        )
         self.setPalette(background_color)
 
     def mouseMoveEvent(self, event):
@@ -143,16 +145,6 @@ class Overlay(QWidget):
     def __toggle_lock(self, locked: bool):
         """Toggle widget lock state"""
         self.setWindowFlag(Qt.WindowTransparentForInput, locked)
-
-    #@Slot(bool)
-    #def __toggle_hide(self, hidden: bool):
-    #    """Toggle widget hidden state"""
-    #    if hidden:
-    #        if not self.isHidden():
-    #            self.hide()
-    #    else:
-    #        if self.isHidden():
-    #            self.show()
 
     def __connect_signal(self):
         """Connect overlay lock and hide signal"""
@@ -199,11 +191,11 @@ class Overlay(QWidget):
         """
         font_metrics = QFontMetrics(qfont)
         return FontMetrics(
-            width = font_metrics.averageCharWidth(),
-            height = font_metrics.height(),
-            leading = font_metrics.leading(),
-            capital = font_metrics.capHeight(),
-            descent = font_metrics.descent(),
+            width=font_metrics.averageCharWidth(),
+            height=font_metrics.height(),
+            leading=font_metrics.leading(),
+            capital=font_metrics.capHeight(),
+            descent=font_metrics.descent(),
         )
 
     def calc_font_offset(self, metrics: FontMetrics) -> int:
@@ -220,7 +212,12 @@ class Overlay(QWidget):
             Calculated font offset in pixel.
         """
         if self.wcfg["enable_auto_font_offset"]:
-            return metrics.capital + metrics.descent * 2 + metrics.leading * 2 - metrics.height
+            return (
+                metrics.capital
+                + metrics.descent * 2
+                + metrics.leading * 2
+                - metrics.height
+            )
         return self.wcfg["font_offset_vertical"]
 
     @staticmethod
@@ -242,24 +239,25 @@ class Overlay(QWidget):
         """Set text alignment
 
         Args:
-            align:
-            0 (center alignment).
-            1 or "Left" (left alignment).
-            2 or "Right" (right alignment).
+            align: 0 or "Center", 1 or "Left", 2 or "Right".
 
         Returns:
             Qt alignment.
         """
-        if align in (1, "Left"):
+        if align == 0 or align == "Center":
+            return Qt.AlignCenter
+        if align == 1 or align == "Left":
             return Qt.AlignLeft
-        if align in (2, "Right"):
-            return Qt.AlignRight
-        return Qt.AlignCenter
+        return Qt.AlignRight
 
     @staticmethod
     def set_qss(
-        fg_color: str = "", bg_color: str = "",
-        font_family: str = "", font_size: int = -1, font_weight: str = "") -> str:
+        fg_color: str = "",
+        bg_color: str = "",
+        font_family: str = "",
+        font_size: int = -1,
+        font_weight: str = "",
+    ) -> str:
         """Set qt style sheet
 
         Args:
@@ -287,10 +285,19 @@ class Overlay(QWidget):
         return f"{fg_color}{bg_color}{font_family}{font_size_pixel}{font_weight}"
 
     def __add_qlabel(
-        self, text: str | None = None, pixmap: QPixmap | None = None, style: str | None = None,
-        width: int = 0, height: int = 0, fixed_width: int = 0, fixed_height: int = 0,
-        align: int = 0, last: Any | None = None) -> QLabel:
-        """Add a single qlabel instance
+        self,
+        *,
+        text: str | None = None,
+        pixmap: QPixmap | None = None,
+        style: str | None = None,
+        width: int = 0,
+        height: int = 0,
+        fixed_width: int = 0,
+        fixed_height: int = 0,
+        align: int | str = 0,
+        last: Any | None = None,
+    ) -> QLabel:
+        """Add a single qlabel instance, keyword arguments only
 
         Args:
             text: label text.
@@ -300,7 +307,7 @@ class Overlay(QWidget):
             height: minimum label height in pixel.
             fixed_width: fixed label width in pixel, takes priority over width.
             fixed_height: fixed label height in pixel, takes priority over height.
-            align: 0 (center), 1 (left), 2 (right).
+            align: 0 or "Center", 1 or "Left", 2 or "Right".
             last: cache last data for comparison.
 
         Returns:
@@ -334,10 +341,20 @@ class Overlay(QWidget):
         return bar_temp
 
     def set_qlabel(
-        self, text: str | None = None, pixmap: QPixmap | None = None, style: str | None = None,
-        width: int = 0, height: int = 0, fixed_width: int = 0, fixed_height: int = 0,
-        align: int = 0, last: Any | None = None, count: int = 1) -> (tuple[QLabel, ...] | QLabel):
-        """Set qlabel
+        self,
+        *,
+        text: str | None = None,
+        pixmap: QPixmap | None = None,
+        style: str | None = None,
+        width: int = 0,
+        height: int = 0,
+        fixed_width: int = 0,
+        fixed_height: int = 0,
+        align: int | str = 0,
+        last: Any | None = None,
+        count: int = 1,
+    ) -> tuple[QLabel, ...] | QLabel:
+        """Set qlabel, keyword arguments only
 
         Args:
             text: label text.
@@ -347,7 +364,7 @@ class Overlay(QWidget):
             height: minimum label height in pixel.
             fixed_width: fixed label width in pixel, takes priority over width.
             fixed_height: fixed label height in pixel, takes priority over height.
-            align: 0 (center), 1 (left), 2 (right).
+            align: 0 or "Center", 1 or "Left", 2 or "Right".
             last: cache last data for comparison.
             count: number of qlabel to set.
 
@@ -357,9 +374,15 @@ class Overlay(QWidget):
         """
         bar_set = (
             self.__add_qlabel(
-                text=text, pixmap=pixmap, style=style, width=width, height=height,
-                fixed_width=fixed_width, fixed_height=fixed_height,
-                align=align, last=last,
+                text=text,
+                pixmap=pixmap,
+                style=style,
+                width=width,
+                height=height,
+                fixed_width=fixed_width,
+                fixed_height=fixed_height,
+                align=align,
+                last=last,
             )
             for _ in range(count)
         )
@@ -369,7 +392,11 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout_vert(
-        layout: QGridLayout, targets: tuple[QWidget, ...], row_start: int = 1, column: int = 4):
+        layout: QGridLayout,
+        targets: tuple[QWidget, ...],
+        row_start: int = 1,
+        column: int = 4,
+    ):
         """Set grid layout - vertical
 
         Default row index start from 1; reserve row index 0 for caption.
@@ -379,8 +406,12 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout_quad(
-        layout: QGridLayout, targets: tuple[QWidget | QLayout, ...],
-        row_start: int = 1, column_left: int = 0, column_right: int = 9):
+        layout: QGridLayout,
+        targets: tuple[QWidget | QLayout, ...],
+        row_start: int = 1,
+        column_left: int = 0,
+        column_right: int = 9,
+    ):
         """Set grid layout - quad - (0,1), (2,3)
 
         Default row index start from 1; reserve row index 0 for caption.
@@ -395,8 +426,12 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout_table_row(
-        layout: QGridLayout, targets: tuple[QWidget, ...],
-        row_index: int = 0, right_to_left: bool = False, hide_start: int = 99999):
+        layout: QGridLayout,
+        targets: tuple[QWidget, ...],
+        row_index: int = 0,
+        right_to_left: bool = False,
+        hide_start: int = 99999,
+    ):
         """Set grid layout - table by keys of each row"""
         if right_to_left:
             targets = reversed(targets)
@@ -407,8 +442,12 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout_table_column(
-        layout: QGridLayout, targets: tuple[QWidget, ...],
-        column_index: int = 0, bottom_to_top: bool = False, hide_start: int = 99999):
+        layout: QGridLayout,
+        targets: tuple[QWidget, ...],
+        column_index: int = 0,
+        bottom_to_top: bool = False,
+        hide_start: int = 99999,
+    ):
         """Set grid layout - table by keys of each column"""
         if bottom_to_top:
             targets = reversed(targets)
@@ -419,8 +458,12 @@ class Overlay(QWidget):
 
     @staticmethod
     def set_grid_layout(
-        gap: int = 0, gap_hori: int = -1, gap_vert: int = -1, margin: int = -1,
-        align: Qt.Alignment | None = None) -> QGridLayout:
+        gap: int = 0,
+        gap_hori: int = -1,
+        gap_vert: int = -1,
+        margin: int = -1,
+        align: Qt.Alignment | None = None,
+    ) -> QGridLayout:
         """Set grid layout (QGridLayout)"""
         layout = QGridLayout()
         layout.setSpacing(gap)
@@ -435,8 +478,11 @@ class Overlay(QWidget):
         return layout
 
     def set_primary_layout(
-        self, layout: QLayout, margin: int = 0,
-        align: Qt.Alignment | None = Qt.AlignLeft | Qt.AlignTop):
+        self,
+        layout: QLayout,
+        margin: int = 0,
+        align: Qt.Alignment | None = Qt.AlignLeft | Qt.AlignTop,
+    ):
         """Set primary layout"""
         layout.setContentsMargins(margin, margin, margin, margin)
         if align is not None:
@@ -444,8 +490,13 @@ class Overlay(QWidget):
         self.setLayout(layout)
 
     def set_primary_orient(
-        self, target: QWidget | QGridLayout, column: int = 0, row: int = 0,
-        option: str = "layout", default: str | int = 0):
+        self,
+        target: QWidget | QGridLayout,
+        column: int = 0,
+        row: int = 0,
+        option: str = "layout",
+        default: str | int = 0,
+    ):
         """Set primary layout (QGridLayout) orientation
 
         Orientation is defined by "layout" option in Widget JSON.
@@ -476,11 +527,11 @@ def validate_column_order(config: dict):
             while config[key] in column_set:
                 config[key] += 1
             column_set.append(config[key])
-    column_set = None
 
 
 class FontMetrics(NamedTuple):
     """Font metrics info"""
+
     width: int = 0
     height: int = 0
     leading: int = 0
