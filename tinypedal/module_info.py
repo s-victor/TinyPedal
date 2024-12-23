@@ -105,8 +105,9 @@ class FuelInfo:
         "amountStart",
         "amountCurrent",
         "amountUsedCurrent",
-        "amountNeeded",
         "amountEndStint",
+        "neededRelative",
+        "neededAbsolute",
         "lastLapConsumption",
         "lastLapValidConsumption",
         "estimatedConsumption",
@@ -125,8 +126,9 @@ class FuelInfo:
         self.amountStart: float = 0.0
         self.amountCurrent: float = 0.0
         self.amountUsedCurrent: float = 0.0
-        self.amountNeeded: float = 0.0
         self.amountEndStint: float = 0.0
+        self.neededRelative: float = 0.0
+        self.neededAbsolute: float = 0.0
         self.lastLapConsumption: float = 0.0
         self.lastLapValidConsumption: float = 0.0
         self.estimatedConsumption: float = 0.0

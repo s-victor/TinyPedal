@@ -45,22 +45,6 @@ class Realtime(Overlay):
         self.bar_width = max(self.wcfg["bar_width"], 3)
         style_width = font_m.width * self.bar_width + bar_padx
 
-        self.decimals = tuple(
-            map(self.decimal_range, (
-            self.wcfg["decimal_places_end"],  # 0
-            self.wcfg["decimal_places_remain"],  # 1
-            self.wcfg["decimal_places_refill"],  # 2
-            self.wcfg["decimal_places_used"],  # 3
-            self.wcfg["decimal_places_delta"],  # 4
-            self.wcfg["decimal_places_ratio"],  # 5
-            self.wcfg["decimal_places_early"],  # 6
-            self.wcfg["decimal_places_laps"],  # 7
-            self.wcfg["decimal_places_minutes"],  # 8
-            self.wcfg["decimal_places_save"],  # 9
-            self.wcfg["decimal_places_pits"],  # 10
-            self.wcfg["decimal_places_bias"],  # 11
-        )))
-
         # Base style
         self.setStyleSheet(self.set_qss(
             font_family=self.wcfg["font_name"],
@@ -82,9 +66,13 @@ class Realtime(Overlay):
                 font_size=int(self.wcfg['font_size'] * 0.8)
             )
             caption_upper = (
-                self.wcfg["caption_text_end"],
+                self.wcfg["caption_text_pits"],
                 self.wcfg["caption_text_remain"],
-                self.wcfg["caption_text_refill"],
+                (
+                    self.wcfg["caption_text_absolute_refill"]
+                    if self.wcfg["show_absolute_refilling"]
+                    else self.wcfg["caption_text_refill"]
+                ),
                 self.wcfg["caption_text_used"],
                 self.wcfg["caption_text_delta"],
                 self.wcfg["caption_text_ratio"],
@@ -94,7 +82,7 @@ class Realtime(Overlay):
                 self.wcfg["caption_text_laps"],
                 self.wcfg["caption_text_minutes"],
                 self.wcfg["caption_text_save"],
-                self.wcfg["caption_text_pits"],
+                self.wcfg["caption_text_end"],
                 self.wcfg["caption_text_bias"],
             )
 
@@ -126,6 +114,7 @@ class Realtime(Overlay):
             style=bar_style_end,
             fixed_width=style_width,
         )
+        self.bar_end.decimals = max(self.wcfg["decimal_places_end"], 0)
 
         # Remaining
         self.bar_style_curr = (
@@ -141,6 +130,7 @@ class Realtime(Overlay):
             style=self.bar_style_curr[0],
             fixed_width=style_width,
         )
+        self.bar_curr.decimals = max(self.wcfg["decimal_places_remain"], 0)
 
         # Total needed
         self.bar_style_need = (
@@ -156,6 +146,7 @@ class Realtime(Overlay):
             style=self.bar_style_need[0],
             fixed_width=style_width,
         )
+        self.bar_need.decimals = max(self.wcfg["decimal_places_refill"], 0)
 
         # Estimated consumption
         bar_style_used = self.set_qss(
@@ -167,6 +158,7 @@ class Realtime(Overlay):
             style=bar_style_used,
             fixed_width=style_width,
         )
+        self.bar_used.decimals = max(self.wcfg["decimal_places_used"], 0)
 
         # Delta consumption
         bar_style_delta = self.set_qss(
@@ -178,6 +170,7 @@ class Realtime(Overlay):
             style=bar_style_delta,
             fixed_width=style_width,
         )
+        self.bar_delta.decimals = max(self.wcfg["decimal_places_delta"], 0)
 
         # Fuel ratio consumption
         bar_style_ratio = self.set_qss(
@@ -189,6 +182,7 @@ class Realtime(Overlay):
             style=bar_style_ratio,
             fixed_width=style_width,
         )
+        self.bar_ratio.decimals = max(self.wcfg["decimal_places_ratio"], 0)
 
         # Estimate pit stop counts when pitting at end of current lap
         bar_style_early = self.set_qss(
@@ -200,6 +194,7 @@ class Realtime(Overlay):
             style=bar_style_early,
             fixed_width=style_width,
         )
+        self.bar_early.decimals = max(self.wcfg["decimal_places_early"], 0)
 
         # Estimated laps can last
         bar_style_laps = self.set_qss(
@@ -211,6 +206,7 @@ class Realtime(Overlay):
             style=bar_style_laps,
             fixed_width=style_width,
         )
+        self.bar_laps.decimals = max(self.wcfg["decimal_places_laps"], 0)
 
         # Estimated minutes can last
         bar_style_mins = self.set_qss(
@@ -222,6 +218,7 @@ class Realtime(Overlay):
             style=bar_style_mins,
             fixed_width=style_width,
         )
+        self.bar_mins.decimals = max(self.wcfg["decimal_places_minutes"], 0)
 
         # Estimated one less pit consumption
         bar_style_save = self.set_qss(
@@ -233,6 +230,7 @@ class Realtime(Overlay):
             style=bar_style_save,
             fixed_width=style_width,
         )
+        self.bar_save.decimals = max(self.wcfg["decimal_places_save"], 0)
 
         # Estimate pit stop counts when pitting at end of current stint
         bar_style_pits = self.set_qss(
@@ -244,6 +242,7 @@ class Realtime(Overlay):
             style=bar_style_pits,
             fixed_width=style_width,
         )
+        self.bar_pits.decimals = max(self.wcfg["decimal_places_pits"], 0)
 
         # Fuel bias
         bar_style_bias = self.set_qss(
@@ -255,6 +254,7 @@ class Realtime(Overlay):
             style=bar_style_bias,
             fixed_width=style_width,
         )
+        self.bar_bias.decimals = max(self.wcfg["decimal_places_bias"], 0)
 
         # Energy level bar
         if self.wcfg["show_energy_level_bar"]:
@@ -273,7 +273,7 @@ class Realtime(Overlay):
             layout.addWidget(self.bar_level, self.wcfg["column_index_middle"], 0)
 
         # Set layout
-        layout_upper.addWidget(self.bar_end, 1, 0)
+        layout_upper.addWidget(self.bar_pits, 1, 0)
         layout_upper.addWidget(self.bar_curr, 1, 1)
         layout_upper.addWidget(self.bar_need, 1, 2)
         layout_upper.addWidget(self.bar_used, 1, 3)
@@ -283,7 +283,7 @@ class Realtime(Overlay):
         layout_lower.addWidget(self.bar_laps, 1, 1)
         layout_lower.addWidget(self.bar_mins, 1, 2)
         layout_lower.addWidget(self.bar_save, 1, 3)
-        layout_lower.addWidget(self.bar_pits, 1, 4)
+        layout_lower.addWidget(self.bar_end, 1, 4)
         layout_lower.addWidget(self.bar_bias, 1, 5)
 
     def timerEvent(self, event):
@@ -292,59 +292,63 @@ class Realtime(Overlay):
             is_low_energy = minfo.energy.estimatedLaps <= self.wcfg["low_energy_lap_threshold"]
 
             # Estimated end remaining
-            amount_end = f"{minfo.energy.amountEndStint:.{self.decimals[0]}f}"
+            amount_end = minfo.energy.amountEndStint
             self.update_energy(self.bar_end, amount_end)
 
             # Remaining
-            amount_curr = f"{minfo.energy.amountCurrent:.{self.decimals[1]}f}"
+            amount_curr = minfo.energy.amountCurrent
             self.update_energy(self.bar_curr, amount_curr, self.bar_style_curr[is_low_energy])
 
             # Total needed
-            amount_need = f"{calc.sym_max(minfo.energy.amountNeeded, 9999):+.{self.decimals[2]}f}"
-            self.update_energy(self.bar_need, amount_need, self.bar_style_need[is_low_energy])
+            if self.wcfg["show_absolute_refilling"]:
+                amount_need = calc.sym_max(minfo.energy.neededAbsolute, 9999)
+                self.update_energy(self.bar_need, amount_need, self.bar_style_need[is_low_energy])
+            else:
+                amount_need = calc.sym_max(minfo.energy.neededRelative, 9999)
+                self.update_energy(self.bar_need, amount_need, self.bar_style_need[is_low_energy], "+")
 
             # Estimated consumption
-            used_last = f"{minfo.energy.estimatedConsumption:.{self.decimals[3]}f}"
+            used_last = minfo.energy.estimatedConsumption
             self.update_energy(self.bar_used, used_last)
 
             # Delta consumption
-            delta_energy = f"{minfo.energy.deltaConsumption:+.{self.decimals[4]}f}"
-            self.update_energy(self.bar_delta, delta_energy)
+            delta_energy = minfo.energy.deltaConsumption
+            self.update_energy(self.bar_delta, delta_energy, None, "+")
 
             # Fuel ratio
-            fuel_ratio = f"{minfo.hybrid.fuelEnergyRatio:.{self.decimals[5]}f}"
+            fuel_ratio = minfo.hybrid.fuelEnergyRatio
             self.update_energy(self.bar_ratio, fuel_ratio)
 
             # Estimate pit stop counts when pitting at end of current lap
-            est_pits_early = f"{calc.zero_max(minfo.energy.estimatedNumPitStopsEarly, 99.99):.{self.decimals[6]}f}"
+            est_pits_early = calc.zero_max(minfo.energy.estimatedNumPitStopsEarly, 99.99)
             self.update_energy(self.bar_early, est_pits_early)
 
             # Estimated laps can last
-            est_runlaps = f"{min(minfo.energy.estimatedLaps, 9999):.{self.decimals[7]}f}"
+            est_runlaps = min(minfo.energy.estimatedLaps, 9999)
             self.update_energy(self.bar_laps, est_runlaps)
 
             # Estimated minutes can last
-            est_runmins = f"{min(minfo.energy.estimatedMinutes, 9999):.{self.decimals[8]}f}"
+            est_runmins = min(minfo.energy.estimatedMinutes, 9999)
             self.update_energy(self.bar_mins, est_runmins)
 
             # Estimated one less pit consumption
-            energy_save = f"{calc.zero_max(minfo.energy.oneLessPitConsumption, 99.99):.{self.decimals[9]}f}"
+            energy_save = calc.zero_max(minfo.energy.oneLessPitConsumption, 99.99)
             self.update_energy(self.bar_save, energy_save)
 
             # Estimate pit stop counts when pitting at end of current stint
-            est_pits_end = f"{calc.zero_max(minfo.energy.estimatedNumPitStopsEnd, 99.99):.{self.decimals[10]}f}"
+            est_pits_end = calc.zero_max(minfo.energy.estimatedNumPitStopsEnd, 99.99)
             self.update_energy(self.bar_pits, est_pits_end)
 
             # Fuel bias
-            fuel_bias = f"{minfo.hybrid.fuelEnergyBias:+.{self.decimals[10]}f}"
-            self.update_energy(self.bar_bias, fuel_bias)
+            fuel_bias = minfo.hybrid.fuelEnergyBias
+            self.update_energy(self.bar_bias, fuel_bias, None, "+")
 
             # Energy level bar
             if self.wcfg["show_energy_level_bar"]:
                 level_capacity = minfo.energy.capacity
                 level_curr = minfo.energy.amountCurrent
                 level_start = minfo.energy.amountStart
-                level_refill = level_curr + minfo.energy.amountNeeded
+                level_refill = level_curr + minfo.energy.neededRelative
                 level_state = round(level_start * level_refill, 3)
                 if level_capacity and self.bar_level.last != level_state:
                     self.bar_level.last = level_state
@@ -355,15 +359,11 @@ class Realtime(Overlay):
                     )
 
     # GUI update methods
-    def update_energy(self, target, data, color=None):
+    def update_energy(self, target, data, color=None, sign=""):
         """Update energy data"""
         if target.last != data:
             target.last = data
+            text = f"{data:{sign}.{target.decimals}f}"[:self.bar_width].strip(".")
+            target.setText(text)
             if color:  # low energy warning
                 target.setStyleSheet(color)
-            target.setText(data[:self.bar_width].strip("."))
-
-    @staticmethod
-    def decimal_range(value):
-        """Decimal place range"""
-        return calc.zero_max(int(value), 3)

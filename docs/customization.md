@@ -1459,8 +1459,14 @@ Set reference circle line width in pixels.
 ## Fuel
 **This widget displays fuel usage info.**
 
-    *end
-Estimated remaining fuel reading at the end of current stint before pit.
+Differences between `relative` and `absolute` refueling:
+* Relative refueling value shows total amount fuel (excluding fuel in tank) required to finish race, which matches `relative refueling` mechanism in RF2.
+* Absolute refueling value shows total amount fuel (including fuel in tank) required to finish race, which matches `absolute refueling` mechanism in LMU.
+
+---
+
+    show_absolute_refueling
+Show absolute refueling value instead of relative refueling when enabled. Note, `+` or `-` sign is not displayed with absolute refueling.
 
     *remain
 Remaining fuel reading.
@@ -1473,6 +1479,9 @@ Estimated fuel consumption reading, which is calculated from last-valid-lap fuel
 
     *delta
 Estimated delta fuel consumption reading. Positive value indicates an increase in consumption, while negative indicates a decrease in consumption.
+
+    *pits
+Estimate number of pit stop counts when making a pit stop at end of current stint. Any non-zero decimal places would be considered for an additional pit stop.
 
     *early
 Estimate number of pit stop counts when making an early pit stop at end of current lap. This value can be used to determine whether an early pit stop is worth performing comparing to `pits` value.
@@ -1492,8 +1501,8 @@ Estimated minutes reading that current fuel can last.
     *save
 Estimated fuel consumption reading for one less pit stop.
 
-    *pits
-Estimate number of pit stop counts when making a pit stop at end of current stint. Any non-zero decimal places would be considered for an additional pit stop.
+    *end
+Estimated remaining fuel reading at the end of current stint before pit.
 
     bar_width
 Set each column width, value in chars, such as 10 = 10 chars. Default is `5`. Minimum width is limited to `3`.
@@ -2118,17 +2127,13 @@ See `TIME` or `LAPS` type race example usages below for details.
 
 **Important notes**
 
-* Predication accuracy depends on many variables and is meant for final stint estimate. Such as laptime pace, pit time, penalties, weather condition, safety car, yellow flag, can all affect predication accuracy. It requires at least 2-3 laps to get sensible readings, and more laps to have better accuracy. **Do not expect accurate readings or plan fuel strategy from first few laps.**
+* Predication accuracy depends on many variables and is meant for final stint estimate. Such as laptime pace, pit time, penalties, weather condition, safety car, yellow flag, can all affect predication accuracy. It requires at least 2-3 laps to get sensible readings, and more laps to have better accuracy.
 
 * `Final lap progress` values will not be displayed if no corresponding valid lap time pace data found, which requires at least 1 or 2 laps to record. If local player is the leader, then all values from leader's row will not be displayed. Refilling values will not be displayed during formation lap for the reasons mentioned in first note.
 
 * Refilling estimate calculation is different between `TIME` and `LAPS` type races, make sure to look at the correct value, check out `example usage` below for details.
 
-* `LMU` currently uses `absolute-refueling` mechanism (how much `total` fuel to fill tank up to), as opposite to relative fuel (how much to `add` on top of remaining fuel in tank). This means user has to manually add up both `remaining` and `refuel/refill` values for total fuel/energy refill.
-
-* This widget is meant for used in complex and endurance race situations. To avoid human error, it is necessary to have a good understanding of this widget and practicing proficiency before attempting to use any provided data in actual race. Once with enough practicing, it should be fairly easy to make the most out of it.
-
-* **Avoid using this widget if unfamiliar or unsure any of the usage or data it provides.**
+* `LMU` currently uses `absolute refueling` mechanism (how much `total` fuel to fill tank up to), as opposite to relative fuel (how much to `add` on top of remaining fuel in tank). User can enabled `show_absolute_refilling` option to display total amount fuel/energy required (including fuel/energy in tank) to finish race.
 
 ---
 
@@ -2203,6 +2208,9 @@ Note, initial laptime pace is always based on leader's session personal best lap
 
     leader_laptime_pace_margin
 Set additional margin for current laptime that cannot exceed the sum of `laptime pace` and `margin`. This option is used to minimize the impact of unusually slow laptime. Default value is `5` seconds. Minimum value is limited to `0.1`.
+
+    show_absolute_refilling
+Show absolute refilling value instead of relative refilling when enabled. Note, `+` or `-` sign is not displayed with absolute refilling.
 
     show_extra_refilling
 Show readings of extra refilling row below `local player's refilling` row. Each extra refilling value equals `extra laps of consumption` plus `local player's refilling` value of same column. Those values save the trouble from manual calculation in case there will be extra laps.
@@ -2728,6 +2736,9 @@ Set warning threshold for estimated tyre lifespan in minutes. Default is `5` lap
 
 ## Virtual energy
 **This widget displays virtual energy usage info. Most options are inherited from fuel widget, with some additions noted below.**
+
+    show_absolute_refilling
+Show absolute refilling value instead of relative refilling when enabled. Note, `+` or `-` sign is not displayed with absolute refilling.
 
     *ratio
 Show fuel ratio between estimated fuel and energy consumption, which can help balance fuel and energy usage, as well as providing refueling reference for adjusting pitstop `Fuel ratio` during race.

@@ -57,6 +57,7 @@ class Realtime(Overlay):
         self.decimals_laps = max(self.wcfg["decimal_places_laps"], 0)
         self.decimals_refill = max(self.wcfg["decimal_places_refill"], 0)
         self.extra_laps = max(self.wcfg["number_of_extra_laps"], 1)
+        self.refill_sign = "" if self.wcfg["show_absolute_refilling"] else "+"
 
         self.leader_pace = LapTimePace(
             min(max(self.wcfg["leader_laptime_pace_samples"], 1), 20),
@@ -203,6 +204,7 @@ class Realtime(Overlay):
         is_lap_type_session = api.read.session.lap_type()
         in_formation = api.read.session.in_formation()
         energy_type = minfo.restapi.maxVirtualEnergy
+        consumption = minfo.energy if energy_type else minfo.fuel
 
         leader_index = self.find_leader_index()
         player_index = api.read.vehicle.player_index()
@@ -268,28 +270,33 @@ class Realtime(Overlay):
             # Player refill
             if (is_lap_type_session and index != 1
                 or in_formation or not leader_valid or not player_valid):
-                refill_player = refill_extra = -MAGIC_NUM
+                refill_player = -MAGIC_NUM
             else:
-                consumption = minfo.energy if energy_type else minfo.fuel
-                refill_player = calc.total_fuel_needed(
-                    full_laps_left,
-                    consumption.estimatedValidConsumption,
-                    consumption.amountCurrent,
-                )
-                if self.wcfg["show_extra_refilling"]:
-                    refill_extra = calc.total_fuel_needed(
-                        full_laps_left + self.extra_laps,  # add extra
+                if self.wcfg["show_absolute_refilling"]:
+                    refill_player = consumption.estimatedValidConsumption * full_laps_left
+                else:
+                    refill_player = calc.total_fuel_needed(
+                        full_laps_left,
                         consumption.estimatedValidConsumption,
                         consumption.amountCurrent,
                     )
-                else:
-                    refill_extra = -MAGIC_NUM
             self.update_refill(self.bars_refill[index], refill_player, energy_type)
 
             # Player refill extra
             if self.wcfg["show_extra_refilling"]:
-                self.update_refill_extra(
-                    self.bars_refill_extra[index], refill_extra, energy_type)
+                if refill_player == -MAGIC_NUM:
+                    refill_extra = -MAGIC_NUM
+                else:
+                    full_laps_extra = full_laps_left + self.extra_laps  # add extra laps
+                    if self.wcfg["show_absolute_refilling"]:
+                        refill_extra = consumption.estimatedValidConsumption * full_laps_extra
+                    else:
+                        refill_extra = calc.total_fuel_needed(
+                            full_laps_extra,
+                            consumption.estimatedValidConsumption,
+                            consumption.amountCurrent,
+                        )
+                self.update_refill_extra(self.bars_refill_extra[index], refill_extra, energy_type)
 
             # Predicate leader
             if not leader_valid or player_index == leader_index:
@@ -370,7 +377,7 @@ class Realtime(Overlay):
             if data > -MAGIC_NUM:
                 if not energy_type:
                     data = self.fuel_units(data)
-                refill_text = f"{data:+.{self.decimals_refill}f}"[:self.char_width].strip(".")
+                refill_text = f"{data:{self.refill_sign}.{self.decimals_refill}f}"[:self.char_width].strip(".")
             else:
                 refill_text = TEXT_NONE
             target.setText(refill_text)
@@ -382,7 +389,7 @@ class Realtime(Overlay):
             if data > -MAGIC_NUM:
                 if not energy_type:
                     data = self.fuel_units(data)
-                refill_text = f"{data:+.{self.decimals_refill}f}"[:self.char_width].strip(".")
+                refill_text = f"{data:{self.refill_sign}.{self.decimals_refill}f}"[:self.char_width].strip(".")
             else:
                 refill_text = TEXT_NONE
             target.setText(refill_text)

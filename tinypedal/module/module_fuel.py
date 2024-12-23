@@ -22,7 +22,7 @@ Fuel module
 
 from __future__ import annotations
 from functools import partial
-from math import ceil as roundup
+from math import ceil, floor
 from collections.abc import Callable
 
 from ._base import DataModule
@@ -122,7 +122,8 @@ def calc_data(
 
     amount_start = 0.0  # start fuel reading
     amount_last = 0.0  # last fuel reading
-    amount_need = 0.0  # total additional fuel need to finish race
+    amount_need_abs = 0.0  # total fuel (absolute) need to finish race
+    amount_need_rel = 0.0  # total additional fuel (relative) need to finish race
     amount_end = 0.0  # amount fuel left at the end of stint before pitting
     used_curr = 0.0  # current lap fuel consumption
     used_last_raw = used_last  # raw usage
@@ -248,12 +249,13 @@ def calc_data(
         elif laptime_last > 0:  # time-type race
             end_timer_laps_left = calc.end_timer_laps_remain(
                 lap_into, laptime_last, time_left)
-            full_laps_left = roundup(end_timer_laps_left)
+            full_laps_left = ceil(end_timer_laps_left)
             laps_left = calc.time_type_laps_remain(
                 full_laps_left, lap_into)
 
-        amount_need = calc.total_fuel_needed(
-            laps_left, used_est, amount_curr)
+        amount_need_abs = laps_left * used_est
+
+        amount_need_rel = amount_need_abs - amount_curr
 
         amount_end = calc.end_stint_fuel(
             amount_curr, used_curr, used_est)
@@ -268,10 +270,10 @@ def calc_data(
             capacity, amount_curr + used_curr, used_last + delta_fuel)
 
         est_pits_late = calc.end_stint_pit_counts(
-            amount_need, capacity - amount_end)
+            amount_need_rel, capacity - amount_end)
 
         est_pits_early = calc.end_lap_pit_counts(
-            amount_need, est_empty, capacity - amount_end)
+            amount_need_rel, est_empty, capacity - amount_end)
 
         used_est_less = calc.one_less_pit_stop_consumption(
             est_pits_late, capacity, amount_curr, laps_left)
@@ -280,8 +282,9 @@ def calc_data(
         output.amountStart = amount_start
         output.amountCurrent = amount_curr
         output.amountUsedCurrent = used_curr
-        output.amountNeeded = amount_need
         output.amountEndStint = amount_end
+        output.neededRelative = amount_need_rel
+        output.neededAbsolute = amount_need_abs
         output.lastLapConsumption = used_last_raw
         output.lastLapValidConsumption = used_last
         output.estimatedConsumption = used_last + delta_fuel

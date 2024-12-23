@@ -8,6 +8,21 @@ WIP
     This can be useful for keeping track of brake bias changes easier during a long race.
     Baseline brake bias is automatically set (and reset) while vehicle is stationary in pit lane.
 
+* Fuel Widget
+  - Add "show_absolute_refueling" option (requested by barrett), which shows absolute refueling value
+    instead of relative refueling when enabled.
+    Note, "+" or "-" sign is not displayed with absolute refueling.
+    Differences between relative and absolute refueling:
+    - Relative refueling value shows total amount fuel (excluding fuel in tank) required to finish race,
+      which matches `relative refueling` mechanism in RF2.
+    - Absolute refueling value shows total amount fuel (including fuel in tank) required to finish race,
+      which matches `absolute refueling` mechanism in LMU.
+  - Add "caption_text_absolute_refuel" option that shows absolute refueling caption text if
+    "show_absolute_refueling" option is enabled. This helps distinguish difference from relative refueling.
+    Default caption text is "abfuel".
+  - Exchanged column positions of "end" and "pits" for consistency and readability.
+    "pits" column is now in the same column as "early".
+
 * Instrument Widget
   - Add "stalling_rpm_threshold" option, which sets RPM threshold for triggering engine stalling warning.
     Default is "100" RPM.
@@ -16,8 +31,15 @@ WIP
 * Pace notes Widget, Track notes Widget
   - Fixed notes not showing up if game was paused and unpaused again while on track.
 
+* Relative finish order Widget
+  - Add "show_absolute_refilling" option.
+
 * [New]Slip ratio Widget
   - Show visualized slip ratio of each tyre with customizable optimal and critical range and color indication.
+
+* Virtual Energy Widget
+  - Add "show_absolute_refilling", "caption_text_absolute_refill" options.
+  - Exchanged column positions of "end" and "pits".
 
 2.21.0 (2024-12-10)
 -----------------------------
