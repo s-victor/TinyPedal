@@ -2522,7 +2522,13 @@ Show start line mark.
 Show sector line mark.
 
     show_vehicle_standings
-Show vehicle standings info on track map.
+Show vehicle standings info on track map. Note, if `enable_multi_class_styling` is enabled, position in class will be displayed for each vehicle class instead.
+
+    enable_multi_class_styling
+Shows vehicles in multi-class color styles on map instead.
+
+Note, while multi-class styling is enabled, following color styles will not be displayed:
+`vehicle_color_leader`, `vehicle_color_same_lap`, `vehicle_color_laps_ahead`, `vehicle_color_laps_behind`.
 
 
 ## Track notes

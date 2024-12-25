@@ -37,6 +37,16 @@ WIP
 * [New]Slip ratio Widget
   - Show visualized slip ratio of each tyre with customizable optimal and critical range and color indication.
 
+* Track map Widget
+  - Add "enable_multi_class_styling" option (requested by AndreT990), which shows vehicles in
+    multi-class color styles on map along with position-in-class standings.
+    Multi-class color can be customized from Vehicle Class Editor.
+    Random color will be shown if vehicle class is not defined in Vehicle Class Editor.
+    Note, while multi-class styling is enabled, following color styles will not be displayed:
+    "vehicle_color_leader", "vehicle_color_same_lap", "vehicle_color_laps_ahead", "vehicle_color_laps_behind".
+  - Add "font_color_player", "vehicle_outline_player_color", "vehicle_outline_player_width" options for
+    customizing player vehicle style.
+
 * Virtual Energy Widget
   - Add "show_absolute_refilling", "caption_text_absolute_refill" options.
   - Exchanged column positions of "end" and "pits".
