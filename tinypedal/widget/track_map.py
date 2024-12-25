@@ -68,7 +68,7 @@ class Realtime(Overlay):
         self.pen_veh = self.set_veh_pen_style(""), self.set_veh_pen_style("_player")
         self.pen_text = QPen(self.wcfg["font_color"]), QPen(self.wcfg["font_color_player"])
 
-        self.brush_veh_classes = self.set_veh_brush_style()
+        self.brush_veh_classes = {}
         self.brush_veh_player = self.set_veh_brush_style("player")
         self.brush_veh_leader = self.set_veh_brush_style("leader")
         self.brush_veh_in_pit = self.set_veh_brush_style("in_pit")
@@ -240,20 +240,21 @@ class Realtime(Overlay):
         """Draw vehicles"""
         painter.setRenderHint(QPainter.Antialiasing, True)
         for index in veh_draw_order:
-            is_player = veh_info[index].isPlayer
+            data = veh_info[index]
+            is_player = data.isPlayer
             if self.map_scaled:
                 # Position = (coords - min_range) * scale + offset, round to prevent bouncing
                 pos_x = round(
-                    (veh_info[index].worldPositionX - self.map_range[0])  # min range x
+                    (data.worldPositionX - self.map_range[0])  # min range x
                     * self.map_scale + self.map_offset[0])  # offset x
                 pos_y = round(
-                    (veh_info[index].worldPositionY - self.map_range[2])  # min range y
+                    (data.worldPositionY - self.map_range[2])  # min range y
                     * self.map_scale + self.map_offset[1])  # offset y
                 offset = -self.veh_size
             else:  # vehicles on temp map
-                inpit_offset = self.wcfg["font_size"] * veh_info[index].inPit
+                inpit_offset = self.wcfg["font_size"] * data.inPit
                 pos_x, pos_y = calc.rotate_coordinate(
-                    6.2831853 * veh_info[index].lapProgress,
+                    6.2831853 * data.lapProgress,
                     self.temp_map_size / -2 + inpit_offset,  # x pos
                     0,  # y pos
                 )
@@ -261,27 +262,37 @@ class Realtime(Overlay):
 
             painter.translate(offset + pos_x, offset + pos_y)
             painter.setPen(self.pen_veh[is_player])
-            painter.setBrush(self.color_vehicle(veh_info[index]))
+            painter.setBrush(self.color_vehicle(data))
             painter.drawEllipse(self.veh_shape)
 
             # Draw text standings
             if self.wcfg["show_vehicle_standings"]:
                 if self.wcfg["enable_multi_class_styling"]:
-                    place_veh = veh_info[index].positionInClass
+                    place_veh = data.positionInClass
                 else:
-                    place_veh = veh_info[index].positionOverall
+                    place_veh = data.positionOverall
                 painter.setPen(self.pen_text[is_player])
                 painter.drawText(self.veh_text_shape, Qt.AlignCenter, f"{place_veh}")
             painter.resetTransform()
 
     def classes_style(self, vehclass_name: str) -> str:
-        """Get vehicle class style from user defined dictionary"""
+        """Get vehicle class style from brush cache"""
+        if vehclass_name in self.brush_veh_classes:
+            return self.brush_veh_classes[vehclass_name]
+        # Get vehicle class style from user defined dictionary
+        brush = QBrush(Qt.SolidPattern)
         styles = self.cfg.user.classes.get(vehclass_name, None)
-        if not styles:
-            return random_color_class(vehclass_name)
-        for key in styles:
-            return styles[key]
-        return self.wcfg["vehicle_color_same_lap"]
+        if styles:
+            for key in styles:
+                brush.setColor(styles[key])
+                break
+            else:
+                brush.setColor(random_color_class(vehclass_name))
+        else:
+            brush.setColor(random_color_class(vehclass_name))
+        # Add to brush cache
+        self.brush_veh_classes[vehclass_name] = brush
+        return brush
 
     # Additional methods
     def color_vehicle(self, veh_info):
@@ -291,8 +302,7 @@ class Realtime(Overlay):
         if veh_info.inPit:
             return self.brush_veh_in_pit
         if self.wcfg["enable_multi_class_styling"]:
-            self.brush_veh_classes.setColor(self.classes_style(veh_info.vehicleClass))
-            return self.brush_veh_classes
+            return self.classes_style(veh_info.vehicleClass)
         if veh_info.isPlayer:
             return self.brush_veh_player
         if veh_info.positionOverall == 1:

@@ -275,38 +275,38 @@ class Realtime(Overlay):
 
         # Draw vehicle within view range
         for index in veh_draw_order:
+            data = veh_info[index]
             # Draw player vehicle
-            if veh_info[index].isPlayer:
+            if data.isPlayer:
                 painter.translate(self.area_center, self.veh_offset_y)
                 painter.drawPixmap(-self.veh_size, -self.veh_size, self.pixmap_veh_player)
 
                 if self.wcfg["show_vehicle_standings"]:
                     painter.drawText(
                         self.veh_text_shape, Qt.AlignCenter,
-                        f"{veh_info[index].positionOverall}")
+                        f"{data.positionOverall}")
                 painter.resetTransform()
 
             # Draw opponent vehicle in view range
-            elif veh_info[index].relativeStraightDistance < self.view_range:
+            elif data.relativeStraightDistance < self.view_range:
                 # Rotated position relative to player
                 # Position = raw position * global scale + offset
-                pos_x = veh_info[index].relativeRotatedPositionX * self.global_scale + self.area_center
-                pos_y = veh_info[index].relativeRotatedPositionY * self.global_scale + self.veh_offset_y
+                pos_x = data.relativeRotatedPositionX * self.global_scale + self.area_center
+                pos_y = data.relativeRotatedPositionY * self.global_scale + self.veh_offset_y
                 painter.translate(pos_x, pos_y)
 
                 if not self.wcfg["show_circle_vehicle_shape"]:
-                    painter.rotate(
-                        calc.rad2deg(-veh_info[index].relativeOrientationRadians))
+                    painter.rotate(calc.rad2deg(-data.relativeOrientationRadians))
                 painter.drawPixmap(
                     -self.veh_size, -self.veh_size,
-                    self.color_veh_pixmap(veh_info[index]))
+                    self.color_veh_pixmap(data))
 
                 if self.wcfg["show_vehicle_standings"]:
                     painter.resetTransform()
                     painter.translate(pos_x, pos_y)
                     painter.drawText(
                         self.veh_text_shape, Qt.AlignCenter,
-                        f"{veh_info[index].positionOverall}")
+                        f"{data.positionOverall}")
                 painter.resetTransform()
 
     def draw_map_mask_pixmap(self):

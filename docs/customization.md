@@ -309,7 +309,7 @@ Remember main window last position.
 Show confirmation dialog for enabling or disabling all widgets or modules. This option is enabled by default.
 
     enable_auto_load_preset
-Enable `Auto load preset` system to allow auto loading user-defined game-specific preset depends on active game (currently supports RF2 and LMU).
+Enable `Auto load preset` system to allow auto loading user-defined game-specific preset depends on active game (currently supports `RF2` and `LMU`).
 
 Auto loading preset is triggered when a new or different game is started & active. Auto loading will only trigger once per game change. A preset must be tagged as `primary` for specific game before it can be auto loaded, see `Preset management` section for details.
 
@@ -413,7 +413,7 @@ Set API name for accessing data from supported API.
 Set access mode for API. Mode value `0` uses copy access and additional data check to avoid data desynchronized or interruption issues. Mode value `1` uses direct access, which may result data desynchronized or interruption issues. Default mode is copy access.
 
     process_id
-Set process ID string for accessing API from server. Currently this option is only relevant to RF2.
+Set process ID string for accessing API from server. Currently this option is only relevant to `RF2`.
 
     enable_active_state_override
 Set `true` to enable `active state` manual override.
@@ -428,7 +428,7 @@ Set `true` to enable `player index` manual override.
 Set `player index` override for displaying data from specific player. Valid player index range starts from `0` to max number players minus one, and must not exceed `127`. Set value to `-1` for unspecified player, which can be useful for display general standings and trackmap data (ex. broadcasting). This option works only when `enable_player_index_override` enabled.
 
     character_encoding
-Set character encoding for displaying text in correct encoding. Available encoding: `UTF-8`, `ISO-8859-1`. Default encoding is `UTF-8`, which works best in LMU game. Note, `UTF-8` may not work well for some Latin characters in RF2, try use `ISO-8859-1` instead.
+Set character encoding for displaying text in correct encoding. Available encoding: `UTF-8`, `ISO-8859-1`. Default encoding is `UTF-8`, which works best in `LMU` game. Note, `UTF-8` may not work well for some Latin characters in `RF2`, try use `ISO-8859-1` instead.
 
 
 ## Units and symbols
@@ -765,10 +765,10 @@ Enable relative module.
 Enable RestAPI module.
 
     url_host*
-Set RF2 or LMU Rest API host address. Default is `localhost`.
+Set `RF2` or `LMU` Rest API host address. Default is `localhost`.
 
     url_port*
-Set port for host address. The port value for RF2 is `5397`, and `6397` for LMU.
+Set port for host address. The default port value for `RF2` is `5397`, and `6397` for `LMU`.
 
     connection_timeout
 Set connection timeout duration in seconds. Value range in `0.5` to `10`. Default is `1` second.
@@ -931,7 +931,7 @@ Set duration (seconds) for highlighting average brake temperature from previous 
 ## Brake wear
 **This widget displays brake wear info.**
 
-Important note: Brake wear data is currently only available on LMU. RF2 currently doesn't provide brake wear data. Depends on vehicle, brake may or may not have noticeable wear.
+Important note: Brake wear data is currently only available on `LMU`. `RF2` currently doesn't provide brake wear data. Depends on vehicle, brake may or may not have noticeable wear.
 
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
@@ -947,8 +947,8 @@ Manually set millimeter thickness threshold at brake failure, this setting affec
 Note, brake failure thickness threshold data is not available from game API, it may require testing to find out, and may vary from vehicle to vehicle. Front brake failure thickness threshold can be different from rear brake. Thickness threshold value should not exceed brake maximum thickness, otherwise brake wear readings will not be displayed correctly.
 
 Some reference brake failure thickness threshold:
-Hypercar and P2 classes in LMU usually have `25`mm brake failure threshold.
-GTE & LMGT3 class in LMU usually has `30`mm brake failure threshold.
+Hypercar and P2 classes in `LMU` usually have `25`mm brake failure threshold.
+GTE & LMGT3 class in `LMU` usually has `30`mm brake failure threshold.
 
     show_remaining
 Show total remaining brake in percentage that changes color according to wear.
@@ -1030,7 +1030,7 @@ This value holds the total distance (meters) that local player has driven. Accep
 5. Totaled suspension (default damage range: 80% - 100%, default color: blue).
 6. Wheel detached (default color: black).
 
-Note, body aero integrity and suspension damage display is only available for LMU.
+Note, body aero integrity and suspension damage display is only available for `LMU`.
 
     display_margin
 Set display margin in pixels.
@@ -1460,8 +1460,10 @@ Set reference circle line width in pixels.
 **This widget displays fuel usage info.**
 
 Differences between `relative` and `absolute` refueling:
-* Relative refueling value shows total amount fuel (excluding fuel in tank) required to finish race, which matches `relative refueling` mechanism in RF2.
-* Absolute refueling value shows total amount fuel (including fuel in tank) required to finish race, which matches `absolute refueling` mechanism in LMU.
+
+* Relative refueling value shows total amount fuel (excluding remaining fuel in tank) required to finish race, which matches `relative refueling` mechanism in `RF2`.
+
+* Absolute refueling value shows total amount fuel (including remaining fuel in tank) required to finish race, which matches `absolute refueling` mechanism in `LMU`.
 
 ---
 

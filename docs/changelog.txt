@@ -13,10 +13,10 @@ WIP
     instead of relative refueling when enabled.
     Note, "+" or "-" sign is not displayed with absolute refueling.
     Differences between relative and absolute refueling:
-    - Relative refueling value shows total amount fuel (excluding fuel in tank) required to finish race,
-      which matches `relative refueling` mechanism in RF2.
-    - Absolute refueling value shows total amount fuel (including fuel in tank) required to finish race,
-      which matches `absolute refueling` mechanism in LMU.
+    - Relative refueling value shows total amount fuel (excluding remaining fuel in tank) required
+      to finish race, which matches "relative refueling" mechanism in RF2.
+    - Absolute refueling value shows total amount fuel (including remaining fuel in tank) required
+      to finish race, which matches "absolute refueling" mechanism in LMU.
   - Add "caption_text_absolute_refuel" option that shows absolute refueling caption text if
     "show_absolute_refueling" option is enabled. This helps distinguish difference from relative refueling.
     Default caption text is "abfuel".
