@@ -173,10 +173,7 @@ class Realtime(DataModule):
         """Fetch data without retry"""
         full_url = f"{url_rest}{resource_name}"
         while not self._event.is_set() and self.state.active:
-            resource_output = get_resource(full_url, time_out)
-            if isinstance(resource_output, dict):
-                for output in output_set:
-                    get_value(resource_output, *output)
+            output_resource(output_set, full_url, time_out)
             await asyncio.sleep(self.active_interval)
 
     async def __fetch_retry(self, url_rest: str, time_out: float, retry: int,
@@ -226,15 +223,27 @@ def remove_unavailable_task(active_task: dict, task_deletion: set):
             logger.info("RestAPI: MISSING: %s", resource_name.upper())
 
 
-def get_resource(url: str, time_out: float) -> (dict | str):
+def get_resource(url: str, time_out: float) -> Any | str:
     """Get resource from REST API"""
     try:
         with urlopen(url, timeout=time_out) as raw_resource:
-            return json.loads(raw_resource.read().decode("utf-8"))
+            return json.load(raw_resource)
     except (TypeError, AttributeError, KeyError, ValueError):
         return "data not found"
     except (OSError, TimeoutError, socket.timeout):
         return "connection failed"
+
+
+def output_resource(output_set: tuple, url: str, time_out: float) -> None:
+    """Get resource from REST API and output data, skip unnecessary checking"""
+    try:
+        with urlopen(url, timeout=time_out) as raw_resource:
+            resource_output = json.load(raw_resource)
+            for output in output_set:
+                get_value(resource_output, *output)
+    except (TypeError, AttributeError, KeyError, ValueError,
+            OSError, TimeoutError, socket.timeout):
+        return
 
 
 def get_value(
