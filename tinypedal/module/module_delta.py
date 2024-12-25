@@ -104,6 +104,7 @@ class Realtime(DataModule):
                     laptime_pace = laptime_best  # avearge laptime pace
 
                     last_lap_stime = -1.0  # lap-start-time
+                    pos_recorded = 0.0  # last recorded vehicle position
                     pos_last = 0.0  # last checked vehicle position
                     pos_estimate = 0.0  # calculated position
                     pos_synced = False  # whether estimated position synced
@@ -132,7 +133,7 @@ class Realtime(DataModule):
                         delta_list_last = delta_list_curr
                         validating = api.read.timing.elapsed()
                     delta_list_curr = [DELTA_ZERO]  # reset
-                    pos_last = pos_curr
+                    pos_last = pos_recorded = pos_curr
                     recording = laptime_curr < 1
                     pit_lap = 0
                 last_lap_stime = lap_stime  # reset
@@ -140,12 +141,13 @@ class Realtime(DataModule):
                 # 1 sec position distance check after new lap begins
                 # Reset to 0 if higher than normal distance
                 if 0 < laptime_curr < 1 and pos_curr > 300:
-                    pos_last = pos_curr = 0
+                    pos_last = pos_recorded = pos_curr = 0
 
                 # Update if position value is different & positive
                 if 0 <= pos_curr != pos_last:
-                    if recording and pos_curr > pos_last:  # position further
+                    if recording and pos_curr - pos_recorded >= 10:  # 10 meters further
                         delta_list_curr.append((round6(pos_curr), round6(laptime_curr)))
+                        pos_recorded = pos_curr
                     pos_last = pos_curr  # reset last position
                     pos_synced = True
 

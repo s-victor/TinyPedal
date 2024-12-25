@@ -22,7 +22,7 @@ Fuel module
 
 from __future__ import annotations
 from functools import partial
-from math import ceil, floor
+from math import ceil
 from collections.abc import Callable
 
 from ._base import DataModule
@@ -138,6 +138,7 @@ def calc_data(
     last_lap_stime = -1.0  # last lap start time
     laps_left = 0.0  # amount laps left at current lap distance
     end_timer_laps_left = 0.0  # amount laps left from start of current lap to end of race timer
+    pos_recorded = 0.0  # last recorded vehicle position
     pos_last = 0.0  # last checked vehicle position
     pos_estimate = 0.0  # calculated position
     pos_synced = False  # whether estimated position synced
@@ -189,7 +190,7 @@ def calc_data(
                 delta_list_temp = delta_list_curr
                 validating = api.read.timing.elapsed()
             delta_list_curr = [DELTA_ZERO]  # reset
-            pos_last = pos_curr
+            pos_last = pos_recorded = pos_curr
             used_last_raw = used_curr
             used_curr = 0
             recording = laptime_curr < 1
@@ -198,12 +199,13 @@ def calc_data(
 
         # Distance desync check at start of new lap, reset if higher than normal distance
         if 0 < laptime_curr < 1 and pos_curr > 300:
-            pos_last = pos_curr = 0
+            pos_last = pos_recorded = pos_curr = 0
 
         # Update if position value is different & positive
         if 0 <= pos_curr != pos_last:
-            if recording and pos_curr > pos_last:  # position further
+            if recording and pos_curr - pos_recorded >= 10:  # 10 meters further
                 delta_list_curr.append((round6(pos_curr), round6(used_curr)))
+                pos_recorded = pos_curr
             pos_last = pos_curr  # reset last position
             pos_synced = True
 
