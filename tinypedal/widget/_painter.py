@@ -53,26 +53,23 @@ class WheelGaugeBar(QWidget):
         self.rect_bg = QRectF(0, 0, bar_width, bar_height)
         self.rect_input = self.rect_bg.adjusted(0,0,0,0)
         self.rect_text = self.rect_bg.adjusted(padding_x, font_offset, -padding_x, 0)
+        self.right_side = right_side
 
         if right_side:
-            self.update_input = self.__update_right
             self.align = Qt.AlignRight | Qt.AlignVCenter
         else:
-            self.update_input = self.__update_left
             self.align = Qt.AlignLeft | Qt.AlignVCenter
 
         self.pen = QPen()
         self.pen.setColor(fg_color)
         self.setFixedSize(bar_width, bar_height)
 
-    def __update_left(self, input_value: float):
+    def update_input(self, input_value: float):
         """Update input value"""
-        self.rect_input.setX((self.max_range - input_value) * self.width_scale)
-        self.update()
-
-    def __update_right(self, input_value: float):
-        """Update input value"""
-        self.rect_input.setWidth(input_value * self.width_scale)
+        if self.right_side:
+            self.rect_input.setWidth(input_value * self.width_scale)
+        else:
+            self.rect_input.setX((self.max_range - input_value) * self.width_scale)
         self.update()
 
     def paintEvent(self, event):
@@ -116,6 +113,7 @@ class PedalInputBar(QWidget):
         self.rect_raw = QRectF(*raw_size)
         self.rect_filtered = QRectF(*filtered_size)
         self.rect_text = QRectF(*reading_size)
+        self.horizontal_style = horizontal_style
 
         if ffb_color:
             self.rect_max = self.rect_pedal
@@ -124,33 +122,25 @@ class PedalInputBar(QWidget):
             self.rect_max = QRectF(*max_size)
             self.max_color = input_color
 
-        if horizontal_style:
-            self.update_input = self.__update_horizontal
-        else:
-            self.update_input = self.__update_vertical
-
         self.pen = QPen()
         self.pen.setColor(fg_color)
         self.setFixedSize(pedal_size[2], pedal_size[3])
 
-    def __update_horizontal(self, input_raw: float, input_filtered: float):
+    def update_input(self, input_raw: float, input_filtered: float):
         """Update input value - horizontal style"""
         self.input_reading = max(input_raw, input_filtered) * 100
-        scaled_raw = self.__scale_horizontal(input_raw)
-        scaled_filtered = self.__scale_horizontal(input_filtered)
-        self.rect_raw.setRight(scaled_raw)
-        self.rect_filtered.setRight(scaled_filtered)
-        self.is_maxed = scaled_raw >= self.pedal_length
-        self.update()
-
-    def __update_vertical(self, input_raw: float, input_filtered: float):
-        """Update input value - vertical style"""
-        self.input_reading = max(input_raw, input_filtered) * 100
-        scaled_raw = self.__scale_vertical(input_raw)
-        scaled_filtered = self.__scale_vertical(input_filtered)
-        self.rect_raw.setTop(scaled_raw)
-        self.rect_filtered.setTop(scaled_filtered)
-        self.is_maxed = scaled_raw <= self.pedal_extend
+        if self.horizontal_style:
+            scaled_raw = self.__scale_horizontal(input_raw)
+            scaled_filtered = self.__scale_horizontal(input_filtered)
+            self.rect_raw.setRight(scaled_raw)
+            self.rect_filtered.setRight(scaled_filtered)
+            self.is_maxed = scaled_raw >= self.pedal_length
+        else:
+            scaled_raw = self.__scale_vertical(input_raw)
+            scaled_filtered = self.__scale_vertical(input_filtered)
+            self.rect_raw.setTop(scaled_raw)
+            self.rect_filtered.setTop(scaled_filtered)
+            self.is_maxed = scaled_raw <= self.pedal_extend
         self.update()
 
     def __scale_horizontal(self, input_value: float) -> float:
@@ -192,22 +182,15 @@ class ProgressBar(QWidget):
         self.rect_input = QRectF(0, 0, width, height)
         self.input_color = input_color
         self.bg_color = bg_color
-
-        if right_side:
-            self.update_input = self.__update_right
-        else:
-            self.update_input = self.__update_left
-
+        self.right_side = right_side
         self.setFixedSize(width, height)
 
-    def __update_left(self, input_value: float):
+    def update_input(self, input_value: float):
         """Update input"""
-        self.rect_input.setRight(input_value * self.bar_width)
-        self.update()
-
-    def __update_right(self, input_value: float):
-        """Update input"""
-        self.rect_input.setLeft(self.bar_width - input_value * self.bar_width)
+        if self.right_side:
+            self.rect_input.setLeft(self.bar_width - input_value * self.bar_width)
+        else:
+            self.rect_input.setRight(input_value * self.bar_width)
         self.update()
 
     def paintEvent(self, event):
