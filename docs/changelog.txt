@@ -1,7 +1,8 @@
-WIP
+2.22.0 (2024-12-26)
 -----------------------------
 * General
   - Auto corrects duplicated "column_index" values in widget options to avoid display overlapping.
+  - Various code optimization.
 
 * Brake bias Widget
   - Add "show_baseline_bias_delta" option, which shows delta between current and baseline brake bias.
@@ -9,14 +10,15 @@ WIP
     Baseline brake bias is automatically set (and reset) while vehicle is stationary in pit lane.
 
 * Fuel Widget
-  - Add "show_absolute_refueling" option (requested by barrett), which shows absolute refueling value
+  - Add "show_absolute_refueling" option (requested by barrett & francescodg), which shows absolute refueling value
     instead of relative refueling when enabled.
     Note, "+" or "-" sign is not displayed with absolute refueling.
     Differences between relative and absolute refueling:
     - Relative refueling value shows total amount "additional" fuel required to finish the remaining race length,
-      which matches "relative refueling" mechanism (amount to add on top of remaining fuel in tank) in RF2.
+      which matches "relative refueling" mechanism (amount to add on top of remaining fuel in tank) in "RF2".
     - Absolute refueling value shows absolute total amount fuel required to finish the remaining race length,
-      which matches "absolute refueling" mechanism (amount total fuel to fill tank up to) in LMU.
+      which matches "absolute refueling" mechanism (amount total fuel to fill tank up to) in "LMU".
+    - Also see "estimated laps" display option in "Session Widget" that can be used for "absolute refueling".
   - Add "caption_text_absolute_refuel" option that shows absolute refueling caption text if
     "show_absolute_refueling" option is enabled. This helps distinguish difference from relative refueling.
     Default caption text is "abfuel".
@@ -39,22 +41,33 @@ WIP
     When a driver accumulates one or more penalties, this column will show the number of penalties
     in negative value with purple (default) background to distinguish from number of pit stops.
 
+* Session Widget
+  - Add "show_estimated_laps" option, which shows estimated total remaining laps (from current lap position
+    towards finish line) based on total remaining session time and local player's lap time pace.
+    This value can be used for adjusting absolute refueling. No value will be shown if session is not time-based.
+    Note, this is the same value that used for calculating estimated refueling value in Fuel Module.
+    As with estimation, there may be a margin of error of one lap, and may be affected
+    by other variables such as those mentioned in "Relative finish order" widget.
+
 * [New]Slip ratio Widget
   - Show visualized slip ratio of each tyre with customizable optimal and critical range and color indication.
 
 * Track map Widget
-  - Add "enable_multi_class_styling" option (requested by AndreT990), which shows vehicles in
+  - Add "enable_multi_class_styling" option (requested by AndreT990 & Marcelo Prestes), which shows vehicles in
     multi-class color styles on map along with position-in-class standings.
     Multi-class color can be customized from Vehicle Class Editor.
     Random color will be shown if vehicle class is not defined in Vehicle Class Editor.
     Note, while multi-class styling is enabled, following color styles will not be displayed:
-    "vehicle_color_leader", "vehicle_color_same_lap", "vehicle_color_laps_ahead", "vehicle_color_laps_behind".
+    "vehicle_color_player", "vehicle_color_leader", "vehicle_color_same_lap", "vehicle_color_laps_ahead", "vehicle_color_laps_behind".
   - Add "font_color_player", "vehicle_outline_player_color", "vehicle_outline_player_width" options for
     customizing player vehicle style.
 
 * Virtual Energy Widget
   - Add "show_absolute_refilling", "caption_text_absolute_refill" options.
   - Exchanged column positions of "end" and "pits".
+
+* Misc
+  - Updated User Guide info for related changes above.
 
 2.21.0 (2024-12-10)
 -----------------------------

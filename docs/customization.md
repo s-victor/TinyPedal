@@ -1465,6 +1465,8 @@ Differences between `relative` and `absolute` refueling:
 
 * Absolute refueling value shows absolute total amount fuel required to finish the remaining race length, which matches `absolute refueling` mechanism (amount total fuel to fill tank up to) in `LMU`.
 
+Also see `estimated laps` display option in `Session Widget` that can be used for `absolute refueling`.
+
 ---
 
     show_absolute_refueling
@@ -2274,8 +2276,13 @@ Show current system clock time.
     system_clock_format
 Set clock format string. To show seconds, add `%S`, such as `%H:%M:%S %p`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
 
-    show_session_timer
-Show session timer, accuracy may be limited by specific sim API.
+    show_session_time
+Show total remaining session time.
+
+    show_estimated_laps
+Show estimated total remaining laps (from current lap position towards finish line) based on total remaining session time and local player's lap time pace. This value can be used for adjusting absolute refueling.
+
+Note, this is the same value that used for calculating estimated refueling value in Fuel Module. As with estimation, there may be a margin of error of one lap, and may be affected by other variables such as those mentioned in `Relative finish order` widget.
 
 
 ## Slip ratio
@@ -2530,7 +2537,7 @@ Show vehicle standings info on track map. Note, if `enable_multi_class_styling` 
 Shows vehicles in multi-class color styles on map instead.
 
 Note, while multi-class styling is enabled, following color styles will not be displayed:
-`vehicle_color_leader`, `vehicle_color_same_lap`, `vehicle_color_laps_ahead`, `vehicle_color_laps_behind`.
+`vehicle_color_player`, `vehicle_color_leader`, `vehicle_color_same_lap`, `vehicle_color_laps_ahead`, `vehicle_color_laps_behind`.
 
 
 ## Track notes

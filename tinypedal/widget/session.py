@@ -20,12 +20,13 @@
 Session Widget
 """
 
+from math import ceil
 from time import strftime
 
 from .. import calculation as calc
 from ..api_control import api
+from ..module_info import minfo
 from ._base import Overlay
-
 
 class Realtime(Overlay):
     """Draw widget"""
@@ -49,6 +50,7 @@ class Realtime(Overlay):
             self.wcfg["session_text_warmup"],
             self.wcfg["session_text_race"],
         )
+        self.prefix_estimated_laps = self.wcfg["prefix_estimated_laps"]
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -108,9 +110,28 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_session_time"],
             )
 
+        # Estimated laps
+        if self.wcfg["show_estimated_laps"]:
+            text_estimated_laps = f"{self.prefix_estimated_laps}-.---"
+            bar_style_estimated_laps = self.set_qss(
+                fg_color=self.wcfg["font_color_estimated_laps"],
+                bg_color=self.wcfg["bkg_color_estimated_laps"]
+            )
+            self.bar_estimated_laps = self.set_qlabel(
+                text=text_estimated_laps,
+                style=bar_style_estimated_laps,
+                width=font_m.width * len(text_estimated_laps) + bar_padx,
+            )
+            self.set_primary_orient(
+                target=self.bar_estimated_laps,
+                column=self.wcfg["column_index_estimated_laps"],
+            )
+
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
+
+            session_time = api.read.session.remaining()
 
             # Session name
             if self.wcfg["show_session_name"]:
@@ -124,8 +145,20 @@ class Realtime(Overlay):
 
             # Session time
             if self.wcfg["show_session_time"]:
-                session_time = api.read.session.remaining()
                 self.update_session_time(self.bar_session_time, session_time)
+
+            # Estimated laps
+            if self.wcfg["show_estimated_laps"]:
+                laptime_last = minfo.delta.lapTimePace
+                if not api.read.session.lap_type() and laptime_last > 0:
+                    lap_into = api.read.lap.progress()
+                    end_timer_laps_left = calc.end_timer_laps_remain(
+                        lap_into, laptime_last, session_time)
+                    laps_left = calc.time_type_laps_remain(ceil(end_timer_laps_left), lap_into)
+                    estimated_laps = f"{laps_left:>5.3f}"[:5]
+                else:
+                    estimated_laps = "-.---"
+                self.update_estimated_laps(self.bar_estimated_laps, estimated_laps)
 
     # GUI update methods
     def update_session_name(self, target, data):
@@ -147,3 +180,9 @@ class Realtime(Overlay):
             if data < 0:
                 data = 0
             target.setText(calc.sec2sessiontime(data))
+
+    def update_estimated_laps(self, target, data):
+        """Estimated laps"""
+        if target.last != data:
+            target.last = data
+            target.setText(f"{self.prefix_estimated_laps}{data}")
