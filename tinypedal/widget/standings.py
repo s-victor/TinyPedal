@@ -85,7 +85,7 @@ class Realtime(Overlay):
             ("",0,0,2),  # laptime
             ("",0,2),  # best laptime
             ("",0,2),  # time_gap
-            (-1,0,0,2),  # pit_count
+            (-999,0,0,2),  # pit_count
             ("",0,2),  # time_int
         )
         self.pixmap_brandlogo = {"blank": QPixmap()}
@@ -360,7 +360,10 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_player_pitstop_count"]),
                 self.set_qss(
                     fg_color=self.wcfg["font_color_pit_request"],
-                    bg_color=self.wcfg["bkg_color_pit_request"])
+                    bg_color=self.wcfg["bkg_color_pit_request"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_penalty_count"],
+                    bg_color=self.wcfg["bkg_color_penalty_count"])
             )
             self.bars_psc = self.set_qlabel(
                 style=self.bar_style_psc[0],
@@ -599,15 +602,16 @@ class Realtime(Overlay):
         """Pitstop count"""
         if target.last != data:
             target.last = data
-            if self.wcfg["show_pit_request"] and data[1] == 1:
-                color = self.bar_style_psc[2]
+            if -999 < data[0] < 0:
+                color_index = 3
+            elif self.wcfg["show_pit_request"] and data[1] == 1:
+                color_index = 2
             elif data[2]:  # highlighted player
-                color = self.bar_style_psc[1]
+                color_index = 1
             else:
-                color = self.bar_style_psc[0]
-            text = self.set_pitcount(data[0])
-            target.setText(text)
-            target.setStyleSheet(color)
+                color_index = 0
+            target.setText(self.set_pitcount(data[0]))
+            target.setStyleSheet(self.bar_style_psc[color_index])
             self.toggle_visibility(target, data[-1])
 
     # Additional methods
@@ -640,7 +644,7 @@ class Realtime(Overlay):
         """Set pitstop count test"""
         if pits == 0:
             return "-"
-        if pits > 0:
+        if pits != -999:
             return f"{pits}"
         return ""
 

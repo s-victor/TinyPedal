@@ -97,6 +97,13 @@ class Realtime(DataModule):
             data.isClassFastestLastLap = class_pos[7]
             opt_index_ahead = class_pos[5]
 
+            # Temp var only
+            lap_etime = api.read.timing.elapsed(index)
+            speed = api.read.vehicle.speed(index)
+            laps_done = api.read.lap.completed_laps(index)
+            lap_distance = api.read.lap.distance(index)
+            num_penalties = api.read.vehicle.number_penalties(index)
+
             # Output var only
             data.driverName = api.read.vehicle.driver_name(index)
             data.vehicleName = api.read.vehicle.vehicle_name(index)
@@ -105,16 +112,10 @@ class Realtime(DataModule):
             data.gapBehindLeader = calc_gap_behind_leader(index)
             data.bestLapTime = api.read.timing.best_laptime(index)
             data.lastLapTime = api.read.timing.last_laptime(index)
-            data.numPitStops = api.read.vehicle.number_pitstops(index)
+            data.numPitStops = -num_penalties if num_penalties else api.read.vehicle.number_pitstops(index)
             data.pitState = api.read.vehicle.pit_state(index)
             data.tireCompoundFront = api.read.tyre.compound_front(index)
             data.tireCompoundRear = api.read.tyre.compound_rear(index)
-
-            # Temp var only
-            lap_etime = api.read.timing.elapsed(index)
-            speed = api.read.vehicle.speed(index)
-            laps_done = api.read.lap.completed_laps(index)
-            lap_distance = api.read.lap.distance(index)
 
             # Temp & output var
             is_player = data.isPlayer = api.read.vehicle.is_player(index)

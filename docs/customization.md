@@ -1461,9 +1461,9 @@ Set reference circle line width in pixels.
 
 Differences between `relative` and `absolute` refueling:
 
-* Relative refueling value shows total amount `additional` fuel required to finish race, which matches `relative refueling` mechanism (amount to add on top of remaining fuel in tank) in `RF2`.
+* Relative refueling value shows total amount `additional` fuel required to finish the remaining race length, which matches `relative refueling` mechanism (amount to add on top of remaining fuel in tank) in `RF2`.
 
-* Absolute refueling value shows absolute total amount fuel required to finish race, which matches `absolute refueling` mechanism (amount total fuel to fill tank up to) in `LMU`.
+* Absolute refueling value shows absolute total amount fuel required to finish the remaining race length, which matches `absolute refueling` mechanism (amount total fuel to fill tank up to) in `LMU`.
 
 ---
 
@@ -2070,10 +2070,10 @@ Set custom garage status text which shows when driver is in garage.
 Show tyre compound index (front/rear).
 
     show_pitstop_count
-Show each driver's pitstop count.
+Show each driver's pit stop count and penalty count if available. Note, when a driver accumulates one or more penalties, this column will show the number of penalties in negative value with purple (default) background to distinguish from number of pit stops.
 
     show_pit_request
-Show pit request color indicator on pitstop count column.
+Show pit request color indicator on pit stop count column.
 
     show_vehicle_in_garage
 Show vehicles parked in garage stall. Default is `false`. Note, local player is always displayed.
@@ -2749,7 +2749,7 @@ Set warning threshold for estimated tyre lifespan in minutes. Default is `5` lap
 Show absolute refilling value instead of relative refilling when enabled. Note, `+` or `-` sign is not displayed with absolute refilling.
 
     *ratio
-Show fuel ratio between estimated fuel and energy consumption, which can help balance fuel and energy usage, as well as providing refueling reference for adjusting pitstop `Fuel ratio` during race.
+Show fuel ratio between estimated fuel and energy consumption, which can help balance fuel and energy usage, as well as providing refueling reference for adjusting pit stop `Fuel ratio` during race.
 
     *bias
 Show fuel bias (estimated laps difference) between fuel and virtual energy. Positive value means more laps can be run on fuel than energy; in other words, energy is drained faster than fuel. General speaking, it is a good idea to keep bias close to `0.0` so that fuel and energy drains at same pace, and slightly towards positive side to avoid running out of fuel before energy does.

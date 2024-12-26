@@ -13,9 +13,9 @@ WIP
     instead of relative refueling when enabled.
     Note, "+" or "-" sign is not displayed with absolute refueling.
     Differences between relative and absolute refueling:
-    - Relative refueling value shows total amount "additional" fuel required to finish race,
+    - Relative refueling value shows total amount "additional" fuel required to finish the remaining race length,
       which matches "relative refueling" mechanism (amount to add on top of remaining fuel in tank) in RF2.
-    - Absolute refueling value shows absolute total amount fuel required to finish race,
+    - Absolute refueling value shows absolute total amount fuel required to finish the remaining race length,
       which matches "absolute refueling" mechanism (amount total fuel to fill tank up to) in LMU.
   - Add "caption_text_absolute_refuel" option that shows absolute refueling caption text if
     "show_absolute_refueling" option is enabled. This helps distinguish difference from relative refueling.
@@ -28,11 +28,16 @@ WIP
     Default is "100" RPM.
   - Renamed "warning_color_ignition" option to "warning_color_stalling".
 
-* Pace notes Widget, Track notes Widget
+* Pace notes, Track notes Widget
   - Fixed notes not showing up if game was paused and unpaused again while on track.
 
 * Relative finish order Widget
   - Add "show_absolute_refilling" option.
+
+* Relative, Rivals, Standings Widget
+  - Add "number of penalties" display in "pit stop count" column.
+    When a driver accumulates one or more penalties, this column will show the number of penalties
+    in negative value with purple (default) background to distinguish from number of pit stops.
 
 * [New]Slip ratio Widget
   - Show visualized slip ratio of each tyre with customizable optimal and critical range and color indication.
