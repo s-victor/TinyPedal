@@ -1461,9 +1461,9 @@ Set reference circle line width in pixels.
 
 Differences between `relative` and `absolute` refueling:
 
-* Relative refueling value shows total amount fuel (excluding remaining fuel in tank) required to finish race, which matches `relative refueling` mechanism in `RF2`.
+* Relative refueling value shows total amount `additional` fuel required to finish race, which matches `relative refueling` mechanism (amount to add on top of remaining fuel in tank) in `RF2`.
 
-* Absolute refueling value shows total amount fuel (including remaining fuel in tank) required to finish race, which matches `absolute refueling` mechanism in `LMU`.
+* Absolute refueling value shows absolute total amount fuel required to finish race, which matches `absolute refueling` mechanism (amount total fuel to fill tank up to) in `LMU`.
 
 ---
 
@@ -2135,7 +2135,7 @@ See `TIME` or `LAPS` type race example usages below for details.
 
 * Refilling estimate calculation is different between `TIME` and `LAPS` type races, make sure to look at the correct value, check out `example usage` below for details.
 
-* `LMU` currently uses `absolute refueling` mechanism (how much `total` fuel to fill tank up to), as opposite to relative fuel (how much to `add` on top of remaining fuel in tank). User can enabled `show_absolute_refilling` option to display total amount fuel/energy required (including fuel/energy in tank) to finish race.
+* `LMU` currently uses `absolute refueling` mechanism (amount `total` fuel to fill tank up to), as opposite to relative fuel (amount to `add` on top of remaining fuel in tank). User can enabled `show_absolute_refilling` option to display total amount fuel/energy required (including fuel/energy in tank) to finish race.
 
 ---
 
