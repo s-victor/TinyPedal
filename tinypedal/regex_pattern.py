@@ -31,6 +31,7 @@ CFG_BOOL = (
     "^fixed_position$|"
     "^minimize_to_tray$|"
     "^remember_position$|"
+    "^remember_size$|"
     # Partial match
     "align_center|"
     "enable|"
@@ -95,6 +96,8 @@ CFG_INTEGER = (
     "^position_x$|"
     "^position_y$|"
     "^stint_history_count$|"
+    "^window_width$|"
+    "^window_height$|"
     # Partial match
     "area_margin|"
     "area_size|"

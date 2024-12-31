@@ -1,3 +1,10 @@
+WIP
+-----------------------------
+* General
+  - Add "Remember Size" option in main window Config menu, which remembers last window size.
+    This option is enabled by default.
+  - Add "remember_size", "window_width", "window_height" options in global user config JSON.
+
 2.22.0 (2024-12-26)
 -----------------------------
 * General

@@ -26,6 +26,7 @@ GLOBAL_DEFAULT = {
         "show_at_startup": True,
         "minimize_to_tray": True,
         "remember_position": True,
+        "remember_size": True,
         "show_confirmation_for_batch_toggle": True,
         "enable_auto_load_preset": False,
         "grid_move_size": 8,
@@ -33,6 +34,8 @@ GLOBAL_DEFAULT = {
         "maximum_saving_attempts": 10,
         "position_x": 0,
         "position_y": 0,
+        "window_width": 0,
+        "window_height": 0,
     },
     "compatibility": {
         "enable_bypass_window_manager": False,

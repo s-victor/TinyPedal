@@ -50,21 +50,18 @@ class OverlayMenu(QMenu):
         # Lock overlay
         self.overlay_lock = QAction("Lock Overlay", self)
         self.overlay_lock.setCheckable(True)
-        self.overlay_lock.setChecked(cfg.overlay["fixed_position"])
         self.overlay_lock.triggered.connect(self.is_locked)
         menu.addAction(self.overlay_lock)
 
         # Auto hide
         self.overlay_hide = QAction("Auto Hide", self)
         self.overlay_hide.setCheckable(True)
-        self.overlay_hide.setChecked(cfg.overlay["auto_hide"])
         self.overlay_hide.triggered.connect(self.is_hidden)
         menu.addAction(self.overlay_hide)
 
         # Grid move
         self.overlay_grid = QAction("Grid Move", self)
         self.overlay_grid.setCheckable(True)
-        self.overlay_grid.setChecked(cfg.overlay["enable_grid_move"])
         self.overlay_grid.triggered.connect(self.has_grid)
         menu.addAction(self.overlay_grid)
 
@@ -86,10 +83,10 @@ class OverlayMenu(QMenu):
         menu.addSeparator()
 
         # Refresh menu
-        menu.aboutToShow.connect(self.refresh_overlay_menu)
+        menu.aboutToShow.connect(self.refresh_menu)
 
-    def refresh_overlay_menu(self):
-        """Refresh overlay menu"""
+    def refresh_menu(self):
+        """Refresh menu"""
         self.overlay_lock.setChecked(cfg.overlay["fixed_position"])
         self.overlay_hide.setChecked(cfg.overlay["auto_hide"])
         self.overlay_grid.setChecked(cfg.overlay["enable_grid_move"])
@@ -351,32 +348,36 @@ class WindowMenu(QMenu):
         # Show at startup
         self.show_window = QAction("Show at Startup", self)
         self.show_window.setCheckable(True)
-        self.show_window.setChecked(cfg.application["show_at_startup"])
         self.show_window.triggered.connect(self.is_show_at_startup)
         menu.addAction(self.show_window)
 
         # Minimize to tray
         self.minimize_to_tray = QAction("Minimize to Tray", self)
         self.minimize_to_tray.setCheckable(True)
-        self.minimize_to_tray.setChecked(cfg.application["minimize_to_tray"])
         self.minimize_to_tray.triggered.connect(self.is_minimize_to_tray)
         menu.addAction(self.minimize_to_tray)
 
         # Remember position
         self.remember_position = QAction("Remember Position", self)
         self.remember_position.setCheckable(True)
-        self.remember_position.setChecked(cfg.application["remember_position"])
         self.remember_position.triggered.connect(self.is_remember_position)
         menu.addAction(self.remember_position)
+
+        # Remember size
+        self.remember_size = QAction("Remember Size", self)
+        self.remember_size.setCheckable(True)
+        self.remember_size.triggered.connect(self.is_remember_size)
+        menu.addAction(self.remember_size)
 
         # Refresh menu
         menu.aboutToShow.connect(self.refresh_menu)
 
     def refresh_menu(self):
-        """Refresh window menu"""
+        """Refresh menu"""
         self.show_window.setChecked(cfg.application["show_at_startup"])
         self.minimize_to_tray.setChecked(cfg.application["minimize_to_tray"])
         self.remember_position.setChecked(cfg.application["remember_position"])
+        self.remember_size.setChecked(cfg.application["remember_size"])
 
     def is_show_at_startup(self):
         """Toggle config window startup state"""
@@ -389,6 +390,10 @@ class WindowMenu(QMenu):
     def is_remember_position(self):
         """Toggle config window remember position state"""
         self.__toggle_application("remember_position")
+
+    def is_remember_size(self):
+        """Toggle config window remember size state"""
+        self.__toggle_application("remember_size")
 
     @staticmethod
     def __toggle_application(option_name: str):

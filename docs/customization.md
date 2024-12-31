@@ -305,6 +305,9 @@ Minimize to tray when user clicks `X` close button.
     remember_position
 Remember main window last position.
 
+    remember_size
+Remember main window last size.
+
     show_confirmation_for_batch_toggle
 Show confirmation dialog for enabling or disabling all widgets or modules. This option is enabled by default.
 
