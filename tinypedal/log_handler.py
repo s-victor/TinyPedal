@@ -23,14 +23,7 @@ Log handler setup
 import sys
 import logging
 
-from .const import PATH_GLOBAL
-
-
-LOGGING_FORMAT_CONSOLE = logging.Formatter(
-    "%(asctime)s %(levelname)s: %(message)s", datefmt="%H:%M:%S")
-LOGGING_FORMAT_FILE = logging.Formatter(
-    "%(asctime)s %(levelname)s: %(message)s")
-LOGGING_FILENAME = "tinypedal.log"
+from .const import LOG_FILE, PATH_GLOBAL
 
 
 def new_stream_handler(_logger, stream):
@@ -42,8 +35,11 @@ def new_stream_handler(_logger, stream):
     Returns:
         Stream handler.
     """
+    format_console = logging.Formatter(
+        "%(asctime)s %(levelname)s: %(message)s", datefmt="%H:%M:%S"
+    )
     _handler = logging.StreamHandler(stream)
-    _handler.setFormatter(LOGGING_FORMAT_CONSOLE)
+    _handler.setFormatter(format_console)
     _handler.setLevel(logging.INFO)
     _logger.addHandler(_handler)
     return _handler
@@ -59,8 +55,9 @@ def new_file_handler(_logger, filepath: str, filename: str):
     Returns:
         File handler.
     """
+    format_file = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
     _handler = logging.FileHandler(f"{filepath}{filename}")
-    _handler.setFormatter(LOGGING_FORMAT_FILE)
+    _handler.setFormatter(format_file)
     _handler.setLevel(logging.INFO)
     _logger.addHandler(_handler)
     return _handler
@@ -87,5 +84,5 @@ def set_logging_level(_logger, log_stream=None, log_level=1) -> None:
     elif log_level == 2:
         new_stream_handler(_logger, sys.stdout)
         _logger.info("LOGGING: output to console")
-        new_file_handler(_logger, PATH_GLOBAL, LOGGING_FILENAME)
-        _logger.info("LOGGING: output to %s", LOGGING_FILENAME)
+        new_file_handler(_logger, PATH_GLOBAL, LOG_FILE)
+        _logger.info("LOGGING: output to %s", LOG_FILE)

@@ -90,7 +90,9 @@ class FilePath:
     )
 
     def __init__(self):
-        self.config: str = PATH_GLOBAL  # reference only, should never change
+        # Fixed path, reference only
+        self.config: str = PATH_GLOBAL
+        # User defined path
         self.settings: str = ""
         self.brand_logo: str = ""
         self.delta_best: str = ""

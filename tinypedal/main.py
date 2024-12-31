@@ -22,7 +22,6 @@ Launcher
 
 import os
 import sys
-import signal
 import logging
 import psutil
 
@@ -32,16 +31,19 @@ from PySide2.QtWidgets import QApplication, QMessageBox
 from . import log_stream
 from .cli_argument import get_cli_argument
 from .const import (
-    APP_NAME, PLATFORM, VERSION, PATH_GLOBAL, PYTHON_VERSION, QT_VERSION, PSUTIL_VERSION
+    APP_NAME,
+    PLATFORM,
+    VERSION,
+    EXE_NAME,
+    PID_FILE,
+    PATH_GLOBAL,
+    PYTHON_VERSION,
+    QT_VERSION,
+    PSUTIL_VERSION,
 )
 from .log_handler import set_logging_level
 
-EXE_NAME = "tinypedal.exe"
-PID_FILE = "pid.log"
-
-cli_args = get_cli_argument()
 logger = logging.getLogger("tinypedal")
-set_logging_level(logger, log_stream, cli_args.log_level)
 
 
 def save_pid_file():
@@ -84,10 +86,10 @@ def is_exe_running() -> bool:
     return False
 
 
-def single_instance_check():
+def single_instance_check(is_single_instance: bool):
     """Single instance check"""
     # Check if single instance mode enabled
-    if not cli_args.single_instance:
+    if not is_single_instance:
         logger.info("Single instance mode: OFF")
         return None
     logger.info("Single instance mode: ON")
@@ -128,16 +130,14 @@ def init_gui():
 
 def start_app():
     """Init main window"""
+    cli_args = get_cli_argument()
+    set_logging_level(logger, log_stream, cli_args.log_level)
+    # Main GUI
     root = init_gui()
-    single_instance_check()
+    single_instance_check(cli_args.single_instance)
     version_check()
-
     # Load core modules
     from . import loader
     loader.start()
-    # Start main window
-    from tinypedal.ui.app import AppWindow
-    config_window = AppWindow()
-    signal.signal(signal.SIGINT, config_window.int_signal_handler)
     # Start mainloop
     sys.exit(root.exec_())

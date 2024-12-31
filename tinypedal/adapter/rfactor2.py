@@ -627,11 +627,11 @@ class Vehicle(DataAdapter):
 
     def in_pits(self, index: int | None = None) -> bool:
         """Is in pits"""
-        return chknm(self.info.rf2ScorVeh(index).mInPits)
+        return bool(self.info.rf2ScorVeh(index).mInPits)
 
     def in_garage(self, index: int | None = None) -> bool:
         """Is in garage"""
-        return chknm(self.info.rf2ScorVeh(index).mInGarageStall)
+        return bool(self.info.rf2ScorVeh(index).mInGarageStall)
 
     def number_pitstops(self, index: int | None = None) -> int:
         """Number of pit stops"""
@@ -723,7 +723,7 @@ class Vehicle(DataAdapter):
 
     def is_detached(self, index: int | None = None) -> bool:
         """Whether any vehicle parts are detached"""
-        return chknm(self.info.rf2TeleVeh(index).mDetached)
+        return bool(self.info.rf2TeleVeh(index).mDetached)
 
     def impact_time(self, index: int | None = None) -> float:
         """Last impact time stamp"""
@@ -733,7 +733,7 @@ class Vehicle(DataAdapter):
         """Last impact magnitude"""
         return chknm(self.info.rf2TeleVeh(index).mLastImpactMagnitude)
 
-    def impact_position(self, index: int | None = None) -> list[float]:
+    def impact_position(self, index: int | None = None) -> tuple[float, float]:
         """Last impact position - x,y coordinates"""
         pos = self.info.rf2TeleVeh(index).mLastImpactPos
         return -chknm(pos.x), chknm(pos.z)
@@ -823,7 +823,7 @@ class Wheel(DataAdapter):
     def is_detached(self, index: int | None = None) -> list[bool]:
         """Whether wheel is detached"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(data.mDetached) for data in wheel_data]
+        return [bool(data.mDetached) for data in wheel_data]
 
     def is_offroad(self, index: int | None = None) -> bool:
         """Whether all wheels are complete offroad"""

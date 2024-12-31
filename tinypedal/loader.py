@@ -21,6 +21,7 @@ Loader function
 """
 
 import logging
+import signal
 
 from .setting import cfg
 from .api_control import api
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 
 
 def start():
-    """Start api, modules, widgets. Call once per launch. Skip overlay control."""
+    """Start api, modules, widgets, etc. Call once per launch."""
     logger.info("STARTING............")
     # 1 load global
     cfg.load_global()
@@ -47,6 +48,15 @@ def start():
     mctrl.start()
     # 5 start widgets
     wctrl.start()
+    # 6 start main window
+    from .ui.app import AppWindow
+    config_window = AppWindow()
+    signal.signal(signal.SIGINT, config_window.int_signal_handler)
+
+    # Finalize loading after main GUI fully loaded
+    logger.info("FINALIZING............")
+    # 1 Enable overlay control
+    octrl.enable()
 
 
 def close():
@@ -75,12 +85,12 @@ def reload():
 def load_modules():
     """Load modules, widgets"""
     octrl.enable()  # 1 overlay control
-    mctrl.start()   # 2 module
-    wctrl.start()   # 3 widget
+    mctrl.start()  # 2 module
+    wctrl.start()  # 3 widget
 
 
 def unload_modules():
     """Unload modules, widgets"""
-    wctrl.close()    # 1 widget
-    mctrl.close()    # 2 module
+    wctrl.close()  # 1 widget
+    mctrl.close()  # 2 module
     octrl.disable()  # 3 overlay control

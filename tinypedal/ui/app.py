@@ -48,10 +48,6 @@ from .preset_view import PresetList
 from .pace_notes_view import PaceNotesControl
 from .menu import OverlayMenu, ConfigMenu, ToolsMenu, WindowMenu, HelpMenu
 
-
-WINDOW_MIN_WIDTH = 300
-WINDOW_MIN_HEIGHT = 462
-
 logger = logging.getLogger("tinypedal")
 
 
@@ -97,7 +93,7 @@ class AppWindow(QMainWindow):
         # Main view
         main_view = QWidget()
         layout = QVBoxLayout(main_view)
-        layout.setContentsMargins(0,0,0,0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.addWidget(self.tab_bar)
         layout.addWidget(self.notify_spectate)
@@ -107,9 +103,6 @@ class AppWindow(QMainWindow):
         self.start_tray_icon()
         self.set_window_state()
         self.__connect_signal()
-
-        # Enable overlay control after app is fully loaded
-        octrl.enable()
 
     def goto_spectate_tab(self):
         """Go to spectate tab"""
@@ -153,24 +146,25 @@ class AppWindow(QMainWindow):
 
     def set_window_state(self):
         """Set initial window state"""
-        self.setMinimumWidth(WINDOW_MIN_WIDTH)
-        self.setMinimumHeight(WINDOW_MIN_HEIGHT)
+        width = 300
+        height = 462
+        self.setMinimumWidth(width)
+        self.setMinimumHeight(height)
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)  # disable maximize
 
         if cfg.application["remember_position"]:
             self.load_window_position()
             if cfg.compatibility["enable_window_position_correction"]:
-                self.verify_window_position()
+                self.verify_window_position(width, height)
 
         if cfg.application["show_at_startup"]:
             self.showNormal()
         elif not cfg.application["minimize_to_tray"]:
             self.showMinimized()
-        logger.info("GUI: loading finished")
 
     def load_window_position(self):
         """Load window position"""
-        logger.info("GUI: loading window position")
+        logger.info("GUI: loading window setting")
         # Get position from preset
         app_pos_x = cfg.application["position_x"]
         app_pos_y = cfg.application["position_y"]
@@ -181,17 +175,19 @@ class AppWindow(QMainWindow):
         else:
             self.move(app_pos_x, app_pos_y)
 
-    def verify_window_position(self):
+    def verify_window_position(self, width: int, height: int):
         """Verify window position"""
         # Get screen size from the screen where app window located
         screen_geo = self.screen().geometry()
         # Limiting position value if out of screen range
         app_pos_x = min(
             max(self.x(), screen_geo.left()),
-            screen_geo.right() - WINDOW_MIN_WIDTH)
+            screen_geo.right() - width,
+        )
         app_pos_y = min(
             max(self.y(), screen_geo.top()),
-            screen_geo.bottom() - WINDOW_MIN_HEIGHT)
+            screen_geo.bottom() - height,
+        )
         # Re-adjust position only if mismatched
         if self.x() != app_pos_x or self.y() != app_pos_y:
             self.move(app_pos_x, app_pos_y)

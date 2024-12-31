@@ -35,7 +35,7 @@ logger = logging.getLogger(__name__)
 
 
 # Value validate
-def infnan2zero(value: Any) -> (float | int):
+def infnan2zero(value: Any) -> float | int:
     """Convert invalid value to zero
 
     Some data from API may contain invalid value

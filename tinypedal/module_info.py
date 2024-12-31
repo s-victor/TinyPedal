@@ -328,7 +328,9 @@ class VehiclesInfo:
 
     def __init__(self):
         self.total: int = 0
-        self.dataSet: tuple[VehicleDataSet, ...] = tuple(VehicleDataSet() for _ in range(128))
+        self.dataSet: tuple[VehicleDataSet, ...] = tuple(
+            VehicleDataSet() for _ in range(MAX_VEHICLES)
+        )
         self.dataSetVersion: int = -1
         self.drawOrder: list = [0]
         self.nearestLine: float = 999999.0

@@ -27,17 +27,26 @@ import platform
 from psutil import version_info
 from PySide2.QtCore import qVersion
 
-
+# App info
 VERSION = "2.22.0"
 APP_NAME = "TinyPedal"
-PLATFORM = platform.system()
-APP_ICON = "images/icon.png"
 COPYRIGHT = "Copyright (C) 2022-2024 TinyPedal developers"
 DESCRIPTION = "A Free and Open Source telemetry overlay application for racing simulation."
 LICENSE = "Licensed under the GNU General Public License v3.0 or later."
 WEBSITE = "https://github.com/s-victor/TinyPedal"
+
+# Link
 LINK_USER_GUIDE = "https://github.com/s-victor/TinyPedal/wiki/User-Guide"
 LINK_FAQ = "https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions"
+
+# File name
+EXE_NAME = "tinypedal.exe"
+APP_ICON = "images/icon.png"
+LOG_FILE = "tinypedal.log"
+PID_FILE = "pid.log"
+
+# System info
+PLATFORM = platform.system()
 
 # Library version
 PYTHON_VERSION = ".".join(map(str, sys.version_info[0:3]))
@@ -50,4 +59,4 @@ if PLATFORM == "Windows":
     PATH_GLOBAL = user_data_path(f"{os.getenv('APPDATA')}/{APP_NAME}/")
 else:
     from xdg import BaseDirectory as BD
-    PATH_GLOBAL = BD.save_config_path(APP_NAME) + "/"
+    PATH_GLOBAL = BD.save_config_path(APP_NAME)
