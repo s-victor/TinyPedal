@@ -29,7 +29,6 @@ from PySide2.QtWidgets import (
     QMainWindow,
     QWidget,
     QLabel,
-    QAction,
     QTabWidget,
     QVBoxLayout,
     QPushButton,
@@ -59,17 +58,15 @@ class AppWindow(QMainWindow):
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
         self.setWindowIcon(QIcon(APP_ICON))
 
-        # Menu bar
-        self.main_menubar()
-
         # Status bar & notification
-        label_api = QLabel("API:")
-        self.button_api = QPushButton("")
-        self.button_api.clicked.connect(self.config_menuitem.open_config_sharedmemory)
+        self.button_api = QPushButton()
         self.button_api.clicked.connect(self.set_status_text)
-        self.statusBar().addPermanentWidget(label_api)
+        self.statusBar().addPermanentWidget(QLabel("API:"))
         self.statusBar().addPermanentWidget(self.button_api)
         self.set_status_text()
+
+        # Menu bar
+        self.main_menubar()
 
         self.notify_spectate = QPushButton("Spectate Mode Enabled")
         self.notify_spectate.clicked.connect(self.goto_spectate_tab)
@@ -114,48 +111,42 @@ class AppWindow(QMainWindow):
         menu = self.menuBar()
 
         # Overlay menu
-        menu_overlay = menu.addMenu("Overlay")
-        OverlayMenu(self, menu_overlay)
-        menu_overlay.addSeparator()
-
-        app_quit = QAction("Quit", self)
-        app_quit.triggered.connect(self.quit_app)
-        menu_overlay.addAction(app_quit)
+        menu_overlay = OverlayMenu("Overlay", self)
+        menu.addMenu(menu_overlay)
 
         # Config menu
-        menu_config = menu.addMenu("Config")
-        self.config_menuitem = ConfigMenu(self, menu_config)
+        menu_config = ConfigMenu("Config", self)
+        menu.addMenu(menu_config)
+        self.button_api.clicked.connect(menu_config.open_config_sharedmemory)
 
         # Tools menu
-        menu_tools = menu.addMenu("Tools")
-        ToolsMenu(self, menu_tools)
+        menu_tools = ToolsMenu("Tools", self)
+        menu.addMenu(menu_tools)
 
         # Window menu
-        menu_window = menu.addMenu("Window")
-        WindowMenu(self, menu_window)
+        menu_window = WindowMenu("Window", self)
+        menu.addMenu(menu_window)
 
         # Help menu
-        menu_help = menu.addMenu("Help")
-        HelpMenu(self, menu_help)
+        menu_help = HelpMenu("Help", self)
+        menu.addMenu(menu_help)
 
     def start_tray_icon(self):
         """Start tray icon (for Windows)"""
         logger.info("GUI: loading tray icon")
-        self.tray_icon = TrayIcon(self, cfg)
+        self.tray_icon = TrayIcon(self)
         self.tray_icon.show()
 
     def set_window_state(self):
         """Set initial window state"""
-        min_width = 300
-        min_height = 462
-        self.setMinimumWidth(min_width)
-        self.setMinimumHeight(min_height)
+        self.setMinimumWidth(300)
+        self.setMinimumHeight(462)
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)  # disable maximize
 
         if cfg.application["remember_size"]:
             self.resize(
-                max(min_width, cfg.application["window_width"]),
-                max(min_height, cfg.application["window_height"]),
+                cfg.application["window_width"],
+                cfg.application["window_height"],
             )
 
         if cfg.application["remember_position"]:
@@ -226,6 +217,11 @@ class AppWindow(QMainWindow):
     def set_status_text(self):
         """Set status text"""
         self.button_api.setText(f"{api.name} - {api.version}")
+
+    def show_app(self):
+        """Show app window"""
+        self.showNormal()
+        self.activateWindow()
 
     def quit_app(self):
         """Quit manager"""

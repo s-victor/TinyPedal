@@ -51,17 +51,15 @@ class ModuleControl:
         target: module.
 
     Attributes:
-        pack: module reference pack (dictionary)
-        active_list: list of active modules.
         type_id: module type indentifier, either "module" or "widget".
     """
 
-    __slots__ = "pack", "type_id", "active_list"
+    __slots__ = "_imported_modules", "_active_modules", "type_id"
 
     def __init__(self, target: Any, type_id: str):
-        self.pack = create_module_pack(target)
+        self._imported_modules = create_module_pack(target)
+        self._active_modules: dict = {}
         self.type_id = type_id
-        self.active_list: dict = {}
 
     def start(self, name: str = ""):
         """Start module, specify name for selected module"""
@@ -94,7 +92,7 @@ class ModuleControl:
 
     def enable_all(self):
         """Enable all modules"""
-        for _name in self.pack.keys():
+        for _name in self._imported_modules.keys():
             cfg.user.setting[_name]["enable"] = True
         self.start()
         cfg.save()
@@ -102,7 +100,7 @@ class ModuleControl:
 
     def disable_all(self):
         """Disable all modules"""
-        for _name in self.pack.keys():
+        for _name in self._imported_modules.keys():
             cfg.user.setting[_name]["enable"] = False
         self.close()
         cfg.save()
@@ -110,45 +108,45 @@ class ModuleControl:
 
     def __start_enabled(self):
         """Start all enabled module"""
-        for _name in self.pack.keys():
+        for _name in self._imported_modules.keys():
             self.__start_selected(_name)
 
     def __start_selected(self, name: str):
         """Start selected module"""
-        if cfg.user.setting[name]["enable"] and name not in self.active_list:
+        if cfg.user.setting[name]["enable"] and name not in self._active_modules:
             # Create module instance and add to dict
-            self.active_list[name] = self.pack[name].Realtime(cfg, name)
-            self.active_list[name].start()
+            self._active_modules[name] = self._imported_modules[name].Realtime(cfg, name)
+            self._active_modules[name].start()
 
     def __close_enabled(self):
         """Close all enabled module"""
-        for _name in tuple(self.active_list):
+        for _name in tuple(self._active_modules):
             self.__close_selected(_name)
 
     def __close_selected(self, name: str):
         """Close selected module"""
-        if name in self.active_list:
-            _module = self.active_list[name]  # get instance
-            self.active_list.pop(name)  # remove active reference
+        if name in self._active_modules:
+            _module = self._active_modules[name]  # get instance
+            self._active_modules.pop(name)  # remove active reference
             _module.stop()  # close module
             while not _module.closed:  # wait finish
                 sleep(0.01)
             _module = None  # remove final reference
 
     @property
-    def count_active(self) -> int:
-        """Count active modules"""
-        return len(self.active_list)
+    def number_active(self) -> int:
+        """Number of active modules"""
+        return len(self._active_modules)
 
     @property
-    def count_total(self) -> int:
-        """Count total modules"""
-        return len(self.pack)
+    def number_total(self) -> int:
+        """Number of total modules"""
+        return len(self._imported_modules)
 
     @property
-    def name_list(self):
+    def names(self):
         """List of module names"""
-        return self.pack.keys()
+        return self._imported_modules.keys()
 
 
 mctrl = ModuleControl(module, "module")
