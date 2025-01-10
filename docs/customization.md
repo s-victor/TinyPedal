@@ -1994,7 +1994,7 @@ Show average front & rear ride height difference in millimeters.
 Highlight player row with customizable specific color.
 
     show_lap_difference
-Show different font color based on lap difference between player and opponents. Note, this option will override `font_color` setting from `position`, `driver name`, `vehicle name`, `time gap`.
+Show different font color based on lap difference between player and opponents. Note, this option will override `font_color` setting from `position`, `driver name`, `vehicle name`.
 
     font_color_same_lap, font_color_laps_ahead, font_color_laps_behind
 Set font color for lap difference. Note, `font_color_laps_ahead` & `font_color_laps_behind` applies to race session only.
@@ -2041,8 +2041,17 @@ Set maximum brand logo display width in pixels. Note, maximum brand logo display
     show_time_gap
 Show relative time gap between player and opponents.
 
+    show_time_gap_sign
+Show plus or minus sign for time gap. `-` sign indicates opponent's relative position is in front of player, `+` sign indicates the opposite.
+
     time_gap_width
 Set time gap display width, value is in chars, 5 = 5 chars wide.
+
+    show_highlighted_nearest_time_gap
+Show highlighted color on opponents within nearest time gap threshold.
+
+    nearest_time_gap_threshold_front, nearest_time_gap_threshold_behind
+Set nearest time gap threshold (in seconds) for opponent who is in front of or behind player. Default is `1` second for front, and `2` seconds for behind.
 
     show_laptime
 Show driver's last lap time & pit timer if available.

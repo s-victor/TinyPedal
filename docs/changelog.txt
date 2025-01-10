@@ -1,9 +1,14 @@
 WIP
 -----------------------------
 * General
-  - Add "Remember Size" option in main window Config menu, which remembers last window size.
-    This option is enabled by default.
+  - Add "Remember Size" option in main window Config menu, which remembers last window size. This option is enabled by default.
   - Add "remember_size", "window_width", "window_height" options in global user config JSON.
+
+* Relative Widget
+  - Add "show_highlighted_nearest_time_gap" option (requested by Jonathan07), which highlights opponents within nearest time gap threshold.
+  - Add "nearest_time_gap_threshold_*" options for customizing nearest time gap threshold (in seconds). Default is "1" second for front, and "2" seconds for behind.
+  - Add "show_time_gap_sign" option, "-" indicates opponent's relative position is in front of player, "+" indicates the opposite. This option is disabled by default.
+  - "show_lap_difference" option no longer applies to "time gap" column to avoid confusion with "show_highlighted_nearest_time_gap".
 
 2.22.0 (2024-12-26)
 -----------------------------

@@ -80,7 +80,7 @@ class Realtime(DataModule):
 
         # Local player data
         nearest_line = 999999.0
-        nearest_timegap = 999999.0
+        nearest_timegap = -999999.0
         nearest_yellow = 999999.0
 
         # Sorting reference index
@@ -160,13 +160,13 @@ class Realtime(DataModule):
                     laps_done + lap_progress, plr_laps_done + plr_lap_progress,
                     max_lap_diff_ahead, max_lap_diff_behind
                 ) if in_race else 0
-                relative_time_gap = data.relativeTimeGap = abs(relative_interval(index))
+                relative_time_gap = data.relativeTimeGap = relative_interval(index)
 
                 # Nearest straight line distance (non local players)
                 if nearest_line > relative_straight_distance:
                     nearest_line = relative_straight_distance
-                # Nearest traffic time gap (non local players)
-                if 0 == in_pit > relative_distance and 0 < relative_time_gap < nearest_timegap:
+                # Nearest traffic time gap (opponents behind local players)
+                if in_pit == 0 > relative_time_gap > nearest_timegap:
                     nearest_timegap = relative_time_gap
 
             # Nearest yellow flag distance (all players)
@@ -197,7 +197,7 @@ class Realtime(DataModule):
 
         # Output extra info
         output.nearestLine = nearest_line
-        output.nearestTraffic = nearest_timegap
+        output.nearestTraffic = -nearest_timegap
         output.nearestYellow = nearest_yellow
         output.drawOrder = draw_order
         output.dataSetVersion += 1

@@ -73,7 +73,7 @@ class Realtime(Overlay):
             ("",0,0),  # vehicle name
             ("",0),  # pos_class
             "",  # veh_class
-            ("",0,0),  # time_gap
+            ("",0),  # time_gap
             (-1,-1,0),  # tire_idx
             ("",0,0),  # laptime
             (-999,0,0)  # pit_count
@@ -156,13 +156,20 @@ class Realtime(Overlay):
             )
         # Time gap
         if self.wcfg["show_time_gap"]:
-            self.bar_style_gap = self.set_qss_lap_difference(
-                fg_color=self.wcfg["font_color_time_gap"],
-                bg_color=self.wcfg["bkg_color_time_gap"],
-                plr_fg_color=self.wcfg["font_color_player_time_gap"],
-                plr_bg_color=self.wcfg["bkg_color_player_time_gap"],
+            self.bar_style_gap = (
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_time_gap"],
+                    bg_color=self.wcfg["bkg_color_time_gap"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_player_time_gap"],
+                    bg_color=self.wcfg["bkg_color_player_time_gap"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_nearest_time_gap"],
+                    bg_color=self.wcfg["bkg_color_nearest_time_gap"])
             )
-            self.set_qss(
+            self.nearest_time_gap = (
+                -max(self.wcfg["nearest_time_gap_threshold_behind"], 0),
+                max(self.wcfg["nearest_time_gap_threshold_front"], 0),
             )
             self.bars_gap = self.set_qlabel(
                 style=self.bar_style_gap[0],
@@ -445,19 +452,24 @@ class Realtime(Overlay):
         """Time gap"""
         if target.last != data:
             target.last = data
-            if data[2]:  # highlight player
-                color = self.bar_style_gap[1]
-            elif self.wcfg["show_lap_difference"]:
-                color = self.bar_style_gap[lap_difference_index(data[1])]
+            if data[1]:  # highlight player
+                color_index = 1
+            elif (self.wcfg["show_highlighted_nearest_time_gap"] and
+                  "" != data[0] and
+                  self.nearest_time_gap[0] <= data[0] <= self.nearest_time_gap[1]):
+                color_index = 2
             else:
-                color = self.bar_style_gap[0]
+                color_index = 0
             if data[0] != "":
-                text = f"{data[0]:.{self.gap_decimals}f}"[:self.gap_width].strip(
-                        ".").rjust(self.gap_width)
+                if self.wcfg["show_time_gap_sign"] and data[0] != 0:
+                    value = f"{-data[0]:+.{self.gap_decimals}f}"
+                else:
+                    value = f"{abs(data[0]):.{self.gap_decimals}f}"
+                text = value[:self.gap_width].strip(".").rjust(self.gap_width)
             else:
                 text = ""
             target.setText(text)
-            target.setStyleSheet(color)
+            target.setStyleSheet(self.bar_style_gap[color_index])
 
     def update_lpt(self, target, data):
         """Vehicle laptime"""
@@ -620,8 +632,8 @@ class Realtime(Overlay):
         # 5 Vehicle class (veh_class: str)
         veh_class = veh_info.vehicleClass
 
-        # 6 Time gap (time_gap: float, is_lapped, hi_player)
-        time_gap = (veh_info.relativeTimeGap, is_lapped, hi_player)
+        # 6 Time gap (time_gap: float, hi_player)
+        time_gap = (veh_info.relativeTimeGap, hi_player)
 
         # 7 Tyre compound index (tire_idx: int, hi_player)
         tire_idx = (veh_info.tireCompoundFront, veh_info.tireCompoundRear, hi_player)
