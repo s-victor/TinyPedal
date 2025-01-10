@@ -2551,6 +2551,9 @@ Shows vehicles in multi-class color styles on map instead.
 Note, while multi-class styling is enabled, following color styles will not be displayed:
 `vehicle_color_player`, `vehicle_color_leader`, `vehicle_color_same_lap`, `vehicle_color_laps_ahead`, `vehicle_color_laps_behind`.
 
+    show_position_in_class
+shows position in class while `enable_multi_class_styling` option is also enabled, otherwise this option has no effect.
+
 
 ## Track notes
 **This widget displays track notes, comments, debugging info.**

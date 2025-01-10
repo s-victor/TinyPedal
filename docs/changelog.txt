@@ -10,6 +10,10 @@ WIP
   - Add "show_time_gap_sign" option, "-" indicates opponent's relative position is in front of player, "+" indicates the opposite. This option is disabled by default.
   - "show_lap_difference" option no longer applies to "time gap" column to avoid confusion with "show_highlighted_nearest_time_gap".
 
+* Track map Widget
+  - Add "show_position_in_class" option, which shows position in class while "enable_multi_class_styling" is also enabled, otherwise this option has no effect.
+    While "enable_multi_class_styling" is enabled, disable this option to show overall standings with multi-class color (requested by Lazaros Filippakos).
+
 2.22.0 (2024-12-26)
 -----------------------------
 * General

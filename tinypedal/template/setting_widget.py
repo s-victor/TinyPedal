@@ -2046,6 +2046,7 @@ WIDGET_DEFAULT = {
         "sector_line_length": 7,
         "show_vehicle_standings": True,
         "enable_multi_class_styling": True,
+        "show_position_in_class": True,
         "font_color_player": "#FFFFFF",
         "vehicle_color_player": "#FF4422",
         "vehicle_outline_player_color": "#AAFFFFFF",

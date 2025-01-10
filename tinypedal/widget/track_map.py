@@ -47,6 +47,7 @@ class Realtime(Overlay):
         font_offset = self.calc_font_offset(font_m)
 
         # Config variable
+        self.show_position_in_class = self.wcfg["enable_multi_class_styling"] and self.wcfg["show_position_in_class"]
         self.display_detail_level = max(self.wcfg["display_detail_level"], 0)
         self.veh_size = self.wcfg["font_size"] + round(font_m.width * self.wcfg["bar_padding"])
         self.veh_shape = QRectF(
@@ -267,7 +268,7 @@ class Realtime(Overlay):
 
             # Draw text standings
             if self.wcfg["show_vehicle_standings"]:
-                if self.wcfg["enable_multi_class_styling"]:
+                if self.show_position_in_class:
                     place_veh = data.positionInClass
                 else:
                     place_veh = data.positionOverall
