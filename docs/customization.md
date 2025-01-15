@@ -1267,7 +1267,7 @@ Show turbo pressure.
 Show engine RPM.
 
     show_rpm_maximum
-shows maximum engine RPM (rev limit).
+Show maximum engine RPM (rev limit).
 
     show_torque
 Show engine torque.
@@ -2549,13 +2549,39 @@ Show sector line mark.
 Show vehicle standings info on track map. Note, if `enable_multi_class_styling` is enabled, position in class will be displayed for each vehicle class instead.
 
     enable_multi_class_styling
-Shows vehicles in multi-class color styles on map instead.
+Show vehicles in multi-class color styles on map instead.
 
 Note, while multi-class styling is enabled, following color styles will not be displayed:
 `vehicle_color_player`, `vehicle_color_leader`, `vehicle_color_same_lap`, `vehicle_color_laps_ahead`, `vehicle_color_laps_behind`.
 
     show_position_in_class
-shows position in class while `enable_multi_class_styling` option is also enabled, otherwise this option has no effect.
+Show position in class while `enable_multi_class_styling` option is also enabled, otherwise this option has no effect.
+
+    show_pitout_prediction
+Show estimated pit out on-track position indication for each pit stop duration. Default indication shows `circle` with `pit stop duration` displayed above.
+
+Note, pit out position prediction is based on `delta best` data which scaled with player's latest `lap time pace` for accurate real-time position prediction under various track conditions. Pit out prediction requires both valid `track map` and `delta best` data to display. At least `one valid lap` for any car and track combo is required to display pit out prediction.
+
+For accurate prediction, the location of `pit out line` must be found first. And since each track has different pit out line location, it is required to `pit out` at least `once per session` to mark the correct pit out line location. This can be easily done by driving out of pit lane.
+
+    number_of_predication
+Set number of pit out predication to display. Value range is limited in `1` to `20`.
+
+    pitstop_duration_minimum
+Set pit stop duration (in seconds) of first predication.
+
+    pitstop_duration_increment
+Set each pit stop duration (in seconds) increment after previous predication. Default increment is `10` seconds.
+
+Note, each time when pit stop duration of the nearest predication exceeded current pit stop timer, the predication circle will be removed, and a new predication circle will be appended with pit stop duration increment after the last predication.
+
+    pitout_time_offset
+Set amount time offset (in seconds) for catching up with vehicle speed after pit out. Default is `3` seconds.
+
+Note, this value is important for accurate prediction, as initial vehicle speed is much slower after pit out, so extra time is needed for driver to catch up, and also affected by pit out line location. For most tracks, this extra time after pit out is roughly within `1` to `5` seconds.
+
+    show_pitstop_duration
+Show pit stop duration reading on top of each predication circle.
 
 
 ## Track notes

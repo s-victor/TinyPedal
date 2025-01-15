@@ -1,18 +1,52 @@
-WIP
+2.23.0 (2025-01-15)
 -----------------------------
 * General
-  - Add "Remember Size" option in main window Config menu, which remembers last window size. This option is enabled by default.
+  - Add "Remember Size" option in main window Config menu, which remembers last window size.
+    This option is enabled by default.
   - Apply laptime pace margin after laptime pace calculation instead of before.
 
 * Relative Widget
-  - Add "show_highlighted_nearest_time_gap" option (requested by Jonathan07), which highlights opponents within nearest time gap threshold.
-  - Add "nearest_time_gap_threshold_*" options for customizing nearest time gap threshold (in seconds). Default is "1" second for front, and "2" seconds for behind.
-  - Add "show_time_gap_sign" option, "-" indicates opponent's relative position is in front of player, "+" indicates the opposite. This option is disabled by default.
-  - "show_lap_difference" option no longer applies to "time gap" column to avoid confusion with "show_highlighted_nearest_time_gap".
+  - Add "show_highlighted_nearest_time_gap" option (requested by Jonathan07),
+    which highlights opponents within nearest time gap threshold.
+  - Add "nearest_time_gap_threshold_*" options for customizing nearest time gap threshold (in seconds).
+    Default is "1" second for front, and "2" seconds for behind.
+  - Add "show_time_gap_sign" option, "-" indicates opponent's relative position is in front of player,
+    "+" indicates the opposite. This option is disabled by default.
+  - "show_lap_difference" option no longer applies to "time gap" column to avoid confusion with
+    "show_highlighted_nearest_time_gap".
 
 * Track map Widget
-  - Add "show_position_in_class" option, which shows position in class while "enable_multi_class_styling" is also enabled, otherwise this option has no effect.
-    While "enable_multi_class_styling" is enabled, disable this option to show overall standings with multi-class color (requested by Lazaros Filippakos).
+  - Add "show_pitout_prediction" option (requested by David levis & Marcelo Prestes),
+    which shows estimated pit out on-track position indication for each pit stop duration.
+    Note, pit out position prediction is based on "delta best" data which scaled with player's latest
+    "lap time pace" for accurate real-time position prediction under various track conditions.
+    Pit out prediction requires both valid "track map" and "delta best" data to display.
+    At least "one valid lap" for any car and track combo is required to display pit out prediction.
+    For accurate prediction, the location of "pit out line" must be found first.
+    And since each track has different pit out line location,
+    it is required to "pit out" at least "once per session" to mark the correct pit out line location.
+    This can be easily done by driving out of pit lane.
+  - Add "number_of_predication" option that sets number of pit out predication to display.
+    Value range is limited in "1" to "20".
+  - Add "pitstop_duration_minimum" option that sets pit stop duration (in seconds) of first predication.
+  - Add "pitstop_duration_increment" option that sets each pit stop duration (in seconds) increment
+    after previous predication. Default increment is "10" seconds.
+    Note, each time when pit stop duration of the nearest predication exceeded current pit stop timer,
+    the predication circle will be removed, and a new predication circle will be appended
+    with pit stop duration increment after the last predication.
+  - Add "pitout_time_offset" option that sets amount time offset (in seconds) for catching up with
+    vehicle speed after pit out. Default is "3" seconds.
+    Note, this value is important for accurate prediction, as initial vehicle speed is much slower after pit out,
+    so extra time is needed for driver to catch up, and also affected by pit out line location.
+    For most tracks, this extra time after pit out is roughly within "1" to "5" seconds,
+  - Add "show_pitstop_duration" option that shows pit stop duration reading on top of each predication circle.
+  - Add "show_position_in_class" option, which shows position in class while "enable_multi_class_styling"
+    is also enabled, otherwise this option has no effect.
+    While "enable_multi_class_styling" is enabled, disable this option to show overall standings with
+    multi-class color (requested by Lazaros Filippakos).
+
+* Misc
+  - Updated "Application", "Relative", "Track map" sections in User Guide.
 
 2.22.0 (2024-12-26)
 -----------------------------
