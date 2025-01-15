@@ -328,7 +328,10 @@ Set minimum refresh rate limit for widget and module in milliseconds. This optio
 Set maximum retry attempts for preset saving. Default value is `10`. Minimum value is limited to `3` maximum attempts. Note, each attempt has a roughly 50ms delay. If all saving attempts failed, saving will be aborted, and old preset file will be restored to avoid preset file corruption.
 
     position_x, position_y
-Define main window position on screen in pixels. Those values will be auto updated and saved.
+Define main window position on screen in pixels. Those values will be auto updated and saved while `remember_position` option is enabled.
+
+    window_width, window_height
+Define main window size on screen in pixels. Those values will be auto updated and saved while `remember_size` option is enabled.
 
 
 ## Compatibility
@@ -691,7 +694,7 @@ Set number of samples for delta data smoothing calculation using exponential mov
 Set number of samples for average laptime pace calculation (EMA). Value range in `1` to `20`. Default is `6` samples. Set `1` to disable averaging. Note, initial laptime pace is always based on player's all time personal best laptime if available. If a new laptime is faster than current laptime pace, it will replace current laptime pace without calculating average. Invalid lap, pit-in/out laps are always excluded from laptime pace calculation.
 
     laptime_pace_margin
-Set additional margin for current laptime that cannot exceed the sum of `laptime pace` and `margin`. This option is used to minimize the impact of unusually slow laptime. Default value is `5` seconds. Minimum value is limited to `0.1`.
+Set additional margin for laptime pace that cannot exceed the sum of previous `laptime pace` and `margin`. This option is used to minimize the impact of unusually slow laptime. Default value is `5` seconds. Minimum value is limited to `0.1`.
 
 
 ## Energy
@@ -2223,7 +2226,7 @@ Set number of samples for average laptime pace calculation (EMA). Value range in
 Note, initial laptime pace is always based on leader's session personal best laptime if available. If a new laptime is faster than current laptime pace, it will replace current laptime pace without calculating average. Invalid lap, pit-in/out laps are always excluded from laptime pace calculation.
 
     leader_laptime_pace_margin
-Set additional margin for current laptime that cannot exceed the sum of `laptime pace` and `margin`. This option is used to minimize the impact of unusually slow laptime. Default value is `5` seconds. Minimum value is limited to `0.1`.
+Set additional margin for laptime pace that cannot exceed the sum of previous `laptime pace` and `margin`. This option is used to minimize the impact of unusually slow laptime. Default value is `5` seconds. Minimum value is limited to `0.1`.
 
     show_absolute_refilling
 Show absolute refilling value instead of relative refilling when enabled. Note, `+` or `-` sign is not displayed with absolute refilling.

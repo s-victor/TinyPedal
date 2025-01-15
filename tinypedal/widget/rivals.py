@@ -310,12 +310,13 @@ class Realtime(Overlay):
         """Update when vehicle on track"""
         if self.state.active:
 
-            player_idx = api.read.vehicle.player_index()
-            total_idx = len(minfo.relative.classes)
+            classes_list = minfo.relative.classes
+            total_cls_idx = len(classes_list)
+            player_idx = minfo.vehicles.playerIndex
             in_race = api.read.session.in_race()
 
-            if player_idx < total_idx:
-                rivals_list = minfo.relative.classes[player_idx][5:7]
+            if player_idx < total_cls_idx:
+                rivals_list = classes_list[player_idx][5:7]
             else:
                 rivals_list = -1,-1
 

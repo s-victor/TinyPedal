@@ -558,11 +558,11 @@ def svg_view_box(coords: Sequence[CoordXY], margin: int = 0) -> str:
     # Map size: x=width, y=height
     map_range = min(x_range), max(x_range), min(y_range), max(y_range)
     map_size = map_range[1] - map_range[0], map_range[3] - map_range[2]
-    x1 = round(map_range[0] - margin, 4)
-    y1 = round(map_range[2] - margin, 4)
-    x2 = round(map_size[0] + margin * 2, 4)
-    y2 = round(map_size[1] + margin * 2, 4)
-    return f"{x1} {y1} {x2} {y2}"
+    x1 = map_range[0] - margin
+    y1 = map_range[2] - margin
+    x2 = map_size[0] + margin * 2
+    y2 = map_size[1] + margin * 2
+    return f"{x1:.4f} {y1:.4f} {x2:.4f} {y2:.4f}"
 
 
 def line_intersect_coords(

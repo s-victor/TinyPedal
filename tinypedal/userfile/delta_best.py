@@ -20,6 +20,7 @@
 Delta best file function
 """
 
+from __future__ import annotations
 import logging
 import csv
 
@@ -28,14 +29,16 @@ from .. import validator as val
 logger = logging.getLogger(__name__)
 
 
-def load_delta_best_file(filepath:str, filename: str, defaults: tuple, extension: str = ".csv"):
+def load_delta_best_file(
+    filepath: str, filename: str, defaults: tuple, extension: str = ".csv"
+) -> tuple[tuple, float]:
     """Load delta best file (*.csv)"""
     try:
         with open(f"{filepath}{filename}{extension}", newline="", encoding="utf-8") as csvfile:
             temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
             temp_list_size = len(temp_list)
             # Validate data
-            bestlist = val.delta_list(temp_list)
+            bestlist = tuple(val.delta_list(temp_list))
             laptime_best = bestlist[-1][1]
             # Save data if modified
             if temp_list_size != len(bestlist):
@@ -51,7 +54,7 @@ def load_delta_best_file(filepath:str, filename: str, defaults: tuple, extension
         return defaults
 
 
-def save_delta_best_file(filepath: str, filename: str, dataset: list, extension: str = ".csv"):
+def save_delta_best_file(filepath: str, filename: str, dataset: tuple, extension: str = ".csv"):
     """Save delta best file (*.csv)"""
     if len(dataset) < 10:
         return

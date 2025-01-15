@@ -32,7 +32,7 @@ from .. import calculation as calc
 from ..userfile.fuel_delta import load_fuel_delta_file, save_fuel_delta_file
 
 DELTA_ZERO = 0.0,0.0
-DELTA_DEFAULT = [DELTA_ZERO]
+DELTA_DEFAULT = (DELTA_ZERO,)
 
 round6 = partial(round, ndigits=6)
 
@@ -116,7 +116,7 @@ def calc_data(
         extension=extension,
         defaults=(DELTA_DEFAULT, 0, 0)
     )
-    delta_list_curr = [DELTA_ZERO]  # distance, fuel used, laptime
+    delta_list_raw = [DELTA_ZERO]  # distance, fuel used, laptime
     delta_list_temp = DELTA_DEFAULT  # last lap temp
     delta_fuel = 0.0  # delta fuel consumption compare to last lap
 
@@ -181,15 +181,15 @@ def calc_data(
 
         # Lap start & finish detection
         if lap_stime > last_lap_stime != -1:
-            if len(delta_list_curr) > 1 and not pit_lap:
-                delta_list_curr.append((  # set end value
+            if len(delta_list_raw) > 1 and not pit_lap:
+                delta_list_raw.append((  # set end value
                     round6(pos_last + 10),
                     round6(used_curr),
                     round6(lap_stime - last_lap_stime)
                 ))
-                delta_list_temp = delta_list_curr
+                delta_list_temp = tuple(delta_list_raw)
                 validating = api.read.timing.elapsed()
-            delta_list_curr = [DELTA_ZERO]  # reset
+            delta_list_raw = [DELTA_ZERO]  # reset
             pos_last = pos_recorded = pos_curr
             used_last_raw = used_curr
             used_curr = 0
@@ -204,7 +204,7 @@ def calc_data(
         # Update if position value is different & positive
         if 0 <= pos_curr != pos_last:
             if recording and pos_curr - pos_recorded >= 10:  # 10 meters further
-                delta_list_curr.append((round6(pos_curr), round6(used_curr)))
+                delta_list_raw.append((round6(pos_curr), round6(used_curr)))
                 pos_recorded = pos_curr
             pos_last = pos_curr  # reset last position
             pos_synced = True

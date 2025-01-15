@@ -20,6 +20,7 @@
 Fuel/Energy delta file function
 """
 
+from __future__ import annotations
 import logging
 import csv
 
@@ -28,14 +29,16 @@ from .. import validator as val
 logger = logging.getLogger(__name__)
 
 
-def load_fuel_delta_file(filepath: str, filename: str, extension: str, defaults: tuple):
+def load_fuel_delta_file(
+    filepath: str, filename: str, extension: str, defaults: tuple
+) -> tuple[tuple, float, float]:
     """Load fuel/energy delta file (*.fuel, *.energy)"""
     try:
         with open(f"{filepath}{filename}{extension}", newline="", encoding="utf-8") as csvfile:
             temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
             temp_list_size = len(temp_list)
             # Validate data
-            lastlist = val.delta_list(temp_list)
+            lastlist = tuple(val.delta_list(temp_list))
             used_last = lastlist[-1][1]
             laptime_last = lastlist[-1][2]
             # Save data if modified
@@ -52,7 +55,7 @@ def load_fuel_delta_file(filepath: str, filename: str, extension: str, defaults:
         return defaults
 
 
-def save_fuel_delta_file(filepath: str, filename: str, extension: str, dataset: list):
+def save_fuel_delta_file(filepath: str, filename: str, extension: str, dataset: tuple):
     """Save fuel/energy delta file (*.fuel, *.energy)"""
     if len(dataset) < 10:
         return

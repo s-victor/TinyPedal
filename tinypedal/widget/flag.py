@@ -237,7 +237,10 @@ class Realtime(Overlay):
 
             # Pit timer
             if self.wcfg["show_pit_timer"]:
-                pitting_state = self.pit_timer.update(in_pits, lap_etime)
+                if in_pits and api.read.vehicle.in_garage():
+                    pitting_state = MAGIC_NUM
+                else:
+                    pitting_state = self.pit_timer.update(in_pits, lap_etime)
                 self.update_pit_timer(self.bar_pit_timer, pitting_state)
 
             # Low fuel update

@@ -177,9 +177,11 @@ class Realtime(DataModule):
 
             # Sort draw order list in loop ->
             if position_overall == 1:  # save leader index
-                leader_idx = draw_order[index]
+                leader_idx = index
+                if is_player:  # player can be leader at the same time
+                    player_idx = index
             elif is_player:  # save local player index
-                player_idx = draw_order[index]
+                player_idx = index
             elif in_pit:  # swap opponent in pit/garage to start
                 draw_order[index], draw_order[inpit_idx] = draw_order[inpit_idx], draw_order[index]
                 inpit_idx += 1
@@ -196,6 +198,8 @@ class Realtime(DataModule):
         # <- End draw order list
 
         # Output extra info
+        output.leaderIndex = leader_idx
+        output.playerIndex = player_idx
         output.nearestLine = nearest_line
         output.nearestTraffic = -nearest_timegap
         output.nearestYellow = nearest_yellow

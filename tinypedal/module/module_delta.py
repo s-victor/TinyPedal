@@ -30,7 +30,7 @@ from .. import validator as val
 from ..userfile.delta_best import load_delta_best_file, save_delta_best_file
 
 DELTA_ZERO = 0.0,0.0
-DELTA_DEFAULT = [DELTA_ZERO]
+DELTA_DEFAULT = (DELTA_ZERO,)
 MAGIC_NUM = 99999
 
 round6 = partial(round, ndigits=6)
@@ -91,7 +91,8 @@ class Realtime(DataModule):
                         filename=combo_id,
                         defaults=(DELTA_DEFAULT, MAGIC_NUM)
                     )
-                    delta_list_curr = [DELTA_ZERO]  # distance, laptime
+                    output.deltaBestData = delta_list_best
+                    delta_list_raw = [DELTA_ZERO]  # distance, laptime
                     delta_list_last = DELTA_DEFAULT  # last lap
 
                     delta_best_ema = 0.0
@@ -128,11 +129,11 @@ class Realtime(DataModule):
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime != -1:
                     laptime_last = lap_stime - last_lap_stime
-                    if len(delta_list_curr) > 1:  # set end value
-                        delta_list_curr.append((round6(pos_last + 10), round6(laptime_last)))
-                        delta_list_last = delta_list_curr
+                    if len(delta_list_raw) > 1:  # set end value
+                        delta_list_raw.append((round6(pos_last + 10), round6(laptime_last)))
+                        delta_list_last = tuple(delta_list_raw)
                         validating = api.read.timing.elapsed()
-                    delta_list_curr = [DELTA_ZERO]  # reset
+                    delta_list_raw = [DELTA_ZERO]  # reset
                     pos_last = pos_recorded = pos_curr
                     recording = laptime_curr < 1
                     pit_lap = 0
@@ -146,7 +147,7 @@ class Realtime(DataModule):
                 # Update if position value is different & positive
                 if 0 <= pos_curr != pos_last:
                     if recording and pos_curr - pos_recorded >= 10:  # 10 meters further
-                        delta_list_curr.append((round6(pos_curr), round6(laptime_curr)))
+                        delta_list_raw.append((round6(pos_curr), round6(laptime_curr)))
                         pos_recorded = pos_curr
                     pos_last = pos_curr  # reset last position
                     pos_synced = True
@@ -163,14 +164,14 @@ class Realtime(DataModule):
                             if not 0 < laptime_pace < MAGIC_NUM or laptime_valid < laptime_pace:
                                 laptime_pace = laptime_valid
                             else:
-                                laptime_pace = calc_ema_laptime(
-                                    laptime_pace,
-                                    min(laptime_valid, laptime_pace + laptime_pace_margin)
+                                laptime_pace = min(
+                                    calc_ema_laptime(laptime_pace, laptime_valid),
+                                    laptime_pace + laptime_pace_margin,
                                 )
                         # Update delta best list
                         if laptime_last < laptime_best:
                             laptime_best = laptime_last
-                            delta_list_best = delta_list_last.copy()
+                            output.deltaBestData = delta_list_best = delta_list_last
                             save_delta_best_file(
                                 filepath=userpath_delta_best,
                                 filename=combo_id,
@@ -179,11 +180,11 @@ class Realtime(DataModule):
                         # Update delta session best list
                         if laptime_last < laptime_session_best:
                             laptime_session_best = laptime_last
-                            delta_list_session = delta_list_last.copy()
+                            delta_list_session = delta_list_last
                         # Update delta stint best list
                         if laptime_last < laptime_stint_best:
                             laptime_stint_best = laptime_last
-                            delta_list_stint = delta_list_last.copy()
+                            delta_list_stint = delta_list_last
                         validating = 0
                     elif timer > 10:  # switch off after 10s
                         validating = 0

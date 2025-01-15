@@ -206,8 +206,8 @@ class Realtime(Overlay):
         energy_type = minfo.restapi.maxVirtualEnergy
         consumption = minfo.energy if energy_type else minfo.fuel
 
-        leader_index = self.find_leader_index()
-        player_index = api.read.vehicle.player_index()
+        leader_index = minfo.vehicles.leaderIndex
+        player_index = minfo.vehicles.playerIndex
         leader_lap_into = api.read.lap.progress(leader_index)
         player_lap_into = api.read.lap.progress()
 
@@ -478,10 +478,10 @@ class LapTimePace:
                     if laptime_last < self.laptime_pace:
                         self.laptime_pace = laptime_last
                     else:
-                        self.laptime_pace = calc.exp_mov_avg(
-                            self.ema_factor,
-                            self.laptime_pace,
-                            min(laptime_last, self.laptime_pace + self.laptime_margin))
+                        self.laptime_pace = min(
+                            calc.exp_mov_avg(self.ema_factor, self.laptime_pace, laptime_last),
+                            self.laptime_pace + self.laptime_margin,
+                        )
                 elif self.laptime_pace >= MAGIC_NUM:
                     self.laptime_pace = self.reset_laptime(index)
                 self.validating = 0

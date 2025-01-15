@@ -31,6 +31,7 @@ class DeltaInfo:
     """Delta module output data"""
 
     __slots__ = (
+        "deltaBestData",
         "deltaBest",
         "deltaLast",
         "deltaSession",
@@ -48,6 +49,7 @@ class DeltaInfo:
     )
 
     def __init__(self):
+        self.deltaBestData: tuple = ((0.0,0.0),)
         self.deltaBest: float = 0.0
         self.deltaLast: float = 0.0
         self.deltaSession: float = 0.0
@@ -318,6 +320,8 @@ class VehiclesInfo:
 
     __slots__ = (
         "total",
+        "leaderIndex",
+        "playerIndex",
         "dataSet",
         "dataSetVersion",
         "drawOrder",
@@ -328,6 +332,8 @@ class VehiclesInfo:
 
     def __init__(self):
         self.total: int = 0
+        self.leaderIndex: int = 0
+        self.playerIndex: int = -1
         self.dataSet: tuple[VehicleDataSet, ...] = tuple(
             VehicleDataSet() for _ in range(MAX_VEHICLES)
         )
