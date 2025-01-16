@@ -1479,10 +1479,14 @@ Also see `estimated laps` display option in `Session Widget` that can be used fo
 Show absolute refueling value instead of relative refueling when enabled. Note, `+` or `-` sign is not displayed with absolute refueling.
 
     *remain
-Remaining fuel reading.
+Remaining fuel in tank.
 
     *refuel
-Estimated refueling reading, which is the total amount additional fuel required to finish race. Note, positive value indicates additional refueling and pit-stop would be required, while negative value indicates total extra fuel would left at the end of race and no extra pit-stop required.
+Estimated refueling reading, which is the total amount additional fuel required to finish race.
+
+Note, for `relative refueling` (`show_absolute_refueling` disabled), positive value indicates additional refueling and pit-stop would be required, while negative value indicates total remaining fuel at the end of race, and no extra pit-stop required. For example, a `-1.5` value indicates `1.5` remaining fuel after crossed finish line.
+
+For `absolute refueling` (`show_absolute_refueling` enabled), total remaining fuel at the end of race can be found by subtracting `refuel` value from `remain` value. For example, `6` (remain column) - `4.5` (refuel column) = `1.5` remaining fuel after crossed finish line.
 
     *used
 Estimated fuel consumption reading, which is calculated from last-valid-lap fuel consumption and delta fuel consumption. Note, when vehicle is in garage stall, this reading only shows last-valid-lap fuel consumption without delta calculation.
@@ -1512,7 +1516,9 @@ Estimated minutes reading that current fuel can last.
 Estimated fuel consumption reading for one less pit stop.
 
     *end
-Estimated remaining fuel reading at the end of current stint before pit.
+Estimated remaining fuel reading at the end of current stint before next pit stop, which reflects fuel usage efficiency.
+
+Note, this value does not count towards the end of race; instead, this value always counts towards the end of last completeable lap. To find out total remaining fuel at the end of race, see `refuel` column and explanation.
 
     bar_width
 Set each column width, value in chars, such as 10 = 10 chars. Default is `5`. Minimum width is limited to `3`.
