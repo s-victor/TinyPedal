@@ -25,9 +25,10 @@ In-game setup:
 
 
 ## Quick Start
-1. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract and run `tinypedal.exe`.  
+1. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract it into a clean folder, and run `tinypedal.exe`.  
+Note, DO NOT extract TinyPedal into `system` or `game` folder, such as `Program Files` or `Program Files (x86)` or `rFactor 2` folder, otherwise it may fail to run.  
 Alternatively, run TinyPedal from source, see [Run from source](#run-from-source) section for details.  
-For Linux user, please follow [Running on Linux](#running-on-linux) section for instruction.
+For Linux user, please follow [Running on Linux](#running-on-linux) section for instruction.  
 
 2. A tray icon will appear at system tray. If not shown, check hidden tray icon. `Right Click` on tray icon will bring up context menu.
 
