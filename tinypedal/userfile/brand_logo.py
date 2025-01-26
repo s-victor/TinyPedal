@@ -31,7 +31,8 @@ def load_brand_logo_list(filepath: str, extension: str = ".png") -> list:
     return [
         _filename[:-4] for _filename in os.listdir(filepath)
         if _filename.lower().endswith(extension)
-        and os.path.getsize(f"{filepath}{_filename}") < 1024000]
+        and os.path.getsize(f"{filepath}{_filename}") < 1024000
+    ]
 
 
 def exceeded_max_logo_width(

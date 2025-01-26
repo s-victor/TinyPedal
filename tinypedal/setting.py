@@ -47,6 +47,7 @@ from .userfile.json_setting import (
     delete_backup_file,
     load_setting_json_file,
     load_style_json_file,
+    load_classes_json_file,
 )
 
 logger = logging.getLogger(__name__)
@@ -252,7 +253,7 @@ class Setting:
         self.user.brands = load_style_json_file(
             self.filename.brands, self.path.settings, self.default.brands
         )
-        self.user.classes = load_style_json_file(
+        self.user.classes = load_classes_json_file(
             self.filename.classes, self.path.settings, self.default.classes
         )
         self.user.heatmap = load_style_json_file(

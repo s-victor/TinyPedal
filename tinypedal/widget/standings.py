@@ -648,13 +648,14 @@ class Realtime(Overlay):
             return f"{pits}"
         return ""
 
-    def set_class_style(self, vehclass_name):
+    def set_class_style(self, class_name: str):
         """Compare vehicle class name with user defined dictionary"""
-        if vehclass_name in self.cfg.user.classes:
-            return tuple(*self.cfg.user.classes[vehclass_name].items())  # sub_name, sub_color
-        if vehclass_name and self.wcfg["show_random_color_for_unknown_class"]:
-            return vehclass_name, fmt.random_color_class(vehclass_name)
-        return vehclass_name, self.wcfg["bkg_color_class"]
+        style = self.cfg.user.classes.get(class_name, None)
+        if style is not None:
+            return style["alias"], style["color"]
+        if class_name and self.wcfg["show_random_color_for_unknown_class"]:
+            return class_name, fmt.random_color_class(class_name)
+        return class_name, self.wcfg["bkg_color_class"]
 
     @staticmethod
     def set_laptime(inpit, laptime_last, pit_time):

@@ -148,17 +148,16 @@ API_NAME_RF2 = "rFactor 2"
 API_NAME_LMU = "Le Mans Ultimate"
 
 # Abbreviation
-ABBR_LIST = (
-    "api",
-    "drs",
-    "ffb",
-    "lmu",
-    "p2p",
-    "rpm",
-    "rf2",
-    "url",
+ABBR_PATTERN = (
+    "api|"
+    "drs|"
+    "ffb|"
+    "lmu|"
+    "p2p|"
+    "rpm|"
+    "rf2|"
+    "url"
 )
-ABBR_PATTERN = "|".join(ABBR_LIST)
 
 # Choice dictionary
 CHOICE_COMMON = {

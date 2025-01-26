@@ -363,23 +363,19 @@ class Realtime(Overlay):
             target_pit_time += self.pit_time_step
             painter.resetTransform()
 
-    def classes_style(self, vehclass_name: str) -> str:
+    def classes_style(self, class_name: str) -> str:
         """Get vehicle class style from brush cache"""
-        if vehclass_name in self.brush_classes:
-            return self.brush_classes[vehclass_name]
+        if class_name in self.brush_classes:
+            return self.brush_classes[class_name]
         # Get vehicle class style from user defined dictionary
         brush = QBrush(Qt.SolidPattern)
-        styles = self.cfg.user.classes.get(vehclass_name, None)
-        if styles:
-            for key in styles:
-                brush.setColor(styles[key])
-                break
-            else:
-                brush.setColor(random_color_class(vehclass_name))
+        styles = self.cfg.user.classes.get(class_name, None)
+        if styles is not None:
+            brush.setColor(styles["color"])
         else:
-            brush.setColor(random_color_class(vehclass_name))
+            brush.setColor(random_color_class(class_name))
         # Add to brush cache
-        self.brush_classes[vehclass_name] = brush
+        self.brush_classes[class_name] = brush
         return brush
 
     # Additional methods

@@ -1,3 +1,16 @@
+WIP
+-----------------------------
+* Classes Preset
+  - Extended classes preset structure to support more customization in future.
+    The new structure now saves alternative "class name" under "alias" key, and "class color" under "color" key.
+  - Old "classes.json" file will be auto-updated to this newer structure,
+    and a "classes.json.old" backup file will be created in "settings" folder.
+
+* Vehicle Class Editor
+  - Now shows customizable classes styles in table view, including "Class name", "Alias name", "Color" columns.
+  - Now supports multi-selection for deleting multiple classes.
+  - Now supports classes sorting.
+
 2.23.0 (2025-01-15)
 -----------------------------
 * General

@@ -35,6 +35,33 @@ COMMON_STRINGS = fmt.pipe_join(
 )
 
 
+def classes_validator(style_user: dict) -> bool:
+    """Vehicle class style validator"""
+    save_change = False
+    ALIAS = "alias"
+    COLOR = "color"
+    # Check first entry for old classes format
+    for class_name, class_data in style_user.items():
+        if not save_change:
+            if set(class_data).issubset((ALIAS, COLOR)):
+                break
+            else:
+                save_change = True
+        # Update old classes format
+        for key, value in class_data.items():
+            class_data[ALIAS] = key
+            class_data[COLOR] = value
+            class_data.pop(key)
+            break
+    # Validate classes entry
+    for class_name, class_data in style_user.items():
+        if not isinstance(class_data[ALIAS], str):
+            class_data[ALIAS] = class_name
+        if not val.hex_color(class_data[COLOR]):
+            class_data[COLOR] = fmt.random_color_class(class_name)
+    return save_change
+
+
 class ValueValidator:
     """Value validator"""
 

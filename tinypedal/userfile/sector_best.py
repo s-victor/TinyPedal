@@ -32,19 +32,19 @@ def load_sector_best_file(
     try:
         with open(f"{filepath}{filename}{extension}", newline="", encoding="utf-8") as csvfile:
             temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
-            # Check if same session
-            if (temp_list[0][0] == session_id[0] and  # session_stamp
-                temp_list[0][1] <= session_id[1] and  # session_etime
-                temp_list[0][2] <= session_id[2]):    # session_tlaps
-                # Session best data
-                best_s_tb = [temp_list[1][0], temp_list[1][1], temp_list[1][2]]
-                best_s_pb = [temp_list[2][0], temp_list[2][1], temp_list[2][2]]
-            else:
-                best_s_tb = defaults.copy()
-                best_s_pb = defaults.copy()
-            # All time best data
-            all_best_s_tb = [temp_list[3][0], temp_list[3][1], temp_list[3][2]]
-            all_best_s_pb = [temp_list[4][0], temp_list[4][1], temp_list[4][2]]
+        # Check if same session
+        if (temp_list[0][0] == session_id[0] and  # session_stamp
+            temp_list[0][1] <= session_id[1] and  # session_etime
+            temp_list[0][2] <= session_id[2]):    # session_tlaps
+            # Session best data
+            best_s_tb = [temp_list[1][0], temp_list[1][1], temp_list[1][2]]
+            best_s_pb = [temp_list[2][0], temp_list[2][1], temp_list[2][2]]
+        else:
+            best_s_tb = defaults.copy()
+            best_s_pb = defaults.copy()
+        # All time best data
+        all_best_s_tb = [temp_list[3][0], temp_list[3][1], temp_list[3][2]]
+        all_best_s_pb = [temp_list[4][0], temp_list[4][1], temp_list[4][2]]
     except (FileNotFoundError, IndexError, ValueError, TypeError):
         logger.info("MISSING: sectors best data")
         best_s_tb = defaults.copy()

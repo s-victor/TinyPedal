@@ -36,19 +36,19 @@ def load_fuel_delta_file(
     try:
         with open(f"{filepath}{filename}{extension}", newline="", encoding="utf-8") as csvfile:
             temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
-            temp_list_size = len(temp_list)
-            # Validate data
-            lastlist = tuple(val.delta_list(temp_list))
-            used_last = lastlist[-1][1]
-            laptime_last = lastlist[-1][2]
-            # Save data if modified
-            if temp_list_size != len(lastlist):
-                save_fuel_delta_file(
-                    filepath=filepath,
-                    filename=filename,
-                    extension=extension,
-                    dataset=lastlist,
-                )
+        # Validate data
+        temp_list_size = len(temp_list)
+        lastlist = tuple(val.delta_list(temp_list))
+        used_last = lastlist[-1][1]
+        laptime_last = lastlist[-1][2]
+        # Save data if modified
+        if temp_list_size != len(lastlist):
+            save_fuel_delta_file(
+                filepath=filepath,
+                filename=filename,
+                extension=extension,
+                dataset=lastlist,
+            )
         return lastlist, used_last, laptime_last
     except (FileNotFoundError, IndexError, ValueError, TypeError):
         logger.info("MISSING: %s data", extension)

@@ -86,7 +86,7 @@ Alternatively, to import vehicle brand data from vehicle `JSON` file, click `Imp
 
     Note: importing feature is experimental. Maximum acceptable JSON file size is limited to "5MB".
 
-To add new brand name, click `Add` button. Note, the editor can auto-detect and fill-in all vehicle names found from current active session, existing data will not be changed.
+To add new brand name, click `Add` button. Note, the editor can auto-detect and fill-in missing vehicle names found from current active session, existing data will not be changed.
 
 To sort brand name in orders, click `Sort` button.
 
@@ -104,11 +104,19 @@ Classes preset can be customized by accessing `Vehicle class editor` from `Tools
 
 `classes.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
 
-To modify class setting, open `Vehicle class editor` and edit entries from each rows and columns. Each row represents a vehicle class. First column is full vehicle class name that must match in-game vehicle class name. Second column is abbreviation name. Third column is color (HEX code). Double-click on color to open color dialog.
+To modify class setting, open `Vehicle class editor` and edit entries from each rows and columns. Each row represents a vehicle class.
 
-To add new class, click `Add` button. Note, the editor can auto-detect and fill-in all vehicle classes found from current active session, existing data will not be changed.
+`Class name` column is full vehicle class name that matches in-game vehicle class name.
 
-To remove a class, click `X` button of a row.
+`Alias name` column is alternative name that replaces class name for displaying.
+
+`Color` column is class color style (HEX code). Double-click on color to open color dialog.
+
+To add new class, click `Add` button. Note, the editor can auto-detect and fill-in missing vehicle classes found from current active session, existing data will not be changed.
+
+To sort class name in orders, click `Sort` button.
+
+To remove class, select one or more rows and click `Delete`.
 
 To reset all classes setting to default, click `Reset` button; or manually delete `classes.json` file.
 

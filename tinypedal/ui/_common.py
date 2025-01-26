@@ -341,7 +341,7 @@ class TableBatchReplace(BaseDialog):
 class DoubleClickEdit(QLineEdit):
     """Line edit with double click dialog trigger"""
 
-    def __init__(self, mode: str, init: str):
+    def __init__(self, mode: str, init: str, show_border: bool = True):
         """Set dialog mode and initial value
 
         Args:
@@ -351,6 +351,7 @@ class DoubleClickEdit(QLineEdit):
         super().__init__()
         self.open_mode = mode
         self.init_value = init
+        self.show_border = "" if show_border else "border:0;"
 
     def mouseDoubleClickEvent(self, event):
         """Double click to open dialog"""
@@ -416,7 +417,7 @@ class DoubleClickEdit(QLineEdit):
                 fg_color = "#000"
             # Apply style
             self.setStyleSheet(
-                f"QLineEdit {{color: {fg_color};background: {color_str};}}"
+                f"QLineEdit {{color:{fg_color};background:{color_str};{self.show_border}}}"
             )
 
 

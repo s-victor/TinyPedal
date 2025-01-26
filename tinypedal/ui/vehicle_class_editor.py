@@ -24,15 +24,14 @@ import time
 import random
 
 from PySide2.QtWidgets import (
-    QWidget,
     QVBoxLayout,
     QHBoxLayout,
-    QLineEdit,
     QDialogButtonBox,
     QPushButton,
-    QListWidget,
-    QListWidgetItem,
-    QMessageBox
+    QTableWidget,
+    QTableWidgetItem,
+    QMessageBox,
+    QHeaderView,
 )
 
 from ..api_control import api
@@ -44,8 +43,9 @@ from ._common import (
     DoubleClickEdit,
     QVAL_COLOR,
     QSS_EDITOR_BUTTON,
-    QSS_EDITOR_LISTBOX,
 )
+
+HEADER_CLASSES = "Class name","Alias name","Color"
 
 
 class VehicleClassEditor(BaseEditor):
@@ -56,18 +56,43 @@ class VehicleClassEditor(BaseEditor):
         self.set_utility_title("Vehicle Class Editor")
         self.setMinimumSize(400, 400)
 
-        self.option_classes = []
         self.classes_temp = copy_setting(cfg.user.classes)
 
-        # Classes list box
-        self.listbox_classes = QListWidget(self)
-        self.listbox_classes.setStyleSheet(QSS_EDITOR_LISTBOX)
-        self.refresh_list()
+        # Set table
+        self.table_classes = QTableWidget(self)
+        self.table_classes.setColumnCount(3)
+        self.table_classes.setHorizontalHeaderLabels(HEADER_CLASSES)
+        self.table_classes.verticalHeader().setVisible(False)
+        self.table_classes.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
+        self.table_classes.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        self.table_classes.horizontalHeader().setSectionResizeMode(2, QHeaderView.Fixed)
+        self.table_classes.setColumnWidth(2, 80)
+        self.table_classes.cellChanged.connect(self.set_modified)
+        self.refresh_table()
+        self.set_unmodified()
 
-        # Button
+        # Set button
+        layout_button = self.set_layout_button()
+
+        # Set layout
+        layout_main = QVBoxLayout()
+        layout_main.addWidget(self.table_classes)
+        layout_main.addLayout(layout_button)
+        self.setLayout(layout_main)
+
+    def set_layout_button(self):
+        """Set button layout"""
         button_add = QPushButton("Add")
         button_add.clicked.connect(self.add_class)
         button_add.setStyleSheet(QSS_EDITOR_BUTTON)
+
+        button_sort = QPushButton("Sort")
+        button_sort.clicked.connect(self.sort_class)
+        button_sort.setStyleSheet(QSS_EDITOR_BUTTON)
+
+        button_delete = QPushButton("Delete")
+        button_delete.clicked.connect(self.delete_class)
+        button_delete.setStyleSheet(QSS_EDITOR_BUTTON)
 
         button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
         button_reset.clicked.connect(self.reset_setting)
@@ -83,109 +108,83 @@ class VehicleClassEditor(BaseEditor):
         button_save.rejected.connect(self.close)
         button_save.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        # Set layout
-        layout_main = QVBoxLayout()
         layout_button = QHBoxLayout()
-
         layout_button.addWidget(button_add)
+        layout_button.addWidget(button_sort)
+        layout_button.addWidget(button_delete)
         layout_button.addWidget(button_reset)
         layout_button.addStretch(1)
         layout_button.addWidget(button_apply)
         layout_button.addWidget(button_save)
+        return layout_button
 
-        layout_main.addWidget(self.listbox_classes)
-        layout_main.addLayout(layout_button)
-        self.setLayout(layout_main)
+    def refresh_table(self):
+        """Refresh class list"""
+        self.table_classes.clearContents()
+        self.table_classes.setRowCount(0)
+        row_index = 0
+        for class_name, class_data in self.classes_temp.items():
+            self.add_vehicle_entry(
+                row_index, class_name, class_data["alias"], class_data["color"])
+            row_index += 1
 
-    def refresh_list(self):
-        """Refresh classes list"""
-        self.listbox_classes.clear()
-        self.option_classes.clear()
-        already_modified = self.is_modified()
-
-        for idx, key in enumerate(self.classes_temp):
-            layout_item = QHBoxLayout()
-            layout_item.setContentsMargins(4,4,4,4)
-            layout_item.setSpacing(4)
-
-            line_edit_key = self.__add_option_string(key, layout_item)
-            for sub_key, sub_item in self.classes_temp[key].items():
-                line_edit_sub_key = self.__add_option_string(sub_key, layout_item)
-                color_edit = self.__add_option_color(sub_item, layout_item, 80)
-                self.__add_delete_button(idx, layout_item)
-                self.option_classes.append((line_edit_key, line_edit_sub_key, color_edit))
-
-            classes_item = QWidget()
-            classes_item.setLayout(layout_item)
-            item = QListWidgetItem()
-            self.listbox_classes.addItem(item)
-            self.listbox_classes.setItemWidget(item, classes_item)
-
-        if not already_modified:
-            self.set_unmodified()
-
-    def __add_option_string(self, key, layout):
-        """Key string"""
-        line_edit = QLineEdit()
-        line_edit.textChanged.connect(self.set_modified)
-        # Load selected option
-        line_edit.setText(key)
-        # Add layout
-        layout.addWidget(line_edit)
-        return line_edit
-
-    def __add_option_color(self, key, layout, width):
+    def __add_option_color(self, key):
         """Color string"""
-        color_edit = DoubleClickEdit(mode="color", init=key)
-        color_edit.setFixedWidth(width)
+        color_edit = DoubleClickEdit(mode="color", init=key, show_border=False)
         color_edit.setMaxLength(9)
         color_edit.setValidator(QVAL_COLOR)
         color_edit.textChanged.connect(self.set_modified)
         color_edit.textChanged.connect(color_edit.preview_color)
-        # Load selected option
-        color_edit.setText(key)
-        # Add layout
-        layout.addWidget(color_edit)
+        color_edit.setText(key)  # load selected option
         return color_edit
 
-    def __add_delete_button(self, row_index, layout):
-        """Delete button"""
-        button = QPushButton("X")
-        button.setFixedWidth(20)
-        button.pressed.connect(
-            lambda index=row_index: self.delete_class(index))
-        layout.addWidget(button)
-
-    def delete_class(self, row_index):
+    def delete_class(self):
         """Delete class entry"""
-        target = self.option_classes[row_index][0].text()
-        if not self.confirm_operation(f"<b>Delete class '{target}' ?</b>"):
+        selected_rows = set(data.row() for data in self.table_classes.selectedIndexes())
+        if not selected_rows:
+            QMessageBox.warning(self, "Error", "No data selected.")
             return
 
-        self.update_classes_temp()
-        self.classes_temp.pop(target)
+        if not self.confirm_operation("<b>Delete selected rows?</b>"):
+            return
+
+        for row_index in sorted(selected_rows, reverse=True):
+            self.table_classes.removeRow(row_index)
         self.set_modified()
-        self.refresh_list()
 
     def add_class(self):
         """Add new class entry"""
-        self.update_classes_temp()
+        row_index = self.table_classes.rowCount()
         # Add all missing vehicle class from active session
         veh_total = api.read.vehicle.total_vehicles()
         for index in range(veh_total):
-            veh_name = api.read.vehicle.class_name(index)
-            if veh_name not in self.classes_temp:
-                self.classes_temp[veh_name] = {
-                    "NAME": fmt.random_color_class(veh_name)
+            class_name = api.read.vehicle.class_name(index)
+            if class_name not in self.classes_temp:
+                color_string = fmt.random_color_class(class_name)
+                self.add_vehicle_entry(
+                    row_index, class_name, class_name, color_string)
+                self.classes_temp[class_name] = {
+                    "alias": class_name,
+                    "color": color_string,
                 }
+                row_index += 1
         # Add new class entry
-        self.classes_temp["New Class Name"] = {
-            "NAME": fmt.random_color_class(str(random.random()))
-        }
-        self.set_modified()
-        self.refresh_list()
-        # Move focus to new class row
-        self.listbox_classes.setCurrentRow(len(self.classes_temp) - 1)
+        self.add_vehicle_entry(
+            row_index, "New Class Name", "NAME", fmt.random_color_class(str(random.random())))
+        self.table_classes.setCurrentCell(row_index, 0)
+
+    def add_vehicle_entry(self, row_index: int, class_name: str, alias_name: str, color: str):
+        """Add new class entry to table"""
+        self.table_classes.insertRow(row_index)
+        self.table_classes.setItem(row_index, 0, QTableWidgetItem(class_name))
+        self.table_classes.setItem(row_index, 1, QTableWidgetItem(alias_name))
+        self.table_classes.setCellWidget(row_index, 2, self.__add_option_color(color))
+
+    def sort_class(self):
+        """Sort class in ascending order"""
+        if self.table_classes.rowCount() > 1:
+            self.table_classes.sortItems(0)
+            self.set_modified()
 
     def reset_setting(self):
         """Reset setting"""
@@ -199,7 +198,7 @@ class VehicleClassEditor(BaseEditor):
         if reset_msg == QMessageBox.Yes:
             self.classes_temp = copy_setting(cfg.default.classes)
             self.set_modified()
-            self.refresh_list()
+            self.refresh_table()
 
     def applying(self):
         """Save & apply"""
@@ -211,18 +210,20 @@ class VehicleClassEditor(BaseEditor):
         self.accept()  # close
 
     def update_classes_temp(self):
-        """Update temporary changes to classes temp first"""
+        """Update temporary changes to class temp first"""
         self.classes_temp.clear()
-        for edit in self.option_classes:
-            key_name = edit[0].text()
-            sub_key_name = edit[1].text()
-            sub_item_name = edit[2].text()
-            self.classes_temp[key_name] = {sub_key_name: sub_item_name}
+        for index in range(self.table_classes.rowCount()):
+            class_name = self.table_classes.item(index, 0).text()
+            abbr_name = self.table_classes.item(index, 1).text()
+            color_string = self.table_classes.cellWidget(index, 2).text()
+            self.classes_temp[class_name] = {
+                "alias": abbr_name,
+                "color": color_string,
+            }
 
     def save_setting(self):
         """Save setting"""
         self.update_classes_temp()
-        self.refresh_list()
         cfg.user.classes = copy_setting(self.classes_temp)
         cfg.save(0, filetype="classes")
         while cfg.is_saving:  # wait saving finish

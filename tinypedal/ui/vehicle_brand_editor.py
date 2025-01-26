@@ -44,7 +44,11 @@ from PySide2.QtWidgets import (
 from ..api_control import api
 from ..setting import cfg, copy_setting
 from ..module_control import wctrl
-from ._common import BaseEditor, TableBatchReplace, QSS_EDITOR_BUTTON
+from ._common import (
+    BaseEditor,
+    TableBatchReplace,
+    QSS_EDITOR_BUTTON,
+)
 
 HEADER_BRANDS = "Name","Brand"
 
@@ -64,6 +68,7 @@ class VehicleBrandEditor(BaseEditor):
         # Set table
         self.table_brands = QTableWidget(self)
         self.table_brands.setColumnCount(2)
+        self.table_brands.setHorizontalHeaderLabels(HEADER_BRANDS)
         self.table_brands.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_brands.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.table_brands.cellChanged.connect(self.set_modified)
@@ -146,14 +151,11 @@ class VehicleBrandEditor(BaseEditor):
 
     def refresh_table(self):
         """Refresh brands list"""
-        self.table_brands.clear()
-        self.table_brands.setRowCount(len(self.brands_temp))
-        self.table_brands.setHorizontalHeaderLabels(HEADER_BRANDS)
+        self.table_brands.clearContents()
+        self.table_brands.setRowCount(0)
         row_index = 0
-
-        for key, item in self.brands_temp.items():
-            self.table_brands.setItem(row_index, 0, QTableWidgetItem(key))
-            self.table_brands.setItem(row_index, 1, QTableWidgetItem(item))
+        for veh_name, brand_name in self.brands_temp.items():
+            self.add_vehicle_entry(row_index, veh_name, brand_name)
             row_index += 1
 
     def import_from_rf2(self):
@@ -164,7 +166,7 @@ class VehicleBrandEditor(BaseEditor):
         """Import brand from LMU"""
         self.import_from_restapi("LMU")
 
-    def import_from_restapi(self, sim_name):
+    def import_from_restapi(self, sim_name: str):
         """Import brand from Rest API"""
         config = cfg.user.setting["module_restapi"]
         url_host = config["url_host"]
@@ -253,17 +255,17 @@ class VehicleBrandEditor(BaseEditor):
         for index in range(veh_total):
             veh_name = api.read.vehicle.vehicle_name(index)
             if veh_name not in self.brands_temp:
-                self.add_vehicle_entry(row_index, veh_name)
+                self.add_vehicle_entry(row_index, veh_name, "Unknown")
                 row_index += 1
         # Add new name entry
-        self.add_vehicle_entry(row_index, "New Vehicle Name")
+        self.add_vehicle_entry(row_index, "New Vehicle Name", "Unknown")
         self.table_brands.setCurrentCell(row_index, 0)
 
-    def add_vehicle_entry(self, row_index, veh_name):
+    def add_vehicle_entry(self, row_index: int, veh_name: str, brand_name: str):
         """Add new brand entry to table"""
         self.table_brands.insertRow(row_index)
         self.table_brands.setItem(row_index, 0, QTableWidgetItem(veh_name))
-        self.table_brands.setItem(row_index, 1, QTableWidgetItem("Unknown"))
+        self.table_brands.setItem(row_index, 1, QTableWidgetItem(brand_name))
 
     def sort_brand(self):
         """Sort brands in ascending order"""

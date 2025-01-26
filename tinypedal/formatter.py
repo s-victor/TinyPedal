@@ -30,10 +30,12 @@ from . import regex_pattern as rxp
 
 def uppercase_abbr(name: str) -> str:
     """Convert abbreviation name to uppercase"""
-    for abbr in rxp.ABBR_LIST:
-        if re.search(rxp.ABBR_PATTERN, name, flags=re.IGNORECASE):
-            name = re.sub(abbr, abbr.upper(), name, flags=re.IGNORECASE)
-    return name
+    return re.sub(rxp.ABBR_PATTERN, upper_matched_abbr, name, flags=re.IGNORECASE)
+
+
+def upper_matched_abbr(matchobj: re.Match) -> str:
+    """Convert abbreviation name to uppercase"""
+    return matchobj.group().upper()
 
 
 def format_module_name(name: str) -> str:

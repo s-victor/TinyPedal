@@ -36,18 +36,18 @@ def load_delta_best_file(
     try:
         with open(f"{filepath}{filename}{extension}", newline="", encoding="utf-8") as csvfile:
             temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
-            temp_list_size = len(temp_list)
-            # Validate data
-            bestlist = tuple(val.delta_list(temp_list))
-            laptime_best = bestlist[-1][1]
-            # Save data if modified
-            if temp_list_size != len(bestlist):
-                save_delta_best_file(
-                    filepath=filepath,
-                    filename=filename,
-                    dataset=bestlist,
-                    extension=extension,
-                )
+        # Validate data
+        temp_list_size = len(temp_list)
+        bestlist = tuple(val.delta_list(temp_list))
+        laptime_best = bestlist[-1][1]
+        # Save data if modified
+        if temp_list_size != len(bestlist):
+            save_delta_best_file(
+                filepath=filepath,
+                filename=filename,
+                dataset=bestlist,
+                extension=extension,
+            )
         return bestlist, laptime_best
     except (FileNotFoundError, IndexError, ValueError, TypeError):
         logger.info("MISSING: deltabest data")

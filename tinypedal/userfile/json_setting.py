@@ -26,7 +26,7 @@ import time
 import json
 import shutil
 
-from ..setting_validator import PresetValidator
+from ..setting_validator import PresetValidator, classes_validator
 
 logger = logging.getLogger(__name__)
 preset_validator = PresetValidator()
@@ -49,7 +49,7 @@ def load_setting_json_file(filename: str, filepath: str, dict_def: dict) -> dict
             setting_user = json.load(jsonfile)
         # Verify & assign setting
         setting_user = preset_validator.validate(setting_user, dict_def)
-    except (FileNotFoundError, ValueError):
+    except (FileNotFoundError, KeyError, ValueError):
         logger.error("SETTING: %s failed loading, create backup & revert to default", filename)
         backup_invalid_json_file(filename, filepath)
         setting_user = copy_setting(dict_def)
@@ -62,7 +62,31 @@ def load_style_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
         # Read JSON file
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
             style_user = json.load(jsonfile)
-    except (FileNotFoundError, ValueError):
+    except (FileNotFoundError, KeyError, ValueError):
+        style_user = copy_setting(dict_def)
+        # Save to file if not found
+        if not os.path.exists(f"{filepath}{filename}"):
+            logger.info("SETTING: %s not found, create new default", filename)
+            save_json_file(filename, filepath, style_user)
+        else:
+            logger.error("SETTING: %s failed loading, fall back to default", filename)
+    return style_user
+
+
+def load_classes_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
+    """Load classes style json file"""
+    try:
+        # Read JSON file
+        with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
+            style_user = json.load(jsonfile)
+
+        save_change = classes_validator(style_user)
+        if save_change:
+            create_backup_file(filename, filepath, ".old")
+            save_json_file(filename, filepath, style_user)
+            logger.info("SETTING: %s updated to latest specification", filename)
+
+    except (FileNotFoundError, KeyError, ValueError):
         style_user = copy_setting(dict_def)
         # Save to file if not found
         if not os.path.exists(f"{filepath}{filename}"):

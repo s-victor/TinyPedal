@@ -167,7 +167,7 @@ class FuelCalculator(BaseDialog):
 
     def refresh_table(self):
         """Refresh history data table"""
-        self.table_history.clear()
+        self.table_history.clearContents()
         self.table_history.setRowCount(len(minfo.history.consumption))
         row_index = 0
 
@@ -191,15 +191,6 @@ class FuelCalculator(BaseDialog):
             self.table_history.setItem(row_index, 4, battery_drain)
             self.table_history.setItem(row_index, 5, battery_regen)
             row_index += 1
-
-        self.table_history.setHorizontalHeaderLabels((
-            "Lap",
-            "Time",
-            f"Fuel({fuel_unit_text()})",
-            "Energy(%)",
-            "Drain(%)",
-            "Regen(%)"
-        ))
 
     def __add_table_item(self, text: str, flags: int):
         """Add table item"""
@@ -288,6 +279,14 @@ class FuelCalculator(BaseDialog):
         self.table_history.verticalHeader().setVisible(False)
         self.table_history.setColumnWidth(0, 40)
         self.table_history.setFixedWidth(380)
+        self.table_history.setHorizontalHeaderLabels((
+            "Lap",
+            "Time",
+            f"Fuel({fuel_unit_text()})",
+            "Energy(%)",
+            "Drain(%)",
+            "Regen(%)"
+        ))
 
         button_add = QPushButton("Add selected data")
         button_add.clicked.connect(self.add_selected_data)
