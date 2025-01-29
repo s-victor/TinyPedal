@@ -60,7 +60,7 @@ class VehicleClassEditor(BaseEditor):
 
         # Set table
         self.table_classes = QTableWidget(self)
-        self.table_classes.setColumnCount(3)
+        self.table_classes.setColumnCount(len(HEADER_CLASSES))
         self.table_classes.setHorizontalHeaderLabels(HEADER_CLASSES)
         self.table_classes.verticalHeader().setVisible(False)
         self.table_classes.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
@@ -120,7 +120,6 @@ class VehicleClassEditor(BaseEditor):
 
     def refresh_table(self):
         """Refresh class list"""
-        self.table_classes.clearContents()
         self.table_classes.setRowCount(0)
         row_index = 0
         for class_name, class_data in self.classes_temp.items():
@@ -130,27 +129,13 @@ class VehicleClassEditor(BaseEditor):
 
     def __add_option_color(self, key):
         """Color string"""
-        color_edit = DoubleClickEdit(mode="color", init=key, show_border=False)
+        color_edit = DoubleClickEdit(mode="color", init=key)
         color_edit.setMaxLength(9)
         color_edit.setValidator(QVAL_COLOR)
         color_edit.textChanged.connect(self.set_modified)
         color_edit.textChanged.connect(color_edit.preview_color)
         color_edit.setText(key)  # load selected option
         return color_edit
-
-    def delete_class(self):
-        """Delete class entry"""
-        selected_rows = set(data.row() for data in self.table_classes.selectedIndexes())
-        if not selected_rows:
-            QMessageBox.warning(self, "Error", "No data selected.")
-            return
-
-        if not self.confirm_operation("<b>Delete selected rows?</b>"):
-            return
-
-        for row_index in sorted(selected_rows, reverse=True):
-            self.table_classes.removeRow(row_index)
-        self.set_modified()
 
     def add_class(self):
         """Add new class entry"""
@@ -159,18 +144,14 @@ class VehicleClassEditor(BaseEditor):
         veh_total = api.read.vehicle.total_vehicles()
         for index in range(veh_total):
             class_name = api.read.vehicle.class_name(index)
-            if class_name not in self.classes_temp:
-                color_string = fmt.random_color_class(class_name)
+            if not self.is_value_in_table(class_name, self.table_classes):
                 self.add_vehicle_entry(
-                    row_index, class_name, class_name, color_string)
-                self.classes_temp[class_name] = {
-                    "alias": class_name,
-                    "color": color_string,
-                }
+                    row_index, class_name, class_name, fmt.random_color_class(class_name))
                 row_index += 1
         # Add new class entry
+        new_class_name = self.new_name_increment("New Class Name", self.table_classes)
         self.add_vehicle_entry(
-            row_index, "New Class Name", "NAME", fmt.random_color_class(str(random.random())))
+            row_index, new_class_name, "NAME", fmt.random_color_class(str(random.random())))
         self.table_classes.setCurrentCell(row_index, 0)
 
     def add_vehicle_entry(self, row_index: int, class_name: str, alias_name: str, color: str):
@@ -185,6 +166,20 @@ class VehicleClassEditor(BaseEditor):
         if self.table_classes.rowCount() > 1:
             self.table_classes.sortItems(0)
             self.set_modified()
+
+    def delete_class(self):
+        """Delete class entry"""
+        selected_rows = set(data.row() for data in self.table_classes.selectedIndexes())
+        if not selected_rows:
+            QMessageBox.warning(self, "Error", "No data selected.")
+            return
+
+        if not self.confirm_operation("<b>Delete selected rows?</b>"):
+            return
+
+        for row_index in sorted(selected_rows, reverse=True):
+            self.table_classes.removeRow(row_index)
+        self.set_modified()
 
     def reset_setting(self):
         """Reset setting"""

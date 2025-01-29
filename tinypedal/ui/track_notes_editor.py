@@ -360,19 +360,20 @@ class TrackNotesEditor(BaseEditor):
         self._verify_enabled = False
         row_index = 0
         for note_line in self.notes_temp:
-            for idx, fieldname in enumerate(self.notes_header):
+            for column_index, fieldname in enumerate(self.notes_header):
                 value = note_line[fieldname]
-                if idx == 0:
+                if column_index == 0:
                     item = QTableFloatItem(round(value, DECIMALS))
                 else:
                     item = QTableWidgetItem(value)
-                self.table_notes.setItem(row_index, idx, item)
+                self.table_notes.setItem(row_index, column_index, item)
             row_index += 1
         self._verify_enabled = True
 
     def open_replace_dialog(self):
         """Open replace dialog"""
-        _dialog = TableBatchReplace(self, self.notes_header, self.table_notes, 1)
+        selector = {name:idx for idx, name in enumerate(self.notes_header) if idx > 0}
+        _dialog = TableBatchReplace(self, selector, self.table_notes)
         _dialog.open()
 
     def open_metadata_dialog(self):

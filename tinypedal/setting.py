@@ -219,7 +219,7 @@ class Setting:
     def load_global(self):
         """Load global setting, should only done once per launch"""
         self.user.config = load_setting_json_file(
-            self.filename.config, self.path.config, self.default.config
+            self.filename.config, self.path.config, self.default.config, True
         )
         # Assign global path
         self.path.update(
@@ -230,7 +230,6 @@ class Setting:
         self.compatibility = self.user.config["compatibility"]
         self.primary_preset = self.user.config["primary_preset"]
         self.__set_environ()
-        logger.info("SETTING: %s loaded (global settings)", self.filename.config)
 
     def update_path(self):
         """Update global path, call this if "user_path" changed"""
@@ -265,7 +264,6 @@ class Setting:
         self.shared_memory_api = self.user.setting["shared_memory_api"]
         self.units = self.user.setting["units"]
         self.filename.last_setting = self.filename.setting
-        logger.info("SETTING: %s loaded (user preset)", self.filename.last_setting)
 
     @property
     def preset_list(self) -> list:

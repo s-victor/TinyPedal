@@ -67,7 +67,7 @@ class VehicleBrandEditor(BaseEditor):
 
         # Set table
         self.table_brands = QTableWidget(self)
-        self.table_brands.setColumnCount(2)
+        self.table_brands.setColumnCount(len(HEADER_BRANDS))
         self.table_brands.setHorizontalHeaderLabels(HEADER_BRANDS)
         self.table_brands.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_brands.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
@@ -151,7 +151,6 @@ class VehicleBrandEditor(BaseEditor):
 
     def refresh_table(self):
         """Refresh brands list"""
-        self.table_brands.clearContents()
         self.table_brands.setRowCount(0)
         row_index = 0
         for veh_name, brand_name in self.brands_temp.items():
@@ -244,7 +243,8 @@ class VehicleBrandEditor(BaseEditor):
 
     def open_replace_dialog(self):
         """Open replace dialog"""
-        _dialog = TableBatchReplace(self, HEADER_BRANDS, self.table_brands, 1)
+        selector = {HEADER_BRANDS[1]: 1}
+        _dialog = TableBatchReplace(self, selector, self.table_brands)
         _dialog.open()
 
     def add_brand(self):
@@ -254,11 +254,12 @@ class VehicleBrandEditor(BaseEditor):
         veh_total = api.read.vehicle.total_vehicles()
         for index in range(veh_total):
             veh_name = api.read.vehicle.vehicle_name(index)
-            if veh_name not in self.brands_temp:
+            if not self.is_value_in_table(veh_name, self.table_brands):
                 self.add_vehicle_entry(row_index, veh_name, "Unknown")
                 row_index += 1
         # Add new name entry
-        self.add_vehicle_entry(row_index, "New Vehicle Name", "Unknown")
+        new_brand_name = self.new_name_increment("New Vehicle Name", self.table_brands)
+        self.add_vehicle_entry(row_index, new_brand_name, "Unknown")
         self.table_brands.setCurrentCell(row_index, 0)
 
     def add_vehicle_entry(self, row_index: int, veh_name: str, brand_name: str):

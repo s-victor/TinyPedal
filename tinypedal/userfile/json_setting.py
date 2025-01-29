@@ -41,7 +41,7 @@ def copy_setting(dict_user: dict) -> dict:
     return dict_user.copy()
 
 
-def load_setting_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
+def load_setting_json_file(filename: str, filepath: str, dict_def: dict, is_global: bool = False) -> dict:
     """Load setting json file & verify"""
     try:
         # Read JSON file
@@ -49,6 +49,10 @@ def load_setting_json_file(filename: str, filepath: str, dict_def: dict) -> dict
             setting_user = json.load(jsonfile)
         # Verify & assign setting
         setting_user = preset_validator.validate(setting_user, dict_def)
+        if is_global:
+            logger.info("SETTING: %s loaded (global settings)", filename)
+        else:
+            logger.info("SETTING: %s loaded (user preset)", filename)
     except (FileNotFoundError, KeyError, ValueError):
         logger.error("SETTING: %s failed loading, create backup & revert to default", filename)
         backup_invalid_json_file(filename, filepath)
@@ -62,6 +66,7 @@ def load_style_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
         # Read JSON file
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
             style_user = json.load(jsonfile)
+        logger.info("SETTING: %s loaded (user preset)", filename)
     except (FileNotFoundError, KeyError, ValueError):
         style_user = copy_setting(dict_def)
         # Save to file if not found
@@ -84,7 +89,9 @@ def load_classes_json_file(filename: str, filepath: str, dict_def: dict) -> dict
         if save_change:
             create_backup_file(filename, filepath, ".old")
             save_json_file(filename, filepath, style_user)
-            logger.info("SETTING: %s updated to latest specification", filename)
+            logger.info("SETTING: %s updated (user preset) to latest specification", filename)
+        else:
+            logger.info("SETTING: %s loaded (user preset)", filename)
 
     except (FileNotFoundError, KeyError, ValueError):
         style_user = copy_setting(dict_def)

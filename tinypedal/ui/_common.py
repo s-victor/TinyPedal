@@ -164,6 +164,32 @@ class BaseEditor(BaseDialog):
         if not self.confirm_discard():
             event.ignore()
 
+    @staticmethod
+    def new_name_increment(name: str, table: QTableWidget, column: int = 0) -> str:
+        """New name with number increment add at the end"""
+        new_index = 1
+        new_name = f"{name} {new_index}"
+        exist = True
+        while exist:  # check existing name
+            items = table.findItems(new_name, Qt.MatchExactly)
+            for item in items:
+                if item.column() == column:  # match column
+                    new_index += 1
+                    new_name = f"{name} {new_index}"
+                    break
+            else:
+                exist = False
+        return new_name
+
+    @staticmethod
+    def is_value_in_table(target: str, table: QTableWidget, column: int = 0) -> bool:
+        """Is there any matching value in table"""
+        items = table.findItems(target, Qt.MatchExactly)
+        for item in items:
+            if item.column() == column:
+                return True
+        return False
+
 
 class BatchOffset(BaseDialog):
     """Batch offset"""
@@ -247,10 +273,14 @@ class TableBatchReplace(BaseDialog):
     """Table batch replace"""
 
     def __init__(
-        self, master, table_header: tuple, table_data: QTableWidget, column_skip: int = 0):
+        self, master, table_selector: dict, table_data: QTableWidget):
+        """
+        Args:
+            table_selector: table selector dictionary. key=column name, value=column index.
+        """
         super().__init__(master)
+        self.table_selector = table_selector
         self.table_data = table_data
-        self.column_skip = column_skip
         self.setWindowTitle("Batch Replace")
 
         # Label & combobox
@@ -259,9 +289,9 @@ class TableBatchReplace(BaseDialog):
         self.search_selector.setCompleter(QCompleter())  # disable auto-complete
 
         self.column_selector = QComboBox()
-        self.column_selector.addItems(table_header[self.column_skip:])
+        self.column_selector.addItems(list(self.table_selector))
         self.column_selector.currentIndexChanged.connect(self.update_selector)
-        self.update_selector(0)
+        self.update_selector(self.table_selector[self.column_selector.currentText()])
 
         self.replace_entry = QLineEdit()
 
@@ -303,8 +333,8 @@ class TableBatchReplace(BaseDialog):
 
     def update_selector(self, column_index: int, last_search: str = ""):
         """Update selector list"""
+        column_index = self.table_selector[self.column_selector.currentText()]
         self.search_selector.clear()
-        column_index += self.column_skip
         selector_list = set(
             self.table_data.item(row_index, column_index).text()
             for row_index in range(self.table_data.rowCount())
@@ -318,7 +348,7 @@ class TableBatchReplace(BaseDialog):
             QMessageBox.warning(self, "Error", "Invalid name.")
             return
 
-        column_index = self.column_selector.currentIndex() + self.column_skip
+        column_index = self.table_selector[self.column_selector.currentText()]
         search = self.search_selector.currentText()
         replace = self.replace_entry.text()
 
@@ -335,13 +365,13 @@ class TableBatchReplace(BaseDialog):
             item = self.table_data.item(row_index, column_index)
             item.setText(re.sub(pattern, replace, item.text(), flags=match_flag))
 
-        self.update_selector(column_index - self.column_skip, search)
+        self.update_selector(column_index, search)
 
 
 class DoubleClickEdit(QLineEdit):
     """Line edit with double click dialog trigger"""
 
-    def __init__(self, mode: str, init: str, show_border: bool = True):
+    def __init__(self, mode: str, init: str):
         """Set dialog mode and initial value
 
         Args:
@@ -351,7 +381,6 @@ class DoubleClickEdit(QLineEdit):
         super().__init__()
         self.open_mode = mode
         self.init_value = init
-        self.show_border = "" if show_border else "border:0;"
 
     def mouseDoubleClickEvent(self, event):
         """Double click to open dialog"""
@@ -417,7 +446,7 @@ class DoubleClickEdit(QLineEdit):
                 fg_color = "#000"
             # Apply style
             self.setStyleSheet(
-                f"QLineEdit {{color:{fg_color};background:{color_str};{self.show_border}}}"
+                f"QLineEdit {{color:{fg_color};background:{color_str};}}"
             )
 
 
