@@ -68,7 +68,7 @@ def is_pid_exist() -> bool:
         if psutil.pid_exists(pid_last):
             if str(psutil.Process(pid_last).create_time()) == pid_last_create_time:
                 return True  # already running
-    except (ValueError, IndexError, FileNotFoundError):
+    except (ProcessLookupError, psutil.NoSuchProcess, ValueError, IndexError, FileNotFoundError):
         logger.info("PID not found or invalid")
     return False  # no running
 
