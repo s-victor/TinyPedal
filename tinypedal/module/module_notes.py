@@ -53,7 +53,6 @@ class Realtime(DataModule):
         output_tracknotes = minfo.tracknotes
 
         setting_playback = self.cfg.user.setting["pace_notes_playback"]
-        gen_position_sync = position_sync()
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -62,7 +61,6 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
 
-                    gen_position_sync.send(None)
                     track_name = api.read.check.track_id()
 
                     # Load pace notes
@@ -95,7 +93,7 @@ class Realtime(DataModule):
                     gen_tracknotes.send(None)
 
                 # Update position
-                pos_synced = gen_position_sync.send(minfo.delta.lapDistance)
+                pos_synced = minfo.delta.lapDistance
 
                 # Update pace notes
                 if pace_notes:
@@ -156,41 +154,6 @@ def notes_selector(output: NotesInfo, dataset: list[dict] | None):
         output.currentNote = dataset[curr_index]
         output.nextIndex = next_index
         output.nextNote = dataset[next_index]
-
-
-def position_sync(max_diff: float = 200, max_desync: int = 20):
-    """Position synchronization
-
-    Args:
-        max_diff: max delta position (meters). Exceeding max delta counts as new lap.
-        max_desync: max desync counts.
-
-    Sends:
-        pos_curr: current position (meters).
-
-    Yields:
-        Synchronized position (meters).
-    """
-    pos_synced = 0
-    desync_count = 0
-
-    while True:
-        pos_curr = yield pos_synced
-        if pos_curr is None:  # reset
-            pos_curr = 0
-            pos_synced = 0
-            desync_count = 0
-            continue
-        if pos_synced > pos_curr:
-            if desync_count > max_desync or pos_synced - pos_curr > max_diff:
-                desync_count = 0  # reset
-                pos_synced = pos_curr
-            else:
-                desync_count += 1
-        elif pos_synced < pos_curr:
-            pos_synced = pos_curr
-            if desync_count:
-                desync_count = 0
 
 
 def next_note_index(pos_curr: float, curr_index: int, dist_ref: list) -> int:

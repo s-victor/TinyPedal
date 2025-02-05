@@ -26,6 +26,7 @@ MODULE_DEFAULT = {
         "enable": True,
         "update_interval": 10,
         "idle_update_interval": 400,
+        "minimum_delta_distance": 5,
         "delta_smoothing_samples": 30,
         "laptime_pace_samples": 6,
         "laptime_pace_margin": 5,
@@ -34,6 +35,7 @@ MODULE_DEFAULT = {
         "enable": True,
         "update_interval": 10,
         "idle_update_interval": 400,
+        "minimum_delta_distance": 5,
     },
     "module_force": {
         "enable": True,
@@ -50,6 +52,7 @@ MODULE_DEFAULT = {
         "enable": True,
         "update_interval": 10,
         "idle_update_interval": 400,
+        "minimum_delta_distance": 5,
     },
     "module_hybrid": {
         "enable": True,

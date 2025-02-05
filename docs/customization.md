@@ -695,6 +695,9 @@ Modules provide important data that updated in real-time for other widgets. Widg
     module_delta
 Enable delta module.
 
+    minimum_delta_distance
+Set minimum recording distance (in meters) between each delta sample. Default value is `5` meters. Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy. Recommended value range in `5` to `10` meters.
+
     delta_smoothing_samples
 Set number of samples for delta data smoothing calculation using exponential moving average (EMA) method. Value range in `1` to `100`. Higher value results more smoothness, but may lose accuracy. Default is `30` samples. Set to `1` to disable smoothing.
 
@@ -710,6 +713,9 @@ Set additional margin for laptime pace that cannot exceed the sum of previous `l
 
     module_energy
 Enable energy module.
+
+    minimum_delta_distance
+Set minimum recording distance (in meters) between each delta sample. Default value is `5` meters. Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy. Recommended value range in `5` to `10` meters.
 
 
 ## Force
@@ -742,6 +748,9 @@ Set time delay in seconds for resetting max braking rate. Default is `60` second
 
     module_fuel
 Enable fuel module.
+
+    minimum_delta_distance
+Set minimum recording distance (in meters) between each delta sample. Default value is `5` meters. Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy. Recommended value range in `5` to `10` meters.
 
 
 ## Hybrid

@@ -179,6 +179,42 @@ def clock_format(_format: str) -> bool:
         return False
 
 
+# Desync check
+def position_sync(max_diff: float = 200, max_desync: int = 20):
+    """Position synchronization
+
+    Args:
+        max_diff: max delta position (meters). Exceeding max delta counts as new lap.
+        max_desync: max desync counts.
+
+    Sends:
+        pos_curr: current position (meters).
+
+    Yields:
+        Synchronized position (meters).
+    """
+    pos_synced = 0
+    desync_count = 0
+
+    while True:
+        pos_curr = yield pos_synced
+        if pos_curr is None:  # reset
+            pos_curr = 0
+            pos_synced = 0
+            desync_count = 0
+            continue
+        if pos_synced > pos_curr:
+            if desync_count > max_desync or pos_synced - pos_curr > max_diff:
+                desync_count = 0  # reset
+                pos_synced = pos_curr
+            else:
+                desync_count += 1
+        elif pos_synced < pos_curr:
+            pos_synced = pos_curr
+            if desync_count:
+                desync_count = 0
+
+
 # Decorator
 def numeric_filter(func):
     """Numeric filter decorator"""

@@ -25,6 +25,7 @@ from functools import partial
 from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
+from ..validator import position_sync
 from .. import calculation as calc
 from .. import validator as val
 from ..userfile.delta_best import load_delta_best_file, save_delta_best_file
@@ -55,6 +56,7 @@ class Realtime(DataModule):
         delta_list_stint = DELTA_DEFAULT
         laptime_session_best = MAGIC_NUM
         laptime_stint_best = MAGIC_NUM
+        min_delta_distance = self.mcfg["minimum_delta_distance"]
 
         calc_ema_delta = partial(
             calc.exp_mov_avg,
@@ -65,6 +67,7 @@ class Realtime(DataModule):
             calc.ema_factor(min(max(self.mcfg["laptime_pace_samples"], 1), 20))
         )
         laptime_pace_margin = max(self.mcfg["laptime_pace_margin"], 0.1)
+        gen_position_sync = position_sync()
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -77,6 +80,7 @@ class Realtime(DataModule):
                     validating = 0
                     pit_lap = 0  # whether pit in or pit out lap
 
+                    gen_position_sync.send(None)
                     combo_id = api.read.check.combo_id()
                     session_id = api.read.check.session_id()
 
@@ -108,7 +112,7 @@ class Realtime(DataModule):
                     pos_recorded = 0.0  # last recorded vehicle position
                     pos_last = 0.0  # last checked vehicle position
                     pos_estimate = 0.0  # calculated position
-                    pos_synced = False  # whether estimated position synced
+                    is_pos_synced = False  # whether estimated position synced
                     gps_last = (0.0,0.0,0.0)  # last global position
                     meters_driven = self.cfg.user.setting["cruise"]["meters_driven"]
 
@@ -146,11 +150,11 @@ class Realtime(DataModule):
 
                 # Update if position value is different & positive
                 if 0 <= pos_curr != pos_last:
-                    if recording and pos_curr - pos_recorded >= 10:  # 10 meters further
+                    if recording and pos_curr - pos_recorded >= min_delta_distance:
                         delta_list_raw.append((round6(pos_curr), round6(laptime_curr)))
                         pos_recorded = pos_curr
                     pos_last = pos_curr  # reset last position
-                    pos_synced = True
+                    is_pos_synced = True
 
                 # Validating 1s after passing finish line
                 if validating:
@@ -194,34 +198,35 @@ class Realtime(DataModule):
                     moved_distance = calc.distance(gps_last, gps_curr)
                     gps_last = gps_curr
                     # Estimate distance
-                    if pos_synced:
+                    if is_pos_synced:
                         pos_estimate = pos_curr
-                        pos_synced = False
+                        is_pos_synced = False
                     else:
                         pos_estimate += moved_distance
                     # Update delta
+                    pos_synced = gen_position_sync.send(pos_estimate)
                     delay_update = laptime_curr > 0.3
                     delta_best_raw = calc.delta_telemetry(
                         delta_list_best,
-                        pos_estimate,
+                        pos_synced,
                         laptime_curr,
                         delay_update,
                     )
                     delta_last_raw = calc.delta_telemetry(
                         delta_list_last,
-                        pos_estimate,
+                        pos_synced,
                         laptime_curr,
                         delay_update,
                     )
                     delta_session_raw = calc.delta_telemetry(
                         delta_list_session,
-                        pos_estimate,
+                        pos_synced,
                         laptime_curr,
                         delay_update,
                     )
                     delta_stint_raw = calc.delta_telemetry(
                         delta_list_stint,
-                        pos_estimate,
+                        pos_synced,
                         laptime_curr,
                         delay_update,
                     )
@@ -247,7 +252,7 @@ class Realtime(DataModule):
                 output.lapTimeSession = laptime_session_best
                 output.lapTimeStint = laptime_stint_best
                 output.lapTimePace = laptime_pace
-                output.lapDistance = pos_estimate
+                output.lapDistance = pos_synced
                 output.metersDriven = meters_driven
 
             else:

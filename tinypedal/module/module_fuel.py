@@ -64,6 +64,7 @@ class Realtime(DataModule):
                         filepath=userpath_fuel_delta,
                         filename=combo_id,
                         extension=".fuel",
+                        min_delta_distance=self.mcfg["minimum_delta_distance"],
                     )
                     # Initial run to reset module output
                     next(gen_calc_fuel)
@@ -103,7 +104,8 @@ def telemetry_fuel() -> tuple[float, float]:
 
 
 def calc_data(
-    output: FuelInfo, telemetry_func: Callable, filepath: str, filename: str, extension: str):
+    output: FuelInfo, telemetry_func: Callable, filepath: str, filename: str, extension: str,
+    min_delta_distance: float):
     """Calculate data"""
     recording = False
     delayed_save = False
@@ -141,7 +143,7 @@ def calc_data(
     pos_recorded = 0.0  # last recorded vehicle position
     pos_last = 0.0  # last checked vehicle position
     pos_estimate = 0.0  # calculated position
-    pos_synced = False  # whether estimated position synced
+    is_pos_synced = False  # whether estimated position synced
     gps_last = (0.0,0.0,0.0)  # last global position
 
     while True:
@@ -203,11 +205,11 @@ def calc_data(
 
         # Update if position value is different & positive
         if 0 <= pos_curr != pos_last:
-            if recording and pos_curr - pos_recorded >= 10:  # 10 meters further
+            if recording and pos_curr - pos_recorded >= min_delta_distance:
                 delta_list_raw.append((round6(pos_curr), round6(used_curr)))
                 pos_recorded = pos_curr
             pos_last = pos_curr  # reset last position
-            pos_synced = True
+            is_pos_synced = True
 
         # Validating 1s after passing finish line
         if validating:
@@ -224,9 +226,9 @@ def calc_data(
 
         # Calc delta
         if gps_last != gps_curr:
-            if pos_synced:
+            if is_pos_synced:
                 pos_estimate = pos_curr
-                pos_synced = False
+                is_pos_synced = False
             else:
                 pos_estimate += calc.distance(gps_last, gps_curr)
             gps_last = gps_curr
