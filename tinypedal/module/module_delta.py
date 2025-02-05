@@ -111,8 +111,10 @@ class Realtime(DataModule):
                     last_lap_stime = -1.0  # lap-start-time
                     pos_recorded = 0.0  # last recorded vehicle position
                     pos_last = 0.0  # last checked vehicle position
-                    pos_estimate = 0.0  # calculated position
-                    is_pos_synced = False  # whether estimated position synced
+                    pos_estimate = 0.0  # estimated vehicle position
+                    pos_synced = 0.0  # synced estimated vehicle position
+                    pos_synced_last = 0.0  # last synced estimated vehicle position
+                    is_pos_synced = False  # vehicle position synced with API
                     gps_last = (0.0,0.0,0.0)  # last global position
                     meters_driven = self.cfg.user.setting["cruise"]["meters_driven"]
 
@@ -193,18 +195,24 @@ class Realtime(DataModule):
                     elif timer > 10:  # switch off after 10s
                         validating = 0
 
-                # Calc delta
+                # Calc distance
                 if gps_last != gps_curr:
                     moved_distance = calc.distance(gps_last, gps_curr)
                     gps_last = gps_curr
-                    # Estimate distance
+                    # Estimate distance into lap
                     if is_pos_synced:
                         pos_estimate = pos_curr
                         is_pos_synced = False
                     else:
                         pos_estimate += moved_distance
-                    # Update delta
                     pos_synced = gen_position_sync.send(pos_estimate)
+                    # Update driven distance
+                    if moved_distance < 1500 * update_interval:
+                        meters_driven += moved_distance
+
+                # Calc delta
+                if pos_synced_last != pos_synced:
+                    pos_synced_last = pos_synced
                     delay_update = laptime_curr > 0.3
                     delta_best_raw = calc.delta_telemetry(
                         delta_list_best,
@@ -235,9 +243,6 @@ class Realtime(DataModule):
                     delta_last_ema = calc_ema_delta(delta_last_ema, delta_last_raw)
                     delta_session_ema = calc_ema_delta(delta_session_ema, delta_session_raw)
                     delta_stint_ema = calc_ema_delta(delta_stint_ema, delta_stint_raw)
-                    # Update driven distance
-                    if moved_distance < 1500 * update_interval:
-                        meters_driven += moved_distance
 
                 # Output delta time data
                 output.deltaBest = delta_best_ema

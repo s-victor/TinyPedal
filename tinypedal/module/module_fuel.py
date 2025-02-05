@@ -142,8 +142,8 @@ def calc_data(
     end_timer_laps_left = 0.0  # amount laps left from start of current lap to end of race timer
     pos_recorded = 0.0  # last recorded vehicle position
     pos_last = 0.0  # last checked vehicle position
-    pos_estimate = 0.0  # calculated position
-    is_pos_synced = False  # whether estimated position synced
+    pos_estimate = 0.0  # estimated vehicle position
+    is_pos_synced = False  # vehicle position synced with API
     gps_last = (0.0,0.0,0.0)  # last global position
 
     while True:
