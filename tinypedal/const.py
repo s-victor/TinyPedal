@@ -28,9 +28,9 @@ from psutil import version_info
 from PySide2.QtCore import qVersion
 
 # App info
-VERSION = "2.23.0"
+VERSION = "2.24.0"
 APP_NAME = "TinyPedal"
-COPYRIGHT = "Copyright (C) 2022-2024 TinyPedal developers"
+COPYRIGHT = "Copyright (C) 2022-2025 TinyPedal developers"
 DESCRIPTION = "A Free and Open Source telemetry overlay application for racing simulation."
 LICENSE = "Licensed under the GNU General Public License v3.0 or later."
 WEBSITE = "https://github.com/s-victor/TinyPedal"

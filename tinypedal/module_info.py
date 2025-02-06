@@ -438,8 +438,8 @@ class VehicleDataSet:
         self.isClassFastestLastLap: bool = False
         self.numPitStops: int = 0
         self.pitState: int = 0
-        self.tireCompoundFront: int = 0
-        self.tireCompoundRear: int = 0
+        self.tireCompoundFront: str = ""
+        self.tireCompoundRear: str = ""
         self.relativeOrientationRadians: float = 0.0
         self.relativeStraightDistance: float = 0.0
         self.worldPositionX: float = 0.0

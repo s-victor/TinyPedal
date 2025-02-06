@@ -21,9 +21,48 @@ Heatmap function
 """
 
 from __future__ import annotations
+import re
 
 from .setting import cfg
 from .validator import hex_color
+from .regex_pattern import COMMON_TYRE_COMPOUNDS
+
+
+def set_predefined_compound_symbol(compound_name: str) -> str:
+    """Set common tyre compound name to predefined symbol"""
+    for compound in COMMON_TYRE_COMPOUNDS:
+        if re.search(compound[0], compound_name, flags=re.IGNORECASE):
+            return compound[1]
+    return "?"
+
+
+def select_compound_symbol(compound_name: str) -> str:
+    """Select compound symbol"""
+    compound = cfg.user.compounds.get(compound_name, None)
+    if compound is None:
+        # Ignore invalid compound name
+        if compound_name == "" or compound_name == " - ":
+            return "?"
+        # Add compound name to compounds preset if not exist
+        symbol_name = set_predefined_compound_symbol(compound_name)
+        cfg.user.compounds[compound_name] = {
+            "symbol": symbol_name,
+            "heatmap": "tyre_default",
+        }
+        cfg.save(filetype="compounds")
+    else:
+        symbol_name = compound.get("symbol", "?")
+    return symbol_name
+
+
+def select_tyre_heatmap(compound_name: str) -> str:
+    """Select tyre heatmap name from matching compound name in compounds preset"""
+    compound = cfg.user.compounds.get(compound_name, None)
+    if compound is None:
+        heatmap_name = "tyre_default"
+    else:
+        heatmap_name = compound.get("heatmap", "tyre_default")
+    return heatmap_name
 
 
 def verify_heatmap(heatmap_dict: dict) -> bool:

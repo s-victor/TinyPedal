@@ -503,6 +503,19 @@ class Tyre(DataAdapter):
         tele_veh = self.info.rf2TeleVeh(index)
         return chknm(tele_veh.mFrontTireCompoundIndex), chknm(tele_veh.mRearTireCompoundIndex)
 
+    def compound_name_front(self, index: int | None = None) -> str:
+        """Tyre compound name - front"""
+        return cs2py(self.info.rf2TeleVeh(index).mFrontTireCompoundName)
+
+    def compound_name_rear(self, index: int | None = None) -> str:
+        """Tyre compound name - rear"""
+        return cs2py(self.info.rf2TeleVeh(index).mRearTireCompoundName)
+
+    def compound_name(self, index: int | None = None) -> tuple[str, str]:
+        """Tyre compound name set"""
+        tele_veh = self.info.rf2TeleVeh(index)
+        return cs2py(tele_veh.mFrontTireCompoundName), cs2py(tele_veh.mRearTireCompoundName)
+
     def surface_temperature_avg(self, index: int | None = None) -> list[float]:
         """Tyre surface temperature set - average"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels

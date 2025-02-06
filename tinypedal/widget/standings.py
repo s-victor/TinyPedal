@@ -24,6 +24,7 @@ from PySide2.QtGui import QPixmap
 
 from .. import calculation as calc
 from .. import formatter as fmt
+from .. import heatmap as hmp
 from ..api_control import api
 from ..module_info import minfo
 from ..userfile.brand_logo import load_brand_logo_file
@@ -54,7 +55,6 @@ class Realtime(Overlay):
         self.int_width = max(int(self.wcfg["time_interval_width"]), 1)
         self.gap_decimals = max(int(self.wcfg["time_gap_decimal_places"]), 0)
         self.int_decimals = max(int(self.wcfg["time_interval_decimal_places"]), 0)
-        self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
         self.show_class_gap = self.wcfg["split_gap"] > 0
         self.show_class_interval = (self.wcfg["enable_multi_class_split_mode"]
             and self.wcfg["show_time_interval_from_same_class"])
@@ -81,7 +81,7 @@ class Realtime(Overlay):
             ("",0,2),  # vehicle name
             ("",0,2),  # pos_class
             ("",2),  # veh_class
-            (-1,-1,0,2),  # tire_idx
+            ("","",0,2),  # tire_idx
             ("",0,0,2),  # laptime
             ("",0,2),  # best laptime
             ("",0,2),  # time_gap
@@ -590,8 +590,8 @@ class Realtime(Overlay):
         """Tyre compound index"""
         if target.last != data:
             target.last = data
-            if data[0] != -1:
-                text = f"{self.tyre_compound_string[data[0]]}{self.tyre_compound_string[data[1]]}"
+            if data[0] != "":
+                text = f"{hmp.select_compound_symbol(data[0])}{hmp.select_compound_symbol(data[1])}"
             else:
                 text = ""
             target.setText(text)
@@ -724,9 +724,8 @@ class Realtime(Overlay):
         # 5 Vehicle class (veh_class: str, state)
         veh_class = (veh_info.vehicleClass, state)
 
-        # 6 Tyre compound index (tire_idx: int, hi_player, state)
-        tire_idx = (
-            veh_info.tireCompoundFront, veh_info.tireCompoundRear, hi_player, state)
+        # 6 Tyre compound index (tire_idx: str, hi_player, state)
+        tire_idx = (veh_info.tireCompoundFront, veh_info.tireCompoundRear, hi_player, state)
 
         # 7 Lap time (laptime: tuple, is fastest last: bool, hi_player, state)
         if self.wcfg["show_best_laptime"] or in_race:

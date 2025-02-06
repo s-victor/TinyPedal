@@ -1,10 +1,24 @@
-WIP
+2.24.0 (2025-02-06)
 -----------------------------
-* Delta, Energy, Fuel Module
-  - Add "minimum_delta_distance" option, which sets minimum recording distance (in meters) between each delta sample.
-    Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy.
-    Default value is "5" meters. Recommended value range in "5" to "10" meters.
-  - Improved calculation to reduce data fluctuation.
+* General
+  - Add log info for showing various style presets loading status.
+  - Unified preset backup file name format.
+  - Add preset file validation for "classes.json" and "compounds.json".
+  - Removed "tyre_compound_symbol" option from "units" config.
+
+* [New]Compounds Preset
+  - Add new "compounds.json" preset file in "settings" folder, which is used for displaying custom
+    tyre compound symbol and heatmap style that matches specific tyre compounds.
+  - Add default tyre compound styles for all tyres currently found in "LMU".
+  - Add default tyre compound styles for some popular vehicles found in "RF2".
+  - Add tyre compounds auto-detection system, which automatically adds missing tyre compounds found
+    from all running vehicles to "compounds.json" and assigns closest matched compound symbols.
+    A "?" symbol will be displayed if a compound name is not commonly known.
+  - "compounds" file name is now reserved for "compounds.json" preset.
+
+* [New]Tyre Compound Editor
+  - Add "Tyre Compound Editor" to "Tools" menu in main window, which allows customizing "compounds.json" preset.
+    See User Guide "Compounds preset" section for complete usage.
 
 * Classes Preset
   - Extended classes preset structure to support more customization in future.
@@ -16,6 +30,27 @@ WIP
   - Now shows customizable classes styles in table view, including "Class name", "Alias name", "Color" columns.
   - Now supports multi-selection for deleting multiple classes.
   - Now supports classes sorting.
+
+* Delta, Energy, Fuel Module
+  - Add "minimum_delta_distance" option, which sets minimum recording distance (in meters) between each delta sample.
+    Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy.
+    Default value is "5" meters. Recommended value range in "5" to "10" meters.
+  - Improved calculation and significantly reduced data fluctuation.
+
+* Relative, Rivals, Standings Widget
+  - Now shows tyre compound symbols (front and rear) that matches specific tyre compounds defined in "compounds.json" preset.
+
+* Tyre carcass, Tyre inner layer, Tyre temperature Widget
+  - Add "enable_heatmap_auto_matching" option, which enables automatically heatmap style matching
+    for specific tyre compounds defined in "compounds.json" preset.
+    This option applies matching heatmap style to front and rear tyre compounds separately.
+    While this option is enabled, "heatmap_name" option has no effect. This option is enabled by default.
+    Note, separate compounds info for tyres on the same axle is not available from game API,
+    which currently it is not possible to show left and right compounds separately.
+  - Now shows tyre compound symbols (front and rear) that matches specific tyre compounds defined in "compounds.json" preset.
+
+* Misc
+  - Updated User Guide info for related changes above.
 
 2.23.0 (2025-01-15)
 -----------------------------

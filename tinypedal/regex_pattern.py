@@ -64,7 +64,6 @@ CFG_USER_IMAGE = "_image_file"
 CFG_STRING = (
     # Exact match
     "^process_id$|"
-    "^tyre_compound_symbol$|"
     "^url_host$|"
     "^LMU$|"
     "^RF2$|"
@@ -137,6 +136,7 @@ CFG_INVALID_FILENAME = (
     "^$|"
     "^brands$|"
     "^classes$|"
+    "^compounds$|"
     "^config$|"
     "^heatmap$|"
     # Partial match
@@ -182,3 +182,14 @@ CHOICE_UNITS = {
 
 # Misc
 GEAR_SEQUENCE = "N123456789R"
+COMMON_TYRE_COMPOUNDS = (
+    ("super", "Q"),  # super soft
+    ("inter", "I"),  # intermediate
+    ("soft", "S"),
+    ("med", "M"),  # medium
+    ("hard", "H"),
+    ("rain|wet", "W"),
+    ("slick|dry", "S"),
+    ("road|radial", "R"),
+    ("bias", "B"),  # bias ply
+)

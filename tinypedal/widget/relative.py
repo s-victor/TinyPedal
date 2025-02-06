@@ -24,6 +24,7 @@ from PySide2.QtGui import QPixmap
 
 from .. import calculation as calc
 from .. import formatter as fmt
+from .. import heatmap as hmp
 from ..module_info import minfo
 from ..userfile.brand_logo import load_brand_logo_file
 from ._base import Overlay
@@ -51,7 +52,6 @@ class Realtime(Overlay):
         self.cls_width = max(int(self.wcfg["class_width"]), 1)
         self.gap_width = max(int(self.wcfg["time_gap_width"]), 1)
         self.gap_decimals = max(int(self.wcfg["time_gap_decimal_places"]), 0)
-        self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -74,7 +74,7 @@ class Realtime(Overlay):
             ("",0),  # pos_class
             "",  # veh_class
             ("",0),  # time_gap
-            (-1,-1,0),  # tire_idx
+            ("","",0),  # tire_idx
             ("",0,0),  # laptime
             (-999,0,0)  # pit_count
         )
@@ -521,8 +521,8 @@ class Realtime(Overlay):
         """Tyre compound index"""
         if target.last != data:
             target.last = data
-            if data[0] != -1:
-                text = f"{self.tyre_compound_string[data[0]]}{self.tyre_compound_string[data[1]]}"
+            if data[0] != "":
+                text = f"{hmp.select_compound_symbol(data[0])}{hmp.select_compound_symbol(data[1])}"
             else:
                 text = ""
             target.setText(text)
@@ -636,7 +636,7 @@ class Realtime(Overlay):
         # 6 Time gap (time_gap: float, hi_player)
         time_gap = (veh_info.relativeTimeGap, hi_player)
 
-        # 7 Tyre compound index (tire_idx: int, hi_player)
+        # 7 Tyre compound index (tire_idx: str, hi_player)
         tire_idx = (veh_info.tireCompoundFront, veh_info.tireCompoundRear, hi_player)
 
         # 8 Lap time (laptime: tuple, is fastest last: bool, hi_player)

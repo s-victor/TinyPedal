@@ -35,31 +35,53 @@ COMMON_STRINGS = fmt.pipe_join(
 )
 
 
-def classes_validator(style_user: dict) -> bool:
-    """Vehicle class style validator"""
-    save_change = False
-    ALIAS = "alias"
-    COLOR = "color"
-    # Check first entry for old classes format
-    for class_name, class_data in style_user.items():
-        if not save_change:
-            if set(class_data).issubset((ALIAS, COLOR)):
+class StyleValidator:
+    """Style validator"""
+
+    @staticmethod
+    def classes(style_user: dict) -> bool:
+        """Vehicle class style validator"""
+        save_change = False
+        ALIAS = "alias"
+        COLOR = "color"
+        # Check first entry for old classes format
+        for class_name, class_data in style_user.items():
+            if not save_change:
+                if set(class_data).issubset((ALIAS, COLOR)):
+                    break
+                else:
+                    save_change = True
+            # Update old classes format
+            for key, value in class_data.items():
+                class_data[ALIAS] = key
+                class_data[COLOR] = value
+                class_data.pop(key)
                 break
-            else:
+        # Validate classes entry
+        for class_name, class_data in style_user.items():
+            if ALIAS not in class_data or not isinstance(class_data[ALIAS], str):
+                class_data[ALIAS] = class_name
                 save_change = True
-        # Update old classes format
-        for key, value in class_data.items():
-            class_data[ALIAS] = key
-            class_data[COLOR] = value
-            class_data.pop(key)
-            break
-    # Validate classes entry
-    for class_name, class_data in style_user.items():
-        if not isinstance(class_data[ALIAS], str):
-            class_data[ALIAS] = class_name
-        if not val.hex_color(class_data[COLOR]):
-            class_data[COLOR] = fmt.random_color_class(class_name)
-    return save_change
+            if COLOR not in class_data or not val.hex_color(class_data[COLOR]):
+                class_data[COLOR] = fmt.random_color_class(class_name)
+                save_change = True
+        return save_change
+
+    @staticmethod
+    def compounds(style_user: dict) -> bool:
+        """Tyre compound style validator"""
+        save_change = False
+        SYMBOL = "symbol"
+        HEATMAP = "heatmap"
+        # Validate compound entry
+        for compound_data in style_user.values():
+            if SYMBOL not in compound_data or not isinstance(compound_data[SYMBOL], str):
+                compound_data[SYMBOL] = "?"
+                save_change = True
+            if HEATMAP not in compound_data or not isinstance(compound_data[HEATMAP], str):
+                compound_data[HEATMAP] = "tyre_default"
+                save_change = True
+        return save_change
 
 
 class ValueValidator:

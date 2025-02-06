@@ -24,6 +24,7 @@ from PySide2.QtGui import QPixmap
 
 from .. import calculation as calc
 from .. import formatter as fmt
+from .. import heatmap as hmp
 from ..api_control import api
 from ..module_info import minfo
 from ..userfile.brand_logo import load_brand_logo_file
@@ -52,7 +53,6 @@ class Realtime(Overlay):
         self.cls_width = max(int(self.wcfg["class_width"]), 1)
         self.int_width = max(int(self.wcfg["time_interval_width"]), 1)
         self.int_decimals = max(int(self.wcfg["time_interval_decimal_places"]), 0)
-        self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -72,7 +72,7 @@ class Realtime(Overlay):
             "",  # vehicle name
             "",  # pos_class
             "",  # veh_class
-            (-1,-1),  # tire_idx
+            ("",""),  # tire_idx
             "",  # laptime
             "",  # best laptime
             (-999,0),  # pit_count
@@ -501,8 +501,8 @@ class Realtime(Overlay):
         """Tyre compound index"""
         if target.last != data:
             target.last = data
-            if data[0] != -1:
-                text = f"{self.tyre_compound_string[data[0]]}{self.tyre_compound_string[data[1]]}"
+            if data[0] != "":
+                text = f"{hmp.select_compound_symbol(data[0])}{hmp.select_compound_symbol(data[1])}"
             else:
                 text = ""
             target.setText(text)
@@ -606,7 +606,7 @@ class Realtime(Overlay):
         # 5 Vehicle class (veh_class: str)
         veh_class = veh_info.vehicleClass
 
-        # 6 Tyre compound index (tire_idx: int)
+        # 6 Tyre compound index (tire_idx: str)
         tire_idx = (veh_info.tireCompoundFront, veh_info.tireCompoundRear)
 
         # 7 Lap time (laptime: tuple)

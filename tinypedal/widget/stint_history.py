@@ -23,6 +23,7 @@ Stint history Widget
 from collections import deque
 
 from .. import calculation as calc
+from .. import heatmap as hmp
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
@@ -45,7 +46,6 @@ class Realtime(Overlay):
         layout_reversed = self.wcfg["layout"] != 0
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         stint_slot = max(self.wcfg["stint_history_count"], 1)
-        self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -231,7 +231,11 @@ class Realtime(Overlay):
                 self.start_fuel = fuel_curr
 
             # Current stint data
-            self.stint_data[0] = self.set_tyre_cmp(*api.read.tyre.compound())
+            class_name = api.read.vehicle.class_name()
+            self.stint_data[0] = "".join(
+                hmp.select_compound_symbol(f"{class_name} - {tcmpd_name}")
+                for tcmpd_name in api.read.tyre.compound_name()
+            )
             self.stint_data[1] = max(lap_num - self.start_laps, 0)
             self.stint_data[2] = max(time_curr - self.start_time, 0)
             self.stint_data[3] = max(self.start_fuel - fuel_curr, 0)
@@ -311,7 +315,3 @@ class Realtime(Overlay):
         if self.cfg.units["fuel_unit"] == "Gallon":
             return calc.liter2gallon(fuel)
         return fuel
-
-    def set_tyre_cmp(self, front, rear):
-        """Substitute tyre compound index with custom chars"""
-        return f"{self.tyre_compound_string[front]}{self.tyre_compound_string[rear]}"

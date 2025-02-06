@@ -48,17 +48,9 @@ class Realtime(Overlay):
         inner_gap = self.wcfg["inner_gap"]
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
-        self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
         text_width = 3 + len(self.sign_text) + (self.cfg.units["temperature_unit"] == "Fahrenheit")
 
         # Base style
-        self.heatmap = hmp.load_heatmap_style(
-            heatmap_name=self.wcfg["heatmap_name"],
-            default_name="tyre_default",
-            swap_style=self.wcfg["swap_style"],
-            fg_color=self.wcfg["font_color_inner_layer"],
-            bg_color=self.wcfg["bkg_color_inner_layer"],
-        )
         self.setStyleSheet(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
@@ -72,6 +64,17 @@ class Realtime(Overlay):
             fg_color=self.wcfg["font_color_inner_layer"],
             bg_color=self.wcfg["bkg_color_inner_layer"]
         )
+
+        # Heatmap style list: 0 - fl, 1 - fr, 2 - rl, 3 - rr
+        self.heatmap_styles = 4 * [
+            hmp.load_heatmap_style(
+                heatmap_name=self.wcfg["heatmap_name"],
+                default_name="tyre_default",
+                swap_style=self.wcfg["swap_style"],
+                fg_color=self.wcfg["font_color_inner_layer"],
+                bg_color=self.wcfg["bkg_color_inner_layer"],
+            )
+        ]
 
         # Tyre inner temperature
         self.bars_itemp = self.set_table(
@@ -101,33 +104,45 @@ class Realtime(Overlay):
 
             # Tyre compound
             if self.wcfg["show_tyre_compound"]:
-                tcmpd = api.read.tyre.compound()
+                class_name = api.read.vehicle.class_name()
+                tcmpd_name = api.read.tyre.compound_name()
                 for cmpd_idx, bar_tcmpd in enumerate(self.bars_tcmpd):
-                    self.update_tcmpd(bar_tcmpd, tcmpd[cmpd_idx])
+                    self.update_tcmpd(bar_tcmpd, f"{class_name} - {tcmpd_name[cmpd_idx]}", cmpd_idx * 2)
 
             # Inner layer temperature: 0 - fl, 3 - fr, 6 - rl, 9 - rr
             if self.wcfg["show_inner_center_outer"]:
                 itemp = api.read.tyre.inner_temperature_ico()
                 for tyre_idx, bar_itemp in enumerate(self.bars_itemp):
-                    self.update_itemp(bar_itemp, round(itemp[tyre_idx]))
+                    self.update_itemp(bar_itemp, round(itemp[tyre_idx]), tyre_idx // 3)
             else:  # 0 - fl, 1 - fr, 2 - rl, 3 - rr
                 itemp = api.read.tyre.inner_temperature_avg()
                 for tyre_idx, bar_itemp in enumerate(self.bars_itemp):
-                    self.update_itemp(bar_itemp, round(itemp[tyre_idx]))
+                    self.update_itemp(bar_itemp, round(itemp[tyre_idx]), tyre_idx)
 
     # GUI update methods
-    def update_itemp(self, target, data):
+    def update_itemp(self, target, data, index):
         """Tyre inner temperature"""
         if target.last != data:
             target.last = data
             target.setText(self.format_temperature(data))
-            target.setStyleSheet(calc.select_grade(self.heatmap, data))
+            target.setStyleSheet(calc.select_grade(self.heatmap_styles[index], data))
 
-    def update_tcmpd(self, target, data):
+    def update_tcmpd(self, target, data, index):
         """Tyre compound"""
         if target.last != data:
             target.last = data
-            target.setText(self.tyre_compound_string[data])
+            target.setText(hmp.select_compound_symbol(data))
+            # Update heatmap style
+            if self.wcfg["enable_heatmap_auto_matching"]:
+                heatmap_style = hmp.load_heatmap_style(
+                    heatmap_name=hmp.select_tyre_heatmap(data),
+                    default_name="tyre_default",
+                    swap_style=self.wcfg["swap_style"],
+                    fg_color=self.wcfg["font_color_inner_layer"],
+                    bg_color=self.wcfg["bkg_color_inner_layer"],
+                )
+                self.heatmap_styles[index] = heatmap_style
+                self.heatmap_styles[index + 1] = heatmap_style
 
     # GUI generate methods
     def set_table(self, text, style, width, layout, inner_gap):

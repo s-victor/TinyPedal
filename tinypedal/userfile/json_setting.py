@@ -20,16 +20,27 @@
 Setting file function
 """
 
+from __future__ import annotations
 import logging
 import os
 import time
 import json
 import shutil
+from typing import Callable
 
-from ..setting_validator import PresetValidator, classes_validator
+from ..setting_validator import PresetValidator
 
 logger = logging.getLogger(__name__)
 preset_validator = PresetValidator()
+
+
+def set_backup_timestamp(prefix: str = ".backup-", timestamp: bool = True) -> str:
+    """Set backup timestamp"""
+    if timestamp:
+        time_stamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
+    else:
+        time_stamp = ""
+    return f"{prefix}{time_stamp}"
 
 
 def copy_setting(dict_user: dict) -> dict:
@@ -55,52 +66,39 @@ def load_setting_json_file(filename: str, filepath: str, dict_def: dict, is_glob
             logger.info("SETTING: %s loaded (user preset)", filename)
     except (FileNotFoundError, KeyError, ValueError):
         logger.error("SETTING: %s failed loading, create backup & revert to default", filename)
-        backup_invalid_json_file(filename, filepath)
+        create_backup_file(filename, filepath, set_backup_timestamp())
         setting_user = copy_setting(dict_def)
     return setting_user
 
 
-def load_style_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
-    """Load style json file"""
-    try:
-        # Read JSON file
-        with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
-            style_user = json.load(jsonfile)
-        logger.info("SETTING: %s loaded (user preset)", filename)
-    except (FileNotFoundError, KeyError, ValueError):
-        style_user = copy_setting(dict_def)
-        # Save to file if not found
-        if not os.path.exists(f"{filepath}{filename}"):
-            logger.info("SETTING: %s not found, create new default", filename)
-            save_json_file(filename, filepath, style_user)
-        else:
-            logger.error("SETTING: %s failed loading, fall back to default", filename)
-    return style_user
-
-
-def load_classes_json_file(filename: str, filepath: str, dict_def: dict) -> dict:
+def load_style_json_file(
+    filename: str, filepath: str, dict_def: dict, validator: Callable | None = None) -> dict:
     """Load classes style json file"""
+    msg_text = "loaded"
     try:
         # Read JSON file
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
             style_user = json.load(jsonfile)
 
-        save_change = classes_validator(style_user)
-        if save_change:
-            create_backup_file(filename, filepath, ".old")
-            save_json_file(filename, filepath, style_user)
-            logger.info("SETTING: %s updated (user preset) to latest specification", filename)
-        else:
-            logger.info("SETTING: %s loaded (user preset)", filename)
+        if validator is not None:
+            save_change = validator(style_user)
+            if save_change:
+                create_backup_file(filename, filepath, set_backup_timestamp())
+                msg_text = "updated"
 
     except (FileNotFoundError, KeyError, ValueError):
         style_user = copy_setting(dict_def)
-        # Save to file if not found
         if not os.path.exists(f"{filepath}{filename}"):
             logger.info("SETTING: %s not found, create new default", filename)
-            save_json_file(filename, filepath, style_user)
         else:
             logger.error("SETTING: %s failed loading, fall back to default", filename)
+            create_backup_file(filename, filepath, set_backup_timestamp())
+        msg_text = "updated"
+
+    if msg_text == "updated":
+        save_json_file(filename, filepath, style_user)
+
+    logger.info("SETTING: %s %s (user preset)", filename, msg_text)
     return style_user
 
 
@@ -118,18 +116,6 @@ def verify_json_file(filename: str, filepath: str, dict_user: dict) -> bool:
     except (FileNotFoundError, ValueError):
         logger.error("SETTING: failed saving verification")
         return False
-
-
-def backup_invalid_json_file(filename: str, filepath: str) -> None:
-    """Backup invalid json file before revert to default"""
-    try:
-        time_stamp = time.strftime("%Y-%m-%d %H-%M-%S", time.localtime())
-        shutil.copyfile(
-            f"{filepath}{filename}",
-            f"{filepath}{filename[:-5]}-backup {time_stamp}.json"
-        )
-    except (FileNotFoundError, OSError):
-        logger.error("SETTING: failed invalid preset backup")
 
 
 def create_backup_file(filename: str, filepath: str, extension: str = ".bak") -> None:

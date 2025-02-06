@@ -36,6 +36,7 @@ from .fuel_calculator import FuelCalculator
 from .heatmap_editor import HeatmapEditor
 from .track_map_viewer import TrackMapViewer
 from .track_notes_editor import TrackNotesEditor
+from .tyre_compound_editor import TyreCompoundEditor
 from .vehicle_brand_editor import VehicleBrandEditor
 from .vehicle_class_editor import VehicleClassEditor
 
@@ -367,6 +368,10 @@ class ToolsMenu(QMenu):
         editor_heatmap.triggered.connect(self.open_editor_heatmap)
         self.addAction(editor_heatmap)
 
+        editor_compounds = QAction("Tyre Compound Editor", self)
+        editor_compounds.triggered.connect(self.open_editor_compounds)
+        self.addAction(editor_compounds)
+
         editor_brands = QAction("Vehicle Brand Editor", self)
         editor_brands.triggered.connect(self.open_editor_brands)
         self.addAction(editor_brands)
@@ -392,6 +397,11 @@ class ToolsMenu(QMenu):
     def open_editor_heatmap(self):
         """Edit heatmap preset"""
         _dialog = HeatmapEditor(self.master)
+        _dialog.show()
+
+    def open_editor_compounds(self):
+        """Edit compounds preset"""
+        _dialog = TyreCompoundEditor(self.master)
         _dialog.show()
 
     def open_editor_brands(self):

@@ -25,12 +25,12 @@ import random
 import re
 from functools import lru_cache
 
-from . import regex_pattern as rxp
+from .regex_pattern import ABBR_PATTERN, GEAR_SEQUENCE
 
 
 def uppercase_abbr(name: str) -> str:
     """Convert abbreviation name to uppercase"""
-    return re.sub(rxp.ABBR_PATTERN, upper_matched_abbr, name, flags=re.IGNORECASE)
+    return re.sub(ABBR_PATTERN, upper_matched_abbr, name, flags=re.IGNORECASE)
 
 
 def upper_matched_abbr(matchobj: re.Match) -> str:
@@ -78,8 +78,8 @@ def qfile_filter(extension: str, description: str) -> str:
 def select_gear(index: int) -> str:
     """Select gear string"""
     if -1 <= index <= 9:
-        return rxp.GEAR_SEQUENCE[index]
-    return rxp.GEAR_SEQUENCE[0]
+        return GEAR_SEQUENCE[index]
+    return GEAR_SEQUENCE[0]
 
 
 @lru_cache(maxsize=20)

@@ -104,21 +104,9 @@ class Realtime(DataModule):
             lap_distance = api.read.lap.distance(index)
             num_penalties = api.read.vehicle.number_penalties(index)
 
-            # Output var only
-            data.driverName = api.read.vehicle.driver_name(index)
-            data.vehicleName = api.read.vehicle.vehicle_name(index)
-            data.vehicleClass = api.read.vehicle.class_name(index)
-            data.gapBehindNext = calc_gap_behind_next(index)
-            data.gapBehindLeader = calc_gap_behind_leader(index)
-            data.bestLapTime = api.read.timing.best_laptime(index)
-            data.lastLapTime = api.read.timing.last_laptime(index)
-            data.numPitStops = -num_penalties if num_penalties else api.read.vehicle.number_pitstops(index)
-            data.pitState = api.read.vehicle.pit_state(index)
-            data.tireCompoundFront = api.read.tyre.compound_front(index)
-            data.tireCompoundRear = api.read.tyre.compound_rear(index)
-
             # Temp & output var
             is_player = data.isPlayer = api.read.vehicle.is_player(index)
+            class_name = data.vehicleClass = api.read.vehicle.class_name(index)
             position_overall = data.positionOverall = api.read.vehicle.place(index)
             in_pit = data.inPit = 2 if api.read.vehicle.in_garage(
                 index) else api.read.vehicle.in_pits(index) # 0 not in pit, 1 in pit, 2 in garage
@@ -128,6 +116,18 @@ class Realtime(DataModule):
             data.gapBehindNextInClass = calc_gap_behind_next_in_class(
                 opt_index_ahead, index, track_length, laps_done, lap_progress)
             calc_pit_time(data.pitTimer, in_pit, lap_etime)
+
+            # Output var only
+            data.driverName = api.read.vehicle.driver_name(index)
+            data.vehicleName = api.read.vehicle.vehicle_name(index)
+            data.gapBehindNext = calc_gap_behind_next(index)
+            data.gapBehindLeader = calc_gap_behind_leader(index)
+            data.bestLapTime = api.read.timing.best_laptime(index)
+            data.lastLapTime = api.read.timing.last_laptime(index)
+            data.numPitStops = -num_penalties if num_penalties else api.read.vehicle.number_pitstops(index)
+            data.pitState = api.read.vehicle.pit_state(index)
+            data.tireCompoundFront = f"{class_name} - {api.read.tyre.compound_name_front(index)}"
+            data.tireCompoundRear = f"{class_name} - {api.read.tyre.compound_name_rear(index)}"
 
             # Position & relative data
             opt_pos_x = data.worldPositionX = api.read.vehicle.position_longitudinal(index)

@@ -68,7 +68,11 @@ Brands preset can be customized by accessing `Vehicle brand editor` from `Tools`
 
 `brands.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
 
-To modify brands setting, open `Vehicle brand editor` and edit entries from each rows and columns. Each row represents a vehicle. First column is full vehicle name that must match in-game vehicle name. Second column is brand name.
+To modify brands setting, open `Vehicle brand editor` and edit entries from each rows and columns. Each row represents a vehicle.
+
+`Vehicle name` is full vehicle name that must match in-game vehicle name.
+
+`Brand name` is custom brand name.
 
 To import vehicle brand data from `Rest API`, click `Import from` menu, and select either `RF2 Rest API` or `LMU Rest API`. Note, game must be running in order to import from `Rest API`. Newly imported data will be appended on top of existing data, existing data will not be changed.
 
@@ -92,7 +96,7 @@ To sort brand name in orders, click `Sort` button.
 
 To remove a brand name, select a vehicle name and click `Delete` button.
 
-To batch replace brand name, click `Replace` button.
+To batch replace name, click `Replace` button.
 
 To reset all brands setting to default, click `Reset` button; or manually delete `brands.json` file.
 
@@ -106,7 +110,7 @@ Classes preset can be customized by accessing `Vehicle class editor` from `Tools
 
 To modify class setting, open `Vehicle class editor` and edit entries from each rows and columns. Each row represents a vehicle class.
 
-`Class name` column is full vehicle class name that matches in-game vehicle class name.
+`Class name` column is full vehicle class name that must match in-game vehicle class name.
 
 `Alias name` column is alternative name that replaces class name for displaying.
 
@@ -119,6 +123,32 @@ To sort class name in orders, click `Sort` button.
 To remove class, select one or more rows and click `Delete`.
 
 To reset all classes setting to default, click `Reset` button; or manually delete `classes.json` file.
+
+
+## Compounds preset
+**Compounds preset is used for displaying custom tyre compound symbol & heatmap style that matches specific tyre compounds.**
+
+Compounds preset can be customized by accessing `Tyre compound editor` from `Tools` menu in main window. Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
+
+`compounds.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
+
+To modify compound setting, open `Tyre compound editor` and edit entries from each rows and columns. Each row represents a tyre compound from a specific vehicle class.
+
+`Compound name` column is full vehicle class name plus full tyre compound name that must match in-game vehicle class and tyre compound name.
+
+`Symbol` column is alternative symbol character that replaces full tyre compound name for displaying.
+
+`Heatmap` column is heatmap style name selector. Click on heatmap selector to open drop down list and select a heatmap style.
+
+To add new tyre compound, click `Add` button. Note, the editor can auto-detect and fill-in missing tyre compounds found from running vehicles in current active session, existing data will not be changed.
+
+To sort tyre compound name in orders, click `Sort` button.
+
+To remove tyre compound, select one or more rows and click `Delete`.
+
+To batch replace name, click `Replace` button.
+
+To reset all tyre compounds setting to default, click `Reset` button; or manually delete `compounds.json` file.
 
 
 ## Heatmap preset
@@ -471,9 +501,6 @@ Set character encoding for displaying text in correct encoding. Available encodi
 
     tyre_pressure_unit
 3 unit types are available: `kPa`, `psi`, `bar`.
-
-    tyre_compound_symbol
-Set custom tire compound index letter. One letter corresponds to one compound index. Note: since most vehicle mods don't share a common tire compound types or list order, it is impossible to have a tyre compound letter list that matches every vehicle.
 
 
 ## Global font override
@@ -2107,7 +2134,7 @@ Set custom pit status text which shows when driver is in pit.
 Set custom garage status text which shows when driver is in garage.
 
     show_tyre_compound
-Show tyre compound index (front/rear).
+Show tyre compound symbols (front and rear) that matches specific tyre compounds defined in `compounds.json` preset.
 
     show_pitstop_count
 Show each driver's pit stop count and penalty count if available. Note, when a driver accumulates one or more penalties, this column will show the number of penalties in negative value with purple (default) background to distinguish from number of pit stops.
@@ -2702,8 +2729,13 @@ Set draw order of plot lines.
 ## Tyre carcass temperature
 **This widget displays tyre carcass temperature info.**
 
+    enable_heatmap_auto_matching
+Enable automatically heatmap style matching for specific tyre compounds defined in `compounds.json` preset. This option applies matching heatmap style to front and rear tyre compounds separately.
+
+Note, separate compounds info for tyres on the same axle is not available from game API, which currently it is not possible to show left and right compounds separately.
+
     heatmap_name
-Set heatmap preset name that is defined in `heatmap.json` file.
+Set heatmap preset name that is defined in `heatmap.json` file. Note, this option has no effect while `enable_heatmap_auto_matching` is enabled.
 
     show_degree_sign
 Set `true` to show degree sign for each temperature value.
@@ -2721,14 +2753,19 @@ Set time interval in seconds for rate of change calculation. Default interval is
 Set number of samples for rate of change data smoothing calculation (EMA). Value range in `1` to `500`. Lower value may result more fluctuated reading. Set `1` to disable smoothing.
 
     show_tyre_compound
-Show tyre compound index (front/rear).
+Show tyre compound symbols (front and rear) that matches specific tyre compounds defined in `compounds.json` preset.
 
 
 ## Tyre inner layer
 **This widget displays tyre inner layer temperature info.**
 
+    enable_heatmap_auto_matching
+Enable automatically heatmap style matching for specific tyre compounds defined in `compounds.json` preset. This option applies matching heatmap style to front and rear tyre compounds separately.
+
+Note, separate compounds info for tyres on the same axle is not available from game API, which currently it is not possible to show left and right compounds separately.
+
     heatmap_name
-Set heatmap preset name that is defined in `heatmap.json` file.
+Set heatmap preset name that is defined in `heatmap.json` file. Note, this option has no effect while `enable_heatmap_auto_matching` is enabled.
 
     swap_style
 Swap heatmap color between font & background color.
@@ -2743,7 +2780,7 @@ Set `true` to show degree sign for each temperature value.
 Set amount leading zeros for each temperature value. Default is `2`. Minimum value is limited to `1`.
 
     show_tyre_compound
-Show tyre compound index (front/rear).
+Show tyre compound symbols (front and rear) that matches specific tyre compounds defined in `compounds.json` preset.
 
 
 ## Tyre load
@@ -2760,8 +2797,13 @@ Show percentage ratio of tyre load between each and total tyre load. Set `false`
 ## Tyre temperature
 **This widget displays tyre surface temperature info.**
 
+    enable_heatmap_auto_matching
+Enable automatically heatmap style matching for specific tyre compounds defined in `compounds.json` preset. This option applies matching heatmap style to front and rear tyre compounds separately.
+
+Note, separate compounds info for tyres on the same axle is not available from game API, which currently it is not possible to show left and right compounds separately.
+
     heatmap_name
-Set heatmap preset name that is defined in `heatmap.json` file.
+Set heatmap preset name that is defined in `heatmap.json` file. Note, this option has no effect while `enable_heatmap_auto_matching` is enabled.
 
     swap_style
 Swap heatmap color between font & background color.
@@ -2776,7 +2818,7 @@ Set `true` to show degree sign for each temperature value.
 Set amount leading zeros for each temperature value. Default is `2`. Minimum value is limited to `1`.
 
     show_tyre_compound
-Show tyre compound index (front/rear).
+Show tyre compound symbols (front and rear) that matches specific tyre compounds defined in `compounds.json` preset.
 
 
 ## Tyre wear

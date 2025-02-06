@@ -50,7 +50,7 @@ from ._common import (
     QSS_EDITOR_BUTTON,
 )
 
-HEADER_BRANDS = "Name","Brand"
+HEADER_BRANDS = "Vehicle name","Brand name"
 
 logger = logging.getLogger(__name__)
 

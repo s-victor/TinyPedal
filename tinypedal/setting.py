@@ -33,10 +33,12 @@ from .template.setting_module import MODULE_DEFAULT
 from .template.setting_widget import WIDGET_DEFAULT
 from .template.setting_classes import CLASSES_DEFAULT
 from .template.setting_heatmap import HEATMAP_DEFAULT
+from .template.setting_compounds import COMPOUNDS_DEFAULT
 
 from . import regex_pattern as rxp
 from . import validator as val
 from .const import APP_NAME, PLATFORM, PATH_GLOBAL
+from .setting_validator import StyleValidator
 from .userfile.brand_logo import load_brand_logo_list
 from .userfile.json_setting import (
     copy_setting,
@@ -47,7 +49,6 @@ from .userfile.json_setting import (
     delete_backup_file,
     load_setting_json_file,
     load_style_json_file,
-    load_classes_json_file,
 )
 
 logger = logging.getLogger(__name__)
@@ -62,6 +63,7 @@ class FileName:
         "classes",
         "heatmap",
         "brands",
+        "compounds",
         "last_setting",
     )
 
@@ -71,6 +73,7 @@ class FileName:
         self.classes: str = "classes.json"
         self.heatmap: str = "heatmap.json"
         self.brands: str = "brands.json"
+        self.compounds: str = "compounds.json"
         self.last_setting: str = "None.json"
 
 
@@ -125,6 +128,7 @@ class Preset:
         "heatmap",
         "brands",
         "brands_logo",
+        "compounds",
     )
 
     def __init__(self):
@@ -133,6 +137,7 @@ class Preset:
         self.classes: dict | None = None
         self.heatmap: dict | None = None
         self.brands: dict | None = None
+        self.compounds: dict | None = None
         self.brands_logo: list | None = None
 
     def set_default(self):
@@ -143,6 +148,7 @@ class Preset:
         self.classes = MappingProxyType(CLASSES_DEFAULT)
         self.heatmap = MappingProxyType(HEATMAP_DEFAULT)
         self.brands = MappingProxyType({})
+        self.compounds = MappingProxyType(COMPOUNDS_DEFAULT)
 
     @staticmethod
     def set_platform_default(global_def: dict):
@@ -219,11 +225,15 @@ class Setting:
     def load_global(self):
         """Load global setting, should only done once per launch"""
         self.user.config = load_setting_json_file(
-            self.filename.config, self.path.config, self.default.config, True
+            filename=self.filename.config,
+            filepath=self.path.config,
+            dict_def=self.default.config,
+            is_global=True,
         )
         # Assign global path
         self.path.update(
-            self.user.config["user_path"], self.default.config["user_path"]
+            user_path=self.user.config["user_path"],
+            default_path=self.default.config["user_path"],
         )
         # Assign global setting
         self.application = self.user.config["application"]
@@ -235,7 +245,8 @@ class Setting:
         """Update global path, call this if "user_path" changed"""
         old_settings_path = os.path.abspath(self.path.settings)
         self.path.update(
-            self.user.config["user_path"], self.default.config["user_path"]
+            user_path=self.user.config["user_path"],
+            default_path=self.default.config["user_path"],
         )
         new_settings_path = os.path.abspath(self.path.settings)
         # Update preset name if settings path changed
@@ -246,19 +257,36 @@ class Setting:
         """Load all setting files"""
         # Load preset JSON file
         self.user.setting = load_setting_json_file(
-            self.filename.setting, self.path.settings, self.default.setting
+            filename=self.filename.setting,
+            filepath=self.path.settings,
+            dict_def=self.default.setting,
         )
         # Load style JSON file
         self.user.brands = load_style_json_file(
-            self.filename.brands, self.path.settings, self.default.brands
+            filename=self.filename.brands,
+            filepath=self.path.settings,
+            dict_def=self.default.brands,
         )
-        self.user.classes = load_classes_json_file(
-            self.filename.classes, self.path.settings, self.default.classes
+        self.user.classes = load_style_json_file(
+            filename=self.filename.classes,
+            filepath=self.path.settings,
+            dict_def=self.default.classes,
+            validator=StyleValidator.classes,
+        )
+        self.user.compounds = load_style_json_file(
+            filename=self.filename.compounds,
+            filepath=self.path.settings,
+            dict_def=self.default.compounds,
+            validator=StyleValidator.compounds,
         )
         self.user.heatmap = load_style_json_file(
-            self.filename.heatmap, self.path.settings, self.default.heatmap
+            filename=self.filename.heatmap,
+            filepath=self.path.settings,
+            dict_def=self.default.heatmap,
         )
-        self.user.brands_logo = load_brand_logo_list(self.path.brand_logo)
+        self.user.brands_logo = load_brand_logo_list(
+            filepath=self.path.brand_logo,
+        )
         # Assign base setting
         self.overlay = self.user.setting["overlay"]
         self.shared_memory_api = self.user.setting["shared_memory_api"]
