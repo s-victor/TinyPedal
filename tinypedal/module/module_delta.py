@@ -25,7 +25,6 @@ from functools import partial
 from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
-from ..validator import position_sync
 from .. import calculation as calc
 from .. import validator as val
 from ..userfile.delta_best import load_delta_best_file, save_delta_best_file
@@ -67,7 +66,7 @@ class Realtime(DataModule):
             calc.ema_factor(min(max(self.mcfg["laptime_pace_samples"], 1), 20))
         )
         laptime_pace_margin = max(self.mcfg["laptime_pace_margin"], 0.1)
-        gen_position_sync = position_sync()
+        gen_position_sync = val.position_sync()
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -78,7 +77,7 @@ class Realtime(DataModule):
 
                     recording = False
                     validating = 0
-                    pit_lap = 0  # whether pit in or pit out lap
+                    is_pit_lap = 0  # whether pit in or pit out lap
 
                     gen_position_sync.send(None)
                     combo_id = api.read.check.combo_id()
@@ -125,10 +124,10 @@ class Realtime(DataModule):
                 pos_curr = api.read.lap.distance()
                 gps_curr = api.read.vehicle.position_xyz()
                 in_pits = api.read.vehicle.in_pits()
-                pit_lap = bool(pit_lap + in_pits)
+                is_pit_lap |= in_pits
 
                 # Reset delta stint best if in pit and stopped
-                if in_pits and delta_list_stint[-1][0] and api.read.vehicle.speed() < 0.1:
+                if in_pits and laptime_stint_best != MAGIC_NUM and api.read.vehicle.speed() < 0.1:
                     delta_list_stint = DELTA_DEFAULT
                     laptime_stint_best = MAGIC_NUM
 
@@ -142,7 +141,7 @@ class Realtime(DataModule):
                     delta_list_raw = [DELTA_ZERO]  # reset
                     pos_last = pos_recorded = pos_curr
                     recording = laptime_curr < 1
-                    pit_lap = 0
+                    is_pit_lap = 0
                 last_lap_stime = lap_stime  # reset
 
                 # 1 sec position distance check after new lap begins
@@ -165,7 +164,7 @@ class Realtime(DataModule):
                         laptime_valid > 0 and  # is valid laptime
                         int(laptime_valid - laptime_last) == 0):  # is matched laptime
                         # Update laptime pace
-                        if not pit_lap:
+                        if not is_pit_lap:
                             # Set initial laptime if invalid, or align to faster laptime
                             if not 0 < laptime_pace < MAGIC_NUM or laptime_valid < laptime_pace:
                                 laptime_pace = laptime_valid

@@ -59,9 +59,10 @@ class Realtime(Overlay):
         self.extra_laps = max(self.wcfg["number_of_extra_laps"], 1)
         self.refill_sign = "" if self.wcfg["show_absolute_refilling"] else "+"
 
-        self.leader_pace = LapTimePace(
+        self.gen_leader_pace = calc_laptime_pace(
             min(max(self.wcfg["leader_laptime_pace_samples"], 1), 20),
             max(self.wcfg["leader_laptime_pace_margin"], 0.1))
+        self.gen_leader_pace.send(None)
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -211,7 +212,7 @@ class Realtime(Overlay):
         leader_lap_into = api.read.lap.progress(leader_index)
         player_lap_into = api.read.lap.progress()
 
-        leader_laptime_pace = self.leader_pace.update(leader_index)
+        leader_laptime_pace = self.gen_leader_pace.send(leader_index)
         player_laptime_pace = minfo.delta.lapTimePace
 
         leader_valid = 0 < leader_laptime_pace < MAGIC_NUM
@@ -296,7 +297,7 @@ class Realtime(Overlay):
                             consumption.estimatedValidConsumption,
                             consumption.amountCurrent,
                         )
-                self.update_refill_extra(self.bars_refill_extra[index], refill_extra, energy_type)
+                self.update_refill(self.bars_refill_extra[index], refill_extra, energy_type)
 
             # Predicate leader
             if not leader_valid or player_index == leader_index:
@@ -382,32 +383,12 @@ class Realtime(Overlay):
                 refill_text = TEXT_NONE
             target.setText(refill_text)
 
-    def update_refill_extra(self, target, data, energy_type):
-        """Player refill extra lap"""
-        if target.last != data:
-            target.last = data
-            if data > -MAGIC_NUM:
-                if not energy_type:
-                    data = self.fuel_units(data)
-                refill_text = f"{data:{self.refill_sign}.{self.decimals_refill}f}"[:self.char_width].strip(".")
-            else:
-                refill_text = TEXT_NONE
-            target.setText(refill_text)
-
     # Additional methods
     def fuel_units(self, fuel):
         """2 different fuel unit conversion, default is Liter"""
         if self.cfg.units["fuel_unit"] == "Gallon":
             return calc.liter2gallon(fuel)
         return fuel
-
-    @staticmethod
-    def find_leader_index():
-        """Find leader index"""
-        for index in range(api.read.vehicle.total_vehicles()):
-            if api.read.vehicle.place(index) == 1:
-                return index
-        return 0
 
     def create_pit_time_set(self, total_slot, suffix):
         """Create pit time set"""
@@ -430,62 +411,60 @@ class Realtime(Overlay):
         return 0
 
 
-class LapTimePace:
-    """Lap time pace"""
+def calc_laptime_pace(samples: int = 6, margin: float = 5, laptime: float = MAGIC_NUM):
+    """Calculate lap time pace for specific player"""
+    laptime_pace = laptime
+    laptime_margin = margin
+    ema_factor = calc.ema_factor(samples)
+    last_vehicle_class = ""
+    last_lap_stime = -1.0
+    is_pit_lap = 0  # whether pit in or pit out lap
+    validating = 0.0
 
-    def __init__(self, samples: int = 6, margin: float = 5, laptime: float = MAGIC_NUM) -> None:
-        self.laptime_pace = laptime
-        self.laptime_margin = margin
-        self.pit_lap = 0
-        self.ema_factor = calc.ema_factor(samples)
-        self.last_vehicle_class = None
-        self.last_lap_stime = -1
-        self.validating = 0
-
-    @staticmethod
-    def verify(laptime: float) -> bool:
-        """Verify laptime"""
-        return laptime > 0
-
-    def reset_laptime(self, index: int) -> float:
-        """Reset laptime"""
-        return min(filter(self.verify,
-            (api.read.timing.last_laptime(index),
-            api.read.timing.best_laptime(index),
-            MAGIC_NUM)))
-
-    def update(self, index: int = 0) -> float:
-        """Calculate laptime pace"""
-        lap_stime = api.read.timing.start(index)
-        self.pit_lap = bool(self.pit_lap + api.read.vehicle.in_pits(index))
-        veh_class = api.read.vehicle.class_name(index)
+    while True:
+        player_index = yield laptime_pace
+        # Calculate laptime pace
+        lap_stime = api.read.timing.start(player_index)
+        veh_class = api.read.vehicle.class_name(player_index)
+        is_pit_lap |= api.read.vehicle.in_pits(player_index)
 
         # Reset if vehicle class changes
-        if veh_class != self.last_vehicle_class:
-            self.last_vehicle_class = veh_class
-            self.laptime_pace = self.reset_laptime(index)
+        if last_vehicle_class != veh_class:
+            last_vehicle_class = veh_class
+            laptime_pace = reset_laptime(player_index)
 
-        if lap_stime != self.last_lap_stime:
-            self.validating = api.read.timing.elapsed()
-            self.pit_lap = 0
-        self.last_lap_stime = lap_stime
+        if last_lap_stime != lap_stime:
+            last_lap_stime = lap_stime
+            validating = api.read.timing.elapsed()
+            is_pit_lap = 0
 
-        if self.validating:
-            timer = api.read.timing.elapsed() - self.validating
-            laptime_last = api.read.timing.last_laptime(index)
-            if 1 < timer <= 10 and self.verify(laptime_last):
-                if not self.pit_lap:
-                    if laptime_last < self.laptime_pace:
-                        self.laptime_pace = laptime_last
+        if validating:
+            timer = api.read.timing.elapsed() - validating
+            laptime_last = api.read.timing.last_laptime(player_index)
+            if 1 < timer <= 10 and verify_laptime(laptime_last):
+                if not is_pit_lap:
+                    if laptime_pace > laptime_last:
+                        laptime_pace = laptime_last
                     else:
-                        self.laptime_pace = min(
-                            calc.exp_mov_avg(self.ema_factor, self.laptime_pace, laptime_last),
-                            self.laptime_pace + self.laptime_margin,
+                        laptime_pace = min(
+                            calc.exp_mov_avg(ema_factor, laptime_pace, laptime_last),
+                            laptime_pace + laptime_margin,
                         )
-                elif self.laptime_pace >= MAGIC_NUM:
-                    self.laptime_pace = self.reset_laptime(index)
-                self.validating = 0
+                elif laptime_pace >= MAGIC_NUM:
+                    laptime_pace = reset_laptime(player_index)
+                validating = 0
             elif timer > 10:  # switch off after 10s
-                self.validating = 0
+                validating = 0
 
-        return self.laptime_pace
+
+def reset_laptime(index: int) -> float:
+    """Reset laptime"""
+    return min(filter(verify_laptime,
+        (api.read.timing.last_laptime(index),
+        api.read.timing.best_laptime(index),
+        MAGIC_NUM)))
+
+
+def verify_laptime(laptime: float) -> bool:
+    """Verify laptime"""
+    return laptime > 0

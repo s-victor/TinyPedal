@@ -110,7 +110,7 @@ def calc_data(
     recording = False
     delayed_save = False
     validating = 0
-    pit_lap = 0  # whether pit in or pit out lap
+    is_pit_lap = 0  # whether pit in or pit out lap
 
     delta_list_last, used_last, laptime_last = load_fuel_delta_file(
         filepath=filepath,
@@ -170,7 +170,7 @@ def calc_data(
         gps_curr = api.read.vehicle.position_xyz()
         laps_done = api.read.lap.completed_laps()
         lap_into = api.read.lap.progress()
-        pit_lap = bool(pit_lap + api.read.vehicle.in_pits())
+        is_pit_lap |= api.read.vehicle.in_pits()
         laptime_last = minfo.delta.lapTimePace
 
         # Realtime fuel consumption
@@ -183,7 +183,7 @@ def calc_data(
 
         # Lap start & finish detection
         if lap_stime > last_lap_stime != -1:
-            if len(delta_list_raw) > 1 and not pit_lap:
+            if len(delta_list_raw) > 1 and not is_pit_lap:
                 delta_list_raw.append((  # set end value
                     round6(pos_last + 10),
                     round6(used_curr),
@@ -196,7 +196,7 @@ def calc_data(
             used_last_raw = used_curr
             used_curr = 0
             recording = laptime_curr < 1
-            pit_lap = 0
+            is_pit_lap = 0
         last_lap_stime = lap_stime  # reset
 
         # Distance desync check at start of new lap, reset if higher than normal distance
@@ -242,7 +242,7 @@ def calc_data(
 
         # Exclude first lap & pit in/out lap
         used_est = calc.end_lap_consumption(
-            used_last, delta_fuel, 0 == pit_lap < laps_done)
+            used_last, delta_fuel, 0 == is_pit_lap < laps_done)
 
         # Total refuel = laps left * last consumption - remaining fuel
         if api.read.session.lap_type():  # lap-type

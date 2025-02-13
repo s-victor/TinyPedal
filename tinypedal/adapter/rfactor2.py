@@ -413,9 +413,9 @@ class Switch(DataAdapter):
             return 2  # allowed
         return 0  # not_available
 
-    def auto_clutch(self) -> int:
+    def auto_clutch(self) -> bool:
         """Auto clutch"""
-        return chknm(self.info.rf2Ext.mPhysics.mAutoClutch)
+        return bool(self.info.rf2Ext.mPhysics.mAutoClutch)
 
 
 class Timing(DataAdapter):

@@ -135,9 +135,9 @@ class Realtime(Overlay):
                 self.update_ignition(self.bar_ignition, ignition)
 
             # Clutch
-            # 1 or 11 auto clutch on, 10+ clutch activated
+            # 2+ = auto clutch on, 1 or 3 = clutch activated
             if self.wcfg["show_clutch"]:
-                clutch = api.read.switch.auto_clutch() + (api.read.inputs.clutch() > 0.01) * 10
+                clutch = (api.read.switch.auto_clutch() << 1) + (api.read.inputs.clutch() > 0.01)
                 self.update_clutch(self.bar_clutch, clutch)
 
             # Wheel lock
@@ -175,7 +175,7 @@ class Realtime(Overlay):
         """Clutch update"""
         if target.last != data:
             target.last = data
-            self.draw_instrument(target, 11 != data != 1, 2, 2 * (data >= 10))
+            self.draw_instrument(target, data < 2, 2, 2 * (data % 2))
 
     def update_wlock(self, target, data):
         """Wheel lock update"""
@@ -189,8 +189,13 @@ class Realtime(Overlay):
             target.last = data
             self.draw_instrument(target, data == 0, 4, 4 * data)
 
-    def draw_instrument(self, target, h_offset, v_offset, color_index=0):
-        """Instrument"""
+    def draw_instrument(self, target, h_offset: int, v_offset: int, color_index: int = 0):
+        """Draw instrument
+
+        Args:
+            h_offset: 0 = enabled icon state, 1 = disabled icon state.
+            v_offset: 0 headlights, 1 ignition, 2 clutch, 3 wheel lock, 4 wheel slip.
+        """
         self.pixmap_common.fill(self.warning_color[color_index])
         painter = QPainter(self.pixmap_common)
         painter.drawPixmap(

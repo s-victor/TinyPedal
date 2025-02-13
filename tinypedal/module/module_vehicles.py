@@ -133,8 +133,8 @@ class Realtime(DataModule):
             opt_pos_x = data.worldPositionX = api.read.vehicle.position_longitudinal(index)
             opt_pos_y = data.worldPositionY = api.read.vehicle.position_lateral(index)
             if is_player:
-                relative_distance = 0
-                data.relativeTimeGap = 0
+                relative_distance = 0.0
+                data.relativeTimeGap = 0.0
             else:
                 # Relative position & orientation
                 plr_pos_x = api.read.vehicle.position_longitudinal()
