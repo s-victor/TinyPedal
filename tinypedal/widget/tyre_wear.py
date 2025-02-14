@@ -21,6 +21,7 @@ Tyre Wear Widget
 """
 
 from .. import calculation as calc
+from ..regex_pattern import TEXT_NOTAVAILABLE
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
@@ -40,7 +41,6 @@ class Realtime(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        text_def = "n/a"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         bar_width = font_m.width * 4 + bar_padx
         self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
@@ -69,7 +69,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_remaining"])
             )
             self.bars_wear = self.set_qlabel(
-                text=text_def,
+                text=TEXT_NOTAVAILABLE,
                 style=self.bar_style_wear[0],
                 width=bar_width,
                 count=4,
@@ -103,7 +103,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_wear_difference"])
             )
             self.bars_diff = self.set_qlabel(
-                text=text_def,
+                text=TEXT_NOTAVAILABLE,
                 style=self.bar_style_diff[0],
                 width=bar_width,
                 count=4,
@@ -136,7 +136,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_lifespan_laps"])
             )
             self.bars_laps = self.set_qlabel(
-                text=text_def,
+                text=TEXT_NOTAVAILABLE,
                 style=self.bar_style_laps[0],
                 width=bar_width,
                 count=4,
@@ -169,7 +169,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_lifespan_minutes"])
             )
             self.bars_mins = self.set_qlabel(
-                text=text_def,
+                text=TEXT_NOTAVAILABLE,
                 style=self.bar_style_mins[0],
                 width=bar_width,
                 count=4,

@@ -22,6 +22,7 @@ Tyre temperature Widget
 
 from .. import calculation as calc
 from .. import heatmap as hmp
+from ..regex_pattern import TEXT_PLACEHOLDER, TEXT_NOTAVAILABLE
 from ..api_control import api
 from ._base import Overlay
 
@@ -43,7 +44,6 @@ class Realtime(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        text_def = "n/a"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         inner_gap = self.wcfg["inner_gap"]
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
@@ -78,7 +78,7 @@ class Realtime(Overlay):
 
         # Tyre temperature
         self.bars_stemp = self.set_table(
-            text=text_def,
+            text=TEXT_NOTAVAILABLE,
             style=bar_style_stemp,
             width=font_m.width * text_width + bar_padx,
             layout=layout,
@@ -88,7 +88,7 @@ class Realtime(Overlay):
         # Tyre compound
         if self.wcfg["show_tyre_compound"]:
             self.bars_tcmpd = self.set_qlabel(
-                text="-",
+                text=TEXT_PLACEHOLDER,
                 style=bar_style_tcmpd,
                 width=font_m.width + bar_padx,
                 count=2,

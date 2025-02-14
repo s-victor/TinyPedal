@@ -22,6 +22,7 @@ Brake temperature Widget
 
 from .. import calculation as calc
 from .. import heatmap as hmp
+from ..regex_pattern import TEXT_NOTAVAILABLE
 from ..api_control import api
 from ._base import Overlay
 
@@ -40,7 +41,6 @@ class Realtime(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        text_def = "n/a"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         inner_gap = self.wcfg["inner_gap"]
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
@@ -70,7 +70,7 @@ class Realtime(Overlay):
             bg_color=self.wcfg["bkg_color_temperature"]
         )
         self.bars_btemp = self.set_qlabel(
-            text=text_def,
+            text=TEXT_NOTAVAILABLE,
             style=bar_style_btemp,
             width=bar_width_temp,
             count=4,
@@ -97,7 +97,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_highlighted"])
             )
             self.bars_btavg = self.set_qlabel(
-                text=text_def,
+                text=TEXT_NOTAVAILABLE,
                 style=self.bar_style_btavg[0],
                 width=bar_width_temp,
                 count=4,

@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Regular expression & pattern
+Regular expression, pattern, string constants
 """
 
 
@@ -179,6 +179,20 @@ CHOICE_UNITS = {
     "turbo_pressure_unit": ["bar", "psi", "kPa"],
     "tyre_pressure_unit": ["kPa", "psi", "bar"],
 }
+
+# Text constants
+TEXT_PLACEHOLDER = "-"
+TEXT_NOTAVAILABLE = "n/a"
+
+# Identifier
+ENERGY_TYPE_ID = (
+    "FUEL",  # fuel
+    "NRG",  # virtual energy
+)
+RACELENGTH_TYPE_ID = (
+    "TIME",  # time-based race length
+    "LAPS",  # laps-based race length
+)
 
 # Misc
 GEAR_SEQUENCE = "N123456789R"

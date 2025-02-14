@@ -23,12 +23,12 @@ Fuel energy saver Widget
 from math import floor
 
 from .. import calculation as calc
+from ..regex_pattern import TEXT_PLACEHOLDER, ENERGY_TYPE_ID
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
 
 MAGIC_NUM = 99999
-TEXT_NONE = "-"
 
 
 class Realtime(Overlay):
@@ -74,7 +74,7 @@ class Realtime(Overlay):
                 font_size=int(self.wcfg['font_size'] * 0.8))
         )
         self.bars_target_lap = self.set_qlabel(
-            text=TEXT_NONE,
+            text=TEXT_PLACEHOLDER,
             style=bar_style_lap[0],
             width=bar_width,
             count=self.total_slot,
@@ -95,7 +95,7 @@ class Realtime(Overlay):
             bg_color=self.wcfg["bkg_color_target_consumption"]
         )
         self.bars_target_use = self.set_qlabel(
-            text=TEXT_NONE,
+            text=TEXT_PLACEHOLDER,
             style=bar_style_target_use,
             width=bar_width,
             last=-MAGIC_NUM,
@@ -121,7 +121,7 @@ class Realtime(Overlay):
                 bg_color=self.wcfg["bkg_color_delta_consumption"])
         )
         self.bars_delta = self.set_qlabel(
-            text=TEXT_NONE,
+            text=TEXT_PLACEHOLDER,
             style=self.delta_color[2],
             width=bar_width,
             count=self.total_slot,
@@ -232,7 +232,7 @@ class Realtime(Overlay):
                     data = self.fuel_units(data)
                 use_text = f"{data:.{self.decimals_consumption}f}"[:self.char_width]
             else:
-                use_text = TEXT_NONE
+                use_text = TEXT_PLACEHOLDER
             target.setText(use_text)
 
     def update_delta(self, target, data, energy_type):
@@ -245,7 +245,7 @@ class Realtime(Overlay):
                 delta_text = f"{data:+.{self.decimals_delta}f}"[:self.char_width]
                 style = self.delta_color[data >= 0]
             else:
-                delta_text = TEXT_NONE
+                delta_text = TEXT_PLACEHOLDER
                 style = self.delta_color[2]
             target.setText(delta_text)
             target.setStyleSheet(style)
@@ -260,7 +260,7 @@ class Realtime(Overlay):
         """Energy type"""
         if target.last != data:
             target.last = data
-            target.setText("NRG" if data > 0 else "FUEL")
+            target.setText(ENERGY_TYPE_ID[data > 0])
 
     # Additional methods
     def fuel_units(self, fuel):

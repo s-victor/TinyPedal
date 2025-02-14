@@ -25,6 +25,7 @@ from PySide2.QtGui import QPixmap
 from .. import calculation as calc
 from .. import formatter as fmt
 from .. import heatmap as hmp
+from ..regex_pattern import TEXT_PLACEHOLDER
 from ..api_control import api
 from ..module_info import minfo
 from ..userfile.brand_logo import load_brand_logo_file
@@ -643,7 +644,7 @@ class Realtime(Overlay):
     def set_pitcount(pits):
         """Set pitstop count test"""
         if pits == 0:
-            return "-"
+            return TEXT_PLACEHOLDER
         if pits != -999:
             return f"{pits}"
         return ""

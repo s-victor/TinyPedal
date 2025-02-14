@@ -20,6 +20,7 @@
 Force Widget
 """
 
+from ..regex_pattern import TEXT_NOTAVAILABLE
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -38,7 +39,6 @@ class Realtime(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        text_def = "n/a"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         bar_width = font_m.width * 6 + bar_padx
 
@@ -56,7 +56,7 @@ class Realtime(Overlay):
                 bg_color=self.wcfg["bkg_color_g_force"]
             )
             self.bar_gforce_lgt = self.set_qlabel(
-                text=text_def,
+                text=TEXT_NOTAVAILABLE,
                 style=bar_style_gforce_lgt,
                 width=bar_width,
             )
@@ -70,7 +70,7 @@ class Realtime(Overlay):
                 bg_color=self.wcfg["bkg_color_g_force"]
             )
             self.bar_gforce_lat = self.set_qlabel(
-                text=text_def,
+                text=TEXT_NOTAVAILABLE,
                 style=bar_style_gforce_lat,
                 width=bar_width,
             )
@@ -86,7 +86,7 @@ class Realtime(Overlay):
                 bg_color=self.wcfg["bkg_color_downforce_ratio"]
             )
             self.bar_df_ratio = self.set_qlabel(
-                text=text_def,
+                text=TEXT_NOTAVAILABLE,
                 style=bar_style_df_ratio,
                 width=bar_width,
             )
@@ -106,7 +106,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["warning_color_liftforce"])
             )
             self.bar_df_front = self.set_qlabel(
-                text=text_def,
+                text=TEXT_NOTAVAILABLE,
                 style=self.bar_style_df_front[0],
                 width=bar_width,
             )
@@ -126,7 +126,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["warning_color_liftforce"])
             )
             self.bar_df_rear = self.set_qlabel(
-                text=text_def,
+                text=TEXT_NOTAVAILABLE,
                 style=self.bar_style_df_rear[0],
                 width=bar_width,
             )

@@ -26,7 +26,7 @@ import logging
 from .const import LOG_FILE, PATH_GLOBAL
 
 
-def new_stream_handler(_logger, stream):
+def new_stream_handler(_logger: logging.Logger, stream):
     """Create new stream handler
 
     Args:
@@ -45,7 +45,7 @@ def new_stream_handler(_logger, stream):
     return _handler
 
 
-def new_file_handler(_logger, filepath: str, filename: str):
+def new_file_handler(_logger: logging.Logger, filepath: str, filename: str):
     """Create new file handler
 
     Args:
@@ -63,7 +63,7 @@ def new_file_handler(_logger, filepath: str, filename: str):
     return _handler
 
 
-def set_logging_level(_logger, log_stream=None, log_level=1) -> None:
+def set_logging_level(_logger: logging.Logger, log_stream=None, log_level=1) -> None:
     """Set logging level
 
     Args:

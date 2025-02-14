@@ -27,12 +27,12 @@ from PySide2.QtGui import QPixmap, QPainter
 
 from .. import calculation as calc
 from .. import weather as wthr
+from ..regex_pattern import TEXT_NOTAVAILABLE
 from ..api_control import api
 from ..module_info import minfo, WeatherNode
 from ._base import Overlay
 
 MAX_FORECASTS = 5
-TEXT_NONE = "n/a"
 
 
 class Realtime(Overlay):
@@ -74,7 +74,7 @@ class Realtime(Overlay):
                 bg_color=self.wcfg["bkg_color_estimated_time"]
             )
             self.bars_time = self.set_qlabel(
-                text=TEXT_NONE,
+                text=TEXT_NOTAVAILABLE,
                 style=bar_style_time,
                 fixed_width=self.bar_width,
                 count=self.total_slot,
@@ -94,7 +94,7 @@ class Realtime(Overlay):
                 bg_color=self.wcfg["bkg_color_ambient_temperature"]
             )
             self.bars_temp = self.set_qlabel(
-                text=TEXT_NONE,
+                text=TEXT_NOTAVAILABLE,
                 style=bar_style_temp,
                 fixed_width=self.bar_width,
                 count=self.total_slot,
@@ -207,7 +207,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             if data >= wthr.MAX_MINUTES or data < 0:
-                time_text = TEXT_NONE
+                time_text = TEXT_NOTAVAILABLE
             elif data >= 60:
                 time_text = f"{data / 60:.1f}h"
             else:
@@ -221,7 +221,7 @@ class Realtime(Overlay):
             if data > wthr.MIN_TEMPERATURE:
                 temp_text = self.format_temperature(data)
             else:
-                temp_text = TEXT_NONE
+                temp_text = TEXT_NOTAVAILABLE
             target.setText(temp_text)
 
     def update_rain_chance_bar(self, target, data):

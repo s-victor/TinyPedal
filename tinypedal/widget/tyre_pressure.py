@@ -21,6 +21,7 @@ Tyre pressure Widget
 """
 
 from .. import calculation as calc
+from ..regex_pattern import TEXT_NOTAVAILABLE
 from ..api_control import api
 from ._base import Overlay
 
@@ -39,7 +40,6 @@ class Realtime(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        text_def = "n/a"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         bar_width = font_m.width * 4 + bar_padx
 
@@ -62,7 +62,7 @@ class Realtime(Overlay):
             bg_color=self.wcfg["bkg_color_tyre_pressure"]
         )
         self.bars_tpres = self.set_qlabel(
-            text=text_def,
+            text=TEXT_NOTAVAILABLE,
             style=bar_style_tpres,
             width=bar_width,
             count=4,

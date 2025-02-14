@@ -23,12 +23,12 @@ Relative finish order Widget
 from math import ceil
 
 from .. import calculation as calc
+from ..regex_pattern import TEXT_PLACEHOLDER, ENERGY_TYPE_ID, RACELENGTH_TYPE_ID
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
 
 MAGIC_NUM = 99999
-TEXT_NONE = "-"
 
 
 class Realtime(Overlay):
@@ -120,7 +120,7 @@ class Realtime(Overlay):
                 bg_color=self.wcfg["bkg_color_leader"])
         )
         self.bars_lap_leader = self.set_qlabel(
-            text=TEXT_NONE,
+            text=TEXT_PLACEHOLDER,
             style=self.leader_lap_color[0],
             width=bar_width,
             count=self.total_slot,
@@ -146,7 +146,7 @@ class Realtime(Overlay):
                 bg_color=self.wcfg["bkg_color_player"])
         )
         self.bars_lap_player = self.set_qlabel(
-            text=TEXT_NONE,
+            text=TEXT_PLACEHOLDER,
             style=self.player_lap_color[0],
             width=bar_width,
             count=self.total_slot,
@@ -164,7 +164,7 @@ class Realtime(Overlay):
             bg_color=self.wcfg["bkg_color_refill"]
         )
         self.bars_refill = self.set_qlabel(
-            text=TEXT_NONE,
+            text=TEXT_PLACEHOLDER,
             style=bar_style_refill,
             width=bar_width,
             count=self.total_slot,
@@ -179,7 +179,7 @@ class Realtime(Overlay):
         # Player extra lap refill row
         if self.wcfg["show_extra_refilling"]:
             self.bars_refill_extra = self.set_qlabel(
-                text=TEXT_NONE,
+                text=TEXT_PLACEHOLDER,
                 style=bar_style_refill,
                 width=bar_width,
                 count=self.total_slot,
@@ -243,17 +243,17 @@ class Realtime(Overlay):
 
                 self.update_race_type(self.bars_pit_leader[index], is_lap_type_session)
 
-                lap_int = calc.lap_progress_difference(leader_laptime_pace, player_laptime_pace)
-                self.update_lap_int(self.bars_lap_player[index], lap_int)
+                lap_diff = calc.lap_progress_difference(leader_laptime_pace, player_laptime_pace)
+                self.update_lap_int(self.bars_lap_player[index], lap_diff)
                 continue
 
             # Predicate player
             if not player_valid:
-                lap_final, hi_range, full_laps_left = -MAGIC_NUM, 0, 0
+                lap_final, player_hi_range, full_laps_left = -MAGIC_NUM, 0, 0
             elif is_lap_type_session and index > 1:
                 lap_final = calc.lap_progress_offset(  # relative lap offset based on 0s column
                     player_laptime_pace, self.relative_lap_offset, self.player_pit_time_set[index])
-                hi_range = self.set_highlight_range(player_laptime_pace, lap_final % 1)
+                player_hi_range = self.set_highlight_range(player_laptime_pace, lap_final % 1)
                 full_laps_left = 0
             else:  # time-type race
                 lap_into_offset = calc.lap_progress_offset(
@@ -261,26 +261,29 @@ class Realtime(Overlay):
                 lap_remaining = calc.end_timer_laps_remain(
                     lap_into_offset, player_laptime_pace, time_left)
                 lap_final = lap_remaining % 1
-                hi_range = self.set_highlight_range(player_laptime_pace, lap_final)
+                player_hi_range = self.set_highlight_range(player_laptime_pace, lap_final)
                 full_laps_left = calc.time_type_laps_remain(ceil(lap_remaining), player_lap_into)
-            self.update_lap_player(self.bars_lap_player[index], lap_final, hi_range)
+            self.update_lap_player(self.bars_lap_player[index], lap_final, player_hi_range)
 
             if index == 1:  # store relative lap offset
                 self.relative_lap_offset = lap_final
+
+            # Get remaining fuel/energy
+            if self.wcfg["show_absolute_refilling"]:
+                fuel_in_tank = 0
+            else:
+                fuel_in_tank = consumption.amountCurrent
 
             # Player refill
             if (is_lap_type_session and index != 1
                 or in_formation or not leader_valid or not player_valid):
                 refill_player = -MAGIC_NUM
             else:
-                if self.wcfg["show_absolute_refilling"]:
-                    refill_player = consumption.estimatedValidConsumption * full_laps_left
-                else:
-                    refill_player = calc.total_fuel_needed(
-                        full_laps_left,
-                        consumption.estimatedValidConsumption,
-                        consumption.amountCurrent,
-                    )
+                refill_player = calc.total_fuel_needed(
+                    full_laps_left,
+                    consumption.estimatedValidConsumption,
+                    fuel_in_tank,
+                )
             self.update_refill(self.bars_refill[index], refill_player, energy_type)
 
             # Player refill extra
@@ -288,15 +291,11 @@ class Realtime(Overlay):
                 if refill_player == -MAGIC_NUM:
                     refill_extra = -MAGIC_NUM
                 else:
-                    full_laps_extra = full_laps_left + self.extra_laps  # add extra laps
-                    if self.wcfg["show_absolute_refilling"]:
-                        refill_extra = consumption.estimatedValidConsumption * full_laps_extra
-                    else:
-                        refill_extra = calc.total_fuel_needed(
-                            full_laps_extra,
-                            consumption.estimatedValidConsumption,
-                            consumption.amountCurrent,
-                        )
+                    refill_extra = calc.total_fuel_needed(
+                        full_laps_left + self.extra_laps,  # add extra laps
+                        consumption.estimatedValidConsumption,
+                        fuel_in_tank,
+                    )
                 self.update_refill(self.bars_refill_extra[index], refill_extra, energy_type)
 
             # Predicate leader
@@ -328,7 +327,7 @@ class Realtime(Overlay):
             if data > -MAGIC_NUM:
                 lap_text = f"{data:.{self.decimals_laps}f}"[:self.char_width]
             else:
-                lap_text = TEXT_NONE
+                lap_text = TEXT_PLACEHOLDER
             target.setText(lap_text)
             target.setStyleSheet(self.leader_lap_color[highlight])
 
@@ -339,7 +338,7 @@ class Realtime(Overlay):
             if data > -MAGIC_NUM:
                 lap_text = f"{data:.{self.decimals_laps}f}"[:self.char_width]
             else:
-                lap_text = TEXT_NONE
+                lap_text = TEXT_PLACEHOLDER
             target.setText(lap_text)
             target.setStyleSheet(self.player_lap_color[highlight])
 
@@ -350,7 +349,7 @@ class Realtime(Overlay):
             if 0 < data:
                 lap_text = f"{data:.{self.decimals_laps}f}"[:self.char_width]
             else:
-                lap_text = TEXT_NONE
+                lap_text = TEXT_PLACEHOLDER
             target.setText(lap_text)
 
     def update_pit_time(self, target, data):
@@ -363,13 +362,13 @@ class Realtime(Overlay):
         """Race type"""
         if target.last != data:
             target.last = data
-            target.setText("LAPS" if data else "TIME")
+            target.setText(RACELENGTH_TYPE_ID[data])
 
     def update_energy_type(self, target, data):
         """Energy type"""
         if target.last != data:
             target.last = data
-            target.setText("NRG" if data > 0 else "FUEL")
+            target.setText(ENERGY_TYPE_ID[data > 0])
 
     def update_refill(self, target, data, energy_type):
         """Player refill"""
@@ -380,7 +379,7 @@ class Realtime(Overlay):
                     data = self.fuel_units(data)
                 refill_text = f"{data:{self.refill_sign}.{self.decimals_refill}f}"[:self.char_width].strip(".")
             else:
-                refill_text = TEXT_NONE
+                refill_text = TEXT_PLACEHOLDER
             target.setText(refill_text)
 
     # Additional methods
