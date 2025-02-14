@@ -27,8 +27,17 @@ import platform
 from psutil import version_info
 from PySide2.QtCore import qVersion
 
+from . import version
+
+# App version
+VERSION = version.__version__
+
+# Library version
+PYTHON_VERSION = ".".join(map(str, sys.version_info[0:3]))
+QT_VERSION = qVersion()
+PSUTIL_VERSION = ".".join(map(str, version_info))
+
 # App info
-VERSION = "2.24.0"
 APP_NAME = "TinyPedal"
 COPYRIGHT = "Copyright (C) 2022-2025 TinyPedal developers"
 DESCRIPTION = "A Free and Open Source telemetry overlay application for racing simulation."
@@ -47,11 +56,6 @@ PID_FILE = "pid.log"
 
 # System info
 PLATFORM = platform.system()
-
-# Library version
-PYTHON_VERSION = ".".join(map(str, sys.version_info[0:3]))
-QT_VERSION = qVersion()
-PSUTIL_VERSION = ".".join(map(str, version_info))
 
 # Global path
 if PLATFORM == "Windows":
