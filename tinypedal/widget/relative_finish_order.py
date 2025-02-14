@@ -205,7 +205,6 @@ class Realtime(Overlay):
         is_lap_type_session = api.read.session.lap_type()
         in_formation = api.read.session.in_formation()
         energy_type = minfo.restapi.maxVirtualEnergy
-        consumption = minfo.energy if energy_type else minfo.fuel
 
         leader_index = minfo.vehicles.leaderIndex
         player_index = minfo.vehicles.playerIndex
@@ -234,6 +233,11 @@ class Realtime(Overlay):
 
         self.player_pit_time_set[-1] = minfo.vehicles.dataSet[player_index].pitTimer.elapsed
         self.update_pit_time(self.bars_pit_player[-1], self.player_pit_time_set[-1])
+
+        # Get remaining fuel/energy & consumption
+        consumption = minfo.energy if energy_type else minfo.fuel
+        fuel_in_tank = 0 if self.wcfg["show_absolute_refilling"] else consumption.amountCurrent
+        fuel_consumption = consumption.estimatedValidConsumption
 
         # Update slots
         for index in range(self.total_slot):
@@ -268,12 +272,6 @@ class Realtime(Overlay):
             if index == 1:  # store relative lap offset
                 self.relative_lap_offset = lap_final
 
-            # Get remaining fuel/energy
-            if self.wcfg["show_absolute_refilling"]:
-                fuel_in_tank = 0
-            else:
-                fuel_in_tank = consumption.amountCurrent
-
             # Player refill
             if (is_lap_type_session and index != 1
                 or in_formation or not leader_valid or not player_valid):
@@ -281,7 +279,7 @@ class Realtime(Overlay):
             else:
                 refill_player = calc.total_fuel_needed(
                     full_laps_left,
-                    consumption.estimatedValidConsumption,
+                    fuel_consumption,
                     fuel_in_tank,
                 )
             self.update_refill(self.bars_refill[index], refill_player, energy_type)
@@ -293,7 +291,7 @@ class Realtime(Overlay):
                 else:
                     refill_extra = calc.total_fuel_needed(
                         full_laps_left + self.extra_laps,  # add extra laps
-                        consumption.estimatedValidConsumption,
+                        fuel_consumption,
                         fuel_in_tank,
                     )
                 self.update_refill(self.bars_refill_extra[index], refill_extra, energy_type)
