@@ -23,10 +23,9 @@ In-game setup:
 1. Enabled `rFactor2SharedMemoryMapPlugin64` plugin in game option. For `Le Mans Ultimate`, user may have to manually enable plugin by editing `CustomPluginVariables.JSON` file (set `" Enabled"` value to `1` ) under `Le Mans Ultimate\UserData\player` folder. After plugin enabled, must restart game to take effect.
 2. Set game display mode to `Borderless` or `Windowed` mode. `Fullscreen` mode is not supported.
 
-
 ## Quick Start
 1. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract it into a clean folder, and run `tinypedal.exe`.  
-Note, DO NOT extract TinyPedal into `system` or `game` folder, such as `Program Files` or `Program Files (x86)` or `rFactor 2` folder, otherwise it may fail to run.  
+Note, DO NOT extract TinyPedal into `system` or `game` folder, such as `Program Files` or `rFactor 2` folder, otherwise it may fail to run.  
 Alternatively, run TinyPedal from source, see [Run from source](#run-from-source) section for details.  
 For Linux user, please follow [Running on Linux](#running-on-linux) section for instruction.  
 
@@ -36,15 +35,16 @@ For Linux user, please follow [Running on Linux](#running-on-linux) section for 
 
 4. Overlay can be Locked or Unlocked by clicking `Lock Overlay` from tray menu. While Unlocked, click on overlay to drag around.
 
-5. Widgets can be Enabled or Disabled by clicking `Config` and open main window from tray menu.
+5. Widgets can be Enabled or Disabled from `Widget` panel in main window. `Right Click` on tray icon and select `Config` to show main window if it is hidden.
 
 6. To quit APP, `Right Click` on tray icon and select `Quit`; or, click `Overlay` menu from main window and select `Quit`.
 
+See [Frequently Asked Questions](https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions) and [User Guide](https://github.com/s-victor/TinyPedal/wiki/User-Guide) for more info.
 
 ## Run from source
 
 ### Dependencies:
-* [Python](https://www.python.org/) 3.8 or higher
+* [Python](https://www.python.org/) 3.8, 3.9, or 3.10
 * PySide2
 * pyRfactor2SharedMemory
 * psutil
@@ -68,7 +68,6 @@ It includes a few required changes for TinyPedal.
 Note: if using `Git` tool to clone this repository, run command with `--recursive` to also clone submodule, such as:  
 `git clone --recursive https://github.com/s-victor/TinyPedal.git`
 
-
 ## Build executable for Windows
 Executable file can be built with [py2exe](http://www.py2exe.org).
 
@@ -81,7 +80,6 @@ To build executable file, run command:
 After building completed, executable file can be found in `dist\TinyPedal` folder.
 
 Note: the build script only supports py2exe `v0.12.0.0` or higher.
-
 
 ## Running on Linux
 
