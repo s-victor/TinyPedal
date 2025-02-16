@@ -32,7 +32,9 @@ class DataAdapter:
         info: API object.
     """
 
-    __slots__ = "info"
+    __slots__ = (
+        "info",
+    )
 
     def __init__(self, info: rF2MMap.RF2SM) -> None:
         """Initialize API setting

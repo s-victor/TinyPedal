@@ -32,7 +32,12 @@ def get_cli_argument() -> argparse.Namespace:
         choices=range(3),
         default=1,
         type=int,
-        help="set logging output level: 0 - warning and error only; 1 - all levels (default); 2 - output to file",
+        help=(
+            "set logging output level:"
+            " 0 - warning and error only;"
+            " 1 - all levels (default);"
+            " 2 - output to file;"
+        ),
     )
     parse.add_argument(
         "-s",
@@ -40,6 +45,10 @@ def get_cli_argument() -> argparse.Namespace:
         choices=range(2),
         default=1,
         type=int,
-        help="set running mode: 0 - allow running multiple instances; 1 - single instance (default)",
+        help=(
+            "set running mode:"
+            " 0 - allow running multiple instances;"
+            " 1 - single instance (default);"
+        ),
     )
     return parse.parse_args()

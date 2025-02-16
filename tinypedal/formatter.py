@@ -77,9 +77,7 @@ def qfile_filter(extension: str, description: str) -> str:
 
 def select_gear(index: int) -> str:
     """Select gear string"""
-    if -1 <= index <= 9:
-        return GEAR_SEQUENCE[index]
-    return GEAR_SEQUENCE[0]
+    return GEAR_SEQUENCE[index if -1 <= index <= 9 else 0]
 
 
 @lru_cache(maxsize=20)

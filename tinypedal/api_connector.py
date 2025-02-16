@@ -70,6 +70,10 @@ def set_dataset_rf2(info: rF2MMap.RF2SM) -> APIDataSet:
 class Connector(ABC):
     """API Connector"""
 
+    __slots__ = (
+        "info",
+    )
+
     @abstractmethod
     def start(self):
         """Start API & load info access function"""
@@ -90,6 +94,7 @@ class Connector(ABC):
 class SimRF2(Connector):
     """rFactor 2"""
 
+    __slots__ = ()
     NAME = API_NAME_RF2
 
     def __init__(self):
@@ -116,6 +121,7 @@ class SimRF2(Connector):
 class SimLMU(Connector):
     """Le Mans Ultimate"""
 
+    __slots__ = ()
     NAME = API_NAME_LMU
 
     def __init__(self):

@@ -38,6 +38,8 @@ COMMON_STRINGS = fmt.pipe_join(
 class StyleValidator:
     """Style validator"""
 
+    __slots__ = ()
+
     @staticmethod
     def classes(style_user: dict) -> bool:
         """Vehicle class style validator"""
@@ -86,6 +88,8 @@ class StyleValidator:
 
 class ValueValidator:
     """Value validator"""
+
+    __slots__ = ()
 
     @staticmethod
     def boolean(key: str, dict_user: dict) -> bool:
@@ -162,6 +166,10 @@ class ValueValidator:
 
 class PresetValidator:
     """Preset validator"""
+
+    __slots__ = (
+        "_value_validators",
+    )
 
     def __init__(self) -> None:
         """Set validator methods in ordered list"""

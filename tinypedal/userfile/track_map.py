@@ -22,6 +22,7 @@ Track map file function
 
 import logging
 import xml.dom.minidom
+import xml.parsers.expat
 
 from ..formatter import (
     qfile_filter,

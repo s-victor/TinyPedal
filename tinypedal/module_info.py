@@ -159,7 +159,9 @@ class ConsumptionDataSet(NamedTuple):
 class HistoryInfo:
     """History output data"""
 
-    __slots__ = "consumption"
+    __slots__ = (
+        "consumption",
+    )
 
     def __init__(self):
         self.consumption: deque[ConsumptionDataSet] = deque([ConsumptionDataSet()], 100)
