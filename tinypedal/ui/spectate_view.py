@@ -35,7 +35,7 @@ from ..api_control import api
 QSS_LISTBOX = (
     "QListView {font-size: 14px;outline: none;}"
     "QListView::item {height: 26px;border-radius: 0;}"
-    "QListView::item:selected {selection-color:#FFF;background: #F20;}"
+    "QListView::item:selected {selection-color: #FFF;background: #F20;}"
 )
 
 
@@ -81,31 +81,19 @@ class SpectateList(QWidget):
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
 
-    def set_button_state(self):
+    def set_button_state(self, state: bool):
         """Set button state"""
-        if cfg.shared_memory_api["enable_player_index_override"]:
-            self.button_toggle.setChecked(True)
-            self.button_toggle.setText("Enabled")
-            self.listbox_spectate.setDisabled(False)
-            self.button_spectate.setDisabled(False)
-            self.button_refresh.setDisabled(False)
-            self.label_spectating.setDisabled(False)
-            self.master.notify_spectate.show()
-        else:
-            self.button_toggle.setChecked(False)
-            self.button_toggle.setText("Disabled")
-            self.listbox_spectate.setDisabled(True)
-            self.button_spectate.setDisabled(True)
-            self.button_refresh.setDisabled(True)
-            self.label_spectating.setDisabled(True)
-            self.master.notify_spectate.hide()
+        self.button_toggle.setChecked(state)
+        self.button_toggle.setText("Enabled" if state else "Disabled")
+        self.listbox_spectate.setDisabled(not state)
+        self.button_spectate.setDisabled(not state)
+        self.button_refresh.setDisabled(not state)
+        self.label_spectating.setDisabled(not state)
+        self.master.notify_spectate.setVisible(state)
 
     def spectate_toggle_state(self):
         """Spectate state toggle"""
-        if cfg.shared_memory_api["enable_player_index_override"]:
-            cfg.shared_memory_api["enable_player_index_override"] = False
-        else:
-            cfg.shared_memory_api["enable_player_index_override"] = True
+        cfg.shared_memory_api["enable_player_index_override"] = not cfg.shared_memory_api["enable_player_index_override"]
         cfg.save()  # save only if toggled
         api.setup()
         self.refresh_list()
@@ -114,37 +102,37 @@ class SpectateList(QWidget):
         """Refresh spectate list"""
         if cfg.shared_memory_api["enable_player_index_override"]:
             temp_list = ["Anonymous", *self.driver_list()]
-            if temp_list != self.spectate_list:
+            if self.spectate_list != temp_list:
                 self.spectate_list = temp_list
                 self.listbox_spectate.clear()
                 self.listbox_spectate.addItems(self.spectate_list)
-            index = cfg.shared_memory_api["player_index"] + 1
-            if index >= len(temp_list):  # prevent index out of range
-                index = 0
+            index = min(
+                max(cfg.shared_memory_api["player_index"], -1) + 1,  # +1 offset
+                len(temp_list) - 1,  # prevent exceeding max players
+            )
             self.listbox_spectate.setCurrentRow(index)
             self.label_spectating.setText(
                 f"Spectating: <b>{self.spectate_list[index]}</b>")
         else:
-            self.spectate_list = []
+            self.spectate_list.clear()
             self.listbox_spectate.clear()
             self.label_spectating.setText(
                 "Spectating: <b>Disabled</b>")
 
-        self.set_button_state()
+        self.set_button_state(cfg.shared_memory_api["enable_player_index_override"])
 
     def spectate_selected(self):
         """Spectate selected player"""
         selected_index = self.listbox_spectate.currentRow()
-        if selected_index >= 0:
-            cfg.shared_memory_api["player_index"] = selected_index - 1
-        else:
-            cfg.shared_memory_api["player_index"] = -1
+        cfg.shared_memory_api["player_index"] = max(selected_index - 1, -1)
         api.setup()
         self.refresh_list()
-        cfg.save()  # save only if selected
+        cfg.save()
 
     @staticmethod
     def driver_list():
         """Create driver list"""
-        return [api.read.vehicle.driver_name(index)
-                for index in range(api.read.vehicle.total_vehicles())]
+        return [
+            api.read.vehicle.driver_name(index)
+            for index in range(api.read.vehicle.total_vehicles())
+        ]

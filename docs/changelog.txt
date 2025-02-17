@@ -1,3 +1,12 @@
+WIP
+-----------------------------
+* Pace Notes Playback
+  - Replaced all "Set" buttons with a single "Apply" button for applying changes.
+  - Add "Pace Notes Playback Enabled" notification to main window when playback enabled.
+
+* Spectate Mode
+  - Fixed an error if player index is set lower than "-1" in "Shared Memory API" config.
+
 2.24.0 (2025-02-06)
 -----------------------------
 * General

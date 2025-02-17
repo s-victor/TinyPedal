@@ -68,11 +68,20 @@ class AppWindow(QMainWindow):
         # Menu bar
         self.main_menubar()
 
+        # Notify bar
         self.notify_spectate = QPushButton("Spectate Mode Enabled")
         self.notify_spectate.clicked.connect(self.goto_spectate_tab)
         self.notify_spectate.setStyleSheet(
             "font-weight: bold;color: #fff;background: #09C;padding: 4px;border-radius: 0;"
         )
+        self.notify_pacenotes = QPushButton("Pace Notes Playback Enabled")
+        self.notify_pacenotes.clicked.connect(self.goto_pacenotes_tab)
+        self.notify_pacenotes.setStyleSheet(
+            "font-weight: bold;color: #fff;background: #290;padding: 4px;border-radius: 0;"
+        )
+        layout_notify = QVBoxLayout()
+        layout_notify.addWidget(self.notify_spectate)
+        layout_notify.addWidget(self.notify_pacenotes)
 
         # Controller tabs
         self.tab_bar = QTabWidget()
@@ -80,7 +89,7 @@ class AppWindow(QMainWindow):
         self.module_tab = ModuleList(mctrl)
         self.preset_tab = PresetList(self)
         self.spectate_tab = SpectateList(self)
-        self.pacenotes_tab = PaceNotesControl()
+        self.pacenotes_tab = PaceNotesControl(self)
         self.tab_bar.addTab(self.widget_tab, "Widget")
         self.tab_bar.addTab(self.module_tab, "Module")
         self.tab_bar.addTab(self.preset_tab, "Preset")
@@ -93,7 +102,7 @@ class AppWindow(QMainWindow):
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.addWidget(self.tab_bar)
-        layout.addWidget(self.notify_spectate)
+        layout.addLayout(layout_notify)
         self.setCentralWidget(main_view)
 
         # Tray icon & window state
@@ -104,6 +113,10 @@ class AppWindow(QMainWindow):
     def goto_spectate_tab(self):
         """Go to spectate tab"""
         self.tab_bar.setCurrentWidget(self.spectate_tab)
+
+    def goto_pacenotes_tab(self):
+        """Go to pacenotes tab"""
+        self.tab_bar.setCurrentWidget(self.pacenotes_tab)
 
     def main_menubar(self):
         """Create menu bar"""
