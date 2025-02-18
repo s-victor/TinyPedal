@@ -20,7 +20,6 @@
 API connector
 """
 
-import logging
 from abc import ABC, abstractmethod
 from functools import partial
 from typing import NamedTuple
@@ -98,7 +97,6 @@ class SimRF2(Connector):
     NAME = API_NAME_RF2
 
     def __init__(self):
-        rF2MMap.logger = logging.getLogger(__name__)
         self.info = rF2MMap.RF2SM()
 
     def start(self):
@@ -125,7 +123,6 @@ class SimLMU(Connector):
     NAME = API_NAME_LMU
 
     def __init__(self):
-        rF2MMap.logger = logging.getLogger(__name__)
         self.info = rF2MMap.RF2SM()
 
     def start(self):
