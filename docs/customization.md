@@ -2868,7 +2868,11 @@ Show absolute refilling value instead of relative refilling when enabled. Note, 
 Show fuel ratio between estimated fuel and energy consumption, which can help balance fuel and energy usage, as well as providing refueling reference for adjusting pit stop `Fuel ratio` during race.
 
     *bias
-Show fuel bias (estimated laps difference) between fuel and virtual energy. Positive value means more laps can be run on fuel than energy; in other words, energy is drained faster than fuel. General speaking, it is a good idea to keep bias close to `0.0` so that fuel and energy drains at same pace, and slightly towards positive side to avoid running out of fuel before energy does.
+Show fuel bias (unit in laps) that calculated from estimated laps difference between fuel and virtual energy.
+
+Positive value indicates more laps can be run on fuel than virtual energy; in other words, virtual energy will deplete sooner than fuel. For example, a value of `+1.5` indicates that there will be `1.5 laps` of extra fuel remaining after virtual energy depleted.
+
+Note, depleting virtual energy could result a `Stop-Go` penalty in `LMU`; while running out of fuel means no power for vehicle and would result retirement from race. So it is a good idea to keep fuel bias close to `0.0`, and slightly towards positive side to avoid depleting fuel before virtual energy.
 
 
 ## Weather
