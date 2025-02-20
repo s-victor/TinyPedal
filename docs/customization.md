@@ -818,7 +818,9 @@ Enable RestAPI module.
 Set `RF2` or `LMU` Rest API host address. Default is `localhost`.
 
     url_port*
-Set port for host address. The default port value for `RF2` is `5397`, and `6397` for `LMU`.
+Set port for host address. Port value must match `WebUI port` value that sets in `LMU` (UserData\player\Settings.JSON) or `RF2` (UserData\player\player.JSON) setting file in order to successfully connect to Rest API and receive data. The default port value for `RF2` is `5397`, and `6397` for `LMU`.
+
+Note, `WebUI port` value from game setting file may change in some situations, and would require manual correction to match `WebUI port` value.
 
     connection_timeout
 Set connection timeout duration in seconds. Value range in `0.5` to `10`. Default is `1` second.
