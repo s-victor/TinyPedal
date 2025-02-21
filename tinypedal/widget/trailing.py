@@ -122,7 +122,10 @@ class Realtime(Overlay):
                     self.update_sample(self.data_clutch, clutch)
 
                 if self.wcfg["show_ffb"]:
-                    ffb = abs(api.read.inputs.force_feedback())
+                    if self.wcfg["show_absolute_ffb"]:
+                        ffb = abs(api.read.inputs.force_feedback())
+                    else:
+                        ffb = (api.read.inputs.force_feedback() + 1) / 2
                     self.update_sample(self.data_ffb, ffb)
 
                 if self.wcfg["show_wheel_lock"]:

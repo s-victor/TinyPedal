@@ -1940,6 +1940,9 @@ Show clutch bar.
     show_ffb_meter
 Show Force Feedback meter.
 
+    show_*_filtered
+Show filtered pedal input if available. Note, some vehicles may not provide filtered pedal input value, which the value will be zero. Disable this option to show raw input only.
+
 
 ## Radar
 **This widget displays vehicle radar info.**
@@ -2689,10 +2692,13 @@ Invert pedal range display.
 Invert trailing direction.
 
     show_throttle
-Show throttle plot.
+Show filtered throttle plot. Note, some vehicles may not provide filtered pedal input value, which the value will be zero.
 
     show_raw_throttle
 Show unfiltered throttle instead.
+
+    show_absolute_ffb
+Convert force feedback value to absolute value before plotting. Set to `false` to show force feedback plot in both positive and negative range.
 
     *_line_width
 Set trailing line width in pixels.

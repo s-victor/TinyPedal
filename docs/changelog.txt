@@ -7,6 +7,10 @@ WIP
 * Spectate Mode
   - Fixed an error if player index is set lower than "-1" in "Shared Memory API" config.
 
+* Trailing Widget
+  - Add "show_absolute_ffb" option, which converts force feedback value to absolute value before plotting.
+    Disable this option to show force feedback plot in both positive and negative range.
+
 2.24.0 (2025-02-06)
 -----------------------------
 * General

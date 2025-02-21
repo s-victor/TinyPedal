@@ -2136,6 +2136,7 @@ WIDGET_DEFAULT = {
         "clutch_line_width": 2,
         "clutch_line_style": 0,
         "show_ffb": True,
+        "show_absolute_ffb": True,
         "ffb_color": "#888888",
         "ffb_line_width": 2,
         "ffb_line_style": 0,
