@@ -42,6 +42,7 @@ class Realtime(Overlay):
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
         self.decimals = max(self.wcfg["decimal_places"], 1)
+        self.delta_display_range = calc.decimal_strip(self.wcfg["delta_display_range"], self.decimals)
         self.max_padding = 3 + self.decimals
         text_def = f"--.{'-' * self.decimals}"
 
@@ -187,5 +188,5 @@ class Realtime(Overlay):
         """Update deltabest"""
         if target.last != data:
             target.last = data
-            text = f"{calc.sym_max(data, self.wcfg['delta_display_range']): >+{self.max_padding}.{self.decimals}f}"[:self.max_padding]
+            text = f"{calc.sym_max(data, self.delta_display_range): >+{self.max_padding}.{self.decimals}f}"[:self.max_padding]
             target.setText(f"{prefix}{text}")

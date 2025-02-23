@@ -139,6 +139,13 @@ def zero_one(value: float) -> float:
     return value
 
 
+def decimal_strip(raw_range: float, max_decimals: int) -> float:
+    """Strip off unwanted decimal places according to max number of decimals"""
+    value_str = str(raw_range)
+    decimal_slice = len(value_str) - len(value_str.split(".")[-1]) + max_decimals
+    return float(value_str[:decimal_slice])
+
+
 def mean_iter(average: float, value: float, num_samples: int) -> float:
     """Average value"""
     return (average * num_samples + value) / (num_samples + 1)
