@@ -39,9 +39,11 @@ class Realtime(Overlay):
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        text_def = "--.---"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
+        self.decimals = max(self.wcfg["decimal_places"], 1)
+        self.max_padding = 3 + self.decimals
+        text_def = f"--.{'-' * self.decimals}"
 
         if self.wcfg["layout"] == 0:
             prefix_just = max(
@@ -185,5 +187,5 @@ class Realtime(Overlay):
         """Update deltabest"""
         if target.last != data:
             target.last = data
-            text = f"{calc.sym_max(data, self.wcfg['delta_display_range']): >+6.3f}"[:6]
+            text = f"{calc.sym_max(data, self.wcfg['delta_display_range']): >+{self.max_padding}.{self.decimals}f}"[:self.max_padding]
             target.setText(f"{prefix}{text}")

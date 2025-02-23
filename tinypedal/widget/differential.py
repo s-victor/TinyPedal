@@ -41,7 +41,7 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         self.decimals = max(self.wcfg["decimal_places"], 0)
-        self.leading_space = 3 + self.decimals + (self.decimals > 0)
+        self.max_padding = 3 + self.decimals + (self.decimals > 0)
 
         if self.wcfg["layout"] == 0:
             prefix_just = max(
@@ -186,7 +186,7 @@ class Realtime(Overlay):
         """Format reading"""
         if self.wcfg["show_inverted_locking"]:
             value = 1 - value
-        return f"{value: >{self.leading_space}.{self.decimals}%}"[:self.leading_space]
+        return f"{value: >{self.max_padding}.{self.decimals}%}"[:self.max_padding]
 
 
 class DiffLockingTimer:

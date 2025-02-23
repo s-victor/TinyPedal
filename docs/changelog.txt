@@ -7,6 +7,9 @@ WIP
 * Spectate Mode
   - Fixed an error if player index is set lower than "-1" in "Shared Memory API" config.
 
+* Deltabest, Deltabest extended Widget
+  - Add "decimal_places" option (requested by Oblit0r). Default is "3" decimal places. Minimum is limited to "1".
+
 * Trailing Widget
   - Add "show_absolute_ffb" option, which converts force feedback value to absolute value before plotting.
     Disable this option to show force feedback plot in both positive and negative range.

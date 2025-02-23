@@ -54,7 +54,9 @@ class Realtime(Overlay):
         self.dbar_length = int(self.wcfg["bar_length"] * 0.5)
         dbar_height = int(self.wcfg["bar_height"])
 
-        self.delta_width = font_m.width * 7 + padx * 2
+        self.decimals = max(self.wcfg["decimal_places"], 1)
+        self.max_padding = 4 + self.decimals
+        self.delta_width = font_m.width * self.max_padding + padx * 2
         delta_height = font_m.capital + pady * 2
 
         if self.wcfg["layout"] == 0:
@@ -148,7 +150,7 @@ class Realtime(Overlay):
         painter.drawText(
             self.rect_text_delta,
             Qt.AlignCenter,
-            f"{calc.sym_max(self.delta_best, self.wcfg['delta_display_range']):+.3f}"[:7]
+            f"{calc.sym_max(self.delta_best, self.wcfg['delta_display_range']):+.{self.decimals}f}"[:self.max_padding]
         )
 
     # Additional methods
