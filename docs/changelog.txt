@@ -7,12 +7,36 @@ WIP
 * Spectate Mode
   - Fixed an error if player index is set lower than "-1" in "Shared Memory API" config.
 
+* [New]Brakes Preset
+  - Add new "brakes.json" preset file in "settings" folder, which is used for customizing
+    brake failure thickness ("LMU" only) and heatmap style that matches specific vehicle class.
+  - Add default brake failure thickness and heatmap style for all vehicle classes currently found in "LMU".
+  - Automatically adds missing brake styles found from all running vehicle class to "brakes.json".
+  - "brakes" file name is now reserved for "brakes.json" preset.
+
+* [New]Brake Editor
+  - Add "Brake Editor" to "Tools" menu in main window, which allows customizing "brakes.json" preset.
+    See User Guide "Brake Editor" section for complete usage.
+
+* Brake temperature Widget
+  - Add "enable_heatmap_auto_matching" option, which enables automatically heatmap style matching
+    for specific brakes defined in "brakes.json" preset.
+    This option applies matching heatmap style to front and rear brakes separately.
+    While this option is enabled, "heatmap_name" option has no effect. This option is enabled by default.
+
+* Brake wear Widget
+  - Now loads brake "failure thickness" values from "brakes.json" preset for brake wear calculation.
+  - Removed old "front_brake_failure_thickness" and "rear_brake_failure_thickness" options.
+
 * Deltabest, Deltabest extended Widget
   - Add "decimal_places" option (requested by Oblit0r). Default is "3" decimal places. Minimum is limited to "1".
 
 * Trailing Widget
   - Add "show_absolute_ffb" option, which converts force feedback value to absolute value before plotting.
     Disable this option to show force feedback plot in both positive and negative range.
+
+* User Guide
+  - Moved all tools and editors guide into "Tools" section. Added internal links for quick accessing related info.
 
 2.24.0 (2025-02-06)
 -----------------------------

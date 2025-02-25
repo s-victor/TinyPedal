@@ -69,7 +69,7 @@ class Realtime(Overlay):
         self.heatmap_styles = 4 * [
             hmp.load_heatmap_style(
                 heatmap_name=self.wcfg["heatmap_name"],
-                default_name="tyre_default",
+                default_name=hmp.HEATMAP_DEFAULT_TYRE,
                 swap_style=self.wcfg["swap_style"],
                 fg_color=self.wcfg["font_color_surface"],
                 bg_color=self.wcfg["bkg_color_surface"],
@@ -135,8 +135,8 @@ class Realtime(Overlay):
             # Update heatmap style
             if self.wcfg["enable_heatmap_auto_matching"]:
                 heatmap_style = hmp.load_heatmap_style(
-                    heatmap_name=hmp.select_tyre_heatmap(data),
-                    default_name="tyre_default",
+                    heatmap_name=hmp.select_tyre_heatmap_name(data),
+                    default_name=hmp.HEATMAP_DEFAULT_TYRE,
                     swap_style=self.wcfg["swap_style"],
                     fg_color=self.wcfg["font_color_surface"],
                     bg_color=self.wcfg["bkg_color_surface"],

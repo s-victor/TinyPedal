@@ -21,6 +21,7 @@ Brake Wear Widget
 """
 
 from .. import calculation as calc
+from .. import heatmap as hmp
 from ..regex_pattern import TEXT_NOTAVAILABLE
 from ..api_control import api
 from ..module_info import minfo
@@ -44,12 +45,7 @@ class Realtime(Overlay):
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         bar_width = font_m.width * 4 + bar_padx
         self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
-        self.failure_thickness = (
-            max(self.wcfg["front_brake_failure_thickness"], 0),
-            max(self.wcfg["front_brake_failure_thickness"], 0),
-            max(self.wcfg["rear_brake_failure_thickness"], 0),
-            max(self.wcfg["rear_brake_failure_thickness"], 0),
-        )
+        self.failure_thickness = (0, 0, 0, 0)
         self.threshold_remaining = min(max(self.wcfg["warning_threshold_remaining"], 0), 100) * 0.01
 
         # Base style
@@ -199,6 +195,7 @@ class Realtime(Overlay):
 
         # Last data
         self.checked = False
+        self.last_class_name = None
         self.last_lap_stime = 0  # last lap start time
         self.wear_prev = [0] * 4  # previous moment remaining wear
         self.wear_curr_lap = [0] * 4  # live wear update of current lap
@@ -215,8 +212,15 @@ class Realtime(Overlay):
 
             lap_stime = api.read.timing.start()
             lap_etime = api.read.timing.elapsed()
+            class_name = api.read.vehicle.class_name()
+
             # Brake thickness in millimeter
             wear_curr = [value * 1000 for value in minfo.restapi.brakeWear]
+
+            # Update failure thickness
+            if self.last_class_name != class_name:
+                self.last_class_name = class_name
+                self.update_failure_thickness = (class_name)
 
             if lap_stime != self.last_lap_stime:
                 self.wear_last_lap = self.wear_curr_lap
@@ -319,3 +323,18 @@ class Realtime(Overlay):
     def format_num(value):
         """Format number"""
         return f"{value:.2f}"[:4].strip(".")
+
+    def update_failure_thickness(self, class_name: str):
+        """Update failure thickness"""
+        failure_thickness_f = hmp.select_brake_failure_thickness(
+            hmp.set_predefined_brake_name(class_name, True)
+        )
+        failure_thickness_r = hmp.select_brake_failure_thickness(
+            hmp.set_predefined_brake_name(class_name, False)
+        )
+        self.failure_thickness = (
+            failure_thickness_f,
+            failure_thickness_f,
+            failure_thickness_r,
+            failure_thickness_r,
+        )

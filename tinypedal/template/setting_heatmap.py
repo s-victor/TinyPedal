@@ -20,10 +20,13 @@
 Default heatmap template
 """
 
+HEATMAP_DEFAULT_TYRE = "tyre_default"
+HEATMAP_DEFAULT_BRAKE = "brake_default"
+
 # key = temperature in Celsius
 # value = HEX color code
 HEATMAP_DEFAULT = {
-    "tyre_default": {
+    HEATMAP_DEFAULT_TYRE: {
         "-273": "#44F",
         "40": "#84F",
         "60": "#F4F",
@@ -32,7 +35,7 @@ HEATMAP_DEFAULT = {
         "120": "#F84",
         "140": "#FF4",
     },
-    "brake_default": {
+    HEATMAP_DEFAULT_BRAKE: {
         "-273": "#44F",
         "100": "#48F",
         "200": "#4FF",

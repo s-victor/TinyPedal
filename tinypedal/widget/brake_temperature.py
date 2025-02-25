@@ -50,18 +50,22 @@ class Realtime(Overlay):
         bar_width_temp = font_m.width * text_width + bar_padx
 
         # Base style
-        self.heatmap = hmp.load_heatmap_style(
-            heatmap_name=self.wcfg["heatmap_name"],
-            default_name="brake_default",
-            swap_style=not self.wcfg["swap_style"],
-            fg_color=self.wcfg["font_color_temperature"],
-            bg_color=self.wcfg["bkg_color_temperature"],
-        )
         self.setStyleSheet(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
+
+        # Heatmap style list: 0 - fl, 1 - fr, 2 - rl, 3 - rr
+        self.heatmap_styles = 4 * [
+            hmp.load_heatmap_style(
+                heatmap_name=self.wcfg["heatmap_name"],
+                default_name=hmp.HEATMAP_DEFAULT_BRAKE,
+                swap_style=not self.wcfg["swap_style"],
+                fg_color=self.wcfg["font_color_temperature"],
+                bg_color=self.wcfg["bkg_color_temperature"],
+            )
+        ]
 
         # Brake temperature
         layout_btemp = self.set_grid_layout(gap=inner_gap)
@@ -116,6 +120,7 @@ class Realtime(Overlay):
         self.checked = False
         self.btavg = [0] * 4
         self.btavg_samples = 1  # number of temperature samples
+        self.last_class_name = None
         self.last_lap_stime = 0
 
     def timerEvent(self, event):
@@ -126,10 +131,17 @@ class Realtime(Overlay):
             if not self.checked:
                 self.checked = True
 
+            # Update heatmap style
+            if self.wcfg["enable_heatmap_auto_matching"]:
+                class_name = api.read.vehicle.class_name()
+                if self.last_class_name != class_name:
+                    self.last_class_name = class_name
+                    self.update_heatmap(class_name)
+
             # Brake temperature
             btemp = api.read.brake.temperature()
-            for idx, bar_btemp in enumerate(self.bars_btemp):
-                self.update_btemp(bar_btemp, round(btemp[idx]))
+            for brake_idx, bar_btemp in enumerate(self.bars_btemp):
+                self.update_btemp(bar_btemp, round(btemp[brake_idx]), brake_idx)
 
             # Brake average temperature
             if self.wcfg["show_average"]:
@@ -140,16 +152,16 @@ class Realtime(Overlay):
                     self.last_lap_stime = lap_stime  # reset time stamp counter
                     self.btavg_samples = 1
                     # Highlight reading
-                    for idx, bar_btavg in enumerate(self.bars_btavg):
+                    for bar_btavg in self.bars_btavg:
                         self.update_btavg(bar_btavg, bar_btavg.last, True)
 
                 # Update average reading
                 not_highlight = lap_etime - self.last_lap_stime >= self.wcfg["highlight_duration"]
-                for idx, bar_btavg in enumerate(self.bars_btavg):
-                    self.btavg[idx] = calc.mean_iter(
-                        self.btavg[idx], btemp[idx], self.btavg_samples)
+                for brake_idx, bar_btavg in enumerate(self.bars_btavg):
+                    self.btavg[brake_idx] = calc.mean_iter(
+                        self.btavg[brake_idx], btemp[brake_idx], self.btavg_samples)
                     if not_highlight:
-                        self.update_btavg(bar_btavg, round(self.btavg[idx]))
+                        self.update_btavg(bar_btavg, round(self.btavg[brake_idx]))
                 self.btavg_samples += 1
 
         else:
@@ -159,12 +171,12 @@ class Realtime(Overlay):
                 self.btavg_samples = 1
 
     # GUI update methods
-    def update_btemp(self, target, data):
+    def update_btemp(self, target, data, index):
         """Brake temperature"""
         if target.last != data:
             target.last = data
             target.setText(self.format_temperature(data))
-            target.setStyleSheet(calc.select_grade(self.heatmap, data))
+            target.setStyleSheet(calc.select_grade(self.heatmap_styles[index], data))
 
     def update_btavg(self, target, data, highlighted=False):
         """Brake average temperature"""
@@ -179,3 +191,30 @@ class Realtime(Overlay):
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
             return f"{calc.celsius2fahrenheit(value):0{self.leading_zero}.0f}{self.sign_text}"
         return f"{value:0{self.leading_zero}.0f}{self.sign_text}"
+
+    def update_heatmap(self, class_name: str):
+        """Update heatmap"""
+        heatmap_f = hmp.select_brake_heatmap_name(
+            hmp.set_predefined_brake_name(class_name, True)
+        )
+        heatmap_r = hmp.select_brake_heatmap_name(
+            hmp.set_predefined_brake_name(class_name, False)
+        )
+        heatmap_style_f = hmp.load_heatmap_style(
+            heatmap_name=heatmap_f,
+            default_name=hmp.HEATMAP_DEFAULT_BRAKE,
+            swap_style=not self.wcfg["swap_style"],
+            fg_color=self.wcfg["font_color_temperature"],
+            bg_color=self.wcfg["bkg_color_temperature"],
+        )
+        heatmap_style_r = hmp.load_heatmap_style(
+            heatmap_name=heatmap_r,
+            default_name=hmp.HEATMAP_DEFAULT_BRAKE,
+            swap_style=not self.wcfg["swap_style"],
+            fg_color=self.wcfg["font_color_temperature"],
+            bg_color=self.wcfg["bkg_color_temperature"],
+        )
+        self.heatmap_styles[0] = heatmap_style_f
+        self.heatmap_styles[1] = heatmap_style_f
+        self.heatmap_styles[2] = heatmap_style_r
+        self.heatmap_styles[3] = heatmap_style_r

@@ -20,6 +20,7 @@
 Default compounds template
 """
 
+from .setting_heatmap import HEATMAP_DEFAULT_TYRE
 
 COMPOUNDS_DEFAULT = {
     "Hyper - Soft": {
@@ -36,7 +37,7 @@ COMPOUNDS_DEFAULT = {
     },
     "Hyper - Wet": {
         "symbol": "W",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "LMP2 - Soft": {
         "symbol": "S",
@@ -52,7 +53,7 @@ COMPOUNDS_DEFAULT = {
     },
     "LMP2 - Wet": {
         "symbol": "W",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "GTE - Soft": {
         "symbol": "S",
@@ -68,11 +69,11 @@ COMPOUNDS_DEFAULT = {
     },
     "GTE - Wet": {
         "symbol": "W",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "GTE - P2M (Rain)": {
         "symbol": "W",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "GT3 - Soft": {
         "symbol": "S",
@@ -88,70 +89,70 @@ COMPOUNDS_DEFAULT = {
     },
     "GT3 - Wet": {
         "symbol": "W",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "GT3 - P2M (Rain)": {
         "symbol": "W",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "BTCC - Soft": {
         "symbol": "S",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "BTCC - Medium": {
         "symbol": "M",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "BTCC - Hard": {
         "symbol": "H",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "BTCC - Wet": {
         "symbol": "W",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "Hypercar - Soft": {
         "symbol": "S",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "Hypercar - Medium": {
         "symbol": "M",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "Hypercar - Hard": {
         "symbol": "H",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "Hypercar - Wet": {
         "symbol": "W",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "LMP2 - S7M (Soft)": {
         "symbol": "S",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "LMP2 - S8M (Medium)": {
         "symbol": "M",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "LMP2 - S9M (Hard)": {
         "symbol": "H",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "LMP2 - H5M (Inter)": {
         "symbol": "I",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "LMP2 - P2M (Rain)": {
         "symbol": "W",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "LMP3 - S8M (Medium)": {
         "symbol": "M",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
     "LMP3 - P2M (Rain)": {
         "symbol": "W",
-        "heatmap": "tyre_default",
+        "heatmap": HEATMAP_DEFAULT_TYRE,
     },
 }

@@ -33,6 +33,7 @@ from .template.setting_module import MODULE_DEFAULT
 from .template.setting_widget import WIDGET_DEFAULT
 from .template.setting_classes import CLASSES_DEFAULT
 from .template.setting_heatmap import HEATMAP_DEFAULT
+from .template.setting_brakes import BRAKES_DEFAULT
 from .template.setting_compounds import COMPOUNDS_DEFAULT
 
 from . import regex_pattern as rxp
@@ -63,6 +64,7 @@ class FileName:
         "classes",
         "heatmap",
         "brands",
+        "brakes",
         "compounds",
         "last_setting",
     )
@@ -73,6 +75,7 @@ class FileName:
         self.classes: str = "classes.json"
         self.heatmap: str = "heatmap.json"
         self.brands: str = "brands.json"
+        self.brakes: str = "brakes.json"
         self.compounds: str = "compounds.json"
         self.last_setting: str = "None.json"
 
@@ -127,8 +130,9 @@ class Preset:
         "classes",
         "heatmap",
         "brands",
-        "brands_logo",
+        "brakes",
         "compounds",
+        "brands_logo",
     )
 
     def __init__(self):
@@ -137,6 +141,7 @@ class Preset:
         self.classes: dict | None = None
         self.heatmap: dict | None = None
         self.brands: dict | None = None
+        self.brakes: dict | None = None
         self.compounds: dict | None = None
         self.brands_logo: list | None = None
 
@@ -148,6 +153,7 @@ class Preset:
         self.classes = MappingProxyType(CLASSES_DEFAULT)
         self.heatmap = MappingProxyType(HEATMAP_DEFAULT)
         self.brands = MappingProxyType({})
+        self.brakes = MappingProxyType(BRAKES_DEFAULT)
         self.compounds = MappingProxyType(COMPOUNDS_DEFAULT)
 
     @staticmethod
@@ -272,6 +278,12 @@ class Setting:
             filepath=self.path.settings,
             dict_def=self.default.classes,
             validator=StyleValidator.classes,
+        )
+        self.user.brakes = load_style_json_file(
+            filename=self.filename.brakes,
+            filepath=self.path.settings,
+            dict_def=self.default.brakes,
+            validator=StyleValidator.brakes,
         )
         self.user.compounds = load_style_json_file(
             filename=self.filename.compounds,

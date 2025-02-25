@@ -38,7 +38,7 @@ from PySide2.QtWidgets import (
 from ..api_control import api
 from ..setting import cfg, copy_setting
 from ..module_control import wctrl
-from ..heatmap import set_predefined_compound_symbol
+from ..heatmap import set_predefined_compound_symbol, HEATMAP_DEFAULT_TYRE
 from ._common import (
     BaseEditor,
     TableBatchReplace,
@@ -132,7 +132,12 @@ class TyreCompoundEditor(BaseEditor):
         self.table_compounds.setRowCount(0)
         row_index = 0
         for compound_name, compound_data in self.compounds_temp.items():
-            self.add_compound_entry(row_index, compound_name, compound_data["symbol"], compound_data["heatmap"])
+            self.add_compound_entry(
+                row_index,
+                compound_name,
+                compound_data["symbol"],
+                compound_data["heatmap"],
+            )
             row_index += 1
 
     def __add_option_combolist(self, key):
@@ -164,7 +169,11 @@ class TyreCompoundEditor(BaseEditor):
             )
             for compound in compound_names:
                 if not self.is_value_in_table(compound, self.table_compounds):
-                    self.add_compound_entry(row_index, compound, set_predefined_compound_symbol(compound))
+                    self.add_compound_entry(
+                        row_index,
+                        compound,
+                        set_predefined_compound_symbol(compound),
+                    )
                     self.table_compounds.setCurrentCell(row_index, 0)
                     row_index += 1
         # Add new name entry
@@ -173,7 +182,9 @@ class TyreCompoundEditor(BaseEditor):
             self.add_compound_entry(row_index, new_compound_name, "?")
             self.table_compounds.setCurrentCell(row_index, 0)
 
-    def add_compound_entry(self, row_index: int, compound_name: str, symbol_name: str, heatmap_name: str = ""):
+    def add_compound_entry(
+        self, row_index: int, compound_name: str, symbol_name: str,
+        heatmap_name: str = HEATMAP_DEFAULT_TYRE):
         """Add new compound entry to table"""
         self.table_compounds.insertRow(row_index)
         self.table_compounds.setItem(row_index, 0, QTableWidgetItem(compound_name))

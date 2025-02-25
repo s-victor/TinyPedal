@@ -25,6 +25,7 @@ import re
 from . import formatter as fmt
 from . import regex_pattern as rxp
 from . import validator as val
+from .template.setting_heatmap import HEATMAP_DEFAULT_TYRE, HEATMAP_DEFAULT_BRAKE
 
 COMMON_STRINGS = fmt.pipe_join(
     rxp.CFG_FONT_NAME,
@@ -70,6 +71,22 @@ class StyleValidator:
         return save_change
 
     @staticmethod
+    def brakes(style_user: dict) -> bool:
+        """Brakes style validator"""
+        save_change = False
+        FAILURE = "failure_thickness"
+        HEATMAP = "heatmap"
+        # Validate brakes entry
+        for brake_data in style_user.values():
+            if FAILURE not in brake_data or not isinstance(brake_data[FAILURE], val.TYPE_NUMBER):
+                brake_data[FAILURE] = 0.0
+                save_change = True
+            if HEATMAP not in brake_data or not isinstance(brake_data[HEATMAP], str):
+                brake_data[HEATMAP] = HEATMAP_DEFAULT_BRAKE
+                save_change = True
+        return save_change
+
+    @staticmethod
     def compounds(style_user: dict) -> bool:
         """Tyre compound style validator"""
         save_change = False
@@ -81,7 +98,7 @@ class StyleValidator:
                 compound_data[SYMBOL] = "?"
                 save_change = True
             if HEATMAP not in compound_data or not isinstance(compound_data[HEATMAP], str):
-                compound_data[HEATMAP] = "tyre_default"
+                compound_data[HEATMAP] = HEATMAP_DEFAULT_TYRE
                 save_change = True
         return save_change
 

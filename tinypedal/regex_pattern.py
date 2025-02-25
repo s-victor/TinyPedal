@@ -134,6 +134,7 @@ CFG_INTEGER = (
 CFG_INVALID_FILENAME = (
     # Exact match
     "^$|"
+    "^brakes$|"
     "^brands$|"
     "^classes$|"
     "^compounds$|"

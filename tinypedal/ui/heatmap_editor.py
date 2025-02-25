@@ -60,7 +60,7 @@ class HeatmapEditor(BaseEditor):
 
         self.option_heatmap = []
         self.heatmap_temp = copy_setting(cfg.user.heatmap)
-        self.selected_heatmap_name = "tyre_default"
+        self.selected_heatmap_name = next(iter(self.heatmap_temp.keys()))
         self.selected_heatmap = self.heatmap_temp[self.selected_heatmap_name]
 
         # Preset selector

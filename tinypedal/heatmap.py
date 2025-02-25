@@ -26,6 +26,59 @@ import re
 from .setting import cfg
 from .validator import hex_color
 from .regex_pattern import COMMON_TYRE_COMPOUNDS
+from .template.setting_heatmap import HEATMAP_DEFAULT_TYRE, HEATMAP_DEFAULT_BRAKE
+
+
+def invalid_name(name: str) -> bool:
+    """Check invalid name"""
+    return name == "" or name == " - "
+
+
+# Brake function
+def add_missing_brake(brake_name: str) -> None:
+    """Add missing brake style to brakes preset"""
+    cfg.user.brakes[brake_name] = {
+        "failure_thickness": 0.0,
+        "heatmap": HEATMAP_DEFAULT_BRAKE,
+    }
+    cfg.save(filetype="brakes")
+
+
+def set_predefined_brake_name(class_name: str, is_front: bool) -> str:
+    """Set common brake name"""
+    if is_front:
+        return f"{class_name} - Front Brake"
+    return f"{class_name} - Rear Brake"
+
+
+def select_brake_failure_thickness(brake_name: str) -> float:
+    """Select brake failure thickness, minimum thickness 0.0"""
+    brake = cfg.user.brakes.get(brake_name, None)
+    if brake is not None:
+        return max(brake.get("failure_thickness", 0.0), 0)
+    # Add missing brake style if vaild name
+    if not invalid_name(brake_name):
+        add_missing_brake(brake_name)
+    return 0.0
+
+
+def select_brake_heatmap_name(brake_name: str) -> str:
+    """Select brake heatmap name from brakes preset"""
+    brake = cfg.user.brakes.get(brake_name, None)
+    if brake is None:
+        add_missing_brake(brake_name)
+        brake = cfg.user.brakes.get(brake_name)
+    return brake.get("heatmap", HEATMAP_DEFAULT_BRAKE)
+
+
+# Tyre function
+def add_missing_compound(compound_name: str) -> None:
+    """Add missing compound style to compounds preset"""
+    cfg.user.compounds[compound_name] = {
+        "symbol": set_predefined_compound_symbol(compound_name),
+        "heatmap": HEATMAP_DEFAULT_TYRE,
+    }
+    cfg.save(filetype="compounds")
 
 
 def set_predefined_compound_symbol(compound_name: str) -> str:
@@ -39,32 +92,24 @@ def set_predefined_compound_symbol(compound_name: str) -> str:
 def select_compound_symbol(compound_name: str) -> str:
     """Select compound symbol"""
     compound = cfg.user.compounds.get(compound_name, None)
-    if compound is None:
-        # Ignore invalid compound name
-        if compound_name == "" or compound_name == " - ":
-            return "?"
-        # Add compound name to compounds preset if not exist
-        symbol_name = set_predefined_compound_symbol(compound_name)
-        cfg.user.compounds[compound_name] = {
-            "symbol": symbol_name,
-            "heatmap": "tyre_default",
-        }
-        cfg.save(filetype="compounds")
-    else:
-        symbol_name = compound.get("symbol", "?")
-    return symbol_name
+    if compound is not None:
+        return compound.get("symbol", "?")
+    # Add missing compound style if vaild name
+    if not invalid_name(compound_name):
+        add_missing_compound(compound_name)
+    return set_predefined_compound_symbol(compound_name)
 
 
-def select_tyre_heatmap(compound_name: str) -> str:
-    """Select tyre heatmap name from matching compound name in compounds preset"""
+def select_tyre_heatmap_name(compound_name: str) -> str:
+    """Select tyre heatmap name from compounds preset"""
     compound = cfg.user.compounds.get(compound_name, None)
     if compound is None:
-        heatmap_name = "tyre_default"
-    else:
-        heatmap_name = compound.get("heatmap", "tyre_default")
-    return heatmap_name
+        add_missing_compound(compound_name)
+        compound = cfg.user.compounds.get(compound_name)
+    return compound.get("heatmap", HEATMAP_DEFAULT_TYRE)
 
 
+# Heatmap function
 def verify_heatmap(heatmap_dict: dict) -> bool:
     """Verify color in heatmap"""
     if not heatmap_dict:

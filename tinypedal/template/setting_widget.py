@@ -20,6 +20,7 @@
 Default widget setting template
 """
 
+from .setting_heatmap import HEATMAP_DEFAULT_TYRE, HEATMAP_DEFAULT_BRAKE
 
 WIDGET_DEFAULT = {
     "battery": {
@@ -162,7 +163,8 @@ WIDGET_DEFAULT = {
         "bar_padding": 0.2,
         "bar_gap": 2,
         "inner_gap": 0,
-        "heatmap_name": "brake_default",
+        "enable_heatmap_auto_matching": True,
+        "heatmap_name": HEATMAP_DEFAULT_BRAKE,
         "swap_style": False,
         "show_degree_sign": False,
         "leading_zero": 2,
@@ -190,8 +192,6 @@ WIDGET_DEFAULT = {
         "bar_padding": 0.2,
         "bar_gap": 2,
         "show_thickness": False,
-        "front_brake_failure_thickness": 0,
-        "rear_brake_failure_thickness": 0,
         "show_remaining": True,
         "font_color_remaining": "#22CC22",
         "bkg_color_remaining": "#222222",
@@ -2194,7 +2194,7 @@ WIDGET_DEFAULT = {
         "bar_gap": 2,
         "inner_gap": 0,
         "enable_heatmap_auto_matching": True,
-        "heatmap_name": "tyre_default",
+        "heatmap_name": HEATMAP_DEFAULT_TYRE,
         "swap_style": False,
         "show_degree_sign": False,
         "leading_zero": 2,
@@ -2227,7 +2227,7 @@ WIDGET_DEFAULT = {
         "vertical_gap": 0,
         "inner_gap": 0,
         "enable_heatmap_auto_matching": True,
-        "heatmap_name": "tyre_default",
+        "heatmap_name": HEATMAP_DEFAULT_TYRE,
         "swap_style": False,
         "show_inner_center_outer": True,
         "show_degree_sign": False,
@@ -2294,7 +2294,7 @@ WIDGET_DEFAULT = {
         "vertical_gap": 0,
         "inner_gap": 0,
         "enable_heatmap_auto_matching": True,
-        "heatmap_name": "tyre_default",
+        "heatmap_name": HEATMAP_DEFAULT_TYRE,
         "swap_style": False,
         "show_inner_center_outer": True,
         "show_degree_sign": False,
