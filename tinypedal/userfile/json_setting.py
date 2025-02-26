@@ -31,7 +31,6 @@ from typing import Callable
 from ..setting_validator import PresetValidator
 
 logger = logging.getLogger(__name__)
-preset_validator = PresetValidator()
 
 
 def set_backup_timestamp(prefix: str = ".backup-", timestamp: bool = True) -> str:
@@ -59,31 +58,37 @@ def load_setting_json_file(filename: str, filepath: str, dict_def: dict, is_glob
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
             setting_user = json.load(jsonfile)
         # Verify & assign setting
-        setting_user = preset_validator.validate(setting_user, dict_def)
+        setting_user = PresetValidator.validate(setting_user, dict_def)
         if is_global:
             logger.info("SETTING: %s loaded (global settings)", filename)
         else:
             logger.info("SETTING: %s loaded (user preset)", filename)
     except (FileNotFoundError, KeyError, ValueError):
-        logger.error("SETTING: %s failed loading, create backup & revert to default", filename)
-        create_backup_file(filename, filepath, set_backup_timestamp())
+        logger.error("SETTING: %s failed loading, fall back to default", filename)
+        create_backup_file(filename, filepath, set_backup_timestamp(), show_log=True)
         setting_user = copy_setting(dict_def)
     return setting_user
 
 
 def load_style_json_file(
-    filename: str, filepath: str, dict_def: dict, validator: Callable | None = None) -> dict:
-    """Load classes style json file"""
+    filename: str, filepath: str, dict_def: dict,
+    check_missing: bool = False, validator: Callable | None = None) -> dict:
+    """Load style json file"""
     msg_text = "loaded"
     try:
         # Read JSON file
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
             style_user = json.load(jsonfile)
 
+        # Whether to check and add missing style
+        if check_missing:
+            if PresetValidator.add_missing_key(dict_def.keys(), style_user, dict_def):
+                msg_text = "updated"
+
+        # Whether to validate style
         if validator is not None:
-            save_change = validator(style_user)
-            if save_change:
-                create_backup_file(filename, filepath, set_backup_timestamp())
+            if validator(style_user):
+                create_backup_file(filename, filepath, set_backup_timestamp(), show_log=True)
                 msg_text = "updated"
 
     except (FileNotFoundError, KeyError, ValueError):
@@ -92,7 +97,7 @@ def load_style_json_file(
             logger.info("SETTING: %s not found, create new default", filename)
         else:
             logger.error("SETTING: %s failed loading, fall back to default", filename)
-            create_backup_file(filename, filepath, set_backup_timestamp())
+            create_backup_file(filename, filepath, set_backup_timestamp(), show_log=True)
         msg_text = "updated"
 
     if msg_text == "updated":
@@ -118,13 +123,16 @@ def verify_json_file(filename: str, filepath: str, dict_user: dict) -> bool:
         return False
 
 
-def create_backup_file(filename: str, filepath: str, extension: str = ".bak") -> None:
+def create_backup_file(
+    filename: str, filepath: str, extension: str = ".bak", show_log: bool = False) -> None:
     """Create backup file before saving"""
     try:
         shutil.copyfile(
             f"{filepath}{filename}",
-            f"{filepath}{filename}{extension}"
+            f"{filepath}{filename}{extension}",
         )
+        if show_log:
+            logger.info("SETTING: backup saved %s", f"{filepath}{filename}{extension}")
     except (FileNotFoundError, OSError):
         logger.error("SETTING: failed old preset backup")
 
@@ -134,7 +142,7 @@ def restore_backup_file(filename: str, filepath: str, extension: str = ".bak") -
     try:
         shutil.copyfile(
             f"{filepath}{filename}{extension}",
-            f"{filepath}{filename}"
+            f"{filepath}{filename}",
         )
     except (FileNotFoundError, OSError):
         logger.error("SETTING: failed old preset restoration")

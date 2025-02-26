@@ -23,7 +23,7 @@ Module and widget control
 from __future__ import annotations
 import logging
 from time import sleep
-from typing import Any
+from typing import Any, KeysView
 
 from .setting import cfg
 from . import module
@@ -148,7 +148,7 @@ class ModuleControl:
         return len(self._imported_modules)
 
     @property
-    def names(self):
+    def names(self) -> KeysView[str]:
         """List of module names"""
         return self._imported_modules.keys()
 

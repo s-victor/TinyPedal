@@ -56,7 +56,7 @@ def select_brake_failure_thickness(brake_name: str) -> float:
     brake = cfg.user.brakes.get(brake_name, None)
     if brake is not None:
         return max(brake.get("failure_thickness", 0.0), 0)
-    # Add missing brake style if vaild name
+    # Add missing brake style if name invalid
     if not invalid_name(brake_name):
         add_missing_brake(brake_name)
     return 0.0
@@ -94,7 +94,7 @@ def select_compound_symbol(compound_name: str) -> str:
     compound = cfg.user.compounds.get(compound_name, None)
     if compound is not None:
         return compound.get("symbol", "?")
-    # Add missing compound style if vaild name
+    # Add missing compound style if name invalid
     if not invalid_name(compound_name):
         add_missing_compound(compound_name)
     return set_predefined_compound_symbol(compound_name)
@@ -110,11 +110,11 @@ def select_tyre_heatmap_name(compound_name: str) -> str:
 
 
 # Heatmap function
-def verify_heatmap(heatmap_dict: dict) -> bool:
+def verify_heatmap(heatmap_dict: dict | None) -> bool:
     """Verify color in heatmap"""
     if not heatmap_dict:
         return False
-    for color in tuple(heatmap_dict.values()):
+    for color in heatmap_dict.values():
         if not hex_color(color):
             return False
     return True

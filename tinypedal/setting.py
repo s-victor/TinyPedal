@@ -295,6 +295,7 @@ class Setting:
             filename=self.filename.heatmap,
             filepath=self.path.settings,
             dict_def=self.default.heatmap,
+            check_missing=True,
         )
         self.user.brands_logo = load_brand_logo_list(
             filepath=self.path.brand_logo,

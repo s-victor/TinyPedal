@@ -20,7 +20,9 @@
 Setting validator function
 """
 
+from __future__ import annotations
 import re
+from typing import KeysView
 
 from . import formatter as fmt
 from . import regex_pattern as rxp
@@ -184,24 +186,21 @@ class ValueValidator:
 class PresetValidator:
     """Preset validator"""
 
-    __slots__ = (
-        "_value_validators",
+    __slots__ = ()
+    # Set validator methods in ordered list
+    _value_validators = (
+        ValueValidator.boolean,
+        ValueValidator.color,
+        ValueValidator.choice_units,
+        ValueValidator.choice_common,
+        ValueValidator.clock_format,
+        ValueValidator.string,
+        ValueValidator.integer,
+        ValueValidator.numeric,
     )
 
-    def __init__(self) -> None:
-        """Set validator methods in ordered list"""
-        self._value_validators = (
-            ValueValidator.boolean,
-            ValueValidator.color,
-            ValueValidator.choice_units,
-            ValueValidator.choice_common,
-            ValueValidator.clock_format,
-            ValueValidator.string,
-            ValueValidator.integer,
-            ValueValidator.numeric,
-        )
-
-    def remove_invalid_key(self, key_list_def: tuple, dict_user: dict) -> None:
+    @classmethod
+    def remove_invalid_key(cls, key_list_def: KeysView[str], dict_user: dict) -> None:
         """Remove invalid key & value from user dictionary"""
         key_list_user = tuple(dict_user)  # create user key list
 
@@ -213,39 +212,45 @@ class PresetValidator:
             if isinstance(dict_user[key], dict):
                 continue
             # Validate values
-            for _validator in self._value_validators:
+            for _validator in cls._value_validators:
                 if _validator(key, dict_user):
                     break
 
     @staticmethod
-    def add_missing_key(key_list_def: tuple, dict_user: dict, dict_def: dict) -> None:
+    def add_missing_key(key_list_def: KeysView[str], dict_user: dict, dict_def: dict) -> bool:
         """Add missing default key to user list"""
+        is_modified = False
         key_list_user = tuple(dict_user)  # create user key list
 
         for key in key_list_def:  # loop through default key list
             if key not in key_list_user:  # check each default key in user list
                 dict_user[key] = dict_def[key]  # add missing item to user
+                is_modified = True
+
+        return is_modified
 
     @staticmethod
-    def sort_key_order(key_list_def: tuple, dict_user: dict) -> None:
+    def sort_key_order(key_list_def: KeysView[str], dict_user: dict) -> None:
         """Sort user key order according to default key list"""
         for d_key in key_list_def:  # loop through default key list
             temp_value = dict_user[d_key]  # store user value
             dict_user.pop(d_key)  # delete user key
             dict_user[d_key] = temp_value  # append user key at the end
 
-    def validate_key_pair(self, dict_user: dict, dict_def: dict) -> None:
+    @classmethod
+    def validate_key_pair(cls, dict_user: dict, dict_def: dict) -> None:
         """Create key-only check list, then validate key"""
-        key_list_def = tuple(dict_def)
-        self.remove_invalid_key(key_list_def, dict_user)
-        self.add_missing_key(key_list_def, dict_user, dict_def)
-        self.sort_key_order(key_list_def, dict_user)
+        key_list_def = dict_def.keys()
+        cls.remove_invalid_key(key_list_def, dict_user)
+        cls.add_missing_key(key_list_def, dict_user, dict_def)
+        cls.sort_key_order(key_list_def, dict_user)
 
-    def validate(self, dict_user: dict, dict_def: dict) -> dict:
+    @classmethod
+    def validate(cls, dict_user: dict, dict_def: dict) -> dict:
         """Validate setting"""
         # Check top-level key
-        self.validate_key_pair(dict_user, dict_def)
+        cls.validate_key_pair(dict_user, dict_def)
         # Check sub-level key
         for item in dict_user.keys():  # list each key lists
-            self.validate_key_pair(dict_user[item], dict_def[item])
+            cls.validate_key_pair(dict_user[item], dict_def[item])
         return dict_user
