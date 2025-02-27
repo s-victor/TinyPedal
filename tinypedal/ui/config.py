@@ -497,7 +497,7 @@ class UserConfig(BaseDialog):
             self.user_setting[self.key_name][key])
         # Context menu
         add_context_menu(
-            editor, self.default_setting[self.key_name][key], "set_font")
+            editor, self.default_setting[self.key_name][key], "set_combo")
         # Add layout
         layout.addWidget(editor, idx, COLUMN_OPTION)
         self.option_fontname[key] = editor
@@ -589,8 +589,6 @@ def context_menu_reset_option(pos, target, default, mode):
     if action == option_reset:
         if mode == "set_check":
             target.setChecked(default)
-        elif mode == "set_font":
-            target.setCurrentText(default)
         elif mode == "set_text":
             target.setText(default)
         elif mode == "set_combo":

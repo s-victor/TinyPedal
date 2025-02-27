@@ -22,7 +22,7 @@ Fuel calculator
 
 from math import ceil, floor
 
-from PySide2.QtCore import Qt, QMargins
+from PySide2.QtCore import Qt
 from PySide2.QtGui import QColor, QPalette
 from PySide2.QtWidgets import (
     QWidget,
@@ -48,11 +48,16 @@ from .. import calculation as calc
 from .. import formatter as fmt
 from ._common import BaseDialog
 
-PANEL_LEFT_WIDTH = 330
-FRAME_MARGIN = QMargins(5, 5, 5, 5)
-FRAME_GAP = 2
 READ_ONLY_COLOR = QPalette().window().color().name(QColor.HexRgb)
 INVALID_COLOR = "#F40"
+
+
+def set_grid_layout(spacing: int = 2, margin: int = 5):
+    """Set grid layout"""
+    layout = QGridLayout()
+    layout.setSpacing(spacing)
+    layout.setContentsMargins(margin, margin, margin, margin)
+    return layout
 
 
 def set_read_only_style(line_edit, invalid=False):
@@ -170,6 +175,7 @@ class FuelCalculator(BaseDialog):
         self.table_history.clearContents()
         self.table_history.setRowCount(len(minfo.history.consumption))
         row_index = 0
+        invalid_color = QColor(INVALID_COLOR)
 
         for lap_data in minfo.history.consumption:
             lapnumber = self.__add_table_item(f"{lap_data.completedLaps}", 0)
@@ -180,9 +186,9 @@ class FuelCalculator(BaseDialog):
             battery_regen = self.__add_table_item(f"{lap_data.batteryRegenLast:.3f}", 0)
 
             if not lap_data.isValidLap:  # set invalid lap text color
-                laptime.setTextColor(INVALID_COLOR)
-                used_fuel.setTextColor(INVALID_COLOR)
-                used_energy.setTextColor(INVALID_COLOR)
+                laptime.setForeground(invalid_color)
+                used_fuel.setForeground(invalid_color)
+                used_energy.setForeground(invalid_color)
 
             self.table_history.setItem(row_index, 0, lapnumber)
             self.table_history.setItem(row_index, 1, laptime)
@@ -202,17 +208,19 @@ class FuelCalculator(BaseDialog):
 
     def set_panel_calculator(self, panel):
         """Set panel calculator"""
+        panel_left_width = 330
+
         frame_laptime = QFrame()
         frame_laptime.setFrameShape(QFrame.StyledPanel)
-        frame_laptime.setFixedWidth(PANEL_LEFT_WIDTH)
+        frame_laptime.setFixedWidth(panel_left_width)
 
         frame_fuel = QFrame()
         frame_fuel.setFrameShape(QFrame.StyledPanel)
-        frame_fuel.setFixedWidth(PANEL_LEFT_WIDTH)
+        frame_fuel.setFixedWidth(panel_left_width)
 
         frame_race = QFrame()
         frame_race.setFrameShape(QFrame.StyledPanel)
-        frame_race.setFixedWidth(PANEL_LEFT_WIDTH)
+        frame_race.setFixedWidth(panel_left_width)
 
         frame_output_fuel = QFrame()
         frame_output_fuel.setFrameShape(QFrame.StyledPanel)
@@ -450,9 +458,7 @@ class InputLapTime():
         self.mseconds.setSingleStep(100)
         self.mseconds.valueChanged.connect(master.update_input)
 
-        layout = QGridLayout()
-        layout.setSpacing(FRAME_GAP)
-        layout.setContentsMargins(FRAME_MARGIN)
+        layout = set_grid_layout()
 
         layout.setColumnStretch(0, 1)
         layout.setColumnStretch(2, 1)
@@ -532,9 +538,7 @@ class InputFuel():
         self.energy_used.setAlignment(Qt.AlignRight)
         self.energy_used.valueChanged.connect(master.update_input)
 
-        layout = QGridLayout()
-        layout.setSpacing(FRAME_GAP)
-        layout.setContentsMargins(FRAME_MARGIN)
+        layout = set_grid_layout()
 
         layout.setColumnStretch(0, 1)
         layout.setColumnStretch(2, 1)
@@ -587,9 +591,7 @@ class InputRace():
         self.pit_seconds.setAlignment(Qt.AlignRight)
         self.pit_seconds.valueChanged.connect(master.update_input)
 
-        layout = QGridLayout()
-        layout.setSpacing(FRAME_GAP)
-        layout.setContentsMargins(FRAME_MARGIN)
+        layout = set_grid_layout()
 
         layout.setColumnStretch(0, 1)
         layout.setColumnStretch(2, 1)
@@ -671,9 +673,7 @@ class OutputUsage():
         self.one_less_stint.setReadOnly(True)
         set_read_only_style(self.one_less_stint)
 
-        layout = QGridLayout()
-        layout.setSpacing(FRAME_GAP)
-        layout.setContentsMargins(FRAME_MARGIN)
+        layout = set_grid_layout()
 
         layout.addWidget(QLabel(f"Total Race {type_name}:"), 0, 0, 1, 2)
         layout.addWidget(self.total_needed, 1, 0)
@@ -726,9 +726,7 @@ class OutputRefill():
         self.average_refill.setReadOnly(True)
         set_read_only_style(self.average_refill)
 
-        layout = QGridLayout()
-        layout.setSpacing(FRAME_GAP)
-        layout.setContentsMargins(FRAME_MARGIN)
+        layout = set_grid_layout()
 
         layout.addWidget(QLabel(f"Starting {type_name}:"), 0, 0, 1, 2)
         layout.addWidget(self.amount_start, 1, 0)

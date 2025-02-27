@@ -68,6 +68,10 @@ class PaceNotesPlayer(QMediaPlayer):
         self._last_notes_index = None
         self._play_queue: list[str] = []
 
+    def set_volume(self, value: int):
+        """Set playback volume (separated for future compatibility)"""
+        self.setVolume(value)
+
     def set_playback(self, enabled: bool):
         """Set playback state"""
         self.reset_playback()
@@ -88,7 +92,7 @@ class PaceNotesPlayer(QMediaPlayer):
         self._last_notes_index = None
         self._play_queue.clear()
         self.stop()
-        self.setVolume(self.mcfg["pace_notes_sound_volume"])
+        self.set_volume(self.mcfg["pace_notes_sound_volume"])
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -305,7 +309,7 @@ class PaceNotesControl(QWidget):
         """Set sound volume"""
         self.label_volume.setText(f"Playback Volume: {volume}%")
         if self.update_config("pace_notes_sound_volume", volume):
-            self.pace_notes_player.setVolume(volume)
+            self.pace_notes_player.set_volume(volume)
 
     def toggle_selector_state(self, checked: bool):
         """Toggle file selector state"""
