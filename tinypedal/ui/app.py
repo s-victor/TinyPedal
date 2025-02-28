@@ -229,7 +229,11 @@ class AppWindow(QMainWindow):
 
     def set_status_text(self):
         """Set status text"""
-        self.button_api.setText(f"{api.name} - {api.version}")
+        if cfg.shared_memory_api["enable_active_state_override"]:
+            text = f"{api.name} (state overriding)"
+        else:
+            text = f"{api.name} ({api.version})"
+        self.button_api.setText(text)
 
     def show_app(self):
         """Show app window"""
