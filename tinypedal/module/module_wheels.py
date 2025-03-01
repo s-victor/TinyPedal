@@ -28,6 +28,15 @@ from ..api_control import api
 from .. import calculation as calc
 
 
+class TempInfo:
+    """Temporary vehicle info"""
+
+    __slots__ = ()
+    vehicle_name: str = ""
+    radius_front: float = 0.0
+    radius_rear: float = 0.0
+
+
 class Realtime(DataModule):
     """Wheels data"""
 
@@ -56,16 +65,16 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
 
-                    if self.mcfg["last_vehicle_info"] == api.read.check.vehicle_id():
-                        radius_front = self.mcfg["last_wheel_radius_front"]
-                        radius_rear = self.mcfg["last_wheel_radius_rear"]
+                    if TempInfo.vehicle_name == api.read.check.vehicle_id():
+                        radius_front = TempInfo.radius_front
+                        radius_rear = TempInfo.radius_rear
                         min_samples_f = 160
                         min_samples_r = 160
                     else:
                         list_radius_f.clear()
                         list_radius_r.clear()
-                        radius_front = 0
-                        radius_rear = 0
+                        radius_front = 0.0
+                        radius_rear = 0.0
                         min_samples_f = 20
                         min_samples_r = 20
 
@@ -135,11 +144,10 @@ class Realtime(DataModule):
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
-                    if radius_front != 0 and radius_rear != 0:
-                        self.mcfg["last_vehicle_info"] = api.read.check.vehicle_id()
-                        self.mcfg["last_wheel_radius_front"] = round(radius_front, 3)
-                        self.mcfg["last_wheel_radius_rear"] = round(radius_rear, 3)
-                    self.cfg.save()
+                    if radius_front != 0 != radius_rear:
+                        TempInfo.vehicle_name = api.read.check.vehicle_id()
+                        TempInfo.radius_front = radius_front
+                        TempInfo.radius_rear = radius_rear
 
 
 def sample_slice_indices(samples: int) -> slice:

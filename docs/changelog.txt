@@ -1,11 +1,11 @@
 WIP
 -----------------------------
-* Pace Notes Playback
-  - Replaced all "Set" buttons with a single "Apply" button for applying changes.
-  - Add "Pace Notes Playback Enabled" notification to main window when playback enabled.
-
-* Spectate Mode
-  - Fixed an error if player index is set lower than "-1" in "Shared Memory API" config.
+* General
+  - Show "state overriding" notification on API status bar while "enable_active_state_override" option is enabled.
+  - Show "Pace Notes Playback Enabled" notification on main window while pace notes playback is enabled.
+  - Replaced all "Set" buttons in "Pace Notes Playback" tab with a single "Apply" button for applying changes.
+  - Fixed an error in "Spectate Mode" if player index is set lower than "-1" in "Shared Memory API" config.
+  - Removed unnecessary "wheel radius info" options from Wheels Module.
 
 * [New]Brakes Preset
   - Add new "brakes.json" preset file in "settings" folder, which is used for customizing
