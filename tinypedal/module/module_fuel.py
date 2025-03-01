@@ -49,6 +49,7 @@ class Realtime(DataModule):
         update_interval = self.active_interval
 
         userpath_fuel_delta = self.cfg.path.fuel_delta
+        output_consumption = minfo.history.consumption
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -68,15 +69,14 @@ class Realtime(DataModule):
                     )
                     # Initial run to reset module output
                     next(gen_calc_fuel)
-                    gen_calc_fuel.send(True)
 
                 # Run calculation
                 gen_calc_fuel.send(True)
 
                 # Update consumption history
-                if (minfo.history.consumption[0][2] != minfo.delta.lapTimeLast
+                if (output_consumption[0].lapTimeLast != minfo.delta.lapTimeLast
                     > minfo.delta.lapTimeCurrent > 2):  # record 2s after pass finish line
-                    minfo.history.consumption.appendleft(
+                    output_consumption.appendleft(
                         ConsumptionDataSet(
                             api.read.lap.completed_laps() - 1,
                             minfo.delta.isValidLap,

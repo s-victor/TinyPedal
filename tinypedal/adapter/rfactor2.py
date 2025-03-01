@@ -263,9 +263,9 @@ class Lap(DataAdapter):
 
     def progress(self, index: int | None = None) -> float:
         """Lap progress (fraction), distance into lap"""
-        return lap_progress_distance(
-            chknm(self.info.rf2ScorVeh(index).mLapDist),
-            chknm(self.info.rf2ScorInfo.mLapDist))
+        return chknm(lap_progress_distance(
+            self.info.rf2ScorVeh(index).mLapDist,
+            self.info.rf2ScorInfo.mLapDist))
 
     def maximum(self) -> int:
         """Maximum lap"""
@@ -673,7 +673,7 @@ class Vehicle(DataAdapter):
     def orientation_yaw_radians(self, index: int | None = None) -> float:
         """Orientation yaw (radians)"""
         ori = self.info.rf2TeleVeh(index).mOri[2]
-        return oriyaw2rad(chknm(ori.x), chknm(ori.z))
+        return chknm(oriyaw2rad(ori.x, ori.z))
 
     def position_xyz(self, index: int | None = None) -> tuple[float, float, float]:
         """Raw x,y,z position (meters)"""
@@ -719,7 +719,7 @@ class Vehicle(DataAdapter):
     def speed(self, index: int | None = None) -> float:
         """Speed (m/s)"""
         vel = self.info.rf2TeleVeh(index).mLocalVel
-        return vel2speed(chknm(vel.x), chknm(vel.y), chknm(vel.z))
+        return chknm(vel2speed(vel.x, vel.y, vel.z))
 
     def downforce_front(self, index: int | None = None) -> float:
         """Downforce front (Newtons)"""
@@ -793,30 +793,30 @@ class Wheel(DataAdapter):
     def slip_angle_fl(self, index: int | None = None) -> float:
         """Slip angle (radians) front left"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels[0]
-        return slip_angle(
-            chknm(wheel_data.mLateralGroundVel),
-            chknm(wheel_data.mLongitudinalGroundVel))
+        return chknm(slip_angle(
+            wheel_data.mLateralGroundVel,
+            wheel_data.mLongitudinalGroundVel))
 
     def slip_angle_fr(self, index: int | None = None) -> float:
         """Slip angle (radians) front right"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels[1]
-        return slip_angle(
-            chknm(wheel_data.mLateralGroundVel),
-            chknm(wheel_data.mLongitudinalGroundVel))
+        return chknm(slip_angle(
+            wheel_data.mLateralGroundVel,
+            wheel_data.mLongitudinalGroundVel))
 
     def slip_angle_rl(self, index: int | None = None) -> float:
         """Slip angle (radians) rear left"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels[2]
-        return slip_angle(
-            chknm(wheel_data.mLateralGroundVel),
-            chknm(wheel_data.mLongitudinalGroundVel))
+        return chknm(slip_angle(
+            wheel_data.mLateralGroundVel,
+            wheel_data.mLongitudinalGroundVel))
 
     def slip_angle_rr(self, index: int | None = None) -> float:
         """Slip angle (radians) rear right"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels[3]
-        return slip_angle(
-            chknm(wheel_data.mLateralGroundVel),
-            chknm(wheel_data.mLongitudinalGroundVel))
+        return chknm(slip_angle(
+            wheel_data.mLateralGroundVel,
+            wheel_data.mLongitudinalGroundVel))
 
     def ride_height(self, index: int | None = None) -> list[float]:
         """Ride height (millmeters)"""

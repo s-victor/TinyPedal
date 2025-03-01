@@ -60,7 +60,6 @@ class Realtime(DataModule):
                     )
                     # Initial run to reset module output
                     next(gen_calc_energy)
-                    gen_calc_energy.send(True)
 
                 # Run calculation if virtual energy available
                 if minfo.restapi.maxVirtualEnergy:
