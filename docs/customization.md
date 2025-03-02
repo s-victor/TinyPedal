@@ -2663,7 +2663,7 @@ Show sector line mark.
 Show vehicle standings info on track map. Note, if `enable_multi_class_styling` is enabled, position in class will be displayed for each vehicle class instead.
 
     enable_multi_class_styling
-Show vehicles in multi-class color styles on map instead.
+Show vehicles in multi-class color styles on map instead. Multi-class color can be customized from [Vehicle class editor](#vehicle-class-editor).
 
 Note, while multi-class styling is enabled, following color styles will not be displayed:
 `vehicle_color_player`, `vehicle_color_leader`, `vehicle_color_same_lap`, `vehicle_color_laps_ahead`, `vehicle_color_laps_behind`.

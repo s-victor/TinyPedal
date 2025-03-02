@@ -111,7 +111,6 @@ class FuelInfo:
         "neededRelative",
         "neededAbsolute",
         "lastLapConsumption",
-        "lastLapValidConsumption",
         "estimatedConsumption",
         "estimatedValidConsumption",
         "estimatedLaps",
@@ -124,6 +123,10 @@ class FuelInfo:
     )
 
     def __init__(self):
+        self.reset()
+
+    def reset(self):
+        """Reset"""
         self.capacity: float = 0.0
         self.amountStart: float = 0.0
         self.amountCurrent: float = 0.0
@@ -132,7 +135,6 @@ class FuelInfo:
         self.neededRelative: float = 0.0
         self.neededAbsolute: float = 0.0
         self.lastLapConsumption: float = 0.0
-        self.lastLapValidConsumption: float = 0.0
         self.estimatedConsumption: float = 0.0
         self.estimatedValidConsumption: float = 0.0
         self.estimatedLaps: float = 0.0

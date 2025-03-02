@@ -67,8 +67,9 @@ class Realtime(DataModule):
                         extension=".fuel",
                         min_delta_distance=self.mcfg["minimum_delta_distance"],
                     )
-                    # Initial run to reset module output
                     next(gen_calc_fuel)
+                    # Reset module output
+                    minfo.fuel.reset()
 
                 # Run calculation
                 gen_calc_fuel.send(True)
@@ -112,7 +113,7 @@ def calc_data(
     validating = 0
     is_pit_lap = 0  # whether pit in or pit out lap
 
-    delta_list_last, used_last, laptime_last = load_fuel_delta_file(
+    delta_list_last, used_last_valid, laptime_last = load_fuel_delta_file(
         filepath=filepath,
         filename=filename,
         extension=extension,
@@ -128,7 +129,7 @@ def calc_data(
     amount_need_rel = 0.0  # total additional fuel (relative) need to finish race
     amount_end = 0.0  # amount fuel left at the end of stint before pitting
     used_curr = 0.0  # current lap fuel consumption
-    used_last_raw = used_last  # raw usage
+    used_last_raw = used_last_valid  # raw usage
     used_est = 0.0  # estimated fuel consumption, for calculation only
     est_runlaps = 0.0  # estimate laps current fuel can last
     est_runmins = 0.0  # estimate minutes current fuel can last
@@ -216,7 +217,7 @@ def calc_data(
             timer = api.read.timing.elapsed() - validating
             if (0.3 < timer <= 3 and  # compare current time
                 api.read.timing.last_laptime() > 0):  # is valid laptime
-                used_last = used_last_raw
+                used_last_valid = used_last_raw
                 delta_list_last = delta_list_temp
                 delta_list_temp = DELTA_DEFAULT
                 delayed_save = True
@@ -242,7 +243,7 @@ def calc_data(
 
         # Exclude first lap & pit in/out lap
         used_est = calc.end_lap_consumption(
-            used_last, delta_fuel, 0 == is_pit_lap < laps_done)
+            used_last_valid, delta_fuel, 0 == is_pit_lap < laps_done)
 
         # Total refuel = laps left * last consumption - remaining fuel
         if api.read.session.lap_type():  # lap-type
@@ -271,7 +272,7 @@ def calc_data(
             est_runlaps, laptime_last)
 
         est_empty = calc.end_lap_empty_capacity(
-            capacity, amount_curr + used_curr, used_last + delta_fuel)
+            capacity, amount_curr + used_curr, used_last_valid + delta_fuel)
 
         est_pits_late = calc.end_stint_pit_counts(
             amount_need_rel, capacity - amount_end)
@@ -290,8 +291,7 @@ def calc_data(
         output.neededRelative = amount_need_rel
         output.neededAbsolute = amount_need_abs
         output.lastLapConsumption = used_last_raw
-        output.lastLapValidConsumption = used_last
-        output.estimatedConsumption = used_last + delta_fuel
+        output.estimatedConsumption = used_last_valid + delta_fuel
         output.estimatedValidConsumption = used_est
         output.estimatedLaps = est_runlaps
         output.estimatedMinutes = est_runmins

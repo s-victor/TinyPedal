@@ -58,8 +58,9 @@ class Realtime(DataModule):
                         extension=".energy",
                         min_delta_distance=self.mcfg["minimum_delta_distance"],
                     )
-                    # Initial run to reset module output
                     next(gen_calc_energy)
+                    # Reset module output
+                    minfo.energy.reset()
 
                 # Run calculation if virtual energy available
                 if minfo.restapi.maxVirtualEnergy:
