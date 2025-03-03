@@ -20,7 +20,10 @@
 Fuel calculator
 """
 
+from __future__ import annotations
+import os
 from math import ceil, floor
+from collections import deque
 
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QColor, QPalette
@@ -39,13 +42,16 @@ from PySide2.QtWidgets import (
     QTableWidgetItem,
     QHeaderView,
     QMessageBox,
+    QFileDialog,
+    QStatusBar,
 )
 
 from ..api_control import api
 from ..setting import cfg
-from ..module_info import minfo
+from ..module_info import minfo, ConsumptionDataSet
 from .. import calculation as calc
 from .. import formatter as fmt
+from ..userfile.fuel_delta import load_consumption_history_file, QFILTER_CONSUMPTION
 from ._common import BaseDialog
 
 READ_ONLY_COLOR = QPalette().window().color().name(QColor.HexRgb)
@@ -69,26 +75,19 @@ def set_read_only_style(line_edit, invalid=False):
     line_edit.setStyleSheet(f"background:{color};")
 
 
-def fuel_units(fuel):
-    """2 different fuel unit conversion, default is Liter"""
-    if cfg.units["fuel_unit"] == "Gallon":
-        return calc.liter2gallon(fuel)
-    return fuel
-
-
-def fuel_unit_text():
-    """Set fuel unit text"""
-    if cfg.units["fuel_unit"] == "Gallon":
-        return "gal"
-    return "L"
-
-
 class FuelCalculator(BaseDialog):
     """Fuel calculator"""
 
     def __init__(self, master):
         super().__init__(master)
         self.set_utility_title("Fuel Calculator")
+
+        # Set (freeze) fuel unit
+        self.is_gallon = cfg.units["fuel_unit"] == "Gallon"
+
+        # Set status bar
+        self.status_bar = QStatusBar()
+        self.status_bar.setStyleSheet("font-weight:bold;")
 
         # Set view
         self.panel_calculator = QWidget()
@@ -99,25 +98,42 @@ class FuelCalculator(BaseDialog):
         self.set_panel_table(self.panel_table)
 
         # Load data
-        self.reload_data()
+        self.load_live_data()
 
         # Layout
-        layout_main = QHBoxLayout()
-        layout_main.addWidget(self.panel_calculator)
-        layout_main.addWidget(self.panel_table)
+        layout_panel = QHBoxLayout()
+        layout_panel.addWidget(self.panel_calculator)
+        layout_panel.addWidget(self.panel_table)
+        layout_main = QVBoxLayout()
+        layout_main.setContentsMargins(5,5,5,0)
+        layout_main.addLayout(layout_panel)
+        layout_main.addWidget(self.status_bar)
         self.setLayout(layout_main)
         self.setFixedWidth(self.sizeHint().width())
+
+    def fuel_units(self, fuel: float):
+        """2 different fuel unit conversion, default is Liter"""
+        if self.is_gallon:
+            return calc.liter2gallon(fuel)
+        return fuel
+
+    def fuel_unit_text(self):
+        """Set fuel unit text"""
+        if self.is_gallon:
+            return "gal"
+        return "L"
 
     def toggle_history_panel(self):
         """Toggle history data panel"""
         if self.panel_table.isHidden():
             self.panel_table.show()
             self.setFixedWidth(self.sizeHint().width())
-            self.button_toggle.setText("Hide history")
+            self.button_toggle.setText("Hide History")
         else:
             self.panel_table.hide()
-            self.setFixedWidth(self.sizeHint().width())
-            self.button_toggle.setText("Show history")
+            margin = self.layout().contentsMargins()
+            self.setFixedWidth(self.panel_calculator.sizeHint().width() + margin.left() + margin.right())
+            self.button_toggle.setText("Show History")
 
     def add_selected_data(self):
         """Add selected history data"""
@@ -131,6 +147,7 @@ class FuelCalculator(BaseDialog):
         data_laptime = [data for data in selected_data if data.column() == 1]
         data_fuel = [data for data in selected_data if data.column() == 2]
         data_energy = [data for data in selected_data if data.column() == 3]
+        data_capacity = [data for data in selected_data if data.column() == 6]
 
         # Send data to calculator
         if data_laptime:
@@ -147,12 +164,40 @@ class FuelCalculator(BaseDialog):
             dataset = [float(data.text()) for data in data_energy]
             output_value = calc.mean(dataset) if len(data_energy) > 1 else dataset[0]
             self.input_fuel.energy_used.setValue(output_value)
+        if data_capacity:
+            output_value = float(data_capacity[0].text())
+            self.input_fuel.capacity.setValue(output_value)
         return None
 
-    def reload_data(self):
-        """Reload history data"""
-        self.refresh_table()
-        latest_history = minfo.history.consumption[0]
+    def load_file(self):
+        """Load history data from file"""
+        filename_full = QFileDialog.getOpenFileName(
+            self,
+            dir=cfg.path.fuel_delta,
+            filter=QFILTER_CONSUMPTION
+        )[0]
+        if not filename_full:
+            return
+
+        filepath = os.path.dirname(filename_full) + "/"
+        filename = os.path.splitext(os.path.basename(filename_full))[0]
+        history_data = load_consumption_history_file(
+            filepath=filepath,
+            filename=filename,
+        )
+        self.refresh_table(history_data)
+        self.fill_in_data(history_data)
+        self.status_bar.showMessage(f"File Source: {filename}")
+
+    def load_live_data(self):
+        """Load history data from live session"""
+        self.refresh_table(minfo.history.consumptionDataSet)
+        self.fill_in_data(minfo.history.consumptionDataSet)
+        self.status_bar.showMessage(f"Live Source: {api.read.check.combo_id()}")
+
+    def fill_in_data(self, dataset: deque[ConsumptionDataSet]):
+        """Fill in history data to edit"""
+        latest_history = dataset[0]
         # Load laptime from last valid lap
         laptime = latest_history.lapTimeLast
         if laptime > 0 and latest_history.isValidLap:
@@ -160,30 +205,31 @@ class FuelCalculator(BaseDialog):
             self.input_laptime.seconds.setValue(laptime % 60)
             self.input_laptime.mseconds.setValue(laptime % 1 * 1000)
         # Load tank capacity
-        capacity = api.read.vehicle.tank_capacity()
+        capacity = max(api.read.vehicle.tank_capacity(), latest_history.capacityFuel)
         if capacity:
-            self.input_fuel.capacity.setValue(fuel_units(capacity))
+            self.input_fuel.capacity.setValue(self.fuel_units(capacity))
         # Load consumption from last valid lap
         if latest_history.isValidLap:
             fuel_used = latest_history.lastLapUsedFuel
-            self.input_fuel.fuel_used.setValue(fuel_units(fuel_used))
+            self.input_fuel.fuel_used.setValue(self.fuel_units(fuel_used))
             energy_used = latest_history.lastLapUsedEnergy
             self.input_fuel.energy_used.setValue(energy_used)
 
-    def refresh_table(self):
+    def refresh_table(self, dataset: deque[ConsumptionDataSet]):
         """Refresh history data table"""
         self.table_history.clearContents()
-        self.table_history.setRowCount(len(minfo.history.consumption))
+        self.table_history.setRowCount(len(dataset))
         row_index = 0
         invalid_color = QColor(INVALID_COLOR)
 
-        for lap_data in minfo.history.consumption:
-            lapnumber = self.__add_table_item(f"{lap_data.completedLaps}", 0)
+        for lap_data in dataset:
+            lapnumber = self.__add_table_item(f"{lap_data.lapNumber}", 0)
             laptime = self.__add_table_item(calc.sec2laptime(lap_data.lapTimeLast), 33)
-            used_fuel = self.__add_table_item(f"{fuel_units(lap_data.lastLapUsedFuel):.3f}", 33)
+            used_fuel = self.__add_table_item(f"{self.fuel_units(lap_data.lastLapUsedFuel):.3f}", 33)
             used_energy = self.__add_table_item(f"{lap_data.lastLapUsedEnergy:.3f}", 33)
             battery_drain = self.__add_table_item(f"{lap_data.batteryDrainLast:.3f}", 0)
             battery_regen = self.__add_table_item(f"{lap_data.batteryRegenLast:.3f}", 0)
+            capacity_fuel = self.__add_table_item(f"{self.fuel_units(lap_data.capacityFuel):.3f}", 33)
 
             if not lap_data.isValidLap:  # set invalid lap text color
                 laptime.setForeground(invalid_color)
@@ -196,6 +242,7 @@ class FuelCalculator(BaseDialog):
             self.table_history.setItem(row_index, 3, used_energy)
             self.table_history.setItem(row_index, 4, battery_drain)
             self.table_history.setItem(row_index, 5, battery_regen)
+            self.table_history.setItem(row_index, 6, capacity_fuel)
             row_index += 1
 
     def __add_table_item(self, text: str, flags: int):
@@ -238,16 +285,20 @@ class FuelCalculator(BaseDialog):
         self.input_fuel = InputFuel(self, frame_fuel)
         self.input_race = InputRace(self, frame_race)
 
-        self.usage_fuel = OutputUsage(frame_output_fuel, "Fuel")
-        self.usage_energy = OutputUsage(frame_output_energy, "Energy")
+        self.usage_fuel = OutputUsage(self, frame_output_fuel, "Fuel")
+        self.usage_energy = OutputUsage(self, frame_output_energy, "Energy")
         self.refill_fuel = OutputRefill(self, frame_output_start_fuel, "Fuel")
         self.refill_energy = OutputRefill(self, frame_output_start_energy, "Energy")
 
-        button_reload = QPushButton("Reload")
-        button_reload.clicked.connect(self.reload_data)
-        button_reload.setFocusPolicy(Qt.NoFocus)
+        button_loadlive = QPushButton("Load Live")
+        button_loadlive.clicked.connect(self.load_live_data)
+        button_loadlive.setFocusPolicy(Qt.NoFocus)
 
-        self.button_toggle = QPushButton("Hide history")
+        button_loadfile = QPushButton("Load File")
+        button_loadfile.clicked.connect(self.load_file)
+        button_loadfile.setFocusPolicy(Qt.NoFocus)
+
+        self.button_toggle = QPushButton("Hide History")
         self.button_toggle.clicked.connect(self.toggle_history_panel)
         self.button_toggle.setFocusPolicy(Qt.NoFocus)
 
@@ -268,9 +319,10 @@ class FuelCalculator(BaseDialog):
         layout_calculator.addLayout(layout_split2)
 
         layout_button = QHBoxLayout()
-        layout_button.addWidget(button_reload, stretch=1)
+        layout_button.addWidget(button_loadlive, stretch=1)
+        layout_button.addWidget(button_loadfile, stretch=1)
         layout_button.addStretch(stretch=1)
-        layout_button.addWidget(self.button_toggle, stretch=1)
+        layout_button.addWidget(self.button_toggle, stretch=2)
 
         layout_panel = QVBoxLayout()
         layout_panel.setContentsMargins(0,0,0,0)
@@ -281,29 +333,30 @@ class FuelCalculator(BaseDialog):
     def set_panel_table(self, panel):
         """Set panel table"""
         self.table_history = QTableWidget(self)
-        self.table_history.setColumnCount(6)
+        self.table_history.setColumnCount(7)
         self.table_history.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_history.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
         self.table_history.verticalHeader().setVisible(False)
         self.table_history.setColumnWidth(0, 40)
-        self.table_history.setFixedWidth(380)
+        self.table_history.setFixedWidth(460)
         self.table_history.setHorizontalHeaderLabels((
             "Lap",
             "Time",
-            f"Fuel({fuel_unit_text()})",
+            f"Fuel({self.fuel_unit_text()})",
             "Energy(%)",
             "Drain(%)",
-            "Regen(%)"
+            "Regen(%)",
+            f"Tank({self.fuel_unit_text()})",
         ))
 
-        button_add = QPushButton("Add selected data")
-        button_add.clicked.connect(self.add_selected_data)
-        button_add.setFocusPolicy(Qt.NoFocus)
+        button_adddata = QPushButton("Add Selected Data")
+        button_adddata.clicked.connect(self.add_selected_data)
+        button_adddata.setFocusPolicy(Qt.NoFocus)
 
         layout_panel = QVBoxLayout()
         layout_panel.setContentsMargins(0,0,0,0)
         layout_panel.addWidget(self.table_history)
-        layout_panel.addWidget(button_add)
+        layout_panel.addWidget(button_adddata)
         panel.setLayout(layout_panel)
 
     def update_input(self):
@@ -328,7 +381,7 @@ class FuelCalculator(BaseDialog):
             ) if self.refill_energy.amount_start.value() else 100
 
         # Calc fuel ratio
-        if cfg.units["fuel_unit"] == "Gallon":
+        if self.is_gallon:
             fuel_ratio = calc.fuel_to_energy_ratio(fuel_used * 3.785411784, energy_used)
         else:
             fuel_ratio = calc.fuel_to_energy_ratio(fuel_used, energy_used)
@@ -365,7 +418,7 @@ class FuelCalculator(BaseDialog):
             total_need_frac = calc.total_fuel_needed(total_race_laps, consumption, 0)
 
             # Keep 1 decimal place for Gallon
-            if cfg.units["fuel_unit"] == "Gallon" and output_type == "fuel":
+            if self.is_gallon and output_type == "fuel":
                 total_need_full = ceil(total_need_frac * 10) / 10
             else:
                 total_need_full = ceil(total_need_frac)
@@ -545,14 +598,14 @@ class InputFuel():
 
         layout.addWidget(QLabel("Tank Capacity:"), 0, 0, 1, 2)
         layout.addWidget(self.capacity, 1, 0)
-        layout.addWidget(QLabel(fuel_unit_text()), 1, 1)
+        layout.addWidget(QLabel(master.fuel_unit_text()), 1, 1)
 
         layout.addWidget(QLabel("Fuel Ratio:"), 2, 0, 1, 2)
         layout.addWidget(self.fuel_ratio, 3, 0)
 
         layout.addWidget(QLabel("Fuel Consumption:"), 0, 2, 1, 2)
         layout.addWidget(self.fuel_used, 1, 2)
-        layout.addWidget(QLabel(fuel_unit_text()), 1, 3)
+        layout.addWidget(QLabel(master.fuel_unit_text()), 1, 3)
 
         layout.addWidget(QLabel("Energy Consumption:"), 2, 2, 1, 2)
         layout.addWidget(self.energy_used, 3, 2)
@@ -636,10 +689,10 @@ class InputRace():
 class OutputUsage():
     """Output usage display"""
 
-    def __init__(self, frame, type_name) -> None:
+    def __init__(self, master, frame, type_name) -> None:
         """Set output display"""
         if type_name == "Fuel":
-            unit_text = fuel_unit_text()
+            unit_text = master.fuel_unit_text()
         else:
             unit_text = "%"
 
@@ -713,7 +766,7 @@ class OutputRefill():
 
         if type_name == "Fuel":
             start_range = 9999
-            unit_text = fuel_unit_text()
+            unit_text = master.fuel_unit_text()
             self.amount_start.valueChanged.connect(master.validate_starting_fuel)
         else:
             start_range = 100

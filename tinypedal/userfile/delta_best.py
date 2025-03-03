@@ -59,5 +59,5 @@ def save_delta_best_file(filepath: str, filename: str, dataset: tuple, extension
     if len(dataset) < 10:
         return
     with open(f"{filepath}{filename}{extension}", "w", newline="", encoding="utf-8") as csvfile:
-        deltawrite = csv.writer(csvfile)
-        deltawrite.writerows(dataset)
+        data_writer = csv.writer(csvfile)
+        data_writer.writerows(dataset)

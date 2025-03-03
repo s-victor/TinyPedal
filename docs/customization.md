@@ -107,6 +107,12 @@ Energy delta data is stored as `CSV` format (.energy extension) under `TinyPedal
 Fuel delta data is stored as `CSV` format (.fuel extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
 
 
+## Consumption history
+Consumption history data is stored as `CSV` format (.consumption extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
+
+Consumption history file stores lap time and fuel consumption data per `track and vehicle class`, which can be loaded in [Fuel Calculator](#fuel-calculator). Up to 100 most recent lap entries are saved per `track and vehicle class`. Data recording is handled by [Fuel module](#fuel-module).
+
+
 ## Sector best
 Sector best data is stored as `CSV` format (.sector extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
 
@@ -468,31 +474,35 @@ Enable `Manually Select Pace Notes File` check box to disable auto-file-name mat
 
 On the left side is calculation panel, which handles `fuel` and `virtual energy` usage calculation and results display.
 
-Fuel value and unit symbol depend on `Fuel Unit` setting from `Units and symbols` config dialog, `L` = liter, `gal` = gallon. Virtual energy unit is `%` = percentage.
+Fuel value and unit symbol depend on `Fuel Unit` setting from `Units and symbols` config dialog, `L` = liter, `gal` = gallon. Virtual energy unit is `%` = percentage. Note, after changed `Fuel Unit` setting, it is require to close and reopen `Fuel calculator` in order to update units info for calculation.
 
-On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `virtual energy consumption`, `battery drain`, `battery regen` data from recent sessions.
+On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `virtual energy consumption`, `battery drain`, `battery regen`, `tank capacity` data from [consumption history](#consumption-history) data.
 Invalid lap time or consumption data is highlighted in red.
 
-Click `Reload` button to reload history table and automatically fill in last data to calculator.
+Click `Load Live` button to load or update consumption history from live session to history table and automatically fill in latest data to calculator.
 
-Select any `lap time` or `consumption` values from history table and click `Add selected data` button to send value to calculator.
+Click `Load File` button to load data from specific consumption history file to history table and automatically fill in latest data to calculator.
+
+Loaded data source and track and class name will be displayed on status bar.
+
+Select one or more `Time`, `Fuel`, `Energy`, `Tank` values from history table and click `Add selected data` button to send value to calculator.
 
 Select multiple values from history table and click `Add selected data` button to calculate average reading of selected values and send to calculator.
 
     Lap time
-Set lap time in `minutes` : `seconds` : `milliseconds` format. Values are automatically carried over between spin boxes when exceeded min or max value range.
+Set lap time in `minutes` : `seconds` : `milliseconds` format. Values are automatically carried over between spin boxes when exceeded min or max value range. This value can be retrieved from `Time` column.
 
     Tank capacity
-Set vehicle fuel tank capacity.
+Set vehicle fuel tank capacity. This value can be retrieved from `Tank` column.
 
     Fuel consumption
-Set fuel consumption per lap.
+Set fuel consumption per lap. This value can be retrieved from `Fuel` column.
 
     Energy consumption
-Set energy consumption per lap.
+Set virtual energy consumption per lap. This value can be retrieved from `Energy` column.
 
     Fuel ratio
-Show fuel ratio between fuel and energy consumption.
+Show fuel ratio between fuel and virtual energy consumption.
 
     Race minutes
 Set race length in minutes for time-based race. Note, option is disabled if `Race laps` is set.

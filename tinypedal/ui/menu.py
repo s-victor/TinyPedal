@@ -28,6 +28,7 @@ from PySide2.QtWidgets import QMenu, QAction, QMessageBox
 from ..const import LINK_USER_GUIDE, LINK_FAQ
 from ..setting import cfg
 from ..api_control import api
+from ..module_info import minfo
 from ..overlay_control import octrl
 from .about import About
 from .config import FontConfig, UserConfig
@@ -154,6 +155,10 @@ class ResetDataMenu(QMenu):
         reset_fueldelta.triggered.connect(self.reset_fueldelta)
         self.addAction(reset_fueldelta)
 
+        reset_consumption = QAction("Consumption History", self)
+        reset_consumption.triggered.connect(self.reset_consumption)
+        self.addAction(reset_consumption)
+
         reset_sectorbest = QAction("Sector Best", self)
         reset_sectorbest.triggered.connect(self.reset_sectorbest)
         self.addAction(reset_sectorbest)
@@ -189,6 +194,16 @@ class ResetDataMenu(QMenu):
             filename=api.read.check.combo_id(),
         )
 
+    def reset_consumption(self):
+        """Reset consumption history data"""
+        if self.__confirmation(
+            data_type="consumption history",
+            extension="consumption",
+            filepath=cfg.path.fuel_delta,
+            filename=api.read.check.combo_id(),
+        ):
+            minfo.history.reset_consumption()
+
     def reset_sectorbest(self):
         """Reset sector best data"""
         self.__confirmation(
@@ -207,8 +222,8 @@ class ResetDataMenu(QMenu):
             filename=api.read.check.track_id(),
         )
 
-    def __confirmation(self, data_type: str, extension: str, filepath: str, filename: str):
-        """Message confirmation"""
+    def __confirmation(self, data_type: str, extension: str, filepath: str, filename: str) -> bool:
+        """Message confirmation, returns true if file deleted"""
         # Check if on track
         if api.state:
             QMessageBox.warning(
@@ -216,7 +231,7 @@ class ResetDataMenu(QMenu):
                 "Error",
                 "Cannot reset data while on track.",
             )
-            return
+            return False
         # Check if file exist
         filename_full = f"{filepath}{filename}.{extension}"
         if not os.path.exists(filename_full):
@@ -225,7 +240,7 @@ class ResetDataMenu(QMenu):
                 "Error",
                 f"No {data_type} data found.<br><br>You can only reset data from active session.",
             )
-            return
+            return False
         # Confirm reset
         msg_text = (
             f"Are you sure you want to reset {data_type} data for<br>"
@@ -237,13 +252,16 @@ class ResetDataMenu(QMenu):
             msg_text,
             buttons=QMessageBox.Yes | QMessageBox.No,
         )
-        if delete_msg == QMessageBox.Yes:
-            os.remove(filename_full)
-            QMessageBox.information(
-                self.master,
-                f"Reset {data_type.title()}",
-                f"{data_type.capitalize()} data has been reset for<br><b>{filename}</b>",
-            )
+        if delete_msg != QMessageBox.Yes:
+            return False
+        # Delete file
+        os.remove(filename_full)
+        QMessageBox.information(
+            self.master,
+            f"Reset {data_type.title()}",
+            f"{data_type.capitalize()} data has been reset for<br><b>{filename}</b>",
+        )
+        return True
 
 
 class ConfigMenu(QMenu):

@@ -159,6 +159,14 @@ def delta_list(data: list) -> list:
     return data
 
 
+# Dictionary value type validate
+def dict_value_type(data: dict, default_data: dict) -> dict:
+    """Validate and correct dictionary value type"""
+    for key, value in data.items():
+        data[key] = type(default_data[key])(value)
+    return data
+
+
 # Color validate
 def hex_color(color_str: str | Any) -> bool:
     """Validate HEX color string"""

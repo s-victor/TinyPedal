@@ -199,11 +199,11 @@ def write_csv_notes(
     notes_file.write(meta_output)
     notes_file.write(CRLF * 2)
     # Write notes
-    notes_write = csv.DictWriter(
+    notes_writer = csv.DictWriter(
         notes_file, fieldnames=table_header, extrasaction="ignore", quoting=csv.QUOTE_MINIMAL
     )
-    notes_write.writeheader()
-    notes_write.writerows(dataset)
+    notes_writer.writeheader()
+    notes_writer.writerows(dataset)
 
 
 def write_gpl_notes(

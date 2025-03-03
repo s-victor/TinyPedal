@@ -29,7 +29,12 @@ from ._base import DataModule
 from ..module_info import minfo, FuelInfo, ConsumptionDataSet
 from ..api_control import api
 from .. import calculation as calc
-from ..userfile.fuel_delta import load_fuel_delta_file, save_fuel_delta_file
+from ..userfile.fuel_delta import (
+    load_fuel_delta_file,
+    save_fuel_delta_file,
+    load_consumption_history_file,
+    save_consumption_history_file,
+)
 
 DELTA_ZERO = 0.0,0.0
 DELTA_DEFAULT = (DELTA_ZERO,)
@@ -49,7 +54,6 @@ class Realtime(DataModule):
         update_interval = self.active_interval
 
         userpath_fuel_delta = self.cfg.path.fuel_delta
-        output_consumption = minfo.history.consumption
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -70,24 +74,13 @@ class Realtime(DataModule):
                     next(gen_calc_fuel)
                     # Reset module output
                     minfo.fuel.reset()
+                    load_consumption_history(userpath_fuel_delta, combo_id)
 
                 # Run calculation
                 gen_calc_fuel.send(True)
 
                 # Update consumption history
-                if (output_consumption[0].lapTimeLast != minfo.delta.lapTimeLast
-                    > minfo.delta.lapTimeCurrent > 2):  # record 2s after pass finish line
-                    output_consumption.appendleft(
-                        ConsumptionDataSet(
-                            api.read.lap.completed_laps() - 1,
-                            minfo.delta.isValidLap,
-                            minfo.delta.lapTimeLast,
-                            minfo.fuel.lastLapConsumption,
-                            minfo.energy.lastLapConsumption,
-                            minfo.hybrid.batteryDrainLast,
-                            minfo.hybrid.batteryRegenLast,
-                        )
-                    )
+                update_consumption_history()
 
             else:
                 if reset:
@@ -95,6 +88,51 @@ class Realtime(DataModule):
                     update_interval = self.idle_interval
                     # Trigger save check
                     gen_calc_fuel.send(False)
+                    save_consumption_history(userpath_fuel_delta, combo_id)
+
+
+def update_consumption_history():
+    """Update consumption history"""
+    if (minfo.history.consumptionDataSet[0].lapTimeLast != minfo.delta.lapTimeLast
+        > minfo.delta.lapTimeCurrent > 2):  # record 2s after pass finish line
+        minfo.history.consumptionDataSet.appendleft(
+            ConsumptionDataSet(
+                lapNumber=api.read.lap.completed_laps() - 1,
+                isValidLap=int(minfo.delta.isValidLap),
+                lapTimeLast=minfo.delta.lapTimeLast,
+                lastLapUsedFuel=minfo.fuel.lastLapConsumption,
+                lastLapUsedEnergy=minfo.energy.lastLapConsumption,
+                batteryDrainLast=minfo.hybrid.batteryDrainLast,
+                batteryRegenLast=minfo.hybrid.batteryRegenLast,
+                capacityFuel=api.read.vehicle.tank_capacity(),
+            )
+        )
+        minfo.history.consumptionDataModified = True
+
+
+def load_consumption_history(filepath: str, combo_id: str):
+    """Load consumption history"""
+    if minfo.history.consumptionDataName != combo_id:
+        dataset = load_consumption_history_file(
+            filepath=filepath,
+            filename=combo_id,
+        )
+        minfo.history.consumptionDataSet.clear()
+        minfo.history.consumptionDataSet.extend(dataset)
+        # Update combo info
+        minfo.history.consumptionDataModified = False
+        minfo.history.consumptionDataName = combo_id
+
+
+def save_consumption_history(filepath: str, combo_id: str):
+    """Save consumption history"""
+    if minfo.history.consumptionDataModified:
+        save_consumption_history_file(
+            dataset=minfo.history.consumptionDataSet,
+            filepath=filepath,
+            filename=combo_id,
+        )
+        minfo.history.consumptionDataModified = False
 
 
 def telemetry_fuel() -> tuple[float, float]:

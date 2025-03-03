@@ -7,6 +7,19 @@ WIP
   - Fixed an error in "Spectate Mode" if player index is set lower than "-1" in "Shared Memory API" config.
   - Removed unnecessary "wheel radius info" options from Wheels Module.
 
+* [New]Consumption history (user data)
+  - Add new consumption history user data file (.consumption extension) that saves in "deltabest" folder (default),
+    which stores lap time and fuel consumption data per "track and vehicle class", and can be loaded in Fuel Calculator.
+    Up to 100 most recent lap entries are saved per "track and vehicle class". Data recording is handled by "Fuel Module".
+  - Add "Consumption History" to "Reset Data" menu.
+
+* Fuel Calculator
+  - Add "Load Live" button, which loads or updates data from live session to history table.
+  - Add "Load File" button, which loads data from consumption history file to history table.
+  - Show loaded data source and track and class name on status bar.
+  - Add "Tank" column, which shows fuel tank capacity for specific vehicle of the same class
+    and can be selected and added to calculation panel.
+
 * [New]Brakes Preset
   - Add new "brakes.json" preset file in "settings" folder, which is used for customizing
     brake failure thickness ("LMU" only) and heatmap style that matches specific vehicle class.

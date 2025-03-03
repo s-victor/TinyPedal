@@ -68,5 +68,5 @@ def save_sector_best_file(
     if len(dataset) != 5:
         return
     with open(f"{filepath}{filename}{extension}", "w", newline="", encoding="utf-8") as csvfile:
-        sectorwrite = csv.writer(csvfile)
-        sectorwrite.writerows(dataset)
+        data_writer = csv.writer(csvfile)
+        data_writer.writerows(dataset)

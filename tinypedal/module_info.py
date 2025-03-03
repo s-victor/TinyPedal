@@ -149,24 +149,36 @@ class FuelInfo:
 class ConsumptionDataSet(NamedTuple):
     """Consumption history data set"""
 
-    completedLaps: int = 0
-    isValidLap: bool = False
+    lapNumber: int = 0
+    isValidLap: int = 0
     lapTimeLast: float = 0.0
     lastLapUsedFuel: float = 0.0
     lastLapUsedEnergy: float = 0.0
     batteryDrainLast: float = 0.0
     batteryRegenLast: float = 0.0
+    capacityFuel: float = 0.0
 
 
 class HistoryInfo:
     """History output data"""
 
     __slots__ = (
-        "consumption",
+        "consumptionDataName",
+        "consumptionDataModified",
+        "consumptionDataSet",
     )
 
     def __init__(self):
-        self.consumption: deque[ConsumptionDataSet] = deque([ConsumptionDataSet()], 100)
+        self.consumptionDataName: str = ""
+        self.consumptionDataModified: bool = False
+        self.consumptionDataSet: deque[ConsumptionDataSet] = deque([ConsumptionDataSet()], 100)
+
+    def reset_consumption(self):
+        """Reset consumption data"""
+        self.consumptionDataName = ""
+        self.consumptionDataModified = False
+        self.consumptionDataSet.clear()
+        self.consumptionDataSet.appendleft(ConsumptionDataSet())
 
 
 class HybridInfo:
