@@ -44,7 +44,7 @@ TinyPedal automatically saves setting when user makes changes to widget position
 ## Backup JSON file
 TinyPedal will automatically create backup file with time stamp suffix if old setting file fails to load, and new default `JSON` with same filename will be generated.
 
-A newer released version will auto-update old setting and add new setting after loading. It may still be a good idea to manually backup files before updating.
+A newer released version will auto-update old setting and add new setting after loading. It may still be a good idea to manually backup files before upgrading to newer version.
 
 
 ## Editing JSON file
@@ -170,8 +170,8 @@ Set logging output level. Supported values are:
   * `--log-level 2` outputs all log to both `console` and `tinypedal.log` file.
 
 Log location:
-  * On windows, `tinypedal.log` is located under APP root folder.
-  * On linux, `tinypedal.log` is located under `/home/.config/TinyPedal/` folder.
+  * On windows, `tinypedal.log` is located under `username\AppData\Roaming\TinyPedal` folder.
+  * On linux, `tinypedal.log` is located under `home/username/.config/TinyPedal` folder.
 
 Default logging output level is set on `1` if argument is not set.
 
@@ -474,7 +474,7 @@ Enable `Manually Select Pace Notes File` check box to disable auto-file-name mat
 
 On the left side is calculation panel, which handles `fuel` and `virtual energy` usage calculation and results display.
 
-Fuel value and unit symbol depend on `Fuel Unit` setting from `Units and symbols` config dialog, `L` = liter, `gal` = gallon. Virtual energy unit is `%` = percentage. Note, after changed `Fuel Unit` setting, it is require to close and reopen `Fuel calculator` in order to update units info for calculation.
+Fuel value and unit symbol depend on `Fuel Unit` setting from `Units and symbols` config dialog, `L` = liter, `gal` = gallon. Virtual energy unit is `%` = percentage. Note, after changed `Fuel Unit` setting, it is required to close and reopen `Fuel calculator` in order to update units info for calculation.
 
 On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `virtual energy consumption`, `battery drain`, `battery regen`, `tank capacity` data from [consumption history](#consumption-history) data.
 Invalid lap time or consumption data is highlighted in red.

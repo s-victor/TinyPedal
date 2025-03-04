@@ -106,7 +106,7 @@ class FuelCalculator(BaseDialog):
         layout_panel.addWidget(self.panel_table)
         layout_main = QVBoxLayout()
         layout_main.setContentsMargins(5,5,5,0)
-        layout_main.addLayout(layout_panel)
+        layout_main.addLayout(layout_panel, stretch=1)
         layout_main.addWidget(self.status_bar)
         self.setLayout(layout_main)
         self.setFixedWidth(self.sizeHint().width())
