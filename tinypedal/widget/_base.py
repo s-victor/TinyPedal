@@ -105,9 +105,6 @@ class Overlay(QWidget):
         self.setWindowFlag(Qt.FramelessWindowHint, True)
         if self.cfg.overlay["vr_comp"]:
             self.setWindowFlag(Qt.Tool, False)
-        else:
-            self.setWindowFlag(Qt.Tool, True)  # remove taskbar icon
-            
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
         if self.cfg.compatibility["enable_bypass_window_manager"]:
             self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
@@ -152,7 +149,7 @@ class Overlay(QWidget):
     
     def __toggle_vr_comp(self, vr_comp: bool):
         """Toggle widget VR compatibility"""
-        self.setWindowFlag(Qt.Tool, vr_comp)
+        self.setWindowFlag(Qt.Tool, not vr_comp)
 
     def __connect_signal(self):
         """Connect overlay lock and hide signal"""

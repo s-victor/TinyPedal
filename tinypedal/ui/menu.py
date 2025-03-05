@@ -116,7 +116,7 @@ class OverlayMenu(QMenu):
     def refresh_menu(self):
         """Refresh menu"""
         self.overlay_lock.setChecked(cfg.overlay["fixed_position"])
-        self.overlay_lock.setChecked(cfg.overlay["vr_comp"])
+        self.overlay_vr.setChecked(cfg.overlay["vr_comp"])
         self.overlay_hide.setChecked(cfg.overlay["auto_hide"])
         self.overlay_grid.setChecked(cfg.overlay["enable_grid_move"])
 
@@ -131,7 +131,6 @@ class OverlayMenu(QMenu):
     def is_locked():
         """Check lock state"""
         octrl.toggle_lock()
-
     @staticmethod
     def vr_comp():
         """Check vr state"""
