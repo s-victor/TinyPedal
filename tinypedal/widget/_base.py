@@ -152,7 +152,7 @@ class Overlay(QWidget):
     
     def __toggle_vr_comp(self, vr_comp: bool):
         """Toggle widget VR compatibility"""
-        self.setWindowFlag(Qt.Tool, not vr_comp)
+        self.setWindowFlag(Qt.Tool, vr_comp)
 
     def __connect_signal(self):
         """Connect overlay lock and hide signal"""
