@@ -86,6 +86,7 @@ class OverlayState(QObject):
     """
     hidden = Signal(bool)
     locked = Signal(bool)
+    vr_comp = Signal(bool)
     reload = Signal(bool)
 
     def __init__(self):
@@ -176,6 +177,11 @@ class OverlayControl:
     def disable(self):
         """Disable overlay control"""
         self.state.stop()
+
+    def toggle_vr(self):
+        """Toggle VR state"""
+        self.__toggle_option("vr_comp")
+        self.state.vr_comp.emit(cfg.overlay["vr_comp"])
 
     def toggle_lock(self):
         """Toggle lock state"""
