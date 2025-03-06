@@ -26,10 +26,9 @@ from ..regex_pattern import API_NAME_RF2
 COMMON_DEFAULT = {
     "overlay": {
         "fixed_position": False,
-        "vr_comp": False,
         "auto_hide": True,
-        "enable_grid_move": False
-
+        "enable_grid_move": False,
+        "vr_compatibility": False,
     },
     "shared_memory_api": {
         "api_name": API_NAME_RF2,

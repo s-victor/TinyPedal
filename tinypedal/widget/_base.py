@@ -103,8 +103,8 @@ class Overlay(QWidget):
     def __set_window_flags(self):
         """Set window flags"""
         self.setWindowFlag(Qt.FramelessWindowHint, True)
-        if self.cfg.overlay["vr_comp"]:
-            self.setWindowFlag(Qt.Tool, False)
+        # Unhide taskbar widget window & icon if VR compatibility option enabled
+        self.setWindowFlag(Qt.Tool, not self.cfg.overlay["vr_compatibility"])
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
         if self.cfg.compatibility["enable_bypass_window_manager"]:
             self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
@@ -145,23 +145,29 @@ class Overlay(QWidget):
     @Slot(bool)
     def __toggle_lock(self, locked: bool):
         """Toggle widget lock state"""
-        self.setWindowFlag(Qt.WindowTransparentForInput, locked) 
-    
-    def __toggle_vr_comp(self, vr_comp: bool):
+        self.setWindowFlag(Qt.WindowTransparentForInput, locked)
+
+    @Slot(bool)
+    def __toggle_vr_compat(self, enabled: bool):
         """Toggle widget VR compatibility"""
-        self.setWindowFlag(Qt.Tool, not vr_comp)
+        self.setWindowFlag(Qt.Tool, not enabled)
 
     def __connect_signal(self):
         """Connect overlay lock and hide signal"""
         self.state.locked.connect(self.__toggle_lock)
         self.state.hidden.connect(self.setHidden)
-        self.state.vr_comp.connect(self.__toggle_vr_comp)
+        self.state.vr_compat.connect(self.__toggle_vr_compat)
 
     def __break_signal(self):
         """Disconnect overlay lock and hide signal"""
         self.state.locked.disconnect(self.__toggle_lock)
         self.state.hidden.disconnect(self.setHidden)
-        self.state.vr_comp.disconnect(self.__toggle_vr_comp)
+        self.state.vr_compat.disconnect(self.__toggle_vr_compat)
+
+    def closeEvent(self, event):
+        """Ignore attempts to close via window Close button when VR compatibility enabled"""
+        if self.state is not None:
+            event.ignore()
 
     # Common GUI methods
     @staticmethod

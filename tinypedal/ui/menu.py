@@ -63,12 +63,6 @@ class OverlayMenu(QMenu):
         self.overlay_lock.triggered.connect(self.is_locked)
         self.addAction(self.overlay_lock)
 
-        # VR Compatbiility
-        self.overlay_vr = QAction("VR Compatibility", self)
-        self.overlay_vr.setCheckable(True)
-        self.overlay_vr.triggered.connect(self.vr_comp)
-        self.addAction(self.overlay_vr)
-
         # Auto hide
         self.overlay_hide = QAction("Auto Hide", self)
         self.overlay_hide.setCheckable(True)
@@ -80,6 +74,12 @@ class OverlayMenu(QMenu):
         self.overlay_grid.setCheckable(True)
         self.overlay_grid.triggered.connect(self.has_grid)
         self.addAction(self.overlay_grid)
+
+        # VR Compatbiility
+        self.overlay_vr = QAction("VR Compatibility", self)
+        self.overlay_vr.setCheckable(True)
+        self.overlay_vr.triggered.connect(self.vr_compatibility)
+        self.addAction(self.overlay_vr)
 
         # Reload preset
         reload_preset = QAction("Reload", self)
@@ -116,9 +116,9 @@ class OverlayMenu(QMenu):
     def refresh_menu(self):
         """Refresh menu"""
         self.overlay_lock.setChecked(cfg.overlay["fixed_position"])
-        self.overlay_vr.setChecked(cfg.overlay["vr_comp"])
         self.overlay_hide.setChecked(cfg.overlay["auto_hide"])
         self.overlay_grid.setChecked(cfg.overlay["enable_grid_move"])
+        self.overlay_vr.setChecked(cfg.overlay["vr_compatibility"])
 
     def refresh_preset_name(self):
         """Refresh preset name"""
@@ -131,18 +131,21 @@ class OverlayMenu(QMenu):
     def is_locked():
         """Check lock state"""
         octrl.toggle_lock()
-    @staticmethod
-    def vr_comp():
-        """Check vr state"""
-        octrl.toggle_vr()
+
     @staticmethod
     def is_hidden():
         """Check hide state"""
         octrl.toggle_hide()
+
     @staticmethod
     def has_grid():
         """Check grid move state"""
         octrl.toggle_grid()
+
+    @staticmethod
+    def vr_compatibility():
+        """Check VR compatibility state"""
+        octrl.toggle_vr()
 
 
 class ResetDataMenu(QMenu):

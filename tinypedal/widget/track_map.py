@@ -327,6 +327,7 @@ class Realtime(Overlay):
         node_index = calc.binary_search_higher_column(deltabest_data, self.pitout_dist, 0, deltabest_max_index, 0)
         pitout_time_extend = deltabest_data[node_index][1] / laptime_scale + pit_timer
 
+        painter.setBrush(Qt.NoBrush)
         for _ in range(self.predication_count):
             # Calc estimated pitout_time_into based on laptime_pace
             offset_time_into = pitout_time_extend - target_pit_time
@@ -350,7 +351,6 @@ class Realtime(Overlay):
             node_index = calc.binary_search_higher_column(dist_data, estimate_dist, 0, dist_max_index)
             painter.translate(*map(round, map_data[node_index]))
             painter.setPen(self.pen_pit_styles[0])
-            painter.setBrush(Qt.NoBrush)
             painter.drawEllipse(self.veh_shape)
 
             # Draw text pitstop duration

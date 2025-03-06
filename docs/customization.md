@@ -349,13 +349,15 @@ To share user path across multiple copies of TinyPedal, user must set path to pl
 
     fixed_position
 Check whether widget is locked at startup. This setting can be toggled from tray icon menu. Valid value: `true`, same as `1`. `false`, same as `0`.
-    vr_comp
-Enables visiblity of widgets as tabs in order to be used in VR via apps such as OpenKneeboard. Valid value: `true`, same as `1`. `false`, same as `0`.
+
     auto_hide
 Check whether auto hide is enabled. This setting can be toggled from tray icon menu. Valid value: `true`, same as `1`. `false`, same as `0`.
 
     enable_grid_move
 Enable grid-snap effect while moving widget for easy alignment and repositioning.
+
+    vr_compatibility
+Enable widget visibility as windows on taskbar in order to be used in VR via APPs such as `OpenKneeboard`. Valid value: `true`, same as `1`. `false`, same as `0`. Non-VR user should not enable this option.
 
 
 ## Shared memory API
