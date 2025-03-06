@@ -10,6 +10,7 @@ Thanks to many people for contributing to the development.
 * Bernat (berarma) - Cross-platform implementation & maintainer
 
 ## Implementation
+* TiberiuC39 - VR compatibility toggle
 * Sihyung Park (naturale0) - Auto load preset system
 * DanRZ - Trailing widget, various features, bug fixes
 * Sasker - Tyre carcass widget

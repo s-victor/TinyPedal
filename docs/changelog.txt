@@ -7,6 +7,10 @@ WIP
   - Fixed an error in "Spectate Mode" if player index is set lower than "-1" in "Shared Memory API" config.
   - Removed unnecessary "wheel radius info" options from Wheels Module.
 
+* Overlay
+  - Add "VR Compatibility" toggle to Overlay & tray menu (implemented by TiberiuC39), which enables widget visibility
+    as windows on taskbar in order to be used in VR via APPs such as "OpenKneeboard". Non-VR user should not enable this option.
+
 * [New]Consumption history (user data)
   - Add new consumption history user data file (.consumption extension) that saves in "deltabest" folder (default),
     which stores lap time and fuel consumption data per "track and vehicle class", and can be loaded in Fuel Calculator.
@@ -48,8 +52,9 @@ WIP
   - Add "show_absolute_ffb" option, which converts force feedback value to absolute value before plotting.
     Disable this option to show force feedback plot in both positive and negative range.
 
-* User Guide
-  - Moved all tools and editors guide into "Tools" section. Added internal links for quick accessing related info.
+* Misc
+  - Moved all tools and editors guide into "Tools" section in User Guide. Added internal links for quick accessing related info.
+  - Added new contributor "TiberiuC39" to contributors.md.
 
 2.24.0 (2025-02-06)
 -----------------------------

@@ -79,15 +79,16 @@ class OverlayState(QObject):
     """Set and update overlay global state
 
     Attributes:
+        active: check whether api state (on track) is active.
         hidden: signal for toggling auto hide state.
         locked: signal for toggling lock state.
-        reload: signal for reloading preset, should only be emitted after app fully loaded
-        active: check whether api state (on track) is active.
+        reload: signal for reloading preset, should only be emitted after app fully loaded.
+        vr_compat: signal for toggling VR compatibility state.
     """
     hidden = Signal(bool)
     locked = Signal(bool)
-    vr_compat = Signal(bool)
     reload = Signal(bool)
+    vr_compat = Signal(bool)
 
     def __init__(self):
         super().__init__()
