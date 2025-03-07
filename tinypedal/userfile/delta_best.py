@@ -49,15 +49,20 @@ def load_delta_best_file(
                 extension=extension,
             )
         return bestlist, laptime_best
-    except (FileNotFoundError, IndexError, ValueError, TypeError):
-        logger.info("MISSING: deltabest data")
-        return defaults
+    except FileNotFoundError:
+        logger.info("MISSING: delta best (%s) data", extension)
+    except (IndexError, ValueError, TypeError):
+        logger.info("MISSING: invalid delta best (%s) data", extension)
+    return defaults
 
 
-def save_delta_best_file(filepath: str, filename: str, dataset: tuple, extension: str = ".csv"):
+def save_delta_best_file(
+    filepath: str, filename: str, dataset: tuple, extension: str = ".csv"
+) -> None:
     """Save delta best file (*.csv)"""
     if len(dataset) < 10:
         return
     with open(f"{filepath}{filename}{extension}", "w", newline="", encoding="utf-8") as csvfile:
         data_writer = csv.writer(csvfile)
         data_writer.writerows(dataset)
+        logger.info("USERDATA: %s%s saved", filename, extension)

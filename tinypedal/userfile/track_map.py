@@ -56,19 +56,19 @@ def load_track_map_file(filepath: str, filename: str, extension: str = ".svg"):
         raw_coords = points_to_coords(svg_coords)
         raw_dists = points_to_coords(svg_dists)
         sector_index = string_pair_to_int(desc_col[0].childNodes[0].nodeValue)
-
         return raw_coords, raw_dists, sector_index
-    except (
-        AttributeError, FileNotFoundError, IndexError, ValueError,
-        xml.parsers.expat.ExpatError):
-        logger.info("MISSING: track map data")
-        return None, None, None
+    except FileNotFoundError:
+        logger.info("MISSING: track map (%s) data", extension)
+    except (AttributeError, IndexError, ValueError, xml.parsers.expat.ExpatError):
+        logger.info("MISSING: invalid track map (%s) data", extension)
+    return None, None, None
 
 
 def save_track_map_file(
     filepath: str, filename: str, view_box: str,
     raw_coords: tuple, raw_dists: tuple, sector_index: tuple,
-    extension: str = ".svg"):
+    extension: str = ".svg"
+) -> None:
     """Save track map file (*.svg)"""
     # Convert to svg coordinates
     svg_coords = coords_to_points(raw_coords)
@@ -130,3 +130,4 @@ def save_track_map_file(
     # Save svg
     with open(f"{filepath}{filename}{extension}", "w", encoding="utf-8") as svgfile:
         new_svg.writexml(svgfile, indent="", addindent="\t", newl="\n", encoding="utf-8")
+        logger.info("USERDATA: %s%s saved", filename, extension)

@@ -181,11 +181,10 @@ def load_notes_file(
             return parser(temp_file, table_header)
 
     except FileNotFoundError:
-        logger.info("LOADING: %s notes file not available", extension)
-        return None
+        logger.info("MISSING: track notes (%s) data", extension)
     except (AttributeError, IndexError, KeyError, TypeError, ValueError, OSError):
-        logger.info("LOADING: invalid %s notes file", extension)
-        return None
+        logger.info("MISSING: invalid track notes (%s) data", extension)
+    return None
 
 
 def write_csv_notes(
@@ -248,7 +247,8 @@ def write_gpl_notes(
 
 def save_notes_file(
     filepath: str, filename: str, table_header: tuple, dataset: list, metadata: dict,
-    writer: Callable = write_csv_notes, extension: str = ""):
+    writer: Callable = write_csv_notes, extension: str = ""
+) -> None:
     """Save notes file"""
     if len(dataset) < 1:
         return
@@ -256,7 +256,7 @@ def save_notes_file(
         writer(temp_file, table_header, dataset, metadata, filename)
 
 
-def verify_notes(note_line: dict, column_key: str):
+def verify_notes(note_line: dict, column_key: str) -> bool:
     """Verify notes and show errors"""
     try:
         note_line[column_key] = float(note_line[column_key])

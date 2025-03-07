@@ -384,8 +384,8 @@ class Setting:
         create_backup_file(filename, filepath)
         timer_start = monotonic()
         while attempts > 0:
-            save_json_file(filename, filepath, dict_user)
-            if verify_json_file(filename, filepath, dict_user):
+            save_json_file(dict_user, filename, filepath)
+            if verify_json_file(dict_user, filename, filepath):
                 break
             attempts -= 1
             logger.error("SETTING: failed saving, %s attempt(s) left", attempts)

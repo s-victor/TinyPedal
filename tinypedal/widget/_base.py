@@ -57,8 +57,7 @@ class Overlay(QWidget):
         self.move(self.wcfg["position_x"], self.wcfg["position_y"])
 
         # Widget mouse event
-        self._mouse_pos = (0, 0)
-        self._mouse_pressed = 0
+        self._mouse_pos = None
         self._move_size = max(self.cfg.application["grid_move_size"], 1)
 
         # Set update timer
@@ -122,7 +121,7 @@ class Overlay(QWidget):
 
     def mouseMoveEvent(self, event):
         """Update widget position"""
-        if event.buttons() == Qt.LeftButton:
+        if self._mouse_pos and event.buttons() == Qt.LeftButton:
             pos = event.globalPos() - self._mouse_pos
             if self.cfg.overlay["enable_grid_move"]:
                 pos = pos / self._move_size * self._move_size
@@ -132,12 +131,11 @@ class Overlay(QWidget):
         """Set offset position & press state"""
         if event.buttons() == Qt.LeftButton:
             self._mouse_pos = event.pos()
-            self._mouse_pressed = 1
 
     def mouseReleaseEvent(self, event):
         """Save position on release"""
-        if self._mouse_pressed:
-            self._mouse_pressed = 0
+        if self._mouse_pos:
+            self._mouse_pos = None
             self.wcfg["position_x"] = self.x()
             self.wcfg["position_y"] = self.y()
             self.cfg.save()

@@ -51,7 +51,9 @@ def copy_setting(dict_user: dict) -> dict:
     return dict_user.copy()
 
 
-def load_setting_json_file(filename: str, filepath: str, dict_def: dict, is_global: bool = False) -> dict:
+def load_setting_json_file(
+    filename: str, filepath: str, dict_def: dict, is_global: bool = False
+) -> dict:
     """Load setting json file & verify"""
     try:
         # Read JSON file
@@ -72,7 +74,8 @@ def load_setting_json_file(filename: str, filepath: str, dict_def: dict, is_glob
 
 def load_style_json_file(
     filename: str, filepath: str, dict_def: dict,
-    check_missing: bool = False, validator: Callable | None = None) -> dict:
+    check_missing: bool = False, validator: Callable | None = None
+) -> dict:
     """Load style json file"""
     msg_text = "loaded"
     try:
@@ -101,30 +104,37 @@ def load_style_json_file(
         msg_text = "updated"
 
     if msg_text == "updated":
-        save_json_file(filename, filepath, style_user)
+        save_json_file(style_user, filename, filepath)
 
     logger.info("SETTING: %s %s (user preset)", filename, msg_text)
     return style_user
 
 
-def save_json_file(filename: str, filepath: str, dict_user: dict) -> None:
+def save_json_file(
+    dict_user: dict, filename: str, filepath: str, extension: str = ""
+) -> None:
     """Save setting to json file"""
-    with open(f"{filepath}{filename}", "w", encoding="utf-8") as jsonfile:
+    with open(f"{filepath}{filename}{extension}", "w", encoding="utf-8") as jsonfile:
         json.dump(dict_user, jsonfile, indent=4)
 
 
-def verify_json_file(filename: str, filepath: str, dict_user: dict) -> bool:
+def verify_json_file(
+    dict_user: dict, filename: str, filepath: str, extension: str = ""
+) -> bool:
     """Verify saved json file"""
     try:
-        with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
+        with open(f"{filepath}{filename}{extension}", "r", encoding="utf-8") as jsonfile:
             return json.load(jsonfile) == dict_user
-    except (FileNotFoundError, ValueError):
-        logger.error("SETTING: failed saving verification")
-        return False
+    except FileNotFoundError:
+        logger.error("SETTING: file not found")
+    except (ValueError, OSError):
+        logger.error("SETTING: unable to verify file")
+    return False
 
 
 def create_backup_file(
-    filename: str, filepath: str, extension: str = ".bak", show_log: bool = False) -> None:
+    filename: str, filepath: str, extension: str = ".bak", show_log: bool = False
+) -> None:
     """Create backup file before saving"""
     try:
         shutil.copyfile(
@@ -133,26 +143,36 @@ def create_backup_file(
         )
         if show_log:
             logger.info("SETTING: backup saved %s", f"{filepath}{filename}{extension}")
-    except (FileNotFoundError, OSError):
-        logger.error("SETTING: failed old preset backup")
+    except FileNotFoundError:
+        logger.error("SETTING: source file not found")
+    except OSError:
+        logger.error("SETTING: unable to create backup file")
 
 
-def restore_backup_file(filename: str, filepath: str, extension: str = ".bak") -> None:
+def restore_backup_file(
+    filename: str, filepath: str, extension: str = ".bak"
+) -> None:
     """Restore backup file if saving failed"""
     try:
         shutil.copyfile(
             f"{filepath}{filename}{extension}",
             f"{filepath}{filename}",
         )
-    except (FileNotFoundError, OSError):
-        logger.error("SETTING: failed old preset restoration")
+    except FileNotFoundError:
+        logger.error("SETTING: backup file not found")
+    except OSError:
+        logger.error("SETTING: unable to restore backup file")
 
 
-def delete_backup_file(filename: str, filepath: str, extension: str = ".bak") -> None:
+def delete_backup_file(
+    filename: str, filepath: str, extension: str = ".bak"
+) -> None:
     """Delete backup file"""
     try:
         file_path = f"{filepath}{filename}{extension}"
         if os.path.exists(file_path):
             os.remove(file_path)
-    except (FileNotFoundError, OSError):
-        logger.error("SETTING: failed removing backup file")
+    except FileNotFoundError:
+        logger.error("SETTING: backup file not found")
+    except OSError:
+        logger.error("SETTING: unable to delete backup file")
