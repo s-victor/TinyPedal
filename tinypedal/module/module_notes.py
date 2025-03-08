@@ -135,7 +135,7 @@ def notes_selector(output: NotesInfo, dataset: list[dict] | None):
         output: module info.
         dataset: list of notes.
     """
-    last_index = 0
+    last_index = -99999  # make sure initial index is different
     end_index = end_note_index(dataset)
     dist_ref = reference_notes_index(dataset)
     output.reset()  # initial reset before updating

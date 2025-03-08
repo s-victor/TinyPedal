@@ -426,7 +426,7 @@ class TrackNotesEditor(BaseEditor):
             QMessageBox.warning(self, "Error", msg_text)
             return
 
-        if not self.confirm_operation(f"Set position at <b>{position}</b> {source}?"):
+        if not self.confirm_operation(message=f"Set position at <b>{position}</b> {source}?"):
             return
 
         pos_curr = round(position, DECIMALS)
@@ -464,7 +464,7 @@ class TrackNotesEditor(BaseEditor):
             QMessageBox.warning(self, "Error", "No data selected.")
             return
 
-        if not self.confirm_operation("<b>Delete selected rows?</b>"):
+        if not self.confirm_operation(message="<b>Delete selected rows?</b>"):
             return
 
         for row_index in sorted(selected_rows, reverse=True):

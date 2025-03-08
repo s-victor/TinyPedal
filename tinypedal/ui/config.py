@@ -226,7 +226,9 @@ class UserConfig(BaseDialog):
         )
         reset_msg = QMessageBox.question(
             self, "Reset Options", msg_text,
-            buttons=QMessageBox.Yes | QMessageBox.No)
+            buttons=QMessageBox.Yes | QMessageBox.No,
+            defaultButton=QMessageBox.No,
+        )
 
         if reset_msg == QMessageBox.Yes:
             for key, editor in self.option_bool.items():

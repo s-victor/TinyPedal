@@ -239,7 +239,7 @@ class HeatmapEditor(BaseEditor):
     def delete_temperature(self, row_index):
         """Delete temperature entry"""
         target = self.option_heatmap[row_index][0].text()
-        if not self.confirm_operation(f"<b>Delete temperature '{target}' ?</b>"):
+        if not self.confirm_operation(message=f"<b>Delete temperature '{target}' ?</b>"):
             return
 
         self.update_heatmap()
@@ -271,13 +271,11 @@ class HeatmapEditor(BaseEditor):
             return
 
         msg_text = (
-            "Are you sure you want to delete selected heatmap preset?<br><br>"
+            "Are you sure you want to delete heatmap preset<br>"
+            f"<b>{self.selected_heatmap_name}</b> ?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
-        delete_msg = QMessageBox.question(
-            self, "Delete Heatmap Preset", msg_text,
-            buttons=QMessageBox.Yes | QMessageBox.No)
-        if delete_msg == QMessageBox.Yes:
+        if self.confirm_operation(message=msg_text):
             self.heatmap_temp.pop(self.selected_heatmap_name)  # remove from dict
             self.selected_heatmap.clear()
             self.heatmap_list.removeItem(self.heatmap_list.currentIndex())
@@ -297,10 +295,7 @@ class HeatmapEditor(BaseEditor):
             "Are you sure you want to reset selected heatmap preset to default?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
-        reset_msg = QMessageBox.question(
-            self, "Reset Heatmap Preset", msg_text,
-            buttons=QMessageBox.Yes | QMessageBox.No)
-        if reset_msg == QMessageBox.Yes:
+        if self.confirm_operation(message=msg_text):
             self.selected_heatmap = cfg.default.heatmap[self.selected_heatmap_name].copy()
             self.set_modified()
             self.refresh_list()

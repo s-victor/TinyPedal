@@ -147,7 +147,9 @@ class ModuleList(QWidget):
             f"{self.module_control.type_id}s?"
         )
         confirm_msg = QMessageBox.question(
-            self, "Confirm", msg_text, buttons=QMessageBox.Yes | QMessageBox.No
+            self, "Confirm", msg_text,
+            buttons=QMessageBox.Yes | QMessageBox.No,
+            defaultButton=QMessageBox.No,
         )
         return confirm_msg == QMessageBox.Yes
 

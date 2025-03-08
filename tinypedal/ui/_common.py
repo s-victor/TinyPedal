@@ -127,11 +127,13 @@ class BaseEditor(BaseDialog):
 
         return confirm == QMessageBox.Discard
 
-    def confirm_operation(self, message: str) -> bool:
+    def confirm_operation(self, title: str = "Confirm", message: str = "") -> bool:
         """Confirm operation"""
         confirm = QMessageBox.question(
-            self, "Confirm", message,
-            buttons=QMessageBox.Yes | QMessageBox.No)
+            self, title, message,
+            buttons=QMessageBox.Yes | QMessageBox.No,
+            defaultButton=QMessageBox.No,
+        )
         return confirm == QMessageBox.Yes
 
     def is_modified(self) -> bool:
@@ -477,5 +479,5 @@ class QTableFloatItem(QTableWidgetItem):
             self.setText(str(self._value))
 
     def __lt__(self, other):
-        """Sort value"""
+        """Sort by value"""
         return self.value() < other.value()
