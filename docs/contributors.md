@@ -28,6 +28,7 @@ Thanks to many people for contributing to the development.
 * Xiang (S.Victor) - TinyPedal icon, widget icons
 
 ## Special Thanks
+* rFactor 2 Community (forum.studio-397.com) - for their kind support over the years
 * Lee Bowden - Author of GPL pace notes system, technical assistance on GPL pace notes system & file specification
 * Jim Pearson - Technical assistance on GPL pacenotes system
 * Vytautas Leonavičius (The Iron Wolf) - for rF2 Shared Memory Map Plugin

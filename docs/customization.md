@@ -95,6 +95,12 @@ Heatmap preset can be customized by accessing `Heatmap editor` from `Tools` menu
 TinyPedal generates and saves user session data in specific folders defined in `User path`. Session data can be reset by accessing `Reset data` submenu from `Overlay` menu in main window; or, delete data file from corresponding folder.
 
 
+## Driver stats
+Driver stats data is stored as `JSON` format (.stats extension) under `global user configuration` folder. Driver stats can be viewed with [Driver Stats Viewer](#driver-stats-viewer) from `Tools` menu in main window.
+
+Data recording is handled by [Stats module](#stats-module) in real-time.
+
+
 ## Delta best
 Delta best data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
 
@@ -118,7 +124,7 @@ Sector best data is stored as `CSV` format (.sector extension) under `TinyPedal\
 
 
 ## Track map
-Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder (default). Track map can be viewed with `Track Map Viewer` from `Tools` menu in main window.
+Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder (default). Track map can be viewed with [Track Map Viewer](#track-map-viewer) from `Tools` menu in main window.
 
 The SVG vector map file contains two coordinate paths:
 * First is global x,y position path, used for drawing track map.
@@ -544,6 +550,50 @@ Set starting fuel or energy. This value is only used for calculating `Average re
 Show average refueling or replenishing per pit stop, and display warning color if value exceeds `Tank capacity` (fuel) or `100%` (energy).
 
 
+## Driver stats viewer
+**Driver stats viewer can be accessed from `Tools` menu in main window.**
+
+Driver stats viewer is used for viewing [Driver stats](#driver-stats). Note, the viewer only allows limited reset or removal, stat value cannot be edited by design. Any changes will take immediate effect after confirmation, changes cannot be undone.
+
+Driver stats are grouped under specific track name, which can be switched from track name selector on the top.
+
+To sort by specific stat, click on corresponding column name. Stats are sorted by `personal best lap time` by default.
+
+To view corresponding track map, click `View Map` button.
+
+To reload stats data, click `Reload` button.
+
+To delete all stats from a specific track, click `Delete` button.
+
+To remove all stats from a specific vehicle, right-click on vehicle name and select `Remove Vehicle`.
+
+To reset personal best lap time to default, right-click on personal best lap time and select `Reset Lap Time`.
+
+`Vehicle` column is vehicle classification info, which is determined by `vehicle_classification` option in [Stats module](#stats-module).
+
+`PB` column is personal best lap time. This value can be reset via right-click menu.
+
+`Km` column is total driven distance in kilometers. Note, `odometer_unit` setting from [Units and symbols](#units-and-symbols) affects how this column is displayed.
+
+`Hours` column is total time spent in driving (only counts when vehicle speed higher than 1 m/s).
+
+`Liter` column is total fuel consumed. Note, `fuel_unit` setting from [Units and symbols](#units-and-symbols) affects how this column is displayed.
+
+`Valid` column is total valid laps completed.
+
+`Invalid` column is total invalid laps completed.
+
+`Penalties` column is total penalties received in race. Non-race penalties are not recorded.
+
+`Races` column is total races completed.
+
+`Wins` column is total races won.
+
+`Podiums` column is total podiums from race.
+
+Note, race completion and final standings stats are retrieved at the moment when local driver crossed finish line on final lap, it does not concern any post-race penalties or finish state from team mate.
+
+
 ## Vehicle brand editor
 **Vehicle brand editor can be accessed from `Tools` menu in main window.**
 
@@ -553,7 +603,7 @@ Vehicle brand editor is used for editing [Brands preset](#brands-preset). Note, 
 
 `Brand name` is custom brand name.
 
-To import vehicle brand data from `Rest API`, click `Import from` menu, and select either `RF2 Rest API` or `LMU Rest API`.
+To import vehicle brand data from `Rest API`, click `Import from` menu, and select either `RF2 Rest API` or `LMU Rest API`. Note, game updates may introduce new vehicles, it is recommended to re-import after each game update to keep brand info updated.
 
 **Important notes**
 
@@ -904,6 +954,27 @@ Enable sectors module.
 Calculate sectors timing based on all time best sectors and affects `Sectors Widget` display. This option is enabled by default. Set `false` to calculate sectors timing from current session only. Note, both session best and all time best sectors data are saved no matter the setting.
 
 
+## Stats module
+**This module records driver stats data.**
+
+Note, while `enable_player_index_override` or `enable_active_state_override` option is enabled in [Shared memory API](#shared-memory-api), driver stats will not be recorded. Stats are only saved when driver returned to garage.
+
+    module_stats
+Enable stats module.
+
+    vehicle_classification
+Set one of the three vehicle classifications where stats will be saved.
+
+`Class - Brand` saves corresponding stats under class and brand name. Make sure to use [Vehicle brand editor](#vehicle-brand-editor) to import brand name. If brand name does not exist, only class name will be used instead.
+
+`Class` saves corresponding stats under class name only.
+
+`Vehicle` saves corresponding stats under vehicle name only. Saving stats under vehicle name is not recommended, because each single vehicle in `RF2` or `LMU` uses unique vehicle name, which will result multiple records of the same vehicle.
+
+    enable_podium_by_class
+Enable to count race finish position by class instead of overall position.
+
+
 ## Vehicles module
 **This module provides additional processed vehicles data.**
 
@@ -1135,7 +1206,7 @@ Show distance into current lap.
 Show cornering radius calculated in real-time.
 
     meters_driven
-This value holds the total distance (meters) that local player has driven. Accept manual editing.
+This option is obsolete, it will be removed in the future.
 
 
 ## Damage

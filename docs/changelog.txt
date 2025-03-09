@@ -1,4 +1,4 @@
-WIP
+2.25.0 (2025-03-09)
 -----------------------------
 * General
   - Show "state overriding" notification on API status bar while "enable_active_state_override" option is enabled.
@@ -6,12 +6,27 @@ WIP
   - Replaced all "Set" buttons in "Pace Notes Playback" tab with a single "Apply" button for applying changes.
   - Fixed an error in "Spectate Mode" if player index is set lower than "-1" in "Shared Memory API" config.
   - Removed unnecessary "wheel radius info" options from Wheels Module.
+  - Optimized copy access mode with Shared Memory API.
 
 * Overlay
   - Add "VR Compatibility" toggle to Overlay & tray menu (implemented by TiberiuC39), which enables widget visibility
     as windows on taskbar in order to be used in VR via APPs such as "OpenKneeboard". Non-VR user should not enable this option.
 
-* [New]Consumption history (user data)
+* [New]Driver Stats (user data)
+  - Add new "driver stats" user data file (driver.stats) that saves in "global user configuration" folder.
+
+* [New]Driver Stats Viewer
+  - Add "Driver stats viewer" to "Tools" menu in main window for viewing "Driver stats".
+    Note, the viewer only allows limited reset or removal, stat value cannot be edited by design.
+    Any changes will take immediate effect after confirmation, changes cannot be undone.
+    See "Driver stats viewer" section in User Guide for complete usage.
+
+* [New]Stats Module
+  - Add "Stats Module" for recording driver stats data. Note, driver stats will not be recorded while spectate mode is enabled.
+    See "Stats module" section in User Guide for configuration details.
+  - Now outputs "meters driven" data for odometer display in Cruise Widget.
+
+* [New]Consumption History (user data)
   - Add new consumption history user data file (.consumption extension) that saves in "deltabest" folder (default),
     which stores lap time and fuel consumption data per "track and vehicle class", and can be loaded in Fuel Calculator.
     Up to 100 most recent lap entries are saved per "track and vehicle class". Data recording is handled by "Fuel Module".
@@ -55,6 +70,7 @@ WIP
 * Misc
   - Moved all tools and editors guide into "Tools" section in User Guide. Added internal links for quick accessing related info.
   - Added new contributor "TiberiuC39" to contributors.md.
+  - Added "rFactor 2 Community" to "Special Thanks" list in contributors.md.
 
 2.24.0 (2025-02-06)
 -----------------------------
