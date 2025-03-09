@@ -91,6 +91,13 @@ MODULE_DEFAULT = {
         "idle_update_interval": 400,
         "enable_all_time_best_sectors": True,
     },
+    "module_stats": {
+        "enable": True,
+        "update_interval": 200,
+        "idle_update_interval": 400,
+        "vehicle_classification": "Class - Brand",
+        "enable_podium_by_class": True,
+    },
     "module_vehicles": {
         "enable": True,
         "update_interval": 20,

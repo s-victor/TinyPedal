@@ -85,6 +85,8 @@ def load_consumption_history_file(
                 ConsumptionDataSet(**val.dict_value_type(data, default_data))
                 for data in data_reader
             )
+            if not dataset:
+                raise ValueError
         return dataset
     except FileNotFoundError:
         logger.info("MISSING: consumption history (%s) data", extension)

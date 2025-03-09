@@ -27,6 +27,28 @@ from typing import NamedTuple
 MAX_VEHICLES = 128
 
 
+class ConsumptionDataSet(NamedTuple):
+    """Consumption history data set"""
+
+    lapNumber: int = 0
+    isValidLap: int = 0
+    lapTimeLast: float = 0.0
+    lastLapUsedFuel: float = 0.0
+    lastLapUsedEnergy: float = 0.0
+    batteryDrainLast: float = 0.0
+    batteryRegenLast: float = 0.0
+    capacityFuel: float = 0.0
+
+
+class WeatherNode(NamedTuple):
+    """Weather forecast node info"""
+
+    start_minute: float = 9999.0
+    sky_type: int = -1
+    temperature: float = -273.0
+    rain_chance: float = -1.0
+
+
 class DeltaInfo:
     """Delta module output data"""
 
@@ -45,7 +67,6 @@ class DeltaInfo:
         "lapTimeStint",
         "lapTimePace",
         "lapDistance",
-        "metersDriven",
     )
 
     def __init__(self):
@@ -63,7 +84,6 @@ class DeltaInfo:
         self.lapTimeStint: float = 0.0
         self.lapTimePace: float = 0.0
         self.lapDistance: float = 0.0
-        self.metersDriven: float = 0.0
 
 
 class ForceInfo:
@@ -144,19 +164,6 @@ class FuelInfo:
         self.estimatedNumPitStopsEarly: float = 0.0
         self.deltaConsumption: float = 0.0
         self.oneLessPitConsumption: float = 0.0
-
-
-class ConsumptionDataSet(NamedTuple):
-    """Consumption history data set"""
-
-    lapNumber: int = 0
-    isValidLap: int = 0
-    lapTimeLast: float = 0.0
-    lastLapUsedFuel: float = 0.0
-    lastLapUsedEnergy: float = 0.0
-    batteryDrainLast: float = 0.0
-    batteryRegenLast: float = 0.0
-    capacityFuel: float = 0.0
 
 
 class HistoryInfo:
@@ -267,39 +274,6 @@ class RelativeInfo:
         self.classes: list[list] = [[0, 1, "", 0, 0, -1, -1, False]]
 
 
-class SectorsInfo:
-    """Sectors module output data"""
-
-    __slots__ = (
-        "noDeltaSector",
-        "sectorIndex",
-        "sectorPrev",
-        "sectorBestTB",
-        "sectorBestPB",
-        "deltaSectorBestPB",
-        "deltaSectorBestTB",
-    )
-
-    def __init__(self):
-        temp_sector = [99999.0] * 3
-        self.noDeltaSector: bool = True
-        self.sectorIndex: int = -1
-        self.sectorPrev: list[float] = temp_sector
-        self.sectorBestTB: list[float] = temp_sector
-        self.sectorBestPB: list[float] = temp_sector
-        self.deltaSectorBestPB: list[float] = temp_sector
-        self.deltaSectorBestTB: list[float] = temp_sector
-
-
-class WeatherNode(NamedTuple):
-    """Weather forecast node info"""
-
-    start_minute: float = 9999.0
-    sky_type: int = -1
-    temperature: float = -273.0
-    rain_chance: float = -1.0
-
-
 class RestAPIInfo:
     """Rest API module output data"""
 
@@ -329,6 +303,41 @@ class RestAPIInfo:
         self.forecastRace: list[WeatherNode] | None = None
         self.brakeWear: list[float] = [-1.0] * 4
         self.suspensionDamage: list[float] = [-1.0] * 4
+
+
+class SectorsInfo:
+    """Sectors module output data"""
+
+    __slots__ = (
+        "noDeltaSector",
+        "sectorIndex",
+        "sectorPrev",
+        "sectorBestTB",
+        "sectorBestPB",
+        "deltaSectorBestPB",
+        "deltaSectorBestTB",
+    )
+
+    def __init__(self):
+        temp_sector = [99999.0] * 3
+        self.noDeltaSector: bool = True
+        self.sectorIndex: int = -1
+        self.sectorPrev: list[float] = temp_sector
+        self.sectorBestTB: list[float] = temp_sector
+        self.sectorBestPB: list[float] = temp_sector
+        self.deltaSectorBestPB: list[float] = temp_sector
+        self.deltaSectorBestTB: list[float] = temp_sector
+
+
+class StatsInfo:
+    """Stats module output data"""
+
+    __slots__ = (
+        "metersDriven",
+    )
+
+    def __init__(self):
+        self.metersDriven: float = 0.0
 
 
 class VehiclesInfo:
@@ -480,6 +489,7 @@ class ModuleInfo:
         "relative",
         "restapi",
         "sectors",
+        "stats",
         "tracknotes",
         "vehicles",
         "wheels",
@@ -497,6 +507,7 @@ class ModuleInfo:
         self.relative = RelativeInfo()
         self.restapi = RestAPIInfo()
         self.sectors = SectorsInfo()
+        self.stats = StatsInfo()
         self.tracknotes = NotesInfo()
         self.vehicles = VehiclesInfo()
         self.wheels = WheelsInfo()

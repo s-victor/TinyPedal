@@ -85,7 +85,7 @@ def load_style_json_file(
 
         # Whether to check and add missing style
         if check_missing:
-            if PresetValidator.add_missing_key(dict_def.keys(), style_user, dict_def):
+            if PresetValidator.add_missing_key(tuple(dict_def), style_user, dict_def):
                 msg_text = "updated"
 
         # Whether to validate style
@@ -116,6 +116,14 @@ def save_json_file(
     """Save setting to json file"""
     with open(f"{filepath}{filename}{extension}", "w", encoding="utf-8") as jsonfile:
         json.dump(dict_user, jsonfile, indent=4)
+
+
+def save_compact_json_file(
+    dict_user: dict, filename: str, filepath: str, extension: str = ""
+) -> None:
+    """Save compact setting to json file"""
+    with open(f"{filepath}{filename}{extension}", "w", encoding="utf-8") as jsonfile:
+        json.dump(dict_user, jsonfile, separators=(",", ":"))
 
 
 def verify_json_file(

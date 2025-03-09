@@ -35,6 +35,7 @@ __all__ = [
     "module_relative",
     "module_restapi",
     "module_sectors",
+    "module_stats",
     "module_vehicles",
     "module_wheels",
 ]

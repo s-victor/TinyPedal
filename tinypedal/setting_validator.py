@@ -22,7 +22,6 @@ Setting validator function
 
 from __future__ import annotations
 import re
-from typing import KeysView
 
 from . import formatter as fmt
 from . import regex_pattern as rxp
@@ -200,7 +199,7 @@ class PresetValidator:
     )
 
     @classmethod
-    def remove_invalid_key(cls, key_list_def: KeysView[str], dict_user: dict) -> None:
+    def remove_invalid_key(cls, key_list_def: tuple[str, ...], dict_user: dict) -> None:
         """Remove invalid key & value from user dictionary"""
         key_list_user = tuple(dict_user)  # create user key list
 
@@ -217,7 +216,7 @@ class PresetValidator:
                     break
 
     @staticmethod
-    def add_missing_key(key_list_def: KeysView[str], dict_user: dict, dict_def: dict) -> bool:
+    def add_missing_key(key_list_def: tuple[str, ...], dict_user: dict, dict_def: dict) -> bool:
         """Add missing default key to user list"""
         is_modified = False
         key_list_user = tuple(dict_user)  # create user key list
@@ -230,7 +229,7 @@ class PresetValidator:
         return is_modified
 
     @staticmethod
-    def sort_key_order(key_list_def: KeysView[str], dict_user: dict) -> None:
+    def sort_key_order(key_list_def: tuple[str, ...], dict_user: dict) -> None:
         """Sort user key order according to default key list"""
         for d_key in key_list_def:  # loop through default key list
             temp_value = dict_user[d_key]  # store user value
@@ -240,7 +239,7 @@ class PresetValidator:
     @classmethod
     def validate_key_pair(cls, dict_user: dict, dict_def: dict) -> None:
         """Create key-only check list, then validate key"""
-        key_list_def = dict_def.keys()
+        key_list_def = tuple(dict_def)
         cls.remove_invalid_key(key_list_def, dict_user)
         cls.add_missing_key(key_list_def, dict_user, dict_def)
         cls.sort_key_order(key_list_def, dict_user)

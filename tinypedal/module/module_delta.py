@@ -115,7 +115,6 @@ class Realtime(DataModule):
                     pos_synced_last = 0.0  # last synced estimated vehicle position
                     is_pos_synced = False  # vehicle position synced with API
                     gps_last = (0.0,0.0,0.0)  # last global position
-                    meters_driven = self.cfg.user.setting["cruise"]["meters_driven"]
 
                 # Read telemetry
                 lap_stime = api.read.timing.start()
@@ -205,9 +204,6 @@ class Realtime(DataModule):
                     else:
                         pos_estimate += moved_distance
                     pos_synced = gen_position_sync.send(pos_estimate)
-                    # Update driven distance
-                    if moved_distance < 1500 * update_interval:
-                        meters_driven += moved_distance
 
                 # Calc delta
                 if pos_synced_last != pos_synced:
@@ -257,12 +253,9 @@ class Realtime(DataModule):
                 output.lapTimeStint = laptime_stint_best
                 output.lapTimePace = laptime_pace
                 output.lapDistance = pos_synced
-                output.metersDriven = meters_driven
 
             else:
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
                     last_session_id = (combo_id, *session_id)
-                    self.cfg.user.setting["cruise"]["meters_driven"] = int(meters_driven)
-                    self.cfg.save()

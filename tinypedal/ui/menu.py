@@ -35,6 +35,7 @@ from .config import FontConfig, UserConfig
 from .log_info import LogInfo
 from .fuel_calculator import FuelCalculator
 from .heatmap_editor import HeatmapEditor
+from .driver_stats_viewer import DriverStatsViewer
 from .track_map_viewer import TrackMapViewer
 from .track_notes_editor import TrackNotesEditor
 from .brake_editor import BrakeEditor
@@ -389,6 +390,10 @@ class ToolsMenu(QMenu):
         utility_fuelcalc.triggered.connect(self.open_utility_fuelcalc)
         self.addAction(utility_fuelcalc)
 
+        utility_driverstats = QAction("Driver Stats Viewer", self)
+        utility_driverstats.triggered.connect(self.open_utility_driverstats)
+        self.addAction(utility_driverstats)
+
         utility_mapviewer = QAction("Track Map Viewer", self)
         utility_mapviewer.triggered.connect(self.open_utility_mapviewer)
         self.addAction(utility_mapviewer)
@@ -421,6 +426,11 @@ class ToolsMenu(QMenu):
     def open_utility_fuelcalc(self):
         """Fuel calculator"""
         _dialog = FuelCalculator(self.master)
+        _dialog.show()
+
+    def open_utility_driverstats(self):
+        """Track driver stats viewer"""
+        _dialog = DriverStatsViewer(self.master)
         _dialog.show()
 
     def open_utility_mapviewer(self):

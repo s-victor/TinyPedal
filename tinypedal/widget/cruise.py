@@ -195,7 +195,7 @@ class Realtime(Overlay):
 
             # Odometer
             if self.wcfg["show_odometer"]:
-                traveled_distance = int(minfo.delta.metersDriven)
+                traveled_distance = int(minfo.stats.metersDriven)
                 self.update_odometer(self.bar_odometer, traveled_distance)
 
             # Distance into lap

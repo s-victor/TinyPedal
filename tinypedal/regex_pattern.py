@@ -56,6 +56,7 @@ CFG_FONT_WEIGHT = "font_weight"
 CFG_TARGET_LAPTIME = "target_laptime"
 CFG_TEXT_ALIGNMENT = "text_alignment"
 CFG_MULTIMEDIA_PLUGIN = "multimedia_plugin"
+CFG_STATS_CLASSIFICATION = "vehicle_classification"
 
 # String common
 CFG_FONT_NAME = "font_name"
@@ -170,6 +171,7 @@ CHOICE_COMMON = {
     CFG_TARGET_LAPTIME: ["Theoretical", "Personal"],
     CFG_TEXT_ALIGNMENT: ["Left", "Center", "Right"],
     CFG_MULTIMEDIA_PLUGIN: ["WMF", "DirectShow"],
+    CFG_STATS_CLASSIFICATION: ["Class - Brand", "Class", "Vehicle"],
 }
 CHOICE_UNITS = {
     "distance_unit": ["Meter", "Feet"],
