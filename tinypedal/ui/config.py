@@ -224,13 +224,7 @@ class UserConfig(BaseDialog):
             "Are you sure you want to reset options to default?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
-        reset_msg = QMessageBox.question(
-            self, "Reset Options", msg_text,
-            buttons=QMessageBox.Yes | QMessageBox.No,
-            defaultButton=QMessageBox.No,
-        )
-
-        if reset_msg == QMessageBox.Yes:
+        if self.confirm_operation(title="Reset Options", message=msg_text):
             for key, editor in self.option_bool.items():
                 editor.setChecked(
                     self.default_setting[self.key_name][key])

@@ -60,8 +60,8 @@ class HeatmapEditor(BaseEditor):
 
         self.option_heatmap = []
         self.heatmap_temp = copy_setting(cfg.user.heatmap)
-        self.selected_heatmap_name = next(iter(self.heatmap_temp.keys()))
-        self.selected_heatmap = self.heatmap_temp[self.selected_heatmap_name]
+        self.selected_heatmap_key = next(iter(self.heatmap_temp.keys()))
+        self.selected_heatmap_dict = self.heatmap_temp[self.selected_heatmap_key]
 
         # Preset selector
         self.heatmap_list = QComboBox()
@@ -76,15 +76,15 @@ class HeatmapEditor(BaseEditor):
         # Button
         button_create = QPushButton("New")
         button_create.clicked.connect(self.open_create_dialog)
-        button_create.setFixedWidth(self.fontMetrics().boundingRect("New").width() + 12)
+        button_create.setStyleSheet(QSS_EDITOR_BUTTON)
 
         button_copy = QPushButton("Copy")
         button_copy.clicked.connect(self.open_copy_dialog)
-        button_copy.setFixedWidth(self.fontMetrics().boundingRect("Copy").width() + 12)
+        button_copy.setStyleSheet(QSS_EDITOR_BUTTON)
 
         button_delete = QPushButton("Delete")
         button_delete.clicked.connect(self.delete_heatmap)
-        button_delete.setFixedWidth(self.fontMetrics().boundingRect("Delete").width() + 12)
+        button_delete.setStyleSheet(QSS_EDITOR_BUTTON)
 
         button_add = QPushButton("Add")
         button_add.clicked.connect(self.add_temperature)
@@ -117,7 +117,7 @@ class HeatmapEditor(BaseEditor):
         layout_selector = QHBoxLayout()
         layout_button = QHBoxLayout()
 
-        layout_selector.addWidget(self.heatmap_list)
+        layout_selector.addWidget(self.heatmap_list, stretch=1)
         layout_selector.addWidget(button_create)
         layout_selector.addWidget(button_copy)
         layout_selector.addWidget(button_delete)
@@ -143,7 +143,7 @@ class HeatmapEditor(BaseEditor):
         already_modified = self.is_modified()
         row_index = 0
 
-        for key, item in self.selected_heatmap.items():
+        for key, item in self.selected_heatmap_dict.items():
             layout_item = QHBoxLayout()
             layout_item.setContentsMargins(4,4,4,4)
             layout_item.setSpacing(4)
@@ -163,7 +163,7 @@ class HeatmapEditor(BaseEditor):
         if not already_modified:
             self.set_unmodified()
 
-    def __add_option_temperature(self, key, layout):
+    def __add_option_temperature(self, key: str, layout: QHBoxLayout):
         """Temperature integer"""
         line_edit = QLineEdit()
         line_edit.setValidator(QVAL_INTEGER)
@@ -174,7 +174,7 @@ class HeatmapEditor(BaseEditor):
         layout.addWidget(line_edit)
         return line_edit
 
-    def __add_option_color(self, key, layout, width):
+    def __add_option_color(self, key: str, layout: QHBoxLayout, width: int):
         """Color string"""
         color_edit = DoubleClickEdit(mode="color", init=key)
         color_edit.setFixedWidth(width)
@@ -188,9 +188,9 @@ class HeatmapEditor(BaseEditor):
         layout.addWidget(color_edit)
         return color_edit
 
-    def __add_delete_button(self, row_index, layout):
+    def __add_delete_button(self, row_index: int, layout: QHBoxLayout):
         """Delete button"""
-        button = QPushButton("X")
+        button = QPushButton("X", self)
         button.setFixedWidth(20)
         button.pressed.connect(
             lambda index=row_index: self.delete_temperature(index))
@@ -226,64 +226,64 @@ class HeatmapEditor(BaseEditor):
     def add_temperature(self):
         """Add new temperature"""
         self.sort_temperature()
-        if self.selected_heatmap:
-            last_key = str(int(list(self.selected_heatmap.keys())[-1]) + 10)
-            self.selected_heatmap[last_key] = "#FFFFFF"
+        if self.selected_heatmap_dict:
+            last_key = str(int(list(self.selected_heatmap_dict.keys())[-1]) + 10)
+            self.selected_heatmap_dict[last_key] = "#FFFFFF"
         else:
-            self.selected_heatmap["-273"] = "#4444FF"
+            self.selected_heatmap_dict["-273"] = "#4444FF"
         self.set_modified()
         self.refresh_list()
         # Move focus to new heatmap row
-        self.listbox_heatmap.setCurrentRow(len(self.selected_heatmap) - 1)
+        self.listbox_heatmap.setCurrentRow(len(self.selected_heatmap_dict) - 1)
 
-    def delete_temperature(self, row_index):
+    def delete_temperature(self, row_index: int):
         """Delete temperature entry"""
         target = self.option_heatmap[row_index][0].text()
         if not self.confirm_operation(message=f"<b>Delete temperature '{target}' ?</b>"):
             return
 
         self.update_heatmap()
-        self.selected_heatmap.pop(target)
+        self.selected_heatmap_dict.pop(target)
         self.set_modified()
         self.refresh_list()
 
     def sort_temperature(self):
         """Sort temperature"""
         self.update_heatmap()
-        self.selected_heatmap = dict(
-            sorted(self.selected_heatmap.items(), key=lambda keys: int(keys[0])))
+        self.selected_heatmap_dict = dict(
+            sorted(self.selected_heatmap_dict.items(), key=lambda keys: int(keys[0])))
 
     def select_heatmap(self):
         """Select heatmap list"""
         # Sort & apply previous preset first
-        if self.selected_heatmap:
+        if self.selected_heatmap_dict:
             self.sort_temperature()
-            self.heatmap_temp[self.selected_heatmap_name] = self.selected_heatmap
+            self.heatmap_temp[self.selected_heatmap_key] = self.selected_heatmap_dict
         # Get newly selected preset name
-        self.selected_heatmap_name = self.heatmap_list.currentText()
-        self.selected_heatmap = self.heatmap_temp[self.selected_heatmap_name]
+        self.selected_heatmap_key = self.heatmap_list.currentText()
+        self.selected_heatmap_dict = self.heatmap_temp[self.selected_heatmap_key]
         self.refresh_list()
 
     def delete_heatmap(self):
         """Delete heatmap"""
-        if self.selected_heatmap_name in cfg.default.heatmap:
+        if self.selected_heatmap_key in cfg.default.heatmap:
             QMessageBox.warning(self, "Error", "Cannot delete built-in heatmap preset.")
             return
 
         msg_text = (
             "Are you sure you want to delete heatmap preset<br>"
-            f"<b>{self.selected_heatmap_name}</b> ?<br><br>"
+            f"<b>{self.selected_heatmap_key}</b> ?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
         if self.confirm_operation(message=msg_text):
-            self.heatmap_temp.pop(self.selected_heatmap_name)  # remove from dict
-            self.selected_heatmap.clear()
+            self.heatmap_temp.pop(self.selected_heatmap_key)  # remove from dict
+            self.selected_heatmap_dict.clear()
             self.heatmap_list.removeItem(self.heatmap_list.currentIndex())
             self.set_modified()
 
     def reset_heatmap(self):
         """Reset heatmap"""
-        if cfg.default.heatmap.get(self.selected_heatmap_name, None) is None:
+        if cfg.default.heatmap.get(self.selected_heatmap_key, None) is None:
             msg_text = (
                 "Cannot reset selected heatmap preset.<br><br>"
                 "Default preset does not exist."
@@ -296,7 +296,7 @@ class HeatmapEditor(BaseEditor):
             "Changes are only saved after clicking Apply or Save Button."
         )
         if self.confirm_operation(message=msg_text):
-            self.selected_heatmap = cfg.default.heatmap[self.selected_heatmap_name].copy()
+            self.selected_heatmap_dict = cfg.default.heatmap[self.selected_heatmap_key].copy()
             self.set_modified()
             self.refresh_list()
 
@@ -317,16 +317,16 @@ class HeatmapEditor(BaseEditor):
 
     def update_heatmap(self):
         """Update temporary changes to selected heatmap first"""
-        self.selected_heatmap.clear()
+        self.selected_heatmap_dict.clear()
         for edit in self.option_heatmap:
-            self.selected_heatmap[edit[0].text()] = edit[1].text()
+            self.selected_heatmap_dict[edit[0].text()] = edit[1].text()
 
     def save_heatmap(self):
         """Save heatmap"""
         self.update_heatmap()
         self.refresh_list()
         # Apply changes to heatmap preset dictionary
-        self.heatmap_temp[self.selected_heatmap_name] = self.selected_heatmap
+        self.heatmap_temp[self.selected_heatmap_key] = self.selected_heatmap_dict
         cfg.user.heatmap = copy_setting(self.heatmap_temp)
         cfg.save(0, filetype="heatmap")
         while cfg.is_saving:  # wait saving finish
@@ -381,7 +381,7 @@ class CreateHeatmapPreset(BaseDialog):
         """Saving new preset"""
         # Duplicate preset
         if self.edit_mode == "duplicate":
-            self.master.heatmap_temp[entered_name] = self.master.selected_heatmap.copy()
+            self.master.heatmap_temp[entered_name] = self.master.selected_heatmap_dict.copy()
         # Create new preset
         else:
             self.master.heatmap_temp[entered_name] = {"-273": "#4444FF"}

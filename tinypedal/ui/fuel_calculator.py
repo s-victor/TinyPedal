@@ -224,7 +224,7 @@ class FuelCalculator(BaseDialog):
 
         for lap_data in dataset:
             lapnumber = self.__add_table_item(f"{lap_data.lapNumber}", 0)
-            laptime = self.__add_table_item(calc.sec2laptime(lap_data.lapTimeLast), 33)
+            laptime = self.__add_table_item(calc.sec2laptime_full(lap_data.lapTimeLast), 33)
             used_fuel = self.__add_table_item(f"{self.fuel_units(lap_data.lastLapUsedFuel):.3f}", 33)
             used_energy = self.__add_table_item(f"{lap_data.lastLapUsedEnergy:.3f}", 33)
             battery_drain = self.__add_table_item(f"{lap_data.batteryDrainLast:.3f}", 0)
@@ -334,10 +334,11 @@ class FuelCalculator(BaseDialog):
         """Set panel table"""
         self.table_history = QTableWidget(self)
         self.table_history.setColumnCount(7)
-        self.table_history.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.table_history.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
         self.table_history.verticalHeader().setVisible(False)
-        self.table_history.setColumnWidth(0, 40)
+        self.table_history.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
+        font_w = self.fontMetrics().averageCharWidth()
+        self.table_history.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
+        self.table_history.setColumnWidth(0, font_w * 7)
         self.table_history.setFixedWidth(460)
         self.table_history.setHorizontalHeaderLabels((
             "Lap",

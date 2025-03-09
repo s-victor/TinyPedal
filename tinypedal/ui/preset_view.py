@@ -24,7 +24,7 @@ import os
 import shutil
 import time
 
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Qt, QPoint
 from PySide2.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -162,7 +162,7 @@ class PresetList(QWidget):
         menu.addAction("Delete")
         return menu
 
-    def open_context_menu(self, position):
+    def open_context_menu(self, position: QPoint):
         """Open context menu"""
         if not self.listbox_preset.itemAt(position):
             return

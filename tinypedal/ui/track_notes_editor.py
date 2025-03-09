@@ -569,7 +569,7 @@ class TrackNotesEditor(BaseEditor):
         menu.addAction("Delete Rows")
         return menu
 
-    def open_context_menu(self, position):
+    def open_context_menu(self, position: QPoint):
         """Open context menu"""
         if not self.table_notes.itemAt(position):
             return

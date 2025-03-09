@@ -103,6 +103,15 @@ class BaseDialog(QDialog):
         """Set utility dialog title"""
         self.setWindowTitle(f"{name} - {APP_NAME}")
 
+    def confirm_operation(self, title: str = "Confirm", message: str = "") -> bool:
+        """Confirm operation"""
+        confirm = QMessageBox.question(
+            self, title, message,
+            buttons=QMessageBox.Yes | QMessageBox.No,
+            defaultButton=QMessageBox.No,
+        )
+        return confirm == QMessageBox.Yes
+
 
 class BaseEditor(BaseDialog):
     """Base editor class"""
@@ -126,15 +135,6 @@ class BaseEditor(BaseDialog):
             return self.confirm_discard()
 
         return confirm == QMessageBox.Discard
-
-    def confirm_operation(self, title: str = "Confirm", message: str = "") -> bool:
-        """Confirm operation"""
-        confirm = QMessageBox.question(
-            self, title, message,
-            buttons=QMessageBox.Yes | QMessageBox.No,
-            defaultButton=QMessageBox.No,
-        )
-        return confirm == QMessageBox.Yes
 
     def is_modified(self) -> bool:
         """Is modified"""
@@ -481,3 +481,17 @@ class QTableFloatItem(QTableWidgetItem):
     def __lt__(self, other):
         """Sort by value"""
         return self.value() < other.value()
+
+
+class QTableNumTextItem(QTableWidgetItem):
+    """QTable numeric sortable text type item"""
+
+    def __init__(self, value: float, text: str):
+        """Set numeric value & string text"""
+        super().__init__()
+        self.value = value
+        self.setText(text)
+
+    def __lt__(self, other):
+        """Sort by value"""
+        return self.value < other.value

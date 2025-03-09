@@ -22,7 +22,7 @@ Track map viewer
 
 import os
 
-from PySide2.QtCore import Qt, Signal, QPointF, QRect
+from PySide2.QtCore import Qt, Signal, QPoint, QPointF, QRect
 from PySide2.QtGui import QPainterPath, QPainter, QPen
 from PySide2.QtWidgets import (
     QHBoxLayout,
@@ -51,7 +51,7 @@ from ..userfile.track_map import load_track_map_file, QFILTER_SVG
 class TrackMapViewer(BaseDialog):
     """Track map viewer"""
 
-    def __init__(self, master):
+    def __init__(self, master, filepath: str = "", filename: str = ""):
         super().__init__(master)
         self.set_utility_title("Track Map Viewer")
 
@@ -63,6 +63,10 @@ class TrackMapViewer(BaseDialog):
         layout_main.setContentsMargins(5,5,5,5)
         layout_main.addWidget(self.trackmap_panel)
         self.setLayout(layout_main)
+
+        # Pre-load track map if exists
+        if filepath and filename:
+            self.trackmap.load_trackmap(filepath, filename)
 
     def set_layout_trackmap(self):
         """Set track map panel"""
@@ -318,7 +322,7 @@ class MapView(QWidget):
             option.setChecked(item)
         return menu
 
-    def open_context_menu(self, position):
+    def open_context_menu(self, position: QPoint):
         """Open context menu"""
         action = self.map_context_menu.exec_(self.mapToGlobal(position))
         if not action:
@@ -347,6 +351,15 @@ class MapView(QWidget):
 
         filepath = os.path.dirname(filename_full) + "/"
         filename = os.path.splitext(os.path.basename(filename_full))[0]
+        self.load_trackmap(filepath=filepath, filename=filename)
+
+    def load_trackmap(self, filepath: str, filename: str):
+        """Load trackmap"""
+        if not os.path.exists(f"{filepath}{filename}.svg"):
+            msg_text = f"Cannot find track map for<br><b>{filename}</b><br>"
+            QMessageBox.warning(self, "Error", msg_text)
+            return
+
         self.raw_coords, self.raw_dists, sector_index = load_track_map_file(
             filepath=filepath,
             filename=filename,
@@ -362,7 +375,8 @@ class MapView(QWidget):
             self.map_nodes = 0
             self.map_filename = ""
             msg_text = (
-                f"Unable to load track map file:<br><b>{filename_full}</b><br><br>"
+                "Unable to load track map file from<br>"
+                f"<b>{filepath}{filename}.svg</b><br><br>"
                 "Only support SVG file that generated with TinyPedal."
             )
             QMessageBox.warning(self, "Error", msg_text)
