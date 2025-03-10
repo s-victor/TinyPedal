@@ -31,7 +31,7 @@ from .template.setting_heatmap import HEATMAP_DEFAULT_TYRE, HEATMAP_DEFAULT_BRAK
 
 def invalid_name(name: str) -> bool:
     """Check invalid name"""
-    return name == "" or name[:3] == " - "
+    return name == "" or name[:3] == " - " or name[-3:] == " - "
 
 
 # Brake function

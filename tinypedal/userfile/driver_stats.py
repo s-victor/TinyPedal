@@ -62,7 +62,11 @@ class DriverStats:
 
 
 def validate_stats_file(stats_user: dict) -> dict:
-    """Validate stats dict"""
+    """Validate stats file
+
+    Full validation for every primary key (track name) and secondary key (vehicle name),
+    Only required for loading file in Driver Stats Viewer.
+    """
     for key in stats_user:
         if not isinstance(stats_user[key], dict):
             stats_user[key] = {}
@@ -74,7 +78,7 @@ def validate_stats_file(stats_user: dict) -> dict:
 
 
 def purge_keys(target_dict: dict) -> dict:
-    """Purge keys"""
+    """Purge unwanted key name"""
     ref_keys = DriverStats.keys()
     for key in tuple(target_dict):
         if key not in ref_keys:
@@ -83,9 +87,9 @@ def purge_keys(target_dict: dict) -> dict:
 
 
 def get_sub_dict(source: dict, key_name: str) -> dict:
-    """Get sub dict"""
+    """Get sub dict, create new if not exist"""
     sub_dict = source.get(key_name, None)
-    if not isinstance(sub_dict, dict):  # create if not exist
+    if not isinstance(sub_dict, dict):
         source[key_name] = {}
         sub_dict = source[key_name]
     return sub_dict
@@ -99,13 +103,13 @@ def load_driver_stats(
         filepath=filepath,
         filename=STATS_FILENAME,
     )
-
+    # Get data from matching key
     target_dict = stats_user
     for key in key_list:
         target_dict = target_dict.get(key, None)
         if not isinstance(target_dict, dict):  # not exist, set to default
             return DriverStats()
-
+    # Add data to DriverStats
     try:
         return DriverStats(**purge_keys(target_dict))
     except (KeyError, ValueError, TypeError):
@@ -116,18 +120,17 @@ def save_driver_stats(
     key_list: tuple[str, ...], stats_update: DriverStats, filepath: str
 ) -> None:
     """Save driver stats"""
+    if not key_list or not all(key_list):  # ignore invalid key name
+        return
     stats_user = load_stats_json_file(
         filepath=filepath,
         filename=STATS_FILENAME,
     )
-
+    # Get data from matching key
     target_dict = stats_user
     for key in key_list:
-        if not key:  # ignore invalid key name
-            return
         target_dict = get_sub_dict(target_dict, key)
-
-    # Update stats data
+    # Update & save new data
     purge_keys(target_dict).update(stats_update.__dict__)
     save_stats_json_file(
         stats_user=stats_user,
@@ -146,7 +149,7 @@ def load_stats_json_file(
             stats_user = json.load(jsonfile)
             if not isinstance(stats_user, dict):
                 raise TypeError
-            return validate_stats_file(stats_user)
+            return stats_user
     except FileNotFoundError:
         logger.info("MISSING: %s stats (%s) data", filename, extension)
     except (AttributeError, TypeError, KeyError, ValueError):

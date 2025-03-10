@@ -44,6 +44,7 @@ from ..setting import cfg
 from ..userfile.driver_stats import (
     STATS_FILENAME,
     DriverStats,
+    validate_stats_file,
     load_stats_json_file,
     save_stats_json_file,
 )
@@ -172,9 +173,11 @@ class DriverStatsViewer(BaseEditor):
     def reload_stats(self):
         """Reload stats data"""
         last_selected_stats_key = self.selected_stats_key
-        self.stats_temp = load_stats_json_file(
-            filepath=cfg.path.config,
-            filename=STATS_FILENAME,
+        self.stats_temp = validate_stats_file(
+            load_stats_json_file(
+                filepath=cfg.path.config,
+                filename=STATS_FILENAME,
+            )
         )
         if self.stats_temp:
             stats_name_list = sorted(self.stats_temp.keys(), key=sort_stats_key)
@@ -252,7 +255,8 @@ class DriverStatsViewer(BaseEditor):
             QMessageBox.warning(self, "Error", "No data selected.")
             return
 
-        if self.selected_stats_key not in self.stats_temp:
+        track_stats = self.stats_temp.get(self.selected_stats_key, None)
+        if not isinstance(track_stats, dict):
             QMessageBox.warning(self, "Error", "No data found.")
             return
 
@@ -263,7 +267,7 @@ class DriverStatsViewer(BaseEditor):
             "This cannot be undone!"
         )
         if self.confirm_operation(message=msg_text):
-            self.stats_temp[self.selected_stats_key].pop(selected_vehicle, None)  # remove from dict
+            track_stats.pop(selected_vehicle, None)  # remove from dict
             save_stats_json_file(
                 stats_user=self.stats_temp,
                 filepath=cfg.path.config,
