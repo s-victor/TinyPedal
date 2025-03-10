@@ -10,8 +10,8 @@ TinyPedal stores global user configuration in `config.json` file, which is used 
 Available settings:  
 * `Application`, can be accessed from `Config` menu in main window, see [Application](#application) section for details.
 * `Compatibility`, can be accessed from `Config` menu in main window, see [Compatibility](#compatibility) section for details.
-* `User path`, can be accessed from `Config` menu in main window, see [User path](#user-path) section for details.
-* `Auto load preset`, can be accessed from `Preset` tab in main window, see [Preset management](#preset-management) section for details.
+* `User path`, can be accessed from `Config` menu in main window, see [User Path](#user-path) section for details.
+* `Auto load preset`, can be accessed from `Preset` tab in main window, see [Preset Management](#preset-management) section for details.
 
 
 # Preset management
@@ -54,41 +54,41 @@ Customization can be done through various configuration dialogs and menus from m
 ## Brands preset
 **Brands preset is used for customizing brand name that matches specific vehicle name.**
 
-Brands preset can be customized by accessing `Vehicle brand editor` from `Tools` menu in main window. See [Vehicle brand editor](#vehicle-brand-editor) section for complete editing guide.
+Brands preset can be customized by accessing `Vehicle brand editor` from `Tools` menu in main window. See [Vehicle Brand Editor](#vehicle-brand-editor) section for complete editing guide.
 
-`brands.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
+`brands.json` preset will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
 
 
 ## Classes preset
 **Classes preset is used for customizing class name and color that matches specific vehicle class.**
 
-Classes preset can be customized by accessing `Vehicle class editor` from `Tools` menu in main window. See [Vehicle class editor](#vehicle-class-editor) section for complete editing guide.
+Classes preset can be customized by accessing `Vehicle class editor` from `Tools` menu in main window. See [Vehicle Class Editor](#vehicle-class-editor) section for complete editing guide.
 
-`classes.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
+`classes.json` preset will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
 
 
 ## Brakes preset
 **Brakes preset is used for customizing brake failure thickness and heatmap style that matches specific vehicle class.**
 
-Brakes preset can be customized by accessing `Brake editor` from `Tools` menu in main window. See [Brake editor](#brake-editor) section for complete editing guide.
+Brakes preset can be customized by accessing `Brake editor` from `Tools` menu in main window. See [Brake Editor](#brake-editor) section for complete editing guide.
 
-`brakes.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
+`brakes.json` preset will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
 
 
 ## Compounds preset
 **Compounds preset is used for customizing tyre compound symbol and heatmap style that matches specific tyre compound.**
 
-Compounds preset can be customized by accessing `Tyre compound editor` from `Tools` menu in main window. See [Tyre compound editor](#tyre-compound-editor) section for complete editing guide.
+Compounds preset can be customized by accessing `Tyre compound editor` from `Tools` menu in main window. See [Tyre Compound Editor](#tyre-compound-editor) section for complete editing guide.
 
-`compounds.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
+`compounds.json` preset will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
 
 
 ## Heatmap preset
 **Heatmap preset is used for customizing heatmap color that matches specific value range of telemetry data, such as brake and tyre temperature.**
 
-Heatmap preset can be customized by accessing `Heatmap editor` from `Tools` menu in main window. See [Heatmap editor](#heatmap-editor) section for complete editing guide.
+Heatmap preset can be customized by accessing `Heatmap editor` from `Tools` menu in main window. See [Heatmap Editor](#heatmap-editor) section for complete editing guide.
 
-`heatmap.json` file will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
+`heatmap.json` preset will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
 
 
 # User files
@@ -98,35 +98,45 @@ TinyPedal generates and saves user session data in specific folders defined in `
 ## Driver stats
 Driver stats data is stored as `JSON` format (.stats extension) under `global user configuration` folder. Driver stats can be viewed with [Driver Stats Viewer](#driver-stats-viewer) from `Tools` menu in main window.
 
-Data recording is handled by [Stats module](#stats-module) in real-time.
+Data recording is handled by [Stats Module](#stats-module).
 
 
 ## Delta best
 Delta best data is stored as `CSV` format (.csv extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
 
+Data recording is handled by [Delta Module](#delta-module).
+
 
 ## Energy delta
 Energy delta data is stored as `CSV` format (.energy extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
+
+Data recording is handled by [Energy Module](#energy-module).
 
 
 ## Fuel delta
 Fuel delta data is stored as `CSV` format (.fuel extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
 
+Data recording is handled by [Fuel Module](#fuel-module).
+
 
 ## Consumption history
 Consumption history data is stored as `CSV` format (.consumption extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
 
-Consumption history file stores lap time and fuel consumption data per `track and vehicle class`, which can be loaded in [Fuel Calculator](#fuel-calculator). Up to 100 most recent lap entries are saved per `track and vehicle class`. Data recording is handled by [Fuel module](#fuel-module).
+Consumption history data stores lap time and fuel consumption data per `track and vehicle class`, which can be loaded in [Fuel Calculator](#fuel-calculator). Up to 100 most recent lap entries are saved per `track and vehicle class`. Data recording is handled by [Fuel Module](#fuel-module).
 
 
 ## Sector best
 Sector best data is stored as `CSV` format (.sector extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
 
+Data recording is handled by [Sectors Module](#sectors-module).
+
 
 ## Track map
 Track map is stored as `SVG` vector image format (.svg extension) under `TinyPedal\trackmap` folder (default). Track map can be viewed with [Track Map Viewer](#track-map-viewer) from `Tools` menu in main window.
 
-The SVG vector map file contains two coordinate paths:
+Data recording is handled by [Mapping Module](#mapping-module).
+
+The SVG vector map data contains two coordinate paths:
 * First is global x,y position path, used for drawing track map.
 * Second is corresponding track distance and elevation path, used for drawing elevation plot.
 
@@ -134,17 +144,17 @@ Each sector position index is also stored in SVG file for finding sector coordin
 
 
 ## Pace notes
-`TinyPedal Pace Notes` file is stored as `TPPN` format (.tppn extension) under `TinyPedal\pacenotes` folder (default). Pace notes can be created or edited with `Track Notes Editor` from `Tools` menu in main window.
+`TinyPedal Pace Notes` data is stored as `TPPN` format (.tppn extension) under `TinyPedal\pacenotes` folder (default). Pace notes can be created or edited with [Track Notes Editor](#track-notes-editor) from `Tools` menu in main window.
 
-Pace notes files are mainly used for playback pace notes sounds for specific tracks.
+Pace notes data is mainly used for playback pace notes sounds for specific tracks.
 
 To allow `auto notes loading` function to work, pace notes file name must match same track map file name.
 
 
 ## Track notes
-`TinyPedal Track Notes` file is stored as `TPTN` format (.tptn extension) under `TinyPedal\tracknotes` folder (default). Track notes can be created or edited with `Track Notes Editor` from `Tools` menu in main window.
+`TinyPedal Track Notes` data is stored as `TPTN` format (.tptn extension) under `TinyPedal\tracknotes` folder (default). Track notes can be created or edited with [Track Notes Editor](#track-notes-editor) from `Tools` menu in main window.
 
-Track notes files are mainly used for displaying corner and section names for specific tracks, or providing additional info at specific track location while driving.
+Track notes data is mainly used for displaying corner and section names for specific tracks, or providing additional info at specific track location while driving.
 
 To allow `auto notes loading` function to work, track notes file name must match same track map file name.
 
@@ -157,7 +167,7 @@ Note: TinyPedal does not provide brand logo image assets, it is up to user to pr
 How to prepare brand logo image:  
 1. Brand logo image should have all transparent borders cropped. For example, in `GIMP` this can be done by selecting `Image` > `Crop to Content`.
 2. Make sure image dimension is not too big, usually around 100 pixel width or height is good enough. Bigger dimension may consume more RAM or exceed maximum supported file size.
-3. Save image to `TinyPedal\brandlogo` folder, image filename must match corresponding `brand name` that defined in `Vehicle brand editor`. For cross-platform compatibility, filename matching is set to be case-sensitive, make sure filename has the same upper or lower case as set in `brand name`.
+3. Save image to `TinyPedal\brandlogo` folder, image filename must match corresponding `brand name` that defined in [Vehicle Brand Editor](#vehicle-brand-editor). For cross-platform compatibility, filename matching is set to be case-sensitive, make sure filename has the same upper or lower case as set in `brand name`.
 4. `Reload` preset to load newly added brand logo images for displaying in overlay.
 
 
@@ -271,7 +281,7 @@ Show confirmation dialog for enabling or disabling all widgets or modules. This 
     enable_auto_load_preset
 Enable `Auto load preset` system to allow auto loading user-defined game-specific preset depends on active game (currently supports `RF2` and `LMU`).
 
-Auto loading preset is triggered when a new or different game is started and active. Auto loading will only trigger once per game change. A preset must be tagged as `primary` for specific game before it can be auto loaded. See [Preset management](#preset-management) section for details.
+Auto loading preset is triggered when a new or different game is started and active. Auto loading will only trigger once per game change. A preset must be tagged as `primary` for specific game before it can be auto loaded. See [Preset Management](#preset-management) section for details.
 
 This option is disabled by default.
 
@@ -354,16 +364,16 @@ To share user path across multiple copies of TinyPedal, user must set path to pl
 **Overlay options can be accessed from `Overlay` menu in main window, or from tray icon menu.**
 
     fixed_position
-Check whether widget is locked at startup. This setting can be toggled from tray icon menu. Valid value: `true`, same as `1`. `false`, same as `0`.
+Check whether widget is locked at startup. This setting can be toggled from tray icon menu.
 
     auto_hide
-Check whether auto hide is enabled. This setting can be toggled from tray icon menu. Valid value: `true`, same as `1`. `false`, same as `0`.
+Check whether auto hide is enabled. This setting can be toggled from tray icon menu.
 
     enable_grid_move
 Enable grid-snap effect while moving widget for easy alignment and repositioning.
 
     vr_compatibility
-Enable widget visibility as windows on taskbar in order to be used in VR via APPs such as `OpenKneeboard`. Valid value: `true`, same as `1`. `false`, same as `0`. Non-VR user should not enable this option.
+Enable widget visibility as windows on taskbar in order to be used in VR via APPs such as `OpenKneeboard`. Non-VR user should not enable this option.
 
 
 ## Shared memory API
@@ -384,7 +394,7 @@ Set access mode for API. Mode value `0` uses copy access and additional data che
 Set process ID string for accessing API from server. Currently this option is only relevant to `RF2`.
 
     enable_active_state_override
-Set `true` to enable `active state` manual override.
+Set `true` to enable `active state` manual override. While enabled, `state overriding` notification will be shown on API status bar from main window.
 
     active_state
 This option overrides local player on-track status check, and updates or stops overlay and data processing accordingly. Set `true` to activate state. Set `false` to deactivate state. This option works only when `enable_active_state_override` enabled.
@@ -443,7 +453,7 @@ Set font weight to replace `font_weight` setting of all widgets. Default selecti
 ## Spectate mode
 **Spectate mode can be accessed from `Spectate` tab in main window.**
 
-Click `Enabled` or `Disabled` button to toggle spectate mode on and off. Note, spectate mode can also be enabled by setting `enable_player_index_override` option to `true` in `Shared Memory API` config.
+Click `Enabled` or `Disabled` button to toggle spectate mode on and off. Note, spectate mode can also be enabled by setting `enable_player_index_override` option to `true` in [Shared Memory API](#shared-memory-api) config.
 
 While Spectate mode is enabled, `double-click` on a player name in the list to access telemetry data and overlay readings from selected player; alternatively, select a player name and click `Spectate` button. Current spectating player name is displayed on top of player name list.
 
@@ -455,7 +465,7 @@ Click `Refresh` button to manually refresh player name list.
 ## Pace notes playback
 **Pace notes playback control panel can be accessed from `Pace Notes` tab in main window.**
 
-Note, `Notes Module` must be enabled to allow pace notes playback.
+Note, [Notes Module](#notes-module) must be enabled to allow pace notes playback.
 
 Click `Playback Enabled` or `Playback Disabled` button to quickly enable or disable pace notes playback. Disabling this option does not affect `Notes Module` or `Pace notes Widget`.
 
@@ -483,9 +493,9 @@ Enable `Manually Select Pace Notes File` check box to disable auto-file-name mat
 
 On the left side is calculation panel, which handles `fuel` and `virtual energy` usage calculation and results display.
 
-Fuel value and unit symbol depend on `Fuel Unit` setting from `Units and symbols` config dialog, `L` = liter, `gal` = gallon. Virtual energy unit is `%` = percentage. Note, after changed `Fuel Unit` setting, it is required to close and reopen `Fuel calculator` in order to update units info for calculation.
+Fuel value and unit symbol depend on `Fuel Unit` setting from [Units And Symbols](#units-and-symbols) config dialog, `L` = liter, `gal` = gallon. Virtual energy unit is `%` = percentage. Note, after changed `Fuel Unit` setting, it is required to close and reopen `Fuel calculator` in order to update units info for calculation.
 
-On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `virtual energy consumption`, `battery drain`, `battery regen`, `tank capacity` data from [consumption history](#consumption-history) data.
+On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `virtual energy consumption`, `battery drain`, `battery regen`, `tank capacity` data from [Consumption History](#consumption-history) data.
 Invalid lap time or consumption data is highlighted in red.
 
 Click `Load Live` button to load or update consumption history from live session to history table and automatically fill in latest data to calculator.
@@ -553,7 +563,7 @@ Show average refueling or replenishing per pit stop, and display warning color i
 ## Driver stats viewer
 **Driver stats viewer can be accessed from `Tools` menu in main window.**
 
-Driver stats viewer is used for viewing [Driver stats](#driver-stats). Note, the viewer only allows limited reset or removal, stat value cannot be edited by design. Any changes will take immediate effect after confirmation, changes cannot be undone.
+Driver stats viewer is used for viewing [Driver Stats](#driver-stats). Note, the viewer only allows limited reset or removal, stat value cannot be edited by design. Any changes will take immediate effect after confirmation, changes cannot be undone.
 
 Driver stats are grouped under specific track name, which can be switched from track name selector on the top.
 
@@ -569,15 +579,15 @@ To remove all stats from a specific vehicle, right-click on vehicle name and sel
 
 To reset personal best lap time to default, right-click on personal best lap time and select `Reset Lap Time`.
 
-`Vehicle` column is vehicle classification info, which is determined by `vehicle_classification` option in [Stats module](#stats-module).
+`Vehicle` column is vehicle classification info, which is determined by `vehicle_classification` option in [Stats Module](#stats-module).
 
 `PB` column is personal best lap time. This value can be reset via right-click menu.
 
-`Km` column is total driven distance in kilometers. Note, `odometer_unit` setting from [Units and symbols](#units-and-symbols) affects how this column is displayed.
+`Km` column is total driven distance in kilometers. Note, `odometer_unit` setting from [Units And Symbols](#units-and-symbols) affects how this column is displayed.
 
 `Hours` column is total time spent in driving (only counts when vehicle speed higher than 1 m/s).
 
-`Liter` column is total fuel consumed. Note, `fuel_unit` setting from [Units and symbols](#units-and-symbols) affects how this column is displayed.
+`Liter` column is total fuel consumed. Note, `fuel_unit` setting from [Units And Symbols](#units-and-symbols) affects how this column is displayed.
 
 `Valid` column is total valid laps completed.
 
@@ -597,7 +607,7 @@ Note, race completion and final standings stats are retrieved at the moment when
 ## Vehicle brand editor
 **Vehicle brand editor can be accessed from `Tools` menu in main window.**
 
-Vehicle brand editor is used for editing [Brands preset](#brands-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
+Vehicle brand editor is used for editing [Brands Preset](#brands-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
 `Vehicle name` is full vehicle name that must match in-game vehicle name.
 
@@ -609,7 +619,7 @@ To import vehicle brand data from `Rest API`, click `Import from` menu, and sele
 
 Game must be running in order to import from `Rest API`. Newly imported data will be appended on top of existing data, existing data will not be changed.
 
-If importing fails while game is running, check if `URL Port` option in `RestAPI` module that matches `WebUI port` value that sets in `LMU` (UserData\player\Settings.JSON) or `RF2` (UserData\player\player.JSON) setting file. See [RestAPI module](#restapi-module) section for details.
+If importing fails while game is running, check if `URL Port` option in `RestAPI` module that matches `WebUI port` value that sets in `LMU` (UserData\player\Settings.JSON) or `RF2` (UserData\player\player.JSON) setting file. See [RestAPI Module](#restapi-module) section for details.
 
 Alternatively, to import vehicle brand data from vehicle `JSON` file, click `Import from` menu, and select `JSON file`.
 
@@ -633,13 +643,13 @@ To remove a brand name, select a vehicle name and click `Delete` button.
 
 To batch replace name, click `Replace` button.
 
-To reset all brands setting to default, click `Reset` button; or manually delete `brands.json` file.
+To reset all brands setting to default, click `Reset` button; or manually delete `brands.json` preset.
 
 
 ## Vehicle class editor
 **Vehicle class editor can be accessed from `Tools` menu in main window.**
 
-Vehicle class editor is used for editing [Classes preset](#classes-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
+Vehicle class editor is used for editing [Classes Preset](#classes-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
 `Class name` column is full vehicle class name that must match in-game vehicle.
 
@@ -653,17 +663,17 @@ To sort class name in orders, click `Sort` button.
 
 To remove class, select one or more rows and click `Delete`.
 
-To reset all classes setting to default, click `Reset` button; or manually delete `classes.json` file.
+To reset all classes setting to default, click `Reset` button; or manually delete `classes.json` preset.
 
 
 ## Brake editor
 **Brake editor can be accessed from `Tools` menu in main window.**
 
-Brake editor is used for editing [Brakes preset](#brakes-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
+Brake editor is used for editing [Brakes Preset](#brakes-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
 `Brake name` column is full vehicle class name plus brake name that must match in-game vehicle.
 
-`Failure Thickness (mm)` column is millimeter thickness threshold at brake failure and affects brake wear calculation. See [Brake wear](#brake-wear) widget for details.
+`Failure Thickness (mm)` column is millimeter thickness threshold at brake failure and affects brake wear calculation. See [Brake Wear](#brake-wear) widget for details.
 
 `Heatmap name` column is heatmap style name selector. Click on heatmap selector to open drop down list and select a heatmap style.
 
@@ -673,13 +683,13 @@ To sort brake name in orders, click `Sort` button.
 
 To remove brake, select one or more rows and click `Delete`.
 
-To reset all brakes setting to default, click `Reset` button; or manually delete `brakes.json` file.
+To reset all brakes setting to default, click `Reset` button; or manually delete `brakes.json` preset.
 
 
 ## Tyre compound editor
 **Tyre compound editor can be accessed from `Tools` menu in main window.**
 
-Tyre compound editor is used for editing [Compounds preset](#compounds-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
+Tyre compound editor is used for editing [Compounds Preset](#compounds-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
 `Compound name` column is full vehicle class name plus full tyre compound name that must match in-game vehicle.
 
@@ -695,13 +705,13 @@ To remove tyre compound, select one or more rows and click `Delete`.
 
 To batch replace name, click `Replace` button.
 
-To reset all tyre compounds setting to default, click `Reset` button; or manually delete `compounds.json` file.
+To reset all tyre compounds setting to default, click `Reset` button; or manually delete `compounds.json` preset.
 
 
 ## Heatmap editor
 **Heatmap editor can be accessed from `Tools` menu in main window.**
 
-Heatmap editor is used for editing [Heatmap preset](#heatmap-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
+Heatmap editor is used for editing [Heatmap Preset](#heatmap-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
 Each row represents a target temperature and corresponding color. First column is temperature degree value in `Celsius`. Second column is corresponding color (HEX code). Double-click on color to open color dialog.
 
@@ -725,15 +735,15 @@ To reset selected heatmap preset, click `Reset` button. Note: only built-in pres
 
 To assign a heatmap preset to specific widget, select corresponding `heatmap name` in widget config dialog.
 
-In case of errors found in `heatmap.json` file, the APP will automatically fall back to built-in default heatmap preset.
+In case of errors found in `heatmap.json` preset, the APP will automatically fall back to built-in default heatmap preset.
 
-To restore all heatmap settings back to default, just delete `heatmap.json` file.
+To restore all heatmap settings back to default, just delete `heatmap.json` preset.
 
 
 ## Track map viewer
 **Track map viewer can be accessed from `Tools` menu in main window.**
 
-To load a track map, click `Load Map` button. Map file name will be displayed alongside if file is successfully loaded. Note, only track map files (.svg extension) that generated from TinyPedal Mapping Module are supported.
+To load a track map, click `Load Map` button. Map file name will be displayed alongside if file is successfully loaded. Note, only track map files (.svg extension) that generated from TinyPedal [Mapping Module](#mapping-module) are supported.
 
 To customize map display, click `Config` button. Note, some display options may require reload track map file to be updated.
 
@@ -951,13 +961,13 @@ Set time delay in seconds to retry connection. Value range in `0` to `60`. Defau
 Enable sectors module.
 
     enable_all_time_best_sectors
-Calculate sectors timing based on all time best sectors and affects `Sectors Widget` display. This option is enabled by default. Set `false` to calculate sectors timing from current session only. Note, both session best and all time best sectors data are saved no matter the setting.
+Calculate sectors timing based on all time best sectors and affects [Sectors](#sectors) widget display. This option is enabled by default. Set `false` to calculate sectors timing from current session only. Note, both session best and all time best sectors data are saved no matter the setting.
 
 
 ## Stats module
 **This module records driver stats data.**
 
-Note, while `enable_player_index_override` or `enable_active_state_override` option is enabled in [Shared memory API](#shared-memory-api), driver stats will not be recorded. Stats are only saved when driver returned to garage.
+Note, while `enable_player_index_override` or `enable_active_state_override` option is enabled in [Shared Memory API](#shared-memory-api), driver stats will not be recorded. Stats are only saved when driver returned to garage.
 
     module_stats
 Enable stats module.
@@ -965,7 +975,7 @@ Enable stats module.
     vehicle_classification
 Set one of the three vehicle classifications where stats will be saved.
 
-`Class - Brand` saves corresponding stats under class and brand name. Make sure to use [Vehicle brand editor](#vehicle-brand-editor) to import brand name. If brand name does not exist, only class name will be used instead.
+`Class - Brand` saves corresponding stats under class and brand name. Make sure to use [Vehicle Brand Editor](#vehicle-brand-editor) to import brand name. If brand name does not exist, only class name will be used instead.
 
 `Class` saves corresponding stats under class name only.
 
@@ -1098,7 +1108,7 @@ Set percentage threshold for counting wheel lock duration under braking. `0.3` m
 Enable automatically heatmap style matching for specific brakes defined in `brakes.json` preset. This option applies matching heatmap style to front and rear brakes separately.
 
     heatmap_name
-Set heatmap preset name that is defined in `heatmap.json` file. Note, this option has no effect while `enable_heatmap_auto_matching` is enabled.
+Set heatmap preset name that is defined in `heatmap.json` preset. Note, this option has no effect while `enable_heatmap_auto_matching` is enabled.
 
     swap_style
 Swap heatmap color between font and background color.
@@ -1131,7 +1141,7 @@ Note, brake maximum thickness (for percentage wear calculation) is retrieved at 
 
 **Notes to brake failure thickness:**
 
-Brake failure thickness is millimeter thickness threshold at brake failure, which affects brake wear calculation accuracy, and can be customized for specific vehicle class in `Brake editor`.
+Brake failure thickness is millimeter thickness threshold at brake failure, which affects brake wear calculation accuracy, and can be customized for specific vehicle class in [Brake Editor](#brake-editor).
 
 For example, if `brake thickness` is `40`mm, and `failure thickness` is `25`mm, then `effective thickness` is `40 - 25 = 15mm`.
 
@@ -2159,7 +2169,7 @@ Set distance circle line width in pixels.
 Auto hides radar display when no nearby vehicles.
 
     auto_hide_in_private_qualifying
-Auto hides radar in private qualifying session, requires both `auto_hide` and `RestAPI Module` enabled.
+Auto hides radar in private qualifying session, requires both `auto_hide` and [RestAPI Module](#restapi-module) enabled.
 
     auto_hide_time_threshold
 Set amount time(unit second) before triggering auto hide. Default is `1` second. Note, this option has no effect while `enable_radar_fade` is enabled.
@@ -2260,10 +2270,10 @@ Highlight the fastest last lap time within the same class if available.
 Show driver's position standing in class.
 
     show_class
-Show vehicle class categories. Class name and color are fully customizable, see [Vehicle class editor](#vehicle-class-editor) section for details.
+Show vehicle class categories. Class name and color are fully customizable, see [Vehicle Class Editor](#vehicle-class-editor) section for details.
 
     show_random_color_for_unknown_class
-Show random color for unknown class name that is not defined in `classes.json`.
+Show random color for unknown class name that is not defined in `classes.json` preset.
 
     class_width
 Set class name display width, value is in chars, 4 = 4 chars wide.
@@ -2493,7 +2503,7 @@ Show total remaining session time.
     show_estimated_laps
 Show estimated total remaining laps (from current lap position towards finish line) based on total remaining session time and local player's lap time pace. This value can be used for adjusting absolute refueling.
 
-Note, this is the same value that used for calculating estimated refueling value in Fuel Module. As with estimation, there may be a margin of error of one lap, and may be affected by other variables such as those mentioned in `Relative finish order` widget.
+Note, this is the same value that used for calculating estimated refueling value in Fuel Module. As with estimation, there may be a margin of error of one lap, and may be affected by other variables such as those mentioned in [Relative Finish Order](#relative-finish-order) widget.
 
 
 ## Slip ratio
@@ -2710,7 +2720,7 @@ Show personal current session best lap time.
 Show personal current stint best lap time.
 
     show_average_pace
-Show personal current average lap time pace, this reading is also used in real-time fuel calculation. Note, additional `average lap time pace` calculation setting can be found in `Delta Module` config. After ESC or session ended, lap time pace reading will be reset, and aligned to `all time personal best lap time` if available.
+Show personal current average lap time pace, this reading is also used in real-time fuel calculation. Note, additional `average lap time pace` calculation setting can be found in [Delta Module](#delta-module) config. After ESC or session ended, lap time pace reading will be reset, and aligned to `all time personal best lap time` if available.
 
 
 ## Track map
@@ -2747,7 +2757,7 @@ Show sector line mark.
 Show vehicle standings info on track map. Note, if `enable_multi_class_styling` is enabled, position in class will be displayed for each vehicle class instead.
 
     enable_multi_class_styling
-Show vehicles in multi-class color styles on map instead. Multi-class color can be customized from [Vehicle class editor](#vehicle-class-editor).
+Show vehicles in multi-class color styles on map instead. Multi-class color can be customized from [Vehicle Class Editor](#vehicle-class-editor).
 
 Note, while multi-class styling is enabled, following color styles will not be displayed:
 `vehicle_color_player`, `vehicle_color_leader`, `vehicle_color_same_lap`, `vehicle_color_laps_ahead`, `vehicle_color_laps_behind`.
@@ -2886,7 +2896,7 @@ Enable automatically heatmap style matching for specific tyre compounds defined 
 Note, separate compounds info for tyres on the same axle is not available from game API, which currently it is not possible to show left and right compounds separately.
 
     heatmap_name
-Set heatmap preset name that is defined in `heatmap.json` file. Note, this option has no effect while `enable_heatmap_auto_matching` is enabled.
+Set heatmap preset name that is defined in `heatmap.json` preset. Note, this option has no effect while `enable_heatmap_auto_matching` is enabled.
 
     show_degree_sign
 Set `true` to show degree sign for each temperature value.
@@ -2916,7 +2926,7 @@ Enable automatically heatmap style matching for specific tyre compounds defined 
 Note, separate compounds info for tyres on the same axle is not available from game API, which currently it is not possible to show left and right compounds separately.
 
     heatmap_name
-Set heatmap preset name that is defined in `heatmap.json` file. Note, this option has no effect while `enable_heatmap_auto_matching` is enabled.
+Set heatmap preset name that is defined in `heatmap.json` preset. Note, this option has no effect while `enable_heatmap_auto_matching` is enabled.
 
     swap_style
 Swap heatmap color between font and background color.
@@ -2954,7 +2964,7 @@ Enable automatically heatmap style matching for specific tyre compounds defined 
 Note, separate compounds info for tyres on the same axle is not available from game API, which currently it is not possible to show left and right compounds separately.
 
     heatmap_name
-Set heatmap preset name that is defined in `heatmap.json` file. Note, this option has no effect while `enable_heatmap_auto_matching` is enabled.
+Set heatmap preset name that is defined in `heatmap.json` preset. Note, this option has no effect while `enable_heatmap_auto_matching` is enabled.
 
     swap_style
 Swap heatmap color between font and background color.
