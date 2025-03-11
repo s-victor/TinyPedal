@@ -41,7 +41,7 @@ from PySide2.QtWidgets import (
     QFrame,
 )
 
-from ..setting import cfg
+from ..setting import ConfigType, cfg
 from ._common import BaseDialog, QSS_EDITOR_BUTTON
 from . config import UserConfig
 from .. import calculation as calc
@@ -334,9 +334,13 @@ class MapView(QWidget):
     def open_config_dialog(self):
         """Open config"""
         _dialog = UserConfig(
-            self, "track_map_viewer", "global",
-            cfg.user.config, cfg.default.config,
-            self.load_config)
+            master=self,
+            key_name="track_map_viewer",
+            cfg_type=ConfigType.GLOBAL,
+            user_setting=cfg.user.config,
+            default_setting=cfg.default.config,
+            reload_func=self.load_config,
+        )
         _dialog.open()
 
     def open_trackmap(self):

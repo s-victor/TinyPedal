@@ -40,7 +40,7 @@ from PySide2.QtWidgets import (
     QDialogButtonBox,
 )
 
-from ..setting import cfg
+from ..setting import FileType, cfg
 from .. import formatter as fmt
 from .. import regex_pattern as rxp
 from .. import validator as val
@@ -147,7 +147,7 @@ class PresetList(QWidget):
     def toggle_autoload(checked):
         """Toggle auto load preset"""
         cfg.application["enable_auto_load_preset"] = checked
-        cfg.save(filetype="config")
+        cfg.save(filetype=FileType.CONFIG)
 
     def set_context_menu(self):
         """Set context menu"""
@@ -180,12 +180,12 @@ class PresetList(QWidget):
         # Set primary preset LMU
         if action == "Set Primary for LMU":
             cfg.primary_preset["LMU"] = selected_preset_name
-            cfg.save(filetype="config")
+            cfg.save(filetype=FileType.CONFIG)
             self.refresh_list()
         # Set primary preset RF2
         elif action == "Set Primary for RF2":
             cfg.primary_preset["RF2"] = selected_preset_name
-            cfg.save(filetype="config")
+            cfg.save(filetype=FileType.CONFIG)
             self.refresh_list()
         # Clear primary preset tag
         elif action == "Clear Primary Tag":
@@ -195,7 +195,7 @@ class PresetList(QWidget):
                     cfg.primary_preset[sim_name] = ""
                     tag_found = True
             if tag_found:
-                cfg.save(filetype="config")
+                cfg.save(filetype=FileType.CONFIG)
                 self.refresh_list()
         # Duplicate preset
         elif action == "Duplicate":

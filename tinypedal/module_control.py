@@ -25,7 +25,7 @@ import logging
 from time import sleep
 from typing import Any, KeysView
 
-from .setting import cfg
+from .setting import ConfigType, cfg
 from . import module
 from . import widget
 
@@ -153,5 +153,5 @@ class ModuleControl:
         return self._imported_modules.keys()
 
 
-mctrl = ModuleControl(module, "module")
-wctrl = ModuleControl(widget, "widget")
+mctrl = ModuleControl(target=module, type_id=ConfigType.MODULE)
+wctrl = ModuleControl(target=widget, type_id=ConfigType.WIDGET)

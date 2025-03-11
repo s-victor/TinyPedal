@@ -35,7 +35,7 @@ from PySide2.QtWidgets import (
 )
 
 from ..api_control import api
-from ..setting import cfg, copy_setting
+from ..setting import FileType, cfg, copy_setting
 from ..module_control import wctrl
 from .. import formatter as fmt
 from ._common import (
@@ -218,7 +218,7 @@ class VehicleClassEditor(BaseEditor):
         """Save setting"""
         self.update_classes_temp()
         cfg.user.classes = copy_setting(self.classes_temp)
-        cfg.save(0, filetype="classes")
+        cfg.save(0, filetype=FileType.CLASSES)
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
         wctrl.reload()

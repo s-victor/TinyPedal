@@ -35,7 +35,7 @@ from PySide2.QtWidgets import (
 )
 
 from ..const import APP_NAME, VERSION, APP_ICON
-from ..setting import cfg
+from ..setting import FileType, cfg
 from ..api_control import api
 from ..overlay_control import octrl
 from ..module_control import mctrl, wctrl
@@ -225,7 +225,7 @@ class AppWindow(QMainWindow):
                 save_changes = True
 
         if save_changes:
-            cfg.save(0, filetype="config")
+            cfg.save(0, filetype=FileType.CONFIG)
 
     def set_status_text(self):
         """Set status text"""

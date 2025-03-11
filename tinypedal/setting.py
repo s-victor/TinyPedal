@@ -31,10 +31,10 @@ from .template.setting_global import GLOBAL_DEFAULT
 from .template.setting_common import COMMON_DEFAULT
 from .template.setting_module import MODULE_DEFAULT
 from .template.setting_widget import WIDGET_DEFAULT
-from .template.setting_classes import CLASSES_DEFAULT
-from .template.setting_heatmap import HEATMAP_DEFAULT
 from .template.setting_brakes import BRAKES_DEFAULT
+from .template.setting_classes import CLASSES_DEFAULT
 from .template.setting_compounds import COMPOUNDS_DEFAULT
+from .template.setting_heatmap import HEATMAP_DEFAULT
 
 from . import regex_pattern as rxp
 from . import validator as val
@@ -55,28 +55,53 @@ from .userfile.json_setting import (
 logger = logging.getLogger(__name__)
 
 
+class ConfigType:
+    """Configuration type constants"""
+
+    __slots__ = ()
+    GLOBAL = "global"
+    PRESET = "preset"
+    MODULE = "module"
+    WIDGET = "widget"
+
+
+class FileType:
+    """File type constants"""
+
+    __slots__ = ()
+    # Setting preset
+    CONFIG = "config"
+    SETTING = "setting"
+    # Style preset
+    BRAKES = "brakes"
+    BRANDS = "brands"
+    CLASSES = "classes"
+    COMPOUNDS = "compounds"
+    HEATMAP = "heatmap"
+
+
 class FileName:
     """File name"""
 
     __slots__ = (
         "config",
         "setting",
-        "classes",
-        "heatmap",
-        "brands",
         "brakes",
+        "brands",
+        "classes",
         "compounds",
+        "heatmap",
         "last_setting",
     )
 
     def __init__(self):
         self.config: str = "config.json"
         self.setting: str = "default.json"
-        self.classes: str = "classes.json"
-        self.heatmap: str = "heatmap.json"
-        self.brands: str = "brands.json"
         self.brakes: str = "brakes.json"
+        self.brands: str = "brands.json"
+        self.classes: str = "classes.json"
         self.compounds: str = "compounds.json"
+        self.heatmap: str = "heatmap.json"
         self.last_setting: str = "None.json"
 
 
@@ -88,26 +113,27 @@ class FilePath:
         "settings",
         "brand_logo",
         "delta_best",
-        "sector_best",
         "energy_delta",
         "fuel_delta",
-        "track_map",
         "pace_notes",
+        "sector_best",
+        "track_map",
         "track_notes",
     )
 
     def __init__(self):
         # Fixed path, reference only
         self.config: str = PATH_GLOBAL
-        # User defined path
+        # User setting path
         self.settings: str = ""
+        # User data path
         self.brand_logo: str = ""
         self.delta_best: str = ""
-        self.sector_best: str = ""
         self.energy_delta: str = ""
         self.fuel_delta: str = ""
-        self.track_map: str = ""
         self.pace_notes: str = ""
+        self.sector_best: str = ""
+        self.track_map: str = ""
         self.track_notes: str = ""
 
     def update(self, user_path: dict, default_path: dict):
@@ -127,34 +153,34 @@ class Preset:
     __slots__ = (
         "config",
         "setting",
-        "classes",
-        "heatmap",
-        "brands",
         "brakes",
+        "brands",
+        "classes",
         "compounds",
+        "heatmap",
         "brands_logo",
     )
 
     def __init__(self):
         self.config: dict | None = None
         self.setting: dict | None = None
-        self.classes: dict | None = None
-        self.heatmap: dict | None = None
-        self.brands: dict | None = None
         self.brakes: dict | None = None
+        self.brands: dict | None = None
+        self.classes: dict | None = None
         self.compounds: dict | None = None
-        self.brands_logo: list | None = None
+        self.heatmap: dict | None = None
+        self.brands_logo: tuple | None = None
 
     def set_default(self):
         """Set default setting"""
         self.set_platform_default(GLOBAL_DEFAULT)
         self.config = MappingProxyType(GLOBAL_DEFAULT)
         self.setting = MappingProxyType({**COMMON_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT})
-        self.classes = MappingProxyType(CLASSES_DEFAULT)
-        self.heatmap = MappingProxyType(HEATMAP_DEFAULT)
-        self.brands = MappingProxyType({})
         self.brakes = MappingProxyType(BRAKES_DEFAULT)
+        self.brands = MappingProxyType({})
+        self.classes = MappingProxyType(CLASSES_DEFAULT)
         self.compounds = MappingProxyType(COMPOUNDS_DEFAULT)
+        self.heatmap = MappingProxyType(HEATMAP_DEFAULT)
 
     @staticmethod
     def set_platform_default(global_def: dict):
@@ -268,6 +294,12 @@ class Setting:
             dict_def=self.default.setting,
         )
         # Load style JSON file
+        self.user.brakes = load_style_json_file(
+            filename=self.filename.brakes,
+            filepath=self.path.settings,
+            dict_def=self.default.brakes,
+            validator=StyleValidator.brakes,
+        )
         self.user.brands = load_style_json_file(
             filename=self.filename.brands,
             filepath=self.path.settings,
@@ -278,12 +310,6 @@ class Setting:
             filepath=self.path.settings,
             dict_def=self.default.classes,
             validator=StyleValidator.classes,
-        )
-        self.user.brakes = load_style_json_file(
-            filename=self.filename.brakes,
-            filepath=self.path.settings,
-            dict_def=self.default.brakes,
-            validator=StyleValidator.brakes,
         )
         self.user.compounds = load_style_json_file(
             filename=self.filename.compounds,
@@ -331,7 +357,7 @@ class Setting:
         """Create default setting"""
         self.user.setting = copy_setting(self.default.setting)
 
-    def save(self, delay: int = 66, filetype: str = "setting", next_task: bool = False):
+    def save(self, delay: int = 66, filetype: str = FileType.SETTING, next_task: bool = False):
         """Save trigger, limit to one save operation for a given period.
 
         Args:
@@ -350,15 +376,15 @@ class Setting:
             if filename is None:  # check file name
                 logger.error("SETTING: invalid file type, skipping")
             elif filename not in self._save_queue:  # add to save queue
-                if filetype == "config":  # save to global config path
+                if filetype == FileType.CONFIG:  # save to global config path
                     filepath = self.path.config
                 else:  # save to settings (preset) path
                     filepath = self.path.settings
                 dict_user = getattr(self.user, filetype)
                 self._save_queue[filename] = (filepath, dict_user)
 
-        for filename in self._save_queue:
-            break  # get next filename in queue
+        for queue_filename, queue_filedata in self._save_queue.items():
+            break  # get next file in queue
         else:
             return
 
@@ -368,7 +394,7 @@ class Setting:
             self.is_saving = True
             threading.Thread(
                 target=self.__saving,
-                args=(filename, *self._save_queue[filename]),
+                args=(queue_filename, *queue_filedata),
             ).start()
 
     def __saving(self, filename: str, filepath: str, dict_user: dict):

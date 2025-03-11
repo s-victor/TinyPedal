@@ -26,13 +26,13 @@ from PySide2.QtCore import Qt
 from PySide2.QtGui import QPixmap
 
 
-def load_brand_logo_list(filepath: str, extension: str = ".png") -> list:
+def load_brand_logo_list(filepath: str, extension: str = ".png") -> tuple:
     """Load brand logo file (*.png) name list"""
-    return [
+    return tuple(
         _filename[:-4] for _filename in os.listdir(filepath)
         if _filename.lower().endswith(extension)
         and os.path.getsize(f"{filepath}{_filename}") < 1024000
-    ]
+    )
 
 
 def exceeded_max_logo_width(

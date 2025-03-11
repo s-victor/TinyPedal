@@ -42,7 +42,7 @@ from PySide2.QtWidgets import (
 )
 
 from ..api_control import api
-from ..setting import cfg, copy_setting
+from ..setting import FileType, cfg, copy_setting
 from ..module_control import wctrl
 from ._common import (
     BaseEditor,
@@ -320,7 +320,7 @@ class VehicleBrandEditor(BaseEditor):
         """Save setting"""
         self.update_brands_temp()
         cfg.user.brands = copy_setting(self.brands_temp)
-        cfg.save(0, filetype="brands")
+        cfg.save(0, filetype=FileType.BRANDS)
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
         wctrl.reload()

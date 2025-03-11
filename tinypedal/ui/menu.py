@@ -26,7 +26,7 @@ from PySide2.QtGui import QDesktopServices
 from PySide2.QtWidgets import QMenu, QAction, QMessageBox
 
 from ..const import LINK_USER_GUIDE, LINK_FAQ
-from ..setting import cfg
+from ..setting import ConfigType, FileType, cfg
 from ..api_control import api
 from ..module_info import minfo
 from ..overlay_control import octrl
@@ -313,7 +313,7 @@ class ConfigMenu(QMenu):
         _dialog = UserConfig(
             master=self.master,
             key_name="application",
-            cfg_type="global",
+            cfg_type=ConfigType.GLOBAL,
             user_setting=cfg.user.config,
             default_setting=cfg.default.config,
             reload_func=self.master.reload_preset,
@@ -325,7 +325,7 @@ class ConfigMenu(QMenu):
         _dialog = UserConfig(
             master=self.master,
             key_name="user_path",
-            cfg_type="global",
+            cfg_type=ConfigType.GLOBAL,
             user_setting=cfg.user.config,
             default_setting=cfg.default.config,
             reload_func=self.master.reload_preset,
@@ -347,7 +347,7 @@ class ConfigMenu(QMenu):
         _dialog = UserConfig(
             master=self.master,
             key_name="units",
-            cfg_type="preset",
+            cfg_type=ConfigType.PRESET,
             user_setting=cfg.user.setting,
             default_setting=cfg.default.setting,
             reload_func=self.master.reload_preset,
@@ -359,7 +359,7 @@ class ConfigMenu(QMenu):
         _dialog = UserConfig(
             master=self.master,
             key_name="shared_memory_api",
-            cfg_type="preset",
+            cfg_type=ConfigType.PRESET,
             user_setting=cfg.user.setting,
             default_setting=cfg.default.setting,
             reload_func=self.master.restart_api,
@@ -371,7 +371,7 @@ class ConfigMenu(QMenu):
         _dialog = UserConfig(
             master=self.master,
             key_name="compatibility",
-            cfg_type="global",
+            cfg_type=ConfigType.GLOBAL,
             user_setting=cfg.user.config,
             default_setting=cfg.default.config,
             reload_func=self.master.reload_preset,
@@ -523,7 +523,7 @@ class WindowMenu(QMenu):
     def __toggle_option(option_name: str):
         """Toggle option"""
         cfg.application[option_name] = not cfg.application[option_name]
-        cfg.save(filetype="config")
+        cfg.save(filetype=FileType.CONFIG)
 
 
 class HelpMenu(QMenu):

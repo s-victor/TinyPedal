@@ -45,7 +45,7 @@ from PySide2.QtWidgets import (
 from .. import regex_pattern as rxp
 from .. import validator as val
 from .. import formatter as fmt
-from ..setting import cfg
+from ..setting import ConfigType, FileType, cfg
 from ._common import (
     BaseDialog,
     DoubleClickEdit,
@@ -153,6 +153,15 @@ class UserConfig(BaseDialog):
     def __init__(
         self, master, key_name: str, cfg_type: str, user_setting: dict,
         default_setting: dict, reload_func: Callable, option_width: int = OPTION_WIDTH):
+        """
+        Args:
+            key_name: config key name.
+            cfg_type: config type name from "ConfigType".
+            user_setting: user setting dictionary, ex. cfg.user.setting.
+            default_setting: default setting dictionary, ex. cfg.default.setting.
+            reload_func: config reload (callback) function.
+            option_width: option column width in pixels.
+        """
         super().__init__(master)
         self.set_config_title(fmt.format_option_name(key_name), set_preset_name(cfg_type))
 
@@ -325,9 +334,9 @@ class UserConfig(BaseDialog):
         if error_found:
             return
         # Save global settings
-        if self.cfg_type == "global":
+        if self.cfg_type == ConfigType.GLOBAL:
             cfg.update_path()
-            cfg.save(0, filetype="config")
+            cfg.save(0, filetype=FileType.CONFIG)
         # Save user preset settings
         else:
             cfg.save(0)
@@ -559,7 +568,7 @@ class UserConfig(BaseDialog):
 
 def set_preset_name(cfg_type: str):
     """Set preset name"""
-    if cfg_type == "global":
+    if cfg_type == ConfigType.GLOBAL:
         return f"{cfg.filename.config} (global)"
     return cfg.filename.last_setting
 
