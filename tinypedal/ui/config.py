@@ -45,7 +45,7 @@ from PySide2.QtWidgets import (
 from .. import regex_pattern as rxp
 from .. import validator as val
 from .. import formatter as fmt
-from ..setting import ConfigType, FileType, cfg
+from ..setting import ConfigType, cfg
 from ._common import (
     BaseDialog,
     DoubleClickEdit,
@@ -334,9 +334,9 @@ class UserConfig(BaseDialog):
         if error_found:
             return
         # Save global settings
-        if self.cfg_type == ConfigType.GLOBAL:
+        if self.cfg_type == ConfigType.CONFIG:
             cfg.update_path()
-            cfg.save(0, filetype=FileType.CONFIG)
+            cfg.save(0, cfg_type=ConfigType.CONFIG)
         # Save user preset settings
         else:
             cfg.save(0)
@@ -568,7 +568,7 @@ class UserConfig(BaseDialog):
 
 def set_preset_name(cfg_type: str):
     """Set preset name"""
-    if cfg_type == ConfigType.GLOBAL:
+    if cfg_type == ConfigType.CONFIG:
         return f"{cfg.filename.config} (global)"
     return cfg.filename.last_setting
 

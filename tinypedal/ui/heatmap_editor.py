@@ -35,7 +35,7 @@ from PySide2.QtWidgets import (
     QMessageBox
 )
 
-from ..setting import FileType, cfg, copy_setting
+from ..setting import ConfigType, cfg, copy_setting
 from ..module_control import wctrl
 from ._common import (
     BaseDialog,
@@ -328,7 +328,7 @@ class HeatmapEditor(BaseEditor):
         # Apply changes to heatmap preset dictionary
         self.heatmap_temp[self.selected_heatmap_key] = self.selected_heatmap_dict
         cfg.user.heatmap = copy_setting(self.heatmap_temp)
-        cfg.save(0, filetype=FileType.HEATMAP)
+        cfg.save(0, cfg_type=ConfigType.HEATMAP)
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
         wctrl.reload()

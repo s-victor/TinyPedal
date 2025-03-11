@@ -336,7 +336,7 @@ class MapView(QWidget):
         _dialog = UserConfig(
             master=self,
             key_name="track_map_viewer",
-            cfg_type=ConfigType.GLOBAL,
+            cfg_type=ConfigType.CONFIG,
             user_setting=cfg.user.config,
             default_setting=cfg.default.config,
             reload_func=self.load_config,

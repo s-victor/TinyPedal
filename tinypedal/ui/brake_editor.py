@@ -36,7 +36,7 @@ from PySide2.QtWidgets import (
 )
 
 from ..api_control import api
-from ..setting import FileType, cfg, copy_setting
+from ..setting import ConfigType, cfg, copy_setting
 from ..module_control import wctrl
 from ..heatmap import set_predefined_brake_name, HEATMAP_DEFAULT_BRAKE
 from ._common import (
@@ -248,7 +248,7 @@ class BrakeEditor(BaseEditor):
         """Save setting"""
         self.update_brakes_temp()
         cfg.user.brakes = copy_setting(self.brakes_temp)
-        cfg.save(0, filetype=FileType.BRAKES)
+        cfg.save(0, cfg_type=ConfigType.BRAKES)
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
         wctrl.reload()

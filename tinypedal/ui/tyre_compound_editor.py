@@ -36,7 +36,7 @@ from PySide2.QtWidgets import (
 )
 
 from ..api_control import api
-from ..setting import FileType, cfg, copy_setting
+from ..setting import ConfigType, cfg, copy_setting
 from ..module_control import wctrl
 from ..heatmap import set_predefined_compound_symbol, HEATMAP_DEFAULT_TYRE
 from ._common import (
@@ -259,7 +259,7 @@ class TyreCompoundEditor(BaseEditor):
         """Save setting"""
         self.update_compounds_temp()
         cfg.user.compounds = copy_setting(self.compounds_temp)
-        cfg.save(0, filetype=FileType.COMPOUNDS)
+        cfg.save(0, cfg_type=ConfigType.COMPOUNDS)
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
         wctrl.reload()

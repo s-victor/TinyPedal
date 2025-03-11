@@ -59,19 +59,12 @@ class ConfigType:
     """Configuration type constants"""
 
     __slots__ = ()
-    GLOBAL = "global"
-    PRESET = "preset"
-    MODULE = "module"
-    WIDGET = "widget"
-
-
-class FileType:
-    """File type constants"""
-
-    __slots__ = ()
     # Setting preset
     CONFIG = "config"
     SETTING = "setting"
+    # Module ID
+    MODULE = "module"
+    WIDGET = "widget"
     # Style preset
     BRAKES = "brakes"
     BRANDS = "brands"
@@ -357,30 +350,28 @@ class Setting:
         """Create default setting"""
         self.user.setting = copy_setting(self.default.setting)
 
-    def save(self, delay: int = 66, filetype: str = FileType.SETTING, next_task: bool = False):
+    def save(self, delay: int = 66, cfg_type: str = ConfigType.SETTING, next_task: bool = False):
         """Save trigger, limit to one save operation for a given period.
 
         Args:
             count:
                 Set time delay(count) that can be refreshed before starting saving thread.
                 Default is roughly one sec delay, use 0 for instant saving.
-            filetype:
-                Global: "config".
-                Preset: "setting".
-                Styles: "brands", "classes", "heatmap".
+            cfg_type:
+                Set saving config type.
             next_task:
                 Skip adding save task, run next save task in queue.
         """
         if not next_task:
-            filename = getattr(self.filename, filetype, None)
-            if filename is None:  # check file name
-                logger.error("SETTING: invalid file type, skipping")
+            filename = getattr(self.filename, cfg_type, None)
+            if filename is None:  # check if valid file name
+                logger.error("SETTING: invalid config type, skipping")
             elif filename not in self._save_queue:  # add to save queue
-                if filetype == FileType.CONFIG:  # save to global config path
+                if cfg_type == ConfigType.CONFIG:  # save to global config path
                     filepath = self.path.config
                 else:  # save to settings (preset) path
                     filepath = self.path.settings
-                dict_user = getattr(self.user, filetype)
+                dict_user = getattr(self.user, cfg_type)
                 self._save_queue[filename] = (filepath, dict_user)
 
         for queue_filename, queue_filedata in self._save_queue.items():
