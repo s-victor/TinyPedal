@@ -18,11 +18,9 @@
 
 """
 API data adapter
-
-To create new API adapter, duplicate rfactor2.py and fill in entries.
 """
 
-from pyRfactor2SharedMemory import rF2MMap
+from . import rf2_connector
 
 
 class DataAdapter:
@@ -36,7 +34,7 @@ class DataAdapter:
         "info",
     )
 
-    def __init__(self, info: rF2MMap.RF2SM) -> None:
+    def __init__(self, info: rf2_connector.RF2Info) -> None:
         """Initialize API setting
 
         Args:

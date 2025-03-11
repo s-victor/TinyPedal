@@ -17,7 +17,7 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Data set for rFactor 2
+rF2 API data set
 
 Notes:
     Convert all temperature (kelvin) to Celsius before output.

@@ -25,44 +25,43 @@ from functools import partial
 from typing import NamedTuple
 
 # Import APIs
-from pyRfactor2SharedMemory import rF2MMap
-from .adapter import rfactor2
-from .regex_pattern import API_NAME_RF2, API_NAME_LMU
 from . import validator as val
+from .adapter import rf2_connector, rf2_data
+from .regex_pattern import API_NAME_RF2, API_NAME_LMU
 
 
 class APIDataSet(NamedTuple):
     """API data set"""
 
-    check: rfactor2.Check
-    brake: rfactor2.Brake
-    emotor: rfactor2.ElectricMotor
-    engine: rfactor2.Engine
-    inputs: rfactor2.Inputs
-    lap: rfactor2.Lap
-    session: rfactor2.Session
-    switch: rfactor2.Switch
-    timing: rfactor2.Timing
-    tyre: rfactor2.Tyre
-    vehicle: rfactor2.Vehicle
-    wheel: rfactor2.Wheel
+    check: rf2_data.Check
+    brake: rf2_data.Brake
+    emotor: rf2_data.ElectricMotor
+    engine: rf2_data.Engine
+    inputs: rf2_data.Inputs
+    lap: rf2_data.Lap
+    session: rf2_data.Session
+    switch: rf2_data.Switch
+    timing: rf2_data.Timing
+    tyre: rf2_data.Tyre
+    vehicle: rf2_data.Vehicle
+    wheel: rf2_data.Wheel
 
 
-def set_dataset_rf2(info: rF2MMap.RF2SM) -> APIDataSet:
+def set_dataset_rf2(info: rf2_connector.RF2Info) -> APIDataSet:
     """Set API data set - RF2"""
     return APIDataSet(
-        rfactor2.Check(info),
-        rfactor2.Brake(info),
-        rfactor2.ElectricMotor(info),
-        rfactor2.Engine(info),
-        rfactor2.Inputs(info),
-        rfactor2.Lap(info),
-        rfactor2.Session(info),
-        rfactor2.Switch(info),
-        rfactor2.Timing(info),
-        rfactor2.Tyre(info),
-        rfactor2.Vehicle(info),
-        rfactor2.Wheel(info),
+        rf2_data.Check(info),
+        rf2_data.Brake(info),
+        rf2_data.ElectricMotor(info),
+        rf2_data.Engine(info),
+        rf2_data.Inputs(info),
+        rf2_data.Lap(info),
+        rf2_data.Session(info),
+        rf2_data.Switch(info),
+        rf2_data.Timing(info),
+        rf2_data.Tyre(info),
+        rf2_data.Vehicle(info),
+        rf2_data.Wheel(info),
     )
 
 
@@ -97,7 +96,7 @@ class SimRF2(Connector):
     NAME = API_NAME_RF2
 
     def __init__(self):
-        self.info = rF2MMap.RF2SM()
+        self.info = rf2_connector.RF2Info()
 
     def start(self):
         self.info.start()
@@ -113,7 +112,7 @@ class SimRF2(Connector):
         self.info.setPID(config[1])
         self.info.setPlayerOverride(config[2])
         self.info.setPlayerIndex(config[3])
-        rfactor2.cs2py = partial(val.cbytes2str, char_encoding=config[4])
+        rf2_data.cs2py = partial(val.cbytes2str, char_encoding=config[4])
 
 
 class SimLMU(Connector):
@@ -123,7 +122,7 @@ class SimLMU(Connector):
     NAME = API_NAME_LMU
 
     def __init__(self):
-        self.info = rF2MMap.RF2SM()
+        self.info = rf2_connector.RF2Info()
 
     def start(self):
         self.info.start()
@@ -139,7 +138,7 @@ class SimLMU(Connector):
         self.info.setPID(config[1])
         self.info.setPlayerOverride(config[2])
         self.info.setPlayerIndex(config[3])
-        rfactor2.cs2py = partial(val.cbytes2str, char_encoding=config[4])
+        rf2_data.cs2py = partial(val.cbytes2str, char_encoding=config[4])
 
 
 # Add new API to API_PACK
