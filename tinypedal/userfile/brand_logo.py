@@ -26,15 +26,6 @@ from PySide2.QtCore import Qt
 from PySide2.QtGui import QPixmap
 
 
-def load_brand_logo_list(filepath: str, extension: str = ".png") -> tuple:
-    """Load brand logo file (*.png) name list"""
-    return tuple(
-        _filename[:-4] for _filename in os.listdir(filepath)
-        if _filename.lower().endswith(extension)
-        and os.path.getsize(f"{filepath}{_filename}") < 1024000
-    )
-
-
 def exceeded_max_logo_width(
     org_width: int, org_height: int, max_width: int, max_height: int) -> bool:
     """Whether exceeded max logo width"""
@@ -45,11 +36,14 @@ def load_brand_logo_file(
     filepath:str, filename: str, max_width: int, max_height: int, extension: str = ".png"
     ) -> QPixmap:
     """Load brand logo file (*.png)"""
-    logo = QPixmap(f"{filepath}{filename}{extension}")
+    filename_full = f"{filepath}{filename}{extension}"
+    # Check existing file and size < 1mb
+    if not os.path.exists(filename_full) or os.path.getsize(filename_full) > 1024000:
+        return QPixmap()
+    # Load and scale logo
+    logo = QPixmap(filename_full)
     if exceeded_max_logo_width(logo.width(), logo.height(), max_width, max_height):
-        logo_scaled = logo.scaledToWidth(
-            max_width, mode=Qt.SmoothTransformation)
+        logo_scaled = logo.scaledToWidth(max_width, mode=Qt.SmoothTransformation)
     else:
-        logo_scaled = logo.scaledToHeight(
-            max_height, mode=Qt.SmoothTransformation)
+        logo_scaled = logo.scaledToHeight(max_height, mode=Qt.SmoothTransformation)
     return logo_scaled

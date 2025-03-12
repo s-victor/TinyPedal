@@ -21,7 +21,6 @@ Overlay base window, events.
 """
 
 from __future__ import annotations
-import re
 from typing import Any, NamedTuple
 
 from PySide2.QtCore import Qt, Slot, QBasicTimer
@@ -30,7 +29,7 @@ from PySide2.QtWidgets import QWidget, QLabel, QLayout, QGridLayout
 
 from .. import regex_pattern as rxp
 from ..const import APP_NAME
-from ..overlay_control import octrl, OverlayState
+from ..overlay_control import octrl
 from ..setting import Setting
 
 FONT_WEIGHT_LIST = rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT]
@@ -43,17 +42,17 @@ class Overlay(QWidget):
         super().__init__()
         self.widget_name = widget_name
         self.closed = False
-        self.state: OverlayState = octrl.state
+        self.state = octrl.state
 
         # Base config
         self.cfg = config
 
         # Widget config
-        self.wcfg: dict = self.cfg.user.setting[self.widget_name]
+        self.wcfg: dict = self.cfg.user.setting[widget_name]
         validate_column_order(self.wcfg)
 
         # Base setting
-        self.setWindowTitle(f"{APP_NAME} - {self.widget_name.capitalize()}")
+        self.setWindowTitle(f"{APP_NAME} - {widget_name.capitalize()}")
         self.move(self.wcfg["position_x"], self.wcfg["position_y"])
 
         # Widget mouse event
@@ -89,7 +88,7 @@ class Overlay(QWidget):
         """Unload resource (such as images) on close, can re-implement in widget"""
         instance_var_list = dir(self)
         for var in instance_var_list:
-            if re.search("pixmap_", var):  # unload all pixmap
+            if var.startswith("pixmap_"):  # unload all pixmap instance
                 setattr(self, var, None)
 
     def __set_window_attributes(self):
@@ -534,7 +533,7 @@ def validate_column_order(config: dict):
     """Validate column/row index order, correct any overlapping indexes"""
     column_set = []
     for key in config.keys():
-        if re.search("column_index", key):
+        if key.startswith("column_index"):
             while config[key] in column_set:
                 config[key] += 1
             column_set.append(config[key])

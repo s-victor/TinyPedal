@@ -84,7 +84,7 @@ class About(BaseDialog):
         return main_tab
 
     @staticmethod
-    def load_text_files(filepath):
+    def load_text_files(filepath: str):
         """Load text file"""
         try:
             with open(filepath, "r", encoding="utf-8") as text_file:
@@ -96,7 +96,7 @@ class About(BaseDialog):
             return f"{error_text} \n{link_text}{filepath}"
 
     @staticmethod
-    def new_text_tab(text):
+    def new_text_tab(text: str):
         """New text tab"""
         new_tab = QTextBrowser()
         new_tab.setText(text)

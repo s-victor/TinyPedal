@@ -40,7 +40,6 @@ from . import regex_pattern as rxp
 from . import validator as val
 from .const import APP_NAME, PLATFORM, PATH_GLOBAL
 from .setting_validator import StyleValidator
-from .userfile.brand_logo import load_brand_logo_list
 from .userfile.json_setting import (
     copy_setting,
     save_json_file,
@@ -151,7 +150,6 @@ class Preset:
         "classes",
         "compounds",
         "heatmap",
-        "brands_logo",
     )
 
     def __init__(self):
@@ -162,7 +160,6 @@ class Preset:
         self.classes: dict | None = None
         self.compounds: dict | None = None
         self.heatmap: dict | None = None
-        self.brands_logo: tuple | None = None
 
     def set_default(self):
         """Set default setting"""
@@ -315,9 +312,6 @@ class Setting:
             filepath=self.path.settings,
             dict_def=self.default.heatmap,
             check_missing=True,
-        )
-        self.user.brands_logo = load_brand_logo_list(
-            filepath=self.path.brand_logo,
         )
         # Assign base setting
         self.overlay = self.user.setting["overlay"]

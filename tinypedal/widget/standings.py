@@ -20,8 +20,6 @@
 Standings Widget
 """
 
-from PySide2.QtGui import QPixmap
-
 from .. import calculation as calc
 from .. import formatter as fmt
 from .. import heatmap as hmp
@@ -89,7 +87,7 @@ class Realtime(Overlay):
             (-999,0,0,2),  # pit_count
             ("",0,2),  # time_int
         )
-        self.pixmap_brandlogo = {"blank": QPixmap()}
+        self.pixmap_brandlogo = {}
         self.row_visible = [False] * self.veh_range
         self.row_visible[0] = True
 
@@ -626,19 +624,16 @@ class Realtime(Overlay):
         else:
             target.hide()
 
-    def set_brand_logo(self, brand_name):
+    def set_brand_logo(self, brand_name: str):
         """Set brand logo"""
-        if brand_name in self.pixmap_brandlogo:  # cached logo
-            return self.pixmap_brandlogo[brand_name]
-        if brand_name in self.cfg.user.brands_logo:  # add to cache
+        if brand_name not in self.pixmap_brandlogo:  # load & cache logo
             self.pixmap_brandlogo[brand_name] = load_brand_logo_file(
                 filepath=self.cfg.path.brand_logo,
                 filename=brand_name,
                 max_width=self.brd_width,
                 max_height=self.brd_height,
             )
-            return self.pixmap_brandlogo[brand_name]
-        return self.pixmap_brandlogo["blank"]  # load blank if unavailable
+        return self.pixmap_brandlogo[brand_name]
 
     @staticmethod
     def set_pitcount(pits):
