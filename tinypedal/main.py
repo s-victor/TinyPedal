@@ -86,7 +86,7 @@ def is_exe_running() -> bool:
     return False
 
 
-def single_instance_check(root: QApplication, is_single_instance: bool):
+def single_instance_check(is_single_instance: bool):
     """Single instance check"""
     # Check if single instance mode enabled
     if not is_single_instance:
@@ -104,7 +104,7 @@ def single_instance_check(root: QApplication, is_single_instance: bool):
         "Check system tray for hidden icon."
     )
     logger.warning(warning_text)
-    QMessageBox.warning(root, f"{APP_NAME} v{VERSION}", warning_text)
+    QMessageBox.warning(None, f"{APP_NAME} v{VERSION}", warning_text)
     sys.exit()
 
 
@@ -134,7 +134,7 @@ def start_app():
     set_logging_level(logger, log_stream, cli_args.log_level)
     # Main GUI
     root = init_gui()
-    single_instance_check(root, cli_args.single_instance)
+    single_instance_check(cli_args.single_instance)
     version_check()
     # Load core modules
     from . import loader
