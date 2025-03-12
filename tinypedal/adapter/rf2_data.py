@@ -40,11 +40,6 @@ from ..calculation import (
 chknm = val.infnan2zero
 cs2py = val.cbytes2str
 
-# 0 = TESTDAY, 1 = PRACTICE, 2 = QUALIFY, 3 = WARMUP, 4 = RACE
-RF2_SESSION_TYPE = (0, 1, 1, 1, 1, 2, 2, 2, 2, 3, 4, 4, 4, 4, 0, 0, 0, 0)
-# Sector index 0 = S3, index 1 = S1, index 2 = S2
-RF2_SECTORS = (2, 0, 1, 0, 0, 0, 0)
-
 
 class Check(DataAdapter):
     """Check"""
@@ -125,7 +120,16 @@ class ElectricMotor(DataAdapter):
 
     def state(self, index: int | None = None) -> int:
         """Motor state, 0 = n/a, 1 = off, 2 = drain, 3 = regen"""
-        return chknm(self.info.rf2TeleVeh(index).mElectricBoostMotorState)
+        state = self.info.rf2TeleVeh(index).mElectricBoostMotorState
+        if state == 0:
+            return 0
+        if state == 1:
+            return 1
+        if state == 2:
+            return 2
+        if state == 3:
+            return 3
+        return 0
 
     def battery_charge(self, index: int | None = None) -> float:
         """Battery charge (fraction)"""
@@ -272,8 +276,14 @@ class Lap(DataAdapter):
         return chknm(self.info.rf2ScorInfo.mMaxLaps)
 
     def sector_index(self, index: int | None = None) -> int:
-        """Sector index, convert to 0,1,2 order"""
-        return RF2_SECTORS[int(chknm(self.info.rf2ScorVeh(index).mSector))]
+        """Sector index, 0 = S1, 1 = S2, 2 = S3"""
+        # RF2 sector index 0 = S3, index 1 = S1, index 2 = S2
+        sector = self.info.rf2ScorVeh(index).mSector
+        if sector == 0:
+            return 2
+        if sector == 1:
+            return 0
+        return 1
 
     def behind_leader(self, index: int | None = None) -> int:
         """Laps behind leader"""
@@ -306,8 +316,17 @@ class Session(DataAdapter):
         return self.end() - self.elapsed()
 
     def session_type(self) -> int:
-        """Session type"""
-        return RF2_SESSION_TYPE[int(chknm(self.info.rf2ScorInfo.mSession))]
+        """Session type, 0 = TESTDAY, 1 = PRACTICE, 2 = QUALIFY, 3 = WARMUP, 4 = RACE"""
+        session = self.info.rf2ScorInfo.mSession
+        if session >= 10:  # race
+            return 4
+        if session == 9:  # warmup
+            return 3
+        if session >= 5:  # qualify
+            return 2
+        if session >= 1:  # practice
+            return 1
+        return 0  # test day
 
     def lap_type(self) -> bool:
         """Is lap type session, false for time type"""
@@ -656,11 +675,31 @@ class Vehicle(DataAdapter):
 
     def pit_state(self, index: int | None = None) -> int:
         """Pit state, 0 = none, 1 = request, 2 = entering, 3 = stopped, 4 = exiting"""
-        return chknm(self.info.rf2ScorVeh(index).mPitState)
+        state = self.info.rf2ScorVeh(index).mPitState
+        if state == 0:
+            return 0
+        if state == 1:
+            return 1
+        if state == 2:
+            return 2
+        if state == 3:
+            return 3
+        if state == 4:
+            return 4
+        return 0
 
     def finish_state(self, index: int | None = None) -> int:
         """Finish state, 0 = none, 1 = finished, 2 = DNF, 3 = DQ"""
-        return chknm(self.info.rf2ScorVeh(index).mFinishStatus)
+        state = self.info.rf2ScorVeh(index).mFinishStatus
+        if state == 0:
+            return 0
+        if state == 1:
+            return 1
+        if state == 2:
+            return 2
+        if state == 3:
+            return 3
+        return 0
 
     def fuel(self, index: int | None = None) -> float:
         """Remaining fuel (liters)"""
