@@ -27,10 +27,14 @@ from PySide2.QtWidgets import (
     QDialogButtonBox,
     QTextBrowser,
     QPushButton,
+    QFileDialog,
+    QMessageBox,
 )
 
 from .. import log_stream
-from ._common import BaseDialog
+from ..const import LOG_FILE
+from ..file_constants import QFILTER
+from ._common import BaseDialog, QSS_EDITOR_BUTTON
 
 
 class LogInfo(BaseDialog):
@@ -49,14 +53,29 @@ class LogInfo(BaseDialog):
         # Button
         button_refresh = QPushButton("Refresh")
         button_refresh.clicked.connect(self.refresh_log)
+        button_refresh.setStyleSheet(QSS_EDITOR_BUTTON)
+
+        button_save = QPushButton("Save")
+        button_save.clicked.connect(self.save_log)
+        button_save.setStyleSheet(QSS_EDITOR_BUTTON)
+
+        button_copy = QPushButton("Copy")
+        button_copy.clicked.connect(self.copy_log)
+        button_copy.setStyleSheet(QSS_EDITOR_BUTTON)
+
         button_clear = QPushButton("Clear")
         button_clear.clicked.connect(self.clear_log)
+        button_clear.setStyleSheet(QSS_EDITOR_BUTTON)
+
         button_close = QDialogButtonBox(QDialogButtonBox.Close)
         button_close.rejected.connect(self.reject)
+        button_close.setStyleSheet(QSS_EDITOR_BUTTON)
 
         # Layout
         layout_button = QHBoxLayout()
         layout_button.addWidget(button_refresh)
+        layout_button.addWidget(button_save)
+        layout_button.addWidget(button_copy)
         layout_button.addWidget(button_clear)
         layout_button.addWidget(button_close)
         layout_button.setContentsMargins(5,5,5,5)
@@ -74,6 +93,28 @@ class LogInfo(BaseDialog):
 
     def clear_log(self):
         """Clear log"""
-        log_stream.truncate(0)
-        log_stream.seek(0)
-        self.refresh_log()
+        if self.confirm_operation(message="Are you sure to clear all log?"):
+            log_stream.truncate(0)
+            log_stream.seek(0)
+            self.refresh_log()
+
+    def copy_log(self):
+        """Copy log"""
+        self.log_view.selectAll()
+        self.log_view.copy()
+        QMessageBox.information(self, "Copy", "Copied all log to Clipboard.")
+
+    def save_log(self):
+        """Save log"""
+        filename_full = QFileDialog.getSaveFileName(
+            self,
+            dir=LOG_FILE,
+            filter=";;".join((QFILTER.LOG, QFILTER.TXT, QFILTER.ALL)),
+        )[0]
+        if not filename_full:
+            return
+        with open(filename_full, "w", newline="", encoding="utf-8") as log_file:
+            log_stream.seek(0)
+            log_file.writelines(log_stream)
+        # Set back to end
+        log_stream.seek(2)

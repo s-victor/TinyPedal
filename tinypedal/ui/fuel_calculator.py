@@ -51,7 +51,8 @@ from ..setting import cfg
 from ..module_info import minfo, ConsumptionDataSet
 from .. import calculation as calc
 from .. import formatter as fmt
-from ..userfile.fuel_delta import load_consumption_history_file, QFILTER_CONSUMPTION
+from ..file_constants import QFILTER
+from ..userfile.fuel_delta import load_consumption_history_file
 from ._common import BaseDialog
 
 READ_ONLY_COLOR = QPalette().window().color().name(QColor.HexRgb)
@@ -174,7 +175,7 @@ class FuelCalculator(BaseDialog):
         filename_full = QFileDialog.getOpenFileName(
             self,
             dir=cfg.path.fuel_delta,
-            filter=QFILTER_CONSUMPTION
+            filter=";;".join((QFILTER.CONSUMPTION, QFILTER.CSV))
         )[0]
         if not filename_full:
             return

@@ -40,6 +40,7 @@ from PySide2.QtWidgets import (
     QDialogButtonBox,
 )
 
+from ..file_constants import FILE_EXT
 from ..setting import ConfigType, cfg
 from .. import formatter as fmt
 from .. import regex_pattern as rxp
@@ -131,7 +132,7 @@ class PresetList(QWidget):
         """Load selected preset"""
         selected_index = self.listbox_preset.currentRow()
         if selected_index >= 0:
-            cfg.filename.setting = f"{self.preset_list[selected_index]}.json"
+            cfg.filename.setting = f"{self.preset_list[selected_index]}{FILE_EXT.JSON}"
             self.master.reload_preset()
         else:
             QMessageBox.warning(
@@ -174,7 +175,7 @@ class PresetList(QWidget):
 
         selected_index = self.listbox_preset.currentRow()
         selected_preset_name = self.preset_list[selected_index]
-        selected_filename = f"{selected_preset_name}.json"
+        selected_filename = f"{selected_preset_name}{FILE_EXT.JSON}"
         action = selected_action.text()
 
         # Set primary preset LMU
@@ -271,7 +272,7 @@ class CreatePreset(BaseDialog):
 
     def creating(self):
         """Creating new preset"""
-        entered_filename = fmt.strip_filename_extension(self.preset_entry.text(), ".json")
+        entered_filename = fmt.strip_filename_extension(self.preset_entry.text(), FILE_EXT.JSON)
 
         if val.allowed_filename(rxp.CFG_INVALID_FILENAME, entered_filename):
             self.__saving(cfg.path.settings, entered_filename, self.source_filename)
@@ -290,24 +291,24 @@ class CreatePreset(BaseDialog):
         if self.edit_mode == "duplicate":
             shutil.copy(
                 f"{filepath}{source_filename}",
-                f"{filepath}{entered_filename}.json"
+                f"{filepath}{entered_filename}{FILE_EXT.JSON}"
             )
             self.master.refresh_list()
         # Rename preset
         elif self.edit_mode == "rename":
             os.rename(
                 f"{filepath}{source_filename}",
-                f"{filepath}{entered_filename}.json"
+                f"{filepath}{entered_filename}{FILE_EXT.JSON}"
             )
             # Reload if renamed file was loaded
             if cfg.filename.setting == source_filename:
-                cfg.filename.setting = f"{entered_filename}.json"
+                cfg.filename.setting = f"{entered_filename}{FILE_EXT.JSON}"
                 self.master.master.reload_preset()
             else:
                 self.master.refresh_list()
         # Create new preset
         else:
-            cfg.filename.setting = f"{entered_filename}.json"
+            cfg.filename.setting = f"{entered_filename}{FILE_EXT.JSON}"
             cfg.create()
             cfg.save(0)  # save setting
             while cfg.is_saving:  # wait saving finish

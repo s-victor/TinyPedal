@@ -44,6 +44,7 @@ from PySide2.QtWidgets import (
 from ..api_control import api
 from ..setting import ConfigType, cfg, copy_setting
 from ..module_control import wctrl
+from ..file_constants import QFILTER
 from ._common import (
     BaseEditor,
     TableBatchReplace,
@@ -199,22 +200,22 @@ class VehicleBrandEditor(BaseEditor):
 
     def import_from_file(self):
         """Import brand from file"""
-        veh_file_data = QFileDialog.getOpenFileName(self, filter="*.json")
-        if not veh_file_data[0]:
+        filename_full = QFileDialog.getOpenFileName(self, filter=QFILTER.JSON)[0]
+        if not filename_full:
             return
 
         try:
             # Limit import file size under 5120kb
-            if os.path.getsize(veh_file_data[0]) > 5120000:
+            if os.path.getsize(filename_full) > 5120000:
                 raise TypeError
             # Load JSON
-            with open(veh_file_data[0], "r", encoding="utf-8") as jsonfile:
+            with open(filename_full, "r", encoding="utf-8") as jsonfile:
                 dict_vehicles = json.load(jsonfile)
                 self.parse_brand_data(dict_vehicles)
 
         except (AttributeError, IndexError, KeyError, TypeError,
                 FileNotFoundError, ValueError, OSError):
-            logger.error("Failed importing %s", veh_file_data[0])
+            logger.error("Failed importing %s", filename_full)
             msg_text = "Cannot import selected file.<br><br>Invalid vehicle data file."
             QMessageBox.warning(self, "Error", msg_text)
 

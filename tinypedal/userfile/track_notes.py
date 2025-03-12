@@ -29,7 +29,7 @@ from operator import itemgetter
 from collections.abc import Callable
 from typing import Any, Iterable
 
-from ..formatter import qfile_filter
+from ..file_constants import QFILTER
 
 NOTESTYPE_PACE = "Pace Notes"
 NOTESTYPE_TRACK = "Track Notes"
@@ -44,13 +44,6 @@ HEADER_TRACK_NOTES = COLUMN_DISTANCE, COLUMN_TRACKNOTE, COLUMN_COMMENT
 
 METADATA_FIELDNAMES = "TITLE", "AUTHOR", "DATE", "DESCRIPTION"
 
-QFILTER_TPPN = qfile_filter(".tppn", "TinyPedal Pace Notes")
-QFILTER_TPTN = qfile_filter(".tptn", "TinyPedal Track Notes")
-QFILTER_GPLINI = qfile_filter(".ini", "GPL Pace Notes")
-QFILTER_CSV = qfile_filter(".csv", "CSV files")
-QFILTER_INI = qfile_filter(".ini", "INI files")
-QFILTER_ALL = qfile_filter(".*", "All files")
-
 CRLF = "\r\n"
 
 logger = logging.getLogger(__name__)
@@ -60,10 +53,10 @@ def set_notes_filter(notes_type: str) -> str:
     """Set notes file filter"""
     if notes_type == NOTESTYPE_PACE:
         return ";;".join(
-            (QFILTER_TPPN,QFILTER_GPLINI,QFILTER_CSV,QFILTER_INI,QFILTER_ALL)
+            (QFILTER.TPPN,QFILTER.GPLINI,QFILTER.CSV,QFILTER.INI,QFILTER.ALL)
         )
     return ";;".join(
-        (QFILTER_TPTN,QFILTER_CSV,QFILTER_INI,QFILTER_ALL)
+        (QFILTER.TPTN,QFILTER.CSV,QFILTER.INI,QFILTER.ALL)
     )
 
 
@@ -76,14 +69,14 @@ def set_notes_header(notes_type: str) -> tuple[str, ...]:
 
 def set_notes_parser(file_filter: str) -> Callable:
     """Set notes parser"""
-    if file_filter == QFILTER_GPLINI:
+    if file_filter == QFILTER.GPLINI:
         return parse_gpl_notes
     return parse_csv_notes
 
 
 def set_notes_writer(file_filter: str) -> Callable:
     """Set notes writer"""
-    if file_filter == QFILTER_GPLINI:
+    if file_filter == QFILTER.GPLINI:
         return write_gpl_notes
     return write_csv_notes
 

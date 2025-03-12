@@ -55,8 +55,8 @@ from PySide2.QtWidgets import (
 )
 
 from .. import validator as val
-from .. import formatter as fmt
 from ..const import APP_NAME, APP_ICON
+from ..file_constants import QFILTER
 
 # Validator
 QLOC_NUMBER = QLocale(QLocale.C)
@@ -431,7 +431,7 @@ class DoubleClickEdit(QLineEdit):
     def open_dialog_image(self):
         """Open image file name dialog"""
         path_selected = QFileDialog.getOpenFileName(
-            self, dir=self.init_value, filter=fmt.qfile_filter(".png", "PNG files"))[0]
+            self, dir=self.init_value, filter=QFILTER.PNG)[0]
         if val.image_file(path_selected):
             self.setText(path_selected)
             self.init_value = path_selected

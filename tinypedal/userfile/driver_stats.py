@@ -26,6 +26,7 @@ import json
 from dataclasses import dataclass
 from typing import KeysView
 
+from ..file_constants import FILE_EXT
 from ..userfile.json_setting import (
     set_backup_timestamp,
     save_compact_json_file,
@@ -140,7 +141,7 @@ def save_driver_stats(
 
 
 def load_stats_json_file(
-    filename: str, filepath: str, extension: str = ".stats"
+    filename: str, filepath: str, extension: str = FILE_EXT.STATS
 ) -> dict:
     """Load stats json file & verify"""
     try:
@@ -161,7 +162,7 @@ def load_stats_json_file(
 
 
 def save_stats_json_file(
-    stats_user: dict, filename: str, filepath: str, extension: str = ".stats"
+    stats_user: dict, filename: str, filepath: str, extension: str = FILE_EXT.STATS
 ) -> None:
     """Save stats to json file"""
     create_backup_file(f"{filename}{extension}", filepath)

@@ -24,11 +24,9 @@ from __future__ import annotations
 import logging
 import csv
 
-from ..module_info import ConsumptionDataSet
-from ..formatter import qfile_filter
 from .. import validator as val
-
-QFILTER_CONSUMPTION = qfile_filter(".consumption", "Consumption History")
+from ..module_info import ConsumptionDataSet
+from ..file_constants import FILE_EXT
 
 logger = logging.getLogger(__name__)
 
@@ -74,7 +72,7 @@ def save_fuel_delta_file(
 
 
 def load_consumption_history_file(
-    filepath: str, filename: str, extension: str = ".consumption"
+    filepath: str, filename: str, extension: str = FILE_EXT.CONSUMPTION
 ) -> tuple[ConsumptionDataSet, ...]:
     """Load fuel/energy consumption history file (*.consumption)"""
     try:
@@ -96,7 +94,7 @@ def load_consumption_history_file(
 
 
 def save_consumption_history_file(
-    dataset: tuple, filepath: str, filename: str, extension: str = ".consumption"
+    dataset: tuple, filepath: str, filename: str, extension: str = FILE_EXT.CONSUMPTION
 ) -> None:
     """Save fuel/energy consumption history file (*.consumption)"""
     if len(dataset) < 2:

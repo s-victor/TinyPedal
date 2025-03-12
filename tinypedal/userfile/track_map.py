@@ -24,19 +24,17 @@ import logging
 import xml.dom.minidom
 import xml.parsers.expat
 
+from ..file_constants import FILE_EXT
 from ..formatter import (
-    qfile_filter,
     coords_to_points,
     points_to_coords,
     string_pair_to_int,
 )
 
-QFILTER_SVG = qfile_filter(".svg", "Scalable Vector Graphics")
-
 logger = logging.getLogger(__name__)
 
 
-def load_track_map_file(filepath: str, filename: str, extension: str = ".svg"):
+def load_track_map_file(filepath: str, filename: str, extension: str = FILE_EXT.SVG):
     """Load svg track map file (*.svg)"""
     try:
         dom = xml.dom.minidom.parse(f"{filepath}{filename}{extension}")
@@ -67,7 +65,7 @@ def load_track_map_file(filepath: str, filename: str, extension: str = ".svg"):
 def save_track_map_file(
     filepath: str, filename: str, view_box: str,
     raw_coords: tuple, raw_dists: tuple, sector_index: tuple,
-    extension: str = ".svg"
+    extension: str = FILE_EXT.SVG
 ) -> None:
     """Save track map file (*.svg)"""
     # Convert to svg coordinates

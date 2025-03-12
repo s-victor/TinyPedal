@@ -25,12 +25,13 @@ import logging
 import csv
 
 from .. import validator as val
+from ..file_constants import FILE_EXT
 
 logger = logging.getLogger(__name__)
 
 
 def load_delta_best_file(
-    filepath: str, filename: str, defaults: tuple, extension: str = ".csv"
+    filepath: str, filename: str, defaults: tuple, extension: str = FILE_EXT.CSV
 ) -> tuple[tuple, float]:
     """Load delta best file (*.csv)"""
     try:
@@ -57,7 +58,7 @@ def load_delta_best_file(
 
 
 def save_delta_best_file(
-    filepath: str, filename: str, dataset: tuple, extension: str = ".csv"
+    filepath: str, filename: str, dataset: tuple, extension: str = FILE_EXT.CSV
 ) -> None:
     """Save delta best file (*.csv)"""
     if len(dataset) < 10:

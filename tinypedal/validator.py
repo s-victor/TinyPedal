@@ -29,6 +29,8 @@ from functools import wraps
 from math import isfinite
 from typing import Any
 
+from .file_constants import FILE_EXT
+
 TYPE_NUMBER = float, int
 
 logger = logging.getLogger(__name__)
@@ -133,7 +135,7 @@ def relative_path(filepath: str) -> str:
     return output_path
 
 
-def image_file(filepath: str, extension: str = ".png", max_size: int = 5120000) -> bool:
+def image_file(filepath: str, extension: str = FILE_EXT.PNG, max_size: int = 5120000) -> bool:
     """Validate image file path, file format (default PNG), max file size (default < 5MB)"""
     return (
         os.path.exists(filepath) and

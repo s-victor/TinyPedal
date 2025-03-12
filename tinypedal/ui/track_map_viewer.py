@@ -45,7 +45,8 @@ from ..setting import ConfigType, cfg
 from ._common import BaseDialog, QSS_EDITOR_BUTTON
 from . config import UserConfig
 from .. import calculation as calc
-from ..userfile.track_map import load_track_map_file, QFILTER_SVG
+from ..file_constants import FILE_EXT, QFILTER
+from ..userfile.track_map import load_track_map_file
 
 
 class TrackMapViewer(BaseDialog):
@@ -348,7 +349,7 @@ class MapView(QWidget):
         filename_full = QFileDialog.getOpenFileName(
             self,
             dir=cfg.path.track_map,
-            filter=QFILTER_SVG
+            filter=QFILTER.SVG,
         )[0]
         if not filename_full:
             return
@@ -359,7 +360,7 @@ class MapView(QWidget):
 
     def load_trackmap(self, filepath: str, filename: str):
         """Load trackmap"""
-        if not os.path.exists(f"{filepath}{filename}.svg"):
+        if not os.path.exists(f"{filepath}{filename}{FILE_EXT.SVG}"):
             msg_text = f"Cannot find track map for<br><b>{filename}</b><br>"
             QMessageBox.warning(self, "Error", msg_text)
             return
@@ -380,7 +381,7 @@ class MapView(QWidget):
             self.map_filename = ""
             msg_text = (
                 "Unable to load track map file from<br>"
-                f"<b>{filepath}{filename}.svg</b><br><br>"
+                f"<b>{filepath}{filename}{FILE_EXT.SVG}</b><br><br>"
                 "Only support SVG file that generated with TinyPedal."
             )
             QMessageBox.warning(self, "Error", msg_text)

@@ -26,6 +26,7 @@ from collections.abc import Callable
 from ._base import DataModule
 from ..module_info import minfo, NotesInfo
 from ..api_control import api
+from ..file_constants import FILE_EXT
 from .. import calculation as calc
 from ..userfile.track_notes import (
     load_notes_file,
@@ -70,7 +71,7 @@ class Realtime(DataModule):
                         filename=track_name,
                         table_header=HEADER_PACE_NOTES,
                         parser=parse_csv_notes_only,
-                        extension=".tppn",
+                        extension=FILE_EXT.TPPN,
                     )
                     gen_pacenotes = notes_selector(
                         output=output_pacenotes,
@@ -84,7 +85,7 @@ class Realtime(DataModule):
                         filename=track_name,
                         table_header=HEADER_TRACK_NOTES,
                         parser=parse_csv_notes_only,
-                        extension=".tptn"
+                        extension=FILE_EXT.TPTN,
                     )
                     gen_tracknotes = notes_selector(
                         output=output_tracknotes,

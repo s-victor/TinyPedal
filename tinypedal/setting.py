@@ -39,6 +39,7 @@ from .template.setting_heatmap import HEATMAP_DEFAULT
 from . import regex_pattern as rxp
 from . import validator as val
 from .const import APP_NAME, PLATFORM, PATH_GLOBAL
+from .file_constants import FILE_EXT
 from .setting_validator import StyleValidator
 from .userfile.json_setting import (
     copy_setting,
@@ -87,14 +88,14 @@ class FileName:
     )
 
     def __init__(self):
-        self.config: str = "config.json"
-        self.setting: str = "default.json"
-        self.brakes: str = "brakes.json"
-        self.brands: str = "brands.json"
-        self.classes: str = "classes.json"
-        self.compounds: str = "compounds.json"
-        self.heatmap: str = "heatmap.json"
-        self.last_setting: str = "None.json"
+        self.config = f"config{FILE_EXT.JSON}"
+        self.setting = f"default{FILE_EXT.JSON}"
+        self.brakes = f"brakes{FILE_EXT.JSON}"
+        self.brands = f"brands{FILE_EXT.JSON}"
+        self.classes = f"classes{FILE_EXT.JSON}"
+        self.compounds = f"compounds{FILE_EXT.JSON}"
+        self.heatmap = f"heatmap{FILE_EXT.JSON}"
+        self.last_setting = f"None{FILE_EXT.JSON}"
 
 
 class FilePath:
@@ -115,18 +116,18 @@ class FilePath:
 
     def __init__(self):
         # Fixed path, reference only
-        self.config: str = PATH_GLOBAL
+        self.config = PATH_GLOBAL
         # User setting path
-        self.settings: str = ""
+        self.settings = ""
         # User data path
-        self.brand_logo: str = ""
-        self.delta_best: str = ""
-        self.energy_delta: str = ""
-        self.fuel_delta: str = ""
-        self.pace_notes: str = ""
-        self.sector_best: str = ""
-        self.track_map: str = ""
-        self.track_notes: str = ""
+        self.brand_logo = ""
+        self.delta_best = ""
+        self.energy_delta = ""
+        self.fuel_delta = ""
+        self.pace_notes = ""
+        self.sector_best = ""
+        self.track_map = ""
+        self.track_notes = ""
 
     def update(self, user_path: dict, default_path: dict):
         """Update path variables from global user path dictionary"""
@@ -239,7 +240,7 @@ class Setting:
         """Get primary preset name and verify"""
         preset_name = self.primary_preset.get(sim_name, "")
         if val.allowed_filename(rxp.CFG_INVALID_FILENAME, preset_name):
-            full_preset_name = f"{preset_name}.json"
+            full_preset_name = f"{preset_name}{FILE_EXT.JSON}"
             if os.path.exists(f"{self.path.settings}{full_preset_name}"):
                 return full_preset_name
         return ""
@@ -273,7 +274,7 @@ class Setting:
         new_settings_path = os.path.abspath(self.path.settings)
         # Update preset name if settings path changed
         if new_settings_path != old_settings_path:
-            self.filename.setting = f"{self.preset_list[0]}.json"
+            self.filename.setting = f"{self.preset_list[0]}{FILE_EXT.JSON}"
 
     def load(self):
         """Load all setting files"""
@@ -329,7 +330,7 @@ class Setting:
         gen_cfg_list = (
             (os.path.getmtime(f"{self.path.settings}{_filename}"), _filename[:-5])
             for _filename in os.listdir(self.path.settings)
-            if _filename.lower().endswith(".json")
+            if _filename.lower().endswith(FILE_EXT.JSON)
         )
         valid_cfg_list = [
             _filename[1]

@@ -25,16 +25,19 @@ import os
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QPixmap
 
+from ..file_constants import FILE_EXT
+
 
 def exceeded_max_logo_width(
-    org_width: int, org_height: int, max_width: int, max_height: int) -> bool:
+    org_width: int, org_height: int, max_width: int, max_height: int
+) -> bool:
     """Whether exceeded max logo width"""
     return org_width * max_height / max(org_height, 1) > max_width
 
 
 def load_brand_logo_file(
-    filepath:str, filename: str, max_width: int, max_height: int, extension: str = ".png"
-    ) -> QPixmap:
+    filepath:str, filename: str, max_width: int, max_height: int, extension: str = FILE_EXT.PNG
+) -> QPixmap:
     """Load brand logo file (*.png)"""
     filename_full = f"{filepath}{filename}{extension}"
     # Check existing file and size < 1mb
