@@ -29,17 +29,17 @@ from .menu import OverlayMenu
 class TrayIcon(QSystemTrayIcon):
     """System tray icon & menu"""
 
-    def __init__(self, master):
-        super().__init__(master)
-        self.master = master
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.master = parent
 
         # Config tray icon
-        self.setIcon(master.windowIcon())
+        self.setIcon(parent.windowIcon())
         self.setToolTip(f"{APP_NAME} v{VERSION}")
         self.activated.connect(self.active_doubleclick)
 
         # Create tray menu
-        menu = OverlayMenu("Overlay", self.master, True)
+        menu = OverlayMenu("Overlay", parent, True)
         self.setContextMenu(menu)
 
     def active_doubleclick(self, active_reason: QSystemTrayIcon.ActivationReason):

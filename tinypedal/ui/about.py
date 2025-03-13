@@ -47,8 +47,8 @@ class About(BaseDialog):
     Hide window at startup.
     """
 
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, parent):
+        super().__init__(parent)
         self.setWindowTitle(f"About {APP_NAME}")
         self.setStyleSheet("QTextEdit {border: 0;} QTextBrowser {font-size: 12px;}")
 
@@ -77,7 +77,7 @@ class About(BaseDialog):
         ctrb_tab = self.new_text_tab(self.load_text_files("docs/contributors.md"))
         lics_tab = self.new_text_tab(self.load_text_files("LICENSE.txt"))
         tpan_tab = self.new_text_tab(self.load_text_files("docs/licenses/THIRDPARTYNOTICES.txt"))
-        main_tab = QTabWidget()
+        main_tab = QTabWidget(self)
         main_tab.addTab(info_tab, "About")
         main_tab.addTab(ctrb_tab, "Contributors")
         main_tab.addTab(lics_tab, "License")
@@ -96,25 +96,23 @@ class About(BaseDialog):
             link_text = "See link: https://github.com/s-victor/TinyPedal/blob/master/"
             return f"{error_text} \n{link_text}{filepath}"
 
-    @staticmethod
-    def new_text_tab(text: str):
+    def new_text_tab(self, text: str):
         """New text tab"""
-        new_tab = QTextBrowser()
+        new_tab = QTextBrowser(self)
         new_tab.setText(text)
         new_tab.setMinimumSize(400, 300)
         return new_tab
 
-    @staticmethod
-    def new_about_tab():
+    def new_about_tab(self):
         """New about tab"""
-        new_tab = QWidget()
+        new_tab = QWidget(self)
 
         # Logo
         icon_size = 128
         logo_image = QPixmap(ImageFile.APP_ICON)
         logo_image = logo_image.scaled(icon_size, icon_size, mode=Qt.SmoothTransformation)
 
-        label_logo = QLabel(new_tab)
+        label_logo = QLabel()
         label_logo.setPixmap(logo_image)
         label_logo.setFixedSize(icon_size+20, icon_size+20)
         label_logo.setAlignment(Qt.AlignCenter)
@@ -131,7 +129,7 @@ class About(BaseDialog):
 
         label_desc = QLabel(
             f"<p>{COPYRIGHT}</p><p>{DESCRIPTION}</p><p>{LICENSE}</p>"
-            f"<p><a href={WEBSITE}>{WEBSITE}</a><br></p>"
+            f"<p><a href={WEBSITE}>{WEBSITE}</a><br></p>",
         )
         label_desc.setStyleSheet("font-size: 12px;")
         label_desc.setAlignment(Qt.AlignCenter)

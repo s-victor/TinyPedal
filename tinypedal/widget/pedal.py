@@ -47,6 +47,7 @@ class Realtime(Overlay):
         # Throttle
         if self.wcfg["show_throttle"]:
             self.bar_throttle = PedalInputBar(
+                self,
                 *pedal_size,
                 fg_color=self.wcfg["font_color_throttle"],
                 bg_color=self.wcfg["bkg_color"],
@@ -64,6 +65,7 @@ class Realtime(Overlay):
         # Brake
         if self.wcfg["show_brake"]:
             self.bar_brake = PedalInputBar(
+                self,
                 *pedal_size,
                 fg_color=self.wcfg["font_color_brake"],
                 bg_color=self.wcfg["bkg_color"],
@@ -81,6 +83,7 @@ class Realtime(Overlay):
         # Clutch
         if self.wcfg["show_clutch"]:
             self.bar_clutch = PedalInputBar(
+                self,
                 *pedal_size,
                 fg_color=self.wcfg["font_color_clutch"],
                 bg_color=self.wcfg["bkg_color"],
@@ -98,6 +101,7 @@ class Realtime(Overlay):
         # Force feedback
         if self.wcfg["show_ffb_meter"]:
             self.bar_ffb = PedalInputBar(
+                self,
                 *pedal_size,
                 fg_color=self.wcfg["font_color_ffb"],
                 bg_color=self.wcfg["bkg_color"],

@@ -51,8 +51,8 @@ HEADER_CLASSES = "Class name","Alias name","Color"
 class VehicleClassEditor(BaseEditor):
     """Vehicle class editor"""
 
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, parent):
+        super().__init__(parent)
         self.set_utility_title("Vehicle Class Editor")
         self.setMinimumSize(400, 400)
 
@@ -130,7 +130,7 @@ class VehicleClassEditor(BaseEditor):
 
     def __add_option_color(self, key):
         """Color string"""
-        color_edit = DoubleClickEdit(mode="color", init=key)
+        color_edit = DoubleClickEdit(self, mode="color", init=key)
         color_edit.setMaxLength(9)
         color_edit.setValidator(QVAL_COLOR)
         color_edit.textChanged.connect(self.set_modified)

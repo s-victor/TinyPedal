@@ -52,8 +52,8 @@ from ..userfile.track_map import load_track_map_file
 class TrackMapViewer(BaseDialog):
     """Track map viewer"""
 
-    def __init__(self, master, filepath: str = "", filename: str = ""):
-        super().__init__(master)
+    def __init__(self, parent, filepath: str = "", filename: str = ""):
+        super().__init__(parent)
         self.set_utility_title("Track Map Viewer")
 
         # Set panel
@@ -71,13 +71,13 @@ class TrackMapViewer(BaseDialog):
 
     def set_layout_trackmap(self):
         """Set track map panel"""
-        self.trackmap = MapView()
+        self.trackmap = MapView(self)
 
         layout_map_wrap = QVBoxLayout()
         layout_map_wrap.addWidget(self.trackmap)
         layout_map_wrap.setContentsMargins(0,0,0,0)
 
-        frame_trackmap = QFrame()
+        frame_trackmap = QFrame(self)
         frame_trackmap.setLayout(layout_map_wrap)
         frame_trackmap.setFrameShape(QFrame.StyledPanel)
 
@@ -87,7 +87,7 @@ class TrackMapViewer(BaseDialog):
         layout_trackmap.addLayout(self.trackmap.set_control_layout())
         layout_trackmap.setContentsMargins(0,0,0,0)
 
-        trackmap_panel = QFrame()
+        trackmap_panel = QFrame(self)
         trackmap_panel.setMinimumSize(500, 500)
         trackmap_panel.setLayout(layout_trackmap)
         return trackmap_panel
@@ -97,8 +97,8 @@ class MapView(QWidget):
     """Map view"""
     reloaded = Signal(bool)
 
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent):
+        super().__init__(parent)
         # Style
         self.load_config(False)
         self.pen = QPen()
@@ -313,7 +313,7 @@ class MapView(QWidget):
 
     def set_context_menu(self):
         """Set context menu"""
-        menu = QMenu()
+        menu = QMenu(self)
         for key, item in self.osd.items():
             if key.startswith("separator"):
                 menu.addSeparator()
@@ -335,7 +335,7 @@ class MapView(QWidget):
     def open_config_dialog(self):
         """Open config"""
         _dialog = UserConfig(
-            master=self,
+            parent=self,
             key_name="track_map_viewer",
             cfg_type=ConfigType.CONFIG,
             user_setting=cfg.user.config,
@@ -346,11 +346,7 @@ class MapView(QWidget):
 
     def open_trackmap(self):
         """Open trackmap"""
-        filename_full = QFileDialog.getOpenFileName(
-            self,
-            dir=cfg.path.track_map,
-            filter=FileFilter.SVG,
-        )[0]
+        filename_full = QFileDialog.getOpenFileName(self, dir=cfg.path.track_map, filter=FileFilter.SVG)[0]
         if not filename_full:
             return
 

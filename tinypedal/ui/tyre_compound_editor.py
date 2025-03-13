@@ -53,8 +53,8 @@ logger = logging.getLogger(__name__)
 class TyreCompoundEditor(BaseEditor):
     """Tyre compound editor"""
 
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, parent):
+        super().__init__(parent)
         self.set_utility_title("Tyre Compound Editor")
         self.setMinimumSize(600, 500)
 

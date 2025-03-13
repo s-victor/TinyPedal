@@ -79,23 +79,23 @@ def set_read_only_style(line_edit, invalid=False):
 class FuelCalculator(BaseDialog):
     """Fuel calculator"""
 
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, parent):
+        super().__init__(parent)
         self.set_utility_title("Fuel Calculator")
 
         # Set (freeze) fuel unit
         self.is_gallon = cfg.units["fuel_unit"] == "Gallon"
 
         # Set status bar
-        self.status_bar = QStatusBar()
+        self.status_bar = QStatusBar(self)
         self.status_bar.setStyleSheet("font-weight:bold;")
 
         # Set view
-        self.panel_calculator = QWidget()
+        self.panel_calculator = QWidget(self)
         self.set_panel_calculator(self.panel_calculator)
 
         # Panel table
-        self.panel_table = QWidget()
+        self.panel_table = QWidget(self)
         self.set_panel_table(self.panel_table)
 
         # Load data
@@ -258,28 +258,28 @@ class FuelCalculator(BaseDialog):
         """Set panel calculator"""
         panel_left_width = 330
 
-        frame_laptime = QFrame()
+        frame_laptime = QFrame(self)
         frame_laptime.setFrameShape(QFrame.StyledPanel)
         frame_laptime.setFixedWidth(panel_left_width)
 
-        frame_fuel = QFrame()
+        frame_fuel = QFrame(self)
         frame_fuel.setFrameShape(QFrame.StyledPanel)
         frame_fuel.setFixedWidth(panel_left_width)
 
-        frame_race = QFrame()
+        frame_race = QFrame(self)
         frame_race.setFrameShape(QFrame.StyledPanel)
         frame_race.setFixedWidth(panel_left_width)
 
-        frame_output_fuel = QFrame()
+        frame_output_fuel = QFrame(self)
         frame_output_fuel.setFrameShape(QFrame.StyledPanel)
 
-        frame_output_energy = QFrame()
+        frame_output_energy = QFrame(self)
         frame_output_energy.setFrameShape(QFrame.StyledPanel)
 
-        frame_output_start_fuel = QFrame()
+        frame_output_start_fuel = QFrame(self)
         frame_output_start_fuel.setFrameShape(QFrame.StyledPanel)
 
-        frame_output_start_energy = QFrame()
+        frame_output_start_energy = QFrame(self)
         frame_output_start_energy.setFrameShape(QFrame.StyledPanel)
 
         self.input_laptime = InputLapTime(self, frame_laptime)
@@ -495,23 +495,23 @@ class FuelCalculator(BaseDialog):
 class InputLapTime():
     """Input lap time setup"""
 
-    def __init__(self, master, frame) -> None:
+    def __init__(self, parent, frame) -> None:
         """Set input lap time"""
         self.minutes = QSpinBox()
         self.minutes.setAlignment(Qt.AlignRight)
         self.minutes.setRange(0, 9999)
-        self.minutes.valueChanged.connect(master.update_input)
+        self.minutes.valueChanged.connect(parent.update_input)
 
         self.seconds = QSpinBox()
         self.seconds.setAlignment(Qt.AlignRight)
         self.seconds.setRange(-1, 60)
-        self.seconds.valueChanged.connect(master.update_input)
+        self.seconds.valueChanged.connect(parent.update_input)
 
         self.mseconds = QSpinBox()
         self.mseconds.setAlignment(Qt.AlignRight)
         self.mseconds.setRange(-1, 1000)
         self.mseconds.setSingleStep(100)
-        self.mseconds.valueChanged.connect(master.update_input)
+        self.mseconds.valueChanged.connect(parent.update_input)
 
         layout = set_grid_layout()
 
@@ -566,13 +566,13 @@ class InputLapTime():
 class InputFuel():
     """Input fuel setup"""
 
-    def __init__(self, master, frame) -> None:
+    def __init__(self, parent, frame) -> None:
         """Set input fuel"""
         self.capacity = QDoubleSpinBox()
         self.capacity.setRange(0, 9999)
         self.capacity.setDecimals(2)
         self.capacity.setAlignment(Qt.AlignRight)
-        self.capacity.valueChanged.connect(master.update_input)
+        self.capacity.valueChanged.connect(parent.update_input)
 
         self.fuel_ratio = QLineEdit("0.000")
         self.fuel_ratio.setAlignment(Qt.AlignRight)
@@ -584,14 +584,14 @@ class InputFuel():
         self.fuel_used.setDecimals(3)
         self.fuel_used.setSingleStep(0.1)
         self.fuel_used.setAlignment(Qt.AlignRight)
-        self.fuel_used.valueChanged.connect(master.update_input)
+        self.fuel_used.valueChanged.connect(parent.update_input)
 
         self.energy_used = QDoubleSpinBox()
         self.energy_used.setRange(0, 100)
         self.energy_used.setDecimals(3)
         self.energy_used.setSingleStep(0.1)
         self.energy_used.setAlignment(Qt.AlignRight)
-        self.energy_used.valueChanged.connect(master.update_input)
+        self.energy_used.valueChanged.connect(parent.update_input)
 
         layout = set_grid_layout()
 
@@ -600,14 +600,14 @@ class InputFuel():
 
         layout.addWidget(QLabel("Tank Capacity:"), 0, 0, 1, 2)
         layout.addWidget(self.capacity, 1, 0)
-        layout.addWidget(QLabel(master.fuel_unit_text()), 1, 1)
+        layout.addWidget(QLabel(parent.fuel_unit_text()), 1, 1)
 
         layout.addWidget(QLabel("Fuel Ratio:"), 2, 0, 1, 2)
         layout.addWidget(self.fuel_ratio, 3, 0)
 
         layout.addWidget(QLabel("Fuel Consumption:"), 0, 2, 1, 2)
         layout.addWidget(self.fuel_used, 1, 2)
-        layout.addWidget(QLabel(master.fuel_unit_text()), 1, 3)
+        layout.addWidget(QLabel(parent.fuel_unit_text()), 1, 3)
 
         layout.addWidget(QLabel("Energy Consumption:"), 2, 2, 1, 2)
         layout.addWidget(self.energy_used, 3, 2)
@@ -619,18 +619,18 @@ class InputFuel():
 class InputRace():
     """Input race setup"""
 
-    def __init__(self, master, frame) -> None:
+    def __init__(self, parent, frame) -> None:
         """Set input race"""
         self.minutes = QSpinBox()
         self.minutes.setRange(0, 9999)
         self.minutes.setAlignment(Qt.AlignRight)
-        self.minutes.valueChanged.connect(master.update_input)
+        self.minutes.valueChanged.connect(parent.update_input)
         self.minutes.valueChanged.connect(self.disable_race_lap)
 
         self.laps = QSpinBox()
         self.laps.setRange(0, 9999)
         self.laps.setAlignment(Qt.AlignRight)
-        self.laps.valueChanged.connect(master.update_input)
+        self.laps.valueChanged.connect(parent.update_input)
         self.laps.valueChanged.connect(self.disable_race_minute)
 
         self.formation = QDoubleSpinBox()
@@ -638,13 +638,13 @@ class InputRace():
         self.formation.setDecimals(2)
         self.formation.setSingleStep(0.1)
         self.formation.setAlignment(Qt.AlignRight)
-        self.formation.valueChanged.connect(master.update_input)
+        self.formation.valueChanged.connect(parent.update_input)
 
         self.pit_seconds = QDoubleSpinBox()
         self.pit_seconds.setRange(0, 9999)
         self.pit_seconds.setDecimals(1)
         self.pit_seconds.setAlignment(Qt.AlignRight)
-        self.pit_seconds.valueChanged.connect(master.update_input)
+        self.pit_seconds.valueChanged.connect(parent.update_input)
 
         layout = set_grid_layout()
 
@@ -691,10 +691,10 @@ class InputRace():
 class OutputUsage():
     """Output usage display"""
 
-    def __init__(self, master, frame, type_name) -> None:
+    def __init__(self, parent, frame, type_name) -> None:
         """Set output display"""
         if type_name == "Fuel":
-            unit_text = master.fuel_unit_text()
+            unit_text = parent.fuel_unit_text()
         else:
             unit_text = "%"
 
@@ -760,7 +760,7 @@ class OutputUsage():
 class OutputRefill():
     """Output refill display"""
 
-    def __init__(self, master, frame, type_name) -> None:
+    def __init__(self, parent, frame, type_name) -> None:
         """Set output display"""
         self.amount_start = QDoubleSpinBox()
         self.amount_start.setDecimals(2)
@@ -768,13 +768,13 @@ class OutputRefill():
 
         if type_name == "Fuel":
             start_range = 9999
-            unit_text = master.fuel_unit_text()
-            self.amount_start.valueChanged.connect(master.validate_starting_fuel)
+            unit_text = parent.fuel_unit_text()
+            self.amount_start.valueChanged.connect(parent.validate_starting_fuel)
         else:
             start_range = 100
             unit_text = "%"
         self.amount_start.setRange(0, start_range)
-        self.amount_start.valueChanged.connect(master.update_input)
+        self.amount_start.valueChanged.connect(parent.update_input)
 
         self.average_refill = QLineEdit("0.000")
         self.average_refill.setAlignment(Qt.AlignRight)

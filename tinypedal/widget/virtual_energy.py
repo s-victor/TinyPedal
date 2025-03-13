@@ -259,6 +259,7 @@ class Realtime(Overlay):
         # Energy level bar
         if self.wcfg["show_energy_level_bar"]:
             self.bar_level = FuelLevelBar(
+                self,
                 width=(font_m.width * self.bar_width + bar_padx) * 6,
                 height=max(self.wcfg["energy_level_bar_height"], 1),
                 start_mark_width=max(self.wcfg["starting_energy_level_mark_width"], 1),

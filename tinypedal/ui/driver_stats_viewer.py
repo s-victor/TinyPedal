@@ -99,8 +99,8 @@ def format_header_key(key: str):
 class DriverStatsViewer(BaseEditor):
     """Driver stats viewer"""
 
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, parent):
+        super().__init__(parent)
         self.set_utility_title("Driver Stats Viewer")
         self.setMinimumSize(850, 400)
 

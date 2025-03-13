@@ -79,6 +79,7 @@ class Realtime(Overlay):
         )
         self.bars_susp = tuple(
             WheelGaugeBar(
+                self,
                 padding_x=padx,
                 bar_width=bar_width,
                 bar_height=bar_height,

@@ -47,10 +47,8 @@ from .vehicle_class_editor import VehicleClassEditor
 class OverlayMenu(QMenu):
     """Overlay menu, shared between main & tray menu"""
 
-    def __init__(self, title, master, is_tray: bool = False):
-        super().__init__(title, master)
-        self.master = master
-
+    def __init__(self, title, parent, is_tray: bool = False):
+        super().__init__(title, parent)
         if is_tray:
             self.loaded_preset = QAction("", self)
             self.loaded_preset.setDisabled(True)
@@ -84,31 +82,31 @@ class OverlayMenu(QMenu):
 
         # Reload preset
         reload_preset = QAction("Reload", self)
-        reload_preset.triggered.connect(self.master.reload_preset)
+        reload_preset.triggered.connect(parent.reload_preset)
         self.addAction(reload_preset)
         self.addSeparator()
 
         # Restart API
         restart_api = QAction("Restart API", self)
-        restart_api.triggered.connect(self.master.restart_api)
+        restart_api.triggered.connect(parent.restart_api)
         self.addAction(restart_api)
         self.addSeparator()
 
         # Reset submenu
-        menu_reset_data = ResetDataMenu("Reset Data", self.master)
+        menu_reset_data = ResetDataMenu("Reset Data", parent)
         self.addMenu(menu_reset_data)
         self.addSeparator()
 
         # Config
         if is_tray:
             app_config = QAction("Config", self)
-            app_config.triggered.connect(self.master.show_app)
+            app_config.triggered.connect(parent.show_app)
             self.addAction(app_config)
             self.addSeparator()
 
         # Quit
         app_quit = QAction("Quit", self)
-        app_quit.triggered.connect(self.master.quit_app)
+        app_quit.triggered.connect(parent.quit_app)
         self.addAction(app_quit)
 
         # Refresh menu
@@ -152,9 +150,9 @@ class OverlayMenu(QMenu):
 class ResetDataMenu(QMenu):
     """Reset user data menu"""
 
-    def __init__(self, title, master):
-        super().__init__(title, master)
-        self.master = master
+    def __init__(self, title, parent):
+        super().__init__(title, parent)
+        self.master = parent
 
         reset_deltabest = QAction("Delta Best", self)
         reset_deltabest.triggered.connect(self.reset_deltabest)
@@ -279,9 +277,9 @@ class ResetDataMenu(QMenu):
 class ConfigMenu(QMenu):
     """Config menu"""
 
-    def __init__(self, title, master):
-        super().__init__(title, master)
-        self.master = master
+    def __init__(self, title, parent):
+        super().__init__(title, parent)
+        self.master = parent
 
         config_app = QAction("Application", self)
         config_app.triggered.connect(self.open_config_application)
@@ -311,7 +309,7 @@ class ConfigMenu(QMenu):
     def open_config_application(self):
         """Config global application"""
         _dialog = UserConfig(
-            master=self.master,
+            parent=self.master,
             key_name="application",
             cfg_type=ConfigType.CONFIG,
             user_setting=cfg.user.config,
@@ -323,7 +321,7 @@ class ConfigMenu(QMenu):
     def open_config_userpath(self):
         """Config global user path"""
         _dialog = UserConfig(
-            master=self.master,
+            parent=self.master,
             key_name="user_path",
             cfg_type=ConfigType.CONFIG,
             user_setting=cfg.user.config,
@@ -336,7 +334,7 @@ class ConfigMenu(QMenu):
     def open_config_font(self):
         """Config global font"""
         _dialog = FontConfig(
-            master=self.master,
+            parent=self.master,
             user_setting=cfg.user.setting,
             reload_func=self.master.reload_preset,
         )
@@ -345,7 +343,7 @@ class ConfigMenu(QMenu):
     def open_config_units(self):
         """Config display units"""
         _dialog = UserConfig(
-            master=self.master,
+            parent=self.master,
             key_name="units",
             cfg_type=ConfigType.SETTING,
             user_setting=cfg.user.setting,
@@ -357,7 +355,7 @@ class ConfigMenu(QMenu):
     def open_config_sharedmemory(self):
         """Config sharedmemory"""
         _dialog = UserConfig(
-            master=self.master,
+            parent=self.master,
             key_name="shared_memory_api",
             cfg_type=ConfigType.SETTING,
             user_setting=cfg.user.setting,
@@ -369,7 +367,7 @@ class ConfigMenu(QMenu):
     def open_config_compatibility(self):
         """Config compatibility"""
         _dialog = UserConfig(
-            master=self.master,
+            parent=self.master,
             key_name="compatibility",
             cfg_type=ConfigType.CONFIG,
             user_setting=cfg.user.config,
@@ -382,9 +380,9 @@ class ConfigMenu(QMenu):
 class ToolsMenu(QMenu):
     """Tools menu"""
 
-    def __init__(self, title, master):
-        super().__init__(title, master)
-        self.master = master
+    def __init__(self, title, parent):
+        super().__init__(title, parent)
+        self.master = parent
 
         utility_fuelcalc = QAction("Fuel Calculator", self)
         utility_fuelcalc.triggered.connect(self.open_utility_fuelcalc)
@@ -472,8 +470,8 @@ class ToolsMenu(QMenu):
 class WindowMenu(QMenu):
     """Window menu"""
 
-    def __init__(self, title, master):
-        super().__init__(title, master)
+    def __init__(self, title, parent):
+        super().__init__(title, parent)
         self.show_at_startup = QAction("Show at Startup", self)
         self.show_at_startup.setCheckable(True)
         self.show_at_startup.triggered.connect(self.is_show_at_startup)
@@ -529,9 +527,9 @@ class WindowMenu(QMenu):
 class HelpMenu(QMenu):
     """Help menu"""
 
-    def __init__(self, title, master):
-        super().__init__(title, master)
-        self.master = master
+    def __init__(self, title, parent):
+        super().__init__(title, parent)
+        self.master = parent
 
         app_guide = QAction("User Guide", self)
         app_guide.triggered.connect(self.open_user_guide)

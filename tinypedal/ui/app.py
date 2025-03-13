@@ -82,9 +82,9 @@ class AppWindow(QMainWindow):
         layout_notify.addWidget(self.notify_pacenotes)
 
         # Controller tabs
-        self.tab_bar = QTabWidget()
-        self.widget_tab = ModuleList(wctrl)
-        self.module_tab = ModuleList(mctrl)
+        self.tab_bar = QTabWidget(self)
+        self.widget_tab = ModuleList(self, wctrl)
+        self.module_tab = ModuleList(self, mctrl)
         self.preset_tab = PresetList(self)
         self.spectate_tab = SpectateList(self)
         self.pacenotes_tab = PaceNotesControl(self)
@@ -95,7 +95,7 @@ class AppWindow(QMainWindow):
         self.tab_bar.addTab(self.pacenotes_tab, "Pace Notes")
 
         # Main view
-        main_view = QWidget()
+        main_view = QWidget(self)
         layout = QVBoxLayout(main_view)
         layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)

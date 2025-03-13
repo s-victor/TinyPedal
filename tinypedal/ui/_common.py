@@ -88,8 +88,8 @@ color_pick_history = deque(
 class BaseDialog(QDialog):
     """Base dialog class"""
 
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, parent):
+        super().__init__(parent)
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 
@@ -114,8 +114,8 @@ class BaseDialog(QDialog):
 class BaseEditor(BaseDialog):
     """Base editor class"""
 
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, parent):
+        super().__init__(parent)
         self._is_modified = False
         self._is_rejected = False
 
@@ -194,8 +194,8 @@ class BaseEditor(BaseDialog):
 class BatchOffset(BaseDialog):
     """Batch offset"""
 
-    def __init__(self, master, offset_func: Callable):
-        super().__init__(master)
+    def __init__(self, parent, offset_func: Callable):
+        super().__init__(parent)
         self.setWindowTitle("Batch Offset")
         self.decimals = 0
         self.value_range = 0, 1
@@ -273,12 +273,12 @@ class TableBatchReplace(BaseDialog):
     """Table batch replace"""
 
     def __init__(
-        self, master, table_selector: dict, table_data: QTableWidget):
+        self, parent, table_selector: dict, table_data: QTableWidget):
         """
         Args:
             table_selector: table selector dictionary. key=column name, value=column index.
         """
-        super().__init__(master)
+        super().__init__(parent)
         self.table_selector = table_selector
         self.table_data = table_data
         self.setWindowTitle("Batch Replace")
@@ -371,14 +371,14 @@ class TableBatchReplace(BaseDialog):
 class DoubleClickEdit(QLineEdit):
     """Line edit with double click dialog trigger"""
 
-    def __init__(self, mode: str, init: str):
+    def __init__(self, parent, mode: str, init: str):
         """Set dialog mode and initial value
 
         Args:
             mode: "color", "path".
             init: initial value.
         """
-        super().__init__()
+        super().__init__(parent)
         self.open_mode = mode
         self.init_value = init
 
@@ -428,8 +428,7 @@ class DoubleClickEdit(QLineEdit):
 
     def open_dialog_image(self):
         """Open image file name dialog"""
-        path_selected = QFileDialog.getOpenFileName(
-            self, dir=self.init_value, filter=FileFilter.PNG)[0]
+        path_selected = QFileDialog.getOpenFileName(self, dir=self.init_value, filter=FileFilter.PNG)[0]
         if val.image_file(path_selected):
             self.setText(path_selected)
             self.init_value = path_selected

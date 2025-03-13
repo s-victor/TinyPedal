@@ -74,6 +74,7 @@ class Realtime(Overlay):
         layout_inner = self.set_grid_layout(gap=bar_gap)
         self.bars_bpres = tuple(
             WheelGaugeBar(
+                self,
                 padding_x=padx,
                 bar_width=bar_width,
                 bar_height=bar_height,

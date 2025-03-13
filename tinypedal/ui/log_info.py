@@ -39,12 +39,12 @@ from ._common import BaseDialog, QSS_EDITOR_BUTTON
 class LogInfo(BaseDialog):
     """Create log info dialog"""
 
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, parent):
+        super().__init__(parent)
         self.set_utility_title("Log")
 
         # Text view
-        self.log_view = QTextBrowser()
+        self.log_view = QTextBrowser(self)
         self.log_view.setStyleSheet("font-size: 12px;")
         self.log_view.setMinimumSize(550, 300)
         self.refresh_log()

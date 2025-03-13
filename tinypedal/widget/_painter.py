@@ -34,6 +34,7 @@ class WheelGaugeBar(QWidget):
 
     def __init__(
         self,
+        parent,
         padding_x: int,
         bar_width: int,
         bar_height: int,
@@ -44,7 +45,7 @@ class WheelGaugeBar(QWidget):
         bg_color: str = "",
         right_side: bool = False,
     ):
-        super().__init__()
+        super().__init__(parent)
         self.last = -1
         self.max_range = max_range
         self.width_scale = bar_width / self.max_range
@@ -86,6 +87,7 @@ class PedalInputBar(QWidget):
 
     def __init__(
         self,
+        parent,
         pedal_length: int,
         pedal_extend: int,
         pedal_size: tuple,
@@ -100,7 +102,7 @@ class PedalInputBar(QWidget):
         show_reading: bool = False,
         horizontal_style: bool = False,
     ):
-        super().__init__()
+        super().__init__(parent)
         self.last = None
         self.is_maxed = False
         self.show_reading = show_reading
@@ -169,13 +171,14 @@ class ProgressBar(QWidget):
 
     def __init__(
         self,
+        parent,
         width: int,
         height: int,
         input_color: str = "",
         bg_color: str = "",
         right_side: bool = False,
     ):
-        super().__init__()
+        super().__init__(parent)
         self.last = -1
         self.bar_width = width
         self.rect_bar = QRectF(0, 0, width, height)
@@ -205,6 +208,7 @@ class FuelLevelBar(QWidget):
 
     def __init__(
         self,
+        parent,
         width: int,
         height: int,
         start_mark_width: int,
@@ -216,7 +220,7 @@ class FuelLevelBar(QWidget):
         show_start_mark: bool = True,
         show_refill_mark: bool = True,
     ):
-        super().__init__()
+        super().__init__(parent)
         self.last = None
         self.bar_width = width
         self.rect_bar = QRectF(0, 0, width, height)
@@ -254,6 +258,7 @@ class GearGaugeBar(QWidget):
 
     def __init__(
         self,
+        parent,
         width: int,
         height: int,
         font_speed,
@@ -263,7 +268,7 @@ class GearGaugeBar(QWidget):
         bg_color: str,
         show_speed: bool = True,
     ):
-        super().__init__()
+        super().__init__(parent)
         self.last = -1
         self.gear = 0
         self.speed = 0
@@ -305,6 +310,7 @@ class TextBar(QWidget):
 
     def __init__(
         self,
+        parent,
         width: int,
         height: int,
         font_offset: int,
@@ -312,7 +318,7 @@ class TextBar(QWidget):
         bg_color: str,
         text: str = "",
     ):
-        super().__init__()
+        super().__init__(parent)
         self.last = -1
         self.text = text
         self.fg_color = fg_color

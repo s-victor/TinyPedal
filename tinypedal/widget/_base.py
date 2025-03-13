@@ -324,9 +324,9 @@ class Overlay(QWidget):
             QLabel instance.
         """
         if text is not None:
-            bar_temp = QLabel(text)
+            bar_temp = QLabel(text, self)
         else:
-            bar_temp = QLabel()  # empty label
+            bar_temp = QLabel(self)  # empty label
 
         if pixmap is not None:
             bar_temp.setPixmap(pixmap)

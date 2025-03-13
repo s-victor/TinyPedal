@@ -59,8 +59,8 @@ logger = logging.getLogger(__name__)
 class VehicleBrandEditor(BaseEditor):
     """Vehicle brand editor"""
 
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, parent):
+        super().__init__(parent)
         self.set_utility_title("Vehicle Brand Editor")
         self.setMinimumSize(600, 500)
 

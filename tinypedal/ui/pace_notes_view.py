@@ -56,8 +56,8 @@ logger = logging.getLogger(__name__)
 class PaceNotesPlayer(QMediaPlayer):
     """Pace notes player"""
 
-    def __init__(self, config: dict):
-        super().__init__()
+    def __init__(self, parent, config: dict):
+        super().__init__(parent)
         self.mcfg = config
         self._active_state = octrl.state
 
@@ -142,11 +142,11 @@ class PaceNotesPlayer(QMediaPlayer):
 class PaceNotesControl(QWidget):
     """Pace notes control"""
 
-    def __init__(self, master):
-        super().__init__()
-        self.master = master
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.master = parent
         self.mcfg = cfg.user.setting["pace_notes_playback"]
-        self.pace_notes_player = PaceNotesPlayer(self.mcfg)
+        self.pace_notes_player = PaceNotesPlayer(self, self.mcfg)
 
         # Pace notes file selector
         self.checkbox_file = QCheckBox("Manually Select Pace Notes File")
@@ -233,7 +233,7 @@ class PaceNotesControl(QWidget):
         layout_setting.addWidget(self.label_volume)
         layout_setting.addWidget(self.slider_volume)
 
-        self.frame_control = QFrame()
+        self.frame_control = QFrame(self)
         self.frame_control.setFrameShape(QFrame.StyledPanel)
         self.frame_control.setLayout(layout_setting)
 

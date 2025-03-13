@@ -24,7 +24,7 @@ import re
 import time
 from collections.abc import Callable
 
-from PySide2.QtCore import Qt
+from PySide2.QtCore import Qt, QPoint
 from PySide2.QtWidgets import (
     QWidget,
     QVBoxLayout,
@@ -62,45 +62,40 @@ COLUMN_OPTION = 1
 class FontConfig(BaseDialog):
     """Config global font setting"""
 
-    def __init__(self, master, user_setting: dict, reload_func: Callable):
-        super().__init__(master)
+    def __init__(self, parent, user_setting: dict, reload_func: Callable):
+        super().__init__(parent)
         self.set_config_title("Global Font Override", cfg.filename.last_setting)
 
         self.reloading = reload_func
         self.user_setting = user_setting
 
-        # Label & combobox
-        self.label_fontname = QLabel("Font Name")
-        self.edit_fontname = QFontComboBox()
+        # Combobox
+        self.edit_fontname = QFontComboBox(self)
         self.edit_fontname.setCurrentText("no change")
         self.edit_fontname.setFixedWidth(OPTION_WIDTH)
 
-        self.label_fontsize = QLabel("Font Size Addend")
-        self.edit_fontsize = QSpinBox()
+        self.edit_fontsize = QSpinBox(self)
         self.edit_fontsize.setRange(-999,999)
         self.edit_fontsize.setFixedWidth(OPTION_WIDTH)
 
-        self.label_fontweight = QLabel("Font Weight")
-        self.edit_fontweight = QComboBox()
-        self.edit_fontweight.addItems(
-            ("no change", *rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT]))
+        self.edit_fontweight = QComboBox(self)
+        self.edit_fontweight.addItems(("no change", *rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT]))
         self.edit_fontweight.setFixedWidth(OPTION_WIDTH)
 
         layout_option = QGridLayout()
         layout_option.setAlignment(Qt.AlignTop)
-        layout_option.addWidget(self.label_fontname, 0, 0)
+        layout_option.addWidget(QLabel("Font Name"), 0, 0)
         layout_option.addWidget(self.edit_fontname, 0, 1)
-        layout_option.addWidget(self.label_fontsize, 1, 0)
+        layout_option.addWidget(QLabel("Font Size Addend"), 1, 0)
         layout_option.addWidget(self.edit_fontsize, 1, 1)
-        layout_option.addWidget(self.label_fontweight, 2, 0)
+        layout_option.addWidget(QLabel("Font Weight"), 2, 0)
         layout_option.addWidget(self.edit_fontweight, 2, 1)
 
         # Button
         button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
         button_apply.clicked.connect(self.applying)
 
-        button_save = QDialogButtonBox(
-            QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+        button_save = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
         button_save.accepted.connect(self.saving)
         button_save.rejected.connect(self.reject)
 
@@ -151,7 +146,7 @@ class UserConfig(BaseDialog):
     """User configuration"""
 
     def __init__(
-        self, master, key_name: str, cfg_type: str, user_setting: dict,
+        self, parent, key_name: str, cfg_type: str, user_setting: dict,
         default_setting: dict, reload_func: Callable, option_width: int = OPTION_WIDTH):
         """
         Args:
@@ -162,7 +157,7 @@ class UserConfig(BaseDialog):
             reload_func: config reload (callback) function.
             option_width: option column width in pixels.
         """
-        super().__init__(master)
+        super().__init__(parent)
         self.set_config_title(fmt.format_option_name(key_name), set_preset_name(cfg_type))
 
         self.reloading = reload_func
@@ -190,8 +185,7 @@ class UserConfig(BaseDialog):
         button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
         button_apply.clicked.connect(self.applying)
 
-        button_save = QDialogButtonBox(
-            QDialogButtonBox.Save | QDialogButtonBox.Cancel)
+        button_save = QDialogButtonBox(QDialogButtonBox.Save | QDialogButtonBox.Cancel)
         button_save.accepted.connect(self.saving)
         button_save.rejected.connect(self.reject)
 
@@ -199,11 +193,11 @@ class UserConfig(BaseDialog):
         layout_option = QGridLayout()
         layout_option.setAlignment(Qt.AlignTop)
         self.create_options(layout_option)
-        option_box = QWidget()
+        option_box = QWidget(self)
         option_box.setLayout(layout_option)
 
         # Create scroll box
-        scroll_box = QScrollArea()
+        scroll_box = QScrollArea(self)
         scroll_box.setWidget(option_box)
         scroll_box.setWidgetResizable(True)
 
@@ -234,52 +228,44 @@ class UserConfig(BaseDialog):
             "Changes are only saved after clicking Apply or Save Button."
         )
         if self.confirm_operation(title="Reset Options", message=msg_text):
-            for key, editor in self.option_bool.items():
-                editor.setChecked(
-                    self.default_setting[self.key_name][key])
+            for editor in self.option_bool.values():
+                editor.setChecked(editor.defaults)
 
-            for key, editor in self.option_color.items():
-                editor.setText(
-                    self.default_setting[self.key_name][key])
+            for editor in self.option_color.values():
+                editor.setText(editor.defaults)
 
-            for key, editor in self.option_path.items():
-                editor.setText(
-                    self.default_setting[self.key_name][key])
+            for editor in self.option_path.values():
+                editor.setText(editor.defaults)
 
-            for key, editor in self.option_image.items():
-                editor.setText(
-                    self.default_setting[self.key_name][key])
+            for editor in self.option_image.values():
+                editor.setText(editor.defaults)
 
-            for key, editor in self.option_fontname.items():
-                editor.setCurrentFont(
-                    self.default_setting[self.key_name][key])
+            for editor in self.option_fontname.values():
+                editor.setCurrentFont(editor.defaults)
 
-            for key, editor in self.option_droplist.items():
-                editor.setCurrentText(
-                    str(self.default_setting[self.key_name][key]))
+            for editor in self.option_droplist.values():
+                editor.setCurrentText(str(editor.defaults))
 
-            for key, editor in self.option_string.items():
-                editor.setText(
-                    self.default_setting[self.key_name][key])
+            for editor in self.option_string.values():
+                editor.setText(editor.defaults)
 
-            for key, editor in self.option_integer.items():
-                editor.setText(
-                    str(self.default_setting[self.key_name][key]))
+            for editor in self.option_integer.values():
+                editor.setText(str(editor.defaults))
 
-            for key, editor in self.option_float.items():
-                editor.setText(
-                    str(self.default_setting[self.key_name][key]))
+            for editor in self.option_float.values():
+                editor.setText(str(editor.defaults))
 
     def save_setting(self, is_apply: bool):
         """Save setting"""
+        user_setting = self.user_setting[self.key_name]
         error_found = False
         for key, editor in self.option_bool.items():
-            self.user_setting[self.key_name][key] = editor.isChecked()
+            user_setting[key] = editor.isChecked()
 
         for key, editor in self.option_color.items():
             value = editor.text()
             if val.hex_color(value):
-                self.user_setting[self.key_name][key] = value
+                user_setting[key] = value
             else:
                 self.value_error_message("color", key)
                 error_found = True
@@ -288,20 +274,20 @@ class UserConfig(BaseDialog):
             # Try convert to relative path again, in case user manually sets path
             value = val.relative_path(editor.text())
             if val.user_data_path(value):
-                self.user_setting[self.key_name][key] = value
+                user_setting[key] = value
                 editor.setText(value)  # update reformatted path
             else:
                 self.value_error_message("path", key)
                 error_found = True
 
         for key, editor in self.option_image.items():
-            self.user_setting[self.key_name][key] = editor.text()
+            user_setting[key] = editor.text()
 
         for key, editor in self.option_fontname.items():
-            self.user_setting[self.key_name][key] = editor.currentFont().family()
+            user_setting[key] = editor.currentFont().family()
 
         for key, editor in self.option_droplist.items():
-            self.user_setting[self.key_name][key] = editor.currentText()
+            user_setting[key] = editor.currentText()
 
         for key, editor in self.option_string.items():
             value = editor.text()
@@ -309,12 +295,12 @@ class UserConfig(BaseDialog):
                 self.value_error_message("clock format", key)
                 error_found = True
                 continue
-            self.user_setting[self.key_name][key] = value
+            user_setting[key] = value
 
         for key, editor in self.option_integer.items():
             value = editor.text()
             if val.string_number(value):
-                self.user_setting[self.key_name][key] = int(value)
+                user_setting[key] = int(value)
             else:
                 self.value_error_message("number", key)
                 error_found = True
@@ -325,7 +311,7 @@ class UserConfig(BaseDialog):
                 value = float(value)
                 if value % 1 == 0:  # remove unnecessary decimal points
                     value = int(value)
-                self.user_setting[self.key_name][key] = value
+                user_setting[key] = value
             else:
                 self.value_error_message("number", key)
                 error_found = True
@@ -362,32 +348,26 @@ class UserConfig(BaseDialog):
         key_list_user = tuple(self.user_setting[self.key_name])  # create user key list
 
         for idx, key in enumerate(key_list_user):
-            self.__add_option_label(
-                idx, key, layout)
+            self.__add_option_label(idx, key, layout)
             # Bool
             if re.search(rxp.CFG_BOOL, key):
-                self.__add_option_bool(
-                    idx, key, layout)
+                self.__add_option_bool(idx, key, layout)
                 continue
             # Color string
             if re.search(rxp.CFG_COLOR, key):
-                self.__add_option_color(
-                    idx, key, layout)
+                self.__add_option_color(idx, key, layout)
                 continue
             # User path string
             if re.search(rxp.CFG_USER_PATH, key):
-                self.__add_option_path(
-                    idx, key, layout)
+                self.__add_option_path(idx, key, layout)
                 continue
             # User image file path string
             if re.search(rxp.CFG_USER_IMAGE, key):
-                self.__add_option_image(
-                    idx, key, layout)
+                self.__add_option_image(idx, key, layout)
                 continue
             # Font name string
             if re.search(rxp.CFG_FONT_NAME, key):
-                self.__add_option_fontname(
-                    idx, key, layout)
+                self.__add_option_fontname(idx, key, layout)
                 continue
             # Units choice list string
             if self.__choice_match(rxp.CHOICE_UNITS, idx, key, layout):
@@ -397,27 +377,22 @@ class UserConfig(BaseDialog):
                 continue
             # Heatmap string
             if re.search(rxp.CFG_HEATMAP, key):
-                self.__add_option_combolist(
-                    idx, key, layout, tuple(cfg.user.heatmap))
+                self.__add_option_combolist(idx, key, layout, tuple(cfg.user.heatmap))
                 continue
             # Clock format string
             if re.search(rxp.CFG_CLOCK_FORMAT, key):
-                self.__add_option_string(
-                    idx, key, layout)
+                self.__add_option_string(idx, key, layout)
                 continue
             # String
             if re.search(rxp.CFG_STRING, key):
-                self.__add_option_string(
-                    idx, key, layout)
+                self.__add_option_string(idx, key, layout)
                 continue
             # Int
             if re.search(rxp.CFG_INTEGER, key):
-                self.__add_option_integer(
-                    idx, key, layout)
+                self.__add_option_integer(idx, key, layout)
                 continue
-            # Anything else
-            self.__add_option_float(
-                idx, key, layout)
+            # Float or int
+            self.__add_option_float(idx, key, layout)
 
     def __choice_match(self, choice_dict, idx, key, layout):
         """Choice match"""
@@ -435,12 +410,12 @@ class UserConfig(BaseDialog):
 
     def __add_option_bool(self, idx, key, layout):
         """Bool"""
-        editor = QCheckBox()
+        editor = QCheckBox(self)
         editor.setFixedWidth(self.option_width)
         editor.setChecked(self.user_setting[self.key_name][key])
         # Context menu
-        add_context_menu(
-            editor, self.default_setting[self.key_name][key], "set_check")
+        editor.defaults = self.default_setting[self.key_name][key]
+        add_context_menu(editor)
         # Add layout
         layout.addWidget(editor, idx, COLUMN_OPTION)
         self.option_bool[key] = editor
@@ -448,17 +423,16 @@ class UserConfig(BaseDialog):
     def __add_option_color(self, idx, key, layout):
         """Color string"""
         editor = DoubleClickEdit(
-            mode="color", init=self.user_setting[self.key_name][key])
+            self, mode="color", init=self.user_setting[self.key_name][key])
         editor.setFixedWidth(self.option_width)
         editor.setMaxLength(9)
         editor.setValidator(QVAL_COLOR)
         editor.textChanged.connect(editor.preview_color)
         # Load selected option
-        editor.setText(
-            self.user_setting[self.key_name][key])
+        editor.setText(self.user_setting[self.key_name][key])
         # Context menu
-        add_context_menu(
-            editor, str(self.default_setting[self.key_name][key]), "set_text")
+        editor.defaults = self.default_setting[self.key_name][key]
+        add_context_menu(editor)
         # Add layout
         layout.addWidget(editor, idx, COLUMN_OPTION)
         self.option_color[key] = editor
@@ -466,14 +440,13 @@ class UserConfig(BaseDialog):
     def __add_option_path(self, idx, key, layout):
         """Path string"""
         editor = DoubleClickEdit(
-            mode="path", init=self.user_setting[self.key_name][key])
+            self, mode="path", init=self.user_setting[self.key_name][key])
         editor.setFixedWidth(self.option_width)
         # Load selected option
-        editor.setText(
-            self.user_setting[self.key_name][key])
+        editor.setText(self.user_setting[self.key_name][key])
         # Context menu
-        add_context_menu(
-            editor, str(self.default_setting[self.key_name][key]), "set_text")
+        editor.defaults = self.default_setting[self.key_name][key]
+        add_context_menu(editor)
         # Add layout
         layout.addWidget(editor, idx, COLUMN_OPTION)
         self.option_path[key] = editor
@@ -481,86 +454,81 @@ class UserConfig(BaseDialog):
     def __add_option_image(self, idx, key, layout):
         """Image file path string"""
         editor = DoubleClickEdit(
-            mode="image", init=self.user_setting[self.key_name][key])
+            self, mode="image", init=self.user_setting[self.key_name][key])
         editor.setFixedWidth(self.option_width)
         # Load selected option
-        editor.setText(
-            self.user_setting[self.key_name][key])
+        editor.setText(self.user_setting[self.key_name][key])
         # Context menu
-        add_context_menu(
-            editor, str(self.default_setting[self.key_name][key]), "set_text")
+        editor.defaults = self.default_setting[self.key_name][key]
+        add_context_menu(editor)
         # Add layout
         layout.addWidget(editor, idx, COLUMN_OPTION)
         self.option_image[key] = editor
 
     def __add_option_fontname(self, idx, key, layout):
         """Font name string"""
-        editor = QFontComboBox()
+        editor = QFontComboBox(self)
         editor.setFixedWidth(self.option_width)
         # Load selected option
-        editor.setCurrentFont(
-            self.user_setting[self.key_name][key])
+        editor.setCurrentFont(self.user_setting[self.key_name][key])
         # Context menu
-        add_context_menu(
-            editor, self.default_setting[self.key_name][key], "set_combo")
+        editor.defaults = self.default_setting[self.key_name][key]
+        add_context_menu(editor)
         # Add layout
         layout.addWidget(editor, idx, COLUMN_OPTION)
         self.option_fontname[key] = editor
 
     def __add_option_combolist(self, idx, key, layout, item_list):
         """Combo droplist string"""
-        editor = QComboBox()
+        editor = QComboBox(self)
         editor.setFixedWidth(self.option_width)
         editor.addItems(item_list)
         # Load selected option
         editor.setCurrentText(str(self.user_setting[self.key_name][key]))
         # Context menu
-        add_context_menu(
-            editor, self.default_setting[self.key_name][key], "set_combo")
+        editor.defaults = self.default_setting[self.key_name][key]
+        add_context_menu(editor)
         # Add layout
         layout.addWidget(editor, idx, COLUMN_OPTION)
         self.option_droplist[key] = editor
 
     def __add_option_string(self, idx, key, layout):
         """String"""
-        editor = QLineEdit()
+        editor = QLineEdit(self)
         editor.setFixedWidth(self.option_width)
         # Load selected option
-        editor.setText(
-            self.user_setting[self.key_name][key])
+        editor.setText(self.user_setting[self.key_name][key])
         # Context menu
-        add_context_menu(
-            editor, self.default_setting[self.key_name][key], "set_text")
+        editor.defaults = self.default_setting[self.key_name][key]
+        add_context_menu(editor)
         # Add layout
         layout.addWidget(editor, idx, COLUMN_OPTION)
         self.option_string[key] = editor
 
     def __add_option_integer(self, idx, key, layout):
         """Integer"""
-        editor = QLineEdit()
+        editor = QLineEdit(self)
         editor.setFixedWidth(self.option_width)
         editor.setValidator(QVAL_INTEGER)
         # Load selected option
-        editor.setText(
-            str(self.user_setting[self.key_name][key]))
+        editor.setText(str(self.user_setting[self.key_name][key]))
         # Context menu
-        add_context_menu(
-            editor, str(self.default_setting[self.key_name][key]), "set_text")
+        editor.defaults = self.default_setting[self.key_name][key]
+        add_context_menu(editor)
         # Add layout
         layout.addWidget(editor, idx, COLUMN_OPTION)
         self.option_integer[key] = editor
 
     def __add_option_float(self, idx, key, layout):
         """Float"""
-        editor = QLineEdit()
+        editor = QLineEdit(self)
         editor.setFixedWidth(self.option_width)
         editor.setValidator(QVAL_FLOAT)
         # Load selected option
-        editor.setText(
-            str(self.user_setting[self.key_name][key]))
+        editor.setText(str(self.user_setting[self.key_name][key]))
         # Context menu
-        add_context_menu(
-            editor, str(self.default_setting[self.key_name][key]), "set_text")
+        editor.defaults = self.default_setting[self.key_name][key]
+        add_context_menu(editor)
         # Add layout
         layout.addWidget(editor, idx, COLUMN_OPTION)
         self.option_float[key] = editor
@@ -573,28 +541,26 @@ def set_preset_name(cfg_type: str):
     return cfg.filename.last_setting
 
 
-def add_context_menu(target, default, mode):
+def add_context_menu(parent: QWidget):
     """Add context menu"""
-    target.setContextMenuPolicy(Qt.CustomContextMenu)
-    target.customContextMenuRequested.connect(
-        lambda pos,
-        target=target,
-        default=default,
-        mode=mode:
-        context_menu_reset_option(pos, target, default, mode)
+    parent.setContextMenuPolicy(Qt.CustomContextMenu)
+    parent.customContextMenuRequested.connect(
+        lambda position, parent=parent: context_menu_reset_option(position, parent)
     )
 
 
-def context_menu_reset_option(pos, target, default, mode):
+def context_menu_reset_option(position: QPoint, parent: QWidget):
     """Context menu reset option"""
-    menu = QMenu()
+    menu = QMenu(parent)
     option_reset = menu.addAction("Reset to Default")
-    action = menu.exec_(target.mapToGlobal(pos))
-
+    action = menu.exec_(parent.mapToGlobal(position))
     if action == option_reset:
-        if mode == "set_check":
-            target.setChecked(default)
-        elif mode == "set_text":
-            target.setText(default)
-        elif mode == "set_combo":
-            target.setCurrentText(default)
+        if isinstance(parent, QCheckBox):
+            parent.setChecked(parent.defaults)
+            return
+        if isinstance(parent, QLineEdit):
+            parent.setText(str(parent.defaults))
+            return
+        if isinstance(parent, QComboBox):
+            parent.setCurrentText(str(parent.defaults))
+            return

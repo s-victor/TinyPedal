@@ -62,9 +62,9 @@ QSS_TAGGED_COLOR = (
 class PresetList(QWidget):
     """Preset list view"""
 
-    def __init__(self, master):
-        super().__init__()
-        self.master = master
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.master = parent
         self.preset_list = []
 
         # Label
@@ -121,7 +121,7 @@ class PresetList(QWidget):
             item.setText(preset_name)
             self.listbox_preset.addItem(item)
             # Add primary preset tag
-            label_item = PrimaryPresetTag(preset_name)
+            label_item = PrimaryPresetTag(self, preset_name)
             self.listbox_preset.setItemWidget(item, label_item)
 
         self.label_loaded.setText(f"Loaded: <b>{cfg.filename.last_setting[:-5]}</b>")
@@ -151,7 +151,7 @@ class PresetList(QWidget):
 
     def set_context_menu(self):
         """Set context menu"""
-        menu = QMenu()
+        menu = QMenu(self)
         menu.addAction("Set Primary for LMU")
         menu.addAction("Set Primary for RF2")
         menu.addSeparator()
@@ -236,7 +236,7 @@ class PresetList(QWidget):
 class CreatePreset(BaseDialog):
     """Create preset"""
 
-    def __init__(self, master, title: str = "", mode: str = "", source_filename: str = ""):
+    def __init__(self, parent, title: str = "", mode: str = "", source_filename: str = ""):
         """Initialize create preset dialog setting
 
         Args:
@@ -244,8 +244,8 @@ class CreatePreset(BaseDialog):
             mode: Edit mode, either "duplicate", "rename", or "" for new preset.
             source_filename: Source setting filename.
         """
-        super().__init__(master)
-        self.master = master
+        super().__init__(parent)
+        self.master = parent
         self.edit_mode = mode
         self.source_filename = source_filename
 
@@ -321,8 +321,8 @@ class CreatePreset(BaseDialog):
 class PrimaryPresetTag(QWidget):
     """Primary preset tag"""
 
-    def __init__(self, preset_name: str):
-        super().__init__()
+    def __init__(self, parent, preset_name: str):
+        super().__init__(parent)
         layout_item = QHBoxLayout()
         layout_item.setContentsMargins(0,0,0,0)
         layout_item.setSpacing(0)

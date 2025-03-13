@@ -33,7 +33,6 @@ class DataModule:
     """Data module base"""
 
     def __init__(self, config: Setting, module_name: str):
-        super().__init__()
         self.module_name = module_name
         self.closed = True
         self.state: OverlayState = octrl.state

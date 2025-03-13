@@ -53,8 +53,8 @@ from ._common import (
 class HeatmapEditor(BaseEditor):
     """Heatmap editor"""
 
-    def __init__(self, master):
-        super().__init__(master)
+    def __init__(self, parent):
+        super().__init__(parent)
         self.set_utility_title("Heatmap Editor")
         self.setMinimumHeight(400)
 
@@ -154,7 +154,7 @@ class HeatmapEditor(BaseEditor):
             self.option_heatmap.append((temperature_edit, color_edit))
             row_index += 1
 
-            heatmap_item = QWidget()
+            heatmap_item = QWidget(self)
             heatmap_item.setLayout(layout_item)
             item = QListWidgetItem()
             self.listbox_heatmap.addItem(item)
@@ -176,7 +176,7 @@ class HeatmapEditor(BaseEditor):
 
     def __add_option_color(self, key: str, layout: QHBoxLayout, width: int):
         """Color string"""
-        color_edit = DoubleClickEdit(mode="color", init=key)
+        color_edit = DoubleClickEdit(self, mode="color", init=key)
         color_edit.setFixedWidth(width)
         color_edit.setMaxLength(9)
         color_edit.setValidator(QVAL_COLOR)
@@ -343,9 +343,9 @@ class CreateHeatmapPreset(BaseDialog):
         mode: Edit mode, either "duplicate" or "" for new preset.
     """
 
-    def __init__(self, master, title: str = "", mode: str = ""):
-        super().__init__(master)
-        self.master = master
+    def __init__(self, parent, title: str = "", mode: str = ""):
+        super().__init__(parent)
+        self.master = parent
         self.edit_mode = mode
         self.setWindowTitle(title)
         self.setFixedWidth(280)

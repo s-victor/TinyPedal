@@ -42,9 +42,9 @@ QSS_LISTBOX = (
 class SpectateList(QWidget):
     """Spectate list view"""
 
-    def __init__(self, master):
-        super().__init__()
-        self.master = master
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.master = parent
         self.spectate_list = []
 
         # Label
