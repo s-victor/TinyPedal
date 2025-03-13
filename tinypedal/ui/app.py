@@ -23,7 +23,6 @@ Main application window
 import logging
 
 from PySide2.QtCore import Qt, Slot
-from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import (
     QApplication,
     QMainWindow,
@@ -35,7 +34,6 @@ from PySide2.QtWidgets import (
 )
 
 from ..const import APP_NAME, VERSION
-from ..file_constants import ImageFile
 from ..setting import ConfigType, cfg
 from ..api_control import api
 from ..overlay_control import octrl
@@ -57,7 +55,6 @@ class AppWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
-        self.setWindowIcon(QIcon(ImageFile.APP_ICON))
 
         # Status bar & notification
         self.button_api = QPushButton()

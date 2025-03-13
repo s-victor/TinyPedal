@@ -27,10 +27,7 @@ from .menu import OverlayMenu
 
 
 class TrayIcon(QSystemTrayIcon):
-    """System tray icon
-
-    Activate overlay widgets via system tray icon.
-    """
+    """System tray icon & menu"""
 
     def __init__(self, master):
         super().__init__(master)
@@ -45,7 +42,7 @@ class TrayIcon(QSystemTrayIcon):
         menu = OverlayMenu("Overlay", self.master, True)
         self.setContextMenu(menu)
 
-    def active_doubleclick(self, active_reason):
+    def active_doubleclick(self, active_reason: QSystemTrayIcon.ActivationReason):
         """Active on doubleclick"""
         if active_reason == QSystemTrayIcon.ActivationReason.DoubleClick:
             self.master.show_app()

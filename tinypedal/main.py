@@ -26,7 +26,7 @@ import io
 import logging
 import psutil
 
-from PySide2.QtGui import QFont
+from PySide2.QtGui import QIcon, QFont, QPixmapCache
 from PySide2.QtWidgets import QApplication, QMessageBox
 
 from .cli_argument import get_cli_argument
@@ -41,6 +41,7 @@ from .const import (
     QT_VERSION,
     PSUTIL_VERSION,
 )
+from .file_constants import ImageFile
 from .log_handler import set_logging_level
 
 logger = logging.getLogger("tinypedal")
@@ -121,11 +122,13 @@ def init_gui() -> QApplication:
     """Initialize Qt Gui"""
     root = QApplication(sys.argv)
     root.setApplicationName(APP_NAME)
+    root.setWindowIcon(QIcon(ImageFile.APP_ICON))
     root.setQuitOnLastWindowClosed(False)
     font = QFont("sans-serif", 10)
     font.setStyleHint(QFont.SansSerif)
     root.setFont(font)
     root.setStyle("Fusion")
+    QPixmapCache.setCacheLimit(0)  # disable global cache
     return root
 
 
