@@ -26,7 +26,7 @@ from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
 from ..validator import file_last_modified
-from ..file_constants import FILE_EXT
+from ..file_constants import FileExt
 from .. import calculation as calc
 from ..userfile.track_map import load_track_map_file, save_track_map_file
 
@@ -212,7 +212,7 @@ class MapRecorder:
         modified = file_last_modified(
             filepath=self._filepath,
             filename=filename,
-            extension=FILE_EXT.SVG,
+            extension=FileExt.SVG,
         )
         is_loaded = self.last_modified == modified > 0
         self.last_modified = modified

@@ -100,7 +100,7 @@ class ModuleControl:
             cfg.user.setting[_name]["enable"] = True
         self.start()
         cfg.save()
-        logger.info("ACTIVE: all %s(s)", self.type_id)
+        logger.info("ENABLED: all %s(s)", self.type_id)
 
     def disable_all(self):
         """Disable all modules"""
@@ -108,7 +108,7 @@ class ModuleControl:
             cfg.user.setting[_name]["enable"] = False
         self.close()
         cfg.save()
-        logger.info("CLOSED: all %s(s)", self.type_id)
+        logger.info("DISABLED: all %s(s)", self.type_id)
 
     def __start_enabled(self):
         """Start all enabled module"""

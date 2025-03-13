@@ -24,6 +24,7 @@ from PySide2.QtCore import Qt
 from PySide2.QtGui import QPixmap, QPainter
 
 from ..api_control import api
+from ..file_constants import ImageFile
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -49,7 +50,7 @@ class Realtime(Overlay):
 
         # Config canvas
         self.pixmap_common = QPixmap(self.icon_size, self.icon_size)
-        self.pixmap_icon = QPixmap("images/icon_instrument.png").scaledToWidth(
+        self.pixmap_icon = QPixmap(ImageFile.INSTRUMENT).scaledToWidth(
             self.icon_size * 2, mode=Qt.SmoothTransformation
         )
 

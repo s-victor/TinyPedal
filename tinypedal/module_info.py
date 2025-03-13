@@ -369,27 +369,6 @@ class VehiclesInfo:
         self.nearestYellow: float = 999999.0
 
 
-class WheelsInfo:
-    """Wheels module output data"""
-
-    __slots__ = (
-        "radiusFront",
-        "radiusRear",
-        "lockingPercentFront",
-        "lockingPercentRear",
-        "corneringRadius",
-        "slipRatio",
-    )
-
-    def __init__(self):
-        self.radiusFront: float = 0.0
-        self.radiusRear: float = 0.0
-        self.lockingPercentFront: float = 0.0
-        self.lockingPercentRear: float = 0.0
-        self.corneringRadius: float = 0.0
-        self.slipRatio: list[float] = [0.0] * 4
-
-
 class VehiclePitTimer:
     """Vehicle pit timer"""
 
@@ -472,6 +451,29 @@ class VehicleDataSet:
         self.relativeRotatedPositionX: float = 0.0
         self.relativeRotatedPositionY: float = 0.0
         self.pitTimer: VehiclePitTimer = VehiclePitTimer()
+
+
+class WheelsInfo:
+    """Wheels module output data"""
+
+    __slots__ = (
+        "vehicleName",
+        "radiusFront",
+        "radiusRear",
+        "lockingPercentFront",
+        "lockingPercentRear",
+        "corneringRadius",
+        "slipRatio",
+    )
+
+    def __init__(self):
+        self.vehicleName: str = ""
+        self.radiusFront: float = 0.0
+        self.radiusRear: float = 0.0
+        self.lockingPercentFront: float = 0.0
+        self.lockingPercentRear: float = 0.0
+        self.corneringRadius: float = 0.0
+        self.slipRatio: list[float] = [0.0] * 4
 
 
 class ModuleInfo:

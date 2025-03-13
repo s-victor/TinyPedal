@@ -28,15 +28,6 @@ from ..api_control import api
 from .. import calculation as calc
 
 
-class TempInfo:
-    """Temporary vehicle info"""
-
-    __slots__ = ()
-    vehicle_name: str = ""
-    radius_front: float = 0.0
-    radius_rear: float = 0.0
-
-
 class Realtime(DataModule):
     """Wheels data"""
 
@@ -65,12 +56,13 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
 
-                    if TempInfo.vehicle_name == api.read.check.vehicle_id():
-                        radius_front = TempInfo.radius_front
-                        radius_rear = TempInfo.radius_rear
+                    if output.vehicleName == api.read.check.vehicle_id():
+                        radius_front = output.radiusFront
+                        radius_rear = output.radiusRear
                         min_samples_f = 160
                         min_samples_r = 160
                     else:
+                        output.vehicleName = api.read.check.vehicle_id()
                         list_radius_f.clear()
                         list_radius_r.clear()
                         radius_front = 0.0
@@ -144,10 +136,6 @@ class Realtime(DataModule):
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
-                    if radius_front != 0 != radius_rear:
-                        TempInfo.vehicle_name = api.read.check.vehicle_id()
-                        TempInfo.radius_front = radius_front
-                        TempInfo.radius_rear = radius_rear
 
 
 def sample_slice_indices(samples: int) -> slice:

@@ -39,7 +39,7 @@ from .template.setting_heatmap import HEATMAP_DEFAULT
 from . import regex_pattern as rxp
 from . import validator as val
 from .const import APP_NAME, PLATFORM, PATH_GLOBAL
-from .file_constants import FILE_EXT
+from .file_constants import ConfigType, FileExt
 from .setting_validator import StyleValidator
 from .userfile.json_setting import (
     copy_setting,
@@ -53,24 +53,6 @@ from .userfile.json_setting import (
 )
 
 logger = logging.getLogger(__name__)
-
-
-class ConfigType:
-    """Configuration type constants"""
-
-    __slots__ = ()
-    # Setting preset
-    CONFIG = "config"
-    SETTING = "setting"
-    # Module ID
-    MODULE = "module"
-    WIDGET = "widget"
-    # Style preset
-    BRAKES = "brakes"
-    BRANDS = "brands"
-    CLASSES = "classes"
-    COMPOUNDS = "compounds"
-    HEATMAP = "heatmap"
 
 
 class FileName:
@@ -88,14 +70,14 @@ class FileName:
     )
 
     def __init__(self):
-        self.config = f"config{FILE_EXT.JSON}"
-        self.setting = f"default{FILE_EXT.JSON}"
-        self.brakes = f"brakes{FILE_EXT.JSON}"
-        self.brands = f"brands{FILE_EXT.JSON}"
-        self.classes = f"classes{FILE_EXT.JSON}"
-        self.compounds = f"compounds{FILE_EXT.JSON}"
-        self.heatmap = f"heatmap{FILE_EXT.JSON}"
-        self.last_setting = f"None{FILE_EXT.JSON}"
+        self.config = f"config{FileExt.JSON}"
+        self.setting = f"default{FileExt.JSON}"
+        self.brakes = f"brakes{FileExt.JSON}"
+        self.brands = f"brands{FileExt.JSON}"
+        self.classes = f"classes{FileExt.JSON}"
+        self.compounds = f"compounds{FileExt.JSON}"
+        self.heatmap = f"heatmap{FileExt.JSON}"
+        self.last_setting = f"None{FileExt.JSON}"
 
 
 class FilePath:
@@ -152,15 +134,6 @@ class Preset:
         "compounds",
         "heatmap",
     )
-
-    def __init__(self):
-        self.config: dict | None = None
-        self.setting: dict | None = None
-        self.brakes: dict | None = None
-        self.brands: dict | None = None
-        self.classes: dict | None = None
-        self.compounds: dict | None = None
-        self.heatmap: dict | None = None
 
     def set_default(self):
         """Set default setting"""
@@ -240,7 +213,7 @@ class Setting:
         """Get primary preset name and verify"""
         preset_name = self.primary_preset.get(sim_name, "")
         if val.allowed_filename(rxp.CFG_INVALID_FILENAME, preset_name):
-            full_preset_name = f"{preset_name}{FILE_EXT.JSON}"
+            full_preset_name = f"{preset_name}{FileExt.JSON}"
             if os.path.exists(f"{self.path.settings}{full_preset_name}"):
                 return full_preset_name
         return ""
@@ -274,7 +247,7 @@ class Setting:
         new_settings_path = os.path.abspath(self.path.settings)
         # Update preset name if settings path changed
         if new_settings_path != old_settings_path:
-            self.filename.setting = f"{self.preset_list[0]}{FILE_EXT.JSON}"
+            self.filename.setting = f"{self.preset_list[0]}{FileExt.JSON}"
 
     def load(self):
         """Load all setting files"""
@@ -330,7 +303,7 @@ class Setting:
         gen_cfg_list = (
             (os.path.getmtime(f"{self.path.settings}{_filename}"), _filename[:-5])
             for _filename in os.listdir(self.path.settings)
-            if _filename.lower().endswith(FILE_EXT.JSON)
+            if _filename.lower().endswith(FileExt.JSON)
         )
         valid_cfg_list = [
             _filename[1]

@@ -26,7 +26,7 @@ import csv
 
 from .. import validator as val
 from ..module_info import ConsumptionDataSet
-from ..file_constants import FILE_EXT
+from ..file_constants import FileExt
 
 logger = logging.getLogger(__name__)
 
@@ -72,7 +72,7 @@ def save_fuel_delta_file(
 
 
 def load_consumption_history_file(
-    filepath: str, filename: str, extension: str = FILE_EXT.CONSUMPTION
+    filepath: str, filename: str, extension: str = FileExt.CONSUMPTION
 ) -> tuple[ConsumptionDataSet, ...]:
     """Load fuel/energy consumption history file (*.consumption)"""
     try:
@@ -94,7 +94,7 @@ def load_consumption_history_file(
 
 
 def save_consumption_history_file(
-    dataset: tuple, filepath: str, filename: str, extension: str = FILE_EXT.CONSUMPTION
+    dataset: tuple, filepath: str, filename: str, extension: str = FileExt.CONSUMPTION
 ) -> None:
     """Save fuel/energy consumption history file (*.consumption)"""
     if len(dataset) < 2:

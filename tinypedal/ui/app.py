@@ -34,7 +34,8 @@ from PySide2.QtWidgets import (
     QPushButton,
 )
 
-from ..const import APP_NAME, VERSION, APP_ICON
+from ..const import APP_NAME, VERSION
+from ..file_constants import ImageFile
 from ..setting import ConfigType, cfg
 from ..api_control import api
 from ..overlay_control import octrl
@@ -47,7 +48,7 @@ from .preset_view import PresetList
 from .pace_notes_view import PaceNotesControl
 from .menu import OverlayMenu, ConfigMenu, ToolsMenu, WindowMenu, HelpMenu
 
-logger = logging.getLogger("tinypedal")
+logger = logging.getLogger(__name__)
 
 
 class AppWindow(QMainWindow):
@@ -56,7 +57,7 @@ class AppWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
-        self.setWindowIcon(QIcon(APP_ICON))
+        self.setWindowIcon(QIcon(ImageFile.APP_ICON))
 
         # Status bar & notification
         self.button_api = QPushButton()

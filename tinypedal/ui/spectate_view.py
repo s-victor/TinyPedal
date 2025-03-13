@@ -65,7 +65,8 @@ class SpectateList(QWidget):
 
         self.button_toggle = QPushButton("")
         self.button_toggle.setCheckable(True)
-        self.button_toggle.clicked.connect(self.spectate_toggle_state)
+        self.button_toggle.setChecked(cfg.shared_memory_api["enable_player_index_override"])
+        self.button_toggle.toggled.connect(self.toggle_spectate)
         self.refresh_list()
 
         # Layout
@@ -91,16 +92,17 @@ class SpectateList(QWidget):
         self.label_spectating.setDisabled(not state)
         self.master.notify_spectate.setVisible(state)
 
-    def spectate_toggle_state(self):
-        """Spectate state toggle"""
-        cfg.shared_memory_api["enable_player_index_override"] = not cfg.shared_memory_api["enable_player_index_override"]
-        cfg.save()  # save only if toggled
+    def toggle_spectate(self, checked: bool):
+        """Toggle spectate mode"""
+        cfg.shared_memory_api["enable_player_index_override"] = checked
+        cfg.save()
         api.setup()
         self.refresh_list()
 
     def refresh_list(self):
         """Refresh spectate list"""
-        if cfg.shared_memory_api["enable_player_index_override"]:
+        enabled = cfg.shared_memory_api["enable_player_index_override"]
+        if enabled:
             temp_list = ["Anonymous", *self.driver_list()]
             if self.spectate_list != temp_list:
                 self.spectate_list = temp_list
@@ -111,15 +113,13 @@ class SpectateList(QWidget):
                 len(temp_list) - 1,  # prevent exceeding max players
             )
             self.listbox_spectate.setCurrentRow(index)
-            self.label_spectating.setText(
-                f"Spectating: <b>{self.spectate_list[index]}</b>")
+            self.label_spectating.setText(f"Spectating: <b>{self.spectate_list[index]}</b>")
         else:
             self.spectate_list.clear()
             self.listbox_spectate.clear()
-            self.label_spectating.setText(
-                "Spectating: <b>Disabled</b>")
+            self.label_spectating.setText("Spectating: <b>Disabled</b>")
 
-        self.set_button_state(cfg.shared_memory_api["enable_player_index_override"])
+        self.set_button_state(enabled)
 
     def spectate_selected(self):
         """Spectate selected player"""

@@ -49,8 +49,7 @@ LINK_USER_GUIDE = "https://github.com/s-victor/TinyPedal/wiki/User-Guide"
 LINK_FAQ = "https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions"
 
 # File name
-EXE_NAME = "tinypedal.exe"
-APP_ICON = "images/icon.png"
+EXE_FILE = "tinypedal.exe"
 LOG_FILE = "tinypedal.log"
 PID_FILE = "pid.log"
 

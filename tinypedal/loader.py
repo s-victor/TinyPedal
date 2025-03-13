@@ -23,7 +23,7 @@ Loader function
 import logging
 import signal
 
-from .file_constants import FILE_EXT
+from .file_constants import FileExt
 from .setting import ConfigType, cfg
 from .api_control import api
 from .module_control import mctrl, wctrl
@@ -39,7 +39,7 @@ def start():
     cfg.load_global()
     cfg.save(cfg_type=ConfigType.CONFIG)
     # 2 load preset
-    cfg.filename.setting = f"{cfg.preset_list[0]}{FILE_EXT.JSON}"
+    cfg.filename.setting = f"{cfg.preset_list[0]}{FileExt.JSON}"
     cfg.load()
     cfg.save()
     # 3 start api

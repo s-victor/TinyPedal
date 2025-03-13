@@ -24,6 +24,7 @@ from PySide2.QtCore import Qt, QRect
 from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush
 
 from ..api_control import api
+from ..file_constants import ImageFile
 from ..module_info import minfo
 from .. import validator as val
 from ._base import Overlay
@@ -59,7 +60,7 @@ class Realtime(Overlay):
         text_width = font_m.width * (5 + self.decimals)
 
         self.pixmap_wheel = self.load_image(
-            filename="images/icon_steering_wheel.png",
+            filename=ImageFile.STEERING_WHEEL,
             userfile=self.wcfg["custom_steering_wheel_image_file"],
             size=int(wheel_size * 1.5),
             show_custom=self.wcfg["show_custom_steering_wheel"],

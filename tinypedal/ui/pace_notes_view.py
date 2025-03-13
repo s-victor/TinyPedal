@@ -46,7 +46,7 @@ from ..module_info import minfo
 from .. import validator as val
 from ..overlay_control import octrl
 from ..module_control import mctrl
-from ..file_constants import QFILTER
+from ..file_constants import FileFilter
 from ..userfile.track_notes import COLUMN_PACENOTE
 from ._common import QSS_EDITOR_BUTTON
 
@@ -82,10 +82,10 @@ class PaceNotesPlayer(QMediaPlayer):
                 cfg.application["minimum_update_interval"],
             )
             self._update_timer.start(update_interval, self)
-            logger.info("ACTIVE: pace notes sounds playback")
+            logger.info("ENABLED: pace notes sounds playback")
         else:
             self._update_timer.stop()
-            logger.info("STOPPED: pace notes sounds playback")
+            logger.info("DISABLED: pace notes sounds playback")
 
     def reset_playback(self):
         """Reset"""
@@ -274,7 +274,7 @@ class PaceNotesControl(QWidget):
     def set_notes_path(self):
         """Set pace notes file path"""
         filepath = self.mcfg["pace_notes_file_name"]
-        filename_full = QFileDialog.getOpenFileName(self, dir=filepath, filter=QFILTER.TPPN)[0]
+        filename_full = QFileDialog.getOpenFileName(self, dir=filepath, filter=FileFilter.TPPN)[0]
         if not filename_full:
             return
         self.file_selector.setText(filename_full)

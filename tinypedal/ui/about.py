@@ -34,7 +34,8 @@ from PySide2.QtWidgets import (
     QTabWidget,
 )
 
-from ..const import APP_NAME, VERSION, APP_ICON, COPYRIGHT, DESCRIPTION, LICENSE, WEBSITE
+from ..const import APP_NAME, VERSION, COPYRIGHT, DESCRIPTION, LICENSE, WEBSITE
+from ..file_constants import ImageFile
 from ._common import BaseDialog
 
 logger = logging.getLogger(__name__)
@@ -110,7 +111,7 @@ class About(BaseDialog):
 
         # Logo
         icon_size = 128
-        logo_image = QPixmap(APP_ICON)
+        logo_image = QPixmap(ImageFile.APP_ICON)
         logo_image = logo_image.scaled(icon_size, icon_size, mode=Qt.SmoothTransformation)
 
         label_logo = QLabel(new_tab)

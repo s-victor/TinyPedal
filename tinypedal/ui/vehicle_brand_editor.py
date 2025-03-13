@@ -44,7 +44,7 @@ from PySide2.QtWidgets import (
 from ..api_control import api
 from ..setting import ConfigType, cfg, copy_setting
 from ..module_control import wctrl
-from ..file_constants import QFILTER
+from ..file_constants import FileFilter
 from ._common import (
     BaseEditor,
     TableBatchReplace,
@@ -200,7 +200,7 @@ class VehicleBrandEditor(BaseEditor):
 
     def import_from_file(self):
         """Import brand from file"""
-        filename_full = QFileDialog.getOpenFileName(self, filter=QFILTER.JSON)[0]
+        filename_full = QFileDialog.getOpenFileName(self, filter=FileFilter.JSON)[0]
         if not filename_full:
             return
 

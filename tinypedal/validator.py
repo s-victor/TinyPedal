@@ -25,11 +25,10 @@ import logging
 import os
 import re
 import time
-from functools import wraps
 from math import isfinite
 from typing import Any
 
-from .file_constants import FILE_EXT
+from .file_constants import FileExt
 
 TYPE_NUMBER = float, int
 
@@ -135,7 +134,7 @@ def relative_path(filepath: str) -> str:
     return output_path
 
 
-def image_file(filepath: str, extension: str = FILE_EXT.PNG, max_size: int = 5120000) -> bool:
+def image_file(filepath: str, extension: str = FileExt.PNG, max_size: int = 5120000) -> bool:
     """Validate image file path, file format (default PNG), max file size (default < 5MB)"""
     return (
         os.path.exists(filepath) and
@@ -223,26 +222,3 @@ def position_sync(max_diff: float = 200, max_desync: int = 20):
             pos_synced = pos_curr
             if desync_count:
                 desync_count = 0
-
-
-# Decorator
-def numeric_filter(func):
-    """Numeric filter decorator"""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        value = func(*args, **kwargs)
-        if isinstance(value, (list, tuple)):
-            return tuple(map(infnan2zero, value))
-        return infnan2zero(value)
-    return wrapper
-
-
-def string_filter(func):
-    """String filter decorator"""
-    @wraps(func)
-    def wrapper(*args, **kwargs):
-        string = func(*args, **kwargs)
-        if isinstance(string, (list, tuple)):
-            return list(map(cbytes2str, string))
-        return cbytes2str(string)
-    return wrapper

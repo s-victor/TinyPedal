@@ -20,9 +20,7 @@
 Init
 """
 
-import io
 import logging
 
 # Create logger
 logger = logging.getLogger("tinypedal")
-log_stream = io.StringIO()

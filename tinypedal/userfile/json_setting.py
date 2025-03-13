@@ -28,7 +28,7 @@ import json
 import shutil
 from typing import Callable
 
-from ..file_constants import FILE_EXT
+from ..file_constants import FileExt
 from ..setting_validator import PresetValidator
 
 logger = logging.getLogger(__name__)
@@ -142,7 +142,7 @@ def verify_json_file(
 
 
 def create_backup_file(
-    filename: str, filepath: str, extension: str = FILE_EXT.BAK, show_log: bool = False
+    filename: str, filepath: str, extension: str = FileExt.BAK, show_log: bool = False
 ) -> None:
     """Create backup file before saving"""
     try:
@@ -159,7 +159,7 @@ def create_backup_file(
 
 
 def restore_backup_file(
-    filename: str, filepath: str, extension: str = FILE_EXT.BAK
+    filename: str, filepath: str, extension: str = FileExt.BAK
 ) -> None:
     """Restore backup file if saving failed"""
     try:
@@ -174,7 +174,7 @@ def restore_backup_file(
 
 
 def delete_backup_file(
-    filename: str, filepath: str, extension: str = FILE_EXT.BAK
+    filename: str, filepath: str, extension: str = FileExt.BAK
 ) -> None:
     """Delete backup file"""
     try:

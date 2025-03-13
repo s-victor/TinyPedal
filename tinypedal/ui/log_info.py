@@ -31,9 +31,8 @@ from PySide2.QtWidgets import (
     QMessageBox,
 )
 
-from .. import log_stream
-from ..const import LOG_FILE
-from ..file_constants import QFILTER
+from ..main import log_stream
+from ..file_constants import FileFilter
 from ._common import BaseDialog, QSS_EDITOR_BUTTON
 
 
@@ -108,8 +107,8 @@ class LogInfo(BaseDialog):
         """Save log"""
         filename_full = QFileDialog.getSaveFileName(
             self,
-            dir=LOG_FILE,
-            filter=";;".join((QFILTER.LOG, QFILTER.TXT, QFILTER.ALL)),
+            dir="log",
+            filter=";;".join((FileFilter.TXT, FileFilter.LOG, FileFilter.ALL)),
         )[0]
         if not filename_full:
             return

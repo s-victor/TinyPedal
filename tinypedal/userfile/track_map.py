@@ -24,7 +24,7 @@ import logging
 import xml.dom.minidom
 import xml.parsers.expat
 
-from ..file_constants import FILE_EXT
+from ..file_constants import FileExt
 from ..formatter import (
     coords_to_points,
     points_to_coords,
@@ -34,7 +34,7 @@ from ..formatter import (
 logger = logging.getLogger(__name__)
 
 
-def load_track_map_file(filepath: str, filename: str, extension: str = FILE_EXT.SVG):
+def load_track_map_file(filepath: str, filename: str, extension: str = FileExt.SVG):
     """Load svg track map file (*.svg)"""
     try:
         dom = xml.dom.minidom.parse(f"{filepath}{filename}{extension}")
@@ -65,7 +65,7 @@ def load_track_map_file(filepath: str, filename: str, extension: str = FILE_EXT.
 def save_track_map_file(
     filepath: str, filename: str, view_box: str,
     raw_coords: tuple, raw_dists: tuple, sector_index: tuple,
-    extension: str = FILE_EXT.SVG
+    extension: str = FileExt.SVG
 ) -> None:
     """Save track map file (*.svg)"""
     # Convert to svg coordinates

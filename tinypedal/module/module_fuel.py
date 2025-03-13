@@ -28,7 +28,7 @@ from collections.abc import Callable
 from ._base import DataModule
 from ..module_info import minfo, FuelInfo, ConsumptionDataSet
 from ..api_control import api
-from ..file_constants import FILE_EXT
+from ..file_constants import FileExt
 from .. import calculation as calc
 from ..userfile.fuel_delta import (
     load_fuel_delta_file,
@@ -69,7 +69,7 @@ class Realtime(DataModule):
                         telemetry_func=telemetry_fuel,
                         filepath=userpath_fuel_delta,
                         filename=combo_id,
-                        extension=FILE_EXT.FUEL,
+                        extension=FileExt.FUEL,
                         min_delta_distance=self.mcfg["minimum_delta_distance"],
                     )
                     next(gen_calc_fuel)

@@ -20,10 +20,9 @@
 Tray icon
 """
 
-from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import QSystemTrayIcon
 
-from ..const import APP_NAME, VERSION, APP_ICON
+from ..const import APP_NAME, VERSION
 from .menu import OverlayMenu
 
 
@@ -34,11 +33,11 @@ class TrayIcon(QSystemTrayIcon):
     """
 
     def __init__(self, master):
-        super().__init__()
+        super().__init__(master)
         self.master = master
 
         # Config tray icon
-        self.setIcon(QIcon(APP_ICON))
+        self.setIcon(master.windowIcon())
         self.setToolTip(f"{APP_NAME} v{VERSION}")
         self.activated.connect(self.active_doubleclick)
 

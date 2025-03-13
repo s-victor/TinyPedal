@@ -25,6 +25,7 @@ from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush
 
 from .. import calculation as calc
 from ..api_control import api
+from ..file_constants import ImageFile
 from ._base import Overlay
 
 
@@ -80,7 +81,7 @@ class Realtime(Overlay):
         self.resize(self.area_size, self.area_size)
         self.pixmap_background = QPixmap(self.area_size, self.area_size)
         self.pixmap_dot = QPixmap(self.area_size, self.area_size)
-        self.pixmap_icon = QPixmap("images/icon_compass.png").scaledToWidth(
+        self.pixmap_icon = QPixmap(ImageFile.COMPASS).scaledToWidth(
             int(self.area_size * 1.5),
             mode=Qt.SmoothTransformation
         )

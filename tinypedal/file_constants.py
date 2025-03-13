@@ -30,10 +30,26 @@ def qfile_filter(extension: str, description: str) -> str:
     return f"{description} (*{extension})"
 
 
-class FileExtension:
-    """File Extension constants"""
+class ConfigType:
+    """Configuration types"""
 
-    __slots__ = ()
+    # Setting preset
+    CONFIG = "config"
+    SETTING = "setting"
+    # Module ID
+    MODULE = "module"
+    WIDGET = "widget"
+    # Style preset
+    BRAKES = "brakes"
+    BRANDS = "brands"
+    CLASSES = "classes"
+    COMPOUNDS = "compounds"
+    HEATMAP = "heatmap"
+
+
+class FileExt:
+    """File extension constants"""
+
     # Common
     ALL = ".*"
     LOG = ".log"
@@ -55,28 +71,31 @@ class FileExtension:
     STATS = ".stats"
 
 
-FILE_EXT = FileExtension()
-
-
 class FileFilter:
     """File filter constants (for used in QFileDialog)"""
 
-    __slots__ = ()
     # Common
-    ALL = qfile_filter(FILE_EXT.ALL, "All files")
-    LOG = qfile_filter(FILE_EXT.LOG, "LOG file")
-    TXT = qfile_filter(FILE_EXT.TXT, "Text file")
-    CSV = qfile_filter(FILE_EXT.CSV, "CSV file")
-    INI = qfile_filter(FILE_EXT.INI, "INI file")
-    JSON = qfile_filter(FILE_EXT.JSON, "JSON file")
+    ALL = qfile_filter(FileExt.ALL, "All files")
+    LOG = qfile_filter(FileExt.LOG, "LOG file")
+    TXT = qfile_filter(FileExt.TXT, "Text file")
+    CSV = qfile_filter(FileExt.CSV, "CSV file")
+    INI = qfile_filter(FileExt.INI, "INI file")
+    JSON = qfile_filter(FileExt.JSON, "JSON file")
     # Image
-    SVG = qfile_filter(FILE_EXT.SVG, "SVG image")
-    PNG = qfile_filter(FILE_EXT.PNG, "PNG image")
+    SVG = qfile_filter(FileExt.SVG, "SVG image")
+    PNG = qfile_filter(FileExt.PNG, "PNG image")
     # Specific
-    CONSUMPTION = qfile_filter(FILE_EXT.CONSUMPTION, "Consumption History")
-    TPPN = qfile_filter(FILE_EXT.TPPN, "TinyPedal Pace Notes")
-    TPTN = qfile_filter(FILE_EXT.TPTN, "TinyPedal Track Notes")
-    GPLINI = qfile_filter(FILE_EXT.INI, "GPL Pace Notes")
+    CONSUMPTION = qfile_filter(FileExt.CONSUMPTION, "Consumption History")
+    TPPN = qfile_filter(FileExt.TPPN, "TinyPedal Pace Notes")
+    TPTN = qfile_filter(FileExt.TPTN, "TinyPedal Track Notes")
+    GPLINI = qfile_filter(FileExt.INI, "GPL Pace Notes")
 
 
-QFILTER = FileFilter()
+class ImageFile:
+    """Built-in image file constants"""
+
+    APP_ICON = "images/icon.png"
+    COMPASS = "images/icon_compass.png"
+    INSTRUMENT = "images/icon_instrument.png"
+    STEERING_WHEEL = "images/icon_steering_wheel.png"
+    WEATHER = "images/icon_weather.png"

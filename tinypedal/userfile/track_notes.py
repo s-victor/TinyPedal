@@ -29,7 +29,7 @@ from operator import itemgetter
 from collections.abc import Callable
 from typing import Any, Iterable
 
-from ..file_constants import QFILTER
+from ..file_constants import FileFilter
 
 NOTESTYPE_PACE = "Pace Notes"
 NOTESTYPE_TRACK = "Track Notes"
@@ -52,12 +52,21 @@ logger = logging.getLogger(__name__)
 def set_notes_filter(notes_type: str) -> str:
     """Set notes file filter"""
     if notes_type == NOTESTYPE_PACE:
-        return ";;".join(
-            (QFILTER.TPPN,QFILTER.GPLINI,QFILTER.CSV,QFILTER.INI,QFILTER.ALL)
+        filter_set = (  # pace notes filters
+            FileFilter.TPPN,
+            FileFilter.GPLINI,
+            FileFilter.CSV,
+            FileFilter.INI,
+            FileFilter.ALL,
         )
-    return ";;".join(
-        (QFILTER.TPTN,QFILTER.CSV,QFILTER.INI,QFILTER.ALL)
-    )
+    else:
+        filter_set = (  # track notes filters
+            FileFilter.TPTN,
+            FileFilter.CSV,
+            FileFilter.INI,
+            FileFilter.ALL,
+        )
+    return ";;".join(filter_set)
 
 
 def set_notes_header(notes_type: str) -> tuple[str, ...]:
@@ -69,14 +78,14 @@ def set_notes_header(notes_type: str) -> tuple[str, ...]:
 
 def set_notes_parser(file_filter: str) -> Callable:
     """Set notes parser"""
-    if file_filter == QFILTER.GPLINI:
+    if file_filter == FileFilter.GPLINI:
         return parse_gpl_notes
     return parse_csv_notes
 
 
 def set_notes_writer(file_filter: str) -> Callable:
     """Set notes writer"""
-    if file_filter == QFILTER.GPLINI:
+    if file_filter == FileFilter.GPLINI:
         return write_gpl_notes
     return write_csv_notes
 

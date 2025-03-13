@@ -26,7 +26,7 @@ from ._base import DataModule
 from .module_fuel import calc_data
 from ..module_info import minfo
 from ..api_control import api
-from ..file_constants import FILE_EXT
+from ..file_constants import FileExt
 from .. import calculation as calc
 
 
@@ -56,7 +56,7 @@ class Realtime(DataModule):
                         telemetry_func=telemetry_energy,
                         filepath=userpath_energy_delta,
                         filename=combo_id,
-                        extension=FILE_EXT.ENERGY,
+                        extension=FileExt.ENERGY,
                         min_delta_distance=self.mcfg["minimum_delta_distance"],
                     )
                     next(gen_calc_energy)

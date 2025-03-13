@@ -27,9 +27,10 @@ from PySide2.QtGui import QPixmap, QPainter
 
 from .. import calculation as calc
 from .. import weather as wthr
-from ..regex_pattern import TEXT_NOTAVAILABLE
 from ..api_control import api
+from ..file_constants import ImageFile
 from ..module_info import minfo, WeatherNode
+from ..regex_pattern import TEXT_NOTAVAILABLE
 from ._base import Overlay
 
 MAX_FORECASTS = 5
@@ -293,7 +294,7 @@ def get_forecast_info(session_type: int) -> list[WeatherNode]:
 
 def create_weather_icon_set(icon_size: int):
     """Create weather icon set"""
-    icon_source = QPixmap("images/icon_weather.png")
+    icon_source = QPixmap(ImageFile.WEATHER)
     pixmap_icon = icon_source.scaledToWidth(icon_size * 12, mode=Qt.SmoothTransformation)
     rect_size = QRect(0, 0, icon_size, icon_size)
     rect_offset = QRect(0, 0, icon_size, icon_size)

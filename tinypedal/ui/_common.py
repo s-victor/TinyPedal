@@ -27,7 +27,6 @@ from collections.abc import Callable
 
 from PySide2.QtCore import Qt, QRegularExpression, QLocale
 from PySide2.QtGui import (
-    QIcon,
     QColor,
     QRegularExpressionValidator,
     QIntValidator,
@@ -55,8 +54,8 @@ from PySide2.QtWidgets import (
 )
 
 from .. import validator as val
-from ..const import APP_NAME, APP_ICON
-from ..file_constants import QFILTER
+from ..const import APP_NAME
+from ..file_constants import FileFilter
 
 # Validator
 QLOC_NUMBER = QLocale(QLocale.C)
@@ -92,7 +91,6 @@ class BaseDialog(QDialog):
     def __init__(self, master):
         super().__init__(master)
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
-        self.setWindowIcon(QIcon(APP_ICON))
         self.setAttribute(Qt.WA_DeleteOnClose, True)
 
     def set_config_title(self, option_name: str, preset_name: str):
@@ -431,7 +429,7 @@ class DoubleClickEdit(QLineEdit):
     def open_dialog_image(self):
         """Open image file name dialog"""
         path_selected = QFileDialog.getOpenFileName(
-            self, dir=self.init_value, filter=QFILTER.PNG)[0]
+            self, dir=self.init_value, filter=FileFilter.PNG)[0]
         if val.image_file(path_selected):
             self.setText(path_selected)
             self.init_value = path_selected

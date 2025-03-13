@@ -106,7 +106,7 @@ class OverlayState(QObject):
             self._stopped = False
             self._event.clear()
             threading.Thread(target=self.__updating, daemon=True).start()
-            logger.info("ACTIVE: overlay control")
+            logger.info("ENABLED: overlay control")
 
     def stop(self):
         """Stop thread"""
@@ -123,7 +123,7 @@ class OverlayState(QObject):
                 self.__auto_load_preset()
 
         self._stopped = True
-        logger.info("CLOSED: overlay control")
+        logger.info("DISABLED: overlay control")
 
     def __auto_hide_state(self):
         """Auto hide state"""

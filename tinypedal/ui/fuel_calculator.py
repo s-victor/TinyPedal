@@ -51,7 +51,7 @@ from ..setting import cfg
 from ..module_info import minfo, ConsumptionDataSet
 from .. import calculation as calc
 from .. import formatter as fmt
-from ..file_constants import QFILTER
+from ..file_constants import FileFilter
 from ..userfile.fuel_delta import load_consumption_history_file
 from ._common import BaseDialog
 
@@ -175,7 +175,7 @@ class FuelCalculator(BaseDialog):
         filename_full = QFileDialog.getOpenFileName(
             self,
             dir=cfg.path.fuel_delta,
-            filter=";;".join((QFILTER.CONSUMPTION, QFILTER.CSV))
+            filter=";;".join((FileFilter.CONSUMPTION, FileFilter.CSV))
         )[0]
         if not filename_full:
             return

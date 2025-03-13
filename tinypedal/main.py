@@ -22,19 +22,19 @@ Launcher
 
 import os
 import sys
+import io
 import logging
 import psutil
 
 from PySide2.QtGui import QFont
 from PySide2.QtWidgets import QApplication, QMessageBox
 
-from . import log_stream
 from .cli_argument import get_cli_argument
 from .const import (
     APP_NAME,
     PLATFORM,
     VERSION,
-    EXE_NAME,
+    EXE_FILE,
     PID_FILE,
     PATH_GLOBAL,
     PYTHON_VERSION,
@@ -44,6 +44,7 @@ from .const import (
 from .log_handler import set_logging_level
 
 logger = logging.getLogger("tinypedal")
+log_stream = io.StringIO()
 
 
 def save_pid_file():
@@ -81,7 +82,7 @@ def is_exe_running() -> bool:
     app_pid = os.getpid()
     for app in psutil.process_iter(["name", "pid"]):
         # Compare found APP name & pid
-        if app.info["name"] == EXE_NAME and app.info["pid"] != app_pid:
+        if app.info["name"] == EXE_FILE and app.info["pid"] != app_pid:
             return True
     return False
 
