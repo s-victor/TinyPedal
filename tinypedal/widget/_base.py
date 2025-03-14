@@ -323,10 +323,12 @@ class Overlay(QWidget):
         Returns:
             QLabel instance.
         """
+        bar_temp = QLabel(self)
+        bar_temp.setTextFormat(Qt.PlainText)
+        bar_temp.setTextInteractionFlags(Qt.NoTextInteraction)
+
         if text is not None:
-            bar_temp = QLabel(text, self)
-        else:
-            bar_temp = QLabel(self)  # empty label
+            bar_temp.setText(text)
 
         if pixmap is not None:
             bar_temp.setPixmap(pixmap)
@@ -344,8 +346,6 @@ class Overlay(QWidget):
         elif height > 0:
             bar_temp.setMinimumHeight(height)
 
-        bar_temp.setTextFormat(Qt.PlainText)
-        bar_temp.setTextInteractionFlags(Qt.NoTextInteraction)
         bar_temp.setAlignment(self.set_text_alignment(align))
         bar_temp.last = last
         return bar_temp

@@ -31,7 +31,7 @@ class TrayIcon(QSystemTrayIcon):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.master = parent
+        self._parent = parent
 
         # Config tray icon
         self.setIcon(parent.windowIcon())
@@ -45,4 +45,4 @@ class TrayIcon(QSystemTrayIcon):
     def active_doubleclick(self, active_reason: QSystemTrayIcon.ActivationReason):
         """Active on doubleclick"""
         if active_reason == QSystemTrayIcon.ActivationReason.DoubleClick:
-            self.master.show_app()
+            self._parent.show_app()

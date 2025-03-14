@@ -22,7 +22,7 @@ Config dialog
 
 import re
 import time
-from collections.abc import Callable
+from typing import Callable
 
 from PySide2.QtCore import Qt, QPoint
 from PySide2.QtWidgets import (

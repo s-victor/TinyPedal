@@ -23,7 +23,7 @@ Fuel module
 from __future__ import annotations
 from functools import partial
 from math import ceil
-from collections.abc import Callable
+from typing import Callable
 
 from ._base import DataModule
 from ..module_info import minfo, FuelInfo, ConsumptionDataSet

@@ -152,7 +152,7 @@ class ResetDataMenu(QMenu):
 
     def __init__(self, title, parent):
         super().__init__(title, parent)
-        self.master = parent
+        self._parent = parent
 
         reset_deltabest = QAction("Delta Best", self)
         reset_deltabest.triggered.connect(self.reset_deltabest)
@@ -238,7 +238,7 @@ class ResetDataMenu(QMenu):
         # Check if on track
         if api.state:
             QMessageBox.warning(
-                self.master,
+                self._parent,
                 "Error",
                 "Cannot reset data while on track.",
             )
@@ -247,7 +247,7 @@ class ResetDataMenu(QMenu):
         filename_full = f"{filepath}{filename}.{extension}"
         if not os.path.exists(filename_full):
             QMessageBox.warning(
-                self.master,
+                self._parent,
                 "Error",
                 f"No {data_type} data found.<br><br>You can only reset data from active session.",
             )
@@ -258,7 +258,7 @@ class ResetDataMenu(QMenu):
             f"<b>{filename}</b> ?<br><br>This cannot be undone!"
         )
         delete_msg = QMessageBox.question(
-            self.master, f"Reset {data_type.title()}", msg_text,
+            self._parent, f"Reset {data_type.title()}", msg_text,
             buttons=QMessageBox.Yes | QMessageBox.No,
             defaultButton=QMessageBox.No,
         )
@@ -267,7 +267,7 @@ class ResetDataMenu(QMenu):
         # Delete file
         os.remove(filename_full)
         QMessageBox.information(
-            self.master,
+            self._parent,
             f"Reset {data_type.title()}",
             f"{data_type.capitalize()} data has been reset for<br><b>{filename}</b>",
         )
@@ -279,7 +279,7 @@ class ConfigMenu(QMenu):
 
     def __init__(self, title, parent):
         super().__init__(title, parent)
-        self.master = parent
+        self._parent = parent
 
         config_app = QAction("Application", self)
         config_app.triggered.connect(self.open_config_application)
@@ -309,24 +309,24 @@ class ConfigMenu(QMenu):
     def open_config_application(self):
         """Config global application"""
         _dialog = UserConfig(
-            parent=self.master,
+            parent=self._parent,
             key_name="application",
             cfg_type=ConfigType.CONFIG,
             user_setting=cfg.user.config,
             default_setting=cfg.default.config,
-            reload_func=self.master.reload_preset,
+            reload_func=self._parent.reload_preset,
         )
         _dialog.open()
 
     def open_config_userpath(self):
         """Config global user path"""
         _dialog = UserConfig(
-            parent=self.master,
+            parent=self._parent,
             key_name="user_path",
             cfg_type=ConfigType.CONFIG,
             user_setting=cfg.user.config,
             default_setting=cfg.default.config,
-            reload_func=self.master.reload_preset,
+            reload_func=self._parent.reload_preset,
             option_width=300,
         )
         _dialog.open()
@@ -334,45 +334,45 @@ class ConfigMenu(QMenu):
     def open_config_font(self):
         """Config global font"""
         _dialog = FontConfig(
-            parent=self.master,
+            parent=self._parent,
             user_setting=cfg.user.setting,
-            reload_func=self.master.reload_preset,
+            reload_func=self._parent.reload_preset,
         )
         _dialog.open()
 
     def open_config_units(self):
         """Config display units"""
         _dialog = UserConfig(
-            parent=self.master,
+            parent=self._parent,
             key_name="units",
             cfg_type=ConfigType.SETTING,
             user_setting=cfg.user.setting,
             default_setting=cfg.default.setting,
-            reload_func=self.master.reload_preset,
+            reload_func=self._parent.reload_preset,
         )
         _dialog.open()
 
     def open_config_sharedmemory(self):
         """Config sharedmemory"""
         _dialog = UserConfig(
-            parent=self.master,
+            parent=self._parent,
             key_name="shared_memory_api",
             cfg_type=ConfigType.SETTING,
             user_setting=cfg.user.setting,
             default_setting=cfg.default.setting,
-            reload_func=self.master.restart_api,
+            reload_func=self._parent.restart_api,
         )
         _dialog.open()
 
     def open_config_compatibility(self):
         """Config compatibility"""
         _dialog = UserConfig(
-            parent=self.master,
+            parent=self._parent,
             key_name="compatibility",
             cfg_type=ConfigType.CONFIG,
             user_setting=cfg.user.config,
             default_setting=cfg.default.config,
-            reload_func=self.master.reload_preset,
+            reload_func=self._parent.reload_preset,
         )
         _dialog.open()
 
@@ -382,7 +382,7 @@ class ToolsMenu(QMenu):
 
     def __init__(self, title, parent):
         super().__init__(title, parent)
-        self.master = parent
+        self._parent = parent
 
         utility_fuelcalc = QAction("Fuel Calculator", self)
         utility_fuelcalc.triggered.connect(self.open_utility_fuelcalc)
@@ -423,47 +423,47 @@ class ToolsMenu(QMenu):
 
     def open_utility_fuelcalc(self):
         """Fuel calculator"""
-        _dialog = FuelCalculator(self.master)
+        _dialog = FuelCalculator(self._parent)
         _dialog.show()
 
     def open_utility_driverstats(self):
         """Track driver stats viewer"""
-        _dialog = DriverStatsViewer(self.master)
+        _dialog = DriverStatsViewer(self._parent)
         _dialog.show()
 
     def open_utility_mapviewer(self):
         """Track map viewer"""
-        _dialog = TrackMapViewer(self.master)
+        _dialog = TrackMapViewer(self._parent)
         _dialog.show()
 
     def open_editor_heatmap(self):
         """Edit heatmap preset"""
-        _dialog = HeatmapEditor(self.master)
+        _dialog = HeatmapEditor(self._parent)
         _dialog.show()
 
     def open_editor_brakes(self):
         """Edit brakes preset"""
-        _dialog = BrakeEditor(self.master)
+        _dialog = BrakeEditor(self._parent)
         _dialog.show()
 
     def open_editor_compounds(self):
         """Edit compounds preset"""
-        _dialog = TyreCompoundEditor(self.master)
+        _dialog = TyreCompoundEditor(self._parent)
         _dialog.show()
 
     def open_editor_brands(self):
         """Edit brands preset"""
-        _dialog = VehicleBrandEditor(self.master)
+        _dialog = VehicleBrandEditor(self._parent)
         _dialog.show()
 
     def open_editor_classes(self):
         """Edit classes preset"""
-        _dialog = VehicleClassEditor(self.master)
+        _dialog = VehicleClassEditor(self._parent)
         _dialog.show()
 
     def open_editor_tracknotes(self):
         """Edit track notes"""
-        _dialog = TrackNotesEditor(self.master)
+        _dialog = TrackNotesEditor(self._parent)
         _dialog.show()
 
 
@@ -529,7 +529,7 @@ class HelpMenu(QMenu):
 
     def __init__(self, title, parent):
         super().__init__(title, parent)
-        self.master = parent
+        self._parent = parent
 
         app_guide = QAction("User Guide", self)
         app_guide.triggered.connect(self.open_user_guide)
@@ -550,12 +550,12 @@ class HelpMenu(QMenu):
 
     def show_about(self):
         """Show about"""
-        _dialog = About(self.master)
+        _dialog = About(self._parent)
         _dialog.show()
 
     def show_log(self):
         """Show log"""
-        _dialog = LogInfo(self.master)
+        _dialog = LogInfo(self._parent)
         _dialog.show()
 
     def open_user_guide(self):

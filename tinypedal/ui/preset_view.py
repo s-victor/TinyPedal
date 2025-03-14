@@ -64,7 +64,7 @@ class PresetList(QWidget):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.master = parent
+        self.reload_preset = parent.reload_preset
         self.preset_list = []
 
         # Label
@@ -132,7 +132,7 @@ class PresetList(QWidget):
         selected_index = self.listbox_preset.currentRow()
         if selected_index >= 0:
             cfg.filename.setting = f"{self.preset_list[selected_index]}{FileExt.JSON}"
-            self.master.reload_preset()
+            self.reload_preset()
         else:
             QMessageBox.warning(
                 self, "Error",
@@ -245,7 +245,7 @@ class CreatePreset(BaseDialog):
             source_filename: Source setting filename.
         """
         super().__init__(parent)
-        self.master = parent
+        self._parent = parent
         self.edit_mode = mode
         self.source_filename = source_filename
 
@@ -292,7 +292,7 @@ class CreatePreset(BaseDialog):
                 f"{filepath}{source_filename}",
                 f"{filepath}{entered_filename}{FileExt.JSON}"
             )
-            self.master.refresh_list()
+            self._parent.refresh_list()
         # Rename preset
         elif self.edit_mode == "rename":
             os.rename(
@@ -302,9 +302,9 @@ class CreatePreset(BaseDialog):
             # Reload if renamed file was loaded
             if cfg.filename.setting == source_filename:
                 cfg.filename.setting = f"{entered_filename}{FileExt.JSON}"
-                self.master.master.reload_preset()
+                self._parent.reload_preset()
             else:
-                self.master.refresh_list()
+                self._parent.refresh_list()
         # Create new preset
         else:
             cfg.filename.setting = f"{entered_filename}{FileExt.JSON}"
@@ -312,7 +312,7 @@ class CreatePreset(BaseDialog):
             cfg.save(0)  # save setting
             while cfg.is_saving:  # wait saving finish
                 time.sleep(0.01)
-            self.master.refresh_list()
+            self._parent.refresh_list()
         # Close window
         self.accept()
         return None

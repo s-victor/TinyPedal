@@ -345,7 +345,7 @@ class CreateHeatmapPreset(BaseDialog):
 
     def __init__(self, parent, title: str = "", mode: str = ""):
         super().__init__(parent)
-        self.master = parent
+        self._parent = parent
         self.edit_mode = mode
         self.setWindowTitle(title)
         self.setFixedWidth(280)
@@ -381,12 +381,12 @@ class CreateHeatmapPreset(BaseDialog):
         """Saving new preset"""
         # Duplicate preset
         if self.edit_mode == "duplicate":
-            self.master.heatmap_temp[entered_name] = self.master.selected_heatmap_dict.copy()
+            self._parent.heatmap_temp[entered_name] = self._parent.selected_heatmap_dict.copy()
         # Create new preset
         else:
-            self.master.heatmap_temp[entered_name] = {"-273": "#4444FF"}
-        self.master.heatmap_list.addItem(entered_name)
-        self.master.heatmap_list.setCurrentText(entered_name)
-        self.master.set_modified()
+            self._parent.heatmap_temp[entered_name] = {"-273": "#4444FF"}
+        self._parent.heatmap_list.addItem(entered_name)
+        self._parent.heatmap_list.setCurrentText(entered_name)
+        self._parent.set_modified()
         # Close window
         self.accept()

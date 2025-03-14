@@ -144,7 +144,7 @@ class PaceNotesControl(QWidget):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.master = parent
+        self._parent = parent
         self.mcfg = cfg.user.setting["pace_notes_playback"]
         self.pace_notes_player = PaceNotesPlayer(self, self.mcfg)
 
@@ -334,7 +334,7 @@ class PaceNotesControl(QWidget):
         self.button_apply.setDisabled(not enabled)
         self.frame_control.setDisabled(not enabled)
         self.pace_notes_player.set_playback(enabled)
-        self.master.notify_pacenotes.setVisible(enabled)
+        self._parent.notify_pacenotes.setVisible(enabled)
 
     def update_config(self, key: str, value: int | float | str) -> bool:
         """Update pace note playback setting, save if changed"""

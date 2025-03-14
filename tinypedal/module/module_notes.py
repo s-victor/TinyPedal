@@ -21,7 +21,7 @@ Notes module
 """
 
 from __future__ import annotations
-from collections.abc import Callable
+from typing import Callable
 
 from ._base import DataModule
 from ..module_info import minfo, NotesInfo
@@ -169,7 +169,7 @@ def end_note_index(notes: list | None) -> int:
     return len(notes) - 1
 
 
-def reference_notes_index(notes: list | None) -> list | None:
+def reference_notes_index(notes: list | None) -> list[float] | None:
     """Reference notes index"""
     if notes is None:
         return None

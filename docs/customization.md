@@ -146,7 +146,7 @@ Each sector position index is also stored in SVG file for finding sector coordin
 ## Pace notes
 `TinyPedal Pace Notes` data is stored as `TPPN` format (.tppn extension) under `TinyPedal\pacenotes` folder (default). Pace notes can be created or edited with [Track Notes Editor](#track-notes-editor) from `Tools` menu in main window.
 
-Pace notes data is mainly used for playback pace notes sounds for specific tracks.
+Pace notes data is mainly used for [Pace Notes Playback](#pace-notes-playback) for specific tracks.
 
 To allow `auto notes loading` function to work, pace notes file name must match same track map file name.
 
@@ -477,7 +477,7 @@ Enable `Manually Select Pace Notes File` check box to disable auto-file-name mat
 
 `Global offset` adds global position offset (in meters) to current vehicle position on track, which affects when next pace note line will be played. This option only takes effect after clicked `Apply` button.
 
-`Max duration` sets maximum playback duration for each sound file, which can be used to limit sound file maximum playing duration. Default duration is 10 seconds. This option only takes effect after clicked `Apply` button.
+`Max duration` sets maximum playback duration for each sound file, which can be used to limit sound file maximum playing duration. Default duration is `10` seconds. This option only takes effect after clicked `Apply` button.
 
 `Max Queue` sets maximum number of sound files in playback queues. Default is `5` sound files. This option only takes effect after clicked `Apply` button.
 

@@ -294,7 +294,7 @@ class Setting:
         self.filename.last_setting = self.filename.setting
 
     @property
-    def preset_list(self) -> list:
+    def preset_list(self) -> list[str]:
         """Load user preset JSON filename list, sort by modified date in descending order
 
         Returns:

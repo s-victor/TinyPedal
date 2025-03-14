@@ -27,8 +27,7 @@ import json
 import re
 import socket
 from urllib.request import urlopen
-from typing import Any
-from collections.abc import Callable
+from typing import Any, Callable
 
 from ._base import DataModule
 from ..module_info import minfo

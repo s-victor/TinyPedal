@@ -165,7 +165,7 @@ class ListItemControl(QWidget):
             module_control: Module control (or widget) object.
         """
         super().__init__(parent)
-        self.master = parent
+        self._parent = parent
         self.module_name = module_name
         self.module_control = module_control
         self.allow_toggle = False
@@ -215,12 +215,12 @@ class ListItemControl(QWidget):
         self.button_toggle.setText(
             BUTTON_STATE_TEXT[cfg.user.setting[self.module_name]["enable"]]
         )
-        self.master.refresh_label()
+        self._parent.refresh_label()
 
     def open_config_dialog(self):
         """Config dialog"""
         _dialog = UserConfig(
-            parent=self.master,
+            parent=self._parent,
             key_name=self.module_name,
             cfg_type=self.module_control.type_id,
             user_setting=cfg.user.setting,

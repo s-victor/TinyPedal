@@ -26,8 +26,7 @@ import csv
 import os
 import re
 from operator import itemgetter
-from collections.abc import Callable
-from typing import Any, Iterable
+from typing import Any, Iterable, Callable
 
 from ..file_constants import FileFilter
 

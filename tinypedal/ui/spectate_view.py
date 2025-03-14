@@ -44,7 +44,7 @@ class SpectateList(QWidget):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.master = parent
+        self._parent = parent
         self.spectate_list = []
 
         # Label
@@ -90,7 +90,7 @@ class SpectateList(QWidget):
         self.button_spectate.setDisabled(not state)
         self.button_refresh.setDisabled(not state)
         self.label_spectating.setDisabled(not state)
-        self.master.notify_spectate.setVisible(state)
+        self._parent.notify_spectate.setVisible(state)
 
     def toggle_spectate(self, checked: bool):
         """Toggle spectate mode"""

@@ -94,7 +94,7 @@ def pipe_join(*args: str) -> str:
     return "|".join(args)
 
 
-def pipe_split(string: str) -> list:
+def pipe_split(string: str) -> list[str]:
     """Split string to list by pipe symbol"""
     return string.split("|")
 
