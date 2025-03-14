@@ -73,12 +73,6 @@ class Check(DataAdapter):
         class_name = cs2py(self.info.rf2ScorVeh().mVehicleClass)
         return strip_invalid_char(f"{track_name} - {class_name}")
 
-    def vehicle_id(self) -> str:
-        """Identify vehicle & class"""
-        class_name = cs2py(self.info.rf2ScorVeh().mVehicleClass)
-        veh_name = cs2py(self.info.rf2ScorVeh().mVehicleName)
-        return strip_invalid_char(f"{class_name} - {veh_name}")
-
     def track_id(self) -> str:
         """Identify track name"""
         return strip_invalid_char(cs2py(self.info.rf2ScorInfo.mTrackName))

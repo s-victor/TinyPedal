@@ -69,7 +69,7 @@ QVAL_HEATMAP = QRegularExpressionValidator(QRegularExpression('[0-9a-zA-Z_]*'))
 QVAL_FILENAME = QRegularExpressionValidator(QRegularExpression('[^\\\\/:*?"<>|]*'))
 
 # QStyleSheet
-QSS_EDITOR_BUTTON = "padding: 3px 7px;"
+QSS_EDITOR_BUTTON = "QPushButton {padding: 3px 7px;}"
 QSS_EDITOR_LISTBOX = (
     "QListView {outline: none;}"
     "QListView::item {height: 32px;border-radius: 0;}"

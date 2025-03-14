@@ -24,7 +24,6 @@ from __future__ import annotations
 import logging
 import csv
 import os
-import re
 from operator import itemgetter
 from typing import Any, Iterable, Callable
 
@@ -130,11 +129,11 @@ def parse_gpl_notes(notes_file: Iterable[str], table_header: tuple[str, ...]):
     notes_temp = []
     for note_line in notes_file:
         # Skip comments and empty lines
-        if note_line.startswith(";") or not re.search(".mp3", note_line):
+        if note_line.startswith(";") or ".mp3" not in note_line:
             # Load metadata
             if not metadata_checked:
                 for meta_key in meta_info_keys:
-                    if re.search(meta_key, note_line):
+                    if meta_key in note_line:
                         meta_info[meta_key] = note_line.lstrip(f";{meta_key}:").strip()
                         continue
             continue

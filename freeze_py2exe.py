@@ -6,7 +6,6 @@ Args:
 """
 
 import argparse
-import re
 import os
 import shutil
 import sys
@@ -145,11 +144,11 @@ def check_old_build(clean_build: bool = False, build_ready: bool = False) -> boo
 
         is_remove = input(
             "INFO:Remove old build folder before building? Yes/No/Quit \n"
-        )
+        ).lower()
 
-        if re.match("y", is_remove, flags=re.IGNORECASE):
+        if "y" in is_remove:
             build_ready = delete_old_build()
-        elif re.match("q", is_remove, flags=re.IGNORECASE):
+        elif "q" in is_remove:
             build_ready = False
         else:
             build_ready = True

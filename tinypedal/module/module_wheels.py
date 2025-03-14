@@ -56,13 +56,13 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
 
-                    if output.vehicleName == api.read.check.vehicle_id():
+                    if output.vehicleName == api.read.vehicle.vehicle_name():
                         radius_front = output.radiusFront
                         radius_rear = output.radiusRear
                         min_samples_f = 160
                         min_samples_r = 160
                     else:
-                        output.vehicleName = api.read.check.vehicle_id()
+                        output.vehicleName = api.read.vehicle.vehicle_name()
                         list_radius_f.clear()
                         list_radius_r.clear()
                         radius_front = 0.0

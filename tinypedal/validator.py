@@ -29,6 +29,7 @@ from math import isfinite
 from typing import Any
 
 from .file_constants import FileExt
+from .regex_pattern import RE_HEX_COLOR
 
 TYPE_NUMBER = float, int
 
@@ -171,10 +172,8 @@ def dict_value_type(data: dict, default_data: dict) -> dict:
 # Color validate
 def hex_color(color_str: str | Any) -> bool:
     """Validate HEX color string"""
-    if isinstance(color_str, str) and re.match("#", color_str):
-        color = color_str[1:]  # remove left-most sharp sign
-        if len(color) in [3,6,8]:
-            return re.search(r'[^0-9A-F]', color, flags=re.IGNORECASE) is None
+    if isinstance(color_str, str):
+        return re.search(RE_HEX_COLOR, color_str, flags=re.IGNORECASE) is not None
     return False
 
 

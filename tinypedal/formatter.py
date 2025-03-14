@@ -25,7 +25,7 @@ import random
 import re
 from functools import lru_cache
 
-from .regex_pattern import ABBR_PATTERN, GEAR_SEQUENCE
+from .regex_pattern import RE_INVALID_CHAR, ABBR_PATTERN
 
 
 def uppercase_abbr(name: str) -> str:
@@ -68,7 +68,11 @@ def strip_filename_extension(name: str, extension: str) -> str:
 
 def select_gear(index: int) -> str:
     """Select gear string"""
-    return GEAR_SEQUENCE[index if -1 <= index <= 9 else 0]
+    if index == 0:
+        return "N"
+    if index == -1:
+        return "R"
+    return f"{index}"
 
 
 @lru_cache(maxsize=20)
@@ -101,7 +105,7 @@ def pipe_split(string: str) -> list[str]:
 
 def strip_invalid_char(name: str) -> str:
     """Strip invalid characters"""
-    return re.sub('[\\\\/:*?"<>|]', "", name)
+    return re.sub(RE_INVALID_CHAR, "", name)
 
 
 def strip_decimal_pt(value: str) -> str:

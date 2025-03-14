@@ -21,6 +21,10 @@ Regular expression, pattern, string constants
 """
 
 
+# Special
+RE_HEX_COLOR = r"^#[0-9A-F]{3}$|^#[0-9A-F]{6}$|^#[0-9A-F]{8}$"
+RE_INVALID_CHAR = r'[\\/:*?"<>|]'
+
 # Bool
 CFG_BOOL = (
     # Exact match
@@ -199,7 +203,6 @@ RACELENGTH_TYPE_ID = (
 )
 
 # Misc
-GEAR_SEQUENCE = "N123456789R"
 COMMON_TYRE_COMPOUNDS = (
     ("super", "Q"),  # super soft
     ("inter", "I"),  # intermediate

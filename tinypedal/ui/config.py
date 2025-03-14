@@ -100,6 +100,7 @@ class FontConfig(BaseDialog):
         button_save.rejected.connect(self.reject)
 
         layout_button = QHBoxLayout()
+        layout_button.addStretch(1)
         layout_button.addWidget(button_apply)
         layout_button.addWidget(button_save)
 
@@ -207,6 +208,7 @@ class UserConfig(BaseDialog):
 
         layout_main.addWidget(scroll_box)
         layout_button.addWidget(button_reset)
+        layout_button.addStretch(1)
         layout_button.addWidget(button_apply)
         layout_button.addWidget(button_save)
         layout_main.addLayout(layout_button)
