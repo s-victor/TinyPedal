@@ -22,7 +22,7 @@ Brake temperature Widget
 
 from .. import calculation as calc
 from .. import heatmap as hmp
-from ..regex_pattern import TEXT_NOTAVAILABLE
+from ..regex_pattern import TEXT_NOTAVAILABLE, TEXT_PLACEHOLDER
 from ..api_control import api
 from ._base import Overlay
 
@@ -151,9 +151,9 @@ class Realtime(Overlay):
                 if lap_stime != self.last_lap_stime:  # time stamp difference
                     self.last_lap_stime = lap_stime  # reset time stamp counter
                     self.btavg_samples = 1
-                    # Highlight reading
+                    # Highlight reading, +0.000001 to un-highlight later in case no value change
                     for bar_btavg in self.bars_btavg:
-                        self.update_btavg(bar_btavg, bar_btavg.last, True)
+                        self.update_btavg(bar_btavg, bar_btavg.last + 0.000001, True)
 
                 # Update average reading
                 not_highlight = lap_etime - self.last_lap_stime >= self.wcfg["highlight_duration"]
@@ -188,6 +188,8 @@ class Realtime(Overlay):
     # Additional methods
     def format_temperature(self, value):
         """Format temperature"""
+        if value < -100:
+            return TEXT_PLACEHOLDER
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
             return f"{calc.celsius2fahrenheit(value):0{self.leading_zero}.0f}{self.sign_text}"
         return f"{value:0{self.leading_zero}.0f}{self.sign_text}"

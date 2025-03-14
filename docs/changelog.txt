@@ -1,3 +1,8 @@
+WIP
+-----------------------------
+* Brake temperature, Tyre carcass, Tyre inner layer, Tyre temperature Widget
+  - Show unavailable sign as "-" if temperature drops below -100 degrees Celsius.
+
 2.25.0 (2025-03-09)
 -----------------------------
 * General

@@ -1225,6 +1225,8 @@ Set percentage threshold for counting wheel lock duration under braking. `0.3` m
 ## Brake temperature
 **This widget displays brake temperature info.**
 
+Note, if temperature drops below `-100` degrees Celsius, temperature readings will be replaced by unavailable sign as `-`. This usually indicates brake failure, or brake is not available on one of the wheels.
+
     layout
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
@@ -3104,6 +3106,8 @@ Set draw order of plot lines.
 ## Tyre carcass temperature
 **This widget displays tyre carcass temperature info.**
 
+Note, if temperature drops below `-100` degrees Celsius, temperature readings will be replaced by unavailable sign as `-`.
+
     enable_heatmap_auto_matching
 Enable automatically heatmap style matching for specific tyre compounds defined in `compounds.json` preset. This option applies matching heatmap style to front and rear tyre compounds separately.
 
@@ -3135,6 +3139,8 @@ Show tyre compound symbols (front and rear) that matches specific tyre compounds
 
 ## Tyre inner layer
 **This widget displays tyre inner layer temperature info.**
+
+Note, if temperature drops below `-100` degrees Celsius, temperature readings will be replaced by unavailable sign as `-`.
 
     enable_heatmap_auto_matching
 Enable automatically heatmap style matching for specific tyre compounds defined in `compounds.json` preset. This option applies matching heatmap style to front and rear tyre compounds separately.
@@ -3179,6 +3185,8 @@ Show percentage ratio of tyre load between each and total tyre load. Set `false`
 
 ## Tyre temperature
 **This widget displays tyre surface temperature info.**
+
+Note, if temperature drops below `-100` degrees Celsius, temperature readings will be replaced by unavailable sign as `-`.
 
     enable_heatmap_auto_matching
 Enable automatically heatmap style matching for specific tyre compounds defined in `compounds.json` preset. This option applies matching heatmap style to front and rear tyre compounds separately.

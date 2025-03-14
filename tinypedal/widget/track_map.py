@@ -74,7 +74,7 @@ class Realtime(Overlay):
             self.predication_count = min(max(self.wcfg["number_of_predication"], 1), 20)
             self.pitout_time_offset = max(self.wcfg["pitout_time_offset"], 0)
             self.min_pit_time = self.wcfg["pitstop_duration_minimum"] + self.pitout_time_offset
-            self.pit_time_step = max(self.wcfg["pitstop_duration_increment"], 1)
+            self.pit_time_increment = max(self.wcfg["pitstop_duration_increment"], 1)
             self.pen_pit_styles = self.set_veh_pen_style("predication_outline"), QPen(self.wcfg["font_color_pitstop_duration"])
             self.pit_text_shape = self.veh_shape.adjusted(-2, font_offset - veh_size - 3, 2, -veh_size - 3)
             self.last_pit_state = -1
@@ -320,19 +320,18 @@ class Realtime(Overlay):
 
         laptime_scale = laptime_best / laptime_pace
         pit_timer = plr_veh_info.pitTimer.elapsed
-        dist_max_index = min(len(dist_data), len(map_data)) - 1
-        target_pit_time = self.min_pitstop_duration(pit_timer, self.min_pit_time, self.pit_time_step)
+        dist_end_index = min(len(dist_data), len(map_data)) - 1
+        target_pit_time = target_pitstop_duration(pit_timer, self.min_pit_time, self.pit_time_increment)
 
         # Find time_into from deltabest_data, scale to match laptime_pace
-        node_index = calc.binary_search_higher_column(deltabest_data, self.pitout_dist, 0, deltabest_max_index, 0)
-        pitout_time_extend = deltabest_data[node_index][1] / laptime_scale + pit_timer
+        pitout_node_index = calc.binary_search_higher_column(deltabest_data, self.pitout_dist, 0, deltabest_max_index, 0)
+        pitout_time_extend = deltabest_data[pitout_node_index][1] / laptime_scale + pit_timer
 
         painter.setBrush(Qt.NoBrush)
         for _ in range(self.predication_count):
             # Calc estimated pitout_time_into based on laptime_pace
             offset_time_into = pitout_time_extend - target_pit_time
-            pitout_time_into = offset_time_into - offset_time_into // laptime_pace * laptime_pace
-            pitout_time_into *= laptime_scale  # scale to match laptime_best
+            pitout_time_into = (offset_time_into - offset_time_into // laptime_pace * laptime_pace) * laptime_scale
             # Find estimated distance from deltabest_data
             index_higher = calc.binary_search_higher_column(
                 deltabest_data, pitout_time_into, 0, deltabest_max_index, 1)
@@ -348,8 +347,8 @@ class Realtime(Overlay):
             else:
                 estimate_dist = 0
 
-            node_index = calc.binary_search_higher_column(dist_data, estimate_dist, 0, dist_max_index)
-            painter.translate(*map(round, map_data[node_index]))
+            dist_node_index = calc.binary_search_higher_column(dist_data, estimate_dist, 0, dist_end_index)
+            painter.translate(*map(round, map_data[dist_node_index]))
             painter.setPen(self.pen_pit_styles[0])
             painter.drawEllipse(self.veh_shape)
 
@@ -360,7 +359,7 @@ class Realtime(Overlay):
                 text_time = f"{min(target_pit_time - self.pitout_time_offset, 999):.0f}"
                 painter.drawText(self.pit_text_shape, Qt.AlignCenter, text_time)
 
-            target_pit_time += self.pit_time_step
+            target_pit_time += self.pit_time_increment
             painter.resetTransform()
 
     def classes_style(self, class_name: str) -> str:
@@ -414,8 +413,8 @@ class Realtime(Overlay):
             for suffix in suffixes
         }
 
-    @staticmethod
-    def min_pitstop_duration(pit_timer, min_pit_time, pit_time_step):
-        """Set min_pit_time higher than pit_timer by pit_time_step"""
-        overflow_time = max(pit_timer - min_pit_time + pit_time_step, 0)
-        return min_pit_time + overflow_time // pit_time_step * pit_time_step
+
+def target_pitstop_duration(pit_timer: float, min_pit_time: float, pit_time_increment: float) -> float:
+    """Target pitstop duration = min pit duration + pit duration increment * number of increments"""
+    overflow_increments = max(pit_timer - min_pit_time + pit_time_increment, 0) // pit_time_increment
+    return min_pit_time + pit_time_increment * overflow_increments

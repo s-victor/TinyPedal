@@ -173,6 +173,8 @@ class Realtime(Overlay):
     # Additional methods
     def format_temperature(self, value):
         """Format temperature"""
+        if value < -100:
+            return TEXT_PLACEHOLDER
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
             return f"{calc.celsius2fahrenheit(value):0{self.leading_zero}.0f}{self.sign_text}"
         return f"{value:0{self.leading_zero}.0f}{self.sign_text}"
