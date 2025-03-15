@@ -294,7 +294,7 @@ class ConfigMenu(QMenu):
         self.addAction(config_userpath)
         self.addSeparator()
 
-        config_units = QAction("Units and Symbols", self)
+        config_units = QAction("Units", self)
         config_units.triggered.connect(self.open_config_units)
         self.addAction(config_units)
 

@@ -429,6 +429,8 @@ Enable grid-snap effect while moving widget for easy alignment and repositioning
     vr_compatibility
 Enable widget visibility as windows on taskbar in order to be used in VR via APPs such as `OpenKneeboard`. Non-VR user should not enable this option.
 
+Note, you will still need a third party program (such as `OpenKneeboard`) to project overlay windows (widgets) into VR.
+
 [**`Back to Top`**](#)
 
 
@@ -467,8 +469,8 @@ Set character encoding for displaying text in correct encoding. Available encodi
 [**`Back to Top`**](#)
 
 
-## Units and symbols
-**Units and symbols options can be accessed from `Config` menu in main window.**
+## Units
+**Units options can be accessed from `Config` menu in main window.**
 
     distance_unit
 2 unit types are available: `Meter`, `Feet`.
@@ -561,7 +563,7 @@ Enable `Manually Select Pace Notes File` check box to disable auto-file-name mat
 
 On the left side is calculation panel, which handles `fuel` and `virtual energy` usage calculation and results display.
 
-Fuel value and unit symbol depend on `Fuel Unit` setting from [Units And Symbols](#units-and-symbols) config dialog, `L` = liter, `gal` = gallon. Virtual energy unit is `%` = percentage. Note, after changed `Fuel Unit` setting, it is required to close and reopen `Fuel calculator` in order to update units info for calculation.
+Fuel value and unit symbol depend on `Fuel Unit` setting from [Units](#units) config dialog, `L` = liter, `gal` = gallon. Virtual energy unit is `%` = percentage. Note, after changed `Fuel Unit` setting, it is required to close and reopen `Fuel calculator` in order to update units info for calculation.
 
 On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `virtual energy consumption`, `battery drain`, `battery regen`, `tank capacity` data from [Consumption History](#consumption-history) data.
 Invalid lap time or consumption data is highlighted in red.
@@ -653,11 +655,11 @@ To reset personal best lap time to default, right-click on personal best lap tim
 
 `PB` column is personal best lap time. This value can be reset via right-click menu.
 
-`Km` column is total driven distance in kilometers. Note, `odometer_unit` setting from [Units And Symbols](#units-and-symbols) affects how this column is displayed.
+`Km` column is total driven distance in kilometers. Note, `odometer_unit` setting from [Units](#units) affects how this column is displayed.
 
 `Hours` column is total time spent in driving (only counts when vehicle speed higher than 1 m/s).
 
-`Liter` column is total fuel consumed. Note, `fuel_unit` setting from [Units And Symbols](#units-and-symbols) affects how this column is displayed.
+`Liter` column is total fuel consumed. Note, `fuel_unit` setting from [Units](#units) affects how this column is displayed.
 
 `Valid` column is total valid laps completed.
 

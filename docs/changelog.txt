@@ -1,5 +1,8 @@
 WIP
 -----------------------------
+* General
+  - Renamed "Units and symbols" to "Units" in config dialog and user guide.
+
 * Brake temperature, Tyre carcass, Tyre inner layer, Tyre temperature Widget
   - Show unavailable sign as "-" if temperature drops below -100 degrees Celsius.
 
