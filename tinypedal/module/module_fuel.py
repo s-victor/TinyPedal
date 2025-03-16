@@ -105,7 +105,7 @@ def update_consumption_history():
                 lastLapUsedEnergy=minfo.energy.lastLapConsumption,
                 batteryDrainLast=minfo.hybrid.batteryDrainLast,
                 batteryRegenLast=minfo.hybrid.batteryRegenLast,
-                capacityFuel=api.read.vehicle.tank_capacity(),
+                capacityFuel=minfo.fuel.capacity,
             )
         )
         minfo.history.consumptionDataModified = True
@@ -139,12 +139,9 @@ def save_consumption_history(filepath: str, combo_id: str):
 def telemetry_fuel() -> tuple[float, float]:
     """Telemetry fuel"""
     capacity = api.read.vehicle.tank_capacity()
-    if capacity <= 3:
-        if capacity != 0:  # pure electric powered vehicle
-            return 100, api.read.emotor.battery_charge() * 100
-        capacity = 1
-    amount_curr = api.read.vehicle.fuel()
-    return capacity, amount_curr
+    if capacity == 1 or capacity == 0:  # pure electric powered vehicle
+        return 100, api.read.emotor.battery_charge() * 100
+    return capacity, api.read.vehicle.fuel()
 
 
 def calc_data(
