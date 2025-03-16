@@ -25,6 +25,7 @@ from typing import Tuple, Sequence
 from math import dist, hypot, degrees, radians, atan, atan2, sin, cos, acos, ceil
 from statistics import fmean, stdev
 
+FLOAT_INF = float("inf")
 CoordXY = Tuple[float, float]
 
 distance = dist  # coordinates distance
@@ -434,7 +435,7 @@ def linear_search_higher(data: Sequence, target: float, column: int | None = Non
     """linear search nearest value higher index from unordered list"""
     #key = lambda x:x[column] if column >= 0 else x
     end = len(data) - 1
-    nearest = float("inf")
+    nearest = FLOAT_INF
     for index, data_row in enumerate(data):
         if target <= search_column_key(data_row, column) < nearest:
             nearest = search_column_key(data_row, column)

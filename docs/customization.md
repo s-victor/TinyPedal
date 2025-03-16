@@ -1142,6 +1142,8 @@ Each widget can be configured by accessing `Config` button from `Widget` tab in 
 ## Battery
 **This widget displays battery usage info.**
 
+Note, there are some electric vehicles in `RF2` that are not based on the new electric motor and battery charge system, and no battery usage info available.
+
     show_battery_charge
 Show percentage available battery charge.
 
@@ -1815,6 +1817,8 @@ Set reference circle line width in pixels.
 
 ## Fuel
 **This widget displays fuel usage info.**
+
+Note, for non-hybrid pure electric vehicle, this widget will show `battery charge` usage info instead.
 
 Differences between `relative` and `absolute` refueling:
 

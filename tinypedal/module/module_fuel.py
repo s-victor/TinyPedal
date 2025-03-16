@@ -138,7 +138,11 @@ def save_consumption_history(filepath: str, combo_id: str):
 
 def telemetry_fuel() -> tuple[float, float]:
     """Telemetry fuel"""
-    capacity = max(api.read.vehicle.tank_capacity(), 1)
+    capacity = api.read.vehicle.tank_capacity()
+    if capacity <= 3:
+        if capacity != 0:  # pure electric powered vehicle
+            return 100, api.read.emotor.battery_charge() * 100
+        capacity = 1
     amount_curr = api.read.vehicle.fuel()
     return capacity, amount_curr
 
@@ -177,7 +181,7 @@ def calc_data(
     est_pits_early = 0.0  # estimate end-lap pit stop counts
     used_est_less = 0.0  # estimate fuel consumption for one less pit stop
 
-    last_lap_stime = -1.0  # last lap start time
+    last_lap_stime = calc.FLOAT_INF  # last lap start time
     laps_left = 0.0  # amount laps left at current lap distance
     end_timer_laps_left = 0.0  # amount laps left from start of current lap to end of race timer
     pos_recorded = 0.0  # last recorded vehicle position
@@ -222,7 +226,7 @@ def calc_data(
             amount_last = amount_curr
 
         # Lap start & finish detection
-        if lap_stime > last_lap_stime != -1:
+        if lap_stime > last_lap_stime:
             if len(delta_list_raw) > 1 and not is_pit_lap:
                 delta_list_raw.append((  # set end value
                     round6(pos_last + 10),

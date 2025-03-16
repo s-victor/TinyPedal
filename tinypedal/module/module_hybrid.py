@@ -23,6 +23,7 @@ Hybrid module
 from ._base import DataModule
 from ..module_info import minfo
 from ..api_control import api
+from .. import calculation as calc
 
 
 class Realtime(DataModule):
@@ -51,12 +52,14 @@ class Realtime(DataModule):
                     battery_regen_last = 0
                     last_battery_charge = 0
                     last_motor_state = 0
+                    alt_motor_state = 1  # alternative state in case motor state not available
+                    alt_motor_state_debounce = 0  # alternative state reset debounce counter
                     motor_active_timer = 0
                     motor_active_timer_start = False
                     motor_inactive_timer = 99999
                     motor_inactive_timer_start = False
                     lap_etime_last = 0
-                    last_lap_stime = -1  # last lap start time
+                    last_lap_stime = calc.FLOAT_INF  # last lap start time
 
                 # Read telemetry
                 lap_stime = api.read.timing.start()
@@ -65,7 +68,7 @@ class Realtime(DataModule):
                 motor_state = api.read.emotor.state()
 
                 # Lap start & finish detection
-                if lap_stime > last_lap_stime != -1:
+                if lap_stime > last_lap_stime:
                     battery_drain_last = battery_drain
                     battery_regen_last = battery_regen
                     battery_drain = 0
@@ -76,11 +79,23 @@ class Realtime(DataModule):
                 if last_battery_charge:
                     if last_battery_charge > battery_charge > 0:  # drain
                         battery_drain += last_battery_charge - battery_charge
-
-                    if last_battery_charge < battery_charge < 100: # regen
+                        alt_motor_state_debounce = 0
+                        alt_motor_state = 2
+                    elif last_battery_charge < battery_charge < 100: # regen
                         battery_regen += battery_charge - last_battery_charge
+                        alt_motor_state_debounce = 0
+                        alt_motor_state = 3
+                    elif alt_motor_state > 1:
+                        alt_motor_state_debounce += 1
+                        if alt_motor_state_debounce > 5:
+                            alt_motor_state = 1
                 last_battery_charge = battery_charge
 
+                # Motor state correction
+                if motor_state == 0 < battery_charge:
+                    motor_state = alt_motor_state
+
+                # Active timer
                 if last_motor_state != motor_state and motor_state == 2:
                     motor_active_timer_start = True
                     lap_etime_last = lap_etime

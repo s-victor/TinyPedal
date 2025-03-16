@@ -107,7 +107,7 @@ class Realtime(DataModule):
                     laptime_last = 0.0  # last laptime
                     laptime_pace = laptime_best  # avearge laptime pace
 
-                    last_lap_stime = -1.0  # lap-start-time
+                    last_lap_stime = calc.FLOAT_INF  # last lap start time
                     pos_recorded = 0.0  # last recorded vehicle position
                     pos_last = 0.0  # last checked vehicle position
                     pos_estimate = 0.0  # estimated vehicle position
@@ -131,7 +131,7 @@ class Realtime(DataModule):
                     laptime_stint_best = MAGIC_NUM
 
                 # Lap start & finish detection
-                if lap_stime > last_lap_stime != -1:
+                if lap_stime > last_lap_stime:
                     laptime_last = lap_stime - last_lap_stime
                     if len(delta_list_raw) > 1:  # set end value
                         delta_list_raw.append((round6(pos_last + 10), round6(laptime_last)))

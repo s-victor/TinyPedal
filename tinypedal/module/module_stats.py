@@ -61,9 +61,9 @@ class Realtime(DataModule):
                     update_interval = self.active_interval
 
                     is_pit_lap = 0
-                    last_lap_stime = float("inf")
-                    last_lap_etime = float("inf")
-                    last_best_laptime = float("inf")
+                    last_lap_stime = calc.FLOAT_INF
+                    last_lap_etime = calc.FLOAT_INF
+                    last_best_laptime = calc.FLOAT_INF
                     last_num_penalties = 99999
                     fuel_last = 0.0
                     last_finish_state = 99999

@@ -3,6 +3,13 @@ WIP
 * General
   - Renamed "Units and symbols" to "Units" in config dialog and user guide.
 
+* Fuel, Hybrid Module
+  - Add alternative electric motor state checker for electric vehicle that doesn't have motor state available.
+  - Add support for calculating "battery usage" as a primary consumption type for non-hybrid pure electric vehicle
+    that is based on the new electric motor system from "RF2" & "LMU".
+  - Battery usage and state info can now be correctly displayed in "Battery, Gear, P2P, Fuel Widget"
+    for non-hybrid pure electric vehicle that uses the new electric motor system in "RF2", such as "FE Gen3".
+
 * Brake temperature, Tyre carcass, Tyre inner layer, Tyre temperature Widget
   - Show unavailable sign as "-" if temperature drops below -100 degrees Celsius.
 
