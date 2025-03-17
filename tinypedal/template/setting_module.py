@@ -58,6 +58,7 @@ MODULE_DEFAULT = {
         "enable": True,
         "update_interval": 10,
         "idle_update_interval": 400,
+        "minimum_delta_distance": 5,
     },
     "module_mapping": {
         "enable": True,

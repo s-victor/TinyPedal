@@ -3,15 +3,33 @@ WIP
 * General
   - Renamed "Units and symbols" to "Units" in config dialog and user guide.
 
-* Fuel, Hybrid Module
-  - Add alternative electric motor state checker for electric vehicle that doesn't have motor state available.
-  - Fuel module now supports "battery usage" as a primary consumption type for calculation and displayed in Fuel Widget
+* Fuel Module
+  - Support "battery usage" as a primary consumption type with battery charge regeneration taken into calculation
     for non-hybrid pure electric vehicle such as "FE Gen3" that is based on "RF2" new electric motor system.
-  - Battery usage and state info can now be correctly displayed in "Battery, Gear, P2P" Widget for electric Vehicles
-    that don't have motor state available.
+
+* Hybrid Module
+  - Add estimated battery charge net change (gain or loss) per lap and delta calculation.
+  - Add "minimum_delta_distance" option, which sets minimum recording distance (in meters) between each delta sample.
+  - Add alternative electric motor state checker for electric vehicle that doesn't have motor state available.
+    Battery usage and state info can now be correctly displayed in "Battery, Gear, P2P" Widget for electric vehicles
+    that are based on "RF2" new electric motor system but don't have motor state available.
+
+* Battery Widget
+  - Add "show_estimated_net_change" option, which shows estimated battery charge net change from current lap.
+    Positive value indicates net gain (regen higher than drain); negative indicates net loss (drain higher than regen).
+    Total net change reading is more accurate for vehicles that constantly consume battery charge, such as "FE" or "Hypercar" class.
+    It is less useful for vehicles that only utilize electric motor for a short duration, such as "P2P".
+    Note, at least one full lap (excludes pit-out or first lap) is required to generate estimated net change data.
 
 * Brake temperature, Tyre carcass, Tyre inner layer, Tyre temperature Widget
   - Show unavailable sign as "-" if temperature drops below -100 degrees Celsius.
+
+* Fuel Widget
+  - Show "battery usage" (in percentage) data instead of fuel usage for non-hybrid pure electric vehicles.
+    Note, since multiple different electric systems exist in "RF2", there is no reliable way to distinguish pure
+    electric vehicles from fuel or hybrid vehicles, it is important to make sure "fuel_unit" option in "Units" setting
+    is set to "Liter" in order to correctly display battery charge usage in "percentage" for pure electric vehicles.
+  - Fixed an issue where "starting fuel level" indicator would sometimes incorrectly reset its position after toggled "AI control" in "RF2".
 
 2.25.0 (2025-03-09)
 -----------------------------

@@ -157,13 +157,13 @@ def calc_data(
         filepath=filepath,
         filename=filename,
         extension=extension,
-        defaults=(DELTA_DEFAULT, 0, 0)
+        defaults=(DELTA_DEFAULT, 0.0, 0.0)
     )
     delta_list_raw = [DELTA_ZERO]  # distance, fuel used, laptime
     delta_list_temp = DELTA_DEFAULT  # last lap temp
     delta_fuel = 0.0  # delta fuel consumption compare to last lap
 
-    amount_start = 0.0  # start fuel reading
+    amount_start = -calc.FLOAT_INF  # start fuel reading
     amount_last = 0.0  # last fuel reading
     amount_need_abs = 0.0  # total fuel (absolute) need to finish race
     amount_need_rel = 0.0  # total additional fuel (relative) need to finish race
@@ -204,7 +204,7 @@ def calc_data(
         # Read telemetry
         capacity, amount_curr = telemetry_func()
         lap_stime = api.read.timing.start()
-        laptime_curr = max(api.read.timing.current_laptime(), 0)
+        laptime_curr = api.read.timing.current_laptime()
         time_left = api.read.session.remaining()
         in_garage = api.read.vehicle.in_garage()
         pos_curr = api.read.lap.distance()
@@ -215,9 +215,15 @@ def calc_data(
         laptime_last = minfo.delta.lapTimePace
 
         # Realtime fuel consumption
+        if amount_start < amount_curr:
+            amount_start = amount_last = amount_curr
+
         if amount_last < amount_curr:
+            if api.read.vehicle.speed() > 1:  # regen check
+                used_curr += amount_last - amount_curr
+            else:  # pitstop refilling check
+                amount_start = amount_curr
             amount_last = amount_curr
-            amount_start = amount_curr
         elif amount_last > amount_curr:
             used_curr += amount_last - amount_curr
             amount_last = amount_curr
@@ -335,7 +341,6 @@ def calc_data(
         output.estimatedValidConsumption = used_est
         output.estimatedLaps = est_runlaps
         output.estimatedMinutes = est_runmins
-        output.estimatedEmptyCapacity = est_empty
         output.estimatedNumPitStopsEnd = est_pits_late
         output.estimatedNumPitStopsEarly = est_pits_early
         output.deltaConsumption = delta_fuel

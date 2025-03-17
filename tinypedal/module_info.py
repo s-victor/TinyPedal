@@ -135,7 +135,6 @@ class FuelInfo:
         "estimatedValidConsumption",
         "estimatedLaps",
         "estimatedMinutes",
-        "estimatedEmptyCapacity",
         "estimatedNumPitStopsEnd",
         "estimatedNumPitStopsEarly",
         "deltaConsumption",
@@ -159,7 +158,6 @@ class FuelInfo:
         self.estimatedValidConsumption: float = 0.0
         self.estimatedLaps: float = 0.0
         self.estimatedMinutes: float = 0.0
-        self.estimatedEmptyCapacity: float = 0.0
         self.estimatedNumPitStopsEnd: float = 0.0
         self.estimatedNumPitStopsEarly: float = 0.0
         self.deltaConsumption: float = 0.0
@@ -197,6 +195,7 @@ class HybridInfo:
         "batteryRegen",
         "batteryDrainLast",
         "batteryRegenLast",
+        "batteryNetChange",
         "motorActiveTimer",
         "motorInactiveTimer",
         "motorState",
@@ -210,6 +209,7 @@ class HybridInfo:
         self.batteryRegen: float = 0.0
         self.batteryDrainLast: float = 0.0
         self.batteryRegenLast: float = 0.0
+        self.batteryNetChange: float = 0.0
         self.motorActiveTimer: float = 0.0
         self.motorInactiveTimer: float = 0.0
         self.motorState: int = 0

@@ -25,6 +25,8 @@ from ..module_info import minfo
 from ..api_control import api
 from .. import calculation as calc
 
+DELTA_ZERO = 0.0,0.0
+
 
 class Realtime(DataModule):
     """Hybrid data"""
@@ -61,6 +63,17 @@ class Realtime(DataModule):
                     lap_etime_last = 0
                     last_lap_stime = calc.FLOAT_INF  # last lap start time
 
+                    delta_reset = False
+                    delta_recording = False
+                    delta_list_raw = [DELTA_ZERO]  # distance, battery net change
+                    delta_list_last = (DELTA_ZERO,)
+                    pos_last = 0.0  # last checked vehicle position
+                    net_change_last = 0.0
+                    est_net_change = 0.0  # estimated battery charge net change
+                    min_delta_distance = self.mcfg["minimum_delta_distance"]
+                    is_pit_lap = 0  # whether pit in or pit out lap
+                    is_valid_delta = False
+
                 # Read telemetry
                 lap_stime = api.read.timing.start()
                 lap_etime = api.read.timing.elapsed()
@@ -74,8 +87,10 @@ class Realtime(DataModule):
                     battery_drain = 0
                     battery_regen = 0
                     motor_active_timer = 0
+                    delta_reset = True
                 last_lap_stime = lap_stime  # reset
 
+                # Battery charge consumption
                 if last_battery_charge:
                     if last_battery_charge > battery_charge > 0:  # drain
                         battery_drain += last_battery_charge - battery_charge
@@ -115,12 +130,52 @@ class Realtime(DataModule):
                         motor_inactive_timer_start = False
                         motor_inactive_timer = 99999
 
+                # Battery charge delta calculation
+                if motor_state != 0:
+                    laptime_curr = api.read.timing.current_laptime()
+                    pos_curr = api.read.lap.distance()
+                    is_pit_lap |= api.read.vehicle.in_pits()
+
+                    if delta_reset:
+                        delta_reset = False
+                        if len(delta_list_raw) > 1 and not is_pit_lap:
+                            delta_list_last = tuple(delta_list_raw)
+                        delta_list_raw = [DELTA_ZERO]  # reset
+                        pos_last = pos_curr
+                        delta_recording = laptime_curr < 1
+                        net_change_last = battery_regen_last - battery_drain_last
+                        is_valid_delta = len(delta_list_last) > 1
+                        is_pit_lap = 0
+
+                    # Distance desync check at start of new lap, reset if higher than normal distance
+                    if 0 < laptime_curr < 1 and pos_curr > 300:
+                        pos_last = pos_curr = 0
+                    elif pos_last > pos_curr:
+                        pos_last = pos_curr
+
+                    # Update if position value is different & positive
+                    net_change_curr = battery_regen - battery_drain
+                    if delta_recording and pos_curr - pos_last >= min_delta_distance:
+                        delta_list_raw.append((pos_curr, net_change_curr))
+                        pos_last = pos_curr
+
+                    # Net change delta
+                    if is_valid_delta:
+                        delta_net_change = calc.delta_telemetry(
+                            delta_list_last,
+                            pos_curr,
+                            net_change_curr,
+                            laptime_curr > 0.3,
+                        )
+                        est_net_change = net_change_last + delta_net_change
+
                 # Output hybrid data
                 output.batteryCharge = battery_charge
                 output.batteryDrain = battery_drain
                 output.batteryRegen = battery_regen
                 output.batteryDrainLast = battery_drain_last
                 output.batteryRegenLast = battery_regen_last
+                output.batteryNetChange = est_net_change
                 output.motorActiveTimer = motor_active_timer
                 output.motorInactiveTimer = motor_inactive_timer
                 output.motorState = motor_state

@@ -101,6 +101,22 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_battery_regen"],
             )
 
+        # Battery charge net change
+        if self.wcfg["show_estimated_net_change"]:
+            bar_style_net = self.set_qss(
+                fg_color=self.wcfg["font_color_estimated_net_change"],
+                bg_color=self.wcfg["bkg_color_estimated_net_change"]
+            )
+            self.bar_net = self.set_qlabel(
+                text="B   NET",
+                style=bar_style_net,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_net,
+                column=self.wcfg["column_index_estimated_net_change"],
+            )
+
         # Activation timer
         if self.wcfg["show_activation_timer"]:
             bar_style_timer = self.set_qss(
@@ -139,6 +155,10 @@ class Realtime(Overlay):
             if self.wcfg["show_battery_regen"]:
                 self.update_regen(self.bar_regen, battery_regen)
 
+            if self.wcfg["show_estimated_net_change"]:
+                net_change = minfo.hybrid.batteryNetChange
+                self.update_net(self.bar_net, net_change)
+
             # Motor activation timer
             if self.wcfg["show_activation_timer"]:
                 active_timer = minfo.hybrid.motorActiveTimer
@@ -164,6 +184,12 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(f"+{data: >7.2f}"[:8])
+
+    def update_net(self, target, data):
+        """Battery charge net change"""
+        if target.last != data:
+            target.last = data
+            target.setText(f"N{data: >+7.2f}"[:8])
 
     def update_timer(self, target, data):
         """Motor activation timer"""

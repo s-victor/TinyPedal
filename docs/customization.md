@@ -1006,6 +1006,9 @@ Set minimum recording distance (in meters) between each delta sample. Default va
     module_hybrid
 Enable hybrid module.
 
+    minimum_delta_distance
+Set minimum recording distance (in meters) between each delta sample. Default value is `5` meters. Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy. Recommended value range in `5` to `10` meters.
+
 [**`Back to Top`**](#)
 
 
@@ -1153,6 +1156,13 @@ Show percentage battery charge drained in current lap.
     show_battery_regen
 Show percentage battery charge regenerated in current lap.
 
+    show_estimated_net_change
+Show estimated battery charge net change from current lap. Positive value indicates net gain (regen higher than drain); negative indicates net loss (drain higher than regen).
+
+Total net change reading is more accurate for vehicles that constantly consume battery charge, such as `FE` or `Hypercar` class. It is less useful for vehicles that only utilize electric motor for a short duration, such as `P2P`.
+
+Note, at least one full lap (excludes pit-out or first lap) is required to generate estimated net change data.
+
     show_activation_timer
 Show electric boost motor activation timer.
 
@@ -1280,8 +1290,8 @@ For example, if `brake thickness` is `40`mm, and `failure thickness` is `25`mm, 
 Since brake failure thickness threshold data is not available from game API, it may require testing to find out, and may vary from vehicle to vehicle. Front brake failure thickness threshold can be different from rear brake. Thickness threshold value should not exceed brake maximum thickness, otherwise brake wear readings will not be displayed correctly.
 
 Some reference brake failure thickness threshold:
-Hypercar and P2 classes in `LMU` usually have `25`mm brake failure threshold.
-GTE and LMGT3 class in `LMU` usually has `30`mm brake failure threshold.
+`Hypercar` and `P2` classes in `LMU` usually have `25`mm brake failure threshold.
+`GTE` and `LMGT3` class in `LMU` usually has `30`mm brake failure threshold.
 
     show_remaining
 Show total remaining brake in percentage that changes color according to wear.
@@ -1818,7 +1828,9 @@ Set reference circle line width in pixels.
 ## Fuel
 **This widget displays fuel usage info.**
 
-Note, for non-hybrid pure electric vehicle, this widget will show `battery charge` usage info instead.
+Note, for non-hybrid pure electric vehicle, this widget will show `battery charge` usage (in percentage) info instead. Since multiple different electric systems exist in `RF2`, there is no reliable way to distinguish pure electric vehicles from fuel or hybrid vehicles, it is important to make sure `fuel_unit` option in [Units](#units) setting is set to `Liter` in order to correctly display battery charge usage in `percentage` for pure electric vehicles.
+
+---
 
 Differences between `relative` and `absolute` refueling:
 
@@ -3263,6 +3275,8 @@ Set warning threshold for estimated tyre lifespan in minutes. Default is `5` lap
 **This widget displays virtual energy usage info.**
 
 Note, most options are inherited from [Fuel](#fuel) widget, with some additions noted below.
+
+Virtual energy is not `real energy`, and should not be confused with `battery charge`. For battery charge usage info, see [Battery](#battery) widget.
 
     show_absolute_refilling
 Show absolute refilling value instead of relative refilling when enabled. Note, `+` or `-` sign is not displayed with absolute refilling.
