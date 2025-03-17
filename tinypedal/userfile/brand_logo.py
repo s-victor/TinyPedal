@@ -25,7 +25,7 @@ import os
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QPixmap
 
-from ..file_constants import FileExt
+from ..const_file import FileExt
 
 
 def exceeded_max_logo_width(

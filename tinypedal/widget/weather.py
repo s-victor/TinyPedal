@@ -24,7 +24,7 @@ from .. import calculation as calc
 from ..api_control import api
 from ._base import Overlay
 
-TREND_SIGN = "●▲▼"
+TEXT_TREND_SIGN = "●▲▼"  # 0 = constant, 1 = increasing, -1 = decreasing
 
 
 class Realtime(Overlay):
@@ -89,7 +89,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_temperature"]),
             )
             self.bar_temp_trend = self.set_qlabel(
-                text=TREND_SIGN[0],
+                text=TEXT_TREND_SIGN[0],
                 style=self.bar_style_temp_trend[0],
                 width=font_m.width + bar_padx,
                 last=0,
@@ -130,7 +130,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_rain"]),
             )
             self.bar_raininess_trend = self.set_qlabel(
-                text=TREND_SIGN[0],
+                text=TEXT_TREND_SIGN[0],
                 style=self.bar_style_raininess_trend[0],
                 width=font_m.width + bar_padx,
                 last=0,
@@ -171,7 +171,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_wetness"]),
             )
             self.bar_wetness_trend = self.set_qlabel(
-                text=TREND_SIGN[0],
+                text=TEXT_TREND_SIGN[0],
                 style=self.bar_style_wetness_trend[0],
                 width=font_m.width + bar_padx,
                 last=0,
@@ -236,7 +236,7 @@ class Realtime(Overlay):
         """Temperature trend"""
         if target.last != data:
             target.last = data
-            target.setText(TREND_SIGN[data])
+            target.setText(TEXT_TREND_SIGN[data])
             target.setStyleSheet(self.bar_style_temp_trend[data])
 
     def update_raininess(self, target, data):
@@ -249,7 +249,7 @@ class Realtime(Overlay):
         """Raininess trend"""
         if target.last != data:
             target.last = data
-            target.setText(TREND_SIGN[data])
+            target.setText(TEXT_TREND_SIGN[data])
             target.setStyleSheet(self.bar_style_raininess_trend[data])
 
     def update_wetness(self, target, data, wet_average):
@@ -262,7 +262,7 @@ class Realtime(Overlay):
         """Surface wetness trend"""
         if target.last != data:
             target.last = data
-            target.setText(TREND_SIGN[data])
+            target.setText(TEXT_TREND_SIGN[data])
             target.setStyleSheet(self.bar_style_wetness_trend[data])
 
     def format_temperature(self, track_deg, air_deg):

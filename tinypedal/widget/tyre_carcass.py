@@ -24,8 +24,8 @@ from functools import partial
 
 from .. import calculation as calc
 from .. import heatmap as hmp
-from ..regex_pattern import TEXT_PLACEHOLDER, TEXT_NOTAVAILABLE
 from ..api_control import api
+from ..const_common import TEXT_PLACEHOLDER, TEXT_NA
 from ._base import Overlay
 
 
@@ -82,7 +82,7 @@ class Realtime(Overlay):
         # Tyre carcass temperature
         layout_ctemp = self.set_grid_layout(gap=inner_gap)
         self.bars_ctemp = self.set_qlabel(
-            text=TEXT_NOTAVAILABLE,
+            text=TEXT_NA,
             style=bar_style_ctemp,
             width=bar_width_ttemp,
             count=4,
@@ -134,7 +134,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_rate_of_change"]),
             )
             self.bars_rdiff = self.set_qlabel(
-                text=TEXT_NOTAVAILABLE,
+                text=TEXT_NA,
                 style=self.bar_style_rtemp[2],
                 width=bar_width_ttemp,
                 count=4,

@@ -28,10 +28,9 @@ import time
 from math import isfinite
 from typing import Any
 
-from .file_constants import FileExt
+from .const_common import MAX_SECONDS, TYPE_NUMBER
+from .const_file import FileExt
 from .regex_pattern import RE_HEX_COLOR
-
-TYPE_NUMBER = float, int
 
 logger = logging.getLogger(__name__)
 
@@ -70,11 +69,11 @@ def string_number(value: str) -> bool:
         return False
 
 
-def sector_time(sec_time: list | Any, magic_num: int = 99999) -> bool:
+def sector_time(sector_time: list | Any, max_time: int = MAX_SECONDS) -> bool:
     """Validate sector time"""
-    if isinstance(sec_time, list):
-        return magic_num not in sec_time
-    return magic_num != sec_time
+    if isinstance(sector_time, list):
+        return max_time not in sector_time
+    return max_time != sector_time
 
 
 def same_session(
@@ -96,43 +95,13 @@ def value_type(value: Any, default: Any) -> Any:
     return default
 
 
-# Path & file validate
+# File validate
 def file_last_modified(filepath: str = "", filename: str = "", extension: str = "") -> float:
     """Check file last modified time, 0 if file not exist"""
     filename_full = f"{filepath}{filename}{extension}"
     if os.path.exists(filename_full):
         return os.path.getmtime(filename_full)
     return 0
-
-
-def user_data_path(filepath: str) -> str:
-    """Set user data path, create if not exist"""
-    if not os.path.exists(filepath):
-        logger.info("%s folder does not exist, attemp to create", filepath)
-        try:
-            os.mkdir(filepath)
-        except (PermissionError, FileExistsError, FileNotFoundError):
-            logger.error("failed to create %s folder", filepath)
-            return ""
-    return filepath
-
-
-def relative_path(filepath: str) -> str:
-    """Convert absolute path to relative if path is inside APP root folder"""
-    try:
-        rel_path = os.path.relpath(filepath)
-        if rel_path.startswith(".."):
-            output_path = filepath
-        else:
-            output_path = rel_path
-    except ValueError:
-        output_path = filepath
-    # Convert backslash to slash
-    output_path = output_path.replace("\\", "/")
-    # Make sure path end with "/"
-    if not output_path.endswith("/"):
-        output_path += "/"
-    return output_path
 
 
 def image_file(filepath: str, extension: str = FileExt.PNG, max_size: int = 5120000) -> bool:

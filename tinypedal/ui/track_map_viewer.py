@@ -45,7 +45,7 @@ from ..setting import ConfigType, cfg
 from ._common import BaseDialog, QSS_EDITOR_BUTTON
 from . config import UserConfig
 from .. import calculation as calc
-from ..file_constants import FileExt, FileFilter
+from ..const_file import FileExt, FileFilter
 from ..userfile.track_map import load_track_map_file
 
 

@@ -28,6 +28,7 @@ from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
 
+
 class Realtime(Overlay):
     """Draw widget"""
 

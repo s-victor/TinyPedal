@@ -1,0 +1,78 @@
+#  TinyPedal is an open-source overlay application for racing simulation.
+#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#
+#  This file is part of TinyPedal.
+#
+#  This program is free software: you can redistribute it and/or modify
+#  it under the terms of the GNU General Public License as published by
+#  the Free Software Foundation, either version 3 of the License, or
+#  (at your option) any later version.
+#
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  You should have received a copy of the GNU General Public License
+#  along with this program.  If not, see <https://www.gnu.org/licenses/>.
+
+"""
+Common constants
+"""
+
+# Numeric
+FLOAT_INF = float("inf")
+MAX_VEHICLES = 128  # set vehicle data size limit
+MAX_SECONDS = 99999.0  # for lap or sector time limit
+MAX_METERS = 999999.0  # for distance limit
+
+MAX_FORECASTS = 5  # for weather forecast
+MAX_FORECAST_MINUTES = 9999.0  # for weather forecast
+ABS_ZERO_CELSIUS = -273.15  # absolute zero celsius
+
+# Text
+TEXT_PLACEHOLDER = "-"
+TEXT_NA = "n/a"
+TEXT_NOTAVAILABLE = "NOT AVAILABLE"
+
+# Data set
+DELTA_ZERO = (0.0, 0.0)
+DELTA_DEFAULT = (DELTA_ZERO,)
+POS_XY_ZERO = (0.0, 0.0)  # world origin position
+POS_XYZ_ZERO = (0.0, 0.0, 0.0)  # world origin position
+POS_XYZ_INF = (FLOAT_INF, FLOAT_INF, FLOAT_INF)  # infinite position
+TYPE_NUMBER = (float, int)
+
+# ID selector
+ENERGY_TYPE_ID = (
+    "FUEL",  # fuel
+    "NRG",  # virtual energy
+)
+RACELENGTH_TYPE_ID = (
+    "TIME",  # time-based race length
+    "LAPS",  # laps-based race length
+)
+SECTOR_ABBR_ID = ("S1", "S2", "S3")  # sector abbreviation
+PREV_SECTOR_INDEX = (2, 0, 1)  # select previous sector index with current index
+COMMON_TYRE_COMPOUNDS = (
+    ("super", "Q"),  # super soft
+    ("inter", "I"),  # intermediate
+    ("soft", "S"),
+    ("med", "M"),  # medium
+    ("hard", "H"),
+    ("rain|wet", "W"),
+    ("slick|dry", "S"),
+    ("road|radial", "R"),
+    ("bias", "B"),  # bias ply
+)
+COMPASS_BEARINGS = (
+    (0, "N"),
+    (22.5, "NE"),
+    (67.5, "E"),
+    (112.5, "SE"),
+    (157.5, "S"),
+    (202.5, "SW"),
+    (247.5, "W"),
+    (292.5, "NW"),
+    (337.5, "N"),
+)

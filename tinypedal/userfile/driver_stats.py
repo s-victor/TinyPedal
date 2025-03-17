@@ -26,7 +26,8 @@ import json
 from dataclasses import dataclass
 from typing import KeysView
 
-from ..file_constants import FileExt
+from ..const_common import MAX_SECONDS
+from ..const_file import FileExt
 from ..userfile.json_setting import (
     set_backup_timestamp,
     save_compact_json_file,
@@ -45,7 +46,7 @@ logger = logging.getLogger(__name__)
 class DriverStats:
     """Driver stats data"""
 
-    pb: float = 99999.0  # personal best lap time
+    pb: float = MAX_SECONDS  # personal best lap time
     meters: float = 0.0  # meters driven
     seconds: float = 0.0  # seconds spent
     liters: float = 0.0  # fuel consumed

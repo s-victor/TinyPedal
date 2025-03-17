@@ -23,13 +23,12 @@ Sectors module
 from __future__ import annotations
 from functools import partial
 
-from ._base import DataModule
-from ..module_info import minfo, SectorsInfo
-from ..api_control import api
 from .. import validator as val
+from ..api_control import api
+from ..const_common import MAX_SECONDS
+from ..module_info import minfo, SectorsInfo
 from ..userfile.sector_best import load_sector_best_file, save_sector_best_file
-
-MAGIC_NUM = 99999.0
+from ._base import DataModule
 
 round6 = partial(round, ndigits=6)
 
@@ -61,7 +60,7 @@ class Realtime(DataModule):
                         filepath=userpath_sector_best,
                         filename=combo_id,
                         session_id=session_id,
-                        defaults=[MAGIC_NUM,MAGIC_NUM,MAGIC_NUM],
+                        defaults=[MAX_SECONDS, MAX_SECONDS, MAX_SECONDS],
                     )
 
                     if self.mcfg["enable_all_time_best_sectors"]:
@@ -116,7 +115,7 @@ def calc_sectors(output: SectorsInfo, best_s_tb: list, best_s_pb: list):
     last_sector_idx = -1  # previous recorded sector index value
     delta_s_tb = [0.0] * 3  # deltabest times against all time best sector
     delta_s_pb = [0.0] * 3  # deltabest times against best laptime sector
-    prev_s = [MAGIC_NUM,MAGIC_NUM,MAGIC_NUM]  # previous sector times
+    prev_s = [MAX_SECONDS, MAX_SECONDS, MAX_SECONDS]  # previous sector times
     laptime_best = sum(best_s_pb)
 
     while True:

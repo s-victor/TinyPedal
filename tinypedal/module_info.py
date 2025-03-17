@@ -24,7 +24,14 @@ from __future__ import annotations
 from collections import deque
 from typing import NamedTuple
 
-MAX_VEHICLES = 128
+from .const_common import (
+    MAX_VEHICLES,
+    MAX_SECONDS,
+    MAX_METERS,
+    MAX_FORECAST_MINUTES,
+    ABS_ZERO_CELSIUS,
+    DELTA_DEFAULT,
+)
 
 
 class ConsumptionDataSet(NamedTuple):
@@ -43,9 +50,9 @@ class ConsumptionDataSet(NamedTuple):
 class WeatherNode(NamedTuple):
     """Weather forecast node info"""
 
-    start_minute: float = 9999.0
+    start_minute: float = MAX_FORECAST_MINUTES
     sky_type: int = -1
-    temperature: float = -273.0
+    temperature: float = ABS_ZERO_CELSIUS
     rain_chance: float = -1.0
 
 
@@ -70,7 +77,7 @@ class DeltaInfo:
     )
 
     def __init__(self):
-        self.deltaBestData: tuple = ((0.0,0.0),)
+        self.deltaBestData: tuple = DELTA_DEFAULT
         self.deltaBest: float = 0.0
         self.deltaLast: float = 0.0
         self.deltaSession: float = 0.0
@@ -319,7 +326,7 @@ class SectorsInfo:
     )
 
     def __init__(self):
-        temp_sector = [99999.0] * 3
+        temp_sector = [MAX_SECONDS] * 3
         self.noDeltaSector: bool = True
         self.sectorIndex: int = -1
         self.sectorPrev: list[float] = temp_sector
@@ -364,9 +371,9 @@ class VehiclesInfo:
         )
         self.dataSetVersion: int = -1
         self.drawOrder: list = [0]
-        self.nearestLine: float = 999999.0
-        self.nearestTraffic: float = 999999.0
-        self.nearestYellow: float = 999999.0
+        self.nearestLine: float = MAX_METERS
+        self.nearestTraffic: float = MAX_SECONDS
+        self.nearestYellow: float = MAX_METERS
 
 
 class VehiclePitTimer:
@@ -427,10 +434,10 @@ class VehicleDataSet:
         self.driverName: str = ""
         self.vehicleName: str = ""
         self.vehicleClass: str = ""
-        self.sessionBestLapTime: float = 99999.0
-        self.classBestLapTime: float = 99999.0
-        self.bestLapTime: float = 99999.0
-        self.lastLapTime: float = 99999.0
+        self.sessionBestLapTime: float = MAX_SECONDS
+        self.classBestLapTime: float = MAX_SECONDS
+        self.bestLapTime: float = MAX_SECONDS
+        self.lastLapTime: float = MAX_SECONDS
         self.lapProgress: float = 0.0
         self.relativeTimeGap: float = 0.0
         self.gapBehindNextInClass: float = 0.0

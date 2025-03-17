@@ -27,7 +27,7 @@ import os
 from operator import itemgetter
 from typing import Any, Iterable, Callable
 
-from ..file_constants import FileFilter
+from ..const_file import FileFilter
 
 NOTESTYPE_PACE = "Pace Notes"
 NOTESTYPE_TRACK = "Track Notes"

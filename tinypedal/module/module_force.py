@@ -22,10 +22,10 @@ Force module
 
 from functools import partial
 
-from ._base import DataModule
-from ..module_info import minfo
-from ..api_control import api
 from .. import calculation as calc
+from ..api_control import api
+from ..module_info import minfo
+from ._base import DataModule
 
 
 class Realtime(DataModule):

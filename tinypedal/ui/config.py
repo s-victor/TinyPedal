@@ -42,6 +42,7 @@ from PySide2.QtWidgets import (
     QMessageBox,
 )
 
+from .. import set_user_data_path, set_relative_path
 from .. import regex_pattern as rxp
 from .. import validator as val
 from .. import formatter as fmt
@@ -274,8 +275,8 @@ class UserConfig(BaseDialog):
 
         for key, editor in self.option_path.items():
             # Try convert to relative path again, in case user manually sets path
-            value = val.relative_path(editor.text())
-            if val.user_data_path(value):
+            value = set_relative_path(editor.text())
+            if set_user_data_path(value):
                 user_setting[key] = value
                 editor.setText(value)  # update reformatted path
             else:

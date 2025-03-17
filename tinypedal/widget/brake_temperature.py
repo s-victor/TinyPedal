@@ -22,8 +22,8 @@ Brake temperature Widget
 
 from .. import calculation as calc
 from .. import heatmap as hmp
-from ..regex_pattern import TEXT_NOTAVAILABLE, TEXT_PLACEHOLDER
 from ..api_control import api
+from ..const_common import TEXT_NA, TEXT_PLACEHOLDER
 from ._base import Overlay
 
 
@@ -74,7 +74,7 @@ class Realtime(Overlay):
             bg_color=self.wcfg["bkg_color_temperature"]
         )
         self.bars_btemp = self.set_qlabel(
-            text=TEXT_NOTAVAILABLE,
+            text=TEXT_NA,
             style=bar_style_btemp,
             width=bar_width_temp,
             count=4,
@@ -101,7 +101,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_highlighted"])
             )
             self.bars_btavg = self.set_qlabel(
-                text=TEXT_NOTAVAILABLE,
+                text=TEXT_NA,
                 style=self.bar_style_btavg[0],
                 width=bar_width_temp,
                 count=4,

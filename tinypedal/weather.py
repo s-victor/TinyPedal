@@ -24,10 +24,10 @@ from __future__ import annotations
 from .module_info import WeatherNode
 from functools import lru_cache
 
-MAX_MINUTES = 9999.0
-MIN_TEMPERATURE = -273.0
-DEFAULT = [WeatherNode(MAX_MINUTES, -1, MIN_TEMPERATURE, -1)]
-RF2_FORECAST_NODES = ("START", "NODE_25", "NODE_50", "NODE_75", "FINISH")
+from .const_common import MAX_FORECAST_MINUTES, ABS_ZERO_CELSIUS
+
+DEFAULT = [WeatherNode(MAX_FORECAST_MINUTES, -1, ABS_ZERO_CELSIUS, -1)]
+FORECAST_NODES_RF2 = ("START", "NODE_25", "NODE_50", "NODE_75", "FINISH")
 
 
 def forecast_rf2(data: dict) -> list[WeatherNode]:
@@ -40,7 +40,7 @@ def forecast_rf2(data: dict) -> list[WeatherNode]:
                 round(data[node]["WNV_TEMPERATURE"]["currentValue"]),
                 round(data[node]["WNV_RAIN_CHANCE"]["currentValue"]),
             )
-            for index, node in enumerate(RF2_FORECAST_NODES)
+            for index, node in enumerate(FORECAST_NODES_RF2)
         ]
     except (KeyError, TypeError):
         output = DEFAULT

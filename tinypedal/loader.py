@@ -23,11 +23,11 @@ Loader function
 import logging
 import signal
 
-from .file_constants import FileExt
-from .setting import ConfigType, cfg
 from .api_control import api
+from .const_file import FileExt
 from .module_control import mctrl, wctrl
 from .overlay_control import octrl
+from .setting import ConfigType, cfg
 
 logger = logging.getLogger(__name__)
 

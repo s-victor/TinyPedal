@@ -22,16 +22,13 @@ Delta module
 
 from functools import partial
 
-from ._base import DataModule
-from ..module_info import minfo
-from ..api_control import api
 from .. import calculation as calc
 from .. import validator as val
+from ..api_control import api
+from ..const_common import FLOAT_INF, MAX_SECONDS, DELTA_ZERO, DELTA_DEFAULT, POS_XYZ_ZERO
+from ..module_info import minfo
 from ..userfile.delta_best import load_delta_best_file, save_delta_best_file
-
-DELTA_ZERO = 0.0,0.0
-DELTA_DEFAULT = (DELTA_ZERO,)
-MAGIC_NUM = 99999
+from ._base import DataModule
 
 round6 = partial(round, ndigits=6)
 
@@ -53,8 +50,8 @@ class Realtime(DataModule):
         last_session_id = ("",-1,-1,-1)
         delta_list_session = DELTA_DEFAULT
         delta_list_stint = DELTA_DEFAULT
-        laptime_session_best = MAGIC_NUM
-        laptime_stint_best = MAGIC_NUM
+        laptime_session_best = MAX_SECONDS
+        laptime_stint_best = MAX_SECONDS
         min_delta_distance = self.mcfg["minimum_delta_distance"]
 
         calc_ema_delta = partial(
@@ -86,13 +83,13 @@ class Realtime(DataModule):
                     # Reset delta session best if not same session
                     if not val.same_session(combo_id, session_id, last_session_id):
                         delta_list_session = DELTA_DEFAULT
-                        laptime_session_best = MAGIC_NUM
+                        laptime_session_best = MAX_SECONDS
                         last_session_id = (combo_id, *session_id)
 
                     delta_list_best, laptime_best = load_delta_best_file(
                         filepath=userpath_delta_best,
                         filename=combo_id,
-                        defaults=(DELTA_DEFAULT, MAGIC_NUM)
+                        defaults=(DELTA_DEFAULT, MAX_SECONDS)
                     )
                     output.deltaBestData = delta_list_best
                     delta_list_raw = [DELTA_ZERO]  # distance, laptime
@@ -107,14 +104,14 @@ class Realtime(DataModule):
                     laptime_last = 0.0  # last laptime
                     laptime_pace = laptime_best  # avearge laptime pace
 
-                    last_lap_stime = calc.FLOAT_INF  # last lap start time
+                    last_lap_stime = FLOAT_INF  # last lap start time
                     pos_recorded = 0.0  # last recorded vehicle position
                     pos_last = 0.0  # last checked vehicle position
                     pos_estimate = 0.0  # estimated vehicle position
                     pos_synced = 0.0  # synced estimated vehicle position
                     pos_synced_last = 0.0  # last synced estimated vehicle position
                     is_pos_synced = False  # vehicle position synced with API
-                    gps_last = (0.0,0.0,0.0)  # last global position
+                    gps_last = POS_XYZ_ZERO  # last global position
 
                 # Read telemetry
                 lap_stime = api.read.timing.start()
@@ -126,9 +123,9 @@ class Realtime(DataModule):
                 is_pit_lap |= in_pits
 
                 # Reset delta stint best if in pit and stopped
-                if in_pits and laptime_stint_best != MAGIC_NUM and api.read.vehicle.speed() < 0.1:
+                if in_pits and laptime_stint_best != MAX_SECONDS and api.read.vehicle.speed() < 0.1:
                     delta_list_stint = DELTA_DEFAULT
-                    laptime_stint_best = MAGIC_NUM
+                    laptime_stint_best = MAX_SECONDS
 
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime:
@@ -165,7 +162,7 @@ class Realtime(DataModule):
                         # Update laptime pace
                         if not is_pit_lap:
                             # Set initial laptime if invalid, or align to faster laptime
-                            if not 0 < laptime_pace < MAGIC_NUM or laptime_valid < laptime_pace:
+                            if not 0 < laptime_pace < MAX_SECONDS or laptime_valid < laptime_pace:
                                 laptime_pace = laptime_valid
                             else:
                                 laptime_pace = min(

@@ -34,8 +34,8 @@ from PySide2.QtWidgets import (
     QTabWidget,
 )
 
-from ..const import APP_NAME, VERSION, COPYRIGHT, DESCRIPTION, LICENSE, WEBSITE
-from ..file_constants import ImageFile
+from ..const_app import APP_NAME, VERSION, COPYRIGHT, DESCRIPTION, LICENSE, URL_WEBSITE
+from ..const_file import ImageFile
 from ._common import BaseDialog
 
 logger = logging.getLogger(__name__)
@@ -129,7 +129,7 @@ class About(BaseDialog):
 
         label_desc = QLabel(
             f"<p>{COPYRIGHT}</p><p>{DESCRIPTION}</p><p>{LICENSE}</p>"
-            f"<p><a href={WEBSITE}>{WEBSITE}</a><br></p>",
+            f"<p><a href={URL_WEBSITE}>{URL_WEBSITE}</a><br></p>",
         )
         label_desc.setStyleSheet("font-size: 12px;")
         label_desc.setAlignment(Qt.AlignCenter)

@@ -23,7 +23,7 @@ Log handler setup
 import sys
 import logging
 
-from .const import LOG_FILE, PATH_GLOBAL
+from .const_app import LOG_FILE, PATH_GLOBAL
 
 
 def new_stream_handler(_logger: logging.Logger, stream):

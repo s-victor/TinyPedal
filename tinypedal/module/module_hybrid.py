@@ -20,12 +20,11 @@
 Hybrid module
 """
 
-from ._base import DataModule
-from ..module_info import minfo
-from ..api_control import api
 from .. import calculation as calc
-
-DELTA_ZERO = 0.0,0.0
+from ..api_control import api
+from ..const_common import FLOAT_INF, MAX_SECONDS, DELTA_ZERO
+from ..module_info import minfo
+from ._base import DataModule
 
 
 class Realtime(DataModule):
@@ -58,10 +57,10 @@ class Realtime(DataModule):
                     alt_motor_state_debounce = 0  # alternative state reset debounce counter
                     motor_active_timer = 0
                     motor_active_timer_start = False
-                    motor_inactive_timer = 99999
+                    motor_inactive_timer = MAX_SECONDS
                     motor_inactive_timer_start = False
                     lap_etime_last = 0
-                    last_lap_stime = calc.FLOAT_INF  # last lap start time
+                    last_lap_stime = FLOAT_INF  # last lap start time
 
                     delta_reset = False
                     delta_recording = False
@@ -128,7 +127,7 @@ class Realtime(DataModule):
                     motor_inactive_timer = lap_etime - motor_inactive_timer_start
                     if motor_state == 2:
                         motor_inactive_timer_start = False
-                        motor_inactive_timer = 99999
+                        motor_inactive_timer = MAX_SECONDS
 
                 # Battery charge delta calculation
                 if motor_state != 0:

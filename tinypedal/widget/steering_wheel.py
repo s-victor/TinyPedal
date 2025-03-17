@@ -23,10 +23,10 @@ Steering wheel Widget
 from PySide2.QtCore import Qt, QRect
 from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush
 
-from ..api_control import api
-from ..file_constants import ImageFile
-from ..module_info import minfo
 from .. import validator as val
+from ..api_control import api
+from ..const_file import ImageFile
+from ..module_info import minfo
 from ._base import Overlay
 
 

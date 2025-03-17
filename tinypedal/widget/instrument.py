@@ -24,7 +24,7 @@ from PySide2.QtCore import Qt
 from PySide2.QtGui import QPixmap, QPainter
 
 from ..api_control import api
-from ..file_constants import ImageFile
+from ..const_file import ImageFile
 from ..module_info import minfo
 from ._base import Overlay
 

@@ -22,12 +22,12 @@ Energy module
 
 from __future__ import annotations
 
-from ._base import DataModule
-from .module_fuel import calc_data
-from ..module_info import minfo
-from ..api_control import api
-from ..file_constants import FileExt
 from .. import calculation as calc
+from ..api_control import api
+from ..const_file import FileExt
+from ..module_info import minfo
+from .module_fuel import calc_data
+from ._base import DataModule
 
 
 class Realtime(DataModule):

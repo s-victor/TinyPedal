@@ -53,9 +53,9 @@ from PySide2.QtWidgets import (
     QCompleter,
 )
 
-from .. import validator as val
-from ..const import APP_NAME
-from ..file_constants import FileFilter
+from .. import set_relative_path, validator as val
+from ..const_app import APP_NAME
+from ..const_file import FileFilter
 
 # Validator
 QLOC_NUMBER = QLocale(QLocale.C)
@@ -421,7 +421,7 @@ class DoubleClickEdit(QLineEdit):
         path_selected = QFileDialog.getExistingDirectory(self, dir=self.init_value)
         if os.path.exists(path_selected):
             # Convert to relative path if in APP root folder
-            path_valid = val.relative_path(path_selected)
+            path_valid = set_relative_path(path_selected)
             # Update edit box and init value
             self.setText(path_valid)
             self.init_value = path_valid

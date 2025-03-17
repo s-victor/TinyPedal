@@ -22,13 +22,13 @@ Mapping module
 
 from functools import partial
 
-from ._base import DataModule
-from ..module_info import minfo
-from ..api_control import api
-from ..validator import file_last_modified
-from ..file_constants import FileExt
 from .. import calculation as calc
+from ..api_control import api
+from ..module_info import minfo
+from ..const_file import FileExt
 from ..userfile.track_map import load_track_map_file, save_track_map_file
+from ..validator import file_last_modified
+from ._base import DataModule
 
 round4 = partial(round, ndigits=4)
 

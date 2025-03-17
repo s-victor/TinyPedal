@@ -22,10 +22,9 @@ Timing Widget
 
 from .. import calculation as calc
 from ..api_control import api
+from ..const_common import MAX_SECONDS
 from ..module_info import minfo
 from ._base import Overlay
-
-MAGIC_NUM = 99999
 
 
 class Realtime(Overlay):
@@ -218,7 +217,7 @@ class Realtime(Overlay):
         # Last data
         self.checked = False
         self.player_index = 0
-        self.laptime_sbst = MAGIC_NUM
+        self.laptime_sbst = MAX_SECONDS
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -287,7 +286,7 @@ class Realtime(Overlay):
         else:
             if self.checked:
                 self.checked = False
-                self.laptime_sbst = MAGIC_NUM  # reset laptime
+                self.laptime_sbst = MAX_SECONDS  # reset laptime
 
     # GUI update methods
     def update_laptime(self, target, data, prefix, verify=False):
@@ -297,7 +296,7 @@ class Realtime(Overlay):
             if verify:
                 target.setStyleSheet(self.bar_style_last[data > 0])
                 data = abs(data)
-            if 0 < data < MAGIC_NUM:
+            if 0 < data < MAX_SECONDS:
                 text = f"{prefix}{calc.sec2laptime(data)[:8]: >8}"
             else:
                 text = f"{prefix}-:--.---"

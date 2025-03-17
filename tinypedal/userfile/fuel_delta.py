@@ -25,8 +25,8 @@ import logging
 import csv
 
 from .. import validator as val
+from ..const_file import FileExt
 from ..module_info import ConsumptionDataSet
-from ..file_constants import FileExt
 
 logger = logging.getLogger(__name__)
 

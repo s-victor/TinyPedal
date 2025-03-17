@@ -23,11 +23,10 @@ Notes module
 from __future__ import annotations
 from typing import Callable
 
-from ._base import DataModule
-from ..module_info import minfo, NotesInfo
-from ..api_control import api
-from ..file_constants import FileExt
 from .. import calculation as calc
+from ..api_control import api
+from ..const_file import FileExt
+from ..module_info import minfo, NotesInfo
 from ..userfile.track_notes import (
     load_notes_file,
     parse_csv_notes_only,
@@ -35,6 +34,7 @@ from ..userfile.track_notes import (
     HEADER_PACE_NOTES,
     HEADER_TRACK_NOTES,
 )
+from ._base import DataModule
 
 
 class Realtime(DataModule):

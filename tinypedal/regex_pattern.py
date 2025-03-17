@@ -187,30 +187,3 @@ CHOICE_UNITS = {
     "turbo_pressure_unit": ["bar", "psi", "kPa"],
     "tyre_pressure_unit": ["kPa", "psi", "bar"],
 }
-
-# Text constants
-TEXT_PLACEHOLDER = "-"
-TEXT_NOTAVAILABLE = "n/a"
-
-# Identifier
-ENERGY_TYPE_ID = (
-    "FUEL",  # fuel
-    "NRG",  # virtual energy
-)
-RACELENGTH_TYPE_ID = (
-    "TIME",  # time-based race length
-    "LAPS",  # laps-based race length
-)
-
-# Misc
-COMMON_TYRE_COMPOUNDS = (
-    ("super", "Q"),  # super soft
-    ("inter", "I"),  # intermediate
-    ("soft", "S"),
-    ("med", "M"),  # medium
-    ("hard", "H"),
-    ("rain|wet", "W"),
-    ("slick|dry", "S"),
-    ("road|radial", "R"),
-    ("bias", "B"),  # bias ply
-)

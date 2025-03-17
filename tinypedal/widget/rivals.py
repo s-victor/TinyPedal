@@ -23,8 +23,8 @@ Rivals Widget
 from .. import calculation as calc
 from .. import formatter as fmt
 from .. import heatmap as hmp
-from ..regex_pattern import TEXT_PLACEHOLDER
 from ..api_control import api
+from ..const_common import TEXT_PLACEHOLDER
 from ..module_info import minfo
 from ..userfile.brand_logo import load_brand_logo_file
 from ._base import Overlay

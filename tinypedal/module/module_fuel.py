@@ -25,20 +25,18 @@ from functools import partial
 from math import ceil
 from typing import Callable
 
-from ._base import DataModule
-from ..module_info import minfo, FuelInfo, ConsumptionDataSet
-from ..api_control import api
-from ..file_constants import FileExt
 from .. import calculation as calc
+from ..api_control import api
+from ..const_common import FLOAT_INF, DELTA_ZERO, DELTA_DEFAULT, POS_XYZ_ZERO
+from ..const_file import FileExt
+from ..module_info import minfo, FuelInfo, ConsumptionDataSet
 from ..userfile.fuel_delta import (
     load_fuel_delta_file,
     save_fuel_delta_file,
     load_consumption_history_file,
     save_consumption_history_file,
 )
-
-DELTA_ZERO = 0.0,0.0
-DELTA_DEFAULT = (DELTA_ZERO,)
+from ._base import DataModule
 
 round6 = partial(round, ndigits=6)
 
@@ -163,7 +161,7 @@ def calc_data(
     delta_list_temp = DELTA_DEFAULT  # last lap temp
     delta_fuel = 0.0  # delta fuel consumption compare to last lap
 
-    amount_start = -calc.FLOAT_INF  # start fuel reading
+    amount_start = -FLOAT_INF  # start fuel reading
     amount_last = 0.0  # last fuel reading
     amount_need_abs = 0.0  # total fuel (absolute) need to finish race
     amount_need_rel = 0.0  # total additional fuel (relative) need to finish race
@@ -178,14 +176,14 @@ def calc_data(
     est_pits_early = 0.0  # estimate end-lap pit stop counts
     used_est_less = 0.0  # estimate fuel consumption for one less pit stop
 
-    last_lap_stime = calc.FLOAT_INF  # last lap start time
+    last_lap_stime = FLOAT_INF  # last lap start time
     laps_left = 0.0  # amount laps left at current lap distance
     end_timer_laps_left = 0.0  # amount laps left from start of current lap to end of race timer
     pos_recorded = 0.0  # last recorded vehicle position
     pos_last = 0.0  # last checked vehicle position
     pos_estimate = 0.0  # estimated vehicle position
     is_pos_synced = False  # vehicle position synced with API
-    gps_last = (0.0,0.0,0.0)  # last global position
+    gps_last = POS_XYZ_ZERO  # last global position
 
     while True:
         updating = yield None

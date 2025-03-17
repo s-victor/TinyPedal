@@ -22,8 +22,8 @@ Tyre inner layer temperature Widget
 
 from .. import calculation as calc
 from .. import heatmap as hmp
-from ..regex_pattern import TEXT_PLACEHOLDER, TEXT_NOTAVAILABLE
 from ..api_control import api
+from ..const_common import TEXT_PLACEHOLDER, TEXT_NA
 from ._base import Overlay
 
 
@@ -78,7 +78,7 @@ class Realtime(Overlay):
 
         # Tyre inner temperature
         self.bars_itemp = self.set_table(
-            text=TEXT_NOTAVAILABLE,
+            text=TEXT_NA,
             style=bar_style_itemp,
             width=font_m.width * text_width + bar_padx,
             layout=layout,

@@ -22,10 +22,11 @@ Vehicles module
 
 from __future__ import annotations
 
-from ._base import DataModule
-from ..module_info import minfo, MAX_VEHICLES, VehiclesInfo, VehiclePitTimer
-from ..api_control import api
 from .. import calculation as calc
+from ..api_control import api
+from ..const_common import MAX_VEHICLES, MAX_SECONDS, MAX_METERS
+from ..module_info import VehiclePitTimer, VehiclesInfo, minfo
+from ._base import DataModule
 
 ALL_INDEXES = list(range(MAX_VEHICLES))
 
@@ -79,9 +80,9 @@ class Realtime(DataModule):
         draw_order = ALL_INDEXES[:veh_total]
 
         # Local player data
-        nearest_line = 999999.0
-        nearest_timegap = -999999.0
-        nearest_yellow = 999999.0
+        nearest_line = MAX_METERS
+        nearest_timegap = -MAX_SECONDS
+        nearest_yellow = MAX_METERS
 
         # Sorting reference index
         leader_idx = 0

@@ -22,8 +22,8 @@ Brake Wear Widget
 
 from .. import calculation as calc
 from .. import heatmap as hmp
-from ..regex_pattern import TEXT_NOTAVAILABLE
 from ..api_control import api
+from ..const_common import TEXT_NA
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -72,7 +72,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_remaining"])
             )
             self.bars_wear = self.set_qlabel(
-                text=TEXT_NOTAVAILABLE,
+                text=TEXT_NA,
                 style=self.bar_style_wear[0],
                 width=bar_width,
                 count=4,
@@ -106,7 +106,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_wear_difference"])
             )
             self.bars_diff = self.set_qlabel(
-                text=TEXT_NOTAVAILABLE,
+                text=TEXT_NA,
                 style=self.bar_style_diff[0],
                 width=bar_width,
                 count=4,
@@ -139,7 +139,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_lifespan_laps"])
             )
             self.bars_laps = self.set_qlabel(
-                text=TEXT_NOTAVAILABLE,
+                text=TEXT_NA,
                 style=self.bar_style_laps[0],
                 width=bar_width,
                 count=4,
@@ -172,7 +172,7 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_lifespan_minutes"])
             )
             self.bars_mins = self.set_qlabel(
-                text=TEXT_NOTAVAILABLE,
+                text=TEXT_NA,
                 style=self.bar_style_mins[0],
                 width=bar_width,
                 count=4,

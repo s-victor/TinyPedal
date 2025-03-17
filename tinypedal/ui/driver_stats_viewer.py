@@ -40,6 +40,7 @@ from PySide2.QtWidgets import (
 from .. import calculation as calc
 from .. import formatter as fmt
 from ..api_control import api
+from ..const_common import MAX_SECONDS
 from ..setting import cfg
 from ..userfile.driver_stats import (
     STATS_FILENAME,
@@ -59,7 +60,7 @@ from ._common import (
 def parse_display_value(key: str, value: int | float) -> str | int | float:
     """Parse stats display value"""
     if key == "pb":
-        if value >= 99999:
+        if value >= MAX_SECONDS:
             return "-:--.---"
         return calc.sec2laptime_full(value)
     if key == "meters":

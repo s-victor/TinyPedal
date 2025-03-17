@@ -25,7 +25,7 @@ from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush
 
 from .. import calculation as calc
 from ..api_control import api
-from ..file_constants import ImageFile
+from ..const_file import ImageFile
 from ._base import Overlay
 
 

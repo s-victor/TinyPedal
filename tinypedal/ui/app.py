@@ -33,7 +33,7 @@ from PySide2.QtWidgets import (
     QPushButton,
 )
 
-from ..const import APP_NAME, VERSION
+from ..const_app import APP_NAME, VERSION
 from ..setting import ConfigType, cfg
 from ..api_control import api
 from ..overlay_control import octrl

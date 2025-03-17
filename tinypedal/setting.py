@@ -36,10 +36,11 @@ from .template.setting_classes import CLASSES_DEFAULT
 from .template.setting_compounds import COMPOUNDS_DEFAULT
 from .template.setting_heatmap import HEATMAP_DEFAULT
 
+from . import set_user_data_path
 from . import regex_pattern as rxp
 from . import validator as val
-from .const import APP_NAME, PLATFORM, PATH_GLOBAL
-from .file_constants import ConfigType, FileExt
+from .const_app import APP_NAME, PLATFORM, PATH_GLOBAL
+from .const_file import ConfigType, FileExt
 from .setting_validator import StyleValidator
 from .userfile.json_setting import (
     copy_setting,
@@ -115,9 +116,9 @@ class FilePath:
         """Update path variables from global user path dictionary"""
         for key in user_path.keys():
             # Reset path if invalid
-            if not val.user_data_path(user_path[key]):
+            if not set_user_data_path(user_path[key]):
                 user_path[key] = default_path[key]
-                val.user_data_path(user_path[key])
+                set_user_data_path(user_path[key])
             # Assign path
             setattr(self, key.replace("_path", ""), user_path[key])
 

@@ -22,8 +22,8 @@ API control
 
 import logging
 
-from .setting import cfg
 from .api_connector import API_PACK
+from .setting import cfg
 
 logger = logging.getLogger(__name__)
 

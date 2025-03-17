@@ -23,12 +23,9 @@ Sectors Widget
 from .. import calculation as calc
 from .. import validator as val
 from ..api_control import api
+from ..const_common import MAX_SECONDS, SECTOR_ABBR_ID, PREV_SECTOR_INDEX
 from ..module_info import minfo
 from ._base import Overlay
-
-MAGIC_NUM = 99999
-PREV_SECTOR_IDX = (2, 0, 1)
-TEXT_SECTOR = ("S1", "S2", "S3")
 
 
 class Realtime(Overlay):
@@ -110,7 +107,7 @@ class Realtime(Overlay):
             count=3,
         )
         for idx, bar_time_gap in enumerate(self.bars_time_gap):
-            bar_time_gap.setText(TEXT_SECTOR[idx])
+            bar_time_gap.setText(SECTOR_ABBR_ID[idx])
             layout_sector.addWidget(bar_time_gap, 0, idx)
 
         # Set layout
@@ -159,7 +156,7 @@ class Realtime(Overlay):
                     laptime_curr, True)
 
                 # Update previous & best sector time
-                prev_s_idx = PREV_SECTOR_IDX[minfo.sectors.sectorIndex]
+                prev_s_idx = PREV_SECTOR_INDEX[minfo.sectors.sectorIndex]
 
                 self.update_time_target_gap(
                     minfo.sectors.deltaSectorBestPB, minfo.sectors.deltaSectorBestTB, prev_s_idx
@@ -179,10 +176,8 @@ class Realtime(Overlay):
 
             # Update freeze timer
             if self.freeze_timer_start:
-                freeze_timer = lap_etime - self.freeze_timer_start
-
                 # Stop freeze timer after duration
-                if freeze_timer >= self.freeze_duration(
+                if lap_etime - self.freeze_timer_start >= self.freeze_duration(
                     minfo.sectors.sectorPrev[minfo.sectors.sectorIndex]):
                     self.freeze_timer_start = 0  # stop timer
                     # Update best sector time
@@ -217,15 +212,15 @@ class Realtime(Overlay):
         curr_sectortime = laptime_curr
         # Freeze current sector time
         if freeze:
-            prev_sector_idx = PREV_SECTOR_IDX[sector_idx]
+            prev_sector_idx = PREV_SECTOR_INDEX[sector_idx]
             if val.sector_time(prev_s[prev_sector_idx]):  # valid previous sector time
                 sum_sectortime = calc.accumulated_sum(prev_s, prev_sector_idx)
-                if sum_sectortime < MAGIC_NUM:  # bypass invalid value
+                if sum_sectortime < MAX_SECONDS:  # bypass invalid value
                     curr_sectortime = sum_sectortime
         else:
             prev_sector_idx = sector_idx
         self.bar_time_curr.setText(
-            f"{TEXT_SECTOR[prev_sector_idx]}{calc.sec2laptime(curr_sectortime)[:8]: >9}")
+            f"{SECTOR_ABBR_ID[prev_sector_idx]}{calc.sec2laptime(curr_sectortime)[:8]: >9}")
 
     def update_time_target(self, text_laptime):
         """Target sector time text"""
@@ -248,7 +243,7 @@ class Realtime(Overlay):
         else:
             sector_time = minfo.sectors.sectorBestPB
         for idx, bar_time_gap in enumerate(self.bars_time_gap):
-            text_s = TEXT_SECTOR[idx]
+            text_s = SECTOR_ABBR_ID[idx]
             if val.sector_time(sector_time[idx]):
                 text_s = f"{sector_time[idx]:.3f}"[:7]
             bar_time_gap.setText(text_s)
@@ -260,12 +255,12 @@ class Realtime(Overlay):
         # Mode 0 - show theoretical best sector, only update if all sector time is valid
         if self.wcfg["target_laptime"] == "Theoretical":
             sector_time = calc.accumulated_sum(sec_tb, sec_index)
-            if sector_time < MAGIC_NUM:  # bypass invalid value
+            if sector_time < MAX_SECONDS:  # bypass invalid value
                 return f"TB{calc.sec2laptime(sector_time)[:8]: >9}"
             return "TB   --.---"
         # Mode 1 - show personal best lap sector
         sector_time = calc.accumulated_sum(sec_pb, sec_index)
-        if sector_time < MAGIC_NUM:  # bypass invalid value
+        if sector_time < MAX_SECONDS:  # bypass invalid value
             return f"PB{calc.sec2laptime(sector_time)[:8]: >9}"
         return "PB   --.---"
 

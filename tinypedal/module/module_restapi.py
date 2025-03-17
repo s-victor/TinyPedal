@@ -26,15 +26,15 @@ import logging
 import json
 import re
 import socket
-from urllib.request import urlopen
 from typing import Any, Callable
+from urllib.request import urlopen
 
-from ._base import DataModule
-from ..module_info import minfo
-from ..api_control import api
-from ..validator import value_type
 from .. import formatter as fmt
 from .. import weather as wthr
+from ..api_control import api
+from ..module_info import minfo
+from ..validator import value_type
+from ._base import DataModule
 
 logger = logging.getLogger(__name__)
 

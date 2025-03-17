@@ -25,7 +25,7 @@ import os
 from PySide2.QtGui import QDesktopServices
 from PySide2.QtWidgets import QMenu, QAction, QMessageBox
 
-from ..const import LINK_USER_GUIDE, LINK_FAQ
+from ..const_app import URL_USER_GUIDE, URL_FAQ
 from ..setting import ConfigType, cfg
 from ..api_control import api
 from ..module_info import minfo
@@ -560,8 +560,8 @@ class HelpMenu(QMenu):
 
     def open_user_guide(self):
         """Open user guide link"""
-        QDesktopServices.openUrl(LINK_USER_GUIDE)
+        QDesktopServices.openUrl(URL_USER_GUIDE)
 
     def open_faq(self):
         """Open FAQ link"""
-        QDesktopServices.openUrl(LINK_FAQ)
+        QDesktopServices.openUrl(URL_FAQ)

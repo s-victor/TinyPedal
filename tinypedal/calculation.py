@@ -25,7 +25,8 @@ from typing import Tuple, Sequence
 from math import dist, hypot, degrees, radians, atan, atan2, sin, cos, acos, ceil
 from statistics import fmean, stdev
 
-FLOAT_INF = float("inf")
+from .const_common import FLOAT_INF
+
 CoordXY = Tuple[float, float]
 
 distance = dist  # coordinates distance

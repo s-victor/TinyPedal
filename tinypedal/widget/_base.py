@@ -28,7 +28,7 @@ from PySide2.QtGui import QPalette, QFont, QFontMetrics, QPixmap
 from PySide2.QtWidgets import QWidget, QLabel, QLayout, QGridLayout
 
 from .. import regex_pattern as rxp
-from ..const import APP_NAME
+from ..const_app import APP_NAME
 from ..overlay_control import octrl
 from ..setting import Setting
 

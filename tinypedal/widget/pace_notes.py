@@ -21,11 +21,10 @@ Pace notes Widget
 """
 
 from ..api_control import api
+from ..const_common import TEXT_NOTAVAILABLE
 from ..module_info import minfo
-from ._base import Overlay
 from ..userfile.track_notes import COLUMN_DISTANCE, COLUMN_PACENOTE, COLUMN_COMMENT
-
-NA = "NOT AVAILABLE"
+from ._base import Overlay
 
 
 class Realtime(Overlay):
@@ -141,15 +140,15 @@ class Realtime(Overlay):
                 self.update_auto_hide(True)
 
             if self.wcfg["show_pace_notes"]:
-                notes = minfo.pacenotes.currentNote.get(COLUMN_PACENOTE, NA)
+                notes = minfo.pacenotes.currentNote.get(COLUMN_PACENOTE, TEXT_NOTAVAILABLE)
                 self.update_notes(self.bar_notes, notes)
 
             if self.wcfg["show_comments"]:
-                comments = minfo.pacenotes.currentNote.get(COLUMN_COMMENT, NA)
+                comments = minfo.pacenotes.currentNote.get(COLUMN_COMMENT, TEXT_NOTAVAILABLE)
                 self.update_comments(self.bar_comments, comments)
 
             if self.wcfg["show_debugging"]:
-                debugging = minfo.pacenotes.currentNote.get(COLUMN_DISTANCE, NA)
+                debugging = minfo.pacenotes.currentNote.get(COLUMN_DISTANCE, TEXT_NOTAVAILABLE)
                 self.update_debugging(self.bar_debugging, debugging)
 
     # GUI update methods
@@ -171,7 +170,7 @@ class Realtime(Overlay):
         """Debugging info"""
         if target.last != data:
             target.last = data
-            if data != NA:
+            if data != TEXT_NOTAVAILABLE:
                 data = (
                     f"IDX:{minfo.pacenotes.currentIndex + 1} "
                     f"POS:{data:.0f}>>{minfo.pacenotes.nextNote.get(COLUMN_DISTANCE, 0):.0f}m"

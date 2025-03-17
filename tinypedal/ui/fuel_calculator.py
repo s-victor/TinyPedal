@@ -51,7 +51,7 @@ from ..setting import cfg
 from ..module_info import minfo, ConsumptionDataSet
 from .. import calculation as calc
 from .. import formatter as fmt
-from ..file_constants import FileFilter
+from ..const_file import FileFilter
 from ..userfile.fuel_delta import load_consumption_history_file
 from ._common import BaseDialog
 

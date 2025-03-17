@@ -12,7 +12,7 @@ import sys
 from glob import glob
 from py2exe import freeze
 
-from tinypedal.const import (
+from tinypedal.const_app import (
     APP_NAME,
     VERSION,
     PLATFORM,

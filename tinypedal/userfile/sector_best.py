@@ -24,7 +24,7 @@ from __future__ import annotations
 import logging
 import csv
 
-from ..file_constants import FileExt
+from ..const_file import FileExt
 
 logger = logging.getLogger(__name__)
 

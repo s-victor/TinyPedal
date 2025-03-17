@@ -20,14 +20,16 @@
 Constants
 """
 
-import os
 import sys
 import platform
 
 from psutil import version_info
 from PySide2.QtCore import qVersion
 
-from . import version
+from . import version, set_global_user_path
+
+# System info
+PLATFORM = platform.system()
 
 # App version
 VERSION = version.__version__
@@ -42,24 +44,16 @@ APP_NAME = "TinyPedal"
 COPYRIGHT = "Copyright (C) 2022-2025 TinyPedal developers"
 DESCRIPTION = "A Free and Open Source telemetry overlay application for racing simulation."
 LICENSE = "Licensed under the GNU General Public License v3.0 or later."
-WEBSITE = "https://github.com/s-victor/TinyPedal"
 
-# Link
-LINK_USER_GUIDE = "https://github.com/s-victor/TinyPedal/wiki/User-Guide"
-LINK_FAQ = "https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions"
+# URL
+URL_WEBSITE = "https://github.com/s-victor/TinyPedal"
+URL_USER_GUIDE = "https://github.com/s-victor/TinyPedal/wiki/User-Guide"
+URL_FAQ = "https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions"
 
 # File name
 EXE_FILE = "tinypedal.exe"
 LOG_FILE = "tinypedal.log"
 PID_FILE = "pid.log"
 
-# System info
-PLATFORM = platform.system()
-
 # Global path
-if PLATFORM == "Windows":
-    from .validator import user_data_path
-    PATH_GLOBAL = user_data_path(f"{os.getenv('APPDATA')}/{APP_NAME}/")
-else:
-    from xdg import BaseDirectory as BD
-    PATH_GLOBAL = BD.save_config_path(APP_NAME)
+PATH_GLOBAL = set_global_user_path(APP_NAME, PLATFORM)

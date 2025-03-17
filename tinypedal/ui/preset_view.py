@@ -40,7 +40,7 @@ from PySide2.QtWidgets import (
     QDialogButtonBox,
 )
 
-from ..file_constants import FileExt
+from ..const_file import FileExt
 from ..setting import ConfigType, cfg
 from .. import formatter as fmt
 from .. import regex_pattern as rxp

@@ -22,10 +22,11 @@ Wheels module
 
 from collections import deque
 
-from ._base import DataModule
-from ..module_info import minfo
-from ..api_control import api
 from .. import calculation as calc
+from ..api_control import api
+from ..const_common import POS_XY_ZERO
+from ..module_info import minfo
+from ._base import DataModule
 
 
 class Realtime(DataModule):
@@ -74,8 +75,8 @@ class Realtime(DataModule):
                     samples_slice_r = sample_slice_indices(min_samples_r)
                     locking_f = 1
                     locking_r = 1
-                    gps_last = 0
                     cornering_radius = 0
+                    gps_last = POS_XY_ZERO
 
                 # Read telemetry
                 speed = api.read.vehicle.speed()

@@ -41,12 +41,12 @@ from PySide2.QtWidgets import (
     QDoubleSpinBox,
 )
 
+from .. import set_relative_path
 from ..setting import cfg
 from ..module_info import minfo
-from .. import validator as val
 from ..overlay_control import octrl
 from ..module_control import mctrl
-from ..file_constants import FileFilter
+from ..const_file import FileFilter
 from ..userfile.track_notes import COLUMN_PACENOTE
 from ._common import QSS_EDITOR_BUTTON
 
@@ -288,7 +288,7 @@ class PaceNotesControl(QWidget):
         filename_full = QFileDialog.getExistingDirectory(self, dir=filepath)
         if not filename_full:
             return
-        filename_full = val.relative_path(filename_full)
+        filename_full = set_relative_path(filename_full)
         self.path_selector.setText(filename_full)
         self.update_config("pace_notes_sound_path", filename_full)
 

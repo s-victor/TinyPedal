@@ -22,11 +22,12 @@ Stats module
 
 from __future__ import annotations
 
-from ._base import DataModule
-from ..module_info import minfo
-from ..api_control import api
 from .. import calculation as calc
+from ..api_control import api
+from ..const_common import FLOAT_INF, POS_XYZ_INF
+from ..module_info import minfo
 from ..userfile.driver_stats import load_driver_stats, save_driver_stats
+from ._base import DataModule
 
 
 class Realtime(DataModule):
@@ -61,13 +62,13 @@ class Realtime(DataModule):
                     update_interval = self.active_interval
 
                     is_pit_lap = 0
-                    last_lap_stime = calc.FLOAT_INF
-                    last_lap_etime = calc.FLOAT_INF
-                    last_best_laptime = calc.FLOAT_INF
+                    last_lap_stime = FLOAT_INF
+                    last_lap_etime = FLOAT_INF
+                    last_best_laptime = FLOAT_INF
                     last_num_penalties = 99999
                     fuel_last = 0.0
                     last_finish_state = 99999
-                    gps_last = (-99999, -99999, -99999)
+                    gps_last = POS_XYZ_INF
                     driver_stats = load_driver_stats(
                         key_list=self.stats_keys(vehicle_class),
                         filepath=self.cfg.path.config,

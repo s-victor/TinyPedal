@@ -24,7 +24,7 @@ import logging
 import xml.dom.minidom
 import xml.parsers.expat
 
-from ..file_constants import FileExt
+from ..const_file import FileExt
 from ..formatter import (
     coords_to_points,
     points_to_coords,

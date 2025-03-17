@@ -30,7 +30,7 @@ from PySide2.QtGui import QIcon, QFont, QPixmapCache
 from PySide2.QtWidgets import QApplication, QMessageBox
 
 from .cli_argument import get_cli_argument
-from .const import (
+from .const_app import (
     APP_NAME,
     PLATFORM,
     VERSION,
@@ -41,7 +41,7 @@ from .const import (
     QT_VERSION,
     PSUTIL_VERSION,
 )
-from .file_constants import ImageFile
+from .const_file import ImageFile
 from .log_handler import set_logging_level
 
 logger = logging.getLogger("tinypedal")

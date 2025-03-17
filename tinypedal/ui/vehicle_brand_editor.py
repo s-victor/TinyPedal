@@ -44,7 +44,7 @@ from PySide2.QtWidgets import (
 from ..api_control import api
 from ..setting import ConfigType, cfg, copy_setting
 from ..module_control import wctrl
-from ..file_constants import FileFilter
+from ..const_file import FileFilter
 from ._common import (
     BaseEditor,
     TableBatchReplace,

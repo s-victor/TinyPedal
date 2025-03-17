@@ -24,20 +24,9 @@ from time import strftime, gmtime
 
 from .. import calculation as calc
 from ..api_control import api
+from ..const_common import COMPASS_BEARINGS
 from ..module_info import minfo
 from ._base import Overlay
-
-DIRECTIONS = (
-    (0, " N"),
-    (22.5, "NE"),
-    (67.5, " E"),
-    (112.5, "SE"),
-    (157.5, " S"),
-    (202.5, "SW"),
-    (247.5, " W"),
-    (292.5, "NW"),
-    (337.5, " N"),
-)
 
 
 class Realtime(Overlay):
@@ -253,7 +242,7 @@ class Realtime(Overlay):
     def format_compass(self, yaw):
         """Format compass"""
         degree = 180 - calc.rad2deg(yaw)
-        return f"{degree:03.0f}°{calc.select_grade(DIRECTIONS, degree)}"
+        return f"{degree:03.0f}°{calc.select_grade(COMPASS_BEARINGS, degree): >2}"
 
     def format_elevation(self, meter):
         """Format elevation"""

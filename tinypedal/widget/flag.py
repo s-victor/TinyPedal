@@ -22,10 +22,9 @@ Flag Widget
 
 from .. import calculation as calc
 from ..api_control import api
+from ..const_common import MAX_SECONDS
 from ..module_info import minfo
 from ._base import Overlay
-
-MAGIC_NUM = 99999
 
 
 class Realtime(Overlay):
@@ -238,7 +237,7 @@ class Realtime(Overlay):
             # Pit timer
             if self.wcfg["show_pit_timer"]:
                 if in_pits and api.read.vehicle.in_garage():
-                    pitting_state = MAGIC_NUM
+                    pitting_state = MAX_SECONDS
                 else:
                     pitting_state = self.pit_timer.update(in_pits, lap_etime)
                 self.update_pit_timer(self.bar_pit_timer, pitting_state)
@@ -296,7 +295,7 @@ class Realtime(Overlay):
         """Pit timer"""
         if target.last != data:
             target.last = data
-            if data != MAGIC_NUM:
+            if data != MAX_SECONDS:
                 if data < 0:  # finished pits
                     color = self.bar_style_pit_timer[1]
                     state = f"F{-data: >6.2f}"[:7]
@@ -335,7 +334,7 @@ class Realtime(Overlay):
         """Blue flag"""
         if target.last != data:
             target.last = data
-            if data != MAGIC_NUM:
+            if data != MAX_SECONDS:
                 target.setText(f"BLUE{data:3.0f}"[:7])
                 target.show()
             else:
@@ -345,7 +344,7 @@ class Realtime(Overlay):
         """Yellow flag"""
         if target.last != data:
             target.last = data
-            if data != MAGIC_NUM:
+            if data != MAX_SECONDS:
                 if self.cfg.units["distance_unit"] == "Feet":
                     yelw_text = f"Y{data * 3.281: >4.0f}ft"[:7]
                 else:  # meter
@@ -374,7 +373,7 @@ class Realtime(Overlay):
         """Incoming traffic"""
         if target.last != data:
             target.last = data
-            if data != MAGIC_NUM:
+            if data != MAX_SECONDS:
                 target.setText(f"≥{data: >5.1f}s"[:7])
                 target.show()
             else:
@@ -455,7 +454,7 @@ class Realtime(Overlay):
             if (api.read.session.yellow_flag() and
                 minfo.vehicles.nearestYellow < self.wcfg["yellow_flag_maximum_range"]):
                 return round(minfo.vehicles.nearestYellow)
-        return MAGIC_NUM
+        return MAX_SECONDS
 
 
 class GreenFlagTimer:
@@ -509,7 +508,7 @@ class TrafficTimer:
             if (api.read.vehicle.speed() < self._low_speed_threshold > 0
                 or in_pits or self._timer_start):
                 return round(minfo.vehicles.nearestTraffic, 1)
-        return MAGIC_NUM
+        return MAX_SECONDS
 
     def reset(self):
         """Reset"""
@@ -532,7 +531,7 @@ class BlueFlagTimer:
                     self._timer_start = elapsed_time
                 return round(elapsed_time - self._timer_start)
             self._timer_start = 0
-        return MAGIC_NUM
+        return MAX_SECONDS
 
     def reset(self):
         """Reset"""
@@ -555,7 +554,7 @@ class PitTimer:
         self._last_in_pits = in_pits
 
         if not self._timer_start:
-            return MAGIC_NUM
+            return MAX_SECONDS
 
         pit_timer = elapsed_time - self._timer_start
         if in_pits:
@@ -564,7 +563,7 @@ class PitTimer:
             pit_timer = -self._last_pit_time  # set negative for highlighting
         else:
             self._timer_start = 0  # stop timer
-            pit_timer = MAGIC_NUM
+            pit_timer = MAX_SECONDS
         return pit_timer
 
     def reset(self):

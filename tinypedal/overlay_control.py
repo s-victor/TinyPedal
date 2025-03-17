@@ -26,8 +26,8 @@ from time import sleep, monotonic
 
 from PySide2.QtCore import QObject, Signal
 
-from .setting import cfg
 from .api_control import api
+from .setting import cfg
 
 logger = logging.getLogger(__name__)
 
