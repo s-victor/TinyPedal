@@ -23,11 +23,13 @@ Driver stats file function
 from __future__ import annotations
 import logging
 import json
+from time import sleep
 from dataclasses import dataclass
 from typing import KeysView
 
 from ..const_common import MAX_SECONDS
 from ..const_file import FileExt
+from ..setting import cfg
 from ..userfile.json_setting import (
     set_backup_timestamp,
     save_compact_json_file,
@@ -98,13 +100,15 @@ def get_sub_dict(source: dict, key_name: str) -> dict:
 
 
 def load_driver_stats(
-    key_list: tuple[str, ...], filepath: str
+    key_list: tuple[str, str], filepath: str
 ) -> DriverStats:
     """Load driver stats"""
     stats_user = load_stats_json_file(
         filepath=filepath,
         filename=STATS_FILENAME,
     )
+    if stats_user is None:
+        return DriverStats()
     # Get data from matching key
     target_dict = stats_user
     for key in key_list:
@@ -119,15 +123,30 @@ def load_driver_stats(
 
 
 def save_driver_stats(
-    key_list: tuple[str, ...], stats_update: DriverStats, filepath: str
+    key_list: tuple[str, str], stats_update: DriverStats, filepath: str
 ) -> None:
     """Save driver stats"""
     if not key_list or not all(key_list):  # ignore invalid key name
         return
-    stats_user = load_stats_json_file(
-        filepath=filepath,
-        filename=STATS_FILENAME,
-    )
+    # Load stats with limited attempts
+    load_attempts = cfg.max_saving_attempts
+    while load_attempts > 0:
+        stats_user = load_stats_json_file(
+            filepath=filepath,
+            filename=STATS_FILENAME,
+            show_log=False,
+        )
+        if stats_user is not None:
+            break
+        load_attempts -= 1
+        logger.info("USERDATA: unable to load %s%s file, %s attempt(s) left", STATS_FILENAME, FileExt.STATS, load_attempts)
+        sleep(0.05)
+    # Create backup if failed to load stats
+    if stats_user is None:
+        logger.info("USERDATA: unable to load %s%s file, creating backup", STATS_FILENAME, FileExt.STATS)
+        if not create_backup_file(f"{STATS_FILENAME}{FileExt.STATS}", filepath, set_backup_timestamp(), show_log=True):
+            return  # abort saving if failed to create backup
+        stats_user = {}  # reset stats
     # Get data from matching key
     target_dict = stats_user
     for key in key_list:
@@ -142,33 +161,40 @@ def save_driver_stats(
 
 
 def load_stats_json_file(
-    filename: str, filepath: str, extension: str = FileExt.STATS
-) -> dict:
-    """Load stats json file & verify"""
+    filename: str, filepath: str, extension: str = FileExt.STATS, show_log: bool = True
+) -> dict | None:
+    """Load stats json file, create new if not exists, or returns "None" if invalid"""
     try:
-        # Read JSON file
         with open(f"{filepath}{filename}{extension}", "r", encoding="utf-8") as jsonfile:
             stats_user = json.load(jsonfile)
             if not isinstance(stats_user, dict):
                 raise TypeError
             return stats_user
     except FileNotFoundError:
-        logger.info("MISSING: %s stats (%s) data", filename, extension)
+        if show_log:
+            logger.info("MISSING: %s stats (%s) data, create new stats file", filename, extension)
+        stats_user = {}
+        save_compact_json_file(stats_user, filename, filepath, extension)
+        return stats_user
     except (AttributeError, TypeError, KeyError, ValueError):
-        logger.info("MISSING: invalid %s stats (%s) data", filename, extension)
-        create_backup_file(f"{filename}{extension}", filepath, set_backup_timestamp(), show_log=True)
-    stats_user = {}
-    save_compact_json_file(stats_user, filename, filepath, extension)
-    return stats_user
+        if show_log:
+            logger.info("MISSING: invalid %s stats (%s) data", filename, extension)
+    return None
 
 
 def save_stats_json_file(
-    stats_user: dict, filename: str, filepath: str, extension: str = FileExt.STATS
+    stats_user: dict | None, filename: str, filepath: str, extension: str = FileExt.STATS
 ) -> None:
     """Save stats to json file"""
-    create_backup_file(f"{filename}{extension}", filepath)
+    if stats_user is None:
+        logger.info("USERDATA: invalid %s%s data, abort saving", filename, extension)
+        return
+    # Abort saving if backup file failed to create
+    if not create_backup_file(f"{filename}{extension}", filepath):
+        return
     save_compact_json_file(stats_user, filename, filepath, extension)
     if not verify_json_file(stats_user, filename, filepath, extension):
+        # Restore if failed saving
         restore_backup_file(f"{filename}{extension}", filepath)
     else:
         logger.info("USERDATA: %s%s saved", filename, extension)

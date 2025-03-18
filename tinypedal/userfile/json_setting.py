@@ -57,7 +57,6 @@ def load_setting_json_file(
 ) -> dict:
     """Load setting json file & verify"""
     try:
-        # Read JSON file
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
             setting_user = json.load(jsonfile)
         # Verify & assign setting
@@ -80,21 +79,17 @@ def load_style_json_file(
     """Load style json file"""
     msg_text = "loaded"
     try:
-        # Read JSON file
         with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
             style_user = json.load(jsonfile)
-
         # Whether to check and add missing style
         if check_missing:
             if PresetValidator.add_missing_key(tuple(dict_def), style_user, dict_def):
                 msg_text = "updated"
-
         # Whether to validate style
         if validator is not None:
             if validator(style_user):
                 create_backup_file(filename, filepath, set_backup_timestamp(), show_log=True)
                 msg_text = "updated"
-
     except (FileNotFoundError, KeyError, ValueError):
         style_user = copy_setting(dict_def)
         if not os.path.exists(f"{filepath}{filename}"):
@@ -143,7 +138,7 @@ def verify_json_file(
 
 def create_backup_file(
     filename: str, filepath: str, extension: str = FileExt.BAK, show_log: bool = False
-) -> None:
+) -> bool:
     """Create backup file before saving"""
     try:
         shutil.copyfile(
@@ -152,36 +147,42 @@ def create_backup_file(
         )
         if show_log:
             logger.info("SETTING: backup saved %s", f"{filepath}{filename}{extension}")
+        return True
     except FileNotFoundError:
         logger.error("SETTING: source file not found")
     except OSError:
         logger.error("SETTING: unable to create backup file")
+    return False
 
 
 def restore_backup_file(
     filename: str, filepath: str, extension: str = FileExt.BAK
-) -> None:
+) -> bool:
     """Restore backup file if saving failed"""
     try:
         shutil.copyfile(
             f"{filepath}{filename}{extension}",
             f"{filepath}{filename}",
         )
+        return True
     except FileNotFoundError:
         logger.error("SETTING: backup file not found")
     except OSError:
         logger.error("SETTING: unable to restore backup file")
+    return False
 
 
 def delete_backup_file(
     filename: str, filepath: str, extension: str = FileExt.BAK
-) -> None:
+) -> bool:
     """Delete backup file"""
     try:
         file_path = f"{filepath}{filename}{extension}"
         if os.path.exists(file_path):
             os.remove(file_path)
+        return True
     except FileNotFoundError:
         logger.error("SETTING: backup file not found")
     except OSError:
         logger.error("SETTING: unable to delete backup file")
+    return False

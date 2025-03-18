@@ -158,7 +158,7 @@ class Realtime(DataModule):
                         filepath=self.cfg.path.config,
                     )
 
-    def stats_keys(self, vehicle_class: str) -> tuple[str, ...]:
+    def stats_keys(self, vehicle_class: str) -> tuple[str, str]:
         """Stats key names"""
         if vehicle_class == "Class":
             name = api.read.vehicle.class_name()

@@ -359,7 +359,7 @@ class Setting:
 
     def __saving(self, filename: str, filepath: str, dict_user: dict):
         """Saving thread"""
-        attempts = max_attempts = max(self.application["maximum_saving_attempts"], 3)
+        attempts = max_attempts = self.max_saving_attempts
 
         # Update save delay
         while self._save_delay > 0:
@@ -409,6 +409,11 @@ class Setting:
             else:
                 multimedia_plugin = "directshow"
             os.environ["QT_MULTIMEDIA_PREFERRED_PLUGINS"] = multimedia_plugin
+
+    @property
+    def max_saving_attempts(self) -> int:
+        """Get max saving attempts"""
+        return  max(self.application["maximum_saving_attempts"], 3)
 
 
 # Assign config setting

@@ -106,7 +106,7 @@ class DriverStatsViewer(BaseEditor):
         self.setMinimumSize(850, 400)
 
         self.stats_temp = {}
-        self.selected_stats_key = api.read.session.track_name()  # get active session key
+        self.selected_stats_key = ""  # get active session key
         self.selected_stats_dict = {}
 
         # Preset selector
@@ -173,17 +173,24 @@ class DriverStatsViewer(BaseEditor):
 
     def reload_stats(self):
         """Reload stats data"""
-        last_selected_stats_key = self.selected_stats_key
-        self.stats_temp = validate_stats_file(
-            load_stats_json_file(
-                filepath=cfg.path.config,
-                filename=STATS_FILENAME,
-            )
+        stats_user = load_stats_json_file(
+            filepath=cfg.path.config,
+            filename=STATS_FILENAME,
         )
+        if stats_user is None:
+            return
+
+        self.stats_temp = validate_stats_file(stats_user)
+
         if self.stats_temp:
             stats_name_list = sorted(self.stats_temp.keys(), key=sort_stats_key)
         else:
             stats_name_list = []
+
+        if self.selected_stats_key:
+            last_selected_stats_key = self.selected_stats_key
+        else:  # initial load current track name
+            last_selected_stats_key = api.read.session.track_name()
 
         self.stats_list.clear()
         self.stats_list.addItems(stats_name_list)

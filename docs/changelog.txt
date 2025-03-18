@@ -1,11 +1,16 @@
-WIP
+2.25.1 (2025-03-18)
 -----------------------------
-* General
-  - Renamed "Units and symbols" to "Units" in config dialog and user guide.
+* Important Fix
+  - Fixed an issue where all driver stats could be completely reset if driver.stats file could not be accessed while saving.
+    Stats file saving now uses "maximum_saving_attempts" value in "Application" setting for saving retries, and backup accordingly.
+  - Fixed a rare case where extremely small fuel tank capacity would break fuel calculation,
+    such as 1 liter or less tank capacity found on some unusual vehicle mods in "RF2".
 
 * Fuel Module
-  - Support "battery usage" as a primary consumption type with battery charge regeneration taken into calculation
-    for non-hybrid pure electric vehicle such as "FE Gen3" that is based on "RF2" new electric motor system.
+  - Now supports and auto-detects "battery charge usage" as a primary consumption type with charge regeneration taken into
+    calculation for non-hybrid pure electric vehicles such as "FE Gen3" that is based on "RF2" new electric motor system.
+    Note, some electric vehicles in "RF2" are based on older electric system and not utilizing the new battery charge
+    and electric motor system, such as "FE Gen1" & "FE Gen2".
 
 * Hybrid Module
   - Add estimated battery charge net change (gain or loss) per lap and delta calculation.
@@ -29,7 +34,12 @@ WIP
     Note, since multiple different electric systems exist in "RF2", there is no reliable way to distinguish pure
     electric vehicles from fuel or hybrid vehicles, it is important to make sure "fuel_unit" option in "Units" setting
     is set to "Liter" in order to correctly display battery charge usage in "percentage" for pure electric vehicles.
-  - Fixed an issue where "starting fuel level" indicator would sometimes incorrectly reset its position after toggled "AI control" in "RF2".
+  - Fixed an issue where "starting fuel level" indicator would sometimes incorrectly reset its position.
+
+* Misc
+  - Various small code optimization, further reduced memory usage.
+  - Renamed "Units and symbols" to "Units" in config dialog and user guide.
+  - Improved user guide navigation.
 
 2.25.0 (2025-03-09)
 -----------------------------

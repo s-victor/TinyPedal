@@ -1145,7 +1145,7 @@ Each widget can be configured by accessing `Config` button from `Widget` tab in 
 ## Battery
 **This widget displays battery usage info.**
 
-Note, there are some electric vehicles in `RF2` that are not based on the new electric motor and battery charge system, and no battery usage info available.
+Note, there are some electric vehicles in `RF2` that are not based on the new electric motor and battery charge system, which there is no battery usage info available.
 
     show_battery_charge
 Show percentage available battery charge.
@@ -3276,7 +3276,7 @@ Set warning threshold for estimated tyre lifespan in minutes. Default is `5` lap
 
 Note, most options are inherited from [Fuel](#fuel) widget, with some additions noted below.
 
-Virtual energy is not `real energy`, and should not be confused with `battery charge`. For battery charge usage info, see [Battery](#battery) widget.
+Virtual energy is not `real energy`, and different from `battery charge`. For battery charge usage info, see [Battery](#battery) widget.
 
     show_absolute_refilling
 Show absolute refilling value instead of relative refilling when enabled. Note, `+` or `-` sign is not displayed with absolute refilling.
