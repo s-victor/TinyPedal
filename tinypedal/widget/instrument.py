@@ -21,12 +21,13 @@ Instrument Widget
 """
 
 from PySide2.QtCore import Qt
-from PySide2.QtGui import QPixmap, QPainter
+from PySide2.QtGui import QPixmap
 
 from ..api_control import api
 from ..const_file import ImageFile
 from ..module_info import minfo
 from ._base import Overlay
+from ._painter import split_pixmap_icon
 
 
 class Realtime(Overlay):
@@ -39,80 +40,89 @@ class Realtime(Overlay):
         self.set_primary_layout(layout=layout)
 
         # Config variable
-        self.icon_size = int(max(self.wcfg["icon_size"], 16) * 0.5) * 2
+        icon_size = max(self.wcfg["icon_size"], 16) // 2 * 2
         self.warning_color = (
-            self.wcfg["bkg_color"],                 # 0
-            self.wcfg["warning_color_stalling"],    # 1
-            self.wcfg["warning_color_clutch"],      # 2
-            self.wcfg["warning_color_wheel_lock"],  # 3
-            self.wcfg["warning_color_wheel_slip"],  # 4
+            self.set_qss(bg_color=self.wcfg["bkg_color"]),                 # 0
+            self.set_qss(bg_color=self.wcfg["warning_color_stalling"]),    # 1
+            self.set_qss(bg_color=self.wcfg["warning_color_clutch"]),      # 2
+            self.set_qss(bg_color=self.wcfg["warning_color_wheel_lock"]),  # 3
+            self.set_qss(bg_color=self.wcfg["warning_color_wheel_slip"]),  # 4
         )
 
         # Config canvas
-        self.pixmap_common = QPixmap(self.icon_size, self.icon_size)
-        self.pixmap_icon = QPixmap(ImageFile.INSTRUMENT).scaledToWidth(
-            self.icon_size * 2, mode=Qt.SmoothTransformation
-        )
+        pixmap_icon = QPixmap(ImageFile.INSTRUMENT).scaledToWidth(
+            icon_size * 2, mode=Qt.SmoothTransformation)
+        # 0 = enabled icon state, 1 = disabled icon state.
+        self.pixmap_headlights = create_icon_set(pixmap_icon, icon_size, 0)
+        self.pixmap_ignition = create_icon_set(pixmap_icon, icon_size, 1)
+        self.pixmap_clutch = create_icon_set(pixmap_icon, icon_size, 2)
+        self.pixmap_wlock = create_icon_set(pixmap_icon, icon_size, 3)
+        self.pixmap_wslip = create_icon_set(pixmap_icon, icon_size, 4)
 
         # Headlights
         if self.wcfg["show_headlights"]:
             self.bar_headlights = self.set_qlabel(
-                fixed_width=self.icon_size,
-                fixed_height=self.icon_size,
+                fixed_width=icon_size,
+                fixed_height=icon_size,
             )
             self.set_primary_orient(
                 target=self.bar_headlights,
                 column=self.wcfg["column_index_headlights"],
             )
-            self.draw_instrument(self.bar_headlights, 1, 0)
+            self.bar_headlights.setPixmap(self.pixmap_headlights[1])
+            self.bar_headlights.setStyleSheet(self.warning_color[0])
 
         # Ignition
         if self.wcfg["show_ignition"]:
             self.bar_ignition = self.set_qlabel(
-                fixed_width=self.icon_size,
-                fixed_height=self.icon_size,
+                fixed_width=icon_size,
+                fixed_height=icon_size,
             )
             self.set_primary_orient(
                 target=self.bar_ignition,
                 column=self.wcfg["column_index_ignition"],
             )
-            self.draw_instrument(self.bar_ignition, 1, 1)
+            self.bar_ignition.setPixmap(self.pixmap_ignition[1])
+            self.bar_ignition.setStyleSheet(self.warning_color[0])
 
         # Clutch
         if self.wcfg["show_clutch"]:
             self.bar_clutch = self.set_qlabel(
-                fixed_width=self.icon_size,
-                fixed_height=self.icon_size,
+                fixed_width=icon_size,
+                fixed_height=icon_size,
             )
             self.set_primary_orient(
                 target=self.bar_clutch,
                 column=self.wcfg["column_index_clutch"],
             )
-            self.draw_instrument(self.bar_clutch, 1, 2)
+            self.bar_clutch.setPixmap(self.pixmap_clutch[1])
+            self.bar_clutch.setStyleSheet(self.warning_color[0])
 
         # Lock
         if self.wcfg["show_wheel_lock"]:
             self.bar_wlock = self.set_qlabel(
-                fixed_width=self.icon_size,
-                fixed_height=self.icon_size,
+                fixed_width=icon_size,
+                fixed_height=icon_size,
             )
             self.set_primary_orient(
                 target=self.bar_wlock,
                 column=self.wcfg["column_index_wheel_lock"],
             )
-            self.draw_instrument(self.bar_wlock, 1, 3)
+            self.bar_wlock.setPixmap(self.pixmap_wlock[1])
+            self.bar_wlock.setStyleSheet(self.warning_color[0])
 
         # Slip
         if self.wcfg["show_wheel_slip"]:
             self.bar_wslip = self.set_qlabel(
-                fixed_width=self.icon_size,
-                fixed_height=self.icon_size,
+                fixed_width=icon_size,
+                fixed_height=icon_size,
             )
             self.set_primary_orient(
                 target=self.bar_wslip,
                 column=self.wcfg["column_index_wheel_slip"],
             )
-            self.draw_instrument(self.bar_wslip, 1, 4)
+            self.bar_wslip.setPixmap(self.pixmap_wslip[1])
+            self.bar_wslip.setStyleSheet(self.warning_color[0])
 
         # Last data
         self.flicker = False
@@ -164,43 +174,40 @@ class Realtime(Overlay):
         """Headlights update"""
         if target.last != data:
             target.last = data
-            self.draw_instrument(target, data == 0, 0, 0)
+            target.setPixmap(self.pixmap_headlights[data == 0])
 
     def update_ignition(self, target, data):
         """Ignition update"""
         if target.last != data:
             target.last = data
-            self.draw_instrument(target, data == 0, 1, data == 1)
+            target.setPixmap(self.pixmap_ignition[data == 0])
+            target.setStyleSheet(self.warning_color[data == 1])
 
     def update_clutch(self, target, data):
         """Clutch update"""
         if target.last != data:
             target.last = data
-            self.draw_instrument(target, data < 2, 2, 2 * (data % 2))
+            target.setPixmap(self.pixmap_clutch[data < 2])
+            target.setStyleSheet(self.warning_color[data % 2 * 2])
 
     def update_wlock(self, target, data):
         """Wheel lock update"""
         if target.last != data:
             target.last = data
-            self.draw_instrument(target, data == 0, 3, 3 * data)
+            target.setPixmap(self.pixmap_wlock[data == 0])
+            target.setStyleSheet(self.warning_color[data * 3])
 
     def update_wslip(self, target, data):
         """Wheel slip update"""
         if target.last != data:
             target.last = data
-            self.draw_instrument(target, data == 0, 4, 4 * data)
+            target.setPixmap(self.pixmap_wslip[data == 0])
+            target.setStyleSheet(self.warning_color[data * 4])
 
-    def draw_instrument(self, target, h_offset: int, v_offset: int, color_index: int = 0):
-        """Draw instrument
 
-        Args:
-            h_offset: 0 = enabled icon state, 1 = disabled icon state.
-            v_offset: 0 headlights, 1 ignition, 2 clutch, 3 wheel lock, 4 wheel slip.
-        """
-        self.pixmap_common.fill(self.warning_color[color_index])
-        painter = QPainter(self.pixmap_common)
-        painter.drawPixmap(
-            0, 0, self.pixmap_icon,
-            self.icon_size * h_offset, self.icon_size * v_offset, 0, 0
-        )
-        target.setPixmap(self.pixmap_common)
+def create_icon_set(pixmap_icon: QPixmap, icon_size: int, v_offset: int):
+    """Create icon set"""
+    return tuple(
+        split_pixmap_icon(pixmap_icon, icon_size, h_offset, v_offset)
+        for h_offset in range(2)
+    )

@@ -22,7 +22,7 @@ Weather forecast Widget
 
 from __future__ import annotations
 
-from PySide2.QtCore import Qt, QRect
+from PySide2.QtCore import Qt
 from PySide2.QtGui import QPixmap, QPainter
 
 from .. import calculation as calc
@@ -32,6 +32,7 @@ from ..const_common import MAX_FORECASTS, MAX_FORECAST_MINUTES, ABS_ZERO_CELSIUS
 from ..const_file import ImageFile
 from ..module_info import minfo, WeatherNode
 from ._base import Overlay
+from ._painter import split_pixmap_icon
 
 
 class Realtime(Overlay):
@@ -50,7 +51,7 @@ class Realtime(Overlay):
         # Config variable
         layout_reversed = self.wcfg["layout"] != 0
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        icon_size = int(max(self.wcfg["icon_size"], 16) * 0.5) * 2
+        icon_size = max(self.wcfg["icon_size"], 16) // 2 * 2
         self.total_slot = min(max(self.wcfg["number_of_forecasts"], 1), MAX_FORECASTS - 1) + 1
         self.bar_width = max(font_m.width * 4 + bar_padx, icon_size)
         self.bar_rain_height = max(self.wcfg["rain_chance_bar_height"], 1)
@@ -294,19 +295,7 @@ def create_weather_icon_set(icon_size: int):
     """Create weather icon set"""
     icon_source = QPixmap(ImageFile.WEATHER)
     pixmap_icon = icon_source.scaledToWidth(icon_size * 12, mode=Qt.SmoothTransformation)
-    rect_size = QRect(0, 0, icon_size, icon_size)
-    rect_offset = QRect(0, 0, icon_size, icon_size)
     return tuple(
-        draw_weather_icon(pixmap_icon, icon_size, rect_size, rect_offset, index)
-        for index in range(12))
-
-
-def draw_weather_icon(
-    pixmap_icon: QPixmap, icon_size: int, rect_size: QRect, rect_offset: QRect, h_offset: int):
-    """Draw weather icon"""
-    pixmap = QPixmap(icon_size, icon_size)
-    pixmap.fill(Qt.transparent)
-    painter = QPainter(pixmap)
-    rect_offset.moveLeft(icon_size * h_offset)
-    painter.drawPixmap(rect_size, pixmap_icon, rect_offset)
-    return pixmap
+        split_pixmap_icon(pixmap_icon, icon_size, h_offset)
+        for h_offset in range(12)
+    )
