@@ -218,12 +218,10 @@ class FuelCalculator(BaseDialog):
 
     def refresh_table(self, dataset: deque[ConsumptionDataSet]):
         """Refresh history data table"""
-        self.table_history.clearContents()
-        self.table_history.setRowCount(len(dataset))
-        row_index = 0
+        self.table_history.setRowCount(0)
         invalid_color = QColor(INVALID_COLOR)
 
-        for lap_data in dataset:
+        for row_index, lap_data in enumerate(dataset):
             lapnumber = self.__add_table_item(f"{lap_data.lapNumber}", 0)
             laptime = self.__add_table_item(calc.sec2laptime_full(lap_data.lapTimeLast), 33)
             used_fuel = self.__add_table_item(f"{self.fuel_units(lap_data.lastLapUsedFuel):.3f}", 33)
@@ -237,6 +235,7 @@ class FuelCalculator(BaseDialog):
                 used_fuel.setForeground(invalid_color)
                 used_energy.setForeground(invalid_color)
 
+            self.table_history.insertRow(row_index)
             self.table_history.setItem(row_index, 0, lapnumber)
             self.table_history.setItem(row_index, 1, laptime)
             self.table_history.setItem(row_index, 2, used_fuel)
@@ -244,7 +243,6 @@ class FuelCalculator(BaseDialog):
             self.table_history.setItem(row_index, 4, battery_drain)
             self.table_history.setItem(row_index, 5, battery_regen)
             self.table_history.setItem(row_index, 6, capacity_fuel)
-            row_index += 1
 
     def __add_table_item(self, text: str, flags: int):
         """Add table item"""

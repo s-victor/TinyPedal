@@ -351,15 +351,14 @@ class TrackNotesEditor(BaseEditor):
 
     def refresh_table(self):
         """Refresh notes table"""
-        self.table_notes.clear()
-        self.table_notes.setRowCount(len(self.notes_temp))
+        self.table_notes.setRowCount(0)
         self.table_notes.setColumnCount(len(self.notes_header))
         self.table_notes.setHorizontalHeaderLabels(self.notes_header)
         self.table_notes.horizontalHeader().setSectionResizeMode(0, QHeaderView.ResizeToContents)
 
         self._verify_enabled = False
-        row_index = 0
-        for note_line in self.notes_temp:
+        for row_index, note_line in enumerate(self.notes_temp):
+            self.table_notes.insertRow(row_index)
             for column_index, fieldname in enumerate(self.notes_header):
                 value = note_line[fieldname]
                 if column_index == 0:
@@ -367,7 +366,6 @@ class TrackNotesEditor(BaseEditor):
                 else:
                     item = QTableWidgetItem(value)
                 self.table_notes.setItem(row_index, column_index, item)
-            row_index += 1
         self._verify_enabled = True
 
     def open_replace_dialog(self):
