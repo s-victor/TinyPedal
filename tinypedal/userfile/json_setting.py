@@ -21,11 +21,11 @@ Setting file function
 """
 
 from __future__ import annotations
+import json
 import logging
 import os
-import time
-import json
 import shutil
+from time import monotonic, sleep, strftime, localtime
 from typing import Callable
 
 from ..const_file import FileExt
@@ -37,7 +37,7 @@ logger = logging.getLogger(__name__)
 def set_backup_timestamp(prefix: str = ".backup-", timestamp: bool = True) -> str:
     """Set backup timestamp"""
     if timestamp:
-        time_stamp = time.strftime("%Y-%m-%d-%H-%M-%S", time.localtime())
+        time_stamp = strftime("%Y-%m-%d-%H-%M-%S", localtime())
     else:
         time_stamp = ""
     return f"{prefix}{time_stamp}"
@@ -56,17 +56,18 @@ def load_setting_json_file(
     filename: str, filepath: str, dict_def: dict, is_global: bool = False
 ) -> dict:
     """Load setting json file & verify"""
+    filename_source = f"{filepath}{filename}"
     try:
-        with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
+        with open(filename_source, "r", encoding="utf-8") as jsonfile:
             setting_user = json.load(jsonfile)
         # Verify & assign setting
         setting_user = PresetValidator.validate(setting_user, dict_def)
         if is_global:
-            logger.info("SETTING: %s loaded (global settings)", filename)
+            logger.info("USERDATA: %s loaded (global preset)", filename)
         else:
-            logger.info("SETTING: %s loaded (user preset)", filename)
+            logger.info("USERDATA: %s loaded (user preset)", filename)
     except (FileNotFoundError, KeyError, ValueError):
-        logger.error("SETTING: %s failed loading, fall back to default", filename)
+        logger.error("USERDATA: %s failed loading, fall back to default", filename)
         create_backup_file(filename, filepath, set_backup_timestamp(), show_log=True)
         setting_user = copy_setting(dict_def)
     return setting_user
@@ -76,10 +77,11 @@ def load_style_json_file(
     filename: str, filepath: str, dict_def: dict,
     check_missing: bool = False, validator: Callable | None = None
 ) -> dict:
-    """Load style json file"""
+    """Load style json file & verify (optional)"""
+    filename_source = f"{filepath}{filename}"
     msg_text = "loaded"
     try:
-        with open(f"{filepath}{filename}", "r", encoding="utf-8") as jsonfile:
+        with open(filename_source, "r", encoding="utf-8") as jsonfile:
             style_user = json.load(jsonfile)
         # Whether to check and add missing style
         if check_missing:
@@ -92,47 +94,44 @@ def load_style_json_file(
                 msg_text = "updated"
     except (FileNotFoundError, KeyError, ValueError):
         style_user = copy_setting(dict_def)
-        if not os.path.exists(f"{filepath}{filename}"):
-            logger.info("SETTING: %s not found, create new default", filename)
+        if not os.path.exists(filename_source):
+            logger.info("USERDATA: %s not found, create new default", filename)
         else:
-            logger.error("SETTING: %s failed loading, fall back to default", filename)
+            logger.error("USERDATA: %s failed loading, fall back to default", filename)
             create_backup_file(filename, filepath, set_backup_timestamp(), show_log=True)
         msg_text = "updated"
 
     if msg_text == "updated":
         save_json_file(style_user, filename, filepath)
 
-    logger.info("SETTING: %s %s (user preset)", filename, msg_text)
+    logger.info("USERDATA: %s %s (style preset)", filename, msg_text)
     return style_user
 
 
 def save_json_file(
-    dict_user: dict, filename: str, filepath: str, extension: str = ""
+    dict_user: dict, filename: str, filepath: str, extension: str = "", compact_json: bool = False,
 ) -> None:
-    """Save setting to json file"""
-    with open(f"{filepath}{filename}{extension}", "w", encoding="utf-8") as jsonfile:
-        json.dump(dict_user, jsonfile, indent=4)
-
-
-def save_compact_json_file(
-    dict_user: dict, filename: str, filepath: str, extension: str = ""
-) -> None:
-    """Save compact setting to json file"""
-    with open(f"{filepath}{filename}{extension}", "w", encoding="utf-8") as jsonfile:
-        json.dump(dict_user, jsonfile, separators=(",", ":"))
+    """Save json file"""
+    filename_source = f"{filepath}{filename}{extension}"
+    with open(filename_source, "w", encoding="utf-8") as jsonfile:
+        if compact_json:
+            json.dump(dict_user, jsonfile, separators=(",", ":"))
+        else:
+            json.dump(dict_user, jsonfile, indent=4)
 
 
 def verify_json_file(
     dict_user: dict, filename: str, filepath: str, extension: str = ""
 ) -> bool:
     """Verify saved json file"""
+    filename_source = f"{filepath}{filename}{extension}"
     try:
-        with open(f"{filepath}{filename}{extension}", "r", encoding="utf-8") as jsonfile:
+        with open(filename_source, "r", encoding="utf-8") as jsonfile:
             return json.load(jsonfile) == dict_user
     except FileNotFoundError:
-        logger.error("SETTING: file not found")
+        logger.error("USERDATA: not found %s", filename_source)
     except (ValueError, OSError):
-        logger.error("SETTING: unable to verify file")
+        logger.error("USERDATA: unable to verify %s", filename_source)
     return False
 
 
@@ -140,18 +139,19 @@ def create_backup_file(
     filename: str, filepath: str, extension: str = FileExt.BAK, show_log: bool = False
 ) -> bool:
     """Create backup file before saving"""
+    filename_source = f"{filepath}{filename}"
+    filename_backup = f"{filepath}{filename}{extension}"
     try:
-        shutil.copyfile(
-            f"{filepath}{filename}",
-            f"{filepath}{filename}{extension}",
-        )
+        shutil.copyfile(filename_source, filename_backup)
         if show_log:
-            logger.info("SETTING: backup saved %s", f"{filepath}{filename}{extension}")
+            logger.info("USERDATA: backup saved %s", filename_backup)
         return True
     except FileNotFoundError:
-        logger.error("SETTING: source file not found")
+        logger.error("USERDATA: not found %s", filename_source)
+    except PermissionError:
+        logger.error("USERDATA: no permission to access %s", filename_source)
     except OSError:
-        logger.error("SETTING: unable to create backup file")
+        logger.error("USERDATA: unable to create backup %s", filename_source)
     return False
 
 
@@ -159,16 +159,37 @@ def restore_backup_file(
     filename: str, filepath: str, extension: str = FileExt.BAK
 ) -> bool:
     """Restore backup file if saving failed"""
+    filename_backup = f"{filepath}{filename}{extension}"
+    filename_source = f"{filepath}{filename}"
     try:
-        shutil.copyfile(
-            f"{filepath}{filename}{extension}",
-            f"{filepath}{filename}",
-        )
+        shutil.copyfile(filename_backup, filename_source)
+        logger.info("USERDATA: backup restored %s", filename_source)
         return True
     except FileNotFoundError:
-        logger.error("SETTING: backup file not found")
+        logger.error("USERDATA: backup not found %s", filename_backup)
+    except PermissionError:
+        logger.error("USERDATA: no permission to access backup %s", filename_backup)
     except OSError:
-        logger.error("SETTING: unable to restore backup file")
+        logger.error("USERDATA: unable to restore backup %s", filename_backup)
+    return False
+
+
+def copy_and_rename_backup_file(
+    filename: str, filepath: str, extension: str = FileExt.BAK
+) -> bool:
+    """Copy and rename backup file if restoring backup failed"""
+    filename_backup = f"{filepath}{filename}{extension}"
+    filename_renamed = f"{filepath}{filename}{set_backup_timestamp()}"
+    try:
+        shutil.copyfile(filename_backup, filename_renamed)
+        logger.info("USERDATA: backup renamed %s", filename_renamed)
+        return True
+    except FileNotFoundError:
+        logger.error("USERDATA: backup not found %s", filename_backup)
+    except PermissionError:
+        logger.error("USERDATA: no permission to access backup %s", filename_backup)
+    except OSError:
+        logger.error("USERDATA: unable to copy and rename backup %s", filename_backup)
     return False
 
 
@@ -176,13 +197,56 @@ def delete_backup_file(
     filename: str, filepath: str, extension: str = FileExt.BAK
 ) -> bool:
     """Delete backup file"""
+    filename_backup = f"{filepath}{filename}{extension}"
     try:
-        file_path = f"{filepath}{filename}{extension}"
-        if os.path.exists(file_path):
-            os.remove(file_path)
+        if os.path.exists(filename_backup):
+            os.remove(filename_backup)
         return True
     except FileNotFoundError:
-        logger.error("SETTING: backup file not found")
+        logger.error("USERDATA: backup not found %s", filename_backup)
+    except PermissionError:
+        logger.error("USERDATA: no permission to access backup %s", filename_backup)
     except OSError:
-        logger.error("SETTING: unable to delete backup file")
+        logger.error("USERDATA: unable to delete backup %s", filename_backup)
     return False
+
+
+def save_and_verify_json_file(
+    dict_user: dict,
+    filename: str,
+    filepath: str,
+    max_attempts: int = 10,
+    compact_json: bool = False,
+) -> None:
+    """Save and verify json file, backup or restore if saving failed"""
+    # Create backup first, abort saving if failed to backup
+    if not create_backup_file(filename, filepath):
+        logger.info("USERDATA: %s saving abort", filename)
+        return
+    # Start saving attempts
+    attempts = max_attempts
+    timer_start = monotonic()
+    while attempts > 0:
+        save_json_file(dict_user, filename, filepath, compact_json=compact_json)
+        if verify_json_file(dict_user, filename, filepath):
+            break
+        attempts -= 1
+        logger.error("USERDATA: failed saving, %s attempt(s) left", attempts)
+        sleep(0.05)
+    timer_end = round((monotonic() - timer_start) * 1000)
+    # Clean up
+    if attempts > 0:
+        state_text = "saved"
+    else:
+        if not restore_backup_file(filename, filepath):
+            copy_and_rename_backup_file(filename, filepath)
+        state_text = "failed saving"
+    delete_backup_file(filename, filepath)
+    logger.info(
+        "USERDATA: %s %s (took %sms, %s/%s attempts)",
+        filename,
+        state_text,
+        timer_end,
+        max_attempts - attempts,
+        attempts,
+    )

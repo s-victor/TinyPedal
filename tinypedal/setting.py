@@ -24,7 +24,7 @@ from __future__ import annotations
 import logging
 import os
 import threading
-from time import monotonic, sleep
+from time import sleep
 from types import MappingProxyType
 
 from .template.setting_global import GLOBAL_DEFAULT
@@ -44,13 +44,9 @@ from .const_file import ConfigType, FileExt
 from .setting_validator import StyleValidator
 from .userfile.json_setting import (
     copy_setting,
-    save_json_file,
-    verify_json_file,
-    create_backup_file,
-    restore_backup_file,
-    delete_backup_file,
     load_setting_json_file,
     load_style_json_file,
+    save_and_verify_json_file,
 )
 
 logger = logging.getLogger(__name__)
@@ -334,7 +330,7 @@ class Setting:
         if not next_task:
             filename = getattr(self.filename, cfg_type, None)
             if filename is None:  # check if valid file name
-                logger.error("SETTING: invalid config type, skipping")
+                logger.error("USERDATA: invalid config type %s, abort saving", cfg_type)
             elif filename not in self._save_queue:  # add to save queue
                 if cfg_type == ConfigType.CONFIG:  # save to global config path
                     filepath = self.path.config
@@ -359,40 +355,17 @@ class Setting:
 
     def __saving(self, filename: str, filepath: str, dict_user: dict):
         """Saving thread"""
-        attempts = max_attempts = self.max_saving_attempts
-
         # Update save delay
         while self._save_delay > 0:
             self._save_delay -= 1
             sleep(0.01)
 
-        # Start saving attempts
-        create_backup_file(filename, filepath)
-        timer_start = monotonic()
-        while attempts > 0:
-            save_json_file(dict_user, filename, filepath)
-            if verify_json_file(dict_user, filename, filepath):
-                break
-            attempts -= 1
-            logger.error("SETTING: failed saving, %s attempt(s) left", attempts)
-            sleep(0.05)
-        timer_end = round((monotonic() - timer_start) * 1000)
-
-        # Finalize
-        if attempts > 0:
-            state_text = "saved"
-        else:
-            restore_backup_file(filename, filepath)
-            state_text = "failed saving"
-        logger.info(
-            "SETTING: %s %s (took %sms, %s/%s attempts)",
-            filename,
-            state_text,
-            timer_end,
-            max_attempts - attempts,
-            attempts,
+        save_and_verify_json_file(
+            dict_user=dict_user,
+            filename=filename,
+            filepath=filepath,
+            max_attempts=self.max_saving_attempts,
         )
-        delete_backup_file(filename, filepath)
 
         self._save_queue.pop(filename, None)
         self.is_saving = False
@@ -413,7 +386,7 @@ class Setting:
     @property
     def max_saving_attempts(self) -> int:
         """Get max saving attempts"""
-        return  max(self.application["maximum_saving_attempts"], 3)
+        return max(self.application["maximum_saving_attempts"], 3)
 
 
 # Assign config setting

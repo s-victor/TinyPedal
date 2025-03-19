@@ -147,14 +147,14 @@ class OverlayState(QObject):
             # Assign sim name to last detected, set preset name
             self._last_detected_sim = sim_name
             preset_name = cfg.get_primary_preset_name(sim_name)
-            logger.info("SETTING: auto-load: %s", sim_name)
+            logger.info("USERDATA: %s detected, attempt loading %s (primary preset)", sim_name, preset_name)
             # Abort if preset file does not exist
             if preset_name == "":
-                logger.info("SETTING: auto-load: preset not found, abort")
+                logger.info("USERDATA: %s (primary preset) not found, abort auto loading", preset_name)
                 return
             # Check if already loaded
             if preset_name == cfg.filename.last_setting:
-                logger.info("SETTING: %s already loaded", preset_name)
+                logger.info("USERDATA: %s (primary preset) loaded", preset_name)
                 return
             # Update preset name & signal reload
             cfg.filename.setting = preset_name
