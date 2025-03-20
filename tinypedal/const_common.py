@@ -54,17 +54,19 @@ RACELENGTH_TYPE_ID = (
 )
 SECTOR_ABBR_ID = ("S1", "S2", "S3")  # sector abbreviation
 PREV_SECTOR_INDEX = (2, 0, 1)  # select previous sector index with current index
-COMMON_TYRE_COMPOUNDS = (
-    ("super", "Q"),  # super soft
-    ("inter", "I"),  # intermediate
-    ("soft", "S"),
-    ("med", "M"),  # medium
-    ("hard", "H"),
-    ("rain|wet", "W"),
-    ("slick|dry", "S"),
-    ("road|radial", "R"),
-    ("bias", "B"),  # bias ply
-)
+GEAR_SEQUENCE = {  # max 9 in RF2
+    -1: "R",
+    0: "N",
+    1: "1",
+    2: "2",
+    3: "3",
+    4: "4",
+    5: "5",
+    6: "6",
+    7: "7",
+    8: "8",
+    9: "9",
+}
 COMPASS_BEARINGS = (
     (0, "N"),
     (22.5, "NE"),

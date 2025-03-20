@@ -187,3 +187,16 @@ CHOICE_UNITS = {
     "turbo_pressure_unit": ["bar", "psi", "kPa"],
     "tyre_pressure_unit": ["kPa", "psi", "bar"],
 }
+
+# Misc
+COMMON_TYRE_COMPOUNDS = (
+    ("super", "Q"),  # super soft
+    ("inter", "I"),  # intermediate
+    ("soft", "S"),
+    ("med", "M"),  # medium
+    ("hard", "H"),
+    ("rain|wet", "W"),
+    ("slick|dry", "S"),
+    ("road|radial", "R"),
+    ("bias", "B"),  # bias ply
+)

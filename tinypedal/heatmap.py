@@ -23,7 +23,7 @@ Heatmap function
 from __future__ import annotations
 import re
 
-from .const_common import COMMON_TYRE_COMPOUNDS
+from .regex_pattern import COMMON_TYRE_COMPOUNDS
 from .setting import ConfigType, cfg
 from .template.setting_heatmap import HEATMAP_DEFAULT_TYRE, HEATMAP_DEFAULT_BRAKE
 from .validator import hex_color

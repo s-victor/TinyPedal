@@ -65,15 +65,6 @@ def strip_filename_extension(name: str, extension: str) -> str:
     return name
 
 
-def select_gear(index: int) -> str:
-    """Select gear string"""
-    if index == 0:
-        return "N"
-    if index == -1:
-        return "R"
-    return f"{index}"
-
-
 @lru_cache(maxsize=20)
 def random_color_class(name: str) -> str:
     """Generate random color for vehicle class"""

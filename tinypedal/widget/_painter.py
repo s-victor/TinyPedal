@@ -26,7 +26,7 @@ from PySide2.QtCore import Qt, QRectF
 from PySide2.QtGui import QPainter, QPen, QPixmap
 from PySide2.QtWidgets import QWidget
 
-from ..formatter import select_gear
+from ..const_common import GEAR_SEQUENCE
 
 
 def split_pixmap_icon(
@@ -280,7 +280,7 @@ class GearGaugeBar(QWidget):
     ):
         super().__init__(parent)
         self.last = -1
-        self.gear = 0
+        self.gear = "N"
         self.speed = 0
         self.color_index = 0
         self.show_speed = show_speed
@@ -296,7 +296,7 @@ class GearGaugeBar(QWidget):
 
     def update_input(self, gear: int, speed: int, color_index: int, bg_color: str):
         """Update input"""
-        self.gear = gear
+        self.gear = GEAR_SEQUENCE.get(gear, "N")
         self.speed = speed
         self.color_index = color_index
         self.bg_color = bg_color
@@ -309,7 +309,7 @@ class GearGaugeBar(QWidget):
         if self.color_index == -4:  # flicker trigger
             return
         painter.setPen(self.pen)
-        painter.drawText(self.rect_gear, Qt.AlignCenter, select_gear(self.gear))
+        painter.drawText(self.rect_gear, Qt.AlignCenter, self.gear)
         if self.show_speed:
             painter.setFont(self.font_speed)
             painter.drawText(self.rect_speed, Qt.AlignCenter, f"{self.speed:03.0f}")
