@@ -26,7 +26,7 @@ from .. import calculation as calc
 from ..api_control import api
 from ..const_common import FLOAT_INF, POS_XYZ_INF
 from ..module_info import minfo
-from ..userfile.driver_stats import load_driver_stats, save_driver_stats
+from ..userfile.driver_stats import DriverStats, load_driver_stats, save_driver_stats
 from ._base import DataModule
 
 
@@ -69,10 +69,11 @@ class Realtime(DataModule):
                     fuel_last = 0.0
                     last_finish_state = 99999
                     gps_last = POS_XYZ_INF
-                    driver_stats = load_driver_stats(
+                    loaded_stats = load_driver_stats(
                         key_list=self.stats_keys(vehicle_class),
                         filepath=self.cfg.path.config,
                     )
+                    driver_stats = DriverStats()
 
                 # General
                 lap_stime = api.read.timing.start()
@@ -146,7 +147,7 @@ class Realtime(DataModule):
                                 driver_stats.podiums += 1
 
                 # Output stats data
-                output.metersDriven = driver_stats.meters
+                output.metersDriven = driver_stats.meters + loaded_stats.meters
 
             else:
                 if reset:

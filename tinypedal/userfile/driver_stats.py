@@ -79,13 +79,13 @@ def validate_stats_file(stats_user: dict) -> dict:
     return stats_user
 
 
-def purge_keys(target_dict: dict) -> dict:
+def purge_keys(loaded_dict: dict) -> dict:
     """Purge unwanted key name"""
     ref_keys = DriverStats.keys()
-    for key in tuple(target_dict):
+    for key in tuple(loaded_dict):
         if key not in ref_keys:
-            target_dict.pop(key)
-    return target_dict
+            loaded_dict.pop(key)
+    return loaded_dict
 
 
 def get_sub_dict(source: dict, key_name: str) -> dict:
@@ -108,14 +108,14 @@ def load_driver_stats(
     if stats_user is None:
         return DriverStats()
     # Get data from matching key
-    target_dict = stats_user
+    loaded_dict = stats_user
     for key in key_list:
-        target_dict = target_dict.get(key, None)
-        if not isinstance(target_dict, dict):  # not exist, set to default
+        loaded_dict = loaded_dict.get(key, None)
+        if not isinstance(loaded_dict, dict):  # not exist, set to default
             return DriverStats()
     # Add data to DriverStats
     try:
-        return DriverStats(**purge_keys(target_dict))
+        return DriverStats(**purge_keys(loaded_dict))
     except (KeyError, ValueError, TypeError):
         return DriverStats()
 
@@ -146,11 +146,22 @@ def save_driver_stats(
             return  # abort saving if failed to create backup
         stats_user = {}  # reset stats
     # Get data from matching key
-    target_dict = stats_user
+    loaded_dict = stats_user
     for key in key_list:
-        target_dict = get_sub_dict(target_dict, key)
-    # Update & save new data
-    purge_keys(target_dict).update(stats_update.__dict__)
+        loaded_dict = get_sub_dict(loaded_dict, key)
+    # Verify and update new data
+    for key, value in stats_update.__dict__.items():
+        # Add new value if not exists
+        if key not in loaded_dict:
+            loaded_dict[key] = DriverStats.__dict__[key]
+        # Update laptime value faster than old value
+        if key == "pb":
+            if loaded_dict[key] > value:
+                loaded_dict[key] = value
+            continue
+        # Update value (increment)
+        loaded_dict[key] += value
+    # Save new data
     save_stats_json_file(
         stats_user=stats_user,
         filepath=filepath,
