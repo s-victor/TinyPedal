@@ -25,7 +25,7 @@ import logging
 import json
 from time import sleep
 from dataclasses import dataclass
-from typing import KeysView
+from typing import KeysView, get_type_hints
 
 from ..const_common import MAX_SECONDS
 from ..const_file import FileExt
@@ -36,6 +36,7 @@ from ..userfile.json_setting import (
     save_and_verify_json_file,
     create_backup_file,
 )
+from ..validator import any_value_type
 
 STATS_FILENAME = "driver"
 
@@ -150,10 +151,15 @@ def save_driver_stats(
     for key in key_list:
         loaded_dict = get_sub_dict(loaded_dict, key)
     # Verify and update new data
+    default_dict = DriverStats.__dict__
+    default_type = get_type_hints(DriverStats)
     for key, value in stats_update.__dict__.items():
-        # Add new value if not exists
+        # Add new default value if not exists
         if key not in loaded_dict:
-            loaded_dict[key] = DriverStats.__dict__[key]
+            loaded_dict[key] = default_dict[key]
+        # Check value type, auto correct if mismatch
+        if not isinstance(loaded_dict[key], default_type[key]):
+            loaded_dict[key] = any_value_type(loaded_dict[key], default_dict[key], default_type[key])
         # Update laptime value faster than old value
         if key == "pb":
             if loaded_dict[key] > value:

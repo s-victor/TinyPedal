@@ -123,7 +123,7 @@ class About(BaseDialog):
         label_name.setStyleSheet("font-size: 18px;")
         label_name.setAlignment(Qt.AlignCenter)
 
-        label_version = QLabel(f"Version {VERSION}\n")
+        label_version = QLabel(f"Version {VERSION}<br>")
         label_version.setStyleSheet("font-size: 13px;")
         label_version.setAlignment(Qt.AlignCenter)
 

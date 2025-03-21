@@ -69,7 +69,7 @@ def string_number(value: str) -> bool:
         return False
 
 
-def sector_time(sector_time: list | Any, max_time: int = MAX_SECONDS) -> bool:
+def sector_time(sector_time: list | Any, max_time: float = MAX_SECONDS) -> bool:
     """Validate sector time"""
     if isinstance(sector_time, list):
         return max_time not in sector_time
@@ -130,7 +130,15 @@ def delta_list(data: list) -> list:
     return data
 
 
-# Dictionary value type validate
+# Value type validate
+def any_value_type(value: Any, default: Any, target_type: type) -> Any:
+    """Convert any value type to target type, revert to default if fails"""
+    try:
+        return target_type(value)
+    except (TypeError, ValueError, OverflowError):
+        return default
+
+
 def dict_value_type(data: dict, default_data: dict) -> dict:
     """Validate and correct dictionary value type"""
     for key, value in data.items():

@@ -200,7 +200,8 @@ class Realtime(DataModule):
             # Add to unavailable task delete list
             if not data_available:
                 self.task_deletion.add(resource_name)
-            logger.info("RestAPI: UPDATE: %s", resource_name.upper())
+            else:
+                logger.info("RestAPI: UPDATE: %s", resource_name.upper())
             break
 
 
