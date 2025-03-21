@@ -20,6 +20,7 @@
 Relative module
 """
 
+from __future__ import annotations
 from functools import lru_cache
 from itertools import chain
 
@@ -29,7 +30,7 @@ from ..const_common import MAX_VEHICLES, MAX_SECONDS
 from ..module_info import minfo
 from ._base import DataModule
 
-ALL_PLACES = list(range(1, MAX_VEHICLES + 1))
+REF_PLACES = tuple(range(1, MAX_VEHICLES + 1))
 TEMP_DISTANCE = [[-1.0, -1] for _ in range(MAX_VEHICLES)]
 TEMP_CLASSES = [["", -1, -1, -1.0, -1.0] for _ in range(MAX_VEHICLES)]
 TEMP_PLACES = [[-1, -1] for _ in range(MAX_VEHICLES)]
@@ -57,6 +58,7 @@ class Realtime(DataModule):
                 if not reset:
                     reset = True
                     update_interval = self.active_interval
+                    last_veh_total = 0
 
                 # Check setting
                 show_in_garage = setting_relative["show_vehicle_in_garage"]
@@ -97,6 +99,12 @@ class Realtime(DataModule):
                 # Sort vehicle class position list (by player index) for output
                 class_pos_list.sort()
 
+                # Race/start grid, update only if vehicle number changed
+                if last_veh_total != veh_total:
+                    last_veh_total = veh_total
+                    qualifications = qualify_position_list(veh_total)
+                    output.qualifications = qualifications
+
                 # Output data
                 output.relative = relative_index_list
                 output.standings = standings_index_list
@@ -106,6 +114,32 @@ class Realtime(DataModule):
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
+
+
+def qualify_position_list(veh_total: int) -> list[tuple[int, int, int]]:
+    """Create qualify position list
+
+    Returns:
+        list[(player index, qualify overall, qualify in class)]
+    """
+    temp_class = sorted((
+        api.read.vehicle.class_name(index),  # 0 class name
+        api.read.vehicle.qualification(index),  # 1 qualification position
+        index,  # 2 player index
+    ) for index in range(veh_total))
+    # Create grid position
+    qualify_in_class = 0
+    grid_classes = []
+    initial_class = None
+    for veh_data in temp_class:
+        if veh_data[0] == initial_class:
+            qualify_in_class += 1
+        else:
+            initial_class = veh_data[0]
+            qualify_in_class = 1
+        grid_classes.append((veh_data[2], veh_data[1], qualify_in_class))
+    grid_classes.sort()  # sort by player index
+    return grid_classes
 
 
 def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
@@ -321,9 +355,9 @@ def calc_standings_index(min_top_veh: int, veh_total: int, veh_limit: int,
 def create_reference_place(min_top_veh: int, veh_total: int, plr_place: int, veh_limit: int):
     """Create reference place list"""
     if veh_total <= veh_limit:
-        return ALL_PLACES[:veh_total]
+        return REF_PLACES[:veh_total]
     if plr_place <= min_top_veh:
-        return ALL_PLACES[:veh_limit]
+        return REF_PLACES[:veh_limit]
     # Find nearby slice range relative to player
     max_cut_range = veh_limit - min_top_veh
     # Number of rear slots, should be equal or less than front slots (exclude player slot)
@@ -338,7 +372,7 @@ def create_reference_place(min_top_veh: int, veh_total: int, plr_place: int, veh
     if rear_cut_max > veh_total:
         rear_cut_max = veh_total
     front_cut_max = rear_cut_max - max_cut_range
-    return ALL_PLACES[:min_top_veh] + ALL_PLACES[front_cut_max:rear_cut_max]
+    return REF_PLACES[:min_top_veh] + REF_PLACES[front_cut_max:rear_cut_max]
 
 
 def player_index_from_place_reference(ref_place_list: list, place_index_list: list):

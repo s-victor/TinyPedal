@@ -651,6 +651,10 @@ class Vehicle(DataAdapter):
         """Vehicle overall place"""
         return chknm(self.info.rf2ScorVeh(index).mPlace)
 
+    def qualification(self, index: int | None = None) -> int:
+        """Vehicle qualification place"""
+        return chknm(self.info.rf2ScorVeh(index).mQualification)
+
     def in_pits(self, index: int | None = None) -> bool:
         """Is in pits"""
         return bool(self.info.rf2ScorVeh(index).mInPits)

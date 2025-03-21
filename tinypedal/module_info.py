@@ -273,12 +273,14 @@ class RelativeInfo:
         "relative",
         "standings",
         "classes",
+        "qualifications",
     )
 
     def __init__(self):
         self.relative: list[int] = [-1]
         self.standings: list[int] = [-1]
         self.classes: list[list] = [[0, 1, "", 0, 0, -1, -1, False]]
+        self.qualifications: list[tuple[int, int, int]] = [(-1, -1, -1)]
 
 
 class RestAPIInfo:
@@ -398,6 +400,8 @@ class VehicleDataSet:
         "isPlayer",
         "positionOverall",
         "positionInClass",
+        "qualifyOverall",
+        "qualifyInClass",
         "driverName",
         "vehicleName",
         "vehicleClass",
@@ -431,6 +435,8 @@ class VehicleDataSet:
         self.isPlayer: bool = False
         self.positionOverall: int = 0
         self.positionInClass: int = 0
+        self.qualifyOverall: int = -1
+        self.qualifyInClass: int = -1
         self.driverName: str = ""
         self.vehicleName: str = ""
         self.vehicleClass: str = ""

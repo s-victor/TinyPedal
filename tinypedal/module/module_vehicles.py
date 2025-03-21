@@ -57,6 +57,7 @@ class Realtime(DataModule):
                 self.__update_vehicle_data(
                     output,
                     minfo.relative.classes,
+                    minfo.relative.qualifications,
                     max_lap_diff_ahead,
                     max_lap_diff_behind
                 )
@@ -67,8 +68,13 @@ class Realtime(DataModule):
                     update_interval = self.idle_interval
 
     def __update_vehicle_data(
-        self, output: VehiclesInfo, class_pos_list: list,
-        max_lap_diff_ahead: float, max_lap_diff_behind: float):
+        self,
+        output: VehiclesInfo,
+        class_pos_list: list,
+        qual_pos_list: list,
+        max_lap_diff_ahead: float,
+        max_lap_diff_behind: float,
+    ):
         """Update vehicle data"""
         veh_total = output.total = api.read.vehicle.total_vehicles()
         if veh_total < 1:
@@ -90,13 +96,15 @@ class Realtime(DataModule):
         inpit_idx = 0
 
         # Update dataset from all vehicles in current session
-        for index, data, class_pos in zip(range(veh_total), output.dataSet, class_pos_list):
+        for index, data, class_pos, qual_pos in zip(range(veh_total), output.dataSet, class_pos_list, qual_pos_list):
             # Vehicle class var
+            opt_index_ahead = class_pos[5]
             data.positionInClass = class_pos[1]
             data.sessionBestLapTime = class_pos[3]
             data.classBestLapTime = class_pos[4]
             data.isClassFastestLastLap = class_pos[7]
-            opt_index_ahead = class_pos[5]
+            data.qualifyOverall = qual_pos[1]
+            data.qualifyInClass = qual_pos[2]
 
             # Temp var only
             lap_etime = api.read.timing.elapsed(index)
