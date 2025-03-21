@@ -216,7 +216,7 @@ def create_relative_index(
 
 def create_position_in_class(sorted_veh_class: list, laptime_session_best: float):
     """Create vehicle position in class list"""
-    initial_class = sorted_veh_class[0][0]
+    initial_class = None
     position_in_class = 0
     player_index_ahead = -1
     player_index_behind = -1

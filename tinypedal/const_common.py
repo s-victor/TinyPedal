@@ -41,7 +41,10 @@ DELTA_DEFAULT = (DELTA_ZERO,)
 POS_XY_ZERO = (0.0, 0.0)  # world origin position
 POS_XYZ_ZERO = (0.0, 0.0, 0.0)  # world origin position
 POS_XYZ_INF = (FLOAT_INF, FLOAT_INF, FLOAT_INF)  # infinite position
+
+# Type set
 TYPE_NUMBER = (float, int)
+TYPE_JSON = (dict, list)
 
 # ID selector
 ENERGY_TYPE_ID = (

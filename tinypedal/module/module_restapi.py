@@ -32,6 +32,7 @@ from urllib.request import urlopen
 from .. import formatter as fmt
 from .. import weather as wthr
 from ..api_control import api
+from ..const_common import TYPE_JSON
 from ..module_info import minfo
 from ..validator import value_type
 from ._base import DataModule
@@ -184,7 +185,7 @@ class Realtime(DataModule):
         while not self._event.is_set() and retry >= 0:
             resource_output = get_resource(full_url, time_out)
             # Verify & retry
-            if not isinstance(resource_output, dict):
+            if not isinstance(resource_output, TYPE_JSON):
                 logger.info("RestAPI: ERROR: %s %s (%s/%s retries left)",
                     resource_name.upper(), resource_output, retry, total_retry)
                 retry -= 1
@@ -247,16 +248,17 @@ def output_resource(output_set: tuple, url: str, time_out: float) -> None:
 
 
 def get_value(
-    data: dict, target: object, output: str, default: Any,
+    data: dict | list, target: object, output: str, default: Any,
     mod_func: Callable | None, *keys: tuple[str, ...]) -> bool:
     """Get value from resource dictionary, fallback to default value if invalid"""
-    for key in keys:
+    for key in keys:  # get data from dict
+        if not isinstance(data, dict):  # not exist, set to default
+            setattr(target, output, default)
+            return False
         data = data.get(key, None)
         if data is None:  # not exist, set to default
             setattr(target, output, default)
             return False
-        if not isinstance(data, dict):
-            break
 
     if mod_func:
         setattr(target, output, value_type(mod_func(data), default))
