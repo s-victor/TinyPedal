@@ -365,7 +365,6 @@ class Setting:
             filename=filename,
             filepath=filepath,
             max_attempts=self.max_saving_attempts,
-            abort_without_backup=False,
         )
 
         self._save_queue.pop(filename, None)

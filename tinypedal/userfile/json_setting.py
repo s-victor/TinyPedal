@@ -217,11 +217,13 @@ def save_and_verify_json_file(
     filepath: str,
     max_attempts: int = 10,
     compact_json: bool = False,
-    abort_without_backup: bool = True,
 ) -> None:
     """Save and verify json file, backup or restore if saving failed"""
-    # Create backup first, abort saving if failed to backup
-    if not create_backup_file(filename, filepath) and abort_without_backup:
+    file_found = os.path.exists(f"{filepath}{filename}")
+    # Create backup: abort saving if backup failed; skip backup and create new if not exist
+    if not file_found:
+        logger.info("USERDATA: %s not found, create new", filename)
+    elif not create_backup_file(filename, filepath):
         logger.info("USERDATA: %s saving abort", filename)
         return
     # Start saving attempts
@@ -239,10 +241,11 @@ def save_and_verify_json_file(
     if attempts > 0:
         state_text = "saved"
     else:
-        if not restore_backup_file(filename, filepath):
+        if file_found and not restore_backup_file(filename, filepath):
             copy_and_rename_backup_file(filename, filepath)
         state_text = "failed saving"
-    delete_backup_file(filename, filepath)
+    if file_found:
+        delete_backup_file(filename, filepath)
     logger.info(
         "USERDATA: %s %s (took %sms, %s/%s attempts)",
         filename,
