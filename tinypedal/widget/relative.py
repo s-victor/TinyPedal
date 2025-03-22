@@ -67,7 +67,7 @@ class Realtime(Overlay):
         # Empty dataset
         self.empty_vehicles_data = (
             0,  # in_pit
-            ("",0,0),  # position
+            ("",0,0,0),  # position
             ("",0,0),  # driver name
             ("",0,0),  # vehicle name
             ("",0),  # pos_class
@@ -98,6 +98,32 @@ class Realtime(Overlay):
                 layout=layout,
                 targets=self.bars_pos,
                 column_index=self.wcfg["column_index_position"],
+            )
+        # Driver position change
+        if self.wcfg["show_position_change"]:
+            self.bar_style_pgl = (
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_position_same"],
+                    bg_color=self.wcfg["bkg_color_position_same"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_position_gain"],
+                    bg_color=self.wcfg["bkg_color_position_gain"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_position_loss"],
+                    bg_color=self.wcfg["bkg_color_position_loss"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_player_position_change"],
+                    bg_color=self.wcfg["bkg_color_player_position_change"])
+            )
+            self.bars_pgl = self.set_qlabel(
+                style=self.bar_style_pgl[0],
+                width=3 * font_m.width + bar_padx,
+                count=self.veh_range,
+            )
+            self.set_grid_layout_table_column(
+                layout=layout,
+                targets=self.bars_pgl,
+                column_index=self.wcfg["column_index_position_change"],
             )
         # Driver name
         if self.wcfg["show_driver_name"]:
@@ -341,6 +367,9 @@ class Realtime(Overlay):
                 # Driver position
                 if self.wcfg["show_position"]:
                     self.update_pos(self.bars_pos[idx], temp_data[1])
+                # Driver position change
+                if self.wcfg["show_position_change"]:
+                    self.update_pgl(self.bars_pgl[idx], temp_data[1])
                 # Driver name
                 if self.wcfg["show_driver_name"]:
                     self.update_drv(self.bars_drv[idx], temp_data[2])
@@ -377,10 +406,10 @@ class Realtime(Overlay):
         """Driver position"""
         if target.last != data:
             target.last = data
-            if data[2]:  # highlight player
+            if data[3]:  # highlight player
                 color = self.bar_style_pos[1]
             elif self.wcfg["show_lap_difference"]:
-                color = self.bar_style_pos[lap_difference_index(data[1])]
+                color = self.bar_style_pos[lap_difference_index(data[2])]
             else:
                 color = self.bar_style_pos[0]
             if data[0] != "":
@@ -389,6 +418,29 @@ class Realtime(Overlay):
                 text = ""
             target.setText(text)
             target.setStyleSheet(color)
+
+    def update_pgl(self, target, data):
+        """Driver position change (gain/loss)"""
+        if target.last != data:
+            target.last = data
+            if data[0] != "":
+                pos_diff = data[1]
+                if pos_diff > 0:
+                    text = f"▲{pos_diff: >2}"
+                    color_index = 1
+                elif pos_diff < 0:
+                    text = f"▼{-pos_diff: >2}"
+                    color_index = 2
+                else:
+                    text = "- 0"
+                    color_index = 0
+            else:
+                text = ""
+                color_index = 0
+            if data[3]:
+                color_index = 3
+            target.setText(text)
+            target.setStyleSheet(self.bar_style_pgl[color_index])
 
     def update_drv(self, target, data):
         """Driver name"""
@@ -614,8 +666,12 @@ class Realtime(Overlay):
         # 0 Vehicle in pit (in_pit: bool)
         in_pit = veh_info.inPit
 
-        # 1 Driver position (position: int, is_lapped, hi_player)
-        position = (veh_info.positionOverall, is_lapped, hi_player)
+        # 1 Driver position (position: int, position difference: int, is_lapped, hi_player)
+        if self.wcfg["show_position_change_in_class"]:
+            pos_diff = veh_info.qualifyInClass - veh_info.positionInClass
+        else:
+            pos_diff = veh_info.qualifyOverall - veh_info.positionOverall
+        position = (veh_info.positionOverall, pos_diff, is_lapped, hi_player)
 
         # 2 Driver name (drv_name: str, is_lapped, hi_player)
         drv_name = (veh_info.driverName, is_lapped, hi_player)

@@ -217,10 +217,11 @@ def save_and_verify_json_file(
     filepath: str,
     max_attempts: int = 10,
     compact_json: bool = False,
+    abort_without_backup: bool = True,
 ) -> None:
     """Save and verify json file, backup or restore if saving failed"""
     # Create backup first, abort saving if failed to backup
-    if not create_backup_file(filename, filepath):
+    if not create_backup_file(filename, filepath) and abort_without_backup:
         logger.info("USERDATA: %s saving abort", filename)
         return
     # Start saving attempts

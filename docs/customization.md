@@ -2407,6 +2407,12 @@ Set font color for lap difference. Note, `font_color_laps_ahead` and `font_color
     show_position
 Show overall position standings.
 
+    show_position_change
+Show overall driver position change relative to overall qualification position.
+
+    show_position_change_in_class
+Show driver position change in class instead of overall. This option is enabled by default.
+
     show_driver_name
 Show driver name.
 
@@ -2783,12 +2789,6 @@ Set maximum amount vehicles to display for classes where player is not in. Defau
 
     split_gap
 Set split gap between each class.
-
-    show_position_change
-Show overall driver position change relative to overall qualification position.
-
-    show_position_change_in_class
-Show driver position change in class instead of overall. This option is enabled by default.
 
     show_time_gap
 For race session, this option shows time gap between leader and all other drivers. For other none race sessions, this option shows the time gap between session's best lap time and all other drivers.

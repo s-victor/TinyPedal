@@ -75,7 +75,7 @@ class Realtime(Overlay):
         # Empty dataset (last value sets toggle state, 0 - show, 1 - draw gap, 2 - hide)
         self.empty_vehicles_data = (
             (0,2),  # in_pit
-            ("",-1,0,2),  # position
+            ("",0,0,2),  # position
             ("",0,2),  # driver name
             ("",0,2),  # vehicle name
             ("",0,2),  # pos_class

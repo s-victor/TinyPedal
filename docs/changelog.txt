@@ -1,8 +1,8 @@
 WIP
 -----------------------------
-* Standings Widget
-  - Add "show_position_change" options (requested by bongio94), which shows overall driver position change relative to overall qualification position.
-  - Add "show_position_change_in_class" options, which shows driver position change in class instead of overall. This option is enabled by default.
+* Relative, Standings Widget
+  - Add "show_position_change" option (requested by bongio94), which shows overall driver position change relative to overall qualification position.
+  - Add "show_position_change_in_class" option, which shows driver position change in class instead of overall. This option is enabled by default.
 
 * Misc
   - Further optimized driver stats data accessing and saving.
