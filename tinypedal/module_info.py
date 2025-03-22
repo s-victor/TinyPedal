@@ -31,6 +31,7 @@ from .const_common import (
     MAX_FORECAST_MINUTES,
     ABS_ZERO_CELSIUS,
     DELTA_DEFAULT,
+    QUALIFY_DEFAULT,
 )
 
 
@@ -280,7 +281,7 @@ class RelativeInfo:
         self.relative: list[int] = [-1]
         self.standings: list[int] = [-1]
         self.classes: list[list] = [[0, 1, "", 0, 0, -1, -1, False]]
-        self.qualifications: list[tuple[int, int, int]] = [(-1, -1, -1)]
+        self.qualifications: list[tuple[int, int]] = [QUALIFY_DEFAULT]
 
 
 class RestAPIInfo:
@@ -435,8 +436,8 @@ class VehicleDataSet:
         self.isPlayer: bool = False
         self.positionOverall: int = 0
         self.positionInClass: int = 0
-        self.qualifyOverall: int = -1
-        self.qualifyInClass: int = -1
+        self.qualifyOverall: int = 0
+        self.qualifyInClass: int = 0
         self.driverName: str = ""
         self.vehicleName: str = ""
         self.vehicleClass: str = ""

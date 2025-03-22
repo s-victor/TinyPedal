@@ -24,14 +24,14 @@ from __future__ import annotations
 from functools import lru_cache
 from itertools import chain
 
-from .. import calculation as calc
 from ..api_control import api
-from ..const_common import MAX_VEHICLES, MAX_SECONDS
+from ..calculation import zero_max, asym_max, circular_relative_distance
+from ..const_common import MAX_VEHICLES, MAX_SECONDS, MAX_METERS, QUALIFY_DEFAULT
 from ..module_info import minfo
 from ._base import DataModule
 
 REF_PLACES = tuple(range(1, MAX_VEHICLES + 1))
-TEMP_DISTANCE = [[-1.0, -1] for _ in range(MAX_VEHICLES)]
+TEMP_DISTANCE = [[MAX_METERS, -1] for _ in range(MAX_VEHICLES)]
 TEMP_CLASSES = [["", -1, -1, -1.0, -1.0] for _ in range(MAX_VEHICLES)]
 TEMP_PLACES = [[-1, -1] for _ in range(MAX_VEHICLES)]
 TEMP_CLASSES_POS = [[0, 1, "", 0.0, 0.0, -1, -1, False] for _ in range(MAX_VEHICLES)]
@@ -93,7 +93,7 @@ class Realtime(DataModule):
 
                 # Create standings index list
                 standings_index_list = create_standings_index(
-                    min_top_veh, veh_limit, veh_total, plr_index, plr_place,
+                    min_top_veh, veh_limit, plr_index, plr_place,
                     class_pos_list, place_index_list, is_split_mode and is_multi_class)
 
                 # Sort vehicle class position list (by player index) for output
@@ -102,7 +102,7 @@ class Realtime(DataModule):
                 # Race/start grid, update only if vehicle number changed
                 if last_veh_total != veh_total:
                     last_veh_total = veh_total
-                    qualifications = qualify_position_list(veh_total)
+                    qualifications = create_qualify_position(veh_total)
                     output.qualifications = qualifications
 
                 # Output data
@@ -116,11 +116,11 @@ class Realtime(DataModule):
                     update_interval = self.idle_interval
 
 
-def qualify_position_list(veh_total: int) -> list[tuple[int, int, int]]:
+def create_qualify_position(veh_total: int) -> list[tuple[int, int]]:
     """Create qualify position list
 
     Returns:
-        list[(player index, qualify overall, qualify in class)]
+        list[(qualify overall, qualify in class)], ordered by "player index".
     """
     temp_class = sorted((
         api.read.vehicle.class_name(index),  # 0 class name
@@ -128,8 +128,8 @@ def qualify_position_list(veh_total: int) -> list[tuple[int, int, int]]:
         index,  # 2 player index
     ) for index in range(veh_total))
     # Create grid position
+    grid_classes = [QUALIFY_DEFAULT] * veh_total
     qualify_in_class = 0
-    grid_classes = []
     initial_class = None
     for veh_data in temp_class:
         if veh_data[0] == initial_class:
@@ -137,8 +137,7 @@ def qualify_position_list(veh_total: int) -> list[tuple[int, int, int]]:
         else:
             initial_class = veh_data[0]
             qualify_in_class = 1
-        grid_classes.append((veh_data[2], veh_data[1], qualify_in_class))
-    grid_classes.sort()  # sort by player index
+        grid_classes[veh_data[2]] = (veh_data[1], qualify_in_class)
     return grid_classes
 
 
@@ -153,10 +152,10 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
     for index in range(veh_total):
         # Update relative distance list
         if show_in_garage or index == plr_index or not api.read.vehicle.in_garage(index):
-            rel_dist = calc.circular_relative_distance(
+            rel_dist = circular_relative_distance(
                 track_length, plr_dist, api.read.lap.distance(index))
         else:
-            rel_dist = MAX_SECONDS
+            rel_dist = MAX_METERS
         TEMP_DISTANCE[index][:] = (  # slice assign
             rel_dist,  # 0 relative distance
             index,  # 1 player index
@@ -202,7 +201,7 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
     # Sort output in-place
     new_distance = TEMP_DISTANCE[:veh_total]
     new_distance.sort(reverse=True)  # by reversed distance
-    new_distance_index = [_dist[1] for _dist in new_distance if _dist[0] != MAX_SECONDS]
+    new_distance_index = [_dist[1] for _dist in new_distance if _dist[0] != MAX_METERS]
 
     new_classes = TEMP_CLASSES[:veh_total]
     new_classes.sort()  # by vehicle class
@@ -304,7 +303,7 @@ def create_position_in_class(sorted_veh_class: list, laptime_session_best: float
 
 
 def create_standings_index(
-    min_top_veh: int, veh_limit: tuple, veh_total: int, plr_index: int, plr_place: int,
+    min_top_veh: int, veh_limit: tuple, plr_index: int, plr_place: int,
     class_pos_list: list, place_index_list: list, is_multi_class: bool):
     """Create standings index list"""
     if is_multi_class:
@@ -319,18 +318,18 @@ def create_standings_index(
         )))
     else:
         standing_index = calc_standings_index(
-            min_top_veh, veh_total, veh_limit[0], plr_place, place_index_list)
+            min_top_veh, veh_limit[0], plr_place, place_index_list)
     return standing_index
 
 
-def create_class_standings_index(min_top_veh: int, plr_index: int, class_collection: list,
+def create_class_standings_index(
+    min_top_veh: int, plr_index: int, class_collection: list,
     veh_limit_other: int, veh_limit_player: int):
     """Generate class standings index list from class list collection"""
     for class_list in class_collection:
         # 0 index, 1 class pos, 2 class name, 3 session best, 4 classes best
         class_split = list(zip(*class_list))
         place_index_list = list(zip(class_split[1], class_split[0]))
-        veh_total = class_split[1][-1]  # last pos in class
 
         if plr_index in class_split[0]:
             veh_limit = veh_limit_player
@@ -341,18 +340,20 @@ def create_class_standings_index(min_top_veh: int, plr_index: int, class_collect
             plr_place = 0
 
         yield calc_standings_index(
-            min_top_veh, veh_total, veh_limit, plr_place, place_index_list)
+            min_top_veh, veh_limit, plr_place, place_index_list)
 
 
-def calc_standings_index(min_top_veh: int, veh_total: int, veh_limit: int,
-    plr_place: int, place_index_list: list):
+def calc_standings_index(
+    min_top_veh: int, veh_limit: int, plr_place: int, place_index_list: list):
     """Calculate vehicle standings index list"""
+    veh_total = len(place_index_list)
     ref_place_list = create_reference_place(min_top_veh, veh_total, plr_place, veh_limit)
     # Create final standing index list
-    return list(player_index_from_place_reference(ref_place_list, place_index_list))
+    return list(player_index_from_place_reference(ref_place_list, place_index_list, veh_total))
 
 
-def create_reference_place(min_top_veh: int, veh_total: int, plr_place: int, veh_limit: int):
+def create_reference_place(
+    min_top_veh: int, veh_total: int, plr_place: int, veh_limit: int):
     """Create reference place list"""
     if veh_total <= veh_limit:
         return REF_PLACES[:veh_total]
@@ -375,12 +376,12 @@ def create_reference_place(min_top_veh: int, veh_total: int, plr_place: int, veh
     return REF_PLACES[:min_top_veh] + REF_PLACES[front_cut_max:rear_cut_max]
 
 
-def player_index_from_place_reference(ref_place_list: list, place_index_list: list):
+def player_index_from_place_reference(
+    ref_place_list: tuple, place_index_list: list, veh_total: int):
     """Match place from reference list to generate player index list"""
-    max_places = len(place_index_list)
     for ref_idx in ref_place_list:
-        if 0 < ref_idx <= max_places:  # prevent out of range
-            yield place_index_list[ref_idx-1][1]  # 1 vehicle index
+        if 0 < ref_idx <= veh_total:  # prevent out of range
+            yield place_index_list[ref_idx - 1][1]  # 1 vehicle index
         else:
             break
     yield -1  # append an empty index as gap between classes
@@ -406,8 +407,8 @@ def split_class_list(class_list: list):
 @lru_cache(maxsize=1)
 def max_relative_vehicles(add_front: int, add_behind: int, min_veh: int = 7):
     """Maximum number of vehicles in relative list"""
-    add_front = int(calc.zero_max(add_front, 60))
-    add_behind = int(calc.zero_max(add_behind, 60))
+    add_front = int(zero_max(add_front, 60))
+    add_behind = int(zero_max(add_behind, 60))
     max_vehicles = min_veh + add_front + add_behind
     return max_vehicles, add_front, add_behind
 
@@ -418,7 +419,7 @@ def min_top_vehicles_in_class(min_top_veh: int) -> int:
 
     min_top_veh: value range limited in 1 to 5
     """
-    return int(calc.asym_max(min_top_veh, 1, 5))
+    return int(asym_max(min_top_veh, 1, 5))
 
 
 def max_vehicles_in_class(max_cls_veh: int, min_top_veh: int, min_add_veh: int = 0) -> int:

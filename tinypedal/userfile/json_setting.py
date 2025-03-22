@@ -231,7 +231,7 @@ def save_and_verify_json_file(
         if verify_json_file(dict_user, filename, filepath):
             break
         attempts -= 1
-        logger.error("USERDATA: failed saving, %s attempt(s) left", attempts)
+        logger.error("USERDATA: %s failed saving, %s attempt(s) left", filename, attempts)
         sleep(0.05)
     timer_end = round((monotonic() - timer_start) * 1000)
     # Clean up

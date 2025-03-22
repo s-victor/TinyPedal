@@ -71,7 +71,7 @@ class Realtime(DataModule):
         self,
         output: VehiclesInfo,
         class_pos_list: list,
-        qual_pos_list: list,
+        qual_pos_list: list[tuple[int, int]],
         max_lap_diff_ahead: float,
         max_lap_diff_behind: float,
     ):
@@ -103,8 +103,8 @@ class Realtime(DataModule):
             data.sessionBestLapTime = class_pos[3]
             data.classBestLapTime = class_pos[4]
             data.isClassFastestLastLap = class_pos[7]
-            data.qualifyOverall = qual_pos[1]
-            data.qualifyInClass = qual_pos[2]
+            data.qualifyOverall = qual_pos[0]
+            data.qualifyInClass = qual_pos[1]
 
             # Temp var only
             lap_etime = api.read.timing.elapsed(index)
