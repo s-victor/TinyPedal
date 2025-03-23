@@ -65,12 +65,39 @@ def strip_filename_extension(name: str, extension: str) -> str:
     return name
 
 
+def rgb_to_gray(rgb: list[int]) -> int:
+    """RGB value to gray (0-255)"""
+    return (rgb[0] * 3 + rgb[1] * 6 + rgb[2]) // 10
+
+
 @lru_cache(maxsize=20)
 def random_color_class(name: str) -> str:
     """Generate random color for vehicle class"""
+    max_value = 225
+    min_value = 25
+    target_brightness = 100
+    # Generate random RGB color
     random.seed(name)
-    rgb = [30,180,random.randrange(30,180)]
+    rgb = [min_value + 10, max_value - 10, random.randint(min_value, max_value)]
     random.shuffle(rgb)
+    # Brightness correction
+    brightness = rgb_to_gray(rgb)
+    if brightness > target_brightness:
+        while brightness > target_brightness:
+            ran_index = random.randint(0, 2)
+            if rgb[ran_index] >= min_value:
+                rgb[ran_index] -= 5
+            else:
+                rgb[ran_index] += random.randint(10, 30)
+            brightness = rgb_to_gray(rgb)
+    elif brightness < target_brightness:
+        while brightness < target_brightness:
+            ran_index = random.randint(0, 2)
+            if rgb[ran_index] <= max_value:
+                rgb[ran_index] += 5
+            else:
+                rgb[ran_index] -= random.randint(10, 30)
+            brightness = rgb_to_gray(rgb)
     return f"#{rgb[0]:02X}{rgb[1]:02X}{rgb[2]:02X}"
 
 
