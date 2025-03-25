@@ -21,7 +21,6 @@ Relative module
 """
 
 from __future__ import annotations
-from functools import lru_cache
 from itertools import chain
 
 from ..api_control import api
@@ -51,8 +50,7 @@ class Realtime(DataModule):
         output = minfo.relative
         setting_relative = self.cfg.user.setting["relative"]
         setting_standings = self.cfg.user.setting["standings"]
-        last_setting_relative = None
-        last_setting_standings = None
+        last_version_update = None
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -63,15 +61,12 @@ class Realtime(DataModule):
                     last_veh_total = 0
 
                 # Check setting
-                if last_setting_relative != setting_relative:
-                    last_setting_relative = setting_relative.copy()
+                if last_version_update != self.cfg.version_update:
+                    last_version_update = self.cfg.version_update
                     show_in_garage = setting_relative["show_vehicle_in_garage"]
                     max_rel_veh, add_front, add_behind = max_relative_vehicles(
                         setting_relative["additional_players_front"],
                         setting_relative["additional_players_behind"])
-
-                if last_setting_standings != setting_standings:
-                    last_setting_standings = setting_standings.copy()
                     is_split_mode = setting_standings["enable_multi_class_split_mode"]
                     min_top_veh = min_top_vehicles_in_class(
                         setting_standings["min_top_vehicles"])
@@ -411,7 +406,6 @@ def split_class_list(class_list: list):
     yield class_list[index_start:index_end]
 
 
-@lru_cache(maxsize=1)
 def max_relative_vehicles(add_front: int, add_behind: int, min_veh: int = 7):
     """Maximum number of vehicles in relative list"""
     add_front = int(zero_max(add_front, 60))
@@ -420,7 +414,6 @@ def max_relative_vehicles(add_front: int, add_behind: int, min_veh: int = 7):
     return max_vehicles, add_front, add_behind
 
 
-@lru_cache(maxsize=1)
 def min_top_vehicles_in_class(min_top_veh: int) -> int:
     """Minimum number of top vehicles in class list
 
@@ -439,7 +432,6 @@ def max_vehicles_in_class(max_cls_veh: int, min_top_veh: int, min_add_veh: int =
     return max(int(max_cls_veh), min_top_veh + min_add_veh)
 
 
-@lru_cache(maxsize=1)
 def max_vehicle_limit_set(
     min_top_veh: int, max_all: int, max_others: int, max_player: int):
     """Create max vehicle limit set"""

@@ -175,6 +175,7 @@ class Setting:
         "_save_delay",
         "_save_queue",
         "is_saving",
+        "version_update",
         "filename",
         "default",
         "user",
@@ -192,6 +193,7 @@ class Setting:
         self._save_delay = 0
         self._save_queue = {}
         self.is_saving = False
+        self.version_update = 0
         # Settings
         self.filename = FileName()
         self.default = Preset()
@@ -369,6 +371,7 @@ class Setting:
 
         self._save_queue.pop(filename, None)
         self.is_saving = False
+        self.version_update += 1
 
         # Run next save task in save queue if any
         if self._save_queue:
