@@ -422,12 +422,12 @@ class Overlay(QWidget):
         column_left: int = 0,
         column_right: int = 9,
     ):
-        """Set grid layout - quad - (0,1), (2,3)
+        """Set grid layout - quad - (0,1), (2,3), (4,5), ...
 
         Default row index start from 1; reserve row index 0 for caption.
         """
         for index, target in enumerate(targets):
-            row_index = row_start + (index > 1)
+            row_index = row_start + (index // 2)
             column_index = column_left + (index % 2) * column_right
             if isinstance(target, QWidget):
                 layout.addWidget(target, row_index, column_index)

@@ -79,6 +79,7 @@ def random_color_class(name: str) -> str:
     # Generate random RGB color
     random.seed(name)
     rgb = [min_value + 10, max_value - 10, random.randint(min_value, max_value)]
+    random.seed(name)
     random.shuffle(rgb)
     # Brightness correction
     brightness = rgb_to_gray(rgb)

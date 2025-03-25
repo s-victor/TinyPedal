@@ -51,6 +51,8 @@ class Realtime(DataModule):
         output = minfo.relative
         setting_relative = self.cfg.user.setting["relative"]
         setting_standings = self.cfg.user.setting["standings"]
+        last_setting_relative = None
+        last_setting_standings = None
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -61,18 +63,23 @@ class Realtime(DataModule):
                     last_veh_total = 0
 
                 # Check setting
-                show_in_garage = setting_relative["show_vehicle_in_garage"]
-                is_split_mode = setting_standings["enable_multi_class_split_mode"]
-                max_rel_veh, add_front, add_behind = max_relative_vehicles(
-                    setting_relative["additional_players_front"],
-                    setting_relative["additional_players_behind"])
-                min_top_veh = min_top_vehicles_in_class(
-                    setting_standings["min_top_vehicles"])
-                veh_limit = max_vehicle_limit_set(  # 0 all, 1 other, 2 player
-                    min_top_veh,
-                    setting_standings["max_vehicles_combined_mode"],
-                    setting_standings["max_vehicles_per_split_others"],
-                    setting_standings["max_vehicles_per_split_player"])
+                if last_setting_relative != setting_relative:
+                    last_setting_relative = setting_relative.copy()
+                    show_in_garage = setting_relative["show_vehicle_in_garage"]
+                    max_rel_veh, add_front, add_behind = max_relative_vehicles(
+                        setting_relative["additional_players_front"],
+                        setting_relative["additional_players_behind"])
+
+                if last_setting_standings != setting_standings:
+                    last_setting_standings = setting_standings.copy()
+                    is_split_mode = setting_standings["enable_multi_class_split_mode"]
+                    min_top_veh = min_top_vehicles_in_class(
+                        setting_standings["min_top_vehicles"])
+                    veh_limit = max_vehicle_limit_set(  # 0 all, 1 other, 2 player
+                        min_top_veh,
+                        setting_standings["max_vehicles_combined_mode"],
+                        setting_standings["max_vehicles_per_split_others"],
+                        setting_standings["max_vehicles_per_split_player"])
 
                 # Base info
                 veh_total = max(api.read.vehicle.total_vehicles(), 1)
