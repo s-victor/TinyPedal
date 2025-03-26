@@ -25,13 +25,14 @@ from itertools import chain
 from operator import itemgetter
 
 from ..api_control import api
-from ..calculation import zero_max, asym_max, circular_relative_distance
-from ..const_common import MAX_VEHICLES, MAX_SECONDS, MAX_METERS, QUALIFY_DEFAULT
+from ..calculation import zero_max, asym_max
+from ..const_common import MAX_VEHICLES, MAX_SECONDS, QUALIFY_DEFAULT, REL_TIME_DEFAULT
 from ..module_info import minfo
 from ._base import DataModule
 
 REF_PLACES = tuple(range(1, MAX_VEHICLES + 1))
-TEMP_DISTANCE = [[MAX_METERS, -1] for _ in range(MAX_VEHICLES)]
+TEMP_RELATIVE_AHEAD = [[0, -1] for _ in range(MAX_VEHICLES)]
+TEMP_RELATIVE_BEHIND = [[0, -1] for _ in range(MAX_VEHICLES)]
 TEMP_CLASSES = [["", -1, -1, -1.0, -1.0] for _ in range(MAX_VEHICLES)]
 TEMP_CLASSES_POS = [[0, 1, "", 0.0, 0.0, -1, -1, False] for _ in range(MAX_VEHICLES)]
 
@@ -64,7 +65,7 @@ class Realtime(DataModule):
                 if last_version_update != self.cfg.version_update:
                     last_version_update = self.cfg.version_update
                     show_in_garage = setting_relative["show_vehicle_in_garage"]
-                    max_rel_veh, add_front, add_behind = max_relative_vehicles(
+                    max_veh_front, max_veh_behind = max_relative_vehicles(
                         setting_relative["additional_players_front"],
                         setting_relative["additional_players_behind"])
                     is_split_mode = setting_standings["enable_multi_class_split_mode"]
@@ -82,12 +83,12 @@ class Realtime(DataModule):
                 plr_place = api.read.vehicle.place()
 
                 # Get vehicles info
-                (distance_index_list, classes_list, laptime_session_best, is_multi_class,
+                (relative_ahead, relative_behind, classes_list, laptime_session_best, is_multi_class,
                  ) = get_vehicles_info(veh_total, plr_index, show_in_garage)
 
                 # Create relative index list
                 relative_index_list = create_relative_index(
-                    distance_index_list, plr_index, max_rel_veh, add_front, add_behind)
+                    relative_ahead, relative_behind, plr_index, max_veh_front, max_veh_behind)
 
                 # Create vehicle class position list (initially ordered by class name)
                 class_pos_list, plr_class_name, plr_class_place = create_position_in_class(
@@ -149,24 +150,34 @@ def create_qualify_position(veh_total: int) -> list[tuple[int, int]]:
 
 
 def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
-    """Get vehicles info: relative distance, classes, places, laptime"""
-    track_length = api.read.lap.track_length()  # track length
-    plr_dist = api.read.lap.distance()
+    """Get vehicles info: relative time gap, classes, places, laptime"""
+    laptime_est = max(api.read.timing.estimated_laptime(), 1)
+    plr_time = api.read.timing.estimated_time_into()
     laptime_session_best = MAX_SECONDS
     last_class_name = None
     classes_count = 0
+    index_time = 0
 
     for index in range(veh_total):
-        # Update relative distance list
-        if show_in_garage or index == plr_index or not api.read.vehicle.in_garage(index):
-            rel_dist = circular_relative_distance(
-                track_length, plr_dist, api.read.lap.distance(index))
-        else:
-            rel_dist = MAX_METERS
-        TEMP_DISTANCE[index][:] = (  # slice assign
-            rel_dist,  # 0 relative distance
-            index,  # 1 player index
-        )
+        # Update relative time gap list
+        if index != plr_index and (show_in_garage or not api.read.vehicle.in_garage(index)):
+            opt_time = api.read.timing.estimated_time_into(index)
+            diff_time = opt_time - plr_time
+            diff_time_ahead = diff_time_behind = diff_time - diff_time // laptime_est * laptime_est
+            if diff_time_ahead < 0:
+                diff_time_ahead += laptime_est
+            if diff_time_behind > 0:
+                diff_time_behind -= laptime_est
+
+            TEMP_RELATIVE_AHEAD[index_time][:] = (
+                diff_time_ahead,  # 0 relative time gap
+                index,  # 1 player index
+            )
+            TEMP_RELATIVE_BEHIND[index_time][:] = (
+                diff_time_behind,  # 0 relative time gap
+                index,  # 1 player index
+            )
+            index_time += 1
 
         # Update classes list
         class_name = api.read.vehicle.class_name(index)
@@ -186,7 +197,7 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
         else:
             laptime_personal_best = MAX_SECONDS
 
-        TEMP_CLASSES[index][:] = (  # slice assign
+        TEMP_CLASSES[index][:] = (
             class_name,  # 0 vehicle class name
             place_overall,  # 1 overall position/place
             index,  # 2 player index
@@ -200,15 +211,18 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
             classes_count += 1
 
     # Sort output in-place
-    new_distance = TEMP_DISTANCE[:veh_total]
-    new_distance.sort(reverse=True)  # by reversed distance
-    new_distance_index = [_dist[1] for _dist in new_distance if _dist[0] != MAX_METERS]
+    relative_ahead = TEMP_RELATIVE_AHEAD[:index_time]
+    relative_ahead.sort(reverse=True)  # by reversed time gap
+
+    relative_behind = TEMP_RELATIVE_BEHIND[:index_time]
+    relative_behind.sort(reverse=True)  # by reversed time gap
 
     new_classes = TEMP_CLASSES[:veh_total]
     new_classes.sort()  # by vehicle class
 
     return (
-        new_distance_index,  # -> distance_index_list
+        relative_ahead,
+        relative_behind,
         new_classes,  # -> classes_list
         laptime_session_best,
         classes_count > 1,  # -> is_multi_class
@@ -216,32 +230,17 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
 
 
 def create_relative_index(
-    distance_index_list: list, plr_index: int, max_rel_veh: int, add_front: int, add_behind: int):
-    """Create player-centered relative index list"""
-    if not distance_index_list:
-        return distance_index_list
-    # Locate player index position in list
-    if plr_index in distance_index_list:
-        plr_index_pos = distance_index_list.index(plr_index)
-    else:
-        plr_index_pos = 0  # prevent index not found in list error
-    # Append with -1 if less than max number of vehicles
-    num_diff = max_rel_veh - len(distance_index_list)
-    if num_diff > 0:
-        distance_index_list += [-1] * num_diff
-    # Slice: max number of front players -> player index position
-    front_cut = distance_index_list[max(plr_index_pos - 3 - add_front, 0):plr_index_pos]
-    # Find number of missing front players (which is located at the end of list)
-    front_miss = 3 + add_front - len(front_cut)
-    front_list = distance_index_list[len(distance_index_list) - front_miss:] + front_cut
-    # Slice: player index position -> max number of behind players
-    behind_cut = distance_index_list[plr_index_pos:plr_index_pos + 4 + add_behind]
-    # Find number of missing behind players (which is located at the beginning of list)
-    behind_miss = 4 + add_behind - len(behind_cut)
-    behind_list = behind_cut + distance_index_list[:behind_miss]
-    # Combine index list
-    front_list.extend(behind_list)
-    return front_list
+    relative_ahead: list, relative_behind: list, plr_index: int, max_veh_ahead: int, max_veh_behind: int):
+    """Create player-centered relative (time, index) list"""
+    ahead_cut = relative_ahead[max(len(relative_ahead) - max_veh_ahead, 0):]
+    ahead_diff = max_veh_ahead - len(ahead_cut)
+    if ahead_diff > 0:
+        ahead_cut = [REL_TIME_DEFAULT] * ahead_diff + ahead_cut
+    behind_cut = relative_behind[:min(len(relative_behind), max_veh_behind)]
+    behind_diff = max_veh_behind - len(behind_cut)
+    if behind_diff > 0:
+        behind_cut += [REL_TIME_DEFAULT] * behind_diff
+    return ahead_cut + [(0, plr_index)] + behind_cut
 
 
 def create_position_in_class(sorted_veh_class: list, laptime_session_best: float, plr_index: int):
@@ -374,12 +373,11 @@ def split_class_list(class_list: list):
     yield class_list[index_start:index_end]
 
 
-def max_relative_vehicles(add_front: int, add_behind: int, min_veh: int = 7):
+def max_relative_vehicles(add_front: int, add_behind: int):
     """Maximum number of vehicles in relative list"""
-    add_front = int(zero_max(add_front, 60))
-    add_behind = int(zero_max(add_behind, 60))
-    max_vehicles = min_veh + add_front + add_behind
-    return max_vehicles, add_front, add_behind
+    add_front = int(zero_max(add_front, 60)) + 3
+    add_behind = int(zero_max(add_behind, 60)) + 3
+    return add_front, add_behind
 
 
 def min_top_vehicles_in_class(min_top_veh: int) -> int:

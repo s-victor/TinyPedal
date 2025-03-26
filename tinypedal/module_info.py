@@ -32,6 +32,7 @@ from .const_common import (
     ABS_ZERO_CELSIUS,
     DELTA_DEFAULT,
     QUALIFY_DEFAULT,
+    REL_TIME_DEFAULT,
 )
 
 
@@ -278,7 +279,7 @@ class RelativeInfo:
     )
 
     def __init__(self):
-        self.relative: list[int] = [-1]
+        self.relative: list[list | tuple] = [REL_TIME_DEFAULT]
         self.standings: list[int] = [-1]
         self.classes: list[list] = [[0, 1, "", 0, 0, -1, -1, False]]
         self.qualifications: list[tuple[int, int]] = [QUALIFY_DEFAULT]

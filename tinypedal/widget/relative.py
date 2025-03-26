@@ -339,9 +339,9 @@ class Realtime(Overlay):
             for idx in range(self.veh_range):
 
                 if idx < total_rel_idx:
-                    rel_idx = relative_list[idx]
+                    rel_time_gap, rel_idx = relative_list[idx]
                 else:
-                    rel_idx = -2
+                    rel_time_gap, rel_idx = 0.0, -2
 
                 # Set row state: 1 - show text, 0 - hide text
                 if rel_idx >= 0:
@@ -380,7 +380,7 @@ class Realtime(Overlay):
                     self.update_brd(self.bars_brd[idx], veh_info.vehicleName, hi_player, state)
                 # Time gap
                 if self.wcfg["show_time_gap"]:
-                    self.update_gap(self.bars_gap[idx], veh_info.relativeTimeGap, hi_player, state)
+                    self.update_gap(self.bars_gap[idx], rel_time_gap, hi_player, state)
                 # Vehicle laptime
                 if self.wcfg["show_laptime"]:
                     laptime = (veh_info.inPit, veh_info.lastLapTime, veh_info.pitTimer.elapsed)

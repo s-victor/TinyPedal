@@ -42,6 +42,7 @@ POS_XY_ZERO = (0.0, 0.0)  # world origin position
 POS_XYZ_ZERO = (0.0, 0.0, 0.0)  # world origin position
 POS_XYZ_INF = (FLOAT_INF, FLOAT_INF, FLOAT_INF)  # infinite position
 QUALIFY_DEFAULT = (0, 0)  # qualify position: overall, in class
+REL_TIME_DEFAULT = (0.0, -1)  # relative time gap, player index
 
 # Type set
 TYPE_NUMBER = (float, int)
