@@ -229,13 +229,10 @@ class Realtime(Overlay):
 
             # Session best laptime
             if self.wcfg["show_session_best"]:
-                laptime_best_tmp = api.read.timing.best_laptime(self.player_index)
-
-                if 0 < laptime_best_tmp < self.laptime_sbst:
-                    if self.wcfg["show_session_best_from_same_class_only"]:
-                        if api.read.vehicle.same_class(self.player_index):
-                            self.laptime_sbst = laptime_best_tmp
-                    else:
+                if (not self.wcfg["show_session_best_from_same_class_only"]
+                    or api.read.vehicle.same_class(self.player_index)):
+                    laptime_best_tmp = api.read.timing.best_laptime(self.player_index)
+                    if 0 < laptime_best_tmp < self.laptime_sbst:
                         self.laptime_sbst = laptime_best_tmp
 
                 if self.player_index < api.read.vehicle.total_vehicles():
