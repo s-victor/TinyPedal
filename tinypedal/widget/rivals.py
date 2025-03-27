@@ -326,7 +326,7 @@ class Realtime(Overlay):
             in_race = api.read.session.in_race()
 
             if player_idx < total_cls_idx:
-                rivals_list = classes_list[player_idx][5:7]
+                rivals_list = classes_list[player_idx][4:6]
             else:
                 rivals_list = -1,-1
 
@@ -529,7 +529,7 @@ class Realtime(Overlay):
             target.last = data
             if data[0] < 0:
                 color_index = 2
-            elif self.wcfg["show_pit_request"] and data[1] == 1:
+            elif self.wcfg["show_pit_request"] and data[1]:
                 color_index = 1
             else:
                 color_index = 0

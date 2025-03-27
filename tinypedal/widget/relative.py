@@ -592,7 +592,7 @@ class Realtime(Overlay):
             target.last = data
             if data[0] < 0:
                 color_index = 3
-            elif self.wcfg["show_pit_request"] and data[1] == 1:
+            elif self.wcfg["show_pit_request"] and data[1]:
                 color_index = 2
             elif data[2]:  # highlight player
                 color_index = 1

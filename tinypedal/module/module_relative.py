@@ -34,7 +34,7 @@ REF_PLACES = tuple(range(1, MAX_VEHICLES + 1))
 TEMP_RELATIVE_AHEAD = [[0, -1] for _ in range(MAX_VEHICLES)]
 TEMP_RELATIVE_BEHIND = [[0, -1] for _ in range(MAX_VEHICLES)]
 TEMP_CLASSES = [["", -1, -1, -1.0, -1.0] for _ in range(MAX_VEHICLES)]
-TEMP_CLASSES_POS = [[0, 1, "", 0.0, 0.0, -1, -1, False] for _ in range(MAX_VEHICLES)]
+TEMP_CLASSES_POS = [[0, 1, "", 0.0, -1, -1, False] for _ in range(MAX_VEHICLES)]
 
 
 class Realtime(DataModule):
@@ -83,7 +83,7 @@ class Realtime(DataModule):
                 plr_place = api.read.vehicle.place()
 
                 # Get vehicles info
-                (relative_ahead, relative_behind, classes_list, laptime_session_best, is_multi_class,
+                (relative_ahead, relative_behind, classes_list, is_multi_class,
                  ) = get_vehicles_info(veh_total, plr_index, show_in_garage)
 
                 # Create relative index list
@@ -92,7 +92,7 @@ class Realtime(DataModule):
 
                 # Create vehicle class position list (initially ordered by class name)
                 class_pos_list, plr_class_name, plr_class_place = create_position_in_class(
-                    classes_list, laptime_session_best, plr_index)
+                    classes_list, plr_index)
 
                 # Create standings index list
                 if is_split_mode and is_multi_class:
@@ -153,7 +153,6 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
     """Get vehicles info: relative time gap, classes, places, laptime"""
     laptime_est = api.read.timing.estimated_laptime()
     plr_time = api.read.timing.estimated_time_into()
-    laptime_session_best = MAX_SECONDS
     last_class_name = None
     classes_count = 0
     index_time = 0
@@ -195,8 +194,6 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
 
         if laptime_best > 0:
             laptime_personal_best = laptime_best
-            if laptime_best < laptime_session_best:
-                laptime_session_best = laptime_best
         else:
             laptime_personal_best = MAX_SECONDS
 
@@ -227,7 +224,6 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
         relative_ahead,
         relative_behind,
         new_classes,  # -> classes_list
-        laptime_session_best,
         classes_count > 1,  # -> is_multi_class
     )
 
@@ -246,7 +242,7 @@ def create_relative_index(
     return ahead_cut + [(0, plr_index)] + behind_cut
 
 
-def create_position_in_class(sorted_veh_class: list, laptime_session_best: float, plr_index: int):
+def create_position_in_class(sorted_veh_class: list, plr_index: int):
     """Create vehicle position in class list"""
     last_class_name = None
     place_in_class = 0
@@ -263,7 +259,7 @@ def create_position_in_class(sorted_veh_class: list, laptime_session_best: float
 
         if last_class_name == veh_sort[0]:
             place_in_class += 1
-            TEMP_CLASSES_POS[index - 1][6] = opt_index  # set opponent index behind
+            TEMP_CLASSES_POS[index - 1][5] = opt_index  # set opponent index behind
         else:
             last_class_name = veh_sort[0]  # reset class name
             place_in_class = 1  # reset position counter
@@ -271,7 +267,7 @@ def create_position_in_class(sorted_veh_class: list, laptime_session_best: float
             laptime_class_best = veh_sort[3]
             last_fastest_laptime = MAX_SECONDS  # reset last fastest
             if last_fastest_index != -1:  # mark fastest last lap
-                TEMP_CLASSES_POS[last_fastest_index][7] = True
+                TEMP_CLASSES_POS[last_fastest_index][6] = True
                 last_fastest_index = -1  # reset last fastest index
 
         if opt_index == plr_index:
@@ -286,16 +282,15 @@ def create_position_in_class(sorted_veh_class: list, laptime_session_best: float
             opt_index,  # 0 - 2 player index
             place_in_class,  # 1 - position in class
             veh_sort[0],  # 2 - 0 class name
-            laptime_session_best,  # 3 session best
-            laptime_class_best,  # 4 classes best
-            opt_index_ahead,  # 5 opponent index ahead
-            -1,  # 6 opponent index behind
-            False,  # 7 is class fastest last laptime
+            laptime_class_best,  # 3 classes best
+            opt_index_ahead,  # 4 opponent index ahead
+            -1,  # 5 opponent index behind
+            False,  # 6 is class fastest last laptime
         )
         opt_index_ahead = opt_index  # store opponent index for next
 
     if last_fastest_index != -1:  # mark for last class
-        TEMP_CLASSES_POS[last_fastest_index][7] = True
+        TEMP_CLASSES_POS[last_fastest_index][6] = True
 
     return TEMP_CLASSES_POS[:veh_total], plr_class_name, plr_class_place
 
@@ -412,4 +407,4 @@ def max_vehicle_limit_set(
 
 def sort_class_collection(collection: list) -> float:
     """Sort class collection by class best laptime"""
-    return collection[0][4]  # 4 class best laptime
+    return collection[0][3]  # 3 class best laptime

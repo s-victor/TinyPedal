@@ -307,7 +307,8 @@ class Session(DataAdapter):
 
     def remaining(self) -> float:
         """Session time remaining (seconds)"""
-        return self.end() - self.elapsed()
+        scor = self.info.rf2ScorInfo
+        return chknm(scor.mEndET - scor.mCurrentET)
 
     def session_type(self) -> int:
         """Session type, 0 = TESTDAY, 1 = PRACTICE, 2 = QUALIFY, 3 = WARMUP, 4 = RACE"""
@@ -359,7 +360,7 @@ class Session(DataAdapter):
     def start_lights(self) -> int:
         """Start lights countdown sequence"""
         scor = self.info.rf2ScorInfo
-        return chknm(scor.mNumRedLights) - chknm(scor.mStartLight) + 1
+        return chknm(scor.mNumRedLights - scor.mStartLight + 1)
 
     def track_name(self) -> str:
         """Track name"""
@@ -447,7 +448,7 @@ class Timing(DataAdapter):
     def current_laptime(self, index: int | None = None) -> float:
         """Current lap time (seconds)"""
         tele_veh = self.info.rf2TeleVeh(index)
-        return chknm(tele_veh.mElapsedTime) - chknm(tele_veh.mLapStartET)
+        return chknm(tele_veh.mElapsedTime - tele_veh.mLapStartET)
 
     def last_laptime(self, index: int | None = None) -> float:
         """Last lap time (seconds)"""
@@ -671,20 +672,9 @@ class Vehicle(DataAdapter):
         """Number of penalties"""
         return chknm(self.info.rf2ScorVeh(index).mNumPenalties)
 
-    def pit_state(self, index: int | None = None) -> int:
-        """Pit state, 0 = none, 1 = request, 2 = entering, 3 = stopped, 4 = exiting"""
-        state = self.info.rf2ScorVeh(index).mPitState
-        if state == 0:
-            return 0
-        if state == 1:
-            return 1
-        if state == 2:
-            return 2
-        if state == 3:
-            return 3
-        if state == 4:
-            return 4
-        return 0
+    def pit_request(self, index: int | None = None) -> bool:
+        """Is requested pit, 0 = none, 1 = request, 2 = entering, 3 = stopped, 4 = exiting"""
+        return self.info.rf2ScorVeh(index).mPitState == 1
 
     def finish_state(self, index: int | None = None) -> int:
         """Finish state, 0 = none, 1 = finished, 2 = DNF, 3 = DQ"""

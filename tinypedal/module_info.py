@@ -281,7 +281,7 @@ class RelativeInfo:
     def __init__(self):
         self.relative: list[list | tuple] = [REL_TIME_DEFAULT]
         self.standings: list[int] = [-1]
-        self.classes: list[list] = [[0, 1, "", 0, 0, -1, -1, False]]
+        self.classes: list[list] = [[0, 1, "", 0.0, -1, -1, False]]
         self.qualifications: list[tuple[int, int]] = [QUALIFY_DEFAULT]
 
 
@@ -364,6 +364,7 @@ class VehiclesInfo:
         "nearestLine",
         "nearestTraffic",
         "nearestYellow",
+        "leaderBestLapTime",
     )
 
     def __init__(self):
@@ -378,6 +379,7 @@ class VehiclesInfo:
         self.nearestLine: float = MAX_METERS
         self.nearestTraffic: float = MAX_SECONDS
         self.nearestYellow: float = MAX_METERS
+        self.leaderBestLapTime: float = 0.0
 
 
 class VehiclePitTimer:
@@ -407,7 +409,6 @@ class VehicleDataSet:
         "driverName",
         "vehicleName",
         "vehicleClass",
-        "sessionBestLapTime",
         "classBestLapTime",
         "bestLapTime",
         "lastLapTime",
@@ -441,7 +442,6 @@ class VehicleDataSet:
         self.driverName: str = ""
         self.vehicleName: str = ""
         self.vehicleClass: str = ""
-        self.sessionBestLapTime: float = MAX_SECONDS
         self.classBestLapTime: float = MAX_SECONDS
         self.bestLapTime: float = MAX_SECONDS
         self.lastLapTime: float = MAX_SECONDS
@@ -454,7 +454,7 @@ class VehicleDataSet:
         self.inPit: int = 0
         self.isClassFastestLastLap: bool = False
         self.numPitStops: int = 0
-        self.pitState: int = 0
+        self.pitState: bool = False
         self.tireCompoundFront: str = ""
         self.tireCompoundRear: str = ""
         self.relativeOrientationRadians: float = 0.0

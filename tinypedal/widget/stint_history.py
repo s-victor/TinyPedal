@@ -226,16 +226,17 @@ class Realtime(Overlay):
                 self.start_fuel = fuel_curr
                 self.start_wear = wear_avg
                 self.reset_stint = False
+                # Update compound info once per stint
+                class_name = api.read.vehicle.class_name()
+                self.stint_data[0] = "".join(
+                    hmp.select_compound_symbol(f"{class_name} - {tcmpd_name}")
+                    for tcmpd_name in api.read.tyre.compound_name()
+                )
 
             if self.start_fuel < fuel_curr:
                 self.start_fuel = fuel_curr
 
             # Current stint data
-            class_name = api.read.vehicle.class_name()
-            self.stint_data[0] = "".join(
-                hmp.select_compound_symbol(f"{class_name} - {tcmpd_name}")
-                for tcmpd_name in api.read.tyre.compound_name()
-            )
             self.stint_data[1] = max(lap_num - self.start_laps, 0)
             self.stint_data[2] = max(time_curr - self.start_time, 0)
             self.stint_data[3] = max(self.start_fuel - fuel_curr, 0)

@@ -84,6 +84,7 @@ class Realtime(DataModule):
         track_length = api.read.lap.track_length()
         in_race = api.read.session.in_race()
         draw_order = ALL_INDEXES[:veh_total]
+        laptime_best_leader = 0.0
 
         # Local player data
         plr_laps_done = api.read.lap.completed_laps()
@@ -101,11 +102,10 @@ class Realtime(DataModule):
         # Update dataset from all vehicles in current session
         for index, data, class_pos, qual_pos in zip(range(veh_total), output.dataSet, class_pos_list, qual_pos_list):
             # Vehicle class var
-            opt_index_ahead = class_pos[5]
+            opt_index_ahead = class_pos[4]
             data.positionInClass = class_pos[1]
-            data.sessionBestLapTime = class_pos[3]
-            data.classBestLapTime = class_pos[4]
-            data.isClassFastestLastLap = class_pos[7]
+            data.classBestLapTime = class_pos[3]
+            data.isClassFastestLastLap = class_pos[6]
             data.qualifyOverall = qual_pos[0]
             data.qualifyInClass = qual_pos[1]
 
@@ -137,7 +137,7 @@ class Realtime(DataModule):
             data.bestLapTime = api.read.timing.best_laptime(index)
             data.lastLapTime = api.read.timing.last_laptime(index)
             data.numPitStops = -num_penalties if num_penalties else api.read.vehicle.number_pitstops(index)
-            data.pitState = api.read.vehicle.pit_state(index)
+            data.pitState = api.read.vehicle.pit_request(index)
             data.tireCompoundFront = f"{class_name} - {api.read.tyre.compound_name_front(index)}"
             data.tireCompoundRear = f"{class_name} - {api.read.tyre.compound_name_rear(index)}"
 
@@ -185,6 +185,7 @@ class Realtime(DataModule):
             # Sort draw order list in loop ->
             if position_overall == 1:  # save leader index
                 leader_index = index
+                laptime_best_leader = data.bestLapTime
                 if is_player:  # player can be leader at the same time
                     player_index = index
             elif is_player:  # save local player index
@@ -210,6 +211,7 @@ class Realtime(DataModule):
         output.nearestLine = nearest_line
         output.nearestTraffic = -nearest_timegap
         output.nearestYellow = nearest_yellow
+        output.leaderBestLapTime = laptime_best_leader
         output.drawOrder = draw_order
         output.dataSetVersion += 1
 

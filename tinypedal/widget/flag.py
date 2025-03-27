@@ -435,7 +435,7 @@ class Realtime(Overlay):
 
     def pit_in_countdown(self) -> str:
         """Pit in countdown (laps)"""
-        if api.read.vehicle.pit_state() != 1:
+        if not api.read.vehicle.pit_request():
             return ""
 
         if minfo.restapi.maxVirtualEnergy:

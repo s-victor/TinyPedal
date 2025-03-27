@@ -441,7 +441,8 @@ class Realtime(Overlay):
                     if in_race:
                         time_gap = self.gap_to_leader_race(veh_info.gapBehindLeader, veh_info.positionOverall)
                     else:
-                        time_gap = self.gap_to_session_bestlap(veh_info.bestLapTime, veh_info.sessionBestLapTime, veh_info.classBestLapTime)
+                        time_gap = self.gap_to_session_bestlap(
+                            veh_info.bestLapTime, minfo.vehicles.leaderBestLapTime, veh_info.classBestLapTime)
                     self.update_gap(self.bars_gap[idx], time_gap, hi_player, state)
                 # Time interval
                 if self.wcfg["show_time_interval"]:
@@ -626,7 +627,7 @@ class Realtime(Overlay):
             target.last = data
             if data[0] < 0:
                 color_index = 3
-            elif self.wcfg["show_pit_request"] and data[1] == 1:
+            elif self.wcfg["show_pit_request"] and data[1]:
                 color_index = 2
             elif data[2]:  # highlighted player
                 color_index = 1
