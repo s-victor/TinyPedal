@@ -255,17 +255,19 @@ class Realtime(Overlay):
 
     def draw_vehicle(self, painter, map_data, veh_info, veh_draw_order):
         """Draw vehicles"""
+        if map_data:
+            # Position = coords * scale - (min_range * scale - offset)
+            x_offset = self.map_range[0] * self.map_scale - self.map_offset[0]  # min range x, offset x
+            y_offset = self.map_range[2] * self.map_scale - self.map_offset[1]  # min range y, offset y
+        else:
+            offset = self.area_size * 0.5
+
         for index in veh_draw_order:
             data = veh_info[index]
             is_player = data.isPlayer
             if map_data:
-                # Position = (coords - min_range) * scale + offset, round to prevent bouncing
-                pos_x = round(
-                    (data.worldPositionX - self.map_range[0])  # min range x
-                    * self.map_scale + self.map_offset[0])  # offset x
-                pos_y = round(
-                    (data.worldPositionY - self.map_range[2])  # min range y
-                    * self.map_scale + self.map_offset[1])  # offset y
+                pos_x = data.worldPositionX * self.map_scale - x_offset
+                pos_y = data.worldPositionY * self.map_scale - y_offset
                 painter.translate(pos_x, pos_y)
             else:  # vehicles on temp map
                 inpit_offset = self.wcfg["font_size"] * data.inPit
@@ -274,7 +276,6 @@ class Realtime(Overlay):
                     self.temp_map_size / -2 + inpit_offset,  # x pos
                     0,  # y pos
                 )
-                offset = self.area_size * 0.5
                 painter.translate(offset + pos_x, offset + pos_y)
 
             painter.setPen(self.pen_veh[is_player])

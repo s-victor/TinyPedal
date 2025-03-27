@@ -521,7 +521,10 @@ class Realtime(Overlay):
                     value = f"{-data[0]:+.{self.gap_decimals}f}"
                 else:
                     value = f"{abs(data[0]):.{self.gap_decimals}f}"
-                text = value[:self.gap_width].strip(".").rjust(self.gap_width)
+                if self.wcfg["time_gap_align_center"]:
+                    text = value[:self.gap_width].strip(".")
+                else:
+                    text = value[:self.gap_width].strip(".").rjust(self.gap_width)
             else:
                 text = ""
             target.setText(text)
@@ -654,7 +657,7 @@ class Realtime(Overlay):
             return f"PIT{pit_time: >5.1f}"[:8] if pit_time > 0 else "-:--.---"
         if laptime_last <= 0:
             return f"OUT{pit_time: >5.1f}"[:8] if pit_time > 0 else "-:--.---"
-        return calc.sec2laptime_full(laptime_last)[:8].rjust(8)
+        return calc.sec2laptime_full(laptime_last)[:8]
 
 
 def lap_difference_index(is_lapped, offset=2):

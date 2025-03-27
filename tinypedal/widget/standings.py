@@ -679,14 +679,14 @@ class Realtime(Overlay):
             return f"PIT{pit_time: >5.1f}"[:8] if pit_time > 0 else "-:--.---"
         if laptime_last <= 0:
             return f"OUT{pit_time: >5.1f}"[:8] if pit_time > 0 else "-:--.---"
-        return calc.sec2laptime_full(laptime_last)[:8].rjust(8)
+        return calc.sec2laptime_full(laptime_last)[:8]
 
     @staticmethod
     def set_best_laptime(laptime_best):
         """Set best lap time"""
         if laptime_best <= 0:
             return "-:--.---"
-        return calc.sec2laptime_full(laptime_best)[:8].rjust(8)
+        return calc.sec2laptime_full(laptime_best)[:8]
 
     def gap_to_session_bestlap(self, bestlap, sbestlap, cbestlap):
         """Gap to session best laptime"""

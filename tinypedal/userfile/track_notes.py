@@ -239,7 +239,7 @@ def write_gpl_notes(
     for note_line in dataset:
         notes_file.write(
             f"{note_line[table_header[1]]}.mp3, "  # sound file name
-            f"{round(note_line[table_header[0]])}; "  # distance integer
+            f"{note_line[table_header[0]]:.0f}; "  # distance integer
             f"{note_line[table_header[2]]}{CRLF}"  # comment
         )
     notes_file.write(CRLF)

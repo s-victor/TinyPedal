@@ -3,6 +3,8 @@ WIP
 * Relative, Rivals, Standings Widget
   - Add "show_position_change" option (requested by bongio94), which shows overall driver position change relative to overall qualification position.
   - Add "show_position_change_in_class" option, which shows driver position change in class instead of overall. This option is enabled by default.
+  - Add "time_gap_align_center" option for Relative Widget.
+  - Add "time_interval_align_center" option for Rivals Widget.
 
 * Misc
   - Optimized user preset and stats data accessing.

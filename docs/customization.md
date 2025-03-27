@@ -2458,6 +2458,9 @@ Show plus or minus sign for time gap. `-` sign indicates opponent's relative pos
     time_gap_width
 Set time gap display width, value is in chars, 5 = 5 chars wide.
 
+    time_gap_align_center
+Align time gap in the center when enabled. Default is right alignment when disabled.
+
     show_highlighted_nearest_time_gap
 Show highlighted color on opponents within nearest time gap threshold.
 
@@ -2674,6 +2677,9 @@ Set ride height offset for bottoming indicator. Value in millimeters, but withou
 **This widget displays standings info from opponent ahead and behind local player from same vehicle class.**
 
 Note, most options are inherited from [Relative](#relative) and [Standings](#standings) widgets, with some additions noted below.
+
+    time_interval_align_center
+Align time interval in the center when enabled. Default is right alignment when disabled.
 
     *_color_time_interval_ahead, *_color_time_interval_behind
 Set custom time interval color of opponent ahead and behind.

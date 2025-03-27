@@ -412,7 +412,6 @@ class VehicleDataSet:
         "bestLapTime",
         "lastLapTime",
         "lapProgress",
-        "relativeTimeGap",
         "gapBehindNextInClass",
         "gapBehindNext",
         "gapBehindLeader",
@@ -447,7 +446,6 @@ class VehicleDataSet:
         self.bestLapTime: float = MAX_SECONDS
         self.lastLapTime: float = MAX_SECONDS
         self.lapProgress: float = 0.0
-        self.relativeTimeGap: float = 0.0
         self.gapBehindNextInClass: float = 0.0
         self.gapBehindNext: float = 0.0
         self.gapBehindLeader: float = 0.0

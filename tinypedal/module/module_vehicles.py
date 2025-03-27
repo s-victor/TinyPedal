@@ -86,14 +86,17 @@ class Realtime(DataModule):
         draw_order = ALL_INDEXES[:veh_total]
 
         # Local player data
+        plr_laps_done = api.read.lap.completed_laps()
+        plr_lap_distance = api.read.lap.distance()
+        plr_lap_progress = calc.lap_progress_distance(plr_lap_distance, track_length)
         nearest_line = MAX_METERS
         nearest_timegap = -MAX_SECONDS
         nearest_yellow = MAX_METERS
 
         # Sorting reference index
-        leader_idx = 0
-        player_idx = -1  # local player may not exist, init with -1
-        inpit_idx = 0
+        leader_index = 0
+        player_index = -1  # local player may not exist, init with -1
+        inpit_index = 0
 
         # Update dataset from all vehicles in current session
         for index, data, class_pos, qual_pos in zip(range(veh_total), output.dataSet, class_pos_list, qual_pos_list):
@@ -142,8 +145,8 @@ class Realtime(DataModule):
             opt_pos_x = data.worldPositionX = api.read.vehicle.position_longitudinal(index)
             opt_pos_y = data.worldPositionY = api.read.vehicle.position_lateral(index)
             if is_player:
-                relative_distance = 0.0
-                data.relativeTimeGap = 0.0
+                if is_yellow:
+                    nearest_yellow = 0.0
             else:
                 # Relative position & orientation
                 plr_pos_x = api.read.vehicle.position_longitudinal()
@@ -160,16 +163,11 @@ class Realtime(DataModule):
                 # Relative distance & time gap
                 relative_straight_distance = data.relativeStraightDistance = calc.distance(
                     (plr_pos_x, plr_pos_y), (opt_pos_x, opt_pos_y))
-                plr_lap_distance = api.read.lap.distance()
-                plr_lap_progress = calc.lap_progress_distance(plr_lap_distance, track_length)
-                plr_laps_done = api.read.lap.completed_laps()
-                relative_distance = calc.circular_relative_distance(
-                    track_length, plr_lap_distance, lap_distance)
                 data.isLapped = calc.lap_difference(
                     laps_done + lap_progress, plr_laps_done + plr_lap_progress,
                     max_lap_diff_ahead, max_lap_diff_behind
                 ) if in_race else 0
-                relative_time_gap = data.relativeTimeGap = relative_interval(index)
+                relative_time_gap = relative_interval(index)
 
                 # Nearest straight line distance (non local players)
                 if nearest_line > relative_straight_distance:
@@ -177,38 +175,38 @@ class Realtime(DataModule):
                 # Nearest traffic time gap (opponents behind local players)
                 if in_pit == 0 > relative_time_gap > nearest_timegap:
                     nearest_timegap = relative_time_gap
-
-            # Nearest yellow flag distance (all players)
-            if is_yellow:
-                rel_dist = abs(relative_distance)
-                if nearest_yellow > rel_dist:
-                    nearest_yellow = rel_dist
+                # Nearest yellow flag distance
+                if is_yellow:
+                    relative_distance = abs(calc.circular_relative_distance(
+                        track_length, plr_lap_distance, lap_distance))
+                    if nearest_yellow > relative_distance:
+                        nearest_yellow = relative_distance
 
             # Sort draw order list in loop ->
             if position_overall == 1:  # save leader index
-                leader_idx = index
+                leader_index = index
                 if is_player:  # player can be leader at the same time
-                    player_idx = index
+                    player_index = index
             elif is_player:  # save local player index
-                player_idx = index
+                player_index = index
             elif in_pit:  # swap opponent in pit/garage to start
-                draw_order[index], draw_order[inpit_idx] = draw_order[inpit_idx], draw_order[index]
-                inpit_idx += 1
+                draw_order[index], draw_order[inpit_index] = draw_order[inpit_index], draw_order[index]
+                inpit_index += 1
 
         # Finalize draw order list ->
         # Move leader to end of draw order
-        if leader_idx != draw_order[-1]:
-            leader_pos = draw_order.index(leader_idx)
+        if leader_index != draw_order[-1]:
+            leader_pos = draw_order.index(leader_index)
             draw_order[leader_pos], draw_order[-1] = draw_order[-1], draw_order[leader_pos]
         # Move local player to 2nd end of draw order if exists and not leader
-        if -1 != player_idx != leader_idx:
-            player_pos = draw_order.index(player_idx)
+        if -1 != player_index != leader_index:
+            player_pos = draw_order.index(player_index)
             draw_order[player_pos], draw_order[-2] = draw_order[-2], draw_order[player_pos]
         # <- End draw order list
 
         # Output extra info
-        output.leaderIndex = leader_idx
-        output.playerIndex = player_idx
+        output.leaderIndex = leader_index
+        output.playerIndex = player_index
         output.nearestLine = nearest_line
         output.nearestTraffic = -nearest_timegap
         output.nearestYellow = nearest_yellow

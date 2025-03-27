@@ -151,7 +151,7 @@ def create_qualify_position(veh_total: int) -> list[tuple[int, int]]:
 
 def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
     """Get vehicles info: relative time gap, classes, places, laptime"""
-    laptime_est = max(api.read.timing.estimated_laptime(), 1)
+    laptime_est = api.read.timing.estimated_laptime()
     plr_time = api.read.timing.estimated_time_into()
     laptime_session_best = MAX_SECONDS
     last_class_name = None
@@ -159,8 +159,11 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
     index_time = 0
 
     for index in range(veh_total):
+        in_pit = api.read.vehicle.in_pits(index)
+        in_garage = api.read.vehicle.in_garage(index)
+
         # Update relative time gap list
-        if index != plr_index and (show_in_garage or not api.read.vehicle.in_garage(index)):
+        if index != plr_index and laptime_est and (show_in_garage or not in_garage):
             opt_time = api.read.timing.estimated_time_into(index)
             diff_time = opt_time - plr_time
             diff_time_ahead = diff_time_behind = diff_time - diff_time // laptime_est * laptime_est
@@ -185,7 +188,7 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
         laptime_best = api.read.timing.best_laptime(index)
         laptime_last = api.read.timing.last_laptime(index)
 
-        if laptime_last > 0 and not api.read.vehicle.in_pits(index):
+        if laptime_last > 0 and not in_pit + in_garage:
             laptime_personal_last = laptime_last
         else:
             laptime_personal_last = MAX_SECONDS
