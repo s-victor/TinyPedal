@@ -20,13 +20,13 @@
 Steering wheel Widget
 """
 
-from PySide2.QtCore import Qt, QRect
-from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush
+from PySide2.QtCore import QRect, Qt
+from PySide2.QtGui import QBrush, QPainter, QPen, QPixmap
 
-from .. import validator as val
 from ..api_control import api
 from ..const_file import ImageFile
 from ..module_info import minfo
+from ..validator import image_exists
 from ._base import Overlay
 
 
@@ -160,7 +160,7 @@ class Realtime(Overlay):
         """Load steering wheel image"""
         if show_custom:
             temp_filename = userfile
-            if val.image_file(temp_filename):
+            if image_exists(temp_filename):
                 filename = temp_filename
         icon_source = QPixmap(filename)
         return icon_source.scaled(size, size, mode=Qt.SmoothTransformation)

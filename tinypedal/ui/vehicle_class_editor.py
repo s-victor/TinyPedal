@@ -20,29 +20,29 @@
 Vehicle class editor
 """
 
-import time
 import random
+import time
 
 from PySide2.QtWidgets import (
-    QVBoxLayout,
-    QHBoxLayout,
     QDialogButtonBox,
+    QHBoxLayout,
+    QHeaderView,
+    QMessageBox,
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
-    QMessageBox,
-    QHeaderView,
+    QVBoxLayout,
 )
 
 from ..api_control import api
-from ..setting import ConfigType, cfg, copy_setting
+from ..formatter import random_color_class
 from ..module_control import wctrl
-from .. import formatter as fmt
+from ..setting import ConfigType, cfg, copy_setting
 from ._common import (
+    QSS_EDITOR_BUTTON,
+    QVAL_COLOR,
     BaseEditor,
     DoubleClickEdit,
-    QVAL_COLOR,
-    QSS_EDITOR_BUTTON,
 )
 
 HEADER_CLASSES = "Class name","Alias name","Color"
@@ -147,12 +147,12 @@ class VehicleClassEditor(BaseEditor):
             class_name = api.read.vehicle.class_name(index)
             if not self.is_value_in_table(class_name, self.table_classes):
                 self.add_vehicle_entry(
-                    row_index, class_name, class_name, fmt.random_color_class(class_name))
+                    row_index, class_name, class_name, random_color_class(class_name))
                 row_index += 1
         # Add new class entry
         new_class_name = self.new_name_increment("New Class Name", self.table_classes)
         self.add_vehicle_entry(
-            row_index, new_class_name, "NAME", fmt.random_color_class(str(random.random())))
+            row_index, new_class_name, "NAME", random_color_class(str(random.random())))
         self.table_classes.setCurrentCell(row_index, 0)
 
     def add_vehicle_entry(self, row_index: int, class_name: str, alias_name: str, color: str):

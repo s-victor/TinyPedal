@@ -24,7 +24,7 @@ from __future__ import annotations
 
 from .. import calculation as calc
 from ..api_control import api
-from ..const_common import MAX_VEHICLES, MAX_SECONDS, MAX_METERS
+from ..const_common import MAX_METERS, MAX_SECONDS, MAX_VEHICLES
 from ..module_info import VehiclePitTimer, VehiclesInfo, minfo
 from ._base import DataModule
 
@@ -167,14 +167,15 @@ class Realtime(DataModule):
                     laps_done + lap_progress, plr_laps_done + plr_lap_progress,
                     max_lap_diff_ahead, max_lap_diff_behind
                 ) if in_race else 0
-                relative_time_gap = relative_interval(index)
 
                 # Nearest straight line distance (non local players)
                 if nearest_line > relative_straight_distance:
                     nearest_line = relative_straight_distance
                 # Nearest traffic time gap (opponents behind local players)
-                if in_pit == 0 > relative_time_gap > nearest_timegap:
-                    nearest_timegap = relative_time_gap
+                if not in_pit:
+                    relative_time_gap = relative_interval(index)
+                    if 0 > relative_time_gap > nearest_timegap:
+                        nearest_timegap = relative_time_gap
                 # Nearest yellow flag distance
                 if is_yellow:
                     relative_distance = abs(calc.circular_relative_distance(

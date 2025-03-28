@@ -21,16 +21,16 @@ Spectate list view
 """
 
 from PySide2.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
     QHBoxLayout,
     QLabel,
-    QPushButton,
     QListWidget,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
 
-from ..setting import cfg
 from ..api_control import api
+from ..setting import cfg
 
 QSS_LISTBOX = (
     "QListView {font-size: 14px;outline: none;}"

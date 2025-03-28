@@ -25,20 +25,17 @@ Notes:
 
 from __future__ import annotations
 
-from . import DataAdapter
-from .. import validator as val
-from ..formatter import strip_invalid_char
 from ..calculation import (
-    mean,
     lap_progress_distance,
-    meter2millmeter,
+    mean,
     oriyaw2rad,
     slip_angle,
     vel2speed,
 )
-
-chknm = val.infnan2zero
-cs2py = val.cbytes2str
+from ..formatter import strip_invalid_char
+from ..validator import bytes_to_str as tostr
+from ..validator import infnan_to_zero as rmnan
+from . import DataAdapter
 
 
 class Check(DataAdapter):
@@ -56,11 +53,11 @@ class Check(DataAdapter):
 
     def api_version(self) -> str:
         """Identify API version"""
-        return cs2py(self.info.rf2Ext.mVersion)
+        return tostr(self.info.rf2Ext.mVersion)
 
     def sim_name(self) -> str:
         """Identify sim name"""
-        name = cs2py(self.info.rf2ScorInfo.mPlrFileName)
+        name = tostr(self.info.rf2ScorInfo.mPlrFileName)
         if name == "Settings":
             return "LMU"
         if name:
@@ -69,21 +66,21 @@ class Check(DataAdapter):
 
     def combo_id(self) -> str:
         """Identify track & vehicle combo"""
-        track_name = cs2py(self.info.rf2ScorInfo.mTrackName)
-        class_name = cs2py(self.info.rf2ScorVeh().mVehicleClass)
+        track_name = tostr(self.info.rf2ScorInfo.mTrackName)
+        class_name = tostr(self.info.rf2ScorVeh().mVehicleClass)
         return strip_invalid_char(f"{track_name} - {class_name}")
 
     def track_id(self) -> str:
         """Identify track name"""
-        return strip_invalid_char(cs2py(self.info.rf2ScorInfo.mTrackName))
+        return strip_invalid_char(tostr(self.info.rf2ScorInfo.mTrackName))
 
     def session_id(self) -> tuple[int, int, int]:
         """Identify session"""
-        session_length = chknm(self.info.rf2ScorInfo.mEndET)
-        session_type = chknm(self.info.rf2ScorInfo.mSession)
+        session_length = rmnan(self.info.rf2ScorInfo.mEndET)
+        session_type = self.info.rf2ScorInfo.mSession
         session_stamp = int(session_length * 100 + session_type)
-        session_etime = int(chknm(self.info.rf2ScorInfo.mCurrentET))
-        session_tlaps = chknm(self.info.rf2ScorVeh().mTotalLaps)
+        session_etime = int(rmnan(self.info.rf2ScorInfo.mCurrentET))
+        session_tlaps = self.info.rf2ScorVeh().mTotalLaps
         return session_stamp, session_etime, session_tlaps
 
 
@@ -94,17 +91,27 @@ class Brake(DataAdapter):
 
     def bias_front(self, index: int | None = None) -> float:
         """Brake bias front (fraction)"""
-        return 1 - chknm(self.info.rf2TeleVeh(index).mRearBrakeBias)
+        return 1 - rmnan(self.info.rf2TeleVeh(index).mRearBrakeBias)
 
-    def pressure(self, index: int | None = None, scale: float = 1) -> list[float]:
+    def pressure(self, index: int | None = None, scale: float = 1) -> tuple[float, ...]:
         """Brake pressure (fraction)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(data.mBrakePressure) * scale for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mBrakePressure) * scale,
+            rmnan(wheel_data[1].mBrakePressure) * scale,
+            rmnan(wheel_data[2].mBrakePressure) * scale,
+            rmnan(wheel_data[3].mBrakePressure) * scale,
+        )
 
-    def temperature(self, index: int | None = None) -> list[float]:
+    def temperature(self, index: int | None = None) -> tuple[float, ...]:
         """Brake temperature (Celsius)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(data.mBrakeTemp) - 273.15 for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mBrakeTemp) - 273.15,
+            rmnan(wheel_data[1].mBrakeTemp) - 273.15,
+            rmnan(wheel_data[2].mBrakeTemp) - 273.15,
+            rmnan(wheel_data[3].mBrakeTemp) - 273.15,
+        )
 
 
 class ElectricMotor(DataAdapter):
@@ -127,23 +134,23 @@ class ElectricMotor(DataAdapter):
 
     def battery_charge(self, index: int | None = None) -> float:
         """Battery charge (fraction)"""
-        return chknm(self.info.rf2TeleVeh(index).mBatteryChargeFraction)
+        return rmnan(self.info.rf2TeleVeh(index).mBatteryChargeFraction)
 
     def rpm(self, index: int | None = None) -> float:
         """Motor RPM (rev per minute)"""
-        return chknm(self.info.rf2TeleVeh(index).mElectricBoostMotorRPM)
+        return rmnan(self.info.rf2TeleVeh(index).mElectricBoostMotorRPM)
 
     def torque(self, index: int | None = None) -> float:
         """Motor torque (Nm)"""
-        return chknm(self.info.rf2TeleVeh(index).mElectricBoostMotorTorque)
+        return rmnan(self.info.rf2TeleVeh(index).mElectricBoostMotorTorque)
 
     def motor_temperature(self, index: int | None = None) -> float:
         """Motor temperature (Celsius)"""
-        return chknm(self.info.rf2TeleVeh(index).mElectricBoostMotorTemperature)
+        return rmnan(self.info.rf2TeleVeh(index).mElectricBoostMotorTemperature)
 
     def water_temperature(self, index: int | None = None) -> float:
         """Motor water temperature (Celsius)"""
-        return chknm(self.info.rf2TeleVeh(index).mElectricBoostWaterTemperature)
+        return rmnan(self.info.rf2TeleVeh(index).mElectricBoostWaterTemperature)
 
 
 class Engine(DataAdapter):
@@ -153,35 +160,35 @@ class Engine(DataAdapter):
 
     def gear(self, index: int | None = None) -> int:
         """Gear"""
-        return chknm(self.info.rf2TeleVeh(index).mGear)
+        return self.info.rf2TeleVeh(index).mGear
 
     def gear_max(self, index: int | None = None) -> int:
         """Max gear"""
-        return chknm(self.info.rf2TeleVeh(index).mMaxGears)
+        return self.info.rf2TeleVeh(index).mMaxGears
 
     def rpm(self, index: int | None = None) -> float:
         """RPM (rev per minute)"""
-        return chknm(self.info.rf2TeleVeh(index).mEngineRPM)
+        return rmnan(self.info.rf2TeleVeh(index).mEngineRPM)
 
     def rpm_max(self, index: int | None = None) -> float:
         """Max RPM (rev per minute)"""
-        return chknm(self.info.rf2TeleVeh(index).mEngineMaxRPM)
+        return rmnan(self.info.rf2TeleVeh(index).mEngineMaxRPM)
 
     def torque(self, index: int | None = None) -> float:
         """Torque (Nm)"""
-        return chknm(self.info.rf2TeleVeh(index).mEngineTorque)
+        return rmnan(self.info.rf2TeleVeh(index).mEngineTorque)
 
     def turbo(self, index: int | None = None) -> float:
         """Turbo pressure (Pa)"""
-        return chknm(self.info.rf2TeleVeh(index).mTurboBoostPressure)
+        return rmnan(self.info.rf2TeleVeh(index).mTurboBoostPressure)
 
     def oil_temperature(self, index: int | None = None) -> float:
         """Oil temperature (Celsius)"""
-        return chknm(self.info.rf2TeleVeh(index).mEngineOilTemp)
+        return rmnan(self.info.rf2TeleVeh(index).mEngineOilTemp)
 
     def water_temperature(self, index: int | None = None) -> float:
         """Water temperature (Celsius)"""
-        return chknm(self.info.rf2TeleVeh(index).mEngineWaterTemp)
+        return rmnan(self.info.rf2TeleVeh(index).mEngineWaterTemp)
 
 
 class Inputs(DataAdapter):
@@ -191,51 +198,51 @@ class Inputs(DataAdapter):
 
     def throttle(self, index: int | None = None) -> float:
         """Throttle filtered (fraction)"""
-        return chknm(self.info.rf2TeleVeh(index).mFilteredThrottle)
+        return rmnan(self.info.rf2TeleVeh(index).mFilteredThrottle)
 
     def throttle_raw(self, index: int | None = None) -> float:
         """Throttle raw (fraction)"""
-        return chknm(self.info.rf2TeleVeh(index).mUnfilteredThrottle)
+        return rmnan(self.info.rf2TeleVeh(index).mUnfilteredThrottle)
 
     def brake(self, index: int | None = None) -> float:
         """Brake filtered (fraction)"""
-        return chknm(self.info.rf2TeleVeh(index).mFilteredBrake)
+        return rmnan(self.info.rf2TeleVeh(index).mFilteredBrake)
 
     def brake_raw(self, index: int | None = None) -> float:
         """Brake raw (fraction)"""
-        return chknm(self.info.rf2TeleVeh(index).mUnfilteredBrake)
+        return rmnan(self.info.rf2TeleVeh(index).mUnfilteredBrake)
 
     def clutch(self, index: int | None = None) -> float:
         """Clutch filtered (fraction)"""
-        return chknm(self.info.rf2TeleVeh(index).mFilteredClutch)
+        return rmnan(self.info.rf2TeleVeh(index).mFilteredClutch)
 
     def clutch_raw(self, index: int | None = None) -> float:
         """Clutch raw (fraction)"""
-        return chknm(self.info.rf2TeleVeh(index).mUnfilteredClutch)
+        return rmnan(self.info.rf2TeleVeh(index).mUnfilteredClutch)
 
     def steering(self, index: int | None = None) -> float:
         """Steering filtered (fraction)"""
-        return chknm(self.info.rf2TeleVeh(index).mFilteredSteering)
+        return rmnan(self.info.rf2TeleVeh(index).mFilteredSteering)
 
     def steering_raw(self, index: int | None = None) -> float:
         """Steering raw (fraction)"""
-        return chknm(self.info.rf2TeleVeh(index).mUnfilteredSteering)
+        return rmnan(self.info.rf2TeleVeh(index).mUnfilteredSteering)
 
     def steering_shaft_torque(self, index: int | None = None) -> float:
         """Steering shaft torque (Nm)"""
-        return chknm(self.info.rf2TeleVeh(index).mSteeringShaftTorque)
+        return rmnan(self.info.rf2TeleVeh(index).mSteeringShaftTorque)
 
     def steering_range_physical(self, index: int | None = None) -> float:
         """Steering physical rotation range (degrees)"""
-        return chknm(self.info.rf2TeleVeh(index).mPhysicalSteeringWheelRange)
+        return rmnan(self.info.rf2TeleVeh(index).mPhysicalSteeringWheelRange)
 
     def steering_range_visual(self, index: int | None = None) -> float:
         """Steering visual rotation range (degrees)"""
-        return chknm(self.info.rf2TeleVeh(index).mVisualSteeringWheelRange)
+        return rmnan(self.info.rf2TeleVeh(index).mVisualSteeringWheelRange)
 
     def force_feedback(self) -> float:
         """Steering force feedback (fraction)"""
-        return chknm(self.info.rf2Ffb.mForceValue)
+        return rmnan(self.info.rf2Ffb.mForceValue)
 
 
 class Lap(DataAdapter):
@@ -245,29 +252,29 @@ class Lap(DataAdapter):
 
     def number(self, index: int | None = None) -> int:
         """Current lap number"""
-        return chknm(self.info.rf2TeleVeh(index).mLapNumber)
+        return self.info.rf2TeleVeh(index).mLapNumber
 
     def completed_laps(self, index: int | None = None) -> int:
         """Total completed laps"""
-        return chknm(self.info.rf2ScorVeh(index).mTotalLaps)
+        return self.info.rf2ScorVeh(index).mTotalLaps
 
     def track_length(self) -> float:
         """Full lap or track length (meters)"""
-        return chknm(self.info.rf2ScorInfo.mLapDist)
+        return rmnan(self.info.rf2ScorInfo.mLapDist)
 
     def distance(self, index: int | None = None) -> float:
         """Distance into lap (meters)"""
-        return chknm(self.info.rf2ScorVeh(index).mLapDist)
+        return rmnan(self.info.rf2ScorVeh(index).mLapDist)
 
     def progress(self, index: int | None = None) -> float:
         """Lap progress (fraction), distance into lap"""
-        return chknm(lap_progress_distance(
+        return rmnan(lap_progress_distance(
             self.info.rf2ScorVeh(index).mLapDist,
             self.info.rf2ScorInfo.mLapDist))
 
     def maximum(self) -> int:
         """Maximum lap"""
-        return chknm(self.info.rf2ScorInfo.mMaxLaps)
+        return self.info.rf2ScorInfo.mMaxLaps
 
     def sector_index(self, index: int | None = None) -> int:
         """Sector index, 0 = S1, 1 = S2, 2 = S3"""
@@ -281,11 +288,11 @@ class Lap(DataAdapter):
 
     def behind_leader(self, index: int | None = None) -> int:
         """Laps behind leader"""
-        return chknm(self.info.rf2ScorVeh(index).mLapsBehindLeader)
+        return self.info.rf2ScorVeh(index).mLapsBehindLeader
 
     def behind_next(self, index: int | None = None) -> int:
         """Laps behind next place"""
-        return chknm(self.info.rf2ScorVeh(index).mLapsBehindNext)
+        return self.info.rf2ScorVeh(index).mLapsBehindNext
 
 
 class Session(DataAdapter):
@@ -295,20 +302,20 @@ class Session(DataAdapter):
 
     def elapsed(self) -> float:
         """Session elapsed time (seconds)"""
-        return chknm(self.info.rf2ScorInfo.mCurrentET)
+        return rmnan(self.info.rf2ScorInfo.mCurrentET)
 
     def start(self) -> float:
         """Session start time (seconds)"""
-        return chknm(self.info.rf2ScorInfo.mStartET)
+        return rmnan(self.info.rf2ScorInfo.mStartET)
 
     def end(self) -> float:
         """Session end time (seconds)"""
-        return chknm(self.info.rf2ScorInfo.mEndET)
+        return rmnan(self.info.rf2ScorInfo.mEndET)
 
     def remaining(self) -> float:
         """Session time remaining (seconds)"""
         scor = self.info.rf2ScorInfo
-        return chknm(scor.mEndET - scor.mCurrentET)
+        return rmnan(scor.mEndET - scor.mCurrentET)
 
     def session_type(self) -> int:
         """Session type, 0 = TESTDAY, 1 = PRACTICE, 2 = QUALIFY, 3 = WARMUP, 4 = RACE"""
@@ -325,11 +332,11 @@ class Session(DataAdapter):
 
     def lap_type(self) -> bool:
         """Is lap type session, false for time type"""
-        return chknm(self.info.rf2ScorInfo.mMaxLaps) < 99999
+        return self.info.rf2ScorInfo.mMaxLaps < 99999
 
     def in_race(self) -> bool:
         """Is in race session"""
-        return chknm(self.info.rf2ScorInfo.mSession) > 9
+        return self.info.rf2ScorInfo.mSession > 9
 
     def in_countdown(self) -> bool:
         """Is in countdown phase before race"""
@@ -341,7 +348,7 @@ class Session(DataAdapter):
 
     def pit_open(self) -> bool:
         """Is pit lane open"""
-        return chknm(self.info.rf2ScorInfo.mGamePhase) > 0
+        return self.info.rf2ScorInfo.mGamePhase > 0
 
     def green_flag(self) -> bool:
         """Green flag"""
@@ -360,42 +367,42 @@ class Session(DataAdapter):
     def start_lights(self) -> int:
         """Start lights countdown sequence"""
         scor = self.info.rf2ScorInfo
-        return chknm(scor.mNumRedLights - scor.mStartLight + 1)
+        return scor.mNumRedLights - scor.mStartLight + 1
 
     def track_name(self) -> str:
         """Track name"""
-        return cs2py(self.info.rf2ScorInfo.mTrackName)
+        return tostr(self.info.rf2ScorInfo.mTrackName)
 
     def track_temperature(self) -> float:
         """Track temperature (Celsius)"""
-        return chknm(self.info.rf2ScorInfo.mTrackTemp)
+        return rmnan(self.info.rf2ScorInfo.mTrackTemp)
 
     def ambient_temperature(self) -> float:
         """Ambient temperature (Celsius)"""
-        return chknm(self.info.rf2ScorInfo.mAmbientTemp)
+        return rmnan(self.info.rf2ScorInfo.mAmbientTemp)
 
     def raininess(self) -> float:
         """Rain severity (fraction)"""
-        return chknm(self.info.rf2ScorInfo.mRaining)
+        return rmnan(self.info.rf2ScorInfo.mRaining)
 
     def wetness_minimum(self) -> float:
         """Road minimum wetness (fraction)"""
-        return chknm(self.info.rf2ScorInfo.mMinPathWetness)
+        return rmnan(self.info.rf2ScorInfo.mMinPathWetness)
 
     def wetness_maximum(self) -> float:
         """Road maximum wetness (fraction)"""
-        return chknm(self.info.rf2ScorInfo.mMaxPathWetness)
+        return rmnan(self.info.rf2ScorInfo.mMaxPathWetness)
 
     def wetness_average(self) -> float:
         """Road average wetness (fraction)"""
-        return chknm(self.info.rf2ScorInfo.mAvgPathWetness)
+        return rmnan(self.info.rf2ScorInfo.mAvgPathWetness)
 
     def wetness(self) -> tuple[float, float, float]:
         """Road wetness set (fraction)"""
         scor = self.info.rf2ScorInfo
-        return (chknm(scor.mMinPathWetness),
-                chknm(scor.mMaxPathWetness),
-                chknm(scor.mAvgPathWetness))
+        return (rmnan(scor.mMinPathWetness),
+                rmnan(scor.mMaxPathWetness),
+                rmnan(scor.mAvgPathWetness))
 
 
 class Switch(DataAdapter):
@@ -405,15 +412,15 @@ class Switch(DataAdapter):
 
     def headlights(self, index: int | None = None) -> int:
         """Headlights"""
-        return chknm(self.info.rf2TeleVeh(index).mHeadlights)
+        return self.info.rf2TeleVeh(index).mHeadlights
 
     def ignition_starter(self, index: int | None = None) -> int:
         """Ignition"""
-        return chknm(self.info.rf2TeleVeh(index).mIgnitionStarter)
+        return self.info.rf2TeleVeh(index).mIgnitionStarter
 
     def speed_limiter(self, index: int | None = None) -> int:
         """Speed limiter"""
-        return chknm(self.info.rf2TeleVeh(index).mSpeedLimiter)
+        return self.info.rf2TeleVeh(index).mSpeedLimiter
 
     def drs_status(self, index: int | None = None) -> int:
         """DRS status, 0 not_available, 1 available, 2 allowed(not activated), 3 activated"""
@@ -439,64 +446,64 @@ class Timing(DataAdapter):
 
     def start(self, index: int | None = None) -> float:
         """Current lap start time (seconds)"""
-        return chknm(self.info.rf2TeleVeh(index).mLapStartET)
+        return rmnan(self.info.rf2TeleVeh(index).mLapStartET)
 
     def elapsed(self, index: int | None = None) -> float:
         """Current lap elapsed time (seconds)"""
-        return chknm(self.info.rf2TeleVeh(index).mElapsedTime)
+        return rmnan(self.info.rf2TeleVeh(index).mElapsedTime)
 
     def current_laptime(self, index: int | None = None) -> float:
         """Current lap time (seconds)"""
         tele_veh = self.info.rf2TeleVeh(index)
-        return chknm(tele_veh.mElapsedTime - tele_veh.mLapStartET)
+        return rmnan(tele_veh.mElapsedTime - tele_veh.mLapStartET)
 
     def last_laptime(self, index: int | None = None) -> float:
         """Last lap time (seconds)"""
-        return chknm(self.info.rf2ScorVeh(index).mLastLapTime)
+        return rmnan(self.info.rf2ScorVeh(index).mLastLapTime)
 
     def best_laptime(self, index: int | None = None) -> float:
         """Best lap time (seconds)"""
-        return chknm(self.info.rf2ScorVeh(index).mBestLapTime)
+        return rmnan(self.info.rf2ScorVeh(index).mBestLapTime)
 
     def estimated_laptime(self, index: int | None = None) -> float:
         """Estimated lap time (seconds)"""
-        return chknm(self.info.rf2ScorVeh(index).mEstimatedLapTime)
+        return rmnan(self.info.rf2ScorVeh(index).mEstimatedLapTime)
 
     def estimated_time_into(self, index: int | None = None) -> float:
         """Estimated time into lap (seconds)"""
-        return chknm(self.info.rf2ScorVeh(index).mTimeIntoLap)
+        return rmnan(self.info.rf2ScorVeh(index).mTimeIntoLap)
 
     def current_sector1(self, index: int | None = None) -> float:
         """Current lap sector 1 time (seconds)"""
-        return chknm(self.info.rf2ScorVeh(index).mCurSector1)
+        return rmnan(self.info.rf2ScorVeh(index).mCurSector1)
 
     def current_sector2(self, index: int | None = None) -> float:
         """Current lap sector 1+2 time (seconds)"""
-        return chknm(self.info.rf2ScorVeh(index).mCurSector2)
+        return rmnan(self.info.rf2ScorVeh(index).mCurSector2)
 
     def last_sector1(self, index: int | None = None) -> float:
         """Last lap sector 1 time (seconds)"""
-        return chknm(self.info.rf2ScorVeh(index).mLastSector1)
+        return rmnan(self.info.rf2ScorVeh(index).mLastSector1)
 
     def last_sector2(self, index: int | None = None) -> float:
         """Last lap sector 1+2 time (seconds)"""
-        return chknm(self.info.rf2ScorVeh(index).mLastSector2)
+        return rmnan(self.info.rf2ScorVeh(index).mLastSector2)
 
     def best_sector1(self, index: int | None = None) -> float:
         """Best lap sector 1 time (seconds)"""
-        return chknm(self.info.rf2ScorVeh(index).mBestSector1)
+        return rmnan(self.info.rf2ScorVeh(index).mBestSector1)
 
     def best_sector2(self, index: int | None = None) -> float:
         """Best lap sector 1+2 time (seconds)"""
-        return chknm(self.info.rf2ScorVeh(index).mBestSector2)
+        return rmnan(self.info.rf2ScorVeh(index).mBestSector2)
 
     def behind_leader(self, index: int | None = None) -> float:
         """Time behind leader (seconds)"""
-        return chknm(self.info.rf2ScorVeh(index).mTimeBehindLeader)
+        return rmnan(self.info.rf2ScorVeh(index).mTimeBehindLeader)
 
     def behind_next(self, index: int | None = None) -> float:
         """Time behind next place (seconds)"""
-        return chknm(self.info.rf2ScorVeh(index).mTimeBehindNext)
+        return rmnan(self.info.rf2ScorVeh(index).mTimeBehindNext)
 
 
 class Tyre(DataAdapter):
@@ -506,105 +513,125 @@ class Tyre(DataAdapter):
 
     def compound_front(self, index: int | None = None) -> int:
         """Tyre compound (front)"""
-        return chknm(self.info.rf2TeleVeh(index).mFrontTireCompoundIndex)
+        return self.info.rf2TeleVeh(index).mFrontTireCompoundIndex
 
     def compound_rear(self, index: int | None = None) -> int:
         """Tyre compound (rear)"""
-        return chknm(self.info.rf2TeleVeh(index).mRearTireCompoundIndex)
+        return self.info.rf2TeleVeh(index).mRearTireCompoundIndex
 
     def compound(self, index: int | None = None) -> tuple[int, int]:
         """Tyre compound set (front, rear)"""
         tele_veh = self.info.rf2TeleVeh(index)
-        return chknm(tele_veh.mFrontTireCompoundIndex), chknm(tele_veh.mRearTireCompoundIndex)
+        return tele_veh.mFrontTireCompoundIndex, tele_veh.mRearTireCompoundIndex
 
     def compound_name_front(self, index: int | None = None) -> str:
         """Tyre compound name (front)"""
-        return cs2py(self.info.rf2TeleVeh(index).mFrontTireCompoundName)
+        return tostr(self.info.rf2TeleVeh(index).mFrontTireCompoundName)
 
     def compound_name_rear(self, index: int | None = None) -> str:
         """Tyre compound name (rear)"""
-        return cs2py(self.info.rf2TeleVeh(index).mRearTireCompoundName)
+        return tostr(self.info.rf2TeleVeh(index).mRearTireCompoundName)
 
     def compound_name(self, index: int | None = None) -> tuple[str, str]:
         """Tyre compound name set (front, rear)"""
         tele_veh = self.info.rf2TeleVeh(index)
-        return cs2py(tele_veh.mFrontTireCompoundName), cs2py(tele_veh.mRearTireCompoundName)
+        return tostr(tele_veh.mFrontTireCompoundName), tostr(tele_veh.mRearTireCompoundName)
 
-    def surface_temperature_avg(self, index: int | None = None) -> list[float]:
+    def surface_temperature_avg(self, index: int | None = None) -> tuple[float, ...]:
         """Tyre surface temperature set (Celsius) average"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [
-            chknm(mean(wheel_data[0].mTemperature)) - 273.15,
-            chknm(mean(wheel_data[1].mTemperature)) - 273.15,
-            chknm(mean(wheel_data[2].mTemperature)) - 273.15,
-            chknm(mean(wheel_data[3].mTemperature)) - 273.15,
-        ]
+        return (
+            rmnan(mean(wheel_data[0].mTemperature)) - 273.15,
+            rmnan(mean(wheel_data[1].mTemperature)) - 273.15,
+            rmnan(mean(wheel_data[2].mTemperature)) - 273.15,
+            rmnan(mean(wheel_data[3].mTemperature)) - 273.15,
+        )
 
-    def surface_temperature_ico(self, index: int | None = None) -> list[float]:
+    def surface_temperature_ico(self, index: int | None = None) -> tuple[float, ...]:
         """Tyre surface temperature set (Celsius) inner,center,outer"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [
-            chknm(wheel_data[0].mTemperature[0]) - 273.15,
-            chknm(wheel_data[0].mTemperature[1]) - 273.15,
-            chknm(wheel_data[0].mTemperature[2]) - 273.15,
-            chknm(wheel_data[1].mTemperature[0]) - 273.15,
-            chknm(wheel_data[1].mTemperature[1]) - 273.15,
-            chknm(wheel_data[1].mTemperature[2]) - 273.15,
-            chknm(wheel_data[2].mTemperature[0]) - 273.15,
-            chknm(wheel_data[2].mTemperature[1]) - 273.15,
-            chknm(wheel_data[2].mTemperature[2]) - 273.15,
-            chknm(wheel_data[3].mTemperature[0]) - 273.15,
-            chknm(wheel_data[3].mTemperature[1]) - 273.15,
-            chknm(wheel_data[3].mTemperature[2]) - 273.15,
-        ]
+        return (
+            rmnan(wheel_data[0].mTemperature[0]) - 273.15,
+            rmnan(wheel_data[0].mTemperature[1]) - 273.15,
+            rmnan(wheel_data[0].mTemperature[2]) - 273.15,
+            rmnan(wheel_data[1].mTemperature[0]) - 273.15,
+            rmnan(wheel_data[1].mTemperature[1]) - 273.15,
+            rmnan(wheel_data[1].mTemperature[2]) - 273.15,
+            rmnan(wheel_data[2].mTemperature[0]) - 273.15,
+            rmnan(wheel_data[2].mTemperature[1]) - 273.15,
+            rmnan(wheel_data[2].mTemperature[2]) - 273.15,
+            rmnan(wheel_data[3].mTemperature[0]) - 273.15,
+            rmnan(wheel_data[3].mTemperature[1]) - 273.15,
+            rmnan(wheel_data[3].mTemperature[2]) - 273.15,
+        )
 
-    def inner_temperature_avg(self, index: int | None = None) -> list[float]:
+    def inner_temperature_avg(self, index: int | None = None) -> tuple[float, ...]:
         """Tyre inner temperature set (Celsius) average"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [
-            chknm(mean(wheel_data[0].mTireInnerLayerTemperature)) - 273.15,
-            chknm(mean(wheel_data[1].mTireInnerLayerTemperature)) - 273.15,
-            chknm(mean(wheel_data[2].mTireInnerLayerTemperature)) - 273.15,
-            chknm(mean(wheel_data[3].mTireInnerLayerTemperature)) - 273.15,
-        ]
+        return (
+            rmnan(mean(wheel_data[0].mTireInnerLayerTemperature)) - 273.15,
+            rmnan(mean(wheel_data[1].mTireInnerLayerTemperature)) - 273.15,
+            rmnan(mean(wheel_data[2].mTireInnerLayerTemperature)) - 273.15,
+            rmnan(mean(wheel_data[3].mTireInnerLayerTemperature)) - 273.15,
+        )
 
-    def inner_temperature_ico(self, index: int | None = None) -> list[float]:
+    def inner_temperature_ico(self, index: int | None = None) -> tuple[float, ...]:
         """Tyre inner temperature set (Celsius) inner,center,outer"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [
-            chknm(wheel_data[0].mTireInnerLayerTemperature[0]) - 273.15,
-            chknm(wheel_data[0].mTireInnerLayerTemperature[1]) - 273.15,
-            chknm(wheel_data[0].mTireInnerLayerTemperature[2]) - 273.15,
-            chknm(wheel_data[1].mTireInnerLayerTemperature[0]) - 273.15,
-            chknm(wheel_data[1].mTireInnerLayerTemperature[1]) - 273.15,
-            chknm(wheel_data[1].mTireInnerLayerTemperature[2]) - 273.15,
-            chknm(wheel_data[2].mTireInnerLayerTemperature[0]) - 273.15,
-            chknm(wheel_data[2].mTireInnerLayerTemperature[1]) - 273.15,
-            chknm(wheel_data[2].mTireInnerLayerTemperature[2]) - 273.15,
-            chknm(wheel_data[3].mTireInnerLayerTemperature[0]) - 273.15,
-            chknm(wheel_data[3].mTireInnerLayerTemperature[1]) - 273.15,
-            chknm(wheel_data[3].mTireInnerLayerTemperature[2]) - 273.15,
-        ]
+        return (
+            rmnan(wheel_data[0].mTireInnerLayerTemperature[0]) - 273.15,
+            rmnan(wheel_data[0].mTireInnerLayerTemperature[1]) - 273.15,
+            rmnan(wheel_data[0].mTireInnerLayerTemperature[2]) - 273.15,
+            rmnan(wheel_data[1].mTireInnerLayerTemperature[0]) - 273.15,
+            rmnan(wheel_data[1].mTireInnerLayerTemperature[1]) - 273.15,
+            rmnan(wheel_data[1].mTireInnerLayerTemperature[2]) - 273.15,
+            rmnan(wheel_data[2].mTireInnerLayerTemperature[0]) - 273.15,
+            rmnan(wheel_data[2].mTireInnerLayerTemperature[1]) - 273.15,
+            rmnan(wheel_data[2].mTireInnerLayerTemperature[2]) - 273.15,
+            rmnan(wheel_data[3].mTireInnerLayerTemperature[0]) - 273.15,
+            rmnan(wheel_data[3].mTireInnerLayerTemperature[1]) - 273.15,
+            rmnan(wheel_data[3].mTireInnerLayerTemperature[2]) - 273.15,
+        )
 
-    def pressure(self, index: int | None = None) -> list[float]:
+    def pressure(self, index: int | None = None) -> tuple[float, ...]:
         """Tyre pressure (kPa)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(data.mPressure) for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mPressure),
+            rmnan(wheel_data[1].mPressure),
+            rmnan(wheel_data[2].mPressure),
+            rmnan(wheel_data[3].mPressure),
+        )
 
-    def load(self, index: int | None = None) -> list[float]:
+    def load(self, index: int | None = None) -> tuple[float, ...]:
         """Tyre load (Newtons)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(data.mTireLoad) for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mTireLoad),
+            rmnan(wheel_data[1].mTireLoad),
+            rmnan(wheel_data[2].mTireLoad),
+            rmnan(wheel_data[3].mTireLoad),
+        )
 
-    def wear(self, index: int | None = None, scale: float = 1) -> list[float]:
+    def wear(self, index: int | None = None, scale: float = 1) -> tuple[float, ...]:
         """Tyre wear (fraction)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(data.mWear) * scale for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mWear) * scale,
+            rmnan(wheel_data[1].mWear) * scale,
+            rmnan(wheel_data[2].mWear) * scale,
+            rmnan(wheel_data[3].mWear) * scale,
+        )
 
-    def carcass_temperature(self, index: int | None = None) -> list[float]:
+    def carcass_temperature(self, index: int | None = None) -> tuple[float, ...]:
         """Tyre carcass temperature (Celsius)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(data.mTireCarcassTemperature) - 273.15 for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mTireCarcassTemperature) - 273.15,
+            rmnan(wheel_data[1].mTireCarcassTemperature) - 273.15,
+            rmnan(wheel_data[2].mTireCarcassTemperature) - 273.15,
+            rmnan(wheel_data[3].mTireCarcassTemperature) - 273.15,
+        )
 
 
 class Vehicle(DataAdapter):
@@ -626,51 +653,51 @@ class Vehicle(DataAdapter):
 
     def slot_id(self, index: int | None = None) -> int:
         """Vehicle slot id"""
-        return chknm(self.info.rf2ScorVeh(index).mID)
+        return self.info.rf2ScorVeh(index).mID
 
     def driver_name(self, index: int | None = None) -> str:
         """Driver name"""
-        return cs2py(self.info.rf2ScorVeh(index).mDriverName)
+        return tostr(self.info.rf2ScorVeh(index).mDriverName)
 
     def vehicle_name(self, index: int | None = None) -> str:
         """Vehicle name"""
-        return cs2py(self.info.rf2ScorVeh(index).mVehicleName)
+        return tostr(self.info.rf2ScorVeh(index).mVehicleName)
 
     def class_name(self, index: int | None = None) -> str:
         """Vehicle class name"""
-        return cs2py(self.info.rf2ScorVeh(index).mVehicleClass)
+        return tostr(self.info.rf2ScorVeh(index).mVehicleClass)
 
     def same_class(self, index: int | None = None) -> bool:
         """Is same vehicle class"""
-        return self.class_name(index) == self.class_name()
+        return self.info.rf2ScorVeh(index).mVehicleClass == self.info.rf2ScorVeh().mVehicleClass
 
     def total_vehicles(self) -> int:
         """Total vehicles"""
-        return chknm(self.info.rf2ScorInfo.mNumVehicles)
+        return self.info.rf2ScorInfo.mNumVehicles
 
     def place(self, index: int | None = None) -> int:
         """Vehicle overall place"""
-        return chknm(self.info.rf2ScorVeh(index).mPlace)
+        return self.info.rf2ScorVeh(index).mPlace
 
     def qualification(self, index: int | None = None) -> int:
         """Vehicle qualification place"""
-        return chknm(self.info.rf2ScorVeh(index).mQualification)
+        return self.info.rf2ScorVeh(index).mQualification
 
     def in_pits(self, index: int | None = None) -> bool:
         """Is in pits"""
-        return bool(self.info.rf2ScorVeh(index).mInPits)
+        return self.info.rf2ScorVeh(index).mInPits
 
     def in_garage(self, index: int | None = None) -> bool:
         """Is in garage"""
-        return bool(self.info.rf2ScorVeh(index).mInGarageStall)
+        return self.info.rf2ScorVeh(index).mInGarageStall
 
     def number_pitstops(self, index: int | None = None) -> int:
         """Number of pit stops"""
-        return chknm(self.info.rf2ScorVeh(index).mNumPitstops)
+        return self.info.rf2ScorVeh(index).mNumPitstops
 
     def number_penalties(self, index: int | None = None) -> int:
         """Number of penalties"""
-        return chknm(self.info.rf2ScorVeh(index).mNumPenalties)
+        return self.info.rf2ScorVeh(index).mNumPenalties
 
     def pit_request(self, index: int | None = None) -> bool:
         """Is requested pit, 0 = none, 1 = request, 2 = entering, 3 = stopped, 4 = exiting"""
@@ -691,70 +718,70 @@ class Vehicle(DataAdapter):
 
     def fuel(self, index: int | None = None) -> float:
         """Remaining fuel (liters)"""
-        return chknm(self.info.rf2TeleVeh(index).mFuel)
+        return rmnan(self.info.rf2TeleVeh(index).mFuel)
 
     def tank_capacity(self, index: int | None = None) -> float:
         """Fuel tank capacity (liters)"""
-        return chknm(self.info.rf2TeleVeh(index).mFuelCapacity)
+        return rmnan(self.info.rf2TeleVeh(index).mFuelCapacity)
 
     def orientation_yaw_radians(self, index: int | None = None) -> float:
         """Orientation yaw (radians)"""
         ori = self.info.rf2TeleVeh(index).mOri[2]
-        return chknm(oriyaw2rad(ori.x, ori.z))
+        return rmnan(oriyaw2rad(ori.x, ori.z))
 
     def position_xyz(self, index: int | None = None) -> tuple[float, float, float]:
         """Raw x,y,z position (meters)"""
         pos = self.info.rf2TeleVeh(index).mPos
-        return chknm(pos.x), chknm(pos.y), chknm(pos.z)
+        return rmnan(pos.x), rmnan(pos.y), rmnan(pos.z)
 
     def position_longitudinal(self, index: int | None = None) -> float:
         """Longitudinal axis position (meters) related to world plane"""
-        return chknm(self.info.rf2TeleVeh(index).mPos.x)  # in RF2 coord system
+        return rmnan(self.info.rf2TeleVeh(index).mPos.x)  # in RF2 coord system
 
     def position_lateral(self, index: int | None = None) -> float:
         """Lateral axis position (meters) related to world plane"""
-        return -chknm(self.info.rf2TeleVeh(index).mPos.z)  # in RF2 coord system
+        return -rmnan(self.info.rf2TeleVeh(index).mPos.z)  # in RF2 coord system
 
     def position_vertical(self, index: int | None = None) -> float:
         """Vertical axis position (meters) related to world plane"""
-        return chknm(self.info.rf2TeleVeh(index).mPos.y)  # in RF2 coord system
+        return rmnan(self.info.rf2TeleVeh(index).mPos.y)  # in RF2 coord system
 
     def accel_lateral(self, index: int | None = None) -> float:
         """Lateral acceleration (m/s^2)"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.x)  # X in RF2 coord system
+        return rmnan(self.info.rf2TeleVeh(index).mLocalAccel.x)  # X in RF2 coord system
 
     def accel_longitudinal(self, index: int | None = None) -> float:
         """Longitudinal acceleration (m/s^2)"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.z)  # Z in RF2 coord system
+        return rmnan(self.info.rf2TeleVeh(index).mLocalAccel.z)  # Z in RF2 coord system
 
     def accel_vertical(self, index: int | None = None) -> float:
         """Vertical acceleration (m/s^2)"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalAccel.y)  # Y in RF2 coord system
+        return rmnan(self.info.rf2TeleVeh(index).mLocalAccel.y)  # Y in RF2 coord system
 
     def velocity_lateral(self, index: int | None = None) -> float:
         """Lateral velocity (m/s) x"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalVel.x)  # X in RF2 coord system
+        return rmnan(self.info.rf2TeleVeh(index).mLocalVel.x)  # X in RF2 coord system
 
     def velocity_longitudinal(self, index: int | None = None) -> float:
         """Longitudinal velocity (m/s) y"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalVel.z)  # Z in RF2 coord system
+        return rmnan(self.info.rf2TeleVeh(index).mLocalVel.z)  # Z in RF2 coord system
 
     def velocity_vertical(self, index: int | None = None) -> float:
         """Vertical velocity (m/s) z"""
-        return chknm(self.info.rf2TeleVeh(index).mLocalVel.y)  # Y in RF2 coord system
+        return rmnan(self.info.rf2TeleVeh(index).mLocalVel.y)  # Y in RF2 coord system
 
     def speed(self, index: int | None = None) -> float:
         """Speed (m/s)"""
         vel = self.info.rf2TeleVeh(index).mLocalVel
-        return chknm(vel2speed(vel.x, vel.y, vel.z))
+        return rmnan(vel2speed(vel.x, vel.y, vel.z))
 
     def downforce_front(self, index: int | None = None) -> float:
         """Downforce front (Newtons)"""
-        return chknm(self.info.rf2TeleVeh(index).mFrontDownforce)
+        return rmnan(self.info.rf2TeleVeh(index).mFrontDownforce)
 
     def downforce_rear(self, index: int | None = None) -> float:
         """Downforce rear (Newtons)"""
-        return chknm(self.info.rf2TeleVeh(index).mRearDownforce)
+        return rmnan(self.info.rf2TeleVeh(index).mRearDownforce)
 
     def damage_severity(self, index: int | None = None) -> tuple[int, ...]:
         """Damage severity, sort row by row from left to right, top to bottom"""
@@ -763,20 +790,20 @@ class Vehicle(DataAdapter):
 
     def is_detached(self, index: int | None = None) -> bool:
         """Whether any vehicle parts are detached"""
-        return bool(self.info.rf2TeleVeh(index).mDetached)
+        return self.info.rf2TeleVeh(index).mDetached
 
     def impact_time(self, index: int | None = None) -> float:
         """Last impact time stamp (seconds)"""
-        return chknm(self.info.rf2TeleVeh(index).mLastImpactET)
+        return rmnan(self.info.rf2TeleVeh(index).mLastImpactET)
 
     def impact_magnitude(self, index: int | None = None) -> float:
         """Last impact magnitude"""
-        return chknm(self.info.rf2TeleVeh(index).mLastImpactMagnitude)
+        return rmnan(self.info.rf2TeleVeh(index).mLastImpactMagnitude)
 
     def impact_position(self, index: int | None = None) -> tuple[float, float]:
         """Last impact position x,y coordinates"""
         pos = self.info.rf2TeleVeh(index).mLastImpactPos
-        return -chknm(pos.x), chknm(pos.z)
+        return -rmnan(pos.x), rmnan(pos.z)
 
 
 class Wheel(DataAdapter):
@@ -784,88 +811,135 @@ class Wheel(DataAdapter):
 
     __slots__ = ()
 
-    def camber(self, index: int | None = None) -> list[float]:
+    def camber(self, index: int | None = None) -> tuple[float, ...]:
         """Wheel camber (radians)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(data.mCamber) for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mCamber),
+            rmnan(wheel_data[1].mCamber),
+            rmnan(wheel_data[2].mCamber),
+            rmnan(wheel_data[3].mCamber),
+        )
 
-    def toe(self, index: int | None = None) -> list[float]:
+    def toe(self, index: int | None = None) -> tuple[float, ...]:
         """Wheel toe (radians)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(data.mToe) for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mToe),
+            rmnan(wheel_data[1].mToe),
+            rmnan(wheel_data[2].mToe),
+            rmnan(wheel_data[3].mToe),
+        )
 
-    def toe_symmetric(self, index: int | None = None) -> list[float]:
+    def toe_symmetric(self, index: int | None = None) -> tuple[float, ...]:
         """Wheel toe symmetric (radians)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(wheel_data[0].mToe),
-                -chknm(wheel_data[1].mToe),
-                chknm(wheel_data[2].mToe),
-                -chknm(wheel_data[3].mToe)]
+        return (
+            rmnan(wheel_data[0].mToe),
+            -rmnan(wheel_data[1].mToe),
+            rmnan(wheel_data[2].mToe),
+            -rmnan(wheel_data[3].mToe),
+        )
 
-    def rotation(self, index: int | None = None) -> list[float]:
+    def rotation(self, index: int | None = None) -> tuple[float, ...]:
         """Wheel rotation (radians per second)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(data.mRotation) for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mRotation),
+            rmnan(wheel_data[1].mRotation),
+            rmnan(wheel_data[2].mRotation),
+            rmnan(wheel_data[3].mRotation),
+        )
 
-    def velocity_lateral(self, index: int | None = None) -> list[float]:
+    def velocity_lateral(self, index: int | None = None) -> tuple[float, ...]:
         """Lateral velocity (m/s) x"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(data.mLateralGroundVel) for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mLateralGroundVel),
+            rmnan(wheel_data[1].mLateralGroundVel),
+            rmnan(wheel_data[2].mLateralGroundVel),
+            rmnan(wheel_data[3].mLateralGroundVel),
+        )
 
-    def velocity_longitudinal(self, index: int | None = None) -> list[float]:
+    def velocity_longitudinal(self, index: int | None = None) -> tuple[float, ...]:
         """Longitudinal velocity (m/s) y"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(data.mLongitudinalGroundVel) for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mLongitudinalGroundVel),
+            rmnan(wheel_data[1].mLongitudinalGroundVel),
+            rmnan(wheel_data[2].mLongitudinalGroundVel),
+            rmnan(wheel_data[3].mLongitudinalGroundVel),
+        )
 
     def slip_angle_fl(self, index: int | None = None) -> float:
         """Slip angle (radians) front left"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels[0]
-        return chknm(slip_angle(
+        return rmnan(slip_angle(
             wheel_data.mLateralGroundVel,
             wheel_data.mLongitudinalGroundVel))
 
     def slip_angle_fr(self, index: int | None = None) -> float:
         """Slip angle (radians) front right"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels[1]
-        return chknm(slip_angle(
+        return rmnan(slip_angle(
             wheel_data.mLateralGroundVel,
             wheel_data.mLongitudinalGroundVel))
 
     def slip_angle_rl(self, index: int | None = None) -> float:
         """Slip angle (radians) rear left"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels[2]
-        return chknm(slip_angle(
+        return rmnan(slip_angle(
             wheel_data.mLateralGroundVel,
             wheel_data.mLongitudinalGroundVel))
 
     def slip_angle_rr(self, index: int | None = None) -> float:
         """Slip angle (radians) rear right"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels[3]
-        return chknm(slip_angle(
+        return rmnan(slip_angle(
             wheel_data.mLateralGroundVel,
             wheel_data.mLongitudinalGroundVel))
 
-    def ride_height(self, index: int | None = None) -> list[float]:
-        """Ride height (millmeters)"""
+    def ride_height(self, index: int | None = None) -> tuple[float, ...]:
+        """Ride height (convert meters to millmeters)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [meter2millmeter(chknm(data.mRideHeight)) for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mRideHeight) * 1000,
+            rmnan(wheel_data[1].mRideHeight) * 1000,
+            rmnan(wheel_data[2].mRideHeight) * 1000,
+            rmnan(wheel_data[3].mRideHeight) * 1000,
+        )
 
-    def suspension_deflection(self, index: int | None = None) -> list[float]:
-        """Suspension deflection (millmeters)"""
+    def suspension_deflection(self, index: int | None = None) -> tuple[float, ...]:
+        """Suspension deflection (convert meters to millmeters)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [meter2millmeter(chknm(data.mSuspensionDeflection)) for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mSuspensionDeflection) * 1000,
+            rmnan(wheel_data[1].mSuspensionDeflection) * 1000,
+            rmnan(wheel_data[2].mSuspensionDeflection) * 1000,
+            rmnan(wheel_data[3].mSuspensionDeflection) * 1000,
+        )
 
-    def suspension_force(self, index: int | None = None) -> list[float]:
+    def suspension_force(self, index: int | None = None) -> tuple[float, ...]:
         """Suspension force (Newtons)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [chknm(data.mSuspForce) for data in wheel_data]
+        return (
+            rmnan(wheel_data[0].mSuspForce),
+            rmnan(wheel_data[1].mSuspForce),
+            rmnan(wheel_data[2].mSuspForce),
+            rmnan(wheel_data[3].mSuspForce),
+        )
 
-    def is_detached(self, index: int | None = None) -> list[bool]:
+    def is_detached(self, index: int | None = None) -> tuple[bool, ...]:
         """Whether wheel is detached"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return [bool(data.mDetached) for data in wheel_data]
+        return (
+            bool(wheel_data[0].mDetached),
+            bool(wheel_data[1].mDetached),
+            bool(wheel_data[2].mDetached),
+            bool(wheel_data[3].mDetached),
+        )
 
     def is_offroad(self, index: int | None = None) -> bool:
         """Whether all wheels are complete offroad"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
-        return all(2 <= chknm(data.mSurfaceType) <= 4 for data in wheel_data)
+        return all(2 <= data.mSurfaceType <= 4 for data in wheel_data)

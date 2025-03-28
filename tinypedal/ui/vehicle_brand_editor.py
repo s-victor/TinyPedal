@@ -20,35 +20,35 @@
 Vehicle brand editor
 """
 
-import os
-import logging
 import json
-import time
+import logging
+import os
 import socket
+import time
 from urllib.request import urlopen
 
 from PySide2.QtWidgets import (
-    QVBoxLayout,
-    QHBoxLayout,
+    QAction,
     QDialogButtonBox,
+    QFileDialog,
+    QHBoxLayout,
+    QHeaderView,
+    QMenu,
+    QMessageBox,
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
-    QMessageBox,
-    QFileDialog,
-    QHeaderView,
-    QMenu,
-    QAction,
+    QVBoxLayout,
 )
 
 from ..api_control import api
-from ..setting import ConfigType, cfg, copy_setting
-from ..module_control import wctrl
 from ..const_file import FileFilter
+from ..module_control import wctrl
+from ..setting import ConfigType, cfg, copy_setting
 from ._common import (
+    QSS_EDITOR_BUTTON,
     BaseEditor,
     TableBatchReplace,
-    QSS_EDITOR_BUTTON,
 )
 
 HEADER_BRANDS = "Vehicle name","Brand name"

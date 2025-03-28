@@ -21,9 +21,9 @@ Brake Wear Widget
 """
 
 from .. import calculation as calc
-from .. import heatmap as hmp
 from ..api_control import api
 from ..const_common import TEXT_NA
+from ..heatmap import select_brake_failure_thickness, set_predefined_brake_name
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -326,11 +326,11 @@ class Realtime(Overlay):
 
     def update_failure_thickness(self, class_name: str):
         """Update failure thickness"""
-        failure_thickness_f = hmp.select_brake_failure_thickness(
-            hmp.set_predefined_brake_name(class_name, True)
+        failure_thickness_f = select_brake_failure_thickness(
+            set_predefined_brake_name(class_name, True)
         )
-        failure_thickness_r = hmp.select_brake_failure_thickness(
-            hmp.set_predefined_brake_name(class_name, False)
+        failure_thickness_r = select_brake_failure_thickness(
+            set_predefined_brake_name(class_name, False)
         )
         self.failure_thickness = (
             failure_thickness_f,

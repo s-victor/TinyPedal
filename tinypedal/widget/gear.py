@@ -24,7 +24,7 @@ from .. import calculation as calc
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
-from ._painter import ProgressBar, GearGaugeBar, TextBar
+from ._painter import GearGaugeBar, ProgressBar, TextBar
 
 
 class Realtime(Overlay):
@@ -224,13 +224,13 @@ class Realtime(Overlay):
                 target.hide()
 
     # Additional methods
-    def speed_units(self, value):
+    def speed_units(self, meter):
         """Speed units"""
         if self.cfg.units["speed_unit"] == "KPH":
-            return calc.mps2kph(value)
+            return calc.mps2kph(meter)
         if self.cfg.units["speed_unit"] == "MPH":
-            return calc.mps2mph(value)
-        return value
+            return calc.mps2mph(meter)
+        return meter
 
     def color_rpm(self, rpm, gear, speed):
         """RPM indicator color"""

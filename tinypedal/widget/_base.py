@@ -21,11 +21,12 @@ Overlay base window, events.
 """
 
 from __future__ import annotations
+
 from typing import Any, NamedTuple
 
-from PySide2.QtCore import Qt, Slot, QBasicTimer
-from PySide2.QtGui import QPalette, QFont, QFontMetrics, QPixmap
-from PySide2.QtWidgets import QWidget, QLabel, QLayout, QGridLayout
+from PySide2.QtCore import QBasicTimer, Qt, Slot
+from PySide2.QtGui import QFont, QFontMetrics, QPalette, QPixmap
+from PySide2.QtWidgets import QGridLayout, QLabel, QLayout, QWidget
 
 from .. import regex_pattern as rxp
 from ..const_app import APP_NAME

@@ -21,10 +21,10 @@ Sectors Widget
 """
 
 from .. import calculation as calc
-from .. import validator as val
 from ..api_control import api
-from ..const_common import MAX_SECONDS, SECTOR_ABBR_ID, PREV_SECTOR_INDEX
+from ..const_common import MAX_SECONDS, PREV_SECTOR_INDEX, SECTOR_ABBR_ID
 from ..module_info import minfo
+from ..validator import valid_sectors
 from ._base import Overlay
 
 
@@ -213,7 +213,7 @@ class Realtime(Overlay):
         # Freeze current sector time
         if freeze:
             prev_sector_idx = PREV_SECTOR_INDEX[sector_idx]
-            if val.sector_time(prev_s[prev_sector_idx]):  # valid previous sector time
+            if valid_sectors(prev_s[prev_sector_idx]):  # valid previous sector time
                 sum_sectortime = calc.accumulated_sum(prev_s, prev_sector_idx)
                 if sum_sectortime < MAX_SECONDS:  # bypass invalid value
                     curr_sectortime = sum_sectortime
@@ -244,7 +244,7 @@ class Realtime(Overlay):
             sector_time = minfo.sectors.sectorBestPB
         for idx, bar_time_gap in enumerate(self.bars_time_gap):
             text_s = SECTOR_ABBR_ID[idx]
-            if val.sector_time(sector_time[idx]):
+            if valid_sectors(sector_time[idx]):
                 text_s = f"{sector_time[idx]:.3f}"[:7]
             bar_time_gap.setText(text_s)
             bar_time_gap.setStyleSheet(self.bar_style_gap[2])
@@ -266,7 +266,7 @@ class Realtime(Overlay):
 
     def freeze_duration(self, seconds):
         """Set freeze duration"""
-        if val.sector_time(seconds):
+        if valid_sectors(seconds):
             max_freeze = seconds * 0.5
         else:
             max_freeze = 3

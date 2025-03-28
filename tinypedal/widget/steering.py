@@ -20,8 +20,8 @@
 Steering Widget
 """
 
-from PySide2.QtCore import Qt, QRectF
-from PySide2.QtGui import QPainter, QPixmap, QPen
+from PySide2.QtCore import QRectF, Qt
+from PySide2.QtGui import QPainter, QPen, QPixmap
 
 from .. import calculation as calc
 from ..api_control import api

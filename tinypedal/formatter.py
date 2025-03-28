@@ -21,11 +21,12 @@ Formatter function
 """
 
 from __future__ import annotations
+
 import random
 import re
 from functools import lru_cache
 
-from .regex_pattern import RE_INVALID_CHAR, ABBR_PATTERN
+from .regex_pattern import ABBR_PATTERN, RE_INVALID_CHAR
 
 
 def uppercase_abbr(name: str) -> str:

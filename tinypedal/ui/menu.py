@@ -23,22 +23,22 @@ Menu
 import os
 
 from PySide2.QtGui import QDesktopServices
-from PySide2.QtWidgets import QMenu, QAction, QMessageBox
+from PySide2.QtWidgets import QAction, QMenu, QMessageBox
 
-from ..const_app import URL_USER_GUIDE, URL_FAQ
-from ..setting import ConfigType, cfg
 from ..api_control import api
+from ..const_app import URL_FAQ, URL_USER_GUIDE
 from ..module_info import minfo
 from ..overlay_control import octrl
+from ..setting import ConfigType, cfg
 from .about import About
+from .brake_editor import BrakeEditor
 from .config import FontConfig, UserConfig
-from .log_info import LogInfo
+from .driver_stats_viewer import DriverStatsViewer
 from .fuel_calculator import FuelCalculator
 from .heatmap_editor import HeatmapEditor
-from .driver_stats_viewer import DriverStatsViewer
+from .log_info import LogInfo
 from .track_map_viewer import TrackMapViewer
 from .track_notes_editor import TrackNotesEditor
-from .brake_editor import BrakeEditor
 from .tyre_compound_editor import TyreCompoundEditor
 from .vehicle_brand_editor import VehicleBrandEditor
 from .vehicle_class_editor import VehicleClassEditor

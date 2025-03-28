@@ -20,8 +20,8 @@
 Damage Widget
 """
 
-from PySide2.QtCore import Qt, QRect
-from PySide2.QtGui import QPainter, QPen, QBrush
+from PySide2.QtCore import QRect, Qt
+from PySide2.QtGui import QBrush, QPainter, QPen
 
 from .. import calculation as calc
 from ..api_control import api

@@ -21,22 +21,23 @@ Driver stats file function
 """
 
 from __future__ import annotations
-import logging
+
 import json
-from time import sleep
+import logging
 from dataclasses import dataclass
+from time import sleep
 from typing import KeysView, get_type_hints
 
 from ..const_common import MAX_SECONDS
 from ..const_file import FileExt
 from ..setting import cfg
 from ..userfile.json_setting import (
-    set_backup_timestamp,
-    save_json_file,
-    save_and_verify_json_file,
     create_backup_file,
+    save_and_verify_json_file,
+    save_json_file,
+    set_backup_timestamp,
 )
-from ..validator import any_value_type
+from ..validator import convert_value_type
 
 STATS_FILENAME = "driver"
 
@@ -159,7 +160,7 @@ def save_driver_stats(
             loaded_dict[key] = default_dict[key]
         # Check value type, auto correct if mismatch
         if not isinstance(loaded_dict[key], default_type[key]):
-            loaded_dict[key] = any_value_type(loaded_dict[key], default_dict[key], default_type[key])
+            loaded_dict[key] = convert_value_type(loaded_dict[key], default_dict[key], default_type[key])
         # Update laptime value faster than old value
         if key == "pb":
             if loaded_dict[key] > value:

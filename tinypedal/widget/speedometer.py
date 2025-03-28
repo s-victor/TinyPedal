@@ -168,10 +168,10 @@ class Realtime(Overlay):
                 f"{self.speed_units(data):0{self.leading_zero}.{self.decimals}f}")
 
     # Additional methods
-    def speed_units(self, value):
+    def speed_units(self, meter):
         """Speed units"""
         if self.cfg.units["speed_unit"] == "KPH":
-            return calc.mps2kph(value)
+            return calc.mps2kph(meter)
         if self.cfg.units["speed_unit"] == "MPH":
-            return calc.mps2mph(value)
-        return value
+            return calc.mps2mph(meter)
+        return meter

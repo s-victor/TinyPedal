@@ -20,8 +20,8 @@
 Heading Widget
 """
 
-from PySide2.QtCore import Qt, QPointF, QRectF
-from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush
+from PySide2.QtCore import QPointF, QRectF, Qt
+from PySide2.QtGui import QBrush, QPainter, QPen, QPixmap
 
 from .. import calculation as calc
 from ..api_control import api

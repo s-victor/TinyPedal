@@ -20,7 +20,7 @@
 Cruise Widget
 """
 
-from time import strftime, gmtime
+from time import gmtime, strftime
 
 from .. import calculation as calc
 from ..api_control import api

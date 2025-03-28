@@ -20,7 +20,7 @@
 Default widget setting template
 """
 
-from .setting_heatmap import HEATMAP_DEFAULT_TYRE, HEATMAP_DEFAULT_BRAKE
+from .setting_heatmap import HEATMAP_DEFAULT_BRAKE, HEATMAP_DEFAULT_TYRE
 
 WIDGET_DEFAULT = {
     "battery": {

@@ -23,8 +23,8 @@ Stint history Widget
 from collections import deque
 
 from .. import calculation as calc
-from .. import heatmap as hmp
 from ..api_control import api
+from ..heatmap import select_compound_symbol
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -229,7 +229,7 @@ class Realtime(Overlay):
                 # Update compound info once per stint
                 class_name = api.read.vehicle.class_name()
                 self.stint_data[0] = "".join(
-                    hmp.select_compound_symbol(f"{class_name} - {tcmpd_name}")
+                    select_compound_symbol(f"{class_name} - {tcmpd_name}")
                     for tcmpd_name in api.read.tyre.compound_name()
                 )
 
@@ -311,8 +311,8 @@ class Realtime(Overlay):
             self.bars_wear[index].setHidden(unavailable)
 
     # Additional methods
-    def fuel_units(self, fuel):
+    def fuel_units(self, liter):
         """2 different fuel unit conversion, default is Liter"""
         if self.cfg.units["fuel_unit"] == "Gallon":
-            return calc.liter2gallon(fuel)
-        return fuel
+            return calc.liter2gallon(liter)
+        return liter

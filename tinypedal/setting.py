@@ -21,33 +21,33 @@ Setting
 """
 
 from __future__ import annotations
+
 import logging
 import os
 import threading
 from time import sleep
 from types import MappingProxyType
 
-from .template.setting_global import GLOBAL_DEFAULT
-from .template.setting_common import COMMON_DEFAULT
-from .template.setting_module import MODULE_DEFAULT
-from .template.setting_widget import WIDGET_DEFAULT
-from .template.setting_brakes import BRAKES_DEFAULT
-from .template.setting_classes import CLASSES_DEFAULT
-from .template.setting_compounds import COMPOUNDS_DEFAULT
-from .template.setting_heatmap import HEATMAP_DEFAULT
-
-from . import set_user_data_path
 from . import regex_pattern as rxp
-from . import validator as val
-from .const_app import APP_NAME, PLATFORM, PATH_GLOBAL
+from . import set_user_data_path
+from .const_app import APP_NAME, PATH_GLOBAL, PLATFORM
 from .const_file import ConfigType, FileExt
 from .setting_validator import StyleValidator
+from .template.setting_brakes import BRAKES_DEFAULT
+from .template.setting_classes import CLASSES_DEFAULT
+from .template.setting_common import COMMON_DEFAULT
+from .template.setting_compounds import COMPOUNDS_DEFAULT
+from .template.setting_global import GLOBAL_DEFAULT
+from .template.setting_heatmap import HEATMAP_DEFAULT
+from .template.setting_module import MODULE_DEFAULT
+from .template.setting_widget import WIDGET_DEFAULT
 from .userfile.json_setting import (
     copy_setting,
     load_setting_json_file,
     load_style_json_file,
     save_and_verify_json_file,
 )
+from .validator import is_allowed_filename
 
 logger = logging.getLogger(__name__)
 
@@ -211,7 +211,7 @@ class Setting:
     def get_primary_preset_name(self, sim_name: str) -> str:
         """Get primary preset name and verify"""
         preset_name = self.primary_preset.get(sim_name, "")
-        if val.allowed_filename(rxp.CFG_INVALID_FILENAME, preset_name):
+        if is_allowed_filename(rxp.CFG_INVALID_FILENAME, preset_name):
             full_preset_name = f"{preset_name}{FileExt.JSON}"
             if os.path.exists(f"{self.path.settings}{full_preset_name}"):
                 return full_preset_name
@@ -307,7 +307,7 @@ class Setting:
         valid_cfg_list = [
             _filename[1]
             for _filename in sorted(gen_cfg_list, reverse=True)
-            if val.allowed_filename(rxp.CFG_INVALID_FILENAME, _filename[1])
+            if is_allowed_filename(rxp.CFG_INVALID_FILENAME, _filename[1])
         ]
         if valid_cfg_list:
             return valid_cfg_list

@@ -20,7 +20,7 @@
 DRS Widget
 """
 
-from PySide2.QtCore import Qt, QRectF
+from PySide2.QtCore import QRectF, Qt
 from PySide2.QtGui import QPainter, QPen
 
 from ..api_control import api

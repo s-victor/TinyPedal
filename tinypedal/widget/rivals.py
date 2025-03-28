@@ -21,10 +21,10 @@ Rivals Widget
 """
 
 from .. import calculation as calc
-from .. import formatter as fmt
-from .. import heatmap as hmp
 from ..api_control import api
 from ..const_common import TEXT_PLACEHOLDER
+from ..formatter import random_color_class, shorten_driver_name
+from ..heatmap import select_compound_symbol
 from ..module_info import minfo
 from ..userfile.brand_logo import load_brand_logo_file
 from ._base import Overlay
@@ -430,7 +430,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             if self.wcfg["driver_name_shorten"]:
-                text = fmt.shorten_driver_name(data[0])
+                text = shorten_driver_name(data[0])
             else:
                 text = data[0]
             if self.wcfg["driver_name_uppercase"]:
@@ -520,7 +520,7 @@ class Realtime(Overlay):
         """Tyre compound index"""
         if target.last != data:
             target.last = data
-            target.setText(f"{hmp.select_compound_symbol(data[0])}{hmp.select_compound_symbol(data[1])}")
+            target.setText(f"{select_compound_symbol(data[0])}{select_compound_symbol(data[1])}")
             self.toggle_visibility(target, data[-1])
 
     def update_psc(self, target, *data):
@@ -564,7 +564,7 @@ class Realtime(Overlay):
         if style is not None:
             return style["alias"], style["color"]
         if class_name and self.wcfg["show_random_color_for_unknown_class"]:
-            return class_name, fmt.random_color_class(class_name)
+            return class_name, random_color_class(class_name)
         return class_name, self.wcfg["bkg_color_class"]
 
     @staticmethod

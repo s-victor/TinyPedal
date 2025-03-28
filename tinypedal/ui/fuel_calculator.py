@@ -21,37 +21,38 @@ Fuel calculator
 """
 
 from __future__ import annotations
+
 import os
-from math import ceil, floor
 from collections import deque
+from math import ceil, floor
 
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QColor, QPalette
 from PySide2.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
+    QDoubleSpinBox,
+    QFileDialog,
+    QFrame,
     QGridLayout,
+    QHBoxLayout,
+    QHeaderView,
     QLabel,
+    QLineEdit,
+    QMessageBox,
     QPushButton,
     QSpinBox,
-    QDoubleSpinBox,
-    QLineEdit,
-    QFrame,
+    QStatusBar,
     QTableWidget,
     QTableWidgetItem,
-    QHeaderView,
-    QMessageBox,
-    QFileDialog,
-    QStatusBar,
+    QVBoxLayout,
+    QWidget,
 )
 
-from ..api_control import api
-from ..setting import cfg
-from ..module_info import minfo, ConsumptionDataSet
 from .. import calculation as calc
-from .. import formatter as fmt
+from ..api_control import api
 from ..const_file import FileFilter
+from ..formatter import laptime_string_to_seconds
+from ..module_info import ConsumptionDataSet, minfo
+from ..setting import cfg
 from ..userfile.fuel_delta import load_consumption_history_file
 from ._common import BaseDialog
 
@@ -152,7 +153,7 @@ class FuelCalculator(BaseDialog):
 
         # Send data to calculator
         if data_laptime:
-            dataset = [fmt.laptime_string_to_seconds(data.text()) for data in data_laptime]
+            dataset = [laptime_string_to_seconds(data.text()) for data in data_laptime]
             output_value = calc.mean(dataset) if len(data_laptime) > 1 else dataset[0]
             self.input_laptime.minutes.setValue(output_value // 60)
             self.input_laptime.seconds.setValue(output_value % 60)

@@ -21,20 +21,21 @@ Fuel module
 """
 
 from __future__ import annotations
+
 from functools import partial
 from math import ceil
 from typing import Callable
 
 from .. import calculation as calc
 from ..api_control import api
-from ..const_common import FLOAT_INF, DELTA_ZERO, DELTA_DEFAULT, POS_XYZ_ZERO
+from ..const_common import DELTA_DEFAULT, DELTA_ZERO, FLOAT_INF, POS_XYZ_ZERO
 from ..const_file import FileExt
-from ..module_info import minfo, FuelInfo, ConsumptionDataSet
+from ..module_info import ConsumptionDataSet, FuelInfo, minfo
 from ..userfile.fuel_delta import (
-    load_fuel_delta_file,
-    save_fuel_delta_file,
     load_consumption_history_file,
+    load_fuel_delta_file,
     save_consumption_history_file,
+    save_fuel_delta_file,
 )
 from ._base import DataModule
 

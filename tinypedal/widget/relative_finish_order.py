@@ -24,7 +24,12 @@ from math import ceil
 
 from .. import calculation as calc
 from ..api_control import api
-from ..const_common import MAX_SECONDS, TEXT_PLACEHOLDER, ENERGY_TYPE_ID, RACELENGTH_TYPE_ID
+from ..const_common import (
+    ENERGY_TYPE_ID,
+    MAX_SECONDS,
+    RACELENGTH_TYPE_ID,
+    TEXT_PLACEHOLDER,
+)
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -379,11 +384,11 @@ class Realtime(Overlay):
             target.setText(refill_text)
 
     # Additional methods
-    def fuel_units(self, fuel):
+    def fuel_units(self, liter):
         """2 different fuel unit conversion, default is Liter"""
         if self.cfg.units["fuel_unit"] == "Gallon":
-            return calc.liter2gallon(fuel)
-        return fuel
+            return calc.liter2gallon(liter)
+        return liter
 
     def create_pit_time_set(self, total_slot, suffix):
         """Create pit time set"""

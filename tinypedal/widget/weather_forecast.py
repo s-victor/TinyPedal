@@ -23,14 +23,19 @@ Weather forecast Widget
 from __future__ import annotations
 
 from PySide2.QtCore import Qt
-from PySide2.QtGui import QPixmap, QPainter
+from PySide2.QtGui import QPainter, QPixmap
 
 from .. import calculation as calc
-from .. import weather as wthr
 from ..api_control import api
-from ..const_common import MAX_FORECASTS, MAX_FORECAST_MINUTES, ABS_ZERO_CELSIUS, TEXT_NA
+from ..const_common import (
+    ABS_ZERO_CELSIUS,
+    MAX_FORECAST_MINUTES,
+    MAX_FORECASTS,
+    TEXT_NA,
+)
 from ..const_file import ImageFile
-from ..module_info import minfo, WeatherNode
+from ..module_info import WeatherNode, minfo
+from ..weather import FORECAST_DEFAULT, forecast_sky_type, forecast_time_progress
 from ._base import Overlay
 from ._painter import split_pixmap_icon
 
@@ -171,7 +176,7 @@ class Realtime(Overlay):
             # Update slot 0 with live(now) weather condition
             if index == 0:
                 rain_chance = api.read.session.raininess() * 100
-                icon_index = wthr.sky_type_correction(forecast_info[index_bias].sky_type, rain_chance)
+                icon_index = forecast_sky_type(forecast_info[index_bias].sky_type, rain_chance)
                 estimated_temp = api.read.session.ambient_temperature()
                 estimated_time = 0
             # Update slot with available forecast
@@ -255,11 +260,11 @@ class Realtime(Overlay):
                     self.bars_rain[slot_index].setHidden(unavailable)
 
     # Additional methods
-    def format_temperature(self, air_deg):
+    def format_temperature(self, celsius):
         """Format ambient temperature"""
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            return f"{calc.celsius2fahrenheit(air_deg):.0f}°"
-        return f"{air_deg:.0f}°"
+            return f"{calc.celsius2fahrenheit(celsius):.0f}°"
+        return f"{celsius:.0f}°"
 
     def set_forecast_time(self, forecast_info: list[WeatherNode]) -> int:
         """Set forecast estimated time"""
@@ -270,7 +275,7 @@ class Realtime(Overlay):
             if index == 0:
                 continue
             _time = self.estimated_time[index] = min(round(
-                wthr.forecast_time_progress(
+                forecast_time_progress(
                     forecast.start_minute, session_length, elapsed_time,
                 ) / 60), MAX_FORECAST_MINUTES)
             if _time <= 0:
@@ -288,7 +293,7 @@ def get_forecast_info(session_type: int) -> list[WeatherNode]:
         info = minfo.restapi.forecastRace  # race session
     if info:
         return info
-    return wthr.DEFAULT  # get default if no valid data
+    return FORECAST_DEFAULT  # get default if no valid data
 
 
 def create_weather_icon_set(icon_size: int):

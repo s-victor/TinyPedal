@@ -21,11 +21,12 @@ Setting file function
 """
 
 from __future__ import annotations
+
 import json
 import logging
 import os
 import shutil
-from time import monotonic, sleep, strftime, localtime
+from time import localtime, monotonic, sleep, strftime
 from typing import Callable
 
 from ..const_file import FileExt

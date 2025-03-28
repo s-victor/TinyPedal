@@ -20,26 +20,26 @@
 Launcher
 """
 
-import os
-import sys
 import io
 import logging
-import psutil
+import os
+import sys
 
-from PySide2.QtGui import QIcon, QFont, QPixmapCache
+import psutil
+from PySide2.QtGui import QFont, QIcon, QPixmapCache
 from PySide2.QtWidgets import QApplication, QMessageBox
 
 from .cli_argument import get_cli_argument
 from .const_app import (
     APP_NAME,
-    PLATFORM,
-    VERSION,
     EXE_FILE,
-    PID_FILE,
     PATH_GLOBAL,
+    PID_FILE,
+    PLATFORM,
+    PSUTIL_VERSION,
     PYTHON_VERSION,
     QT_VERSION,
-    PSUTIL_VERSION,
+    VERSION,
 )
 from .const_file import ImageFile
 from .log_handler import set_logging_level

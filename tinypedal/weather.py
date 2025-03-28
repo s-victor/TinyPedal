@@ -21,12 +21,13 @@ Weather function
 """
 
 from __future__ import annotations
-from .module_info import WeatherNode
+
 from functools import lru_cache
 
-from .const_common import MAX_FORECAST_MINUTES, ABS_ZERO_CELSIUS
+from .const_common import ABS_ZERO_CELSIUS, MAX_FORECAST_MINUTES
+from .module_info import WeatherNode
 
-DEFAULT = [WeatherNode(MAX_FORECAST_MINUTES, -1, ABS_ZERO_CELSIUS, -1)]
+FORECAST_DEFAULT = [WeatherNode(MAX_FORECAST_MINUTES, -1, ABS_ZERO_CELSIUS, -1)]
 FORECAST_NODES_RF2 = ("START", "NODE_25", "NODE_50", "NODE_75", "FINISH")
 
 
@@ -43,7 +44,7 @@ def forecast_rf2(data: dict) -> list[WeatherNode]:
             for index, node in enumerate(FORECAST_NODES_RF2)
         ]
     except (KeyError, TypeError):
-        output = DEFAULT
+        output = FORECAST_DEFAULT
     return output
 
 
@@ -54,7 +55,7 @@ def forecast_time_progress(
 
 
 @lru_cache(maxsize=2)
-def sky_type_correction(sky_type: int, raininess: float) -> int:
+def forecast_sky_type(sky_type: int, raininess: float) -> int:
     """Correct current sky type index based on current raininess
 
     Rain percent:

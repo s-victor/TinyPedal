@@ -22,7 +22,7 @@ Hybrid module
 
 from .. import calculation as calc
 from ..api_control import api
-from ..const_common import FLOAT_INF, MAX_SECONDS, DELTA_ZERO
+from ..const_common import DELTA_ZERO, FLOAT_INF, MAX_SECONDS
 from ..module_info import minfo
 from ._base import DataModule
 

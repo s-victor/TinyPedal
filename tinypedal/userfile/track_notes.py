@@ -21,11 +21,12 @@ Track & pace notes file function
 """
 
 from __future__ import annotations
-import logging
+
 import csv
+import logging
 import os
 from operator import itemgetter
-from typing import Any, Iterable, Callable
+from typing import Any, Callable, Iterable
 
 from ..const_file import FileFilter
 

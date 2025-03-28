@@ -21,20 +21,22 @@ Setting validator function
 """
 
 from __future__ import annotations
+
 import re
 
-from . import formatter as fmt
 from . import regex_pattern as rxp
-from . import validator as val
-from .template.setting_heatmap import HEATMAP_DEFAULT_TYRE, HEATMAP_DEFAULT_BRAKE
+from .const_common import TYPE_NUMBER
+from .formatter import random_color_class
+from .template.setting_heatmap import HEATMAP_DEFAULT_BRAKE, HEATMAP_DEFAULT_TYRE
+from .validator import is_clock_format, is_hex_color
 
-COMMON_STRINGS = fmt.pipe_join(
+COMMON_STRINGS = "|".join((
     rxp.CFG_FONT_NAME,
     rxp.CFG_HEATMAP,
     rxp.CFG_USER_PATH,
     rxp.CFG_USER_IMAGE,
     rxp.CFG_STRING,
-)
+))
 
 
 class StyleValidator:
@@ -66,8 +68,8 @@ class StyleValidator:
             if ALIAS not in class_data or not isinstance(class_data[ALIAS], str):
                 class_data[ALIAS] = class_name
                 save_change = True
-            if COLOR not in class_data or not val.hex_color(class_data[COLOR]):
-                class_data[COLOR] = fmt.random_color_class(class_name)
+            if COLOR not in class_data or not is_hex_color(class_data[COLOR]):
+                class_data[COLOR] = random_color_class(class_name)
                 save_change = True
         return save_change
 
@@ -79,7 +81,7 @@ class StyleValidator:
         HEATMAP = "heatmap"
         # Validate brakes entry
         for brake_data in style_user.values():
-            if FAILURE not in brake_data or not isinstance(brake_data[FAILURE], val.TYPE_NUMBER):
+            if FAILURE not in brake_data or not isinstance(brake_data[FAILURE], TYPE_NUMBER):
                 brake_data[FAILURE] = 0.0
                 save_change = True
             if HEATMAP not in brake_data or not isinstance(brake_data[HEATMAP], str):
@@ -123,7 +125,7 @@ class ValueValidator:
         """Value - Color string"""
         if not re.search(rxp.CFG_COLOR, key):
             return False
-        if not val.hex_color(dict_user[key]):
+        if not is_hex_color(dict_user[key]):
             dict_user.pop(key)
         return True
 
@@ -152,7 +154,7 @@ class ValueValidator:
         """Value - clock format string"""
         if not re.search(rxp.CFG_CLOCK_FORMAT, key):
             return False
-        if not val.clock_format(dict_user[key]):
+        if not is_clock_format(dict_user[key]):
             dict_user.pop(key)
         return True
 

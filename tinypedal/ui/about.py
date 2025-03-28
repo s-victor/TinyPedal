@@ -25,16 +25,16 @@ import logging
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QPixmap
 from PySide2.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
+    QDialogButtonBox,
     QHBoxLayout,
     QLabel,
-    QDialogButtonBox,
-    QTextBrowser,
     QTabWidget,
+    QTextBrowser,
+    QVBoxLayout,
+    QWidget,
 )
 
-from ..const_app import APP_NAME, VERSION, COPYRIGHT, DESCRIPTION, LICENSE, URL_WEBSITE
+from ..const_app import APP_NAME, COPYRIGHT, DESCRIPTION, LICENSE, URL_WEBSITE, VERSION
 from ..const_file import ImageFile
 from ._common import BaseDialog
 

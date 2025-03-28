@@ -21,9 +21,10 @@ Calculation function
 """
 
 from __future__ import annotations
-from typing import Tuple, Sequence
-from math import dist, hypot, degrees, radians, atan, atan2, sin, cos, acos, ceil
+
+from math import acos, atan, atan2, ceil, cos, degrees, dist, hypot, radians, sin
 from statistics import fmean, stdev
+from typing import Sequence, Tuple
 
 from .const_common import FLOAT_INF
 

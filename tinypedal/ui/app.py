@@ -25,26 +25,26 @@ import logging
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import (
     QApplication,
-    QMainWindow,
-    QWidget,
     QLabel,
+    QMainWindow,
+    QPushButton,
     QTabWidget,
     QVBoxLayout,
-    QPushButton,
+    QWidget,
 )
 
-from ..const_app import APP_NAME, VERSION
-from ..setting import ConfigType, cfg
-from ..api_control import api
-from ..overlay_control import octrl
-from ..module_control import mctrl, wctrl
 from .. import loader
-from .tray_icon import TrayIcon
+from ..api_control import api
+from ..const_app import APP_NAME, VERSION
+from ..module_control import mctrl, wctrl
+from ..overlay_control import octrl
+from ..setting import ConfigType, cfg
+from .menu import ConfigMenu, HelpMenu, OverlayMenu, ToolsMenu, WindowMenu
 from .module_view import ModuleList
-from .spectate_view import SpectateList
-from .preset_view import PresetList
 from .pace_notes_view import PaceNotesControl
-from .menu import OverlayMenu, ConfigMenu, ToolsMenu, WindowMenu, HelpMenu
+from .preset_view import PresetList
+from .spectate_view import SpectateList
+from .tray_icon import TrayIcon
 
 logger = logging.getLogger(__name__)
 

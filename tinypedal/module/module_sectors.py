@@ -21,13 +21,14 @@ Sectors module
 """
 
 from __future__ import annotations
+
 from functools import partial
 
-from .. import validator as val
 from ..api_control import api
 from ..const_common import MAX_SECONDS
-from ..module_info import minfo, SectorsInfo
+from ..module_info import SectorsInfo, minfo
 from ..userfile.sector_best import load_sector_best_file, save_sector_best_file
+from ..validator import valid_sectors
 from ._base import DataModule
 
 round6 = partial(round, ndigits=6)
@@ -132,11 +133,11 @@ def calc_sectors(output: SectorsInfo, best_s_tb: list, best_s_pb: list):
                 prev_s[2] = laptime_valid - last_sector2
 
                 # Update (time gap) deltabest bestlap sector 3
-                if val.sector_time(best_s_pb[2]):
+                if valid_sectors(best_s_pb[2]):
                     delta_s_pb[2] = prev_s[2] - best_s_pb[2]
 
                 # Update deltabest sector 3
-                if val.sector_time(best_s_tb[2]):
+                if valid_sectors(best_s_tb[2]):
                     delta_s_tb[2] = prev_s[2] - best_s_tb[2]
                     no_delta_s = False
                 else:
@@ -148,7 +149,7 @@ def calc_sectors(output: SectorsInfo, best_s_tb: list, best_s_pb: list):
                     new_best = True
 
                 # Save sector time from personal best laptime
-                if laptime_valid < laptime_best and val.sector_time(prev_s):
+                if laptime_valid < laptime_best and valid_sectors(prev_s):
                     laptime_best = laptime_valid
                     best_s_pb = prev_s.copy()
                     new_best = True
@@ -160,11 +161,11 @@ def calc_sectors(output: SectorsInfo, best_s_tb: list, best_s_pb: list):
                 prev_s[0] = curr_sector1
 
                 # Update (time gap) deltabest bestlap sector 1
-                if val.sector_time(best_s_pb[0]):
+                if valid_sectors(best_s_pb[0]):
                     delta_s_pb[0] = prev_s[0] - best_s_pb[0]
 
                 # Update deltabest sector 1
-                if val.sector_time(best_s_tb[0]):
+                if valid_sectors(best_s_tb[0]):
                     delta_s_tb[0] = prev_s[0] - best_s_tb[0]
                     no_delta_s = False
                 else:
@@ -182,11 +183,11 @@ def calc_sectors(output: SectorsInfo, best_s_tb: list, best_s_pb: list):
                 prev_s[1] = curr_sector2 - curr_sector1
 
                 # Update (time gap) deltabest bestlap sector 2
-                if val.sector_time(best_s_pb[1]):
+                if valid_sectors(best_s_pb[1]):
                     delta_s_pb[1] = prev_s[1] - best_s_pb[1]
 
                 # Update deltabest sector 2
-                if val.sector_time(best_s_tb[1]):
+                if valid_sectors(best_s_tb[1]):
                     delta_s_tb[1] = prev_s[1] - best_s_tb[1]
                     no_delta_s = False
                 else:

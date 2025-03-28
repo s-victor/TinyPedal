@@ -24,28 +24,28 @@ import os
 import shutil
 import time
 
-from PySide2.QtCore import Qt, QPoint
+from PySide2.QtCore import QPoint, Qt
 from PySide2.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
+    QCheckBox,
+    QDialogButtonBox,
     QHBoxLayout,
     QLabel,
-    QPushButton,
-    QCheckBox,
-    QMenu,
+    QLineEdit,
     QListWidget,
     QListWidgetItem,
+    QMenu,
     QMessageBox,
-    QLineEdit,
-    QDialogButtonBox,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
 
-from ..const_file import FileExt
-from ..setting import ConfigType, cfg
-from .. import formatter as fmt
 from .. import regex_pattern as rxp
-from .. import validator as val
-from ._common import BaseDialog, QVAL_FILENAME
+from ..const_file import FileExt
+from ..formatter import strip_filename_extension
+from ..setting import ConfigType, cfg
+from ..validator import is_allowed_filename
+from ._common import QVAL_FILENAME, BaseDialog
 
 QSS_LISTBOX = (
     "QListView {font-size: 16px;outline: none;}"
@@ -271,9 +271,9 @@ class CreatePreset(BaseDialog):
 
     def creating(self):
         """Creating new preset"""
-        entered_filename = fmt.strip_filename_extension(self.preset_entry.text(), FileExt.JSON)
+        entered_filename = strip_filename_extension(self.preset_entry.text(), FileExt.JSON)
 
-        if val.allowed_filename(rxp.CFG_INVALID_FILENAME, entered_filename):
+        if is_allowed_filename(rxp.CFG_INVALID_FILENAME, entered_filename):
             self.__saving(cfg.path.settings, entered_filename, self.source_filename)
         else:
             QMessageBox.warning(self, "Error", "Invalid preset name.")

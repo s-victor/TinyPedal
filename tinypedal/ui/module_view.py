@@ -21,19 +21,19 @@ Module & widget list view
 """
 
 from PySide2.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
     QHBoxLayout,
     QLabel,
-    QPushButton,
     QListWidget,
     QListWidgetItem,
     QMessageBox,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
 
-from ..setting import cfg
+from ..formatter import format_module_name
 from ..module_control import ModuleControl
-from .. import formatter as fmt
+from ..setting import cfg
 from .config import UserConfig
 
 BUTTON_STATE_TEXT = "OFF", "ON"
@@ -170,7 +170,7 @@ class ListItemControl(QWidget):
         self.module_control = module_control
         self.allow_toggle = False
 
-        label_module = QLabel(fmt.format_module_name(self.module_name))
+        label_module = QLabel(format_module_name(self.module_name))
 
         self.button_toggle = QPushButton("")
         self.set_button_toggle()

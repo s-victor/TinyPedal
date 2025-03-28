@@ -22,7 +22,7 @@ Overlay base painter class.
 
 from __future__ import annotations
 
-from PySide2.QtCore import Qt, QRectF
+from PySide2.QtCore import QRectF, Qt
 from PySide2.QtGui import QPainter, QPen, QPixmap
 from PySide2.QtWidgets import QWidget
 

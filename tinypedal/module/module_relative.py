@@ -21,12 +21,13 @@ Relative module
 """
 
 from __future__ import annotations
+
 from itertools import chain
 from operator import itemgetter
 
 from ..api_control import api
-from ..calculation import zero_max, asym_max
-from ..const_common import MAX_VEHICLES, MAX_SECONDS, QUALIFY_DEFAULT, REL_TIME_DEFAULT
+from ..calculation import asym_max, zero_max
+from ..const_common import MAX_SECONDS, MAX_VEHICLES, QUALIFY_DEFAULT, REL_TIME_DEFAULT
 from ..module_info import minfo
 from ._base import DataModule
 

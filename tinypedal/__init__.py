@@ -20,8 +20,8 @@
 Init
 """
 
-import os
 import logging
+import os
 
 # Create logger
 logger = logging.getLogger("tinypedal")

@@ -22,41 +22,33 @@ Track & pace notes editor
 
 import os
 
-from PySide2.QtCore import Qt, QPoint
+from PySide2.QtCore import QPoint, Qt
 from PySide2.QtWidgets import (
+    QAction,
+    QDialogButtonBox,
+    QFileDialog,
+    QFrame,
     QGridLayout,
-    QVBoxLayout,
     QHBoxLayout,
+    QHeaderView,
     QLabel,
     QLineEdit,
-    QDialogButtonBox,
+    QMenu,
+    QMessageBox,
     QPushButton,
+    QSplitter,
+    QStatusBar,
     QTableWidget,
     QTableWidgetItem,
-    QMessageBox,
-    QFileDialog,
-    QHeaderView,
-    QMenu,
-    QAction,
-    QStatusBar,
-    QFrame,
-    QSplitter,
+    QVBoxLayout,
 )
 
-from ..setting import cfg
 from ..api_control import api
-from ._common import (
-    BaseDialog,
-    BaseEditor,
-    BatchOffset,
-    TableBatchReplace,
-    QTableFloatItem,
-    QVAL_FILENAME,
-    QSS_EDITOR_BUTTON,
-)
-from .track_map_viewer import MapView
-from .. import formatter as fmt
+from ..formatter import strip_invalid_char
+from ..setting import cfg
 from ..userfile.track_notes import (
+    NOTESTYPE_PACE,
+    NOTESTYPE_TRACK,
     create_notes_metadata,
     load_notes_file,
     save_notes_file,
@@ -64,9 +56,17 @@ from ..userfile.track_notes import (
     set_notes_header,
     set_notes_parser,
     set_notes_writer,
-    NOTESTYPE_PACE,
-    NOTESTYPE_TRACK,
 )
+from ._common import (
+    QSS_EDITOR_BUTTON,
+    QVAL_FILENAME,
+    BaseDialog,
+    BaseEditor,
+    BatchOffset,
+    QTableFloatItem,
+    TableBatchReplace,
+)
+from .track_map_viewer import MapView
 
 DECIMALS = 2
 
@@ -552,7 +552,7 @@ class TrackNotesEditor(BaseEditor):
                 self.mark_positions_on_map()
             elif column_index == 1 and self.notes_type == NOTESTYPE_PACE:
                 # Remove invalid char (filename) from pace note column
-                item.setText(fmt.strip_invalid_char(item.text()))
+                item.setText(strip_invalid_char(item.text()))
 
     def set_context_menu(self):
         """Set context menu"""

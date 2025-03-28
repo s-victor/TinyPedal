@@ -24,7 +24,7 @@ from math import floor
 
 from .. import calculation as calc
 from ..api_control import api
-from ..const_common import MAX_SECONDS, TEXT_PLACEHOLDER, ENERGY_TYPE_ID
+from ..const_common import ENERGY_TYPE_ID, MAX_SECONDS, TEXT_PLACEHOLDER
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -261,8 +261,8 @@ class Realtime(Overlay):
             target.setText(ENERGY_TYPE_ID[data > 0])
 
     # Additional methods
-    def fuel_units(self, fuel):
+    def fuel_units(self, liter):
         """2 different fuel unit conversion, default is Liter"""
         if self.cfg.units["fuel_unit"] == "Gallon":
-            return calc.liter2gallon(fuel)
-        return fuel
+            return calc.liter2gallon(liter)
+        return liter

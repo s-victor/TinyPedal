@@ -22,39 +22,39 @@ Driver stats viewer
 
 from __future__ import annotations
 
-from PySide2.QtCore import Qt, QPoint
+from PySide2.QtCore import QPoint, Qt
 from PySide2.QtWidgets import (
-    QVBoxLayout,
-    QHBoxLayout,
-    QDialogButtonBox,
+    QAbstractItemView,
     QComboBox,
+    QDialogButtonBox,
+    QHBoxLayout,
+    QHeaderView,
+    QMenu,
+    QMessageBox,
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
-    QHeaderView,
-    QMessageBox,
-    QAbstractItemView,
-    QMenu,
+    QVBoxLayout,
 )
 
 from .. import calculation as calc
-from .. import formatter as fmt
 from ..api_control import api
 from ..const_common import MAX_SECONDS
+from ..formatter import strip_invalid_char
 from ..setting import cfg
 from ..userfile.driver_stats import (
     STATS_FILENAME,
     DriverStats,
-    validate_stats_file,
     load_stats_json_file,
     save_stats_json_file,
+    validate_stats_file,
 )
-from .track_map_viewer import TrackMapViewer
 from ._common import (
+    QSS_EDITOR_BUTTON,
     BaseEditor,
     QTableNumTextItem,
-    QSS_EDITOR_BUTTON,
 )
+from .track_map_viewer import TrackMapViewer
 
 
 def parse_display_value(key: str, value: int | float) -> str | int | float:
@@ -337,7 +337,7 @@ class DriverStatsViewer(BaseEditor):
         _dialog = TrackMapViewer(
             self,
             filepath=cfg.path.track_map,
-            filename=fmt.strip_invalid_char(self.selected_stats_key),
+            filename=strip_invalid_char(self.selected_stats_key),
         )
         _dialog.show()
 

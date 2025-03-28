@@ -23,7 +23,7 @@ Track notes Widget
 from ..api_control import api
 from ..const_common import TEXT_NOTAVAILABLE
 from ..module_info import minfo
-from ..userfile.track_notes import COLUMN_DISTANCE, COLUMN_TRACKNOTE, COLUMN_COMMENT
+from ..userfile.track_notes import COLUMN_COMMENT, COLUMN_DISTANCE, COLUMN_TRACKNOTE
 from ._base import Overlay
 
 

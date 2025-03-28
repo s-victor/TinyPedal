@@ -23,7 +23,7 @@ Data module base
 import logging
 import threading
 
-from ..overlay_control import octrl, OverlayState
+from ..overlay_control import OverlayState, octrl
 from ..setting import Setting
 
 logger = logging.getLogger(__name__)

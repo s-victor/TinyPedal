@@ -21,32 +21,33 @@ Pace notes view & player
 """
 
 from __future__ import annotations
+
 import logging
 
-from PySide2.QtCore import Qt, QBasicTimer
-from PySide2.QtMultimedia import QMediaPlayer, QMediaContent
+from PySide2.QtCore import QBasicTimer, Qt
+from PySide2.QtMultimedia import QMediaContent, QMediaPlayer
 from PySide2.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QGridLayout,
-    QLabel,
-    QPushButton,
-    QFileDialog,
-    QLineEdit,
-    QFrame,
     QCheckBox,
     QComboBox,
-    QSlider,
     QDoubleSpinBox,
+    QFileDialog,
+    QFrame,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QPushButton,
+    QSlider,
+    QVBoxLayout,
+    QWidget,
 )
 
 from .. import set_relative_path
-from ..setting import cfg
+from ..const_file import FileFilter
+from ..module_control import mctrl
 from ..module_info import minfo
 from ..overlay_control import octrl
-from ..module_control import mctrl
-from ..const_file import FileFilter
+from ..setting import cfg
 from ..userfile.track_notes import COLUMN_PACENOTE
 from ._common import QSS_EDITOR_BUTTON
 

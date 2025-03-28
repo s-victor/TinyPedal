@@ -21,12 +21,13 @@ Fuel/Energy delta file function
 """
 
 from __future__ import annotations
-import logging
-import csv
 
-from .. import validator as val
+import csv
+import logging
+
 from ..const_file import FileExt
 from ..module_info import ConsumptionDataSet
+from ..validator import dict_value_type, invalid_save_name, valid_delta_set
 
 logger = logging.getLogger(__name__)
 
@@ -37,20 +38,12 @@ def load_fuel_delta_file(
     """Load fuel/energy delta file (*.fuel, *.energy)"""
     try:
         with open(f"{filepath}{filename}{extension}", newline="", encoding="utf-8") as csvfile:
-            temp_list = list(csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC))
+            data_reader = csv.reader(csvfile, quoting=csv.QUOTE_NONNUMERIC)
+            temp_list = tuple(tuple(data) for data in data_reader)
         # Validate data
-        temp_list_size = len(temp_list)
-        lastlist = tuple(val.delta_list(temp_list))
+        lastlist = valid_delta_set(temp_list)
         used_last = lastlist[-1][1]
         laptime_last = lastlist[-1][2]
-        # Save data if modified
-        if temp_list_size != len(lastlist):
-            save_fuel_delta_file(
-                filepath=filepath,
-                filename=filename,
-                extension=extension,
-                dataset=lastlist,
-            )
         return lastlist, used_last, laptime_last
     except FileNotFoundError:
         logger.info("MISSING: consumption delta (%s) data", extension)
@@ -63,7 +56,7 @@ def save_fuel_delta_file(
     filepath: str, filename: str, extension: str, dataset: tuple
 ) -> None:
     """Save fuel/energy delta file (*.fuel, *.energy)"""
-    if len(dataset) < 10:
+    if len(dataset) < 10 or invalid_save_name(filename):
         return
     with open(f"{filepath}{filename}{extension}", "w", newline="", encoding="utf-8") as csvfile:
         data_writer = csv.writer(csvfile)
@@ -80,7 +73,7 @@ def load_consumption_history_file(
             data_reader = csv.DictReader(csvfile, restval="", restkey="unknown")
             default_data = ConsumptionDataSet._field_defaults
             dataset = tuple(
-                ConsumptionDataSet(**val.dict_value_type(data, default_data))
+                ConsumptionDataSet(**dict_value_type(data, default_data))
                 for data in data_reader
             )
             if not dataset:
@@ -97,7 +90,7 @@ def save_consumption_history_file(
     dataset: tuple, filepath: str, filename: str, extension: str = FileExt.CONSUMPTION
 ) -> None:
     """Save fuel/energy consumption history file (*.consumption)"""
-    if len(dataset) < 2:
+    if len(dataset) < 2 or invalid_save_name(filename):
         return
     with open(f"{filepath}{filename}{extension}", "w", newline="", encoding="utf-8") as csvfile:
         data_writer = csv.writer(csvfile, quoting=csv.QUOTE_NONNUMERIC)

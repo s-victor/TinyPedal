@@ -20,8 +20,8 @@
 Log handler setup
 """
 
-import sys
 import logging
+import sys
 
 from .const_app import LOG_FILE, PATH_GLOBAL
 

@@ -23,11 +23,17 @@ Delta module
 from functools import partial
 
 from .. import calculation as calc
-from .. import validator as val
 from ..api_control import api
-from ..const_common import FLOAT_INF, MAX_SECONDS, DELTA_ZERO, DELTA_DEFAULT, POS_XYZ_ZERO
+from ..const_common import (
+    DELTA_DEFAULT,
+    DELTA_ZERO,
+    FLOAT_INF,
+    MAX_SECONDS,
+    POS_XYZ_ZERO,
+)
 from ..module_info import minfo
 from ..userfile.delta_best import load_delta_best_file, save_delta_best_file
+from ..validator import is_same_session, vehicle_position_sync
 from ._base import DataModule
 
 round6 = partial(round, ndigits=6)
@@ -63,7 +69,7 @@ class Realtime(DataModule):
             calc.ema_factor(min(max(self.mcfg["laptime_pace_samples"], 1), 20))
         )
         laptime_pace_margin = max(self.mcfg["laptime_pace_margin"], 0.1)
-        gen_position_sync = val.position_sync()
+        gen_position_sync = vehicle_position_sync()
 
         while not self._event.wait(update_interval):
             if self.state.active:
@@ -81,7 +87,7 @@ class Realtime(DataModule):
                     session_id = api.read.check.session_id()
 
                     # Reset delta session best if not same session
-                    if not val.same_session(combo_id, session_id, last_session_id):
+                    if not is_same_session(combo_id, session_id, last_session_id):
                         delta_list_session = DELTA_DEFAULT
                         laptime_session_best = MAX_SECONDS
                         last_session_id = (combo_id, *session_id)

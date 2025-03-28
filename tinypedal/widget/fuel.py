@@ -334,8 +334,8 @@ class Realtime(Overlay):
                 target.setStyleSheet(color)
 
     # Additional methods
-    def fuel_units(self, fuel):
+    def fuel_units(self, liter):
         """2 different fuel unit conversion, default is Liter"""
         if self.cfg.units["fuel_unit"] == "Gallon":
-            return calc.liter2gallon(fuel)
-        return fuel
+            return calc.liter2gallon(liter)
+        return liter

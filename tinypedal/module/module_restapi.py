@@ -21,20 +21,21 @@ RestAPI module
 """
 
 from __future__ import annotations
+
 import asyncio
-import logging
 import json
+import logging
 import re
 import socket
 from typing import Any, Callable
 from urllib.request import urlopen
 
-from .. import formatter as fmt
-from .. import weather as wthr
 from ..api_control import api
 from ..const_common import TYPE_JSON
+from ..formatter import steerlock_to_number
 from ..module_info import minfo
-from ..validator import value_type
+from ..validator import valid_value_type
+from ..weather import FORECAST_DEFAULT, forecast_rf2
 from ._base import DataModule
 
 logger = logging.getLogger(__name__)
@@ -48,7 +49,7 @@ SET_PRIVATEQUALIFY = (
     (minfo.restapi, "privateQualifying", 0, None, "currentValue"),
 )
 SET_CHASSIS = (
-    (minfo.restapi, "steeringWheelRange", 0.0, fmt.steerlock_to_number, "VM_STEER_LOCK", "stringValue"),
+    (minfo.restapi, "steeringWheelRange", 0.0, steerlock_to_number, "VM_STEER_LOCK", "stringValue"),
 )
 SET_CURRENTSTINT = (
     (minfo.restapi, "currentVirtualEnergy", 0.0, None, "fuelInfo", "currentVirtualEnergy"),
@@ -58,9 +59,9 @@ SET_CURRENTSTINT = (
     (minfo.restapi, "suspensionDamage", [-1] * 4, None, "wearables", "suspension"),
 )
 SET_WEATHERFORECAST = (
-    (minfo.restapi, "forecastPractice", wthr.DEFAULT, wthr.forecast_rf2, "PRACTICE"),
-    (minfo.restapi, "forecastQualify", wthr.DEFAULT, wthr.forecast_rf2, "QUALIFY"),
-    (minfo.restapi, "forecastRace", wthr.DEFAULT, wthr.forecast_rf2, "RACE"),
+    (minfo.restapi, "forecastPractice", FORECAST_DEFAULT, forecast_rf2, "PRACTICE"),
+    (minfo.restapi, "forecastQualify", FORECAST_DEFAULT, forecast_rf2, "QUALIFY"),
+    (minfo.restapi, "forecastRace", FORECAST_DEFAULT, forecast_rf2, "RACE"),
 )
 # Define task set
 # 0 - regex pattern (sim name), 1 - url path, 2 - output set
@@ -261,9 +262,9 @@ def get_value(
             return False
 
     if mod_func:
-        setattr(target, output, value_type(mod_func(data), default))
+        setattr(target, output, valid_value_type(mod_func(data), default))
     else:
-        setattr(target, output, value_type(data, default))
+        setattr(target, output, valid_value_type(data, default))
     return True
 
 

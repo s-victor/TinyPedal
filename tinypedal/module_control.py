@@ -21,12 +21,12 @@ Module and widget control
 """
 
 from __future__ import annotations
+
 import logging
 from time import sleep
 from typing import Any, KeysView
 
-from . import module
-from . import widget
+from . import module, widget
 from .setting import ConfigType, cfg
 
 logger = logging.getLogger(__name__)

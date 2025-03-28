@@ -23,30 +23,30 @@ Heatmap editor
 import time
 
 from PySide2.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
+    QComboBox,
+    QDialogButtonBox,
     QHBoxLayout,
     QLineEdit,
-    QDialogButtonBox,
-    QComboBox,
-    QPushButton,
     QListWidget,
     QListWidgetItem,
-    QMessageBox
+    QMessageBox,
+    QPushButton,
+    QVBoxLayout,
+    QWidget,
 )
 
-from ..setting import ConfigType, cfg, copy_setting
 from ..module_control import wctrl
+from ..setting import ConfigType, cfg, copy_setting
 from ._common import (
+    QSS_EDITOR_BUTTON,
+    QSS_EDITOR_LISTBOX,
+    QVAL_COLOR,
+    QVAL_HEATMAP,
+    QVAL_INTEGER,
     BaseDialog,
     BaseEditor,
     BatchOffset,
     DoubleClickEdit,
-    QVAL_INTEGER,
-    QVAL_COLOR,
-    QVAL_HEATMAP,
-    QSS_EDITOR_BUTTON,
-    QSS_EDITOR_LISTBOX,
 )
 
 

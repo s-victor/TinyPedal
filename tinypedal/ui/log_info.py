@@ -22,18 +22,18 @@ Log window
 
 from PySide2.QtGui import QTextCursor
 from PySide2.QtWidgets import (
-    QVBoxLayout,
-    QHBoxLayout,
     QDialogButtonBox,
-    QTextBrowser,
-    QPushButton,
     QFileDialog,
+    QHBoxLayout,
     QMessageBox,
+    QPushButton,
+    QTextBrowser,
+    QVBoxLayout,
 )
 
-from ..main import log_stream
 from ..const_file import FileFilter
-from ._common import BaseDialog, QSS_EDITOR_BUTTON
+from ..main import log_stream
+from ._common import QSS_EDITOR_BUTTON, BaseDialog
 
 
 class LogInfo(BaseDialog):

@@ -22,8 +22,16 @@ Radar Widget
 
 from typing import NamedTuple
 
-from PySide2.QtCore import Qt, QRectF
-from PySide2.QtGui import QPainter, QPixmap, QLinearGradient, QRadialGradient, QPen, QBrush, QColor
+from PySide2.QtCore import QRectF, Qt
+from PySide2.QtGui import (
+    QBrush,
+    QColor,
+    QLinearGradient,
+    QPainter,
+    QPen,
+    QPixmap,
+    QRadialGradient,
+)
 
 from .. import calculation as calc
 from ..api_control import api

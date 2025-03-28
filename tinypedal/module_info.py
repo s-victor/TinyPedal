@@ -21,16 +21,17 @@ Module info
 """
 
 from __future__ import annotations
+
 from collections import deque
 from typing import NamedTuple
 
 from .const_common import (
-    MAX_VEHICLES,
-    MAX_SECONDS,
-    MAX_METERS,
-    MAX_FORECAST_MINUTES,
     ABS_ZERO_CELSIUS,
     DELTA_DEFAULT,
+    MAX_FORECAST_MINUTES,
+    MAX_METERS,
+    MAX_SECONDS,
+    MAX_VEHICLES,
     QUALIFY_DEFAULT,
     REL_TIME_DEFAULT,
 )

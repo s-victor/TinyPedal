@@ -22,7 +22,7 @@ Overlay Control
 
 import logging
 import threading
-from time import sleep, monotonic
+from time import monotonic, sleep
 
 from PySide2.QtCore import QObject, Signal
 

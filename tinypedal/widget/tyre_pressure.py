@@ -99,10 +99,10 @@ class Realtime(Overlay):
             target.setText(self.tyre_pressure_units(data))
 
     # Additional methods
-    def tyre_pressure_units(self, value):
+    def tyre_pressure_units(self, pres):
         """Tyre pressure units"""
         if self.cfg.units["tyre_pressure_unit"] == "psi":
-            return f"{calc.kpa2psi(value):.1f}"
+            return f"{calc.kpa2psi(pres):.1f}"
         if self.cfg.units["tyre_pressure_unit"] == "bar":
-            return f"{calc.kpa2bar(value):.2f}"
-        return f"{value:.0f}"  # kPa
+            return f"{calc.kpa2bar(pres):.2f}"
+        return f"{pres:.0f}"  # kPa

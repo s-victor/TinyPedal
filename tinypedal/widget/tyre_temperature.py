@@ -21,9 +21,14 @@ Tyre temperature Widget
 """
 
 from .. import calculation as calc
-from .. import heatmap as hmp
 from ..api_control import api
-from ..const_common import TEXT_PLACEHOLDER, TEXT_NA
+from ..const_common import TEXT_NA, TEXT_PLACEHOLDER
+from ..heatmap import (
+    HEATMAP_DEFAULT_TYRE,
+    load_heatmap_style,
+    select_compound_symbol,
+    select_tyre_heatmap_name,
+)
 from ._base import Overlay
 
 
@@ -67,9 +72,9 @@ class Realtime(Overlay):
 
         # Heatmap style list: 0 - fl, 1 - fr, 2 - rl, 3 - rr
         self.heatmap_styles = 4 * [
-            hmp.load_heatmap_style(
+            load_heatmap_style(
                 heatmap_name=self.wcfg["heatmap_name"],
-                default_name=hmp.HEATMAP_DEFAULT_TYRE,
+                default_name=HEATMAP_DEFAULT_TYRE,
                 swap_style=self.wcfg["swap_style"],
                 fg_color=self.wcfg["font_color_surface"],
                 bg_color=self.wcfg["bkg_color_surface"],
@@ -131,12 +136,12 @@ class Realtime(Overlay):
         """Tyre compound"""
         if target.last != data:
             target.last = data
-            target.setText(hmp.select_compound_symbol(data))
+            target.setText(select_compound_symbol(data))
             # Update heatmap style
             if self.wcfg["enable_heatmap_auto_matching"]:
-                heatmap_style = hmp.load_heatmap_style(
-                    heatmap_name=hmp.select_tyre_heatmap_name(data),
-                    default_name=hmp.HEATMAP_DEFAULT_TYRE,
+                heatmap_style = load_heatmap_style(
+                    heatmap_name=select_tyre_heatmap_name(data),
+                    default_name=HEATMAP_DEFAULT_TYRE,
                     swap_style=self.wcfg["swap_style"],
                     fg_color=self.wcfg["font_color_surface"],
                     bg_color=self.wcfg["bkg_color_surface"],
@@ -171,10 +176,10 @@ class Realtime(Overlay):
         return bar_set
 
     # Additional methods
-    def format_temperature(self, value):
+    def format_temperature(self, celsius):
         """Format temperature"""
-        if value < -100:
+        if celsius < -100:
             return TEXT_PLACEHOLDER
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            return f"{calc.celsius2fahrenheit(value):0{self.leading_zero}.0f}{self.sign_text}"
-        return f"{value:0{self.leading_zero}.0f}{self.sign_text}"
+            return f"{calc.celsius2fahrenheit(celsius):0{self.leading_zero}.0f}{self.sign_text}"
+        return f"{celsius:0{self.leading_zero}.0f}{self.sign_text}"

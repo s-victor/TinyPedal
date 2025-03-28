@@ -24,35 +24,35 @@ import re
 import time
 from typing import Callable
 
-from PySide2.QtCore import Qt, QPoint
+from PySide2.QtCore import QPoint, Qt
 from PySide2.QtWidgets import (
-    QWidget,
-    QVBoxLayout,
-    QHBoxLayout,
-    QGridLayout,
-    QLabel,
-    QLineEdit,
-    QDialogButtonBox,
     QCheckBox,
     QComboBox,
-    QScrollArea,
+    QDialogButtonBox,
     QFontComboBox,
-    QSpinBox,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
     QMenu,
     QMessageBox,
+    QScrollArea,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
 )
 
-from .. import set_user_data_path, set_relative_path
 from .. import regex_pattern as rxp
-from .. import validator as val
-from .. import formatter as fmt
+from .. import set_relative_path, set_user_data_path
+from ..formatter import format_option_name
 from ..setting import ConfigType, cfg
+from ..validator import is_clock_format, is_hex_color, is_string_number
 from ._common import (
+    QVAL_COLOR,
+    QVAL_FLOAT,
+    QVAL_INTEGER,
     BaseDialog,
     DoubleClickEdit,
-    QVAL_INTEGER,
-    QVAL_FLOAT,
-    QVAL_COLOR,
 )
 
 OPTION_WIDTH = 120
@@ -160,7 +160,7 @@ class UserConfig(BaseDialog):
             option_width: option column width in pixels.
         """
         super().__init__(parent)
-        self.set_config_title(fmt.format_option_name(key_name), set_preset_name(cfg_type))
+        self.set_config_title(format_option_name(key_name), set_preset_name(cfg_type))
 
         self.reloading = reload_func
         self.key_name = key_name
@@ -267,7 +267,7 @@ class UserConfig(BaseDialog):
 
         for key, editor in self.option_color.items():
             value = editor.text()
-            if val.hex_color(value):
+            if is_hex_color(value):
                 user_setting[key] = value
             else:
                 self.value_error_message("color", key)
@@ -294,7 +294,7 @@ class UserConfig(BaseDialog):
 
         for key, editor in self.option_string.items():
             value = editor.text()
-            if re.search(rxp.CFG_CLOCK_FORMAT, key) and not val.clock_format(value):
+            if re.search(rxp.CFG_CLOCK_FORMAT, key) and not is_clock_format(value):
                 self.value_error_message("clock format", key)
                 error_found = True
                 continue
@@ -302,7 +302,7 @@ class UserConfig(BaseDialog):
 
         for key, editor in self.option_integer.items():
             value = editor.text()
-            if val.string_number(value):
+            if is_string_number(value):
                 user_setting[key] = int(value)
             else:
                 self.value_error_message("number", key)
@@ -310,7 +310,7 @@ class UserConfig(BaseDialog):
 
         for key, editor in self.option_float.items():
             value = editor.text()
-            if val.string_number(value):
+            if is_string_number(value):
                 value = float(value)
                 if value % 1 == 0:  # remove unnecessary decimal points
                     value = int(value)
@@ -341,7 +341,7 @@ class UserConfig(BaseDialog):
     def value_error_message(self, value_type: str, option_name: str):
         """Value error message"""
         msg_text = (
-            f"Invalid {value_type} for <b>{fmt.format_option_name(option_name)}</b> option."
+            f"Invalid {value_type} for <b>{format_option_name(option_name)}</b> option."
             "<br><br>Changes are not saved."
         )
         QMessageBox.warning(self, "Error", msg_text)
@@ -408,7 +408,7 @@ class UserConfig(BaseDialog):
 
     def __add_option_label(self, idx, key, layout):
         """Option label"""
-        label = QLabel(fmt.format_option_name(key))
+        label = QLabel(format_option_name(key))
         layout.addWidget(label, idx, COLUMN_LABEL)
 
     def __add_option_bool(self, idx, key, layout):

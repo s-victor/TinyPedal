@@ -25,37 +25,38 @@ import re
 from collections import deque
 from typing import Callable
 
-from PySide2.QtCore import Qt, QRegularExpression, QLocale
+from PySide2.QtCore import QLocale, QRegularExpression, Qt
 from PySide2.QtGui import (
     QColor,
-    QRegularExpressionValidator,
-    QIntValidator,
     QDoubleValidator,
+    QIntValidator,
+    QRegularExpressionValidator,
     qGray,
 )
 from PySide2.QtWidgets import (
-    QLabel,
-    QDialog,
-    QMessageBox,
-    QFileDialog,
-    QLineEdit,
-    QColorDialog,
-    QDoubleSpinBox,
-    QDialogButtonBox,
-    QHBoxLayout,
-    QVBoxLayout,
-    QTableWidget,
-    QTableWidgetItem,
-    QPushButton,
-    QGridLayout,
     QCheckBox,
+    QColorDialog,
     QComboBox,
     QCompleter,
+    QDialog,
+    QDialogButtonBox,
+    QDoubleSpinBox,
+    QFileDialog,
+    QGridLayout,
+    QHBoxLayout,
+    QLabel,
+    QLineEdit,
+    QMessageBox,
+    QPushButton,
+    QTableWidget,
+    QTableWidgetItem,
+    QVBoxLayout,
 )
 
-from .. import set_relative_path, validator as val
+from .. import set_relative_path
 from ..const_app import APP_NAME
 from ..const_file import FileFilter
+from ..validator import image_exists, is_hex_color, is_string_number
 
 # Validator
 QLOC_NUMBER = QLocale(QLocale.C)
@@ -429,14 +430,14 @@ class DoubleClickEdit(QLineEdit):
     def open_dialog_image(self):
         """Open image file name dialog"""
         path_selected = QFileDialog.getOpenFileName(self, dir=self.init_value, filter=FileFilter.PNG)[0]
-        if val.image_file(path_selected):
+        if image_exists(path_selected):
             self.setText(path_selected)
             self.init_value = path_selected
 
     def preview_color(self):
         """Update edit preview color"""
         color_str = self.text()
-        if val.hex_color(color_str):
+        if is_hex_color(color_str):
             # Set foreground color based on background color lightness
             qcolor = QColor(color_str)
             if qcolor.alpha() > 128 > qGray(qcolor.rgb()):
@@ -470,7 +471,7 @@ class QTableFloatItem(QTableWidgetItem):
     def validate(self):
         """Validate value, replace invalid value with old value if invalid"""
         value = self.text()
-        if val.string_number(value):
+        if is_string_number(value):
             self._value = float(value)
         else:
             self.setText(str(self._value))

@@ -24,8 +24,8 @@ from functools import partial
 
 from .. import calculation as calc
 from ..api_control import api
-from ..module_info import minfo
 from ..const_file import FileExt
+from ..module_info import minfo
 from ..userfile.track_map import load_track_map_file, save_track_map_file
 from ..validator import file_last_modified
 from ._base import DataModule

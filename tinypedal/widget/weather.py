@@ -265,14 +265,14 @@ class Realtime(Overlay):
             target.setText(TEXT_TREND_SIGN[data])
             target.setStyleSheet(self.bar_style_wetness_trend[data])
 
-    def format_temperature(self, track_deg, air_deg):
+    def format_temperature(self, track_celsius, air_celsius):
         """Format track & ambient temperature"""
         if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            track = f"{calc.celsius2fahrenheit(track_deg):05.2f}"[:5]
-            air = f"{calc.celsius2fahrenheit(air_deg):03.0f}"[:3]
+            track = f"{calc.celsius2fahrenheit(track_celsius):05.2f}"[:5]
+            air = f"{calc.celsius2fahrenheit(air_celsius):03.0f}"[:3]
         else:
-            track = f"{track_deg: >4.2f}"[:4]
-            air = f"{air_deg: >4.2f}"[:4]
+            track = f"{track_celsius: >4.2f}"[:4]
+            air = f"{air_celsius: >4.2f}"[:4]
         return f"{track}({air}){self.sign_temp}"
 
     def format_rain(self, rain):

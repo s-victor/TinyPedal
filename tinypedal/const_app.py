@@ -20,13 +20,13 @@
 Constants
 """
 
-import sys
 import platform
+import sys
 
 from psutil import version_info
 from PySide2.QtCore import qVersion
 
-from . import version, set_global_user_path
+from . import set_global_user_path, version
 
 # System info
 PLATFORM = platform.system()

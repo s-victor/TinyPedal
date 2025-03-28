@@ -22,31 +22,31 @@ Track map viewer
 
 import os
 
-from PySide2.QtCore import Qt, Signal, QPoint, QPointF, QRect
-from PySide2.QtGui import QPainterPath, QPainter, QPen
+from PySide2.QtCore import QPoint, QPointF, QRect, Qt, Signal
+from PySide2.QtGui import QPainter, QPainterPath, QPen
 from PySide2.QtWidgets import (
+    QAbstractSpinBox,
+    QDoubleSpinBox,
+    QFileDialog,
+    QFrame,
     QHBoxLayout,
-    QVBoxLayout,
     QLabel,
     QLineEdit,
-    QPushButton,
-    QMessageBox,
-    QFileDialog,
     QMenu,
-    QWidget,
-    QSpinBox,
-    QDoubleSpinBox,
-    QAbstractSpinBox,
+    QMessageBox,
+    QPushButton,
     QSlider,
-    QFrame,
+    QSpinBox,
+    QVBoxLayout,
+    QWidget,
 )
 
-from ..setting import ConfigType, cfg
-from ._common import BaseDialog, QSS_EDITOR_BUTTON
-from . config import UserConfig
 from .. import calculation as calc
 from ..const_file import FileExt, FileFilter
+from ..setting import ConfigType, cfg
 from ..userfile.track_map import load_track_map_file
+from ._common import QSS_EDITOR_BUTTON, BaseDialog
+from .config import UserConfig
 
 
 class TrackMapViewer(BaseDialog):

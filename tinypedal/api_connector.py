@@ -25,9 +25,9 @@ from functools import partial
 from typing import NamedTuple
 
 # Import APIs
-from . import validator as val
 from .adapter import rf2_connector, rf2_data
-from .regex_pattern import API_NAME_RF2, API_NAME_LMU
+from .regex_pattern import API_NAME_LMU, API_NAME_RF2
+from .validator import bytes_to_str
 
 
 class APIDataSet(NamedTuple):
@@ -112,7 +112,7 @@ class SimRF2(Connector):
         self.info.setPID(config[1])
         self.info.setPlayerOverride(config[2])
         self.info.setPlayerIndex(config[3])
-        rf2_data.cs2py = partial(val.cbytes2str, char_encoding=config[4])
+        rf2_data.tostr = partial(bytes_to_str, char_encoding=config[4])
 
 
 class SimLMU(Connector):
@@ -138,7 +138,7 @@ class SimLMU(Connector):
         self.info.setPID(config[1])
         self.info.setPlayerOverride(config[2])
         self.info.setPlayerIndex(config[3])
-        rf2_data.cs2py = partial(val.cbytes2str, char_encoding=config[4])
+        rf2_data.tostr = partial(bytes_to_str, char_encoding=config[4])
 
 
 # Add new API to API_PACK

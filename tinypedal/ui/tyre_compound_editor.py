@@ -24,25 +24,25 @@ import logging
 import time
 
 from PySide2.QtWidgets import (
-    QVBoxLayout,
-    QHBoxLayout,
+    QComboBox,
     QDialogButtonBox,
+    QHBoxLayout,
+    QHeaderView,
+    QMessageBox,
     QPushButton,
     QTableWidget,
     QTableWidgetItem,
-    QMessageBox,
-    QHeaderView,
-    QComboBox,
+    QVBoxLayout,
 )
 
 from ..api_control import api
-from ..setting import ConfigType, cfg, copy_setting
+from ..heatmap import HEATMAP_DEFAULT_TYRE, set_predefined_compound_symbol
 from ..module_control import wctrl
-from ..heatmap import set_predefined_compound_symbol, HEATMAP_DEFAULT_TYRE
+from ..setting import ConfigType, cfg, copy_setting
 from ._common import (
+    QSS_EDITOR_BUTTON,
     BaseEditor,
     TableBatchReplace,
-    QSS_EDITOR_BUTTON,
 )
 
 HEADER_COMPOUNDS = "Compound name","Symbol","Heatmap name"
