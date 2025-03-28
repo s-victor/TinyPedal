@@ -266,7 +266,16 @@ class AppWindow(QMainWindow):
     @Slot(bool)
     def reload_preset(self):
         """Reload current preset"""
-        loader.reload()
+        loader.reload(reload_preset=True)
+        self.refresh_states()
+
+    def reload_only(self):
+        """Reload only api, module, widget"""
+        loader.reload(reload_preset=False)
+        self.refresh_states()
+
+    def refresh_states(self):
+        """Refresh state"""
         self.set_status_text()
         self.preset_tab.refresh_list()
         self.widget_tab.refresh_state()

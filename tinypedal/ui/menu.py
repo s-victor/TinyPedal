@@ -318,6 +318,18 @@ class ConfigMenu(QMenu):
         )
         _dialog.open()
 
+    def open_config_compatibility(self):
+        """Config global compatibility"""
+        _dialog = UserConfig(
+            parent=self._parent,
+            key_name="compatibility",
+            cfg_type=ConfigType.CONFIG,
+            user_setting=cfg.user.config,
+            default_setting=cfg.default.config,
+            reload_func=self._parent.reload_preset,
+        )
+        _dialog.open()
+
     def open_config_userpath(self):
         """Config global user path"""
         _dialog = UserConfig(
@@ -336,7 +348,7 @@ class ConfigMenu(QMenu):
         _dialog = FontConfig(
             parent=self._parent,
             user_setting=cfg.user.setting,
-            reload_func=self._parent.reload_preset,
+            reload_func=self._parent.reload_only,
         )
         _dialog.open()
 
@@ -348,7 +360,7 @@ class ConfigMenu(QMenu):
             cfg_type=ConfigType.SETTING,
             user_setting=cfg.user.setting,
             default_setting=cfg.default.setting,
-            reload_func=self._parent.reload_preset,
+            reload_func=self._parent.reload_only,
         )
         _dialog.open()
 
@@ -361,18 +373,6 @@ class ConfigMenu(QMenu):
             user_setting=cfg.user.setting,
             default_setting=cfg.default.setting,
             reload_func=self._parent.restart_api,
-        )
-        _dialog.open()
-
-    def open_config_compatibility(self):
-        """Config compatibility"""
-        _dialog = UserConfig(
-            parent=self._parent,
-            key_name="compatibility",
-            cfg_type=ConfigType.CONFIG,
-            user_setting=cfg.user.config,
-            default_setting=cfg.default.config,
-            reload_func=self._parent.reload_preset,
         )
         _dialog.open()
 

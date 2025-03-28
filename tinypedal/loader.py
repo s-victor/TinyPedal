@@ -69,14 +69,23 @@ def close():
     api.stop()
 
 
-def reload():
-    """Reload api, modules, widgets"""
+def reload(reload_preset: bool = False):
+    """Reload preset, api, modules, widgets
+
+    Args:
+        reload_preset:
+            Whether to reload preset file.
+            Should only done if changed global setting,
+            or reloading from preset tab,
+            or auto-loading preset.
+    """
     logger.info("RELOADING............")
     # 1 unload modules
     unload_modules()
-    # 2 reload setting
-    cfg.load()
-    cfg.save(0)
+    # 2 reload preset file
+    if reload_preset:
+        cfg.load()
+        cfg.save(0)
     # 3 restart api
     api.restart()
     # 4 load modules

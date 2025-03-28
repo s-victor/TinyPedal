@@ -7,6 +7,7 @@ WIP
   - Add "time_interval_align_center" option for Rivals Widget.
 
 * Misc
+  - Fixed an issue where changes from "Units" and "Global Font Override" dialogs would not take effect after clicked "Apply" more than once.
   - Optimized user preset and stats data accessing.
 
 2.25.1 (2025-03-18)
