@@ -48,12 +48,6 @@ def forecast_rf2(data: dict) -> list[WeatherNode]:
     return output
 
 
-def forecast_time_progress(
-    session_percent: float, session_length: float, elapsed_time: float) -> float:
-    """Forecast estimated time progress"""
-    return session_percent * session_length - elapsed_time
-
-
 @lru_cache(maxsize=2)
 def forecast_sky_type(sky_type: int, raininess: float) -> int:
     """Correct current sky type index based on current raininess

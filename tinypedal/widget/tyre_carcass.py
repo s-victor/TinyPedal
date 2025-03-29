@@ -31,6 +31,7 @@ from ..heatmap import (
     select_compound_symbol,
     select_tyre_heatmap_name,
 )
+from ..units import set_unit_temperature
 from ._base import Overlay
 
 
@@ -50,13 +51,13 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         inner_gap = self.wcfg["inner_gap"]
-        self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
-        self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
         self.rate_interval = min(max(self.wcfg["rate_of_change_interval"], 1), 60)
-
+        self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3) + 0.0  # no decimal
+        self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
         text_width = 3 + len(self.sign_text) + (self.cfg.units["temperature_unit"] == "Fahrenheit")
-        bar_width_ttemp = font_m.width * text_width + bar_padx
-        bar_width_tcmpd = font_m.width + bar_padx
+
+        # Config units
+        self.unit_temp = set_unit_temperature(self.cfg.units["temperature_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -89,7 +90,7 @@ class Realtime(Overlay):
         self.bars_ctemp = self.set_qlabel(
             text=TEXT_NA,
             style=bar_style_ctemp,
-            width=bar_width_ttemp,
+            width=font_m.width * text_width + bar_padx,
             count=4,
             last=0,
         )
@@ -106,7 +107,7 @@ class Realtime(Overlay):
             self.bars_tcmpd = self.set_qlabel(
                 text=TEXT_PLACEHOLDER,
                 style=bar_style_tcmpd,
-                width=bar_width_tcmpd,
+                width=font_m.width + bar_padx,
                 count=2,
             )
             self.set_grid_layout_vert(
@@ -141,7 +142,7 @@ class Realtime(Overlay):
             self.bars_rdiff = self.set_qlabel(
                 text=TEXT_NA,
                 style=self.bar_style_rtemp[2],
-                width=bar_width_ttemp,
+                width=font_m.width * text_width + bar_padx,
                 count=4,
                 last=0,
             )
@@ -158,7 +159,7 @@ class Realtime(Overlay):
                 bars_blank = self.set_qlabel(
                     text="",
                     style=bar_style_tcmpd,
-                    width=bar_width_tcmpd,
+                    width=font_m.width + bar_padx,
                     count=2,
                 )
                 self.set_grid_layout_vert(
@@ -213,14 +214,17 @@ class Realtime(Overlay):
         """Tyre carcass temperature"""
         if target.last != data:
             target.last = data
-            target.setText(self.format_temperature(data))
+            if data < -100:
+                target.setText(TEXT_PLACEHOLDER)
+            else:
+                target.setText(f"{self.unit_temp(data):0{self.leading_zero}f}{self.sign_text}")
             target.setStyleSheet(calc.select_grade(self.heatmap_styles[index], data))
 
     def update_rdiff(self, target, data):
         """Rate of change"""
         if target.last != data:
             target.last = data
-            target.setText(self.format_rate_change(data))
+            target.setText(f"{self.unit_temp(data):.1f}"[:3].strip("."))
             target.setStyleSheet(self.bar_style_rtemp[data > 0])
 
     def update_tcmpd(self, target, data, index):
@@ -239,18 +243,3 @@ class Realtime(Overlay):
                 )
                 self.heatmap_styles[index] = heatmap_style
                 self.heatmap_styles[index + 1] = heatmap_style
-
-    # Additional methods
-    def format_temperature(self, celsius):
-        """Format temperature"""
-        if celsius < -100:
-            return TEXT_PLACEHOLDER
-        if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            return f"{calc.celsius2fahrenheit(celsius):0{self.leading_zero}.0f}{self.sign_text}"
-        return f"{celsius:0{self.leading_zero}.0f}{self.sign_text}"
-
-    def format_rate_change(self, celsius):
-        """Format temperature rate of change"""
-        if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            return f"{calc.celsius2fahrenheit(celsius):.1f}"[:3].strip(".")
-        return f"{celsius:.1f}"[:3].strip(".")

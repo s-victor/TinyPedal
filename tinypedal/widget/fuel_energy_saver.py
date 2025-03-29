@@ -26,6 +26,7 @@ from .. import calculation as calc
 from ..api_control import api
 from ..const_common import ENERGY_TYPE_ID, MAX_SECONDS, TEXT_PLACEHOLDER
 from ..module_info import minfo
+from ..units import set_unit_fuel
 from ._base import Overlay
 
 
@@ -52,6 +53,9 @@ class Realtime(Overlay):
         self.decimals_consumption = max(self.wcfg["decimal_places_consumption"], 0)
         self.decimals_delta = max(self.wcfg["decimal_places_delta"], 0)
         self.min_reserve = max(self.wcfg["minimum_reserve"], 0)
+
+        # Config units
+        self.unit_fuel = set_unit_fuel(self.cfg.units["fuel_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -227,7 +231,7 @@ class Realtime(Overlay):
             target.last = data
             if data > -MAX_SECONDS:
                 if not energy_type:
-                    data = self.fuel_units(data)
+                    data = self.unit_fuel(data)
                 use_text = f"{data:.{self.decimals_consumption}f}"[:self.char_width]
             else:
                 use_text = TEXT_PLACEHOLDER
@@ -239,7 +243,7 @@ class Realtime(Overlay):
             target.last = data
             if data > -MAX_SECONDS:
                 if not energy_type:
-                    data = self.fuel_units(data)
+                    data = self.unit_fuel(data)
                 delta_text = f"{data:+.{self.decimals_delta}f}"[:self.char_width]
                 style = self.delta_color[data >= 0]
             else:
@@ -259,10 +263,3 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(ENERGY_TYPE_ID[data > 0])
-
-    # Additional methods
-    def fuel_units(self, liter):
-        """2 different fuel unit conversion, default is Liter"""
-        if self.cfg.units["fuel_unit"] == "Gallon":
-            return calc.liter2gallon(liter)
-        return liter

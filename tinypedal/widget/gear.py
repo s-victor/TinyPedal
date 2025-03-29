@@ -20,9 +20,9 @@
 Gear Widget
 """
 
-from .. import calculation as calc
 from ..api_control import api
 from ..module_info import minfo
+from ..units import set_unit_speed
 from ._base import Overlay
 from ._painter import GearGaugeBar, ProgressBar, TextBar
 
@@ -46,6 +46,9 @@ class Realtime(Overlay):
 
         (font_speed, font_offset, limiter_width, gauge_width, gauge_height, gear_size, speed_size
          ) = self.set_gauge_size(font)
+
+        # Config units
+        self.unit_speed = set_unit_speed(self.cfg.units["speed_unit"])
 
         # Gear gauge
         self.gauge_color = (
@@ -183,7 +186,7 @@ class Realtime(Overlay):
             color_index = self.color_rpm(rpm, gear, speed)
             target.update_input(
                 gear,
-                self.speed_units(speed),
+                self.unit_speed(speed),
                 color_index,
                 self.gauge_color[color_index],
             )
@@ -224,14 +227,6 @@ class Realtime(Overlay):
                 target.hide()
 
     # Additional methods
-    def speed_units(self, meter):
-        """Speed units"""
-        if self.cfg.units["speed_unit"] == "KPH":
-            return calc.mps2kph(meter)
-        if self.cfg.units["speed_unit"] == "MPH":
-            return calc.mps2mph(meter)
-        return meter
-
     def color_rpm(self, rpm, gear, speed):
         """RPM indicator color"""
         self.flicker = not self.flicker

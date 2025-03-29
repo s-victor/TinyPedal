@@ -25,7 +25,6 @@ from __future__ import annotations
 from PySide2.QtCore import Qt
 from PySide2.QtGui import QPainter, QPixmap
 
-from .. import calculation as calc
 from ..api_control import api
 from ..const_common import (
     ABS_ZERO_CELSIUS,
@@ -35,7 +34,8 @@ from ..const_common import (
 )
 from ..const_file import ImageFile
 from ..module_info import WeatherNode, minfo
-from ..weather import FORECAST_DEFAULT, forecast_sky_type, forecast_time_progress
+from ..units import set_unit_temperature
+from ..weather import FORECAST_DEFAULT, forecast_sky_type
 from ._base import Overlay
 from ._painter import split_pixmap_icon
 
@@ -60,6 +60,9 @@ class Realtime(Overlay):
         self.total_slot = min(max(self.wcfg["number_of_forecasts"], 1), MAX_FORECASTS - 1) + 1
         self.bar_width = max(font_m.width * 4 + bar_padx, icon_size)
         self.bar_rain_height = max(self.wcfg["rain_chance_bar_height"], 1)
+
+        # Config units
+        self.unit_temp = set_unit_temperature(self.cfg.units["temperature_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -224,7 +227,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             if data > ABS_ZERO_CELSIUS:
-                temp_text = self.format_temperature(data)
+                temp_text = f"{self.unit_temp(data):.0f}°"
             else:
                 temp_text = TEXT_NA
             target.setText(temp_text)
@@ -260,12 +263,6 @@ class Realtime(Overlay):
                     self.bars_rain[slot_index].setHidden(unavailable)
 
     # Additional methods
-    def format_temperature(self, celsius):
-        """Format ambient temperature"""
-        if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            return f"{calc.celsius2fahrenheit(celsius):.0f}°"
-        return f"{celsius:.0f}°"
-
     def set_forecast_time(self, forecast_info: list[WeatherNode]) -> int:
         """Set forecast estimated time"""
         index_offset = 0
@@ -274,10 +271,9 @@ class Realtime(Overlay):
         for index, forecast in enumerate(forecast_info):
             if index == 0:
                 continue
-            _time = self.estimated_time[index] = min(round(
-                forecast_time_progress(
-                    forecast.start_minute, session_length, elapsed_time,
-                ) / 60), MAX_FORECAST_MINUTES)
+            # Seconds away = next node start seconds * session length - elapsed time
+            _time = self.estimated_time[index] = round(
+                (forecast.start_seconds * session_length - elapsed_time) / 60)
             if _time <= 0:
                 index_offset += 1
         return index_offset

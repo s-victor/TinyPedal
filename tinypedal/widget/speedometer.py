@@ -20,8 +20,8 @@
 Speedometer Widget
 """
 
-from .. import calculation as calc
 from ..api_control import api
+from ..units import set_unit_speed
 from ._base import Overlay
 
 
@@ -40,10 +40,13 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        self.decimals = max(int(self.wcfg["decimal_places"]), 0)
-        zero_offset = (self.decimals > 0)
-        bar_width = font_m.width * (3 + self.decimals + zero_offset) + bar_padx
-        self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3) + zero_offset + self.decimals
+        decimals = max(int(self.wcfg["decimal_places"]), 0)
+        zero_offset = (decimals > 0)
+        bar_width = font_m.width * (3 + decimals + zero_offset) + bar_padx
+        self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3) + zero_offset + decimals + decimals / 10
+
+        # Config units
+        self.unit_speed = set_unit_speed(self.cfg.units["speed_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -164,14 +167,4 @@ class Realtime(Overlay):
         """Vehicle speed"""
         if target.last != data:
             target.last = data
-            target.setText(
-                f"{self.speed_units(data):0{self.leading_zero}.{self.decimals}f}")
-
-    # Additional methods
-    def speed_units(self, meter):
-        """Speed units"""
-        if self.cfg.units["speed_unit"] == "KPH":
-            return calc.mps2kph(meter)
-        if self.cfg.units["speed_unit"] == "MPH":
-            return calc.mps2mph(meter)
-        return meter
+            target.setText(f"{self.unit_speed(data):0{self.leading_zero}f}")

@@ -39,72 +39,6 @@ std_dev = stdev  # sample standard deviation
 deg2rad = radians  # degrees to radians
 
 
-# Unit conversion
-def meter2millmeter(meter: float) -> float:
-    """Convert meter to millimeter"""
-    return meter * 1000
-
-
-def meter2feet(meter: float) -> float:
-    """Convert meter to feet"""
-    return meter * 3.2808399
-
-
-def meter2kilometer(meter: float) -> float:
-    """Convert meter to kilometer"""
-    return meter * 0.001
-
-
-def meter2mile(meter: float) -> float:
-    """Convert meter to mile"""
-    return meter / 1609.344
-
-
-def mps2kph(meter: float) -> float:
-    """meter per sec to kilometers per hour"""
-    return meter * 3.6
-
-
-def mps2mph(meter: float) -> float:
-    """Meter per sec to miles per hour"""
-    return meter * 2.23693629
-
-
-def celsius2fahrenheit(temperature: float) -> float:
-    """Celsius to Fahrenheit"""
-    return temperature * 1.8 + 32
-
-
-def liter2gallon(liter: float) -> float:
-    """Liter to Gallon"""
-    return liter * 0.26417205
-
-
-def kelvin2celsius(kelvin: float) -> float:
-    """Kelvin to Celsius"""
-    return kelvin - 273.15
-
-
-def kpa2psi(kilopascal: float) -> float:
-    """Kilopascal to psi"""
-    return kilopascal * 0.14503774
-
-
-def kpa2bar(kilopascal: float) -> float:
-    """Kilopascal to bar"""
-    return kilopascal * 0.01
-
-
-def kw2hp(kilowatt: float) -> float:
-    """Kilowatt to imperial horsepower (hp)"""
-    return kilowatt * 1.341
-
-
-def kw2ps(kilowatt: float) -> float:
-    """Kilowatt to metric horsepower (ps)"""
-    return kilowatt * 1.3596
-
-
 # Common
 def sym_max(value: float, rng: float) -> float:
     """Symmetric min-max value range"""
@@ -145,8 +79,10 @@ def zero_one(value: float) -> float:
 def decimal_strip(raw_range: float, max_decimals: int) -> float:
     """Strip off unwanted decimal places according to max number of decimals"""
     value_str = str(raw_range)
-    decimal_slice = len(value_str) - len(value_str.split(".")[-1]) + max_decimals
-    return float(value_str[:decimal_slice])
+    pos = value_str.find(".") + 1
+    if pos <= 0:
+        return raw_range
+    return float(value_str[:pos + max_decimals])
 
 
 def mean_iter(average: float, value: float, num_samples: int) -> float:

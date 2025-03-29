@@ -53,6 +53,7 @@ from ..const_file import FileFilter
 from ..formatter import laptime_string_to_seconds
 from ..module_info import ConsumptionDataSet, minfo
 from ..setting import cfg
+from ..units import set_symbol_fuel, set_unit_fuel
 from ..userfile.fuel_delta import load_consumption_history_file
 from ._common import BaseDialog
 
@@ -86,6 +87,8 @@ class FuelCalculator(BaseDialog):
 
         # Set (freeze) fuel unit
         self.is_gallon = cfg.units["fuel_unit"] == "Gallon"
+        self.unit_fuel = set_unit_fuel(cfg.units["fuel_unit"])
+        self.symbol_fuel = set_symbol_fuel(cfg.units["fuel_unit"])
 
         # Set status bar
         self.status_bar = QStatusBar(self)
@@ -112,18 +115,6 @@ class FuelCalculator(BaseDialog):
         layout_main.addWidget(self.status_bar)
         self.setLayout(layout_main)
         self.setFixedWidth(self.sizeHint().width())
-
-    def fuel_units(self, fuel: float):
-        """2 different fuel unit conversion, default is Liter"""
-        if self.is_gallon:
-            return calc.liter2gallon(fuel)
-        return fuel
-
-    def fuel_unit_text(self):
-        """Set fuel unit text"""
-        if self.is_gallon:
-            return "gal"
-        return "L"
 
     def toggle_history_panel(self):
         """Toggle history data panel"""
@@ -209,11 +200,11 @@ class FuelCalculator(BaseDialog):
         # Load tank capacity
         capacity = max(api.read.vehicle.tank_capacity(), latest_history.capacityFuel)
         if capacity:
-            self.input_fuel.capacity.setValue(self.fuel_units(capacity))
+            self.input_fuel.capacity.setValue(self.unit_fuel(capacity))
         # Load consumption from last valid lap
         if latest_history.isValidLap:
             fuel_used = latest_history.lastLapUsedFuel
-            self.input_fuel.fuel_used.setValue(self.fuel_units(fuel_used))
+            self.input_fuel.fuel_used.setValue(self.unit_fuel(fuel_used))
             energy_used = latest_history.lastLapUsedEnergy
             self.input_fuel.energy_used.setValue(energy_used)
 
@@ -225,11 +216,11 @@ class FuelCalculator(BaseDialog):
         for row_index, lap_data in enumerate(dataset):
             lapnumber = self.__add_table_item(f"{lap_data.lapNumber}", 0)
             laptime = self.__add_table_item(calc.sec2laptime_full(lap_data.lapTimeLast), 33)
-            used_fuel = self.__add_table_item(f"{self.fuel_units(lap_data.lastLapUsedFuel):.3f}", 33)
+            used_fuel = self.__add_table_item(f"{self.unit_fuel(lap_data.lastLapUsedFuel):.3f}", 33)
             used_energy = self.__add_table_item(f"{lap_data.lastLapUsedEnergy:.3f}", 33)
             battery_drain = self.__add_table_item(f"{lap_data.batteryDrainLast:.3f}", 0)
             battery_regen = self.__add_table_item(f"{lap_data.batteryRegenLast:.3f}", 0)
-            capacity_fuel = self.__add_table_item(f"{self.fuel_units(lap_data.capacityFuel):.3f}", 33)
+            capacity_fuel = self.__add_table_item(f"{self.unit_fuel(lap_data.capacityFuel):.3f}", 33)
 
             if not lap_data.isValidLap:  # set invalid lap text color
                 laptime.setForeground(invalid_color)
@@ -343,11 +334,11 @@ class FuelCalculator(BaseDialog):
         self.table_history.setHorizontalHeaderLabels((
             "Lap",
             "Time",
-            f"Fuel({self.fuel_unit_text()})",
+            f"Fuel({self.symbol_fuel})",
             "Energy(%)",
             "Drain(%)",
             "Regen(%)",
-            f"Tank({self.fuel_unit_text()})",
+            f"Tank({self.symbol_fuel})",
         ))
 
         button_adddata = QPushButton("Add Selected Data")
@@ -599,14 +590,14 @@ class InputFuel():
 
         layout.addWidget(QLabel("Tank Capacity:"), 0, 0, 1, 2)
         layout.addWidget(self.capacity, 1, 0)
-        layout.addWidget(QLabel(parent.fuel_unit_text()), 1, 1)
+        layout.addWidget(QLabel(parent.symbol_fuel), 1, 1)
 
         layout.addWidget(QLabel("Fuel Ratio:"), 2, 0, 1, 2)
         layout.addWidget(self.fuel_ratio, 3, 0)
 
         layout.addWidget(QLabel("Fuel Consumption:"), 0, 2, 1, 2)
         layout.addWidget(self.fuel_used, 1, 2)
-        layout.addWidget(QLabel(parent.fuel_unit_text()), 1, 3)
+        layout.addWidget(QLabel(parent.symbol_fuel), 1, 3)
 
         layout.addWidget(QLabel("Energy Consumption:"), 2, 2, 1, 2)
         layout.addWidget(self.energy_used, 3, 2)
@@ -693,7 +684,7 @@ class OutputUsage():
     def __init__(self, parent, frame, type_name) -> None:
         """Set output display"""
         if type_name == "Fuel":
-            unit_text = parent.fuel_unit_text()
+            unit_text = parent.symbol_fuel
         else:
             unit_text = "%"
 
@@ -767,7 +758,7 @@ class OutputRefill():
 
         if type_name == "Fuel":
             start_range = 9999
-            unit_text = parent.fuel_unit_text()
+            unit_text = parent.symbol_fuel
             self.amount_start.valueChanged.connect(parent.validate_starting_fuel)
         else:
             start_range = 100

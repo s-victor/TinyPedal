@@ -20,9 +20,9 @@
 Tyre pressure Widget
 """
 
-from .. import calculation as calc
 from ..api_control import api
 from ..const_common import TEXT_NA
+from ..units import set_unit_pressure
 from ._base import Overlay
 
 
@@ -42,6 +42,9 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         bar_width = font_m.width * 4 + bar_padx
+
+        # Config units
+        self.unit_pres = set_unit_pressure(self.cfg.units["tyre_pressure_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -96,13 +99,4 @@ class Realtime(Overlay):
         """Tyre pressure"""
         if target.last != data:
             target.last = data
-            target.setText(self.tyre_pressure_units(data))
-
-    # Additional methods
-    def tyre_pressure_units(self, pres):
-        """Tyre pressure units"""
-        if self.cfg.units["tyre_pressure_unit"] == "psi":
-            return f"{calc.kpa2psi(pres):.1f}"
-        if self.cfg.units["tyre_pressure_unit"] == "bar":
-            return f"{calc.kpa2bar(pres):.2f}"
-        return f"{pres:.0f}"  # kPa
+            target.setText(f"{self.unit_pres(data):.2f}"[:4].strip("."))

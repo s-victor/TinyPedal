@@ -22,6 +22,7 @@ Electric motor Widget
 
 from .. import calculation as calc
 from ..api_control import api
+from ..units import set_symbol_power, set_unit_power, set_unit_temperature
 from ._base import Overlay
 
 
@@ -41,6 +42,11 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         bar_width = font_m.width * 8 + bar_padx
+
+        # Config units
+        self.unit_temp = set_unit_temperature(self.cfg.units["temperature_unit"])
+        self.unit_power = set_unit_power(self.cfg.units["power_unit"])
+        self.symbol_power = set_symbol_power(self.cfg.units["power_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -172,21 +178,15 @@ class Realtime(Overlay):
         """Motor temperature"""
         if target.last != data:
             target.last = data
-            is_overheat = data >= self.wcfg["overheat_threshold_motor"]
-            if self.cfg.units["temperature_unit"] == "Fahrenheit":
-                data = calc.celsius2fahrenheit(data)
-            target.setText(f"M{data: >6.1f}°")
-            target.setStyleSheet(self.bar_style_motor[is_overheat])
+            target.setText(f"M{self.unit_temp(data): >6.1f}°")
+            target.setStyleSheet(self.bar_style_motor[data >= self.wcfg["overheat_threshold_motor"]])
 
     def update_water(self, target, data):
         """Water temperature"""
         if target.last != data:
             target.last = data
-            is_overheat = data >= self.wcfg["overheat_threshold_water"]
-            if self.cfg.units["temperature_unit"] == "Fahrenheit":
-                data = calc.celsius2fahrenheit(data)
-            target.setText(f"W{data: >6.1f}°")
-            target.setStyleSheet(self.bar_style_water[is_overheat])
+            target.setText(f"W{self.unit_temp(data): >6.1f}°")
+            target.setStyleSheet(self.bar_style_water[data >= self.wcfg["overheat_threshold_water"]])
 
     def update_rpm(self, target, data):
         """Motor rpm"""
@@ -205,16 +205,5 @@ class Realtime(Overlay):
         """Motor power"""
         if target.last != data:
             target.last = data
-            target.setText(self.power_units(data))
-
-    # Additional methods
-    def power_units(self, power):
-        """Power units"""
-        if self.cfg.units["power_unit"] == "Kilowatt":
-            text = f"{power: >6.2f}"[:6]
-            return f"{text}kW"
-        if self.cfg.units["power_unit"] == "Horsepower":
-            text = f"{calc.kw2hp(power): >6.2f}"[:6]
-            return f"{text}hp"
-        text = f"{calc.kw2ps(power): >6.2f}"[:6]
-        return f"{text}ps"
+            text = f"{self.unit_power(data): >6.2f}"[:6]
+            target.setText(f"{text}{self.symbol_power}")

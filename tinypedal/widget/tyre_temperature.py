@@ -29,6 +29,7 @@ from ..heatmap import (
     select_compound_symbol,
     select_tyre_heatmap_name,
 )
+from ..units import set_unit_temperature
 from ._base import Overlay
 
 
@@ -51,9 +52,12 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         inner_gap = self.wcfg["inner_gap"]
-        self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
+        self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3) + 0.0  # no decimal
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
         text_width = 3 + len(self.sign_text) + (self.cfg.units["temperature_unit"] == "Fahrenheit")
+
+        # Config units
+        self.unit_temp = set_unit_temperature(self.cfg.units["temperature_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -129,7 +133,10 @@ class Realtime(Overlay):
         """Tyre surface temperature"""
         if target.last != data:
             target.last = data
-            target.setText(self.format_temperature(data))
+            if data < -100:
+                target.setText(TEXT_PLACEHOLDER)
+            else:
+                target.setText(f"{self.unit_temp(data):0{self.leading_zero}f}{self.sign_text}")
             target.setStyleSheet(calc.select_grade(self.heatmap_styles[index], data))
 
     def update_tcmpd(self, target, data, index):
@@ -174,12 +181,3 @@ class Realtime(Overlay):
             )
             self.set_grid_layout_quad(layout, bar_set)
         return bar_set
-
-    # Additional methods
-    def format_temperature(self, celsius):
-        """Format temperature"""
-        if celsius < -100:
-            return TEXT_PLACEHOLDER
-        if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            return f"{calc.celsius2fahrenheit(celsius):0{self.leading_zero}.0f}{self.sign_text}"
-        return f"{celsius:0{self.leading_zero}.0f}{self.sign_text}"

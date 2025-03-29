@@ -31,6 +31,7 @@ from ..const_common import (
     TEXT_PLACEHOLDER,
 )
 from ..module_info import minfo
+from ..units import set_unit_fuel
 from ._base import Overlay
 
 
@@ -61,6 +62,9 @@ class Realtime(Overlay):
         self.decimals_refill = max(self.wcfg["decimal_places_refill"], 0)
         self.extra_laps = max(self.wcfg["number_of_extra_laps"], 1)
         self.refill_sign = "" if self.wcfg["show_absolute_refilling"] else "+"
+
+        # Config units
+        self.unit_fuel = set_unit_fuel(self.cfg.units["fuel_unit"])
 
         self.gen_leader_pace = calc_laptime_pace(
             min(max(self.wcfg["leader_laptime_pace_samples"], 1), 20),
@@ -377,19 +381,13 @@ class Realtime(Overlay):
             target.last = data
             if data > -MAX_SECONDS:
                 if not energy_type:
-                    data = self.fuel_units(data)
+                    data = self.unit_fuel(data)
                 refill_text = f"{data:{self.refill_sign}.{self.decimals_refill}f}"[:self.char_width].strip(".")
             else:
                 refill_text = TEXT_PLACEHOLDER
             target.setText(refill_text)
 
     # Additional methods
-    def fuel_units(self, liter):
-        """2 different fuel unit conversion, default is Liter"""
-        if self.cfg.units["fuel_unit"] == "Gallon":
-            return calc.liter2gallon(liter)
-        return liter
-
     def create_pit_time_set(self, total_slot, suffix):
         """Create pit time set"""
         pit_time_set = [0, 0]  # reserved first 2 slots

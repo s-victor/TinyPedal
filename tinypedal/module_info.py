@@ -28,7 +28,6 @@ from typing import NamedTuple
 from .const_common import (
     ABS_ZERO_CELSIUS,
     DELTA_DEFAULT,
-    MAX_FORECAST_MINUTES,
     MAX_METERS,
     MAX_SECONDS,
     MAX_VEHICLES,
@@ -53,7 +52,7 @@ class ConsumptionDataSet(NamedTuple):
 class WeatherNode(NamedTuple):
     """Weather forecast node info"""
 
-    start_minute: float = MAX_FORECAST_MINUTES
+    start_seconds: float = MAX_SECONDS
     sky_type: int = -1
     temperature: float = ABS_ZERO_CELSIUS
     rain_chance: float = -1.0

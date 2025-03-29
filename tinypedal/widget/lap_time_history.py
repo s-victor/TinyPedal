@@ -25,6 +25,7 @@ from collections import deque
 from .. import calculation as calc
 from ..api_control import api
 from ..module_info import minfo
+from ..units import set_unit_fuel
 from ._base import Overlay
 
 
@@ -45,6 +46,9 @@ class Realtime(Overlay):
         layout_reversed = self.wcfg["layout"] != 0
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         history_slot = max(self.wcfg["lap_time_history_count"], 1)
+
+        # Config units
+        self.unit_fuel = set_unit_fuel(self.cfg.units["fuel_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -169,8 +173,8 @@ class Realtime(Overlay):
                 temp_fuel_last = minfo.energy.lastLapConsumption
                 temp_fuel_est = minfo.energy.estimatedConsumption
             else:
-                temp_fuel_last = self.fuel_units(minfo.fuel.lastLapConsumption)
-                temp_fuel_est = self.fuel_units(minfo.fuel.estimatedConsumption)
+                temp_fuel_last = self.unit_fuel(minfo.fuel.lastLapConsumption)
+                temp_fuel_est = self.unit_fuel(minfo.fuel.estimatedConsumption)
 
             if self.last_lap_stime != lap_stime:  # time stamp difference
                 if 2 < api.read.timing.elapsed() - lap_stime < 10:  # update 2s after cross line
@@ -240,10 +244,3 @@ class Realtime(Overlay):
             self.bars_time[index].setHidden(unavailable)
             self.bars_fuel[index].setHidden(unavailable)
             self.bars_wear[index].setHidden(unavailable)
-
-    # Additional methods
-    def fuel_units(self, liter):
-        """2 different fuel unit conversion, default is Liter"""
-        if self.cfg.units["fuel_unit"] == "Gallon":
-            return calc.liter2gallon(liter)
-        return liter

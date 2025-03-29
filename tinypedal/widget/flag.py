@@ -24,6 +24,7 @@ from .. import calculation as calc
 from ..api_control import api
 from ..const_common import MAX_SECONDS
 from ..module_info import minfo
+from ..units import set_symbol_distance, set_unit_distance, set_unit_fuel
 from ._base import Overlay
 
 
@@ -43,6 +44,11 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         bar_width = font_m.width * 7 + bar_padx
+
+        # Config units
+        self.unit_fuel = set_unit_fuel(self.cfg.units["fuel_unit"])
+        self.unit_dist = set_unit_distance(self.cfg.units["distance_unit"])
+        self.symbol_dist = set_symbol_distance(self.cfg.units["distance_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -345,11 +351,8 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             if data != MAX_SECONDS:
-                if self.cfg.units["distance_unit"] == "Feet":
-                    yelw_text = f"Y{data * 3.281: >4.0f}ft"[:7]
-                else:  # meter
-                    yelw_text = f"Y{data: >5.0f}m"[:7]
-                target.setText(yelw_text)
+                text = f"{self.unit_dist(data): >4.0f}{self.symbol_dist}"
+                target.setText(f"Y{text: >6}"[:7])
                 target.show()
             else:
                 target.hide()
@@ -405,12 +408,6 @@ class Realtime(Overlay):
                 target.hide()
 
     # Additional methods
-    def fuel_units(self, liter):
-        """2 different fuel unit conversion, default is Liter"""
-        if self.cfg.units["fuel_unit"] == "Gallon":
-            return calc.liter2gallon(liter)
-        return liter
-
     def is_lowfuel(self, in_race):
         """Is low fuel"""
         if self.wcfg["show_low_fuel_for_race_only"] and not in_race:
@@ -430,7 +427,7 @@ class Realtime(Overlay):
             return ""  # not low fuel
 
         if prefix == "LF":
-            amount_curr = self.fuel_units(amount_curr)
+            amount_curr = self.unit_fuel(amount_curr)
         return f"{prefix}{amount_curr: >5.2f}"[:7]
 
     def pit_in_countdown(self) -> str:
@@ -448,12 +445,13 @@ class Realtime(Overlay):
         est_laps = f"{est_laps:.2f}"[:3].strip(".")
         return f"{safe_laps: <3}≤{est_laps: >3}"
 
-    def yellow_flag_state(self, in_race: bool) -> int:
+    def yellow_flag_state(self, in_race: bool) -> float:
         """Yellow flag state"""
         if not self.wcfg["show_yellow_flag_for_race_only"] or in_race:
+            yellow_dist = minfo.vehicles.nearestYellow
             if (api.read.session.yellow_flag() and
-                minfo.vehicles.nearestYellow < self.wcfg["yellow_flag_maximum_range"]):
-                return round(minfo.vehicles.nearestYellow)
+                yellow_dist < self.wcfg["yellow_flag_maximum_range"]):
+                return yellow_dist
         return MAX_SECONDS
 
 
@@ -495,7 +493,7 @@ class TrafficTimer:
         self._pitout_duration = pitout_duration
         self._low_speed_threshold = low_speed_threshold
 
-    def update(self, in_pits: bool, elapsed_time: float) -> int:
+    def update(self, in_pits: bool, elapsed_time: float) -> float:
         """Check incoming traffic and time gap"""
         if self._last_in_pits > in_pits:
             self._timer_start = elapsed_time
@@ -504,10 +502,11 @@ class TrafficTimer:
         if self._timer_start and elapsed_time - self._timer_start > self._pitout_duration:
             self._timer_start = 0
 
-        if minfo.vehicles.nearestTraffic < self._max_time_gap:
+        traffic_time = minfo.vehicles.nearestTraffic
+        if traffic_time < self._max_time_gap:
             if (api.read.vehicle.speed() < self._low_speed_threshold > 0
                 or in_pits or self._timer_start):
-                return round(minfo.vehicles.nearestTraffic, 1)
+                return traffic_time
         return MAX_SECONDS
 
     def reset(self):
@@ -523,13 +522,13 @@ class BlueFlagTimer:
         self._timer_start = 0.0
         self._race_only = race_only
 
-    def update(self, in_race: bool, elapsed_time: float) -> int:
+    def update(self, in_race: bool, elapsed_time: float) -> float:
         """Check blue flag state"""
         if not self._race_only or in_race:
             if api.read.session.blue_flag():
                 if not self._timer_start:
                     self._timer_start = elapsed_time
-                return round(elapsed_time - self._timer_start)
+                return elapsed_time - self._timer_start
             self._timer_start = 0
         return MAX_SECONDS
 

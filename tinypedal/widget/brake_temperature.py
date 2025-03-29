@@ -29,6 +29,7 @@ from ..heatmap import (
     select_brake_heatmap_name,
     set_predefined_brake_name,
 )
+from ..units import set_unit_temperature
 from ._base import Overlay
 
 
@@ -48,11 +49,12 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         inner_gap = self.wcfg["inner_gap"]
-        self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
+        self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3) + 0.0  # no decimal
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
-
         text_width = 3 + len(self.sign_text) + (self.cfg.units["temperature_unit"] == "Fahrenheit")
-        bar_width_temp = font_m.width * text_width + bar_padx
+
+        # Config units
+        self.unit_temp = set_unit_temperature(self.cfg.units["temperature_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -81,7 +83,7 @@ class Realtime(Overlay):
         self.bars_btemp = self.set_qlabel(
             text=TEXT_NA,
             style=bar_style_btemp,
-            width=bar_width_temp,
+            width=font_m.width * text_width + bar_padx,
             count=4,
             last=0,
         )
@@ -108,7 +110,7 @@ class Realtime(Overlay):
             self.bars_btavg = self.set_qlabel(
                 text=TEXT_NA,
                 style=self.bar_style_btavg[0],
-                width=bar_width_temp,
+                width=font_m.width * text_width + bar_padx,
                 count=4,
                 last=0,
             )
@@ -180,25 +182,23 @@ class Realtime(Overlay):
         """Brake temperature"""
         if target.last != data:
             target.last = data
-            target.setText(self.format_temperature(data))
+            if data < -100:
+                target.setText(TEXT_PLACEHOLDER)
+            else:
+                target.setText(f"{self.unit_temp(data):0{self.leading_zero}f}{self.sign_text}")
             target.setStyleSheet(calc.select_grade(self.heatmap_styles[index], data))
 
     def update_btavg(self, target, data, highlighted=False):
         """Brake average temperature"""
         if target.last != data or highlighted:
             target.last = data
-            target.setText(self.format_temperature(data))
+            if data < -100:
+                target.setText(TEXT_PLACEHOLDER)
+            else:
+                target.setText(f"{self.unit_temp(data):0{self.leading_zero}f}{self.sign_text}")
             target.setStyleSheet(self.bar_style_btavg[highlighted])
 
     # Additional methods
-    def format_temperature(self, celsius):
-        """Format temperature"""
-        if celsius < -100:
-            return TEXT_PLACEHOLDER
-        if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            return f"{calc.celsius2fahrenheit(celsius):0{self.leading_zero}.0f}{self.sign_text}"
-        return f"{celsius:0{self.leading_zero}.0f}{self.sign_text}"
-
     def update_heatmap(self, class_name: str):
         """Update heatmap"""
         heatmap_f = select_brake_heatmap_name(

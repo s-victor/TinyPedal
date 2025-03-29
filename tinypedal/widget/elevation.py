@@ -26,6 +26,7 @@ from PySide2.QtGui import QBrush, QPainter, QPainterPath, QPen, QPixmap
 from .. import calculation as calc
 from ..api_control import api
 from ..module_info import minfo
+from ..units import set_symbol_distance, set_unit_distance
 from ._base import Overlay
 
 
@@ -67,6 +68,10 @@ class Realtime(Overlay):
         )
         self.elevation_text_alignment = self.set_text_alignment(self.wcfg["elevation_reading_text_alignment"])
         self.scale_text_alignment = self.set_text_alignment(self.wcfg["elevation_scale_text_alignment"])
+
+        # Config units
+        self.unit_dist = set_unit_distance(self.cfg.units["distance_unit"])
+        self.symbol_dist = set_symbol_distance(self.cfg.units["distance_unit"])
 
         # Config canvas
         self.resize(self.display_width, self.display_height)
@@ -141,13 +146,15 @@ class Realtime(Overlay):
             painter.drawText(
                 self.rect_text_elevation,
                 self.elevation_text_alignment,
-                self.format_elevation(api.read.vehicle.position_vertical())
+                f"{self.unit_dist(api.read.vehicle.position_vertical()):.1f}{self.symbol_dist}"
             )
         if self.wcfg["show_elevation_scale"]:
+            # Format elevation scale (meter or feet per pixel)
+            map_scale = round(self.unit_dist(1 / self.map_scale[1]), 2) if self.map_scale[1] else 1
             painter.drawText(
                 self.rect_text_scale,
                 self.scale_text_alignment,
-                self.format_scale(self.map_scale[1])
+                f"1:{map_scale}"
             )
 
     def create_elevation_path(self, raw_coords=None):
@@ -315,18 +322,3 @@ class Realtime(Overlay):
             # scale * (0pos - min_range)
             zero_elevation = self.map_scale[1] * -self.map_range[2]
             painter.drawLine(0, zero_elevation, self.display_width, zero_elevation)
-
-    # Additional methods
-    def format_elevation(self, meter):
-        """Format elevation"""
-        if self.cfg.units["distance_unit"] == "Feet":
-            return f"{calc.meter2feet(meter):.1f}ft"
-        return f"{meter:.1f}m"
-
-    def format_scale(self, scale):
-        """Format elevation scale (meter or feet per pixel)"""
-        if scale == 0:
-            return "1:1"
-        if self.cfg.units["distance_unit"] == "Feet":
-            return f"1:{round(calc.meter2feet(1 / scale), 2)}"
-        return f"1:{round(1 / scale, 2)}"
