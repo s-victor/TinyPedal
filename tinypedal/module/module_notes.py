@@ -41,6 +41,8 @@ from ._base import DataModule
 class Realtime(DataModule):
     """Notes data"""
 
+    __slots__ = ()
+
     def __init__(self, config, module_name):
         super().__init__(config, module_name)
 

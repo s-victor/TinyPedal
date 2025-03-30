@@ -30,6 +30,8 @@ from ._base import DataModule
 class Realtime(DataModule):
     """Hybrid data"""
 
+    __slots__ = ()
+
     def __init__(self, config, module_name):
         super().__init__(config, module_name)
 
@@ -139,7 +141,8 @@ class Realtime(DataModule):
                         delta_reset = False
                         if len(delta_list_raw) > 1 and not is_pit_lap:
                             delta_list_last = tuple(delta_list_raw)
-                        delta_list_raw = [DELTA_ZERO]  # reset
+                        delta_list_raw.clear()  # reset
+                        delta_list_raw.append(DELTA_ZERO)
                         pos_last = pos_curr
                         delta_recording = laptime_curr < 1
                         net_change_last = battery_regen_last - battery_drain_last

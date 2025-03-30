@@ -25,7 +25,6 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import re
 import socket
 from typing import Any, Callable
 from urllib.request import urlopen
@@ -64,7 +63,7 @@ SET_WEATHERFORECAST = (
     (minfo.restapi, "forecastRace", FORECAST_DEFAULT, forecast_rf2, "RACE"),
 )
 # Define task set
-# 0 - regex pattern (sim name), 1 - url path, 2 - output set
+# 0 - sim name pattern, 1 - url path, 2 - output set
 TASK_RUNONCE = (
     ("LMU|RF2", "sessions/setting/SESSSET_race_timescale", SET_TIMESCALE),
     ("LMU|RF2", "sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY),
@@ -78,6 +77,8 @@ TASK_REPEATS = (
 
 class Realtime(DataModule):
     """Rest API data"""
+
+    __slots__ = ("task_deletion",)
 
     def __init__(self, config, module_name):
         super().__init__(config, module_name)
@@ -271,5 +272,5 @@ def get_value(
 def sort_tasks(sim_name: str, task_set: tuple, active_task: dict):
     """Sort task set into dictionary, key - resource_name, value - output_set"""
     for pattern, resource_name, output_set in task_set:
-        if re.search(pattern, sim_name):
+        if sim_name in pattern:
             active_task[resource_name] = output_set

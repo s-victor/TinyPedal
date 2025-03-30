@@ -41,6 +41,8 @@ TEMP_CLASSES_POS = [[0, 1, "", 0.0, -1, -1, False] for _ in range(MAX_VEHICLES)]
 class Realtime(DataModule):
     """Relative & standings data"""
 
+    __slots__ = ()
+
     def __init__(self, config, module_name):
         super().__init__(config, module_name)
 

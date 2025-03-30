@@ -49,7 +49,7 @@ class Overlay(QWidget):
         self.cfg = config
 
         # Widget config
-        self.wcfg: dict = self.cfg.user.setting[widget_name]
+        self.wcfg = self.cfg.user.setting[widget_name]
         validate_column_order(self.wcfg)
 
         # Base setting
@@ -58,14 +58,9 @@ class Overlay(QWidget):
 
         # Widget mouse event
         self._mouse_pos = None
-        self._move_size = max(self.cfg.application["grid_move_size"], 1)
 
         # Set update timer
         self._update_timer = QBasicTimer()
-        self._update_interval = max(
-            self.wcfg["update_interval"],
-            self.cfg.application["minimum_update_interval"],
-        )
 
     def start(self):
         """Set initial widget state in orders, and start update"""
@@ -73,7 +68,11 @@ class Overlay(QWidget):
         self.__set_window_style()
         self.__set_window_attributes()  # 1
         self.__set_window_flags()  # 2
-        self._update_timer.start(self._update_interval, self)
+        update_interval = max(
+            self.wcfg["update_interval"],
+            self.cfg.application["minimum_update_interval"],
+        )
+        self._update_timer.start(update_interval, self)
 
     def stop(self):
         """Stop and close widget"""
@@ -124,7 +123,8 @@ class Overlay(QWidget):
         if self._mouse_pos and event.buttons() == Qt.LeftButton:
             pos = event.globalPos() - self._mouse_pos
             if self.cfg.overlay["enable_grid_move"]:
-                pos = pos / self._move_size * self._move_size
+                move_size = max(self.cfg.application["grid_move_size"], 1)
+                pos = pos / move_size * move_size
             self.move(pos)
 
     def mousePressEvent(self, event):

@@ -45,6 +45,8 @@ round6 = partial(round, ndigits=6)
 class Realtime(DataModule):
     """Fuel usage data"""
 
+    __slots__ = ()
+
     def __init__(self, config, module_name):
         super().__init__(config, module_name)
 
@@ -237,7 +239,8 @@ def calc_data(
                 ))
                 delta_list_temp = tuple(delta_list_raw)
                 validating = api.read.timing.elapsed()
-            delta_list_raw = [DELTA_ZERO]  # reset
+            delta_list_raw.clear()  # reset
+            delta_list_raw.append(DELTA_ZERO)
             pos_last = pos_recorded = pos_curr
             used_last_raw = used_curr
             used_curr = 0

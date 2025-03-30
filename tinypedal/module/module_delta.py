@@ -42,6 +42,8 @@ round6 = partial(round, ndigits=6)
 class Realtime(DataModule):
     """Delta time data"""
 
+    __slots__ = ()
+
     def __init__(self, config, module_name):
         super().__init__(config, module_name)
 
@@ -140,7 +142,8 @@ class Realtime(DataModule):
                         delta_list_raw.append((round6(pos_last + 10), round6(laptime_last)))
                         delta_list_last = tuple(delta_list_raw)
                         validating = api.read.timing.elapsed()
-                    delta_list_raw = [DELTA_ZERO]  # reset
+                    delta_list_raw.clear()  # reset
+                    delta_list_raw.append(DELTA_ZERO)
                     pos_last = pos_recorded = pos_curr
                     recording = laptime_curr < 1
                     is_pit_lap = 0

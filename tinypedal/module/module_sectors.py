@@ -37,6 +37,8 @@ round6 = partial(round, ndigits=6)
 class Realtime(DataModule):
     """Sectors data"""
 
+    __slots__ = ()
+
     def __init__(self, config, module_name):
         super().__init__(config, module_name)
 

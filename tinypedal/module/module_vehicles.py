@@ -34,6 +34,8 @@ ALL_INDEXES = list(range(MAX_VEHICLES))
 class Realtime(DataModule):
     """Vehicles info"""
 
+    __slots__ = ()
+
     def __init__(self, config, module_name):
         super().__init__(config, module_name)
 
