@@ -83,7 +83,7 @@ Note: the build script only supports py2exe `v0.12.0.0` or higher.
 
 ## Running on Linux
 
-The procedure described in the **Run from source** section is mostly valid,
+The procedure described in the [Run from source](#run-from-source) section is mostly valid,
 except some differences in the dependencies, and that no executable can be
 built. The differences are explained here.
 
@@ -129,14 +129,14 @@ You can run the script as (it doesn't support any arguments or options):
 
 ### Known issues
 
-- Widgets don't appear over the game window in KDE. Workaround: enable
-  bypassing the window manager in the menu Config -> Compatibility.
-- Transparency of widgets doesn't work when desktop compositing is disabled.
-  Workaround: enable window manager compositing in your DE.
+- Widgets don't appear over the game window in KDE. Workaround: enable `Bypass Window Manager` option in `Compatibility` dialog from `Config` menu in main window.
+- Transparency of widgets doesn't work when desktop compositing is disabled. Workaround: enable `window manager compositing` in your DE.
 
 ## License
 
-TinyPedal is licensed under the GNU General Public License v3.0 or later. See [LICENSE.txt](./LICENSE.txt) for full text.
+Copyright (C) 2022-2025 TinyPedal developers
+
+TinyPedal is free software and licensed under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. TinyPedal is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY. See [LICENSE.txt](./LICENSE.txt) for more info.
 
 TinyPedal icon, as well as image files located in `images` folder, are licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
@@ -144,4 +144,4 @@ Licenses and notices file for third-party software are located in `docs\licenses
 
 ## Credits
 
-See [docs\contributors.md](./docs/contributors.md) file for full list of contributors.
+See [docs\contributors.md](./docs/contributors.md) file for full list of developers and contributors.
