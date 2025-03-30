@@ -2327,10 +2327,19 @@ Fade out radar edge.
 Set fade in/out radius relative to radar radius, value range in `0.0` to `1.0`.
 
     show_overlap_indicator
-Show overlap indicator when there is nearby side by side vehicle.
+Show overlap indicator when there are nearby side by side vehicles. This option shows `boundary style` indicator if `show_overlap_indicator_in_cone_style` option is disabled.
 
-    overlap_detection_range_multiplier
-Set overlap detection range multiplier that scales with vehicle width.
+    show_overlap_indicator_in_cone_style
+Show overlap indicator in `cone style` instead of `boundary style`.
+
+    overlap_cone_angle
+Set cone display angle in degrees. This option does not affect overlap detection range. Default is `120` degrees.
+
+    overlap_nearby_range_multiplier
+Set nearby vehicle overlap detection range multiplier that scales with vehicle width. A value of `5` would result a 5-vehicle-wide detection range. Default is `5` vehicle-wide.
+
+    overlap_critical_range_multiplier
+Set nearby vehicle critical overlap detection range multiplier that scales with vehicle width. Default is `1` vehicle-wide.
 
     indicator_size_multiplier
 Set indicator size multiplier that scales with vehicle width.
@@ -2346,6 +2355,9 @@ Set center mark size by radius(unit meter).
 
     center_mark_width
 Set center mark line width in pixels.
+
+    show_angle_mark
+Show angle mark (fixed 45 degrees) on radar.
 
     show_distance_circle
 Show distance circle line on radar for distance reference.

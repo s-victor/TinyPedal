@@ -1,5 +1,13 @@
 WIP
 -----------------------------
+* Radar Widget
+  - Add "show_overlap_indicator_in_cone_style" option (optional), which shows overlap indicator in "cone style" instead of "boundary style".
+  - Add "overlap_cone_angle" option, which sets cone display angle in degrees. This option does not affect overlap detection range.
+  - Renamed "overlap_detection_range_multiplier" option to "overlap_nearby_range_multiplier", which sets nearby vehicle overlap detection range multiplier.
+    A value of "5" would result a 5-vehicle-wide detection range. Default is "5" vehicle-wide.
+  - Add "overlap_critical_range_multiplier" option, which sets nearby vehicle critical overlap detection range multiplier. Default is "1" vehicle-wide.
+  - Add "show_angle_mark" and angle mark style options, which show angle mark (fixed 45 degrees) on radar background.
+
 * Relative, Rivals, Standings Widget
   - Add "show_position_change" option (requested by bongio94), which shows overall driver position change relative to overall qualification position.
   - Add "show_position_change_in_class" option, which shows driver position change in class instead of overall. This option is enabled by default.

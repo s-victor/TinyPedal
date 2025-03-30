@@ -39,6 +39,26 @@ from ..module_info import minfo
 from ._base import Overlay
 
 
+class IndicatorDimension(NamedTuple):
+    """Indicator dimension"""
+
+    min_range_x: float = 0
+    max_range_x: float = 0
+    max_range_y: float = 0
+    crit_range: float = 0
+    width: float = 0
+    edge: float = 0
+    offset: float = 0
+
+
+class DistanceRect(NamedTuple):
+    """Distance rectangle"""
+
+    ahead: float = 0
+    behind: float = 0
+    side: float = 0
+
+
 class Realtime(Overlay):
     """Draw widget"""
 
@@ -62,13 +82,24 @@ class Realtime(Overlay):
             self.veh_width * self.global_scale,
             self.veh_length * self.global_scale
         )
-        self.indicator_dimension = self.calc_indicator_dimension(self.veh_width, self.veh_length)
-        self.indicator_color = QColor(self.wcfg["indicator_color"])
-        self.indicator_color_critical = QColor(self.wcfg["indicator_color_critical"])
         self.vehicle_hide_range = self.set_range_dimension("vehicle_maximum_visible_distance")
         self.radar_hide_range = self.set_range_dimension("auto_hide_minimum_distance")
         self.radar_fade_factor = self.set_radar_fade_factor(self.radar_radius)
         self.radar_fade_color = QColor(0, 0, 0)
+
+        # Overlap indicator
+        self.indicator_dimension = self.calc_indicator_dimension(self.veh_width, self.veh_length)
+        self.indicator_color = QColor(self.wcfg["indicator_color_nearby"])
+        self.indicator_color_critical = QColor(self.wcfg["indicator_color_critical"])
+        if self.wcfg["show_overlap_indicator_in_cone_style"]:
+            rad_gra = QRadialGradient(self.area_center, self.area_center, self.area_center)
+            cone_angle = max(self.wcfg["overlap_cone_angle"], 10)
+            left_start = calc.asym_max(180 - cone_angle / 2, 90, 180)
+            right_start = calc.asym_max(0 - cone_angle / 2, -270, 90)
+            self.brush_cone = QBrush(rad_gra)
+            self.gradient_cone = [[0.1, Qt.transparent], [1, Qt.transparent]]
+            self.cone_angle_l = left_start * 16, cone_angle * 16
+            self.cone_angle_r = right_start * 16, cone_angle * 16
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
@@ -178,6 +209,20 @@ class Realtime(Overlay):
             painter.drawLine(center, center, center, center - mark_scale)
             painter.drawLine(center, center, center + mark_scale, center)
 
+        if self.wcfg["show_angle_mark"]:
+            if not self.wcfg["angle_mark_style"]:
+                pen.setStyle(Qt.DashLine)
+            else:
+                pen.setStyle(Qt.SolidLine)
+            mark_scale = self.wcfg["angle_mark_radius"] * self.global_scale
+            pen.setWidth(self.wcfg["angle_mark_width"])
+            pen.setColor(self.wcfg["angle_mark_color"])
+            painter.setPen(pen)
+            painter.drawLine(center, center, center - mark_scale, center + mark_scale)
+            painter.drawLine(center, center, center + mark_scale, center - mark_scale)
+            painter.drawLine(center, center, center - mark_scale, center - mark_scale)
+            painter.drawLine(center, center, center + mark_scale, center + mark_scale)
+
         # Draw circle mark
         if self.wcfg["show_distance_circle"]:
             painter.setBrush(Qt.NoBrush)
@@ -213,43 +258,46 @@ class Realtime(Overlay):
             painter.setPen(pen)
             painter.drawEllipse(pos, pos, size, size)
 
-    def draw_warning_indicator(self, painter, indicator, nearest_left, nearest_right):
+    def draw_warning_cone(
+        self, painter, nearest_left, nearest_right, indicator: IndicatorDimension):
+        """Draw warning indicator as cone shape"""
+        painter.setPen(Qt.NoPen)
+        # Draw left side indicator
+        if nearest_left > -indicator.max_range_x:
+            self.gradient_cone[0][1] = self.warning_color(abs(nearest_left), indicator)
+            self.brush_cone.gradient().setStops(self.gradient_cone)
+            painter.setBrush(self.brush_cone)
+            painter.drawPie(self.rect_radar, *self.cone_angle_l)
+
+        # Draw right side indicator
+        if nearest_right < indicator.max_range_x:
+            self.gradient_cone[0][1] = self.warning_color(abs(nearest_right), indicator)
+            self.brush_cone.gradient().setStops(self.gradient_cone)
+            painter.setBrush(self.brush_cone)
+            painter.drawPie(self.rect_radar, *self.cone_angle_r)
+
+    def draw_warning_indicator(
+        self, painter, nearest_left, nearest_right, indicator: IndicatorDimension):
         """Draw warning indicator"""
         # Draw left side indicator
         if nearest_left > -indicator.max_range_x:
             x_left = self.scale_veh_pos(nearest_left)
-            lin_gra = QLinearGradient(
-                x_left - indicator.width + indicator.offset, 0,
-                x_left + indicator.offset, 0
-            )
-            color_center = self.warning_color(
-                abs(nearest_left), indicator.min_range_x, indicator.max_range_x)
+            pos_left = x_left - indicator.width + indicator.offset
+            lin_gra = QLinearGradient(pos_left, 0, x_left + indicator.offset, 0)
             lin_gra.setColorAt(0, Qt.transparent)
-            lin_gra.setColorAt(indicator.edge, color_center)
+            lin_gra.setColorAt(indicator.edge, self.warning_color(abs(nearest_left), indicator))
             lin_gra.setColorAt(1, Qt.transparent)
-            painter.fillRect(
-                x_left - indicator.width + indicator.offset,
-                0, indicator.width, self.area_size,
-                lin_gra
-            )
+            painter.fillRect(pos_left, 0, indicator.width, self.area_size, lin_gra)
 
         # Draw right side indicator
         if nearest_right < indicator.max_range_x:
             x_right = self.scale_veh_pos(nearest_right)
-            lin_gra = QLinearGradient(
-                x_right - indicator.offset, 0,
-                x_right + indicator.width - indicator.offset, 0
-            )
-            color_center = self.warning_color(
-                abs(nearest_right), indicator.min_range_x, indicator.max_range_x)
+            pos_right = x_right - indicator.offset
+            lin_gra = QLinearGradient(pos_right, 0, x_right + indicator.width - indicator.offset, 0)
             lin_gra.setColorAt(0, Qt.transparent)
-            lin_gra.setColorAt(1 - indicator.edge, color_center)
+            lin_gra.setColorAt(1 - indicator.edge, self.warning_color(abs(nearest_right), indicator))
             lin_gra.setColorAt(1, Qt.transparent)
-            painter.fillRect(
-                x_right - indicator.offset,
-                0, indicator.width, self.area_size,
-                lin_gra
-            )
+            painter.fillRect(pos_right, 0, indicator.width, self.area_size, lin_gra)
 
     def draw_vehicle(self, painter, indicator):
         """Draw opponents vehicles"""
@@ -294,20 +342,23 @@ class Realtime(Overlay):
                 )
                 painter.resetTransform()
 
+        # Draw overlap indicator below vehicle shape
         if self.wcfg["show_overlap_indicator"]:
-            # Draw overlap indicator below vehicle shape
             painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
-            self.draw_warning_indicator(painter, indicator, nearest_left, nearest_right)
+            if self.wcfg["show_overlap_indicator_in_cone_style"]:
+                self.draw_warning_cone(painter, nearest_left, nearest_right, indicator)
+            else:
+                self.draw_warning_indicator(painter, nearest_left, nearest_right, indicator)
 
     # Additional methods
     def scale_veh_pos(self, position):
         """Scale vehicle position coordinate to global scale"""
         return position * self.global_scale + self.area_center
 
-    def warning_color(self, nearest_x, min_range_x, max_range_x):
+    def warning_color(self, nearest_x, indicator: IndicatorDimension):
         """Overtaking warning color"""
-        alpha = 1 - (nearest_x - min_range_x) / max_range_x
-        if nearest_x < min_range_x * 1.7:
+        alpha = 1 - (nearest_x - indicator.min_range_x) / indicator.max_range_x
+        if nearest_x <= indicator.crit_range:
             self.indicator_color_critical.setAlphaF(alpha)  # alpha changes with nearest distance
             return self.indicator_color_critical
         self.indicator_color.setAlphaF(alpha)
@@ -376,13 +427,13 @@ class Realtime(Overlay):
         y is forward to backward range.
         """
         min_range_x = veh_width * 0.9  # slightly overlapped
-        max_range_x = veh_width * max(self.wcfg["overlap_detection_range_multiplier"], 0.01)
+        max_range_x = veh_width * (max(self.wcfg["overlap_nearby_range_multiplier"], 0) + 0.9)
         max_range_y = veh_length * 1.2  # safe range for ahead & behind opponents
+        crit_range = veh_width * (max(self.wcfg["overlap_critical_range_multiplier"], 0) + 0.9)
         width = veh_width * max(self.wcfg["indicator_size_multiplier"], 0.01) * self.global_scale
         edge = max((width - 3) / width, 0.001)  # for antialiasing
         offset = veh_width * self.global_scale * 0.5
-        return IndicatorDimension(
-            min_range_x, max_range_x, max_range_y, width, edge, offset)
+        return IndicatorDimension(min_range_x, max_range_x, max_range_y, crit_range, width, edge, offset)
 
     def set_range_dimension(self, prefix):
         """Set range dimension for radar & autohide"""
@@ -410,20 +461,3 @@ class Realtime(Overlay):
         range_diff = range_fade_out - range_fade_in
         range_scale = range_fade_out / range_diff
         return range_scale / radar_radius
-
-
-class IndicatorDimension(NamedTuple):
-    """Indicator dimension"""
-    min_range_x: float = 0
-    max_range_x: float = 0
-    max_range_y: float = 0
-    width: float = 0
-    edge: float = 0
-    offset: float = 0
-
-
-class DistanceRect(NamedTuple):
-    """Distance rectangle"""
-    ahead: float = 0
-    behind: float = 0
-    side: float = 0
