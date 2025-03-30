@@ -215,6 +215,7 @@ class Realtime(Overlay):
             else:
                 pen.setStyle(Qt.SolidLine)
             mark_scale = self.wcfg["angle_mark_radius"] * self.global_scale
+            mark_scale *= 0.7071  # radius correction
             pen.setWidth(self.wcfg["angle_mark_width"])
             pen.setColor(self.wcfg["angle_mark_color"])
             painter.setPen(pen)

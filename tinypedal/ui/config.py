@@ -554,7 +554,7 @@ def add_context_menu(parent: QWidget):
 
 def context_menu_reset_option(position: QPoint, parent: QWidget):
     """Context menu reset option"""
-    menu = QMenu(parent)
+    menu = QMenu()  # no parent for temp menu
     option_reset = menu.addAction("Reset to Default")
     action = menu.exec_(parent.mapToGlobal(position))
     if action == option_reset:

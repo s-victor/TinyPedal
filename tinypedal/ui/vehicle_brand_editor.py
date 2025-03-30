@@ -28,7 +28,6 @@ import time
 from urllib.request import urlopen
 
 from PySide2.QtWidgets import (
-    QAction,
     QDialogButtonBox,
     QFileDialog,
     QHBoxLayout,
@@ -90,17 +89,14 @@ class VehicleBrandEditor(BaseEditor):
         # Menu
         import_menu = QMenu(self)
 
-        import_rf2 = QAction("RF2 Rest API", self)
+        import_rf2 = import_menu.addAction("RF2 Rest API")
         import_rf2.triggered.connect(self.import_from_rf2)
-        import_menu.addAction(import_rf2)
 
-        import_lmu = QAction("LMU Rest API", self)
+        import_lmu = import_menu.addAction("LMU Rest API")
         import_lmu.triggered.connect(self.import_from_lmu)
-        import_menu.addAction(import_lmu)
 
-        import_json = QAction("JSON file", self)
+        import_json = import_menu.addAction("JSON file")
         import_json.triggered.connect(self.import_from_file)
-        import_menu.addAction(import_json)
 
         # Button
         button_import = QPushButton("Import from")

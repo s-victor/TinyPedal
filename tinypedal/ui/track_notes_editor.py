@@ -24,7 +24,6 @@ import os
 
 from PySide2.QtCore import QPoint, Qt
 from PySide2.QtWidgets import (
-    QAction,
     QDialogButtonBox,
     QFileDialog,
     QFrame,
@@ -169,23 +168,18 @@ class TrackNotesEditor(BaseEditor):
         # File menu
         file_menu = QMenu(self)
 
-        open_pacenotes = QAction("Open Pace Notes", self)
+        open_pacenotes = file_menu.addAction("Open Pace Notes")
         open_pacenotes.triggered.connect(self.load_pacenotes_file)
-        file_menu.addAction(open_pacenotes)
 
-        open_tracknotes = QAction("Open Track Notes", self)
+        open_tracknotes = file_menu.addAction("Open Track Notes")
         open_tracknotes.triggered.connect(self.load_tracknotes_file)
-        file_menu.addAction(open_tracknotes)
-
         file_menu.addSeparator()
 
-        create_pacenotes = QAction("New Pace Notes", self)
+        create_pacenotes = file_menu.addAction("New Pace Notes")
         create_pacenotes.triggered.connect(self.create_pacenotes)
-        file_menu.addAction(create_pacenotes)
 
-        create_tracknotes = QAction("New Track Notes", self)
+        create_tracknotes = file_menu.addAction("New Track Notes")
         create_tracknotes.triggered.connect(self.create_tracknotes)
-        file_menu.addAction(create_tracknotes)
 
         button_file = QPushButton("File")
         button_file.setStyleSheet(QSS_EDITOR_BUTTON)
@@ -194,13 +188,11 @@ class TrackNotesEditor(BaseEditor):
         # Set position menu
         setpos_menu = QMenu(self)
 
-        setpos_frommap = QAction("From Map", self)
+        setpos_frommap = setpos_menu.addAction("From Map")
         setpos_frommap.triggered.connect(self.set_position_from_map)
-        setpos_menu.addAction(setpos_frommap)
 
-        setpos_fromtele = QAction("From Telemetry", self)
+        setpos_fromtele = setpos_menu.addAction("From Telemetry")
         setpos_fromtele.triggered.connect(self.set_position_from_tele)
-        setpos_menu.addAction(setpos_fromtele)
 
         button_setpos = QPushButton("Set Pos")
         button_setpos.setStyleSheet(QSS_EDITOR_BUTTON)

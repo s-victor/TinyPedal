@@ -23,7 +23,7 @@ Menu
 import os
 
 from PySide2.QtGui import QDesktopServices
-from PySide2.QtWidgets import QAction, QMenu, QMessageBox
+from PySide2.QtWidgets import QMenu, QMessageBox
 
 from ..api_control import api
 from ..const_app import URL_FAQ, URL_USER_GUIDE
@@ -50,46 +50,39 @@ class OverlayMenu(QMenu):
     def __init__(self, title, parent, is_tray: bool = False):
         super().__init__(title, parent)
         if is_tray:
-            self.loaded_preset = QAction("", self)
+            self.loaded_preset = self.addAction("")
             self.loaded_preset.setDisabled(True)
-            self.addAction(self.loaded_preset)
             self.aboutToShow.connect(self.refresh_preset_name)
             self.addSeparator()
 
         # Lock overlay
-        self.overlay_lock = QAction("Lock Overlay", self)
+        self.overlay_lock = self.addAction("Lock Overlay")
         self.overlay_lock.setCheckable(True)
         self.overlay_lock.triggered.connect(self.is_locked)
-        self.addAction(self.overlay_lock)
 
         # Auto hide
-        self.overlay_hide = QAction("Auto Hide", self)
+        self.overlay_hide = self.addAction("Auto Hide")
         self.overlay_hide.setCheckable(True)
         self.overlay_hide.triggered.connect(self.is_hidden)
-        self.addAction(self.overlay_hide)
 
         # Grid move
-        self.overlay_grid = QAction("Grid Move", self)
+        self.overlay_grid = self.addAction("Grid Move")
         self.overlay_grid.setCheckable(True)
         self.overlay_grid.triggered.connect(self.has_grid)
-        self.addAction(self.overlay_grid)
 
         # VR Compatbiility
-        self.overlay_vr = QAction("VR Compatibility", self)
+        self.overlay_vr = self.addAction("VR Compatibility")
         self.overlay_vr.setCheckable(True)
         self.overlay_vr.triggered.connect(self.vr_compatibility)
-        self.addAction(self.overlay_vr)
 
         # Reload preset
-        reload_preset = QAction("Reload", self)
+        reload_preset = self.addAction("Reload")
         reload_preset.triggered.connect(parent.reload_preset)
-        self.addAction(reload_preset)
         self.addSeparator()
 
         # Restart API
-        restart_api = QAction("Restart API", self)
+        restart_api = self.addAction("Restart API")
         restart_api.triggered.connect(parent.restart_api)
-        self.addAction(restart_api)
         self.addSeparator()
 
         # Reset submenu
@@ -99,15 +92,13 @@ class OverlayMenu(QMenu):
 
         # Config
         if is_tray:
-            app_config = QAction("Config", self)
+            app_config = self.addAction("Config")
             app_config.triggered.connect(parent.show_app)
-            self.addAction(app_config)
             self.addSeparator()
 
         # Quit
-        app_quit = QAction("Quit", self)
+        app_quit = self.addAction("Quit")
         app_quit.triggered.connect(parent.quit_app)
-        self.addAction(app_quit)
 
         # Refresh menu
         self.aboutToShow.connect(self.refresh_menu)
@@ -154,29 +145,23 @@ class ResetDataMenu(QMenu):
         super().__init__(title, parent)
         self._parent = parent
 
-        reset_deltabest = QAction("Delta Best", self)
+        reset_deltabest = self.addAction("Delta Best")
         reset_deltabest.triggered.connect(self.reset_deltabest)
-        self.addAction(reset_deltabest)
 
-        reset_energydelta = QAction("Energy Delta", self)
+        reset_energydelta = self.addAction("Energy Delta")
         reset_energydelta.triggered.connect(self.reset_energydelta)
-        self.addAction(reset_energydelta)
 
-        reset_fueldelta = QAction("Fuel Delta", self)
+        reset_fueldelta = self.addAction("Fuel Delta")
         reset_fueldelta.triggered.connect(self.reset_fueldelta)
-        self.addAction(reset_fueldelta)
 
-        reset_consumption = QAction("Consumption History", self)
+        reset_consumption = self.addAction("Consumption History")
         reset_consumption.triggered.connect(self.reset_consumption)
-        self.addAction(reset_consumption)
 
-        reset_sectorbest = QAction("Sector Best", self)
+        reset_sectorbest = self.addAction("Sector Best")
         reset_sectorbest.triggered.connect(self.reset_sectorbest)
-        self.addAction(reset_sectorbest)
 
-        reset_trackmap = QAction("Track Map", self)
+        reset_trackmap = self.addAction("Track Map")
         reset_trackmap.triggered.connect(self.reset_trackmap)
-        self.addAction(reset_trackmap)
 
     def reset_deltabest(self):
         """Reset deltabest data"""
@@ -281,30 +266,24 @@ class ConfigMenu(QMenu):
         super().__init__(title, parent)
         self._parent = parent
 
-        config_app = QAction("Application", self)
+        config_app = self.addAction("Application")
         config_app.triggered.connect(self.open_config_application)
-        self.addAction(config_app)
 
-        config_compat = QAction("Compatibility", self)
+        config_compat = self.addAction("Compatibility")
         config_compat.triggered.connect(self.open_config_compatibility)
-        self.addAction(config_compat)
 
-        config_userpath = QAction("User Path", self)
+        config_userpath = self.addAction("User Path")
         config_userpath.triggered.connect(self.open_config_userpath)
-        self.addAction(config_userpath)
         self.addSeparator()
 
-        config_units = QAction("Units", self)
+        config_units = self.addAction("Units")
         config_units.triggered.connect(self.open_config_units)
-        self.addAction(config_units)
 
-        config_font = QAction("Global Font Override", self)
+        config_font = self.addAction("Global Font Override")
         config_font.triggered.connect(self.open_config_font)
-        self.addAction(config_font)
 
-        config_sharedmemory = QAction("Shared Memory API", self)
+        config_sharedmemory = self.addAction("Shared Memory API")
         config_sharedmemory.triggered.connect(self.open_config_sharedmemory)
-        self.addAction(config_sharedmemory)
 
     def open_config_application(self):
         """Config global application"""
@@ -384,42 +363,33 @@ class ToolsMenu(QMenu):
         super().__init__(title, parent)
         self._parent = parent
 
-        utility_fuelcalc = QAction("Fuel Calculator", self)
+        utility_fuelcalc = self.addAction("Fuel Calculator")
         utility_fuelcalc.triggered.connect(self.open_utility_fuelcalc)
-        self.addAction(utility_fuelcalc)
 
-        utility_driverstats = QAction("Driver Stats Viewer", self)
+        utility_driverstats = self.addAction("Driver Stats Viewer")
         utility_driverstats.triggered.connect(self.open_utility_driverstats)
-        self.addAction(utility_driverstats)
 
-        utility_mapviewer = QAction("Track Map Viewer", self)
+        utility_mapviewer = self.addAction("Track Map Viewer")
         utility_mapviewer.triggered.connect(self.open_utility_mapviewer)
-        self.addAction(utility_mapviewer)
         self.addSeparator()
 
-        editor_heatmap = QAction("Heatmap Editor", self)
+        editor_heatmap = self.addAction("Heatmap Editor")
         editor_heatmap.triggered.connect(self.open_editor_heatmap)
-        self.addAction(editor_heatmap)
 
-        editor_brakes = QAction("Brake Editor", self)
+        editor_brakes = self.addAction("Brake Editor")
         editor_brakes.triggered.connect(self.open_editor_brakes)
-        self.addAction(editor_brakes)
 
-        editor_compounds = QAction("Tyre Compound Editor", self)
+        editor_compounds = self.addAction("Tyre Compound Editor")
         editor_compounds.triggered.connect(self.open_editor_compounds)
-        self.addAction(editor_compounds)
 
-        editor_brands = QAction("Vehicle Brand Editor", self)
+        editor_brands = self.addAction("Vehicle Brand Editor")
         editor_brands.triggered.connect(self.open_editor_brands)
-        self.addAction(editor_brands)
 
-        editor_classes = QAction("Vehicle Class Editor", self)
+        editor_classes = self.addAction("Vehicle Class Editor")
         editor_classes.triggered.connect(self.open_editor_classes)
-        self.addAction(editor_classes)
 
-        editor_tracknotes = QAction("Track Notes Editor", self)
+        editor_tracknotes = self.addAction("Track Notes Editor")
         editor_tracknotes.triggered.connect(self.open_editor_tracknotes)
-        self.addAction(editor_tracknotes)
 
     def open_utility_fuelcalc(self):
         """Fuel calculator"""
@@ -472,25 +442,21 @@ class WindowMenu(QMenu):
 
     def __init__(self, title, parent):
         super().__init__(title, parent)
-        self.show_at_startup = QAction("Show at Startup", self)
+        self.show_at_startup = self.addAction("Show at Startup")
         self.show_at_startup.setCheckable(True)
         self.show_at_startup.triggered.connect(self.is_show_at_startup)
-        self.addAction(self.show_at_startup)
 
-        self.minimize_to_tray = QAction("Minimize to Tray", self)
+        self.minimize_to_tray = self.addAction("Minimize to Tray")
         self.minimize_to_tray.setCheckable(True)
         self.minimize_to_tray.triggered.connect(self.is_minimize_to_tray)
-        self.addAction(self.minimize_to_tray)
 
-        self.remember_position = QAction("Remember Position", self)
+        self.remember_position = self.addAction("Remember Position")
         self.remember_position.setCheckable(True)
         self.remember_position.triggered.connect(self.is_remember_position)
-        self.addAction(self.remember_position)
 
-        self.remember_size = QAction("Remember Size", self)
+        self.remember_size = self.addAction("Remember Size")
         self.remember_size.setCheckable(True)
         self.remember_size.triggered.connect(self.is_remember_size)
-        self.addAction(self.remember_size)
 
         self.aboutToShow.connect(self.refresh_menu)
 
@@ -531,22 +497,18 @@ class HelpMenu(QMenu):
         super().__init__(title, parent)
         self._parent = parent
 
-        app_guide = QAction("User Guide", self)
+        app_guide = self.addAction("User Guide")
         app_guide.triggered.connect(self.open_user_guide)
-        self.addAction(app_guide)
 
-        app_faq = QAction("FAQ", self)
+        app_faq = self.addAction("FAQ")
         app_faq.triggered.connect(self.open_faq)
-        self.addAction(app_faq)
 
-        app_log = QAction("Show Log", self)
+        app_log = self.addAction("Show Log")
         app_log.triggered.connect(self.show_log)
-        self.addAction(app_log)
         self.addSeparator()
 
-        app_about = QAction("About", self)
+        app_about = self.addAction("About")
         app_about.triggered.connect(self.show_about)
-        self.addAction(app_about)
 
     def show_about(self):
         """Show about"""

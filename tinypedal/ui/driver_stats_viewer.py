@@ -313,7 +313,7 @@ class DriverStatsViewer(BaseEditor):
             item_column = data.column()
             break
 
-        menu = QMenu(self)
+        menu = QMenu()  # no parent for temp menu
         if item_column == 0:
             menu.addAction("Remove Vehicle")
         elif item_column == 1:
