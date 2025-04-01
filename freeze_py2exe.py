@@ -10,16 +10,17 @@ import os
 import shutil
 import sys
 from glob import glob
+
 from py2exe import freeze
 
 from tinypedal.const_app import (
     APP_NAME,
-    VERSION,
-    PLATFORM,
     COPYRIGHT,
+    PLATFORM,
+    PSUTIL_VERSION,
     PYTHON_VERSION,
     QT_VERSION,
-    PSUTIL_VERSION,
+    VERSION,
 )
 
 PYTHON_PATH = sys.exec_prefix
@@ -94,7 +95,7 @@ BUILD_OPTIONS = {
 }
 
 BUILD_VERSION = {
-    "version": VERSION,
+    "version": VERSION.split("-")[0],  # strip off version tag
     "description": APP_NAME,
     "copyright": COPYRIGHT,
     "product_name": APP_NAME,

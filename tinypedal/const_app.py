@@ -26,13 +26,13 @@ import sys
 from psutil import version_info
 from PySide2.QtCore import qVersion
 
-from . import set_global_user_path, version
+from . import set_app_version, set_global_user_path, version
 
 # System info
 PLATFORM = platform.system()
 
 # App version
-VERSION = version.__version__
+VERSION = set_app_version(version.__version__, version.DEVELOPMENT)
 
 # Library version
 PYTHON_VERSION = ".".join(map(str, sys.version_info[0:3]))

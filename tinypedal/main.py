@@ -44,7 +44,7 @@ from .const_app import (
 from .const_file import ImageFile
 from .log_handler import set_logging_level
 
-logger = logging.getLogger("tinypedal")
+logger = logging.getLogger(__package__)
 log_stream = io.StringIO()
 
 

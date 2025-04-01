@@ -123,15 +123,15 @@ class About(BaseDialog):
         label_name.setStyleSheet("font-size: 18px;")
         label_name.setAlignment(Qt.AlignCenter)
 
-        label_version = QLabel(f"Version {VERSION}<br>")
+        label_version = QLabel(f"Version {VERSION}")
         label_version.setStyleSheet("font-size: 13px;")
         label_version.setAlignment(Qt.AlignCenter)
 
         label_desc = QLabel(
             f"<p>{COPYRIGHT}</p><p>{DESCRIPTION}</p><p>{LICENSE}</p>"
-            f"<p><a href={URL_WEBSITE}>{URL_WEBSITE}</a><br></p>",
+            f"<p><a href={URL_WEBSITE}>{URL_WEBSITE}</a></p>",
         )
-        label_desc.setStyleSheet("font-size: 12px;")
+        label_desc.setStyleSheet("font-size: 12px;padding: 16px 0 10px 0;")
         label_desc.setAlignment(Qt.AlignCenter)
         label_desc.setOpenExternalLinks(True)
 

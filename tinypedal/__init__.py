@@ -24,7 +24,14 @@ import logging
 import os
 
 # Create logger
-logger = logging.getLogger("tinypedal")
+logger = logging.getLogger(__package__)
+
+
+def set_app_version(ver: str, tag: str) -> str:
+    """Set APP version"""
+    if tag != "":
+        return f"{ver}-{tag}"
+    return ver
 
 
 def set_user_data_path(filepath: str) -> str:
