@@ -26,6 +26,7 @@ WIP
   - Fixed an issue where changes from "Units" and "Global Font Override" dialogs would not take effect after clicked "Apply" more than once.
   - Fixed a rare glitch where widget could be dragged around while "Lock Overlay" is enabled.
   - Various optimization to modules and save system.
+  - Added new contributor "Andres (Corti)" to contributors.md.
 
 2.25.1 (2025-03-18)
 -----------------------------
