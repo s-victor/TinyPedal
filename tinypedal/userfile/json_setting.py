@@ -54,7 +54,7 @@ def copy_setting(dict_user: dict) -> dict:
 
 
 def load_setting_json_file(
-    filename: str, filepath: str, dict_def: dict, is_global: bool = False
+    filename: str, filepath: str, dict_def: dict, file_info: str = "user preset"
 ) -> dict:
     """Load setting json file & verify"""
     filename_source = f"{filepath}{filename}"
@@ -63,20 +63,22 @@ def load_setting_json_file(
             setting_user = json.load(jsonfile)
         # Verify & assign setting
         setting_user = PresetValidator.validate(setting_user, dict_def)
-        if is_global:
-            logger.info("USERDATA: %s loaded (global preset)", filename)
-        else:
-            logger.info("USERDATA: %s loaded (user preset)", filename)
-    except (FileNotFoundError, KeyError, ValueError):
+    except FileNotFoundError:
+        logger.info("USERDATA: %s not found, fall back to default", filename)
+        setting_user = copy_setting(dict_def)
+    except (AttributeError, IndexError, KeyError, TypeError, ValueError, OSError):
         logger.error("USERDATA: %s failed loading, fall back to default", filename)
         create_backup_file(filename, filepath, set_backup_timestamp(), show_log=True)
         setting_user = copy_setting(dict_def)
+
+    logger.info("USERDATA: %s loaded (%s)", filename, file_info)
     return setting_user
 
 
 def load_style_json_file(
     filename: str, filepath: str, dict_def: dict,
-    check_missing: bool = False, validator: Callable | None = None
+    check_missing: bool = False, file_info: str = "style preset",
+    validator: Callable | None = None
 ) -> dict:
     """Load style json file & verify (optional)"""
     filename_source = f"{filepath}{filename}"
@@ -93,24 +95,25 @@ def load_style_json_file(
             if validator(style_user):
                 create_backup_file(filename, filepath, set_backup_timestamp(), show_log=True)
                 msg_text = "updated"
-    except (FileNotFoundError, KeyError, ValueError):
+    except FileNotFoundError:
+        logger.info("USERDATA: %s not found, fall back to default", filename)
         style_user = copy_setting(dict_def)
-        if not os.path.exists(filename_source):
-            logger.info("USERDATA: %s not found, create new default", filename)
-        else:
-            logger.error("USERDATA: %s failed loading, fall back to default", filename)
-            create_backup_file(filename, filepath, set_backup_timestamp(), show_log=True)
+        msg_text = "updated"
+    except (AttributeError, IndexError, KeyError, TypeError, ValueError, OSError):
+        logger.error("USERDATA: %s failed loading, fall back to default", filename)
+        create_backup_file(filename, filepath, set_backup_timestamp(), show_log=True)
+        style_user = copy_setting(dict_def)
         msg_text = "updated"
 
     if msg_text == "updated":
         save_json_file(style_user, filename, filepath)
 
-    logger.info("USERDATA: %s %s (style preset)", filename, msg_text)
+    logger.info("USERDATA: %s %s (%s)", filename, msg_text, file_info)
     return style_user
 
 
 def save_json_file(
-    dict_user: dict, filename: str, filepath: str, extension: str = "", compact_json: bool = False,
+    dict_user: dict, filename: str, filepath: str, extension: str = "", compact_json: bool = False
 ) -> None:
     """Save json file"""
     filename_source = f"{filepath}{filename}{extension}"

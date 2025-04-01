@@ -92,7 +92,7 @@ class LogInfo(BaseDialog):
 
     def clear_log(self):
         """Clear log"""
-        if self.confirm_operation(message="Are you sure to clear all log?"):
+        if self.confirm_operation(message="Clear all log?"):
             log_stream.truncate(0)
             log_stream.seek(0)
             self.refresh_log()

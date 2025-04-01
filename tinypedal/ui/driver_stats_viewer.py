@@ -244,7 +244,7 @@ class DriverStatsViewer(BaseEditor):
             return
 
         msg_text = (
-            "Are you sure you want to delete all stats from<br>"
+            "Delete all stats from<br>"
             f"<b>{self.selected_stats_key}</b> ?<br><br>"
             "This cannot be undone!"
         )
@@ -271,8 +271,7 @@ class DriverStatsViewer(BaseEditor):
 
         selected_vehicle = self.table_stats.item(selected_rows[0], 0).text()
         msg_text = (
-            "Are you sure you want to remove all stats from<br>"
-            f"<b>{selected_vehicle}</b> ?<br><br>"
+            f"Remove all stats from <b>{selected_vehicle}</b>?<br><br>"
             "This cannot be undone!"
         )
         if self.confirm_operation(message=msg_text):
@@ -288,9 +287,9 @@ class DriverStatsViewer(BaseEditor):
         """Reset stat"""
         selected_vehicle = self.table_stats.item(row, 0).text()
         selected_column = self.table_header_key[column]
+        best_laptime = self.table_stats.item(row, column).text()
         msg_text = (
-            f"Are you sure you want to reset personal best lap time<br>"
-            f"<b>{self.table_stats.item(row, column).text()}</b> for <b>{selected_vehicle}</b> ?<br><br>"
+            f"Reset <b>{best_laptime}</b> lap time for <b>{selected_vehicle}</b>?<br><br>"
             "This cannot be undone!"
         )
         if self.confirm_operation(message=msg_text):

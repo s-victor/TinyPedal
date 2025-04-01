@@ -288,7 +288,7 @@ class VehicleBrandEditor(BaseEditor):
     def reset_setting(self):
         """Reset setting"""
         msg_text = (
-            "Are you sure you want to reset brand preset to default?<br><br>"
+            "Reset <b>brands preset</b> to default?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
         if self.confirm_operation(message=msg_text):

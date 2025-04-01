@@ -23,6 +23,14 @@ All user preset files, by default, are located in `TinyPedal\settings` folder. T
 
 `Right-Click` on a preset name in `Preset` tab opens up a context menu that provides additional preset file management options:
 
+* Lock Preset  
+    Lock selected preset, which prevents any changes that made through TinyPedal from saving to locked preset file. APP `version` tag will be attached to the preset that is locked with.
+
+    Note, this feature does not prevent user from modifying or deleting locked preset file by other means.
+
+* Unlock Preset  
+    Unlock selected preset.
+
 * Set primary for *  
     Add `primary sim` tag to selected preset, which will be auto loaded by `Auto load preset` system. Note, a single preset can have tags from multiple games.
 
@@ -33,10 +41,10 @@ All user preset files, by default, are located in `TinyPedal\settings` folder. T
     Duplicate selected preset with a new name.
 
 * Rename  
-    Rename selected preset with a new name.
+    Rename selected preset with a new name. This option is not available for locked preset.
 
 * Delete  
-    Delete selected preset with confirmation.
+    Delete selected preset with confirmation. This option is not available for locked preset.
 
 [**`Back to Top`**](#)
 

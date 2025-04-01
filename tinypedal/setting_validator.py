@@ -42,34 +42,32 @@ COMMON_STRINGS = "|".join((
 class StyleValidator:
     """Style validator"""
 
-    __slots__ = ()
-
     @staticmethod
     def classes(style_user: dict) -> bool:
         """Vehicle class style validator"""
         save_change = False
-        ALIAS = "alias"
-        COLOR = "color"
+        _alias = "alias"
+        _color = "color"
         # Check first entry for old classes format
         for class_name, class_data in style_user.items():
             if not save_change:
-                if set(class_data).issubset((ALIAS, COLOR)):
+                if set(class_data).issubset((_alias, _color)):
                     break
                 else:
                     save_change = True
             # Update old classes format
             for key, value in class_data.items():
-                class_data[ALIAS] = key
-                class_data[COLOR] = value
+                class_data[_alias] = key
+                class_data[_color] = value
                 class_data.pop(key)
                 break
         # Validate classes entry
         for class_name, class_data in style_user.items():
-            if ALIAS not in class_data or not isinstance(class_data[ALIAS], str):
-                class_data[ALIAS] = class_name
+            if _alias not in class_data or not isinstance(class_data[_alias], str):
+                class_data[_alias] = class_name
                 save_change = True
-            if COLOR not in class_data or not is_hex_color(class_data[COLOR]):
-                class_data[COLOR] = random_color_class(class_name)
+            if _color not in class_data or not is_hex_color(class_data[_color]):
+                class_data[_color] = random_color_class(class_name)
                 save_change = True
         return save_change
 
@@ -77,15 +75,15 @@ class StyleValidator:
     def brakes(style_user: dict) -> bool:
         """Brakes style validator"""
         save_change = False
-        FAILURE = "failure_thickness"
-        HEATMAP = "heatmap"
+        _failure = "failure_thickness"
+        _heatmap = "heatmap"
         # Validate brakes entry
         for brake_data in style_user.values():
-            if FAILURE not in brake_data or not isinstance(brake_data[FAILURE], TYPE_NUMBER):
-                brake_data[FAILURE] = 0.0
+            if _failure not in brake_data or not isinstance(brake_data[_failure], TYPE_NUMBER):
+                brake_data[_failure] = 0.0
                 save_change = True
-            if HEATMAP not in brake_data or not isinstance(brake_data[HEATMAP], str):
-                brake_data[HEATMAP] = HEATMAP_DEFAULT_BRAKE
+            if _heatmap not in brake_data or not isinstance(brake_data[_heatmap], str):
+                brake_data[_heatmap] = HEATMAP_DEFAULT_BRAKE
                 save_change = True
         return save_change
 
@@ -93,23 +91,36 @@ class StyleValidator:
     def compounds(style_user: dict) -> bool:
         """Tyre compound style validator"""
         save_change = False
-        SYMBOL = "symbol"
-        HEATMAP = "heatmap"
+        _symbol = "symbol"
+        _heatmap = "heatmap"
         # Validate compound entry
         for compound_data in style_user.values():
-            if SYMBOL not in compound_data or not isinstance(compound_data[SYMBOL], str):
-                compound_data[SYMBOL] = "?"
+            if _symbol not in compound_data or not isinstance(compound_data[_symbol], str):
+                compound_data[_symbol] = "?"
                 save_change = True
-            if HEATMAP not in compound_data or not isinstance(compound_data[HEATMAP], str):
-                compound_data[HEATMAP] = HEATMAP_DEFAULT_TYRE
+            if _heatmap not in compound_data or not isinstance(compound_data[_heatmap], str):
+                compound_data[_heatmap] = HEATMAP_DEFAULT_TYRE
+                save_change = True
+        return save_change
+
+    @staticmethod
+    def filelock(lock_user: dict) -> bool:
+        """File lock validator"""
+        save_change = False
+        _version = "version"
+        for file_name, file_info in lock_user.items():
+            if not isinstance(file_info, dict):
+                lock_user[file_name] = {_version: "unknown"}
+                save_change = True
+                continue
+            if _version not in file_info or not isinstance(file_info[_version], str):
+                lock_user[file_name] = {_version: "unknown"}
                 save_change = True
         return save_change
 
 
 class ValueValidator:
     """Value validator"""
-
-    __slots__ = ()
 
     @staticmethod
     def boolean(key: str, dict_user: dict) -> bool:
@@ -187,7 +198,6 @@ class ValueValidator:
 class PresetValidator:
     """Preset validator"""
 
-    __slots__ = ()
     # Set validator methods in ordered list
     _value_validators = (
         ValueValidator.boolean,

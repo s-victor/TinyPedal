@@ -64,6 +64,7 @@ class FileName:
         "compounds",
         "heatmap",
         "last_setting",
+        "filelock",
     )
 
     def __init__(self):
@@ -75,6 +76,7 @@ class FileName:
         self.compounds = f"compounds{FileExt.JSON}"
         self.heatmap = f"heatmap{FileExt.JSON}"
         self.last_setting = f"None{FileExt.JSON}"
+        self.filelock = f"config{FileExt.LOCK}"
 
 
 class FilePath:
@@ -130,6 +132,7 @@ class Preset:
         "classes",
         "compounds",
         "heatmap",
+        "filelock",
     )
 
     def set_default(self):
@@ -142,6 +145,7 @@ class Preset:
         self.classes = MappingProxyType(CLASSES_DEFAULT)
         self.compounds = MappingProxyType(COMPOUNDS_DEFAULT)
         self.heatmap = MappingProxyType(HEATMAP_DEFAULT)
+        self.filelock = MappingProxyType({})
 
     @staticmethod
     def set_platform_default(global_def: dict):
@@ -223,7 +227,14 @@ class Setting:
             filename=self.filename.config,
             filepath=self.path.config,
             dict_def=self.default.config,
-            is_global=True,
+            file_info="global preset",
+        )
+        self.user.filelock = load_style_json_file(
+            filename=self.filename.filelock,
+            filepath=self.path.config,
+            dict_def=self.default.filelock,
+            validator=StyleValidator.filelock,
+            file_info="file lock",
         )
         # Assign global path
         self.path.update(
@@ -331,12 +342,21 @@ class Setting:
         """
         if not next_task:
             filename = getattr(self.filename, cfg_type, None)
-            if filename is None:  # check if valid file name
+            # Check if valid file name
+            if filename is None:
                 logger.error("USERDATA: invalid config type %s, abort saving", cfg_type)
-            elif filename not in self._save_queue:  # add to save queue
-                if cfg_type == ConfigType.CONFIG:  # save to global config path
+            # Check if file is locked
+            elif filename in self.user.filelock:
+                logger.info("USERDATA: %s is locked, changes not saved", filename)
+            # Add to save queue
+            elif filename not in self._save_queue:
+                # Save to global config path
+                if cfg_type == ConfigType.CONFIG:
                     filepath = self.path.config
-                else:  # save to settings (preset) path
+                elif cfg_type == ConfigType.FILELOCK:
+                    filepath = self.path.config
+                # Save to settings (preset) path
+                else:
                     filepath = self.path.settings
                 dict_user = getattr(self.user, cfg_type)
                 self._save_queue[filename] = (filepath, dict_user)

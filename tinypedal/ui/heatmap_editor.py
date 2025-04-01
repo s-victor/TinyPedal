@@ -271,8 +271,7 @@ class HeatmapEditor(BaseEditor):
             return
 
         msg_text = (
-            "Are you sure you want to delete heatmap preset<br>"
-            f"<b>{self.selected_heatmap_key}</b> ?<br><br>"
+            f"Delete <b>{self.selected_heatmap_key}</b> preset?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
         if self.confirm_operation(message=msg_text):
@@ -292,7 +291,7 @@ class HeatmapEditor(BaseEditor):
             return
 
         msg_text = (
-            "Are you sure you want to reset selected heatmap preset to default?<br><br>"
+            f"Reset <b>{self.selected_heatmap_key}</b> preset to default?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
         if self.confirm_operation(message=msg_text):

@@ -227,7 +227,7 @@ class UserConfig(BaseDialog):
     def reset_setting(self):
         """Reset setting"""
         msg_text = (
-            "Are you sure you want to reset options to default?<br><br>"
+            f"Reset all <b>{format_option_name(self.key_name)}</b> options to default?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
         if self.confirm_operation(title="Reset Options", message=msg_text):

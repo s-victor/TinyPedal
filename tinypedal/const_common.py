@@ -34,6 +34,7 @@ ABS_ZERO_CELSIUS = -273.15  # absolute zero celsius
 TEXT_PLACEHOLDER = "-"
 TEXT_NA = "n/a"
 TEXT_NOTAVAILABLE = "NOT AVAILABLE"
+CRLF = "\r\n"
 
 # Data set
 DELTA_ZERO = (0.0, 0.0)

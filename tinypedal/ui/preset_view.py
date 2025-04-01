@@ -41,6 +41,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import regex_pattern as rxp
+from ..const_app import VERSION
 from ..const_file import FileExt
 from ..formatter import strip_filename_extension
 from ..setting import ConfigType, cfg
@@ -52,11 +53,12 @@ QSS_LISTBOX = (
     "QListView::item {height: 28px;border-radius: 0;}"
     "QListView::item:selected {selection-color: #FFF;background: #F20;}"
 )
-QSS_TAGGED_ITEM = "font-size: 14px;color: #FFF;"
-QSS_TAGGED_COLOR = (
-    "margin: 4px 4px 4px 0px;background: #F20;border-radius: 3px;",  # LMU
-    "margin: 4px 4px 4px 0px;background: #0AF;border-radius: 3px;",  # RF2
-)
+QSS_TAGGED_ITEM = "font-size: 14px;color: #FFF;margin: 4px 4px 4px 0px;border-radius: 3px;"
+QSS_TAGGED_STYLE = {
+    "LMU": "background: #F20;",
+    "RF2": "background: #0AF;",
+    "LOCKED": "background: #888;",
+}
 
 
 class PresetList(QWidget):
@@ -106,7 +108,6 @@ class PresetList(QWidget):
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
 
-        self.listbox_context_menu = self.set_context_menu()
         self.listbox_preset.setContextMenuPolicy(Qt.CustomContextMenu)
         self.listbox_preset.customContextMenuRequested.connect(self.open_context_menu)
 
@@ -124,7 +125,9 @@ class PresetList(QWidget):
             label_item = PrimaryPresetTag(self, preset_name)
             self.listbox_preset.setItemWidget(item, label_item)
 
-        self.label_loaded.setText(f"Loaded: <b>{cfg.filename.last_setting[:-5]}</b>")
+        loaded_preset = cfg.filename.last_setting
+        locked_tag = " (locked)" if loaded_preset in cfg.user.filelock else ""
+        self.label_loaded.setText(f"Loaded: <b>{loaded_preset[:-5]}{locked_tag}</b>")
         self.checkbox_autoload.setChecked(cfg.application["enable_auto_load_preset"])
 
     def load_preset(self):
@@ -149,32 +152,32 @@ class PresetList(QWidget):
         cfg.application["enable_auto_load_preset"] = checked
         cfg.save(cfg_type=ConfigType.CONFIG)
 
-    def set_context_menu(self):
-        """Set context menu"""
-        menu = QMenu(self)
-        menu.addAction("Set Primary for LMU")
-        menu.addAction("Set Primary for RF2")
-        menu.addSeparator()
-        menu.addAction("Clear Primary Tag")
-        menu.addSeparator()
-        menu.addAction("Duplicate")
-        menu.addAction("Rename")
-        menu.addAction("Delete")
-        return menu
-
     def open_context_menu(self, position: QPoint):
         """Open context menu"""
         if not self.listbox_preset.itemAt(position):
             return
 
-        selected_action = self.listbox_context_menu.exec_(
-            self.listbox_preset.mapToGlobal(position))
-        if not selected_action:
-            return
-
         selected_index = self.listbox_preset.currentRow()
         selected_preset_name = self.preset_list[selected_index]
         selected_filename = f"{selected_preset_name}{FileExt.JSON}"
+        is_locked = (selected_filename in cfg.user.filelock)
+
+        # Create context menu
+        menu = QMenu()  # no parent for temp menu
+        menu.addAction("Unlock Preset" if is_locked else "Lock Preset")
+        menu.addSeparator()
+        menu.addAction("Set Primary for LMU")
+        menu.addAction("Set Primary for RF2")
+        menu.addAction("Clear Primary Tag")
+        menu.addSeparator()
+        menu.addAction("Duplicate")
+        if not is_locked:
+            menu.addAction("Rename")
+            menu.addAction("Delete")
+
+        selected_action = menu.exec_(self.listbox_preset.mapToGlobal(position))
+        if not selected_action:
+            return
         action = selected_action.text()
 
         # Set primary preset LMU
@@ -197,6 +200,22 @@ class PresetList(QWidget):
             if tag_found:
                 cfg.save(cfg_type=ConfigType.CONFIG)
                 self.refresh_list()
+        # Lock/unlock preset
+        elif action == "Lock Preset":
+            msg_text = (
+                f"Lock <b>{selected_filename}</b> preset?<br><br>"
+                "Changes to locked preset will not be saved."
+            )
+            if self.confirm_operation(title="Lock Preset", message=msg_text):
+                cfg.user.filelock[selected_filename] = {"version": VERSION}
+                cfg.save(cfg_type=ConfigType.FILELOCK)
+                self.refresh_list()
+        elif action == "Unlock Preset":
+            msg_text = f"Unlock <b>{selected_filename}</b> preset?"
+            if self.confirm_operation(title="Unlock Preset", message=msg_text):
+                if cfg.user.filelock.pop(selected_filename, None):
+                    cfg.save(cfg_type=ConfigType.FILELOCK)
+                self.refresh_list()
         # Duplicate preset
         elif action == "Duplicate":
             _dialog = CreatePreset(
@@ -218,19 +237,22 @@ class PresetList(QWidget):
         # Delete preset
         elif action == "Delete":
             msg_text = (
-                "<font style='font-size: 15px;'><b>Are you sure you want to delete<br>"
-                f"'{selected_filename}'"
-                " permanently?</b></font><br><br>This cannot be undone!"
+                f"Delete <b>{selected_filename}</b> preset permanently?<br><br>"
+                "This cannot be undone!"
             )
-            delete_msg = QMessageBox.question(
-                self, "Delete Preset", msg_text,
-                buttons=QMessageBox.Yes | QMessageBox.No,
-                defaultButton=QMessageBox.No,
-            )
-            if delete_msg == QMessageBox.Yes:
+            if self.confirm_operation(title="Delete Preset", message=msg_text):
                 if os.path.exists(f"{cfg.path.settings}{selected_filename}"):
                     os.remove(f"{cfg.path.settings}{selected_filename}")
                 self.refresh_list()
+
+    def confirm_operation(self, title: str = "Confirm", message: str = "") -> bool:
+        """Confirm operation"""
+        confirm = QMessageBox.question(
+            self, title, message,
+            buttons=QMessageBox.Yes | QMessageBox.No,
+            defaultButton=QMessageBox.No,
+        )
+        return confirm == QMessageBox.Yes
 
 
 class CreatePreset(BaseDialog):
@@ -331,8 +353,14 @@ class PrimaryPresetTag(QWidget):
         for sim_name, primary_preset in cfg.primary_preset.items():
             if preset_name == primary_preset:
                 label_sim_name = QLabel(sim_name)
-                label_sim_name.setStyleSheet(QSS_TAGGED_COLOR[sim_name == "RF2"])
+                label_sim_name.setStyleSheet(QSS_TAGGED_STYLE[sim_name])
                 layout_item.addWidget(label_sim_name)
+
+        preset_filename = f"{preset_name}{FileExt.JSON}"
+        if preset_filename in cfg.user.filelock:
+            label_locked = QLabel(f"{cfg.user.filelock[preset_filename]['version']}")
+            label_locked.setStyleSheet(QSS_TAGGED_STYLE["LOCKED"])
+            layout_item.addWidget(label_locked)
 
         self.setStyleSheet(QSS_TAGGED_ITEM)
         self.setLayout(layout_item)

@@ -36,6 +36,8 @@ class ConfigType:
     # Setting preset
     CONFIG = "config"
     SETTING = "setting"
+    # File lock
+    FILELOCK = "filelock"
     # Module ID
     MODULE = "module"
     WIDGET = "widget"
@@ -69,6 +71,7 @@ class FileExt:
     TPPN = ".tppn"
     TPTN = ".tptn"
     STATS = ".stats"
+    LOCK = ".lock"
 
 
 class FileFilter:

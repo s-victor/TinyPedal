@@ -215,7 +215,7 @@ class TyreCompoundEditor(BaseEditor):
     def reset_setting(self):
         """Reset setting"""
         msg_text = (
-            "Are you sure you want to reset compound preset to default?<br><br>"
+            "Reset <b>compounds preset</b> to default?<br><br>"
             "Changes are only saved after clicking Apply or Save Button."
         )
         if self.confirm_operation(message=msg_text):

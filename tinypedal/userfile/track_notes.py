@@ -28,6 +28,7 @@ import os
 from operator import itemgetter
 from typing import Any, Callable, Iterable
 
+from ..const_common import CRLF
 from ..const_file import FileFilter
 
 NOTESTYPE_PACE = "Pace Notes"
@@ -42,8 +43,6 @@ HEADER_PACE_NOTES = COLUMN_DISTANCE, COLUMN_PACENOTE, COLUMN_COMMENT
 HEADER_TRACK_NOTES = COLUMN_DISTANCE, COLUMN_TRACKNOTE, COLUMN_COMMENT
 
 METADATA_FIELDNAMES = "TITLE", "AUTHOR", "DATE", "DESCRIPTION"
-
-CRLF = "\r\n"
 
 logger = logging.getLogger(__name__)
 

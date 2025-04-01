@@ -239,8 +239,9 @@ class ResetDataMenu(QMenu):
             return False
         # Confirm reset
         msg_text = (
-            f"Are you sure you want to reset {data_type} data for<br>"
-            f"<b>{filename}</b> ?<br><br>This cannot be undone!"
+            f"Reset <b>{data_type}</b> data for<br>"
+            f"<b>{filename}</b> ?<br><br>"
+            "This cannot be undone!"
         )
         delete_msg = QMessageBox.question(
             self._parent, f"Reset {data_type.title()}", msg_text,
