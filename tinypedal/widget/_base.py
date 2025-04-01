@@ -129,6 +129,9 @@ class Overlay(QWidget):
 
     def mousePressEvent(self, event):
         """Set offset position & press state"""
+        # Make sure overlay cannot be dragged while "fixed_position" enabled
+        if self.cfg.overlay["fixed_position"]:
+            return
         if event.buttons() == Qt.LeftButton:
             self._mouse_pos = event.pos()
 

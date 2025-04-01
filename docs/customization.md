@@ -4,10 +4,12 @@ TinyPedal offers a wide range of customization options for `widget` and `module`
 
 # Global user configuration
 TinyPedal stores global user configuration in `config.json` file, which is used for none-preset specific options.
+
 * For Windows, `config.json` is stored under `username\AppData\Roaming\TinyPedal` folder.
 * For Linux, `config.json` is stored under `home/username/.config/TinyPedal` folder.
 
-Available settings:  
+Available settings:
+
 * `Application`, can be accessed from `Config` menu in main window, see [Application](#application) section for details.
 * `Compatibility`, can be accessed from `Config` menu in main window, see [Compatibility](#compatibility) section for details.
 * `User path`, can be accessed from `Config` menu in main window, see [User Path](#user-path) section for details.
@@ -26,7 +28,7 @@ All user preset files, by default, are located in `TinyPedal\settings` folder. T
 * Lock Preset  
     Lock selected preset, which prevents any changes that made through TinyPedal from saving to locked preset file. APP `version` tag will be attached to the preset that is locked with.
 
-    Note, this feature does not prevent user from modifying or deleting locked preset file by other means.
+    Note, this feature does not prevent user from modifying or deleting locked preset file by other means. Locked preset file info is stored in `config.lock` file in [Global User Configuration](#global-user-configuration) folder.
 
 * Unlock Preset  
     Unlock selected preset.
@@ -126,7 +128,7 @@ TinyPedal generates and saves user session data in specific folders defined in `
 
 
 ## Driver stats
-Driver stats data is stored as `JSON` format (.stats extension) under `global user configuration` folder. Driver stats can be viewed with [Driver Stats Viewer](#driver-stats-viewer) from `Tools` menu in main window.
+Driver stats data is stored as `JSON` format (.stats extension) under [Global User Configuration](#global-user-configuration) folder. Driver stats can be viewed with [Driver Stats Viewer](#driver-stats-viewer) from `Tools` menu in main window.
 
 Data recording is handled by [Stats Module](#stats-module).
 

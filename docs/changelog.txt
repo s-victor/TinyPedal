@@ -3,8 +3,7 @@ WIP
 * User Preset
   - Add "file lock" config file (config.lock) that saves in "global user configuration" folder, which keeps a list of locked file names.
   - Add "Lock Preset" and "Unlock Preset" toggle to "right-click" menu in "Preset" tab, which allows locking or unlocking user preset file.
-    A locked preset cannot be deleted or renamed. Any changes made to locked preset will still take effect, but will not be saved to file.
-    APP "version" tag will be attached to the preset that is locked with.
+    Any changes made to locked preset will still take effect, but will not be saved to file. APP "version" tag will be attached to the preset that is locked with.
     This feature can be useful for keeping preset unchanged while testing new updates or features.
     Note, this "lock" feature only prevents any changes that made through this APP from saving to locked preset file.
     It does not prevent user from modifying or deleting locked preset file by other means.
@@ -25,7 +24,8 @@ WIP
 
 * Misc
   - Fixed an issue where changes from "Units" and "Global Font Override" dialogs would not take effect after clicked "Apply" more than once.
-  - Optimized user preset and stats data accessing.
+  - Fixed a rare glitch where widget could be dragged around while "Lock Overlay" is enabled.
+  - Various optimization to modules and save system.
 
 2.25.1 (2025-03-18)
 -----------------------------
