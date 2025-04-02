@@ -22,6 +22,7 @@ Module info
 
 from __future__ import annotations
 
+from array import array
 from collections import deque
 from typing import NamedTuple
 
@@ -386,15 +387,33 @@ class VehiclePitTimer:
     """Vehicle pit timer"""
 
     __slots__ = (
-        "last_state",
-        "start",
         "elapsed",
+        "_last_state",
+        "_start",
     )
 
     def __init__(self):
-        self.last_state: int = 0
-        self.start: float = 0.0
         self.elapsed: float = 0.0
+        self._last_state: int = 0
+        self._start: float = 0.0
+
+    def update(self, in_pit: int, elapsed_time: float):
+        """Calculate pit time
+
+        Pit state: 0 = not in pit, 1 = in pit, 2 = in garage.
+        """
+        # Pit status check
+        if self._last_state != in_pit:
+            self._last_state = in_pit
+            self._start = elapsed_time
+        # Ignore pit timer in garage
+        if in_pit == 2:
+            self._start = -1
+            self.elapsed = 0
+            return
+        # Calculating pit time while in pit
+        if in_pit > 0 <= self._start:
+            self.elapsed = elapsed_time - self._start
 
 
 class VehicleDataSet:
@@ -431,6 +450,8 @@ class VehicleDataSet:
         "relativeRotatedPositionX",
         "relativeRotatedPositionY",
         "pitTimer",
+        "lapTimeHistory",
+        "_lap_start_time",
     )
 
     def __init__(self):
@@ -464,6 +485,23 @@ class VehicleDataSet:
         self.relativeRotatedPositionX: float = 0.0
         self.relativeRotatedPositionY: float = 0.0
         self.pitTimer: VehiclePitTimer = VehiclePitTimer()
+        self.lapTimeHistory: array = array("d", [0.0] * 5)
+        self._lap_start_time: float = 0.0
+
+    def update_lap_history(self, lap_start: float, lap_elapsed: float, laptime_last: float):
+        """Update lap time history"""
+        # Check 2 sec after start new lap (for validating last lap time)
+        if self._lap_start_time != lap_start and lap_elapsed - lap_start > 2:
+            data = self.lapTimeHistory
+            if self._lap_start_time < lap_start:
+                data[0], data[1], data[2], data[3] = data[1], data[2], data[3], data[4]
+                if laptime_last > 0:  # valid last lap time
+                    data[4] = laptime_last
+                else:
+                    data[4] = 0.0
+            else:  # reset all laptime
+                data[0] = data[1] = data[2] = data[3] = data[4] = 0.0
+            self._lap_start_time = lap_start
 
 
 class WheelsInfo:

@@ -20,6 +20,8 @@
 Standings Widget
 """
 
+from PySide2.QtWidgets import QWidget
+
 from .. import calculation as calc
 from ..api_control import api
 from ..const_common import TEXT_PLACEHOLDER
@@ -57,6 +59,7 @@ class Realtime(Overlay):
         self.show_class_gap = self.wcfg["split_gap"] > 0
         self.show_class_interval = (self.wcfg["enable_multi_class_split_mode"]
             and self.wcfg["show_time_interval_from_same_class"])
+        self.max_delta = calc.asym_max(int(self.wcfg["number_of_delta_laptime"]), 2, 5)
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -273,6 +276,37 @@ class Realtime(Overlay):
                 column_index=self.wcfg["column_index_best_laptime"],
                 hide_start=1,
             )
+        # Delta laptime
+        if self.wcfg["show_delta_laptime"]:
+            self.bar_style_dlt_delta = (
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_delta_laptime"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_delta_laptime_gain"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_delta_laptime_loss"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_player_delta_laptime"]),
+            )
+            self.bar_style_dlt = (
+                self.set_qss(
+                    bg_color=self.wcfg["bkg_color_delta_laptime"]),
+                self.set_qss(
+                    bg_color=self.wcfg["bkg_color_player_delta_laptime"])
+            )
+            self.bars_dlt = tuple(
+                self.set_delta_table(
+                    width=4 * font_m.width,
+                    columns=self.max_delta,
+                    bar_padx=bar_padx // 2,
+                ) for _ in range(self.veh_range)
+            )
+            self.set_grid_layout_table_column(
+                layout=layout,
+                targets=self.bars_dlt,
+                column_index=self.wcfg["column_index_delta_laptime"],
+                hide_start=1,
+            )
         # Position in class
         if self.wcfg["show_position_in_class"]:
             self.bar_style_pic = (
@@ -393,6 +427,8 @@ class Realtime(Overlay):
 
             standings_list = minfo.relative.standings
             total_std_idx = len(standings_list) - 1  # skip final -1 index
+            player_idx = minfo.vehicles.playerIndex
+            plr_veh_info = minfo.vehicles.dataSet[player_idx]
             in_race = api.read.session.in_race()
 
             # Standings update
@@ -478,6 +514,10 @@ class Realtime(Overlay):
                 # Pitstop count
                 if self.wcfg["show_pitstop_count"]:
                     self.update_psc(self.bars_psc[idx], veh_info.numPitStops, veh_info.pitState, hi_player, state)
+                # Delta laptime
+                if self.wcfg["show_delta_laptime"]:
+                    delta_laptime = tuple(calc.delta_laptime(plr_veh_info.lapTimeHistory, veh_info.lapTimeHistory, self.max_delta))
+                    self.update_dlt(self.bars_dlt[idx], delta_laptime, hi_player, state)
 
     # GUI update methods
     def update_pos(self, target, *data):
@@ -588,6 +628,31 @@ class Realtime(Overlay):
             target.setStyleSheet(self.bar_style_blp[data[1]])
             self.toggle_visibility(target, data[-1])
 
+    def update_dlt(self, target, *data):
+        """Vehicle delta laptime"""
+        if target.last != data:
+            target.last = data
+            is_player = data[1]
+            for bar_delta, delta in zip(target.bar_set, data[0]):
+                if -999 < delta < 0:  # player time gain
+                    text = f"{-delta:.1f}"[:3].strip(".")
+                    color_index = 1
+                elif 0 < delta < 999:  # player time loss
+                    text = f"{delta:.1f}"[:3].strip(".")
+                    color_index = 2
+                elif delta == 0:
+                    text = "0.0"
+                    color_index = 0
+                else:
+                    text = "-.-"
+                    color_index = 0
+                if is_player:
+                    color_index = -1
+                bar_delta.setText(text)
+                bar_delta.setStyleSheet(self.bar_style_dlt_delta[color_index])
+            target.setStyleSheet(self.bar_style_dlt[is_player])
+            self.toggle_visibility_delta(target, data[-1])
+
     def update_pic(self, target, *data):
         """Position in class"""
         if target.last != data:
@@ -648,6 +713,18 @@ class Realtime(Overlay):
             target.show()
         elif state == 1 and self.show_class_gap:  # draw gap
             target.setText("")
+            target.setStyleSheet(self.bar_split_style)
+            target.show()
+        else:
+            target.hide()
+
+    def toggle_visibility_delta(self, target, state):
+        """Hide bar if unavailable"""
+        if state == 0:
+            target.show()
+        elif state == 1 and self.show_class_gap:  # draw gap
+            for _bar in target.bar_set:
+                _bar.setText("")
             target.setStyleSheet(self.bar_split_style)
             target.show()
         else:
@@ -716,3 +793,22 @@ class Realtime(Overlay):
         if isinstance(gap_behind, int):
             return f"{gap_behind:.0f}L"
         return f"{gap_behind:.{self.int_decimals}f}"
+
+    def set_delta_table(self, width: int, columns: int, bar_padx: int) -> QWidget:
+        """Set delta laptime table"""
+        bar_temp = QWidget(self)
+        layout = self.set_grid_layout()
+        layout.setContentsMargins(bar_padx, 0, bar_padx, 0)
+        bar_temp.setLayout(layout)
+        bar_temp.setStyleSheet(self.bar_style_dlt[0])
+        bar_temp.bar_set = self.set_qlabel(
+            fixed_width=width,
+            count=columns,
+        )
+        self.set_grid_layout_table_row(
+            layout=layout,
+            targets=bar_temp.bar_set,
+            right_to_left=self.wcfg["show_inverted_delta_laptime_layout"],
+        )
+        bar_temp.last = None
+        return bar_temp

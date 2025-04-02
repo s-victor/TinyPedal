@@ -197,6 +197,6 @@ COMMON_TYRE_COMPOUNDS = (
     ("hard", "H"),
     ("rain|wet", "W"),
     ("slick|dry", "S"),
-    ("road|radial", "R"),
+    ("road|radial|tread", "R"),
     ("bias", "B"),  # bias ply
 )

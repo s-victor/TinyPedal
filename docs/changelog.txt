@@ -1,13 +1,5 @@
-WIP
+2.26.0 (2025-04-02)
 -----------------------------
-* User Preset
-  - Add "file lock" config file (config.lock) that saves in "global user configuration" folder, which keeps a list of locked file names.
-  - Add "Lock Preset" and "Unlock Preset" toggle to "right-click" menu in "Preset" tab, which allows locking or unlocking user preset file.
-    Any changes made to locked preset will still take effect, but will not be saved to file. APP "version" tag will be attached to the preset that is locked with.
-    This feature can be useful for keeping preset unchanged while testing new updates or features.
-    Note, this "lock" feature only prevents any changes that made through this APP from saving to locked preset file.
-    It does not prevent user from modifying or deleting locked preset file by other means.
-
 * Radar Widget
   - Add "show_overlap_indicator_in_cone_style" option (optional), which shows overlap indicator in "cone style" instead of "boundary style".
   - Add "overlap_cone_angle" option, which sets cone display angle in degrees. This option does not affect overlap detection range.
@@ -15,17 +7,30 @@ WIP
     A value of "5" would result a 5-vehicle-wide detection range. Default is "5" vehicle-wide.
   - Add "overlap_critical_range_multiplier" option, which sets nearby vehicle critical overlap detection range multiplier. Default is "1" vehicle-wide.
   - Add "show_angle_mark" and angle mark style options, which show angle mark (fixed 45 degrees) on radar background.
+  - Fixed radar circle background that was incorrectly displayed on top of overlap indicators.
 
 * Relative, Rivals, Standings Widget
-  - Add "show_position_change" option (requested by bongio94), which shows overall driver position change relative to overall qualification position.
+  - Add "show_delta_laptime" option for Rivals & Standings Widget (requested by user "oljemace"), which shows lap time difference (delta) between player and opponents from most recent laps.
+    A green color (default) delta indicates that player's recent lap time is faster than opponent, while orange color delta indicates the opposite.
+    Number of delta lap time display can be set with "number_of_delta_laptime" option, minimum number is limited to 2, maximum is limited to 5.
+    The default layout order shows delta lap time records from right side column (most recent lap) to left. Enable "show_inverted_delta_laptime_layout" option to invert the layout.
+  - Add "show_position_change" option (requested by user "bongio94"), which shows overall driver position change relative to overall qualification position.
   - Add "show_position_change_in_class" option, which shows driver position change in class instead of overall. This option is enabled by default.
   - Add "time_gap_align_center" option for Relative Widget.
   - Add "time_interval_align_center" option for Rivals Widget.
 
+* User Preset
+  - Add "Lock Preset" and "Unlock Preset" toggle to "right-click" menu in "Preset" tab, which allows locking or unlocking user preset file.
+    Any changes made to locked preset will still take effect, but will not be saved to file. APP "version" tag will be attached to the preset that is locked with.
+    This feature can be useful for keeping preset unchanged while testing new updates or features.
+    Note, this "lock" feature only prevents any changes that made through this APP from saving to locked preset file.
+    It does not prevent user from modifying or deleting locked preset file by other means.
+  - Add "file lock" config file (config.lock) that saves in "global user configuration" folder, which keeps a list of locked file names.
+
 * Misc
   - Fixed an issue where changes from "Units" and "Global Font Override" dialogs would not take effect after clicked "Apply" more than once.
   - Fixed a rare glitch where widget could be dragged around while "Lock Overlay" is enabled.
-  - Various optimization to modules and save system.
+  - Various optimization to widgets, modules and save system.
   - Added new contributor "Andres (Corti)" to contributors.md.
 
 2.25.1 (2025-03-18)

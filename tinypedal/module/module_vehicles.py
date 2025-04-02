@@ -25,7 +25,7 @@ from __future__ import annotations
 from .. import calculation as calc
 from ..api_control import api
 from ..const_common import MAX_METERS, MAX_SECONDS, MAX_VEHICLES
-from ..module_info import VehiclePitTimer, VehiclesInfo, minfo
+from ..module_info import VehiclesInfo, minfo
 from ._base import DataModule
 
 ALL_INDEXES = list(range(MAX_VEHICLES))
@@ -126,10 +126,7 @@ class Realtime(DataModule):
                 index) else api.read.vehicle.in_pits(index) # 0 not in pit, 1 in pit, 2 in garage
             is_yellow = data.isYellow = speed < 8
             lap_progress = data.lapProgress = calc.lap_progress_distance(lap_distance, track_length)
-
-            data.gapBehindNextInClass = calc_gap_behind_next_in_class(
-                opt_index_ahead, index, track_length, laps_done, lap_progress)
-            calc_pit_time(data.pitTimer, in_pit, lap_etime)
+            laptime_last = data.lastLapTime = api.read.timing.last_laptime(index)
 
             # Output var only
             data.driverName = api.read.vehicle.driver_name(index)
@@ -137,11 +134,14 @@ class Realtime(DataModule):
             data.gapBehindNext = calc_gap_behind_next(index)
             data.gapBehindLeader = calc_gap_behind_leader(index)
             data.bestLapTime = api.read.timing.best_laptime(index)
-            data.lastLapTime = api.read.timing.last_laptime(index)
             data.numPitStops = -num_penalties if num_penalties else api.read.vehicle.number_pitstops(index)
             data.pitState = api.read.vehicle.pit_request(index)
             data.tireCompoundFront = f"{class_name} - {api.read.tyre.compound_name_front(index)}"
             data.tireCompoundRear = f"{class_name} - {api.read.tyre.compound_name_rear(index)}"
+            data.gapBehindNextInClass = calc_gap_behind_next_in_class(
+                opt_index_ahead, index, track_length, laps_done, lap_progress)
+            data.pitTimer.update(in_pit, lap_etime)
+            data.update_lap_history(api.read.timing.start(index), lap_etime, laptime_last)
 
             # Position & relative data
             opt_pos_x = data.worldPositionX = api.read.vehicle.position_longitudinal(index)
@@ -217,25 +217,6 @@ class Realtime(DataModule):
         output.leaderBestLapTime = laptime_best_leader
         output.drawOrder = draw_order
         output.dataSetVersion += 1
-
-
-def calc_pit_time(pit_timer: VehiclePitTimer, in_pit: int, elapsed_time: float):
-    """Calculate pit time
-
-    Pit state: 0 = not in pit, 1 = in pit, 2 = in garage.
-    """
-    # Pit status check
-    if pit_timer.last_state != in_pit:
-        pit_timer.last_state = in_pit
-        pit_timer.start = elapsed_time
-    # Ignore pit timer in garage
-    if in_pit == 2:
-        pit_timer.start = -1
-        pit_timer.elapsed = 0
-        return
-    # Calculating pit time while in pit
-    if in_pit > 0 <= pit_timer.start:
-        pit_timer.elapsed = elapsed_time - pit_timer.start
 
 
 def relative_interval(opt_index: int, index: int | None = None) -> float:

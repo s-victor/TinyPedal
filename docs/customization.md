@@ -2842,6 +2842,17 @@ Show driver's last lap time or pit timer if available. If `show_best_laptime` is
     show_best_laptime
 Show driver's session best lap time.
 
+    show_delta_laptime
+Show lap time difference (delta) between player and opponents from most recent laps (up to 5 recent lap time records). The default layout order shows delta lap time records from right side column (most recent lap) to left.
+
+A green color (default) delta indicates that player's recent lap time is faster than opponent, while orange color delta indicates the opposite.
+
+    show_inverted_delta_laptime_layout
+Enable this option to invert layout order for delta lap time records.
+
+    number_of_delta_laptime
+Set number of delta lap time records to display. Minimum number is limited to `2`, maximum is limited to `5`.
+
 [**`Back to Top`**](#)
 
 

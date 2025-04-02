@@ -92,11 +92,11 @@ class Realtime(Overlay):
         self.indicator_color = QColor(self.wcfg["indicator_color_nearby"])
         self.indicator_color_critical = QColor(self.wcfg["indicator_color_critical"])
         if self.wcfg["show_overlap_indicator_in_cone_style"]:
-            rad_gra = QRadialGradient(self.area_center, self.area_center, self.area_center)
             cone_angle = max(self.wcfg["overlap_cone_angle"], 10)
             left_start = calc.asym_max(180 - cone_angle / 2, 90, 180)
             right_start = calc.asym_max(0 - cone_angle / 2, -270, 90)
-            self.brush_cone = QBrush(rad_gra)
+            self.brush_cone_l = QBrush(QRadialGradient(self.area_center, self.area_center, self.area_center))
+            self.brush_cone_r = QBrush(QRadialGradient(self.area_center, self.area_center, self.area_center))
             self.gradient_cone = [[0.1, Qt.transparent], [1, Qt.transparent]]
             self.cone_angle_l = left_start * 16, cone_angle * 16
             self.cone_angle_r = right_start * 16, cone_angle * 16
@@ -147,9 +147,6 @@ class Realtime(Overlay):
         if self.show_radar:
             painter = QPainter(self)
             painter.setRenderHint(QPainter.Antialiasing, True)
-            # Draw circle background
-            if self.wcfg["show_circle_background"]:
-                painter.fillRect(self.rect_radar, self.wcfg["bkg_color_circle"])
             # Draw marks
             painter.drawPixmap(0, 0, self.pixmap_marks)
             # Draw vehicles
@@ -266,15 +263,15 @@ class Realtime(Overlay):
         # Draw left side indicator
         if nearest_left > -indicator.max_range_x:
             self.gradient_cone[0][1] = self.warning_color(abs(nearest_left), indicator)
-            self.brush_cone.gradient().setStops(self.gradient_cone)
-            painter.setBrush(self.brush_cone)
+            self.brush_cone_l.gradient().setStops(self.gradient_cone)
+            painter.setBrush(self.brush_cone_l)
             painter.drawPie(self.rect_radar, *self.cone_angle_l)
 
         # Draw right side indicator
         if nearest_right < indicator.max_range_x:
             self.gradient_cone[0][1] = self.warning_color(abs(nearest_right), indicator)
-            self.brush_cone.gradient().setStops(self.gradient_cone)
-            painter.setBrush(self.brush_cone)
+            self.brush_cone_r.gradient().setStops(self.gradient_cone)
+            painter.setBrush(self.brush_cone_r)
             painter.drawPie(self.rect_radar, *self.cone_angle_r)
 
     def draw_warning_indicator(
@@ -350,6 +347,11 @@ class Realtime(Overlay):
                 self.draw_warning_cone(painter, nearest_left, nearest_right, indicator)
             else:
                 self.draw_warning_indicator(painter, nearest_left, nearest_right, indicator)
+
+        # Draw circle background
+        if self.wcfg["show_circle_background"]:
+            painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
+            painter.fillRect(self.rect_radar, self.wcfg["bkg_color_circle"])
 
     # Additional methods
     def scale_veh_pos(self, position):
