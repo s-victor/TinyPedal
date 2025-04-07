@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,77 +20,106 @@
 Relative module
 """
 
-import logging
-from functools import lru_cache
+from __future__ import annotations
+
 from itertools import chain
 from operator import itemgetter
 
-from ._base import DataModule
-from ..module_info import minfo
 from ..api_control import api
-from .. import calculation as calc
+from ..calculation import asym_max, zero_max
+from ..const_common import MAX_SECONDS, MAX_VEHICLES, QUALIFY_DEFAULT, REL_TIME_DEFAULT
+from ..module_info import minfo
+from ._base import DataModule
 
-MODULE_NAME = "module_relative"
-ALL_PLACES = list(range(1, 129))
-
-logger = logging.getLogger(__name__)
+REF_PLACES = tuple(range(1, MAX_VEHICLES + 1))
+TEMP_RELATIVE_AHEAD = [[0, -1] for _ in range(MAX_VEHICLES)]
+TEMP_RELATIVE_BEHIND = [[0, -1] for _ in range(MAX_VEHICLES)]
+TEMP_CLASSES = [["", -1, -1, -1.0, -1.0] for _ in range(MAX_VEHICLES)]
+TEMP_CLASSES_POS = [[0, 1, "", 0.0, -1, -1, False] for _ in range(MAX_VEHICLES)]
 
 
 class Realtime(DataModule):
-    """Relative info"""
+    """Relative & standings data"""
 
-    def __init__(self, config):
-        super().__init__(config, MODULE_NAME)
+    __slots__ = ()
+
+    def __init__(self, config, module_name):
+        super().__init__(config, module_name)
 
     def update_data(self):
         """Update module data"""
         reset = False
         update_interval = self.active_interval
+
+        output = minfo.relative
         setting_relative = self.cfg.user.setting["relative"]
         setting_standings = self.cfg.user.setting["standings"]
+        last_version_update = None
 
-        while not self.event.wait(update_interval):
+        while not self._event.wait(update_interval):
             if self.state.active:
 
                 if not reset:
                     reset = True
                     update_interval = self.active_interval
+                    last_veh_total = 0
 
                 # Check setting
-                show_garage_in_race = setting_relative["show_vehicle_in_garage_for_race"]
-                is_split_mode = setting_standings["enable_multi_class_split_mode"]
-                max_rel_veh, add_front, add_behind = max_relative_vehicles(
-                    setting_relative["additional_players_front"],
-                    setting_relative["additional_players_behind"])
-                min_top_veh = min_top_vehicles_in_class(
-                    setting_standings["min_top_vehicles"])
-                veh_limit = max_vehicle_limit_set(  # 0 all, 1 other, 2 player
-                    min_top_veh,
-                    setting_standings["max_vehicles_combined_mode"],
-                    setting_standings["max_vehicles_per_split_others"],
-                    setting_standings["max_vehicles_per_split_player"])
+                if last_version_update != self.cfg.version_update:
+                    last_version_update = self.cfg.version_update
+                    show_in_garage = setting_relative["show_vehicle_in_garage"]
+                    max_veh_front, max_veh_behind = max_relative_vehicles(
+                        setting_relative["additional_players_front"],
+                        setting_relative["additional_players_behind"])
+                    is_split_mode = setting_standings["enable_multi_class_split_mode"]
+                    min_top_veh = min_top_vehicles_in_class(
+                        setting_standings["min_top_vehicles"])
+                    veh_limit_all, veh_limit_other, veh_limit_player = max_vehicle_limit_set(
+                        min_top_veh,
+                        setting_standings["max_vehicles_combined_mode"],
+                        setting_standings["max_vehicles_per_split_others"],
+                        setting_standings["max_vehicles_per_split_player"])
 
                 # Base info
                 veh_total = max(api.read.vehicle.total_vehicles(), 1)
                 plr_index = api.read.vehicle.player_index()
                 plr_place = api.read.vehicle.place()
 
-                # Create relative list, reverse-sort by relative distance
-                rel_dist_list = sorted(
-                    get_relative_distance(veh_total, show_garage_in_race), reverse=True)
-                rel_idx_list = create_relative_index(
-                    rel_dist_list, plr_index, max_rel_veh, add_front, add_behind)
+                # Get vehicles info
+                (relative_ahead, relative_behind, classes_list, is_multi_class,
+                 ) = get_vehicles_info(veh_total, plr_index, show_in_garage)
 
-                # Create standings list
-                class_pos_list, place_index_list, is_multi_class = create_class_position(veh_total)
-                stand_idx_list = create_standings_index(
-                    min_top_veh, veh_limit, veh_total, plr_index, plr_place,
-                    class_pos_list, place_index_list, is_split_mode and is_multi_class)
+                # Create relative index list
+                relative_index_list = create_relative_index(
+                    relative_ahead, relative_behind, plr_index, max_veh_front, max_veh_behind)
+
+                # Create vehicle class position list (initially ordered by class name)
+                class_pos_list, plr_class_name, plr_class_place = create_position_in_class(
+                    classes_list, plr_index)
+
+                # Create standings index list
+                if is_split_mode and is_multi_class:
+                    standings_index_list = list(chain(*list(create_class_standings_index(
+                        min_top_veh, class_pos_list, plr_class_name, plr_class_place,
+                        veh_limit_other, veh_limit_player))))
+                else:
+                    classes_list.sort(key=itemgetter(1))  # sort by overall position
+                    standings_index_list = calc_standings_index(
+                        min_top_veh, veh_limit_all, plr_place, classes_list, 2)
+
+                # Sort vehicle class position list (by player index) for output
+                class_pos_list.sort()
+
+                # Race/start grid, update only if vehicle number changed
+                if last_veh_total != veh_total:
+                    last_veh_total = veh_total
+                    qualifications = create_qualify_position(veh_total)
+                    output.qualifications = qualifications
 
                 # Output data
-                minfo.relative.classes = class_pos_list
-                minfo.relative.relative = rel_idx_list
-                minfo.relative.standings = stand_idx_list
+                output.relative = relative_index_list
+                output.standings = standings_index_list
+                output.classes = class_pos_list
 
             else:
                 if reset:
@@ -98,178 +127,208 @@ class Realtime(DataModule):
                     update_interval = self.idle_interval
 
 
-def get_relative_distance(veh_total: int, show_garage_in_race: bool):
-    """Get relative distance data"""
-    track_length = api.read.lap.track_length()  # track length
-    plr_dist = api.read.lap.distance()
-    race_check = not show_garage_in_race and api.read.session.in_race()
+def create_qualify_position(veh_total: int) -> list[tuple[int, int]]:
+    """Create qualify position list
+
+    Returns:
+        list[(qualify overall, qualify in class)], ordered by "player index".
+    """
+    temp_class = sorted((
+        api.read.vehicle.class_name(index),  # 0 class name
+        api.read.vehicle.qualification(index),  # 1 qualification position
+        index,  # 2 player index
+    ) for index in range(veh_total))
+    # Create grid position
+    grid_classes = [QUALIFY_DEFAULT] * veh_total
+    qualify_in_class = 0
+    last_class_name = None
+    for veh_data in temp_class:
+        if last_class_name != veh_data[0]:
+            last_class_name = veh_data[0]
+            qualify_in_class = 1
+        else:
+            qualify_in_class += 1
+        grid_classes[veh_data[2]] = (veh_data[1], qualify_in_class)
+    return grid_classes
+
+
+def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
+    """Get vehicles info: relative time gap, classes, places, laptime"""
+    laptime_est = api.read.timing.estimated_laptime()
+    plr_time = api.read.timing.estimated_time_into()
+    last_class_name = None
+    classes_count = 0
+    index_time = 0
+
     for index in range(veh_total):
+        in_pit = api.read.vehicle.in_pits(index)
         in_garage = api.read.vehicle.in_garage(index)
-        opt_dist = api.read.lap.distance(index)
-        # Whether to hide vehicle in garage during race (ex. retired)
-        if not race_check or not in_garage:
-            rel_dist = calc.circular_relative_distance(
-                track_length, plr_dist, opt_dist)
-            yield (rel_dist, index)  # relative distance, player index
 
+        # Update relative time gap list
+        if index != plr_index and laptime_est and (show_in_garage or not in_garage):
+            opt_time = api.read.timing.estimated_time_into(index)
+            diff_time = opt_time - plr_time
+            diff_time_ahead = diff_time_behind = diff_time - diff_time // laptime_est * laptime_est
+            if diff_time_ahead < 0:
+                diff_time_ahead += laptime_est
+            if diff_time_behind > 0:
+                diff_time_behind -= laptime_est
 
-def get_vehicle_class_data(veh_total: int):
-    """Get vehicle class data"""
-    for index in range(veh_total):
+            TEMP_RELATIVE_AHEAD[index_time][:] = (
+                diff_time_ahead,  # 0 relative time gap
+                index,  # 1 player index
+            )
+            TEMP_RELATIVE_BEHIND[index_time][:] = (
+                diff_time_behind,  # 0 relative time gap
+                index,  # 1 player index
+            )
+            index_time += 1
+
+        # Update classes list
         class_name = api.read.vehicle.class_name(index)
-        position = api.read.vehicle.place(index)
+        place_overall = api.read.vehicle.place(index)
         laptime_best = api.read.timing.best_laptime(index)
-        yield (
+        laptime_last = api.read.timing.last_laptime(index)
+
+        if laptime_last > 0 and not in_pit + in_garage:
+            laptime_personal_last = laptime_last
+        else:
+            laptime_personal_last = MAX_SECONDS
+
+        if laptime_best > 0:
+            laptime_personal_best = laptime_best
+        else:
+            laptime_personal_best = MAX_SECONDS
+
+        TEMP_CLASSES[index][:] = (
             class_name,  # 0 vehicle class name
-            position,  # 1 overall position/place
+            place_overall,  # 1 overall position/place
             index,  # 2 player index
-            laptime_best if laptime_best > 0 else 99999,  # 3 best lap time
+            laptime_personal_best,  # 3 best lap time
+            laptime_personal_last,  # 4 last lap time (for fastest last lap check)
         )
+
+        # Check is multi classes
+        if classes_count < 2 and last_class_name != class_name:
+            last_class_name = class_name
+            classes_count += 1
+
+    # Sort output in-place
+    relative_ahead = TEMP_RELATIVE_AHEAD[:index_time]
+    relative_ahead.sort(reverse=True)  # by reversed time gap
+
+    relative_behind = TEMP_RELATIVE_BEHIND[:index_time]
+    relative_behind.sort(reverse=True)  # by reversed time gap
+
+    new_classes = TEMP_CLASSES[:veh_total]
+    new_classes.sort()  # by vehicle class
+
+    return (
+        relative_ahead,
+        relative_behind,
+        new_classes,  # -> classes_list
+        classes_count > 1,  # -> is_multi_class
+    )
 
 
 def create_relative_index(
-    rel_dist_list: list, plr_index: int, max_rel_veh: int, add_front: int, add_behind: int):
-    """Create player-centered relative index list"""
-    if not rel_dist_list:
-        return rel_dist_list
-    # Extract vehicle index to create new sorted vehicle list
-    sorted_veh_list = [_dist[1] for _dist in rel_dist_list]
-    # Locate player index position in list
-    if plr_index in sorted_veh_list:
-        plr_pos = sorted_veh_list.index(plr_index)
-    else:
-        plr_pos = 0  # prevent index not found in list error
-    # Append with -1 if less than max number of vehicles
-    num_diff = max_rel_veh - len(sorted_veh_list)
-    if num_diff > 0:
-        sorted_veh_list += [-1] * num_diff
-    # Slice: max number of front players -> player index position
-    front_cut = sorted_veh_list[max(plr_pos - 3 - add_front, 0):plr_pos]
-    # Find number of missing front players (which is located at the end of list)
-    front_miss = 3 + add_front - len(front_cut)
-    front_list = sorted_veh_list[len(sorted_veh_list) - front_miss:] + front_cut
-    # Slice: player index position -> max number of behind players
-    behind_cut = sorted_veh_list[plr_pos:plr_pos + 4 + add_behind]
-    # Find number of missing behind players (which is located at the beginning of list)
-    behind_miss = 4 + add_behind - len(behind_cut)
-    behind_list = behind_cut + sorted_veh_list[:behind_miss]
-    # Combine index list
-    front_list.extend(behind_list)
-    return front_list
+    relative_ahead: list, relative_behind: list, plr_index: int, max_veh_ahead: int, max_veh_behind: int):
+    """Create player-centered relative (time, index) list"""
+    ahead_cut = relative_ahead[max(len(relative_ahead) - max_veh_ahead, 0):]
+    ahead_diff = max_veh_ahead - len(ahead_cut)
+    if ahead_diff > 0:
+        ahead_cut = [REL_TIME_DEFAULT] * ahead_diff + ahead_cut
+    behind_cut = relative_behind[:min(len(relative_behind), max_veh_behind)]
+    behind_diff = max_veh_behind - len(behind_cut)
+    if behind_diff > 0:
+        behind_cut += [REL_TIME_DEFAULT] * behind_diff
+    return ahead_cut + [(0, plr_index)] + behind_cut
 
 
-def create_class_position(veh_total: int):
-    """Create vehicle class position list"""
-    raw_veh_class = list(get_vehicle_class_data(veh_total))
-    split_veh_list = tuple(zip(*raw_veh_class))
-    # Multi-class check
-    is_multi_class = len(set(split_veh_list[0])) > 1
-    # Create overall vehicle place, player index list
-    place_index_list = sorted(zip(split_veh_list[1], split_veh_list[2]))
-    # Create class position list
-    raw_veh_class.sort()  # sort by vehicle class
-    class_pos_list = sorted(create_position_in_class(raw_veh_class))
-    return class_pos_list, place_index_list, is_multi_class
-
-
-def create_standings_index(
-    min_top_veh: int, veh_limit: tuple, veh_total: int, plr_index: int, plr_place: int,
-    class_pos_list: list, place_index_list: list, is_multi_class: bool):
-    """Create standings index list"""
-    if is_multi_class:
-        sorted_class_pos_list = sorted(
-            class_pos_list,        # sort by:
-            key=itemgetter(2,4,1)  # 2 class name, 4 class best laptime, 1 class position
-        )
-        class_collection = sorted(
-            split_class_list(sorted_class_pos_list),
-            key=sort_class_collection  # sort by class best laptime
-        )
-        standing_index = list(chain(*list(  # combine class index lists group
-            create_class_standings_index(
-                min_top_veh, plr_index, class_collection, veh_limit[1], veh_limit[2]
-            )
-        )))
-    else:
-        standing_index = calc_standings_index(
-            min_top_veh, veh_total, veh_limit[0], plr_place, place_index_list)
-    return standing_index
-
-
-def create_position_in_class(sorted_veh_class: list):
+def create_position_in_class(sorted_veh_class: list, plr_index: int):
     """Create vehicle position in class list"""
-    laptime_session_best = calc.session_best_laptime(sorted_veh_class, 3)
-    laptime_class_best = 99999
-    initial_class = sorted_veh_class[0][0]
-    position_in_class = 0
-    player_index_ahead = -1
-    player_index_behind = -1
-    total_veh = len(sorted_veh_class)
+    last_class_name = None
+    place_in_class = 0
+    opt_index_ahead = -1
+    laptime_class_best = MAX_SECONDS
+    last_fastest_laptime = MAX_SECONDS
+    last_fastest_index = -1
+    veh_total = len(sorted_veh_class)
+    plr_class_name = ""
+    plr_class_place = 0
 
-    for idx, veh_sort in enumerate(sorted_veh_class):
-        if veh_sort[0] == initial_class:
-            position_in_class += 1
+    for index, veh_sort in enumerate(sorted_veh_class):
+        opt_index = veh_sort[2]
+
+        if last_class_name == veh_sort[0]:
+            place_in_class += 1
+            TEMP_CLASSES_POS[index - 1][5] = opt_index  # set opponent index behind
         else:
-            initial_class = veh_sort[0]  # reset init name
-            position_in_class = 1  # reset position counter
-
-        if position_in_class == 1:
+            last_class_name = veh_sort[0]  # reset class name
+            place_in_class = 1  # reset position counter
+            opt_index_ahead = -1  # no opponent ahead of class leader
             laptime_class_best = veh_sort[3]
-            player_index_ahead = -1  # no player ahead
+            last_fastest_laptime = MAX_SECONDS  # reset last fastest
+            if last_fastest_index != -1:  # mark fastest last lap
+                TEMP_CLASSES_POS[last_fastest_index][6] = True
+                last_fastest_index = -1  # reset last fastest index
 
-        if (idx + 1 < total_veh  # check next index within range
-            and sorted_veh_class[idx + 1][0] == veh_sort[0]):  # next player is in same class
-            player_index_behind = sorted_veh_class[idx + 1][2]
-        else:
-            player_index_behind = -1
+        if opt_index == plr_index:
+            plr_class_name = veh_sort[0]
+            plr_class_place = place_in_class
 
-        yield (
-            veh_sort[2],       # 0 - 2 player index
-            position_in_class,  # 1 - position in class
-            veh_sort[0],       # 2 - 0 class name
-            laptime_session_best,  # 3 session best
-            laptime_class_best,  # 4 classes best
-            player_index_ahead,  # 5 player index ahead
-            player_index_behind,  # 6 player index behind
+        if last_fastest_laptime > veh_sort[4]:
+            last_fastest_laptime = veh_sort[4]
+            last_fastest_index = index
+
+        TEMP_CLASSES_POS[index][:] = (
+            opt_index,  # 0 - 2 player index
+            place_in_class,  # 1 - position in class
+            veh_sort[0],  # 2 - 0 class name
+            laptime_class_best,  # 3 classes best
+            opt_index_ahead,  # 4 opponent index ahead
+            -1,  # 5 opponent index behind
+            False,  # 6 is class fastest last laptime
         )
-        player_index_ahead = veh_sort[2]
+        opt_index_ahead = opt_index  # store opponent index for next
+
+    if last_fastest_index != -1:  # mark for last class
+        TEMP_CLASSES_POS[last_fastest_index][6] = True
+
+    return TEMP_CLASSES_POS[:veh_total], plr_class_name, plr_class_place
 
 
-def create_class_standings_index(min_top_veh: int, plr_index: int, class_collection: list,
+def create_class_standings_index(
+    min_top_veh: int, class_pos_list: list, plr_class_name: str, plr_class_place: int,
     veh_limit_other: int, veh_limit_player: int):
     """Generate class standings index list from class list collection"""
+    class_collection = sorted(split_class_list(class_pos_list), key=sort_class_collection)
     for class_list in class_collection:
-        # 0 index, 1 class pos, 2 class name, 3 session best, 4 classes best
-        class_split = list(zip(*class_list))
-        place_index_list = list(zip(class_split[1], class_split[0]))
-        veh_total = class_split[1][-1]  # last pos in class
-
-        if plr_index in class_split[0]:
+        if plr_class_name == class_list[0][2]:  # match class name
             veh_limit = veh_limit_player
-            local_index = class_split[0].index(plr_index)
-            plr_place = class_split[1][local_index]
+            plr_place = plr_class_place  # 1 position in class
         else:
             veh_limit = veh_limit_other
             plr_place = 0
-
-        yield calc_standings_index(
-            min_top_veh, veh_total, veh_limit, plr_place, place_index_list)
+        yield calc_standings_index(min_top_veh, veh_limit, plr_place, class_list, 0)
 
 
-def calc_standings_index(min_top_veh: int, veh_total: int, veh_limit: int,
-    plr_place: int, place_index_list: list):
+def calc_standings_index(
+    min_top_veh: int, veh_limit: int, plr_place: int, class_index_list: list, column: int):
     """Calculate vehicle standings index list"""
+    veh_total = len(class_index_list)
     ref_place_list = create_reference_place(min_top_veh, veh_total, plr_place, veh_limit)
     # Create final standing index list
-    return list(player_index_from_place_reference(ref_place_list, place_index_list))
+    return list(standings_index_from_place_reference(ref_place_list, class_index_list, veh_total, column))
 
 
-def create_reference_place(min_top_veh: int, veh_total: int, plr_place: int, veh_limit: int):
+def create_reference_place(
+    min_top_veh: int, veh_total: int, plr_place: int, veh_limit: int):
     """Create reference place list"""
     if veh_total <= veh_limit:
-        return ALL_PLACES[:veh_total]
+        return REF_PLACES[:veh_total]
     if plr_place <= min_top_veh:
-        return ALL_PLACES[:veh_limit]
+        return REF_PLACES[:veh_limit]
     # Find nearby slice range relative to player
     max_cut_range = veh_limit - min_top_veh
     # Number of rear slots, should be equal or less than front slots (exclude player slot)
@@ -284,15 +343,15 @@ def create_reference_place(min_top_veh: int, veh_total: int, plr_place: int, veh
     if rear_cut_max > veh_total:
         rear_cut_max = veh_total
     front_cut_max = rear_cut_max - max_cut_range
-    return ALL_PLACES[:min_top_veh] + ALL_PLACES[front_cut_max:rear_cut_max]
+    return REF_PLACES[:min_top_veh] + REF_PLACES[front_cut_max:rear_cut_max]
 
 
-def player_index_from_place_reference(ref_place_list: list, place_index_list: list):
-    """Match place from reference list to generate player index list"""
-    max_places = len(place_index_list)
+def standings_index_from_place_reference(
+    ref_place_list: tuple, class_index_list: list, veh_total: int, column: int):
+    """Match place from reference list to generate standings player index list"""
     for ref_idx in ref_place_list:
-        if 0 < ref_idx <= max_places:  # prevent out of range
-            yield place_index_list[ref_idx-1][1]  # 1 vehicle index
+        if 0 < ref_idx <= veh_total:  # prevent out of range
+            yield class_index_list[ref_idx - 1][column]  # column - player index
         else:
             break
     yield -1  # append an empty index as gap between classes
@@ -315,22 +374,19 @@ def split_class_list(class_list: list):
     yield class_list[index_start:index_end]
 
 
-@lru_cache(maxsize=1)
-def max_relative_vehicles(add_front: int, add_behind: int, min_veh: int = 7) -> tuple:
+def max_relative_vehicles(add_front: int, add_behind: int):
     """Maximum number of vehicles in relative list"""
-    add_front = min(max(int(add_front), 0), 60)
-    add_behind = min(max(int(add_behind), 0), 60)
-    max_vehicles = min_veh + add_front + add_behind
-    return max_vehicles, add_front, add_behind
+    add_front = int(zero_max(add_front, 60)) + 3
+    add_behind = int(zero_max(add_behind, 60)) + 3
+    return add_front, add_behind
 
 
-@lru_cache(maxsize=1)
 def min_top_vehicles_in_class(min_top_veh: int) -> int:
     """Minimum number of top vehicles in class list
 
     min_top_veh: value range limited in 1 to 5
     """
-    return min(max(int(min_top_veh), 1), 5)
+    return int(asym_max(min_top_veh, 1, 5))
 
 
 def max_vehicles_in_class(max_cls_veh: int, min_top_veh: int, min_add_veh: int = 0) -> int:
@@ -343,9 +399,8 @@ def max_vehicles_in_class(max_cls_veh: int, min_top_veh: int, min_add_veh: int =
     return max(int(max_cls_veh), min_top_veh + min_add_veh)
 
 
-@lru_cache(maxsize=1)
 def max_vehicle_limit_set(
-    min_top_veh: int, max_all: int, max_others: int, max_player: int) -> tuple:
+    min_top_veh: int, max_all: int, max_others: int, max_player: int):
     """Create max vehicle limit set"""
     limit_all = max_vehicles_in_class(max_all, min_top_veh, 2)
     limit_other = max_vehicles_in_class(max_others, min_top_veh)
@@ -353,6 +408,6 @@ def max_vehicle_limit_set(
     return limit_all, limit_other, limit_player
 
 
-def sort_class_collection(collection: list):
-    """Sort class collection list"""
-    return collection[0][4]  # 4 class best laptime
+def sort_class_collection(collection: list) -> float:
+    """Sort class collection by class best laptime"""
+    return collection[0][3]  # 3 class best laptime

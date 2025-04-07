@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,50 +20,46 @@
 Tyre carcass temperature Widget
 """
 
-from collections import deque
-
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
+from functools import partial
 
 from .. import calculation as calc
-from .. import heatmap as hmp
 from ..api_control import api
+from ..const_common import TEXT_NA, TEXT_PLACEHOLDER
+from ..heatmap import (
+    HEATMAP_DEFAULT_TYRE,
+    load_heatmap_style,
+    select_compound_symbol,
+    select_tyre_heatmap_name,
+)
+from ..units import set_unit_temperature
 from ._base import Overlay
-
-WIDGET_NAME = "tyre_carcass"
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        text_def = "n/a"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         inner_gap = self.wcfg["inner_gap"]
-        self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
+        self.rate_interval = min(max(self.wcfg["rate_of_change_interval"], 1), 60)
+        self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3) + 0.0  # no decimal
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
-        self.tyre_compound_string = self.cfg.units["tyre_compound_symbol"].ljust(20, "?")
-
         text_width = 3 + len(self.sign_text) + (self.cfg.units["temperature_unit"] == "Fahrenheit")
-        bar_width_ttemp = font_m.width * text_width + bar_padx
-        bar_width_tcmpd = font_m.width + bar_padx
 
-        max_samples = int(
-            min(max(self.wcfg["rate_of_change_interval"], 1), 60)
-            / (max(self.wcfg["update_interval"], 10) * 0.001)
-        )
+        # Config units
+        self.unit_temp = set_unit_temperature(self.cfg.units["temperature_unit"])
 
         # Base style
-        self.heatmap = hmp.load_heatmap(self.wcfg["heatmap_name"], "tyre_default")
         self.setStyleSheet(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
@@ -77,74 +73,106 @@ class Realtime(Overlay):
             fg_color=self.wcfg["font_color_carcass"],
             bg_color=self.wcfg["bkg_color_carcass"]
         )
-        bar_style_rtemp = self.set_qss(
-            fg_color=self.wcfg["font_color_rate_of_change"],
-            bg_color=self.wcfg["bkg_color_rate_of_change"]
-        )
 
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
+        # Heatmap style list: 0 - fl, 1 - fr, 2 - rl, 3 - rr
+        self.heatmap_styles = 4 * [
+            load_heatmap_style(
+                heatmap_name=self.wcfg["heatmap_name"],
+                default_name=HEATMAP_DEFAULT_TYRE,
+                swap_style=self.wcfg["swap_style"],
+                fg_color=self.wcfg["font_color_carcass"],
+                bg_color=self.wcfg["bkg_color_carcass"],
+            )
+        ]
 
         # Tyre carcass temperature
-        layout_ctemp = QGridLayout()
-        layout_ctemp.setSpacing(inner_gap)
-        self.bar_ctemp = self.set_qlabel(
-            text=text_def,
+        layout_ctemp = self.set_grid_layout(gap=inner_gap)
+        self.bars_ctemp = self.set_qlabel(
+            text=TEXT_NA,
             style=bar_style_ctemp,
-            width=bar_width_ttemp,
+            width=font_m.width * text_width + bar_padx,
             count=4,
+            last=0,
         )
-        self.set_layout_quad(layout_ctemp, self.bar_ctemp)
+        self.set_grid_layout_quad(
+            layout=layout_ctemp,
+            targets=self.bars_ctemp,
+        )
         self.set_primary_orient(
             target=layout_ctemp,
             column=self.wcfg["column_index_carcass"],
         )
 
         if self.wcfg["show_tyre_compound"]:
-            self.bar_tcmpd = self.set_qlabel(
-                text="-",
+            self.bars_tcmpd = self.set_qlabel(
+                text=TEXT_PLACEHOLDER,
                 style=bar_style_tcmpd,
-                width=bar_width_tcmpd,
+                width=font_m.width + bar_padx,
                 count=2,
             )
-            self.set_layout_vert(layout_ctemp, self.bar_tcmpd)
+            self.set_grid_layout_vert(
+                layout=layout_ctemp,
+                targets=self.bars_tcmpd,
+            )
 
         # Rate of change
         if self.wcfg["show_rate_of_change"]:
-            layout_rtemp = QGridLayout()
-            layout_rtemp.setSpacing(inner_gap)
-            self.bar_rtemp = self.set_qlabel(
-                text=text_def,
-                style=bar_style_rtemp,
-                width=bar_width_ttemp,
-                count=4,
+            layout_rtemp = self.set_grid_layout(gap=inner_gap)
+            self.bar_style_rtemp = (
+                self.set_qss(
+                    fg_color=self.wcfg["bkg_color_rate_of_change"],
+                    bg_color=self.wcfg["font_color_rate_loss"]),
+                self.set_qss(
+                    fg_color=self.wcfg["bkg_color_rate_of_change"],
+                    bg_color=self.wcfg["font_color_rate_gain"]),
+                self.set_qss(
+                    fg_color=self.wcfg["bkg_color_rate_of_change"],
+                    bg_color=self.wcfg["font_color_rate_of_change"]),
+            ) if self.wcfg["swap_style"] else (
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_rate_loss"],
+                    bg_color=self.wcfg["bkg_color_rate_of_change"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_rate_gain"],
+                    bg_color=self.wcfg["bkg_color_rate_of_change"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_rate_of_change"],
+                    bg_color=self.wcfg["bkg_color_rate_of_change"]),
             )
-            self.set_layout_quad(layout_rtemp, self.bar_rtemp)
+            self.bars_rdiff = self.set_qlabel(
+                text=TEXT_NA,
+                style=self.bar_style_rtemp[2],
+                width=font_m.width * text_width + bar_padx,
+                count=4,
+                last=0,
+            )
+            self.set_grid_layout_quad(
+                layout=layout_rtemp,
+                targets=self.bars_rdiff,
+            )
             self.set_primary_orient(
                 target=layout_rtemp,
                 column=self.wcfg["column_index_rate_of_change"],
             )
 
             if self.wcfg["show_tyre_compound"]:
-                bar_blank = self.set_qlabel(
+                bars_blank = self.set_qlabel(
                     text="",
                     style=bar_style_tcmpd,
-                    width=bar_width_tcmpd,
+                    width=font_m.width + bar_padx,
                     count=2,
                 )
-                self.set_layout_vert(layout_rtemp, bar_blank)
+                self.set_grid_layout_vert(
+                    layout=layout_rtemp,
+                    targets=bars_blank
+                )
 
         # Last data
-        self.last_tcmpd = [None] * 2
-        self.last_ctemp = [-273.15] * 4
         self.last_rtemp = [0] * 4
         self.last_lap_etime = 0
-        self.rtemp_samples = deque(
-            [self.last_rtemp[:] for _ in range(max_samples)], max_samples
+        self.calc_ema_rdiff = partial(
+            calc.exp_mov_avg,
+            calc.ema_factor(min(max(self.wcfg["rate_of_change_smoothing_samples"], 1), 500))
         )
 
     def timerEvent(self, event):
@@ -153,105 +181,65 @@ class Realtime(Overlay):
 
             # Tyre compound
             if self.wcfg["show_tyre_compound"]:
-                tcmpd = api.read.tyre.compound()
-                for cmpd_idx in range(2):
-                    self.update_tcmpd(
-                        self.bar_tcmpd[cmpd_idx],
-                        tcmpd[cmpd_idx],
-                        self.last_tcmpd[cmpd_idx]
-                    )
-                    self.last_tcmpd[cmpd_idx] = tcmpd[cmpd_idx]
+                class_name = api.read.vehicle.class_name()
+                tcmpd_name = api.read.tyre.compound_name()
+                for cmpd_idx, bar_tcmpd in enumerate(self.bars_tcmpd):
+                    self.update_tcmpd(bar_tcmpd, f"{class_name} - {tcmpd_name[cmpd_idx]}", cmpd_idx * 2)
 
-            # Tyre carcass temperature
+            # Tyre carcass temperature: 0 - fl, 1 - fr, 2 - rl, 3 - rr
             ctemp = api.read.tyre.carcass_temperature()
-            for tyre_idx in range(4):  # 0 - fl, 1 - fr, 2 - rl, 3 - rr
-                self.update_ctemp(
-                    self.bar_ctemp[tyre_idx],
-                    ctemp[tyre_idx],
-                    self.last_ctemp[tyre_idx]
-                )
-                self.last_ctemp[tyre_idx] = ctemp[tyre_idx]
+            for tyre_idx, bar_ctemp in enumerate(self.bars_ctemp):
+                self.update_ctemp(bar_ctemp, round(ctemp[tyre_idx]), tyre_idx)
 
             # Rate of change
             if self.wcfg["show_rate_of_change"]:
                 lap_etime = api.read.timing.elapsed()
 
-                if lap_etime != self.last_lap_etime:  # time stamp difference
-                    self.last_lap_etime = lap_etime  # reset time stamp counter
-                    self.rtemp_samples.append(ctemp)
+                if self.last_lap_etime > lap_etime:
+                    self.last_lap_etime = lap_etime
+                elif lap_etime - self.last_lap_etime >= 0.1:
+                    interval = self.rate_interval / (lap_etime - self.last_lap_etime)
+                    self.last_lap_etime = lap_etime
 
-                for tyre_idx in range(4):
-                    rtemp = ctemp[tyre_idx] - self.rtemp_samples[0][tyre_idx]
-                    self.update_rtemp(
-                        self.bar_rtemp[tyre_idx],
-                        rtemp,
-                        self.last_rtemp[tyre_idx]
-                    )
-                    self.last_rtemp[tyre_idx] = rtemp
+                    for tyre_idx, bar_rdiff in enumerate(self.bars_rdiff):
+                        rdiff = self.calc_ema_rdiff(
+                            bar_rdiff.last,
+                            (ctemp[tyre_idx] - self.last_rtemp[tyre_idx]) * interval
+                        )
+                        self.last_rtemp[tyre_idx] = ctemp[tyre_idx]
+                        self.update_rdiff(bar_rdiff, rdiff)
 
     # GUI update methods
-    def update_ctemp(self, target_bar, curr, last):
+    def update_ctemp(self, target, data, index):
         """Tyre carcass temperature"""
-        if round(curr) != round(last):
-            color_temp = hmp.select_color(self.heatmap, curr)
-            if self.wcfg["swap_style"]:
-                color = f"color: {self.wcfg['font_color_carcass']};background: {color_temp};"
+        if target.last != data:
+            target.last = data
+            if data < -100:
+                target.setText(TEXT_PLACEHOLDER)
             else:
-                color = f"color: {color_temp};background: {self.wcfg['bkg_color_carcass']};"
+                target.setText(f"{self.unit_temp(data):0{self.leading_zero}f}{self.sign_text}")
+            target.setStyleSheet(calc.select_grade(self.heatmap_styles[index], data))
 
-            target_bar.setText(self.format_temperature(curr))
-            target_bar.setStyleSheet(color)
-
-    def update_rtemp(self, target_bar, curr, last):
+    def update_rdiff(self, target, data):
         """Rate of change"""
-        if curr != last:
-            if curr > 0:
-                hicolor = self.wcfg["font_color_rate_gain"]
-            else:
-                hicolor = self.wcfg["font_color_rate_loss"]
+        if target.last != data:
+            target.last = data
+            target.setText(f"{self.unit_temp(data):.1f}"[:3].strip("."))
+            target.setStyleSheet(self.bar_style_rtemp[data > 0])
 
-            if self.wcfg["swap_style"]:
-                color = f"color: {self.wcfg['font_color_rate_of_change']};background: {hicolor};"
-            else:
-                color = f"color: {hicolor};background: {self.wcfg['bkg_color_rate_of_change']};"
-
-            target_bar.setText(self.format_rate_change(curr))
-            target_bar.setStyleSheet(color)
-
-    def update_tcmpd(self, target_bar, curr, last):
+    def update_tcmpd(self, target, data, index):
         """Tyre compound"""
-        if curr != last:
-            target_bar.setText(self.tyre_compound_string[curr])
-
-    # GUI generate methods
-    @staticmethod
-    def set_layout_quad(layout, bar_set, row_start=1, column_left=0, column_right=9):
-        """Set layout - quad
-
-        Default row index start from 1; reserve row index 0 for caption.
-        """
-        for idx in range(4):
-            layout.addWidget(bar_set[idx], row_start + (idx > 1),
-                column_left + (idx % 2) * column_right)
-
-    @staticmethod
-    def set_layout_vert(layout, bar_set, row_count=2):
-        """Set layout - vertical
-
-        Start from row index 1; reserve row index 0 for caption.
-        """
-        for index in range(row_count):
-            layout.addWidget(bar_set[index], index + 1, 4)
-
-    # Additional methods
-    def format_temperature(self, value):
-        """Format temperature"""
-        if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            return f"{calc.celsius2fahrenheit(value):0{self.leading_zero}.0f}{self.sign_text}"
-        return f"{value:0{self.leading_zero}.0f}{self.sign_text}"
-
-    def format_rate_change(self, value):
-        """Format temperature rate of change"""
-        if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            return f"{calc.celsius2fahrenheit(value):.1f}"[:3].strip(".")
-        return f"{value:.1f}"[:3].strip(".")
+        if target.last != data:
+            target.last = data
+            target.setText(select_compound_symbol(data))
+            # Update heatmap style
+            if self.wcfg["enable_heatmap_auto_matching"]:
+                heatmap_style = load_heatmap_style(
+                    heatmap_name=select_tyre_heatmap_name(data),
+                    default_name=HEATMAP_DEFAULT_TYRE,
+                    swap_style=self.wcfg["swap_style"],
+                    fg_color=self.wcfg["font_color_carcass"],
+                    bg_color=self.wcfg["bkg_color_carcass"],
+                )
+                self.heatmap_styles[index] = heatmap_style
+                self.heatmap_styles[index + 1] = heatmap_style

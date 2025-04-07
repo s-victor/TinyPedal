@@ -1,4 +1,596 @@
-WIP
+2.26.0 (2025-04-02)
+-----------------------------
+* Radar Widget
+  - Add "show_overlap_indicator_in_cone_style" option (optional), which shows overlap indicator in "cone style" instead of "boundary style".
+  - Add "overlap_cone_angle" option, which sets cone display angle in degrees. This option does not affect overlap detection range.
+  - Renamed "overlap_detection_range_multiplier" option to "overlap_nearby_range_multiplier", which sets nearby vehicle overlap detection range multiplier.
+    A value of "5" would result a 5-vehicle-wide detection range. Default is "5" vehicle-wide.
+  - Add "overlap_critical_range_multiplier" option, which sets nearby vehicle critical overlap detection range multiplier. Default is "1" vehicle-wide.
+  - Add "show_angle_mark" and angle mark style options, which show angle mark (fixed 45 degrees) on radar background.
+  - Fixed radar circle background that was incorrectly displayed on top of overlap indicators.
+
+* Relative, Rivals, Standings Widget
+  - Add "show_delta_laptime" option for Rivals & Standings Widget (requested by user "oljemace"), which shows lap time difference (delta) between player and opponents from most recent laps.
+    A green color (default) delta indicates that player's recent lap time is faster than opponent, while orange color delta indicates the opposite.
+    Number of delta lap time display can be set with "number_of_delta_laptime" option, minimum number is limited to 2, maximum is limited to 5.
+    The default layout order shows delta lap time records from right side column (most recent lap) to left. Enable "show_inverted_delta_laptime_layout" option to invert the layout.
+  - Add "show_position_change" option (requested by user "bongio94"), which shows overall driver position change relative to overall qualification position.
+  - Add "show_position_change_in_class" option, which shows driver position change in class instead of overall. This option is enabled by default.
+  - Add "time_gap_align_center" option for Relative Widget.
+  - Add "time_interval_align_center" option for Rivals Widget.
+
+* User Preset
+  - Add "Lock Preset" and "Unlock Preset" toggle to "right-click" menu in "Preset" tab, which allows locking or unlocking user preset file.
+    Any changes made to locked preset will still take effect, but will not be saved to file. APP "version" tag will be attached to the preset that is locked with.
+    This feature can be useful for keeping preset unchanged while testing new updates or features.
+    Note, this "lock" feature only prevents any changes that made through this APP from saving to locked preset file.
+    It does not prevent user from modifying or deleting locked preset file by other means.
+  - Add "file lock" config file (config.lock) that saves in "global user configuration" folder, which keeps a list of locked file names.
+
+* Misc
+  - Fixed an issue where changes from "Units" and "Global Font Override" dialogs would not take effect after clicked "Apply" more than once.
+  - Fixed a rare glitch where widget could be dragged around while "Lock Overlay" is enabled.
+  - Various optimization to widgets, modules and save system.
+  - Added new contributor "Andres (Corti)" to contributors.md.
+
+2.25.1 (2025-03-18)
+-----------------------------
+* Important Fix
+  - Fixed an issue where all driver stats could be completely reset if driver.stats file could not be accessed while saving.
+    Stats file saving now uses "maximum_saving_attempts" value in "Application" setting for saving retries, and backup accordingly.
+  - Fixed a rare case where extremely small fuel tank capacity would break fuel calculation,
+    such as 1 liter or less tank capacity found on some unusual vehicle mods in "RF2".
+
+* Fuel Module
+  - Now supports and auto-detects "battery charge usage" as a primary consumption type with charge regeneration taken into
+    calculation for non-hybrid pure electric vehicles such as "FE Gen3" that is based on "RF2" new electric motor system.
+    Note, some electric vehicles in "RF2" are based on older electric system and not utilizing the new battery charge
+    and electric motor system, such as "FE Gen1" & "FE Gen2".
+
+* Hybrid Module
+  - Add estimated battery charge net change (gain or loss) per lap and delta calculation.
+  - Add "minimum_delta_distance" option, which sets minimum recording distance (in meters) between each delta sample.
+  - Add alternative electric motor state checker for electric vehicle that doesn't have motor state available.
+    Battery usage and state info can now be correctly displayed in "Battery, Gear, P2P" Widget for electric vehicles
+    that are based on "RF2" new electric motor system but don't have motor state available.
+
+* Battery Widget
+  - Add "show_estimated_net_change" option, which shows estimated battery charge net change from current lap.
+    Positive value indicates net gain (regen higher than drain); negative indicates net loss (drain higher than regen).
+    Total net change reading is more accurate for vehicles that constantly consume battery charge, such as "FE" or "Hypercar" class.
+    It is less useful for vehicles that only utilize electric motor for a short duration, such as "P2P".
+    Note, at least one full lap (excludes pit-out or first lap) is required to generate estimated net change data.
+
+* Brake temperature, Tyre carcass, Tyre inner layer, Tyre temperature Widget
+  - Show unavailable sign as "-" if temperature drops below -100 degrees Celsius.
+
+* Fuel Widget
+  - Show "battery usage" (in percentage) data instead of fuel usage for non-hybrid pure electric vehicles.
+    Note, since multiple different electric systems exist in "RF2", there is no reliable way to distinguish pure
+    electric vehicles from fuel or hybrid vehicles, it is important to make sure "fuel_unit" option in "Units" setting
+    is set to "Liter" in order to correctly display battery charge usage in "percentage" for pure electric vehicles.
+  - Fixed an issue where "starting fuel level" indicator would sometimes incorrectly reset its position.
+
+* Misc
+  - Various small code optimization, further reduced memory usage.
+  - Renamed "Units and symbols" to "Units" in config dialog and user guide.
+  - Improved user guide navigation.
+
+2.25.0 (2025-03-09)
+-----------------------------
+* General
+  - Show "state overriding" notification on API status bar while "enable_active_state_override" option is enabled.
+  - Show "Pace Notes Playback Enabled" notification on main window while pace notes playback is enabled.
+  - Replaced all "Set" buttons in "Pace Notes Playback" tab with a single "Apply" button for applying changes.
+  - Fixed an error in "Spectate Mode" if player index is set lower than "-1" in "Shared Memory API" config.
+  - Removed unnecessary "wheel radius info" options from Wheels Module.
+  - Optimized copy access mode with Shared Memory API.
+
+* Overlay
+  - Add "VR Compatibility" toggle to Overlay & tray menu (implemented by TiberiuC39), which enables widget visibility
+    as windows on taskbar in order to be used in VR via APPs such as "OpenKneeboard". Non-VR user should not enable this option.
+
+* [New]Driver Stats (user data)
+  - Add new "driver stats" user data file (driver.stats) that saves in "global user configuration" folder.
+
+* [New]Driver Stats Viewer
+  - Add "Driver stats viewer" to "Tools" menu in main window for viewing "Driver stats".
+    Note, the viewer only allows limited reset or removal, stat value cannot be edited by design.
+    Any changes will take immediate effect after confirmation, changes cannot be undone.
+    See "Driver stats viewer" section in User Guide for complete usage.
+
+* [New]Stats Module
+  - Add "Stats Module" for recording driver stats data. Note, driver stats will not be recorded while spectate mode is enabled.
+    See "Stats module" section in User Guide for configuration details.
+  - Now outputs "meters driven" data for odometer display in Cruise Widget.
+
+* [New]Consumption History (user data)
+  - Add new consumption history user data file (.consumption extension) that saves in "deltabest" folder (default),
+    which stores lap time and fuel consumption data per "track and vehicle class", and can be loaded in Fuel Calculator.
+    Up to 100 most recent lap entries are saved per "track and vehicle class". Data recording is handled by "Fuel Module".
+  - Add "Consumption History" to "Reset Data" menu.
+
+* Fuel Calculator
+  - Add "Load Live" button, which loads or updates data from live session to history table.
+  - Add "Load File" button, which loads data from consumption history file to history table.
+  - Show loaded data source and track and class name on status bar.
+  - Add "Tank" column, which shows fuel tank capacity for specific vehicle of the same class
+    and can be selected and added to calculation panel.
+
+* [New]Brakes Preset
+  - Add new "brakes.json" preset file in "settings" folder, which is used for customizing
+    brake failure thickness ("LMU" only) and heatmap style that matches specific vehicle class.
+  - Add default brake failure thickness and heatmap style for all vehicle classes currently found in "LMU".
+  - Automatically adds missing brake styles found from all running vehicle class to "brakes.json".
+  - "brakes" file name is now reserved for "brakes.json" preset.
+
+* [New]Brake Editor
+  - Add "Brake Editor" to "Tools" menu in main window, which allows customizing "brakes.json" preset.
+    See User Guide "Brake Editor" section for complete usage.
+
+* Brake temperature Widget
+  - Add "enable_heatmap_auto_matching" option, which enables automatically heatmap style matching
+    for specific brakes defined in "brakes.json" preset.
+    This option applies matching heatmap style to front and rear brakes separately.
+    While this option is enabled, "heatmap_name" option has no effect. This option is enabled by default.
+
+* Brake wear Widget
+  - Now loads brake "failure thickness" values from "brakes.json" preset for brake wear calculation.
+  - Removed old "front_brake_failure_thickness" and "rear_brake_failure_thickness" options.
+
+* Deltabest, Deltabest extended Widget
+  - Add "decimal_places" option (requested by Oblit0r). Default is "3" decimal places. Minimum is limited to "1".
+
+* Trailing Widget
+  - Add "show_absolute_ffb" option, which converts force feedback value to absolute value before plotting.
+    Disable this option to show force feedback plot in both positive and negative range.
+
+* Misc
+  - Moved all tools and editors guide into "Tools" section in User Guide. Added internal links for quick accessing related info.
+  - Added new contributor "TiberiuC39" to contributors.md.
+  - Added "rFactor 2 Community" to "Special Thanks" list in contributors.md.
+
+2.24.0 (2025-02-06)
+-----------------------------
+* General
+  - Add log info for showing various style presets loading status.
+  - Unified preset backup file name format.
+  - Add preset file validation for "classes.json" and "compounds.json".
+  - Removed "tyre_compound_symbol" option from "units" config.
+
+* [New]Compounds Preset
+  - Add new "compounds.json" preset file in "settings" folder, which is used for displaying custom
+    tyre compound symbol and heatmap style that matches specific tyre compounds.
+  - Add default tyre compound styles for all tyres currently found in "LMU".
+  - Add default tyre compound styles for some popular vehicles found in "RF2".
+  - Add tyre compounds auto-detection system, which automatically adds missing tyre compounds found
+    from all running vehicles to "compounds.json" and assigns closest matched compound symbols.
+    A "?" symbol will be displayed if a compound name is not commonly known.
+  - "compounds" file name is now reserved for "compounds.json" preset.
+
+* [New]Tyre Compound Editor
+  - Add "Tyre Compound Editor" to "Tools" menu in main window, which allows customizing "compounds.json" preset.
+    See User Guide "Compounds preset" section for complete usage.
+
+* Classes Preset
+  - Extended classes preset structure to support more customization in future.
+    The new structure now saves alternative "class name" under "alias" key, and "class color" under "color" key.
+  - Old "classes.json" file will be auto-updated to this newer structure,
+    and a "classes.json.old" backup file will be created in "settings" folder.
+
+* Vehicle Class Editor
+  - Now shows customizable classes styles in table view, including "Class name", "Alias name", "Color" columns.
+  - Now supports multi-selection for deleting multiple classes.
+  - Now supports classes sorting.
+
+* Delta, Energy, Fuel Module
+  - Add "minimum_delta_distance" option, which sets minimum recording distance (in meters) between each delta sample.
+    Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy.
+    Default value is "5" meters. Recommended value range in "5" to "10" meters.
+  - Improved calculation and significantly reduced data fluctuation.
+
+* Relative, Rivals, Standings Widget
+  - Now shows tyre compound symbols (front and rear) that matches specific tyre compounds defined in "compounds.json" preset.
+
+* Tyre carcass, Tyre inner layer, Tyre temperature Widget
+  - Add "enable_heatmap_auto_matching" option, which enables automatically heatmap style matching
+    for specific tyre compounds defined in "compounds.json" preset.
+    This option applies matching heatmap style to front and rear tyre compounds separately.
+    While this option is enabled, "heatmap_name" option has no effect. This option is enabled by default.
+    Note, separate compounds info for tyres on the same axle is not available from game API,
+    which currently it is not possible to show left and right compounds separately.
+  - Now shows tyre compound symbols (front and rear) that matches specific tyre compounds defined in "compounds.json" preset.
+
+* Misc
+  - Updated User Guide info for related changes above.
+
+2.23.0 (2025-01-15)
+-----------------------------
+* General
+  - Add "Remember Size" option in main window Config menu, which remembers last window size.
+    This option is enabled by default.
+  - Apply laptime pace margin after laptime pace calculation instead of before.
+
+* Relative Widget
+  - Add "show_highlighted_nearest_time_gap" option (requested by Jonathan07),
+    which highlights opponents within nearest time gap threshold.
+  - Add "nearest_time_gap_threshold_*" options for customizing nearest time gap threshold (in seconds).
+    Default is "1" second for front, and "2" seconds for behind.
+  - Add "show_time_gap_sign" option, "-" indicates opponent's relative position is in front of player,
+    "+" indicates the opposite. This option is disabled by default.
+  - "show_lap_difference" option no longer applies to "time gap" column to avoid confusion with
+    "show_highlighted_nearest_time_gap".
+
+* Track map Widget
+  - Add "show_pitout_prediction" option (requested by David levis & Marcelo Prestes),
+    which shows estimated pit out on-track position indication for each pit stop duration.
+    Note, pit out position prediction is based on "delta best" data which scaled with player's latest
+    "lap time pace" for accurate real-time position prediction under various track conditions.
+    Pit out prediction requires both valid "track map" and "delta best" data to display.
+    At least "one valid lap" for any car and track combo is required to display pit out prediction.
+    For accurate prediction, the location of "pit out line" must be found first.
+    And since each track has different pit out line location,
+    it is required to "pit out" at least "once per session" to mark the correct pit out line location.
+    This can be easily done by driving out of pit lane.
+  - Add "number_of_predication" option that sets number of pit out predication to display.
+    Value range is limited in "1" to "20".
+  - Add "pitstop_duration_minimum" option that sets pit stop duration (in seconds) of first predication.
+  - Add "pitstop_duration_increment" option that sets each pit stop duration (in seconds) increment
+    after previous predication. Default increment is "10" seconds.
+    Note, each time when pit stop duration of the nearest predication exceeded current pit stop timer,
+    the predication circle will be removed, and a new predication circle will be appended
+    with pit stop duration increment after the last predication.
+  - Add "pitout_time_offset" option that sets amount time offset (in seconds) for catching up with
+    vehicle speed after pit out. Default is "3" seconds.
+    Note, this value is important for accurate prediction, as initial vehicle speed is much slower after pit out,
+    so extra time is needed for driver to catch up, and also affected by pit out line location.
+    For most tracks, this extra time after pit out is roughly within "1" to "5" seconds,
+  - Add "show_pitstop_duration" option that shows pit stop duration reading on top of each predication circle.
+  - Add "show_position_in_class" option, which shows position in class while "enable_multi_class_styling"
+    is also enabled, otherwise this option has no effect.
+    While "enable_multi_class_styling" is enabled, disable this option to show overall standings with
+    multi-class color (requested by Lazaros Filippakos).
+
+* Misc
+  - Updated "Application", "Relative", "Track map" sections in User Guide.
+
+2.22.0 (2024-12-26)
+-----------------------------
+* General
+  - Auto corrects duplicated "column_index" values in widget options to avoid display overlapping.
+  - Various code optimization.
+
+* Brake bias Widget
+  - Add "show_baseline_bias_delta" option, which shows delta between current and baseline brake bias.
+    This can be useful for keeping track of brake bias changes easier during a long race.
+    Baseline brake bias is automatically set (and reset) while vehicle is stationary in pit lane.
+
+* Fuel Widget
+  - Add "show_absolute_refueling" option (requested by barrett & francescodg), which shows absolute refueling value
+    instead of relative refueling when enabled.
+    Note, "+" or "-" sign is not displayed with absolute refueling.
+    Differences between relative and absolute refueling:
+    - Relative refueling value shows total amount "additional" fuel required to finish the remaining race length,
+      which matches "relative refueling" mechanism (amount to add on top of remaining fuel in tank) in "RF2".
+    - Absolute refueling value shows absolute total amount fuel required to finish the remaining race length,
+      which matches "absolute refueling" mechanism (amount total fuel to fill tank up to) in "LMU".
+    - Also see "estimated laps" display option in "Session Widget" that can be used for "absolute refueling".
+  - Add "caption_text_absolute_refuel" option that shows absolute refueling caption text if
+    "show_absolute_refueling" option is enabled. This helps distinguish difference from relative refueling.
+    Default caption text is "abfuel".
+  - Exchanged column positions of "end" and "pits" for consistency and readability.
+    "pits" column is now in the same column as "early".
+
+* Instrument Widget
+  - Add "stalling_rpm_threshold" option, which sets RPM threshold for triggering engine stalling warning.
+    Default is "100" RPM.
+  - Renamed "warning_color_ignition" option to "warning_color_stalling".
+
+* Pace notes, Track notes Widget
+  - Fixed notes not showing up if game was paused and unpaused again while on track.
+
+* Relative finish order Widget
+  - Add "show_absolute_refilling" option.
+
+* Relative, Rivals, Standings Widget
+  - Add "number of penalties" display in "pit stop count" column.
+    When a driver accumulates one or more penalties, this column will show the number of penalties
+    in negative value with purple (default) background to distinguish from number of pit stops.
+
+* Session Widget
+  - Add "show_estimated_laps" option, which shows estimated total remaining laps (from current lap position
+    towards finish line) based on total remaining session time and local player's lap time pace.
+    This value can be used for adjusting absolute refueling. No value will be shown if session is not time-based.
+    Note, this is the same value that used for calculating estimated refueling value in Fuel Module.
+    As with estimation, there may be a margin of error of one lap, and may be affected
+    by other variables such as those mentioned in "Relative finish order" widget.
+
+* [New]Slip ratio Widget
+  - Show visualized slip ratio of each tyre with customizable optimal and critical range and color indication.
+
+* Track map Widget
+  - Add "enable_multi_class_styling" option (requested by AndreT990 & Marcelo Prestes), which shows vehicles in
+    multi-class color styles on map along with position-in-class standings.
+    Multi-class color can be customized from Vehicle Class Editor.
+    Random color will be shown if vehicle class is not defined in Vehicle Class Editor.
+    Note, while multi-class styling is enabled, following color styles will not be displayed:
+    "vehicle_color_player", "vehicle_color_leader", "vehicle_color_same_lap", "vehicle_color_laps_ahead", "vehicle_color_laps_behind".
+  - Add "font_color_player", "vehicle_outline_player_color", "vehicle_outline_player_width" options for
+    customizing player vehicle style.
+
+* Virtual Energy Widget
+  - Add "show_absolute_refilling", "caption_text_absolute_refill" options.
+  - Exchanged column positions of "end" and "pits".
+
+* Misc
+  - Updated User Guide info for related changes above.
+
+2.21.0 (2024-12-10)
+-----------------------------
+* General
+  - More optimization to all widgets & modules for further improved efficiency and less resource usage.
+
+* RestAPI Module
+  - Updated steerlock function to retrieve steerlock value from new LMGT3 vehicles in LMU.
+
+* Brake pressure, Ride height, Suspension position, Tyre load Widget
+  - Add "show_caption", "font_scale_caption", "caption_text" options for displaying and customizing
+    caption text (requested by coasting&cruising). This option is disabled by default.
+
+* Relative Widget, Standings Widget
+  - Add "show_highlighted_fastest_last_laptime" option (requested by Hany Alsabti), which highlights
+    the fastest last lap time within the same class if available.
+  - Improved consistency and accuracy of relative time interval (requested by Hany Alsabti).
+  - Renamed "show_vehicle_in_garage_for_race" option to "show_vehicle_in_garage" in Relative Widget,
+    which now affects all sessions. Default is "False", which hides vehicles in garage.
+    Note, local player (user) is always displayed.
+
+* Gear Widget
+  - Add "show_inverted_battery" & "show_inverted_rpm" options that invert battery or rpm bar progression.
+
+* [New]Steering wheel
+  - Show virtual steering wheel with customizable steering wheel image.
+  - Show steering rotation reference line, which can be useful to see if physical steering wheel is misaligned.
+  - See User Guide for details.
+
+* [New]Tyre inner layer Widget, Tyre temperature Widget
+  - Separated inner layer temperature display from "Tyre temperature Widget" into the new
+    "Tyre inner layer Widget" (requested by H4dro), which can now be configured completely separately.
+    Tip: set color style differently to easier distinguish the two widgets.
+  - Add "horizontal_gap", "vertical_gap" options for enhanced arrangement (requested by doublebidule).
+
+* Misc
+  - Updated User Guide info for related changes above.
+
+2.20.1 (2024-11-24)
+-----------------------------
+* Pace Notes Playback
+  - Default "playback" option is now set on "disabled" for new presets.
+    User may click "Disabled Playback" button from "Pace Notes" tab to enable playback.
+  - Adjusting playback volume now takes immediate effect.
+
+* Pace notes Widget, Track notes Widget
+  - Add "enable_comments_line_break" option (requested by DanRZ) for enabling multi-line comments display.
+    Note, a note comment can be broken into multiple lines by adding "\n" to any part of
+    the comment in Track Notes Editor.
+  - Add "maximum_display_duration" option (requested by DanRZ), which sets maximum display duration (seconds)
+    of each note. Set to "-1" to always display notes. Default is "-1".
+
+* Notes Module
+  - "Global offset" option from "Pace Notes" tab no longer affects "track notes".
+  - Fixed position desync issue that would occasionally trigger previous note again.
+
+2.20.0 (2024-11-17)
+-----------------------------
+* General
+  - [New]Implemented track & pace notes system, which allows load & save track & pace notes files.
+  - Add "pace_notes_path" & "track_notes_path" options to global user config file.
+  - Add new ".TPPN" (TinyPedal Pace Notes) & ".TPTN" (TinyPedal Track Notes) file formats.
+  - Add support for load & save GPL pace notes ".ini" file format.
+    Special thanks to "Lee Bowden" (author of GPL pace notes system & file format) and "Jim Pearson"
+    for providing technical assistance.
+  - Add "multimedia_plugin_on_windows" option in Compatibility dialog, which sets multimedia plugin
+    for playing sound file on windows.
+
+* [New]Pace Notes Playback Tab
+  - Add "Pace Notes Playback" control panel that can be accessed from "Pace Notes" tab in main window.
+    This control panel provides pace notes sound playback control and configuration.
+  - Click "Enabled Playback" or "Disabled Playback" button to quickly enable or disable pace notes playback.
+    Note, "Notes Module" must be enabled to allow pace notes playback.
+    Disabling this option does not affect "Notes Module" or "Pace notes Widget".
+  - By default, pace notes file is automatically loaded from "pace_notes_path" if a file that
+    matches current track name is found.
+    Enable "Manually Select Pace Notes File" check box to disable auto-file-name matching,
+    and manually select a pace notes file that can be played on any track.
+    This option takes immediate effect when changed.
+  - "Sound file path" sets path for loading pace notes sound files that matches value from
+    "pace note" column found in pace notes file. If no sound file found, sound won't be played.
+    This option takes immediate effect when changed.
+  - "Sound format" sets sound format for loading sound file.
+    This option only takes effect after clicked any "Set" button.
+  - "Global offset" adds global position offset (in meters) to current vehicle position on track,
+    which affects when next pace note line will be played.
+    This option only takes effect after clicked any "Set" button.
+  - "Max duration" sets maximum playback duration for each sound file, which can be used to limit
+    sound file maximum playing duration. Default duration is 10 seconds.
+    This option only takes effect after clicked any "Set" button.
+  - "Max Queue" sets maximum number of sound files in playback queues. Default is 5 sound files.
+    This option only takes effect after clicked any "Set" button.
+  - "Playback volume" sets output volume for sound file.
+    This option takes effect when next sound file is played.
+
+* [New]Track Notes Editor
+  - Add "Track Notes Editor" to "Tools" menu in main window for creating & editing track or pace notes.
+    Note, by default the editor starts in "Pace Notes" edit mode as displayed in status bar.
+    The editor consists of two panel views:
+      - Left panel is the track map viewer, which can be used to visualize track map and providing
+        analytic info for assisting notes creation. For detailed usage, see "Track Map Viewer" section.
+      - Right panel is the notes editor, which allows create, open, save track or pace notes file.
+  - For complete usage, see "Track Notes Editor" section in User Guide.
+
+* [New]Track Map Viewer
+  - Add "Track Map Viewer" to "Tools" menu in main window for viewing & analyzing track map.
+    Note, only track map (SVG) files that generated from TinyPedal Mapping Module are supported.
+    The Track Map Viewer consists of three main areas:
+    * At top area, user can "Load Map", view map file name, and "Config" map display.
+    * At center area, track map image and various analytic data are displayed.
+    * At bottom area, user can set map "Zoom", position slider, map nodes selection.
+    Other notable features:
+    * Right-Click on map display area to open a context menu to quickly toggle various
+      displays & analytic options on and off.
+    * Use mouse wheel to quickly zoom in and out map display.
+    * Analytic data are displayed at four corners of map display, which include:
+      - Map length and total nodes.
+      - Curve section length, grade, radius, angle, curvature.
+      - Slope grade, percent, angle, height delta.
+      - Current node position and global XYZ coordinates (Z is elevation).
+  - Add "track_map_viewer" options to global user config file.
+  - See "Track Map Viewer" section in User Guide for details.
+
+* Heatmap editor, Vehicle brand editor, Vehicle class editor
+  - Add "Offset" button for batch offsetting or scaling temperature values in Heatmap editor.
+  - Add "Copy" button for duplicate heatmap preset in Heatmap editor.
+  - Keep "Rename" dialog open after renaming for easy access in Vehicle brand editor.
+  - Show close confirmation if changes were not saved.
+  - Show deletion info and confirmation.
+
+* [New]Notes Module
+  - Add Notes Module for processing track & pace notes data, which is used by
+    Pace Notes playback control panel, Pace notes Widget, Track notes Widget.
+    Note, this module requires Delta Module enabled to function correctly.
+
+* Wheels Module
+  - Add cornering radius calculation.
+  - Add "cornering_radius_sampling_interval" option, which sets position sampling interval
+    for cornering radius calculation.
+    Value range in "5" to "100". Default sampling interval is "10", which is roughly 200ms
+    interval between each recorded position. Higher value may result inaccuracy.
+    Note, this option does not affect position recording interval.
+
+* Cruise Widget
+  - Add "show_distance_into_lap" option which shows distance into current lap.
+  - Add "show_cornering_radius" option which shows real-time cornering radius.
+
+* [New]Pace notes Widget
+  - Show nearest pace notes, comments, debugging info behind current vehicle position,
+    mainly for pace notes creation and debugging purpose.
+  - Auto hides itself if pace notes data is not available for current track.
+
+* [New]Track notes Widget
+  - Show nearest track notes, comments, debugging info behind current vehicle position,
+    mainly for displaying corner name or section name.
+  - Auto hides itself if track notes data is not available for current track.
+
+* Misc
+  - Updated contributors info, added new contributors:
+    "Lee Bowden", "Jim Pearson", "Tanizo Yashima (yashiman)".
+
+2.19.1 (2024-10-18)
+-----------------------------
+* Brake wear Widget
+  - Separated "front_brake_failure_thickness, rear_brake_failure_thickness" options
+    for front and rear brakes.
+    Front brake failure thickness threshold can be different from rear brake.
+  - Some reference brake failure thickness threshold:
+    Hypercar and P2 classes in LMU usually have 25mm brake failure threshold.
+    GTE class in LMU usually has 30mm brake failure threshold.
+
+* Cruise Widget
+  - Add "enable_track_clock_synchronization" option, which enables auto track clock
+    and time scale synchronization. RestAPI module must be enabled to synchronize
+    track clock from Rest API. This option is enabled by default.
+    Disable this option to manually set and use "track_clock_time_scale" option for
+    track clock display.
+
+2.19.0 (2024-10-15)
+-----------------------------
+* RestAPI Module
+  - Read "brake wear" data from LMU Rest API.
+
+* [New]Brake wear Widget
+  - Show brake wear data in percentage or millimeter thickness.
+    Important note:
+    Brake wear data is currently only available on LMU.
+    RF2 currently doesn't provide brake wear data.
+    Depends on vehicle, brake may or may not have noticeable wear.
+    Additional note:
+    Brake maximum thickness (for percentage wear calculation) is retrieved at the moment
+    when car leaves garage or has brake repaired or changed.
+    Reloading a preset or restarting APP in the middle of a running stint could result
+    wrong maximum thickness and percentage wear calculation, which should be avoided.
+    "Brake failure thickness" note:
+    This option manually sets millimeter thickness threshold at brake failure, which
+    affects brake thickness readings and overall brake wear calculation.
+    For example, if brake thickness is 40mm, and brake failure thickness is 25mm,
+    then effective thickness is 40 - 25 = 15mm.
+    Note, brake failure thickness threshold data is not available from game API,
+    it may require testing to find out, and may vary from vehicle to vehicle.
+    Thickness threshold value should not exceed brake maximum thickness, otherwise
+    brake wear readings will not be displayed correctly.
+  - Show total brake wear difference of previous lap.
+  - Show live brake wear difference of current lap that constantly updated.
+  - Show estimated brake lifespan in laps.
+  - Show estimated brake lifespan in minutes.
+  - Customizable wear warning threshold.
+
+* Misc
+  - Updated User Guide info for Brake wear Widget.
+
+2.18.3 (2024-10-08)
+-----------------------------
+* RestAPI Module
+  - Read "body aero" and "suspension damage" data from LMU Rest API.
+
+* [Reworked]Damage Widget
+  - Add "show_last_impact_cone" option that shows cone indicator towards last known impact position.
+    This option can be useful to determine whether there was a collision, even if car was not damaged.
+    Cone indicator display duration can be customized by "last_impact_cone_duration" option.
+    Default display duration for last known impact is 15 seconds.
+    Cone angle (size) can be customized by "last_impact_cone_angle" option.
+  - Add "show_aero_integrity_if_available" option that shows body aero integrity reading
+    (only available for LMU) instead of bodywork integrity, which better reflects
+    severity of bodywork damage that would affect performance.
+  - Add suspension damage color indication (only available for LMU) for each wheel, which
+    better reflects severity of suspension damage that would affect handling.
+    There are now 6 damage levels for each wheel:
+    1. No damage to suspension or wheel (default color: green).
+    2. Light suspension damage (default damage range: 2% - 15%, default color: yellow).
+    3. Medium suspension damage (default damage range: 15% - 40%, default color: orange).
+    4. Heavy suspension damage (default damage range: 40% - 80%, default color: purple).
+    5. Totaled suspension (default damage range: 80% - 100%, default color: blue).
+    6. Wheel detached (default color: black).
+  - Add "suspension_damage_*_threshold" options for customizing damage level range.
+  - Add a new set of "suspension_color_damage_*" options.
+  - Add "wheel_width, wheel_height" options for customizing wheel display size.
+    Removed body parts horizontal size restriction.
+    Size of body parts and wheels can now be customized freely.
+  - Adjusted default "update_interval" value from "20" to "100", as frequent refreshing is
+    unnecessary for this widget. Existing setting won't be affected.
+
+* Misc
+  - Updated User Guide info for Damage Widget.
+
+2.18.2 (2024-10-06)
+-----------------------------
+* Relative, Rivals, Standings Widget
+  - Fixed tyre compound info not correctly updated in some cases (issue reported by MarcoSaupe).
+
+2.18.1 (2024-10-02)
+-----------------------------
+* General
+  - Fixed a font weight verification error that prevents user from saving any changes
+    in "Gear Widget" config dialog.
+  - Fixed missing combo choices (text alignment, font weight options) from
+    Elevation and Gear Widget config dialog.
+
+* Differential Widget
+  - Fixed cooldown timer did not reset after changed or restarted a session.
+
+* DRS Widget
+  - Add "drs_text" option for setting custom DRS display text.
+  - Optimized DRS status check.
+
+2.18.0 (2024-09-26)
 -----------------------------
 * General
   - Add global user config file as "config.json", which stores global user settings
@@ -7,32 +599,44 @@ WIP
     For Linux, "config.json" is stored under "home/username/.config/TinyPedal" folder.
   - Log files are now stored in the same folder as global user config file.
   - All "Application" and "Compatibility" settings are moved into "config.json".
+  - All Config dialogs now shows preset file name on title bar.
   - Color pick dialog now shows up to 16 previously picked colors in "Custom colors" selector.
   - Smaller panel size for "Fuel Calculator".
+  - Most of widgets & modules code has been rewritten and optimized for improved efficiency
+    and less CPU and memory usage.
+    Note, currently both "Friction Circle" & "Navigation" Widgets are known to consume more
+    CPU usage for drawing complex plot and animated map, especially with "Navigation" Widget
+    and a lot of vehicles on track. If there is significant increase in APP 's CPU usage,
+    try disable either widgets, which should help lower CPU usage to normal level.
+    The new "System performance Widget" (see below) can be used to monitor performance change.
 
 * [New]Application dialog
-  - Add "Application" to main window "Config" menu, which opens a dialog for customizing
-    global application settings and saved in global user config file.
+  - Add "Application" to main window "Config" menu for customizing global application settings
+    and saved in global user config file.
   - "grid_move_size, minimum_update_interval, maximum_saving_attempts" options from
     "compatibility" are moved to "application".
   - Add "show_confirmation_for_batch_toggle" option, which shows confirmation dialog
     for enabling or disabling all widgets or modules. This option is enabled by default.
 
 * [New]User path dialog
-  - Add "User path" to main window "Config" menu, which opens a dialog for customizing
-    global user path settings and saved in global user config file.
+  - Add "User path" to main window "Config" menu for customizing global user path settings
+    and saved in global user config file.
     To change user path, double-clicking on edit box to open "Select folder" dialog;
     or manually editing path text.
     Click "Apply" or "Save" to verify and apply new paths. Invalid path will not be applied.
-  - Changes to default user paths on linux:
+  - For linux, all default user config-type paths are now set according to XDG specification,
+    which is located under "home/username/.config" folder. (thanks to feedback from Bernat)
+    Changes include:
     * Default "user preset" path is changed to "home/username/.config/TinyPedal/settings/",
-      previously this is set in "home/username/.config/TinyPedal/".
+      previously this was set in "home/username/.config/TinyPedal/".
     * Default "brandlogo" path is changed to "home/username/.config/TinyPedal/brandlogo/",
-      previously this is set in "home/username/.local/share/TinyPedal/brandlogo/".
-  - See User Guide "User path" section for details.
+      previously this was set in "home/username/.local/share/TinyPedal/brandlogo/".
+    Note, if you wish to keep using old paths on linux, you can use "User path dialog"
+    to set paths to the old ones as mentioned above.
+  - See User Guide "User path" section for additional info.
 
 * [New]Auto load preset system
-  - Add "Auto load preset" system (implemented by @naturale0) to allow auto loading user-defined
+  - Add "Auto load preset" system (implemented by naturale0) to allow auto loading user-defined
     game-specific preset depends on active game (currently supports RF2 and LMU).
     Auto loading preset is triggered when a new or different game is started & active.
     Auto loading will only trigger once per game change.
@@ -47,12 +651,21 @@ WIP
     a new or different game is started & active.
     Note, a single preset can have tags from multiple games.
 
+* Shared Memory API
+  - Improved accessing efficiency, now uses fast-restart method for same API.
+  - Significantly reduced opponents vehicle position desync issue when using "direct access" mode
+    (as previously was noticeable on Radar Widget sometimes).
+
 * Vehicle Brand Editor
   - Now allows multi-selection for deleting vehicle brand entries.
-  - Fixed an issue where some vehicle info is missing while importing from LMU Rest API.
-    Make sure to import again to update all vehicle brand info from LMU.
+  - Fixed some vehicle info that could not be imported from LMU Rest API (issue reported by DanRZ).
+    Make sure to use "import" again from Vehicle Brand Editor to update missing vehicle info from LMU.
 
 * Wheels module
+  - Add differential locking calculation and output for the new Differential Widget.
+  - Add "minimum_axle_rotation" option, which sets minimum axle rotation (radians per second)
+    for calculating wheel radius and differential locking percent.
+    Default value is "4".
   - Add "maximum_rotation_difference_*" options, which set maximum rotation difference (percentage)
     between left or right wheel and same axle for limiting wheel radius calculation.
     Setting higher difference value may result inaccurate wheel radius reading.
@@ -67,14 +680,23 @@ WIP
     Default is horizontal. Set "0" to show vertically.
   - Add "odometer_maximum_digits" option, which sets maximum number of display digits.
 
+* [New]Differential Widget
+  - Show minimum differential locking percent between left and right wheels on the same axle
+    under power (on throttle) or coasting (off throttle).
+    A "100%" reading indicates two wheels on the same axle are rotating at same speed;
+    while "0%" indicates that one of the wheels is completely spinning or locked.
+    Each reading will reset back to "100%" if minimum locking percent hasn't changed during
+    cooldown period, as defined by "reset_cooldown" option.
+
 * Instrument Widget
   - Changed default "layout" setting value to "1" for horizontal layout for consistency.
     User may need to edit old value "0" to "1" to display horizontal layout.
   - Wheel slip warning indicator now only shows under acceleration.
 
 * [New]Laps and position Widget
-  - Add "Laps and position Widget" that shows lap number (progression), driver overall position,
-    and position in class info, with customizable layout and prefix text.
+  - Show your current lap number (lap progression) & max laps if available.
+  - Show your current overall position against all drivers in a session.
+  - Show your current position in class against all drivers from the same class.
 
 * P2P Widget
   - Replaced old "font_color_inactive" and "bkg_color_inactive" color settings with new cooldown
@@ -82,7 +704,8 @@ WIP
     "font_color_activation_cooldown, bkg_color_activation_cooldown" for activation timer.
 
 * Radar Widget
-  - Add "enable_radar_fade" option, which enables radar gradually fade in/out effect.
+  - Add "enable_radar_fade" option (feature requested by Jernej Simoncic), which enables
+    gradually fade in/out effect while opponent vehicles approach or leave radar range.
   - Add "radar_fade_out_radius" option, which sets radar fade out radius relative to radar radius.
     Value range in "0.5" to "1.0". Default value is "0.98".
   - Add "radar_fade_in_radius" option, which sets radar fade in radius relative to radar radius.
@@ -90,7 +713,11 @@ WIP
     Default value is "0.8".
   - Renamed options "show_fade_out, fade_in_radius, fade_out_radius" to
     "show_edge_fade_out, edge_fade_in_radius, edge_fade_out_radius" to
-    distinguish them from new radar fade options.
+    distinguish from new radar fade options.
+
+* Relative, Rivals, Standings Widget
+  - "show_pit_status" option now also displays garage status (as "G" sign) for driver in garage.
+  - Add "garage_status_text" option, which sets custom garage status text for driver in garage.
 
 * Session Widget
   - Removed "lap number" and "driver position" readings. Those two readings are now included in
@@ -100,6 +727,15 @@ WIP
 
 * Speedometer Widget
   - Changed default "layout" setting value to "1" for horizontal layout for consistency.
+
+* [New]System performance Widget
+  - Show system's overall CPU utilization (percent) and memory usage (GB).
+  - Show TinyPedal's CPU utilization (percent) and memory usage (MB).
+
+* Tyre carcass temperature Widget
+  - Now calculates temperature rate of change at an average base interval of 0.1 seconds
+    which is then scaled to "rate_of_change_interval" value for more responsive estimate.
+  - Add "rate_of_change_smoothing_samples" option for smoothing data and filter out fluctuation.
 
 * Tyre wear Widget
   - Now uses laptime pace for calculating "tyre lifespan in minutes".
@@ -115,12 +751,11 @@ WIP
   - Improved display formatting for temperature, raininess, wetness readings.
 
 * Weather forecast Widget
-  - The "now" column always shows current weather condition
-    even if RestAPI Module is disabled.
+  - The "now" column always shows current weather condition even if RestAPI Module is disabled.
 
 * Misc
   - Updated User Guide for all changes mentioned above and additional usage info.
-  - Added new contributor Sihyung Park (naturale0) to contributors.md.
+  - Added new contributor "Sihyung Park (naturale0)" to contributors.md.
 
 2.17.4 (2024-08-30)
 -----------------------------

@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -24,16 +24,20 @@ file name must match corresponding key name
 in template/setting_module.py dictionary.
 """
 
-from . import (
-    module_delta,
-    module_energy,
-    module_force,
-    module_fuel,
-    module_hybrid,
-    module_mapping,
-    module_relative,
-    module_restapi,
-    module_sectors,
-    module_vehicles,
-    module_wheels,
-)
+__all__ = [
+    "module_delta",
+    "module_energy",
+    "module_force",
+    "module_fuel",
+    "module_hybrid",
+    "module_mapping",
+    "module_notes",
+    "module_relative",
+    "module_restapi",
+    "module_sectors",
+    "module_stats",
+    "module_vehicles",
+    "module_wheels",
+]
+
+from . import *

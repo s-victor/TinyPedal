@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -23,35 +23,30 @@ Main application window
 import logging
 
 from PySide2.QtCore import Qt, Slot
-from PySide2.QtGui import QIcon
 from PySide2.QtWidgets import (
     QApplication,
-    QMainWindow,
-    QWidget,
     QLabel,
-    QAction,
+    QMainWindow,
+    QPushButton,
     QTabWidget,
     QVBoxLayout,
-    QPushButton,
+    QWidget,
 )
 
-from ..const import APP_NAME, VERSION, APP_ICON
-from ..setting import cfg
-from ..api_control import api
-from ..overlay_control import octrl
-from ..module_control import mctrl, wctrl
 from .. import loader
-from .tray_icon import TrayIcon
+from ..api_control import api
+from ..const_app import APP_NAME, VERSION
+from ..module_control import mctrl, wctrl
+from ..overlay_control import octrl
+from ..setting import ConfigType, cfg
+from .menu import ConfigMenu, HelpMenu, OverlayMenu, ToolsMenu, WindowMenu
 from .module_view import ModuleList
-from .spectate_view import SpectateList
+from .pace_notes_view import PaceNotesControl
 from .preset_view import PresetList
-from .menu import OverlayMenu, ConfigMenu, ToolsMenu, WindowMenu, HelpMenu
+from .spectate_view import SpectateList
+from .tray_icon import TrayIcon
 
-
-WINDOW_MIN_WIDTH = 300
-WINDOW_MIN_HEIGHT = 462
-
-logger = logging.getLogger("tinypedal")
+logger = logging.getLogger(__name__)
 
 
 class AppWindow(QMainWindow):
@@ -60,55 +55,66 @@ class AppWindow(QMainWindow):
     def __init__(self):
         super().__init__()
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
-        self.setWindowIcon(QIcon(APP_ICON))
+
+        # Status bar & notification
+        self.button_api = QPushButton()
+        self.button_api.clicked.connect(self.set_status_text)
+        self.statusBar().addPermanentWidget(QLabel("API:"))
+        self.statusBar().addPermanentWidget(self.button_api)
+        self.set_status_text()
 
         # Menu bar
         self.main_menubar()
 
-        # Status bar & notification
-        label_api = QLabel("API:")
-        self.button_api = QPushButton("")
-        self.button_api.clicked.connect(self.config_menuitem.open_config_sharedmemory)
-        self.button_api.clicked.connect(self.set_status_text)
-        self.statusBar().insertPermanentWidget(0, label_api)
-        self.statusBar().insertPermanentWidget(1, self.button_api)
-        self.set_status_text()
-
+        # Notify bar
         self.notify_spectate = QPushButton("Spectate Mode Enabled")
         self.notify_spectate.clicked.connect(self.goto_spectate_tab)
         self.notify_spectate.setStyleSheet(
             "font-weight: bold;color: #fff;background: #09C;padding: 4px;border-radius: 0;"
         )
+        self.notify_pacenotes = QPushButton("Pace Notes Playback Enabled")
+        self.notify_pacenotes.clicked.connect(self.goto_pacenotes_tab)
+        self.notify_pacenotes.setStyleSheet(
+            "font-weight: bold;color: #fff;background: #290;padding: 4px;border-radius: 0;"
+        )
+        layout_notify = QVBoxLayout()
+        layout_notify.addWidget(self.notify_spectate)
+        layout_notify.addWidget(self.notify_pacenotes)
 
         # Controller tabs
-        self.tab_bar = QTabWidget()
-        self.widget_tab = ModuleList(wctrl)
-        self.module_tab = ModuleList(mctrl)
+        self.tab_bar = QTabWidget(self)
+        self.widget_tab = ModuleList(self, wctrl)
+        self.module_tab = ModuleList(self, mctrl)
         self.preset_tab = PresetList(self)
         self.spectate_tab = SpectateList(self)
+        self.pacenotes_tab = PaceNotesControl(self)
         self.tab_bar.addTab(self.widget_tab, "Widget")
         self.tab_bar.addTab(self.module_tab, "Module")
         self.tab_bar.addTab(self.preset_tab, "Preset")
         self.tab_bar.addTab(self.spectate_tab, "Spectate")
+        self.tab_bar.addTab(self.pacenotes_tab, "Pace Notes")
 
         # Main view
-        main_view = QWidget()
+        main_view = QWidget(self)
         layout = QVBoxLayout(main_view)
-        layout.setContentsMargins(0,0,0,0)
+        layout.setContentsMargins(0, 0, 0, 0)
         layout.setSpacing(0)
         layout.addWidget(self.tab_bar)
-        layout.addWidget(self.notify_spectate)
+        layout.addLayout(layout_notify)
         self.setCentralWidget(main_view)
 
         # Tray icon & window state
         self.start_tray_icon()
         self.set_window_state()
         self.__connect_signal()
-        cfg.app_loaded = True
 
     def goto_spectate_tab(self):
         """Go to spectate tab"""
         self.tab_bar.setCurrentWidget(self.spectate_tab)
+
+    def goto_pacenotes_tab(self):
+        """Go to pacenotes tab"""
+        self.tab_bar.setCurrentWidget(self.pacenotes_tab)
 
     def main_menubar(self):
         """Create menu bar"""
@@ -116,63 +122,65 @@ class AppWindow(QMainWindow):
         menu = self.menuBar()
 
         # Overlay menu
-        menu_overlay = menu.addMenu("Overlay")
-        OverlayMenu(self, menu_overlay)
-        menu_overlay.addSeparator()
-
-        app_quit = QAction("Quit", self)
-        app_quit.triggered.connect(self.quit_app)
-        menu_overlay.addAction(app_quit)
+        menu_overlay = OverlayMenu("Overlay", self)
+        menu.addMenu(menu_overlay)
 
         # Config menu
-        menu_config = menu.addMenu("Config")
-        self.config_menuitem = ConfigMenu(self, menu_config)
+        menu_config = ConfigMenu("Config", self)
+        menu.addMenu(menu_config)
+        self.button_api.clicked.connect(menu_config.open_config_sharedmemory)
 
         # Tools menu
-        menu_tools = menu.addMenu("Tools")
-        ToolsMenu(self, menu_tools)
+        menu_tools = ToolsMenu("Tools", self)
+        menu.addMenu(menu_tools)
 
         # Window menu
-        menu_window = menu.addMenu("Window")
-        WindowMenu(self, menu_window)
+        menu_window = WindowMenu("Window", self)
+        menu.addMenu(menu_window)
 
         # Help menu
-        menu_help = menu.addMenu("Help")
-        HelpMenu(self, menu_help)
+        menu_help = HelpMenu("Help", self)
+        menu.addMenu(menu_help)
 
     def start_tray_icon(self):
         """Start tray icon (for Windows)"""
         logger.info("GUI: loading tray icon")
-        self.tray_icon = TrayIcon(self, cfg)
+        self.tray_icon = TrayIcon(self)
         self.tray_icon.show()
 
     def set_window_state(self):
         """Set initial window state"""
-        self.setMinimumWidth(WINDOW_MIN_WIDTH)
-        self.setMinimumHeight(WINDOW_MIN_HEIGHT)
+        self.setMinimumWidth(300)
+        self.setMinimumHeight(462)
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)  # disable maximize
+
+        if cfg.application["remember_size"]:
+            self.resize(
+                cfg.application["window_width"],
+                cfg.application["window_height"],
+            )
 
         if cfg.application["remember_position"]:
             self.load_window_position()
-            if cfg.compatibility["enable_window_position_correction"]:
-                self.verify_window_position()
+
+        if cfg.compatibility["enable_window_position_correction"]:
+            self.verify_window_position()
 
         if cfg.application["show_at_startup"]:
             self.showNormal()
         elif not cfg.application["minimize_to_tray"]:
             self.showMinimized()
-        logger.info("GUI: loading finished")
 
     def load_window_position(self):
         """Load window position"""
-        logger.info("GUI: loading window position")
+        logger.info("GUI: loading window setting")
         # Get position from preset
         app_pos_x = cfg.application["position_x"]
         app_pos_y = cfg.application["position_y"]
         # Check whether x,y position at 0,0 (new preset value)
         # Ignore moving if at 0,0
         if 0 == app_pos_x == app_pos_y:
-            self.save_window_position()
+            self.save_window_state()
         else:
             self.move(app_pos_x, app_pos_y)
 
@@ -183,32 +191,56 @@ class AppWindow(QMainWindow):
         # Limiting position value if out of screen range
         app_pos_x = min(
             max(self.x(), screen_geo.left()),
-            screen_geo.right() - WINDOW_MIN_WIDTH)
+            screen_geo.right() - self.minimumWidth(),
+        )
         app_pos_y = min(
             max(self.y(), screen_geo.top()),
-            screen_geo.bottom() - WINDOW_MIN_HEIGHT)
+            screen_geo.bottom() - self.minimumHeight(),
+        )
         # Re-adjust position only if mismatched
         if self.x() != app_pos_x or self.y() != app_pos_y:
             self.move(app_pos_x, app_pos_y)
             logger.info("GUI: window position corrected")
 
-    def save_window_position(self):
-        """Save window position"""
+    def save_window_state(self):
+        """Save window state"""
+        save_changes = False
+
         if cfg.application["remember_position"]:
             last_pos = cfg.application["position_x"], cfg.application["position_y"]
             new_pos = self.x(), self.y()
             if last_pos != new_pos:
-                cfg.application["position_x"] = self.x()
-                cfg.application["position_y"] = self.y()
-                cfg.save(0, "config")
+                cfg.application["position_x"] = new_pos[0]
+                cfg.application["position_y"] = new_pos[1]
+                save_changes = True
+
+        if cfg.application["remember_size"]:
+            last_size = cfg.application["window_width"], cfg.application["window_height"]
+            new_size = self.width(), self.height()
+            if last_size != new_size:
+                cfg.application["window_width"] = new_size[0]
+                cfg.application["window_height"] = new_size[1]
+                save_changes = True
+
+        if save_changes:
+            cfg.save(0, cfg_type=ConfigType.CONFIG)
 
     def set_status_text(self):
         """Set status text"""
-        self.button_api.setText(f"{api.name} - {api.version}")
+        if cfg.shared_memory_api["enable_active_state_override"]:
+            text = f"{api.name} (state overriding)"
+        else:
+            text = f"{api.name} ({api.version})"
+        self.button_api.setText(text)
+
+    def show_app(self):
+        """Show app window"""
+        self.showNormal()
+        self.activateWindow()
 
     def quit_app(self):
         """Quit manager"""
-        self.save_window_position()
+        self.save_window_state()
         self.__break_signal()
         loader.close()
         QApplication.quit()  # close app
@@ -229,17 +261,27 @@ class AppWindow(QMainWindow):
         """Restart shared memory api"""
         api.restart()
         self.set_status_text()
+        self.spectate_tab.refresh_list()
 
     @Slot(bool)
     def reload_preset(self):
         """Reload current preset"""
-        loader.reload()
+        loader.reload(reload_preset=True)
+        self.refresh_states()
+
+    def reload_only(self):
+        """Reload only api, module, widget"""
+        loader.reload(reload_preset=False)
+        self.refresh_states()
+
+    def refresh_states(self):
+        """Refresh state"""
         self.set_status_text()
-        # Refresh menu & preset list
         self.preset_tab.refresh_list()
         self.widget_tab.refresh_state()
         self.module_tab.refresh_state()
         self.spectate_tab.refresh_list()
+        self.pacenotes_tab.refresh_state()
 
     def __connect_signal(self):
         """Connect overlay reload signal"""

@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,25 +20,24 @@
 Cruise Widget
 """
 
-from time import strftime, gmtime
-
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
+from time import gmtime, strftime
 
 from .. import calculation as calc
 from ..api_control import api
+from ..const_common import COMPASS_BEARINGS
 from ..module_info import minfo
+from ..units import set_symbol_distance, set_unit_distance
 from ._base import Overlay
-
-WIDGET_NAME = "cruise"
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -46,9 +45,19 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         self.odm_digits = max(int(self.wcfg["odometer_maximum_digits"]), 1)
-        self.odm_range = float(self.odm_digits * "9") + 0.9
+        if self.cfg.units["odometer_unit"] == "Meter":
+            self.odm_digits += 0.0
+            self.odm_range = int(int(self.odm_digits) * "9")
+        else:
+            self.odm_range = float(self.odm_digits * "9") + 0.9
+            self.odm_digits += 2.1
+
+        # Config units
+        self.unit_dist = set_unit_distance(self.cfg.units["distance_unit"])
+        self.symbol_dist = set_symbol_distance(self.cfg.units["distance_unit"])
+        self.unit_odm = set_unit_distance(self.cfg.units["odometer_unit"])
+        self.symbol_odm = set_symbol_distance(self.cfg.units["odometer_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -57,16 +66,9 @@ class Realtime(Overlay):
             font_weight=self.wcfg["font_weight"])
         )
 
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
-
         # Track clock
         if self.wcfg["show_track_clock"]:
-            text_clock = self.format_clock(0)
+            text_clock = strftime(self.wcfg["track_clock_format"], gmtime(0))
             bar_style_track_clock = self.set_qss(
                 fg_color=self.wcfg["font_color_track_clock"],
                 bg_color=self.wcfg["bkg_color_track_clock"]
@@ -83,7 +85,7 @@ class Realtime(Overlay):
 
         # Compass
         if self.wcfg["show_compass"]:
-            text_compass = self.format_compass(0)
+            text_compass = f"{180:03.0f}°{calc.select_grade(COMPASS_BEARINGS, 180): >2}"
             bar_style_compass = self.set_qss(
                 fg_color=self.wcfg["font_color_compass"],
                 bg_color=self.wcfg["bkg_color_compass"]
@@ -100,7 +102,7 @@ class Realtime(Overlay):
 
         # Elevation
         if self.wcfg["show_elevation"]:
-            text_elevation = self.format_elevation(0)
+            text_elevation = f"↑{self.unit_dist(0): >5.0f}{self.symbol_dist}"
             bar_style_elevation = self.set_qss(
                 fg_color=self.wcfg["font_color_elevation"],
                 bg_color=self.wcfg["bkg_color_elevation"]
@@ -117,7 +119,7 @@ class Realtime(Overlay):
 
         # Odometer
         if self.wcfg["show_odometer"]:
-            text_odometer = self.format_odometer(0)
+            text_odometer = f"{min(self.unit_odm(0), self.odm_range):>{self.odm_digits}f}{self.symbol_odm}"
             bar_style_odometer = self.set_qss(
                 fg_color=self.wcfg["font_color_odometer"],
                 bg_color=self.wcfg["bkg_color_odometer"]
@@ -132,11 +134,39 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_odometer"],
             )
 
-        # Last data
-        self.last_track_time = None
-        self.last_orientation = None
-        self.last_elevation = None
-        self.last_traveled_distance = None
+        # Distance into lap
+        if self.wcfg["show_distance_into_lap"]:
+            text_lap_distance = f"{self.unit_dist(0): >6.0f}{self.symbol_dist}"
+            bar_style_lap_distance = self.set_qss(
+                fg_color=self.wcfg["font_color_distance_into_lap"],
+                bg_color=self.wcfg["bkg_color_distance_into_lap"]
+            )
+            self.bar_lap_distance = self.set_qlabel(
+                text=text_lap_distance,
+                style=bar_style_lap_distance,
+                width=font_m.width * len(text_lap_distance) + bar_padx,
+            )
+            self.set_primary_orient(
+                target=self.bar_lap_distance,
+                column=self.wcfg["column_index_distance_into_lap"],
+            )
+
+        # Cornering radius
+        if self.wcfg["show_cornering_radius"]:
+            text_cornering_radius = f"r{self.unit_dist(0): >4.0f}{self.symbol_dist}"
+            bar_style_cornering_radius = self.set_qss(
+                fg_color=self.wcfg["font_color_cornering_radius"],
+                bg_color=self.wcfg["bkg_color_cornering_radius"]
+            )
+            self.bar_cornering_radius = self.set_qlabel(
+                text=text_cornering_radius,
+                style=bar_style_cornering_radius,
+                width=font_m.width * len(text_cornering_radius) + bar_padx,
+            )
+            self.set_primary_orient(
+                target=self.bar_cornering_radius,
+                column=self.wcfg["column_index_cornering_radius"],
+            )
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -144,100 +174,78 @@ class Realtime(Overlay):
 
             # Track clock
             if self.wcfg["show_track_clock"]:
-                if self.cfg.user.setting["module_restapi"]["enable"]:
+                if self.wcfg["enable_track_clock_synchronization"]:
                     time_scale = minfo.restapi.timeScale
-                    if time_scale < 0:
-                        time_scale = self.wcfg["track_clock_time_scale"]
                 else:
                     time_scale = self.wcfg["track_clock_time_scale"]
-
+                if time_scale < 0:
+                    time_scale = 0
                 track_time = calc.clock_time(
                     api.read.session.elapsed(), api.read.session.start(), time_scale)
-                self.update_track_clock(track_time, self.last_track_time)
-                self.last_track_time = track_time
+                self.update_track_clock(self.bar_track_clock, track_time)
 
             # Compass
             if self.wcfg["show_compass"]:
                 orientation = api.read.vehicle.orientation_yaw_radians()
-                self.update_compass(orientation, self.last_orientation)
-                self.last_orientation = orientation
+                self.update_compass(self.bar_compass, orientation)
 
             # Elevation
             if self.wcfg["show_elevation"]:
                 elevation = api.read.vehicle.position_vertical()
-                self.update_elevation(elevation, self.last_elevation)
-                self.last_elevation = elevation
+                self.update_elevation(self.bar_elevation, elevation)
 
             # Odometer
             if self.wcfg["show_odometer"]:
-                traveled_distance = int(minfo.delta.metersDriven)
-                self.update_odometer(traveled_distance, self.last_traveled_distance)
-                self.last_traveled_distance = traveled_distance
+                traveled_distance = int(minfo.stats.metersDriven)
+                self.update_odometer(self.bar_odometer, traveled_distance)
+
+            # Distance into lap
+            if self.wcfg["show_distance_into_lap"]:
+                lap_distance = minfo.delta.lapDistance
+                self.update_lap_distance(self.bar_lap_distance, lap_distance)
+
+            # Cornering radius
+            if self.wcfg["show_cornering_radius"]:
+                cornering_radius = minfo.wheels.corneringRadius
+                self.update_cornering_radius(self.bar_cornering_radius, cornering_radius)
 
     # GUI update methods
-    def update_track_clock(self, curr, last):
+    def update_track_clock(self, target, data):
         """Track clock"""
-        if curr != last:
-            self.bar_track_clock.setText(self.format_clock(curr))
+        if target.last != data:
+            target.last = data
+            target.setText(strftime(self.wcfg["track_clock_format"], gmtime(data)))
 
-    def update_compass(self, curr, last):
+    def update_compass(self, target, data):
         """Compass"""
-        if curr != last:
-            self.bar_compass.setText(self.format_compass(curr))
+        if target.last != data:
+            target.last = data
+            degree = 180 - calc.rad2deg(data)
+            target.setText(f"{degree:03.0f}°{calc.select_grade(COMPASS_BEARINGS, degree): >2}")
 
-    def update_elevation(self, curr, last):
+    def update_elevation(self, target, data):
         """Elevation"""
-        if curr != last:
-            self.bar_elevation.setText(self.format_elevation(curr))
+        if target.last != data:
+            target.last = data
+            target.setText(f"↑{self.unit_dist(data): >5.0f}{self.symbol_dist}")
 
-    def update_odometer(self, curr, last):
+    def update_odometer(self, target, data):
         """Odometer"""
-        if curr != last:
-            self.bar_odometer.setText(self.format_odometer(curr))
+        if target.last != data:
+            target.last = data
+            target.setText(f"{min(self.unit_odm(data), self.odm_range): >{self.odm_digits}f}{self.symbol_odm}")
 
-    # Additional methods
-    def format_clock(self, second):
-        """Format clock"""
-        return strftime(self.wcfg["track_clock_format"], gmtime(second))
+    def update_lap_distance(self, target, data):
+        """Distance into lap"""
+        if target.last != data:
+            target.last = data
+            target.setText(f"{self.unit_dist(data): >6.0f}{self.symbol_dist}")
 
-    def format_compass(self, yaw):
-        """Format compass"""
-        degree = 180 - calc.rad2deg(yaw)
-        return f"{degree:03.0f}°{self.deg2direction(degree)}"
-
-    def format_elevation(self, meter):
-        """Format elevation"""
-        if self.cfg.units["distance_unit"] == "Feet":
-            return f"↑{calc.meter2feet(meter): >5.0f}ft"
-        return f"↑{meter: >4.0f}m"
-
-    def format_odometer(self, meter):
-        """Format odometer"""
-        if self.cfg.units["odometer_unit"] == "Kilometer":
-            distance = min(calc.meter2kilometer(meter), self.odm_range)
-            return f"{distance: >{self.odm_digits + 2}.1f}km"
-        if self.cfg.units["odometer_unit"] == "Mile":
-            distance = min(calc.meter2mile(meter), self.odm_range)
-            return f"{distance: >{self.odm_digits + 2}.1f}mi"
-        return f"{min(meter, int(self.odm_range)): >{self.odm_digits}d}m"
-
-    @staticmethod
-    def deg2direction(degrees):
-        """Convert degree to direction"""
-        if degrees <= 22.5 or degrees >= 337.5:
-            text = " N"
-        elif 22.5 < degrees < 67.5:
-            text = "NE"
-        elif 67.5 <= degrees <= 112.5:
-            text = " E"
-        elif 112.5 < degrees < 157.5:
-            text = "SE"
-        elif 157.5 <= degrees <= 202.5:
-            text = " S"
-        elif 202.5 < degrees < 247.5:
-            text = "SW"
-        elif 247.5 <= degrees <= 292.5:
-            text = " W"
-        elif 292.5 < degrees < 337.5:
-            text = "NW"
-        return text
+    def update_cornering_radius(self, target, data):
+        """Cornering radius"""
+        if target.last != data:
+            target.last = data
+            meter = self.unit_dist(data)
+            if meter > 9999:
+                meter = 0
+            target.setText(f"r{meter: >4.0f}{self.symbol_dist}")

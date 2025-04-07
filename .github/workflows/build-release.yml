@@ -37,7 +37,7 @@ jobs:
     - name: Fetch version number
       id: get_ver
       run: |
-        tp_ver=$(grep "^VERSION" "./tinypedal/const.py" | sed 's/[A-Z\ \=\"]//g')
+        tp_ver=$(grep -w '__version__' './tinypedal/version.py' | grep -o -E '[0-9]+\.[0-9]+\.[0-9]+')
         echo "app_ver=${tp_ver}" >> $GITHUB_OUTPUT
         echo "TinyPedal Version:" $tp_ver
 

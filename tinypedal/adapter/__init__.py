@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -18,9 +18,9 @@
 
 """
 API data adapter
-
-To create new API adapter, duplicate rfactor2.py and fill in entries.
 """
+
+from . import rf2_connector
 
 
 class DataAdapter:
@@ -30,7 +30,11 @@ class DataAdapter:
         info: API object.
     """
 
-    def __init__(self, info: object) -> None:
+    __slots__ = (
+        "info",
+    )
+
+    def __init__(self, info: rf2_connector.RF2Info) -> None:
         """Initialize API setting
 
         Args:

@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,36 +20,32 @@
 Log handler setup
 """
 
-import sys
 import logging
+import sys
 
-from .const import PATH_GLOBAL
-
-
-LOGGING_FORMAT_CONSOLE = logging.Formatter(
-    "%(asctime)s %(levelname)s: %(message)s", datefmt="%H:%M:%S")
-LOGGING_FORMAT_FILE = logging.Formatter(
-    "%(asctime)s %(levelname)s: %(message)s")
-LOGGING_FILENAME = "tinypedal.log"
+from .const_app import LOG_FILE, PATH_GLOBAL
 
 
-def new_stream_handler(_logger, stream):
+def new_stream_handler(_logger: logging.Logger, stream) -> logging.StreamHandler:
     """Create new stream handler
 
     Args:
         _logger: logger instance.
         stream: stream object.
     Returns:
-        Stream handler
+        Stream handler.
     """
+    format_console = logging.Formatter(
+        "%(asctime)s %(levelname)s: %(message)s", datefmt="%H:%M:%S"
+    )
     _handler = logging.StreamHandler(stream)
-    _handler.setFormatter(LOGGING_FORMAT_CONSOLE)
+    _handler.setFormatter(format_console)
     _handler.setLevel(logging.INFO)
     _logger.addHandler(_handler)
     return _handler
 
 
-def new_file_handler(_logger, filepath: str, filename: str):
+def new_file_handler(_logger: logging.Logger, filepath: str, filename: str) -> logging.FileHandler:
     """Create new file handler
 
     Args:
@@ -59,14 +55,15 @@ def new_file_handler(_logger, filepath: str, filename: str):
     Returns:
         File handler.
     """
+    format_file = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
     _handler = logging.FileHandler(f"{filepath}{filename}")
-    _handler.setFormatter(LOGGING_FORMAT_FILE)
+    _handler.setFormatter(format_file)
     _handler.setLevel(logging.INFO)
     _logger.addHandler(_handler)
     return _handler
 
 
-def set_logging_level(_logger, log_stream=None, log_level=1) -> None:
+def set_logging_level(_logger: logging.Logger, log_stream=None, log_level=1) -> None:
     """Set logging level
 
     Args:
@@ -80,12 +77,9 @@ def set_logging_level(_logger, log_stream=None, log_level=1) -> None:
     _logger.setLevel(logging.INFO)
     if log_stream is not None:
         new_stream_handler(_logger, log_stream)
-
-    if log_level == 1:
+    if log_level >= 1:
         new_stream_handler(_logger, sys.stdout)
         _logger.info("LOGGING: output to console")
-    elif log_level == 2:
-        new_stream_handler(_logger, sys.stdout)
-        _logger.info("LOGGING: output to console")
-        new_file_handler(_logger, PATH_GLOBAL, LOGGING_FILENAME)
-        _logger.info("LOGGING: output to %s", LOGGING_FILENAME)
+    if log_level == 2:
+        new_file_handler(_logger, PATH_GLOBAL, LOG_FILE)
+        _logger.info("LOGGING: output to %s", LOG_FILE)

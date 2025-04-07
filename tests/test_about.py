@@ -2,13 +2,11 @@ import sys
 
 sys.path.append(".")
 
-from PySide2.QtWidgets import QApplication, QWidget
+from PySide2.QtWidgets import QApplication
 from tinypedal.ui.about import About
 
 
 if __name__ == "__main__":
     root = QApplication(sys.argv)
-    window = QWidget()
-    about = About(window)
-    about.show()
-    sys.exit(root.exec_())
+    about = About(None)
+    sys.exit(about.exec_())

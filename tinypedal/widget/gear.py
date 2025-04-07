@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,91 +20,109 @@
 Gear Widget
 """
 
-from PySide2.QtCore import Qt, QRectF
-from PySide2.QtGui import QPainter, QPixmap, QPen, QBrush
-from PySide2.QtWidgets import QGridLayout
-
-from .. import calculation as calc
-from .. import formatter as fmt
 from ..api_control import api
 from ..module_info import minfo
+from ..units import set_unit_speed
 from ._base import Overlay
-
-WIDGET_NAME = "gear"
+from ._painter import GearGaugeBar, ProgressBar, TextBar
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
-        self.font_gear = self.config_font(
+        font = self.config_font(
             self.wcfg["font_name"],
             self.wcfg["font_size"],
             self.wcfg["font_weight_gear"]
         )
-        font_m = self.get_font_metrics(self.font_gear)
-        font_offset = self.calc_font_offset(font_m)
+        self.setFont(font)
 
-        self.font_speed = self.config_font(
-            self.wcfg["font_name"],
-            self.wcfg["font_size"],
-            self.wcfg["font_weight_speed"]
+        (font_speed, font_offset, limiter_width, gauge_width, gauge_height, gear_size, speed_size
+         ) = self.set_gauge_size(font)
+
+        # Config units
+        self.unit_speed = set_unit_speed(self.cfg.units["speed_unit"])
+
+        # Gear gauge
+        self.gauge_color = (
+            self.wcfg["bkg_color"], # 0, -4 flicker
+            self.wcfg["rpm_color_safe"], # 1
+            self.wcfg["rpm_color_redline"], # 2
+            self.wcfg["rpm_color_over_rev"], # 3
         )
-        if self.wcfg["show_speed_below_gear"]:
-            font_scale_speed = self.wcfg["font_scale_speed"]
-        else:
-            font_scale_speed = 1
-        self.font_speed.setPixelSize(round(self.wcfg["font_size"] * font_scale_speed))
+        self.bar_gauge = GearGaugeBar(
+            self,
+            width=gauge_width,
+            height=gauge_height,
+            font_speed=font_speed,
+            gear_size=gear_size,
+            speed_size=speed_size,
+            fg_color=self.wcfg["font_color"],
+            bg_color=self.wcfg["bkg_color"],
+            show_speed=self.wcfg["show_speed"],
+        )
+        self.set_primary_orient(
+            target=self.bar_gauge,
+            column=self.wcfg["column_index_gauge"],
+        )
 
-        # Config variable
-        bar_gap = self.wcfg["bar_gap"]
-        inner_gap = self.wcfg["inner_gap"]
-        padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
-        pady = round(font_m.capital * self.wcfg["bar_padding_vertical"])
-
-        gear_width = font_m.width + padx * 2
-        gear_height = font_m.capital + pady * 2
-        speed_width = round(font_m.width * 3 * font_scale_speed) + padx * 2
-        speed_height = round(font_m.capital * font_scale_speed) + pady * 2
-        limiter_width = (
-            font_m.width * len(self.wcfg["speed_limiter_text"])
-            + round(font_m.width * self.wcfg["speed_limiter_padding_horizontal"]) * 2)
-
-        if self.wcfg["show_speed_below_gear"]:
-            self.gauge_width = gear_width
-            if self.wcfg["show_speed"]:
-                gauge_height = gear_height + inner_gap + speed_height
-            else:
-                gauge_height = gear_height
-        else:
-            if self.wcfg["show_speed"]:
-                self.gauge_width = gear_width + inner_gap + speed_width
-            else:
-                self.gauge_width = gear_width
-            gauge_height = gear_height
-
-        self.rpmbar_height = max(self.wcfg["rpm_bar_height"], 1)
-        self.battbar_height = max(self.wcfg["battery_bar_height"], 1)
-
-        self.rect_text_gear = QRectF(0, font_offset, gear_width, gear_height)
-        self.rect_text_limiter = QRectF(0, font_offset, limiter_width, gauge_height)
-        if self.wcfg["show_speed_below_gear"]:
-            self.rect_text_speed = QRectF(
-                0,
-                gear_height + inner_gap + font_offset,
-                gear_width,
-                speed_height
+        # RPM bar
+        if self.wcfg["show_rpm_bar"]:
+            self.bar_rpmbar = ProgressBar(
+                self,
+                width=gauge_width,
+                height=max(self.wcfg["rpm_bar_height"], 1),
+                input_color=self.wcfg["rpm_bar_color"],
+                bg_color=self.wcfg["rpm_bar_bkg_color"],
+                right_side=self.wcfg["show_inverted_rpm"],
             )
-        else:
-            self.rect_text_speed = QRectF(
-                gear_width + inner_gap,
-                font_offset,
-                speed_width,
-                gear_height
+            self.set_primary_orient(
+                target=self.bar_rpmbar,
+                column=self.wcfg["column_index_rpm"],
+            )
+
+        # Battery bar
+        if self.wcfg["show_battery_bar"]:
+            self.battbar_color = (
+                self.wcfg["battery_bar_color"],
+                self.wcfg["battery_bar_color_regen"],
+            )
+            self.bar_battbar = ProgressBar(
+                self,
+                width=gauge_width,
+                height=max(self.wcfg["battery_bar_height"], 1),
+                input_color=self.wcfg["battery_bar_color"],
+                bg_color=self.wcfg["battery_bar_bkg_color"],
+                right_side=self.wcfg["show_inverted_battery"],
+            )
+            self.bar_battbar.state = None
+            self.set_primary_orient(
+                target=self.bar_battbar,
+                column=self.wcfg["column_index_battery"],
+            )
+
+        # Speed limiter
+        if self.wcfg["show_speed_limiter"]:
+            self.bar_limiter = TextBar(
+                self,
+                width=limiter_width,
+                height=gauge_height,
+                font_offset=font_offset,
+                fg_color=self.wcfg["font_color_speed_limiter"],
+                bg_color=self.wcfg["bkg_color_speed_limiter"],
+                text=self.wcfg["speed_limiter_text"],
+            )
+            self.set_primary_orient(
+                target=self.bar_limiter,
+                column=self.wcfg["column_index_gauge"],
+                row=1,
             )
 
         # Last data
@@ -115,258 +133,155 @@ class Realtime(Overlay):
         self.rpm_red = 0
         self.rpm_crit = 0
         self.rpm_range = 0
-        self.last_rpm_max = 0
-        self.last_rpm_scale = 0
+        self.rpm_max = 0
         self.last_gear = 0
-        self.last_gauge_state = None
-        self.last_battery = 0
-        self.last_motor_state = -1
-        self.last_limiter = -1
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
-
-        # Config canvas
-        self.pen = QPen()
-        self.brush = QBrush(Qt.SolidPattern)
-
-        self.bar_gauge = self.set_qlabel(
-            fixed_width=self.gauge_width,
-            fixed_height=gauge_height,
-        )
-        self.pixmap_gauge = QPixmap(self.gauge_width, gauge_height)
-        self.draw_gauge(
-            self.bar_gauge, self.pixmap_gauge, 0, 0,
-            self.wcfg["font_color"], self.wcfg["bkg_color"],
-        )
-        layout.addWidget(self.bar_gauge, self.wcfg["column_index_gauge"], 0)
-
-        if self.wcfg["show_speed_limiter"]:
-            self.bar_limiter = self.set_qlabel(
-                fixed_width=limiter_width,
-                fixed_height=gauge_height,
-            )
-            self.pixmap_limiter = QPixmap(limiter_width, gauge_height)
-            self.draw_limiter(self.bar_limiter, self.pixmap_limiter)
-            layout.addWidget(self.bar_limiter, self.wcfg["column_index_gauge"], 1)
-
-        if self.wcfg["show_rpm_bar"]:
-            bar_style_rpmbar = self.set_qss(
-                bg_color=self.wcfg["rpm_bar_bkg_color"]
-            )
-            self.bar_rpmbar = self.set_qlabel(
-                style=bar_style_rpmbar,
-                fixed_width=self.gauge_width,
-                fixed_height=self.rpmbar_height,
-            )
-            self.pixmap_rpmbar = QPixmap(self.gauge_width, self.rpmbar_height)
-            self.draw_rpmbar(self.bar_rpmbar, self.pixmap_rpmbar, 0)
-            layout.addWidget(self.bar_rpmbar, self.wcfg["column_index_rpm"], 0)
-
-        if self.wcfg["show_battery_bar"]:
-            bar_style_battbar = self.set_qss(
-                bg_color=self.wcfg["battery_bar_bkg_color"]
-            )
-            self.bar_battbar = self.set_qlabel(
-                style=bar_style_battbar,
-                fixed_width=self.gauge_width,
-                fixed_height=self.battbar_height,
-            )
-            self.pixmap_battbar = QPixmap(self.gauge_width, self.battbar_height)
-            self.draw_battbar(self.bar_battbar, self.pixmap_battbar, 0)
-            layout.addWidget(self.bar_battbar, self.wcfg["column_index_battery"], 0)
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
 
-            # Read gauge data
-            limiter = api.read.switch.speed_limiter()
-            rpm = api.read.engine.rpm()
-            rpm_max = api.read.engine.rpm_max()
-            speed = api.read.vehicle.speed()
-            gear = api.read.engine.gear()
-            gear_max = api.read.engine.gear_max()
-            lap_etime = api.read.timing.elapsed()
-
             # RPM reference
-            if self.last_rpm_max != rpm_max:
-                self.last_rpm_max = rpm_max
+            rpm_max = api.read.engine.rpm_max()
+            if self.rpm_max != rpm_max:
+                self.rpm_max = rpm_max
                 self.rpm_safe = int(rpm_max * self.wcfg["rpm_multiplier_safe"])
                 self.rpm_red = int(rpm_max * self.wcfg["rpm_multiplier_redline"])
                 self.rpm_crit = int(rpm_max * self.wcfg["rpm_multiplier_critical"])
                 self.rpm_range = rpm_max - self.rpm_safe
 
             # Shifting timer
+            gear = api.read.engine.gear()
+            lap_etime = api.read.timing.elapsed()
             if self.last_gear != gear:
-                self.shifting_timer_start = lap_etime
                 self.last_gear = gear
+                self.shifting_timer_start = lap_etime
             self.shifting_timer = lap_etime - self.shifting_timer_start
 
             # Gauge
-            gauge_state = rpm + gear + speed
-            if gauge_state != self.last_gauge_state:
-                gauge_fg, gauge_bg = self.color_rpm(rpm, gear, gear_max, speed)
-                self.draw_gauge(
-                    self.bar_gauge, self.pixmap_gauge,
-                    gear, speed, gauge_fg, gauge_bg,
-                )
-                self.last_gauge_state = gauge_state
+            rpm = api.read.engine.rpm()
+            speed = api.read.vehicle.speed()
+            self.update_gauge(self.bar_gauge, rpm, gear, speed)
 
             # RPM bar
             if self.wcfg["show_rpm_bar"]:
-                rpm_scale = self.scale_rpm(rpm)
-                self.update_rpmbar(rpm_scale, self.last_rpm_scale)
-                self.last_rpm_scale = rpm_scale
+                self.update_rpmbar(self.bar_rpmbar, rpm)
 
             # Battery bar
             if self.wcfg["show_battery_bar"]:
-                # Hide battery bar if electric motor unavailable
+                battery = minfo.hybrid.batteryCharge
                 motor_state = minfo.hybrid.motorState
-                self.update_state(self.bar_battbar, motor_state, self.last_motor_state)
-                self.last_motor_state = motor_state
-
-                if motor_state:
-                    battery = minfo.hybrid.batteryCharge
-                    self.update_battbar(battery, self.last_battery)
-                    self.last_battery = battery
+                self.update_battbar(self.bar_battbar, battery, motor_state)
 
             # Speed limier
             if self.wcfg["show_speed_limiter"]:
-                self.update_state(self.bar_limiter, limiter, self.last_limiter)
-                self.last_limiter = limiter
+                limiter = api.read.switch.speed_limiter()
+                self.update_limiter(self.bar_limiter, limiter)
 
     # GUI update methods
-    def update_rpmbar(self, curr, last):
-        """RPM bar update"""
-        if curr != last:
-            self.draw_rpmbar(self.bar_rpmbar, self.pixmap_rpmbar, curr)
-
-    def update_battbar(self, curr, last):
-        """Battery bar update"""
-        if curr != last:
-            self.draw_battbar(self.bar_battbar, self.pixmap_battbar, curr)
-
-    def update_state(self, target_bar, curr, last):
-        """State update"""
-        if curr != last:
-            if curr:
-                target_bar.show()
-            else:
-                target_bar.hide()
-
-    def draw_gauge(self, canvas, pixmap, gear, speed, fg_color, bg_color):
-        """Gauge"""
-        pixmap.fill(bg_color)
-        painter = QPainter(pixmap)
-
-        # Update gauge text
-        self.pen.setColor(fg_color)
-        painter.setPen(self.pen)
-
-        painter.setFont(self.font_gear)
-        painter.drawText(
-            self.rect_text_gear,
-            Qt.AlignCenter,
-            fmt.select_gear(gear)
-        )
-
-        if self.wcfg["show_speed"]:
-            painter.setFont(self.font_speed)
-            painter.drawText(
-                self.rect_text_speed,
-                Qt.AlignCenter,
-                f"{self.speed_units(speed):03.0f}"
+    def update_gauge(self, target, rpm, gear, speed):
+        """Gauge bar"""
+        gauge_state = rpm + gear + speed
+        if target.last != gauge_state:
+            target.last = gauge_state
+            color_index = self.color_rpm(rpm, gear, speed)
+            target.update_input(
+                gear,
+                self.unit_speed(speed),
+                color_index,
+                self.gauge_color[color_index],
             )
 
-        canvas.setPixmap(pixmap)
-
-    def draw_rpmbar(self, canvas, pixmap, rpm_scale):
+    def update_rpmbar(self, target, data):
         """RPM bar"""
-        pixmap.fill(Qt.transparent)
-        painter = QPainter(pixmap)
-
-        # Draw rpm
-        painter.setPen(Qt.NoPen)
-        self.brush.setColor(self.wcfg["rpm_bar_color"])
-        painter.setBrush(self.brush)
-        painter.drawRect(0, 0, rpm_scale, self.rpmbar_height)
-
-        canvas.setPixmap(pixmap)
-
-    def draw_battbar(self, canvas, pixmap, battery):
-        """Battery bar"""
-        pixmap.fill(Qt.transparent)
-        painter = QPainter(pixmap)
-
-        # Draw battery
-        painter.setPen(Qt.NoPen)
-        if self.last_motor_state == 3:
-            self.brush.setColor(self.wcfg["battery_bar_color_regen"])
+        rpm_offset = data - self.rpm_safe
+        if self.rpm_range > 0 <= rpm_offset:  # show only above offset
+            rpm_percent = rpm_offset / self.rpm_range
         else:
-            self.brush.setColor(self.wcfg["battery_bar_color"])
-        painter.setBrush(self.brush)
-        painter.drawRect(0, 0, battery * 0.01 * self.gauge_width, self.battbar_height)
+            rpm_percent = 0
+        if target.last != rpm_percent:
+            target.last = rpm_percent
+            target.update_input(rpm_percent)
 
-        canvas.setPixmap(pixmap)
+    def update_battbar(self, target, data, state):
+        """Battery bar"""
+        available = state > 0  # available check only
+        if target.state != available:
+            target.state = available
+            if available:
+                target.show()
+            else:  # hide if electric motor unavailable
+                target.hide()
+        charge = state + data  # add state to finalize last change
+        if target.last != charge:
+            target.last = charge
+            target.input_color = self.battbar_color[state == 3]
+            target.update_input(data * 0.01)
 
-    def draw_limiter(self, canvas, pixmap):
-        """Limiter bar (draw only once)"""
-        pixmap.fill(self.wcfg["bkg_color_speed_limiter"])
-        painter = QPainter(pixmap)
-
-        # Update limiter text
-        self.pen.setColor(self.wcfg["font_color_speed_limiter"])
-        painter.setPen(self.pen)
-        painter.setFont(self.font_gear)
-        painter.drawText(
-            self.rect_text_limiter,
-            Qt.AlignCenter,
-            self.wcfg["speed_limiter_text"]
-        )
-
-        canvas.setPixmap(pixmap)
+    def update_limiter(self, target, data):
+        """Limiter"""
+        if target.last != data:
+            target.last = data
+            if data:
+                target.show()
+            else:
+                target.hide()
 
     # Additional methods
-    def speed_units(self, value):
-        """Speed units"""
-        if self.cfg.units["speed_unit"] == "KPH":
-            return calc.mps2kph(value)
-        if self.cfg.units["speed_unit"] == "MPH":
-            return calc.mps2mph(value)
-        return value
-
-    def scale_rpm(self, rpm):
-        """Scale rpm"""
-        rpm_offset = rpm - self.rpm_safe
-        if self.rpm_range > 0 <= rpm_offset:
-            return rpm_offset / self.rpm_range * self.gauge_width
-        return 0
-
-    def color_rpm(self, rpm, gear, gear_max, speed):
+    def color_rpm(self, rpm, gear, speed):
         """RPM indicator color"""
         self.flicker = not self.flicker
-
-        if (self.wcfg["show_rpm_flickering_above_critical"] and
-            self.flicker and
-            gear < gear_max and
-            rpm >= self.rpm_crit):
-            return self.wcfg["bkg_color"], self.wcfg["bkg_color"]
-
+        if (self.wcfg["show_rpm_flickering_above_critical"] and self.flicker and
+            gear < api.read.engine.gear_max() and rpm >= self.rpm_crit):
+            return -4
         if (not gear and
             speed > self.wcfg["neutral_warning_speed_threshold"] and
-            self.shifting_timer >= self.wcfg["neutral_warning_time_threshold"]):
-            bgcolor = self.wcfg["rpm_color_over_rev"]
-        elif rpm > self.last_rpm_max:
-            bgcolor = self.wcfg["rpm_color_over_rev"]
-        elif rpm >= self.rpm_red:
-            bgcolor = self.wcfg["rpm_color_redline"]
-        elif rpm >= self.rpm_safe:
-            bgcolor = self.wcfg["rpm_color_safe"]
+            self.shifting_timer >= self.wcfg["neutral_warning_time_threshold"]
+            ) or rpm > self.rpm_max:
+            return 3
+        if rpm >= self.rpm_red:
+            return 2
+        if rpm >= self.rpm_safe:
+            return 1
+        return 0
+
+    def set_gauge_size(self, font):
+        """Set gauge size"""
+        font_m = self.get_font_metrics(font)
+        font_offset = self.calc_font_offset(font_m)
+
+        font_speed = self.config_font(
+            self.wcfg["font_name"],
+            self.wcfg["font_size"],
+            self.wcfg["font_weight_speed"]
+        )
+        if self.wcfg["show_speed_below_gear"]:
+            font_scale_speed = self.wcfg["font_scale_speed"]
         else:
-            bgcolor = self.wcfg["bkg_color"]
-        return self.wcfg["font_color"], bgcolor
+            font_scale_speed = 1
+        font_speed.setPixelSize(round(self.wcfg["font_size"] * font_scale_speed))
+
+        # Config variable
+        inner_gap = self.wcfg["inner_gap"]
+        padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
+        pady = round(font_m.capital * self.wcfg["bar_padding_vertical"])
+        limiter_width = (
+            font_m.width * len(self.wcfg["speed_limiter_text"])
+            + round(font_m.width * self.wcfg["speed_limiter_padding_horizontal"]) * 2)
+
+        gear_width = font_m.width + padx * 2
+        gear_height = font_m.capital + pady * 2
+        speed_width = round(font_m.width * 3 * font_scale_speed) + padx * 2
+        speed_height = round(font_m.capital * font_scale_speed) + pady * 2
+
+        if self.wcfg["show_speed_below_gear"]:
+            gauge_width = gear_width
+            gauge_height = gear_height + (inner_gap + speed_height) * self.wcfg["show_speed"]
+            speed_size = (0, gear_height + inner_gap + font_offset, gear_width, speed_height)
+
+        else:
+            gauge_width = gear_width + (inner_gap + speed_width) * self.wcfg["show_speed"]
+            gauge_height = gear_height
+            speed_size = (gear_width + inner_gap, font_offset, speed_width, gear_height)
+        gear_size = (0, font_offset, gear_width, gear_height)
+        return (font_speed, font_offset, limiter_width, gauge_width, gauge_height,
+                gear_size, speed_size)

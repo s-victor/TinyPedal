@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,22 +20,19 @@
 Rake angle Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from ..api_control import api
 from ._base import Overlay
-
-WIDGET_NAME = "rake_angle"
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout()
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -45,8 +42,6 @@ class Realtime(Overlay):
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         self.prefix_text = self.wcfg["prefix_rake_angle"]
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
-        ride_diff = "(00)" if self.wcfg["show_ride_height_difference"] else ""
-        text_def = f"{self.prefix_text}+0.00{self.sign_text}{ride_diff}"
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -54,13 +49,6 @@ class Realtime(Overlay):
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(0)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
 
         # Rake angle
         self.bar_style_rake = (
@@ -71,15 +59,13 @@ class Realtime(Overlay):
                 fg_color=self.wcfg["font_color_rake_angle"],
                 bg_color=self.wcfg["warning_color_negative_rake"])
         )
+        text_rake = self.format_rake(0)
         self.bar_rake = self.set_qlabel(
-            text=text_def,
+            text=text_rake,
             style=self.bar_style_rake[0],
-            width=font_m.width * len(text_def) + bar_padx,
+            width=font_m.width * len(text_rake) + bar_padx,
         )
         layout.addWidget(self.bar_rake, 0, 0)
-
-        # Last data
-        self.last_rake = 0
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -87,18 +73,21 @@ class Realtime(Overlay):
 
             # Rake angle
             rake = round(calc.rake(*api.read.wheel.ride_height()), 2)
-            self.update_rakeangle(rake, self.last_rake)
-            self.last_rake = rake
+            self.update_rakeangle(self.bar_rake, rake)
 
     # GUI update methods
-    def update_rakeangle(self, curr, last):
+    def update_rakeangle(self, target, data):
         """Rake angle data"""
-        if curr != last:
-            rake_angle = f"{calc.rake2angle(curr, self.wcfg['wheelbase']):+.2f}"[:5]
-            if self.wcfg["show_ride_height_difference"]:
-                ride_diff = f"({abs(curr):02.0f})"[:4]
-            else:
-                ride_diff = ""
+        if target.last != data:
+            target.last = data
+            target.setText(self.format_rake(data))
+            target.setStyleSheet(self.bar_style_rake[data < 0])
 
-            self.bar_rake.setText(f"{self.prefix_text}{rake_angle}{self.sign_text}{ride_diff}")
-            self.bar_rake.setStyleSheet(self.bar_style_rake[curr < 0])
+    def format_rake(self, rake):
+        """Format rake"""
+        rake_angle = f"{calc.slope_angle(rake, self.wcfg['wheelbase']):+.2f}"[:5]
+        if self.wcfg["show_ride_height_difference"]:
+            ride_diff = f"({abs(rake):02.0f})"[:4]
+        else:
+            ride_diff = ""
+        return f"{self.prefix_text}{rake_angle}{self.sign_text}{ride_diff}"

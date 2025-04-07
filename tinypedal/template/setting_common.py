@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,15 +20,18 @@
 Default common setting template
 """
 
+from ..regex_pattern import API_NAME_RF2
+
 
 COMMON_DEFAULT = {
     "overlay": {
         "fixed_position": False,
         "auto_hide": True,
         "enable_grid_move": False,
+        "vr_compatibility": False,
     },
     "shared_memory_api": {
-        "api_name": "rFactor 2",
+        "api_name": API_NAME_RF2,
         "access_mode": 0,
         "process_id": "",
         "enable_active_state_override": False,
@@ -46,6 +49,17 @@ COMMON_DEFAULT = {
         "temperature_unit": "Celsius",
         "turbo_pressure_unit": "bar",
         "tyre_pressure_unit": "kPa",
-        "tyre_compound_symbol": "ABCDEFGH",
+    },
+    "pace_notes_playback": {
+        "enable": False,
+        "update_interval": 10,
+        "enable_manual_file_selector": False,
+        "pace_notes_file_name": "",
+        "pace_notes_sound_path": "/",
+        "pace_notes_sound_format": "wav",
+        "pace_notes_sound_volume": 50,
+        "pace_notes_sound_max_duration": 10,
+        "pace_notes_sound_max_queue": 5,
+        "pace_notes_global_offset": 0,
     },
 }

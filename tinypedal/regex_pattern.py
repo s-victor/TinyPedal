@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -17,19 +17,26 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Regular expression & pattern
+Regular expression, pattern, string constants
 """
 
+
+# Special
+RE_HEX_COLOR = r"^#[0-9A-F]{3}$|^#[0-9A-F]{6}$|^#[0-9A-F]{8}$"
+RE_INVALID_CHAR = r'[\\/:*?"<>|]'
 
 # Bool
 CFG_BOOL = (
     # Exact match
     "^active_state$|"
     "^auto_hide$|"
+    "^auto_hide_if_not_available$|"
     "^auto_hide_in_private_qualifying$|"
     "^fixed_position$|"
     "^minimize_to_tray$|"
     "^remember_position$|"
+    "^remember_size$|"
+    "^vr_compatibility$|"
     # Partial match
     "align_center|"
     "enable|"
@@ -52,22 +59,26 @@ CFG_DELTABEST_SOURCE = "deltabest_source"
 CFG_FONT_WEIGHT = "font_weight"
 CFG_TARGET_LAPTIME = "target_laptime"
 CFG_TEXT_ALIGNMENT = "text_alignment"
+CFG_MULTIMEDIA_PLUGIN = "multimedia_plugin"
+CFG_STATS_CLASSIFICATION = "vehicle_classification"
 
 # String common
 CFG_FONT_NAME = "font_name"
 CFG_HEATMAP = "heatmap"
 CFG_USER_PATH = "_path"
+CFG_USER_IMAGE = "_image_file"
 CFG_STRING = (
     # Exact match
     "^process_id$|"
-    "^tyre_compound_symbol$|"
     "^url_host$|"
     "^LMU$|"
     "^RF2$|"
     # Partial match
+    "file_name|"
     "info|"
     "list|"
     "prefix|"
+    "sound_format|"
     "suffix|"
     "text|"
     "unit"
@@ -90,6 +101,8 @@ CFG_INTEGER = (
     "^position_x$|"
     "^position_y$|"
     "^stint_history_count$|"
+    "^window_width$|"
+    "^window_height$|"
     # Partial match
     "area_margin|"
     "area_size|"
@@ -107,50 +120,62 @@ CFG_INTEGER = (
     "display_width|"
     "draw_order_index|"
     "font_size|"
+    "horizontal_gap|"
     "icon_size|"
     "inner_gap|"
     "layout|"
+    "max_queue|"
     "number_of|"
     "samples|"
+    "sampling_interval|"
+    "sound_volume|"
     "split_gap|"
     "update_interval|"
     "url_port|"
-    "vehicles"
+    "vehicles|"
+    "vertical_gap"
 )
 
 # Filename
 CFG_INVALID_FILENAME = (
     # Exact match
     "^$|"
+    "^brakes$|"
     "^brands$|"
     "^classes$|"
+    "^compounds$|"
     "^config$|"
     "^heatmap$|"
     # Partial match
     "backup"
 )
 
+# API name
+API_NAME_RF2 = "rFactor 2"
+API_NAME_LMU = "Le Mans Ultimate"
+
 # Abbreviation
-ABBR_LIST = (
-    "api",
-    "drs",
-    "ffb",
-    "lmu",
-    "p2p",
-    "rpm",
-    "rf2",
-    "url",
+ABBR_PATTERN = (
+    "api|"
+    "drs|"
+    "ffb|"
+    "lmu|"
+    "p2p|"
+    "rpm|"
+    "rf2|"
+    "url"
 )
-ABBR_PATTERN = "|".join(ABBR_LIST)
 
 # Choice dictionary
 CHOICE_COMMON = {
-    CFG_API_NAME: ["rFactor 2", "Le Mans Ultimate"],
+    CFG_API_NAME: [API_NAME_RF2, API_NAME_LMU],
     CFG_CHARACTER_ENCODING: ["UTF-8", "ISO-8859-1"],
     CFG_DELTABEST_SOURCE: ["Best", "Session", "Stint", "Last"],
     CFG_FONT_WEIGHT: ["normal", "bold"],
     CFG_TARGET_LAPTIME: ["Theoretical", "Personal"],
     CFG_TEXT_ALIGNMENT: ["Left", "Center", "Right"],
+    CFG_MULTIMEDIA_PLUGIN: ["WMF", "DirectShow"],
+    CFG_STATS_CLASSIFICATION: ["Class - Brand", "Class", "Vehicle"],
 }
 CHOICE_UNITS = {
     "distance_unit": ["Meter", "Feet"],
@@ -164,4 +189,14 @@ CHOICE_UNITS = {
 }
 
 # Misc
-GEAR_SEQUENCE = "N123456789R"
+COMMON_TYRE_COMPOUNDS = (
+    ("super", "Q"),  # super soft
+    ("inter", "I"),  # intermediate
+    ("soft", "S"),
+    ("med", "M"),  # medium
+    ("hard", "H"),
+    ("rain|wet", "W"),
+    ("slick|dry", "S"),
+    ("road|radial|tread", "R"),
+    ("bias", "B"),  # bias ply
+)

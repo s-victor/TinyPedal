@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,22 +20,19 @@
 Brake performance Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
-
-WIDGET_NAME = "brake_performance"
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -43,7 +40,6 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         bar_width = font_m.width * 5 + bar_padx
 
         # Base style
@@ -52,13 +48,6 @@ class Realtime(Overlay):
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
 
         # Transient max braking rate
         if self.wcfg["show_transient_max_braking_rate"]:
@@ -70,6 +59,7 @@ class Realtime(Overlay):
                 text="0.00g",
                 style=bar_style_trans_rate,
                 width=bar_width,
+                last=0,
             )
             self.set_primary_orient(
                 target=self.bar_trans_rate,
@@ -86,6 +76,7 @@ class Realtime(Overlay):
                 text="0.00g",
                 style=bar_style_max_rate,
                 width=bar_width,
+                last=0,
             )
             self.set_primary_orient(
                 target=self.bar_max_rate,
@@ -97,18 +88,19 @@ class Realtime(Overlay):
             self.bar_style_delta_rate = (
                 self.set_qss(
                     fg_color=self.wcfg["font_color_delta_braking_rate"],
-                    bg_color=self.wcfg["bkg_color_delta_braking_rate"]),
+                    bg_color=self.wcfg["bkg_color_braking_rate_loss"]),
                 self.set_qss(
                     fg_color=self.wcfg["font_color_delta_braking_rate"],
                     bg_color=self.wcfg["bkg_color_braking_rate_gain"]),
                 self.set_qss(
                     fg_color=self.wcfg["font_color_delta_braking_rate"],
-                    bg_color=self.wcfg["bkg_color_braking_rate_loss"])
+                    bg_color=self.wcfg["bkg_color_delta_braking_rate"])
             )
             self.bar_delta_rate = self.set_qlabel(
                 text="+0.00",
-                style=self.bar_style_delta_rate[0],
+                style=self.bar_style_delta_rate[2],
                 width=bar_width,
+                last=0,
             )
             self.set_primary_orient(
                 target=self.bar_delta_rate,
@@ -125,6 +117,7 @@ class Realtime(Overlay):
                 text="F 0.0",
                 style=bar_style_lock_f,
                 width=bar_width,
+                last=0,
             )
             self.set_primary_orient(
                 target=self.bar_lock_f,
@@ -141,6 +134,7 @@ class Realtime(Overlay):
                 text="R 0.0",
                 style=bar_style_lock_r,
                 width=bar_width,
+                last=0,
             )
             self.set_primary_orient(
                 target=self.bar_lock_r,
@@ -148,16 +142,10 @@ class Realtime(Overlay):
             )
 
         # Last data
-        self.last_transient_rate = 0
-        self.last_max_rate = 0
-        self.last_delta_rate = 0
-        self.lock_time_f = 0
-        self.last_lock_time_f = 0
-        self.lock_time_r = 0
-        self.last_lock_time_r = 0
-        self.last_lap_etime = 0
-        self.last_lap_stime = 0
-        self.reset_lock_duration = False
+        self.lock_timer = WheelLockTimer(
+            self.wcfg["show_front_wheel_lock_duration"] or self.wcfg["show_rear_wheel_lock_duration"],
+            self.wcfg["wheel_lock_threshold"]
+        )
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -166,88 +154,103 @@ class Realtime(Overlay):
             # Transient max braking rate
             if self.wcfg["show_transient_max_braking_rate"]:
                 transient_rate = minfo.force.transientMaxBrakingRate
-                self.update_transient_rate(transient_rate, self.last_transient_rate)
-                self.last_transient_rate = transient_rate
+                self.update_braking_rate(self.bar_trans_rate, transient_rate)
 
             # Max braking rate
             if self.wcfg["show_max_braking_rate"]:
                 max_rate = minfo.force.maxBrakingRate
-                self.update_max_rate(max_rate, self.last_max_rate)
-                self.last_max_rate = max_rate
+                self.update_braking_rate(self.bar_max_rate, max_rate)
 
             # Delta braking rate
             if self.wcfg["show_delta_braking_rate"]:
                 delta_rate = minfo.force.deltaBrakingRate
-                self.update_delta_rate(delta_rate, self.last_delta_rate)
-                self.last_delta_rate = delta_rate
+                self.update_delta_rate(self.bar_delta_rate, delta_rate)
 
             # Wheel lock duration
-            if self.wcfg["show_front_wheel_lock_duration"] or self.wcfg["show_rear_wheel_lock_duration"]:
-                lap_stime = api.read.timing.start()
-                lap_etime = api.read.timing.elapsed()
-
-                if lap_stime != self.last_lap_stime:  # reset on new lap
-                    self.last_lap_stime = lap_stime
-                    self.reset_lock_duration = True  # trigger reset on next braking
-
-                if api.read.input.brake_raw() > 0.03:
-                    if self.reset_lock_duration:
-                        self.lock_time_f = 0
-                        self.lock_time_r = 0
-                        self.reset_lock_duration = False
-                    if min(minfo.wheels.slipRatio[0:2]) < -self.wcfg["wheel_lock_threshold"]:
-                        if self.last_lap_etime < lap_etime:
-                            self.lock_time_f += lap_etime - self.last_lap_etime
-                    if min(minfo.wheels.slipRatio[2:4]) < -self.wcfg["wheel_lock_threshold"]:
-                        if self.last_lap_etime < lap_etime:
-                            self.lock_time_r += lap_etime - self.last_lap_etime
-                self.last_lap_etime = lap_etime
+            if self.lock_timer.enabled:
+                self.lock_timer.calc(
+                    brake_raw=api.read.inputs.brake_raw(),
+                    start_time=api.read.timing.start(),
+                    elapsed_time=api.read.timing.elapsed(),
+                    slip_ratio=minfo.wheels.slipRatio,
+                )
 
             if self.wcfg["show_front_wheel_lock_duration"]:
-                self.update_lock_time_f(self.lock_time_f, self.last_lock_time_f)
-                self.last_lock_time_f = self.lock_time_f
+                self.update_lock_time_f(self.bar_lock_f, self.lock_timer.front)
 
             if self.wcfg["show_rear_wheel_lock_duration"]:
-                self.update_lock_time_r(self.lock_time_r, self.last_lock_time_r)
-                self.last_lock_time_r = self.lock_time_r
+                self.update_lock_time_r(self.bar_lock_r, self.lock_timer.rear)
 
     # GUI update methods
-    def update_transient_rate(self, curr, last):
-        """Transient max braking rate"""
-        if curr != last:
-            self.bar_trans_rate.setText(f"{curr: >4.2f}g"[:5])
+    def update_braking_rate(self, target, data):
+        """Braking rate (g force)"""
+        if target.last != data:
+            target.last = data
+            target.setText(f"{data: >4.2f}g"[:5])
 
-    def update_max_rate(self, curr, last):
-        """Max braking rate"""
-        if curr != last:
-            self.bar_max_rate.setText(f"{curr: >4.2f}g"[:5])
-
-    def update_delta_rate(self, curr, last):
+    def update_delta_rate(self, target, data):
         """Delta braking rate"""
-        if curr != last:
-            if curr > 0:
-                color = 1
-            elif curr < 0:
-                color = 2
-            else:
-                color = 0
-
+        if target.last != data:
+            target.last = data
             if self.wcfg["show_delta_braking_rate_in_percentage"]:
-                if minfo.force.maxBrakingRate:
-                    format_text = f"{curr / minfo.force.maxBrakingRate:+.0%}"[:5]
+                max_rate = minfo.force.maxBrakingRate
+                if max_rate:
+                    data /= max_rate
                 else:
-                    format_text = "+0%"
+                    data = 0
+                text = f"{data:+.0%}"
             else:
-                format_text = f"{curr:+.2f}"[:5]
-            self.bar_delta_rate.setText(format_text)
-            self.bar_delta_rate.setStyleSheet(self.bar_style_delta_rate[color])
+                text = f"{data:+.2f}"
+            target.setText(text[:5])
+            target.setStyleSheet(self.bar_style_delta_rate[data > 0])
 
-    def update_lock_time_f(self, curr, last):
+    def update_lock_time_f(self, target, data):
         """Front wheel lock duration"""
-        if curr != last:
-            self.bar_lock_f.setText(f"F{curr: >4.1f}"[:5])
+        if target.last != data:
+            target.last = data
+            target.setText(f"F{data: >4.1f}"[:5])
 
-    def update_lock_time_r(self, curr, last):
+    def update_lock_time_r(self, target, data):
         """Rear wheel lock duration"""
-        if curr != last:
-            self.bar_lock_r.setText(f"R{curr: >4.1f}"[:5])
+        if target.last != data:
+            target.last = data
+            target.setText(f"R{data: >4.1f}"[:5])
+
+
+class WheelLockTimer:
+    """Wheel lock timer"""
+
+    def __init__(self, enabled: bool, lock_threshold: float) -> None:
+        """
+        Args:
+            enabled: whether lock timer enabled.
+            lock_threshold: wheel lock (slip ratio) detection threshold.
+        """
+        self.enabled = enabled
+        self.front = 0.0
+        self.rear = 0.0
+        self._last_elapsed_time = 0.0
+        self._last_start_time = 0.0
+        self._lock_threshold = lock_threshold
+
+    def calc(self, brake_raw: float, start_time: float, elapsed_time: float, slip_ratio: list):
+        """Calculate wheel lock duration
+
+        Args:
+            brake_raw: raw brake input.
+            start_time: current lap start time.
+            elapsed_time: current lap elapsed time.
+            slip_ratio: slip ratio (4 tyres).
+        """
+        if brake_raw > 0.03:
+            if start_time != self._last_start_time:
+                self._last_start_time = start_time
+                self.front = 0  # reset on new lap
+                self.rear = 0
+            delta_etime = elapsed_time - self._last_elapsed_time
+            if delta_etime > 0:
+                if min(slip_ratio[:2]) < -self._lock_threshold:
+                    self.front += delta_etime
+                if min(slip_ratio[2:]) < -self._lock_threshold:
+                    self.rear += delta_etime
+        self._last_elapsed_time = elapsed_time

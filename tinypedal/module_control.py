@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,32 +20,28 @@
 Module and widget control
 """
 
-import logging
-import time
-import pkgutil
+from __future__ import annotations
 
-from .setting import cfg
-from . import module
-from . import widget
-from . import validator as val
+import logging
+from time import sleep
+from typing import Any, KeysView
+
+from . import module, widget
+from .setting import ConfigType, cfg
 
 logger = logging.getLogger(__name__)
 
 
-def create_module_pack(target: any) -> dict:
+def create_module_pack(target: Any) -> dict:
     """Create module reference pack as dictionary
 
     Args:
         target: module.
 
     Returns:
-        Dictionary, key = module name. value = module.
+        Dictionary, key = module name. value = imported module.
     """
-    return {
-        name: getattr(target, name)
-        for _, name, _ in pkgutil.iter_modules(target.__path__)
-        if val.is_imported_module(target, name)
-    }
+    return {name: getattr(target, name) for name in target.__all__}
 
 
 class ModuleControl:
@@ -55,14 +51,19 @@ class ModuleControl:
         target: module.
 
     Attributes:
-        pack: module reference pack (dictionary)
-        active_list: list of active modules.
         type_id: module type indentifier, either "module" or "widget".
     """
-    def __init__(self, target: any, type_id: str):
-        self.pack = create_module_pack(target)
-        self.active_list = {}
+
+    __slots__ = (
+        "type_id",
+        "_imported_modules",
+        "_active_modules",
+    )
+
+    def __init__(self, target: Any, type_id: str):
         self.type_id = type_id
+        self._imported_modules = create_module_pack(target)
+        self._active_modules: dict = {}
 
     def start(self, name: str = ""):
         """Start module, specify name for selected module"""
@@ -95,62 +96,62 @@ class ModuleControl:
 
     def enable_all(self):
         """Enable all modules"""
-        for _name in self.pack.keys():
+        for _name in self._imported_modules.keys():
             cfg.user.setting[_name]["enable"] = True
         self.start()
         cfg.save()
-        logger.info("ACTIVE: all %s(s)", self.type_id)
+        logger.info("ENABLED: all %s(s)", self.type_id)
 
     def disable_all(self):
         """Disable all modules"""
-        for _name in self.pack.keys():
+        for _name in self._imported_modules.keys():
             cfg.user.setting[_name]["enable"] = False
         self.close()
         cfg.save()
-        logger.info("CLOSED: all %s(s)", self.type_id)
+        logger.info("DISABLED: all %s(s)", self.type_id)
 
     def __start_enabled(self):
         """Start all enabled module"""
-        for _name in self.pack.keys():
+        for _name in self._imported_modules.keys():
             self.__start_selected(_name)
 
     def __start_selected(self, name: str):
         """Start selected module"""
-        if cfg.user.setting[name]["enable"] and name not in self.active_list:
+        if cfg.user.setting[name]["enable"] and name not in self._active_modules:
             # Create module instance and add to dict
-            self.active_list[name] = self.pack[name].Realtime(cfg)
-            self.active_list[name].start()
+            self._active_modules[name] = self._imported_modules[name].Realtime(cfg, name)
+            self._active_modules[name].start()
 
     def __close_enabled(self):
         """Close all enabled module"""
-        for _name in tuple(self.active_list):
+        for _name in tuple(self._active_modules):
             self.__close_selected(_name)
 
     def __close_selected(self, name: str):
         """Close selected module"""
-        if name in self.active_list:
-            _module = self.active_list[name]  # get instance
-            self.active_list.pop(name)  # remove active reference
+        if name in self._active_modules:
+            _module = self._active_modules[name]  # get instance
+            self._active_modules.pop(name)  # remove active reference
             _module.stop()  # close module
             while not _module.closed:  # wait finish
-                time.sleep(0.01)
+                sleep(0.01)
             _module = None  # remove final reference
 
     @property
-    def count_active(self) -> int:
-        """Count active modules"""
-        return len(self.active_list)
+    def number_active(self) -> int:
+        """Number of active modules"""
+        return len(self._active_modules)
 
     @property
-    def count_total(self) -> int:
-        """Count total modules"""
-        return len(self.pack)
+    def number_total(self) -> int:
+        """Number of total modules"""
+        return len(self._imported_modules)
 
     @property
-    def name_list(self) -> set:
+    def names(self) -> KeysView[str]:
         """List of module names"""
-        return self.pack.keys()
+        return self._imported_modules.keys()
 
 
-mctrl = ModuleControl(module, "module")
-wctrl = ModuleControl(widget, "widget")
+mctrl = ModuleControl(target=module, type_id=ConfigType.MODULE)
+wctrl = ModuleControl(target=widget, type_id=ConfigType.WIDGET)

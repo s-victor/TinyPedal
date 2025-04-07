@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,32 +20,32 @@
 Energy module
 """
 
-import logging
+from __future__ import annotations
 
+from .. import calculation as calc
+from ..api_control import api
+from ..const_file import FileExt
+from ..module_info import minfo
 from ._base import DataModule
 from .module_fuel import calc_data
-from ..module_info import minfo
-from ..api_control import api
-from .. import calculation as calc
-
-MODULE_NAME = "module_energy"
-
-logger = logging.getLogger(__name__)
 
 
 class Realtime(DataModule):
     """Energy usage data"""
 
-    def __init__(self, config):
-        super().__init__(config, MODULE_NAME)
-        self.filepath = self.cfg.path.energy_delta
+    __slots__ = ()
+
+    def __init__(self, config, module_name):
+        super().__init__(config, module_name)
 
     def update_data(self):
         """Update module data"""
         reset = False
         update_interval = self.active_interval
 
-        while not self.event.wait(update_interval):
+        userpath_energy_delta = self.cfg.path.energy_delta
+
+        while not self._event.wait(update_interval):
             if self.state.active:
 
                 if not reset:
@@ -54,19 +54,29 @@ class Realtime(DataModule):
 
                     combo_id = api.read.check.combo_id()
                     gen_calc_energy = calc_data(
-                        minfo.energy, telemetry_energy, self.filepath, combo_id, "energy")
-                    # Initial run to reset module output
+                        output=minfo.energy,
+                        telemetry_func=telemetry_energy,
+                        filepath=userpath_energy_delta,
+                        filename=combo_id,
+                        extension=FileExt.ENERGY,
+                        min_delta_distance=self.mcfg["minimum_delta_distance"],
+                    )
                     next(gen_calc_energy)
-                    gen_calc_energy.send(True)
+                    # Reset module output
+                    minfo.energy.reset()
 
                 # Run calculation if virtual energy available
                 if minfo.restapi.maxVirtualEnergy:
                     gen_calc_energy.send(True)
 
-                    # Update fuel to energy ratio
+                    # Update hybrid info
                     minfo.hybrid.fuelEnergyRatio = calc.fuel_to_energy_ratio(
                         minfo.fuel.estimatedConsumption,
-                        minfo.energy.estimatedConsumption)
+                        minfo.energy.estimatedConsumption,
+                    )
+                    minfo.hybrid.fuelEnergyBias = (
+                        minfo.fuel.estimatedLaps - minfo.energy.estimatedLaps
+                    )
 
             else:
                 if reset:
@@ -76,9 +86,9 @@ class Realtime(DataModule):
                     gen_calc_energy.send(False)
 
 
-def telemetry_energy():
+def telemetry_energy() -> tuple[float, float]:
     """Telemetry energy, output in percentage"""
     max_energy = minfo.restapi.maxVirtualEnergy
     if max_energy:
-        return 100, minfo.restapi.currentVirtualEnergy / max_energy * 100
-    return 100, 0
+        return 100.0, minfo.restapi.currentVirtualEnergy / max_energy * 100
+    return 100.0, 0.0

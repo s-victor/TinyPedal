@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,164 +20,96 @@
 Tyre load Widget
 """
 
-from PySide2.QtCore import Qt, QRectF
-from PySide2.QtGui import QPainter, QPen
-
 from .. import calculation as calc
 from ..api_control import api
 from ._base import Overlay
-
-WIDGET_NAME = "tyre_load"
+from ._painter import WheelGaugeBar
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        bar_gap = self.wcfg["bar_gap"]
+        layout = self.set_grid_layout(gap=bar_gap)
+        self.set_primary_layout(layout=layout)
 
         # Config font
-        self.font = self.config_font(
+        font = self.config_font(
             self.wcfg["font_name"],
             self.wcfg["font_size"],
             self.wcfg["font_weight"]
         )
-        font_m = self.get_font_metrics(self.font)
+        self.setFont(font)
+        font_m = self.get_font_metrics(font)
         font_offset = self.calc_font_offset(font_m)
 
         # Config variable
         padx = round(font_m.width * self.wcfg["bar_padding_horizontal"])
         pady = round(font_m.capital * self.wcfg["bar_padding_vertical"])
+        bar_width = max(self.wcfg["bar_width"], 20)
+        bar_height = int(font_m.capital + pady * 2)
 
-        bar_gap = self.wcfg["bar_gap"]
-        self.bar_width = max(self.wcfg["bar_width"], 20)
-        self.bar_height = int(font_m.capital + pady * 2)
-        self.width_scale = self.bar_width * 0.01
+        # Caption
+        if self.wcfg["show_caption"]:
+            bar_style_desc = self.set_qss(
+                fg_color=self.wcfg["font_color_caption"],
+                bg_color=self.wcfg["bkg_color_caption"],
+                font_family=self.wcfg["font_name"],
+                font_size=int(self.wcfg['font_size'] * self.wcfg['font_scale_caption']),
+                font_weight=self.wcfg["font_weight"],
+            )
+            cap_bar = self.set_qlabel(
+                text=self.wcfg["caption_text"],
+                style=bar_style_desc,
+                fixed_width=bar_width * 2 + bar_gap,
+            )
+            self.set_primary_orient(
+                target=cap_bar,
+                column=0,
+            )
 
-        self.rect_bg_fl = QRectF(
-            0,
-            0,
-            self.bar_width,
-            self.bar_height
+        # Tyre load
+        layout_inner = self.set_grid_layout(gap=bar_gap)
+        self.bars_tload = tuple(
+            WheelGaugeBar(
+                self,
+                padding_x=padx,
+                bar_width=bar_width,
+                bar_height=bar_height,
+                font_offset=font_offset,
+                input_color=self.wcfg["highlight_color"],
+                fg_color=self.wcfg["font_color"],
+                bg_color=self.wcfg["bkg_color"],
+                right_side=idx % 2,
+            ) for idx in range(4)
         )
-        self.rect_bg_fr = QRectF(
-            self.bar_width + bar_gap,
-            0,
-            self.bar_width,
-            self.bar_height
+        self.set_grid_layout_quad(
+            layout=layout_inner,
+            targets=self.bars_tload,
         )
-        self.rect_bg_rl = QRectF(
-            0,
-            self.bar_height + bar_gap,
-            self.bar_width,
-            self.bar_height
+        self.set_primary_orient(
+            target=layout_inner,
+            column=1,
         )
-        self.rect_bg_rr = QRectF(
-            self.bar_width + bar_gap,
-            self.bar_height + bar_gap,
-            self.bar_width,
-            self.bar_height
-        )
-
-        self.rect_load_fl = self.rect_bg_fl.adjusted(0,0,0,0)
-        self.rect_load_fr = self.rect_bg_fr.adjusted(0,0,0,0)
-        self.rect_load_rl = self.rect_bg_rl.adjusted(0,0,0,0)
-        self.rect_load_rr = self.rect_bg_rr.adjusted(0,0,0,0)
-
-        self.rect_text_bg_fl = self.rect_bg_fl.adjusted(padx, font_offset, 0, 0)
-        self.rect_text_bg_fr = self.rect_bg_fr.adjusted(0, font_offset, -padx, 0)
-        self.rect_text_bg_rl = self.rect_bg_rl.adjusted(padx, font_offset, 0, 0)
-        self.rect_text_bg_rr = self.rect_bg_rr.adjusted(0, font_offset, -padx, 0)
-
-        # Config canvas
-        self.resize(
-            self.bar_width * 2 + bar_gap,
-            self.bar_height * 2 + bar_gap
-        )
-
-        self.pen = QPen()
-        self.pen.setColor(self.wcfg["font_color"])
-
-        # Last data
-        self.tload = [0] * 4
-        self.tratio = [0] * 4
-        self.last_tload = None
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
 
-            # Read tyre load data
-            self.tload = api.read.tyre.load()
-            self.update_tyre_load(self.tload, self.last_tload)
-            self.last_tload = self.tload
+            tload_set = api.read.tyre.load()
+            sum_load = sum(tload_set)
+            for tload, bar_tload in zip(tload_set, self.bars_tload):
+                tratio = calc.force_ratio(tload, sum_load)
+                if self.wcfg["show_tyre_load_ratio"]:
+                    tload = tratio
+                self.update_tload(bar_tload, round(tload), tratio)
 
     # GUI update methods
-    def update_tyre_load(self, curr, last):
-        """Tyre load update"""
-        if curr != last:
-            # Update load ratio
-            sum_load = sum(self.tload)
-            for idx in range(4):
-                self.tratio[idx] = calc.force_ratio(self.tload[idx], sum_load)
-            self.update()
-
-    def paintEvent(self, event):
-        """Draw"""
-        painter = QPainter(self)
-        self.draw_background(painter)
-        self.draw_tyre_load(painter)
-        self.draw_readings(painter)
-
-    def draw_background(self, painter):
-        """Draw background"""
-        painter.setPen(Qt.NoPen)
-        bkg_color = self.wcfg["bkg_color"]
-        painter.fillRect(self.rect_bg_fl, bkg_color)
-        painter.fillRect(self.rect_bg_fr, bkg_color)
-        painter.fillRect(self.rect_bg_rl, bkg_color)
-        painter.fillRect(self.rect_bg_rr, bkg_color)
-
-    def draw_tyre_load(self, painter):
-        """Draw tyre load"""
-        self.rect_load_fl.setX(self.bar_width - self.tratio[0] * self.width_scale)
-        self.rect_load_fr.setWidth(self.tratio[1] * self.width_scale)
-        self.rect_load_rl.setX(self.bar_width - self.tratio[2] * self.width_scale)
-        self.rect_load_rr.setWidth(self.tratio[3] * self.width_scale)
-
-        hi_color = self.wcfg["highlight_color"]
-        painter.fillRect(self.rect_load_fl, hi_color)
-        painter.fillRect(self.rect_load_fr, hi_color)
-        painter.fillRect(self.rect_load_rl, hi_color)
-        painter.fillRect(self.rect_load_rr, hi_color)
-
-    def draw_readings(self, painter):
-        """Draw readings"""
-        if self.wcfg["show_tyre_load_ratio"]:
-            display_text = self.tratio
-        else:
-            display_text = self.tload
-
-        painter.setPen(self.pen)
-        painter.setFont(self.font)
-        painter.drawText(
-            self.rect_text_bg_fl,
-            Qt.AlignLeft | Qt.AlignVCenter,
-            f"{display_text[0]:.0f}"
-        )
-        painter.drawText(
-            self.rect_text_bg_fr,
-            Qt.AlignRight | Qt.AlignVCenter,
-            f"{display_text[1]:.0f}"
-        )
-        painter.drawText(
-            self.rect_text_bg_rl,
-            Qt.AlignLeft | Qt.AlignVCenter,
-            f"{display_text[2]:.0f}"
-        )
-        painter.drawText(
-            self.rect_text_bg_rr,
-            Qt.AlignRight | Qt.AlignVCenter,
-            f"{display_text[3]:.0f}"
-        )
+    def update_tload(self, target, data, ratio):
+        """Tyre load & ratio"""
+        if target.last != data:
+            target.last = data
+            target.update_input(ratio)

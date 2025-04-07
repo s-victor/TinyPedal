@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,32 +20,31 @@
 Deltabest extended Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from ..module_info import minfo
 from ._base import Overlay
-
-WIDGET_NAME = "deltabest_extended"
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        text_def = "--.---"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
+        self.decimals = max(self.wcfg["decimal_places"], 1)
+        self.delta_display_range = calc.decimal_strip(self.wcfg["delta_display_range"], self.decimals)
+        self.max_padding = 3 + self.decimals
+        text_def = f"--.{'-' * self.decimals}"
 
         if self.wcfg["layout"] == 0:
             prefix_just = max(
@@ -69,13 +68,6 @@ class Realtime(Overlay):
             font_weight=self.wcfg["font_weight"])
         )
 
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
-
         # All time deltabest
         if self.wcfg["show_all_time_deltabest"]:
             text_atbest = f"{self.prefix_atbest}{text_def}"
@@ -87,6 +79,7 @@ class Realtime(Overlay):
                 text=text_atbest,
                 style=bar_style_atbest,
                 width=font_m.width * len(text_atbest) + bar_padx,
+                last=0,
             )
             self.set_primary_orient(
                 target=self.bar_atbest,
@@ -104,6 +97,7 @@ class Realtime(Overlay):
                 text=text_ssbest,
                 style=bar_style_ssbest,
                 width=font_m.width * len(text_ssbest) + bar_padx,
+                last=0,
             )
             self.set_primary_orient(
                 target=self.bar_ssbest,
@@ -121,6 +115,7 @@ class Realtime(Overlay):
                 text=text_stbest,
                 style=bar_style_stbest,
                 width=font_m.width * len(text_stbest) + bar_padx,
+                last=0,
             )
             self.set_primary_orient(
                 target=self.bar_stbest,
@@ -138,6 +133,7 @@ class Realtime(Overlay):
                 text=text_labest,
                 style=bar_style_labest,
                 width=font_m.width * len(text_labest) + bar_padx,
+                last=0,
             )
             self.set_primary_orient(
                 target=self.bar_labest,
@@ -145,11 +141,7 @@ class Realtime(Overlay):
             )
 
         # Last data
-        self.last_all_time_deltabest = 0
-        self.last_session_deltabest = 0
-        self.last_stint_deltabest = 0
-        self.last_deltalast = 0
-        self.last_laptimes = [0,0,0,0]
+        self.last_laptimes = [0] * 4
         self.new_lap = True
 
     def timerEvent(self, event):
@@ -157,10 +149,10 @@ class Realtime(Overlay):
         if self.state.active:
 
             if minfo.delta.lapTimeCurrent < self.freeze_duration:
-                all_time_deltabest = minfo.delta.lapTimeLast - self.last_laptimes[0]
-                session_deltabest = minfo.delta.lapTimeLast - self.last_laptimes[1]
-                stint_deltabest = minfo.delta.lapTimeLast - self.last_laptimes[2]
-                deltalast = minfo.delta.lapTimeLast - self.last_laptimes[3]
+                alltime_best = minfo.delta.lapTimeLast - self.last_laptimes[0]
+                session_best = minfo.delta.lapTimeLast - self.last_laptimes[1]
+                stint_best = minfo.delta.lapTimeLast - self.last_laptimes[2]
+                delta_last = minfo.delta.lapTimeLast - self.last_laptimes[3]
                 self.new_lap = True
             else:
                 if self.new_lap:
@@ -170,46 +162,31 @@ class Realtime(Overlay):
                     self.last_laptimes[3] = minfo.delta.lapTimeLast
                     self.new_lap = False
 
-                all_time_deltabest = minfo.delta.deltaBest
-                session_deltabest = minfo.delta.deltaSession
-                stint_deltabest = minfo.delta.deltaStint
-                deltalast = minfo.delta.deltaLast
+                alltime_best = minfo.delta.deltaBest
+                session_best = minfo.delta.deltaSession
+                stint_best = minfo.delta.deltaStint
+                delta_last = minfo.delta.deltaLast
 
             # All time deltabest
             if self.wcfg["show_all_time_deltabest"]:
-                self.update_deltabest(
-                    self.bar_atbest, all_time_deltabest, self.last_all_time_deltabest,
-                    self.prefix_atbest
-                )
-                self.last_all_time_deltabest = all_time_deltabest
+                self.update_deltabest(self.bar_atbest, alltime_best, self.prefix_atbest)
 
             # Session deltabest
             if self.wcfg["show_session_deltabest"]:
-                self.update_deltabest(
-                    self.bar_ssbest, session_deltabest, self.last_session_deltabest,
-                    self.prefix_ssbest
-                )
-                self.last_session_deltabest = session_deltabest
+                self.update_deltabest(self.bar_ssbest, session_best, self.prefix_ssbest)
 
             # Stint deltabest
             if self.wcfg["show_stint_deltabest"]:
-                self.update_deltabest(
-                    self.bar_stbest, stint_deltabest, self.last_stint_deltabest,
-                    self.prefix_stbest
-                )
-                self.last_stint_deltabest = stint_deltabest
+                self.update_deltabest(self.bar_stbest, stint_best, self.prefix_stbest)
 
             # Deltalast
             if self.wcfg["show_stint_deltabest"]:
-                self.update_deltabest(
-                    self.bar_labest, deltalast, self.last_deltalast,
-                    self.prefix_labest
-                )
-                self.last_deltalast = deltalast
+                self.update_deltabest(self.bar_labest, delta_last, self.prefix_labest)
 
     # GUI update methods
-    def update_deltabest(self, target_bar, curr, last, prefix):
+    def update_deltabest(self, target, data, prefix):
         """Update deltabest"""
-        if curr != last:
-            text = f"{calc.sym_range(curr, self.wcfg['delta_display_range']): >+6.3f}"[:6]
-            target_bar.setText(f"{prefix}{text}")
+        if target.last != data:
+            target.last = data
+            text = f"{calc.sym_max(data, self.delta_display_range): >+{self.max_padding}.{self.decimals}f}"[:self.max_padding]
+            target.setText(f"{prefix}{text}")

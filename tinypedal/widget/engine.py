@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,22 +20,26 @@
 Engine Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from ..api_control import api
+from ..units import (
+    set_symbol_power,
+    set_symbol_pressure,
+    set_unit_power,
+    set_unit_pressure,
+    set_unit_temperature,
+)
 from ._base import Overlay
-
-WIDGET_NAME = "engine"
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -43,8 +47,14 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         bar_width = font_m.width * 8 + bar_padx
+
+        # Config units
+        self.unit_temp = set_unit_temperature(self.cfg.units["temperature_unit"])
+        self.unit_power = set_unit_power(self.cfg.units["power_unit"])
+        self.symbol_power = set_symbol_power(self.cfg.units["power_unit"])
+        self.unit_pres = set_unit_pressure(self.cfg.units["turbo_pressure_unit"])
+        self.symbol_pres = set_symbol_pressure(self.cfg.units["turbo_pressure_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -52,13 +62,6 @@ class Realtime(Overlay):
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
 
         # Oil temperature
         if self.wcfg["show_oil_temperature"]:
@@ -180,15 +183,6 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_power"],
             )
 
-        # Last data
-        self.last_temp_oil = None
-        self.last_temp_water = None
-        self.last_turbo = None
-        self.last_rpm = None
-        self.last_rpm_max = None
-        self.last_torque = None
-        self.last_power = None
-
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
@@ -196,111 +190,83 @@ class Realtime(Overlay):
             # Oil temperature
             if self.wcfg["show_oil_temperature"]:
                 temp_oil = round(api.read.engine.oil_temperature(), 2)
-                self.update_oil(temp_oil, self.last_temp_oil)
-                self.last_temp_oil = temp_oil
+                self.update_oil(self.bar_oil, temp_oil)
 
             # Water temperature
             if self.wcfg["show_water_temperature"]:
                 temp_water = round(api.read.engine.water_temperature(), 2)
-                self.update_water(temp_water, self.last_temp_water)
-                self.last_temp_water = temp_water
+                self.update_water(self.bar_water, temp_water)
 
             # Turbo pressure
             if self.wcfg["show_turbo_pressure"]:
                 turbo = int(api.read.engine.turbo())
-                self.update_turbo(turbo, self.last_turbo)
-                self.last_turbo = turbo
+                self.update_turbo(self.bar_turbo, turbo)
 
             # Engine RPM
             if self.wcfg["show_rpm"]:
                 rpm = int(api.read.engine.rpm())
-                self.update_rpm(rpm, self.last_rpm)
-                self.last_rpm = rpm
+                self.update_rpm(self.bar_rpm, rpm)
 
             # Engine RPM maximum
             if self.wcfg["show_rpm_maximum"]:
                 rpm_max = int(api.read.engine.rpm_max())
-                self.update_rpm_max(rpm_max, self.last_rpm_max)
-                self.last_rpm_max = rpm_max
+                self.update_rpm_max(self.bar_rpm_max, rpm_max)
 
             # Engine torque
             if self.wcfg["show_torque"]:
                 torque = round(api.read.engine.torque(), 2)
-                self.update_torque(torque, self.last_torque)
-                self.last_torque = torque
+                self.update_torque(self.bar_torque, torque)
 
             # Engine power
             if self.wcfg["show_power"]:
                 power = round(calc.engine_power(
                     api.read.engine.torque(), api.read.engine.rpm()), 2)
-                self.update_power(power, self.last_power)
-                self.last_power = power
+                self.update_power(self.bar_power, power)
 
     # GUI update methods
-    def update_oil(self, curr, last):
+    def update_oil(self, target, data):
         """Oil temperature"""
-        if curr != last:
-            # Check overheat before conversion
-            is_overheat = (curr >= self.wcfg["overheat_threshold_oil"])
-            if self.cfg.units["temperature_unit"] == "Fahrenheit":
-                curr = calc.celsius2fahrenheit(curr)
+        if target.last != data:
+            target.last = data
+            target.setText(f"O{self.unit_temp(data): >6.1f}°")
+            target.setStyleSheet(self.bar_style_oil[data >= self.wcfg["overheat_threshold_oil"]])
 
-            self.bar_oil.setText(f"O{curr: >6.1f}°")
-            self.bar_oil.setStyleSheet(self.bar_style_oil[is_overheat])
-
-    def update_water(self, curr, last):
+    def update_water(self, target, data):
         """Water temperature"""
-        if curr != last:
-            # Check overheat before conversion
-            is_overheat = (curr >= self.wcfg["overheat_threshold_water"])
-            if self.cfg.units["temperature_unit"] == "Fahrenheit":
-                curr = calc.celsius2fahrenheit(curr)
+        if target.last != data:
+            target.last = data
+            target.setText(f"W{self.unit_temp(data): >6.1f}°")
+            target.setStyleSheet(self.bar_style_water[data >= self.wcfg["overheat_threshold_water"]])
 
-            self.bar_water.setText(f"W{curr: >6.1f}°")
-            self.bar_water.setStyleSheet(self.bar_style_water[is_overheat])
-
-    def update_turbo(self, curr, last):
+    def update_turbo(self, target, data):
         """Turbo pressure"""
-        if curr != last:
-            self.bar_turbo.setText(self.pressure_units(curr * 0.001))
+        if target.last != data:
+            target.last = data
+            text = f"{self.unit_pres(data * 0.001):03.3f}"[:5]
+            target.setText(f"{text}{self.symbol_pres}")
 
-    def update_rpm(self, curr, last):
+    def update_rpm(self, target, data):
         """Engine RPM"""
-        if curr != last:
-            self.bar_rpm.setText(f"{curr: >5}rpm")
+        if target.last != data:
+            target.last = data
+            target.setText(f"{data: >5}rpm")
 
-    def update_rpm_max(self, curr, last):
+    def update_rpm_max(self, target, data):
         """Engine RPM maximum"""
-        if curr != last:
-            self.bar_rpm_max.setText(f"{curr: >5}max")
+        if target.last != data:
+            target.last = data
+            target.setText(f"{data: >5}max")
 
-    def update_torque(self, curr, last):
+    def update_torque(self, target, data):
         """Engine torque"""
-        if curr != last:
-            text = f"{curr: >6.2f}"[:6]
-            self.bar_torque.setText(f"{text}Nm")
+        if target.last != data:
+            target.last = data
+            text = f"{data: >6.2f}"[:6]
+            target.setText(f"{text}Nm")
 
-    def update_power(self, curr, last):
+    def update_power(self, target, data):
         """Engine power"""
-        if curr != last:
-            self.bar_power.setText(self.power_units(curr))
-
-    # Additional methods
-    def pressure_units(self, pres):
-        """Pressure units"""
-        if self.cfg.units["turbo_pressure_unit"] == "psi":
-            return f"{calc.kpa2psi(pres):03.2f}psi"
-        if self.cfg.units["turbo_pressure_unit"] == "kPa":
-            return f"{pres:03.1f}kPa"
-        return f"{calc.kpa2bar(pres):03.3f}bar"
-
-    def power_units(self, power):
-        """Power units"""
-        if self.cfg.units["power_unit"] == "Kilowatt":
-            text = f"{power: >6.2f}"[:6]
-            return f"{text}kW"
-        if self.cfg.units["power_unit"] == "Horsepower":
-            text = f"{calc.kw2hp(power): >6.2f}"[:6]
-            return f"{text}hp"
-        text = f"{calc.kw2ps(power): >6.2f}"[:6]
-        return f"{text}ps"
+        if target.last != data:
+            target.last = data
+            text = f"{self.unit_power(data): >6.2f}"[:6]
+            target.setText(f"{text}{self.symbol_power}")

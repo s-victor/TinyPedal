@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,21 +20,18 @@
 Battery Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from ..module_info import minfo
 from ._base import Overlay
-
-WIDGET_NAME = "battery"
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -42,7 +39,6 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         bar_width = font_m.width * 8 + bar_padx
         self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
 
@@ -52,13 +48,6 @@ class Realtime(Overlay):
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
 
         # Battery charge
         if self.wcfg["show_battery_charge"]:
@@ -112,6 +101,22 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_battery_regen"],
             )
 
+        # Battery charge net change
+        if self.wcfg["show_estimated_net_change"]:
+            bar_style_net = self.set_qss(
+                fg_color=self.wcfg["font_color_estimated_net_change"],
+                bg_color=self.wcfg["bkg_color_estimated_net_change"]
+            )
+            self.bar_net = self.set_qlabel(
+                text="B   NET",
+                style=bar_style_net,
+                width=bar_width,
+            )
+            self.set_primary_orient(
+                target=self.bar_net,
+                column=self.wcfg["column_index_estimated_net_change"],
+            )
+
         # Activation timer
         if self.wcfg["show_activation_timer"]:
             bar_style_timer = self.set_qss(
@@ -128,12 +133,6 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_activation_timer"],
             )
 
-        # Last data
-        self.last_battery_charge = None
-        self.last_battery_drain = None
-        self.last_battery_regen = None
-        self.last_active_timer = None
-
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
@@ -141,8 +140,7 @@ class Realtime(Overlay):
             # Battery charge & usage
             if self.wcfg["show_battery_charge"]:
                 battery_charge = minfo.hybrid.batteryCharge
-                self.update_charge(battery_charge, self.last_battery_charge)
-                self.last_battery_charge = battery_charge
+                self.update_charge(self.bar_charge, battery_charge)
 
             if 0 <= minfo.delta.lapTimeCurrent < self.freeze_duration:
                 battery_drain = minfo.hybrid.batteryDrainLast
@@ -152,38 +150,49 @@ class Realtime(Overlay):
                 battery_regen = minfo.hybrid.batteryRegen
 
             if self.wcfg["show_battery_drain"]:
-                self.update_drain(battery_drain, self.last_battery_drain)
-                self.last_battery_drain = battery_drain
+                self.update_drain(self.bar_drain, battery_drain)
 
             if self.wcfg["show_battery_regen"]:
-                self.update_regen(battery_regen, self.last_battery_regen)
-                self.last_battery_regen = battery_regen
+                self.update_regen(self.bar_regen, battery_regen)
+
+            if self.wcfg["show_estimated_net_change"]:
+                net_change = minfo.hybrid.batteryNetChange
+                self.update_net(self.bar_net, net_change)
 
             # Motor activation timer
             if self.wcfg["show_activation_timer"]:
                 active_timer = minfo.hybrid.motorActiveTimer
-                self.update_timer(active_timer, self.last_active_timer)
-                self.last_active_timer = active_timer
+                self.update_timer(self.bar_timer, active_timer)
 
     # GUI update methods
-    def update_charge(self, curr, last):
+    def update_charge(self, target, data):
         """Battery charge"""
-        if curr != last:
-            self.bar_charge.setText(f"B{curr: >7.2f}"[:8])
-            self.bar_charge.setStyleSheet(
-                self.bar_style_charge[curr <= self.wcfg["low_battery_threshold"]])
+        if target.last != data:
+            target.last = data
+            target.setText(f"B{data: >7.2f}"[:8])
+            target.setStyleSheet(
+                self.bar_style_charge[data <= self.wcfg["low_battery_threshold"]])
 
-    def update_drain(self, curr, last):
+    def update_drain(self, target, data):
         """Battery drain"""
-        if curr != last:
-            self.bar_drain.setText(f"-{curr: >7.2f}"[:8])
+        if target.last != data:
+            target.last = data
+            target.setText(f"-{data: >7.2f}"[:8])
 
-    def update_regen(self, curr, last):
+    def update_regen(self, target, data):
         """Battery regen"""
-        if curr != last:
-            self.bar_regen.setText(f"+{curr: >7.2f}"[:8])
+        if target.last != data:
+            target.last = data
+            target.setText(f"+{data: >7.2f}"[:8])
 
-    def update_timer(self, curr, last):
+    def update_net(self, target, data):
+        """Battery charge net change"""
+        if target.last != data:
+            target.last = data
+            target.setText(f"N{data: >+7.2f}"[:8])
+
+    def update_timer(self, target, data):
         """Motor activation timer"""
-        if curr != last:
-            self.bar_timer.setText(f"{curr: >7.2f}s"[:8])
+        if target.last != data:
+            target.last = data
+            target.setText(f"{data: >7.2f}s"[:8])

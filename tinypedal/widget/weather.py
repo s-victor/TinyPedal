@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,23 +20,21 @@
 Weather Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
-from .. import calculation as calc
 from ..api_control import api
+from ..units import set_symbol_temperature, set_unit_temperature
 from ._base import Overlay
 
-WIDGET_NAME = "weather"
-TREND_SIGN = "●▲▼"
+TEXT_TREND_SIGN = "●▲▼"  # 0 = constant, 1 = increasing, -1 = decreasing
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -44,9 +42,6 @@ class Realtime(Overlay):
 
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
-        self.sign_temp = "°F" if self.cfg.units["temperature_unit"] == "Fahrenheit" else "°C"
-
         prefix_wetness_just = max(
             len(self.wcfg["prefix_dry"]),
             len(self.wcfg["prefix_wet"]),
@@ -56,6 +51,16 @@ class Realtime(Overlay):
             self.wcfg["prefix_dry"].ljust(prefix_wetness_just),
             self.wcfg["prefix_wet"].ljust(prefix_wetness_just)
         )
+        if self.cfg.units["temperature_unit"] == "Fahrenheit":
+            self.temp_digits = 0.3
+            self.temp_cut = 5
+        else:
+            self.temp_digits = 0.2
+            self.temp_cut = 4
+
+        # Config units
+        self.unit_temp = set_unit_temperature(self.cfg.units["temperature_unit"])
+        self.symbol_temp = set_symbol_temperature(self.cfg.units["temperature_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -64,19 +69,12 @@ class Realtime(Overlay):
             font_weight=self.wcfg["font_weight"])
         )
 
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
-
         # Track temperature
         if self.wcfg["show_temperature"]:
-            layout_temp = QGridLayout()
-            layout_temp.setSpacing(0)
-
-            text_temp = self.format_temperature(0, 0)
+            layout_temp = self.set_grid_layout()
+            track_temp = f"{self.unit_temp(0):{self.temp_digits}f}"[:self.temp_cut]
+            air_temp = f"{self.unit_temp(0):{self.temp_digits}f}"[:self.temp_cut]
+            text_temp = f"{track_temp}({air_temp}){self.symbol_temp}"
             bar_style_temp = self.set_qss(
                 fg_color=self.wcfg["font_color_temperature"],
                 bg_color=self.wcfg["bkg_color_temperature"]
@@ -85,6 +83,7 @@ class Realtime(Overlay):
                 text=text_temp,
                 style=bar_style_temp,
                 width=font_m.width * len(text_temp) + bar_padx,
+                last=0,
             )
             layout_temp.addWidget(self.bar_temp, 0, 0)
 
@@ -100,20 +99,23 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_temperature"]),
             )
             self.bar_temp_trend = self.set_qlabel(
-                text=TREND_SIGN[0],
+                text=TEXT_TREND_SIGN[0],
                 style=self.bar_style_temp_trend[0],
                 width=font_m.width + bar_padx,
+                last=0,
             )
             layout_temp.addWidget(self.bar_temp_trend, 0, 1)
-
-            layout.addLayout(layout_temp, 0, self.wcfg["column_index_temperature"])
+            self.set_primary_orient(
+                target=layout_temp,
+                column=self.wcfg["column_index_temperature"],
+                option=None,
+                default=1,
+            )
 
         # Rain precipitation
         if self.wcfg["show_rain"]:
-            layout_rain = QGridLayout()
-            layout_rain.setSpacing(0)
-
-            text_rain = self.format_rain(0)
+            layout_rain = self.set_grid_layout()
+            text_rain = f"{self.prefix_rain}  0%"
             bar_style_rain = self.set_qss(
                 fg_color=self.wcfg["font_color_rain"],
                 bg_color=self.wcfg["bkg_color_rain"]
@@ -122,6 +124,7 @@ class Realtime(Overlay):
                 text=text_rain,
                 style=bar_style_rain,
                 width=font_m.width * len(text_rain) + bar_padx,
+                last=0,
             )
             layout_rain.addWidget(self.bar_rain, 0, 0)
 
@@ -137,20 +140,23 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_rain"]),
             )
             self.bar_raininess_trend = self.set_qlabel(
-                text=TREND_SIGN[0],
+                text=TEXT_TREND_SIGN[0],
                 style=self.bar_style_raininess_trend[0],
                 width=font_m.width + bar_padx,
+                last=0,
             )
             layout_rain.addWidget(self.bar_raininess_trend, 0, 1)
-
-            layout.addLayout(layout_rain, 0, self.wcfg["column_index_rain"])
+            self.set_primary_orient(
+                target=layout_rain,
+                column=self.wcfg["column_index_rain"],
+                option=None,
+                default=1,
+            )
 
         # Surface wetness
         if self.wcfg["show_wetness"]:
-            layout_wetness = QGridLayout()
-            layout_wetness.setSpacing(0)
-
-            text_wetness = self.format_wetness(0)
+            layout_wetness = self.set_grid_layout()
+            text_wetness = f"{self.prefix_wetness[0]}  0%"
             bar_style_wetness = self.set_qss(
                 fg_color=self.wcfg["font_color_wetness"],
                 bg_color=self.wcfg["bkg_color_wetness"]
@@ -159,6 +165,7 @@ class Realtime(Overlay):
                 text=text_wetness,
                 style=bar_style_wetness,
                 width=font_m.width * len(text_wetness) + bar_padx,
+                last=0,
             )
             layout_wetness.addWidget(self.bar_wetness, 0, 0)
 
@@ -174,30 +181,23 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_wetness"]),
             )
             self.bar_wetness_trend = self.set_qlabel(
-                text=TREND_SIGN[0],
+                text=TEXT_TREND_SIGN[0],
                 style=self.bar_style_wetness_trend[0],
                 width=font_m.width + bar_padx,
+                last=0,
             )
             layout_wetness.addWidget(self.bar_wetness_trend, 0, 1)
-
-            layout.addLayout(layout_wetness, 0, self.wcfg["column_index_wetness"])
+            self.set_primary_orient(
+                target=layout_wetness,
+                column=self.wcfg["column_index_wetness"],
+                option=None,
+                default=1,
+            )
 
         # Last data
-        self.temp_trend = 0
-        self.rain_trend = 0
-        self.wet_trend = 0
-
-        self.last_temp_trend = 0
-        self.last_rain_trend = 0
-        self.last_wet_trend = 0
-
-        self.last_temperature = 0
-        self.last_raininess = 0
-        self.last_wetness = 0
-
-        self.last_temp_timer = 0
-        self.last_rain_timer = 0
-        self.last_wet_timer = 0
+        self.temp_trend = TrendTimer(self.wcfg["temperature_trend_interval"])
+        self.rain_trend = TrendTimer(self.wcfg["raininess_trend_interval"])
+        self.wet_trend = TrendTimer(self.wcfg["wetness_trend_interval"])
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -210,127 +210,110 @@ class Realtime(Overlay):
                 temp_track = api.read.session.track_temperature()
                 temp_air = api.read.session.ambient_temperature()
                 temperature = temp_track + temp_air
-
-                if self.last_temperature < temperature:
-                    self.last_temp_timer = lap_etime
-                    self.temp_trend = 1  # increased
-                elif self.last_temperature > temperature:
-                    self.last_temp_timer = lap_etime
-                    self.temp_trend = -1  # decreased
-                elif lap_etime - self.last_temp_timer > self.wcfg["temperature_trend_interval"]:
-                    self.last_temp_timer = lap_etime
-                    self.temp_trend = 0  # no change
-
-                if self.last_temp_timer > lap_etime:
-                    self.last_temp_timer = lap_etime
-
                 # Temperature
-                self.update_temperature(
-                    temperature, self.last_temperature, temp_track, temp_air)
-                self.last_temperature = temperature
+                self.update_temperature(self.bar_temp, temperature, temp_track, temp_air)
                 # Temperature trend
-                self.update_temperature_trend(self.temp_trend, self.last_temp_trend)
-                self.last_temp_trend = self.temp_trend
+                temp_trend = self.temp_trend.update(round(temperature, 1), lap_etime)
+                self.update_temperature_trend(self.bar_temp_trend, temp_trend)
 
             # Rain precipitation
             if self.wcfg["show_rain"]:
-                raininess = api.read.session.raininess()
-
-                if self.last_raininess < raininess:
-                    self.last_rain_timer = lap_etime
-                    self.rain_trend = 1  # increased
-                elif self.last_raininess > raininess:
-                    self.last_rain_timer = lap_etime
-                    self.rain_trend = -1  # decreased
-                elif lap_etime - self.last_rain_timer > self.wcfg["raininess_trend_interval"]:
-                    self.last_rain_timer = lap_etime
-                    self.rain_trend = 0  # no change
-
-                if self.last_rain_timer > lap_etime:
-                    self.last_rain_timer = lap_etime
-
+                raininess = round(api.read.session.raininess(), 2)
                 # Rain percentage
-                self.update_raininess(raininess, self.last_raininess)
-                self.last_raininess = raininess
+                self.update_raininess(self.bar_rain, raininess)
                 # Rain trend
-                self.update_raininess_trend(self.rain_trend, self.last_rain_trend)
-                self.last_rain_trend = self.rain_trend
+                rain_trend = self.rain_trend.update(raininess, lap_etime)
+                self.update_raininess_trend(self.bar_raininess_trend, rain_trend)
 
             # Surface wetness
             if self.wcfg["show_wetness"]:
                 wet_min, wet_max, wet_avg = api.read.session.wetness()
                 wetness = wet_min + wet_max + wet_avg
-
-                if self.last_wetness < wetness:
-                    self.last_wet_timer = lap_etime
-                    self.wet_trend = 1  # increased
-                elif self.last_wetness > wetness:
-                    self.last_wet_timer = lap_etime
-                    self.wet_trend = -1  # decreased
-                elif lap_etime - self.last_wet_timer > self.wcfg["wetness_trend_interval"]:
-                    self.last_wet_timer = lap_etime
-                    self.wet_trend = 0  # no change
-
-                if self.last_wet_timer > lap_etime:
-                    self.last_wet_timer = lap_etime
-
                 # Wetness percentage
-                self.update_wetness(wetness, self.last_wetness, wet_avg)
-                self.last_wetness = wetness
+                self.update_wetness(self.bar_wetness, wetness, wet_avg)
                 # Wet trend
-                self.update_wetness_trend(self.wet_trend, self.last_wet_trend)
-                self.last_wet_trend = self.wet_trend
+                wet_trend = self.wet_trend.update(wetness, lap_etime)
+                self.update_wetness_trend(self.bar_wetness_trend, wet_trend)
 
     # GUI update methods
-    def update_temperature(self, curr, last, track, air):
+    def update_temperature(self, target, data, track, air):
         """Track & ambient temperature"""
-        if curr != last:
-            self.bar_temp.setText(self.format_temperature(track, air))
+        if target.last != data:
+            target.last = data
+            track_temp = f"{self.unit_temp(track):{self.temp_digits}f}"[:self.temp_cut]
+            air_temp = f"{self.unit_temp(air):{self.temp_digits}f}"[:self.temp_cut]
+            target.setText(f"{track_temp}({air_temp}){self.symbol_temp}")
 
-    def update_temperature_trend(self, curr, last):
+    def update_temperature_trend(self, target, data):
         """Temperature trend"""
-        if curr != last:
-            self.bar_temp_trend.setText(TREND_SIGN[curr])
-            self.bar_temp_trend.setStyleSheet(self.bar_style_temp_trend[curr])
+        if target.last != data:
+            target.last = data
+            target.setText(TEXT_TREND_SIGN[data])
+            target.setStyleSheet(self.bar_style_temp_trend[data])
 
-    def update_raininess(self, curr, last):
+    def update_raininess(self, target, data):
         """Rain percentage"""
-        if curr != last:
-            self.bar_rain.setText(self.format_rain(curr))
+        if target.last != data:
+            target.last = data
+            percent_rain = f"{data: >3.0%}"[:3]
+            target.setText(f"{self.prefix_rain} {percent_rain}")
 
-    def update_raininess_trend(self, curr, last):
+    def update_raininess_trend(self, target, data):
         """Raininess trend"""
-        if curr != last:
-            self.bar_raininess_trend.setText(TREND_SIGN[curr])
-            self.bar_raininess_trend.setStyleSheet(self.bar_style_raininess_trend[curr])
+        if target.last != data:
+            target.last = data
+            target.setText(TEXT_TREND_SIGN[data])
+            target.setStyleSheet(self.bar_style_raininess_trend[data])
 
-    def update_wetness(self, curr, last, wet_average):
+    def update_wetness(self, target, data, wet_average):
         """Surface wetness percentage"""
-        if curr != last:
-            self.bar_wetness.setText(self.format_wetness(wet_average))
+        if target.last != data:
+            target.last = data
+            percent_wet = f"{wet_average: >3.0%}"[:3]
+            target.setText(f"{self.prefix_wetness[wet_average > 0.01]} {percent_wet}")
 
-    def update_wetness_trend(self, curr, last):
+    def update_wetness_trend(self, target, data):
         """Surface wetness trend"""
-        if curr != last:
-            self.bar_wetness_trend.setText(TREND_SIGN[curr])
-            self.bar_wetness_trend.setStyleSheet(self.bar_style_wetness_trend[curr])
+        if target.last != data:
+            target.last = data
+            target.setText(TEXT_TREND_SIGN[data])
+            target.setStyleSheet(self.bar_style_wetness_trend[data])
 
-    def format_temperature(self, track_deg, air_deg):
-        """Format track & ambient temperature"""
-        if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            track = f"{calc.celsius2fahrenheit(track_deg):05.2f}"[:5]
-            air = f"{calc.celsius2fahrenheit(air_deg):03.0f}"[:3]
-        else:
-            track = f"{track_deg: >4.2f}"[:4]
-            air = f"{air_deg: >4.2f}"[:4]
-        return f"{track}({air}){self.sign_temp}"
 
-    def format_rain(self, rain):
-        """Format rain percentage"""
-        percentage = f"{rain: >3.0%}"[:3]
-        return f"{self.prefix_rain} {percentage}"
+class TrendTimer:
+    """Trend timer"""
 
-    def format_wetness(self, wetness):
-        """Format wetness percentage"""
-        percentage = f"{wetness: >3.0%}"[:3]
-        return f"{self.prefix_wetness[wetness > 0.01]} {percentage}"
+    def __init__(self, trend_interval: float) -> None:
+        """
+        Args:
+            trend_interval: trend reset interval (seconds).
+        """
+        self._trend_interval = trend_interval
+        self._last_reading = 0.0
+        self._trend = 0
+        self._timer = 0.0
+
+    def update(self, reading: float, elapsed_time: float) -> int:
+        """Update trend
+
+        Args:
+            reading: value.
+            elapsed_time: current lap elapsed time.
+
+        Returns:
+            Trend, 0 = constant, 1 = increasing, -1 = decreasing.
+        """
+        if self._last_reading < reading:
+            self._timer = elapsed_time
+            self._trend = 1  # increased
+        elif self._last_reading > reading:
+            self._timer = elapsed_time
+            self._trend = -1  # decreased
+        elif elapsed_time - self._timer > self._trend_interval:
+            self._timer = elapsed_time
+            self._trend = 0  # no change
+        self._last_reading = reading
+
+        if self._timer > elapsed_time:
+            self._timer = elapsed_time
+        return self._trend

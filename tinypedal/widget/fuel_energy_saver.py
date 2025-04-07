@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -22,39 +22,40 @@ Fuel energy saver Widget
 
 from math import floor
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from ..api_control import api
+from ..const_common import ENERGY_TYPE_ID, MAX_SECONDS, TEXT_PLACEHOLDER
 from ..module_info import minfo
+from ..units import set_unit_fuel
 from ._base import Overlay
-
-WIDGET_NAME = "fuel_energy_saver"
-MAGIC_NUM = 99999
-TEXT_NONE = "-"
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout(gap_hori=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
+        layout_reversed = self.wcfg["layout"] != 0
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
-        self.bar_width = max(self.wcfg["bar_width"], 4)
+        self.char_width = max(self.wcfg["bar_width"], 4)
+        bar_width = font_m.width * self.char_width + bar_padx
         self.center_slot = min(max(self.wcfg["number_of_less_laps"], 0), 5) + 1  # +1 column offset
         self.total_slot = min(max(self.wcfg["number_of_more_laps"], 1), 10) + 1 + self.center_slot
         self.decimals_consumption = max(self.wcfg["decimal_places_consumption"], 0)
         self.decimals_delta = max(self.wcfg["decimal_places_delta"], 0)
         self.min_reserve = max(self.wcfg["minimum_reserve"], 0)
+
+        # Config units
+        self.unit_fuel = set_unit_fuel(self.cfg.units["fuel_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -62,6 +63,54 @@ class Realtime(Overlay):
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
+
+        # Target lap row
+        bar_style_lap = (
+            self.set_qss(
+                fg_color=self.wcfg["font_color_target_laps"],
+                bg_color=self.wcfg["bkg_color_target_laps"],
+                font_size=int(self.wcfg['font_size'] * 0.8)),
+            self.set_qss(
+                fg_color=self.wcfg["font_color_current_laps"],
+                bg_color=self.wcfg["bkg_color_current_laps"],
+                font_size=int(self.wcfg['font_size'] * 0.8))
+        )
+        self.bars_target_lap = self.set_qlabel(
+            text=TEXT_PLACEHOLDER,
+            style=bar_style_lap[0],
+            width=bar_width,
+            count=self.total_slot,
+            last=-MAX_SECONDS,
+        )
+        self.bars_target_lap[0].setText("LAST")
+        self.bars_target_lap[self.center_slot].setStyleSheet(bar_style_lap[1])
+        self.set_grid_layout_table_row(
+            layout=layout,
+            targets=self.bars_target_lap,
+            row_index=0,
+            right_to_left=layout_reversed,
+        )
+
+        # Target consumption row
+        bar_style_target_use = self.set_qss(
+            fg_color=self.wcfg["font_color_target_consumption"],
+            bg_color=self.wcfg["bkg_color_target_consumption"]
+        )
+        self.bars_target_use = self.set_qlabel(
+            text=TEXT_PLACEHOLDER,
+            style=bar_style_target_use,
+            width=bar_width,
+            last=-MAX_SECONDS,
+            count=self.total_slot,
+        )
+        self.set_grid_layout_table_row(
+            layout=layout,
+            targets=self.bars_target_use,
+            row_index=1,
+            right_to_left=layout_reversed,
+        )
+
+        # Delat consumption row
         self.delta_color = (
             self.set_qss(
                 fg_color=self.wcfg["font_color_lap_gain"],
@@ -73,17 +122,18 @@ class Realtime(Overlay):
                 fg_color=self.wcfg["font_color_delta_consumption"],
                 bg_color=self.wcfg["bkg_color_delta_consumption"])
         )
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
-
-        self.data_bar = {}
-        self.set_table(
-            width=font_m.width * self.bar_width + bar_padx
+        self.bars_delta = self.set_qlabel(
+            text=TEXT_PLACEHOLDER,
+            style=self.delta_color[2],
+            width=bar_width,
+            count=self.total_slot,
+            last=-MAX_SECONDS,
+        )
+        self.set_grid_layout_table_row(
+            layout=layout,
+            targets=self.bars_delta,
+            row_index=2,
+            right_to_left=layout_reversed,
         )
 
         # Last data
@@ -91,80 +141,6 @@ class Realtime(Overlay):
         self.start_laps = 0  # laps number at start of current stint
         self.last_tyre_life = 0
         self.last_fuel_curr = 0
-        self.last_target_use = [-MAGIC_NUM] * self.total_slot
-        self.last_delta = [-MAGIC_NUM] * self.total_slot
-        self.last_target_laps = [-MAGIC_NUM] * self.total_slot
-
-    # GUI generate methods
-    def set_table(self, width: int):
-        """Set table"""
-        bar_style_lap = (
-            self.set_qss(
-                fg_color=self.wcfg["font_color_target_laps"],
-                bg_color=self.wcfg["bkg_color_target_laps"],
-                font_size=int(self.wcfg['font_size'] * 0.8)),
-            self.set_qss(
-                fg_color=self.wcfg["font_color_current_laps"],
-                bg_color=self.wcfg["bkg_color_current_laps"],
-                font_size=int(self.wcfg['font_size'] * 0.8))
-        )
-        bar_style_target_use = self.set_qss(
-            fg_color=self.wcfg["font_color_target_consumption"],
-            bg_color=self.wcfg["bkg_color_target_consumption"]
-        )
-        layout_inner = [None for _ in range(self.total_slot)]
-
-        for index in range(self.total_slot):
-            # Create column layout
-            layout_inner[index] = QGridLayout()
-            layout_inner[index].setSpacing(0)
-
-            # Target lap row
-            name_target_lap = f"target_lap_{index}"
-            if index == 0:
-                lap_diff_text = "LAST"
-            else:
-                lap_diff_text = TEXT_NONE
-            self.data_bar[name_target_lap] = self.set_qlabel(
-                text=lap_diff_text,
-                style=bar_style_lap[index == self.center_slot],
-                width=width,
-            )
-            layout_inner[index].addWidget(
-                self.data_bar[name_target_lap], 0, 0
-            )
-
-            # Target consumption row
-            name_target_use = f"target_use_{index}"
-            self.data_bar[name_target_use] = self.set_qlabel(
-                text=TEXT_NONE,
-                style=bar_style_target_use,
-                width=width,
-            )
-            layout_inner[index].addWidget(
-                self.data_bar[name_target_use], 1, 0
-            )
-
-            # Delat consumption row
-            name_delta = f"delta_{index}"
-            self.data_bar[name_delta] = self.set_qlabel(
-                text=TEXT_NONE,
-                style=self.delta_color[2],
-                width=width,
-            )
-            layout_inner[index].addWidget(
-                self.data_bar[name_delta], 2, 0
-            )
-
-            # Set layout
-            if self.wcfg["layout"] == 0:  # left to right layout
-                self.layout().addLayout(
-                    layout_inner[index], 0, index
-                )
-            else:  # right to left layout
-                self.layout().addLayout(
-                    layout_inner[index], 0, self.total_slot - 1 - index
-                )
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -217,12 +193,10 @@ class Realtime(Overlay):
         for index in range(self.total_slot):
             if index == 0:
                 # Fuel or energy
-                self.update_energy_type(energy_type, self.last_delta[index], index)
-                self.last_delta[index] = energy_type
+                self.update_energy_type(self.bars_delta[index], energy_type)
                 # Last lap consumption
                 self.update_target_use(
-                    fuel_used_last_raw, self.last_target_use[index], index, energy_type)
-                self.last_target_use[index] = fuel_used_last_raw
+                    self.bars_target_use[index], fuel_used_last_raw, energy_type)
                 continue
 
             # Progressive fuel saving
@@ -233,69 +207,59 @@ class Realtime(Overlay):
                 target_laps = f"{laps_done}/{laps_done + total_laps_target:d}"
             else:
                 target_laps = f"{laps_done + total_laps_target:d}"
-            self.update_total_laps(target_laps, self.last_target_laps[index], index)
-            self.last_target_laps[index] = target_laps
+            self.update_total_laps(self.bars_target_lap[index], target_laps)
 
             # Target consumption
             if total_laps_target > 0 and fuel_est > 0:
                 target_use = total_fuel_remaining / total_laps_target
             else:
-                target_use = -MAGIC_NUM
-            self.update_target_use(target_use, self.last_target_use[index], index, energy_type)
-            self.last_target_use[index] = target_use
+                target_use = -MAX_SECONDS
+            self.update_target_use(
+                self.bars_target_use[index], target_use, energy_type)
 
             # Delta consumption
             if total_laps_target > 0 and fuel_est > 0:
                 delta = fuel_est - target_use
             else:
-                delta = -MAGIC_NUM
-            self.update_delta(delta, self.last_delta[index], index, energy_type)
-            self.last_delta[index] = delta
+                delta = -MAX_SECONDS
+            self.update_delta(self.bars_delta[index], delta, energy_type)
 
     # GUI update methods
-    def update_target_use(self, curr, last, index, energy_type):
+    def update_target_use(self, target, data, energy_type):
         """Target consumption"""
-        if curr != last:
-            if curr > -MAGIC_NUM:
+        if target.last != data:
+            target.last = data
+            if data > -MAX_SECONDS:
                 if not energy_type:
-                    curr = self.fuel_units(curr)
-                use_text = f"{curr:.{self.decimals_consumption}f}"[:self.bar_width]
+                    data = self.unit_fuel(data)
+                use_text = f"{data:.{self.decimals_consumption}f}"[:self.char_width]
             else:
-                use_text = TEXT_NONE
-            self.data_bar[f"target_use_{index}"].setText(use_text)
+                use_text = TEXT_PLACEHOLDER
+            target.setText(use_text)
 
-    def update_delta(self, curr, last, index, energy_type):
+    def update_delta(self, target, data, energy_type):
         """Delta consumption between target & current"""
-        if curr != last:
-            if curr > -MAGIC_NUM:
+        if target.last != data:
+            target.last = data
+            if data > -MAX_SECONDS:
                 if not energy_type:
-                    curr = self.fuel_units(curr)
-                delta_text = f"{curr:+.{self.decimals_delta}f}"[:self.bar_width]
-                style = self.delta_color[curr >= 0]
+                    data = self.unit_fuel(data)
+                delta_text = f"{data:+.{self.decimals_delta}f}"[:self.char_width]
+                style = self.delta_color[data >= 0]
             else:
-                delta_text = TEXT_NONE
+                delta_text = TEXT_PLACEHOLDER
                 style = self.delta_color[2]
+            target.setText(delta_text)
+            target.setStyleSheet(style)
 
-            self.data_bar[f"delta_{index}"].setText(delta_text)
-            self.data_bar[f"delta_{index}"].setStyleSheet(style)
-
-    def update_total_laps(self, curr, last, index):
+    def update_total_laps(self, target, data):
         """Total laps"""
-        if curr != last:
-            self.data_bar[f"target_lap_{index}"].setText(curr)
+        if target.last != data:
+            target.last = data
+            target.setText(data)
 
-    def update_energy_type(self, curr, last, index):
+    def update_energy_type(self, target, data):
         """Energy type"""
-        if curr != last:
-            if curr > 0:
-                type_text = "NRG"
-            else:
-                type_text = "FUEL"
-            self.data_bar[f"delta_{index}"].setText(type_text)
-
-    # Additional methods
-    def fuel_units(self, fuel):
-        """2 different fuel unit conversion, default is Liter"""
-        if self.cfg.units["fuel_unit"] == "Gallon":
-            return calc.liter2gallon(fuel)
-        return fuel
+        if target.last != data:
+            target.last = data
+            target.setText(ENERGY_TYPE_ID[data > 0])

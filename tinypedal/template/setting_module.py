@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -26,6 +26,7 @@ MODULE_DEFAULT = {
         "enable": True,
         "update_interval": 10,
         "idle_update_interval": 400,
+        "minimum_delta_distance": 5,
         "delta_smoothing_samples": 30,
         "laptime_pace_samples": 6,
         "laptime_pace_margin": 5,
@@ -34,6 +35,7 @@ MODULE_DEFAULT = {
         "enable": True,
         "update_interval": 10,
         "idle_update_interval": 400,
+        "minimum_delta_distance": 5,
     },
     "module_force": {
         "enable": True,
@@ -50,13 +52,20 @@ MODULE_DEFAULT = {
         "enable": True,
         "update_interval": 10,
         "idle_update_interval": 400,
+        "minimum_delta_distance": 5,
     },
     "module_hybrid": {
         "enable": True,
         "update_interval": 10,
         "idle_update_interval": 400,
+        "minimum_delta_distance": 5,
     },
     "module_mapping": {
+        "enable": True,
+        "update_interval": 10,
+        "idle_update_interval": 400,
+    },
+    "module_notes": {
         "enable": True,
         "update_interval": 10,
         "idle_update_interval": 400,
@@ -83,6 +92,13 @@ MODULE_DEFAULT = {
         "idle_update_interval": 400,
         "enable_all_time_best_sectors": True,
     },
+    "module_stats": {
+        "enable": True,
+        "update_interval": 200,
+        "idle_update_interval": 400,
+        "vehicle_classification": "Class - Brand",
+        "enable_podium_by_class": True,
+    },
     "module_vehicles": {
         "enable": True,
         "update_interval": 20,
@@ -94,10 +110,9 @@ MODULE_DEFAULT = {
         "enable": True,
         "update_interval": 10,
         "idle_update_interval": 400,
+        "minimum_axle_rotation": 4,
         "maximum_rotation_difference_front": 0.002,
         "maximum_rotation_difference_rear": 0.002,
-        "last_vehicle_info": "unknown",
-        "last_wheel_radius_front": 0,
-        "last_wheel_radius_rear": 0,
+        "cornering_radius_sampling_interval": 10,
     },
 }

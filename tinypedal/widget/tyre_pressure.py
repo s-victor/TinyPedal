@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,32 +20,31 @@
 Tyre pressure Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
-from .. import calculation as calc
 from ..api_control import api
+from ..const_common import TEXT_NA
+from ..units import set_unit_pressure
 from ._base import Overlay
-
-WIDGET_NAME = "tyre_pressure"
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        text_def = "n/a"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         bar_width = font_m.width * 4 + bar_padx
+
+        # Config units
+        self.unit_pres = set_unit_pressure(self.cfg.units["tyre_pressure_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -59,28 +58,25 @@ class Realtime(Overlay):
             font_size=int(self.wcfg['font_size'] * 0.8)
         )
 
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
-
         # Tyre pressure
-        layout_tpres = QGridLayout()
-        layout_tpres.setSpacing(0)
-        layout.addLayout(layout_tpres, 0, 0)
+        layout_tpres = self.set_grid_layout()
         bar_style_tpres = self.set_qss(
             fg_color=self.wcfg["font_color_tyre_pressure"],
             bg_color=self.wcfg["bkg_color_tyre_pressure"]
         )
-        self.bar_tpres = self.set_qlabel(
-            text=text_def,
+        self.bars_tpres = self.set_qlabel(
+            text=TEXT_NA,
             style=bar_style_tpres,
             width=bar_width,
             count=4,
         )
-        self.set_layout_quad(layout_tpres, self.bar_tpres)
+        self.set_grid_layout_quad(
+            layout=layout_tpres,
+            targets=self.bars_tpres,
+        )
+        self.set_primary_orient(
+            target=layout_tpres,
+        )
 
         if self.wcfg["show_caption"]:
             cap_tpres = self.set_qlabel(
@@ -89,41 +85,18 @@ class Realtime(Overlay):
             )
             layout_tpres.addWidget(cap_tpres, 0, 0, 1, 0)
 
-        # Last data
-        self.last_tpres = [None] * 4
-
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
 
             # Tyre pressure
             tpres = api.read.tyre.pressure()
-            for idx in range(4):
-                self.update_tpres(self.bar_tpres[idx], tpres[idx], self.last_tpres[idx])
-            self.last_tpres = tpres
+            for idx, bar_tpres in enumerate(self.bars_tpres):
+                self.update_tpres(bar_tpres, tpres[idx])
 
     # GUI update methods
-    def update_tpres(self, target_bar, curr, last):
+    def update_tpres(self, target, data):
         """Tyre pressure"""
-        if curr != last:
-            target_bar.setText(self.tyre_pressure_units(curr))
-
-    # GUI generate methods
-    @staticmethod
-    def set_layout_quad(layout, bar_set, row_start=1, column_left=0, column_right=9):
-        """Set layout - quad
-
-        Default row index start from 1; reserve row index 0 for caption.
-        """
-        for idx in range(4):
-            layout.addWidget(bar_set[idx], row_start + (idx > 1),
-                column_left + (idx % 2) * column_right)
-
-    # Additional methods
-    def tyre_pressure_units(self, value):
-        """Tyre pressure units"""
-        if self.cfg.units["tyre_pressure_unit"] == "psi":
-            return f"{calc.kpa2psi(value):.1f}"
-        if self.cfg.units["tyre_pressure_unit"] == "bar":
-            return f"{calc.kpa2bar(value):.2f}"
-        return f"{value:.0f}"  # kPa
+        if target.last != data:
+            target.last = data
+            target.setText(f"{self.unit_pres(data):.2f}"[:4].strip("."))

@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,24 +20,21 @@
 Timing Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from ..api_control import api
+from ..const_common import MAX_SECONDS
 from ..module_info import minfo
 from ._base import Overlay
-
-WIDGET_NAME = "timing"
-MAGIC_NUM = 99999
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -46,7 +43,6 @@ class Realtime(Overlay):
         # Config variable
         text_def = "-:--.---"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
 
         if self.wcfg["layout"] == 0:
             prefix_just = max(
@@ -77,13 +73,6 @@ class Realtime(Overlay):
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
-
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
 
         # Session best laptime
         if self.wcfg["show_session_best"]:
@@ -228,16 +217,7 @@ class Realtime(Overlay):
         # Last data
         self.checked = False
         self.player_index = 0
-        self.laptime_sbst = MAGIC_NUM
-
-        self.last_laptime_sbst = 0
-        self.last_laptime_best = 0
-        self.last_laptime_last = -1
-        self.last_laptime_curr = 0
-        self.last_laptime_esti = 0
-        self.last_laptime_spbt = 0
-        self.last_laptime_stbt = 0
-        self.last_laptime_avpc = 0
+        self.laptime_sbst = MAX_SECONDS
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -249,13 +229,10 @@ class Realtime(Overlay):
 
             # Session best laptime
             if self.wcfg["show_session_best"]:
-                laptime_best_tmp = api.read.timing.best_laptime(self.player_index)
-
-                if 0 < laptime_best_tmp < self.laptime_sbst:
-                    if self.wcfg["show_session_best_from_same_class_only"]:
-                        if api.read.vehicle.same_class(self.player_index):
-                            self.laptime_sbst = laptime_best_tmp
-                    else:
+                if (not self.wcfg["show_session_best_from_same_class_only"]
+                    or api.read.vehicle.same_class(self.player_index)):
+                    laptime_best_tmp = api.read.timing.best_laptime(self.player_index)
+                    if 0 < laptime_best_tmp < self.laptime_sbst:
                         self.laptime_sbst = laptime_best_tmp
 
                 if self.player_index < api.read.vehicle.total_vehicles():
@@ -263,20 +240,12 @@ class Realtime(Overlay):
                 else:
                     self.player_index = 0
 
-                self.update_laptime(
-                    self.bar_sbst, self.laptime_sbst, self.last_laptime_sbst,
-                    self.prefix_sbst
-                )
-                self.last_laptime_sbst = self.laptime_sbst
+                self.update_laptime(self.bar_sbst, self.laptime_sbst, self.prefix_sbst)
 
             # Personal best laptime
             if self.wcfg["show_best"]:
                 laptime_best = minfo.delta.lapTimeBest
-                self.update_laptime(
-                    self.bar_best, laptime_best, self.last_laptime_best,
-                    self.prefix_best
-                )
-                self.last_laptime_best = laptime_best
+                self.update_laptime(self.bar_best, laptime_best, self.prefix_best)
 
             # Last laptime
             if self.wcfg["show_last"]:
@@ -284,72 +253,48 @@ class Realtime(Overlay):
                 # Convert invalid laptime to negative for state compare
                 if not minfo.delta.isValidLap:
                     laptime_last *= -1
-                self.update_laptime(
-                    self.bar_last, laptime_last, self.last_laptime_last,
-                    self.prefix_last, True
-                )
-                self.last_laptime_last = laptime_last
+                self.update_laptime(self.bar_last, laptime_last, self.prefix_last, True)
 
             # Current laptime
             if self.wcfg["show_current"]:
                 laptime_curr = minfo.delta.lapTimeCurrent
-                self.update_laptime(
-                    self.bar_curr, laptime_curr, self.last_laptime_curr,
-                    self.prefix_curr
-                )
-                self.last_laptime_curr = laptime_curr
+                self.update_laptime(self.bar_curr, laptime_curr, self.prefix_curr)
 
             # Estimated laptime
             if self.wcfg["show_estimated"]:
                 laptime_esti = minfo.delta.lapTimeEstimated
-                self.update_laptime(
-                    self.bar_esti, laptime_esti, self.last_laptime_esti,
-                    self.prefix_esti
-                )
-                self.last_laptime_esti = laptime_esti
+                self.update_laptime(self.bar_esti, laptime_esti, self.prefix_esti)
 
             # Session personal best laptime
             if self.wcfg["show_session_personal_best"]:
                 laptime_spbt = api.read.timing.best_laptime()
-                self.update_laptime(
-                    self.bar_spbt, laptime_spbt, self.last_laptime_spbt,
-                    self.prefix_spbt
-                )
-                self.last_laptime_spbt = laptime_spbt
+                self.update_laptime(self.bar_spbt, laptime_spbt, self.prefix_spbt)
 
             # Stint personal best laptime
             if self.wcfg["show_stint_best"]:
                 laptime_stbt = minfo.delta.lapTimeStint
-                self.update_laptime(
-                    self.bar_stbt, laptime_stbt, self.last_laptime_stbt,
-                    self.prefix_stbt
-                )
-                self.last_laptime_stbt = laptime_stbt
+                self.update_laptime(self.bar_stbt, laptime_stbt, self.prefix_stbt)
 
             # Average pace laptime
             if self.wcfg["show_average_pace"]:
                 laptime_avpc = minfo.delta.lapTimePace
-                self.update_laptime(
-                    self.bar_avpc, laptime_avpc, self.last_laptime_avpc,
-                    self.prefix_avpc
-                )
-                self.last_laptime_avpc = laptime_avpc
+                self.update_laptime(self.bar_avpc, laptime_avpc, self.prefix_avpc)
 
         else:
             if self.checked:
                 self.checked = False
-                self.laptime_sbst = MAGIC_NUM  # reset laptime
+                self.laptime_sbst = MAX_SECONDS  # reset laptime
 
     # GUI update methods
-    def update_laptime(self, target_bar, curr, last, prefix, check_laptime=False):
+    def update_laptime(self, target, data, prefix, verify=False):
         """Update laptime"""
-        if curr != last:
-            if check_laptime:
-                target_bar.setStyleSheet(self.bar_style_last[curr > 0])
-                curr = abs(curr)
-
-            if 0 < curr < MAGIC_NUM:
-                text = f"{prefix}{calc.sec2laptime(curr)[:8]: >8}"
+        if target.last != data:
+            target.last = data
+            if verify:
+                target.setStyleSheet(self.bar_style_last[data > 0])
+                data = abs(data)
+            if 0 < data < MAX_SECONDS:
+                text = f"{prefix}{calc.sec2laptime(data)[:8]: >8}"
             else:
                 text = f"{prefix}-:--.---"
-            target_bar.setText(text)
+            target.setText(text)

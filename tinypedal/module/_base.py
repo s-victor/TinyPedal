@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -24,6 +24,7 @@ import logging
 import threading
 
 from ..overlay_control import octrl
+from ..setting import Setting
 
 logger = logging.getLogger(__name__)
 
@@ -31,8 +32,18 @@ logger = logging.getLogger(__name__)
 class DataModule:
     """Data module base"""
 
-    def __init__(self, config: object, module_name: str):
-        super().__init__()
+    __slots__ = (
+        "module_name",
+        "closed",
+        "state",
+        "cfg",
+        "mcfg",
+        "active_interval",
+        "idle_interval",
+        "_event",
+    )
+
+    def __init__(self, config: Setting, module_name: str):
         self.module_name = module_name
         self.closed = True
         self.state = octrl.state
@@ -41,10 +52,10 @@ class DataModule:
         self.cfg = config
 
         # Module config
-        self.mcfg = self.cfg.user.setting[module_name]
+        self.mcfg: dict = self.cfg.user.setting[module_name]
 
         # Module update interval
-        self.event = threading.Event()
+        self._event = threading.Event()
         self.active_interval = max(
             self.mcfg["update_interval"],
             self.cfg.application["minimum_update_interval"]) / 1000
@@ -57,15 +68,15 @@ class DataModule:
         """Start update thread"""
         if self.closed:
             self.closed = False
-            self.event.clear()
+            self._event.clear()
             threading.Thread(target=self.update_data, daemon=True).start()
-            logger.info("ACTIVE: %s", self.module_name.replace("_", " "))
+            logger.info("ENABLED: %s", self.module_name.replace("_", " "))
 
     def stop(self):
         """Stop update thread"""
-        self.event.set()
+        self._event.set()
         self.closed = True
-        logger.info("CLOSED: %s", self.module_name.replace("_", " "))
+        logger.info("DISABLED: %s", self.module_name.replace("_", " "))
 
     def update_data(self):
         """Update module data, rewrite in child class"""

@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,32 +20,30 @@
 Navigation Widget
 """
 
-from PySide2.QtCore import Qt, QRectF, QPointF
-from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QRadialGradient, QPen, QBrush, QPolygonF
+from PySide2.QtCore import QPointF, QRectF, Qt
+from PySide2.QtGui import QBrush, QPainter, QPainterPath, QPen, QPixmap, QRadialGradient
 
 from .. import calculation as calc
 from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
 
-WIDGET_NAME = "navigation"
-POLYGON_NONE = QPolygonF((QPointF(-99999,-99999),QPointF(-99999,-99999)))
-
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
 
         # Config font
-        self.font = self.config_font(
+        font = self.config_font(
             self.wcfg["font_name"],
             self.wcfg["font_size"],
             self.wcfg["font_weight"]
         )
-        font_m = self.get_font_metrics(self.font)
+        self.setFont(font)
+        font_m = self.get_font_metrics(font)
         font_offset = self.calc_font_offset(font_m)
 
         # Config variable
@@ -53,9 +51,9 @@ class Realtime(Overlay):
         self.global_scale = self.area_size / max(self.wcfg["view_radius"], 5)
         self.area_center = self.area_size * 0.5
         self.view_range = self.wcfg["view_radius"] * 2.5
-
         self.veh_offset_y = self.area_size * max(self.wcfg["vehicle_offset"], 0)
         self.veh_size = max(int(self.wcfg["vehicle_size"]), 1)
+
         if self.wcfg["show_circle_vehicle_shape"]:
             self.veh_shape = QRectF(
                 self.veh_size * 0.5,
@@ -78,18 +76,14 @@ class Realtime(Overlay):
         )
 
         self.map_path = None
-        self.sector_path_sfline = None
-        self.sector_path_sector1 = None
-        self.sector_path_sector2 = None
+        self.sfinish_path = None
+        self.sector_path = None
         self.create_map_path()
 
         # Config canvas
         self.resize(self.area_size, self.area_size)
         self.pixmap_background = QPixmap(self.area_size, self.area_size)
         self.pixmap_mask = QPixmap(self.area_size, self.area_size)
-
-        self.pen = QPen()
-        self.pen.setJoinStyle(Qt.RoundJoin)
 
         self.pixmap_veh_player = self.draw_vehicle_pixmap("player")
         self.pixmap_veh_leader = self.draw_vehicle_pixmap("leader")
@@ -99,42 +93,53 @@ class Realtime(Overlay):
         self.pixmap_veh_laps_behind = self.draw_vehicle_pixmap("laps_behind")
         self.pixmap_veh_same_lap = self.draw_vehicle_pixmap("same_lap")
 
+        self.pen_outline = QPen()
+        self.pen_outline.setJoinStyle(Qt.RoundJoin)
+        self.pen_outline.setWidth(self.wcfg["map_width"] + self.wcfg["map_outline_width"])
+        self.pen_outline.setColor(self.wcfg["map_outline_color"])
+        self.pen_map = QPen()
+        self.pen_map.setJoinStyle(Qt.RoundJoin)
+        self.pen_map.setWidth(self.wcfg["map_width"])
+        self.pen_map.setColor(self.wcfg["map_color"])
+        self.pen_sfinish = QPen()
+        self.pen_sfinish.setWidth(self.wcfg["start_line_width"])
+        self.pen_sfinish.setColor(self.wcfg["start_line_color"])
+        self.pen_sector = QPen()
+        self.pen_sector.setWidth(self.wcfg["sector_line_width"])
+        self.pen_sector.setColor(self.wcfg["sector_line_color"])
+        self.pen_text = QPen()
+        self.pen_text.setColor(self.wcfg["font_color"])
+
         # Last data
         self.last_veh_data_version = None
-
-        self.last_coords_hash = -1
+        self.last_modified = 0
         self.map_scaled = None
-        self.map_margin = self.wcfg["map_width"] + self.wcfg["map_outline_width"]
         self.map_size = 1,1
         self.map_offset = 0,0
 
         self.draw_background()
         self.draw_map_mask_pixmap()
-        self.update_map(0, 1)
+        self.update_map(-1)
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
 
+            # Map
+            modified = minfo.mapping.lastModified
+            self.update_map(modified)
+
             # Vehicles
             veh_data_version = minfo.vehicles.dataSetVersion
-            self.update_vehicle(veh_data_version, self.last_veh_data_version)
-            self.last_veh_data_version = veh_data_version
-
-            # Map
-            coords_hash = minfo.mapping.coordinatesHash
-            self.update_map(coords_hash, self.last_coords_hash)
-            self.last_coords_hash = coords_hash
+            if self.last_veh_data_version != veh_data_version:
+                self.last_veh_data_version = veh_data_version
+                self.update()
 
     # GUI update methods
-    def update_vehicle(self, curr, last):
-        """Vehicle sort & update"""
-        if curr != last:
-            self.update()
-
-    def update_map(self, curr, last):
+    def update_map(self, data):
         """Map update"""
-        if curr != last:
+        if self.last_modified != data:
+            self.last_modified = data
             self.create_map_path(minfo.mapping.coordinates)
 
     def paintEvent(self, event):
@@ -186,15 +191,11 @@ class Realtime(Overlay):
 
     def create_map_path(self, raw_coords=None):
         """Create map path"""
-        map_path = QPainterPath()
-        sector_path_sfline = QPainterPath()
-        sector_path_sector1 = QPainterPath()
-        sector_path_sector2 = QPainterPath()
-
         if raw_coords:
+            map_path = QPainterPath()
             dist = calc.distance(raw_coords[0], raw_coords[-1])
             (self.map_scaled, self.map_size, self.map_offset
-             ) = calc.zoom_map(raw_coords, self.global_scale, self.map_margin)
+             ) = calc.zoom_map(raw_coords, self.global_scale)
             for index, coords in enumerate(self.map_scaled):
                 if index == 0:
                     map_path.moveTo(*coords)
@@ -204,33 +205,30 @@ class Realtime(Overlay):
             if dist < 500:
                 map_path.closeSubpath()
             # Create start/finish path
-            sector_path_sfline = self.create_sector_line(
-                sector_path_sfline, self.wcfg["start_line_length"], 0, 1)
+            sfinish_path = QPainterPath()
+            self.create_sector_path(
+                sfinish_path, self.map_scaled, 0, self.wcfg["start_line_length"])
             # Create sectors paths
             sectors_index = minfo.mapping.sectors
-            if sectors_index and all(sectors_index):
-                sector_path_sector1 = self.create_sector_line(
-                    sector_path_sector1, self.wcfg["sector_line_length"],
-                    sectors_index[0], sectors_index[0] + 1)
-                sector_path_sector2 = self.create_sector_line(
-                    sector_path_sector2, self.wcfg["sector_line_length"],
-                    sectors_index[1], sectors_index[1] + 1)
+            if isinstance(sectors_index, tuple):
+                sector_path = QPainterPath()
+                for index in sectors_index:
+                    self.create_sector_path(
+                        sector_path, self.map_scaled, index, self.wcfg["sector_line_length"]
+                    )
             else:
-                sector_path_sector1.addPolygon(POLYGON_NONE)
-                sector_path_sector2.addPolygon(POLYGON_NONE)
+                sector_path = None
         else:
             self.map_scaled = None
             self.map_size = 1,1
             self.map_offset = 0,0
-            map_path.addPolygon(POLYGON_NONE)
-            sector_path_sfline.addPolygon(POLYGON_NONE)
-            sector_path_sector1.addPolygon(POLYGON_NONE)
-            sector_path_sector2.addPolygon(POLYGON_NONE)
+            map_path = None
+            sfinish_path = None
+            sector_path = None
 
         self.map_path = map_path
-        self.sector_path_sfline = sector_path_sfline
-        self.sector_path_sector1 = sector_path_sector1
-        self.sector_path_sector2 = sector_path_sector2
+        self.sfinish_path = sfinish_path
+        self.sector_path = sector_path
 
     def draw_map_image(self, painter):
         """Draw map image"""
@@ -243,42 +241,29 @@ class Realtime(Overlay):
             api.read.vehicle.position_longitudinal() * self.global_scale - self.map_offset[0],
             api.read.vehicle.position_lateral() * self.global_scale - self.map_offset[1]
         )
-        plr_ori_deg = calc.rad2deg(plr_ori_rad)
-        center_offset_x = self.area_center - rot_pos_x
-        center_offset_y = self.veh_offset_y - rot_pos_y
+        # Apply center offset & rotation
+        painter.translate(self.area_center - rot_pos_x, self.veh_offset_y - rot_pos_y)
+        painter.rotate(calc.rad2deg(plr_ori_rad))
 
-        # Apply transform rotation
-        painter.resetTransform()
-        painter.translate(center_offset_x, center_offset_y)
-        painter.rotate(plr_ori_deg)
+        if self.map_path:
+            # Draw map outline
+            if self.wcfg["map_outline_width"] > 0:
+                painter.setPen(self.pen_outline)
+                painter.drawPath(self.map_path)
 
-        # Draw map outline
-        if self.wcfg["map_outline_width"] > 0:
-            self.pen.setWidth(self.map_margin)
-            self.pen.setColor(self.wcfg["map_outline_color"])
-            painter.setPen(self.pen)
+            # Draw map
+            painter.setPen(self.pen_map)
             painter.drawPath(self.map_path)
 
-        # Draw map
-        self.pen.setWidth(self.wcfg["map_width"])
-        self.pen.setColor(self.wcfg["map_color"])
-        painter.setPen(self.pen)
-        painter.drawPath(self.map_path)
-
         # Draw start/finish line
-        if self.wcfg["show_start_line"]:
-            self.pen.setWidth(self.wcfg["start_line_width"])
-            self.pen.setColor(self.wcfg["start_line_color"])
-            painter.setPen(self.pen)
-            painter.drawPath(self.sector_path_sfline)
+        if self.wcfg["show_start_line"] and self.sfinish_path:
+            painter.setPen(self.pen_sfinish)
+            painter.drawPath(self.sfinish_path)
 
         # Draw sectors line
-        if self.wcfg["show_sector_line"]:
-            self.pen.setWidth(self.wcfg["sector_line_width"])
-            self.pen.setColor(self.wcfg["sector_line_color"])
-            painter.setPen(self.pen)
-            painter.drawPath(self.sector_path_sector1)
-            painter.drawPath(self.sector_path_sector2)
+        if self.wcfg["show_sector_line"] and self.sector_path:
+            painter.setPen(self.pen_sector)
+            painter.drawPath(self.sector_path)
 
         painter.resetTransform()
 
@@ -286,45 +271,42 @@ class Realtime(Overlay):
         """Draw vehicles"""
         painter.setRenderHint(QPainter.SmoothPixmapTransform, True)
         if self.wcfg["show_vehicle_standings"]:
-            painter.setFont(self.font)
-            self.pen.setColor(self.wcfg["font_color"])
-            painter.setPen(self.pen)
+            painter.setPen(self.pen_text)
 
         # Draw vehicle within view range
         for index in veh_draw_order:
+            data = veh_info[index]
             # Draw player vehicle
-            if veh_info[index].isPlayer:
+            if data.isPlayer:
                 painter.translate(self.area_center, self.veh_offset_y)
                 painter.drawPixmap(-self.veh_size, -self.veh_size, self.pixmap_veh_player)
 
                 if self.wcfg["show_vehicle_standings"]:
                     painter.drawText(
                         self.veh_text_shape, Qt.AlignCenter,
-                        f"{veh_info[index].positionOverall}")
+                        f"{data.positionOverall}")
                 painter.resetTransform()
 
             # Draw opponent vehicle in view range
-            elif veh_info[index].relativeStraightDistance < self.view_range:
+            elif data.relativeStraightDistance < self.view_range:
                 # Rotated position relative to player
-                pos_x, pos_y = (  # position = raw position * global scale + offset
-                    veh_info[index].relativeRotatedPosXY[0] * self.global_scale + self.area_center,
-                    veh_info[index].relativeRotatedPosXY[1] * self.global_scale + self.veh_offset_y
-                )
+                # Position = raw position * global scale + offset
+                pos_x = data.relativeRotatedPositionX * self.global_scale + self.area_center
+                pos_y = data.relativeRotatedPositionY * self.global_scale + self.veh_offset_y
                 painter.translate(pos_x, pos_y)
 
                 if not self.wcfg["show_circle_vehicle_shape"]:
-                    painter.rotate(
-                        calc.rad2deg(-veh_info[index].relativeOrientationXYRadians))
+                    painter.rotate(calc.rad2deg(-data.relativeOrientationRadians))
                 painter.drawPixmap(
                     -self.veh_size, -self.veh_size,
-                    self.color_veh_pixmap(veh_info[index]))
+                    self.color_veh_pixmap(data))
 
                 if self.wcfg["show_vehicle_standings"]:
                     painter.resetTransform()
                     painter.translate(pos_x, pos_y)
                     painter.drawText(
                         self.veh_text_shape, Qt.AlignCenter,
-                        f"{veh_info[index].positionOverall}")
+                        f"{data.positionOverall}")
                 painter.resetTransform()
 
     def draw_map_mask_pixmap(self):
@@ -332,20 +314,12 @@ class Realtime(Overlay):
         self.pixmap_mask.fill(Qt.black)
         painter = QPainter(self.pixmap_mask)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
-
-        # Draw map mask
         painter.setCompositionMode(QPainter.CompositionMode_SourceIn)
-        rad_gra = QRadialGradient(
-            self.area_center,
-            self.area_center,
-            self.area_center,
-            self.area_center,
-            self.area_center
-        )
-        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_in_radius"]), Qt.transparent)
-        rad_gra.setColorAt(calc.zero_one_range(self.wcfg["fade_out_radius"]), Qt.black)
+        rad_gra = QRadialGradient(self.area_center, self.area_center, self.area_center)
+        rad_gra.setColorAt(calc.zero_one(self.wcfg["fade_in_radius"]), Qt.transparent)
+        rad_gra.setColorAt(calc.zero_one(self.wcfg["fade_out_radius"]), Qt.black)
         painter.setBrush(rad_gra)
+        painter.setPen(Qt.NoPen)
         painter.drawEllipse(0, 0, self.area_size, self.area_size)
 
     def draw_vehicle_pixmap(self, suffix):
@@ -385,14 +359,15 @@ class Realtime(Overlay):
             return self.pixmap_veh_laps_behind
         return self.pixmap_veh_same_lap
 
-    def create_sector_line(self, sector_path, length, node_idx1, node_idx2):
-        """Create sector line"""
+    def create_sector_path(self, path, dataset, node_index, length):
+        """Create sector line path"""
+        max_node = len(dataset) - 1
         pos_x1, pos_y1, pos_x2, pos_y2 = calc.line_intersect_coords(
-            self.map_scaled[node_idx1],  # point a
-            self.map_scaled[node_idx2],  # point b
+            dataset[calc.zero_max(node_index, max_node)],  # point a
+            dataset[calc.zero_max(node_index + 1, max_node)],  # point b
             1.57079633,  # 90 degree rotation
             length
         )
-        sector_path.moveTo(pos_x1, pos_y1)
-        sector_path.lineTo(pos_x2, pos_y2)
-        return sector_path
+        path.moveTo(pos_x1, pos_y1)
+        path.lineTo(pos_x2, pos_y2)
+        return path

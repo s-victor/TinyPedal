@@ -23,11 +23,11 @@ In-game setup:
 1. Enabled `rFactor2SharedMemoryMapPlugin64` plugin in game option. For `Le Mans Ultimate`, user may have to manually enable plugin by editing `CustomPluginVariables.JSON` file (set `" Enabled"` value to `1` ) under `Le Mans Ultimate\UserData\player` folder. After plugin enabled, must restart game to take effect.
 2. Set game display mode to `Borderless` or `Windowed` mode. `Fullscreen` mode is not supported.
 
-
 ## Quick Start
-1. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract and run `tinypedal.exe`.  
+1. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract it into a clean folder, and run `tinypedal.exe`.  
+Note, DO NOT extract TinyPedal into `system` or `game` folder, such as `Program Files` or `rFactor 2` folder, otherwise it may fail to run.  
 Alternatively, run TinyPedal from source, see [Run from source](#run-from-source) section for details.  
-For Linux user, please follow [Running on Linux](#running-on-linux) section for instruction.
+For Linux user, please follow [Running on Linux](#running-on-linux) section for instruction.  
 
 2. A tray icon will appear at system tray. If not shown, check hidden tray icon. `Right Click` on tray icon will bring up context menu.
 
@@ -35,15 +35,16 @@ For Linux user, please follow [Running on Linux](#running-on-linux) section for 
 
 4. Overlay can be Locked or Unlocked by clicking `Lock Overlay` from tray menu. While Unlocked, click on overlay to drag around.
 
-5. Widgets can be Enabled or Disabled by clicking `Config` and open main window from tray menu.
+5. Widgets can be Enabled or Disabled from `Widget` panel in main window. `Right Click` on tray icon and select `Config` to show main window if it is hidden.
 
 6. To quit APP, `Right Click` on tray icon and select `Quit`; or, click `Overlay` menu from main window and select `Quit`.
 
+See [Frequently Asked Questions](https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions) and [User Guide](https://github.com/s-victor/TinyPedal/wiki/User-Guide) for more info.
 
 ## Run from source
 
 ### Dependencies:
-* [Python](https://www.python.org/) 3.8 or higher
+* [Python](https://www.python.org/) 3.8, 3.9, or 3.10
 * PySide2
 * pyRfactor2SharedMemory
 * psutil
@@ -67,7 +68,6 @@ It includes a few required changes for TinyPedal.
 Note: if using `Git` tool to clone this repository, run command with `--recursive` to also clone submodule, such as:  
 `git clone --recursive https://github.com/s-victor/TinyPedal.git`
 
-
 ## Build executable for Windows
 Executable file can be built with [py2exe](http://www.py2exe.org).
 
@@ -81,10 +81,9 @@ After building completed, executable file can be found in `dist\TinyPedal` folde
 
 Note: the build script only supports py2exe `v0.12.0.0` or higher.
 
-
 ## Running on Linux
 
-The procedure described in the **Run from source** section is mostly valid,
+The procedure described in the [Run from source](#run-from-source) section is mostly valid,
 except some differences in the dependencies, and that no executable can be
 built. The differences are explained here.
 
@@ -130,14 +129,14 @@ You can run the script as (it doesn't support any arguments or options):
 
 ### Known issues
 
-- Widgets don't appear over the game window in KDE. Workaround: enable
-  bypassing the window manager in the menu Config -> Compatibility.
-- Transparency of widgets doesn't work when desktop compositing is disabled.
-  Workaround: enable window manager compositing in your DE.
+- Widgets don't appear over the game window in KDE. Workaround: enable `Bypass Window Manager` option in `Compatibility` dialog from `Config` menu in main window.
+- Transparency of widgets doesn't work when desktop compositing is disabled. Workaround: enable `window manager compositing` in your DE.
 
 ## License
 
-TinyPedal is licensed under the GNU General Public License v3.0 or later. See [LICENSE.txt](./LICENSE.txt) for full text.
+Copyright (C) 2022-2025 TinyPedal developers
+
+TinyPedal is free software and licensed under the terms of the GNU General Public License as published by the Free Software Foundation, either version 3 of the License, or (at your option) any later version. TinyPedal is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY. See [LICENSE.txt](./LICENSE.txt) for more info.
 
 TinyPedal icon, as well as image files located in `images` folder, are licensed under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
 
@@ -145,4 +144,4 @@ Licenses and notices file for third-party software are located in `docs\licenses
 
 ## Credits
 
-See [docs\contributors.md](./docs/contributors.md) file for full list of contributors.
+See [docs\contributors.md](./docs/contributors.md) file for full list of developers and contributors.

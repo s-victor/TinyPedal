@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -21,36 +21,35 @@ Weather function
 """
 
 from __future__ import annotations
+
 from functools import lru_cache
 
-MAX_MINUTES = 9999
-MIN_TEMPERATURE = -273
-DEFAULT = [(MAX_MINUTES, -1, MIN_TEMPERATURE, -1)]
-RF2_FORECAST_NODES = ("START", "NODE_25", "NODE_50", "NODE_75", "FINISH")
+from .const_common import ABS_ZERO_CELSIUS, MAX_FORECAST_MINUTES
+from .module_info import WeatherNode
+
+FORECAST_DEFAULT = [WeatherNode(MAX_FORECAST_MINUTES, -1, ABS_ZERO_CELSIUS, -1)]
+FORECAST_NODES_RF2 = ("START", "NODE_25", "NODE_50", "NODE_75", "FINISH")
 
 
-def forecast_rf2(data: dict) -> list[tuple]:
+def forecast_rf2(data: dict) -> list[WeatherNode]:
     """Get value from weather forecast dictionary, output 5 api data"""
     try:
         output = [
-            (round(index * 0.2, 1),                                   # 0 - fraction start time
-            data[weather]["WNV_SKY"]["currentValue"],                 # 1 - sky type index
-            round(data[weather]["WNV_TEMPERATURE"]["currentValue"]),  # 2 - temperature
-            round(data[weather]["WNV_RAIN_CHANCE"]["currentValue"]),  # 3 - rain chance
-            ) for index, weather in enumerate(RF2_FORECAST_NODES)]
+            WeatherNode(
+                round(index * 0.2, 1),
+                data[node]["WNV_SKY"]["currentValue"],
+                round(data[node]["WNV_TEMPERATURE"]["currentValue"]),
+                round(data[node]["WNV_RAIN_CHANCE"]["currentValue"]),
+            )
+            for index, node in enumerate(FORECAST_NODES_RF2)
+        ]
     except (KeyError, TypeError):
-        output = DEFAULT * 5
+        output = FORECAST_DEFAULT
     return output
 
 
-def forecast_time_progress(
-    session_percent: float, session_length: float, elapsed_time: float) -> float:
-    """Forecast estimated time progress"""
-    return session_percent * session_length - elapsed_time
-
-
 @lru_cache(maxsize=2)
-def sky_type_correction(sky_type: int, raininess: float) -> int:
+def forecast_sky_type(sky_type: int, raininess: float) -> int:
     """Correct current sky type index based on current raininess
 
     Rain percent:

@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,23 +20,21 @@
 Fuel Widget
 """
 
-from PySide2.QtCore import Qt, QRectF
-from PySide2.QtGui import QPainter, QPixmap
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
 from ..module_info import minfo
+from ..units import set_unit_fuel
 from ._base import Overlay
-
-WIDGET_NAME = "fuel"
+from ._painter import FuelLevelBar
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
@@ -45,23 +43,11 @@ class Realtime(Overlay):
         # Config variable
         text_def = "-.--"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         self.bar_width = max(self.wcfg["bar_width"], 3)
         style_width = font_m.width * self.bar_width + bar_padx
 
-        self.decimals = tuple(
-            map(self.decimal_range, (
-            self.wcfg["decimal_places_end"],  # 0
-            self.wcfg["decimal_places_remain"],  # 1
-            self.wcfg["decimal_places_refuel"],  # 2
-            self.wcfg["decimal_places_used"],  # 3
-            self.wcfg["decimal_places_delta"],  # 4
-            self.wcfg["decimal_places_early"],  # 5
-            self.wcfg["decimal_places_laps"],  # 6
-            self.wcfg["decimal_places_minutes"],  # 7
-            self.wcfg["decimal_places_save"],  # 8
-            self.wcfg["decimal_places_pits"],  # 9
-        )))
+        # Config units
+        self.unit_fuel = set_unit_fuel(self.cfg.units["fuel_unit"])
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -71,16 +57,8 @@ class Realtime(Overlay):
         )
 
         # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
-
-        layout_upper = QGridLayout()
-        layout_lower = QGridLayout()
-        layout_upper.setSpacing(0)
-        layout_lower.setSpacing(0)
+        layout_upper = self.set_grid_layout()
+        layout_lower = self.set_grid_layout()
         layout.addLayout(layout_upper, self.wcfg["column_index_upper"], 0)
         layout.addLayout(layout_lower, self.wcfg["column_index_lower"], 0)
 
@@ -92,9 +70,13 @@ class Realtime(Overlay):
                 font_size=int(self.wcfg['font_size'] * 0.8)
             )
             caption_upper = (
-                self.wcfg["caption_text_end"],
+                self.wcfg["caption_text_pits"],
                 self.wcfg["caption_text_remain"],
-                self.wcfg["caption_text_refuel"],
+                (
+                    self.wcfg["caption_text_absolute_refuel"]
+                    if self.wcfg["show_absolute_refueling"]
+                    else self.wcfg["caption_text_refuel"]
+                ),
                 self.wcfg["caption_text_used"],
                 self.wcfg["caption_text_delta"],
             )
@@ -103,7 +85,7 @@ class Realtime(Overlay):
                 self.wcfg["caption_text_laps"],
                 self.wcfg["caption_text_minutes"],
                 self.wcfg["caption_text_save"],
-                self.wcfg["caption_text_pits"],
+                self.wcfg["caption_text_end"],
             )
 
             row_idx_upper = 2 * self.wcfg["swap_upper_caption"]
@@ -111,6 +93,7 @@ class Realtime(Overlay):
                 cap_temp = self.set_qlabel(
                     text=text_caption,
                     style=bar_style_desc,
+                    fixed_width=style_width,
                 )
                 layout_upper.addWidget(cap_temp, row_idx_upper, index)
 
@@ -119,22 +102,24 @@ class Realtime(Overlay):
                 cap_temp = self.set_qlabel(
                     text=text_caption,
                     style=bar_style_desc,
+                    fixed_width=style_width,
                 )
                 layout_lower.addWidget(cap_temp, row_idx_lower, index)
 
-        # Estimated end fuel
-        bar_style_fuel_end = self.set_qss(
+        # Estimated end remaining
+        bar_style_end = self.set_qss(
             fg_color=self.wcfg["font_color_end"],
             bg_color=self.wcfg["bkg_color_end"]
         )
-        self.bar_fuel_end = self.set_qlabel(
+        self.bar_end = self.set_qlabel(
             text=text_def,
-            style=bar_style_fuel_end,
+            style=bar_style_end,
             fixed_width=style_width,
         )
+        self.bar_end.decimals = max(self.wcfg["decimal_places_end"], 0)
 
-        # Remaining fuel
-        self.bar_style_fuel_curr = (
+        # Remaining
+        self.bar_style_curr = (
             self.set_qss(
                 fg_color=self.wcfg["font_color_remain"],
                 bg_color=self.wcfg["bkg_color_remain"]),
@@ -142,14 +127,15 @@ class Realtime(Overlay):
                 fg_color=self.wcfg["font_color_remain"],
                 bg_color=self.wcfg["warning_color_low_fuel"])
         )
-        self.bar_fuel_curr = self.set_qlabel(
+        self.bar_curr = self.set_qlabel(
             text=text_def,
-            style=self.bar_style_fuel_curr[0],
+            style=self.bar_style_curr[0],
             fixed_width=style_width,
         )
+        self.bar_curr.decimals = max(self.wcfg["decimal_places_remain"], 0)
 
-        # Total needed fuel
-        self.bar_style_fuel_need = (
+        # Total needed
+        self.bar_style_need = (
             self.set_qss(
                 fg_color=self.wcfg["font_color_refuel"],
                 bg_color=self.wcfg["bkg_color_refuel"]),
@@ -157,258 +143,196 @@ class Realtime(Overlay):
                 fg_color=self.wcfg["font_color_refuel"],
                 bg_color=self.wcfg["warning_color_low_fuel"])
         )
-        self.bar_fuel_need = self.set_qlabel(
+        self.bar_need = self.set_qlabel(
             text=text_def,
-            style=self.bar_style_fuel_need[0],
+            style=self.bar_style_need[0],
             fixed_width=style_width,
         )
+        self.bar_need.decimals = max(self.wcfg["decimal_places_refuel"], 0)
 
-        # Estimated fuel consumption
-        bar_style_fuel_used = self.set_qss(
+        # Estimated consumption
+        bar_style_used = self.set_qss(
             fg_color=self.wcfg["font_color_used"],
             bg_color=self.wcfg["bkg_color_used"]
         )
-        self.bar_fuel_used = self.set_qlabel(
+        self.bar_used = self.set_qlabel(
             text=text_def,
-            style=bar_style_fuel_used,
+            style=bar_style_used,
             fixed_width=style_width,
         )
+        self.bar_used.decimals = max(self.wcfg["decimal_places_used"], 0)
 
-        # Delta fuel consumption
-        bar_style_fuel_delta = self.set_qss(
+        # Delta consumption
+        bar_style_delta = self.set_qss(
             fg_color=self.wcfg["font_color_delta"],
             bg_color=self.wcfg["bkg_color_delta"]
         )
-        self.bar_fuel_delta = self.set_qlabel(
+        self.bar_delta = self.set_qlabel(
             text=text_def,
-            style=bar_style_fuel_delta,
+            style=bar_style_delta,
             fixed_width=style_width,
         )
+        self.bar_delta.decimals = max(self.wcfg["decimal_places_delta"], 0)
 
         # Estimate pit stop counts when pitting at end of current lap
-        bar_style_fuel_early = self.set_qss(
+        bar_style_early = self.set_qss(
             fg_color=self.wcfg["font_color_early"],
             bg_color=self.wcfg["bkg_color_early"]
         )
-        self.bar_fuel_early = self.set_qlabel(
+        self.bar_early = self.set_qlabel(
             text=text_def,
-            style=bar_style_fuel_early,
+            style=bar_style_early,
             fixed_width=style_width,
         )
+        self.bar_early.decimals = max(self.wcfg["decimal_places_early"], 0)
 
-        # Estimated laps current fuel can last
-        bar_style_fuel_laps = self.set_qss(
+        # Estimated laps can last
+        bar_style_laps = self.set_qss(
             fg_color=self.wcfg["font_color_laps"],
             bg_color=self.wcfg["bkg_color_laps"]
         )
-        self.bar_fuel_laps = self.set_qlabel(
+        self.bar_laps = self.set_qlabel(
             text=text_def,
-            style=bar_style_fuel_laps,
+            style=bar_style_laps,
             fixed_width=style_width,
         )
+        self.bar_laps.decimals = max(self.wcfg["decimal_places_laps"], 0)
 
-        # Estimated minutes current fuel can last
-        bar_style_fuel_mins = self.set_qss(
+        # Estimated minutes can last
+        bar_style_mins = self.set_qss(
             fg_color=self.wcfg["font_color_minutes"],
             bg_color=self.wcfg["bkg_color_minutes"]
         )
-        self.bar_fuel_mins = self.set_qlabel(
+        self.bar_mins = self.set_qlabel(
             text=text_def,
-            style=bar_style_fuel_mins,
+            style=bar_style_mins,
             fixed_width=style_width,
         )
+        self.bar_mins.decimals = max(self.wcfg["decimal_places_minutes"], 0)
 
-        # Estimated one less pit fuel consumption
-        bar_style_fuel_save = self.set_qss(
+        # Estimated one less pit consumption
+        bar_style_save = self.set_qss(
             fg_color=self.wcfg["font_color_save"],
             bg_color=self.wcfg["bkg_color_save"]
         )
-        self.bar_fuel_save = self.set_qlabel(
+        self.bar_save = self.set_qlabel(
             text=text_def,
-            style=bar_style_fuel_save,
+            style=bar_style_save,
             fixed_width=style_width,
         )
+        self.bar_save.decimals = max(self.wcfg["decimal_places_save"], 0)
 
         # Estimate pit stop counts when pitting at end of current stint
-        bar_style_fuel_pits = self.set_qss(
+        bar_style_pits = self.set_qss(
             fg_color=self.wcfg["font_color_pits"],
             bg_color=self.wcfg["bkg_color_pits"]
         )
-        self.bar_fuel_pits = self.set_qlabel(
+        self.bar_pits = self.set_qlabel(
             text=text_def,
-            style=bar_style_fuel_pits,
+            style=bar_style_pits,
             fixed_width=style_width,
         )
+        self.bar_pits.decimals = max(self.wcfg["decimal_places_pits"], 0)
 
         # Fuel level bar
         if self.wcfg["show_fuel_level_bar"]:
-            self.fuel_level_width = (font_m.width * self.bar_width + bar_padx) * 5
-            fuel_level_height = max(self.wcfg["fuel_level_bar_height"], 1)
-            self.rect_fuel_left = QRectF(0, 0, 0, fuel_level_height)
-            self.rect_fuel_start = QRectF(
-                0, 0,
-                max(self.wcfg["starting_fuel_level_mark_width"], 1),
-                fuel_level_height
+            self.bar_level = FuelLevelBar(
+                self,
+                width=(font_m.width * self.bar_width + bar_padx) * 5,
+                height=max(self.wcfg["fuel_level_bar_height"], 1),
+                start_mark_width=max(self.wcfg["starting_fuel_level_mark_width"], 1),
+                refill_mark_width=max(self.wcfg["refueling_level_mark_width"], 1),
+                input_color=self.wcfg["highlight_color_fuel_level"],
+                bg_color=self.wcfg["bkg_color_fuel_level"],
+                start_mark_color=self.wcfg["starting_fuel_level_mark_color"],
+                refill_mark_color=self.wcfg["refueling_level_mark_color"],
+                show_start_mark=self.wcfg["show_starting_fuel_level_mark"],
+                show_refill_mark=self.wcfg["show_refueling_level_mark"],
             )
-            self.rect_fuel_refuel = QRectF(
-                0, 0,
-                max(self.wcfg["refueling_level_mark_width"], 1),
-                fuel_level_height
-            )
-            self.fuel_level = self.set_qlabel(
-                fixed_width=self.fuel_level_width,
-                fixed_height=fuel_level_height,
-            )
-            self.pixmap_fuel_level = QPixmap(self.fuel_level_width, fuel_level_height)
-            self.draw_fuel_level(0, 0, 0)
-            layout.addWidget(self.fuel_level, self.wcfg["column_index_middle"], 0)
+            layout.addWidget(self.bar_level, self.wcfg["column_index_middle"], 0)
 
         # Set layout
-        layout_upper.addWidget(self.bar_fuel_end, 1, 0)
-        layout_upper.addWidget(self.bar_fuel_curr, 1, 1)
-        layout_upper.addWidget(self.bar_fuel_need, 1, 2)
-        layout_upper.addWidget(self.bar_fuel_used, 1, 3)
-        layout_upper.addWidget(self.bar_fuel_delta, 1, 4)
-        layout_lower.addWidget(self.bar_fuel_early, 1, 0)
-        layout_lower.addWidget(self.bar_fuel_laps, 1, 1)
-        layout_lower.addWidget(self.bar_fuel_mins, 1, 2)
-        layout_lower.addWidget(self.bar_fuel_save, 1, 3)
-        layout_lower.addWidget(self.bar_fuel_pits, 1, 4)
-
-        # Last data
-        self.last_amount_end = None
-        self.last_amount_curr = None
-        self.last_amount_need = None
-        self.last_used_last = None
-        self.last_delta_fuel = None
-        self.last_est_pits_early = None
-        self.last_est_runlaps = None
-        self.last_est_runmins = None
-        self.last_fuel_save = None
-        self.last_est_pits_end = None
-        self.last_level_state = None
+        layout_upper.addWidget(self.bar_pits, 1, 0)
+        layout_upper.addWidget(self.bar_curr, 1, 1)
+        layout_upper.addWidget(self.bar_need, 1, 2)
+        layout_upper.addWidget(self.bar_used, 1, 3)
+        layout_upper.addWidget(self.bar_delta, 1, 4)
+        layout_lower.addWidget(self.bar_early, 1, 0)
+        layout_lower.addWidget(self.bar_laps, 1, 1)
+        layout_lower.addWidget(self.bar_mins, 1, 2)
+        layout_lower.addWidget(self.bar_save, 1, 3)
+        layout_lower.addWidget(self.bar_end, 1, 4)
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
+            is_low_fuel = minfo.fuel.estimatedLaps <= self.wcfg["low_fuel_lap_threshold"]
 
-            # Estimated end fuel
-            amount_end = f"{self.fuel_units(minfo.fuel.amountEndStint):.{self.decimals[0]}f}"
-            self.update_fuel(
-                self.bar_fuel_end, amount_end, self.last_amount_end)
-            self.last_amount_end = amount_end
+            # Estimated end remaining
+            amount_end = self.unit_fuel(minfo.fuel.amountEndStint)
+            self.update_fuel(self.bar_end, amount_end)
 
-            # Remaining fuel
-            amount_curr = f"{self.fuel_units(minfo.fuel.amountCurrent):.{self.decimals[1]}f}"
-            self.update_fuel(
-                self.bar_fuel_curr, amount_curr, self.last_amount_curr,
-                self.bar_style_fuel_curr[
-                    minfo.fuel.estimatedLaps <= self.wcfg["low_fuel_lap_threshold"]])
-            self.last_amount_curr = amount_curr
+            # Remaining
+            amount_curr = self.unit_fuel(minfo.fuel.amountCurrent)
+            self.update_fuel(self.bar_curr, amount_curr, self.bar_style_curr[is_low_fuel])
 
-            # Total needed fuel
-            amount_need = f"{calc.sym_range(self.fuel_units(minfo.fuel.amountNeeded), 9999):+.{self.decimals[2]}f}"
-            self.update_fuel(
-                self.bar_fuel_need, amount_need, self.last_amount_need,
-                self.bar_style_fuel_need[
-                minfo.fuel.estimatedLaps <= self.wcfg["low_fuel_lap_threshold"]])
-            self.last_amount_need = amount_need
+            # Total needed
+            if self.wcfg["show_absolute_refueling"]:
+                amount_need = calc.sym_max(self.unit_fuel(minfo.fuel.neededAbsolute), 9999)
+                self.update_fuel(self.bar_need, amount_need, self.bar_style_need[is_low_fuel])
+            else:
+                amount_need = calc.sym_max(self.unit_fuel(minfo.fuel.neededRelative), 9999)
+                self.update_fuel(self.bar_need, amount_need, self.bar_style_need[is_low_fuel], "+")
 
-            # Estimated fuel consumption
-            used_last = f"{self.fuel_units(minfo.fuel.estimatedConsumption):.{self.decimals[3]}f}"
-            self.update_fuel(
-                self.bar_fuel_used, used_last, self.last_used_last)
-            self.last_used_last = used_last
+            # Estimated consumption
+            used_last = self.unit_fuel(minfo.fuel.estimatedConsumption)
+            self.update_fuel(self.bar_used, used_last)
 
-            # Delta fuel consumption
-            delta_fuel = f"{self.fuel_units(minfo.fuel.deltaConsumption):+.{self.decimals[4]}f}"
-            self.update_fuel(
-                self.bar_fuel_delta, delta_fuel, self.last_delta_fuel)
-            self.last_delta_fuel = delta_fuel
+            # Delta consumption
+            delta_fuel = self.unit_fuel(minfo.fuel.deltaConsumption)
+            self.update_fuel(self.bar_delta, delta_fuel, None, "+")
 
             # Estimate pit stop counts when pitting at end of current lap
-            est_pits_early = f"{min(max(minfo.fuel.estimatedNumPitStopsEarly, 0), 99.99):.{self.decimals[5]}f}"
-            self.update_fuel(
-                self.bar_fuel_early, est_pits_early, self.last_est_pits_early)
-            self.last_est_pits_early = est_pits_early
+            est_pits_early = calc.zero_max(minfo.fuel.estimatedNumPitStopsEarly, 99.99)
+            self.update_fuel(self.bar_early, est_pits_early)
 
-            # Estimated laps current fuel can last
-            est_runlaps = f"{min(minfo.fuel.estimatedLaps, 9999):.{self.decimals[6]}f}"
-            self.update_fuel(
-                self.bar_fuel_laps, est_runlaps, self.last_est_runlaps)
-            self.last_est_runlaps = est_runlaps
+            # Estimated laps can last
+            est_runlaps = min(minfo.fuel.estimatedLaps, 9999)
+            self.update_fuel(self.bar_laps, est_runlaps)
 
-            # Estimated minutes current fuel can last
-            est_runmins = f"{min(minfo.fuel.estimatedMinutes, 9999):.{self.decimals[7]}f}"
-            self.update_fuel(
-                self.bar_fuel_mins, est_runmins, self.last_est_runmins)
-            self.last_est_runmins = est_runmins
+            # Estimated minutes can last
+            est_runmins = min(minfo.fuel.estimatedMinutes, 9999)
+            self.update_fuel(self.bar_mins, est_runmins)
 
-            # Estimated one less pit fuel consumption
-            fuel_save = f"{min(max(self.fuel_units(minfo.fuel.oneLessPitConsumption), 0), 99.99):.{self.decimals[8]}f}"
-            self.update_fuel(
-                self.bar_fuel_save, fuel_save, self.last_fuel_save)
-            self.last_fuel_save = fuel_save
+            # Estimated one less pit consumption
+            fuel_save = calc.zero_max(self.unit_fuel(minfo.fuel.oneLessPitConsumption), 99.99)
+            self.update_fuel(self.bar_save, fuel_save)
 
             # Estimate pit stop counts when pitting at end of current stint
-            est_pits_end = f"{min(max(minfo.fuel.estimatedNumPitStopsEnd, 0), 99.99):.{self.decimals[9]}f}"
-            self.update_fuel(
-                self.bar_fuel_pits, est_pits_end, self.last_est_pits_end)
-            self.last_est_pits_end = est_pits_end
+            est_pits_end = calc.zero_max(minfo.fuel.estimatedNumPitStopsEnd, 99.99)
+            self.update_fuel(self.bar_pits, est_pits_end)
 
             # Fuel level bar
             if self.wcfg["show_fuel_level_bar"]:
                 level_capacity = minfo.fuel.capacity
                 level_curr = minfo.fuel.amountCurrent
                 level_start = minfo.fuel.amountStart
-                level_refill = level_curr + minfo.fuel.amountNeeded
-
+                level_refill = level_curr + minfo.fuel.neededRelative
                 level_state = round(level_start * level_refill, 3)
-                if level_capacity and level_state != self.last_level_state:
-                    self.draw_fuel_level(
+                if level_capacity and self.bar_level.last != level_state:
+                    self.bar_level.last = level_state
+                    self.bar_level.update_input(
                         level_curr / level_capacity,
                         level_start / level_capacity,
                         level_refill / level_capacity,
                     )
-                    self.last_level_state = level_state
 
     # GUI update methods
-    def update_fuel(self, target_bar, curr, last, color=None):
+    def update_fuel(self, target, data, color=None, sign=""):
         """Update fuel data"""
-        if curr != last:
+        if target.last != data:
+            target.last = data
+            text = f"{data:{sign}.{target.decimals}f}"[:self.bar_width].strip(".")
+            target.setText(text)
             if color:  # low fuel warning
-                target_bar.setStyleSheet(color)
-            target_bar.setText(curr[:self.bar_width].strip("."))
-
-    def draw_fuel_level(self, fuel_curr, fuel_start, fuel_refill):
-        """Fuel level"""
-        self.pixmap_fuel_level.fill(self.wcfg["bkg_color_fuel_level"])
-        painter = QPainter(self.pixmap_fuel_level)
-        painter.setPen(Qt.NoPen)
-
-        # Update fuel level highlight
-        self.rect_fuel_left.setWidth(fuel_curr * self.fuel_level_width)
-        painter.fillRect(self.rect_fuel_left, self.wcfg["highlight_color_fuel_level"])
-
-        # Update starting fuel level mark
-        if self.wcfg["show_starting_fuel_level_mark"]:
-            self.rect_fuel_start.moveLeft(fuel_start * self.fuel_level_width)
-            painter.fillRect(self.rect_fuel_start, self.wcfg["starting_fuel_level_mark_color"])
-
-        if self.wcfg["show_refueling_level_mark"]:
-            self.rect_fuel_refuel.moveLeft(fuel_refill * self.fuel_level_width)
-            painter.fillRect(self.rect_fuel_refuel, self.wcfg["refueling_level_mark_color"])
-
-        self.fuel_level.setPixmap(self.pixmap_fuel_level)
-
-    # Additional methods
-    def fuel_units(self, fuel):
-        """2 different fuel unit conversion, default is Liter"""
-        if self.cfg.units["fuel_unit"] == "Gallon":
-            return calc.liter2gallon(fuel)
-        return fuel
-
-    @staticmethod
-    def decimal_range(value):
-        """Decimal place range"""
-        return min(max(int(value), 0), 3)
+                target.setStyleSheet(color)

@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,69 +20,77 @@
 Brake temperature Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtWidgets import QGridLayout
-
 from .. import calculation as calc
-from .. import heatmap as hmp
 from ..api_control import api
-from ..module_info import minfo
+from ..const_common import TEXT_NA, TEXT_PLACEHOLDER
+from ..heatmap import (
+    HEATMAP_DEFAULT_BRAKE,
+    load_heatmap_style,
+    select_brake_heatmap_name,
+    set_predefined_brake_name,
+)
+from ..units import set_unit_temperature
 from ._base import Overlay
-
-WIDGET_NAME = "brake_temperature"
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
+        layout = self.set_grid_layout(gap=self.wcfg["bar_gap"])
+        self.set_primary_layout(layout=layout)
 
         # Config font
         font_m = self.get_font_metrics(
             self.config_font(self.wcfg["font_name"], self.wcfg["font_size"]))
 
         # Config variable
-        text_def = "n/a"
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        bar_gap = self.wcfg["bar_gap"]
         inner_gap = self.wcfg["inner_gap"]
-        self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3)
+        self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3) + 0.0  # no decimal
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
-
         text_width = 3 + len(self.sign_text) + (self.cfg.units["temperature_unit"] == "Fahrenheit")
-        bar_width_temp = font_m.width * text_width + bar_padx
+
+        # Config units
+        self.unit_temp = set_unit_temperature(self.cfg.units["temperature_unit"])
 
         # Base style
-        self.heatmap = hmp.load_heatmap(self.wcfg["heatmap_name"], "brake_default")
         self.setStyleSheet(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
         )
 
-        # Create layout
-        layout = QGridLayout()
-        layout.setContentsMargins(0,0,0,0)  # remove border
-        layout.setSpacing(bar_gap)
-        layout.setAlignment(Qt.AlignLeft | Qt.AlignTop)
-        self.setLayout(layout)
+        # Heatmap style list: 0 - fl, 1 - fr, 2 - rl, 3 - rr
+        self.heatmap_styles = 4 * [
+            load_heatmap_style(
+                heatmap_name=self.wcfg["heatmap_name"],
+                default_name=HEATMAP_DEFAULT_BRAKE,
+                swap_style=not self.wcfg["swap_style"],
+                fg_color=self.wcfg["font_color_temperature"],
+                bg_color=self.wcfg["bkg_color_temperature"],
+            )
+        ]
 
         # Brake temperature
-        layout_btemp = QGridLayout()
-        layout_btemp.setSpacing(inner_gap)
+        layout_btemp = self.set_grid_layout(gap=inner_gap)
         bar_style_btemp = self.set_qss(
             fg_color=self.wcfg["font_color_temperature"],
             bg_color=self.wcfg["bkg_color_temperature"]
         )
-        self.bar_btemp = self.set_qlabel(
-            text=text_def,
+        self.bars_btemp = self.set_qlabel(
+            text=TEXT_NA,
             style=bar_style_btemp,
-            width=bar_width_temp,
+            width=font_m.width * text_width + bar_padx,
             count=4,
+            last=0,
         )
-        self.set_layout_quad(layout_btemp, self.bar_btemp)
+        self.set_grid_layout_quad(
+            layout=layout_btemp,
+            targets=self.bars_btemp,
+        )
         self.set_primary_orient(
             target=layout_btemp,
             column=self.wcfg["column_index_temperature"],
@@ -90,8 +98,7 @@ class Realtime(Overlay):
 
         # Average brake temperature
         if self.wcfg["show_average"]:
-            layout_btavg = QGridLayout()
-            layout_btavg.setSpacing(inner_gap)
+            layout_btavg = self.set_grid_layout(gap=inner_gap)
             self.bar_style_btavg = (
                 self.set_qss(
                     fg_color=self.wcfg["font_color_average"],
@@ -100,13 +107,17 @@ class Realtime(Overlay):
                     fg_color=self.wcfg["font_color_highlighted"],
                     bg_color=self.wcfg["bkg_color_highlighted"])
             )
-            self.bar_btavg = self.set_qlabel(
-                text=text_def,
+            self.bars_btavg = self.set_qlabel(
+                text=TEXT_NA,
                 style=self.bar_style_btavg[0],
-                width=bar_width_temp,
+                width=font_m.width * text_width + bar_padx,
                 count=4,
+                last=0,
             )
-            self.set_layout_quad(layout_btavg, self.bar_btavg)
+            self.set_grid_layout_quad(
+                layout=layout_btavg,
+                targets=self.bars_btavg,
+            )
             self.set_primary_orient(
                 target=layout_btavg,
                 column=self.wcfg["column_index_average"],
@@ -114,11 +125,10 @@ class Realtime(Overlay):
 
         # Last data
         self.checked = False
-        self.last_lap_stime = 0
+        self.btavg = [0] * 4
         self.btavg_samples = 1  # number of temperature samples
-
-        self.last_btemp = [-273.15] * 4
-        self.last_btavg = [0] * 4
+        self.last_class_name = None
+        self.last_lap_stime = 0
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -128,70 +138,90 @@ class Realtime(Overlay):
             if not self.checked:
                 self.checked = True
 
+            # Update heatmap style
+            if self.wcfg["enable_heatmap_auto_matching"]:
+                class_name = api.read.vehicle.class_name()
+                if self.last_class_name != class_name:
+                    self.last_class_name = class_name
+                    self.update_heatmap(class_name)
+
             # Brake temperature
             btemp = api.read.brake.temperature()
-            for idx in range(4):
-                self.update_btemp(self.bar_btemp[idx], btemp[idx], self.last_btemp[idx])
-                self.last_btemp[idx] = btemp[idx]
+            for brake_idx, bar_btemp in enumerate(self.bars_btemp):
+                self.update_btemp(bar_btemp, round(btemp[brake_idx]), brake_idx)
 
             # Brake average temperature
             if self.wcfg["show_average"]:
                 lap_stime = api.read.timing.start()
+                lap_etime = api.read.timing.elapsed()
 
                 if lap_stime != self.last_lap_stime:  # time stamp difference
                     self.last_lap_stime = lap_stime  # reset time stamp counter
                     self.btavg_samples = 1
-                    # Highlight reading
-                    for idx in range(4):
-                        self.update_btavg(self.bar_btavg[idx], self.last_btavg[idx], 0, 1)
+                    # Highlight reading, +0.000001 to un-highlight later in case no value change
+                    for bar_btavg in self.bars_btavg:
+                        self.update_btavg(bar_btavg, bar_btavg.last + 0.000001, True)
 
                 # Update average reading
+                not_highlight = lap_etime - self.last_lap_stime >= self.wcfg["highlight_duration"]
+                for brake_idx, bar_btavg in enumerate(self.bars_btavg):
+                    self.btavg[brake_idx] = calc.mean_iter(
+                        self.btavg[brake_idx], btemp[brake_idx], self.btavg_samples)
+                    if not_highlight:
+                        self.update_btavg(bar_btavg, round(self.btavg[brake_idx]))
                 self.btavg_samples += 1
-                for idx in range(4):
-                    btavg = calc.mean_iter(self.last_btavg[idx], btemp[idx], self.btavg_samples)
-                    if minfo.delta.lapTimeCurrent >= self.wcfg["highlight_duration"]:
-                        self.update_btavg(self.bar_btavg[idx], btavg, self.last_btavg[idx])
-                    self.last_btavg[idx] = btavg
 
         else:
             if self.checked:
                 self.checked = False
+                self.btavg = [0] * 4
                 self.btavg_samples = 1
-                self.last_btavg = [0] * 4
 
     # GUI update methods
-    def update_btemp(self, target_bar, curr, last):
+    def update_btemp(self, target, data, index):
         """Brake temperature"""
-        if round(curr) != round(last):
-            color_temp = hmp.select_color(self.heatmap, curr)
-            if self.wcfg["swap_style"]:
-                color = f"color: {color_temp};background: {self.wcfg['bkg_color_temperature']};"
+        if target.last != data:
+            target.last = data
+            if data < -100:
+                target.setText(TEXT_PLACEHOLDER)
             else:
-                color = f"color: {self.wcfg['font_color_temperature']};background: {color_temp};"
+                target.setText(f"{self.unit_temp(data):0{self.leading_zero}f}{self.sign_text}")
+            target.setStyleSheet(calc.select_grade(self.heatmap_styles[index], data))
 
-            target_bar.setText(self.format_temperature(curr))
-            target_bar.setStyleSheet(color)
-
-    def update_btavg(self, target_bar, curr, last, highlighted=0):
+    def update_btavg(self, target, data, highlighted=False):
         """Brake average temperature"""
-        if round(curr) != round(last):
-            target_bar.setText(self.format_temperature(curr))
-            target_bar.setStyleSheet(self.bar_style_btavg[highlighted])
-
-    # GUI generate methods
-    @staticmethod
-    def set_layout_quad(layout, bar_set, row_start=1, column_left=0, column_right=9):
-        """Set layout - quad
-
-        Default row index start from 1; reserve row index 0 for caption.
-        """
-        for idx in range(4):
-            layout.addWidget(bar_set[idx], row_start + (idx > 1),
-                column_left + (idx % 2) * column_right)
+        if target.last != data or highlighted:
+            target.last = data
+            if data < -100:
+                target.setText(TEXT_PLACEHOLDER)
+            else:
+                target.setText(f"{self.unit_temp(data):0{self.leading_zero}f}{self.sign_text}")
+            target.setStyleSheet(self.bar_style_btavg[highlighted])
 
     # Additional methods
-    def format_temperature(self, value):
-        """Format temperature"""
-        if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            return f"{calc.celsius2fahrenheit(value):0{self.leading_zero}.0f}{self.sign_text}"
-        return f"{value:0{self.leading_zero}.0f}{self.sign_text}"
+    def update_heatmap(self, class_name: str):
+        """Update heatmap"""
+        heatmap_f = select_brake_heatmap_name(
+            set_predefined_brake_name(class_name, True)
+        )
+        heatmap_r = select_brake_heatmap_name(
+            set_predefined_brake_name(class_name, False)
+        )
+        heatmap_style_f = load_heatmap_style(
+            heatmap_name=heatmap_f,
+            default_name=HEATMAP_DEFAULT_BRAKE,
+            swap_style=not self.wcfg["swap_style"],
+            fg_color=self.wcfg["font_color_temperature"],
+            bg_color=self.wcfg["bkg_color_temperature"],
+        )
+        heatmap_style_r = load_heatmap_style(
+            heatmap_name=heatmap_r,
+            default_name=HEATMAP_DEFAULT_BRAKE,
+            swap_style=not self.wcfg["swap_style"],
+            fg_color=self.wcfg["font_color_temperature"],
+            bg_color=self.wcfg["bkg_color_temperature"],
+        )
+        self.heatmap_styles[0] = heatmap_style_f
+        self.heatmap_styles[1] = heatmap_style_f
+        self.heatmap_styles[2] = heatmap_style_r
+        self.heatmap_styles[3] = heatmap_style_r

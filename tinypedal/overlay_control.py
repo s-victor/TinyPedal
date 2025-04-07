@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -21,13 +21,13 @@ Overlay Control
 """
 
 import logging
-import time
 import threading
+from time import monotonic, sleep
 
 from PySide2.QtCore import QObject, Signal
 
-from .setting import cfg
 from .api_control import api
+from .setting import cfg
 
 logger = logging.getLogger(__name__)
 
@@ -35,17 +35,25 @@ logger = logging.getLogger(__name__)
 class StateTimer:
     """State timer"""
 
+    __slots__ = (
+        "_interval",
+        "_last",
+    )
+
     def __init__(self, interval: float, last: float = 0) -> None:
+        """
+        Args:
+            interval: time interval in seconds.
+            last: last time stamp in seconds.
+        """
         self._interval = interval
         self._last = last
 
-    def timeout(self, now: float) -> bool:
+    def timeout(self, seconds: float) -> bool:
         """Check time out"""
-        if self._last > now:  # last time stamp correction
-            self._last = now
-        if now - self._last < self._interval:
+        if self._interval > seconds - self._last:
             return False
-        self._last = now
+        self._last = seconds
         return True
 
     def reset(self, now: float = 0) -> None:
@@ -70,95 +78,95 @@ class StateTimer:
 class OverlayState(QObject):
     """Set and update overlay global state
 
-    Signals:
-        * hidden: auto hide
-        * locked: overlay lock
-        * reload: reload preset, should only be emitted after app fully loaded
-
-    States:
-        * Active: True if vehicle is on track
-        * Lock position
-        * Auto hide
-        * Grid move
+    Attributes:
+        active: check whether api state (on track) is active.
+        hidden: signal for toggling auto hide state.
+        locked: signal for toggling lock state.
+        reload: signal for reloading preset, should only be emitted after app fully loaded.
+        vr_compat: signal for toggling VR compatibility state.
     """
     hidden = Signal(bool)
     locked = Signal(bool)
     reload = Signal(bool)
+    vr_compat = Signal(bool)
 
     def __init__(self):
         super().__init__()
-        self.stopped = True
         self.active = False
-        self.event = threading.Event()
+        self._stopped = True
+        self._event = threading.Event()
 
         self._auto_hide_timer = StateTimer(interval=0.4)
         self._auto_load_preset_timer = StateTimer(interval=1.0)
+        self._last_detected_sim = None
 
     def start(self):
         """Start state update thread"""
-        if self.stopped:
-            self.stopped = False
-            self.event.clear()
+        if self._stopped:
+            self._stopped = False
+            self._event.clear()
             threading.Thread(target=self.__updating, daemon=True).start()
-            logger.info("ACTIVE: overlay control")
+            logger.info("ENABLED: overlay control")
 
     def stop(self):
         """Stop thread"""
-        self.event.set()
+        self._event.set()
+        while not self._stopped:
+            sleep(0.01)
 
     def __updating(self):
         """Update global state"""
-        while not self.event.wait(0.01):
+        while not self._event.wait(0.2):
             self.active = api.state
             self.__auto_hide_state()
             if cfg.application["enable_auto_load_preset"]:
                 self.__auto_load_preset()
 
-        self.stopped = True
-        logger.info("CLOSED: overlay control")
+        self._stopped = True
+        logger.info("DISABLED: overlay control")
 
     def __auto_hide_state(self):
         """Auto hide state"""
-        if self._auto_hide_timer.timeout(time.perf_counter()):
+        if self._auto_hide_timer.timeout(monotonic()):
             self.hidden.emit(cfg.overlay["auto_hide"] and not self.active)
 
     def __auto_load_preset(self):
         """Auto load primary preset"""
-        if self._auto_load_preset_timer.timeout(time.perf_counter()):
-            # Make sure app is fully loaded before check state
-            if not cfg.app_loaded:
-                return
+        if self._auto_load_preset_timer.timeout(monotonic()):
             # Get sim_name, returns "" if no game running
             sim_name = api.read.check.sim_name()
             # Abort if game not found
             if not sim_name:
                 # Clear detected name if no game found
-                if cfg.last_detected_sim is not None:
-                    cfg.last_detected_sim = None
+                if self._last_detected_sim is not None:
+                    self._last_detected_sim = None
                 return
             # Abort if same as last found game
-            if sim_name == cfg.last_detected_sim:
+            if sim_name == self._last_detected_sim:
                 return
             # Assign sim name to last detected, set preset name
-            cfg.last_detected_sim = sim_name
+            self._last_detected_sim = sim_name
             preset_name = cfg.get_primary_preset_name(sim_name)
-            logger.info("SETTING: game detected: %s", sim_name)
+            logger.info("USERDATA: %s detected, attempt loading %s (primary preset)", sim_name, preset_name)
             # Abort if preset file does not exist
             if preset_name == "":
-                logger.info("SETTING: not found, abort auto loading")
+                logger.info("USERDATA: %s (primary preset) not found, abort auto loading", preset_name)
                 return
             # Check if already loaded
             if preset_name == cfg.filename.last_setting:
-                logger.info("SETTING: %s already loaded", preset_name)
+                logger.info("USERDATA: %s (primary preset) loaded", preset_name)
                 return
-            # Update preset name
+            # Update preset name & signal reload
             cfg.filename.setting = preset_name
-            # Do not call cfg.load here as it's handled by loader.reload
             self.reload.emit(True)
 
 
 class OverlayControl:
     """Overlay control"""
+
+    __slots__ = (
+        "state",
+    )
 
     def __init__(self):
         self.state = OverlayState()
@@ -170,8 +178,11 @@ class OverlayControl:
     def disable(self):
         """Disable overlay control"""
         self.state.stop()
-        while not self.state.stopped:
-            time.sleep(0.01)
+
+    def toggle_vr(self):
+        """Toggle VR state"""
+        self.__toggle_option("vr_compatibility")
+        self.state.vr_compat.emit(cfg.overlay["vr_compatibility"])
 
     def toggle_lock(self):
         """Toggle lock state"""

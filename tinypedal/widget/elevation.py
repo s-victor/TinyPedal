@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -20,31 +20,31 @@
 Elevation Widget
 """
 
-from PySide2.QtCore import Qt, QRectF
-from PySide2.QtGui import QPainterPath, QPainter, QPixmap, QPen, QBrush
+from PySide2.QtCore import QRectF, Qt
+from PySide2.QtGui import QBrush, QPainter, QPainterPath, QPen, QPixmap
 
 from .. import calculation as calc
 from ..api_control import api
 from ..module_info import minfo
+from ..units import set_symbol_distance, set_unit_distance
 from ._base import Overlay
-
-WIDGET_NAME = "elevation"
 
 
 class Realtime(Overlay):
     """Draw widget"""
 
-    def __init__(self, config):
+    def __init__(self, config, widget_name):
         # Assign base setting
-        Overlay.__init__(self, config, WIDGET_NAME)
+        super().__init__(config, widget_name)
 
         # Config font
-        self.font = self.config_font(
+        font = self.config_font(
             self.wcfg["font_name"],
             self.wcfg["font_size"],
             self.wcfg["font_weight"]
         )
-        font_m = self.get_font_metrics(self.font)
+        self.setFont(font)
+        font_m = self.get_font_metrics(font)
         font_offset = self.calc_font_offset(font_m)
 
         # Config variable
@@ -54,21 +54,24 @@ class Realtime(Overlay):
         self.display_margin_bottom = min(max(self.wcfg["display_margin_bottom"], 0), int(self.display_height / 2))
         self.display_detail_level = max(self.wcfg["display_detail_level"], 0)
 
-        text_width = font_m.width * 10
         self.rect_text_elevation = QRectF(
-            self.display_width * self.wcfg["elevation_reading_offset_x"] - text_width * 0.5,
+            self.display_width * self.wcfg["elevation_reading_offset_x"] - font_m.width * 5,
             self.display_height * self.wcfg["elevation_reading_offset_y"] - font_m.height * 0.5 + font_offset,
-            text_width,
+            font_m.width * 10,
             font_m.height
         )
         self.rect_text_scale = QRectF(
-            self.display_width * self.wcfg["elevation_scale_offset_x"] - text_width * 0.5,
+            self.display_width * self.wcfg["elevation_scale_offset_x"] - font_m.width * 5,
             self.display_height * self.wcfg["elevation_scale_offset_y"] - font_m.height * 0.5 + font_offset,
-            text_width,
+            font_m.width * 10,
             font_m.height
         )
         self.elevation_text_alignment = self.set_text_alignment(self.wcfg["elevation_reading_text_alignment"])
         self.scale_text_alignment = self.set_text_alignment(self.wcfg["elevation_scale_text_alignment"])
+
+        # Config units
+        self.unit_dist = set_unit_distance(self.cfg.units["distance_unit"])
+        self.symbol_dist = set_symbol_distance(self.cfg.units["distance_unit"])
 
         # Config canvas
         self.resize(self.display_width, self.display_height)
@@ -77,51 +80,45 @@ class Realtime(Overlay):
         self.pixmap_progress_line = QPixmap(self.display_width, self.display_height)
         self.pixmap_marks = QPixmap(self.display_width, self.display_height)
 
-        self.pen = QPen()
+        self.pen_mark = QPen()
+        self.pen_mark.setWidth(self.wcfg["position_mark_width"])
+        self.pen_mark.setColor(self.wcfg["position_mark_color"])
+        self.pen_text = QPen()
+        self.pen_text.setColor(self.wcfg["font_color"])
 
         # Last data
+        self.last_modified = 0
+        self.veh_pos = 0
         self.map_scaled = None
         self.map_range = (0,10,0,10)
         self.map_scale = 1,1
 
-        self.last_elevation_hash = -1
-        self.veh_pos = (0,0,0)
-        self.last_veh_pos = None
-
-        self.update_elevation(0, 1)
+        self.update_elevation(-1)
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
         if self.state.active:
 
             # Elevation map
-            elevation_hash = minfo.mapping.elevationsHash
-            self.update_elevation(elevation_hash, self.last_elevation_hash)
-            self.last_elevation_hash = elevation_hash
+            modified = minfo.mapping.lastModified
+            self.update_elevation(modified)
 
             # Vehicle position
-            self.veh_pos = (
-                api.read.lap.distance(),
-                api.read.vehicle.position_vertical(),
-                self.display_width * api.read.lap.progress()
-            )
-            self.update_vehicle(self.veh_pos, self.last_veh_pos)
-            self.last_veh_pos = self.veh_pos
+            temp_veh_pos = self.display_width * api.read.lap.progress()
+            if self.veh_pos != temp_veh_pos:
+                self.veh_pos = temp_veh_pos
+                self.update()
 
     # GUI update methods
-    def update_elevation(self, curr, last):
+    def update_elevation(self, data):
         """Elevation map update"""
-        if curr != last:
+        if self.last_modified != data:
+            self.last_modified = data
             map_path = self.create_elevation_path(minfo.mapping.elevations)
             self.draw_background(map_path)
             self.draw_progress(map_path)
             self.draw_progress_line(map_path)
             self.draw_marks(map_path)
-
-    def update_vehicle(self, curr, last):
-        """Vehicle position update"""
-        if curr != last:
-            self.update()
 
     def paintEvent(self, event):
         """Draw"""
@@ -131,20 +128,34 @@ class Realtime(Overlay):
 
         # Draw elevation progress
         if self.wcfg["show_elevation_progress"]:
-            painter.drawPixmap(0, 0, self.pixmap_progress, 0, 0, self.veh_pos[2], 0)
+            painter.drawPixmap(0, 0, self.pixmap_progress, 0, 0, self.veh_pos, 0)
 
         # Draw marks
         painter.drawPixmap(0, 0, self.pixmap_marks)
 
         if self.wcfg["show_elevation_progress_line"]:
-            painter.drawPixmap(0, 0, self.pixmap_progress_line, 0, 0, self.veh_pos[2], 0)
+            painter.drawPixmap(0, 0, self.pixmap_progress_line, 0, 0, self.veh_pos, 0)
 
         if self.wcfg["show_position_mark"]:
-            self.draw_position_mark(painter)
+            painter.setPen(self.pen_mark)
+            painter.drawLine(self.veh_pos, 0, self.veh_pos, self.display_height)
 
         # Draw readings
-        if self.wcfg["show_elevation_reading"] or self.wcfg["show_elevation_scale"]:
-            self.draw_readings(painter)
+        painter.setPen(self.pen_text)
+        if self.wcfg["show_elevation_reading"]:
+            painter.drawText(
+                self.rect_text_elevation,
+                self.elevation_text_alignment,
+                f"{self.unit_dist(api.read.vehicle.position_vertical()):.1f}{self.symbol_dist}"
+            )
+        if self.wcfg["show_elevation_scale"]:
+            # Format elevation scale (meter or feet per pixel)
+            map_scale = round(self.unit_dist(1 / self.map_scale[1]), 2) if self.map_scale[1] else 1
+            painter.drawText(
+                self.rect_text_scale,
+                self.scale_text_alignment,
+                f"1:{map_scale}"
+            )
 
     def create_elevation_path(self, raw_coords=None):
         """Create elevation path"""
@@ -204,7 +215,6 @@ class Realtime(Overlay):
             self.pixmap_background.fill(Qt.transparent)
         painter = QPainter(self.pixmap_background)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
 
         # Set vertical flip to correct elevation direction
         painter.setViewport(0, self.display_height, self.display_width, -self.display_height)
@@ -218,6 +228,7 @@ class Realtime(Overlay):
             brush = QBrush(Qt.SolidPattern)
             brush.setColor(self.wcfg["bkg_color_elevation"])
             painter.setBrush(brush)
+            painter.setPen(Qt.NoPen)
             painter.drawPath(map_path)
 
     def draw_progress(self, map_path):
@@ -225,7 +236,6 @@ class Realtime(Overlay):
         self.pixmap_progress.fill(Qt.transparent)
         painter = QPainter(self.pixmap_progress)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
 
         # Set vertical flip to correct elevation direction
         painter.setViewport(0, self.display_height, self.display_width, -self.display_height)
@@ -238,6 +248,7 @@ class Realtime(Overlay):
         brush = QBrush(Qt.SolidPattern)
         brush.setColor(self.wcfg["elevation_progress_color"])
         painter.setBrush(brush)
+        painter.setPen(Qt.NoPen)
         painter.drawPath(map_path)
 
     def draw_progress_line(self, map_path):
@@ -245,7 +256,6 @@ class Realtime(Overlay):
         self.pixmap_progress_line.fill(Qt.transparent)
         painter = QPainter(self.pixmap_progress_line)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
 
         # Set vertical flip to correct elevation direction
         painter.setViewport(0, self.display_height, self.display_width, -self.display_height)
@@ -267,7 +277,6 @@ class Realtime(Overlay):
         self.pixmap_marks.fill(Qt.transparent)
         painter = QPainter(self.pixmap_marks)
         painter.setRenderHint(QPainter.Antialiasing, True)
-        painter.setPen(Qt.NoPen)
 
         # Set vertical flip to correct elevation direction
         painter.setViewport(0, self.display_height, self.display_width, -self.display_height)
@@ -297,63 +306,19 @@ class Realtime(Overlay):
 
         # Draw sector line
         sectors_index = minfo.mapping.sectors
-        if self.wcfg["show_sector_line"] and self.map_scaled and sectors_index and all(sectors_index):
+        if self.wcfg["show_sector_line"] and self.map_scaled and isinstance(sectors_index, tuple):
             pen.setWidth(self.wcfg["sector_line_width"])
             pen.setColor(self.wcfg["sector_line_color"])
             painter.setPen(pen)
-            for idx in range(2):
-                x = self.map_scaled[sectors_index[idx]][0]
-                painter.drawLine(x, -999, x, 999)
+            for index in sectors_index:
+                pos_x = self.map_scaled[index][0]
+                painter.drawLine(pos_x, -999, pos_x, 999)
 
         # Draw zero elevation line
         if self.wcfg["show_zero_elevation_line"] and self.map_scaled:
             pen.setWidth(self.wcfg["zero_elevation_line_width"])
             pen.setColor(self.wcfg["zero_elevation_line_color"])
             painter.setPen(pen)
-            zero_elevation = self.coords_scale(0, self.map_range[2], self.map_scale[1], 0)
+            # scale * (0pos - min_range)
+            zero_elevation = self.map_scale[1] * -self.map_range[2]
             painter.drawLine(0, zero_elevation, self.display_width, zero_elevation)
-
-    def draw_position_mark(self, painter):
-        """Draw position mark"""
-        self.pen.setWidth(self.wcfg["position_mark_width"])
-        self.pen.setColor(self.wcfg["position_mark_color"])
-        painter.setPen(self.pen)
-        painter.drawLine(self.veh_pos[2], 0, self.veh_pos[2], self.display_height)
-
-    def draw_readings(self, painter):
-        """Draw readings"""
-        painter.setFont(self.font)
-        self.pen.setColor(self.wcfg["font_color"])
-        painter.setPen(self.pen)
-        if self.wcfg["show_elevation_reading"]:
-            painter.drawText(
-                self.rect_text_elevation,
-                self.elevation_text_alignment,
-                self.format_elevation(api.read.vehicle.position_vertical())
-            )
-        if self.wcfg["show_elevation_scale"]:
-            painter.drawText(
-                self.rect_text_scale,
-                self.scale_text_alignment,
-                self.format_scale(self.map_scale[1])
-            )
-
-    # Additional methods
-    @staticmethod
-    def coords_scale(coords, min_range, scale, offset):
-        """Coordinates scale & offset"""
-        return (coords - min_range) * scale + offset
-
-    def format_elevation(self, meter):
-        """Format elevation"""
-        if self.cfg.units["distance_unit"] == "Feet":
-            return f"{calc.meter2feet(meter):.1f}ft"
-        return f"{meter:.1f}m"
-
-    def format_scale(self, scale):
-        """Format elevation scale (meter or feet per pixel)"""
-        if scale == 0:
-            return "1:1"
-        if self.cfg.units["distance_unit"] == "Feet":
-            return f"1:{round(calc.meter2feet(1 / scale), 2)}"
-        return f"1:{round(1 / scale, 2)}"

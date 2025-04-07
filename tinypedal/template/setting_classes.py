@@ -1,5 +1,5 @@
 #  TinyPedal is an open-source overlay application for racing simulation.
-#  Copyright (C) 2022-2024 TinyPedal developers, see contributors.md file
+#  Copyright (C) 2022-2025 TinyPedal developers, see contributors.md file
 #
 #  This file is part of TinyPedal.
 #
@@ -23,33 +23,43 @@ Default classes template
 
 CLASSES_DEFAULT = {
     "Hyper": {
-        "LMH": "#FF4400"
+        "alias": "LMH",
+        "color": "#FF4400",
     },
     "Hypercar": {
-        "LMH": "#FF4400"
+        "alias": "LMH",
+        "color": "#FF4400",
     },
     "LMP1": {
-        "LMP1": "#FF00AA"
+        "alias": "LMP1",
+        "color": "#FF00AA",
     },
     "LMP2": {
-        "LMP2": "#0088FF"
+        "alias": "LMP2",
+        "color": "#0088FF",
     },
     "LMP3": {
-        "LMP3": "#0044AA"
+        "alias": "LMP3",
+        "color": "#0044AA",
     },
     "GTE": {
-        "GTE": "#00CC44"
+        "alias": "GTE",
+        "color": "#00CC44",
     },
     "GT3": {
-        "GT3": "#229900"
+        "alias": "GT3",
+        "color": "#229900",
     },
     "DPi": {
-        "DPi": "#0044AA"
+        "alias": "DPi",
+        "color": "#0044AA",
     },
     "FR3.5_2014": {
-        "FR35": "#4488AA"
+        "alias": "FR35",
+        "color": "#4488AA",
     },
     "Formula Pro": {
-        "FPro": "#FF3300"
+        "alias": "FPro",
+        "color": "#FF3300",
     },
 }
