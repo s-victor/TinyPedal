@@ -307,7 +307,7 @@ def clock_time(seconds: float, start: int = 0, scale: int = 1) -> float:
 
 def sec2sessiontime(seconds: float) -> str:
     """Session time (hour:min:sec)"""
-    return f"{seconds // 3600:02.0f}:{seconds // 60 % 60:02.0f}:{min(seconds % 60, 59):02.0f}"
+    return f"{seconds // 3600:02.0f}:{seconds // 60 % 60:02.0f}:{round(seconds) % 60:02.0f}"
 
 
 def sec2laptime(seconds: float) -> str:
@@ -324,7 +324,7 @@ def sec2laptime_full(seconds: float) -> str:
 
 def sec2stinttime(seconds: float) -> str:
     """Stint time (min:sec)"""
-    return f"{seconds // 60:02.0f}:{min(seconds % 60, 59):02.0f}"
+    return f"{seconds // 60:02.0f}:{round(seconds) % 60:02.0f}"
 
 
 def delta_telemetry(
@@ -431,7 +431,7 @@ def binary_search_lower_column(
 
 
 def binary_search_higher_column(
-    data: Sequence, target: float, start: int, end: int, column: int = 0) -> int:
+    data: Sequence[Sequence], target: float, start: int, end: int, column: int = 0) -> int:
     """Binary search nearest value higher index from ordered list with column index"""
     while start < end:
         center = (start + end) // 2
@@ -444,14 +444,14 @@ def binary_search_higher_column(
     return end
 
 
-def select_grade(data: Sequence, source: float) -> str:
-    """Select grade (linear lower index) from reference list (column: 0 value, 1 string)"""
-    for index, target in enumerate(data):
-        if target[0] > source:
-            if index == 0:
-                return target[1]
-            return data[index - 1][1]
-    return data[-1][1]  # set from last row if exceeded max range
+def select_grade(data: Sequence[Sequence], source: float) -> str:
+    """Select grade (linear lower) from reference list (column: 0 target, 1 value)"""
+    last = data[0][1]
+    for target, value in data:
+        if target > source:
+            return last
+        last = value
+    return last
 
 
 # Plot
@@ -461,11 +461,11 @@ def zoom_map(coords: Sequence[CoordXY], map_scale: float, margin: int = 0):
     x_range, y_range = tuple(zip(*coords))
     # Offset X, Y
     map_offset = min(x_range) * map_scale - margin, min(y_range) * map_scale - margin
-    # Scale map coordinates
-    x_range_scaled = [x_pos * map_scale - map_offset[0] for x_pos in x_range]
-    y_range_scaled = [y_pos * map_scale - map_offset[1] for y_pos in y_range]
     # Map width, height
-    map_size = max(x_range_scaled) + margin, max(y_range_scaled) + margin
+    map_size = max(x_range) * map_scale + margin, max(y_range) * map_scale + margin
+    # Scale map coordinates
+    x_range_scaled = (x_pos * map_scale - map_offset[0] for x_pos in x_range)
+    y_range_scaled = (y_pos * map_scale - map_offset[1] for y_pos in y_range)
     return tuple(zip(x_range_scaled, y_range_scaled)), map_size, map_offset
 
 
@@ -483,11 +483,9 @@ def scale_map(coords: Sequence[CoordXY], area_size: int, margin: int = 0):
         map_offset = margin, (area_size - map_size[1] * map_scale) * 0.5
     else:
         map_offset = (area_size - map_size[0] * map_scale) * 0.5, margin
-    x_range_scaled = [(x_pos - map_range[0]) * map_scale + map_offset[0]
-                        for x_pos in x_range]
-    y_range_scaled = [(y_pos - map_range[2]) * map_scale + map_offset[1]
-                        for y_pos in y_range]
-    return list(zip(x_range_scaled, y_range_scaled)), map_range, map_scale, map_offset
+    x_range_scaled = ((x_pos - map_range[0]) * map_scale + map_offset[0] for x_pos in x_range)
+    y_range_scaled = ((y_pos - map_range[2]) * map_scale + map_offset[1] for y_pos in y_range)
+    return tuple(zip(x_range_scaled, y_range_scaled)), map_range, map_scale, map_offset
 
 
 def scale_elevation(coords: Sequence[CoordXY], area_width: int, area_height: int):
@@ -499,10 +497,8 @@ def scale_elevation(coords: Sequence[CoordXY], area_width: int, area_height: int
     map_size = map_range[1] - map_range[0], map_range[3] - map_range[2]
     # Display area / map_size
     map_scale = area_width / map_size[0], area_height / map_size[1]
-    x_range_scaled = [(x_pos - map_range[0]) * map_scale[0]
-                        for x_pos in x_range]
-    y_range_scaled = [(y_pos - map_range[2]) * map_scale[1]
-                        for y_pos in y_range]
+    x_range_scaled = ((x_pos - map_range[0]) * map_scale[0] for x_pos in x_range)
+    y_range_scaled = ((y_pos - map_range[2]) * map_scale[1] for y_pos in y_range)
     return list(zip(x_range_scaled, y_range_scaled)), map_range, map_scale
 
 
@@ -666,16 +662,6 @@ def fuel_to_energy_ratio(fuel: float, energy: float) -> float:
 
 
 # Wear
-def wear_difference(wear_curr: float, wear_prev: float, wear_total: float) -> tuple[float, float]:
-    """Wear difference and accumulated total wear"""
-    if wear_prev < wear_curr:
-        wear_prev = wear_curr
-    elif wear_prev > wear_curr:
-        wear_total += wear_prev - wear_curr
-        wear_prev = wear_curr
-    return wear_prev, wear_total
-
-
 def wear_lifespan_in_laps(
     wear_curr: float, wear_last_lap: float, wear_curr_lap: float) -> float:
     """Wear lifespan in laps = remaining / last lap wear"""
@@ -685,7 +671,9 @@ def wear_lifespan_in_laps(
         est_laps = wear_curr / wear_last_lap
     else:
         est_laps = 999
-    return min(est_laps, 999)
+    if est_laps > 999:
+        est_laps = 999
+    return est_laps
 
 
 def wear_lifespan_in_mins(
@@ -699,7 +687,9 @@ def wear_lifespan_in_mins(
         est_mins = wear_curr / wear_last_lap * laptime / 60
     else:
         est_mins = 999
-    return min(est_mins, 999)
+    if est_mins > 999:
+        est_mins = 999
+    return est_mins
 
 
 # Wheel

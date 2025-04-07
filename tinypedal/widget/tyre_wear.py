@@ -215,9 +215,11 @@ class Realtime(Overlay):
                 self.last_lap_stime = lap_stime  # reset time stamp counter
 
             for idx in range(4):
-                # Update wear differences
-                self.wear_prev[idx], self.wear_curr_lap[idx] = calc.wear_difference(
-                    wear_curr[idx], self.wear_prev[idx], self.wear_curr_lap[idx])
+                # Update wear differences & accumulated wear
+                wear_diff = self.wear_prev[idx] - wear_curr[idx]
+                self.wear_prev[idx] = wear_curr[idx]
+                if wear_diff > 0:
+                    self.wear_curr_lap[idx] += wear_diff
 
                 # Remaining wear
                 if self.wcfg["show_remaining"]:

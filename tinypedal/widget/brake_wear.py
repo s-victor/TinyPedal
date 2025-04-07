@@ -240,9 +240,11 @@ class Realtime(Overlay):
                 elif not self.wcfg["show_thickness"]:  # convert to percent
                     wear_curr[idx] *= 100 / self.wear_stint_start[idx]
 
-                # Update wear differences
-                self.wear_prev[idx], self.wear_curr_lap[idx] = calc.wear_difference(
-                    wear_curr[idx], self.wear_prev[idx], self.wear_curr_lap[idx])
+                # Update wear differences & accumulated wear
+                wear_diff = self.wear_prev[idx] - wear_curr[idx]
+                self.wear_prev[idx] = wear_curr[idx]
+                if wear_diff > 0:
+                    self.wear_curr_lap[idx] += wear_diff
 
                 # Remaining wear
                 if self.wcfg["show_remaining"]:
