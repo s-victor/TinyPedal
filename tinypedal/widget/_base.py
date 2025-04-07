@@ -94,16 +94,16 @@ class Overlay(QWidget):
     def __set_window_attributes(self):
         """Set window attributes"""
         self.setWindowOpacity(self.wcfg["opacity"])
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
         if self.cfg.compatibility["enable_translucent_background"]:
             self.setAttribute(Qt.WA_TranslucentBackground, True)
-        self.setAttribute(Qt.WA_DeleteOnClose, True)
 
     def __set_window_flags(self):
         """Set window flags"""
         self.setWindowFlag(Qt.FramelessWindowHint, True)
-        # Unhide taskbar widget window & icon if VR compatibility option enabled
-        self.setWindowFlag(Qt.Tool, not self.cfg.overlay["vr_compatibility"])
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+        if not self.cfg.overlay["vr_compatibility"]:  # hide taskbar widget
+            self.setWindowFlag(Qt.Tool, True)
         if self.cfg.compatibility["enable_bypass_window_manager"]:
             self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
         if self.cfg.overlay["fixed_position"]:  # load overlay lock state
@@ -111,12 +111,9 @@ class Overlay(QWidget):
 
     def __set_window_style(self):
         """Set window style"""
-        background_color = QPalette()
-        background_color.setColor(
-            QPalette.Window,
-            self.cfg.compatibility["global_bkg_color"],
-        )
-        self.setPalette(background_color)
+        palette = self.palette()
+        palette.setColor(QPalette.Window, self.cfg.compatibility["global_bkg_color"])
+        self.setPalette(palette)
 
     def mouseMoveEvent(self, event):
         """Update widget position"""
@@ -171,8 +168,7 @@ class Overlay(QWidget):
             event.ignore()
 
     # Common GUI methods
-    @staticmethod
-    def config_font(name: str = "", size: int = 1, weight: str = "") -> QFont:
+    def config_font(self, name: str = "", size: int = 1, weight: str = "") -> QFont:
         """Config font
 
         Used for draw text in widget that uses QPainter,
@@ -186,7 +182,7 @@ class Overlay(QWidget):
         Returns:
             QFont object.
         """
-        font = QFont()
+        font = self.font()  # get existing widget font
         font.setFamily(name)
         font.setPixelSize(max(size, 1))
         if weight:
@@ -448,8 +444,10 @@ class Overlay(QWidget):
     ):
         """Set grid layout - table by keys of each row"""
         if right_to_left:
-            targets = reversed(targets)
-        for column_index, target in enumerate(targets):
+            enum_target = enumerate(reversed(targets))
+        else:
+            enum_target = enumerate(targets)
+        for column_index, target in enum_target:
             layout.addWidget(target, row_index, column_index)
             if hide_start <= column_index:
                 target.hide()
@@ -464,8 +462,10 @@ class Overlay(QWidget):
     ):
         """Set grid layout - table by keys of each column"""
         if bottom_to_top:
-            targets = reversed(targets)
-        for row_index, target in enumerate(targets):
+            enum_target = enumerate(reversed(targets))
+        else:
+            enum_target = enumerate(targets)
+        for row_index, target in enum_target:
             layout.addWidget(target, row_index, column_index)
             if hide_start <= row_index:
                 target.hide()
@@ -527,10 +527,12 @@ class Overlay(QWidget):
             order = column, row  # Vertical layout
         else:
             order = row, column  # Horizontal layout
+        layout = self.layout()
+        assert isinstance(layout, QGridLayout)
         if isinstance(target, QWidget):
-            self.layout().addWidget(target, *order)
+            layout.addWidget(target, *order)
         else:
-            self.layout().addLayout(target, *order)
+            layout.addLayout(target, *order)
 
 
 def validate_column_order(config: dict):

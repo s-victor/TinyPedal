@@ -32,10 +32,8 @@ from PySide2.QtWidgets import QApplication, QMessageBox
 from .cli_argument import get_cli_argument
 from .const_app import (
     APP_NAME,
-    EXE_FILE,
     PATH_GLOBAL,
     PID_FILE,
-    PLATFORM,
     PSUTIL_VERSION,
     PYTHON_VERSION,
     QT_VERSION,
@@ -75,17 +73,18 @@ def is_pid_exist() -> bool:
     return False  # no running
 
 
-def is_exe_running() -> bool:
-    """Check running executable (windows only), this is only used as fallback"""
-    # Skip exe check if not on windows system
-    if PLATFORM != "Windows":
-        return False
-    app_pid = os.getpid()
-    for app in psutil.process_iter(["name", "pid"]):
-        # Compare found APP name & pid
-        if app.info["name"] == EXE_FILE and app.info["pid"] != app_pid:
-            return True
-    return False
+#def is_exe_running() -> bool:
+#    """Check running executable (windows only), this is only used as fallback"""
+#    # Skip exe check if not on windows system
+#    if PLATFORM != "Windows":
+#        return False
+#    app_pid = os.getpid()
+#    EXE_FILE = "tinypedal.exe"
+#    for app in psutil.process_iter(["name", "pid"]):
+#        # Compare found APP name & pid
+#        if app.info["name"] == EXE_FILE and app.info["pid"] != app_pid:
+#            return True
+#    return False
 
 
 def single_instance_check(is_single_instance: bool):
@@ -93,12 +92,12 @@ def single_instance_check(is_single_instance: bool):
     # Check if single instance mode enabled
     if not is_single_instance:
         logger.info("Single instance mode: OFF")
-        return None
+        return
     logger.info("Single instance mode: ON")
     # Check existing PID file first, then exe PID
-    if not (is_pid_exist() or is_exe_running()):
+    if not is_pid_exist():  # (is_pid_exist() or is_exe_running())
         save_pid_file()
-        return None
+        return
     # Show warning to console and popup dialog
     warning_text = (
         "TinyPedal is already running.\n\n"
@@ -124,11 +123,15 @@ def init_gui() -> QApplication:
     root.setApplicationName(APP_NAME)
     root.setWindowIcon(QIcon(ImageFile.APP_ICON))
     root.setQuitOnLastWindowClosed(False)
-    font = QFont("sans-serif", 10)
+    # Set font & style
+    font = root.font()
+    font.setFamily("sans-serif")
+    font.setPointSize(10)
     font.setStyleHint(QFont.SansSerif)
     root.setFont(font)
     root.setStyle("Fusion")
-    QPixmapCache.setCacheLimit(0)  # disable global cache
+    # Disable global pixmap cache
+    QPixmapCache.setCacheLimit(0)
     return root
 
 

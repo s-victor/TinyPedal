@@ -27,7 +27,6 @@ import sys
 
 from tinypedal.main import start_app
 
-
 if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
     start_app()

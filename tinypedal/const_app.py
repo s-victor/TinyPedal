@@ -51,7 +51,6 @@ URL_USER_GUIDE = "https://github.com/s-victor/TinyPedal/wiki/User-Guide"
 URL_FAQ = "https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions"
 
 # File name
-EXE_FILE = "tinypedal.exe"
 LOG_FILE = "tinypedal.log"
 PID_FILE = "pid.log"
 
