@@ -24,8 +24,8 @@ from __future__ import annotations
 
 import logging
 
-from PySide2.QtCore import QBasicTimer, Qt
-from PySide2.QtMultimedia import QMediaContent, QMediaPlayer
+from PySide2.QtCore import QBasicTimer, Qt, QUrl
+from PySide2.QtMultimedia import QMediaPlayer
 from PySide2.QtWidgets import (
     QCheckBox,
     QComboBox,
@@ -43,6 +43,7 @@ from PySide2.QtWidgets import (
 )
 
 from .. import set_relative_path
+from ..const_app import QT_VERSION
 from ..const_file import FileFilter
 from ..module_control import mctrl
 from ..module_info import minfo
@@ -56,6 +57,9 @@ logger = logging.getLogger(__name__)
 
 class PaceNotesPlayer(QMediaPlayer):
     """Pace notes player"""
+    set_source = None
+    set_volume = None
+    is_playing = None
 
     def __init__(self, parent, config: dict):
         super().__init__(parent)
@@ -70,9 +74,21 @@ class PaceNotesPlayer(QMediaPlayer):
         self._last_notes_index = None
         self._play_queue: list[str] = []
 
-    def set_volume(self, value: int):
-        """Set playback volume (separated for future compatibility)"""
-        self.setVolume(value)
+        # Set compatibility
+        if QT_VERSION[0] == "6":
+            from PySide6.QtMultimedia import QAudioOutput
+
+            audio_output = QAudioOutput()
+            self.setAudioOutput(audio_output)
+            # Assign methods for qt6
+            self.set_source = self.setSource
+            self.set_volume = audio_output.setVolume
+            self.is_playing = self.__is_playing_qt6
+        else:
+            # Assign methods for qt5
+            self.set_source = self.setMedia
+            self.set_volume = self.setVolume
+            self.is_playing = self.__is_playing_qt5
 
     def set_playback(self, enabled: bool):
         """Set playback state"""
@@ -108,9 +124,7 @@ class PaceNotesPlayer(QMediaPlayer):
             notes_index = minfo.pacenotes.currentIndex
             if self._last_notes_index != notes_index:
                 self._last_notes_index = notes_index
-                self.__update_queue(
-                    minfo.pacenotes.currentNote.get(COLUMN_PACENOTE, None)
-                )
+                self.__update_queue(minfo.pacenotes.currentNote.get(COLUMN_PACENOTE, None))
 
             if self._play_queue:
                 self.__play_next_in_queue()
@@ -118,6 +132,21 @@ class PaceNotesPlayer(QMediaPlayer):
         else:
             if self._checked:
                 self.reset_playback()
+
+    def __is_playing_qt5(self) -> bool:
+        """Check playing state (qt5 only)"""
+        return self.state() == QMediaPlayer.State.PlayingState
+
+    def __is_playing_qt6(self) -> bool:
+        """Check playing state (qt6 only)"""
+        return self.playbackState() == QMediaPlayer.PlayingState
+
+    def source_url(self) -> QUrl:
+        """Get sound source url"""
+        pace_note = self._play_queue[0]
+        sound_path = self.mcfg["pace_notes_sound_path"]
+        sound_format = self.mcfg["pace_notes_sound_format"].strip(".")
+        return QUrl(f"{sound_path}{pace_note}.{sound_format}")
 
     def __update_queue(self, pace_note: str | None):
         """Update playback queue"""
@@ -128,14 +157,11 @@ class PaceNotesPlayer(QMediaPlayer):
     def __play_next_in_queue(self):
         """Play next sound in playback queue"""
         # Wait if is playing & not exceeded max duration
-        if self.state() == QMediaPlayer.State.PlayingState:
-            if self.position() < self.mcfg["pace_notes_sound_max_duration"] * 1000:
-                return
+        if (self.is_playing() and
+            self.position() < self.mcfg["pace_notes_sound_max_duration"] * 1000):
+            return
         # Play next sound in queue
-        pace_note = self._play_queue[0]
-        sound_path = self.mcfg["pace_notes_sound_path"]
-        sound_format = self.mcfg["pace_notes_sound_format"].strip(".")
-        self.setMedia(QMediaContent(f"{sound_path}{pace_note}.{sound_format}"))
+        self.set_source(self.source_url())
         self.play()
         self._play_queue.pop(0)  # remove playing notes from queue
 

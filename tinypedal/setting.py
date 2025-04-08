@@ -30,7 +30,7 @@ from types import MappingProxyType
 
 from . import regex_pattern as rxp
 from . import set_user_data_path
-from .const_app import APP_NAME, PATH_GLOBAL, PLATFORM
+from .const_app import APP_NAME, PATH_GLOBAL, PLATFORM, QT_VERSION
 from .const_file import ConfigType, FileExt
 from .setting_validator import StyleValidator
 from .template.setting_brakes import BRAKES_DEFAULT
@@ -400,11 +400,14 @@ class Setting:
     def __set_environ(self):
         """Set environment variable"""
         if PLATFORM == "Windows":
-            if self.compatibility["multimedia_plugin_on_windows"] == "WMF":
-                multimedia_plugin = "windowsmediafoundation"
+            if QT_VERSION[0] == "6":
+                os.environ["QT_MEDIA_BACKEND"] = "windows"
             else:
-                multimedia_plugin = "directshow"
-            os.environ["QT_MULTIMEDIA_PREFERRED_PLUGINS"] = multimedia_plugin
+                if self.compatibility["multimedia_plugin_on_windows"] == "WMF":
+                    multimedia_plugin = "windowsmediafoundation"
+                else:
+                    multimedia_plugin = "directshow"
+                os.environ["QT_MULTIMEDIA_PREFERRED_PLUGINS"] = multimedia_plugin
 
     @property
     def max_saving_attempts(self) -> int:
