@@ -50,7 +50,7 @@ class About(BaseDialog):
     def __init__(self, parent):
         super().__init__(parent)
         self.setWindowTitle(f"About {APP_NAME}")
-        self.setStyleSheet("QTextEdit {border: 0;} QTextBrowser {font-size: 12px;}")
+        self.setStyleSheet("font-size: 9pt;")
 
         # Tab
         main_tab = self.add_tabs()
@@ -108,42 +108,36 @@ class About(BaseDialog):
         new_tab = QWidget(self)
 
         # Logo
-        icon_size = 128
         logo_image = QPixmap(ImageFile.APP_ICON)
-        logo_image = logo_image.scaled(icon_size, icon_size, mode=Qt.SmoothTransformation)
+        logo_image = logo_image.scaled(128, 128, mode=Qt.SmoothTransformation)
 
         label_logo = QLabel()
         label_logo.setPixmap(logo_image)
-        label_logo.setFixedSize(icon_size+20, icon_size+20)
         label_logo.setAlignment(Qt.AlignCenter)
-        label_logo.setStyleSheet("padding: 10px;")
 
         # Description
         label_name = QLabel(APP_NAME)
-        label_name.setStyleSheet("font-size: 18px;")
+        label_name.setStyleSheet("font-size: 14pt;")
         label_name.setAlignment(Qt.AlignCenter)
 
         label_version = QLabel(f"Version {VERSION}")
-        label_version.setStyleSheet("font-size: 13px;")
         label_version.setAlignment(Qt.AlignCenter)
 
         label_desc = QLabel(
             f"<p>{COPYRIGHT}</p><p>{DESCRIPTION}</p><p>{LICENSE}</p>"
-            f"<p><a href={URL_WEBSITE}>{URL_WEBSITE}</a></p>",
+            f"<p><a href={URL_WEBSITE}>{URL_WEBSITE}</a></p>"
         )
-        label_desc.setStyleSheet("font-size: 12px;padding: 16px 0 10px 0;")
         label_desc.setAlignment(Qt.AlignCenter)
         label_desc.setOpenExternalLinks(True)
 
         # Layout
-        layout_logo = QHBoxLayout()
-        layout_logo.addWidget(label_logo)
-        layout_logo.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
-
         layout_about = QVBoxLayout()
-        layout_about.addLayout(layout_logo)
+        layout_about.addSpacing(10)
+        layout_about.addWidget(label_logo)
+        layout_about.addSpacing(10)
         layout_about.addWidget(label_name)
         layout_about.addWidget(label_version)
+        layout_about.addSpacing(10)
         layout_about.addWidget(label_desc)
         layout_about.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
         new_tab.setLayout(layout_about)

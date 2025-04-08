@@ -43,18 +43,17 @@ QSS_LISTBOX = (
     "QListView::item:selected {background: transparent;}"
     "QListView::item:hover {background: transparent;}"
 )
-QSS_LISTBOX_ITEM = "font-size: 16px;"
+QSS_LISTBOX_ITEM = "QWidget {font-size: 12pt;} QPushButton {font-size: 10.5pt;}"
 QSS_BUTTON_TOGGLE = (
-    "QPushButton {color: #555;background: #CCC;font-size: 14px;"
-    "min-width: 30px;max-width: 30px;padding: 2px 3px;border-radius: 3px;}"
+    "QPushButton {color: #555;background: #CCC;"
+    "min-width: 30px;padding: 2px 3px;border-radius: 3px;}"
     "QPushButton::hover {color: #FFF;background: #F20;}"
     "QPushButton::pressed {color: #FFF;background: #555;}"
     "QPushButton::checked {color: #FFF;background: #555;}"
     "QPushButton::checked:hover {color: #FFF;background: #F20;}"
 )
 QSS_BUTTON_CONFIG = (
-    "QPushButton {color: #AAA;font-size: 14px;"
-    "padding: 2px 5px;border-radius: 3px;}"
+    "QPushButton {color: #AAA;padding: 2px 5px;border-radius: 3px;}"
     "QPushButton::hover {color: #FFF;background: #F20;}"
     "QPushButton::pressed {color: #FFF;background: #555;}"
     "QPushButton::checked {color: #FFF;background: #555;}"
@@ -185,12 +184,16 @@ class ListItemControl(QWidget):
         self.setStyleSheet(QSS_LISTBOX_ITEM)
         self.setLayout(layout_item)
 
+    def is_enabled(self) -> bool:
+        """Is module enabled"""
+        return cfg.user.setting[self.module_name]["enable"]
+
     def set_button_toggle(self):
         """Set toggle button"""
         self.allow_toggle = False
         self.button_toggle.setStyleSheet(QSS_BUTTON_TOGGLE)
         self.button_toggle.setCheckable(True)
-        self.button_toggle.setChecked(cfg.user.setting[self.module_name]["enable"])
+        self.button_toggle.setChecked(self.is_enabled())
         self.update_button_text()
         self.button_toggle.toggled.connect(self.toggle_state)
         self.allow_toggle = True
@@ -204,14 +207,12 @@ class ListItemControl(QWidget):
     def update_state(self):
         """Update button toggle state"""
         self.allow_toggle = False
-        self.button_toggle.setChecked(cfg.user.setting[self.module_name]["enable"])
+        self.button_toggle.setChecked(self.is_enabled())
         self.allow_toggle = True
 
     def update_button_text(self):
         """Update button text"""
-        self.button_toggle.setText(
-            BUTTON_STATE_TEXT[cfg.user.setting[self.module_name]["enable"]]
-        )
+        self.button_toggle.setText(BUTTON_STATE_TEXT[self.is_enabled()])
         self._parent.refresh_label()
 
     def open_config_dialog(self):

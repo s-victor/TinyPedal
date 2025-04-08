@@ -33,7 +33,7 @@ from ..api_control import api
 from ..setting import cfg
 
 QSS_LISTBOX = (
-    "QListView {font-size: 14px;outline: none;}"
+    "QListView {font-size: 10.5pt;outline: none;}"
     "QListView::item {height: 26px;border-radius: 0;}"
     "QListView::item:selected {selection-color: #FFF;background: #F20;}"
 )

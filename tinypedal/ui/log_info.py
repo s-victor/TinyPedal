@@ -20,7 +20,7 @@
 Log window
 """
 
-from PySide2.QtGui import QTextCursor
+from PySide2.QtGui import QTextCursor, QTextOption
 from PySide2.QtWidgets import (
     QDialogButtonBox,
     QFileDialog,
@@ -45,8 +45,9 @@ class LogInfo(BaseDialog):
 
         # Text view
         self.log_view = QTextBrowser(self)
-        self.log_view.setStyleSheet("font-size: 12px;")
+        self.log_view.setStyleSheet("font-size: 9pt;")
         self.log_view.setMinimumSize(550, 300)
+        self.log_view.setWordWrapMode(QTextOption.NoWrap)
         self.refresh_log()
 
         # Button

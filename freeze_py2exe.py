@@ -18,6 +18,7 @@ from tinypedal.const_app import (
     COPYRIGHT,
     PLATFORM,
     PSUTIL_VERSION,
+    PYSIDE_VERSION,
     PYTHON_VERSION,
     QT_VERSION,
     VERSION,
@@ -185,6 +186,7 @@ def build_start() -> None:
     print(f"INFO:TinyPedal: {VERSION}")
     print(f"INFO:Python: {PYTHON_VERSION}")
     print(f"INFO:Qt: {QT_VERSION}")
+    print(f"INFO:PySide: {PYSIDE_VERSION}")
     print(f"INFO:psutil: {PSUTIL_VERSION}")
     if PLATFORM == "Windows":
         cli_args = get_cli_argument()

@@ -49,11 +49,11 @@ from ..validator import is_allowed_filename
 from ._common import QVAL_FILENAME, BaseDialog
 
 QSS_LISTBOX = (
-    "QListView {font-size: 16px;outline: none;}"
+    "QListView {font-size: 12pt;outline: none;}"
     "QListView::item {height: 28px;border-radius: 0;}"
     "QListView::item:selected {selection-color: #FFF;background: #F20;}"
 )
-QSS_TAGGED_ITEM = "font-size: 14px;color: #FFF;margin: 4px 4px 4px 0px;border-radius: 3px;"
+QSS_TAGGED_ITEM = "font-size: 10.5pt;color: #FFF;margin: 4px 4px 4px 0px;border-radius: 3px;"
 QSS_TAGGED_STYLE = {
     "LMU": "background: #F20;",
     "RF2": "background: #0AF;",

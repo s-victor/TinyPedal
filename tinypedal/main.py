@@ -35,6 +35,7 @@ from .const_app import (
     PATH_GLOBAL,
     PID_FILE,
     PSUTIL_VERSION,
+    PYSIDE_VERSION,
     PYTHON_VERSION,
     QT_VERSION,
     VERSION,
@@ -111,10 +112,11 @@ def single_instance_check(is_single_instance: bool):
 
 def version_check():
     """Check version"""
-    logger.info("TinyPedal %s", VERSION)
-    logger.info("Python %s", PYTHON_VERSION)
-    logger.info("Qt %s", QT_VERSION)
-    logger.info("psutil %s", PSUTIL_VERSION)
+    logger.info("TinyPedal: %s", VERSION)
+    logger.info("Python: %s", PYTHON_VERSION)
+    logger.info("Qt: %s", QT_VERSION)
+    logger.info("PySide: %s", PYSIDE_VERSION)
+    logger.info("psutil: %s", PSUTIL_VERSION)
 
 
 def init_gui() -> QApplication:
