@@ -26,7 +26,8 @@ import os
 import sys
 
 import psutil
-from PySide2.QtGui import QFont, QIcon, QPixmapCache
+from PySide2.QtCore import QCoreApplication, Qt
+from PySide2.QtGui import QFont, QGuiApplication, QIcon, QPixmapCache
 from PySide2.QtWidgets import QApplication, QMessageBox
 
 from .cli_argument import get_cli_argument
@@ -34,6 +35,7 @@ from .const_app import (
     APP_NAME,
     PATH_GLOBAL,
     PID_FILE,
+    PLATFORM,
     PSUTIL_VERSION,
     PYSIDE_VERSION,
     PYTHON_VERSION,
@@ -42,6 +44,7 @@ from .const_app import (
 )
 from .const_file import ImageFile
 from .log_handler import set_logging_level
+from .setting import ConfigType, cfg
 
 logger = logging.getLogger(__package__)
 log_stream = io.StringIO()
@@ -137,10 +140,33 @@ def init_gui() -> QApplication:
     return root
 
 
+def set_environment():
+    """Set environment before starting GUI"""
+    if cfg.application["enable_high_dpi_scaling"]:
+        QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+        QGuiApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+    else:
+        os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"  # force disable (qt6 only)
+
+    if PLATFORM == "Windows":
+        if QT_VERSION[0] == "6":
+            os.environ["QT_MEDIA_BACKEND"] = "windows"
+        else:
+            if cfg.compatibility["multimedia_plugin_on_windows"] == "WMF":
+                multimedia_plugin = "windowsmediafoundation"
+            else:
+                multimedia_plugin = "directshow"
+            os.environ["QT_MULTIMEDIA_PREFERRED_PLUGINS"] = multimedia_plugin
+
+
 def start_app():
     """Init main window"""
     cli_args = get_cli_argument()
     set_logging_level(logger, log_stream, cli_args.log_level)
+    # load global config
+    cfg.load_global()
+    cfg.save(cfg_type=ConfigType.CONFIG)
+    set_environment()
     # Main GUI
     root = init_gui()
     single_instance_check(cli_args.single_instance)

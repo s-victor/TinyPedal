@@ -1,3 +1,10 @@
+WIP
+-----------------------------
+* Misc
+  - Add "enable_high_dpi_scaling" option in global user config, which enables window & overlay scaling under high DPI displays.
+    On windows, scaling is determined by percentage value set in "Display" > "Scale and Layout" setting.
+    This option is disabled by default. This option requires restarting TinyPedal to take effect.
+
 2.26.0 (2025-04-02)
 -----------------------------
 * Radar Widget

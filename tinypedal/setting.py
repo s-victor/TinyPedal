@@ -30,7 +30,7 @@ from types import MappingProxyType
 
 from . import regex_pattern as rxp
 from . import set_user_data_path
-from .const_app import APP_NAME, PATH_GLOBAL, PLATFORM, QT_VERSION
+from .const_app import APP_NAME, PATH_GLOBAL, PLATFORM
 from .const_file import ConfigType, FileExt
 from .setting_validator import StyleValidator
 from .template.setting_brakes import BRAKES_DEFAULT
@@ -245,7 +245,6 @@ class Setting:
         self.application = self.user.config["application"]
         self.compatibility = self.user.config["compatibility"]
         self.primary_preset = self.user.config["primary_preset"]
-        self.__set_environ()
 
     def update_path(self):
         """Update global path, call this if "user_path" changed"""
@@ -396,18 +395,6 @@ class Setting:
         # Run next save task in save queue if any
         if self._save_queue:
             self.save(0, next_task=True)
-
-    def __set_environ(self):
-        """Set environment variable"""
-        if PLATFORM == "Windows":
-            if QT_VERSION[0] == "6":
-                os.environ["QT_MEDIA_BACKEND"] = "windows"
-            else:
-                if self.compatibility["multimedia_plugin_on_windows"] == "WMF":
-                    multimedia_plugin = "windowsmediafoundation"
-                else:
-                    multimedia_plugin = "directshow"
-                os.environ["QT_MULTIMEDIA_PREFERRED_PLUGINS"] = multimedia_plugin
 
     @property
     def max_saving_attempts(self) -> int:

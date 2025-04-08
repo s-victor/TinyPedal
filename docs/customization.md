@@ -333,8 +333,8 @@ Remember main window last position.
     remember_size
 Remember main window last size.
 
-    show_confirmation_for_batch_toggle
-Show confirmation dialog for enabling or disabling all widgets or modules. This option is enabled by default.
+    enable_high_dpi_scaling
+Enable window and overlay scaling under high DPI displays. On windows, scaling is determined by percentage value set in `Display` > `Scale and Layout` setting. This option is disabled by default. This option requires restarting TinyPedal to take effect.
 
     enable_auto_load_preset
 Enable `Auto load preset` system to allow auto loading user-defined game-specific preset depends on active game (currently supports `RF2` and `LMU`).
@@ -342,6 +342,9 @@ Enable `Auto load preset` system to allow auto loading user-defined game-specifi
 Auto loading preset is triggered when a new or different game is started and active. Auto loading will only trigger once per game change. A preset must be tagged as `primary` for specific game before it can be auto loaded. See [Preset Management](#preset-management) section for details.
 
 This option is disabled by default.
+
+    show_confirmation_for_batch_toggle
+Show confirmation dialog for enabling or disabling all widgets or modules. This option is enabled by default.
 
     grid_move_size
 Set grid size for grid move, value in pixel. Default is `8` pixel. Minimum value is limited to `1`.

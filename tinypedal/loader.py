@@ -27,7 +27,7 @@ from .api_control import api
 from .const_file import FileExt
 from .module_control import mctrl, wctrl
 from .overlay_control import octrl
-from .setting import ConfigType, cfg
+from .setting import cfg
 
 logger = logging.getLogger(__name__)
 
@@ -35,21 +35,18 @@ logger = logging.getLogger(__name__)
 def start():
     """Start api, modules, widgets, etc. Call once per launch."""
     logger.info("STARTING............")
-    # 1 load global
-    cfg.load_global()
-    cfg.save(cfg_type=ConfigType.CONFIG)
-    # 2 load preset
+    # 1 load preset
     cfg.filename.setting = f"{cfg.preset_list[0]}{FileExt.JSON}"
     cfg.load()
     cfg.save()
-    # 3 start api
+    # 2 start api
     api.connect()
     api.start()
-    # 4 start modules
+    # 3 start modules
     mctrl.start()
-    # 5 start widgets
+    # 4 start widgets
     wctrl.start()
-    # 6 start main window
+    # 5 start main window
     from .ui.app import AppWindow
     config_window = AppWindow()
     signal.signal(signal.SIGINT, config_window.int_signal_handler)

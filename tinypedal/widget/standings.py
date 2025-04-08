@@ -712,7 +712,7 @@ class Realtime(Overlay):
         if state == 0:
             target.show()
         elif state == 1 and self.show_class_gap:  # draw gap
-            target.setText("")
+            target.clear()
             target.setStyleSheet(self.bar_split_style)
             target.show()
         else:
@@ -724,7 +724,7 @@ class Realtime(Overlay):
             target.show()
         elif state == 1 and self.show_class_gap:  # draw gap
             for _bar in target.bar_set:
-                _bar.setText("")
+                _bar.clear()
             target.setStyleSheet(self.bar_split_style)
             target.show()
         else:
