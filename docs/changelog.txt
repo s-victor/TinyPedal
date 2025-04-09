@@ -1,9 +1,13 @@
 WIP
 -----------------------------
 * Misc
+  - Heatmap Editor now shows temperature entries in table view, and supports multi-selection for offsetting and removing temperature, and up to one decimal place is kept.
+  - Fixed broken UI view under high DPI screen resolution. UI font & elements now scale relatively with system DPI scale setting.
   - Add "enable_high_dpi_scaling" option in global user config, which enables window & overlay scaling under high DPI displays.
-    On windows, scaling is determined by percentage value set in "Display" > "Scale and Layout" setting.
-    This option is disabled by default. This option requires restarting TinyPedal to take effect.
+    This option requires restarting TinyPedal to take effect. This option is disabled by default.
+    On Windows, scaling is determined by percentage value set in "Display" > "Scale and Layout" in windows setting.
+    For example, "200%" scale in windows setting will double the size of main UI and every widget.
+    On Linux, DPI scaling may already be forced "ON" in some system, which this option may not take effect.
 
 2.26.0 (2025-04-02)
 -----------------------------

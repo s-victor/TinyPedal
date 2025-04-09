@@ -36,7 +36,7 @@ from PySide2.QtWidgets import (
 
 from ..const_app import APP_NAME, COPYRIGHT, DESCRIPTION, LICENSE, URL_WEBSITE, VERSION
 from ..const_file import ImageFile
-from ._common import BaseDialog
+from ._common import FONT_BASE_SIZE_POINT, BaseDialog, ui_scale
 
 logger = logging.getLogger(__name__)
 
@@ -50,7 +50,7 @@ class About(BaseDialog):
     def __init__(self, parent):
         super().__init__(parent)
         self.setWindowTitle(f"About {APP_NAME}")
-        self.setStyleSheet("font-size: 9pt;")
+        self.setStyleSheet(f"font-size: {FONT_BASE_SIZE_POINT * 0.9}pt;")
 
         # Tab
         main_tab = self.add_tabs()
@@ -100,7 +100,7 @@ class About(BaseDialog):
         """New text tab"""
         new_tab = QTextBrowser(self)
         new_tab.setText(text)
-        new_tab.setMinimumSize(400, 300)
+        new_tab.setMinimumSize(ui_scale(30), ui_scale(22))
         return new_tab
 
     def new_about_tab(self):
@@ -108,8 +108,9 @@ class About(BaseDialog):
         new_tab = QWidget(self)
 
         # Logo
+        icon_size = ui_scale(10)
         logo_image = QPixmap(ImageFile.APP_ICON)
-        logo_image = logo_image.scaled(128, 128, mode=Qt.SmoothTransformation)
+        logo_image = logo_image.scaled(icon_size, icon_size, mode=Qt.SmoothTransformation)
 
         label_logo = QLabel()
         label_logo.setPixmap(logo_image)
@@ -117,7 +118,7 @@ class About(BaseDialog):
 
         # Description
         label_name = QLabel(APP_NAME)
-        label_name.setStyleSheet("font-size: 14pt;")
+        label_name.setStyleSheet(f"font-size: {FONT_BASE_SIZE_POINT * 1.4}pt;")
         label_name.setAlignment(Qt.AlignCenter)
 
         label_version = QLabel(f"Version {VERSION}")
@@ -132,13 +133,14 @@ class About(BaseDialog):
 
         # Layout
         layout_about = QVBoxLayout()
-        layout_about.addSpacing(10)
+        layout_about.addSpacing(ui_scale(1))
         layout_about.addWidget(label_logo)
-        layout_about.addSpacing(10)
+        layout_about.addSpacing(ui_scale(1))
         layout_about.addWidget(label_name)
         layout_about.addWidget(label_version)
-        layout_about.addSpacing(10)
+        layout_about.addSpacing(ui_scale(1))
         layout_about.addWidget(label_desc)
+        layout_about.addSpacing(ui_scale(1))
         layout_about.setAlignment(Qt.AlignHCenter | Qt.AlignTop)
         new_tab.setLayout(layout_about)
         return new_tab

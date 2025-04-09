@@ -34,6 +34,7 @@ from PySide2.QtGui import (
     qGray,
 )
 from PySide2.QtWidgets import (
+    QApplication,
     QCheckBox,
     QColorDialog,
     QComboBox,
@@ -58,6 +59,15 @@ from ..const_app import APP_NAME
 from ..const_file import FileFilter
 from ..validator import image_exists, is_hex_color, is_string_number
 
+# Global base font size in point (not counting dpi scale)
+FONT_BASE_SIZE_POINT = QApplication.font().pointSize()
+
+# Global base font size in pixel (dpi scaled)
+# dpi scale = font dpi / 96
+# px = (pt * dpi scale) * 96 / 72
+# px = pt * font dpi / 72
+FONT_BASE_SIZE_PIXEL_SCALED = FONT_BASE_SIZE_POINT * QApplication.fontMetrics().fontDpi() / 72
+
 # Validator
 QLOC_NUMBER = QLocale(QLocale.C)
 QLOC_NUMBER.setNumberOptions(QLocale.RejectGroupSeparator)
@@ -70,10 +80,11 @@ QVAL_HEATMAP = QRegularExpressionValidator(QRegularExpression('[0-9a-zA-Z_]*'))
 QVAL_FILENAME = QRegularExpressionValidator(QRegularExpression('[^\\\\/:*?"<>|]*'))
 
 # QStyleSheet
-QSS_EDITOR_BUTTON = "QPushButton {padding: 3px 7px;}"
+QSS_OPTION_WIDGET = "QLineEdit, QCheckBox, QComboBox {min-height: 1.25em;}"
+QSS_EDITOR_BUTTON = "QPushButton {padding: 0 0.5em;min-height: 1.25em;}"
 QSS_EDITOR_LISTBOX = (
     "QListView {outline: none;}"
-    "QListView::item {height: 32px;border-radius: 0;}"
+    "QListView::item {height: 2.4em;border-radius: 0;}"
     "QListView::item:selected {background: transparent;}"
     "QListView::item:hover {background: transparent;}"
 )
@@ -85,6 +96,11 @@ color_pick_history = deque(
 )
 
 
+def ui_scale(scale: int) -> int:
+    """Scale UI size relatively (to pixels) based on primary font size (scaled with dpi)"""
+    return round(FONT_BASE_SIZE_PIXEL_SCALED * scale)
+
+
 # Class
 class BaseDialog(QDialog):
     """Base dialog class"""
@@ -93,6 +109,7 @@ class BaseDialog(QDialog):
         super().__init__(parent)
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
+        self.setStyleSheet(QSS_OPTION_WIDGET)
 
     def set_config_title(self, option_name: str, preset_name: str):
         """Set config dialog title"""
@@ -246,7 +263,7 @@ class BatchOffset(BaseDialog):
         layout_main.addWidget(self.checkbox_scale)
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
-        self.setFixedSize(150, self.sizeHint().height())
+        self.setFixedSize(ui_scale(12), self.sizeHint().height())
 
     def toggle_mode(self, checked: bool):
         """Toggle mode"""
@@ -329,7 +346,7 @@ class TableBatchReplace(BaseDialog):
         layout_main.addLayout(layout_option)
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
-        self.setMinimumWidth(300)
+        self.setMinimumWidth(ui_scale(22))
         self.setFixedHeight(self.sizeHint().height())
 
     def update_selector(self, column_index: int, last_search: str = ""):

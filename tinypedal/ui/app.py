@@ -39,6 +39,7 @@ from ..const_app import APP_NAME, VERSION
 from ..module_control import mctrl, wctrl
 from ..overlay_control import octrl
 from ..setting import ConfigType, cfg
+from ._common import ui_scale
 from .menu import ConfigMenu, HelpMenu, OverlayMenu, ToolsMenu, WindowMenu
 from .module_view import ModuleList
 from .pace_notes_view import PaceNotesControl
@@ -70,12 +71,12 @@ class AppWindow(QMainWindow):
         self.notify_spectate = QPushButton("Spectate Mode Enabled")
         self.notify_spectate.clicked.connect(self.goto_spectate_tab)
         self.notify_spectate.setStyleSheet(
-            "font-weight: bold;color: #fff;background: #09C;padding: 4px;border-radius: 0;"
+            "font-weight: bold;color: #fff;background: #09C;padding: 0.3em;border-radius: 0;"
         )
         self.notify_pacenotes = QPushButton("Pace Notes Playback Enabled")
         self.notify_pacenotes.clicked.connect(self.goto_pacenotes_tab)
         self.notify_pacenotes.setStyleSheet(
-            "font-weight: bold;color: #fff;background: #290;padding: 4px;border-radius: 0;"
+            "font-weight: bold;color: #fff;background: #290;padding: 0.3em;border-radius: 0;"
         )
         layout_notify = QVBoxLayout()
         layout_notify.addWidget(self.notify_spectate)
@@ -150,8 +151,7 @@ class AppWindow(QMainWindow):
 
     def set_window_state(self):
         """Set initial window state"""
-        self.setMinimumWidth(300)
-        self.setMinimumHeight(462)
+        self.setMinimumSize(ui_scale(23), ui_scale(36))
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)  # disable maximize
 
         if cfg.application["remember_size"]:

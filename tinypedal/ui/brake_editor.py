@@ -44,9 +44,10 @@ from ._common import (
     BaseEditor,
     #TableBatchReplace,
     QTableFloatItem,
+    ui_scale,
 )
 
-HEADER_BRAKES = "Brake name","Failure Thickness (mm)","Heatmap name"
+HEADER_BRAKES = "Brake name","Failure (mm)","Heatmap name"
 
 logger = logging.getLogger(__name__)
 
@@ -57,7 +58,7 @@ class BrakeEditor(BaseEditor):
     def __init__(self, parent):
         super().__init__(parent)
         self.set_utility_title("Brake Editor")
-        self.setMinimumSize(600, 500)
+        self.setMinimumSize(ui_scale(45), ui_scale(38))
 
         self.brakes_temp = copy_setting(cfg.user.brakes)
 
@@ -67,9 +68,10 @@ class BrakeEditor(BaseEditor):
         self.table_brakes.setHorizontalHeaderLabels(HEADER_BRAKES)
         self.table_brakes.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.table_brakes.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        font_w = self.fontMetrics().averageCharWidth()
+        self.table_brakes.horizontalHeader().setSectionResizeMode(1, QHeaderView.Fixed)
         self.table_brakes.horizontalHeader().setSectionResizeMode(2, QHeaderView.Fixed)
-        self.table_brakes.setColumnWidth(2, font_w * 26)
+        self.table_brakes.setColumnWidth(1, ui_scale(8))
+        self.table_brakes.setColumnWidth(2, ui_scale(12))
         self.table_brakes.cellChanged.connect(self.verify_input)
         self.refresh_table()
         self.set_unmodified()

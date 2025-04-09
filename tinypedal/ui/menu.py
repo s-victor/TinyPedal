@@ -319,7 +319,7 @@ class ConfigMenu(QMenu):
             user_setting=cfg.user.config,
             default_setting=cfg.default.config,
             reload_func=self._parent.reload_preset,
-            option_width=300,
+            option_width=22,
         )
         _dialog.open()
 

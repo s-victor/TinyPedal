@@ -45,7 +45,7 @@ from .. import calculation as calc
 from ..const_file import FileExt, FileFilter
 from ..setting import ConfigType, cfg
 from ..userfile.track_map import load_track_map_file
-from ._common import QSS_EDITOR_BUTTON, BaseDialog
+from ._common import QSS_EDITOR_BUTTON, BaseDialog, ui_scale
 from .config import UserConfig
 
 
@@ -88,7 +88,7 @@ class TrackMapViewer(BaseDialog):
         layout_trackmap.setContentsMargins(0,0,0,0)
 
         trackmap_panel = QFrame(self)
-        trackmap_panel.setMinimumSize(500, 500)
+        trackmap_panel.setMinimumSize(ui_scale(38), ui_scale(38))
         trackmap_panel.setLayout(layout_trackmap)
         return trackmap_panel
 

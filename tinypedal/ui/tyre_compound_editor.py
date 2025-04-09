@@ -43,6 +43,7 @@ from ._common import (
     QSS_EDITOR_BUTTON,
     BaseEditor,
     TableBatchReplace,
+    ui_scale,
 )
 
 HEADER_COMPOUNDS = "Compound name","Symbol","Heatmap name"
@@ -56,7 +57,7 @@ class TyreCompoundEditor(BaseEditor):
     def __init__(self, parent):
         super().__init__(parent)
         self.set_utility_title("Tyre Compound Editor")
-        self.setMinimumSize(600, 500)
+        self.setMinimumSize(ui_scale(45), ui_scale(38))
 
         self.compounds_temp = copy_setting(cfg.user.compounds)
 
@@ -66,11 +67,10 @@ class TyreCompoundEditor(BaseEditor):
         self.table_compounds.setHorizontalHeaderLabels(HEADER_COMPOUNDS)
         self.table_compounds.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.table_compounds.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        font_w = self.fontMetrics().averageCharWidth()
         self.table_compounds.horizontalHeader().setSectionResizeMode(1, QHeaderView.Fixed)
-        self.table_compounds.setColumnWidth(1, font_w * 13)
+        self.table_compounds.setColumnWidth(1, ui_scale(6))
         self.table_compounds.horizontalHeader().setSectionResizeMode(2, QHeaderView.Fixed)
-        self.table_compounds.setColumnWidth(2, font_w * 26)
+        self.table_compounds.setColumnWidth(2, ui_scale(12))
         self.table_compounds.cellChanged.connect(self.verify_input)
         self.refresh_table()
         self.set_unmodified()

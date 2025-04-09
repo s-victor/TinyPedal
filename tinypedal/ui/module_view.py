@@ -34,26 +34,30 @@ from PySide2.QtWidgets import (
 from ..formatter import format_module_name
 from ..module_control import ModuleControl
 from ..setting import cfg
+from ._common import FONT_BASE_SIZE_POINT
 from .config import UserConfig
 
 BUTTON_STATE_TEXT = "OFF", "ON"
 QSS_LISTBOX = (
     "QListView {outline: none;}"
-    "QListView::item {height: 28px;border-radius: 0;}"
+    "QListView::item {height: 1.75em;border-radius: 0;padding: 0 0.25em;}"
     "QListView::item:selected {background: transparent;}"
     "QListView::item:hover {background: transparent;}"
 )
-QSS_LISTBOX_ITEM = "QWidget {font-size: 12pt;} QPushButton {font-size: 10.5pt;}"
+QSS_LISTBOX_ITEM = (
+    f"QWidget {{font-size: {FONT_BASE_SIZE_POINT * 1.2}pt;}}"
+    f"QPushButton {{font-size: {FONT_BASE_SIZE_POINT * 1.05}pt;}}"
+)
 QSS_BUTTON_TOGGLE = (
     "QPushButton {color: #555;background: #CCC;"
-    "min-width: 30px;padding: 2px 3px;border-radius: 3px;}"
+    "min-width: 1.875em;padding: 0.125em 0.2em;border-radius: 0.2em;}"
     "QPushButton::hover {color: #FFF;background: #F20;}"
     "QPushButton::pressed {color: #FFF;background: #555;}"
     "QPushButton::checked {color: #FFF;background: #555;}"
     "QPushButton::checked:hover {color: #FFF;background: #F20;}"
 )
 QSS_BUTTON_CONFIG = (
-    "QPushButton {color: #AAA;padding: 2px 5px;border-radius: 3px;}"
+    "QPushButton {color: #AAA;padding: 0.125em 0.32em;border-radius: 0.2em;margin: 0 0.25em}"
     "QPushButton::hover {color: #FFF;background: #F20;}"
     "QPushButton::pressed {color: #FFF;background: #555;}"
     "QPushButton::checked {color: #FFF;background: #555;}"
@@ -175,11 +179,11 @@ class ListItemControl(QWidget):
         button_config.pressed.connect(self.open_config_dialog)
 
         layout_item = QHBoxLayout()
-        layout_item.setContentsMargins(4, 0, 4, 0)
+        layout_item.setContentsMargins(0, 0, 0, 0)
         layout_item.addWidget(label_module, stretch=1)
         layout_item.addWidget(button_config)
         layout_item.addWidget(self.button_toggle)
-        layout_item.setSpacing(4)
+        layout_item.setSpacing(0)
 
         self.setStyleSheet(QSS_LISTBOX_ITEM)
         self.setLayout(layout_item)

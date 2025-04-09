@@ -31,10 +31,11 @@ from PySide2.QtWidgets import (
 
 from ..api_control import api
 from ..setting import cfg
+from ._common import FONT_BASE_SIZE_POINT
 
 QSS_LISTBOX = (
-    "QListView {font-size: 10.5pt;outline: none;}"
-    "QListView::item {height: 26px;border-radius: 0;}"
+    f"QListView {{font-size: {FONT_BASE_SIZE_POINT * 1.05}pt;outline: none;}}"
+    "QListView::item {height: 1.75em;border-radius: 0;padding: 0 0.25em;}"
     "QListView::item:selected {selection-color: #FFF;background: #F20;}"
 )
 

@@ -334,7 +334,11 @@ Remember main window last position.
 Remember main window last size.
 
     enable_high_dpi_scaling
-Enable window and overlay scaling under high DPI displays. On windows, scaling is determined by percentage value set in `Display` > `Scale and Layout` setting. This option is disabled by default. This option requires restarting TinyPedal to take effect.
+Enable window and overlay scaling under high DPI displays. This option requires restarting TinyPedal to take effect. This option is disabled by default.
+
+On Windows, scaling is determined by percentage value set in `Display` > `Scale and Layout` setting. For example, `200%` scale in windows setting will double the size of main UI and every widget.
+
+On Linux, DPI scaling may already be forced `ON` in some system, which this option may not take effect.
 
     enable_auto_load_preset
 Enable `Auto load preset` system to allow auto loading user-defined game-specific preset depends on active game (currently supports `RF2` and `LMU`).
@@ -764,7 +768,7 @@ Brake editor is used for editing [Brakes Preset](#brakes-preset). Note, any chan
 
 `Brake name` column is full vehicle class name plus brake name that must match in-game vehicle.
 
-`Failure Thickness (mm)` column is millimeter thickness threshold at brake failure and affects brake wear calculation. See [Brake Wear](#brake-wear) widget for details.
+`Failure (mm)` column is millimeter thickness threshold at brake failure and affects brake wear calculation. See [Brake Wear](#brake-wear) widget for details.
 
 `Heatmap name` column is heatmap style name selector. Click on heatmap selector to open drop down list and select a heatmap style.
 
@@ -808,15 +812,15 @@ To reset all tyre compounds setting to default, click `Reset` button; or manuall
 
 Heatmap editor is used for editing [Heatmap Preset](#heatmap-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
-Each row represents a target temperature and corresponding color. First column is temperature degree value in `Celsius`. Second column is corresponding color (HEX code). Double-click on color to open color dialog.
+Each row represents a target temperature and corresponding color. First column is temperature degree value in `Celsius` and keeps one decimal place. Second column is corresponding color (HEX code). Double-click on color to open color dialog.
 
 To add temperature, click `Add` button.
 
 To sort temperature list in orders, click `Sort` button.
 
-To batch offset temperature values, click `Offset` button. Click `Scale Mode` check box to scale temperature values. Note, offset option will be reset to `0` each time after applying. Last applied offset value is displayed on top of dialog.
+To batch offset temperature values, select one or more temperature from `temperature` column, then click `Offset` button. Click `Scale Mode` check box to scale temperature values. Note, offset option will be reset to `0` each time after applying. Last applied offset value is displayed on top of dialog.
 
-To remove a temperature, click `X` button of a temperature row.
+To remove a temperature, select one or more temperature and click `Remove` button.
 
 To select a different heatmap preset, click `drop-down list` at top, and select a preset name. Note: by selecting a different preset, any changes to previously selected heatmap will be saved in cache, and only be saved to file after clicking `Apply` or `Save` Button.
 

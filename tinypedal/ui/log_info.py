@@ -33,7 +33,7 @@ from PySide2.QtWidgets import (
 
 from ..const_file import FileFilter
 from ..main import log_stream
-from ._common import QSS_EDITOR_BUTTON, BaseDialog
+from ._common import FONT_BASE_SIZE_POINT, QSS_EDITOR_BUTTON, BaseDialog, ui_scale
 
 
 class LogInfo(BaseDialog):
@@ -45,8 +45,8 @@ class LogInfo(BaseDialog):
 
         # Text view
         self.log_view = QTextBrowser(self)
-        self.log_view.setStyleSheet("font-size: 9pt;")
-        self.log_view.setMinimumSize(550, 300)
+        self.log_view.setStyleSheet(f"font-size: {FONT_BASE_SIZE_POINT * 0.9}pt;")
+        self.log_view.setMinimumSize(ui_scale(42), ui_scale(22))
         self.log_view.setWordWrapMode(QTextOption.NoWrap)
         self.refresh_log()
 

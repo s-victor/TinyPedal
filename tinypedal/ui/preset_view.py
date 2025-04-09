@@ -46,14 +46,17 @@ from ..const_file import FileExt
 from ..formatter import strip_filename_extension
 from ..setting import ConfigType, cfg
 from ..validator import is_allowed_filename
-from ._common import QVAL_FILENAME, BaseDialog
+from ._common import FONT_BASE_SIZE_POINT, QVAL_FILENAME, BaseDialog, ui_scale
 
 QSS_LISTBOX = (
-    "QListView {font-size: 12pt;outline: none;}"
-    "QListView::item {height: 28px;border-radius: 0;}"
+    f"QListView {{font-size: {FONT_BASE_SIZE_POINT * 1.2}pt;outline: none;}}"
+    "QListView::item {height: 1.75em;border-radius: 0;padding: 0 0.25em;}"
     "QListView::item:selected {selection-color: #FFF;background: #F20;}"
 )
-QSS_TAGGED_ITEM = "font-size: 10.5pt;color: #FFF;margin: 4px 4px 4px 0px;border-radius: 3px;"
+QSS_TAGGED_ITEM = (
+    f"font-size: {FONT_BASE_SIZE_POINT * 1.05}pt;"
+    "color: #FFF;margin: 0.25em 0 0.25em 0.25em;border-radius: 0.2em;"
+)
 QSS_TAGGED_STYLE = {
     "LMU": "background: #F20;",
     "RF2": "background: #0AF;",
@@ -272,7 +275,7 @@ class CreatePreset(BaseDialog):
         self.source_filename = source_filename
 
         self.setWindowTitle(title)
-        self.setFixedWidth(280)
+        self.setMinimumWidth(ui_scale(21))
 
         # Entry box
         self.preset_entry = QLineEdit()
@@ -346,7 +349,7 @@ class PrimaryPresetTag(QWidget):
     def __init__(self, parent, preset_name: str):
         super().__init__(parent)
         layout_item = QHBoxLayout()
-        layout_item.setContentsMargins(0,0,0,0)
+        layout_item.setContentsMargins(0, 0, 0, 0)
         layout_item.setSpacing(0)
         layout_item.addStretch(stretch=1)
 

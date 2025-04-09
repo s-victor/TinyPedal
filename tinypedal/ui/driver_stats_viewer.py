@@ -54,6 +54,7 @@ from ._common import (
     QSS_EDITOR_BUTTON,
     BaseEditor,
     QTableNumTextItem,
+    ui_scale,
 )
 from .track_map_viewer import TrackMapViewer
 
@@ -104,7 +105,7 @@ class DriverStatsViewer(BaseEditor):
     def __init__(self, parent):
         super().__init__(parent)
         self.set_utility_title("Driver Stats Viewer")
-        self.setMinimumSize(850, 400)
+        self.setMinimumSize(ui_scale(66), ui_scale(30))
 
         self.stats_temp = {}
         self.selected_stats_key = ""  # get active session key
@@ -123,13 +124,12 @@ class DriverStatsViewer(BaseEditor):
         self.table_stats.verticalHeader().setVisible(False)
         self.table_stats.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.table_stats.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        font_w = self.fontMetrics().averageCharWidth()
         for idx in range(1, 5):
             self.table_stats.horizontalHeader().setSectionResizeMode(idx, QHeaderView.Fixed)
-            self.table_stats.setColumnWidth(idx, font_w * 14)
+            self.table_stats.setColumnWidth(idx, ui_scale(6))
         for idx in range(5, len(self.table_header_key)):
             self.table_stats.horizontalHeader().setSectionResizeMode(idx, QHeaderView.Fixed)
-            self.table_stats.setColumnWidth(idx, font_w * 10)
+            self.table_stats.setColumnWidth(idx, ui_scale(5))
 
         self.table_stats.setContextMenuPolicy(Qt.CustomContextMenu)
         self.table_stats.customContextMenuRequested.connect(self.open_context_menu)

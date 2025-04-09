@@ -48,6 +48,7 @@ from ._common import (
     QSS_EDITOR_BUTTON,
     BaseEditor,
     TableBatchReplace,
+    ui_scale,
 )
 
 HEADER_BRANDS = "Vehicle name","Brand name"
@@ -61,7 +62,7 @@ class VehicleBrandEditor(BaseEditor):
     def __init__(self, parent):
         super().__init__(parent)
         self.set_utility_title("Vehicle Brand Editor")
-        self.setMinimumSize(600, 500)
+        self.setMinimumSize(ui_scale(45), ui_scale(38))
 
         self.brands_temp = copy_setting(cfg.user.brands)
 
