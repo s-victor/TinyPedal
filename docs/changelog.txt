@@ -1,13 +1,17 @@
 WIP
 -----------------------------
-* Misc
-  - Heatmap Editor now shows temperature entries in table view, and supports multi-selection for offsetting and removing temperature, and up to one decimal place is kept.
-  - Fixed broken UI view under high DPI screen resolution. UI font & elements now scale relatively with system DPI scale setting.
-  - Add "enable_high_dpi_scaling" option in global user config, which enables window & overlay scaling under high DPI displays.
+* Window dialog & DPI scale
+  - Fixed broken main window dialog view under high DPI screen resolution. Main window dialog font & elements now scale relatively with system DPI scale setting.
+    Note, while TinyPedal is running, changing screen DPI scale may still break main window dialog view, and requires restarting TinyPedal to scale correctly according to new DPI scale setting.
+    Alternatively, enable the new "enable_high_dpi_scaling" option to allow auto-scaling window dialog while TinyPedal is running.
+  - Add "enable_high_dpi_scaling" option in global user config, which enables window dialog and overlay widget auto-scaling under high DPI screen resolution.
     This option requires restarting TinyPedal to take effect. This option is disabled by default.
     On Windows, scaling is determined by percentage value set in "Display" > "Scale and Layout" in windows setting.
-    For example, "200%" scale in windows setting will double the size of main UI and every widget.
-    On Linux, DPI scaling may already be forced "ON" in some system, which this option may not take effect.
+    For example, "200%" scale in windows setting will double the size of main window dialog and also every widget.
+    On Linux, DPI scaling may already be forced "ON" in some system, which this option may not have effect.
+
+* Misc
+  - Heatmap Editor now shows temperature entries in table view, and supports multi-selection for offsetting and removing temperature, and up to one decimal place is kept.
 
 2.26.0 (2025-04-02)
 -----------------------------

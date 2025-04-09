@@ -39,7 +39,7 @@ from ..const_app import APP_NAME, VERSION
 from ..module_control import mctrl, wctrl
 from ..overlay_control import octrl
 from ..setting import ConfigType, cfg
-from ._common import ui_scale
+from ._common import UIScaler
 from .menu import ConfigMenu, HelpMenu, OverlayMenu, ToolsMenu, WindowMenu
 from .module_view import ModuleList
 from .pace_notes_view import PaceNotesControl
@@ -151,7 +151,7 @@ class AppWindow(QMainWindow):
 
     def set_window_state(self):
         """Set initial window state"""
-        self.setMinimumSize(ui_scale(23), ui_scale(36))
+        self.setMinimumSize(UIScaler.size(23), UIScaler.size(36))
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)  # disable maximize
 
         if cfg.application["remember_size"]:

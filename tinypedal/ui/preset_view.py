@@ -46,15 +46,15 @@ from ..const_file import FileExt
 from ..formatter import strip_filename_extension
 from ..setting import ConfigType, cfg
 from ..validator import is_allowed_filename
-from ._common import FONT_BASE_SIZE_POINT, QVAL_FILENAME, BaseDialog, ui_scale
+from ._common import QVAL_FILENAME, BaseDialog, UIScaler
 
 QSS_LISTBOX = (
-    f"QListView {{font-size: {FONT_BASE_SIZE_POINT * 1.2}pt;outline: none;}}"
+    f"QListView {{font-size: {UIScaler.font(1.2)}pt;outline: none;}}"
     "QListView::item {height: 1.75em;border-radius: 0;padding: 0 0.25em;}"
     "QListView::item:selected {selection-color: #FFF;background: #F20;}"
 )
 QSS_TAGGED_ITEM = (
-    f"font-size: {FONT_BASE_SIZE_POINT * 1.05}pt;"
+    f"font-size: {UIScaler.font(1.05)}pt;"
     "color: #FFF;margin: 0.25em 0 0.25em 0.25em;border-radius: 0.2em;"
 )
 QSS_TAGGED_STYLE = {
@@ -275,7 +275,7 @@ class CreatePreset(BaseDialog):
         self.source_filename = source_filename
 
         self.setWindowTitle(title)
-        self.setMinimumWidth(ui_scale(21))
+        self.setMinimumWidth(UIScaler.size(21))
 
         # Entry box
         self.preset_entry = QLineEdit()

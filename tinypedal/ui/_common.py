@@ -59,15 +59,6 @@ from ..const_app import APP_NAME
 from ..const_file import FileFilter
 from ..validator import image_exists, is_hex_color, is_string_number
 
-# Global base font size in point (not counting dpi scale)
-FONT_BASE_SIZE_POINT = QApplication.font().pointSize()
-
-# Global base font size in pixel (dpi scaled)
-# dpi scale = font dpi / 96
-# px = (pt * dpi scale) * 96 / 72
-# px = pt * font dpi / 72
-FONT_BASE_SIZE_PIXEL_SCALED = FONT_BASE_SIZE_POINT * QApplication.fontMetrics().fontDpi() / 72
-
 # Validator
 QLOC_NUMBER = QLocale(QLocale.C)
 QLOC_NUMBER.setNumberOptions(QLocale.RejectGroupSeparator)
@@ -96,9 +87,25 @@ color_pick_history = deque(
 )
 
 
-def ui_scale(scale: int) -> int:
-    """Scale UI size relatively (to pixels) based on primary font size (scaled with dpi)"""
-    return round(FONT_BASE_SIZE_PIXEL_SCALED * scale)
+class UIScaler:
+    """UI font & size scaler"""
+    # Global base font size in point (not counting dpi scale)
+    FONT_BASE_POINT = QApplication.font().pointSize()
+    # Global base font size in pixel (dpi scaled)
+    # dpi scale = font dpi / 96
+    # px = (pt * dpi scale) * 96 / 72
+    # px = pt * font dpi / 72
+    FONT_BASE_PIXEL_SCALED = QApplication.font().pointSize() * QApplication.fontMetrics().fontDpi() / 72
+
+    @staticmethod
+    def font(scale: float) -> float:
+        """Scale UI font size (points) relative to primary font size (not counting dpi scale)"""
+        return UIScaler.FONT_BASE_POINT * scale
+
+    @staticmethod
+    def size(scale: int) -> int:
+        """Scale UI size (pixels) relative to primary font size (scaled with dpi)"""
+        return round(UIScaler.FONT_BASE_PIXEL_SCALED * scale)
 
 
 # Class
@@ -263,7 +270,7 @@ class BatchOffset(BaseDialog):
         layout_main.addWidget(self.checkbox_scale)
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
-        self.setFixedSize(ui_scale(12), self.sizeHint().height())
+        self.setFixedSize(UIScaler.size(12), self.sizeHint().height())
 
     def toggle_mode(self, checked: bool):
         """Toggle mode"""
@@ -346,7 +353,7 @@ class TableBatchReplace(BaseDialog):
         layout_main.addLayout(layout_option)
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
-        self.setMinimumWidth(ui_scale(22))
+        self.setMinimumWidth(UIScaler.size(22))
         self.setFixedHeight(self.sizeHint().height())
 
     def update_selector(self, column_index: int, last_search: str = ""):
@@ -462,9 +469,7 @@ class DoubleClickEdit(QLineEdit):
             else:
                 fg_color = "#000"
             # Apply style
-            self.setStyleSheet(
-                f"QLineEdit {{color:{fg_color};background:{color_str};}}"
-            )
+            self.setStyleSheet(f"QLineEdit {{color:{fg_color};background:{color_str};}}")
 
 
 class QTableFloatItem(QTableWidgetItem):

@@ -34,7 +34,7 @@ from PySide2.QtWidgets import (
 from ..formatter import format_module_name
 from ..module_control import ModuleControl
 from ..setting import cfg
-from ._common import FONT_BASE_SIZE_POINT
+from ._common import UIScaler
 from .config import UserConfig
 
 BUTTON_STATE_TEXT = "OFF", "ON"
@@ -45,8 +45,8 @@ QSS_LISTBOX = (
     "QListView::item:hover {background: transparent;}"
 )
 QSS_LISTBOX_ITEM = (
-    f"QWidget {{font-size: {FONT_BASE_SIZE_POINT * 1.2}pt;}}"
-    f"QPushButton {{font-size: {FONT_BASE_SIZE_POINT * 1.05}pt;}}"
+    f"QWidget {{font-size: {UIScaler.font(1.2)}pt;}}"
+    f"QPushButton {{font-size: {UIScaler.font(1.05)}pt;}}"
 )
 QSS_BUTTON_TOGGLE = (
     "QPushButton {color: #555;background: #CCC;"

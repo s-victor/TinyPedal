@@ -53,7 +53,7 @@ from ._common import (
     QVAL_INTEGER,
     BaseDialog,
     DoubleClickEdit,
-    ui_scale,
+    UIScaler,
 )
 
 COLUMN_LABEL = 0  # grid layout column index
@@ -73,15 +73,15 @@ class FontConfig(BaseDialog):
         # Combobox
         self.edit_fontname = QFontComboBox(self)
         self.edit_fontname.setCurrentText("no change")
-        self.edit_fontname.setFixedWidth(ui_scale(9))
+        self.edit_fontname.setFixedWidth(UIScaler.size(9))
 
         self.edit_fontsize = QSpinBox(self)
         self.edit_fontsize.setRange(-999,999)
-        self.edit_fontsize.setFixedWidth(ui_scale(9))
+        self.edit_fontsize.setFixedWidth(UIScaler.size(9))
 
         self.edit_fontweight = QComboBox(self)
         self.edit_fontweight.addItems(("no change", *rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT]))
-        self.edit_fontweight.setFixedWidth(ui_scale(9))
+        self.edit_fontweight.setFixedWidth(UIScaler.size(9))
 
         layout_option = QGridLayout()
         layout_option.setAlignment(Qt.AlignTop)
@@ -167,7 +167,7 @@ class UserConfig(BaseDialog):
         self.cfg_type = cfg_type
         self.user_setting = user_setting
         self.default_setting = default_setting
-        self.option_width = ui_scale(option_width)
+        self.option_width = UIScaler.size(option_width)
 
         # Option dict (key: option editor)
         self.option_bool: dict = {}
@@ -214,7 +214,7 @@ class UserConfig(BaseDialog):
         layout_button.addWidget(button_save)
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
-        self.setMinimumWidth(self.sizeHint().width() + ui_scale(2))
+        self.setMinimumWidth(self.sizeHint().width() + UIScaler.size(2))
 
     def applying(self):
         """Save & apply"""

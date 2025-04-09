@@ -334,11 +334,11 @@ Remember main window last position.
 Remember main window last size.
 
     enable_high_dpi_scaling
-Enable window and overlay scaling under high DPI displays. This option requires restarting TinyPedal to take effect. This option is disabled by default.
+Enable window dialog and overlay widget auto-scaling under high DPI screen resolution. This option requires restarting TinyPedal to take effect. This option is disabled by default.
 
-On Windows, scaling is determined by percentage value set in `Display` > `Scale and Layout` setting. For example, `200%` scale in windows setting will double the size of main UI and every widget.
+On Windows, scaling is determined by percentage value set in `Display` > `Scale and Layout` setting. For example, `200%` scale in windows setting will double the size of main window dialog and also every widget.
 
-On Linux, DPI scaling may already be forced `ON` in some system, which this option may not take effect.
+On Linux, DPI scaling may already be forced `ON` in some system, which this option may not have effect.
 
     enable_auto_load_preset
 Enable `Auto load preset` system to allow auto loading user-defined game-specific preset depends on active game (currently supports `RF2` and `LMU`).
@@ -812,7 +812,7 @@ To reset all tyre compounds setting to default, click `Reset` button; or manuall
 
 Heatmap editor is used for editing [Heatmap Preset](#heatmap-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
-Each row represents a target temperature and corresponding color. First column is temperature degree value in `Celsius` and keeps one decimal place. Second column is corresponding color (HEX code). Double-click on color to open color dialog.
+Each row represents a target temperature and corresponding color. First column is temperature degree value in `Celsius`, and up to one decimal place is kept. Second column is corresponding color (HEX code). Double-click on color to open color dialog.
 
 To add temperature, click `Add` button.
 

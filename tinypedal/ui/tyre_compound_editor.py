@@ -43,7 +43,7 @@ from ._common import (
     QSS_EDITOR_BUTTON,
     BaseEditor,
     TableBatchReplace,
-    ui_scale,
+    UIScaler,
 )
 
 HEADER_COMPOUNDS = "Compound name","Symbol","Heatmap name"
@@ -57,7 +57,7 @@ class TyreCompoundEditor(BaseEditor):
     def __init__(self, parent):
         super().__init__(parent)
         self.set_utility_title("Tyre Compound Editor")
-        self.setMinimumSize(ui_scale(45), ui_scale(38))
+        self.setMinimumSize(UIScaler.size(45), UIScaler.size(38))
 
         self.compounds_temp = copy_setting(cfg.user.compounds)
 
@@ -68,9 +68,9 @@ class TyreCompoundEditor(BaseEditor):
         self.table_compounds.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.table_compounds.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_compounds.horizontalHeader().setSectionResizeMode(1, QHeaderView.Fixed)
-        self.table_compounds.setColumnWidth(1, ui_scale(6))
+        self.table_compounds.setColumnWidth(1, UIScaler.size(6))
         self.table_compounds.horizontalHeader().setSectionResizeMode(2, QHeaderView.Fixed)
-        self.table_compounds.setColumnWidth(2, ui_scale(12))
+        self.table_compounds.setColumnWidth(2, UIScaler.size(12))
         self.table_compounds.cellChanged.connect(self.verify_input)
         self.refresh_table()
         self.set_unmodified()

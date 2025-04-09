@@ -43,7 +43,7 @@ from ._common import (
     QVAL_COLOR,
     BaseEditor,
     DoubleClickEdit,
-    ui_scale,
+    UIScaler,
 )
 
 HEADER_CLASSES = "Class name","Alias name","Color"
@@ -55,7 +55,7 @@ class VehicleClassEditor(BaseEditor):
     def __init__(self, parent):
         super().__init__(parent)
         self.set_utility_title("Vehicle Class Editor")
-        self.setMinimumSize(ui_scale(30), ui_scale(30))
+        self.setMinimumSize(UIScaler.size(30), UIScaler.size(30))
 
         self.classes_temp = copy_setting(cfg.user.classes)
 
@@ -67,7 +67,7 @@ class VehicleClassEditor(BaseEditor):
         self.table_classes.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.table_classes.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_classes.horizontalHeader().setSectionResizeMode(2, QHeaderView.Fixed)
-        self.table_classes.setColumnWidth(2, ui_scale(7))
+        self.table_classes.setColumnWidth(2, UIScaler.size(7))
         self.table_classes.cellChanged.connect(self.set_modified)
         self.refresh_table()
         self.set_unmodified()

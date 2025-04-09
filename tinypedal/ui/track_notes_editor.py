@@ -64,7 +64,7 @@ from ._common import (
     BatchOffset,
     QTableFloatItem,
     TableBatchReplace,
-    ui_scale,
+    UIScaler,
 )
 from .track_map_viewer import MapView
 
@@ -146,7 +146,7 @@ class TrackNotesEditor(BaseEditor):
         layout_trackmap.setContentsMargins(0,0,0,0)
 
         trackmap_panel = QFrame(self)
-        trackmap_panel.setMinimumSize(ui_scale(38), ui_scale(38))
+        trackmap_panel.setMinimumSize(UIScaler.size(38), UIScaler.size(38))
         trackmap_panel.setLayout(layout_trackmap)
         return trackmap_panel
 
@@ -265,7 +265,7 @@ class TrackNotesEditor(BaseEditor):
         layout_editor.setContentsMargins(0,0,0,0)
 
         editor_panel = QFrame(self)
-        editor_panel.setMinimumSize(ui_scale(38), ui_scale(38))
+        editor_panel.setMinimumSize(UIScaler.size(38), UIScaler.size(38))
         editor_panel.setLayout(layout_editor)
         return editor_panel
 
@@ -348,7 +348,7 @@ class TrackNotesEditor(BaseEditor):
         self.table_notes.setColumnCount(len(self.notes_header))
         self.table_notes.setHorizontalHeaderLabels(self.notes_header)
         self.table_notes.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
-        self.table_notes.setColumnWidth(0, ui_scale(6))
+        self.table_notes.setColumnWidth(0, UIScaler.size(6))
 
         self._verify_enabled = False
         for row_index, note_line in enumerate(self.notes_temp):
@@ -662,7 +662,7 @@ class MetaDataEditor(BaseDialog):
         layout_main.addLayout(layout_option)
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
-        self.setMinimumWidth(ui_scale(38))
+        self.setMinimumWidth(UIScaler.size(38))
         self.setFixedHeight(self.sizeHint().height())
 
     def saving(self):

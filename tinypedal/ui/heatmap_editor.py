@@ -45,7 +45,7 @@ from ._common import (
     BatchOffset,
     DoubleClickEdit,
     QTableFloatItem,
-    ui_scale,
+    UIScaler,
 )
 
 HEADER_HEATMAP = "Temperature (Celsius)","Color"
@@ -57,7 +57,7 @@ class HeatmapEditor(BaseEditor):
     def __init__(self, parent):
         super().__init__(parent)
         self.set_utility_title("Heatmap Editor")
-        self.setMinimumHeight(ui_scale(30))
+        self.setMinimumHeight(UIScaler.size(30))
 
         self._verify_enabled = True
         self.heatmap_temp = copy_setting(cfg.user.heatmap)
@@ -77,7 +77,7 @@ class HeatmapEditor(BaseEditor):
         self.table_heatmap.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.table_heatmap.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_heatmap.horizontalHeader().setSectionResizeMode(1, QHeaderView.Fixed)
-        self.table_heatmap.setColumnWidth(1, ui_scale(7))
+        self.table_heatmap.setColumnWidth(1, UIScaler.size(7))
         self.table_heatmap.cellChanged.connect(self.set_modified)
         self.table_heatmap.cellChanged.connect(self.verify_input)
         self.refresh_table()
@@ -149,7 +149,7 @@ class HeatmapEditor(BaseEditor):
         layout_main.addWidget(self.table_heatmap)
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
-        self.setMinimumWidth(self.sizeHint().width() + ui_scale(2))
+        self.setMinimumWidth(self.sizeHint().width() + UIScaler.size(2))
 
     def refresh_table(self):
         """Refresh temperature table"""
@@ -355,7 +355,7 @@ class CreateHeatmapPreset(BaseDialog):
         self._parent = parent
         self.edit_mode = mode
         self.setWindowTitle(title)
-        self.setMinimumWidth(ui_scale(21))
+        self.setMinimumWidth(UIScaler.size(21))
 
         # Entry box
         self.preset_entry = QLineEdit()

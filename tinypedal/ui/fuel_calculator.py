@@ -55,7 +55,7 @@ from ..module_info import ConsumptionDataSet, minfo
 from ..setting import cfg
 from ..units import set_symbol_fuel, set_unit_fuel
 from ..userfile.fuel_delta import load_consumption_history_file
-from ._common import BaseDialog, ui_scale
+from ._common import BaseDialog, UIScaler
 
 READ_ONLY_COLOR = QPalette().window().color().name(QColor.HexRgb)
 INVALID_COLOR = "#F40"
@@ -248,15 +248,12 @@ class FuelCalculator(BaseDialog):
         """Set panel calculator"""
         frame_laptime = QFrame(self)
         frame_laptime.setFrameShape(QFrame.StyledPanel)
-        frame_laptime.setFixedWidth(ui_scale(25))
 
         frame_fuel = QFrame(self)
         frame_fuel.setFrameShape(QFrame.StyledPanel)
-        frame_fuel.setFixedWidth(ui_scale(25))
 
         frame_race = QFrame(self)
         frame_race.setFrameShape(QFrame.StyledPanel)
-        frame_race.setFixedWidth(ui_scale(25))
 
         frame_output_fuel = QFrame(self)
         frame_output_fuel.setFrameShape(QFrame.StyledPanel)
@@ -326,8 +323,8 @@ class FuelCalculator(BaseDialog):
         self.table_history.verticalHeader().setVisible(False)
         self.table_history.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_history.horizontalHeader().setSectionResizeMode(0, QHeaderView.Fixed)
-        self.table_history.setColumnWidth(0, ui_scale(3))
-        self.table_history.setFixedWidth(ui_scale(35))
+        self.table_history.setColumnWidth(0, UIScaler.size(3))
+        self.table_history.setFixedWidth(UIScaler.size(35))
         self.table_history.setHorizontalHeaderLabels((
             "Lap",
             "Time",
