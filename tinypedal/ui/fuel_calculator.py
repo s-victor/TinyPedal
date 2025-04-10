@@ -63,6 +63,8 @@ INVALID_COLOR = "#F40"
 
 def set_grid_layout(spacing: int = 2, margin: int = 5):
     """Set grid layout"""
+    spacing = UIScaler.pixel(spacing)
+    margin = UIScaler.pixel(margin)
     layout = QGridLayout()
     layout.setSpacing(spacing)
     layout.setContentsMargins(margin, margin, margin, margin)
@@ -110,7 +112,7 @@ class FuelCalculator(BaseDialog):
         layout_panel.addWidget(self.panel_calculator)
         layout_panel.addWidget(self.panel_table)
         layout_main = QVBoxLayout()
-        layout_main.setContentsMargins(5,5,5,0)
+        layout_main.setContentsMargins(self.MARGIN, self.MARGIN, self.MARGIN, 0)
         layout_main.addLayout(layout_panel, stretch=1)
         layout_main.addWidget(self.status_bar)
         self.setLayout(layout_main)
@@ -307,11 +309,11 @@ class FuelCalculator(BaseDialog):
         layout_button = QHBoxLayout()
         layout_button.addWidget(button_loadlive, stretch=1)
         layout_button.addWidget(button_loadfile, stretch=1)
-        layout_button.addStretch(stretch=1)
+        layout_button.addStretch(1)
         layout_button.addWidget(self.button_toggle, stretch=2)
 
         layout_panel = QVBoxLayout()
-        layout_panel.setContentsMargins(0,0,0,0)
+        layout_panel.setContentsMargins(0, 0, 0, 0)
         layout_panel.addLayout(layout_calculator)
         layout_panel.addLayout(layout_button)
         panel.setLayout(layout_panel)
@@ -340,7 +342,7 @@ class FuelCalculator(BaseDialog):
         button_adddata.setFocusPolicy(Qt.NoFocus)
 
         layout_panel = QVBoxLayout()
-        layout_panel.setContentsMargins(0,0,0,0)
+        layout_panel.setContentsMargins(0, 0, 0, 0)
         layout_panel.addWidget(self.table_history)
         layout_panel.addWidget(button_adddata)
         panel.setLayout(layout_panel)

@@ -24,7 +24,6 @@ import os
 
 from PySide2.QtCore import QPoint, Qt
 from PySide2.QtWidgets import (
-    QDialogButtonBox,
     QFileDialog,
     QFrame,
     QGridLayout,
@@ -57,11 +56,11 @@ from ..userfile.track_notes import (
     set_notes_writer,
 )
 from ._common import (
-    QSS_EDITOR_BUTTON,
     QVAL_FILENAME,
     BaseDialog,
     BaseEditor,
     BatchOffset,
+    CompactButton,
     QTableFloatItem,
     TableBatchReplace,
     UIScaler,
@@ -112,7 +111,7 @@ class TrackNotesEditor(BaseEditor):
 
         # Set layout
         layout_main = QVBoxLayout()
-        layout_main.setContentsMargins(5,5,5,0)
+        layout_main.setContentsMargins(self.MARGIN, self.MARGIN, self.MARGIN, 0)
         layout_main.addWidget(splitter, stretch=1)
         layout_main.addWidget(self.status_bar)
         self.setLayout(layout_main)
@@ -133,7 +132,7 @@ class TrackNotesEditor(BaseEditor):
 
         layout_map_wrap = QVBoxLayout()
         layout_map_wrap.addWidget(self.trackmap)
-        layout_map_wrap.setContentsMargins(0,0,0,0)
+        layout_map_wrap.setContentsMargins(0, 0, 0, 0)
 
         frame_trackmap = QFrame(self)
         frame_trackmap.setLayout(layout_map_wrap)
@@ -143,7 +142,7 @@ class TrackNotesEditor(BaseEditor):
         layout_trackmap.addLayout(self.trackmap.set_button_layout())
         layout_trackmap.addWidget(frame_trackmap)
         layout_trackmap.addLayout(self.trackmap.set_control_layout())
-        layout_trackmap.setContentsMargins(0,0,0,0)
+        layout_trackmap.setContentsMargins(0, 0, 0, 0)
 
         trackmap_panel = QFrame(self)
         trackmap_panel.setMinimumSize(UIScaler.size(38), UIScaler.size(38))
@@ -182,8 +181,7 @@ class TrackNotesEditor(BaseEditor):
         create_tracknotes = file_menu.addAction("New Track Notes")
         create_tracknotes.triggered.connect(self.create_tracknotes)
 
-        button_file = QPushButton("File")
-        button_file.setStyleSheet(QSS_EDITOR_BUTTON)
+        button_file = CompactButton("File", has_menu=True)
         button_file.setMenu(file_menu)
 
         # Set position menu
@@ -195,50 +193,39 @@ class TrackNotesEditor(BaseEditor):
         setpos_fromtele = setpos_menu.addAction("From Telemetry")
         setpos_fromtele.triggered.connect(self.set_position_from_tele)
 
-        button_setpos = QPushButton("Set Pos")
-        button_setpos.setStyleSheet(QSS_EDITOR_BUTTON)
+        button_setpos = CompactButton("Set Pos", has_menu=True)
         button_setpos.setMenu(setpos_menu)
 
         # Button
-        self.button_showmap = QPushButton("Hide Map")
+        self.button_showmap = CompactButton("Hide Map")
         self.button_showmap.clicked.connect(self.toggle_trackmap_panel)
-        self.button_showmap.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_add = QPushButton("Add")
+        button_add = CompactButton("Add")
         button_add.clicked.connect(self.add_notes)
-        button_add.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_insert = QPushButton("Insert")
+        button_insert = CompactButton("Insert")
         button_insert.clicked.connect(self.insert_notes)
-        button_insert.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_sort = QPushButton("Sort")
+        button_sort = CompactButton("Sort")
         button_sort.clicked.connect(self.sort_notes)
-        button_sort.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_delete = QPushButton("Delete")
+        button_delete = CompactButton("Delete")
         button_delete.clicked.connect(self.delete_notes)
-        button_delete.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_replace = QPushButton("Replace")
+        button_replace = CompactButton("Replace")
         button_replace.clicked.connect(self.open_replace_dialog)
-        button_replace.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_offset = QPushButton("Offset")
+        button_offset = CompactButton("Offset")
         button_offset.clicked.connect(self.open_offset_dialog)
-        button_offset.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_metadata = QPushButton("Info")
+        button_metadata = CompactButton("Info")
         button_metadata.clicked.connect(self.open_metadata_dialog)
-        button_metadata.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_save = QDialogButtonBox(QDialogButtonBox.Save)
-        button_save.accepted.connect(self.saving)
-        button_save.setStyleSheet(QSS_EDITOR_BUTTON)
+        button_save = CompactButton("Save")
+        button_save.clicked.connect(self.saving)
 
-        button_close = QDialogButtonBox(QDialogButtonBox.Close)
-        button_close.rejected.connect(self.close)
-        button_close.setStyleSheet(QSS_EDITOR_BUTTON)
+        button_close = CompactButton("Close")
+        button_close.clicked.connect(self.close)
 
         layout_top = QHBoxLayout()
         layout_top.addWidget(self.button_showmap)
@@ -262,7 +249,7 @@ class TrackNotesEditor(BaseEditor):
         layout_editor.addLayout(layout_top)
         layout_editor.addWidget(self.table_notes)
         layout_editor.addLayout(layout_button)
-        layout_editor.setContentsMargins(0,0,0,0)
+        layout_editor.setContentsMargins(0, 0, 0, 0)
 
         editor_panel = QFrame(self)
         editor_panel.setMinimumSize(UIScaler.size(38), UIScaler.size(38))
@@ -646,15 +633,15 @@ class MetaDataEditor(BaseDialog):
             self.option_metadata[fieldname] = edit_entry
 
         # Button
-        button_save = QDialogButtonBox(QDialogButtonBox.Ok)
-        button_save.accepted.connect(self.saving)
+        button_save = QPushButton("Ok")
+        button_save.clicked.connect(self.saving)
 
-        button_close = QDialogButtonBox(QDialogButtonBox.Close)
-        button_close.rejected.connect(self.reject)
+        button_close = QPushButton("Close")
+        button_close.clicked.connect(self.reject)
 
         layout_button = QHBoxLayout()
-        layout_button.addWidget(button_save)
         layout_button.addStretch(1)
+        layout_button.addWidget(button_save)
         layout_button.addWidget(button_close)
 
         # Set layout
@@ -667,7 +654,5 @@ class MetaDataEditor(BaseDialog):
 
     def saving(self):
         """Save metadata"""
-        self.metadata.update(
-            {key:edit.text() for key, edit in self.option_metadata.items()}
-        )
+        self.metadata.update({key:edit.text() for key, edit in self.option_metadata.items()})
         self.accept()

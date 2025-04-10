@@ -28,13 +28,11 @@ import time
 from urllib.request import urlopen
 
 from PySide2.QtWidgets import (
-    QDialogButtonBox,
     QFileDialog,
     QHBoxLayout,
     QHeaderView,
     QMenu,
     QMessageBox,
-    QPushButton,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -45,8 +43,8 @@ from ..const_file import FileFilter
 from ..module_control import wctrl
 from ..setting import ConfigType, cfg, copy_setting
 from ._common import (
-    QSS_EDITOR_BUTTON,
     BaseEditor,
+    CompactButton,
     TableBatchReplace,
     UIScaler,
 )
@@ -83,6 +81,7 @@ class VehicleBrandEditor(BaseEditor):
         layout_main = QVBoxLayout()
         layout_main.addWidget(self.table_brands)
         layout_main.addLayout(layout_button)
+        layout_main.setContentsMargins(self.MARGIN, self.MARGIN, self.MARGIN, self.MARGIN)
         self.setLayout(layout_main)
 
     def set_layout_button(self):
@@ -100,39 +99,32 @@ class VehicleBrandEditor(BaseEditor):
         import_json.triggered.connect(self.import_from_file)
 
         # Button
-        button_import = QPushButton("Import from")
-        button_import.setStyleSheet(QSS_EDITOR_BUTTON)
+        button_import = CompactButton("Import from", has_menu=True)
         button_import.setMenu(import_menu)
 
-        button_add = QPushButton("Add")
+        button_add = CompactButton("Add")
         button_add.clicked.connect(self.add_brand)
-        button_add.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_sort = QPushButton("Sort")
+        button_sort = CompactButton("Sort")
         button_sort.clicked.connect(self.sort_brand)
-        button_sort.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_delete = QPushButton("Delete")
+        button_delete = CompactButton("Delete")
         button_delete.clicked.connect(self.delete_brand)
-        button_delete.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_replace = QPushButton("Replace")
+        button_replace = CompactButton("Replace")
         button_replace.clicked.connect(self.open_replace_dialog)
-        button_replace.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
+        button_reset = CompactButton("Reset")
         button_reset.clicked.connect(self.reset_setting)
-        button_reset.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
+        button_apply = CompactButton("Apply")
         button_apply.clicked.connect(self.applying)
-        button_apply.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_save = QDialogButtonBox(
-            QDialogButtonBox.Save | QDialogButtonBox.Close)
-        button_save.accepted.connect(self.saving)
-        button_save.rejected.connect(self.close)
-        button_save.setStyleSheet(QSS_EDITOR_BUTTON)
+        button_save = CompactButton("Save")
+        button_save.clicked.connect(self.saving)
+
+        button_close = CompactButton("Close")
+        button_close.clicked.connect(self.close)
 
         # Set layout
         layout_button = QHBoxLayout()
@@ -145,6 +137,7 @@ class VehicleBrandEditor(BaseEditor):
         layout_button.addStretch(1)
         layout_button.addWidget(button_apply)
         layout_button.addWidget(button_save)
+        layout_button.addWidget(button_close)
         return layout_button
 
     def refresh_table(self):

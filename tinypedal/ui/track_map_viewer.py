@@ -34,7 +34,6 @@ from PySide2.QtWidgets import (
     QLineEdit,
     QMenu,
     QMessageBox,
-    QPushButton,
     QSlider,
     QSpinBox,
     QVBoxLayout,
@@ -45,7 +44,7 @@ from .. import calculation as calc
 from ..const_file import FileExt, FileFilter
 from ..setting import ConfigType, cfg
 from ..userfile.track_map import load_track_map_file
-from ._common import QSS_EDITOR_BUTTON, BaseDialog, UIScaler
+from ._common import BaseDialog, CompactButton, UIScaler
 from .config import UserConfig
 
 
@@ -61,7 +60,7 @@ class TrackMapViewer(BaseDialog):
 
         # Set layout
         layout_main = QVBoxLayout()
-        layout_main.setContentsMargins(5,5,5,5)
+        layout_main.setContentsMargins(self.MARGIN, self.MARGIN, self.MARGIN, self.MARGIN)
         layout_main.addWidget(self.trackmap_panel)
         self.setLayout(layout_main)
 
@@ -75,7 +74,7 @@ class TrackMapViewer(BaseDialog):
 
         layout_map_wrap = QVBoxLayout()
         layout_map_wrap.addWidget(self.trackmap)
-        layout_map_wrap.setContentsMargins(0,0,0,0)
+        layout_map_wrap.setContentsMargins(0, 0, 0, 0)
 
         frame_trackmap = QFrame(self)
         frame_trackmap.setLayout(layout_map_wrap)
@@ -85,7 +84,7 @@ class TrackMapViewer(BaseDialog):
         layout_trackmap.addLayout(self.trackmap.set_button_layout())
         layout_trackmap.addWidget(frame_trackmap)
         layout_trackmap.addLayout(self.trackmap.set_control_layout())
-        layout_trackmap.setContentsMargins(0,0,0,0)
+        layout_trackmap.setContentsMargins(0, 0, 0, 0)
 
         trackmap_panel = QFrame(self)
         trackmap_panel.setMinimumSize(UIScaler.size(38), UIScaler.size(38))
@@ -231,12 +230,10 @@ class MapView(QWidget):
 
     def set_button_layout(self):
         """Set button layout"""
-        button_load = QPushButton("Load Map")
-        button_load.setStyleSheet(QSS_EDITOR_BUTTON)
+        button_load = CompactButton("Load Map")
         button_load.clicked.connect(self.open_trackmap)
 
-        button_config = QPushButton("Config")
-        button_config.setStyleSheet(QSS_EDITOR_BUTTON)
+        button_config = CompactButton("Config")
         button_config.clicked.connect(self.open_config_dialog)
 
         layout_button = QHBoxLayout()

@@ -70,16 +70,6 @@ QVAL_COLOR = QRegularExpressionValidator(QRegularExpression('^#[0-9a-fA-F]*'))
 QVAL_HEATMAP = QRegularExpressionValidator(QRegularExpression('[0-9a-zA-Z_]*'))
 QVAL_FILENAME = QRegularExpressionValidator(QRegularExpression('[^\\\\/:*?"<>|]*'))
 
-# QStyleSheet
-QSS_OPTION_WIDGET = "QLineEdit, QCheckBox, QComboBox {min-height: 1.25em;}"
-QSS_EDITOR_BUTTON = "QPushButton {padding: 0 0.5em;min-height: 1.25em;}"
-QSS_EDITOR_LISTBOX = (
-    "QListView {outline: none;}"
-    "QListView::item {height: 2.4em;border-radius: 0;}"
-    "QListView::item:selected {background: transparent;}"
-    "QListView::item:hover {background: transparent;}"
-)
-
 # Misc
 color_pick_history = deque(
     ["#FFF"] * QColorDialog.customCount(),
@@ -95,6 +85,7 @@ class UIScaler:
     # dpi scale = font dpi / 96
     # px = (pt * dpi scale) * 96 / 72
     # px = pt * font dpi / 72
+    FONT_DPI_SCALE = QApplication.fontMetrics().fontDpi() / 96
     FONT_BASE_PIXEL_SCALED = QApplication.font().pointSize() * QApplication.fontMetrics().fontDpi() / 72
 
     @staticmethod
@@ -103,20 +94,36 @@ class UIScaler:
         return UIScaler.FONT_BASE_POINT * scale
 
     @staticmethod
-    def size(scale: int) -> int:
+    def size(scale: float) -> int:
         """Scale UI size (pixels) relative to primary font size (scaled with dpi)"""
         return round(UIScaler.FONT_BASE_PIXEL_SCALED * scale)
+
+    @staticmethod
+    def pixel(pixel: int):
+        """Scale pixel size relative to primary font DPI scale"""
+        return round(UIScaler.FONT_DPI_SCALE * pixel)
+
+
+class CompactButton(QPushButton):
+    """Compact button style"""
+
+    def __init__(self, text, parent=None, has_menu=False):
+        super().__init__(text, parent)
+        self.setFixedWidth(
+            self.fontMetrics().boundingRect(text).width()
+            + UIScaler.FONT_BASE_PIXEL_SCALED * (1 + has_menu)
+        )
 
 
 # Class
 class BaseDialog(QDialog):
     """Base dialog class"""
+    MARGIN = UIScaler.pixel(6)
 
     def __init__(self, parent):
         super().__init__(parent)
         self.setWindowFlag(Qt.WindowContextHelpButtonHint, False)
         self.setAttribute(Qt.WA_DeleteOnClose, True)
-        self.setStyleSheet(QSS_OPTION_WIDGET)
 
     def set_config_title(self, option_name: str, preset_name: str):
         """Set config dialog title"""

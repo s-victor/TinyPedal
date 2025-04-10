@@ -109,6 +109,7 @@ class FontConfig(BaseDialog):
         layout_main = QVBoxLayout()
         layout_main.addLayout(layout_option)
         layout_main.addLayout(layout_button)
+        layout_main.setContentsMargins(self.MARGIN, self.MARGIN, self.MARGIN, self.MARGIN)
         self.setLayout(layout_main)
 
     def applying(self):
@@ -213,6 +214,7 @@ class UserConfig(BaseDialog):
         layout_button.addWidget(button_apply)
         layout_button.addWidget(button_save)
         layout_main.addLayout(layout_button)
+        layout_main.setContentsMargins(self.MARGIN, self.MARGIN, self.MARGIN, self.MARGIN)
         self.setLayout(layout_main)
         self.setMinimumWidth(self.sizeHint().width() + UIScaler.size(2))
 

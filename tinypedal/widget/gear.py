@@ -207,10 +207,8 @@ class Realtime(Overlay):
         available = state > 0  # available check only
         if target.state != available:
             target.state = available
-            if available:
-                target.show()
-            else:  # hide if electric motor unavailable
-                target.hide()
+            # Hide if electric motor unavailable
+            target.setHidden(not available)
         charge = state + data  # add state to finalize last change
         if target.last != charge:
             target.last = charge
@@ -221,10 +219,7 @@ class Realtime(Overlay):
         """Limiter"""
         if target.last != data:
             target.last = data
-            if data:
-                target.show()
-            else:
-                target.hide()
+            target.setHidden(not data)
 
     # Additional methods
     def color_rpm(self, rpm, gear, speed):

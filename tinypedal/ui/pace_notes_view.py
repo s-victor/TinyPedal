@@ -50,7 +50,7 @@ from ..module_info import minfo
 from ..overlay_control import octrl
 from ..setting import cfg
 from ..userfile.track_notes import COLUMN_PACENOTE
-from ._common import QSS_EDITOR_BUTTON
+from ._common import CompactButton, UIScaler
 
 logger = logging.getLogger(__name__)
 
@@ -181,16 +181,14 @@ class PaceNotesControl(QWidget):
 
         self.file_selector = QLineEdit()
         self.file_selector.setReadOnly(True)
-        self.button_openfile = QPushButton("Open")
-        self.button_openfile.setStyleSheet(QSS_EDITOR_BUTTON)
+        self.button_openfile = CompactButton("Open")
         self.button_openfile.clicked.connect(self.set_notes_path)
 
         # Sound path selector
         label_path = QLabel("Sound File Path:")
         self.path_selector = QLineEdit()
         self.path_selector.setReadOnly(True)
-        button_openpath = QPushButton("Open")
-        button_openpath.setStyleSheet(QSS_EDITOR_BUTTON)
+        button_openpath = CompactButton("Open")
         button_openpath.clicked.connect(self.set_sound_path)
 
         # Sound file format
@@ -253,7 +251,8 @@ class PaceNotesControl(QWidget):
         layout_inner.addWidget(self.spinbox_max_queue, 3, 1)
 
         layout_setting = QVBoxLayout()
-        layout_setting.setContentsMargins(5,5,5,5)
+        margin = UIScaler.pixel(5)
+        layout_setting.setContentsMargins(margin, margin, margin, margin)
         layout_setting.addLayout(layout_file)
         layout_setting.addLayout(layout_inner)
         layout_setting.addStretch(1)
@@ -274,7 +273,7 @@ class PaceNotesControl(QWidget):
 
         layout_button = QHBoxLayout()
         layout_button.addWidget(self.button_apply)
-        layout_button.addStretch(stretch=1)
+        layout_button.addStretch(1)
         layout_button.addWidget(self.button_toggle)
 
         # Layout

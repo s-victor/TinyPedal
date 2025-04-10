@@ -101,7 +101,7 @@ class ModuleList(QWidget):
         layout_main.addWidget(self.label_loaded)
         layout_main.addWidget(self.listbox_module)
         layout_button.addWidget(button_enable)
-        layout_button.addStretch(stretch=1)
+        layout_button.addStretch(1)
         layout_button.addWidget(button_disable)
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)

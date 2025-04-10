@@ -62,12 +62,11 @@ class About(BaseDialog):
         # Layout
         layout_button = QHBoxLayout()
         layout_button.addWidget(button_close)
-        layout_button.setContentsMargins(3,3,7,7)
 
         layout_main = QVBoxLayout()
         layout_main.addWidget(main_tab)
         layout_main.addLayout(layout_button)
-        layout_main.setContentsMargins(3,3,3,3)
+        layout_main.setContentsMargins(self.MARGIN, self.MARGIN, self.MARGIN, self.MARGIN)
         self.setLayout(layout_main)
         self.setFixedSize(self.sizeHint().width(), self.sizeHint().height())
 

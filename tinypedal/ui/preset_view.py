@@ -106,7 +106,7 @@ class PresetList(QWidget):
         layout_main.addWidget(self.checkbox_autoload)
         layout_button.addWidget(button_load)
         layout_button.addWidget(button_refresh)
-        layout_button.addStretch(stretch=1)
+        layout_button.addStretch(1)
         layout_button.addWidget(button_create)
         layout_main.addLayout(layout_button)
         self.setLayout(layout_main)
@@ -351,7 +351,7 @@ class PrimaryPresetTag(QWidget):
         layout_item = QHBoxLayout()
         layout_item.setContentsMargins(0, 0, 0, 0)
         layout_item.setSpacing(0)
-        layout_item.addStretch(stretch=1)
+        layout_item.addStretch(1)
 
         for sim_name, primary_preset in cfg.primary_preset.items():
             if preset_name == primary_preset:

@@ -26,12 +26,10 @@ from PySide2.QtCore import QPoint, Qt
 from PySide2.QtWidgets import (
     QAbstractItemView,
     QComboBox,
-    QDialogButtonBox,
     QHBoxLayout,
     QHeaderView,
     QMenu,
     QMessageBox,
-    QPushButton,
     QTableWidget,
     QTableWidgetItem,
     QVBoxLayout,
@@ -51,8 +49,8 @@ from ..userfile.driver_stats import (
     validate_stats_file,
 )
 from ._common import (
-    QSS_EDITOR_BUTTON,
     BaseEditor,
+    CompactButton,
     QTableNumTextItem,
     UIScaler,
 )
@@ -138,21 +136,17 @@ class DriverStatsViewer(BaseEditor):
         self.refresh_table()
 
         # Button
-        button_delete = QPushButton("Delete")
+        button_delete = CompactButton("Delete")
         button_delete.clicked.connect(self.delete_stats_key)
-        button_delete.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_reload = QPushButton("Reload")
+        button_reload = CompactButton("Reload")
         button_reload.clicked.connect(self.reload_stats)
-        button_reload.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_viewmap = QPushButton("View Map")
+        button_viewmap = CompactButton("View Map")
         button_viewmap.clicked.connect(self.open_trackmap)
-        button_viewmap.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_close = QDialogButtonBox(QDialogButtonBox.Close)
-        button_close.rejected.connect(self.close)
-        button_close.setStyleSheet(QSS_EDITOR_BUTTON)
+        button_close = CompactButton("Close")
+        button_close.clicked.connect(self.close)
 
         # Set layout
         layout_main = QVBoxLayout()
@@ -170,6 +164,7 @@ class DriverStatsViewer(BaseEditor):
         layout_main.addLayout(layout_selector)
         layout_main.addWidget(self.table_stats)
         layout_main.addLayout(layout_button)
+        layout_main.setContentsMargins(self.MARGIN, self.MARGIN, self.MARGIN, self.MARGIN)
         self.setLayout(layout_main)
 
     def reload_stats(self):

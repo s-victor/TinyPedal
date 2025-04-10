@@ -29,7 +29,6 @@ from PySide2.QtWidgets import (
     QHeaderView,
     QLineEdit,
     QMessageBox,
-    QPushButton,
     QTableWidget,
     QVBoxLayout,
 )
@@ -37,12 +36,12 @@ from PySide2.QtWidgets import (
 from ..module_control import wctrl
 from ..setting import ConfigType, cfg, copy_setting
 from ._common import (
-    QSS_EDITOR_BUTTON,
     QVAL_COLOR,
     QVAL_HEATMAP,
     BaseDialog,
     BaseEditor,
     BatchOffset,
+    CompactButton,
     DoubleClickEdit,
     QTableFloatItem,
     UIScaler,
@@ -77,54 +76,45 @@ class HeatmapEditor(BaseEditor):
         self.table_heatmap.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.table_heatmap.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
         self.table_heatmap.horizontalHeader().setSectionResizeMode(1, QHeaderView.Fixed)
-        self.table_heatmap.setColumnWidth(1, UIScaler.size(7))
+        self.table_heatmap.setColumnWidth(1, UIScaler.size(8))
         self.table_heatmap.cellChanged.connect(self.set_modified)
         self.table_heatmap.cellChanged.connect(self.verify_input)
         self.refresh_table()
         self.set_unmodified()
 
         # Button
-        button_create = QPushButton("New")
+        button_create = CompactButton("New")
         button_create.clicked.connect(self.open_create_dialog)
-        button_create.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_copy = QPushButton("Copy")
+        button_copy = CompactButton("Copy")
         button_copy.clicked.connect(self.open_copy_dialog)
-        button_copy.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_delete = QPushButton("Delete")
+        button_delete = CompactButton("Delete")
         button_delete.clicked.connect(self.delete_heatmap)
-        button_delete.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_add = QPushButton("Add")
+        button_add = CompactButton("Add")
         button_add.clicked.connect(self.add_temperature)
-        button_add.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_sort = QPushButton("Sort")
+        button_sort = CompactButton("Sort")
         button_sort.clicked.connect(self.sort_temperature)
-        button_sort.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_remove = QPushButton("Remove")
+        button_remove = CompactButton("Remove")
         button_remove.clicked.connect(self.delete_temperature)
-        button_remove.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_offset = QPushButton("Offset")
+        button_offset = CompactButton("Offset")
         button_offset.clicked.connect(self.open_offset_dialog)
-        button_offset.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_reset = QDialogButtonBox(QDialogButtonBox.Reset)
+        button_reset = CompactButton("Reset")
         button_reset.clicked.connect(self.reset_heatmap)
-        button_reset.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_apply = QDialogButtonBox(QDialogButtonBox.Apply)
+        button_apply = CompactButton("Apply")
         button_apply.clicked.connect(self.applying)
-        button_apply.setStyleSheet(QSS_EDITOR_BUTTON)
 
-        button_save = QDialogButtonBox(
-            QDialogButtonBox.Save | QDialogButtonBox.Close)
-        button_save.accepted.connect(self.saving)
-        button_save.rejected.connect(self.close)
-        button_save.setStyleSheet(QSS_EDITOR_BUTTON)
+        button_save = CompactButton("Save")
+        button_save.clicked.connect(self.saving)
+
+        button_close = CompactButton("Close")
+        button_close.clicked.connect(self.close)
 
         # Set layout
         layout_main = QVBoxLayout()
@@ -144,10 +134,12 @@ class HeatmapEditor(BaseEditor):
         layout_button.addStretch(1)
         layout_button.addWidget(button_apply)
         layout_button.addWidget(button_save)
+        layout_button.addWidget(button_close)
 
         layout_main.addLayout(layout_selector)
         layout_main.addWidget(self.table_heatmap)
         layout_main.addLayout(layout_button)
+        layout_main.setContentsMargins(self.MARGIN, self.MARGIN, self.MARGIN, self.MARGIN)
         self.setLayout(layout_main)
         self.setMinimumWidth(self.sizeHint().width() + UIScaler.size(2))
 
