@@ -61,7 +61,7 @@ from ._common import (
     BaseEditor,
     BatchOffset,
     CompactButton,
-    QTableFloatItem,
+    FloatTableItem,
     TableBatchReplace,
     UIScaler,
 )
@@ -343,7 +343,7 @@ class TrackNotesEditor(BaseEditor):
             for column_index, fieldname in enumerate(self.notes_header):
                 value = note_line[fieldname]
                 if column_index == 0:
-                    item = QTableFloatItem(round(value, DECIMALS))
+                    item = FloatTableItem(round(value, DECIMALS))
                 else:
                     item = QTableWidgetItem(value)
                 self.table_notes.setItem(row_index, column_index, item)
@@ -604,7 +604,7 @@ class TrackNotesEditor(BaseEditor):
         self.table_notes.setCurrentCell(row_index, 0)
         for column_index in range(column_count):
             if column_index == 0:
-                item = QTableFloatItem(0)
+                item = FloatTableItem(0)
             else:
                 item = QTableWidgetItem("")
             self.table_notes.setItem(row_index, column_index, item)

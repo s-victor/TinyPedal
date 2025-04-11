@@ -41,6 +41,14 @@ from ._common import BaseDialog, UIScaler
 logger = logging.getLogger(__name__)
 
 
+def set_qss_about() -> str:
+    """Set QSS about"""
+    return (
+        f"QWidget {{font-size: {UIScaler.font(0.9)}pt;}}"
+        f"#labelAppName {{font-size: {UIScaler.font(1.4)}pt;}}"
+    )
+
+
 class About(BaseDialog):
     """Create about window
 
@@ -50,7 +58,6 @@ class About(BaseDialog):
     def __init__(self, parent):
         super().__init__(parent)
         self.setWindowTitle(f"About {APP_NAME}")
-        self.setStyleSheet(f"font-size: {UIScaler.font(0.9)}pt;")
 
         # Tab
         main_tab = self.add_tabs()
@@ -69,6 +76,7 @@ class About(BaseDialog):
         layout_main.setContentsMargins(self.MARGIN, self.MARGIN, self.MARGIN, self.MARGIN)
         self.setLayout(layout_main)
         self.setFixedSize(self.sizeHint().width(), self.sizeHint().height())
+        self.setStyleSheet(set_qss_about())
 
     def add_tabs(self):
         """Add tabs"""
@@ -116,7 +124,7 @@ class About(BaseDialog):
 
         # Description
         label_name = QLabel(APP_NAME)
-        label_name.setStyleSheet(f"font-size: {UIScaler.font(1.4)}pt;")
+        label_name.setObjectName("labelAppName")
         label_name.setAlignment(Qt.AlignCenter)
 
         label_version = QLabel(f"Version {VERSION}")

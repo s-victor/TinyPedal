@@ -28,6 +28,7 @@ from PySide2.QtWidgets import (
     QLabel,
     QMainWindow,
     QPushButton,
+    QSystemTrayIcon,
     QTabWidget,
     QVBoxLayout,
     QWidget,
@@ -45,9 +46,92 @@ from .module_view import ModuleList
 from .pace_notes_view import PaceNotesControl
 from .preset_view import PresetList
 from .spectate_view import SpectateList
-from .tray_icon import TrayIcon
 
 logger = logging.getLogger(__name__)
+
+
+def set_qss_notify() -> str:
+    """Set QSS notify"""
+    return (
+        "QPushButton {font-weight: bold;padding: 0.2em;border: none;color: #fff;}"
+        "#notifySpectate {background: #09C;}"
+        "#notifyPacenotes {background: #290;}"
+        "#notifyPresetLocked {background: #888;}"
+    )
+
+
+class NotifyBar(QWidget):
+    """Notify bar"""
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.spectate = QPushButton("Spectate Mode Enabled")
+        self.spectate.setObjectName("notifySpectate")
+        self.spectate.clicked.connect(lambda _: parent.select_tab(3))
+
+        self.pacenotes = QPushButton("Pace Notes Playback Enabled")
+        self.pacenotes.setObjectName("notifyPacenotes")
+        self.pacenotes.clicked.connect(lambda _: parent.select_tab(4))
+
+        self.presetlocked = QPushButton("Preset Locked")
+        self.presetlocked.setObjectName("notifyPresetLocked")
+        self.presetlocked.clicked.connect(lambda _: parent.select_tab(2))
+
+        layout = QVBoxLayout()
+        layout.addWidget(self.spectate)
+        layout.addWidget(self.pacenotes)
+        layout.addWidget(self.presetlocked)
+        layout.setSpacing(0)
+        layout.setContentsMargins(0, 0, 0, 0)
+        self.setLayout(layout)
+        self.setStyleSheet(set_qss_notify())
+
+
+class TabView(QWidget):
+    """Tab view"""
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        # Notify bar
+        notify_bar = NotifyBar(self)
+
+        # Tabs
+        widget_tab = ModuleList(self, wctrl)
+        module_tab = ModuleList(self, mctrl)
+        preset_tab = PresetList(self, parent.reload_preset, notify_bar.presetlocked.setVisible)
+        spectate_tab = SpectateList(self, notify_bar.spectate.setVisible)
+        pacenotes_tab = PaceNotesControl(self, notify_bar.pacenotes.setVisible)
+
+        self._tabs = QTabWidget(self)
+        self._tabs.addTab(widget_tab, "Widget")  # 0
+        self._tabs.addTab(module_tab, "Module")  # 1
+        self._tabs.addTab(preset_tab, "Preset")  # 2
+        self._tabs.addTab(spectate_tab, "Spectate")  # 3
+        self._tabs.addTab(pacenotes_tab, "Pace Notes")  # 4
+
+        # Main view
+        layout_main = QVBoxLayout()
+        layout_main.setContentsMargins(0, 0, 0, 0)
+        layout_main.setSpacing(0)
+        layout_main.addWidget(self._tabs)
+        layout_main.addWidget(notify_bar)
+        self.setLayout(layout_main)
+
+    def refresh_tab(self, index: int = -1):
+        """Refresh tab
+
+        Args:
+            index: -1 All tabs, 0 Widget, 1 Module, 2 Preset, 3 Spectate, 4 Pace Notes
+        """
+        if index < 0:
+            for tab_index in range(self._tabs.count()):
+                self._tabs.widget(tab_index).refresh()
+        else:
+            self._tabs.widget(index).refresh()
+
+    def select_tab(self, index: int):
+        """Select tab"""
+        self._tabs.setCurrentIndex(index)
 
 
 class AppWindow(QMainWindow):
@@ -58,96 +142,64 @@ class AppWindow(QMainWindow):
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
 
         # Status bar & notification
-        self.button_api = QPushButton()
+        self.button_api = QPushButton("")
         self.button_api.clicked.connect(self.set_status_text)
         self.statusBar().addPermanentWidget(QLabel("API:"))
         self.statusBar().addPermanentWidget(self.button_api)
         self.set_status_text()
 
         # Menu bar
-        self.main_menubar()
+        self.set_menu_bar()
 
-        # Notify bar
-        self.notify_spectate = QPushButton("Spectate Mode Enabled")
-        self.notify_spectate.clicked.connect(self.goto_spectate_tab)
-        self.notify_spectate.setStyleSheet(
-            "font-weight: bold;color: #fff;background: #09C;padding: 0.3em;border-radius: 0;"
-        )
-        self.notify_pacenotes = QPushButton("Pace Notes Playback Enabled")
-        self.notify_pacenotes.clicked.connect(self.goto_pacenotes_tab)
-        self.notify_pacenotes.setStyleSheet(
-            "font-weight: bold;color: #fff;background: #290;padding: 0.3em;border-radius: 0;"
-        )
-        layout_notify = QVBoxLayout()
-        layout_notify.addWidget(self.notify_spectate)
-        layout_notify.addWidget(self.notify_pacenotes)
+        # Tab view
+        self.tab_view = TabView(self)
+        self.setCentralWidget(self.tab_view)
 
-        # Controller tabs
-        self.tab_bar = QTabWidget(self)
-        self.widget_tab = ModuleList(self, wctrl)
-        self.module_tab = ModuleList(self, mctrl)
-        self.preset_tab = PresetList(self)
-        self.spectate_tab = SpectateList(self)
-        self.pacenotes_tab = PaceNotesControl(self)
-        self.tab_bar.addTab(self.widget_tab, "Widget")
-        self.tab_bar.addTab(self.module_tab, "Module")
-        self.tab_bar.addTab(self.preset_tab, "Preset")
-        self.tab_bar.addTab(self.spectate_tab, "Spectate")
-        self.tab_bar.addTab(self.pacenotes_tab, "Pace Notes")
+        # Tray icon
+        self.set_tray_icon()
 
-        # Main view
-        main_view = QWidget(self)
-        layout = QVBoxLayout(main_view)
-        layout.setContentsMargins(0, 0, 0, 0)
-        layout.setSpacing(0)
-        layout.addWidget(self.tab_bar)
-        layout.addLayout(layout_notify)
-        self.setCentralWidget(main_view)
-
-        # Tray icon & window state
-        self.start_tray_icon()
+        # Window state
         self.set_window_state()
         self.__connect_signal()
 
-    def goto_spectate_tab(self):
-        """Go to spectate tab"""
-        self.tab_bar.setCurrentWidget(self.spectate_tab)
-
-    def goto_pacenotes_tab(self):
-        """Go to pacenotes tab"""
-        self.tab_bar.setCurrentWidget(self.pacenotes_tab)
-
-    def main_menubar(self):
-        """Create menu bar"""
+    def set_menu_bar(self):
+        """Set menu bar"""
         logger.info("GUI: loading main menu")
         menu = self.menuBar()
-
         # Overlay menu
         menu_overlay = OverlayMenu("Overlay", self)
         menu.addMenu(menu_overlay)
-
         # Config menu
         menu_config = ConfigMenu("Config", self)
         menu.addMenu(menu_config)
         self.button_api.clicked.connect(menu_config.open_config_sharedmemory)
-
         # Tools menu
         menu_tools = ToolsMenu("Tools", self)
         menu.addMenu(menu_tools)
-
         # Window menu
         menu_window = WindowMenu("Window", self)
         menu.addMenu(menu_window)
-
         # Help menu
         menu_help = HelpMenu("Help", self)
         menu.addMenu(menu_help)
 
-    def start_tray_icon(self):
-        """Start tray icon (for Windows)"""
+    def set_tray_icon(self):
+        """Set tray icon"""
         logger.info("GUI: loading tray icon")
-        self.tray_icon = TrayIcon(self)
-        self.tray_icon.show()
+        tray_icon = QSystemTrayIcon(self)
+        # Config tray icon
+        tray_icon.setIcon(self.windowIcon())
+        tray_icon.setToolTip(self.windowTitle())
+        tray_icon.activated.connect(self.tray_doubleclick)
+        # Add tray menu
+        tray_menu = OverlayMenu("Overlay", self, True)
+        tray_icon.setContextMenu(tray_menu)
+        tray_icon.show()
+
+    def tray_doubleclick(self, active_reason: QSystemTrayIcon.ActivationReason):
+        """Tray doubleclick"""
+        if active_reason == QSystemTrayIcon.ActivationReason.DoubleClick:
+            self.show_app()
 
     def set_window_state(self):
         """Set initial window state"""
@@ -174,11 +226,9 @@ class AppWindow(QMainWindow):
     def load_window_position(self):
         """Load window position"""
         logger.info("GUI: loading window setting")
-        # Get position from preset
         app_pos_x = cfg.application["position_x"]
         app_pos_y = cfg.application["position_y"]
-        # Check whether x,y position at 0,0 (new preset value)
-        # Ignore moving if at 0,0
+        # Save new x,y position if preset value at 0,0
         if 0 == app_pos_x == app_pos_y:
             self.save_window_state()
         else:
@@ -261,7 +311,7 @@ class AppWindow(QMainWindow):
         """Restart shared memory api"""
         api.restart()
         self.set_status_text()
-        self.spectate_tab.refresh_list()
+        self.tab_view.refresh_tab(3)
 
     @Slot(bool)
     def reload_preset(self):
@@ -277,11 +327,7 @@ class AppWindow(QMainWindow):
     def refresh_states(self):
         """Refresh state"""
         self.set_status_text()
-        self.preset_tab.refresh_list()
-        self.widget_tab.refresh_state()
-        self.module_tab.refresh_state()
-        self.spectate_tab.refresh_list()
-        self.pacenotes_tab.refresh_state()
+        self.tab_view.refresh_tab()
 
     def __connect_signal(self):
         """Connect overlay reload signal"""

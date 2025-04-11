@@ -90,17 +90,17 @@ class UIScaler:
 
     @staticmethod
     def font(scale: float) -> float:
-        """Scale UI font size (points) relative to primary font size (not counting dpi scale)"""
+        """Scale UI font size (points) by base font size (not counting dpi scale)"""
         return UIScaler.FONT_BASE_POINT * scale
 
     @staticmethod
     def size(scale: float) -> int:
-        """Scale UI size (pixels) relative to primary font size (scaled with dpi)"""
+        """Scale UI size (pixels) by base font size (scaled with dpi)"""
         return round(UIScaler.FONT_BASE_PIXEL_SCALED * scale)
 
     @staticmethod
     def pixel(pixel: int):
-        """Scale pixel size relative to primary font DPI scale"""
+        """Scale pixel size by base font DPI scale"""
         return round(UIScaler.FONT_DPI_SCALE * pixel)
 
 
@@ -150,6 +150,7 @@ class BaseEditor(BaseDialog):
         super().__init__(parent)
         self._is_modified = False
         self._is_rejected = False
+        self.setStyleSheet("QTableWidget DoubleClickEdit {border: none;}")
 
     def confirm_discard(self) -> bool:
         """Confirm save or discard changes"""
@@ -479,8 +480,8 @@ class DoubleClickEdit(QLineEdit):
             self.setStyleSheet(f"QLineEdit {{color:{fg_color};background:{color_str};}}")
 
 
-class QTableFloatItem(QTableWidgetItem):
-    """QTable float type item"""
+class FloatTableItem(QTableWidgetItem):
+    """QTable item - float type with validation"""
 
     def __init__(self, value: float):
         """Convert & set float value to string"""
@@ -510,8 +511,8 @@ class QTableFloatItem(QTableWidgetItem):
         return self.value() < other.value()
 
 
-class QTableNumTextItem(QTableWidgetItem):
-    """QTable numeric sortable text type item"""
+class NumericTableItem(QTableWidgetItem):
+    """QTable item - sortable numeric text"""
 
     def __init__(self, value: float, text: str):
         """Set numeric value & string text"""

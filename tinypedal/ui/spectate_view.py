@@ -20,6 +20,8 @@
 Spectate list view
 """
 
+from typing import Callable
+
 from PySide2.QtWidgets import (
     QHBoxLayout,
     QLabel,
@@ -33,20 +35,22 @@ from ..api_control import api
 from ..setting import cfg
 from ._common import UIScaler
 
-QSS_LISTBOX = (
-    f"QListView {{font-size: {UIScaler.font(1.05)}pt;outline: none;}}"
-    "QListView::item {height: 1.75em;border-radius: 0;padding: 0 0.25em;}"
-    "QListView::item:selected {selection-color: #FFF;background: #F20;}"
-)
+
+def set_qss_spectate() -> str:
+    """Set QSS spectate"""
+    return (
+        f"QListView {{font-size: {UIScaler.font(1.05)}pt;outline: none;}}"
+        "QListView::item {height: 1.75em;border: none;padding: 0 0.25em;}"
+        "QListView::item:selected {selection-color: #FFF;background: #F20;}"
+    )
 
 
 class SpectateList(QWidget):
     """Spectate list view"""
 
-    def __init__(self, parent):
+    def __init__(self, parent, notify_toggle: Callable):
         super().__init__(parent)
-        self._parent = parent
-        self.spectate_list = []
+        self.notify_toggle = notify_toggle
 
         # Label
         self.label_spectating = QLabel("")
@@ -54,7 +58,6 @@ class SpectateList(QWidget):
         # List box
         self.listbox_spectate = QListWidget(self)
         self.listbox_spectate.setAlternatingRowColors(True)
-        self.listbox_spectate.setStyleSheet(QSS_LISTBOX)
         self.listbox_spectate.itemDoubleClicked.connect(self.spectate_selected)
 
         # Button
@@ -62,26 +65,29 @@ class SpectateList(QWidget):
         self.button_spectate.clicked.connect(self.spectate_selected)
 
         self.button_refresh = QPushButton("Refresh")
-        self.button_refresh.clicked.connect(self.refresh_list)
+        self.button_refresh.clicked.connect(self.refresh)
 
         self.button_toggle = QPushButton("")
         self.button_toggle.setCheckable(True)
         self.button_toggle.setChecked(cfg.shared_memory_api["enable_player_index_override"])
         self.button_toggle.toggled.connect(self.toggle_spectate)
-        self.refresh_list()
+        self.refresh()
+
+        layout_button = QHBoxLayout()
+        layout_button.addWidget(self.button_spectate)
+        layout_button.addWidget(self.button_refresh)
+        layout_button.addStretch(1)
+        layout_button.addWidget(self.button_toggle)
 
         # Layout
         layout_main = QVBoxLayout()
-        layout_button = QHBoxLayout()
-
         layout_main.addWidget(self.label_spectating)
         layout_main.addWidget(self.listbox_spectate)
-        layout_button.addWidget(self.button_spectate)
-        layout_button.addWidget(self.button_refresh)
-        layout_button.addStretch(stretch=1)
-        layout_button.addWidget(self.button_toggle)
         layout_main.addLayout(layout_button)
+        margin = UIScaler.pixel(6)
+        layout_main.setContentsMargins(margin, margin, margin, margin)
         self.setLayout(layout_main)
+        self.setStyleSheet(set_qss_spectate())
 
     def set_button_state(self, state: bool):
         """Set button state"""
@@ -91,32 +97,29 @@ class SpectateList(QWidget):
         self.button_spectate.setDisabled(not state)
         self.button_refresh.setDisabled(not state)
         self.label_spectating.setDisabled(not state)
-        self._parent.notify_spectate.setVisible(state)
+        self.notify_toggle(state)
 
     def toggle_spectate(self, checked: bool):
         """Toggle spectate mode"""
         cfg.shared_memory_api["enable_player_index_override"] = checked
         cfg.save()
         api.setup()
-        self.refresh_list()
+        self.refresh()
 
-    def refresh_list(self):
+    def refresh(self):
         """Refresh spectate list"""
         enabled = cfg.shared_memory_api["enable_player_index_override"]
         if enabled:
             temp_list = ["Anonymous", *self.driver_list()]
-            if self.spectate_list != temp_list:
-                self.spectate_list = temp_list
-                self.listbox_spectate.clear()
-                self.listbox_spectate.addItems(self.spectate_list)
+            self.listbox_spectate.clear()
+            self.listbox_spectate.addItems(temp_list)
             index = min(
                 max(cfg.shared_memory_api["player_index"], -1) + 1,  # +1 offset
                 len(temp_list) - 1,  # prevent exceeding max players
             )
             self.listbox_spectate.setCurrentRow(index)
-            self.label_spectating.setText(f"Spectating: <b>{self.spectate_list[index]}</b>")
+            self.label_spectating.setText(f"Spectating: <b>{temp_list[index]}</b>")
         else:
-            self.spectate_list.clear()
             self.listbox_spectate.clear()
             self.label_spectating.setText("Spectating: <b>Disabled</b>")
 
@@ -127,7 +130,7 @@ class SpectateList(QWidget):
         selected_index = self.listbox_spectate.currentRow()
         cfg.shared_memory_api["player_index"] = max(selected_index - 1, -1)
         api.setup()
-        self.refresh_list()
+        self.refresh()
         cfg.save()
 
     @staticmethod

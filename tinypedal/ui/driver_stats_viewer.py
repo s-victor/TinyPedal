@@ -51,7 +51,7 @@ from ..userfile.driver_stats import (
 from ._common import (
     BaseEditor,
     CompactButton,
-    QTableNumTextItem,
+    NumericTableItem,
     UIScaler,
 )
 from .track_map_viewer import TrackMapViewer
@@ -178,18 +178,14 @@ class DriverStatsViewer(BaseEditor):
 
         self.stats_temp = validate_stats_file(stats_user)
 
-        if self.stats_temp:
-            stats_name_list = sorted(self.stats_temp.keys(), key=sort_stats_key)
-        else:
-            stats_name_list = []
-
         if self.selected_stats_key:
             last_selected_stats_key = self.selected_stats_key
         else:  # initial load current track name
             last_selected_stats_key = api.read.session.track_name()
 
         self.stats_list.clear()
-        self.stats_list.addItems(stats_name_list)
+        if self.stats_temp:
+            self.stats_list.addItems(sorted(self.stats_temp.keys(), key=sort_stats_key))
         self.stats_list.setCurrentText(last_selected_stats_key)
 
     def refresh_table(self):
@@ -218,7 +214,7 @@ class DriverStatsViewer(BaseEditor):
                 continue
             # Vehicle stats
             value_raw = veh_data.get(header_key, 0)
-            item = QTableNumTextItem(value_raw, str(parse_display_value(header_key, value_raw)))
+            item = NumericTableItem(value_raw, str(parse_display_value(header_key, value_raw)))
             item.setFlags(Qt.ItemFlags(33))
             item.setTextAlignment(Qt.AlignCenter)
             self.table_stats.setItem(row_index, column_index, item)

@@ -137,7 +137,7 @@ class FuelCalculator(BaseDialog):
             QMessageBox.warning(
                 self, "Error",
                 "No data selected.")
-            return None
+            return
 
         data_laptime = [data for data in selected_data if data.column() == 1]
         data_fuel = [data for data in selected_data if data.column() == 2]
@@ -162,7 +162,6 @@ class FuelCalculator(BaseDialog):
         if data_capacity:
             output_value = float(data_capacity[0].text())
             self.input_fuel.capacity.setValue(output_value)
-        return None
 
     def load_file(self):
         """Load history data from file"""

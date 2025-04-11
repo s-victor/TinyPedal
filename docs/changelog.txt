@@ -12,6 +12,7 @@ WIP
 
 * Misc
   - Heatmap Editor now shows temperature entries in table view, and supports multi-selection for offsetting and removing temperature, and up to one decimal place is kept.
+  - Show "Preset Locked" notification on main window if currently loaded preset is locked.
 
 2.26.0 (2025-04-02)
 -----------------------------

@@ -23,6 +23,7 @@ Pace notes view & player
 from __future__ import annotations
 
 import logging
+from typing import Callable
 
 from PySide2.QtCore import QBasicTimer, Qt, QUrl
 from PySide2.QtMultimedia import QMediaPlayer
@@ -169,9 +170,9 @@ class PaceNotesPlayer(QMediaPlayer):
 class PaceNotesControl(QWidget):
     """Pace notes control"""
 
-    def __init__(self, parent):
+    def __init__(self, parent, notify_toggle: Callable):
         super().__init__(parent)
-        self._parent = parent
+        self.notify_toggle = notify_toggle
         self.mcfg = cfg.user.setting["pace_notes_playback"]
         self.pace_notes_player = PaceNotesPlayer(self, self.mcfg)
 
@@ -280,10 +281,12 @@ class PaceNotesControl(QWidget):
         layout_main = QVBoxLayout()
         layout_main.addWidget(self.frame_control, stretch=1)
         layout_main.addLayout(layout_button)
+        margin = UIScaler.pixel(6)
+        layout_main.setContentsMargins(margin, margin, margin, margin)
         self.setLayout(layout_main)
-        self.refresh_state()
+        self.refresh()
 
-    def refresh_state(self):
+    def refresh(self):
         """Refresh state"""
         self.mcfg = cfg.user.setting["pace_notes_playback"]
         self.pace_notes_player.mcfg = self.mcfg
@@ -360,7 +363,7 @@ class PaceNotesControl(QWidget):
         self.button_apply.setDisabled(not enabled)
         self.frame_control.setDisabled(not enabled)
         self.pace_notes_player.set_playback(enabled)
-        self._parent.notify_pacenotes.setVisible(enabled)
+        self.notify_toggle(enabled)
 
     def update_config(self, key: str, value: int | float | str) -> bool:
         """Update pace note playback setting, save if changed"""

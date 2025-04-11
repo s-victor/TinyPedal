@@ -40,7 +40,7 @@ from ..setting import ConfigType, cfg, copy_setting
 from ._common import (
     BaseEditor,
     CompactButton,
-    QTableFloatItem,
+    FloatTableItem,
     UIScaler,
     #TableBatchReplace,
 )
@@ -178,7 +178,7 @@ class BrakeEditor(BaseEditor):
         """Add new brake entry to table"""
         self.table_brakes.insertRow(row_index)
         self.table_brakes.setItem(row_index, 0, QTableWidgetItem(class_name))
-        self.table_brakes.setItem(row_index, 1, QTableFloatItem(failure_thickness))
+        self.table_brakes.setItem(row_index, 1, FloatTableItem(failure_thickness))
         self.table_brakes.setCellWidget(row_index, 2, self.__add_option_combolist(heatmap_name))
 
     def sort_brake(self):

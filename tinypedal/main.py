@@ -163,6 +163,7 @@ def start_app():
     """Init main window"""
     cli_args = get_cli_argument()
     set_logging_level(logger, log_stream, cli_args.log_level)
+    version_check()
     # load global config
     cfg.load_global()
     cfg.save(cfg_type=ConfigType.CONFIG)
@@ -170,7 +171,6 @@ def start_app():
     # Main GUI
     root = init_gui()
     single_instance_check(cli_args.single_instance)
-    version_check()
     # Load core modules
     from . import loader
     loader.start()

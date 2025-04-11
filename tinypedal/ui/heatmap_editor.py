@@ -43,7 +43,7 @@ from ._common import (
     BatchOffset,
     CompactButton,
     DoubleClickEdit,
-    QTableFloatItem,
+    FloatTableItem,
     UIScaler,
 )
 
@@ -167,7 +167,7 @@ class HeatmapEditor(BaseEditor):
     def add_temperature_entry(self, row_index: int, temperature: float, color: str):
         """Add new temperature entry to table"""
         self.table_heatmap.insertRow(row_index)
-        self.table_heatmap.setItem(row_index, 0, QTableFloatItem(temperature))
+        self.table_heatmap.setItem(row_index, 0, FloatTableItem(temperature))
         self.table_heatmap.setCellWidget(row_index, 1, self.__add_option_color(color))
 
     def open_create_dialog(self):
