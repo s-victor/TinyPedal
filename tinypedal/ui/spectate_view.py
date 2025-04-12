@@ -36,15 +36,6 @@ from ..setting import cfg
 from ._common import UIScaler
 
 
-def set_qss_spectate() -> str:
-    """Set QSS spectate"""
-    return (
-        f"QListView {{font-size: {UIScaler.font(1.05)}pt;outline: none;}}"
-        "QListView::item {height: 1.75em;border: none;padding: 0 0.25em;}"
-        "QListView::item:selected {selection-color: #FFF;background: #F20;}"
-    )
-
-
 class SpectateList(QWidget):
     """Spectate list view"""
 
@@ -87,7 +78,6 @@ class SpectateList(QWidget):
         margin = UIScaler.pixel(6)
         layout_main.setContentsMargins(margin, margin, margin, margin)
         self.setLayout(layout_main)
-        self.setStyleSheet(set_qss_spectate())
 
     def set_button_state(self, state: bool):
         """Set button state"""
@@ -110,7 +100,7 @@ class SpectateList(QWidget):
         """Refresh spectate list"""
         enabled = cfg.shared_memory_api["enable_player_index_override"]
         if enabled:
-            temp_list = ["Anonymous", *self.driver_list()]
+            temp_list = list(self.driver_list())
             self.listbox_spectate.clear()
             self.listbox_spectate.addItems(temp_list)
             index = min(
@@ -136,7 +126,6 @@ class SpectateList(QWidget):
     @staticmethod
     def driver_list():
         """Create driver list"""
-        return [
-            api.read.vehicle.driver_name(index)
-            for index in range(api.read.vehicle.total_vehicles())
-        ]
+        yield "Anonymous"
+        for index in range(api.read.vehicle.total_vehicles()):
+            yield api.read.vehicle.driver_name(index)

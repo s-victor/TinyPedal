@@ -76,7 +76,7 @@ class Realtime(Overlay):
         if self.wcfg["show_wheel_slip"]:
             self.data_wheel_slip = self.create_data_samples(max_samples)
 
-        self.draw_queue = self.config_draw_order()
+        self.draw_queue = sorted(self.config_draw_order(), reverse=True)
         self.draw_background()
 
         # Last data
@@ -150,10 +150,8 @@ class Realtime(Overlay):
         """Draw"""
         painter = QPainter(self)
         painter.setViewport(self.rect_viewport)
-        painter.drawPixmap(0, 0, self.pixmap_plot)
-        # Draw background below plot
-        painter.setCompositionMode(QPainter.CompositionMode_DestinationOver)
         painter.drawPixmap(0, 0, self.pixmap_background)
+        painter.drawPixmap(0, 0, self.pixmap_plot)
 
     def draw_background(self):
         """Draw background"""
@@ -237,7 +235,6 @@ class Realtime(Overlay):
     def config_draw_order(self):
         """Config plot draw order"""
         plot_names = ("throttle", "brake", "clutch", "ffb", "wheel_lock", "wheel_slip")
-        plot_list = []
         for plot_name in plot_names:
             if not self.wcfg[f"show_{plot_name}"]:
                 continue
@@ -245,13 +242,9 @@ class Realtime(Overlay):
             pen.setCapStyle(Qt.RoundCap)
             pen.setWidth(self.wcfg[f"{plot_name}_line_width"])
             pen.setColor(self.wcfg[f"{plot_name}_color"])
-            plot_list.append(
-                (
-                    self.wcfg[f"draw_order_index_{plot_name}"],  # index
-                    getattr(self, f"data_{plot_name}"),  # data
-                    pen,  # pen style
-                    self.wcfg[f"{plot_name}_line_style"],  # line style
-                )
+            yield (
+                self.wcfg[f"draw_order_index_{plot_name}"],  # index
+                getattr(self, f"data_{plot_name}"),  # data
+                pen,  # pen style
+                self.wcfg[f"{plot_name}_line_style"],  # line style
             )
-        plot_list.sort(reverse=True)
-        return plot_list

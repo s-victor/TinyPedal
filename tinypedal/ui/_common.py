@@ -150,7 +150,6 @@ class BaseEditor(BaseDialog):
         super().__init__(parent)
         self._is_modified = False
         self._is_rejected = False
-        self.setStyleSheet("QTableWidget DoubleClickEdit {border: none;}")
 
     def confirm_discard(self) -> bool:
         """Confirm save or discard changes"""

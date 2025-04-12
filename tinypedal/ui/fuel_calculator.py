@@ -94,7 +94,6 @@ class FuelCalculator(BaseDialog):
 
         # Set status bar
         self.status_bar = QStatusBar(self)
-        self.status_bar.setStyleSheet("font-weight:bold;")
 
         # Set view
         self.panel_calculator = QWidget(self)

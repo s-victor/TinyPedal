@@ -50,20 +50,6 @@ from ..validator import is_allowed_filename
 from ._common import QVAL_FILENAME, BaseDialog, UIScaler
 
 
-def set_qss_preset() -> str:
-    """Set QSS preset"""
-    return (
-        f"QListView {{font-size: {UIScaler.font(1.2)}pt;outline: none;}}"
-        "QListView::item {height: 1.75em;border: none;padding: 0 0.25em;}"
-        "QListView::item:selected {selection-color: #FFF;background: #F20;}"
-        f"PrimaryPresetTag QLabel {{font-size: {UIScaler.font(1.05)}pt;"
-        "color: #FFF;margin: 0.25em 0 0.25em 0.25em;border-radius: 0.2em;}"
-        "QLabel#LMU {background: #F20;}"
-        "QLabel#RF2 {background: #0AF;}"
-        "QLabel#LOCKED {background: #888;}"
-    )
-
-
 class PresetList(QWidget):
     """Preset list view"""
 
@@ -113,7 +99,6 @@ class PresetList(QWidget):
         margin = UIScaler.pixel(6)
         layout_main.setContentsMargins(margin, margin, margin, margin)
         self.setLayout(layout_main)
-        self.setStyleSheet(set_qss_preset())
 
     def refresh(self):
         """Refresh preset list"""
@@ -126,7 +111,7 @@ class PresetList(QWidget):
             item.setText(preset_name)
             self.listbox_preset.addItem(item)
             # Add primary preset tag
-            label_item = PrimaryPresetTag(self, preset_name)
+            label_item = PresetTagItem(self, preset_name)
             self.listbox_preset.setItemWidget(item, label_item)
 
         loaded_preset = cfg.filename.last_setting
@@ -347,8 +332,8 @@ class CreatePreset(BaseDialog):
         self.accept()
 
 
-class PrimaryPresetTag(QWidget):
-    """Primary preset tag"""
+class PresetTagItem(QWidget):
+    """Preset tag item"""
 
     def __init__(self, parent, preset_name: str):
         super().__init__(parent)

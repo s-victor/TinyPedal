@@ -38,28 +38,6 @@ from ._common import UIScaler
 from .config import UserConfig
 
 
-def set_qss_module() -> str:
-    """Set QSS module"""
-    return (
-        "QListView {outline: none;}"
-        "QListView::item {height: 1.75em;border: none;padding: 0 0.25em;}"
-        "QListView::item:selected {background: transparent;}"
-        "QListView::item:hover {background: transparent;}"
-        f"ListItemControl QWidget {{font-size: {UIScaler.font(1.2)}pt;}}"
-        f"ListItemControl QPushButton {{font-size: {UIScaler.font(1.05)}pt;border-radius: 0.2em;padding: 0.125em 0.2em;}}"
-        "#buttonToggle {color: #555;background: #CCC;min-width: 1.875em;}"
-        "#buttonToggle::hover {color: #FFF;background: #F20;}"
-        "#buttonToggle::pressed {color: #FFF;background: #555;}"
-        "#buttonToggle::checked {color: #FFF;background: #555;}"
-        "#buttonToggle::checked:hover {color: #FFF;background: #F20;}"
-        "#buttonConfig {color: #AAA;margin: 0 0.25em}"
-        "#buttonConfig::hover {color: #FFF;background: #F20;}"
-        "#buttonConfig::pressed {color: #FFF;background: #555;}"
-        "#buttonConfig::checked {color: #FFF;background: #555;}"
-        "#buttonConfig::checked:hover {color: #FFF;background: #F20;}"
-    )
-
-
 class ModuleList(QWidget):
     """Module & widget list view"""
 
@@ -100,12 +78,11 @@ class ModuleList(QWidget):
         margin = UIScaler.pixel(6)
         layout_main.setContentsMargins(margin, margin, margin, margin)
         self.setLayout(layout_main)
-        self.setStyleSheet(set_qss_module())
 
     def create_list(self):
         """Create module list"""
         for _name in self.module_control.names:
-            module_item = ListItemControl(self, _name, self.module_control)
+            module_item = ModuleControlItem(self, _name, self.module_control)
             item = QListWidgetItem()
             self.listbox_module.addItem(item)
             self.listbox_module.setItemWidget(item, module_item)
@@ -152,8 +129,8 @@ class ModuleList(QWidget):
         return confirm_msg == QMessageBox.Yes
 
 
-class ListItemControl(QWidget):
-    """List box item control"""
+class ModuleControlItem(QWidget):
+    """Module control item"""
 
     def __init__(self, parent, module_name: str, module_control: ModuleControl):
         """Initialize list box setting

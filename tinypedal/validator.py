@@ -83,9 +83,9 @@ def is_same_session(
     """Check if same session, car, track combo"""
     return (
         combo_id == last_session_id[0] and
-        last_session_id[1] == session_id[0] and
-        last_session_id[2] <= session_id[1] and
-        last_session_id[3] <= session_id[2]
+        last_session_id[1] == session_id[0] and  # session time stamp
+        last_session_id[2] <= session_id[1] and  # session elapsed time
+        last_session_id[3] <= session_id[2]  # total completed laps
     )
 
 

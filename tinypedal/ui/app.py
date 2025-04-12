@@ -40,6 +40,7 @@ from ..const_app import APP_NAME, VERSION
 from ..module_control import mctrl, wctrl
 from ..overlay_control import octrl
 from ..setting import ConfigType, cfg
+from . import set_app_style
 from ._common import UIScaler
 from .menu import ConfigMenu, HelpMenu, OverlayMenu, ToolsMenu, WindowMenu
 from .module_view import ModuleList
@@ -48,16 +49,6 @@ from .preset_view import PresetList
 from .spectate_view import SpectateList
 
 logger = logging.getLogger(__name__)
-
-
-def set_qss_notify() -> str:
-    """Set QSS notify"""
-    return (
-        "QPushButton {font-weight: bold;padding: 0.2em;border: none;color: #fff;}"
-        "#notifySpectate {background: #09C;}"
-        "#notifyPacenotes {background: #290;}"
-        "#notifyPresetLocked {background: #888;}"
-    )
 
 
 class NotifyBar(QWidget):
@@ -84,7 +75,6 @@ class NotifyBar(QWidget):
         layout.setSpacing(0)
         layout.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout)
-        self.setStyleSheet(set_qss_notify())
 
 
 class TabView(QWidget):
@@ -139,6 +129,7 @@ class AppWindow(QMainWindow):
 
     def __init__(self):
         super().__init__()
+        self.setStyleSheet(set_app_style(QApplication.font().pointSize()))
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
 
         # Status bar & notification
@@ -203,7 +194,7 @@ class AppWindow(QMainWindow):
 
     def set_window_state(self):
         """Set initial window state"""
-        self.setMinimumSize(UIScaler.size(23), UIScaler.size(36))
+        self.setMinimumSize(UIScaler.size(22), UIScaler.size(36))
         self.setWindowFlag(Qt.WindowMaximizeButtonHint, False)  # disable maximize
 
         if cfg.application["remember_size"]:

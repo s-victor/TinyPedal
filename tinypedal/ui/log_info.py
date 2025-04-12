@@ -43,7 +43,6 @@ class LogInfo(BaseDialog):
 
         # Text view
         self.log_view = QTextBrowser(self)
-        self.log_view.setStyleSheet(f"font-size: {UIScaler.font(0.9)}pt;")
         self.log_view.setMinimumSize(UIScaler.size(42), UIScaler.size(22))
         self.log_view.setWordWrapMode(QTextOption.NoWrap)
         self.refresh_log()
