@@ -22,6 +22,7 @@ Loader function
 
 import logging
 import signal
+import sys
 
 from .api_control import api
 from .const_file import FileExt
@@ -32,9 +33,16 @@ from .setting import cfg
 logger = logging.getLogger(__name__)
 
 
+def int_signal_handler(sign, frame):
+    """Quit by keyboard interrupt"""
+    close()
+    sys.exit()
+
+
 def start():
     """Start api, modules, widgets, etc. Call once per launch."""
     logger.info("STARTING............")
+    signal.signal(signal.SIGINT, int_signal_handler)
     # 1 load preset
     cfg.filename.setting = f"{cfg.preset_list[0]}{FileExt.JSON}"
     cfg.load()
@@ -48,9 +56,7 @@ def start():
     wctrl.start()
     # 5 start main window
     from .ui.app import AppWindow
-    config_window = AppWindow()
-    signal.signal(signal.SIGINT, config_window.int_signal_handler)
-
+    AppWindow()
     # Finalize loading after main GUI fully loaded
     logger.info("FINALIZING............")
     # 1 Enable overlay control

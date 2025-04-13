@@ -365,6 +365,11 @@ Define main window position on screen in pixels. Those values will be auto updat
     window_width, window_height
 Define main window size on screen in pixels. Those values will be auto updated and saved while `remember_size` option is enabled.
 
+    window_color_theme
+Set color theme for main window and dialog. Default theme is `Dark`. This option does not affect overlay widget.
+
+Color theme can be quickly toggled via `Light` and `Dark` button on main window status bar.
+
 [**`Back to Top`**](#)
 
 
@@ -469,7 +474,7 @@ Set access mode for API. Mode value `0` uses copy access and additional data che
 Set process ID string for accessing API from server. Currently this option is only relevant to `RF2`.
 
     enable_active_state_override
-Set `true` to enable `active state` manual override. While enabled, `state overriding` notification will be shown on API status bar from main window.
+Set `true` to enable `active state` manual override. While enabled, `overriding` notification will be shown on API status bar from main window.
 
     active_state
 This option overrides local player on-track status check, and updates or stops overlay and data processing accordingly. Set `true` to activate state. Set `false` to deactivate state. This option works only when `enable_active_state_override` enabled.

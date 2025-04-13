@@ -61,6 +61,7 @@ CFG_TARGET_LAPTIME = "target_laptime"
 CFG_TEXT_ALIGNMENT = "text_alignment"
 CFG_MULTIMEDIA_PLUGIN = "multimedia_plugin"
 CFG_STATS_CLASSIFICATION = "vehicle_classification"
+CFG_WINDOW_COLOR_THEME = "window_color_theme"
 
 # String common
 CFG_FONT_NAME = "font_name"
@@ -156,7 +157,10 @@ API_NAME_LMU = "Le Mans Ultimate"
 
 # Abbreviation
 ABBR_PATTERN = (
+    "^id | id$| id |"
+    "^ui | ui$| ui |"
     "api|"
+    "dpi|"
     "drs|"
     "ffb|"
     "lmu|"
@@ -176,6 +180,7 @@ CHOICE_COMMON = {
     CFG_TEXT_ALIGNMENT: ["Left", "Center", "Right"],
     CFG_MULTIMEDIA_PLUGIN: ["WMF", "DirectShow"],
     CFG_STATS_CLASSIFICATION: ["Class - Brand", "Class", "Vehicle"],
+    CFG_WINDOW_COLOR_THEME: ["Light", "Dark"],
 }
 CHOICE_UNITS = {
     "distance_unit": ["Meter", "Feet"],

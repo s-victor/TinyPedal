@@ -84,6 +84,7 @@ class ModuleList(QWidget):
         for _name in self.module_control.names:
             module_item = ModuleControlItem(self, _name, self.module_control)
             item = QListWidgetItem()
+            item.setText(format_module_name(_name))
             self.listbox_module.addItem(item)
             self.listbox_module.setItemWidget(item, module_item)
         self.listbox_module.setCurrentRow(0)
@@ -144,8 +145,6 @@ class ModuleControlItem(QWidget):
         self.module_name = module_name
         self.module_control = module_control
 
-        label_module = QLabel(format_module_name(self.module_name))
-
         self.button_toggle = QPushButton("")
         self.button_toggle.setObjectName("buttonToggle")
         self.set_button_toggle()
@@ -155,11 +154,11 @@ class ModuleControlItem(QWidget):
         button_config.pressed.connect(self.open_config_dialog)
 
         layout_item = QHBoxLayout()
-        layout_item.addWidget(label_module, stretch=1)
+        layout_item.setContentsMargins(0, 0, 0, 0)
+        layout_item.addStretch(1)
+        layout_item.setSpacing(0)
         layout_item.addWidget(button_config)
         layout_item.addWidget(self.button_toggle)
-        layout_item.setSpacing(0)
-        layout_item.setContentsMargins(0, 0, 0, 0)
         self.setLayout(layout_item)
 
     def is_enabled(self) -> bool:

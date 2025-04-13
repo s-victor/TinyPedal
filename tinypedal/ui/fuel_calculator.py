@@ -57,9 +57,6 @@ from ..units import set_symbol_fuel, set_unit_fuel
 from ..userfile.fuel_delta import load_consumption_history_file
 from ._common import BaseDialog, UIScaler
 
-READ_ONLY_COLOR = QPalette().window().color().name(QColor.HexRgb)
-INVALID_COLOR = "#F40"
-
 
 def set_grid_layout(spacing: int = 2, margin: int = 5):
     """Set grid layout"""
@@ -71,13 +68,9 @@ def set_grid_layout(spacing: int = 2, margin: int = 5):
     return layout
 
 
-def set_read_only_style(line_edit, invalid=False):
-    """Set read only style"""
-    if invalid:
-        color = INVALID_COLOR
-    else:
-        color = READ_ONLY_COLOR
-    line_edit.setStyleSheet(f"background:{color};")
+def highlight_invalid(line_edit: QLineEdit, invalid=False):
+    """Highlight invalid"""
+    line_edit.setStyleSheet("background: #F40;" if invalid else "")
 
 
 class FuelCalculator(BaseDialog):
@@ -211,7 +204,7 @@ class FuelCalculator(BaseDialog):
     def refresh_table(self, dataset: deque[ConsumptionDataSet]):
         """Refresh history data table"""
         self.table_history.setRowCount(0)
-        invalid_color = QColor(INVALID_COLOR)
+        invalid_color = QColor("#F40")
 
         for row_index, lap_data in enumerate(dataset):
             lapnumber = self.__add_table_item(f"{lap_data.lapNumber}", 0)
@@ -467,8 +460,7 @@ class FuelCalculator(BaseDialog):
         output_refill.average_refill.setText(
             f"{average_refuel:.3f}")
         # Set warning color if exceeded tank capacity
-        set_read_only_style(
-            output_refill.average_refill, average_refuel > tank_capacity)
+        highlight_invalid(output_refill.average_refill, average_refuel > tank_capacity)
 
     def validate_starting_fuel(self):
         """Validate starting fuel"""
@@ -561,7 +553,6 @@ class InputFuel():
         self.fuel_ratio = QLineEdit("0.000")
         self.fuel_ratio.setAlignment(Qt.AlignRight)
         self.fuel_ratio.setReadOnly(True)
-        set_read_only_style(self.fuel_ratio)
 
         self.fuel_used = QDoubleSpinBox()
         self.fuel_used.setRange(0, 9999)
@@ -685,32 +676,26 @@ class OutputUsage():
         self.total_needed = QLineEdit("0.000 ≈ 0")
         self.total_needed.setAlignment(Qt.AlignRight)
         self.total_needed.setReadOnly(True)
-        set_read_only_style(self.total_needed)
 
         self.pit_stops = QLineEdit("0.000 ≈ 0")
         self.pit_stops.setAlignment(Qt.AlignRight)
         self.pit_stops.setReadOnly(True)
-        set_read_only_style(self.pit_stops)
 
         self.total_laps = QLineEdit("0.000")
         self.total_laps.setAlignment(Qt.AlignRight)
         self.total_laps.setReadOnly(True)
-        set_read_only_style(self.total_laps)
 
         self.total_minutes = QLineEdit("0.000")
         self.total_minutes.setAlignment(Qt.AlignRight)
         self.total_minutes.setReadOnly(True)
-        set_read_only_style(self.total_minutes)
 
         self.end_stint = QLineEdit("0.000")
         self.end_stint.setAlignment(Qt.AlignRight)
         self.end_stint.setReadOnly(True)
-        set_read_only_style(self.end_stint)
 
         self.one_less_stint = QLineEdit("0.000")
         self.one_less_stint.setAlignment(Qt.AlignRight)
         self.one_less_stint.setReadOnly(True)
-        set_read_only_style(self.one_less_stint)
 
         layout = set_grid_layout()
 
@@ -763,7 +748,6 @@ class OutputRefill():
         self.average_refill = QLineEdit("0.000")
         self.average_refill.setAlignment(Qt.AlignRight)
         self.average_refill.setReadOnly(True)
-        set_read_only_style(self.average_refill)
 
         layout = set_grid_layout()
 

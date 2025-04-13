@@ -25,9 +25,9 @@ import logging
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import (
     QApplication,
-    QLabel,
     QMainWindow,
     QPushButton,
+    QStatusBar,
     QSystemTrayIcon,
     QTabWidget,
     QVBoxLayout,
@@ -40,7 +40,7 @@ from ..const_app import APP_NAME, VERSION
 from ..module_control import mctrl, wctrl
 from ..overlay_control import octrl
 from ..setting import ConfigType, cfg
-from . import set_app_style
+from . import set_style_palette, set_style_window
 from ._common import UIScaler
 from .menu import ConfigMenu, HelpMenu, OverlayMenu, ToolsMenu, WindowMenu
 from .module_view import ModuleList
@@ -124,20 +124,52 @@ class TabView(QWidget):
         self._tabs.setCurrentIndex(index)
 
 
+class StatusButtonBar(QStatusBar):
+    """Status button bar"""
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.button_api = QPushButton("")
+        self.button_api.clicked.connect(self.refresh)
+        self.button_api.setToolTip("Config API")
+
+        self.button_style = QPushButton("Light")
+        self.button_style.clicked.connect(self.toggle_color_theme)
+        self.button_style.clicked.connect(parent.load_window_style)
+        self.button_style.setToolTip("Toggle Color Theme")
+
+        self.addPermanentWidget(self.button_api)
+        self.addWidget(self.button_style)
+        self.refresh()
+
+    def refresh(self):
+        """Refresh status bar"""
+        if cfg.shared_memory_api["enable_active_state_override"]:
+            text = f"{api.name} (overriding)"
+        else:
+            text = f"{api.name} ({api.version})"
+        self.button_api.setText(text)
+        self.button_style.setText(cfg.application["window_color_theme"])
+
+    def toggle_color_theme(self):
+        """Toggle color theme"""
+        if cfg.application["window_color_theme"] == "Dark":
+            cfg.application["window_color_theme"] = "Light"
+        else:
+            cfg.application["window_color_theme"] = "Dark"
+        cfg.save(cfg_type=ConfigType.CONFIG)
+
+
 class AppWindow(QMainWindow):
     """Main application window"""
 
     def __init__(self):
         super().__init__()
-        self.setStyleSheet(set_app_style(QApplication.font().pointSize()))
         self.setWindowTitle(f"{APP_NAME} v{VERSION}")
+        self.setAttribute(Qt.WA_DeleteOnClose, True)
 
-        # Status bar & notification
-        self.button_api = QPushButton("")
-        self.button_api.clicked.connect(self.set_status_text)
-        self.statusBar().addPermanentWidget(QLabel("API:"))
-        self.statusBar().addPermanentWidget(self.button_api)
-        self.set_status_text()
+        # Status bar
+        self.setStatusBar(StatusButtonBar(self))
 
         # Menu bar
         self.set_menu_bar()
@@ -149,13 +181,17 @@ class AppWindow(QMainWindow):
         # Tray icon
         self.set_tray_icon()
 
+        # Apply color style
+        self.last_style = None
+        self.load_window_style()
+
         # Window state
         self.set_window_state()
         self.__connect_signal()
 
     def set_menu_bar(self):
         """Set menu bar"""
-        logger.info("GUI: loading main menu")
+        logger.info("GUI: loading window menu")
         menu = self.menuBar()
         # Overlay menu
         menu_overlay = OverlayMenu("Overlay", self)
@@ -163,7 +199,7 @@ class AppWindow(QMainWindow):
         # Config menu
         menu_config = ConfigMenu("Config", self)
         menu.addMenu(menu_config)
-        self.button_api.clicked.connect(menu_config.open_config_sharedmemory)
+        self.statusBar().button_api.clicked.connect(menu_config.open_config_sharedmemory)
         # Tools menu
         menu_tools = ToolsMenu("Tools", self)
         menu.addMenu(menu_tools)
@@ -266,13 +302,15 @@ class AppWindow(QMainWindow):
         if save_changes:
             cfg.save(0, cfg_type=ConfigType.CONFIG)
 
-    def set_status_text(self):
-        """Set status text"""
-        if cfg.shared_memory_api["enable_active_state_override"]:
-            text = f"{api.name} (state overriding)"
-        else:
-            text = f"{api.name} ({api.version})"
-        self.button_api.setText(text)
+    def load_window_style(self):
+        """Load window style"""
+        style = cfg.application["window_color_theme"]
+        logger.info("GUI: loading window color theme: %s", style)
+        if self.last_style != style:
+            self.last_style = style
+            set_style_palette(self.last_style)
+            self.setStyleSheet(set_style_window(QApplication.font().pointSize()))
+        self.statusBar().refresh()
 
     def show_app(self):
         """Show app window"""
@@ -286,10 +324,6 @@ class AppWindow(QMainWindow):
         loader.close()
         QApplication.quit()  # close app
 
-    def int_signal_handler(self, sign, frame):
-        """Quit by keyboard interrupt"""
-        self.quit_app()
-
     def closeEvent(self, event):
         """Minimize to tray"""
         if cfg.application["minimize_to_tray"]:
@@ -301,13 +335,14 @@ class AppWindow(QMainWindow):
     def restart_api(self):
         """Restart shared memory api"""
         api.restart()
-        self.set_status_text()
+        self.statusBar().refresh()
         self.tab_view.refresh_tab(3)
 
     @Slot(bool)
     def reload_preset(self):
         """Reload current preset"""
         loader.reload(reload_preset=True)
+        self.load_window_style()
         self.refresh_states()
 
     def reload_only(self):
@@ -317,7 +352,7 @@ class AppWindow(QMainWindow):
 
     def refresh_states(self):
         """Refresh state"""
-        self.set_status_text()
+        self.statusBar().refresh()
         self.tab_view.refresh_tab()
 
     def __connect_signal(self):

@@ -140,7 +140,7 @@ class MapView(QWidget):
             "marked_coordinates": True,
             "highlighted_coordinates": True,
             "separator2":"",
-            "dark_background": False,
+            "dark_background": cfg.application["window_color_theme"] == "Dark",
         }
 
         # Set layout

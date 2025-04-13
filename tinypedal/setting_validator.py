@@ -132,15 +132,6 @@ class ValueValidator:
         return True
 
     @staticmethod
-    def color(key: str, dict_user: dict) -> bool:
-        """Value - Color string"""
-        if not re.search(rxp.CFG_COLOR, key):
-            return False
-        if not is_hex_color(dict_user[key]):
-            dict_user.pop(key)
-        return True
-
-    @staticmethod
     def choice_units(key: str, dict_user: dict) -> bool:
         """Value - units choice list"""
         for ref_key, choice_list in rxp.CHOICE_UNITS.items():
@@ -159,6 +150,15 @@ class ValueValidator:
                     dict_user.pop(key)
                 return True
         return False
+
+    @staticmethod
+    def color(key: str, dict_user: dict) -> bool:
+        """Value - Color string"""
+        if not re.search(rxp.CFG_COLOR, key):
+            return False
+        if not is_hex_color(dict_user[key]):
+            dict_user.pop(key)
+        return True
 
     @staticmethod
     def clock_format(key: str, dict_user: dict) -> bool:
@@ -201,9 +201,9 @@ class PresetValidator:
     # Set validator methods in ordered list
     _value_validators = (
         ValueValidator.boolean,
-        ValueValidator.color,
         ValueValidator.choice_units,
         ValueValidator.choice_common,
+        ValueValidator.color,
         ValueValidator.clock_format,
         ValueValidator.string,
         ValueValidator.integer,

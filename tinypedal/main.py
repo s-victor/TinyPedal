@@ -124,17 +124,17 @@ def version_check():
 
 def init_gui() -> QApplication:
     """Initialize Qt Gui"""
+    QApplication.setStyle("Fusion")
     root = QApplication(sys.argv)
     root.setApplicationName(APP_NAME)
     root.setWindowIcon(QIcon(ImageFile.APP_ICON))
     root.setQuitOnLastWindowClosed(False)
-    # Set font & style
+    # Set font
     font = root.font()
     font.setFamily("sans-serif")
     font.setPointSize(10)
     font.setStyleHint(QFont.SansSerif)
     root.setFont(font)
-    root.setStyle("Fusion")
     # Disable global pixmap cache
     QPixmapCache.setCacheLimit(0)
     return root

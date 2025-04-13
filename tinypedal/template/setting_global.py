@@ -37,6 +37,7 @@ GLOBAL_DEFAULT = {
         "position_y": 0,
         "window_width": 0,
         "window_height": 0,
+        "window_color_theme": "Dark",
     },
     "compatibility": {
         "enable_bypass_window_manager": False,

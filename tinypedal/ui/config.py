@@ -358,6 +358,12 @@ class UserConfig(BaseDialog):
             if re.search(rxp.CFG_BOOL, key):
                 self.__add_option_bool(idx, key, layout)
                 continue
+            # Units choice list string
+            if self.__choice_match(rxp.CHOICE_UNITS, idx, key, layout):
+                continue
+            # Common choice list string
+            if self.__choice_match(rxp.CHOICE_COMMON, idx, key, layout):
+                continue
             # Color string
             if re.search(rxp.CFG_COLOR, key):
                 self.__add_option_color(idx, key, layout)
@@ -373,12 +379,6 @@ class UserConfig(BaseDialog):
             # Font name string
             if re.search(rxp.CFG_FONT_NAME, key):
                 self.__add_option_fontname(idx, key, layout)
-                continue
-            # Units choice list string
-            if self.__choice_match(rxp.CHOICE_UNITS, idx, key, layout):
-                continue
-            # Common choice list string
-            if self.__choice_match(rxp.CHOICE_COMMON, idx, key, layout):
                 continue
             # Heatmap string
             if re.search(rxp.CFG_HEATMAP, key):
