@@ -128,10 +128,14 @@ def set_style_window(base_font_pt: int) -> str:
     # Scale font (point size)
     font_pt_item_name = 1.2 * base_font_pt
     font_pt_item_button = 1.05 * base_font_pt
+    font_pt_item_toggle = 1.0 * base_font_pt
     font_pt_text_browser = 0.9 * base_font_pt
     font_pt_app_name = 1.4 * base_font_pt
 
-    # Set color
+    # Size
+    border_radius_button = 0.1  # em
+
+    # Color
     palette = QApplication.palette()
     palette.setCurrentColorGroup(QPalette.Active)
     color_active_text = palette.windowText().color().name()
@@ -203,18 +207,20 @@ def set_style_window(base_font_pt: int) -> str:
             background: transparent;
         }}
         ModuleControlItem QPushButton {{
-            font-size: {font_pt_item_button}pt;
-            border-radius: 0.2em;
+            border-radius: {border_radius_button}em;
             padding: 0.125em 0.2em;
             margin: 0.25em 0.25em 0.25em 0;
         }}
         ModuleControlItem #buttonConfig {{
+            font-size: {font_pt_item_button}pt;
             color: {color_disabled_text};
         }}
         ModuleControlItem #buttonToggle {{
+            font-size: {font_pt_item_toggle}pt;
+            font-weight: bold;
             color: {color_disabled_highlight_fg};
             background: {color_disabled_highlight_bg};
-            min-width: 1.875em;
+            min-width: 1.75em;
         }}
         ModuleControlItem #buttonToggle::checked,
         ModuleControlItem #buttonConfig::checked {{
@@ -246,7 +252,7 @@ def set_style_window(base_font_pt: int) -> str:
             font-size: {font_pt_item_button}pt;
             color: {color_active_highlight_fg};
             margin: 0.25em 0.25em 0.25em 0;
-            border-radius: 0.2em;
+            border-radius: {border_radius_button}em;
         }}
         PresetTagItem QLabel#LMU {{
             background: #F40;
