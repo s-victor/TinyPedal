@@ -76,7 +76,10 @@ def close():
 def restart():
     """Restart APP"""
     logger.info("RESTARTING............")
-    os.execl(sys.executable, sys.executable, *sys.argv)
+    if "tinypedal.exe" in sys.executable:  # if run as exe
+        os.execl(sys.argv[0], *sys.argv)
+    else:  # if run as script
+        os.execl(sys.executable, sys.executable, *sys.argv)
 
 
 def reload(reload_preset: bool = False):
