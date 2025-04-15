@@ -152,8 +152,10 @@ def set_environment():
     if cfg.application["enable_high_dpi_scaling"]:
         QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
         QGuiApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+        logger.info("High DPI scaling: ON")
     else:
         os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"  # force disable (qt6 only)
+        logger.info("High DPI scaling: OFF")
 
     if PLATFORM == "Windows":
         if QT_VERSION[0] == "6":

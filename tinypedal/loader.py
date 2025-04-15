@@ -26,6 +26,7 @@ import signal
 import sys
 
 from .api_control import api
+from .const_app import PATH_GLOBAL, PID_FILE
 from .const_file import FileExt
 from .module_control import mctrl, wctrl
 from .overlay_control import octrl
@@ -76,8 +77,12 @@ def close():
 def restart():
     """Restart APP"""
     logger.info("RESTARTING............")
+    # Reset process ID info to avoid single instance match
+    with open(f"{PATH_GLOBAL}{PID_FILE}", "w", encoding="utf-8") as f:
+        f.write("0,0")
+
     if "tinypedal.exe" in sys.executable:  # if run as exe
-        os.execl(sys.argv[0], *sys.argv)
+        os.execl(sys.executable, *sys.argv)
     else:  # if run as script
         os.execl(sys.executable, sys.executable, *sys.argv)
 

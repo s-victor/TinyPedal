@@ -372,6 +372,7 @@ class AppWindow(QMainWindow):
         """Quit manager"""
         self.save_window_state()
         self.__break_signal()
+        self.findChild(QSystemTrayIcon).hide()  # hide icon in case of restart
         QApplication.quit()  # close app first
         loader.close()
 
