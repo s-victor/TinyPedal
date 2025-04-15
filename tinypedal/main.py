@@ -98,6 +98,11 @@ def single_instance_check(is_single_instance: bool):
         logger.info("Single instance mode: OFF")
         return
     logger.info("Single instance mode: ON")
+    # Skip if restarted
+    if os.getenv("TINYPEDAL_RESTART") == "TRUE":
+        os.environ.pop("TINYPEDAL_RESTART", None)
+        save_pid_file()
+        return
     # Check existing PID file first, then exe PID
     if not is_pid_exist():  # (is_pid_exist() or is_exe_running())
         save_pid_file()
