@@ -21,11 +21,13 @@ Main application window
 """
 
 import logging
+import time
 
 from PySide2.QtCore import Qt, Slot
 from PySide2.QtWidgets import (
     QApplication,
     QMainWindow,
+    QMessageBox,
     QPushButton,
     QStatusBar,
     QSystemTrayIcon,
@@ -39,6 +41,7 @@ from ..api_control import api
 from ..const_app import APP_NAME, VERSION
 from ..module_control import mctrl, wctrl
 from ..overlay_control import octrl
+from ..regex_pattern import API_NAME_ALIAS
 from ..setting import ConfigType, cfg
 from . import set_style_palette, set_style_window
 from ._common import UIScaler
@@ -129,27 +132,74 @@ class StatusButtonBar(QStatusBar):
 
     def __init__(self, parent):
         super().__init__(parent)
+        self._parent = parent
+
         self.button_api = QPushButton("")
         self.button_api.clicked.connect(self.refresh)
-        self.button_api.setToolTip("Config API")
+        self.button_api.setToolTip("Config Simulation API")
 
         self.button_style = QPushButton("Light")
         self.button_style.clicked.connect(self.toggle_color_theme)
-        self.button_style.clicked.connect(parent.load_window_style)
-        self.button_style.setToolTip("Toggle Color Theme")
+        self.button_style.setToolTip("Toggle Window Color Theme")
+
+        self.button_dpiscale = QPushButton("Scale: Auto")
+        self.button_dpiscale.clicked.connect(self.toggle_dpi_scaling)
+        self.button_dpiscale.setToolTip("Toggle High DPI Scaling")
+        self._last_dpi_scaling = cfg.application["enable_high_dpi_scaling"]
 
         self.addPermanentWidget(self.button_api)
         self.addWidget(self.button_style)
+        self.addWidget(self.button_dpiscale)
         self.refresh()
 
     def refresh(self):
         """Refresh status bar"""
         if cfg.shared_memory_api["enable_active_state_override"]:
-            text = f"{api.name} (overriding)"
+            text_api_status = "overriding"
         else:
-            text = f"{api.name} ({api.version})"
-        self.button_api.setText(text)
-        self.button_style.setText(cfg.application["window_color_theme"])
+            text_api_status = api.version
+        self.button_api.setText(f"API: {API_NAME_ALIAS[api.name]} ({text_api_status})")
+
+        self.button_style.setText(f"UI: {cfg.application['window_color_theme']}")
+
+        if cfg.application["enable_high_dpi_scaling"]:
+            text_dpi = "Auto"
+        else:
+            text_dpi = "Off"
+        if self._last_dpi_scaling != cfg.application["enable_high_dpi_scaling"]:
+            text_need_restart = "*"
+        else:
+            text_need_restart = ""
+        self.button_dpiscale.setText(f"Scale: {text_dpi}{text_need_restart}")
+
+    def toggle_dpi_scaling(self):
+        """Toggle DPI scaling"""
+        if cfg.application["enable_high_dpi_scaling"]:
+            state = "Disable"
+            desc = "not be scaled under high DPI screen resolution."
+        else:
+            state = "Enable"
+            desc = "be auto-scaled according to system DPI scaling setting."
+        msg_text = (
+            f"{state} <b>High DPI Scaling</b> and restart <b>TinyPedal</b>?<br><br>"
+            f"<b>Window</b> and <b>Overlay</b> size and position will {desc}"
+        )
+        restart_msg = QMessageBox.question(
+            self, "High DPI Scaling", msg_text,
+            buttons=QMessageBox.Yes | QMessageBox.No,
+            defaultButton=QMessageBox.No,
+        )
+        if restart_msg != QMessageBox.Yes:
+            return
+
+        cfg.application["enable_high_dpi_scaling"] = not cfg.application["enable_high_dpi_scaling"]
+        cfg.save(0, cfg_type=ConfigType.CONFIG)
+        # Wait saving finish
+        while cfg.is_saving:
+            time.sleep(0.01)
+        self.refresh()
+        self._parent.quit_app()
+        loader.restart()
 
     def toggle_color_theme(self):
         """Toggle color theme"""
@@ -158,6 +208,7 @@ class StatusButtonBar(QStatusBar):
         else:
             cfg.application["window_color_theme"] = "Dark"
         cfg.save(cfg_type=ConfigType.CONFIG)
+        self._parent.load_window_style()
 
 
 class AppWindow(QMainWindow):
@@ -321,8 +372,8 @@ class AppWindow(QMainWindow):
         """Quit manager"""
         self.save_window_state()
         self.__break_signal()
+        QApplication.quit()  # close app first
         loader.close()
-        QApplication.quit()  # close app
 
     def closeEvent(self, event):
         """Minimize to tray"""

@@ -124,7 +124,7 @@ class APIControl:
     def version(self) -> str:
         """API version output"""
         version = self.read.check.api_version()
-        return version if version else "not running"
+        return version if version else "unknown"
 
 
 api = APIControl()

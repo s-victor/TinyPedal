@@ -165,12 +165,12 @@ def set_style_window(base_font_pt: int) -> str:
         }}
 
         /* Main status bar */
-        AppWindow QStatusBar QPushButton {{
+        AppWindow QStatusBar > QPushButton {{
             font-size: {font_pt_text_browser}pt;
             border: none;
-            padding: 0.1em 0.4em;
+            padding: 0.1em 0.2em;
         }}
-        AppWindow QStatusBar QPushButton::hover {{
+        AppWindow QStatusBar > QPushButton::hover {{
             color: {color_active_highlight_fg};
             background: {color_active_highlight_bg};
         }}

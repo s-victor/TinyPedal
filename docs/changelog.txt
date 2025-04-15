@@ -1,15 +1,15 @@
 WIP
 -----------------------------
-* Window dialog & DPI scale
+* Window dialog & DPI scaling
   - Add "window_color_theme" option in global user config, which sets color theme for main window and dialog. Default theme is "Dark". This option does not affect overlay widget.
-    Color theme can be quickly toggled via "Light" and "Dark" button on main window status bar.
-  - Add "enable_high_dpi_scaling" option in global user config, which enables window dialog and overlay widget auto-scaling under high DPI screen resolution.
-    This option requires restarting TinyPedal to take effect. This option is disabled by default.
+    Color theme can be quickly toggled via "UI" button on main window status bar.
+  - Add "enable_high_dpi_scaling" option in global user config, which enables window dialog and overlay widget auto-scaling under high DPI screen resolution. This option is disabled by default.
+    High DPI scaling mode can be quickly toggled via "Scale" button on main window status bar.
     On Windows, scaling is determined by percentage value set in "Display" > "Scale and Layout" in windows setting.
     For example, "200%" scale in windows setting will double the size of main window dialog and also every widget.
     On Linux, DPI scaling may already be forced "ON" in some system, which this option may not have effect.
-  - Fixed broken main window dialog view under high DPI screen resolution. Main window dialog font & elements now scale relatively with system DPI scale setting.
-    Note, while TinyPedal is running, changing screen DPI scale may still break main window dialog view, and requires restarting TinyPedal to scale correctly according to new DPI scale setting.
+  - Fixed broken main window dialog view under high DPI screen resolution. Main window dialog font & elements now scale relatively with system DPI scaling setting.
+    Note, while TinyPedal is running, changing screen DPI scaling may still break main window dialog view, and requires restarting TinyPedal to scale correctly according to new DPI scaling setting.
     Alternatively, enable the new "enable_high_dpi_scaling" option to allow auto-scaling window dialog while TinyPedal is running.
 
 * Misc

@@ -336,6 +336,8 @@ Remember main window last size.
     enable_high_dpi_scaling
 Enable window dialog and overlay widget auto-scaling under high DPI screen resolution. This option requires restarting TinyPedal to take effect. This option is disabled by default.
 
+High DPI scaling mode can be quickly toggled via `Scale` button on main window status bar.
+
 On Windows, scaling is determined by percentage value set in `Display` > `Scale and Layout` setting. For example, `200%` scale in windows setting will double the size of main window dialog and also every widget.
 
 On Linux, DPI scaling may already be forced `ON` in some system, which this option may not have effect.
@@ -368,7 +370,7 @@ Define main window size on screen in pixels. Those values will be auto updated a
     window_color_theme
 Set color theme for main window and dialog. Default theme is `Dark`. This option does not affect overlay widget.
 
-Color theme can be quickly toggled via `Light` and `Dark` button on main window status bar.
+Color theme can be quickly toggled via `UI` button on main window status bar.
 
 [**`Back to Top`**](#)
 

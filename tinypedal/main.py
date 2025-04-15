@@ -140,6 +140,13 @@ def init_gui() -> QApplication:
     return root
 
 
+def unset_environment():
+    """Clear any previous environment variable (required after auto-restarted APP)"""
+    os.environ.pop("QT_ENABLE_HIGHDPI_SCALING", None)
+    os.environ.pop("QT_MEDIA_BACKEND", None)
+    os.environ.pop("QT_MULTIMEDIA_PREFERRED_PLUGINS", None)
+
+
 def set_environment():
     """Set environment before starting GUI"""
     if cfg.application["enable_high_dpi_scaling"]:
@@ -161,6 +168,8 @@ def set_environment():
 
 def start_app():
     """Init main window"""
+    unset_environment()
+    # Load command line arguments
     cli_args = get_cli_argument()
     set_logging_level(logger, log_stream, cli_args.log_level)
     version_check()

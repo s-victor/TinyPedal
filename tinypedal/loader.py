@@ -21,6 +21,7 @@ Loader function
 """
 
 import logging
+import os
 import signal
 import sys
 
@@ -70,6 +71,12 @@ def close():
     unload_modules()
     # 2 stop api
     api.stop()
+
+
+def restart():
+    """Restart APP"""
+    logger.info("RESTARTING............")
+    os.execl(sys.executable, sys.executable, *sys.argv)
 
 
 def reload(reload_preset: bool = False):

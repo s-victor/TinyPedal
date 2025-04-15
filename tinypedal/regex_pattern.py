@@ -154,6 +154,10 @@ CFG_INVALID_FILENAME = (
 # API name
 API_NAME_RF2 = "rFactor 2"
 API_NAME_LMU = "Le Mans Ultimate"
+API_NAME_ALIAS = {
+    API_NAME_RF2: "RF2",
+    API_NAME_LMU: "LMU",
+}
 
 # Abbreviation
 ABBR_PATTERN = (
