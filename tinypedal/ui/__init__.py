@@ -27,99 +27,72 @@ from PySide2.QtWidgets import QApplication
 def set_style_palette(color_theme: str):
     """Set style palette"""
     if color_theme == "Dark":
-        get_palette_style = palette_dark
+        palette_theme = palette_dark()
     else:
-        get_palette_style = palette_light
+        palette_theme = palette_light()
 
-    palette_color = get_palette_style()
-    palatte_roles = get_palatte_role()
     palette = QGuiApplication.palette()
-    for color_role, (color_active, color_inactive, color_disabled) in zip(
-        palatte_roles, palette_color
-    ):
-        palette.setColor(QPalette.Active, color_role, color_active)
-        palette.setColor(QPalette.Inactive, color_role, color_inactive)
-        palette.setColor(QPalette.Disabled, color_role, color_disabled)
+    group_active = QPalette.Active
+    group_inactive = QPalette.Inactive
+    group_disabled = QPalette.Disabled
+    for color_active, color_inactive, color_disabled, color_role in palette_theme:
+        palette.setColor(group_active, color_role, color_active)
+        palette.setColor(group_inactive, color_role, color_inactive)
+        palette.setColor(group_disabled, color_role, color_disabled)
     QApplication.setPalette(palette)
 
 
 def palette_light():
     """Set palette light"""
     return (
-        #   Active   Inactive   Disabled
-        ("#F0F0F0", "#F0F0F0", "#F0F0F0"),  # Window
-        ("#050505", "#050505", "#777777"),  # WindowText
-        ("#FFFFFF", "#FFFFFF", "#E8E8E8"),  # Base
-        ("#E8E8E8", "#E8E8E8", "#F7F7F7"),  # AlternateBase
-        ("#FFFFFF", "#FFFFFF", "#FFFFFF"),  # ToolTipBase
-        ("#050505", "#050505", "#050505"),  # ToolTipText
-        ("#050505", "#050505", "#050505"),  # PlaceholderText
-        ("#050505", "#050505", "#777777"),  # Text
-        ("#F0F0F0", "#F0F0F0", "#F0F0F0"),  # Button
-        ("#050505", "#050505", "#777777"),  # ButtonText
-        ("#FFFFFF", "#FFFFFF", "#FFFFFF"),  # BrightText
-        ("#FFFFFF", "#FFFFFF", "#FFFFFF"),  # Light
-        ("#E3E3E3", "#E3E3E3", "#F7F7F7"),  # Midlight
-        ("#A0A0A0", "#A0A0A0", "#A0A0A0"),  # Dark
-        ("#CCCCCC", "#CCCCCC", "#CCCCCC"),  # Mid
-        ("#111111", "#111111", "#050505"),  # Shadow
-        ("#0088DD", "#555555", "#CCCCCC"),  # Highlight
-        ("#FFFFFF", "#F0F0F0", "#555555"),  # HighlightedText
-        ("#0088DD", "#0088DD", "#777777"),  # Link
-        ("#FF00FF", "#FF00FF", "#777777"),  # LinkVisited
+        #   Active   Inactive   Disabled  Role
+        ("#F0F0F0", "#F0F0F0", "#E8E8E8", QPalette.Window),
+        ("#050505", "#050505", "#808080", QPalette.WindowText),
+        ("#FFFFFF", "#FFFFFF", "#EEEEEE", QPalette.Base),
+        ("#EBEBEB", "#EBEBEB", "#DBDBDB", QPalette.AlternateBase),
+        ("#FFFFFF", "#FFFFFF", "#FFFFFF", QPalette.ToolTipBase),
+        ("#050505", "#050505", "#050505", QPalette.ToolTipText),
+        ("#050505", "#050505", "#050505", QPalette.PlaceholderText),
+        ("#050505", "#050505", "#808080", QPalette.Text),
+        ("#F0F0F0", "#F0F0F0", "#F0F0F0", QPalette.Button),
+        ("#050505", "#050505", "#808080", QPalette.ButtonText),
+        ("#FFFFFF", "#FFFFFF", "#FFFFFF", QPalette.BrightText),
+        ("#FFFFFF", "#FFFFFF", "#FFFFFF", QPalette.Light),
+        ("#E3E3E3", "#E3E3E3", "#F7F7F7", QPalette.Midlight),
+        ("#A0A0A0", "#A0A0A0", "#A0A0A0", QPalette.Dark),
+        ("#CCCCCC", "#CCCCCC", "#CCCCCC", QPalette.Mid),
+        ("#111111", "#111111", "#050505", QPalette.Shadow),
+        ("#0088DD", "#555555", "#CCCCCC", QPalette.Highlight),
+        ("#FFFFFF", "#F0F0F0", "#555555", QPalette.HighlightedText),
+        ("#0088DD", "#0088DD", "#808080", QPalette.Link),
+        ("#FF00FF", "#FF00FF", "#808080", QPalette.LinkVisited),
     )
 
 
 def palette_dark():
     """Set palette dark"""
     return (
-        #   Active   Inactive   Disabled
-        ("#333333", "#333333", "#303030"),  # Window
-        ("#FAFAFA", "#FAFAFA", "#777777"),  # WindowText
-        ("#222222", "#222222", "#333333"),  # Base
-        ("#2A2A2A", "#2A2A2A", "#282828"),  # AlternateBase
-        ("#333333", "#333333", "#333333"),  # ToolTipBase
-        ("#FAFAFA", "#FAFAFA", "#FAFAFA"),  # ToolTipText
-        ("#FAFAFA", "#FAFAFA", "#FAFAFA"),  # PlaceholderText
-        ("#FAFAFA", "#FAFAFA", "#777777"),  # Text
-        ("#333333", "#333333", "#303030"),  # Button
-        ("#FAFAFA", "#FAFAFA", "#888888"),  # ButtonText
-        ("#FFFFFF", "#FFFFFF", "#FFFFFF"),  # BrightText
-        ("#AAAAAA", "#AAAAAA", "#484848"),  # Light
-        ("#999999", "#999999", "#383838"),  # Midlight
-        ("#555555", "#555555", "#181818"),  # Dark
-        ("#444444", "#444444", "#222222"),  # Mid
-        ("#222222", "#222222", "#0E0E0E"),  # Shadow
-        ("#0088DD", "#CCCCCC", "#444444"),  # Highlight
-        ("#FAFAFA", "#181818", "#999999"),  # HighlightedText
-        ("#22AAFF", "#22AAFF", "#777777"),  # Link
-        ("#FF22FF", "#FF22FF", "#777777"),  # LinkVisited
-    )
-
-
-def get_palatte_role():
-    """Get palatte color role"""
-    return (
-        QPalette.Window,
-        QPalette.WindowText,
-        QPalette.Base,
-        QPalette.AlternateBase,
-        QPalette.ToolTipBase,
-        QPalette.ToolTipText,
-        QPalette.PlaceholderText,
-        QPalette.Text,
-        QPalette.Button,
-        QPalette.ButtonText,
-        QPalette.BrightText,
-        QPalette.Light,
-        QPalette.Midlight,
-        QPalette.Dark,
-        QPalette.Mid,
-        QPalette.Shadow,
-        QPalette.Highlight,
-        QPalette.HighlightedText,
-        QPalette.Link,
-        QPalette.LinkVisited,
+        #   Active   Inactive   Disabled  Role
+        ("#333333", "#333333", "#2A2A2A", QPalette.Window),
+        ("#FAFAFA", "#FAFAFA", "#808080", QPalette.WindowText),
+        ("#222222", "#222222", "#333333", QPalette.Base),
+        ("#2A2A2A", "#2A2A2A", "#3A3A3A", QPalette.AlternateBase),
+        ("#333333", "#333333", "#333333", QPalette.ToolTipBase),
+        ("#FAFAFA", "#FAFAFA", "#FAFAFA", QPalette.ToolTipText),
+        ("#FAFAFA", "#FAFAFA", "#FAFAFA", QPalette.PlaceholderText),
+        ("#FAFAFA", "#FAFAFA", "#808080", QPalette.Text),
+        ("#333333", "#333333", "#303030", QPalette.Button),
+        ("#FAFAFA", "#FAFAFA", "#888888", QPalette.ButtonText),
+        ("#FFFFFF", "#FFFFFF", "#FFFFFF", QPalette.BrightText),
+        ("#AAAAAA", "#AAAAAA", "#484848", QPalette.Light),
+        ("#999999", "#999999", "#383838", QPalette.Midlight),
+        ("#555555", "#555555", "#181818", QPalette.Dark),
+        ("#444444", "#444444", "#222222", QPalette.Mid),
+        ("#222222", "#222222", "#0E0E0E", QPalette.Shadow),
+        ("#0088DD", "#CCCCCC", "#444444", QPalette.Highlight),
+        ("#FAFAFA", "#181818", "#999999", QPalette.HighlightedText),
+        ("#22AAFF", "#22AAFF", "#808080", QPalette.Link),
+        ("#FF22FF", "#FF22FF", "#808080", QPalette.LinkVisited),
     )
 
 
@@ -138,19 +111,19 @@ def set_style_window(base_font_pt: int) -> str:
     # Color
     palette = QApplication.palette()
     palette.setCurrentColorGroup(QPalette.Active)
-    color_active_text = palette.windowText().color().name()
+    color_active_window_text = palette.windowText().color().name()
     color_active_window = palette.window().color().name()
-    color_active_highlight_fg = palette.highlightedText().color().name()
-    color_active_highlight_bg = palette.highlight().color().name()
+    color_active_highlighted_text = palette.highlightedText().color().name()
+    color_active_highlight = palette.highlight().color().name()
 
     palette.setCurrentColorGroup(QPalette.Inactive)
-    color_inactive_highlight_fg = palette.highlightedText().color().name()
-    color_inactive_highlight_bg = palette.highlight().color().name()
+    color_inactive_highlighted_text = palette.highlightedText().color().name()
+    color_inactive_highlight = palette.highlight().color().name()
 
     palette.setCurrentColorGroup(QPalette.Disabled)
-    color_disabled_text = palette.windowText().color().name()
-    color_disabled_highlight_fg = palette.highlightedText().color().name()
-    color_disabled_highlight_bg = palette.highlight().color().name()
+    color_disabled_window_text = palette.windowText().color().name()
+    color_disabled_highlighted_text = palette.highlightedText().color().name()
+    color_disabled_highlight = palette.highlight().color().name()
 
     style = f"""
         /* Misc */
@@ -159,9 +132,9 @@ def set_style_window(base_font_pt: int) -> str:
             width: 4px;
         }}
         QToolTip {{
-            color: {color_active_text};
+            color: {color_active_window_text};
             background: {color_active_window};
-            border: 1px solid {color_disabled_text};
+            border: 1px solid {color_disabled_window_text};
         }}
 
         /* Main status bar */
@@ -171,8 +144,8 @@ def set_style_window(base_font_pt: int) -> str:
             padding: 0.1em 0.2em;
         }}
         AppWindow QStatusBar > QPushButton::hover {{
-            color: {color_active_highlight_fg};
-            background: {color_active_highlight_bg};
+            color: {color_active_highlighted_text};
+            background: {color_active_highlight};
         }}
 
         /* Notify bar */
@@ -180,7 +153,7 @@ def set_style_window(base_font_pt: int) -> str:
             font-weight: bold;
             padding: 0.2em;
             border: none;
-            color: {color_active_highlight_fg};
+            color: {color_active_highlighted_text};
         }}
         NotifyBar #notifySpectate {{
             background: #08C;
@@ -200,11 +173,13 @@ def set_style_window(base_font_pt: int) -> str:
         ModuleList QListView::item {{
             border: none;
             min-height: 1.75em;
+            color: {color_active_window_text};
         }}
-        ModuleList QListView::item:selected,
-        ModuleList QListView::item:hover {{
-            color: {color_active_text};
+        ModuleList QListView::item:selected {{
             background: transparent;
+        }}
+        ModuleList QListView::item:hover {{
+            background: {color_disabled_highlight};
         }}
         ModuleControlItem QPushButton {{
             border-radius: {border_radius_button}em;
@@ -213,26 +188,26 @@ def set_style_window(base_font_pt: int) -> str:
         }}
         ModuleControlItem #buttonConfig {{
             font-size: {font_pt_item_button}pt;
-            color: {color_disabled_text};
+            color: {color_disabled_window_text};
         }}
         ModuleControlItem #buttonToggle {{
             font-size: {font_pt_item_toggle}pt;
             font-weight: bold;
-            color: {color_disabled_highlight_fg};
-            background: {color_disabled_highlight_bg};
+            color: {color_disabled_highlighted_text};
+            background: {color_disabled_highlight};
             min-width: 1.75em;
         }}
         ModuleControlItem #buttonToggle::checked,
         ModuleControlItem #buttonConfig::checked {{
-            color: {color_inactive_highlight_fg};
-            background: {color_inactive_highlight_bg};
+            color: {color_inactive_highlighted_text};
+            background: {color_inactive_highlight};
         }}
         ModuleControlItem #buttonToggle::hover,
         ModuleControlItem #buttonConfig::hover,
         ModuleControlItem #buttonToggle::checked:hover,
         ModuleControlItem #buttonConfig::checked:hover {{
-            color: {color_active_highlight_fg};
-            background: {color_active_highlight_bg};
+            color: {color_active_highlighted_text};
+            background: {color_active_highlight};
         }}
 
         /* Preset list (tab) */
@@ -245,12 +220,12 @@ def set_style_window(base_font_pt: int) -> str:
             min-height: 1.75em;
         }}
         PresetList QListView::item:selected {{
-            selection-color: {color_active_highlight_fg};
-            background: {color_active_highlight_bg};
+            selection-color: {color_active_highlighted_text};
+            background: {color_active_highlight};
         }}
         PresetTagItem QLabel {{
             font-size: {font_pt_item_button}pt;
-            color: {color_active_highlight_fg};
+            color: {color_active_highlighted_text};
             margin: 0.25em 0.25em 0.25em 0;
             border-radius: {border_radius_button}em;
         }}
@@ -274,8 +249,8 @@ def set_style_window(base_font_pt: int) -> str:
             border: none;
         }}
         SpectateList QListView::item:selected {{
-            selection-color: {color_active_highlight_fg};
-            background: {color_active_highlight_bg};
+            selection-color: {color_active_highlighted_text};
+            background: {color_active_highlight};
         }}
 
         /* Base dialog */
