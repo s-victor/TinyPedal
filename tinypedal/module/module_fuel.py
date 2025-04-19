@@ -52,12 +52,13 @@ class Realtime(DataModule):
 
     def update_data(self):
         """Update module data"""
+        _event_wait = self._event.wait
         reset = False
         update_interval = self.active_interval
 
         userpath_fuel_delta = self.cfg.path.fuel_delta
 
-        while not self._event.wait(update_interval):
+        while not _event_wait(update_interval):
             if self.state.active:
 
                 if not reset:

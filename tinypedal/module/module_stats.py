@@ -40,6 +40,7 @@ class Realtime(DataModule):
 
     def update_data(self):
         """Update module data"""
+        _event_wait = self._event.wait
         reset = False
         update_interval = self.active_interval
 
@@ -48,7 +49,7 @@ class Realtime(DataModule):
         podium_by_class = self.mcfg["enable_podium_by_class"]
         vehicle_class = self.mcfg["vehicle_classification"]
 
-        while not self._event.wait(update_interval):
+        while not _event_wait(update_interval):
 
             # Ignore stats while in override mode
             if (self.cfg.shared_memory_api["enable_player_index_override"]

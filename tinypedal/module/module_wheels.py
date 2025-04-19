@@ -39,6 +39,7 @@ class Realtime(DataModule):
 
     def update_data(self):
         """Update module data"""
+        _event_wait = self._event.wait
         reset = False
         update_interval = self.active_interval
 
@@ -52,7 +53,7 @@ class Realtime(DataModule):
         min_coords = min(max(self.mcfg["cornering_radius_sampling_interval"], 5), 100)
         list_coords = deque([(0,0)] * min_coords * 2, min_coords * 2)
 
-        while not self._event.wait(update_interval):
+        while not _event_wait(update_interval):
             if self.state.active:
 
                 if not reset:
