@@ -65,7 +65,6 @@ class Overlay(QWidget):
     def start(self):
         """Set initial widget state in orders, and start update"""
         self.__connect_signal()
-        self.__set_window_style()
         self.__set_window_attributes()  # 1
         self.__set_window_flags()  # 2
         update_interval = max(
@@ -97,11 +96,14 @@ class Overlay(QWidget):
         self.setAttribute(Qt.WA_DeleteOnClose, True)
         if self.cfg.compatibility["enable_translucent_background"]:
             self.setAttribute(Qt.WA_TranslucentBackground, True)
+        else:
+            self.__set_window_style()
 
     def __set_window_flags(self):
         """Set window flags"""
         self.setWindowFlag(Qt.FramelessWindowHint, True)
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+        self.setWindowFlag(Qt.WindowDoesNotAcceptFocus, True)
         if not self.cfg.overlay["vr_compatibility"]:  # hide taskbar widget
             self.setWindowFlag(Qt.Tool, True)
         if self.cfg.compatibility["enable_bypass_window_manager"]:

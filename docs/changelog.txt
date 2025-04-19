@@ -13,6 +13,7 @@ WIP
     Alternatively, enable the new "enable_high_dpi_scaling" option to allow auto-scaling window dialog while TinyPedal is running.
 
 * Misc
+  - Disabled "window-focus" at all time on all overlay widgets.
   - Heatmap Editor now shows temperature entries in table view, and supports multi-selection for offsetting and removing temperature, and up to one decimal place is kept.
   - Show "Preset Locked" notification on main window if currently loaded preset is locked.
 
