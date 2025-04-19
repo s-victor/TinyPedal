@@ -21,6 +21,7 @@ Command line argument
 """
 
 import argparse
+import sys
 
 
 def get_cli_argument() -> argparse.Namespace:
@@ -51,4 +52,18 @@ def get_cli_argument() -> argparse.Namespace:
             " 1 - single instance (default);"
         ),
     )
+    # Disallow version override if run as compiled exe
+    if "tinypedal.exe" not in sys.executable:
+        parse.add_argument(
+            "-p",
+            "--pyside",
+            choices=(2, 6),
+            default=2,
+            type=int,
+            help=(
+                "set PySide (Qt for Python) version:"
+                " 2 - PySide2;"
+                " 6 - PySide6;"
+            ),
+        )
     return parse.parse_args()

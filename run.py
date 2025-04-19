@@ -25,8 +25,35 @@ Run program
 import os
 import sys
 
-from tinypedal.main import start_app
+
+def override_pyside_version(version: int = 6):
+    """Override PySide version 2 to 6"""
+    override = f"PySide{version}"
+    manual_import_module("PySide2", override)
+    manual_import_module("PySide2.QtCore", f"{override}.QtCore")
+    manual_import_module("PySide2.QtGui", f"{override}.QtGui")
+    manual_import_module("PySide2.QtWidgets", f"{override}.QtWidgets")
+    manual_import_module("PySide2.QtMultimedia", f"{override}.QtMultimedia")
+
+
+def manual_import_module(orginal_verison: str, new_version: str):
+    """Manual import module"""
+    sys.modules[orginal_verison] = __import__(new_version, fromlist=[new_version])
+
 
 if __name__ == "__main__":
     os.chdir(os.path.dirname(os.path.abspath(sys.argv[0])))
-    start_app()
+
+    # Load command line arguments
+    from tinypedal.cli_argument import get_cli_argument
+
+    cli_args = get_cli_argument()
+
+    # Check whether to override PySide version
+    if getattr(cli_args, "pyside", None) == 6:
+        override_pyside_version(cli_args.pyside)
+
+    # Start
+    from tinypedal.main import start_app
+
+    start_app(cli_args)

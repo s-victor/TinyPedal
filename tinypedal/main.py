@@ -30,7 +30,6 @@ from PySide2.QtCore import QCoreApplication, Qt
 from PySide2.QtGui import QFont, QGuiApplication, QIcon, QPixmapCache
 from PySide2.QtWidgets import QApplication, QMessageBox
 
-from .cli_argument import get_cli_argument
 from .const_app import (
     APP_NAME,
     PATH_GLOBAL,
@@ -173,11 +172,9 @@ def set_environment():
             os.environ["QT_MULTIMEDIA_PREFERRED_PLUGINS"] = multimedia_plugin
 
 
-def start_app():
+def start_app(cli_args):
     """Init main window"""
     unset_environment()
-    # Load command line arguments
-    cli_args = get_cli_argument()
     set_logging_level(logger, log_stream, cli_args.log_level)
     version_check()
     # load global config
