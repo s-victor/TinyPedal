@@ -16,6 +16,9 @@ WIP
   - Disabled "window-focus" at all time on all overlay widgets.
   - Heatmap Editor now shows temperature entries in table view, and supports multi-selection for offsetting and removing temperature, and up to one decimal place is kept.
   - Show "Preset Locked" notification on main window if currently loaded preset is locked.
+  - Add new command line arguments "-p, --pyside" for choosing PySide (Qt for Python) module version.
+    Currently, this option is only available while "running from source", and mainly for testing purpose or used on platform where PySide2 is no longer available.
+  - Fixed a visual problem where fuel level bar indicator does not update remaining level if fuel delta data was not yet recorded for current track.
 
 2.26.0 (2025-04-02)
 -----------------------------

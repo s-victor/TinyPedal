@@ -350,7 +350,7 @@ class Realtime(Overlay):
                 level_curr = minfo.energy.amountCurrent
                 level_start = minfo.energy.amountStart
                 level_refill = level_curr + minfo.energy.neededRelative
-                level_state = round(level_start * level_refill, 3)
+                level_state = round(level_curr + level_start + level_refill, 3)
                 if level_capacity and self.bar_level.last != level_state:
                     self.bar_level.last = level_state
                     self.bar_level.update_input(
