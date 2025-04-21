@@ -28,17 +28,20 @@ import sys
 
 def override_pyside_version(version: int = 6):
     """Override PySide version 2 to 6"""
+    if version != 6:
+        return
+    original = "PySide2"
     override = f"PySide{version}"
-    manual_import_module("PySide2", override)
-    manual_import_module("PySide2.QtCore", f"{override}.QtCore")
-    manual_import_module("PySide2.QtGui", f"{override}.QtGui")
-    manual_import_module("PySide2.QtWidgets", f"{override}.QtWidgets")
-    manual_import_module("PySide2.QtMultimedia", f"{override}.QtMultimedia")
+    override_module(original, override)
+    override_module(f"{original}.QtCore", f"{override}.QtCore")
+    override_module(f"{original}.QtGui", f"{override}.QtGui")
+    override_module(f"{original}.QtWidgets", f"{override}.QtWidgets")
+    override_module(f"{original}.QtMultimedia", f"{override}.QtMultimedia")
 
 
-def manual_import_module(orginal_verison: str, new_version: str):
-    """Manual import module"""
-    sys.modules[orginal_verison] = __import__(new_version, fromlist=[new_version])
+def override_module(original: str, override: str):
+    """Manual import & override module"""
+    sys.modules[original] = __import__(override, fromlist=[override])
 
 
 if __name__ == "__main__":
@@ -50,8 +53,7 @@ if __name__ == "__main__":
     cli_args = get_cli_argument()
 
     # Check whether to override PySide version
-    if getattr(cli_args, "pyside", None) == 6:
-        override_pyside_version(cli_args.pyside)
+    override_pyside_version(getattr(cli_args, "pyside", 2))
 
     # Start
     from tinypedal.main import start_app

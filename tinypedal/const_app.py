@@ -21,13 +21,8 @@ Constants
 """
 
 import platform
-import sys
 
-import psutil
-import PySide2
-from PySide2.QtCore import qVersion
-
-from . import set_app_version, set_global_user_path, version
+from . import get_lib_version, set_app_version, set_global_user_path, version
 
 # System info
 PLATFORM = platform.system()
@@ -36,10 +31,10 @@ PLATFORM = platform.system()
 VERSION = set_app_version(version.__version__, version.DEVELOPMENT)
 
 # Library version
-PYTHON_VERSION = ".".join(map(str, sys.version_info))
-QT_VERSION = qVersion()
-PYSIDE_VERSION = PySide2.__version__
-PSUTIL_VERSION = psutil.__version__
+PYTHON_VERSION = get_lib_version("python")
+QT_VERSION = get_lib_version("qt")
+PYSIDE_VERSION = get_lib_version("pyside")
+PSUTIL_VERSION = get_lib_version("psutil")
 
 # App info
 APP_NAME = "TinyPedal"

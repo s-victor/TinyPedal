@@ -37,9 +37,8 @@ EXECUTABLE_SETTING = [
 
 EXCLUDE_MODULES = [
     "_ssl",
+    "ssl",
     "difflib",
-    # "email",
-    # "http",
     "pdb",
     "venv",
     "tkinter",
@@ -49,6 +48,8 @@ EXCLUDE_MODULES = [
     "unittest",
     "xmlrpc",
     "multiprocessing",
+    # "email",
+    # "http",
 ]
 
 IMAGE_FILES = [
