@@ -183,19 +183,20 @@ def set_style_window(base_font_pt: int) -> str:
         }}
         ModuleControlItem QPushButton {{
             border-radius: {border_radius_button}em;
-            padding: 0.125em 0.2em;
+            height: none;
             margin: 0.25em 0.25em 0.25em 0;
         }}
         ModuleControlItem #buttonConfig {{
             font-size: {font_pt_item_button}pt;
             color: {color_disabled_window_text};
+            padding: 0 0.2em;
         }}
         ModuleControlItem #buttonToggle {{
             font-size: {font_pt_item_toggle}pt;
             font-weight: bold;
             color: {color_disabled_highlighted_text};
             background: {color_disabled_highlight};
-            min-width: 1.75em;
+            min-width: 2em;
         }}
         ModuleControlItem #buttonToggle::checked,
         ModuleControlItem #buttonConfig::checked {{
