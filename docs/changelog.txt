@@ -26,6 +26,7 @@ WIP
     Then move those files back to "home/username/.config/TinyPedal/" folder.
 
 * Misc
+  - Add "Restart TinyPedal" to "Window" menu.
   - Disabled "window-focus" at all time on all overlay widgets.
   - Heatmap Editor now shows temperature entries in table view, and supports multi-selection for offsetting and removing temperature, and up to one decimal place is kept.
   - Show "Preset Locked" notification on main window if currently loaded preset is locked.

@@ -33,8 +33,8 @@ def get_lib_version(name: str) -> str:
     if name == "python":
         version = ".".join(map(str, sys.version_info))
     elif name == "qt":
-        from PySide2.QtCore import qVersion
-        version = qVersion()
+        import PySide2
+        version = PySide2.QtCore.qVersion()
     elif name == "pyside":
         import PySide2
         version = PySide2.__version__

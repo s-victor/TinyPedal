@@ -25,6 +25,7 @@ import os
 from PySide2.QtGui import QDesktopServices
 from PySide2.QtWidgets import QMenu, QMessageBox
 
+from .. import loader
 from ..api_control import api
 from ..const_app import URL_FAQ, URL_USER_GUIDE
 from ..module_info import minfo
@@ -458,6 +459,10 @@ class WindowMenu(QMenu):
         self.remember_size = self.addAction("Remember Size")
         self.remember_size.setCheckable(True)
         self.remember_size.triggered.connect(self.is_remember_size)
+        self.addSeparator()
+
+        restart_app = self.addAction("Restart TinyPedal")
+        restart_app.triggered.connect(loader.restart)
 
         self.aboutToShow.connect(self.refresh_menu)
 

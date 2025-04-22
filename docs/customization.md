@@ -15,6 +15,12 @@ Available settings:
 * `User path`, can be accessed from `Config` menu in main window, see [User Path](#user-path) section for details.
 * `Auto load preset`, can be accessed from `Preset` tab in main window, see [Preset Management](#preset-management) section for details.
 
+Reload or Restart:
+
+* To reload all presets, select `Reload` from `Overlay` menu in main window.
+* To restart game API, select `Restart API` from `Overlay` menu in main window.
+* To restart TinyPedal, select `Restart TinyPedal` from `Window` menu in main window.
+
 [**`Back to Top`**](#)
 
 
