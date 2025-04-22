@@ -15,7 +15,15 @@ WIP
 * Linux
   - Add "enable_x11_display_server_override" option in "Compatibility", which sets display server type to "X11" via environment variable on Linux.
   - Add "enable_x11_platform_plugin_override" option in "Compatibility", which sets Qt platform plugin type to "X11" via environment variable on Linux.
-  - See User Guide "Compatibility" section for explanation of these two options.
+    See User Guide "Compatibility" section for explanation of these two options.
+  - Fixed missing end slash "/" from global config path that saved global config files in wrong folder.
+    For existing Linux user, manual correction is required.
+    In "home/username/.config/" folder, find following files and rename:
+    "TinyPedalconfig.json" to "config.json"
+    "TinyPedalconfig.lock" to "config.lock"
+    "TinyPedaldriver.stats" to "driver.stats"
+    "TinyPedalpid.log" to "pid.log"
+    Then move those files back to "home/username/.config/TinyPedal/" folder.
 
 * Misc
   - Disabled "window-focus" at all time on all overlay widgets.

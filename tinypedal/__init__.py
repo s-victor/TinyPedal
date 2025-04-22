@@ -71,7 +71,7 @@ def set_global_user_path(filepath: str, platform: str) -> str:
         path = set_user_data_path(f"{os.getenv('APPDATA')}/{filepath}/")
     else:
         from xdg import BaseDirectory as BD
-        path = BD.save_config_path(filepath)
+        path = BD.save_config_path(filepath) + "/"
     return path
 
 
