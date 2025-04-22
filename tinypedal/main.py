@@ -155,20 +155,7 @@ def unset_environment():
 
 def set_environment():
     """Set environment before starting GUI"""
-    if PLATFORM != "Windows":
-        if cfg.compatibility["enable_x11_display_server_override"]:
-            os.environ["XDG_SESSION_TYPE"] = "x11"
-        if cfg.compatibility["enable_x11_platform_plugin_override"]:
-            os.environ["QT_QPA_PLATFORM"] = "xcb"
-
-    if cfg.application["enable_high_dpi_scaling"]:
-        QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-        QGuiApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
-        logger.info("High DPI scaling: ON")
-    else:
-        os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"  # force disable (qt6 only)
-        logger.info("High DPI scaling: OFF")
-
+    # Windows only
     if PLATFORM == "Windows":
         if QT_VERSION[0] == "6":
             os.environ["QT_MEDIA_BACKEND"] = "windows"
@@ -178,6 +165,28 @@ def set_environment():
             else:
                 multimedia_plugin = "directshow"
             os.environ["QT_MULTIMEDIA_PREFERRED_PLUGINS"] = multimedia_plugin
+
+    # Linux only
+    else:
+        # Store xdg session type on initial launch
+        if os.getenv("TINYPEDAL_RESTART") != "TRUE":
+            os.environ["TINYPEDAL_SESSION_TYPE"] = os.environ.get("XDG_SESSION_TYPE", "x11")
+        else:  # restore initial xdg session type after restarted
+            os.environ["XDG_SESSION_TYPE"] = os.environ["TINYPEDAL_SESSION_TYPE"]
+
+        if cfg.compatibility["enable_x11_display_server_override"]:
+            os.environ["XDG_SESSION_TYPE"] = "x11"
+        if cfg.compatibility["enable_x11_platform_plugin_override"]:
+            os.environ["QT_QPA_PLATFORM"] = "xcb"
+
+    # Common
+    if cfg.application["enable_high_dpi_scaling"]:
+        QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+        QGuiApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+        logger.info("High DPI scaling: ON")
+    else:
+        os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"  # force disable (qt6 only)
+        logger.info("High DPI scaling: OFF")
 
 
 def start_app(cli_args):
