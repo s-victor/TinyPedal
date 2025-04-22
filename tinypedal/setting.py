@@ -155,6 +155,8 @@ class Preset:
             global_def["application"]["show_at_startup"] = True
             global_def["application"]["minimize_to_tray"] = False
             global_def["compatibility"]["enable_bypass_window_manager"] = True
+            global_def["compatibility"]["enable_x11_display_server_override"] = True
+            global_def["compatibility"]["enable_x11_platform_plugin_override"] = True
             # Global path
             from xdg import BaseDirectory as BD
 

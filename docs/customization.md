@@ -239,7 +239,7 @@ Set logging output level. Supported values are:
 
 Log location:
   * On windows, `tinypedal.log` is located under `username\AppData\Roaming\TinyPedal` folder.
-  * On linux, `tinypedal.log` is located under `home/username/.config/TinyPedal` folder.
+  * On Linux, `tinypedal.log` is located under `home/username/.config/TinyPedal` folder.
 
 Default logging output level is set on `1` if argument is not set.
 
@@ -382,13 +382,19 @@ Color theme can be quickly toggled via `UI` button on main window status bar.
 **Compatibility options can be accessed from `Config` menu in main window.**
 
     enable_bypass_window_manager
-Set `true` to bypass window manager on X11 system, such as linux. This option does not affect windows system. This option is enabled by default on linux. Note, while this option is enabled, OBS may not be able to capture overlay widgets in streaming on linux.
+Set `true` to bypass window manager on Linux. This option does not affect windows system. This option is enabled by default on Linux. Note, while this option is enabled, OBS may not be able to capture overlay widgets in streaming on Linux.
 
     enable_translucent_background
 Set `false` to disable translucent background.
 
     enable_window_position_correction
 Set `true` to enable main application window position correction, which is used to correct window-off-screen issue with multi-screen. This option is enabled by default.
+
+    enable_x11_display_server_override
+Set display server type to `X11` via environment variable on Linux. This option may help work around some issues with overlay dragging and position on `Wayland`. This option requires restarting TinyPedal to take effect. This option is enabled by default on Linux.
+
+    enable_x11_platform_plugin_override
+Set Qt platform plugin type to `X11` via environment variable on Linux. This option may help work around some issues with overlay dragging and position on `Wayland`. This option requires restarting TinyPedal to take effect. This option is enabled by default on Linux.
 
     global_bkg_color
 Sets global background color for all widgets.
@@ -429,7 +435,7 @@ To share user path across multiple copies of TinyPedal, user must set path to pl
         pacenotes/
         tracknotes/
 
-* On linux, all user paths are set outside TinyPedal root folder as absolute paths:
+* On Linux, all user paths are set outside TinyPedal root folder as absolute paths:
 
         home/username/.config/TinyPedal/brandlogo/
         home/username/.config/TinyPedal/settings/

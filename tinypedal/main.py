@@ -141,11 +141,14 @@ def init_gui() -> QApplication:
     root.setFont(font)
     # Disable global pixmap cache
     QPixmapCache.setCacheLimit(0)
+    logger.info("Platform: %s", root.platformName())
     return root
 
 
 def unset_environment():
     """Clear any previous environment variable (required after auto-restarted APP)"""
+    os.environ.pop("XDG_SESSION_TYPE", None)
+    os.environ.pop("QT_QPA_PLATFORM", None)
     os.environ.pop("QT_ENABLE_HIGHDPI_SCALING", None)
     os.environ.pop("QT_MEDIA_BACKEND", None)
     os.environ.pop("QT_MULTIMEDIA_PREFERRED_PLUGINS", None)
@@ -153,6 +156,12 @@ def unset_environment():
 
 def set_environment():
     """Set environment before starting GUI"""
+    if PLATFORM != "Windows":
+        if cfg.compatibility["enable_x11_display_server_override"]:
+            os.environ["XDG_SESSION_TYPE"] = "x11"
+        if cfg.compatibility["enable_x11_platform_plugin_override"]:
+            os.environ["QT_QPA_PLATFORM"] = "xcb"
+
     if cfg.application["enable_high_dpi_scaling"]:
         QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
         QGuiApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)

@@ -43,6 +43,8 @@ GLOBAL_DEFAULT = {
         "enable_bypass_window_manager": False,
         "enable_translucent_background": True,
         "enable_window_position_correction": True,
+        "enable_x11_display_server_override": False,
+        "enable_x11_platform_plugin_override": False,
         "global_bkg_color": "#000000",
         "multimedia_plugin_on_windows": "WMF",
     },
