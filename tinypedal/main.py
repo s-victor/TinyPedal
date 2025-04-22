@@ -147,7 +147,6 @@ def init_gui() -> QApplication:
 
 def unset_environment():
     """Clear any previous environment variable (required after auto-restarted APP)"""
-    os.environ.pop("XDG_SESSION_TYPE", None)
     os.environ.pop("QT_QPA_PLATFORM", None)
     os.environ.pop("QT_ENABLE_HIGHDPI_SCALING", None)
     os.environ.pop("QT_MEDIA_BACKEND", None)
