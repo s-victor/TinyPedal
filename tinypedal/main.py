@@ -130,9 +130,12 @@ def init_gui() -> QApplication:
     """Initialize Qt Gui"""
     QApplication.setStyle("Fusion")
     root = QApplication(sys.argv)
+    root.setQuitOnLastWindowClosed(False)
     root.setApplicationName(APP_NAME)
     root.setWindowIcon(QIcon(ImageFile.APP_ICON))
-    root.setQuitOnLastWindowClosed(False)
+    # Set window icon for X11/Wayland (workaround)
+    if PLATFORM != "Windows":
+        root.setDesktopFileName("svictor-TinyPedal")
     # Set font
     font = root.font()
     font.setFamily("sans-serif")
