@@ -13,9 +13,8 @@ WIP
     Alternatively, enable the new "enable_high_dpi_scaling" option to allow auto-scaling window dialog while TinyPedal is running.
 
 * Linux
-  - Add "enable_x11_display_server_override" option in "Compatibility", which sets display server type to "X11" via environment variable on Linux.
   - Add "enable_x11_platform_plugin_override" option in "Compatibility", which sets Qt platform plugin type to "X11" via environment variable on Linux.
-    See User Guide "Compatibility" section for explanation of these two options.
+    See User Guide "Compatibility" section for explanation.
   - Fixed missing end slash "/" from global config path that saved global config files in wrong folder.
     For existing Linux user, manual correction is required.
     In "home/username/.config/" folder, find following files and rename:

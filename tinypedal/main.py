@@ -128,6 +128,9 @@ def version_check():
 
 def init_gui() -> QApplication:
     """Initialize Qt Gui"""
+    if cfg.application["enable_high_dpi_scaling"]:
+        QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
+        QGuiApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
     QApplication.setStyle("Fusion")
     root = QApplication(sys.argv)
     root.setQuitOnLastWindowClosed(False)
@@ -171,21 +174,11 @@ def set_environment():
 
     # Linux only
     else:
-        # Store xdg session type on initial launch
-        if os.getenv("TINYPEDAL_RESTART") != "TRUE":
-            os.environ["TINYPEDAL_SESSION_TYPE"] = os.environ.get("XDG_SESSION_TYPE", "x11")
-        else:  # restore initial xdg session type after restarted
-            os.environ["XDG_SESSION_TYPE"] = os.environ["TINYPEDAL_SESSION_TYPE"]
-
-        if cfg.compatibility["enable_x11_display_server_override"]:
-            os.environ["XDG_SESSION_TYPE"] = "x11"
         if cfg.compatibility["enable_x11_platform_plugin_override"]:
             os.environ["QT_QPA_PLATFORM"] = "xcb"
 
     # Common
     if cfg.application["enable_high_dpi_scaling"]:
-        QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
-        QGuiApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
         logger.info("High DPI scaling: ON")
     else:
         os.environ["QT_ENABLE_HIGHDPI_SCALING"] = "0"  # force disable (qt6 only)
