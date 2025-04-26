@@ -291,6 +291,7 @@ class RestAPIInfo:
 
     __slots__ = (
         "timeScale",
+        "trackClockTime",
         "privateQualifying",
         "steeringWheelRange",
         "currentVirtualEnergy",
@@ -305,6 +306,7 @@ class RestAPIInfo:
 
     def __init__(self):
         self.timeScale: int = 1
+        self.trackClockTime: float = -1.0
         self.privateQualifying: int = 0
         self.steeringWheelRange: float = 0.0
         self.currentVirtualEnergy: float = 0.0

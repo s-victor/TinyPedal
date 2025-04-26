@@ -44,6 +44,9 @@ logger = logging.getLogger(__name__)
 SET_TIMESCALE = (
     (minfo.restapi, "timeScale", 1, None, "currentValue"),
 )
+SET_GAMESTATE = (
+    (minfo.restapi, "trackClockTime", -1.0, None, "timeOfDay"),
+)
 SET_PRIVATEQUALIFY = (
     (minfo.restapi, "privateQualifying", 0, None, "currentValue"),
 )
@@ -72,6 +75,7 @@ TASK_RUNONCE = (
 )
 TASK_REPEATS = (
     ("LMU", "garage/UIScreen/DriverHandOffStintEnd", SET_CURRENTSTINT),
+    ("LMU", "sessions/GetGameState", SET_GAMESTATE),
 )
 
 

@@ -46,6 +46,7 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         self.odm_digits = max(int(self.wcfg["odometer_maximum_digits"]), 1)
+        self.time_scale_override = max(int(self.wcfg["track_clock_time_scale"]), 0)
         if self.cfg.units["odometer_unit"] == "Meter":
             self.odm_digits += 0.0
             self.odm_range = int(int(self.odm_digits) * "9")
@@ -175,13 +176,13 @@ class Realtime(Overlay):
             # Track clock
             if self.wcfg["show_track_clock"]:
                 if self.wcfg["enable_track_clock_synchronization"]:
-                    time_scale = minfo.restapi.timeScale
+                    track_time = minfo.restapi.trackClockTime
+                    if track_time < 0:
+                        time_scale = max(minfo.restapi.timeScale, 0)
+                        track_time = calc.clock_time(api.read.session.elapsed(), api.read.session.start(), time_scale)
                 else:
-                    time_scale = self.wcfg["track_clock_time_scale"]
-                if time_scale < 0:
-                    time_scale = 0
-                track_time = calc.clock_time(
-                    api.read.session.elapsed(), api.read.session.start(), time_scale)
+                    time_scale = self.time_scale_override
+                    track_time = calc.clock_time(api.read.session.elapsed(), api.read.session.start(), time_scale)
                 self.update_track_clock(self.bar_track_clock, track_time)
 
             # Compass
