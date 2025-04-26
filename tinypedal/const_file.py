@@ -102,3 +102,9 @@ class ImageFile:
     INSTRUMENT = "images/icon_instrument.png"
     STEERING_WHEEL = "images/icon_steering_wheel.png"
     WEATHER = "images/icon_weather.png"
+
+
+class StatsFile:
+    """Stats file name constants"""
+
+    DRIVER = "driver"

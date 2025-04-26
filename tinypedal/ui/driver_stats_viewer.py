@@ -42,7 +42,6 @@ from ..const_common import MAX_SECONDS
 from ..formatter import strip_invalid_char
 from ..setting import cfg
 from ..userfile.driver_stats import (
-    STATS_FILENAME,
     DriverStats,
     load_stats_json_file,
     save_stats_json_file,
@@ -171,7 +170,6 @@ class DriverStatsViewer(BaseEditor):
         """Reload stats data"""
         stats_user = load_stats_json_file(
             filepath=cfg.path.config,
-            filename=STATS_FILENAME,
         )
         if stats_user is None:
             return
@@ -244,7 +242,6 @@ class DriverStatsViewer(BaseEditor):
             save_stats_json_file(
                 stats_user=self.stats_temp,
                 filepath=cfg.path.config,
-                filename=STATS_FILENAME,
             )
             self.reload_stats()
 
@@ -270,7 +267,6 @@ class DriverStatsViewer(BaseEditor):
             save_stats_json_file(
                 stats_user=self.stats_temp,
                 filepath=cfg.path.config,
-                filename=STATS_FILENAME,
             )
             self.reload_stats()
 
@@ -289,7 +285,6 @@ class DriverStatsViewer(BaseEditor):
             save_stats_json_file(
                 stats_user=self.stats_temp,
                 filepath=cfg.path.config,
-                filename=STATS_FILENAME,
             )
             self.reload_stats()
 

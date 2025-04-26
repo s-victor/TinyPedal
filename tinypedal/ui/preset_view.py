@@ -114,7 +114,7 @@ class PresetList(QWidget):
             label_item = PresetTagItem(self, preset_name)
             self.listbox_preset.setItemWidget(item, label_item)
 
-        loaded_preset = cfg.filename.last_setting
+        loaded_preset = cfg.filename.setting
         is_locked = loaded_preset in cfg.user.filelock
         locked_tag = " (locked)" if is_locked else ""
         self.label_loaded.setText(f"Loaded: <b>{loaded_preset[:-5]}{locked_tag}</b>")
@@ -126,7 +126,7 @@ class PresetList(QWidget):
         selected_index = self.listbox_preset.currentRow()
         if selected_index >= 0:
             selected_preset_name = self.listbox_preset.item(selected_index).text()
-            cfg.filename.setting = f"{selected_preset_name}{FileExt.JSON}"
+            cfg.set_next_to_load(f"{selected_preset_name}{FileExt.JSON}")
             self.reload_preset()
         else:
             QMessageBox.warning(
@@ -315,14 +315,14 @@ class CreatePreset(BaseDialog):
                 f"{filepath}{entered_filename}{FileExt.JSON}"
             )
             # Reload if renamed file was loaded
-            if cfg.filename.setting == source_filename:
-                cfg.filename.setting = f"{entered_filename}{FileExt.JSON}"
+            if cfg.is_loaded(source_filename):
+                cfg.set_next_to_load(f"{entered_filename}{FileExt.JSON}")
                 self._parent.reload_preset()
             else:
                 self._parent.refresh()
         # Create new preset
         else:
-            cfg.filename.setting = f"{entered_filename}{FileExt.JSON}"
+            cfg.set_next_to_load(f"{entered_filename}{FileExt.JSON}")
             cfg.create()
             cfg.save(0)  # save setting
             while cfg.is_saving:  # wait saving finish

@@ -63,7 +63,6 @@ class FileName:
         "classes",
         "compounds",
         "heatmap",
-        "last_setting",
         "filelock",
     )
 
@@ -75,7 +74,6 @@ class FileName:
         self.classes = f"classes{FileExt.JSON}"
         self.compounds = f"compounds{FileExt.JSON}"
         self.heatmap = f"heatmap{FileExt.JSON}"
-        self.last_setting = f"None{FileExt.JSON}"
         self.filelock = f"config{FileExt.LOCK}"
 
 
@@ -179,6 +177,7 @@ class Setting:
     __slots__ = (
         "_save_delay",
         "_save_queue",
+        "_setting_to_load",
         "is_saving",
         "version_update",
         "filename",
@@ -197,6 +196,7 @@ class Setting:
         # States
         self._save_delay = 0
         self._save_queue = {}
+        self._setting_to_load = ""
         self.is_saving = False
         self.version_update = 0
         # Settings
@@ -212,6 +212,14 @@ class Setting:
         self.overlay = None
         self.shared_memory_api = None
         self.units = None
+
+    def is_loaded(self, filename: str) -> bool:
+        """Check if selected setting file is already loaded"""
+        return self.filename.setting == filename
+
+    def set_next_to_load(self, filename: str):
+        """Set next setting filename to load"""
+        self._setting_to_load = filename
 
     def get_primary_preset_name(self, sim_name: str) -> str:
         """Get primary preset name and verify"""
@@ -257,16 +265,22 @@ class Setting:
         new_settings_path = os.path.abspath(self.path.settings)
         # Update preset name if settings path changed
         if new_settings_path != old_settings_path:
-            self.filename.setting = f"{self.preset_list[0]}{FileExt.JSON}"
+            self.set_next_to_load(f"{self.preset_list[0]}{FileExt.JSON}")
 
     def load(self):
         """Load all setting files"""
         # Load preset JSON file
+        if self._setting_to_load != "":
+            filename_setting_temp = self._setting_to_load
+            self._setting_to_load = ""
+        else:
+            filename_setting_temp = self.filename.setting
         self.user.setting = load_setting_json_file(
-            filename=self.filename.setting,
+            filename=filename_setting_temp,
             filepath=self.path.settings,
             dict_def=self.default.setting,
         )
+        self.filename.setting = filename_setting_temp
         # Load style JSON file
         self.user.brakes = load_style_json_file(
             filename=self.filename.brakes,
@@ -301,7 +315,6 @@ class Setting:
         self.overlay = self.user.setting["overlay"]
         self.shared_memory_api = self.user.setting["shared_memory_api"]
         self.units = self.user.setting["units"]
-        self.filename.last_setting = self.filename.setting
 
     @property
     def preset_list(self) -> list[str]:

@@ -29,7 +29,7 @@ from time import sleep
 from typing import KeysView, get_type_hints
 
 from ..const_common import MAX_SECONDS
-from ..const_file import FileExt
+from ..const_file import FileExt, StatsFile
 from ..setting import cfg
 from ..userfile.json_setting import (
     create_backup_file,
@@ -38,8 +38,6 @@ from ..userfile.json_setting import (
     set_backup_timestamp,
 )
 from ..validator import convert_value_type
-
-STATS_FILENAME = "driver"
 
 logger = logging.getLogger(__name__)
 
@@ -100,12 +98,12 @@ def get_sub_dict(source: dict, key_name: str) -> dict:
 
 
 def load_driver_stats(
-    key_list: tuple[str, str], filepath: str
+    key_list: tuple[str, str], filepath: str, filename: str = StatsFile.DRIVER
 ) -> DriverStats:
     """Load driver stats"""
     stats_user = load_stats_json_file(
         filepath=filepath,
-        filename=STATS_FILENAME,
+        filename=filename,
     )
     if stats_user is None:
         return DriverStats()
@@ -123,7 +121,7 @@ def load_driver_stats(
 
 
 def save_driver_stats(
-    key_list: tuple[str, str], stats_update: DriverStats, filepath: str
+    key_list: tuple[str, str], stats_update: DriverStats, filepath: str, filename: str = StatsFile.DRIVER
 ) -> None:
     """Save driver stats"""
     if not key_list or not all(key_list):  # ignore invalid key name
@@ -133,18 +131,18 @@ def save_driver_stats(
     while load_attempts > 0:
         stats_user = load_stats_json_file(
             filepath=filepath,
-            filename=STATS_FILENAME,
+            filename=filename,
             show_log=False,
         )
         if stats_user is not None:
             break
         load_attempts -= 1
-        logger.info("USERDATA: unable to load %s%s, %s attempt(s) left", STATS_FILENAME, FileExt.STATS, load_attempts)
+        logger.info("USERDATA: unable to load %s%s, %s attempt(s) left", filename, FileExt.STATS, load_attempts)
         sleep(0.05)
     # Create backup if failed to load stats
     if stats_user is None:
-        logger.info("USERDATA: unable to load %s%s, creating backup", STATS_FILENAME, FileExt.STATS)
-        if not create_backup_file(f"{STATS_FILENAME}{FileExt.STATS}", filepath, set_backup_timestamp(), show_log=True):
+        logger.info("USERDATA: unable to load %s%s, creating backup", filename, FileExt.STATS)
+        if not create_backup_file(f"{filename}{FileExt.STATS}", filepath, set_backup_timestamp(), show_log=True):
             return  # abort saving if failed to create backup
         stats_user = {}  # reset stats
     # Get data from matching key
@@ -172,12 +170,12 @@ def save_driver_stats(
     save_stats_json_file(
         stats_user=stats_user,
         filepath=filepath,
-        filename=STATS_FILENAME,
+        filename=filename,
     )
 
 
 def load_stats_json_file(
-    filename: str, filepath: str, extension: str = FileExt.STATS, show_log: bool = True
+    filepath: str, filename: str = StatsFile.DRIVER, extension: str = FileExt.STATS, show_log: bool = True
 ) -> dict | None:
     """Load stats json file, create new if not exists, or returns "None" if invalid"""
     try:
@@ -199,7 +197,7 @@ def load_stats_json_file(
 
 
 def save_stats_json_file(
-    stats_user: dict, filename: str, filepath: str, extension: str = FileExt.STATS
+    stats_user: dict, filepath: str, filename: str = StatsFile.DRIVER, extension: str = FileExt.STATS
 ) -> None:
     """Save stats to json file"""
     save_and_verify_json_file(

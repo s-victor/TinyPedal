@@ -65,7 +65,7 @@ class FontConfig(BaseDialog):
 
     def __init__(self, parent, user_setting: dict, reload_func: Callable):
         super().__init__(parent)
-        self.set_config_title("Global Font Override", cfg.filename.last_setting)
+        self.set_config_title("Global Font Override", cfg.filename.setting)
 
         self.reloading = reload_func
         self.user_setting = user_setting
@@ -543,7 +543,7 @@ def set_preset_name(cfg_type: str):
     """Set preset name"""
     if cfg_type == ConfigType.CONFIG:
         return f"{cfg.filename.config} (global)"
-    return cfg.filename.last_setting
+    return cfg.filename.setting
 
 
 def add_context_menu(parent: QWidget):

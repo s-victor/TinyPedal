@@ -103,7 +103,6 @@ class Overlay(QWidget):
         """Set window flags"""
         self.setWindowFlag(Qt.FramelessWindowHint, True)
         self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
-        self.setWindowFlag(Qt.WindowDoesNotAcceptFocus, True)
         if not self.cfg.overlay["vr_compatibility"]:  # hide taskbar widget
             self.setWindowFlag(Qt.Tool, True)
         if self.cfg.compatibility["enable_bypass_window_manager"]:

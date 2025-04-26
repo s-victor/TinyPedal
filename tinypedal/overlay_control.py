@@ -154,11 +154,11 @@ class OverlayState(QObject):
                 logger.info("USERDATA: %s (primary preset) not found, abort auto loading", preset_name)
                 return
             # Check if already loaded
-            if preset_name == cfg.filename.last_setting:
-                logger.info("USERDATA: %s (primary preset) loaded", preset_name)
+            if cfg.is_loaded(preset_name):
+                logger.info("USERDATA: %s (primary preset) already loaded", preset_name)
                 return
             # Update preset name & signal reload
-            cfg.filename.setting = preset_name
+            cfg.set_next_to_load(preset_name)
             self.reload.emit(True)
 
 

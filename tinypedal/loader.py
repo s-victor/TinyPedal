@@ -45,7 +45,7 @@ def start():
     logger.info("STARTING............")
     signal.signal(signal.SIGINT, int_signal_handler)
     # 1 load preset
-    cfg.filename.setting = f"{cfg.preset_list[0]}{FileExt.JSON}"
+    cfg.set_next_to_load(f"{cfg.preset_list[0]}{FileExt.JSON}")
     cfg.load()
     cfg.save()
     # 2 start api

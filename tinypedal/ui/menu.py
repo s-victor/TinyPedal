@@ -113,7 +113,7 @@ class OverlayMenu(QMenu):
 
     def refresh_preset_name(self):
         """Refresh preset name"""
-        loaded_preset = cfg.filename.last_setting[:-5]
+        loaded_preset = cfg.filename.setting[:-5]
         if len(loaded_preset) > 16:
             loaded_preset = f"{loaded_preset[:16]}..."
         self.loaded_preset.setText(loaded_preset)
