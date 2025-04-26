@@ -84,6 +84,23 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_track_clock"],
             )
 
+        # Track clock time scale
+        if self.wcfg["show_time_scale"]:
+            text_time_scale = "X1"
+            bar_style_time_scale = self.set_qss(
+                fg_color=self.wcfg["font_color_time_scale"],
+                bg_color=self.wcfg["bkg_color_time_scale"]
+            )
+            self.bar_time_scale = self.set_qlabel(
+                text=text_time_scale,
+                style=bar_style_time_scale,
+                width=font_m.width * 3 + bar_padx,
+            )
+            self.set_primary_orient(
+                target=self.bar_time_scale,
+                column=self.wcfg["column_index_time_scale"],
+            )
+
         # Compass
         if self.wcfg["show_compass"]:
             text_compass = f"{180:03.0f}°{calc.select_grade(COMPASS_BEARINGS, 180): >2}"
@@ -173,17 +190,27 @@ class Realtime(Overlay):
         """Update when vehicle on track"""
         if self.state.active:
 
+            etime = api.read.session.elapsed()
+            stime = api.read.session.start()
+
+            if self.wcfg["enable_track_clock_synchronization"]:
+                track_time = minfo.restapi.trackClockTime
+                if track_time == -1:  # trackClockTime unavailable
+                    time_scale = max(minfo.restapi.timeScale, 0)
+                    track_time = calc.clock_time(etime, stime, time_scale)
+                else:  # sync time scale
+                    time_scale = calc.time_scale_sync(track_time, etime, stime)
+            else:
+                time_scale = self.time_scale_override
+                track_time = calc.clock_time(etime, stime, time_scale)
+
             # Track clock
             if self.wcfg["show_track_clock"]:
-                if self.wcfg["enable_track_clock_synchronization"]:
-                    track_time = minfo.restapi.trackClockTime
-                    if track_time < 0:
-                        time_scale = max(minfo.restapi.timeScale, 0)
-                        track_time = calc.clock_time(api.read.session.elapsed(), api.read.session.start(), time_scale)
-                else:
-                    time_scale = self.time_scale_override
-                    track_time = calc.clock_time(api.read.session.elapsed(), api.read.session.start(), time_scale)
                 self.update_track_clock(self.bar_track_clock, track_time)
+
+            # Track clock time scale
+            if self.wcfg["show_time_scale"]:
+                self.update_time_scale(self.bar_time_scale, time_scale)
 
             # Compass
             if self.wcfg["show_compass"]:
@@ -216,6 +243,12 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(strftime(self.wcfg["track_clock_format"], gmtime(data)))
+
+    def update_time_scale(self, target, data):
+        """Track clock time scale"""
+        if target.last != data:
+            target.last = data
+            target.setText(f"X{data}")
 
     def update_compass(self, target, data):
         """Compass"""

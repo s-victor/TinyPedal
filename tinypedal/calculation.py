@@ -305,6 +305,11 @@ def clock_time(seconds: float, start: int = 0, scale: int = 1) -> float:
     return time_curr - time_curr // 86400 * 86400
 
 
+def sec2hourminute(seconds: float) -> str:
+    """Seconds to hour:minute (hour:min)"""
+    return f"{seconds // 3600:02.0f}:{seconds // 60 % 60:02.0f}"
+
+
 def sec2sessiontime(seconds: float) -> str:
     """Session time (hour:min:sec)"""
     return f"{seconds // 3600:02.0f}:{seconds // 60 % 60:02.0f}:{round(seconds) % 60:02.0f}"
@@ -353,6 +358,15 @@ def delta_laptime(plr_data: Sequence[float], opt_data: Sequence[float], max_outp
             yield plr_data[index] - opt_data[index]
         else:
             yield 99999.0
+
+
+def time_scale_sync(scaled_sec: float, elapsed_sec: float, start_sec: float):
+    """Clock time scale multiplier synchronize"""
+    if elapsed_sec:
+        scale = (scaled_sec // 86400 * 86400 + scaled_sec - start_sec) / elapsed_sec
+    else:
+        scale = 1
+    return round(scale)
 
 
 def exp_mov_avg(factor: float, ema_last: float, source: float) -> float:
