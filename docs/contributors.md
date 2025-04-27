@@ -7,7 +7,8 @@ Thanks to many people for contributing to the development.
 * Xiang (S.Victor) - Project founder, core development
 
 ## Cross-platform
-* Bernat (berarma) - Cross-platform implementation & maintainer
+* Bernat (berarma) - Cross-platform (Linux) implementation & maintainer
+* SynthetikzZ - Cross-platform (Linux) feature & assistance
 
 ## Implementation
 * TiberiuC39 - VR compatibility toggle

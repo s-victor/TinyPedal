@@ -31,6 +31,7 @@ WIP
   - Add new command line arguments "-p, --pyside" for choosing PySide (Qt for Python) module version.
     Currently, this option is only available while "running from source", and mainly for testing purpose or used on platform where PySide2 is no longer available.
   - Fixed a visual problem where fuel level bar indicator does not update remaining level if fuel delta data was not yet recorded for current track.
+  - Added new contributor "SynthetikzZ" to contributors.md.
 
 2.26.0 (2025-04-02)
 -----------------------------
