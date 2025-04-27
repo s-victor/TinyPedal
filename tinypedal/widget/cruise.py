@@ -24,7 +24,7 @@ from time import gmtime, strftime
 
 from .. import calculation as calc
 from ..api_control import api
-from ..const_common import COMPASS_BEARINGS
+from ..const_common import COMPASS_BEARINGS, TEXT_NA
 from ..module_info import minfo
 from ..units import set_symbol_distance, set_unit_distance
 from ._base import Overlay
@@ -199,7 +199,7 @@ class Realtime(Overlay):
                     time_scale = max(minfo.restapi.timeScale, 0)
                     track_time = calc.clock_time(etime, stime, time_scale)
                 else:  # sync time scale
-                    time_scale = calc.time_scale_sync(track_time, etime, stime)
+                    time_scale = calc.clock_time_scale_sync(track_time, etime, stime)
             else:
                 time_scale = self.time_scale_override
                 track_time = calc.clock_time(etime, stime, time_scale)
@@ -248,7 +248,11 @@ class Realtime(Overlay):
         """Track clock time scale"""
         if target.last != data:
             target.last = data
-            target.setText(f"X{data}")
+            if 0 <= data <= 60:
+                text = f"X{data}"
+            else:
+                text = TEXT_NA
+            target.setText(text)
 
     def update_compass(self, target, data):
         """Compass"""

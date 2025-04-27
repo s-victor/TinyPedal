@@ -360,13 +360,17 @@ def delta_laptime(plr_data: Sequence[float], opt_data: Sequence[float], max_outp
             yield 99999.0
 
 
-def time_scale_sync(scaled_sec: float, elapsed_sec: float, start_sec: float):
-    """Clock time scale multiplier synchronize"""
+def clock_time_scale_sync(scaled_sec: float, elapsed_sec: float, start_sec: float) -> int:
+    """Synchronize clock time scale multiplier
+
+    Args:
+        scaled_sec: scaled track clock time (seconds)
+        elapsed_sec: current non-scaled session elapsed time (seconds)
+        start_sec: current session start time stamp (seconds)
+    """
     if elapsed_sec:
-        scale = (scaled_sec // 86400 * 86400 + scaled_sec - start_sec) / elapsed_sec
-    else:
-        scale = 1
-    return round(scale)
+        return round((scaled_sec // 86400 * 86400 + scaled_sec - start_sec) / elapsed_sec)
+    return 1
 
 
 def exp_mov_avg(factor: float, ema_last: float, source: float) -> float:

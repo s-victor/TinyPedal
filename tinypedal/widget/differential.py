@@ -192,6 +192,12 @@ class Realtime(Overlay):
 class DiffLockingTimer:
     """Differential locking timer"""
 
+    __slots__ = (
+        "_cooldown",
+        "_timer",
+        "_min_locking",
+    )
+
     def __init__(self, cooldown: float) -> None:
         """
         Args:

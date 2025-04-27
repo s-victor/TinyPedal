@@ -283,6 +283,13 @@ class Realtime(Overlay):
 class TrendTimer:
     """Trend timer"""
 
+    __slots__ = (
+        "_trend_interval",
+        "_last_reading",
+        "_trend",
+        "_timer",
+    )
+
     def __init__(self, trend_interval: float) -> None:
         """
         Args:

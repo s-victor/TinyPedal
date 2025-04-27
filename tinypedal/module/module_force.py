@@ -135,6 +135,14 @@ class Realtime(DataModule):
 class TransientMax:
     """Transient max"""
 
+    __slots__ = (
+        "_reset_delay",
+        "_store_recent",
+        "_reset_timer",
+        "_max_value",
+        "_stored_value",
+    )
+
     def __init__(self, reset_delay: float, store_recent: bool = False):
         """
         Args:
@@ -178,6 +186,12 @@ class TransientMax:
 
 class BrakingRate:
     """Braking rate (G force)"""
+
+    __slots__ = (
+        "_g_accel",
+        "_last_speed",
+        "_last_time",
+    )
 
     def __init__(self, g_accel: float):
         """

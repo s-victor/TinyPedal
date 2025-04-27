@@ -220,6 +220,15 @@ class Realtime(Overlay):
 class WheelLockTimer:
     """Wheel lock timer"""
 
+    __slots__ = (
+        "enabled",
+        "front",
+        "rear",
+        "_last_elapsed_time",
+        "_last_start_time",
+        "_lock_threshold",
+    )
+
     def __init__(self, enabled: bool, lock_threshold: float) -> None:
         """
         Args:

@@ -185,6 +185,13 @@ class Realtime(Overlay):
 class BrakeMigration:
     """Brake migration detection & calculation"""
 
+    __slots__ = (
+        "_bpres_max",
+        "_bpres_scale",
+        "_ebrake_alloc",
+        "_auto_detect",
+    )
+
     def __init__(self, ebrake_alloc: int) -> None:
         """
         Args:

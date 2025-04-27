@@ -458,6 +458,11 @@ class Realtime(Overlay):
 class GreenFlagTimer:
     """Green flag timer"""
 
+    __slots__ = (
+        "_last_lap_stime",
+        "_green_flag_duration",
+    )
+
     def __init__(self, green_flag_duration: bool):
         self._last_lap_stime = -1
         self._green_flag_duration = green_flag_duration
@@ -485,6 +490,14 @@ class GreenFlagTimer:
 
 class TrafficTimer:
     """Traffic timer"""
+
+    __slots__ = (
+        "_timer_start",
+        "_last_in_pits",
+        "_max_time_gap",
+        "_pitout_duration",
+        "_low_speed_threshold",
+    )
 
     def __init__(self, max_time_gap: bool, pitout_duration: float, low_speed_threshold: float):
         self._timer_start = 0.0
@@ -518,6 +531,11 @@ class TrafficTimer:
 class BlueFlagTimer:
     """Blue flag timer"""
 
+    __slots__ = (
+        "_timer_start",
+        "_race_only",
+    )
+
     def __init__(self, race_only: bool):
         self._timer_start = 0.0
         self._race_only = race_only
@@ -539,6 +557,13 @@ class BlueFlagTimer:
 
 class PitTimer:
     """Pit timer"""
+
+    __slots__ = (
+        "_timer_start",
+        "_last_in_pits",
+        "_last_pit_time",
+        "_max_duration",
+    )
 
     def __init__(self, highlight_duration: float):
         self._timer_start = 0.0
