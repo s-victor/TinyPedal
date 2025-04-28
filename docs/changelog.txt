@@ -1,3 +1,8 @@
+2.27.1 (2025-04-28) hot fix
+-----------------------------
+* Preset
+  - Fixed an issue that would prevent user from creating "new preset" via Preset tab.
+
 2.27.0 (2025-04-28)
 -----------------------------
 * Window dialog & DPI scaling

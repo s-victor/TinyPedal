@@ -322,11 +322,7 @@ class CreatePreset(BaseDialog):
                 self._parent.refresh()
         # Create new preset
         else:
-            cfg.set_next_to_load(f"{entered_filename}{FileExt.JSON}")
-            cfg.create()
-            cfg.save(0)  # save setting
-            while cfg.is_saving:  # wait saving finish
-                time.sleep(0.01)
+            cfg.create(f"{entered_filename}{FileExt.JSON}")
             self._parent.refresh()
         # Close window
         self.accept()

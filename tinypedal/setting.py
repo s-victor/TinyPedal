@@ -337,9 +337,14 @@ class Setting:
             return valid_cfg_list
         return ["default"]
 
-    def create(self):
+    def create(self, filename: str):
         """Create default setting"""
-        self.user.setting = copy_setting(self.default.setting)
+        save_and_verify_json_file(
+            dict_user=copy_setting(self.default.setting),
+            filename=filename,
+            filepath=self.path.settings,
+            max_attempts=self.max_saving_attempts,
+        )
 
     def save(self, delay: int = 66, cfg_type: str = ConfigType.SETTING, next_task: bool = False):
         """Save trigger, limit to one save operation for a given period.
