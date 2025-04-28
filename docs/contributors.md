@@ -8,7 +8,8 @@ Thanks to many people for contributing to the development.
 
 ## Cross-platform
 * Bernat (berarma) - Cross-platform (Linux) implementation & maintainer
-* SynthetikzZ - Cross-platform (Linux) feature & assistance
+* SynthetikzZ - Cross-platform (Linux) assistance, features
+* Sergio Rafael Lemke (srlemke) - Cross-platform (Linux) assistance, features, bug fixes
 
 ## Implementation
 * TiberiuC39 - VR compatibility toggle
@@ -22,7 +23,6 @@ Thanks to many people for contributing to the development.
 * Tanizo Yashima (yashiman) - Various features, testing assistance
 * ebeninca - Various features & designs, testing assistance
 * Erik Jacobs (thoraxe) - Various features, bug fixes
-* Sergio Rafael Lemke (srlemke) - Various features, bug fixes, cross-platform assistance
 * Xudong Zhang (zxd1997) - Technical assistance
 * DumibirdF - Technical assistance
 

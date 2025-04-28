@@ -128,7 +128,7 @@ Heatmap preset can be customized by accessing `Heatmap editor` from `Tools` menu
 
 
 # User files
-TinyPedal generates and saves user session data in specific folders defined in `User path`. Session data can be reset by accessing `Reset data` submenu from `Overlay` menu in main window; or, delete data file from corresponding folder.
+TinyPedal generates and saves user session data in specific folders defined in `User path`. Session data can be reset by accessing `Reset data` menu from `Overlay` menu in main window; or, delete data file from corresponding folder.
 
 [**`Back to Top`**](#)
 
@@ -1371,11 +1371,16 @@ Show current in-game clock time of the circuit.
     enable_track_clock_synchronization
 Enable auto track clock and time scale synchronization. RestAPI module must be enabled to synchronize track clock from Rest API.
 
+Note, for `RF2`, synchronization only works in singleplayer; for `LMU`, synchronization works in both singleplayer and multiplayer.
+
     track_clock_time_scale
-Maually set time multiplier for time-scaled session. Default is `1`, which matches `Time Scale: Normal` setting in-game. Note, this option will only be used if `enable_track_clock_synchronization` option is disabled.
+Manually set time multiplier for time-scaled session. Default is `1`, which matches `Time Scale: Normal` setting in-game. Note, this option will only be used if `enable_track_clock_synchronization` option is disabled.
 
     track_clock_format
 Set track clock format string. To show seconds, add `%S`, such as `%H:%M:%S %p`. See [link](https://docs.python.org/3/library/datetime.html#strftime-and-strptime-format-codes) for full list of format codes.
+
+    show_time_scale
+Show current session track clock time scale multiplier.
 
     show_compass
 Show compass directions with three-figure bearings that matches game's cardinal directions.

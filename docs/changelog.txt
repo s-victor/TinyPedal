@@ -1,4 +1,4 @@
-WIP
+2.27.0 (2025-04-28)
 -----------------------------
 * Window dialog & DPI scaling
   - Add "window_color_theme" option in global user config, which sets color theme for main window and dialog. Default theme is "Dark". This option does not affect overlay widget.
@@ -13,8 +13,8 @@ WIP
     Alternatively, enable the new "enable_high_dpi_scaling" option to allow auto-scaling window dialog while TinyPedal is running.
 
 * Linux
-  - Add "enable_x11_platform_plugin_override" option in "Compatibility", which sets Qt platform plugin type to "X11" via environment variable on Linux.
-    See User Guide "Compatibility" section for explanation.
+  - Add "enable_x11_platform_plugin_override" option in "Compatibility", which sets Qt platform plugin type to "X11" via environment variable on Linux. (thanks to @berarma & @SynthetikzZ for Linux assistance)
+    This option may help work around some issues with overlay dragging and position on "Wayland". This option requires restarting TinyPedal to take effect. This option is enabled by default on Linux.
   - Fixed missing end slash "/" from global config path that saved global config files in wrong folder.
     For existing Linux user, manual correction is required.
     In "home/username/.config/" folder, find following files and rename:
@@ -24,8 +24,12 @@ WIP
     "TinyPedalpid.log" to "pid.log"
     Then move those files back to "home/username/.config/TinyPedal/" folder.
 
+* Cruise Widget
+  - Now reads "scaled track clock time" ("LMU" only) from Rest API if available, which allows synchronizing track clock time and time scale in both singleplayer and multiplayer in "LMU".
+  - Add "show_time_scale" option, which shows current session track clock time scale multiplier.
+
 * Misc
-  - Add "Restart TinyPedal" to "Window" menu.
+  - Add "Restart TinyPedal" to "Window" menu for quickly restarting the APP.
   - Heatmap Editor now shows temperature entries in table view, and supports multi-selection for offsetting and removing temperature, and up to one decimal place is kept.
   - Show "Preset Locked" notification on main window if currently loaded preset is locked.
   - Add new command line arguments "-p, --pyside" for choosing PySide (Qt for Python) module version.
