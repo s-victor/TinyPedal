@@ -22,13 +22,12 @@ Fuel module
 
 from __future__ import annotations
 
-from functools import partial
 from math import ceil
 from typing import Callable
 
 from .. import calculation as calc
 from ..api_control import api
-from ..const_common import DELTA_DEFAULT, DELTA_ZERO, FLOAT_INF, POS_XYZ_ZERO
+from ..const_common import DELTA_DEFAULT, DELTA_ZERO, FLOAT_INF, POS_XYZ_ZERO, round6
 from ..const_file import FileExt
 from ..module_info import ConsumptionDataSet, FuelInfo, minfo
 from ..userfile.fuel_delta import (
@@ -38,8 +37,6 @@ from ..userfile.fuel_delta import (
     save_fuel_delta_file,
 )
 from ._base import DataModule
-
-round6 = partial(round, ndigits=6)
 
 
 class Realtime(DataModule):

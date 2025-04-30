@@ -20,6 +20,12 @@
 Common constants
 """
 
+from functools import partial
+
+# Function
+round4 = partial(round, ndigits=4)
+round6 = partial(round, ndigits=6)
+
 # Numeric
 FLOAT_INF = float("inf")
 MAX_VEHICLES = 128  # set vehicle data size limit

@@ -20,17 +20,14 @@
 Mapping module
 """
 
-from functools import partial
-
 from .. import calculation as calc
 from ..api_control import api
+from ..const_common import round4
 from ..const_file import FileExt
 from ..module_info import minfo
 from ..userfile.track_map import load_track_map_file, save_track_map_file
 from ..validator import file_last_modified
 from ._base import DataModule
-
-round4 = partial(round, ndigits=4)
 
 
 class Realtime(DataModule):

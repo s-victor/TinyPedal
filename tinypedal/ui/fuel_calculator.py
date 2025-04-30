@@ -27,7 +27,7 @@ from collections import deque
 from math import ceil, floor
 
 from PySide2.QtCore import Qt
-from PySide2.QtGui import QColor, QPalette
+from PySide2.QtGui import QColor
 from PySide2.QtWidgets import (
     QDoubleSpinBox,
     QFileDialog,

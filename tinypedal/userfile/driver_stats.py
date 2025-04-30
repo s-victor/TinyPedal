@@ -30,14 +30,13 @@ from typing import KeysView, get_type_hints
 
 from ..const_common import MAX_SECONDS
 from ..const_file import FileExt, StatsFile
-from ..setting import cfg
-from ..userfile.json_setting import (
+from ..validator import convert_value_type
+from .json_setting import (
     create_backup_file,
     save_and_verify_json_file,
     save_json_file,
     set_backup_timestamp,
 )
-from ..validator import convert_value_type
 
 logger = logging.getLogger(__name__)
 
@@ -127,7 +126,7 @@ def save_driver_stats(
     if not key_list or not all(key_list):  # ignore invalid key name
         return
     # Load stats with limited attempts
-    load_attempts = cfg.max_saving_attempts
+    load_attempts = 10
     while load_attempts > 0:
         stats_user = load_stats_json_file(
             filepath=filepath,
@@ -204,6 +203,6 @@ def save_stats_json_file(
         dict_user=stats_user,
         filename=f"{filename}{extension}",
         filepath=filepath,
-        max_attempts=cfg.max_saving_attempts,
+        max_attempts=10,
         compact_json=True,
     )
