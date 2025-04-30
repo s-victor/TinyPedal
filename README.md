@@ -14,14 +14,26 @@ TinyPedal requires The Iron Wolf’s `rF2 Shared Memory Map Plugin` from `Downlo
 https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin
 
 The plugin file `rFactor2SharedMemoryMapPlugin64.dll` should be placed in:
+
 1. For `rFactor 2`, it is `rFactor 2\Bin64\Plugins` folder.
+
 2. For `Le Mans Ultimate`, it is `Le Mans Ultimate\Plugins` folder.
 
 This plugin also comes with some of the popular rF2/LMU Apps, check corresponding game's plugins folder first to see if it was installed already.
 
 In-game setup:
-1. Enabled `rFactor2SharedMemoryMapPlugin64` plugin in game option. For `Le Mans Ultimate`, user may have to manually enable plugin by editing `CustomPluginVariables.JSON` file (set `" Enabled"` value to `1` ) under `Le Mans Ultimate\UserData\player` folder. After plugin enabled, must restart game to take effect.
-2. Set game display mode to `Borderless` or `Windowed` mode. `Fullscreen` mode is not supported.
+
+1. Set game display mode to `Borderless` or `Windowed` mode. `Fullscreen` mode is not supported.
+
+2. Enable shared memory map plugin:
+
+    For `rFactor 2`, in game `Settings` -> `Gameplay` page, find `Plugins` section and toggle on `rFactor2SharedMemoryMapPlugin64.dll`.
+
+    For `Le Mans Ultimate`, user may have to manually enable plugin by editing `CustomPluginVariables.JSON` file (set `" Enabled"` value to `1` ) under `Le Mans Ultimate\UserData\player` folder.
+
+    After plugin enabled, must `restart game` to take effect.
+
+    Note, if game cannot generate `rFactor2SharedMemoryMapPlugin64.dll` entry in `CustomPluginVariables.JSON` file, make sure `VC12 (Visual C++ 2013) runtime` is installed, which can be found in game's `Support\Runtimes` folder.
 
 ## Quick Start
 1. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract it into a clean folder, and run `tinypedal.exe`.  
