@@ -39,9 +39,9 @@ from PySide2.QtWidgets import (
 )
 
 from ..api_control import api
-from ..const_file import FileFilter
+from ..const_file import ConfigType, FileFilter
 from ..module_control import wctrl
-from ..setting import ConfigType, cfg, copy_setting
+from ..setting import cfg, copy_setting
 from ._common import (
     BaseEditor,
     CompactButton,

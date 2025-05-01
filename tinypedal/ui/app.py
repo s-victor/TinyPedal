@@ -39,10 +39,11 @@ from PySide2.QtWidgets import (
 from .. import loader
 from ..api_control import api
 from ..const_app import APP_NAME, VERSION
+from ..const_file import ConfigType
 from ..module_control import mctrl, wctrl
 from ..overlay_control import octrl
 from ..regex_pattern import API_NAME_ALIAS
-from ..setting import ConfigType, cfg
+from ..setting import cfg
 from . import set_style_palette, set_style_window
 from ._common import UIScaler
 from .menu import ConfigMenu, HelpMenu, OverlayMenu, ToolsMenu, WindowMenu

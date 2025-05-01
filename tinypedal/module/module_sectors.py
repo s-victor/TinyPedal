@@ -23,11 +23,11 @@ Sectors module
 from __future__ import annotations
 
 from ..api_control import api
-from ..const_common import MAX_SECONDS, round6
+from ..const_common import MAX_SECONDS
 from ..module_info import SectorsInfo, minfo
 from ..userfile.sector_best import load_sector_best_file, save_sector_best_file
 from ..validator import valid_sectors
-from ._base import DataModule
+from ._base import DataModule, round6
 
 
 class Realtime(DataModule):

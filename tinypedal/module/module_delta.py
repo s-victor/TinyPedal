@@ -30,12 +30,11 @@ from ..const_common import (
     FLOAT_INF,
     MAX_SECONDS,
     POS_XYZ_ZERO,
-    round6,
 )
 from ..module_info import minfo
 from ..userfile.delta_best import load_delta_best_file, save_delta_best_file
 from ..validator import is_same_session, vehicle_position_sync
-from ._base import DataModule
+from ._base import DataModule, round6
 
 
 class Realtime(DataModule):

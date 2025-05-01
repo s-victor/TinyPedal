@@ -27,7 +27,8 @@ from time import sleep
 from typing import Any, KeysView
 
 from . import module, widget
-from .setting import ConfigType, cfg
+from .const_file import ConfigType
+from .setting import cfg
 
 logger = logging.getLogger(__name__)
 

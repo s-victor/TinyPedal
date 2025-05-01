@@ -24,20 +24,22 @@ from __future__ import annotations
 
 import re
 
+from .const_file import ConfigType
 from .regex_pattern import COMMON_TYRE_COMPOUNDS
-from .setting import ConfigType, cfg
+from .setting import cfg
 from .template.setting_heatmap import HEATMAP_DEFAULT_BRAKE, HEATMAP_DEFAULT_TYRE
 from .validator import invalid_save_name, is_hex_color
 
 
 # Brake function
-def add_missing_brake(brake_name: str) -> None:
+def add_missing_brake(brake_name: str) -> dict:
     """Add missing brake style to brakes preset"""
     cfg.user.brakes[brake_name] = {
         "failure_thickness": 0.0,
         "heatmap": HEATMAP_DEFAULT_BRAKE,
     }
     cfg.save(cfg_type=ConfigType.BRAKES)
+    return cfg.user.brakes[brake_name]
 
 
 def set_predefined_brake_name(class_name: str, is_front: bool) -> str:
@@ -63,19 +65,19 @@ def select_brake_heatmap_name(brake_name: str) -> str:
     if brake is None:
         if invalid_save_name(brake_name):
             return HEATMAP_DEFAULT_BRAKE
-        add_missing_brake(brake_name)
-        brake = cfg.user.brakes.get(brake_name)
+        brake = add_missing_brake(brake_name)
     return brake.get("heatmap", HEATMAP_DEFAULT_BRAKE)
 
 
 # Tyre function
-def add_missing_compound(compound_name: str) -> None:
+def add_missing_compound(compound_name: str) -> dict:
     """Add missing compound style to compounds preset"""
     cfg.user.compounds[compound_name] = {
         "symbol": set_predefined_compound_symbol(compound_name),
         "heatmap": HEATMAP_DEFAULT_TYRE,
     }
     cfg.save(cfg_type=ConfigType.COMPOUNDS)
+    return cfg.user.compounds[compound_name]
 
 
 def set_predefined_compound_symbol(compound_name: str) -> str:
@@ -102,8 +104,7 @@ def select_tyre_heatmap_name(compound_name: str) -> str:
     if compound is None:
         if invalid_save_name(compound_name):
             return HEATMAP_DEFAULT_TYRE
-        add_missing_compound(compound_name)
-        compound = cfg.user.compounds.get(compound_name)
+        compound = add_missing_compound(compound_name)
     return compound.get("heatmap", HEATMAP_DEFAULT_TYRE)
 
 

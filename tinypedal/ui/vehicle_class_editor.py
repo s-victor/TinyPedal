@@ -33,9 +33,10 @@ from PySide2.QtWidgets import (
 )
 
 from ..api_control import api
+from ..const_file import ConfigType
 from ..formatter import random_color_class
 from ..module_control import wctrl
-from ..setting import ConfigType, cfg, copy_setting
+from ..setting import cfg, copy_setting
 from ._common import (
     QVAL_COLOR,
     BaseEditor,

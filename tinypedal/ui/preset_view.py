@@ -22,7 +22,6 @@ Preset list view
 
 import os
 import shutil
-import time
 from typing import Callable
 
 from PySide2.QtCore import QPoint, Qt
@@ -43,9 +42,9 @@ from PySide2.QtWidgets import (
 
 from .. import regex_pattern as rxp
 from ..const_app import VERSION
-from ..const_file import FileExt
+from ..const_file import ConfigType, FileExt
 from ..formatter import strip_filename_extension
-from ..setting import ConfigType, cfg
+from ..setting import cfg
 from ..validator import is_allowed_filename
 from ._common import QVAL_FILENAME, BaseDialog, UIScaler
 

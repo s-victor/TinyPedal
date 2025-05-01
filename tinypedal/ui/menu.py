@@ -28,9 +28,10 @@ from PySide2.QtWidgets import QMenu, QMessageBox
 from .. import loader
 from ..api_control import api
 from ..const_app import URL_FAQ, URL_USER_GUIDE
+from ..const_file import ConfigType
 from ..module_info import minfo
 from ..overlay_control import octrl
-from ..setting import ConfigType, cfg
+from ..setting import cfg
 from .about import About
 from .brake_editor import BrakeEditor
 from .config import FontConfig, UserConfig

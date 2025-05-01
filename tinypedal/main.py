@@ -41,9 +41,9 @@ from .const_app import (
     QT_VERSION,
     VERSION,
 )
-from .const_file import ImageFile
+from .const_file import ConfigType, ImageFile
 from .log_handler import set_logging_level
-from .setting import ConfigType, cfg
+from .setting import cfg
 
 logger = logging.getLogger(__package__)
 log_stream = io.StringIO()

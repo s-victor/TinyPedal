@@ -33,8 +33,9 @@ from PySide2.QtWidgets import (
     QVBoxLayout,
 )
 
+from ..const_file import ConfigType
 from ..module_control import wctrl
-from ..setting import ConfigType, cfg, copy_setting
+from ..setting import cfg, copy_setting
 from ._common import (
     QVAL_COLOR,
     QVAL_HEATMAP,

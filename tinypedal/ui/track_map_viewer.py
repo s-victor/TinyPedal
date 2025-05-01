@@ -41,8 +41,8 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from ..const_file import FileExt, FileFilter
-from ..setting import ConfigType, cfg
+from ..const_file import ConfigType, FileExt, FileFilter
+from ..setting import cfg
 from ..userfile.track_map import load_track_map_file
 from ._common import BaseDialog, CompactButton, UIScaler
 from .config import UserConfig

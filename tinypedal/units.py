@@ -186,6 +186,15 @@ def set_symbol_pressure(unit_name: str = "kPa") -> str:
     return "kPa"
 
 
+def set_symbol_speed(unit_name: str = "m/s") -> str:
+    """Set symbol speed"""
+    if unit_name == "KPH":
+        return "kph"
+    if unit_name == "MPH":
+        return "mph"
+    return "mps"
+
+
 def set_symbol_temperature(unit_name: str = "Celsius") -> str:
     """Set symbol temperature"""
     if unit_name == "Fahrenheit":

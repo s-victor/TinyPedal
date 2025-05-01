@@ -36,11 +36,11 @@ from PySide2.QtWidgets import (
 )
 
 from .. import calculation as calc
-from .. import units
 from ..api_control import api
 from ..const_common import MAX_SECONDS
 from ..formatter import strip_invalid_char
 from ..setting import cfg
+from ..units import liter_to_gallon, meter_to_kilometer, meter_to_mile
 from ..userfile.driver_stats import (
     DriverStats,
     load_stats_json_file,
@@ -64,15 +64,15 @@ def parse_display_value(key: str, value: int | float) -> str | int | float:
         return calc.sec2laptime_full(value)
     if key == "meters":
         if cfg.units["odometer_unit"] == "Kilometer":
-            return round(units.meter_to_kilometer(value), 1)
+            return round(meter_to_kilometer(value), 1)
         if cfg.units["odometer_unit"] == "Mile":
-            return round(units.meter_to_mile(value), 1)
+            return round(meter_to_mile(value), 1)
         return int(value)
     if key == "seconds":
         return round(value / 60 / 60, 2)
     if key == "liters":
         if cfg.units["fuel_unit"] == "Gallon":
-            value = units.liter_to_gallon(value)
+            value = liter_to_gallon(value)
         return round(value, 2)
     return value
 

@@ -22,11 +22,15 @@ Data module base
 
 import logging
 import threading
+from functools import partial
 
 from ..overlay_control import octrl
 from ..setting import Setting
 
 logger = logging.getLogger(__name__)
+# Function
+round4 = partial(round, ndigits=4)
+round6 = partial(round, ndigits=6)
 
 
 class DataModule:
