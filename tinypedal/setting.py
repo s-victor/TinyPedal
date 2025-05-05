@@ -28,9 +28,9 @@ import threading
 from time import sleep
 from types import MappingProxyType
 
-from . import regex_pattern as rxp
 from . import set_user_data_path
 from .const_app import APP_NAME, PATH_GLOBAL, PLATFORM
+from .const_common import EMPTY_DICT
 from .const_file import ConfigType, FileExt
 from .setting_validator import StyleValidator
 from .template.setting_brakes import BRAKES_DEFAULT
@@ -63,6 +63,7 @@ class FileName:
         "classes",
         "compounds",
         "heatmap",
+        "tracks",
         "filelock",
     )
 
@@ -74,6 +75,7 @@ class FileName:
         self.classes = f"classes{FileExt.JSON}"
         self.compounds = f"compounds{FileExt.JSON}"
         self.heatmap = f"heatmap{FileExt.JSON}"
+        self.tracks = f"tracks{FileExt.JSON}"
         self.filelock = f"config{FileExt.LOCK}"
 
 
@@ -130,6 +132,7 @@ class Preset:
         "classes",
         "compounds",
         "heatmap",
+        "tracks",
         "filelock",
     )
 
@@ -139,11 +142,12 @@ class Preset:
         self.config = MappingProxyType(GLOBAL_DEFAULT)
         self.setting = MappingProxyType({**COMMON_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT})
         self.brakes = MappingProxyType(BRAKES_DEFAULT)
-        self.brands = MappingProxyType({})
+        self.brands = EMPTY_DICT
         self.classes = MappingProxyType(CLASSES_DEFAULT)
         self.compounds = MappingProxyType(COMPOUNDS_DEFAULT)
         self.heatmap = MappingProxyType(HEATMAP_DEFAULT)
-        self.filelock = MappingProxyType({})
+        self.tracks = EMPTY_DICT
+        self.filelock = EMPTY_DICT
 
     @staticmethod
     def set_platform_default(global_def: dict):
@@ -224,7 +228,7 @@ class Setting:
     def get_primary_preset_name(self, sim_name: str) -> str:
         """Get primary preset name and verify"""
         preset_name = self.primary_preset.get(sim_name, "")
-        if is_allowed_filename(rxp.CFG_INVALID_FILENAME, preset_name):
+        if is_allowed_filename(preset_name):
             full_preset_name = f"{preset_name}{FileExt.JSON}"
             if os.path.exists(f"{self.path.settings}{full_preset_name}"):
                 return full_preset_name
@@ -311,6 +315,12 @@ class Setting:
             dict_def=self.default.heatmap,
             check_missing=True,
         )
+        self.user.tracks = load_style_json_file(
+            filename=self.filename.tracks,
+            filepath=self.path.settings,
+            dict_def=self.default.tracks,
+            validator=StyleValidator.tracks,
+        )
         # Assign base setting
         self.overlay = self.user.setting["overlay"]
         self.shared_memory_api = self.user.setting["shared_memory_api"]
@@ -331,7 +341,7 @@ class Setting:
         valid_cfg_list = [
             _filename[1]
             for _filename in sorted(gen_cfg_list, reverse=True)
-            if is_allowed_filename(rxp.CFG_INVALID_FILENAME, _filename[1])
+            if is_allowed_filename(_filename[1])
         ]
         if valid_cfg_list:
             return valid_cfg_list

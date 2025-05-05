@@ -25,13 +25,13 @@ from functools import partial
 from .. import calculation as calc
 from ..api_control import api
 from ..const_common import TEXT_NA, TEXT_PLACEHOLDER
-from ..heatmap import (
+from ..units import set_unit_temperature
+from ..userfile.heatmap import (
     HEATMAP_DEFAULT_TYRE,
     load_heatmap_style,
     select_compound_symbol,
     select_tyre_heatmap_name,
 )
-from ..units import set_unit_temperature
 from ._base import Overlay
 
 

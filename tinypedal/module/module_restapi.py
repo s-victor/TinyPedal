@@ -31,52 +31,11 @@ from urllib.request import urlopen
 
 from ..api_control import api
 from ..const_common import TYPE_JSON
-from ..formatter import steerlock_to_number
-from ..module_info import minfo
 from ..validator import valid_value_type
-from ..weather import FORECAST_DEFAULT, forecast_rf2
 from ._base import DataModule
+from ._task import TASK_REPEATS, TASK_RUNONCE
 
 logger = logging.getLogger(__name__)
-
-# Define output set
-# 0 - minfo, 1 - output, 2 - default value, 3 - function, 4 - dict keys
-SET_TIMESCALE = (
-    (minfo.restapi, "timeScale", 1, None, "currentValue"),
-)
-SET_GAMESTATE = (
-    (minfo.restapi, "trackClockTime", -1.0, None, "timeOfDay"),
-)
-SET_PRIVATEQUALIFY = (
-    (minfo.restapi, "privateQualifying", 0, None, "currentValue"),
-)
-SET_CHASSIS = (
-    (minfo.restapi, "steeringWheelRange", 0.0, steerlock_to_number, "VM_STEER_LOCK", "stringValue"),
-)
-SET_CURRENTSTINT = (
-    (minfo.restapi, "currentVirtualEnergy", 0.0, None, "fuelInfo", "currentVirtualEnergy"),
-    (minfo.restapi, "maxVirtualEnergy", 0.0, None, "fuelInfo", "maxVirtualEnergy"),
-    (minfo.restapi, "aeroDamage", -1.0, None, "wearables", "body", "aero"),
-    (minfo.restapi, "brakeWear", [-1] * 4, None, "wearables", "brakes"),
-    (minfo.restapi, "suspensionDamage", [-1] * 4, None, "wearables", "suspension"),
-)
-SET_WEATHERFORECAST = (
-    (minfo.restapi, "forecastPractice", FORECAST_DEFAULT, forecast_rf2, "PRACTICE"),
-    (minfo.restapi, "forecastQualify", FORECAST_DEFAULT, forecast_rf2, "QUALIFY"),
-    (minfo.restapi, "forecastRace", FORECAST_DEFAULT, forecast_rf2, "RACE"),
-)
-# Define task set
-# 0 - sim name pattern, 1 - url path, 2 - output set
-TASK_RUNONCE = (
-    ("LMU|RF2", "sessions/setting/SESSSET_race_timescale", SET_TIMESCALE),
-    ("LMU|RF2", "sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY),
-    ("LMU|RF2", "sessions/weather", SET_WEATHERFORECAST),
-    ("LMU", "garage/chassis", SET_CHASSIS),
-)
-TASK_REPEATS = (
-    ("LMU", "garage/UIScreen/DriverHandOffStintEnd", SET_CURRENTSTINT),
-    ("LMU", "sessions/GetGameState", SET_GAMESTATE),
-)
 
 
 class Realtime(DataModule):

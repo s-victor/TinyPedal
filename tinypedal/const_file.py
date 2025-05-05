@@ -47,6 +47,7 @@ class ConfigType:
     CLASSES = "classes"
     COMPOUNDS = "compounds"
     HEATMAP = "heatmap"
+    TRACKS = "tracks"
 
 
 class FileExt:

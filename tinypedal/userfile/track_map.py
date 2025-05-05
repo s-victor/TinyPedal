@@ -20,19 +20,57 @@
 Track map file function
 """
 
+from __future__ import annotations
+
 import logging
 import xml.dom.minidom
 import xml.parsers.expat
 
 from ..const_file import FileExt
-from ..formatter import (
-    coords_to_points,
-    points_to_coords,
-    string_pair_to_int,
-)
 from ..validator import invalid_save_name
 
 logger = logging.getLogger(__name__)
+
+
+def string_pair_to_int(string: str) -> tuple[int, int]:
+    """Convert string pair "x,y" to int list"""
+    value = string.split(",")
+    return int(value[0]), int(value[1])
+
+
+def string_pair_to_float(string: str) -> tuple[float, float]:
+    """Convert string pair "x,y" to float list"""
+    value = string.split(",")
+    return float(value[0]), float(value[1])
+
+
+def list_pair_to_string(data: tuple | list) -> str:
+    """Convert list pair (x,y) to string pair"""
+    return f"{data[0]},{data[1]}"
+
+
+def points_to_coords(points: str) -> tuple[tuple[float, float], ...]:
+    """Convert svg points strings to raw coordinates
+
+    Args:
+        points: "x,y x,y ..." svg points strings.
+
+    Returns:
+        ((x,y), (x,y), ...) raw coordinates.
+    """
+    return tuple(map(string_pair_to_float, points.split(" ")))
+
+
+def coords_to_points(coords: tuple | list) -> str:
+    """Convert raw coordinates to svg points strings
+
+    Args:
+        coords: ((x,y), (x,y), ...) raw coordinates.
+
+    Returns:
+        "x,y x,y ..." svg points strings.
+    """
+    return " ".join(map(list_pair_to_string, coords))
 
 
 def load_track_map_file(filepath: str, filename: str, extension: str = FileExt.SVG):

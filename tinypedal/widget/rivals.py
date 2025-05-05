@@ -26,9 +26,9 @@ from .. import calculation as calc
 from ..api_control import api
 from ..const_common import TEXT_PLACEHOLDER
 from ..formatter import random_color_class, shorten_driver_name
-from ..heatmap import select_compound_symbol
 from ..module_info import minfo
 from ..userfile.brand_logo import load_brand_logo_file
+from ..userfile.heatmap import select_compound_symbol
 from ._base import Overlay
 
 

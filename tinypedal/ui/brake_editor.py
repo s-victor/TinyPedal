@@ -35,9 +35,9 @@ from PySide2.QtWidgets import (
 
 from ..api_control import api
 from ..const_file import ConfigType
-from ..heatmap import HEATMAP_DEFAULT_BRAKE, set_predefined_brake_name
 from ..module_control import wctrl
 from ..setting import cfg, copy_setting
+from ..userfile.heatmap import HEATMAP_DEFAULT_BRAKE, set_predefined_brake_name
 from ._common import (
     BaseEditor,
     CompactButton,

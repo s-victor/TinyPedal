@@ -134,6 +134,7 @@ class Realtime(Overlay):
         self.rpm_crit = 0
         self.rpm_range = 0
         self.rpm_max = 0
+        self.gear_max = 0
         self.last_gear = 0
 
     def timerEvent(self, event):
@@ -148,6 +149,7 @@ class Realtime(Overlay):
                 self.rpm_red = int(rpm_max * self.wcfg["rpm_multiplier_redline"])
                 self.rpm_crit = int(rpm_max * self.wcfg["rpm_multiplier_critical"])
                 self.rpm_range = rpm_max - self.rpm_safe
+                self.gear_max = api.read.engine.gear_max()
 
             # Shifting timer
             gear = api.read.engine.gear()
@@ -225,8 +227,10 @@ class Realtime(Overlay):
     def color_rpm(self, rpm, gear, speed):
         """RPM indicator color"""
         self.flicker = not self.flicker
-        if (self.wcfg["show_rpm_flickering_above_critical"] and self.flicker and
-            gear < api.read.engine.gear_max() and rpm >= self.rpm_crit):
+        if (self.wcfg["show_rpm_flickering_above_critical"] and
+            self.flicker and
+            gear < self.gear_max and
+            rpm >= self.rpm_crit):
             return -4
         if (not gear and
             speed > self.wcfg["neutral_warning_speed_threshold"] and

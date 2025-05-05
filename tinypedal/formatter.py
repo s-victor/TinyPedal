@@ -26,7 +26,7 @@ import random
 import re
 from functools import lru_cache
 
-from .regex_pattern import ABBR_PATTERN, RE_INVALID_CHAR
+from .regex_pattern import ABBR_PATTERN, rex_invalid_char
 
 
 def uppercase_abbr(name: str) -> str:
@@ -45,7 +45,7 @@ def format_module_name(name: str) -> str:
         name
         .replace("module_", "")
         .replace("_", " ")
-        .capitalize()
+        .title()
     )
 
 
@@ -112,24 +112,9 @@ def shorten_driver_name(name: str) -> str:
     return name_split[-1]
 
 
-def pipe_join(*args: str) -> str:
-    """Convert value to str & join with pipe symbol"""
-    return "|".join(args)
-
-
-def pipe_split(string: str) -> list[str]:
-    """Split string to list by pipe symbol"""
-    return string.split("|")
-
-
 def strip_invalid_char(name: str) -> str:
     """Strip invalid characters"""
-    return re.sub(RE_INVALID_CHAR, "", name)
-
-
-def strip_decimal_pt(value: str) -> str:
-    """Strip decimal point"""
-    return value.strip(".")
+    return rex_invalid_char("", name)
 
 
 def laptime_string_to_seconds(laptime: str) -> float:
@@ -137,52 +122,3 @@ def laptime_string_to_seconds(laptime: str) -> float:
     string = laptime.split(":")
     split = [0] * (2 - len(string)) + string
     return float(split[0]) * 60 + float(split[1])
-
-
-def string_pair_to_int(string: str) -> tuple[int, int]:
-    """Convert string pair "x,y" to int list"""
-    value = string.split(",")
-    return int(value[0]), int(value[1])
-
-
-def string_pair_to_float(string: str) -> tuple[float, float]:
-    """Convert string pair "x,y" to float list"""
-    value = string.split(",")
-    return float(value[0]), float(value[1])
-
-
-def list_pair_to_string(data: tuple | list) -> str:
-    """Convert list pair (x,y) to string pair"""
-    return f"{data[0]},{data[1]}"
-
-
-def points_to_coords(points: str) -> tuple[tuple[float, float], ...]:
-    """Convert svg points strings to raw coordinates
-
-    Args:
-        points: "x,y x,y ..." svg points strings.
-
-    Returns:
-        ((x,y), (x,y), ...) raw coordinates.
-    """
-    return tuple(map(string_pair_to_float, points.split(" ")))
-
-
-def coords_to_points(coords: tuple | list) -> str:
-    """Convert raw coordinates to svg points strings
-
-    Args:
-        coords: ((x,y), (x,y), ...) raw coordinates.
-
-    Returns:
-        "x,y x,y ..." svg points strings.
-    """
-    return " ".join(map(list_pair_to_string, coords))
-
-
-def steerlock_to_number(value: str) -> float:
-    """Convert steerlock (degree) string to float value"""
-    try:
-        return float(re.split(r"[\D]", value)[0])
-    except (AttributeError, TypeError, ValueError):
-        return 0.0

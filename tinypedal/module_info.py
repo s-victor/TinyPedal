@@ -32,6 +32,7 @@ from .const_common import (
     MAX_METERS,
     MAX_SECONDS,
     MAX_VEHICLES,
+    PITEST_DEFAULT,
     QUALIFY_DEFAULT,
     REL_TIME_DEFAULT,
 )
@@ -235,6 +236,10 @@ class MappingInfo:
         "elevations",
         "sectors",
         "lastModified",
+        "pitEntryPosition",
+        "pitExitPosition",
+        "pitLaneLength",
+        "pitSpeedLimit",
     )
 
     def __init__(self):
@@ -246,6 +251,10 @@ class MappingInfo:
         self.elevations: tuple[tuple[float, float], ...] | None = None
         self.sectors: tuple[int, int] | None = None
         self.lastModified: float = 0.0
+        self.pitEntryPosition: float = 0.0
+        self.pitExitPosition: float = 0.0
+        self.pitLaneLength: float = 0.0
+        self.pitSpeedLimit: float = 0.0
 
 
 class NotesInfo:
@@ -302,6 +311,7 @@ class RestAPIInfo:
         "forecastRace",
         "brakeWear",
         "suspensionDamage",
+        "pitStopEstimate",
     )
 
     def __init__(self):
@@ -317,6 +327,7 @@ class RestAPIInfo:
         self.forecastRace: list[WeatherNode] | None = None
         self.brakeWear: list[float] = [-1.0] * 4
         self.suspensionDamage: list[float] = [-1.0] * 4
+        self.pitStopEstimate: tuple[float, float, float, float] = PITEST_DEFAULT
 
 
 class SectorsInfo:

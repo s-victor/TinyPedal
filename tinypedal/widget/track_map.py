@@ -24,7 +24,6 @@ from PySide2.QtCore import QRectF, Qt
 from PySide2.QtGui import QBrush, QPainter, QPainterPath, QPen, QPixmap
 
 from .. import calculation as calc
-from ..api_control import api
 from ..formatter import random_color_class
 from ..module_info import minfo
 from ._base import Overlay
@@ -77,8 +76,6 @@ class Realtime(Overlay):
             self.pit_time_increment = max(self.wcfg["pitstop_duration_increment"], 1)
             self.pen_pit_styles = self.set_veh_pen_style("predication_outline"), QPen(self.wcfg["font_color_pitstop_duration"])
             self.pit_text_shape = self.veh_shape.adjusted(-2, font_offset - veh_size - 3, 2, -veh_size - 3)
-            self.last_pit_state = -1
-            self.pitout_dist = 0
 
         # Last data
         self.last_modified = 0
@@ -294,16 +291,9 @@ class Realtime(Overlay):
 
     def draw_pitout_prediction(self, painter, map_data, plr_veh_info):
         """Draw pitout prediction circles"""
-        pit_state = plr_veh_info.inPit
-        if self.last_pit_state != pit_state:
-            self.last_pit_state = pit_state
-            if not pit_state:  # mark pitout position
-                self.pitout_dist = api.read.lap.distance()
-
         # Skip drawing if not in pit
-        if not pit_state:
+        if not plr_veh_info.inPit:
             return
-
         # Verify data set
         if not map_data:
             return
@@ -325,7 +315,8 @@ class Realtime(Overlay):
         target_pit_time = target_pitstop_duration(pit_timer, self.min_pit_time, self.pit_time_increment)
 
         # Find time_into from deltabest_data, scale to match laptime_pace
-        pitout_node_index = calc.binary_search_higher_column(deltabest_data, self.pitout_dist, 0, deltabest_max_index, 0)
+        pitout_dist = minfo.mapping.pitExitPosition
+        pitout_node_index = calc.binary_search_higher_column(deltabest_data, pitout_dist, 0, deltabest_max_index, 0)
         pitout_time_extend = deltabest_data[pitout_node_index][1] / laptime_scale + pit_timer
 
         painter.setBrush(Qt.NoBrush)

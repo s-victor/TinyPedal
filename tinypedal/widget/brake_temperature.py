@@ -23,13 +23,13 @@ Brake temperature Widget
 from .. import calculation as calc
 from ..api_control import api
 from ..const_common import TEXT_NA, TEXT_PLACEHOLDER
-from ..heatmap import (
+from ..units import set_unit_temperature
+from ..userfile.heatmap import (
     HEATMAP_DEFAULT_BRAKE,
     load_heatmap_style,
     select_brake_heatmap_name,
     set_predefined_brake_name,
 )
-from ..units import set_unit_temperature
 from ._base import Overlay
 
 

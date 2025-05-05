@@ -54,6 +54,7 @@ __all__ = [
     "p2p",
     "pace_notes",
     "pedal",
+    "pit_stop_estimate",
     "radar",
     "rake_angle",
     "relative",

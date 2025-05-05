@@ -48,19 +48,6 @@ class StyleValidator:
         save_change = False
         _alias = "alias"
         _color = "color"
-        # Check first entry for old classes format
-        for class_name, class_data in style_user.items():
-            if not save_change:
-                if set(class_data).issubset((_alias, _color)):
-                    break
-                else:
-                    save_change = True
-            # Update old classes format
-            for key, value in class_data.items():
-                class_data[_alias] = key
-                class_data[_color] = value
-                class_data.pop(key)
-                break
         # Validate classes entry
         for class_name, class_data in style_user.items():
             if _alias not in class_data or not isinstance(class_data[_alias], str):
@@ -100,6 +87,26 @@ class StyleValidator:
                 save_change = True
             if _heatmap not in compound_data or not isinstance(compound_data[_heatmap], str):
                 compound_data[_heatmap] = HEATMAP_DEFAULT_TYRE
+                save_change = True
+        return save_change
+
+    @staticmethod
+    def tracks(style_user: dict) -> bool:
+        """Tracks style validator"""
+        save_change = False
+        _pit_entry = "pit_entry"
+        _pit_exit = "pit_exit"
+        _pit_speed = "pit_speed"
+        # Validate tracks entry
+        for track_data in style_user.values():
+            if _pit_entry not in track_data or not isinstance(track_data[_pit_entry], TYPE_NUMBER):
+                track_data[_pit_entry] = 0.0
+                save_change = True
+            if _pit_exit not in track_data or not isinstance(track_data[_pit_exit], TYPE_NUMBER):
+                track_data[_pit_exit] = 0.0
+                save_change = True
+            if _pit_speed not in track_data or not isinstance(track_data[_pit_speed], TYPE_NUMBER):
+                track_data[_pit_speed] = 0.0
                 save_change = True
         return save_change
 

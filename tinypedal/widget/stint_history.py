@@ -24,9 +24,9 @@ from collections import deque
 
 from .. import calculation as calc
 from ..api_control import api
-from ..heatmap import select_compound_symbol
 from ..module_info import minfo
 from ..units import set_unit_fuel
+from ..userfile.heatmap import select_compound_symbol
 from ._base import Overlay
 
 

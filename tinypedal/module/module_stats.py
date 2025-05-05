@@ -64,6 +64,12 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
 
+                    # Load driver stats
+                    loaded_stats = load_driver_stats(
+                        key_list=self.stats_keys(vehicle_class),
+                        filepath=self.cfg.path.config,
+                    )
+                    driver_stats = DriverStats()
                     is_pit_lap = 0
                     last_lap_stime = FLOAT_INF
                     last_lap_etime = FLOAT_INF
@@ -72,11 +78,6 @@ class Realtime(DataModule):
                     fuel_last = 0.0
                     last_finish_state = 99999
                     gps_last = POS_XYZ_INF
-                    loaded_stats = load_driver_stats(
-                        key_list=self.stats_keys(vehicle_class),
-                        filepath=self.cfg.path.config,
-                    )
-                    driver_stats = DriverStats()
 
                 # General
                 lap_stime = api.read.timing.start()
@@ -125,7 +126,7 @@ class Realtime(DataModule):
                     driver_stats.liters += fuel_last - fuel_curr
                     fuel_last = fuel_curr
 
-                # Race-only stats
+                # Race session stats
                 if api.read.session.in_race():
                     # Penalties
                     num_penalties = api.read.vehicle.number_penalties()

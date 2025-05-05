@@ -33,9 +33,9 @@ from ..const_common import (
     TEXT_NA,
 )
 from ..const_file import ImageFile
-from ..module_info import WeatherNode, minfo
+from ..module_info import WeatherNode
+from ..process.weather import forecast_sky_type, get_forecast_info
 from ..units import set_unit_temperature
-from ..weather import FORECAST_DEFAULT, forecast_sky_type
 from ._base import Overlay
 from ._painter import split_pixmap_icon
 
@@ -277,19 +277,6 @@ class Realtime(Overlay):
             if _time <= 0:
                 index_offset += 1
         return index_offset
-
-
-def get_forecast_info(session_type: int) -> list[WeatherNode]:
-    """Get forecast info"""
-    if session_type <= 1:  # practice session
-        info = minfo.restapi.forecastPractice
-    elif session_type == 2:  # qualify session
-        info = minfo.restapi.forecastQualify
-    else:
-        info = minfo.restapi.forecastRace  # race session
-    if info:
-        return info
-    return FORECAST_DEFAULT  # get default if no valid data
 
 
 def create_weather_icon_set(icon_size: int):

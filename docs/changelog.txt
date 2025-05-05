@@ -1,3 +1,41 @@
+2.28.0 (2025-05-05)
+-----------------------------
+* Major change
+  - New "Pit stop estimate Widget" and pit stop timing calculation for accurately estimating pit stop duration, designed specifically for "LMU".
+  - New "Track Info" preset and "Track Info Editor" for customizing track info, which is currently used for various pit stop related calculation.
+
+* [New]Pit stop estimate Widget
+  - Show estimated pit-lane pass through (drive-through) time, calculated from pit-entry to pit-exit line. Average accuracy is within 0.5 seconds.
+  - Show estimated pit stop time while making a service stop or serving a penalty, calculated according to each setting from MFD "Pitstop" page and underlying service timing and concurrency differences. Average accuracy is within 1 seconds.
+  - Show maximum total random delay which game may add on top of pit stop time. For example, if estimated pit stop time is 12.0s, and maximum delay is +3.0s, then final pit stop time will be between 12.0s and 15.0s.
+  - Show estimated minimum total pit time, which is the sum of "pit-lane pass through", "pit stop time", and optional customizable "additional time spent in pit".
+  - Show estimated maximum total pit time, which is the sum of "minimum total pit time" and "maximum total random delay".
+  - Show pit timer, useful for comparing against other pit time readings.
+  - Show actual relative refilling, as the total additional fuel or virtual energy that will be added in next pit stop.
+  - Show total relative refilling, as the total additional fuel or virtual energy that is required to finish the race.
+  - See User Guide "Pit stop estimate" section for details.
+
+* [New]Track Info Editor
+  - Add "Track Info Editor" to "Tools" menu for customizing track info. See User Guide "Track Info Editor" section for details.
+
+* [New]Tracks Preset
+  - Add new "tracks.json" preset file in "settings" folder, which is used for storing track info. Track info is automatically recorded by Mapping Module.
+  - "tracks" file name is now reserved for "tracks.json" preset.
+
+* Mapping Module
+  - Now records pit-entry position, pit-exit position, pit speed limit data, and saves in "tracks.json" preset.
+    Note, for any new tracks, at least one pit-lane pass through is required to record data for pass through time calculation.
+
+* RestAPI Module
+  - Now processes user pit stop setting data from LMU Rest API for pit stop timing calculation.
+
+* Track map Widget
+  - Now reads pit-exit position data from Mapping Module for calculating pit-out predication.
+
+* Misc
+  - Updated User Guide info for Tracks Preset, Track Info Editor, Pit stop estimate Widget.
+  - Removed obsolete setting "meters_driven" from Cruise Widget.
+
 2.27.1 (2025-04-28) hot fix
 -----------------------------
 * Preset

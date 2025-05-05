@@ -23,8 +23,8 @@ Brake Wear Widget
 from .. import calculation as calc
 from ..api_control import api
 from ..const_common import TEXT_NA
-from ..heatmap import select_brake_failure_thickness, set_predefined_brake_name
 from ..module_info import minfo
+from ..userfile.heatmap import select_brake_failure_thickness, set_predefined_brake_name
 from ._base import Overlay
 
 

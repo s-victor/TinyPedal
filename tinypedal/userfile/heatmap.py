@@ -17,18 +17,18 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Heatmap function
+Heatmap preset function
 """
 
 from __future__ import annotations
 
 import re
 
-from .const_file import ConfigType
-from .regex_pattern import COMMON_TYRE_COMPOUNDS
-from .setting import cfg
-from .template.setting_heatmap import HEATMAP_DEFAULT_BRAKE, HEATMAP_DEFAULT_TYRE
-from .validator import invalid_save_name, is_hex_color
+from ..const_file import ConfigType
+from ..regex_pattern import COMMON_TYRE_COMPOUNDS
+from ..setting import cfg
+from ..template.setting_heatmap import HEATMAP_DEFAULT_BRAKE, HEATMAP_DEFAULT_TYRE
+from ..validator import invalid_save_name, is_hex_color
 
 
 # Brake function

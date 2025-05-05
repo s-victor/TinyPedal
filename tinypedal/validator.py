@@ -31,7 +31,7 @@ from typing import Any
 
 from .const_common import MAX_SECONDS
 from .const_file import FileExt
-from .regex_pattern import RE_HEX_COLOR
+from .regex_pattern import CFG_INVALID_FILENAME, rex_hex_color
 
 logger = logging.getLogger(__name__)
 
@@ -51,9 +51,9 @@ def bytes_to_str(bytestring: bytes | Any, char_encoding: str = "utf-8") -> str:
     return ""
 
 
-def is_allowed_filename(invalid_filename: str, filename: str) -> bool:
+def is_allowed_filename(filename: str) -> bool:
     """Is allowed setting file name"""
-    return re.search(invalid_filename, filename.lower()) is None
+    return re.search(CFG_INVALID_FILENAME, filename, flags=re.IGNORECASE) is None
 
 
 def invalid_save_name(name: str) -> bool:
@@ -150,7 +150,7 @@ def dict_value_type(data: dict, default_data: dict) -> dict:
 def is_hex_color(color_str: str | Any) -> bool:
     """Validate HEX color string"""
     if isinstance(color_str, str):
-        return re.search(RE_HEX_COLOR, color_str, flags=re.IGNORECASE) is not None
+        return rex_hex_color(color_str) is not None
     return False
 
 

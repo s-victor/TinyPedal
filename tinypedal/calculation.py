@@ -636,6 +636,7 @@ def pit_in_countdown_laps(laps_remain: float, lap_into: float) -> float:
 
 def end_lap_empty_capacity(capacity_total: float, fuel_in_tank: float, consumption: float) -> float:
     """Estimate empty capacity at end of current lap"""
+    # Total capacity - fuel at start of current lap + estimate fuel consumption
     return capacity_total - fuel_in_tank + consumption
 
 
@@ -649,15 +650,14 @@ def end_stint_pit_counts(fuel_needed: float, capacity_total: float) -> float:
 
 def end_lap_pit_counts(fuel_needed: float, capacity_empty: float, capacity_total: float) -> float:
     """Estimate end-lap pit stop counts"""
+    if capacity_empty < 0:
+        capacity_empty = 0
     # Amount fuel can be added without exceeding capacity
     fuel_addable = min(fuel_needed, capacity_empty)
     # Pit count of current stint, 1 if exceed empty capacity or no empty space
     pit_counts_before = fuel_addable / capacity_empty if capacity_empty else 1
     # Pit counts after current stint
-    if capacity_total:
-        pit_counts_after = (fuel_needed - fuel_addable) / capacity_total
-    else:
-        pit_counts_after = 0
+    pit_counts_after = (fuel_needed - fuel_addable) / capacity_total if capacity_total else 0
     # Total pit counts add together
     return pit_counts_before + pit_counts_after
 

@@ -17,15 +17,15 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Weather function
+Weather forecast function
 """
 
 from __future__ import annotations
 
 from functools import lru_cache
 
-from .const_common import ABS_ZERO_CELSIUS, MAX_FORECAST_MINUTES
-from .module_info import WeatherNode
+from ..const_common import ABS_ZERO_CELSIUS, MAX_FORECAST_MINUTES
+from ..module_info import WeatherNode, minfo
 
 FORECAST_DEFAULT = [WeatherNode(MAX_FORECAST_MINUTES, -1, ABS_ZERO_CELSIUS, -1)]
 FORECAST_NODES_RF2 = ("START", "NODE_25", "NODE_50", "NODE_75", "FINISH")
@@ -46,6 +46,19 @@ def forecast_rf2(data: dict) -> list[WeatherNode]:
     except (KeyError, TypeError):
         output = FORECAST_DEFAULT
     return output
+
+
+def get_forecast_info(session_type: int) -> list[WeatherNode]:
+    """Get forecast nodes list"""
+    if session_type <= 1:  # practice session
+        info = minfo.restapi.forecastPractice
+    elif session_type == 2:  # qualify session
+        info = minfo.restapi.forecastQualify
+    else:
+        info = minfo.restapi.forecastRace  # race session
+    if info:
+        return info
+    return FORECAST_DEFAULT  # get default if no valid data
 
 
 @lru_cache(maxsize=2)

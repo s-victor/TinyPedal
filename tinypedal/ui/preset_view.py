@@ -40,7 +40,6 @@ from PySide2.QtWidgets import (
     QWidget,
 )
 
-from .. import regex_pattern as rxp
 from ..const_app import VERSION
 from ..const_file import ConfigType, FileExt
 from ..formatter import strip_filename_extension
@@ -287,7 +286,7 @@ class CreatePreset(BaseDialog):
         """Creating new preset"""
         entered_filename = strip_filename_extension(self.preset_entry.text(), FileExt.JSON)
 
-        if is_allowed_filename(rxp.CFG_INVALID_FILENAME, entered_filename):
+        if is_allowed_filename(entered_filename):
             self.__saving(cfg.path.settings, entered_filename, self.source_filename)
         else:
             QMessageBox.warning(self, "Error", "Invalid preset name.")

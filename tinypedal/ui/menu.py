@@ -39,6 +39,7 @@ from .driver_stats_viewer import DriverStatsViewer
 from .fuel_calculator import FuelCalculator
 from .heatmap_editor import HeatmapEditor
 from .log_info import LogInfo
+from .track_info_editor import TrackInfoEditor
 from .track_map_viewer import TrackMapViewer
 from .track_notes_editor import TrackNotesEditor
 from .tyre_compound_editor import TyreCompoundEditor
@@ -391,6 +392,9 @@ class ToolsMenu(QMenu):
         editor_classes = self.addAction("Vehicle Class Editor")
         editor_classes.triggered.connect(self.open_editor_classes)
 
+        editor_trackinfo = self.addAction("Track Info Editor")
+        editor_trackinfo.triggered.connect(self.open_editor_trackinfo)
+
         editor_tracknotes = self.addAction("Track Notes Editor")
         editor_tracknotes.triggered.connect(self.open_editor_tracknotes)
 
@@ -432,6 +436,11 @@ class ToolsMenu(QMenu):
     def open_editor_classes(self):
         """Edit classes preset"""
         _dialog = VehicleClassEditor(self._parent)
+        _dialog.show()
+
+    def open_editor_trackinfo(self):
+        """Edit track info"""
+        _dialog = TrackInfoEditor(self._parent)
         _dialog.show()
 
     def open_editor_tracknotes(self):

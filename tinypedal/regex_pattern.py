@@ -20,10 +20,12 @@
 Regular expression, pattern, string constants
 """
 
+import re
 
-# Special
-RE_HEX_COLOR = r"^#[0-9A-F]{3}$|^#[0-9A-F]{6}$|^#[0-9A-F]{8}$"
-RE_INVALID_CHAR = r'[\\/:*?"<>|]'
+# Compiled regex function
+rex_hex_color = re.compile(r"^#[0-9A-F]{3}$|^#[0-9A-F]{6}$|^#[0-9A-F]{8}$", flags=re.IGNORECASE).search
+rex_invalid_char = re.compile(r'[\\/:*?"<>|]').sub
+rex_number_split = re.compile(r"[^\d.]").split
 
 # Bool
 CFG_BOOL = (
@@ -76,8 +78,6 @@ CFG_STRING = (
     "^RF2$|"
     # Partial match
     "file_name|"
-    "info|"
-    "list|"
     "prefix|"
     "sound_format|"
     "suffix|"
@@ -147,6 +147,7 @@ CFG_INVALID_FILENAME = (
     "^compounds$|"
     "^config$|"
     "^heatmap$|"
+    "^tracks$|"
     # Partial match
     "backup"
 )

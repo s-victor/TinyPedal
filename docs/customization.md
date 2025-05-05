@@ -127,6 +127,18 @@ Heatmap preset can be customized by accessing `Heatmap editor` from `Tools` menu
 [**`Back to Top`**](#)
 
 
+## Tracks preset
+**Tracks preset is used for storing and customizing track info for various track-related calculation.**
+
+Tracks preset can be customized by accessing `Track info editor` from `Tools` menu in main window. See [Track Info Editor](#track-info-editor) section for complete editing guide.
+
+Track info recording is handled by [Mapping Module](#mapping-module).
+
+`tracks.json` preset will be generated and saved in `TinyPedal\settings` folder after first time launch of the APP.
+
+[**`Back to Top`**](#)
+
+
 # User files
 TinyPedal generates and saves user session data in specific folders defined in `User path`. Session data can be reset by accessing `Reset data` menu from `Overlay` menu in main window; or, delete data file from corresponding folder.
 
@@ -719,6 +731,8 @@ Note, race completion and final standings stats are retrieved at the moment when
 
 Vehicle brand editor is used for editing [Brands Preset](#brands-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
 
+For brand logo image preparation, see [Brand Logo](#brand-logo) section.
+
 `Vehicle name` is full vehicle name that must match in-game vehicle name.
 
 `Brand name` is custom brand name.
@@ -798,6 +812,30 @@ To sort brake name in orders, click `Sort` button.
 To remove brake, select one or more rows and click `Delete`.
 
 To reset all brakes setting to default, click `Reset` button; or manually delete `brakes.json` preset.
+
+[**`Back to Top`**](#)
+
+
+## Track info editor
+**Track info editor can be accessed from `Tools` menu in main window.**
+
+Track info editor is used for editing [Tracks Preset](#tracks-preset). Note, any changes will only be saved and take effect after clicking `Apply` or `Save` Button.
+
+`Track name` column is full track name that must match in-game track.
+
+`Pit entry (m)` column is pit entry position (in meters) relative to track length. This value is automatically recorded or updated by [Mapping Module](#mapping-module).
+
+`Pit exit (m)` column is pit exit position (in meters) relative to track length. This value is automatically recorded or updated by [Mapping Module](#mapping-module).
+
+`Pit speed (m/s)` column is pit lane speed limit (in meters per second). This value is automatically recorded or updated by [Mapping Module](#mapping-module). Note, vehicle pit limiter must be activated while in pit lane to allow recording speed limit.
+
+To add new track, click `Add` button. Note, the editor can auto-detect and fill-in missing track found from current active session, existing data will not be changed.
+
+To sort track name in orders, click `Sort` button.
+
+To remove track, select one or more rows and click `Delete`.
+
+To reset all tracks setting to default, click `Reset` button; or manually delete `tracks.json` preset.
 
 [**`Back to Top`**](#)
 
@@ -1399,9 +1437,6 @@ Show distance into current lap.
 
     show_cornering_radius
 Show cornering radius calculated in real-time.
-
-    meters_driven
-This option is obsolete, it will be removed in the future.
 
 [**`Back to Top`**](#)
 
@@ -2324,6 +2359,43 @@ Show Force Feedback meter.
 
     show_*_filtered
 Show filtered pedal input if available. Note, some vehicles may not provide filtered pedal input value, which the value will be zero. Disable this option to show raw input only.
+
+[**`Back to Top`**](#)
+
+
+## Pit stop estimate
+**This widget displays estimated pit stop duration and refilling info.**
+
+Note, this widget is designed for `LMU`. Most readings are not available for `RF2` due to lack of API data.
+
+    pass_duration
+Show estimated pit-lane pass through (drive-through) time, calculated from pit-entry to pit-exit line. Average accuracy is within `0.5` seconds. Note, for any new tracks, at least one pit-lane pass through is required to record data for pass through time calculation.
+
+    stop_duration
+Show estimated pit stop time while making a service stop or serving a penalty, calculated according to each setting from MFD `Pitstop` page and underlying service timing and concurrency differences. Average accuracy is within `1` seconds.
+
+    maximum_delay
+Show maximum total random delay which game may add on top of pit stop time. For example, if estimated pit stop time is `12.0`s, and maximum delay is `+3.0`s, then final pit stop time will be between `12.0`s and `15.0`s.
+
+    additional_pitstop_time
+Set additional pit stop time that is not part of `pass_duration` or `stop_duration`. Default value is `2` seconds, which is the average time it takes to decelerate and accelerate towards and away from pit spot.
+
+    minimum_total_duration
+Show estimated minimum total pit time, which is the sum of `pass_duration`, `stop_duration`, and `additional_pitstop_time`. Note, this reading is recalculated only while not in pit lane.
+
+    maximum_total_duration
+Show estimated maximum total pit time, which is the sum of `minimum_total_duration` and `maximum_delay`. Note, this reading is recalculated only while not in pit lane.
+
+    pit_timer
+Show pit timer, useful for comparing against other pit time readings.
+
+    actual_relative_refill
+Show actual relative refilling, as the total additional fuel or virtual energy that will be added in next pit stop according to remaining fuel or virtual energy and user refill setting from MFD `Pitstop` page.
+
+    total_relative_refill
+Show total relative refilling, as the total additional fuel or virtual energy that is required to finish the race. This is the same value as seen from `refill` column of Fuel Widget or Virtual energy Widget.
+
+With both `actual` and `total` relative refilling readings, users can determine precisely how much fuel or virtual energy that will be added in next pit stop, and whether the refilling will be enough or more pit stops are required.
 
 [**`Back to Top`**](#)
 
