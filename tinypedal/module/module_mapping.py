@@ -99,9 +99,10 @@ def update_track_info(output, track_name: str):
         if not updating:
             save_track_info(
                 track_name=track_name,
-                pit_entry=pitin_pos,
-                pit_exit=pitout_pos,
-                pit_speed=speed_limit,
+                # kwargs {key: value}
+                pit_entry=round4(pitin_pos),
+                pit_exit=round4(pitout_pos),
+                pit_speed=round4(speed_limit),
             )
             continue
 

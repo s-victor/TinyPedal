@@ -22,21 +22,33 @@ Track info preset function
 
 from __future__ import annotations
 
+from types import MappingProxyType
+
 from ..const_file import ConfigType
 from ..setting import cfg
+from ..validator import invalid_save_name
+
+TRACKINFO_DEFAULT = MappingProxyType({
+    "pit_entry": 0.0,
+    "pit_exit": 0.0,
+    "pit_speed": 0.0,
+})
 
 
 def add_missing_track(track_name: str) -> dict:
     """Add missing track info to tracks preset"""
-    cfg.user.tracks[track_name] = {}
+    cfg.user.tracks[track_name] = TRACKINFO_DEFAULT.copy()
     return cfg.user.tracks[track_name]
 
 
 def load_track_info(track_name: str) -> tuple[float, float, float]:
-    """Get track info from tracks preset"""
-    track = cfg.user.tracks.get(track_name, None)
-    if not isinstance(track, dict):
-        track = add_missing_track(track_name)
+    """Load track info from tracks preset"""
+    if invalid_save_name(track_name):
+        track = TRACKINFO_DEFAULT
+    else:
+        track = cfg.user.tracks.get(track_name, None)
+        if not isinstance(track, dict):
+            track = add_missing_track(track_name)
     return (
         track.get("pit_entry", 0.0),
         track.get("pit_exit", 0.0),
@@ -44,14 +56,12 @@ def load_track_info(track_name: str) -> tuple[float, float, float]:
     )
 
 
-def save_track_info(track_name: str, pit_entry: float, pit_exit: float, pit_speed: float) -> None:
+def save_track_info(track_name: str, **track_info: dict) -> None:
     """Save track info to tracks preset"""
-    if track_name == "":
+    if invalid_save_name(track_name):
         return
     track = cfg.user.tracks.get(track_name, None)
     if not isinstance(track, dict):
         track = add_missing_track(track_name)
-    track["pit_entry"] = round(pit_entry, 3)
-    track["pit_exit"] = round(pit_exit, 3)
-    track["pit_speed"] = round(pit_speed, 3)
+    track.update(track_info)
     cfg.save(cfg_type=ConfigType.TRACKS)

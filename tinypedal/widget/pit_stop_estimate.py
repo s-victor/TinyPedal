@@ -170,6 +170,7 @@ class Realtime(Overlay):
             text=text_def,
             style=bar_style_minpit,
             fixed_width=style_width,
+            last=-1,
         )
         self.bar_minpit.decimals = max(self.wcfg["decimal_places_minimum_total_duration"], 0)
 
@@ -244,7 +245,7 @@ class Realtime(Overlay):
             self.update_estimate(self.bar_needed, total_refill, "+")
 
             # Estimated min, max total pit time, update while not in pit
-            if not api.read.vehicle.in_pits():
+            if not api.read.vehicle.in_pits() or self.bar_minpit.last < pass_time:
                 if min_pitstop_time:
                     min_total = min_pitstop_time + pass_time + self.extra_time
                     max_total = max_pitstop_time + pass_time + self.extra_time

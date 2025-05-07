@@ -36,6 +36,7 @@ from ..api_control import api
 from ..const_file import ConfigType
 from ..module_control import wctrl
 from ..setting import cfg, copy_setting
+from ..userfile.track_info import TRACKINFO_DEFAULT
 from ._common import (
     BaseEditor,
     CompactButton,
@@ -64,12 +65,9 @@ class TrackInfoEditor(BaseEditor):
         self.table_tracks.setHorizontalHeaderLabels(HEADER_TRACKS)
         self.table_tracks.verticalHeader().setSectionResizeMode(QHeaderView.Fixed)
         self.table_tracks.horizontalHeader().setSectionResizeMode(QHeaderView.Stretch)
-        self.table_tracks.horizontalHeader().setSectionResizeMode(1, QHeaderView.Fixed)
-        self.table_tracks.horizontalHeader().setSectionResizeMode(2, QHeaderView.Fixed)
-        self.table_tracks.horizontalHeader().setSectionResizeMode(3, QHeaderView.Fixed)
-        self.table_tracks.setColumnWidth(1, UIScaler.size(8))
-        self.table_tracks.setColumnWidth(2, UIScaler.size(8))
-        self.table_tracks.setColumnWidth(3, UIScaler.size(8))
+        for idx in range(1, len(HEADER_TRACKS)):
+            self.table_tracks.horizontalHeader().setSectionResizeMode(idx, QHeaderView.Fixed)
+            self.table_tracks.setColumnWidth(idx, UIScaler.size(8))
         self.table_tracks.cellChanged.connect(self.verify_input)
         self.refresh_table()
         self.set_unmodified()
@@ -124,13 +122,7 @@ class TrackInfoEditor(BaseEditor):
         self.table_tracks.setRowCount(0)
         row_index = 0
         for track_name, track_data in self.tracks_temp.items():
-            self.add_track_entry(
-                row_index,
-                track_name,
-                track_data["pit_entry"],
-                track_data["pit_exit"],
-                track_data["pit_speed"],
-            )
+            self.add_track_entry(row_index, track_name, track_data)
             row_index += 1
 
     def add_track(self):
@@ -138,23 +130,27 @@ class TrackInfoEditor(BaseEditor):
         start_index = row_index = self.table_tracks.rowCount()
         # Add missing track name from active session
         track_name = api.read.session.track_name()
-        if track_name:
-            self.add_track_entry(row_index, track_name, 0, 0, 0)
+        if track_name and not self.is_value_in_table(track_name, self.table_tracks):
+            self.add_track_entry(row_index, track_name, TRACKINFO_DEFAULT)
             row_index += 1
         # Add new name entry
         if start_index == row_index:
             new_track_name = self.new_name_increment("New Track Name", self.table_tracks)
-            self.add_track_entry(row_index, new_track_name, 0, 0, 0)
+            self.add_track_entry(row_index, new_track_name, TRACKINFO_DEFAULT)
             self.table_tracks.setCurrentCell(row_index, 0)
 
-    def add_track_entry(
-        self, row_index: int, track_name: str, pit_entry: float, pit_exit: float, pit_speed: float):
+    def add_track_entry(self, row_index: int, track_name: str, track_data: dict):
         """Add new track entry to table"""
         self.table_tracks.insertRow(row_index)
         self.table_tracks.setItem(row_index, 0, QTableWidgetItem(track_name))
-        self.table_tracks.setItem(row_index, 1, FloatTableItem(pit_entry))
-        self.table_tracks.setItem(row_index, 2, FloatTableItem(pit_exit))
-        self.table_tracks.setItem(row_index, 3, FloatTableItem(pit_speed))
+        column_index = 1
+        for key, value in TRACKINFO_DEFAULT.items():
+            self.table_tracks.setItem(
+                row_index,
+                column_index,
+                FloatTableItem(track_data.get(key, value)),
+            )
+            column_index += 1
 
     def sort_track(self):
         """Sort tracks in ascending order"""
@@ -206,15 +202,11 @@ class TrackInfoEditor(BaseEditor):
     def update_tracks_temp(self):
         """Update temporary changes to tracks temp first"""
         self.tracks_temp.clear()
-        for index in range(self.table_tracks.rowCount()):
-            track_name = self.table_tracks.item(index, 0).text()
-            pit_entry = self.table_tracks.item(index, 1).value()
-            pit_exit = self.table_tracks.item(index, 2).value()
-            pit_speed = self.table_tracks.item(index, 3).value()
+        for row_index in range(self.table_tracks.rowCount()):
+            track_name = self.table_tracks.item(row_index, 0).text()
             self.tracks_temp[track_name] = {
-                "pit_entry": pit_entry,
-                "pit_exit": pit_exit,
-                "pit_speed": pit_speed,
+                key: self.table_tracks.item(row_index, column_index).value()
+                for column_index, key in enumerate(TRACKINFO_DEFAULT, start=1)
             }
 
     def save_setting(self):

@@ -193,8 +193,7 @@ class DriverStatsViewer(BaseEditor):
 
         row_index = 0
         for veh_name, veh_data in self.selected_stats_dict.items():
-            self.add_stats_vehicle(
-                row_index, veh_name, veh_data)
+            self.add_stats_vehicle(row_index, veh_name, veh_data)
             row_index += 1
 
         self.table_stats.setSortingEnabled(True)
