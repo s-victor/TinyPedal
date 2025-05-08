@@ -258,8 +258,8 @@ class Overlay(QWidget):
         if align == 0 or align == "Center":
             return Qt.AlignCenter
         if align == 1 or align == "Left":
-            return Qt.AlignLeft
-        return Qt.AlignRight
+            return Qt.AlignLeft | Qt.AlignVCenter
+        return Qt.AlignRight | Qt.AlignVCenter
 
     @staticmethod
     def set_qss(

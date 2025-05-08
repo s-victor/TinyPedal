@@ -23,7 +23,7 @@ Overlay base painter class.
 from __future__ import annotations
 
 from PySide2.QtCore import QRectF, Qt
-from PySide2.QtGui import QPainter, QPen, QPixmap
+from PySide2.QtGui import QFont, QPainter, QPen, QPixmap
 from PySide2.QtWidgets import QWidget
 
 from ..const_common import GEAR_SEQUENCE
@@ -184,22 +184,40 @@ class ProgressBar(QWidget):
         parent,
         width: int,
         height: int,
+        offset_x: int,
+        offset_y: int,
+        font: QFont,
         input_color: str = "",
+        fg_color: str = "",
         bg_color: str = "",
+        decimals: int = 0,
+        show_reading: bool = False,
+        align: Qt.Alignment = Qt.AlignCenter,
         right_side: bool = False,
     ):
         super().__init__(parent)
         self.last = -1
+        self.input_reading = 0.0
+        if show_reading:
+            height = max(font.pixelSize(), height)
+            self.setFont(font)
         self.bar_width = width
         self.rect_bar = QRectF(0, 0, width, height)
         self.rect_input = QRectF(0, 0, width, height)
+        self.rect_text = QRectF(width * (offset_x - 0.5), offset_y, width, height)
         self.input_color = input_color
         self.bg_color = bg_color
+        self.show_reading = show_reading
+        self.align = align
         self.right_side = right_side
+        self.pen = QPen()
+        self.pen.setColor(fg_color)
+        self.decimals = max(decimals, 0)
         self.setFixedSize(width, height)
 
-    def update_input(self, input_value: float):
+    def update_input(self, input_value: float, input_reading: float):
         """Update input"""
+        self.input_reading = input_reading
         if self.right_side:
             self.rect_input.setLeft(self.bar_width - input_value * self.bar_width)
         else:
@@ -211,6 +229,9 @@ class ProgressBar(QWidget):
         painter = QPainter(self)
         painter.fillRect(self.rect_bar, self.bg_color)
         painter.fillRect(self.rect_input, self.input_color)
+        if self.show_reading:
+            painter.setPen(self.pen)
+            painter.drawText(self.rect_text, self.align, f"{self.input_reading:.{self.decimals}f}")
 
 
 class FuelLevelBar(QWidget):
@@ -271,7 +292,7 @@ class GearGaugeBar(QWidget):
         parent,
         width: int,
         height: int,
-        font_speed,
+        font_speed: QFont,
         gear_size: tuple[int, int, int, int],
         speed_size: tuple[int, int, int, int],
         fg_color: str,

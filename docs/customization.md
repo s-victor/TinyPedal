@@ -318,11 +318,17 @@ Automatically adjust font vertical offset based on font geometry for better vert
     font_offset_vertical
 Manually set font vertical offset. Default is `0`. Negative value will offset font upward, and position value for downward. This option only takes effect when `enable_auto_font_offset` is set to `false`.
 
+    *_offset_x, *_offset_y
+Set text offset position (percentage), value range in `0.0` to `1.0`.
+
     bar_padding
 Set widget edge padding value that multiplies and scales with `font_size`. Default is `0.2` for most widgets. Increase padding value will further increase each element width in widget.
 
     color
 Set color in hexadecimal color codes with alpha value (opacity). The color code format starts with `#`, then follows by two-digit hexadecimal numbers for each channel in the order of `alpha`, `red`, `green`, `blue`. Note, `alpha` is optional and can be omitted. User can select a new color without manual editing, by double-clicking on color entry box in `Config` dialog.
+
+    text_alignment
+Set text alignment. Acceptable value: `Left`, `Center`, `Right`.
 
     prefix
 Set prefix text that displayed beside corresponding data. Set to `""` to hide prefix text.
@@ -1643,12 +1649,6 @@ Show elevation difference in game's coordinate system.
     show_elevation_scale
 Show elevation plot scale reading, which is ratio between screen pixel and real world elevation. A `1:10.5` reading means 1 pixel equals 10.5 meters (or feet, depends on distance unit setting).
 
-    *_offset_x, *_offset_y
-Set reading text offset position (percentage), value range in `0.0` to `1.0`.
-
-    *_text_alignment
-Set reading text alignment. Acceptable value: `Left`, `Center`, `Right`.
-
     show_background
 Show widget background.
 
@@ -2051,6 +2051,9 @@ Invert battery bar progression.
     battery_bar_height
 Set battery bar height in pixels.
 
+    show_battery_reading
+Show battery charge (in percentage) reading text on battery bar.
+
     show_rpm_bar
 Show a RPM bar at bottom of gear widget, which moves when RPM reaches range between safe and max RPM.
 
@@ -2059,6 +2062,9 @@ Invert RPM bar progression.
 
     rpm_bar_height
 RPM bar height, in pixel.
+
+    show_rpm_reading
+Show RPM reading text on RPM bar.
 
     rpm_multiplier_safe
 This value multiplies max RPM value, which sets relative safe RPM range for RPM color indicator (changes gear widget background color upon reaching this RPM value).
@@ -2089,9 +2095,6 @@ Show yaw angle reading in degree.
 
     show_slip_angle_reading
 Show slip angle reading in degree.
-
-    *_offset_x, *_offset_y
-Set reading text offset position (percentage), value range in `0.0` to `1.0`.
 
     show_degree_sign
 Set `true` to show degree sign for yaw angle reading.
@@ -3002,9 +3005,6 @@ Set widget display margin in pixels.
 
     show_steering_angle
 Show steering angle text in degree.
-
-    *_offset_x, *_offset_y
-Set steering angle text offset position (percentage), value range in `0.0` to `1.0`.
 
     manual_steering_range
 Manually set steering display range in degree. Set to `0` to read physical steering range from API. This option may be useful when steering range value is not provided by some vehicles.
