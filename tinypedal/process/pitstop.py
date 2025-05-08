@@ -164,10 +164,12 @@ def set_time_virtual_energy(ref_time: dict, current: int, remaining: float):
     """Set time - virtual energy (percentage)"""
     delay = ref_time.get("virtualEnergyRandomDelay", 0)
     concurrent = ref_time.get("virtualEnergyTimeConcurrent", 0)
+    seconds = ref_time.get("virtualEnergyInsert", 0)
+    seconds += ref_time.get("virtualEnergyRemove", 0)
     fill_rate = ref_time.get("virtualEnergyFillRate", 0) * 100
     refill = current - remaining
     if refill > 0 < fill_rate:
-        seconds = refill / fill_rate
+        seconds += refill / fill_rate
     else:
         delay = seconds = 0.0
     return seconds, delay, concurrent
