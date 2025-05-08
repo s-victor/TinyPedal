@@ -62,10 +62,10 @@ class Realtime(Overlay):
 
         # Gear gauge
         self.gauge_color = (
-            self.wcfg["bkg_color"], # 0, -4 flicker
-            self.wcfg["rpm_color_safe"], # 1
-            self.wcfg["rpm_color_redline"], # 2
-            self.wcfg["rpm_color_over_rev"], # 3
+            self.wcfg["bkg_color"],  # 0, -4 flicker
+            self.wcfg["rpm_color_safe"],  # 1
+            self.wcfg["rpm_color_redline"],  # 2
+            self.wcfg["rpm_color_over_rev"],  # 3
         )
         self.bar_gauge = GearGaugeBar(
             self,
@@ -271,17 +271,15 @@ class Realtime(Overlay):
         """Set gauge size"""
         font_m = self.get_font_metrics(font)
         font_offset = self.calc_font_offset(font_m)
-
-        font_speed = self.config_font(
-            self.wcfg["font_name"],
-            self.wcfg["font_size"],
-            self.wcfg["font_weight_speed"]
-        )
         if self.wcfg["show_speed_below_gear"]:
             font_scale_speed = self.wcfg["font_scale_speed"]
         else:
             font_scale_speed = 1
-        font_speed.setPixelSize(round(self.wcfg["font_size"] * font_scale_speed))
+        font_speed = self.config_font(
+            self.wcfg["font_name"],
+            round(self.wcfg["font_size"] * font_scale_speed),
+            self.wcfg["font_weight_speed"]
+        )
 
         # Config variable
         inner_gap = self.wcfg["inner_gap"]

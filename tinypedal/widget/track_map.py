@@ -24,6 +24,7 @@ from PySide2.QtCore import QRectF, Qt
 from PySide2.QtGui import QBrush, QPainter, QPainterPath, QPen, QPixmap
 
 from .. import calculation as calc
+from ..api_control import api
 from ..formatter import random_color_class
 from ..module_info import minfo
 from ._base import Overlay
@@ -70,6 +71,7 @@ class Realtime(Overlay):
         )
 
         if self.wcfg["show_pitout_prediction"]:
+            self.show_while_requested = self.wcfg["show_pitout_prediction_while_requested_pitstop"]
             self.predication_count = min(max(self.wcfg["number_of_predication"], 1), 20)
             self.pitout_time_offset = max(self.wcfg["pitout_time_offset"], 0)
             self.min_pit_time = self.wcfg["pitstop_duration_minimum"] + self.pitout_time_offset
@@ -291,9 +293,13 @@ class Realtime(Overlay):
 
     def draw_pitout_prediction(self, painter, map_data, plr_veh_info):
         """Draw pitout prediction circles"""
-        # Skip drawing if not in pit
+        # Skip drawing
         if not plr_veh_info.inPit:
-            return
+            if not self.show_while_requested:  # if not in pit
+                return
+            if not plr_veh_info.pitState:  # not requested pit
+                return
+
         # Verify data set
         if not map_data:
             return
@@ -310,14 +316,21 @@ class Realtime(Overlay):
             return
 
         laptime_scale = laptime_best / laptime_pace
-        pit_timer = plr_veh_info.pitTimer.elapsed
+
+        # Calculate pit timer
+        if plr_veh_info.pitState and not plr_veh_info.inPit:  # out pit lane
+            pitin_time = target_node_time(minfo.mapping.pitEntryPosition, deltabest_data, deltabest_max_index, laptime_scale)
+            pos_curr_time = target_node_time(api.read.lap.distance(), deltabest_data, deltabest_max_index, laptime_scale)
+            pit_timer = pos_curr_time - pitin_time
+        else:  # in pit lane
+            pit_timer = plr_veh_info.pitTimer.elapsed
+
         dist_end_index = min(len(dist_data), len(map_data)) - 1
         target_pit_time = target_pitstop_duration(pit_timer, self.min_pit_time, self.pit_time_increment)
 
         # Find time_into from deltabest_data, scale to match laptime_pace
-        pitout_dist = minfo.mapping.pitExitPosition
-        pitout_node_index = calc.binary_search_higher_column(deltabest_data, pitout_dist, 0, deltabest_max_index, 0)
-        pitout_time_extend = deltabest_data[pitout_node_index][1] / laptime_scale + pit_timer
+        pitout_time = target_node_time(minfo.mapping.pitExitPosition, deltabest_data, deltabest_max_index, laptime_scale)
+        pitout_time_extend = pit_timer + pitout_time
 
         painter.setBrush(Qt.NoBrush)
         for _ in range(self.predication_count):
@@ -410,3 +423,9 @@ def target_pitstop_duration(pit_timer: float, min_pit_time: float, pit_time_incr
     """Target pitstop duration = min pit duration + pit duration increment * number of increments"""
     overflow_increments = max(pit_timer - min_pit_time + pit_time_increment, 0) // pit_time_increment
     return min_pit_time + pit_time_increment * overflow_increments
+
+
+def target_node_time(position: float, delta_data: tuple, max_index: int, laptime_scale: float) -> float:
+    """Calculate target node time from target position and deltabest dataset"""
+    pitin_node_index = calc.binary_search_higher_column(delta_data, position, 0, max_index, 0)
+    return delta_data[pitin_node_index][1] / laptime_scale

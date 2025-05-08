@@ -2196,6 +2196,7 @@ WIDGET_DEFAULT = {
         "vehicle_outline_width": 1,
         "vehicle_outline_color": "#88000000",
         "show_pitout_prediction": True,
+        "show_pitout_prediction_while_requested_pitstop": True,
         "number_of_predication": 6,
         "pitstop_duration_minimum": 15,
         "pitstop_duration_increment": 10,

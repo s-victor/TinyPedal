@@ -1,9 +1,12 @@
-WIP
+2.28.1 (2025-05-08)
 -----------------------------
 * Gear Widget
   - Add "show_rpm_reading" option (requested by users "ebeninca" and "EmperorOfFinland"), which shows RPM charge reading on RPM bar. This option is disabled by default.
   - Add "show_battery_reading" option, which shows battery charge reading (percentage) on battery bar. This option is disabled by default.
   - Add "decimal_places, font_size, font_weight, font_color, offset_x, text_alignment" options for customizing RPM and battery charge readings.
+
+* Track map Widget
+  - Add "show_pitout_prediction_while_requested_pitstop" option (requested by user "geims12"), which shows pit out on-track position indication while player has requested pitstop and not in pit lane. This option is enabled by default.
 
 * Misc
   - Fixed an issue that would prevent Track Info Editor from opening while "API state override" is activated.

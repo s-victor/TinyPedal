@@ -3148,6 +3148,9 @@ Note, pit out position prediction is based on `delta best` data which scaled wit
 
 For accurate prediction, the location of `pit out line` must be found first. And since each track has different pit out line location, it is required to `pit out` at least `once per session` to mark the correct pit out line location. This can be easily done by driving out of pit lane.
 
+    show_pitout_prediction_while_requested_pitstop
+Show estimated pit out on-track position indication while player has requested pitstop and not in pit lane.
+
     number_of_predication
 Set number of pit out predication to display. Value range is limited in `1` to `20`.
 
