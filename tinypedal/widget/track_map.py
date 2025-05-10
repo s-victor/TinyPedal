@@ -316,17 +316,17 @@ class Realtime(Overlay):
             return
 
         laptime_scale = laptime_best / laptime_pace
+        dist_end_index = min(len(dist_data), len(map_data)) - 1
 
-        # Calculate pit timer
+        # Calculate pit timer & target time
         if plr_veh_info.pitState and not plr_veh_info.inPit:  # out pit lane
             pitin_time = target_node_time(minfo.mapping.pitEntryPosition, deltabest_data, deltabest_max_index, laptime_scale)
             pos_curr_time = target_node_time(api.read.lap.distance(), deltabest_data, deltabest_max_index, laptime_scale)
             pit_timer = pos_curr_time - pitin_time
+            target_pit_time = self.min_pit_time
         else:  # in pit lane
             pit_timer = plr_veh_info.pitTimer.elapsed
-
-        dist_end_index = min(len(dist_data), len(map_data)) - 1
-        target_pit_time = target_pitstop_duration(pit_timer, self.min_pit_time, self.pit_time_increment)
+            target_pit_time = target_pitstop_duration(pit_timer, self.min_pit_time, self.pit_time_increment)
 
         # Find time_into from deltabest_data, scale to match laptime_pace
         pitout_time = target_node_time(minfo.mapping.pitExitPosition, deltabest_data, deltabest_max_index, laptime_scale)
@@ -353,7 +353,7 @@ class Realtime(Overlay):
                 estimate_dist = 0
 
             dist_node_index = calc.binary_search_higher_column(dist_data, estimate_dist, 0, dist_end_index)
-            painter.translate(*map(round, map_data[dist_node_index]))
+            painter.translate(*map_data[dist_node_index])
             painter.setPen(self.pen_pit_styles[0])
             painter.drawEllipse(self.veh_shape)
 
