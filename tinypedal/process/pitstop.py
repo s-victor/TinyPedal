@@ -303,8 +303,8 @@ class EstimatePitTime():
                     self.fuel_rel_refill = 0.0
                     self.nrg_rel_refill = 0.0
                 else:  # add stopgo time to service time (simultaneous)
-                    sum_pit_time += sum_concurrent + sum_separate
-                    sum_pit_time_delay += sum_concurrent_delay + sum_separate_delay
+                    sum_pit_time += stopgo_time
+                    sum_pit_time_delay += stopgo_time
             return (
                 sum_pit_time,
                 sum_pit_time_delay,
