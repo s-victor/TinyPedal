@@ -22,7 +22,7 @@ Web API task
 
 from ..const_common import PITEST_DEFAULT
 from ..module_info import minfo
-from ..process.pitstop import estimate_pit_stop_time
+from ..process.pitstop import EstimatePitTime
 from ..process.vehicle import steerlock_to_number
 from ..process.weather import FORECAST_DEFAULT, forecast_rf2
 
@@ -44,7 +44,7 @@ SET_CURRENTSTINT = (
     (minfo.restapi, "brakeWear", [-1] * 4, None, "wearables", "brakes"),
     (minfo.restapi, "suspensionDamage", [-1] * 4, None, "wearables", "suspension"),
     (minfo.restapi, "trackClockTime", -1.0, None, "sessionTime", "timeOfDay"),
-    (minfo.restapi, "pitStopEstimate", PITEST_DEFAULT, estimate_pit_stop_time),
+    (minfo.restapi, "pitStopEstimate", PITEST_DEFAULT, EstimatePitTime()),
 )
 SET_WEATHERFORECAST = (
     (minfo.restapi, "forecastPractice", FORECAST_DEFAULT, forecast_rf2, "PRACTICE"),

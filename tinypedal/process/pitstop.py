@@ -23,121 +23,37 @@ Pit stop function
 from __future__ import annotations
 
 from ..const_common import EMPTY_DICT, PITEST_DEFAULT
-from ..regex_pattern import rex_number_split
+from ..regex_pattern import rex_number_extract
 
 
-def estimate_pit_stop_time(dataset: dict):
-    """Estimate pit stop time"""
-    try:
-        # Get data
-        pit_menu = dataset.get("pitMenu", EMPTY_DICT).get("pitMenu", None)
-        ref_time = dataset.get("pitStopTimes", EMPTY_DICT).get("times", None)
-        fuel_info = dataset.get("fuelInfo", EMPTY_DICT)
-        stopgo_time = dataset.get("pitStopLength", EMPTY_DICT).get("timeInSeconds", 10.0)
-        if not isinstance(pit_menu, list) or not isinstance(ref_time, dict):
-            return PITEST_DEFAULT
-        # Setup parser
-        total_concurrent = 0.0
-        total_separate = 0.0
-        total_concurrent_delay = 0.0
-        total_separate_delay = 0.0
-        rel_refill = [0.0, 0.0]
-        gen_pit_time = parse_pit_time(fuel_info, pit_menu, ref_time, stopgo_time, rel_refill)
-        # Parse data & calculate pit time
-        for service_time, random_delay, is_concurrent in gen_pit_time:
-            service_time_delay = service_time + random_delay
-            # Set longest concurrent service time
-            if is_concurrent:
-                if total_concurrent < service_time:
-                    total_concurrent = service_time
-                if total_concurrent_delay < service_time_delay:
-                    total_concurrent_delay = service_time_delay
-            # Add up non-concurrent service time
-            else:
-                total_separate += service_time
-                total_separate_delay += service_time_delay
-        pit_stop_time = total_concurrent + total_separate
-        pit_stop_time_delay = total_concurrent_delay + total_separate_delay
-        return pit_stop_time, pit_stop_time_delay, rel_refill[0], rel_refill[1]
-    except (AttributeError, TypeError, IndexError, KeyError, ValueError):
-        return PITEST_DEFAULT
+# Set state & counter
+def set_stopgo_state(raw: dict, ref_time: dict, temp: EstimatePitTime):
+    """Set stop-go penalty state"""
+    if raw.get("currentSetting", 0) != 0:
+        if ref_time.get("SimultaneousStopGo", False):
+            temp.state_stopgo = 2  # service & stopgo
+        else:
+            temp.state_stopgo = 1  # stopgo only
+    return None
 
 
-def parse_pit_time(
-    fuel_info: dict, pit_menu: list, ref_time: dict, stopgo_time: float, rel_refill: list
-):
-    """Parse & analyse pit time data"""
-    tyre_count = 0
-    adjust_pressure = 0
-    nrg_abs_refill = 0
-    fuel_abs_refill = 0
-    nrg_current = fuel_info.get("currentVirtualEnergy", 0.0)
-    nrg_max = fuel_info.get("maxVirtualEnergy", 0.0)
-    nrg_remaining = nrg_current / nrg_max * 100 if nrg_max else 0.0
-    fuel_remaining = fuel_info.get("currentFuel", 0.0)
-    for data in pit_menu:
-        var_name = data.get("name", "n/a")
-        var_current = data.get("currentSetting", 0)
-        var_default = data.get("default", 0)
-        if var_name == "STOP/GO:":
-            stop_go = set_time_stopgo(var_current, stopgo_time)
-            yield stop_go
-            if var_current > 0:  # serve stop go penalty
-                return
-        if var_name == "DAMAGE:":
-            yield set_time_damage(ref_time, var_current)
-            continue
-        if var_name == "DRIVER:":
-            yield set_time_driver(ref_time, var_current, var_default)
-            continue
-        if var_name == "VIRTUAL ENERGY:":
-            nrg_abs_refill = var_current
-            rel_refill[1] = nrg_abs_refill - nrg_remaining
-            yield set_time_virtual_energy(ref_time, nrg_abs_refill, nrg_remaining)
-            continue
-        if var_name == "FUEL RATIO:":
-            fuel_ratio = get_fuel_ratio(var_current, data.get("settings", None))
-            yield set_time_fuel(ref_time, nrg_abs_refill * fuel_ratio, fuel_remaining)
-            continue
-        if var_name == "FUEL:":
-            fuel_abs_refill = get_absolute_refuel(var_current, data.get("settings", None))
-            rel_refill[0] = fuel_abs_refill - fuel_remaining
-            yield set_time_fuel(ref_time, fuel_abs_refill, fuel_remaining)
-            continue
-        if var_name in "FL TIRE:|FR TIRE:|RL TIRE:|RR TIRE:":
-            tyre_count += (var_current != var_default)
-            continue
-        if var_name in "FL PRESS:|FR PRESS:|RL PRESS:|RR PRESS:":
-            adjust_pressure += (var_current != var_default)
-            continue
-        if var_name == "F WING:":
-            yield set_time_front_wing(ref_time, var_current, var_default)
-            continue
-        if var_name == "R WING:":
-            yield set_time_rear_wing(ref_time, var_current, var_default)
-            continue
-        if var_name == "GRILLE:":
-            yield set_time_radiator(ref_time, var_current, var_default)
-            continue
-        if var_name == "REPLACE BRAKES:":
-            yield set_time_brake(ref_time, var_current)
-            continue
-    yield set_time_tyre(ref_time, tyre_count, adjust_pressure)
+def count_tyre_change(raw: dict, ref_time: dict, temp: EstimatePitTime):
+    """Count number of tyres for replacement"""
+    temp.tyre_change += (raw.get("currentSetting", 0) != raw.get("default", 0))
+    return None
+
+
+def count_pressure_change(raw: dict, ref_time: dict, temp: EstimatePitTime):
+    """Count number of tyres for pressure adjustment"""
+    temp.pressure_change += (raw.get("currentSetting", 0) != raw.get("default", 0))
+    return None
 
 
 # Set pit time in order:
 # service time (seconds), random delay (seconds), whether concurrent (0=no, 1=yes)
-def set_time_stopgo(current: int, stopgo_time: float):
-    """Set time - stop go penalty"""
-    if current > 0:
-        seconds = stopgo_time
-    else:
-        seconds = 0.0
-    return seconds, 0.0, 0
-
-
-def set_time_damage(ref_time: dict, current: int):
+def set_time_damage(raw: dict, ref_time: dict, temp: EstimatePitTime):
     """Set time - damage fix"""
+    current = raw.get("currentSetting", 0)
     delay = ref_time.get("FixRandomDelay", 0)
     concurrent = ref_time.get("FixTimeConcurrent", 0)
     if current == 1:
@@ -149,8 +65,10 @@ def set_time_damage(ref_time: dict, current: int):
     return seconds, delay, concurrent
 
 
-def set_time_driver(ref_time: dict, current: int, default: int):
+def set_time_driver(raw: dict, ref_time: dict, temp: EstimatePitTime):
     """Set time - driver swap"""
+    current = raw.get("currentSetting", 0)
+    default = raw.get("default", 0)
     delay = ref_time.get("DriverRandom", 0)
     concurrent = ref_time.get("DriverConcurrent", 0)
     if current != default:
@@ -160,40 +78,47 @@ def set_time_driver(ref_time: dict, current: int, default: int):
     return seconds, delay, concurrent
 
 
-def set_time_virtual_energy(ref_time: dict, current: int, remaining: float):
+def set_time_virtual_energy(raw: dict, ref_time: dict, temp: EstimatePitTime):
     """Set time - virtual energy (percentage)"""
+    current = raw.get("currentSetting", 0)
     delay = ref_time.get("virtualEnergyRandomDelay", 0)
     concurrent = ref_time.get("virtualEnergyTimeConcurrent", 0)
     seconds = ref_time.get("virtualEnergyInsert", 0)
     seconds += ref_time.get("virtualEnergyRemove", 0)
     fill_rate = ref_time.get("virtualEnergyFillRate", 0) * 100
-    refill = current - remaining
+    refill = current - temp.nrg_remaining
     if refill > 0 < fill_rate:
         seconds += refill / fill_rate
     else:
         delay = seconds = 0.0
+    temp.nrg_abs_refill = current
+    temp.nrg_rel_refill = refill
     return seconds, delay, concurrent
 
 
-def set_time_tyre(ref_time: dict, tyre_count: int, adjust_pressure: int):
+def set_time_tyre(ref_time: dict, temp: EstimatePitTime):
     """Set time - tyre change (with pressure adjustment)"""
     delay = ref_time.get("RandomTireDelay", 0)
     concurrent = ref_time.get("TireTimeConcurrent", 0)
-    if adjust_pressure > 0 < tyre_count:  # only adjust pressure if change tyre
+    pressure_on_fly = ref_time.get("OnTheFlyPressure", False)
+    # Whether allow to adjust pressure without change tyre
+    if temp.pressure_change and (temp.tyre_change or pressure_on_fly):
         pres_seconds = ref_time.get("PressureChange", 0)
     else:
         pres_seconds = 0.0
-    if 0 < tyre_count <= 2:
-        seconds = ref_time.get("TwoTireChange", 0)
-    elif 2 < tyre_count:
+    if 2 < temp.tyre_change:
         seconds = ref_time.get("FourTireChange", 0)
+    elif 0 < temp.tyre_change:
+        seconds = ref_time.get("TwoTireChange", 0)
     else:
         delay = seconds = 0.0
     return max(seconds, pres_seconds), delay, concurrent
 
 
-def set_time_front_wing(ref_time: dict, current: int, default: int):
+def set_time_front_wing(raw: dict, ref_time: dict, temp: EstimatePitTime):
     """Set time - front wing adjust"""
+    current = raw.get("currentSetting", 0)
+    default = raw.get("default", 0)
     if current != default:
         seconds = ref_time.get("FrontWingAdjust", 0)
     else:
@@ -201,8 +126,10 @@ def set_time_front_wing(ref_time: dict, current: int, default: int):
     return seconds, 0.0, 1
 
 
-def set_time_rear_wing(ref_time: dict, current: int, default: int):
+def set_time_rear_wing(raw: dict, ref_time: dict, temp: EstimatePitTime):
     """Set time - rear wing adjust"""
+    current = raw.get("currentSetting", 0)
+    default = raw.get("default", 0)
     if current != default:
         seconds = ref_time.get("RearWingAdjust", 0)
     else:
@@ -210,8 +137,10 @@ def set_time_rear_wing(ref_time: dict, current: int, default: int):
     return seconds, 0.0, 1
 
 
-def set_time_radiator(ref_time: dict, current: int, default: int):
+def set_time_radiator(raw: dict, ref_time: dict, temp: EstimatePitTime):
     """Set time - radiator adjust"""
+    current = raw.get("currentSetting", 0)
+    default = raw.get("default", 0)
     if current != default:
         seconds = ref_time.get("RadiatorChange", 0)
     else:
@@ -219,8 +148,9 @@ def set_time_radiator(ref_time: dict, current: int, default: int):
     return seconds, 0.0, 1
 
 
-def set_time_brake(ref_time: dict, current: int):
+def set_time_brake(raw: dict, ref_time: dict, temp: EstimatePitTime):
     """Set time - brake change"""
+    current = raw.get("currentSetting", 0)
     delay = ref_time.get("RandomBrakeDelay", 0)
     concurrent = ref_time.get("BrakeTimeConcurrent", 0)
     if current > 0:
@@ -230,37 +160,168 @@ def set_time_brake(ref_time: dict, current: int):
     return seconds, delay, concurrent
 
 
-def get_fuel_ratio(current: int, ratio_set: list):
-    """Get fuel ratio from data string"""
-    try:
-        ratio = float(ratio_set[current].get("text", "0.0").strip(" "))
-    except (AttributeError, TypeError, IndexError, ValueError):
-        ratio = 0.0
-    return ratio
-
-
-def get_absolute_refuel(current: int, ratio_set: list):
-    """Get absolute refuel (liter) from data string"""
-    try:
-        raw = ratio_set[current].get("text", "0L").strip(" ")
-        fuel = float(rex_number_split(raw)[0])
-        if "gal" in raw.lower():  # convert to liter
-            fuel *= 3.7854118
-    except (AttributeError, TypeError, IndexError, ValueError):
-        fuel = 0.0
-    return fuel
-
-
-def set_time_fuel(ref_time: dict, current: float, remaining: float):
-    """Set time - fuel (liter)"""
+def set_time_fuel(fuel_absolute: float, ref_time: dict, temp: EstimatePitTime):
+    """Set time - fuel (liter) only"""
     delay = ref_time.get("FuelRandomDelay", 0)
     concurrent = ref_time.get("FuelTimeConcurrent", 0)
     seconds = ref_time.get("FuelInsert", 0)
     seconds += ref_time.get("FuelRemove", 0)
     fill_rate = ref_time.get("FuelFillRate", 0)
-    refill = current - remaining
+    refill = fuel_absolute - temp.fuel_remaining
     if refill > 0 < fill_rate:
         seconds += refill / fill_rate
     else:
         delay = seconds = 0.0
+    temp.fuel_abs_refill = fuel_absolute
+    temp.fuel_rel_refill = refill
     return seconds, delay, concurrent
+
+
+def set_time_fuel_only(raw: dict, ref_time: dict, temp: EstimatePitTime):
+    """Set time - fuel (liter) only"""
+    # Get absolute refuel (liter) from data string
+    try:
+        current = raw.get("currentSetting", 0)
+        selector = raw.get("settings")
+        raw_value = selector[current]["text"]
+        fuel = float(rex_number_extract(raw_value).group())
+        if "gal" in raw_value.lower():  # convert to liter
+            fuel *= 3.7854118
+    except (AttributeError, TypeError, IndexError, ValueError):
+        fuel = 0.0
+    return set_time_fuel(fuel, ref_time, temp)
+
+
+def set_time_fuel_energy(raw: dict, ref_time: dict, temp: EstimatePitTime):
+    """Set time - fuel (liter) relative to virtual energy"""
+    # Get fuel ratio & calculate fuel
+    try:
+        current = raw.get("currentSetting", 0)
+        selector = raw.get("settings")
+        raw_value = selector[current]["text"].strip(" ")
+        fuel = float(raw_value) * temp.nrg_abs_refill
+    except (AttributeError, TypeError, IndexError, ValueError):
+        fuel = 0.0
+    return set_time_fuel(fuel, ref_time, temp)
+
+
+# Pit time function map
+# key = pit option name, value = pit time function
+PIT_FUNC_MAP = {
+    "STOP/GO:": set_stopgo_state,
+    "DAMAGE:": set_time_damage,
+    "DRIVER:": set_time_driver,
+    "VIRTUAL ENERGY:": set_time_virtual_energy,
+    "FUEL RATIO:": set_time_fuel_energy,
+    "FUEL:": set_time_fuel_only,
+    "FL TIRE:": count_tyre_change,
+    "FR TIRE:": count_tyre_change,
+    "RL TIRE:": count_tyre_change,
+    "RR TIRE:": count_tyre_change,
+    "FL PRESS:": count_pressure_change,
+    "FR PRESS:": count_pressure_change,
+    "RL PRESS:": count_pressure_change,
+    "RR PRESS:": count_pressure_change,
+    "F WING:": set_time_front_wing,
+    "R WING:": set_time_rear_wing,
+    "GRILLE:": set_time_radiator,
+    "REPLACE BRAKES:": set_time_brake,
+}
+
+
+class EstimatePitTime():
+    """Estimate total pit time"""
+
+    __slots__ = (
+        "state_stopgo",
+        "tyre_change",
+        "pressure_change",
+        "nrg_rel_refill",
+        "fuel_rel_refill",
+        "nrg_abs_refill",
+        "fuel_abs_refill",
+        "nrg_remaining",
+        "fuel_remaining",
+    )
+
+    def __init__(self):
+        self.state_stopgo = 0  # 0 = no stopgo, 1 = stopgo only, 2 = service & stopgo
+        self.tyre_change = 0
+        self.pressure_change = 0
+        self.nrg_rel_refill = 0.0
+        self.fuel_rel_refill = 0.0
+        self.nrg_abs_refill = 0.0
+        self.fuel_abs_refill = 0.0
+        self.nrg_remaining = 0.0
+        self.fuel_remaining = 0.0
+
+    def __call__(self, dataset: dict) -> tuple[float, float, float, float]:
+        """Calculate pit stop time"""
+        try:
+            # Get data
+            pit_menu = dataset.get("pitMenu", EMPTY_DICT).get("pitMenu")
+            ref_time = dataset.get("pitStopTimes", EMPTY_DICT).get("times")
+            fuel_info = dataset.get("fuelInfo", EMPTY_DICT)
+            if not isinstance(pit_menu, list) or not isinstance(ref_time, dict):
+                return PITEST_DEFAULT
+            # Update temp pit data
+            self.state_stopgo = 0
+            self.tyre_change = 0
+            self.pressure_change = 0
+            nrg_current = fuel_info.get("currentVirtualEnergy", 0.0)
+            nrg_max = fuel_info.get("maxVirtualEnergy", 0.0)
+            self.nrg_remaining = nrg_current / nrg_max * 100 if nrg_max else 0.0
+            self.fuel_remaining = fuel_info.get("currentFuel", 0.0)
+            # Setup parser
+            gen_pit_time = self.__process(pit_menu, ref_time)
+            # Parse data & calculate pit time
+            sum_concurrent = 0.0
+            sum_separate = 0.0
+            sum_concurrent_delay = 0.0
+            sum_separate_delay = 0.0
+            for service_time, random_delay, is_concurrent in gen_pit_time:
+                service_time_delay = service_time + random_delay
+                # Set longest concurrent service time
+                if is_concurrent:
+                    if sum_concurrent < service_time:
+                        sum_concurrent = service_time
+                    if sum_concurrent_delay < service_time_delay:
+                        sum_concurrent_delay = service_time_delay
+                # Add up non-concurrent service time
+                else:
+                    sum_separate += service_time
+                    sum_separate_delay += service_time_delay
+            # Sum pit time
+            sum_pit_time = sum_concurrent + sum_separate
+            sum_pit_time_delay = sum_concurrent_delay + sum_separate_delay
+            # Sum penalty time
+            if self.state_stopgo:
+                stopgo_time = dataset.get("pitStopLength", EMPTY_DICT).get("timeInSeconds", 10.0)
+                if self.state_stopgo == 1:  # stopgo only
+                    sum_pit_time = stopgo_time
+                    sum_pit_time_delay = stopgo_time
+                    self.fuel_rel_refill = 0.0
+                    self.nrg_rel_refill = 0.0
+                else:  # add stopgo time to service time (simultaneous)
+                    sum_pit_time += sum_concurrent + sum_separate
+                    sum_pit_time_delay += sum_concurrent_delay + sum_separate_delay
+            return (
+                sum_pit_time,
+                sum_pit_time_delay,
+                self.fuel_rel_refill,
+                self.nrg_rel_refill,
+            )
+        except (AttributeError, TypeError, IndexError, KeyError, ValueError):
+            return PITEST_DEFAULT
+
+    def __process(self, pit_menu: list, ref_time: dict):
+        """Process pit time data"""
+        for raw in pit_menu:
+            pit_func = PIT_FUNC_MAP.get(raw.get("name"))
+            if pit_func:
+                value = pit_func(raw, ref_time, self)
+                if value is not None:  # output pit time data
+                    yield value
+                elif self.state_stopgo == 1:  # stopgo only
+                    return
+        yield set_time_tyre(ref_time, self)
