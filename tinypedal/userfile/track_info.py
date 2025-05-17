@@ -46,7 +46,7 @@ def load_track_info(track_name: str) -> tuple[float, float, float]:
     if invalid_save_name(track_name):
         track = TRACKINFO_DEFAULT
     else:
-        track = cfg.user.tracks.get(track_name, None)
+        track = cfg.user.tracks.get(track_name)
         if not isinstance(track, dict):
             track = add_missing_track(track_name)
     return (
@@ -60,7 +60,7 @@ def save_track_info(track_name: str, **track_info: dict) -> None:
     """Save track info to tracks preset"""
     if invalid_save_name(track_name):
         return
-    track = cfg.user.tracks.get(track_name, None)
+    track = cfg.user.tracks.get(track_name)
     if not isinstance(track, dict):
         track = add_missing_track(track_name)
     track.update(track_info)

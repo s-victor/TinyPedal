@@ -288,7 +288,7 @@ class HeatmapEditor(BaseEditor):
 
     def reset_heatmap(self):
         """Reset heatmap"""
-        if cfg.default.heatmap.get(self.selected_heatmap_key, None) is None:
+        if cfg.default.heatmap.get(self.selected_heatmap_key) is None:
             msg_text = (
                 "Cannot reset selected heatmap preset.<br><br>"
                 "Default preset does not exist."

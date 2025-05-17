@@ -89,7 +89,7 @@ def purge_keys(loaded_dict: dict) -> dict:
 
 def get_sub_dict(source: dict, key_name: str) -> dict:
     """Get sub dict, create new if not exist"""
-    sub_dict = source.get(key_name, None)
+    sub_dict = source.get(key_name)
     if not isinstance(sub_dict, dict):
         source[key_name] = {}
         sub_dict = source[key_name]
@@ -109,13 +109,13 @@ def load_driver_stats(
     # Get data from matching key
     loaded_dict = stats_user
     for key in key_list:
-        loaded_dict = loaded_dict.get(key, None)
+        loaded_dict = loaded_dict.get(key)
         if not isinstance(loaded_dict, dict):  # not exist, set to default
             return DriverStats()
     # Add data to DriverStats
     try:
         return DriverStats(**purge_keys(loaded_dict))
-    except (KeyError, ValueError, TypeError):
+    except (AttributeError, TypeError, KeyError, ValueError):
         return DriverStats()
 
 

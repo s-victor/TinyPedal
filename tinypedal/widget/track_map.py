@@ -373,7 +373,7 @@ class Realtime(Overlay):
             return self.brush_classes[class_name]
         # Get vehicle class style from user defined dictionary
         brush = QBrush(Qt.SolidPattern)
-        styles = self.cfg.user.classes.get(class_name, None)
+        styles = self.cfg.user.classes.get(class_name)
         if styles is not None:
             brush.setColor(styles["color"])
         else:

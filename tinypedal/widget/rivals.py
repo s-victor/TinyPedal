@@ -611,7 +611,7 @@ class Realtime(Overlay):
 
     def set_class_style(self, class_name: str):
         """Compare vehicle class name with user defined dictionary"""
-        style = self.cfg.user.classes.get(class_name, None)
+        style = self.cfg.user.classes.get(class_name)
         if style is not None:
             return style["alias"], style["color"]
         if class_name and self.wcfg["show_random_color_for_unknown_class"]:

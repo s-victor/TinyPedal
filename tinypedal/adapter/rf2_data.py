@@ -929,6 +929,16 @@ class Wheel(DataAdapter):
             rmnan(wheel_data[3].mSuspForce),
         )
 
+    def position_vertical(self, index: int | None = None) -> tuple[float, ...]:
+        """Vertical wheel position (convert meters to millmeters) related to vehicle"""
+        wheel_data = self.info.rf2TeleVeh(index).mWheels
+        return (
+            rmnan(wheel_data[0].mWheelYLocation) * 1000,
+            rmnan(wheel_data[1].mWheelYLocation) * 1000,
+            rmnan(wheel_data[2].mWheelYLocation) * 1000,
+            rmnan(wheel_data[3].mWheelYLocation) * 1000,
+        )
+
     def is_detached(self, index: int | None = None) -> tuple[bool, ...]:
         """Whether wheel is detached"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels

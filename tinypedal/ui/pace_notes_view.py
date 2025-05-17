@@ -125,7 +125,7 @@ class PaceNotesPlayer(QMediaPlayer):
             notes_index = minfo.pacenotes.currentIndex
             if self._last_notes_index != notes_index:
                 self._last_notes_index = notes_index
-                self.__update_queue(minfo.pacenotes.currentNote.get(COLUMN_PACENOTE, None))
+                self.__update_queue(minfo.pacenotes.currentNote.get(COLUMN_PACENOTE))
 
             if self._play_queue:
                 self.__play_next_in_queue()

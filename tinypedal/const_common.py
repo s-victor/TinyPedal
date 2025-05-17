@@ -39,15 +39,20 @@ TEXT_NOTAVAILABLE = "NOT AVAILABLE"
 CRLF = "\r\n"
 
 # Data set
+EMPTY_DICT: MappingProxyType = MappingProxyType({})
 DELTA_ZERO = (0.0, 0.0)
 DELTA_DEFAULT = (DELTA_ZERO,)
 POS_XY_ZERO = (0.0, 0.0)  # world origin position
 POS_XYZ_ZERO = (0.0, 0.0, 0.0)  # world origin position
 POS_XYZ_INF = (FLOAT_INF, FLOAT_INF, FLOAT_INF)  # infinite position
-PITEST_DEFAULT = (0.0, 0.0, 0.0, 0.0)  # pit stop duration (min, max), relative refill (fuel, virtual energy)
 QUALIFY_DEFAULT = (0, 0)  # qualify position: overall, in class
 REL_TIME_DEFAULT = (0.0, -1)  # relative time gap, player index
-EMPTY_DICT: MappingProxyType = MappingProxyType({})
+PITEST_DEFAULT = (
+    0.0,  # min pit duration
+    0.0,  # max pit duration
+    0.0,  # relative refill (fuel)
+    0.0,  # relative refill (virtual energy)
+)
 
 # Type set
 TYPE_NUMBER = (float, int)
@@ -76,7 +81,7 @@ GEAR_SEQUENCE = {  # max 9 in RF2
     7: "7",
     8: "8",
     9: "9",
-}
+}.get
 COMPASS_BEARINGS = (
     (0, "N"),
     (22.5, "NE"),

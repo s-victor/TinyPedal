@@ -317,7 +317,7 @@ class GearGaugeBar(QWidget):
 
     def update_input(self, gear: int, speed: int, color_index: int, bg_color: str):
         """Update input"""
-        self.gear = GEAR_SEQUENCE.get(gear, "N")
+        self.gear = GEAR_SEQUENCE(gear, "N")
         self.speed = speed
         self.color_index = color_index
         self.bg_color = bg_color

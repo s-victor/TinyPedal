@@ -51,7 +51,7 @@ def set_predefined_brake_name(class_name: str, is_front: bool) -> str:
 
 def select_brake_failure_thickness(brake_name: str) -> float:
     """Select brake failure thickness, minimum thickness 0.0"""
-    brake = cfg.user.brakes.get(brake_name, None)
+    brake = cfg.user.brakes.get(brake_name)
     if brake is not None:
         return max(brake.get("failure_thickness", 0.0), 0)
     if not invalid_save_name(brake_name):
@@ -61,7 +61,7 @@ def select_brake_failure_thickness(brake_name: str) -> float:
 
 def select_brake_heatmap_name(brake_name: str) -> str:
     """Select brake heatmap name from brakes preset"""
-    brake = cfg.user.brakes.get(brake_name, None)
+    brake = cfg.user.brakes.get(brake_name)
     if brake is None:
         if invalid_save_name(brake_name):
             return HEATMAP_DEFAULT_BRAKE
@@ -90,7 +90,7 @@ def set_predefined_compound_symbol(compound_name: str) -> str:
 
 def select_compound_symbol(compound_name: str) -> str:
     """Select compound symbol"""
-    compound = cfg.user.compounds.get(compound_name, None)
+    compound = cfg.user.compounds.get(compound_name)
     if compound is not None:
         return compound.get("symbol", "?")
     if not invalid_save_name(compound_name):
@@ -100,7 +100,7 @@ def select_compound_symbol(compound_name: str) -> str:
 
 def select_tyre_heatmap_name(compound_name: str) -> str:
     """Select tyre heatmap name from compounds preset"""
-    compound = cfg.user.compounds.get(compound_name, None)
+    compound = cfg.user.compounds.get(compound_name)
     if compound is None:
         if invalid_save_name(compound_name):
             return HEATMAP_DEFAULT_TYRE
@@ -132,7 +132,7 @@ def load_heatmap(heatmap_name: str, default_name: str) -> list[tuple[float, str]
     Returns:
         list(tuple(temperature value, hex color string))
     """
-    heatmap_dict = cfg.user.heatmap.get(heatmap_name, None)
+    heatmap_dict = cfg.user.heatmap.get(heatmap_name)
     if not verify_heatmap(heatmap_dict):
         heatmap_dict = cfg.default.heatmap[default_name]
     return sorted(
@@ -159,7 +159,7 @@ def load_heatmap_style(
     Returns:
         list(tuple(temperature value, color style sheet string))
     """
-    heatmap_dict = cfg.user.heatmap.get(heatmap_name, None)
+    heatmap_dict = cfg.user.heatmap.get(heatmap_name)
     if not verify_heatmap(heatmap_dict):
         heatmap_dict = cfg.default.heatmap[default_name]
     if swap_style:

@@ -221,7 +221,7 @@ def get_value(
         if not isinstance(data, dict):  # not exist, set to default
             setattr(target, output, default)
             return False
-        data = data.get(key, None)
+        data = data.get(key)
         if data is None:  # not exist, set to default
             setattr(target, output, default)
             return False
