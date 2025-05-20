@@ -195,7 +195,7 @@ def get_resource(url: str, time_out: float) -> Any | str:
     try:
         with urlopen(url, timeout=time_out) as raw_resource:
             return json.load(raw_resource)
-    except (TypeError, AttributeError, KeyError, ValueError):
+    except (AttributeError, TypeError, IndexError, KeyError, ValueError):
         return "data not found"
     except (OSError, TimeoutError, socket.timeout):
         return "connection failed"
@@ -208,7 +208,7 @@ def output_resource(output_set: tuple, url: str, time_out: float) -> None:
             resource_output = json.load(raw_resource)
             for output in output_set:
                 get_value(resource_output, *output)
-    except (TypeError, AttributeError, KeyError, ValueError,
+    except (AttributeError, TypeError, IndexError, KeyError, ValueError,
             OSError, TimeoutError, socket.timeout):
         return
 

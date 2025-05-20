@@ -168,27 +168,25 @@ class Realtime(Overlay):
 
             # Correct start & finish nodes position
             sf_y_average = (self.map_scaled[0][1] + self.map_scaled[-1][1]) * 0.5
-            self.map_scaled[0] = 0, sf_y_average
-            self.map_scaled[-1] = self.display_width, sf_y_average
 
             # Set boundary start node
             map_path.moveTo(-999, self.map_scaled[-2][1])  # 2nd last node y pos
 
             # Set middle nodes
-            total_nodes = len(self.map_scaled)
-            skip_node = total_nodes // self.display_width * self.display_detail_level
-            skipped_last_node = (total_nodes - 1) % skip_node if skip_node else 0
+            total_nodes = len(self.map_scaled) - 1
+            skip_node = calc.skip_map_nodes(total_nodes, self.display_width, self.display_detail_level)
             last_dist = 0
             last_skip = 0
-            for coords in self.map_scaled:
-                if coords[0] > last_dist and last_skip >= skip_node:
+            for index, coords in enumerate(self.map_scaled):
+                if index == 0:
+                    map_path.lineTo(0, sf_y_average)
+                elif index >= total_nodes:  # don't skip last node
+                    map_path.lineTo(self.display_width, sf_y_average)
+                elif coords[0] > last_dist and last_skip >= skip_node:
                     map_path.lineTo(*coords)
                     last_skip = 0
-                last_dist = coords[0]
+                    last_dist = coords[0]
                 last_skip += 1
-
-            if skipped_last_node:  # set last node if skipped
-                map_path.lineTo(*self.map_scaled[-1])
 
             # Set boundary end node
             map_path.lineTo(self.display_width + 999, self.map_scaled[1][1])  # 2nd node y pos

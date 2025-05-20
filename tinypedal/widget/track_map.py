@@ -140,20 +140,18 @@ class Realtime(Overlay):
             (self.map_scaled, self.map_range, self.map_scale, self.map_offset
              ) = calc.scale_map(raw_coords, self.area_size, self.area_margin)
 
-            total_nodes = len(self.map_scaled)
-            skip_node = total_nodes // (self.temp_map_size * 3) * self.display_detail_level
-            skipped_last_node = (total_nodes - 1) % skip_node if skip_node else 0
+            total_nodes = len(self.map_scaled) - 1
+            skip_node = calc.skip_map_nodes(total_nodes, self.temp_map_size * 3, self.display_detail_level)
             last_skip = 0
             for index, coords in enumerate(self.map_scaled):
                 if index == 0:
                     map_path.moveTo(*coords)
+                elif index >= total_nodes:  # don't skip last node
+                    map_path.lineTo(*coords)
                 elif last_skip >= skip_node:
                     map_path.lineTo(*coords)
                     last_skip = 0
                 last_skip += 1
-
-            if skipped_last_node:  # set last node if skipped
-                map_path.lineTo(*self.map_scaled[-1])
 
             # Close map loop if start & end distance less than 500 meters
             if dist < 500:

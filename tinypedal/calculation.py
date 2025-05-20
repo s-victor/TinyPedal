@@ -517,7 +517,7 @@ def scale_elevation(coords: Sequence[CoordXY], area_width: int, area_height: int
     map_scale = area_width / map_size[0], area_height / map_size[1]
     x_range_scaled = ((x_pos - map_range[0]) * map_scale[0] for x_pos in x_range)
     y_range_scaled = ((y_pos - map_range[2]) * map_scale[1] for y_pos in y_range)
-    return list(zip(x_range_scaled, y_range_scaled)), map_range, map_scale
+    return tuple(zip(x_range_scaled, y_range_scaled)), map_range, map_scale
 
 
 def svg_view_box(coords: Sequence[CoordXY], margin: int = 0) -> str:
@@ -532,6 +532,15 @@ def svg_view_box(coords: Sequence[CoordXY], margin: int = 0) -> str:
     x2 = map_size[0] + margin * 2
     y2 = map_size[1] + margin * 2
     return f"{x1:.4f} {y1:.4f} {x2:.4f} {y2:.4f}"
+
+
+def skip_map_nodes(total: int, limit: int, detail_level: int) -> int:
+    """Skip map nodes"""
+    if detail_level <= 0:
+        skip_node = 0
+    else:
+        skip_node = total // limit + (detail_level - 1)
+    return skip_node
 
 
 def line_intersect_coords(
