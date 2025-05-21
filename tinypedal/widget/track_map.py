@@ -87,6 +87,7 @@ class Realtime(Overlay):
         self.map_range = (0, 10, 0, 10)
         self.map_scale = 1
         self.map_offset = (0, 0)
+        self.map_orient = 0  # radians
 
         self.update_map(-1)
 
@@ -109,7 +110,8 @@ class Realtime(Overlay):
         """Map update"""
         if self.last_modified != data:
             self.last_modified = data
-            map_path = self.create_map_path(minfo.mapping.coordinates)
+            raw_data = minfo.mapping.coordinates if data != -1 else None
+            map_path = self.create_map_path(raw_data)
             self.draw_map_image(map_path, self.circular_map)
 
     def paintEvent(self, event):
@@ -137,8 +139,11 @@ class Realtime(Overlay):
         map_path = QPainterPath()
         if raw_coords:
             dist = calc.distance(raw_coords[0], raw_coords[-1])
+            angle = max(int(self.wcfg["display_orientation"]), 0)
+            angle = angle - angle // 360 * 360
+            self.map_orient = calc.deg2rad(angle)
             (self.map_scaled, self.map_range, self.map_scale, self.map_offset
-             ) = calc.scale_map(raw_coords, self.area_size, self.area_margin)
+             ) = calc.scale_map(raw_coords, self.area_size, self.area_margin, angle)
 
             total_nodes = len(self.map_scaled) - 1
             skip_node = calc.skip_map_nodes(total_nodes, self.temp_map_size * 3, self.display_detail_level)
@@ -164,6 +169,7 @@ class Realtime(Overlay):
         else:
             self.map_scaled = None
             self.circular_map = True
+            self.map_orient = 0
             map_path.addEllipse(
                 self.area_margin,
                 self.area_margin,
@@ -263,8 +269,13 @@ class Realtime(Overlay):
             data = veh_info[index]
             is_player = data.isPlayer
             if map_data:
-                pos_x = data.worldPositionX * self.map_scale - x_offset
-                pos_y = data.worldPositionY * self.map_scale - y_offset
+                if self.map_orient:
+                    rot_x, rot_y = calc.rotate_coordinate(self.map_orient, data.worldPositionX, data.worldPositionY)
+                    pos_x = rot_x * self.map_scale - x_offset
+                    pos_y = rot_y * self.map_scale - y_offset
+                else:
+                    pos_x = data.worldPositionX * self.map_scale - x_offset
+                    pos_y = data.worldPositionY * self.map_scale - y_offset
                 painter.translate(pos_x, pos_y)
             else:  # vehicles on temp map
                 inpit_offset = self.wcfg["font_size"] * data.inPit

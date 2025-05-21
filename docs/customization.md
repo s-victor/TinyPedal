@@ -3102,6 +3102,9 @@ Show personal current average lap time pace, this reading is also used in real-t
 ## Track map
 **This widget displays track map and standings. Note: at least one complete and valid lap is required to generate track map.**
 
+    display_orientation
+Set track map display orientation in degrees. For example, a `270` value will rotate map by `270` degrees clockwise. Default value is `0`, which always displays track map `North Up` in game's coordinate system.
+
     display_detail_level
 Sets detail level for track map. Default value is `1`, which auto adjusts map detail according to display size. Higher value reduces map detail and RAM usage, and may also help reduce rough edges from large map. Set to `0` for full detail.
 

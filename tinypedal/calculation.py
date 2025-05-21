@@ -487,10 +487,20 @@ def zoom_map(coords: Sequence[CoordXY], map_scale: float, margin: int = 0):
     return tuple(zip(x_range_scaled, y_range_scaled)), map_size, map_offset
 
 
-def scale_map(coords: Sequence[CoordXY], area_size: int, margin: int = 0):
+def rotate_map(coords: Sequence[CoordXY], angle: int):
+    """Rotate map coordinates"""
+    rot_rad = deg2rad(angle)
+    for x, y in coords:
+        yield rotate_coordinate(rot_rad, x, y)
+
+
+def scale_map(coords: Sequence[CoordXY], area_size: int, margin: int = 0, angle: int = 0):
     """Scale map data"""
-    # Separate X & Y coordinates
-    x_range, y_range = tuple(zip(*coords))
+    # Rotate & separate X & Y coordinates
+    if angle != 0:
+        x_range, y_range = tuple(zip(*rotate_map(coords, angle)))
+    else:
+        x_range, y_range = tuple(zip(*coords))
     # Map size: x=width, y=height
     map_range = min(x_range), max(x_range), min(y_range), max(y_range)
     map_size = map_range[1] - map_range[0], map_range[3] - map_range[2]

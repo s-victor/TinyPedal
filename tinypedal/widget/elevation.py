@@ -114,7 +114,8 @@ class Realtime(Overlay):
         """Elevation map update"""
         if self.last_modified != data:
             self.last_modified = data
-            map_path = self.create_elevation_path(minfo.mapping.elevations)
+            raw_data = minfo.mapping.elevations if data != -1 else None
+            map_path = self.create_elevation_path(raw_data)
             self.draw_background(map_path)
             self.draw_progress(map_path)
             self.draw_progress_line(map_path)
