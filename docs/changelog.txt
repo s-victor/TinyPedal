@@ -1,5 +1,8 @@
 WIP
 -----------------------------
+* Suspension position Widget
+  - Add "show_third_spring_position_mark" option, which shows front and rear third spring position mark relative to each suspension position.
+
 * Track map Widget
   - Add "display_orientation" option (requested by user "peterkasbergen" and "lucamilan87"), which sets track map display orientation in degrees.
     For example, a "270" value will rotate map by "270" degrees clockwise. Default value is "0", which always displays track map "north up" in game's coordinate system.

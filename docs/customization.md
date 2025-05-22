@@ -3045,6 +3045,9 @@ Set the minimum stint time threshold in minutes for updating stint history. This
     position_max_range
 Set visualized maximum suspension position display range (millimeter).
 
+    show_third_spring_position_mark
+Show front and rear third spring position mark relative to each suspension position.
+
 [**`Back to Top`**](#)
 
 

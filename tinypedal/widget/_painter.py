@@ -53,6 +53,8 @@ class WheelGaugeBar(QWidget):
         input_color: str = "",
         fg_color: str = "",
         bg_color: str = "",
+        mark_width: int = 0,
+        mark_color: str = "",
         right_side: bool = False,
     ):
         super().__init__(parent)
@@ -61,10 +63,16 @@ class WheelGaugeBar(QWidget):
         self.width_scale = bar_width / self.max_range
         self.input_color = input_color
         self.bg_color = bg_color
+        self.mark_color = mark_color
         self.rect_bg = QRectF(0, 0, bar_width, bar_height)
-        self.rect_input = self.rect_bg.adjusted(0,0,0,0)
+        self.rect_input = self.rect_bg.adjusted(0, 0, 0, 0)
         self.rect_text = self.rect_bg.adjusted(padding_x, font_offset, -padding_x, 0)
         self.right_side = right_side
+
+        if self.mark_color:
+            self.rect_mark = QRectF(0, 0, mark_width, bar_height)
+        else:
+            self.rect_mark = self.rect_bg
 
         if right_side:
             self.align = Qt.AlignRight | Qt.AlignVCenter
@@ -83,11 +91,23 @@ class WheelGaugeBar(QWidget):
             self.rect_input.setX((self.max_range - input_value) * self.width_scale)
         self.update()
 
+    def update_input_mark(self, input_value: float, mark_value: float):
+        """Update input value & mark"""
+        if self.right_side:
+            self.rect_input.setWidth(input_value * self.width_scale)
+            self.rect_mark.moveRight(mark_value * self.width_scale)
+        else:
+            self.rect_input.setX((self.max_range - input_value) * self.width_scale)
+            self.rect_mark.moveLeft((self.max_range - mark_value) * self.width_scale)
+        self.update()
+
     def paintEvent(self, event):
         """Draw normal without warning or negative highlighting"""
         painter = QPainter(self)
         painter.fillRect(self.rect_bg, self.bg_color)
         painter.fillRect(self.rect_input, self.input_color)
+        if self.mark_color:
+            painter.fillRect(self.rect_mark, self.mark_color)
         painter.setPen(self.pen)
         painter.drawText(self.rect_text, self.align, f"{self.last:.0f}")
 

@@ -909,6 +909,13 @@ class Wheel(DataAdapter):
             rmnan(wheel_data[3].mRideHeight) * 1000,
         )
 
+    def third_spring_deflection(self, index: int | None = None) -> tuple[float, ...]:
+        """Third spring deflection front & rear (convert meters to millmeters)"""
+        wheel_data = self.info.rf2TeleVeh(index)
+        front = rmnan(wheel_data.mFront3rdDeflection) * 1000
+        rear = rmnan(wheel_data.mRear3rdDeflection) * 1000
+        return (front, front, rear, rear)
+
     def suspension_deflection(self, index: int | None = None) -> tuple[float, ...]:
         """Suspension deflection (convert meters to millmeters)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels

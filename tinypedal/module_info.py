@@ -521,9 +521,6 @@ class WheelsInfo:
     """Wheels module output data"""
 
     __slots__ = (
-        "vehicleName",
-        "radiusFront",
-        "radiusRear",
         "lockingPercentFront",
         "lockingPercentRear",
         "corneringRadius",
@@ -531,9 +528,6 @@ class WheelsInfo:
     )
 
     def __init__(self):
-        self.vehicleName: str = ""
-        self.radiusFront: float = 0.0
-        self.radiusRear: float = 0.0
         self.lockingPercentFront: float = 0.0
         self.lockingPercentRear: float = 0.0
         self.corneringRadius: float = 0.0

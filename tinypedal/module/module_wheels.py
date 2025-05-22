@@ -45,8 +45,12 @@ class Realtime(DataModule):
 
         output = minfo.wheels
 
+        vehicle_name = ""
+        radius_front = 0.0
+        radius_rear = 0.0
         list_radius_f = deque([], 160)
         list_radius_r = deque([], 160)
+
         max_rot_bias_f = max(self.mcfg["maximum_rotation_difference_front"], 0.00001)
         max_rot_bias_r = max(self.mcfg["maximum_rotation_difference_rear"], 0.00001)
         min_rot_axle = max(self.mcfg["minimum_axle_rotation"], 0)
@@ -60,13 +64,11 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
 
-                    if output.vehicleName == api.read.vehicle.vehicle_name():
-                        radius_front = output.radiusFront
-                        radius_rear = output.radiusRear
+                    if vehicle_name == api.read.vehicle.vehicle_name():
                         min_samples_f = 160
                         min_samples_r = 160
                     else:
-                        output.vehicleName = api.read.vehicle.vehicle_name()
+                        vehicle_name = api.read.vehicle.vehicle_name()
                         list_radius_f.clear()
                         list_radius_r.clear()
                         radius_front = 0.0
@@ -126,8 +128,6 @@ class Realtime(DataModule):
                     cornering_radius = calc.distance(list_coords[0], arc_center_pos)
 
                 # Output wheels data
-                output.radiusFront = radius_front
-                output.radiusRear = radius_rear
                 output.lockingPercentFront = locking_f
                 output.lockingPercentRear = locking_r
                 output.corneringRadius = cornering_radius
