@@ -199,6 +199,8 @@ def get_resource(url: str, time_out: float) -> Any | str:
         return "data not found"
     except (OSError, TimeoutError, socket.timeout):
         return "connection failed"
+    except BaseException as error:
+        return error
 
 
 def output_resource(output_set: tuple, url: str, time_out: float) -> None:
@@ -210,6 +212,9 @@ def output_resource(output_set: tuple, url: str, time_out: float) -> None:
                 get_value(resource_output, *output)
     except (AttributeError, TypeError, IndexError, KeyError, ValueError,
             OSError, TimeoutError, socket.timeout):
+        return
+    except BaseException as error:
+        logger.error("RestAPI: %s", error)
         return
 
 

@@ -256,63 +256,60 @@ class EstimatePitTime():
         self.fuel_remaining = 0.0
 
     def __call__(self, dataset: dict) -> tuple[float, float, float, float]:
-        """Calculate pit stop time"""
-        try:
-            # Get data
-            pit_menu = dataset.get("pitMenu", EMPTY_DICT).get("pitMenu")
-            ref_time = dataset.get("pitStopTimes", EMPTY_DICT).get("times")
-            fuel_info = dataset.get("fuelInfo", EMPTY_DICT)
-            if not isinstance(pit_menu, list) or not isinstance(ref_time, dict):
-                return PITEST_DEFAULT
-            # Update temp pit data
-            self.state_stopgo = 0
-            self.tyre_change = 0
-            self.pressure_change = 0
-            nrg_current = fuel_info.get("currentVirtualEnergy", 0.0)
-            nrg_max = fuel_info.get("maxVirtualEnergy", 0.0)
-            self.nrg_remaining = nrg_current / nrg_max * 100 if nrg_max else 0.0
-            self.fuel_remaining = fuel_info.get("currentFuel", 0.0)
-            # Setup parser
-            gen_pit_time = self.__process(pit_menu, ref_time)
-            # Parse data & calculate pit time
-            sum_concurrent = 0.0
-            sum_separate = 0.0
-            sum_concurrent_delay = 0.0
-            sum_separate_delay = 0.0
-            for service_time, random_delay, is_concurrent in gen_pit_time:
-                service_time_delay = service_time + random_delay
-                # Set longest concurrent service time
-                if is_concurrent:
-                    if sum_concurrent < service_time:
-                        sum_concurrent = service_time
-                    if sum_concurrent_delay < service_time_delay:
-                        sum_concurrent_delay = service_time_delay
-                # Add up non-concurrent service time
-                else:
-                    sum_separate += service_time
-                    sum_separate_delay += service_time_delay
-            # Sum pit time
-            sum_pit_time = sum_concurrent + sum_separate
-            sum_pit_time_delay = sum_concurrent_delay + sum_separate_delay
-            # Sum penalty time
-            if self.state_stopgo:
-                stopgo_time = dataset.get("pitStopLength", EMPTY_DICT).get("timeInSeconds", 10.0)
-                if self.state_stopgo == 1:  # stopgo only
-                    sum_pit_time = stopgo_time
-                    sum_pit_time_delay = stopgo_time
-                    self.fuel_rel_refill = 0.0
-                    self.nrg_rel_refill = 0.0
-                else:  # add stopgo time to service time (simultaneous)
-                    sum_pit_time += stopgo_time
-                    sum_pit_time_delay += stopgo_time
-            return (
-                sum_pit_time,
-                sum_pit_time_delay,
-                self.fuel_rel_refill,
-                self.nrg_rel_refill,
-            )
-        except (AttributeError, TypeError, IndexError, KeyError, ValueError):
+        """Calculate pit stop time (handle error in upper-level function)"""
+        # Get data
+        pit_menu = dataset.get("pitMenu", EMPTY_DICT).get("pitMenu")
+        ref_time = dataset.get("pitStopTimes", EMPTY_DICT).get("times")
+        fuel_info = dataset.get("fuelInfo", EMPTY_DICT)
+        if not isinstance(pit_menu, list) or not isinstance(ref_time, dict):
             return PITEST_DEFAULT
+        # Update temp pit data
+        self.state_stopgo = 0
+        self.tyre_change = 0
+        self.pressure_change = 0
+        nrg_current = fuel_info.get("currentVirtualEnergy", 0.0)
+        nrg_max = fuel_info.get("maxVirtualEnergy", 0.0)
+        self.nrg_remaining = nrg_current / nrg_max * 100 if nrg_max else 0.0
+        self.fuel_remaining = fuel_info.get("currentFuel", 0.0)
+        # Setup parser
+        gen_pit_time = self.__process(pit_menu, ref_time)
+        # Parse data & calculate pit time
+        sum_concurrent = 0.0
+        sum_separate = 0.0
+        sum_concurrent_delay = 0.0
+        sum_separate_delay = 0.0
+        for service_time, random_delay, is_concurrent in gen_pit_time:
+            service_time_delay = service_time + random_delay
+            # Set longest concurrent service time
+            if is_concurrent:
+                if sum_concurrent < service_time:
+                    sum_concurrent = service_time
+                if sum_concurrent_delay < service_time_delay:
+                    sum_concurrent_delay = service_time_delay
+            # Add up non-concurrent service time
+            else:
+                sum_separate += service_time
+                sum_separate_delay += service_time_delay
+        # Sum pit time
+        sum_pit_time = sum_concurrent + sum_separate
+        sum_pit_time_delay = sum_concurrent_delay + sum_separate_delay
+        # Sum penalty time
+        if self.state_stopgo:
+            stopgo_time = dataset.get("pitStopLength", EMPTY_DICT).get("timeInSeconds", 10.0)
+            if self.state_stopgo == 1:  # stopgo only
+                sum_pit_time = stopgo_time
+                sum_pit_time_delay = stopgo_time
+                self.fuel_rel_refill = 0.0
+                self.nrg_rel_refill = 0.0
+            else:  # add stopgo time to service time (simultaneous)
+                sum_pit_time += stopgo_time
+                sum_pit_time_delay += stopgo_time
+        return (
+            sum_pit_time,
+            sum_pit_time_delay,
+            self.fuel_rel_refill,
+            self.nrg_rel_refill,
+        )
 
     def __process(self, pit_menu: list, ref_time: dict):
         """Process pit time data"""
