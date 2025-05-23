@@ -1823,8 +1823,8 @@ Set widget size in pixels.
     display_radius_g
 Set viewable g force range by radius(g).
 
-    display_orientation
-Set display orientation for longitudinal and lateral g force axis. Default is `0`, which shows brake at top, acceleration at bottom, right-turn at left, left-turn at right. Set to `1` to inverted orientation.
+    show_inverted_orientation
+Set `true` to invert display orientation for longitudinal and lateral g force axis. Default is `false`, which shows brake at top, acceleration at bottom, right-turn at left, left-turn at right.
 
     show_readings
 Show values from g force reading. Value at top is current longitudinal g force, and value at bottom is max longitudinal g force. Value at left is max lateral g force, and value at right is current lateral g force.

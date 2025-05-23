@@ -169,10 +169,10 @@ class Realtime(Overlay):
             # Wheel lock duration
             if self.lock_timer.enabled:
                 self.lock_timer.calc(
-                    brake_raw=api.read.inputs.brake_raw(),
-                    start_time=api.read.timing.start(),
-                    elapsed_time=api.read.timing.elapsed(),
-                    slip_ratio=minfo.wheels.slipRatio,
+                    api.read.inputs.brake_raw(),
+                    api.read.timing.start(),
+                    api.read.timing.elapsed(),
+                    minfo.wheels.slipRatio,
                 )
 
             if self.wcfg["show_front_wheel_lock_duration"]:

@@ -133,9 +133,9 @@ class Realtime(Overlay):
             # Brake migration
             if self.wcfg["show_brake_migration"]:
                 bmigt = self.brake_bmigt.calc(
-                    brake_raw=api.read.inputs.brake_raw(),
-                    brake_bias=bbias,
-                    brake_pres=api.read.brake.pressure()
+                    api.read.inputs.brake_raw(),
+                    bbias,
+                    api.read.brake.pressure()
                 )
                 self.update_bmigt(self.bar_bmigt, bmigt)
 

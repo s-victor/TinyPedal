@@ -122,10 +122,17 @@ class Realtime(Overlay):
                 self.checked = True
 
             # Read acceleration data
-            temp_gforce_raw = self.gforce_orientation(
-                minfo.force.lgtGForceRaw,
-                minfo.force.latGForceRaw,
-            )
+            if self.wcfg["show_inverted_orientation"]:
+                temp_gforce_raw = (  # accel top, brake bottom
+                    round(minfo.force.lgtGForceRaw, 3),
+                    round(-minfo.force.latGForceRaw, 3),
+                )
+            else:
+                temp_gforce_raw = (  # brake top, accel bottom
+                    round(-minfo.force.lgtGForceRaw, 3),
+                    round(minfo.force.latGForceRaw, 3),
+                )
+
             if self.gforce_raw != temp_gforce_raw:
                 self.gforce_raw = temp_gforce_raw
                 # Scale position coordinate to global
@@ -295,10 +302,3 @@ class Realtime(Overlay):
             Qt.AlignCenter,
             f"{minfo.force.maxLatGForce:.2f}"[:4]
         )
-
-    # Additional methods
-    def gforce_orientation(self, lgt, lat):
-        """G force orientation, round to 3 digits"""
-        if self.wcfg["display_orientation"]:
-            return round(lgt, 3), round(-lat, 3)  # accel top, brake bottom
-        return round(-lgt, 3), round(lat, 3)

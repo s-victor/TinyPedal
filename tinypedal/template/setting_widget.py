@@ -689,7 +689,7 @@ WIDGET_DEFAULT = {
         "font_offset_vertical": 0,
         "display_size": 150,
         "display_radius_g": 3.2,
-        "display_orientation": 0,
+        "show_inverted_orientation": False,
         "show_readings": True,
         "font_color": "#FFFFFF",
         "font_color_highlight": "#FF8800",
