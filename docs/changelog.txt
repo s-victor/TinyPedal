@@ -12,6 +12,7 @@ WIP
   - Improved "display_detail_level" calculation to work with smaller maps.
 
 * Misc
+  - Add "horizontal_gap", "vertical_gap" options for following widgets: Brake pressure, Ride height, Slip ratio, Suspension force, Suspension position, Tyre load.
   - Fixed an issue that would add time increment on pitout prediction (Track map Widget) while outside pit lane.
 
 2.28.1 (2025-05-08)

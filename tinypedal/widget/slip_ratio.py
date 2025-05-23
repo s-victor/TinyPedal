@@ -32,6 +32,8 @@ class Realtime(Overlay):
         # Assign base setting
         super().__init__(config, widget_name)
         bar_gap = self.wcfg["bar_gap"]
+        bar_gap_hori = self.wcfg["horizontal_gap"]
+        bar_gap_vert = self.wcfg["vertical_gap"]
         layout = self.set_grid_layout(gap=bar_gap)
         self.set_primary_layout(layout=layout)
 
@@ -65,7 +67,7 @@ class Realtime(Overlay):
             cap_bar = self.set_qlabel(
                 text=self.wcfg["caption_text"],
                 style=bar_style_desc,
-                fixed_width=bar_width * 2 + bar_gap,
+                fixed_width=bar_width * 2 + bar_gap_hori,
             )
             self.set_primary_orient(
                 target=cap_bar,
@@ -73,7 +75,7 @@ class Realtime(Overlay):
             )
 
         # Slip ratio
-        layout_inner = self.set_grid_layout(gap=bar_gap)
+        layout_inner = self.set_grid_layout(gap_hori=bar_gap_hori, gap_vert=bar_gap_vert)
         self.slip_color = (
             self.wcfg["optimal_slip_ratio_color"],
             self.wcfg["critical_slip_ratio_color"],
