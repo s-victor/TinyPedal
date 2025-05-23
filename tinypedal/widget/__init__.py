@@ -69,6 +69,7 @@ __all__ = [
     "steering",
     "steering_wheel",
     "stint_history",
+    "suspension_force",
     "suspension_position",
     "system_performance",
     "timing",

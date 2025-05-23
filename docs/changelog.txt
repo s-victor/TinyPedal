@@ -1,5 +1,8 @@
 WIP
 -----------------------------
+* [New]Suspension force Widget
+  - Show visualized suspension force (Newtons) and ratio (percent).
+
 * Suspension position Widget
   - Add "show_third_spring_position_mark" option, which shows front and rear third spring position mark relative to each suspension position.
 

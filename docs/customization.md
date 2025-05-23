@@ -3039,6 +3039,15 @@ Set the minimum stint time threshold in minutes for updating stint history. This
 [**`Back to Top`**](#)
 
 
+## Suspension force
+**This widget displays visualized suspension force and ratio info.**
+
+    show_force_ratio
+Show percentage force ratio between each and total suspension force. Set `false` to show individual suspension force in Newtons.
+
+[**`Back to Top`**](#)
+
+
 ## Suspension position
 **This widget displays visualized suspension position info.**
 
@@ -3344,10 +3353,10 @@ Show tyre compound symbols (front and rear) that matches specific tyre compounds
 
 
 ## Tyre load
-**This widget displays visualized tyre load info.**
+**This widget displays visualized tyre load and ratio info.**
 
     show_tyre_load_ratio
-Show percentage ratio of tyre load between each and total tyre load. Set `false` to show individual tyre load in Newtons.
+Show percentage load ratio between each and total tyre load. Set `false` to show individual tyre load in Newtons.
 
 [**`Back to Top`**](#)
 
