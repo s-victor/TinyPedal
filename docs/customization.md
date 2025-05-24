@@ -1142,6 +1142,9 @@ Set number of attempts to retry connection. Value range in `0` to `10`. Default 
     connection_retry_delay
 Set time delay in seconds to retry connection. Value range in `0` to `60`. Default is `1` second.
 
+    enable_pit_strategy_access
+Set `false` to turn off "pit strategy" data accessing completely. Note, [Pit stop estimate](#pit-stop-estimate) Widget will not be able to display pit data if this option is turned off.
+
 [**`Back to Top`**](#)
 
 
@@ -2379,6 +2382,9 @@ Show estimated pit stop time while making a service stop or serving a penalty, c
 
     maximum_delay
 Show maximum total random delay which game may add on top of pit stop time. For example, if estimated pit stop time is `12.0`s, and maximum delay is `+3.0`s, then final pit stop time will be between `12.0`s and `15.0`s.
+
+    stop_go_penalty_time
+Set stop go penalty time in seconds. Default value is `10` seconds.
 
     additional_pitstop_time
 Set additional pit stop time that is not part of `pass_duration` or `stop_duration`. Default value is `2` seconds, which is the average time it takes to decelerate and accelerate towards and away from pit spot.

@@ -43,8 +43,15 @@ SET_CURRENTSTINT = (
     (minfo.restapi, "aeroDamage", -1.0, None, "wearables", "body", "aero"),
     (minfo.restapi, "brakeWear", [-1] * 4, None, "wearables", "brakes"),
     (minfo.restapi, "suspensionDamage", [-1] * 4, None, "wearables", "suspension"),
-    (minfo.restapi, "trackClockTime", -1.0, None, "sessionTime", "timeOfDay"),
+)
+SET_GAMESTATE = (
+    (minfo.restapi, "trackClockTime", -1.0, None, "timeOfDay"),
+)
+SET_PITMENUINFO = (
     (minfo.restapi, "pitStopEstimate", PITEST_DEFAULT, EstimatePitTime()),
+)
+SET_PITSTOPTIME = (
+    (minfo.restapi, "pitTimeReference", dict(), None),
 )
 SET_WEATHERFORECAST = (
     (minfo.restapi, "forecastPractice", FORECAST_DEFAULT, forecast_rf2, "PRACTICE"),
@@ -53,13 +60,16 @@ SET_WEATHERFORECAST = (
 )
 
 # Define task set
-# 0 - sim name pattern, 1 - url path, 2 - output set
+# 0 - sim name pattern, 1 - url path, 2 - output set, 3 - enabling condition
 TASK_RUNONCE = (
-    ("LMU|RF2", "sessions/setting/SESSSET_race_timescale", SET_TIMESCALE),
-    ("LMU|RF2", "sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY),
-    ("LMU|RF2", "sessions/weather", SET_WEATHERFORECAST),
-    ("LMU", "garage/chassis", SET_CHASSIS),
+    ("LMU|RF2", "sessions/setting/SESSSET_race_timescale", SET_TIMESCALE, None),
+    ("LMU|RF2", "sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY, None),
+    ("LMU|RF2", "sessions/weather", SET_WEATHERFORECAST, None),
+    ("LMU", "garage/chassis", SET_CHASSIS, None),
 )
 TASK_REPEATS = (
-    ("LMU", "garage/UIScreen/RepairAndRefuel", SET_CURRENTSTINT),
+    ("LMU", "garage/UIScreen/DriverHandOffStintEnd", SET_CURRENTSTINT, None),
+    ("LMU", "sessions/GetGameState", SET_GAMESTATE, None),
+    ("LMU", "garage/PitMenu/receivePitMenu", SET_PITMENUINFO, "enable_pit_strategy_access"),
+    ("LMU", "garage/Pitstop/getPitstopTimes", SET_PITSTOPTIME, "enable_pit_strategy_access"),
 )

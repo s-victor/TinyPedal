@@ -85,6 +85,7 @@ MODULE_DEFAULT = {
         "connection_timeout": 1,
         "connection_retry": 3,
         "connection_retry_delay": 1,
+        "enable_pit_strategy_access": True,
     },
     "module_sectors": {
         "enable": True,

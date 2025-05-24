@@ -1227,6 +1227,7 @@ WIDGET_DEFAULT = {
         "bar_padding": 0.2,
         "bar_width": 5,
         "bar_gap": 0,
+        "stop_go_penalty_time": 10,
         "additional_pitstop_time": 2,
         "font_color_pass_duration": "#555555",
         "bkg_color_pass_duration": "#FFFFFF",

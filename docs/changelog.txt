@@ -1,5 +1,17 @@
-WIP
+2.29.0 (2025-05-24)
 -----------------------------
+* Major change
+  - Optimized "Rest API" accessing methods, which adds additional update time delay that reduces unnecessary data accessing if API data has not changed recently.
+    For example, data from Rest API is accessed every 0.1 seconds on default setting, but if API data has not changed recently, the update interval will be increased up to every 2 seconds instead (for example, "pit strategy" data is only changed when user changes it in MFD menu).
+  - Separated "pit strategy" data accessing from other none-pit data (fuel, energy, damage, etc), and can be turned off completely via the new "enable_pit_strategy_access" option in RestAPI Module.
+    Note, recently there has been reports regarding an issue related to MFD "Pitstop" menu flickering in "LMU", which can be caused by accessing "pit strategy" data frequently. This flickering issue should not be a concern now for TinyPedal with the new accessing methods mentioned above.
+    Additionally, a new "enable_pit_strategy_access" option is provided in RestAPI Module, which allows disabling "pit strategy" data accessing completely and avoids the flickering issue.
+    However note, flickering issue can still be triggered by other programs or plugins that have frequently accessed to those "pit strategy" data.
+
+* RestAPI Module
+  - Apply additional time delay to update interval when data has not changed recently, up to 2 seconds max update interval. Update interval will be reset if data has updated recently. This change helps avoid unnecessary frequent data accessing.
+  - Add "enable_pit_strategy_access" option, which allows turning off "pit strategy" data accessing completely. Note, "Pit stop estimate Widget" will not be able to display pit data if this option is turned off.
+
 * [New]Suspension force Widget
   - Show visualized suspension force (Newtons) and ratio (percent).
 
@@ -10,6 +22,9 @@ WIP
   - Add "display_orientation" option (requested by user "peterkasbergen" and "lucamilan87"), which sets track map display orientation in degrees.
     For example, a "270" value will rotate map by "270" degrees clockwise. Default value is "0", which always displays track map "north up" in game's coordinate system.
   - Improved "display_detail_level" calculation to work with smaller maps.
+
+* Pit stop estimate Widget
+  - Add "stop_go_penalty_time" option, which sets stop go penalty time in seconds. Default value is "10" seconds.
 
 * Misc
   - Add "horizontal_gap", "vertical_gap" options for following widgets: Brake pressure, Ride height, Slip ratio, Suspension force, Suspension position, Tyre load.

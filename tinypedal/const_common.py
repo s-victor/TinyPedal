@@ -52,6 +52,7 @@ PITEST_DEFAULT = (
     0.0,  # max pit duration
     0.0,  # relative refill (fuel)
     0.0,  # relative refill (virtual energy)
+    0,  # stop go penalty state
 )
 
 # Type set

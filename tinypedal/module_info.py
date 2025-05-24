@@ -312,6 +312,7 @@ class RestAPIInfo:
         "brakeWear",
         "suspensionDamage",
         "pitStopEstimate",
+        "pitTimeReference",
     )
 
     def __init__(self):
@@ -327,7 +328,8 @@ class RestAPIInfo:
         self.forecastRace: list[WeatherNode] | None = None
         self.brakeWear: list[float] = [-1.0] * 4
         self.suspensionDamage: list[float] = [-1.0] * 4
-        self.pitStopEstimate: tuple[float, float, float, float] = PITEST_DEFAULT
+        self.pitStopEstimate: tuple[float, float, float, float, int] = PITEST_DEFAULT
+        self.pitTimeReference: dict = {}
 
 
 class SectorsInfo:

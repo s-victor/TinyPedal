@@ -22,7 +22,9 @@ Pit stop function
 
 from __future__ import annotations
 
-from ..const_common import EMPTY_DICT, PITEST_DEFAULT
+from ..api_control import api
+from ..const_common import PITEST_DEFAULT
+from ..module_info import minfo
 from ..regex_pattern import rex_number_extract
 
 
@@ -255,22 +257,20 @@ class EstimatePitTime():
         self.nrg_remaining = 0.0
         self.fuel_remaining = 0.0
 
-    def __call__(self, dataset: dict) -> tuple[float, float, float, float]:
+    def __call__(self, pit_menu: list) -> tuple[float, float, float, float, int]:
         """Calculate pit stop time (handle error in upper-level function)"""
         # Get data
-        pit_menu = dataset.get("pitMenu", EMPTY_DICT).get("pitMenu")
-        ref_time = dataset.get("pitStopTimes", EMPTY_DICT).get("times")
-        fuel_info = dataset.get("fuelInfo", EMPTY_DICT)
-        if not isinstance(pit_menu, list) or not isinstance(ref_time, dict):
+        ref_time = minfo.restapi.pitTimeReference
+        if not isinstance(pit_menu, list) or not ref_time:
             return PITEST_DEFAULT
         # Update temp pit data
         self.state_stopgo = 0
         self.tyre_change = 0
         self.pressure_change = 0
-        nrg_current = fuel_info.get("currentVirtualEnergy", 0.0)
-        nrg_max = fuel_info.get("maxVirtualEnergy", 0.0)
+        nrg_current = minfo.restapi.currentVirtualEnergy
+        nrg_max = minfo.restapi.maxVirtualEnergy
         self.nrg_remaining = nrg_current / nrg_max * 100 if nrg_max else 0.0
-        self.fuel_remaining = fuel_info.get("currentFuel", 0.0)
+        self.fuel_remaining = api.read.vehicle.fuel()
         # Setup parser
         gen_pit_time = self.__process(pit_menu, ref_time)
         # Parse data & calculate pit time
@@ -291,24 +291,12 @@ class EstimatePitTime():
                 sum_separate += service_time
                 sum_separate_delay += service_time_delay
         # Sum pit time
-        sum_pit_time = sum_concurrent + sum_separate
-        sum_pit_time_delay = sum_concurrent_delay + sum_separate_delay
-        # Sum penalty time
-        if self.state_stopgo:
-            stopgo_time = dataset.get("pitStopLength", EMPTY_DICT).get("timeInSeconds", 10.0)
-            if self.state_stopgo == 1:  # stopgo only
-                sum_pit_time = stopgo_time
-                sum_pit_time_delay = stopgo_time
-                self.fuel_rel_refill = 0.0
-                self.nrg_rel_refill = 0.0
-            else:  # add stopgo time to service time (simultaneous)
-                sum_pit_time += stopgo_time
-                sum_pit_time_delay += stopgo_time
         return (
-            sum_pit_time,
-            sum_pit_time_delay,
+            sum_concurrent + sum_separate,
+            sum_concurrent_delay + sum_separate_delay,
             self.fuel_rel_refill,
             self.nrg_rel_refill,
+            self.state_stopgo,
         )
 
     def __process(self, pit_menu: list, ref_time: dict):

@@ -63,8 +63,8 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
                     sim_name = api.read.check.sim_name()
-                    sort_tasks(sim_name, TASK_RUNONCE, sorted_task_runonce)
-                    sort_tasks(sim_name, TASK_REPEATS, sorted_task_repeats)
+                    self.__sort_tasks(sim_name, TASK_RUNONCE, sorted_task_runonce)
+                    self.__sort_tasks(sim_name, TASK_REPEATS, sorted_task_repeats)
                     self.__run_tasks(sim_name, sorted_task_runonce, sorted_task_repeats)
 
             else:
@@ -78,6 +78,12 @@ class Realtime(DataModule):
         # Reset to default on close
         reset_to_default(sorted_task_runonce)
         reset_to_default(sorted_task_repeats)
+
+    def __sort_tasks(self, sim_name: str, task_set: tuple, active_task: dict):
+        """Sort task set into dictionary, key - resource_name, value - output_set"""
+        for pattern, resource_name, output_set, condition in task_set:
+            if sim_name in pattern and self.mcfg.get(condition, True):
+                active_task[resource_name] = output_set
 
     def __run_tasks(self, sim_name: str, task_runonce: dict, task_repeats: dict):
         """Run tasks"""
@@ -137,10 +143,20 @@ class Realtime(DataModule):
     async def __fetch(self, url_rest: str, time_out: float,
         resource_name: str, output_set: tuple):
         """Fetch data without retry"""
+        _event_is_set = self._event.is_set
         full_url = f"{url_rest}{resource_name}"
-        while not self._event.is_set() and self.state.active:
-            output_resource(output_set, full_url, time_out)
-            await asyncio.sleep(self.active_interval)
+        min_delay = self.active_interval
+        last_hash = -1
+        while not _event_is_set() and self.state.active:
+            new_hash = output_resource(output_set, full_url, time_out)
+            if last_hash != new_hash:
+                last_hash = new_hash
+                delay = min_delay
+            elif delay < 2:  # increase update delay while no new data
+                delay += delay * delay
+                if delay > 2:
+                    delay = 2
+            await asyncio.sleep(delay)
 
     async def __fetch_retry(self, url_rest: str, time_out: float, retry: int,
         retry_delay: float, resource_name: str, output_set: tuple):
@@ -185,8 +201,7 @@ def reset_to_default(active_task: dict):
 def remove_unavailable_task(active_task: dict, task_deletion: set):
     """Remove unavailable task from deletion list"""
     for resource_name in task_deletion:
-        if resource_name in active_task:
-            active_task.pop(resource_name, None)
+        if active_task.pop(resource_name, None):
             logger.info("RestAPI: MISSING: %s", resource_name.upper())
 
 
@@ -203,19 +218,21 @@ def get_resource(url: str, time_out: float) -> Any | str:
         return error
 
 
-def output_resource(output_set: tuple, url: str, time_out: float) -> None:
+def output_resource(output_set: tuple, url: str, time_out: float) -> int:
     """Get resource from REST API and output data, skip unnecessary checking"""
     try:
         with urlopen(url, timeout=time_out) as raw_resource:
-            resource_output = json.load(raw_resource)
+            raw_bytes = raw_resource.read()
+            resource_output = json.loads(raw_bytes)
             for output in output_set:
                 get_value(resource_output, *output)
+            return hash(raw_bytes)
     except (AttributeError, TypeError, IndexError, KeyError, ValueError,
             OSError, TimeoutError, socket.timeout):
-        return
+        return -1
     except BaseException as error:
         logger.error("RestAPI: %s", error)
-        return
+        return -1
 
 
 def get_value(
@@ -236,10 +253,3 @@ def get_value(
     else:
         setattr(target, output, valid_value_type(data, default))
     return True
-
-
-def sort_tasks(sim_name: str, task_set: tuple, active_task: dict):
-    """Sort task set into dictionary, key - resource_name, value - output_set"""
-    for pattern, resource_name, output_set in task_set:
-        if sim_name in pattern:
-            active_task[resource_name] = output_set
