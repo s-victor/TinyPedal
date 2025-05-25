@@ -1,3 +1,10 @@
+2.29.1 (2025-05-25) hot fix
+-----------------------------
+* RestAPI Module
+  - Fixed a game-crash issue that related to some bugged "Rest API" URI resource addresses. Thanks to user "npastore28" for reporting the issue.
+    Note, this game-crash issue is due to a known issue in LMU's "Rest API", where some of the URI resource addresses (such as "garage/Pitstop/getPitstopTimes") are buggy and can crash game if accessed them under certain conditions.
+    This hot fix removed access to those bugged URI resource addresses.
+
 2.29.0 (2025-05-24)
 -----------------------------
 * Major change

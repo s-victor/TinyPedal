@@ -51,7 +51,7 @@ SET_PITMENUINFO = (
     (minfo.restapi, "pitStopEstimate", PITEST_DEFAULT, EstimatePitTime()),
 )
 SET_PITSTOPTIME = (
-    (minfo.restapi, "pitTimeReference", dict(), None),
+    (minfo.restapi, "pitTimeReference", dict(), None, "pitStopTimes", "times"),
 )
 SET_WEATHERFORECAST = (
     (minfo.restapi, "forecastPractice", FORECAST_DEFAULT, forecast_rf2, "PRACTICE"),
@@ -66,10 +66,10 @@ TASK_RUNONCE = (
     ("LMU|RF2", "sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY, None),
     ("LMU|RF2", "sessions/weather", SET_WEATHERFORECAST, None),
     ("LMU", "garage/chassis", SET_CHASSIS, None),
+    ("LMU", "garage/UIScreen/RepairAndRefuel", SET_PITSTOPTIME, "enable_pit_strategy_access"),
 )
 TASK_REPEATS = (
     ("LMU", "garage/UIScreen/DriverHandOffStintEnd", SET_CURRENTSTINT, None),
     ("LMU", "sessions/GetGameState", SET_GAMESTATE, None),
     ("LMU", "garage/PitMenu/receivePitMenu", SET_PITMENUINFO, "enable_pit_strategy_access"),
-    ("LMU", "garage/Pitstop/getPitstopTimes", SET_PITSTOPTIME, "enable_pit_strategy_access"),
 )
