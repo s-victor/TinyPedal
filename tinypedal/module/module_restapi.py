@@ -145,15 +145,15 @@ class Realtime(DataModule):
         """Fetch data without retry"""
         _event_is_set = self._event.is_set
         full_url = f"{url_rest}{resource_name}"
-        min_delay = self.active_interval
-        last_hash = -1
+        delay = min_delay = self.active_interval
+        last_hash = new_hash = -1
         while not _event_is_set() and self.state.active:
-            new_hash = output_resource(output_set, full_url, time_out)
+            new_hash = output_resource(output_set, full_url, time_out, last_hash)
             if last_hash != new_hash:
                 last_hash = new_hash
                 delay = min_delay
             elif delay < 2:  # increase update delay while no new data
-                delay += delay * delay
+                delay += delay / 2
                 if delay > 2:
                     delay = 2
             await asyncio.sleep(delay)
@@ -218,15 +218,17 @@ def get_resource(url: str, time_out: float) -> Any | str:
         return error
 
 
-def output_resource(output_set: tuple, url: str, time_out: float) -> int:
+def output_resource(output_set: tuple, url: str, time_out: float, last_hash: int) -> int:
     """Get resource from REST API and output data, skip unnecessary checking"""
     try:
         with urlopen(url, timeout=time_out) as raw_resource:
             raw_bytes = raw_resource.read()
-            resource_output = json.loads(raw_bytes)
-            for output in output_set:
-                get_value(resource_output, *output)
-            return hash(raw_bytes)
+            new_hash = hash(raw_bytes)
+            if last_hash != new_hash:
+                resource_output = json.loads(raw_bytes)
+                for output in output_set:
+                    get_value(resource_output, *output)
+            return new_hash
     except (AttributeError, TypeError, IndexError, KeyError, ValueError,
             OSError, TimeoutError, socket.timeout):
         return -1
