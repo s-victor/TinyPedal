@@ -31,6 +31,8 @@ import websockets
 import asyncio
 import json
 import ctypes
+import zlib
+import struct
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +52,13 @@ except ImportError:
         MMapControl,
         rF2data,
     )
+
+TYPE_IDS = {
+    "scor": 0x01,
+    "tele": 0x02,
+    "ext":  0x03,
+    "ffb":  0x04,
+}
 
 
 def local_scoring_index(scor_veh: Sequence[rF2data.rF2VehicleScoring]) -> int:
@@ -400,6 +409,20 @@ class RF2Info:
         """Check whether data stopped updating"""
         return self._sync.paused
 
+    async def _send_batched_frames(self, ws):
+        frames = []
+        for type_str in ["scor", "tele", "ext", "ffb"]:
+            type_id = TYPE_IDS[type_str]
+            raw_bytes = bytes(getattr(self, f"_{type_str}").data)
+            compressed = zlib.compress(raw_bytes)
+            frame = struct.pack("!BI", type_id, len(compressed)) + compressed  # Network byte order
+            frames.append(frame)
+            logger.info(f"{type_str.upper()} {len(raw_bytes)} bytes → {len(compressed)} compressed bytes")
+        
+        batch_message = b"".join(frames)
+        logger.info(f"Sending batch message of {len(batch_message)} bytes")
+        await ws.send(batch_message)
+
     def start_sender(self, uri: str, session_name: str, max_retries=5):
         """Start WebSocket sender loop (for remote clients) with retry"""
 
@@ -410,26 +433,19 @@ class RF2Info:
             while retry_count < max_retries or max_retries == 0:
                 try:
                     async with websockets.connect(uri) as ws:
-                        # Send handshake immediately after connecting
                         handshake = json.dumps({"session": session_name, "role": "sender"})
                         await ws.send(handshake)
 
-                        retry_count = 0  # reset retry count on successful connect
+                        retry_count = 0
                         backoff = 1
 
                         while not self.isPaused:
                             try:
-                                data = (
-                                    bytes(self._scor.data),
-                                    bytes(self._tele.data),
-                                    bytes(self._ext.data),
-                                    bytes(self._ffb.data),
-                                )
-                                await ws.send(b"|".join(data))
+                                await self._send_batched_frames(ws)
                             except Exception as e:
                                 logger.error("WebSocket send failed: %s", e)
                                 break
-                            await asyncio.sleep(0.2)  # send at ~100Hz
+                            await asyncio.sleep(0.2)  # Adjust frequency as needed
 
                 except Exception as e:
                     retry_count += 1
@@ -441,14 +457,14 @@ class RF2Info:
 
                     logger.info(f"Retrying in {backoff} seconds...")
                     await asyncio.sleep(backoff)
-                    backoff = min(backoff * 2, 30)  # exponential backoff up to 30 seconds
+                    backoff = min(backoff * 2, 30)
 
         def run():
             asyncio.run(send_data())
 
         threading.Thread(target=run, daemon=True).start()
 
-# Remote version of RF2Info
+
 class RemoteRF2Info:
     """Remote rF2 info client receiving binary stream via WebSocket"""
 
@@ -481,13 +497,51 @@ class RemoteRF2Info:
 
                     while self._running:
                         msg = await ws.recv()
-                        parts = msg.split(b"|")
-                        if len(parts) == 4:
-                            with self._lock:
-                                ctypes.memmove(ctypes.addressof(self._scor), parts[0], ctypes.sizeof(self._scor))
-                                ctypes.memmove(ctypes.addressof(self._tele), parts[1], ctypes.sizeof(self._tele))
-                                ctypes.memmove(ctypes.addressof(self._ext), parts[2], ctypes.sizeof(self._ext))
-                                ctypes.memmove(ctypes.addressof(self._ffb), parts[3], ctypes.sizeof(self._ffb))
+                        logger.info(f"Received message: {len(msg)} bytes")
+
+                        offset = 0
+                        expected_parts = 4
+                        received_parts = []
+
+                        try:
+                            while offset < len(msg):
+                                if offset + 5 > len(msg):
+                                    raise ValueError("Invalid segment header")
+
+                                type_id = msg[offset]
+                                length = struct.unpack("!I", msg[offset + 1:offset + 5])[0]  # network byte order
+                                offset += 5
+
+                                if offset + length > len(msg):
+                                    raise ValueError("Segment length exceeds message size")
+
+                                compressed_segment = msg[offset:offset + length]
+                                decompressed = zlib.decompress(compressed_segment)
+                                received_parts.append((type_id, decompressed))
+
+                                logger.info(f"Segment type {type_id}, compressed {length} bytes, decompressed {len(decompressed)} bytes")
+
+                                offset += length
+
+                            if len(received_parts) == expected_parts:
+                                with self._lock:
+                                    for type_id, data in received_parts:
+                                        if type_id == 1:
+                                            ctypes.memmove(ctypes.addressof(self._scor), data, ctypes.sizeof(self._scor))
+                                        elif type_id == 2:
+                                            ctypes.memmove(ctypes.addressof(self._tele), data, ctypes.sizeof(self._tele))
+                                        elif type_id == 3:
+                                            ctypes.memmove(ctypes.addressof(self._ext), data, ctypes.sizeof(self._ext))
+                                        elif type_id == 4:
+                                            ctypes.memmove(ctypes.addressof(self._ffb), data, ctypes.sizeof(self._ffb))
+                                        else:
+                                            logger.warning(f"Unknown segment type ID: {type_id}")
+                            else:
+                                logger.warning(f"Expected {expected_parts} segments but received {len(received_parts)}")
+
+                        except Exception as ex:
+                            logger.error(f"Error parsing message: {ex}")
+
             except Exception as e:
                 retry_count += 1
                 logger.warning(f"WebSocket receive connection failed (attempt {retry_count}): {e}")
