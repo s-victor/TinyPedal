@@ -39,6 +39,7 @@ CFG_BOOL = (
     "^remember_position$|"
     "^remember_size$|"
     "^vr_compatibility$|"
+    "^use_remote_memory$|"
     # Partial match
     "align_center|"
     "enable|"
@@ -48,6 +49,7 @@ CFG_BOOL = (
     "swap_lower_caption|"
     "swap_style|"
     "uppercase"
+    
 )
 
 # String with unique validator
@@ -76,6 +78,8 @@ CFG_STRING = (
     "^url_host$|"
     "^LMU$|"
     "^RF2$|"
+    "^websocket_uri$|"
+    "^websocket_session$|"
     # Partial match
     "file_name|"
     "prefix|"
@@ -104,6 +108,7 @@ CFG_INTEGER = (
     "^stint_history_count$|"
     "^window_width$|"
     "^window_height$|"
+    
     # Partial match
     "area_margin|"
     "area_size|"

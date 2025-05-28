@@ -26,9 +26,9 @@ import os
 import sys
 
 import psutil
-from PySide2.QtCore import QCoreApplication, Qt
-from PySide2.QtGui import QFont, QGuiApplication, QIcon, QPixmapCache
-from PySide2.QtWidgets import QApplication, QMessageBox
+from PySide6.QtCore import QCoreApplication, Qt
+from PySide6.QtGui import QFont, QGuiApplication, QIcon, QPixmapCache
+from PySide6.QtWidgets import QApplication, QMessageBox
 
 from .const_app import (
     APP_NAME,

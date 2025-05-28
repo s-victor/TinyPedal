@@ -20,8 +20,8 @@
 Trailing Widget
 """
 
-from PySide2.QtCore import QPointF, QRect, Qt
-from PySide2.QtGui import QPainter, QPen, QPixmap
+from PySide6.QtCore import QPointF, QRect, Qt
+from PySide6.QtGui import QPainter, QPen, QPixmap
 
 from ..api_control import api
 from ..module_info import minfo

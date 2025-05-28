@@ -20,7 +20,7 @@
 Module & widget list view
 """
 
-from PySide2.QtWidgets import (
+from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QListWidget,

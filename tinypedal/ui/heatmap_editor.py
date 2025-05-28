@@ -22,7 +22,7 @@ Heatmap editor
 
 import time
 
-from PySide2.QtWidgets import (
+from PySide6.QtWidgets import (
     QComboBox,
     QDialogButtonBox,
     QHBoxLayout,

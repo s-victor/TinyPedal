@@ -25,15 +25,15 @@ import re
 from collections import deque
 from typing import Callable
 
-from PySide2.QtCore import QLocale, QRegularExpression, Qt
-from PySide2.QtGui import (
+from PySide6.QtCore import QLocale, QRegularExpression, Qt
+from PySide6.QtGui import (
     QColor,
     QDoubleValidator,
     QIntValidator,
     QRegularExpressionValidator,
     qGray,
 )
-from PySide2.QtWidgets import (
+from PySide6.QtWidgets import (
     QApplication,
     QCheckBox,
     QColorDialog,

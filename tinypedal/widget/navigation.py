@@ -20,8 +20,8 @@
 Navigation Widget
 """
 
-from PySide2.QtCore import QPointF, QRectF, Qt
-from PySide2.QtGui import QBrush, QPainter, QPainterPath, QPen, QPixmap, QRadialGradient
+from PySide6.QtCore import QPointF, QRectF, Qt
+from PySide6.QtGui import QBrush, QPainter, QPainterPath, QPen, QPixmap, QRadialGradient
 
 from .. import calculation as calc
 from ..api_control import api

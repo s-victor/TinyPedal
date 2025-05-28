@@ -20,8 +20,8 @@
 Log window
 """
 
-from PySide2.QtGui import QTextCursor, QTextOption
-from PySide2.QtWidgets import (
+from PySide6.QtGui import QTextCursor, QTextOption
+from PySide6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
     QMessageBox,

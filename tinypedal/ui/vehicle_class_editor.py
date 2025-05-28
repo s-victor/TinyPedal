@@ -23,7 +23,7 @@ Vehicle class editor
 import random
 import time
 
-from PySide2.QtWidgets import (
+from PySide6.QtWidgets import (
     QHBoxLayout,
     QHeaderView,
     QMessageBox,

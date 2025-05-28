@@ -22,8 +22,8 @@ Menu
 
 import os
 
-from PySide2.QtGui import QDesktopServices
-from PySide2.QtWidgets import QMenu, QMessageBox
+from PySide6.QtGui import QDesktopServices
+from PySide6.QtWidgets import QMenu, QMessageBox
 
 from .. import loader
 from ..api_control import api

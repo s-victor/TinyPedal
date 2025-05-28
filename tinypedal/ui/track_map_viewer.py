@@ -22,9 +22,9 @@ Track map viewer
 
 import os
 
-from PySide2.QtCore import QPoint, QPointF, QRect, Qt, Signal
-from PySide2.QtGui import QPainter, QPainterPath, QPen
-from PySide2.QtWidgets import (
+from PySide6.QtCore import QPoint, QPointF, QRect, Qt, Signal
+from PySide6.QtGui import QPainter, QPainterPath, QPen
+from PySide6.QtWidgets import (
     QAbstractSpinBox,
     QDoubleSpinBox,
     QFileDialog,

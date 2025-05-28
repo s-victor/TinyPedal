@@ -24,9 +24,9 @@ from __future__ import annotations
 
 from typing import Any, NamedTuple
 
-from PySide2.QtCore import QBasicTimer, Qt, Slot
-from PySide2.QtGui import QFont, QFontMetrics, QPalette, QPixmap
-from PySide2.QtWidgets import QGridLayout, QLabel, QLayout, QWidget
+from PySide6.QtCore import QBasicTimer, Qt, Slot
+from PySide6.QtGui import QFont, QFontMetrics, QPalette, QPixmap
+from PySide6.QtWidgets import QGridLayout, QLabel, QLayout, QWidget
 
 from .. import regex_pattern as rxp
 from ..const_app import APP_NAME

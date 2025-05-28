@@ -24,7 +24,7 @@ import logging
 import threading
 from time import monotonic, sleep
 
-from PySide2.QtCore import QObject, Signal
+from PySide6.QtCore import QObject, Signal
 
 from .api_control import api
 from .setting import cfg

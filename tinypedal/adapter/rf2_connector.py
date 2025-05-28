@@ -27,6 +27,10 @@ import threading
 from copy import copy
 from time import monotonic, sleep
 from typing import Sequence
+import websockets
+import asyncio
+import json
+import ctypes
 
 logger = logging.getLogger(__name__)
 
@@ -396,6 +400,151 @@ class RF2Info:
         """Check whether data stopped updating"""
         return self._sync.paused
 
+    def start_sender(self, uri: str, session_name: str, max_retries=5):
+        """Start WebSocket sender loop (for remote clients) with retry"""
+
+        async def send_data():
+            retry_count = 0
+            backoff = 1  # start with 1 second backoff
+
+            while retry_count < max_retries or max_retries == 0:
+                try:
+                    async with websockets.connect(uri) as ws:
+                        # Send handshake immediately after connecting
+                        handshake = json.dumps({"session": session_name, "role": "sender"})
+                        await ws.send(handshake)
+
+                        retry_count = 0  # reset retry count on successful connect
+                        backoff = 1
+
+                        while not self.isPaused:
+                            try:
+                                data = (
+                                    bytes(self._scor.data),
+                                    bytes(self._tele.data),
+                                    bytes(self._ext.data),
+                                    bytes(self._ffb.data),
+                                )
+                                await ws.send(b"|".join(data))
+                            except Exception as e:
+                                logger.error("WebSocket send failed: %s", e)
+                                break
+                            await asyncio.sleep(0.2)  # send at ~100Hz
+
+                except Exception as e:
+                    retry_count += 1
+                    logger.warning(f"WebSocket connection failed (attempt {retry_count}): {e}")
+
+                    if max_retries != 0 and retry_count >= max_retries:
+                        logger.error("Max retry attempts reached, giving up.")
+                        break
+
+                    logger.info(f"Retrying in {backoff} seconds...")
+                    await asyncio.sleep(backoff)
+                    backoff = min(backoff * 2, 30)  # exponential backoff up to 30 seconds
+
+        def run():
+            asyncio.run(send_data())
+
+        threading.Thread(target=run, daemon=True).start()
+
+# Remote version of RF2Info
+class RemoteRF2Info:
+    """Remote rF2 info client receiving binary stream via WebSocket"""
+
+    def __init__(self, session_uri: str, session_name):
+        self._scor = rF2data.rF2Scoring()
+        self._tele = rF2data.rF2Telemetry()
+        self._ext = rF2data.rF2Extended()
+        self._ffb = rF2data.rF2ForceFeedback()
+        self._lock = threading.Lock()
+        self._running = True
+        self._session_uri = session_uri
+        self._session_name = session_name
+        threading.Thread(target=self._start_client, daemon=True).start()
+
+    def _start_client(self):
+        asyncio.run(self._recv_loop())
+
+    async def _recv_loop(self, max_retries=5):
+        retry_count = 0
+        backoff = 1
+
+        while retry_count < max_retries or max_retries == 0:
+            try:
+                async with websockets.connect(self._session_uri) as ws:
+                    handshake = json.dumps({"session": self._session_name, "role": "receiver"})
+                    await ws.send(handshake)
+
+                    retry_count = 0
+                    backoff = 1
+
+                    while self._running:
+                        msg = await ws.recv()
+                        parts = msg.split(b"|")
+                        if len(parts) == 4:
+                            with self._lock:
+                                ctypes.memmove(ctypes.addressof(self._scor), parts[0], ctypes.sizeof(self._scor))
+                                ctypes.memmove(ctypes.addressof(self._tele), parts[1], ctypes.sizeof(self._tele))
+                                ctypes.memmove(ctypes.addressof(self._ext), parts[2], ctypes.sizeof(self._ext))
+                                ctypes.memmove(ctypes.addressof(self._ffb), parts[3], ctypes.sizeof(self._ffb))
+            except Exception as e:
+                retry_count += 1
+                logger.warning(f"WebSocket receive connection failed (attempt {retry_count}): {e}")
+
+                if max_retries != 0 and retry_count >= max_retries:
+                    logger.error("Max retry attempts reached, giving up.")
+                    break
+
+                logger.info(f"Retrying receive connection in {backoff} seconds...")
+                await asyncio.sleep(backoff)
+                backoff = min(backoff * 2, 30)
+
+    def rf2ScorVeh(self, index: int | None = None):
+        with self._lock:
+            return self._scor.mVehicles[index if index is not None else 0]
+
+    def rf2TeleVeh(self, index: int | None = None):
+        with self._lock:
+            return self._tele.mVehicles[index if index is not None else 0]
+
+    @property
+    def rf2ScorInfo(self):
+        return self._scor.mScoringInfo
+
+    @property
+    def rf2Ext(self):
+        return self._ext
+
+    @property
+    def rf2Ffb(self):
+        return self._ffb
+
+    @property
+    def playerIndex(self):
+        return 0
+
+    def isPlayer(self, index: int) -> bool:
+        return index == 0
+
+    @property
+    def isPaused(self) -> bool:
+        return False
+
+# Unified getter
+def get_rf2_info(cfg) -> RF2Info | RemoteRF2Info:
+    """Factory function to return local or remote RF2Info based on config"""
+    if cfg.shared_memory_api.get("use_remote_memory"):
+        session_name = cfg.shared_memory_api.get("websocket_session")
+        return RemoteRF2Info(cfg.shared_memory_api.get("websocket_uri"), session_name)
+    else:
+        rf2 = RF2Info()
+        rf2.setMode(0)
+        rf2.start()
+        session_name = cfg.shared_memory_api.get("websocket_session")  # or wherever you store it
+        rf2.start_sender(cfg.shared_memory_api.get("websocket_uri"), session_name)
+        
+        return rf2
 
 def test_api():
     """API test run"""

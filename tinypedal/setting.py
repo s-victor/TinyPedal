@@ -430,6 +430,40 @@ class Setting:
         """Get max saving attempts"""
         return max(self.application["maximum_saving_attempts"], 3)
 
+    @property
+    def use_remote_memory(self) -> bool:
+        """Flag to enable remote memory reading via websocket"""
+        return self.shared_memory_api.get("use_remote_memory", False)
+
+    @use_remote_memory.setter
+    def use_remote_memory(self, value: bool):
+        self.shared_memory_api["use_remote_memory"] = value
+
+    @property
+    def websocket_uri(self) -> str:
+        """Websocket URI for remote telemetry data"""
+        return self.shared_memory_api.get("websocket_uri", "")
+
+    @websocket_uri.setter
+    def websocket_uri(self, value: str):
+        self.shared_memory_api["websocket_uri"] = value
+
+    @property
+    def websocket_session(self) -> str:
+        """Websocket Session for remote telemetry data"""
+        return self.shared_memory_api.get("websocket_session", "")
+
+    @websocket_uri.setter
+    def websocket_uri(self, value: str):
+        self.shared_memory_api["websocket_session"] = value
+
+    @property
+    def websocket_interval(self) -> float:
+        return self.shared_memory_api.get("websocket_interval", 0.1)
+
+    @websocket_interval.setter
+    def websocket_interval(self, value: float):
+        self.shared_memory_api["websocket_interval"] = value
 
 # Assign config setting
 cfg = Setting()

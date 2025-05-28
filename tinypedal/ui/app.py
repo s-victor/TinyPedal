@@ -23,8 +23,8 @@ Main application window
 import logging
 import time
 
-from PySide2.QtCore import Qt, Slot
-from PySide2.QtWidgets import (
+from PySide6.QtCore import Qt, Slot
+from PySide6.QtWidgets import (
     QApplication,
     QMainWindow,
     QMessageBox,

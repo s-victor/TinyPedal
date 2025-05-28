@@ -20,7 +20,7 @@
 Rivals Widget
 """
 
-from PySide2.QtWidgets import QWidget
+from PySide6.QtWidgets import QWidget
 
 from .. import calculation as calc
 from ..api_control import api

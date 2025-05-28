@@ -20,8 +20,8 @@
 Application UI, style
 """
 
-from PySide2.QtGui import QGuiApplication, QPalette
-from PySide2.QtWidgets import QApplication
+from PySide6.QtGui import QGuiApplication, QPalette
+from PySide6.QtWidgets import QApplication
 
 
 def set_style_palette(color_theme: str):

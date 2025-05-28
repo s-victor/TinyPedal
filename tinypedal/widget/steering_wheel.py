@@ -20,8 +20,8 @@
 Steering wheel Widget
 """
 
-from PySide2.QtCore import QRect, Qt
-from PySide2.QtGui import QBrush, QPainter, QPen, QPixmap
+from PySide6.QtCore import QRect, Qt
+from PySide6.QtGui import QBrush, QPainter, QPen, QPixmap
 
 from ..api_control import api
 from ..const_file import ImageFile

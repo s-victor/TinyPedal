@@ -62,7 +62,7 @@ def get_cli_argument() -> argparse.Namespace:
             type=int,
             help=(
                 "set PySide (Qt for Python) version:"
-                " 2 - PySide2;"
+                " 2 - PySide6;"
                 " 6 - PySide6;"
             ),
         )

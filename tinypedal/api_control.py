@@ -97,13 +97,9 @@ class APIControl:
         self.start()
 
     def setup(self):
-        """Setup & apply API changes"""
         self._api.setup(
-            cfg.shared_memory_api["access_mode"],
-            cfg.shared_memory_api["process_id"],
-            cfg.shared_memory_api["enable_player_index_override"],
-            cfg.shared_memory_api["player_index"],
-            cfg.shared_memory_api["character_encoding"].lower(),
+            cfg,  # pass the full cfg object
+            cfg.shared_memory_api["character_encoding"].lower()
         )
         self._state_override = cfg.shared_memory_api["enable_active_state_override"]
         self._active_state = cfg.shared_memory_api["active_state"]

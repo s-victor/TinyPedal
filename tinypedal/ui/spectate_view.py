@@ -22,7 +22,7 @@ Spectate list view
 
 from typing import Callable
 
-from PySide2.QtWidgets import (
+from PySide6.QtWidgets import (
     QHBoxLayout,
     QLabel,
     QListWidget,

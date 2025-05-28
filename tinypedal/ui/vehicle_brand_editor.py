@@ -27,7 +27,7 @@ import socket
 import time
 from urllib.request import urlopen
 
-from PySide2.QtWidgets import (
+from PySide6.QtWidgets import (
     QFileDialog,
     QHBoxLayout,
     QHeaderView,

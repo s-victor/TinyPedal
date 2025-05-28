@@ -20,8 +20,8 @@
 Instrument Widget
 """
 
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QPixmap
+from PySide6.QtCore import Qt
+from PySide6.QtGui import QPixmap
 
 from ..api_control import api
 from ..const_file import ImageFile

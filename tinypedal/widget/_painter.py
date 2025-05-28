@@ -22,9 +22,9 @@ Overlay base painter class.
 
 from __future__ import annotations
 
-from PySide2.QtCore import QRectF, Qt
-from PySide2.QtGui import QFont, QPainter, QPen, QPixmap
-from PySide2.QtWidgets import QWidget
+from PySide6.QtCore import QRectF, Qt
+from PySide6.QtGui import QFont, QPainter, QPen, QPixmap
+from PySide6.QtWidgets import QWidget
 
 from ..const_common import GEAR_SEQUENCE
 
