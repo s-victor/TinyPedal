@@ -113,10 +113,10 @@ class Realtime(DataModule):
         retry_delay = min(max(self.mcfg["connection_retry_delay"], 0), 60)
         if sim_name == "LMU":
             url_port = self.mcfg["url_port_lmu"]
-            url_rest = f"http://{url_host}:{url_port}/rest/"
+            url_rest = f"http://{url_host}:{url_port}"
         elif sim_name == "RF2":
             url_port = self.mcfg["url_port_rf2"]
-            url_rest = f"http://{url_host}:{url_port}/rest/"
+            url_rest = f"http://{url_host}:{url_port}"
         else:
             url_rest = ""
         return url_rest, time_out, retry, retry_delay

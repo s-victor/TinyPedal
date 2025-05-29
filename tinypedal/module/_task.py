@@ -60,16 +60,16 @@ SET_WEATHERFORECAST = (
 )
 
 # Define task set
-# 0 - sim name pattern, 1 - url path, 2 - output set, 3 - enabling condition
+# 0 - sim name pattern, 1 - uri address, 2 - output set, 3 - enabling condition
 TASK_RUNONCE = (
-    ("LMU|RF2", "sessions/setting/SESSSET_race_timescale", SET_TIMESCALE, None),
-    ("LMU|RF2", "sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY, None),
-    ("LMU|RF2", "sessions/weather", SET_WEATHERFORECAST, None),
-    ("LMU", "garage/chassis", SET_CHASSIS, None),
-    ("LMU", "garage/UIScreen/RepairAndRefuel", SET_PITSTOPTIME, "enable_pit_strategy_access"),
+    ("LMU|RF2", "/rest/sessions/setting/SESSSET_race_timescale", SET_TIMESCALE, None),
+    ("LMU|RF2", "/rest/sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY, None),
+    ("LMU|RF2", "/rest/sessions/weather", SET_WEATHERFORECAST, None),
+    ("LMU", "/rest/garage/chassis", SET_CHASSIS, None),
+    ("LMU", "/rest/garage/UIScreen/RepairAndRefuel", SET_PITSTOPTIME, "enable_pit_strategy_access"),
 )
 TASK_REPEATS = (
-    ("LMU", "garage/UIScreen/DriverHandOffStintEnd", SET_CURRENTSTINT, None),
-    ("LMU", "sessions/GetGameState", SET_GAMESTATE, None),
-    ("LMU", "garage/PitMenu/receivePitMenu", SET_PITMENUINFO, "enable_pit_strategy_access"),
+    ("LMU", "/rest/garage/UIScreen/DriverHandOffStintEnd", SET_CURRENTSTINT, None),
+    ("LMU", "/rest/sessions/GetGameState", SET_GAMESTATE, None),
+    ("LMU", "/rest/garage/PitMenu/receivePitMenu", SET_PITMENUINFO, "enable_pit_strategy_access"),
 )
