@@ -66,14 +66,14 @@ class Realtime(DataModule):
                     self.__sort_tasks(sim_name, TASK_RUNONCE, sorted_task_runonce)
                     self.__sort_tasks(sim_name, TASK_REPEATS, sorted_task_repeats)
                     self.__run_tasks(sim_name, sorted_task_runonce, sorted_task_repeats)
+                    # Reset when finished
+                    reset_to_default(sorted_task_runonce)
+                    reset_to_default(sorted_task_repeats)
 
             else:
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
-                    # Reset when finished
-                    reset_to_default(sorted_task_runonce)
-                    reset_to_default(sorted_task_repeats)
 
         # Reset to default on close
         reset_to_default(sorted_task_runonce)
@@ -132,31 +132,50 @@ class Realtime(DataModule):
         )
         return await asyncio.gather(*tasks)
 
+    async def __task_control(self, task_group: tuple[asyncio.Task, ...]):
+        """Control task running state"""
+        _event_is_set = self._event.is_set
+        while not _event_is_set() and self.state.active:
+            await asyncio.sleep(0.1)  # check every 100ms
+        # Cancel all running tasks
+        for task in task_group:
+            task.cancel()
+
     async def __task_repeats(self, active_task: dict, url_rest: str, time_out: float):
         """Update task repeatedly"""
-        tasks = (
-            self.__fetch(url_rest, time_out, resource_name, output_set)
+        task_group = tuple(
+            asyncio.create_task(
+                self.__fetch(url_rest, time_out, resource_name, output_set)
+            )
             for resource_name, output_set in active_task.items()
         )
-        return await asyncio.gather(*tasks)
+        # Task control
+        await asyncio.create_task(self.__task_control(task_group))
+        for task in task_group:
+            try:
+                await task
+            except asyncio.CancelledError:
+                pass
 
     async def __fetch(self, url_rest: str, time_out: float,
         resource_name: str, output_set: tuple):
         """Fetch data without retry"""
-        _event_is_set = self._event.is_set
-        full_url = f"{url_rest}{resource_name}"
-        delay = min_delay = self.active_interval
-        last_hash = new_hash = -1
-        while not _event_is_set() and self.state.active:
-            new_hash = output_resource(output_set, full_url, time_out)
-            if last_hash != new_hash:
-                last_hash = new_hash
-                delay = min_delay
-            elif delay < 2:  # increase update delay while no new data
-                delay += delay / 2
-                if delay > 2:
-                    delay = 2
-            await asyncio.sleep(delay)
+        try:
+            full_url = f"{url_rest}{resource_name}"
+            delay = min_delay = self.active_interval
+            last_hash = new_hash = -1
+            while True:  # use task control to cancel & exit loop
+                new_hash = output_resource(output_set, full_url, time_out)
+                if last_hash != new_hash:
+                    last_hash = new_hash
+                    delay = min_delay
+                elif delay < 2:  # increase update delay while no new data
+                    delay += delay / 2
+                    if delay > 2:
+                        delay = 2
+                await asyncio.sleep(delay)
+        except asyncio.CancelledError:
+            pass
 
     async def __fetch_retry(self, url_rest: str, time_out: float, retry: int,
         retry_delay: float, resource_name: str, output_set: tuple):
