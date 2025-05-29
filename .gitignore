@@ -6,6 +6,7 @@
 /dist/TinyPedal/
 /settings/
 /trackmap/
+/venv310/
 
 __pycache__/
 
