@@ -66,14 +66,14 @@ class Realtime(DataModule):
                     self.__sort_tasks(sim_name, TASK_RUNONCE, sorted_task_runonce)
                     self.__sort_tasks(sim_name, TASK_REPEATS, sorted_task_repeats)
                     self.__run_tasks(sim_name, sorted_task_runonce, sorted_task_repeats)
-                    # Reset when finished
-                    reset_to_default(sorted_task_runonce)
-                    reset_to_default(sorted_task_repeats)
 
             else:
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
+                    # Reset when finished
+                    reset_to_default(sorted_task_runonce)
+                    reset_to_default(sorted_task_repeats)
 
         # Reset to default on close
         reset_to_default(sorted_task_runonce)

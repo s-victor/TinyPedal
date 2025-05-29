@@ -1,7 +1,7 @@
-WIP
+2.29.2 (2025-05-29)
 -----------------------------
 * RestAPI Module
-  - Fixed an issue where some data would stop updating if recently paused and resumed game.
+  - Fixed an issue where some telemetry readings would stop updating if game was paused and resumed recently.
 
 2.29.1 (2025-05-25) hot fix
 -----------------------------
