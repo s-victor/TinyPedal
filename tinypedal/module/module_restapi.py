@@ -148,7 +148,7 @@ class Realtime(DataModule):
         delay = min_delay = self.active_interval
         last_hash = new_hash = -1
         while not _event_is_set() and self.state.active:
-            new_hash = output_resource(output_set, full_url, time_out, last_hash)
+            new_hash = output_resource(output_set, full_url, time_out)
             if last_hash != new_hash:
                 last_hash = new_hash
                 delay = min_delay
@@ -218,17 +218,16 @@ def get_resource(url: str, time_out: float) -> Any | str:
         return error
 
 
-def output_resource(output_set: tuple, url: str, time_out: float, last_hash: int) -> int:
+def output_resource(output_set: tuple, url: str, time_out: float) -> int:
     """Get resource from REST API and output data, skip unnecessary checking"""
     try:
         with urlopen(url, timeout=time_out) as raw_resource:
             raw_bytes = raw_resource.read()
-            new_hash = hash(raw_bytes)
-            if last_hash != new_hash:
+            if raw_bytes:
                 resource_output = json.loads(raw_bytes)
                 for output in output_set:
                     get_value(resource_output, *output)
-            return new_hash
+            return hash(raw_bytes)
     except (AttributeError, TypeError, IndexError, KeyError, ValueError,
             OSError, TimeoutError, socket.timeout):
         return -1
