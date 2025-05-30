@@ -29,6 +29,7 @@ from .adapter import rf2_connector, rf2_data
 from .adapter.rf2_connector import get_rf2_info
 from .regex_pattern import API_NAME_LMU, API_NAME_RF2
 from .validator import bytes_to_str
+from .setting import cfg
 
 
 class APIDataSet(NamedTuple):
@@ -95,6 +96,7 @@ class SimRF2(Connector):
     NAME = API_NAME_RF2
 
     def __init__(self):
+        
         self.info = None
         self._config = None
 
@@ -112,6 +114,11 @@ class SimRF2(Connector):
         self._config = config[0]  # expects full config dict as first arg
         rf2_data.tostr = partial(bytes_to_str, char_encoding=config[1])
 
+    def monitor_role(self):
+        if hasattr(self.info, "start_monitoring"):
+            self.info.start_monitoring()
+
+
 
 class SimLMU(Connector):
     """Le Mans Ultimate"""
@@ -120,6 +127,7 @@ class SimLMU(Connector):
     NAME = API_NAME_LMU
 
     def __init__(self):
+        
         self.info = None
         self._config = None
 
@@ -136,6 +144,11 @@ class SimLMU(Connector):
     def setup(self, *config):
         self._config = config[0]
         rf2_data.tostr = partial(bytes_to_str, char_encoding=config[1])
+
+    def monitor_role(self):
+        if hasattr(self.info, "start_monitoring"):
+            self.info.start_monitoring()
+
 
 
 # Add new API to API_PACK

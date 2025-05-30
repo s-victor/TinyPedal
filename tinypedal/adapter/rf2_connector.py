@@ -299,7 +299,72 @@ class SyncData:
 
         logger.info("sharedmemory: UPDATING: thread stopped")
 
+class SwitcherRF2Info:
+    def __init__(self, cfg):
+        self.cfg = cfg
+        self.ws_uri = cfg.shared_memory_api.get("websocket_uri")
+        self.session_name = cfg.shared_memory_api.get("websocket_session")
+        self._is_remote = cfg.shared_memory_api.get("use_remote_memory")
 
+        self._rf2 = None
+        self._monitor_thread = None
+        self._stop_monitor = threading.Event()
+
+        self._start_info()
+
+    def _start_info(self):
+        if self._rf2:
+            self._rf2.stop()
+
+        if self._is_remote:
+            logger.info("Starting RemoteRF2Info")
+            self._rf2 = RemoteRF2Info(self.ws_uri, self.session_name)
+        else:
+            logger.info("Starting RF2Info")
+            self._rf2 = RF2Info()
+            self._rf2.setMode(0)
+            self._rf2.start()
+            if self.cfg.shared_memory_api.get("send_to_remote"):
+                self._rf2.start_sender(self.ws_uri, self.session_name)
+
+    def switch_mode(self, use_remote: bool):
+        if use_remote != self._is_remote:
+            logger.info(f"SwitcherRF2Info: switching to {'remote' if use_remote else 'local'} mode")
+            self._is_remote = use_remote
+            self._start_info()
+
+    def start_monitoring(self, interval=2):
+        if self._monitor_thread and self._monitor_thread.is_alive():
+            return  # Already running
+
+        def monitor_loop():
+            while not self._stop_monitor.is_set():
+                try:
+                    sleep(interval)
+                    if hasattr(self._rf2, "isDriving"):
+                        is_driving = self._rf2.isDriving
+                        # Switch to remote if not driving, local if driving
+                        self.switch_mode(not is_driving)
+                except Exception as e:
+                    logger.exception(f"[SwitcherRF2Info] Monitor thread failed: {e}")
+
+        logger.info("Starting SwitcherRF2Info monitor thread")
+        self._monitor_thread = threading.Thread(target=monitor_loop, daemon=True)
+        self._monitor_thread.start()
+
+    def stop_monitoring(self):
+        self._stop_monitor.set()
+        if self._monitor_thread:
+            self._monitor_thread.join(timeout=1)
+
+    def stop(self):
+        self.stop_monitoring()
+        if self._rf2:
+            self._rf2.stop()
+
+    def __getattr__(self, name):
+        return getattr(self._rf2, name)
+    
 class RF2Info:
     """RF2 shared memory data output"""
 
@@ -585,24 +650,9 @@ class RemoteRF2Info:
     def isPaused(self) -> bool:
         return False
 
-# Unified getter
-def get_rf2_info(cfg) -> RF2Info | RemoteRF2Info:
-    """Factory function to return local or remote RF2Info based on config"""
-    ws_uri= cfg.shared_memory_api.get("websocket_uri")
-    session_name = cfg.shared_memory_api.get("websocket_session")
-
-    if cfg.shared_memory_api.get("use_remote_memory"):        
-        return RemoteRF2Info(ws_uri, session_name)
-    
-    else:
-        rf2 = RF2Info()
-        rf2.setMode(0)
-        rf2.start()
-
-        if cfg.shared_memory_api.get("send_to_remote") is True:
-            rf2.start_sender(ws_uri, session_name)
-
-        return rf2
+def get_rf2_info(cfg) -> SwitcherRF2Info:
+    """Factory function to return a unified RF2Info wrapper that handles switching"""
+    return SwitcherRF2Info(cfg)
 
 def test_api():
     """API test run"""

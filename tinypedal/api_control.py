@@ -21,6 +21,8 @@ API control
 """
 
 import logging
+import time
+import threading
 
 from .api_connector import API_PACK
 from .setting import cfg
@@ -82,6 +84,10 @@ class APIControl:
             self.read = init_read
             self._same_api_loaded = True
 
+        # Optionally start monitor_role
+        if hasattr(self._api, "monitor_role"):
+            self._api.monitor_role()
+
         logger.info("CONNECTED: %s API (%s)", self._api.NAME, self.version)
 
     def stop(self):
@@ -104,6 +110,7 @@ class APIControl:
         self._state_override = cfg.shared_memory_api["enable_active_state_override"]
         self._active_state = cfg.shared_memory_api["active_state"]
 
+    
     @property
     def name(self) -> str:
         """API name output"""
