@@ -312,6 +312,10 @@ class SwitcherRF2Info:
 
         self._start_info()
 
+        # Only start monitor thread if switching behavior is needed
+        if self.cfg.shared_memory_api.get("send_to_remote") or self._is_remote:
+            self.start_monitoring()
+
     def _start_info(self):
         if self._rf2:
             self._rf2.stop()
@@ -364,6 +368,7 @@ class SwitcherRF2Info:
 
     def __getattr__(self, name):
         return getattr(self._rf2, name)
+
     
 class RF2Info:
     """RF2 shared memory data output"""
