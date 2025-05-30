@@ -39,8 +39,7 @@ CFG_BOOL = (
     "^remember_position$|"
     "^remember_size$|"
     "^vr_compatibility$|"
-    "^use_remote_memory$|"
-    "^send_to_remote$|"
+    "^connect_to_remote$|"
     # Partial match
     "align_center|"
     "enable|"

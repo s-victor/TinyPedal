@@ -304,17 +304,20 @@ class SwitcherRF2Info:
         self.cfg = cfg
         self.ws_uri = cfg.shared_memory_api.get("websocket_uri")
         self.session_name = cfg.shared_memory_api.get("websocket_session")
-        self._is_remote = cfg.shared_memory_api.get("use_remote_memory")
+        self._connect_to_remote = cfg.shared_memory_api.get("connect_to_remote", False)
 
         self._rf2 = None
         self._monitor_thread = None
+        self._monitor_running = False
         self._stop_monitor = threading.Event()
+        self._is_remote = None  # unknown initially
 
+        # Create the rf2 instance initially for the desired mode
+        self._is_remote = self._connect_to_remote
         self._start_info()
 
-        # Only start monitor thread if switching behavior is needed
-        if self.cfg.shared_memory_api.get("send_to_remote") or self._is_remote:
-            self.start_monitoring()
+        # Now you can safely call switch_mode later if needed (e.g. in monitoring)
+        self._update_monitoring()
 
     def _start_info(self):
         if self._rf2:
@@ -328,8 +331,7 @@ class SwitcherRF2Info:
             self._rf2 = RF2Info()
             self._rf2.setMode(0)
             self._rf2.start()
-            if self.cfg.shared_memory_api.get("send_to_remote"):
-                self._rf2.start_sender(self.ws_uri, self.session_name)
+            self._rf2.start_sender(self.ws_uri, self.session_name)
 
     def switch_mode(self, use_remote: bool):
         if use_remote != self._is_remote:
@@ -337,9 +339,20 @@ class SwitcherRF2Info:
             self._is_remote = use_remote
             self._start_info()
 
+        self._update_monitoring()
+
+
+    def _update_monitoring(self):
+        if self._connect_to_remote:
+            if not self._monitor_running:
+                self.start_monitoring()
+        else:
+            if self._monitor_running:
+                self.stop_monitoring()
+
     def start_monitoring(self, interval=2):
-        if self._monitor_thread and self._monitor_thread.is_alive():
-            return  # Already running
+        if self._monitor_running:
+            return
 
         def monitor_loop():
             while not self._stop_monitor.is_set():
@@ -347,19 +360,23 @@ class SwitcherRF2Info:
                     sleep(interval)
                     if hasattr(self._rf2, "isDriving"):
                         is_driving = self._rf2.isDriving
-                        # Switch to remote if not driving, local if driving
-                        self.switch_mode(not is_driving)
+                        self.switch_mode(not is_driving)  # switch to remote if not driving
                 except Exception as e:
-                    logger.exception(f"[SwitcherRF2Info] Monitor thread failed: {e}")
+                    logger.exception("[SwitcherRF2Info] Monitor thread failed: %s", e)
 
         logger.info("Starting SwitcherRF2Info monitor thread")
+        self._stop_monitor.clear()
         self._monitor_thread = threading.Thread(target=monitor_loop, daemon=True)
         self._monitor_thread.start()
+        self._monitor_running = True
 
     def stop_monitoring(self):
         self._stop_monitor.set()
         if self._monitor_thread:
             self._monitor_thread.join(timeout=1)
+            self._monitor_thread = None
+        self._monitor_running = False
+        logger.info("Stopped SwitcherRF2Info monitor thread")
 
     def stop(self):
         self.stop_monitoring()
@@ -487,10 +504,10 @@ class RF2Info:
             compressed = zlib.compress(raw_bytes)
             frame = struct.pack("!BI", type_id, len(compressed)) + compressed  # Network byte order
             frames.append(frame)
-            logger.info(f"{type_str.upper()} {len(raw_bytes)} bytes → {len(compressed)} compressed bytes")
+            logger.debug(f"{type_str.upper()} {len(raw_bytes)} bytes → {len(compressed)} compressed bytes")
         
         batch_message = b"".join(frames)
-        logger.info(f"Sending batch message of {len(batch_message)} bytes")
+        logger.debug(f"Sending batch message of {len(batch_message)} bytes")
         await ws.send(batch_message)
 
     def start_sender(self, uri: str, session_name: str, max_retries=5):
@@ -547,10 +564,20 @@ class RemoteRF2Info:
         self._running = True
         self._session_uri = session_uri
         self._session_name = session_name
-        threading.Thread(target=self._start_client, daemon=True).start()
+        self._thread = threading.Thread(target=self._start_client, daemon=True)
+        self._thread.start()
 
     def _start_client(self):
         asyncio.run(self._recv_loop())
+
+    def stop(self):
+        logger.info("Stopping RemoteRF2Info client")
+        self._running = False
+        # Wait for the thread to finish
+        if self._thread.is_alive():
+            self._thread.join(timeout=3)
+            if self._thread.is_alive():
+                logger.warning("RemoteRF2Info thread did not stop in time")
 
     async def _recv_loop(self, max_retries=5):
         retry_count = 0
@@ -567,7 +594,7 @@ class RemoteRF2Info:
 
                     while self._running:
                         msg = await ws.recv()
-                        logger.info(f"Received message: {len(msg)} bytes")
+                        logger.debug(f"Received message: {len(msg)} bytes")
 
                         offset = 0
                         expected_parts = 4
@@ -589,7 +616,7 @@ class RemoteRF2Info:
                                 decompressed = zlib.decompress(compressed_segment)
                                 received_parts.append((type_id, decompressed))
 
-                                logger.info(f"Segment type {type_id}, compressed {length} bytes, decompressed {len(decompressed)} bytes")
+                                logger.debug(f"Segment type {type_id}, compressed {length} bytes, decompressed {len(decompressed)} bytes")
 
                                 offset += length
 
