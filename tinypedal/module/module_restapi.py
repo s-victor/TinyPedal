@@ -40,11 +40,15 @@ logger = logging.getLogger(__name__)
 class Realtime(DataModule):
     """Rest API data"""
 
-    __slots__ = ("task_deletion",)
+    __slots__ = (
+        "task_deletion",
+        "task_cancel",
+    )
 
     def __init__(self, config, module_name):
         super().__init__(config, module_name)
         self.task_deletion = set()
+        self.task_cancel = False
 
     def update_data(self):
         """Update module data"""
@@ -88,6 +92,7 @@ class Realtime(DataModule):
     def __run_tasks(self, sim_name: str, task_runonce: dict, task_repeats: dict):
         """Run tasks"""
         self.task_deletion.clear()
+        self.task_cancel = False
         # Load connection setting
         url_host = self.mcfg["url_host"]
         time_out = min(max(self.mcfg["connection_timeout"], 0.5), 10)
@@ -130,6 +135,8 @@ class Realtime(DataModule):
         _event_is_set = self._event.is_set
         while not _event_is_set() and self.state.active:
             await asyncio.sleep(0.1)  # check every 100ms
+        # Set cancel state to exit loop in case failed to cancel
+        self.task_cancel = True
         # Cancel all running tasks
         for task in task_group:
             task.cancel()
@@ -157,7 +164,7 @@ class Realtime(DataModule):
             full_url = f"http://{url_host}:{url_port}{resource_name}"
             delay = min_delay = self.active_interval
             last_hash = new_hash = -1
-            while True:  # use task control to cancel & exit loop
+            while not self.task_cancel:  # use task control to cancel & exit loop
                 new_hash = output_resource(output_set, full_url, time_out)
                 if last_hash != new_hash:
                     last_hash = new_hash
