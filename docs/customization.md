@@ -3485,6 +3485,9 @@ Set weather change trend interval in seconds for temperature, raininess, surface
 
 If weather readings increased within the interval, `▲` uparrow sign will be shown; if readings decreased within the interval, `▼` downarrow sign will be shown; If readings has not changed during the interval, `●` sign will be shown after.
 
+    decimal_places_temperature
+Set amount decimal places to keep. Default is `1` decimal place, set to `0` to hide decimals. Note, when number of digits is less than expected, extra leading zero or decimal place will be added to fill the gap.
+
 [**`Back to Top`**](#)
 
 

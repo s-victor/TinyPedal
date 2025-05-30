@@ -2632,6 +2632,7 @@ WIDGET_DEFAULT = {
         "font_color_trend_constant": "#AAAAAA",
         "font_color_trend_decreasing": "#44FF00",
         "font_color_trend_increasing": "#FF4400",
+        "decimal_places_temperature": 1,
         "column_index_temperature": 1,
         "column_index_rain": 2,
         "column_index_wetness": 3,

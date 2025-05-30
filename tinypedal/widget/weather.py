@@ -51,12 +51,9 @@ class Realtime(Overlay):
             self.wcfg["prefix_dry"].ljust(prefix_wetness_just),
             self.wcfg["prefix_wet"].ljust(prefix_wetness_just)
         )
-        if self.cfg.units["temperature_unit"] == "Fahrenheit":
-            self.temp_digits = 0.3
-            self.temp_cut = 5
-        else:
-            self.temp_digits = 0.2
-            self.temp_cut = 4
+        decimals = min(max(self.wcfg["decimal_places_temperature"], 0), 6)
+        self.temp_cut = 2 + (self.cfg.units["temperature_unit"] == "Fahrenheit") + (decimals != 0) + decimals
+        self.temp_digits = f"0{self.temp_cut + round(0.1 + decimals * 0.1, decimals)}f"
 
         # Config units
         self.unit_temp = set_unit_temperature(self.cfg.units["temperature_unit"])
@@ -72,8 +69,8 @@ class Realtime(Overlay):
         # Track temperature
         if self.wcfg["show_temperature"]:
             layout_temp = self.set_grid_layout()
-            track_temp = f"{self.unit_temp(0):{self.temp_digits}f}"[:self.temp_cut]
-            air_temp = f"{self.unit_temp(0):{self.temp_digits}f}"[:self.temp_cut]
+            track_temp = f"{self.unit_temp(0):{self.temp_digits}}"[:self.temp_cut]
+            air_temp = f"{self.unit_temp(0):{self.temp_digits}}"[:self.temp_cut]
             text_temp = f"{track_temp}({air_temp}){self.symbol_temp}"
             bar_style_temp = self.set_qss(
                 fg_color=self.wcfg["font_color_temperature"],
@@ -240,8 +237,8 @@ class Realtime(Overlay):
         """Track & ambient temperature"""
         if target.last != data:
             target.last = data
-            track_temp = f"{self.unit_temp(track):{self.temp_digits}f}"[:self.temp_cut]
-            air_temp = f"{self.unit_temp(air):{self.temp_digits}f}"[:self.temp_cut]
+            track_temp = f"{self.unit_temp(track):{self.temp_digits}}"[:self.temp_cut]
+            air_temp = f"{self.unit_temp(air):{self.temp_digits}}"[:self.temp_cut]
             target.setText(f"{track_temp}({air_temp}){self.symbol_temp}")
 
     def update_temperature_trend(self, target, data):
