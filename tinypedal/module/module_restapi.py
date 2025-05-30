@@ -26,14 +26,13 @@ import asyncio
 import json
 import logging
 import socket
-from typing import Any, Callable
+from typing import Any
 from urllib.request import urlopen
 
 from ..api_control import api
 from ..const_common import TYPE_JSON
-from ..validator import valid_value_type
 from ._base import DataModule
-from ._task import TASK_REPEATS, TASK_RUNONCE
+from ._task import TASK_REPEATS, TASK_RUNONCE, ResRawOutput
 
 logger = logging.getLogger(__name__)
 
@@ -62,10 +61,11 @@ class Realtime(DataModule):
                 if not reset:
                     reset = True
                     update_interval = self.active_interval
-                    sim_name = api.read.check.sim_name()
-                    self.__sort_tasks(sim_name, TASK_RUNONCE, sorted_task_runonce)
-                    self.__sort_tasks(sim_name, TASK_REPEATS, sorted_task_repeats)
-                    self.__run_tasks(sim_name, sorted_task_runonce, sorted_task_repeats)
+                    self.__run_tasks(
+                        api.read.check.sim_name(),
+                        sorted_task_runonce,
+                        sorted_task_repeats,
+                    )
 
             else:
                 if reset:
@@ -79,7 +79,7 @@ class Realtime(DataModule):
         reset_to_default(sorted_task_runonce)
         reset_to_default(sorted_task_repeats)
 
-    def __sort_tasks(self, sim_name: str, task_set: tuple, active_task: dict):
+    def __sort_tasks(self, sim_name: str, active_task: dict, task_set: tuple):
         """Sort task set into dictionary, key - resource_name, value - output_set"""
         for pattern, resource_name, output_set, condition in task_set:
             if sim_name in pattern and self.mcfg.get(condition, True):
@@ -88,45 +88,38 @@ class Realtime(DataModule):
     def __run_tasks(self, sim_name: str, task_runonce: dict, task_repeats: dict):
         """Run tasks"""
         self.task_deletion.clear()
-        url_rest, time_out, retry, retry_delay = self.__setup_connection(sim_name)
-        if not url_rest:
-            logger.info("RestAPI: game session not found")
-            return
-        # Run all tasks once per garage out, and check availability
-        if task_runonce:
-            asyncio.run(self.__task_runonce(
-                task_runonce, url_rest, time_out, retry, retry_delay))
-            remove_unavailable_task(task_runonce, self.task_deletion)
-        if task_repeats:
-            asyncio.run(self.__task_runonce(
-                task_repeats, url_rest, time_out, retry, retry_delay))
-            remove_unavailable_task(task_repeats, self.task_deletion)
-        # Run repeatedly while on track
-        if task_repeats:
-            asyncio.run(self.__task_repeats(task_repeats, url_rest, time_out))
-
-    def __setup_connection(self, sim_name: str) -> tuple[str, float, int, float]:
-        """Connection setup"""
+        # Load connection setting
         url_host = self.mcfg["url_host"]
         time_out = min(max(self.mcfg["connection_timeout"], 0.5), 10)
         retry = min(max(int(self.mcfg["connection_retry"]), 0), 10)
         retry_delay = min(max(self.mcfg["connection_retry_delay"], 0), 60)
-        if sim_name == "LMU":
-            url_port = self.mcfg["url_port_lmu"]
-            url_rest = f"http://{url_host}:{url_port}"
-        elif sim_name == "RF2":
-            url_port = self.mcfg["url_port_rf2"]
-            url_rest = f"http://{url_host}:{url_port}"
-        else:
-            url_rest = ""
-        return url_rest, time_out, retry, retry_delay
+        url_port = self.mcfg.get(f"url_port_{sim_name.lower()}", -1)
+        if url_port < 0:
+            logger.info("RestAPI: game session not found")
+            return
+        # Sort tasks
+        self.__sort_tasks(sim_name, task_runonce, TASK_RUNONCE)
+        self.__sort_tasks(sim_name, task_repeats, TASK_REPEATS)
+        # Run all tasks once per garage out, and check availability
+        if task_runonce:
+            asyncio.run(self.__task_runonce(
+                task_runonce, url_host, url_port, time_out, retry, retry_delay))
+            remove_unavailable_task(task_runonce, self.task_deletion)
+        if task_repeats:
+            asyncio.run(self.__task_runonce(
+                task_repeats, url_host, url_port, time_out, retry, retry_delay))
+            remove_unavailable_task(task_repeats, self.task_deletion)
+        # Run repeatedly while on track
+        if task_repeats:
+            asyncio.run(self.__task_repeats(
+                task_repeats, url_host, url_port, time_out))
 
-    async def __task_runonce(self, active_task: dict, url_rest: str,
+    async def __task_runonce(self, active_task: dict, url_host: str, url_port: int,
         time_out: float, retry: int, retry_delay: float):
         """Update task runonce"""
         tasks = (
             self.__fetch_retry(
-                url_rest, time_out, retry, retry_delay, resource_name, output_set
+                url_host, url_port, time_out, retry, retry_delay, resource_name, output_set
             )
             for resource_name, output_set in active_task.items()
         )
@@ -141,11 +134,11 @@ class Realtime(DataModule):
         for task in task_group:
             task.cancel()
 
-    async def __task_repeats(self, active_task: dict, url_rest: str, time_out: float):
+    async def __task_repeats(self, active_task: dict, url_host: str, url_port: int, time_out: float):
         """Update task repeatedly"""
         task_group = tuple(
             asyncio.create_task(
-                self.__fetch(url_rest, time_out, resource_name, output_set)
+                self.__fetch(url_host, url_port, time_out, resource_name, output_set)
             )
             for resource_name, output_set in active_task.items()
         )
@@ -157,11 +150,11 @@ class Realtime(DataModule):
             except asyncio.CancelledError:
                 pass
 
-    async def __fetch(self, url_rest: str, time_out: float,
-        resource_name: str, output_set: tuple):
+    async def __fetch(self, url_host: str, url_port: int, time_out: float,
+        resource_name: str, output_set: tuple[ResRawOutput, ...]):
         """Fetch data without retry"""
         try:
-            full_url = f"{url_rest}{resource_name}"
+            full_url = f"http://{url_host}:{url_port}{resource_name}"
             delay = min_delay = self.active_interval
             last_hash = new_hash = -1
             while True:  # use task control to cancel & exit loop
@@ -177,12 +170,12 @@ class Realtime(DataModule):
         except asyncio.CancelledError:
             pass
 
-    async def __fetch_retry(self, url_rest: str, time_out: float, retry: int,
-        retry_delay: float, resource_name: str, output_set: tuple):
+    async def __fetch_retry(self, url_host: str, url_port: int, time_out: float, retry: int,
+        retry_delay: float, resource_name: str, output_set: tuple[ResRawOutput, ...]):
         """Fetch data with retry"""
         data_available = False
         total_retry = retry
-        full_url = f"{url_rest}{resource_name}"
+        full_url = f"http://{url_host}:{url_port}{resource_name}"
         while not self._event.is_set() and retry >= 0:
             resource_output = get_resource(full_url, time_out)
             # Verify & retry
@@ -196,8 +189,8 @@ class Realtime(DataModule):
                 await asyncio.sleep(retry_delay)
                 continue
             # Output
-            for output in output_set:
-                if get_value(resource_output, *output):
+            for res in output_set:
+                if res.update(resource_output):
                     data_available = True
             # Add to unavailable task delete list
             if not data_available:
@@ -207,12 +200,12 @@ class Realtime(DataModule):
             break
 
 
-def reset_to_default(active_task: dict):
+def reset_to_default(active_task: dict[str, tuple[ResRawOutput, ...]]):
     """Reset active task data to default"""
     if active_task:
         for resource_name, output_set in active_task.items():
-            for output in output_set:
-                setattr(output[0], output[1], output[2])
+            for res in output_set:
+                res.reset()
             logger.info("RestAPI: RESET: %s", resource_name.upper())
         active_task.clear()
 
@@ -231,45 +224,20 @@ def get_resource(url: str, time_out: float) -> Any | str:
             return json.load(raw_resource)
     except (AttributeError, TypeError, IndexError, KeyError, ValueError):
         return "data not found"
-    except (OSError, TimeoutError, socket.timeout):
-        return "connection failed"
-    except BaseException as error:
-        return error
+    except (OSError, TimeoutError, socket.timeout, BaseException):
+        return "connection timeout"
 
 
-def output_resource(output_set: tuple, url: str, time_out: float) -> int:
+def output_resource(output_set: tuple[ResRawOutput, ...], url: str, time_out: float) -> int:
     """Get resource from REST API and output data, skip unnecessary checking"""
     try:
         with urlopen(url, timeout=time_out) as raw_resource:
             raw_bytes = raw_resource.read()
             if raw_bytes:
                 resource_output = json.loads(raw_bytes)
-                for output in output_set:
-                    get_value(resource_output, *output)
+                for res in output_set:
+                    res.update(resource_output)
             return hash(raw_bytes)
     except (AttributeError, TypeError, IndexError, KeyError, ValueError,
-            OSError, TimeoutError, socket.timeout):
+            OSError, TimeoutError, socket.timeout, BaseException):
         return -1
-    except BaseException as error:
-        logger.error("RestAPI: %s", error)
-        return -1
-
-
-def get_value(
-    data: dict | list, target: object, output: str, default: Any,
-    mod_func: Callable | None, *keys: tuple[str, ...]) -> bool:
-    """Get value from resource dictionary, fallback to default value if invalid"""
-    for key in keys:  # get data from dict
-        if not isinstance(data, dict):  # not exist, set to default
-            setattr(target, output, default)
-            return False
-        data = data.get(key)
-        if data is None:  # not exist, set to default
-            setattr(target, output, default)
-            return False
-
-    if mod_func:
-        setattr(target, output, valid_value_type(mod_func(data), default))
-    else:
-        setattr(target, output, valid_value_type(data, default))
-    return True
