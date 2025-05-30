@@ -588,16 +588,20 @@ class RemoteRF2Info:
 # Unified getter
 def get_rf2_info(cfg) -> RF2Info | RemoteRF2Info:
     """Factory function to return local or remote RF2Info based on config"""
-    if cfg.shared_memory_api.get("use_remote_memory"):
-        session_name = cfg.shared_memory_api.get("websocket_session")
-        return RemoteRF2Info(cfg.shared_memory_api.get("websocket_uri"), session_name)
+    ws_uri= cfg.shared_memory_api.get("websocket_uri")
+    session_name = cfg.shared_memory_api.get("websocket_session")
+
+    if cfg.shared_memory_api.get("use_remote_memory"):        
+        return RemoteRF2Info(ws_uri, session_name)
+    
     else:
         rf2 = RF2Info()
         rf2.setMode(0)
         rf2.start()
-        session_name = cfg.shared_memory_api.get("websocket_session")  # or wherever you store it
-        rf2.start_sender(cfg.shared_memory_api.get("websocket_uri"), session_name)
-        
+
+        if cfg.shared_memory_api.get("send_to_remote") is True:
+            rf2.start_sender(ws_uri, session_name)
+
         return rf2
 
 def test_api():

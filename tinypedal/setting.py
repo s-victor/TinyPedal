@@ -440,6 +440,15 @@ class Setting:
         self.shared_memory_api["use_remote_memory"] = value
 
     @property
+    def send_to_remote(self) -> bool:
+        """Flag to enable remote memory reading via websocket"""
+        return self.shared_memory_api.get("send_to_remote", False)
+
+    @send_to_remote.setter
+    def send_to_remote(self, value: bool):
+        self.shared_memory_api["send_to_remote"] = value
+
+    @property
     def websocket_uri(self) -> str:
         """Websocket URI for remote telemetry data"""
         return self.shared_memory_api.get("websocket_uri", "")
