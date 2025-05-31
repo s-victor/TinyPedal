@@ -5,6 +5,14 @@ from .remote_rf2_info import RemoteRF2Info
 from .rf2_websocket import RF2WebSocket
 import time
 import logging
+try:
+    from pyRfactor2SharedMemory.rF2MMap import MAX_VEHICLES
+except ImportError:
+    import sys
+    sys.path.append(".")
+    from pyRfactor2SharedMemory.rF2MMap import MAX_VEHICLES
+
+    
 
 logger = logging.getLogger(__name__)
 
@@ -23,13 +31,21 @@ class RF2Syncer:
         self._ws_sender = None
 
         if connect_to_remote and websocket_uri and session_name:
-            # Wait for local player sync
-            for _ in range(20):  # up to ~2 seconds
+            # Wait for local shared memory and player index
+            for _ in range(20):  # ~2s max
                 if self._local.playerIndex != -1:
                     break
                 time.sleep(0.1)
 
-            driving = self._local.isDriving(self._local.playerIndex)
+            index = self._local.playerIndex
+            driving = False
+
+            # Only check driving if we have a valid index
+            if 0 <= index < MAX_VEHICLES:
+                try:
+                    driving = self._local.isDriving(index)
+                except Exception as e:
+                    logging.warning(f"Could not determine driving state: {e}")
 
             if driving:
                 self._ws_sender = RF2WebSocket(
@@ -41,6 +57,7 @@ class RF2Syncer:
                 self._ws_sender.start()
             else:
                 self._remote = RemoteRF2Info(websocket_uri, session_name)
+
 
     def get_data(self, source: Literal["local", "remote"] = "local") -> dict:
         if source == "remote" and self._remote:
