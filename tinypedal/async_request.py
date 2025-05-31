@@ -22,11 +22,9 @@ Asynchronous request
 
 from __future__ import annotations
 
-import logging
 from asyncio import StreamReader, open_connection, wait_for
 from contextlib import asynccontextmanager
-
-logger = logging.getLogger(__name__)
+from time import perf_counter
 
 
 def set_header_get(uri: str = "/", host: str = "localhost") -> bytes:
@@ -91,18 +89,30 @@ async def get_raw(request: bytes, host: str, port: int, time_out: float) -> byte
         return b""
 
 
+async def _test_get_raw(request: bytes, host: str, port: int, time_out: float) -> bytes:
+    """Test get response (raw)"""
+    start = perf_counter()
+    try:
+        async with async_get(request, host, port, time_out) as raw_bytes:
+            print(f"{perf_counter() - start:.6f}s,", raw_bytes)
+            return raw_bytes
+    except (ConnectionError, TimeoutError, OSError, BaseException):
+        print(f"{perf_counter() - start:.6f}s (timeout),", b"")
+        return b""
+
+
 async def _test_async_get(timeout: float):
     """Test run"""
     req1 = set_header_get("/rest/sessions/setting/SESSSET_race_timescale")
     req2 = set_header_get("/rest/sessions/weather")
     task_group = [
-        asyncio.create_task(get_raw(req1, "localhost", 5397, timeout)),  # RF2
-        asyncio.create_task(get_raw(req2, "localhost", 5397, timeout)),  # RF2
-        asyncio.create_task(get_raw(req1, "localhost", 6397, timeout)),  # LMU
-        asyncio.create_task(get_raw(req1, "localhost", 6397, timeout)),  # LMU
+        asyncio.create_task(_test_get_raw(req1, "localhost", 5397, timeout)),  # RF2
+        asyncio.create_task(_test_get_raw(req2, "localhost", 5397, timeout)),  # RF2
+        asyncio.create_task(_test_get_raw(req1, "localhost", 6397, timeout)),  # LMU
+        asyncio.create_task(_test_get_raw(req1, "localhost", 6397, timeout)),  # LMU
     ]
     for _task in task_group:
-        print(_task.get_name(), await _task)
+        await _task
 
 
 if __name__ == "__main__":
