@@ -62,9 +62,12 @@ class Realtime(DataModule):
         while not _event_wait(update_interval):
             if self.state.active:
 
-                if not reset:
+                # Also check task cancel state in case delay
+                if not reset or self.task_cancel:
                     reset = True
                     update_interval = self.active_interval
+                    self.task_cancel = False
+                    self.task_deletion.clear()
                     self.__run_tasks(
                         api.read.check.sim_name(),
                         sorted_task_runonce,
@@ -75,9 +78,6 @@ class Realtime(DataModule):
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
-                    # Reset when finished
-                    reset_to_default(sorted_task_runonce)
-                    reset_to_default(sorted_task_repeats)
 
         # Reset to default on close
         reset_to_default(sorted_task_runonce)
@@ -91,8 +91,6 @@ class Realtime(DataModule):
 
     def __run_tasks(self, sim_name: str, task_runonce: dict, task_repeats: dict):
         """Run tasks"""
-        self.task_deletion.clear()
-        self.task_cancel = False
         # Load connection setting
         url_host = self.mcfg["url_host"]
         time_out = min(max(self.mcfg["connection_timeout"], 0.5), 10)
@@ -114,10 +112,14 @@ class Realtime(DataModule):
             asyncio.run(self.__task_runonce(
                 task_repeats, url_host, url_port, time_out, retry, retry_delay))
             remove_unavailable_task(task_repeats, self.task_deletion)
-        # Run repeatedly while on track
-        if task_repeats:
-            asyncio.run(self.__task_repeats(
-                task_repeats, url_host, url_port, time_out))
+        # Run tasks repeatedly while on track, this blocks until tasks cancelled
+        logger.info("RestAPI: all tasks started")
+        asyncio.run(self.__task_repeats(
+            task_repeats, url_host, url_port, time_out))
+        logger.info("RestAPI: all tasks stopped")
+        # Reset when finished
+        reset_to_default(task_runonce)
+        reset_to_default(task_repeats)
 
     async def __task_runonce(self, active_task: dict, url_host: str, url_port: int,
         time_out: float, retry: int, retry_delay: float):
@@ -175,7 +177,7 @@ class Realtime(DataModule):
                         delay = 2
                 await asyncio.sleep(delay)
         except asyncio.CancelledError:
-            pass
+            raise
 
     async def __fetch_retry(self, url_host: str, url_port: int, time_out: float, retry: int,
         retry_delay: float, resource_name: str, output_set: tuple[ResRawOutput, ...]):
