@@ -25,11 +25,10 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
-import socket
 from typing import Any
-from urllib.request import urlopen
 
 from ..api_control import api
+from ..async_request import async_get, set_header_get
 from ..const_common import TYPE_JSON
 from ._base import DataModule
 from ._task import TASK_REPEATS, TASK_RUNONCE, ResRawOutput
@@ -163,11 +162,11 @@ class Realtime(DataModule):
         resource_name: str, output_set: tuple[ResRawOutput, ...]):
         """Fetch data without retry"""
         try:
-            full_url = f"http://{url_host}:{url_port}{resource_name}"
+            request_header = set_header_get(resource_name, url_host)
             delay = min_delay = self.active_interval
             last_hash = new_hash = -1
             while not self.task_cancel:  # use task control to cancel & exit loop
-                new_hash = output_resource(output_set, full_url, time_out)
+                new_hash = await output_resource(output_set, request_header, url_host, url_port, time_out)
                 if last_hash != new_hash:
                     last_hash = new_hash
                     delay = min_delay
@@ -184,9 +183,9 @@ class Realtime(DataModule):
         """Fetch data with retry"""
         data_available = False
         total_retry = retry
-        full_url = f"http://{url_host}:{url_port}{resource_name}"
+        request_header = set_header_get(resource_name, url_host)
         while not self._event.is_set() and retry >= 0:
-            resource_output = get_resource(full_url, time_out)
+            resource_output = await get_resource(request_header, url_host, url_port, time_out)
             # Verify & retry
             if not isinstance(resource_output, TYPE_JSON):
                 logger.info("RestAPI: ERROR: %s %s (%s/%s retries left)",
@@ -226,27 +225,27 @@ def remove_unavailable_task(active_task: dict, task_deletion: set):
             logger.info("RestAPI: MISSING: %s", resource_name.upper())
 
 
-def get_resource(url: str, time_out: float) -> Any | str:
+async def get_resource(request: bytes, host: str, port: int, time_out: float) -> Any | str:
     """Get resource from REST API"""
     try:
-        with urlopen(url, timeout=time_out) as raw_resource:
-            return json.load(raw_resource)
+        async with async_get(request, host, port, time_out) as raw_bytes:
+            return json.loads(raw_bytes)
     except (AttributeError, TypeError, IndexError, KeyError, ValueError):
         return "data not found"
-    except (OSError, TimeoutError, socket.timeout, BaseException):
+    except (OSError, TimeoutError, BaseException):
         return "connection timeout"
 
 
-def output_resource(output_set: tuple[ResRawOutput, ...], url: str, time_out: float) -> int:
+async def output_resource(
+    output_set: tuple[ResRawOutput, ...], request: bytes, host: str, port: int, time_out: float) -> int:
     """Get resource from REST API and output data, skip unnecessary checking"""
     try:
-        with urlopen(url, timeout=time_out) as raw_resource:
-            raw_bytes = raw_resource.read()
+        async with async_get(request, host, port, time_out) as raw_bytes:
             if raw_bytes:
                 resource_output = json.loads(raw_bytes)
                 for res in output_set:
                     res.update(resource_output)
             return hash(raw_bytes)
     except (AttributeError, TypeError, IndexError, KeyError, ValueError,
-            OSError, TimeoutError, socket.timeout, BaseException):
+            OSError, TimeoutError, BaseException):
         return -1
