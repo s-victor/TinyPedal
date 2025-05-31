@@ -21,6 +21,8 @@ API control
 """
 
 import logging
+import time
+import threading
 
 from .api_connector import API_PACK
 from .setting import cfg
@@ -78,11 +80,11 @@ class APIControl:
 
         # Reload dataset if API changed
         if self.read is None or not self._same_api_loaded:
-            init_read = self._api.dataset()
-            self.read = init_read
+            self.read = self._api.dataset()
             self._same_api_loaded = True
-
-        logger.info("CONNECTED: %s API (%s)", self._api.NAME, self.version)
+        else:
+            # even if same API, refresh dataset
+            self.read = self._api.dataset()  # <--- FORCE dataset reload here
 
     def stop(self):
         """Stop API"""
