@@ -20,56 +20,119 @@
 Web API task
 """
 
+from __future__ import annotations
+
+from typing import Any, Callable, NamedTuple
+
 from ..const_common import PITEST_DEFAULT
 from ..module_info import minfo
 from ..process.pitstop import EstimatePitTime
 from ..process.vehicle import steerlock_to_number
 from ..process.weather import FORECAST_DEFAULT, forecast_rf2
 
+
+class ResRawOutput(NamedTuple):
+    """URI resource raw output"""
+
+    output: object
+    name: str
+    default: Any
+    keys: tuple[str, ...]
+
+    def reset(self):
+        """Reset data"""
+        setattr(self.output, self.name, self.default)
+
+    def update(self, data: Any) -> bool:
+        """Update data"""
+        for key in self.keys:  # get data from dict
+            if not isinstance(data, dict):  # not exist, set to default
+                setattr(self.output, self.name, self.default)
+                return False
+            data = data.get(key)
+            if data is None:  # not exist, set to default
+                setattr(self.output, self.name, self.default)
+                return False
+        # Reset to default if value is not same type as default
+        if not isinstance(data, type(self.default)):
+            data = self.default
+        setattr(self.output, self.name, data)
+        return True
+
+
+class ResParOutput(NamedTuple):
+    """URI resource parsed output"""
+
+    output: object
+    name: str
+    default: Any
+    parser: Callable
+    keys: tuple[str, ...]
+
+    def reset(self):
+        """Reset data"""
+        setattr(self.output, self.name, self.default)
+
+    def update(self, data: Any) -> bool:
+        """Update data"""
+        for key in self.keys:  # get data from dict
+            if not isinstance(data, dict):  # not exist, set to default
+                setattr(self.output, self.name, self.default)
+                return False
+            data = data.get(key)
+            if data is None:  # not exist, set to default
+                setattr(self.output, self.name, self.default)
+                return False
+        # Parse and output
+        setattr(self.output, self.name, self.parser(data))
+        return True
+
+
+EMPTY_KEYS: tuple[str, ...] = tuple()
+
 # Define output set
-# 0 - minfo, 1 - output, 2 - default value, 3 - function, 4 - dict keys
 SET_TIMESCALE = (
-    (minfo.restapi, "timeScale", 1, None, "currentValue"),
+    ResRawOutput(minfo.restapi, "timeScale", 1, ("currentValue",)),
 )
 SET_PRIVATEQUALIFY = (
-    (minfo.restapi, "privateQualifying", 0, None, "currentValue"),
+    ResRawOutput(minfo.restapi, "privateQualifying", 0, ("currentValue",)),
 )
 SET_CHASSIS = (
-    (minfo.restapi, "steeringWheelRange", 0.0, steerlock_to_number, "VM_STEER_LOCK", "stringValue"),
+    ResParOutput(minfo.restapi, "steeringWheelRange", 0.0, steerlock_to_number, ("VM_STEER_LOCK", "stringValue")),
 )
 SET_CURRENTSTINT = (
-    (minfo.restapi, "currentVirtualEnergy", 0.0, None, "fuelInfo", "currentVirtualEnergy"),
-    (minfo.restapi, "maxVirtualEnergy", 0.0, None, "fuelInfo", "maxVirtualEnergy"),
-    (minfo.restapi, "aeroDamage", -1.0, None, "wearables", "body", "aero"),
-    (minfo.restapi, "brakeWear", [-1] * 4, None, "wearables", "brakes"),
-    (minfo.restapi, "suspensionDamage", [-1] * 4, None, "wearables", "suspension"),
+    ResRawOutput(minfo.restapi, "currentVirtualEnergy", 0.0, ("fuelInfo", "currentVirtualEnergy")),
+    ResRawOutput(minfo.restapi, "maxVirtualEnergy", 0.0, ("fuelInfo", "maxVirtualEnergy")),
+    ResRawOutput(minfo.restapi, "aeroDamage", -1.0, ("wearables", "body", "aero")),
+    ResRawOutput(minfo.restapi, "brakeWear", [-1] * 4, ("wearables", "brakes")),
+    ResRawOutput(minfo.restapi, "suspensionDamage", [-1] * 4, ("wearables", "suspension")),
 )
 SET_GAMESTATE = (
-    (minfo.restapi, "trackClockTime", -1.0, None, "timeOfDay"),
+    ResRawOutput(minfo.restapi, "trackClockTime", -1.0, ("timeOfDay",)),
 )
 SET_PITMENUINFO = (
-    (minfo.restapi, "pitStopEstimate", PITEST_DEFAULT, EstimatePitTime()),
+    ResParOutput(minfo.restapi, "pitStopEstimate", PITEST_DEFAULT, EstimatePitTime(), EMPTY_KEYS),
 )
 SET_PITSTOPTIME = (
-    (minfo.restapi, "pitTimeReference", dict(), None, "pitStopTimes", "times"),
+    ResRawOutput(minfo.restapi, "pitTimeReference", dict(), ("pitStopTimes", "times")),
 )
 SET_WEATHERFORECAST = (
-    (minfo.restapi, "forecastPractice", FORECAST_DEFAULT, forecast_rf2, "PRACTICE"),
-    (minfo.restapi, "forecastQualify", FORECAST_DEFAULT, forecast_rf2, "QUALIFY"),
-    (minfo.restapi, "forecastRace", FORECAST_DEFAULT, forecast_rf2, "RACE"),
+    ResParOutput(minfo.restapi, "forecastPractice", FORECAST_DEFAULT, forecast_rf2, ("PRACTICE",)),
+    ResParOutput(minfo.restapi, "forecastQualify", FORECAST_DEFAULT, forecast_rf2, ("QUALIFY",)),
+    ResParOutput(minfo.restapi, "forecastRace", FORECAST_DEFAULT, forecast_rf2, ("RACE",)),
 )
 
 # Define task set
-# 0 - sim name pattern, 1 - url path, 2 - output set, 3 - enabling condition
+# 0 - sim name pattern, 1 - uri address, 2 - output set, 3 - enabling condition
 TASK_RUNONCE = (
-    ("LMU|RF2", "sessions/setting/SESSSET_race_timescale", SET_TIMESCALE, None),
-    ("LMU|RF2", "sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY, None),
-    ("LMU|RF2", "sessions/weather", SET_WEATHERFORECAST, None),
-    ("LMU", "garage/chassis", SET_CHASSIS, None),
-    ("LMU", "garage/UIScreen/RepairAndRefuel", SET_PITSTOPTIME, "enable_pit_strategy_access"),
+    ("LMU|RF2", "/rest/sessions/setting/SESSSET_race_timescale", SET_TIMESCALE, None),
+    ("LMU|RF2", "/rest/sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY, None),
+    ("LMU|RF2", "/rest/sessions/weather", SET_WEATHERFORECAST, None),
+    ("LMU", "/rest/garage/chassis", SET_CHASSIS, None),
+    ("LMU", "/rest/garage/UIScreen/RepairAndRefuel", SET_PITSTOPTIME, "enable_pit_strategy_access"),
 )
 TASK_REPEATS = (
-    ("LMU", "garage/UIScreen/DriverHandOffStintEnd", SET_CURRENTSTINT, None),
-    ("LMU", "sessions/GetGameState", SET_GAMESTATE, None),
-    ("LMU", "garage/PitMenu/receivePitMenu", SET_PITMENUINFO, "enable_pit_strategy_access"),
+    ("LMU", "/rest/garage/UIScreen/DriverHandOffStintEnd", SET_CURRENTSTINT, None),
+    ("LMU", "/rest/sessions/GetGameState", SET_GAMESTATE, None),
+    ("LMU", "/rest/garage/PitMenu/receivePitMenu", SET_PITMENUINFO, "enable_pit_strategy_access"),
 )

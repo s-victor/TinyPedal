@@ -26,6 +26,8 @@ from ..regex_pattern import rex_number_extract
 def steerlock_to_number(value: str) -> float:
     """Convert steerlock (degree) string to float value"""
     try:
-        return float(rex_number_extract(value).group())
+        match_obj = rex_number_extract(value)
+        assert match_obj is not None
+        return float(match_obj.group())
     except (AttributeError, TypeError, ValueError):
         return 0.0

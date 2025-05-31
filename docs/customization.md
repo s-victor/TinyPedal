@@ -2380,6 +2380,8 @@ Show estimated pit-lane pass through (drive-through) time, calculated from pit-e
     stop_duration
 Show estimated pit stop time while making a service stop or serving a penalty, calculated according to each setting from MFD `Pitstop` page and underlying service timing and concurrency differences. Average accuracy is within `1` seconds.
 
+Note, for unscheduled pit stop (without requesting pit), game sometimes will add random amount extra delay (as part of pit crew preparation time) on top of pit stop time. To avoid this, always requests pit before entering pit.
+
     maximum_delay
 Show maximum total random delay which game may add on top of pit stop time. For example, if estimated pit stop time is `12.0`s, and maximum delay is `+3.0`s, then final pit stop time will be between `12.0`s and `15.0`s.
 
@@ -3482,6 +3484,9 @@ Show average surface wetness in percentage.
 Set weather change trend interval in seconds for temperature, raininess, surface wetness readings. Default interval is `60` seconds.
 
 If weather readings increased within the interval, `▲` uparrow sign will be shown; if readings decreased within the interval, `▼` downarrow sign will be shown; If readings has not changed during the interval, `●` sign will be shown after.
+
+    decimal_places_temperature
+Set amount decimal places to keep. Default is `1` decimal place, set to `0` to hide decimals. Note, when number of digits is less than expected, extra leading zero or decimal place will be added to fill the gap.
 
 [**`Back to Top`**](#)
 
