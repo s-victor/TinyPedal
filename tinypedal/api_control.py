@@ -80,15 +80,11 @@ class APIControl:
 
         # Reload dataset if API changed
         if self.read is None or not self._same_api_loaded:
-            init_read = self._api.dataset()
-            self.read = init_read
+            self.read = self._api.dataset()
             self._same_api_loaded = True
-
-        # Optionally start monitor_role
-        if hasattr(self._api, "monitor_role"):
-            self._api.monitor_role()
-
-        logger.info("CONNECTED: %s API (%s)", self._api.NAME, self.version)
+        else:
+            # even if same API, refresh dataset
+            self.read = self._api.dataset()  # <--- FORCE dataset reload here
 
     def stop(self):
         """Stop API"""
@@ -110,7 +106,6 @@ class APIControl:
         self._state_override = cfg.shared_memory_api["enable_active_state_override"]
         self._active_state = cfg.shared_memory_api["active_state"]
 
-    
     @property
     def name(self) -> str:
         """API name output"""

@@ -20,7 +20,7 @@
 API data adapter
 """
 
-from . import rf2_connector
+from .syncer import RF2Syncer
 
 
 class DataAdapter:
@@ -34,7 +34,7 @@ class DataAdapter:
         "info",
     )
 
-    def __init__(self, info: rf2_connector.RF2Info) -> None:
+    def __init__(self, info: RF2Syncer) -> None:
         """Initialize API setting
 
         Args:

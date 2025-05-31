@@ -40,7 +40,7 @@ def new_stream_handler(_logger: logging.Logger, stream) -> logging.StreamHandler
     )
     _handler = logging.StreamHandler(stream)
     _handler.setFormatter(format_console)
-    _handler.setLevel(logging.INFO)
+    _handler.setLevel(logging.DEBUG)
     _logger.addHandler(_handler)
     return _handler
 
@@ -58,7 +58,7 @@ def new_file_handler(_logger: logging.Logger, filepath: str, filename: str) -> l
     format_file = logging.Formatter("%(asctime)s %(levelname)s: %(message)s")
     _handler = logging.FileHandler(f"{filepath}{filename}")
     _handler.setFormatter(format_file)
-    _handler.setLevel(logging.INFO)
+    _handler.setLevel(logging.DEBUG)
     _logger.addHandler(_handler)
     return _handler
 

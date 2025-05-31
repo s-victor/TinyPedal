@@ -1,0 +1,137 @@
+import asyncio
+import json
+import zlib
+import struct
+import threading
+import logging
+import ctypes
+import websockets
+import contextlib
+
+logger = logging.getLogger(__name__)
+
+TYPE_IDS = {
+    "scor": 0x01,
+    "tele": 0x02,
+    "ext":  0x03,
+    "ffb":  0x04,
+}
+
+
+class RF2WebSocket:
+    def __init__(self, uri: str, session_name: str, role: str, data_provider=None, data_receiver=None):
+        self._uri = uri
+        self._session_name = session_name
+        self._role = role
+        self._data_provider = data_provider
+        self._data_receiver = data_receiver
+        self._running = True
+        self._thread = threading.Thread(target=self._start_loop, daemon=True)
+
+    def start(self):
+        self._thread.start()
+
+    def stop(self):
+        self._running = False
+        if hasattr(self, "_loop") and self._loop.is_running():
+            def stopper():
+                for task in asyncio.all_tasks(loop=self._loop):
+                    task.cancel()
+            self._loop.call_soon_threadsafe(stopper)
+
+    def _start_loop(self):
+        self._loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(self._loop)
+        try:
+            self._loop.run_until_complete(self._run())
+        except asyncio.CancelledError:
+            pass
+        finally:
+            # Give time for async generators to close cleanly
+            with contextlib.suppress(Exception):
+                self._loop.run_until_complete(self._loop.shutdown_asyncgens())
+            self._loop.close()
+
+    def join(self):
+        if self._thread.is_alive():
+            self._thread.join(timeout=3)
+
+    async def _run(self, max_retries=5):
+        retry_count = 0
+        backoff = 1
+
+        while retry_count < max_retries or max_retries == 0:
+            try:
+                async with websockets.connect(self._uri) as ws:
+                    handshake = json.dumps({"session": self._session_name, "role": self._role})
+                    await ws.send(handshake)
+
+                    retry_count = 0
+                    backoff = 1
+
+                    if self._role == "sender":
+                        await self._send_loop(ws)
+                    else:
+                        await self._recv_loop(ws)
+
+            except Exception as e:
+                retry_count += 1
+                logger.warning(f"WebSocket {self._role} connection failed (attempt {retry_count}): {e}")
+                if retry_count >= max_retries:
+                    logger.error("Max retry attempts reached, giving up.")
+                    break
+                await asyncio.sleep(backoff)
+                backoff = min(backoff * 2, 30)
+
+    async def _send_loop(self, ws):
+        while self._running:
+            try:
+                if self._data_provider.isPaused:
+                    await asyncio.sleep(0.2)
+                    continue
+
+                frames = []
+                for key in TYPE_IDS.keys():
+                    raw_bytes = bytes(getattr(self._data_provider, f"_{key}").data)
+                    compressed = zlib.compress(raw_bytes)
+                    type_id = TYPE_IDS[key]
+                    frame = struct.pack("!BI", type_id, len(compressed)) + compressed
+                    frames.append(frame)
+
+                await ws.send(b"".join(frames))
+                await asyncio.sleep(0.2)
+            except Exception as e:
+                logger.error(f"WebSocket send error: {e}")
+                break
+
+    async def _recv_loop(self, ws):
+        while self._running:
+            try:
+                msg = await ws.recv()
+                offset = 0
+                parts = []
+
+                while offset < len(msg):
+                    if offset + 5 > len(msg):
+                        raise ValueError("Invalid header")
+                    type_id = msg[offset]
+                    length = struct.unpack("!I", msg[offset + 1:offset + 5])[0]
+                    offset += 5
+
+                    compressed = msg[offset:offset + length]
+                    decompressed = zlib.decompress(compressed)
+                    parts.append((type_id, decompressed))
+                    offset += length
+
+                self._apply_data(parts)
+
+            except Exception as e:
+                logger.error(f"WebSocket receive error: {e}")
+                break
+
+    def _apply_data(self, parts):
+        for type_id, data in parts:
+            if self._data_receiver:
+                self._data_receiver.apply_segment_data(type_id, data)
+
+    
