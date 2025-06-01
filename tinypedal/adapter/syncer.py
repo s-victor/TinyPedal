@@ -1,5 +1,5 @@
 import threading
-from typing import Literal
+from typing import Literal, Callable
 from .rf2_info import RF2Info
 from .remote_rf2_info import RemoteRF2Info
 from .rf2_websocket import RF2WebSocket
@@ -11,7 +11,7 @@ except ImportError:
     import sys
     sys.path.append(".")
     from pyRfactor2SharedMemory.rF2MMap import MAX_VEHICLES
-
+from tinypedal.hook import on_role_change_hook
     
 
 logger = logging.getLogger(__name__)
@@ -20,8 +20,11 @@ class RF2Syncer:
     def __init__(self, *,
                  websocket_uri: str | None = None,
                  session_name: str | None = None,
-                 connect_to_remote: bool = False):
+                 connect_to_remote: bool = False,
+                 on_role_change: Callable[[], None] | None = None):
         self._lock = threading.Lock()
+        self._uri = websocket_uri
+        self._session_name = session_name
 
         self._local = RF2Info()
         self._local.setMode(0)
@@ -29,10 +32,10 @@ class RF2Syncer:
 
         self._remote = None
         self._ws_sender = None
+        self._on_role_change = on_role_change
 
         if connect_to_remote and websocket_uri and session_name:
-            # Wait for local shared memory and player index
-            for _ in range(20):  # ~2s max
+            for _ in range(20):
                 if self._local.playerIndex != -1:
                     break
                 time.sleep(0.1)
@@ -40,14 +43,14 @@ class RF2Syncer:
             index = self._local.playerIndex
             driving = False
 
-            # Only check driving if we have a valid index
             if 0 <= index < MAX_VEHICLES:
                 try:
                     driving = self._local.isDriving(index)
                 except Exception as e:
-                    logging.warning(f"Could not determine driving state: {e}")
+                    logger.warning(f"Could not determine driving state: {e}")
 
             if driving:
+                logger.info(f"Connecting as sender, driving:{driving}")
                 self._ws_sender = RF2WebSocket(
                     uri=websocket_uri,
                     session_name=session_name,
@@ -56,8 +59,54 @@ class RF2Syncer:
                 )
                 self._ws_sender.start()
             else:
+                logger.info(f"Connecting as receiver, driving:{driving}")
                 self._remote = RemoteRF2Info(websocket_uri, session_name)
 
+            self._monitor_running = True
+            self._monitor_thread = threading.Thread(target=self._monitor_role_switch, daemon=True)
+            self._monitor_thread.start()
+
+    def _monitor_role_switch(self):
+        last_state = None
+        while self._monitor_running:
+            index = self._local.playerIndex
+            driving = False
+
+            if 0 <= index < MAX_VEHICLES:
+                try:
+                    driving = self._local.isDriving(index)
+                except Exception:
+                    pass
+
+            if driving != last_state:
+                last_state = driving
+
+                if driving:
+                    logger.info("Switched to driving — starting sender")
+                    if self._remote:
+                        self._remote.stop()
+                        self._remote = None
+                    if not self._ws_sender:
+                        self._ws_sender = RF2WebSocket(
+                            uri=self._uri,
+                            session_name=self._session_name,
+                            role="sender",
+                            data_provider=self._local
+                        )
+                        self._ws_sender.start()
+                else:
+                    logger.info("Switched to spectating — starting receiver")
+                    if self._ws_sender:
+                        self._ws_sender.stop()
+                        self._ws_sender = None
+                    if not self._remote:
+                        self._remote = RemoteRF2Info(self._uri, self._session_name)
+
+                if self._on_role_change:
+                    logger.info("Triggering API restart due to role switch")
+                    self._on_role_change()
+
+            time.sleep(1.0)
 
     def get_data(self, source: Literal["local", "remote"] = "local") -> dict:
         if source == "remote" and self._remote:
@@ -120,4 +169,5 @@ def get_rf2_info(cfg) -> RF2Syncer:
         websocket_uri=api_cfg.get("websocket_uri"),
         session_name=api_cfg.get("websocket_session"),
         connect_to_remote=api_cfg.get("connect_to_remote", False),
+        on_role_change=on_role_change_hook
     )

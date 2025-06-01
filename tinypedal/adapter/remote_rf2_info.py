@@ -40,6 +40,12 @@ class RemoteRF2Info:
     def rf2TeleVeh(self, index: int | None = None):
         with self._lock:
             return self._tele.mVehicles[index if index is not None else 0]
+        
+    def stop(self):
+        if hasattr(self, "_ws_client"):
+            self._ws_client.stop()
+            if self._ws_client._thread.is_alive():
+                self._ws_client._thread.join(timeout=2)
 
     @property
     def rf2ScorInfo(self):

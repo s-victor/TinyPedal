@@ -20,7 +20,7 @@ TYPE_IDS = {
 
 class RF2WebSocket:
     def __init__(self, uri: str, session_name: str, role: str, data_provider=None, data_receiver=None):
-        self._uri = uri
+        self._uri = uri if uri.startswith("ws://") or uri.startswith("wss://") else f"ws://{uri}"
         self._session_name = session_name
         self._role = role
         self._data_provider = data_provider
