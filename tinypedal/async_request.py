@@ -89,16 +89,12 @@ async def get_raw(request: bytes, host: str, port: int, time_out: float) -> byte
         return b""
 
 
-async def _test_get_raw(request: bytes, host: str, port: int, time_out: float) -> bytes:
-    """Test get response (raw)"""
+async def _print_result(test_func):
+    """Test result"""
     start = perf_counter()
-    try:
-        async with async_get(request, host, port, time_out) as raw_bytes:
-            print(f"{perf_counter() - start:.6f}s,", raw_bytes)
-            return raw_bytes
-    except (ConnectionError, TimeoutError, OSError, BaseException):
-        print(f"{perf_counter() - start:.6f}s (timeout),", b"")
-        return b""
+    result = await test_func
+    end = perf_counter()
+    print(f"{end - start:.6f}s (timeout),", result)
 
 
 async def _test_async_get(timeout: float):
@@ -106,13 +102,12 @@ async def _test_async_get(timeout: float):
     req1 = set_header_get("/rest/sessions/setting/SESSSET_race_timescale")
     req2 = set_header_get("/rest/sessions/weather")
     task_group = [
-        asyncio.create_task(_test_get_raw(req1, "localhost", 5397, timeout)),  # RF2
-        asyncio.create_task(_test_get_raw(req2, "localhost", 5397, timeout)),  # RF2
-        asyncio.create_task(_test_get_raw(req1, "localhost", 6397, timeout)),  # LMU
-        asyncio.create_task(_test_get_raw(req1, "localhost", 6397, timeout)),  # LMU
+        _print_result(get_raw(req1, "localhost", 5397, timeout)),  # RF2
+        _print_result(get_raw(req2, "localhost", 5397, timeout)),  # RF2
+        _print_result(get_raw(req1, "localhost", 6397, timeout)),  # LMU
+        _print_result(get_raw(req1, "localhost", 6397, timeout)),  # LMU
     ]
-    for _task in task_group:
-        await _task
+    await asyncio.gather(*task_group)
 
 
 if __name__ == "__main__":
