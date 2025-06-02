@@ -16,7 +16,8 @@ class PitMenuRemoteControl(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._pit_menu_data = {}  # keyed by PMC Value
+        self._ws_client = None
+        self._pit_menu_data = {}
 
         layout = QVBoxLayout()
 
@@ -30,38 +31,31 @@ class PitMenuRemoteControl(QWidget):
         control_layout.addWidget(self.button_post)
         layout.addLayout(control_layout)
 
-        # Fixed combo boxes for PMC_KEYS
+        # PMC value editors as ComboBoxes
         self._combo_boxes = {}
-        self._labels = {}
-
         for key in PMC_KEYS:
             row = QHBoxLayout()
             label = QLabel(f"PMC {key}")
             combo = QComboBox()
-            combo.setEnabled(False)  # Disable until data is fetched
-
+            combo.setEnabled(False)  # initially disabled until data fetched
+            self._combo_boxes[key] = combo
             row.addWidget(label)
             row.addWidget(combo)
             layout.addLayout(row)
 
-            self._combo_boxes[key] = combo
-            self._labels[key] = label
-
         self.setLayout(layout)
+        self._init_ws_client()
 
-    def get_ws_client(self):
+    def _init_ws_client(self):
         try:
             info = api._api.info
-            client = getattr(info, "_ws_client", None)
-            if client:
-                return client
+            self._ws_client = getattr(info, "_ws_client", None)
         except Exception as e:
             logger.error(f"Failed to get WebSocket client: {e}")
-        return None
+            self._ws_client = None
 
     def _fetch_pit_menu(self):
-        ws_client = self.get_ws_client()
-        if not ws_client:
+        if not self._ws_client:
             self._show_error("No WebSocket client available")
             return
 
@@ -71,49 +65,40 @@ class PitMenuRemoteControl(QWidget):
                 if not result:
                     raise ValueError("Missing result in pit_menu_data")
 
-                # Convert result list to dict keyed by PMC Value
-                self._pit_menu_data = {item["PMC Value"]: item for item in result}
+                # result expected to be a dict mapping PMC keys (as string) to full objects
+                self._pit_menu_data = result
 
-                # Update each combo box
+                # Populate combo boxes for each PMC key
                 for key in PMC_KEYS:
+                    item = self._pit_menu_data.get(str(key))
                     combo = self._combo_boxes.get(key)
-                    label = self._labels.get(key)
-                    pmc_item = self._pit_menu_data.get(key)
+                    if not item or not combo:
+                        continue
 
-                    if pmc_item:
-                        # Update label name
-                        label.setText(pmc_item.get("name", f"PMC {key}"))
-
-                        settings = pmc_item.get("settings", [])
-                        combo.clear()
-                        for setting in settings:
-                            combo.addItem(setting.get("text", "Unknown"))
-
-                        current_index = pmc_item.get("currentSetting", 0)
-                        if 0 <= current_index < combo.count():
-                            combo.setCurrentIndex(current_index)
-                        else:
-                            combo.setCurrentIndex(0)
-
-                        combo.setEnabled(True)
+                    combo.clear()
+                    settings = item.get("settings", [])
+                    # Add the text of each setting to the combo box
+                    for setting in settings:
+                        combo.addItem(setting.get("text", ""))
+                    # Set current selection to currentSetting
+                    current_index = item.get("currentSetting", 0)
+                    if 0 <= current_index < combo.count():
+                        combo.setCurrentIndex(current_index)
                     else:
-                        # No data for this PMC key: clear and disable
-                        label.setText(f"PMC {key} (no data)")
-                        combo.clear()
-                        combo.setEnabled(False)
+                        combo.setCurrentIndex(0)
+                    combo.setEnabled(True)
 
-                QMessageBox.information(self, "Success", "Pit menu data received.")
-
+                QMessageBox.information(self, "Success", "Pit menu data received and loaded.")
             except Exception as e:
                 logger.error(f"Error in GET response: {e}")
                 self._show_error("Failed to parse pit menu response")
 
-        # Set the callback to intercept pit_menu_data
-        ws_client._session_callback = lambda msg: (
+        # Setup callback for pit_menu_data messages
+        self._ws_client._session_callback = lambda msg: (
             callback_wrapper(msg) if isinstance(msg, dict) and msg.get("type") == "pit_menu_data" else None
         )
-        ws_client._loop.call_soon_threadsafe(
-            lambda: asyncio.create_task(ws_client._send_json({"type": "fetch_pit_menu"}))
+        self._ws_client._loop.call_soon_threadsafe(
+            lambda: asyncio.create_task(self._ws_client._send_json({"type": "fetch_pit_menu"}))
         )
 
     def _send_pit_menu(self):
@@ -121,30 +106,32 @@ class PitMenuRemoteControl(QWidget):
             self._show_error("No pit menu loaded. Use Fetch first.")
             return
 
-        ws_client = self.get_ws_client()
-        if not ws_client:
-            self._show_error("No WebSocket client available")
-            return
+        # Prepare payload as list of full original objects with updated currentSetting only
+        modified_payload = []
 
-        modified = []
         for key in PMC_KEYS:
-            pmc_item = self._pit_menu_data.get(key)
+            pmc_item = self._pit_menu_data.get(str(key))
             combo = self._combo_boxes.get(key)
+            if not pmc_item or not combo:
+                continue
 
-            if pmc_item and combo:
-                pmc_item["currentSetting"] = combo.currentIndex()
-                modified.append(pmc_item)
+            updated_item = dict(pmc_item)  # shallow copy
+            updated_item["currentSetting"] = combo.currentIndex()
+            modified_payload.append(updated_item)
 
-        ws_client._loop.call_soon_threadsafe(
-            lambda: asyncio.create_task(ws_client._send_json({
-                "type": "send_pit_menu",
-                "payload": modified
-            }))
-        )
-        QMessageBox.information(self, "Sent", "Pit menu POST request sent.")
+        if self._ws_client:
+            self._ws_client._loop.call_soon_threadsafe(
+                lambda: asyncio.create_task(self._ws_client._send_json({
+                    "type": "send_pit_menu",
+                    "payload": modified_payload
+                }))
+            )
+            QMessageBox.information(self, "Sent", "Pit menu POST request sent.")
+        else:
+            self._show_error("No WebSocket client available")
 
     def _show_error(self, msg):
         QMessageBox.critical(self, "Error", msg)
 
     def refresh(self):
-        pass
+        self._init_ws_client()
