@@ -39,9 +39,15 @@ class SessionBrowser(QWidget):
         self.button_refresh = QPushButton("Refresh")
         self.button_refresh.clicked.connect(self.refresh_sessions)
 
+        self.button_toggle = QPushButton("")
+        self.button_toggle.setCheckable(True)
+        self.button_toggle.clicked.connect(self.toggle_remote_connection)
+        self.update_toggle_button_text()
+
         layout_buttons = QHBoxLayout()
         layout_buttons.addWidget(self.button_join)
         layout_buttons.addWidget(self.button_refresh)
+        layout_buttons.addWidget(self.button_toggle)
         layout_buttons.addStretch(1)
 
         layout_main = QVBoxLayout()
@@ -99,6 +105,20 @@ class SessionBrowser(QWidget):
         api.restart()
 
         self.label_status.setText(f"Joined session: <b>{session_name}</b>")
+
+    def toggle_remote_connection(self):
+        """Toggle remote connection on/off"""
+        current = cfg.shared_memory_api.get("connect_to_remote", False)
+        cfg.shared_memory_api["connect_to_remote"] = not current
+        cfg.save()
+        api.restart()
+        self.update_toggle_button_text()
+        self.refresh_sessions()
+
+    def update_toggle_button_text(self):
+        connected = cfg.shared_memory_api.get("connect_to_remote", False)
+        self.button_toggle.setChecked(connected)
+        self.button_toggle.setText("Connected" if connected else "Disconnected")
 
     def refresh(self):
         self.refresh_sessions()
