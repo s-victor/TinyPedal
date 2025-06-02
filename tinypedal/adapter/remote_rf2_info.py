@@ -11,13 +11,13 @@ class RemoteRF2Info:
         self._ffb = rF2data.rF2ForceFeedback()
         self._lock = threading.Lock()
 
-        self._ws_client = RF2WebSocket(
+        self._ws = RF2WebSocket(
             uri=session_uri,
             session_name=session_name,
             role="receiver",
             data_receiver=self
         )
-        self._ws_client.start()
+        self._ws.start()
 
     def apply_segment_data(self, type_id: int, data: bytes):
         with self._lock:
@@ -42,10 +42,10 @@ class RemoteRF2Info:
             return self._tele.mVehicles[index if index is not None else 0]
         
     def stop(self):
-        if hasattr(self, "_ws_client"):
-            self._ws_client.stop()
-            if self._ws_client._thread.is_alive():
-                self._ws_client._thread.join(timeout=2)
+        if self._ws:
+            self._ws.stop()
+            if self._ws._thread.is_alive():
+                self._ws._thread.join(timeout=2)
 
     @property
     def rf2ScorInfo(self):
@@ -69,3 +69,8 @@ class RemoteRF2Info:
     @property
     def isPaused(self) -> bool:
         return False
+
+    @property
+    def _ws_client(self):
+        """Expose internal WebSocket client for widgets (read-only)"""
+        return self._ws

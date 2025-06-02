@@ -71,16 +71,11 @@ class RF2WebSocket:
                     retry_count = 0
                     backoff = 1
 
+                    tasks = [self._recv_loop(ws)]
                     if self._role == "sender":
-                        await asyncio.gather(
-                            self._send_loop(ws),
-                            self._json_recv_loop(ws)
-                        )
-                    else:
-                        await asyncio.gather(
-                            self._recv_loop(ws),
-                            self._json_recv_loop(ws)
-                        )
+                        tasks.append(self._send_loop(ws))
+
+                    await asyncio.gather(*tasks)
 
             except Exception as e:
                 retry_count += 1
@@ -117,10 +112,13 @@ class RF2WebSocket:
         while self._running:
             try:
                 msg = await ws.recv()
+
                 if isinstance(msg, str):
+                    logger.info(f"📩 Text message received: {msg}")
                     await self._handle_json_message(msg)
                     continue
 
+                # Assume it's binary telemetry
                 offset = 0
                 parts = []
                 while offset < len(msg):
@@ -135,23 +133,15 @@ class RF2WebSocket:
                     offset += length
 
                 self._apply_data(parts)
-            except Exception as e:
-                logger.error(f"Receive loop error: {e}")
-                break
 
-    async def _json_recv_loop(self, ws):
-        while self._running:
-            try:
-                msg = await ws.recv()
-                if isinstance(msg, str):
-                    await self._handle_json_message(msg)
             except Exception as e:
-                logger.warning(f"JSON receive loop error: {e}")
+                logger.warning(f"Receive loop error: {e}")
                 break
 
     async def _handle_json_message(self, msg: str):
         try:
             data = json.loads(msg)
+            logger.info(f"✅ Received JSON from server: {data}")  # <--- Add this
             if data.get("type") == "session_list" and self._session_callback:
                 self._session_callback(data.get("sessions", []))
         except Exception as e:
@@ -163,16 +153,24 @@ class RF2WebSocket:
                 self._data_receiver.apply_segment_data(type_id, data)
 
     def request_session_list(self, callback):
+        logger.info("request_session_list() called")
         self._session_callback = callback
         if self._loop and self._loop.is_running():
             asyncio.run_coroutine_threadsafe(
                 self._send_json({"type": "list_sessions"}),
                 self._loop
             )
-        logger.info("Requesting session list")
+            logger.info("Submitted session list request coroutine")
+        else:
+            logger.warning("❌ WebSocket loop is not running — cannot send session request")
+
     async def _send_json(self, payload: dict):
         try:
             if self._ws:
-                await self._ws.send(json.dumps(payload))
+                message = json.dumps(payload)
+                logger.info(f"Sending JSON to server: {message}")
+                await self._ws.send(message)
+            else:
+                logger.warning("❌ Cannot send JSON: self._ws is None")
         except Exception as e:
             logger.error(f"Failed to send JSON message: {e}")
