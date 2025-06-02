@@ -1205,16 +1205,10 @@ Lap difference (percentage) threshold for tagging opponents as behind. Default i
 Set minimum axle rotation (radians per second) for calculating wheel radius and differential locking percent. Default value is `4`.
 
     maximum_rotation_difference_front, maximum_rotation_difference_rear
-Set maximum rotation difference (percentage) between left or right wheel rotation and same axle rotation for limiting wheel radius calculation. Setting higher difference value may result inaccurate wheel radius reading. Default value is `0.002`.
+Set maximum rotation difference between left or right wheel rotation and same axle rotation for limiting wheel radius calculation. Default value is `0.002` (0.2%). Setting higher difference value may result inaccurate wheel radius reading.
 
     cornering_radius_sampling_interval
 Set position sampling interval for cornering radius calculation. Value range in `5` to `100`. Default sampling interval is `10`, which is roughly 200ms interval between each recorded position. Higher value may result inaccuracy. Note, this option does not affect position recording interval.
-
-    last_vehicle_info
-Last saved vehicle identifier. This option is not for manual editing.
-
-    last_wheel_radius_front, last_wheel_radius_rear
-Last saved radius of front and rear wheels. This option is not for manual editing.
 
 [**`Back to Top`**](#)
 
@@ -1572,10 +1566,10 @@ Show minimum differential locking percent between left and right wheels on the s
 A `100%` reading indicates two wheels on the same axle are rotating at same speed; while `0%` indicates that one of the wheels is completely spinning or locked.
 
     off_throttle_threshold
-Set throttle threshold which counts as off throttle if throttle position is lower, value range in `0.0` to `1.0`. Default is `0.01`.
+Set percentage threshold which counts as off throttle if throttle position is lower, value range in `0.0` to `1.0`. Default is `0.01` (1%).
 
     on_throttle_threshold
-Set throttle threshold which counts as on throttle if throttle position is higher, value range in `0.0` to `1.0`. Default is `0.01`.
+Set percentage threshold which counts as on throttle if throttle position is higher, value range in `0.0` to `1.0`. Default is `0.01` (1%).
 
     power_locking_reset_cooldown, coast_locking_reset_cooldown
 Set cooldown duration (seconds) before resetting minimum power or coast locking percent value if value hasn't changed during cooldown period. Default is `5` seconds.
@@ -2286,7 +2280,7 @@ Set minimum gear threshold for P2P ready indicator.
 Set minimum speed threshold for P2P ready indicator, unit in KPH.
 
     activation_threshold_throttle
-Set minimum throttle input percentage threshold for P2P ready indicator, value range in `0.0` to `1.0`.
+Set minimum throttle input percentage threshold for P2P ready indicator, value range in `0.0` to `1.0`. Default is `0.6` (60%).
 
     minimum_activation_time_delay
 Set minimum time delay between each P2P activation, unit in seconds.
@@ -3280,8 +3274,8 @@ Set percentage threshold for triggering wheel slip warning under acceleration. `
     show_reference_line
 Show reference line.
 
-    reference_line_*_style
-Set reference line vertical offset relative to pedal, value in percentage.
+    reference_line_*_offset
+Set reference line vertical offset position (percentage) relative to pedal, value range in `0.0` to `1.0`.
 
     reference_line_*_style
 Set reference line style. `0` for solid line, `1` for dashed line.

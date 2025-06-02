@@ -46,16 +46,14 @@ class Realtime(DataModule):
         output = minfo.wheels
 
         vehicle_name = ""
-        radius_front = 0.0
-        radius_rear = 0.0
-        list_radius_f = deque([], 160)
-        list_radius_r = deque([], 160)
+        radius_front_ema = 0.0
+        radius_rear_ema = 0.0
 
         max_rot_bias_f = max(self.mcfg["maximum_rotation_difference_front"], 0.00001)
         max_rot_bias_r = max(self.mcfg["maximum_rotation_difference_rear"], 0.00001)
         min_rot_axle = max(self.mcfg["minimum_axle_rotation"], 0)
         min_coords = min(max(self.mcfg["cornering_radius_sampling_interval"], 5), 100)
-        list_coords = deque([(0,0)] * min_coords * 2, min_coords * 2)
+        list_coords = deque([POS_XY_ZERO] * min_coords * 2, min_coords * 2)
 
         while not _event_wait(update_interval):
             if self.state.active:
@@ -64,20 +62,12 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
 
-                    if vehicle_name == api.read.vehicle.vehicle_name():
-                        min_samples_f = 160
-                        min_samples_r = 160
-                    else:
+                    if vehicle_name != api.read.vehicle.vehicle_name():
                         vehicle_name = api.read.vehicle.vehicle_name()
-                        list_radius_f.clear()
-                        list_radius_r.clear()
-                        radius_front = 0.0
-                        radius_rear = 0.0
-                        min_samples_f = 20
-                        min_samples_r = 20
+                        radius_front_ema = 0.0
+                        radius_rear_ema = 0.0
 
-                    samples_slice_f = sample_slice_indices(min_samples_f)
-                    samples_slice_r = sample_slice_indices(min_samples_r)
+                    last_accel_max = 0.0
                     locking_f = 1
                     locking_r = 1
                     cornering_radius = 0
@@ -88,6 +78,10 @@ class Realtime(DataModule):
                 wheel_rot = api.read.wheel.rotation()
                 gps_curr = (api.read.vehicle.position_longitudinal(),
                             api.read.vehicle.position_lateral())
+                accel_max = max(
+                    abs(api.read.vehicle.accel_lateral()),
+                    abs(api.read.vehicle.accel_longitudinal()),
+                )
 
                 # Get wheel axle rotation and difference
                 rot_axle_f = calc.wheel_axle_rotation(wheel_rot[0], wheel_rot[1])
@@ -101,23 +95,15 @@ class Realtime(DataModule):
                     locking_r = calc.differential_locking_percent(rot_axle_r, wheel_rot[2])
 
                 # Record wheel radius value within max rotation difference
-                if rot_axle_f < -min_rot_axle and 0 < rot_bias_f < max_rot_bias_f:
-                    list_radius_f.append(calc.rot2radius(speed, rot_axle_f))
+                if last_accel_max != accel_max:  # check if game paused
+                    last_accel_max = accel_max
+                    d_factor = 2 / max(40 * accel_max, 20)  # scale ema factor with max accel
                     # Front average wheel radius
-                    if len(list_radius_f) >= min_samples_f:
-                        radius_front = calc.mean(sorted(list_radius_f)[samples_slice_f])
-                        if min_samples_f < 160:
-                            min_samples_f *= 2  # double sample counts
-                            samples_slice_f = sample_slice_indices(min_samples_f)
-
-                if rot_axle_r < -min_rot_axle and 0 < rot_bias_r < max_rot_bias_r:
-                    list_radius_r.append(calc.rot2radius(speed, rot_axle_r))
+                    if rot_axle_f < -min_rot_axle and 0 < rot_bias_f < max_rot_bias_f:
+                        radius_front_ema = calc.exp_mov_avg(d_factor, radius_front_ema, calc.rot2radius(speed, rot_axle_f))
                     # Rear average wheel radius
-                    if len(list_radius_r) >= min_samples_r:
-                        radius_rear = calc.mean(sorted(list_radius_r)[samples_slice_r])
-                        if min_samples_r < 160:
-                            min_samples_r *= 2
-                            samples_slice_r = sample_slice_indices(min_samples_r)
+                    if rot_axle_r < -min_rot_axle and 0 < rot_bias_r < max_rot_bias_r:
+                        radius_rear_ema = calc.exp_mov_avg(d_factor, radius_rear_ema, calc.rot2radius(speed, rot_axle_r))
 
                 # Calculate cornering radius based on tri-coordinates position
                 if gps_last != gps_curr:
@@ -131,17 +117,12 @@ class Realtime(DataModule):
                 output.lockingPercentFront = locking_f
                 output.lockingPercentRear = locking_r
                 output.corneringRadius = cornering_radius
-                output.slipRatio[0] = calc.slip_ratio(wheel_rot[0], radius_front, speed)
-                output.slipRatio[1] = calc.slip_ratio(wheel_rot[1], radius_front, speed)
-                output.slipRatio[2] = calc.slip_ratio(wheel_rot[2], radius_rear, speed)
-                output.slipRatio[3] = calc.slip_ratio(wheel_rot[3], radius_rear, speed)
+                output.slipRatio[0] = calc.slip_ratio(wheel_rot[0], radius_front_ema, speed)
+                output.slipRatio[1] = calc.slip_ratio(wheel_rot[1], radius_front_ema, speed)
+                output.slipRatio[2] = calc.slip_ratio(wheel_rot[2], radius_rear_ema, speed)
+                output.slipRatio[3] = calc.slip_ratio(wheel_rot[3], radius_rear_ema, speed)
 
             else:
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
-
-
-def sample_slice_indices(samples: int) -> slice:
-    """Calculate sample slice indices from minimum samples"""
-    return slice(int(samples * 0.25), int(samples * 0.75))
