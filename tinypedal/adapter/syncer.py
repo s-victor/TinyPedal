@@ -164,7 +164,7 @@ class RF2Syncer:
 
     @property
     def _ws_client(self):
-        return self._ws_sender
+        return self._ws_sender or self._remote
 
 def get_rf2_info(cfg) -> RF2Syncer:
     api_cfg = cfg.shared_memory_api

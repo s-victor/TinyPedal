@@ -51,6 +51,7 @@ from .module_view import ModuleList
 from .pace_notes_view import PaceNotesControl
 from .preset_view import PresetList
 from .spectate_view import SpectateList
+from .remote_sessions_view import SessionBrowser
 
 logger = logging.getLogger(__name__)
 
@@ -95,6 +96,7 @@ class TabView(QWidget):
         preset_tab = PresetList(self, parent.reload_preset, notify_bar.presetlocked.setVisible)
         spectate_tab = SpectateList(self, notify_bar.spectate.setVisible)
         pacenotes_tab = PaceNotesControl(self, notify_bar.pacenotes.setVisible)
+        sessions_tab = SessionBrowser(self)
 
         self._tabs = QTabWidget(self)
         self._tabs.addTab(widget_tab, "Widget")  # 0
@@ -102,6 +104,7 @@ class TabView(QWidget):
         self._tabs.addTab(preset_tab, "Preset")  # 2
         self._tabs.addTab(spectate_tab, "Spectate")  # 3
         self._tabs.addTab(pacenotes_tab, "Pace Notes")  # 4
+        self._tabs.addTab(sessions_tab, "Sessions Browser") #5
 
         # Main view
         layout_main = QVBoxLayout()

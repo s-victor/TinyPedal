@@ -4,9 +4,8 @@ import zlib
 import struct
 import threading
 import logging
-import ctypes
-import websockets
 import contextlib
+import websockets
 
 logger = logging.getLogger(__name__)
 
@@ -26,18 +25,25 @@ class RF2WebSocket:
         self._data_provider = data_provider
         self._data_receiver = data_receiver
         self._running = True
+        self._loop = None
+        self._ws = None
         self._thread = threading.Thread(target=self._start_loop, daemon=True)
+        self._session_callback = None
 
     def start(self):
         self._thread.start()
 
     def stop(self):
         self._running = False
-        if hasattr(self, "_loop") and self._loop.is_running():
+        if self._loop and self._loop.is_running():
             def stopper():
                 for task in asyncio.all_tasks(loop=self._loop):
                     task.cancel()
             self._loop.call_soon_threadsafe(stopper)
+
+    def join(self):
+        if self._thread.is_alive():
+            self._thread.join(timeout=3)
 
     def _start_loop(self):
         self._loop = asyncio.new_event_loop()
@@ -47,14 +53,9 @@ class RF2WebSocket:
         except asyncio.CancelledError:
             pass
         finally:
-            # Give time for async generators to close cleanly
             with contextlib.suppress(Exception):
                 self._loop.run_until_complete(self._loop.shutdown_asyncgens())
             self._loop.close()
-
-    def join(self):
-        if self._thread.is_alive():
-            self._thread.join(timeout=3)
 
     async def _run(self, max_retries=5):
         retry_count = 0
@@ -63,6 +64,7 @@ class RF2WebSocket:
         while retry_count < max_retries or max_retries == 0:
             try:
                 async with websockets.connect(self._uri) as ws:
+                    self._ws = ws
                     handshake = json.dumps({"session": self._session_name, "role": self._role})
                     await ws.send(handshake)
 
@@ -70,9 +72,15 @@ class RF2WebSocket:
                     backoff = 1
 
                     if self._role == "sender":
-                        await self._send_loop(ws)
+                        await asyncio.gather(
+                            self._send_loop(ws),
+                            self._json_recv_loop(ws)
+                        )
                     else:
-                        await self._recv_loop(ws)
+                        await asyncio.gather(
+                            self._recv_loop(ws),
+                            self._json_recv_loop(ws)
+                        )
 
             except Exception as e:
                 retry_count += 1
@@ -82,56 +90,89 @@ class RF2WebSocket:
                     break
                 await asyncio.sleep(backoff)
                 backoff = min(backoff * 2, 30)
+            finally:
+                self._ws = None
 
     async def _send_loop(self, ws):
         while self._running:
             try:
-                if self._data_provider.isPaused:
+                if self._data_provider and self._data_provider.isPaused:
                     await asyncio.sleep(0.2)
                     continue
 
                 frames = []
-                for key in TYPE_IDS.keys():
+                for key in TYPE_IDS:
                     raw_bytes = bytes(getattr(self._data_provider, f"_{key}").data)
                     compressed = zlib.compress(raw_bytes)
-                    type_id = TYPE_IDS[key]
-                    frame = struct.pack("!BI", type_id, len(compressed)) + compressed
+                    frame = struct.pack("!BI", TYPE_IDS[key], len(compressed)) + compressed
                     frames.append(frame)
 
                 await ws.send(b"".join(frames))
                 await asyncio.sleep(0.2)
             except Exception as e:
-                logger.error(f"WebSocket send error: {e}")
+                logger.error(f"Send loop error: {e}")
                 break
 
     async def _recv_loop(self, ws):
         while self._running:
             try:
                 msg = await ws.recv()
+                if isinstance(msg, str):
+                    await self._handle_json_message(msg)
+                    continue
+
                 offset = 0
                 parts = []
-
                 while offset < len(msg):
                     if offset + 5 > len(msg):
                         raise ValueError("Invalid header")
                     type_id = msg[offset]
                     length = struct.unpack("!I", msg[offset + 1:offset + 5])[0]
                     offset += 5
-
                     compressed = msg[offset:offset + length]
                     decompressed = zlib.decompress(compressed)
                     parts.append((type_id, decompressed))
                     offset += length
 
                 self._apply_data(parts)
-
             except Exception as e:
-                logger.error(f"WebSocket receive error: {e}")
+                logger.error(f"Receive loop error: {e}")
                 break
+
+    async def _json_recv_loop(self, ws):
+        while self._running:
+            try:
+                msg = await ws.recv()
+                if isinstance(msg, str):
+                    await self._handle_json_message(msg)
+            except Exception as e:
+                logger.warning(f"JSON receive loop error: {e}")
+                break
+
+    async def _handle_json_message(self, msg: str):
+        try:
+            data = json.loads(msg)
+            if data.get("type") == "session_list" and self._session_callback:
+                self._session_callback(data.get("sessions", []))
+        except Exception as e:
+            logger.error(f"Invalid JSON message received: {e}")
 
     def _apply_data(self, parts):
         for type_id, data in parts:
             if self._data_receiver:
                 self._data_receiver.apply_segment_data(type_id, data)
 
-    
+    def request_session_list(self, callback):
+        self._session_callback = callback
+        if self._loop and self._loop.is_running():
+            asyncio.run_coroutine_threadsafe(
+                self._send_json({"type": "list_sessions"}),
+                self._loop
+            )
+        logger.info("Requesting session list")
+    async def _send_json(self, payload: dict):
+        try:
+            if self._ws:
+                await self._ws.send(json.dumps(payload))
+        except Exception as e:
+            logger.error(f"Failed to send JSON message: {e}")
