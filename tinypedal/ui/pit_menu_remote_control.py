@@ -1,7 +1,7 @@
 from PySide6.QtWidgets import (
     QWidget, QVBoxLayout, QHBoxLayout, QLabel, QPushButton, QComboBox, QMessageBox
 )
-from PySide6.QtCore import Qt, QMetaObject
+from PySide6.QtCore import Qt, Signal, Slot
 from ..api_control import api
 import asyncio
 import logging
@@ -24,10 +24,14 @@ PMC_NAMES = {
 
 
 class PitMenuRemoteControl(QWidget):
+    # Define signals for thread-safe UI updates
+    update_ui_signal = Signal()
+    show_error_signal = Signal(str)
+
     def __init__(self, parent=None):
         super().__init__(parent)
         self._ws_client = None
-        self._pit_menu_data = []  # Full JSON pit menu list
+        self._pit_menu_data = []
 
         layout = QVBoxLayout()
 
@@ -47,7 +51,7 @@ class PitMenuRemoteControl(QWidget):
             row = QHBoxLayout()
             label = QLabel(PMC_NAMES.get(key, f"PMC {key}"))
             combo = QComboBox()
-            combo.setEnabled(False)  # Disabled until data fetched
+            combo.setEnabled(False)
             self._combo_boxes[key] = combo
             row.addWidget(label)
             row.addWidget(combo)
@@ -55,6 +59,10 @@ class PitMenuRemoteControl(QWidget):
 
         self.setLayout(layout)
         self._init_ws_client()
+
+        # Connect signals to slots
+        self.update_ui_signal.connect(self.update_ui_with_pit_menu)
+        self.show_error_signal.connect(self.show_error_message_box)
 
     def _init_ws_client(self):
         try:
@@ -77,49 +85,42 @@ class PitMenuRemoteControl(QWidget):
                 result = data.get("result")
                 if not result or not isinstance(result, list):
                     raise ValueError("Invalid or missing 'result' in pit_menu_data")
-
-                self._pit_menu_data = result  # Save full list
-
-                def update_ui():
-                    logger.debug("Updating UI combos...")
-                    for key in PMC_KEYS:
-                        combo = self._combo_boxes.get(key)
-                        if combo:
-                            combo.clear()
-                            combo.setEnabled(False)
-
-                    for item in self._pit_menu_data:
-                        pmc_val = item.get("PMC Value")
-                        if pmc_val not in PMC_KEYS:
-                            continue
-                        combo = self._combo_boxes.get(pmc_val)
-                        if not combo:
-                            continue
-                        settings = item.get("settings", [])
-                        for setting in settings:
-                            combo.addItem(setting.get("text", ""))
-                        current_index = item.get("currentSetting", 0)
-                        combo.setCurrentIndex(min(current_index, combo.count() - 1))
-                        combo.setEnabled(True)
-
-                    QMessageBox.information(self, "Success", "Pit menu data received and loaded.")
-
-                QMetaObject.invokeMethod(self, update_ui, Qt.QueuedConnection)
-
+                self._pit_menu_data = result
+                # Emit signal to update UI safely
+                self.update_ui_signal.emit()
             except Exception as e:
                 logger.error(f"Error processing pit menu response: {e}")
                 self._show_error("Failed to parse pit menu response")
-            finally:
-                # Unregister callback after use
-                self._ws_client._callbacks.pop("pit_menu_data", None)
 
-        # Register temporary callback
-        self._ws_client.register_callback("pit_menu_data", on_pit_menu_data)
+        self._ws_client.send_request("fetch_pit_menu", None, on_pit_menu_data, response_type="pit_menu_data")
 
-        # Send fetch request safely on websocket thread
-        self._ws_client._loop.call_soon_threadsafe(
-            lambda: asyncio.create_task(self._ws_client._send_json({"type": "fetch_pit_menu"}))
-        )
+    @Slot()
+    def update_ui_with_pit_menu(self):
+        logger.debug("Updating UI combos...")
+
+        # Clear and disable all combos
+        for combo in self._combo_boxes.values():
+            combo.clear()
+            combo.setEnabled(False)
+
+        # Populate combos with new data
+        for item in self._pit_menu_data:
+            pmc_val = item.get("PMC Value")
+            if pmc_val not in PMC_KEYS:
+                continue
+            combo = self._combo_boxes.get(pmc_val)
+            if not combo:
+                continue
+
+            settings = item.get("settings", [])
+            for setting in settings:
+                combo.addItem(setting.get("text", ""))
+            current_index = item.get("currentSetting", 0)
+            combo.setCurrentIndex(current_index if 0 <= current_index < combo.count() else 0)
+            combo.setEnabled(True)
+
+        logger.debug("UI combos updated.")
+        QMessageBox.information(self, "Success", "Pit menu data received and loaded.")
 
     def _send_pit_menu(self):
         if not self._pit_menu_data:
@@ -149,7 +150,12 @@ class PitMenuRemoteControl(QWidget):
         else:
             self._show_error("No WebSocket client available")
 
-    def _show_error(self, msg):
+    def _show_error(self, msg: str):
+        # Emit signal with error message for thread-safe display
+        self.show_error_signal.emit(msg)
+
+    @Slot(str)
+    def show_error_message_box(self, msg):
         QMessageBox.critical(self, "Error", msg)
 
     def refresh(self):

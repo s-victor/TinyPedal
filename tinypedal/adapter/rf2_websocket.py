@@ -34,6 +34,7 @@ class RF2WebSocket:
         self._ws = None
         self._thread = threading.Thread(target=self._start_loop, daemon=True)
         self._callbacks: dict[str, Callable[[dict], None]] = {}
+        self._pending_requests: dict[str, Callable[[dict], None]] = {}
 
     def start(self):
         self._thread.start()
@@ -51,8 +52,20 @@ class RF2WebSocket:
             self._thread.join(timeout=3)
 
     def register_callback(self, msg_type: str, callback: Callable[[dict], None]):
-        """Register a callback for a specific JSON message type."""
         self._callbacks[msg_type] = callback
+
+    def send_request(self, request_type: str, payload: dict | None, callback: Callable[[dict], None], response_type: str = None):
+        # Use response_type if provided, else fallback to request_type
+        key = response_type if response_type else request_type
+        self._pending_requests[key] = callback
+        if self._loop and self._loop.is_running():
+            asyncio.run_coroutine_threadsafe(
+                self._send_json({"type": request_type, **(payload or {})}),
+                self._loop
+            )
+        else:
+            logger.warning("WebSocket loop is not running — cannot send request")
+
 
     def _start_loop(self):
         self._loop = asyncio.new_event_loop()
@@ -152,7 +165,6 @@ class RF2WebSocket:
             msg_type = data.get("type")
             logger.info(f"✅ Received JSON message: {msg_type}")
 
-            # Built-in: server asks sender to fetch local pit menu
             if msg_type == "fetch_pit_menu" and self._role == "sender":
                 logger.info("Fetching pit menu from local API...")
                 async with httpx.AsyncClient() as client:
@@ -168,7 +180,6 @@ class RF2WebSocket:
                         logger.error(f"Failed to fetch pit menu: {e}")
                 return
 
-            # Built-in: server asks sender to POST updated pit menu
             if msg_type == "send_pit_menu" and self._role == "sender":
                 logger.info("Posting new pit menu to local API...")
                 json_payload = data.get("payload")
@@ -179,13 +190,20 @@ class RF2WebSocket:
                         logger.error(f"Failed to post pit menu: {e}")
                 return
 
-            # User-defined callback
+            # Dispatch one-time request callback
+            callback = self._pending_requests.pop(msg_type, None)
+            if callback:
+                logger.info(f"✅ Dispatching one-time callback for type: {msg_type}")
+                callback(data)
+                return
+
+            # Dispatch persistent callback
             callback = self._callbacks.get(msg_type)
             if callback:
-                logger.info(f"Dispatching callback for message type: {msg_type}")
+                logger.info(f"📌 Dispatching persistent callback for type: {msg_type}")
                 callback(data)
             else:
-                logger.warning(f"No callback registered for type: {msg_type}")
+                logger.warning(f"⚠ No callback registered for type: {msg_type}")
 
         except Exception as e:
             logger.error(f"Invalid JSON message received: {e}")
@@ -194,18 +212,6 @@ class RF2WebSocket:
         for type_id, data in parts:
             if self._data_receiver:
                 self._data_receiver.apply_segment_data(type_id, data)
-
-    def request_session_list(self, callback: Callable[[dict], None]):
-        """Requests the session list and registers callback for 'session_list' response."""
-        self.register_callback("session_list", callback)
-        logger.info("Requesting session list...")
-        if self._loop and self._loop.is_running():
-            asyncio.run_coroutine_threadsafe(
-                self._send_json({"type": "list_sessions"}),
-                self._loop
-            )
-        else:
-            logger.warning("❌ WebSocket loop is not running — cannot send session request")
 
     async def _send_json(self, payload: dict):
         try:
