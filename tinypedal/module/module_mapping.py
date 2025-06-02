@@ -125,9 +125,9 @@ def update_track_info(output, track_name: str):
         if last_in_pits != in_pits:
             if last_in_pits != -1 and api.read.vehicle.speed() > 1:  # avoid ESC desync
                 if in_pits > 0:  # entering pit
-                    pitin_pos = api.read.lap.distance()
+                    pitin_pos = max(api.read.lap.distance(), 0.0)
                 else:  # exiting pit
-                    pitout_pos = api.read.lap.distance()
+                    pitout_pos = max(api.read.lap.distance(), 0.0)
             last_in_pits = in_pits
             if pitin_pos != 0 != pitout_pos:  # calculate only with valid position
                 if pitin_pos < pitout_pos:

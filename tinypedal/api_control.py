@@ -21,8 +21,6 @@ API control
 """
 
 import logging
-import time
-import threading
 
 from .api_connector import API_PACK
 from .setting import cfg
@@ -78,13 +76,19 @@ class APIControl:
         self.setup()
         self._api.start()
 
+        # Register role change hook after API starts
+        try:
+            import tinypedal.hook
+            tinypedal.hook.on_role_change_hook = self.restart
+        except ImportError:
+            logger.warning("Could not register role-change hook")
+
         # Reload dataset if API changed
         if self.read is None or not self._same_api_loaded:
             self.read = self._api.dataset()
             self._same_api_loaded = True
         else:
-            # even if same API, refresh dataset
-            self.read = self._api.dataset()  # <--- FORCE dataset reload here
+            self.read = self._api.dataset()
 
     def stop(self):
         """Stop API"""
@@ -100,7 +104,7 @@ class APIControl:
 
     def setup(self):
         self._api.setup(
-            cfg,  # pass the full cfg object
+            cfg,
             cfg.shared_memory_api["character_encoding"].lower()
         )
         self._state_override = cfg.shared_memory_api["enable_active_state_override"]
@@ -108,19 +112,16 @@ class APIControl:
 
     @property
     def name(self) -> str:
-        """API name output"""
         return self._api.NAME
 
     @property
     def state(self) -> bool:
-        """API state output"""
         if self._state_override:
             return self._active_state
         return self.read.check.api_state()
 
     @property
     def version(self) -> str:
-        """API version output"""
         version = self.read.check.api_version()
         return version if version else "unknown"
 

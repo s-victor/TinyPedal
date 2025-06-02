@@ -1,3 +1,14 @@
+WIP
+-----------------------------
+* Weather Widget
+  - Add "decimal_places_temperature" option (requested by user "Dean688"). Default is "1" decimal place, set to "0" to hide decimals.
+    Note, when number of digits is less than expected, extra leading zero or decimal place will be added to fill the gap.
+
+2.29.2 (2025-05-29)
+-----------------------------
+* RestAPI Module
+  - Fixed an issue where some telemetry readings would stop updating if game was paused and resumed recently.
+
 2.29.1 (2025-05-25) hot fix
 -----------------------------
 * RestAPI Module
