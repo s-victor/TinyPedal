@@ -59,8 +59,12 @@ class SessionBrowser(QWidget):
         """Send session list request over WebSocket"""
         try:
             info = api._api.info
-            if hasattr(info, "_ws_client") and hasattr(info._ws_client, "request_session_list"):
-                info._ws_client.request_session_list(self.update_sessions)
+            print("info:", info)
+            print("has _ws_client:", hasattr(info, "_ws_client"))
+            client = getattr(info, "_ws_client", None)
+            print("client:", client)
+            if client and hasattr(client, "request_session_list"):
+                client.request_session_list(self.update_sessions)
                 self.label_status.setText("Requesting session list...")
             else:
                 self.label_status.setText("WebSocket client not available.")
@@ -96,4 +100,5 @@ class SessionBrowser(QWidget):
 
         self.label_status.setText(f"Joined session: <b>{session_name}</b>")
 
-    
+    def refresh(self):
+        self.refresh_sessions()
