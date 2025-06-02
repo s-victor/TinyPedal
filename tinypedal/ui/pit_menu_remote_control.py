@@ -14,8 +14,7 @@ class PitMenuRemoteControl(QWidget):
 
     def __init__(self, parent=None):
         super().__init__(parent)
-        self._ws_client = None
-        self._pit_menu_data = []  # This will be a list of dicts now
+        self._pit_menu_data = []  # List of PMC dicts
 
         layout = QVBoxLayout()
 
@@ -36,18 +35,21 @@ class PitMenuRemoteControl(QWidget):
         layout.addLayout(self._combo_container)
 
         self.setLayout(layout)
-        self._init_ws_client()
 
-    def _init_ws_client(self):
+    def get_ws_client(self):
+        """Try to get the current WebSocket client dynamically."""
         try:
             info = api._api.info
-            self._ws_client = getattr(info, "_ws_client", None)
+            client = getattr(info, "_ws_client", None)
+            if client:
+                return client
         except Exception as e:
             logger.error(f"Failed to get WebSocket client: {e}")
-            self._ws_client = None
+        return None
 
     def _fetch_pit_menu(self):
-        if not self._ws_client:
+        ws_client = self.get_ws_client()
+        if not ws_client:
             self._show_error("No WebSocket client available")
             return
 
@@ -62,9 +64,21 @@ class PitMenuRemoteControl(QWidget):
 
                 # Clear old combo boxes
                 for i in reversed(range(self._combo_container.count())):
-                    widget_item = self._combo_container.itemAt(i).widget()
-                    if widget_item:
-                        widget_item.deleteLater()
+                    item = self._combo_container.itemAt(i)
+                    if item is not None:
+                        widget = item.widget()
+                        if widget:
+                            widget.deleteLater()
+                        else:
+                            # If it's a layout, remove widgets from it:
+                            layout = item.layout()
+                            if layout:
+                                while layout.count():
+                                    child = layout.takeAt(0)
+                                    if child.widget():
+                                        child.widget().deleteLater()
+                        self._combo_container.removeItem(item)
+
                 self._combo_boxes.clear()
 
                 # Create new rows for each PMC item
@@ -100,16 +114,22 @@ class PitMenuRemoteControl(QWidget):
                 logger.error(f"Error in GET response: {e}")
                 self._show_error("Failed to parse pit menu response")
 
-        self._ws_client._session_callback = lambda msg: (
+        # Hook session callback for pit menu data messages
+        ws_client._session_callback = lambda msg: (
             callback_wrapper(msg) if isinstance(msg, dict) and msg.get("type") == "pit_menu_data" else None
         )
-        self._ws_client._loop.call_soon_threadsafe(
-            lambda: asyncio.create_task(self._ws_client._send_json({"type": "fetch_pit_menu"}))
+        ws_client._loop.call_soon_threadsafe(
+            lambda: asyncio.create_task(ws_client._send_json({"type": "fetch_pit_menu"}))
         )
 
     def _send_pit_menu(self):
         if not self._pit_menu_data:
             self._show_error("No pit menu loaded. Use Fetch first.")
+            return
+
+        ws_client = self.get_ws_client()
+        if not ws_client:
+            self._show_error("No WebSocket client available")
             return
 
         # Update currentSetting in pit_menu_data from combo boxes
@@ -121,19 +141,17 @@ class PitMenuRemoteControl(QWidget):
                 item["currentSetting"] = combo.currentIndex()
             modified.append(item)
 
-        if self._ws_client:
-            self._ws_client._loop.call_soon_threadsafe(
-                lambda: asyncio.create_task(self._ws_client._send_json({
-                    "type": "send_pit_menu",
-                    "payload": modified
-                }))
-            )
-            QMessageBox.information(self, "Sent", "Pit menu POST request sent.")
-        else:
-            self._show_error("No WebSocket client available")
+        ws_client._loop.call_soon_threadsafe(
+            lambda: asyncio.create_task(ws_client._send_json({
+                "type": "send_pit_menu",
+                "payload": modified
+            }))
+        )
+        QMessageBox.information(self, "Sent", "Pit menu POST request sent.")
 
     def _show_error(self, msg):
         QMessageBox.critical(self, "Error", msg)
 
     def refresh(self):
-        self._init_ws_client()
+        # This could be used to reset or re-check connection if you want
+        pass
