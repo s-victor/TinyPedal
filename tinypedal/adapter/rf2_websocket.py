@@ -5,6 +5,7 @@ import struct
 import threading
 import logging
 import contextlib
+import httpx
 import websockets
 
 logger = logging.getLogger(__name__)
@@ -15,6 +16,9 @@ TYPE_IDS = {
     "ext":  0x03,
     "ffb":  0x04,
 }
+
+GET_PIT_MENU_URL = "http://localhost:6397/rest/garage/PitMenu/receivePitMenu"
+POST_PIT_MENU_URL = "http://localhost:6397/rest/garage/PitMenu/loadPitMenu"
 
 
 class RF2WebSocket:
@@ -141,9 +145,38 @@ class RF2WebSocket:
     async def _handle_json_message(self, msg: str):
         try:
             data = json.loads(msg)
-            logger.info(f"✅ Received JSON from server: {data}")  # <--- Add this
+            logger.info(f"✅ Received JSON from server: {data}")
+
+            # Handle session list
             if data.get("type") == "session_list" and self._session_callback:
                 self._session_callback(data.get("sessions", []))
+
+            # Handle receiver requesting the pit menu
+            elif data.get("type") == "fetch_pit_menu" and self._role == "sender":
+                logger.info("Fetching pit menu from local API...")
+                async with httpx.AsyncClient() as client:
+                    try:
+                        response = await client.get(GET_PIT_MENU_URL, timeout=5)
+                        response.raise_for_status()
+                        payload = {
+                            "type": "pit_menu_data",
+                            "result": response.json()
+                        }
+                        await self._send_json(payload)
+                    except Exception as e:
+                        logger.error(f"Failed to fetch pit menu: {e}")
+
+            # Handle receiver sending new pit menu
+            elif data.get("type") == "send_pit_menu" and self._role == "sender":
+                json_payload = data.get("payload")
+                logger.info(f"Posting pit menu to local API: {json_payload}")
+                async with httpx.AsyncClient() as client:
+                    try:
+                        await client.post(POST_PIT_MENU_URL, json=json_payload, timeout=5)
+                        # No response needed
+                    except Exception as e:
+                        logger.error(f"Failed to post pit menu: {e}")
+
         except Exception as e:
             logger.error(f"Invalid JSON message received: {e}")
 
