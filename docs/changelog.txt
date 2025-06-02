@@ -1,5 +1,8 @@
 WIP
 -----------------------------
+* Wheels Module
+  - Optimized average wheel radius data sampling and calculation.
+
 * Weather Widget
   - Add "decimal_places_temperature" option (requested by user "Dean688"). Default is "1" decimal place, set to "0" to hide decimals.
     Note, when number of digits is less than expected, extra leading zero or decimal place will be added to fill the gap.
