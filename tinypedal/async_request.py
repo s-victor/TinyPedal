@@ -94,7 +94,8 @@ async def _print_result(test_func):
     start = perf_counter()
     result = await test_func
     end = perf_counter()
-    print(f"{end - start:.6f}s (timeout),", result)
+    is_timeout = " (timeout)" if not result else " (done)"
+    print(f"{end - start:.6f}s{is_timeout},", result)
 
 
 async def _test_async_get(timeout: float):
