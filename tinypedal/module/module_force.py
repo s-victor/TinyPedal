@@ -53,7 +53,6 @@ class Realtime(DataModule):
         calc_max_lgt = TransientMax(self.mcfg["max_g_force_reset_delay"])
         calc_max_lat = TransientMax(self.mcfg["max_g_force_reset_delay"])
         calc_max_avg_lat = TransientMax(self.mcfg["max_average_g_force_reset_delay"], True)
-        calc_braking_rate = BrakingRate(g_accel)
         calc_transient_rate = TransientMax(3)
         calc_max_braking_rate = TransientMax(self.mcfg["max_braking_rate_reset_delay"], True)
 
@@ -67,7 +66,6 @@ class Realtime(DataModule):
                     calc_max_lgt.reset()
                     calc_max_lat.reset()
                     calc_max_avg_lat.reset()
-                    calc_braking_rate.reset()
                     calc_transient_rate.reset()
                     calc_max_braking_rate.reset()
 
@@ -81,7 +79,6 @@ class Realtime(DataModule):
                 lgt_accel = api.read.vehicle.accel_longitudinal()
                 dforce_f = api.read.vehicle.downforce_front()
                 dforce_r = api.read.vehicle.downforce_rear()
-                speed = api.read.vehicle.speed()
                 brake_raw = api.read.inputs.brake_raw()
                 impact_time = api.read.vehicle.impact_time()
 
@@ -104,7 +101,7 @@ class Realtime(DataModule):
                 dforce_ratio = calc.force_ratio(dforce_f, dforce_f + dforce_r)
 
                 # Braking rate
-                braking_rate = calc_braking_rate.calc(lap_etime, speed, brake_raw, impact_time)
+                braking_rate = calc.braking_rate(lgt_gforce_raw, brake_raw > 0.02, lap_etime - impact_time > 2)
                 max_transient_rate = calc_transient_rate.update(braking_rate, lap_etime)
                 temp_max_rate = calc_max_braking_rate.update(max_transient_rate, lap_etime)
                 if max_transient_rate > 0:
@@ -182,51 +179,3 @@ class TransientMax:
         self._reset_timer = 0.0
         self._max_value = 0.0
         self._stored_value = 0.0
-
-
-class BrakingRate:
-    """Braking rate (G force)"""
-
-    __slots__ = (
-        "_g_accel",
-        "_last_speed",
-        "_last_time",
-    )
-
-    def __init__(self, g_accel: float):
-        """
-        Args:
-            g_accel: gravitational acceleration.
-        """
-        self._g_accel = g_accel
-        self._last_speed = 0.0
-        self._last_time = 0.0
-
-    def calc(
-        self, elapsed_time: float, speed: float,
-        brake_raw: float, impact_time: float) -> float:
-        """Calculate braking rate (G force)
-
-        Args:
-            elapsed_time: elapsed time (seconds).
-            speed: vehicle speed (m/s).
-            brake_raw: raw brake input (fraction).
-            impact_time: last impact time (seconds).
-
-        Returns:
-            Braking rate (G).
-        """
-        braking_rate = 0.0
-        delta_speed = self._last_speed - speed
-        delta_time = elapsed_time - self._last_time
-        if delta_time:
-            if delta_speed and brake_raw > 0.02 and elapsed_time - impact_time > 2:
-                braking_rate = delta_speed / delta_time / self._g_accel
-            self._last_speed = speed
-            self._last_time = elapsed_time
-        return braking_rate
-
-    def reset(self):
-        """Reset"""
-        self._last_speed = 0.0
-        self._last_time = 0.0
