@@ -93,8 +93,10 @@ class Realtime(DataModule):
         plr_laps_done = api.read.lap.completed_laps()
         plr_lap_distance = api.read.lap.distance()
         plr_lap_progress = calc.lap_progress_distance(plr_lap_distance, track_length)
+        plr_laptime_est = api.read.timing.estimated_laptime()
+        plr_timeinto_est = api.read.timing.estimated_time_into()
         nearest_line = MAX_METERS
-        nearest_timegap = -MAX_SECONDS
+        nearest_time_behind = -MAX_SECONDS
         nearest_yellow = MAX_METERS
 
         # Sorting reference index
@@ -176,15 +178,16 @@ class Realtime(DataModule):
                     nearest_line = relative_straight_distance
                 # Nearest traffic time gap (opponents behind local players)
                 if not in_pit:
-                    relative_time_gap = relative_interval(index)
-                    if 0 > relative_time_gap > nearest_timegap:
-                        nearest_timegap = relative_time_gap
+                    opt_time_behind = calc.circular_relative_distance(
+                        plr_laptime_est, plr_timeinto_est, api.read.timing.estimated_time_into(index))
+                    if 0 > opt_time_behind > nearest_time_behind:
+                        nearest_time_behind = opt_time_behind
                 # Nearest yellow flag distance
-                if is_yellow:
-                    relative_distance = abs(calc.circular_relative_distance(
+                if is_yellow and nearest_yellow > 0:
+                    opt_rel_distance = abs(calc.circular_relative_distance(
                         track_length, plr_lap_distance, lap_distance))
-                    if nearest_yellow > relative_distance:
-                        nearest_yellow = relative_distance
+                    if nearest_yellow > opt_rel_distance:
+                        nearest_yellow = opt_rel_distance
 
             # Sort draw order list in loop ->
             if position_overall == 1:  # save leader index
@@ -213,20 +216,11 @@ class Realtime(DataModule):
         output.leaderIndex = leader_index
         output.playerIndex = player_index
         output.nearestLine = nearest_line
-        output.nearestTraffic = -nearest_timegap
+        output.nearestTraffic = -nearest_time_behind
         output.nearestYellow = nearest_yellow
         output.leaderBestLapTime = laptime_best_leader
         output.drawOrder = draw_order
         output.dataSetVersion += 1
-
-
-def relative_interval(opt_index: int, index: int | None = None) -> float:
-    """Estimated relative time interval"""
-    return calc.circular_relative_distance(
-        api.read.timing.estimated_laptime(index),
-        api.read.timing.estimated_time_into(index),
-        api.read.timing.estimated_time_into(opt_index),
-    )
 
 
 def calc_gap_behind_next_in_class(
@@ -240,7 +234,11 @@ def calc_gap_behind_next_in_class(
     lap_diff = abs(opt_laps_done + opt_lap_progress - laps_done - lap_progress)
     if lap_diff > 1:
         return int(lap_diff)
-    return abs(relative_interval(opt_index, index))
+    return abs(calc.circular_relative_distance(
+        api.read.timing.estimated_laptime(index),
+        api.read.timing.estimated_time_into(index),
+        api.read.timing.estimated_time_into(opt_index),
+    ))
 
 
 def calc_gap_behind_next(index: int):
