@@ -113,6 +113,7 @@ def set_style_window(base_font_pt: int) -> str:
     palette.setCurrentColorGroup(QPalette.Active)
     color_active_window_text = palette.windowText().color().name()
     color_active_window = palette.window().color().name()
+    color_active_base = palette.base().color().name()
     color_active_highlighted_text = palette.highlightedText().color().name()
     color_active_highlight = palette.highlight().color().name()
 
@@ -238,6 +239,47 @@ def set_style_window(base_font_pt: int) -> str:
         }}
         PresetTagItem QLabel#LOCKED {{
             background: #777;
+        }}
+
+        /* Preset transfer (dialog) */
+        PresetTransfer QListView {{
+            outline: none;
+            background: {color_active_window};
+        }}
+        PresetTransfer QListView::item {{
+            border: none;
+            min-height: 1.75em;
+        }}
+        PresetTransfer QListView::item:selected {{
+            selection-color: {color_active_highlighted_text};
+            background: {color_disabled_highlight};
+        }}
+        PresetTransfer QListView QCheckBox {{
+            font-size: {font_pt_item_name}pt;
+            margin: 0.25em 0.25em 0.25em 0.25em;
+            border-radius: {border_radius_button}em;
+        }}
+        PresetTransfer ListHeader {{
+            background: {color_active_base};
+        }}
+        PresetTransfer ListHeader QLabel {{
+            font-size: {font_pt_item_name}pt;
+            color: {color_disabled_highlighted_text};
+            padding: 0 0.1em;
+        }}
+        PresetTransfer ListHeader CompactButton {{
+            border: None;
+            font-size: {font_pt_item_button}pt;
+            padding: 0.2em;
+        }}
+        PresetTransfer ListHeader CompactButton::checked {{
+            color: {color_inactive_highlighted_text};
+            background: {color_inactive_highlight};
+        }}
+        PresetTransfer ListHeader CompactButton::hover,
+        PresetTransfer ListHeader CompactButton::checked:hover {{
+            color: {color_active_highlighted_text};
+            background: {color_active_highlight};
         }}
 
         /* Spectate list (tab) */

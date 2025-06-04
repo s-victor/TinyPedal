@@ -1,10 +1,16 @@
-WIP
+2.30.0 (2025-06-04)
 -----------------------------
+* Major change
+  - New "Preset Transfer" dialog is now available by clicking "Transfer" button from "Preset" tab in main window (requested by user "Wigg1es"),
+    which allows to quickly transfer selected settings and options from currently loaded preset to another preset.
+    This new addition can make life much easier for users with a lot presets and options to manage and keep them updated with latest changes.
+    See "Preset Transfer" section in User Guide for usage and example.
+
 * Wheels Module
   - Optimized average wheel radius data sampling and calculation.
 
 * Weather Widget
-  - Add "decimal_places_temperature" option (requested by user "Dean688"). Default is "1" decimal place, set to "0" to hide decimals.
+  - Add "decimal_places_temperature" option for customizing number of decimal places for displaying track and air temperature (requested by user "Dean688"). Default is "1" decimal place, set to "0" to hide decimals.
     Note, when number of digits is less than expected, extra leading zero or decimal place will be added to fill the gap.
 
 2.29.2 (2025-05-29)

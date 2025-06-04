@@ -29,6 +29,10 @@ TinyPedal stores all customization options in `JSON` format preset files, and ca
 
 All user preset files, by default, are located in `TinyPedal\settings` folder. Those `JSON` files can also be manually edited with text editor.
 
+`Double-Click` on a preset name in `Preset` tab to load selected preset.
+
+Click `Transfer` button to transfer settings from currently loaded preset to another preset. See [Preset Transfer](#preset-transfer) section for details.
+
 `Right-Click` on a preset name in `Preset` tab opens up a context menu that provides additional preset file management options:
 
 * Lock Preset  
@@ -73,6 +77,39 @@ A newer released version will auto-update old setting and add new setting after 
 
 ## Editing JSON file
 Customization can be done through various configuration dialogs and menus from main window. Manual editing `JSON` file is not recommended.
+
+[**`Back to Top`**](#)
+
+
+## Preset Transfer
+**Preset transfer dialog is used for transferring settings from one preset to another.**
+
+Note, you can only transfer settings from a currently loaded preset to another preset, this is done to ensure one-way transfer. A confirmation dialog will be shown before transfer.
+
+It is recommended to first load a preset, then unhide the preset and double-check if you wish to transfer its settings to another preset. For important preset, it is recommended to make a backup copy and lock the preset.
+
+To transfer settings from currently loaded preset to another specific preset, select a preset name from preset selector on the top right. Locked presets are not available from preset selector.
+
+To select one or more settings, select and check setting name from `Setting` list on the left side. Only selected settings will be transferred.
+
+To select one or more option types, select and check option type name from `Option Type` list on the right side. Only selected options will be transferred.
+
+To select or deselect all settings or option types from list, click `All` or `None` button on list header.
+
+Option types:
+- Enable State: widget or module enable state.
+- Feature Toggle: widget or module feature enable state, such as `enable_XXX` or `show_XXX`.
+- Update Interval: widget or module update interval and idle update interval.
+- Position: widget position.
+- Opacity: widget opacity.
+- Layout: widget layout.
+- Color: color options.
+- Font: font name, font weight, font size options.
+- Column Index: column index options.
+- Decimal Places: decimal places options.
+- Other Options: all other options that are not part of above option types.
+
+For example, to transfer all settings except widget position to another preset, select and check all settings from `setting` list, then select all options except `position` from `option type` list, and click `Transfer` button.
 
 [**`Back to Top`**](#)
 
