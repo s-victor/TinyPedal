@@ -46,6 +46,7 @@ from ..formatter import strip_filename_extension
 from ..setting import cfg
 from ..validator import is_allowed_filename
 from ._common import QVAL_FILENAME, BaseDialog, UIScaler
+from .preset_transfer import PresetTransfer
 
 
 class PresetList(QWidget):
@@ -60,11 +61,11 @@ class PresetList(QWidget):
         self.label_loaded = QLabel("")
 
         # Button
-        button_load = QPushButton("Load")
-        button_load.clicked.connect(self.load_preset)
-
         button_refresh = QPushButton("Refresh")
         button_refresh.clicked.connect(self.refresh)
+
+        button_transfer = QPushButton("Transfer")
+        button_transfer.clicked.connect(self.open_preset_transfer)
 
         button_create = QPushButton("New Preset")
         button_create.clicked.connect(self.open_create_preset)
@@ -83,8 +84,8 @@ class PresetList(QWidget):
         self.refresh()
 
         layout_button = QHBoxLayout()
-        layout_button.addWidget(button_load)
         layout_button.addWidget(button_refresh)
+        layout_button.addWidget(button_transfer)
         layout_button.addStretch(1)
         layout_button.addWidget(button_create)
 
@@ -134,6 +135,11 @@ class PresetList(QWidget):
     def open_create_preset(self):
         """Create new preset"""
         _dialog = CreatePreset(self, title="Create new default preset")
+        _dialog.open()
+
+    def open_preset_transfer(self):
+        """Transfer preset"""
+        _dialog = PresetTransfer(self)
         _dialog.open()
 
     @staticmethod
