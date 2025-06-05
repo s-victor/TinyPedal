@@ -21,6 +21,7 @@ class SessionBrowser(QWidget):
         super().__init__(parent)
         self.notify_toggle = notify_toggle
 
+        # --- Auth key UI ---
         self.input_auth_key = QLineEdit()
         self.input_auth_key.setPlaceholderText("Paste your activation key here")
         self.input_auth_key.setText(cfg.auth_key)
@@ -40,7 +41,7 @@ class SessionBrowser(QWidget):
         self.auth_layout.addWidget(self.button_set_key)
         self.auth_layout.addWidget(self.label_instruction)
 
-        # Regular UI components
+        # --- Session browser UI ---
         self.label_status = QLabel("")
 
         self.listbox_sessions = QListWidget(self)
@@ -69,7 +70,7 @@ class SessionBrowser(QWidget):
         layout_buttons.addStretch(1)
         self.session_layout.addLayout(layout_buttons)
 
-        # Main layout
+        # --- Main layout ---
         self.layout_main = QVBoxLayout()
         self.layout_main.setContentsMargins(UIScaler.pixel(6), UIScaler.pixel(6), UIScaler.pixel(6), UIScaler.pixel(6))
         self.setLayout(self.layout_main)
@@ -79,8 +80,10 @@ class SessionBrowser(QWidget):
     def update_auth_ui(self):
         """Show either the key input or the session browser"""
         for i in reversed(range(self.layout_main.count())):
-            widget_item = self.layout_main.itemAt(i)
-            widget = widget_item.widget()
+            item = self.layout_main.itemAt(i)
+            if isinstance(item, QVBoxLayout):
+                continue  # remove only widgets, not layouts
+            widget = item.widget()
             if widget:
                 widget.setParent(None)
 
@@ -94,8 +97,9 @@ class SessionBrowser(QWidget):
         """Save the entered activation key and reload UI"""
         key = self.input_auth_key.text().strip()
         if key:
-            cfg.auth_key = key
+            cfg.shared_memory_api["auth_key"] = key
             cfg.save()
+            api.restart()
             self.update_auth_ui()
 
     def refresh_sessions(self):

@@ -95,6 +95,7 @@ class RF2WebSocket:
         backoff = 1
 
         while retry_count < max_retries or max_retries == 0:
+            logger.info(f"Key: {cfg.auth_key}")
             try:
                 if not cfg.auth_key:
                     logger.error("❌ No auth key configured — cannot initiate WebSocket connection")
@@ -104,7 +105,7 @@ class RF2WebSocket:
                     handshake = json.dumps({
                                                 "session": self._session_name,
                                                 "role": self._role,
-                                                "auth_key": cfg.auth_key  # <- uses the updated config value
+                                                "activation_key": cfg.auth_key  # <- uses the updated config value
                                             })
                     await ws.send(handshake)
 
