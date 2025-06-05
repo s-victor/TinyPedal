@@ -20,7 +20,7 @@
 Default common setting template
 """
 
-from ..regex_pattern import API_NAME_RF2
+from ..regex_pattern import API_NAME_LMU
 
 
 COMMON_DEFAULT = {
@@ -31,7 +31,7 @@ COMMON_DEFAULT = {
         "vr_compatibility": False,
     },
     "shared_memory_api": {
-        "api_name": API_NAME_RF2,
+        "api_name": API_NAME_LMU,
         "access_mode": 0,
         "process_id": "",
         "enable_active_state_override": False,
@@ -41,9 +41,10 @@ COMMON_DEFAULT = {
         "character_encoding": "UTF-8",
         
         "connect_to_remote": False,
-        "websocket_uri": "ws://5.9.29.167:8765",  # New websocket URI for remote telemetry
+        "websocket_uri": "ws.spqracing.it",  # New websocket URI for remote telemetry
         "websocket_interval": 0.1,
-        "websocket_session" : "default"
+        "websocket_session" : "default",
+        "auth_key" : ""
     },
     "units": {
         "distance_unit": "Meter",

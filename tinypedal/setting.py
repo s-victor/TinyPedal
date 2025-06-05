@@ -465,5 +465,13 @@ class Setting:
     def websocket_interval(self, value: float):
         self.shared_memory_api["websocket_interval"] = value
 
+    @property
+    def auth_key(self) -> float:
+        return self.shared_memory_api.get("auth_key", "")
+
+    @auth_key.setter
+    def websocket_interval(self, value: float):
+        self.shared_memory_api["auth_key"] = value
+
 # Assign config setting
 cfg = Setting()

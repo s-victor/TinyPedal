@@ -80,6 +80,7 @@ CFG_STRING = (
     "^RF2$|"
     "^websocket_uri$|"
     "^websocket_session$|"
+    "^auth_key$|"
     # Partial match
     "file_name|"
     "prefix|"

@@ -8,6 +8,7 @@ import contextlib
 import httpx
 import websockets
 from typing import Callable
+from ..setting import cfg
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +25,13 @@ POST_PIT_MENU_URL = "http://localhost:6397/rest/garage/PitMenu/loadPitMenu"
 
 class RF2WebSocket:
     def __init__(self, uri: str, session_name: str, role: str, data_provider=None, data_receiver=None):
-        self._uri = uri if uri.startswith("ws://") or uri.startswith("wss://") else f"ws://{uri}"
+        if not uri.startswith("ws://") and not uri.startswith("wss://"):
+            uri = f"wss://{uri}"
+        elif uri.startswith("ws://"):
+            uri = uri.replace("ws://", "wss://", 1)
+        
+
+        self._uri = uri 
         self._session_name = session_name
         self._role = role
         self._data_provider = data_provider
@@ -35,6 +42,7 @@ class RF2WebSocket:
         self._thread = threading.Thread(target=self._start_loop, daemon=True)
         self._callbacks: dict[str, Callable[[dict], None]] = {}
         self._pending_requests: dict[str, Callable[[dict], None]] = {}
+        
 
     def start(self):
         self._thread.start()
@@ -66,6 +74,9 @@ class RF2WebSocket:
         else:
             logger.warning("WebSocket loop is not running — cannot send request")
 
+    def request_session_list(self, callback):
+        self.send_request("list_sessions", None, callback, response_type="session_list")
+
 
     def _start_loop(self):
         self._loop = asyncio.new_event_loop()
@@ -85,9 +96,16 @@ class RF2WebSocket:
 
         while retry_count < max_retries or max_retries == 0:
             try:
+                if not cfg.auth_key:
+                    logger.error("❌ No auth key configured — cannot initiate WebSocket connection")
+                    return
                 async with websockets.connect(self._uri) as ws:
                     self._ws = ws
-                    handshake = json.dumps({"session": self._session_name, "role": self._role})
+                    handshake = json.dumps({
+                                                "session": self._session_name,
+                                                "role": self._role,
+                                                "auth_key": cfg.auth_key  # <- uses the updated config value
+                                            })
                     await ws.send(handshake)
 
                     retry_count = 0
@@ -111,10 +129,12 @@ class RF2WebSocket:
                 self._ws = None
 
     async def _send_loop(self, ws):
+        ws_interval = cfg.websocket_interval
+        
         while self._running:
             try:
                 if self._data_provider and self._data_provider.isPaused:
-                    await asyncio.sleep(0.2)
+                    await asyncio.sleep(ws_interval)
                     continue
 
                 frames = []
@@ -125,7 +145,7 @@ class RF2WebSocket:
                     frames.append(frame)
 
                 await ws.send(b"".join(frames))
-                await asyncio.sleep(0.2)
+                await asyncio.sleep(ws_interval)
             except Exception as e:
                 logger.error(f"Send loop error: {e}")
                 break
@@ -164,6 +184,33 @@ class RF2WebSocket:
             data = json.loads(msg)
             msg_type = data.get("type")
             logger.info(f"✅ Received JSON message: {msg_type}")
+            logger.info(f"Raw JSON message received: {msg!r}")
+
+            # Handle session_list messages explicitly
+            if msg_type == "session_list":
+                # Defensive check: ensure sessions is a list
+                sessions = data.get("sessions", [])
+                if isinstance(sessions, list):
+                    logger.info(f"Session list received with {len(sessions)} sessions:")
+                    for session in sessions:
+                        # Defensive: session should be a dict
+                        if isinstance(session, dict):
+                            logger.info(f"  - Name: {session.get('name')}, Sender: {session.get('sender')}, Receivers: {session.get('receivers')}")
+                        else:
+                            logger.warning(f"Invalid session entry (not a dict): {session}")
+                else:
+                    logger.warning(f"Invalid sessions data (not a list): {sessions}")
+
+                # Optionally, if you want to dispatch a callback for session_list:
+                callback = self._pending_requests.pop("session_list", None)
+                if callback:
+                    logger.info(f"✅ Dispatching one-time callback for type: session_list")
+                    callback(data)
+                else:
+                    logger.warning("⚠ No one-time callback registered for 'session_list'")
+
+                # Return early since we handled it here
+                return
 
             if msg_type == "fetch_pit_menu" and self._role == "sender":
                 logger.info("Fetching pit menu from local API...")
@@ -197,13 +244,13 @@ class RF2WebSocket:
                 callback(data)
                 return
 
-            # Dispatch persistent callback
+            '''# Dispatch persistent callback
             callback = self._callbacks.get(msg_type)
             if callback:
                 logger.info(f"📌 Dispatching persistent callback for type: {msg_type}")
                 callback(data)
             else:
-                logger.warning(f"⚠ No callback registered for type: {msg_type}")
+                logger.warning(f"⚠ No callback registered for type: {msg_type}")'''
 
         except Exception as e:
             logger.error(f"Invalid JSON message received: {e}")
