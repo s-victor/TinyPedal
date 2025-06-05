@@ -189,12 +189,10 @@ class RF2WebSocket:
 
             # Handle session_list messages explicitly
             if msg_type == "session_list":
-                # Defensive check: ensure sessions is a list
                 sessions = data.get("sessions", [])
                 if isinstance(sessions, list):
                     logger.info(f"Session list received with {len(sessions)} sessions:")
                     for session in sessions:
-                        # Defensive: session should be a dict
                         if isinstance(session, dict):
                             logger.info(f"  - Name: {session.get('name')}, Sender: {session.get('sender')}, Receivers: {session.get('receivers')}")
                         else:
@@ -202,15 +200,13 @@ class RF2WebSocket:
                 else:
                     logger.warning(f"Invalid sessions data (not a list): {sessions}")
 
-                # Optionally, if you want to dispatch a callback for session_list:
                 callback = self._pending_requests.pop("session_list", None)
                 if callback:
                     logger.info(f"✅ Dispatching one-time callback for type: session_list")
-                    callback(data)
+                    callback(sessions)  # <-- pass the list here, not the whole dict
                 else:
                     logger.warning("⚠ No one-time callback registered for 'session_list'")
 
-                # Return early since we handled it here
                 return
 
             if msg_type == "fetch_pit_menu" and self._role == "sender":
