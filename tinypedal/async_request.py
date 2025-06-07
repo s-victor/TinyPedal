@@ -25,6 +25,7 @@ from __future__ import annotations
 from asyncio import StreamReader, open_connection, wait_for
 from contextlib import asynccontextmanager
 from time import perf_counter
+from typing import Callable
 
 
 def set_header_get(uri: str = "/", host: str = "localhost") -> bytes:
@@ -64,8 +65,8 @@ async def parse_response(reader: StreamReader) -> bytes:
 
 
 @asynccontextmanager
-async def async_get(request: bytes, host: str, port: int, time_out: float):
-    """Async get response"""
+async def http_get(request: bytes, host: str, port: int, time_out: float):
+    """Async request - HTTP get response"""
     writer = None
     try:
         reader, writer = await wait_for(open_connection(host, port), time_out)
@@ -80,16 +81,16 @@ async def async_get(request: bytes, host: str, port: int, time_out: float):
             # print(host, "closed")
 
 
-async def get_raw(request: bytes, host: str, port: int, time_out: float) -> bytes:
-    """Get response (raw)"""
+async def get_response(request: bytes, host: str, port: int, time_out: float) -> bytes:
+    """Get response data (bytes)"""
     try:
-        async with async_get(request, host, port, time_out) as raw_bytes:
+        async with http_get(request, host, port, time_out) as raw_bytes:
             return raw_bytes
     except (ConnectionError, TimeoutError, OSError, BaseException):
         return b""
 
 
-async def _print_result(test_func):
+async def _print_result(test_func: Callable):
     """Test result"""
     start = perf_counter()
     result = await test_func
@@ -103,10 +104,10 @@ async def _test_async_get(timeout: float):
     req1 = set_header_get("/rest/sessions/setting/SESSSET_race_timescale")
     req2 = set_header_get("/rest/sessions/weather")
     task_group = [
-        _print_result(get_raw(req1, "localhost", 5397, timeout)),  # RF2
-        _print_result(get_raw(req2, "localhost", 5397, timeout)),  # RF2
-        _print_result(get_raw(req1, "localhost", 6397, timeout)),  # LMU
-        _print_result(get_raw(req1, "localhost", 6397, timeout)),  # LMU
+        _print_result(get_response(req1, "localhost", 5397, timeout)),  # RF2
+        _print_result(get_response(req2, "localhost", 5397, timeout)),  # RF2
+        _print_result(get_response(req1, "localhost", 6397, timeout)),  # LMU
+        _print_result(get_response(req1, "localhost", 6397, timeout)),  # LMU
     ]
     await asyncio.gather(*task_group)
 

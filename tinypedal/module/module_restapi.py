@@ -28,7 +28,7 @@ import logging
 from typing import Any
 
 from ..api_control import api
-from ..async_request import async_get, set_header_get
+from ..async_request import http_get, set_header_get
 from ..const_common import TYPE_JSON
 from ._base import DataModule
 from ._task import TASK_REPEATS, TASK_RUNONCE, ResRawOutput
@@ -228,7 +228,7 @@ def remove_unavailable_task(active_task: dict, task_deletion: set):
 async def get_resource(request: bytes, host: str, port: int, time_out: float) -> Any | str:
     """Get resource from REST API"""
     try:
-        async with async_get(request, host, port, time_out) as raw_bytes:
+        async with http_get(request, host, port, time_out) as raw_bytes:
             return json.loads(raw_bytes)
     except (AttributeError, TypeError, IndexError, KeyError, ValueError):
         return "data not found"
@@ -240,7 +240,7 @@ async def output_resource(
     output_set: tuple[ResRawOutput, ...], request: bytes, host: str, port: int, time_out: float) -> int:
     """Get resource from REST API and output data, skip unnecessary checking"""
     try:
-        async with async_get(request, host, port, time_out) as raw_bytes:
+        async with http_get(request, host, port, time_out) as raw_bytes:
             if raw_bytes:
                 resource_output = json.loads(raw_bytes)
                 for res in output_set:

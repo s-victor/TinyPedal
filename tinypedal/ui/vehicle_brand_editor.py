@@ -38,7 +38,7 @@ from PySide2.QtWidgets import (
 )
 
 from ..api_control import api
-from ..async_request import get_raw, set_header_get
+from ..async_request import get_response, set_header_get
 from ..const_file import ConfigType, FileFilter
 from ..module_control import wctrl
 from ..setting import cfg, copy_setting
@@ -173,7 +173,7 @@ class VehicleBrandEditor(BaseEditor):
         request_header = set_header_get(resource_name, url_host)
 
         try:
-            raw_veh_data = asyncio.run(get_raw(request_header, url_host, url_port, time_out))
+            raw_veh_data = asyncio.run(get_response(request_header, url_host, url_port, time_out))
             self.parse_brand_data(json.loads(raw_veh_data))
         except (AttributeError, TypeError, IndexError, KeyError, ValueError,
                 OSError, TimeoutError, BaseException):
