@@ -240,7 +240,7 @@ class VehicleBrandEditor(BaseEditor):
 
     def add_brand(self):
         """Add new brand"""
-        row_index = self.table_brands.rowCount()
+        start_index = row_index = self.table_brands.rowCount()
         # Add all missing vehicle name from active session
         veh_total = api.read.vehicle.total_vehicles()
         for index in range(veh_total):
@@ -249,9 +249,10 @@ class VehicleBrandEditor(BaseEditor):
                 self.add_vehicle_entry(row_index, veh_name, "Unknown")
                 row_index += 1
         # Add new name entry
-        new_brand_name = self.new_name_increment("New Vehicle Name", self.table_brands)
-        self.add_vehicle_entry(row_index, new_brand_name, "Unknown")
-        self.table_brands.setCurrentCell(row_index, 0)
+        if start_index == row_index:
+            new_brand_name = self.new_name_increment("New Vehicle Name", self.table_brands)
+            self.add_vehicle_entry(row_index, new_brand_name, "Unknown")
+            self.table_brands.setCurrentCell(row_index, 0)
 
     def add_vehicle_entry(self, row_index: int, veh_name: str, brand_name: str):
         """Add new brand entry to table"""
