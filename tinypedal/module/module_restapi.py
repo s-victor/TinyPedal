@@ -80,10 +80,10 @@ class Realtime(DataModule):
         reset_to_default(sim_task_repeats)
 
     def __sort_tasks(self, sim_name: str, active_task: dict, task_set: tuple):
-        """Sort task set into dictionary, key - resource_name, value - output_set"""
-        for pattern, resource_name, output_set, condition in task_set:
+        """Sort task set into dictionary, key - uri_path, value - output_set"""
+        for pattern, uri_path, output_set, condition in task_set:
             if sim_name in pattern and self.mcfg.get(condition, True):
-                active_task[resource_name] = output_set
+                active_task[uri_path] = output_set
 
     def __run_tasks(self, sim_name: str, task_runonce: dict, task_repeats: dict):
         """Run tasks"""
@@ -117,8 +117,8 @@ class Realtime(DataModule):
     async def __task_runonce(self, active_task: dict, http: HttpSetup):
         """Update task runonce"""
         tasks = (
-            self.__fetch_test(active_task, http, resource_name, output_set)
-            for resource_name, output_set in active_task.items()
+            self.__fetch_test(active_task, http, uri_path, output_set)
+            for uri_path, output_set in active_task.items()
         )
         return await asyncio.gather(*tasks)
 
@@ -136,8 +136,8 @@ class Realtime(DataModule):
     async def __task_repeats(self, active_task: dict, http: HttpSetup):
         """Update task repeatedly"""
         task_group = tuple(
-            asyncio.create_task(self.__fetch(http, resource_name, output_set))
-            for resource_name, output_set in active_task.items()
+            asyncio.create_task(self.__fetch(http, uri_path, output_set))
+            for uri_path, output_set in active_task.items()
         )
         # Task control
         await asyncio.create_task(self.__task_control(task_group))
@@ -148,10 +148,10 @@ class Realtime(DataModule):
                 pass
 
     async def __fetch(self, http: HttpSetup,
-        resource_name: str, output_set: tuple[ResRawOutput, ...]):
+        uri_path: str, output_set: tuple[ResRawOutput, ...]):
         """Fetch data without retry"""
         try:
-            request_header = set_header_get(resource_name, http.host)
+            request_header = set_header_get(uri_path, http.host)
             delay = min_delay = self.active_interval
             last_hash = new_hash = -1
             while not self.task_cancel:  # use task control to cancel & exit loop
@@ -168,9 +168,9 @@ class Realtime(DataModule):
             raise
 
     async def __fetch_test(self, active_task: dict, http: HttpSetup,
-        resource_name: str, output_set: tuple[ResRawOutput, ...]):
+        uri_path: str, output_set: tuple[ResRawOutput, ...]):
         """Fetch and test data with retry"""
-        request_header = set_header_get(resource_name, http.host)
+        request_header = set_header_get(uri_path, http.host)
         data_available = False
         total_retry = retry = http.retry
         while not self._event.is_set() and retry >= 0:
@@ -178,7 +178,7 @@ class Realtime(DataModule):
             # Verify & retry
             if not isinstance(resource_output, TYPE_JSON):
                 logger.info("RestAPI: ERROR: %s %s (%s/%s retries left)",
-                    resource_name, resource_output, retry, total_retry)
+                    uri_path, resource_output, retry, total_retry)
                 retry -= 1
                 if retry < 0:
                     data_available = False
@@ -192,19 +192,19 @@ class Realtime(DataModule):
             break
 
         if data_available:
-            logger.info("RestAPI: UPDATE: %s", resource_name)
+            logger.info("RestAPI: UPDATE: %s", uri_path)
         # Remove unavailable task
-        elif active_task.pop(resource_name, None):
-            logger.info("RestAPI: MISSING: %s", resource_name)
+        elif active_task.pop(uri_path, None):
+            logger.info("RestAPI: MISSING: %s", uri_path)
 
 
 def reset_to_default(active_task: dict[str, tuple[ResRawOutput, ...]]):
     """Reset active task data to default"""
     if active_task:
-        for resource_name, output_set in active_task.items():
+        for uri_path, output_set in active_task.items():
             for res in output_set:
                 res.reset()
-            logger.info("RestAPI: RESET: %s", resource_name)
+            logger.info("RestAPI: RESET: %s", uri_path)
         active_task.clear()
 
 

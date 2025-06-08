@@ -133,7 +133,7 @@ SET_WEATHERFORECAST = (
 )
 
 # Define task set
-# 0 - sim name pattern, 1 - uri address, 2 - output set, 3 - enabling condition
+# 0 - sim name pattern, 1 - uri path, 2 - output set, 3 - enabling condition
 TASK_RUNONCE = (
     ("LMU|RF2", "/rest/sessions/setting/SESSSET_race_timescale", SET_TIMESCALE, None),
     ("LMU|RF2", "/rest/sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY, None),
