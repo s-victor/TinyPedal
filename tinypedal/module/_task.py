@@ -31,6 +31,16 @@ from ..process.vehicle import steerlock_to_number
 from ..process.weather import FORECAST_DEFAULT, forecast_rf2
 
 
+class HttpSetup(NamedTuple):
+    """Http connection setup"""
+
+    host: str
+    port: int
+    retry: int
+    timeout: float
+    delay: float
+
+
 class ResRawOutput(NamedTuple):
     """URI resource raw output"""
 
@@ -50,9 +60,10 @@ class ResRawOutput(NamedTuple):
                 setattr(self.output, self.name, self.default)
                 return False
             data = data.get(key)
-            if data is None:  # not exist, set to default
-                setattr(self.output, self.name, self.default)
-                return False
+        # Not exist, set to default
+        if data is None:
+            setattr(self.output, self.name, self.default)
+            return False
         # Reset to default if value is not same type as default
         if not isinstance(data, type(self.default)):
             data = self.default
@@ -80,9 +91,10 @@ class ResParOutput(NamedTuple):
                 setattr(self.output, self.name, self.default)
                 return False
             data = data.get(key)
-            if data is None:  # not exist, set to default
-                setattr(self.output, self.name, self.default)
-                return False
+        # Not exist, set to default
+        if data is None:
+            setattr(self.output, self.name, self.default)
+            return False
         # Parse and output
         setattr(self.output, self.name, self.parser(data))
         return True
@@ -123,7 +135,7 @@ SET_WEATHERFORECAST = (
 )
 
 # Define task set
-# 0 - sim name pattern, 1 - uri address, 2 - output set, 3 - enabling condition
+# 0 - sim name pattern, 1 - uri path, 2 - output set, 3 - enabling condition
 TASK_RUNONCE = (
     ("LMU|RF2", "/rest/sessions/setting/SESSSET_race_timescale", SET_TIMESCALE, None),
     ("LMU|RF2", "/rest/sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY, None),

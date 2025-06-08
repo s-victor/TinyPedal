@@ -20,12 +20,11 @@
 Vehicle brand editor
 """
 
+import asyncio
 import json
 import logging
 import os
-import socket
 import time
-from urllib.request import urlopen
 
 from PySide2.QtWidgets import (
     QFileDialog,
@@ -39,6 +38,7 @@ from PySide2.QtWidgets import (
 )
 
 from ..api_control import api
+from ..async_request import get_response, set_header_get
 from ..const_file import ConfigType, FileFilter
 from ..module_control import wctrl
 from ..setting import cfg, copy_setting
@@ -159,28 +159,24 @@ class VehicleBrandEditor(BaseEditor):
     def import_from_restapi(self, sim_name: str):
         """Import brand from Rest API"""
         config = cfg.user.setting["module_restapi"]
-        url_host = config["url_host"]
-
         if sim_name == "LMU":
             url_port = config["url_port_lmu"]
-            resource_name = "sessions/getAllVehicles"
+            resource_name = "/rest/sessions/getAllVehicles"
         elif sim_name == "RF2":
             url_port = config["url_port_rf2"]
-            resource_name = "race/car"
+            resource_name = "/rest/race/car"
         else:
             return
 
-        url = f"http://{url_host}:{url_port}/rest/{resource_name}"
+        url_host = config["url_host"]
+        time_out = 3
+        request_header = set_header_get(resource_name, url_host)
 
         try:
-            with urlopen(url, timeout=3) as raw_resource:
-                if raw_resource.getcode() != 200:
-                    raise ValueError
-                dict_vehicles = json.loads(raw_resource.read().decode("utf-8"))
-                self.parse_brand_data(dict_vehicles)
-
-        except (TypeError, AttributeError, KeyError, ValueError,
-                OSError, TimeoutError, socket.timeout):
+            raw_veh_data = asyncio.run(get_response(request_header, url_host, url_port, time_out))
+            self.parse_brand_data(json.loads(raw_veh_data))
+        except (AttributeError, TypeError, IndexError, KeyError, ValueError,
+                OSError, TimeoutError, BaseException):
             logger.error("Failed importing vehicle data from %s Rest API", sim_name)
             msg_text = (
                 f"Unable to import vehicle data from {sim_name} Rest API.<br><br>"
