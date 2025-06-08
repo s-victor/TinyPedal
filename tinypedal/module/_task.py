@@ -60,9 +60,10 @@ class ResRawOutput(NamedTuple):
                 setattr(self.output, self.name, self.default)
                 return False
             data = data.get(key)
-            if data is None:  # not exist, set to default
-                setattr(self.output, self.name, self.default)
-                return False
+        # Not exist, set to default
+        if data is None:
+            setattr(self.output, self.name, self.default)
+            return False
         # Reset to default if value is not same type as default
         if not isinstance(data, type(self.default)):
             data = self.default
@@ -90,9 +91,10 @@ class ResParOutput(NamedTuple):
                 setattr(self.output, self.name, self.default)
                 return False
             data = data.get(key)
-            if data is None:  # not exist, set to default
-                setattr(self.output, self.name, self.default)
-                return False
+        # Not exist, set to default
+        if data is None:
+            setattr(self.output, self.name, self.default)
+            return False
         # Parse and output
         setattr(self.output, self.name, self.parser(data))
         return True

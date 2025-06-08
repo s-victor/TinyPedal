@@ -144,28 +144,25 @@ class Realtime(DataModule):
         for task in task_group:
             try:
                 await task
-            except asyncio.CancelledError:
+            except (asyncio.CancelledError, BaseException):
                 pass
 
     async def __fetch(self, http: HttpSetup,
         uri_path: str, output_set: tuple[ResRawOutput, ...]):
         """Fetch data without retry"""
-        try:
-            request_header = set_header_get(uri_path, http.host)
-            delay = min_delay = self.active_interval
-            last_hash = new_hash = -1
-            while not self.task_cancel:  # use task control to cancel & exit loop
-                new_hash = await output_resource(request_header, http, output_set)
-                if last_hash != new_hash:
-                    last_hash = new_hash
-                    delay = min_delay
-                elif delay < 2:  # increase update delay while no new data
-                    delay += delay / 2
-                    if delay > 2:
-                        delay = 2
-                await asyncio.sleep(delay)
-        except asyncio.CancelledError:
-            raise
+        request_header = set_header_get(uri_path, http.host)
+        delay = min_delay = self.active_interval
+        last_hash = new_hash = -1
+        while not self.task_cancel:  # use task control to cancel & exit loop
+            new_hash = await output_resource(request_header, http, output_set)
+            if last_hash != new_hash:
+                last_hash = new_hash
+                delay = min_delay
+            elif delay < 2:  # increase update delay while no new data
+                delay += delay / 2
+                if delay > 2:
+                    delay = 2
+            await asyncio.sleep(delay)
 
     async def __fetch_test(self, active_task: dict, http: HttpSetup,
         uri_path: str, output_set: tuple[ResRawOutput, ...]):
@@ -177,8 +174,8 @@ class Realtime(DataModule):
             resource_output = await get_resource(request_header, http)
             # Verify & retry
             if not isinstance(resource_output, TYPE_JSON):
-                logger.info("RestAPI: ERROR: %s %s (%s/%s retries left)",
-                    uri_path, resource_output, retry, total_retry)
+                logger.info("RestAPI: %s: %s (%s/%s retries left)",
+                    resource_output, uri_path, retry, total_retry)
                 retry -= 1
                 if retry < 0:
                     data_available = False
@@ -213,10 +210,9 @@ async def get_resource(request: bytes, http: HttpSetup) -> Any | str:
     try:
         async with http_get(request, http.host, http.port, http.timeout) as raw_bytes:
             return json.loads(raw_bytes)
-    except (AttributeError, TypeError, IndexError, KeyError, ValueError):
-        return "data not found"
-    except (OSError, TimeoutError, BaseException):
-        return "connection timeout"
+    except (AttributeError, TypeError, IndexError, KeyError, ValueError,
+            OSError, TimeoutError, BaseException):
+        return "INVALID"
 
 
 async def output_resource(
