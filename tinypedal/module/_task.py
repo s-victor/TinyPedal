@@ -31,6 +31,16 @@ from ..process.vehicle import steerlock_to_number
 from ..process.weather import FORECAST_DEFAULT, forecast_rf2
 
 
+class HttpSetup(NamedTuple):
+    """Http connection setup"""
+
+    host: str
+    port: int
+    retry: int
+    timeout: float
+    delay: float
+
+
 class ResRawOutput(NamedTuple):
     """URI resource raw output"""
 
