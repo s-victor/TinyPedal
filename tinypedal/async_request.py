@@ -27,8 +27,9 @@ from contextlib import asynccontextmanager
 from time import perf_counter
 from typing import Callable
 
-# Default limit from asyncio.open_connection
-BUFFER_LIMIT = 65536  # 2 ** 16 = 64 KiB
+# Default limit from asyncio.open_connection is 2 ** 16
+# Lower limit to avoid getting incomplete data
+BUFFER_LIMIT = 32768  # 2 ** 15
 
 
 def set_header_get(uri: str = "/", host: str = "localhost") -> bytes:
@@ -113,7 +114,7 @@ async def _print_result(test_func: Callable):
 async def _test_async_get(timeout: float):
     """Test run"""
     req1 = set_header_get("/rest/sessions/setting/SESSSET_race_timescale")
-    req2 = set_header_get("/rest/sessions/getAllVehicles")
+    req2 = set_header_get("/rest/garage/getPlayerGarageData")
     task_group = [
         _print_result(get_response(req1, "localhost", 5397, timeout)),  # RF2
         _print_result(get_response(req2, "localhost", 5397, timeout)),  # RF2
