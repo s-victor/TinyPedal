@@ -102,38 +102,40 @@ class ResParOutput(NamedTuple):
 
 EMPTY_KEYS: tuple[str, ...] = tuple()
 
-# Define output set
-SET_TIMESCALE = (
+# Common
+COMMON_WEATHERFORECAST = (
+    ResParOutput(minfo.restapi, "forecastPractice", FORECAST_DEFAULT, forecast_rf2, ("PRACTICE",)),
+    ResParOutput(minfo.restapi, "forecastQualify", FORECAST_DEFAULT, forecast_rf2, ("QUALIFY",)),
+    ResParOutput(minfo.restapi, "forecastRace", FORECAST_DEFAULT, forecast_rf2, ("RACE",)),
+)
+# RF2
+RF2_TIMESCALE = (
     ResRawOutput(minfo.restapi, "timeScale", 1, ("currentValue",)),
 )
-SET_PRIVATEQUALIFY = (
+RF2_PRIVATEQUALIFY = (
     ResRawOutput(minfo.restapi, "privateQualifying", 0, ("currentValue",)),
 )
-SET_CHASSIS = (
-    ResParOutput(minfo.restapi, "steeringWheelRange", 0.0, steerlock_to_number, ("VM_STEER_LOCK", "stringValue")),
-)
-SET_CURRENTSTINT = (
+# LMU
+LMU_CURRENTSTINT = (
     ResRawOutput(minfo.restapi, "currentVirtualEnergy", 0.0, ("fuelInfo", "currentVirtualEnergy")),
     ResRawOutput(minfo.restapi, "maxVirtualEnergy", 0.0, ("fuelInfo", "maxVirtualEnergy")),
     ResRawOutput(minfo.restapi, "aeroDamage", -1.0, ("wearables", "body", "aero")),
     ResRawOutput(minfo.restapi, "brakeWear", [-1] * 4, ("wearables", "brakes")),
     ResRawOutput(minfo.restapi, "suspensionDamage", [-1] * 4, ("wearables", "suspension")),
 )
-SET_GAMESTATE = (
+LMU_GAMESTATE = (
     ResRawOutput(minfo.restapi, "trackClockTime", -1.0, ("timeOfDay",)),
 )
-SET_PITMENUINFO = (
+LMU_GARAGESETUP = (
+    ResParOutput(minfo.restapi, "steeringWheelRange", 0.0, steerlock_to_number, ("VM_STEER_LOCK", "stringValue")),
+)
+LMU_PITMENUINFO = (
     ResParOutput(minfo.restapi, "pitStopEstimate", PITEST_DEFAULT, EstimatePitTime(), EMPTY_KEYS),
 )
-SET_PITSTOPTIME = (
+LMU_PITSTOPTIME = (
     ResRawOutput(minfo.restapi, "pitTimeReference", dict(), ("pitStopTimes", "times")),
 )
-SET_WEATHERFORECAST = (
-    ResParOutput(minfo.restapi, "forecastPractice", FORECAST_DEFAULT, forecast_rf2, ("PRACTICE",)),
-    ResParOutput(minfo.restapi, "forecastQualify", FORECAST_DEFAULT, forecast_rf2, ("QUALIFY",)),
-    ResParOutput(minfo.restapi, "forecastRace", FORECAST_DEFAULT, forecast_rf2, ("RACE",)),
-)
-SET_SESSIONSINFO = (
+LMU_SESSIONSINFO = (
     ResRawOutput(minfo.restapi, "timeScale", 1, ("SESSSET_race_timescale", "currentValue")),
     ResRawOutput(minfo.restapi, "privateQualifying", 0, ("SESSSET_private_qual", "currentValue")),
 )
@@ -141,15 +143,15 @@ SET_SESSIONSINFO = (
 # Define task set
 # 0 - sim name pattern, 1 - uri path, 2 - output set, 3 - enabling condition
 TASK_RUNONCE = (
-    ("LMU|RF2", "/rest/sessions/weather", SET_WEATHERFORECAST, None),
-    ("RF2", "/rest/sessions/setting/SESSSET_race_timescale", SET_TIMESCALE, None),
-    ("RF2", "/rest/sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY, None),
-    ("LMU", "/rest/sessions/?", SET_SESSIONSINFO, None),
-    ("LMU", "/rest/garage/chassis", SET_CHASSIS, None),
-    ("LMU", "/rest/garage/UIScreen/RepairAndRefuel", SET_PITSTOPTIME, "enable_pit_strategy_access"),
+    ("LMU|RF2", "/rest/sessions/weather", COMMON_WEATHERFORECAST, None),
+    ("RF2", "/rest/sessions/setting/SESSSET_race_timescale", RF2_TIMESCALE, None),
+    ("RF2", "/rest/sessions/setting/SESSSET_private_qual", RF2_PRIVATEQUALIFY, None),
+    ("LMU", "/rest/sessions/?", LMU_SESSIONSINFO, None),
+    ("LMU", "/rest/garage/getPlayerGarageData", LMU_GARAGESETUP, None),
+    ("LMU", "/rest/garage/UIScreen/RepairAndRefuel", LMU_PITSTOPTIME, "enable_pit_strategy_access"),
 )
 TASK_REPEATS = (
-    ("LMU", "/rest/garage/UIScreen/DriverHandOffStintEnd", SET_CURRENTSTINT, None),
-    ("LMU", "/rest/sessions/GetGameState", SET_GAMESTATE, None),
-    ("LMU", "/rest/garage/PitMenu/receivePitMenu", SET_PITMENUINFO, "enable_pit_strategy_access"),
+    ("LMU", "/rest/garage/UIScreen/DriverHandOffStintEnd", LMU_CURRENTSTINT, None),
+    ("LMU", "/rest/sessions/GetGameState", LMU_GAMESTATE, None),
+    ("LMU", "/rest/garage/PitMenu/receivePitMenu", LMU_PITMENUINFO, "enable_pit_strategy_access"),
 )
