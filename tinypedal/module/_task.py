@@ -133,13 +133,18 @@ SET_WEATHERFORECAST = (
     ResParOutput(minfo.restapi, "forecastQualify", FORECAST_DEFAULT, forecast_rf2, ("QUALIFY",)),
     ResParOutput(minfo.restapi, "forecastRace", FORECAST_DEFAULT, forecast_rf2, ("RACE",)),
 )
+SET_SESSIONSINFO = (
+    ResRawOutput(minfo.restapi, "timeScale", 1, ("SESSSET_race_timescale", "currentValue")),
+    ResRawOutput(minfo.restapi, "privateQualifying", 0, ("SESSSET_private_qual", "currentValue")),
+)
 
 # Define task set
 # 0 - sim name pattern, 1 - uri path, 2 - output set, 3 - enabling condition
 TASK_RUNONCE = (
-    ("LMU|RF2", "/rest/sessions/setting/SESSSET_race_timescale", SET_TIMESCALE, None),
-    ("LMU|RF2", "/rest/sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY, None),
     ("LMU|RF2", "/rest/sessions/weather", SET_WEATHERFORECAST, None),
+    ("RF2", "/rest/sessions/setting/SESSSET_race_timescale", SET_TIMESCALE, None),
+    ("RF2", "/rest/sessions/setting/SESSSET_private_qual", SET_PRIVATEQUALIFY, None),
+    ("LMU", "/rest/sessions/?", SET_SESSIONSINFO, None),
     ("LMU", "/rest/garage/chassis", SET_CHASSIS, None),
     ("LMU", "/rest/garage/UIScreen/RepairAndRefuel", SET_PITSTOPTIME, "enable_pit_strategy_access"),
 )
