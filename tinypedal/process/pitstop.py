@@ -22,9 +22,7 @@ Pit stop function
 
 from __future__ import annotations
 
-from ..api_control import api
-from ..const_common import PITEST_DEFAULT
-from ..module_info import minfo
+from ..const_common import EMPTY_DICT, PITEST_DEFAULT
 from ..regex_pattern import rex_number_extract
 
 
@@ -257,20 +255,23 @@ class EstimatePitTime():
         self.nrg_remaining = 0.0
         self.fuel_remaining = 0.0
 
-    def __call__(self, pit_menu: list) -> tuple[float, float, float, float, int]:
+    def __call__(self, dataset: dict) -> tuple[float, float, float, float, int]:
         """Calculate pit stop time (handle error in upper-level function)"""
         # Get data
-        ref_time = minfo.restapi.pitTimeReference
-        if not isinstance(pit_menu, list) or not ref_time:
+        pit_menu = dataset.get("pitMenu", EMPTY_DICT).get("pitMenu", None)
+        ref_time = dataset.get("pitStopTimes", EMPTY_DICT).get("times", None)
+        fuel_info = dataset.get("fuelInfo", EMPTY_DICT)
+        # stopgo_time = dataset.get("pitStopLength", EMPTY_DICT).get("timeInSeconds", 10.0)
+        if not isinstance(pit_menu, list) or not isinstance(ref_time, dict):
             return PITEST_DEFAULT
         # Update temp pit data
         self.state_stopgo = 0
         self.tyre_change = 0
         self.pressure_change = 0
-        nrg_current = minfo.restapi.currentVirtualEnergy
-        nrg_max = minfo.restapi.maxVirtualEnergy
+        nrg_current = fuel_info.get("currentVirtualEnergy", 0.0)
+        nrg_max = fuel_info.get("maxVirtualEnergy", 0.0)
         self.nrg_remaining = nrg_current / nrg_max * 100 if nrg_max else 0.0
-        self.fuel_remaining = api.read.vehicle.fuel()
+        self.fuel_remaining = fuel_info.get("currentFuel", 0.0)
         # Setup parser
         gen_pit_time = self.__process(pit_menu, ref_time)
         # Parse data & calculate pit time

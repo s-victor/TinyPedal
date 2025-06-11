@@ -220,7 +220,10 @@ class Realtime(Overlay):
             pit_timer = minfo.vehicles.dataSet[minfo.vehicles.playerIndex].pitTimer.elapsed
 
             if state_stopgo:
-                stopgo_time = self.wcfg["stop_go_penalty_time"]
+                stopgo_time = minfo.restapi.penaltyTime
+                if stopgo_time <= 0:  # fallback if not available from API
+                    stopgo_time = self.wcfg["stop_go_penalty_time"]
+
                 if state_stopgo == 1:  # stopgo only
                     min_pitstop_time = max_pitstop_time = stopgo_time
                     refill_fuel = refill_energy = 0

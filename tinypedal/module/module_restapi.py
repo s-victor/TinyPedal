@@ -107,7 +107,7 @@ class Realtime(DataModule):
         if task_repeats:
             asyncio.run(self.__task_runonce(task_repeats, sim_http))
         # Run tasks repeatedly while on track, this blocks until tasks cancelled
-        logger.info("RestAPI: all tasks started")
+        logger.info("RestAPI: all tasks started, live tasks: %s", len(task_repeats))
         asyncio.run(self.__task_repeats(task_repeats, sim_http))
         logger.info("RestAPI: all tasks stopped")
         # Reset when finished

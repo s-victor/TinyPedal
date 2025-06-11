@@ -306,13 +306,13 @@ class RestAPIInfo:
         "currentVirtualEnergy",
         "maxVirtualEnergy",
         "aeroDamage",
+        "penaltyTime",
         "forecastPractice",
         "forecastQualify",
         "forecastRace",
         "brakeWear",
         "suspensionDamage",
         "pitStopEstimate",
-        "pitTimeReference",
     )
 
     def __init__(self):
@@ -323,13 +323,13 @@ class RestAPIInfo:
         self.currentVirtualEnergy: float = 0.0
         self.maxVirtualEnergy: float = 0.0
         self.aeroDamage: float = -1.0
+        self.penaltyTime: float = 0.0
         self.forecastPractice: list[WeatherNode] | None = None
         self.forecastQualify: list[WeatherNode] | None = None
         self.forecastRace: list[WeatherNode] | None = None
         self.brakeWear: list[float] = [-1.0] * 4
         self.suspensionDamage: list[float] = [-1.0] * 4
         self.pitStopEstimate: tuple[float, float, float, float, int] = PITEST_DEFAULT
-        self.pitTimeReference: dict = {}
 
 
 class SectorsInfo:

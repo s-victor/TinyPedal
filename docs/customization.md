@@ -2417,7 +2417,7 @@ Note, for unscheduled pit stop (without requesting pit), game sometimes will add
 Show maximum total random delay which game may add on top of pit stop time. For example, if estimated pit stop time is `12.0`s, and maximum delay is `+3.0`s, then final pit stop time will be between `12.0`s and `15.0`s.
 
     stop_go_penalty_time
-Set stop go penalty time in seconds. Default value is `10` seconds.
+Set stop go penalty time in seconds. Default value is `10` seconds. Note, this value is only used if penalty time data is not available from game API.
 
     additional_pitstop_time
 Set additional pit stop time that is not part of `pass_duration` or `stop_duration`. Default value is `2` seconds, which is the average time it takes to decelerate and accelerate towards and away from pit spot.

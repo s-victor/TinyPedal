@@ -122,23 +122,23 @@ LMU_CURRENTSTINT = (
     ResRawOutput(minfo.restapi, "aeroDamage", -1.0, ("wearables", "body", "aero")),
     ResRawOutput(minfo.restapi, "brakeWear", [-1] * 4, ("wearables", "brakes")),
     ResRawOutput(minfo.restapi, "suspensionDamage", [-1] * 4, ("wearables", "suspension")),
-)
-LMU_GAMESTATE = (
-    ResRawOutput(minfo.restapi, "trackClockTime", -1.0, ("timeOfDay",)),
+    ResRawOutput(minfo.restapi, "trackClockTime", -1.0, ("sessionTime", "timeOfDay")),
+    ResParOutput(minfo.restapi, "pitStopEstimate", PITEST_DEFAULT, EstimatePitTime(), EMPTY_KEYS),
 )
 LMU_GARAGESETUP = (
     ResParOutput(minfo.restapi, "steeringWheelRange", 0.0, steerlock_to_number, ("VM_STEER_LOCK", "stringValue")),
-)
-LMU_PITMENUINFO = (
-    ResParOutput(minfo.restapi, "pitStopEstimate", PITEST_DEFAULT, EstimatePitTime(), EMPTY_KEYS),
-)
-LMU_PITSTOPTIME = (
-    ResRawOutput(minfo.restapi, "pitTimeReference", dict(), ("pitStopTimes", "times")),
 )
 LMU_SESSIONSINFO = (
     ResRawOutput(minfo.restapi, "timeScale", 1, ("SESSSET_race_timescale", "currentValue")),
     ResRawOutput(minfo.restapi, "privateQualifying", 0, ("SESSSET_private_qual", "currentValue")),
 )
+LMU_PITSTOPTIME = (
+    ResRawOutput(minfo.restapi, "penaltyTime", 0.0, ("penalties",)),
+)
+#LMU_GAMESTATE = (
+#    ResRawOutput(minfo.restapi, "trackClockTime", -1.0, ("timeOfDay",)),
+#)
+#("LMU", "/rest/sessions/GetGameState", LMU_GAMESTATE, None),
 
 # Define task set
 # 0 - sim name pattern, 1 - uri path, 2 - output set, 3 - enabling condition
@@ -146,12 +146,10 @@ TASK_RUNONCE = (
     ("LMU|RF2", "/rest/sessions/weather", COMMON_WEATHERFORECAST, None),
     ("RF2", "/rest/sessions/setting/SESSSET_race_timescale", RF2_TIMESCALE, None),
     ("RF2", "/rest/sessions/setting/SESSSET_private_qual", RF2_PRIVATEQUALIFY, None),
-    ("LMU", "/rest/sessions/?", LMU_SESSIONSINFO, None),
+    ("LMU", "/rest/sessions", LMU_SESSIONSINFO, None),
     ("LMU", "/rest/garage/getPlayerGarageData", LMU_GARAGESETUP, None),
-    ("LMU", "/rest/garage/UIScreen/RepairAndRefuel", LMU_PITSTOPTIME, "enable_pit_strategy_access"),
 )
 TASK_REPEATS = (
-    ("LMU", "/rest/garage/UIScreen/DriverHandOffStintEnd", LMU_CURRENTSTINT, None),
-    ("LMU", "/rest/sessions/GetGameState", LMU_GAMESTATE, None),
-    ("LMU", "/rest/garage/PitMenu/receivePitMenu", LMU_PITMENUINFO, "enable_pit_strategy_access"),
+    ("LMU", "/rest/garage/UIScreen/RepairAndRefuel", LMU_CURRENTSTINT, None),
+    ("LMU", "/rest/strategy/pitstop-estimate", LMU_PITSTOPTIME, None),
 )
