@@ -48,9 +48,9 @@ EXCLUDE_MODULES = [
     "unittest",
     "xmlrpc",
     "multiprocessing",
-    "email",
-    "http",
-    "urllib",
+    # "email",
+    # "http",
+    # "urllib",
 ]
 
 IMAGE_FILES = [

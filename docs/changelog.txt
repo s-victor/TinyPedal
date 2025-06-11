@@ -1,3 +1,18 @@
+2.30.1 (2025-06-12)
+-----------------------------
+* Major change to API accessing
+  - Updated URL addresses for accessing data from LMU's Rest API (due to changes from June update), including new penalty time data that used for accurate pit time estimate.
+  - Virtual energy, brake wear, vehicle damage, pit stop related data are now read from "RepairAndRefuel" URL address (same as in v2.28.1).
+    Important note:
+    "RepairAndRefuel" URL address previously was known to have chance to cause MFD pitstop menu flickering issue if accessed at high frequency. This flickering issue has been acknowledged by game developer, but not yet fixed by game.
+    "RepairAndRefuel" is the only address for accessing those important data from LMU Rest API (as of LMU June update), currently there is no other alternatives.
+    This "flickering issue" should not be a concern for user using only TinyPedal, as the default "update interval" in RestAPI Module is set on 100ms.
+    For user concerned or experienced with this issue, you can either increase the value of "update interval" in RestAPI Module (such as "500" or "1000"); or, disable "RestAPI Module" entirely (which then those crucial data will not be available).
+    Also note:
+    There are currently other third-party APPs or Plugins that also have access to this "RepairAndRefuel" URL address, and running them at the same may have higher chance to trigger MFD "flickering issue".
+  - Removed "enable_pit_strategy_access" option from RestAPI Module, this option no longer works due to game API changes.
+  - Various improvements and optimization to game API accessing.
+
 2.30.0 (2025-06-04)
 -----------------------------
 * Major change

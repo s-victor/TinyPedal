@@ -1179,9 +1179,6 @@ Set number of attempts to retry connection. Value range in `0` to `10`. Default 
     connection_retry_delay
 Set time delay in seconds to retry connection. Value range in `0` to `60`. Default is `1` second.
 
-    enable_pit_strategy_access
-Set `false` to turn off "pit strategy" data accessing completely. Note, [Pit stop estimate](#pit-stop-estimate) Widget will not be able to display pit data if this option is turned off.
-
 [**`Back to Top`**](#)
 
 
