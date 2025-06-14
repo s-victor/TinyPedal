@@ -25,13 +25,14 @@ from __future__ import annotations
 import asyncio
 import json
 import logging
+from itertools import chain
 from typing import Any
 
 from ..api_control import api
 from ..async_request import http_get, set_header_get
 from ..const_common import TYPE_JSON
 from ._base import DataModule
-from ._task import TASK_REPEATS, TASK_RUNONCE, HttpSetup, ResRawOutput
+from ._task import HttpSetup, ResRawOutput, select_taskset
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +54,7 @@ class Realtime(DataModule):
         reset = False
         update_interval = self.active_interval
 
-        sim_task_runonce = {}
-        sim_task_repeats = {}
+        active_task_sim = {}
 
         while not _event_wait(update_interval):
             if self.state.active:
@@ -64,10 +64,9 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
                     self.task_cancel = False
-                    self.__run_tasks(
+                    self.run_tasks(
                         api.read.check.sim_name(),
-                        sim_task_runonce,
-                        sim_task_repeats,
+                        active_task_sim,
                     )
 
             else:
@@ -76,16 +75,9 @@ class Realtime(DataModule):
                     update_interval = self.idle_interval
 
         # Reset to default on close
-        reset_to_default(sim_task_runonce)
-        reset_to_default(sim_task_repeats)
+        reset_to_default(active_task_sim)
 
-    def __sort_tasks(self, sim_name: str, active_task: dict, task_set: tuple):
-        """Sort task set into dictionary, key - uri_path, value - output_set"""
-        for pattern, uri_path, output_set, condition in task_set:
-            if sim_name in pattern and self.mcfg.get(condition, True):
-                active_task[uri_path] = output_set
-
-    def __run_tasks(self, sim_name: str, task_runonce: dict, task_repeats: dict):
+    def run_tasks(self, sim_name: str, active_task_sim: dict):
         """Run tasks"""
         if not sim_name:
             logger.info("RestAPI: game session not found")
@@ -94,35 +86,44 @@ class Realtime(DataModule):
         sim_http = HttpSetup(
             host=self.mcfg["url_host"],
             port=self.mcfg.get(f"url_port_{sim_name.lower()}", 0),
-            retry=min(max(int(self.mcfg["connection_retry"]), 0), 10),
+            interval=self.active_interval,
             timeout=min(max(self.mcfg["connection_timeout"], 0.5), 10),
-            delay=min(max(self.mcfg["connection_retry_delay"], 0), 60),
+            retry=min(max(int(self.mcfg["connection_retry"]), 0), 10),
+            retry_delay=min(max(self.mcfg["connection_retry_delay"], 0), 60),
         )
-        # Sort tasks
-        self.__sort_tasks(sim_name, task_runonce, TASK_RUNONCE)
-        self.__sort_tasks(sim_name, task_repeats, TASK_REPEATS)
-        # Run all tasks once per garage out, and check availability
-        if task_runonce:
-            asyncio.run(self.__task_runonce(task_runonce, sim_http))
-        if task_repeats:
-            asyncio.run(self.__task_runonce(task_repeats, sim_http))
-        # Run tasks repeatedly while on track, this blocks until tasks cancelled
-        logger.info("RestAPI: all tasks started, live tasks: %s", len(task_repeats))
-        asyncio.run(self.__task_repeats(task_repeats, sim_http))
+        # Run all tasks while on track, this blocks until tasks cancelled
+        logger.info("RestAPI: all tasks started")
+        asyncio.run(
+            self.task_init(
+                self.sort_taskset(sim_http, active_task_sim, select_taskset(sim_name)),
+            )
+        )
         logger.info("RestAPI: all tasks stopped")
         # Reset when finished
-        reset_to_default(task_runonce)
-        reset_to_default(task_repeats)
+        reset_to_default(active_task_sim)
 
-    async def __task_runonce(self, active_task: dict, http: HttpSetup):
-        """Update task runonce"""
-        tasks = (
-            self.__fetch_test(active_task, http, uri_path, output_set)
-            for uri_path, output_set in active_task.items()
-        )
-        return await asyncio.gather(*tasks)
+    def sort_taskset(self, http: HttpSetup, active_task: dict, taskset: tuple):
+        """Sort task set into dictionary, key - uri_path, value - output_set"""
+        for uri_path, output_set, condition, is_repeat in taskset:
+            if self.mcfg.get(condition, True):
+                active_task[uri_path] = output_set
+                yield asyncio.create_task(
+                    self.fetch(http, uri_path, output_set, is_repeat)
+                )
 
-    async def __task_control(self, task_group: tuple[asyncio.Task, ...]):
+    async def task_init(self, *task_generator):
+        """Run repeatedly updating task"""
+        task_group = tuple(chain(*task_generator))
+        # Task control
+        await asyncio.create_task(self.task_control(task_group))
+        # Start task
+        for task in task_group:
+            try:
+                await task
+            except (asyncio.CancelledError, BaseException):
+                pass
+
+    async def task_control(self, task_group: tuple[asyncio.Task, ...]):
         """Control task running state"""
         _event_is_set = self._event.is_set
         while not _event_is_set() and self.state.active:
@@ -133,44 +134,42 @@ class Realtime(DataModule):
         for task in task_group:
             task.cancel()
 
-    async def __task_repeats(self, active_task: dict, http: HttpSetup):
-        """Update task repeatedly"""
-        task_group = tuple(
-            asyncio.create_task(self.__fetch(http, uri_path, output_set))
-            for uri_path, output_set in active_task.items()
-        )
-        # Task control
-        await asyncio.create_task(self.__task_control(task_group))
-        for task in task_group:
-            try:
-                await task
-            except (asyncio.CancelledError, BaseException):
-                pass
+    async def fetch(self, http: HttpSetup,
+        uri_path: str, output_set: tuple[ResRawOutput, ...], repeat: bool = False):
+        """Fetch data and verify"""
+        data_available = await self.update_once(http, uri_path, output_set)
+        if not data_available:
+            logger.info("RestAPI: MISSING: %s", uri_path)
+        elif not repeat:
+            logger.info("RestAPI: UPDATE ONCE: %s", uri_path)
+        else:
+            logger.info("RestAPI: UPDATE LIVE: %s", uri_path)
+            await self.update_repeat(http, uri_path, output_set)
 
-    async def __fetch(self, http: HttpSetup,
+    async def update_repeat(self, http: HttpSetup,
         uri_path: str, output_set: tuple[ResRawOutput, ...]):
-        """Fetch data without retry"""
+        """Update repeat"""
         request_header = set_header_get(uri_path, http.host)
-        delay = min_delay = self.active_interval
+        interval = min_interval = http.interval
         last_hash = new_hash = -1
         while not self.task_cancel:  # use task control to cancel & exit loop
             new_hash = await output_resource(request_header, http, output_set)
             if last_hash != new_hash:
                 last_hash = new_hash
-                delay = min_delay
-            elif delay < 2:  # increase update delay while no new data
-                delay += delay / 2
-                if delay > 2:
-                    delay = 2
-            await asyncio.sleep(delay)
+                interval = min_interval
+            elif interval < 2:  # increase update interval while no new data
+                interval += interval / 2
+                if interval > 2:
+                    interval = 2
+            await asyncio.sleep(interval)
 
-    async def __fetch_test(self, active_task: dict, http: HttpSetup,
-        uri_path: str, output_set: tuple[ResRawOutput, ...]):
-        """Fetch and test data with retry"""
+    async def update_once(self, http: HttpSetup,
+        uri_path: str, output_set: tuple[ResRawOutput, ...]) -> bool:
+        """Update once and verify"""
         request_header = set_header_get(uri_path, http.host)
         data_available = False
         total_retry = retry = http.retry
-        while not self._event.is_set() and retry >= 0:
+        while not self.task_cancel and retry >= 0:
             resource_output = await get_resource(request_header, http)
             # Verify & retry
             if not isinstance(resource_output, TYPE_JSON):
@@ -180,19 +179,14 @@ class Realtime(DataModule):
                 if retry < 0:
                     data_available = False
                     break
-                await asyncio.sleep(http.delay)
+                await asyncio.sleep(http.retry_delay)
                 continue
             # Output
             for res in output_set:
                 if res.update(resource_output):
                     data_available = True
             break
-
-        if data_available:
-            logger.info("RestAPI: UPDATE: %s", uri_path)
-        # Remove unavailable task
-        elif active_task.pop(uri_path, None):
-            logger.info("RestAPI: MISSING: %s", uri_path)
+        return data_available
 
 
 def reset_to_default(active_task: dict[str, tuple[ResRawOutput, ...]]):

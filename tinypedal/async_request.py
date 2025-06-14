@@ -25,7 +25,7 @@ from __future__ import annotations
 from asyncio import StreamReader, open_connection, wait_for
 from contextlib import asynccontextmanager
 from time import perf_counter
-from typing import Callable
+from typing import Awaitable
 
 # Default limit from asyncio.open_connection is 2 ** 16
 # Lower limit to avoid getting incomplete data
@@ -102,7 +102,7 @@ async def get_response(request: bytes, host: str, port: int, time_out: float) ->
         return b""
 
 
-async def _print_result(test_func: Callable):
+async def _print_result(test_func: Awaitable):
     """Test result"""
     start = perf_counter()
     result = await test_func
@@ -114,14 +114,18 @@ async def _print_result(test_func: Callable):
 async def _test_async_get(timeout: float):
     """Test run"""
     req1 = set_header_get("/rest/sessions/setting/SESSSET_race_timescale")
-    req2 = set_header_get("/rest/garage/getPlayerGarageData")
-    task_group = [
+    req2 = set_header_get("/rest/sessions/weather")
+    req3 = set_header_get("/rest/sessions")
+    req4 = set_header_get("/rest/garage/getPlayerGarageData")
+    task_rf2 = [
         _print_result(get_response(req1, "localhost", 5397, timeout)),  # RF2
         _print_result(get_response(req2, "localhost", 5397, timeout)),  # RF2
-        _print_result(get_response(req1, "localhost", 6397, timeout)),  # LMU
-        _print_result(get_response(req2, "localhost", 6397, timeout)),  # LMU
     ]
-    await asyncio.gather(*task_group)
+    task_lmu = [
+        _print_result(get_response(req3, "localhost", 6397, timeout)),  # LMU
+        _print_result(get_response(req4, "localhost", 6397, timeout)),  # LMU
+    ]
+    await asyncio.gather(*task_rf2, *task_lmu)
 
 
 if __name__ == "__main__":
