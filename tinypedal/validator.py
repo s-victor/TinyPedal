@@ -123,6 +123,21 @@ def valid_delta_set(data: tuple) -> tuple:
     return data
 
 
+def valid_delta_raw(dataset: list[tuple[float, float]], final: float, column: int) -> bool:
+    """Validate raw delta data set"""
+    try:
+        if len(dataset) <= 1:
+            return False
+        # Remove rows if source value higher than final value
+        while dataset[-1][column] > final:
+            dataset.pop()
+            if not dataset:
+                return False
+        return True
+    except (AttributeError, TypeError, IndexError):
+        return False
+
+
 # Value type validate
 def valid_value_type(value: Any, default: Any) -> Any:
     """Validate if value is same type as default, return default value if False"""

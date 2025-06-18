@@ -36,6 +36,7 @@ from ..userfile.fuel_delta import (
     save_consumption_history_file,
     save_fuel_delta_file,
 )
+from ..validator import valid_delta_raw
 from ._base import DataModule, round6
 
 
@@ -229,7 +230,7 @@ def calc_data(
 
         # Lap start & finish detection
         if lap_stime > last_lap_stime:
-            if len(delta_list_raw) > 1 and not is_pit_lap:
+            if not is_pit_lap and valid_delta_raw(delta_list_raw, used_curr, 1):
                 delta_list_raw.append((  # set end value
                     round6(pos_last + 10),
                     round6(used_curr),

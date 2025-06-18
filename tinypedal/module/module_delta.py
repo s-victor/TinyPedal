@@ -33,7 +33,7 @@ from ..const_common import (
 )
 from ..module_info import minfo
 from ..userfile.delta_best import load_delta_best_file, save_delta_best_file
-from ..validator import is_same_session, vehicle_position_sync
+from ..validator import is_same_session, valid_delta_raw, vehicle_position_sync
 from ._base import DataModule, round6
 
 
@@ -137,7 +137,7 @@ class Realtime(DataModule):
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime:
                     laptime_last = lap_stime - last_lap_stime
-                    if len(delta_list_raw) > 1:  # set end value
+                    if valid_delta_raw(delta_list_raw, laptime_last, 1):  # set end value
                         delta_list_raw.append((round6(pos_last + 10), round6(laptime_last)))
                         delta_list_last = tuple(delta_list_raw)
                         validating = api.read.timing.elapsed()
