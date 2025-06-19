@@ -1,3 +1,8 @@
+WIP
+-----------------------------
+* Misc
+  - Auto load preset function now checks load-state only once when player enters track.
+
 2.30.1 (2025-06-12)
 -----------------------------
 * Major change to API accessing
