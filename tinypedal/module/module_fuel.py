@@ -153,14 +153,14 @@ def calc_data(
     validating = 0
     is_pit_lap = 0  # whether pit in or pit out lap
 
-    delta_list_last, used_last_valid, laptime_last = load_fuel_delta_file(
+    delta_array_last, used_last_valid, laptime_last = load_fuel_delta_file(
         filepath=filepath,
         filename=filename,
         extension=extension,
         defaults=(DELTA_DEFAULT, 0.0, 0.0)
     )
-    delta_list_raw = [DELTA_ZERO]  # distance, fuel used, laptime
-    delta_list_temp = DELTA_DEFAULT  # last lap temp
+    delta_array_raw = [DELTA_ZERO]  # distance, fuel used, laptime
+    delta_array_temp = DELTA_DEFAULT  # last lap temp
     delta_fuel = 0.0  # delta fuel consumption compare to last lap
 
     amount_start = -FLOAT_INF  # start fuel reading
@@ -197,7 +197,7 @@ def calc_data(
                     filepath=filepath,
                     filename=filename,
                     extension=extension,
-                    dataset=delta_list_last,
+                    dataset=delta_array_last,
                 )
             continue
 
@@ -230,16 +230,16 @@ def calc_data(
 
         # Lap start & finish detection
         if lap_stime > last_lap_stime:
-            if not is_pit_lap and valid_delta_raw(delta_list_raw, used_curr, 1):
-                delta_list_raw.append((  # set end value
+            if not is_pit_lap and valid_delta_raw(delta_array_raw, used_curr, 1):
+                delta_array_raw.append((  # set end value
                     round6(pos_last + 10),
                     round6(used_curr),
                     round6(lap_stime - last_lap_stime)
                 ))
-                delta_list_temp = tuple(delta_list_raw)
+                delta_array_temp = tuple(delta_array_raw)
                 validating = api.read.timing.elapsed()
-            delta_list_raw.clear()  # reset
-            delta_list_raw.append(DELTA_ZERO)
+            delta_array_raw.clear()  # reset
+            delta_array_raw.append(DELTA_ZERO)
             pos_last = pos_recorded = pos_curr
             used_last_raw = used_curr
             used_curr = 0
@@ -254,7 +254,7 @@ def calc_data(
         # Update if position value is different & positive
         if 0 <= pos_curr != pos_last:
             if recording and pos_curr - pos_recorded >= min_delta_distance:
-                delta_list_raw.append((round6(pos_curr), round6(used_curr)))
+                delta_array_raw.append((round6(pos_curr), round6(used_curr)))
                 pos_recorded = pos_curr
             pos_last = pos_curr  # reset last position
             is_pos_synced = True
@@ -262,14 +262,14 @@ def calc_data(
         # Validating 1s after passing finish line
         if validating:
             timer = api.read.timing.elapsed() - validating
-            if (0.3 < timer <= 3 and  # compare current time
+            if timer > 3:  # switch off after 3s
+                validating = 0
+            elif (timer > 0.3 and  # compare current time
                 api.read.timing.last_laptime() > 0):  # is valid laptime
                 used_last_valid = used_last_raw
-                delta_list_last = delta_list_temp
-                delta_list_temp = DELTA_DEFAULT
+                delta_array_last = delta_array_temp
+                delta_array_temp = DELTA_DEFAULT
                 delayed_save = True
-                validating = 0
-            elif timer > 3:  # switch off after 3s
                 validating = 0
 
         # Calc delta
@@ -282,7 +282,7 @@ def calc_data(
             gps_last = gps_curr
             # Update delta
             delta_fuel = calc.delta_telemetry(
-                delta_list_last,
+                delta_array_last,
                 pos_estimate,
                 used_curr,
                 laptime_curr > 0.3 and not in_garage,  # 300ms delay

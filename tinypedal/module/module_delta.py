@@ -55,8 +55,8 @@ class Realtime(DataModule):
         output = minfo.delta
 
         last_session_id = ("",-1,-1,-1)
-        delta_list_session = DELTA_DEFAULT
-        delta_list_stint = DELTA_DEFAULT
+        delta_array_session = DELTA_DEFAULT
+        delta_array_stint = DELTA_DEFAULT
         laptime_session_best = MAX_SECONDS
         laptime_stint_best = MAX_SECONDS
         min_delta_distance = self.mcfg["minimum_delta_distance"]
@@ -89,23 +89,23 @@ class Realtime(DataModule):
 
                     # Reset delta session best if not same session
                     if not is_same_session(combo_id, session_id, last_session_id):
-                        delta_list_session = DELTA_DEFAULT
+                        delta_array_session = DELTA_DEFAULT
                         laptime_session_best = MAX_SECONDS
                         last_session_id = (combo_id, *session_id)
 
-                    delta_list_best, laptime_best = load_delta_best_file(
+                    delta_array_best, laptime_best = load_delta_best_file(
                         filepath=userpath_delta_best,
                         filename=combo_id,
                         defaults=(DELTA_DEFAULT, MAX_SECONDS)
                     )
-                    output.deltaBestData = delta_list_best
-                    delta_list_raw = [DELTA_ZERO]  # distance, laptime
-                    delta_list_last = DELTA_DEFAULT  # last lap
+                    output.deltaBestData = delta_array_best
+                    delta_array_raw = [DELTA_ZERO]  # distance, laptime
+                    delta_array_last = DELTA_DEFAULT  # last lap
 
-                    delta_best_ema = 0.0
-                    delta_last_ema = 0.0
-                    delta_session_ema = 0.0
-                    delta_stint_ema = 0.0
+                    delta_ema_best = 0.0
+                    delta_ema_last = 0.0
+                    delta_ema_session = 0.0
+                    delta_ema_stint = 0.0
 
                     laptime_curr = 0.0  # current laptime
                     laptime_last = 0.0  # last laptime
@@ -131,18 +131,18 @@ class Realtime(DataModule):
 
                 # Reset delta stint best if in pit and stopped
                 if in_pits and laptime_stint_best != MAX_SECONDS and api.read.vehicle.speed() < 0.1:
-                    delta_list_stint = DELTA_DEFAULT
+                    delta_array_stint = DELTA_DEFAULT
                     laptime_stint_best = MAX_SECONDS
 
                 # Lap start & finish detection
                 if lap_stime > last_lap_stime:
                     laptime_last = lap_stime - last_lap_stime
-                    if valid_delta_raw(delta_list_raw, laptime_last, 1):  # set end value
-                        delta_list_raw.append((round6(pos_last + 10), round6(laptime_last)))
-                        delta_list_last = tuple(delta_list_raw)
+                    if valid_delta_raw(delta_array_raw, laptime_last, 1):  # set end value
+                        delta_array_raw.append((round6(pos_last + 10), round6(laptime_last)))
+                        delta_array_last = tuple(delta_array_raw)
                         validating = api.read.timing.elapsed()
-                    delta_list_raw.clear()  # reset
-                    delta_list_raw.append(DELTA_ZERO)
+                    delta_array_raw.clear()  # reset
+                    delta_array_raw.append(DELTA_ZERO)
                     pos_last = pos_recorded = pos_curr
                     recording = laptime_curr < 1
                     is_pit_lap = 0
@@ -156,7 +156,7 @@ class Realtime(DataModule):
                 # Update if position value is different & positive
                 if 0 <= pos_curr != pos_last:
                     if recording and pos_curr - pos_recorded >= min_delta_distance:
-                        delta_list_raw.append((round6(pos_curr), round6(laptime_curr)))
+                        delta_array_raw.append((round6(pos_curr), round6(laptime_curr)))
                         pos_recorded = pos_curr
                     pos_last = pos_curr  # reset last position
                     is_pos_synced = True
@@ -164,7 +164,9 @@ class Realtime(DataModule):
                 # Validating 1s after passing finish line
                 if validating:
                     timer = api.read.timing.elapsed() - validating
-                    if (1 < timer <= 10 and  # compare current time
+                    if timer > 10:  # switch off after 10s
+                        validating = 0
+                    elif (timer > 1 and  # compare current time
                         laptime_valid > 0 and  # is valid laptime
                         int(laptime_valid - laptime_last) == 0):  # is matched laptime
                         # Update laptime pace
@@ -178,24 +180,22 @@ class Realtime(DataModule):
                                     laptime_pace + laptime_pace_margin,
                                 )
                         # Update delta best list
-                        if laptime_last < laptime_best:
+                        if laptime_best > laptime_last:
                             laptime_best = laptime_last
-                            output.deltaBestData = delta_list_best = delta_list_last
+                            output.deltaBestData = delta_array_best = delta_array_last
                             save_delta_best_file(
                                 filepath=userpath_delta_best,
                                 filename=combo_id,
-                                dataset=delta_list_best,
+                                dataset=delta_array_best,
                             )
                         # Update delta session best list
-                        if laptime_last < laptime_session_best:
+                        if laptime_session_best > laptime_last:
                             laptime_session_best = laptime_last
-                            delta_list_session = delta_list_last
+                            delta_array_session = delta_array_last
                         # Update delta stint best list
-                        if laptime_last < laptime_stint_best:
+                        if laptime_stint_best > laptime_last:
                             laptime_stint_best = laptime_last
-                            delta_list_stint = delta_list_last
-                        validating = 0
-                    elif timer > 10:  # switch off after 10s
+                            delta_array_stint = delta_array_last
                         validating = 0
 
                 # Calc distance
@@ -214,46 +214,54 @@ class Realtime(DataModule):
                 if pos_synced_last != pos_synced:
                     pos_synced_last = pos_synced
                     delay_update = laptime_curr > 0.3
-                    delta_best_raw = calc.delta_telemetry(
-                        delta_list_best,
-                        pos_synced,
-                        laptime_curr,
-                        delay_update,
-                    )
-                    delta_last_raw = calc.delta_telemetry(
-                        delta_list_last,
-                        pos_synced,
-                        laptime_curr,
-                        delay_update,
-                    )
-                    delta_session_raw = calc.delta_telemetry(
-                        delta_list_session,
-                        pos_synced,
-                        laptime_curr,
-                        delay_update,
-                    )
-                    delta_stint_raw = calc.delta_telemetry(
-                        delta_list_stint,
-                        pos_synced,
-                        laptime_curr,
-                        delay_update,
-                    )
                     # Smooth delta
-                    delta_best_ema = calc_ema_delta(delta_best_ema, delta_best_raw)
-                    delta_last_ema = calc_ema_delta(delta_last_ema, delta_last_raw)
-                    delta_session_ema = calc_ema_delta(delta_session_ema, delta_session_raw)
-                    delta_stint_ema = calc_ema_delta(delta_stint_ema, delta_stint_raw)
+                    delta_ema_best = calc_ema_delta(
+                        delta_ema_best,
+                        calc.delta_telemetry(
+                            delta_array_best,
+                            pos_synced,
+                            laptime_curr,
+                            delay_update,
+                        ),
+                    )
+                    delta_ema_last = calc_ema_delta(
+                        delta_ema_last,
+                        calc.delta_telemetry(
+                            delta_array_last,
+                            pos_synced,
+                            laptime_curr,
+                            delay_update,
+                        ),
+                    )
+                    delta_ema_session = calc_ema_delta(
+                        delta_ema_session,
+                        calc.delta_telemetry(
+                            delta_array_session,
+                            pos_synced,
+                            laptime_curr,
+                            delay_update,
+                        ),
+                    )
+                    delta_ema_stint = calc_ema_delta(
+                        delta_ema_stint,
+                        calc.delta_telemetry(
+                            delta_array_stint,
+                            pos_synced,
+                            laptime_curr,
+                            delay_update,
+                        ),
+                    )
 
                 # Output delta time data
-                output.deltaBest = delta_best_ema
-                output.deltaLast = delta_last_ema
-                output.deltaSession = delta_session_ema
-                output.deltaStint = delta_stint_ema
+                output.deltaBest = delta_ema_best
+                output.deltaLast = delta_ema_last
+                output.deltaSession = delta_ema_session
+                output.deltaStint = delta_ema_stint
                 output.isValidLap = laptime_valid > 0
                 output.lapTimeCurrent = laptime_curr
                 output.lapTimeLast = laptime_last
                 output.lapTimeBest = laptime_best
-                output.lapTimeEstimated = laptime_best + delta_best_ema
+                output.lapTimeEstimated = laptime_best + delta_ema_best
                 output.lapTimeSession = laptime_session_best
                 output.lapTimeStint = laptime_stint_best
                 output.lapTimePace = laptime_pace

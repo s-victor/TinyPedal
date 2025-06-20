@@ -67,8 +67,8 @@ class Realtime(DataModule):
 
                     delta_reset = False
                     delta_recording = False
-                    delta_list_raw = [DELTA_ZERO]  # distance, battery net change
-                    delta_list_last = (DELTA_ZERO,)
+                    delta_array_raw = [DELTA_ZERO]  # distance, battery net change
+                    delta_array_last = (DELTA_ZERO,)
                     pos_last = 0.0  # last checked vehicle position
                     net_change_last = 0.0
                     est_net_change = 0.0  # estimated battery charge net change
@@ -140,14 +140,14 @@ class Realtime(DataModule):
 
                     if delta_reset:
                         delta_reset = False
-                        if len(delta_list_raw) > 1 and not is_pit_lap:
-                            delta_list_last = tuple(delta_list_raw)
-                        delta_list_raw.clear()  # reset
-                        delta_list_raw.append(DELTA_ZERO)
+                        if len(delta_array_raw) > 1 and not is_pit_lap:
+                            delta_array_last = tuple(delta_array_raw)
+                        delta_array_raw.clear()  # reset
+                        delta_array_raw.append(DELTA_ZERO)
                         pos_last = pos_curr
                         delta_recording = laptime_curr < 1
                         net_change_last = battery_regen_last - battery_drain_last
-                        is_valid_delta = len(delta_list_last) > 1
+                        is_valid_delta = len(delta_array_last) > 1
                         is_pit_lap = 0
 
                     # Distance desync check at start of new lap, reset if higher than normal distance
@@ -159,13 +159,13 @@ class Realtime(DataModule):
                     # Update if position value is different & positive
                     net_change_curr = battery_regen - battery_drain
                     if delta_recording and pos_curr - pos_last >= min_delta_distance:
-                        delta_list_raw.append((pos_curr, net_change_curr))
+                        delta_array_raw.append((pos_curr, net_change_curr))
                         pos_last = pos_curr
 
                     # Net change delta
                     if is_valid_delta:
                         delta_net_change = calc.delta_telemetry(
-                            delta_list_last,
+                            delta_array_last,
                             pos_curr,
                             net_change_curr,
                             laptime_curr > 0.3,
