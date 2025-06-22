@@ -82,31 +82,29 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Steering wheel rotation
+        if self.wcfg["manual_steering_range"] > 0:
+            temp_rot_range = self.wcfg["manual_steering_range"]
+        else:
+            temp_rot_range = api.read.inputs.steering_range_physical()
+            if minfo.restapi.steeringWheelRange > 0 >= temp_rot_range:
+                temp_rot_range = minfo.restapi.steeringWheelRange
 
-            # Steering wheel rotation
-            if self.wcfg["manual_steering_range"] > 0:
-                temp_rot_range = self.wcfg["manual_steering_range"]
-            else:
-                temp_rot_range = api.read.inputs.steering_range_physical()
-                if minfo.restapi.steeringWheelRange > 0 >= temp_rot_range:
-                    temp_rot_range = minfo.restapi.steeringWheelRange
+        # Recalculate scale mark
+        if self.wcfg["show_scale_mark"] and self.rot_range != temp_rot_range:
+            self.rot_range = temp_rot_range
+            mark_gap, mark_num = self.scale_mark(
+                self.wcfg["scale_mark_degree"],
+                self.rot_range,
+                self.bar_width
+            )
+            self.draw_scale_mark(mark_gap, mark_num)
 
-            # Recalculate scale mark
-            if self.wcfg["show_scale_mark"] and self.rot_range != temp_rot_range:
-                self.rot_range = temp_rot_range
-                mark_gap, mark_num = self.scale_mark(
-                    self.wcfg["scale_mark_degree"],
-                    self.rot_range,
-                    self.bar_width
-                )
-                self.draw_scale_mark(mark_gap, mark_num)
-
-            # Steering
-            temp_raw_steering = api.read.inputs.steering_raw()
-            if self.raw_steering != temp_raw_steering:
-                self.raw_steering = temp_raw_steering
-                self.update()
+        # Steering
+        temp_raw_steering = api.read.inputs.steering_raw()
+        if self.raw_steering != temp_raw_steering:
+            self.raw_steering = temp_raw_steering
+            self.update()
 
     # GUI update methods
     def paintEvent(self, event):

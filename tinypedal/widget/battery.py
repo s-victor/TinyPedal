@@ -135,34 +135,32 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Battery charge & usage
+        if self.wcfg["show_battery_charge"]:
+            battery_charge = minfo.hybrid.batteryCharge
+            self.update_charge(self.bar_charge, battery_charge)
 
-            # Battery charge & usage
-            if self.wcfg["show_battery_charge"]:
-                battery_charge = minfo.hybrid.batteryCharge
-                self.update_charge(self.bar_charge, battery_charge)
+        if 0 <= minfo.delta.lapTimeCurrent < self.freeze_duration:
+            battery_drain = minfo.hybrid.batteryDrainLast
+            battery_regen = minfo.hybrid.batteryRegenLast
+        else:
+            battery_drain = minfo.hybrid.batteryDrain
+            battery_regen = minfo.hybrid.batteryRegen
 
-            if 0 <= minfo.delta.lapTimeCurrent < self.freeze_duration:
-                battery_drain = minfo.hybrid.batteryDrainLast
-                battery_regen = minfo.hybrid.batteryRegenLast
-            else:
-                battery_drain = minfo.hybrid.batteryDrain
-                battery_regen = minfo.hybrid.batteryRegen
+        if self.wcfg["show_battery_drain"]:
+            self.update_drain(self.bar_drain, battery_drain)
 
-            if self.wcfg["show_battery_drain"]:
-                self.update_drain(self.bar_drain, battery_drain)
+        if self.wcfg["show_battery_regen"]:
+            self.update_regen(self.bar_regen, battery_regen)
 
-            if self.wcfg["show_battery_regen"]:
-                self.update_regen(self.bar_regen, battery_regen)
+        if self.wcfg["show_estimated_net_change"]:
+            net_change = minfo.hybrid.batteryNetChange
+            self.update_net(self.bar_net, net_change)
 
-            if self.wcfg["show_estimated_net_change"]:
-                net_change = minfo.hybrid.batteryNetChange
-                self.update_net(self.bar_net, net_change)
-
-            # Motor activation timer
-            if self.wcfg["show_activation_timer"]:
-                active_timer = minfo.hybrid.motorActiveTimer
-                self.update_timer(self.bar_timer, active_timer)
+        # Motor activation timer
+        if self.wcfg["show_activation_timer"]:
+            active_timer = minfo.hybrid.motorActiveTimer
+            self.update_timer(self.bar_timer, active_timer)
 
     # GUI update methods
     def update_charge(self, target, data):

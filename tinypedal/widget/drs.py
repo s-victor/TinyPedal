@@ -70,13 +70,11 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
-
-            # DRS update
-            drs_state = api.read.switch.drs_status()
-            if self.drs_state != drs_state:
-                self.drs_state = drs_state
-                self.update()
+        # DRS update
+        drs_state = api.read.switch.drs_status()
+        if self.drs_state != drs_state:
+            self.drs_state = drs_state
+            self.update()
 
     # GUI update methods
     def paintEvent(self, event):

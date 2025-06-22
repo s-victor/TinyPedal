@@ -125,42 +125,40 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Read speed data
+        speed = api.read.vehicle.speed()
+        lap_etime = api.read.timing.elapsed()
+        raw_throttle = api.read.inputs.throttle_raw()
 
-            # Read speed data
-            speed = api.read.vehicle.speed()
-            lap_etime = api.read.timing.elapsed()
-            raw_throttle = api.read.inputs.throttle_raw()
+        # Update current speed
+        if self.wcfg["show_speed"]:
+            self.update_speed(self.bar_speed_curr, speed)
 
-            # Update current speed
-            if self.wcfg["show_speed"]:
-                self.update_speed(self.bar_speed_curr, speed)
+        # Update minimum speed off throttle
+        if self.wcfg["show_speed_minimum"] and raw_throttle < self.wcfg["off_throttle_threshold"]:
+            if speed < self.speed_min:
+                self.speed_min = speed
+                self.off_throttle_timer_start = lap_etime
+                self.update_speed(self.bar_speed_min, speed)
+            if lap_etime - self.off_throttle_timer_start > self.wcfg["speed_minimum_reset_cooldown"]:
+                self.speed_min = speed
 
-            # Update minimum speed off throttle
-            if self.wcfg["show_speed_minimum"] and raw_throttle < self.wcfg["off_throttle_threshold"]:
-                if speed < self.speed_min:
-                    self.speed_min = speed
-                    self.off_throttle_timer_start = lap_etime
-                    self.update_speed(self.bar_speed_min, speed)
-                if lap_etime - self.off_throttle_timer_start > self.wcfg["speed_minimum_reset_cooldown"]:
-                    self.speed_min = speed
+        # Update maximum speed on throttle
+        if self.wcfg["show_speed_maximum"] and raw_throttle > self.wcfg["on_throttle_threshold"]:
+            if speed > self.speed_max:
+                self.speed_max = speed
+                self.on_throttle_timer_start = lap_etime
+                self.update_speed(self.bar_speed_max, speed)
+            if lap_etime - self.on_throttle_timer_start > self.wcfg["speed_maximum_reset_cooldown"]:
+                self.speed_max = speed
 
-            # Update maximum speed on throttle
-            if self.wcfg["show_speed_maximum"] and raw_throttle > self.wcfg["on_throttle_threshold"]:
-                if speed > self.speed_max:
-                    self.speed_max = speed
-                    self.on_throttle_timer_start = lap_etime
-                    self.update_speed(self.bar_speed_max, speed)
-                if lap_etime - self.on_throttle_timer_start > self.wcfg["speed_maximum_reset_cooldown"]:
-                    self.speed_max = speed
-
-            # Update fastest speed
-            if self.wcfg["show_speed_fastest"]:
-                if api.read.engine.gear() < 0:  # reset on reverse gear
-                    self.speed_fast = 0
-                if speed > self.speed_fast:
-                    self.speed_fast = speed
-                    self.update_speed(self.bar_speed_fast, speed)
+        # Update fastest speed
+        if self.wcfg["show_speed_fastest"]:
+            if api.read.engine.gear() < 0:  # reset on reverse gear
+                self.speed_fast = 0
+            if speed > self.speed_fast:
+                self.speed_fast = speed
+                self.update_speed(self.bar_speed_fast, speed)
 
     # GUI update methods
     def update_speed(self, target, data):

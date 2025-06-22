@@ -146,42 +146,40 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        if minfo.delta.lapTimeCurrent < self.freeze_duration:
+            alltime_best = minfo.delta.lapTimeLast - self.last_laptimes[0]
+            session_best = minfo.delta.lapTimeLast - self.last_laptimes[1]
+            stint_best = minfo.delta.lapTimeLast - self.last_laptimes[2]
+            delta_last = minfo.delta.lapTimeLast - self.last_laptimes[3]
+            self.new_lap = True
+        else:
+            if self.new_lap:
+                self.last_laptimes[0] = minfo.delta.lapTimeBest
+                self.last_laptimes[1] = minfo.delta.lapTimeSession
+                self.last_laptimes[2] = minfo.delta.lapTimeStint
+                self.last_laptimes[3] = minfo.delta.lapTimeLast
+                self.new_lap = False
 
-            if minfo.delta.lapTimeCurrent < self.freeze_duration:
-                alltime_best = minfo.delta.lapTimeLast - self.last_laptimes[0]
-                session_best = minfo.delta.lapTimeLast - self.last_laptimes[1]
-                stint_best = minfo.delta.lapTimeLast - self.last_laptimes[2]
-                delta_last = minfo.delta.lapTimeLast - self.last_laptimes[3]
-                self.new_lap = True
-            else:
-                if self.new_lap:
-                    self.last_laptimes[0] = minfo.delta.lapTimeBest
-                    self.last_laptimes[1] = minfo.delta.lapTimeSession
-                    self.last_laptimes[2] = minfo.delta.lapTimeStint
-                    self.last_laptimes[3] = minfo.delta.lapTimeLast
-                    self.new_lap = False
+            alltime_best = minfo.delta.deltaBest
+            session_best = minfo.delta.deltaSession
+            stint_best = minfo.delta.deltaStint
+            delta_last = minfo.delta.deltaLast
 
-                alltime_best = minfo.delta.deltaBest
-                session_best = minfo.delta.deltaSession
-                stint_best = minfo.delta.deltaStint
-                delta_last = minfo.delta.deltaLast
+        # All time deltabest
+        if self.wcfg["show_all_time_deltabest"]:
+            self.update_deltabest(self.bar_atbest, alltime_best, self.prefix_atbest)
 
-            # All time deltabest
-            if self.wcfg["show_all_time_deltabest"]:
-                self.update_deltabest(self.bar_atbest, alltime_best, self.prefix_atbest)
+        # Session deltabest
+        if self.wcfg["show_session_deltabest"]:
+            self.update_deltabest(self.bar_ssbest, session_best, self.prefix_ssbest)
 
-            # Session deltabest
-            if self.wcfg["show_session_deltabest"]:
-                self.update_deltabest(self.bar_ssbest, session_best, self.prefix_ssbest)
+        # Stint deltabest
+        if self.wcfg["show_stint_deltabest"]:
+            self.update_deltabest(self.bar_stbest, stint_best, self.prefix_stbest)
 
-            # Stint deltabest
-            if self.wcfg["show_stint_deltabest"]:
-                self.update_deltabest(self.bar_stbest, stint_best, self.prefix_stbest)
-
-            # Deltalast
-            if self.wcfg["show_stint_deltabest"]:
-                self.update_deltabest(self.bar_labest, delta_last, self.prefix_labest)
+        # Deltalast
+        if self.wcfg["show_stint_deltabest"]:
+            self.update_deltabest(self.bar_labest, delta_last, self.prefix_labest)
 
     # GUI update methods
     def update_deltabest(self, target, data, prefix):

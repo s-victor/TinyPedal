@@ -162,42 +162,40 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Read laps data
+        lap_stime = api.read.timing.start()
+        wear_avg = 100 - sum(api.read.tyre.wear()) * 25
 
-            # Read laps data
-            lap_stime = api.read.timing.start()
-            wear_avg = 100 - sum(api.read.tyre.wear()) * 25
+        # Check if virtual energy available
+        if self.wcfg["show_virtual_energy_if_available"] and minfo.restapi.maxVirtualEnergy:
+            temp_fuel_last = minfo.energy.lastLapConsumption
+            temp_fuel_est = minfo.energy.estimatedConsumption
+        else:
+            temp_fuel_last = self.unit_fuel(minfo.fuel.lastLapConsumption)
+            temp_fuel_est = self.unit_fuel(minfo.fuel.estimatedConsumption)
 
-            # Check if virtual energy available
-            if self.wcfg["show_virtual_energy_if_available"] and minfo.restapi.maxVirtualEnergy:
-                temp_fuel_last = minfo.energy.lastLapConsumption
-                temp_fuel_est = minfo.energy.estimatedConsumption
-            else:
-                temp_fuel_last = self.unit_fuel(minfo.fuel.lastLapConsumption)
-                temp_fuel_est = self.unit_fuel(minfo.fuel.estimatedConsumption)
+        if self.last_lap_stime != lap_stime:  # time stamp difference
+            if 2 < api.read.timing.elapsed() - lap_stime < 10:  # update 2s after cross line
+                self.last_wear = wear_avg
+                self.last_lap_stime = lap_stime  # reset time stamp counter
+                self.laps_data[1] = minfo.delta.lapTimeLast
+                self.laps_data[2] = minfo.delta.isValidLap
+                self.laps_data[3] = temp_fuel_last
+                # Update lap time history while on track
+                if not api.read.vehicle.in_garage():
+                    self.history_data.appendleft(self.laps_data[:])
+                    self.update_laps_history()
 
-            if self.last_lap_stime != lap_stime:  # time stamp difference
-                if 2 < api.read.timing.elapsed() - lap_stime < 10:  # update 2s after cross line
-                    self.last_wear = wear_avg
-                    self.last_lap_stime = lap_stime  # reset time stamp counter
-                    self.laps_data[1] = minfo.delta.lapTimeLast
-                    self.laps_data[2] = minfo.delta.isValidLap
-                    self.laps_data[3] = temp_fuel_last
-                    # Update lap time history while on track
-                    if not api.read.vehicle.in_garage():
-                        self.history_data.appendleft(self.laps_data[:])
-                        self.update_laps_history()
+        # Current laps data
+        self.laps_data[0] = api.read.lap.number()
+        self.laps_data[1] = minfo.delta.lapTimeEstimated
+        self.laps_data[3] = temp_fuel_est
+        self.laps_data[4] = max(wear_avg - self.last_wear, 0)
 
-            # Current laps data
-            self.laps_data[0] = api.read.lap.number()
-            self.laps_data[1] = minfo.delta.lapTimeEstimated
-            self.laps_data[3] = temp_fuel_est
-            self.laps_data[4] = max(wear_avg - self.last_wear, 0)
-
-            self.update_laps(self.bars_laps[0], self.laps_data[0])
-            self.update_time(self.bars_time[0], self.laps_data[1])
-            self.update_fuel(self.bars_fuel[0], self.laps_data[3])
-            self.update_wear(self.bars_wear[0], self.laps_data[4])
+        self.update_laps(self.bars_laps[0], self.laps_data[0])
+        self.update_time(self.bars_time[0], self.laps_data[1])
+        self.update_fuel(self.bars_fuel[0], self.laps_data[3])
+        self.update_wear(self.bars_wear[0], self.laps_data[4])
 
     # GUI update methods
     def update_laps(self, target, data):

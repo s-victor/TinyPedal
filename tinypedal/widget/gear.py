@@ -163,45 +163,43 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # RPM reference
+        rpm_max = api.read.engine.rpm_max()
+        if self.rpm_max != rpm_max:
+            self.rpm_max = rpm_max
+            self.rpm_safe = int(rpm_max * self.wcfg["rpm_multiplier_safe"])
+            self.rpm_red = int(rpm_max * self.wcfg["rpm_multiplier_redline"])
+            self.rpm_crit = int(rpm_max * self.wcfg["rpm_multiplier_critical"])
+            self.rpm_range = rpm_max - self.rpm_safe
+            self.gear_max = api.read.engine.gear_max()
 
-            # RPM reference
-            rpm_max = api.read.engine.rpm_max()
-            if self.rpm_max != rpm_max:
-                self.rpm_max = rpm_max
-                self.rpm_safe = int(rpm_max * self.wcfg["rpm_multiplier_safe"])
-                self.rpm_red = int(rpm_max * self.wcfg["rpm_multiplier_redline"])
-                self.rpm_crit = int(rpm_max * self.wcfg["rpm_multiplier_critical"])
-                self.rpm_range = rpm_max - self.rpm_safe
-                self.gear_max = api.read.engine.gear_max()
+        # Shifting timer
+        gear = api.read.engine.gear()
+        lap_etime = api.read.timing.elapsed()
+        if self.last_gear != gear:
+            self.last_gear = gear
+            self.shifting_timer_start = lap_etime
+        self.shifting_timer = lap_etime - self.shifting_timer_start
 
-            # Shifting timer
-            gear = api.read.engine.gear()
-            lap_etime = api.read.timing.elapsed()
-            if self.last_gear != gear:
-                self.last_gear = gear
-                self.shifting_timer_start = lap_etime
-            self.shifting_timer = lap_etime - self.shifting_timer_start
+        # Gauge
+        rpm = api.read.engine.rpm()
+        speed = api.read.vehicle.speed()
+        self.update_gauge(self.bar_gauge, rpm, gear, speed)
 
-            # Gauge
-            rpm = api.read.engine.rpm()
-            speed = api.read.vehicle.speed()
-            self.update_gauge(self.bar_gauge, rpm, gear, speed)
+        # RPM bar
+        if self.wcfg["show_rpm_bar"]:
+            self.update_rpmbar(self.bar_rpmbar, rpm)
 
-            # RPM bar
-            if self.wcfg["show_rpm_bar"]:
-                self.update_rpmbar(self.bar_rpmbar, rpm)
+        # Battery bar
+        if self.wcfg["show_battery_bar"]:
+            battery = minfo.hybrid.batteryCharge
+            motor_state = minfo.hybrid.motorState
+            self.update_battbar(self.bar_battbar, battery, motor_state)
 
-            # Battery bar
-            if self.wcfg["show_battery_bar"]:
-                battery = minfo.hybrid.batteryCharge
-                motor_state = minfo.hybrid.motorState
-                self.update_battbar(self.bar_battbar, battery, motor_state)
-
-            # Speed limier
-            if self.wcfg["show_speed_limiter"]:
-                limiter = api.read.switch.speed_limiter()
-                self.update_limiter(self.bar_limiter, limiter)
+        # Speed limier
+        if self.wcfg["show_speed_limiter"]:
+            limiter = api.read.switch.speed_limiter()
+            self.update_limiter(self.bar_limiter, limiter)
 
     # GUI update methods
     def update_gauge(self, target, rpm, gear, speed):

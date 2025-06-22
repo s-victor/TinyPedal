@@ -123,17 +123,15 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Map
+        modified = minfo.mapping.lastModified
+        self.update_map(modified)
 
-            # Map
-            modified = minfo.mapping.lastModified
-            self.update_map(modified)
-
-            # Vehicles
-            veh_data_version = minfo.vehicles.dataSetVersion
-            if self.last_veh_data_version != veh_data_version:
-                self.last_veh_data_version = veh_data_version
-                self.update()
+        # Vehicles
+        veh_data_version = minfo.vehicles.dataSetVersion
+        if self.last_veh_data_version != veh_data_version:
+            self.last_veh_data_version = veh_data_version
+            self.update()
 
     # GUI update methods
     def update_map(self, data):

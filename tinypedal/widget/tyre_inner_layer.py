@@ -109,24 +109,22 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Tyre compound
+        if self.wcfg["show_tyre_compound"]:
+            class_name = api.read.vehicle.class_name()
+            tcmpd_name = api.read.tyre.compound_name()
+            for cmpd_idx, bar_tcmpd in enumerate(self.bars_tcmpd):
+                self.update_tcmpd(bar_tcmpd, f"{class_name} - {tcmpd_name[cmpd_idx]}", cmpd_idx * 2)
 
-            # Tyre compound
-            if self.wcfg["show_tyre_compound"]:
-                class_name = api.read.vehicle.class_name()
-                tcmpd_name = api.read.tyre.compound_name()
-                for cmpd_idx, bar_tcmpd in enumerate(self.bars_tcmpd):
-                    self.update_tcmpd(bar_tcmpd, f"{class_name} - {tcmpd_name[cmpd_idx]}", cmpd_idx * 2)
-
-            # Inner layer temperature: 0 - fl, 3 - fr, 6 - rl, 9 - rr
-            if self.wcfg["show_inner_center_outer"]:
-                itemp = api.read.tyre.inner_temperature_ico()
-                for tyre_idx, bar_itemp in enumerate(self.bars_itemp):
-                    self.update_itemp(bar_itemp, round(itemp[tyre_idx]), tyre_idx // 3)
-            else:  # 0 - fl, 1 - fr, 2 - rl, 3 - rr
-                itemp = api.read.tyre.inner_temperature_avg()
-                for tyre_idx, bar_itemp in enumerate(self.bars_itemp):
-                    self.update_itemp(bar_itemp, round(itemp[tyre_idx]), tyre_idx)
+        # Inner layer temperature: 0 - fl, 3 - fr, 6 - rl, 9 - rr
+        if self.wcfg["show_inner_center_outer"]:
+            itemp = api.read.tyre.inner_temperature_ico()
+            for tyre_idx, bar_itemp in enumerate(self.bars_itemp):
+                self.update_itemp(bar_itemp, round(itemp[tyre_idx]), tyre_idx // 3)
+        else:  # 0 - fl, 1 - fr, 2 - rl, 3 - rr
+            itemp = api.read.tyre.inner_temperature_avg()
+            for tyre_idx, bar_itemp in enumerate(self.bars_itemp):
+                self.update_itemp(bar_itemp, round(itemp[tyre_idx]), tyre_idx)
 
     # GUI update methods
     def update_itemp(self, target, data, index):

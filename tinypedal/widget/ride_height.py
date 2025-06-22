@@ -112,11 +112,9 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
-
-            rideh_set = api.read.wheel.ride_height()
-            for rideh, bar_rideh in zip(rideh_set, self.bars_rideh):
-                self.update_rideh(bar_rideh, round(rideh))
+        rideh_set = api.read.wheel.ride_height()
+        for rideh, bar_rideh in zip(rideh_set, self.bars_rideh):
+            self.update_rideh(bar_rideh, round(rideh))
 
     # GUI update methods
     def update_rideh(self, target, data):

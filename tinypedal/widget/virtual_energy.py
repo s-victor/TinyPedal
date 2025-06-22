@@ -289,75 +289,74 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
-            is_low_energy = minfo.energy.estimatedLaps <= self.wcfg["low_energy_lap_threshold"]
+        is_low_energy = minfo.energy.estimatedLaps <= self.wcfg["low_energy_lap_threshold"]
 
-            # Estimated end remaining
-            amount_end = minfo.energy.amountEndStint
-            self.update_energy(self.bar_end, amount_end)
+        # Estimated end remaining
+        amount_end = minfo.energy.amountEndStint
+        self.update_energy(self.bar_end, amount_end)
 
-            # Remaining
-            amount_curr = minfo.energy.amountCurrent
-            self.update_energy(self.bar_curr, amount_curr, self.bar_style_curr[is_low_energy])
+        # Remaining
+        amount_curr = minfo.energy.amountCurrent
+        self.update_energy(self.bar_curr, amount_curr, self.bar_style_curr[is_low_energy])
 
-            # Total needed
-            if self.wcfg["show_absolute_refilling"]:
-                amount_need = calc.sym_max(minfo.energy.neededAbsolute, 9999)
-                self.update_energy(self.bar_need, amount_need, self.bar_style_need[is_low_energy])
-            else:
-                amount_need = calc.sym_max(minfo.energy.neededRelative, 9999)
-                self.update_energy(self.bar_need, amount_need, self.bar_style_need[is_low_energy], "+")
+        # Total needed
+        if self.wcfg["show_absolute_refilling"]:
+            amount_need = calc.sym_max(minfo.energy.neededAbsolute, 9999)
+            self.update_energy(self.bar_need, amount_need, self.bar_style_need[is_low_energy])
+        else:
+            amount_need = calc.sym_max(minfo.energy.neededRelative, 9999)
+            self.update_energy(self.bar_need, amount_need, self.bar_style_need[is_low_energy], "+")
 
-            # Estimated consumption
-            used_last = minfo.energy.estimatedConsumption
-            self.update_energy(self.bar_used, used_last)
+        # Estimated consumption
+        used_last = minfo.energy.estimatedConsumption
+        self.update_energy(self.bar_used, used_last)
 
-            # Delta consumption
-            delta_energy = minfo.energy.deltaConsumption
-            self.update_energy(self.bar_delta, delta_energy, None, "+")
+        # Delta consumption
+        delta_energy = minfo.energy.deltaConsumption
+        self.update_energy(self.bar_delta, delta_energy, None, "+")
 
-            # Fuel ratio
-            fuel_ratio = minfo.hybrid.fuelEnergyRatio
-            self.update_energy(self.bar_ratio, fuel_ratio)
+        # Fuel ratio
+        fuel_ratio = minfo.hybrid.fuelEnergyRatio
+        self.update_energy(self.bar_ratio, fuel_ratio)
 
-            # Estimate pit stop counts when pitting at end of current lap
-            est_pits_early = calc.zero_max(minfo.energy.estimatedNumPitStopsEarly, 99.99)
-            self.update_energy(self.bar_early, est_pits_early)
+        # Estimate pit stop counts when pitting at end of current lap
+        est_pits_early = calc.zero_max(minfo.energy.estimatedNumPitStopsEarly, 99.99)
+        self.update_energy(self.bar_early, est_pits_early)
 
-            # Estimated laps can last
-            est_runlaps = min(minfo.energy.estimatedLaps, 9999)
-            self.update_energy(self.bar_laps, est_runlaps)
+        # Estimated laps can last
+        est_runlaps = min(minfo.energy.estimatedLaps, 9999)
+        self.update_energy(self.bar_laps, est_runlaps)
 
-            # Estimated minutes can last
-            est_runmins = min(minfo.energy.estimatedMinutes, 9999)
-            self.update_energy(self.bar_mins, est_runmins)
+        # Estimated minutes can last
+        est_runmins = min(minfo.energy.estimatedMinutes, 9999)
+        self.update_energy(self.bar_mins, est_runmins)
 
-            # Estimated one less pit consumption
-            energy_save = calc.zero_max(minfo.energy.oneLessPitConsumption, 99.99)
-            self.update_energy(self.bar_save, energy_save)
+        # Estimated one less pit consumption
+        energy_save = calc.zero_max(minfo.energy.oneLessPitConsumption, 99.99)
+        self.update_energy(self.bar_save, energy_save)
 
-            # Estimate pit stop counts when pitting at end of current stint
-            est_pits_end = calc.zero_max(minfo.energy.estimatedNumPitStopsEnd, 99.99)
-            self.update_energy(self.bar_pits, est_pits_end)
+        # Estimate pit stop counts when pitting at end of current stint
+        est_pits_end = calc.zero_max(minfo.energy.estimatedNumPitStopsEnd, 99.99)
+        self.update_energy(self.bar_pits, est_pits_end)
 
-            # Fuel bias
-            fuel_bias = minfo.hybrid.fuelEnergyBias
-            self.update_energy(self.bar_bias, fuel_bias, None, "+")
+        # Fuel bias
+        fuel_bias = minfo.hybrid.fuelEnergyBias
+        self.update_energy(self.bar_bias, fuel_bias, None, "+")
 
-            # Energy level bar
-            if self.wcfg["show_energy_level_bar"]:
-                level_capacity = minfo.energy.capacity
-                level_curr = minfo.energy.amountCurrent
-                level_start = minfo.energy.amountStart
-                level_refill = level_curr + minfo.energy.neededRelative
-                level_state = round(level_curr + level_start + level_refill, 3)
-                if level_capacity and self.bar_level.last != level_state:
-                    self.bar_level.last = level_state
-                    self.bar_level.update_input(
-                        level_curr / level_capacity,
-                        level_start / level_capacity,
-                        level_refill / level_capacity,
-                    )
+        # Energy level bar
+        if self.wcfg["show_energy_level_bar"]:
+            level_capacity = minfo.energy.capacity
+            level_curr = minfo.energy.amountCurrent
+            level_start = minfo.energy.amountStart
+            level_refill = level_curr + minfo.energy.neededRelative
+            level_state = round(level_curr + level_start + level_refill, 3)
+            if level_capacity and self.bar_level.last != level_state:
+                self.bar_level.last = level_state
+                self.bar_level.update_input(
+                    level_curr / level_capacity,
+                    level_start / level_capacity,
+                    level_refill / level_capacity,
+                )
 
     # GUI update methods
     def update_energy(self, target, data, color=None, sign=""):

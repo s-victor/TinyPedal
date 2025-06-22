@@ -107,46 +107,37 @@ class Realtime(Overlay):
         self.draw_dot()
 
         # Last data
-        self.checked = False
         self.gforce_raw = 0,0
         self.data_gforce = deque([], max(self.wcfg["trace_max_samples"], 5))
         self.last_x = self.area_center
         self.last_y = self.area_center
 
+    def post_update(self):
+        self.data_gforce.clear()
+
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
-
-            # Reset switch
-            if not self.checked:
-                self.checked = True
-
-            # Read acceleration data
-            if self.wcfg["show_inverted_orientation"]:
-                temp_gforce_raw = (  # accel top, brake bottom
-                    round(minfo.force.lgtGForceRaw, 3),
-                    round(-minfo.force.latGForceRaw, 3),
-                )
-            else:
-                temp_gforce_raw = (  # brake top, accel bottom
-                    round(-minfo.force.lgtGForceRaw, 3),
-                    round(minfo.force.latGForceRaw, 3),
-                )
-
-            if self.gforce_raw != temp_gforce_raw:
-                self.gforce_raw = temp_gforce_raw
-                # Scale position coordinate to global
-                self.last_x = temp_gforce_raw[1] * self.global_scale + self.area_center
-                self.last_y = temp_gforce_raw[0] * self.global_scale + self.area_center
-                if self.wcfg["show_trace"]:
-                    self.data_gforce.append(QPointF(self.last_x, self.last_y))
-                    self.draw_trace()
-                self.update()
-
+        # Read acceleration data
+        if self.wcfg["show_inverted_orientation"]:
+            temp_gforce_raw = (  # accel top, brake bottom
+                round(minfo.force.lgtGForceRaw, 3),
+                round(-minfo.force.latGForceRaw, 3),
+            )
         else:
-            if self.checked:
-                self.checked = False
-                self.data_gforce.clear()
+            temp_gforce_raw = (  # brake top, accel bottom
+                round(-minfo.force.lgtGForceRaw, 3),
+                round(minfo.force.latGForceRaw, 3),
+            )
+
+        if self.gforce_raw != temp_gforce_raw:
+            self.gforce_raw = temp_gforce_raw
+            # Scale position coordinate to global
+            self.last_x = temp_gforce_raw[1] * self.global_scale + self.area_center
+            self.last_y = temp_gforce_raw[0] * self.global_scale + self.area_center
+            if self.wcfg["show_trace"]:
+                self.data_gforce.append(QPointF(self.last_x, self.last_y))
+                self.draw_trace()
+            self.update()
 
     # GUI update methods
     def paintEvent(self, event):

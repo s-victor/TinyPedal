@@ -109,16 +109,14 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        if self.wcfg["show_system_performance"]:
+            self.sys_cpu_ema = self.calc_ema_cpu(self.sys_cpu_ema, psutil.cpu_percent())
+            self.update_system(self.bar_system, self.sys_cpu_ema, self.prefix_sys)
 
-            if self.wcfg["show_system_performance"]:
-                self.sys_cpu_ema = self.calc_ema_cpu(self.sys_cpu_ema, psutil.cpu_percent())
-                self.update_system(self.bar_system, self.sys_cpu_ema, self.prefix_sys)
-
-            if self.wcfg["show_tinypedal_performance"]:
-                self.app_cpu_ema = self.calc_ema_cpu(
-                    self.app_cpu_ema, self.app_info.cpu_percent() / self.cpu_count)
-                self.update_app(self.bar_app, self.app_cpu_ema, self.prefix_app)
+        if self.wcfg["show_tinypedal_performance"]:
+            self.app_cpu_ema = self.calc_ema_cpu(
+                self.app_cpu_ema, self.app_info.cpu_percent() / self.cpu_count)
+            self.update_app(self.bar_app, self.app_cpu_ema, self.prefix_app)
 
     # GUI update methods
     def update_system(self, target, data, prefix):

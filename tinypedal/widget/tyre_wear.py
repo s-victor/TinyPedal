@@ -191,67 +191,58 @@ class Realtime(Overlay):
                 layout_mins.addWidget(cap_mins, 0, 0, 1, 0)
 
         # Last data
-        self.checked = False
         self.last_lap_stime = 0  # last lap start time
         self.wear_prev = [0] * 4  # previous moment remaining wear
         self.wear_curr_lap = [0] * 4  # live wear update of current lap
         self.wear_last_lap = [0] * 4  # total wear of last lap
 
+    def post_update(self):
+        self.wear_prev = [0] * 4
+        self.wear_curr_lap = [0] * 4
+        self.wear_last_lap = [0] * 4
+
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        lap_stime = api.read.timing.start()
+        lap_etime = api.read.timing.elapsed()
+        wear_curr = api.read.tyre.wear(scale=100)
 
-            # Reset switch
-            if not self.checked:
-                self.checked = True
+        if lap_stime != self.last_lap_stime:
+            self.wear_last_lap = self.wear_curr_lap
+            self.wear_curr_lap = [0] * 4  # reset real time wear
+            self.last_lap_stime = lap_stime  # reset time stamp counter
 
-            lap_stime = api.read.timing.start()
-            lap_etime = api.read.timing.elapsed()
-            wear_curr = api.read.tyre.wear(scale=100)
+        for idx in range(4):
+            # Update wear differences & accumulated wear
+            wear_diff = self.wear_prev[idx] - wear_curr[idx]
+            self.wear_prev[idx] = wear_curr[idx]
+            if wear_diff > 0:
+                self.wear_curr_lap[idx] += wear_diff
 
-            if lap_stime != self.last_lap_stime:
-                self.wear_last_lap = self.wear_curr_lap
-                self.wear_curr_lap = [0] * 4  # reset real time wear
-                self.last_lap_stime = lap_stime  # reset time stamp counter
+            # Remaining wear
+            if self.wcfg["show_remaining"]:
+                self.update_wear(self.bars_wear[idx], wear_curr[idx])
 
-            for idx in range(4):
-                # Update wear differences & accumulated wear
-                wear_diff = self.wear_prev[idx] - wear_curr[idx]
-                self.wear_prev[idx] = wear_curr[idx]
-                if wear_diff > 0:
-                    self.wear_curr_lap[idx] += wear_diff
+            # Wear differences
+            if self.wcfg["show_wear_difference"]:
+                if (self.wcfg["show_live_wear_difference"] and
+                    lap_etime - lap_stime > self.freeze_duration):
+                    self.update_diff(self.bars_diff[idx], self.wear_curr_lap[idx])
+                else:  # Last lap diff
+                    self.update_diff(self.bars_diff[idx], self.wear_last_lap[idx])
 
-                # Remaining wear
-                if self.wcfg["show_remaining"]:
-                    self.update_wear(self.bars_wear[idx], wear_curr[idx])
+            # Estimated lifespan in laps
+            if self.wcfg["show_lifespan_laps"]:
+                wear_laps = calc.wear_lifespan_in_laps(
+                    wear_curr[idx], self.wear_last_lap[idx], self.wear_curr_lap[idx])
+                self.update_laps(self.bars_laps[idx], wear_laps)
 
-                # Wear differences
-                if self.wcfg["show_wear_difference"]:
-                    if (self.wcfg["show_live_wear_difference"] and
-                        lap_etime - lap_stime > self.freeze_duration):
-                        self.update_diff(self.bars_diff[idx], self.wear_curr_lap[idx])
-                    else:  # Last lap diff
-                        self.update_diff(self.bars_diff[idx], self.wear_last_lap[idx])
-
-                # Estimated lifespan in laps
-                if self.wcfg["show_lifespan_laps"]:
-                    wear_laps = calc.wear_lifespan_in_laps(
-                        wear_curr[idx], self.wear_last_lap[idx], self.wear_curr_lap[idx])
-                    self.update_laps(self.bars_laps[idx], wear_laps)
-
-                # Estimated lifespan in minutes
-                if self.wcfg["show_lifespan_minutes"]:
-                    wear_mins = calc.wear_lifespan_in_mins(
-                        wear_curr[idx], self.wear_last_lap[idx], self.wear_curr_lap[idx],
-                        minfo.delta.lapTimePace)
-                    self.update_mins(self.bars_mins[idx], wear_mins)
-
-        else:
-            if self.checked:
-                self.checked = False
-                self.wear_prev = [0] * 4
-                self.wear_curr_lap = [0] * 4
-                self.wear_last_lap = [0] * 4
+            # Estimated lifespan in minutes
+            if self.wcfg["show_lifespan_minutes"]:
+                wear_mins = calc.wear_lifespan_in_mins(
+                    wear_curr[idx], self.wear_last_lap[idx], self.wear_curr_lap[idx],
+                    minfo.delta.lapTimePace)
+                self.update_mins(self.bars_mins[idx], wear_mins)
 
     # GUI update methods
     def update_wear(self, target, data):

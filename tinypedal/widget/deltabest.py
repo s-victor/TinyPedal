@@ -98,21 +98,19 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        if minfo.delta.lapTimeCurrent < self.freeze_duration:
+            temp_best = minfo.delta.lapTimeLast - self.last_laptime
+            self.new_lap = True
+        else:
+            if self.new_lap:
+                self.last_laptime = getattr(minfo.delta, self.laptime_source)
+                self.new_lap = False
 
-            if minfo.delta.lapTimeCurrent < self.freeze_duration:
-                temp_best = minfo.delta.lapTimeLast - self.last_laptime
-                self.new_lap = True
-            else:
-                if self.new_lap:
-                    self.last_laptime = getattr(minfo.delta, self.laptime_source)
-                    self.new_lap = False
+            temp_best = getattr(minfo.delta, self.delta_source)
 
-                temp_best = getattr(minfo.delta, self.delta_source)
-
-            if self.delta_best != temp_best:
-                self.delta_best = temp_best
-                self.update()
+        if self.delta_best != temp_best:
+            self.delta_best = temp_best
+            self.update()
 
     # GUI update methods
     def paintEvent(self, event):

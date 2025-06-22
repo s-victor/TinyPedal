@@ -90,26 +90,24 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Battery charge
+        if self.wcfg["show_battery_charge"]:
+            state = minfo.hybrid.motorState
+            if state == 1:  # cooldown check
+                state = (
+                    api.read.engine.gear() >= self.wcfg["activation_threshold_gear"] and
+                    api.read.vehicle.speed() * 3.6 > self.wcfg["activation_threshold_speed"] and
+                    api.read.inputs.throttle_raw() >= self.wcfg["activation_threshold_throttle"] and
+                    minfo.hybrid.motorInactiveTimer >= self.wcfg["minimum_activation_time_delay"] and
+                    minfo.hybrid.motorActiveTimer < self.wcfg["maximum_activation_time_per_lap"] - 0.05
+                )
+            battery_charge = minfo.hybrid.batteryCharge, state
+            self.update_battery_charge(self.bar_charge, battery_charge)
 
-            # Battery charge
-            if self.wcfg["show_battery_charge"]:
-                state = minfo.hybrid.motorState
-                if state == 1:  # cooldown check
-                    state = (
-                        api.read.engine.gear() >= self.wcfg["activation_threshold_gear"] and
-                        api.read.vehicle.speed() * 3.6 > self.wcfg["activation_threshold_speed"] and
-                        api.read.inputs.throttle_raw() >= self.wcfg["activation_threshold_throttle"] and
-                        minfo.hybrid.motorInactiveTimer >= self.wcfg["minimum_activation_time_delay"] and
-                        minfo.hybrid.motorActiveTimer < self.wcfg["maximum_activation_time_per_lap"] - 0.05
-                    )
-                battery_charge = minfo.hybrid.batteryCharge, state
-                self.update_battery_charge(self.bar_charge, battery_charge)
-
-            # Activation timer
-            if self.wcfg["show_activation_timer"]:
-                active_timer = minfo.hybrid.motorActiveTimer, minfo.hybrid.motorState
-                self.update_active_timer(self.bar_timer, active_timer)
+        # Activation timer
+        if self.wcfg["show_activation_timer"]:
+            active_timer = minfo.hybrid.motorActiveTimer, minfo.hybrid.motorState
+            self.update_active_timer(self.bar_timer, active_timer)
 
     # GUI update methods
     def update_battery_charge(self, target, data):

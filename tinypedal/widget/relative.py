@@ -330,76 +330,74 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        relative_list = minfo.relative.relative
+        total_rel_idx = len(relative_list)
 
-            relative_list = minfo.relative.relative
-            total_rel_idx = len(relative_list)
+        # Relative update
+        for idx in range(self.veh_range):
 
-            # Relative update
-            for idx in range(self.veh_range):
+            if idx < total_rel_idx:
+                rel_time_gap, rel_idx = relative_list[idx]
+            else:
+                rel_time_gap, rel_idx = 0.0, -2
 
-                if idx < total_rel_idx:
-                    rel_time_gap, rel_idx = relative_list[idx]
+            # Set row state: 1 - show text, 0 - hide text
+            if rel_idx >= 0:
+                self.row_visible[idx] = True
+                state = 1
+            elif not self.row_visible[idx]:
+                continue  # skip if already empty
+            else:
+                self.row_visible[idx] = False
+                state = 0
+
+            # Get vehicle dataset
+            veh_info = minfo.vehicles.dataSet[rel_idx]
+            # Highlighted player
+            hi_player = self.wcfg["show_player_highlighted"] and veh_info.isPlayer
+            # Check whether is lapped
+            is_lapped = veh_info.isLapped
+            # Driver position
+            if self.wcfg["show_position"]:
+                self.update_pos(self.bars_pos[idx], veh_info.positionOverall, is_lapped, hi_player, state)
+            # Driver position change
+            if self.wcfg["show_position_change"]:
+                if self.wcfg["show_position_change_in_class"]:
+                    pos_diff = veh_info.qualifyInClass - veh_info.positionInClass
                 else:
-                    rel_time_gap, rel_idx = 0.0, -2
-
-                # Set row state: 1 - show text, 0 - hide text
-                if rel_idx >= 0:
-                    self.row_visible[idx] = True
-                    state = 1
-                elif not self.row_visible[idx]:
-                    continue  # skip if already empty
-                else:
-                    self.row_visible[idx] = False
-                    state = 0
-
-                # Get vehicle dataset
-                veh_info = minfo.vehicles.dataSet[rel_idx]
-                # Highlighted player
-                hi_player = self.wcfg["show_player_highlighted"] and veh_info.isPlayer
-                # Check whether is lapped
-                is_lapped = veh_info.isLapped
-                # Driver position
-                if self.wcfg["show_position"]:
-                    self.update_pos(self.bars_pos[idx], veh_info.positionOverall, is_lapped, hi_player, state)
-                # Driver position change
-                if self.wcfg["show_position_change"]:
-                    if self.wcfg["show_position_change_in_class"]:
-                        pos_diff = veh_info.qualifyInClass - veh_info.positionInClass
-                    else:
-                        pos_diff = veh_info.qualifyOverall - veh_info.positionOverall
-                    self.update_pgl(self.bars_pgl[idx], pos_diff, hi_player, state)
-                # Driver name
-                if self.wcfg["show_driver_name"]:
-                    self.update_drv(self.bars_drv[idx], veh_info.driverName, is_lapped, hi_player, state)
-                # Vehicle name
-                if self.wcfg["show_vehicle_name"]:
-                    self.update_veh(self.bars_veh[idx], veh_info.vehicleName, is_lapped, hi_player, state)
-                # Brand logo
-                if self.wcfg["show_brand_logo"]:
-                    self.update_brd(self.bars_brd[idx], veh_info.vehicleName, hi_player, state)
-                # Time gap
-                if self.wcfg["show_time_gap"]:
-                    self.update_gap(self.bars_gap[idx], rel_time_gap, hi_player, state)
-                # Vehicle laptime
-                if self.wcfg["show_laptime"]:
-                    laptime = (veh_info.inPit, veh_info.lastLapTime, veh_info.pitTimer.elapsed)
-                    self.update_lpt(self.bars_lpt[idx], laptime, veh_info.isClassFastestLastLap, hi_player, state)
-                # Position in class
-                if self.wcfg["show_position_in_class"]:
-                    self.update_pic(self.bars_pic[idx], veh_info.positionInClass, hi_player, state)
-                # Vehicle class
-                if self.wcfg["show_class"]:
-                    self.update_cls(self.bars_cls[idx], veh_info.vehicleClass, state)
-                # Vehicle in pit
-                if self.wcfg["show_pit_status"]:
-                    self.update_pit(self.bars_pit[idx], veh_info.inPit, state)
-                # Tyre compound index
-                if self.wcfg["show_tyre_compound"]:
-                    self.update_tcp(self.bars_tcp[idx], veh_info.tireCompoundFront, veh_info.tireCompoundRear, hi_player, state)
-                # Pitstop count
-                if self.wcfg["show_pitstop_count"]:
-                    self.update_psc(self.bars_psc[idx], veh_info.numPitStops, veh_info.pitState, hi_player, state)
+                    pos_diff = veh_info.qualifyOverall - veh_info.positionOverall
+                self.update_pgl(self.bars_pgl[idx], pos_diff, hi_player, state)
+            # Driver name
+            if self.wcfg["show_driver_name"]:
+                self.update_drv(self.bars_drv[idx], veh_info.driverName, is_lapped, hi_player, state)
+            # Vehicle name
+            if self.wcfg["show_vehicle_name"]:
+                self.update_veh(self.bars_veh[idx], veh_info.vehicleName, is_lapped, hi_player, state)
+            # Brand logo
+            if self.wcfg["show_brand_logo"]:
+                self.update_brd(self.bars_brd[idx], veh_info.vehicleName, hi_player, state)
+            # Time gap
+            if self.wcfg["show_time_gap"]:
+                self.update_gap(self.bars_gap[idx], rel_time_gap, hi_player, state)
+            # Vehicle laptime
+            if self.wcfg["show_laptime"]:
+                laptime = (veh_info.inPit, veh_info.lastLapTime, veh_info.pitTimer.elapsed)
+                self.update_lpt(self.bars_lpt[idx], laptime, veh_info.isClassFastestLastLap, hi_player, state)
+            # Position in class
+            if self.wcfg["show_position_in_class"]:
+                self.update_pic(self.bars_pic[idx], veh_info.positionInClass, hi_player, state)
+            # Vehicle class
+            if self.wcfg["show_class"]:
+                self.update_cls(self.bars_cls[idx], veh_info.vehicleClass, state)
+            # Vehicle in pit
+            if self.wcfg["show_pit_status"]:
+                self.update_pit(self.bars_pit[idx], veh_info.inPit, state)
+            # Tyre compound index
+            if self.wcfg["show_tyre_compound"]:
+                self.update_tcp(self.bars_tcp[idx], veh_info.tireCompoundFront, veh_info.tireCompoundRear, hi_player, state)
+            # Pitstop count
+            if self.wcfg["show_pitstop_count"]:
+                self.update_psc(self.bars_psc[idx], veh_info.numPitStops, veh_info.pitState, hi_player, state)
 
     # GUI update methods
     def update_pos(self, target, *data):

@@ -97,17 +97,15 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Elevation map
+        modified = minfo.mapping.lastModified
+        self.update_elevation(modified)
 
-            # Elevation map
-            modified = minfo.mapping.lastModified
-            self.update_elevation(modified)
-
-            # Vehicle position
-            temp_veh_pos = self.display_width * api.read.lap.progress()
-            if self.veh_pos != temp_veh_pos:
-                self.veh_pos = temp_veh_pos
-                self.update()
+        # Vehicle position
+        temp_veh_pos = self.display_width * api.read.lap.progress()
+        if self.veh_pos != temp_veh_pos:
+            self.veh_pos = temp_veh_pos
+            self.update()
 
     # GUI update methods
     def update_elevation(self, data):

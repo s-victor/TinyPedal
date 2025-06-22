@@ -149,37 +149,35 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Transient max braking rate
+        if self.wcfg["show_transient_max_braking_rate"]:
+            transient_rate = minfo.force.transientMaxBrakingRate
+            self.update_braking_rate(self.bar_trans_rate, transient_rate)
 
-            # Transient max braking rate
-            if self.wcfg["show_transient_max_braking_rate"]:
-                transient_rate = minfo.force.transientMaxBrakingRate
-                self.update_braking_rate(self.bar_trans_rate, transient_rate)
+        # Max braking rate
+        if self.wcfg["show_max_braking_rate"]:
+            max_rate = minfo.force.maxBrakingRate
+            self.update_braking_rate(self.bar_max_rate, max_rate)
 
-            # Max braking rate
-            if self.wcfg["show_max_braking_rate"]:
-                max_rate = minfo.force.maxBrakingRate
-                self.update_braking_rate(self.bar_max_rate, max_rate)
+        # Delta braking rate
+        if self.wcfg["show_delta_braking_rate"]:
+            delta_rate = minfo.force.deltaBrakingRate
+            self.update_delta_rate(self.bar_delta_rate, delta_rate)
 
-            # Delta braking rate
-            if self.wcfg["show_delta_braking_rate"]:
-                delta_rate = minfo.force.deltaBrakingRate
-                self.update_delta_rate(self.bar_delta_rate, delta_rate)
+        # Wheel lock duration
+        if self.lock_timer.enabled:
+            self.lock_timer.calc(
+                api.read.inputs.brake_raw(),
+                api.read.timing.start(),
+                api.read.timing.elapsed(),
+                minfo.wheels.slipRatio,
+            )
 
-            # Wheel lock duration
-            if self.lock_timer.enabled:
-                self.lock_timer.calc(
-                    api.read.inputs.brake_raw(),
-                    api.read.timing.start(),
-                    api.read.timing.elapsed(),
-                    minfo.wheels.slipRatio,
-                )
+        if self.wcfg["show_front_wheel_lock_duration"]:
+            self.update_lock_time_f(self.bar_lock_f, self.lock_timer.front)
 
-            if self.wcfg["show_front_wheel_lock_duration"]:
-                self.update_lock_time_f(self.bar_lock_f, self.lock_timer.front)
-
-            if self.wcfg["show_rear_wheel_lock_duration"]:
-                self.update_lock_time_r(self.bar_lock_r, self.lock_timer.rear)
+        if self.wcfg["show_rear_wheel_lock_duration"]:
+            self.update_lock_time_r(self.bar_lock_r, self.lock_timer.rear)
 
     # GUI update methods
     def update_braking_rate(self, target, data):

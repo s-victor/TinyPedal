@@ -177,37 +177,35 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Tyre compound
+        if self.wcfg["show_tyre_compound"]:
+            class_name = api.read.vehicle.class_name()
+            tcmpd_name = api.read.tyre.compound_name()
+            for cmpd_idx, bar_tcmpd in enumerate(self.bars_tcmpd):
+                self.update_tcmpd(bar_tcmpd, f"{class_name} - {tcmpd_name[cmpd_idx]}", cmpd_idx * 2)
 
-            # Tyre compound
-            if self.wcfg["show_tyre_compound"]:
-                class_name = api.read.vehicle.class_name()
-                tcmpd_name = api.read.tyre.compound_name()
-                for cmpd_idx, bar_tcmpd in enumerate(self.bars_tcmpd):
-                    self.update_tcmpd(bar_tcmpd, f"{class_name} - {tcmpd_name[cmpd_idx]}", cmpd_idx * 2)
+        # Tyre carcass temperature: 0 - fl, 1 - fr, 2 - rl, 3 - rr
+        ctemp = api.read.tyre.carcass_temperature()
+        for tyre_idx, bar_ctemp in enumerate(self.bars_ctemp):
+            self.update_ctemp(bar_ctemp, round(ctemp[tyre_idx]), tyre_idx)
 
-            # Tyre carcass temperature: 0 - fl, 1 - fr, 2 - rl, 3 - rr
-            ctemp = api.read.tyre.carcass_temperature()
-            for tyre_idx, bar_ctemp in enumerate(self.bars_ctemp):
-                self.update_ctemp(bar_ctemp, round(ctemp[tyre_idx]), tyre_idx)
+        # Rate of change
+        if self.wcfg["show_rate_of_change"]:
+            lap_etime = api.read.timing.elapsed()
 
-            # Rate of change
-            if self.wcfg["show_rate_of_change"]:
-                lap_etime = api.read.timing.elapsed()
+            if self.last_lap_etime > lap_etime:
+                self.last_lap_etime = lap_etime
+            elif lap_etime - self.last_lap_etime >= 0.1:
+                interval = self.rate_interval / (lap_etime - self.last_lap_etime)
+                self.last_lap_etime = lap_etime
 
-                if self.last_lap_etime > lap_etime:
-                    self.last_lap_etime = lap_etime
-                elif lap_etime - self.last_lap_etime >= 0.1:
-                    interval = self.rate_interval / (lap_etime - self.last_lap_etime)
-                    self.last_lap_etime = lap_etime
-
-                    for tyre_idx, bar_rdiff in enumerate(self.bars_rdiff):
-                        rdiff = self.calc_ema_rdiff(
-                            bar_rdiff.last,
-                            (ctemp[tyre_idx] - self.last_rtemp[tyre_idx]) * interval
-                        )
-                        self.last_rtemp[tyre_idx] = ctemp[tyre_idx]
-                        self.update_rdiff(bar_rdiff, rdiff)
+                for tyre_idx, bar_rdiff in enumerate(self.bars_rdiff):
+                    rdiff = self.calc_ema_rdiff(
+                        bar_rdiff.last,
+                        (ctemp[tyre_idx] - self.last_rtemp[tyre_idx]) * interval
+                    )
+                    self.last_rtemp[tyre_idx] = ctemp[tyre_idx]
+                    self.update_rdiff(bar_rdiff, rdiff)
 
     # GUI update methods
     def update_ctemp(self, target, data, index):

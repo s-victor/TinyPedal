@@ -85,65 +85,63 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Use elapsed time to determine whether data paused
+        # Add 1 extra update compensation
+        lap_etime = api.read.timing.elapsed()
+        if self.last_lap_etime != lap_etime:
+            self.last_lap_etime = lap_etime
+            self.update_plot = 2
+        elif self.update_plot > 0:
+            self.update_plot -= 1
 
-            # Use elapsed time to determine whether data paused
-            # Add 1 extra update compensation
-            lap_etime = api.read.timing.elapsed()
-            if self.last_lap_etime != lap_etime:
-                self.last_lap_etime = lap_etime
-                self.update_plot = 2
-            elif self.update_plot > 0:
-                self.update_plot -= 1
+        if self.update_plot:
+            throttle_raw = api.read.inputs.throttle_raw()
+            brake_raw = api.read.inputs.brake_raw()
 
-            if self.update_plot:
-                throttle_raw = api.read.inputs.throttle_raw()
-                brake_raw = api.read.inputs.brake_raw()
+            if self.wcfg["show_throttle"]:
+                if self.wcfg["show_raw_throttle"]:
+                    throttle = throttle_raw
+                else:
+                    throttle = api.read.inputs.throttle()
+                self.update_sample(self.data_throttle, throttle)
 
-                if self.wcfg["show_throttle"]:
-                    if self.wcfg["show_raw_throttle"]:
-                        throttle = throttle_raw
-                    else:
-                        throttle = api.read.inputs.throttle()
-                    self.update_sample(self.data_throttle, throttle)
+            if self.wcfg["show_brake"]:
+                if self.wcfg["show_raw_brake"]:
+                    brake = brake_raw
+                else:
+                    brake = api.read.inputs.brake()
+                self.update_sample(self.data_brake, brake)
 
-                if self.wcfg["show_brake"]:
-                    if self.wcfg["show_raw_brake"]:
-                        brake = brake_raw
-                    else:
-                        brake = api.read.inputs.brake()
-                    self.update_sample(self.data_brake, brake)
+            if self.wcfg["show_clutch"]:
+                if self.wcfg["show_raw_clutch"]:
+                    clutch = api.read.inputs.clutch_raw()
+                else:
+                    clutch = api.read.inputs.clutch()
+                self.update_sample(self.data_clutch, clutch)
 
-                if self.wcfg["show_clutch"]:
-                    if self.wcfg["show_raw_clutch"]:
-                        clutch = api.read.inputs.clutch_raw()
-                    else:
-                        clutch = api.read.inputs.clutch()
-                    self.update_sample(self.data_clutch, clutch)
+            if self.wcfg["show_ffb"]:
+                if self.wcfg["show_absolute_ffb"]:
+                    ffb = abs(api.read.inputs.force_feedback())
+                else:
+                    ffb = (api.read.inputs.force_feedback() + 1) / 2
+                self.update_sample(self.data_ffb, ffb)
 
-                if self.wcfg["show_ffb"]:
-                    if self.wcfg["show_absolute_ffb"]:
-                        ffb = abs(api.read.inputs.force_feedback())
-                    else:
-                        ffb = (api.read.inputs.force_feedback() + 1) / 2
-                    self.update_sample(self.data_ffb, ffb)
+            if self.wcfg["show_wheel_lock"]:
+                wheel_lock = min(abs(min(minfo.wheels.slipRatio)), 1)
+                if wheel_lock < self.wcfg["wheel_lock_threshold"] or brake_raw <= 0.02:
+                    wheel_lock = -999
+                self.update_sample(self.data_wheel_lock, wheel_lock)
 
-                if self.wcfg["show_wheel_lock"]:
-                    wheel_lock = min(abs(min(minfo.wheels.slipRatio)), 1)
-                    if wheel_lock < self.wcfg["wheel_lock_threshold"] or brake_raw <= 0.02:
-                        wheel_lock = -999
-                    self.update_sample(self.data_wheel_lock, wheel_lock)
+            if self.wcfg["show_wheel_slip"]:
+                wheel_slip = min(max(minfo.wheels.slipRatio), 1)
+                if wheel_slip < self.wcfg["wheel_slip_threshold"] or throttle_raw <= 0.02:
+                    wheel_slip = -999
+                self.update_sample(self.data_wheel_slip, wheel_slip)
 
-                if self.wcfg["show_wheel_slip"]:
-                    wheel_slip = min(max(minfo.wheels.slipRatio), 1)
-                    if wheel_slip < self.wcfg["wheel_slip_threshold"] or throttle_raw <= 0.02:
-                        wheel_slip = -999
-                    self.update_sample(self.data_wheel_slip, wheel_slip)
-
-                # Update after all pedal data set
-                self.draw_plot_section()
-                self.draw_plot()
-                self.update()  # trigger paint event
+            # Update after all pedal data set
+            self.draw_plot_section()
+            self.draw_plot()
+            self.update()  # trigger paint event
 
     # GUI update methods
     def paintEvent(self, event):

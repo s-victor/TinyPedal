@@ -188,54 +188,52 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        etime = api.read.session.elapsed()
+        stime = api.read.session.start()
 
-            etime = api.read.session.elapsed()
-            stime = api.read.session.start()
-
-            if self.wcfg["enable_track_clock_synchronization"]:
-                track_time = minfo.restapi.trackClockTime
-                if track_time == -1:  # trackClockTime unavailable
-                    time_scale = max(minfo.restapi.timeScale, 0)
-                    track_time = calc.clock_time(etime, stime, time_scale)
-                else:  # sync time scale
-                    time_scale = calc.clock_time_scale_sync(track_time, etime, stime)
-            else:
-                time_scale = self.time_scale_override
+        if self.wcfg["enable_track_clock_synchronization"]:
+            track_time = minfo.restapi.trackClockTime
+            if track_time == -1:  # trackClockTime unavailable
+                time_scale = max(minfo.restapi.timeScale, 0)
                 track_time = calc.clock_time(etime, stime, time_scale)
+            else:  # sync time scale
+                time_scale = calc.clock_time_scale_sync(track_time, etime, stime)
+        else:
+            time_scale = self.time_scale_override
+            track_time = calc.clock_time(etime, stime, time_scale)
 
-            # Track clock
-            if self.wcfg["show_track_clock"]:
-                self.update_track_clock(self.bar_track_clock, track_time)
+        # Track clock
+        if self.wcfg["show_track_clock"]:
+            self.update_track_clock(self.bar_track_clock, track_time)
 
-            # Track clock time scale
-            if self.wcfg["show_time_scale"]:
-                self.update_time_scale(self.bar_time_scale, time_scale)
+        # Track clock time scale
+        if self.wcfg["show_time_scale"]:
+            self.update_time_scale(self.bar_time_scale, time_scale)
 
-            # Compass
-            if self.wcfg["show_compass"]:
-                orientation = api.read.vehicle.orientation_yaw_radians()
-                self.update_compass(self.bar_compass, orientation)
+        # Compass
+        if self.wcfg["show_compass"]:
+            orientation = api.read.vehicle.orientation_yaw_radians()
+            self.update_compass(self.bar_compass, orientation)
 
-            # Elevation
-            if self.wcfg["show_elevation"]:
-                elevation = api.read.vehicle.position_vertical()
-                self.update_elevation(self.bar_elevation, elevation)
+        # Elevation
+        if self.wcfg["show_elevation"]:
+            elevation = api.read.vehicle.position_vertical()
+            self.update_elevation(self.bar_elevation, elevation)
 
-            # Odometer
-            if self.wcfg["show_odometer"]:
-                traveled_distance = int(minfo.stats.metersDriven)
-                self.update_odometer(self.bar_odometer, traveled_distance)
+        # Odometer
+        if self.wcfg["show_odometer"]:
+            traveled_distance = int(minfo.stats.metersDriven)
+            self.update_odometer(self.bar_odometer, traveled_distance)
 
-            # Distance into lap
-            if self.wcfg["show_distance_into_lap"]:
-                lap_distance = minfo.delta.lapDistance
-                self.update_lap_distance(self.bar_lap_distance, lap_distance)
+        # Distance into lap
+        if self.wcfg["show_distance_into_lap"]:
+            lap_distance = minfo.delta.lapDistance
+            self.update_lap_distance(self.bar_lap_distance, lap_distance)
 
-            # Cornering radius
-            if self.wcfg["show_cornering_radius"]:
-                cornering_radius = minfo.wheels.corneringRadius
-                self.update_cornering_radius(self.bar_cornering_radius, cornering_radius)
+        # Cornering radius
+        if self.wcfg["show_cornering_radius"]:
+            cornering_radius = minfo.wheels.corneringRadius
+            self.update_cornering_radius(self.bar_cornering_radius, cornering_radius)
 
     # GUI update methods
     def update_track_clock(self, target, data):

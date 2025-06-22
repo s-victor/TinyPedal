@@ -145,33 +145,31 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Motor temperature
+        if self.wcfg["show_motor_temperature"]:
+            temp_motor = round(api.read.emotor.motor_temperature(), 2)
+            self.update_motor(self.bar_motor, temp_motor)
 
-            # Motor temperature
-            if self.wcfg["show_motor_temperature"]:
-                temp_motor = round(api.read.emotor.motor_temperature(), 2)
-                self.update_motor(self.bar_motor, temp_motor)
+        # Water temperature
+        if self.wcfg["show_water_temperature"]:
+            temp_water = round(api.read.emotor.water_temperature(), 2)
+            self.update_water(self.bar_water, temp_water)
 
-            # Water temperature
-            if self.wcfg["show_water_temperature"]:
-                temp_water = round(api.read.emotor.water_temperature(), 2)
-                self.update_water(self.bar_water, temp_water)
+        # Motor rpm
+        if self.wcfg["show_rpm"]:
+            rpm = int(api.read.emotor.rpm())
+            self.update_rpm(self.bar_rpm, rpm)
 
-            # Motor rpm
-            if self.wcfg["show_rpm"]:
-                rpm = int(api.read.emotor.rpm())
-                self.update_rpm(self.bar_rpm, rpm)
+        # Motor torque
+        if self.wcfg["show_torque"]:
+            torque = round(api.read.emotor.torque(), 2)
+            self.update_torque(self.bar_torque, torque)
 
-            # Motor torque
-            if self.wcfg["show_torque"]:
-                torque = round(api.read.emotor.torque(), 2)
-                self.update_torque(self.bar_torque, torque)
-
-            # Motor power
-            if self.wcfg["show_power"]:
-                power = round(calc.engine_power(
-                    api.read.emotor.torque(), api.read.emotor.rpm()), 2)
-                self.update_power(self.bar_power, power)
+        # Motor power
+        if self.wcfg["show_power"]:
+            power = round(calc.engine_power(
+                api.read.emotor.torque(), api.read.emotor.rpm()), 2)
+            self.update_power(self.bar_power, power)
 
     # GUI update methods
     def update_motor(self, target, data):

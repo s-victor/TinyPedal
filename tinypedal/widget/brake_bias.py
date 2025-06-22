@@ -107,42 +107,35 @@ class Realtime(Overlay):
             )
 
         # Last data
-        self.checked = False
-        self.baseline_bias = 0.5
+        self.baseline_bias = 0
         self.brake_bmigt = BrakeMigration(self.wcfg["electric_braking_allocation"])
+
+    def post_update(self):
+        self.brake_bmigt.reset()
+        self.baseline_bias = 0
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Brake bias
+        bbias = api.read.brake.bias_front()
+        self.update_bbias(self.bar_bbias, bbias)
 
-            # Brake bias
-            bbias = api.read.brake.bias_front()
-            self.update_bbias(self.bar_bbias, bbias)
+        # Baseline bias delta
+        if self.wcfg["show_baseline_bias_delta"]:
+            if (not self.baseline_bias  # in case not start from pit
+                or (api.read.vehicle.in_pits() and api.read.vehicle.speed() < 0.1)):
+                self.baseline_bias = bbias
 
-            # Reset switch
-            if not self.checked:
-                self.checked = True
-                self.baseline_bias = bbias  # in case not start from pit
+            self.update_delta(self.bar_delta, bbias - self.baseline_bias)
 
-            # Baseline bias delta
-            if self.wcfg["show_baseline_bias_delta"]:
-                if api.read.vehicle.in_pits() and api.read.vehicle.speed() < 0.1:
-                    self.baseline_bias = bbias
-                self.update_delta(self.bar_delta, bbias - self.baseline_bias)
-
-            # Brake migration
-            if self.wcfg["show_brake_migration"]:
-                bmigt = self.brake_bmigt.calc(
-                    api.read.inputs.brake_raw(),
-                    bbias,
-                    api.read.brake.pressure()
-                )
-                self.update_bmigt(self.bar_bmigt, bmigt)
-
-        else:
-            if self.checked:
-                self.checked = False
-                self.brake_bmigt.reset()
+        # Brake migration
+        if self.wcfg["show_brake_migration"]:
+            bmigt = self.brake_bmigt.calc(
+                api.read.inputs.brake_raw(),
+                bbias,
+                api.read.brake.pressure()
+            )
+            self.update_bmigt(self.bar_bmigt, bmigt)
 
     # GUI update methods
     def update_bbias(self, target, data):

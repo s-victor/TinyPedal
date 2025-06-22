@@ -111,17 +111,15 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        susp_set = api.read.wheel.suspension_deflection()
 
-            susp_set = api.read.wheel.suspension_deflection()
-
-            if self.wcfg["show_third_spring_position_mark"]:
-                third_set = api.read.wheel.third_spring_deflection()
-                for susp, third, bar_susp in zip(susp_set, third_set, self.bars_susp):
-                    self.update_susp_third(bar_susp, round(susp), third)
-            else:
-                for susp, bar_susp in zip(susp_set, self.bars_susp):
-                    self.update_susp(bar_susp, round(susp))
+        if self.wcfg["show_third_spring_position_mark"]:
+            third_set = api.read.wheel.third_spring_deflection()
+            for susp, third, bar_susp in zip(susp_set, third_set, self.bars_susp):
+                self.update_susp_third(bar_susp, round(susp), third)
+        else:
+            for susp, bar_susp in zip(susp_set, self.bars_susp):
+                self.update_susp(bar_susp, round(susp))
 
     # GUI update methods
     def update_susp(self, target, data):

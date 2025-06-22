@@ -87,12 +87,10 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
-
-            # Tyre pressure
-            tpres = api.read.tyre.pressure()
-            for idx, bar_tpres in enumerate(self.bars_tpres):
-                self.update_tpres(bar_tpres, tpres[idx])
+        # Tyre pressure
+        tpres = api.read.tyre.pressure()
+        for idx, bar_tpres in enumerate(self.bars_tpres):
+            self.update_tpres(bar_tpres, tpres[idx])
 
     # GUI update methods
     def update_tpres(self, target, data):

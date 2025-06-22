@@ -98,21 +98,19 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Steering wheel rotation
+        if self.wcfg["manual_steering_range"] > 0:
+            temp_rot_range = self.wcfg["manual_steering_range"]
+        else:
+            temp_rot_range = api.read.inputs.steering_range_physical()
+            if minfo.restapi.steeringWheelRange > 0 >= temp_rot_range:
+                temp_rot_range = minfo.restapi.steeringWheelRange
 
-            # Steering wheel rotation
-            if self.wcfg["manual_steering_range"] > 0:
-                temp_rot_range = self.wcfg["manual_steering_range"]
-            else:
-                temp_rot_range = api.read.inputs.steering_range_physical()
-                if minfo.restapi.steeringWheelRange > 0 >= temp_rot_range:
-                    temp_rot_range = minfo.restapi.steeringWheelRange
-
-            # Steering
-            temp_steering_angle = api.read.inputs.steering_raw() * temp_rot_range * 0.5
-            if self.steering_angle != temp_steering_angle:
-                self.steering_angle = temp_steering_angle
-                self.update()
+        # Steering
+        temp_steering_angle = api.read.inputs.steering_raw() * temp_rot_range * 0.5
+        if self.steering_angle != temp_steering_angle:
+            self.steering_angle = temp_steering_angle
+            self.update()
 
     # GUI update methods
     def paintEvent(self, event):

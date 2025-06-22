@@ -185,43 +185,41 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Oil temperature
+        if self.wcfg["show_oil_temperature"]:
+            temp_oil = round(api.read.engine.oil_temperature(), 2)
+            self.update_oil(self.bar_oil, temp_oil)
 
-            # Oil temperature
-            if self.wcfg["show_oil_temperature"]:
-                temp_oil = round(api.read.engine.oil_temperature(), 2)
-                self.update_oil(self.bar_oil, temp_oil)
+        # Water temperature
+        if self.wcfg["show_water_temperature"]:
+            temp_water = round(api.read.engine.water_temperature(), 2)
+            self.update_water(self.bar_water, temp_water)
 
-            # Water temperature
-            if self.wcfg["show_water_temperature"]:
-                temp_water = round(api.read.engine.water_temperature(), 2)
-                self.update_water(self.bar_water, temp_water)
+        # Turbo pressure
+        if self.wcfg["show_turbo_pressure"]:
+            turbo = int(api.read.engine.turbo())
+            self.update_turbo(self.bar_turbo, turbo)
 
-            # Turbo pressure
-            if self.wcfg["show_turbo_pressure"]:
-                turbo = int(api.read.engine.turbo())
-                self.update_turbo(self.bar_turbo, turbo)
+        # Engine RPM
+        if self.wcfg["show_rpm"]:
+            rpm = int(api.read.engine.rpm())
+            self.update_rpm(self.bar_rpm, rpm)
 
-            # Engine RPM
-            if self.wcfg["show_rpm"]:
-                rpm = int(api.read.engine.rpm())
-                self.update_rpm(self.bar_rpm, rpm)
+        # Engine RPM maximum
+        if self.wcfg["show_rpm_maximum"]:
+            rpm_max = int(api.read.engine.rpm_max())
+            self.update_rpm_max(self.bar_rpm_max, rpm_max)
 
-            # Engine RPM maximum
-            if self.wcfg["show_rpm_maximum"]:
-                rpm_max = int(api.read.engine.rpm_max())
-                self.update_rpm_max(self.bar_rpm_max, rpm_max)
+        # Engine torque
+        if self.wcfg["show_torque"]:
+            torque = round(api.read.engine.torque(), 2)
+            self.update_torque(self.bar_torque, torque)
 
-            # Engine torque
-            if self.wcfg["show_torque"]:
-                torque = round(api.read.engine.torque(), 2)
-                self.update_torque(self.bar_torque, torque)
-
-            # Engine power
-            if self.wcfg["show_power"]:
-                power = round(calc.engine_power(
-                    api.read.engine.torque(), api.read.engine.rpm()), 2)
-                self.update_power(self.bar_power, power)
+        # Engine power
+        if self.wcfg["show_power"]:
+            power = round(calc.engine_power(
+                api.read.engine.torque(), api.read.engine.rpm()), 2)
+            self.update_power(self.bar_power, power)
 
     # GUI update methods
     def update_oil(self, target, data):

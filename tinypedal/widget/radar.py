@@ -127,19 +127,17 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        self.in_garage = api.read.vehicle.in_garage()
 
-            self.in_garage = api.read.vehicle.in_garage()
+        # Auto hide radar if no nearby vehicles
+        if self.wcfg["auto_hide"]:
+            self.set_autohide_state()
 
-            # Auto hide radar if no nearby vehicles
-            if self.wcfg["auto_hide"]:
-                self.set_autohide_state()
-
-            # Vehicles
-            veh_data_version = minfo.vehicles.dataSetVersion
-            if self.last_veh_data_version != veh_data_version:
-                self.last_veh_data_version = veh_data_version
-                self.update()
+        # Vehicles
+        veh_data_version = minfo.vehicles.dataSetVersion
+        if self.last_veh_data_version != veh_data_version:
+            self.last_veh_data_version = veh_data_version
+            self.update()
 
     # GUI update methods
     def paintEvent(self, event):

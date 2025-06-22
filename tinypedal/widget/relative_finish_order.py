@@ -204,11 +204,6 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
-            self.update_predication()
-
-    def update_predication(self):
-        """Update predication"""
         is_lap_type_session = api.read.session.lap_type()
         in_formation = api.read.session.in_formation()
         energy_type = minfo.restapi.maxVirtualEnergy

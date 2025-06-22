@@ -117,19 +117,17 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Camber
+        if self.wcfg["show_camber"]:
+            camber_set = api.read.wheel.camber()
+            for camber, bar_camber in zip(camber_set, self.bars_camber):
+                self.update_wheel(bar_camber, round(calc.rad2deg(camber), 2))
 
-            # Camber
-            if self.wcfg["show_camber"]:
-                camber_set = api.read.wheel.camber()
-                for camber, bar_camber in zip(camber_set, self.bars_camber):
-                    self.update_wheel(bar_camber, round(calc.rad2deg(camber), 2))
-
-            # Toe in
-            if self.wcfg["show_toe_in"]:
-                toein_set = api.read.wheel.toe_symmetric()
-                for toein, bar_toein in zip(toein_set, self.bars_toein):
-                    self.update_wheel(bar_toein, round(calc.rad2deg(toein), 2))
+        # Toe in
+        if self.wcfg["show_toe_in"]:
+            toein_set = api.read.wheel.toe_symmetric()
+            for toein, bar_toein in zip(toein_set, self.bars_toein):
+                self.update_wheel(bar_toein, round(calc.rad2deg(toein), 2))
 
     # GUI update methods
     def update_wheel(self, target, data):

@@ -210,61 +210,59 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        pitlane_length = minfo.mapping.pitLaneLength
+        speed_limit = minfo.mapping.pitSpeedLimit
+        min_pitstop_time, max_pitstop_time, refill_fuel, refill_energy, state_stopgo = minfo.restapi.pitStopEstimate
+        pass_time = pitlane_length / speed_limit if speed_limit else 0
+        delay_time = max_pitstop_time - min_pitstop_time
+        pit_timer = minfo.vehicles.dataSet[minfo.vehicles.playerIndex].pitTimer.elapsed
 
-            pitlane_length = minfo.mapping.pitLaneLength
-            speed_limit = minfo.mapping.pitSpeedLimit
-            min_pitstop_time, max_pitstop_time, refill_fuel, refill_energy, state_stopgo = minfo.restapi.pitStopEstimate
-            pass_time = pitlane_length / speed_limit if speed_limit else 0
-            delay_time = max_pitstop_time - min_pitstop_time
-            pit_timer = minfo.vehicles.dataSet[minfo.vehicles.playerIndex].pitTimer.elapsed
+        if state_stopgo:
+            stopgo_time = minfo.restapi.penaltyTime
+            if stopgo_time <= 0:  # fallback if not available from API
+                stopgo_time = self.wcfg["stop_go_penalty_time"]
 
-            if state_stopgo:
-                stopgo_time = minfo.restapi.penaltyTime
-                if stopgo_time <= 0:  # fallback if not available from API
-                    stopgo_time = self.wcfg["stop_go_penalty_time"]
+            if state_stopgo == 1:  # stopgo only
+                min_pitstop_time = max_pitstop_time = stopgo_time
+                refill_fuel = refill_energy = 0
+            else:  # add stopgo time to service time (simultaneous)
+                min_pitstop_time += stopgo_time
+                max_pitstop_time += stopgo_time
 
-                if state_stopgo == 1:  # stopgo only
-                    min_pitstop_time = max_pitstop_time = stopgo_time
-                    refill_fuel = refill_energy = 0
-                else:  # add stopgo time to service time (simultaneous)
-                    min_pitstop_time += stopgo_time
-                    max_pitstop_time += stopgo_time
+        if minfo.restapi.maxVirtualEnergy:
+            actual_refill = refill_energy
+            total_refill = calc.sym_max(minfo.energy.neededRelative, 9999)
+        else:
+            actual_refill = self.unit_fuel(refill_fuel)
+            total_refill = calc.sym_max(self.unit_fuel(minfo.fuel.neededRelative), 9999)
 
-            if minfo.restapi.maxVirtualEnergy:
-                actual_refill = refill_energy
-                total_refill = calc.sym_max(minfo.energy.neededRelative, 9999)
+        # Estimated pit pass through time
+        self.update_estimate(self.bar_pass, pass_time)
+
+        # Estimated pit stop time
+        self.update_estimate(self.bar_stop, min_pitstop_time)
+
+        # Maximum pit stop delay time
+        self.update_estimate(self.bar_delay, delay_time, "+")
+
+        # Pit timer
+        self.update_estimate(self.bar_timer, pit_timer)
+
+        # Relative refilling
+        self.update_estimate(self.bar_refill, max(actual_refill, 0), "+")
+
+        # Estimated total needed refill
+        self.update_estimate(self.bar_needed, total_refill, "+")
+
+        # Estimated min, max total pit time, update while not in pit
+        if not api.read.vehicle.in_pits() or self.bar_minpit.last < pass_time:
+            if min_pitstop_time:
+                min_total = min_pitstop_time + pass_time + self.extra_time
+                max_total = max_pitstop_time + pass_time + self.extra_time
             else:
-                actual_refill = self.unit_fuel(refill_fuel)
-                total_refill = calc.sym_max(self.unit_fuel(minfo.fuel.neededRelative), 9999)
-
-            # Estimated pit pass through time
-            self.update_estimate(self.bar_pass, pass_time)
-
-            # Estimated pit stop time
-            self.update_estimate(self.bar_stop, min_pitstop_time)
-
-            # Maximum pit stop delay time
-            self.update_estimate(self.bar_delay, delay_time, "+")
-
-            # Pit timer
-            self.update_estimate(self.bar_timer, pit_timer)
-
-            # Relative refilling
-            self.update_estimate(self.bar_refill, max(actual_refill, 0), "+")
-
-            # Estimated total needed refill
-            self.update_estimate(self.bar_needed, total_refill, "+")
-
-            # Estimated min, max total pit time, update while not in pit
-            if not api.read.vehicle.in_pits() or self.bar_minpit.last < pass_time:
-                if min_pitstop_time:
-                    min_total = min_pitstop_time + pass_time + self.extra_time
-                    max_total = max_pitstop_time + pass_time + self.extra_time
-                else:
-                    min_total = max_total = 0
-                self.update_estimate(self.bar_minpit, min_total)
-                self.update_estimate(self.bar_maxpit, max_total)
+                min_total = max_total = 0
+            self.update_estimate(self.bar_minpit, min_total)
+            self.update_estimate(self.bar_maxpit, max_total)
 
     # GUI update methods
     def update_estimate(self, target, data, sign=""):

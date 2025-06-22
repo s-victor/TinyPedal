@@ -142,16 +142,11 @@ class Realtime(Overlay):
         self.last_tyre_life = 0
         self.last_fuel_curr = 0
 
+    def post_update(self):
+        self.reset_stint = True
+
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
-            self.update_predication()
-        else:
-            if not self.reset_stint:
-                self.reset_stint = True
-
-    def update_predication(self):
-        """Update predication"""
         in_pits = api.read.vehicle.in_pits()
         tyre_life = sum(api.read.tyre.wear())
         lap_num = api.read.lap.number()

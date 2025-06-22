@@ -99,15 +99,13 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
-
-            force_set = api.read.wheel.suspension_force()
-            sum_force = sum(force_set)
-            for force, bar_force in zip(force_set, self.bars_force):
-                ratio = calc.force_ratio(force, sum_force)
-                if self.wcfg["show_force_ratio"]:
-                    force = ratio
-                self.update_force(bar_force, round(force), ratio)
+        force_set = api.read.wheel.suspension_force()
+        sum_force = sum(force_set)
+        for force, bar_force in zip(force_set, self.bars_force):
+            ratio = calc.force_ratio(force, sum_force)
+            if self.wcfg["show_force_ratio"]:
+                force = ratio
+            self.update_force(bar_force, round(force), ratio)
 
     # GUI update methods
     def update_force(self, target, data, ratio):

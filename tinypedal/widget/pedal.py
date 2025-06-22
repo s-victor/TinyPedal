@@ -118,57 +118,48 @@ class Realtime(Overlay):
             )
 
         # Last data
-        self.checked = False
+        self.max_brake_pres = 0.01
+
+    def post_update(self):
         self.max_brake_pres = 0.01
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Throttle
+        if self.wcfg["show_throttle"]:
+            raw_throttle = api.read.inputs.throttle_raw()
+            if self.wcfg["show_throttle_filtered"]:
+                throttle = raw_throttle + api.read.inputs.throttle()
+            else:
+                throttle = raw_throttle + raw_throttle
+            self.update_pedal(self.bar_throttle, throttle, raw_throttle)
 
-            # Reset switch
-            if not self.checked:
-                self.checked = True
-
-            # Throttle
-            if self.wcfg["show_throttle"]:
-                raw_throttle = api.read.inputs.throttle_raw()
-                if self.wcfg["show_throttle_filtered"]:
-                    throttle = raw_throttle + api.read.inputs.throttle()
+        # Brake
+        if self.wcfg["show_brake"]:
+            raw_brake = api.read.inputs.brake_raw()
+            if self.wcfg["show_brake_filtered"]:
+                if self.wcfg["show_brake_pressure"]:
+                    f_brake = self.filtered_brake_pressure(api.read.brake.pressure())
                 else:
-                    throttle = raw_throttle + raw_throttle
-                self.update_pedal(self.bar_throttle, throttle, raw_throttle)
+                    f_brake = api.read.inputs.brake()
+                brake = raw_brake + f_brake
+            else:
+                brake = raw_brake + raw_brake
+            self.update_pedal(self.bar_brake, brake, raw_brake)
 
-            # Brake
-            if self.wcfg["show_brake"]:
-                raw_brake = api.read.inputs.brake_raw()
-                if self.wcfg["show_brake_filtered"]:
-                    if self.wcfg["show_brake_pressure"]:
-                        f_brake = self.filtered_brake_pressure(api.read.brake.pressure())
-                    else:
-                        f_brake = api.read.inputs.brake()
-                    brake = raw_brake + f_brake
-                else:
-                    brake = raw_brake + raw_brake
-                self.update_pedal(self.bar_brake, brake, raw_brake)
+        # Clutch
+        if self.wcfg["show_clutch"]:
+            raw_clutch = api.read.inputs.clutch_raw()
+            if self.wcfg["show_clutch_filtered"]:
+                clutch = raw_clutch + api.read.inputs.clutch()
+            else:
+                clutch = raw_clutch + raw_clutch
+            self.update_pedal(self.bar_clutch, clutch, raw_clutch)
 
-            # Clutch
-            if self.wcfg["show_clutch"]:
-                raw_clutch = api.read.inputs.clutch_raw()
-                if self.wcfg["show_clutch_filtered"]:
-                    clutch = raw_clutch + api.read.inputs.clutch()
-                else:
-                    clutch = raw_clutch + raw_clutch
-                self.update_pedal(self.bar_clutch, clutch, raw_clutch)
-
-            # Force feedback
-            if self.wcfg["show_ffb_meter"]:
-                ffb = abs(api.read.inputs.force_feedback())
-                self.update_ffb(self.bar_ffb, ffb)
-
-        else:
-            if self.checked:
-                self.checked = False
-                self.max_brake_pres = 0.01
+        # Force feedback
+        if self.wcfg["show_ffb_meter"]:
+            ffb = abs(api.read.inputs.force_feedback())
+            self.update_ffb(self.bar_ffb, ffb)
 
     # GUI update methods
     def update_pedal(self, target, data, raw):

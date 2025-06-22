@@ -125,48 +125,46 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Lap number
+        if self.wcfg["show_lap_number"]:
+            lap_into = calc.lap_progress_correction(
+                api.read.lap.progress(), api.read.timing.current_laptime())
+            self.update_lap_number(self.bar_lap_number, lap_into)
 
-            # Lap number
-            if self.wcfg["show_lap_number"]:
-                lap_into = calc.lap_progress_correction(
-                    api.read.lap.progress(), api.read.timing.current_laptime())
-                self.update_lap_number(self.bar_lap_number, lap_into)
+        # Position update
+        if self.wcfg["show_position_overall"] or self.wcfg["show_position_in_class"]:
+            plr_place = api.read.vehicle.place()
+            veh_total = api.read.vehicle.total_vehicles()
 
-            # Position update
-            if self.wcfg["show_position_overall"] or self.wcfg["show_position_in_class"]:
-                plr_place = api.read.vehicle.place()
-                veh_total = api.read.vehicle.total_vehicles()
+            # Only update if total vehicle or player position changes
+            if self.last_plr_place != plr_place or self.last_veh_total != veh_total:
+                self.last_plr_place = plr_place
+                self.last_veh_total = veh_total
 
-                # Only update if total vehicle or player position changes
-                if self.last_plr_place != plr_place or self.last_veh_total != veh_total:
-                    self.last_plr_place = plr_place
-                    self.last_veh_total = veh_total
+                # Position overall
+                if self.wcfg["show_position_overall"]:
+                    self.update_position(
+                        self.bar_pos_overall, plr_place, veh_total,
+                        self.prefix_pos_overall
+                    )
 
-                    # Position overall
-                    if self.wcfg["show_position_overall"]:
-                        self.update_position(
-                            self.bar_pos_overall, plr_place, veh_total,
-                            self.prefix_pos_overall
-                        )
+                # Position in class
+                if self.wcfg["show_position_in_class"]:
+                    plr_class = api.read.vehicle.class_name()
+                    total_class_vehicle = 0
+                    place_higher = 0
 
-                    # Position in class
-                    if self.wcfg["show_position_in_class"]:
-                        plr_class = api.read.vehicle.class_name()
-                        total_class_vehicle = 0
-                        place_higher = 0
+                    for index in range(veh_total):
+                        if api.read.vehicle.class_name(index) == plr_class:
+                            total_class_vehicle += 1
+                            if api.read.vehicle.place(index) > plr_place:
+                                place_higher += 1
 
-                        for index in range(veh_total):
-                            if api.read.vehicle.class_name(index) == plr_class:
-                                total_class_vehicle += 1
-                                if api.read.vehicle.place(index) > plr_place:
-                                    place_higher += 1
-
-                        pos_in_class = total_class_vehicle - place_higher
-                        self.update_position(
-                            self.bar_pos_inclass, pos_in_class, total_class_vehicle,
-                            self.prefix_pos_inclass
-                        )
+                    pos_in_class = total_class_vehicle - place_higher
+                    self.update_position(
+                        self.bar_pos_inclass, pos_in_class, total_class_vehicle,
+                        self.prefix_pos_inclass
+                    )
 
     # GUI update methods
     def update_lap_number(self, target, data):

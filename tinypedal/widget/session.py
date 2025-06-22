@@ -130,36 +130,34 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        session_time = api.read.session.remaining()
 
-            session_time = api.read.session.remaining()
+        # Session name
+        if self.wcfg["show_session_name"]:
+            session_index = api.read.session.session_type()
+            self.update_session_name(self.bar_session_name, session_index)
 
-            # Session name
-            if self.wcfg["show_session_name"]:
-                session_index = api.read.session.session_type()
-                self.update_session_name(self.bar_session_name, session_index)
+        # System Clock
+        if self.wcfg["show_system_clock"]:
+            system_time = strftime(self.wcfg["system_clock_format"])
+            self.update_system_clock(self.bar_system_clock, system_time)
 
-            # System Clock
-            if self.wcfg["show_system_clock"]:
-                system_time = strftime(self.wcfg["system_clock_format"])
-                self.update_system_clock(self.bar_system_clock, system_time)
+        # Session time
+        if self.wcfg["show_session_time"]:
+            self.update_session_time(self.bar_session_time, session_time)
 
-            # Session time
-            if self.wcfg["show_session_time"]:
-                self.update_session_time(self.bar_session_time, session_time)
-
-            # Estimated laps
-            if self.wcfg["show_estimated_laps"]:
-                laptime_last = minfo.delta.lapTimePace
-                if not api.read.session.lap_type() and laptime_last > 0:
-                    lap_into = api.read.lap.progress()
-                    end_timer_laps_left = calc.end_timer_laps_remain(
-                        lap_into, laptime_last, session_time)
-                    laps_left = calc.time_type_laps_remain(ceil(end_timer_laps_left), lap_into)
-                    estimated_laps = f"{laps_left:>5.3f}"[:5]
-                else:
-                    estimated_laps = "-.---"
-                self.update_estimated_laps(self.bar_estimated_laps, estimated_laps)
+        # Estimated laps
+        if self.wcfg["show_estimated_laps"]:
+            laptime_last = minfo.delta.lapTimePace
+            if not api.read.session.lap_type() and laptime_last > 0:
+                lap_into = api.read.lap.progress()
+                end_timer_laps_left = calc.end_timer_laps_remain(
+                    lap_into, laptime_last, session_time)
+                laps_left = calc.time_type_laps_remain(ceil(end_timer_laps_left), lap_into)
+                estimated_laps = f"{laps_left:>5.3f}"[:5]
+            else:
+                estimated_laps = "-.---"
+            self.update_estimated_laps(self.bar_estimated_laps, estimated_laps)
 
     # GUI update methods
     def update_session_name(self, target, data):

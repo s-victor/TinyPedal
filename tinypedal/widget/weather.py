@@ -198,39 +198,37 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        lap_etime = api.read.timing.elapsed()
 
-            lap_etime = api.read.timing.elapsed()
+        # Track temperature
+        if self.wcfg["show_temperature"]:
+            temp_track = api.read.session.track_temperature()
+            temp_air = api.read.session.ambient_temperature()
+            temperature = temp_track + temp_air
+            # Temperature
+            self.update_temperature(self.bar_temp, temperature, temp_track, temp_air)
+            # Temperature trend
+            temp_trend = self.temp_trend.update(round(temperature, 1), lap_etime)
+            self.update_temperature_trend(self.bar_temp_trend, temp_trend)
 
-            # Track temperature
-            if self.wcfg["show_temperature"]:
-                temp_track = api.read.session.track_temperature()
-                temp_air = api.read.session.ambient_temperature()
-                temperature = temp_track + temp_air
-                # Temperature
-                self.update_temperature(self.bar_temp, temperature, temp_track, temp_air)
-                # Temperature trend
-                temp_trend = self.temp_trend.update(round(temperature, 1), lap_etime)
-                self.update_temperature_trend(self.bar_temp_trend, temp_trend)
+        # Rain precipitation
+        if self.wcfg["show_rain"]:
+            raininess = round(api.read.session.raininess(), 2)
+            # Rain percentage
+            self.update_raininess(self.bar_rain, raininess)
+            # Rain trend
+            rain_trend = self.rain_trend.update(raininess, lap_etime)
+            self.update_raininess_trend(self.bar_raininess_trend, rain_trend)
 
-            # Rain precipitation
-            if self.wcfg["show_rain"]:
-                raininess = round(api.read.session.raininess(), 2)
-                # Rain percentage
-                self.update_raininess(self.bar_rain, raininess)
-                # Rain trend
-                rain_trend = self.rain_trend.update(raininess, lap_etime)
-                self.update_raininess_trend(self.bar_raininess_trend, rain_trend)
-
-            # Surface wetness
-            if self.wcfg["show_wetness"]:
-                wet_min, wet_max, wet_avg = api.read.session.wetness()
-                wetness = wet_min + wet_max + wet_avg
-                # Wetness percentage
-                self.update_wetness(self.bar_wetness, wetness, wet_avg)
-                # Wet trend
-                wet_trend = self.wet_trend.update(wetness, lap_etime)
-                self.update_wetness_trend(self.bar_wetness_trend, wet_trend)
+        # Surface wetness
+        if self.wcfg["show_wetness"]:
+            wet_min, wet_max, wet_avg = api.read.session.wetness()
+            wetness = wet_min + wet_max + wet_avg
+            # Wetness percentage
+            self.update_wetness(self.bar_wetness, wetness, wet_avg)
+            # Wet trend
+            wet_trend = self.wet_trend.update(wetness, lap_etime)
+            self.update_wetness_trend(self.bar_wetness_trend, wet_trend)
 
     # GUI update methods
     def update_temperature(self, target, data, track, air):

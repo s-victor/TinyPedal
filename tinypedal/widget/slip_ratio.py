@@ -105,11 +105,9 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
-
-            slip_set = minfo.wheels.slipRatio
-            for slip, bar_slip in zip(slip_set, self.bars_slip):
-                self.update_slip(bar_slip, min(round(abs(slip * 100)), 100))
+        slip_set = minfo.wheels.slipRatio
+        for slip, bar_slip in zip(slip_set, self.bars_slip):
+            self.update_slip(bar_slip, min(round(abs(slip * 100)), 100))
 
     # GUI update methods
     def update_slip(self, target, data):

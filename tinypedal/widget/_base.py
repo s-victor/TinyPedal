@@ -81,6 +81,9 @@ class Overlay(QWidget):
         self.state = None
         self.closed = self.close()
 
+    def post_update(self):
+        """Run once after state inactive"""
+
     def unload_resource(self):
         """Unload resource (such as images) on close, can re-implement in widget"""
         instance_var_list = dir(self)
@@ -149,12 +152,15 @@ class Overlay(QWidget):
     def __toggle_vr_compat(self, enabled: bool):
         """Toggle widget VR compatibility"""
         self.setWindowFlag(Qt.Tool, not enabled)
+        # Need re-check
+        self.setHidden(self.cfg.overlay["auto_hide"] and not self.state.active)
 
     @Slot(bool)
     def __toggle_timer(self, paused: bool):
         """Toggle widget timer state"""
         if paused:
             self._update_timer.stop()
+            self.post_update()
         else:
             self._update_timer.start(self._update_interval, self)
 

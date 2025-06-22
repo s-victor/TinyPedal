@@ -174,7 +174,6 @@ class Realtime(Overlay):
         )
 
         # Last data
-        self.checked = False
         self.stint_running = False
         self.reset_stint = True
         self.start_laps = 0
@@ -188,79 +187,71 @@ class Realtime(Overlay):
         self.history_data = deque([self.stint_data[:] for _ in range(stint_slot)], stint_slot)
         self.update_stint_history()
 
+    def post_update(self):
+        self.stint_running = False
+        self.reset_stint = True
+
+        if self.stint_data[2] >= self.wcfg["minimum_stint_threshold_minutes"] * 60:
+            self.history_data.appendleft(self.stint_data[:])
+            self.update_stint_history()
+
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Read stint data
+        lap_num = api.read.lap.number()
+        time_curr = api.read.session.elapsed()
+        in_pits = api.read.vehicle.in_pits()
+        in_garage = api.read.vehicle.in_garage()
+        wear_avg = 100 - sum(api.read.tyre.wear()) * 25
 
-            # Reset switch
-            if not self.checked:
-                self.checked = True
-
-            # Read stint data
-            lap_num = api.read.lap.number()
-            time_curr = api.read.session.elapsed()
-            in_pits = api.read.vehicle.in_pits()
-            in_garage = api.read.vehicle.in_garage()
-            wear_avg = 100 - sum(api.read.tyre.wear()) * 25
-
-            # Check if virtual energy available
-            if self.wcfg["show_virtual_energy_if_available"] and minfo.restapi.maxVirtualEnergy:
-                fuel_curr = minfo.energy.amountCurrent
-            else:
-                fuel_curr = self.unit_fuel(minfo.fuel.amountCurrent)
-
-            if not in_pits:
-                self.last_fuel_curr = fuel_curr
-                self.last_wear_avg = wear_avg
-                self.stint_running = True
-            elif in_pits and self.stint_running:
-                if self.last_wear_avg > wear_avg or self.last_fuel_curr < fuel_curr:
-                    self.stint_running = False
-                    self.reset_stint = True
-                    # Update stint history
-                    self.history_data.appendleft(self.stint_data[:])
-                    self.update_stint_history()
-
-            if in_garage:
-                self.reset_stint = True
-
-            if self.reset_stint:
-                self.start_laps = lap_num
-                self.start_time = time_curr
-                self.start_fuel = fuel_curr
-                self.start_wear = wear_avg
-                self.reset_stint = False
-                # Update compound info once per stint
-                class_name = api.read.vehicle.class_name()
-                self.stint_data[0] = "".join(
-                    select_compound_symbol(f"{class_name} - {tcmpd_name}")
-                    for tcmpd_name in api.read.tyre.compound_name()
-                )
-
-            if self.start_fuel < fuel_curr:
-                self.start_fuel = fuel_curr
-
-            # Current stint data
-            self.stint_data[1] = max(lap_num - self.start_laps, 0)
-            self.stint_data[2] = max(time_curr - self.start_time, 0)
-            self.stint_data[3] = max(self.start_fuel - fuel_curr, 0)
-            self.stint_data[4] = max(wear_avg - self.start_wear, 0)
-
-            self.update_cmpd(self.bars_cmpd[0], self.stint_data[0])
-            self.update_laps(self.bars_laps[0], self.stint_data[1])
-            self.update_time(self.bars_time[0], self.stint_data[2])
-            self.update_fuel(self.bars_fuel[0], self.stint_data[3])
-            self.update_wear(self.bars_wear[0], self.stint_data[4])
-
+        # Check if virtual energy available
+        if self.wcfg["show_virtual_energy_if_available"] and minfo.restapi.maxVirtualEnergy:
+            fuel_curr = minfo.energy.amountCurrent
         else:
-            if self.checked:
-                self.checked = False
+            fuel_curr = self.unit_fuel(minfo.fuel.amountCurrent)
+
+        if not in_pits:
+            self.last_fuel_curr = fuel_curr
+            self.last_wear_avg = wear_avg
+            self.stint_running = True
+        elif in_pits and self.stint_running:
+            if self.last_wear_avg > wear_avg or self.last_fuel_curr < fuel_curr:
                 self.stint_running = False
                 self.reset_stint = True
+                # Update stint history
+                self.history_data.appendleft(self.stint_data[:])
+                self.update_stint_history()
 
-                if self.stint_data[2] >= self.wcfg["minimum_stint_threshold_minutes"] * 60:
-                    self.history_data.appendleft(self.stint_data[:])
-                    self.update_stint_history()
+        if in_garage:
+            self.reset_stint = True
+
+        if self.reset_stint:
+            self.start_laps = lap_num
+            self.start_time = time_curr
+            self.start_fuel = fuel_curr
+            self.start_wear = wear_avg
+            self.reset_stint = False
+            # Update compound info once per stint
+            class_name = api.read.vehicle.class_name()
+            self.stint_data[0] = "".join(
+                select_compound_symbol(f"{class_name} - {tcmpd_name}")
+                for tcmpd_name in api.read.tyre.compound_name()
+            )
+
+        if self.start_fuel < fuel_curr:
+            self.start_fuel = fuel_curr
+
+        # Current stint data
+        self.stint_data[1] = max(lap_num - self.start_laps, 0)
+        self.stint_data[2] = max(time_curr - self.start_time, 0)
+        self.stint_data[3] = max(self.start_fuel - fuel_curr, 0)
+        self.stint_data[4] = max(wear_avg - self.start_wear, 0)
+
+        self.update_cmpd(self.bars_cmpd[0], self.stint_data[0])
+        self.update_laps(self.bars_laps[0], self.stint_data[1])
+        self.update_time(self.bars_time[0], self.stint_data[2])
+        self.update_fuel(self.bars_fuel[0], self.stint_data[3])
+        self.update_wear(self.bars_wear[0], self.stint_data[4])
 
     # GUI update methods
     def update_cmpd(self, target, data):

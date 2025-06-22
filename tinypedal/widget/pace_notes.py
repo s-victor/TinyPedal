@@ -119,37 +119,35 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
-
-            if api.read.vehicle.in_garage():
+        if api.read.vehicle.in_garage():
+            self.update_auto_hide(False)
+        elif minfo.pacenotes.currentNote:
+            if self.wcfg["maximum_display_duration"] <= 0:
                 self.update_auto_hide(False)
-            elif minfo.pacenotes.currentNote:
-                if self.wcfg["maximum_display_duration"] <= 0:
-                    self.update_auto_hide(False)
-                else:
-                    etime = api.read.timing.elapsed()
-                    notes_index = minfo.pacenotes.currentIndex
-                    if self.last_notes_index != notes_index:
-                        self.last_notes_index = notes_index
-                        self.last_etime = etime
-                    if self.last_etime > etime:
-                        self.last_etime = etime
-                    self.update_auto_hide(
-                        etime - self.last_etime > self.wcfg["maximum_display_duration"])
-            elif self.wcfg["auto_hide_if_not_available"]:
-                self.update_auto_hide(True)
+            else:
+                etime = api.read.timing.elapsed()
+                notes_index = minfo.pacenotes.currentIndex
+                if self.last_notes_index != notes_index:
+                    self.last_notes_index = notes_index
+                    self.last_etime = etime
+                if self.last_etime > etime:
+                    self.last_etime = etime
+                self.update_auto_hide(
+                    etime - self.last_etime > self.wcfg["maximum_display_duration"])
+        elif self.wcfg["auto_hide_if_not_available"]:
+            self.update_auto_hide(True)
 
-            if self.wcfg["show_pace_notes"]:
-                notes = minfo.pacenotes.currentNote.get(COLUMN_PACENOTE, TEXT_NOTAVAILABLE)
-                self.update_notes(self.bar_notes, notes)
+        if self.wcfg["show_pace_notes"]:
+            notes = minfo.pacenotes.currentNote.get(COLUMN_PACENOTE, TEXT_NOTAVAILABLE)
+            self.update_notes(self.bar_notes, notes)
 
-            if self.wcfg["show_comments"]:
-                comments = minfo.pacenotes.currentNote.get(COLUMN_COMMENT, TEXT_NOTAVAILABLE)
-                self.update_comments(self.bar_comments, comments)
+        if self.wcfg["show_comments"]:
+            comments = minfo.pacenotes.currentNote.get(COLUMN_COMMENT, TEXT_NOTAVAILABLE)
+            self.update_comments(self.bar_comments, comments)
 
-            if self.wcfg["show_debugging"]:
-                debugging = minfo.pacenotes.currentNote.get(COLUMN_DISTANCE, TEXT_NOTAVAILABLE)
-                self.update_debugging(self.bar_debugging, debugging)
+        if self.wcfg["show_debugging"]:
+            debugging = minfo.pacenotes.currentNote.get(COLUMN_DISTANCE, TEXT_NOTAVAILABLE)
+            self.update_debugging(self.bar_debugging, debugging)
 
     # GUI update methods
     def update_notes(self, target, data):

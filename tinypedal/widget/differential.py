@@ -145,34 +145,32 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        lap_etime = api.read.timing.elapsed()
+        raw_throttle = api.read.inputs.throttle_raw()
+        locking_front = minfo.wheels.lockingPercentFront
+        locking_rear = minfo.wheels.lockingPercentRear
+        on_throttle = raw_throttle > self.wcfg["on_throttle_threshold"]
+        off_throttle = raw_throttle < self.wcfg["off_throttle_threshold"]
 
-            lap_etime = api.read.timing.elapsed()
-            raw_throttle = api.read.inputs.throttle_raw()
-            locking_front = minfo.wheels.lockingPercentFront
-            locking_rear = minfo.wheels.lockingPercentRear
-            on_throttle = raw_throttle > self.wcfg["on_throttle_threshold"]
-            off_throttle = raw_throttle < self.wcfg["off_throttle_threshold"]
+        # Power locking front
+        if self.wcfg["show_power_locking_front"] and on_throttle:
+            min_power_f = self.power_timer_f.update(locking_front, lap_etime)
+            self.update_locking(self.bar_power_front, min_power_f, self.prefix_power_f)
 
-            # Power locking front
-            if self.wcfg["show_power_locking_front"] and on_throttle:
-                min_power_f = self.power_timer_f.update(locking_front, lap_etime)
-                self.update_locking(self.bar_power_front, min_power_f, self.prefix_power_f)
+        # Coast locking front
+        if self.wcfg["show_coast_locking_front"] and off_throttle:
+            min_coast_f = self.coast_timer_f.update(locking_front, lap_etime)
+            self.update_locking(self.bar_coast_front, min_coast_f, self.prefix_coast_f)
 
-            # Coast locking front
-            if self.wcfg["show_coast_locking_front"] and off_throttle:
-                min_coast_f = self.coast_timer_f.update(locking_front, lap_etime)
-                self.update_locking(self.bar_coast_front, min_coast_f, self.prefix_coast_f)
+        # Power locking rear
+        if self.wcfg["show_power_locking_rear"] and on_throttle:
+            min_power_r = self.power_timer_r.update(locking_rear, lap_etime)
+            self.update_locking(self.bar_power_rear, min_power_r, self.prefix_power_r)
 
-            # Power locking rear
-            if self.wcfg["show_power_locking_rear"] and on_throttle:
-                min_power_r = self.power_timer_r.update(locking_rear, lap_etime)
-                self.update_locking(self.bar_power_rear, min_power_r, self.prefix_power_r)
-
-            # Coast locking rear
-            if self.wcfg["show_coast_locking_rear"] and off_throttle:
-                min_coast_r = self.coast_timer_r.update(locking_rear, lap_etime)
-                self.update_locking(self.bar_coast_rear, min_coast_r, self.prefix_coast_r)
+        # Coast locking rear
+        if self.wcfg["show_coast_locking_rear"] and off_throttle:
+            min_coast_r = self.coast_timer_r.update(locking_rear, lap_etime)
+            self.update_locking(self.bar_coast_rear, min_coast_r, self.prefix_coast_r)
 
     # GUI update methods
     def update_locking(self, target, data, prefix):

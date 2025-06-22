@@ -344,90 +344,88 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        classes_list = minfo.relative.classes
+        total_cls_idx = len(classes_list)
+        player_idx = minfo.vehicles.playerIndex
+        plr_veh_info = minfo.vehicles.dataSet[player_idx]
+        in_race = api.read.session.in_race()
 
-            classes_list = minfo.relative.classes
-            total_cls_idx = len(classes_list)
-            player_idx = minfo.vehicles.playerIndex
-            plr_veh_info = minfo.vehicles.dataSet[player_idx]
-            in_race = api.read.session.in_race()
+        if player_idx < total_cls_idx:
+            rivals_list = classes_list[player_idx][4:6]
+        else:
+            rivals_list = -1,-1
 
-            if player_idx < total_cls_idx:
-                rivals_list = classes_list[player_idx][4:6]
+        # Standings update
+        for idx, rvl_idx in enumerate(rivals_list):
+
+            # Get vehicle dataset
+            if rvl_idx >= 0:
+                self.row_visible[idx] = True
+                state = 1
+            elif not self.row_visible[idx]:
+                continue  # skip if already empty
             else:
-                rivals_list = -1,-1
+                self.row_visible[idx] = False
+                state = 0
 
-            # Standings update
-            for idx, rvl_idx in enumerate(rivals_list):
-
-                # Get vehicle dataset
-                if rvl_idx >= 0:
-                    self.row_visible[idx] = True
-                    state = 1
-                elif not self.row_visible[idx]:
-                    continue  # skip if already empty
+            # Get vehicle dataset
+            veh_info = minfo.vehicles.dataSet[rvl_idx]
+            # Driver position
+            if self.wcfg["show_position"]:
+                self.update_pos(self.bars_pos[idx], veh_info.positionOverall, state)
+            # Driver position change
+            if self.wcfg["show_position_change"]:
+                if self.wcfg["show_position_change_in_class"]:
+                    pos_diff = veh_info.qualifyInClass - veh_info.positionInClass
                 else:
-                    self.row_visible[idx] = False
-                    state = 0
-
-                # Get vehicle dataset
-                veh_info = minfo.vehicles.dataSet[rvl_idx]
-                # Driver position
-                if self.wcfg["show_position"]:
-                    self.update_pos(self.bars_pos[idx], veh_info.positionOverall, state)
-                # Driver position change
-                if self.wcfg["show_position_change"]:
-                    if self.wcfg["show_position_change_in_class"]:
-                        pos_diff = veh_info.qualifyInClass - veh_info.positionInClass
-                    else:
-                        pos_diff = veh_info.qualifyOverall - veh_info.positionOverall
-                    self.update_pgl(self.bars_pgl[idx], pos_diff, state)
-                # Driver name
-                if self.wcfg["show_driver_name"]:
-                    self.update_drv(self.bars_drv[idx], veh_info.driverName, state)
-                # Vehicle name
-                if self.wcfg["show_vehicle_name"]:
-                    self.update_veh(self.bars_veh[idx], veh_info.vehicleName, state)
-                # Brand logo
-                if self.wcfg["show_brand_logo"]:
-                    self.update_brd(self.bars_brd[idx], veh_info.vehicleName, state)
-                # Time interval
-                if self.wcfg["show_time_interval"]:
-                    is_ahead = veh_info.positionOverall < plr_veh_info.positionOverall
-                    if is_ahead:
-                        time_int = plr_veh_info.gapBehindNextInClass
-                    else:
-                        time_int = veh_info.gapBehindNextInClass
-                    self.update_int(self.bars_int[idx], time_int, is_ahead, state)
-                # Vehicle laptime
-                if self.wcfg["show_laptime"]:
-                    if self.wcfg["show_best_laptime"] or in_race:
-                        laptime = (veh_info.inPit, veh_info.lastLapTime, veh_info.pitTimer.elapsed)
-                    else:
-                        laptime = (0, veh_info.bestLapTime, 0)
-                    self.update_lpt(self.bars_lpt[idx], laptime, state)
-                # Vehicle best laptime
-                if self.wcfg["show_best_laptime"]:
-                    self.update_blp(self.bars_blp[idx], veh_info.bestLapTime, state)
-                # Position in class
-                if self.wcfg["show_position_in_class"]:
-                    self.update_pic(self.bars_pic[idx], veh_info.positionInClass, state)
-                # Vehicle class
-                if self.wcfg["show_class"]:
-                    self.update_cls(self.bars_cls[idx], veh_info.vehicleClass, state)
-                # Vehicle in pit
-                if self.wcfg["show_pit_status"]:
-                    self.update_pit(self.bars_pit[idx], veh_info.inPit, state)
-                # Tyre compound index
-                if self.wcfg["show_tyre_compound"]:
-                    self.update_tcp(self.bars_tcp[idx], veh_info.tireCompoundFront, veh_info.tireCompoundRear, state)
-                # Pitstop count
-                if self.wcfg["show_pitstop_count"]:
-                    self.update_psc(self.bars_psc[idx], veh_info.numPitStops, veh_info.pitState, state)
-                # Delta laptime
-                if self.wcfg["show_delta_laptime"]:
-                    delta_laptime = tuple(calc.delta_laptime(plr_veh_info.lapTimeHistory, veh_info.lapTimeHistory, self.max_delta))
-                    self.update_dlt(self.bars_dlt[idx], delta_laptime, state)
+                    pos_diff = veh_info.qualifyOverall - veh_info.positionOverall
+                self.update_pgl(self.bars_pgl[idx], pos_diff, state)
+            # Driver name
+            if self.wcfg["show_driver_name"]:
+                self.update_drv(self.bars_drv[idx], veh_info.driverName, state)
+            # Vehicle name
+            if self.wcfg["show_vehicle_name"]:
+                self.update_veh(self.bars_veh[idx], veh_info.vehicleName, state)
+            # Brand logo
+            if self.wcfg["show_brand_logo"]:
+                self.update_brd(self.bars_brd[idx], veh_info.vehicleName, state)
+            # Time interval
+            if self.wcfg["show_time_interval"]:
+                is_ahead = veh_info.positionOverall < plr_veh_info.positionOverall
+                if is_ahead:
+                    time_int = plr_veh_info.gapBehindNextInClass
+                else:
+                    time_int = veh_info.gapBehindNextInClass
+                self.update_int(self.bars_int[idx], time_int, is_ahead, state)
+            # Vehicle laptime
+            if self.wcfg["show_laptime"]:
+                if self.wcfg["show_best_laptime"] or in_race:
+                    laptime = (veh_info.inPit, veh_info.lastLapTime, veh_info.pitTimer.elapsed)
+                else:
+                    laptime = (0, veh_info.bestLapTime, 0)
+                self.update_lpt(self.bars_lpt[idx], laptime, state)
+            # Vehicle best laptime
+            if self.wcfg["show_best_laptime"]:
+                self.update_blp(self.bars_blp[idx], veh_info.bestLapTime, state)
+            # Position in class
+            if self.wcfg["show_position_in_class"]:
+                self.update_pic(self.bars_pic[idx], veh_info.positionInClass, state)
+            # Vehicle class
+            if self.wcfg["show_class"]:
+                self.update_cls(self.bars_cls[idx], veh_info.vehicleClass, state)
+            # Vehicle in pit
+            if self.wcfg["show_pit_status"]:
+                self.update_pit(self.bars_pit[idx], veh_info.inPit, state)
+            # Tyre compound index
+            if self.wcfg["show_tyre_compound"]:
+                self.update_tcp(self.bars_tcp[idx], veh_info.tireCompoundFront, veh_info.tireCompoundRear, state)
+            # Pitstop count
+            if self.wcfg["show_pitstop_count"]:
+                self.update_psc(self.bars_psc[idx], veh_info.numPitStops, veh_info.pitState, state)
+            # Delta laptime
+            if self.wcfg["show_delta_laptime"]:
+                delta_laptime = tuple(calc.delta_laptime(plr_veh_info.lapTimeHistory, veh_info.lapTimeHistory, self.max_delta))
+                self.update_dlt(self.bars_dlt[idx], delta_laptime, state)
 
     # GUI update methods
     def update_pos(self, target, *data):

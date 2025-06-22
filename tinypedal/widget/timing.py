@@ -215,75 +215,66 @@ class Realtime(Overlay):
             )
 
         # Last data
-        self.checked = False
         self.player_index = 0
         self.laptime_sbst = MAX_SECONDS
 
+    def post_update(self):
+        self.laptime_sbst = MAX_SECONDS  # reset laptime
+
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Session best laptime
+        if self.wcfg["show_session_best"]:
+            if (not self.wcfg["show_session_best_from_same_class_only"]
+                or api.read.vehicle.same_class(self.player_index)):
+                laptime_best_tmp = api.read.timing.best_laptime(self.player_index)
+                if 0 < laptime_best_tmp < self.laptime_sbst:
+                    self.laptime_sbst = laptime_best_tmp
 
-            # Reset switch
-            if not self.checked:
-                self.checked = True
+            if self.player_index < api.read.vehicle.total_vehicles():
+                self.player_index += 1
+            else:
+                self.player_index = 0
 
-            # Session best laptime
-            if self.wcfg["show_session_best"]:
-                if (not self.wcfg["show_session_best_from_same_class_only"]
-                    or api.read.vehicle.same_class(self.player_index)):
-                    laptime_best_tmp = api.read.timing.best_laptime(self.player_index)
-                    if 0 < laptime_best_tmp < self.laptime_sbst:
-                        self.laptime_sbst = laptime_best_tmp
+            self.update_laptime(self.bar_sbst, self.laptime_sbst, self.prefix_sbst)
 
-                if self.player_index < api.read.vehicle.total_vehicles():
-                    self.player_index += 1
-                else:
-                    self.player_index = 0
+        # Personal best laptime
+        if self.wcfg["show_best"]:
+            laptime_best = minfo.delta.lapTimeBest
+            self.update_laptime(self.bar_best, laptime_best, self.prefix_best)
 
-                self.update_laptime(self.bar_sbst, self.laptime_sbst, self.prefix_sbst)
+        # Last laptime
+        if self.wcfg["show_last"]:
+            laptime_last = minfo.delta.lapTimeLast
+            # Convert invalid laptime to negative for state compare
+            if not minfo.delta.isValidLap:
+                laptime_last *= -1
+            self.update_laptime(self.bar_last, laptime_last, self.prefix_last, True)
 
-            # Personal best laptime
-            if self.wcfg["show_best"]:
-                laptime_best = minfo.delta.lapTimeBest
-                self.update_laptime(self.bar_best, laptime_best, self.prefix_best)
+        # Current laptime
+        if self.wcfg["show_current"]:
+            laptime_curr = minfo.delta.lapTimeCurrent
+            self.update_laptime(self.bar_curr, laptime_curr, self.prefix_curr)
 
-            # Last laptime
-            if self.wcfg["show_last"]:
-                laptime_last = minfo.delta.lapTimeLast
-                # Convert invalid laptime to negative for state compare
-                if not minfo.delta.isValidLap:
-                    laptime_last *= -1
-                self.update_laptime(self.bar_last, laptime_last, self.prefix_last, True)
+        # Estimated laptime
+        if self.wcfg["show_estimated"]:
+            laptime_esti = minfo.delta.lapTimeEstimated
+            self.update_laptime(self.bar_esti, laptime_esti, self.prefix_esti)
 
-            # Current laptime
-            if self.wcfg["show_current"]:
-                laptime_curr = minfo.delta.lapTimeCurrent
-                self.update_laptime(self.bar_curr, laptime_curr, self.prefix_curr)
+        # Session personal best laptime
+        if self.wcfg["show_session_personal_best"]:
+            laptime_spbt = api.read.timing.best_laptime()
+            self.update_laptime(self.bar_spbt, laptime_spbt, self.prefix_spbt)
 
-            # Estimated laptime
-            if self.wcfg["show_estimated"]:
-                laptime_esti = minfo.delta.lapTimeEstimated
-                self.update_laptime(self.bar_esti, laptime_esti, self.prefix_esti)
+        # Stint personal best laptime
+        if self.wcfg["show_stint_best"]:
+            laptime_stbt = minfo.delta.lapTimeStint
+            self.update_laptime(self.bar_stbt, laptime_stbt, self.prefix_stbt)
 
-            # Session personal best laptime
-            if self.wcfg["show_session_personal_best"]:
-                laptime_spbt = api.read.timing.best_laptime()
-                self.update_laptime(self.bar_spbt, laptime_spbt, self.prefix_spbt)
-
-            # Stint personal best laptime
-            if self.wcfg["show_stint_best"]:
-                laptime_stbt = minfo.delta.lapTimeStint
-                self.update_laptime(self.bar_stbt, laptime_stbt, self.prefix_stbt)
-
-            # Average pace laptime
-            if self.wcfg["show_average_pace"]:
-                laptime_avpc = minfo.delta.lapTimePace
-                self.update_laptime(self.bar_avpc, laptime_avpc, self.prefix_avpc)
-
-        else:
-            if self.checked:
-                self.checked = False
-                self.laptime_sbst = MAX_SECONDS  # reset laptime
+        # Average pace laptime
+        if self.wcfg["show_average_pace"]:
+            laptime_avpc = minfo.delta.lapTimePace
+            self.update_laptime(self.bar_avpc, laptime_avpc, self.prefix_avpc)
 
     # GUI update methods
     def update_laptime(self, target, data, prefix, verify=False):

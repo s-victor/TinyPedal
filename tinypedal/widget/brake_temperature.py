@@ -124,58 +124,49 @@ class Realtime(Overlay):
             )
 
         # Last data
-        self.checked = False
         self.btavg = [0] * 4
         self.btavg_samples = 1  # number of temperature samples
         self.last_class_name = None
         self.last_lap_stime = 0
 
+    def post_update(self):
+        self.btavg = [0] * 4
+        self.btavg_samples = 1
+
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        if self.state.active:
+        # Update heatmap style
+        if self.wcfg["enable_heatmap_auto_matching"]:
+            class_name = api.read.vehicle.class_name()
+            if self.last_class_name != class_name:
+                self.last_class_name = class_name
+                self.update_heatmap(class_name)
 
-            # Reset switch
-            if not self.checked:
-                self.checked = True
+        # Brake temperature
+        btemp = api.read.brake.temperature()
+        for brake_idx, bar_btemp in enumerate(self.bars_btemp):
+            self.update_btemp(bar_btemp, round(btemp[brake_idx]), brake_idx)
 
-            # Update heatmap style
-            if self.wcfg["enable_heatmap_auto_matching"]:
-                class_name = api.read.vehicle.class_name()
-                if self.last_class_name != class_name:
-                    self.last_class_name = class_name
-                    self.update_heatmap(class_name)
+        # Brake average temperature
+        if self.wcfg["show_average"]:
+            lap_stime = api.read.timing.start()
+            lap_etime = api.read.timing.elapsed()
 
-            # Brake temperature
-            btemp = api.read.brake.temperature()
-            for brake_idx, bar_btemp in enumerate(self.bars_btemp):
-                self.update_btemp(bar_btemp, round(btemp[brake_idx]), brake_idx)
-
-            # Brake average temperature
-            if self.wcfg["show_average"]:
-                lap_stime = api.read.timing.start()
-                lap_etime = api.read.timing.elapsed()
-
-                if lap_stime != self.last_lap_stime:  # time stamp difference
-                    self.last_lap_stime = lap_stime  # reset time stamp counter
-                    self.btavg_samples = 1
-                    # Highlight reading, +0.000001 to un-highlight later in case no value change
-                    for bar_btavg in self.bars_btavg:
-                        self.update_btavg(bar_btavg, bar_btavg.last + 0.000001, True)
-
-                # Update average reading
-                not_highlight = lap_etime - self.last_lap_stime >= self.wcfg["highlight_duration"]
-                for brake_idx, bar_btavg in enumerate(self.bars_btavg):
-                    self.btavg[brake_idx] = calc.mean_iter(
-                        self.btavg[brake_idx], btemp[brake_idx], self.btavg_samples)
-                    if not_highlight:
-                        self.update_btavg(bar_btavg, round(self.btavg[brake_idx]))
-                self.btavg_samples += 1
-
-        else:
-            if self.checked:
-                self.checked = False
-                self.btavg = [0] * 4
+            if lap_stime != self.last_lap_stime:  # time stamp difference
+                self.last_lap_stime = lap_stime  # reset time stamp counter
                 self.btavg_samples = 1
+                # Highlight reading, +0.000001 to un-highlight later in case no value change
+                for bar_btavg in self.bars_btavg:
+                    self.update_btavg(bar_btavg, bar_btavg.last + 0.000001, True)
+
+            # Update average reading
+            not_highlight = lap_etime - self.last_lap_stime >= self.wcfg["highlight_duration"]
+            for brake_idx, bar_btavg in enumerate(self.bars_btavg):
+                self.btavg[brake_idx] = calc.mean_iter(
+                    self.btavg[brake_idx], btemp[brake_idx], self.btavg_samples)
+                if not_highlight:
+                    self.update_btavg(bar_btavg, round(self.btavg[brake_idx]))
+            self.btavg_samples += 1
 
     # GUI update methods
     def update_btemp(self, target, data, index):
