@@ -33,8 +33,6 @@ from ..const_app import APP_NAME
 from ..overlay_control import octrl
 from ..setting import Setting
 
-FONT_WEIGHT_LIST = rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT]
-
 
 class Overlay(QWidget):
     """Overlay window"""
@@ -61,21 +59,21 @@ class Overlay(QWidget):
 
         # Set update timer
         self._update_timer = QBasicTimer()
+        self._update_interval = max(
+            self.wcfg["update_interval"],
+            self.cfg.application["minimum_update_interval"],
+        )
 
     def start(self):
         """Set initial widget state in orders, and start update"""
         self.__connect_signal()
         self.__set_window_attributes()  # 1
         self.__set_window_flags()  # 2
-        update_interval = max(
-            self.wcfg["update_interval"],
-            self.cfg.application["minimum_update_interval"],
-        )
-        self._update_timer.start(update_interval, self)
+        self.__toggle_timer(paused=False)
 
     def stop(self):
         """Stop and close widget"""
-        self._update_timer.stop()
+        self.__toggle_timer(paused=True)
         self.__break_signal()
         self.unload_resource()
         self.wcfg = None
@@ -107,8 +105,7 @@ class Overlay(QWidget):
             self.setWindowFlag(Qt.Tool, True)
         if self.cfg.compatibility["enable_bypass_window_manager"]:
             self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
-        if self.cfg.overlay["fixed_position"]:  # load overlay lock state
-            self.setWindowFlag(Qt.WindowTransparentForInput, True)
+        self.__toggle_lock(locked=self.cfg.overlay["fixed_position"])
 
     def __set_window_style(self):
         """Set window style"""
@@ -145,22 +142,34 @@ class Overlay(QWidget):
     def __toggle_lock(self, locked: bool):
         """Toggle widget lock state"""
         self.setWindowFlag(Qt.WindowTransparentForInput, locked)
+        # Need re-check after lock/unlock
+        self.setHidden(self.cfg.overlay["auto_hide"] and not self.state.active)
 
     @Slot(bool)
     def __toggle_vr_compat(self, enabled: bool):
         """Toggle widget VR compatibility"""
         self.setWindowFlag(Qt.Tool, not enabled)
 
+    @Slot(bool)
+    def __toggle_timer(self, paused: bool):
+        """Toggle widget timer state"""
+        if paused:
+            self._update_timer.stop()
+        else:
+            self._update_timer.start(self._update_interval, self)
+
     def __connect_signal(self):
         """Connect overlay lock and hide signal"""
         self.state.locked.connect(self.__toggle_lock)
         self.state.hidden.connect(self.setHidden)
+        self.state.paused.connect(self.__toggle_timer)
         self.state.vr_compat.connect(self.__toggle_vr_compat)
 
     def __break_signal(self):
         """Disconnect overlay lock and hide signal"""
         self.state.locked.disconnect(self.__toggle_lock)
         self.state.hidden.disconnect(self.setHidden)
+        self.state.paused.disconnect(self.__toggle_timer)
         self.state.vr_compat.disconnect(self.__toggle_vr_compat)
 
     def closeEvent(self, event):
@@ -291,7 +300,7 @@ class Overlay(QWidget):
             font_size_pixel = f"font-size:{max(font_size, 1)}px;"
         else:
             font_size_pixel = ""
-        if font_weight in FONT_WEIGHT_LIST:
+        if font_weight in rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT]:
             font_weight = f"font-weight:{font_weight};"
         return f"{fg_color}{bg_color}{font_family}{font_size_pixel}{font_weight}"
 

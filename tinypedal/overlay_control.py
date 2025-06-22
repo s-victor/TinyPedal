@@ -38,19 +38,18 @@ def state_timer(interval: float, last: float = 0):
     Args:
         interval: time interval in seconds.
         last: last time stamp in seconds.
-    Send:
-        seconds: current time stamp in seconds.
     Yield:
         is_timeout: bool.
     """
     is_timeout = False
     while True:
-        seconds = yield is_timeout
+        seconds = monotonic()
         if seconds - last >= interval:
             last = seconds
             is_timeout = True
         else:
             is_timeout = False
+        yield is_timeout
 
 
 class OverlayState(QObject):
@@ -61,11 +60,13 @@ class OverlayState(QObject):
         hidden: signal for toggling auto hide state.
         locked: signal for toggling lock state.
         reload: signal for reloading preset, should only be emitted after app fully loaded.
+        paused: whether to pause/resume overlay timer.
         vr_compat: signal for toggling VR compatibility state.
     """
     hidden = Signal(bool)
     locked = Signal(bool)
     reload = Signal(bool)
+    paused = Signal(bool)
     vr_compat = Signal(bool)
 
     def __init__(self):
@@ -74,10 +75,9 @@ class OverlayState(QObject):
         self._stopped = True
         self._event = threading.Event()
 
-        self._auto_hide_timer = state_timer(interval=0.4)
-        self._auto_hide_timer.send(None)
         self._last_detected_sim = None
-        self._last_state = None
+        self._last_active_state = None
+        self._last_hide_state = None
 
     def start(self):
         """Start state update thread"""
@@ -98,14 +98,19 @@ class OverlayState(QObject):
         _event_wait = self._event.wait
         while not _event_wait(0.2):
             self.active = api.state
-            # Update auto hide state
-            if self._auto_hide_timer.send(monotonic()):
-                self.hidden.emit(cfg.overlay["auto_hide"] and not self.active)
-            # Update auto load state only once when player enters track
-            if self._last_state != self.active:
-                self._last_state = self.active
+            # Auto hide state check
+            hide_state = cfg.overlay["auto_hide"] and not self.active
+            if self._last_hide_state != hide_state:
+                self._last_hide_state = hide_state
+                self.hidden.emit(hide_state)
+            # Active state check
+            if self._last_active_state != self.active:
+                self._last_active_state = self.active
+                # Update auto load state only once when player enters track
                 if self.active and cfg.application["enable_auto_load_preset"]:
                     self.__auto_load_preset()
+                # Set overlay timer state
+                self.paused.emit(not self.active)
 
         self._stopped = True
         logger.info("DISABLED: overlay control")
