@@ -69,17 +69,19 @@ class Realtime(DataModule):
                 if last_version_update != self.cfg.version_update:
                     last_version_update = self.cfg.version_update
                     show_in_garage = setting_relative["show_vehicle_in_garage"]
-                    max_veh_front, max_veh_behind = max_relative_vehicles(
-                        setting_relative["additional_players_front"],
-                        setting_relative["additional_players_behind"])
                     is_split_mode = setting_standings["enable_multi_class_split_mode"]
+                    max_veh_front = max_relative_vehicles(
+                        setting_relative["additional_players_front"])
+                    max_veh_behind = max_relative_vehicles(
+                        setting_relative["additional_players_behind"])
                     min_top_veh = min_top_vehicles_in_class(
                         setting_standings["min_top_vehicles"])
-                    veh_limit_all, veh_limit_other, veh_limit_player = max_vehicle_limit_set(
-                        min_top_veh,
-                        setting_standings["max_vehicles_combined_mode"],
-                        setting_standings["max_vehicles_per_split_others"],
-                        setting_standings["max_vehicles_per_split_player"])
+                    veh_limit_all = max_vehicles_in_class(
+                        setting_standings["max_vehicles_combined_mode"], min_top_veh, 2)
+                    veh_limit_other = max_vehicles_in_class(
+                        setting_standings["max_vehicles_per_split_others"], min_top_veh, 0)
+                    veh_limit_player = max_vehicles_in_class(
+                        setting_standings["max_vehicles_per_split_player"], min_top_veh, 2)
 
                 # Base info
                 veh_total = max(api.read.vehicle.total_vehicles(), 1)
@@ -114,8 +116,8 @@ class Realtime(DataModule):
                 # Race/start grid, update only if vehicle number changed
                 if last_veh_total != veh_total:
                     last_veh_total = veh_total
-                    qualifications = create_qualify_position(veh_total)
-                    output.qualifications = qualifications
+                    qualify_pos_list = create_qualify_position(veh_total)
+                    output.qualifications = qualify_pos_list
 
                 # Output data
                 output.relative = relative_index_list
@@ -143,13 +145,13 @@ def create_qualify_position(veh_total: int) -> list[tuple[int, int]]:
     grid_classes = [QUALIFY_DEFAULT] * veh_total
     qualify_in_class = 0
     last_class_name = None
-    for veh_data in temp_class:
-        if last_class_name != veh_data[0]:
-            last_class_name = veh_data[0]
+    for class_name, qualify_pos, plr_index in temp_class:
+        if last_class_name != class_name:
+            last_class_name = class_name
             qualify_in_class = 1
         else:
             qualify_in_class += 1
-        grid_classes[veh_data[2]] = (veh_data[1], qualify_in_class)
+        grid_classes[plr_index] = (qualify_pos, qualify_in_class)
     return grid_classes
 
 
@@ -257,41 +259,41 @@ def create_position_in_class(sorted_veh_class: list, plr_index: int):
     veh_total = len(sorted_veh_class)
     plr_class_name = ""
     plr_class_place = 0
+    slot_index = 0
 
-    for index, veh_sort in enumerate(sorted_veh_class):
-        opt_index = veh_sort[2]
-
-        if last_class_name == veh_sort[0]:
+    for class_name, _, opt_index, laptime_best, laptime_last in sorted_veh_class:
+        if last_class_name == class_name:
             place_in_class += 1
-            TEMP_CLASSES_POS[index - 1][5] = opt_index  # set opponent index behind
+            TEMP_CLASSES_POS[slot_index - 1][5] = opt_index  # set opponent index behind
         else:
-            last_class_name = veh_sort[0]  # reset class name
+            last_class_name = class_name  # reset class name
             place_in_class = 1  # reset position counter
             opt_index_ahead = -1  # no opponent ahead of class leader
-            laptime_class_best = veh_sort[3]
+            laptime_class_best = laptime_best
             last_fastest_laptime = MAX_SECONDS  # reset last fastest
             if last_fastest_index != -1:  # mark fastest last lap
                 TEMP_CLASSES_POS[last_fastest_index][6] = True
                 last_fastest_index = -1  # reset last fastest index
 
         if opt_index == plr_index:
-            plr_class_name = veh_sort[0]
+            plr_class_name = class_name
             plr_class_place = place_in_class
 
-        if last_fastest_laptime > veh_sort[4]:
-            last_fastest_laptime = veh_sort[4]
-            last_fastest_index = index
+        if last_fastest_laptime > laptime_last:
+            last_fastest_laptime = laptime_last
+            last_fastest_index = slot_index
 
-        TEMP_CLASSES_POS[index][:] = (
+        TEMP_CLASSES_POS[slot_index][:] = (
             opt_index,  # 0 - 2 player index
             place_in_class,  # 1 - position in class
-            veh_sort[0],  # 2 - 0 class name
+            class_name,  # 2 - 0 class name
             laptime_class_best,  # 3 classes best
             opt_index_ahead,  # 4 opponent index ahead
             -1,  # 5 opponent index behind
             False,  # 6 is class fastest last laptime
         )
         opt_index_ahead = opt_index  # store opponent index for next
+        slot_index += 1
 
     if last_fastest_index != -1:  # mark for last class
         TEMP_CLASSES_POS[last_fastest_index][6] = True
@@ -350,9 +352,9 @@ def create_reference_place(
 def standings_index_from_place_reference(
     ref_place_list: tuple, class_index_list: list, veh_total: int, column: int):
     """Match place from reference list to generate standings player index list"""
-    for ref_idx in ref_place_list:
-        if 0 < ref_idx <= veh_total:  # prevent out of range
-            yield class_index_list[ref_idx - 1][column]  # column - player index
+    for ref_index in ref_place_list:
+        if 0 < ref_index <= veh_total:  # prevent out of range
+            yield class_index_list[ref_index - 1][column]  # column - player index
         else:
             break
     yield -1  # append an empty index as gap between classes
@@ -375,11 +377,9 @@ def split_class_list(class_list: list):
     yield class_list[index_start:index_end]
 
 
-def max_relative_vehicles(add_front: int, add_behind: int):
+def max_relative_vehicles(add_veh: int):
     """Maximum number of vehicles in relative list"""
-    add_front = int(zero_max(add_front, 60)) + 3
-    add_behind = int(zero_max(add_behind, 60)) + 3
-    return add_front, add_behind
+    return int(zero_max(add_veh, 60)) + 3
 
 
 def min_top_vehicles_in_class(min_top_veh: int) -> int:
@@ -398,15 +398,6 @@ def max_vehicles_in_class(max_cls_veh: int, min_top_veh: int, min_add_veh: int =
     min_add_veh: minimum addition vehicles limit (for class has local player)
     """
     return max(int(max_cls_veh), min_top_veh + min_add_veh)
-
-
-def max_vehicle_limit_set(
-    min_top_veh: int, max_all: int, max_others: int, max_player: int):
-    """Create max vehicle limit set"""
-    limit_all = max_vehicles_in_class(max_all, min_top_veh, 2)
-    limit_other = max_vehicles_in_class(max_others, min_top_veh)
-    limit_player = max_vehicles_in_class(max_player, min_top_veh, 2)
-    return limit_all, limit_other, limit_player
 
 
 def sort_class_collection(collection: list) -> float:
