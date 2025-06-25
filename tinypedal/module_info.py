@@ -33,7 +33,6 @@ from .const_common import (
     MAX_SECONDS,
     MAX_VEHICLES,
     PITEST_DEFAULT,
-    QUALIFY_DEFAULT,
     REL_TIME_DEFAULT,
 )
 
@@ -285,14 +284,12 @@ class RelativeInfo:
         "relative",
         "standings",
         "classes",
-        "qualifications",
     )
 
     def __init__(self):
         self.relative: list[list | tuple] = [REL_TIME_DEFAULT]
         self.standings: list[int] = [-1]
         self.classes: list[list] = [[0, 1, "", 0.0, -1, -1, False]]
-        self.qualifications: list[tuple[int, int]] = [QUALIFY_DEFAULT]
 
 
 class RestAPIInfo:
@@ -371,7 +368,7 @@ class VehiclesInfo:
     """Vehicles module output data"""
 
     __slots__ = (
-        "total",
+        "totalVehicles",
         "leaderIndex",
         "playerIndex",
         "dataSet",
@@ -384,7 +381,7 @@ class VehiclesInfo:
     )
 
     def __init__(self):
-        self.total: int = 0
+        self.totalVehicles: int = 0
         self.leaderIndex: int = 0
         self.playerIndex: int = -1
         self.dataSet: tuple[VehicleDataSet, ...] = tuple(

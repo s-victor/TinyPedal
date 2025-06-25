@@ -475,7 +475,7 @@ class Realtime(Overlay):
                 if in_race:
                     time_gap = self.gap_to_leader_race(veh_info.gapBehindLeader, veh_info.positionOverall)
                 else:
-                    time_gap = self.gap_to_session_bestlap(
+                    time_gap = self.gap_to_leader_best(
                         veh_info.bestLapTime, minfo.vehicles.leaderBestLapTime, veh_info.classBestLapTime)
                 self.update_gap(self.bars_gap[idx], time_gap, hi_player, state)
             # Time interval
@@ -764,15 +764,15 @@ class Realtime(Overlay):
             return "-:--.---"
         return calc.sec2laptime_full(laptime_best)[:8]
 
-    def gap_to_session_bestlap(self, bestlap, sbestlap, cbestlap):
-        """Gap to session best laptime"""
+    def gap_to_leader_best(self, player_best, leader_best, class_best):
+        """Gap to leader's best laptime"""
         if self.wcfg["show_time_gap_from_class_best"]:
-            time = bestlap - cbestlap  # class best
+            time = player_best - class_best  # class leader best
         else:
-            time = bestlap - sbestlap  # session best
-        if time == 0 and bestlap > 0:
+            time = player_best - leader_best  # leader best
+        if time == 0 and player_best > 0:
             return self.wcfg["time_gap_leader_text"]
-        if time < 0 or bestlap < 1:  # no time set
+        if time < 0 or player_best < 1:  # no time set
             return "0.0"
         return f"{time:.{self.gap_decimals}f}"
 
