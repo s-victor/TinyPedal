@@ -69,11 +69,11 @@ class Overlay(QWidget):
         self.__connect_signal()
         self.__set_window_attributes()  # 1
         self.__set_window_flags()  # 2
-        self.__toggle_timer(paused=False)
+        self.__toggle_timer(not self.state.active)
 
     def stop(self):
         """Stop and close widget"""
-        self.__toggle_timer(paused=True)
+        self.__toggle_timer(True)
         self.__break_signal()
         self.unload_resource()
         self.wcfg = None
