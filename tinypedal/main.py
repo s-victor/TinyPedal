@@ -30,18 +30,14 @@ from PySide2.QtCore import QCoreApplication, Qt
 from PySide2.QtGui import QFont, QGuiApplication, QIcon, QPixmapCache
 from PySide2.QtWidgets import QApplication, QMessageBox
 
+from . import check_version
 from .const_app import (
     APP_NAME,
     PATH_GLOBAL,
-    PID_FILE,
     PLATFORM,
-    PSUTIL_VERSION,
-    PYSIDE_VERSION,
-    PYTHON_VERSION,
-    QT_VERSION,
     VERSION,
 )
-from .const_file import ConfigType, ImageFile
+from .const_file import ConfigType, ImageFile, LogFile
 from .log_handler import set_logging_level
 from .setting import cfg
 
@@ -51,7 +47,7 @@ log_stream = io.StringIO()
 
 def save_pid_file():
     """Save PID info to file"""
-    with open(f"{PATH_GLOBAL}{PID_FILE}", "w", encoding="utf-8") as f:
+    with open(f"{PATH_GLOBAL}{LogFile.PID}", "w", encoding="utf-8") as f:
         current_pid = os.getpid()
         pid_create_time = psutil.Process(current_pid).create_time()
         pid_str = f"{current_pid},{pid_create_time}"
@@ -62,7 +58,7 @@ def is_pid_exist() -> bool:
     """Check and verify PID existence"""
     try:
         # Load last recorded PID and creation time from pid log file
-        with open(f"{PATH_GLOBAL}{PID_FILE}", "r", encoding="utf-8") as f:
+        with open(f"{PATH_GLOBAL}{LogFile.PID}", "r", encoding="utf-8") as f:
             pid_read = f.readline()
         pid = pid_read.split(",")
         pid_last = int(pid[0])
@@ -120,10 +116,10 @@ def single_instance_check(is_single_instance: bool):
 def version_check():
     """Check version"""
     logger.info("TinyPedal: %s", VERSION)
-    logger.info("Python: %s", PYTHON_VERSION)
-    logger.info("Qt: %s", QT_VERSION)
-    logger.info("PySide: %s", PYSIDE_VERSION)
-    logger.info("psutil: %s", PSUTIL_VERSION)
+    logger.info("Python: %s", check_version("PYTHON"))
+    logger.info("Qt: %s", check_version("QT"))
+    logger.info("PySide: %s", check_version("PYSIDE"))
+    logger.info("psutil: %s", check_version("PSUTIL"))
 
 
 def init_gui() -> QApplication:
@@ -163,7 +159,7 @@ def set_environment():
     """Set environment before starting GUI"""
     # Windows only
     if PLATFORM == "Windows":
-        if QT_VERSION[0] == "6":
+        if os.getenv("PYSIDE_OVERRIDE") == "6":
             os.environ["QT_MEDIA_BACKEND"] = "windows"
         else:
             if cfg.compatibility["multimedia_plugin_on_windows"] == "WMF":

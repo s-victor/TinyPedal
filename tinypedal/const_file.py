@@ -109,3 +109,10 @@ class StatsFile:
     """Stats file name constants"""
 
     DRIVER = "driver"
+
+
+class LogFile:
+    """Log file name constants"""
+
+    APP_LOG = "tinypedal.log"
+    PID = "pid.log"

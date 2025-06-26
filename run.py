@@ -53,7 +53,9 @@ if __name__ == "__main__":
     cli_args = get_cli_argument()
 
     # Check whether to override PySide version
-    override_pyside_version(getattr(cli_args, "pyside", 2))
+    pyside_override = getattr(cli_args, "pyside", 2)
+    os.environ["PYSIDE_OVERRIDE"] = f"{pyside_override}"  # store to env
+    override_pyside_version(pyside_override)
 
     # Start
     from tinypedal.main import start_app

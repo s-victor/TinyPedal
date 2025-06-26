@@ -23,6 +23,7 @@ Pace notes view & player
 from __future__ import annotations
 
 import logging
+import os
 from typing import Callable
 
 from PySide2.QtCore import QBasicTimer, Qt, QUrl
@@ -44,7 +45,6 @@ from PySide2.QtWidgets import (
 )
 
 from .. import set_relative_path
-from ..const_app import QT_VERSION
 from ..const_file import FileFilter
 from ..module_control import mctrl
 from ..module_info import minfo
@@ -76,7 +76,7 @@ class PaceNotesPlayer(QMediaPlayer):
         self._play_queue: list[str] = []
 
         # Set compatibility
-        if QT_VERSION[0] == "6":
+        if os.getenv("PYSIDE_OVERRIDE") == "6":
             from PySide6.QtMultimedia import QAudioOutput
 
             audio_output = QAudioOutput()

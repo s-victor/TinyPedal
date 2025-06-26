@@ -28,17 +28,17 @@ import sys
 logger = logging.getLogger(__package__)
 
 
-def get_lib_version(name: str) -> str:
+def check_version(name: str) -> str:
     """Get library version"""
-    if name == "python":
+    if name == "PYTHON":
         version = ".".join(map(str, sys.version_info))
-    elif name == "qt":
+    elif name == "QT":
         from PySide2.QtCore import qVersion
         version = qVersion()
-    elif name == "pyside":
+    elif name == "PYSIDE":
         import PySide2
         version = PySide2.__version__
-    elif name == "psutil":
+    elif name == "PSUTIL":
         import psutil
         version = psutil.__version__
     else:
