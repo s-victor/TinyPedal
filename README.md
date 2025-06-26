@@ -1,7 +1,8 @@
 # TinyPedal - racing simulation overlay
+
 TinyPedal is a Free and Open Source telemetry overlay application for racing simulation.
 
-Focuses on minimalist design, light-weight and efficiency, extensive customization and data analysis. Features over 70 highly customizable overlay widgets and data modules, advanced fuel calculator and editing tools.
+Focuses on minimalist design, light-weight and efficiency, extensive customization and data analysis. Features a large collection of highly configurable overlay widgets and data modules, advanced fuel calculator and editing tools.
 
 Currently supports `rFactor 2` and `Le Mans Ultimate`, and runs on `Windows` and `Linux`.
 
@@ -11,6 +12,7 @@ Currently supports `rFactor 2` and `Le Mans Ultimate`, and runs on `Windows` and
 ![preview](https://user-images.githubusercontent.com/21177177/282278970-b806bf02-a83d-4baa-8b45-0ca10f28f775.png)
 
 ## Requirements
+
 TinyPedal requires The Iron Wolf’s `rF2 Shared Memory Map Plugin` from `Download` section of following page:  
 https://github.com/TheIronWolfModding/rF2SharedMemoryMapPlugin
 
@@ -37,6 +39,7 @@ In-game setup:
     Note, if game cannot generate `rFactor2SharedMemoryMapPlugin64.dll` entry in `CustomPluginVariables.JSON` file, make sure `VC12 (Visual C++ 2013) runtime` is installed, which can be found in game's `Support\Runtimes` folder.
 
 ## Quick Start
+
 1. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract it into a clean folder, and run `tinypedal.exe`.  
 Note, DO NOT extract TinyPedal into `system` or `game` folder, such as `Program Files` or `rFactor 2` folder, otherwise it may fail to run.  
 Alternatively, run TinyPedal from source, see [Run from source](#run-from-source) section for details.  
@@ -62,7 +65,10 @@ See [Frequently Asked Questions](https://github.com/s-victor/TinyPedal/wiki/Freq
 * pyRfactor2SharedMemory
 * psutil
 
+Note, PySide2 may not be available for Python version higher than 3.10; or requires PySide6 instead for running with newer Python version. PySide6 is currently supported only via command line argument, see `Command line arguments` section in `User Guide` for details.
+
 ### Steps:
+
 1. Download source code from [Releases](https://github.com/s-victor/TinyPedal/releases) page; or click `Code` button at the top of repository and select `Download ZIP`; or use `Git` tool to clone this repository.
 
 2. Download this forked version of pyRfactor2SharedMemory source code from:  
@@ -82,6 +88,7 @@ Note: if using `Git` tool to clone this repository, run command with `--recursiv
 `git clone --recursive https://github.com/s-victor/TinyPedal.git`
 
 ## Build executable for Windows
+
 Executable file can be built with [py2exe](http://www.py2exe.org).
 
 To install py2exe, run command:  
