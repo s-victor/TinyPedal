@@ -66,7 +66,7 @@ class Realtime(DataModule):
                     combo_id = api.read.check.combo_id()
                     gen_calc_fuel = calc_data(
                         output=minfo.fuel,
-                        telemetry_func=telemetry_fuel,
+                        telemetry_func=detect_consumption_type(),
                         filepath=userpath_fuel_delta,
                         filename=combo_id,
                         extension=FileExt.FUEL,
@@ -136,12 +136,24 @@ def save_consumption_history(filepath: str, combo_id: str):
         minfo.history.consumptionDataModified = False
 
 
+def detect_consumption_type() -> Callable:
+    """Detect consumption type, return telemetry function"""
+    capacity = api.read.vehicle.tank_capacity()
+    # Pure electic based vehicle
+    if capacity <= 1 and api.read.emotor.battery_charge() > 0:
+        return telemetry_battery
+    # Fuel based vehicle
+    return telemetry_fuel
+
+
 def telemetry_fuel() -> tuple[float, float]:
     """Telemetry fuel"""
-    capacity = api.read.vehicle.tank_capacity()
-    if capacity == 1 or capacity == 0:  # pure electric powered vehicle
-        return 100, api.read.emotor.battery_charge() * 100
-    return capacity, api.read.vehicle.fuel()
+    return max(api.read.vehicle.tank_capacity(), 0.01), api.read.vehicle.fuel()
+
+
+def telemetry_battery() -> tuple[float, float]:
+    """Telemetry battery, capacity is always 100%"""
+    return 100, api.read.emotor.battery_charge() * 100
 
 
 def calc_data(
