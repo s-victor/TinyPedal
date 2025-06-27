@@ -299,10 +299,10 @@ class Realtime(Overlay):
     def timerEvent(self, event):
         """Update when vehicle on track"""
         is_low_energy = minfo.energy.estimatedLaps <= self.wcfg["low_energy_lap_threshold"]
-        if self.wcfg["show_low_energy_warning_flash"]:
+        if self.wcfg["show_low_energy_warning_flash"] and minfo.energy.estimatedValidConsumption:
             is_low_energy = self.warn_flash.state(api.read.timing.elapsed(), is_low_energy)
             if is_low_energy:
-                padding = 0.00000001
+                padding = 0.00000001  # add padding for switching state
             else:
                 padding = 0
         else:
