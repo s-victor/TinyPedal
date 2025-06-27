@@ -21,8 +21,10 @@ Virtual energy Widget
 """
 
 from .. import calculation as calc
+from ..api_control import api
 from ..module_info import minfo
 from ._base import Overlay
+from ._common import WarningFlash
 from ._painter import FuelLevelBar
 
 
@@ -287,9 +289,24 @@ class Realtime(Overlay):
         layout_lower.addWidget(self.bar_end, 1, 4)
         layout_lower.addWidget(self.bar_bias, 1, 5)
 
+        # Last data
+        self.warn_flash = WarningFlash(
+            self.wcfg["warning_flash_highlight_duration"],
+            self.wcfg["warning_flash_interval"],
+            self.wcfg["number_of_warning_flashes"],
+        )
+
     def timerEvent(self, event):
         """Update when vehicle on track"""
         is_low_energy = minfo.energy.estimatedLaps <= self.wcfg["low_energy_lap_threshold"]
+        if self.wcfg["show_low_energy_warning_flash"]:
+            is_low_energy = self.warn_flash.state(api.read.timing.elapsed(), is_low_energy)
+            if is_low_energy:
+                padding = 0.00000001
+            else:
+                padding = 0
+        else:
+            padding = 0
 
         # Estimated end remaining
         amount_end = minfo.energy.amountEndStint
@@ -297,15 +314,15 @@ class Realtime(Overlay):
 
         # Remaining
         amount_curr = minfo.energy.amountCurrent
-        self.update_energy(self.bar_curr, amount_curr, self.bar_style_curr[is_low_energy])
+        self.update_energy(self.bar_curr, amount_curr + padding, self.bar_style_curr[is_low_energy])
 
         # Total needed
         if self.wcfg["show_absolute_refilling"]:
             amount_need = calc.sym_max(minfo.energy.neededAbsolute, 9999)
-            self.update_energy(self.bar_need, amount_need, self.bar_style_need[is_low_energy])
+            self.update_energy(self.bar_need, amount_need + padding, self.bar_style_need[is_low_energy])
         else:
             amount_need = calc.sym_max(minfo.energy.neededRelative, 9999)
-            self.update_energy(self.bar_need, amount_need, self.bar_style_need[is_low_energy], "+")
+            self.update_energy(self.bar_need, amount_need + padding, self.bar_style_need[is_low_energy], "+")
 
         # Estimated consumption
         used_last = minfo.energy.estimatedConsumption

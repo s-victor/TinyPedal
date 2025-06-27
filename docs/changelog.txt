@@ -1,7 +1,13 @@
 WIP
 -----------------------------
+* Fuel, Virtual Energy Widget
+  - Add "show_low_fuel_warning_flash" and "show_low_energy_warning_flash" options (requested by users "ebeninca"), which show warning flash effect while on low fuel or low virtual energy. This option is enabled by default.
+    This warning flash effect plays only a limited number of times, with highlight duration and interval that can be customized via "number_of_warning_flashes, warning_flash_highlight_duration, warning_flash_interval" options.
+    Default number of flashes is 10 times, with a highlight duration of 0.4s, and a cooldown interval of 0.4s in-between.
+
 * Misc
   - Auto load preset function now checks load-state only once when player enters track.
+  - Various optimization.
 
 2.30.1 (2025-06-12)
 -----------------------------

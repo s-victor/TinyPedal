@@ -2003,6 +2003,18 @@ Set amount lap threshold to show low fuel indicator when total completable laps 
     warning_color_low_fuel
 Set low fuel color indicator, which changes widget background color when there is just 2 laps of fuel left.
 
+    show_low_fuel_warning_flash
+Show low fuel warning flash effect when below `low_fuel_lap_threshold`.
+
+    number_of_warning_flashes
+Set number of warning flashes that will be played for a limited number of times. Default is `10` flashes. Minimum value is limited to `3`.
+
+    warning_flash_highlight_duration
+Set color highlight duration for each warning flash. Default is `0.4` seconds. Minimum value is limited to `0.2`.
+
+    warning_flash_interval
+Set minimum time interval between each warning flash. Default is `0.4` seconds. Minimum value is limited to `0.2`.
+
     show_fuel_level_bar
 Show visualized horizontal fuel level bar.
 
@@ -3476,9 +3488,7 @@ Set warning threshold for estimated tyre lifespan in minutes. Default is `5` lap
 ## Virtual energy
 **This widget displays virtual energy usage info.**
 
-Note, most options are inherited from [Fuel](#fuel) widget, with some additions noted below.
-
-Virtual energy is not `real energy`, and different from `battery charge`. For battery charge usage info, see [Battery](#battery) widget.
+Note, most options are inherited from [Fuel](#fuel) widget, with some additions noted below. For battery charge usage info, see [Battery](#battery) widget.
 
     show_absolute_refilling
 Show absolute refilling value instead of relative refilling when enabled. Note, `+` or `-` sign is not displayed with absolute refilling.
