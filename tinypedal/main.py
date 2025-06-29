@@ -26,7 +26,7 @@ import os
 import sys
 
 import psutil
-from PySide2.QtCore import QCoreApplication, Qt
+from PySide2.QtCore import QCoreApplication, QLocale, Qt
 from PySide2.QtGui import QFont, QGuiApplication, QIcon, QPixmapCache
 from PySide2.QtWidgets import QApplication, QMessageBox
 
@@ -124,9 +124,15 @@ def version_check():
 
 def init_gui() -> QApplication:
     """Initialize Qt Gui"""
+    # Set global locale
+    loc = QLocale(QLocale.C)
+    loc.setNumberOptions(QLocale.RejectGroupSeparator)
+    QLocale.setDefault(loc)
+    # Set DPI scale
     if cfg.application["enable_high_dpi_scaling"]:
         QCoreApplication.setAttribute(Qt.AA_EnableHighDpiScaling, True)
         QGuiApplication.setHighDpiScaleFactorRoundingPolicy(Qt.HighDpiScaleFactorRoundingPolicy.PassThrough)
+    # Set GUI
     QApplication.setStyle("Fusion")
     root = QApplication(sys.argv)
     root.setQuitOnLastWindowClosed(False)

@@ -25,7 +25,7 @@ import re
 from collections import deque
 from typing import Callable
 
-from PySide2.QtCore import QLocale, QRegularExpression, Qt
+from PySide2.QtCore import QRegularExpression, Qt
 from PySide2.QtGui import (
     QColor,
     QDoubleValidator,
@@ -60,12 +60,8 @@ from ..const_file import FileFilter
 from ..validator import image_exists, is_hex_color, is_string_number
 
 # Validator
-QLOC_NUMBER = QLocale(QLocale.C)
-QLOC_NUMBER.setNumberOptions(QLocale.RejectGroupSeparator)
 QVAL_INTEGER = QIntValidator(-999999, 999999)
-QVAL_INTEGER.setLocale(QLOC_NUMBER)
 QVAL_FLOAT = QDoubleValidator(-999999.9999, 999999.9999, 6)
-QVAL_FLOAT.setLocale(QLOC_NUMBER)
 QVAL_COLOR = QRegularExpressionValidator(QRegularExpression('^#[0-9a-fA-F]*'))
 QVAL_HEATMAP = QRegularExpressionValidator(QRegularExpression('[0-9a-zA-Z_]*'))
 QVAL_FILENAME = QRegularExpressionValidator(QRegularExpression('[^\\\\/:*?"<>|]*'))

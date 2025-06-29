@@ -6,6 +6,7 @@ WIP
     Default number of flashes is 10 times, with a highlight duration of 0.4s, and a cooldown interval of 0.4s in-between.
 
 * Misc
+  - Fixed global locale setting for correctly displaying digits and decimal separator in certain system that uses special characters.
   - Auto load preset function now checks load-state only once when player enters track.
   - Various optimization.
 
