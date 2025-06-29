@@ -30,7 +30,7 @@ from typing import KeysView, get_type_hints
 
 from ..const_common import MAX_SECONDS
 from ..const_file import FileExt, StatsFile
-from ..validator import convert_value_type
+from ..validator import convert_value_type, purge_data_key
 from .json_setting import (
     create_backup_file,
     save_and_verify_json_file,
@@ -78,15 +78,6 @@ def validate_stats_file(stats_user: dict) -> dict:
     return stats_user
 
 
-def purge_keys(loaded_dict: dict) -> dict:
-    """Purge unwanted key name"""
-    ref_keys = DriverStats.keys()
-    for key in tuple(loaded_dict):
-        if key not in ref_keys:
-            loaded_dict.pop(key)
-    return loaded_dict
-
-
 def get_sub_dict(source: dict, key_name: str) -> dict:
     """Get sub dict, create new if not exist"""
     sub_dict = source.get(key_name)
@@ -114,7 +105,7 @@ def load_driver_stats(
             return DriverStats()
     # Add data to DriverStats
     try:
-        return DriverStats(**purge_keys(loaded_dict))
+        return DriverStats(**purge_data_key(loaded_dict, DriverStats.keys()))
     except (AttributeError, TypeError, KeyError, ValueError):
         return DriverStats()
 

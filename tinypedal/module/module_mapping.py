@@ -26,7 +26,7 @@ from ..const_file import FileExt
 from ..module_info import minfo
 from ..userfile.track_info import load_track_info, save_track_info
 from ..userfile.track_map import load_track_map_file, save_track_map_file
-from ..validator import file_last_modified
+from ..validator import file_last_modified, generator_init
 from ._base import DataModule, round4
 
 
@@ -68,7 +68,6 @@ class Realtime(DataModule):
 
                     # Load track info
                     gen_track_info = update_track_info(output, api.read.session.track_name())
-                    next(gen_track_info)
 
                 # Recording map data
                 if not recorder.map_exist:
@@ -86,6 +85,7 @@ class Realtime(DataModule):
                     gen_track_info.send(False)
 
 
+@generator_init
 def update_track_info(output, track_name: str):
     """Update track info"""
     pitin_pos, pitout_pos, speed_limit = load_track_info(track_name)

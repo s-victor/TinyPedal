@@ -35,6 +35,7 @@ from ..userfile.track_notes import (
     load_notes_file,
     parse_csv_notes_only,
 )
+from ..validator import generator_init
 from ._base import DataModule
 
 
@@ -81,7 +82,6 @@ class Realtime(DataModule):
                         output=output_pacenotes,
                         dataset=pace_notes,
                     )
-                    gen_pacenotes.send(None)
 
                     # Load track notes
                     track_notes = load_notes_file(
@@ -95,7 +95,6 @@ class Realtime(DataModule):
                         output=output_tracknotes,
                         dataset=track_notes,
                     )
-                    gen_tracknotes.send(None)
 
                 # Update position
                 pos_synced = minfo.delta.lapDistance
@@ -133,6 +132,7 @@ def load_pace_notes_file(
     )
 
 
+@generator_init
 def notes_selector(output: NotesInfo, dataset: list[dict] | None):
     """Notes selector
 

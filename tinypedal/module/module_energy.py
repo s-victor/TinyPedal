@@ -27,7 +27,7 @@ from ..api_control import api
 from ..const_file import FileExt
 from ..module_info import minfo
 from ._base import DataModule
-from .module_fuel import calc_data
+from .module_fuel import calc_consumption
 
 
 class Realtime(DataModule):
@@ -54,7 +54,7 @@ class Realtime(DataModule):
                     update_interval = self.active_interval
 
                     combo_id = api.read.check.combo_id()
-                    gen_calc_energy = calc_data(
+                    gen_calc_energy = calc_consumption(
                         output=minfo.energy,
                         telemetry_func=telemetry_energy,
                         filepath=userpath_energy_delta,
@@ -62,7 +62,6 @@ class Realtime(DataModule):
                         extension=FileExt.ENERGY,
                         min_delta_distance=self.mcfg["minimum_delta_distance"],
                     )
-                    next(gen_calc_energy)
                     # Reset module output
                     minfo.energy.reset()
 

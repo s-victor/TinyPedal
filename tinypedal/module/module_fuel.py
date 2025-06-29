@@ -36,7 +36,7 @@ from ..userfile.fuel_delta import (
     save_consumption_history_file,
     save_fuel_delta_file,
 )
-from ..validator import valid_delta_raw
+from ..validator import generator_init, valid_delta_raw
 from ._base import DataModule, round6
 
 
@@ -64,7 +64,7 @@ class Realtime(DataModule):
                     update_interval = self.active_interval
 
                     combo_id = api.read.check.combo_id()
-                    gen_calc_fuel = calc_data(
+                    gen_calc_fuel = calc_consumption(
                         output=minfo.fuel,
                         telemetry_func=detect_consumption_type(),
                         filepath=userpath_fuel_delta,
@@ -72,7 +72,6 @@ class Realtime(DataModule):
                         extension=FileExt.FUEL,
                         min_delta_distance=self.mcfg["minimum_delta_distance"],
                     )
-                    next(gen_calc_fuel)
                     # Reset module output
                     minfo.fuel.reset()
                     load_consumption_history(userpath_fuel_delta, combo_id)
@@ -138,9 +137,12 @@ def save_consumption_history(filepath: str, combo_id: str):
 
 def detect_consumption_type() -> Callable:
     """Detect consumption type, return telemetry function"""
-    capacity = api.read.vehicle.tank_capacity()
-    # Pure electic based vehicle
-    if capacity <= 1 and api.read.emotor.battery_charge() > 0:
+    # Pure electric based vehicle
+    if (
+        api.read.check.sim_name() == "RF2"
+        and api.read.vehicle.tank_capacity() == 1
+        and api.read.emotor.battery_charge() > 0
+    ):
         return telemetry_battery
     # Fuel based vehicle
     return telemetry_fuel
@@ -156,10 +158,11 @@ def telemetry_battery() -> tuple[float, float]:
     return 100, api.read.emotor.battery_charge() * 100
 
 
-def calc_data(
+@generator_init
+def calc_consumption(
     output: FuelInfo, telemetry_func: Callable, filepath: str, filename: str, extension: str,
     min_delta_distance: float):
-    """Calculate data"""
+    """Calculate consumption data"""
     recording = False
     delayed_save = False
     validating = 0

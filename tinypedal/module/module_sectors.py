@@ -26,7 +26,7 @@ from ..api_control import api
 from ..const_common import MAX_SECONDS
 from ..module_info import SectorsInfo, minfo
 from ..userfile.sector_best import load_sector_best_file, save_sector_best_file
-from ..validator import valid_sectors
+from ..validator import generator_init, valid_sectors
 from ._base import DataModule, round6
 
 
@@ -69,8 +69,6 @@ class Realtime(DataModule):
                     else:
                         gen_calc_sectors_session = calc_sectors(minfo.sectors, best_s_tb, best_s_pb)
                         gen_calc_sectors_alltime = calc_sectors(None, all_best_s_tb, all_best_s_pb)
-                    next(gen_calc_sectors_session)
-                    next(gen_calc_sectors_alltime)
 
                 # Run calculation
                 tele_sectors = telemetry_sectors()
@@ -108,6 +106,7 @@ def telemetry_sectors() -> tuple[int, float, float, float, float]:
     return sector_idx, laptime_valid, curr_sector1, curr_sector2, last_sector2
 
 
+@generator_init
 def calc_sectors(output: SectorsInfo, best_s_tb: list, best_s_pb: list):
     """Calculate sectors data"""
     no_delta_s = True

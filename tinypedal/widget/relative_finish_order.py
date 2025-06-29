@@ -32,6 +32,7 @@ from ..const_common import (
 )
 from ..module_info import minfo
 from ..units import set_unit_fuel
+from ..validator import generator_init
 from ._base import Overlay
 
 
@@ -69,7 +70,6 @@ class Realtime(Overlay):
         self.gen_leader_pace = calc_laptime_pace(
             min(max(self.wcfg["leader_laptime_pace_samples"], 1), 20),
             max(self.wcfg["leader_laptime_pace_margin"], 0.1))
-        self.gen_leader_pace.send(None)
 
         # Base style
         self.setStyleSheet(self.set_qss(
@@ -402,6 +402,7 @@ class Realtime(Overlay):
         return 0
 
 
+@generator_init
 def calc_laptime_pace(samples: int = 6, margin: float = 5, laptime: float = MAX_SECONDS):
     """Calculate lap time pace for specific player"""
     laptime_pace = laptime
