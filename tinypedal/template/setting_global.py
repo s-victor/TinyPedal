@@ -27,7 +27,7 @@ GLOBAL_DEFAULT = {
         "minimize_to_tray": True,
         "remember_position": True,
         "remember_size": True,
-        "enable_high_dpi_scaling": False,
+        "enable_high_dpi_scaling": True,
         "enable_auto_load_preset": False,
         "show_confirmation_for_batch_toggle": True,
         "grid_move_size": 8,

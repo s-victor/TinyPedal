@@ -398,7 +398,7 @@ Remember main window last position.
 Remember main window last size.
 
     enable_high_dpi_scaling
-Enable window dialog and overlay widget auto-scaling under high DPI screen resolution. This option requires restarting TinyPedal to take effect. This option is disabled by default.
+Enable window dialog and overlay widget auto-scaling under high DPI screen resolution. This option requires restarting TinyPedal to take effect. This option is enabled by default.
 
 High DPI scaling mode can be quickly toggled via `Scale` button on main window status bar.
 
