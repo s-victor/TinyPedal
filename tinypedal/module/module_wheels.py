@@ -25,7 +25,9 @@ from collections import deque
 from .. import calculation as calc
 from ..api_control import api
 from ..const_common import POS_XY_ZERO
-from ..module_info import minfo
+from ..module_info import WheelsInfo, minfo
+from ..userfile.heatmap import brake_failure_thickness
+from ..validator import generator_init
 from ._base import DataModule
 
 
@@ -73,6 +75,9 @@ class Realtime(DataModule):
                     cornering_radius = 0
                     gps_last = POS_XY_ZERO
 
+                    gen_brake_wear = calc_brake_wear(output)
+                    gen_tyre_wear = calc_tyre_wear(output)
+
                 # Read telemetry
                 speed = api.read.vehicle.speed()
                 wheel_rot = api.read.wheel.rotation()
@@ -113,6 +118,10 @@ class Realtime(DataModule):
                         *list_coords[0], *list_coords[min_coords], *list_coords[-1])
                     cornering_radius = calc.distance(list_coords[0], arc_center_pos)
 
+                # Calculate wear
+                gen_brake_wear.send(minfo.restapi.brakeWear)
+                gen_tyre_wear.send(api.read.tyre.wear())
+
                 # Output wheels data
                 output.lockingPercentFront = locking_f
                 output.lockingPercentRear = locking_r
@@ -126,3 +135,79 @@ class Realtime(DataModule):
                 if reset:
                     reset = False
                     update_interval = self.idle_interval
+
+
+@generator_init
+def calc_tyre_wear(output: WheelsInfo):
+    """Calculate tyre wear"""
+    last_lap_stime = 0.0  # last lap start time
+    tread_last = [0.0] * 4  # last moment remaining tread
+    tread_wear_curr = [0.0] * 4  # current lap tread wear
+    tread_wear_last = [0.0] * 4  # last lap tread wear
+    while True:
+        tread_curr_set = yield None
+        lap_stime = api.read.timing.start()
+
+        if lap_stime != last_lap_stime:
+            tread_wear_last = tread_wear_curr
+            tread_wear_curr = [0.0] * 4  # reset real time wear
+            last_lap_stime = lap_stime  # reset time stamp counter
+
+        for idx, tread_curr in enumerate(tread_curr_set):
+            tread_curr *= 100
+
+            # Update wear differences & accumulated wear
+            wear_diff = tread_last[idx] - tread_curr
+            tread_last[idx] = tread_curr
+            if wear_diff > 0:
+                tread_wear_curr[idx] += wear_diff
+
+            # Output
+            output.currentTreadDepth[idx] = tread_curr
+            output.currentTreadWear[idx] = tread_wear_curr[idx]
+            output.lastLapTreadWear[idx] = tread_wear_last[idx]
+
+
+@generator_init
+def calc_brake_wear(output: WheelsInfo):
+    """Calculate brake wear"""
+    last_lap_stime = 0.0  # last lap start time
+    brake_last = [0.0] * 4  # last moment remaining brake
+    brake_wear_curr = [0.0] * 4  # current lap brake wear
+    brake_wear_last = [0.0] * 4  # last lap brake wear
+    brake_max_thickness = [0.0] * 4  # brake max thickness at start of stint
+    failure_thickness = brake_failure_thickness(api.read.vehicle.class_name())
+    while True:
+        brake_curr_set = yield None
+        lap_stime = api.read.timing.start()
+
+        if lap_stime != last_lap_stime:
+            brake_wear_last = brake_wear_curr
+            brake_wear_curr = [0.0] * 4  # reset real time wear
+            last_lap_stime = lap_stime  # reset time stamp counter
+
+        for idx, brake_curr in enumerate(brake_curr_set):
+            # Calculate effective thickness
+            brake_curr *= 1000  # meter to millimeter
+            brake_curr -= failure_thickness[idx]
+
+            # Calibrate max thickness
+            if brake_max_thickness[idx] < brake_curr:
+                brake_max_thickness[idx] = brake_curr
+                output.maxBrakeThickness[idx] = brake_curr
+
+            if not brake_max_thickness[idx]:  # bypass invalid value
+                brake_curr = 0.0
+            else:  # convert to percent
+                brake_curr *= 100 / brake_max_thickness[idx]
+
+            # Update wear differences & accumulated wear
+            wear_diff = brake_last[idx] - brake_curr
+            brake_last[idx] = brake_curr
+            if wear_diff > 0:
+                brake_wear_curr[idx] += wear_diff
+
+            # Output
+            output.currentBrakeThickness[idx] = brake_curr
+            output.currentBrakeWear[idx] = brake_wear_curr[idx]
+            output.lastLapBrakeWear[idx] = brake_wear_last[idx]

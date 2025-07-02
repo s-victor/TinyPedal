@@ -69,6 +69,22 @@ def select_brake_heatmap_name(brake_name: str) -> str:
     return brake.get("heatmap", HEATMAP_DEFAULT_BRAKE)
 
 
+def brake_failure_thickness(class_name: str) -> tuple[float, ...]:
+    """Get failure thickness"""
+    failure_thickness_f = select_brake_failure_thickness(
+        set_predefined_brake_name(class_name, True)
+    )
+    failure_thickness_r = select_brake_failure_thickness(
+        set_predefined_brake_name(class_name, False)
+    )
+    return (
+        failure_thickness_f,
+        failure_thickness_f,
+        failure_thickness_r,
+        failure_thickness_r,
+    )
+
+
 # Tyre function
 def add_missing_compound(compound_name: str) -> dict:
     """Add missing compound style to compounds preset"""

@@ -343,14 +343,13 @@ class SectorsInfo:
     )
 
     def __init__(self):
-        temp_sector = [MAX_SECONDS] * 3
         self.noDeltaSector: bool = True
         self.sectorIndex: int = -1
-        self.sectorPrev: list[float] = temp_sector
-        self.sectorBestTB: list[float] = temp_sector
-        self.sectorBestPB: list[float] = temp_sector
-        self.deltaSectorBestPB: list[float] = temp_sector
-        self.deltaSectorBestTB: list[float] = temp_sector
+        self.sectorPrev: list[float] = [MAX_SECONDS] * 3
+        self.sectorBestTB: list[float] = [MAX_SECONDS] * 3
+        self.sectorBestPB: list[float] = [MAX_SECONDS] * 3
+        self.deltaSectorBestPB: list[float] = [MAX_SECONDS] * 3
+        self.deltaSectorBestTB: list[float] = [MAX_SECONDS] * 3
 
 
 class StatsInfo:
@@ -524,6 +523,13 @@ class WheelsInfo:
         "lockingPercentRear",
         "corneringRadius",
         "slipRatio",
+        "currentTreadDepth",
+        "currentTreadWear",
+        "lastLapTreadWear",
+        "maxBrakeThickness",
+        "currentBrakeThickness",
+        "currentBrakeWear",
+        "lastLapBrakeWear",
     )
 
     def __init__(self):
@@ -531,6 +537,13 @@ class WheelsInfo:
         self.lockingPercentRear: float = 0.0
         self.corneringRadius: float = 0.0
         self.slipRatio: list[float] = [0.0] * 4
+        self.currentTreadDepth: list[float] = [0.0] * 4
+        self.currentTreadWear: list[float] = [0.0] * 4
+        self.lastLapTreadWear: list[float] = [0.0] * 4
+        self.maxBrakeThickness: list[float] = [0.0] * 4
+        self.currentBrakeThickness: list[float] = [0.0] * 4
+        self.currentBrakeWear: list[float] = [0.0] * 4
+        self.lastLapBrakeWear: list[float] = [0.0] * 4
 
 
 class ModuleInfo:

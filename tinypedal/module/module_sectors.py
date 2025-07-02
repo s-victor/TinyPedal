@@ -107,7 +107,7 @@ def telemetry_sectors() -> tuple[int, float, float, float, float]:
 
 
 @generator_init
-def calc_sectors(output: SectorsInfo, best_s_tb: list, best_s_pb: list):
+def calc_sectors(output: SectorsInfo, best_s_tb: list[float], best_s_pb: list[float]):
     """Calculate sectors data"""
     no_delta_s = True
     new_best = False  # save check whether new sector best time is set
@@ -200,8 +200,8 @@ def calc_sectors(output: SectorsInfo, best_s_tb: list, best_s_pb: list):
             if output:
                 output.noDeltaSector = no_delta_s
                 output.sectorIndex = sector_idx
-                output.sectorPrev = prev_s
-                output.sectorBestTB = best_s_tb
-                output.sectorBestPB = best_s_pb
-                output.deltaSectorBestPB = delta_s_pb
-                output.deltaSectorBestTB = delta_s_tb
+                output.sectorPrev[:] = prev_s
+                output.sectorBestTB[:] = best_s_tb
+                output.sectorBestPB[:] = best_s_pb
+                output.deltaSectorBestPB[:] = delta_s_pb
+                output.deltaSectorBestTB[:] = delta_s_tb

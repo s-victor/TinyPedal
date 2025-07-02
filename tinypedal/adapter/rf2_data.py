@@ -613,14 +613,14 @@ class Tyre(DataAdapter):
             rmnan(wheel_data[3].mTireLoad),
         )
 
-    def wear(self, index: int | None = None, scale: float = 1) -> tuple[float, ...]:
+    def wear(self, index: int | None = None) -> tuple[float, ...]:
         """Tyre wear (fraction)"""
         wheel_data = self.info.rf2TeleVeh(index).mWheels
         return (
-            rmnan(wheel_data[0].mWear) * scale,
-            rmnan(wheel_data[1].mWear) * scale,
-            rmnan(wheel_data[2].mWear) * scale,
-            rmnan(wheel_data[3].mWear) * scale,
+            rmnan(wheel_data[0].mWear),
+            rmnan(wheel_data[1].mWear),
+            rmnan(wheel_data[2].mWear),
+            rmnan(wheel_data[3].mWear),
         )
 
     def carcass_temperature(self, index: int | None = None) -> tuple[float, ...]:
