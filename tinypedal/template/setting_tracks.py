@@ -17,55 +17,15 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Default classes template
+Default tracks template
 """
 
 from types import MappingProxyType
 
-CLASSINFO_DEFAULT = MappingProxyType({
-    "alias": "???",
-    "color": "#0044AA",
+TRACKINFO_DEFAULT = MappingProxyType({
+    "pit_entry": 0.0,
+    "pit_exit": 0.0,
+    "pit_speed": 0.0,
 })
 
-CLASSES_DEFAULT = {
-    "Hyper": {
-        "alias": "LMH",
-        "color": "#FF4400",
-    },
-    "Hypercar": {
-        "alias": "LMH",
-        "color": "#FF4400",
-    },
-    "LMP1": {
-        "alias": "LMP1",
-        "color": "#FF00AA",
-    },
-    "LMP2": {
-        "alias": "LMP2",
-        "color": "#0088FF",
-    },
-    "LMP3": {
-        "alias": "LMP3",
-        "color": "#0044AA",
-    },
-    "GTE": {
-        "alias": "GTE",
-        "color": "#00CC44",
-    },
-    "GT3": {
-        "alias": "GT3",
-        "color": "#229900",
-    },
-    "DPi": {
-        "alias": "DPi",
-        "color": "#0044AA",
-    },
-    "FR3.5_2014": {
-        "alias": "FR35",
-        "color": "#4488AA",
-    },
-    "Formula Pro": {
-        "alias": "FPro",
-        "color": "#FF3300",
-    },
-}
+TRACKS_DEFAULT = {}

@@ -88,7 +88,11 @@ class Realtime(DataModule):
 @generator_init
 def update_track_info(output, track_name: str):
     """Update track info"""
-    pitin_pos, pitout_pos, speed_limit = load_track_info(track_name)
+    # Load track info
+    pit_entry = load_track_info(track_name).get("pit_entry", 0.0)
+    pit_exit = load_track_info(track_name).get("pit_exit", 0.0)
+    pit_speed = load_track_info(track_name).get("pit_speed", 0.0)
+    # Set default
     pos_last = 0.0
     last_speed = 0.0
     pitlane_length = 0.0
@@ -100,9 +104,9 @@ def update_track_info(output, track_name: str):
             save_track_info(
                 track_name=track_name,
                 # kwargs {key: value}
-                pit_entry=round4(pitin_pos),
-                pit_exit=round4(pitout_pos),
-                pit_speed=round4(speed_limit),
+                pit_entry=round4(pit_entry),
+                pit_exit=round4(pit_exit),
+                pit_speed=round4(pit_speed),
             )
             continue
 
@@ -118,26 +122,26 @@ def update_track_info(output, track_name: str):
                     api.read.inputs.brake_raw() < 0.01 and  # no braking check
                     speed > 1 and  # moving check
                     0.1 > speed - last_speed > 0):  # limit speed delta in 0.0 - 0.1m/s
-                    speed_limit = speed
+                    pit_speed = speed
                 last_speed = speed
 
         # Calculate pit lane length
         if last_in_pits != in_pits:
             if last_in_pits != -1 and api.read.vehicle.speed() > 1:  # avoid ESC desync
                 if in_pits > 0:  # entering pit
-                    pitin_pos = max(api.read.lap.distance(), 0.0)
+                    pit_entry = max(api.read.lap.distance(), 0.0)
                 else:  # exiting pit
-                    pitout_pos = max(api.read.lap.distance(), 0.0)
+                    pit_exit = max(api.read.lap.distance(), 0.0)
             last_in_pits = in_pits
-            if pitin_pos != 0 != pitout_pos:  # calculate only with valid position
-                if pitin_pos < pitout_pos:
-                    pitlane_length = pitout_pos - pitin_pos
-                else:
-                    pitlane_length = api.read.lap.track_length() - pitin_pos + pitout_pos
+            pitlane_length = calc.pitlane_length(
+                api.read.lap.track_length(),
+                pit_entry,
+                pit_exit,
+            )
 
-        output.pitSpeedLimit = speed_limit
-        output.pitEntryPosition = pitin_pos
-        output.pitExitPosition = pitout_pos
+        output.pitSpeedLimit = pit_speed
+        output.pitEntryPosition = pit_entry
+        output.pitExitPosition = pit_exit
         output.pitLaneLength = pitlane_length
 
 

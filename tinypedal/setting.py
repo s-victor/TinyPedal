@@ -25,11 +25,12 @@ from __future__ import annotations
 import logging
 import os
 import threading
+from collections import ChainMap
 from time import sleep
 from types import MappingProxyType
 
 from . import set_user_data_path
-from .const_app import APP_NAME, PATH_GLOBAL, PLATFORM
+from .const_app import PATH_GLOBAL
 from .const_common import EMPTY_DICT
 from .const_file import ConfigType, FileExt
 from .setting_validator import StyleValidator
@@ -37,9 +38,11 @@ from .template.setting_brakes import BRAKES_DEFAULT
 from .template.setting_classes import CLASSES_DEFAULT
 from .template.setting_common import COMMON_DEFAULT
 from .template.setting_compounds import COMPOUNDS_DEFAULT
+from .template.setting_filelock import FILELOCK_DEFAULT
 from .template.setting_global import GLOBAL_DEFAULT
 from .template.setting_heatmap import HEATMAP_DEFAULT
 from .template.setting_module import MODULE_DEFAULT
+from .template.setting_tracks import TRACKS_DEFAULT
 from .template.setting_widget import WIDGET_DEFAULT
 from .userfile.json_setting import (
     copy_setting,
@@ -138,41 +141,15 @@ class Preset:
 
     def set_default(self):
         """Set default setting"""
-        self.set_platform_default(GLOBAL_DEFAULT)
         self.config = MappingProxyType(GLOBAL_DEFAULT)
-        self.setting = MappingProxyType({**COMMON_DEFAULT, **MODULE_DEFAULT, **WIDGET_DEFAULT})
+        self.setting = MappingProxyType(ChainMap(WIDGET_DEFAULT, MODULE_DEFAULT, COMMON_DEFAULT))
         self.brakes = MappingProxyType(BRAKES_DEFAULT)
         self.brands = EMPTY_DICT
         self.classes = MappingProxyType(CLASSES_DEFAULT)
         self.compounds = MappingProxyType(COMPOUNDS_DEFAULT)
         self.heatmap = MappingProxyType(HEATMAP_DEFAULT)
-        self.tracks = EMPTY_DICT
-        self.filelock = EMPTY_DICT
-
-    @staticmethod
-    def set_platform_default(global_def: dict):
-        """Set platform default setting"""
-        if PLATFORM != "Windows":
-            # Global config
-            global_def["application"]["show_at_startup"] = True
-            global_def["application"]["minimize_to_tray"] = False
-            global_def["compatibility"]["enable_bypass_window_manager"] = True
-            global_def["compatibility"]["enable_x11_platform_plugin_override"] = True
-            # Global path
-            from xdg import BaseDirectory as BD
-
-            config_paths = (
-                "settings_path",
-                "brand_logo_path",
-                "pace_notes_path",
-                "track_notes_path",
-            )
-            user_path = global_def["user_path"]
-            for key, path in user_path.items():
-                if key in config_paths:
-                    user_path[key] = BD.save_config_path(APP_NAME, path)
-                else:
-                    user_path[key] = BD.save_data_path(APP_NAME, path)
+        self.tracks = MappingProxyType(TRACKS_DEFAULT)
+        self.filelock = MappingProxyType(FILELOCK_DEFAULT)
 
 
 class Setting:

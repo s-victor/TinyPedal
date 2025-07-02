@@ -215,6 +215,17 @@ def relative_time_gap(rel_dist: float, plr_speed: float, opt_speed: float) -> fl
     return 0
 
 
+def pitlane_length(track_length: float, pit_entry: float, pit_exit: float) -> float:
+    """Calculate pitlane length"""
+    if pit_entry != 0 != pit_exit:  # check valid position
+        pit_length = pit_exit - pit_entry
+        if pit_entry > pit_exit:
+            pit_length += track_length
+    else:
+        pit_length = 0.0
+    return pit_length
+
+
 def linear_interp(x: float, x1: float, y1: float, x2: float, y2: float) -> float:
     """Linear interpolation"""
     x_diff = x2 - x1

@@ -20,7 +20,14 @@
 Default compounds template
 """
 
+from types import MappingProxyType
+
 from .setting_heatmap import HEATMAP_DEFAULT_TYRE
+
+COMPOUNDINFO_DEFAULT = MappingProxyType({
+    "symbol": "?",
+    "heatmap": HEATMAP_DEFAULT_TYRE,
+})
 
 COMPOUNDS_DEFAULT = {
     "Hyper - Soft": {

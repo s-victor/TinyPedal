@@ -25,9 +25,11 @@ from __future__ import annotations
 import re
 
 from . import regex_pattern as rxp
-from .const_common import TYPE_NUMBER
-from .formatter import random_color_class
-from .template.setting_heatmap import HEATMAP_DEFAULT_BRAKE, HEATMAP_DEFAULT_TYRE
+from .template.setting_brakes import BRAKEINFO_DEFAULT
+from .template.setting_classes import CLASSINFO_DEFAULT
+from .template.setting_compounds import COMPOUNDINFO_DEFAULT
+from .template.setting_filelock import FILELOCKINFO_DEFAULT
+from .template.setting_tracks import TRACKINFO_DEFAULT
 from .validator import is_clock_format, is_hex_color
 
 COMMON_STRINGS = "|".join((
@@ -39,91 +41,52 @@ COMMON_STRINGS = "|".join((
 ))
 
 
+def validate_style(dict_user: dict[str, dict], dict_def: dict[str, dict]) -> bool:
+    """Validate style dict entries"""
+    save_change = False
+    for name, data in dict_user.items():
+        # Reset invalid data set
+        if not isinstance(data, dict):
+            dict_user[name] = dict_def.copy()
+            save_change = True
+            continue
+        # Reset invalid value or add missing
+        for key, default_value in dict_def.items():
+            if key not in data or not isinstance(
+                data[key], type(default_value)
+            ):
+                data[key] = default_value
+                save_change = True
+    return save_change
+
+
 class StyleValidator:
     """Style validator"""
 
     @staticmethod
-    def classes(style_user: dict) -> bool:
-        """Vehicle class style validator"""
-        save_change = False
-        _alias = "alias"
-        _color = "color"
-        # Validate classes entry
-        for class_name, class_data in style_user.items():
-            if _alias not in class_data or not isinstance(class_data[_alias], str):
-                class_data[_alias] = class_name
-                save_change = True
-            if _color not in class_data or not is_hex_color(class_data[_color]):
-                class_data[_color] = random_color_class(class_name)
-                save_change = True
-        return save_change
+    def classes(dict_user: dict[str, dict]) -> bool:
+        """Classes style validator"""
+        return validate_style(dict_user, CLASSINFO_DEFAULT)
 
     @staticmethod
-    def brakes(style_user: dict) -> bool:
+    def brakes(dict_user: dict[str, dict]) -> bool:
         """Brakes style validator"""
-        save_change = False
-        _failure = "failure_thickness"
-        _heatmap = "heatmap"
-        # Validate brakes entry
-        for brake_data in style_user.values():
-            if _failure not in brake_data or not isinstance(brake_data[_failure], TYPE_NUMBER):
-                brake_data[_failure] = 0.0
-                save_change = True
-            if _heatmap not in brake_data or not isinstance(brake_data[_heatmap], str):
-                brake_data[_heatmap] = HEATMAP_DEFAULT_BRAKE
-                save_change = True
-        return save_change
+        return validate_style(dict_user, BRAKEINFO_DEFAULT)
 
     @staticmethod
-    def compounds(style_user: dict) -> bool:
-        """Tyre compound style validator"""
-        save_change = False
-        _symbol = "symbol"
-        _heatmap = "heatmap"
-        # Validate compound entry
-        for compound_data in style_user.values():
-            if _symbol not in compound_data or not isinstance(compound_data[_symbol], str):
-                compound_data[_symbol] = "?"
-                save_change = True
-            if _heatmap not in compound_data or not isinstance(compound_data[_heatmap], str):
-                compound_data[_heatmap] = HEATMAP_DEFAULT_TYRE
-                save_change = True
-        return save_change
+    def compounds(dict_user: dict[str, dict]) -> bool:
+        """Compounds style validator"""
+        return validate_style(dict_user, COMPOUNDINFO_DEFAULT)
 
     @staticmethod
-    def tracks(style_user: dict) -> bool:
+    def tracks(dict_user: dict[str, dict]) -> bool:
         """Tracks style validator"""
-        save_change = False
-        _pit_entry = "pit_entry"
-        _pit_exit = "pit_exit"
-        _pit_speed = "pit_speed"
-        # Validate tracks entry
-        for track_data in style_user.values():
-            if _pit_entry not in track_data or not isinstance(track_data[_pit_entry], TYPE_NUMBER):
-                track_data[_pit_entry] = 0.0
-                save_change = True
-            if _pit_exit not in track_data or not isinstance(track_data[_pit_exit], TYPE_NUMBER):
-                track_data[_pit_exit] = 0.0
-                save_change = True
-            if _pit_speed not in track_data or not isinstance(track_data[_pit_speed], TYPE_NUMBER):
-                track_data[_pit_speed] = 0.0
-                save_change = True
-        return save_change
+        return validate_style(dict_user, TRACKINFO_DEFAULT)
 
     @staticmethod
-    def filelock(lock_user: dict) -> bool:
+    def filelock(dict_user: dict[str, dict]) -> bool:
         """File lock validator"""
-        save_change = False
-        _version = "version"
-        for file_name, file_info in lock_user.items():
-            if not isinstance(file_info, dict):
-                lock_user[file_name] = {_version: "unknown"}
-                save_change = True
-                continue
-            if _version not in file_info or not isinstance(file_info[_version], str):
-                lock_user[file_name] = {_version: "unknown"}
-                save_change = True
-        return save_change
+        return validate_style(dict_user, FILELOCKINFO_DEFAULT)
 
 
 class ValueValidator:

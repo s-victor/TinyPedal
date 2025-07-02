@@ -20,7 +20,14 @@
 Default brakes template
 """
 
+from types import MappingProxyType
+
 from .setting_heatmap import HEATMAP_DEFAULT_BRAKE
+
+BRAKEINFO_DEFAULT = MappingProxyType({
+    "failure_thickness": 0.0,
+    "heatmap": HEATMAP_DEFAULT_BRAKE,
+})
 
 BRAKES_DEFAULT = {
     "Hyper - Front Brake": {

@@ -36,7 +36,7 @@ from ..api_control import api
 from ..const_file import ConfigType
 from ..module_control import wctrl
 from ..setting import cfg, copy_setting
-from ..userfile.track_info import TRACKINFO_DEFAULT
+from ..template.setting_tracks import TRACKINFO_DEFAULT
 from ._common import (
     BaseEditor,
     CompactButton,
