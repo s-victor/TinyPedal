@@ -3453,22 +3453,19 @@ Show tyre compound symbols (front and rear) that matches specific tyre compounds
 2 layouts are available: `0` = vertical layout, `1` = horizontal layout.
 
     show_remaining
-Show total remaining tyre in percentage that changes color according to wear.
+Show total remaining tyre tread in percentage that changes color according to wear.
 
     show_wear_difference
-Show total tyre wear difference of previous lap.
-
-    show_live_wear_difference
-Show tyre wear difference of current lap that constantly updated.
-
-    freeze_duration
-Set freeze duration (seconds) for displaying previous lap tyre wear if `show_live_wear_difference` is enabled. Value range in `0` to `30` seconds. Default is `10` seconds.
+Show estimated tyre wear difference per lap (at least one valid lap is required).
 
     show_lifespan_laps
 Show estimated tyre lifespan in laps.
 
     show_lifespan_minutes
 Show estimated tyre lifespan in minutes.
+
+    show_end_stint_remaining
+Show estimated total remaining tyre tread at the of current stint, which helps to determine whether there is enough tread for current or more stints.
 
     warning_threshold_remaining
 Set warning threshold for total remaining tyre in percentage. Default is `30` percent.

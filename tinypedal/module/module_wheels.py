@@ -139,20 +139,55 @@ class Realtime(DataModule):
 
 @generator_init
 def calc_tyre_wear(output: WheelsInfo):
-    """Calculate tyre wear"""
+    """Calculate tyre wear & delta wear"""
     last_lap_stime = 0.0  # last lap start time
     tread_last = [0.0] * 4  # last moment remaining tread
     tread_wear_curr = [0.0] * 4  # current lap tread wear
     tread_wear_last = [0.0] * 4  # last lap tread wear
+    delta_zero = (0.0,) * 5
+
+    is_pit_lap = 0  # whether pit in or pit out lap
+    is_valid_delta = False
+    delta_recording = False
+    delta_array_raw = [delta_zero]  # distance, battery net change
+    delta_array_last = (delta_zero,)
+    pos_last = 0.0  # last checked vehicle position
+    min_delta_distance = 5
+
     while True:
         tread_curr_set = yield None
         lap_stime = api.read.timing.start()
+        laptime_curr = api.read.timing.elapsed() - lap_stime
+        pos_curr = api.read.lap.distance()
+        is_pit_lap |= api.read.vehicle.in_pits()
+        delay_update = laptime_curr > 0.3
 
         if lap_stime != last_lap_stime:
-            tread_wear_last = tread_wear_curr
-            tread_wear_curr = [0.0] * 4  # reset real time wear
+            tread_wear_last[:] = tread_wear_curr
+            tread_wear_curr[0] = tread_wear_curr[1] = tread_wear_curr[2] = tread_wear_curr[3] = 0.0
             last_lap_stime = lap_stime  # reset time stamp counter
+            # Update delta array
+            if len(delta_array_raw) > 1 and not is_pit_lap:
+                delta_array_last = tuple(delta_array_raw)
+            delta_array_raw.clear()  # reset
+            delta_array_raw.append(delta_zero)
+            pos_last = pos_curr
+            delta_recording = laptime_curr < 1
+            is_valid_delta = len(delta_array_last) > 1
+            is_pit_lap = 0
 
+        # Distance desync check at start of new lap, reset if higher than normal distance
+        if 0 < laptime_curr < 1 and pos_curr > 300:
+            pos_last = pos_curr = 0
+        elif pos_last > pos_curr:
+            pos_last = pos_curr
+
+        # Update if position value is different & positive
+        if delta_recording and pos_curr - pos_last >= min_delta_distance:
+            delta_array_raw.append((pos_curr, *tread_wear_curr))
+            pos_last = pos_curr
+
+        # Calculate wear difference
         for idx, tread_curr in enumerate(tread_curr_set):
             tread_curr *= 100
 
@@ -161,6 +196,17 @@ def calc_tyre_wear(output: WheelsInfo):
             tread_last[idx] = tread_curr
             if wear_diff > 0:
                 tread_wear_curr[idx] += wear_diff
+
+            # Delta wear
+            if is_valid_delta:
+                output.deltaTreadWear[idx] = calc.delta_telemetry(
+                    delta_array_last,
+                    pos_curr,
+                    tread_wear_curr[idx],
+                    delay_update,
+                    0,
+                    idx + 1,
+                )
 
             # Output
             output.currentTreadDepth[idx] = tread_curr
@@ -182,8 +228,8 @@ def calc_brake_wear(output: WheelsInfo):
         lap_stime = api.read.timing.start()
 
         if lap_stime != last_lap_stime:
-            brake_wear_last = brake_wear_curr
-            brake_wear_curr = [0.0] * 4  # reset real time wear
+            brake_wear_last[:] = brake_wear_curr
+            brake_wear_curr[0] = brake_wear_curr[1] = brake_wear_curr[2] = brake_wear_curr[3] = 0.0
             last_lap_stime = lap_stime  # reset time stamp counter
 
         for idx, brake_curr in enumerate(brake_curr_set):

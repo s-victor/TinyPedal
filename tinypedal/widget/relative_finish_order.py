@@ -241,18 +241,14 @@ class Realtime(Overlay):
         fuel_in_tank = 0 if self.wcfg["show_absolute_refilling"] else consumption.amountCurrent
         fuel_consumption = consumption.estimatedValidConsumption
 
+        # Update lap progress difference & refill type
+        self.update_energy_type(self.bars_refill[0], energy_type)
+        self.update_race_type(self.bars_pit_leader[0], is_lap_type_session)
+        lap_diff = calc.lap_progress_difference(leader_laptime_pace, player_laptime_pace)
+        self.update_lap_int(self.bars_lap_player[0], lap_diff)
+
         # Update slots
-        for index in range(self.total_slot):
-            # Update lap progress difference & refill type
-            if index == 0:
-                self.update_energy_type(self.bars_refill[index], energy_type)
-
-                self.update_race_type(self.bars_pit_leader[index], is_lap_type_session)
-
-                lap_diff = calc.lap_progress_difference(leader_laptime_pace, player_laptime_pace)
-                self.update_lap_int(self.bars_lap_player[index], lap_diff)
-                continue
-
+        for index in range(1, self.total_slot):
             # Predicate player
             if not player_valid:
                 lap_final, player_hi_range, full_laps_left = -MAX_SECONDS, 0, 0

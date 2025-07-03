@@ -58,10 +58,10 @@ class Realtime(Overlay):
             font_size=int(self.wcfg['font_size'] * 0.8)
         )
 
-        # Remaining wear
+        # Remaining brake thickness
         if self.wcfg["show_remaining"]:
-            layout_wear = self.set_grid_layout()
-            self.bar_style_wear = (
+            layout_remain = self.set_grid_layout()
+            self.bar_style_remain = (
                 self.set_qss(
                     fg_color=self.wcfg["font_color_remaining"],
                     bg_color=self.wcfg["bkg_color_remaining"]),
@@ -69,28 +69,28 @@ class Realtime(Overlay):
                     fg_color=self.wcfg["font_color_warning"],
                     bg_color=self.wcfg["bkg_color_remaining"])
             )
-            self.bars_wear = self.set_qlabel(
+            self.bars_remain = self.set_qlabel(
                 text=TEXT_NA,
-                style=self.bar_style_wear[0],
+                style=self.bar_style_remain[0],
                 width=bar_width,
                 count=4,
                 last=0,
             )
             self.set_grid_layout_quad(
-                layout=layout_wear,
-                targets=self.bars_wear,
+                layout=layout_remain,
+                targets=self.bars_remain,
             )
             self.set_primary_orient(
-                target=layout_wear,
+                target=layout_remain,
                 column=self.wcfg["column_index_remaining"],
             )
 
             if self.wcfg["show_caption"]:
-                cap_wear = self.set_qlabel(
+                cap_remain = self.set_qlabel(
                     text="brak wear",
                     style=bar_style_desc,
                 )
-                layout_wear.addWidget(cap_wear, 0, 0, 1, 0)
+                layout_remain.addWidget(cap_remain, 0, 0, 1, 0)
 
         # Wear difference
         if self.wcfg["show_wear_difference"]:
@@ -120,7 +120,7 @@ class Realtime(Overlay):
 
             if self.wcfg["show_caption"]:
                 cap_diff = self.set_qlabel(
-                    text="brak diff",
+                    text="wear diff",
                     style=bar_style_desc,
                 )
                 layout_diff.addWidget(cap_diff, 0, 0, 1, 0)
@@ -204,13 +204,13 @@ class Realtime(Overlay):
                 wear_curr_lap *= max_thickness / 100
                 wear_last_lap *= max_thickness / 100
 
-            # Remaining wear
+            # Remaining brake thickness
             if self.wcfg["show_remaining"]:
                 if self.wcfg["show_thickness"]:
                     threshold_remaining = self.threshold_remaining * max_thickness
                 else:
                     threshold_remaining = self.threshold_remaining * 100
-                self.update_wear(self.bars_wear[idx], brake_curr, threshold_remaining)
+                self.update_remain(self.bars_remain[idx], brake_curr, threshold_remaining)
 
             # Wear differences
             if self.wcfg["show_wear_difference"]:
@@ -234,13 +234,13 @@ class Realtime(Overlay):
                 self.update_mins(self.bars_mins[idx], wear_mins)
 
     # GUI update methods
-    def update_wear(self, target, data, threshold_remaining):
-        """Remaining wear"""
+    def update_remain(self, target, data, threshold_remaining):
+        """Remaining brake thickness"""
         if target.last != data:
             target.last = data
             target.setText(self.format_num(data))
             target.setStyleSheet(
-                self.bar_style_wear[data <= threshold_remaining]
+                self.bar_style_remain[data <= threshold_remaining]
             )
 
     def update_diff(self, target, data):

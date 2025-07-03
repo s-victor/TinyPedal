@@ -526,6 +526,7 @@ class WheelsInfo:
         "currentTreadDepth",
         "currentTreadWear",
         "lastLapTreadWear",
+        "deltaTreadWear",
         "maxBrakeThickness",
         "currentBrakeThickness",
         "currentBrakeWear",
@@ -540,6 +541,7 @@ class WheelsInfo:
         self.currentTreadDepth: list[float] = [0.0] * 4
         self.currentTreadWear: list[float] = [0.0] * 4
         self.lastLapTreadWear: list[float] = [0.0] * 4
+        self.deltaTreadWear: list[float] = [0.0] * 4
         self.maxBrakeThickness: list[float] = [0.0] * 4
         self.currentBrakeThickness: list[float] = [0.0] * 4
         self.currentBrakeWear: list[float] = [0.0] * 4

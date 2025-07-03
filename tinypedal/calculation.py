@@ -351,20 +351,21 @@ def sec2stinttime(seconds: float) -> str:
 
 
 def delta_telemetry(
-    dataset: list, position: float, target: float, condition: bool = True) -> float:
+    dataset: list, position: float, target: float,
+    condition: bool = True, position_column: int = 0, target_column: int = 1) -> float:
     """Calculate delta telemetry data"""
     if not condition:
         return 0
     index_higher = binary_search_higher_column(
-        dataset, position, 0, len(dataset) - 1)
+        dataset, position, 0, len(dataset) - 1, position_column)
     if index_higher > 0:
         index_lower = index_higher - 1
         return target - linear_interp(
             position,
-            dataset[index_lower][0],
-            dataset[index_lower][1],
-            dataset[index_higher][0],
-            dataset[index_higher][1],
+            dataset[index_lower][position_column],
+            dataset[index_lower][target_column],
+            dataset[index_higher][position_column],
+            dataset[index_higher][target_column],
         )
     return 0
 
