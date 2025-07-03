@@ -40,7 +40,6 @@ from PySide2.QtWidgets import (
 from ..api_control import api
 from ..async_request import get_response, set_header_get
 from ..const_file import ConfigType, FileFilter
-from ..module_control import wctrl
 from ..setting import cfg, copy_setting
 from ._common import (
     BaseEditor,
@@ -311,7 +310,7 @@ class VehicleBrandEditor(BaseEditor):
         cfg.save(0, cfg_type=ConfigType.BRANDS)
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
-        wctrl.reload()
+        self.reloading()
         self.set_unmodified()
 
 

@@ -35,7 +35,6 @@ from PySide2.QtWidgets import (
 from ..api_control import api
 from ..const_file import ConfigType
 from ..formatter import random_color_class
-from ..module_control import wctrl
 from ..setting import cfg, copy_setting
 from ._common import (
     QVAL_COLOR,
@@ -218,5 +217,5 @@ class VehicleClassEditor(BaseEditor):
         cfg.save(0, cfg_type=ConfigType.CLASSES)
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
-        wctrl.reload()
+        self.reloading()
         self.set_unmodified()

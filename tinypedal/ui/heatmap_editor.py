@@ -34,7 +34,6 @@ from PySide2.QtWidgets import (
 )
 
 from ..const_file import ConfigType
-from ..module_control import wctrl
 from ..setting import cfg, copy_setting
 from ._common import (
     QVAL_COLOR,
@@ -331,7 +330,7 @@ class HeatmapEditor(BaseEditor):
         cfg.save(0, cfg_type=ConfigType.HEATMAP)
         while cfg.is_saving:  # wait saving finish
             time.sleep(0.01)
-        wctrl.reload()
+        self.reloading()
         self.set_unmodified()
 
 

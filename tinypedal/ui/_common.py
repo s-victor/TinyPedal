@@ -57,6 +57,7 @@ from PySide2.QtWidgets import (
 from .. import set_relative_path
 from ..const_app import APP_NAME
 from ..const_file import FileFilter
+from ..module_control import mctrl, wctrl
 from ..validator import image_exists, is_hex_color, is_string_number
 
 # Validator
@@ -217,6 +218,14 @@ class BaseEditor(BaseDialog):
             if item.column() == column:
                 return True
         return False
+
+    @staticmethod
+    def reloading(reload_module: bool = True, reload_widget: bool = True) -> None:
+        """Reloading"""
+        if reload_module:
+            mctrl.reload()
+        if reload_widget:
+            wctrl.reload()
 
 
 class BatchOffset(BaseDialog):

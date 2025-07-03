@@ -15,6 +15,7 @@ WIP
   - Removed "show_live_wear_difference", "freeze_duration" options. 
 
 * Misc
+  - Reload module and widget automatically after saving or applying changes in editor.
   - "enable_high_dpi_scaling" option is now enabled by default for new user.
   - Fixed global locale setting for correctly displaying digits and decimal separator in certain system that uses special characters.
   - Auto load preset function now checks load-state only once when player enters track.
