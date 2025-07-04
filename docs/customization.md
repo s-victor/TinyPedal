@@ -1052,7 +1052,7 @@ Modules provide important data that updated in real-time for other widgets. Widg
 Enable delta module.
 
     minimum_delta_distance
-Set minimum recording distance (in meters) between each delta sample. Default value is `5` meters. Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy. Recommended value range in `5` to `10` meters.
+Set minimum recording distance (in meters) between each lap time sample. Default value is `5` meters. Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy. Recommended value range in `5` to `10` meters.
 
     delta_smoothing_samples
 Set number of samples for delta data smoothing calculation using exponential moving average (EMA) method. Value range in `1` to `100`. Higher value results more smoothness, but may lose accuracy. Default is `30` samples. Set to `1` to disable smoothing.
@@ -1073,7 +1073,7 @@ Set additional margin for laptime pace that cannot exceed the sum of previous `l
 Enable energy module.
 
     minimum_delta_distance
-Set minimum recording distance (in meters) between each delta sample. Default value is `5` meters. Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy. Recommended value range in `5` to `10` meters.
+Set minimum recording distance (in meters) between each virtual energy usage sample. Default value is `5` meters. Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy. Recommended value range in `5` to `10` meters.
 
 [**`Back to Top`**](#)
 
@@ -1112,7 +1112,7 @@ Set time delay in seconds for resetting max braking rate. Default is `60` second
 Enable fuel module.
 
     minimum_delta_distance
-Set minimum recording distance (in meters) between each delta sample. Default value is `5` meters. Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy. Recommended value range in `5` to `10` meters.
+Set minimum recording distance (in meters) between each fuel usage sample. Default value is `5` meters. Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy. Recommended value range in `5` to `10` meters.
 
 [**`Back to Top`**](#)
 
@@ -1124,7 +1124,7 @@ Set minimum recording distance (in meters) between each delta sample. Default va
 Enable hybrid module.
 
     minimum_delta_distance
-Set minimum recording distance (in meters) between each delta sample. Default value is `5` meters. Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy. Recommended value range in `5` to `10` meters.
+Set minimum recording distance (in meters) between each battery charge usage sample. Default value is `5` meters. Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy. Recommended value range in `5` to `10` meters.
 
 [**`Back to Top`**](#)
 
@@ -1233,7 +1233,7 @@ Lap difference (percentage) threshold for tagging opponents as behind. Default i
 
 
 ## Wheels module
-**This module provides wheel radius and slip ratio data.**
+**This module provides wheel radius, slip ratio, tyre wear, brake wear data.**
 
     minimum_axle_rotation
 Set minimum axle rotation (radians per second) for calculating wheel radius and differential locking percent. Default value is `4`.
@@ -1243,6 +1243,9 @@ Set maximum rotation difference between left or right wheel rotation and same ax
 
     cornering_radius_sampling_interval
 Set position sampling interval for cornering radius calculation. Value range in `5` to `100`. Default sampling interval is `10`, which is roughly 200ms interval between each recorded position. Higher value may result inaccuracy. Note, this option does not affect position recording interval.
+
+    minimum_delta_distance
+Set minimum recording distance (in meters) between each tyre wear sample. Default value is `5` meters. Lower value may result more samples recorded and bigger file size; higher value may result less samples recorded and inaccuracy. Recommended value range in `5` to `10` meters.
 
 [**`Back to Top`**](#)
 
@@ -3465,7 +3468,9 @@ Show estimated tyre lifespan in laps.
 Show estimated tyre lifespan in minutes.
 
     show_end_stint_remaining
-Show estimated total remaining tyre tread at the of current stint, which helps to determine whether there is enough tread for current or more stints.
+Show estimated total remaining tyre tread at the end of current stint, which helps to determine whether there is enough tread for current or more stints. Negative reading indicates that there will not be enough tyre tread remaining at the end of current stint.
+
+For example, if minimum safe tyre tread is around 10%, then for triple-stint tyre saving, driver should aim for 70% remaining tread for first stint, 40% for second stint, and 10% for third stint.
 
     warning_threshold_remaining
 Set warning threshold for total remaining tyre in percentage. Default is `30` percent.

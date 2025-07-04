@@ -114,5 +114,6 @@ MODULE_DEFAULT = {
         "maximum_rotation_difference_front": 0.002,
         "maximum_rotation_difference_rear": 0.002,
         "cornering_radius_sampling_interval": 10,
+        "minimum_delta_distance": 5,
     },
 }
