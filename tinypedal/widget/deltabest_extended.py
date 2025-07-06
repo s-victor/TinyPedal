@@ -141,7 +141,7 @@ class Realtime(Overlay):
             )
 
         # Last data
-        self.last_laptimes = [0] * 4
+        self.last_laptimes = [0.0] * 4
         self.new_lap = True
 
     def timerEvent(self, event):

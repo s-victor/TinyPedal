@@ -22,7 +22,7 @@ Brake temperature Widget
 
 from .. import calculation as calc
 from ..api_control import api
-from ..const_common import TEXT_NA, TEXT_PLACEHOLDER
+from ..const_common import TEXT_NA, TEXT_PLACEHOLDER, WHEELS_ZERO
 from ..units import set_unit_temperature
 from ..userfile.heatmap import (
     HEATMAP_DEFAULT_BRAKE,
@@ -124,13 +124,13 @@ class Realtime(Overlay):
             )
 
         # Last data
-        self.btavg = [0] * 4
+        self.btavg = list(WHEELS_ZERO)
         self.btavg_samples = 1  # number of temperature samples
         self.last_class_name = None
         self.last_lap_stime = 0
 
     def post_update(self):
-        self.btavg = [0] * 4
+        self.btavg[:] = WHEELS_ZERO
         self.btavg_samples = 1
 
     def timerEvent(self, event):

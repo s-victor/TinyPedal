@@ -223,6 +223,7 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
+        laptime_pace = minfo.delta.lapTimePace
         if minfo.restapi.maxVirtualEnergy:
             est_runlaps = min(minfo.fuel.estimatedLaps, minfo.energy.estimatedLaps)
         else:
@@ -230,13 +231,8 @@ class Realtime(Overlay):
 
         for idx in range(4):
             tread_curr = minfo.wheels.currentTreadDepth[idx]
-            wear_curr_lap = minfo.wheels.currentTreadWear[idx]
-            wear_last_lap = minfo.wheels.lastLapTreadWear[idx]
-            delta_wear = minfo.wheels.deltaTreadWear[idx]
-            if wear_last_lap:
-                wear_est = max(wear_last_lap + delta_wear, wear_curr_lap)
-            else:
-                wear_est = wear_curr_lap
+            est_wear = minfo.wheels.estimatedTreadWear[idx]
+            est_valid_wear = minfo.wheels.estimatedValidTreadWear[idx]
 
             # Remaining tyre tread
             if self.wcfg["show_remaining"]:
@@ -244,24 +240,21 @@ class Realtime(Overlay):
 
             # Wear differences
             if self.wcfg["show_wear_difference"]:
-                self.update_diff(self.bars_diff[idx], wear_est)
+                self.update_diff(self.bars_diff[idx], est_wear)
 
             # Estimated lifespan in laps
             if self.wcfg["show_lifespan_laps"]:
-                wear_laps = calc.wear_lifespan_in_laps(
-                    tread_curr, wear_est, wear_curr_lap)
+                wear_laps = calc.wear_lifespan_in_laps(tread_curr, est_valid_wear)
                 self.update_laps(self.bars_laps[idx], wear_laps)
 
             # Estimated lifespan in minutes
             if self.wcfg["show_lifespan_minutes"]:
-                wear_mins = calc.wear_lifespan_in_mins(
-                    tread_curr, wear_est, wear_curr_lap,
-                    minfo.delta.lapTimePace)
+                wear_mins = calc.wear_lifespan_in_mins(tread_curr, est_valid_wear, laptime_pace)
                 self.update_mins(self.bars_mins[idx], wear_mins)
 
             # Estimated end stint remaining tyre tread
             if self.wcfg["show_end_stint_remaining"]:
-                end_remain = tread_curr - wear_est * est_runlaps
+                end_remain = tread_curr - est_valid_wear * est_runlaps
                 self.update_end(self.bars_end[idx], end_remain)
 
     # GUI update methods

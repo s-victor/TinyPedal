@@ -22,7 +22,7 @@ Hybrid module
 
 from .. import calculation as calc
 from ..api_control import api
-from ..const_common import DELTA_ZERO, FLOAT_INF, MAX_SECONDS
+from ..const_common import DELTA_DEFAULT, DELTA_ZERO, FLOAT_INF, MAX_SECONDS
 from ..module_info import minfo
 from ._base import DataModule
 
@@ -68,7 +68,7 @@ class Realtime(DataModule):
                     delta_reset = False
                     delta_recording = False
                     delta_array_raw = [DELTA_ZERO]  # distance, battery net change
-                    delta_array_last = (DELTA_ZERO,)
+                    delta_array_last = DELTA_DEFAULT
                     pos_last = 0.0  # last checked vehicle position
                     net_change_last = 0.0
                     est_net_change = 0.0  # estimated battery charge net change
@@ -142,8 +142,7 @@ class Realtime(DataModule):
                         delta_reset = False
                         if len(delta_array_raw) > 1 and not is_pit_lap:
                             delta_array_last = tuple(delta_array_raw)
-                        delta_array_raw.clear()  # reset
-                        delta_array_raw.append(DELTA_ZERO)
+                        delta_array_raw[:] = DELTA_DEFAULT
                         pos_last = pos_curr
                         delta_recording = laptime_curr < 1
                         net_change_last = battery_regen_last - battery_drain_last

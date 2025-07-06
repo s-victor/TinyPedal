@@ -25,6 +25,7 @@ from PySide2.QtGui import QBrush, QPainter, QPen
 
 from .. import calculation as calc
 from ..api_control import api
+from ..const_common import WHEELS_ZERO
 from ..module_info import minfo
 from ._base import Overlay
 
@@ -135,8 +136,12 @@ class Realtime(Overlay):
             self.update()
 
         # Damage wheel
+        susp_damage = minfo.restapi.suspensionDamage
+        if len(susp_damage) != 4:  # skip if data invalid
+            susp_damage = WHEELS_ZERO
+
         temp_damage_wheel = tuple(map(self.set_damage_level_wheel,
-            api.read.wheel.is_detached(), minfo.restapi.suspensionDamage))
+            api.read.wheel.is_detached(), susp_damage))
         if self.damage_wheel != temp_damage_wheel:
             self.damage_wheel = temp_damage_wheel
             self.update()

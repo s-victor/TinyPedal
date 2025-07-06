@@ -141,8 +141,7 @@ class Realtime(DataModule):
                         delta_array_raw.append((round6(pos_last + 10), round6(laptime_last)))
                         delta_array_last = tuple(delta_array_raw)
                         validating = api.read.timing.elapsed()
-                    delta_array_raw.clear()  # reset
-                    delta_array_raw.append(DELTA_ZERO)
+                    delta_array_raw[:] = DELTA_DEFAULT
                     pos_last = pos_recorded = pos_curr
                     recording = laptime_curr < 1
                     is_pit_lap = 0

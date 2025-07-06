@@ -121,8 +121,8 @@ LMU_CURRENTSTINT = (
     ResRawOutput(minfo.restapi, "currentVirtualEnergy", 0.0, ("fuelInfo", "currentVirtualEnergy")),
     ResRawOutput(minfo.restapi, "maxVirtualEnergy", 0.0, ("fuelInfo", "maxVirtualEnergy")),
     ResRawOutput(minfo.restapi, "aeroDamage", -1.0, ("wearables", "body", "aero")),
-    ResRawOutput(minfo.restapi, "brakeWear", [-1] * 4, ("wearables", "brakes")),
-    ResRawOutput(minfo.restapi, "suspensionDamage", [-1] * 4, ("wearables", "suspension")),
+    ResRawOutput(minfo.restapi, "brakeWear", [], ("wearables", "brakes")),
+    ResRawOutput(minfo.restapi, "suspensionDamage", [], ("wearables", "suspension")),
     ResRawOutput(minfo.restapi, "trackClockTime", -1.0, ("sessionTime", "timeOfDay")),
     ResParOutput(minfo.restapi, "pitStopEstimate", PITEST_DEFAULT, EstimatePitTime(), EMPTY_KEYS),
 )

@@ -69,7 +69,7 @@ def select_brake_heatmap_name(brake_name: str) -> str:
     return brake.get("heatmap", HEATMAP_DEFAULT_BRAKE)
 
 
-def brake_failure_thickness(class_name: str) -> tuple[float, ...]:
+def brake_failure_thickness(class_name: str) -> tuple[float, float, float, float]:
     """Get failure thickness"""
     failure_thickness_f = select_brake_failure_thickness(
         set_predefined_brake_name(class_name, True)

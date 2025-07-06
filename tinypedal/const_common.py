@@ -40,11 +40,13 @@ CRLF = "\r\n"
 
 # Data set
 EMPTY_DICT: MappingProxyType = MappingProxyType({})
-DELTA_ZERO = (0.0, 0.0)
+DELTA_ZERO = (0.0, 0.0)  # pos, target
 DELTA_DEFAULT = (DELTA_ZERO,)
 POS_XY_ZERO = (0.0, 0.0)  # world origin position
 POS_XYZ_ZERO = (0.0, 0.0, 0.0)  # world origin position
 POS_XYZ_INF = (FLOAT_INF, FLOAT_INF, FLOAT_INF)  # infinite position
+WHEELS_ZERO = (0.0, 0.0, 0.0, 0.0)  # FL, FR, RL, RR
+WHEELS_DELTA_DEFAULT = (0.0, *WHEELS_ZERO)  # pos, target set
 REL_TIME_DEFAULT = (0.0, -1)  # relative time gap, player index
 PITEST_DEFAULT = (
     0.0,  # min pit duration

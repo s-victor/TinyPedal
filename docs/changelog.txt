@@ -7,12 +7,16 @@ WIP
 
 * Wheels Module
   - Brake and tyre wear calculation is now handled by Wheels Module.
-  - [New]Add delta wear calculation for accurately estimating tyre wear rate per lap.
+  - [New]Add delta wear calculation for accurately estimating tyre wear difference per lap.
   - Add "minimum_delta_distance" option for delta wear data recording.
 
 * Tyre Wear Widget
   - [New]Add "show_end_stint_remaining" option, which shows estimated total remaining tyre tread at the end of current stint. This option helps to determine whether there is enough tread for current or more stints. Negative reading indicates that there will not be enough tyre tread remaining at the end of current stint.
   - "show_wear_difference" option now shows estimated tyre wear difference per lap (at least one valid lap is required).
+  - Removed "show_live_wear_difference", "freeze_duration" options. 
+
+* Brake Wear Widget
+  - "show_wear_difference" option now shows estimated brake wear difference per lap (at least one valid lap is required).
   - Removed "show_live_wear_difference", "freeze_duration" options. 
 
 * Misc

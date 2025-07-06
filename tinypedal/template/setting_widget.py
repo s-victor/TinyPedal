@@ -202,8 +202,6 @@ WIDGET_DEFAULT = {
         "font_color_remaining": "#22CC22",
         "bkg_color_remaining": "#222222",
         "show_wear_difference": True,
-        "show_live_wear_difference": True,
-        "freeze_duration": 10,
         "font_color_wear_difference": "#CCCCCC",
         "bkg_color_wear_difference": "#222222",
         "show_lifespan_laps": True,

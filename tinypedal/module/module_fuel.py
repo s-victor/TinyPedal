@@ -253,8 +253,7 @@ def calc_consumption(
                 ))
                 delta_array_temp = tuple(delta_array_raw)
                 validating = api.read.timing.elapsed()
-            delta_array_raw.clear()  # reset
-            delta_array_raw.append(DELTA_ZERO)
+            delta_array_raw[:] = DELTA_DEFAULT
             pos_last = pos_recorded = pos_curr
             used_last_raw = used_curr
             used_curr = 0

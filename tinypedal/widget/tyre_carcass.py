@@ -24,7 +24,7 @@ from functools import partial
 
 from .. import calculation as calc
 from ..api_control import api
-from ..const_common import TEXT_NA, TEXT_PLACEHOLDER
+from ..const_common import TEXT_NA, TEXT_PLACEHOLDER, WHEELS_ZERO
 from ..units import set_unit_temperature
 from ..userfile.heatmap import (
     HEATMAP_DEFAULT_TYRE,
@@ -168,7 +168,7 @@ class Realtime(Overlay):
                 )
 
         # Last data
-        self.last_rtemp = [0] * 4
+        self.last_rtemp = list(WHEELS_ZERO)
         self.last_lap_etime = 0
         self.calc_ema_rdiff = partial(
             calc.exp_mov_avg,

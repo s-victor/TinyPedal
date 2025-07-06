@@ -24,7 +24,7 @@ from collections import deque
 
 from .. import calculation as calc
 from ..api_control import api
-from ..const_common import POS_XY_ZERO
+from ..const_common import POS_XY_ZERO, WHEELS_DELTA_DEFAULT, WHEELS_ZERO
 from ..module_info import WheelsInfo, minfo
 from ..userfile.heatmap import brake_failure_thickness
 from ..validator import generator_init
@@ -45,17 +45,23 @@ class Realtime(DataModule):
         reset = False
         update_interval = self.active_interval
 
-        output = minfo.wheels
-
-        vehicle_name = ""
-        radius_front_ema = 0.0
-        radius_rear_ema = 0.0
-
-        max_rot_bias_f = max(self.mcfg["maximum_rotation_difference_front"], 0.00001)
-        max_rot_bias_r = max(self.mcfg["maximum_rotation_difference_rear"], 0.00001)
-        min_rot_axle = max(self.mcfg["minimum_axle_rotation"], 0)
-        min_coords = min(max(self.mcfg["cornering_radius_sampling_interval"], 5), 100)
-        list_coords = deque([POS_XY_ZERO] * min_coords * 2, min_coords * 2)
+        gen_wheel_rotation = calc_wheel_rotation(
+            output=minfo.wheels,
+            max_rot_bias_f=max(self.mcfg["maximum_rotation_difference_front"], 0.00001),
+            max_rot_bias_r=max(self.mcfg["maximum_rotation_difference_rear"], 0.00001),
+            min_rot_axle=max(self.mcfg["minimum_axle_rotation"], 0.0),
+        )
+        gen_tyre_wear = calc_tyre_wear(
+            output=minfo.wheels,
+            min_delta_distance=self.mcfg["minimum_delta_distance"],
+        )
+        gen_brake_wear = calc_brake_wear(
+            output=minfo.wheels,
+        )
+        gen_cornering_radius = calc_cornering_radius(
+            output=minfo.wheels,
+            sampling_interval=self.mcfg["cornering_radius_sampling_interval"],
+        )
 
         while not _event_wait(update_interval):
             if self.state.active:
@@ -64,72 +70,16 @@ class Realtime(DataModule):
                     reset = True
                     update_interval = self.active_interval
 
-                    if vehicle_name != api.read.vehicle.vehicle_name():
-                        vehicle_name = api.read.vehicle.vehicle_name()
-                        radius_front_ema = 0.0
-                        radius_rear_ema = 0.0
+                    # Reset
+                    gen_wheel_rotation.send(False)
+                    gen_tyre_wear.send(False)
+                    gen_brake_wear.send(False)
 
-                    last_accel_max = 0.0
-                    locking_f = 1
-                    locking_r = 1
-                    cornering_radius = 0
-                    gps_last = POS_XY_ZERO
-
-                    gen_brake_wear = calc_brake_wear(output)
-                    gen_tyre_wear = calc_tyre_wear(output, self.mcfg["minimum_delta_distance"])
-
-                # Read telemetry
-                speed = api.read.vehicle.speed()
-                wheel_rot = api.read.wheel.rotation()
-                gps_curr = (api.read.vehicle.position_longitudinal(),
-                            api.read.vehicle.position_lateral())
-                accel_max = max(
-                    abs(api.read.vehicle.accel_lateral()),
-                    abs(api.read.vehicle.accel_longitudinal()),
-                )
-
-                # Get wheel axle rotation and difference
-                rot_axle_f = calc.wheel_axle_rotation(wheel_rot[0], wheel_rot[1])
-                rot_axle_r = calc.wheel_axle_rotation(wheel_rot[2], wheel_rot[3])
-                rot_bias_f = calc.wheel_rotation_bias(rot_axle_f, wheel_rot[0], wheel_rot[1])
-                rot_bias_r = calc.wheel_rotation_bias(rot_axle_r, wheel_rot[2], wheel_rot[3])
-
-                if rot_axle_f < -min_rot_axle:
-                    locking_f = calc.differential_locking_percent(rot_axle_f, wheel_rot[0])
-                if rot_axle_r < -min_rot_axle:
-                    locking_r = calc.differential_locking_percent(rot_axle_r, wheel_rot[2])
-
-                # Record wheel radius value within max rotation difference
-                if last_accel_max != accel_max:  # check if game paused
-                    last_accel_max = accel_max
-                    d_factor = 2 / max(40 * accel_max, 20)  # scale ema factor with max accel
-                    # Front average wheel radius
-                    if rot_axle_f < -min_rot_axle and 0 < rot_bias_f < max_rot_bias_f:
-                        radius_front_ema = calc.exp_mov_avg(d_factor, radius_front_ema, calc.rot2radius(speed, rot_axle_f))
-                    # Rear average wheel radius
-                    if rot_axle_r < -min_rot_axle and 0 < rot_bias_r < max_rot_bias_r:
-                        radius_rear_ema = calc.exp_mov_avg(d_factor, radius_rear_ema, calc.rot2radius(speed, rot_axle_r))
-
-                # Calculate cornering radius based on tri-coordinates position
-                if gps_last != gps_curr:
-                    gps_last = gps_curr
-                    list_coords.append(gps_curr)
-                    arc_center_pos = calc.tri_coords_circle_center(
-                        *list_coords[0], *list_coords[min_coords], *list_coords[-1])
-                    cornering_radius = calc.distance(list_coords[0], arc_center_pos)
-
-                # Calculate wear
-                gen_brake_wear.send(minfo.restapi.brakeWear)
-                gen_tyre_wear.send(api.read.tyre.wear())
-
-                # Output wheels data
-                output.lockingPercentFront = locking_f
-                output.lockingPercentRear = locking_r
-                output.corneringRadius = cornering_radius
-                output.slipRatio[0] = calc.slip_ratio(wheel_rot[0], radius_front_ema, speed)
-                output.slipRatio[1] = calc.slip_ratio(wheel_rot[1], radius_front_ema, speed)
-                output.slipRatio[2] = calc.slip_ratio(wheel_rot[2], radius_rear_ema, speed)
-                output.slipRatio[3] = calc.slip_ratio(wheel_rot[3], radius_rear_ema, speed)
+                # Run calculate
+                gen_wheel_rotation.send(True)
+                gen_tyre_wear.send(True)
+                gen_brake_wear.send(True)
+                gen_cornering_radius.send(True)
 
             else:
                 if reset:
@@ -138,38 +88,117 @@ class Realtime(DataModule):
 
 
 @generator_init
+def calc_wheel_rotation(output: WheelsInfo, max_rot_bias_f: float, max_rot_bias_r: float, min_rot_axle: float):
+    """Calculate wheel rotation, radius, locking percent, slip ratio"""
+    vehicle_name = ""
+    radius_front_ema = 0.0
+    radius_rear_ema = 0.0
+    last_accel_max = 0.0
+    locking_f = 1.0
+    locking_r = 1.0
+
+    while True:
+        updating = yield None
+
+        # Reset
+        if not updating:
+            last_accel_max = 0.0
+            locking_f = 1.0
+            locking_r = 1.0
+            if vehicle_name != api.read.vehicle.vehicle_name():
+                vehicle_name = api.read.vehicle.vehicle_name()
+                radius_front_ema = 0.0
+                radius_rear_ema = 0.0
+
+        wheel_rot = api.read.wheel.rotation()
+        speed = api.read.vehicle.speed()
+        accel_max = max(
+            abs(api.read.vehicle.accel_lateral()),
+            abs(api.read.vehicle.accel_longitudinal()),
+        )
+
+        # Get wheel axle rotation and difference
+        rot_axle_f = calc.wheel_axle_rotation(wheel_rot[0], wheel_rot[1])
+        rot_axle_r = calc.wheel_axle_rotation(wheel_rot[2], wheel_rot[3])
+        rot_bias_f = calc.wheel_rotation_bias(rot_axle_f, wheel_rot[0], wheel_rot[1])
+        rot_bias_r = calc.wheel_rotation_bias(rot_axle_r, wheel_rot[2], wheel_rot[3])
+
+        if rot_axle_f < -min_rot_axle:
+            locking_f = calc.differential_locking_percent(rot_axle_f, wheel_rot[0])
+        if rot_axle_r < -min_rot_axle:
+            locking_r = calc.differential_locking_percent(rot_axle_r, wheel_rot[2])
+
+        # Record wheel radius value within max rotation difference
+        if last_accel_max != accel_max:  # check if game paused
+            last_accel_max = accel_max
+            d_factor = 2 / max(40 * accel_max, 20)  # scale ema factor with max accel
+            # Front average wheel radius
+            if rot_axle_f < -min_rot_axle and 0 < rot_bias_f < max_rot_bias_f:
+                radius_front_ema = calc.exp_mov_avg(d_factor, radius_front_ema, calc.rot2radius(speed, rot_axle_f))
+            # Rear average wheel radius
+            if rot_axle_r < -min_rot_axle and 0 < rot_bias_r < max_rot_bias_r:
+                radius_rear_ema = calc.exp_mov_avg(d_factor, radius_rear_ema, calc.rot2radius(speed, rot_axle_r))
+
+        # Output wheels data
+        output.lockingPercentFront = locking_f
+        output.lockingPercentRear = locking_r
+        output.slipRatio[0] = calc.slip_ratio(wheel_rot[0], radius_front_ema, speed)
+        output.slipRatio[1] = calc.slip_ratio(wheel_rot[1], radius_front_ema, speed)
+        output.slipRatio[2] = calc.slip_ratio(wheel_rot[2], radius_rear_ema, speed)
+        output.slipRatio[3] = calc.slip_ratio(wheel_rot[3], radius_rear_ema, speed)
+
+
+@generator_init
 def calc_tyre_wear(output: WheelsInfo, min_delta_distance: float):
     """Calculate tyre wear & delta wear"""
     last_lap_stime = 0.0  # last lap start time
-    tread_last = [0.0] * 4  # last moment remaining tread
-    tread_wear_curr = [0.0] * 4  # current lap tread wear
-    tread_wear_last = [0.0] * 4  # last lap tread wear
+    tread_last = list(WHEELS_ZERO)  # last moment remaining tread
+    tread_wear_curr = list(WHEELS_ZERO)  # current lap tread wear
+    tread_wear_valid = list(WHEELS_ZERO)  # valid last lap tread wear
+    tread_wear_last = list(WHEELS_ZERO)  # raw last lap tread wear
 
     is_pit_lap = 0  # whether pit in or pit out lap
     delta_recording = False
-    delta_zero = (0.0, 0.0, 0.0, 0.0, 0.0)
-    delta_array_raw = [delta_zero]  # distance, battery net change
-    delta_array_last = (delta_zero,)
+    delta_array_raw = [WHEELS_DELTA_DEFAULT]  # distance, battery net change
+    delta_array_last = (WHEELS_DELTA_DEFAULT,)
+    is_valid_delta = False
     pos_last = 0.0  # last checked vehicle position
 
     while True:
-        tread_curr_set = yield None
+        updating = yield None
+
+        # Reset
+        if not updating:
+            tread_last[:] = WHEELS_ZERO
+            tread_wear_curr[:] = WHEELS_ZERO
+            tread_wear_valid[:] = WHEELS_ZERO
+            tread_wear_last[:] = WHEELS_ZERO
+            delta_array_raw[:] = (WHEELS_DELTA_DEFAULT,)
+            delta_array_last = (WHEELS_DELTA_DEFAULT,)
+            is_valid_delta = False
+            last_lap_stime = 0.0
+
+        tread_curr_set = api.read.tyre.wear()
         lap_stime = api.read.timing.start()
-        laptime_curr = api.read.timing.elapsed() - lap_stime
+        laptime_curr = api.read.timing.current_laptime()
         pos_curr = api.read.lap.distance()
-        is_pit_lap |= api.read.vehicle.in_pits()
+        in_pits = api.read.vehicle.in_pits()
+        is_pit_lap |= in_pits
 
         if lap_stime != last_lap_stime:
-            tread_wear_last[:] = tread_wear_curr
-            tread_wear_curr[0] = tread_wear_curr[1] = tread_wear_curr[2] = tread_wear_curr[3] = 0.0
             last_lap_stime = lap_stime  # reset time stamp counter
-            # Update delta array
+            tread_wear_last[:] = tread_wear_curr
+            # Update delta array for non-pit lap
             if len(delta_array_raw) > 1 and not is_pit_lap:
                 delta_array_last = tuple(delta_array_raw)
-            delta_array_raw.clear()  # reset
-            delta_array_raw.append(delta_zero)
-            pos_last = pos_curr
+                tread_wear_valid[:] = tread_wear_curr
+            elif not is_valid_delta:  # save for first/out lap
+                tread_wear_valid[:] = tread_wear_curr
+            tread_wear_curr[:] = WHEELS_ZERO
+            delta_array_raw[:] = (WHEELS_DELTA_DEFAULT,)
             delta_recording = laptime_curr < 1
+            is_valid_delta = len(delta_array_last) > 1
+            pos_last = pos_curr
             is_pit_lap = 0
 
         # Distance desync check at start of new lap, reset if higher than normal distance
@@ -184,58 +213,87 @@ def calc_tyre_wear(output: WheelsInfo, min_delta_distance: float):
             pos_last = pos_curr
 
         # Find delta data index
-        if laptime_curr > 0.3:
+        if is_valid_delta and laptime_curr > 0.3:
             index_higher = calc.binary_search_higher_column(
                 delta_array_last, pos_curr, 0, len(delta_array_last) - 1)
-            index_lower = index_higher - 1
         else:
-            index_higher = index_lower = 0
+            index_higher = 0
 
-        # Calculate wear difference
+        # Calculate wear difference & accumulated wear
         for idx, tread_curr in enumerate(tread_curr_set):
-            tread_curr *= 100
+            tread_curr *= 100  # fraction to percent
 
-            # Update wear differences & accumulated wear
-            wear_diff = tread_last[idx] - tread_curr
+            # Ignore wear difference while in pit
+            if in_pits:
+                wear_diff = 0.0
+            else:
+                wear_diff = tread_last[idx] - tread_curr
             tread_last[idx] = tread_curr
             if wear_diff > 0:
                 tread_wear_curr[idx] += wear_diff
 
-            # Calculate delta wear
-            if index_lower < 0:
-                delta_wear = 0.0
-            else:
+            # Delta wear
+            if index_higher > 0:
                 delta_wear = tread_wear_curr[idx] - calc.linear_interp(
                     pos_curr,
-                    delta_array_last[index_lower][0],
-                    delta_array_last[index_lower][idx + 1],
+                    delta_array_last[index_higher - 1][0],
+                    delta_array_last[index_higher - 1][idx + 1],
                     delta_array_last[index_higher][0],
                     delta_array_last[index_higher][idx + 1],
                 )
+            else:
+                delta_wear = 0.0
+
+            # Estimate wear
+            if is_valid_delta:
+                est_wear = tread_wear_valid[idx] + delta_wear
+                est_valid_wear = tread_wear_valid[idx] if is_pit_lap else est_wear
+            else:
+                est_wear = calc.wear_weighted(
+                    tread_wear_curr[idx],
+                    tread_wear_valid[idx],
+                    api.read.lap.progress(),
+                )
+                est_valid_wear = est_wear
 
             # Output
-            output.deltaTreadWear[idx] = delta_wear
             output.currentTreadDepth[idx] = tread_curr
-            output.currentTreadWear[idx] = tread_wear_curr[idx]
             output.lastLapTreadWear[idx] = tread_wear_last[idx]
+            output.estimatedTreadWear[idx] = est_wear
+            output.estimatedValidTreadWear[idx] = est_valid_wear
 
 
 @generator_init
 def calc_brake_wear(output: WheelsInfo):
     """Calculate brake wear"""
     last_lap_stime = 0.0  # last lap start time
-    brake_last = [0.0] * 4  # last moment remaining brake
-    brake_wear_curr = [0.0] * 4  # current lap brake wear
-    brake_wear_last = [0.0] * 4  # last lap brake wear
-    brake_max_thickness = [0.0] * 4  # brake max thickness at start of stint
-    failure_thickness = brake_failure_thickness(api.read.vehicle.class_name())
+    brake_last = list(WHEELS_ZERO)  # last moment remaining brake
+    brake_wear_curr = list(WHEELS_ZERO)  # current lap brake wear
+    brake_wear_last = list(WHEELS_ZERO)  # last lap brake wear
+    brake_max_thickness = list(WHEELS_ZERO)  # brake max thickness at start of stint
+    failure_thickness = WHEELS_ZERO
     while True:
-        brake_curr_set = yield None
+        updating = yield None
+
+        # Reset
+        if not updating:
+            brake_last[:] = WHEELS_ZERO
+            brake_wear_curr[:] = WHEELS_ZERO
+            brake_wear_last[:] = WHEELS_ZERO
+            brake_max_thickness[:] = WHEELS_ZERO
+            failure_thickness = brake_failure_thickness(api.read.vehicle.class_name())
+            last_lap_stime = 0.0
+
+        brake_curr_set = minfo.restapi.brakeWear
+        if len(brake_curr_set) != 4:  # skip if data invalid
+            continue
+
         lap_stime = api.read.timing.start()
+        lap_into = api.read.lap.progress()
 
         if lap_stime != last_lap_stime:
             brake_wear_last[:] = brake_wear_curr
-            brake_wear_curr[0] = brake_wear_curr[1] = brake_wear_curr[2] = brake_wear_curr[3] = 0.0
+            brake_wear_curr[:] = WHEELS_ZERO
             last_lap_stime = lap_stime  # reset time stamp counter
 
         for idx, brake_curr in enumerate(brake_curr_set):
@@ -259,7 +317,33 @@ def calc_brake_wear(output: WheelsInfo):
             if wear_diff > 0:
                 brake_wear_curr[idx] += wear_diff
 
+            est_wear = calc.wear_weighted(
+                brake_wear_curr[idx],
+                brake_wear_last[idx],
+                lap_into,
+            )
+
             # Output
             output.currentBrakeThickness[idx] = brake_curr
-            output.currentBrakeWear[idx] = brake_wear_curr[idx]
-            output.lastLapBrakeWear[idx] = brake_wear_last[idx]
+            output.estimatedBrakeWear[idx] = est_wear
+
+
+@generator_init
+def calc_cornering_radius(output: WheelsInfo, sampling_interval: int):
+    """Calculate cornering radius"""
+    gps_last = POS_XY_ZERO
+    min_coords = min(max(sampling_interval, 5), 100)
+    coords_array = deque([POS_XY_ZERO] * min_coords * 2, min_coords * 2)
+
+    while True:
+        yield None
+
+        gps_curr = (api.read.vehicle.position_longitudinal(), api.read.vehicle.position_lateral())
+
+        # Calculate cornering radius based on tri-coordinates position
+        if gps_last != gps_curr:
+            gps_last = gps_curr
+            coords_array.append(gps_curr)
+            arc_center_pos = calc.tri_coords_circle_center(
+                *coords_array[0], *coords_array[min_coords], *coords_array[-1])
+            output.corneringRadius = calc.distance(coords_array[0], arc_center_pos)

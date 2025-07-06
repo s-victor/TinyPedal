@@ -21,7 +21,6 @@ Brake Wear Widget
 """
 
 from .. import calculation as calc
-from ..api_control import api
 from ..const_common import TEXT_NA
 from ..module_info import minfo
 from ._base import Overlay
@@ -43,7 +42,6 @@ class Realtime(Overlay):
         # Config variable
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         bar_width = font_m.width * 4 + bar_padx
-        self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
         self.threshold_remaining = min(max(self.wcfg["warning_threshold_remaining"], 0), 100) * 0.01
 
         # Base style
@@ -193,16 +191,15 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
+        laptime_pace = minfo.delta.lapTimePace
         for idx in range(4):
             brake_curr = minfo.wheels.currentBrakeThickness[idx]
-            wear_curr_lap = minfo.wheels.currentBrakeWear[idx]
-            wear_last_lap = minfo.wheels.lastLapBrakeWear[idx]
             max_thickness = minfo.wheels.maxBrakeThickness[idx]
+            est_wear = minfo.wheels.estimatedBrakeWear[idx]
 
             if self.wcfg["show_thickness"]:
                 brake_curr *= max_thickness / 100
-                wear_curr_lap *= max_thickness / 100
-                wear_last_lap *= max_thickness / 100
+                est_wear *= max_thickness / 100
 
             # Remaining brake thickness
             if self.wcfg["show_remaining"]:
@@ -214,23 +211,16 @@ class Realtime(Overlay):
 
             # Wear differences
             if self.wcfg["show_wear_difference"]:
-                if (self.wcfg["show_live_wear_difference"] and
-                    api.read.timing.current_laptime() > self.freeze_duration):
-                    self.update_diff(self.bars_diff[idx], wear_curr_lap)
-                else:  # Last lap diff
-                    self.update_diff(self.bars_diff[idx], wear_last_lap)
+                self.update_diff(self.bars_diff[idx], est_wear)
 
             # Estimated lifespan in laps
             if self.wcfg["show_lifespan_laps"]:
-                wear_laps = calc.wear_lifespan_in_laps(
-                    brake_curr, wear_last_lap, wear_curr_lap)
+                wear_laps = calc.wear_lifespan_in_laps(brake_curr, est_wear)
                 self.update_laps(self.bars_laps[idx], wear_laps)
 
             # Estimated lifespan in minutes
             if self.wcfg["show_lifespan_minutes"]:
-                wear_mins = calc.wear_lifespan_in_mins(
-                    brake_curr, wear_last_lap, wear_curr_lap,
-                    minfo.delta.lapTimePace)
+                wear_mins = calc.wear_lifespan_in_mins(brake_curr, est_wear, laptime_pace)
                 self.update_mins(self.bars_mins[idx], wear_mins)
 
     # GUI update methods

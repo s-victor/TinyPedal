@@ -718,13 +718,10 @@ def fuel_to_energy_ratio(fuel: float, energy: float) -> float:
 
 
 # Wear
-def wear_lifespan_in_laps(
-    wear_curr: float, wear_last_lap: float, wear_curr_lap: float) -> float:
+def wear_lifespan_in_laps(remaining: float, wear_last_lap: float) -> float:
     """Wear lifespan in laps = remaining / last lap wear"""
-    if wear_curr_lap > wear_last_lap > 0:
-        est_laps = wear_curr / wear_curr_lap
-    elif wear_last_lap > 0:
-        est_laps = wear_curr / wear_last_lap
+    if wear_last_lap > 0:
+        est_laps = remaining / wear_last_lap
     else:
         est_laps = 999
     if est_laps > 999:
@@ -732,20 +729,25 @@ def wear_lifespan_in_laps(
     return est_laps
 
 
-def wear_lifespan_in_mins(
-    wear_curr: float, wear_last_lap: float, wear_curr_lap: float, laptime: float) -> float:
+def wear_lifespan_in_mins(remaining: float, wear_last_lap: float, laptime: float) -> float:
     """Wear lifespan in minutes = remaining / last lap wear * laptime / 60"""
     if laptime <= 0:
         return 999
-    if wear_curr_lap > wear_last_lap > 0:
-        est_mins = wear_curr / wear_curr_lap * laptime / 60
-    elif wear_last_lap > 0:
-        est_mins = wear_curr / wear_last_lap * laptime / 60
+    if wear_last_lap > 0:
+        est_mins = remaining / wear_last_lap * laptime / 60
     else:
         est_mins = 999
     if est_mins > 999:
         est_mins = 999
     return est_mins
+
+
+def wear_weighted(wear_curr_lap: float, wear_last_lap: float, lap_into: float) -> float:
+    """Weighted wear difference between last and current lap based on lap progression"""
+    if wear_curr_lap >= wear_last_lap:
+        return wear_curr_lap
+    lap_into *= lap_into  # square
+    return wear_curr_lap * lap_into + wear_last_lap * (1 - lap_into)
 
 
 # Wheel

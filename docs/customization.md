@@ -1411,13 +1411,7 @@ Some reference brake failure thickness threshold:
 Show total remaining brake in percentage that changes color according to wear.
 
     show_wear_difference
-Show total brake wear difference of previous lap.
-
-    show_live_wear_difference
-Show brake wear difference of current lap that constantly updated.
-
-    freeze_duration
-Set freeze duration (seconds) for displaying previous lap brake wear if `show_live_wear_difference` is enabled. Value range in `0` to `30` seconds. Default is `10` seconds.
+Show estimated brake wear difference per lap (at least one valid lap is required).
 
     show_lifespan_laps
 Show estimated brake lifespan in laps.
@@ -2225,6 +2219,8 @@ Set percentage threshold for triggering wheel slip warning under acceleration. `
 
 ## Lap time history
 **This widget displays lap time history info.**
+
+This widget consists of four columns from left to right (default order): `Lap number`, `Lap time`, `Fuel or virtual energy consumption per lap`, `Average tyre wear per lap (percent)`.
 
     layout
 2 layouts are available: `0` = vertical layout, `1` = reversed vertical layout.
@@ -3072,6 +3068,8 @@ Show rotation line only while vehicle is stationary (less than 1m/s).
 ## Stint history
 **This widget displays stint history info.**
 
+This widget consists of five columns from left to right (default order): `Total completed laps`, `Total driving time`, `Total fuel or virtual energy consumption`, `Tyre compound`, `Total average tyre wear (percent)`.
+
     layout
 2 layouts are available: `0` = vertical layout, `1` = reversed vertical layout.
 
@@ -3470,7 +3468,7 @@ Show estimated tyre lifespan in minutes.
     show_end_stint_remaining
 Show estimated total remaining tyre tread at the end of current stint, which helps to determine whether there is enough tread for current or more stints. Negative reading indicates that there will not be enough tyre tread remaining at the end of current stint.
 
-For example, if minimum safe tyre tread is around 10%, then for triple-stint tyre saving, driver should aim for 70% remaining tread for first stint, 40% for second stint, and 10% for third stint.
+For example, if minimum safe tyre tread is around 10%, then for triple-stint tyre saving, aim for 70% remaining tread for first stint, 40% for second stint, and 10% for third stint.
 
     warning_threshold_remaining
 Set warning threshold for total remaining tyre in percentage. Default is `30` percent.

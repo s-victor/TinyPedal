@@ -34,6 +34,7 @@ from .const_common import (
     MAX_VEHICLES,
     PITEST_DEFAULT,
     REL_TIME_DEFAULT,
+    WHEELS_ZERO,
 )
 
 
@@ -287,7 +288,7 @@ class RelativeInfo:
     )
 
     def __init__(self):
-        self.relative: list[list | tuple] = [REL_TIME_DEFAULT]
+        self.relative: list[list] = [REL_TIME_DEFAULT]
         self.standings: list[int] = [-1]
         self.classes: list[list] = [[0, 1, "", 0.0, -1, -1, False]]
 
@@ -324,8 +325,8 @@ class RestAPIInfo:
         self.forecastPractice: list[WeatherNode] | None = None
         self.forecastQualify: list[WeatherNode] | None = None
         self.forecastRace: list[WeatherNode] | None = None
-        self.brakeWear: list[float] = [-1.0] * 4
-        self.suspensionDamage: list[float] = [-1.0] * 4
+        self.brakeWear: list[float] = []
+        self.suspensionDamage: list[float] = []
         self.pitStopEstimate: tuple[float, float, float, float, int] = PITEST_DEFAULT
 
 
@@ -524,28 +525,26 @@ class WheelsInfo:
         "corneringRadius",
         "slipRatio",
         "currentTreadDepth",
-        "currentTreadWear",
         "lastLapTreadWear",
-        "deltaTreadWear",
+        "estimatedTreadWear",
+        "estimatedValidTreadWear",
         "maxBrakeThickness",
         "currentBrakeThickness",
-        "currentBrakeWear",
-        "lastLapBrakeWear",
+        "estimatedBrakeWear",
     )
 
     def __init__(self):
         self.lockingPercentFront: float = 0.0
         self.lockingPercentRear: float = 0.0
         self.corneringRadius: float = 0.0
-        self.slipRatio: list[float] = [0.0] * 4
-        self.currentTreadDepth: list[float] = [0.0] * 4
-        self.currentTreadWear: list[float] = [0.0] * 4
-        self.lastLapTreadWear: list[float] = [0.0] * 4
-        self.deltaTreadWear: list[float] = [0.0] * 4
-        self.maxBrakeThickness: list[float] = [0.0] * 4
-        self.currentBrakeThickness: list[float] = [0.0] * 4
-        self.currentBrakeWear: list[float] = [0.0] * 4
-        self.lastLapBrakeWear: list[float] = [0.0] * 4
+        self.slipRatio: list[float] = list(WHEELS_ZERO)
+        self.currentTreadDepth: list[float] = list(WHEELS_ZERO)
+        self.lastLapTreadWear: list[float] = list(WHEELS_ZERO)
+        self.estimatedTreadWear: list[float] = list(WHEELS_ZERO)
+        self.estimatedValidTreadWear: list[float] = list(WHEELS_ZERO)
+        self.maxBrakeThickness: list[float] = list(WHEELS_ZERO)
+        self.currentBrakeThickness: list[float] = list(WHEELS_ZERO)
+        self.estimatedBrakeWear: list[float] = list(WHEELS_ZERO)
 
 
 class ModuleInfo:
