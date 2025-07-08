@@ -176,9 +176,10 @@ def convert_value_type(value: Any, default: Any, target_type: type) -> Any:
 
 def dict_value_type(data: dict, default_data: dict) -> dict:
     """Validate and correct dictionary value type"""
-    for key, value in data.items():
-        data[key] = type(default_data[key])(value)
-    return data
+    return {
+        key: type(def_value)(data.get(key, def_value))
+        for key, def_value in default_data.items()
+    }
 
 
 # Color validate

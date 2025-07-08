@@ -30,10 +30,12 @@ from ..api_control import api
 from ..const_common import DELTA_DEFAULT, DELTA_ZERO, FLOAT_INF, POS_XYZ_ZERO
 from ..const_file import FileExt
 from ..module_info import ConsumptionDataSet, FuelInfo, minfo
-from ..userfile.fuel_delta import (
+from ..userfile.consumption_history import (
     load_consumption_history_file,
-    load_fuel_delta_file,
     save_consumption_history_file,
+)
+from ..userfile.fuel_delta import (
+    load_fuel_delta_file,
     save_fuel_delta_file,
 )
 from ..validator import generator_init, valid_delta_raw
@@ -104,6 +106,7 @@ def update_consumption_history():
                 lastLapUsedEnergy=minfo.energy.lastLapConsumption,
                 batteryDrainLast=minfo.hybrid.batteryDrainLast,
                 batteryRegenLast=minfo.hybrid.batteryRegenLast,
+                tyreAvgWearLast=calc.mean(minfo.wheels.lastLapTreadWear),
                 capacityFuel=minfo.fuel.capacity,
             )
         )

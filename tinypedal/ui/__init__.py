@@ -309,6 +309,9 @@ def set_style_window(base_font_pt: int) -> str:
         FuelCalculator QLineEdit[readOnly="true"]{{
             background: {color_active_window};
         }}
+        FuelCalculator QLabel {{
+            font-size: {font_pt_text_browser}pt;
+        }}
         About QLabel {{
             font-size: {font_pt_text_browser}pt;
         }}

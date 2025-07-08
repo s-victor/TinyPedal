@@ -239,7 +239,7 @@ class ProgressBar(QWidget):
         """Update input"""
         self.input_reading = input_reading
         if self.right_side:
-            self.rect_input.setLeft(self.bar_width - input_value * self.bar_width)
+            self.rect_input.setLeft((1 - input_value) * self.bar_width)
         else:
             self.rect_input.setRight(input_value * self.bar_width)
         self.update()

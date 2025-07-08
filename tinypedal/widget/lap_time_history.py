@@ -156,7 +156,7 @@ class Realtime(Overlay):
         self.last_lap_stime = 0
         # 0 - lap number, 1 - est lap time, 2 - is valid lap, 3 - last fuel usage, 4 - tyre wear
         self.laps_data = [0] * 5
-        self.history_data = deque([self.laps_data[:] for _ in range(history_slot)], history_slot)
+        self.history_data = deque([tuple(self.laps_data) for _ in range(history_slot)], history_slot)
         self.update_laps_history()
 
     def timerEvent(self, event):
@@ -175,13 +175,15 @@ class Realtime(Overlay):
         if self.last_lap_stime != lap_stime:  # time stamp difference
             if 2 < api.read.timing.elapsed() - lap_stime < 10:  # update 2s after cross line
                 self.last_lap_stime = lap_stime  # reset time stamp counter
-                self.laps_data[1] = minfo.delta.lapTimeLast
-                self.laps_data[2] = minfo.delta.isValidLap
-                self.laps_data[3] = temp_fuel_last
-                self.laps_data[4] = calc.mean(minfo.wheels.lastLapTreadWear)
                 # Update lap time history while on track
                 if not api.read.vehicle.in_garage():
-                    self.history_data.appendleft(self.laps_data[:])
+                    self.history_data.appendleft((
+                        self.laps_data[0],
+                        minfo.delta.lapTimeLast,
+                        minfo.delta.isValidLap,
+                        temp_fuel_last,
+                        calc.mean(minfo.wheels.lastLapTreadWear)
+                    ))
                     self.update_laps_history()
 
         # Current laps data

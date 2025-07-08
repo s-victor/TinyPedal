@@ -48,6 +48,7 @@ class ConsumptionDataSet(NamedTuple):
     lastLapUsedEnergy: float = 0.0
     batteryDrainLast: float = 0.0
     batteryRegenLast: float = 0.0
+    tyreAvgWearLast: float = 0.0
     capacityFuel: float = 0.0
 
 

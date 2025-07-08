@@ -254,7 +254,7 @@ class Realtime(Overlay):
 
             # Estimated end stint remaining tyre tread
             if self.wcfg["show_end_stint_remaining"]:
-                end_remain = tread_curr - est_valid_wear * est_runlaps
+                end_remain = calc.end_stint_tread(tread_curr, est_valid_wear, est_runlaps)
                 self.update_end(self.bars_end[idx], end_remain)
 
     # GUI update methods

@@ -1,14 +1,17 @@
-WIP
+2.31.0 (2025-07-08)
 -----------------------------
-* Fuel, Virtual Energy Widget
-  - [New]Add "show_low_fuel_warning_flash" and "show_low_energy_warning_flash" options (requested by users "ebeninca"), which show warning flash effect while on low fuel or low virtual energy. This option is enabled by default.
-    This warning flash effect plays only a limited number of times, with highlight duration and interval that can be customized via "number_of_warning_flashes, warning_flash_highlight_duration, warning_flash_interval" options.
-    Default number of flashes is 10 times, with a highlight duration of 0.4s, and a cooldown interval of 0.4s in-between.
+* Fuel Calculator
+  - [New]Add "Tyre" column to history table, which lists "average tyre tread wear" data that can be used for tyre wear calculation.
+  - [New]Add tyre tread wear and lifespan calculation in laps, minutes, stints, which helps to plan tyre usage for multi-stint race. See "Fuel Calculator" section in User Guide for details.
+  - [New]Add "Max stint laps" & "Max stint minutes" calculation, which shows maximum laps and minutes can run per stint based on "Tank capacity" value (or 100% capacity for virtual energy).
+
+* Consumption History
+  - [New]Add "average tyre tread wear" logging via Fuel Module, which is used in Fuel Calculator.
 
 * Wheels Module
   - Brake and tyre wear calculation is now handled by Wheels Module.
   - [New]Add delta wear calculation for accurately estimating tyre wear difference per lap.
-  - Add "minimum_delta_distance" option for delta wear data recording.
+  - [New]Add "minimum_delta_distance" option for delta wear data recording.
 
 * Tyre Wear Widget
   - [New]Add "show_end_stint_remaining" option, which shows estimated total remaining tyre tread at the end of current stint. This option helps to determine whether there is enough tread for current or more stints. Negative reading indicates that there will not be enough tyre tread remaining at the end of current stint.
@@ -18,6 +21,11 @@ WIP
 * Brake Wear Widget
   - "show_wear_difference" option now shows estimated brake wear difference per lap (at least one valid lap is required).
   - Removed "show_live_wear_difference", "freeze_duration" options. 
+
+* Fuel, Virtual Energy Widget
+  - [New]Add "show_low_fuel_warning_flash" and "show_low_energy_warning_flash" options (requested by users "ebeninca"), which show warning flash effect while on low fuel or low virtual energy. This option is enabled by default.
+    This warning flash effect plays only a limited number of times, with highlight duration and interval that can be customized via "number_of_warning_flashes, warning_flash_highlight_duration, warning_flash_interval" options.
+    Default number of flashes is 10 times, with a highlight duration of 0.4s, and a cooldown interval of 0.4s in-between.
 
 * Misc
   - Reload module and widget automatically after saving or applying changes in editor.

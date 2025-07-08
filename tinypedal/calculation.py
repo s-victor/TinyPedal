@@ -742,6 +742,11 @@ def wear_lifespan_in_mins(remaining: float, wear_last_lap: float, laptime: float
     return est_mins
 
 
+def end_stint_tread(remaining: float, wear_last_lap: float, laps_remain: float) -> float:
+    """Estimate end-stint remaining tyre tread (%) before pitting"""
+    return remaining - wear_last_lap * laps_remain
+
+
 def wear_weighted(wear_curr_lap: float, wear_last_lap: float, lap_into: float) -> float:
     """Weighted wear difference between last and current lap based on lap progression"""
     if wear_curr_lap >= wear_last_lap:

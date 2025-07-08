@@ -217,7 +217,7 @@ Data recording is handled by [Fuel Module](#fuel-module).
 ## Consumption history
 Consumption history data is stored as `CSV` format (.consumption extension) under `TinyPedal\deltabest` folder (default). Those files can be opened in spreadsheet or notepad programs.
 
-Consumption history data stores lap time and fuel consumption data per `track and vehicle class`, which can be loaded in [Fuel Calculator](#fuel-calculator). Up to 100 most recent lap entries are saved per `track and vehicle class`. Data recording is handled by [Fuel Module](#fuel-module).
+Consumption history data stores lap time, fuel consumption, battery charge, tyre wear usage data per `track and vehicle class`, which can be loaded in [Fuel Calculator](#fuel-calculator). Up to 100 most recent lap entries are saved per `track and vehicle class`. Data recording is handled by [Fuel Module](#fuel-module).
 
 [**`Back to Top`**](#)
 
@@ -656,7 +656,7 @@ On the left side is calculation panel, which handles `fuel` and `virtual energy`
 
 Fuel value and unit symbol depend on `Fuel Unit` setting from [Units](#units) config dialog, `L` = liter, `gal` = gallon. Virtual energy unit is `%` = percentage. Note, after changed `Fuel Unit` setting, it is required to close and reopen `Fuel calculator` in order to update units info for calculation.
 
-On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `virtual energy consumption`, `battery drain`, `battery regen`, `tank capacity` data from [Consumption History](#consumption-history) data.
+On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `virtual energy consumption`, `battery drain`, `battery regen`, `average tyre tread wear`, `tank capacity` data from [Consumption History](#consumption-history) data.
 Invalid lap time or consumption data is highlighted in red.
 
 Click `Load Live` button to load or update consumption history from live session to history table and automatically fill in latest data to calculator.
@@ -665,7 +665,7 @@ Click `Load File` button to load data from specific consumption history file to 
 
 Loaded data source and track and class name will be displayed on status bar.
 
-Select one or more `Time`, `Fuel`, `Energy`, `Tank` values from history table and click `Add selected data` button to send value to calculator.
+Select one or more `Time`, `Fuel`, `Energy`, `Tyre`, `Tank` values from history table and click `Add selected data` button to send value to calculator.
 
 Select multiple values from history table and click `Add selected data` button to calculate average reading of selected values and send to calculator.
 
@@ -700,7 +700,7 @@ Set average pit stop time in seconds.
 Show total required fuel or energy to finish race. First value is raw reading with decimal places, second value behind `≈` sign is rounded up integer reading.
 
     End stint fuel, End stint energy
-Show remaining fuel or energy at the end of stint or race.
+Show remaining fuel or energy at the end of stint.
 
     Total Pit stops
 Show total number of pit stops required to finish race. First value is raw reading with decimal places, second value behind `≈` sign is rounded up integer reading. Note, sometimes when `Average pit seconds` is set to longer duration, ceiling integer reading may be rounded up `2` units higher than raw reading, this is not an error. For example, it may show `5.978 ≈ 7` instead of `5.978 ≈ 6`, this is because when calculating from `6` pit stops, due to less amount time spent in pit stop compare to `7`, more fuel is required per pit stop which would exceed tank capacity, hence calculator adds 1 more pit stop.
@@ -708,17 +708,32 @@ Show total number of pit stops required to finish race. First value is raw readi
     One less pit stop
 Show theoretical fuel or energy consumption in order to make one less pit stop.
 
-    Total laps
-Show total laps can run based on `Total race fuel` or `Total race energy` value.
+    Total laps, Total minutes
+Show total laps and minutes can run based on `Total race fuel` or `Total race energy` value.
 
-    Total minutes
-Show total minutes can run based on `Total race fuel` or `Total race energy` value.
+    Max stint laps, Max stint minutes
+Show maximum laps and minutes can run per stint based on `Tank capacity` value (or 100% capacity for virtual energy).
 
     Starting fuel, Starting energy
 Set starting fuel or energy. This value is only used for calculating `Average refueling` or `Average replenishing` per pit stop. Maximum value cannot exceed `Tank capacity` for fuel, or `100%` for energy. If value is set to `0`, `Tank capacity` value will be used as starting fuel for `Average refueling` calculation.
 
     Average refueling, Average replenishing
 Show average refueling or replenishing per pit stop, and display warning color if value exceeds `Tank capacity` (fuel) or `100%` (energy).
+
+    Starting tyre tread
+Set average starting tyre tread (percent). For example, 100% for new tyres, and less for worn tyres.
+
+    Tread wear per lap
+Set average tyre tread wear (percent) per lap. This value can be retrieved from `Tyre` column.
+
+    Tread wear per stint
+Show total average tyre tread wear (percent) per stint. Note, while virtual energy is available, this value will be calculated based on the least `max stint laps` between fuel and virtual energy.
+
+    Lifespan laps, Lifespan minutes
+Show total tyre lifespan in laps and minutes based on `tread wear per lap` and `lap time`.
+
+    Lifespan stints
+Show estimated tyre lifespan in number of stints. Note, while virtual energy is available, this value will be calculated based on the least `max stint laps` between fuel and virtual energy.
 
 [**`Back to Top`**](#)
 
