@@ -35,7 +35,7 @@ REF_PLACES = tuple(range(1, MAX_VEHICLES + 1))
 TEMP_RELATIVE_AHEAD = [[0, -1] for _ in range(MAX_VEHICLES)]
 TEMP_RELATIVE_BEHIND = [[0, -1] for _ in range(MAX_VEHICLES)]
 TEMP_CLASSES = [["", -1, -1, -1.0, -1.0] for _ in range(MAX_VEHICLES)]
-TEMP_CLASSES_POS = [[0, 1, "", 0.0, -1, -1, False] for _ in range(MAX_VEHICLES)]
+TEMP_CLASSES_POS = [[0, 1, "", 0.0, -1, -1, -1, False] for _ in range(MAX_VEHICLES)]
 
 
 class Realtime(DataModule):
@@ -221,6 +221,7 @@ def create_position_in_class(sorted_veh_class: list, plr_index: int):
     last_class_name = None
     place_in_class = 0
     opt_index_ahead = -1
+    opt_index_leader = -1
     laptime_class_best = MAX_SECONDS
     last_fastest_laptime = MAX_SECONDS
     last_fastest_index = -1
@@ -237,10 +238,11 @@ def create_position_in_class(sorted_veh_class: list, plr_index: int):
             last_class_name = class_name  # reset class name
             place_in_class = 1  # reset position counter
             opt_index_ahead = -1  # no opponent ahead of class leader
+            opt_index_leader = opt_index
             laptime_class_best = laptime_best
             last_fastest_laptime = MAX_SECONDS  # reset last fastest
             if last_fastest_index != -1:  # mark fastest last lap
-                TEMP_CLASSES_POS[last_fastest_index][6] = True
+                TEMP_CLASSES_POS[last_fastest_index][7] = True
                 last_fastest_index = -1  # reset last fastest index
 
         if opt_index == plr_index:
@@ -258,13 +260,14 @@ def create_position_in_class(sorted_veh_class: list, plr_index: int):
             laptime_class_best,  # 3 classes best
             opt_index_ahead,  # 4 opponent index ahead
             -1,  # 5 opponent index behind
-            False,  # 6 is class fastest last laptime
+            opt_index_leader,  # 6 class leader index
+            False,  # 7 is class fastest last laptime
         )
         opt_index_ahead = opt_index  # store opponent index for next
         slot_index += 1
 
     if last_fastest_index != -1:  # mark for last class
-        TEMP_CLASSES_POS[last_fastest_index][6] = True
+        TEMP_CLASSES_POS[last_fastest_index][7] = True
 
     return TEMP_CLASSES_POS[:veh_total], plr_class_name, plr_class_place
 

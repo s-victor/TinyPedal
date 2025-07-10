@@ -2987,10 +2987,10 @@ Set maximum amount vehicles to display for classes where player is not in. Defau
 Set split gap between each class.
 
     show_time_gap
-For race session, this option shows time gap between leader and all other drivers. For other none race sessions, this option shows the time gap between session's best lap time and all other drivers.
+Show each driver's time gap behind overall leader in race session. In none race sessions, time gap is calculated from overall leader's session best lap time.
 
-    show_time_gap_from_class_best
-Show time gap from none race session's best lap time of the same vehicle class.
+    show_time_gap_from_same_class
+Show time gap from same class leader instead of overall leader. This option only takes effect while `enable_multi_class_split_mode` is enabled.
 
     time_gap_leader_text
 Set text indicator for race leader in time gap column.

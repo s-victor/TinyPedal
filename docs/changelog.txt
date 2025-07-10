@@ -1,3 +1,8 @@
+WIP
+-----------------------------
+* Standings Widget
+  - Renamed "show_time_gap_from_class_best" option to "show_time_gap_from_same_class", which now also shows time gap behind the same class leader in race session. This option is enabled by default, and only takes effect while `enable_multi_class_split_mode` is enabled.
+
 2.31.0 (2025-07-08)
 -----------------------------
 * Fuel Calculator

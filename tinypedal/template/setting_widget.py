@@ -1863,7 +1863,7 @@ WIDGET_DEFAULT = {
         "bkg_color_brand_logo": "#222222",
         "bkg_color_player_brand_logo": "#CCCCCC",
         "show_time_gap": True,
-        "show_time_gap_from_class_best": True,
+        "show_time_gap_from_same_class": True,
         "time_gap_leader_text": "LDR",
         "time_gap_decimal_places": 1,
         "time_gap_width": 4,

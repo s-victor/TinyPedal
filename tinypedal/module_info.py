@@ -291,7 +291,7 @@ class RelativeInfo:
     def __init__(self):
         self.relative: list[list] = [REL_TIME_DEFAULT]
         self.standings: list[int] = [-1]
-        self.classes: list[list] = [[0, 1, "", 0.0, -1, -1, False]]
+        self.classes: list[list] = [[0, 1, "", 0.0, -1, -1, -1, False]]
 
 
 class RestAPIInfo:
@@ -445,9 +445,10 @@ class VehicleDataSet:
         "bestLapTime",
         "lastLapTime",
         "lapProgress",
-        "gapBehindNextInClass",
         "gapBehindNext",
+        "gapBehindNextInClass",
         "gapBehindLeader",
+        "gapBehindLeaderInClass",
         "isLapped",
         "isYellow",
         "inPit",
@@ -480,9 +481,10 @@ class VehicleDataSet:
         self.bestLapTime: float = MAX_SECONDS
         self.lastLapTime: float = MAX_SECONDS
         self.lapProgress: float = 0.0
-        self.gapBehindNextInClass: float = 0.0
         self.gapBehindNext: float = 0.0
+        self.gapBehindNextInClass: float = 0.0
         self.gapBehindLeader: float = 0.0
+        self.gapBehindLeaderInClass: float = 0.0
         self.isLapped: float = 0.0
         self.isYellow: bool = False
         self.inPit: int = 0

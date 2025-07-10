@@ -56,7 +56,9 @@ class Realtime(Overlay):
         self.int_width = max(int(self.wcfg["time_interval_width"]), 1)
         self.gap_decimals = max(int(self.wcfg["time_gap_decimal_places"]), 0)
         self.int_decimals = max(int(self.wcfg["time_interval_decimal_places"]), 0)
-        self.show_class_gap = self.wcfg["split_gap"] > 0
+        self.show_class_separator = self.wcfg["split_gap"] > 0
+        self.show_class_timegap = (self.wcfg["enable_multi_class_split_mode"]
+            and self.wcfg["show_time_gap_from_same_class"])
         self.show_class_interval = (self.wcfg["enable_multi_class_split_mode"]
             and self.wcfg["show_time_interval_from_same_class"])
         self.max_delta = calc.asym_max(int(self.wcfg["number_of_delta_laptime"]), 2, 5)
@@ -473,10 +475,15 @@ class Realtime(Overlay):
             # Time gap
             if self.wcfg["show_time_gap"]:
                 if in_race:
-                    time_gap = self.gap_to_leader_race(veh_info.gapBehindLeader, veh_info.positionOverall)
+                    if self.show_class_timegap:
+                        time_gap = self.gap_to_leader_race(veh_info.gapBehindLeaderInClass, veh_info.positionInClass)
+                    else:
+                        time_gap = self.gap_to_leader_race(veh_info.gapBehindLeader, veh_info.positionOverall)
                 else:
-                    time_gap = self.gap_to_leader_best(
-                        veh_info.bestLapTime, minfo.vehicles.leaderBestLapTime, veh_info.classBestLapTime)
+                    if self.show_class_timegap:
+                        time_gap = self.gap_to_leader_best(veh_info.bestLapTime, veh_info.classBestLapTime)
+                    else:
+                        time_gap = self.gap_to_leader_best(veh_info.bestLapTime, veh_info.leaderBestLapTime)
                 self.update_gap(self.bars_gap[idx], time_gap, hi_player, state)
             # Time interval
             if self.wcfg["show_time_interval"]:
@@ -709,7 +716,7 @@ class Realtime(Overlay):
         """Hide bar if unavailable"""
         if state == 0:
             target.show()
-        elif state == 1 and self.show_class_gap:  # draw gap
+        elif state == 1 and self.show_class_separator:  # draw gap
             target.clear()
             target.setStyleSheet(self.bar_split_style)
             target.show()
@@ -720,7 +727,7 @@ class Realtime(Overlay):
         """Hide bar if unavailable"""
         if state == 0:
             target.show()
-        elif state == 1 and self.show_class_gap:  # draw gap
+        elif state == 1 and self.show_class_separator:  # draw gap
             for _bar in target.bar_set:
                 _bar.clear()
             target.setStyleSheet(self.bar_split_style)
@@ -764,12 +771,9 @@ class Realtime(Overlay):
             return "-:--.---"
         return calc.sec2laptime_full(laptime_best)[:8]
 
-    def gap_to_leader_best(self, player_best, leader_best, class_best):
+    def gap_to_leader_best(self, player_best, leader_best):
         """Gap to leader's best laptime"""
-        if self.wcfg["show_time_gap_from_class_best"]:
-            time = player_best - class_best  # class leader best
-        else:
-            time = player_best - leader_best  # leader best
+        time = player_best - leader_best  # leader best
         if time == 0 and player_best > 0:
             return self.wcfg["time_gap_leader_text"]
         if time < 0 or player_best < 1:  # no time set

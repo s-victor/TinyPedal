@@ -110,9 +110,10 @@ def update_vehicle_data(
     for index, data, class_pos in zip(range(output.totalVehicles), output.dataSet, class_pos_list):
         # Vehicle class var
         opt_index_ahead = class_pos[4]
+        opt_index_leader = class_pos[6]
         data.positionInClass = class_pos[1]
         data.classBestLapTime = class_pos[3]
-        data.isClassFastestLastLap = class_pos[6]
+        data.isClassFastestLastLap = class_pos[7]
 
         # Temp var only
         lap_etime = api.read.timing.elapsed(index)
@@ -141,8 +142,10 @@ def update_vehicle_data(
         data.pitState = api.read.vehicle.pit_request(index)
         data.tireCompoundFront = f"{class_name} - {api.read.tyre.compound_name_front(index)}"
         data.tireCompoundRear = f"{class_name} - {api.read.tyre.compound_name_rear(index)}"
-        data.gapBehindNextInClass = calc_gap_behind_next_in_class(
+        data.gapBehindNextInClass = calc_time_gap_behind(
             opt_index_ahead, index, track_length, laps_done, lap_progress)
+        data.gapBehindLeaderInClass = calc_time_gap_behind(
+            opt_index_leader, index, track_length, laps_done, lap_progress)
         data.pitTimer.update(in_pit, lap_etime)
         data.update_lap_history(api.read.timing.start(index), lap_etime, laptime_last)
 
@@ -243,27 +246,29 @@ def update_qualify_position(output: VehiclesInfo) -> None:
         output.dataSet[plr_index].qualifyInClass = qualify_in_class
 
 
-def calc_gap_behind_next_in_class(
-    opt_index: int,
-    index: int,
+def calc_time_gap_behind(
+    ahead_index: int,
+    behind_index: int,
     track_length: float,
     laps_done: float,
     lap_progress: float,
 ) -> float | int:
     """Calculate interval behind next in class"""
-    if opt_index < 0:
+    if ahead_index < 0:
         return 0.0
-    opt_laps_done = api.read.lap.completed_laps(opt_index)
-    opt_lap_distance = api.read.lap.distance(opt_index)
+    opt_laps_done = api.read.lap.completed_laps(ahead_index)
+    opt_lap_distance = api.read.lap.distance(ahead_index)
     opt_lap_progress = calc.lap_progress_distance(opt_lap_distance, track_length)
-    lap_diff = abs(opt_laps_done + opt_lap_progress - laps_done - lap_progress)
-    if lap_diff > 1:
-        return int(lap_diff)
-    return abs(calc.circular_relative_distance(
-        api.read.timing.estimated_laptime(index),
-        api.read.timing.estimated_time_into(index),
-        api.read.timing.estimated_time_into(opt_index),
-    ))
+    lap_diff = opt_laps_done + opt_lap_progress - laps_done - lap_progress
+    if lap_diff >= 1 or lap_diff <= -1:  # laps
+        return int(abs(lap_diff))
+    # Time gap between driver ahead and behind
+    time_gap = api.read.timing.estimated_time_into(ahead_index) - api.read.timing.estimated_time_into(behind_index)
+    # Check lap diff (positive) for position correction
+    # in case the ahead driver is momentarily behind (such as during double-file formation lap)
+    if time_gap < 0 < lap_diff:
+        time_gap += api.read.timing.estimated_laptime(behind_index)
+    return abs(time_gap)
 
 
 def calc_gap_behind_next(index: int) -> float | int:
