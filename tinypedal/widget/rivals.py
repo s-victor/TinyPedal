@@ -400,9 +400,12 @@ class Realtime(Overlay):
             # Vehicle laptime
             if self.wcfg["show_laptime"]:
                 if self.wcfg["show_best_laptime"] or in_race:
-                    laptime = (veh_info.inPit, veh_info.lastLapTime, veh_info.pitTimer.elapsed)
+                    if veh_info.pitTimer.pitting:
+                        laptime = self.set_pittime(veh_info.inPit, veh_info.pitTimer.elapsed)
+                    else:
+                        laptime = self.set_laptime(veh_info.lastLapTime)
                 else:
-                    laptime = (0, veh_info.bestLapTime, 0)
+                    laptime = self.set_laptime(veh_info.bestLapTime)
                 self.update_lpt(self.bars_lpt[idx], laptime, state)
             # Vehicle best laptime
             if self.wcfg["show_best_laptime"]:
@@ -424,7 +427,7 @@ class Realtime(Overlay):
                 self.update_psc(self.bars_psc[idx], veh_info.numPitStops, veh_info.pitState, state)
             # Delta laptime
             if self.wcfg["show_delta_laptime"]:
-                delta_laptime = tuple(calc.delta_laptime(plr_veh_info.lapTimeHistory, veh_info.lapTimeHistory, self.max_delta))
+                delta_laptime = tuple(veh_info.lapTimeHistory.delta(plr_veh_info.lapTimeHistory, self.max_delta))
                 self.update_dlt(self.bars_dlt[idx], delta_laptime, state)
 
     # GUI update methods
@@ -510,7 +513,7 @@ class Realtime(Overlay):
         """Vehicle laptime"""
         if target.last != data:
             target.last = data
-            target.setText(self.set_laptime(*data[0]))
+            target.setText(data[0])
             self.toggle_visibility(target, data[-1])
 
     def update_blp(self, target, *data):
@@ -617,13 +620,18 @@ class Realtime(Overlay):
         return class_name, self.wcfg["bkg_color_class"]
 
     @staticmethod
-    def set_laptime(inpit, laptime_last, pit_time):
+    def set_laptime(laptime):
+        """Set lap time"""
+        if laptime <= 0:
+            return "-:--.---"
+        return calc.sec2laptime_full(laptime)[:8]
+
+    @staticmethod
+    def set_pittime(inpit, pit_time):
         """Set lap time"""
         if inpit:
             return f"PIT{pit_time: >5.1f}"[:8] if pit_time > 0 else "-:--.---"
-        if laptime_last <= 0:
-            return f"OUT{pit_time: >5.1f}"[:8] if pit_time > 0 else "-:--.---"
-        return calc.sec2laptime_full(laptime_last)[:8]
+        return f"OUT{pit_time: >5.1f}"[:8] if pit_time > 0 else "-:--.---"
 
     @staticmethod
     def set_best_laptime(laptime_best):

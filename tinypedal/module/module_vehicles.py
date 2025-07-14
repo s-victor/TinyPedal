@@ -133,6 +133,7 @@ def update_vehicle_data(
         laptime_last = data.lastLapTime = api.read.timing.last_laptime(index)
 
         # Output var only
+        data.completedLaps = laps_done + lap_progress
         data.driverName = api.read.vehicle.driver_name(index)
         data.vehicleName = api.read.vehicle.vehicle_name(index)
         data.gapBehindNext = calc_gap_behind_next(index)
@@ -146,8 +147,8 @@ def update_vehicle_data(
             opt_index_ahead, index, track_length, laps_done, lap_progress)
         data.gapBehindLeaderInClass = calc_time_gap_behind(
             opt_index_leader, index, track_length, laps_done, lap_progress)
-        data.pitTimer.update(in_pit, lap_etime)
-        data.update_lap_history(api.read.timing.start(index), lap_etime, laptime_last)
+        data.pitTimer.update(in_pit, lap_etime, laps_done)
+        data.lapTimeHistory.update(api.read.timing.start(index), lap_etime, laptime_last)
 
         # Position & relative data
         opt_pos_x = data.worldPositionX = api.read.vehicle.position_longitudinal(index)

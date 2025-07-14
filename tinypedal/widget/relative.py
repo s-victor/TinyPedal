@@ -381,7 +381,10 @@ class Realtime(Overlay):
                 self.update_gap(self.bars_gap[idx], rel_time_gap, hi_player, state)
             # Vehicle laptime
             if self.wcfg["show_laptime"]:
-                laptime = (veh_info.inPit, veh_info.lastLapTime, veh_info.pitTimer.elapsed)
+                if veh_info.pitTimer.pitting:
+                    laptime = self.set_pittime(veh_info.inPit, veh_info.pitTimer.elapsed)
+                else:
+                    laptime = self.set_laptime(veh_info.lastLapTime)
                 self.update_lpt(self.bars_lpt[idx], laptime, veh_info.isClassFastestLastLap, hi_player, state)
             # Position in class
             if self.wcfg["show_position_in_class"]:
@@ -537,7 +540,7 @@ class Realtime(Overlay):
             else:
                 color_index = data[2]
             if data[-1]:
-                text = self.set_laptime(*data[0])
+                text = data[0]
             else:
                 text = ""
             target.setText(text)
@@ -649,13 +652,18 @@ class Realtime(Overlay):
         return class_name, self.wcfg["bkg_color_class"]
 
     @staticmethod
-    def set_laptime(inpit, laptime_last, pit_time):
+    def set_laptime(laptime):
+        """Set lap time"""
+        if laptime <= 0:
+            return "-:--.---"
+        return calc.sec2laptime_full(laptime)[:8]
+
+    @staticmethod
+    def set_pittime(inpit, pit_time):
         """Set lap time"""
         if inpit:
             return f"PIT{pit_time: >5.1f}"[:8] if pit_time > 0 else "-:--.---"
-        if laptime_last <= 0:
-            return f"OUT{pit_time: >5.1f}"[:8] if pit_time > 0 else "-:--.---"
-        return calc.sec2laptime_full(laptime_last)[:8]
+        return f"OUT{pit_time: >5.1f}"[:8] if pit_time > 0 else "-:--.---"
 
 
 def lap_difference_index(is_lapped, offset=2):

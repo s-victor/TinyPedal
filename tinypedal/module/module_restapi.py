@@ -146,23 +146,6 @@ class Realtime(DataModule):
             logger.info("RestAPI: UPDATE LIVE: %s", uri_path)
             await self.update_repeat(http, uri_path, output_set)
 
-    async def update_repeat(self, http: HttpSetup,
-        uri_path: str, output_set: tuple[ResRawOutput, ...]):
-        """Update repeat"""
-        request_header = set_header_get(uri_path, http.host)
-        interval = min_interval = http.interval
-        last_hash = new_hash = -1
-        while not self.task_cancel:  # use task control to cancel & exit loop
-            new_hash = await output_resource(request_header, http, output_set)
-            if last_hash != new_hash:
-                last_hash = new_hash
-                interval = min_interval
-            elif interval < 2:  # increase update interval while no new data
-                interval += interval / 2
-                if interval > 2:
-                    interval = 2
-            await asyncio.sleep(interval)
-
     async def update_once(self, http: HttpSetup,
         uri_path: str, output_set: tuple[ResRawOutput, ...]) -> bool:
         """Update once and verify"""
@@ -188,6 +171,23 @@ class Realtime(DataModule):
             break
         return data_available
 
+    async def update_repeat(self, http: HttpSetup,
+        uri_path: str, output_set: tuple[ResRawOutput, ...]):
+        """Update repeat"""
+        request_header = set_header_get(uri_path, http.host)
+        interval = min_interval = http.interval
+        last_hash = new_hash = -1
+        while not self.task_cancel:  # use task control to cancel & exit loop
+            new_hash = await output_resource(request_header, http, output_set, last_hash)
+            if last_hash != new_hash:
+                last_hash = new_hash
+                interval = min_interval
+            elif interval < 2:  # increase update interval while no new data
+                interval += interval / 2
+                if interval > 2:
+                    interval = 2
+            await asyncio.sleep(interval)
+
 
 def reset_to_default(active_task: dict[str, tuple[ResRawOutput, ...]]):
     """Reset active task data to default"""
@@ -210,15 +210,16 @@ async def get_resource(request: bytes, http: HttpSetup) -> Any | str:
 
 
 async def output_resource(
-    request: bytes, http: HttpSetup, output_set: tuple[ResRawOutput, ...]) -> int:
+    request: bytes, http: HttpSetup, output_set: tuple[ResRawOutput, ...], last_hash: int) -> int:
     """Get resource from REST API and output data, skip unnecessary checking"""
     try:
         async with http_get(request, http.host, http.port, http.timeout) as raw_bytes:
-            if raw_bytes:
+            new_hash = hash(raw_bytes)
+            if last_hash != new_hash:
                 resource_output = json.loads(raw_bytes)
                 for res in output_set:
                     res.update(resource_output)
-            return hash(raw_bytes)
+            return new_hash
     except (AttributeError, TypeError, IndexError, KeyError, ValueError,
             OSError, TimeoutError, BaseException):
-        return -1
+        return last_hash

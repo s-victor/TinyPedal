@@ -38,7 +38,7 @@ def set_header_get(uri: str = "/", host: str = "localhost") -> bytes:
     return f"GET {uri} HTTP/1.1\r\nHost: {host}\r\n\r\n".encode()
 
 
-async def parse_response(reader: StreamReader) -> bytes | bytearray:
+async def parse_response(reader: StreamReader) -> bytes:
     """Parse response"""
     # Get headers
     header_bytes = await reader.readuntil(b"\r\n\r\n")
@@ -62,18 +62,17 @@ async def parse_response(reader: StreamReader) -> bytes | bytearray:
             return await reader.read(body_length)
         # Exceeded buffer limit
         temp_bytes = bytearray()
-        while body_length > BUFFER_LIMIT:
+        while body_length > 0:
             temp_bytes.extend(await reader.read(BUFFER_LIMIT))
             body_length -= BUFFER_LIMIT
-        temp_bytes.extend(await reader.read(body_length))
-        return temp_bytes
+        return bytes(temp_bytes)
     # Get chunked data
     temp_bytes = bytearray()
     while True:
         if (await reader.readuntil()) == b"0\r\n":  # end chunk
             break
         temp_bytes[-2:] = await reader.readuntil()  # cut off CRLF
-    return temp_bytes
+    return bytes(temp_bytes)
 
 
 @asynccontextmanager

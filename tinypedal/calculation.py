@@ -370,15 +370,6 @@ def delta_telemetry(
     return 0
 
 
-def delta_laptime(plr_data: Sequence[float], opt_data: Sequence[float], max_output: int):
-    """Generate delta from lap time data set between player and opponent"""
-    for index in range(5 - max_output, 5):  # max 5 records
-        if plr_data[index] > 0 < opt_data[index]:  # check invalid lap time
-            yield plr_data[index] - opt_data[index]
-        else:
-            yield 99999.0
-
-
 def clock_time_scale_sync(scaled_sec: float, elapsed_sec: float, start_sec: float) -> int:
     """Synchronize clock time scale multiplier
 
