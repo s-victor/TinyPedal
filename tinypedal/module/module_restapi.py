@@ -35,6 +35,7 @@ from ._base import DataModule
 from ._task import HttpSetup, ResRawOutput, select_taskset
 
 logger = logging.getLogger(__name__)
+json_decoder = json.JSONDecoder()
 
 
 class Realtime(DataModule):
@@ -182,10 +183,10 @@ class Realtime(DataModule):
             if last_hash != new_hash:
                 last_hash = new_hash
                 interval = min_interval
-            elif interval < 2:  # increase update interval while no new data
+            elif interval < 5:  # increase update interval while no new data
                 interval += interval / 2
-                if interval > 2:
-                    interval = 2
+                if interval > 5:
+                    interval = 5
             await asyncio.sleep(interval)
 
 
@@ -203,7 +204,7 @@ async def get_resource(request: bytes, http: HttpSetup) -> Any | str:
     """Get resource from REST API"""
     try:
         async with http_get(request, http.host, http.port, http.timeout) as raw_bytes:
-            return json.loads(raw_bytes)
+            return json_decoder.decode(raw_bytes.decode())
     except (AttributeError, TypeError, IndexError, KeyError, ValueError,
             OSError, TimeoutError, BaseException):
         return "INVALID"
@@ -216,7 +217,7 @@ async def output_resource(
         async with http_get(request, http.host, http.port, http.timeout) as raw_bytes:
             new_hash = hash(raw_bytes)
             if last_hash != new_hash:
-                resource_output = json.loads(raw_bytes)
+                resource_output = json_decoder.decode(raw_bytes.decode())
                 for res in output_set:
                     res.update(resource_output)
             return new_hash

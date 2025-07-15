@@ -87,7 +87,7 @@ class DeltaLapTime(array):
             if target[index] > 0 < self[index]:  # check invalid lap time
                 yield target[index] - self[index]
             else:
-                yield 99999.0
+                yield MAX_SECONDS
 
 
 class VehiclePitTimer:

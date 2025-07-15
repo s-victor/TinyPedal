@@ -68,9 +68,7 @@ async def parse_response(reader: StreamReader) -> bytes:
         return bytes(temp_bytes)
     # Get chunked data
     temp_bytes = bytearray()
-    while True:
-        if (await reader.readuntil()) == b"0\r\n":  # end chunk
-            break
+    while (await reader.readuntil()) != b"0\r\n":  # end chunk
         temp_bytes[-2:] = await reader.readuntil()  # cut off CRLF
     return bytes(temp_bytes)
 
