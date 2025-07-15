@@ -86,7 +86,8 @@ class Realtime(DataModule):
 
                 # Best lap time
                 best_laptime = api.read.timing.best_laptime()
-                if last_best_laptime > best_laptime > 1:
+                if (last_best_laptime > best_laptime > 1 and
+                    best_laptime == api.read.timing.last_laptime()):  # validate lap time
                     last_best_laptime = best_laptime
                     if driver_stats.pb > best_laptime:
                         driver_stats.pb = best_laptime
