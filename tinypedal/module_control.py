@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import logging
 from time import sleep
+from types import MappingProxyType
 from typing import Any, KeysView
 
 from . import module, widget
@@ -53,18 +54,21 @@ class ModuleControl:
 
     Attributes:
         type_id: module type indentifier, either "module" or "widget".
+        active_modules: active module reference dict (read-only).
     """
 
     __slots__ = (
         "type_id",
         "_imported_modules",
         "_active_modules",
+        "active_modules",
     )
 
     def __init__(self, target: Any, type_id: str):
         self.type_id = type_id
         self._imported_modules = create_module_pack(target)
         self._active_modules: dict = {}
+        self.active_modules: MappingProxyType = MappingProxyType(self._active_modules)
 
     def start(self, name: str = ""):
         """Start module, specify name for selected module"""

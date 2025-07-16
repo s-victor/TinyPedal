@@ -122,7 +122,7 @@ class Realtime(Overlay):
             painter,
             self.map_scaled,
             minfo.vehicles.dataSet,
-            minfo.vehicles.drawOrder,
+            minfo.relative.drawOrder,
         )
 
         if self.wcfg["show_pitout_prediction"]:

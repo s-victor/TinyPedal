@@ -36,6 +36,7 @@ TEMP_RELATIVE_AHEAD = [[0, -1] for _ in range(MAX_VEHICLES)]
 TEMP_RELATIVE_BEHIND = [[0, -1] for _ in range(MAX_VEHICLES)]
 TEMP_CLASSES = [["", -1, -1, -1.0, -1.0] for _ in range(MAX_VEHICLES)]
 TEMP_CLASSES_POS = [[0, 1, "", 0.0, -1, -1, -1, False] for _ in range(MAX_VEHICLES)]
+TEMP_DRAW_ORDER = list(range(MAX_VEHICLES))
 
 
 class Realtime(DataModule):
@@ -88,7 +89,7 @@ class Realtime(DataModule):
                 plr_place = api.read.vehicle.place()
 
                 # Get vehicles info
-                (relative_ahead, relative_behind, classes_list, is_multi_class,
+                (relative_ahead, relative_behind, classes_list, draw_order_list, is_multi_class,
                  ) = get_vehicles_info(veh_total, plr_index, show_in_garage)
 
                 # Create relative index list
@@ -116,6 +117,7 @@ class Realtime(DataModule):
                 output.relative = relative_index_list
                 output.standings = standings_index_list
                 output.classes = class_pos_list
+                output.drawOrder = draw_order_list
 
             else:
                 if reset:
@@ -129,11 +131,14 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
     plr_time = api.read.timing.estimated_time_into()
     last_class_name = None
     classes_count = 0
-    index_time = 0
+    recorded_index = 0
+    leader_index = 0
+    pitter_index = 0
+    draw_order = TEMP_DRAW_ORDER[:veh_total]
 
     for index in range(veh_total):
-        in_pit = api.read.vehicle.in_pits(index)
         in_garage = api.read.vehicle.in_garage(index)
+        in_pitlane = api.read.vehicle.in_pits(index) or in_garage
 
         # Update relative time gap list
         if index != plr_index and laptime_est and (show_in_garage or not in_garage):
@@ -145,15 +150,15 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
             if diff_time_behind > 0:
                 diff_time_behind -= laptime_est
 
-            TEMP_RELATIVE_AHEAD[index_time][:] = (
+            TEMP_RELATIVE_AHEAD[recorded_index][:] = (
                 diff_time_ahead,  # 0 relative time gap
                 index,  # 1 player index
             )
-            TEMP_RELATIVE_BEHIND[index_time][:] = (
+            TEMP_RELATIVE_BEHIND[recorded_index][:] = (
                 diff_time_behind,  # 0 relative time gap
                 index,  # 1 player index
             )
-            index_time += 1
+            recorded_index += 1
 
         # Update classes list
         class_name = api.read.vehicle.class_name(index)
@@ -161,7 +166,7 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
         laptime_best = api.read.timing.best_laptime(index)
         laptime_last = api.read.timing.last_laptime(index)
 
-        if laptime_last > 0 and not in_pit + in_garage:
+        if laptime_last > 0 and not in_pitlane:
             laptime_personal_last = laptime_last
         else:
             laptime_personal_last = MAX_SECONDS
@@ -179,16 +184,31 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
             laptime_personal_last,  # 4 last lap time (for fastest last lap check)
         )
 
+        # Update draw order list
+        if place_overall == 1:  # save leader index
+            leader_index = index
+        elif in_pitlane:  # swap opponent in pit/garage to start
+            draw_order[index], draw_order[pitter_index] = draw_order[pitter_index], draw_order[index]
+            pitter_index += 1
+
         # Check is multi classes
         if classes_count < 2 and last_class_name != class_name:
             last_class_name = class_name
             classes_count += 1
 
+    # Finalize draw order list
+    if leader_index != draw_order[-1]:  # move leader to end
+        leader_pos = draw_order.index(leader_index)
+        draw_order[leader_pos], draw_order[-1] = draw_order[-1], draw_order[leader_pos]
+    if -1 != plr_index != leader_index:   # move player to 2nd end if not leader
+        player_pos = draw_order.index(plr_index)
+        draw_order[player_pos], draw_order[-2] = draw_order[-2], draw_order[player_pos]
+
     # Sort output in-place
-    relative_ahead = TEMP_RELATIVE_AHEAD[:index_time]
+    relative_ahead = TEMP_RELATIVE_AHEAD[:recorded_index]
     relative_ahead.sort(reverse=True)  # by reversed time gap
 
-    relative_behind = TEMP_RELATIVE_BEHIND[:index_time]
+    relative_behind = TEMP_RELATIVE_BEHIND[:recorded_index]
     relative_behind.sort(reverse=True)  # by reversed time gap
 
     new_classes = TEMP_CLASSES[:veh_total]
@@ -197,8 +217,9 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
     return (
         relative_ahead,
         relative_behind,
-        new_classes,  # -> classes_list
-        classes_count > 1,  # -> is_multi_class
+        new_classes,  # classes_list
+        draw_order,
+        classes_count > 1,  # is_multi_class
     )
 
 

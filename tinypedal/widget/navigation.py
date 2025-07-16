@@ -147,7 +147,7 @@ class Realtime(Overlay):
         # Draw map
         self.draw_map_image(painter)
         # Draw vehicles
-        self.draw_vehicle(painter, minfo.vehicles.dataSet, minfo.vehicles.drawOrder)
+        self.draw_vehicle(painter, minfo.vehicles.dataSet, minfo.relative.drawOrder)
         # Apply mask
         if self.wcfg["show_fade_out"]:
             painter.setCompositionMode(QPainter.CompositionMode_DestinationOut)

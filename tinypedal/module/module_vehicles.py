@@ -24,11 +24,9 @@ from __future__ import annotations
 
 from .. import calculation as calc
 from ..api_control import api
-from ..const_common import MAX_METERS, MAX_SECONDS, MAX_VEHICLES
+from ..const_common import MAX_METERS, MAX_SECONDS
 from ..module_info import VehiclesInfo, minfo
 from ._base import DataModule
-
-ALL_INDEXES = list(range(MAX_VEHICLES))
 
 
 class Realtime(DataModule):
@@ -88,8 +86,6 @@ def update_vehicle_data(
     # General data
     track_length = api.read.lap.track_length()
     in_race = api.read.session.in_race()
-    draw_order = ALL_INDEXES[:output.totalVehicles]
-    laptime_best_leader = 0.0
 
     # Local player data
     plr_laps_done = api.read.lap.completed_laps()
@@ -101,10 +97,10 @@ def update_vehicle_data(
     nearest_time_behind = -MAX_SECONDS
     nearest_yellow = MAX_METERS
 
-    # Sorting reference index
+    # Player index
     leader_index = 0
     player_index = -1  # local player may not exist, init with -1
-    inpit_index = 0
+    laptime_best_leader = MAX_SECONDS
 
     # Update dataset from all vehicles in current session
     for index, data, class_pos in zip(range(output.totalVehicles), output.dataSet, class_pos_list):
@@ -154,6 +150,7 @@ def update_vehicle_data(
         opt_pos_x = data.worldPositionX = api.read.vehicle.position_longitudinal(index)
         opt_pos_y = data.worldPositionY = api.read.vehicle.position_lateral(index)
         if is_player:
+            player_index = index
             if is_yellow:
                 nearest_yellow = 0.0
         else:
@@ -193,28 +190,9 @@ def update_vehicle_data(
                 if nearest_yellow > opt_rel_distance:
                     nearest_yellow = opt_rel_distance
 
-        # Sort draw order list in loop ->
         if position_overall == 1:  # save leader index
             leader_index = index
             laptime_best_leader = data.bestLapTime
-            if is_player:  # player can be leader at the same time
-                player_index = index
-        elif is_player:  # save local player index
-            player_index = index
-        elif in_pit:  # swap opponent in pit/garage to start
-            draw_order[index], draw_order[inpit_index] = draw_order[inpit_index], draw_order[index]
-            inpit_index += 1
-
-    # Finalize draw order list ->
-    # Move leader to end of draw order
-    if leader_index != draw_order[-1]:
-        leader_pos = draw_order.index(leader_index)
-        draw_order[leader_pos], draw_order[-1] = draw_order[-1], draw_order[leader_pos]
-    # Move local player to 2nd end of draw order if exists and not leader
-    if -1 != player_index != leader_index:
-        player_pos = draw_order.index(player_index)
-        draw_order[player_pos], draw_order[-2] = draw_order[-2], draw_order[player_pos]
-    # <- End draw order list
 
     # Output extra info
     output.leaderIndex = leader_index
@@ -223,7 +201,6 @@ def update_vehicle_data(
     output.nearestTraffic = -nearest_time_behind
     output.nearestYellow = nearest_yellow
     output.leaderBestLapTime = laptime_best_leader
-    output.drawOrder = draw_order
     output.dataSetVersion += 1
 
 
