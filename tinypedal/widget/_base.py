@@ -118,18 +118,17 @@ class Overlay(QWidget):
 
     def contextMenuEvent(self, event):
         """Widget context menu"""
-        menu = QMenu(self)
+        menu = QMenu()
 
-        menu.addAction(QAction(self.widget_name, self, enabled=False))
+        show_name = menu.addAction(self.widget_name)
+        show_name.setDisabled(True)
         menu.addSeparator()
 
-        option_center_h = QAction("Center horizontally", self)
+        option_center_h = menu.addAction("Center Horizontally")
         option_center_h.triggered.connect(self.center_horizontally)
-        menu.addAction(option_center_h)
 
-        option_center_v = QAction("Center vertically", self)
+        option_center_v = menu.addAction("Center Vertically")
         option_center_v.triggered.connect(self.center_vertically)
-        menu.addAction(option_center_v)
 
         menu.exec_(event.globalPos())
 
