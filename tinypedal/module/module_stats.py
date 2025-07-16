@@ -74,6 +74,7 @@ class Realtime(DataModule):
                     last_lap_stime = FLOAT_INF
                     last_lap_etime = FLOAT_INF
                     last_best_laptime = FLOAT_INF
+                    last_raw_laptime = FLOAT_INF
                     last_num_penalties = 99999
                     fuel_last = 0.0
                     last_finish_state = 99999
@@ -85,12 +86,12 @@ class Realtime(DataModule):
                 is_pit_lap |= api.read.vehicle.in_pits()
 
                 # Best lap time
-                best_laptime = api.read.timing.best_laptime()
-                if (last_best_laptime > best_laptime > 1 and
-                    best_laptime == api.read.timing.last_laptime()):  # validate lap time
-                    last_best_laptime = best_laptime
-                    if driver_stats.pb > best_laptime:
-                        driver_stats.pb = best_laptime
+                last_valid_laptime = api.read.timing.last_laptime()
+                if (last_best_laptime > last_valid_laptime > 1 and
+                    abs(last_valid_laptime - last_raw_laptime) < 0.001):  # validate lap time
+                    last_best_laptime = last_valid_laptime
+                    if driver_stats.pb > last_valid_laptime:
+                        driver_stats.pb = last_valid_laptime
 
                 # Driven distance
                 gps_curr = api.read.vehicle.position_xyz()
@@ -104,7 +105,8 @@ class Realtime(DataModule):
                 if last_lap_stime > lap_stime:
                     last_lap_stime = lap_stime
                 elif last_lap_stime < lap_stime and lap_etime - lap_stime > 2:
-                    if api.read.timing.last_laptime() > 0: # valid lap check
+                    last_raw_laptime = lap_stime - last_lap_stime
+                    if last_valid_laptime > 0: # valid lap check
                         driver_stats.valid += 1  # 1 lap at a time
                     elif not is_pit_lap:  # only count non-pit invalid lap
                         driver_stats.invalid += 1

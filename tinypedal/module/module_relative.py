@@ -197,10 +197,10 @@ def get_vehicles_info(veh_total: int, plr_index: int, show_in_garage: bool):
             classes_count += 1
 
     # Finalize draw order list
-    if leader_index != draw_order[-1]:  # move leader to end
+    if 0 <= leader_index < veh_total and leader_index != draw_order[-1]:  # move leader to end
         leader_pos = draw_order.index(leader_index)
         draw_order[leader_pos], draw_order[-1] = draw_order[-1], draw_order[leader_pos]
-    if -1 != plr_index != leader_index:   # move player to 2nd end if not leader
+    if 0 <= plr_index < veh_total and plr_index != leader_index:   # move player to 2nd end if not leader
         player_pos = draw_order.index(plr_index)
         draw_order[player_pos], draw_order[-2] = draw_order[-2], draw_order[player_pos]
 

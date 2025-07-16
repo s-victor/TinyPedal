@@ -167,7 +167,7 @@ class Realtime(DataModule):
                         validating = 0
                     elif (timer > 1 and  # compare current time
                         laptime_valid > 0 and  # is valid laptime
-                        int(laptime_valid - laptime_last) == 0):  # is matched laptime
+                        abs(laptime_valid - laptime_last) < 0.001):  # is matched laptime
                         # Update laptime pace
                         if not is_pit_lap:
                             # Set initial laptime if invalid, or align to faster laptime
