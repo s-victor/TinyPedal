@@ -430,12 +430,14 @@ class RelativeInfo:
         "relative",
         "standings",
         "classes",
+        "drawOrder",
     )
 
     def __init__(self):
         self.relative: list[list] = [REL_TIME_DEFAULT]
         self.standings: list[int] = [-1]
         self.classes: list[list] = [[0, 1, "", 0.0, -1, -1, -1, False]]
+        self.drawOrder: list = [0]
 
 
 class RestAPIInfo:
@@ -518,7 +520,6 @@ class VehiclesInfo:
         "playerIndex",
         "dataSet",
         "dataSetVersion",
-        "drawOrder",
         "nearestLine",
         "nearestTraffic",
         "nearestYellow",
@@ -533,7 +534,6 @@ class VehiclesInfo:
             VehicleDataSet() for _ in range(MAX_VEHICLES)
         )
         self.dataSetVersion: int = -1
-        self.drawOrder: list = [0]
         self.nearestLine: float = MAX_METERS
         self.nearestTraffic: float = MAX_SECONDS
         self.nearestYellow: float = MAX_METERS
