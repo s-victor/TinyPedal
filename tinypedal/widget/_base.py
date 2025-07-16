@@ -142,7 +142,7 @@ class Overlay(QWidget):
                 pos = pos / move_size * move_size
             self.move(pos)
 
-            # Don't snap if Ctrl not is pressed
+            # Don't snap if Ctrl is not pressed
             if not (event.modifiers() & Qt.ControlModifier):
                 return
 
@@ -172,7 +172,7 @@ class Overlay(QWidget):
 
             from ..module_control import wctrl
 
-            for widget in wctrl.active_widgets.values():
+            for widget in wctrl.active_modules.values():
                 if not widget.isVisible():
                     continue
                 if self.screen() is not widget.screen():
