@@ -24,9 +24,9 @@ from __future__ import annotations
 
 from typing import Any, NamedTuple
 
-from PySide2.QtCore import QBasicTimer, Qt, Slot
+from PySide2.QtCore import QBasicTimer, Qt, Slot, QPoint, QRect
 from PySide2.QtGui import QFont, QFontMetrics, QPalette, QPixmap
-from PySide2.QtWidgets import QGridLayout, QLabel, QLayout, QWidget
+from PySide2.QtWidgets import QGridLayout, QLabel, QLayout, QWidget, QMenu, QAction
 
 from .. import regex_pattern as rxp
 from ..const_app import APP_NAME
@@ -124,6 +124,55 @@ class Overlay(QWidget):
                 move_size = max(self.cfg.application["grid_move_size"], 1)
                 pos = pos / move_size * move_size
             self.move(pos)
+
+            # Don't snap if Ctrl not is pressed
+            if not (event.modifiers() & Qt.ControlModifier):
+                return
+
+            new_x, new_y = pos.x(), pos.y()
+
+            snap_gap = max(0, int(self.cfg.application['snap_gap']))
+            snap_distance = max(snap_gap, int(self.cfg.application['snap_distance']))
+
+            # Screen snapping
+            geom = QRect(new_x, new_y, self.width(), self.height())
+            screen_rect = self.screen().availableGeometry()
+
+            # Left
+            if abs(geom.left() - screen_rect.left()) < snap_distance:
+                new_x = screen_rect.left() + snap_gap
+            # Right
+            if abs(geom.right() - screen_rect.right()) < snap_distance:
+                new_x = screen_rect.right() - self.width() - snap_gap
+            # Top
+            if abs(geom.top() - screen_rect.top()) < snap_distance:
+                new_y = screen_rect.top() + snap_gap
+            # Botton
+            if abs(geom.bottom() - screen_rect.bottom()) < snap_distance:
+                new_y = screen_rect.bottom() - self.height() - snap_gap
+
+            # Snapping to other widgets
+
+            from ..module_control import wctrl
+
+            for widget in wctrl.active_widgets.values():
+                if not widget.isVisible():
+                    continue
+                if self.screen() is not widget.screen():
+                    continue
+                other = widget.geometry()
+                # X
+                if abs(geom.left() - other.right()) < snap_distance:
+                    new_x = other.right() + snap_gap
+                elif abs(geom.right() - other.left()) < snap_distance:
+                    new_x = other.left() - self.width() - snap_gap
+                # Y
+                if abs(geom.top() - other.bottom()) < snap_distance:
+                    new_y = other.bottom() + snap_gap
+                elif abs(geom.bottom() - other.top()) < snap_distance:
+                    new_y = other.top() - self.height() - snap_gap
+
+            self.move(QPoint(int(new_x), int(new_y)))
 
     def mousePressEvent(self, event):
         """Set offset position & press state"""

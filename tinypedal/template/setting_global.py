@@ -31,6 +31,8 @@ GLOBAL_DEFAULT = {
         "enable_high_dpi_scaling": True,
         "enable_auto_load_preset": False,
         "show_confirmation_for_batch_toggle": True,
+        'snap_distance': 10,
+        "snap_gap": 0,
         "grid_move_size": 8,
         "minimum_update_interval": 10,
         "maximum_saving_attempts": 10,

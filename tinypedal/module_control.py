@@ -139,6 +139,13 @@ class ModuleControl:
             _module = None  # remove final reference
 
     @property
+    def active_widgets(self) -> dict:
+        """Dict of active widgets"""
+        if self.type_id == ConfigType.WIDGET:
+            return dict(self._active_modules)
+        return dict()
+
+    @property
     def number_active(self) -> int:
         """Number of active modules"""
         return len(self._active_modules)
