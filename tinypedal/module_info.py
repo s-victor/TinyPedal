@@ -537,7 +537,7 @@ class VehiclesInfo:
         self.nearestLine: float = MAX_METERS
         self.nearestTraffic: float = MAX_SECONDS
         self.nearestYellow: float = MAX_METERS
-        self.leaderBestLapTime: float = 0.0
+        self.leaderBestLapTime: float = MAX_SECONDS
 
 
 class WheelsInfo:

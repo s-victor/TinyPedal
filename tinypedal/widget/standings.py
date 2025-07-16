@@ -483,7 +483,7 @@ class Realtime(Overlay):
                     if self.show_class_timegap:
                         time_gap = self.gap_to_leader_best(veh_info.bestLapTime, veh_info.classBestLapTime)
                     else:
-                        time_gap = self.gap_to_leader_best(veh_info.bestLapTime, veh_info.leaderBestLapTime)
+                        time_gap = self.gap_to_leader_best(veh_info.bestLapTime, minfo.vehicles.leaderBestLapTime)
                 self.update_gap(self.bars_gap[idx], time_gap, hi_player, state)
             # Time interval
             if self.wcfg["show_time_interval"]:
