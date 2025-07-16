@@ -116,6 +116,23 @@ class Overlay(QWidget):
         palette.setColor(QPalette.Window, self.cfg.compatibility["global_bkg_color"])
         self.setPalette(palette)
 
+    def contextMenuEvent(self, event):
+        """Widget context menu"""
+        menu = QMenu(self)
+
+        menu.addAction(QAction(self.widget_name, self, enabled=False))
+        menu.addSeparator()
+
+        option_center_h = QAction("Center horizontally", self)
+        option_center_h.triggered.connect(self.center_horizontally)
+        menu.addAction(option_center_h)
+
+        option_center_v = QAction("Center vertically", self)
+        option_center_v.triggered.connect(self.center_vertically)
+        menu.addAction(option_center_v)
+
+        menu.exec_(event.globalPos())
+
     def mouseMoveEvent(self, event):
         """Update widget position"""
         if self._mouse_pos and event.buttons() == Qt.LeftButton:
@@ -212,6 +229,22 @@ class Overlay(QWidget):
             self.post_update()
         else:
             self._update_timer.start(self._update_interval, self)
+
+    @Slot()
+    def center_horizontally(self):
+        """Center widget horizontally"""
+        self.move(self.screen().geometry().width() / 2 - self.width() / 2, self.y())
+        self.wcfg["position_x"] = self.x()
+        self.wcfg["position_y"] = self.y()
+        self.cfg.save()
+
+    @Slot()
+    def center_vertically(self):
+        """Center widget vertically"""
+        self.move(self.x(), self.screen().geometry().height() / 2 - self.height() / 2)
+        self.wcfg["position_x"] = self.x()
+        self.wcfg["position_y"] = self.y()
+        self.cfg.save()
 
     def __connect_signal(self):
         """Connect overlay lock and hide signal"""
