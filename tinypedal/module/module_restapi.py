@@ -87,7 +87,6 @@ class Realtime(DataModule):
         sim_http = HttpSetup(
             host=self.mcfg["url_host"],
             port=self.mcfg.get(f"url_port_{sim_name.lower()}", 0),
-            interval=self.active_interval,
             timeout=min(max(self.mcfg["connection_timeout"], 0.5), 10),
             retry=min(max(int(self.mcfg["connection_retry"]), 0), 10),
             retry_delay=min(max(self.mcfg["connection_retry_delay"], 0), 60),
@@ -105,11 +104,12 @@ class Realtime(DataModule):
 
     def sort_taskset(self, http: HttpSetup, active_task: dict, taskset: tuple):
         """Sort task set into dictionary, key - uri_path, value - output_set"""
-        for uri_path, output_set, condition, is_repeat in taskset:
+        for uri_path, output_set, condition, is_repeat, min_interval in taskset:
             if self.mcfg.get(condition, True):
                 active_task[uri_path] = output_set
+                update_interval = max(min_interval, self.active_interval)
                 yield asyncio.create_task(
-                    self.fetch(http, uri_path, output_set, is_repeat)
+                    self.fetch(http, uri_path, output_set, is_repeat, update_interval)
                 )
 
     async def task_init(self, *task_generator):
@@ -135,8 +135,9 @@ class Realtime(DataModule):
         for task in task_group:
             task.cancel()
 
-    async def fetch(self, http: HttpSetup,
-        uri_path: str, output_set: tuple[ResRawOutput, ...], repeat: bool = False):
+    async def fetch(
+        self, http: HttpSetup, uri_path: str, output_set: tuple[ResRawOutput, ...],
+        repeat: bool = False, min_interval: float = 0.01):
         """Fetch data and verify"""
         data_available = await self.update_once(http, uri_path, output_set)
         if not data_available:
@@ -145,10 +146,10 @@ class Realtime(DataModule):
             logger.info("RestAPI: UPDATE ONCE: %s", uri_path)
         else:
             logger.info("RestAPI: UPDATE LIVE: %s", uri_path)
-            await self.update_repeat(http, uri_path, output_set)
+            await self.update_repeat(http, uri_path, output_set, min_interval)
 
-    async def update_once(self, http: HttpSetup,
-        uri_path: str, output_set: tuple[ResRawOutput, ...]) -> bool:
+    async def update_once(
+        self, http: HttpSetup, uri_path: str, output_set: tuple[ResRawOutput, ...]) -> bool:
         """Update once and verify"""
         request_header = set_header_get(uri_path, http.host)
         data_available = False
@@ -172,11 +173,11 @@ class Realtime(DataModule):
             break
         return data_available
 
-    async def update_repeat(self, http: HttpSetup,
-        uri_path: str, output_set: tuple[ResRawOutput, ...]):
+    async def update_repeat(
+        self, http: HttpSetup, uri_path: str, output_set: tuple[ResRawOutput, ...], min_interval: float):
         """Update repeat"""
         request_header = set_header_get(uri_path, http.host)
-        interval = min_interval = http.interval
+        interval = min_interval
         last_hash = new_hash = -1
         while not self.task_cancel:  # use task control to cancel & exit loop
             new_hash = await output_resource(request_header, http, output_set, last_hash)

@@ -36,7 +36,6 @@ class HttpSetup(NamedTuple):
 
     host: str
     port: int
-    interval: float
     timeout: float
     retry: int
     retry_delay: float
@@ -142,18 +141,18 @@ LMU_PITSTOPTIME = (
 #("LMU", "/rest/sessions/GetGameState", LMU_GAMESTATE, None),
 
 # Define task set
-# 0 - uri path, 1 - output set, 2 - enabling condition, 3 whether repeat task
+# 0 - uri path, 1 - output set, 2 - enabling condition, 3 is repeating task, 4 minimum update interval
 TASKSET_RF2 = (
-    ("/rest/sessions/weather", COMMON_WEATHERFORECAST, None, False),
-    ("/rest/sessions/setting/SESSSET_race_timescale", RF2_TIMESCALE, None, False),
-    ("/rest/sessions/setting/SESSSET_private_qual", RF2_PRIVATEQUALIFY, None, False),
+    ("/rest/sessions/weather", COMMON_WEATHERFORECAST, None, False, 0.1),
+    ("/rest/sessions/setting/SESSSET_race_timescale", RF2_TIMESCALE, None, False, 0.1),
+    ("/rest/sessions/setting/SESSSET_private_qual", RF2_PRIVATEQUALIFY, None, False, 0.1),
 )
 TASKSET_LMU = (
-    ("/rest/sessions/weather", COMMON_WEATHERFORECAST, None, False),
-    ("/rest/sessions", LMU_SESSIONSINFO, None, False),
-    ("/rest/garage/getPlayerGarageData", LMU_GARAGESETUP, None, False),
-    ("/rest/garage/UIScreen/RepairAndRefuel", LMU_CURRENTSTINT, None, True),
-    ("/rest/strategy/pitstop-estimate", LMU_PITSTOPTIME, None, True),
+    ("/rest/sessions/weather", COMMON_WEATHERFORECAST, None, False, 0.1),
+    ("/rest/sessions", LMU_SESSIONSINFO, None, False, 0.1),
+    ("/rest/garage/getPlayerGarageData", LMU_GARAGESETUP, None, False, 0.1),
+    ("/rest/garage/UIScreen/RepairAndRefuel", LMU_CURRENTSTINT, None, True, 0.2),
+    ("/rest/strategy/pitstop-estimate", LMU_PITSTOPTIME, None, True, 1.0),
 )
 
 

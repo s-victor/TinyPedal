@@ -3,6 +3,12 @@ WIP
 * Standings Widget
   - Renamed "show_time_gap_from_class_best" option to "show_time_gap_from_same_class", which now also shows time gap behind the same class leader in race session. This option is enabled by default, and only takes effect while `enable_multi_class_split_mode` is enabled.
 
+* RestAPI Module
+  - Add individual "minimum update interval" for each different url paths, where some url paths are updated less frequently than others to conserve resource.
+
+* Stats Module
+  - Fixed an issue that would cause incorrect best lap time saved due to network desync.
+
 2.31.0 (2025-07-08)
 -----------------------------
 * Fuel Calculator
