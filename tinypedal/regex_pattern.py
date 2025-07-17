@@ -101,6 +101,8 @@ CFG_INTEGER = (
     "^parts_max_width$|"
     "^position_x$|"
     "^position_y$|"
+    "^snap_distance$|"
+    "^snap_gap$|"
     "^stint_history_count$|"
     "^window_width$|"
     "^window_height$|"

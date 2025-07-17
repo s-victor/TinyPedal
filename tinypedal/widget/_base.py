@@ -24,12 +24,13 @@ from __future__ import annotations
 
 from typing import Any, NamedTuple
 
-from PySide2.QtCore import QBasicTimer, Qt, Slot, QPoint, QRect
+from PySide2.QtCore import QBasicTimer, Qt, Slot
 from PySide2.QtGui import QFont, QFontMetrics, QPalette, QPixmap
-from PySide2.QtWidgets import QGridLayout, QLabel, QLayout, QWidget, QMenu, QAction
+from PySide2.QtWidgets import QGridLayout, QLabel, QLayout, QMenu, QWidget
 
 from .. import regex_pattern as rxp
 from ..const_app import APP_NAME
+from ..formatter import format_module_name
 from ..overlay_control import octrl
 from ..setting import Setting
 
@@ -56,6 +57,11 @@ class Overlay(QWidget):
 
         # Widget mouse event
         self._mouse_pos = None
+        self._snap_grid = None
+        self._last_pos_x = 0
+        self._last_pos_y = 0
+        self._delta_move_x = 0
+        self._delta_move_y = 0
 
         # Set update timer
         self._update_timer = QBasicTimer()
@@ -120,75 +126,77 @@ class Overlay(QWidget):
         """Widget context menu"""
         menu = QMenu()
 
-        show_name = menu.addAction(self.widget_name)
+        show_name = menu.addAction(format_module_name(self.widget_name))
         show_name.setDisabled(True)
         menu.addSeparator()
 
-        option_center_h = menu.addAction("Center Horizontally")
-        option_center_h.triggered.connect(self.center_horizontally)
+        menu.addAction("Center Horizontally")
+        menu.addAction("Center Vertically")
 
-        option_center_v = menu.addAction("Center Vertically")
-        option_center_v.triggered.connect(self.center_vertically)
+        selected_action = menu.exec_(event.globalPos())
+        if not selected_action:
+            return
 
-        menu.exec_(event.globalPos())
+        action = selected_action.text()
+        if action == "Center Horizontally":
+            self.move(self.screen().geometry().width() / 2 - self.width() / 2, self.y())
+            self.__save_position()
+        elif action == "Center Vertically":
+            self.move(self.x(), self.screen().geometry().height() / 2 - self.height() / 2)
+            self.__save_position()
 
     def mouseMoveEvent(self, event):
         """Update widget position"""
         if self._mouse_pos and event.buttons() == Qt.LeftButton:
             pos = event.globalPos() - self._mouse_pos
-            if self.cfg.overlay["enable_grid_move"]:
-                move_size = max(self.cfg.application["grid_move_size"], 1)
-                pos = pos / move_size * move_size
-            self.move(pos)
 
             # Don't snap if Ctrl is not pressed
             if not (event.modifiers() & Qt.ControlModifier):
+                if self.cfg.overlay["enable_grid_move"]:
+                    move_size = max(self.cfg.application["grid_move_size"], 1)
+                    pos = pos / move_size * move_size
+                self.move(pos)
                 return
 
             new_x, new_y = pos.x(), pos.y()
 
-            snap_gap = max(0, int(self.cfg.application['snap_gap']))
-            snap_distance = max(snap_gap, int(self.cfg.application['snap_distance']))
+            # Moving direction trend
+            self._delta_move_x = min(max(new_x - self._last_pos_x + self._delta_move_x, -5), 5)
+            self._delta_move_y = min(max(new_y - self._last_pos_y + self._delta_move_y, -5), 5)
+            self._last_pos_x = new_x
+            self._last_pos_y = new_y
 
-            # Screen snapping
-            geom = QRect(new_x, new_y, self.width(), self.height())
-            screen_rect = self.screen().availableGeometry()
+            # Snapping to reference grid
+            snap_gap = max(0, self.cfg.application['snap_gap'])
+            snap_distance = max(snap_gap, self.cfg.application['snap_distance'])
+            x_pos_grid, y_pos_grid = self._snap_grid
 
-            # Left
-            if abs(geom.left() - screen_rect.left()) < snap_distance:
-                new_x = screen_rect.left() + snap_gap
-            # Right
-            if abs(geom.right() - screen_rect.right()) < snap_distance:
-                new_x = screen_rect.right() - self.width() - snap_gap
-            # Top
-            if abs(geom.top() - screen_rect.top()) < snap_distance:
-                new_y = screen_rect.top() + snap_gap
-            # Botton
-            if abs(geom.bottom() - screen_rect.bottom()) < snap_distance:
-                new_y = screen_rect.bottom() - self.height() - snap_gap
+            widget_width = self.width()
+            widget_height = self.height()
 
-            # Snapping to other widgets
+            if self._delta_move_x < 0:  # <- moving left
+                x_left = new_x
+                for x_pos_other in x_pos_grid:
+                    if abs(x_left - x_pos_other) < snap_distance:
+                        new_x = x_pos_other + snap_gap
+            elif self._delta_move_x > 0:  # -> moving right
+                x_right = new_x + widget_width
+                for x_pos_other in x_pos_grid:
+                    if abs(x_right - x_pos_other) < snap_distance:
+                        new_x = x_pos_other - widget_width - snap_gap
 
-            from ..module_control import wctrl
+            if self._delta_move_y < 0:  # <- moving up
+                y_top = new_y
+                for y_pos_other in y_pos_grid:
+                    if abs(y_top - y_pos_other) < snap_distance:
+                        new_y = y_pos_other + snap_gap
+            elif self._delta_move_y > 0:  # <- moving down
+                y_bottom = new_y + widget_height
+                for y_pos_other in y_pos_grid:
+                    if abs(y_bottom - y_pos_other) < snap_distance:
+                        new_y = y_pos_other - widget_height - snap_gap
 
-            for widget in wctrl.active_modules.values():
-                if not widget.isVisible():
-                    continue
-                if self.screen() is not widget.screen():
-                    continue
-                other = widget.geometry()
-                # X
-                if abs(geom.left() - other.right()) < snap_distance:
-                    new_x = other.right() + snap_gap
-                elif abs(geom.right() - other.left()) < snap_distance:
-                    new_x = other.left() - self.width() - snap_gap
-                # Y
-                if abs(geom.top() - other.bottom()) < snap_distance:
-                    new_y = other.bottom() + snap_gap
-                elif abs(geom.bottom() - other.top()) < snap_distance:
-                    new_y = other.top() - self.height() - snap_gap
-
-            self.move(QPoint(int(new_x), int(new_y)))
+            self.move(new_x, new_y)
 
     def mousePressEvent(self, event):
         """Set offset position & press state"""
@@ -197,14 +205,61 @@ class Overlay(QWidget):
             return
         if event.buttons() == Qt.LeftButton:
             self._mouse_pos = event.pos()
+            self._snap_grid = self.__snap_position()
+            self._last_pos_x = self._mouse_pos.x()
+            self._last_pos_y = self._mouse_pos.y()
+            self._delta_move_x = 0
+            self._delta_move_y = 0
 
     def mouseReleaseEvent(self, event):
         """Save position on release"""
         if self._mouse_pos:
             self._mouse_pos = None
-            self.wcfg["position_x"] = self.x()
-            self.wcfg["position_y"] = self.y()
-            self.cfg.save()
+            self.__save_position()
+        if self._snap_grid:
+            self._snap_grid = None
+
+    def __snap_position(self) -> tuple[list[int], list[int]]:
+        """Create widget snap position grid"""
+        from ..module_control import wctrl
+
+        screen_rect_free = self.screen().availableGeometry()
+        screen_rect_full = self.screen().geometry()
+
+        x_grid = [screen_rect_free.left(), screen_rect_free.right() + 1]
+        y_grid = [screen_rect_free.top(), screen_rect_free.bottom() + 1]
+
+        if screen_rect_full.left() not in x_grid:
+            x_grid.append(screen_rect_full.left())
+        if screen_rect_full.right() not in x_grid:
+            x_grid.append(screen_rect_full.right() + 1)
+        if screen_rect_full.top() not in y_grid:
+            y_grid.append(screen_rect_full.top())
+        if screen_rect_full.bottom() not in y_grid:
+            y_grid.append(screen_rect_full.bottom() + 1)
+
+        for widget in wctrl.active_modules.values():
+            if widget.widget_name == self.widget_name:
+                continue
+            if not widget.isVisible():
+                continue
+            if self.screen() is not widget.screen():
+                continue
+            other = widget.geometry()
+            x_grid.append(other.left())
+            x_grid.append(other.right() + 1)
+            y_grid.append(other.top())
+            y_grid.append(other.bottom() + 1)
+
+        x_grid.sort()
+        y_grid.sort()
+        return x_grid, y_grid
+
+    def __save_position(self):
+        """Save widget position"""
+        self.wcfg["position_x"] = self.x()
+        self.wcfg["position_y"] = self.y()
+        self.cfg.save()
 
     @Slot(bool)
     def __toggle_lock(self, locked: bool):
@@ -228,22 +283,6 @@ class Overlay(QWidget):
             self.post_update()
         else:
             self._update_timer.start(self._update_interval, self)
-
-    @Slot()
-    def center_horizontally(self):
-        """Center widget horizontally"""
-        self.move(self.screen().geometry().width() / 2 - self.width() / 2, self.y())
-        self.wcfg["position_x"] = self.x()
-        self.wcfg["position_y"] = self.y()
-        self.cfg.save()
-
-    @Slot()
-    def center_vertically(self):
-        """Center widget vertically"""
-        self.move(self.x(), self.screen().geometry().height() / 2 - self.height() / 2)
-        self.wcfg["position_x"] = self.x()
-        self.wcfg["position_y"] = self.y()
-        self.cfg.save()
 
     def __connect_signal(self):
         """Connect overlay lock and hide signal"""
