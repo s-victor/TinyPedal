@@ -35,27 +35,27 @@ Click `Transfer` button to transfer settings from currently loaded preset to ano
 
 `Right-Click` on a preset name in `Preset` tab opens up a context menu that provides additional preset file management options:
 
-* Lock Preset  
+* Lock Preset
     Lock selected preset, which prevents any changes that made through TinyPedal from saving to locked preset file. APP `version` tag will be attached to the preset that is locked with.
 
     Note, this feature does not prevent user from modifying or deleting locked preset file by other means. Locked preset file info is stored in `config.lock` file in [Global User Configuration](#global-user-configuration) folder.
 
-* Unlock Preset  
+* Unlock Preset
     Unlock selected preset.
 
-* Set primary for *  
+* Set primary for *
     Add `primary sim` tag to selected preset, which will be auto loaded by `Auto load preset` system. Note, a single preset can have tags from multiple games.
 
-* Clear primary tag  
+* Clear primary tag
     Clear all tags from selected preset.
 
-* Duplicate  
+* Duplicate
     Duplicate selected preset with a new name.
 
-* Rename  
+* Rename
     Rename selected preset with a new name. This option is not available for locked preset.
 
-* Delete  
+* Delete
     Delete selected preset with confirmation. This option is not available for locked preset.
 
 [**`Back to Top`**](#)
@@ -269,7 +269,7 @@ TinyPedal supports user-defined brand logo image in `PNG` format (.png extension
 
 Note: TinyPedal does not provide brand logo image assets, it is up to user to prepare images. Maximum `PNG` file size is limited to `1MB`.
 
-How to prepare brand logo image:  
+How to prepare brand logo image:
 1. Brand logo image should have all transparent borders cropped. For example, in `GIMP` this can be done by selecting `Image` > `Crop to Content`.
 2. Make sure image dimension is not too big, usually around 100 pixel width or height is good enough. Bigger dimension may consume more RAM or exceed maximum supported file size.
 3. Save image to `TinyPedal\brandlogo` folder, image filename must match corresponding `brand name` that defined in [Vehicle Brand Editor](#vehicle-brand-editor). For cross-platform compatibility, filename matching is set to be case-sensitive, make sure filename has the same upper or lower case as set in `brand name`.
@@ -415,6 +415,12 @@ This option is disabled by default.
 
     show_confirmation_for_batch_toggle
 Show confirmation dialog for enabling or disabling all widgets or modules. This option is enabled by default.
+
+    snap_distance
+The distance (in pixels) at which the widget will snap to screen edges or other widgets. Default `10`. Hold `Ctrl` to enable snapping.
+
+    snap_gap
+The gap (in pixels) to leave between the widget and the snapped widget edges. Default `0`.
 
     grid_move_size
 Set grid size for grid move, value in pixel. Default is `8` pixel. Minimum value is limited to `1`.
@@ -1009,11 +1015,11 @@ Note, by default the editor starts in `Pace Notes` edit mode as displayed in sta
 
 **Important note, the editor does not provide `undo` function, it is recommended to save file before doing heavy modification.**
 
-The editor consists of two panel views:  
+The editor consists of two panel views:
 * Left panel is the `Track Map Viewer`, which can be used to visualize track map and providing analytic info for assisting notes creation. See [Track Map Viewer](#track-map-viewer) section for details.
 * Right panel is the track and pace notes editor, which allows to create, open, and save track or pace notes file.
 
-The table view consists of multiple columns: 
+The table view consists of multiple columns:
 * `distance` column defines track position (in meters) of a note line.
 * `pace note` column (in Pace Notes edit mode) defines `pace note` name that is used to match pace note sound file name. Because windows system excludes some special characters from used in file name, the `pace note` column will automatically strip off invalid characters. Note, DO NOT write file extension (format) in `pace note` column. File extension should be set in `Pace Notes` control panel tab from main window.
 * `track note` column (in Track Notes edit mode) defines track `corner name` or `section name` or any thing user wish to note.
@@ -1029,7 +1035,7 @@ To save notes file to other formats for used in other games, select a file forma
 
 To hide map viewer, click `Hide Map`. To show map viewer, click `Show Map`.
 
-To edit metadata info, click `Info`. Metadata info provides optional info to notes:  
+To edit metadata info, click `Info`. Metadata info provides optional info to notes:
 * `Title` of notes.
 * `Author` of notes.
 * `Date` when notes created or modified.
@@ -1476,7 +1482,7 @@ Show compass directions with three-figure bearings that matches game's cardinal 
 Show elevation difference in game's coordinate system.
 
     show_odometer
-Show odometer that displays total driven distance of local player. 
+Show odometer that displays total driven distance of local player.
 
     odometer_maximum_digits
 Set maximum number of display digits.
@@ -2727,9 +2733,9 @@ First and fourth rows, starting from second cell, show estimated `leader's pit t
 
 Second and third rows, starting from second cell, show estimated `leader's final lap progress` (fraction of lap) and `local player's final lap progress` that depend on current session type:
 * For `TIME` type race, it shows final lap progress at the moment when session timer ended.
-* For `LAPS` type race, it shows relative final total lap difference between leader and local player.  
-Leader's value from second row second cell always shows `integer value`, because laps-type race has no timer, and the end of race is determined at the moment when leader crossed finish line, which can only be full laps.  
-Local player's value from third row second cell always shows final lap progress relative to leader's value from second row second cell.  
+* For `LAPS` type race, it shows relative final total lap difference between leader and local player.
+Leader's value from second row second cell always shows `integer value`, because laps-type race has no timer, and the end of race is determined at the moment when leader crossed finish line, which can only be full laps.
+Local player's value from third row second cell always shows final lap progress relative to leader's value from second row second cell.
 Both leader's and local player's `final lap progress` values starting from third cell are offset from second cell of same row.
 
 Third row, first cell shows `relative lap difference` between leader and local player that is calculated from lap time pace difference of both players, which can be used to determine whether leader has the chance to overtake local player on final lap. For example:
@@ -2738,7 +2744,7 @@ Third row, first cell shows `relative lap difference` between leader and local p
 
 Fifth row, first cell shows refilling type in `FUEL` or `NRG` (if virtual energy available). Starting from second cell, shows estimated `local player's refilling` that depends on current session type:
 * For `TIME` type race, refilling value from each column is calculated based on local player's current `laptime pace`, `consumption`, and `local player's final lap progress` from third row of same column. Note, each refilling value has no relation to `leader's final lap progress` value from same column. Refilling value from `0s` column gives same reading as seen from `Fuel` or `Virtual Energy` Widget in time-type race.
-* For `LAPS` type race, only refilling value from `0s` column is calculated and displayed according to leader's `leader's final lap progress` value.  
+* For `LAPS` type race, only refilling value from `0s` column is calculated and displayed according to leader's `leader's final lap progress` value.
 Other column values are not displayed, this is done to avoid confusion. Because unlike `TIME` type race where all `final lap progress` values are within `0.0` to `1.0` range, in `LAPS` type race values can exceed `1.0` or below `0.0` (negative), which the number of possible lap differences would increase exponentially and not possible to list all of them in the widget.
 
 Sixth row (optional), first cell shows `number of extra laps` for extra refilling display. Starting from second cell, shows estimated `extra refilling` value that depends on `local player's refilling` value and `number of extra laps` setting. Each extra refilling value equals `extra laps of consumption` plus `local player's refilling` value of same column. Those values save the trouble from manual calculation in case there will be extra laps.
@@ -2775,10 +2781,10 @@ See `TIME` or `LAPS` type race example usages below for details.
 
 3. Compare the two `final lap progress` values from leader and local player, assume fuel per lap is `3.8`:
 
-    * If leader's `final lap progress` value is greater than local player, such as leader's 0.91 (50s column) vs player's 0.47 (30s column), it indicates that leader will be ahead of local player when timer ended, and there will be no extra final lap. So `local player's refilling` value from corresponding `30s` column can be used, in this case, it's `+7.4` fuel to add.  
+    * If leader's `final lap progress` value is greater than local player, such as leader's 0.91 (50s column) vs player's 0.47 (30s column), it indicates that leader will be ahead of local player when timer ended, and there will be no extra final lap. So `local player's refilling` value from corresponding `30s` column can be used, in this case, it's `+7.4` fuel to add.
     However, if leader is closer to finish line (as show in orange color indicator), there is a chance that leader may be fast enough to cross finish line before the end of timer, which would result an extra final lap for local player, and requires adding an extra lap of fuel (`3.8`) on top of `+7.4` fuel. In this case it would be `+11.2` refuel, or you can simply look at the refuel value from `extra refilling row` of same column.
 
-    * If local player's `final lap progress` value is greater than leader, such as leader's 0.10 (30s column) vs player's 0.39 (40s column), it indicates that local player will be ahead of leader when timer ended, and there will be an extra final lap for local player, and here again requires adding an extra lap of fuel (`3.8`) on top of `+7.4` fuel from `40s` column, which is `+11.2` refuel.  
+    * If local player's `final lap progress` value is greater than leader, such as leader's 0.10 (30s column) vs player's 0.39 (40s column), it indicates that local player will be ahead of leader when timer ended, and there will be an extra final lap for local player, and here again requires adding an extra lap of fuel (`3.8`) on top of `+7.4` fuel from `40s` column, which is `+11.2` refuel.
     However, if the difference between the two `final lap progress` values is smaller than `relative lap difference` (from third row first cell) value, it may indicate that leader could overtake local player on final lap, which would result no extra final lap.
 
 4. To sum up, if comparison shows no extra final lap, then just refill according to `local player's refilling` (fifth row) value from the same column of `local player's final lap progress` (third row). If comparison shows an extra final lap, then just add an extra lap of fuel on top of `local player's refilling` value; or, just look at the refuel value from `extra refilling row` of same column.
@@ -2802,12 +2808,12 @@ Note, there is generally no reason to use this widget in `LAPS` type race unless
 
 3. Subtract `local player's final lap progress` value from `leader's final lap progress`, then round down value:
 
-    * If leader's `final lap progress` value is 2.00 (0s column), and local player's `final lap progress` value is 0.40 (0s column), then after subtracting (2 - 0.4 = 1.6) and rounding down, the final value is `1` lap difference, which means local player will do `one less lap` than leader.  
-    As mentioned earlier, for laps-type race, refilling value from `0s column` is calculated according to leader's `leader's final lap progress` value, which any lap difference is already included in the result from `local player's refilling` value (fifth row second cell), in this case, it's `+12.8` fuel to add.  
+    * If leader's `final lap progress` value is 2.00 (0s column), and local player's `final lap progress` value is 0.40 (0s column), then after subtracting (2 - 0.4 = 1.6) and rounding down, the final value is `1` lap difference, which means local player will do `one less lap` than leader.
+    As mentioned earlier, for laps-type race, refilling value from `0s column` is calculated according to leader's `leader's final lap progress` value, which any lap difference is already included in the result from `local player's refilling` value (fifth row second cell), in this case, it's `+12.8` fuel to add.
 
-    * If leader's `final lap progress` value is 1.43 (40s column), and local player's `final lap progress` value is -0.24 (50s column), then after subtracting (1.43 - -0.24 = 1.67) and rounding down, the final value is also `1` lap difference, which means local player will do the same `one less lap` than leader. So in this case, it's still `+12.8` fuel to add.  
+    * If leader's `final lap progress` value is 1.43 (40s column), and local player's `final lap progress` value is -0.24 (50s column), then after subtracting (1.43 - -0.24 = 1.67) and rounding down, the final value is also `1` lap difference, which means local player will do the same `one less lap` than leader. So in this case, it's still `+12.8` fuel to add.
 
-    * If leader's `final lap progress` value is 2.00 (0s column), and local player's `final lap progress` value is -0.11 (40s column), then after subtracting (2 - -0.11 = 2.11) and rounding down, the final value is `2` lap difference, which means local player will do `two less laps` than leader. So an extra lap of fuel may be removed from `local player's refilling` value from fifth row second cell, in this case, it's `12.8` minus one lap of fuel `2.2`, equals `+10.6` fuel to add. Alternatively, it can be calculated from full lap refuel (as show in Fuel Widget), which will be `15.0` minus two lap of fuel `4.4`, and equals `+10.6` fuel to add.  
+    * If leader's `final lap progress` value is 2.00 (0s column), and local player's `final lap progress` value is -0.11 (40s column), then after subtracting (2 - -0.11 = 2.11) and rounding down, the final value is `2` lap difference, which means local player will do `two less laps` than leader. So an extra lap of fuel may be removed from `local player's refilling` value from fifth row second cell, in this case, it's `12.8` minus one lap of fuel `2.2`, equals `+10.6` fuel to add. Alternatively, it can be calculated from full lap refuel (as show in Fuel Widget), which will be `15.0` minus two lap of fuel `4.4`, and equals `+10.6` fuel to add.
     Be aware that carrying less fuel is risky in laps-type race due to reasons below.
 
 4. Last note, since the end of laps-type race is determined by the moment that leader completed all race laps, leader can greatly affect final predication outcome. To give an extreme example, if leader is ahead of everyone by a few laps, and decides to wait a few minutes on his final lap before finish line, then everyone else will be catching up and do a few `extra laps` which would require more fuel. Thus it is always risky to carry less fuel in laps-type race.
