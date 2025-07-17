@@ -116,8 +116,8 @@ name the package with a prefix, like `python3-pyside2`, `python3-psutil` and
 `python3-pyxdg`.
 
 Some distros split `PySide2` in subpackages. If you don't find
-`python3-pyside2` then you should install `python3-pyside2.qtgui` and
-`python3-pyside2.qtwidgets`.
+`python3-pyside2` then you should install `python3-pyside2.qtgui`,
+`python3-pyside2.qtwidgets` and `python3-pyside2.qtmultimedia`.
 
 Alternatively, you can install them using `pip3` but this will bypass your
 system package manager and it isn't the recommended option. The command to
