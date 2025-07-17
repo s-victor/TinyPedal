@@ -139,10 +139,10 @@ class Overlay(QWidget):
 
         action = selected_action.text()
         if action == "Center Horizontally":
-            self.move(self.screen().geometry().width() / 2 - self.width() / 2, self.y())
+            self.move((self.screen().geometry().width() - self.width()) // 2, self.y())
             self.__save_position()
         elif action == "Center Vertically":
-            self.move(self.x(), self.screen().geometry().height() / 2 - self.height() / 2)
+            self.move(self.x(), (self.screen().geometry().height() - self.height()) // 2)
             self.__save_position()
 
     def mouseMoveEvent(self, event):
@@ -151,16 +151,16 @@ class Overlay(QWidget):
             pos = event.globalPos() - self._mouse_pos
 
             # Don't snap if Ctrl is not pressed
-            if not (event.modifiers() & Qt.ControlModifier):
+            if not (event.modifiers() & Qt.ControlModifier) or self._snap_grid is None:
                 if self.cfg.overlay["enable_grid_move"]:
                     move_size = max(self.cfg.application["grid_move_size"], 1)
                     pos = pos / move_size * move_size
                 self.move(pos)
                 return
 
-            new_x, new_y = pos.x(), pos.y()
-
             # Moving direction trend
+            x_pos_grid, y_pos_grid = self._snap_grid
+            new_x, new_y = pos.x(), pos.y()
             self._delta_move_x = min(max(new_x - self._last_pos_x + self._delta_move_x, -5), 5)
             self._delta_move_y = min(max(new_y - self._last_pos_y + self._delta_move_y, -5), 5)
             self._last_pos_x = new_x
@@ -169,7 +169,6 @@ class Overlay(QWidget):
             # Snapping to reference grid
             snap_gap = max(0, self.cfg.application['snap_gap'])
             snap_distance = max(snap_gap, self.cfg.application['snap_distance'])
-            x_pos_grid, y_pos_grid = self._snap_grid
 
             widget_width = self.width()
             widget_height = self.height()
@@ -222,38 +221,30 @@ class Overlay(QWidget):
     def __snap_position(self) -> tuple[list[int], list[int]]:
         """Create widget snap position grid"""
         from ..module_control import wctrl
-
-        screen_rect_free = self.screen().availableGeometry()
-        screen_rect_full = self.screen().geometry()
-
-        x_grid = [screen_rect_free.left(), screen_rect_free.right() + 1]
-        y_grid = [screen_rect_free.top(), screen_rect_free.bottom() + 1]
-
-        if screen_rect_full.left() not in x_grid:
-            x_grid.append(screen_rect_full.left())
-        if screen_rect_full.right() not in x_grid:
-            x_grid.append(screen_rect_full.right() + 1)
-        if screen_rect_full.top() not in y_grid:
-            y_grid.append(screen_rect_full.top())
-        if screen_rect_full.bottom() not in y_grid:
-            y_grid.append(screen_rect_full.bottom() + 1)
-
-        for widget in wctrl.active_modules.values():
-            if widget.widget_name == self.widget_name:
-                continue
-            if not widget.isVisible():
-                continue
-            if self.screen() is not widget.screen():
-                continue
-            other = widget.geometry()
-            x_grid.append(other.left())
-            x_grid.append(other.right() + 1)
-            y_grid.append(other.top())
-            y_grid.append(other.bottom() + 1)
-
-        x_grid.sort()
-        y_grid.sort()
-        return x_grid, y_grid
+        # Restricted screen area (excludes task bar, system menu, etc)
+        scr_x, scr_y, scr_width, scr_height = self.screen().availableGeometry().getRect()
+        # Full screen area
+        scrfull_x, scrfull_y, scrfull_width, scrfull_height = self.screen().geometry().getRect()
+        # Create grid set (avoid duplicates)
+        x_grid = {scr_x, scr_x + scr_width, scrfull_x, scrfull_x + scrfull_width}
+        y_grid = {scr_y, scr_y + scr_height, scrfull_y, scrfull_y + scrfull_height}
+        # Add widget x, y coords
+        try:
+            for widget in wctrl.active_modules.values():
+                if (
+                    widget.widget_name == self.widget_name
+                    or not widget.isVisible()
+                    or self.screen() is not widget.screen()
+                ):
+                    continue
+                other_x, other_y, other_width, other_height = widget.geometry().getRect()
+                x_grid.add(other_x)
+                x_grid.add(other_x + other_width)
+                y_grid.add(other_y)
+                y_grid.add(other_y + other_height)
+        except (RuntimeError, AttributeError, TypeError, ValueError):
+            pass
+        return sorted(x_grid), sorted(y_grid)
 
     def __save_position(self):
         """Save widget position"""
