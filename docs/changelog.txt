@@ -1,8 +1,11 @@
 WIP
 -----------------------------
 * [New]Widget Snapping
-  - Add widget snapping (implemented by "nikidigi"), which allows to snap and align widget to other widgets or screen edges. Snapping is activated by holding down "Ctrl" key while moving widget.
+  - Add widget snapping and alignment (implemented by "nikidigi"), which allows to snap and align widget to other widgets or screen edges. Snapping is activated by holding down "Ctrl" key while moving widget.
   - Add "snap_distance" and "snap_gap" options in global user config, which can be accessed from "Config > Application" in main menu.
+  - Add Right-Click "context menu" for each overlay widget, which enables additional options:
+    Center horizontally: align widget to the center of active screen horizontally.
+    Center vertically: align widget to the center of active screen vertically.
 
 * Standings Widget
   - Renamed "show_time_gap_from_class_best" option to "show_time_gap_from_same_class", which now also shows time gap behind the same class leader in race session. This option is enabled by default, and only takes effect while `enable_multi_class_split_mode` is enabled.

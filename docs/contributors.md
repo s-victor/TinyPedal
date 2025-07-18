@@ -12,7 +12,7 @@ Thanks to many people for contributing to the development.
 * Sergio Rafael Lemke (srlemke) - Cross-platform (Linux) assistance, features, bug fixes
 
 ## Implementation
-* nikidigi - widget snapping
+* nikidigi - widget snapping and alignment
 * TiberiuC39 - VR compatibility toggle
 * Sihyung Park (naturale0) - Auto load preset system
 * DanRZ - Trailing widget, various features, bug fixes

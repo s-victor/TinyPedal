@@ -1274,6 +1274,10 @@ Set minimum recording distance (in meters) between each tyre wear sample. Defaul
 # Widgets
 Each widget can be configured by accessing `Config` button from `Widget` tab in main window.
 
+Widget context menu can be accessed by `Right-Click` on widget, which provides additional options:
+- Center horizontally: align widget to the center of active screen horizontally.
+- Center vertically: align widget to the center of active screen vertically.
+
 [**`Back to Top`**](#)
 
 
