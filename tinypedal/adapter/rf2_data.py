@@ -691,9 +691,14 @@ class Vehicle(DataAdapter):
         """Is in garage"""
         return self.info.rf2ScorVeh(index).mInGarageStall
 
-    def number_pitstops(self, index: int | None = None) -> int:
+    def in_paddock(self, index: int | None = None) -> int:
+        """Is in paddock (either pit lane or garage), 0 = on track, 1 = pit lane, 2 = garage"""
+        state = self.info.rf2ScorVeh(index)
+        return 2 if state.mInGarageStall else state.mInPits
+
+    def number_pitstops(self, index: int | None = None, penalty: int = 0) -> int:
         """Number of pit stops"""
-        return self.info.rf2ScorVeh(index).mNumPitstops
+        return -penalty if penalty else self.info.rf2ScorVeh(index).mNumPitstops
 
     def number_penalties(self, index: int | None = None) -> int:
         """Number of penalties"""

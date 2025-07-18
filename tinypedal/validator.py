@@ -28,6 +28,7 @@ import re
 import time
 from functools import wraps
 from math import isfinite
+from time import monotonic
 from typing import Any, Sequence
 
 from .const_common import MAX_SECONDS
@@ -198,6 +199,27 @@ def is_clock_format(_format: str) -> bool:
         return True
     except ValueError:
         return False
+
+
+# Timer
+def state_timer(interval: float, last: float = 0):
+    """State timer
+
+    Args:
+        interval: time interval in seconds.
+        last: last time stamp in seconds.
+    Yield:
+        is_timeout: bool.
+    """
+    is_timeout = False
+    while True:
+        seconds = monotonic()
+        if seconds - last >= interval:
+            last = seconds
+            is_timeout = True
+        else:
+            is_timeout = False
+        yield is_timeout
 
 
 # Desync check

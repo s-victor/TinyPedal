@@ -278,7 +278,7 @@ class Realtime(Overlay):
             else:  # vehicles on temp map
                 inpit_offset = self.wcfg["font_size"] * data.inPit
                 pos_x, pos_y = calc.rotate_coordinate(
-                    6.2831853 * data.lapProgress,
+                    6.2831853 * data.currentLapProgress,
                     self.temp_map_size / -2 + inpit_offset,  # x pos
                     0,  # y pos
                 )

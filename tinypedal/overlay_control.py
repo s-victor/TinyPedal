@@ -22,7 +22,7 @@ Overlay Control
 
 import logging
 import threading
-from time import monotonic, sleep
+from time import sleep
 
 from PySide2.QtCore import QObject, Signal
 
@@ -30,26 +30,6 @@ from .api_control import api
 from .setting import cfg
 
 logger = logging.getLogger(__name__)
-
-
-def state_timer(interval: float, last: float = 0):
-    """State timer
-
-    Args:
-        interval: time interval in seconds.
-        last: last time stamp in seconds.
-    Yield:
-        is_timeout: bool.
-    """
-    is_timeout = False
-    while True:
-        seconds = monotonic()
-        if seconds - last >= interval:
-            last = seconds
-            is_timeout = True
-        else:
-            is_timeout = False
-        yield is_timeout
 
 
 class OverlayState(QObject):
