@@ -19,25 +19,3 @@
 """
 API data adapter
 """
-
-from . import rf2_connector
-
-
-class DataAdapter:
-    """Read & sort data into groups
-
-    Attributes:
-        info: API object.
-    """
-
-    __slots__ = (
-        "info",
-    )
-
-    def __init__(self, info: rf2_connector.RF2Info) -> None:
-        """Initialize API setting
-
-        Args:
-            info: API object.
-        """
-        self.info = info

@@ -35,7 +35,27 @@ from ..calculation import (
 from ..formatter import strip_invalid_char
 from ..validator import bytes_to_str as tostr
 from ..validator import infnan_to_zero as rmnan
-from . import DataAdapter
+from . import rf2_connector
+
+
+class DataAdapter:
+    """Read & sort data into groups
+
+    Attributes:
+        info: API object.
+    """
+
+    __slots__ = (
+        "info",
+    )
+
+    def __init__(self, info: rf2_connector.RF2Info) -> None:
+        """Initialize API setting
+
+        Args:
+            info: API object.
+        """
+        self.info = info
 
 
 class Check(DataAdapter):
@@ -45,10 +65,9 @@ class Check(DataAdapter):
 
     def api_state(self) -> bool:
         """API state"""
-        return (
-            not self.info.isPaused and
-            (self.info.rf2ScorInfo.mInRealtime
-            or self.info.rf2TeleVeh().mIgnitionStarter)
+        return not self.info.isPaused and (
+            self.info.rf2ScorInfo.mInRealtime
+            or self.info.rf2TeleVeh().mIgnitionStarter > 0
         )
 
     def api_version(self) -> str:
@@ -645,7 +664,7 @@ class Vehicle(DataAdapter):
 
     def is_driving(self) -> bool:
         """Is local player driving or in monitor"""
-        return self.info.rf2TeleVeh().mIgnitionStarter
+        return self.info.rf2TeleVeh().mIgnitionStarter > 0
 
     def player_index(self) -> int:
         """Get Local player index"""
@@ -788,7 +807,7 @@ class Vehicle(DataAdapter):
         """Downforce rear (Newtons)"""
         return rmnan(self.info.rf2TeleVeh(index).mRearDownforce)
 
-    def damage_severity(self, index: int | None = None) -> tuple[int, ...]:
+    def damage_severity(self, index: int | None = None) -> tuple[int, int, int, int, int, int, int, int]:
         """Damage severity, sort row by row from left to right, top to bottom"""
         dmg = self.info.rf2TeleVeh(index).mDentSeverity
         return dmg[1], dmg[0], dmg[7], dmg[2], dmg[6], dmg[3], dmg[4], dmg[5]  # RF2 order

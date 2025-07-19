@@ -26,26 +26,25 @@ import logging
 import threading
 from copy import copy
 from time import monotonic, sleep
-from typing import Sequence
+from typing import TYPE_CHECKING, Sequence
 
-logger = logging.getLogger(__name__)
-
-try:
-    from pyRfactor2SharedMemory.rF2MMap import (
-        INVALID_INDEX,
-        MAX_VEHICLES,
-        MMapControl,
-        rF2data,
-    )
-except ImportError:
+if __name__ == "__main__":  # local import check
     import sys
     sys.path.append(".")
-    from pyRfactor2SharedMemory.rF2MMap import (
-        INVALID_INDEX,
-        MAX_VEHICLES,
-        MMapControl,
-        rF2data,
-    )
+
+if TYPE_CHECKING:  # for type checker only
+    from pyRfactor2SharedMemory import rF2Type as rF2data
+else:  # run time only
+    from pyRfactor2SharedMemory import rF2data
+
+from pyRfactor2SharedMemory.rF2MMap import (
+    INVALID_INDEX,
+    MAX_VEHICLES,
+    MMapControl,
+    rFactor2Constants,
+)
+
+logger = logging.getLogger(__name__)
 
 
 def local_scoring_index(scor_veh: Sequence[rF2data.rF2VehicleScoring]) -> int:
@@ -71,10 +70,10 @@ class MMapDataSet:
     )
 
     def __init__(self) -> None:
-        self.scor = MMapControl(rF2data.rFactor2Constants.MM_SCORING_FILE_NAME, rF2data.rF2Scoring)
-        self.tele = MMapControl(rF2data.rFactor2Constants.MM_TELEMETRY_FILE_NAME, rF2data.rF2Telemetry)
-        self.ext = MMapControl(rF2data.rFactor2Constants.MM_EXTENDED_FILE_NAME, rF2data.rF2Extended)
-        self.ffb = MMapControl(rF2data.rFactor2Constants.MM_FORCE_FEEDBACK_FILE_NAME, rF2data.rF2ForceFeedback)
+        self.scor = MMapControl(rFactor2Constants.MM_SCORING_FILE_NAME, rF2data.rF2Scoring)
+        self.tele = MMapControl(rFactor2Constants.MM_TELEMETRY_FILE_NAME, rF2data.rF2Telemetry)
+        self.ext = MMapControl(rFactor2Constants.MM_EXTENDED_FILE_NAME, rF2data.rF2Extended)
+        self.ffb = MMapControl(rFactor2Constants.MM_FORCE_FEEDBACK_FILE_NAME, rF2data.rF2ForceFeedback)
 
     def __del__(self):
         logger.info("sharedmemory: GC: MMapDataSet")
