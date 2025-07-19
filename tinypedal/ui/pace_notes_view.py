@@ -58,9 +58,9 @@ logger = logging.getLogger(__name__)
 
 class PaceNotesPlayer(QMediaPlayer):
     """Pace notes player"""
-    set_source = None
-    set_volume = None
-    is_playing = None
+    set_source: Callable
+    set_volume: Callable
+    is_playing: Callable
 
     def __init__(self, parent, config: dict):
         super().__init__(parent)

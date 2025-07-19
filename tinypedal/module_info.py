@@ -24,11 +24,12 @@ from __future__ import annotations
 
 from array import array
 from collections import deque
-from typing import NamedTuple
+from typing import Mapping, NamedTuple
 
 from .const_common import (
     ABS_ZERO_CELSIUS,
     DELTA_DEFAULT,
+    EMPTY_DICT,
     MAX_METERS,
     MAX_SECONDS,
     MAX_VEHICLES,
@@ -418,9 +419,9 @@ class NotesInfo:
     def reset(self):
         """Reset"""
         self.currentIndex: int = 0
-        self.currentNote: dict = {}
+        self.currentNote: Mapping[str, float | str] = EMPTY_DICT
         self.nextIndex: int = 0
-        self.nextNote: dict = {}
+        self.nextNote: Mapping[str, float | str] = EMPTY_DICT
 
 
 class RelativeInfo:

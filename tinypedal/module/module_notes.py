@@ -78,10 +78,11 @@ class Realtime(DataModule):
                         parser=parse_csv_notes_only,
                         extension=FileExt.TPPN,
                     )
-                    gen_pacenotes = notes_selector(
-                        output=output_pacenotes,
-                        dataset=pace_notes,
-                    )
+                    if pace_notes:
+                        gen_pacenotes = notes_selector(
+                            output=output_pacenotes,
+                            dataset=pace_notes,
+                        )
 
                     # Load track notes
                     track_notes = load_notes_file(
@@ -91,10 +92,11 @@ class Realtime(DataModule):
                         parser=parse_csv_notes_only,
                         extension=FileExt.TPTN,
                     )
-                    gen_tracknotes = notes_selector(
-                        output=output_tracknotes,
-                        dataset=track_notes,
-                    )
+                    if track_notes:
+                        gen_tracknotes = notes_selector(
+                            output=output_tracknotes,
+                            dataset=track_notes,
+                        )
 
                 # Update position
                 pos_synced = minfo.delta.lapDistance
@@ -133,7 +135,7 @@ def load_pace_notes_file(
 
 
 @generator_init
-def notes_selector(output: NotesInfo, dataset: list[dict] | None):
+def notes_selector(output: NotesInfo, dataset: list[dict]):
     """Notes selector
 
     Args:
@@ -141,7 +143,8 @@ def notes_selector(output: NotesInfo, dataset: list[dict] | None):
         dataset: list of notes.
     """
     last_index = -99999  # make sure initial index is different
-    end_index = end_note_index(dataset)
+    next_index = 0  # next note line index
+    end_index = len(dataset) - 1  # end note line index
     dist_ref = reference_notes_index(dataset)
     output.reset()  # initial reset before updating
 
@@ -153,7 +156,7 @@ def notes_selector(output: NotesInfo, dataset: list[dict] | None):
             continue
 
         last_index = curr_index
-        next_index = next_note_index(pos_curr, curr_index, dist_ref)
+        next_index = (curr_index + 1) * (pos_curr < dist_ref[-1])
 
         output.currentIndex = curr_index
         output.currentNote = dataset[curr_index]
@@ -161,20 +164,6 @@ def notes_selector(output: NotesInfo, dataset: list[dict] | None):
         output.nextNote = dataset[next_index]
 
 
-def next_note_index(pos_curr: float, curr_index: int, dist_ref: list) -> int:
-    """Next note line index"""
-    return (curr_index + 1) * (pos_curr < dist_ref[-1])
-
-
-def end_note_index(notes: list | None) -> int:
-    """End note line index"""
-    if notes is None:
-        return 0
-    return len(notes) - 1
-
-
-def reference_notes_index(notes: list | None) -> list[float] | None:
-    """Reference notes index"""
-    if notes is None:
-        return None
-    return [note_line[COLUMN_DISTANCE] for note_line in notes]
+def reference_notes_index(notes: list) -> tuple[float, ...]:
+    """Reference notes index list"""
+    return tuple(note_line[COLUMN_DISTANCE] for note_line in notes)
