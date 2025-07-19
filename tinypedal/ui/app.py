@@ -371,11 +371,11 @@ class AppWindow(QMainWindow):
 
     def quit_app(self):
         """Quit manager"""
+        loader.close()  # must close this first
         self.save_window_state()
         self.__break_signal()
         self.findChild(QSystemTrayIcon).hide()  # hide icon in case of restart
         QApplication.quit()  # close app first
-        loader.close()
 
     def closeEvent(self, event):
         """Minimize to tray"""
@@ -411,7 +411,9 @@ class AppWindow(QMainWindow):
     def __connect_signal(self):
         """Connect overlay reload signal"""
         octrl.state.reload.connect(self.reload_preset)
+        logger.info("GUI: connect signals")
 
     def __break_signal(self):
         """Disconnect overlay reload signal"""
         octrl.state.reload.disconnect(self.reload_preset)
+        logger.info("GUI: disconnect signals")
