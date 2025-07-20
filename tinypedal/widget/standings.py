@@ -494,12 +494,13 @@ class Realtime(Overlay):
                 self.update_int(self.bars_int[idx], time_int, hi_player, state)
             # Vehicle laptime
             if self.wcfg["show_laptime"]:
-                if self.wcfg["show_best_laptime"] or in_race:
+                if in_race or self.wcfg["show_best_laptime"]:
                     if veh_info.pitTimer.pitting:
                         laptime = self.set_pittime(veh_info.inPit, veh_info.pitTimer.elapsed)
+                        is_class_best = False
                     else:
                         laptime = self.set_laptime(veh_info.lastLapTime)
-                    is_class_best = veh_info.isClassFastestLastLap
+                        is_class_best = veh_info.isClassFastestLastLap
                 else:
                     laptime = self.set_laptime(veh_info.bestLapTime)
                     is_class_best = False

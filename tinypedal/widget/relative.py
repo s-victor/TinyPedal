@@ -383,9 +383,11 @@ class Realtime(Overlay):
             if self.wcfg["show_laptime"]:
                 if veh_info.pitTimer.pitting:
                     laptime = self.set_pittime(veh_info.inPit, veh_info.pitTimer.elapsed)
+                    is_class_best = False
                 else:
                     laptime = self.set_laptime(veh_info.lastLapTime)
-                self.update_lpt(self.bars_lpt[idx], laptime, veh_info.isClassFastestLastLap, hi_player, state)
+                    is_class_best = veh_info.isClassFastestLastLap
+                self.update_lpt(self.bars_lpt[idx], laptime, is_class_best, hi_player, state)
             # Position in class
             if self.wcfg["show_position_in_class"]:
                 self.update_pic(self.bars_pic[idx], veh_info.positionInClass, hi_player, state)

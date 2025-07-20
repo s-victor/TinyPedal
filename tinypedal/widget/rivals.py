@@ -399,7 +399,7 @@ class Realtime(Overlay):
                 self.update_int(self.bars_int[idx], time_int, is_ahead, state)
             # Vehicle laptime
             if self.wcfg["show_laptime"]:
-                if self.wcfg["show_best_laptime"] or in_race:
+                if in_race or self.wcfg["show_best_laptime"]:
                     if veh_info.pitTimer.pitting:
                         laptime = self.set_pittime(veh_info.inPit, veh_info.pitTimer.elapsed)
                     else:

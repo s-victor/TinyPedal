@@ -118,17 +118,18 @@ class VehiclePitTimer:
         if self._last_state != in_pit:
             self._last_state = in_pit
             self._start = elapsed_time
-        # Ignore pit timer in garage
-        if in_pit == 2:
-            self._start = -1
-            self.elapsed = 0
+        if in_pit:
+            # Save last in pit lap number
             self._last_pit_lap = laps_done
-        # Calculating pit time while in pit
-        elif in_pit > 0 <= self._start:
-            self.elapsed = elapsed_time - self._start
-            self._last_pit_lap = laps_done
+            # Ignore pit timer in garage
+            if in_pit == 2:
+                self._start = -1
+                self.elapsed = 0
+            # Calculating pit time while in pit
+            elif 0 <= self._start:
+                self.elapsed = elapsed_time - self._start
         # Check whether is pitting lap
-        self.pitting = laps_done == self._last_pit_lap
+        self.pitting = (laps_done == self._last_pit_lap)
 
 
 class VehicleDataSet:
