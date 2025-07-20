@@ -33,6 +33,9 @@ from ..const_app import APP_NAME
 from ..formatter import format_module_name
 from ..overlay_control import octrl
 from ..setting import Setting
+from ._common import MousePosition
+
+mousepos = MousePosition()  # single instance shared by all widgets
 
 
 class Overlay(QWidget):
@@ -54,14 +57,6 @@ class Overlay(QWidget):
         # Base setting
         self.setWindowTitle(f"{APP_NAME} - {widget_name.capitalize()}")
         self.move(self.wcfg["position_x"], self.wcfg["position_y"])
-
-        # Widget mouse event
-        self._mouse_pos = None
-        self._snap_grid = None
-        self._last_pos_x = 0
-        self._last_pos_y = 0
-        self._delta_move_x = 0
-        self._delta_move_y = 0
 
         # Set update timer
         self._update_timer = QBasicTimer()
@@ -147,55 +142,22 @@ class Overlay(QWidget):
 
     def mouseMoveEvent(self, event):
         """Update widget position"""
-        if self._mouse_pos and event.buttons() == Qt.LeftButton:
-            pos = event.globalPos() - self._mouse_pos
+        if mousepos.init_pos and event.buttons() == Qt.LeftButton:
+            pos = event.globalPos() - mousepos.init_pos
 
             # Don't snap if Ctrl is not pressed
-            if not (event.modifiers() & Qt.ControlModifier) or self._snap_grid is None:
+            if not (event.modifiers() & Qt.ControlModifier):
                 if self.cfg.overlay["enable_grid_move"]:
                     move_size = max(self.cfg.application["grid_move_size"], 1)
                     pos = pos / move_size * move_size
                 self.move(pos)
                 return
 
-            # Moving direction trend
-            x_pos_grid, y_pos_grid = self._snap_grid
-            new_x, new_y = pos.x(), pos.y()
-            self._delta_move_x = min(max(new_x - self._last_pos_x + self._delta_move_x, -5), 5)
-            self._delta_move_y = min(max(new_y - self._last_pos_y + self._delta_move_y, -5), 5)
-            self._last_pos_x = new_x
-            self._last_pos_y = new_y
-
             # Snapping to reference grid
-            snap_gap = max(0, self.cfg.application['snap_gap'])
-            snap_distance = max(snap_gap, self.cfg.application['snap_distance'])
-
-            widget_width = self.width()
-            widget_height = self.height()
-
-            if self._delta_move_x < 0:  # <- moving left
-                x_left = new_x
-                for x_pos_other in x_pos_grid:
-                    if abs(x_left - x_pos_other) < snap_distance:
-                        new_x = x_pos_other + snap_gap
-            elif self._delta_move_x > 0:  # -> moving right
-                x_right = new_x + widget_width
-                for x_pos_other in x_pos_grid:
-                    if abs(x_right - x_pos_other) < snap_distance:
-                        new_x = x_pos_other - widget_width - snap_gap
-
-            if self._delta_move_y < 0:  # <- moving up
-                y_top = new_y
-                for y_pos_other in y_pos_grid:
-                    if abs(y_top - y_pos_other) < snap_distance:
-                        new_y = y_pos_other + snap_gap
-            elif self._delta_move_y > 0:  # <- moving down
-                y_bottom = new_y + widget_height
-                for y_pos_other in y_pos_grid:
-                    if abs(y_bottom - y_pos_other) < snap_distance:
-                        new_y = y_pos_other - widget_height - snap_gap
-
-            self.move(new_x, new_y)
+            snap_gap = max(0, self.cfg.application["snap_gap"])
+            snap_distance = max(snap_gap, self.cfg.application["snap_distance"])
+            mousepos.update_grid(self)
+            self.move(*mousepos.snapping(pos.x(), pos.y(), self.width(), self.height(), snap_gap, snap_distance))
 
     def mousePressEvent(self, event):
         """Set offset position & press state"""
@@ -203,48 +165,12 @@ class Overlay(QWidget):
         if self.cfg.overlay["fixed_position"]:
             return
         if event.buttons() == Qt.LeftButton:
-            self._mouse_pos = event.pos()
-            self._snap_grid = self.__snap_position()
-            self._last_pos_x = self._mouse_pos.x()
-            self._last_pos_y = self._mouse_pos.y()
-            self._delta_move_x = 0
-            self._delta_move_y = 0
+            mousepos.init_pos = event.pos()
 
     def mouseReleaseEvent(self, event):
         """Save position on release"""
-        if self._mouse_pos:
-            self._mouse_pos = None
-            self.__save_position()
-        if self._snap_grid:
-            self._snap_grid = None
-
-    def __snap_position(self) -> tuple[list[int], list[int]]:
-        """Create widget snap position grid"""
-        from ..module_control import wctrl
-        # Restricted screen area (excludes task bar, system menu, etc)
-        scr_x, scr_y, scr_width, scr_height = self.screen().availableGeometry().getRect()
-        # Full screen area
-        scrfull_x, scrfull_y, scrfull_width, scrfull_height = self.screen().geometry().getRect()
-        # Create grid set (avoid duplicates)
-        x_grid = {scr_x, scr_x + scr_width, scrfull_x, scrfull_x + scrfull_width}
-        y_grid = {scr_y, scr_y + scr_height, scrfull_y, scrfull_y + scrfull_height}
-        # Add widget x, y coords
-        try:
-            for widget in wctrl.active_modules.values():
-                if (
-                    widget.widget_name == self.widget_name
-                    or not widget.isVisible()
-                    or self.screen() is not widget.screen()
-                ):
-                    continue
-                other_x, other_y, other_width, other_height = widget.geometry().getRect()
-                x_grid.add(other_x)
-                x_grid.add(other_x + other_width)
-                y_grid.add(other_y)
-                y_grid.add(other_y + other_height)
-        except (RuntimeError, AttributeError, TypeError, ValueError):
-            pass
-        return sorted(x_grid), sorted(y_grid)
+        mousepos.reset()
+        self.__save_position()
 
     def __save_position(self):
         """Save widget position"""

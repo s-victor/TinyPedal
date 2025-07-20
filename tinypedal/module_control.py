@@ -58,16 +58,16 @@ class ModuleControl:
     """
 
     __slots__ = (
-        "type_id",
         "_imported_modules",
         "_active_modules",
+        "type_id",
         "active_modules",
     )
 
     def __init__(self, target: Any, type_id: str):
-        self.type_id = type_id
         self._imported_modules = create_module_pack(target)
         self._active_modules: dict = {}
+        self.type_id = type_id
         self.active_modules: MappingProxyType = MappingProxyType(self._active_modules)
 
     def start(self, name: str = ""):

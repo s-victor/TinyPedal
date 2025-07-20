@@ -22,7 +22,7 @@ Notes module
 
 from __future__ import annotations
 
-from typing import Callable
+from typing import Callable, Mapping
 
 from .. import calculation as calc
 from ..api_control import api
@@ -135,7 +135,7 @@ def load_pace_notes_file(
 
 
 @generator_init
-def notes_selector(output: NotesInfo, dataset: list[dict]):
+def notes_selector(output: NotesInfo, dataset: list[Mapping]):
     """Notes selector
 
     Args:
@@ -145,18 +145,19 @@ def notes_selector(output: NotesInfo, dataset: list[dict]):
     last_index = -99999  # make sure initial index is different
     next_index = 0  # next note line index
     end_index = len(dataset) - 1  # end note line index
-    dist_ref = reference_notes_index(dataset)
+    pos_reference = reference_position(dataset)
+    pos_final = pos_reference[-1]  # final reference position
     output.reset()  # initial reset before updating
 
     while True:
         pos_curr = yield
-        curr_index = calc.binary_search_lower(dist_ref, pos_curr, 0, end_index)
+        curr_index = calc.binary_search_lower(pos_reference, pos_curr, 0, end_index)
 
         if last_index == curr_index:
             continue
 
         last_index = curr_index
-        next_index = (curr_index + 1) * (pos_curr < dist_ref[-1])
+        next_index = (curr_index + 1) * (pos_curr < pos_final)
 
         output.currentIndex = curr_index
         output.currentNote = dataset[curr_index]
@@ -164,6 +165,6 @@ def notes_selector(output: NotesInfo, dataset: list[dict]):
         output.nextNote = dataset[next_index]
 
 
-def reference_notes_index(notes: list) -> tuple[float, ...]:
-    """Reference notes index list"""
+def reference_position(notes: list[Mapping]) -> tuple[float, ...]:
+    """Reference notes position list"""
     return tuple(note_line[COLUMN_DISTANCE] for note_line in notes)
