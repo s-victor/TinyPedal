@@ -20,8 +20,6 @@
 Lap time history Widget
 """
 
-from collections import deque
-
 from .. import calculation as calc
 from ..api_control import api
 from ..module_info import minfo
@@ -45,7 +43,7 @@ class Realtime(Overlay):
         # Config variable
         layout_reversed = self.wcfg["layout"] != 0
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
-        history_slot = max(self.wcfg["lap_time_history_count"], 1)
+        self.history_slot = min(max(self.wcfg["lap_time_history_count"], 1), 100)
 
         # Config units
         self.unit_fuel = set_unit_fuel(self.cfg.units["fuel_unit"])
@@ -70,7 +68,7 @@ class Realtime(Overlay):
             text="---",
             style=bar_style_laps[1],
             width=font_m.width * 3 + bar_padx,
-            count=history_slot + 1,
+            count=self.history_slot + 1,
         )
         self.bars_laps[0].setStyleSheet(bar_style_laps[0])
         self.set_grid_layout_table_column(
@@ -96,7 +94,7 @@ class Realtime(Overlay):
             text="-:--.---",
             style=self.bar_style_time[1],
             width=font_m.width * 8 + bar_padx,
-            count=history_slot + 1,
+            count=self.history_slot + 1,
         )
         self.bars_time[0].setStyleSheet(self.bar_style_time[0])
         self.set_grid_layout_table_column(
@@ -119,7 +117,7 @@ class Realtime(Overlay):
             text="-.--",
             style=bar_style_fuel[1],
             width=font_m.width * 4 + bar_padx,
-            count=history_slot + 1,
+            count=self.history_slot + 1,
         )
         self.bars_fuel[0].setStyleSheet(bar_style_fuel[0])
         self.set_grid_layout_table_column(
@@ -142,7 +140,7 @@ class Realtime(Overlay):
             text="---",
             style=bar_style_wear[1],
             width=font_m.width * 3 + bar_padx,
-            count=history_slot + 1,
+            count=self.history_slot + 1,
         )
         self.bars_wear[0].setStyleSheet(bar_style_wear[0])
         self.set_grid_layout_table_column(
@@ -153,49 +151,27 @@ class Realtime(Overlay):
         )
 
         # Last data
-        self.last_lap_stime = 0
-        # 0 - lap number, 1 - est lap time, 2 - is valid lap, 3 - last fuel usage, 4 - tyre wear
-        self.laps_data = [0] * 5
-        self.history_data = deque([tuple(self.laps_data) for _ in range(history_slot)], history_slot)
-        self.update_laps_history()
+        self.last_data_version = -1
+        self.update_laps_history(())
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        # Read laps data
-        lap_stime = api.read.timing.start()
-
         # Check if virtual energy available
         if self.wcfg["show_virtual_energy_if_available"] and minfo.restapi.maxVirtualEnergy:
-            temp_fuel_last = minfo.energy.lastLapConsumption
             temp_fuel_est = minfo.energy.estimatedConsumption
         else:
-            temp_fuel_last = self.unit_fuel(minfo.fuel.lastLapConsumption)
             temp_fuel_est = self.unit_fuel(minfo.fuel.estimatedConsumption)
 
-        if self.last_lap_stime != lap_stime:  # time stamp difference
-            if 2 < api.read.timing.elapsed() - lap_stime < 10:  # update 2s after cross line
-                self.last_lap_stime = lap_stime  # reset time stamp counter
-                # Update lap time history while on track
-                if not api.read.vehicle.in_garage():
-                    self.history_data.appendleft((
-                        self.laps_data[0],
-                        minfo.delta.lapTimeLast,
-                        minfo.delta.isValidLap,
-                        temp_fuel_last,
-                        calc.mean(minfo.wheels.lastLapTreadWear)
-                    ))
-                    self.update_laps_history()
-
         # Current laps data
-        self.laps_data[0] = api.read.lap.number()
-        self.laps_data[1] = minfo.delta.lapTimeEstimated
-        self.laps_data[3] = temp_fuel_est
-        self.laps_data[4] = calc.mean(minfo.wheels.estimatedTreadWear)
+        self.update_laps(self.bars_laps[0], api.read.lap.number())
+        self.update_time(self.bars_time[0], minfo.delta.lapTimeEstimated)
+        self.update_fuel(self.bars_fuel[0], temp_fuel_est)
+        self.update_wear(self.bars_wear[0], calc.mean(minfo.wheels.estimatedTreadWear))
 
-        self.update_laps(self.bars_laps[0], self.laps_data[0])
-        self.update_time(self.bars_time[0], self.laps_data[1])
-        self.update_fuel(self.bars_fuel[0], self.laps_data[3])
-        self.update_wear(self.bars_wear[0], self.laps_data[4])
+        # History laps data
+        if self.last_data_version != minfo.history.consumptionDataVersion:
+            self.last_data_version = minfo.history.consumptionDataVersion
+            self.update_laps_history(minfo.history.consumptionDataSet)
 
     # GUI update methods
     def update_laps(self, target, data):
@@ -222,21 +198,31 @@ class Realtime(Overlay):
             target.last = data
             target.setText(f"{data:03.1f}"[:3])
 
-    def update_laps_history(self):
+    def update_laps_history(self, dataset):
         """Laps history data"""
-        for index, data in enumerate(self.history_data):
+        is_energy = bool(self.wcfg["show_virtual_energy_if_available"] and minfo.restapi.maxVirtualEnergy)
+        for index in range(self.history_slot):
+            if index < len(dataset):
+                data = dataset[index]
+            else:
+                data = None
             index += 1
             unavailable = False
 
-            if data[1]:
-                self.update_laps(self.bars_laps[index], data[0])
-                self.update_time(self.bars_time[index], data[1])
-                self.update_fuel(self.bars_fuel[index], data[3])
-                self.update_wear(self.bars_wear[index], data[4])
+            if data is not None and data.lapTimeLast:
+                self.update_laps(self.bars_laps[index], data.lapNumber)
+                self.update_time(self.bars_time[index], data.lapTimeLast)
+                self.update_fuel(self.bars_fuel[index], data.lastLapUsedEnergy if is_energy else data.lastLapUsedFuel)
+                self.update_wear(self.bars_wear[index], data.tyreAvgWearLast)
                 # Highlight invalid lap time
-                self.bars_time[index].setStyleSheet(self.bar_style_time[2 - data[2]])
+                self.bars_time[index].setStyleSheet(self.bar_style_time[2 - data.isValidLap])
             elif not self.wcfg["show_empty_history"]:
                 unavailable = True
+            else:
+                self.update_laps(self.bars_laps[0], 0)
+                self.update_time(self.bars_time[0], 0)
+                self.update_fuel(self.bars_fuel[0], 0)
+                self.update_wear(self.bars_wear[0], 0)
 
             self.bars_laps[index].setHidden(unavailable)
             self.bars_time[index].setHidden(unavailable)

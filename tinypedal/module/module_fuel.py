@@ -110,7 +110,7 @@ def update_consumption_history():
                 capacityFuel=minfo.fuel.capacity,
             )
         )
-        minfo.history.consumptionDataModified = True
+        minfo.history.consumptionDataVersion += 1
 
 
 def load_consumption_history(filepath: str, combo_id: str):
@@ -123,19 +123,19 @@ def load_consumption_history(filepath: str, combo_id: str):
         minfo.history.consumptionDataSet.clear()
         minfo.history.consumptionDataSet.extend(dataset)
         # Update combo info
-        minfo.history.consumptionDataModified = False
         minfo.history.consumptionDataName = combo_id
+        minfo.history.consumptionDataVersion = hash(combo_id)  # unique start id
 
 
 def save_consumption_history(filepath: str, combo_id: str):
     """Save consumption history"""
-    if minfo.history.consumptionDataModified:
+    if minfo.history.consumptionDataVersion != hash(combo_id):
         save_consumption_history_file(
             dataset=minfo.history.consumptionDataSet,
             filepath=filepath,
             filename=combo_id,
         )
-        minfo.history.consumptionDataModified = False
+        minfo.history.consumptionDataVersion = hash(combo_id)  # reset
 
 
 def detect_consumption_type() -> Callable:

@@ -106,7 +106,7 @@ class VehiclePitTimer:
         self.elapsed: float = 0.0
         self.pitting: bool = False
         self._last_state: int = 0
-        self._last_pit_lap: int = 0
+        self._last_pit_lap: int = -1
         self._start: float = 0.0
 
     def update(self, in_pit: int, elapsed_time: float, laps_done: int):
@@ -327,19 +327,19 @@ class HistoryInfo:
 
     __slots__ = (
         "consumptionDataName",
-        "consumptionDataModified",
+        "consumptionDataVersion",
         "consumptionDataSet",
     )
 
     def __init__(self):
         self.consumptionDataName: str = ""
-        self.consumptionDataModified: bool = False
+        self.consumptionDataVersion: int = 0
         self.consumptionDataSet: deque[ConsumptionDataSet] = deque([ConsumptionDataSet()], 100)
 
     def reset_consumption(self):
         """Reset consumption data"""
         self.consumptionDataName = ""
-        self.consumptionDataModified = False
+        self.consumptionDataVersion = 0
         self.consumptionDataSet.clear()
         self.consumptionDataSet.appendleft(ConsumptionDataSet())
 
