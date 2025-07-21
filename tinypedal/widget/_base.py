@@ -142,22 +142,12 @@ class Overlay(QWidget):
 
     def mouseMoveEvent(self, event):
         """Update widget position"""
-        if mousepos.init_pos and event.buttons() == Qt.LeftButton:
-            pos = event.globalPos() - mousepos.init_pos
-
-            # Don't snap if Ctrl is not pressed
-            if not (event.modifiers() & Qt.ControlModifier):
-                if self.cfg.overlay["enable_grid_move"]:
-                    move_size = max(self.cfg.application["grid_move_size"], 1)
-                    pos = pos / move_size * move_size
-                self.move(pos)
-                return
-
-            # Snapping to reference grid
-            snap_gap = max(0, self.cfg.application["snap_gap"])
-            snap_distance = max(snap_gap, self.cfg.application["snap_distance"])
-            mousepos.update_grid(self)
-            self.move(*mousepos.snapping(pos.x(), pos.y(), self.width(), self.height(), snap_gap, snap_distance))
+        if mousepos.valid() and event.buttons() == Qt.LeftButton:
+            # Snapping to reference grid if Ctrl is pressed
+            if (event.modifiers() & Qt.ControlModifier):
+                self.move(mousepos.snapping(self, event.globalPos()))
+            else:
+                self.move(mousepos.moving(event.globalPos()))
 
     def mousePressEvent(self, event):
         """Set offset position & press state"""
@@ -165,7 +155,13 @@ class Overlay(QWidget):
         if self.cfg.overlay["fixed_position"]:
             return
         if event.buttons() == Qt.LeftButton:
-            mousepos.init_pos = event.pos()
+            mousepos.config(
+                event.pos(),
+                self.cfg.overlay["enable_grid_move"],
+                self.cfg.application["grid_move_size"],
+                self.cfg.application["snap_gap"],
+                self.cfg.application["snap_distance"],
+            )
 
     def mouseReleaseEvent(self, event):
         """Save position on release"""
@@ -174,9 +170,15 @@ class Overlay(QWidget):
 
     def __save_position(self):
         """Save widget position"""
-        self.wcfg["position_x"] = self.x()
-        self.wcfg["position_y"] = self.y()
-        self.cfg.save()
+        save_changes = False
+        if self.wcfg["position_x"] != self.x():
+            self.wcfg["position_x"] = self.x()
+            save_changes = True
+        if self.wcfg["position_y"] != self.y():
+            self.wcfg["position_y"] = self.y()
+            save_changes = True
+        if save_changes:
+            self.cfg.save()
 
     @Slot(bool)
     def __toggle_lock(self, locked: bool):
