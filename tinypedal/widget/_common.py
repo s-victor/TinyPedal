@@ -23,7 +23,7 @@ Overlay base common class.
 from __future__ import annotations
 
 from PySide2.QtCore import QPoint
-from PySide2.QtWidgets import QWidget
+from PySide2.QtWidgets import QApplication, QWidget
 
 
 class MousePosition:
@@ -81,8 +81,6 @@ class MousePosition:
         if self._screen_name == screen.name():
             return
         self._screen_name = screen.name()
-
-        from ..module_control import wctrl
         # Restricted screen area (excludes task bar, system menu, etc)
         scr_x, scr_y, scr_width, scr_height = screen.availableGeometry().getRect()
         # Full screen area
@@ -92,10 +90,10 @@ class MousePosition:
         y_grid = {scr_y, scr_y + scr_height, scrfull_y, scrfull_y + scrfull_height}
         # Add widget x, y coords
         try:
-            widget_name = widget.widget_name
-            for other_widget in wctrl.active_modules.values():
+            for other_widget in QApplication.topLevelWidgets():
                 if (
-                    other_widget.widget_name == widget_name
+                    not hasattr(other_widget, "widget_name")
+                    or widget is other_widget
                     or not other_widget.isVisible()
                     or screen is not other_widget.screen()
                 ):
@@ -105,7 +103,7 @@ class MousePosition:
                 x_grid.add(other_x + other_width)
                 y_grid.add(other_y)
                 y_grid.add(other_y + other_height)
-        except (RuntimeError, AttributeError, TypeError, ValueError, AssertionError):
+        except (RuntimeError, AttributeError, TypeError, ValueError):
             pass
         # Sort grid (necessary to avoid snapping jumping)
         self._grid_x = sorted(x_grid)
