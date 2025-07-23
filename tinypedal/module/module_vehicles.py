@@ -115,7 +115,7 @@ def update_vehicle_data(
         data.totalLapProgress = laps_completed + data.currentLapProgress
         data.isYellow = api.read.vehicle.speed(index) < 8
         data.inPit = api.read.vehicle.in_paddock(index)
-        data.pitTimer.update(data.inPit, elapsed_time, laps_completed)
+        data.pitTimer.update(api.read.vehicle.slot_id(index), data.inPit, elapsed_time, laps_completed)
         data.worldPositionX = api.read.vehicle.position_longitudinal(index)
         data.worldPositionY = api.read.vehicle.position_lateral(index)
 
