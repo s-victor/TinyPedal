@@ -97,37 +97,49 @@ class VehiclePitTimer:
     __slots__ = (
         "elapsed",
         "pitting",
+        "_slot_id",
+        "_start_time",
         "_last_state",
         "_last_pit_lap",
-        "_start",
     )
 
     def __init__(self):
         self.elapsed: float = 0.0
         self.pitting: bool = False
+        self._slot_id: int = -1
+        self._start_time: float = 0.0
         self._last_state: int = 0
         self._last_pit_lap: int = -1
-        self._start: float = 0.0
 
-    def update(self, in_pit: int, elapsed_time: float, laps_done: int):
+    def update(self, slot_id: int, in_pit: int, elapsed_time: float, laps_done: int):
         """Calculate pit time
 
         Pit state: 0 = not in pit, 1 = in pit, 2 = in garage.
         """
+        # Reset if slot (vehicle) id changed
+        if self._slot_id != slot_id:
+            self._slot_id = slot_id
+            self.elapsed = 0.0
+            self.pitting = False
+            self._start_time = -1.0
+            self._last_state = 0
+            self._last_pit_lap = -1
         # Pit status check
         if self._last_state != in_pit:
             self._last_state = in_pit
-            self._start = elapsed_time
+            self._start_time = elapsed_time
         if in_pit:
-            # Save last in pit lap number
-            self._last_pit_lap = laps_done
             # Ignore pit timer in garage
             if in_pit == 2:
-                self._start = -1
-                self.elapsed = 0
+                self._start_time = -1.0
+                self.elapsed = 0.0
             # Calculating pit time while in pit
-            elif 0 <= self._start:
-                self.elapsed = elapsed_time - self._start
+            elif 0 <= self._start_time:
+                self.elapsed = elapsed_time - self._start_time
+            # Save last in pit lap number
+            # Pit state can desync, wait minimum 2 seconds before update
+            if 2 < self.elapsed:
+                self._last_pit_lap = laps_done
         # Check whether is pitting lap
         self.pitting = (laps_done == self._last_pit_lap)
 
