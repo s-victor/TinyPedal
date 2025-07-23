@@ -141,7 +141,7 @@ class VehiclePitTimer:
             if 2 < self.elapsed:
                 self._last_pit_lap = laps_done
         # Check whether is pitting lap
-        self.pitting = (laps_done == self._last_pit_lap)
+        self.pitting = (in_pit > 0 or laps_done == self._last_pit_lap)
 
 
 class VehicleDataSet:

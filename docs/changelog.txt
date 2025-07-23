@@ -1,4 +1,4 @@
-WIP
+2.32.0 (2025-07-23)
 -----------------------------
 * [New]Widget Snapping
   - Add widget snapping and alignment (implemented by @nikidigi), which allows to snap and align widget to other widgets or screen edges. Snapping is activated by holding down "Ctrl" key while moving widget.
@@ -11,10 +11,12 @@ WIP
   - Now loads and shows lap history data from corresponding "Consumption History" file.
 
 * Standings Widget
-  - Renamed "show_time_gap_from_class_best" option to "show_time_gap_from_same_class", which now also shows time gap behind the same class leader in race session. This option is enabled by default, and only takes effect while `enable_multi_class_split_mode` is enabled.
+  - Renamed "show_time_gap_from_class_best" option to "show_time_gap_from_same_class", which now also shows time gap behind the same class leader in race session (requested by user "ssalamon"). This option is enabled by default, and only takes effect while `enable_multi_class_split_mode` is enabled.
+  - Fixed a calculation error with time interval between each driver.
 
 * RestAPI Module
-  - Add individual "minimum update interval" for each different url paths, where some url paths are updated less frequently than others to conserve resource.
+  - Add individual hard-coded "minimum update interval" for each different url resources, where some resources are accessed less frequently than others for conserving resource.
+  - Fixed an issue where accessing extremely large dataset may fail sometimes.
 
 * Stats Module
   - Fixed an issue that would cause incorrect best lap time saved due to network desync.
@@ -22,6 +24,7 @@ WIP
 * Misc
   - Updated README with pyside2 (qtmultimedia) dependency info for Linux (by @berarma).
   - Add new contributor "nikidigi" to contributors.md.
+  - Various optimization.
 
 2.31.0 (2025-07-08)
 -----------------------------
