@@ -211,15 +211,13 @@ def state_timer(interval: float, last: float = 0):
     Yield:
         is_timeout: bool.
     """
-    is_timeout = False
     while True:
         seconds = monotonic()
         if seconds - last >= interval:
             last = seconds
-            is_timeout = True
+            yield True
         else:
-            is_timeout = False
-        yield is_timeout
+            yield False
 
 
 # Desync check

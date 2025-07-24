@@ -109,7 +109,7 @@ class VehiclePitTimer:
         self._slot_id: int = -1
         self._start_time: float = 0.0
         self._last_state: int = 0
-        self._last_pit_lap: int = -1
+        self._last_pit_lap: int = -999
 
     def update(self, slot_id: int, in_pit: int, elapsed_time: float, laps_done: int):
         """Calculate pit time
@@ -123,7 +123,10 @@ class VehiclePitTimer:
             self.pitting = False
             self._start_time = -1.0
             self._last_state = 0
-            self._last_pit_lap = -1
+            self._last_pit_lap = -999
+        # Reset if session changed
+        if self._last_pit_lap > laps_done:
+            self._last_pit_lap = -999
         # Pit status check
         if self._last_state != in_pit:
             self._last_state = in_pit
