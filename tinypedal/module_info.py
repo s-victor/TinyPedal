@@ -310,6 +310,7 @@ class FuelInfo:
         "estimatedMinutes",
         "estimatedNumPitStopsEnd",
         "estimatedNumPitStopsEarly",
+        "expectedConsumption",
         "deltaConsumption",
         "oneLessPitConsumption",
     )
@@ -333,6 +334,7 @@ class FuelInfo:
         self.estimatedMinutes: float = 0.0
         self.estimatedNumPitStopsEnd: float = 0.0
         self.estimatedNumPitStopsEarly: float = 0.0
+        self.expectedConsumption: float = 0.0
         self.deltaConsumption: float = 0.0
         self.oneLessPitConsumption: float = 0.0
 

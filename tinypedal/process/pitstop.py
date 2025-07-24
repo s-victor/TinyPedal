@@ -184,7 +184,7 @@ def set_time_fuel_only(raw: dict, ref_time: dict, temp: EstimatePitTime):
         current = raw.get("currentSetting", 0)
         selector = raw.get("settings")
         raw_value = selector[current]["text"]
-        fuel = float(rex_number_extract(raw_value).group())
+        fuel = float(rex_number_extract.search(raw_value).group())
         if "gal" in raw_value.lower():  # convert to liter
             fuel *= 3.7854118
     except (AttributeError, TypeError, IndexError, ValueError):

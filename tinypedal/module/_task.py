@@ -27,7 +27,7 @@ from typing import Any, Callable, NamedTuple
 from ..const_common import PITEST_DEFAULT
 from ..module_info import minfo
 from ..process.pitstop import EstimatePitTime
-from ..process.vehicle import steerlock_to_number
+from ..process.vehicle import expected_usage, steerlock_to_number
 from ..process.weather import FORECAST_DEFAULT, forecast_rf2
 
 
@@ -127,6 +127,8 @@ LMU_CURRENTSTINT = (
 )
 LMU_GARAGESETUP = (
     ResParOutput(minfo.restapi, "steeringWheelRange", 0.0, steerlock_to_number, ("VM_STEER_LOCK", "stringValue")),
+    ResParOutput(minfo.fuel, "expectedConsumption", 0.0, expected_usage, ("VM_FUEL_CAPACITY", "stringValue")),
+    ResParOutput(minfo.energy, "expectedConsumption", 0.0, expected_usage, ("VM_VIRTUAL_ENERGY", "stringValue")),
 )
 LMU_SESSIONSINFO = (
     ResRawOutput(minfo.restapi, "timeScale", 1, ("SESSSET_race_timescale", "currentValue")),

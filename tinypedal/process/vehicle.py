@@ -23,10 +23,20 @@ Vehicle function
 from ..regex_pattern import rex_number_extract
 
 
-def steerlock_to_number(value: str) -> float:
-    """Convert steerlock (degree) string to float value"""
+def expected_usage(value: str) -> float:
+    """Extract expected fuel or energy usage from car setup"""
     try:
-        match_obj = rex_number_extract(value)
+        match_obj = rex_number_extract.findall(value)
+        assert match_obj is not None
+        return float(match_obj[0]) / float(match_obj[1])
+    except (ZeroDivisionError, AttributeError, IndexError, TypeError, ValueError):
+        return 0.0
+
+
+def steerlock_to_number(value: str) -> float:
+    """Convert steerlock (degree) string to float value from car setup"""
+    try:
+        match_obj = rex_number_extract.search(value)
         assert match_obj is not None
         return float(match_obj.group())
     except (AttributeError, TypeError, ValueError):
