@@ -803,6 +803,10 @@ For brand logo image preparation, see [Brand Logo](#brand-logo) section.
 
 To import vehicle brand data from `Rest API`, click `Import from` menu, and select either `RF2 Rest API` or `LMU Rest API`. Note, game updates may introduce new vehicles, it is recommended to re-import after each game update to keep brand info updated.
 
+Note, there are currently two sources for importing from `LMU Rest API`:
+- Primary: allows to import brands from both original and custom vehicle skins.
+- Alternative: may allow to import some brands that are missing from Primary source. This is normally not required.
+
 **Important notes**
 
 Game must be running in order to import from `Rest API`. Newly imported data will be appended on top of existing data, existing data will not be changed.
@@ -818,6 +822,7 @@ Alternatively, to import vehicle brand data from vehicle `JSON` file, click `Imp
 
     How to manually export vehicle brand data from LMU Rest API:
     1. Start LMU, then open following link in web browser:
+    localhost:6397/rest/race/car
     localhost:6397/rest/sessions/getAllVehicles
     2. Click "Save" button which saves vehicle data to JSON file.
 

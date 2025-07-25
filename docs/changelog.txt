@@ -1,3 +1,10 @@
+WIP
+-----------------------------
+* Vehicle Brand Editor
+  - Add "Primary" and "Alternative" sources for importing vehicle brand data from LMU Rest API. The "Primary" source now allows to import brands from both original and custom vehicle skins, while "Alternative" source (normally not required) is provided in case if some brands are missing from "Primary" source.
+    Note, to import brands from custom vehicle skins, it is required to get into a online multiplayer session, then select "LMU Rest API (Primary)" from "import from" menu. Re-import is required if new vehicles with new custom skin joined your session. To avoid constantly re-importing, try import before qualify or race starts.
+    Note, auto-importing function is not provided for stability and performance concerns, as importing is very expensive operation that involves large data set processing.
+
 2.32.0 (2025-07-23)
 -----------------------------
 * [New]Widget Snapping
