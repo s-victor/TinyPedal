@@ -115,6 +115,9 @@ RF2_TIMESCALE = (
 RF2_PRIVATEQUALIFY = (
     ResRawOutput(minfo.restapi, "privateQualifying", 0, ("currentValue",)),
 )
+RF2_GARAGESETUP = (
+    ResParOutput(minfo.fuel, "expectedConsumption", 0.0, expected_usage, ("VM_FUEL_LEVEL", "stringValue")),
+)
 # LMU
 LMU_CURRENTSTINT = (
     ResRawOutput(minfo.restapi, "currentVirtualEnergy", 0.0, ("fuelInfo", "currentVirtualEnergy")),
@@ -148,6 +151,7 @@ TASKSET_RF2 = (
     ("/rest/sessions/weather", COMMON_WEATHERFORECAST, None, False, 0.1),
     ("/rest/sessions/setting/SESSSET_race_timescale", RF2_TIMESCALE, None, False, 0.1),
     ("/rest/sessions/setting/SESSSET_private_qual", RF2_PRIVATEQUALIFY, None, False, 0.1),
+    ("/rest/garage/fuel", RF2_GARAGESETUP, None, False, 0.1),
 )
 TASKSET_LMU = (
     ("/rest/sessions/weather", COMMON_WEATHERFORECAST, None, False, 0.1),

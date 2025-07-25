@@ -23,6 +23,7 @@ Setting validator function
 from __future__ import annotations
 
 import re
+from typing import Any, Mapping
 
 from . import regex_pattern as rxp
 from .template.setting_brakes import BRAKEINFO_DEFAULT
@@ -41,7 +42,7 @@ COMMON_STRINGS = "|".join((
 ))
 
 
-def validate_style(dict_user: dict[str, dict], dict_def: dict[str, dict]) -> bool:
+def validate_style(dict_user: dict[str, dict], dict_def: Mapping[str, Any]) -> bool:
     """Validate style dict entries"""
     save_change = False
     for name, data in dict_user.items():

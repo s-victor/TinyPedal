@@ -195,7 +195,7 @@ def is_hex_color(color_str: str | Any) -> bool:
 def is_clock_format(_format: str) -> bool:
     """Validate clock time format"""
     try:
-        time.strftime(_format, time.gmtime(0))
+        time.strftime(_format)
         return True
     except ValueError:
         return False
