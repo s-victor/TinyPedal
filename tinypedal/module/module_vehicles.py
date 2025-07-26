@@ -190,6 +190,8 @@ def update_vehicle_data(
             data.gapBehindNextInClass = calc_time_gap_behind(opt_index_ahead, index, track_length, data.totalLapProgress)
             data.gapBehindLeaderInClass = calc_time_gap_behind(opt_index_leader, index, track_length, data.totalLapProgress)
 
+            data.energyRemaining = calc_stint_energy(data.driverName, data.vehicleClass, data.totalLapProgress, data.pitTimer.pitting and not data.inPit)
+
             data.lapTimeHistory.update(api.read.timing.start(index), elapsed_time, data.lastLapTime)
 
             # Save leader info
@@ -261,3 +263,21 @@ def calc_gap_behind_leader(index: int) -> float | int:
     if laps_behind_leader > 0:
         return laps_behind_leader
     return api.read.timing.behind_leader(index)
+
+
+def calc_stint_energy(name: str, class_name: str, laps_done_raw: float, is_pitting_out: bool) -> float:
+    """Calculate stint energy usage"""
+    data = minfo.restapi.stintVirtualEnergy.get(name)
+    if data is None:
+        return -100.0
+    ve_remaining, ve_used, laps_done = data
+    if ve_remaining <= -100.0 or is_pitting_out:
+        return ve_remaining
+    if ve_used <= 0:
+        if class_name != api.read.vehicle.class_name():
+            return ve_remaining
+        ve_used = minfo.energy.expectedConsumption * 0.01
+        if ve_used <= 0:
+            return ve_remaining
+    # Apply linear interpolation at 95% of expected lap usage
+    return ve_remaining - ve_used * 0.95 * (laps_done_raw - laps_done)

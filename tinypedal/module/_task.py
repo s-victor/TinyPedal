@@ -24,10 +24,10 @@ from __future__ import annotations
 
 from typing import Any, Callable, NamedTuple
 
-from ..const_common import PITEST_DEFAULT
+from ..const_common import EMPTY_DICT, PITEST_DEFAULT
 from ..module_info import minfo
 from ..process.pitstop import EstimatePitTime
-from ..process.vehicle import expected_usage, steerlock_to_number
+from ..process.vehicle import expected_usage, steerlock_to_number, stint_ve_usage
 from ..process.weather import FORECAST_DEFAULT, forecast_rf2
 
 
@@ -140,6 +140,9 @@ LMU_SESSIONSINFO = (
 LMU_PITSTOPTIME = (
     ResRawOutput(minfo.restapi, "penaltyTime", 0.0, ("penalties",)),
 )
+LMU_STINTUSAGE = (
+    ResParOutput(minfo.restapi, "stintVirtualEnergy", EMPTY_DICT, stint_ve_usage, EMPTY_KEYS),
+)
 #LMU_GAMESTATE = (
 #    ResRawOutput(minfo.restapi, "trackClockTime", -1.0, ("timeOfDay",)),
 #)
@@ -159,6 +162,7 @@ TASKSET_LMU = (
     ("/rest/garage/getPlayerGarageData", LMU_GARAGESETUP, None, False, 0.1),
     ("/rest/garage/UIScreen/RepairAndRefuel", LMU_CURRENTSTINT, None, True, 0.2),
     ("/rest/strategy/pitstop-estimate", LMU_PITSTOPTIME, None, True, 1.0),
+    ("/rest/strategy/usage", LMU_STINTUSAGE, "enable_energy_remaining", True, 1.0),
 )
 
 

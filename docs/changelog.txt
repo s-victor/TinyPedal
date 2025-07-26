@@ -1,9 +1,26 @@
-WIP
+2.32.1 (2025-07-26)
 -----------------------------
+* Relative, Rivals, Standings Widget
+  - [New]Add "show_energy_remaining" option (frequently requested by community), which shows remaining virtual energy reading in percentage from each driver, with 4 different states:
+    - Unavailable: virtual energy reading is not available currently, default color grey.
+    - High: above 30% remaining, default color green.
+    - low: from 30% to 10% remaining, default color orange.
+    - critical: 10% or lower remaining, default color red.
+  - Known limitation with remaining virtual energy readings:
+    Currently, remaining virtual energy data from LMU's Rest API is updated only when driver completes a lap, which means the data from API will not change during a lap, but only at the moment a lap is done by a driver. And due to this, the data will not tell how much energy was refilled in pit until the driver finished his pit out lap. This makes the data less useful by itself.
+    To workaround this API data limitation, a special interpolation algorithm is implemented, which enables accurate estimates to remaining energy progressively during a lap for each driver. The average accuracy of estimation is within 1% (as from the extensive testing results during the past few weeks).
+    Some cases where interpolation may not be applied:
+    - Interpolation may require at least 1 full lap (not counting pit out lap) done before it can take effect.
+    - During pit stop, refilled energy reading may not be updated until driver finishes his pit out lap (as mentioned earlier), which means old energy reading persists during pit out lap and would result wrong estimates with interpolation. For this reason, interpolation is disabled during pit out lap.
+    In either case, just wait another lap and energy readings will be synchronized.
+
+* RestAPI Module
+  - [New]Now reads "remaining energy" data from LMU Rest API. This data is processed and used for Relative, Rivals, Standings Widgets.
+  - Add "enable_energy_remaining" option, which enables access to "remaining energy" data from LMU Rest API.
+
 * Vehicle Brand Editor
-  - Add "Primary" and "Alternative" sources for importing vehicle brand data from LMU Rest API. The "Primary" source now allows to import brands from both original and custom vehicle skins, while "Alternative" source (normally not required) is provided in case if some brands are missing from "Primary" source.
-    Note, to import brands from custom vehicle skins, it is required to get into a online multiplayer session, then select "LMU Rest API (Primary)" from "import from" menu. Re-import is required if new vehicles with new custom skin joined your session. To avoid constantly re-importing, try import before qualify or race starts.
-    Note, auto-importing function is not provided for stability and performance concerns, as importing is very expensive operation that involves large data set processing.
+  - Add "Primary" and "Alternative" sources for importing vehicle brand data from LMU Rest API. The "Primary" source now allows to import brands from both original and custom vehicle skins, just select "LMU Rest API (Primary)" from "import from" menu to import them. The "Alternative" source (normally not required) is provided in case if some brands are missing from "Primary" source.
+    Note, auto-importing function is not provided currently for stability and performance concerns, as importing is very expensive operation that involves large data set processing.
 
 2.32.0 (2025-07-23)
 -----------------------------

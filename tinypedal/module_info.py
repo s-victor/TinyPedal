@@ -182,6 +182,7 @@ class VehicleDataSet:
         "worldPositionY",
         "relativeRotatedPositionX",
         "relativeRotatedPositionY",
+        "energyRemaining",
         "pitTimer",
         "lapTimeHistory",
     )
@@ -218,6 +219,7 @@ class VehicleDataSet:
         self.worldPositionY: float = 0.0
         self.relativeRotatedPositionX: float = 0.0
         self.relativeRotatedPositionY: float = 0.0
+        self.energyRemaining: float = 0.0
         self.pitTimer: VehiclePitTimer = VehiclePitTimer()
         self.lapTimeHistory: DeltaLapTime = DeltaLapTime("d", [0.0] * 6)
 
@@ -476,6 +478,7 @@ class RestAPIInfo:
         "forecastRace",
         "brakeWear",
         "suspensionDamage",
+        "stintVirtualEnergy",
         "pitStopEstimate",
     )
 
@@ -493,6 +496,7 @@ class RestAPIInfo:
         self.forecastRace: list[WeatherNode] | None = None
         self.brakeWear: list[float] = []
         self.suspensionDamage: list[float] = []
+        self.stintVirtualEnergy: Mapping[str, tuple[float, float, float]] = EMPTY_DICT
         self.pitStopEstimate: tuple[float, float, float, float, int] = PITEST_DEFAULT
 
 

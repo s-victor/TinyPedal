@@ -327,6 +327,35 @@ class Realtime(Overlay):
                 targets=self.bars_psc,
                 column_index=self.wcfg["column_index_pitstop_count"],
             )
+        # Remaining energy
+        if self.wcfg["show_energy_remaining"]:
+            self.bar_style_nrg = (
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_energy_remaining_unavailable"],
+                    bg_color=self.wcfg["bkg_color_energy_remaining"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_energy_remaining_high"],
+                    bg_color=self.wcfg["bkg_color_energy_remaining"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_energy_remaining_low"],
+                    bg_color=self.wcfg["bkg_color_energy_remaining"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_energy_remaining_critical"],
+                    bg_color=self.wcfg["bkg_color_energy_remaining"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_player_energy_remaining"],
+                    bg_color=self.wcfg["bkg_color_player_energy_remaining"])
+            )
+            self.bars_nrg = self.set_qlabel(
+                style=self.bar_style_nrg[0],
+                width=3 * font_m.width + bar_padx,
+                count=self.veh_range,
+            )
+            self.set_grid_layout_table_column(
+                layout=layout,
+                targets=self.bars_nrg,
+                column_index=self.wcfg["column_index_energy_remaining"],
+            )
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -403,6 +432,9 @@ class Realtime(Overlay):
             # Pitstop count
             if self.wcfg["show_pitstop_count"]:
                 self.update_psc(self.bars_psc[idx], veh_info.numPitStops, veh_info.pitState, hi_player, state)
+            # Remaining energy
+            if self.wcfg["show_energy_remaining"]:
+                self.update_nrg(self.bars_nrg[idx], veh_info.energyRemaining, hi_player, state)
 
     # GUI update methods
     def update_pos(self, target, *data):
@@ -609,6 +641,30 @@ class Realtime(Overlay):
                 text = f"{data[0]}"
             target.setText(text)
             target.setStyleSheet(self.bar_style_psc[color_index])
+
+    def update_nrg(self, target, *data):
+        """Remaining energy"""
+        if target.last != data:
+            target.last = data
+            ve = data[0]
+            if data[1]:  # highlighted player
+                color_index = 4
+            elif ve <= -100:  # unavailable
+                color_index = 0
+            elif ve <= 0.1:  # 10% remaining
+                color_index = 3
+            elif ve <= 0.3:  # 30% remaining
+                color_index = 2
+            else:
+                color_index = 1
+            if not data[-1]:
+                text = ""
+            elif ve <= -100:
+                text = "---"
+            else:
+                text = f"{data[0]:03.0%}"[:3]
+            target.setText(text)
+            target.setStyleSheet(self.bar_style_nrg[color_index])
 
     # Additional methods
     def set_qss_lap_difference(self, fg_color, bg_color, plr_fg_color, plr_bg_color):
