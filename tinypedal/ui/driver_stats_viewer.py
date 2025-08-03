@@ -202,17 +202,19 @@ class DriverStatsViewer(BaseEditor):
     def add_stats_vehicle(self, row_index: int, veh_name: str, veh_data: dict):
         """Add stats vehicle to table"""
         self.table_stats.insertRow(row_index)
+        flag_selectable = Qt.ItemIsSelectable | Qt.ItemIsEnabled
+
         for column_index, header_key in enumerate(self.table_header_key):
             # Vehicle name
             if column_index == 0:
                 item = QTableWidgetItem(str(veh_name))
-                item.setFlags(Qt.ItemFlags(33))
+                item.setFlags(flag_selectable)
                 self.table_stats.setItem(row_index, column_index, item)
                 continue
             # Vehicle stats
             value_raw = veh_data.get(header_key, 0)
             item = NumericTableItem(value_raw, str(parse_display_value(header_key, value_raw)))
-            item.setFlags(Qt.ItemFlags(33))
+            item.setFlags(flag_selectable)
             item.setTextAlignment(Qt.AlignCenter)
             self.table_stats.setItem(row_index, column_index, item)
 

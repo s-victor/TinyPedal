@@ -212,16 +212,18 @@ class FuelCalculator(BaseDialog):
         """Refresh history data table"""
         self.table_history.setRowCount(0)
         invalid_color = QColor("#F40")
+        flag_selectable = Qt.ItemIsSelectable | Qt.ItemIsEnabled
+        flag_unselectable = Qt.NoItemFlags
 
         for row_index, lap_data in enumerate(dataset):
-            lapnumber = self.__add_table_item(f"{lap_data.lapNumber}", 0)
-            laptime = self.__add_table_item(calc.sec2laptime_full(lap_data.lapTimeLast), 33)
-            used_fuel = self.__add_table_item(f"{self.unit_fuel(lap_data.lastLapUsedFuel):.3f}", 33)
-            used_energy = self.__add_table_item(f"{lap_data.lastLapUsedEnergy:.3f}", 33)
-            battery_drain = self.__add_table_item(f"{lap_data.batteryDrainLast:.3f}", 0)
-            battery_regen = self.__add_table_item(f"{lap_data.batteryRegenLast:.3f}", 0)
-            tyre_wear = self.__add_table_item(f"{lap_data.tyreAvgWearLast:.3f}", 33)
-            capacity_fuel = self.__add_table_item(f"{self.unit_fuel(lap_data.capacityFuel):.3f}", 33)
+            lapnumber = self.__add_table_item(f"{lap_data.lapNumber}", flag_unselectable)
+            laptime = self.__add_table_item(calc.sec2laptime_full(lap_data.lapTimeLast), flag_selectable)
+            used_fuel = self.__add_table_item(f"{self.unit_fuel(lap_data.lastLapUsedFuel):.3f}", flag_selectable)
+            used_energy = self.__add_table_item(f"{lap_data.lastLapUsedEnergy:.3f}", flag_selectable)
+            battery_drain = self.__add_table_item(f"{lap_data.batteryDrainLast:.3f}", flag_unselectable)
+            battery_regen = self.__add_table_item(f"{lap_data.batteryRegenLast:.3f}", flag_unselectable)
+            tyre_wear = self.__add_table_item(f"{lap_data.tyreAvgWearLast:.3f}", flag_selectable)
+            capacity_fuel = self.__add_table_item(f"{self.unit_fuel(lap_data.capacityFuel):.3f}", flag_selectable)
 
             if not lap_data.isValidLap:  # set invalid lap text color
                 laptime.setForeground(invalid_color)
@@ -238,12 +240,12 @@ class FuelCalculator(BaseDialog):
             self.table_history.setItem(row_index, 6, tyre_wear)
             self.table_history.setItem(row_index, 7, capacity_fuel)
 
-    def __add_table_item(self, text: str, flags: int):
+    def __add_table_item(self, text: str, flags: Qt.ItemFlags):
         """Add table item"""
         item = QTableWidgetItem()
         item.setText(text)
         item.setTextAlignment(Qt.AlignCenter)
-        item.setFlags(Qt.ItemFlags(flags))
+        item.setFlags(flags)
         return item
 
     def set_panel_calculator(self, panel):
