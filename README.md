@@ -6,7 +6,12 @@ Focuses on minimalist design, light-weight and efficiency, extensive customizati
 
 Currently supports `rFactor 2` and `Le Mans Ultimate`, and runs on `Windows` and `Linux`.
 
-[Download](https://github.com/s-victor/TinyPedal/releases) - [Quick Start](#quick-start) - [FAQ](https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions) - [User Guide](https://github.com/s-victor/TinyPedal/wiki/User-Guide) - [Run on Linux](#running-on-linux)
+[Download](https://github.com/s-victor/TinyPedal/releases) -
+[Quick Start](#quick-start) -
+[FAQ](https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions) -
+[User Guide](https://github.com/s-victor/TinyPedal/wiki/User-Guide) -
+[Run on Linux](#running-on-linux) -
+[License](#license)
 ---
 
 ![preview](https://user-images.githubusercontent.com/21177177/282278970-b806bf02-a83d-4baa-8b45-0ca10f28f775.png)
@@ -40,6 +45,8 @@ In-game setup:
 
 ## Quick Start
 
+**Important:** make sure required plugins are installed as mentioned in [Requirements](#requirements) section.
+
 1. Download latest TinyPedal version from [Releases](https://github.com/s-victor/TinyPedal/releases) page, extract it into a clean folder, and run `tinypedal.exe`.  
 Note, DO NOT extract TinyPedal into `system` or `game` folder, such as `Program Files` or `rFactor 2` folder, otherwise it may fail to run.  
 Alternatively, run TinyPedal from source, see [Run from source](#run-from-source) section for details.  
@@ -55,7 +62,9 @@ For Linux user, please follow [Running on Linux](#running-on-linux) section for 
 
 6. To quit APP, `Right Click` on tray icon and select `Quit`; or, click `Overlay` menu from main window and select `Quit`.
 
-See [Frequently Asked Questions](https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions) and [User Guide](https://github.com/s-victor/TinyPedal/wiki/User-Guide) for more info.
+See [Frequently Asked Questions](https://github.com/s-victor/TinyPedal/wiki/Frequently-Asked-Questions) for common issues.
+
+See [User Guide](https://github.com/s-victor/TinyPedal/wiki/User-Guide) for usage info.
 
 ## Run from source
 
@@ -71,9 +80,9 @@ Note, PySide2 may not be available for Python version higher than 3.10; or requi
 
 1. Download source code from [Releases](https://github.com/s-victor/TinyPedal/releases) page; or click `Code` button at the top of repository and select `Download ZIP`; or use `Git` tool to clone this repository.
 
-2. Download this forked version of pyRfactor2SharedMemory source code from:  
+2. Download submodule `pyRfactor2SharedMemory` source code from:  
 https://github.com/s-victor/pyRfactor2SharedMemory  
-It includes a few required changes for TinyPedal.
+(This forked version includes a few required changes for TinyPedal)
 
 3. Extract TinyPedal source code ZIP file. Then extract pyRfactor2SharedMemory ZIP file and put `pyRfactor2SharedMemory` folder in the root folder of TinyPedal.
 
