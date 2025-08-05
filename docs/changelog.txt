@@ -1,3 +1,8 @@
+WIP
+-----------------------------
+* Misc
+  - Fixed an issue where virtual energy usage from "Lap time history Widget" sometimes fails to load due to desync.
+
 2.32.1 (2025-07-26)
 -----------------------------
 * Relative, Rivals, Standings Widget

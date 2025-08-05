@@ -152,6 +152,7 @@ class Realtime(Overlay):
 
         # Last data
         self.last_data_version = -1
+        self.last_max_energy = 0.0
         self.update_laps_history(())
 
     def timerEvent(self, event):
@@ -169,8 +170,12 @@ class Realtime(Overlay):
         self.update_wear(self.bars_wear[0], calc.mean(minfo.wheels.estimatedTreadWear))
 
         # History laps data
-        if self.last_data_version != minfo.history.consumptionDataVersion:
+        if (
+            self.last_data_version != minfo.history.consumptionDataVersion
+            or self.last_max_energy != minfo.restapi.maxVirtualEnergy
+        ):
             self.last_data_version = minfo.history.consumptionDataVersion
+            self.last_max_energy = minfo.restapi.maxVirtualEnergy
             self.update_laps_history(minfo.history.consumptionDataSet)
 
     # GUI update methods
