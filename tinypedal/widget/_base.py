@@ -104,11 +104,16 @@ class Overlay(QWidget):
     def __set_window_flags(self):
         """Set window flags"""
         self.setWindowFlag(Qt.FramelessWindowHint, True)
-        self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
-        if not self.cfg.overlay["vr_compatibility"]:  # hide taskbar widget
+        # Disable stay on top (required for minimizing widget)
+        if not self.cfg.compatibility["enable_overlay_minimizing_when_hidden"]:
+            self.setWindowFlag(Qt.WindowStaysOnTopHint, True)
+        # Hide taskbar widget
+        if not self.cfg.overlay["vr_compatibility"]:
             self.setWindowFlag(Qt.Tool, True)
+        # Workaround linux WM
         if self.cfg.compatibility["enable_bypass_window_manager"]:
             self.setWindowFlag(Qt.X11BypassWindowManagerHint, True)
+        # Update lock state
         self.__toggle_lock(locked=self.cfg.overlay["fixed_position"])
 
     def __set_window_style(self):
@@ -180,21 +185,21 @@ class Overlay(QWidget):
         if save_changes:
             self.cfg.save()
 
-    @Slot(bool)
+    @Slot(bool)  # type: ignore[operator]
     def __toggle_lock(self, locked: bool):
         """Toggle widget lock state"""
         self.setWindowFlag(Qt.WindowTransparentForInput, locked)
         # Need re-check after lock/unlock
-        self.setHidden(self.cfg.overlay["auto_hide"] and not self.state.active)
+        self.__toggle_hidden(self.cfg.overlay["auto_hide"] and not self.state.active)
 
-    @Slot(bool)
+    @Slot(bool)  # type: ignore[operator]
     def __toggle_vr_compat(self, enabled: bool):
         """Toggle widget VR compatibility"""
         self.setWindowFlag(Qt.Tool, not enabled)
         # Need re-check
-        self.setHidden(self.cfg.overlay["auto_hide"] and not self.state.active)
+        self.__toggle_hidden(self.cfg.overlay["auto_hide"] and not self.state.active)
 
-    @Slot(bool)
+    @Slot(bool)  # type: ignore[operator]
     def __toggle_timer(self, paused: bool):
         """Toggle widget timer state"""
         if paused:
@@ -203,17 +208,28 @@ class Overlay(QWidget):
         else:
             self._update_timer.start(self._update_interval, self)
 
+    @Slot(bool)  # type: ignore[operator]
+    def __toggle_hidden(self, hidden: bool):
+        """Toggle widget visible state"""
+        if self.cfg.overlay["vr_compatibility"] and self.cfg.compatibility["enable_overlay_minimizing_when_hidden"]:
+            if hidden:
+                self.showMinimized()
+            else:
+                self.showNormal()
+        else:
+            self.setHidden(hidden)
+
     def __connect_signal(self):
         """Connect overlay lock and hide signal"""
         self.state.locked.connect(self.__toggle_lock)
-        self.state.hidden.connect(self.setHidden)
+        self.state.hidden.connect(self.__toggle_hidden)
         self.state.paused.connect(self.__toggle_timer)
         self.state.vr_compat.connect(self.__toggle_vr_compat)
 
     def __break_signal(self):
         """Disconnect overlay lock and hide signal"""
         self.state.locked.disconnect(self.__toggle_lock)
-        self.state.hidden.disconnect(self.setHidden)
+        self.state.hidden.disconnect(self.__toggle_hidden)
         self.state.paused.disconnect(self.__toggle_timer)
         self.state.vr_compat.disconnect(self.__toggle_vr_compat)
 
