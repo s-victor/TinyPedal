@@ -3257,6 +3257,9 @@ Note, while multi-class styling is enabled, following color styles will not be d
     show_position_in_class
 Show position in class while `enable_multi_class_styling` option is also enabled, otherwise this option has no effect.
 
+    show_lap_difference_outline
+Show outline color based on lap difference (ahead or behind) between player and opponents. This option is disabled by default.
+
     show_pitout_prediction
 Show estimated pit out on-track position indication for each pit stop duration. Default indication shows `circle` with `pit stop duration` displayed above.
 

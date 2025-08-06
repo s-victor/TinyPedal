@@ -1,5 +1,9 @@
 WIP
 -----------------------------
+* Track map Widget
+  - [New]Add "show_lap_difference_outline" option (requested by user "Woodee"), which shows outline color based on lap difference (ahead or behind) between player and opponents. This option is disabled by default.
+    Note, both outline color and width can be customized.
+
 * Misc
   - Fixed an issue where virtual energy usage from "Lap time history Widget" sometimes fails to load due to desync.
 
