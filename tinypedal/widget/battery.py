@@ -57,7 +57,10 @@ class Realtime(Overlay):
                     bg_color=self.wcfg["bkg_color_battery_charge"]),
                 self.set_qss(
                     fg_color=self.wcfg["font_color_battery_charge"],
-                    bg_color=self.wcfg["warning_color_low_battery"])
+                    bg_color=self.wcfg["warning_color_low_battery"]),
+                self.set_qss(
+                    fg_color=self.wcfg["font_color_battery_charge"],
+                    bg_color=self.wcfg["warning_color_high_battery"])
             )
             self.bar_charge = self.set_qlabel(
                 text="BATTERY",
@@ -167,9 +170,14 @@ class Realtime(Overlay):
         """Battery charge"""
         if target.last != data:
             target.last = data
+            if data >= self.wcfg["high_battery_threshold"]:
+                color_index = 2
+            elif data <= self.wcfg["low_battery_threshold"]:
+                color_index = 1
+            else:
+                color_index = 0
             target.setText(f"B{data: >7.2f}"[:8])
-            target.setStyleSheet(
-                self.bar_style_charge[data <= self.wcfg["low_battery_threshold"]])
+            target.setStyleSheet(self.bar_style_charge[color_index])
 
     def update_drain(self, target, data):
         """Battery drain"""

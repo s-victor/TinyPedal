@@ -110,6 +110,8 @@ class Realtime(Overlay):
             self.battbar_color = (
                 self.wcfg["battery_bar_color"],
                 self.wcfg["battery_bar_color_regen"],
+                self.wcfg["warning_color_low_battery"],
+                self.wcfg["warning_color_high_battery"],
             )
             self.bar_battbar = ProgressBar(
                 self,
@@ -236,7 +238,15 @@ class Realtime(Overlay):
         charge = state + data  # add state to finalize last change
         if target.last != charge:
             target.last = charge
-            target.input_color = self.battbar_color[state == 3]
+            if state == 3:
+                color_index = 1
+            elif data >= self.wcfg["high_battery_threshold"]:
+                color_index = 3
+            elif data <= self.wcfg["low_battery_threshold"]:
+                color_index = 2
+            else:
+                color_index = 0
+            target.input_color = self.battbar_color[color_index]
             target.update_input(data * 0.01, data)
 
     def update_limiter(self, target, data):

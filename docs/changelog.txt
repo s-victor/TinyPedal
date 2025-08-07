@@ -1,5 +1,10 @@
 WIP
 -----------------------------
+* Battery, Gear Widget
+  - Add "high_battery_threshold, low_battery_threshold" options (requested by user "H4dro"), which set percentage threshold for displaying low or high battery charge warning indicator.
+    Default high threshold is "95" percent (default color purple), low threshold is "10" percent (default color red).
+  - Changed default background color to blue (old color was black) for normal battery charge level for Battery Widget. Existing setting won't be affected.
+
 * Track map Widget
   - [New]Add "show_lap_difference_outline" option (requested by user "Woodee"), which shows outline color based on lap difference (ahead or behind) between player and opponents. This option is disabled by default.
     Note, both outline color and width can be customized.

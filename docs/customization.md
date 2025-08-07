@@ -1313,8 +1313,8 @@ Note, at least one full lap (excludes pit-out or first lap) is required to gener
     show_activation_timer
 Show electric boost motor activation timer.
 
-    low_battery_threshold
-Set percentage threshold for low battery charge warning indicator.
+    high_battery_threshold, low_battery_threshold
+Set percentage threshold for displaying low or high battery charge warning indicator. Default high threshold is `95` percent (default color purple), low threshold is `10` percent (default color red).
 
     freeze_duration
 Set freeze duration (seconds) for displaying previous lap total drained/regenerated battery charge after crossing finish line. Value range in `0` to `30` seconds. Default is `10` seconds.
@@ -2123,6 +2123,9 @@ Invert battery bar progression.
 
     battery_bar_height
 Set battery bar height in pixels.
+
+    high_battery_threshold, low_battery_threshold
+Set percentage threshold for displaying low or high battery charge warning indicator. Default high threshold is `95` percent (default color purple), low threshold is `10` percent (default color red).
 
     show_battery_reading
 Show battery charge (in percentage) reading text on battery bar.
