@@ -58,7 +58,7 @@ class Realtime(Overlay):
         self.prefix_pos_inclass = self.wcfg["prefix_position_in_class"].ljust(prefix_just)
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -176,7 +176,7 @@ class Realtime(Overlay):
             lap_total = lap_max if api.read.session.lap_type() else "--"
             text_laps = f"{lap_num + data:02.2f}/{lap_total}"[:9]
             target.setText(f"{self.prefix_lap_number}{text_laps: >9}")
-            target.setStyleSheet(self.bar_style_lap_number[lap_num - lap_max >= -1])
+            target.updateStyle(self.bar_style_lap_number[lap_num - lap_max >= -1])
 
     def update_position(self, target, place, total, prefix):
         """Driver place & total vehicles"""

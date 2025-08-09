@@ -50,7 +50,7 @@ class Realtime(Overlay):
         self.sign_text = "%" if self.wcfg["show_percentage_sign"] else ""
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])

@@ -22,7 +22,7 @@ Overlay base window, events.
 
 from __future__ import annotations
 
-from typing import Any, NamedTuple
+from typing import Any
 
 from PySide2.QtCore import QBasicTimer, Qt, Slot
 from PySide2.QtGui import QFont, QFontMetrics, QPalette, QPixmap
@@ -33,7 +33,7 @@ from ..const_app import APP_NAME
 from ..formatter import format_module_name
 from ..overlay_control import octrl
 from ..setting import Setting
-from ._common import MousePosition
+from ._common import ExLabel, FontMetrics, MousePosition
 
 mousepos = MousePosition()  # single instance shared by all widgets
 
@@ -180,21 +180,21 @@ class Overlay(QWidget):
         if save_changes:
             self.cfg.save()
 
-    @Slot(bool)
+    @Slot(bool)  # type: ignore[operator]
     def __toggle_lock(self, locked: bool):
         """Toggle widget lock state"""
         self.setWindowFlag(Qt.WindowTransparentForInput, locked)
         # Need re-check after lock/unlock
         self.setHidden(self.cfg.overlay["auto_hide"] and not self.state.active)
 
-    @Slot(bool)
+    @Slot(bool)  # type: ignore[operator]
     def __toggle_vr_compat(self, enabled: bool):
         """Toggle widget VR compatibility"""
         self.setWindowFlag(Qt.Tool, not enabled)
         # Need re-check
         self.setHidden(self.cfg.overlay["auto_hide"] and not self.state.active)
 
-    @Slot(bool)
+    @Slot(bool)  # type: ignore[operator]
     def __toggle_timer(self, paused: bool):
         """Toggle widget timer state"""
         if paused:
@@ -284,6 +284,10 @@ class Overlay(QWidget):
                 - metrics.height
             )
         return self.wcfg["font_offset_vertical"]
+
+    def set_base_style(self, style_sheet: str):
+        """Set base style sheet"""
+        self.setStyleSheet(style_sheet)
 
     @staticmethod
     def set_padding(size: int, scale: float, side: int = 2) -> int:
@@ -378,9 +382,10 @@ class Overlay(QWidget):
         Returns:
             QLabel instance.
         """
-        bar_temp = QLabel(self)
+        bar_temp = ExLabel(self)
         bar_temp.setTextFormat(Qt.PlainText)
         bar_temp.setTextInteractionFlags(Qt.NoTextInteraction)
+        bar_temp.setAlignment(self.set_text_alignment(align))
 
         if text is not None:
             bar_temp.setText(text)
@@ -389,7 +394,7 @@ class Overlay(QWidget):
             bar_temp.setPixmap(pixmap)
 
         if style is not None:
-            bar_temp.setStyleSheet(style)
+            bar_temp.updateStyle(style)
 
         if fixed_width > 0:
             bar_temp.setFixedWidth(fixed_width)
@@ -401,8 +406,9 @@ class Overlay(QWidget):
         elif height > 0:
             bar_temp.setMinimumHeight(height)
 
-        bar_temp.setAlignment(self.set_text_alignment(align))
-        bar_temp.last = last
+        if last is not None:
+            bar_temp.last = last
+
         return bar_temp
 
     def set_qlabel(
@@ -598,13 +604,3 @@ def validate_column_order(config: dict):
             while config[key] in column_set:
                 config[key] += 1
             column_set.append(config[key])
-
-
-class FontMetrics(NamedTuple):
-    """Font metrics info"""
-
-    width: int = 0
-    height: int = 0
-    leading: int = 0
-    capital: int = 0
-    descent: int = 0

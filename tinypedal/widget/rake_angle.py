@@ -44,7 +44,7 @@ class Realtime(Overlay):
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -79,7 +79,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(self.format_rake(data))
-            target.setStyleSheet(self.bar_style_rake[data < 0])
+            target.updateStyle(self.bar_style_rake[data < 0])
 
     def format_rake(self, rake):
         """Format rake"""

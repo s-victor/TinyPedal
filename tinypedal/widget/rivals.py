@@ -20,8 +20,6 @@
 Rivals Widget
 """
 
-from PySide2.QtWidgets import QWidget
-
 from .. import calculation as calc
 from ..api_control import api
 from ..const_common import TEXT_PLACEHOLDER
@@ -30,6 +28,7 @@ from ..module_info import minfo
 from ..userfile.brand_logo import load_brand_logo_file
 from ..userfile.heatmap import select_compound_symbol
 from ._base import Overlay
+from ._common import ExFrame
 
 
 class Realtime(Overlay):
@@ -57,7 +56,7 @@ class Realtime(Overlay):
         self.max_delta = calc.asym_max(int(self.wcfg["number_of_delta_laptime"]), 2, 5)
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -483,7 +482,7 @@ class Realtime(Overlay):
                 text = "- 0"
                 color_index = 0
             target.setText(text)
-            target.setStyleSheet(self.bar_style_pgl[color_index])
+            target.updateStyle(self.bar_style_pgl[color_index])
             self.toggle_visibility(target, data[-1])
 
     def update_drv(self, target, *data):
@@ -536,7 +535,7 @@ class Realtime(Overlay):
             else:
                 text = self.int_to_next(data[0], data[1])[:self.int_width].strip(".").rjust(self.int_width)
             target.setText(text)
-            target.setStyleSheet(self.bar_style_int[data[1]])
+            target.updateStyle(self.bar_style_int[data[1]])
             self.toggle_visibility(target, data[-1])
 
     def update_lpt(self, target, *data):
@@ -571,7 +570,7 @@ class Realtime(Overlay):
                     text = "-.-"
                     color_index = 0
                 bar_delta.setText(text)
-                bar_delta.setStyleSheet(self.bar_style_dlt_delta[color_index])
+                bar_delta.updateStyle(self.bar_style_dlt_delta[color_index])
             self.toggle_visibility(target, data[-1])
 
     def update_pic(self, target, *data):
@@ -587,7 +586,7 @@ class Realtime(Overlay):
             target.last = data
             text, bg_color = self.set_class_style(data[0])
             target.setText(text[:self.cls_width])
-            target.setStyleSheet(f"color:{self.wcfg['font_color_class']};background:{bg_color};")
+            target.updateStyle(f"color:{self.wcfg['font_color_class']};background:{bg_color};")
             self.toggle_visibility(target, data[-1])
 
     def update_pit(self, target, *data):
@@ -595,7 +594,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(self.pit_status_text[data[0]])
-            target.setStyleSheet(self.bar_style_pit[data[0]])
+            target.updateStyle(self.bar_style_pit[data[0]])
             self.toggle_visibility(target, data[-1])
 
     def update_tcp(self, target, *data):
@@ -620,7 +619,7 @@ class Realtime(Overlay):
             else:
                 text = f"{data[0]}"
             target.setText(text)
-            target.setStyleSheet(self.bar_style_psc[color_index])
+            target.updateStyle(self.bar_style_psc[color_index])
             self.toggle_visibility(target, data[-1])
 
     def update_nrg(self, target, *data):
@@ -641,7 +640,7 @@ class Realtime(Overlay):
             else:
                 text = f"{data[0]:03.0%}"[:3]
             target.setText(text)
-            target.setStyleSheet(self.bar_style_nrg[color_index])
+            target.updateStyle(self.bar_style_nrg[color_index])
             self.toggle_visibility(target, data[-1])
 
     # Additional methods
@@ -697,13 +696,13 @@ class Realtime(Overlay):
             return f"{'+-'[is_ahead]}{gap_behind_class:.0f}L"
         return f"{'+-'[is_ahead]}{gap_behind_class:.{self.int_decimals}f}"
 
-    def set_delta_table(self, width: int, columns: int, bar_padx: int) -> QWidget:
+    def set_delta_table(self, width: int, columns: int, bar_padx: int) -> ExFrame:
         """Set delta laptime table"""
-        bar_temp = QWidget(self)
+        bar_temp = ExFrame(self)
         layout = self.set_grid_layout()
         layout.setContentsMargins(bar_padx, 0, bar_padx, 0)
         bar_temp.setLayout(layout)
-        bar_temp.setStyleSheet(self.set_qss(bg_color=self.wcfg["bkg_color_delta_laptime"]))
+        bar_temp.updateStyle(self.set_qss(bg_color=self.wcfg["bkg_color_delta_laptime"]))
         bar_temp.bar_set = self.set_qlabel(
             fixed_width=width,
             count=columns,
@@ -713,5 +712,4 @@ class Realtime(Overlay):
             targets=bar_temp.bar_set,
             right_to_left=self.wcfg["show_inverted_delta_laptime_layout"],
         )
-        bar_temp.last = None
         return bar_temp

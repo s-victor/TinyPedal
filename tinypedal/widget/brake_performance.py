@@ -43,7 +43,7 @@ class Realtime(Overlay):
         bar_width = font_m.width * 5 + bar_padx
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -200,7 +200,7 @@ class Realtime(Overlay):
             else:
                 text = f"{data:+.2f}"
             target.setText(text[:5])
-            target.setStyleSheet(self.bar_style_delta_rate[data > 0])
+            target.updateStyle(self.bar_style_delta_rate[data > 0])
 
     def update_lock_time_f(self, target, data):
         """Front wheel lock duration"""

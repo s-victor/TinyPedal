@@ -50,7 +50,7 @@ class Realtime(Overlay):
             self.prefix_best = "PB"
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -196,7 +196,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(f"{data:+.3f}"[:7])
-            target.setStyleSheet(self.bar_style_gap[data < 0])
+            target.updateStyle(self.bar_style_gap[data < 0])
 
     def update_time_curr(self, sector_idx, prev_s, laptime_curr, freeze=False):
         """Current sector time text"""
@@ -216,7 +216,7 @@ class Realtime(Overlay):
     def update_time_target(self, text_laptime):
         """Target sector time text"""
         self.bar_time_target.setText(text_laptime)
-        self.bar_time_target.setStyleSheet(self.bar_style_time_target[2])
+        self.bar_time_target.updateStyle(self.bar_style_time_target[2])
 
     def update_time_target_gap(self, delta_pb, delta_tb, sec_index):
         """Target sector time gap"""
@@ -225,7 +225,7 @@ class Realtime(Overlay):
         else:
             sector_gap = calc.accumulated_sum(delta_pb, sec_index)
         self.bar_time_target.setText(f"{self.prefix_best}{sector_gap: >+9.3f}"[:11])
-        self.bar_time_target.setStyleSheet(self.bar_style_time_target[sector_gap < 0])
+        self.bar_time_target.updateStyle(self.bar_style_time_target[sector_gap < 0])
 
     def restore_best_sector(self):
         """Restore best sector time"""
@@ -238,7 +238,7 @@ class Realtime(Overlay):
             if valid_sectors(sector_time[idx]):
                 text_s = f"{sector_time[idx]:.3f}"[:7]
             bar_time_gap.setText(text_s)
-            bar_time_gap.setStyleSheet(self.bar_style_gap[2])
+            bar_time_gap.updateStyle(self.bar_style_gap[2])
 
     # Sector data update methods
     def set_target_time(self, sec_tb, sec_pb, sec_index):

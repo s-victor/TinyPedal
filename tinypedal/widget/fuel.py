@@ -52,7 +52,7 @@ class Realtime(Overlay):
         self.unit_fuel = set_unit_fuel(self.cfg.units["fuel_unit"])
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -351,4 +351,4 @@ class Realtime(Overlay):
             text = f"{data:{sign}.{target.decimals}f}"[:self.bar_width].strip(".")
             target.setText(text)
             if color:  # low fuel warning
-                target.setStyleSheet(color)
+                target.updateStyle(color)

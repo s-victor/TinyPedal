@@ -22,8 +22,52 @@ Overlay base common class.
 
 from __future__ import annotations
 
+from typing import NamedTuple
+
 from PySide2.QtCore import QPoint
-from PySide2.QtWidgets import QApplication, QWidget
+from PySide2.QtWidgets import QApplication, QFrame, QLabel, QWidget
+
+
+class FontMetrics(NamedTuple):
+    """Font metrics info"""
+
+    width: int = 0
+    height: int = 0
+    leading: int = 0
+    capital: int = 0
+    descent: int = 0
+
+
+class ExLabel(QLabel):
+    """Extended label"""
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.last = None
+        self._style_hash = 0
+
+    def updateStyle(self, style_sheet: str):
+        """Update only if style changed"""
+        style_hash = hash(style_sheet)
+        if self._style_hash != style_hash:
+            self._style_hash = style_hash
+            self.setStyleSheet(style_sheet)
+
+
+class ExFrame(QFrame):
+    """Extended frame"""
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.last = None
+        self._style_hash = 0
+
+    def updateStyle(self, style_sheet: str):
+        """Update only if style changed"""
+        style_hash = hash(style_sheet)
+        if self._style_hash != style_hash:
+            self._style_hash = style_hash
+            self.setStyleSheet(style_sheet)
 
 
 class MousePosition:

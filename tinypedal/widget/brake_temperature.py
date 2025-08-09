@@ -57,7 +57,7 @@ class Realtime(Overlay):
         self.unit_temp = set_unit_temperature(self.cfg.units["temperature_unit"])
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -177,7 +177,7 @@ class Realtime(Overlay):
                 target.setText(TEXT_PLACEHOLDER)
             else:
                 target.setText(f"{self.unit_temp(data):0{self.leading_zero}f}{self.sign_text}")
-            target.setStyleSheet(calc.select_grade(self.heatmap_styles[index], data))
+            target.updateStyle(calc.select_grade(self.heatmap_styles[index], data))
 
     def update_btavg(self, target, data, highlighted=False):
         """Brake average temperature"""
@@ -187,7 +187,7 @@ class Realtime(Overlay):
                 target.setText(TEXT_PLACEHOLDER)
             else:
                 target.setText(f"{self.unit_temp(data):0{self.leading_zero}f}{self.sign_text}")
-            target.setStyleSheet(self.bar_style_btavg[highlighted])
+            target.updateStyle(self.bar_style_btavg[highlighted])
 
     # Additional methods
     def update_heatmap(self, class_name: str):

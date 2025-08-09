@@ -53,7 +53,7 @@ class Realtime(Overlay):
         self.gap_decimals = max(int(self.wcfg["time_gap_decimal_places"]), 0)
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -452,7 +452,7 @@ class Realtime(Overlay):
             else:
                 text = ""
             target.setText(text)
-            target.setStyleSheet(color)
+            target.updateStyle(color)
 
     def update_pgl(self, target, *data):
         """Driver position change (gain/loss)"""
@@ -475,7 +475,7 @@ class Realtime(Overlay):
                 text = ""
                 color_index = 0
             target.setText(text)
-            target.setStyleSheet(self.bar_style_pgl[color_index])
+            target.updateStyle(self.bar_style_pgl[color_index])
 
     def update_drv(self, target, *data):
         """Driver name"""
@@ -501,7 +501,7 @@ class Realtime(Overlay):
             else:
                 text = ""
             target.setText(text)
-            target.setStyleSheet(color)
+            target.updateStyle(color)
 
     def update_veh(self, target, *data):
         """Vehicle name"""
@@ -527,7 +527,7 @@ class Realtime(Overlay):
             else:
                 text = ""
             target.setText(text)
-            target.setStyleSheet(color)
+            target.updateStyle(color)
 
     def update_brd(self, target, *data):
         """Brand logo"""
@@ -538,7 +538,7 @@ class Realtime(Overlay):
             else:
                 brand_name = ""
             target.setPixmap(self.set_brand_logo(brand_name))
-            target.setStyleSheet(self.bar_style_brd[data[1]])
+            target.updateStyle(self.bar_style_brd[data[1]])
 
     def update_gap(self, target, *data):
         """Time gap"""
@@ -563,7 +563,7 @@ class Realtime(Overlay):
             else:
                 text = ""
             target.setText(text)
-            target.setStyleSheet(self.bar_style_gap[color_index])
+            target.updateStyle(self.bar_style_gap[color_index])
 
     def update_lpt(self, target, *data):
         """Vehicle laptime"""
@@ -578,7 +578,7 @@ class Realtime(Overlay):
             else:
                 text = ""
             target.setText(text)
-            target.setStyleSheet(self.bar_style_lpt[color_index])
+            target.updateStyle(self.bar_style_lpt[color_index])
 
     def update_pic(self, target, *data):
         """Position in class"""
@@ -589,7 +589,7 @@ class Realtime(Overlay):
             else:
                 text = ""
             target.setText(text)
-            target.setStyleSheet(self.bar_style_pic[data[1]])
+            target.updateStyle(self.bar_style_pic[data[1]])
 
     def update_cls(self, target, *data):
         """Vehicle class"""
@@ -597,7 +597,7 @@ class Realtime(Overlay):
             target.last = data
             text, bg_color = self.set_class_style(data[0])
             target.setText(text[:self.cls_width])
-            target.setStyleSheet(f"color:{self.wcfg['font_color_class']};background:{bg_color};")
+            target.updateStyle(f"color:{self.wcfg['font_color_class']};background:{bg_color};")
 
     def update_pit(self, target, *data):
         """Vehicle in pit"""
@@ -608,7 +608,7 @@ class Realtime(Overlay):
             else:
                 text = ""
             target.setText(text)
-            target.setStyleSheet(self.bar_style_pit[data[0]])
+            target.updateStyle(self.bar_style_pit[data[0]])
 
     def update_tcp(self, target, *data):
         """Tyre compound index"""
@@ -619,7 +619,7 @@ class Realtime(Overlay):
             else:
                 text = ""
             target.setText(text)
-            target.setStyleSheet(self.bar_style_tcp[data[2]])
+            target.updateStyle(self.bar_style_tcp[data[2]])
 
     def update_psc(self, target, *data):
         """Pitstop count"""
@@ -640,7 +640,7 @@ class Realtime(Overlay):
             else:
                 text = f"{data[0]}"
             target.setText(text)
-            target.setStyleSheet(self.bar_style_psc[color_index])
+            target.updateStyle(self.bar_style_psc[color_index])
 
     def update_nrg(self, target, *data):
         """Remaining energy"""
@@ -664,7 +664,7 @@ class Realtime(Overlay):
             else:
                 text = f"{data[0]:03.0%}"[:3]
             target.setText(text)
-            target.setStyleSheet(self.bar_style_nrg[color_index])
+            target.updateStyle(self.bar_style_nrg[color_index])
 
     # Additional methods
     def set_qss_lap_difference(self, fg_color, bg_color, plr_fg_color, plr_bg_color):

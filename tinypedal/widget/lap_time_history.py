@@ -49,7 +49,7 @@ class Realtime(Overlay):
         self.unit_fuel = set_unit_fuel(self.cfg.units["fuel_unit"])
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -70,7 +70,7 @@ class Realtime(Overlay):
             width=font_m.width * 3 + bar_padx,
             count=self.history_slot + 1,
         )
-        self.bars_laps[0].setStyleSheet(bar_style_laps[0])
+        self.bars_laps[0].updateStyle(bar_style_laps[0])
         self.set_grid_layout_table_column(
             layout=layout,
             targets=self.bars_laps,
@@ -96,7 +96,7 @@ class Realtime(Overlay):
             width=font_m.width * 8 + bar_padx,
             count=self.history_slot + 1,
         )
-        self.bars_time[0].setStyleSheet(self.bar_style_time[0])
+        self.bars_time[0].updateStyle(self.bar_style_time[0])
         self.set_grid_layout_table_column(
             layout=layout,
             targets=self.bars_time,
@@ -119,7 +119,7 @@ class Realtime(Overlay):
             width=font_m.width * 4 + bar_padx,
             count=self.history_slot + 1,
         )
-        self.bars_fuel[0].setStyleSheet(bar_style_fuel[0])
+        self.bars_fuel[0].updateStyle(bar_style_fuel[0])
         self.set_grid_layout_table_column(
             layout=layout,
             targets=self.bars_fuel,
@@ -142,7 +142,7 @@ class Realtime(Overlay):
             width=font_m.width * 3 + bar_padx,
             count=self.history_slot + 1,
         )
-        self.bars_wear[0].setStyleSheet(bar_style_wear[0])
+        self.bars_wear[0].updateStyle(bar_style_wear[0])
         self.set_grid_layout_table_column(
             layout=layout,
             targets=self.bars_wear,
@@ -220,7 +220,7 @@ class Realtime(Overlay):
                 self.update_fuel(self.bars_fuel[index], data.lastLapUsedEnergy if is_energy else data.lastLapUsedFuel)
                 self.update_wear(self.bars_wear[index], data.tyreAvgWearLast)
                 # Highlight invalid lap time
-                self.bars_time[index].setStyleSheet(self.bar_style_time[2 - data.isValidLap])
+                self.bars_time[index].updateStyle(self.bar_style_time[2 - data.isValidLap])
             elif not self.wcfg["show_empty_history"]:
                 unavailable = True
             else:

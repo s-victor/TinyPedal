@@ -42,7 +42,7 @@ class Realtime(Overlay):
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -119,11 +119,11 @@ class Realtime(Overlay):
             else:
                 format_text = "MAX"
             target.setText(format_text)
-            target.setStyleSheet(self.bar_style_charge[data[1]])
+            target.updateStyle(self.bar_style_charge[data[1]])
 
     def update_active_timer(self, target, data):
         """P2P activation timer"""
         if target.last != data:
             target.last = data
             target.setText(f"{data[0]:.2f}"[:4])
-            target.setStyleSheet(self.bar_style_timer[data[1] != 2])
+            target.updateStyle(self.bar_style_timer[data[1] != 2])

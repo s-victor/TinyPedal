@@ -51,7 +51,7 @@ class Realtime(Overlay):
         self.symbol_dist = set_symbol_distance(self.cfg.units["distance_unit"])
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -303,7 +303,7 @@ class Realtime(Overlay):
                     color = self.bar_style_pit_timer[2]
                     state = self.wcfg["pit_closed_text"]
                 target.setText(state)
-                target.setStyleSheet(color)
+                target.updateStyle(color)
                 target.show()
             else:
                 target.hide()
@@ -354,11 +354,11 @@ class Realtime(Overlay):
             target.last = data
             if data > 0:
                 target.setText(f"{self.wcfg['red_lights_text'][:6]: <6}{data}")
-                target.setStyleSheet(self.bar_style_startlights[0])
+                target.updateStyle(self.bar_style_startlights[0])
                 target.show()
             elif data == 0:
                 target.setText(self.wcfg["green_flag_text"])
-                target.setStyleSheet(self.bar_style_startlights[1])
+                target.updateStyle(self.bar_style_startlights[1])
                 target.show()
             else:
                 target.hide()
@@ -389,11 +389,11 @@ class Realtime(Overlay):
             target.last = data
             if data == 1:
                 target.setText(self.wcfg["finish_text"])
-                target.setStyleSheet(self.bar_style_finish_state[0])
+                target.updateStyle(self.bar_style_finish_state[0])
                 target.show()
             elif data == 3:
                 target.setText(self.wcfg["disqualify_text"])
-                target.setStyleSheet(self.bar_style_finish_state[1])
+                target.updateStyle(self.bar_style_finish_state[1])
                 target.show()
             else:
                 target.hide()

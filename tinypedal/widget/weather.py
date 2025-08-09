@@ -60,7 +60,7 @@ class Realtime(Overlay):
         self.symbol_temp = set_symbol_temperature(self.cfg.units["temperature_unit"])
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -244,7 +244,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(TEXT_TREND_SIGN[data])
-            target.setStyleSheet(self.bar_style_temp_trend[data])
+            target.updateStyle(self.bar_style_temp_trend[data])
 
     def update_raininess(self, target, data):
         """Rain percentage"""
@@ -258,7 +258,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(TEXT_TREND_SIGN[data])
-            target.setStyleSheet(self.bar_style_raininess_trend[data])
+            target.updateStyle(self.bar_style_raininess_trend[data])
 
     def update_wetness(self, target, data, wet_average):
         """Surface wetness percentage"""
@@ -272,7 +272,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(TEXT_TREND_SIGN[data])
-            target.setStyleSheet(self.bar_style_wetness_trend[data])
+            target.updateStyle(self.bar_style_wetness_trend[data])
 
 
 class TrendTimer:

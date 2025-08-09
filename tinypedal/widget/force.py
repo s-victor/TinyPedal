@@ -43,7 +43,7 @@ class Realtime(Overlay):
         bar_width = font_m.width * 6 + bar_padx
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -187,14 +187,14 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(f"F{abs(data):5.0f}"[:6])
-            target.setStyleSheet(self.bar_style_df_front[data < 0])
+            target.updateStyle(self.bar_style_df_front[data < 0])
 
     def update_df_rear(self, target, data):
         """Downforce rear"""
         if target.last != data:
             target.last = data
             target.setText(f"R{abs(data):5.0f}"[:6])
-            target.setStyleSheet(self.bar_style_df_rear[data < 0])
+            target.updateStyle(self.bar_style_df_rear[data < 0])
 
     # Additional methods
     @staticmethod

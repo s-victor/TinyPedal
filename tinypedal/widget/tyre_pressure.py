@@ -47,7 +47,7 @@ class Realtime(Overlay):
         self.unit_pres = set_unit_pressure(self.cfg.units["tyre_pressure_unit"])
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])

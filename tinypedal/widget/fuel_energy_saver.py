@@ -58,7 +58,7 @@ class Realtime(Overlay):
         self.unit_fuel = set_unit_fuel(self.cfg.units["fuel_unit"])
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -83,7 +83,7 @@ class Realtime(Overlay):
             last=-MAX_SECONDS,
         )
         self.bars_target_lap[0].setText("LAST")
-        self.bars_target_lap[self.center_slot].setStyleSheet(bar_style_lap[1])
+        self.bars_target_lap[self.center_slot].updateStyle(bar_style_lap[1])
         self.set_grid_layout_table_row(
             layout=layout,
             targets=self.bars_target_lap,
@@ -242,7 +242,7 @@ class Realtime(Overlay):
                 delta_text = TEXT_PLACEHOLDER
                 style = self.delta_color[2]
             target.setText(delta_text)
-            target.setStyleSheet(style)
+            target.updateStyle(style)
 
     def update_total_laps(self, target, data):
         """Total laps"""

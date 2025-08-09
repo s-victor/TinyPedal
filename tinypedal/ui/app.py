@@ -391,7 +391,7 @@ class AppWindow(QMainWindow):
         self.statusBar().refresh()
         self.tab_view.refresh_tab(3)
 
-    @Slot(bool)
+    @Slot(bool)  # type: ignore[operator]
     def reload_preset(self):
         """Reload current preset"""
         loader.reload(reload_preset=True)

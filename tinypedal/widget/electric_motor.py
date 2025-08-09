@@ -49,7 +49,7 @@ class Realtime(Overlay):
         self.symbol_power = set_symbol_power(self.cfg.units["power_unit"])
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -177,14 +177,14 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(f"M{self.unit_temp(data): >6.1f}°")
-            target.setStyleSheet(self.bar_style_motor[data >= self.wcfg["overheat_threshold_motor"]])
+            target.updateStyle(self.bar_style_motor[data >= self.wcfg["overheat_threshold_motor"]])
 
     def update_water(self, target, data):
         """Water temperature"""
         if target.last != data:
             target.last = data
             target.setText(f"W{self.unit_temp(data): >6.1f}°")
-            target.setStyleSheet(self.bar_style_water[data >= self.wcfg["overheat_threshold_water"]])
+            target.updateStyle(self.bar_style_water[data >= self.wcfg["overheat_threshold_water"]])
 
     def update_rpm(self, target, data):
         """Motor rpm"""

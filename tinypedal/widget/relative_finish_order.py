@@ -72,7 +72,7 @@ class Realtime(Overlay):
             max(self.wcfg["leader_laptime_pace_margin"], 0.1))
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -325,7 +325,7 @@ class Realtime(Overlay):
             else:
                 lap_text = TEXT_PLACEHOLDER
             target.setText(lap_text)
-            target.setStyleSheet(self.leader_lap_color[highlight])
+            target.updateStyle(self.leader_lap_color[highlight])
 
     def update_lap_player(self, target, data, highlight):
         """Player final lap progress"""
@@ -336,7 +336,7 @@ class Realtime(Overlay):
             else:
                 lap_text = TEXT_PLACEHOLDER
             target.setText(lap_text)
-            target.setStyleSheet(self.player_lap_color[highlight])
+            target.updateStyle(self.player_lap_color[highlight])
 
     def update_lap_int(self, target, data):
         """Lap progress difference"""

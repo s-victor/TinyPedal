@@ -68,7 +68,7 @@ class Realtime(Overlay):
         self.prefix_avpc = self.wcfg["prefix_average_pace"].ljust(prefix_just)
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -282,7 +282,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             if verify:
-                target.setStyleSheet(self.bar_style_last[data > 0])
+                target.updateStyle(self.bar_style_last[data > 0])
                 data = abs(data)
             if 0 < data < MAX_SECONDS:
                 text = f"{prefix}{calc.sec2laptime(data)[:8]: >8}"

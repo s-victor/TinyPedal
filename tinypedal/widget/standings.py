@@ -20,8 +20,6 @@
 Standings Widget
 """
 
-from PySide2.QtWidgets import QWidget
-
 from .. import calculation as calc
 from ..api_control import api
 from ..const_common import TEXT_PLACEHOLDER
@@ -30,6 +28,7 @@ from ..module_info import minfo
 from ..userfile.brand_logo import load_brand_logo_file
 from ..userfile.heatmap import select_compound_symbol
 from ._base import Overlay
+from ._common import ExFrame
 
 
 class Realtime(Overlay):
@@ -64,7 +63,7 @@ class Realtime(Overlay):
         self.max_delta = calc.asym_max(int(self.wcfg["number_of_delta_laptime"]), 2, 5)
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -567,7 +566,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(f"{data[0]:02d}")
-            target.setStyleSheet(self.bar_style_pos[data[1]])
+            target.updateStyle(self.bar_style_pos[data[1]])
             self.toggle_visibility(target, data[-1])
 
     def update_pgl(self, target, *data):
@@ -587,7 +586,7 @@ class Realtime(Overlay):
             if data[1]:
                 color_index = 3
             target.setText(text)
-            target.setStyleSheet(self.bar_style_pgl[color_index])
+            target.updateStyle(self.bar_style_pgl[color_index])
             self.toggle_visibility(target, data[-1])
 
     def update_drv(self, target, *data):
@@ -605,7 +604,7 @@ class Realtime(Overlay):
             else:
                 text = text[:self.drv_width].ljust(self.drv_width)
             target.setText(text)
-            target.setStyleSheet(self.bar_style_drv[data[1]])
+            target.updateStyle(self.bar_style_drv[data[1]])
             self.toggle_visibility(target, data[-1])
 
     def update_veh(self, target, *data):
@@ -623,7 +622,7 @@ class Realtime(Overlay):
             else:
                 text = text[:self.veh_width].ljust(self.veh_width)
             target.setText(text)
-            target.setStyleSheet(self.bar_style_veh[data[1]])
+            target.updateStyle(self.bar_style_veh[data[1]])
             self.toggle_visibility(target, data[-1])
 
     def update_brd(self, target, *data):
@@ -631,7 +630,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setPixmap(self.set_brand_logo(self.cfg.user.brands.get(data[0], data[0])))
-            target.setStyleSheet(self.bar_style_brd[data[1]])
+            target.updateStyle(self.bar_style_brd[data[1]])
             self.toggle_visibility(target, data[-1])
 
     def update_gap(self, target, *data):
@@ -639,7 +638,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(data[0][:self.gap_width].strip("."))
-            target.setStyleSheet(self.bar_style_gap[data[1]])
+            target.updateStyle(self.bar_style_gap[data[1]])
             self.toggle_visibility(target, data[-1])
 
     def update_int(self, target, *data):
@@ -647,7 +646,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(self.int_to_next(*data[0])[:self.int_width].strip("."))
-            target.setStyleSheet(self.bar_style_int[data[1]])
+            target.updateStyle(self.bar_style_int[data[1]])
             self.toggle_visibility(target, data[-1])
 
     def update_lpt(self, target, *data):
@@ -659,7 +658,7 @@ class Realtime(Overlay):
             else:
                 color_index = data[2]
             target.setText(data[0])
-            target.setStyleSheet(self.bar_style_lpt[color_index])
+            target.updateStyle(self.bar_style_lpt[color_index])
             self.toggle_visibility(target, data[-1])
 
     def update_blp(self, target, *data):
@@ -667,7 +666,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(self.set_best_laptime(data[0]))
-            target.setStyleSheet(self.bar_style_blp[data[1]])
+            target.updateStyle(self.bar_style_blp[data[1]])
             self.toggle_visibility(target, data[-1])
 
     def update_dlt(self, target, *data):
@@ -691,8 +690,8 @@ class Realtime(Overlay):
                 if is_player:
                     color_index = -1
                 bar_delta.setText(text)
-                bar_delta.setStyleSheet(self.bar_style_dlt_delta[color_index])
-            target.setStyleSheet(self.bar_style_dlt[is_player])
+                bar_delta.updateStyle(self.bar_style_dlt_delta[color_index])
+            target.updateStyle(self.bar_style_dlt[is_player])
             self.toggle_visibility_delta(target, data[-1])
 
     def update_pic(self, target, *data):
@@ -700,7 +699,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(f"{data[0]:02d}")
-            target.setStyleSheet(self.bar_style_pic[data[1]])
+            target.updateStyle(self.bar_style_pic[data[1]])
             self.toggle_visibility(target, data[-1])
 
     def update_cls(self, target, *data):
@@ -709,7 +708,7 @@ class Realtime(Overlay):
             target.last = data
             text, bg_color = self.set_class_style(data[0])
             target.setText(text[:self.cls_width])
-            target.setStyleSheet(f"color:{self.wcfg['font_color_class']};background:{bg_color};")
+            target.updateStyle(f"color:{self.wcfg['font_color_class']};background:{bg_color};")
             self.toggle_visibility(target, data[-1])
 
     def update_pit(self, target, *data):
@@ -717,7 +716,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(self.pit_status_text[data[0]])
-            target.setStyleSheet(self.bar_style_pit[data[0]])
+            target.updateStyle(self.bar_style_pit[data[0]])
             self.toggle_visibility(target, data[-1])
 
     def update_tcp(self, target, *data):
@@ -725,7 +724,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(f"{select_compound_symbol(data[0])}{select_compound_symbol(data[1])}")
-            target.setStyleSheet(self.bar_style_tcp[data[2]])
+            target.updateStyle(self.bar_style_tcp[data[2]])
             self.toggle_visibility(target, data[-1])
 
     def update_psc(self, target, *data):
@@ -745,7 +744,7 @@ class Realtime(Overlay):
             else:
                 text = f"{data[0]}"
             target.setText(text)
-            target.setStyleSheet(self.bar_style_psc[color_index])
+            target.updateStyle(self.bar_style_psc[color_index])
             self.toggle_visibility(target, data[-1])
 
     def update_nrg(self, target, *data):
@@ -768,7 +767,7 @@ class Realtime(Overlay):
             else:
                 text = f"{data[0]:03.0%}"[:3]
             target.setText(text)
-            target.setStyleSheet(self.bar_style_nrg[color_index])
+            target.updateStyle(self.bar_style_nrg[color_index])
             self.toggle_visibility(target, data[-1])
 
     # Additional methods
@@ -778,7 +777,7 @@ class Realtime(Overlay):
             target.show()
         elif state == 1 and self.show_class_separator:  # draw gap
             target.clear()
-            target.setStyleSheet(self.bar_split_style)
+            target.updateStyle(self.bar_split_style)
             target.show()
         else:
             target.hide()
@@ -790,7 +789,7 @@ class Realtime(Overlay):
         elif state == 1 and self.show_class_separator:  # draw gap
             for _bar in target.bar_set:
                 _bar.clear()
-            target.setStyleSheet(self.bar_split_style)
+            target.updateStyle(self.bar_split_style)
             target.show()
         else:
             target.hide()
@@ -861,13 +860,13 @@ class Realtime(Overlay):
             return f"{gap_behind:.0f}L"
         return f"{gap_behind:.{self.int_decimals}f}"
 
-    def set_delta_table(self, width: int, columns: int, bar_padx: int) -> QWidget:
+    def set_delta_table(self, width: int, columns: int, bar_padx: int) -> ExFrame:
         """Set delta laptime table"""
-        bar_temp = QWidget(self)
+        bar_temp = ExFrame(self)
         layout = self.set_grid_layout()
         layout.setContentsMargins(bar_padx, 0, bar_padx, 0)
         bar_temp.setLayout(layout)
-        bar_temp.setStyleSheet(self.bar_style_dlt[0])
+        bar_temp.updateStyle(self.bar_style_dlt[0])
         bar_temp.bar_set = self.set_qlabel(
             fixed_width=width,
             count=columns,
@@ -877,5 +876,4 @@ class Realtime(Overlay):
             targets=bar_temp.bar_set,
             right_to_left=self.wcfg["show_inverted_delta_laptime_layout"],
         )
-        bar_temp.last = None
         return bar_temp

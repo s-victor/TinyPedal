@@ -61,7 +61,7 @@ class Realtime(Overlay):
         self.symbol_odm = set_symbol_distance(self.cfg.units["odometer_unit"])
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])

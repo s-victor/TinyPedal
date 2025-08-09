@@ -43,7 +43,7 @@ class Realtime(Overlay):
         self.freeze_duration = min(max(self.wcfg["freeze_duration"], 0), 30)
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -177,7 +177,7 @@ class Realtime(Overlay):
             else:
                 color_index = 0
             target.setText(f"B{data: >7.2f}"[:8])
-            target.setStyleSheet(self.bar_style_charge[color_index])
+            target.updateStyle(self.bar_style_charge[color_index])
 
     def update_drain(self, target, data):
         """Battery drain"""

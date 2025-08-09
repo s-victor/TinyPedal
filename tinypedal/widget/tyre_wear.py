@@ -44,7 +44,7 @@ class Realtime(Overlay):
         bar_width = font_m.width * 4 + bar_padx
 
         # Base style
-        self.setStyleSheet(self.set_qss(
+        self.set_base_style(self.set_qss(
             font_family=self.wcfg["font_name"],
             font_size=self.wcfg["font_size"],
             font_weight=self.wcfg["font_weight"])
@@ -263,7 +263,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(self.format_num(data))
-            target.setStyleSheet(
+            target.updateStyle(
                 self.bar_style_remain[data <= self.wcfg["warning_threshold_remaining"]]
             )
 
@@ -272,7 +272,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(self.format_num(data))
-            target.setStyleSheet(
+            target.updateStyle(
                 self.bar_style_diff[data > self.wcfg["warning_threshold_wear"]]
             )
 
@@ -281,7 +281,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(self.format_num(data))
-            target.setStyleSheet(
+            target.updateStyle(
                 self.bar_style_laps[data <= self.wcfg["warning_threshold_laps"]]
             )
 
@@ -290,7 +290,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(self.format_num(data))
-            target.setStyleSheet(
+            target.updateStyle(
                 self.bar_style_mins[data <= self.wcfg["warning_threshold_minutes"]]
             )
 
@@ -299,7 +299,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setText(self.format_num(data))
-            target.setStyleSheet(
+            target.updateStyle(
                 self.bar_style_end[data <= self.wcfg["warning_threshold_remaining"]]
             )
 

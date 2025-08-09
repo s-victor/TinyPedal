@@ -70,7 +70,7 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_headlights"],
             )
             self.bar_headlights.setPixmap(self.pixmap_headlights[1])
-            self.bar_headlights.setStyleSheet(self.warning_color[0])
+            self.bar_headlights.updateStyle(self.warning_color[0])
 
         # Ignition
         if self.wcfg["show_ignition"]:
@@ -83,7 +83,7 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_ignition"],
             )
             self.bar_ignition.setPixmap(self.pixmap_ignition[1])
-            self.bar_ignition.setStyleSheet(self.warning_color[0])
+            self.bar_ignition.updateStyle(self.warning_color[0])
 
         # Clutch
         if self.wcfg["show_clutch"]:
@@ -96,7 +96,7 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_clutch"],
             )
             self.bar_clutch.setPixmap(self.pixmap_clutch[1])
-            self.bar_clutch.setStyleSheet(self.warning_color[0])
+            self.bar_clutch.updateStyle(self.warning_color[0])
 
         # Lock
         if self.wcfg["show_wheel_lock"]:
@@ -109,7 +109,7 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_wheel_lock"],
             )
             self.bar_wlock.setPixmap(self.pixmap_wlock[1])
-            self.bar_wlock.setStyleSheet(self.warning_color[0])
+            self.bar_wlock.updateStyle(self.warning_color[0])
 
         # Slip
         if self.wcfg["show_wheel_slip"]:
@@ -122,7 +122,7 @@ class Realtime(Overlay):
                 column=self.wcfg["column_index_wheel_slip"],
             )
             self.bar_wslip.setPixmap(self.pixmap_wslip[1])
-            self.bar_wslip.setStyleSheet(self.warning_color[0])
+            self.bar_wslip.updateStyle(self.warning_color[0])
 
         # Last data
         self.flicker = False
@@ -179,28 +179,28 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             target.setPixmap(self.pixmap_ignition[data == 0])
-            target.setStyleSheet(self.warning_color[data == 1])
+            target.updateStyle(self.warning_color[data == 1])
 
     def update_clutch(self, target, data):
         """Clutch update"""
         if target.last != data:
             target.last = data
             target.setPixmap(self.pixmap_clutch[data < 2])
-            target.setStyleSheet(self.warning_color[data % 2 * 2])
+            target.updateStyle(self.warning_color[data % 2 * 2])
 
     def update_wlock(self, target, data):
         """Wheel lock update"""
         if target.last != data:
             target.last = data
             target.setPixmap(self.pixmap_wlock[data == 0])
-            target.setStyleSheet(self.warning_color[data * 3])
+            target.updateStyle(self.warning_color[data * 3])
 
     def update_wslip(self, target, data):
         """Wheel slip update"""
         if target.last != data:
             target.last = data
             target.setPixmap(self.pixmap_wslip[data == 0])
-            target.setStyleSheet(self.warning_color[data * 4])
+            target.updateStyle(self.warning_color[data * 4])
 
 
 def create_icon_set(pixmap_icon: QPixmap, icon_size: int, v_offset: int):
