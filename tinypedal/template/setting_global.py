@@ -47,6 +47,7 @@ GLOBAL_DEFAULT = {
         "enable_translucent_background": True,
         "enable_window_position_correction": True,
         "enable_x11_platform_plugin_override": False,
+        "enable_overlay_minimizing_when_hidden": False,
         "global_bkg_color": "#000000",
         "multimedia_plugin_on_windows": "WMF",
     },
