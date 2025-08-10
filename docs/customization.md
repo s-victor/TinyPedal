@@ -658,12 +658,17 @@ Enable `Manually Select Pace Notes File` check box to disable auto-file-name mat
 ## Fuel calculator
 **Fuel calculator can be accessed from `Tools` menu in main window.**
 
-On the left side is calculation panel, which handles `fuel` and `virtual energy` usage calculation and results display.
-
 Fuel value and unit symbol depend on `Fuel Unit` setting from [Units](#units) config dialog, `L` = liter, `gal` = gallon. Virtual energy unit is `%` = percentage. Note, after changed `Fuel Unit` setting, it is required to close and reopen `Fuel calculator` in order to update units info for calculation.
 
-On the right side is fuel consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `virtual energy consumption`, `battery drain`, `battery regen`, `average tyre tread wear`, `tank capacity` data from [Consumption History](#consumption-history) data.
-Invalid lap time or consumption data is highlighted in red.
+    Calculation panel
+On the left side is calculation panel, which handles `fuel` and `virtual energy` usage calculation and results display.
+
+This panel also includes a vertical `pit stop preview` bar on the left, which visualizes pit stops as blue marks and stint laps as grey marks. Each pit stop mark shows a reference lap completion number. Total estimated number of race laps is displayed at bottom of the bar.
+
+Note, when `Energy consumption` value is higher than zero, pit stops and stint laps from preview bar will be calculated based on energy usage. Stint lap mark may not be displayed if there is not enough space to draw.
+
+    Consumption history table
+On the right side is consumption history table, which lists `lap number`, `lap time`, `fuel consumption`, `virtual energy consumption`, `battery drain`, `battery regen`, `average tyre tread wear`, `tank capacity` data from [Consumption History](#consumption-history) data. Invalid lap time or consumption data is highlighted in red.
 
 Click `Load Live` button to load or update consumption history from live session to history table and automatically fill in latest data to calculator.
 
@@ -708,8 +713,10 @@ Show total required fuel or energy to finish race. First value is raw reading wi
     End stint fuel, End stint energy
 Show remaining fuel or energy at the end of stint.
 
-    Total Pit stops
-Show total number of pit stops required to finish race. First value is raw reading with decimal places, second value behind `≈` sign is rounded up integer reading. Note, sometimes when `Average pit seconds` is set to longer duration, ceiling integer reading may be rounded up `2` units higher than raw reading, this is not an error. For example, it may show `5.978 ≈ 7` instead of `5.978 ≈ 6`, this is because when calculating from `6` pit stops, due to less amount time spent in pit stop compare to `7`, more fuel is required per pit stop which would exceed tank capacity, hence calculator adds 1 more pit stop.
+    Total pit stops
+Show total number of pit stops required to finish race. First value is raw reading with decimal places, second value behind `≈` sign is rounded up integer reading.
+
+Note, sometimes when `Average pit seconds` is set to longer duration, ceiling integer reading may be rounded up `2` units higher than raw reading, this is not an error. For example, it may show `5.978 ≈ 7` instead of `5.978 ≈ 6`, this is because when calculating from `6` pit stops, due to less amount time spent in pit stop compare to `7`, more fuel is required per pit stop which would exceed tank capacity, hence calculator adds 1 more pit stop.
 
     One less pit stop
 Show theoretical fuel or energy consumption in order to make one less pit stop.
@@ -721,7 +728,7 @@ Show total laps and minutes can run based on `Total race fuel` or `Total race en
 Show maximum laps and minutes can run per stint based on `Tank capacity` value (or 100% capacity for virtual energy).
 
     Starting fuel, Starting energy
-Set starting fuel or energy. This value is only used for calculating `Average refueling` or `Average replenishing` per pit stop. Maximum value cannot exceed `Tank capacity` for fuel, or `100%` for energy. If value is set to `0`, `Tank capacity` value will be used as starting fuel for `Average refueling` calculation.
+Set amount fuel or energy to carry at the starting of race (first stint). This value affects `Total race fuel (or energy)` and `Total pit stops` calculation, and is used for calculating `Average refueling` or `Average replenishing` per pit stop. Maximum value cannot exceed `Tank capacity` for fuel (or `100%` for energy). If value is set to `0` (default), `Tank capacity` value will be used as starting fuel (or `100%` for starting energy) for `Average refueling` calculation.
 
     Average refueling, Average replenishing
 Show average refueling or replenishing per pit stop, and display warning color if value exceeds `Tank capacity` (fuel) or `100%` (energy).
@@ -1206,7 +1213,19 @@ Set number of attempts to retry connection. Value range in `0` to `10`. Default 
 Set time delay in seconds to retry connection. Value range in `0` to `60`. Default is `1` second.
 
     enable_energy_remaining
-Enable access to `remaining energy` data from `LMU Rest API`. This is required for showing remaining energy data in widgets such as Relative, Rivals, Standings.
+Enable access to `remaining energy` data (LMU only). This is required for showing remaining energy data in widgets such as Relative, Rivals, Standings.
+
+    enable_garage_setup_info
+Enable access to `garage setup` data (RF2 & LMU). This is required for accessing various vehicle setup data.
+
+    enable_session_info
+Enable access to `session` data (RF2 & LMU). This is required for accessing various session data, such as time-scale.
+
+    enable_vehicle_info
+Enable access to `vehicle` data (LMU only). This is essential for accessing `virtual energy`, `brake wear`, `vehicle damage`, `pit stop timing` data.
+
+    enable_weather_info
+Enable access to `weather` data (RF2 & LMU). This is required for showing weather forecast.
 
 [**`Back to Top`**](#)
 

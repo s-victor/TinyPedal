@@ -27,7 +27,7 @@ from collections import deque
 from math import ceil, floor
 
 from PySide2.QtCore import Qt
-from PySide2.QtGui import QColor
+from PySide2.QtGui import QColor, QPainter
 from PySide2.QtWidgets import (
     QDoubleSpinBox,
     QFileDialog,
@@ -73,6 +73,82 @@ def highlight_invalid(line_edit: QLineEdit, invalid=False):
     line_edit.setStyleSheet("background: #F40;" if invalid else "")
 
 
+class PitStopPreview(QWidget):
+    """Pit stop preview"""
+
+    def __init__(self, parent):
+        super().__init__(parent)
+        self.setFixedWidth(UIScaler.size(2.2))
+        self.floor_total_laps = 0
+        self.floor_stint_runlaps = 0
+        self.floor_start_runlaps = 0
+
+        frame = QFrame(self)
+        frame.setFrameShape(QFrame.StyledPanel)
+
+        self.label_laps = QLabel("-")
+        self.label_laps.setAlignment(Qt.AlignCenter)
+
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        layout.addWidget(frame, stretch=1)
+        layout.addWidget(self.label_laps)
+        self.setLayout(layout)
+
+    def update_input(self, total_laps: float, stint_runlaps: float, start_runlaps: float):
+        """Update input value"""
+        self.floor_total_laps = floor(total_laps)
+        self.floor_stint_runlaps = floor(stint_runlaps)
+        self.floor_start_runlaps = floor(start_runlaps) if start_runlaps > 0 else self.floor_stint_runlaps
+        self.label_laps.setText(str(self.floor_total_laps) if self.floor_total_laps else "-")
+        self.update()
+
+    def paintEvent(self, event):
+        """Draw"""
+        painter = QPainter(self)
+        length = self.height()
+        width = self.width()
+        palette = self.palette()
+
+        # Background
+        painter.fillRect(0, 0, width, length, palette.base().color())
+
+        # Marks
+        floor_total_laps = self.floor_total_laps
+        floor_stint_runlaps = self.floor_stint_runlaps
+        floor_start_runlaps = self.floor_start_runlaps
+        if floor_total_laps > 0 < floor_stint_runlaps:
+
+            length -= self.label_laps.height()
+
+            # Lap mark
+            laps = 1
+            lap_color = palette.mid().color()
+            while laps < floor_total_laps:
+                lap_mark_y = laps / floor_total_laps * length
+                if lap_mark_y < 5:
+                    break
+                painter.fillRect(0, lap_mark_y, width, 1, lap_color)
+                laps += 1
+
+            # Pit mark
+            pit_count = 1
+            pit_text_height = self.fontMetrics().height() * 2
+            pit_color = palette.highlight().color()
+            laps = floor_start_runlaps
+            while laps < floor_total_laps:
+                pit_mark_y = laps / floor_total_laps * length - 3
+                painter.fillRect(0, pit_mark_y, width, 6, pit_color)
+                painter.drawText(
+                    0, pit_mark_y - pit_text_height, width, pit_text_height,
+                    Qt.AlignHCenter | Qt.AlignBottom,
+                    f"{laps}",
+                )
+                pit_count += 1
+                laps = floor_start_runlaps + floor_stint_runlaps * (pit_count - 1)
+
+
 class FuelCalculator(BaseDialog):
     """Fuel calculator"""
 
@@ -87,6 +163,9 @@ class FuelCalculator(BaseDialog):
 
         # Set status bar
         self.status_bar = QStatusBar(self)
+
+        # Set preview
+        self.pit_preview = PitStopPreview(self)
 
         # Set view
         self.panel_calculator = QWidget(self)
@@ -315,6 +394,10 @@ class FuelCalculator(BaseDialog):
         layout_calculator.addLayout(layout_refill)
         layout_calculator.addWidget(frame_output_tyre_wear)
 
+        layout_data = QHBoxLayout()
+        layout_data.addWidget(self.pit_preview)
+        layout_data.addLayout(layout_calculator)
+
         layout_button = QHBoxLayout()
         layout_button.addWidget(button_loadlive, stretch=1)
         layout_button.addWidget(button_loadfile, stretch=1)
@@ -323,7 +406,7 @@ class FuelCalculator(BaseDialog):
 
         layout_panel = QVBoxLayout()
         layout_panel.setContentsMargins(0, 0, 0, 0)
-        layout_panel.addLayout(layout_calculator)
+        layout_panel.addLayout(layout_data)
         layout_panel.addLayout(layout_button)
         panel.setLayout(layout_panel)
 
@@ -366,7 +449,7 @@ class FuelCalculator(BaseDialog):
 
         # Get race setup
         total_race_seconds = self.input_race.minutes.value() * 60
-        total_race_laps = self.input_race.laps.value()
+        absolute_race_laps = self.input_race.laps.value()
         total_formation_laps = self.input_race.formation.value()
         average_pit_seconds = self.input_race.pit_seconds.value()
 
@@ -387,24 +470,32 @@ class FuelCalculator(BaseDialog):
         self.input_fuel.fuel_ratio.setText(f"{fuel_ratio:.3f}")
 
         # Calc fuel
-        fuel_stint_runlaps = self.calc_consumption(
+        fuel_total_runlaps, fuel_stint_runlaps, fuel_start_runlaps = self.calc_consumption(
             "fuel", tank_capacity, fuel_used, fuel_start, total_race_seconds,
-            total_race_laps, total_formation_laps, average_pit_seconds, laptime)
+            absolute_race_laps, total_formation_laps, average_pit_seconds, laptime)
 
         # Calc energy
-        energy_stint_runlaps = self.calc_consumption(
+        energy_total_runlaps, energy_stint_runlaps, energy_start_runlaps = self.calc_consumption(
             "energy", 100, energy_used, energy_start, total_race_seconds,
-            total_race_laps, total_formation_laps, average_pit_seconds, laptime)
+            absolute_race_laps, total_formation_laps, average_pit_seconds, laptime)
 
         # Calc tyre
         self.calc_tyre_consumption(fuel_stint_runlaps, energy_stint_runlaps, laptime)
 
+        # Update pit preview
+        if energy_used > 0:
+            self.pit_preview.update_input(energy_total_runlaps, energy_stint_runlaps, energy_start_runlaps)
+        else:
+            self.pit_preview.update_input(fuel_total_runlaps, fuel_stint_runlaps, fuel_start_runlaps)
+
     def calc_consumption(self, output_type, tank_capacity, consumption, fuel_start,
-        total_race_seconds, total_race_laps, total_formation_laps, average_pit_seconds, laptime):
+        total_race_seconds, absolute_race_laps, total_formation_laps, average_pit_seconds, laptime):
         """Calculate and output results"""
         estimate_pit_counts = 0
         minimum_pit_counts = 0  # minimum pit stop required to finish race
         loop_counts = 10  # max loop limit
+
+        start_runlaps = calc.end_stint_laps(fuel_start, consumption)
 
         # Total pit seconds depends on estimated pit counts
         # Recalculate and find nearest minimum pit counts on previous loop
@@ -415,7 +506,7 @@ class FuelCalculator(BaseDialog):
                 total_race_laps = total_formation_laps + calc.time_type_full_laps_remain(
                     laptime, total_race_seconds - total_pit_seconds)
             else:  # lap-type race
-                total_race_laps = total_formation_laps + total_race_laps
+                total_race_laps = total_formation_laps + absolute_race_laps
 
             total_need_frac = calc.total_fuel_needed(total_race_laps, consumption, 0)
 
@@ -425,7 +516,8 @@ class FuelCalculator(BaseDialog):
             else:
                 total_need_full = ceil(total_need_frac)
 
-            amount_refuel = total_need_full - tank_capacity
+            # amount_refuel = total_need_full - tank_capacity
+            amount_refuel = total_need_full - fuel_start
 
             amount_curr = min(total_need_full, tank_capacity)
 
@@ -496,7 +588,7 @@ class FuelCalculator(BaseDialog):
             f"{average_refuel:.3f}")
         # Set warning color if exceeded tank capacity
         highlight_invalid(output_refill.average_refill, average_refuel > tank_capacity)
-        return stint_runlaps
+        return total_runlaps, stint_runlaps, start_runlaps
 
     def calc_tyre_consumption(self, fuel_stint_runlaps, energy_stint_runlaps, laptime):
         """Calculate tyre consumption"""

@@ -1,5 +1,18 @@
-WIP
+2.33.0 (2025-08-10)
 -----------------------------
+* Fuel Calculator
+  - [New]Add "pit stop preview" bar on the left side of calculator panel, which visualizes pit stops as blue marks and stint laps as grey marks.
+    Each pit stop mark shows a reference lap completion number. Total estimated number of race laps is displayed at bottom of the bar.
+    Note, when "Energy consumption" value is higher than zero, pit stops and stint laps from preview bar will be calculated based on energy usage. Stint lap mark may not be displayed if there is not enough space to draw.
+  - "Starting Fuel" and "Starting Energy" values now affect "total pit stops" outcome, as well as visualized on "pit stop preview" bar.
+
+* RestAPI Module
+  - Add togglable options for each accessible data from Rest API.
+  - Add "enable_garage_setup_info" option, which enables access to "garage setup" data (RF2 & LMU). This is required for accessing various vehicle setup data.
+  - Add "enable_session_info" option, which enables access to "session" data (RF2 & LMU). This is required for accessing various session data, such as time-scale.
+  - Add "enable_weather_info" option, which enables access to "weather" data (RF2 & LMU). This is required for showing weather forecast.
+  - Add "enable_vehicle_info" option, which enables access to "vehicle" data (LMU only). This is essential for accessing "virtual energy", "brake wear", "vehicle damage", "pit stop timing" data.
+
 * Battery, Gear Widget
   - Add "high_battery_threshold, low_battery_threshold" options (requested by user "H4dro"), which set percentage threshold for displaying low or high battery charge warning indicator.
     Default high threshold is "95" percent (default color purple), low threshold is "10" percent (default color red).
@@ -10,7 +23,9 @@ WIP
     Note, both outline color and width can be customized.
 
 * Misc
+  - Fixed a rare issue where module data would not update after restarted module.
   - Fixed an issue where virtual energy usage from "Lap time history Widget" sometimes fails to load due to desync.
+  - Various optimization.
 
 2.32.1 (2025-07-26)
 -----------------------------
@@ -49,7 +64,7 @@ WIP
   - Now loads and shows lap history data from corresponding "Consumption History" file.
 
 * Standings Widget
-  - Renamed "show_time_gap_from_class_best" option to "show_time_gap_from_same_class", which now also shows time gap behind the same class leader in race session (requested by user "ssalamon"). This option is enabled by default, and only takes effect while `enable_multi_class_split_mode` is enabled.
+  - Renamed "show_time_gap_from_class_best" option to "show_time_gap_from_same_class", which now also shows time gap behind the same class leader in race session (requested by user "ssalamon"). This option is enabled by default, and only takes effect while "enable_multi_class_split_mode" is enabled.
   - Fixed a calculation error with time interval between each driver.
 
 * RestAPI Module

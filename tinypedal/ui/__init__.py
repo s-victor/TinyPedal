@@ -312,6 +312,15 @@ def set_style_window(base_font_pt: int) -> str:
         FuelCalculator QLabel {{
             font-size: {font_pt_text_browser}pt;
         }}
+        FuelCalculator PitStopPreview {{
+            font-size: {font_pt_text_browser}pt;
+            font-weight:bold;
+        }}
+        FuelCalculator PitStopPreview QLabel {{
+            color: {color_inactive_highlighted_text};
+            background: {color_inactive_highlight};
+            font-weight:bold;
+        }}
         About QLabel {{
             font-size: {font_pt_text_browser}pt;
         }}
