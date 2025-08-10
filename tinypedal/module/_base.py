@@ -73,14 +73,19 @@ class DataModule:
         if self.closed:
             self.closed = False
             self._event.clear()
-            threading.Thread(target=self.update_data, daemon=True).start()
+            threading.Thread(target=self.__tasks, daemon=True).start()
             logger.info("ENABLED: %s", self.module_name.replace("_", " "))
 
     def stop(self):
         """Stop update thread"""
         self._event.set()
-        self.closed = True
-        logger.info("DISABLED: %s", self.module_name.replace("_", " "))
 
     def update_data(self):
         """Update module data, rewrite in child class"""
+
+    def __tasks(self):
+        """Run tasks in separated thread"""
+        self.update_data()
+        # Wait update_data exit
+        self.closed = True
+        logger.info("DISABLED: %s", self.module_name.replace("_", " "))
