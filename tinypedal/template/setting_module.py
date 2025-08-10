@@ -86,6 +86,10 @@ MODULE_DEFAULT = {
         "connection_retry": 3,
         "connection_retry_delay": 1,
         "enable_energy_remaining": True,
+        "enable_garage_setup_info": True,
+        "enable_session_info": True,
+        "enable_vehicle_info": True,
+        "enable_weather_info": True,
     },
     "module_sectors": {
         "enable": True,

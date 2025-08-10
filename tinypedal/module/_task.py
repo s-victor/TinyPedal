@@ -151,17 +151,17 @@ LMU_STINTUSAGE = (
 # Define task set
 # 0 - uri path, 1 - output set, 2 - enabling condition, 3 is repeating task, 4 minimum update interval
 TASKSET_RF2 = (
-    ("/rest/sessions/weather", COMMON_WEATHERFORECAST, None, False, 0.1),
-    ("/rest/sessions/setting/SESSSET_race_timescale", RF2_TIMESCALE, None, False, 0.1),
-    ("/rest/sessions/setting/SESSSET_private_qual", RF2_PRIVATEQUALIFY, None, False, 0.1),
-    ("/rest/garage/fuel", RF2_GARAGESETUP, None, False, 0.1),
+    ("/rest/sessions/weather", COMMON_WEATHERFORECAST, "enable_weather_info", False, 0.1),
+    ("/rest/sessions/setting/SESSSET_race_timescale", RF2_TIMESCALE, "enable_session_info", False, 0.1),
+    ("/rest/sessions/setting/SESSSET_private_qual", RF2_PRIVATEQUALIFY, "enable_session_info", False, 0.1),
+    ("/rest/garage/fuel", RF2_GARAGESETUP, "enable_garage_setup_info", False, 0.1),
 )
 TASKSET_LMU = (
-    ("/rest/sessions/weather", COMMON_WEATHERFORECAST, None, False, 0.1),
-    ("/rest/sessions", LMU_SESSIONSINFO, None, False, 0.1),
-    ("/rest/garage/getPlayerGarageData", LMU_GARAGESETUP, None, False, 0.1),
-    ("/rest/garage/UIScreen/RepairAndRefuel", LMU_CURRENTSTINT, None, True, 0.2),
-    ("/rest/strategy/pitstop-estimate", LMU_PITSTOPTIME, None, True, 1.0),
+    ("/rest/sessions/weather", COMMON_WEATHERFORECAST, "enable_weather_info", False, 0.1),
+    ("/rest/sessions", LMU_SESSIONSINFO, "enable_session_info", False, 0.1),
+    ("/rest/garage/getPlayerGarageData", LMU_GARAGESETUP, "enable_garage_setup_info", False, 0.1),
+    ("/rest/garage/UIScreen/RepairAndRefuel", LMU_CURRENTSTINT, "enable_vehicle_info", True, 0.2),
+    ("/rest/strategy/pitstop-estimate", LMU_PITSTOPTIME, "enable_vehicle_info", True, 1.0),
     ("/rest/strategy/usage", LMU_STINTUSAGE, "enable_energy_remaining", True, 1.0),
 )
 
