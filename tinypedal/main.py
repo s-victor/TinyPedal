@@ -141,9 +141,10 @@ def init_gui() -> QApplication:
     # Set window icon for X11/Wayland (workaround)
     if PLATFORM != "Windows":
         root.setDesktopFileName("svictor-TinyPedal")
-    # Set font
+    # Set default font
     font = root.font()
-    font.setFamily("sans-serif")
+    if os.getenv("PYSIDE_OVERRIDE") != "6":  # don't set family for pyside6
+        font.setFamily("sans-serif")
     font.setPointSize(10)
     font.setStyleHint(QFont.SansSerif)
     root.setFont(font)

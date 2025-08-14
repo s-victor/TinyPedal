@@ -173,8 +173,8 @@ class StatusButtonBar(QStatusBar):
         # Wait saving finish
         while cfg.is_saving:
             time.sleep(0.01)
-        self.refresh()
-        self._parent.quit_app()
+        # self.refresh()
+        # self._parent.quit_app()
         loader.restart()
 
     def toggle_color_theme(self):

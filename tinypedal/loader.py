@@ -30,6 +30,7 @@ from .const_file import FileExt
 from .module_control import mctrl, wctrl
 from .overlay_control import octrl
 from .setting import cfg
+from .update import update_checker
 
 logger = logging.getLogger(__name__)
 
@@ -62,6 +63,9 @@ def start():
     logger.info("FINALIZING............")
     # 1 Enable overlay control
     octrl.enable()
+    # 2 Check for updates
+    if cfg.application["check_for_updates_on_startup"]:
+        update_checker.check()
 
 
 def close():

@@ -165,10 +165,10 @@ def set_style_window(base_font_pt: int) -> str:
         NotifyBar #notifyPresetLocked {{
             background: #777;
         }}
-        NotifyBar #notifyNewVersion {{
+        NotifyBar #notifyUpdates {{
             background: #A4A;
         }}
-        NotifyBar #notifyNewVersion::menu-indicator {{
+        NotifyBar #notifyUpdates::menu-indicator {{
             image: None;
         }}
 

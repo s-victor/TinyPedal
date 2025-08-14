@@ -32,7 +32,6 @@ from PySide2.QtWidgets import (
 )
 
 from ..const_app import URL_RELEASE
-from ..setting import cfg
 from ..update import update_checker
 
 
@@ -56,7 +55,10 @@ class NotifyBar(QWidget):
         self.presetlocked.setVisible(False)
         self.presetlocked.clicked.connect(lambda _: parent.select_tab(2))
 
-        self.updates = UpdatesButton("")
+        self.updates = UpdatesNotifyButton("")
+        self.updates.setObjectName("notifyUpdates")
+        self.updates.setVisible(False)
+        update_checker.checking.connect(self.updates.checking)
 
         layout = QVBoxLayout()
         layout.addWidget(self.spectate)
@@ -68,13 +70,11 @@ class NotifyBar(QWidget):
         self.setLayout(layout)
 
 
-class UpdatesButton(QPushButton):
-    """New updates notify button"""
+class UpdatesNotifyButton(QPushButton):
+    """Updates notify button"""
 
     def __init__(self, text, parent=None):
         super().__init__(text, parent)
-        self.setObjectName("notifyNewVersion")
-
         version_menu = QMenu(self)
 
         view_update = version_menu.addAction("View Updates On GitHub")
@@ -85,12 +85,6 @@ class UpdatesButton(QPushButton):
         dismiss_msg.triggered.connect(self.hide)
 
         self.setMenu(version_menu)
-        self.setVisible(False)
-
-        update_checker.checking.connect(self.checking)
-
-        if cfg.application["check_for_updates_on_startup"]:
-            update_checker.check()
 
     def open_release(self):
         """Open release link"""
