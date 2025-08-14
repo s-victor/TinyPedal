@@ -76,12 +76,12 @@ class Realtime(Overlay):
 
         if self.wcfg["show_pitout_prediction"]:
             self.show_while_requested = self.wcfg["show_pitout_prediction_while_requested_pitstop"]
-            self.predication_count = min(max(self.wcfg["number_of_predication"], 1), 20)
+            self.prediction_count = min(max(self.wcfg["number_of_prediction"], 1), 20)
             self.pitout_time_offset = max(self.wcfg["pitout_time_offset"], 0)
             self.min_pit_time = self.wcfg["pitstop_duration_minimum"] + self.pitout_time_offset
             self.pit_time_increment = max(self.wcfg["pitstop_duration_increment"], 1)
             self.pen_pit_styles = (
-                self.set_veh_pen_style(self.wcfg["predication_outline_color"], self.wcfg["predication_outline_width"]),
+                self.set_veh_pen_style(self.wcfg["prediction_outline_color"], self.wcfg["prediction_outline_width"]),
                 QPen(self.wcfg["font_color_pitstop_duration"]),
             )
             self.pit_text_shape = self.veh_shape.adjusted(-2, font_offset - veh_size - 3, 2, -veh_size - 3)
@@ -366,7 +366,7 @@ class Realtime(Overlay):
         pitout_time_extend = pit_timer + pitout_time
 
         painter.setBrush(Qt.NoBrush)
-        for _ in range(self.predication_count):
+        for _ in range(self.prediction_count):
             # Calc estimated pitout_time_into based on laptime_pace
             offset_time_into = pitout_time_extend - target_pit_time
             pitout_time_into = (offset_time_into - offset_time_into // laptime_pace * laptime_pace) * laptime_scale

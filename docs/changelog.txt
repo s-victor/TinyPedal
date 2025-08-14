@@ -1,3 +1,8 @@
+WIP
+-----------------------------
+* Relative finish order, Track map Widget
+  - Fixed a typo with option name "predication" (thanks to user "PeterVRC" for reports).
+
 2.33.0 (2025-08-10)
 -----------------------------
 * Fuel Calculator
@@ -235,7 +240,7 @@
   - Now processes user pit stop setting data from LMU Rest API for pit stop timing calculation.
 
 * Track map Widget
-  - Now reads pit-exit position data from Mapping Module for calculating pit-out predication.
+  - Now reads pit-exit position data from Mapping Module for calculating pit-out prediction.
 
 * Misc
   - Updated User Guide info for Tracks Preset, Track Info Editor, Pit stop estimate Widget.
@@ -519,20 +524,20 @@
     And since each track has different pit out line location,
     it is required to "pit out" at least "once per session" to mark the correct pit out line location.
     This can be easily done by driving out of pit lane.
-  - Add "number_of_predication" option that sets number of pit out predication to display.
+  - Add "number_of_prediction" option that sets number of pit out prediction to display.
     Value range is limited in "1" to "20".
-  - Add "pitstop_duration_minimum" option that sets pit stop duration (in seconds) of first predication.
+  - Add "pitstop_duration_minimum" option that sets pit stop duration (in seconds) of first prediction.
   - Add "pitstop_duration_increment" option that sets each pit stop duration (in seconds) increment
-    after previous predication. Default increment is "10" seconds.
-    Note, each time when pit stop duration of the nearest predication exceeded current pit stop timer,
-    the predication circle will be removed, and a new predication circle will be appended
-    with pit stop duration increment after the last predication.
+    after previous prediction. Default increment is "10" seconds.
+    Note, each time when pit stop duration of the nearest prediction exceeded current pit stop timer,
+    the prediction circle will be removed, and a new prediction circle will be appended
+    with pit stop duration increment after the last prediction.
   - Add "pitout_time_offset" option that sets amount time offset (in seconds) for catching up with
     vehicle speed after pit out. Default is "3" seconds.
     Note, this value is important for accurate prediction, as initial vehicle speed is much slower after pit out,
     so extra time is needed for driver to catch up, and also affected by pit out line location.
     For most tracks, this extra time after pit out is roughly within "1" to "5" seconds,
-  - Add "show_pitstop_duration" option that shows pit stop duration reading on top of each predication circle.
+  - Add "show_pitstop_duration" option that shows pit stop duration reading on top of each prediction circle.
   - Add "show_position_in_class" option, which shows position in class while "enable_multi_class_styling"
     is also enabled, otherwise this option has no effect.
     While "enable_multi_class_styling" is enabled, disable this option to show overall standings with

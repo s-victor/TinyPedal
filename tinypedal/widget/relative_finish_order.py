@@ -56,7 +56,7 @@ class Realtime(Overlay):
         bar_width = font_m.width * self.char_width + bar_padx
         self.range_start = max(self.wcfg["near_start_range"], 0)
         self.range_finish = max(self.wcfg["near_finish_range"], 0)
-        self.total_slot = min(max(self.wcfg["number_of_predication"], 0), 10) + 3
+        self.total_slot = min(max(self.wcfg["number_of_prediction"], 0), 10) + 3
         self.leader_pit_time_set = list(self.create_pit_time_set(self.total_slot, "leader"))
         self.player_pit_time_set = list(self.create_pit_time_set(self.total_slot, "player"))
         self.decimals_laps = max(self.wcfg["decimal_places_laps"], 0)
@@ -384,7 +384,7 @@ class Realtime(Overlay):
         yield 0  # reserved first 2 slots
         yield 0
         for index in range(total_slot - 3):
-            yield max(self.wcfg[f"predication_{index + 1}_{suffix}_pit_time"], 0)
+            yield max(self.wcfg[f"prediction_{index + 1}_{suffix}_pit_time"], 0)
         yield 0  # reserved last slot
 
     def set_highlight_range(self, laptime_pace, lap_final):

@@ -2753,7 +2753,7 @@ Simple example: in time-type race, at the moment when session timer ended, assum
 
 ---
 
-The table consists of 5 fixed rows, 1 optional row, 3 fixed columns, and 10 optional predication columns that can be customized. Example:
+The table consists of 5 fixed rows, 1 optional row, 3 fixed columns, and 10 optional prediction columns that can be customized. Example:
 
 | TIME |   0s  |  30s  |  40s  |  50s  |  60s  |  54s  |
 |:----:|:-----:|:-----:|:-----:|:-----:|:-----:|:-----:|
@@ -2789,7 +2789,7 @@ See `TIME` or `LAPS` type race example usages below for details.
 
 **Important notes**
 
-* Predication accuracy depends on many variables and is meant for final stint estimate. Such as laptime pace, pit time, penalties, weather condition, safety car, yellow flag, can all affect predication accuracy. It requires at least 2-3 laps to get sensible readings, and more laps to have better accuracy.
+* Prediction accuracy depends on many variables and is meant for final stint estimate. Such as laptime pace, pit time, penalties, weather condition, safety car, yellow flag, can all affect prediction accuracy. It requires at least 2-3 laps to get sensible readings, and more laps to have better accuracy.
 
 * `Final lap progress` values will not be displayed if no corresponding valid lap time pace data found, which requires at least 1 or 2 laps to record. If local player is the leader, then all values from leader's row will not be displayed. Refilling values will not be displayed during formation lap for the reasons mentioned in first note.
 
@@ -2850,7 +2850,7 @@ Note, there is generally no reason to use this widget in `LAPS` type race unless
     * If leader's `final lap progress` value is 2.00 (0s column), and local player's `final lap progress` value is -0.11 (40s column), then after subtracting (2 - -0.11 = 2.11) and rounding down, the final value is `2` lap difference, which means local player will do `two less laps` than leader. So an extra lap of fuel may be removed from `local player's refilling` value from fifth row second cell, in this case, it's `12.8` minus one lap of fuel `2.2`, equals `+10.6` fuel to add. Alternatively, it can be calculated from full lap refuel (as show in Fuel Widget), which will be `15.0` minus two lap of fuel `4.4`, and equals `+10.6` fuel to add.
     Be aware that carrying less fuel is risky in laps-type race due to reasons below.
 
-4. Last note, since the end of laps-type race is determined by the moment that leader completed all race laps, leader can greatly affect final predication outcome. To give an extreme example, if leader is ahead of everyone by a few laps, and decides to wait a few minutes on his final lap before finish line, then everyone else will be catching up and do a few `extra laps` which would require more fuel. Thus it is always risky to carry less fuel in laps-type race.
+4. Last note, since the end of laps-type race is determined by the moment that leader completed all race laps, leader can greatly affect final prediction outcome. To give an extreme example, if leader is ahead of everyone by a few laps, and decides to wait a few minutes on his final lap before finish line, then everyone else will be catching up and do a few `extra laps` which would require more fuel. Thus it is always risky to carry less fuel in laps-type race.
 
 ---
 
@@ -2882,11 +2882,11 @@ The first column of extra refilling row shows number of extra laps depends on `n
     number_of_extra_laps
 Set number of extra laps for extra refilling calculation. Default is `1` extra lap.
 
-    number_of_predication
-Set number of optional predication columns with customizable pit time. Value range in `0` to `10`. Default is `4` extra customizable columns.
+    number_of_prediction
+Set number of optional prediction columns with customizable pit time. Value range in `0` to `10`. Default is `4` extra customizable columns.
 
-    predication_*_leader_pit_time, predication_*_player_pit_time
-Set predication pit time for leader or local player.
+    prediction_*_leader_pit_time, prediction_*_player_pit_time
+Set prediction pit time for leader or local player.
 
 [**`Back to Top`**](#)
 
@@ -3292,16 +3292,16 @@ For accurate prediction, the location of `pit out line` must be found first. And
     show_pitout_prediction_while_requested_pitstop
 Show estimated pit out on-track position indication while player has requested pitstop and not in pit lane.
 
-    number_of_predication
-Set number of pit out predication to display. Value range is limited in `1` to `20`.
+    number_of_prediction
+Set number of pit out prediction to display. Value range is limited in `1` to `20`.
 
     pitstop_duration_minimum
-Set pit stop duration (in seconds) of first predication.
+Set pit stop duration (in seconds) of first prediction.
 
     pitstop_duration_increment
-Set each pit stop duration (in seconds) increment after previous predication. Default increment is `10` seconds.
+Set each pit stop duration (in seconds) increment after previous prediction. Default increment is `10` seconds.
 
-Note, each time when pit stop duration of the nearest predication exceeded current pit stop timer, the predication circle will be removed, and a new predication circle will be appended with pit stop duration increment after the last predication.
+Note, each time when pit stop duration of the nearest prediction exceeded current pit stop timer, the prediction circle will be removed, and a new prediction circle will be appended with pit stop duration increment after the last prediction.
 
     pitout_time_offset
 Set amount time offset (in seconds) for catching up with vehicle speed after pit out. Default is `3` seconds.
@@ -3309,7 +3309,7 @@ Set amount time offset (in seconds) for catching up with vehicle speed after pit
 Note, this value is important for accurate prediction, as initial vehicle speed is much slower after pit out, so extra time is needed for driver to catch up, and also affected by pit out line location. For most tracks, this extra time after pit out is roughly within `1` to `5` seconds.
 
     show_pitstop_duration
-Show pit stop duration reading on top of each predication circle.
+Show pit stop duration reading on top of each prediction circle.
 
 [**`Back to Top`**](#)
 
