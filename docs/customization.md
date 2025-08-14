@@ -388,6 +388,15 @@ Set amount decimal places to keep.
     show_at_startup
 Show main window at startup, otherwise hides to tray icon.
 
+    check_for_updates_on_startup
+Enable automatically checking for updates on startup, and display notification message in main window. This option is enabled by default.
+
+Click on the notification message will bring up a menu, where user can click `View Updates On GitHub` to open `Latest Releases` page in web browser, or `Dismiss` the message.
+
+Note, this option is checked only once per startup, and notification message will only be displayed if new updates is available. This option only checks for new updates info, it does not provide updates downloading or installing feature.
+
+User can also manually check for updates any time by accessing `Check for Updates` option from `Help` menu in main window.
+
     minimize_to_tray
 Minimize to tray when user clicks `X` close button.
 

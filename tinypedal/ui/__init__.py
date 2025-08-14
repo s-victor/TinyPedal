@@ -165,6 +165,12 @@ def set_style_window(base_font_pt: int) -> str:
         NotifyBar #notifyPresetLocked {{
             background: #777;
         }}
+        NotifyBar #notifyNewVersion {{
+            background: #A4A;
+        }}
+        NotifyBar #notifyNewVersion::menu-indicator {{
+            image: None;
+        }}
 
         /* Module list (tab) */
         ModuleList QListView {{

@@ -32,6 +32,7 @@ from ..const_file import ConfigType
 from ..module_info import minfo
 from ..overlay_control import octrl
 from ..setting import cfg
+from ..update import update_checker
 from .about import About
 from .brake_editor import BrakeEditor
 from .config import FontConfig, UserConfig
@@ -523,6 +524,10 @@ class HelpMenu(QMenu):
         app_log.triggered.connect(self.show_log)
         self.addSeparator()
 
+        app_update = self.addAction("Check for Updates")
+        app_update.triggered.connect(self.show_update)
+        self.addSeparator()
+
         app_about = self.addAction("About")
         app_about.triggered.connect(self.show_about)
 
@@ -535,6 +540,11 @@ class HelpMenu(QMenu):
         """Show log"""
         _dialog = LogInfo(self._parent)
         _dialog.show()
+
+    def show_update(self):
+        """Show update"""
+        update_checker.set_manual()
+        update_checker.check()
 
     def open_user_guide(self):
         """Open user guide link"""

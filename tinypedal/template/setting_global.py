@@ -25,6 +25,7 @@ from ..const_app import APP_NAME, PLATFORM
 GLOBAL_DEFAULT = {
     "application": {
         "show_at_startup": True,
+        "check_for_updates_on_startup": True,
         "minimize_to_tray": True,
         "remember_position": True,
         "remember_size": True,

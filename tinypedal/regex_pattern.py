@@ -34,6 +34,7 @@ CFG_BOOL = (
     "^auto_hide$|"
     "^auto_hide_if_not_available$|"
     "^auto_hide_in_private_qualifying$|"
+    "^check_for_updates_on_startup$|"
     "^fixed_position$|"
     "^minimize_to_tray$|"
     "^remember_position$|"

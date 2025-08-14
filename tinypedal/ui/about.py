@@ -91,7 +91,7 @@ class About(BaseDialog):
         except FileNotFoundError:
             logger.error("MISSING: %s file not found", filepath)
             error_text = "Error: file not found."
-            link_text = "See link: https://github.com/s-victor/TinyPedal/blob/master/"
+            link_text = f"See link: {URL_WEBSITE}/blob/master/"
             return f"{error_text} \n{link_text}{filepath}"
 
     def new_text_tab(self, text: str):

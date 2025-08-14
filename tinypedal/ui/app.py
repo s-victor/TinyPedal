@@ -48,37 +48,12 @@ from . import set_style_palette, set_style_window
 from ._common import UIScaler
 from .menu import ConfigMenu, HelpMenu, OverlayMenu, ToolsMenu, WindowMenu
 from .module_view import ModuleList
+from .notification import NotifyBar
 from .pace_notes_view import PaceNotesControl
 from .preset_view import PresetList
 from .spectate_view import SpectateList
 
 logger = logging.getLogger(__name__)
-
-
-class NotifyBar(QWidget):
-    """Notify bar"""
-
-    def __init__(self, parent):
-        super().__init__(parent)
-        self.spectate = QPushButton("Spectate Mode Enabled")
-        self.spectate.setObjectName("notifySpectate")
-        self.spectate.clicked.connect(lambda _: parent.select_tab(3))
-
-        self.pacenotes = QPushButton("Pace Notes Playback Enabled")
-        self.pacenotes.setObjectName("notifyPacenotes")
-        self.pacenotes.clicked.connect(lambda _: parent.select_tab(4))
-
-        self.presetlocked = QPushButton("Preset Locked")
-        self.presetlocked.setObjectName("notifyPresetLocked")
-        self.presetlocked.clicked.connect(lambda _: parent.select_tab(2))
-
-        layout = QVBoxLayout()
-        layout.addWidget(self.spectate)
-        layout.addWidget(self.pacenotes)
-        layout.addWidget(self.presetlocked)
-        layout.setSpacing(0)
-        layout.setContentsMargins(0, 0, 0, 0)
-        self.setLayout(layout)
 
 
 class TabView(QWidget):
