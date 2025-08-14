@@ -30,7 +30,7 @@ from PySide2.QtCore import QObject, Signal
 
 from .async_request import get_response, set_header_get
 from .const_app import APP_NAME, REPO_NAME
-from .version import __version__
+from .version import DEVELOPMENT, __version__
 
 VERSION_NA = (0, 0, 0)  # major, minor, patch
 DATE_NA = VERSION_NA  # year, month, day
@@ -121,11 +121,14 @@ class UpdateChecker(QObject):
         raw_bytes = asyncio.run(request_latest_release())
         checked_version = parse_version(raw_bytes)
         checked_date = parse_date(raw_bytes)
+        current_version = tuple(map(int, __version__.split(".")))
         # Output log
         if checked_version == VERSION_NA:
             self._update_available = False
             logger.info("UPDATES: Unable To Find Updates")
-        elif checked_version > tuple(map(int, __version__.split("."))):
+        elif checked_version > current_version or (
+            checked_version == current_version and DEVELOPMENT  # pre-release version check
+        ):
             self._update_available = True
             logger.info(
                 "UPDATES: New Updates: v%s.%s.%s (%s-%s-%s)",
