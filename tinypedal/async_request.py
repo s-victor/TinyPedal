@@ -32,10 +32,11 @@ from typing import Awaitable
 BUFFER_LIMIT = 32768  # 2 ** 15
 
 
-def set_header_get(uri: str = "/", host: str = "localhost") -> bytes:
+def set_header_get(uri: str = "/", host: str = "localhost", *headers: str) -> bytes:
     """Set GET request header"""
-    # \r\nAccept: application/json
-    return f"GET {uri} HTTP/1.1\r\nHost: {host}\r\n\r\n".encode()
+    # "Accept: application/json"
+    extra_headers = "\r\n" + "\r\n".join(headers) if headers else ""
+    return f"GET {uri} HTTP/1.1\r\nHost: {host}{extra_headers}\r\n\r\n".encode()
 
 
 async def parse_response(reader: StreamReader) -> bytes:
@@ -79,7 +80,6 @@ async def http_get(request: bytes, host: str, port: int, time_out: float):
     writer = None
     try:
         reader, writer = await wait_for(open_connection(host, port), time_out)
-        # print(host, "connected")
         writer.write(request)
         await writer.drain()
         yield await wait_for(parse_response(reader), time_out)
@@ -87,13 +87,28 @@ async def http_get(request: bytes, host: str, port: int, time_out: float):
         if writer is not None:
             writer.close()
             await writer.wait_closed()
-            # print(host, "closed")
 
 
-async def get_response(request: bytes, host: str, port: int, time_out: float) -> bytes:
+@asynccontextmanager
+async def https_get(request: bytes, host: str, port: int, time_out: float):
+    """Async request - HTTPS get response"""
+    writer = None
+    try:
+        reader, writer = await wait_for(open_connection(host, port, ssl=True), time_out)
+        writer.write(request)
+        await writer.drain()
+        yield await wait_for(parse_response(reader), time_out)
+    finally:
+        if writer is not None:
+            writer.close()
+            await writer.wait_closed()
+
+
+async def get_response(request: bytes, host: str, port: int, time_out: float, ssl: bool = False) -> bytes:
     """Get response data (bytes)"""
     try:
-        async with http_get(request, host, port, time_out) as raw_bytes:
+        func_get = https_get if ssl else http_get
+        async with func_get(request, host, port, time_out) as raw_bytes:
             return raw_bytes
     except (ConnectionError, TimeoutError, OSError, BaseException):
         return b""

@@ -33,8 +33,6 @@ EXECUTABLE_SETTING = [
 ]
 
 EXCLUDE_MODULES = [
-    "_ssl",
-    "ssl",
     "difflib",
     "pdb",
     "venv",
@@ -45,6 +43,8 @@ EXCLUDE_MODULES = [
     "unittest",
     "xmlrpc",
     "multiprocessing",
+    # "_ssl",
+    # "ssl",
     # "email",
     # "http",
     # "urllib",
@@ -88,10 +88,10 @@ BUILD_DATA_FILES = [
 BUILD_OPTIONS = {
     "dist_dir": f"{DIST_FOLDER}/{APP_NAME}",
     "excludes": EXCLUDE_MODULES,
-    "dll_excludes": ["libcrypto-1_1.dll", "libcrypto-3.dll"],
     "optimize": 2,
-    # "bundle_files": 2,
     "compressed": 1,
+    # "dll_excludes": ["libcrypto-1_1.dll", "libcrypto-3.dll"],
+    # "bundle_files": 2,
 }
 
 BUILD_VERSION = {
