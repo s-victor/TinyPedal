@@ -625,7 +625,7 @@ Set font weight to replace `font_weight` setting of all widgets. Default selecti
 
 Click `Enabled` or `Disabled` button to toggle spectate mode on and off. Note, spectate mode can also be enabled by setting `enable_player_index_override` option to `true` in [Shared Memory API](#shared-memory-api) config.
 
-While Spectate mode is enabled, `double-click` on a player name in the list to access telemetry data and overlay readings from selected player; alternatively, select a player name and click `Spectate` button. Current spectating player name is displayed on top of player name list.
+While Spectate mode is enabled, `double-click` on a player name in the list to access telemetry data and overlay readings from selected player; alternatively, select a player name and click `Spectate` button. Current spectating player name is displayed on top of player name list. Player names are listed in alphabetical order.
 
 Select `Anonymous` for unspecified player, which is equivalent to player index `-1` in JSON file.
 

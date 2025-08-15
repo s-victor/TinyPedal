@@ -20,6 +20,7 @@
 Spectate list view
 """
 
+import logging
 from typing import Callable
 
 from PySide2.QtWidgets import (
@@ -35,6 +36,8 @@ from ..api_control import api
 from ..setting import cfg
 from ._common import UIScaler
 
+logger = logging.getLogger(__name__)
+
 
 class SpectateList(QWidget):
     """Spectate list view"""
@@ -42,6 +45,7 @@ class SpectateList(QWidget):
     def __init__(self, parent, notify_toggle: Callable):
         super().__init__(parent)
         self.notify_toggle = notify_toggle
+        self.last_enabled = None
 
         # Label
         self.label_spectating = QLabel("")
@@ -79,15 +83,19 @@ class SpectateList(QWidget):
         layout_main.setContentsMargins(margin, margin, margin, margin)
         self.setLayout(layout_main)
 
-    def set_button_state(self, state: bool):
+    def set_button_state(self, enabled: bool):
         """Set button state"""
-        self.button_toggle.setChecked(state)
-        self.button_toggle.setText("Enabled" if state else "Disabled")
-        self.listbox_spectate.setDisabled(not state)
-        self.button_spectate.setDisabled(not state)
-        self.button_refresh.setDisabled(not state)
-        self.label_spectating.setDisabled(not state)
-        self.notify_toggle(state)
+        self.button_toggle.setChecked(enabled)
+        self.button_toggle.setText("Enabled" if enabled else "Disabled")
+        self.listbox_spectate.setDisabled(not enabled)
+        self.button_spectate.setDisabled(not enabled)
+        self.button_refresh.setDisabled(not enabled)
+        self.label_spectating.setDisabled(not enabled)
+        self.notify_toggle(enabled)
+        if enabled:
+            logger.info("ENABLED: spectate mode")
+        else:
+            logger.info("DISABLED: spectate mode")
 
     def toggle_spectate(self, checked: bool):
         """Toggle spectate mode"""
@@ -99,33 +107,66 @@ class SpectateList(QWidget):
     def refresh(self):
         """Refresh spectate list"""
         enabled = cfg.shared_memory_api["enable_player_index_override"]
+
         if enabled:
-            temp_list = list(self.driver_list())
-            self.listbox_spectate.clear()
-            self.listbox_spectate.addItems(temp_list)
-            index = min(
-                max(cfg.shared_memory_api["player_index"], -1) + 1,  # +1 offset
-                len(temp_list) - 1,  # prevent exceeding max players
-            )
-            self.listbox_spectate.setCurrentRow(index)
-            self.label_spectating.setText(f"Spectating: <b>{temp_list[index]}</b>")
+            self.update_drivers("Anonymous", cfg.shared_memory_api["player_index"], False)
         else:
             self.listbox_spectate.clear()
             self.label_spectating.setText("Spectating: <b>Disabled</b>")
 
-        self.set_button_state(enabled)
+        # Update button state only if changed
+        if self.last_enabled != enabled:
+            self.last_enabled = enabled
+            self.set_button_state(enabled)
 
     def spectate_selected(self):
         """Spectate selected player"""
-        selected_index = self.listbox_spectate.currentRow()
-        cfg.shared_memory_api["player_index"] = max(selected_index - 1, -1)
-        api.setup()
-        self.refresh()
-        cfg.save()
+        self.update_drivers(self.selected_name(), -1, True)
+
+    def update_drivers(self, selected_driver_name: str, selected_index: int, match_name: bool):
+        """Update drivers list"""
+        listbox = self.listbox_spectate
+        driver_list = []
+
+        for driver_index in range(api.read.vehicle.total_vehicles()):
+            driver_name = api.read.vehicle.driver_name(driver_index)
+            driver_list.append(driver_name)
+            if match_name:
+                if driver_name == selected_driver_name:
+                    selected_index = driver_index
+            else:  # match index
+                if driver_index == selected_index:
+                    selected_driver_name = driver_name
+
+        driver_list.sort()
+        driver_list.insert(0, "Anonymous")
+        listbox.clear()
+        listbox.addItems(driver_list)
+
+        self.focus_on_selected(selected_driver_name)
+        self.save_selected_index(selected_index)
+
+    def focus_on_selected(self, driver_name: str):
+        """Focus on selected driver row"""
+        listbox = self.listbox_spectate
+        for row_index in range(listbox.count()):
+            if driver_name == listbox.item(row_index).text():
+                break
+        else:  # fallback to 0 if name not found
+            row_index = 0
+        listbox.setCurrentRow(row_index)
+        # Make sure selected name valid
+        self.label_spectating.setText(f"Spectating: <b>{self.selected_name()}</b>")
+
+    def selected_name(self) -> str:
+        """Selected driver name"""
+        selected_item = self.listbox_spectate.currentItem()
+        return "Anonymous" if selected_item is None else selected_item.text()
 
     @staticmethod
-    def driver_list():
-        """Create driver list"""
-        yield "Anonymous"
-        for index in range(api.read.vehicle.total_vehicles()):
-            yield api.read.vehicle.driver_name(index)
+    def save_selected_index(index: int):
+        """Save selected driver index"""
+        if cfg.shared_memory_api["player_index"] != index:
+            cfg.shared_memory_api["player_index"] = index
+            api.setup()
+            cfg.save()

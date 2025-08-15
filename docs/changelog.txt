@@ -9,6 +9,9 @@ WIP
   - Add notification message for "Check for Updates" in main window. Click on the notification message will bring up a menu, where user can click "View Updates On GitHub" to open "Latest Releases" page in web browser, or "Dismiss" the message.
   - Add "Check for Updates" message to console output.
 
+* Spectate mode
+  - Now shows player names in alphabetical order, making it easier for finding specific player.
+
 * Relative finish order, Track map Widget
   - Fixed a typo with option name "predication" (reported by user "PeterVRC"). Existing setting won't be affected.
 
