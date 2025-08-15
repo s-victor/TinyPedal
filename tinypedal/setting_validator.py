@@ -187,8 +187,9 @@ class PresetValidator:
         key_list_user = tuple(dict_user)  # create user key list
 
         for key in key_list_user:  # loop through user key list
-            if key not in key_list_def:  # check each user key in default list
-                dict_user.pop(key)  # remove invalid key
+            # Remove invalid key
+            if key not in key_list_def:  # check in default list
+                dict_user.pop(key)
                 continue
             # Skip sub_level dict
             if isinstance(dict_user[key], dict):
@@ -197,6 +198,18 @@ class PresetValidator:
             for _validator in cls._value_validators:
                 if _validator(key, dict_user):
                     break
+
+    @staticmethod
+    def fix_outdated_key(dict_user: dict) -> None:
+        """Fix outdated key name from user dictionary"""
+        key_list_user = tuple(dict_user)  # create user key list
+
+        # Rename key, remove outdated key
+        for key in key_list_user:
+            # Typo (<=2.33.0)
+            if "predication" in key:
+                dict_user[key.replace("predication", "prediction")] = dict_user.pop(key)
+                continue
 
     @staticmethod
     def add_missing_key(key_list_def: tuple[str, ...], dict_user: dict, dict_def: dict) -> bool:
@@ -220,9 +233,11 @@ class PresetValidator:
             dict_user[d_key] = temp_value  # append user key at the end
 
     @classmethod
-    def validate_key_pair(cls, dict_user: dict, dict_def: dict) -> None:
+    def validate_key_pair(cls, dict_user: dict, dict_def: dict, sub_level: bool) -> None:
         """Create key-only check list, then validate key"""
         key_list_def = tuple(dict_def)
+        if sub_level:
+            cls.fix_outdated_key(dict_user)
         cls.remove_invalid_key(key_list_def, dict_user)
         cls.add_missing_key(key_list_def, dict_user, dict_def)
         cls.sort_key_order(key_list_def, dict_user)
@@ -231,8 +246,8 @@ class PresetValidator:
     def validate(cls, dict_user: dict, dict_def: dict) -> dict:
         """Validate setting"""
         # Check top-level key
-        cls.validate_key_pair(dict_user, dict_def)
+        cls.validate_key_pair(dict_user, dict_def, False)
         # Check sub-level key
         for item in dict_user.keys():  # list each key lists
-            cls.validate_key_pair(dict_user[item], dict_def[item])
+            cls.validate_key_pair(dict_user[item], dict_def[item], True)
         return dict_user

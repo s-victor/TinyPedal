@@ -10,7 +10,7 @@ WIP
   - Add "Check for Updates" message to console output.
 
 * Relative finish order, Track map Widget
-  - Fixed a typo with option name "predication" (thanks to user "PeterVRC" for reports).
+  - Fixed a typo with option name "predication" (reported by user "PeterVRC"). Existing setting won't be affected.
 
 2.33.0 (2025-08-10)
 -----------------------------
