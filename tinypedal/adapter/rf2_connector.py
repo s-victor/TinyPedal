@@ -22,9 +22,9 @@ rF2 API connector
 
 from __future__ import annotations
 
+import ctypes
 import logging
 import threading
-from copy import copy
 from time import monotonic, sleep
 from typing import TYPE_CHECKING, Sequence
 
@@ -45,6 +45,16 @@ from pyRfactor2SharedMemory.rF2MMap import (
 )
 
 logger = logging.getLogger(__name__)
+
+
+def copy_struct(struct_data):
+    """Allow to copy ctypes struct data with __slots__"""
+    return type(struct_data).from_buffer_copy(
+        ctypes.string_at(
+            ctypes.byref(struct_data),
+            ctypes.sizeof(struct_data),
+        )
+    )
 
 
 def local_scoring_index(scor_veh: Sequence[rF2data.rF2VehicleScoring]) -> int:
@@ -224,8 +234,8 @@ class SyncData:
             self._updating = False
             self._update_thread.join()
             # Make final copy before close, otherwise mmap won't close if using direct access
-            self.player_scor = copy(self.player_scor)
-            self.player_tele = copy(self.player_tele)
+            self.player_scor = copy_struct(self.player_scor)
+            self.player_tele = copy_struct(self.player_tele)
             self.dataset.close_mmap()
         else:
             logger.warning("sharedmemory: UPDATING: already stopped")
@@ -255,6 +265,8 @@ class SyncData:
                 elif reset_counter < 6:
                     reset_counter += 1
                     if reset_counter == 5:
+                        self.player_scor = self.dataset.scor.data.mVehicles[INVALID_INDEX]
+                        self.player_tele = self.dataset.tele.data.mVehicles[INVALID_INDEX]
                         self.paused = True
                         logger.info("sharedmemory: UPDATING: player data paused")
 
@@ -393,7 +405,7 @@ class RF2Info:
     @property
     def isPaused(self) -> bool:
         """Check whether data stopped updating"""
-        return self._sync.paused
+        return self._sync.paused or self._sync.player_scor_index < 0
 
 
 def test_api():

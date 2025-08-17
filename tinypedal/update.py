@@ -60,9 +60,9 @@ def parse_version(data: bytes) -> tuple[int, int, int]:
         pos_beg = data.find(b'"', data.find(b":", data.find(b"tag_name"))) + 1
         if pos_beg > 0:
             pos_end = data.find(b'"', pos_beg)
-            ver_raw = data[pos_beg:pos_end].decode()
-            ver_strip = ver_raw.lstrip("v").split("-")[0]
-            ver_split = ver_strip.split(".")
+            ver_raw = data[pos_beg:pos_end]
+            ver_strip = ver_raw.lstrip(b"v").split(b"-")[0]
+            ver_split = ver_strip.split(b".")
             return int(ver_split[0]), int(ver_split[1]), int(ver_split[2])
     except (AttributeError, TypeError, IndexError, ValueError):
         logger.error("UPDATES: error while fetching latest release version info")
@@ -75,9 +75,9 @@ def parse_date(data: bytes) -> tuple[int, int, int]:
         pos_beg = data.find(b'"', data.find(b":", data.find(b"published_at"))) + 1
         if pos_beg > 0:
             pos_end = data.find(b'"', pos_beg)
-            date_raw = data[pos_beg:pos_end].decode()
-            date_strip = date_raw.strip().split("T")[0]
-            date_split = date_strip.split("-")
+            date_raw = data[pos_beg:pos_end]
+            date_strip = date_raw.strip().split(b"T")[0]
+            date_split = date_strip.split(b"-")
             return int(date_split[0]), int(date_split[1]), int(date_split[2])
     except (AttributeError, TypeError, IndexError, ValueError):
         logger.error("UPDATES: error while fetching latest release date info")
