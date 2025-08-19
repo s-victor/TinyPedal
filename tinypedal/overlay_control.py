@@ -43,6 +43,7 @@ class OverlayState(QObject):
         paused: whether to pause/resume overlay timer.
         vr_compat: signal for toggling VR compatibility state.
     """
+
     hidden = Signal(bool)
     locked = Signal(bool)
     reload = Signal(bool)

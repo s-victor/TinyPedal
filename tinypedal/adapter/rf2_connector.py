@@ -265,6 +265,7 @@ class SyncData:
                 elif reset_counter < 6:
                     reset_counter += 1
                     if reset_counter == 5:
+                        self.player_scor_index = INVALID_INDEX
                         self.player_scor = self.dataset.scor.data.mVehicles[INVALID_INDEX]
                         self.player_tele = self.dataset.tele.data.mVehicles[INVALID_INDEX]
                         self.paused = True

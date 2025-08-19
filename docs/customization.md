@@ -84,9 +84,13 @@ Customization can be done through various configuration dialogs and menus from m
 ## Preset Transfer
 **Preset transfer dialog is used for transferring settings from one preset to another.**
 
-Note, you can only transfer settings from a currently loaded preset to another preset, this is done to ensure one-way transfer. A confirmation dialog will be shown before transfer.
+Note, you can only transfer settings from a currently loaded preset to another preset, this is done to ensure one-way transfer.
 
-It is recommended to first load a preset, then unhide the preset and double-check if you wish to transfer its settings to another preset. For important preset, it is recommended to make a backup copy and lock the preset.
+**A confirmation dialog will be shown before transfer.**
+
+It is recommended to first load a preset, then unhide the preset and double-check if you wish to transfer its settings to another preset.
+
+**For important preset, it is recommended to make a backup copy, and/or lock the preset.**
 
 To transfer settings from currently loaded preset to another specific preset, select a preset name from preset selector on the top right. Locked presets are not available from preset selector.
 
@@ -109,7 +113,7 @@ Option types:
 - Decimal Places: decimal places options.
 - Other Options: all other options that are not part of above option types.
 
-For example, to transfer all settings except widget position to another preset, select and check all settings from `setting` list, then select all options except `position` from `option type` list, and click `Transfer` button.
+For example, to only transfer all widgets `position` setting to another preset, select and check all settings from `Setting` list on the left side, then select only `position` from `Option Type` list on the right side, and click `Transfer` button.
 
 [**`Back to Top`**](#)
 
