@@ -1,4 +1,4 @@
-WIP
+2.33.1 (2025-08-22)
 -----------------------------
 * [New]Check for Updates
   - Add "Check For Updates On Startup" global option (requested by user "coasting-nc"), which enables automatically checking for updates on startup, and displays notification message in main window.
@@ -10,10 +10,13 @@ WIP
   - Add "Check for Updates" message to console output.
 
 * Spectate mode
-  - Now shows player names in alphabetical order, making it easier for finding specific player.
+  - Now lists player names in alphabetical order, making it easier for finding specific player.
 
 * Relative finish order, Track map Widget
   - Fixed a typo with option name "predication" (reported by user "PeterVRC"). Existing setting won't be affected.
+
+* Misc
+  - Small optimization.
 
 2.33.0 (2025-08-10)
 -----------------------------
