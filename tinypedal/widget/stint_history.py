@@ -47,6 +47,7 @@ class Realtime(Overlay):
         layout_reversed = self.wcfg["layout"] != 0
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
         stint_slot = max(self.wcfg["stint_history_count"], 1)
+        self.minimum_stint_seconds = self.wcfg["minimum_stint_threshold_minutes"] * 60
 
         # Config units
         self.unit_fuel = set_unit_fuel(self.cfg.units["fuel_unit"])
@@ -174,6 +175,7 @@ class Realtime(Overlay):
         )
 
         # Last data
+        self.last_time = 0
         self.stint_running = False
         self.reset_stint = True
         self.start_laps = 0
@@ -186,14 +188,6 @@ class Realtime(Overlay):
         self.stint_data = ["--",0,0,0,0]
         self.history_data = deque([tuple(self.stint_data) for _ in range(stint_slot)], stint_slot)
         self.update_stint_history()
-
-    def post_update(self):
-        self.stint_running = False
-        self.reset_stint = True
-
-        if self.stint_data[2] >= self.wcfg["minimum_stint_threshold_minutes"] * 60:
-            self.history_data.appendleft(tuple(self.stint_data))
-            self.update_stint_history()
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -216,11 +210,15 @@ class Realtime(Overlay):
             self.stint_running = True
         elif in_pits and self.stint_running:
             if self.last_wear_avg > wear_avg or self.last_fuel_curr < fuel_curr:
-                self.stint_running = False
                 self.reset_stint = True
-                # Update stint history
-                self.history_data.appendleft(tuple(self.stint_data))
-                self.update_stint_history()
+                self.update_stint_history(self.stint_data)
+
+        # Time check (ignore game pause)
+        if abs(self.last_time - time_curr) > 2:
+            self.reset_stint = True
+            if self.stint_data[2] >= self.minimum_stint_seconds:
+                self.update_stint_history(self.stint_data)
+        self.last_time = time_curr
 
         if in_garage:
             self.reset_stint = True
@@ -231,6 +229,7 @@ class Realtime(Overlay):
             self.start_fuel = fuel_curr
             self.start_wear = wear_avg
             self.reset_stint = False
+            self.stint_running = False
             # Update compound info once per stint
             class_name = api.read.vehicle.class_name()
             self.stint_data[0] = "".join(
@@ -284,8 +283,11 @@ class Realtime(Overlay):
             target.last = data
             target.setText(f"{data:02.0f}%"[:3])
 
-    def update_stint_history(self):
+    def update_stint_history(self, new_stint_data=None):
         """Stint history data"""
+        if new_stint_data:
+            self.history_data.appendleft(tuple(new_stint_data))
+
         for index, data in enumerate(self.history_data):
             index += 1
             unavailable = False
