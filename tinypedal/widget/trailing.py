@@ -49,6 +49,7 @@ class Realtime(Overlay):
             self.wcfg["brake_line_width"],
             self.wcfg["clutch_line_width"],
             self.wcfg["ffb_line_width"],
+            self.wcfg["steering_line_width"],
         ))
         max_samples = 3 + max_line_width  # 3 offset + max line width
         self.samples_offset = max_samples - 2
@@ -71,6 +72,8 @@ class Realtime(Overlay):
             self.data_clutch = self.create_data_samples(max_samples)
         if self.wcfg["show_ffb"]:
             self.data_ffb = self.create_data_samples(max_samples)
+        if self.wcfg["show_steering"]:
+            self.data_steering = self.create_data_samples(max_samples)
         if self.wcfg["show_wheel_lock"]:
             self.data_wheel_lock = self.create_data_samples(max_samples)
         if self.wcfg["show_wheel_slip"]:
@@ -118,6 +121,13 @@ class Realtime(Overlay):
                 else:
                     clutch = api.read.inputs.clutch()
                 self.update_sample(self.data_clutch, clutch)
+
+            if self.wcfg["show_steering"]:
+                if self.wcfg["show_inverted_steering"]:
+                    steering = 1 - (api.read.inputs.steering() + 1) / 2
+                else:
+                    steering = (api.read.inputs.steering() + 1) / 2
+                self.update_sample(self.data_steering, steering)
 
             if self.wcfg["show_ffb"]:
                 if self.wcfg["show_absolute_ffb"]:
@@ -232,7 +242,15 @@ class Realtime(Overlay):
 
     def config_draw_order(self):
         """Config plot draw order"""
-        plot_names = ("throttle", "brake", "clutch", "ffb", "wheel_lock", "wheel_slip")
+        plot_names = (
+            "throttle",
+            "brake",
+            "clutch",
+            "ffb",
+            "steering",
+            "wheel_lock",
+            "wheel_slip",
+        )
         for plot_name in plot_names:
             if not self.wcfg[f"show_{plot_name}"]:
                 continue

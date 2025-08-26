@@ -3361,7 +3361,7 @@ Set maximum display duration (seconds) of each note. Set to `-1` to always displ
 
 
 ## Trailing
-**This widget displays pedal input and force feedback plots.**
+**This widget displays pedal, steering input and force feedback plots.**
 
     display_width
 Set pedal plot display width in pixels.
@@ -3389,6 +3389,12 @@ Show unfiltered throttle instead.
 
     show_absolute_ffb
 Convert force feedback value to absolute value before plotting. Set to `false` to show force feedback plot in both positive and negative range.
+
+    show_steering
+Show steering plot.
+
+    show_inverted_steering
+Invert steering plot direction.
 
     *_line_width
 Set trailing line width in pixels.

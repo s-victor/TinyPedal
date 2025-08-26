@@ -1,3 +1,8 @@
+WIP
+-----------------------------
+* Trailing Widget
+  * [New]Added "show_steering" option (requested by user "Badorio"), which shows steering input plot. This option is disabled by default.
+
 2.33.1 (2025-08-22)
 -----------------------------
 * [New]Check for Updates
