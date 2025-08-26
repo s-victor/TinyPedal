@@ -1,7 +1,10 @@
 WIP
 -----------------------------
+* Brake Bias Widget
+  - No longer resets baseline bias delta while game is paused (requested by user "matteocnt92"). Baseline bias delta now also resets while vehicle is stationary during formation lap.
+
 * Trailing Widget
-  * [New]Added "show_steering" option (requested by user "Badorio"), which shows steering input plot. This option is disabled by default.
+  - [New]Added "show_steering" option (requested by user "Badorio"), which shows steering input plot. This option is disabled by default.
 
 2.33.1 (2025-08-22)
 -----------------------------

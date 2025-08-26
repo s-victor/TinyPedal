@@ -1364,7 +1364,7 @@ Show both front and rear bias. Default is `false`.
 Set `true` to show percentage sign for brake bias value.
 
     show_baseline_bias_delta
-Show delta between current and baseline brake bias, which can be useful for keeping track of brake bias changes easier during a long race. Baseline brake bias is automatically set (and reset) while vehicle is stationary in pit lane.
+Show delta between current and baseline brake bias, which can be useful for keeping track of brake bias changes easier during a long race. Baseline brake bias is automatically set (and reset) while vehicle is stationary in pit lane or stationary during formation lap.
 
     show_brake_migration
 Show real-time brake migration change, as commonly seen in LMH and LMDh classes.

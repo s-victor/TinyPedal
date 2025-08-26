@@ -112,7 +112,6 @@ class Realtime(Overlay):
 
     def post_update(self):
         self.brake_bmigt.reset()
-        self.baseline_bias = 0
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -123,7 +122,8 @@ class Realtime(Overlay):
         # Baseline bias delta
         if self.wcfg["show_baseline_bias_delta"]:
             if (not self.baseline_bias  # in case not start from pit
-                or (api.read.vehicle.in_pits() and api.read.vehicle.speed() < 0.1)):
+                or ((api.read.vehicle.in_pits() or api.read.session.pre_race())
+                     and api.read.vehicle.speed() < 0.1)):
                 self.baseline_bias = bbias
 
             self.update_delta(self.bar_delta, bbias - self.baseline_bias)

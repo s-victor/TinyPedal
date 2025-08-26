@@ -369,8 +369,12 @@ class Session(DataAdapter):
         """Is pit lane open"""
         return self.info.rf2ScorInfo.mGamePhase > 0
 
+    def pre_race(self) -> bool:
+        """Before race starts (green flag)"""
+        return self.info.rf2ScorInfo.mGamePhase <= 4
+
     def green_flag(self) -> bool:
-        """Green flag"""
+        """Green flag (race starts)"""
         # Inaccurate due to 5FPS refresh rate from API
         return self.info.rf2ScorInfo.mGamePhase == 5
 
