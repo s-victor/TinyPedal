@@ -4,7 +4,7 @@ WIP
   - No longer resets baseline bias delta while game is paused (requested by user "matteocnt92"). Baseline bias delta now also resets while vehicle is stationary during formation lap.
 
 * Stint History Widget
-  - No longer resets current stint data while game is paused (requested by user "ebeninca").
+  - No longer resets current stint data while game is paused (requested by user "ebeninca"). Stint history is no longer recorded during formation lap.
 
 * Trailing Widget
   - [New]Added "show_steering" option (requested by user "Badorio"), which shows steering input plot. This option is disabled by default.

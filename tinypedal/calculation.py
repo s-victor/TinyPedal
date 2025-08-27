@@ -347,7 +347,7 @@ def sec2laptime_full(seconds: float) -> str:
 
 def sec2stinttime(seconds: float) -> str:
     """Stint time (min:sec)"""
-    return f"{seconds // 60:02.0f}:{round(seconds) % 60:02.0f}"
+    return f"{seconds // 60:02.0f}:{int(seconds) % 60:02.0f}"
 
 
 def delta_telemetry(

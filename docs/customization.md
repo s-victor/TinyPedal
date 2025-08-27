@@ -3157,6 +3157,8 @@ Show rotation line only while vehicle is stationary (less than 1m/s).
 
 This widget consists of five columns from left to right (default order): `Total completed laps`, `Total driving time`, `Total fuel or virtual energy consumption`, `Tyre compound`, `Total average tyre wear (percent)`.
 
+Note, stint history is not recorded while in garage or during formation lap.
+
     layout
 2 layouts are available: `0` = vertical layout, `1` = reversed vertical layout.
 
