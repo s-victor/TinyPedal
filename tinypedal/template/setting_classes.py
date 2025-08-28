@@ -29,11 +29,11 @@ CLASSINFO_DEFAULT = MappingProxyType({
 
 CLASSES_DEFAULT = {
     "Hyper": {
-        "alias": "LMH",
+        "alias": "HY",
         "color": "#FF4400",
     },
     "Hypercar": {
-        "alias": "LMH",
+        "alias": "HY",
         "color": "#FF4400",
     },
     "LMP1": {

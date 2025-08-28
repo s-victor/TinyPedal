@@ -2115,7 +2115,7 @@ Show consumption type in `FUEL` or `NRG` (if virtual energy available).
 Show last lap consumption.
 
     layout
-Set target laps horizontal display order. Set `0` to show from left (less laps) to right (more laps). Set 1` to show from right to left instead.
+Set target laps horizontal display order. Set `0` to show from left (less laps) to right (more laps). Set `1` to show from right to left instead.
 
     minimum_reserve
 Set minimum amount fuel or virtual energy in tank that is excluded from saving calculation and reserved for the end of stint. Default is `0.2` Liter for fuel (or % for virtual energy).
