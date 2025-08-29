@@ -168,6 +168,9 @@ class Realtime(Overlay):
                 )
 
         # Last data
+        self.last_in_pits = -1
+        self.last_tcmpd_f = ""
+        self.last_tcmpd_r = ""
         self.last_rtemp = list(WHEELS_ZERO)
         self.last_lap_etime = 0
         self.calc_ema_rdiff = partial(
@@ -177,12 +180,27 @@ class Realtime(Overlay):
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
-        # Tyre compound
-        if self.wcfg["show_tyre_compound"]:
+        # Update compound while in pit (or switched pit state)
+        in_pits = api.read.vehicle.in_pits()
+        if in_pits or self.last_in_pits != in_pits:
+            self.last_in_pits = in_pits
             class_name = api.read.vehicle.class_name()
-            tcmpd_name = api.read.tyre.compound_name()
-            for cmpd_idx, bar_tcmpd in enumerate(self.bars_tcmpd):
-                self.update_tcmpd(bar_tcmpd, f"{class_name} - {tcmpd_name[cmpd_idx]}", cmpd_idx * 2)
+            tcmpd_f = f"{class_name} - {api.read.tyre.compound_name_front()}"
+            tcmpd_r = f"{class_name} - {api.read.tyre.compound_name_rear()}"
+
+            # Heatmap style
+            if self.wcfg["enable_heatmap_auto_matching"]:
+                if self.last_tcmpd_f != tcmpd_f:
+                    self.update_heatmap(tcmpd_f, 0)
+                    self.last_tcmpd_f = tcmpd_f
+                if self.last_tcmpd_r != tcmpd_r:
+                    self.update_heatmap(tcmpd_r, 2)
+                    self.last_tcmpd_r = tcmpd_r
+
+            # Tyre compound
+            if self.wcfg["show_tyre_compound"]:
+                self.update_tcmpd(self.bars_tcmpd[0], tcmpd_f)
+                self.update_tcmpd(self.bars_tcmpd[1], tcmpd_r)
 
         # Tyre carcass temperature: 0 - fl, 1 - fr, 2 - rl, 3 - rr
         ctemp = api.read.tyre.carcass_temperature()
@@ -225,19 +243,20 @@ class Realtime(Overlay):
             target.setText(f"{self.unit_temp(data):.1f}"[:3].strip("."))
             target.updateStyle(self.bar_style_rtemp[data > 0])
 
-    def update_tcmpd(self, target, data, index):
+    def update_tcmpd(self, target, data):
         """Tyre compound"""
         if target.last != data:
             target.last = data
             target.setText(select_compound_symbol(data))
-            # Update heatmap style
-            if self.wcfg["enable_heatmap_auto_matching"]:
-                heatmap_style = load_heatmap_style(
-                    heatmap_name=select_tyre_heatmap_name(data),
-                    default_name=HEATMAP_DEFAULT_TYRE,
-                    swap_style=self.wcfg["swap_style"],
-                    fg_color=self.wcfg["font_color_carcass"],
-                    bg_color=self.wcfg["bkg_color_carcass"],
-                )
-                self.heatmap_styles[index] = heatmap_style
-                self.heatmap_styles[index + 1] = heatmap_style
+
+    def update_heatmap(self, compound, index):
+        """Heatmap style"""
+        heatmap_style = load_heatmap_style(
+            heatmap_name=select_tyre_heatmap_name(compound),
+            default_name=HEATMAP_DEFAULT_TYRE,
+            swap_style=self.wcfg["swap_style"],
+            fg_color=self.wcfg["font_color_carcass"],
+            bg_color=self.wcfg["bkg_color_carcass"],
+        )
+        self.heatmap_styles[index] = heatmap_style
+        self.heatmap_styles[index + 1] = heatmap_style

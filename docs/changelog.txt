@@ -9,6 +9,9 @@ WIP
 * Trailing Widget
   - [New]Added "show_steering" option (requested by user "Badorio"), which shows steering input plot. This option is disabled by default.
 
+* Tyre carcass, Tyre inner layer, Tyre temperature Widget
+  - Fixed "enable_heatmap_auto_matching" not working if "show_tyre_compound" option is disabled.
+
 2.33.1 (2025-08-22)
 -----------------------------
 * [New]Check for Updates
