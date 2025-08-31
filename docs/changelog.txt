@@ -1,5 +1,11 @@
 WIP
 -----------------------------
+* Flag Widget
+  - [New]Added "yellow_flag_maximum_range_ahead" and "yellow_flag_maximum_range_behind" options (requested by user "Obly88"), which set maximum range for displaying yellow flags that ahead of or behind driver.
+    Default range ahead is "500" meters, range behind is "50" meters. To disable yellow flag that behind driver, set range behind to "0".
+    Note, yellow flags that ahead of driver take priority over those from behind.
+  - Now shows plus and minus sign for nearest yellow flag distance reading. Positive distance reading indicates yellow flag that ahead of driver, negative indicates behind.
+
 * Brake Bias Widget
   - No longer resets baseline bias delta while game is paused (requested by user "matteocnt92"). Baseline bias delta now also resets while vehicle is stationary during formation lap.
 

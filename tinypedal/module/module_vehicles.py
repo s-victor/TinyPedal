@@ -95,7 +95,8 @@ def update_vehicle_data(
 
     nearest_line = MAX_METERS
     nearest_time_behind = -MAX_SECONDS
-    nearest_yellow = MAX_METERS
+    nearest_yellow_ahead = MAX_METERS
+    nearest_yellow_behind = -MAX_METERS
 
     # Local player data
     plr_lap_distance = api.read.lap.distance()
@@ -122,7 +123,8 @@ def update_vehicle_data(
         if data.isPlayer:
             output.playerIndex = index
             if data.isYellow:
-                nearest_yellow = 0.0
+                nearest_yellow_ahead = 0.0
+                nearest_yellow_behind = 0.0
         else:
             # Relative position & orientation
             plr_pos_x = api.read.vehicle.position_longitudinal()
@@ -160,11 +162,13 @@ def update_vehicle_data(
                 if 0 > opt_time_behind > nearest_time_behind:
                     nearest_time_behind = opt_time_behind
             # Nearest yellow flag distance
-            if data.isYellow and nearest_yellow > 0:
-                opt_rel_distance = abs(calc.circular_relative_distance(
-                    track_length, plr_lap_distance, lap_distance))
-                if nearest_yellow > opt_rel_distance:
-                    nearest_yellow = opt_rel_distance
+            if data.isYellow:
+                opt_rel_distance = calc.circular_relative_distance(
+                    track_length, plr_lap_distance, lap_distance)
+                if nearest_yellow_ahead > opt_rel_distance >= 0:
+                    nearest_yellow_ahead = opt_rel_distance
+                if nearest_yellow_behind < opt_rel_distance <= 0:
+                    nearest_yellow_behind = opt_rel_distance
 
         # Update low priority info
         if update_low_priority:
@@ -202,7 +206,8 @@ def update_vehicle_data(
     # Output extra info
     output.nearestLine = nearest_line
     output.nearestTraffic = -nearest_time_behind
-    output.nearestYellow = nearest_yellow
+    output.nearestYellowAhead = nearest_yellow_ahead
+    output.nearestYellowBehind = nearest_yellow_behind
     output.dataSetVersion += 1
 
 

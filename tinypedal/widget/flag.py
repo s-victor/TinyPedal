@@ -342,7 +342,7 @@ class Realtime(Overlay):
         if target.last != data:
             target.last = data
             if data != MAX_SECONDS:
-                text = f"{self.unit_dist(data): >4.0f}{self.symbol_dist}"
+                text = f"{self.unit_dist(data):+.0f}{self.symbol_dist}"
                 target.setText(f"Y{text: >6}"[:7])
                 target.show()
             else:
@@ -439,10 +439,13 @@ class Realtime(Overlay):
     def yellow_flag_state(self, in_race: bool) -> float:
         """Yellow flag state"""
         if not self.wcfg["show_yellow_flag_for_race_only"] or in_race:
-            yellow_dist = minfo.vehicles.nearestYellow
-            if (api.read.session.yellow_flag() and
-                yellow_dist < self.wcfg["yellow_flag_maximum_range"]):
-                return yellow_dist
+            if api.read.session.yellow_flag():
+                yellow_ahead = minfo.vehicles.nearestYellowAhead
+                if yellow_ahead <= self.wcfg["yellow_flag_maximum_range_ahead"]:
+                    return yellow_ahead
+                yellow_behind = minfo.vehicles.nearestYellowBehind
+                if yellow_behind >= -self.wcfg["yellow_flag_maximum_range_behind"]:
+                    return yellow_behind
         return MAX_SECONDS
 
 

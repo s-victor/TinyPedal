@@ -1839,13 +1839,15 @@ Show speed limiter indicator.
 Set custom pit speed limiter text which shows when speed limiter is engaged.
 
     show_yellow_flag
-Show yellow flag indicator and distance display which shows nearest yellow flag vehicle distance.
+Show yellow flag indicator and distance display which shows nearest yellow flag vehicle distance. Note, positive distance reading indicates yellow flag that ahead of driver, negative indicates behind.
 
     show_yellow_flag_for_race_only
 Only show yellow flag indicator during race session.
 
-    yellow_flag_maximum_range
-Only show yellow flag indicator when there is yellow flag within the maximum range (track distance in meters).
+    yellow_flag_maximum_range_ahead, yellow_flag_maximum_range_behind
+Set maximum range (meters) for displaying yellow flags that ahead of or behind driver. Default range ahead is `500` meters, range behind is `50` meters. To disable yellow flag that behind driver, set range behind to `0`.
+
+Note, yellow flags that ahead of driver take priority over those from behind.
 
     show_blue_flag
 Show blue flag indicator with timer.

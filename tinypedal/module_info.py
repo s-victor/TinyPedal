@@ -545,7 +545,8 @@ class VehiclesInfo:
         "dataSetVersion",
         "nearestLine",
         "nearestTraffic",
-        "nearestYellow",
+        "nearestYellowAhead",
+        "nearestYellowBehind",
         "leaderBestLapTime",
     )
 
@@ -559,7 +560,8 @@ class VehiclesInfo:
         self.dataSetVersion: int = -1
         self.nearestLine: float = MAX_METERS
         self.nearestTraffic: float = MAX_SECONDS
-        self.nearestYellow: float = MAX_METERS
+        self.nearestYellowAhead: float = MAX_METERS
+        self.nearestYellowBehind: float = -MAX_METERS
         self.leaderBestLapTime: float = MAX_SECONDS
 
 
