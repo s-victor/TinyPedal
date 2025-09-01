@@ -107,6 +107,7 @@ class Realtime(Overlay):
         self.brush_cone.setColor(self.wcfg["last_impact_cone_color"])
 
         # Last data
+        self.damage_aero = -1.0
         self.damage_body = [0] * 8
         self.damage_wheel = [0] * 4
         self.last_impact_time = None
@@ -133,6 +134,12 @@ class Realtime(Overlay):
         temp_damage_body = api.read.vehicle.damage_severity()
         if self.damage_body != temp_damage_body:
             self.damage_body = temp_damage_body
+            self.update()
+
+        # Damage aero
+        temp_damage_aero = minfo.restapi.aeroDamage
+        if self.damage_aero != temp_damage_aero:
+            self.damage_aero = temp_damage_aero
             self.update()
 
         # Damage wheel
@@ -189,8 +196,8 @@ class Realtime(Overlay):
 
     def draw_readings(self, painter):
         """Draw body integrity readings"""
-        if self.wcfg["show_aero_integrity_if_available"] and minfo.restapi.aeroDamage >= 0:
-            damage_value = minfo.restapi.aeroDamage
+        if self.wcfg["show_aero_integrity_if_available"] and self.damage_aero >= 0:
+            damage_value = self.damage_aero
         else:
             damage_value = sum(self.damage_body) / 16
         if not self.wcfg["show_inverted_integrity"]:

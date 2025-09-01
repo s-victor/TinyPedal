@@ -204,9 +204,15 @@ class Realtime(Overlay):
         else:
             fuel_curr = self.unit_fuel(minfo.fuel.amountCurrent)
 
-        # Ignore stint while in garage or before race starts
-        if in_garage or api.read.session.pre_race():
+        # Ignore stint
+        if (
+            in_garage  # ignore while in garage
+            or api.read.session.pre_race()  # ignore before race starts
+            or abs(self.last_time - time_curr) > 4  # ignore game pause
+        ):
             self.reset_stint = True
+            if self.stint_running and self.stint_data[2] >= self.minimum_stint_seconds:
+                self.update_stint_history(self.stint_data)
         elif not in_pits:
             self.last_fuel_curr = fuel_curr
             self.last_wear_avg = wear_avg
@@ -216,11 +222,6 @@ class Realtime(Overlay):
                 self.reset_stint = True
                 self.update_stint_history(self.stint_data)
 
-        # Time check (ignore game pause)
-        if abs(self.last_time - time_curr) > 4:
-            self.reset_stint = True
-            if self.stint_data[2] >= self.minimum_stint_seconds:
-                self.update_stint_history(self.stint_data)
         self.last_time = time_curr
 
         if self.reset_stint:
