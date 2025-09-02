@@ -140,6 +140,8 @@ class Realtime(Overlay):
                 self.speed_min = speed
                 self.off_throttle_timer_start = lap_etime
                 self.update_speed(self.bar_speed_min, speed)
+            if self.off_throttle_timer_start > lap_etime:
+                self.off_throttle_timer_start = lap_etime
             if lap_etime - self.off_throttle_timer_start > self.wcfg["speed_minimum_reset_cooldown"]:
                 self.speed_min = speed
 
@@ -149,13 +151,15 @@ class Realtime(Overlay):
                 self.speed_max = speed
                 self.on_throttle_timer_start = lap_etime
                 self.update_speed(self.bar_speed_max, speed)
+            if self.on_throttle_timer_start > lap_etime:
+                self.on_throttle_timer_start = lap_etime
             if lap_etime - self.on_throttle_timer_start > self.wcfg["speed_maximum_reset_cooldown"]:
                 self.speed_max = speed
 
         # Update fastest speed
         if self.wcfg["show_speed_fastest"]:
             if api.read.engine.gear() < 0:  # reset on reverse gear
-                self.speed_fast = 0
+                self.speed_fast = -1
             if speed > self.speed_fast:
                 self.speed_fast = speed
                 self.update_speed(self.bar_speed_fast, speed)

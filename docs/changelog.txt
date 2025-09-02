@@ -9,6 +9,9 @@ WIP
 * Brake Bias Widget
   - No longer resets baseline bias delta while game is paused (requested by user "matteocnt92"). Baseline bias delta now also resets while vehicle is stationary during formation lap.
 
+* Speedometer Widget
+  - Fixed an issue where minimum and maximum speed could not be reset.
+
 * Stint History Widget
   - No longer resets current stint data while game is paused (requested by user "ebeninca"). Stint history is no longer recorded during formation lap.
 
