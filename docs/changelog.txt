@@ -1,4 +1,4 @@
-WIP
+2.33.2 (2025-09-03)
 -----------------------------
 * Flag Widget
   - [New]Added "yellow_flag_maximum_range_ahead" and "yellow_flag_maximum_range_behind" options (requested by user "Obly88"), which set maximum range for displaying yellow flags that ahead of or behind driver.
@@ -8,6 +8,9 @@ WIP
 
 * Brake Bias Widget
   - No longer resets baseline bias delta while game is paused (requested by user "matteocnt92"). Baseline bias delta now also resets while vehicle is stationary during formation lap.
+
+* Damage Widget
+  - Fixed an issue where aero damage reading sometimes was not updated after impact.
 
 * Speedometer Widget
   - Fixed an issue where minimum and maximum speed could not be reset.
