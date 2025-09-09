@@ -32,9 +32,9 @@ VERSION = set_app_version(version.__version__, version.DEVELOPMENT)
 
 # App info
 APP_NAME = "TinyPedal"
-REPO_NAME = "s-victor/TinyPedal"
+REPO_NAME = "TinyPedal/TinyPedal"
 COPYRIGHT = "Copyright (C) 2022-2025 TinyPedal developers"
-DESCRIPTION = "A Free and Open Source telemetry overlay application for racing simulation."
+DESCRIPTION = "Free and Open Source telemetry overlay application for racing simulation."
 LICENSE = "Licensed under the GNU General Public License v3.0 or later."
 
 # URL

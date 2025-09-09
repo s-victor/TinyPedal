@@ -58,10 +58,10 @@ fi
 echo "Writing ${DESTINATION_PATH}"
 cp -r "${SOURCE_PATH}" "${DESTINATION_PATH}"
 
-rm "${APPLICATIONS_PATH}/svictor-TinyPedal.desktop" "${BIN_PATH}/TinyPedal"
+rm "${APPLICATIONS_PATH}/TinyPedal-overlay.desktop" "${BIN_PATH}/TinyPedal"
 
-echo "Writing ${APPLICATIONS_PATH}/svictor-TinyPedal.desktop"
-replace "/usr/local" "${DESTINATION_PREFIX}" <"${SOURCE_PATH}/svictor-TinyPedal.desktop" >"${APPLICATIONS_PATH}/svictor-TinyPedal.desktop"
+echo "Writing ${APPLICATIONS_PATH}/TinyPedal-overlay.desktop"
+replace "/usr/local" "${DESTINATION_PREFIX}" <"${SOURCE_PATH}/TinyPedal-overlay.desktop" >"${APPLICATIONS_PATH}/TinyPedal-overlay.desktop"
 
 echo "Writing ${BIN_PATH}/TinyPedal"
 replace "./" "${DESTINATION_PATH}/" <"${SOURCE_PATH}/TinyPedal.sh" >"${BIN_PATH}/TinyPedal"
