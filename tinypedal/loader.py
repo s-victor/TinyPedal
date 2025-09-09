@@ -65,7 +65,7 @@ def start():
     octrl.enable()
     # 2 Check for updates
     if cfg.application["check_for_updates_on_startup"]:
-        update_checker.check()
+        update_checker.check(False)
 
 
 def close():

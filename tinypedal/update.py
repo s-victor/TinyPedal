@@ -28,9 +28,9 @@ import threading
 
 from PySide2.QtCore import QObject, Signal
 
+from . import version
 from .async_request import get_response, set_header_get
 from .const_app import APP_NAME, REPO_NAME
-from .version import DEVELOPMENT, __version__
 
 VERSION_NA = (0, 0, 0)  # major, minor, patch
 DATE_NA = VERSION_NA  # year, month, day
@@ -43,7 +43,7 @@ def request_latest_release():
     host = "api.github.com"
     port = 443
     timeout = 5
-    user_agent = f"User-Agent: {APP_NAME}/{__version__}"
+    user_agent = f"User-Agent: {APP_NAME}/{version.__version__}"
     request_header = set_header_get(
         uri_path,
         host,
@@ -97,10 +97,6 @@ class UpdateChecker(QObject):
         self._last_checked_version = VERSION_NA
         self._last_checked_date = DATE_NA
 
-    def set_manual(self):
-        """Set manual checking"""
-        self._manual_checking = True
-
     def is_manual(self) -> bool:
         """Is manual checking"""
         return self._manual_checking
@@ -109,8 +105,9 @@ class UpdateChecker(QObject):
         """Is updates available"""
         return self._update_available
 
-    def check(self):
+    def check(self, manual: bool):
         """Run update check in separated thread"""
+        self._manual_checking = manual
         if not self._is_checking:
             self._is_checking = True
             self.checking.emit(True)
@@ -121,13 +118,13 @@ class UpdateChecker(QObject):
         raw_bytes = asyncio.run(request_latest_release())
         checked_version = parse_version(raw_bytes)
         checked_date = parse_date(raw_bytes)
-        current_version = tuple(map(int, __version__.split(".")))
+        current_version = tuple(map(int, version.__version__.split(".")))
         # Output log
         if checked_version == VERSION_NA:
             self._update_available = False
             logger.info("UPDATES: Unable To Find Updates")
         elif checked_version > current_version or (
-            checked_version == current_version and DEVELOPMENT  # pre-release version check
+            checked_version == current_version and version.DEVELOPMENT  # pre-release version check
         ):
             self._update_available = True
             logger.info(
@@ -152,7 +149,8 @@ class UpdateChecker(QObject):
         if not self._update_available:
             return "No Updates Available"
         return "New Updates: v{0}.{1}.{2} ({3}-{4}-{5})".format(
-            *self._last_checked_version, *self._last_checked_date
+            *self._last_checked_version,
+            *self._last_checked_date,
         )
 
 

@@ -30,7 +30,7 @@ from PySide2.QtCore import QCoreApplication, QLocale, Qt
 from PySide2.QtGui import QFont, QGuiApplication, QIcon, QPixmapCache
 from PySide2.QtWidgets import QApplication, QMessageBox
 
-from . import check_version
+from . import version_check
 from .const_app import (
     APP_NAME,
     PATH_GLOBAL,
@@ -113,13 +113,13 @@ def single_instance_check(is_single_instance: bool):
     sys.exit()
 
 
-def version_check():
-    """Check version"""
+def get_version():
+    """Get version info"""
     logger.info("TinyPedal: %s", VERSION)
-    logger.info("Python: %s", check_version("PYTHON"))
-    logger.info("Qt: %s", check_version("QT"))
-    logger.info("PySide: %s", check_version("PYSIDE"))
-    logger.info("psutil: %s", check_version("PSUTIL"))
+    logger.info("Python: %s", version_check.python())
+    logger.info("Qt: %s", version_check.qt())
+    logger.info("PySide: %s", version_check.pyside())
+    logger.info("psutil: %s", version_check.psutil())
 
 
 def init_gui() -> QApplication:
@@ -192,7 +192,7 @@ def start_app(cli_args):
     """Init main window"""
     unset_environment()
     set_logging_level(logger, log_stream, cli_args.log_level)
-    version_check()
+    get_version()
     # load global config
     cfg.load_global()
     cfg.save(cfg_type=ConfigType.CONFIG)

@@ -138,7 +138,7 @@ class SpectateList(QWidget):
                 if driver_index == selected_index:
                     selected_driver_name = driver_name
 
-        driver_list.sort()
+        driver_list.sort(key=str.lower)
         driver_list.insert(0, "Anonymous")
         listbox.clear()
         listbox.addItems(driver_list)

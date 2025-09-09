@@ -543,8 +543,7 @@ class HelpMenu(QMenu):
 
     def show_update(self):
         """Show update"""
-        update_checker.set_manual()
-        update_checker.check()
+        update_checker.check(True)
 
     def open_user_guide(self):
         """Open user guide link"""

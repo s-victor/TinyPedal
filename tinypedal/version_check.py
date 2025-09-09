@@ -17,31 +17,39 @@
 #  along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 """
-Constants
+Version check function
 """
 
-import platform
+import sys
 
-from . import set_global_user_path, version_check
 
-# System info
-PLATFORM = platform.system()
+def tinypedal() -> str:
+    from . import version
 
-# App version
-VERSION = version_check.tinypedal()
+    ver = version.__version__
+    tag = version.DEVELOPMENT
+    if tag != "":
+        return f"{ver}-{tag}"
+    return ver
 
-# App info
-APP_NAME = "TinyPedal"
-REPO_NAME = "TinyPedal/TinyPedal"
-COPYRIGHT = "Copyright (C) 2022-2025 TinyPedal developers"
-DESCRIPTION = "Free and Open Source telemetry overlay application for racing simulation."
-LICENSE = "Licensed under the GNU General Public License v3.0 or later."
 
-# URL
-URL_WEBSITE = f"https://github.com/{REPO_NAME}"
-URL_USER_GUIDE = f"{URL_WEBSITE}/wiki/User-Guide"
-URL_FAQ = f"{URL_WEBSITE}/wiki/Frequently-Asked-Questions"
-URL_RELEASE = f"{URL_WEBSITE}/releases"
+def python() -> str:
+    return ".".join(map(str, sys.version_info))
 
-# Global path
-PATH_GLOBAL = set_global_user_path(APP_NAME, PLATFORM)
+
+def qt() -> str:
+    from PySide2.QtCore import qVersion
+
+    return qVersion()
+
+
+def pyside() -> str:
+    import PySide2
+
+    return PySide2.__version__
+
+
+def psutil() -> str:
+    import psutil
+
+    return psutil.__version__

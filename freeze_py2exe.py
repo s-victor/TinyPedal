@@ -13,7 +13,7 @@ from glob import glob
 
 from py2exe import freeze
 
-from tinypedal import check_version
+from tinypedal import version_check
 from tinypedal.const_app import (
     APP_NAME,
     COPYRIGHT,
@@ -181,12 +181,12 @@ def build_exe() -> None:
 
 def build_start() -> None:
     """Start building"""
-    print(f"INFO:platform: {PLATFORM}")
-    print(f"INFO:TinyPedal: {VERSION}")
-    print(f"INFO:Python: {check_version('PYTHON')}")
-    print(f"INFO:Qt: {check_version('QT')}")
-    print(f"INFO:PySide: {check_version('PYSIDE')}")
-    print(f"INFO:psutil: {check_version('PSUTIL')}")
+    print("INFO:platform:", PLATFORM)
+    print("INFO:TinyPedal:", VERSION)
+    print("INFO:Python:", version_check.python())
+    print("INFO:Qt:", version_check.qt())
+    print("INFO:PySide:", version_check.pyside())
+    print("INFO:psutil:", version_check.psutil())
     if PLATFORM == "Windows":
         cli_args = get_cli_argument()
         if check_old_build(cli_args.clean, check_dist()):

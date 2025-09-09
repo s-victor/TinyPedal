@@ -22,35 +22,9 @@ Init
 
 import logging
 import os
-import sys
 
 # Create logger
 logger = logging.getLogger(__package__)
-
-
-def check_version(name: str) -> str:
-    """Get library version"""
-    if name == "PYTHON":
-        version = ".".join(map(str, sys.version_info))
-    elif name == "QT":
-        from PySide2.QtCore import qVersion
-        version = qVersion()
-    elif name == "PYSIDE":
-        import PySide2
-        version = PySide2.__version__
-    elif name == "PSUTIL":
-        import psutil
-        version = psutil.__version__
-    else:
-        raise ModuleNotFoundError
-    return version
-
-
-def set_app_version(ver: str, tag: str) -> str:
-    """Set APP version"""
-    if tag != "":
-        return f"{ver}-{tag}"
-    return ver
 
 
 def set_user_data_path(filepath: str) -> str:
