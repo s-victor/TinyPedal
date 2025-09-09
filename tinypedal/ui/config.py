@@ -20,16 +20,19 @@
 Config dialog
 """
 
+from __future__ import annotations
+
+import os
 import re
 import time
 from typing import Callable
 
 from PySide2.QtCore import QPoint, Qt
+from PySide2.QtGui import QFontDatabase
 from PySide2.QtWidgets import (
     QCheckBox,
     QComboBox,
     QDialogButtonBox,
-    QFontComboBox,
     QGridLayout,
     QHBoxLayout,
     QLabel,
@@ -61,6 +64,13 @@ COLUMN_LABEL = 0  # grid layout column index
 COLUMN_OPTION = 1
 
 
+def get_font_list() -> list[str]:
+    """Get all available font families list"""
+    if os.getenv("PYSIDE_OVERRIDE") == "6":  # no instance in qt6
+        return QFontDatabase.families()  # type: ignore[call-arg]
+    return QFontDatabase().families()
+
+
 class FontConfig(BaseDialog):
     """Config global font setting"""
 
@@ -72,8 +82,8 @@ class FontConfig(BaseDialog):
         self.user_setting = user_setting
 
         # Combobox
-        self.edit_fontname = QFontComboBox(self)
-        self.edit_fontname.setCurrentText("no change")
+        self.edit_fontname = QComboBox(self)
+        self.edit_fontname.addItems(["no change"] + get_font_list())
         self.edit_fontname.setFixedWidth(UIScaler.size(9))
 
         self.edit_fontsize = QSpinBox(self)
@@ -81,7 +91,7 @@ class FontConfig(BaseDialog):
         self.edit_fontsize.setFixedWidth(UIScaler.size(9))
 
         self.edit_fontweight = QComboBox(self)
-        self.edit_fontweight.addItems(("no change", *rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT]))
+        self.edit_fontweight.addItems(["no change"] + rxp.CHOICE_COMMON[rxp.CFG_FONT_WEIGHT])
         self.edit_fontweight.setFixedWidth(UIScaler.size(9))
 
         layout_option = QGridLayout()
@@ -129,13 +139,14 @@ class FontConfig(BaseDialog):
             for key in key_list_user:
                 if (re.search(rxp.CFG_FONT_NAME, key) and
                     self.edit_fontname.currentText() != "no change"):
-                    dict_user[item][key] = self.edit_fontname.currentFont().family()
+                    dict_user[item][key] = self.edit_fontname.currentText()
                     continue
                 if (re.search(rxp.CFG_FONT_WEIGHT, key) and
                     self.edit_fontweight.currentText() != "no change"):
                     dict_user[item][key] = self.edit_fontweight.currentText()
                     continue
-                if re.search("font_size", key):
+                if (re.search("font_size", key) and
+                    self.edit_fontsize.value() != 0):
                     dict_user[item][key] = max(
                         dict_user[item][key] + self.edit_fontsize.value(), 1)
                     continue
@@ -176,7 +187,7 @@ class UserConfig(BaseDialog):
         self.option_color: dict = {}
         self.option_path: dict = {}
         self.option_image: dict = {}
-        self.option_fontname: dict = {}
+        #self.option_fontname: dict = {}
         self.option_droplist: dict = {}
         self.option_string: dict = {}
         self.option_integer: dict = {}
@@ -246,8 +257,8 @@ class UserConfig(BaseDialog):
             for editor in self.option_image.values():
                 editor.setText(editor.defaults)
 
-            for editor in self.option_fontname.values():
-                editor.setCurrentFont(editor.defaults)
+            #for editor in self.option_fontname.values():
+            #    editor.setCurrentFont(editor.defaults)
 
             for editor in self.option_droplist.values():
                 editor.setCurrentText(str(editor.defaults))
@@ -289,8 +300,8 @@ class UserConfig(BaseDialog):
         for key, editor in self.option_image.items():
             user_setting[key] = editor.text()
 
-        for key, editor in self.option_fontname.items():
-            user_setting[key] = editor.currentFont().family()
+        #for key, editor in self.option_fontname.items():
+        #    user_setting[key] = editor.currentFont().family()
 
         for key, editor in self.option_droplist.items():
             user_setting[key] = editor.currentText()
@@ -379,7 +390,7 @@ class UserConfig(BaseDialog):
                 continue
             # Font name string
             if re.search(rxp.CFG_FONT_NAME, key):
-                self.__add_option_fontname(idx, key, layout)
+                self.__add_option_combolist(idx, key, layout, get_font_list())
                 continue
             # Heatmap string
             if re.search(rxp.CFG_HEATMAP, key):
@@ -471,18 +482,18 @@ class UserConfig(BaseDialog):
         layout.addWidget(editor, idx, COLUMN_OPTION)
         self.option_image[key] = editor
 
-    def __add_option_fontname(self, idx, key, layout):
-        """Font name string"""
-        editor = QFontComboBox(self)
-        editor.setFixedWidth(self.option_width)
-        # Load selected option
-        editor.setCurrentFont(self.user_setting[self.key_name][key])
-        # Context menu
-        editor.defaults = self.default_setting[self.key_name][key]
-        add_context_menu(editor)
-        # Add layout
-        layout.addWidget(editor, idx, COLUMN_OPTION)
-        self.option_fontname[key] = editor
+    #def __add_option_fontname(self, idx, key, layout):
+    #    """Font name string"""
+    #    editor = QFontComboBox(self)
+    #    editor.setFixedWidth(self.option_width)
+    #    # Load selected option
+    #    editor.setCurrentFont(self.user_setting[self.key_name][key])
+    #    # Context menu
+    #    editor.defaults = self.default_setting[self.key_name][key]
+    #    add_context_menu(editor)
+    #    # Add layout
+    #    layout.addWidget(editor, idx, COLUMN_OPTION)
+    #    self.option_fontname[key] = editor
 
     def __add_option_combolist(self, idx, key, layout, item_list):
         """Combo droplist string"""
