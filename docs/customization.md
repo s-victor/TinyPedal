@@ -2314,7 +2314,9 @@ Show empty lap time history. Default is `false`, which hides empty rows.
 **This widget displays lap number, driver overall position, position in class info.**
 
     show_lap_number
-Show your current lap number (lap progression) and max laps if available.
+Show your current lap number (lap progression) and total race laps. If total race laps is not available, such as in time-based session, estimated total laps will be displayed instead, and a "~" sign will be displayed before estimated total laps reading, and up to two decimal places will be kept.
+
+Note, estimated total laps reading is calculated based on local player's lap time pace data from Delta Module, which can be different from in-game HUD reading. This reading does not concern about race leader's lap time pace, which means there may be an extra final lap on top of it.
 
     bkg_color_maxlap_warn
 Set warning color that shows 1 lap before exceeding max-lap in qualify (or indicates the last lap of a lap-type race).

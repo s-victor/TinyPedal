@@ -22,6 +22,7 @@ Laps and position Widget
 
 from .. import calculation as calc
 from ..api_control import api
+from ..module_info import minfo
 from ._base import Overlay
 
 
@@ -43,7 +44,7 @@ class Realtime(Overlay):
         bar_padx = self.set_padding(self.wcfg["font_size"], self.wcfg["bar_padding"])
 
         if self.wcfg["layout"] == 0:
-            self.just_right = 9
+            self.just_right = 12
             prefix_just = max(
                 len(self.wcfg["prefix_lap_number"]),
                 len(self.wcfg["prefix_position_overall"]),
@@ -66,7 +67,7 @@ class Realtime(Overlay):
 
         # Lap number
         if self.wcfg["show_lap_number"]:
-            text_lap_number = f"{self.prefix_lap_number}  0.00/--"
+            text_lap_number = f"{self.prefix_lap_number}   0.00/0.00"
             self.bar_style_lap_number = (
                 self.set_qss(
                     fg_color=self.wcfg["font_color_lap_number"],
@@ -127,8 +128,7 @@ class Realtime(Overlay):
         """Update when vehicle on track"""
         # Lap number
         if self.wcfg["show_lap_number"]:
-            lap_into = calc.lap_progress_correction(
-                api.read.lap.progress(), api.read.timing.current_laptime())
+            lap_into = calc.lap_progress_correction(api.read.lap.progress(), api.read.timing.current_laptime())
             self.update_lap_number(self.bar_lap_number, lap_into)
 
         # Position update
@@ -173,9 +173,20 @@ class Realtime(Overlay):
             target.last = data
             lap_num = api.read.lap.number()
             lap_max = api.read.lap.maximum()
-            lap_total = lap_max if api.read.session.lap_type() else "--"
-            text_laps = f"{lap_num + data:02.2f}/{lap_total}"[:9]
-            target.setText(f"{self.prefix_lap_number}{text_laps: >9}")
+
+            if api.read.session.lap_type():
+                text_lap_total = f"{lap_max:.2f}"[:6]
+            else:
+                session_time = api.read.session.remaining()
+                if session_time <= 0:
+                    lap_total = 0
+                else:
+                    lap_total = lap_num + calc.end_timer_laps_remain(data, minfo.delta.lapTimePace, session_time)
+                text_lap_total = f"~{lap_total:.2f}"[:6]
+
+            text_laps_done = f"{lap_num + data:.2f}"[:5]
+            text_laps = f"{text_laps_done}/{text_lap_total}"[:12]
+            target.setText(f"{self.prefix_lap_number}{text_laps: >12}")
             target.updateStyle(self.bar_style_lap_number[lap_num - lap_max >= -1])
 
     def update_position(self, target, place, total, prefix):

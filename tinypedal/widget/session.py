@@ -20,7 +20,6 @@
 Session Widget
 """
 
-from math import ceil
 from time import strftime
 
 from .. import calculation as calc
@@ -148,12 +147,11 @@ class Realtime(Overlay):
 
         # Estimated laps
         if self.wcfg["show_estimated_laps"]:
-            laptime_last = minfo.delta.lapTimePace
-            if not api.read.session.lap_type() and laptime_last > 0:
+            laptime_pace = minfo.delta.lapTimePace
+            if not api.read.session.lap_type() and laptime_pace > 0:
                 lap_into = api.read.lap.progress()
-                end_timer_laps_left = calc.end_timer_laps_remain(
-                    lap_into, laptime_last, session_time)
-                laps_left = calc.time_type_laps_remain(ceil(end_timer_laps_left), lap_into)
+                end_timer_laps_left = calc.end_timer_laps_remain(lap_into, laptime_pace, session_time)
+                laps_left = calc.time_type_laps_remain(calc.ceil(end_timer_laps_left), lap_into)
                 estimated_laps = f"{laps_left:>5.3f}"[:5]
             else:
                 estimated_laps = "-.---"
