@@ -1,3 +1,8 @@
+WIP
+-----------------------------
+* Misc
+  - Added new contributor "sepi" to contributors.md in "Community support" section.
+
 2.33.2 (2025-09-03)
 -----------------------------
 * Flag Widget
