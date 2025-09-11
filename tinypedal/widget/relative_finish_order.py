@@ -419,7 +419,7 @@ def calc_laptime_pace(samples: int = 6, margin: float = 5, laptime: float = MAX_
         # Reset if vehicle class changes
         if last_vehicle_class != veh_class:
             last_vehicle_class = veh_class
-            laptime_pace = reset_laptime(player_index)
+            laptime_pace = api.read.timing.reference_laptime(player_index)
 
         if last_lap_stime != lap_stime:
             last_lap_stime = lap_stime
@@ -429,7 +429,7 @@ def calc_laptime_pace(samples: int = 6, margin: float = 5, laptime: float = MAX_
         if validating:
             timer = api.read.timing.elapsed() - validating
             laptime_last = api.read.timing.last_laptime(player_index)
-            if 1 < timer <= 10 and verify_laptime(laptime_last):
+            if 1 < timer <= 10 and 0 < laptime_last:
                 if not is_pit_lap:
                     if laptime_pace > laptime_last:
                         laptime_pace = laptime_last
@@ -439,20 +439,7 @@ def calc_laptime_pace(samples: int = 6, margin: float = 5, laptime: float = MAX_
                             laptime_pace + laptime_margin,
                         )
                 elif laptime_pace >= MAX_SECONDS:
-                    laptime_pace = reset_laptime(player_index)
+                    laptime_pace = api.read.timing.reference_laptime(player_index)
                 validating = 0
             elif timer > 10:  # switch off after 10s
                 validating = 0
-
-
-def reset_laptime(index: int) -> float:
-    """Reset laptime"""
-    return min(filter(verify_laptime,
-        (api.read.timing.last_laptime(index),
-        api.read.timing.best_laptime(index),
-        MAX_SECONDS)))
-
-
-def verify_laptime(laptime: float) -> bool:
-    """Verify laptime"""
-    return laptime > 0

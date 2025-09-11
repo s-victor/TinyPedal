@@ -28,10 +28,12 @@ from __future__ import annotations
 from ..calculation import (
     lap_progress_distance,
     mean,
+    min_nonzero,
     oriyaw2rad,
     slip_angle,
     vel2speed,
 )
+from ..const_common import MAX_SECONDS
 from ..formatter import strip_invalid_char
 from ..validator import bytes_to_str as tostr
 from ..validator import infnan_to_zero as rmnan
@@ -487,6 +489,22 @@ class Timing(DataAdapter):
     def best_laptime(self, index: int | None = None) -> float:
         """Best lap time (seconds)"""
         return rmnan(self.info.rf2ScorVeh(index).mBestLapTime)
+
+    def reference_laptime(self, index: int | None = None):
+        """Reference lap time (seconds)"""
+        init_time = min_nonzero((
+            self.best_laptime(index),
+            self.last_laptime(index),
+            MAX_SECONDS,
+        ))
+        if 0 < init_time < MAX_SECONDS:
+            return init_time
+        # Set to estimated laptime only if other laptime not available
+        # as estimated laptime can be faster than other laptime
+        return min_nonzero((
+            self.estimated_laptime(index),
+            MAX_SECONDS,
+        ))
 
     def estimated_laptime(self, index: int | None = None) -> float:
         """Estimated lap time (seconds)"""

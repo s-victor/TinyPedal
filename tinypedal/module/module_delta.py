@@ -109,7 +109,7 @@ class Realtime(DataModule):
 
                     laptime_curr = 0.0  # current laptime
                     laptime_last = 0.0  # last laptime
-                    laptime_pace = laptime_best  # avearge laptime pace
+                    laptime_pace = init_laptime_pace(laptime_best)  # avearge laptime pace
 
                     last_lap_stime = FLOAT_INF  # last lap start time
                     pos_recorded = 0.0  # last recorded vehicle position
@@ -271,3 +271,10 @@ class Realtime(DataModule):
                     reset = False
                     update_interval = self.idle_interval
                     last_session_id = (combo_id, *session_id)
+
+
+def init_laptime_pace(laptime_best: float):
+    """Initialize laptime pace value"""
+    if 0 < laptime_best < MAX_SECONDS:
+        return laptime_best
+    return api.read.timing.reference_laptime()

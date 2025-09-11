@@ -5,6 +5,9 @@ WIP
     Note, estimated total laps reading is calculated based on local player's lap time pace data from Delta Module, which can be different from in-game HUD reading. This reading does not concern about race leader's lap time pace, which means there may be an extra final lap on top of it.
   - Increased "lap_number" bar width by 3 characters to fit with additional digits and decimals from estimated total laps reading.
 
+* Spectate mode
+  - Fixed an issue where lower-case names were sorted and placed at the bottom of player list.
+
 * Misc
   - Added new contributor "sepi" to contributors.md in "Community support" section.
 

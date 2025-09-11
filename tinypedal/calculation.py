@@ -76,6 +76,11 @@ def zero_one(value: float) -> float:
     return value
 
 
+def min_nonzero(data: tuple[float, ...]) -> float:
+    """Minimum non-zero positive value"""
+    return min(filter(lambda x: x > 0, data))
+
+
 def decimal_strip(raw_range: float, max_decimals: int) -> float:
     """Strip off unwanted decimal places according to max number of decimals"""
     value_str = str(raw_range)
