@@ -20,9 +20,11 @@
 Brake temperature Widget
 """
 
+from functools import partial
+
 from .. import calculation as calc
 from ..api_control import api
-from ..const_common import TEXT_NA, TEXT_PLACEHOLDER, WHEELS_ZERO
+from ..const_common import TEXT_NA, TEXT_PLACEHOLDER
 from ..units import set_unit_temperature
 from ..userfile.heatmap import (
     HEATMAP_DEFAULT_BRAKE,
@@ -52,6 +54,8 @@ class Realtime(Overlay):
         self.leading_zero = min(max(self.wcfg["leading_zero"], 1), 3) + 0.0  # no decimal
         self.sign_text = "°" if self.wcfg["show_degree_sign"] else ""
         text_width = 3 + len(self.sign_text) + (self.cfg.units["temperature_unit"] == "Fahrenheit")
+        average_samples = max(int(min(max(self.wcfg["average_sampling_duration"], 1), 600) / (self._update_interval * 0.001)), 1)
+        self.off_brake_duration = max(self.wcfg["off_brake_duration"], 0)
 
         # Config units
         self.unit_temp = set_unit_temperature(self.cfg.units["temperature_unit"])
@@ -99,17 +103,13 @@ class Realtime(Overlay):
         # Average brake temperature
         if self.wcfg["show_average"]:
             layout_btavg = self.set_grid_layout(gap=inner_gap)
-            self.bar_style_btavg = (
-                self.set_qss(
-                    fg_color=self.wcfg["font_color_average"],
-                    bg_color=self.wcfg["bkg_color_average"]),
-                self.set_qss(
-                    fg_color=self.wcfg["font_color_highlighted"],
-                    bg_color=self.wcfg["bkg_color_highlighted"])
+            bar_style_btavg = self.set_qss(
+                fg_color=self.wcfg["font_color_average"],
+                bg_color=self.wcfg["bkg_color_average"]
             )
             self.bars_btavg = self.set_qlabel(
                 text=TEXT_NA,
-                style=self.bar_style_btavg[0],
+                style=bar_style_btavg,
                 width=font_m.width * text_width + bar_padx,
                 count=4,
                 last=0,
@@ -124,14 +124,10 @@ class Realtime(Overlay):
             )
 
         # Last data
-        self.btavg = list(WHEELS_ZERO)
-        self.btavg_samples = 1  # number of temperature samples
         self.last_class_name = None
-        self.last_lap_stime = 0
-
-    def post_update(self):
-        self.btavg[:] = WHEELS_ZERO
-        self.btavg_samples = 1
+        self.last_lap_etime = 0
+        self.off_brake_timer = 0
+        self.calc_ema_btemp = partial(calc.exp_mov_avg, calc.ema_factor(average_samples))
 
     def timerEvent(self, event):
         """Update when vehicle on track"""
@@ -149,24 +145,21 @@ class Realtime(Overlay):
 
         # Brake average temperature
         if self.wcfg["show_average"]:
-            lap_stime = api.read.timing.start()
             lap_etime = api.read.timing.elapsed()
+            if self.last_lap_etime != lap_etime:
+                self.last_lap_etime = lap_etime
 
-            if lap_stime != self.last_lap_stime:  # time stamp difference
-                self.last_lap_stime = lap_stime  # reset time stamp counter
-                self.btavg_samples = 1
-                # Highlight reading, +0.000001 to un-highlight later in case no value change
-                for bar_btavg in self.bars_btavg:
-                    self.update_btavg(bar_btavg, bar_btavg.last + 0.000001, True)
+                if self.off_brake_timer > lap_etime:
+                    self.off_brake_timer = lap_etime
 
-            # Update average reading
-            not_highlight = lap_etime - self.last_lap_stime >= self.wcfg["highlight_duration"]
-            for brake_idx, bar_btavg in enumerate(self.bars_btavg):
-                self.btavg[brake_idx] = calc.mean_iter(
-                    self.btavg[brake_idx], btemp[brake_idx], self.btavg_samples)
-                if not_highlight:
-                    self.update_btavg(bar_btavg, round(self.btavg[brake_idx]))
-            self.btavg_samples += 1
+                if api.read.inputs.brake_raw() > 0.01:
+                    self.off_brake_timer = lap_etime
+
+                # Update if braked in the past 1 second
+                if lap_etime - self.off_brake_timer <= self.off_brake_duration:
+                    for brake_idx, bar_btavg in enumerate(self.bars_btavg):
+                        btavg = self.calc_ema_btemp(bar_btavg.last, btemp[brake_idx])
+                        self.update_btavg(bar_btavg, btavg)
 
     # GUI update methods
     def update_btemp(self, target, data, index):
@@ -179,15 +172,14 @@ class Realtime(Overlay):
                 target.setText(f"{self.unit_temp(data):0{self.leading_zero}f}{self.sign_text}")
             target.updateStyle(calc.select_grade(self.heatmap_styles[index], data))
 
-    def update_btavg(self, target, data, highlighted=False):
+    def update_btavg(self, target, data):
         """Brake average temperature"""
-        if target.last != data or highlighted:
+        if target.last != data:
             target.last = data
             if data < -100:
                 target.setText(TEXT_PLACEHOLDER)
             else:
                 target.setText(f"{self.unit_temp(data):0{self.leading_zero}f}{self.sign_text}")
-            target.updateStyle(self.bar_style_btavg[highlighted])
 
     # Additional methods
     def update_heatmap(self, class_name: str):

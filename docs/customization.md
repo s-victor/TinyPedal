@@ -1439,10 +1439,13 @@ Set `true` to show degree sign for each temperature value.
 Set amount leading zeros for each temperature value. Default is `2`. Minimum value is limited to `1`.
 
     show_average
-Show average brake temperature calculated from a full lap.
+Show average brake temperature calculated from most recent braking period. The braking period is defined by `average_sampling_duration` and `off_brake_duration` options.
 
-    highlight_duration
-Set duration (seconds) for highlighting average brake temperature from previous lap after crossing finish line. Default is `5` seconds.
+    average_sampling_duration
+Set duration (seconds) for calculating average brake temperature from most recent braking period. Default is `10` seconds. Maximum duration is limited to `600` seconds.
+
+    off_brake_duration
+Set duration (seconds) for continuously updating average brake temperature for a short period after fully released brakes. Default is `1` seconds.
 
 [**`Back to Top`**](#)
 
