@@ -120,7 +120,7 @@ class Realtime(Overlay):
                 offset_x=self.wcfg["battery_reading_offset_x"],
                 offset_y=self.calc_font_offset(self.get_font_metrics(font_batt)),
                 font=font_batt,
-                input_color=self.wcfg["battery_bar_color"],
+                input_color=self.battbar_color[0],
                 fg_color=self.wcfg["font_color_battery"],
                 bg_color=self.wcfg["battery_bar_bkg_color"],
                 decimals=self.wcfg["battery_decimal_places"],

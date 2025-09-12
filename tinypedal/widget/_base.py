@@ -254,6 +254,8 @@ class Overlay(QWidget):
         Returns:
             FontMetrics object.
         """
+        # Disable font hinting for more accuracy (necessary for pyside6)
+        qfont.setHintingPreference(QFont.PreferNoHinting)
         font_metrics = QFontMetrics(qfont)
         return FontMetrics(
             width=font_metrics.averageCharWidth(),
