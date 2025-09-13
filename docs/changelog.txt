@@ -1,5 +1,8 @@
 WIP
 -----------------------------
+* Fuel Widget, Virtual energy Widget
+  - Added "show_estimated_pitstop_count", "show_delta_and_end_remaining", "show_fuel_ratio_and_bias" options, which allow to show or hide corresponding column.
+
 * Brake temperature Widget
   - [New]Reworked average brake temperature calculation to more accurately reflect average temperature change under braking. Average brake temperature is now calculated from most recent braking period. The braking period is defined by "average_sampling_duration" and "off_brake_duration" options.
   - Added "average_sampling_duration" option, which sets duration (seconds) for calculating average brake temperature from most recent braking period. Default is "10" seconds. Maximum duration is limited to "600" seconds.
